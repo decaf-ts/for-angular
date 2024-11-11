@@ -1,0 +1,197 @@
+variables:
+  FF_USE_FASTZIP: 1
+  CACHE_COMPRESSION_LEVEL: "fastest"
+  ARTIFACT_COMPRESSION_LEVEL: "fast"
+  CACHE_REQUEST_TIMEOUT: 5
+  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+
+cache:
+  - key: apt-$CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+    paths:
+      - apt-cache/
+
+default:
+  image: node:20
+  before_script:
+    - |
+      if [[ ! -f package.json ]]; then
+        echo "No package.json found! A package.json file is required to publish a package to GitLab's NPM registry."
+        echo 'For more information, see https://docs.gitlab.com/ee/user/packages/npm_registry/#creating-a-project'
+        exit 1
+      fi
+    - NPM_PACKAGE_NAME=$(node -p "require('./package.json').name")
+    - NPM_PACKAGE_VERSION=$(node -p "require('./package.json').version")
+    - export APT_CACHE_DIR=`pwd`/apt-cache && mkdir -pv $APT_CACHE_DIR
+    - apt-get update -yq && apt-get -o dir::cache::archives="$APT_CACHE_DIR" install wget libgbm-dev libnss3-dev libgdk-pixbuf2.0-dev libgtk-3-dev libxss-dev libasound2 -qy
+
+stages:
+  - dependencies
+  - build
+  - test
+  - publish
+
+install:
+  stage: dependencies
+  cache:
+    - key: dependencies-$CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+      paths:
+        - node_modules/
+        - .npm/
+  script:
+    - npm ci --cache .npm --prefer-offline
+  interruptible: true
+  only:
+    changes:
+      - package-lock.json
+      - .gitlab-ci.yml
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+
+build:
+  stage: build
+  cache:
+    - key: dependencies-$CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+      paths:
+        - node_modules/
+        - .npm/
+      policy: pull
+    - key: build-$CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+      paths:
+        - lib/
+        - dist/
+      policy: push
+  script:
+    - npm run build:prod
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master" && $CI_COMMIT_MESSAGE =~ /-no-ci/'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
+        - src/**/*
+        - tests/**/*
+        - package-lock.json
+        - tsconfig.json
+        - .gitlab-ci.yml
+    - if: '$CI_COMMIT_TAG'
+  interruptible: true
+
+tests:
+  stage: test
+  needs: ["build"]
+  script:
+    - npm run coverage
+  cache:
+    - key: dependencies-$CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+      paths:
+        - node_modules/
+        - .npm/
+      policy: pull
+    - key: build-$CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+      paths:
+        - lib/
+        - dist/
+      policy: pull
+    - key: test-$CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+      paths:
+        - workdocs/coverage/
+        - workdocs/badges/
+      policy: push
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master" && $CI_COMMIT_MESSAGE =~ /-no-ci/'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
+        - src/**/*
+        - tests/**/*
+        - package-lock.json
+        - tsconfig.json
+        - .gitlab-ci.yml
+    - if: '$CI_COMMIT_TAG'
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - workdocs/coverage/junit-report.xml
+  coverage: '/^Statements.*?:.*?(\d+\.\d+)%/'
+  interruptible: true
+
+npm-publish:
+  stage: publish
+  needs: ["tests", "build"]
+  cache:
+    - key: dependencies-$CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+      paths:
+        - node_modules/
+        - .npm/
+      policy: pull
+    - key: build-$CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+      paths:
+        - lib/
+        - dist/
+      policy: pull
+  script:
+    - echo "Attempting to publish package ${NPM_PACKAGE_NAME} version ${NPM_PACKAGE_VERSION} to GitLab's NPM registry."
+    - TOKEN=${CI_JOB_TOKEN} npm publish
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master" && $CI_COMMIT_MESSAGE =~ /-no-ci/'
+      when: never
+    - if: '$CI_COMMIT_TAG'
+      when: always
+
+docker-publish:
+  stage: publish
+  needs: [ "tests", "build" ]
+  image: docker:20.10.21-dind
+  services:
+    - docker:20.10.21-dind
+  variables:
+    BASE_NAME: ts-workspace
+    LATEST_NAME: ${BASE_NAME}-latest
+  before_script:
+    - apk add jq
+    - VERSION=$(cat package.json | jq -r '.version')
+    - IMAGE_NAME="${IMAGE_BASE_NAME}-${VERSION}"
+    - echo "Image name is ${IMAGE_NAME}"
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - echo "Building docker image to be published on $CI_REGISTRY."
+    - docker build --network host -t $CI_REGISTRY/decaf-ts/ts-workspace:${IMAGE_NAME} -t $CI_REGISTRY/decaf-ts/ts-workspace:${LATEST_NAME} -f Dockerfile .
+    - docker push $CI_REGISTRY/decaf-ts/ts-workspace:${IMAGE_NAME}
+    - docker push $CI_REGISTRY/decaf-ts/ts-workspace:${LATEST_NAME}
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master" && $CI_COMMIT_MESSAGE =~ /-no-ci/'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
+        - Dockerfile
+
+pages:
+  stage: publish
+  cache:
+    - key: dependencies-$CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+      paths:
+        - node_modules/
+        - .npm/
+      policy: pull
+    - key: test-$CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+      paths:
+        - workdocs/coverage/
+        - workdocs/badges/
+      policy: pull
+  script:
+    - npm run docs
+    - mv docs public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
+        - workdocs/**/*
+    - if: '$CI_COMMIT_TAG'
+  interruptible: true

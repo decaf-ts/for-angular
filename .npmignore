@@ -1,0 +1,15 @@
+.github
+.run
+/bin
+/src
+/docs
+/tests
+/workdocs
+.gitignore
+.npmignore
+gulpfile.babel.js
+jest.config.js
+jsdocs.json
+mdCompile.json
+nodemon.json
+tsconfig.json

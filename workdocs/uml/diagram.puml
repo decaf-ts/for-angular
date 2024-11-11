@@ -1,0 +1,11 @@
+@startuml
+
+[*] --> State1 : moves into state 1
+State1 --> State2 : moves into state 2
+State1 --> State3 : moves into state 3
+
+State3 --> State2: moves into state 2
+
+State2 --> [*]: end state
+
+@enduml

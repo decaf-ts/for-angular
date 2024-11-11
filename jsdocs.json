@@ -1,0 +1,69 @@
+{
+  "plugins": [
+    "plugins/markdown",
+    "plugins/summarize",
+    "node_modules/jsdoc-mermaid",
+    "node_modules/better-docs/typescript",
+    "node_modules/better-docs/category"
+  ],
+  "typescript": {
+    "moduleRoot": "src"
+  },
+  "package": "package.json",
+  "recurseDepth": 10,
+  "source": {
+    "include": [
+      "./src"
+    ],
+    "exclude": [
+      "cli.(ts|js)"
+    ],
+    "includePattern": "\\.(jsx|js|ts|tsx)$"
+  },
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": [
+      "jsdoc",
+      "closure"
+    ]
+  },
+  "templates": {
+    "default": {
+      "useLongnameInNav": false
+    },
+    "better-docs": {
+      "name": "ts-template",
+      "title": "TypeScript workspace template",
+      "hideGenerator": true,
+      "useLongnameInNav": false,
+      "navLinks": [
+        {
+          "label": "Test Coverage",
+          "href": "workdocs/coverage"
+        },
+        {
+          "label": "Github Repository",
+          "href": "https://github.com/decaf-ts/ts-workspace#readme"
+        },
+        {
+          "label": "Github Profile",
+          "href": "https://github.com/decaf-ts"
+        }
+      ]
+    },
+    "cleverLinks": true,
+    "monospaceLinks": true,
+    "useLongnameInNav": false,
+    "search": true
+  },
+  "opts": {
+    "encoding": "utf-8",
+    "useLongnameInNav": false,
+    "template": "./node_modules/better-docs",
+    "destination": "./docs/",
+    "readme": "./README.md",
+    "recurse": true,
+    "verbose": true,
+    "tutorials": "workdocs/tutorials"
+  }
+}
