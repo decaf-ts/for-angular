@@ -1,37 +1,43 @@
-import globals from "globals";
-import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
-import eslintConfigPrettier from "eslint-config-prettier";
+// @ts-check
+const eslint = require("@eslint/js");
+const tseslint = require("typescript-eslint");
+const angular = require("angular-eslint");
 
-export default [
-  {files: ["**/*.{js,mjs,cjs,ts}",],},
-  {ignores: [
-    "lib",
-    "dist",
-    "docs",
-    "workdocs",
-    "!src/**/*",
-    "!tests/**/*",
-    "tests/bundling/**/*",
-  ],},
-  {languageOptions: { globals: globals.browser, },},
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
-  eslintConfigPrettier,
-  {rules: {
-    // '@typescript-eslint/interface-name-prefix': 'off',
-    // '@typescript-eslint/explicit-function-return-type': 'off',
-    // '@typescript-eslint/explicit-module-boundary-types': 'off',
-    // '@typescript-eslint/no-explicit-any': 'off',
-    "indent": ["error", 2,],
-    "semi": ["error", "always",],
-    "quotes": ["error", "double",],
-    "max-len": ["error", {
-      tabWidth: 2,
-      code: 100,
-      ignoreComments: true,
-      ignoreTrailingComments: true,
-    },],
+module.exports = tseslint.config(
+  {
+    files: ["**/*.ts"],
+    extends: [
+      eslint.configs.recommended,
+      ...tseslint.configs.recommended,
+      ...tseslint.configs.stylistic,
+      ...angular.configs.tsRecommended,
+    ],
+    processor: angular.processInlineTemplates,
+    rules: {
+      "@angular-eslint/directive-selector": [
+        "error",
+        {
+          type: "attribute",
+          prefix: "app",
+          style: "camelCase",
+        },
+      ],
+      "@angular-eslint/component-selector": [
+        "error",
+        {
+          type: "element",
+          prefix: "app",
+          style: "kebab-case",
+        },
+      ],
+    },
   },
-  },
-];
+  {
+    files: ["**/*.html"],
+    extends: [
+      ...angular.configs.templateRecommended,
+      ...angular.configs.templateAccessibility,
+    ],
+    rules: {},
+  }
+);
