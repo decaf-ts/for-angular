@@ -1,33 +1,49 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "compileOnSave": false,
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
+    "strictPropertyInitialization": true, // default true
+    "paths": {
+      "aeon-web-components": [
+        "./dist/for-angular"
+      ],
+      "aeon-web-components/*": [
+        "./dist/for-angular/*"
+      ],
+      "@angular/*": [
+        "./node_modules/@angular/*"
+      ],
+    },
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "isolatedModules": true,
     "esModuleInterop": true,
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
-    "moduleResolution": "bundler",
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "node",
     "importHelpers": true,
-    "target": "ES2022",
-    "module": "ES2022",
+    "target": "ES2022", // ES2022
+    "module": "ES2022", // ES2022
+    "typeRoots": ["node_modules/@types"],
+    "useDefineForClassFields": false,
     "lib": [
-      "ES2022",
+      "ES2018",
       "dom"
     ]
   },
   "angularCompilerOptions": {
+    "ignoreDeprecations": "5.0",
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true
+    "strictTemplates": false,
   }
 }
