@@ -53,15 +53,16 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "markdown-include": "^0.4.3",
+    "ng-packagr": "^18.2.1",
     "npm-check-updates": "^17.1.4",
     "typescript": "~5.5.2",
     "typescript-eslint": "8.10.0"
   },
   "peerDependencies": {
-    "@decaf-ts/ui-decorators": "latest",
     "@decaf-ts/db-decorators": "latest",
     "@decaf-ts/decorator-validation": "latest",
     "@decaf-ts/reflection": "latest",
+    "@decaf-ts/ui-decorators": "latest",
     "reflect-metadata": "^0.2.1"
   }
 }

@@ -1,0 +1,104 @@
+<ng-container *ngIf="!!formGroup" [formGroup]="formGroup">
+  @if(textInputTypes.includes(props?.type)) {
+    <ion-input
+      [ngClass]="props?.className"
+      [type]="props?.type"
+      [mode]="props?.mode"
+      [hidden]="props?.hidden"
+      [inputmode]="props?.inputmode"
+      [readonly]="props?.readonly"
+      [autocomplete]="props?.autocomplete"
+      [spellcheck]="props?.spellcheck"
+      [labelPlacement]="props?.labelPlacement"
+      [value]="props?.value"
+      [fill]="props?.fill"
+      [placeholder]="translatable ? (props?.placeholder | translate) : props?.placeholder"
+      [formControlName]="props?.name"
+      [label]="translatable ? (props?.label | translate) : props?.label">
+    </ion-input>
+  }
+
+  @if(props?.type === 'textarea') {
+    <ion-textarea
+      [ngClass]="props?.className"
+      [mode]="props?.mode"
+      [hidden]="props?.hidden"
+      [inputmode]="props?.inputmode"
+      [readonly]="props?.readonly"
+      [autocomplete]="props?.autocomplete"
+      [spellcheck]="props?.spellcheck"
+      [rows]="props?.rows"
+      [labelPlacement]="props?.labelPlacement"
+      [value]="props?.value"
+      [fill]="props?.fill"
+      [placeholder]="translatable ? (props?.placeholder | translate) : props?.placeholder"
+      [formControlName]="props?.name"
+      [label]="translatable ? (props?.label | translate) : props?.label">
+    </ion-textarea>
+  }
+
+  @if(props?.type === 'checkbox') {
+    <ion-item>
+      <ion-checkbox
+        #checkboxElement
+        [ngClass]="props?.className"
+        [mode]="props?.mode"
+        [hidden]="props?.hidden"
+        [labelPlacement]="props?.labelPlacement"
+        [alignment]="props?.alignment"
+        [justify]="props?.justify"
+        [readonly]="props?.readonly"
+        [attr.checkedValue]="props?.value"
+        [value]="props?.value"
+        [checked]="props?.checked"
+        (ionChange)="props.checked = !props.checked"
+        [formControlName]="props?.name">
+        <span [innerHTML]="translatable ? (props?.label | translate) : props?.label"></span>
+      </ion-checkbox>
+    </ion-item>
+  }
+
+  @if(props?.type === 'radio') {
+    <ion-radio-group [ngClass]="props?.className" [formControlName]="props?.name" [value]="props?.value">
+      <label class="radio-group-label">{{translatable ? (props?.label | translate) : props?.label }}</label>
+      @for(option of options; track option.value) {
+        <ion-item>
+          <ion-radio
+            [mode]="props?.mode"
+            [hidden]="props?.hidden"
+            [readonly]="props?.readonly"
+            [autocomplete]="props?.autocomplete"
+            [labelPlacement]="props?.labelPlacement"
+            [alignment]="props?.alignment"
+            [justify]="props?.justify"
+            [value]="option.value"
+          >{{ translatable ? (option.text | translate) : option.text }}</ion-radio>
+        </ion-item>
+      }
+    </ion-radio-group>
+  }
+
+  @if(props?.type === 'select') {
+    <ion-select
+      [ngClass]="props?.className"
+      [mode]="props?.mode"
+      [hidden]="props?.hidden"
+      [labelPlacement]="props?.labelPlacement"
+      [cancelText]="props?.cancelText |  translate"
+      [label]="translatable ? (props?.label | translate) : props?.label"
+      [value]="props?.value"
+      [fill]="props?.fill"
+      [readonly]="props?.readonly"
+      [autocomplete]="props?.autocomplete"
+      [placeholder]="translatable ? (props?.placeholder | translate) : props?.placeholder"
+      [formControlName]="props?.name"
+      [interface]="props?.interface">
+      @for(option of options; track option.value) {
+        <ion-select-option [value]="option.value">
+          {{ translatable ? (option.text | translate) : option.text }}
+        </ion-select-option>
+      }
+    </ion-select>
+  }
+
+</ng-container>
