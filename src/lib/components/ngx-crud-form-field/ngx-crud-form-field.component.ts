@@ -1,7 +1,7 @@
 import { Component, ElementRef, Input, ViewChild, OnInit } from '@angular/core';
-import { KeyValue } from '@angular/common';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor } from '@angular/forms';
+import { CrudFormField, FieldProperties } from '@decaf-ts/ui-decorators';
 
 @Component({
   selector: 'app-ngx-crud-form-field',
@@ -10,7 +10,9 @@ import { ControlValueAccessor } from '@angular/forms';
   templateUrl: './ngx-crud-form-field.component.html',
   styleUrl: './ngx-crud-form-field.component.scss',
 })
-export class NgxCrudFormFieldComponent implements ControlValueAccessor, OnInit {
+export class NgxCrudFormFieldComponent
+  implements ControlValueAccessor, CrudFormField, OnInit
+{
   @ViewChild('component', { read: ElementRef })
   component!: ElementRef;
 
@@ -20,6 +22,12 @@ export class NgxCrudFormFieldComponent implements ControlValueAccessor, OnInit {
     | OperationKeys.READ
     | OperationKeys.UPDATE
     | OperationKeys.DELETE;
+
+  @Input()
+  props!: FieldProperties;
+
+  @Input()
+  value!: string;
 
   ngOnInit(): void {}
 
