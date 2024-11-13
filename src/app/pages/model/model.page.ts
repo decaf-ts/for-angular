@@ -35,9 +35,12 @@ export class ModelPageComponent implements OnInit {
   //   return this.handleUpdate(event.detail);
   // }
 
-  private _repository;
+  private _repository: string;
 
-  get repository() {}
+  get repository() {
+    if (!this._repository) this._repository = '';
+    return this._repository;
+  }
 
   async ngOnInit(): Promise<void> {
     return this.init();
