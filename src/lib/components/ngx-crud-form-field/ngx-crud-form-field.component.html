@@ -2,19 +2,18 @@
   <ion-item>
     <ion-input
       [type]="props.type"
-      [mode]="props?.mode"
-      [hidden]="props?.hidden"
-      [inputmode]="props?.inputmode"
-      [readonly]="props?.readonly"
-      [autocomplete]="props?.autocomplete"
-      [spellcheck]="props?.spellcheck"
-      [labelPlacement]="props?.labelPlacement"
-      [value]="props?.value"
-      [fill]="props?.fill"
-      [placeholder]="translatable ? (props?.placeholder | translate) : props?.placeholder"
-      [formControlName]="props?.name"
-      [label]="translatable ? (props?.label | translate) : props?.label">
+      [required]="props.required"
+      [mode]="props.mode"
+      [inputmode]="props.inputmode"
+      [readonly]="props.readonly"
+      [autocomplete]="props.autocomplete"
+      [spellcheck]="props.spellcheck"
+      [labelPlacement]="props.labelPlacement"
+      [value]="props.value"
+      [fill]="props.fill"
+      [placeholder]="props.placeholder"
+      [formControlName]="props.name"
+      [label]="props.label">
     </ion-input>
   </ion-item>
-
 </ng-container>

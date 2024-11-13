@@ -1,17 +1,25 @@
-import { Component, ElementRef, Input, ViewChild, OnInit } from '@angular/core';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { ControlValueAccessor } from '@angular/forms';
+import { ElementRef, Input, ViewChild, OnInit, Component } from '@angular/core';
+import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
+import { ControlValueAccessor, ReactiveFormsModule } from '@angular/forms';
 import { CrudFormField, FieldProperties } from '@decaf-ts/ui-decorators';
+import { IonicModule, IonInput } from '@ionic/angular';
+import { Dynamic } from '../../engine/decorators';
+import { AngularFieldDefinition } from '../../engine';
 
+@Dynamic()
 @Component({
-  selector: 'app-ngx-crud-form-field',
+  // eslint-disable-next-line @angular-eslint/component-selector
+  selector: 'ngx-crud-form-field',
   standalone: true,
-  imports: [],
+  imports: [ReactiveFormsModule, IonicModule],
   templateUrl: './ngx-crud-form-field.component.html',
   styleUrl: './ngx-crud-form-field.component.scss',
 })
 export class NgxCrudFormFieldComponent
-  implements ControlValueAccessor, CrudFormField, OnInit
+  implements
+    ControlValueAccessor,
+    CrudFormField<AngularFieldDefinition>,
+    OnInit
 {
   @ViewChild('component', { read: ElementRef })
   component!: ElementRef;
@@ -24,12 +32,15 @@ export class NgxCrudFormFieldComponent
     | OperationKeys.DELETE;
 
   @Input()
-  props!: FieldProperties;
+  props!: FieldProperties & AngularFieldDefinition;
 
   @Input()
   value!: string;
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (!this.props || !this.operation)
+      throw new InternalError(`props and operation are required`);
+  }
 
   writeValue(obj: any): void {
     throw new Error('Method not implemented.');

@@ -9,6 +9,7 @@
     "reset": "rm -rf * && git checkout . && git pull && npm run do-install",
     "build:prod": "ng build",
     "build": "ng build --configuration development",
+    "build:new": "rimraf ./.angular && npm run build",
     "start": "ng serve",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -32,6 +33,7 @@
     "@angular/platform-browser": "^18.2.0",
     "@angular/platform-browser-dynamic": "^18.2.0",
     "@angular/router": "^18.2.0",
+    "@ngx-translate/core": "^16.0.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"
@@ -63,6 +65,9 @@
     "@decaf-ts/decorator-validation": "latest",
     "@decaf-ts/reflection": "latest",
     "@decaf-ts/ui-decorators": "latest",
+    "@ionic/angular": "^8.4.0",
+    "@ionic/angular-toolkit": "^12.1.1",
+    "ionicons": "^7.4.0",
     "reflect-metadata": "^0.2.1"
   }
 }

@@ -1,18 +1,20 @@
-import { RenderingEngine, UIKeys } from '@decaf-ts/ui-decorators';
-import { Model } from '@decaf-ts/decorator-validation';
-import { FieldDefinition } from './types';
+import { RenderingEngine } from '@decaf-ts/ui-decorators';
+import { AngularFieldDefinition } from './types';
+import { AngularEngineKeys } from './constants';
+import { Constructor } from '@decaf-ts/decorator-validation';
 
-export class NgxRenderingEngine extends RenderingEngine<FieldDefinition> {
-  override initialize(...args: any[]): Promise<void> {
-    throw new Error('Method not implemented.');
+export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition> {
+  private static _components: Record<string, Constructor<unknown>>;
+
+  override async initialize(...args: any[]): Promise<void> {
+    if (this.initialized) return;
+
+    this.initialized = true;
   }
 
-  override render<M extends Model>(model: M, ...args: any[]) {
-    const classDecorator = Reflect.getMetadata(
-      RenderingEngine.key(UIKeys.UIMODEL),
-      model.constructor,
-    );
-    if (!classDecorator)
-      throw new
+  static registerComponent(constructor: Constructor<unknown>) {}
+
+  static override key(key: string) {
+    return `${AngularEngineKeys.REFLECT}${key}`;
   }
 }
