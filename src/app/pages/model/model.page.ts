@@ -1,5 +1,11 @@
 import { Component, HostListener, Input, OnInit } from '@angular/core';
-import { OperationKeys } from '@decaf-ts/db-decorators';
+import {
+  InternalError,
+  IRepository,
+  OperationKeys,
+} from '@decaf-ts/db-decorators';
+import { Repository } from '@decaf-ts/core';
+import { Model } from '@decaf-ts/decorator-validation';
 
 @Component({
   selector: 'app-model',
@@ -15,7 +21,7 @@ export class ModelPageComponent implements OnInit {
     | OperationKeys.DELETE;
 
   @Input()
-  model!: string;
+  modelName!: string;
 
   @Input()
   id!: string;
@@ -35,10 +41,21 @@ export class ModelPageComponent implements OnInit {
   //   return this.handleUpdate(event.detail);
   // }
 
-  private _repository: string;
+  private _repository?: IRepository<Model>;
 
-  get repository() {
-    if (!this._repository) this._repository = '';
+  private get class() {
+    return this.repository.class;
+  }
+
+  private get repository() {
+    if (!this._repository) {
+      const constructor = Model.get(this.modelName);
+      if (!constructor)
+        throw new InternalError(
+          'Cannot find model. was it registered with @model?',
+        );
+      this._repository = Repository.forModel(constructor);
+    }
     return this._repository;
   }
 
@@ -98,14 +115,14 @@ export class ModelPageComponent implements OnInit {
   }
 
   async refresh(uid?: string) {
-    const self: ModelPage = this;
+    const self: ModelPageComponent = this;
+    //
+    // if (this.operation !== OperationKeys.CREATE)
+    //   await self.handleGet((uid || self.modelId) as string);
+    //
+    // await self.getLocale();
 
-    if (this.operation !== CRUD_OPERATIONS.CREATE)
-      await self.handleGet((uid || self.modelId) as string);
-
-    await self.getLocale();
-
-    this.getComponent();
+    // this.getComponent();
     // return new Promise<void>( async (resolve, reject) => {
     //   switch(self.operation){
     //     case CRUD_OPERATIONS.READ || CRUD_OPERATIONS.UPDATE:
@@ -128,16 +145,16 @@ export class ModelPageComponent implements OnInit {
     //   // await self.getComponent(results);
     // })
   }
-
-  changeOperation(operation: string) {
-    // this.routeService.navigateTo(
-    //   `/model/${this.managerName}/${operation}/${this.modelId}`,
-    // );
-  }
-
-  handleListRefreshEvent(event: Model[]) {
-    // this.modelValues = event;
-  }
+  //
+  // changeOperation(operation: string) {
+  //   // this.routeService.navigateTo(
+  //   //   `/model/${this.managerName}/${operation}/${this.modelId}`,
+  //   // );
+  // }
+  //
+  // handleListRefreshEvent(event: Model[]) {
+  //   // this.modelValues = event;
+  // }
   //
   // handleListItemAction(event: ListItemActionEvent) {
   //   // const { action, pk, id } = event;

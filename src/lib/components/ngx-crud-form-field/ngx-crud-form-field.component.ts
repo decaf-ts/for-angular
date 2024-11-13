@@ -9,13 +9,14 @@ import { CrudFormField, FieldProperties } from '@decaf-ts/ui-decorators';
 import { IonicModule } from '@ionic/angular';
 import { Dynamic } from '../../engine/decorators';
 import { AngularFieldDefinition } from '../../engine';
+import { CommonModule } from '@angular/common';
 
 @Dynamic()
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'ngx-crud-form-field',
   standalone: true,
-  imports: [ReactiveFormsModule, IonicModule],
+  imports: [ReactiveFormsModule, CommonModule, IonicModule],
   templateUrl: './ngx-crud-form-field.component.html',
   styleUrl: './ngx-crud-form-field.component.scss',
 })
@@ -28,17 +29,17 @@ export class NgxCrudFormFieldComponent
   @ViewChild('component', { read: ElementRef })
   component!: ElementRef;
 
-  @Input()
+  @Input({ required: true })
   operation!:
     | OperationKeys.CREATE
     | OperationKeys.READ
     | OperationKeys.UPDATE
     | OperationKeys.DELETE;
 
-  @Input()
+  @Input({ required: true })
   props!: FieldProperties & AngularFieldDefinition;
 
-  @Input()
+  @Input({ required: true })
   value!: string;
 
   @Input()

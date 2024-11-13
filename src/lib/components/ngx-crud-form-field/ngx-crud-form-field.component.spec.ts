@@ -28,25 +28,25 @@ describe('NgxCrudFormFieldComponent', () => {
   });
 
   it('should render when defined with all required props', () => {
-    component.props = {
+    const props: FieldProperties & AngularFieldDefinition = {
+      autocomplete: 'on',
+      autocorrect: 'on',
+      labelPlacement: 'stacked',
       autocapitalize: '',
-      // autocomplete: undefined,
-      // autocorrect: undefined,
       autofocus: false,
       clearInput: false,
       counter: false,
       disabled: false,
-      // labelPlacement: undefined,
       readonly: false,
       required: false,
       spellcheck: false,
       name: 'prop',
       label: 'label',
       type: 'text',
-    } as unknown as FieldProperties & AngularFieldDefinition;
+    };
+
+    component.props = props;
     component.operation = OperationKeys.CREATE;
-    expect(() => runAndParseError(() => fixture.detectChanges())).toThrowError(
-      InternalError,
-    );
+    fixture.detectChanges();
   });
 });
