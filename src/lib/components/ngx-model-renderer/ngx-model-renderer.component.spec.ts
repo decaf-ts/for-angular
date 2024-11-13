@@ -29,7 +29,7 @@ describe('NgxModelRendererComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and properly calculate the form', () => {
     expect(component).toBeTruthy();
     expect(component.output).toBeDefined();
   });
