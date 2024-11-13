@@ -6,6 +6,10 @@ import { Constructor } from '@decaf-ts/decorator-validation';
 export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition> {
   private static _components: Record<string, Constructor<unknown>>;
 
+  constructor(flavour = 'angular') {
+    super(flavour);
+  }
+
   override async initialize(...args: any[]): Promise<void> {
     if (this.initialized) return;
 

@@ -2,35 +2,35 @@ import {
   Component,
   Input,
   OnChanges,
-  OnDestroy,
   OnInit,
   SimpleChanges,
 } from '@angular/core';
 import { Model } from '@decaf-ts/decorator-validation';
 import { NgComponentOutlet } from '@angular/common';
 import { RenderingEngine } from '@decaf-ts/ui-decorators';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'ngx-model-renderer',
   standalone: true,
-  imports: [NgComponentOutlet],
+  imports: [NgComponentOutlet, IonicModule],
   templateUrl: './ngx-model-renderer.component.html',
   styleUrl: './ngx-model-renderer.component.scss',
 })
 export class NgxModelRendererComponent<M extends Model>
   implements OnInit, OnChanges
 {
-  @Input()
-  modelName!: string;
-  @Input()
-  details!: Record<string, unknown>;
+  @Input({ required: true })
+  model!: M | string;
 
-  model!: M;
   output!: string;
 
   ngOnInit(): void {
-    this.model = Model.build(this.details, this.modelName) as M;
+    this.model =
+      typeof this.model === 'string'
+        ? (Model.build({}, this.model) as M)
+        : this.model;
     this.output = RenderingEngine.render(this.model);
   }
 
