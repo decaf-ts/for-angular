@@ -232,9 +232,11 @@
     <div class="right-side">
       <ngx-crud-form-field
         [operation]="OperationKeys.CREATE"
-        [props]="{}"
+        [props]="{
+          name: 'test',
+
+        }"
       ></ngx-crud-form-field>
     </div>
   </div>
 </main>
-<router-outlet />

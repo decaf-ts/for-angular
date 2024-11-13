@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{title}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+  <ion-card class="aeon-card">
+    @if(cardTitle) {
+      <ion-card-header>
+        <ion-card-title>
+          {{cardTitle }}
+        </ion-card-title>
+      </ion-card-header>
+    }
+    <ion-card-content>
+      @if(model) {
+        <ngsx-model-renderer class="aeon-form" [model]="model"></ngsx-model-renderer>
+      } @else {
+        <aeon-spinner message="loading"></aeon-spinner>
+      }
+    </ion-card-content>
+  </ion-card>
+</ion-content>

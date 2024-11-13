@@ -1,8 +1,12 @@
 import { ElementRef, Input, ViewChild, OnInit, Component } from '@angular/core';
 import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
-import { ControlValueAccessor, ReactiveFormsModule } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  FormGroup,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { CrudFormField, FieldProperties } from '@decaf-ts/ui-decorators';
-import { IonicModule, IonInput } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 import { Dynamic } from '../../engine/decorators';
 import { AngularFieldDefinition } from '../../engine';
 
@@ -37,9 +41,13 @@ export class NgxCrudFormFieldComponent
   @Input()
   value!: string;
 
+  @Input()
+  formGroup?: FormGroup;
+
   ngOnInit(): void {
     if (!this.props || !this.operation)
       throw new InternalError(`props and operation are required`);
+    console.log('here');
   }
 
   writeValue(obj: any): void {

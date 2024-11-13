@@ -1,4 +1,4 @@
-<ng-container>
+<ng-container *ngIf="!!formGroup" [formGroup]="formGroup">
   <ion-item>
     <ion-input
       [type]="props.type"
