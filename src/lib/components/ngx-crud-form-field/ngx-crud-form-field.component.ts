@@ -5,18 +5,29 @@ import {
   FormGroup,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { CrudFormField, FieldProperties } from '@decaf-ts/ui-decorators';
+import {
+  CrudFormField,
+  FieldProperties,
+  HTML5InputTypes,
+} from '@decaf-ts/ui-decorators';
 import { IonicModule } from '@ionic/angular';
 import { Dynamic } from '../../engine/decorators';
-import { AngularFieldDefinition } from '../../engine';
+import {
+  AngularFieldDefinition,
+  RadioOption,
+  SelectOption,
+  StringOrBoolean,
+} from '../../engine/types';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { FormService } from '../../engine/FormService';
 
 @Dynamic()
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'ngx-crud-form-field',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, IonicModule],
+  imports: [ReactiveFormsModule, CommonModule, IonicModule, TranslateModule],
   templateUrl: './ngx-crud-form-field.component.html',
   styleUrl: './ngx-crud-form-field.component.scss',
 })
@@ -26,6 +37,11 @@ export class NgxCrudFormFieldComponent
     CrudFormField<AngularFieldDefinition>,
     OnInit
 {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onChange: () => unknown = () => {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onTouch: () => unknown = () => {};
+
   @ViewChild('component', { read: ElementRef })
   component!: ElementRef;
 
@@ -39,28 +55,39 @@ export class NgxCrudFormFieldComponent
   @Input({ required: true })
   props!: FieldProperties & AngularFieldDefinition;
 
-  @Input({ required: true })
+  @Input()
+  options!: SelectOption[] | RadioOption[];
+
+  @Input()
   value!: string;
 
   @Input()
-  formGroup?: FormGroup;
+  formGroup!: FormGroup;
+
+  @Input()
+  translatable: StringOrBoolean = true;
 
   ngOnInit(): void {
     if (!this.props || !this.operation)
       throw new InternalError(`props and operation are required`);
-    console.log('here');
+    this.formGroup = FormService.fromProps(this.props);
   }
 
-  writeValue(obj: any): void {
-    throw new Error('Method not implemented.');
+  writeValue(obj: string): void {
+    this.value = obj;
   }
-  registerOnChange(fn: any): void {
-    throw new Error('Method not implemented.');
+
+  registerOnChange(fn: () => unknown): void {
+    this.onChange = fn;
   }
-  registerOnTouched(fn: any): void {
-    throw new Error('Method not implemented.');
+
+  registerOnTouched(fn: () => unknown): void {
+    this.onTouch = fn;
   }
+
   setDisabledState?(isDisabled: boolean): void {
-    throw new Error('Method not implemented.');
+    this.props.disabled = isDisabled;
   }
+
+  protected readonly HTML5InputTypes: string[] = Object.values(HTML5InputTypes);
 }

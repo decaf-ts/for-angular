@@ -1,5 +1,5 @@
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -8,5 +8,7 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'Decaf-ts for-angular demo';
-  protected readonly OperationKeys = OperationKeys;
+
+  @Input()
+  protected readonly OperationKeys = OperationKeys.CREATE;
 }

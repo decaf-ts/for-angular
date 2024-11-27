@@ -13,7 +13,6 @@ const components = [NgxCrudFormFieldComponent, NgxModelRendererComponent];
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
-    TranslateModule,
     ...components,
   ],
   declarations: [],

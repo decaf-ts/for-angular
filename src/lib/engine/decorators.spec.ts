@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Dynamic } from './decorators';
+import { NgxRenderingEngine } from './NgxRenderingEngine';
 
 describe('decorators', () => {
   @Dynamic()
@@ -19,5 +20,9 @@ describe('decorators', () => {
 
   beforeEach(() => {});
 
-  it('should populate from @Component Metadata', () => {});
+  it('should populate from @Component Metadata', () => {
+    expect(
+      NgxRenderingEngine.components('ngx-decorator-test-form-field'),
+    ).toBeDefined();
+  });
 });
