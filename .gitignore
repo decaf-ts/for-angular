@@ -4,7 +4,7 @@
 /tmp
 /out-tsc
 /bazel-out
-
+/www
 # Node
 npm-debug.log
 yarn-error.log

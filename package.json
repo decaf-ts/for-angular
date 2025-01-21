@@ -7,13 +7,13 @@
     "do-install": "TOKEN=$(cat .token) npm install",
     "flash-forward": "npx npm-check-updates -u && npm run do-install",
     "reset": "rm -rf * && git checkout . && git pull && npm run do-install",
-    "build:prod": "ng build",
-    "build": "ng build --configuration development",
+    "build:prod": "ng build for-angular && ng  build  for-angular-app",
+    "build": "ng build for-angular --configuration development && ng build for-angular-app --configuration development",
     "build:new": "rimraf ./.angular && npm run build",
-    "start": "ng serve",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "lint": "ng lint",
+    "start": "ng serve for-angular-app",
+    "watch": "ng build for-angular-app --watch --configuration development",
+    "test": "ng test for-angular-app",
+    "lint": "ng lint for-angular-app",
     "lint-fix": "eslint --fix .",
     "test:circular": "dpdm -T --no-warning --no-tree ./src/index.ts",
     "prepare-release": "npm run lint-fix && npm run build:prod && npm run coverage && npm run docs",
@@ -23,8 +23,6 @@
     "drawings": "for FILE in workdocs/drawings/*.drawio; do echo \"converting $FILE to image...\" && docker run --rm -v $(pwd):/data rlespinasse/drawio-export --format png $FILE; done && cp -rf workdocs/drawings/export/* workdocs/resources/",
     "uml": "cd workdocs/uml && for FILE in ./*.puml; do docker run --rm -v $(pwd):/work -w /work miy4/plantuml -DPLANTUML_LIMIT_SIZE=8192 -tpng $FILE; done && cd ../.. && cp -fr workdocs/uml/*.png workdocs/resources/",
     "docs": "npx rimraf ./docs && mkdir docs && npm run do-install -- better-docs taffydb && gulp docs; npm remove better-docs taffydb"
-  },
-  "dependencies": {
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.11",
@@ -49,18 +47,6 @@
     "typescript-eslint": "8.10.0"
   },
   "peerDependencies": {
-    "@angular/compiler": "^18.2.0",
-    "@angular/core": "^18.2.0",
-    "@angular/forms": "^18.2.0",
-    "@angular/platform-browser": "^18.2.0",
-    "@angular/platform-browser-dynamic": "^18.2.0",
-    "@angular/router": "^18.2.0",
-    "@ngx-translate/core": "^16.0.3",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.14.10",
-    "@angular/common": "^18.2.0",
-    "@angular/animations": "^18.2.0",
     "@decaf-ts/for-http": "latest",
     "@decaf-ts/core": "latest",
     "@decaf-ts/db-decorators": "latest",
@@ -70,6 +56,20 @@
     "@ionic/angular": "^8.4.0",
     "@ionic/angular-toolkit": "^12.1.1",
     "ionicons": "^7.4.0",
-    "reflect-metadata": "^0.2.1"
+    "reflect-metadata": "^0.2.1",
+    "@angular/compiler": "^18.2.0",
+    "@angular/core": "^18.2.0",
+    "@angular/forms": "^18.2.0",
+    "@angular/platform-browser": "^18.2.0",
+    "@angular/platform-browser-dynamic": "^18.2.0",
+    "@angular/router": "^18.2.0",
+    "@ngx-translate/core": "^16.0.3",
+    "rxjs": "~7.8.0",
+    "zone.js": "~0.14.10",
+    "@angular/common": "^18.2.0",
+    "@angular/animations": "^18.2.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
   }
 }
