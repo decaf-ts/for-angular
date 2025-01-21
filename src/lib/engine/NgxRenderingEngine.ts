@@ -16,7 +16,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition> 
 
   override async initialize(...args: any[]): Promise<void> {
     if (this.initialized) return;
-    ValidatableByType[]
+    // ValidatableByType[]
     this.initialized = true;
   }
 
