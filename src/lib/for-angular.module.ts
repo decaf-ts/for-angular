@@ -2,13 +2,16 @@ import {
   NgModule,
   CUSTOM_ELEMENTS_SCHEMA,
   ModuleWithProviders,
-  NO_ERRORS_SCHEMA,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ComponentsModule } from './components/components.module';
+import { NgxCrudFormFieldComponent } from './components/ngx-crud-form-field/ngx-crud-form-field.component';
+import { NgxModelRendererComponent } from './components/ngx-model-renderer/ngx-model-renderer.component';
+
+const components = [NgxCrudFormFieldComponent, NgxModelRendererComponent];
 
 @NgModule({
   imports: [
@@ -17,11 +20,11 @@ import { ComponentsModule } from './components/components.module';
     FormsModule,
     ReactiveFormsModule,
     TranslateModule,
-    ComponentsModule,
+    ...components,
   ],
   declarations: [],
-  exports: [ComponentsModule],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+  exports: [...components],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ForAngularModule {
   static forRoot(): ModuleWithProviders<ForAngularModule> {

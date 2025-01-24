@@ -7,6 +7,7 @@ import { NgxCrudFormFieldComponent } from './ngx-crud-form-field/ngx-crud-form-f
 import { NgxModelRendererComponent } from './ngx-model-renderer/ngx-model-renderer.component';
 
 const components = [NgxCrudFormFieldComponent, NgxModelRendererComponent];
+
 @NgModule({
   imports: [
     CommonModule,

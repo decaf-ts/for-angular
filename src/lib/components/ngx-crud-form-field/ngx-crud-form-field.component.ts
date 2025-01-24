@@ -10,7 +10,15 @@ import {
   FieldProperties,
   HTML5InputTypes,
 } from '@decaf-ts/ui-decorators';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonInput,
+  IonItem,
+  IonSelect,
+  IonTextarea,
+  IonCheckbox,
+  IonRadioGroup,
+  IonRadio,
+} from '@ionic/angular/standalone';
 import { Dynamic } from '../../engine/decorators';
 import {
   AngularFieldDefinition,
@@ -18,16 +26,23 @@ import {
   SelectOption,
   StringOrBoolean,
 } from '../../engine/types';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
 import { FormService } from '../../engine/FormService';
+import { TranslatePipe } from '@ngx-translate/core';
 
-@Dynamic()
+// @Dynamic()
 @Component({
+  standalone: true,
+  imports: [
+    IonInput,
+    IonItem,
+    IonCheckbox,
+    IonRadioGroup,
+    IonRadio,
+    IonSelect,
+    TranslatePipe,
+  ],
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'ngx-crud-form-field',
-  standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, IonicModule, TranslateModule],
   templateUrl: './ngx-crud-form-field.component.html',
   styleUrl: './ngx-crud-form-field.component.scss',
 })

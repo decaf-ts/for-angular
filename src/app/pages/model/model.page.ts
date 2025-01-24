@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import {
   InternalError,
   IRepository,
@@ -14,17 +14,20 @@ import { Model } from '@decaf-ts/decorator-validation';
 })
 export class ModelPageComponent implements OnInit {
   @Input()
-  operation!:
+  operation:
     | OperationKeys.CREATE
     | OperationKeys.READ
     | OperationKeys.UPDATE
-    | OperationKeys.DELETE;
+    | OperationKeys.DELETE = OperationKeys.READ;
 
   @Input()
   modelName!: string;
 
   @Input()
   id!: string;
+
+  model!: Model;
+
   //
   // @HostListener('window:modelCrudOperation', ['$event'])
   // handleCrudOperation(event: CustomEvent) {
@@ -43,10 +46,6 @@ export class ModelPageComponent implements OnInit {
 
   private _repository?: IRepository<Model>;
 
-  private get class() {
-    return this.repository.class;
-  }
-
   private get repository() {
     if (!this._repository) {
       const constructor = Model.get(this.modelName);
@@ -60,7 +59,8 @@ export class ModelPageComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    return this.init();
+    if (!this.modelName) throw new Error('No model name was provided');
+    return this.refresh();
   }
   //
   // async ionViewDidEnter() {}
@@ -69,59 +69,13 @@ export class ModelPageComponent implements OnInit {
   //   this.manager = this.managerName = undefined;
   // }
 
-  init() {
-    // const self: ModelPage = this;
-    // return new Promise<void>(async (resolve, reject) => {
-    //   if (!self.managerName)
-    //     return reject(consoleError(self, 'No manager name provided'));
-    //
-    //   try {
-    //     consoleInfo(
-    //       this,
-    //       `trying get injectable ${self.managerName} from registry`,
-    //     );
-    //     self.managerName = stringToCapitalCase(self.managerName);
-    //     if (self.managerName.toLowerCase().includes('service')) {
-    //       self.manager = await getInjectablesRegistry().get(self.managerName);
-    //       self.managerType = 'service';
-    //       self.modelRoleOperations = await self.manager.getRoleOperations();
-    //       self.modelPk =
-    //         self.manager.getPrimaryKey() || findPrimaryKey(self.manager).id;
-    //     } else {
-    //       // if(self.managerName.toLowerCase().includes('manager')) {
-    //       //   self.managerType = 'manager';
-    //       // } else {
-    //       //   self.managerType = 'model';
-    //       // }
-    //       self.manager = getInjectablesRegistry().get(self.managerName);
-    //       // inject(injectableFromModelName(self.managerName.replace('Manager', '')))(self, "manager");
-    //     }
-    //   } catch (e: any) {
-    //     consoleError(this, e);
-    //     return reject(
-    //       consoleError(
-    //         self,
-    //         stringFormat(
-    //           `Failed to inject ${self.managerType} {0}`,
-    //           self.managerName,
-    //         ),
-    //       ),
-    //     );
-    //   }
-    //   if (!this.loading) this.loading = getLoading();
-    //
-    //   resolve(self.refresh());
-    // });
-  }
-
   async refresh(uid?: string) {
-    const self: ModelPageComponent = this;
+    // const self: ModelPageComponent = this;
     //
     // if (this.operation !== OperationKeys.CREATE)
     //   await self.handleGet((uid || self.modelId) as string);
     //
     // await self.getLocale();
-
     // this.getComponent();
     // return new Promise<void>( async (resolve, reject) => {
     //   switch(self.operation){
@@ -132,16 +86,13 @@ export class ModelPageComponent implements OnInit {
     //     // default:
     //     //   return Model.fromObject(self.manager)
     //   }
-
     //   if(this.operation === CRUD_OPERATIONS.CREATE) {}
     //   // const filter = modelId || self.modelId;
     //   // let condition = !filter ?
     //   //   Condition.builder.attribute("id").dif('null') : Condition.builder.attribute("id").eq(filter);
     //   // let results = null;
-
     //   // if(self.manager)
     //   //   results = await self.manager.read("wallet.replication");
-
     //   // await self.getComponent(results);
     // })
   }

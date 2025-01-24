@@ -19,7 +19,6 @@ module.exports = function (config) {
         // for example, you can disable the random execution with `random: false`
         // or set a specific seed with `seed: 4321`
       },
-      clearContext: false, // leave Jasmine Spec Runner output visible in browser
     },
     jasmineHtmlReporter: {
       suppressAll: true, // removes the duplicated traces
@@ -27,25 +26,20 @@ module.exports = function (config) {
     coverageReporter: {
       dir: require("path").join(__dirname, "./workdocs/coverage"),
       subdir: ".",
-      reporters: [
-        { type: "html" },
-        { type: "text-summary" },
-        { type: "json-summary" },
-      ],
+      reporters: [{ type: "html" }, { type: "text-summary" }],
     },
     reporters: ["progress", "kjhtml"],
-    port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ["ChromeHeadless"],
-    singleRun: true,
-    restartOnFileChange: true,
+    browsers: ["ChromeHeadless", "Chrome"],
     customLaunchers: {
       ChromeHeadlessCI: {
         base: "ChromeHeadless",
         flags: ["--no-sandbox"],
       },
     },
+    singleRun: true,
+    restartOnFileChange: true,
   });
 };

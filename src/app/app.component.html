@@ -226,17 +226,34 @@
         </defs>
       </svg>
       <h1>{{ title }}</h1>
-      <p>This is a demo page for Decaf-ts' angular engine. 🎉</p>
+      <p>This is a demo page for Decaf-ts' angular engine.</p>
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">
-<!--      <ngx-crud-form-field-->
-<!--        [operation]="OperationKeys.CREATE"-->
-<!--        [props]="{-->
-<!--          name: 'test',-->
-
-<!--        }"-->
-<!--      ></ngx-crud-form-field>-->
+      <ngx-crud-form-field [operation]="operation" [props]="props"></ngx-crud-form-field>
     </div>
+<!--    <script>-->
+<!--      const props = {-->
+<!--        name: "field-name",-->
+<!--        label: "field label",-->
+<!--        placeholder: "field placeholder",-->
+<!--        type: "text",-->
+<!--        hidden: false,-->
+<!--        // Validation-->
+<!--        required: true,-->
+<!--        // readonly: false,-->
+<!--        // maxLength: number;-->
+<!--        // minLength?: number;-->
+<!--        // max?: number | Date;-->
+<!--        // min?: number | Date;-->
+<!--        // pattern?: string;-->
+<!--        // step?: number;-->
+<!--        // custom?: string[];-->
+<!--      }-->
+<!--      var element = document.getElementsByTagName("ngx-crud-element")[0];-->
+<!--      if(element){-->
+<!--        element.setAttribute("props", JSON.stringify(props));-->
+<!--      }-->
+<!--    </script>-->
   </div>
 </main>

@@ -3,23 +3,22 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>{{title}}</ion-title>
+    <ion-title>Decaf for Angular</ion-title>
+    <ion-text>Model rendering made easy. Forever...</ion-text>
   </ion-toolbar>
 </ion-header>
 <ion-content [fullscreen]="true">
   <ion-card class="aeon-card">
-    @if(cardTitle) {
-      <ion-card-header>
-        <ion-card-title>
-          {{cardTitle }}
-        </ion-card-title>
-      </ion-card-header>
-    }
+    <ion-card-header>
+      <ion-card-title>
+        Current Operation is {{operation}}
+      </ion-card-title>
+    </ion-card-header>
     <ion-card-content>
       @if(model) {
-        <ngsx-model-renderer class="aeon-form" [model]="model"></ngsx-model-renderer>
+        <ngx-model-renderer [model]="model"></ngx-model-renderer>
       } @else {
-        <aeon-spinner message="loading"></aeon-spinner>
+        <div>No Model</div>
       }
     </ion-card-content>
   </ion-card>

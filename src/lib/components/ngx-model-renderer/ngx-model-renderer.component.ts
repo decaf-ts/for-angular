@@ -4,17 +4,18 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
+  ViewChild,
+  ViewContainerRef,
 } from '@angular/core';
 import { Model } from '@decaf-ts/decorator-validation';
-import { NgComponentOutlet } from '@angular/common';
 import { RenderingEngine } from '@decaf-ts/ui-decorators';
-import { IonicModule } from '@ionic/angular';
+import { IonSkeletonText } from '@ionic/angular/standalone';
 
 @Component({
+  standalone: true,
+  imports: [IonSkeletonText],
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'ngx-model-renderer',
-  standalone: true,
-  imports: [NgComponentOutlet, IonicModule],
   templateUrl: './ngx-model-renderer.component.html',
   styleUrl: './ngx-model-renderer.component.scss',
 })
@@ -25,6 +26,12 @@ export class NgxModelRendererComponent<M extends Model>
   model!: M | string;
 
   output!: string;
+
+  @ViewChild('componentElementContainer', {
+    static: true,
+    read: ViewContainerRef,
+  })
+  componentElementContainer!: ViewContainerRef;
 
   ngOnInit(): void {
     this.model =
