@@ -40,6 +40,7 @@ describe('NgxCrudFormFieldComponent', () => {
     clearInput: false,
     counter: false,
     disabled: false,
+    hidden: false,
     readonly: false,
     required: false,
     spellcheck: false,
@@ -58,27 +59,28 @@ describe('NgxCrudFormFieldComponent', () => {
   describe('standard Input fields', () => {
     it('handles text inputs', async () => {
       component.props = Object.assign({}, props, { type: 'text' });
+      component.operation = OperationKeys.CREATE;
+
       fixture.detectChanges();
       const elems = fixture.debugElement.query(By.css('ion-item'));
 
       expect(elems).toBeDefined();
-      const inputs = fixture.nativeElement.querySelector('ion-input');
-      expect(inputs.length).toBe(1);
-      const input = inputs[0];
-      expect(input.attributes.type).toEqual('text');
-      expect(input.attributes.mode).toEqual('text');
-      expect(input.attributes.hidden).toEqual('text');
-      expect(input.attributes.inputmode).toEqual('text');
-      expect(input.attributes.readonly).toEqual('text');
-      expect(input.attributes.autocomplete).toEqual('text');
-      expect(input.attributes.spellcheck).toEqual('text');
-      expect(input.attributes.labelPlacement).toEqual('text');
-      expect(input.attributes.step).toEqual('text');
-      expect(input.attributes.value).toEqual('text');
-      expect(input.attributes.fill).toEqual('text');
-      expect(input.attributes.placeholder).toEqual('text');
-      expect(input.attributes.formControlName).toEqual('text');
-      expect(input.attributes.label).toEqual('text');
+      const input = fixture.nativeElement.querySelector('ion-input');
+      expect(input).toBeDefined();
+      expect(input.type).toEqual(props.type);
+      expect(input.mode).toEqual(props.mode);
+      expect(input.hidden).toEqual(props.hidden);
+      expect(input.inputmode).toEqual(props.inputmode);
+      expect(input.readonly).toEqual(props.readonly);
+      expect(input.autocomplete).toEqual(props.autocomplete);
+      expect(input.spellcheck).toEqual(props.spellcheck);
+      expect(input.labelPlacement).toEqual(props.labelPlacement);
+      expect(input.step).toEqual(props.step || null);
+      expect(input.value).toEqual(undefined);
+      expect(input.fill).toEqual(props.fill);
+      expect(input.placeholder).toEqual(props.placeholder);
+      expect(input.formControlName).toEqual(props.name);
+      expect(input.label).toEqual(props.label);
     });
   });
 });

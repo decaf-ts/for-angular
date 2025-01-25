@@ -1,4 +1,11 @@
-import { ElementRef, Input, ViewChild, OnInit, Component } from '@angular/core';
+import {
+  ElementRef,
+  Input,
+  ViewChild,
+  OnInit,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+} from '@angular/core';
 import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import {
   ControlValueAccessor,
@@ -41,6 +48,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     IonSelect,
     TranslatePipe,
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'ngx-crud-form-field',
   templateUrl: './ngx-crud-form-field.component.html',
