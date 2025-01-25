@@ -22,7 +22,8 @@ export class FormService {
         props.value && props.type !== HTML5InputTypes.CHECKBOX
           ? props.value
           : undefined,
-      disabled: !!props?.disabled,
+      disabled: props.disabled,
+      validators: validators.length ? Validators.compose(validators) : null,
     });
     return new FormGroup(controls);
   }

@@ -230,7 +230,9 @@
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">
-      <ngx-crud-form-field [operation]="operation" [props]="props"></ngx-crud-form-field>
+      <form-reactive>
+        <crud-form-field [operation]="operation" [props]="props"></crud-form-field>
+      </form-reactive>
     </div>
 <!--    <script>-->
 <!--      const props = {-->

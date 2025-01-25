@@ -1,7 +1,5 @@
 import {
-  ElementRef,
   Input,
-  ViewChild,
   OnInit,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
@@ -10,25 +8,18 @@ import {
 import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import {
   ControlValueAccessor,
-  FormControl,
   FormGroup,
   ReactiveFormsModule,
 } from '@angular/forms';
-import {
-  CrudFormField,
-  FieldProperties,
-  HTML5InputTypes,
-} from '@decaf-ts/ui-decorators';
+import { FieldProperties, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import {
   IonInput,
   IonItem,
   IonSelect,
-  IonTextarea,
   IonCheckbox,
   IonRadioGroup,
   IonRadio,
 } from '@ionic/angular/standalone';
-import { Dynamic } from '../../engine/decorators';
 import {
   AngularFieldDefinition,
   RadioOption,
@@ -37,6 +28,8 @@ import {
 } from '../../engine/types';
 import { FormService } from '../../engine/FormService';
 import { TranslatePipe } from '@ngx-translate/core';
+import { NgxCrudFormField } from '../../interfaces';
+import { CommonModule } from '@angular/common';
 
 // @Dynamic()
 @Component({
@@ -49,26 +42,25 @@ import { TranslatePipe } from '@ngx-translate/core';
     IonRadio,
     IonSelect,
     TranslatePipe,
+    CommonModule,
+    ReactiveFormsModule,
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'crud-form-field',
   templateUrl: './crud-form-field.component.html',
   styleUrl: './crud-form-field.component.scss',
 })
 export class CrudFormFieldComponent
-  implements
-    ControlValueAccessor,
-    CrudFormField<AngularFieldDefinition>,
-    OnInit
+  implements ControlValueAccessor, NgxCrudFormField, OnInit
 {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onChange: () => unknown = () => {};
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onTouch: () => unknown = () => {};
-
-  @ViewChild('component', { read: ElementRef })
-  component!: ElementRef;
+  //
+  // @ViewChild('component', { read: ElementRef })
+  // component!: ElementRef;
 
   @Input({ required: true })
   operation!:
