@@ -15,11 +15,11 @@ import { IonSkeletonText } from '@ionic/angular/standalone';
   standalone: true,
   imports: [IonSkeletonText],
   // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'ngx-model-renderer',
-  templateUrl: './ngx-model-renderer.component.html',
-  styleUrl: './ngx-model-renderer.component.scss',
+  selector: 'model-renderer',
+  templateUrl: './model-renderer.component.html',
+  styleUrl: './model-renderer.component.scss',
 })
-export class NgxModelRendererComponent<M extends Model>
+export class ModelRendererComponent<M extends Model>
   implements OnInit, OnChanges
 {
   @Input({ required: true })

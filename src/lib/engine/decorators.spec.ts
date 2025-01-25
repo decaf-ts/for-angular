@@ -12,9 +12,9 @@ describe('decorators', () => {
     standalone: true,
     imports: [ReactiveFormsModule, IonicModule],
     templateUrl:
-      '../../../src/lib/components/ngx-crud-form-field/ngx-crud-form-field.component.html',
+      '../../../src/lib/components/crud-form-field/crud-form-field.component.html',
     styleUrl:
-      '../../../src/lib/components/ngx-crud-form-field/ngx-crud-form-field.component.scss',
+      '../../../src/lib/components/crud-form-field/crud-form-field.component.scss',
   })
   class DecoratorTestFormField {}
 

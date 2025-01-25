@@ -1,12 +1,13 @@
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { Component, Input } from '@angular/core';
-import { NgxCrudFormFieldComponent } from '../lib/components/ngx-crud-form-field/ngx-crud-form-field.component';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, Input } from '@angular/core';
+import { CrudFormFieldComponent } from '../lib/components/crud-form-field/crud-form-field.component';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   standalone: true,
   selector: 'app-root',
-  imports: [NgxCrudFormFieldComponent, TranslatePipe],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [CrudFormFieldComponent, TranslatePipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

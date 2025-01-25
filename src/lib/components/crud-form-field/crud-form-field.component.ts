@@ -5,10 +5,12 @@ import {
   OnInit,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
+  NO_ERRORS_SCHEMA,
 } from '@angular/core';
 import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import {
   ControlValueAccessor,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
 } from '@angular/forms';
@@ -50,11 +52,11 @@ import { TranslatePipe } from '@ngx-translate/core';
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'ngx-crud-form-field',
-  templateUrl: './ngx-crud-form-field.component.html',
-  styleUrl: './ngx-crud-form-field.component.scss',
+  selector: 'crud-form-field',
+  templateUrl: './crud-form-field.component.html',
+  styleUrl: './crud-form-field.component.scss',
 })
-export class NgxCrudFormFieldComponent
+export class CrudFormFieldComponent
   implements
     ControlValueAccessor,
     CrudFormField<AngularFieldDefinition>,

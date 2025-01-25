@@ -1,27 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { NgxCrudFormFieldComponent } from './ngx-crud-form-field.component';
-import { ReactiveFormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { CrudFormFieldComponent } from './crud-form-field.component';
 import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { runAndParseError } from '../../../tests/karmaErrorParser';
 import { AngularFieldDefinition } from '../../engine';
 import { FieldProperties } from '@decaf-ts/ui-decorators';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { By } from '@angular/platform-browser';
-import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
 
-describe('NgxCrudFormFieldComponent', () => {
-  let component: NgxCrudFormFieldComponent;
-  let fixture: ComponentFixture<NgxCrudFormFieldComponent>;
+describe('CrudFormFieldComponent', () => {
+  let component: CrudFormFieldComponent;
+  let fixture: ComponentFixture<CrudFormFieldComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot(), NgxCrudFormFieldComponent],
+      imports: [TranslateModule.forRoot(), CrudFormFieldComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(NgxCrudFormFieldComponent);
+    fixture = TestBed.createComponent(CrudFormFieldComponent);
     component = fixture.componentInstance;
   });
 

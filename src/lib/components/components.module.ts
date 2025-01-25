@@ -3,10 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { NgxCrudFormFieldComponent } from './ngx-crud-form-field/ngx-crud-form-field.component';
-import { NgxModelRendererComponent } from './ngx-model-renderer/ngx-model-renderer.component';
+import { ModelRendererComponent } from './model-renderer/model-renderer.component';
+import { CrudFormFieldComponent } from './crud-form-field/crud-form-field.component';
+import { FormReactiveComponent } from './form-reactive/form-reactive.component';
 
-const components = [NgxCrudFormFieldComponent, NgxModelRendererComponent];
+const components = [
+  CrudFormFieldComponent,
+  FormReactiveComponent,
+  ModelRendererComponent,
+];
 
 @NgModule({
   imports: [
