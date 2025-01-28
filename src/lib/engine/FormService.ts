@@ -35,36 +35,38 @@ export class FormService {
       throw new Error('Unsupported custom validation');
     }
 
-    const validatorFn = (control: AbstractControl) => {
-      if (!control) return null;
-      const validator = Validation.get(key);
-      if (!validator) {
-        throw new InternalError(`No Validator found for key`);
-      }
-      const err = validator.hasErrors(control.value);
-      if (err) {
-        const controlErr: Record<
-          string,
-          {
-            value: typeof control.value;
-            message: string;
-          }
-        > = {};
-        controlErr[key] = {
-          value: control.value,
-          message: err,
-        };
-        control.setErrors(controlErr);
-        const response: Record<string, boolean> = {};
-        response[key] = true;
-        return response;
-      }
-      return null;
-    };
-    Object.defineProperty(validatorFn, 'name', {
-      value: `${key}Validator`,
-    });
-    return validatorFn;
+    return Validators.required;
+    //
+    // const validatorFn = (control: AbstractControl) => {
+    //   if (!control) return null;
+    //   const validator = Validation.get(key);
+    //   if (!validator) {
+    //     throw new InternalError(`No Validator found for key`);
+    //   }
+    //   const err = validator.hasErrors(control.value);
+    //   if (err) {
+    //     const controlErr: Record<
+    //       string,
+    //       {
+    //         value: typeof control.value;
+    //         message: string;
+    //       }
+    //     > = {};
+    //     controlErr[key] = {
+    //       value: control.value,
+    //       message: err,
+    //     };
+    //     control.setErrors(controlErr);
+    //     const response: Record<string, boolean> = {};
+    //     response[key] = true;
+    //     return response;
+    //   }
+    //   return null;
+    // };
+    // Object.defineProperty(validatorFn, 'name', {
+    //   value: `${key}Validator`,
+    // });
+    // return validatorFn;
   }
 
   private static validatorsFromProps(
@@ -92,7 +94,10 @@ export class FormService {
   static getParentEl(el: HTMLElement, tag: string) {
     let parent: HTMLElement | null;
     while ((parent = el.parentElement) !== null) {
-      if (parent.tagName === tag) return parent;
+      if (parent.tagName.toLowerCase() === tag.toLowerCase()) {
+        return parent;
+      }
+      el = parent;
     }
     throw new Error(
       `No parent with the tag ${tag} was found for provided element`,

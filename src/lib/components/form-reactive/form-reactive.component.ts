@@ -47,7 +47,7 @@ export class FormReactiveComponent
   operation!: CrudOperations;
 
   @Input()
-  formGroup!: FormGroup;
+  formGroup: FormGroup = new FormGroup({});
 
   @Input()
   formId!: string;
@@ -57,19 +57,19 @@ export class FormReactiveComponent
 
   ngAfterViewInit() {
     console.log('after init');
-    const controls: FormGroup[] = Array.from(
-      (this.component.nativeElement as HTMLFormElement).children,
-    )
-      .filter((e) => !e.classList.contains(CssClasses.BUTTONS_CONTAINER))
-      .map((el: Element) => {
-        const control = FormService.getControlFor(
-          this.formId,
-          el as HTMLElement,
-        );
-        if (!control) throw new Error(`No control found for ${el.id}`);
-        return control;
-      });
-    this.formGroup = new FormGroup(controls);
+    // const controls: FormGroup[] = Array.from(
+    //   (this.component.nativeElement as HTMLFormElement).children,
+    // )
+    //   .filter((e) => !e.classList.contains(CssClasses.BUTTONS_CONTAINER))
+    //   .map((el: Element) => {
+    //     const control = FormService.getControlFor(
+    //       this.formId,
+    //       el as HTMLElement,
+    //     );
+    //     if (!control) throw new Error(`No control found for ${el.id}`);
+    //     return control;
+    //   });
+    // this.formGroup = new FormGroup(controls);
   }
 
   ngOnInit() {

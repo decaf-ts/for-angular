@@ -89,7 +89,8 @@ export class CrudFormFieldComponent
   @Input()
   value!: string;
 
-  formGroup!: FormGroup;
+  @Input()
+  formGroup: FormGroup = new FormGroup({});
 
   @Input()
   translatable: StringOrBoolean = true;
@@ -117,6 +118,9 @@ export class CrudFormFieldComponent
           this.component.nativeElement,
           this.formGroup,
         );
+        break;
+      default:
+        throw new Error(`Invalid operation: ${this.operation}`);
     }
   }
 
