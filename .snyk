@@ -1,0 +1,13 @@
+ignore: {}
+patch: {}
+exclude:
+  global:
+    - dist/**
+    - lib/**
+    - node_modules/**
+    - tests/**
+    - workdocs/**
+    - gulpfile.js
+    - eslint.config.js
+    - jest.config.ts
+    - www/**
