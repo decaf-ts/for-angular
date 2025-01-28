@@ -1,1 +1,61 @@
-/* You can add global styles to this file, and also import other style files */
+///*
+// * App Global CSS
+// * ----------------------------------------------------------------------------
+// * Put style rules here that you want to apply globally. These styles are for
+// * the entire app and not just one component. Additionally, this file can be
+// * used as an entry point to import other CSS/Sass files to be included in the
+// * output CSS.
+// * For more information on global stylesheets, visit the documentation:
+// * https://ionicframework.com/docs/layout/global-stylesheets
+// */
+//
+///* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+//
+///* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+//@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+//
+//
+///* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+//
+////@import "@tabler/icons-webfont/tabler-icons.min.css";
+//
+// import dos components do uikit
+@import "./theme/uikit.scss";
+@import "./theme/uk-dropdown.scss";
+@import "./theme/uk-animation.scss";
+@import "./theme/uk-pagination.scss";
+@import "./theme/uk-dotnav.scss";
+@import "./theme/uk-overlay.scss";
+@import "./theme/overrides.scss";
+@import "./theme/variables.scss";
+
+.title {
+  color:  var(--ion-color-gray-8);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 1.5rem;
+  line-height: 1.4;
+  display: block;
+  // margin: 0 0 20px 0;
+}
+.subtitle {
+  color: var(--ion-color-gray-6);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.4;
+  display: block;
+}
+
+* + .title {
+  margin-top: 20px;
+}

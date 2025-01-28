@@ -1,0 +1,253 @@
+// Alterações slideshow (figma)
+.uk-dotnav > * {
+  > * {
+      width: 8px;
+      height: 8px;
+
+      background-color: var(--ion-color-medium);
+      border-color: var(--ion-color-medium);
+  }
+  &.uk-active > * {
+    background-color: var(--ion-color-dark);
+  }
+
+  &:hover > * {
+    background-color: var(--ion-color-dark-tint);
+  }
+}
+
+
+/* ========================================================================
+   Component: Dotnav
+ ========================================================================== */
+/*
+ * 1. Allow items to wrap into the next line
+ * 2. Reset list
+ * 3. Gutter
+ */
+ .uk-dotnav {
+  display: flex;
+  /* 1 */
+  flex-wrap: wrap;
+  /* 2 */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* 3 */
+  margin-left: -12px;
+}
+/*
+ * 1. Space is allocated solely based on content dimensions: 0 0 auto
+ * 2. Gutter
+ */
+.uk-dotnav > * {
+  /* 1 */
+  flex: none;
+  /* 2 */
+  padding-left: 12px;
+}
+/* Items
+ ========================================================================== */
+/*
+ * Items
+ * 1. Hide text if present
+ */
+.uk-dotnav > * > * {
+  display: block;
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: transparent;
+  /* 1 */
+  text-indent: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 1px solid rgba(102, 102, 102, 0.4);
+  transition: 0.2s ease-in-out;
+  transition-property: background-color, border-color;
+}
+/* Hover */
+.uk-dotnav > * > :hover {
+  background-color: rgba(102, 102, 102, 0.6);
+  border-color: transparent;
+}
+/* OnClick */
+.uk-dotnav > * > :active {
+  background-color: rgba(102, 102, 102, 0.2);
+  border-color: transparent;
+}
+/* Active */
+.uk-dotnav > .uk-active > * {
+  background-color: rgba(102, 102, 102, 0.6);
+  border-color: transparent;
+}
+/* Modifier: 'uk-dotnav-vertical'
+ ========================================================================== */
+/*
+ * 1. Change direction
+ * 2. Gutter
+ */
+.uk-dotnav-vertical {
+  /* 1 */
+  flex-direction: column;
+  /* 2 */
+  margin-left: 0;
+  margin-top: -12px;
+}
+/* 2 */
+.uk-dotnav-vertical > * {
+  padding-left: 0;
+  padding-top: 12px;
+}
+/* ========================================================================
+   Component: Thumbnav
+ ========================================================================== */
+/*
+ * 1. Allow items to wrap into the next line
+ * 2. Reset list
+ * 3. Gutter
+ */
+.uk-thumbnav {
+  display: flex;
+  /* 1 */
+  flex-wrap: wrap;
+  /* 2 */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* 3 */
+  margin-left: -15px;
+}
+/*
+ * Space is allocated based on content dimensions, but shrinks: 0 1 auto
+ * 1. Gutter
+ */
+.uk-thumbnav > * {
+  /* 1 */
+  padding-left: 15px;
+}
+/* Items
+ ========================================================================== */
+/*
+ * Items
+ */
+.uk-thumbnav > * > * {
+  display: inline-block;
+  position: relative;
+}
+.uk-thumbnav > * > *::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.4));
+  transition: opacity 0.1s ease-in-out;
+}
+/* Hover */
+.uk-thumbnav > * > :hover::after {
+  opacity: 0;
+}
+/* Active */
+.uk-thumbnav > .uk-active > *::after {
+  opacity: 0;
+}
+/* Modifier: 'uk-thumbnav-vertical'
+ ========================================================================== */
+/*
+ * 1. Change direction
+ * 2. Gutter
+ */
+.uk-thumbnav-vertical {
+  /* 1 */
+  flex-direction: column;
+  /* 2 */
+  margin-left: 0;
+  margin-top: -15px;
+}
+/* 2 */
+.uk-thumbnav-vertical > * {
+  padding-left: 0;
+  padding-top: 15px;
+}
+/* ========================================================================
+   Component: Iconnav
+ ========================================================================== */
+/*
+ * 1. Allow items to wrap into the next line
+ * 2. Reset list
+ * 3. Gutter
+ */
+.uk-iconnav {
+  display: flex;
+  /* 1 */
+  flex-wrap: wrap;
+  /* 2 */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* 3 */
+  margin-left: -10px;
+}
+/*
+ * Space is allocated based on content dimensions, but shrinks: 0 1 auto
+ * 1. Gutter
+ */
+.uk-iconnav > * {
+  /* 1 */
+  padding-left: 10px;
+}
+/* Items
+ ========================================================================== */
+/*
+ * Items must target `a` elements to exclude other elements (e.g. dropdowns)
+ * 1. Center content vertically if there is still some text
+ * 2. Imitate white space gap when using flexbox
+ * 3. Force text not to affect item height
+ * 4. Style
+ * 5. Required for `a` if there is still some text
+ */
+.uk-iconnav > * > a {
+  /* 1 */
+  display: flex;
+  align-items: center;
+  /* 2 */
+  column-gap: 0.25em;
+  /* 3 */
+  line-height: 0;
+  /* 4 */
+  color: #999;
+  /* 5 */
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: 0.1s ease-in-out;
+  transition-property: color, background-color;
+}
+/* Hover */
+.uk-iconnav > * > a:hover {
+  color: #666;
+}
+/* Active */
+.uk-iconnav > .uk-active > a {
+  color: #666;
+}
+/* Modifier: 'uk-iconnav-vertical'
+ ========================================================================== */
+/*
+ * 1. Change direction
+ * 2. Gutter
+ */
+.uk-iconnav-vertical {
+  /* 1 */
+  flex-direction: column;
+  /* 2 */
+  margin-left: 0;
+  margin-top: -10px;
+}
+/* 2 */
+.uk-iconnav-vertical > * {
+  padding-left: 0;
+  padding-top: 10px;
+}
