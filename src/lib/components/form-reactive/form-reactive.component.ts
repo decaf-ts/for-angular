@@ -9,7 +9,7 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { FormElement } from '../../interfaces';
+import { FormElement, NgxCrudFormField } from '../../interfaces';
 import { FormService } from '../../engine/FormService';
 import { IonicModule } from '@ionic/angular';
 import { HTMLFormTarget } from '../../engine';
@@ -57,19 +57,19 @@ export class FormReactiveComponent
 
   ngAfterViewInit() {
     console.log('after init');
-    // const controls: FormGroup[] = Array.from(
-    //   (this.component.nativeElement as HTMLFormElement).children,
-    // )
-    //   .filter((e) => !e.classList.contains(CssClasses.BUTTONS_CONTAINER))
-    //   .map((el: Element) => {
-    //     const control = FormService.getControlFor(
-    //       this.formId,
-    //       el as HTMLElement,
-    //     );
-    //     if (!control) throw new Error(`No control found for ${el.id}`);
-    //     return control;
-    //   });
-    // this.formGroup = new FormGroup(controls);
+    const controls: FormGroup[] = Array.from(
+      (this.component.nativeElement as HTMLFormElement).children,
+    )
+      .filter((e) => !e.classList.contains(CssClasses.BUTTONS_CONTAINER))
+      .map((el: Element) => {
+        const control = FormService.getControlFor(
+          this.formId,
+          el as HTMLElement,
+        );
+        if (!control) throw new Error(`No control found for ${el.id}`);
+        return control;
+      });
+    this.formGroup = new FormGroup(controls);
   }
 
   ngOnInit() {
@@ -80,14 +80,6 @@ export class FormReactiveComponent
       this.options || {},
     );
     if (!this.formId) this.formId = Date.now().toString();
-    // const controls: FormGroup[] = this.component.nativeElement
-    //   .querySelectorAll('form > *')
-    //   .map((el: NgxCrudFormField) => {
-    //     if (!el.formGroup)
-    //       throw new Error('All elements need the formGroup property');
-    //     return el.formGroup;
-    //   });
-    // this.formGroup = new FormGroup(controls);
   }
 
   /**

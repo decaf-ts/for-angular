@@ -106,19 +106,22 @@ export class FormService {
 
   static register(formId: string, field: HTMLElement, control: FormGroup) {
     this.controls[formId] = {};
-    this.controls[formId][field.id] = control;
+    this.controls[formId][(field as unknown as { name: string }).name] =
+      control;
   }
 
   static getControlFor(formId: string, el: HTMLElement): FormGroup {
     if (!(formId in this.controls))
       throw new Error(`Form ${formId} not registered`);
-    if (!(el.id in this.controls[formId]))
+    const name = (el as unknown as { name: string }).name;
+    if (!(name in this.controls[formId]))
       throw new Error(`No control defined for el ${el.id}`);
-    return this.controls[formId][el.id];
+    return this.controls[formId][name];
   }
 
   static unregister(formId: string, field?: HTMLElement) {
     if (!field) delete this.controls[formId];
-    else delete this.controls[formId][field.id];
+    else
+      delete this.controls[formId][(field as unknown as { name: string }).name];
   }
 }

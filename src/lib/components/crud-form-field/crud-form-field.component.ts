@@ -39,6 +39,7 @@ import { FormService } from '../../engine/FormService';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgxCrudFormField } from '../../interfaces';
 import { CommonModule } from '@angular/common';
+import { FormElementNameDirective } from '../../directives/form-element-name.directive';
 
 // @Dynamic()
 @Component({
@@ -54,6 +55,7 @@ import { CommonModule } from '@angular/common';
     CommonModule,
     ReactiveFormsModule,
     IonSelectOption,
+    FormElementNameDirective,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -77,6 +79,9 @@ export class CrudFormFieldComponent
   @ViewChild('component', { read: ElementRef })
   component!: ElementRef;
 
+  @Input()
+  name!: string;
+
   @Input({ required: true })
   operation!: CrudOperations;
 
@@ -90,7 +95,7 @@ export class CrudFormFieldComponent
   value!: string;
 
   @Input()
-  formGroup: FormGroup = new FormGroup({});
+  formGroup!: FormGroup;
 
   @Input()
   translatable: StringOrBoolean = true;
@@ -133,6 +138,7 @@ export class CrudFormFieldComponent
     if (!this.props || !this.operation)
       throw new InternalError(`props and operation are required`);
     this.formGroup = FormService.fromProps(this.props);
+    this.name = this.props.name;
   }
 
   writeValue(obj: string): void {

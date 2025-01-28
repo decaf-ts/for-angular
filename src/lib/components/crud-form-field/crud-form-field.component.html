@@ -1,5 +1,4 @@
-<!--<ng-container>-->
-<ng-container #component [formGroup]="formGroup">
+<ng-container #component [appFormElement]="props.name" [formGroup]="formGroup">
 <!--  @if(props.type === 'textarea') {-->
 <!--    <ion-item>-->
 <!--      <ion-textarea-->
@@ -26,6 +25,7 @@
     <ion-item [formControlName]="props.name">
       <ion-checkbox
         #checkboxElement
+        [name]="props.name"
         [ngClass]="props.className"
         [mode]="props.mode"
         [hidden]="props.hidden"
@@ -38,12 +38,12 @@
         [checked]="props.checked"
         (ionChange)="props.checked = !props.checked"
         [formControlName]="props.name">
-        <span [innerHTML]="translatable ? (props.label | translate) : props.label"></span>
+        <span [innerHTML]="props.label | translate"></span>
       </ion-checkbox>
     </ion-item>
   }
   @else if(props.type === 'radio') {
-    <ion-radio-group [ngClass]="props.className" [formControlName]="props.name" [value]="props.value">
+    <ion-radio-group [ngClass]="props.className" [formControlName]="props.name" [name]="props.name" [value]="props.value">
       <label class="radio-group-label">{{props.label | translate}}</label>
       @for(option of options; track option.value) {
         <ion-item>
@@ -63,6 +63,7 @@
   @else if(props.type === 'select') {
     <ion-item>
       <ion-select
+        [name]="props.name"
         [ngClass]="props.className"
         [mode]="props.mode"
         [hidden]="props.hidden"
