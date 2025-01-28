@@ -5,3 +5,8 @@ export const AngularEngineKeys = {
   DYNAMIC: 'dynamic-component',
   ANNOTATIONS: '__annotations__',
 };
+
+export const FormConstants = {
+  VALID: 'VALID',
+  INVALID: 'INVALID',
+};

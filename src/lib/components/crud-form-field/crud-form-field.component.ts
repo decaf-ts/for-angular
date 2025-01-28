@@ -79,9 +79,6 @@ export class CrudFormFieldComponent
   @ViewChild('component', { read: ElementRef })
   component!: ElementRef;
 
-  @Input()
-  name!: string;
-
   @Input({ required: true })
   operation!: CrudOperations;
 
@@ -103,42 +100,15 @@ export class CrudFormFieldComponent
   private parent?: HTMLElement;
 
   ngAfterViewInit() {
-    console.log(`after init of ${this}`);
-    switch (this.operation) {
-      case OperationKeys.CREATE:
-      case OperationKeys.UPDATE:
-      case OperationKeys.DELETE:
-        try {
-          this.parent = FormService.getParentEl(
-            this.component.nativeElement,
-            'form',
-          );
-        } catch (e: unknown) {
-          throw new Error(
-            `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`,
-          );
-        }
-        FormService.register(
-          this.parent.id,
-          this.component.nativeElement,
-          this.formGroup,
-        );
-        break;
-      default:
-        throw new Error(`Invalid operation: ${this.operation}`);
-    }
+    this.parent = FormService.inputAfterViewInit(this);
   }
 
   ngOnDestroy(): void {
-    if (this.parent)
-      FormService.unregister(this.parent.id, this.component.nativeElement);
+    FormService.inputOnDestroy(this, this.parent);
   }
 
   ngOnInit(): void {
-    if (!this.props || !this.operation)
-      throw new InternalError(`props and operation are required`);
-    this.formGroup = FormService.fromProps(this.props);
-    this.name = this.props.name;
+    FormService.inputOnInit(this);
   }
 
   writeValue(obj: string): void {

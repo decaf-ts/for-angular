@@ -7,15 +7,16 @@ import {
   Input,
   Output,
   EventEmitter,
+  OnDestroy,
 } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { FormElement, NgxCrudFormField } from '../../interfaces';
+import { FormElement } from '../../interfaces';
 import { FormService } from '../../engine/FormService';
 import { IonicModule } from '@ionic/angular';
 import { HTMLFormTarget } from '../../engine';
 import { FormReactiveOptions, FormReactiveSubmitEvent } from './types';
 import { CrudOperations } from '@decaf-ts/db-decorators';
-import { CssClasses, DefaultFormReactiveOptions } from './constants';
+import { DefaultFormReactiveOptions } from './constants';
 
 @Component({
   standalone: true,
@@ -26,7 +27,7 @@ import { CssClasses, DefaultFormReactiveOptions } from './constants';
   imports: [IonicModule, ReactiveFormsModule],
 })
 export class FormReactiveComponent
-  implements OnInit, AfterViewInit, FormElement
+  implements OnInit, AfterViewInit, FormElement, OnDestroy
 {
   @ViewChild('reactiveForm', { static: false, read: ElementRef })
   component!: ElementRef;
@@ -56,20 +57,7 @@ export class FormReactiveComponent
   submitEvent = new EventEmitter<FormReactiveSubmitEvent>();
 
   ngAfterViewInit() {
-    console.log('after init');
-    const controls: FormGroup[] = Array.from(
-      (this.component.nativeElement as HTMLFormElement).children,
-    )
-      .filter((e) => !e.classList.contains(CssClasses.BUTTONS_CONTAINER))
-      .map((el: Element) => {
-        const control = FormService.getControlFor(
-          this.formId,
-          el as HTMLElement,
-        );
-        if (!control) throw new Error(`No control found for ${el.id}`);
-        return control;
-      });
-    this.formGroup = new FormGroup(controls);
+    FormService.formAfterViewInit(this, this.formId);
   }
 
   ngOnInit() {
@@ -82,16 +70,34 @@ export class FormReactiveComponent
     if (!this.formId) this.formId = Date.now().toString();
   }
 
+  ngOnDestroy() {
+    FormService.forOnDestroy(this, this.formId);
+  }
+
   /**
    * @param  {Event} event
    */
   submit(event: SubmitEvent) {
+    console.log('onSubmit');
     event.preventDefault();
     event.stopImmediatePropagation();
     event.stopPropagation();
 
+    if (!this.formGroup.valid)
+      return FormService.validateFields(this.formGroup);
+    // if (!self.form?.valid) {
+    //   const isValid = self.formService.validateFields(self.form as FormGroup);
+    //   if(!isValid)
+    //       return false;
+    //   this.form?.setErrors(null);
+    // }
+
+    // fix para valores de campos radio e check
+    const data = FormService.getFormData(this.formGroup, this.formId);
+    // const button = self.buttons?.submit as FormButton;
+
     const submitEvent: FormReactiveSubmitEvent = {
-      data: {},
+      data: data,
     };
     //
     // if(!self.form?.valid)
