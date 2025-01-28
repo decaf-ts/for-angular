@@ -46,3 +46,5 @@ export interface InputOption {
   className?: string;
   icon?: string;
 }
+
+export type HTMLFormTarget = '_blank' | '_self' | '_parent' | '_top' | string;

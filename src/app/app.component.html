@@ -230,7 +230,8 @@
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">
-      <form-reactive>
+      <form-reactive [operation]="operation">
+<!--      test-->
         <crud-form-field [operation]="operation" [props]="props"></crud-form-field>
       </form-reactive>
     </div>

@@ -1,11 +1,19 @@
 import {
-  Input,
-  OnInit,
+  AfterViewInit,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  Input,
   NO_ERRORS_SCHEMA,
+  OnDestroy,
+  OnInit,
+  ViewChild,
 } from '@angular/core';
-import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
+import {
+  CrudOperations,
+  InternalError,
+  OperationKeys,
+} from '@decaf-ts/db-decorators';
 import {
   ControlValueAccessor,
   FormGroup,
@@ -13,12 +21,13 @@ import {
 } from '@angular/forms';
 import { FieldProperties, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import {
+  IonCheckbox,
   IonInput,
   IonItem,
-  IonSelect,
-  IonCheckbox,
-  IonRadioGroup,
   IonRadio,
+  IonRadioGroup,
+  IonSelect,
+  IonSelectOption,
 } from '@ionic/angular/standalone';
 import {
   AngularFieldDefinition,
@@ -44,6 +53,7 @@ import { CommonModule } from '@angular/common';
     TranslatePipe,
     CommonModule,
     ReactiveFormsModule,
+    IonSelectOption,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -52,22 +62,23 @@ import { CommonModule } from '@angular/common';
   styleUrl: './crud-form-field.component.scss',
 })
 export class CrudFormFieldComponent
-  implements ControlValueAccessor, NgxCrudFormField, OnInit
+  implements
+    ControlValueAccessor,
+    NgxCrudFormField,
+    OnInit,
+    OnDestroy,
+    AfterViewInit
 {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onChange: () => unknown = () => {};
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onTouch: () => unknown = () => {};
-  //
-  // @ViewChild('component', { read: ElementRef })
-  // component!: ElementRef;
+
+  @ViewChild('component', { read: ElementRef })
+  component!: ElementRef;
 
   @Input({ required: true })
-  operation!:
-    | OperationKeys.CREATE
-    | OperationKeys.READ
-    | OperationKeys.UPDATE
-    | OperationKeys.DELETE;
+  operation!: CrudOperations;
 
   @Input({ required: true })
   props!: FieldProperties & AngularFieldDefinition;
@@ -78,11 +89,41 @@ export class CrudFormFieldComponent
   @Input()
   value!: string;
 
-  @Input()
   formGroup!: FormGroup;
 
   @Input()
   translatable: StringOrBoolean = true;
+
+  private parent?: HTMLElement;
+
+  ngAfterViewInit() {
+    console.log(`after init of ${this}`);
+    switch (this.operation) {
+      case OperationKeys.CREATE:
+      case OperationKeys.UPDATE:
+      case OperationKeys.DELETE:
+        try {
+          this.parent = FormService.getParentEl(
+            this.component.nativeElement,
+            'form',
+          );
+        } catch (e: unknown) {
+          throw new Error(
+            `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`,
+          );
+        }
+        FormService.register(
+          this.parent.id,
+          this.component.nativeElement,
+          this.formGroup,
+        );
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.parent)
+      FormService.unregister(this.parent.id, this.component.nativeElement);
+  }
 
   ngOnInit(): void {
     if (!this.props || !this.operation)

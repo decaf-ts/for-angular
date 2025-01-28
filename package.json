@@ -25,9 +25,9 @@
     "docs": "npx rimraf ./docs && mkdir docs && npm run do-install -- better-docs taffydb && gulp docs; npm remove better-docs taffydb"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^18.2.11",
-    "@angular/cli": "^18.2.11",
-    "@angular/compiler-cli": "^18.2.0",
+    "@angular-devkit/build-angular": "^18.2.12",
+    "@angular/cli": "^18.2.12",
+    "@angular/compiler-cli": "^18.2.13",
     "@types/jasmine": "~5.1.0",
     "angular-eslint": "18.4.0",
     "dpdm": "^3.14.0",
@@ -47,14 +47,14 @@
     "typescript-eslint": "8.10.0"
   },
   "peerDependencies": {
-    "@angular/animations": "^18.2.0",
-    "@angular/common": "^18.2.0",
-    "@angular/compiler": "^18.2.0",
-    "@angular/core": "^18.2.0",
-    "@angular/forms": "^18.2.0",
-    "@angular/platform-browser": "^18.2.0",
-    "@angular/platform-browser-dynamic": "^18.2.0",
-    "@angular/router": "^18.2.0",
+    "@angular/animations": "^18.2.13",
+    "@angular/common": "^18.2.13",
+    "@angular/compiler": "^18.2.13",
+    "@angular/core": "^18.2.13",
+    "@angular/forms": "^18.2.13",
+    "@angular/platform-browser": "^18.2.13",
+    "@angular/platform-browser-dynamic": "^18.2.13",
+    "@angular/router": "^18.2.13",
     "@decaf-ts/core": "latest",
     "@decaf-ts/db-decorators": "latest",
     "@decaf-ts/decorator-validation": "latest",
@@ -71,6 +71,5 @@
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

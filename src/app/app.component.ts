@@ -1,4 +1,4 @@
-import { OperationKeys } from '@decaf-ts/db-decorators';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, Input } from '@angular/core';
 import { CrudFormFieldComponent } from '../lib/components/crud-form-field/crud-form-field.component';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -17,9 +17,9 @@ export class AppComponent {
   title = 'Decaf-ts for-angular demo';
 
   @Input()
-  protected readonly OperationKeys = OperationKeys.CREATE;
+  protected readonly OperationKeys: CrudOperations = OperationKeys.CREATE;
 
-  operation = OperationKeys.CREATE;
+  operation: CrudOperations = OperationKeys.CREATE;
 
   props = {
     name: 'field-name',

@@ -1,5 +1,5 @@
 <!--<ng-container>-->
-<ng-container [formGroup]="formGroup">
+<ng-container #component>
 <!--  @if(props.type === 'textarea') {-->
 <!--    <ion-item>-->
 <!--      <ion-textarea-->
@@ -23,7 +23,7 @@
 <!--    </ion-item>-->
 <!--  }-->
   @if(props.type === 'checkbox') {
-    <ion-item>
+    <ion-item [formControlName]="props.name">
       <ion-checkbox
         #checkboxElement
         [ngClass]="props.className"
@@ -32,7 +32,7 @@
         [labelPlacement]="props.labelPlacement"
         [alignment]="props.alignment"
         [justify]="props.justify"
-        [readonly]="props.readonly"
+        [disabled]="props.disabled || props.readonly"
         [attr.checkedValue]="props.value"
         [value]="props.value"
         [checked]="props.checked"
@@ -44,19 +44,18 @@
   }
   @else if(props.type === 'radio') {
     <ion-radio-group [ngClass]="props.className" [formControlName]="props.name" [value]="props.value">
-      <label class="radio-group-label">{{translatable ? (props.label | translate) : props.label }}</label>
+      <label class="radio-group-label">{{props.label | translate}}</label>
       @for(option of options; track option.value) {
         <ion-item>
           <ion-radio
             [mode]="props.mode"
             [hidden]="props.hidden"
-            [readonly]="props.readonly"
-            [autocomplete]="props.autocomplete"
+            [disabled]="props.readonly || props.disabled"
             [labelPlacement]="props.labelPlacement"
             [alignment]="props.alignment"
             [justify]="props.justify"
             [value]="option.value"
-          >{{ translatable ? (option.text | translate) : option.text }}</ion-radio>
+          >{{ option.text | translate }}</ion-radio>
         </ion-item>
       }
     </ion-radio-group>
@@ -72,9 +71,8 @@
         [label]="translatable ? (props.label | translate) : props.label"
         [value]="props.value"
         [fill]="props.fill"
-        [readonly]="props.readonly"
-        [autocomplete]="props.autocomplete"
-        [placeholder]="translatable ? (props.placeholder | translate) : props.placeholder"
+        [disabled]="props.readonly || props.disabled"
+        [placeholder]="props.placeholder | translate"
         [formControlName]="props.name"
         [interface]="props.interface">
         @for(option of options; track option.value) {
@@ -96,7 +94,7 @@
         [autocomplete]="props.autocomplete"
         [spellcheck]="props.spellcheck"
         [labelPlacement]="props.labelPlacement"
-        [required]="props.required !== undefined ? props.required : null"
+        [required]="props.required !== undefined ? props.required : false"
         [minlength]="props.minlength !== undefined ? props.minlength : null"
         [maxlength]="props.maxlength !== undefined ? props.maxlength : null"
         [readonly]="props.readonly !== undefined ? props.readonly : null"
@@ -106,9 +104,9 @@
         [step]="props.step !== undefined ? props.step : null"
         [value]="props.value"
         [fill]="props.fill"
-        [placeholder]="translatable ? (props.placeholder | translate) : props.placeholder"
+        [placeholder]="props.placeholder | translate"
         [formControlName]="props.name"
-        [label]="translatable ? (props.label | translate) : props.label">
+        [label]="props.label | translate">
       </ion-input>
     </ion-item>
   }
