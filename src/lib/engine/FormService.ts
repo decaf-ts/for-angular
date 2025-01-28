@@ -38,7 +38,9 @@ export class FormService {
     const validatorFn = (control: AbstractControl) => {
       if (!control) return null;
       const validator = Validation.get(key);
-      if (!validator) throw new InternalError(`No Validator found for key`);
+      if (!validator) {
+        throw new InternalError(`No Validator found for key`);
+      }
       const err = validator.hasErrors(control.value);
       if (err) {
         const controlErr: Record<
