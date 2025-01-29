@@ -9,8 +9,8 @@ import {
 export function runAndParseError(func: () => any) {
   try {
     return func();
-  } catch (e: any) {
-    throw parseKarmaError(e);
+  } catch (e: unknown) {
+    throw parseKarmaError(e as Error);
   }
 }
 

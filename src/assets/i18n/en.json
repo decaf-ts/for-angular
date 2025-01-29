@@ -1,0 +1,21 @@
+{
+  "errors": {
+    "required": "This field is required.",
+    "pattern": "The provided value does not match the pattern.",
+    "min": "The maximum value for this field is {{value}}.",
+    "max": "The minimum value for this field is {{value}}.",
+    "minlength": "The minimum length for this field is {{value}}.",
+    "maxlength": "The maximum length for this field is {{value}}.",
+    "equal": "This field must be equal to {{value}}",
+    "default": "This value appears to be invalid.",
+    "unique": "Field {{value}} must be unique",
+    "password": "Password must be at least 8 characters and contain one of number, lower and upper case letters, and special character (@$!%*?&_-.,)",
+    "email": "This field must be a valid email address.",
+    "url": "This field must be a valid URL.",
+    "number": "This field must be a valid number.",
+    "integer": "This field must be a valid integer.",
+    "digits": "This field must contain only digits.",
+    "alphanum": "This field must be alphanumeric.",
+    "file": "Only {{value}} files are allowed"
+  }
+}

@@ -114,4 +114,12 @@
   @else {
     <h1>INVALID FIELD TYPE</h1>
   }
+  @if(!formGroup.pristine && !formGroup.valid) {
+    <div class="error uk-flex uk-flex-top">
+      @for(item of getErrors(); track item.key) {
+        <span color="danger" class="ti ti-alert-triangle"></span>
+        <span>{{item.key}} - {{ ("errors." + item.message) | translate }}</span>
+      }
+    </div>
+  }
 </ng-container>

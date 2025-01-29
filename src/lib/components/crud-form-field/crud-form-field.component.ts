@@ -9,16 +9,8 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import {
-  CrudOperations,
-  InternalError,
-  OperationKeys,
-} from '@decaf-ts/db-decorators';
-import {
-  ControlValueAccessor,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { CrudOperations } from '@decaf-ts/db-decorators';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FieldProperties, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import {
   IonCheckbox,
@@ -35,16 +27,17 @@ import {
   SelectOption,
   StringOrBoolean,
 } from '../../engine/types';
-import { FormService } from '../../engine/FormService';
 import { TranslatePipe } from '@ngx-translate/core';
-import { NgxCrudFormField } from '../../interfaces';
-import { CommonModule } from '@angular/common';
 import { FormElementNameDirective } from '../../directives/form-element-name.directive';
+import { NgClass } from '@angular/common';
+import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 
 // @Dynamic()
 @Component({
   standalone: true,
   imports: [
+    ReactiveFormsModule,
+    NgClass,
     IonInput,
     IonItem,
     IonCheckbox,
@@ -52,8 +45,6 @@ import { FormElementNameDirective } from '../../directives/form-element-name.dir
     IonRadio,
     IonSelect,
     TranslatePipe,
-    CommonModule,
-    ReactiveFormsModule,
     IonSelectOption,
     FormElementNameDirective,
   ],
@@ -64,67 +55,40 @@ import { FormElementNameDirective } from '../../directives/form-element-name.dir
   styleUrl: './crud-form-field.component.scss',
 })
 export class CrudFormFieldComponent
-  implements
-    ControlValueAccessor,
-    NgxCrudFormField,
-    OnInit,
-    OnDestroy,
-    AfterViewInit
+  extends NgxCrudFormField
+  implements OnInit, OnDestroy, AfterViewInit
 {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onChange: () => unknown = () => {};
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onTouch: () => unknown = () => {};
-
   @ViewChild('component', { read: ElementRef })
-  component!: ElementRef;
+  override component!: ElementRef;
 
   @Input({ required: true })
-  operation!: CrudOperations;
+  override operation!: CrudOperations;
 
   @Input({ required: true })
-  props!: FieldProperties & AngularFieldDefinition;
+  override props!: FieldProperties & AngularFieldDefinition;
 
   @Input()
   options!: SelectOption[] | RadioOption[];
 
   @Input()
-  value!: string;
+  override value!: string;
 
   @Input()
-  formGroup!: FormGroup;
+  override formGroup!: FormGroup;
 
   @Input()
   translatable: StringOrBoolean = true;
 
-  private parent?: HTMLElement;
-
   ngAfterViewInit() {
-    this.parent = FormService.inputAfterViewInit(this);
+    super.afterViewInit();
   }
 
   ngOnDestroy(): void {
-    FormService.inputOnDestroy(this, this.parent);
+    this.onDestroy();
   }
 
   ngOnInit(): void {
-    FormService.inputOnInit(this);
-  }
-
-  writeValue(obj: string): void {
-    this.value = obj;
-  }
-
-  registerOnChange(fn: () => unknown): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => unknown): void {
-    this.onTouch = fn;
-  }
-
-  setDisabledState?(isDisabled: boolean): void {
-    this.props.disabled = isDisabled;
+    super.onInit();
   }
 
   protected readonly HTML5InputTypes: string[] = Object.values(HTML5InputTypes);

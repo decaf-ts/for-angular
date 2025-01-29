@@ -16,8 +16,9 @@ import {
 import { Validation } from '@decaf-ts/decorator-validation';
 import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { FormConstants } from './constants';
-import { FormElement, NgxCrudFormField } from '../interfaces';
+import { FormElement } from '../interfaces';
 import { CssClasses } from '../components/form-reactive/constants';
+// import { NgxCrudFormField } from './NgxCrudFormField';
 
 export class FormService {
   private static controls: Record<
@@ -30,42 +31,6 @@ export class FormService {
       }
     >
   > = {};
-
-  static inputAfterViewInit(el: NgxCrudFormField) {
-    console.log(`after init of ${el}`);
-    let parent: HTMLElement;
-    switch (el.operation) {
-      case OperationKeys.CREATE:
-      case OperationKeys.UPDATE:
-      case OperationKeys.DELETE:
-        try {
-          parent = FormService.getParentEl(el.component.nativeElement, 'form');
-        } catch (e: unknown) {
-          throw new Error(
-            `Unable to retrieve parent form element for the ${el.operation}: ${e instanceof Error ? e.message : e}`,
-          );
-        }
-        FormService.register(
-          parent.id,
-          el.component.nativeElement,
-          el.formGroup,
-          el.props,
-        );
-        return parent;
-      default:
-        throw new Error(`Invalid operation: ${el.operation}`);
-    }
-  }
-
-  static inputOnInit(el: NgxCrudFormField) {
-    if (!el.props || !el.operation)
-      throw new InternalError(`props and operation are required`);
-    el.formGroup = FormService.fromProps(el.props);
-  }
-
-  static inputOnDestroy(el: NgxCrudFormField, parent?: HTMLElement) {
-    if (parent) FormService.unregister(parent.id, el.component.nativeElement);
-  }
 
   static formAfterViewInit(el: FormElement, formId: string) {
     console.log('after init');
