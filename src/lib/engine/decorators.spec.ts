@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
 import { Dynamic } from './decorators';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
+import { FormElementNameDirective } from '../directives/form-element-name.directive';
+import { IonItem } from '@ionic/angular';
 
 describe('decorators', () => {
   @Dynamic()
@@ -10,7 +11,20 @@ describe('decorators', () => {
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'ngx-decorator-test-form-field',
     standalone: true,
-    imports: [ReactiveFormsModule, IonicModule],
+    imports: [
+      ReactiveFormsModule,
+      NgClass,
+      IonInput,
+      IonItem,
+      IonCheckbox,
+      IonRadioGroup,
+      IonRadio,
+      IonSelect,
+      TranslatePipe,
+      IonSelectOption,
+      FormElementNameDirective,
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     templateUrl:
       '../../../src/lib/components/crud-form-field/crud-form-field.component.html',
     styleUrl:
