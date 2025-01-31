@@ -11,6 +11,7 @@
     "build:prod": "ng build for-angular && ng  build  for-angular-app",
     "build": "ng build for-angular --configuration development && ng build for-angular-app --configuration development",
     "build:new": "rimraf ./.angular && npm run build",
+    "build:cli": "tsc --project tsconfig.cli.json --outDir dist/for-angular/",
     "start": "ng serve for-angular-app",
     "watch": "ng build for-angular --watch --configuration development",
     "test": "ng test for-angular",
