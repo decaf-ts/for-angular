@@ -16,6 +16,7 @@ import {
 import { Validation } from '@decaf-ts/decorator-validation';
 import { AngularEngineKeys, FormConstants } from './constants';
 import { FormElement } from '../interfaces';
+import { ValidatorFactory } from './ValidatorFactory';
 
 export class FormService {
   private static controls: Record<
@@ -24,7 +25,7 @@ export class FormService {
       string,
       {
         control: FormGroup;
-        props: FieldProperties & AngularFieldDefinition;
+        props: AngularFieldDefinition;
       }
     >
   > = {};
@@ -49,7 +50,7 @@ export class FormService {
     FormService.unregister(formId, el.component.nativeElement);
   }
 
-  static getFormData(formGroup: FormGroup, formId: string) {
+  static getFormData(formId: string) {
     if (!(formId in this.controls)) throw new Error(`form ${formId} not found`);
     const form = this.controls[formId];
     let control: AbstractControl;
@@ -94,9 +95,10 @@ export class FormService {
     return isValidForm;
   }
 
-  static fromProps(props: FieldProperties & AngularFieldDefinition): FormGroup {
+  static fromProps(props: AngularFieldDefinition): FormGroup {
     const controls: Record<string, FormControl> = {};
     const validators = this.validatorsFromProps(props);
+    const composed = validators.length ? Validators.compose(validators) : null;
     controls[props.name] = new FormControl(
       {
         value:
@@ -105,64 +107,32 @@ export class FormService {
             : undefined,
         disabled: props.disabled,
       },
-      validators.length ? Validators.compose(validators) : null,
+      composed,
     );
 
     return new FormGroup(controls);
   }
 
-  private static validatorFor(key: string): ValidatorFn {
-    if (!Validation.keys().includes(key)) {
-      throw new Error('Unsupported custom validation');
-    }
+  private static getFormById(id: string) {
+    if (!(id in FormService.controls))
+      throw new Error(`Could not find formId ${id}`);
+    return FormService.controls[id];
+  }
 
-    return Validators.required;
-    //
-    // const validatorFn = (control: AbstractControl) => {
-    //   if (!control) return null;
-    //   const validator = Validation.get(key);
-    //   if (!validator) {
-    //     throw new InternalError(`No Validator found for key`);
-    //   }
-    //   const err = validator.hasErrors(control.value);
-    //   if (err) {
-    //     const controlErr: Record<
-    //       string,
-    //       {
-    //         value: typeof control.value;
-    //         message: string;
-    //       }
-    //     > = {};
-    //     controlErr[key] = {
-    //       value: control.value,
-    //       message: err,
-    //     };
-    //     control.setErrors(controlErr);
-    //     const response: Record<string, boolean> = {};
-    //     response[key] = true;
-    //     return response;
-    //   }
-    //   return null;
-    // };
-    // Object.defineProperty(validatorFn, 'name', {
-    //   value: `${key}Validator`,
-    // });
-    // return validatorFn;
+  private static getFieldByName(formId: string, name: string) {
+    const form = FormService.getFormById(formId);
+    if (!(name in form))
+      throw new Error(`Could not find field ${name} in form`);
+    return form[name];
   }
 
   private static validatorsFromProps(
     props: FieldProperties & AngularFieldDefinition,
-  ) {
+  ): ValidatorFn[] {
     const supportedValidationKeys = Validation.keys();
     return Object.keys(props)
-      .filter((k: string) => {
-        if (!supportedValidationKeys.includes(k)) {
-          console.log(`Unrecognized validation key ${k}`);
-          return false;
-        }
-        return true;
-      })
-      .map((k: string) => this.validatorFor(k));
+      .filter((k: string) => supportedValidationKeys.includes(k))
+      .map((k: string) => ValidatorFactory.spawn(k, props[k]));
   }
 
   /**

@@ -232,31 +232,12 @@
     <div class="right-side">
       <form-reactive [operation]="operation">
 <!--      test-->
-        <crud-form-field [operation]="operation" [props]="props"></crud-form-field>
+        <crud-form-field [operation]="operation" [props]="props1"></crud-form-field>
+        <crud-form-field [operation]="operation" [props]="props2"></crud-form-field>
+        <crud-form-field [operation]="operation" [props]="props3"></crud-form-field>
+        <crud-form-field [operation]="operation" [props]="props4"></crud-form-field>
+<!--        <crud-form-field [operation]="operation" [props]="props5"></crud-form-field>-->
       </form-reactive>
     </div>
-<!--    <script>-->
-<!--      const props = {-->
-<!--        name: "field-name",-->
-<!--        label: "field label",-->
-<!--        placeholder: "field placeholder",-->
-<!--        type: "text",-->
-<!--        hidden: false,-->
-<!--        // Validation-->
-<!--        required: true,-->
-<!--        // readonly: false,-->
-<!--        // maxLength: number;-->
-<!--        // minLength?: number;-->
-<!--        // max?: number | Date;-->
-<!--        // min?: number | Date;-->
-<!--        // pattern?: string;-->
-<!--        // step?: number;-->
-<!--        // custom?: string[];-->
-<!--      }-->
-<!--      var element = document.getElementsByTagName("ngx-crud-element")[0];-->
-<!--      if(element){-->
-<!--        element.setAttribute("props", JSON.stringify(props));-->
-<!--      }-->
-<!--    </script>-->
   </div>
 </main>

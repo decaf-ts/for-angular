@@ -93,7 +93,7 @@ export class DecafCrudFormComponent
     // }
 
     // fix para valores de campos radio e check
-    const data = FormService.getFormData(this.formGroup, this.formId);
+    const data = FormService.getFormData(this.formId);
     // const button = self.buttons?.submit as FormButton;
 
     const submitEvent: FormReactiveSubmitEvent = {

@@ -1,4 +1,4 @@
-import { CrudFormField, FieldProperties } from '@decaf-ts/ui-decorators';
+import { CrudFormField } from '@decaf-ts/ui-decorators';
 import { AngularFieldDefinition } from './types';
 import {
   CrudOperations,
@@ -16,7 +16,7 @@ export abstract class NgxCrudFormField
 
   operation!: CrudOperations;
 
-  props!: FieldProperties & AngularFieldDefinition;
+  props!: AngularFieldDefinition;
 
   formGroup!: FormGroup;
 

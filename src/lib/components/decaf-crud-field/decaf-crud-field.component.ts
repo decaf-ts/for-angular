@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { CrudOperations } from '@decaf-ts/db-decorators';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { FieldProperties, HTML5InputTypes } from '@decaf-ts/ui-decorators';
+import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import {
   IonCheckbox,
   IonInput,
@@ -65,7 +65,7 @@ export class DecafCrudFieldComponent
   override operation!: CrudOperations;
 
   @Input({ required: true })
-  override props!: FieldProperties & AngularFieldDefinition;
+  override props!: AngularFieldDefinition;
 
   @Input()
   override name!: string;
