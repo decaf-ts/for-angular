@@ -29,7 +29,7 @@ export type AngularFieldDefinition = Omit<
   > &
   Pick<IonTextarea, 'rows' | 'cols'> &
   Pick<IonCheckbox, 'alignment' | 'justify' | 'checked'> & {
-    type: 'checkbox' | 'radio' | 'select' | TextFieldTypes;
+    type: 'checkbox' | 'radio' | 'select' | TextFieldTypes | 'textarea';
     className: string | string[];
   };
 

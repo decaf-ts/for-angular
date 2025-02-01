@@ -40,7 +40,9 @@ export class FormService {
       const control = FormService.getControlFor(formId, fieldName);
       return control.control;
     });
-    el.formGroup = new FormGroup(controls);
+    el.formGroup = new FormGroup(controls, {
+      updateOn: 'blur',
+    });
   }
 
   static forOnDestroy(el: FormElement, formId: string) {
@@ -69,20 +71,23 @@ export class FormService {
   }
 
   static validateFields(formGroup: FormGroup, fieldName?: string) {
-    function isValid(fieldName: string) {
+    function isValid(formGroup: FormGroup, fieldName: string) {
       const control = formGroup.get(fieldName);
       const status = control?.status;
       if (control instanceof FormControl && status === FormConstants.INVALID) {
-        control.markAsTouched({ onlySelf: true });
-        return !(control.invalid && (control.dirty || control.touched));
+        control.markAsTouched();
+        control.markAsDirty();
+        return !control.invalid;
+      } else {
+        throw new Error('This should be impossible');
       }
     }
 
-    if (fieldName) return isValid(fieldName);
+    if (fieldName) return isValid(formGroup, fieldName);
 
     let isValidForm = true;
-    for (const key in formGroup.controls) {
-      const validate = isValid(key);
+    for (const key in (formGroup.controls[0] as FormGroup).controls) {
+      const validate = isValid(formGroup.controls[0] as FormGroup, key);
       if (!validate) isValidForm = false;
     }
 

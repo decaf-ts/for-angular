@@ -1,26 +1,26 @@
 <ng-container #component [formGroup]="formGroup">
-<!--  @if(props.type === 'textarea') {-->
-<!--    <ion-item>-->
-<!--      <ion-textarea-->
-<!--        [ngClass]="props.className"-->
-<!--        [mode]="props.mode"-->
-<!--        [hidden]="props.hidden"-->
-<!--        [required]="props.required !== undefined ? props.required : null"-->
-<!--        [minlength]="props.minlength !== undefined ? props.minlength : null"-->
-<!--        [maxlength]="props.maxlength !== undefined ? props.maxlength : null"-->
-<!--        [readonly]="props.readonly !== undefined ? props.readonly : null"-->
-<!--        [inputmode]="props.inputmode"-->
-<!--        [spellcheck]="props.spellcheck"-->
-<!--        [rows]="props.rows"-->
-<!--        [labelPlacement]="props.labelPlacement"-->
-<!--        [value]="props.value"-->
-<!--        [fill]="props.fill"-->
-<!--        [placeholder]="translatable ? (props.placeholder | translate) : props.placeholder"-->
-<!--        [formControlName]="props.name"-->
-<!--        [label]="translatable ? (props.label | translate) : props.label">-->
-<!--      </ion-textarea>-->
-<!--    </ion-item>-->
-<!--  }-->
+  @if(props.type === 'textarea') {
+    <ion-item>
+      <ion-textarea
+        [ngClass]="props.className"
+        [mode]="props.mode"
+        [hidden]="props.hidden"
+        [required]="props.required !== undefined ? props.required : null"
+        [minlength]="props.minlength !== undefined ? props.minlength : null"
+        [maxlength]="props.maxlength !== undefined ? props.maxlength : null"
+        [readonly]="props.readonly !== undefined ? props.readonly : null"
+        [inputmode]="props.inputmode"
+        [spellcheck]="props.spellcheck"
+        [rows]="props.rows"
+        [labelPlacement]="props.labelPlacement"
+        [value]="props.value"
+        [fill]="props.fill"
+        [placeholder]="translatable ? (props.placeholder | translate) : props.placeholder"
+        [formControlName]="props.name"
+        [label]="translatable ? (props.label | translate) : props.label">
+      </ion-textarea>
+    </ion-item>
+  }
   @if(props.type === 'checkbox') {
     <ion-item [formControlName]="props.name">
       <ion-checkbox
