@@ -20,6 +20,8 @@ export abstract class NgxCrudFormField
 
   formGroup!: FormGroup;
 
+  name!: string;
+
   value!: string;
 
   protected parent?: HTMLElement;
@@ -82,6 +84,7 @@ export abstract class NgxCrudFormField
     if (!this.props || !this.operation)
       throw new InternalError(`props and operation are required`);
     this.formGroup = FormService.fromProps(this.props);
+    this.name = this.props.name;
   }
 
   getErrors() {

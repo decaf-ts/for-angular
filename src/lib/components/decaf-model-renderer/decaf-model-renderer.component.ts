@@ -16,10 +16,10 @@ import { IonSkeletonText } from '@ionic/angular/standalone';
   imports: [IonSkeletonText],
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'model-renderer',
-  templateUrl: './model-renderer.component.html',
-  styleUrl: './model-renderer.component.scss',
+  templateUrl: './decaf-model-renderer.component.html',
+  styleUrl: './decaf-model-renderer.component.scss',
 })
-export class ModelRendererComponent<M extends Model>
+export class DecafModelRendererComponent<M extends Model>
   implements OnInit, OnChanges
 {
   @Input({ required: true })

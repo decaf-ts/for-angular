@@ -1,8 +1,8 @@
-import { FormElementNameDirective } from './form-element-name.directive';
+import { DecafFieldDirective } from './decaf-field.directive';
 
 describe('FormElementNameDirective', () => {
   it('should create an instance', () => {
-    const directive = new FormElementNameDirective();
+    const directive = new DecafFieldDirective();
     expect(directive).toBeTruthy();
   });
 });

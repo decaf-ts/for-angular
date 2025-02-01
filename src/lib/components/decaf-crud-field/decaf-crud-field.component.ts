@@ -28,7 +28,7 @@ import {
   StringOrBoolean,
 } from '../../engine/types';
 import { TranslatePipe } from '@ngx-translate/core';
-import { FormElementNameDirective } from '../../directives/form-element-name.directive';
+import { DecafFieldDirective } from '../../directives/decaf-field.directive';
 import { NgClass } from '@angular/common';
 import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 
@@ -46,15 +46,15 @@ import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
     IonSelect,
     TranslatePipe,
     IonSelectOption,
-    FormElementNameDirective,
+    DecafFieldDirective,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'crud-form-field',
-  templateUrl: './crud-form-field.component.html',
-  styleUrl: './crud-form-field.component.scss',
+  templateUrl: './decaf-crud-field.component.html',
+  styleUrl: './decaf-crud-field.component.scss',
 })
-export class CrudFormFieldComponent
+export class DecafCrudFieldComponent
   extends NgxCrudFormField
   implements OnInit, OnDestroy, AfterViewInit
 {
@@ -66,6 +66,9 @@ export class CrudFormFieldComponent
 
   @Input({ required: true })
   override props!: FieldProperties & AngularFieldDefinition;
+
+  @Input()
+  override name!: string;
 
   @Input()
   options!: SelectOption[] | RadioOption[];

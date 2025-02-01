@@ -22,11 +22,11 @@ import { DefaultFormReactiveOptions } from './constants';
   standalone: true,
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'form-reactive',
-  templateUrl: './form-reactive.component.html',
-  styleUrls: ['./form-reactive.component.scss'],
+  templateUrl: './decaf-crud-form.component.html',
+  styleUrls: ['./decaf-crud-form.component.scss'],
   imports: [IonicModule, ReactiveFormsModule],
 })
-export class FormReactiveComponent
+export class DecafCrudFormComponent
   implements OnInit, AfterViewInit, FormElement, OnDestroy
 {
   @ViewChild('reactiveForm', { static: false, read: ElementRef })

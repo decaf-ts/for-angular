@@ -1,8 +1,6 @@
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, Input } from '@angular/core';
-import { CrudFormFieldComponent } from '../lib/components/crud-form-field/crud-form-field.component';
 import { TranslatePipe } from '@ngx-translate/core';
-import { FormReactiveComponent } from '../lib/components/form-reactive/form-reactive.component';
 import { ComponentsModule } from '../lib/components/components.module';
 
 @Component({

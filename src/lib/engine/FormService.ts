@@ -14,11 +14,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { Validation } from '@decaf-ts/decorator-validation';
-import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
-import { FormConstants } from './constants';
+import { AngularEngineKeys, FormConstants } from './constants';
 import { FormElement } from '../interfaces';
-import { CssClasses } from '../components/form-reactive/constants';
-// import { NgxCrudFormField } from './NgxCrudFormField';
 
 export class FormService {
   private static controls: Record<
@@ -34,15 +31,15 @@ export class FormService {
 
   static formAfterViewInit(el: FormElement, formId: string) {
     console.log('after init');
-    const controls: FormGroup[] = Array.from(
-      (el.component.nativeElement as HTMLFormElement).children,
-    )
-      .filter((e) => !e.classList.contains(CssClasses.BUTTONS_CONTAINER))
-      .map((el: Element) => {
-        const control = FormService.getControlFor(formId, el as HTMLElement);
-        if (!control) throw new Error(`No control found for ${el.id}`);
-        return control.control;
-      });
+    const selector = `*[${AngularEngineKeys.NG_REFLECT}name]`;
+    const controls = Array.from(
+      el.component.nativeElement.querySelectorAll(selector),
+    ).map((f: unknown) => {
+      const fieldName = (f as { attributes: Record<string, { value: string }> })
+        .attributes[`${AngularEngineKeys.NG_REFLECT}name`].value;
+      const control = FormService.getControlFor(formId, fieldName);
+      return control.control;
+    });
     el.formGroup = new FormGroup(controls);
   }
 
@@ -56,13 +53,13 @@ export class FormService {
     let control: AbstractControl;
     let val: unknown;
     const data: Record<string, unknown> = {};
-    for (const key in formGroup.controls) {
-      control = formGroup.controls[key];
+    for (const key in form) {
+      control = form[key].control;
       if (!HTML5CheckTypes.includes(form[key].props.type)) {
         val =
           form[key].props.type === HTML5InputTypes.NUMBER
             ? parseToNumber(control.value)
-            : escapeHtml(control.value);
+            : escapeHtml(control.value[key]);
       } else {
         val = control.value;
       }
@@ -190,19 +187,18 @@ export class FormService {
     props: FieldProperties & AngularFieldDefinition,
   ) {
     this.controls[formId] = {};
-    this.controls[formId][(field as unknown as { name: string }).name] = {
+    this.controls[formId][props.name] = {
       control: control,
       props: props,
     };
   }
 
-  static getControlFor(formId: string, el: HTMLElement) {
+  static getControlFor(formId: string, fieldName: string) {
     if (!(formId in this.controls))
       throw new Error(`Form ${formId} not registered`);
-    const name = (el as unknown as { name: string }).name;
-    if (!(name in this.controls[formId]))
-      throw new Error(`No control defined for el ${el.id}`);
-    return this.controls[formId][name];
+    if (!(fieldName in this.controls[formId]))
+      throw new Error(`No control defined for el ${fieldName}`);
+    return this.controls[formId][fieldName];
   }
 
   static unregister(formId: string, field?: HTMLElement) {

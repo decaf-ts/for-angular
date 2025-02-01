@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ModelRendererComponent } from './model-renderer.component';
+import { DecafModelRendererComponent } from './decaf-model-renderer.component';
 import { ForAngularModel } from '../../../app/model/DemoModel';
 import { Model } from '@decaf-ts/decorator-validation';
 import { RenderingEngine } from '@decaf-ts/ui-decorators';
@@ -9,8 +9,8 @@ import { AngularFieldDefinition, NgxRenderingEngine } from '../../engine';
 Model.setBuilder(Model.fromModel);
 
 describe('NgxModelRendererComponent', () => {
-  let component: ModelRendererComponent<Model>;
-  let fixture: ComponentFixture<ModelRendererComponent<Model>>;
+  let component: DecafModelRendererComponent<Model>;
+  let fixture: ComponentFixture<DecafModelRendererComponent<Model>>;
 
   let engine: RenderingEngine<AngularFieldDefinition>;
 
@@ -20,10 +20,10 @@ describe('NgxModelRendererComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ModelRendererComponent],
+      imports: [DecafModelRendererComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ModelRendererComponent);
+    fixture = TestBed.createComponent(DecafModelRendererComponent);
     component = fixture.componentInstance;
     component.model = new ForAngularModel();
     fixture.detectChanges();

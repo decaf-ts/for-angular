@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { ModelRendererComponent } from './model-renderer/model-renderer.component';
-import { CrudFormFieldComponent } from './crud-form-field/crud-form-field.component';
-import { FormReactiveComponent } from './form-reactive/form-reactive.component';
+import { DecafCrudFieldComponent } from './decaf-crud-field/decaf-crud-field.component';
+import { DecafCrudFormComponent } from './decaf-crud-form/decaf-crud-form.component';
+import { DecafModelRendererComponent } from './decaf-model-renderer/decaf-model-renderer.component';
 
 const components = [
-  CrudFormFieldComponent,
-  FormReactiveComponent,
-  ModelRendererComponent,
+  DecafCrudFieldComponent,
+  DecafCrudFormComponent,
+  DecafModelRendererComponent,
 ];
 
 @NgModule({

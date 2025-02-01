@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Dynamic } from './decorators';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
-import { FormElementNameDirective } from '../directives/form-element-name.directive';
+import { DecafFieldDirective } from '../directives/decaf-field.directive';
 import { IonItem } from '@ionic/angular';
 
 describe('decorators', () => {
@@ -22,13 +22,12 @@ describe('decorators', () => {
       IonSelect,
       TranslatePipe,
       IonSelectOption,
-      FormElementNameDirective,
+      DecafFieldDirective,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     templateUrl:
-      '../../../src/lib/components/crud-form-field/crud-form-field.component.html',
-    styleUrl:
-      '../../../src/lib/components/crud-form-field/crud-form-field.component.scss',
+      '../components/crud-form-field/decaf-crud-field.component.html',
+    styleUrl: '../components/crud-form-field/decaf-crud-field.component.scss',
   })
   class DecoratorTestFormField {}
 

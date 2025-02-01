@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { FormReactiveComponent } from './form-reactive.component';
+import { DecafCrudFormComponent } from './decaf-crud-form.component';
 
 describe('FormReactiveComponent', () => {
-  let component: FormReactiveComponent;
-  let fixture: ComponentFixture<FormReactiveComponent>;
+  let component: DecafCrudFormComponent;
+  let fixture: ComponentFixture<DecafCrudFormComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), FormReactiveComponent],
+      imports: [IonicModule.forRoot(), DecafCrudFormComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(FormReactiveComponent);
+    fixture = TestBed.createComponent(DecafCrudFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
