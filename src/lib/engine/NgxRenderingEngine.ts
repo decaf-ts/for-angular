@@ -1,4 +1,4 @@
-import { RenderingEngine, ValidatableByType } from '@decaf-ts/ui-decorators';
+import { RenderingEngine } from '@decaf-ts/ui-decorators';
 import { AngularFieldDefinition, ComponentMetadata } from './types';
 import { AngularEngineKeys } from './constants';
 import { Constructor } from '@decaf-ts/decorator-validation';
@@ -10,8 +10,8 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition> 
     { constructor: Constructor<unknown>; metadata: ComponentMetadata }
   >;
 
-  constructor(flavour = 'angular') {
-    super(flavour);
+  constructor() {
+    super('angular');
   }
 
   override async initialize(...args: any[]): Promise<void> {
@@ -44,6 +44,4 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition> 
   static override key(key: string) {
     return `${AngularEngineKeys.REFLECT}${key}`;
   }
-
-  static basicInputTypes() {}
 }

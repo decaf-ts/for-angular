@@ -15,7 +15,7 @@ import { IonSkeletonText } from '@ionic/angular/standalone';
   standalone: true,
   imports: [IonSkeletonText],
   // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'model-renderer',
+  selector: 'decaf-model-renderer',
   templateUrl: './decaf-model-renderer.component.html',
   styleUrl: './decaf-model-renderer.component.scss',
 })

@@ -5,7 +5,7 @@ import {
   HTML5InputTypes,
   parseToNumber,
 } from '@decaf-ts/ui-decorators';
-import { AngularFieldDefinition } from './types';
+import { AngularFieldDefinition, FieldUpdateMode } from './types';
 import {
   AbstractControl,
   FormControl,
@@ -30,19 +30,22 @@ export class FormService {
     >
   > = {};
 
-  static formAfterViewInit(el: FormElement, formId: string) {
-    console.log('after init');
+  static formAfterViewInit(
+    el: FormElement,
+    formId: string,
+    formUpdateMode: FieldUpdateMode = 'blur',
+  ) {
     const selector = `*[${AngularEngineKeys.NG_REFLECT}name]`;
     const controls = Array.from(
       el.component.nativeElement.querySelectorAll(selector),
     ).map((f: unknown) => {
       const fieldName = (f as { attributes: Record<string, { value: string }> })
         .attributes[`${AngularEngineKeys.NG_REFLECT}name`].value;
-      const control = FormService.getControlFor(formId, fieldName);
+      const control = FormService.getFieldByName(formId, fieldName);
       return control.control;
     });
     el.formGroup = new FormGroup(controls, {
-      updateOn: 'blur',
+      updateOn: formUpdateMode,
     });
   }
 
@@ -95,7 +98,10 @@ export class FormService {
     return isValidForm;
   }
 
-  static fromProps(props: AngularFieldDefinition): FormGroup {
+  static fromProps(
+    props: AngularFieldDefinition,
+    updateMode: FieldUpdateMode,
+  ): FormGroup {
     const controls: Record<string, FormControl> = {};
     const validators = this.validatorsFromProps(props);
     const composed = validators.length ? Validators.compose(validators) : null;
@@ -110,7 +116,7 @@ export class FormService {
       composed,
     );
 
-    return new FormGroup(controls);
+    return new FormGroup(controls, { updateOn: updateMode });
   }
 
   private static getFormById(id: string) {
@@ -166,14 +172,6 @@ export class FormService {
       control: control,
       props: props,
     };
-  }
-
-  static getControlFor(formId: string, fieldName: string) {
-    if (!(formId in this.controls))
-      throw new Error(`Form ${formId} not registered`);
-    if (!(fieldName in this.controls[formId]))
-      throw new Error(`No control defined for el ${fieldName}`);
-    return this.controls[formId][fieldName];
   }
 
   static unregister(formId: string, field?: HTMLElement) {

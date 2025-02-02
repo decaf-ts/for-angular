@@ -8,16 +8,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { Model } from '@decaf-ts/decorator-validation';
 import { ForAngularModule } from '../lib/for-angular.module';
 import { ComponentsModule } from '../lib/components/components.module';
-import { NgxCrudFormFieldComponent } from '../lib/components/ngx-crud-form-field/ngx-crud-form-field.component';
 import { HttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { NgxRenderingEngine } from '../lib/engine';
 
 const createTranslateLoader = function (http: HttpClient) {
   function getSuffix() {
@@ -45,7 +44,6 @@ Model.setBuilder(Model.fromModel);
     }),
     ForAngularModule.forRoot(),
     ComponentsModule,
-    NgxCrudFormFieldComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],

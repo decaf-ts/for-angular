@@ -13,7 +13,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormElement } from '../../interfaces';
 import { FormService } from '../../engine/FormService';
 import { IonicModule } from '@ionic/angular';
-import { HTMLFormTarget } from '../../engine';
+import { FieldUpdateMode, HTMLFormTarget } from '../../engine';
 import { FormReactiveOptions, FormReactiveSubmitEvent } from './types';
 import { CrudOperations } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
@@ -21,7 +21,7 @@ import { DefaultFormReactiveOptions } from './constants';
 @Component({
   standalone: true,
   // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'form-reactive',
+  selector: 'decaf-crud-form',
   templateUrl: './decaf-crud-form.component.html',
   styleUrls: ['./decaf-crud-form.component.scss'],
   imports: [IonicModule, ReactiveFormsModule],
@@ -29,6 +29,9 @@ import { DefaultFormReactiveOptions } from './constants';
 export class DecafCrudFormComponent
   implements OnInit, AfterViewInit, FormElement, OnDestroy
 {
+  @Input()
+  updateOn: FieldUpdateMode = 'change';
+
   @ViewChild('reactiveForm', { static: false, read: ElementRef })
   component!: ElementRef;
 

@@ -23,6 +23,7 @@ import {
 } from '@ionic/angular/standalone';
 import {
   AngularFieldDefinition,
+  FieldUpdateMode,
   RadioOption,
   SelectOption,
   StringOrBoolean,
@@ -50,7 +51,7 @@ import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'crud-form-field',
+  selector: 'decaf-crud-field',
   templateUrl: './decaf-crud-field.component.html',
   styleUrl: './decaf-crud-field.component.scss',
 })
@@ -58,6 +59,9 @@ export class DecafCrudFieldComponent
   extends NgxCrudFormField
   implements OnInit, OnDestroy, AfterViewInit
 {
+  @Input()
+  updateOn: FieldUpdateMode = 'change';
+
   @ViewChild('component', { read: ElementRef })
   override component!: ElementRef;
 
@@ -74,9 +78,6 @@ export class DecafCrudFieldComponent
   options!: SelectOption[] | RadioOption[];
 
   @Input()
-  override value!: string;
-
-  @Input()
   override formGroup!: FormGroup;
 
   @Input()
@@ -91,7 +92,7 @@ export class DecafCrudFieldComponent
   }
 
   ngOnInit(): void {
-    super.onInit();
+    super.onInit(this.updateOn);
   }
 
   protected readonly HTML5InputTypes: string[] = Object.values(HTML5InputTypes);

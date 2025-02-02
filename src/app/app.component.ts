@@ -2,6 +2,17 @@ import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, Input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ComponentsModule } from '../lib/components/components.module';
+import { NgxRenderingEngine } from '../lib/engine';
+import { RenderingEngine } from '@decaf-ts/ui-decorators';
+
+try {
+  const engine = new NgxRenderingEngine();
+  console.log(`decaf's angular rendering engine loaded`);
+  const eng = RenderingEngine.get();
+  console.log(`decaf's angular rendering accessible`);
+} catch (e: unknown) {
+  throw new Error(`Failed to load rendering engine: ${e}`);
+}
 
 const props = {
   name: 'field-name',

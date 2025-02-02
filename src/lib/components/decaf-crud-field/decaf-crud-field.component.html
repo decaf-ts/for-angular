@@ -117,8 +117,10 @@
   @if(!formGroup.pristine && !formGroup.valid) {
     <div class="error uk-flex uk-flex-top">
       @for(item of getErrors(); track item.key) {
-        <span color="danger" class="ti ti-alert-triangle"></span>
-        <span>{{item.key}} - {{ ("errors." + item.message) | translate }}</span>
+        <p>
+          <span color="danger" class="ti ti-alert-triangle"></span>
+          <span>{{item.key}} - {{ sf(("errors." + item.message) | translate, props[item.key]) }}</span>
+        </p>
       }
     </div>
   }

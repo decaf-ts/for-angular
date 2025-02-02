@@ -1,7 +1,7 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import {
-  ModelKeys,
   Validation,
+  ValidationKeys,
   Validator,
 } from '@decaf-ts/decorator-validation';
 import { RenderingEngine } from '@decaf-ts/ui-decorators';
@@ -11,13 +11,21 @@ export class ValidatorFactory {
     if (!Validation.keys().includes(key))
       throw new Error('Unsupported custom validation');
 
+    /**
+     * TODO: This is only needed until the validator refacture
+     * @param arg
+     */
     const parseArgs = (arg: unknown) => {
       switch (key) {
-        case ModelKeys.TYPE:
-          return RenderingEngine.get().translate(arg as string, false);
-        default:
-          return arg;
+        case ValidationKeys.REQUIRED:
+        case ValidationKeys.EMAIL:
+        case ValidationKeys.URL:
+        case ValidationKeys.PASSWORD:
+          return [];
+        case ValidationKeys.TYPE:
+          arg = RenderingEngine.get().translate(arg as string, false);
       }
+      return [arg];
     };
 
     const validatorFn: ValidatorFn = (
@@ -25,7 +33,13 @@ export class ValidatorFactory {
     ): ValidationErrors | null => {
       const validator = Validation.get(key) as Validator;
       const value = control.value;
-      const errs = validator.hasErrors(value, parseArgs(arg));
+      const actualArg = parseArgs(arg);
+      let errs;
+      try {
+        errs = validator.hasErrors(value, ...actualArg);
+      } catch (e: unknown) {
+        console.warn(`${key} validator failed to validate: ${e}`);
+      }
       if (!errs) return null;
       const result: Record<string, boolean> = {};
       result[key] = true;

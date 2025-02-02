@@ -9,24 +9,25 @@ import {
 
 const routes: Routes = [
   {
-    path: '',
+    path: 'demo',
     redirectTo: 'home',
     // carregar componente sem redirecionar
-    // loadChildren: () => import('./pages/home/home.module').then( m => m.HomePageModule),
+    loadChildren: () =>
+      import('./pages/demo/demo.module').then((m) => m.DemoPageModule),
     pathMatch: 'full',
   },
   {
-    path: 'model/:managerName/',
+    path: 'model/:modelName/',
     loadChildren: () =>
       import('./pages/model/model.module').then((m) => m.ModelPageModule),
   },
   {
-    path: 'model/:managerName/:operation',
+    path: 'model/:modelName/:operation',
     loadChildren: () =>
       import('./pages/model/model.module').then((m) => m.ModelPageModule),
   },
   {
-    path: 'model/:managerName/:operation/:modelId',
+    path: 'model/:modelName/:operation/:modelId',
     loadChildren: () =>
       import('./pages/model/model.module').then((m) => m.ModelPageModule),
   },

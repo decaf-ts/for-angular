@@ -1,5 +1,5 @@
 import { CrudFormField } from '@decaf-ts/ui-decorators';
-import { AngularFieldDefinition } from './types';
+import { AngularFieldDefinition, FieldUpdateMode } from './types';
 import {
   CrudOperations,
   InternalError,
@@ -8,6 +8,7 @@ import {
 import { ControlValueAccessor, FormGroup } from '@angular/forms';
 import { ElementRef } from '@angular/core';
 import { FormService } from './FormService';
+import { sf } from '@decaf-ts/decorator-validation';
 
 export abstract class NgxCrudFormField
   implements CrudFormField<AngularFieldDefinition>, ControlValueAccessor
@@ -25,6 +26,12 @@ export abstract class NgxCrudFormField
   value!: string;
 
   protected parent?: HTMLElement;
+
+  /**
+   * @description provides access to {@link sf} function
+   * @summary enables easy access to error message formating on the HTL side
+   */
+  sf = sf;
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onChange: () => unknown = () => {};
@@ -80,10 +87,10 @@ export abstract class NgxCrudFormField
       FormService.unregister(this.parent.id, this.component.nativeElement);
   }
 
-  onInit(): void {
+  onInit(updateOn: FieldUpdateMode): void {
     if (!this.props || !this.operation)
       throw new InternalError(`props and operation are required`);
-    this.formGroup = FormService.fromProps(this.props);
+    this.formGroup = FormService.fromProps(this.props, updateOn);
     this.name = this.props.name;
   }
 

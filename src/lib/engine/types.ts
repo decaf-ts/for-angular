@@ -2,6 +2,8 @@ import { FieldProperties } from '@decaf-ts/ui-decorators';
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 
+export type FieldUpdateMode = 'change' | 'blur' | 'submit';
+
 export interface ComponentMetadata {
   changeDetection: number;
   selector: string;
