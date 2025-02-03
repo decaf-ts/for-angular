@@ -11,10 +11,10 @@ import {
 } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormElement } from '../../interfaces';
-import { FormService } from '../../engine/FormService';
+import { NgxFormService } from '../../engine/NgxFormService';
 import { IonicModule } from '@ionic/angular';
 import { FieldUpdateMode, HTMLFormTarget } from '../../engine';
-import { FormReactiveOptions, FormReactiveSubmitEvent } from './types';
+import { CrudFormOptions, FormReactiveSubmitEvent } from './types';
 import { CrudOperations } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
 
@@ -42,7 +42,7 @@ export class DecafCrudFormComponent
   method: 'get' | 'post' | 'event' = 'event';
 
   @Input()
-  options!: FormReactiveOptions;
+  options!: CrudFormOptions;
 
   @Input()
   action?: string;
@@ -60,11 +60,10 @@ export class DecafCrudFormComponent
   submitEvent = new EventEmitter<FormReactiveSubmitEvent>();
 
   ngAfterViewInit() {
-    FormService.formAfterViewInit(this, this.formId);
+    NgxFormService.formAfterViewInit(this, this.formId);
   }
 
   ngOnInit() {
-    console.log('onInit');
     this.options = Object.assign(
       {},
       DefaultFormReactiveOptions,
@@ -74,47 +73,33 @@ export class DecafCrudFormComponent
   }
 
   ngOnDestroy() {
-    FormService.forOnDestroy(this, this.formId);
+    NgxFormService.forOnDestroy(this, this.formId);
   }
 
   /**
    * @param  {Event} event
    */
   submit(event: SubmitEvent) {
-    console.log('onSubmit');
     event.preventDefault();
     event.stopImmediatePropagation();
     event.stopPropagation();
 
     if (!this.formGroup.valid)
-      return FormService.validateFields(this.formGroup);
-    // if (!self.form?.valid) {
-    //   const isValid = self.formService.validateFields(self.form as FormGroup);
-    //   if(!isValid)
-    //       return false;
-    //   this.form?.setErrors(null);
-    // }
+      return NgxFormService.validateFields(this.formGroup);
+    console.log('onSubmit');
 
     // fix para valores de campos radio e check
-    const data = FormService.getFormData(this.formId);
-    // const button = self.buttons?.submit as FormButton;
+    const data = NgxFormService.getFormData(this.formId);
 
     const submitEvent: FormReactiveSubmitEvent = {
       data: data,
     };
-    //
-    // if(!self.form?.valid)
-    //   return self.formService.validateFields(self.form as FormGroup);
-    // // if (!self.form?.valid) {
-    // //   const isValid = self.formService.validateFields(self.form as FormGroup);
-    // //   if(!isValid)
-    // //       return false;
-    // //   this.form?.setErrors(null);
-    // // }
-    //
-    // // fix para valores de campos radio e check
-    // const data = self.formService.getFormData(self.form as FormGroup, self.fields);
-    // const button = self.buttons?.submit as FormButton;
+
+    if (this.action)
+      return this.component.nativeElement.dispatchEvent(
+        new CustomEvent('submit', data),
+      );
+
     this.submitEvent.emit(submitEvent);
     // self.emitEvent({
     //   role: button?.role || FORM_BUTTON_ROLES.SUBMIT,

@@ -2,7 +2,7 @@ export interface FormReactiveSubmitEvent {
   data: Record<string, unknown>;
 }
 
-export interface FormReactiveOptions {
+export interface CrudFormOptions {
   buttons: {
     submit: {
       icon?: string;

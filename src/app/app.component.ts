@@ -3,13 +3,9 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, Input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ComponentsModule } from '../lib/components/components.module';
 import { NgxRenderingEngine } from '../lib/engine';
-import { RenderingEngine } from '@decaf-ts/ui-decorators';
 
 try {
   const engine = new NgxRenderingEngine();
-  console.log(`decaf's angular rendering engine loaded`);
-  const eng = RenderingEngine.get();
-  console.log(`decaf's angular rendering accessible`);
 } catch (e: unknown) {
   throw new Error(`Failed to load rendering engine: ${e}`);
 }
@@ -68,7 +64,7 @@ export class AppComponent {
 
   operation: CrudOperations = OperationKeys.CREATE;
 
-  props1 = getProps('1', 'text', 'initial value');
+  props1 = getProps('1', 'text');
   props2 = Object.assign({}, getProps('2', 'text'), {
     minlength: 10,
     maxlength: 15,

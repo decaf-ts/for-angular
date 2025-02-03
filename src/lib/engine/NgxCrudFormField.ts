@@ -7,7 +7,7 @@ import {
 } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormGroup } from '@angular/forms';
 import { ElementRef } from '@angular/core';
-import { FormService } from './FormService';
+import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
 
 export abstract class NgxCrudFormField
@@ -61,7 +61,7 @@ export abstract class NgxCrudFormField
       case OperationKeys.UPDATE:
       case OperationKeys.DELETE:
         try {
-          parent = FormService.getParentEl(
+          parent = NgxFormService.getParentEl(
             this.component.nativeElement,
             'form',
           );
@@ -70,12 +70,7 @@ export abstract class NgxCrudFormField
             `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`,
           );
         }
-        FormService.register(
-          parent.id,
-          this.component.nativeElement,
-          this.formGroup,
-          this.props,
-        );
+        NgxFormService.register(parent.id, this.formGroup, this.props);
         return parent;
       default:
         throw new Error(`Invalid operation: ${this.operation}`);
@@ -84,13 +79,13 @@ export abstract class NgxCrudFormField
 
   onDestroy(): void {
     if (this.parent)
-      FormService.unregister(this.parent.id, this.component.nativeElement);
+      NgxFormService.unregister(this.parent.id, this.component.nativeElement);
   }
 
   onInit(updateOn: FieldUpdateMode): void {
     if (!this.props || !this.operation)
       throw new InternalError(`props and operation are required`);
-    this.formGroup = FormService.fromProps(this.props, updateOn);
+    this.formGroup = NgxFormService.fromProps(this.props, updateOn);
     this.name = this.props.name;
   }
 

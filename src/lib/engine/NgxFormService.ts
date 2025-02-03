@@ -14,11 +14,11 @@ import {
   Validators,
 } from '@angular/forms';
 import { Validation } from '@decaf-ts/decorator-validation';
-import { AngularEngineKeys, FormConstants } from './constants';
+import { AngularEngineKeys } from './constants';
 import { FormElement } from '../interfaces';
 import { ValidatorFactory } from './ValidatorFactory';
 
-export class FormService {
+export class NgxFormService {
   private static controls: Record<
     string,
     Record<
@@ -30,18 +30,22 @@ export class FormService {
     >
   > = {};
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private constructor() {}
+
   static formAfterViewInit(
     el: FormElement,
     formId: string,
     formUpdateMode: FieldUpdateMode = 'blur',
   ) {
     const selector = `*[${AngularEngineKeys.NG_REFLECT}name]`;
-    const controls = Array.from(
+    const elements = Array.from(
       el.component.nativeElement.querySelectorAll(selector),
-    ).map((f: unknown) => {
+    );
+    const controls = elements.map((f: unknown) => {
       const fieldName = (f as { attributes: Record<string, { value: string }> })
         .attributes[`${AngularEngineKeys.NG_REFLECT}name`].value;
-      const control = FormService.getFieldByName(formId, fieldName);
+      const control = NgxFormService.getFieldByName(formId, fieldName);
       return control.control;
     });
     el.formGroup = new FormGroup(controls, {
@@ -50,7 +54,7 @@ export class FormService {
   }
 
   static forOnDestroy(el: FormElement, formId: string) {
-    FormService.unregister(formId, el.component.nativeElement);
+    NgxFormService.unregister(formId, el.component.nativeElement);
   }
 
   static getFormData(formId: string) {
@@ -77,8 +81,7 @@ export class FormService {
   static validateFields(formGroup: FormGroup, fieldName?: string) {
     function isValid(formGroup: FormGroup, fieldName: string) {
       const control = formGroup.get(fieldName);
-      const status = control?.status;
-      if (control instanceof FormControl && status === FormConstants.INVALID) {
+      if (control instanceof FormControl) {
         control.markAsTouched();
         control.markAsDirty();
         return !control.invalid;
@@ -90,9 +93,11 @@ export class FormService {
     if (fieldName) return isValid(formGroup, fieldName);
 
     let isValidForm = true;
-    for (const key in (formGroup.controls[0] as FormGroup).controls) {
-      const validate = isValid(formGroup.controls[0] as FormGroup, key);
-      if (!validate) isValidForm = false;
+    for (const fg of formGroup.controls as unknown as FormGroup[]) {
+      for (const key in fg.controls) {
+        const validate = isValid(fg, key);
+        if (!validate) isValidForm = false;
+      }
     }
 
     return isValidForm;
@@ -120,13 +125,13 @@ export class FormService {
   }
 
   private static getFormById(id: string) {
-    if (!(id in FormService.controls))
+    if (!(id in NgxFormService.controls))
       throw new Error(`Could not find formId ${id}`);
-    return FormService.controls[id];
+    return NgxFormService.controls[id];
   }
 
   private static getFieldByName(formId: string, name: string) {
-    const form = FormService.getFormById(formId);
+    const form = NgxFormService.getFormById(formId);
     if (!(name in form))
       throw new Error(`Could not find field ${name} in form`);
     return form[name];
@@ -163,11 +168,10 @@ export class FormService {
 
   static register(
     formId: string,
-    field: HTMLElement,
     control: FormGroup,
     props: FieldProperties & AngularFieldDefinition,
   ) {
-    this.controls[formId] = {};
+    this.controls[formId] = this.controls[formId] || {};
     this.controls[formId][props.name] = {
       control: control,
       props: props,

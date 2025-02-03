@@ -1,10 +1,10 @@
-import { FormReactiveOptions } from './types';
+import { CrudFormOptions } from './types';
 
 export const CssClasses = {
   BUTTONS_CONTAINER: 'buttons-container',
 };
 
-export const DefaultFormReactiveOptions: FormReactiveOptions = {
+export const DefaultFormReactiveOptions: CrudFormOptions = {
   buttons: {
     submit: {
       text: 'Submit',
