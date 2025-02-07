@@ -66,10 +66,17 @@ export class NgxFormService {
     for (const key in form) {
       control = form[key].control;
       if (!HTML5CheckTypes.includes(form[key].props.type)) {
-        val =
-          form[key].props.type === HTML5InputTypes.NUMBER
-            ? parseToNumber(control.value)
-            : escapeHtml(control.value[key]);
+        switch (form[key].props.type) {
+          case HTML5InputTypes.NUMBER:
+            val = parseToNumber(control.value);
+            break;
+          case HTML5InputTypes.DATE:
+          case HTML5InputTypes.DATETIME_LOCAL:
+            val = new Date(control.value[key]);
+            break;
+          default:
+            val = escapeHtml(control.value[key]);
+        }
       } else {
         val = control.value;
       }

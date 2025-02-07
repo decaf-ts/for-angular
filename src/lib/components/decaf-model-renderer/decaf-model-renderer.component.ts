@@ -36,7 +36,7 @@ export class DecafModelRendererComponent<M extends Model>
   ngOnInit(): void {
     this.model =
       typeof this.model === 'string'
-        ? (Model.build({}, this.model) as M)
+        ? (Model.build({}, JSON.parse(this.model)) as M)
         : this.model;
     this.output = RenderingEngine.render(this.model);
   }
