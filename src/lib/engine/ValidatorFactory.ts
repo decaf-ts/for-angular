@@ -34,6 +34,8 @@ export class ValidatorFactory {
       const validator = Validation.get(key) as Validator;
       const value = control.value;
       const actualArg = parseArgs(arg);
+      if (key === ValidationKeys.TYPE) {
+      }
       let errs;
       try {
         errs = validator.hasErrors(value, ...actualArg);

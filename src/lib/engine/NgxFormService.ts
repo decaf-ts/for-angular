@@ -18,7 +18,21 @@ import { AngularEngineKeys } from './constants';
 import { FormElement } from '../interfaces';
 import { ValidatorFactory } from './ValidatorFactory';
 
+/**
+ * @summary Service for managing Angular forms and form controls.
+ * @description
+ * The NgxFormService provides utility methods for handling form initialization,
+ * validation, data retrieval, and form control management in Angular applications.
+ * It offers a centralized way to manage form controls, perform validations, and
+ * handle form-related operations.
+ */
 export class NgxFormService {
+  /**
+   * @summary Storage for form controls.
+   * @description
+   * A static object that stores form controls indexed by form ID and field name.
+   * @type {Record<string, Record<string, { control: FormGroup; props: AngularFieldDefinition }>>}
+   */
   private static controls: Record<
     string,
     Record<
@@ -33,6 +47,23 @@ export class NgxFormService {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
+  /**
+   * Initializes the form after the view has been initialized.
+   * This method sets up the form controls and creates a FormGroup.
+   *
+   * @param el - The form element to initialize.
+   * @param formId - The unique identifier for the form.
+   * @param formUpdateMode - The update mode for the form. Defaults to 'blur'.
+   */
+  /**
+   * @summary Initializes the form after view initialization.
+   * @description
+   * Sets up form controls and creates a FormGroup for the given form element.
+   *
+   * @param {FormElement} el - The form element to initialize.
+   * @param {string} formId - The unique identifier for the form.
+   * @param {FieldUpdateMode} [formUpdateMode='blur'] - The update mode for the form.
+   */
   static formAfterViewInit(
     el: FormElement,
     formId: string,
@@ -53,11 +84,28 @@ export class NgxFormService {
     });
   }
 
+  /**
+   * @summary Handles form component destruction.
+   * @description
+   * Unregisters the form from the service when the component is destroyed.
+   *
+   * @param {FormElement} el - The form element being destroyed.
+   * @param {string} formId - The unique identifier of the form to unregister.
+   */
   static forOnDestroy(el: FormElement, formId: string) {
     NgxFormService.unregister(formId, el.component.nativeElement);
   }
 
-  static getFormData(formId: string) {
+  /**
+   * @summary Retrieves form data for a given form ID.
+   * @description
+   * Processes form controls and returns their values as an object.
+   *
+   * @param {string} formId - The unique identifier of the form to retrieve data from.
+   * @returns {Record<string, unknown>} An object containing the form data.
+   * @throws {Error} If the form with the given ID is not found.
+   */
+  static getFormData(formId: string): Record<string, unknown> {
     if (!(formId in this.controls)) throw new Error(`form ${formId} not found`);
     const form = this.controls[formId];
     let control: AbstractControl;
@@ -85,7 +133,16 @@ export class NgxFormService {
     return data;
   }
 
-  static validateFields(formGroup: FormGroup, fieldName?: string) {
+  /**
+   * @summary Validates form fields.
+   * @description
+   * Validates either a specific field or all fields in the form group.
+   *
+   * @param {FormGroup} formGroup - The FormGroup to validate.
+   * @param {string} [fieldName] - Optional name of a specific field to validate.
+   * @returns {boolean} Indicates whether the validation passed (true) or failed (false).
+   */
+  static validateFields(formGroup: FormGroup, fieldName?: string): boolean {
     function isValid(formGroup: FormGroup, fieldName: string) {
       const control = formGroup.get(fieldName);
       if (control instanceof FormControl) {
@@ -110,6 +167,15 @@ export class NgxFormService {
     return isValidForm;
   }
 
+  /**
+   * @summary Creates a FormGroup from field properties.
+   * @description
+   * Generates a new FormGroup instance based on the provided field definition and update mode.
+   *
+   * @param {AngularFieldDefinition} props - The Angular field definition properties.
+   * @param {FieldUpdateMode} updateMode - The update mode for the form group.
+   * @returns {FormGroup} A new FormGroup instance.
+   */
   static fromProps(
     props: AngularFieldDefinition,
     updateMode: FieldUpdateMode,
@@ -131,12 +197,27 @@ export class NgxFormService {
     return new FormGroup(controls, { updateOn: updateMode });
   }
 
+  /**
+   * Retrieves a form by its ID from the stored controls.
+   *
+   * @param id - The unique identifier of the form to retrieve.
+   * @returns The form controls associated with the given ID.
+   * @throws Error if the form with the given ID is not found.
+   */
   private static getFormById(id: string) {
     if (!(id in NgxFormService.controls))
       throw new Error(`Could not find formId ${id}`);
     return NgxFormService.controls[id];
   }
 
+  /**
+   * Retrieves a specific field from a form by its name.
+   *
+   * @param formId - The unique identifier of the form.
+   * @param name - The name of the field to retrieve.
+   * @returns The field control and properties.
+   * @throws Error if the field is not found in the form.
+   */
   private static getFieldByName(formId: string, name: string) {
     const form = NgxFormService.getFormById(formId);
     if (!(name in form))
@@ -144,6 +225,12 @@ export class NgxFormService {
     return form[name];
   }
 
+  /**
+   * Generates an array of validator functions from the provided field properties.
+   *
+   * @param props - The field properties containing validation rules.
+   * @returns An array of ValidatorFn instances.
+   */
   private static validatorsFromProps(
     props: FieldProperties & AngularFieldDefinition,
   ): ValidatorFn[] {
@@ -185,6 +272,12 @@ export class NgxFormService {
     };
   }
 
+  /**
+   * Unregisters a form or a specific field from the service.
+   *
+   * @param formId - The unique identifier of the form.
+   * @param field - Optional. The specific field to unregister. If not provided, the entire form is unregistered.
+   */
   static unregister(formId: string, field?: HTMLElement) {
     if (!field) delete this.controls[formId];
     else

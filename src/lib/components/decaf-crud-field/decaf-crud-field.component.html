@@ -114,7 +114,7 @@
   @else {
     <h1>INVALID FIELD TYPE</h1>
   }
-  @if(!formGroup.pristine && !formGroup.valid) {
+  @if((!formGroup.pristine || formGroup.touched) && !formGroup.valid) {
     <div class="error uk-flex uk-flex-top">
       @for(item of getErrors(); track item.key) {
         <p>
