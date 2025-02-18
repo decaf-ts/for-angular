@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 
-export function angular() {
+export default function angular() {
   return new Command()
     .command('generate <type> <name>')
     .description("decaf-ts' angular CLI module")
