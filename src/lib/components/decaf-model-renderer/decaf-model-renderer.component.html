@@ -1,6 +1,6 @@
-<div #loadingElement>
-  <ion-skeleton-text [animated]="true" style="width: 100%;"></ion-skeleton-text>
-</div>
-<ng-container *ngComponentOutlet="CompleteComponent;
-  inputs: myInputs;        injector: myInjector;        content: myContent      "    ></ng-container>
-<ng-template #componentElementContainer></ng-template>
+<!--<div #loadingElement>-->
+<!--  <ion-skeleton-text [animated]="true" style="width: 100%;"></ion-skeleton-text>-->
+<!--</div>-->
+<ng-container *ngComponentOutlet="componentTypeExpression;
+                                  content: contentNodesExpression;">
+</ng-container>
