@@ -32,6 +32,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { DecafFieldDirective } from '../../directives/decaf-field.directive';
 import { NgClass } from '@angular/common';
 import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
+import { Dynamic } from '../../engine/decorators';
 
 // @Dynamic()
 @Component({

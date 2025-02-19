@@ -1,11 +1,15 @@
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, Input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ComponentsModule } from '../lib/components/components.module';
 import { NgxRenderingEngine } from '../lib/engine';
+import { ForAngularModel } from './model/DemoModel';
+import { DecafCrudFieldComponent } from '../lib/components/decaf-crud-field/decaf-crud-field.component';
 
 try {
   const engine = new NgxRenderingEngine();
+  Model.setBuilder(Model.fromModel as ModelBuilderFunction);
 } catch (e: unknown) {
   throw new Error(`Failed to load rendering engine: ${e}`);
 }
@@ -52,7 +56,7 @@ nextWeek.setDate(lastWeek.getDate() + 7);
   standalone: true,
   selector: 'app-root',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [ComponentsModule, TranslatePipe],
+  imports: [ComponentsModule, DecafCrudFieldComponent, TranslatePipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
@@ -80,4 +84,12 @@ export class AppComponent {
     max: nextWeek,
   });
   props5 = Object.assign({}, getProps('5', 'select', ''));
+
+  model1 = new ForAngularModel({
+    name: 'John Doe',
+    birthdate: now,
+    email: 'john.doe@example.com',
+    website: 'https://johndoe.example.com',
+    password: 'password123',
+  });
 }

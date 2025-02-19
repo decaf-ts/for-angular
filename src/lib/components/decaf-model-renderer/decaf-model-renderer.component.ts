@@ -4,16 +4,17 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
-  ViewChild,
   ViewContainerRef,
 } from '@angular/core';
 import { Model } from '@decaf-ts/decorator-validation';
-import { RenderingEngine } from '@decaf-ts/ui-decorators';
+import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
 import { IonSkeletonText } from '@ionic/angular/standalone';
+import { AngularFieldDefinition, NgxRenderingEngine } from '../../engine';
+import { NgComponentOutlet } from '@angular/common';
 
 @Component({
   standalone: true,
-  imports: [IonSkeletonText],
+  imports: [IonSkeletonText, NgComponentOutlet],
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'decaf-model-renderer',
   templateUrl: './decaf-model-renderer.component.html',
@@ -25,13 +26,21 @@ export class DecafModelRendererComponent<M extends Model>
   @Input({ required: true })
   model!: M | string;
 
-  output!: string;
+  component!: unknown;
 
-  @ViewChild('componentElementContainer', {
-    static: true,
-    read: ViewContainerRef,
-  })
-  componentElementContainer!: ViewContainerRef;
+  props!: Record<string, unknown>;
+
+  content!: { id: string }[][];
+
+  output!: FieldDefinition<AngularFieldDefinition>;
+  //
+  // @ViewChild('componentElementContainer', {
+  //   static: true,
+  //   read: ViewContainerRef,
+  // })
+  // componentElementContainer!: ViewContainerRef;
+
+  constructor(private vcr: ViewContainerRef) {}
 
   ngOnInit(): void {
     this.model =
@@ -39,6 +48,11 @@ export class DecafModelRendererComponent<M extends Model>
         ? (Model.build({}, JSON.parse(this.model)) as M)
         : this.model;
     this.output = RenderingEngine.render(this.model);
+    this.component = NgxRenderingEngine.components(this.output.tag);
+    this.props = this.output.props;
+    // this.content = this.output.children?.map((child) => {
+    //   return this.vcr.createEmbeddedView();
+    // });
   }
 
   ngOnChanges(changes: SimpleChanges): void {

@@ -13,7 +13,10 @@ export function Dynamic() {
         AngularEngineKeys.ANNOTATIONS,
       );
       if (!annotation || !annotation.value)
-        throw new InternalError(
+        // throw new InternalError(
+        //   `Could not find Component metadata. @Dynamic decorator must come above @Component`,
+        // );
+        console.log(
           `Could not find Component metadata. @Dynamic decorator must come above @Component`,
         );
       const decorator: ComponentMetadata = annotation.value[0];

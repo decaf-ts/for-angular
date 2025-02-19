@@ -1,4 +1,8 @@
-import { Component } from '@angular/core';
+import {
+  CUSTOM_ELEMENTS_SCHEMA,
+  Component,
+  NO_ERRORS_SCHEMA,
+} from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Dynamic } from './decorators';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
@@ -11,19 +15,7 @@ describe('decorators', () => {
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'ngx-decorator-test-form-field',
     standalone: true,
-    imports: [
-      ReactiveFormsModule,
-      NgClass,
-      IonInput,
-      IonItem,
-      IonCheckbox,
-      IonRadioGroup,
-      IonRadio,
-      IonSelect,
-      TranslatePipe,
-      IonSelectOption,
-      DecafFieldDirective,
-    ],
+    imports: [ReactiveFormsModule, IonItem, DecafFieldDirective],
     schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     templateUrl:
       '../components/crud-form-field/decaf-crud-field.component.html',
@@ -31,7 +23,7 @@ describe('decorators', () => {
   })
   class DecoratorTestFormField {}
 
-  beforeEach(() => {});
+  // beforeEach(() => {});
 
   it('should populate from @Component Metadata', () => {
     expect(
