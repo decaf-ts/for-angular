@@ -26,6 +26,9 @@
     "uml": "cd workdocs/uml && for FILE in ./*.puml; do docker run --rm -v $(pwd):/work -w /work miy4/plantuml -DPLANTUML_LIMIT_SIZE=8192 -tpng $FILE; done && cd ../.. && cp -fr workdocs/uml/*.png workdocs/resources/",
     "docs": "npx rimraf ./docs && mkdir docs && npm run do-install -- better-docs taffydb && gulp docs; npm remove better-docs taffydb"
   },
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.12",
     "@angular/cli": "^18.2.12",
