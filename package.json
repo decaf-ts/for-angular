@@ -18,7 +18,7 @@
     "lint": "ng lint for-angular",
     "lint-fix": "eslint --fix .",
     "test:circular": "dpdm -T --no-warning --no-tree ./src/index.ts",
-    "prepare-release": "npm run build:prod && npm run coverage && npm run docs",
+    "prepare-release": "npm run build:prod",
     "release": "./bin/tag-release.sh",
     "clean-publish": "npx clean-publish",
     "coverage": "npm run test && cd workdocs && jest-coverage-badges",
