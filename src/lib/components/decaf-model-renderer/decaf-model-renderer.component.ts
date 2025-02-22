@@ -6,10 +6,10 @@ import {
   SimpleChanges,
   ViewContainerRef,
 } from '@angular/core';
+import { FieldDefinition } from '@decaf-ts/ui-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
-import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
 import { IonSkeletonText } from '@ionic/angular/standalone';
-import { AngularFieldDefinition, NgxRenderingEngine } from '../../engine';
+import { AngularFieldDefinition } from '../../engine';
 import { NgComponentOutlet } from '@angular/common';
 
 @Component({
@@ -47,9 +47,9 @@ export class DecafModelRendererComponent<M extends Model>
       typeof this.model === 'string'
         ? (Model.build({}, JSON.parse(this.model)) as M)
         : this.model;
-    this.output = RenderingEngine.render(this.model);
-    this.component = NgxRenderingEngine.components(this.output.tag);
-    this.props = this.output.props;
+    // this.output = RenderingEngine.render(this.model as unknown as Model);
+    // this.component = NgxRenderingEngine.components(this.output.tag);
+    // this.props = this.output.props;
     // this.content = this.output.children?.map((child) => {
     //   return this.vcr.createEmbeddedView();
     // });
