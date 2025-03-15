@@ -13,11 +13,12 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormElement } from '../../interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { IonicModule } from '@ionic/angular';
-import { FieldUpdateMode, HTMLFormTarget } from '../../engine';
+import { Dynamic, FieldUpdateMode, HTMLFormTarget } from '../../engine';
 import { CrudFormOptions, FormReactiveSubmitEvent } from './types';
 import { CrudOperations } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
 
+@Dynamic()
 @Component({
   standalone: true,
   // eslint-disable-next-line @angular-eslint/component-selector

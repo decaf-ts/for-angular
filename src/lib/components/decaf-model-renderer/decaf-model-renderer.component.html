@@ -1,11 +1,11 @@
 <!--<div #loadingElement>-->
 <!--  <ion-skeleton-text [animated]="true" style="width: 100%;"></ion-skeleton-text>-->
 <!--</div>-->
-@if (output?.children?.length){
-  @for (item of output.children; track item.props.name){
-    <ng-template>{{item.props.name}}</ng-template>
-  }
-}
+<!--@if (output?.children?.length){-->
+<!--  @for (item of output.children; track item.props.name){-->
+<!--    <ng-template>{{item.props.name}}</ng-template>-->
+<!--  }-->
+<!--}-->
 <ng-container *ngComponentOutlet="component;
                                   inputs: props;
                                   content: content;">

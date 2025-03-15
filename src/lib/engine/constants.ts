@@ -4,6 +4,7 @@ export const AngularEngineKeys = {
   REFLECT: `${UIKeys.REFLECT}.angular.`,
   DYNAMIC: 'dynamic-component',
   ANNOTATIONS: '__annotations__',
+  ECMP: 'ecmp',
   NG_REFLECT: 'ng-reflect-',
 };
 

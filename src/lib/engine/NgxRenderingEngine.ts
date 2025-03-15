@@ -7,7 +7,7 @@ import { InternalError } from '@decaf-ts/db-decorators';
 export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition> {
   private static _components: Record<
     string,
-    { constructor: Constructor<unknown>; metadata: ComponentMetadata }
+    { constructor: Constructor<unknown> }
   >;
 
   constructor() {
@@ -20,17 +20,12 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition> 
     this.initialized = true;
   }
 
-  static registerComponent(
-    name: string,
-    constructor: Constructor<unknown>,
-    metadata: ComponentMetadata,
-  ) {
+  static registerComponent(name: string, constructor: Constructor<unknown>) {
     if (!this._components) this._components = {};
     if (name in this._components)
       throw new InternalError(`Component already registered under ${name}`);
     this._components[name] = {
       constructor: constructor,
-      metadata: metadata,
     };
   }
 

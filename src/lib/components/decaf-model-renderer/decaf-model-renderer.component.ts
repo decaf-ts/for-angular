@@ -1,15 +1,18 @@
 import {
   Component,
+  ComponentRef,
   Input,
   OnChanges,
   OnInit,
   SimpleChanges,
+  Type,
   ViewContainerRef,
 } from '@angular/core';
-import { FieldDefinition } from '@decaf-ts/ui-decorators';
+import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonSkeletonText } from '@ionic/angular/standalone';
-import { AngularFieldDefinition } from '../../engine';
+import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
+import { AngularFieldDefinition } from '../../engine/types';
 import { NgComponentOutlet } from '@angular/common';
 
 @Component({
@@ -30,15 +33,9 @@ export class DecafModelRendererComponent<M extends Model>
 
   props!: Record<string, unknown>;
 
-  content!: { id: string }[][];
+  content!: ComponentRef<unknown>[] | undefined;
 
   output!: FieldDefinition<AngularFieldDefinition>;
-  //
-  // @ViewChild('componentElementContainer', {
-  //   static: true,
-  //   read: ViewContainerRef,
-  // })
-  // componentElementContainer!: ViewContainerRef;
 
   constructor(private vcr: ViewContainerRef) {}
 
@@ -47,12 +44,13 @@ export class DecafModelRendererComponent<M extends Model>
       typeof this.model === 'string'
         ? (Model.build({}, JSON.parse(this.model)) as M)
         : this.model;
-    // this.output = RenderingEngine.render(this.model as unknown as Model);
-    // this.component = NgxRenderingEngine.components(this.output.tag);
-    // this.props = this.output.props;
-    // this.content = this.output.children?.map((child) => {
-    //   return this.vcr.createEmbeddedView();
-    // });
+    this.output = RenderingEngine.render(this.model as unknown as Model);
+    this.component = NgxRenderingEngine.components(this.output.tag);
+    this.props = this.output.props;
+    this.content = this.output.children?.map((child) => {
+      const component = NgxRenderingEngine.components(child.tag);
+      return this.vcr.createComponent(component as unknown as Type<unknown>);
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
