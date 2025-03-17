@@ -34,7 +34,7 @@ import { NgClass } from '@angular/common';
 import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 import { Dynamic } from '../../engine/decorators';
 
-// @Dynamic()
+@Dynamic()
 @Component({
   standalone: true,
   imports: [

@@ -6,7 +6,20 @@
 <!--    <ng-template>{{item.props.name}}</ng-template>-->
 <!--  }-->
 <!--}-->
-<ng-container *ngComponentOutlet="component;
-                                  inputs: props;
-                                  content: content;">
+<ng-container *ngComponentOutlet="output?.component;
+                                  inputs: output?.inputs;
+                                  content: output?.content;">
 </ng-container>
+
+<ng-template #inner>
+  <p>test</p>
+  <p>test {{JSON.stringify(output)}}</p>
+  @for (child of output?.children; track child.component) {
+    <p>hello</p>
+    <ng-container *ngComponentOutlet="child.component;
+                                      injector: child.injector;
+                                      inputs: child.inputs
+                                      content: child.content">
+    </ng-container>
+  }
+</ng-template>

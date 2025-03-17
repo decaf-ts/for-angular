@@ -1,6 +1,7 @@
 import { FieldProperties } from '@decaf-ts/ui-decorators';
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
+import { Injector, Type } from '@angular/core';
 
 export type FieldUpdateMode = 'change' | 'blur' | 'submit';
 
@@ -12,6 +13,14 @@ export interface ComponentMetadata {
   template: string;
   styles: string[];
 }
+
+export type AngularDynamicOutput = {
+  component: Type<unknown>;
+  inputs?: Record<string, unknown>;
+  injector?: Injector;
+  content?: Node[][];
+  children?: AngularDynamicOutput[];
+};
 
 export type AngularFieldDefinition = FieldProperties &
   Omit<

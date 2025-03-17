@@ -6,9 +6,18 @@ import { ComponentsModule } from '../lib/components/components.module';
 import { NgxRenderingEngine } from '../lib/engine';
 import { ForAngularModel } from './model/DemoModel';
 import { DecafCrudFieldComponent } from '../lib/components/decaf-crud-field/decaf-crud-field.component';
+import { IonApp, IonContent } from '@ionic/angular/standalone';
 
 try {
   const engine = new NgxRenderingEngine();
+  // engine
+  //   .initialize(DecafCrudFieldComponent)
+  //   .then(() => {
+  //     console.debug('Rendering engine initialized');
+  //   })
+  //   .catch((error) => {
+  //     console.error('Error initializing rendering engine:', error);
+  //   });
   Model.setBuilder(Model.fromModel as ModelBuilderFunction);
 } catch (e: unknown) {
   throw new Error(`Failed to load rendering engine: ${e}`);
@@ -56,7 +65,13 @@ nextWeek.setDate(lastWeek.getDate() + 7);
   standalone: true,
   selector: 'app-root',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [ComponentsModule, DecafCrudFieldComponent, TranslatePipe],
+  imports: [
+    ComponentsModule,
+    DecafCrudFieldComponent,
+    TranslatePipe,
+    IonContent,
+    IonApp,
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

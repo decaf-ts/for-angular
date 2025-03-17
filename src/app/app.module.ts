@@ -3,6 +3,8 @@ import {
   NgModule,
   NO_ERRORS_SCHEMA,
 } from '@angular/core';
+import '@decaf-ts/ui-decorators';
+
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -16,7 +18,6 @@ import { ForAngularModule } from '../lib/for-angular.module';
 import { ComponentsModule } from '../lib/components/components.module';
 import { HttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { NgxRenderingEngine } from '../lib/engine';
 
 const createTranslateLoader = function (http: HttpClient) {
   function getSuffix() {

@@ -1,23 +1,24 @@
 import {
   Component,
-  ComponentRef,
+  Injector,
   Input,
   OnChanges,
   OnInit,
   SimpleChanges,
-  Type,
+  TemplateRef,
+  ViewChild,
   ViewContainerRef,
+  ViewRef,
 } from '@angular/core';
-import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonSkeletonText } from '@ionic/angular/standalone';
-import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
-import { AngularFieldDefinition } from '../../engine/types';
-import { NgComponentOutlet } from '@angular/common';
+import { NgComponentOutlet, NgForOf } from '@angular/common';
+import { AngularDynamicOutput } from '../../engine';
+import { CrudOperations } from '@decaf-ts/db-decorators';
 
 @Component({
   standalone: true,
-  imports: [IonSkeletonText, NgComponentOutlet],
+  imports: [NgComponentOutlet, NgForOf],
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'decaf-model-renderer',
   templateUrl: './decaf-model-renderer.component.html',
@@ -29,28 +30,35 @@ export class DecafModelRendererComponent<M extends Model>
   @Input({ required: true })
   model!: M | string;
 
-  component!: unknown;
+  @Input()
+  globals?: Record<string, unknown>;
 
-  props!: Record<string, unknown>;
+  @ViewChild('inner', { read: TemplateRef<any>, static: true })
+  inner?: TemplateRef<any>;
 
-  content!: ComponentRef<unknown>[] | undefined;
+  output?: AngularDynamicOutput;
 
-  output!: FieldDefinition<AngularFieldDefinition>;
-
-  constructor(private vcr: ViewContainerRef) {}
+  constructor(
+    private vcr: ViewContainerRef,
+    private injector: Injector,
+  ) {}
 
   ngOnInit(): void {
+    this.refresh();
+  }
+
+  private refresh() {
     this.model =
       typeof this.model === 'string'
         ? (Model.build({}, JSON.parse(this.model)) as M)
         : this.model;
-    this.output = RenderingEngine.render(this.model as unknown as Model);
-    this.component = NgxRenderingEngine.components(this.output.tag);
-    this.props = this.output.props;
-    this.content = this.output.children?.map((child) => {
-      const component = NgxRenderingEngine.components(child.tag);
-      return this.vcr.createComponent(component as unknown as Type<unknown>);
-    });
+
+    this.output = this.model.render<AngularDynamicOutput>(
+      this.globals || {},
+      this.vcr,
+      this.injector,
+      this.inner,
+    );
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -60,7 +68,12 @@ export class DecafModelRendererComponent<M extends Model>
     if (changes['details']) {
       const { currentValue, previousValue, firstChange } = changes['details'];
     }
+    // this.refresh();
   }
-  // //
-  // ngOnDestroy(): void {}
+
+  ngOnDestroy(): void {
+    this.output = undefined;
+  }
+
+  protected readonly JSON = JSON;
 }
