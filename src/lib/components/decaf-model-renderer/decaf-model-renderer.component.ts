@@ -53,12 +53,14 @@ export class DecafModelRendererComponent<M extends Model>
         ? (Model.build({}, JSON.parse(this.model)) as M)
         : this.model;
 
-    this.output = this.model.render<AngularDynamicOutput>(
+    const output = this.model.render<AngularDynamicOutput>(
       this.globals || {},
       this.vcr,
       this.injector,
       this.inner,
     );
+
+    this.output = output;
   }
 
   ngOnChanges(changes: SimpleChanges): void {

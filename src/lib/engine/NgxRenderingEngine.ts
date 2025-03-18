@@ -42,7 +42,7 @@ export class NgxRenderingEngine extends RenderingEngine<
       };
 
       if (fieldDef.children && fieldDef.children.length) {
-        result.content = [tpl.createEmbeddedView(null, injector).rootNodes];
+        // result.content = [tpl.createEmbeddedView(null, injector).rootNodes];
         result.children = fieldDef.children.map((child, index) => {
           return fromFieldDefinition(child, index);
         });
@@ -53,7 +53,8 @@ export class NgxRenderingEngine extends RenderingEngine<
 
     let result: AngularDynamicOutput;
     try {
-      result = fromFieldDefinition(this.toFieldDefinition(model, globalProps));
+      const fieldDef = this.toFieldDefinition(model, globalProps);
+      result = fromFieldDefinition(fieldDef);
     } catch (e: unknown) {
       throw new InternalError(
         `Failed to render Model ${model.constructor.name}: ${e}`,
