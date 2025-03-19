@@ -46,7 +46,7 @@ describe('CrudFormFieldComponent', () => {
   } as FieldProperties & AngularFieldDefinition;
 
   it('should render when defined with all required props', () => {
-    component.props = props;
+    Object.assign(component, props);
     component.operation = OperationKeys.CREATE;
     fixture.detectChanges();
     expect(component).toBeDefined();
@@ -54,7 +54,7 @@ describe('CrudFormFieldComponent', () => {
 
   describe('standard Input fields', () => {
     it('handles text inputs', async () => {
-      component.props = Object.assign({}, props, { type: 'text' });
+      Object.assign(component, props, { type: 'text' });
       component.operation = OperationKeys.CREATE;
 
       fixture.detectChanges();

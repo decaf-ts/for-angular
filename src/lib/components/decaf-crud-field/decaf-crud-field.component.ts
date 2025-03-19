@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { CrudOperations } from '@decaf-ts/db-decorators';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import {
   IonCheckbox,
   IonInput,
@@ -22,24 +21,26 @@ import {
   IonSelectOption,
 } from '@ionic/angular/standalone';
 import {
-  AngularFieldDefinition,
   FieldUpdateMode,
+  PossibleInputTypes,
   RadioOption,
   SelectOption,
   StringOrBoolean,
 } from '../../engine/types';
 import { TranslatePipe } from '@ngx-translate/core';
-import { DecafFieldDirective } from '../../directives/decaf-field.directive';
-import { NgClass } from '@angular/common';
 import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 import { Dynamic } from '../../engine/decorators';
+import {
+  AutocompleteTypes,
+  SelectInterface,
+  TextFieldTypes,
+} from '@ionic/core';
 
 @Dynamic()
 @Component({
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    NgClass,
     IonInput,
     IonItem,
     IonCheckbox,
@@ -48,7 +49,6 @@ import { Dynamic } from '../../engine/decorators';
     IonSelect,
     TranslatePipe,
     IonSelectOption,
-    DecafFieldDirective,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -60,23 +60,112 @@ export class DecafCrudFieldComponent
   extends NgxCrudFormField
   implements OnInit, OnDestroy, AfterViewInit
 {
+  @Input({ required: true })
+  override operation!: CrudOperations;
+
+  @Input({ required: true })
+  override name!: string;
+
+  @Input({ required: true })
+  override type!: PossibleInputTypes;
+
+  @Input()
+  override value: string | number | Date = '';
+
+  @Input()
+  override disabled?: boolean;
+
+  @Input({ required: true })
+  label!: string;
+
+  @Input()
+  placeholder!: string;
+
+  // Validation
+
+  @Input()
+  override format?: string;
+  @Input()
+  override hidden?: boolean;
+  @Input()
+  override max?: number | Date;
+  @Input()
+  override maxlength?: number;
+  @Input()
+  override min?: number | Date;
+  @Input()
+  override minlength?: number;
+  @Input()
+  override pattern?: string;
+  @Input()
+  override readonly?: boolean;
+  @Input()
+  override required?: boolean;
+  @Input()
+  override step?: number;
+
+  // type specific options
+
+  @Input()
+  cols?: number;
+
+  @Input()
+  rows?: number;
+
+  @Input()
+  alignment?: 'start' | 'center';
+
+  @Input()
+  checked?: boolean;
+
+  @Input()
+  justify?: 'start' | 'end' | 'space-between';
+
+  @Input()
+  cancelText?: string;
+
+  @Input()
+  interface?: SelectInterface;
+
+  @Input()
+  options!: SelectOption[] | RadioOption[];
+
+  // engine specific properties
+
+  @Input()
+  mode?: 'ios' | 'md';
+
+  @Input()
+  spellcheck: boolean = false;
+
+  @Input()
+  inputmode:
+    | 'none'
+    | 'text'
+    | 'tel'
+    | 'url'
+    | 'email'
+    | 'numeric'
+    | 'decimal'
+    | 'search' = 'none';
+
+  @Input()
+  autocomplete: AutocompleteTypes = 'off';
+
+  @Input()
+  fill: 'outline' | 'solid' = 'outline';
+
+  @Input()
+  labelPlacement: 'start' | 'end' | 'floating' | 'stacked' | 'fixed' =
+    'stacked';
+
+  // Component
+
   @Input()
   updateOn: FieldUpdateMode = 'change';
 
   @ViewChild('component', { read: ElementRef })
   override component!: ElementRef;
-
-  @Input({ required: true })
-  override operation!: CrudOperations;
-
-  @Input({ required: true })
-  override props!: AngularFieldDefinition;
-
-  @Input()
-  override name!: string;
-
-  @Input()
-  options!: SelectOption[] | RadioOption[];
 
   @Input()
   override formGroup!: FormGroup;
@@ -95,6 +184,4 @@ export class DecafCrudFieldComponent
   ngOnInit(): void {
     super.onInit(this.updateOn);
   }
-
-  protected readonly HTML5InputTypes: string[] = Object.values(HTML5InputTypes);
 }

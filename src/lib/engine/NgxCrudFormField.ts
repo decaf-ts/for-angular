@@ -1,14 +1,21 @@
-import { CrudFormField } from '@decaf-ts/ui-decorators';
-import { AngularFieldDefinition, FieldUpdateMode } from './types';
+import { CrudFormField, FieldProperties } from '@decaf-ts/ui-decorators';
+import {
+  AngularFieldDefinition,
+  FieldUpdateMode,
+  PossibleInputTypes,
+  RadioOption,
+  SelectOption,
+} from './types';
 import {
   CrudOperations,
   InternalError,
   OperationKeys,
 } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormGroup } from '@angular/forms';
-import { ElementRef } from '@angular/core';
+import { ElementRef, Input } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
+import { AutocompleteTypes, SelectInterface } from '@ionic/core';
 
 /**
  * @class NgxCrudFormField
@@ -19,7 +26,7 @@ import { sf } from '@decaf-ts/decorator-validation';
  * implementing both CrudFormField and ControlValueAccessor interfaces.
  */
 export abstract class NgxCrudFormField
-  implements CrudFormField<AngularFieldDefinition>, ControlValueAccessor
+  implements ControlValueAccessor, FieldProperties
 {
   /**
    * @summary Reference to the component's element
@@ -34,29 +41,31 @@ export abstract class NgxCrudFormField
   operation!: CrudOperations;
 
   /**
-   * @summary Field properties
-   * @description Angular-specific field definition properties
-   */
-  props!: AngularFieldDefinition;
-
-  /**
    * @summary Form group for the field
    * @description Angular FormGroup instance for the field
    */
   formGroup!: FormGroup;
 
-  /**
-   * @summary Field name
-   * @description Name of the form field
-   */
   name!: string;
 
-  /**
-   * @summary Field value
-   * @description Current value of the form field
-   */
-  value!: string;
+  type!: PossibleInputTypes;
 
+  disabled?: boolean;
+
+  // Validation
+
+  format?: string;
+  hidden?: boolean;
+  max?: number | Date;
+  maxlength?: number;
+  min?: number | Date;
+  minlength?: number;
+  pattern?: string | undefined;
+  readonly?: boolean;
+  required?: boolean;
+  step?: number;
+
+  value!: string | number | Date;
   /**
    * @summary Parent HTML element
    * @description Reference to the parent HTML element of the field
@@ -114,7 +123,7 @@ export abstract class NgxCrudFormField
    * @param {boolean} isDisabled - Whether the field should be disabled
    */
   setDisabledState?(isDisabled: boolean): void {
-    this.props.disabled = isDisabled;
+    this.disabled = isDisabled;
   }
 
   /**
@@ -138,7 +147,11 @@ export abstract class NgxCrudFormField
             `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`,
           );
         }
-        NgxFormService.register(parent.id, this.formGroup, this.props);
+        NgxFormService.register(
+          parent.id,
+          this.formGroup,
+          this as AngularFieldDefinition,
+        );
         return parent;
       default:
         throw new Error(`Invalid operation: ${this.operation}`);
@@ -160,10 +173,7 @@ export abstract class NgxCrudFormField
    * @param {FieldUpdateMode} updateOn - The update mode for the field
    */
   onInit(updateOn: FieldUpdateMode): void {
-    if (!this.props || !this.operation)
-      throw new InternalError(`props and operation are required`);
-    this.formGroup = NgxFormService.fromProps(this.props, updateOn);
-    this.name = this.props.name;
+    this.formGroup = NgxFormService.fromProps(this, updateOn);
   }
 
   /**

@@ -177,7 +177,7 @@ export class NgxFormService {
    * @returns {FormGroup} A new FormGroup instance.
    */
   static fromProps(
-    props: AngularFieldDefinition,
+    props: FieldProperties,
     updateMode: FieldUpdateMode,
   ): FormGroup {
     const controls: Record<string, FormControl> = {};
@@ -187,7 +187,7 @@ export class NgxFormService {
       {
         value:
           props.value && props.type !== HTML5InputTypes.CHECKBOX
-            ? props.value
+            ? (props.value as any)
             : undefined,
         disabled: props.disabled,
       },
@@ -231,13 +231,13 @@ export class NgxFormService {
    * @param props - The field properties containing validation rules.
    * @returns An array of ValidatorFn instances.
    */
-  private static validatorsFromProps(
-    props: FieldProperties & AngularFieldDefinition,
-  ): ValidatorFn[] {
+  private static validatorsFromProps(props: FieldProperties): ValidatorFn[] {
     const supportedValidationKeys = Validation.keys();
     return Object.keys(props)
       .filter((k: string) => supportedValidationKeys.includes(k))
-      .map((k: string) => ValidatorFactory.spawn(k, props[k]));
+      .map((k: string) =>
+        ValidatorFactory.spawn(k, props[k as keyof FieldProperties]),
+      );
   }
 
   /**
@@ -263,7 +263,7 @@ export class NgxFormService {
   static register(
     formId: string,
     control: FormGroup,
-    props: FieldProperties & AngularFieldDefinition,
+    props: AngularFieldDefinition,
   ) {
     this.controls[formId] = this.controls[formId] || {};
     this.controls[formId][props.name] = {

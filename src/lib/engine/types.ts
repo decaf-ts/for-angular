@@ -22,27 +22,33 @@ export type AngularDynamicOutput = {
   children?: AngularDynamicOutput[];
 };
 
-export type AngularFieldDefinition = FieldProperties &
-  Omit<
-    IonInput,
-    | 'ionInput'
-    | 'ionFocus'
-    | 'ionChange'
-    | 'ionBlur'
-    | 'getInputElement'
-    | 'setFocus'
-    | 'label'
-    | 'el'
-    | 'z'
-    | 'type'
-  > &
+export type PossibleInputTypes =
+  | 'checkbox'
+  | 'radio'
+  | 'select'
+  | TextFieldTypes
+  | 'textarea';
+
+export type AngularFieldDefinition = Omit<
+  IonInput,
+  | 'ionInput'
+  | 'ionFocus'
+  | 'ionChange'
+  | 'ionBlur'
+  | 'getInputElement'
+  | 'setFocus'
+  | 'label'
+  | 'el'
+  | 'z'
+  | 'type'
+> &
   Pick<
     IonSelect,
     'cancelText' | 'interface' | 'selectedText' | 'interfaceOptions'
   > &
   Pick<IonTextarea, 'rows' | 'cols'> &
   Pick<IonCheckbox, 'alignment' | 'justify' | 'checked'> & {
-    type: 'checkbox' | 'radio' | 'select' | TextFieldTypes | 'textarea';
+    type: PossibleInputTypes;
     className: string | string[];
   } & Record<string, unknown>;
 

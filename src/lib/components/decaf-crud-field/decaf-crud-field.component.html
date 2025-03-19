@@ -1,82 +1,79 @@
 <h5>This is a decaf form field</h5>
 <ng-container #component [formGroup]="formGroup">
-  @if(props.type === 'textarea') {
+  @if(type === 'textarea') {
     <ion-item>
       <ion-textarea
-        [ngClass]="props.className"
-        [mode]="props.mode"
-        [hidden]="props.hidden"
-        [required]="props.required !== undefined ? props.required : null"
-        [minlength]="props.minlength !== undefined ? props.minlength : null"
-        [maxlength]="props.maxlength !== undefined ? props.maxlength : null"
-        [readonly]="props.readonly !== undefined ? props.readonly : null"
-        [inputmode]="props.inputmode"
-        [spellcheck]="props.spellcheck"
-        [rows]="props.rows"
-        [labelPlacement]="props.labelPlacement"
-        [value]="props.value"
-        [fill]="props.fill"
-        [placeholder]="translatable ? (props.placeholder | translate) : props.placeholder"
-        [formControlName]="props.name"
-        [label]="translatable ? (props.label | translate) : props.label">
+        [mode]="mode"
+        [hidden]="hidden"
+        [required]="required !== undefined ? required : null"
+        [minlength]="minlength !== undefined ? minlength : null"
+        [maxlength]="maxlength !== undefined ? maxlength : null"
+        [readonly]="readonly !== undefined ? readonly : null"
+        [inputmode]="inputmode"
+        [spellcheck]="spellcheck"
+        [rows]="rows"
+        [labelPlacement]="labelPlacement"
+        [value]="value"
+        [fill]="fill"
+        [placeholder]="translatable ? (placeholder | translate) : placeholder"
+        [formControlName]="name"
+        [label]="translatable ? (label | translate) : label">
       </ion-textarea>
     </ion-item>
   }
-  @if(props.type === 'checkbox') {
-    <ion-item [formControlName]="props.name">
+  @if(type === 'checkbox') {
+    <ion-item [formControlName]="name">
       <ion-checkbox
         #checkboxElement
-        [name]="props.name"
-        [ngClass]="props.className"
-        [mode]="props.mode"
-        [hidden]="props.hidden"
-        [labelPlacement]="props.labelPlacement"
-        [alignment]="props.alignment"
-        [justify]="props.justify"
-        [disabled]="props.disabled || props.readonly"
-        [attr.checkedValue]="props.value"
-        [value]="props.value"
-        [checked]="props.checked"
-        (ionChange)="props.checked = !props.checked"
-        [formControlName]="props.name">
-        <span [innerHTML]="props.label | translate"></span>
+        [name]="name"
+        [mode]="mode"
+        [hidden]="hidden"
+        [labelPlacement]="labelPlacement"
+        [alignment]="alignment"
+        [justify]="justify"
+        [disabled]="disabled || readonly"
+        [attr.checkedValue]="value"
+        [value]="value"
+        [checked]="checked"
+        (ionChange)="checked = !checked"
+        [formControlName]="name">
+        <span [innerHTML]="label | translate"></span>
       </ion-checkbox>
     </ion-item>
   }
-  @else if(props.type === 'radio') {
-    <ion-radio-group [ngClass]="props.className" [formControlName]="props.name" [name]="props.name" [value]="props.value">
-      <label class="radio-group-label">{{props.label | translate}}</label>
+  @else if(type === 'radio') {
+    <ion-radio-group [formControlName]="name" [name]="name" [value]="value">
+      <label class="radio-group-label">{{label | translate}}</label>
       @for(option of options; track option.value) {
         <ion-item>
           <ion-radio
-            [mode]="props.mode"
-            [hidden]="props.hidden"
-            [disabled]="props.readonly || props.disabled"
-            [labelPlacement]="props.labelPlacement"
-            [alignment]="props.alignment"
-            [justify]="props.justify"
+            [mode]="mode"
+            [hidden]="hidden"
+            [disabled]="readonly || disabled"
+            [labelPlacement]="labelPlacement"
+            [alignment]="alignment"
+            [justify]="justify"
             [value]="option.value"
           >{{ option.text | translate }}</ion-radio>
         </ion-item>
       }
     </ion-radio-group>
   }
-  @else if(props.type === 'select') {
+  @else if(type === 'select') {
     <ion-item>
       <ion-select
-        [name]="props.name"
-        [ngClass]="props.className"
-        [mode]="props.mode"
-        [hidden]="props.hidden"
-        [labelPlacement]="props.labelPlacement"
-        [cancelText]="props.cancelText |  translate"
-        [label]="translatable ? (props.label | translate) : props.label"
-        [value]="props.value"
-        [fill]="props.fill"
-        [disabled]="props.readonly || props.disabled"
-        [placeholder]="props.placeholder | translate"
-        [formControlName]="props.name"
-        [interface]="props.interface">
+        [name]="name"
+        [mode]="mode"
+        [hidden]="hidden"
+        [labelPlacement]="labelPlacement"
+        [cancelText]="cancelText |  translate"
+        [label]="translatable ? (label | translate) : label"
+        [value]="value"
+        [fill]="fill"
+        [disabled]="readonly || disabled"
+        [placeholder]="placeholder | translate"
+        [formControlName]="name"
+        [interface]="interface">
         @for(option of options; track option.value) {
           <ion-select-option [value]="option.value">
             {{ translatable ? (option.text | translate) : option.text }}
@@ -85,35 +82,31 @@
       </ion-select>
     </ion-item>
   }
-  @else if(HTML5InputTypes.includes(props.type)) {
+  @else {
     <ion-item>
       <ion-input
-        [ngClass]="props.className"
-        [type]="props.type"
-        [mode]="props.mode"
-        [hidden]="props.hidden"
-        [inputmode]="props.inputmode"
-        [autocomplete]="props.autocomplete"
-        [spellcheck]="props.spellcheck"
-        [labelPlacement]="props.labelPlacement"
-        [required]="props.required !== undefined ? props.required : false"
-        [minlength]="props.minlength !== undefined ? props.minlength : null"
-        [maxlength]="props.maxlength !== undefined ? props.maxlength : null"
-        [readonly]="props.readonly !== undefined ? props.readonly : null"
-        [max]="props.max !== undefined ? props.max : null"
-        [min]="props.min !== undefined ? props.min : null"
-        [pattern]="props.pattern !== undefined ? props.pattern : null"
-        [step]="props.step !== undefined ? props.step : null"
-        [value]="props.value"
-        [fill]="props.fill"
-        [placeholder]="props.placeholder | translate"
-        [formControlName]="props.name"
-        [label]="props.label | translate">
+        [type]="type"
+        [mode]="mode"
+        [hidden]="hidden"
+        [inputmode]="inputmode"
+        [autocomplete]="autocomplete"
+        [spellcheck]="spellcheck"
+        [labelPlacement]="labelPlacement"
+        [required]="required !== undefined ? required : false"
+        [minlength]="minlength !== undefined ? minlength : null"
+        [maxlength]="maxlength !== undefined ? maxlength : null"
+        [readonly]="readonly !== undefined ? readonly : null"
+        [max]="max !== undefined ? max : null"
+        [min]="min !== undefined ? min : null"
+        [pattern]="pattern !== undefined ? pattern : null"
+        [step]="step !== undefined ? step : null"
+        [value]="value"
+        [fill]="fill"
+        [placeholder]="placeholder | translate"
+        [formControlName]="name"
+        [label]="label | translate">
       </ion-input>
     </ion-item>
-  }
-  @else {
-    <h1>INVALID FIELD TYPE</h1>
   }
   @if((!formGroup.pristine || formGroup.touched) && !formGroup.valid) {
     <div class="error uk-flex uk-flex-top">
