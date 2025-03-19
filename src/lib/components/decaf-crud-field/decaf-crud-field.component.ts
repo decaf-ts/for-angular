@@ -19,6 +19,7 @@ import {
   IonRadioGroup,
   IonSelect,
   IonSelectOption,
+  IonTextarea,
 } from '@ionic/angular/standalone';
 import {
   FieldUpdateMode,
@@ -49,6 +50,7 @@ import {
     IonSelect,
     TranslatePipe,
     IonSelectOption,
+    IonTextarea,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   // eslint-disable-next-line @angular-eslint/component-selector

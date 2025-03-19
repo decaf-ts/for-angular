@@ -29,10 +29,8 @@
         [mode]="mode"
         [hidden]="hidden"
         [labelPlacement]="labelPlacement"
-        [alignment]="alignment"
         [justify]="justify"
         [disabled]="disabled || readonly"
-        [attr.checkedValue]="value"
         [value]="value"
         [checked]="checked"
         (ionChange)="checked = !checked"
@@ -113,7 +111,7 @@
       @for(item of getErrors(); track item.key) {
         <p>
           <span color="danger" class="ti ti-alert-triangle"></span>
-          <span>{{item.key}} - {{ sf(("errors." + item.message) | translate, props[item.key]) }}</span>
+          <span>{{item.key}} - {{ sf(("errors." + item.message) | translate, this[item.key]) }}</span>
         </p>
       }
     </div>
