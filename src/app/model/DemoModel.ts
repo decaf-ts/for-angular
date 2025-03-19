@@ -15,12 +15,18 @@ import { uielement, uimodel } from '@decaf-ts/ui-decorators';
 @model()
 export class ForAngularModel extends Model {
   @id()
-  @uielement('decaf-crud-field')
+  @uielement('decaf-crud-field', {
+    label: 'demo.id.label',
+    placeholder: 'demo.id.placeholder',
+  })
   id!: number;
 
   @required()
   @minlength(5)
-  @uielement('decaf-crud-field')
+  @uielement('decaf-crud-field', {
+    label: 'demo.name.label',
+    placeholder: 'demo.name.placeholder',
+  })
   name!: string;
 
   // @date('yyyy/MM/dd')
@@ -30,7 +36,10 @@ export class ForAngularModel extends Model {
   //
   @required()
   @email()
-  @uielement('decaf-crud-field')
+  @uielement('decaf-crud-field', {
+    label: 'demo.email.label',
+    placeholder: 'demo.email.placeholder',
+  })
   email!: string;
 
   // @url()
