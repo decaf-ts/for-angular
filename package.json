@@ -29,6 +29,8 @@
   "files": [
     "dist"
   ],
+  "author": "Tiago Venceslau",
+  "license": "LGPL-3.0-or-later",
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.12",
     "@angular/cli": "^18.2.12",
