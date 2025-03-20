@@ -1,4 +1,3 @@
-import { FieldProperties } from '@decaf-ts/ui-decorators';
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { Injector, Type } from '@angular/core';
@@ -16,11 +15,16 @@ export interface ComponentMetadata {
 
 export type AngularDynamicOutput = {
   component: Type<unknown>;
+  rendererId?: string;
   inputs?: Record<string, unknown>;
   injector?: Injector;
   content?: Node[][];
   children?: AngularDynamicOutput[];
 };
+
+export interface RenderedModel {
+  rendererId?: string;
+}
 
 export type PossibleInputTypes =
   | 'checkbox'

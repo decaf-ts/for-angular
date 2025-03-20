@@ -265,6 +265,10 @@ export class NgxFormService {
     control: FormGroup,
     props: AngularFieldDefinition,
   ) {
+    if (formId.includes(AngularEngineKeys.RENDERED)) {
+      formId = formId.split(AngularEngineKeys.RENDERED)[1];
+    }
+
     this.controls[formId] = this.controls[formId] || {};
     this.controls[formId][props.name] = {
       control: control,

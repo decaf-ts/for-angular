@@ -13,7 +13,12 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormElement } from '../../interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { IonicModule } from '@ionic/angular';
-import { Dynamic, FieldUpdateMode, HTMLFormTarget } from '../../engine';
+import {
+  Dynamic,
+  FieldUpdateMode,
+  HTMLFormTarget,
+  RenderedModel,
+} from '../../engine';
 import { CrudFormOptions, FormReactiveSubmitEvent } from './types';
 import { CrudOperations } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
@@ -28,7 +33,7 @@ import { DefaultFormReactiveOptions } from './constants';
   imports: [IonicModule, ReactiveFormsModule],
 })
 export class DecafCrudFormComponent
-  implements OnInit, AfterViewInit, FormElement, OnDestroy
+  implements OnInit, AfterViewInit, FormElement, OnDestroy, RenderedModel
 {
   @Input()
   updateOn: FieldUpdateMode = 'change';
@@ -55,13 +60,13 @@ export class DecafCrudFormComponent
   formGroup: FormGroup = new FormGroup({});
 
   @Input()
-  formId!: string;
+  rendererId!: string;
 
   @Output()
   submitEvent = new EventEmitter<FormReactiveSubmitEvent>();
 
   ngAfterViewInit() {
-    NgxFormService.formAfterViewInit(this, this.formId);
+    NgxFormService.formAfterViewInit(this, this.rendererId);
   }
 
   ngOnInit() {
@@ -70,11 +75,10 @@ export class DecafCrudFormComponent
       DefaultFormReactiveOptions,
       this.options || {},
     );
-    if (!this.formId) this.formId = Date.now().toString();
   }
 
   ngOnDestroy() {
-    NgxFormService.forOnDestroy(this, this.formId);
+    NgxFormService.forOnDestroy(this, this.rendererId);
   }
 
   /**
@@ -90,7 +94,7 @@ export class DecafCrudFormComponent
     console.log('onSubmit');
 
     // fix para valores de campos radio e check
-    const data = NgxFormService.getFormData(this.formId);
+    const data = NgxFormService.getFormData(this.rendererId);
 
     const submitEvent: FormReactiveSubmitEvent = {
       data: data,
@@ -102,13 +106,5 @@ export class DecafCrudFormComponent
       );
 
     this.submitEvent.emit(submitEvent);
-    // self.emitEvent({
-    //   role: button?.role || FORM_BUTTON_ROLES.SUBMIT,
-    //   data,
-    //   reset: button?.reset,
-    //   operation: self.operation,
-    //   eventName: self.eventName,
-    //   event,
-    // } as FormReactiveSubmitEvent);
   }
 }

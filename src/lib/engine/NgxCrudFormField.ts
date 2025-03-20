@@ -140,7 +140,7 @@ export abstract class NgxCrudFormField
         try {
           parent = NgxFormService.getParentEl(
             this.component.nativeElement,
-            'form',
+            'div',
           );
         } catch (e: unknown) {
           throw new Error(

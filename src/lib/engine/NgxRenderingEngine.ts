@@ -1,9 +1,20 @@
-import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
+import {
+  FieldDefinition,
+  generateUIModelID,
+  RenderingEngine,
+  RenderingError,
+} from '@decaf-ts/ui-decorators';
 import { AngularDynamicOutput, AngularFieldDefinition } from './types';
 import { AngularEngineKeys } from './constants';
 import { Constructor, Model } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
-import { Injector, TemplateRef, Type, ViewContainerRef } from '@angular/core';
+import {
+  Injector,
+  reflectComponentType,
+  TemplateRef,
+  Type,
+  ViewContainerRef,
+} from '@angular/core';
 
 export class NgxRenderingEngine extends RenderingEngine<
   AngularFieldDefinition,
@@ -18,6 +29,61 @@ export class NgxRenderingEngine extends RenderingEngine<
     super('angular');
   }
 
+  private fromFieldDefinition(
+    fieldDef: FieldDefinition<AngularFieldDefinition>,
+    vcr: ViewContainerRef,
+    injector: Injector,
+    tpl: TemplateRef<any>,
+  ): AngularDynamicOutput {
+    const component = NgxRenderingEngine.components(fieldDef.tag)
+      .constructor as unknown as Type<unknown>;
+
+    const componentMetadata = reflectComponentType(component);
+    if (!componentMetadata) {
+      throw new InternalError(
+        `Metadata for component ${fieldDef.tag} not found.`,
+      );
+    }
+    const inputs = fieldDef.props;
+
+    const possibleInputs = componentMetadata.inputs;
+    const inputKeys = Object.keys(inputs);
+    for (let input of possibleInputs) {
+      const index = inputKeys.indexOf(input.propName);
+      if (index !== -1) {
+        inputKeys.splice(index, 1);
+      }
+      if (!inputKeys.length) break;
+    }
+
+    if (inputKeys.length)
+      console.warn(
+        `Unmapped input properties for component ${fieldDef.tag}: ${inputKeys.join(', ')}`,
+      );
+
+    const result: AngularDynamicOutput = {
+      component: component,
+      inputs: inputs || {},
+      injector: injector,
+    };
+
+    if (fieldDef.rendererId) {
+      (result.inputs as Record<string, any>)['rendererId'] =
+        fieldDef.rendererId;
+    }
+
+    if (fieldDef.children && fieldDef.children.length) {
+      result.children = fieldDef.children.map((child) => {
+        return this.fromFieldDefinition(child, vcr, injector, tpl);
+      });
+
+      const template = vcr.createEmbeddedView(tpl, injector).rootNodes;
+      result.content = [template];
+    }
+
+    return result;
+  }
+
   override render<M extends Model>(
     model: M,
     globalProps: Record<string, unknown>,
@@ -25,36 +91,10 @@ export class NgxRenderingEngine extends RenderingEngine<
     injector: Injector,
     tpl: TemplateRef<any>,
   ): AngularDynamicOutput {
-    function fromFieldDefinition(
-      fieldDef: FieldDefinition<AngularFieldDefinition>,
-      i?: number,
-    ): AngularDynamicOutput {
-      let component, inputs;
-
-      component = NgxRenderingEngine.components(fieldDef.tag)
-        .constructor as unknown as Type<unknown>;
-      inputs = fieldDef.props;
-
-      const result: AngularDynamicOutput = {
-        component: component,
-        inputs: inputs,
-        injector: injector,
-      };
-
-      if (fieldDef.children && fieldDef.children.length) {
-        // result.content = [tpl.createEmbeddedView(null, injector).rootNodes];
-        result.children = fieldDef.children.map((child, index) => {
-          return fromFieldDefinition(child, index);
-        });
-      }
-
-      return result;
-    }
-
     let result: AngularDynamicOutput;
     try {
       const fieldDef = this.toFieldDefinition(model, globalProps);
-      result = fromFieldDefinition(fieldDef);
+      result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl);
     } catch (e: unknown) {
       throw new InternalError(
         `Failed to render Model ${model.constructor.name}: ${e}`,

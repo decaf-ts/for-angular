@@ -8,6 +8,7 @@ import {
   ModelArg,
   required,
   url,
+  password,
 } from '@decaf-ts/decorator-validation';
 import { uielement, uimodel } from '@decaf-ts/ui-decorators';
 
@@ -29,11 +30,11 @@ export class ForAngularModel extends Model {
   })
   name!: string;
 
-  // @date('yyyy/MM/dd')
-  // @required()
-  // @uielement('decaf-crud-field')
-  // birthdate!: Date;
-  //
+  @date('yyyy/MM/dd')
+  @required()
+  @uielement('decaf-crud-field', { label: 'demo.birthdate.label' })
+  birthdate!: Date;
+
   @required()
   @email()
   @uielement('decaf-crud-field', {
@@ -42,13 +43,14 @@ export class ForAngularModel extends Model {
   })
   email!: string;
 
-  // @url()
-  // @uielement('decaf-crud-field')
-  // website!: string;
-  //
-  // @required()
-  // @uielement('decaf-crud-field', { type: 'password' })
-  // password!: string;
+  @url()
+  @uielement('decaf-crud-field', { label: 'demo.website.label' })
+  website!: string;
+
+  @required()
+  @password()
+  @uielement('decaf-crud-field', { label: 'demo.password.label' })
+  password!: string;
 
   constructor(arg?: ModelArg<ForAngularModel>) {
     super(arg);

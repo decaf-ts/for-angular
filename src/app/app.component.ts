@@ -65,13 +65,7 @@ nextWeek.setDate(lastWeek.getDate() + 7);
   standalone: true,
   selector: 'app-root',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [
-    ComponentsModule,
-    DecafCrudFieldComponent,
-    TranslatePipe,
-    IonContent,
-    IonApp,
-  ],
+  imports: [ComponentsModule, IonContent, IonApp],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
