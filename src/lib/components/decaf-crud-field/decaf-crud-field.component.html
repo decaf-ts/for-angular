@@ -20,7 +20,7 @@
       </ion-textarea>
     </ion-item>
   }
-  @if(type === 'checkbox') {
+  @else if(type === 'checkbox') {
     <ion-item [formControlName]="name">
       <ion-checkbox
         #checkboxElement
@@ -63,20 +63,33 @@
         [mode]="mode"
         [hidden]="hidden"
         [labelPlacement]="labelPlacement"
-        [cancelText]="cancelText |  translate"
-        [label]="translatable ? (label | translate) : label"
+        [label]="label | translate : label"
         [value]="value"
         [fill]="fill"
-        [disabled]="readonly || disabled"
+        [disabled]="readonly || disabled || false"
         [placeholder]="placeholder | translate"
         [formControlName]="name"
         [interface]="interface">
         @for(option of options; track option.value) {
           <ion-select-option [value]="option.value">
-            {{ translatable ? (option.text | translate) : option.text }}
+            {{ option.text | translate }}
           </ion-select-option>
         }
       </ion-select>
+    </ion-item>
+  }
+  @else if(type === 'date') {
+    <ion-item>
+      <ion-label>{{label | translate}}</ion-label>
+      <ion-datetime>
+        [mode]="mode"
+        [hidden]="hidden !== undefined ? hidden : null"
+        [required]="required !== undefined ? required : null"
+        [min]="min"
+        [max]="max"
+        [value]="value"
+        [displayFormat]="displayFormat"
+      </ion-datetime>
     </ion-item>
   }
   @else {

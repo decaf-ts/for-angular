@@ -1,10 +1,8 @@
-import { CrudFormField, FieldProperties } from '@decaf-ts/ui-decorators';
+import { FieldProperties, RenderingError } from '@decaf-ts/ui-decorators';
 import {
   AngularFieldDefinition,
   FieldUpdateMode,
   PossibleInputTypes,
-  RadioOption,
-  SelectOption,
 } from './types';
 import {
   CrudOperations,
@@ -12,10 +10,9 @@ import {
   OperationKeys,
 } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormGroup } from '@angular/forms';
-import { ElementRef, Input } from '@angular/core';
+import { ElementRef } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
-import { AutocompleteTypes, SelectInterface } from '@ionic/core';
 
 /**
  * @class NgxCrudFormField
@@ -143,7 +140,7 @@ export abstract class NgxCrudFormField
             'div',
           );
         } catch (e: unknown) {
-          throw new Error(
+          throw new RenderingError(
             `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`,
           );
         }
@@ -154,7 +151,7 @@ export abstract class NgxCrudFormField
         );
         return parent;
       default:
-        throw new Error(`Invalid operation: ${this.operation}`);
+        throw new InternalError(`Invalid operation: ${this.operation}`);
     }
   }
 

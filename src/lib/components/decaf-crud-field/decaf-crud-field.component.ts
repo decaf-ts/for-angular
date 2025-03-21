@@ -13,8 +13,10 @@ import { CrudOperations } from '@decaf-ts/db-decorators';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   IonCheckbox,
+  IonDatetime,
   IonInput,
   IonItem,
+  IonLabel,
   IonRadio,
   IonRadioGroup,
   IonSelect,
@@ -51,6 +53,8 @@ import {
     TranslatePipe,
     IonSelectOption,
     IonTextarea,
+    IonDatetime,
+    IonLabel,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   // eslint-disable-next-line @angular-eslint/component-selector

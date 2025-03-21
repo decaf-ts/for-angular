@@ -29,11 +29,11 @@ export class ForAngularModel extends Model {
     placeholder: 'demo.name.placeholder',
   })
   name!: string;
-
-  @date('yyyy/MM/dd')
-  @required()
-  @uielement('decaf-crud-field', { label: 'demo.birthdate.label' })
-  birthdate!: Date;
+  //
+  // @date('yyyy/MM/dd')
+  // @required()
+  // @uielement('decaf-crud-field', { label: 'demo.birthdate.label' })
+  // birthdate!: Date;
 
   @required()
   @email()

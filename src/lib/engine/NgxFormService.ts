@@ -13,7 +13,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { Validation } from '@decaf-ts/decorator-validation';
+import { Validation, ValidationKeys } from '@decaf-ts/decorator-validation';
 import { AngularEngineKeys } from './constants';
 import { FormElement } from '../interfaces';
 import { ValidatorFactory } from './ValidatorFactory';
@@ -235,9 +235,9 @@ export class NgxFormService {
     const supportedValidationKeys = Validation.keys();
     return Object.keys(props)
       .filter((k: string) => supportedValidationKeys.includes(k))
-      .map((k: string) =>
-        ValidatorFactory.spawn(k, props[k as keyof FieldProperties]),
-      );
+      .map((k: string) => {
+        return ValidatorFactory.spawn(props, k);
+      });
   }
 
   /**

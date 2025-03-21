@@ -4,13 +4,18 @@ import {
   ValidationKeys,
   Validator,
 } from '@decaf-ts/decorator-validation';
-import { RenderingEngine } from '@decaf-ts/ui-decorators';
+import {
+  FieldProperties,
+  parseValueByType,
+  RenderingEngine,
+} from '@decaf-ts/ui-decorators';
 
 export class ValidatorFactory {
-  static spawn(key: string, arg: unknown) {
+  static spawn(fieldProps: FieldProperties, key: string): ValidatorFn {
     if (!Validation.keys().includes(key))
       throw new Error('Unsupported custom validation');
-
+    const arg = fieldProps[key as keyof FieldProperties];
+    const type = fieldProps.type;
     /**
      * TODO: This is only needed until the validator refacture
      * @param arg
@@ -32,10 +37,12 @@ export class ValidatorFactory {
       control: AbstractControl,
     ): ValidationErrors | null => {
       const validator = Validation.get(key) as Validator;
-      const value = control.value;
+      const value =
+        typeof control.value !== 'undefined'
+          ? parseValueByType(type, control.value, fieldProps)
+          : undefined;
       const actualArg = parseArgs(arg);
-      if (key === ValidationKeys.TYPE) {
-      }
+
       let errs;
       try {
         errs = validator.hasErrors(value, ...actualArg);
