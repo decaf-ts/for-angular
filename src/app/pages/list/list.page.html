@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Decaf for Angular</ion-title>
+    <ion-text>Model rendering made easy. Forever...</ion-text>
+  </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+  <ion-card class="aeon-card">
+    <ion-card-header>
+      <ion-card-title>
+        Current Operation is {{operation}}
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      @if(model) {
+        <decaf-model-renderer [model]="model"></decaf-model-renderer>
+      } @else {
+        <div>No Model</div>
+      }
+    </ion-card-content>
+  </ion-card>
+</ion-content>

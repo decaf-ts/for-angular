@@ -1,4 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  Input,
+  OnInit,
+} from '@angular/core';
 import {
   InternalError,
   IRepository,
@@ -6,12 +11,41 @@ import {
 } from '@decaf-ts/db-decorators';
 import { Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
+import {
+  IonBackButton,
+  IonButtons,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonContent,
+  IonHeader,
+  IonText,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { ComponentsModule } from '../../../lib/components/components.module';
 
 @Component({
   standalone: true,
   selector: 'app-model',
-  templateUrl: './model.page.html',
-  styleUrls: ['./model.page.scss'],
+  templateUrl: './list.page.html',
+  styleUrls: ['./list.page.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [
+    ComponentsModule,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonText,
+    IonContent,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+  ],
 })
 export class ModelPageComponent implements OnInit {
   @Input()

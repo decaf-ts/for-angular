@@ -6,7 +6,7 @@ import { ComponentsModule } from '../lib/components/components.module';
 import { NgxRenderingEngine } from '../lib/engine';
 import { ForAngularModel } from './model/DemoModel';
 import { DecafCrudFieldComponent } from '../lib/components/decaf-crud-field/decaf-crud-field.component';
-import { IonApp, IonContent } from '@ionic/angular/standalone';
+import { IonApp, IonContent, IonRouterOutlet } from '@ionic/angular/standalone';
 
 try {
   const engine = new NgxRenderingEngine();
@@ -65,7 +65,7 @@ nextWeek.setDate(lastWeek.getDate() + 7);
   standalone: true,
   selector: 'app-root',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [ComponentsModule, IonContent, IonApp],
+  imports: [ComponentsModule, IonContent, IonApp, IonRouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
