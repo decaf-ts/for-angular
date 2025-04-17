@@ -26,13 +26,12 @@ import { DefaultFormReactiveOptions } from './constants';
 @Dynamic()
 @Component({
   standalone: true,
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'decaf-crud-form',
-  templateUrl: './decaf-crud-form.component.html',
-  styleUrls: ['./decaf-crud-form.component.scss'],
+  selector: 'ngx-decaf-crud-form',
+  templateUrl: './crud-form.component.html',
+  styleUrls: ['./crud-form.component.scss'],
   imports: [IonicModule, ReactiveFormsModule],
 })
-export class DecafCrudFormComponent
+export class CrudFormComponent
   implements OnInit, AfterViewInit, FormElement, OnDestroy, RenderedModel
 {
   @Input()

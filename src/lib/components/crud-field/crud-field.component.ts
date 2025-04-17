@@ -11,18 +11,7 @@ import {
 } from '@angular/core';
 import { CrudOperations } from '@decaf-ts/db-decorators';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import {
-  IonCheckbox,
-  IonDatetime,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonRadio,
-  IonRadioGroup,
-  IonSelect,
-  IonSelectOption,
-  IonTextarea,
-} from '@ionic/angular/standalone';
+
 import {
   FieldUpdateMode,
   PossibleInputTypes,
@@ -30,7 +19,6 @@ import {
   SelectOption,
   StringOrBoolean,
 } from '../../engine/types';
-import { TranslatePipe } from '@ngx-translate/core';
 import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 import { Dynamic } from '../../engine/decorators';
 import {
@@ -38,31 +26,18 @@ import {
   SelectInterface,
   TextFieldTypes,
 } from '@ionic/core';
+import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ionicFormComponents } from '../components.module';
 
 @Dynamic()
 @Component({
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    IonInput,
-    IonItem,
-    IonCheckbox,
-    IonRadioGroup,
-    IonRadio,
-    IonSelect,
-    TranslatePipe,
-    IonSelectOption,
-    IonTextarea,
-    IonDatetime,
-    IonLabel,
-  ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'decaf-crud-field',
-  templateUrl: './decaf-crud-field.component.html',
-  styleUrl: './decaf-crud-field.component.scss',
+  imports: [ForAngularModule, ionicFormComponents],
+  selector: 'ngx-decaf-crud-field',
+  templateUrl: './crud-field.component.html',
+  styleUrl: './crud-field.component.scss',
 })
-export class DecafCrudFieldComponent
+export class CrudFieldComponent
   extends NgxCrudFormField
   implements OnInit, OnDestroy, AfterViewInit
 {

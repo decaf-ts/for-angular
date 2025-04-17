@@ -6,28 +6,26 @@ import {
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { DecafCrudFieldComponent } from './components/decaf-crud-field/decaf-crud-field.component';
-import { DecafCrudFormComponent } from './components/decaf-crud-form/decaf-crud-form.component';
-import { DecafModelRendererComponent } from './components/decaf-model-renderer/decaf-model-renderer.component';
+import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
+import { CrudFieldComponent } from './components/crud-field/crud-field.component';
+import { CrudFormComponent } from './components/crud-form/crud-form.component';
+import { ModelRendererComponent } from './components/model-renderer/model-renderer.component';
 
-const components = [
-  DecafCrudFieldComponent,
-  DecafCrudFormComponent,
-  DecafModelRendererComponent,
+const commonModules = [
+
+  CommonModule,
+  IonicModule,
+  FormsModule,
+  ReactiveFormsModule,
+  TranslateModule,
+  TranslatePipe
 ];
 
+
 @NgModule({
-  imports: [
-    CommonModule,
-    IonicModule,
-    FormsModule,
-    ReactiveFormsModule,
-    TranslateModule,
-    ...components,
-  ],
+  imports: commonModules,
   declarations: [],
-  exports: [...components],
+  exports: commonModules,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ForAngularModule {

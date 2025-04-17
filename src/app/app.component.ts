@@ -8,7 +8,7 @@ import { IonApp, IonRouterOutlet, IonSplitPane, IonImg } from '@ionic/angular/st
 try {
   const engine = new NgxRenderingEngine();
   // engine
-  //   .initialize(DecafCrudFieldComponent)
+  //   .initialize(FieldComponent)
   //   .then(() => {
   //     console.debug('Rendering engine initialized');
   //   })

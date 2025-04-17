@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DecafCrudFieldComponent } from './decaf-crud-field.component';
+import { CrudFieldComponent } from './crud-field.component';
 import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { runAndParseError } from '../../../tests/karmaErrorParser';
 import { AngularFieldDefinition } from '../../engine';
@@ -8,16 +8,16 @@ import { FieldProperties } from '@decaf-ts/ui-decorators';
 import { TranslateModule } from '@ngx-translate/core';
 import { By } from '@angular/platform-browser';
 
-describe('CrudFormFieldComponent', () => {
-  let component: DecafCrudFieldComponent;
-  let fixture: ComponentFixture<DecafCrudFieldComponent>;
+describe('CrudFieldComponent', () => {
+  let component: CrudFieldComponent;
+  let fixture: ComponentFixture<CrudFieldComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot(), DecafCrudFieldComponent],
+      imports: [TranslateModule.forRoot(), CrudFieldComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DecafCrudFieldComponent);
+    fixture = TestBed.createComponent(CrudFieldComponent);
     component = fixture.componentInstance;
   });
 

@@ -19,12 +19,11 @@ import {
 @Component({
   standalone: true,
   imports: [NgComponentOutlet],
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'decaf-model-renderer',
-  templateUrl: './decaf-model-renderer.component.html',
-  styleUrl: './decaf-model-renderer.component.scss',
+  selector: 'ngx-decaf-model-renderer',
+  templateUrl: './model-renderer.component.html',
+  styleUrl: './model-renderer.component.scss',
 })
-export class DecafModelRendererComponent<M extends Model>
+export class ModelRendererComponent<M extends Model>
   implements OnChanges, RenderedModel
 {
   @Input({ required: true })

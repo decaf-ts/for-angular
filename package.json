@@ -4,8 +4,7 @@
   "scripts": {
     "ng": "ng",
     "decaf": "npx decaf angular generate",
-    "generate-component": "ng generate component --project=for-angular --path=src/lib/components",
-    "do-install": "TOKEN=$(cat .token) npm install",
+    "do-install": "npm run decaf schematics decaf && TOKEN=$(cat .token) npm install",
     "flash-forward": "npx npm-check-updates -u && npm run do-install",
     "update-dependencies": "rimraf node_modules/@decaf-ts package-lock.json && npm run do-install",
     "reset": "rm -rf * && git checkout . && git pull && npm run do-install",
@@ -14,8 +13,13 @@
     "build:new": "rimraf ./.angular && npm run build",
     "build:cli": "tsc --project tsconfig.cli.json --outDir dist/for-angular/cli",
     "start": "ng serve for-angular-app",
+    "server": "npm run start",
+    "server:pwa": "lite-server",
     "watch": "ng build for-angular --watch --configuration development",
-    "test": "ng test for-angular",
+    "test": "npm run test:all",
+    "test:all": "ng test --no-watch --browsers=ChromeHeadlessCI",
+    "test:components": "ng test --include='./src/lib/components/**/*.spec.ts' --no-watch --browsers=ChromeHeadlessCI",
+    "test:services": "ng test --include='./src/lib/services/*.service.spec.ts' --no-watch --browsers=ChromeHeadlessCI",
     "lint": "ng lint for-angular",
     "lint-fix": "eslint --fix .",
     "test:circular": "dpdm -T --no-warning --no-tree ./src/index.ts",
@@ -34,10 +38,11 @@
   "license": "LGPL-3.0-or-later",
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.12",
+    "@angular-devkit/core": "^19.2.8",
+    "@angular-devkit/schematics": "^18.2.18",
     "@angular/cli": "^18.2.12",
     "@angular/compiler-cli": "^18.2.13",
     "@types/jasmine": "~5.1.0",
-
     "angular-eslint": "18.4.0",
     "commander": "^13.1.0",
     "dpdm": "^3.14.0",
@@ -50,12 +55,15 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "lite-server": "^2.6.1",
     "markdown-include": "^0.4.3",
     "ng-packagr": "^18.2.1",
     "npm-check-updates": "^17.1.4",
+    "rimraf": "^6.0.1",
+    "tslib": "^2.3.0",
     "typescript": "~5.5.2",
     "typescript-eslint": "8.10.0",
-    "tslib": "^2.3.0"
+     "@schematics/angular": "^19.2.8"
   },
   "peerDependencies": {
     "@angular/animations": "^18.2.13",
@@ -77,9 +85,12 @@
     "@ionic/angular-toolkit": "^12.1.1",
     "@ngx-translate/core": "^16.0.4",
     "@ngx-translate/http-loader": "^16.0.1",
+    "@tabler/icons-webfont": "^3.31.0",
     "ionicons": "^7.4.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "~7.8.0",
     "zone.js": "~0.14.10"
-  }
+  },
+
+  "schematics": "./schematics/collection.json"
 }

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DecafCrudFieldComponent } from './decaf-crud-field.component';
+import { FieldComponent } from './crud-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -7,15 +7,15 @@ import { FieldProperties } from '@decaf-ts/ui-decorators';
 import { AngularFieldDefinition } from '../../engine';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
-describe('DecafCrudFieldComponent', () => {
-  let component: DecafCrudFieldComponent;
-  let fixture: ComponentFixture<DecafCrudFieldComponent>;
+describe('FieldComponent', () => {
+  let component: FieldComponent;
+  let fixture: ComponentFixture<FieldComponent>;
   // let formBuilder: FormBuilder;
   let translateService: TranslateService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [DecafCrudFieldComponent],
+      declarations: [FieldComponent],
       imports: [
         ReactiveFormsModule,
         IonicModule.forRoot(),
@@ -25,7 +25,7 @@ describe('DecafCrudFieldComponent', () => {
     }).compileComponents();
 
     translateService = TestBed.inject(TranslateService);
-    fixture = TestBed.createComponent(DecafCrudFieldComponent);
+    fixture = TestBed.createComponent(FieldComponent);
     component = fixture.componentInstance;
   });
 

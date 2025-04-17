@@ -7,14 +7,14 @@ import {
 import { Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
 
-import { ComponentsModule, IonicComponents } from '../../../lib/components/components.module';
+import { ComponentsModule, ionicComponents } from '../../../lib/components/components.module';
 
 
 @Component({
   standalone: true,
   selector: 'app-model',
   templateUrl: './model.page.html',
-   imports: [ComponentsModule, ...IonicComponents],
+   imports: [ComponentsModule, ...ionicComponents],
   styleUrls: ['./model.page.scss'],
 })
 export class ModelPageComponent implements OnInit {

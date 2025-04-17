@@ -2,6 +2,12 @@ import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { Injector, Type } from '@angular/core';
 
+export type ElementSizes = 'small' | 'medium' | 'large' | 'xlarge' | '2xlarge' | 'auto' | 'expand' | 'block';
+
+export type ElementPositions =  'left' | 'center' | 'right' | 'top' | 'bottom';
+
+export type FlexPositions = ElementPositions | 'stretch' | 'middle' | 'around' | 'between';
+
 export type FieldUpdateMode = 'change' | 'blur' | 'submit';
 
 export interface ComponentMetadata {

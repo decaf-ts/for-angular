@@ -37,7 +37,7 @@ module.exports = tseslint.config(
         "error",
         {
           type: "element",
-          prefix: ["app", "for-angular", "decaf", "ng-decaf"], // changed to accept for-angular prefix, default "app"
+          prefix: ["app", "for-angular", "decaf", "ngx-decaf"], // changed to accept for-angular prefix, default "app"
           style: "kebab-case",
         },
       ],

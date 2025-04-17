@@ -16,7 +16,7 @@ import { uielement, uimodel } from '@decaf-ts/ui-decorators';
 @model()
 export class ForAngularModel extends Model {
   @id()
-  @uielement('decaf-crud-field', {
+  @uielement('ngx-decaf-crud-field', {
     label: 'demo.id.label',
     placeholder: 'demo.id.placeholder',
   })
@@ -24,7 +24,7 @@ export class ForAngularModel extends Model {
 
   @required()
   @minlength(5)
-  @uielement('decaf-crud-field', {
+  @uielement('ngx-decaf-crud-field', {
     label: 'demo.name.label',
     placeholder: 'demo.name.placeholder',
   })
@@ -32,24 +32,24 @@ export class ForAngularModel extends Model {
   //
   // @date('yyyy/MM/dd')
   // @required()
-  // @uielement('decaf-crud-field', { label: 'demo.birthdate.label' })
+  // @uielement('ngx-decaf-crud-field', { label: 'demo.birthdate.label' })
   // birthdate!: Date;
 
   @required()
   @email()
-  @uielement('decaf-crud-field', {
+  @uielement('ngx-decaf-crud-field', {
     label: 'demo.email.label',
     placeholder: 'demo.email.placeholder',
   })
   email!: string;
 
   @url()
-  @uielement('decaf-crud-field', { label: 'demo.website.label' })
+  @uielement('ngx-decaf-crud-field', { label: 'demo.website.label' })
   website!: string;
 
   @required()
   @password()
-  @uielement('decaf-crud-field', { label: 'demo.password.label' })
+  @uielement('ngx-decaf-crud-field', { label: 'demo.password.label' })
   password!: string;
 
   constructor(arg?: ModelArg<ForAngularModel>) {

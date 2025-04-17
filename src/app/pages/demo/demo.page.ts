@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, OnInit } from '@angular/core';
-import { ComponentsModule, ionicComponents } from '../../../lib/components/components.module';
+import { ComponentsModule } from '../../../lib/components/components.module';
 // import { IonicModule } from '@ionic/angular';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import {getFormFieldProps} from 'src/app/utils';
@@ -14,7 +14,7 @@ nextWeek.setDate(lastWeek.getDate() + 7);
 @Component({
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [ComponentsModule, ...ionicComponents],
+  imports: [ComponentsModule],
   selector: 'for-angular-demo',
   templateUrl: './demo.page.html',
   styleUrls: ['./demo.page.scss'],
