@@ -14,6 +14,17 @@ module.exports = tseslint.config(
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      "@typescript-eslint/no-explicty-any": "warn",
+      "@typescript-eslint/no-inferrable-types": "warn",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-empty-function": "warn",
+      "@angular-eslint/no-empty-lifecycle-method": "warn",
+      "@angular-eslint/component-class-suffix": [
+        "error",
+        {
+          "suffixes": ["Page", "Component"]
+        }
+      ],
       "@angular-eslint/directive-selector": [
         "error",
         {
@@ -26,7 +37,7 @@ module.exports = tseslint.config(
         "error",
         {
           type: "element",
-          prefix: "app",
+          prefix: ["app", "for-angular", "decaf", "ng-decaf"], // changed to accept for-angular prefix, default "app"
           style: "kebab-case",
         },
       ],

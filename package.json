@@ -3,7 +3,8 @@
   "version": "0.0.4",
   "scripts": {
     "ng": "ng",
-    "generate-component": "ng generate component",
+    "decaf": "npx decaf angular generate",
+    "generate-component": "ng generate component --project=for-angular --path=src/lib/components",
     "do-install": "TOKEN=$(cat .token) npm install",
     "flash-forward": "npx npm-check-updates -u && npm run do-install",
     "update-dependencies": "rimraf node_modules/@decaf-ts package-lock.json && npm run do-install",
@@ -36,6 +37,7 @@
     "@angular/cli": "^18.2.12",
     "@angular/compiler-cli": "^18.2.13",
     "@types/jasmine": "~5.1.0",
+
     "angular-eslint": "18.4.0",
     "commander": "^13.1.0",
     "dpdm": "^3.14.0",
@@ -52,7 +54,8 @@
     "ng-packagr": "^18.2.1",
     "npm-check-updates": "^17.1.4",
     "typescript": "~5.5.2",
-    "typescript-eslint": "8.10.0"
+    "typescript-eslint": "8.10.0",
+    "tslib": "^2.3.0"
   },
   "peerDependencies": {
     "@angular/animations": "^18.2.13",
@@ -77,7 +80,6 @@
     "ionicons": "^7.4.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
     "zone.js": "~0.14.10"
   }
 }

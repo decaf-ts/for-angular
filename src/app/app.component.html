@@ -1,14 +1,22 @@
-<ion-app>
-<!--  <ion-content>-->
-<!--      <decaf-crud-form [operation]="operation">-->
-<!--        &lt;!&ndash;      test&ndash;&gt;-->
-<!--        <decaf-crud-field [operation]="operation" [props]="props1"></decaf-crud-field>-->
-<!--        <decaf-crud-field  [operation]="operation" [props]="props2"></decaf-crud-field>-->
-<!--        <decaf-crud-field [operation]="operation" [props]="props3"></decaf-crud-field>-->
-<!--        <decaf-crud-field [operation]="operation" [props]="props4"></decaf-crud-field>-->
-<!--        &lt;!&ndash;        <decaf-crud-field [operation]="operation" [props]="props5"></decaf-crud-field>&ndash;&gt;-->
-<!--      </decaf-crud-form>-->
+<!-- <ion-app>
+
       <decaf-model-renderer [model]="model1" [globals]="{operation: operation}"></decaf-model-renderer>
-<!--  </ion-content>-->
+</ion-app>
+ -->
+
+
+<ion-app>
+
+  <ion-split-pane contentId="main-content" style="--side-max-width: 240px;">
+    <ion-menu contentId="main-content" type="overlay">
+      <ion-content>
+        <ion-img src="assets/images/angular-logo.svg" />
+        <h1>{{ title }}</h1>
+        <p>This is a demo page for Decaf-ts' angular engine.</p>
+      </ion-content>
+    </ion-menu>
+
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+  </ion-split-pane>
 </ion-app>
 

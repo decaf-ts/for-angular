@@ -13,15 +13,17 @@ const components = [
   DecafModelRendererComponent,
 ];
 
+export const ionicComponents = [IonicModule];
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    IonicModule,
-    ...components,
+    ...components, ionicComponents
   ],
-  declarations: [],
+  declarations: [
+
+  ],
   exports: [...components, TranslateModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
