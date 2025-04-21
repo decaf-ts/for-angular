@@ -4859,7 +4859,7 @@ class TemplateSync extends command_1.Command {
             this.patchFiles();
         }
         if (all) {
-            scripts = true;
+            scripts = false;
             styles = true;
             docs = true;
             ide = true;
@@ -4880,7 +4880,8 @@ class TemplateSync extends command_1.Command {
             if (confirmation)
                 license = await input_1.UserInput.insistForText("license", "Enter the desired License (MIT|GPL|Apache|LGPL|AGPL):", (val) => !!val && !!val.match(/^(MIT|GPL|Apache|LGPL|AGPL)$/g));
         }
-        await this.getLicense(license);
+        if (typeof license !== "undefined")
+            await this.getLicense(license);
         if (typeof ide === "undefined")
             ide = await input_1.UserInput.askConfirmation("ide", "Do you want to get ide configs?", true);
         if (ide)
