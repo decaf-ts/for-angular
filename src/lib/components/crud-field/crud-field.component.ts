@@ -1,16 +1,14 @@
 import {
   AfterViewInit,
   Component,
-  CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
   Input,
-  NO_ERRORS_SCHEMA,
   OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
 import { CrudOperations } from '@decaf-ts/db-decorators';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 
 import {
   FieldUpdateMode,
@@ -32,7 +30,7 @@ import { ionicFormComponents } from '../components.module';
 @Dynamic()
 @Component({
   standalone: true,
-  imports: [ForAngularModule, ionicFormComponents],
+  imports: [ForAngularModule],
   selector: 'ngx-decaf-crud-field',
   templateUrl: './crud-field.component.html',
   styleUrl: './crud-field.component.scss',
@@ -137,8 +135,7 @@ export class CrudFieldComponent
   fill: 'outline' | 'solid' = 'outline';
 
   @Input()
-  labelPlacement: 'start' | 'end' | 'floating' | 'stacked' | 'fixed' =
-    'stacked';
+  labelPlacement: 'start' | 'end' | 'floating' | 'stacked' | 'fixed' = 'floating';
 
   // Component
 

@@ -6,7 +6,9 @@
       </div>
       <div class="divider" role="separator" aria-label="Divider"></div>
       <div class="right-side">
-        <decaf-model-renderer [model]="model1" [globals]="{operation: operation}"></decaf-model-renderer>
+        <ngx-decaf-container size="large">
+          <ngx-decaf-model-renderer [model]="model1" [globals]="{operation: operation}"></ngx-decaf-model-renderer>
+        </ngx-decaf-container>
         <!-- <form-reactive [operation]="operation"> -->
           <!--      test-->
           <!-- <crud-form-field [operation]="operation" [props]="props1"></crud-form-field> -->

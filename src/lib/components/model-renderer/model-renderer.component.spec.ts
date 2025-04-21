@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ModelRendererComponent } from './model-renderer.component';
-import { ForAngularModel } from '../../../app/model/DemoModel';
+import { ForAngularModel } from '../../../app/models/DemoModel';
 import { Model } from '@decaf-ts/decorator-validation';
 import { RenderingEngine } from '@decaf-ts/ui-decorators';
 import { AngularFieldDefinition, NgxRenderingEngine } from '../../engine';

@@ -7,7 +7,6 @@ import { Component, OnInit<% if(standalone){ %>, CUSTOM_ELEMENTS_SCHEMA <%} %> }
   styleUrls: ['./<%= dasherize(name) %>.<%= dasherize(type) %>.<%= style %>'],
 <% if(standalone) {%>  imports: [ForAngularModule],
   standalone: true,
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 <%} %>
 })
 export class <%= classify(name) %><%= classify(type) %> implements OnInit {

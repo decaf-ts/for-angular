@@ -20,7 +20,7 @@ import {
   RenderedModel,
 } from '../../engine';
 import { CrudFormOptions, FormReactiveSubmitEvent } from './types';
-import { CrudOperations } from '@decaf-ts/db-decorators';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
 
 @Dynamic()
@@ -65,7 +65,8 @@ export class CrudFormComponent
   submitEvent = new EventEmitter<FormReactiveSubmitEvent>();
 
   ngAfterViewInit() {
-    NgxFormService.formAfterViewInit(this, this.rendererId);
+    if(this.operation !== OperationKeys.READ)
+      NgxFormService.formAfterViewInit(this, this.rendererId);
   }
 
   ngOnInit() {

@@ -3,7 +3,7 @@ import { ComponentsModule } from '../../../lib/components/components.module';
 // import { IonicModule } from '@ionic/angular';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import {getFormFieldProps} from 'src/app/utils';
-import { ForAngularModel } from 'src/app/model/DemoModel';
+import { ForAngularModel } from 'src/app/models/DemoModel';
 
 const now = new Date();
 const lastWeek = new Date();

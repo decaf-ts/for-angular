@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FieldComponent } from './crud-field.component';
+import { CrudFieldComponent } from './crud-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -8,14 +8,14 @@ import { AngularFieldDefinition } from '../../engine';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('FieldComponent', () => {
-  let component: FieldComponent;
-  let fixture: ComponentFixture<FieldComponent>;
+  let component: CrudFieldComponent;
+  let fixture: ComponentFixture<CrudFieldComponent>;
   // let formBuilder: FormBuilder;
   let translateService: TranslateService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [FieldComponent],
+      declarations: [CrudFieldComponent],
       imports: [
         ReactiveFormsModule,
         IonicModule.forRoot(),
@@ -25,8 +25,10 @@ describe('FieldComponent', () => {
     }).compileComponents();
 
     translateService = TestBed.inject(TranslateService);
-    fixture = TestBed.createComponent(FieldComponent);
+    fixture = TestBed.createComponent(CrudFieldComponent);
     component = fixture.componentInstance;
+    component.name = 'test_field';
+    component.type = 'text';
   });
 
   it('should create', () => {
@@ -58,7 +60,7 @@ describe('FieldComponent', () => {
           { value: 'option2', text: 'Option 2' },
         ];
       }
-      component.props = props;
+      // component.props = props;
       fixture.detectChanges();
 
       const element = fixture.nativeElement.querySelector(selector);
@@ -76,12 +78,14 @@ describe('FieldComponent', () => {
   });
 
   it('should show error message when required field is empty', () => {
-    component.props = {
-      name: 'required_field',
-      type: 'text',
-      label: 'Required Field',
-      required: true,
-    } as AngularFieldDefinition;
+    component.label = 'Required Field';
+    component.required = true;
+    // component = {
+    //   name: 'required_field',
+    //   type: 'text',
+    //   label: 'Required Field',
+    //   required: true,
+    // } as AngularFieldDefinition;
     component.formGroup.markAsTouched();
     fixture.detectChanges();
 
@@ -91,14 +95,17 @@ describe('FieldComponent', () => {
   });
 
   it('should show error message when minlength is not met', () => {
-    const props: FieldProperties & AngularFieldDefinition = {
-      name: 'minlength_field',
-      type: 'text',
-      label: 'Minlength Field',
-      value: 'abc',
-      minlength: 5,
-    } as AngularFieldDefinition;
-    component.props = props;
+    component.label = 'Minlength Field';
+    component.minlength = 5;
+    component.value = 'abc';
+    // const props: FieldProperties & AngularFieldDefinition = {
+    //   name: 'minlength_field',
+    //   type: 'text',
+    //   label: 'Minlength Field',
+    //   value: 'abc',
+    //   minlength: 5,
+    // } as AngularFieldDefinition;
+    // component.props = props;
     component.formGroup.markAsTouched();
     fixture.detectChanges();
 
@@ -108,14 +115,17 @@ describe('FieldComponent', () => {
   });
 
   it('should show error message when maxlength is exceeded', () => {
-    const props: FieldProperties & AngularFieldDefinition = {
-      name: 'maxlength_field',
-      type: 'text',
-      label: 'Maxlength Field',
-      maxlength: 5,
-      value: 'abcdef',
-    } as AngularFieldDefinition;
-    component.props = props;
+    // const props: FieldProperties & AngularFieldDefinition = {
+    //   name: 'maxlength_field',
+    //   type: 'text',
+    //   label: 'Maxlength Field',
+    //   maxlength: 5,
+    //   value: 'abcdef',
+    // } as AngularFieldDefinition;
+    // component.props = props;
+    component.label = 'Maxlength Field';
+    component.maxlength = 5;
+    component.value = 'abcdef';
     component.formGroup.markAsTouched();
     fixture.detectChanges();
 
@@ -125,14 +135,17 @@ describe('FieldComponent', () => {
   });
 
   it('should show error message when pattern is not matched', () => {
-    const props: FieldProperties & AngularFieldDefinition = {
-      name: 'pattern_field',
-      type: 'text',
-      label: 'Pattern Field',
-      pattern: '^[A-Za-z]+$',
-      value: '123',
-    } as AngularFieldDefinition;
-    component.props = props;
+    // const props: FieldProperties & AngularFieldDefinition = {
+    //   name: 'pattern_field',
+    //   type: 'text',
+    //   label: 'Pattern Field',
+    //   pattern: '^[A-Za-z]+$',
+    //   value: '123',
+    // } as AngularFieldDefinition;
+    // component.props = props;
+    component.label = 'Pattern Field';
+    component.pattern = '^[A-Za-z]+$';
+    component.value = '123';
     component.formGroup.markAsTouched();
     fixture.detectChanges();
 
@@ -142,14 +155,18 @@ describe('FieldComponent', () => {
   });
 
   it('should show error message when min value is not met', () => {
-    const props: FieldProperties & AngularFieldDefinition = {
-      name: 'min_field',
-      type: 'number',
-      label: 'Min Field',
-      min: 5,
-      value: 3,
-    } as AngularFieldDefinition;
-    component.props = props;
+    // const props: FieldProperties & AngularFieldDefinition = {
+    //   name: 'min_field',
+    //   type: 'number',
+    //   label: 'Min Field',
+    //   min: 5,
+    //   value: 3,
+    // } as AngularFieldDefinition;
+    // component.props = props;
+    component.type =  'number';
+    component.label = 'Min Field';
+    component.min = 5;
+    component.value = 3;
     component.formGroup.markAsTouched();
     fixture.detectChanges();
 
@@ -159,14 +176,18 @@ describe('FieldComponent', () => {
   });
 
   it('should show error message when max value is exceeded', () => {
-    const props: FieldProperties & AngularFieldDefinition = {
-      name: 'max_field',
-      type: 'number',
-      label: 'Max Field',
-      max: 10,
-      value: 15,
-    } as AngularFieldDefinition;
-    component.props = props;
+    // const props: FieldProperties & AngularFieldDefinition = {
+    //   name: 'max_field',
+    //   type: 'number',
+    //   label: 'Max Field',
+    //   max: 10,
+    //   value: 15,
+    // } as AngularFieldDefinition;
+    // component.props = props;
+    component.type =  'number';
+    component.label = 'Min Field';
+    component.min = 5;
+    component.value = 3;
     component.formGroup.markAsTouched();
     fixture.detectChanges();
 
@@ -176,14 +197,16 @@ describe('FieldComponent', () => {
   });
 
   it('should not show error message when field is valid', () => {
-    const props: AngularFieldDefinition = {
-      name: 'valid_field',
-      type: 'text',
-      label: 'Valid Field',
-      required: true,
-      value: 'Valid input',
-    } as AngularFieldDefinition;
-    component.props = props;
+    // const props: AngularFieldDefinition = {
+    //   name: 'valid_field',
+    //   type: 'text',
+    //   label: 'Valid Field',
+    //   required: true,
+    //   value: 'Valid input',
+    // } as AngularFieldDefinition;
+    // component.props = props;
+    component.label = 'Valid Field';
+    component.value = 'Valid input';
     component.formGroup.markAsTouched();
     fixture.detectChanges();
 
@@ -192,14 +215,17 @@ describe('FieldComponent', () => {
   });
 
   it('should translate labels and placeholders', () => {
-    const props: AngularFieldDefinition = {
-      name: 'translated_field',
-      type: 'text',
-      label: 'FIELD.LABEL',
-      placeholder: 'FIELD.PLACEHOLDER',
-      value: '',
-    } as AngularFieldDefinition;
-    component.props = props;
+    // const props: AngularFieldDefinition = {
+    //   name: 'translated_field',
+    //   type: 'text',
+    //   label: 'FIELD.LABEL',
+    //   placeholder: 'FIELD.PLACEHOLDER',
+    //   value: '',
+    // } as AngularFieldDefinition;
+    // component.props = props;
+    component.label = 'FIELD.LABEL';
+    component.placeholder = 'FIELD.PLACEHOLDER';
+    component.value = '';
     component.translatable = true;
 
     // Mock translate service
@@ -217,14 +243,17 @@ describe('FieldComponent', () => {
   });
 
   it('should handle readonly attribute correctly', () => {
-    const props: FieldProperties & AngularFieldDefinition = {
-      name: 'readonly_field',
-      type: 'text',
-      label: 'Readonly Field',
-      readonly: true,
-      value: '',
-    } as AngularFieldDefinition;
-    component.props = props;
+    // const props: FieldProperties & AngularFieldDefinition = {
+    //   name: 'readonly_field',
+    //   type: 'text',
+    //   label: 'Readonly Field',
+    //   readonly: true,
+    //   value: '',
+    // } as AngularFieldDefinition;
+    // component.props = props;
+    component.label = 'Readonly Field';
+    component.value = '';
+    component.readonly = true;
     fixture.detectChanges();
 
     const input = fixture.nativeElement.querySelector('ion-input');
@@ -232,14 +261,17 @@ describe('FieldComponent', () => {
   });
 
   it('should handle disabled attribute correctly', () => {
-    const props: FieldProperties & AngularFieldDefinition = {
-      name: 'disabled_field',
-      type: 'text',
-      label: 'Disabled Field',
-      disabled: true,
-      value: '',
-    } as AngularFieldDefinition;
-    component.props = props;
+    // const props: FieldProperties & AngularFieldDefinition = {
+    //   name: 'disabled_field',
+    //   type: 'text',
+    //   label: 'Disabled Field',
+    //   disabled: true,
+    //   value: '',
+    // } as AngularFieldDefinition;
+    // component.props = props;
+    component.label = 'Disabled Field';
+    component.value = '';
+    component.disabled = true;
     fixture.detectChanges();
 
     const input = fixture.nativeElement.querySelector('ion-input');

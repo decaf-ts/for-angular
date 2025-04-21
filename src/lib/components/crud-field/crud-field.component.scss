@@ -1,43 +1,61 @@
-.disabled {
-  opacity: 0.7;
-  pointer-events: none;
-  touch-action: none;
 
-  * {
-    pointer-events: none;
-    touch-action: none;
+.dcf-input-item {
+  &:not(.read) {
+    margin-bottom: 1.8rem;
+    margin-top: 0px !important;
+    &.checkbox {
+      + .checkbox { margin-top: - .25rem !important; }
+    }
+
+    ion-item {
+        --border-color: transparent;
+
+        &.dcf-text-wrap {
+          ion-label > * {
+            white-space: wrap !important;
+            word-break: break-all !important;
+          }
+        }
+    }
   }
-}
 
-// classe quando o form está sendo submetido
-.proccessing {
-  pointer-events: none;
-  touch-action: none;
-  cursor: text;
-
-  * {
-    pointer-events: none;
-    touch-action: none;
-    cursor: text;
+  &.read {
+    ion-label {
+      font-weight: 600;
+    }
   }
-}
+  ion-item {
+    --padding-end: 0rem;
+    --padding-start: 0px !important;
+    --padding-top: 0px !important;
+
+    --background: transparent;
+    --background-hover: var(--ion-color-primary);
+    --background-hover-opacity: .1;
+
+    --background-hover: var(--ion-color-primary);
+    --background-activated-opacity: .15;
+
+    --background-focused: var(--ion-color-primary);
+    --background-focused-opacity: .15;
 
 
+    span,
+    ion-text {
+      font-weight: 400 !important;
+      font-size: .925rem;
+      min-height: .5rem !important;
+      &:not(.dcf-display-block) {
+        display: inline-block;
+      }
 
+      &.dcf-display-block {
+        display: block !important;
+      }
 
-ion-item {
-  --border-color: transparent;
-  --padding-start: .75rem;
+    }
+  }
 
-  --background: transparent;
-  --background-hover: var(--ion-color-primary);
-  --background-hover-opacity: .1;
-
-  --background-hover: var(--ion-color-primary);
-  --background-activated-opacity: .15;
-
-  --background-focused: var(--ion-color-primary);
-  --background-focused-opacity: .15;
 }
 
 // customizando o scroolbar da textarea
@@ -56,12 +74,28 @@ ion-textarea {
 }
 
 // fix do label com floating para selects
-ion-select.select-label-placement-floating::part(label) {
+ion-select.dcf-select-label-placement-floating::part(label) {
   line-height: 1.2rem !important;
 }
 
+// classe quando o form está sendo submetido
+.dcf-proccessing {
+  pointer-events: none;
+  touch-action: none;
+  cursor: text;
+
+  * {
+    pointer-events: none;
+    touch-action: none;
+    cursor: text;
+  }
+}
+
+
+
+
 // label para radio groups
-.radio-group-label {
+.dcf-radio-group-label {
   margin-left: .5rem;
 
   + ion-item {
@@ -84,9 +118,99 @@ ion-checkbox::part(container) {
 
 ion-item,
 ion-radio-group {
-  + .helper {
+  + .dcf-helper {
     padding-left: .75rem;
 
     position: relative;
+  }
+}
+
+.dcf-error {
+  position: absolute;
+  color: var(--ion-color-danger) !important;
+  font-size: 0.8rem !important;
+  font-weight: 600;
+  line-height: 1.1rem;
+  background: rgba(0,0,0, .75) !important;
+  // background: rgba(255,255,255, .75) !important;
+  box-sizing: border-box;
+  z-index: 9999;
+  margin-top: -10px;
+
+
+  animation-duration: 0.1s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+  animation-name: fadeTopSmallAnimation;
+  display: flex;
+  align-items: flex-start;
+  gap: .25rem;
+
+ .ti,
+  ion-icon {
+    position: relative;
+    top: 2px !important;
+    min-width: 20px;
+    font-size: 1rem !important;
+    text-align: left;
+  }
+}
+
+
+
+.dcf-helper {
+  font-size: .875rem !important;
+  font-weight: 500;
+  margin-top: .25rem;
+  margin-bottom: -0.75rem;
+  &.dcf-has-action {
+      cursor: pointer;
+      color: var(--ion-color-gray-8) !important;
+      // color: var(--ion-color-primary) !important;
+      text-decoration: underline;
+  }
+}
+
+.dcf-error  + .dcf-helper  {
+  padding-top: 1rem;
+}
+
+
+/*
+* Slide Top Small
+*/
+@keyframes fadeTopSmallAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/*
+* Slide Bottom Small
+*/
+@keyframes fadeBottomSmallAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+@keyframes fadeTopMediumAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

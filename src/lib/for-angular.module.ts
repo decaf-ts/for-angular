@@ -2,6 +2,7 @@ import {
   NgModule,
   CUSTOM_ELEMENTS_SCHEMA,
   ModuleWithProviders,
+  NO_ERRORS_SCHEMA,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
@@ -12,7 +13,6 @@ import { CrudFormComponent } from './components/crud-form/crud-form.component';
 import { ModelRendererComponent } from './components/model-renderer/model-renderer.component';
 
 const commonModules = [
-
   CommonModule,
   IonicModule,
   FormsModule,

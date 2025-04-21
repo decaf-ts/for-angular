@@ -1,131 +1,145 @@
 <ng-container #component [formGroup]="formGroup">
-  @if(type === 'textarea') {
-    <ion-item>
-      <ion-textarea
-        [mode]="mode"
-        [hidden]="hidden"
-        [required]="required !== undefined ? required : null"
-        [minlength]="minlength !== undefined ? minlength : null"
-        [maxlength]="maxlength !== undefined ? maxlength : null"
-        [readonly]="readonly !== undefined ? readonly : null"
-        [inputmode]="inputmode"
-        [spellcheck]="spellcheck"
-        [rows]="rows"
-        [labelPlacement]="labelPlacement"
-        [value]="value"
-        [fill]="fill"
-        [placeholder]="translatable ? (placeholder | translate) : placeholder"
-        [formControlName]="name"
-        [label]="translatable ? (label | translate) : label">
-      </ion-textarea>
-    </ion-item>
-  }
-  @else if(type === 'checkbox') {
-    <ion-item [formControlName]="name">
-      <ion-checkbox
-        #checkboxElement
-        [name]="name"
-        [mode]="mode"
-        [hidden]="hidden"
-        [labelPlacement]="labelPlacement"
-        [justify]="justify"
-        [disabled]="disabled || readonly"
-        [value]="value"
-        [checked]="checked"
-        (ionChange)="checked = !checked"
-        [formControlName]="name">
-        <span [innerHTML]="label | translate"></span>
-      </ion-checkbox>
-    </ion-item>
-  }
-  @else if(type === 'radio') {
-    <ion-radio-group [formControlName]="name" [name]="name" [value]="value">
-      <label class="radio-group-label">{{label | translate}}</label>
-      @for(option of options; track option.value) {
+  <div [class]="'dcf-input-item ' + operation">
+    @if(operation === 'read') {
+      <ion-item>
+        <ion-label>
+          {{ label | translate }}<br />
+          @if(value) {
+            <ion-text class="dcf-display-block" [innerHTML]="value"></ion-text>
+          } @else {
+            <br />
+          }
+        </ion-label>
+      </ion-item>
+    } @else {
+      @if(type === 'textarea') {
         <ion-item>
-          <ion-radio
+          <ion-textarea
             [mode]="mode"
             [hidden]="hidden"
-            [disabled]="readonly || disabled"
+            [required]="required !== undefined ? required : null"
+            [minlength]="minlength !== undefined ? minlength : null"
+            [maxlength]="maxlength !== undefined ? maxlength : null"
+            [readonly]="readonly !== undefined ? readonly : null"
+            [inputmode]="inputmode"
+            [spellcheck]="spellcheck"
+            [rows]="rows"
             [labelPlacement]="labelPlacement"
-            [alignment]="alignment"
-            [justify]="justify"
-            [value]="option.value"
-          >{{ option.text | translate }}</ion-radio>
+            [value]="value"
+            [fill]="fill"
+            [placeholder]="translatable ? (placeholder | translate) : placeholder"
+            [formControlName]="name"
+            [label]="translatable ? (label | translate) : label">
+          </ion-textarea>
         </ion-item>
       }
-    </ion-radio-group>
-  }
-  @else if(type === 'select') {
-    <ion-item>
-      <ion-select
-        [name]="name"
-        [mode]="mode"
-        [hidden]="hidden"
-        [labelPlacement]="labelPlacement"
-        [label]="label | translate : label"
-        [value]="value"
-        [fill]="fill"
-        [disabled]="readonly || disabled || false"
-        [placeholder]="placeholder | translate"
-        [formControlName]="name"
-        [interface]="interface">
-        @for(option of options; track option.value) {
-          <ion-select-option [value]="option.value">
-            {{ option.text | translate }}
-          </ion-select-option>
-        }
-      </ion-select>
-    </ion-item>
-  }
-  @else if(type === 'date') {
-    <ion-item>
-      <ion-label>{{label | translate}}</ion-label>
-      <ion-datetime>
-        [mode]="mode"
-        [hidden]="hidden !== undefined ? hidden : null"
-        [required]="required !== undefined ? required : null"
-        [min]="min"
-        [max]="max"
-        [value]="value"
-        [displayFormat]="displayFormat"
-      </ion-datetime>
-    </ion-item>
-  }
-  @else {
-    <ion-item>
-      <ion-input
-        [type]="type"
-        [mode]="mode"
-        [hidden]="hidden"
-        [inputmode]="inputmode"
-        [autocomplete]="autocomplete"
-        [spellcheck]="spellcheck"
-        [labelPlacement]="labelPlacement"
-        [required]="required !== undefined ? required : false"
-        [minlength]="minlength !== undefined ? minlength : null"
-        [maxlength]="maxlength !== undefined ? maxlength : null"
-        [readonly]="readonly !== undefined ? readonly : null"
-        [max]="max !== undefined ? max : null"
-        [min]="min !== undefined ? min : null"
-        [pattern]="pattern !== undefined ? pattern : null"
-        [step]="step !== undefined ? step : null"
-        [value]="value"
-        [fill]="fill"
-        [placeholder]="placeholder | translate"
-        [formControlName]="name"
-        [label]="label | translate">
-      </ion-input>
-    </ion-item>
-  }
-  @if((!formGroup.pristine || formGroup.touched) && !formGroup.valid) {
-    <div class="error uk-flex uk-flex-top">
-      @for(item of getErrors(); track item.key) {
-        <p>
-          <span color="danger" class="ti ti-alert-triangle"></span>
-          <span>{{item.key}} - {{ sf(("errors." + item.message) | translate, this[item.key]) }}</span>
-        </p>
+      @else if(type === 'checkbox') {
+        <ion-item [formControlName]="name">
+          <ion-checkbox
+            #checkboxElement
+            [name]="name"
+            [mode]="mode"
+            [hidden]="hidden"
+            [labelPlacement]="labelPlacement"
+            [justify]="justify"
+            [disabled]="disabled || readonly"
+            [value]="value"
+            [checked]="checked"
+            (ionChange)="checked = !checked"
+            [formControlName]="name">
+            <span [innerHTML]="label | translate"></span>
+          </ion-checkbox>
+        </ion-item>
       }
-    </div>
-  }
+      @else if(type === 'radio') {
+        <ion-radio-group [formControlName]="name" [name]="name" [value]="value">
+          <label class="dcf-radio-group-label" [for]="name">{{label | translate}}</label>
+          @for(option of options; track option.value) {
+            <ion-item>
+              <ion-radio
+                [mode]="mode"
+                [hidden]="hidden"
+                [disabled]="readonly || disabled"
+                [labelPlacement]="labelPlacement"
+                [alignment]="alignment"
+                [justify]="justify"
+                [value]="option.value"
+              >{{ option.text | translate }}</ion-radio>
+            </ion-item>
+          }
+        </ion-radio-group>
+      }
+      @else if(type === 'select') {
+        <ion-item>
+          <ion-select
+            [name]="name"
+            [mode]="mode"
+            [hidden]="hidden"
+            [labelPlacement]="labelPlacement"
+            [label]="label | translate : label"
+            [value]="value"
+            [fill]="fill"
+            [disabled]="readonly || disabled || false"
+            [placeholder]="placeholder | translate"
+            [formControlName]="name"
+            [interface]="interface">
+            @for(option of options; track option.value) {
+              <ion-select-option [value]="option.value">
+                {{ option.text | translate }}
+              </ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      }
+      @else if(type === 'date') {
+        <ion-item>
+          <ion-label>{{label | translate}}</ion-label>
+          <ion-datetime
+            [mode]="mode"
+            [hidden]="hidden !== undefined ? hidden : null"
+            [required]="required !== undefined ? required : null"
+            [min]="min"
+            [max]="max"
+            [value]="value"
+            [displayFormat]="displayFormat" />
+        </ion-item>
+      }
+      @else {
+        <ion-input
+          [type]="type"
+          [mode]="mode"
+          [hidden]="hidden"
+          [inputmode]="inputmode"
+          [autocomplete]="autocomplete"
+          [spellcheck]="spellcheck"
+          [labelPlacement]="labelPlacement"
+          [required]="required !== undefined ? required : false"
+          [minlength]="minlength !== undefined ? minlength : null"
+          [maxlength]="maxlength !== undefined ? maxlength : null"
+          [readonly]="readonly !== undefined ? readonly : null"
+          [max]="max !== undefined ? max : null"
+          [min]="min !== undefined ? min : null"
+          [pattern]="pattern !== undefined ? pattern : null"
+          [step]="step !== undefined ? step : null"
+          [value]="value"
+          [fill]="fill"
+          [placeholder]="placeholder | translate"
+          [formControlName]="name"
+          [label]="label | translate">
+        </ion-input>
+      }
+      @if((!formGroup.pristine || formGroup.touched) && !formGroup.valid) {
+        <div class="dcf-error dcf-flex dcf-flex-top">
+          @for(item of getErrors(); track item.key) {
+            <p>
+              <span color="danger" class="ti ti-alert-triangle"></span>
+              <span>{{item.key}} - {{ sf(("errors." + item.message) | translate, this[item.key]) }}</span>
+            </p>
+          }
+        </div>
+      }
+    }
+
+  </div>
+
 </ng-container>

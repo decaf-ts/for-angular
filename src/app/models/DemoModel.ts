@@ -12,7 +12,7 @@ import {
 } from '@decaf-ts/decorator-validation';
 import { uielement, uimodel } from '@decaf-ts/ui-decorators';
 
-@uimodel('decaf-crud-form')
+@uimodel('ngx-decaf-crud-form')
 @model()
 export class ForAngularModel extends Model {
   @id()

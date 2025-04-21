@@ -1,9 +1,8 @@
 .dcf-container {
-  border: 2px solid red;
   // padding: 3rem 2rem;
   padding: 2.5rem 2rem;
 
-  &.padding-top-small {
+  &.dcf-padding-top-small {
     padding-top: 1.25rem !important;
   }
 
@@ -29,8 +28,8 @@
   }
   &.dcf-width-2xlarge {
     div { width: 750px;}
-
   }
+
   &.dcf-width-auto {
     div {
       width: auto;
@@ -63,7 +62,7 @@
     margin: .75rem;
   }
 
-  .uk-grid {
+  .dcf-grid {
     margin-top: .75rem;
   }
 }

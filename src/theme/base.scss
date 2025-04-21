@@ -10,7 +10,426 @@
 */
 
 
+// ==============================================================================================
+/** Base =============================================== */
 
+:root {
+  --ion-font-family: 'Poppins', Arial, Helvetica, sans-serif;
+}
+html, body, * {
+  font-family: var(--ion-font-family);
+  font-style: normal;
+
+  // Ajuste para label floating com a fonte poppins
+  .input-label-placement-floating {
+    label {
+      line-height: 1.2rem !important;
+    }
+  }
+  ion-select.select-label-placement-floating::part(label) {
+    line-height: 1.2rem !important;
+  }
+}
+
+#aeon-wallet {
+  ion-content {
+    --background: #fff;
+  }
+}
+
+a {
+  color: var(--ion-color-dark);
+  font-weight: 500;
+}
+
+// remove auto fill background
+input,
+select,
+textarea {
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active,
+  &:-webkit-autofill {
+
+    border:none !important;
+    -webkit-text-fill-color: var(--ion-color-primary) !important;
+    box-shadow: 0 0 0px 1000px #FFFFFF inset;
+    -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset;
+    transition: box-shadow 50s ease-in-out;
+    -webkit-transition: box-shadow 50s ease-in-out;
+  }
+}
+
+
+.dcf-disabled {
+  opacity: 0.7;
+  pointer-events: none;
+  touch-action: none;
+  * {
+    pointer-events: none;
+    touch-action: none;
+  }
+}
+
+
+/* ========================================================================
+   Component: Margin
+ ========================================================================== */
+/*
+ * Default
+ */
+ .dcf-margin {
+  margin-bottom: 20px;
+}
+* + .dcf-margin {
+  margin-top: 20px !important;
+}
+.dcf-margin-top {
+  margin-top: 20px !important;
+}
+.dcf-margin-bottom {
+  margin-bottom: 20px !important;
+}
+.dcf-margin-left {
+  margin-left: 20px !important;
+}
+.dcf-margin-right {
+  margin-right: 20px !important;
+}
+/* XSmall
+ ========================================================================== */
+.dcf-margin-xsmall {
+  margin-bottom: 5px;
+}
+* + .dcf-margin-xsmall {
+  margin-top: 5px !important;
+}
+.dcf-margin-xsmall-top {
+  margin-top: 5px !important;
+}
+.dcf-margin-xsmall-bottom {
+  margin-bottom: 5px !important;
+}
+.dcf-margin-xsmall-left {
+  margin-left: 5px !important;
+}
+.dcf-margin-xsmall-right {
+  margin-right: 5px !important;
+}
+/* Small
+ ========================================================================== */
+.dcf-margin-small {
+  margin-bottom: 10px;
+}
+* + .dcf-margin-small {
+  margin-top: 10px !important;
+}
+.dcf-margin-small-top {
+  margin-top: 10px !important;
+}
+.dcf-margin-small-bottom {
+  margin-bottom: 10px !important;
+}
+.dcf-margin-small-left {
+  margin-left: 10px !important;
+}
+.dcf-margin-small-right {
+  margin-right: 10px !important;
+}
+/* Medium
+ ========================================================================== */
+.dcf-margin-medium {
+  margin-bottom: 40px;
+}
+* + .dcf-margin-medium {
+  margin-top: 40px !important;
+}
+.dcf-margin-medium-top {
+  margin-top: 40px !important;
+}
+.dcf-margin-medium-bottom {
+  margin-bottom: 40px !important;
+}
+.dcf-margin-medium-left {
+  margin-left: 40px !important;
+}
+.dcf-margin-medium-right {
+  margin-right: 40px !important;
+}
+/* Large
+ ========================================================================== */
+.dcf-margin-large {
+  margin-bottom: 40px;
+}
+* + .dcf-margin-large {
+  margin-top: 40px !important;
+}
+.dcf-margin-large-top {
+  margin-top: 40px !important;
+}
+.dcf-margin-large-bottom {
+  margin-bottom: 40px !important;
+}
+.dcf-margin-large-left {
+  margin-left: 40px !important;
+}
+.dcf-margin-large-right {
+  margin-right: 40px !important;
+}
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+  .dcf-margin-large {
+    margin-bottom: 70px;
+  }
+  * + .dcf-margin-large {
+    margin-top: 70px !important;
+  }
+  .dcf-margin-large-top {
+    margin-top: 70px !important;
+  }
+  .dcf-margin-large-bottom {
+    margin-bottom: 70px !important;
+  }
+  .dcf-margin-large-left {
+    margin-left: 70px !important;
+  }
+  .dcf-margin-large-right {
+    margin-right: 70px !important;
+  }
+}
+/* XLarge
+ ========================================================================== */
+.dcf-margin-xlarge {
+  margin-bottom: 70px;
+}
+* + .dcf-margin-xlarge {
+  margin-top: 70px !important;
+}
+.dcf-margin-xlarge-top {
+  margin-top: 70px !important;
+}
+.dcf-margin-xlarge-bottom {
+  margin-bottom: 70px !important;
+}
+.dcf-margin-xlarge-left {
+  margin-left: 70px !important;
+}
+.dcf-margin-xlarge-right {
+  margin-right: 70px !important;
+}
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+  .dcf-margin-xlarge {
+    margin-bottom: 140px;
+  }
+  * + .dcf-margin-xlarge {
+    margin-top: 140px !important;
+  }
+  .dcf-margin-xlarge-top {
+    margin-top: 140px !important;
+  }
+  .dcf-margin-xlarge-bottom {
+    margin-bottom: 140px !important;
+  }
+  .dcf-margin-xlarge-left {
+    margin-left: 140px !important;
+  }
+  .dcf-margin-xlarge-right {
+    margin-right: 140px !important;
+  }
+}
+/* Auto
+ ========================================================================== */
+.dcf-margin-auto {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.dcf-margin-auto-top {
+  margin-top: auto !important;
+}
+.dcf-margin-auto-bottom {
+  margin-bottom: auto !important;
+}
+.dcf-margin-auto-left {
+  margin-left: auto !important;
+}
+.dcf-margin-auto-right {
+  margin-right: auto !important;
+}
+.dcf-margin-auto-vertical {
+  margin-top: auto !important;
+  margin-bottom: auto !important;
+}
+/* Phone landscape and bigger */
+@media (min-width: 576px) {
+  .dcf-margin-auto\@s {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .dcf-margin-auto-left\@s {
+    margin-left: auto !important;
+  }
+  .dcf-margin-auto-right\@s {
+    margin-right: auto !important;
+  }
+}
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+  .dcf-margin-auto\@m {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .dcf-margin-auto-left\@m {
+    margin-left: auto !important;
+  }
+  .dcf-margin-auto-right\@m {
+    margin-right: auto !important;
+  }
+}
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+  .dcf-margin-auto\@l {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .dcf-margin-auto-left\@l {
+    margin-left: auto !important;
+  }
+  .dcf-margin-auto-right\@l {
+    margin-right: auto !important;
+  }
+}
+/* Large screen and bigger */
+@media (min-width: 1600px) {
+  .dcf-margin-auto\@xl {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .dcf-margin-auto-left\@xl {
+    margin-left: auto !important;
+  }
+  .dcf-margin-auto-right\@xl {
+    margin-right: auto !important;
+  }
+}
+/* Remove
+ ========================================================================== */
+.dcf-margin-remove {
+  margin: 0 !important;
+}
+.dcf-margin-remove-top {
+  margin-top: 0 !important;
+}
+.dcf-margin-remove-bottom {
+  margin-bottom: 0 !important;
+}
+.dcf-margin-remove-left {
+  margin-left: 0 !important;
+}
+.dcf-margin-remove-right {
+  margin-right: 0 !important;
+}
+.dcf-margin-remove-vertical {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+.dcf-margin-remove-adjacent + *,
+.dcf-margin-remove-first-child > :first-child {
+  margin-top: 0 !important;
+}
+.dcf-margin-remove-last-child > :last-child {
+  margin-bottom: 0 !important;
+}
+/* Phone landscape and bigger */
+@media (min-width: 576px) {
+  .dcf-margin-remove-left\@s {
+    margin-left: 0 !important;
+  }
+  .dcf-margin-remove-right\@s {
+    margin-right: 0 !important;
+  }
+}
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+  .dcf-margin-remove-left\@m {
+    margin-left: 0 !important;
+  }
+  .dcf-margin-remove-right\@m {
+    margin-right: 0 !important;
+  }
+}
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+  .dcf-margin-remove-left\@l {
+    margin-left: 0 !important;
+  }
+  .dcf-margin-remove-right\@l {
+    margin-right: 0 !important;
+  }
+}
+/* Large screen and bigger */
+@media (min-width: 1600px) {
+  .dcf-margin-remove-left\@xl {
+    margin-left: 0 !important;
+  }
+  .dcf-margin-remove-right\@xl {
+    margin-right: 0 !important;
+  }
+}
+/* ========================================================================
+   Component: Padding
+ ========================================================================== */
+.dcf-padding {
+  padding: 30px;
+}
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+  .dcf-padding {
+    padding: 40px;
+  }
+}
+/* Small
+ ========================================================================== */
+.dcf-padding-small {
+  padding: 15px;
+}
+/* Large
+ ========================================================================== */
+.dcf-padding-large {
+  padding: 40px;
+}
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+  .dcf-padding-large {
+    padding: 70px;
+  }
+}
+/* Remove
+ ========================================================================== */
+.dcf-padding-remove {
+  padding: 0 !important;
+}
+.dcf-padding-remove-top {
+  padding-top: 0 !important;
+}
+.dcf-padding-remove-bottom {
+  padding-bottom: 0 !important;
+}
+.dcf-padding-remove-left {
+  padding-left: 0 !important;
+}
+.dcf-padding-remove-right {
+  padding-right: 0 !important;
+}
+.dcf-padding-remove-vertical {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.dcf-padding-remove-horizontal {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
 /* ========================================================================
    Component: Width
  ========================================================================== */

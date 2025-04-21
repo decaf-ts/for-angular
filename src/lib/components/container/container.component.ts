@@ -1,6 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, OnInit } from '@angular/core';
 import { MenuController } from '@ionic/angular/standalone';
-import { ElementSizes, FlexPositions } from 'src/lib/engine/types';
+import { ElementSizes, FlexPositions, StringOrBoolean } from 'src/lib/engine/types';
 import { stringToBoolean } from 'src/lib/engine/helpers';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 
@@ -9,15 +9,11 @@ import { ForAngularModule } from 'src/lib/for-angular.module';
   templateUrl: './container.component.html',
   styleUrls: ['./container.component.scss'],
   standalone: true,
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [ForAngularModule]
 })
-export class ContainerComponent  implements OnInit {
+export class ContainerComponent implements OnInit {
   @Input()
-  hasSideMenu:
-  boolean
-  | 'true'
-  | 'false' = false;
+  hasSideMenu: StringOrBoolean = false;
 
   @Input()
   className: string = "";
@@ -26,13 +22,13 @@ export class ContainerComponent  implements OnInit {
   position: FlexPositions = 'center';
 
   @Input()
-  flex: boolean = true;
+  flex: StringOrBoolean = true;
 
   @Input()
-  expand: boolean = false;
+  expand: StringOrBoolean = false;
 
   @Input()
-  fullscreen: boolean = true;
+  fullscreen: StringOrBoolean = true;
 
   @Input()
   size: ElementSizes = 'block';
@@ -46,7 +42,8 @@ export class ContainerComponent  implements OnInit {
     this.menuController.enable(stringToBoolean(this.hasSideMenu) as boolean);
     this.expand = stringToBoolean(this.expand);
     this.flex = stringToBoolean(this.flex);
-    this.className += ` dcf-width-${this.expand ? 'expand' : this.size}`;
+
+    this.size += ` dcf-width-${this.expand ? 'expand' : this.size}`;
 
     if(this.flex && !this.className.includes('dcf-flex-'))
       this.className += ` dcf-flex dcf-flex-${this.position}`;

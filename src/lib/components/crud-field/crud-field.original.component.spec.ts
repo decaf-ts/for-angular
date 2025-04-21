@@ -30,7 +30,7 @@ describe('CrudFieldComponent', () => {
   const props: FieldProperties & AngularFieldDefinition = {
     autocomplete: 'on',
     autocorrect: 'on',
-    labelPlacement: 'stacked',
+    labelPlacement: 'floating',
     autocapitalize: '',
     autofocus: false,
     clearInput: false,
@@ -43,6 +43,13 @@ describe('CrudFieldComponent', () => {
     name: 'name',
     label: 'label',
     type: 'text',
+    value: '',
+    cancelText: '',
+    interface: 'popover',
+    interfaceOptions: {},
+    selectedText: '',
+    checked: false,
+    className: ''
   } as FieldProperties & AngularFieldDefinition;
 
   it('should render when defined with all required props', () => {
@@ -76,7 +83,7 @@ describe('CrudFieldComponent', () => {
       expect(input.fill).toEqual(props.fill);
       expect(input.placeholder).toEqual(props.placeholder);
       expect(input.formControlName).toEqual(props.name);
-      expect(input.label).toEqual(props.label);
+      expect(input.label).toEqual(props['label']);
     });
   });
 });
