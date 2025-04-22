@@ -7,9 +7,8 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { CrudOperations } from '@decaf-ts/db-decorators';
 import { FormGroup } from '@angular/forms';
-
+import { CrudOperations } from '@decaf-ts/db-decorators';
 import {
   FieldUpdateMode,
   PossibleInputTypes,
@@ -21,11 +20,9 @@ import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 import { Dynamic } from '../../engine/decorators';
 import {
   AutocompleteTypes,
-  SelectInterface,
-  TextFieldTypes,
+  SelectInterface
 } from '@ionic/core';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { ionicFormComponents } from '../components.module';
 
 @Dynamic()
 @Component({

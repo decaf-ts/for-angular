@@ -2,6 +2,8 @@ import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { Injector, Type } from '@angular/core';
 
+export type KeyValue = {[index: string]: any};
+
 export type ElementSizes = 'small' | 'medium' | 'large' | 'xlarge' | '2xlarge' | 'auto' | 'expand' | 'block';
 
 export type ElementPositions =  'left' | 'center' | 'right' | 'top' | 'bottom';
@@ -77,3 +79,47 @@ export interface InputOption {
 }
 
 export type HTMLFormTarget = '_blank' | '_self' | '_parent' | '_top' | string;
+
+
+
+export interface IListItemComponent {
+  title?: string;
+  modelId?: string;
+  modelPk?: string;
+  modelPage?: string;
+  className?: string;
+  operations?: string[];
+  lines?: 'inset' | 'full' | 'none';
+  button?: StringOrBoolean;
+  icon?: string;
+  iconSlot?: 'start' | 'end';
+  titleClassName?: string;
+  subtitle?: string;
+  subtitleClassName?: string;
+  info?: string;
+  subinfo?: string;
+}
+
+export interface IListInfiteItemProps {
+  render: StringOrBoolean;
+  mapper?: KeyValue;
+  modelId?: string;
+  translateProps?: string | string[];
+  className?: string;
+  button?: StringOrBoolean;
+  icon?: string;
+  iconSlot?: 'start' | 'end';
+  titleClassName?: string;
+  subtitleClassName?: string;
+};
+
+export type ListItemActionEvent = {
+  action: string;
+  id: string;
+  target?: HTMLElement;
+  pk?: string;
+}
+
+export interface IListComponentRefreshEvent {
+  data: KeyValue[];
+}

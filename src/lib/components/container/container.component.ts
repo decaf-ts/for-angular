@@ -1,7 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, OnInit } from '@angular/core';
 import { MenuController } from '@ionic/angular/standalone';
 import { ElementSizes, FlexPositions, StringOrBoolean } from 'src/lib/engine/types';
-import { stringToBoolean } from 'src/lib/engine/helpers';
+import { stringToBoolean } from 'src/lib/helpers/string';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 
 @Component({

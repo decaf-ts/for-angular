@@ -7,7 +7,7 @@
       <div class="divider" role="separator" aria-label="Divider"></div>
       <div class="right-side">
         <ngx-decaf-container size="large">
-          <ngx-decaf-model-renderer [model]="model1" [globals]="{operation: operation}"></ngx-decaf-model-renderer>
+          <ngx-decaf-model-renderer [model]="model1" (submitEvent)="handleSubmit($event)" [globals]="{operation: operation}"></ngx-decaf-model-renderer>
         </ngx-decaf-container>
         <!-- <form-reactive [operation]="operation"> -->
           <!--      test-->

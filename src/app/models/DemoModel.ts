@@ -9,8 +9,11 @@ import {
   required,
   url,
   password,
+  list,
+  maxlength,
 } from '@decaf-ts/decorator-validation';
 import { uielement, uimodel } from '@decaf-ts/ui-decorators';
+import { OtherModel } from 'src/app/models/OtherModel';
 
 @uimodel('ngx-decaf-crud-form')
 @model()
@@ -51,6 +54,15 @@ export class ForAngularModel extends Model {
   @password()
   @uielement('ngx-decaf-crud-field', { label: 'demo.password.label' })
   password!: string;
+
+  // @list(OtherModel)
+  // @minlength(1)
+  // @maxlength(3)
+  // @uielement('ngx-decaf-crud-field', {
+  //   label: 'demo.id.label',
+  //   placeholder: 'demo.id.placeholder',
+  // })
+  // children: OtherModel[] = [];
 
   constructor(arg?: ModelArg<ForAngularModel>) {
     super(arg);

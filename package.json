@@ -42,6 +42,8 @@
     "@angular-devkit/schematics": "^18.2.18",
     "@angular/cli": "^18.2.12",
     "@angular/compiler-cli": "^18.2.13",
+    "@faker-js/faker": "^9.7.0",
+    "@schematics/angular": "^19.2.8",
     "@types/jasmine": "~5.1.0",
     "angular-eslint": "18.4.0",
     "commander": "^13.1.0",
@@ -62,8 +64,7 @@
     "rimraf": "^6.0.1",
     "tslib": "^2.3.0",
     "typescript": "~5.5.2",
-    "typescript-eslint": "8.10.0",
-     "@schematics/angular": "^19.2.8"
+    "typescript-eslint": "8.10.0"
   },
   "peerDependencies": {
     "@angular/animations": "^18.2.13",
@@ -89,8 +90,8 @@
     "ionicons": "^7.4.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "~7.8.0",
-    "zone.js": "~0.14.10"
+    "zone.js": "~0.14.10",
+     "axios": "^1.8.4"
   },
-
   "schematics": "./schematics/collection.json"
 }

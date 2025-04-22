@@ -14,3 +14,16 @@ export const FormConstants = {
   VALID: 'VALID',
   INVALID: 'INVALID',
 };
+
+export const EventConstants = {
+  BACK_BUTTON_NAVIGATION: "BackButtonNavigationEndEvent"
+}
+
+export const LoggerLevels = {
+  ALL: 0,
+  DEBUG: 1,
+  INFO: 2,
+  WARN: 3,
+  ERROR: 4,
+  CRITICAL: 5
+};

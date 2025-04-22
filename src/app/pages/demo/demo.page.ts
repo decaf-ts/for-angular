@@ -56,4 +56,8 @@ export class DemoPage implements OnInit {
   ngOnInit(): void {
       console.log("Init Demo page");
   }
+
+  handleSubmit(event: Event): void {
+    console.log(event);
+  }
 }

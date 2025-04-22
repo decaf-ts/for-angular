@@ -8,7 +8,9 @@ import {
   FieldProperties,
   parseValueByType,
   RenderingEngine,
+  HTML5InputTypes
 } from '@decaf-ts/ui-decorators';
+import { ReservedModels } from '@decaf-ts/decorator-validation';
 
 export class ValidatorFactory {
   static spawn(fieldProps: FieldProperties, key: string): ValidatorFn {
@@ -37,9 +39,10 @@ export class ValidatorFactory {
       control: AbstractControl,
     ): ValidationErrors | null => {
       const validator = Validation.get(key) as Validator;
+
       const value =
         typeof control.value !== 'undefined'
-          ? parseValueByType(type, control.value, fieldProps)
+          ? parseValueByType(type === HTML5InputTypes.TEXT ? ReservedModels.STRING : type, control.value, fieldProps)
           : undefined;
       const actualArg = parseArgs(arg);
 
