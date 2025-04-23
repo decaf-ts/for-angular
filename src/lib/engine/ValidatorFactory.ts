@@ -45,7 +45,7 @@ export class ValidatorFactory {
 
       let errs;
       try {
-        errs = validator.hasErrors(value, ...actualArg);
+        errs = validator.hasErrors(value, { message: '', ...actualArg });
       } catch (e: unknown) {
         console.warn(`${key} validator failed to validate: ${e}`);
       }
