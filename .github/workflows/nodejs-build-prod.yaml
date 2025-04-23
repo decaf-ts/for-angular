@@ -1,4 +1,4 @@
-name: Build Prod Test
+name: "Build & Test"
 
 on:
   workflow_dispatch: # on button click
@@ -20,9 +20,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
-      - run: npm run build:prod --if-present
-      - run: npm test
+      - run: npm run build:prod
+      - run: npm run test:all

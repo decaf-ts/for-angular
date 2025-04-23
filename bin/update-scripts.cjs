@@ -4515,6 +4515,7 @@ const options = {
     ],
     styles: [".prettierrc", "eslint.config.js"],
     scripts: ["bin/update-scripts.cjs", "bin/tag-release.cjs"],
+    tests: ["jest.config.ts", "workdocs/reports/jest.coverage.config.ts"],
     typescript: ["tsconfig.json"],
     docker: ["Dockerfile"],
     automation: [
@@ -4577,6 +4578,12 @@ const argzz = {
     pkg: {
         type: "boolean",
     },
+    dependencies: {
+        type: "boolean",
+    },
+    tests: {
+        type: "boolean",
+    },
     automation: {
         type: "boolean",
     },
@@ -4625,6 +4632,11 @@ class TemplateSync extends command_1.Command {
          * @returns {Promise<void>}
          */
         this.getAutomation = () => this.downloadOption("automation");
+        /**
+         * @description Downloads automation documentation files.
+         * @returns {Promise<void>}
+         */
+        this.getTests = () => this.downloadOption("tests");
         /**
          * @description Downloads docker image files.
          * @returns {Promise<void>}
@@ -4726,6 +4738,9 @@ class TemplateSync extends command_1.Command {
                     }
                 }
             });
+            pkg["exports"]["require"] = originalPkg["exports"]["require"];
+            pkg["exports"]["import"] = originalPkg["exports"]["import"];
+            pkg["types"] = originalPkg["types"];
             fs_1.default.writeFileSync("package.json", JSON.stringify(pkg, null, 2));
         }
         catch (e) {
@@ -4791,6 +4806,28 @@ class TemplateSync extends command_1.Command {
             (0, utils_1.patchFile)(file, this.replacements);
         }
     }
+    async updateDependencies() {
+        try {
+            const originalPkg = JSON.parse(await utils_1.HttpClient.downloadFile(`${baseUrl}/package.json`));
+            const { devDependencies } = originalPkg;
+            const pkg = (0, utils_1.getPackage)();
+            Object.keys(pkg.scripts).forEach((key) => {
+                if (key in devDependencies) {
+                    const replaced = devDependencies[key];
+                    if (replaced !== devDependencies[key]) {
+                        pkg["devDependencies"] =
+                            pkg["devDependencies"] || {};
+                        pkg["devDependencies"][key] = replaced;
+                    }
+                }
+            });
+            fs_1.default.writeFileSync("package.json", JSON.stringify(pkg, null, 2));
+            await (0, utils_1.runCommand)("npm install").promise;
+        }
+        catch (e) {
+            throw new Error(`Error fixing package.json dependencies: ${e}`);
+        }
+    }
     /**
      * @description Runs the template synchronization process.
      * @summary This method orchestrates the downloading of various project components based on the provided arguments.
@@ -4836,7 +4873,7 @@ class TemplateSync extends command_1.Command {
     async run(args) {
         let { license } = args;
         const { boot } = args;
-        let { all, scripts, styles, docs, ide, workflows, templates, docker, typescript, automation, pkg, } = args;
+        let { all, scripts, styles, docs, ide, workflows, templates, docker, typescript, dependencies, tests, automation, pkg, } = args;
         if (scripts ||
             styles ||
             docs ||
@@ -4846,6 +4883,8 @@ class TemplateSync extends command_1.Command {
             docker ||
             typescript ||
             automation ||
+            dependencies ||
+            tests ||
             pkg)
             all = false;
         if (boot) {
@@ -4868,6 +4907,8 @@ class TemplateSync extends command_1.Command {
             docker = true;
             typescript = true;
             pkg = true;
+            dependencies = true;
+            tests = true;
             automation = false;
         }
         if (typeof scripts === "undefined")
@@ -4915,9 +4956,17 @@ class TemplateSync extends command_1.Command {
         if (templates)
             await this.getTemplates();
         if (typeof pkg === "undefined")
-            pkg = await input_1.UserInput.askConfirmation("pkg", "Do you update your package.json scripts?", true);
+            pkg = await input_1.UserInput.askConfirmation("pkg", "Do you want to update your package.json scripts?", true);
         if (pkg)
             await this.updatePackageScrips();
+        if (typeof tests === "undefined")
+            tests = await input_1.UserInput.askConfirmation("pkg", "Do you want to update your test configs?", true);
+        if (tests)
+            await this.getTests();
+        if (typeof dependencies === "undefined")
+            dependencies = await input_1.UserInput.askConfirmation("pkg", "Do you want to update dev dependencies?", true);
+        if (dependencies)
+            await this.updateDependencies();
     }
 }
 exports.TemplateSync = TemplateSync;

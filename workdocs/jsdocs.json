@@ -32,18 +32,22 @@
       "useLongnameInNav": false
     },
     "better-docs": {
-      "name": "ts-template",
-      "title": "TypeScript workspace template",
+      "name": "for-angular",
+      "title": "Decaf's Angular Modul",
       "hideGenerator": true,
       "useLongnameInNav": false,
       "navLinks": [
         {
+          "label": "Test Results",
+          "href": "workdocs/reports/html/test-report.html"
+        },
+        {
           "label": "Test Coverage",
-          "href": "workdocs/coverage"
+          "href": "workdocs/reports/coverage"
         },
         {
           "label": "Github Repository",
-          "href": "https://github.com/decaf-ts/ts-workspace#readme"
+          "href": "https://github.com/decaf-ts/for-angular#readme"
         },
         {
           "label": "Github Profile",

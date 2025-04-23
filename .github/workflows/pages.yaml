@@ -1,12 +1,14 @@
-name: Pages builder
+name: "Pages Builder"
+
 on:
   workflow_dispatch: # on button click
   push:
+    tags:
+      - 'v?[0-9]+.[0-9]+.[0-9]+'
     branches: [ master, main ]
     paths:
       - workdocs/**
       - .github/workflows/pages.yaml
-      - package.json # this way when it changes version, it will rebuild pages
 
 jobs:
   # Single deploy job no building
@@ -26,10 +28,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
+      - run: npm run build
       - run: npm run coverage
       - run: npm run docs
       - name: Setup Pages

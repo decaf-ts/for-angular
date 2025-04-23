@@ -5,6 +5,9 @@
     "ng": "ng",
     "decaf": "npx decaf angular generate",
     "do-install": "TOKEN=$(cat .token) npm install",
+    "update-scripts": "npx update-scripts",
+    "on-first-run": "npx update-scripts --boot",
+    "set-git-auth": "git config url.\"https://api:$(cat .token)@github.com/\".insteadOf \"https://github.com/\" && git config url.\"https://ssh:$(cat .token)@github.com/\".insteadOf \"ssh://git@github.com/\" && git config url.\"https://git:$(cat .token)@github.com/\".insteadOf \"git@github.com:\"",
     "flash-forward": "npx npm-check-updates -u && npm run do-install",
     "update-dependencies": "rimraf node_modules/@decaf-ts package-lock.json && TOKEN=$(cat .token) npm install",
     "reset": "rm -rf * && git checkout . && git pull && npm run do-install",
@@ -21,15 +24,15 @@
     "test:components": "ng test --include='./src/lib/components/**/*.spec.ts' --no-watch --browsers=ChromeHeadlessCI",
     "test:services": "ng test --include='./src/lib/services/*.service.spec.ts' --no-watch --browsers=ChromeHeadlessCI",
     "lint": "ng lint for-angular",
-    "lint-fix": "eslint --fix .",
-    "test:circular": "dpdm -T --no-warning --no-tree ./src/index.ts",
-    "prepare-release": "npm run build:prod",
+    "lint-fix": "ng lint --fix for-angular",
+    "coverage": "rimraf ./workdocs/reports/data/*.json && npm run test:all -- --coverage --config=./workdocs/reports/jest.coverage.config.ts",
+    "prepare-release": "npm run lint-fix && npm run build:prod && npm run coverage && npm run docs",
     "release": "./bin/tag-release.sh",
     "clean-publish": "npx clean-publish",
-    "coverage": "npm run test && cd workdocs && jest-coverage-badges",
     "drawings": "for FILE in workdocs/drawings/*.drawio; do echo \"converting $FILE to image...\" && docker run --rm -v $(pwd):/data rlespinasse/drawio-export --format png $FILE; done && cp -rf workdocs/drawings/export/* workdocs/resources/",
     "uml": "cd workdocs/uml && for FILE in ./*.puml; do docker run --rm -v $(pwd):/work -w /work miy4/plantuml -DPLANTUML_LIMIT_SIZE=8192 -tpng $FILE; done && cd ../.. && cp -fr workdocs/uml/*.png workdocs/resources/",
-    "docs": "npx rimraf ./docs && mkdir docs && npm run do-install -- better-docs taffydb && gulp docs; npm remove better-docs taffydb"
+    "docs": "npx rimraf ./docs && mkdir docs && npx build-scripts --docs",
+    "publish-docs": "docker run -it --rm --user $(id -u):$(id -g) -v \"$(pwd)/workdocs/confluence:/content\" -e ATLASSIAN_API_TOKEN=$(cat .confluence-token) ghcr.io/markdown-confluence/publish:latest"
   },
   "files": [
     "dist"
@@ -42,7 +45,12 @@
     "@angular-devkit/schematics": "^18.2.18",
     "@angular/cli": "^18.2.12",
     "@angular/compiler-cli": "^18.2.13",
+    "@decaf-ts/utils": "^0.2.6",
     "@faker-js/faker": "^9.7.0",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.2",
     "@schematics/angular": "^19.2.8",
     "@types/jasmine": "~5.1.0",
     "angular-eslint": "18.4.0",
@@ -62,6 +70,7 @@
     "ng-packagr": "^18.2.1",
     "npm-check-updates": "^17.1.4",
     "rimraf": "^6.0.1",
+    "rollup": "^4.40.0",
     "tslib": "^2.3.0",
     "typescript": "~5.5.2",
     "typescript-eslint": "8.10.0"
@@ -87,11 +96,11 @@
     "@ngx-translate/core": "^16.0.4",
     "@ngx-translate/http-loader": "^16.0.1",
     "@tabler/icons-webfont": "^3.31.0",
+    "axios": "^1.8.4",
     "ionicons": "^7.4.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "~7.8.0",
-    "zone.js": "~0.14.10",
-     "axios": "^1.8.4"
+    "zone.js": "~0.14.10"
   },
   "schematics": "./schematics/collection.json"
 }

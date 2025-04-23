@@ -5,7 +5,11 @@ import {
   HTML5InputTypes,
   parseToNumber,
 } from '@decaf-ts/ui-decorators';
-import { AngularFieldDefinition, FieldUpdateMode } from './types';
+import {
+  AngularFieldDefinition,
+  FieldUpdateMode,
+  FormServiceControls,
+} from './types';
 import {
   AbstractControl,
   FormControl,
@@ -31,18 +35,9 @@ export class NgxFormService {
    * @summary Storage for form controls.
    * @description
    * A static object that stores form controls indexed by form ID and field name.
-   * @type {Record<string, Record<string, { control: FormGroup; props: AngularFieldDefinition }>>}
+   * @type {FormServiceControls}
    */
-  private static controls: Record<
-    string,
-    Record<
-      string,
-      {
-        control: FormGroup;
-        props: AngularFieldDefinition;
-      }
-    >
-  > = {};
+  private static controls: FormServiceControls = {};
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
@@ -67,11 +62,11 @@ export class NgxFormService {
   static formAfterViewInit(
     el: FormElement,
     formId: string,
-    formUpdateMode: FieldUpdateMode = 'blur',
+    formUpdateMode: FieldUpdateMode = 'blur'
   ) {
     const selector = `*[${AngularEngineKeys.NG_REFLECT}name]`;
     const elements = Array.from(
-      el.component.nativeElement.querySelectorAll(selector),
+      el.component.nativeElement.querySelectorAll(selector)
     );
     const controls = elements.map((f: unknown) => {
       const fieldName = (f as { attributes: Record<string, { value: string }> })
@@ -178,7 +173,7 @@ export class NgxFormService {
    */
   static fromProps(
     props: FieldProperties,
-    updateMode: FieldUpdateMode,
+    updateMode: FieldUpdateMode
   ): FormGroup {
     const controls: Record<string, FormControl> = {};
     const validators = this.validatorsFromProps(props);
@@ -191,7 +186,7 @@ export class NgxFormService {
             : undefined,
         disabled: props.disabled,
       },
-      composed,
+      composed
     );
 
     return new FormGroup(controls, { updateOn: updateMode });
@@ -256,14 +251,14 @@ export class NgxFormService {
       el = parent;
     }
     throw new Error(
-      `No parent with the tag ${tag} was found for provided element`,
+      `No parent with the tag ${tag} was found for provided element`
     );
   }
 
   static register(
     formId: string,
     control: FormGroup,
-    props: AngularFieldDefinition,
+    props: AngularFieldDefinition
   ) {
     if (formId.includes(AngularEngineKeys.RENDERED)) {
       formId = formId.split(AngularEngineKeys.RENDERED)[1];

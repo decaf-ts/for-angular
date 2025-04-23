@@ -1,14 +1,28 @@
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { Injector, Type } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 
-export type KeyValue = {[index: string]: any};
+export type KeyValue = { [index: string]: any };
 
-export type ElementSizes = 'small' | 'medium' | 'large' | 'xlarge' | '2xlarge' | 'auto' | 'expand' | 'block';
+export type ElementSizes =
+  | 'small'
+  | 'medium'
+  | 'large'
+  | 'xlarge'
+  | '2xlarge'
+  | 'auto'
+  | 'expand'
+  | 'block';
 
-export type ElementPositions =  'left' | 'center' | 'right' | 'top' | 'bottom';
+export type ElementPositions = 'left' | 'center' | 'right' | 'top' | 'bottom';
 
-export type FlexPositions = ElementPositions | 'stretch' | 'middle' | 'around' | 'between';
+export type FlexPositions =
+  | ElementPositions
+  | 'stretch'
+  | 'middle'
+  | 'around'
+  | 'between';
 
 export type FieldUpdateMode = 'change' | 'blur' | 'submit';
 
@@ -80,8 +94,6 @@ export interface InputOption {
 
 export type HTMLFormTarget = '_blank' | '_self' | '_parent' | '_top' | string;
 
-
-
 export interface IListItemComponent {
   title?: string;
   modelId?: string;
@@ -111,15 +123,20 @@ export interface IListInfiteItemProps {
   iconSlot?: 'start' | 'end';
   titleClassName?: string;
   subtitleClassName?: string;
-};
+}
 
 export type ListItemActionEvent = {
   action: string;
   id: string;
   target?: HTMLElement;
   pk?: string;
-}
+};
 
 export interface IListComponentRefreshEvent {
   data: KeyValue[];
 }
+
+export type FormServiceControls = Record<
+  string,
+  Record<string, { control: FormGroup; props: AngularFieldDefinition }>
+>;

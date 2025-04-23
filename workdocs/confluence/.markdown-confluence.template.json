@@ -1,0 +1,6 @@
+{
+  "confluenceBaseUrl": "https://${org_name}.atlassian.net",
+  "confluenceParentId": "${parent_folder_id}",
+  "atlassianUserName": "${atlassian_user_name}",
+  "folderToPublish": "."
+}

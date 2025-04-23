@@ -16,7 +16,7 @@ import { sf } from '@decaf-ts/decorator-validation';
 
 /**
  * @class NgxCrudFormField
- * @implements {CrudFormField<AngularFieldDefinition>}
+ * @implements {FieldProperties}
  * @implements {ControlValueAccessor}
  * @summary Abstract class representing a CRUD form field for Angular applications
  * @description This class provides the base implementation for CRUD form fields in Angular,
@@ -72,18 +72,21 @@ export abstract class NgxCrudFormField
   /**
    * @summary String formatting function
    * @description Provides access to the sf function for error message formatting
+   * @prop {function(string, ...string): string} sf - String formatting function
    */
   sf = sf;
 
   /**
    * @summary Change callback function
    * @description Function called when the field value changes
+   * @property {function(): unknown} onChange - onChange event handler
    */
   onChange: () => unknown = () => {};
 
   /**
    * @summary Touch callback function
    * @description Function called when the field is touched
+   * @property {function(): unknown} onTouch - onTouch event handler
    */
   onTouch: () => unknown = () => {};
 
@@ -99,7 +102,7 @@ export abstract class NgxCrudFormField
   /**
    * @summary Register change callback
    * @description Registers a function to be called when the field value changes
-   * @param {() => unknown} fn - The function to be called on change
+   * @param {function(): unknown} fn - The function to be called on change
    */
   registerOnChange(fn: () => unknown): void {
     this.onChange = fn;
@@ -108,7 +111,7 @@ export abstract class NgxCrudFormField
   /**
    * @summary Register touch callback
    * @description Registers a function to be called when the field is touched
-   * @param {() => unknown} fn - The function to be called on touch
+   * @param {function(): unknown} fn - The function to be called on touch
    */
   registerOnTouched(fn: () => unknown): void {
     this.onTouch = fn;
@@ -132,24 +135,24 @@ export abstract class NgxCrudFormField
     let parent: HTMLElement;
     switch (this.operation) {
       case OperationKeys.READ:
-        return this.component.nativeElement.parentElement
+        return this.component.nativeElement.parentElement;
       case OperationKeys.CREATE:
       case OperationKeys.UPDATE:
       case OperationKeys.DELETE:
         try {
           parent = NgxFormService.getParentEl(
             this.component.nativeElement,
-            'div',
+            'div'
           );
         } catch (e: unknown) {
           throw new RenderingError(
-            `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`,
+            `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`
           );
         }
         NgxFormService.register(
           parent.id,
           this.formGroup,
-          this as AngularFieldDefinition,
+          this as AngularFieldDefinition
         );
         return parent;
       default:
@@ -178,7 +181,7 @@ export abstract class NgxCrudFormField
   /**
    * @summary Get field errors
    * @description Retrieves all errors associated with the field
-   * @returns {{key: string, message: string}[]} An array of error objects
+   * @returns {Array<{key: string, message: string}>} An array of error objects
    */
   getErrors(): { key: string; message: string }[] {
     return Object.entries(this.formGroup.controls).reduce(
@@ -186,11 +189,11 @@ export abstract class NgxCrudFormField
         Object.entries(control.errors as Record<string, unknown>).forEach(
           ([k, c]) => {
             accum.push({ key: k, message: k });
-          },
+          }
         );
         return accum;
       },
-      [],
+      []
     );
   }
 }
