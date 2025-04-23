@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "decaf": "npx decaf angular generate",
-    "do-install": "npm run decaf schematics decaf && TOKEN=$(cat .token) npm install",
+    "do-install": "TOKEN=$(cat .token) npm install",
     "flash-forward": "npx npm-check-updates -u && npm run do-install",
     "update-dependencies": "rimraf node_modules/@decaf-ts package-lock.json && TOKEN=$(cat .token) npm install",
     "reset": "rm -rf * && git checkout . && git pull && npm run do-install",

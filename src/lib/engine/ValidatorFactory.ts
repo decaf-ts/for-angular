@@ -42,7 +42,7 @@ export class ValidatorFactory {
 
       const value =
         typeof control.value !== 'undefined'
-          ? parseValueByType(type === HTML5InputTypes.TEXT ? ReservedModels.STRING : type, control.value, fieldProps)
+          ? parseValueByType(type, control.value, fieldProps)
           : undefined;
       const actualArg = parseArgs(arg);
 

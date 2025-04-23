@@ -20,7 +20,6 @@ export class I18nLoader {
 
   static loadDummy() {
     return new (class extends TranslateLoader {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       override getTranslation(lang: string): Observable<TranslationObject> {
         return {} as unknown as Observable<TranslationObject>;
       }

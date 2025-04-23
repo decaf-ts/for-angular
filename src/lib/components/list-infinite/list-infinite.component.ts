@@ -6,6 +6,7 @@ import { getLocaleFromClassName, queryInArray } from 'src/lib/helpers/utils';
 import { stringToBoolean } from 'src/lib/helpers/string';
 import { EventConstants} from 'src/lib/engine/constants';
 import { arraySortByDate } from 'src/lib/helpers/array';
+import { consoleError, consoleWarn } from 'src/lib/helpers/logging';
 // import { RequestService } from 'src/lib/services/request.service';
 
 @Component({
@@ -328,7 +329,7 @@ export class ListInfiniteComponent implements OnInit {
    const self = this;
    let result = [];
    if(!self.data?.length || force) {
-     (self.data as ListItem[]) = [];
+     (self.data as KeyValue[]) = [];
      try {
       //  if(typeof self.manager === 'string')
       //    self.manager = injectableRegistry.get(self.manager);
@@ -350,12 +351,12 @@ export class ListInfiniteComponent implements OnInit {
        //     rawQuery['limit'] = limit;
        // }
 
-       result = await self.manager.raw(raw as IFindRequest<any>);
+       result = await self.manager.raw(raw as any);
        result = arraySortByDate(result || []);
 
        self.getPages(result?.length || 0);
        if(!!self.itemProps?.mapper)
-         result = self.itemsMapper(result as ListItem[]);
+         result = self.itemsMapper(result as KeyValue[]);
 
      } catch(e) {
        consoleError(this, `Unable to find ${self.manager} on registry. Return empty array from component`);
