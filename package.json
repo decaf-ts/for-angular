@@ -9,7 +9,7 @@
     "on-first-run": "npx update-scripts --boot",
     "set-git-auth": "git config url.\"https://api:$(cat .token)@github.com/\".insteadOf \"https://github.com/\" && git config url.\"https://ssh:$(cat .token)@github.com/\".insteadOf \"ssh://git@github.com/\" && git config url.\"https://git:$(cat .token)@github.com/\".insteadOf \"git@github.com:\"",
     "flash-forward": "npx npm-check-updates -u && npm run do-install",
-    "update-dependencies": "rimraf node_modules/@decaf-ts package-lock.json && TOKEN=$(cat .token) npm install",
+    "update-dependencies": "PREFIX=\"decaf-ts\"; npm ls | grep \"$PREFIX\" | awk -F/ '{print $NF}' | sed 's/@.*//' | xargs -I package npm update @\"$PREFIX\"/package",
     "reset": "rm -rf * && git checkout . && git pull && npm run do-install",
     "build:prod": "ng build for-angular && ng  build  for-angular-app",
     "build": "ng build for-angular --configuration development && ng build for-angular-app --configuration development && npm run build:cli",
