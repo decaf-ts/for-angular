@@ -1,0 +1,31 @@
+
+<ion-card id="dcf-card-empty-state" [ngClass]="className">
+  <ion-card-content>
+    @if(icon && showIcon) {
+      <div class="dcf-icon-container">
+        <ngx-decaf-icon
+          [name]="icon"
+          [color]="iconColor"
+          [size]="iconSize"
+        />
+      </div>
+    }
+    @if(title) {
+      <h5 [class]="titleColor" [innerHTML]="translatable ? (title | translate) : title"></h5>
+    }
+    @if(subtitle) {
+      <p [class]="subtitleColor" [innerHTML]="translatable ? (subtitle | translate) : subtitle "></p>
+    }
+    @if(buttonLink && buttonText) {
+      <div>
+        <ion-button
+          [size]="buttonSize"
+          [fill]="buttonFill"
+          [color]="buttonColor"
+          (click)="handleClick()">
+          {{  translatable ? (buttonText | translate) : buttonText }}
+        </ion-button>
+      </div>
+    }
+  </ion-card-content>
+</ion-card>

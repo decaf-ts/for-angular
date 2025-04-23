@@ -8,11 +8,7 @@
 //      "stream": ["./node_modules/stream-browserify"],
       "@angular/*": [
         "./node_modules/@angular/*"
-      ],
-      // // create a slug for web-components library path
-      // "@aeon/web-components": [
-      //   "./node_modules/@aeon/web-components/dist/aeon-web-components"
-      // ]
+      ]
     }
   },
   "files": [

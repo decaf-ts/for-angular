@@ -19,6 +19,6 @@ export class <%= classify(name) %><%= classify(type) %> implements OnInit {
   *
   * @returns {void} This method does not return a value.
   */
-  ngOnInit() {}
+  ngOnInit(): void {}
 
 }

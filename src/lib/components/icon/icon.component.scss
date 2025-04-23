@@ -1,0 +1,53 @@
+*[class*="ti ti-"] {
+  font-size: 1.2rem;
+  line-height: 1.2rem;
+  // position: relative;
+  // top: -1px;
+  &.large,
+  &[size="large"] {
+      font-size: 2.2rem !important;
+      top: -1.5px !important;
+  }
+   &.small,
+   &[size="small"] {
+      font-size: 1.25rem;
+      top: -1.5px;
+  }
+
+  &[color="primary"],
+  &[class*="color-primary"] {
+    color: var(--ion-color-primary);
+  }
+  &[color="danger"],
+  &[class*="color-danger"] {
+    color: var(--ion-color-danger);
+  }
+  &[color="warning"],
+  &[class*="color-warning"] {
+    color: var(--ion-color-warning);
+  }
+  &[color="success"],
+  &[class*="color-success"] {
+    color: var(--ion-color-success);
+  }
+  &[color="secondary"],
+  &[class*="color-secondary"] {
+    color: var(--ion-color-secondary);
+  }
+  &[color="tertiary"],
+  &[class*="color-tertiary"] {
+    color: var(--ion-color-tertiary);
+  }
+  &[color="light"],
+  &[class*="color-light"] {
+    color: var(--ion-color-light);
+  }
+  &[color="medium"],
+  &[class*="color-medium"] {
+    color: var(--ion-color-medium-tint);
+  }
+  &[color="dark"],
+  &[class*="color-dark"] {
+    color: var(--ion-color-dark);
+  }
+}

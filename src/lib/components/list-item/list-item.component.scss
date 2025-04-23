@@ -1,0 +1,187 @@
+
+
+ion-item {
+  // margin-bottom: 5px;
+  --min-height: 50px;
+  //  --border-radius: 10px;
+  --padding-top: .25rem;
+  --padding-bottom: .25rem;
+  --padding-start: .75rem;
+  --inner-padding-start: 0px !important;
+  --inner-padding-end: 0px !important;
+  --padding-end: .75rem;
+
+  &:hover {
+    .dcf-info {
+      background: transparent !important;
+    }
+  }
+
+  .dcf-grid {
+    padding: 0px !important;
+    margin: 0px !important;
+    min-width: 100% !important;
+  }
+
+  .dcf-title {
+    color:  var(--ion-color-gray-8);
+    font-style: normal;
+    font-weight: 600;
+    // margin: 0 0 20px 0;
+  }
+
+  .dcf-subtitle {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--ion-color-gray-6);
+    font-style: normal;
+    font-weight: 400;
+    font-size: .925rem;
+  }
+
+  &::part(native) {
+    min-width: 100%;
+  }
+
+  [slot="start"] {
+    margin-right: .5rem !important;
+  }
+
+  [slot="end"] {
+    margin-left: .5rem !important;
+  }
+  .dcf-info {
+    font-size: .9rem;
+    background: white;
+    .dcf-subinfo {
+      &.dcf-line {
+        margin-left: .5rem;
+          @media(min-width: var(--dcf-width-sm)) {
+              display: block;
+              margin-left: 0px;
+          }
+        }
+      }
+  }
+  #dcf-actions {
+    padding: 5px;
+    @media(max-width: 768px) {
+      display: none;
+      pointer-events: none !important;
+      cursor: text !important;
+
+      * {
+        display: none;
+        pointer-events: none !important;
+        cursor: text !important;
+      }
+    }
+    ion-button {
+      --padding-start: 1rem;
+      --padding-end: .75rem;
+      --padding-top: .85rem !important;
+      --padding-bottom: .85rem !important;
+      color: #ccc;
+      margin-right: .5rem !important;
+      --background: var(--ion-color-gray-2) !important;
+
+      ion-icon {
+        position: relative;
+        left: -1px;
+      }
+    }
+  }
+
+  #dcf-end,
+  [slot="end"] {
+    @media(max-width: 768px) {  display: none !important;}
+  }
+
+  #dcf-end {
+    padding-top: 5px;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  #dcf-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-right: .5rem !important;
+
+    @media(max-width: 578px) { align-items: flex-start !important; }
+
+    ion-button {
+      color: var(--dcf-color-gray-3);
+      // margin-right: .5rem !important;
+      --padding-start: 1rem;
+      --padding-end: .85rem;
+      --padding-top: .85rem !important;
+      --padding-bottom: .85rem !important;
+      --background: var(--ion-color-gray-2) !important;
+    }
+
+    ion-avatar {
+      transform: scale(.9);
+      background: var(--ion-color-gray-1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      box-sizing: border-box !important;
+
+      .dcf-icon-large { transform: translateY(5px);}
+    }
+  }
+}
+
+
+ion-item-sliding {
+  border: 1px solid;
+  border-color: transparent;
+  box-sizing: border-box;
+  margin: 1rem 0px;
+
+  ion-item-option {
+      &:not(.dcf-delete),
+      &:not(.dcf-update) {
+        background: rgba(var(--ion-color-dark-rgb), .25) !important;
+        .dcf-ti,
+        ion-icon {
+          color: var(--ion-color-gray-7) !important;
+        }
+      }
+
+      &.dcf-delete {
+        background: rgba(var(--ion-color-danger-rgb), .15) !important;
+        .dcf-ti,
+          *,
+        ion-icon {
+          color: var(--ion-color-danger) !important;
+        }
+      }
+
+      &.dcf-update {
+        background: rgba(var(--ion-color-primary-rgb), .25) !important;
+        .dcf-ti,
+        ion-icon {
+          color: var(--ion-color-gray-7) !important;
+        }
+      }
+  }
+
+
+  &[class*="active-slide"] {
+    border-color: var(--ion-color-gray-3);
+
+  }
+
+  ion-item-option {
+    color: var(--ion-color-gray-5);
+    box-shadow: inset 0 0 5px rgba(var(--ion-color-dark-rgb), .15) !important;
+    background: var(--ion-color-gray-3);
+  }
+}

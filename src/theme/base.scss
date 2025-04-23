@@ -31,12 +31,6 @@ html, body, * {
   }
 }
 
-#aeon-wallet {
-  ion-content {
-    --background: #fff;
-  }
-}
-
 a {
   color: var(--ion-color-dark);
   font-weight: 500;
@@ -54,10 +48,10 @@ textarea {
 
     border:none !important;
     -webkit-text-fill-color: var(--ion-color-primary) !important;
-    box-shadow: 0 0 0px 1000px #FFFFFF inset;
     -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset;
-    transition: box-shadow 50s ease-in-out;
+    box-shadow: 0 0 0px 1000px #FFFFFF inset;
     -webkit-transition: box-shadow 50s ease-in-out;
+    transition: box-shadow 50s ease-in-out;
   }
 }
 

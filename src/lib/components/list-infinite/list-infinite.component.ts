@@ -7,6 +7,7 @@ import { stringToBoolean } from 'src/lib/helpers/string';
 import { EventConstants} from 'src/lib/engine/constants';
 import { arraySortByDate } from 'src/lib/helpers/array';
 import { consoleError, consoleWarn } from 'src/lib/helpers/logging';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 // import { RequestService } from 'src/lib/services/request.service';
 
 @Component({
@@ -28,7 +29,7 @@ export class ListInfiniteComponent implements OnInit {
   /**
   * The name of the manager to be used
   */
-  @Input({alias: "manager"})
+  @Input()
   manager?: any;
 
 
@@ -51,7 +52,7 @@ export class ListInfiniteComponent implements OnInit {
   * Operations of list item
   */
   @Input()
-  modelOperations!: string[];
+  modelOperations: CrudOperations = OperationKeys.READ;
 
   /**
    * Config for list items rendering

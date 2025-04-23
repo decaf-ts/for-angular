@@ -1,0 +1,25 @@
+ion-card {
+  text-align: center;
+
+  ion-button {
+    margin-top: .75rem;
+  }
+  ion-icon {
+   font-size: 2.5rem;
+  }
+
+  .dcf-icon-container {
+    transform: scale(1.25);
+    opacity: 0.75;
+    margin-top: 1.25rem !important;
+    margin-bottom: .5rem !important;
+  }
+  .dcf-ititle {
+    font-weight: 600 !important;
+    color: var(--ion-color-gray-6) !important;
+  }
+
+  .dcf-isubtitle {
+    font-weight: 500 !important;
+  }
+}

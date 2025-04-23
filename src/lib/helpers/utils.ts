@@ -19,6 +19,22 @@ export function isDevelopmentMode(context: string = "localhost") {
 };
 
 
+/**
+ * Dispatch custom event to document window
+ *
+ * @param  {name} string
+ * @param  {string|boolean|number|object} detail
+ * @returns void
+ */
+export function windowEventEmitter(name: string, detail: any, props?: object): void {
+  const data = Object.assign({
+      bubbles: true,
+      composed: true,
+      cancelable: false,
+      detail: detail
+    }, props || {});
+  getWindow().dispatchEvent(new CustomEvent(name, data));
+}
 export function getOnWindowDocument(key: string) {
   return getWindowDocument()?.[key];
 }
@@ -125,6 +141,14 @@ export function getLocaleFromClassName(instance: string | Function | object, suf
     return name.reverse().join('.');
   name.pop();
   return `${name[name.length - 1]}.${name.join('_')}`;
+}
+
+export function generateLocaleFromString(locale: string, phrase: string | undefined) {
+  if(!phrase)
+    return "";
+  if(!locale || phrase.includes(`${locale}.`))
+    return phrase;
+  return `${locale}.${phrase}`;
 }
 
 /**
