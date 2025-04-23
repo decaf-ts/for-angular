@@ -1,0 +1,15 @@
+{
+  "extends": ["@schematics/angular"],
+  "schematics": {
+    "schematics": {
+      "description": "A blank schematic.",
+      "factory": "./schematics/index#test"
+    },
+    "component": {
+      "aliases": ["c"],
+      "factory": "./component/index",
+      "description": "Create an Decaf Angular component.",
+      "schema": "./component/schema.json"
+    }
+  }
+}

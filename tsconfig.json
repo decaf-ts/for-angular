@@ -42,7 +42,7 @@
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": false, // defaul true
+    "strictTemplates": false, // default true
     // "enableIvy": false
   },
   "@angular/*": [

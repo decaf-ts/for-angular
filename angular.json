@@ -7,12 +7,24 @@
       "projectType": "library",
       "root": ".",
       "sourceRoot": "src/lib",
-      "prefix": "for-angular",
+      "prefix": "ngx-decaf",
+      "cli": {
+        "schematicCollections": [
+          "./schematics"
+        ]
+      },
       "schematics": {
-        "@schematics/angular:component": {
+         "@schematics/angular:component": {
           "style": "scss",
-          "standalone": false,
+          "standalone": true,
           "path": "src/lib/components"
+        },
+        "@schematics/angular:service": {
+          "path": "src/lib/services"
+        },
+        "@schematics/angular:directive": {
+          "standalone": true,
+          "path": "src/lib/directives"
         }
       },
       "architect": {
@@ -46,7 +58,6 @@
     },
     "for-angular-app": {
       "projectType": "application",
-      "schematics": {},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -69,11 +80,11 @@
                 "input": "src/assets",
                 "output": "assets"
               },
-              "src/manifest.webmanifest"
+              "src/manifest.webmanifest",
+              "src/cli-module.ts",
+              "src/lib/**/*"
             ],
-            "styles": [
-              "src/styles.scss"
-            ],
+            "styles": ["src/global.scss", "src/theme/variables.scss"],
             "serviceWorker": false,
             "ngswConfigPath": "ngsw-config.json"
           },
@@ -148,11 +159,11 @@
                 "input": "node_modules/ionicons/dist/ionicons/svg",
                 "output": "./svg"
               },
-              "src/manifest.webmanifest"
+              "src/manifest.webmanifest",
+              "src/cli-module.ts",
+              "src/lib/**/*"
             ],
-            "styles": [
-              "src/styles.scss"
-            ],
+            "styles": ["src/global.scss", "src/theme/variables.scss"],
             "scripts": []
           },
           "configurations": {
@@ -182,11 +193,14 @@
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {
-      "styleext": "scss"
+      "styleext": "scss",
+      "path": "src/app/components",
+      "standalone": true
     },
     "@ionic/angular-toolkit:page": {
       "styleext": "scss",
-      "path": "src/app/pages"
+      "path": "src/app/pages",
+      "standalone": true
     },
     "@schematics/angular:service": {
       "path": "src/app/services"
@@ -199,4 +213,5 @@
       "path": "src/app/pipes"
     }
   }
+
 }

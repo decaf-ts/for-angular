@@ -1,0 +1,68 @@
+.dcf-container {
+  // padding: 3rem 2rem;
+  padding: 2.5rem 2rem;
+
+  &.dcf-padding-top-small {
+    padding-top: 1.25rem !important;
+  }
+
+  @media (min-width: 681px) and (max-width: 768px) {
+    padding: 2.5rem 1.75rem;
+  }
+
+  @media (max-width: 680px) {
+    padding: 1.25rem .75rem;
+  }
+
+  &.dcf-width-small {
+    div {  width: 150px; }
+  }
+  &.dcf-width-medium {
+    div { width: 300px; }
+  }
+  &.dcf-width-large {
+    div { width: 450px; }
+  }
+  &.dcf-width-xlarge {
+    div { width: 600px;}
+  }
+  &.dcf-width-2xlarge {
+    div { width: 750px;}
+  }
+
+  &.dcf-width-auto {
+    div {
+      width: auto;
+    }
+  }
+
+  &.dcf-width-block {
+    div {
+      width: 100%;
+      max-width: 1200px;
+    }
+  }
+
+  /* Expand */
+  &.dcf-width-expand {
+    div {
+      flex: 1;
+      min-width: 1px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    ion-col {
+      padding: 0px;
+    }
+  }
+
+  ion-card,
+  mat-card {
+    margin: .75rem;
+  }
+
+  .dcf-grid {
+    margin-top: .75rem;
+  }
+}

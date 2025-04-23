@@ -131,6 +131,8 @@ export abstract class NgxCrudFormField
   afterViewInit(): HTMLElement {
     let parent: HTMLElement;
     switch (this.operation) {
+      case OperationKeys.READ:
+        return this.component.nativeElement.parentElement
       case OperationKeys.CREATE:
       case OperationKeys.UPDATE:
       case OperationKeys.DELETE:

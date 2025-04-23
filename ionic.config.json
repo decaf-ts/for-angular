@@ -1,0 +1,14 @@
+
+{
+   "defaultProject": "for-angular-app",
+   "projects": {
+    "for-angular-app": {
+      "name": "@decaf-ts/for-angular-app",
+      "type": "angular",
+      "root": ".",
+      "integrations": {
+        "capacitor": {}
+      }
+    }
+  }
+}
