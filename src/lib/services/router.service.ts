@@ -7,7 +7,7 @@ import { throwError } from '../helpers/logging';
 import { KeyValue } from '../engine/types';
 import { EventConstants, RouteDirections } from '../engine/constants';
 import { getOnWindow, windowEventEmitter } from '../helpers/utils';
-import { Primitives } from '@decaf-ts/decorator-validation/dist/types/model/constants';
+// import { Primitives } from '@decaf-ts/decorator-validation/dist/types/model/constants';
 
 
 @Injectable({
@@ -44,7 +44,8 @@ export class RouterService {
   *          If a parameter is not found in the route, its value will be null.
   */
   parseAllQueryParams(params: string | string[]): KeyValue[] {
-    if(typeof params === Primitives.STRING)
+    // Primitives.STRING
+    if(typeof params === 'string')
       params = [params as string];
     return (params as string[]).reduce((acc: KeyValue[], param: string) => {
       const item = {[param]: (this.route.snapshot.queryParamMap.get(param) as string) || null};
@@ -112,8 +113,9 @@ export class RouterService {
   */
   getCurrentUrl(): string {
     const routerUrl = this.router.url;
-    const pathName  = getOnWindow('location').pathname;
-    return ((routerUrl === '/' && routerUrl !== pathName) ? pathName : routerUrl).replace('/', '');
+    const pathName  = globalThis.window?.location?.pathname;
+    return ((routerUrl === '/' && routerUrl !== pathName) ?
+      pathName : routerUrl).replace('/', '');
   }
 
  /**
@@ -142,8 +144,13 @@ export class RouterService {
   * @returns {void}
   */
   backToLastPage(): void {
-    windowEventEmitter(EventConstants.BACK_BUTTON_NAVIGATION, {refresh: true});
-    return this.location.back();
+    globalThis.window.dispatchEvent(new CustomEvent(EventConstants.BACK_BUTTON_NAVIGATION, {
+      bubbles: true,
+      composed: true,
+      cancelable: false,
+      detail: {refres: true},
+    }));
+    this.location.back();
   }
 
  /**
@@ -155,32 +162,12 @@ export class RouterService {
   *
   * @returns A promise that resolves to true if navigation is successful, otherwise false.
   */
- navigateTo(page: string, direction: RouteDirections = RouteDirections.FORWARD, options?: NavigationOptions): Promise<boolean> {
-
+ async navigateTo(page: string, direction: RouteDirections = RouteDirections.FORWARD, options?: NavigationOptions): Promise<boolean> {
   if(direction === RouteDirections.ROOT)
     return this.navController.navigateRoot(page, options);
-
   if(direction === RouteDirections.FORWARD)
-    return this.navController.navigateForward(page, options);
-
-  return this.navController.navigateBack(page, options);
-
+    return await this.navController.navigateForward(page, options);
+  return await this.navController.navigateBack(page, options);
  }
-
- /**
-  * Throws an error with a custom message and logs the error details.
-  *
-  * This function is used to handle and log errors within the application. It takes an `Error` object as a parameter,
-  * extracts the error message, and then calls the `throwError` function from the `logging` utility.
-  *
-  * @param err - The `Error` object containing the error details.
-  *
-  * @returns {void} - The function does not return a value.
-  *
-  * @throws {Error} - Throws the error with a custom message.
-  */
-  throwError(err: Error): void {
-    throwError(this, err.message ? err.message : JSON.stringify(err));
-  }
 
 }

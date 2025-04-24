@@ -6,7 +6,6 @@
 
 
 <ion-app>
-
   <ion-split-pane contentId="main-content" style="--side-max-width: 240px;">
     <ion-menu contentId="main-content" type="overlay">
       <section class="dcf-padding-small">
@@ -16,8 +15,7 @@
         </div>
       </section>
       <ion-content>
-        <h1>{{ title }}</h1>
-        <p>This is a demo page for Decaf-ts' angular engine.</p>
+        <ngx-decaf-menu-side [data]="menu" menuId="side-menu"></ngx-decaf-menu-side>
       </ion-content>
     </ion-menu>
 

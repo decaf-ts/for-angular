@@ -2,10 +2,10 @@ import { Component, OnInit, EventEmitter, Output, Input, HostListener  } from '@
 import { InfiniteScrollCustomEvent, SpinnerTypes } from '@ionic/angular';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { IListComponentRefreshEvent, IListInfiteItemProps, IListItemComponent, KeyValue, ListItemActionEvent, StringOrBoolean } from 'src/lib/engine/types';
-import { getLocaleFromClassName, queryInArray } from 'src/lib/helpers/utils';
+import { getLocaleFromClassName } from 'src/lib/helpers/utils';
 import { stringToBoolean } from 'src/lib/helpers/string';
 import { EventConstants} from 'src/lib/engine/constants';
-import { arraySortByDate } from 'src/lib/helpers/array';
+import { arrayQueryByString, arraySortByDate } from 'src/lib/helpers/array';
 import { consoleError, consoleWarn } from 'src/lib/helpers/logging';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 // import { RequestService } from 'src/lib/services/request.service';
@@ -20,37 +20,34 @@ import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 })
 export class ListInfiniteComponent implements OnInit {
 
-  /**
-   * translation component
-   */
+
   @Input()
   locale: string = getLocaleFromClassName('ListInfiniteComponent');
 
   /**
-  * The name of the manager to be used
-  */
+   * The name of the manager to be used
+   */
   @Input()
   manager?: any;
-
 
   @Input()
   showSearchbar: StringOrBoolean = false;
 
   /**
-  * Model primary key
-  */
+   * Model primary key
+   */
   @Input()
   modelPk: string = 'id';
 
   /**
-  * Application url for model
-  */
+   * Application url for model
+   */
   @Input()
   modelPage!: string;
 
   /**
-  * Operations of list item
-  */
+   * Operations of list item
+   */
   @Input()
   modelOperations: CrudOperations = OperationKeys.READ;
 
@@ -67,8 +64,8 @@ export class ListInfiniteComponent implements OnInit {
   data?: IListItemComponent[] | undefined = undefined;
 
   /**
-  * URL to request data or function to request for data
-  */
+   * URL to request data or function to request for data
+   */
   @Input()
   source!: string | Function;
 
@@ -97,8 +94,8 @@ export class ListInfiniteComponent implements OnInit {
   lines: "inset" | "full" | "none" = "full";
 
   /**
-  * If true, the list will have margin around it and rounded corners.
-  */
+   * If true, the list will have margin around it and rounded corners.
+   */
   @Input()
   inset: StringOrBoolean = false;
 
@@ -124,8 +121,8 @@ export class ListInfiniteComponent implements OnInit {
   loadingText?: string;
 
   /**
-  * Enable / Disable refresherer
-  */
+   * Enable / Disable refresherer
+   */
   @Input()
   showRefresher: StringOrBoolean = true;
 
@@ -190,12 +187,12 @@ export class ListInfiniteComponent implements OnInit {
 
 
   /**
-  * Lifecycle hook that is called after data-bound properties of a directive are initialized.
-  * This method is part of Angular's component lifecycle and is used for any additional initialization tasks.
-  *
-  * @returns {void} This method does not return a value.
-  */
-  async ngOnInit() {
+   * Lifecycle hook that is called after data-bound properties of a directive are initialized.
+   * This method is part of Angular's component lifecycle and is used for any additional initialization tasks.
+   *
+   * @returns {void} This method does not return a value.
+   */
+  ngOnInit(): void {
     this.limit = Number(this.limit);
     this.start = Number(this.start);
     this.inset = stringToBoolean(this.inset);
@@ -291,7 +288,7 @@ export class ListInfiniteComponent implements OnInit {
     //  this.searchEmptyTitle = await this.localeService.get(`${this.locale}.search.title`);
     //  this.searchEmptySubtitle = await this.localeService.get(`${this.locale}.search.subtitle`, {value: search});
    }
-   return [... queryInArray(results || [], search)];
+   return [... arrayQueryByString(results || [], search)];
 
  }
  async getFromRequest(force: boolean = false, start: number, limit: number) {

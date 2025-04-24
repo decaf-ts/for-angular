@@ -1,0 +1,95 @@
+<ion-header class="" [translucent]="translucent" [class]="className">
+  <div [ngClass]="{'dcf-header-container': center, 'dcf-width-expand': expand}">
+    <ion-toolbar [color]="backgroundColor">
+      @if(showMenuButton) {
+        <ion-buttons [slot]="buttonMenuSlot">
+          <ion-menu-button>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 12H15M3 6H21M3 18H21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </ion-menu-button>
+        </ion-buttons>
+      } @else {
+        @if(showBackButton) {
+          <ion-buttons slot="start">
+            <dcf-back-button [link]="backButtonLink" [locale]="locale" [toolbarColor]="backgroundColor"></dcf-back-button>
+          </ion-buttons>
+        }
+      }
+
+      <ng-content select="[slot='start']"></ng-content>
+      @if(title) {
+        <ion-title class="ion-text-{{titleAligment}}">{{ locale ? (title | translate) : title }}</ion-title>
+      }
+
+      <ng-content select="[slot='end']"></ng-content>
+
+      @if(modelOperations?.length && modelPage) {
+        <ion-buttons slot="end">
+
+            @if(!modelId) {
+              <ion-button *ngIf="isAllowed('create')" (click)="changeOperation('create')" fill="clear" color="light" [title]="'create' | translate ">
+                <ngx-decaf-icon name="ti-folder-plus" size="medium" color="light" slot="icon-only"></ngx-decaf-icon>
+              </ion-button>
+            } @else {
+
+              @if(isAllowed('read')) {
+                <ion-button (click)="changeOperation('read')" fill="clear" color="light" [title]="'read' | translate ">
+                  <ngx-decaf-icon name="ti-eye" size="medium" color="light" slot="icon-only"></ngx-decaf-icon>
+                </ion-button>
+              }
+
+              @if(isAllowed('create')) {
+                <ion-button (click)="changeOperation('create')" fill="clear" color="light" [title]="'create' | translate ">
+                  <ngx-decaf-icon name="ti-folder-plus" size="medium" color="light" slot="icon-only"></ngx-decaf-icon>
+                </ion-button>
+              }
+
+              @if(isAllowed('update')) {
+                <ion-button (click)="changeOperation('update')" fill="clear" color="light" [title]="'update' | translate ">
+                  <ngx-decaf-icon name="ti-edit" size="medium" color="light" slot="icon-only"></ngx-decaf-icon>
+                </ion-button>
+              }
+
+              @if(isAllowed('delete')) {
+                <ion-button (click)="changeOperation('delete')" fill="clear" color="light" [title]="'delete' | translate ">
+                  <ngx-decaf-icon name="ti-trash" color="light" size="medium" slot="icon-only"></ngx-decaf-icon>
+                </ion-button>
+              }
+            }
+        </ion-buttons>
+      }
+    </ion-toolbar>
+  </div>
+</ion-header>
+
+<ion-header class="dcf-hidden" [translucent]="true" [ngClass]="className">
+  <div [ngClass]="center ? 'dcf-header-container' : ''">
+    <ion-toolbar [color]="mobileBackgroundColor">
+      @if(showMenuButton) {
+        <ion-buttons [slot]="mobileButtonMenuSlot">
+          <ion-menu-button>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 12H15M3 6H21M3 18H21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </ion-menu-button>
+        </ion-buttons>
+      } @else {
+        @if(showBackButton) {
+          <ion-buttons slot="start">
+            <dcf-back-button [link]="backButtonLink" color="primary" [locale]="locale"></dcf-back-button>
+          </ion-buttons>
+        }
+      }
+      @if(logo) {
+        <div class="dcf-mobile-logo" slot="start">
+          <img [src]="logo" [title]="title" alt="title" />
+        </div>
+      } @else {
+        @if(title) {
+          <ion-title class="ion-text-{{titleAligment}}">{{ locale ? (title | translate) : title }}</ion-title>
+        }
+      }
+    </ion-toolbar>
+  </div>
+</ion-header>

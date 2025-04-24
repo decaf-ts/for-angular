@@ -3,6 +3,15 @@ import { TextFieldTypes } from '@ionic/core';
 import { Injector, Type } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
+export type MenuItem = {
+  text: string;
+  url?: string;
+  icon?: string;
+  accessRole?: string[] | string;
+  showMenu?: boolean;
+};
+
+
 export type KeyValue = { [index: string]: any };
 
 export type ElementSizes =

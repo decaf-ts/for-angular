@@ -70,58 +70,8 @@ export function getWindowWidth() {
   return getOnWindow('innerWidth');
 }
 
-export function isNotUndefined(prop: StringOrBoolean | undefined) {
+export function isNotUndefined(prop: StringOrBoolean | undefined): boolean {
   return (prop !== undefined) as boolean;
-}
-
-export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue) {
-  return Object.entries(mapper).reduce((accum: KeyValue, [key, value]) => {
-    const arrayValue = value.split('.');
-    if (!value) {
-      accum[key] = value;
-    } else {
-      if (arrayValue.length === 1) {
-        accum[key] = item?.[value] || value;
-      } else {
-        let val;
-
-        for (let _value of arrayValue)
-          val = !val
-            ? item[_value]
-            : (typeof val === 'string' ? JSON.parse(val) : val)[_value];
-
-        if (isValidDate(new Date(val))) val = `${formatDate(val)}`;
-
-        accum[key] = val === null || val === undefined ? value : val;
-      }
-    }
-    return Object.assign({}, props || {}, accum);
-  }, {});
-}
-
-export function dataMapper<T>(data: any[], mapper: KeyValue, props?: KeyValue) {
-  if (!data || !data.length) return [];
-  // consoleInfo(dataMapper, `Mapping data with mapper ${JSON.stringify(mapper)}`);
-  return data.reduce((accum: T[], curr) => {
-    let item = itemMapper(curr, mapper, props) as T;
-    const hasValues =
-      [...new Set(Object.values(item as T[]))].filter((value) => value).length >
-      0;
-    // caso o item filtrado não possua nenhum valor, passar o objeto original
-    accum.push(hasValues ? item : curr);
-    return accum;
-  }, []);
-}
-
-export function queryInArray(results: KeyValue[], query: string) {
-  return results.filter((item: KeyValue) =>
-    Object.values(item).some((value) =>
-      value
-        .toString()
-        .toLowerCase()
-        .includes((query as string)?.toLowerCase())
-    )
-  );
 }
 
 /**
@@ -170,31 +120,36 @@ export function generateLocaleFromString(
   return `${locale}.${phrase}`;
 }
 
+
 /**
+ * Retrieves the current locale language based on the user's browser settings.
+ * If a custom locale language is selected, it will be returned instead of the browser's default.
  *
- * Get selected language setted by locale service on window
+ * @returns {string} The current locale language. Default is 'en' if no custom locale is selected.
  */
-export function getLocaleLanguage() {
+export function getLocaleLanguage(): string {
   const win = getWindow();
   return 'en';
   // return win?.[WINDOW_KEYS.LANGUAGE_SELECTED] || (win.navigator.language || '').split('-')[0] || "en";
 }
 
+
+
 /**
- * Generate random string
+ * Generates a random string or number of specified length.
  *
- * @param  {number} [stringLength=8]
- * @param  {boolean} [onlyNumbers=false]
+ * @param length - The length of the random value to generate. Defaults to 8 characters.
+ * @param onlyNumbers - When true, generates a string containing only numeric characters.
+ *                      When false, generates an alphanumeric string with both uppercase and lowercase letters.
+ * @returns A randomly generated string containing either alphanumeric characters or only numbers,
+ *          depending on the onlyNumbers parameter.
  */
-export function generateRandomValue(
-  stringLength: number = 8,
-  onlyNumbers = false
-) {
+export function generateRandomValue(length: number = 8, onlyNumbers = false): string {
   const chars = onlyNumbers
     ? '0123456789'
     : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
-  for (let i = 0; i < stringLength; i++)
+  for (let i = 0; i < length; i++)
     result += chars.charAt(Math.floor(Math.random() * chars.length));
 
   return result;

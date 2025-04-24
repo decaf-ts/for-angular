@@ -1,0 +1,23 @@
+
+@if(data?.length) {
+  <ion-list>
+    @if(headerText) {
+      <ion-list-header>{{ locale+'.'+headerText | translate}}</ion-list-header>
+    }
+    @if(headerNote) {
+      <ion-note>{{ locale+'.'+headerNote | translate}}</ion-note>
+    }
+    <ion-menu-toggle auto-hide="false" *ngFor="let item of data; let i = index">
+      <ion-item  [ngClass]="{'dcf-separator': !item.url, 'dcf-active ': currentUrl === item?.url}"
+      (click)="navigate(item.url)" button="true" detail="true"  [routerLink]="item.url" routerDirection="root" [routerLink]="[item.url]" lines="none" detail="false" >
+        @if(item.icon) {
+          <ngx-decaf-icon [name]="item.icon" color="gray-7"></ngx-decaf-icon>
+        }
+        <ion-label>{{  translatable ? (locale+'.'+item.text.toLowerCase() | translate) : item.text }}</ion-label>
+        @if(item?.url) {
+          <ngx-decaf-icon name="ti-chevron-right"></ngx-decaf-icon>
+        }
+      </ion-item>
+    </ion-menu-toggle>
+  </ion-list>
+}

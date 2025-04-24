@@ -18,10 +18,10 @@ import { CrudFieldComponent } from './crud-field/crud-field.component';
 import { CrudFormComponent } from './crud-form/crud-form.component';
 import { ModelRendererComponent } from './model-renderer/model-renderer.component';
 import { ContainerComponent } from './container/container.component';
-// import { ForAngularModule } from '../for-angular.module';
-// import { IonButton, IonCard, IonCheckbox, IonDatetime, IonInput, IonIcon, IonRadioGroup, IonRange, IonSearchbar, IonSegment, IonSelect, IonTextarea, IonToggle } from '@ionic/angular/standalone';
+import { MenuSideComponent } from './menu-side/menu-side.component';
+import { ForAngularModule } from '../for-angular.module';
 
-export const ionicFormComponents = [
+export const IonicFormComponents = [
   IonInput,
   IonItem,
   IonCheckbox,
@@ -37,18 +37,17 @@ export const ionicFormComponents = [
   IonButton
 ];
 
-const components = [
+const Components = [
   CrudFieldComponent,
   CrudFormComponent,
   ModelRendererComponent,
-  ContainerComponent
+  ContainerComponent,
+  MenuSideComponent,
 ];
 
-
 @NgModule({
-  imports: components,
+  imports: Components,
   declarations: [],
-  exports: [components],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  exports: [... Components, ForAngularModule],
 })
 export class ComponentsModule {}

@@ -66,6 +66,8 @@ export class IconComponent implements OnInit {
       if(this.platformStylePreserve && this.type === 'ionic')
         this.name = this.name.replace('-outline', '').replace('-sharp', '');
     }
+
+    console.log(this.name);
   }
 
 }
