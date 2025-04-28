@@ -3,16 +3,12 @@ import { formatDate, isValidDate } from "./date";
 
 
 
-
 /**
- * Converts a string representation of a boolean or a boolean value to its boolean equivalent.
+ * Converts a string representation of a boolean or a boolean value to a boolean type.
  *
- * @param prop - The value to convert. Can be either:
- *               - A string: 'true' or 'false' (case-insensitive)
- *               - A boolean: true or false
- * @returns The boolean representation of the input.
- *          Returns true if the input is the string 'true' (case-insensitive) or the boolean true.
- *          Returns false for all other inputs.
+ * @export
+ * @param {('true' | 'false' | boolean)} prop - The value to convert. Can be the string 'true', 'false', or a boolean.
+ * @returns {boolean} The boolean representation of the input value. Returns true if the input is the string 'true' or boolean true, false otherwise.
  */
 export function stringToBoolean(prop: 'true' | 'false' | boolean): boolean {
   if(typeof prop === 'string')
@@ -21,12 +17,12 @@ export function stringToBoolean(prop: 'true' | 'false' | boolean): boolean {
 }
 
 
-
 /**
- * Converts the first character of a string to uppercase.
+ * Converts a string to capital case by capitalizing the first letter and keeping the rest unchanged.
  *
- * @param value - The input string to be capitalized. Defaults to an empty string if not provided.
- * @returns A new string with the first character converted to uppercase. If the input string is empty, returns an empty string.
+ * @export
+ * @param {string} value - The string to convert to capital case. Defaults to an empty string.
+ * @returns {string} The string with the first letter capitalized. Returns an empty string if the input is empty.
  */
 export function stringToCapitalCase(value: string = "") {
   if(!value.length)

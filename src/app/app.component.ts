@@ -2,8 +2,10 @@ import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 // import { TranslatePipe } from '@ngx-translate/core';
 import { ComponentsModule } from '../lib/components/components.module';
-import { NgxRenderingEngine } from '../lib/engine';
-import { IonApp, IonRouterOutlet, IonSplitPane, IonImg } from '@ionic/angular/standalone';
+import { MenuItem, NgxRenderingEngine } from '../lib/engine';
+import { IonApp, IonRouterOutlet, IonSplitPane, IonImg, IonContent, IonMenu } from '@ionic/angular/standalone';
+import { Menu } from './utils/contants';
+import { RouterLink } from '@angular/router';
 
 try {
   const engine = new NgxRenderingEngine();
@@ -21,15 +23,18 @@ try {
 }
 
 
+// ComponentsModule, RouterLink, RouterLinkActive, IonApp, IonSplitPane, IonMenu, IonContent, IonList, IonListHeader, IonNote, IonMenuToggle, IonItem, IonLabel, IonRouterLink, IonRouterOutlet
+
 @Component({
   standalone: true,
   selector: 'app-root',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [ComponentsModule, IonApp, IonRouterOutlet, IonSplitPane, IonImg],
+  imports: [ComponentsModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
   title = 'Decaf-ts for-angular demo';
+  menu: MenuItem[] = Menu;
 
 }

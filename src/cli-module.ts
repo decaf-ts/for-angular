@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { exec } from 'child_process';
-import { error } from 'console';
+// import { runCommand as runCmd } from '@decaf-ts/utils';
 
 enum Projects {
   FOR_ANGULAR = "for-angular",

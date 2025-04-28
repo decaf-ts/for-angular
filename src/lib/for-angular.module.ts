@@ -1,31 +1,31 @@
-import {
-  NgModule,
-  CUSTOM_ELEMENTS_SCHEMA,
-  ModuleWithProviders,
-  NO_ERRORS_SCHEMA,
-} from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA, ModuleWithProviders} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonApp, IonRouterOutlet, IonSplitPane, IonImg, IonContent, IonMenu, IonText, IonButton, IonRouterLink } from '@ionic/angular/standalone';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
-import { CrudFieldComponent } from './components/crud-field/crud-field.component';
-import { CrudFormComponent } from './components/crud-form/crud-form.component';
-import { ModelRendererComponent } from './components/model-renderer/model-renderer.component';
 
-const commonModules = [
+const ComponentsAndModules = [
+  IonApp,
+  IonRouterOutlet,
+  IonSplitPane,
+  IonImg,
+  IonText,
+  IonButton,
+  IonRouterLink,
+  IonRouterOutlet,
+  IonContent,
+  IonMenu,
   CommonModule,
-  IonicModule,
   FormsModule,
   ReactiveFormsModule,
   TranslateModule,
-  TranslatePipe
+  TranslatePipe,
 ];
 
-
 @NgModule({
-  imports: commonModules,
+  imports: ComponentsAndModules,
   declarations: [],
-  exports: commonModules,
+  exports: ComponentsAndModules,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ForAngularModule {

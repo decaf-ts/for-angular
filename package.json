@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "decaf": "npx decaf angular generate",
-    "do-install": "TOKEN=$(cat .token) npm install",
+    "do-install": "npm run decaf schematics decaf lib && TOKEN=$(cat .token) npm install",
     "update-scripts": "npx update-scripts",
     "on-first-run": "npx update-scripts --boot",
     "set-git-auth": "git config url.\"https://api:$(cat .token)@github.com/\".insteadOf \"https://github.com/\" && git config url.\"https://ssh:$(cat .token)@github.com/\".insteadOf \"ssh://git@github.com/\" && git config url.\"https://git:$(cat .token)@github.com/\".insteadOf \"git@github.com:\"",
@@ -73,7 +73,8 @@
     "rollup": "^4.40.0",
     "tslib": "^2.3.0",
     "typescript": "~5.5.2",
-    "typescript-eslint": "8.10.0"
+    "typescript-eslint": "8.10.0",
+    "@ionic/angular-toolkit": "^12.1.1"
   },
   "peerDependencies": {
     "@angular/animations": "^18.2.13",
@@ -91,13 +92,13 @@
     "@decaf-ts/for-http": "latest",
     "@decaf-ts/reflection": "latest",
     "@decaf-ts/ui-decorators": "latest",
-    "@ionic/angular": "^8.4.0",
-    "@ionic/angular-toolkit": "^12.1.1",
+    "@ionic/angular": "^8.5.5",
+
     "@ngx-translate/core": "^16.0.4",
     "@ngx-translate/http-loader": "^16.0.1",
     "@tabler/icons-webfont": "^3.31.0",
     "axios": "^1.8.4",
-    "ionicons": "^7.4.0",
+    "ionicons": "^7.0.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "~7.8.0",
     "zone.js": "~0.14.10"

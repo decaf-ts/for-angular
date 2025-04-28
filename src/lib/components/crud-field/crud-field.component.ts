@@ -8,7 +8,10 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { AutocompleteTypes, SelectInterface } from '@ionic/core';
 import { CrudOperations } from '@decaf-ts/db-decorators';
+import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
+import { Dynamic } from '../../engine/decorators';
 import {
   FieldUpdateMode,
   PossibleInputTypes,
@@ -16,18 +19,13 @@ import {
   SelectOption,
   StringOrBoolean,
 } from '../../engine/types';
-import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
-import { Dynamic } from '../../engine/decorators';
-import {
-  AutocompleteTypes,
-  SelectInterface
-} from '@ionic/core';
 import { ForAngularModule } from 'src/lib/for-angular.module';
+import { IonicFormComponents } from '../components.module'
 
 @Dynamic()
 @Component({
   standalone: true,
-  imports: [ForAngularModule],
+  imports: [ForAngularModule, IonicFormComponents],
   selector: 'ngx-decaf-crud-field',
   templateUrl: './crud-field.component.html',
   styleUrl: './crud-field.component.scss',
