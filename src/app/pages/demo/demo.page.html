@@ -6,8 +6,9 @@
       </div>
       <div class="divider" role="separator" aria-label="Divider"></div>
       <div class="right-side">
+        <ngx-decaf-icon size="default" name="airplane-outline"></ngx-decaf-icon>
         <ngx-decaf-container [hasSideMenu]="true" size="large">
-          <ngx-decaf-model-renderer [model]="model1" (submitEvent)="handleSubmit($event)" [globals]="{operation: operation}"></ngx-decaf-model-renderer>
+          <ngx-decaf-model-renderer [model]="model1" (listenEvent)="handleSubmit($event)" [globals]="{operation: operation}"></ngx-decaf-model-renderer>
         </ngx-decaf-container>
         <!-- <form-reactive [operation]="operation"> -->
           <!--      test-->

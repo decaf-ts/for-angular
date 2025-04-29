@@ -4,7 +4,7 @@ import { StringOrBoolean } from 'src/lib/engine/types';
 import {generateRandomValue, windowEventEmitter} from 'src/lib/helpers/utils';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { stringToBoolean } from 'src/lib/helpers/string';
-import { NgxDecafComponent } from 'src/lib/engine/NgxDecafComponent';
+import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 
 @Component({
   selector: 'ngx-decaf-searchbar',
@@ -14,7 +14,7 @@ import { NgxDecafComponent } from 'src/lib/engine/NgxDecafComponent';
   standalone: true,
 
 })
-export class SearchbarComponent extends NgxDecafComponent implements OnInit {
+export class SearchbarComponent extends NgxBaseComponent implements OnInit {
 
   @Input()
   override mode: "ios" | "md" | undefined = "ios";

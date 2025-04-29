@@ -1,10 +1,14 @@
 import {
   Component,
+  ComponentRef,
+  EventEmitter,
   Injector,
   Input,
   OnChanges,
+  Output,
   SimpleChanges,
   TemplateRef,
+  Type,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
@@ -15,6 +19,7 @@ import {
   AngularEngineKeys,
   RenderedModel,
 } from '../../engine';
+import { KeyValue } from 'src/lib/engine/types';
 
 @Component({
   standalone: true,
@@ -40,8 +45,15 @@ export class ModelRendererComponent<M extends Model>
   @Input()
   rendererId?: string;
 
+  @ViewChild('componentOuter', {static: true, read: ViewContainerRef })
+  vcr!: ViewContainerRef;
+
+  @Output()
+  listenEvent = new EventEmitter<any>();
+
+  private instance!: KeyValue | undefined;
+
   constructor(
-    private vcr: ViewContainerRef,
     private injector: Injector,
   ) {}
 
@@ -61,6 +73,9 @@ export class ModelRendererComponent<M extends Model>
       AngularEngineKeys.RENDERED_ID,
       (this.output.inputs as Record<string, any>)['rendererId'] as string,
     );
+
+    this.instance = this.output?.instance || undefined;
+    this.subscribeEvents()
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -74,6 +89,35 @@ export class ModelRendererComponent<M extends Model>
 
   ngOnDestroy(): void {
     this.output = undefined;
+    this.unsubscribeEvents();
+  }
+
+  private subscribeEvents(): void {
+    if(this.instance) {
+      const self = this;
+      const componentKeys = Object.keys(this.instance);
+      for (const key of componentKeys) {
+        const value = this.instance[key];
+        if(value instanceof EventEmitter)
+          (self.instance as KeyValue)[key].subscribe((event: CustomEvent) => self.listenEvent.emit({
+            detail: {
+              component: self.output?.component.name,
+              ...event,
+            }
+        }))
+      }
+    }
+  }
+
+  private unsubscribeEvents(): void {
+    if(this.instance) {
+      const componentKeys = Object.keys(this.instance);
+      for (const key of componentKeys) {
+        const value = this.instance[key];
+        if(value instanceof EventEmitter)
+          this.instance[key].unsubscribe();
+      }
+    }
   }
 
   protected readonly JSON = JSON;

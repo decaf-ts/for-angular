@@ -51,6 +51,7 @@ export type AngularDynamicOutput = {
   injector?: Injector;
   content?: Node[][];
   children?: AngularDynamicOutput[];
+  instance?:  Type<unknown>
 };
 
 export interface RenderedModel {

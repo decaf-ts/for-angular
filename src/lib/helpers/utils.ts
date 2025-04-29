@@ -106,9 +106,15 @@ export function getLocaleFromClassName(
     })
     .split('.');
 
-  if (name.length < 3) return name.reverse().join('.');
+  if (name.length < 3)
+    return name.reverse().join('.');
+
+  let preffix = name[name.length - 1];
   name.pop();
-  return `${name[name.length - 1]}.${name.join('_')}`;
+  name = name.join('_');
+  return `${preffix}.${name}`;
+
+
 }
 
 export function generateLocaleFromString(

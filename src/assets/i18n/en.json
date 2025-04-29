@@ -17,5 +17,29 @@
     "digits": "This field must contain only digits.",
     "alphanum": "This field must be alphanumeric.",
     "file": "Only {0} files are allowed"
+  },
+  "component": {
+    "list": {
+      "pagination": "Showing page  <span class=\"text-bold\">{{page}} of {{total}}</span>",
+      "loading": "Loading data",
+      "search": {
+        "title": "Not data found for search",
+        "subtitle": "You searched for: <span class=\"display-block ion-text-center text-bold\">{{value}}</span>",
+        "button": "Clear search"
+      },
+      "empty": {
+        "title": "No data found",
+        "button": "Create"
+      }
+    },
+    "empty_state": {
+      "title": "No data found",
+      "button": "Create",
+      "search": {
+        "title": "Not data found for search",
+        "subtitle": "You searched for: <span class=\"display-block ion-text-center text-bold\">{{value}}</span>",
+        "button": "Clear search"
+      }
+    }
   }
 }

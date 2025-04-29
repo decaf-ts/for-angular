@@ -2,7 +2,7 @@
   @if(button) {
     <ion-button fill="clear" [color]="color" shape="round">
       @if(type === 'image') {
-        <img [slot]="slot" [src]="name" [style.width]="width" alt="icon" />
+        <img [slot]="slot" [src]="name" [style.width]="width" alt="icon" aria-hidden="true" />
       }
       @if(type === 'ionic') {
         @if(platformStylePreserve) {
@@ -18,7 +18,7 @@
     </ion-button>
   } @else {
     @if(type === 'image') {
-      <img [slot]="slot" [src]="name" [style.width]="width"  alt="icon" />
+      <img [slot]="slot" [src]="name" [style.width]="width"  alt="icon" aria-hidden="true" />
     }
     @if(type === 'ionic') {
       @if(platformStylePreserve) {

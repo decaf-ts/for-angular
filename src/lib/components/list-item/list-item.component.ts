@@ -1,8 +1,8 @@
 import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output  } from '@angular/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { KeyValue, ListItemActionEvent, StringOrBoolean } from 'dist/lib';
+import { StringOrBoolean, ListItemActionEvent, KeyValue } from 'src/lib/engine/types';
+import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { consoleInfo } from 'src/lib/helpers/logging';
 import { stringToBoolean, stringToCapitalCase } from 'src/lib/helpers/string';
 import { getWindowWidth } from 'src/lib/helpers/utils';
 import { RouterService } from 'src/lib/services/router.service';
@@ -15,13 +15,7 @@ import { RouterService } from 'src/lib/services/router.service';
   standalone: true,
 
 })
-export class ListItemComponent implements OnInit {
-
-  @Input()
-  locale!: string;
-
-  @Input()
-  className: string = "";
+export class ListItemComponent extends NgxBaseComponent implements OnInit {
 
   @Input()
   mapper!: KeyValue;
@@ -82,7 +76,9 @@ export class ListItemComponent implements OnInit {
   windowWidth!: number;
 
   private routerService: RouterService = inject(RouterService);
-  constructor() { }
+  constructor() { 
+    super("ListItemComponent");
+  }
 
   /**
   * Lifecycle hook that is called after data-bound properties of a directive are initialized.

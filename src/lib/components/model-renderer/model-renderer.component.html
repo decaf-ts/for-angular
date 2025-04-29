@@ -1,8 +1,10 @@
-<div #renderer>
-  <ng-container #outer *ngComponentOutlet="output?.component;
+  <!-- <ng-container #outer *ngComponentOutlet="output?.component;
                                   inputs: output?.inputs;
                                   content: output?.content;">
-  </ng-container>
+  </ng-container> -->
+
+  <ng-template #componentOuter></ng-template>
+
   <ng-template #inner>
     <div [id]="rendererId || null">
       @for (child of output?.children; track child.inputs.name) {
@@ -14,6 +16,5 @@
       }
     </div>
   </ng-template>
-</div>
 
 

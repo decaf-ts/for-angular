@@ -2,13 +2,13 @@ import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 // import { TranslatePipe } from '@ngx-translate/core';
 import { ComponentsModule } from '../lib/components/components.module';
-import { MenuItem, NgxRenderingEngine } from '../lib/engine';
+import { MenuItem, NgxRenderingEngine2 } from '../lib/engine';
 import { IonApp, IonRouterOutlet, IonSplitPane, IonImg, IonContent, IonMenu } from '@ionic/angular/standalone';
 import { Menu } from './utils/contants';
 import { RouterLink } from '@angular/router';
 
 try {
-  const engine = new NgxRenderingEngine();
+  const engine = new NgxRenderingEngine2();
   // engine
   //   .initialize(FieldComponent)
   //   .then(() => {

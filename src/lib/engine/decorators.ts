@@ -1,5 +1,5 @@
 import { apply, metadata } from '@decaf-ts/reflection';
-import { NgxRenderingEngine } from './NgxRenderingEngine';
+import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
 import { AngularEngineKeys } from './constants';
 import { Constructor } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
@@ -16,11 +16,11 @@ export function Dynamic() {
           `Could not find Component metadata. @Dynamic decorator must come above @Component`,
         );
 
-      NgxRenderingEngine.registerComponent(
+      NgxRenderingEngine2.registerComponent(
         metadata.selector,
         original as unknown as Constructor<unknown>,
       );
     },
-    metadata(NgxRenderingEngine.key(AngularEngineKeys.DYNAMIC), true),
+    metadata(NgxRenderingEngine2.key(AngularEngineKeys.DYNAMIC), true),
   );
 }

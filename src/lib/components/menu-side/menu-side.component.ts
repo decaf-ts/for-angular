@@ -5,15 +5,19 @@ import { NavigationEnd, Router, Event as RouterNavigationEvent } from '@angular/
 import { Subscription } from 'rxjs';
 import { RouterService } from 'src/lib/services/router.service';
 import { RouteDirections } from 'src/lib/engine/constants';
+import { IconComponent } from '../icon/icon.component';
+import { addIcons } from 'ionicons';
+import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+import { chevronForwardOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'ngx-decaf-menu-side',
   templateUrl: './menu-side.component.html',
   styleUrls: ['./menu-side.component.scss'],
-  imports: [ForAngularModule],
+  imports: [ForAngularModule, IconComponent],
   standalone: true,
 })
-export class MenuSideComponent implements OnInit {
+export class MenuSideComponent extends NgxBaseComponent implements OnInit {
 
   @Input()
   data!: MenuItem[];
@@ -48,7 +52,10 @@ export class MenuSideComponent implements OnInit {
   private router: Router = inject(Router);
   private routerService: RouterService = inject(RouterService);
 
-  constructor() {}
+  constructor() {
+    super("MenuSideComponent");
+    addIcons({ chevronForwardOutline });
+  }
 
  /**
   * Lifecycle hook that is called after data-bound properties of a directive are initialized.
@@ -59,6 +66,7 @@ export class MenuSideComponent implements OnInit {
   */
   ngOnInit(): void {
     this.handleRouterEvents();
+    this.locale = this.getLocale(this.translatable);
   }
 
   /**

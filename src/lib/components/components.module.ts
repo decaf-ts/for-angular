@@ -20,6 +20,7 @@ import { ModelRendererComponent } from './model-renderer/model-renderer.componen
 import { ContainerComponent } from './container/container.component';
 import { MenuSideComponent } from './menu-side/menu-side.component';
 import { ForAngularModule } from '../for-angular.module';
+import { IconComponent } from './icon/icon.component';
 
 export const IonicFormComponents = [
   IonInput,
@@ -34,7 +35,7 @@ export const IonicFormComponents = [
   IonLabel,
   IonRange,
   IonToggle,
-  IonButton
+  IonButton,
 ];
 
 const Components = [
@@ -43,11 +44,12 @@ const Components = [
   ModelRendererComponent,
   ContainerComponent,
   MenuSideComponent,
+  IconComponent
 ];
 
 @NgModule({
   imports: Components,
   declarations: [],
-  exports: [... Components, ForAngularModule],
+  exports: [Components, ForAngularModule],
 })
 export class ComponentsModule {}

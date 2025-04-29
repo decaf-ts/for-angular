@@ -3,6 +3,8 @@ import { Color } from '@ionic/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { stringToBoolean } from 'src/lib/helpers/string';
+import * as allIonicons from 'ionicons/icons';
+import { addIcons } from 'ionicons';
 
 @Component({
   selector: 'ngx-decaf-icon',
@@ -38,7 +40,9 @@ export class IconComponent implements OnInit {
   type: 'image' | 'ionic' | 'tabler' = 'ionic';
 
 
-  constructor() { }
+  constructor() {
+    addIcons(allIonicons);
+  }
 
   /**
   * Lifecycle hook that is called after data-bound properties of a directive are initialized.

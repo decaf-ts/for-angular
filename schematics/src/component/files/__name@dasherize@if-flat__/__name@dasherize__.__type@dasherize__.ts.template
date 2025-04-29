@@ -1,5 +1,6 @@
 import { Component, OnInit<% if(standalone){ %> <%} %> } from '@angular/core';
 <% if(standalone){ %>import { ForAngularModule } from 'src/lib/for-angular.module';<%} %>
+import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 
 @Component({
   selector: '<%= selector %>',
@@ -9,9 +10,16 @@ import { Component, OnInit<% if(standalone){ %> <%} %> } from '@angular/core';
   standalone: true,
 <%} %>
 })
-export class <%= classify(name) %><%= classify(type) %> implements OnInit {
+export class <%= classify(name) %><%= classify(type) %> extends NgxBaseComponent implements OnInit {
 
-  constructor() { }
+  /**
+   * @constructor
+   * @description Initializes a new instance of the <%= classify(name) %><%= classify(type) %>.
+   * Calls the parent constructor with the component name for generate base locale string.
+   */
+  constructor() {
+    super("<%= classify(name) %><%= classify(type) %>")
+  }
 
   /**
   * Lifecycle hook that is called after data-bound properties of a directive are initialized.
@@ -19,6 +27,8 @@ export class <%= classify(name) %><%= classify(type) %> implements OnInit {
   *
   * @returns {void} This method does not return a value.
   */
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.locale = this.getLocale(this.translatable);
+  }
 
 }

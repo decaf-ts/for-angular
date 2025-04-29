@@ -13,9 +13,13 @@
         @if(item.icon) {
           <ngx-decaf-icon [name]="item.icon" color="gray-7"></ngx-decaf-icon>
         }
-        <ion-label>{{  translatable ? (locale+'.'+item.text.toLowerCase() | translate) : item.text }}</ion-label>
+        <ion-label>{{
+          translatable ?
+            (locale+'.'+item.text.toLowerCase() | translate) : item.text
+          }}
+        </ion-label>
         @if(item?.url) {
-          <ngx-decaf-icon name="ti-chevron-right"></ngx-decaf-icon>
+          <ion-icon aria-hidden="true" slot="end" size="small" name="chevron-forward-outline"></ion-icon>
         }
       </ion-item>
     </ion-menu-toggle>
