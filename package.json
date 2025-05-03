@@ -45,6 +45,7 @@
     "@angular-devkit/schematics": "^18.2.18",
     "@angular/cli": "^18.2.12",
     "@angular/compiler-cli": "^18.2.13",
+    "@compodoc/compodoc": "^1.1.26",
     "@decaf-ts/utils": "^0.2.6",
     "@faker-js/faker": "^9.7.0",
     "@ionic/angular-toolkit": "^12.1.1",
@@ -53,11 +54,19 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.2",
     "@schematics/angular": "^19.2.8",
+    "@storybook/addon-docs": "^8.6.12",
+    "@storybook/addon-essentials": "^8.6.12",
+    "@storybook/addon-interactions": "^8.6.12",
+    "@storybook/addon-onboarding": "^8.6.12",
+    "@storybook/angular": "^8.6.12",
+    "@storybook/blocks": "^8.6.12",
+    "@storybook/test": "^8.6.12",
     "@types/jasmine": "~5.1.0",
     "angular-eslint": "18.4.0",
     "commander": "^13.1.0",
     "dpdm": "^3.14.0",
     "eslint": "^9.13.0",
+    "eslint-plugin-storybook": "^0.12.0",
     "jasmine-core": "~5.2.0",
     "jsdoc": "^4.0.3",
     "jsdoc-mermaid": "^1.0.0",
@@ -72,6 +81,7 @@
     "npm-check-updates": "^17.1.4",
     "rimraf": "^6.0.1",
     "rollup": "^4.40.0",
+    "storybook": "^8.6.12",
     "tslib": "^2.3.0",
     "typescript": "~5.5.2",
     "typescript-eslint": "8.10.0"
@@ -102,5 +112,10 @@
     "rxjs": "~7.8.0",
     "zone.js": "~0.14.10"
   },
-  "schematics": "./schematics/collection.json"
+  "schematics": "./schematics/collection.json",
+  "eslintConfig": {
+    "extends": [
+      "plugin:storybook/recommended"
+    ]
+  }
 }

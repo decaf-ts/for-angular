@@ -14,7 +14,7 @@
         ]
       },
       "schematics": {
-         "@schematics/angular:component": {
+        "@schematics/angular:component": {
           "style": "scss",
           "standalone": true,
           "path": "src/lib/components"
@@ -53,6 +53,36 @@
               "zone.js/testing"
             ]
           }
+        },
+        "storybook": {
+          "builder": "@storybook/angular:start-storybook",
+          "options": {
+            "configDir": "./.storybook",
+            "browserTarget": "for-angular:build",
+            "compodoc": true,
+            "compodocArgs": [
+              "-e",
+              "json",
+              "-d",
+              "."
+            ],
+            "port": 6006
+          }
+        },
+        "build-storybook": {
+          "builder": "@storybook/angular:build-storybook",
+          "options": {
+            "configDir": "./.storybook",
+            "browserTarget": "for-angular:build",
+            "compodoc": true,
+            "compodocArgs": [
+              "-e",
+              "json",
+              "-d",
+              "."
+            ],
+            "outputDir": "dist/storybook/for-angular"
+          }
         }
       }
     },
@@ -72,8 +102,7 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "allowedCommonJsDependencies": [
-            ],
+            "allowedCommonJsDependencies": [],
             "assets": [
               {
                 "glob": "**/*",
@@ -84,7 +113,10 @@
               "src/cli-module.ts",
               "src/lib/**/*"
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": [
+              "src/global.scss",
+              "src/theme/variables.scss"
+            ],
             "serviceWorker": false,
             "ngswConfigPath": "ngsw-config.json"
           },
@@ -163,7 +195,10 @@
               "src/cli-module.ts",
               "src/lib/**/*"
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": [
+              "src/global.scss",
+              "src/theme/variables.scss"
+            ],
             "scripts": []
           },
           "configurations": {
@@ -213,5 +248,4 @@
       "path": "src/app/pipes"
     }
   }
-
 }
