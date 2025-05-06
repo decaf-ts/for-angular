@@ -25,17 +25,20 @@ export function formatDate(date: string | Date | number, locale?: string | undef
   if(!locale)
     locale = getLocaleLanguage();
 
+  if(typeof date === 'string' || typeof date === 'number')
+    date = new Date(typeof date === 'string' ? date.replace(/\//g, '-') : date);
+
   if(!isValidDate(date))
     return `${date}` as string;
 
-  if(typeof date === 'string' || typeof date === 'number')
-    date = new Date(date);
-
-  return date.toLocaleString(locale, {
+  const r = date.toLocaleString(locale, {
       year: "numeric",
       day: "2-digit",
       month: '2-digit'
   });
+
+
+  return r;
 }
 
 /**

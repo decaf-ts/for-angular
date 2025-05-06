@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
+import { ForAngularModule } from 'src/lib/for-angular.module';
 import { ContainerComponent } from './container.component';
 
 describe('ContainerComponent', () => {
@@ -8,7 +9,7 @@ describe('ContainerComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [ContainerComponent],
+      imports: [ForAngularModule, ContainerComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ContainerComponent);

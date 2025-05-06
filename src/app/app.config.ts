@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import '@decaf-ts/ui-decorators';
 
 import { HttpClient, provideHttpClient } from '@angular/common/http';
@@ -22,7 +22,7 @@ export const appConfig: ApplicationConfig = {
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
-    provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
     provideHttpClient(),
     provideTranslateService({
       defaultLanguage: 'en',

@@ -1,5 +1,5 @@
 <ion-header class="" [translucent]="translucent" [class]="className">
-  <div [ngClass]="{'dcf-header-container': center, 'dcf-width-expand': expand}">
+  <div [class]="{'dcf-header-container': center, 'dcf-width-expand': expand}">
     <ion-toolbar [color]="backgroundColor">
       @if(showMenuButton) {
         <ion-buttons [slot]="buttonMenuSlot">
@@ -12,7 +12,7 @@
       } @else {
         @if(showBackButton) {
           <ion-buttons slot="start">
-            <dcf-back-button [link]="backButtonLink" [locale]="locale" [toolbarColor]="backgroundColor"></dcf-back-button>
+            <app-back-button [link]="backButtonLink" [locale]="locale" [toolbarColor]="backgroundColor"></app-back-button>
           </ion-buttons>
         }
       }
@@ -64,7 +64,7 @@
 </ion-header>
 
 <ion-header class="dcf-hidden" [translucent]="true" [ngClass]="className">
-  <div [ngClass]="center ? 'dcf-header-container' : ''">
+  <div [class]="center ? 'dcf-header-container' : ''">
     <ion-toolbar [color]="mobileBackgroundColor">
       @if(showMenuButton) {
         <ion-buttons [slot]="mobileButtonMenuSlot">
@@ -77,7 +77,7 @@
       } @else {
         @if(showBackButton) {
           <ion-buttons slot="start">
-            <dcf-back-button [link]="backButtonLink" color="primary" [locale]="locale"></dcf-back-button>
+            <app-back-button [link]="backButtonLink" color="primary" [locale]="locale"></app-back-button>
           </ion-buttons>
         }
       }

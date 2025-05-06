@@ -15,7 +15,41 @@
         </div>
       </section>
       <ion-content>
-        <ngx-decaf-menu-side translatable="false" [data]="menu" menuId="side-menu"></ngx-decaf-menu-side>
+        <ion-list>
+
+            <!-- <ion-menu-toggle auto-hide="false">
+              <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
+                <ion-icon aria-hidden="true" slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
+                <ion-label>{{ p.title }}</ion-label>
+              </ion-item>
+            </ion-menu-toggle> -->
+
+          @for (item of menu; track item;) {
+            <ion-menu-toggle auto-hide="false">
+              <ion-item
+                [ngClass]="{'dcf-separator': !item.url, 'dcf-active ': currentUrl === item?.url}"
+                button="true"
+                detail="true"
+                routerDirection="root"
+                [routerLink]="[item.url]"
+                lines="none"
+                detail="false"
+              >
+                @if(item.icon) {
+                  <ngx-decaf-icon [name]="item.icon" color="gray-7"></ngx-decaf-icon>
+                }
+                <ion-label>{{
+                  translatable ?
+                    (locale+'.'+item.text.toLowerCase() | translate) : item.text
+                  }}
+                </ion-label>
+                @if(item?.url) {
+                  <ion-icon aria-hidden="true" slot="end" size="small" name="chevron-forward-outline"></ion-icon>
+                }
+              </ion-item>
+            </ion-menu-toggle>
+          }
+        </ion-list>
       </ion-content>
     </ion-menu>
 

@@ -7,7 +7,7 @@ import {
 import { Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
 
-import { ComponentsModule, ionicComponents } from '../../../lib/components/components.module';
+import { ComponentsModule, ionicComponents } from '../../../lib/components/for-angular-components.module';
 
 
 @Component({

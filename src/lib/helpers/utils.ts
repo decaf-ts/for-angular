@@ -135,7 +135,7 @@ export function generateLocaleFromString(
  */
 export function getLocaleLanguage(): string {
   const win = getWindow();
-  return 'en';
+  return win.navigator.language || "em";
   // return win?.[WINDOW_KEYS.LANGUAGE_SELECTED] || (win.navigator.language || '').split('-')[0] || "en";
 }
 

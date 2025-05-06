@@ -55,6 +55,13 @@ textarea {
   }
 }
 
+.dcf-hidden {
+  display: none !important;
+}
+
+.dcf-invisible {
+  visibility: hidden;
+}
 
 .dcf-disabled {
   opacity: 0.7;

@@ -1,5 +1,5 @@
 @if(operation !== 'read') {
-  <form #reactiveForm [id]="rendererId" [formGroup]="formGroup" (submit)="submit($event)" [target]="target">
+  <form #reactiveForm [id]="rendererId" [formGroup]="formGroup" (submit)="submit($event)" novalidate [target]="target">
     <ng-content #formContent></ng-content>
     <div class="dcf-flex dcf-flex-right">
       <div>
@@ -37,9 +37,5 @@
       </div>
     </div>
   </form>
-} @else {
-  <ion-list>
-    <ng-content></ng-content>
-  </ion-list>
 }
 

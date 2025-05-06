@@ -91,19 +91,6 @@
           </ion-select>
         </ion-item>
       }
-      @else if(type === 'date') {
-        <ion-item>
-          <ion-label>{{label | translate}}</ion-label>
-          <ion-datetime
-            [mode]="mode"
-            [hidden]="hidden !== undefined ? hidden : null"
-            [required]="required !== undefined ? required : null"
-            [min]="min"
-            [max]="max"
-            [value]="value"
-            [displayFormat]="displayFormat" />
-        </ion-item>
-      }
       @else {
         <ion-input
           [type]="type"
@@ -125,6 +112,7 @@
           [fill]="fill"
           [placeholder]="placeholder | translate"
           [formControlName]="name"
+          [displayFormat]="type === 'date' ? displayFormat : ''"
           [label]="label | translate">
         </ion-input>
       }

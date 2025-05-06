@@ -15,7 +15,7 @@ import {
 import { uielement, uimodel } from '@decaf-ts/ui-decorators';
 import { OtherModel } from 'src/app/models/OtherModel';
 
-@uimodel('ngx-decaf-crud-form', {'test': 'aaaaaaaaaaaaaaaaaa'})
+@uimodel('ngx-decaf-crud-form')
 @model()
 export class ForAngularModel extends Model {
   @id()
@@ -32,11 +32,20 @@ export class ForAngularModel extends Model {
     placeholder: 'demo.name.placeholder',
   })
   name!: string;
-  //
-  // @date('yyyy/MM/dd')
-  // @required()
-  // @uielement('ngx-decaf-crud-field', { label: 'demo.birthdate.label' })
-  // birthdate!: Date;
+
+  @required()
+  @minlength(5)
+  @maxlength(6)
+  @uielement('ngx-decaf-crud-field', {
+    label: 'demo.slug.label',
+    placeholder: 'demo.slug.placeholder',
+  })
+  slug!: string;
+
+  @date('yyyy/MM/dd')
+  @required()
+  @uielement('ngx-decaf-crud-field', { label: 'demo.birthdate.label', format: 'YYYY-MM-DD' })
+  birthdate!: Date;
 
   @required()
   @email()

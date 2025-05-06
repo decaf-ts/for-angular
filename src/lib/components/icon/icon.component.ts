@@ -10,7 +10,6 @@ import { addIcons } from 'ionicons';
   selector: 'ngx-decaf-icon',
   templateUrl: './icon.component.html',
   styleUrls: ['./icon.component.scss'],
-  imports: [ForAngularModule],
   standalone: true,
 
 })

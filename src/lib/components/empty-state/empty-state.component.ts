@@ -11,7 +11,6 @@ import { RouterService } from 'src/lib/services/router.service';
   selector: 'ngx-decaf-empty-state',
   templateUrl: './empty-state.component.html',
   styleUrls: ['./empty-state.component.scss'],
-  imports: [ForAngularModule],
   standalone: true,
 
 })
@@ -74,7 +73,7 @@ export class EmptyStateComponent implements OnInit {
   *
   * @returns {void} This method does not return a value.
   */
-  ngOnInit() {
+  ngOnInit(): void {
     this.translatable = stringToBoolean(this.translatable);
     this.showIcon = stringToBoolean(this.showIcon);
 

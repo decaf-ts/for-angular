@@ -24,7 +24,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { ComponentsModule } from '../../../lib/components/components.module';
+import { ComponentsModule } from '../../../lib/components/for-angular-components.module';
 
 @Component({
   standalone: true,

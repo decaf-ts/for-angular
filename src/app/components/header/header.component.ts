@@ -1,17 +1,19 @@
-import { Component,  ElementRef,  EventEmitter, HostListener, inject, Input, OnInit, Output, ViewChild  } from '@angular/core';
+import { Component,  CUSTOM_ELEMENTS_SCHEMA, inject, Input, OnInit } from '@angular/core';
 import { Color } from '@ionic/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
-import { ForAngularModule } from 'src/lib/for-angular.module';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { MenuController } from '@ionic/angular/standalone';
+import { IonHeader, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
 import { RouterService } from 'src/lib/services/router.service';
 import { stringToBoolean } from 'src/lib/helpers/string';
+import { ForAngularModule } from 'src/lib/for-angular.module';
+import { BackButtonComponent } from '../back-button/back-button.component';
 
 @Component({
-  selector: 'ngx-decaf-header',
+  selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
-  imports: [ForAngularModule],
+  imports: [ForAngularModule, IonHeader, IonTitle, IonToolbar, BackButtonComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   standalone: true,
 
 })
@@ -60,7 +62,7 @@ export class HeaderComponent implements OnInit {
   border: StringOrBoolean = true;
 
   @Input()
-  showBackButton: boolean | 'true' | 'false' = false;
+  showBackButton: StringOrBoolean = false;
 
   @Input()
   backButtonLink?: string | Function;
@@ -104,6 +106,8 @@ export class HeaderComponent implements OnInit {
       this.className += ` ${this.backgroundColor}`;
     if(!this.border)
       this.className += ` ion-no-border`;
+
+    console.log(this.title);
   }
 
   async changeOperation(operation: string, id?: string): Promise<boolean> {

@@ -75,6 +75,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
 
       vcr.clear();
       const template = vcr.createEmbeddedView(tpl, injector).rootNodes;
+
       const componentInstance = vcr.createComponent(component as Type<unknown>, {
         environmentInjector: injector as EnvironmentInjector,
         projectableNodes: [template]

@@ -10,7 +10,6 @@ import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
   selector: 'ngx-decaf-searchbar',
   templateUrl: './searchbar.component.html',
   styleUrls: ['./searchbar.component.scss'],
-  imports: [ForAngularModule],
   standalone: true,
 
 })

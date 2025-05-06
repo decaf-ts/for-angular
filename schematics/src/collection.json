@@ -10,6 +10,11 @@
       "factory": "./component/index",
       "description": "Create an Decaf Angular component.",
       "schema": "./component/schema.json"
+    },
+    "page": {
+      "factory": "../../node_modules/@ionic/angular-toolkit/page/index",
+      "description": "Create an Decaf Ioinc Standalone page",
+      "schema": "./page/schema.json"
     }
   }
 }

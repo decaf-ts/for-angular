@@ -14,7 +14,6 @@ import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
   selector: 'ngx-decaf-list-infinite',
   templateUrl: './list-infinite.component.html',
   styleUrls: ['./list-infinite.component.scss'],
-  imports: [ForAngularModule],
   standalone: true,
 
 })

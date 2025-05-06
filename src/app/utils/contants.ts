@@ -7,9 +7,15 @@ export const Menu: MenuItem[] = [
     accessRole: []
   },
   {
-    text: 'View',
-    url: 'dashboard',
+    text: 'Read',
+    url: '/crud/read',
   },
-
-
+  {
+    text: 'Create / Update',
+    url: '/crud/create',
+  },
+  // {
+  //   text: 'Delete',
+  //   url: 'crud/delete',
+  // },
 ];

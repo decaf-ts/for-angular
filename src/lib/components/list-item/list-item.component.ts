@@ -11,7 +11,6 @@ import { RouterService } from 'src/lib/services/router.service';
   selector: 'ngx-decaf-list-item',
   templateUrl: './list-item.component.html',
   styleUrls: ['./list-item.component.scss'],
-  imports: [ForAngularModule],
   standalone: true,
 
 })
@@ -76,7 +75,7 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
   windowWidth!: number;
 
   private routerService: RouterService = inject(RouterService);
-  constructor() { 
+  constructor() {
     super("ListItemComponent");
   }
 

@@ -92,7 +92,6 @@ export class CrudFormComponent
 
     if (!this.formGroup.valid)
       return NgxFormService.validateFields(this.formGroup);
-    console.log('onSubmit');
 
     // fix para valores de campos radio e check
     const data = NgxFormService.getFormData(this.rendererId);
