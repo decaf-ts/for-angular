@@ -2,22 +2,28 @@ import { Component, inject, Input, OnInit  } from '@angular/core';
 import { Color, PredefinedColors } from '@ionic/core';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { StringOrBoolean } from 'src/lib/engine/types';
-import { generateLocaleFromString, getLocaleFromClassName } from 'src/lib/helpers/utils';
+import { generateLocaleFromString } from 'src/lib/helpers/utils';
 import { stringToBoolean } from 'src/lib/helpers/string';
 import { RouteDirections } from 'src/lib/engine';
 import { RouterService } from 'src/lib/services/router.service';
+import { IonCard, IonCardContent, IonIcon, IonTitle } from '@ionic/angular/standalone';
+import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 
 @Component({
   selector: 'ngx-decaf-empty-state',
   templateUrl: './empty-state.component.html',
   styleUrls: ['./empty-state.component.scss'],
   standalone: true,
+  imports: [
+    ForAngularModule,
+    IonCard,
+    IonCardContent,
+    IonTitle,
+    IonIcon
+  ]
 
 })
-export class EmptyStateComponent implements OnInit {
-
-  @Input()
-  locale: string = getLocaleFromClassName('EmptyStateComponent');
+export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
 
   @Input()
   title: string = "title";
@@ -58,14 +64,12 @@ export class EmptyStateComponent implements OnInit {
   @Input()
   buttonSize: 'large' | 'small' | 'default' =  'default';
 
-  @Input()
-  className?: string;
 
-  @Input()
-  translatable: StringOrBoolean = true;
 
   private routerService: RouterService = inject(RouterService);
-  constructor() { }
+  constructor() {
+    super("EmptyStateComponent");
+  }
 
   /**
   * Lifecycle hook that is called after data-bound properties of a directive are initialized.
@@ -76,7 +80,7 @@ export class EmptyStateComponent implements OnInit {
   ngOnInit(): void {
     this.translatable = stringToBoolean(this.translatable);
     this.showIcon = stringToBoolean(this.showIcon);
-
+    this.locale = this.getLocale(this.translatable);
     if(this.translatable) {
       this.title = generateLocaleFromString(this.locale, this.title);
       this.subtitle = generateLocaleFromString(this.locale, this.subtitle);

@@ -1,0 +1,40 @@
+.dcf-menu {
+  padding: 0px;
+
+  ion-item {
+    cursor: pointer;
+    --border-radius: 8px;
+    margin-bottom: .25rem;
+
+    .icon{
+      margin-right: .5rem;
+      // transform: translateY(px);
+    }
+
+    &.dcf-active,
+    &:hover {
+      --background: rgba(var(--ion-color-primary-rgb), 0.14);
+      color: var(--ion-color-primary) !important;
+      --color: var(--ion-color-primary) !important;
+      --color-focused:  var(--ion-color-primary) !important;
+      --color-hover:  var(--ion-color-primary) !important;
+      --color-activated:  var(--ion-color-primary) !important;
+      .ti,
+      ion-icon,
+      aeon-icon {
+        color: var(--ion-color-primary) !important;
+      }
+    }
+  }
+
+
+
+  ion-list-header,
+  .dcf-separator {
+    color: var(--ion-color-gray8) !important;
+    font-weight: 600;
+    font-size: 1rem;
+    pointer-events: none;
+    cursor: text;
+  }
+}

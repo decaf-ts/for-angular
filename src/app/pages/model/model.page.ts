@@ -6,15 +6,14 @@ import {
 } from '@decaf-ts/db-decorators';
 import { Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
-
-import { ComponentsModule, ionicComponents } from '../../../lib/components/for-angular-components.module';
-
+import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
+import { ComponentsModule } from 'src/app/components/components.module';
 
 @Component({
   standalone: true,
   selector: 'app-model',
   templateUrl: './model.page.html',
-   imports: [ComponentsModule, ...ionicComponents],
+  imports: [ForAngularComponentsModule, ComponentsModule],
   styleUrls: ['./model.page.scss'],
 })
 export class ModelPageComponent implements OnInit {

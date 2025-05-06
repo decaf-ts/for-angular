@@ -19,7 +19,10 @@ import { stringToBoolean } from 'src/lib/helpers/string';
  * @class NgxBaseComponent
  * @memberOf module:DecafEngine
  */
-@Component({standalone: true, template: ""})
+@Component({
+  standalone: true,
+  template: ""
+})
 export abstract class NgxBaseComponent {
 
   /**
@@ -90,7 +93,7 @@ export abstract class NgxBaseComponent {
    * @memberOf NgxBaseComponent
    */
   @Input()
-  mode: "ios" | "md" | undefined = "ios";
+  mode: "ios" | "md" | undefined = "md";
 
   /**
    * @description The locale derived from the component's class name.

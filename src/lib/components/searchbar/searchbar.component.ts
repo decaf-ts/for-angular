@@ -5,12 +5,14 @@ import {generateRandomValue, windowEventEmitter} from 'src/lib/helpers/utils';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { stringToBoolean } from 'src/lib/helpers/string';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+import { IonSearchbar } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'ngx-decaf-searchbar',
   templateUrl: './searchbar.component.html',
   styleUrls: ['./searchbar.component.scss'],
   standalone: true,
+  imports: [ForAngularModule, IonSearchbar]
 
 })
 export class SearchbarComponent extends NgxBaseComponent implements OnInit {
@@ -40,7 +42,7 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
   color: string | undefined = undefined;
 
   @Input()
-  debounce: number = 250;
+  debounce: number = 500;
 
   @Input()
   disabled: StringOrBoolean = false;
@@ -67,7 +69,14 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
   spellcheck: boolean = false;
 
   @Input()
-  type: "number" | "text" | "search" | "email" | "password" | "tel" | "url" | undefined = "search";
+  type: "number"
+  | "text"
+  | "search"
+  | "email"
+  | "password"
+  | "tel"
+  | "url"
+  | undefined = "search";
 
   @Input()
   value: null | string | undefined = "";

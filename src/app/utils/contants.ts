@@ -1,10 +1,8 @@
-import { MenuItem } from "src/lib/engine";
-
+import { MenuItem } from "./types";
 export const Menu: MenuItem[] = [
   {
-    text: 'crud',
-    icon: 'ti-table-plus',
-    accessRole: []
+    text: 'Crud',
+    icon: 'save-outline',
   },
   {
     text: 'Read',
@@ -14,8 +12,17 @@ export const Menu: MenuItem[] = [
     text: 'Create / Update',
     url: '/crud/create',
   },
-  // {
-  //   text: 'Delete',
-  //   url: 'crud/delete',
-  // },
+  {
+    text: 'Lists',
+    icon: 'list-outline',
+  },
+  {
+    text: 'Infinte',
+    url: '/list/infinite',
+  },
+  {
+    text: 'Paginated',
+    url: '/list/paginated',
+  }
 ];
+

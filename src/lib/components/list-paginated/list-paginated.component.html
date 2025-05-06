@@ -1,0 +1,106 @@
+@if(showRefresher) {
+  <ion-refresher slot="fixed" [pullFactor]="1" [pullMin]="100" [pullMax]="200" (ionRefresh)="forceRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+}
+
+@if(showSearchbar) {
+  <ngx-decaf-searchbar
+    [emitEventToWindow]="false"
+    (searchEvent)="handleSearch($event)"
+    >
+  </ngx-decaf-searchbar>
+}
+
+@if(data?.length) {
+  <ion-list [inset]="inset" [lines]="lines">
+    @if(listItem?.render) {
+      @for(item of items; track item) {
+        <aeon-list-item
+          [locale]="locale"
+          [mapper]="listItem?.mapper"
+          [icon]="item?.['icon']"
+          [iconSlot]="item?.['iconSlot'] || 'start'"
+          [modelOperations]="item?.['modelOperations']"
+          [modelPk]="item?.['modelPk']"
+          [modelPage]="item?.['modelPage']"
+          [modelId]="item?.['modelId']"
+          [title]="item?.['title']"
+          [subtitle]="item?.['subtitle']"
+          [info]="item?.['info']"
+          [subinfo]="item?.['subinfo']"
+          [translateProps]="item?.['translateProps']"
+          (clickEvent)="handleItemAction($event)"
+        ></aeon-list-item>
+      }
+    } @else {
+      <ng-content></ng-content>
+    }
+  </ion-list>
+  @if(pages > 0 && loadMoreData) {
+    <div class="dcf-flex dcf-flex-center">
+      <div class="dcf-width-1-1">
+        <div class="dcf-pagination-resume" [innerHTML]="paginationResume"></div>
+        <ul #paginationComponent class="dcf-pagination aeon-pagination dcf-flex-center">
+          <li
+            aria-label="previous"
+            tabindex="0"
+            (click)="getPreviousPage()"
+            (keydown.enter)="getPreviousPage()" [ngClass]="{'dcf-disabled': currentPage === 1}">
+            <ion-icon name="chevron-back-outline" aria-hidden="true"></ion-icon>
+          </li>
+          @for(page of paginationPages; track page['index']) {
+            <li tabindex="0" (click)="getPage(page['index'])"
+              (keydown.enter)="getPage(page['index'])"
+              [ngClass]="{'dcf-active': currentPage === page['index'], 'dcf-disabled': page['index'] === null}">
+              <span class="page-item">{{ page['text'] }}</span>
+            </li>
+          }
+          <li
+            tabindex="0" (click)="getNextPage()"
+            (keydown.enter)="getNextPage()"
+            [ngClass]="{'dcf-disabled': currentPage === pages}">
+            <ion-icon name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+          </li>
+        </ul>
+      </div>
+    </div>
+    @if(!searchValue?.length) {
+      <ion-loading [isOpen]="refreshing" [message]="translatable ? (locale+'.loading' | translate) : 'Loading'"></ion-loading>
+    }
+  }
+} @else {
+  @if(refreshing) {
+    <!-- <ion-spinner name="loadingSpinner"></ion-spinner> -->
+    <ion-item lines="none" *ngFor="let skl of skeletonData">
+      <ion-thumbnail slot="start">
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </ion-thumbnail>
+      <ion-label>
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+        <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
+      </ion-label>
+    </ion-item>
+  } @else {
+    @if(!searchValue?.length) {
+      <ngx-decaf-empty-state
+        [locale]="locale"
+        [title]="emptyTitle"
+        [subtitle]="emptySubtitle"
+        [icon]="emptyIcon"
+        [buttonText]="emptyButtonText"
+        [buttonLink]="emptyButtonLink">
+      </ngx-decaf-empty-state>
+    } @else {
+      <ngx-decaf-empty-state
+        icon="search-outline"
+        ngClass="empty-search"
+        [translatable]="false"
+        [title]="searchEmptyTitle"
+        [subtitle]="searchEmptySubtitle">
+      </ngx-decaf-empty-state>
+    }
+
+  }
+
+}

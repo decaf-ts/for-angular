@@ -30,7 +30,6 @@ export function formatDate(date: string | Date | number, locale?: string | undef
 
   if(!isValidDate(date))
     return `${date}` as string;
-
   const r = date.toLocaleString(locale, {
       year: "numeric",
       day: "2-digit",

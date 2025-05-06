@@ -106,8 +106,6 @@ export class HeaderComponent implements OnInit {
       this.className += ` ${this.backgroundColor}`;
     if(!this.border)
       this.className += ` ion-no-border`;
-
-    console.log(this.title);
   }
 
   async changeOperation(operation: string, id?: string): Promise<boolean> {
@@ -122,6 +120,4 @@ export class HeaderComponent implements OnInit {
       return false;
     return this.crudOperations.includes(operation as CrudOperations) && (this.currentOperation !== OperationKeys.CREATE && this.currentOperation.toLowerCase() !== operation);
   }
-
-
 }

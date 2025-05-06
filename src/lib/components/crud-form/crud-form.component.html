@@ -14,7 +14,7 @@
     <!--            [disabled]="buttons?.clear?.disabled || false"-->
     <!--            expand="block"-->
             @if(options.buttons.clear?.icon) {
-              <ion-icon [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
+              <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
             }
             {{options.buttons.clear?.text}}
           </ion-button>
@@ -30,7 +30,7 @@
       <!--      expand="block"-->
       <!--      [disabled]="disableSubmitButtonWhenInvalid ? !form.valid : false"-->
           @if(options.buttons.submit.icon) {
-            <ion-icon [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
+            <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
           }
           {{options.buttons.submit.text}}
         </ion-button>

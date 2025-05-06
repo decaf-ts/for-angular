@@ -10,10 +10,9 @@
             class="button-icon"
             (click)="modelOperations?.includes('read') ? handleAction('read',  lineElement.el) : ''"
             >
-              <ngx-decaf-icon [name]="icon" slot="icon-only" [size]="iconSize" />
+            <ion-icon aria-hidden="true" name="reader-outline" color="primary" size="default"></ion-icon>
           </ion-button>
         </div>
-
       }
       <div class="dcf-width-expand">
         <div class="dcf-flex dcf-flex-middle dcf-grid-collapse" dcf-grid>
@@ -31,7 +30,8 @@
               <div
                 class="item-subtitle"
                 [ngClass]="subtitleClassName"
-                [innerHTML]="subtitle"></div>
+                [innerHTML]="subtitle">
+              </div>
             }
           </div>
           @if(info || subinfo) {
@@ -92,6 +92,5 @@
         }
       </ion-item-options>
     }
-
   </ion-item-sliding>
 }

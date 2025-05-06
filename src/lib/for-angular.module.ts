@@ -6,10 +6,11 @@ import {
   IonSplitPane,
   IonImg,
   IonContent,
-  IonMenu,
   IonText,
   IonButton,
-  IonRouterLink } from '@ionic/angular/standalone';
+  IonRouterLink,
+  IonTitle
+} from '@ionic/angular/standalone';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 
@@ -19,6 +20,7 @@ const ComponentsAndModules = [
   IonSplitPane,
   IonImg,
   IonText,
+  IonTitle,
   IonButton,
   IonRouterLink,
   IonContent,

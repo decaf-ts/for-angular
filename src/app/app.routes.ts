@@ -22,5 +22,13 @@ export const routes: Routes = [
   {
     path: 'crud/:operation',
     loadComponent: () => import('./pages/crud/crud.page').then( m => m.CrudPage)
+  },
+  {
+    path: 'list',
+    loadComponent: () => import('./pages/list/list.page').then( m => m.ListPage)
+  },
+  {
+    path: 'list/:type',
+    loadComponent: () => import('./pages/list/list.page').then( m => m.ListPage)
   }
 ];

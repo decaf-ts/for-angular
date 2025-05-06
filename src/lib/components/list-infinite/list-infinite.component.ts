@@ -1,13 +1,18 @@
 import { Component, OnInit, EventEmitter, Output, Input, HostListener  } from '@angular/core';
-import { InfiniteScrollCustomEvent, SpinnerTypes } from '@ionic/angular';
+import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
+import { IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonRefresher, IonSkeletonText, IonText, IonThumbnail } from '@ionic/angular/standalone';
+
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { IListComponentRefreshEvent, IListInfiteItemProps, IListItemComponent, KeyValue, ListItemActionEvent, StringOrBoolean } from 'src/lib/engine/types';
-import { getLocaleFromClassName } from 'src/lib/helpers/utils';
+import { getInjectablesRegistry, getLocaleFromClassName } from 'src/lib/helpers/utils';
 import { stringToBoolean } from 'src/lib/helpers/string';
 import { EventConstants} from 'src/lib/engine/constants';
-import { arrayQueryByString, arraySortByDate } from 'src/lib/helpers/array';
+import { arrayQueryByString, arraySortByDate, itemMapper } from 'src/lib/helpers/array';
 import { consoleError, consoleWarn } from 'src/lib/helpers/logging';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+import { SearchbarComponent } from '../searchbar/searchbar.component';
+import { EmptyStateComponent } from '../empty-state/empty-state.component';
 // import { RequestService } from 'src/lib/services/request.service';
 
 @Component({
@@ -15,13 +20,22 @@ import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
   templateUrl: './list-infinite.component.html',
   styleUrls: ['./list-infinite.component.scss'],
   standalone: true,
+  imports: [
+      ForAngularModule,
+      IonRefresher,
+      IonList,
+      IonItem,
+      IonLabel,
+      IonText,
+      IonInfiniteScroll,
+      IonInfiniteScrollContent,
+      IonThumbnail,
+      IonSkeletonText,
+      SearchbarComponent,
+      EmptyStateComponent]
 
 })
-export class ListInfiniteComponent implements OnInit {
-
-
-  @Input()
-  locale: string = getLocaleFromClassName('ListInfiniteComponent');
+export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
 
   /**
    * The name of the manager to be used
@@ -84,7 +98,7 @@ export class ListInfiniteComponent implements OnInit {
    * Enable / Disable scrool to load more items
    */
   @Input()
-  enableScroll: boolean | 'true' | 'false' = true
+  loadMoreData: boolean | 'true' | 'false' = true
 
   /**
    * Style of list items
@@ -131,8 +145,11 @@ export class ListInfiniteComponent implements OnInit {
   @Input()
   loadingSpinner: SpinnerTypes = "circular";
 
-  @Input({alias: "query"})
-  query?: string | KeyValue = undefined;
+  @Input()
+  query?: string | KeyValue;
+
+  @Input()
+  sort?: string | KeyValue;
 
   @Input()
   emptyTitle: string = "empty.title";
@@ -154,8 +171,6 @@ export class ListInfiniteComponent implements OnInit {
 
   currentPage: number = 1;
 
-  paginationPages!: KeyValue[];
-
   pages!: number;
 
   refreshing: boolean = false;
@@ -176,13 +191,16 @@ export class ListInfiniteComponent implements OnInit {
 
   hasScroll: boolean = true;
 
+
   @Output()
   refreshEvent = new EventEmitter<KeyValue[]>();
 
   @Output()
   itemClickEvent = new EventEmitter<KeyValue>();
 
-  constructor() {}
+  constructor() {
+    super("ListComponent");
+  }
 
 
   /**
@@ -198,14 +216,12 @@ export class ListInfiniteComponent implements OnInit {
     this.itemProps.render = stringToBoolean(this.itemProps.render);
     this.showRefresher = stringToBoolean(this.showRefresher);
     this.emptyButtonShow = stringToBoolean(this.emptyButtonShow);
-    this.enableScroll = stringToBoolean(this.enableScroll);
+    this.loadMoreData = stringToBoolean(this.loadMoreData);
     this.showSearchbar = stringToBoolean(this.showSearchbar);
-
     this.hasScroll = this.showSearchbar;
-
+    this.locale = this.getLocale(this.translatable);
     // this.searchEmptyTitle = await this.localeService.get(`${this.locale}.search.title`);
     // this.searchEmptySubtitle = await this.localeService.get(`${this.locale}.search.subtitle`);
-
     this.refresh();
   }
 
@@ -215,7 +231,7 @@ export class ListInfiniteComponent implements OnInit {
  }
 
 
- private async refreshEventEmit(data: KeyValue[]) {
+ protected async refreshEventEmit(data: KeyValue[]) {
    this.skeletonData = new Array(data?.length || 2);
    if(!this.itemProps.render)
      this.refreshEvent.emit(data);
@@ -232,14 +248,14 @@ export class ListInfiniteComponent implements OnInit {
  }
 
  @HostListener('window:BackButtonNavigationEndEvent', ['$event'])
- async refresh(force: CustomEvent | boolean = false): Promise<any> {
+ async refresh(event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false): Promise<void> {
    const self = this;
 
-   if(typeof force !== 'boolean' && force.type === EventConstants.BACK_BUTTON_NAVIGATION) {
-     const {refresh} = (force as CustomEvent).detail;
-     if(!refresh)
-       return false;
-   }
+  //  if(typeof force !== 'boolean' && force.type === EventConstants.BACK_BUTTON_NAVIGATION) {
+  //    const {refresh} = (force as CustomEvent).detail;
+  //    if(!refresh)
+  //      return false;
+  //  }
 
    self.refreshing = true;
 
@@ -247,24 +263,24 @@ export class ListInfiniteComponent implements OnInit {
    let limit: number = (self.currentPage * (self.limit > 12 ? 12 : self.limit));
 
    if(!this.manager) {
-     await self.getFromRequest(!!force, start, limit);
+     await self.getFromRequest(!!event, start, limit);
    } else {
      // self.refreshManager();
-     await self.getFromManager(!!force, start, limit);
+     await self.getFromManager(!!event, start, limit);
    }
-   if(self.currentPage === self.pages) {
-     if((force as InfiniteScrollCustomEvent)?.target)
-       (force as InfiniteScrollCustomEvent).target.complete();
-     return self.enableScroll = false;
-   }
-   self.currentPage += 1;
 
-   this.refreshing = false;
-   return setTimeout(() => {
-       if((force as InfiniteScrollCustomEvent)?.target && (force as CustomEvent)?.type !== EventConstants.BACK_BUTTON_NAVIGATION)
-         (force as InfiniteScrollCustomEvent).target.complete();
-   }, 100);
-
+   if(this.currentPage === this.pages) {
+    if((event as InfiniteScrollCustomEvent)?.target)
+      (event as InfiniteScrollCustomEvent).target.complete();
+    this.loadMoreData = false;
+  } else {
+    this.currentPage += 1;
+    this.refreshing = false;
+    setTimeout(() => {
+        if((event as InfiniteScrollCustomEvent)?.target && (event as CustomEvent)?.type !== EventConstants.BACK_BUTTON_NAVIGATION)
+          (event as InfiniteScrollCustomEvent).target.complete();
+    }, 100);
+  }
  }
 
  async forceRefresh(event?: InfiniteScrollCustomEvent): Promise<void> {
@@ -277,138 +293,151 @@ export class ListInfiniteComponent implements OnInit {
 
  @HostListener('window:searchbarEvent', ['$event'])
  async handleSearch(value: string | undefined) {
-   const self = this;
-   self.searchValue = value;
-   await self.refresh(true);
+  if(value === undefined)
+    this.data = [];
+  console.log('Search:', value);
+   this.searchValue = value;
+   await this.refresh(true);
  }
 
- async parseSearchResults(results: IListItemComponent[], search: string) {
+  async parseSearchResults(results: IListItemComponent[], search: string) {
+   results = [... arrayQueryByString(results || [], search)];
    if(!results?.length) {
+    this.searchEmptyTitle = "No results found";
+    this.searchEmptySubtitle = `You searched for <strong>"${search}"</strong>`;
     //  this.searchEmptyTitle = await this.localeService.get(`${this.locale}.search.title`);
     //  this.searchEmptySubtitle = await this.localeService.get(`${this.locale}.search.subtitle`, {value: search});
    }
-   return [... arrayQueryByString(results || [], search)];
+   return results;
 
  }
  async getFromRequest(force: boolean = false, start: number, limit: number) {
    const self = this;
    let request: any = [];
-   if(!self.data?.length && !!self.source || force) {
+   if(!self.data?.length && !!self.source || force || self.searchValue?.length) {
      // (self.data as ListItem[]) = [];
+     if(!self.searchValue?.length) {
+      if(!self.source && !self.data?.length)
+        return consoleWarn(this, 'No data and source passed to infinite list');
 
-     if(!self.source && !self.data?.length)
-       return consoleWarn(this, 'No data and source passed to infinite list');
+      //  if(typeof self.source === 'string')
+      //    request = await this.requestService.prepare(self.source as string);
+      if(self.source instanceof Function)
+        request = await self.source();
 
-    //  if(typeof self.source === 'string')
-    //    request = await this.requestService.prepare(self.source as string);
-     if(self.source instanceof Function)
-       request = await self.source();
+      if(!!request && !Array.isArray(request))
+        request = request?.response?.data || request?.results || [];
 
-     if(!!request && !Array.isArray(request))
-       request = request?.response?.data || request?.results || [];
+      request = arraySortByDate(request);
 
-     request = arraySortByDate(request);
+      self.getPages(request?.length || 0);
+      if(!!self.itemProps?.mapper)
+        request = self.itemsMapper(request as KeyValue[]);
+      self.data = (self.data || []).concat(...request);
 
-     self.getPages(request?.length || 0);
-     if(!!self.itemProps?.mapper)
-       request = self.itemsMapper(request as KeyValue[]);
+      if(self.data?.length)
+        self.items = (self.items || []).concat([...self.data.slice(start, limit)]);
+    } else {
+
+      self.data = await self.parseSearchResults(self.data as [], self.searchValue as string);
+      self.items = self.data;
+    }
    }
 
-   self.data = (self.data || []).concat(...request);
-
-   if(self.data?.length)
-     self.items = (self.items || []).concat([...self.data.slice(start, limit)]);
-   self.refreshEventEmit(self.items);
+   await self.refreshEventEmit(self.items);
  }
 
 
  async getFromManager(force: boolean = false, start: number, limit: number): Promise<any>{
-   const self = this;
-   let result = [];
-   if(!self.data?.length || force) {
-     (self.data as KeyValue[]) = [];
-     try {
-      //  if(typeof self.manager === 'string')
-      //    self.manager = injectableRegistry.get(self.manager);
+  const self = this;
+    self.items = [];
 
-       const pk = self.manager?.pk || self.modelPk;
-       const table = self.manager?.table || self.manager?.clazz()?.__modelDefinition?.class  || self.manager?.clazz()?.constructor?.name;
-       const query = !!self.query ?
-       typeof self.query === 'string' ? JSON.parse(self.query) : self.query : {};
+    if(!self.data?.length || force || self.searchValue?.length) {
+      try {
+        let request: any;
 
-       const raw = {
-         selector: Object.assign({}, {
-           [pk]: {"$gt": null},
-           "?table": table
-         }, query)
-       };
+        if(!self.searchValue?.length) {
+          (self.data as KeyValue[]) = [];
 
-       // if(limit!== 0) {
-       //     rawQuery['skip']  = start;
-       //     rawQuery['limit'] = limit;
-       // }
+          if(typeof self.manager === 'string')
+            self.manager = getInjectablesRegistry().get(self.manager);
 
-       result = await self.manager.raw(raw as any);
-       result = arraySortByDate(result || []);
+          const pk = self.manager?.pk || self.modelPk;
+          const table = self.manager?.table || self.manager?.clazz()?.__modelDefinition?.class  || self.manager?.constructor?.name;
+          const query = !!self.query ?
+            typeof self.query === 'string' ? JSON.parse(self.query) : self.query : {};
+          const raw = {
+            selector: Object.assign({}, {
+              [pk]: {"$gt": null},
+              "?table": table
+            }, query)
+          };
 
-       self.getPages(result?.length || 0);
-       if(!!self.itemProps?.mapper)
-         result = self.itemsMapper(result as KeyValue[]);
+          // if(limit!== 0) {
+          //     raw['skip']  = start;
+          //     raw['limit'] = limit;
+          // }
 
-     } catch(e) {
-       consoleError(this, `Unable to find ${self.manager} on registry. Return empty array from component`);
-     }
-   }
+          request = await self.manager.raw(raw as unknown);
+          request = arraySortByDate(request || []);
+          this.getPages(request?.length || 0);
+          if(!!self.itemProps?.mapper)
+            request = self.itemsMapper(request as KeyValue[]);
 
-   self.data = (self.data || []).concat(...result);
-   if(self.data?.length)
-     self.items = (self.items || []).concat([...self.data.slice(start, limit)]);
+        } else {
+          request = await self.parseSearchResults(self.data as [], self.searchValue as string);
+        }
 
-   self.refreshEventEmit(self.items);
+        self.data = [...request];
+
+      } catch(e) {
+        consoleError(this, `Unable to find ${self.manager} on registry. Return empty array from component`);
+      }
+    }
+
+    if(self.data?.length) {
+      if(self.searchValue) {
+        self.items = [...self.data];
+        if(self.items?.length <= self.limit)
+          self.loadMoreData = false;
+      } else {
+        self.items = [...self.data.slice(start, limit)];
+      }
+    }
+
+    self.refreshEventEmit(self.items);
  }
 
 
  getPages(resultsLength: number) {
    if(resultsLength <= this.limit)
-     return this.enableScroll = false;
+     return this.loadMoreData = false;
 
    this.pages = Math.floor(resultsLength / this.limit);
    if((this.pages * this.limit) < resultsLength)
      this.pages += 1;
 
    if(this.pages === 1)
-     this.enableScroll = false;
+     this.loadMoreData = false;
  }
 
 
- itemsMapper<T>(data: any[]) {
-   const self = this;
-   if(!data || !data.length)
-       return [];
+  itemsMapper(data: KeyValue[]): KeyValue[] {
+    if(!data || !data.length)
+      return [];
 
-   self.itemProps.mapper = Object.assign({}, {modelId: self.itemProps.modelId || this.modelPk}, self.itemProps.mapper);
-
-   const props = Object.assign({}, {
-     modelPk: self.modelPk,
-     modelOperations: self.modelOperations || [],
-     modelPage: self.modelPage || '',
-     translateProps: self.itemProps?.['translateProps'] || []
-   })
-
-   function mapItem(item: KeyValue) {
-     let option: KeyValue = {};
-     Object.entries(self.itemProps.mapper as KeyValue).forEach(([key, value]) => option[key] = !!item[value] ? item[value] : value);
-     return option as any;
-   }
-
-   return data.reduce((accum: T[], curr) => {
-     let item = mapItem(curr) as T;
-     if(props)
-       item = Object.assign({}, props, item);
-     accum.push(item);
-     return accum;
-   }, []);
- }
+    this.itemProps.mapper = Object.assign({}, {modelId: this.itemProps.modelId || 'id'}, this.itemProps.mapper);
+    const props = Object.assign({}, {
+      modelPk: this.modelPk,
+      modelOperations: this.modelOperations || [],
+      modelPage: this.modelPage || '',
+      translateProps: this.itemProps?.['translateProps'] || []
+    });
+    return data.reduce((accum: KeyValue[], curr) => {
+        accum.push(itemMapper(curr, this.itemProps.mapper as KeyValue, props));
+        return accum;
+    }, []);
+  }
 
 }
 

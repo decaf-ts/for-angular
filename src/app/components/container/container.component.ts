@@ -3,6 +3,7 @@ import { MenuController } from '@ionic/angular/standalone';
 import { ElementSizes, FlexPositions, StringOrBoolean } from 'src/lib/engine/types';
 import { stringToBoolean } from 'src/lib/helpers/string';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
 
 /**
  * @description A flexible container component for layout management.
@@ -27,6 +28,7 @@ import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
   templateUrl: './container.component.html',
   styleUrls: ['./container.component.scss'],
   standalone: true,
+  imports: [ForAngularComponentsModule]
 })
 export class ContainerComponent extends NgxBaseComponent implements OnInit {
 

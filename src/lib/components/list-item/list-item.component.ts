@@ -38,15 +38,6 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
   button: StringOrBoolean = true;
 
   @Input()
-  icon?: string;
-
-  @Input()
-  iconSlot?: 'start' | 'end' = 'start';
-
-  @Input()
-  iconSize?: 'large' | 'small' | 'default' = 'default';
-
-  @Input()
   title?: string;
 
   @Input()

@@ -1,25 +1,68 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
-    </ion-buttons>
-    <ion-title>Decaf for Angular</ion-title>
-    <ion-text>Model rendering made easy. Forever...</ion-text>
-  </ion-toolbar>
-</ion-header>
+<app-header
+  title="List"
+  center="true"
+  showBackButton="true"
+  color="primary">
+</app-header>
+
 <ion-content [fullscreen]="true">
-  <ion-card class="dcf-card">
-    <ion-card-header>
-      <ion-card-title>
-        Current Operation is {{operation}}
-      </ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      @if(model) {
-        <ngx-decaf-model-renderer [model]="model"></ngx-decaf-model-renderer>
-      } @else {
-        <div>No Model</div>
-      }
-    </ion-card-content>
-  </ion-card>
+   <main class="main">
+    <app-container [hasSideMenu]="true" size="full">
+      <ion-card>
+        <ion-card-content>
+          @if(type === 'infinite') {
+            <ngx-decaf-list-infinite
+              class="aeon-list"
+              lines="none"
+              button="true"
+              [showSearchbar]="true"
+              [showRefresher]="true"
+              [source]="refresh.bind(this)"
+              (refreshEvent)="handleListRefreshEvent($event)"
+              #listComponent
+            >
+            @if(data?.length) {
+              @for(item of data; track item) {
+                <ion-item [button]="true" (click)="handleListItemClick($event, item)">
+                  <ion-icon aria-hidden="true" name="reader-outline" slot="start"></ion-icon>
+                  <ion-label>
+                    <p class="dcf-list-title">{{item.name}}</p>
+                    <p class="dcf-list-description">{{item.occupation}}</p>
+                  </ion-label>
+                  <ion-note slot="end">{{item.birthdate}}</ion-note>
+                </ion-item>
+              }
+            }
+            </ngx-decaf-list-infinite>
+          } @else {
+            <ngx-decaf-list-paginated
+            class="aeon-list"
+            lines="none"
+            button="true"
+            [showPagination]="true"
+            [showSearchbar]="true"
+            [showRefresher]="true"
+            [source]="refresh.bind(this)"
+            (refreshEvent)="handleListRefreshEvent($event)"
+            #listComponent
+          >
+          @if(data?.length) {
+            @for(item of data; track item) {
+              <ion-item [button]="true" (click)="handleListItemClick($event, item)">
+                <ion-icon aria-hidden="true" name="reader-outline" slot="start"></ion-icon>
+                <ion-label>
+                  <p class="dcf-list-title">{{item.name}}</p>
+                  <p class="dcf-list-description">{{item.occupation}}</p>
+                </ion-label>
+                <ion-note slot="end">{{item.birthdate}}</ion-note>
+              </ion-item>
+            }
+          }
+          </ngx-decaf-list-paginated>
+          }
+        </ion-card-content>
+      </ion-card>
+
+    </app-container>
+  </main>
 </ion-content>

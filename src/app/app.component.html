@@ -15,7 +15,7 @@
         </div>
       </section>
       <ion-content>
-        <ion-list>
+        <ion-list class="dcf-menu">
 
             <!-- <ion-menu-toggle auto-hide="false">
               <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
@@ -24,20 +24,22 @@
               </ion-item>
             </ion-menu-toggle> -->
 
-          @for (item of menu; track item;) {
+          @for (item of menu; track item) {
             <ion-menu-toggle auto-hide="false">
               <ion-item
-                [ngClass]="{'dcf-separator': !item.url, 'dcf-active ': currentUrl === item?.url}"
+                [ngClass]="{'dcf-separator': !item.url}"
                 button="true"
                 detail="true"
                 routerDirection="root"
                 [routerLink]="[item.url]"
                 lines="none"
                 detail="false"
+                routerLinkActive="dcf-active"
               >
                 @if(item.icon) {
-                  <ngx-decaf-icon [name]="item.icon" color="gray-7"></ngx-decaf-icon>
+                  <ion-icon aria-hidden="true" class="icon" [name]="item.icon"></ion-icon>
                 }
+
                 <ion-label>{{
                   translatable ?
                     (locale+'.'+item.text.toLowerCase() | translate) : item.text

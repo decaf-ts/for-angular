@@ -2,14 +2,20 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CrudFieldComponent } from './crud-field/crud-field.component';
 import { CrudFormComponent } from './crud-form/crud-form.component';
 import { ModelRendererComponent } from './model-renderer/model-renderer.component';
+import { ListInfiniteComponent } from './list-infinite/list-infinite.component';
 import { ForAngularModule } from '../for-angular.module';
-import { IconComponent } from './icon/icon.component';
+import { SearchbarComponent } from './searchbar/searchbar.component';
+import { ListPaginatedComponent } from './list-paginated/list-paginated.component';
+import { EmptyStateComponent } from './empty-state/empty-state.component';
 
 const Components = [
   CrudFieldComponent,
   CrudFormComponent,
+  EmptyStateComponent,
   ModelRendererComponent,
-  IconComponent
+  ListInfiniteComponent,
+  ListPaginatedComponent,
+  SearchbarComponent
 ];
 
 @NgModule({

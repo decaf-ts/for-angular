@@ -3,11 +3,12 @@
   <ion-card-content>
     @if(icon && showIcon) {
       <div class="dcf-icon-container">
-        <ngx-decaf-icon
-          [name]="icon"
-          [color]="iconColor"
-          [size]="iconSize"
-        />
+        <ion-icon
+          name="alert-circle-outline"
+          size="large"
+          color="danger"
+          >
+        </ion-icon>
       </div>
     }
     @if(title) {

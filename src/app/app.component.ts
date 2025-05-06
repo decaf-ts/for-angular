@@ -1,22 +1,29 @@
-import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { MenuItem, NgxRenderingEngine2 } from '../lib/engine';
-import { Menu } from './utils/contants';
-import { ForAngularModule } from 'src/lib/for-angular.module';
-import { addIcons } from 'ionicons';
-import { chevronForwardOutline } from 'ionicons/icons';
-import { IonApp, IonSplitPane, IonMenu, IonContent, IonList, IonListHeader, IonNote, IonMenuToggle, IonItem, IonIcon, IonLabel, IonRouterOutlet, IonRouterLink } from '@ionic/angular/standalone';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { IonApp,
+  IonSplitPane,
+  IonMenu,
+  IonContent,
+  IonList,
+  IonListHeader,
+  IonMenuToggle,
+  IonItem,
+  IonIcon,
+  IonLabel,
+  IonRouterOutlet,
+  IonRouterLink
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import * as IonicIcons from 'ionicons/icons';
+import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
+import { ForAngularModule } from 'src/lib/for-angular.module';
+import { NgxRenderingEngine2 } from 'src/lib/engine';
+import { Menu } from 'src/app/utils/contants';
+import { MenuItem } from 'src/app/utils/types';
+
+
 try {
-  const engine = new NgxRenderingEngine2();
-  // engine
-  //   .initialize(FieldComponent)
-  //   .then(() => {
-  //     console.debug('Rendering engine initialized');
-  //   })
-  //   .catch((error) => {
-  //     console.error('Error initializing rendering engine:', error);
-  //   });
+  new NgxRenderingEngine2();
   Model.setBuilder(Model.fromModel as ModelBuilderFunction);
 } catch (e: unknown) {
   throw new Error(`Failed to load rendering engine: ${e}`);
@@ -49,19 +56,10 @@ try {
 })
 export class AppComponent {
   title = 'Decaf-ts for-angular demo';
-  public menu: MenuItem[] = Menu;
-
-  public appPages = [
-    { title: 'Inbox', url: '/folder/inbox', icon: 'mail' },
-    { title: 'Outbox', url: '/folder/outbox', icon: 'paper-plane' },
-    { title: 'Favorites', url: '/folder/favorites', icon: 'heart' },
-    { title: 'Archived', url: '/folder/archived', icon: 'archive' },
-    { title: 'Trash', url: '/folder/trash', icon: 'trash' },
-    { title: 'Spam', url: '/folder/spam', icon: 'warning' },
-  ];
+  menu: MenuItem[] = Menu;
 
   constructor() {
-    addIcons({ chevronForwardOutline });
+    addIcons(IonicIcons);
   }
 
 }

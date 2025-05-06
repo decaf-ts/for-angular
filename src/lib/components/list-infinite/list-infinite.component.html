@@ -4,13 +4,27 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 }
+
+@if(showSearchbar) {
+  <ngx-decaf-searchbar
+    [emitEventToWindow]="false"
+    [debounce]="500"
+    (searchEvent)="handleSearch($event)"
+    >
+  </ngx-decaf-searchbar>
+}
+
 @if(data?.length) {
-    <ion-list [inset]="inset" [lines]="lines">
-      @if(listItem?.render) {
+    <ion-list
+      [inset]="inset"
+      [lines]="lines"
+      #component
+    >
+      @if(propsItem?.render) {
         @for(item of items; track item['modelId']) {
           <ngx-decaf-list-item
             [locale]="locale"
-            [mapper]="listItem?.mapper"
+            [mapper]="propsItem?.mapper"
             [icon]="item?.['icon']"
             [iconSlot]="item?.['iconSlot'] || 'start'"
             [modelOperations]="item?.['modelOperations']"
@@ -23,14 +37,16 @@
             [subinfo]="item?.['subinfo']"
             [translateProps]="item?.['translateProps']"
             (clickEvent)="handleItemAction($event)"
+            #component
           />
         }
       } @else {
         <ng-content></ng-content>
       }
     </ion-list>
-    @if(enableScroll) {
+    @if(loadMoreData) {
       <ion-infinite-scroll
+        [class]="searchValue?.length ? 'dcf-hidden' : ''"
         [position]="scrollPosition"
         [threshold]="scrollThreshold"
         (ionInfinite)="forceRefresh($event)">
