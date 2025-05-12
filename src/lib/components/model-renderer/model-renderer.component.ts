@@ -19,7 +19,7 @@ import {
   AngularEngineKeys,
   RenderedModel,
 } from '../../engine';
-import { KeyValue } from 'src/lib/engine/types';
+import { KeyValue, ModelRenderCustomEvent } from 'src/lib/engine/types';
 
 @Component({
   standalone: true,
@@ -102,8 +102,9 @@ export class ModelRendererComponent<M extends Model>
           (self.instance as KeyValue)[key].subscribe((event: CustomEvent) => self.listenEvent.emit({
             detail: {
               component: self.output?.component.name,
-              ...event,
-            }
+              name: key,
+              data: event,
+            } as ModelRenderCustomEvent
         }))
       }
     }

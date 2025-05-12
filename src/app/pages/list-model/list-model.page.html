@@ -7,7 +7,7 @@
 
 <ion-content [fullscreen]="true">
    <main class="main">
-    <app-container [hasSideMenu]="true" size="full">
+    <app-container [hasSideMenu]="true">
       <ion-card>
         <ion-card-content>
           <!-- <ngx-decaf-model-renderer
@@ -24,7 +24,7 @@
               button="true"
               [showSearchbar]="true"
               [showRefresher]="true"
-              [source]="refresh.bind(this)"
+              [manager]="model"
               (refreshEvent)="handleListRefreshEvent($event)"
               #listComponent
             >
@@ -33,7 +33,7 @@
                 <ion-item [button]="true" (click)="handleListItemClick($event, item)">
                   <ion-icon aria-hidden="true" name="reader-outline" slot="start"></ion-icon>
                   <ion-label>
-                    <p class="dcf-list-title">{{item.name}}</p>
+                    <p class="dcf-list-title">{{item.id}} - {{item.name}}</p>
                     <p class="dcf-list-description">{{item.occupation}}</p>
                   </ion-label>
                   <ion-note slot="end">{{item.birthdate}}</ion-note>

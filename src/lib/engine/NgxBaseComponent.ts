@@ -2,6 +2,15 @@ import { Input, Component, Inject, ViewChild, ElementRef } from '@angular/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import { getLocaleFromClassName } from 'src/lib/helpers/utils';
 import { stringToBoolean } from 'src/lib/helpers/string';
+import { Model } from '@decaf-ts/decorator-validation';
+import { Repository } from '@decaf-ts/db-decorators';
+import { Paginatable } from '@decaf-ts/core/lib/interfaces/Paginatable';
+// substituir pelo adequando vindo
+export class PaginatedQuery {
+  page!: number;
+  total!: number;
+  data!: Model[];
+}
 
 /**
  * @description Base component class that provides common functionality for all Decaf components.
@@ -37,6 +46,14 @@ export abstract class NgxBaseComponent {
    */
   @ViewChild('component', { read: ElementRef })
   component!: ElementRef;
+
+
+  @Input()
+  rendererId!: string;
+
+
+  @Input()
+  manager!: Repository<Model> | undefined;
 
   /**
    * @description The locale to be used for translations.

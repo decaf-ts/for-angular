@@ -7,6 +7,7 @@ export const AngularEngineKeys = {
   ECMP: 'ecmp',
   NG_REFLECT: 'ng-reflect-',
   RENDERED: 'rendered-as-',
+  MAPPER: 'mapper',
   RENDERED_ID: 'rendered-as-{0}',
 };
 
@@ -16,7 +17,8 @@ export const FormConstants = {
 };
 
 export enum EventConstants {
-  BACK_BUTTON_NAVIGATION = "BackButtonNavigationEndEvent"
+  BACK_BUTTON_NAVIGATION = "BackButtonNavigationEndEvent",
+  REFRESH_EVENT = "refreshEvent"
 }
 
 export enum LoggerLevels {
@@ -34,4 +36,8 @@ export enum RouteDirections {
   ROOT = "root",
 };
 
+
+export enum ComponentsTagNames {
+  LIST_ITEM = "ngx-decaf-list-item",
+}
 

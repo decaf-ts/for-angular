@@ -5,7 +5,7 @@ import { StringOrBoolean } from 'src/lib/engine/types';
 import { generateLocaleFromString } from 'src/lib/helpers/utils';
 import { stringToBoolean } from 'src/lib/helpers/string';
 import { RouteDirections } from 'src/lib/engine';
-import { RouterService } from 'src/lib/services/router.service';
+import { RouterService } from 'src/app/services/router.service';
 import { IonCard, IonCardContent, IonIcon, IonTitle } from '@ionic/angular/standalone';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 

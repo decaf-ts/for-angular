@@ -30,5 +30,13 @@ export const routes: Routes = [
   {
     path: 'list/:type',
     loadComponent: () => import('./pages/list/list.page').then( m => m.ListPage)
+  },
+  {
+    path: 'list-model',
+    loadComponent: () => import('./pages/list-model/list-model.page').then( m => m.ListModelPage)
+  },
+  {
+    path: 'list-model/:type',
+    loadComponent: () => import('./pages/list-model/list-model.page').then( m => m.ListModelPage)
   }
 ];

@@ -3,18 +3,21 @@ import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@
 import { IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonRefresher, IonSkeletonText, IonText, IonThumbnail } from '@ionic/angular/standalone';
 
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { IListComponentRefreshEvent, IListInfiteItemProps, IListItemComponent, KeyValue, ListItemActionEvent, StringOrBoolean } from 'src/lib/engine/types';
+import { IListComponentRefreshEvent,  IListItemProps, IListItemComponent, KeyValue, ListItemActionEvent, StringOrBoolean } from 'src/lib/engine/types';
 import { getInjectablesRegistry, getLocaleFromClassName } from 'src/lib/helpers/utils';
 import { stringToBoolean } from 'src/lib/helpers/string';
 import { EventConstants} from 'src/lib/engine/constants';
 import { arrayQueryByString, arraySortByDate, itemMapper } from 'src/lib/helpers/array';
 import { consoleError, consoleWarn } from 'src/lib/helpers/logging';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+import { NgxBaseComponent, PaginatedQuery } from 'src/lib/engine/NgxBaseComponent';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
+import { Dynamic } from 'src/lib/engine';
+import { Repository } from '@decaf-ts/db-decorators';
+import { Model } from '@decaf-ts/decorator-validation';
 // import { RequestService } from 'src/lib/services/request.service';
-
+@Dynamic()
 @Component({
   selector: 'ngx-decaf-list-infinite',
   templateUrl: './list-infinite.component.html',
@@ -37,11 +40,6 @@ import { EmptyStateComponent } from '../empty-state/empty-state.component';
 })
 export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
 
-  /**
-   * The name of the manager to be used
-   */
-  @Input()
-  manager?: any;
 
   @Input()
   showSearchbar: StringOrBoolean = false;
@@ -68,7 +66,7 @@ export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
    * Config for list items rendering
    */
   @Input()
-  itemProps: IListInfiteItemProps = {render: false};
+  item: IListItemProps = {render: false};
 
   /**
    * Array with items
@@ -98,7 +96,7 @@ export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
    * Enable / Disable scrool to load more items
    */
   @Input()
-  loadMoreData: boolean | 'true' | 'false' = true
+  loadMoreData: StringOrBoolean = true
 
   /**
    * Style of list items
@@ -191,12 +189,11 @@ export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
 
   hasScroll: boolean = true;
 
-
   @Output()
   refreshEvent = new EventEmitter<KeyValue[]>();
 
   @Output()
-  itemClickEvent = new EventEmitter<KeyValue>();
+  clickEvent = new EventEmitter<KeyValue>();
 
   constructor() {
     super("ListComponent");
@@ -209,11 +206,11 @@ export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
    *
    * @returns {void} This method does not return a value.
    */
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.limit = Number(this.limit);
     this.start = Number(this.start);
     this.inset = stringToBoolean(this.inset);
-    this.itemProps.render = stringToBoolean(this.itemProps.render);
+    this.item.render = stringToBoolean(this.item.render);
     this.showRefresher = stringToBoolean(this.showRefresher);
     this.emptyButtonShow = stringToBoolean(this.emptyButtonShow);
     this.loadMoreData = stringToBoolean(this.loadMoreData);
@@ -222,7 +219,7 @@ export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
     this.locale = this.getLocale(this.translatable);
     // this.searchEmptyTitle = await this.localeService.get(`${this.locale}.search.title`);
     // this.searchEmptySubtitle = await this.localeService.get(`${this.locale}.search.subtitle`);
-    this.refresh();
+    await this.refresh();
   }
 
  ngOnDestroy(): void {
@@ -231,15 +228,18 @@ export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
  }
 
 
- protected async refreshEventEmit(data: KeyValue[]) {
-   this.skeletonData = new Array(data?.length || 2);
-   if(!this.itemProps.render)
-     this.refreshEvent.emit(data);
+ protected refreshEventEmit(data?: KeyValue[]) {
+  if(!data)
+    data = this.items;
+  this.skeletonData = new Array(data?.length || 2);
+  // if(!this.item.render)
+  // console.log(data);
+  this.refreshEvent.emit(data);
  }
 
  async handleItemAction(event: ListItemActionEvent) {
-   if(this.itemProps.render)
-     this.itemClickEvent.emit(event);
+   if(this.item.render)
+     this.clickEvent.emit(event);
  }
 
  async delete(id: string, pk: string) {
@@ -268,6 +268,7 @@ export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
      // self.refreshManager();
      await self.getFromManager(!!event, start, limit);
    }
+   this.refreshEventEmit();
 
    if(this.currentPage === this.pages) {
     if((event as InfiniteScrollCustomEvent)?.target)
@@ -293,9 +294,11 @@ export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
 
  @HostListener('window:searchbarEvent', ['$event'])
  async handleSearch(value: string | undefined) {
-  if(value === undefined)
+  if(value === undefined) {
     this.data = [];
-  console.log('Search:', value);
+    this.loadMoreData = true;
+    this.currentPage = 1;
+  }
    this.searchValue = value;
    await this.refresh(true);
  }
@@ -314,12 +317,15 @@ export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
  async getFromRequest(force: boolean = false, start: number, limit: number) {
    const self = this;
    let request: any = [];
-   if(!self.data?.length && !!self.source || force || self.searchValue?.length) {
+
+   if(self?.data?.length && !force) {
+    self.items = (self.items || []).concat([...self.data.slice(start, limit)]);
+   }
+   else if(!self.data?.length && !!self.source || force || self.searchValue?.length) {
      // (self.data as ListItem[]) = [];
      if(!self.searchValue?.length) {
       if(!self.source && !self.data?.length)
         return consoleWarn(this, 'No data and source passed to infinite list');
-
       //  if(typeof self.source === 'string')
       //    request = await this.requestService.prepare(self.source as string);
       if(self.source instanceof Function)
@@ -328,67 +334,40 @@ export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
       if(!!request && !Array.isArray(request))
         request = request?.response?.data || request?.results || [];
 
-      request = arraySortByDate(request);
-
-      self.getPages(request?.length || 0);
-      if(!!self.itemProps?.mapper)
-        request = self.itemsMapper(request as KeyValue[]);
+      const rawQuery = this.parseQuery(self.manager as Repository<Model>, start, limit);
+      request = this.parseResult(request || []);
       self.data = (self.data || []).concat(...request);
 
       if(self.data?.length)
         self.items = (self.items || []).concat([...self.data.slice(start, limit)]);
     } else {
-
       self.data = await self.parseSearchResults(self.data as [], self.searchValue as string);
       self.items = self.data;
     }
    }
-
-   await self.refreshEventEmit(self.items);
  }
 
 
  async getFromManager(force: boolean = false, start: number, limit: number): Promise<any>{
   const self = this;
     self.items = [];
-
+    let data = [ ... self.data || []];
     if(!self.data?.length || force || self.searchValue?.length) {
       try {
         let request: any;
 
         if(!self.searchValue?.length) {
           (self.data as KeyValue[]) = [];
-
           if(typeof self.manager === 'string')
-            self.manager = getInjectablesRegistry().get(self.manager);
-
-          const pk = self.manager?.pk || self.modelPk;
-          const table = self.manager?.table || self.manager?.clazz()?.__modelDefinition?.class  || self.manager?.constructor?.name;
-          const query = !!self.query ?
-            typeof self.query === 'string' ? JSON.parse(self.query) : self.query : {};
-          const raw = {
-            selector: Object.assign({}, {
-              [pk]: {"$gt": null},
-              "?table": table
-            }, query)
-          };
-
-          // if(limit!== 0) {
-          //     raw['skip']  = start;
-          //     raw['limit'] = limit;
-          // }
-
-          request = await self.manager.raw(raw as unknown);
-          request = arraySortByDate(request || []);
-          this.getPages(request?.length || 0);
-          if(!!self.itemProps?.mapper)
-            request = self.itemsMapper(request as KeyValue[]);
-
+            self.manager = getInjectablesRegistry().get(self.manager) as Repository<Model>;
+          const rawQuery = this.parseQuery(self.manager as Repository<Model>, start, limit);
+          request = this.parseResult(await (self.manager as any)?.query(start, limit));
         } else {
-          request = await self.parseSearchResults(self.data as [], self.searchValue as string);
+          request = await self.parseSearchResults(self.data || [], self.searchValue as string);
+          data = [];
         }
 
-        self.data = [...request];
+        self.data = [... (data).concat(...request)];
 
       } catch(e) {
         consoleError(this, `Unable to find ${self.manager} on registry. Return empty array from component`);
@@ -401,22 +380,51 @@ export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
         if(self.items?.length <= self.limit)
           self.loadMoreData = false;
       } else {
-        self.items = [...self.data.slice(start, limit)];
+        self.items = [...self.data];
       }
     }
-
-    self.refreshEventEmit(self.items);
  }
 
+
+ protected parseQuery(manager: Repository<Model>, start: number, limit: number): KeyValue {
+  const pk = this.manager?.pk || this.modelPk;
+  const table = this.manager?.class || this.manager?.constructor?.name;
+  const query = !!this.query ?
+    typeof this.query === 'string' ? JSON.parse(this.query) : this.query : {};
+  const rawQuery: KeyValue = {
+    selector: Object.assign({}, {
+      [pk]: {"$gt": null},
+      "?table": table
+    }, query)
+  };
+
+  if(limit!== 0) {
+    rawQuery['skip']  = start;
+    rawQuery['limit'] = limit;
+  }
+
+  return rawQuery;
+ }
+
+ protected parseResult(result: KeyValue[] | PaginatedQuery): KeyValue[] {
+  if(!Array.isArray(result) && ('page' in result && 'data' in result)) {
+    const {total, data } = result;
+    this.getPages(total);
+    result = data;
+  } else {
+    this.getPages((result as KeyValue[])?.length || 0);
+  }
+  if(!!this.item?.mapper)
+    result = this.itemsMapper(result as KeyValue[]);
+  return result as  KeyValue[];
+ }
 
  getPages(resultsLength: number) {
    if(resultsLength <= this.limit)
      return this.loadMoreData = false;
-
    this.pages = Math.floor(resultsLength / this.limit);
    if((this.pages * this.limit) < resultsLength)
      this.pages += 1;
-
    if(this.pages === 1)
      this.loadMoreData = false;
  }
@@ -426,15 +434,15 @@ export class ListInfiniteComponent extends NgxBaseComponent implements OnInit {
     if(!data || !data.length)
       return [];
 
-    this.itemProps.mapper = Object.assign({}, {modelId: this.itemProps.modelId || 'id'}, this.itemProps.mapper);
+    this.item.mapper = Object.assign({}, {modelId: this.item.modelId || 'id'}, this.item.mapper);
     const props = Object.assign({}, {
       modelPk: this.modelPk,
       modelOperations: this.modelOperations || [],
       modelPage: this.modelPage || '',
-      translateProps: this.itemProps?.['translateProps'] || []
+      translateProps: this.item?.['translateProps'] || []
     });
     return data.reduce((accum: KeyValue[], curr) => {
-        accum.push(itemMapper(curr, this.itemProps.mapper as KeyValue, props));
+        accum.push(itemMapper(curr, this.item.mapper as KeyValue, props));
         return accum;
     }, []);
   }

@@ -9,18 +9,18 @@ import {
   EnvironmentInjector,
   inject,
   Injector,
+  input,
   reflectComponentType,
   TemplateRef,
   Type,
   ViewContainerRef,
 } from '@angular/core';
 import { getLocaleFromClassName } from '../helpers/utils';
-
 export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition, AngularDynamicOutput> {
 
   private static _components: Record<string, { constructor: Constructor<unknown> }>;
 
-  private componentName!: string;
+  private _componentName!: string;
 
   constructor() {
     super('angular');
@@ -35,28 +35,29 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     const component = NgxRenderingEngine2.components(fieldDef.tag)
       .constructor as unknown as Type<unknown>;
 
-
+    this._componentName = component.name;
     const componentMetadata = reflectComponentType(component);
     if (!componentMetadata) {
       throw new InternalError(
         `Metadata for component ${fieldDef.tag} not found.`,
       );
     }
-
     const possibleInputs = componentMetadata.inputs;
     const inputs = fieldDef.props;
     const inputKeys = Object.keys(inputs);
-
-    for (let input of possibleInputs) {
-      const index = inputKeys.indexOf(input.propName);
-      if (index !== -1)
-        inputKeys.splice(index, 1);
-      if (!inputKeys.length) break;
+    const unmappedKeys = [];
+    for(let input of inputKeys) {
+      if (!inputKeys.length)
+        break;
+      const prop = possibleInputs.find((item: {propName: string}) => item.propName === input);
+      if(!prop) {
+         delete inputs[input];
+         unmappedKeys.push(input);
+      }
     }
-
-    if (inputKeys.length)
+    if (unmappedKeys.length)
       console.warn(
-        `Unmapped input properties for component ${fieldDef.tag}: ${inputKeys.join(', ')}`,
+        `Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`,
       );
 
     const result: AngularDynamicOutput = {
@@ -70,8 +71,11 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
 
     if (fieldDef.children && fieldDef.children.length) {
       result.children = fieldDef.children.map((child) => {
-        return this.fromFieldDefinition(child, vcr, injector, tpl);
+        const childInstance = this.fromFieldDefinition(child, vcr, injector, tpl);
+        // console.log(childInstance);
+        return childInstance;
       });
+
 
       vcr.clear();
       const template = vcr.createEmbeddedView(tpl, injector).rootNodes;
@@ -80,7 +84,6 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
         environmentInjector: injector as EnvironmentInjector,
         projectableNodes: [template]
       });
-      this.componentName = component.name;
       this.setInputs(componentInstance as ComponentRef<unknown>, inputs, componentMetadata)
       result.content = [template];
       result.instance = componentInstance.instance as Type<unknown>;
@@ -144,11 +147,14 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       });
     }
     Object.entries(inputs).forEach(([key, value]) => {
-      if(key === 'props')
-        parseInputValue(component, value);
-      if(key === 'locale' && !value)
-        value = getLocaleFromClassName(this.componentName);
-      component.setInput(key, value);
+      const prop = metadata.inputs.find((item: {propName: string}) => item.propName === key);
+      if(prop) {
+        if(key === 'props')
+          parseInputValue(component, value);
+        if(key === 'locale' && !value)
+          value = getLocaleFromClassName(this._componentName);
+        component.setInput(key, value);
+      }
     });
   }
 }
