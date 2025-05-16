@@ -11,10 +11,11 @@ import {
   password,
   list,
   maxlength,
+  eq,
 } from '@decaf-ts/decorator-validation';
 import { uielement, uimodel } from '@decaf-ts/ui-decorators';
 
-@uimodel('ngx-decaf-crud-form', {'test': 'asdf'})
+@uimodel('ngx-decaf-crud-form', { test: 'asdf' })
 @model()
 export class ForAngularModel extends Model {
   @id()
@@ -43,7 +44,10 @@ export class ForAngularModel extends Model {
 
   @date('yyyy/MM/dd')
   @required()
-  @uielement('ngx-decaf-crud-field', { label: 'demo.birthdate.label', format: 'YYYY-MM-DD' })
+  @uielement('ngx-decaf-crud-field', {
+    label: 'demo.birthdate.label',
+    format: 'YYYY-MM-DD',
+  })
   birthdate!: Date;
 
   @required()
@@ -62,6 +66,12 @@ export class ForAngularModel extends Model {
   @password()
   @uielement('ngx-decaf-crud-field', { label: 'demo.password.label' })
   password!: string;
+
+  @required()
+  @password()
+  @eq('password')
+  @uielement('ngx-decaf-crud-field', { label: 'demo.confirmPassword.label' })
+  confirmPassword!: string;
 
   // @list(OtherModel)
   // @minlength(1)

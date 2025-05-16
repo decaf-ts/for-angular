@@ -13,6 +13,7 @@ import { ControlValueAccessor, FormGroup } from '@angular/forms';
 import { ElementRef } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
+import { AngularEngineKeys } from './constants';
 
 /**
  * @class NgxCrudFormField
@@ -63,6 +64,9 @@ export abstract class NgxCrudFormField
   step?: number;
 
   value!: string | number | Date;
+
+  protected constructor(protected elementRef: ElementRef) {}
+
   /**
    * @summary Parent HTML element
    * @description Reference to the parent HTML element of the field
@@ -175,7 +179,16 @@ export abstract class NgxCrudFormField
    * @param {FieldUpdateMode} updateOn - The update mode for the field
    */
   onInit(updateOn: FieldUpdateMode): void {
-    this.formGroup = NgxFormService.fromProps(this, updateOn);
+    const parent = NgxFormService.getParentEl(
+      this.elementRef?.nativeElement,
+      'div'
+    );
+
+    let rendererId = parent.id;
+    if (rendererId.includes(AngularEngineKeys.RENDERED))
+      rendererId = rendererId.split(AngularEngineKeys.RENDERED)[1];
+
+    this.formGroup = NgxFormService.fromProps(this, updateOn, rendererId);
   }
 
   /**

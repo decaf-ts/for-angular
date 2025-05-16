@@ -22,7 +22,6 @@ import {
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import {
   IonCheckbox,
-  IonDatetime,
   IonInput,
   IonItem,
   IonLabel,
@@ -31,13 +30,7 @@ import {
   IonSelect,
   IonSelectOption,
   IonTextarea,
-  IonRange,
-  IonToggle,
-  IonButton,
-  IonDatetimeButton,
 } from '@ionic/angular/standalone';
-
-
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -84,12 +77,7 @@ import {
     IonSelect,
     IonSelectOption,
     IonTextarea,
-    IonDatetime,
     IonLabel,
-    IonRange,
-    IonToggle,
-    IonButton,
-    IonDatetimeButton
   ],
   selector: 'ngx-decaf-crud-field',
   templateUrl: './crud-field.component.html',
@@ -99,6 +87,10 @@ export class CrudFieldComponent
   extends NgxCrudFormField
   implements OnInit, OnDestroy, AfterViewInit
 {
+  constructor(protected override elementRef: ElementRef) {
+    super(elementRef);
+  }
+
   /**
    * @description The CRUD operation being performed.
    * @summary Specifies which CRUD operation (Create, Read, Update, Delete) the field is being used for.
@@ -455,7 +447,8 @@ export class CrudFieldComponent
    * @memberOf CrudFieldComponent
    */
   @Input()
-  labelPlacement: 'start' | 'end' | 'floating' | 'stacked' | 'fixed' = 'floating';
+  labelPlacement: 'start' | 'end' | 'floating' | 'stacked' | 'fixed' =
+    'floating';
 
   /**
    * @description Update mode for the field.

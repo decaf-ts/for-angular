@@ -173,7 +173,8 @@ export class NgxFormService {
    */
   static fromProps(
     props: FieldProperties,
-    updateMode: FieldUpdateMode
+    updateMode: FieldUpdateMode,
+    rendererId: string
   ): FormGroup {
     const controls: Record<string, FormControl> = {};
     const validators = this.validatorsFromProps(props);
@@ -278,8 +279,7 @@ export class NgxFormService {
    * @param field - Optional. The specific field to unregister. If not provided, the entire form is unregistered.
    */
   static unregister(formId: string, field?: HTMLElement) {
-    if (!field)
-      delete this.controls[formId];
+    if (!field) delete this.controls[formId];
     else
       delete this.controls[formId][(field as unknown as { name: string }).name];
   }
