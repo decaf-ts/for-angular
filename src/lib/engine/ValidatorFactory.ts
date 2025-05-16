@@ -1,54 +1,27 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import {
-  Validation,
-  ValidationKeys,
-  Validator,
-} from '@decaf-ts/decorator-validation';
-import {
-  FieldProperties,
-  parseValueByType,
-  RenderingEngine,
-  HTML5InputTypes
-} from '@decaf-ts/ui-decorators';
-import { ReservedModels } from '@decaf-ts/decorator-validation';
+import { Validation, Validator } from '@decaf-ts/decorator-validation';
+import { FieldProperties, parseValueByType } from '@decaf-ts/ui-decorators';
 
 export class ValidatorFactory {
   static spawn(fieldProps: FieldProperties, key: string): ValidatorFn {
-    if (!Validation.keys().includes(key))
-      throw new Error('Unsupported custom validation');
-    const arg = fieldProps[key as keyof FieldProperties];
-    const type = fieldProps.type;
-    /**
-     * TODO: This is only needed until the validator refacture
-     * @param arg
-     */
-    const parseArgs = (arg: unknown) => {
-      switch (key) {
-        case ValidationKeys.REQUIRED:
-        case ValidationKeys.EMAIL:
-        case ValidationKeys.URL:
-        case ValidationKeys.PASSWORD:
-          return [];
-        case ValidationKeys.TYPE:
-          arg = RenderingEngine.get().translate(arg as string, false);
-      }
-      return [arg];
-    };
+    if (!Validation.keys().includes(key)) throw new Error('Unsupported custom validation');
 
-    const validatorFn: ValidatorFn = (
-      control: AbstractControl,
-    ): ValidationErrors | null => {
+    const type = fieldProps.type;
+
+    const validatorFn: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
       const validator = Validation.get(key) as Validator;
 
       const value =
-        typeof control.value !== 'undefined'
-          ? parseValueByType(type, control.value, fieldProps)
-          : undefined;
-      const actualArg = parseArgs(arg);
+        typeof control.value !== 'undefined' ? parseValueByType(type, control.value, fieldProps) : undefined;
+
+      // arg = RenderingEngine.get().translate(arg as string, false);
+      // const actualArg = parseArgs(arg);
 
       let errs;
       try {
-        errs = validator.hasErrors(value, { message: '', ...actualArg });
+        errs = validator.hasErrors(value, {
+          [key]: fieldProps[key as keyof FieldProperties],
+        });
       } catch (e: unknown) {
         console.warn(`${key} validator failed to validate: ${e}`);
       }
