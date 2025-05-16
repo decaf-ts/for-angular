@@ -42,7 +42,7 @@ export type AngularDynamicOutput = {
   injector?: Injector;
   content?: Node[][];
   children?: AngularDynamicOutput[];
-  instance?:  Type<unknown>
+  instance?: Type<unknown>;
 };
 
 export interface RenderedModel {
@@ -137,14 +137,20 @@ export interface IListComponentRefreshEvent {
   data: KeyValue[];
 }
 
+export type FormServiceControl = {
+  control: FormGroup;
+  props: AngularFieldDefinition;
+};
+
 export type FormServiceControls = Record<
   string,
-  Record<string, { control: FormGroup; props: AngularFieldDefinition }>
+  Record<string, FormServiceControl>
 >;
-
 
 export interface ModelRenderCustomEvent {
   data: unknown;
   name: string;
   component: string;
 }
+
+export type FormFieldValueGetter<T> = (fieldName: string) => T | undefined;
