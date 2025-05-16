@@ -1,14 +1,6 @@
 import { FieldProperties, RenderingError } from '@decaf-ts/ui-decorators';
-import {
-  AngularFieldDefinition,
-  FieldUpdateMode,
-  PossibleInputTypes,
-} from './types';
-import {
-  CrudOperations,
-  InternalError,
-  OperationKeys,
-} from '@decaf-ts/db-decorators';
+import { AngularFieldDefinition, FieldUpdateMode, PossibleInputTypes } from './types';
+import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormGroup } from '@angular/forms';
 import { ElementRef } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
@@ -23,9 +15,7 @@ import { AngularEngineKeys } from './constants';
  * @description This class provides the base implementation for CRUD form fields in Angular,
  * implementing both CrudFormField and ControlValueAccessor interfaces.
  */
-export abstract class NgxCrudFormField
-  implements ControlValueAccessor, FieldProperties
-{
+export abstract class NgxCrudFormField implements ControlValueAccessor, FieldProperties {
   /**
    * @summary Reference to the component's element
    * @description ElementRef representing the component's native element
@@ -62,6 +52,12 @@ export abstract class NgxCrudFormField
   readonly?: boolean;
   required?: boolean;
   step?: number;
+  equals?: string;
+  different?: string;
+  lessThan?: string;
+  lessThanOrEqual?: string;
+  greaterThan?: string;
+  greaterThanOrEqual?: string;
 
   value!: string | number | Date;
 
@@ -144,20 +140,13 @@ export abstract class NgxCrudFormField
       case OperationKeys.UPDATE:
       case OperationKeys.DELETE:
         try {
-          parent = NgxFormService.getParentEl(
-            this.component.nativeElement,
-            'div'
-          );
+          parent = NgxFormService.getParentEl(this.component.nativeElement, 'div');
         } catch (e: unknown) {
           throw new RenderingError(
             `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`
           );
         }
-        NgxFormService.register(
-          parent.id,
-          this.formGroup,
-          this as AngularFieldDefinition
-        );
+        NgxFormService.register(parent.id, this.formGroup, this as AngularFieldDefinition);
         return parent;
       default:
         throw new InternalError(`Invalid operation: ${this.operation}`);
@@ -169,8 +158,7 @@ export abstract class NgxCrudFormField
    * @description Unregisters the field when the component is destroyed
    */
   onDestroy(): void {
-    if (this.parent)
-      NgxFormService.unregister(this.parent.id, this.component.nativeElement);
+    if (this.parent) NgxFormService.unregister(this.parent.id, this.component.nativeElement);
   }
 
   /**
@@ -179,14 +167,10 @@ export abstract class NgxCrudFormField
    * @param {FieldUpdateMode} updateOn - The update mode for the field
    */
   onInit(updateOn: FieldUpdateMode): void {
-    const parent = NgxFormService.getParentEl(
-      this.elementRef?.nativeElement,
-      'div'
-    );
+    const parent = NgxFormService.getParentEl(this.elementRef?.nativeElement, 'div');
 
     let rendererId = parent.id;
-    if (rendererId.includes(AngularEngineKeys.RENDERED))
-      rendererId = rendererId.split(AngularEngineKeys.RENDERED)[1];
+    if (rendererId.includes(AngularEngineKeys.RENDERED)) rendererId = rendererId.split(AngularEngineKeys.RENDERED)[1];
 
     this.formGroup = NgxFormService.fromProps(this, updateOn, rendererId);
   }
@@ -199,11 +183,9 @@ export abstract class NgxCrudFormField
   getErrors(): { key: string; message: string }[] {
     return Object.entries(this.formGroup.controls).reduce(
       (accum: { key: string; message: string }[], [prop, control]) => {
-        Object.entries(control.errors as Record<string, unknown>).forEach(
-          ([k, c]) => {
-            accum.push({ key: k, message: k });
-          }
-        );
+        Object.entries(control.errors as Record<string, unknown>).forEach(([k, c]) => {
+          accum.push({ key: k, message: k });
+        });
         return accum;
       },
       []

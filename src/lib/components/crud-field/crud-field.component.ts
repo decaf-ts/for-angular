@@ -283,6 +283,54 @@ export class CrudFieldComponent
   override step?: number;
 
   /**
+   * @description Field name for equals comparison.
+   * @type {string}
+   * @memberOf CrudFieldComponent
+   */
+  @Input()
+  override equals?: string;
+
+  /**
+   * @description Field name for different comparison.
+   * @type {string}
+   * @memberOf CrudFieldComponent
+   */
+  @Input()
+  override different?: string;
+
+  /**
+   * @description Field name for less than comparison.
+   * @type {string}
+   * @memberOf CrudFieldComponent
+   */
+  @Input()
+  override lessThan?: string;
+
+  /**
+   * @description Field name for less than or equal comparison.
+   * @type {string}
+   * @memberOf CrudFieldComponent
+   */
+  @Input()
+  override lessThanOrEqual?: string;
+
+  /**
+   * @description Field name for greater than comparison.
+   * @type {string}
+   * @memberOf CrudFieldComponent
+   */
+  @Input()
+  override greaterThan?: string;
+
+  /**
+   * @description Field name for greater than or equal comparison.
+   * @type {string}
+   * @memberOf CrudFieldComponent
+   */
+  @Input()
+  override greaterThanOrEqual?: string;
+
+  /**
    * @description Number of columns for textarea inputs.
    * @summary For textarea inputs, this sets the visible width of the text area in average character widths.
    * This is used alongside rows to define the dimensions of the textarea.
