@@ -1,5 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { Validation, Validator } from '@decaf-ts/decorator-validation';
+import { ComparisonValidationKeys, Validation, Validator } from '@decaf-ts/decorator-validation';
 import { FieldProperties, parseValueByType } from '@decaf-ts/ui-decorators';
 import { NgxFormService } from './NgxFormService';
 
@@ -19,9 +19,11 @@ export class ValidatorFactory {
       // const actualArg = parseArgs(arg);
 
       let formData = {};
-      try {
-        formData = NgxFormService.getFormData(formId);
-      } catch (e: any) {
+      if (Object.values(ComparisonValidationKeys).includes(key as any)) {
+        try {
+          formData = NgxFormService.getFormData(formId);
+        } catch (e: any) {
+        }
       }
 
       let errs;
