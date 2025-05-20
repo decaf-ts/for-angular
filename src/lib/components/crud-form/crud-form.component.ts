@@ -33,8 +33,7 @@ import { ForAngularModule } from 'src/lib/for-angular.module';
   imports: [ForAngularModule],
 })
 export class CrudFormComponent
-  implements OnInit, AfterViewInit, FormElement, OnDestroy, RenderedModel
-{
+  implements OnInit, AfterViewInit, FormElement, OnDestroy, RenderedModel {
   @Input()
   updateOn: FieldUpdateMode = 'change';
 
@@ -66,7 +65,7 @@ export class CrudFormComponent
   submitEvent = new EventEmitter<FormReactiveSubmitEvent>();
 
   ngAfterViewInit() {
-    if(this.operation !== OperationKeys.READ)
+    if (this.operation !== OperationKeys.READ)
       NgxFormService.formAfterViewInit(this, this.rendererId);
   }
 
@@ -90,15 +89,12 @@ export class CrudFormComponent
     event.stopImmediatePropagation();
     event.stopPropagation();
 
-    if (!this.formGroup.valid)
-      return NgxFormService.validateFields(this.formGroup);
+    const isValid = NgxFormService.validateFields(this.formGroup);
+    if (!isValid)
+      return false;
 
-    // fix para valores de campos radio e check
     const data = NgxFormService.getFormData(this.rendererId);
-
-    const submitEvent: FormReactiveSubmitEvent = {
-      data: data,
-    };
+    const submitEvent: FormReactiveSubmitEvent = { data };
 
     if (this.action)
       return this.component.nativeElement.dispatchEvent(

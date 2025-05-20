@@ -143,6 +143,7 @@ export class NgxFormService {
       if (control instanceof FormControl) {
         control.markAsTouched();
         control.markAsDirty();
+        control.updateValueAndValidity({ emitEvent: true });
         return !control.invalid;
       } else {
         throw new Error('This should be impossible');
