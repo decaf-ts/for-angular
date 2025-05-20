@@ -34,10 +34,8 @@ export class ValidatorFactory {
       } catch (e: unknown) {
         console.warn(`${key} validator failed to validate: ${e}`);
       }
-      if (!errs) return null;
-      const result: Record<string, boolean> = {};
-      result[key] = true;
-      return result;
+
+      return errs ? { [key]: true } : null;
     };
 
     Object.defineProperty(validatorFn, 'name', {
