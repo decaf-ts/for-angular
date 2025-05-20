@@ -1,9 +1,10 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Validation, Validator } from '@decaf-ts/decorator-validation';
 import { FieldProperties, parseValueByType } from '@decaf-ts/ui-decorators';
+import { NgxFormService } from './NgxFormService';
 
 export class ValidatorFactory {
-  static spawn(fieldProps: FieldProperties, key: string): ValidatorFn {
+  static spawn(fieldProps: FieldProperties, key: string, formId: string): ValidatorFn {
     if (!Validation.keys().includes(key)) throw new Error('Unsupported custom validation');
 
     const type = fieldProps.type;
@@ -17,11 +18,17 @@ export class ValidatorFactory {
       // arg = RenderingEngine.get().translate(arg as string, false);
       // const actualArg = parseArgs(arg);
 
+      let formData = {};
+      try {
+        formData = NgxFormService.getFormData(formId);
+      } catch (e: any) {
+      }
+
       let errs;
       try {
         errs = validator.hasErrors(value, {
           [key]: fieldProps[key as keyof FieldProperties],
-        });
+        }, formData);
       } catch (e: unknown) {
         console.warn(`${key} validator failed to validate: ${e}`);
       }

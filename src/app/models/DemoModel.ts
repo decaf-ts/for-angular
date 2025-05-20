@@ -69,7 +69,6 @@ export class ForAngularModel extends Model {
 
   @required()
   @password()
-  // @eq('password')
   @eq('password')
   @uielement('ngx-decaf-crud-field', { label: 'demo.confirmPassword.label' })
   confirmPassword!: string;

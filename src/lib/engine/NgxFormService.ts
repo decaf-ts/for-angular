@@ -175,10 +175,10 @@ export class NgxFormService {
   static fromProps(
     props: FieldProperties,
     updateMode: FieldUpdateMode,
-    rendererId: string
+    formId: string
   ): FormGroup {
     const controls: Record<string, FormControl> = {};
-    const validators = this.validatorsFromProps(props);
+    const validators = this.validatorsFromProps(formId, props);
     const composed = validators.length ? Validators.compose(validators) : null;
     controls[props.name] = new FormControl(
       {
@@ -228,12 +228,12 @@ export class NgxFormService {
    * @param props - The field properties containing validation rules.
    * @returns An array of ValidatorFn instances.
    */
-  private static validatorsFromProps(props: FieldProperties): ValidatorFn[] {
+  private static validatorsFromProps(formId: string, props: FieldProperties): ValidatorFn[] {
     const supportedValidationKeys = Validation.keys();
     return Object.keys(props)
       .filter((k: string) => supportedValidationKeys.includes(k))
       .map((k: string) => {
-        return ValidatorFactory.spawn(props, k);
+        return ValidatorFactory.spawn(props, k, formId);
       });
   }
 
