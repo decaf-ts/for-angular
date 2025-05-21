@@ -10,13 +10,14 @@ import { EventConstants } from 'src/lib/engine';
 import { ListPaginatedComponent } from 'src/lib/components/list-paginated/list-paginated.component';
 
 @Component({
-  selector: 'app-list',
-  templateUrl: './list.page.html',
-  styleUrls: ['./list.page.css'],
+  selector: 'app-list-model',
+  templateUrl: './list-model.page.html',
+  styleUrls: ['./list-model.page.css'],
   standalone: true,
   imports: [ComponentsModule,  IonCard, IonCardTitle, IonCardContent, IonSearchbar],
 })
-export class ListPage implements OnInit {
+export class ListModelPage implements OnInit {
+
 
   @ViewChild('listComponent')
   component!: ListInfiniteComponent | ListPaginatedComponent;
@@ -33,9 +34,8 @@ export class ListPage implements OnInit {
   async ngOnInit() {
     if(!this.type)
       this.type = 'infinite';
-
     // this.data = await this.getData();
-    // this.model = new EmployeeModel({});
+    this.model = new EmployeeModel({});
     // console.log(this.model)
   }
 

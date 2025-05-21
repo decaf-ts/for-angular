@@ -5,8 +5,9 @@ import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { stringToBoolean, stringToCapitalCase } from 'src/lib/helpers/string';
 import { getWindowWidth } from 'src/lib/helpers/utils';
-import { RouterService } from 'src/lib/services/router.service';
-
+import { RouterService } from 'src/app/services/router.service';
+import { Dynamic } from 'src/lib/engine';
+@Dynamic()
 @Component({
   selector: 'ngx-decaf-list-item',
   templateUrl: './list-item.component.html',

@@ -20,25 +20,25 @@
       [lines]="lines"
       #component
     >
-      @if(propsItem?.render) {
-        @for(item of items; track item['modelId']) {
-          <ngx-decaf-list-item
+      @if(item?.render) {
+        @for(child of items; track item['modelId']) {
+          <!-- <ngx-decaf-list-item
             [locale]="locale"
-            [mapper]="propsItem?.mapper"
-            [icon]="item?.['icon']"
-            [iconSlot]="item?.['iconSlot'] || 'start'"
-            [modelOperations]="item?.['modelOperations']"
-            [modelPk]="item?.['modelPk']"
-            [modelPage]="item?.['modelPage']"
-            [modelId]="item?.['modelId']"
-            [title]="item?.['title']"
-            [subtitle]="item?.['subtitle']"
-            [info]="item?.['info']"
-            [subinfo]="item?.['subinfo']"
-            [translateProps]="item?.['translateProps']"
+            [mapper]="item?.mapper"
+            [icon]="child?.['icon']"
+            [iconSlot]="child?.['iconSlot'] || 'start'"
+            [modelOperations]="child?.['modelOperations']"
+            [modelPk]="child?.['modelPk']"
+            [modelPage]="child?.['modelPage']"
+            [modelId]="child?.['modelId']"
+            [title]="child?.['title']"
+            [subtitle]="child?.['subtitle']"
+            [info]="child?.['info']"
+            [subinfo]="child?.['subinfo']"
+            [translateProps]="child?.['translateProps']"
             (clickEvent)="handleItemAction($event)"
             #component
-          />
+          /> -->
         }
       } @else {
         <ng-content></ng-content>

@@ -4,7 +4,7 @@ import { ForAngularModule } from 'src/lib/for-angular.module';
 import { EventConstants, RouteDirections } from "src/lib/engine/constants";
 import { StringOrBoolean } from "src/lib/engine/types";
 import { stringToBoolean } from "src/lib/helpers/string";
-import { RouterService } from "src/lib/services/router.service";
+import { RouterService } from "src/app/services/router.service";
 import { windowEventEmitter } from "src/lib/helpers/utils";
 import { addIcons } from 'ionicons';
 import { chevronBackOutline } from 'ionicons/icons';

@@ -7,6 +7,7 @@ import { ForAngularModule } from '../for-angular.module';
 import { SearchbarComponent } from './searchbar/searchbar.component';
 import { ListPaginatedComponent } from './list-paginated/list-paginated.component';
 import { EmptyStateComponent } from './empty-state/empty-state.component';
+import { ListItemComponent } from './list-item/list-item.component';
 
 const Components = [
   CrudFieldComponent,
@@ -15,6 +16,7 @@ const Components = [
   ModelRendererComponent,
   ListInfiniteComponent,
   ListPaginatedComponent,
+  ListItemComponent,
   SearchbarComponent
 ];
 

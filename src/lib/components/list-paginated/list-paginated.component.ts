@@ -12,6 +12,8 @@ import { addIcons } from 'ionicons';
 import { chevronBackOutline } from 'ionicons/icons';
 import { chevronForwardOutline } from 'ionicons/icons';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
+import { Repository } from '@decaf-ts/db-decorators';
+import { Model } from '@decaf-ts/decorator-validation';
 
 @Component({
   selector: 'ngx-decaf-list-paginated',
@@ -116,7 +118,7 @@ export class ListPaginatedComponent extends ListInfiniteComponent implements OnI
         if(!!request && !Array.isArray(request))
           request = request?.response?.data || request?.results || [];
         request = arraySortByDate(request);
-        if(!!self.itemProps?.mapper)
+        if(!!self.item?.mapper)
           request = self.itemsMapper(request as KeyValue[]);
       } else {
         request = await self.parseSearchResults(self.data as [], self.searchValue as string);
@@ -149,13 +151,15 @@ export class ListPaginatedComponent extends ListInfiniteComponent implements OnI
         if(!self.searchValue?.length) {
           (self.data as KeyValue[]) = [];
 
-          if(typeof self.manager === 'string')
-            self.manager = getInjectablesRegistry().get(self.manager);
+          // if(typeof self.manager === 'string')
+          //   self.manager = getInjectablesRegistry().get(self.manager);
 
-          const pk = self.manager?.pk || self.modelPk;
-          const table = self.manager?.table || self.manager?.clazz()?.__modelDefinition?.class  || self.manager?.constructor?.name;
-          const query = !!self.query ?
-            typeof self.query === 'string' ? JSON.parse(self.query) : self.query : {};
+          if(typeof self.manager === 'string')
+                   self.manager = getInjectablesRegistry().get(self.manager) as Repository<Model>;
+        const pk = self.manager?.pk || self.modelPk;
+        const table = self.manager?.class || self.manager?.constructor?.name;
+        const query = !!self.query ?
+          typeof self.query === 'string' ? JSON.parse(self.query) : self.query : {};
           const raw = {
             selector: Object.assign({}, {
               [pk]: {"$gt": null},
@@ -168,9 +172,9 @@ export class ListPaginatedComponent extends ListInfiniteComponent implements OnI
           //     raw['limit'] = limit;
           // }
 
-          request = arraySortByDate(await self.manager.raw(raw as unknown) || []);
-
-          if(!!self.itemProps?.mapper)
+          // request = arraySortByDate(await self.manager.raw(raw as unknown) || []);
+          request = await self.manager?.readAll(['']) || [];
+          if(!!self.item?.mapper)
             request = self.itemsMapper(request as KeyValue[]);
 
         } else {

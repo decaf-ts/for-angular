@@ -113,7 +113,7 @@ export interface IListItemComponent {
   subinfo?: string;
 }
 
-export interface IListInfiteItemProps {
+export interface IListItemProps {
   render: StringOrBoolean;
   mapper?: KeyValue;
   modelId?: string;
@@ -141,3 +141,10 @@ export type FormServiceControls = Record<
   string,
   Record<string, { control: FormGroup; props: AngularFieldDefinition }>
 >;
+
+
+export interface ModelRenderCustomEvent {
+  data: unknown;
+  name: string;
+  component: string;
+}

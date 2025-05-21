@@ -18,8 +18,8 @@ import * as IonicIcons from 'ionicons/icons';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { NgxRenderingEngine2 } from 'src/lib/engine';
-import { Menu } from 'src/app/utils/contants';
 import { MenuItem } from 'src/app/utils/types';
+import { FakerRepository } from './utils/FakerRepository';
 
 
 try {
@@ -29,6 +29,44 @@ try {
   throw new Error(`Failed to load rendering engine: ${e}`);
 }
 
+const Menu: MenuItem[] = [
+  {
+    text: 'Crud',
+    icon: 'save-outline',
+  },
+  {
+    text: 'Read',
+    url: '/crud/read',
+  },
+  {
+    text: 'Create / Update',
+    url: '/crud/create',
+  },
+  {
+    text: 'Lists (Raw Data)',
+    icon: 'list-outline',
+  },
+  {
+    text: 'Infinte',
+    url: '/list/infinite',
+  },
+  {
+    text: 'Paginated',
+    url: '/list/paginated',
+  },
+  {
+    text: 'Lists (Model)',
+    icon: 'list-outline',
+  },
+  {
+    text: 'Infinte',
+    url: '/list-model/infinite',
+  },
+  {
+    text: 'Paginated',
+    url: '/list-model/paginated',
+  }
+];
 
 @Component({
   standalone: true,
@@ -59,6 +97,7 @@ export class AppComponent {
   menu: MenuItem[] = Menu;
 
   constructor() {
+    new FakerRepository();
     addIcons(IonicIcons);
   }
 

@@ -13,7 +13,19 @@ export const Menu: MenuItem[] = [
     url: '/crud/create',
   },
   {
-    text: 'Lists',
+    text: 'Lists (Raw Data)',
+    icon: 'list-outline',
+  },
+  {
+    text: 'Infinte',
+    url: '/list/infinite',
+  },
+  {
+    text: 'Paginated',
+    url: '/list/paginated',
+  },
+  {
+    text: 'Lists (Model)',
     icon: 'list-outline',
   },
   {

@@ -13,9 +13,8 @@ import {
   maxlength,
 } from '@decaf-ts/decorator-validation';
 import { uielement, uimodel } from '@decaf-ts/ui-decorators';
-import { OtherModel } from 'src/app/models/OtherModel';
 
-@uimodel('ngx-decaf-crud-form')
+@uimodel('ngx-decaf-crud-form', {'test': 'asdf'})
 @model()
 export class ForAngularModel extends Model {
   @id()
