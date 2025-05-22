@@ -91,7 +91,7 @@
     "@decaf-ts/decorator-validation": "^1.6.4",
     "@decaf-ts/for-http": "latest",
     "@decaf-ts/reflection": "latest",
-    "@decaf-ts/ui-decorators": "^0.5.3",
+    "@decaf-ts/ui-decorators": "latest",
     "@ionic/angular": "^8.5.5",
     "@ngx-translate/core": "^16.0.4",
     "@ngx-translate/http-loader": "^16.0.1",
