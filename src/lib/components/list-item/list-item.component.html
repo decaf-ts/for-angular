@@ -1,74 +1,84 @@
-@if(title) {
-  <ion-item-sliding #lineElement>
+
+@if(title || description) {
+  <ion-item-sliding #component>
     <ion-item
-      [lines]="lines" [button]="button" [class]="className" [ngClass]="{'action': modelOperations?.length}">
+      [lines]="lines"
+      [button]="button"
+      [class]="className"
+      (click)="operations?.includes('read') ? handleAction('read', $event, component) : ''
+    ">
       @if(icon) {
-        <div id="icon"
-          [slot]="iconSlot">
-          <ion-button
-            shape="round"
-            class="button-icon"
-            (click)="modelOperations?.includes('read') ? handleAction('read',  lineElement.el) : ''"
-            >
+        <div class="dcf-icon" [slot]="iconSlot">
+          <ion-button shape="round" fill="clear">
             <ion-icon aria-hidden="true" name="reader-outline" color="primary" size="default"></ion-icon>
           </ion-button>
         </div>
       }
       <div class="dcf-width-expand">
         <div class="dcf-flex dcf-flex-middle dcf-grid-collapse" dcf-grid>
-          <div class="dcf-width-expand@s dcf-width-1-1 dcf-label"
-          tabindex="0"
-          (click)="modelOperations?.includes('read') ? handleAction('read',  lineElement.el) : ''"
-          (keydown.enter)="modelOperations?.includes('read') ? handleAction('read',  lineElement.el) : ''"
-          >
-            <ion-label
-              class="item-title"
-              [ngClass]="titleClassName"
-              [innerHTML]="title"
-              ></ion-label>
-            @if(subtitle) {
-              <div
-                class="item-subtitle"
-                [ngClass]="subtitleClassName"
-                [innerHTML]="subtitle">
-              </div>
-            }
+          <div class="dcf-width-expand@s dcf-width-1-1 dcf-label">
+            <ion-label class="dcf-item-title" [innerHTML]="uid + ' - ' + title" ></ion-label>
+            <div *ngIf ="description" class="dcf-description" [innerHTML]="description"></div>
           </div>
           @if(info || subinfo) {
-            <div class="dcf-width-auto@s dcf-width-expand info dcf-flex dcf-flex-right@s"
-              (click)="modelOperations?.includes('read') ? handleAction('read',  lineElement.el) : ''"
-              (keydown.enter)="modelOperations?.includes('read') ? handleAction('read',  lineElement.el) : ''"
-              tabindex="0"
-              >
+            <div class="dcf-width-auto@s dcf-width-expand dcf-info dcf-flex dcf-flex-right@s">
               <div>
-                @if(info) {
-                  <span [innerHTML]="info"></span>
-                }
-                @if(subinfo) {
-                  <div
-                    class="subinfo dcf-text-truncate"
-                    [innerHTML]="subinfo"
-                  ></div>
-                }
+                  <span *ngIf="info" [innerHTML]="info"></span>
+                  <div *ngIf="subinfo" class="dcf-subinfo dcf-text-truncate" [innerHTML]="subinfo" ></div>
               </div>
             </div>
           }
 
           <div class="dcf-width-auto dcf-flex dcf-flex-middle dcf-flex-right">
-            @if(modelOperations?.length && modelId) {
+            @if(operations?.length && uid) {
               <div class="dcf-visible@m" id="dcf-actions">
-                @if(modelOperations?.includes('update')) {
-                  <ion-button fill="clear" size="small" color="primary" (click)="handleAction('update',  lineElement.el)">
+                <ion-button class="dcf-hidden@m" shape="round" fill="clear" color="primary" (click)="presentActionsMenu($event)">
+                  <ion-icon slot="icon-only" aria-hidden="true" name="ellipsis-vertical-outline"></ion-icon>
+                </ion-button>
+                <ion-popover
+                  #actionMenuComponent
+                  side="bottom"
+                  alignment="left"
+                  [isOpen]="actionMenuOpen"
+                  (didDismiss)="actionMenuOpen = false">
+                  <ng-template>
+                    <ion-content class="ion-padding">
+                      <ion-list lines="none">
+                        <ion-list-header>
+                          <h4 class="dcf-text-capitalize" [innerHTML]="'actions' | translate"></h4>
+                        </ion-list-header>
+                        @for (operation of ['update', 'delete']; track operation) {
+                          <ion-item [button]="true" (click)="handleAction(operation, $event, component)">
+                            <ion-avatar class="dcf-flex dcf-flex-middle" aria-hidden="true" slot="start">
+                              @if(operation === 'update') {
+                                <ion-icon color="primary" aria-hidden="true" name="create-outline"></ion-icon>
+                              } @else {
+                                <ion-icon color="danger" aria-hidden="true" name="trash"></ion-icon>
+                              }
+                            </ion-avatar>
+                            <ion-label class="dcf-text-capitalize">{{ operation | translate }}</ion-label>
+                          </ion-item>
+                        }
+                      </ion-list>
+                    </ion-content>
+                  </ng-template>
+                </ion-popover>
+              </div>
+            }
+            <!-- @if(operations?.length && uid) {
+              <div class="dcf-visible@m" id="dcf-actions">
+                @if(operations?.includes('update')) {
+                  <ion-button fill="clear" size="small" color="primary" (click)="handleAction('update',  component)">
                     <ion-icon aria-hidden="true" slot="icon-only" name="create-outline"></ion-icon>
                   </ion-button>
                 }
-                @if(modelOperations?.includes('delete')) {
-                  <ion-button fill="clear" size="small" color="danger" (click)="handleAction('delete',  lineElement.el)">
+                @if(operations?.includes('delete')) {
+                  <ion-button fill="clear" size="small" color="danger" (click)="handleAction('delete',  component)">
                     <ion-icon aria-hidden="true" slot="icon-only" name="trash"></ion-icon>
                   </ion-button>
                 }
               </div>
-            }
+            } -->
             @if(windowWidth > 768) {
               <div id="end">
                 <ng-content select="[slot='end']"></ng-content>
@@ -78,15 +88,15 @@
         </div>
       </div>
     </ion-item>
-    @if(showSlideItems && modelId) {
-      <ion-item-options side="end" (ionSwipe)="modelOperations.length === 1 ? handleAction(modelOperations[0], lineElement.el) : ''">
-        @if(modelOperations?.includes('update')) {
-          <ion-item-option class="update" (click)="handleAction('update', lineElement.el)" [expandable]="modelOperations.length === 1">
+    @if(showSlideItems && uid) {
+      <ion-item-options side="end" (ionSwipe)="operations.length === 1 ? handleAction(operations[0],  $event, component) : ''">
+        @if(operations?.includes('update')) {
+          <ion-item-option class="update" (click)="handleAction('update', $event, component)" [expandable]="operations.length === 1">
             <ion-icon aria-hidden="true" slot="icon-only" name="create-outline"></ion-icon>
           </ion-item-option>
         }
-        @if(modelOperations?.includes('delete')) {
-          <ion-item-option class="delete" (click)="handleAction('delete', lineElement.el)" [expandable]="modelOperations.length === 1">
+        @if(operations?.includes('delete')) {
+          <ion-item-option class="delete" (click)="handleAction('delete',  $event, component)" [expandable]="operations.length === 1">
             <ion-icon aria-hidden="true" slot="icon-only" name="trash"></ion-icon>
           </ion-item-option>
         }

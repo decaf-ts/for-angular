@@ -93,21 +93,14 @@ ion-select.dcf-select-label-placement-floating::part(label) {
 
 
 
-
-// label para radio groups
-.dcf-radio-group-label {
-  margin-left: .5rem;
-
-  + ion-item {
-    margin-top: .5rem;
-  }
-}
-
 // Customizando o checkbox
 ion-checkbox {
   --size: 1.5rem;
   --checkbox-background-checked: var(--ion-color-primary);
   --checkmark-width: 2px;
+}
+ion-item {
+  --inner-padding-start: .75rem;
 }
 
 ion-checkbox::part(container) {
@@ -118,9 +111,16 @@ ion-checkbox::part(container) {
 
 ion-item,
 ion-radio-group {
+  .dcf-radio-group-label {
+    // margin-left: .5rem;
+    font-weight: 600;
+    ~ ion-item {
+      margin-top: .5rem;
+      --inner-padding-start: .75rem;
+    }
+  }
   + .dcf-helper {
     padding-left: .75rem;
-
     position: relative;
   }
 }
@@ -129,14 +129,14 @@ ion-radio-group {
   position: absolute;
   color: var(--ion-color-danger) !important;
   font-size: 0.8rem !important;
-  font-weight: 600;
+  font-weight: 600 !important;
   line-height: 1.1rem;
   // background: rgba(0,0,0, .75) !important;
   // background: rgba(255,255,2P55, .75) !important;
   box-sizing: border-box;
   z-index: 9999;
 
-  margin-top: -10px;
+  margin-top: 0px;
   animation-duration: 0.1s;
   animation-timing-function: ease-out;
   animation-fill-mode: both;

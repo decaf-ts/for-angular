@@ -1,35 +1,35 @@
-import { id } from '@decaf-ts/db-decorators';
 import {
   date,
-  model,
   Model,
+  model,
   ModelArg,
 } from '@decaf-ts/decorator-validation';
-import { uielement, uimodel } from '@decaf-ts/ui-decorators';
-import { ForAngularModel } from './DemoModel';
-import { index, pk } from '@decaf-ts/core';
-import { uilistmodel, listItemElement } from 'src/lib/engine';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { uilistitem, uilistprop, uimodel, uiprop } from '@decaf-ts/ui-decorators';
 import { FakerRepository } from '../utils/FakerRepository';
 
-@uilistmodel('ngx-decaf-list-infinite', {'title': 'name', 'description': 'job', 'info': 'birthdate'})
+@uilistitem('ngx-decaf-list-item', {icon: 'person-outline'})
+@uimodel('ngx-decaf-crud-form')
 @model()
 export class EmployeeModel extends FakerRepository<EmployeeModel> {
 
+  @uilistprop('uid')
   id!: number;
 
-  @index()
-  @uielement('ngx-decaf-list-item')
+  @uilistprop('title')
   name!: string;
 
+  @uilistprop('description')
   occupation!: string;
 
+  @uilistprop('info')
   birthdate!: Date;
 
   hiredAt!: Date;
 
   createdAt!: Date;
 
-  constructor(args: ModelArg<EmployeeModel>) {
+  constructor(args: ModelArg<EmployeeModel> = {}) {
     super('employees', args);
   }
 }

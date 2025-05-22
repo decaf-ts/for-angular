@@ -1,6 +1,6 @@
 import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
-import { AngularDynamicOutput, AngularFieldDefinition, KeyValue } from './types';
-import { AngularEngineKeys } from './constants';
+import { AngularDynamicOutput, AngularFieldDefinition, BaseCustomEvent, KeyValue } from './types';
+import { AngularEngineKeys, ComponentsTagNames, EventConstants } from './constants';
 import { Constructor, Model } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
 import {
@@ -20,7 +20,11 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
 
   private static _components: Record<string, { constructor: Constructor<unknown> }>;
 
-  private _componentName!: string;
+  // private _componentName!: string;
+
+  private _model!: Model;
+
+  private static _instance: Type<unknown> | undefined;
 
   constructor() {
     super('angular');
@@ -35,7 +39,6 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     const component = NgxRenderingEngine2.components(fieldDef.tag)
       .constructor as unknown as Type<unknown>;
 
-    this._componentName = component.name;
     const componentMetadata = reflectComponentType(component);
     if (!componentMetadata) {
       throw new InternalError(
@@ -68,28 +71,33 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
 
     if (fieldDef.rendererId)
       (result.inputs as Record<string, any>)['rendererId'] = fieldDef.rendererId;
-
     if (fieldDef.children && fieldDef.children.length) {
-      result.children = fieldDef.children.map((child) => {
-        const childInstance = this.fromFieldDefinition(child, vcr, injector, tpl);
-        // console.log(childInstance);
-        return childInstance;
-      });
-
-
+      result.children = fieldDef.children.map((child) => this.fromFieldDefinition(child, vcr, injector, tpl));
       vcr.clear();
       const template = vcr.createEmbeddedView(tpl, injector).rootNodes;
-
-      const componentInstance = vcr.createComponent(component as Type<unknown>, {
-        environmentInjector: injector as EnvironmentInjector,
-        projectableNodes: [template]
-      });
-      this.setInputs(componentInstance as ComponentRef<unknown>, inputs, componentMetadata)
-      result.content = [template];
-      result.instance = componentInstance.instance as Type<unknown>;
+      const componentInstance = NgxRenderingEngine2.createComponent(component, {... inputs, ... {model: this._model}}, componentMetadata, vcr, injector, template);
+      result.instance = NgxRenderingEngine2._instance = componentInstance.instance as Type<unknown>;
     }
     return result;
   }
+
+  static createComponent(component: Type<unknown>, inputs: KeyValue = {}, metadata: ComponentMirror<unknown>, vcr: ViewContainerRef, injector: Injector, template: any): ComponentRef<unknown> {
+    const componentInstance = vcr.createComponent(component as Type<unknown>, {
+      environmentInjector: injector as EnvironmentInjector,
+      projectableNodes: [template || []]
+    });
+    this.setInputs(componentInstance, inputs, metadata);
+    return componentInstance;
+  }
+
+  getDecorators(model: Model, globalProps: Record<string, unknown>) {
+    return this.toFieldDefinition(model, globalProps);
+  }
+
+  static async destroy() {
+    NgxRenderingEngine2._instance = undefined;
+  }
+
 
   override render<M extends Model>(
     model: M,
@@ -100,6 +108,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
   ): AngularDynamicOutput {
     let result: AngularDynamicOutput;
     try {
+      this._model = model;
       const fieldDef = this.toFieldDefinition(model, globalProps);
       result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl);
     } catch (e: unknown) {
@@ -107,7 +116,6 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
         `Failed to render Model ${model.constructor.name}: ${e}`,
       );
     }
-
     return result;
   }
 
@@ -137,7 +145,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     return `${AngularEngineKeys.REFLECT}${key}`;
   }
 
-  private setInputs(component: ComponentRef<unknown>, inputs: KeyValue, metadata: ComponentMirror<unknown>): void {
+  static setInputs(component: ComponentRef<unknown>, inputs: KeyValue, metadata: ComponentMirror<unknown>): void {
     function parseInputValue(component: ComponentRef<unknown>, input: KeyValue) {
       Object.keys(input).forEach(key => {
         const value = input[key];
@@ -151,8 +159,8 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       if(prop) {
         if(key === 'props')
           parseInputValue(component, value);
-        if(key === 'locale' && !value)
-          value = getLocaleFromClassName(this._componentName);
+        // if(key === 'locale' && !value)
+        //   value = getLocaleFromClassName(this._componentName);
         component.setInput(key, value);
       }
     });

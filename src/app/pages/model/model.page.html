@@ -1,0 +1,34 @@
+<app-header
+  [model]="model"
+  [title]="modelName + ' ' + operation"
+  center="true"
+  showBackButton="true"
+  operations="['read', 'create']"
+  color="primary">
+</app-header>
+
+<ion-content [fullscreen]="true">
+  <main class="main">
+    <app-container [hasSideMenu]="true" size="large">
+      <ion-card>
+         <ion-card-header>
+          <ion-card-title>
+            Current Operation is {{operation}}
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          @if(model) {
+            <ngx-decaf-model-renderer
+              [model]="model"
+              (listenEvent)="handleEvent($event)"
+              [globals]='{operation: operation}'>
+            </ngx-decaf-model-renderer>
+          } @else {
+            <div>No Model</div>
+          }
+        </ion-card-content>
+      </ion-card>
+
+    </app-container>
+  </main>
+</ion-content>

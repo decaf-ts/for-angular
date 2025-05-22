@@ -6,8 +6,9 @@ import { ListInfiniteComponent } from 'src/lib/components/list-infinite/list-inf
 import { IonCard, IonCardContent, IonCardTitle, IonSearchbar } from '@ionic/angular/standalone';
 import { generateFakerData } from 'src/app/utils';
 import { EmployeeModel } from 'src/app/models/EmployeeModel';
-import { EventConstants } from 'src/lib/engine';
+import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
 import { ListPaginatedComponent } from 'src/lib/components/list-paginated/list-paginated.component';
+import { CategoryModel } from 'src/app/models/CategoryModel';
 
 @Component({
   selector: 'app-list',
@@ -26,7 +27,7 @@ export class ListPage implements OnInit {
 
   data!: KeyValue[];
 
-  model!: EmployeeModel;
+  model!: CategoryModel;
 
   constructor() {}
 
@@ -34,29 +35,28 @@ export class ListPage implements OnInit {
     if(!this.type)
       this.type = 'infinite';
 
+    this.model = new CategoryModel();
     // this.data = await this.getData();
     // this.model = new EmployeeModel({});
     // console.log(this.model)
   }
 
-  handleEvent(event: ModelRenderCustomEvent) {
-    const {name, data } = event;
+  handleEvent(event: BaseCustomEvent) {
+    const { name, data } = event;
     if(name === EventConstants.REFRESH_EVENT)
-      return this.handleListRefreshEvent(data as KeyValue[]);
+      return this.handleListRefreshEvent(event);
   }
 
-  handleListRefreshEvent(items:  KeyValue[]) {
-    if(items.length) {
-      this.data = items.reduce((accum: KeyValue[], curr) => {
-          accum.push(curr);
-        return accum;
-      }, [] as KeyValue[]);
-    }
+  handleListRefreshEvent(event: BaseCustomEvent) {
+     const { name, data } = event;
+    if(data?.length)
+      this.data = [... data];
+    console.log(this.data);
   }
 
   async refresh(){
     this.data = [];
-    return await this.getData();
+    return new CategoryModel({}).readAll();
   }
 
   handleListItemClick(event: Event, item: KeyValue) {

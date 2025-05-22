@@ -59,11 +59,11 @@ const Menu: MenuItem[] = [
     icon: 'list-outline',
   },
   {
-    text: 'Infinte',
+    text: 'Infinte (listprop)',
     url: '/list-model/infinite',
   },
   {
-    text: 'Paginated',
+    text: 'Categories (mapper)',
     url: '/list-model/paginated',
   }
 ];

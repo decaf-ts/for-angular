@@ -24,7 +24,7 @@
 
       <ng-content select="[slot='end']"></ng-content>
 
-      @if(modelOperations?.length && modelPage) {
+      @if(operations?.length && route) {
         <ion-buttons slot="end">
 
             @if(!modelId) {

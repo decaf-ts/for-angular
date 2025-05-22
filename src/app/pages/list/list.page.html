@@ -10,18 +10,12 @@
     <app-container [hasSideMenu]="true" size="full">
       <ion-card>
         <ion-card-content>
-          <!-- <ngx-decaf-model-renderer
-            [model]="model"
-            (listenEvent)="handleEvent($event)"
-            [globals]='{
-              manager: model
-            }' /> -->
-
           @if(type === 'infinite') {
             <ngx-decaf-list-infinite
               class="aeon-list"
               lines="none"
               button="true"
+              [item]="{render: false}"
               [showSearchbar]="true"
               [showRefresher]="true"
               [source]="refresh.bind(this)"
@@ -29,29 +23,30 @@
               #listComponent
             >
             @if(data?.length) {
-              @for(item of data; track item) {
-                <ion-item [button]="true" (click)="handleListItemClick($event, item)">
-                  <ion-icon aria-hidden="true" name="reader-outline" slot="start"></ion-icon>
-                  <ion-label>
-                    <p class="dcf-list-title">{{item.name}}</p>
-                    <p class="dcf-list-description">{{item.occupation}}</p>
-                  </ion-label>
-                  <ion-note slot="end">{{item.birthdate}}</ion-note>
-                </ion-item>
+              @for(item of data; track item['id']) {
+               <ion-item [button]="true" (click)="handleListItemClick($event, item)">
+                <ion-icon aria-hidden="true" name="reader-outline" slot="start"></ion-icon>
+                <ion-label>
+                  <p class="dcf-list-title">{{item.name}}</p>
+                  <p class="dcf-list-description">{{item.occupation}}</p>
+                </ion-label>
+                <ion-note slot="end">{{item.birthdate}}</ion-note>
+              </ion-item>
               }
             }
             </ngx-decaf-list-infinite>
           } @else {
             <ngx-decaf-list-paginated
-            class="aeon-list"
-            lines="none"
-            button="true"
-            [showPagination]="true"
-            [showSearchbar]="true"
-            [showRefresher]="true"
-            [source]="refresh.bind(this)"
-            (refreshEvent)="handleListRefreshEvent($event)"
-            #listComponent
+              class="aeon-list"
+              lines="none"
+              button="true"
+              [item]="{render: false}"
+              [showPagination]="true"
+              [showSearchbar]="true"
+              [showRefresher]="true"
+              [source]="refresh.bind(this)"
+              (refreshEvent)="handleListRefreshEvent($event)"
+              #listComponent
           >
           @if(data?.length) {
             @for(item of data; track item) {

@@ -10,7 +10,8 @@ import {
 let injectableRegistry: InjectablesRegistry;
 
 export function getInjectablesRegistry(): InjectablesRegistry {
-  if (injectableRegistry) injectableRegistry = new InjectableRegistryImp();
+  if (!injectableRegistry)
+    injectableRegistry = new InjectableRegistryImp();
   return injectableRegistry;
 }
 
@@ -135,7 +136,7 @@ export function generateLocaleFromString(
  */
 export function getLocaleLanguage(): string {
   const win = getWindow();
-  return win.navigator.language || "em";
+  return win.navigator.language || "en";
   // return win?.[WINDOW_KEYS.LANGUAGE_SELECTED] || (win.navigator.language || '').split('-')[0] || "en";
 }
 

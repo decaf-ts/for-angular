@@ -1,16 +1,22 @@
-import { Input, Component, Inject, ViewChild, ElementRef } from '@angular/core';
+import { Input, Component, Inject, ViewChild, ElementRef, OnInit, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
-import { getLocaleFromClassName } from 'src/lib/helpers/utils';
+import { getInjectablesRegistry, getLocaleFromClassName } from 'src/lib/helpers/utils';
 import { stringToBoolean } from 'src/lib/helpers/string';
 import { Model } from '@decaf-ts/decorator-validation';
-import { Repository } from '@decaf-ts/db-decorators';
-import { Paginatable } from '@decaf-ts/core/lib/interfaces/Paginatable';
-// substituir pelo adequando vindo
+import { CrudOperations, OperationKeys, Repository } from '@decaf-ts/db-decorators';
+import { BaseComponentProps } from './constants';
+import { NgxRenderingEngine2 } from 'dist/lib';
+
 export class PaginatedQuery {
-  page!: number;
+  page!: Model[];
   total!: number;
-  data!: Model[];
+  _currentPage!: number;
 }
+
+const RenderingEngine = NgxRenderingEngine2.get("angular") as unknown as NgxRenderingEngine2;
+
+export type ComponentBaseModel =  Model | Repository<Model> | undefined;
+
 
 /**
  * @description Base component class that provides common functionality for all Decaf components.
@@ -28,11 +34,12 @@ export class PaginatedQuery {
  * @class NgxBaseComponent
  * @memberOf module:DecafEngine
  */
+
 @Component({
   standalone: true,
   template: ""
 })
-export abstract class NgxBaseComponent {
+export abstract class NgxBaseComponent implements OnChanges {
 
   /**
    * @description Reference to the component's element.
@@ -44,16 +51,96 @@ export abstract class NgxBaseComponent {
    * @type {ElementRef}
    * @memberOf NgxBaseComponent
    */
-  @ViewChild('component', { read: ElementRef })
+  @ViewChild('component', { read: ElementRef, static: true })
   component!: ElementRef;
 
+  componentName!: string;
 
+  /**
+   * @description Unique identifier for the renderer.
+   * @summary A unique identifier used to reference the component's renderer instance.
+   * This can be used for targeting specific renderer instances when multiple components
+   * are present on the same page.
+   *
+   * @type {string}
+   * @memberOf NgxBaseComponent
+   */
   @Input()
   rendererId!: string;
 
-
+  /**
+   * @description Repository model for data operations.
+   * @summary The data model repository that this component will use for CRUD operations.
+   * This provides a connection to the data layer for retrieving and manipulating data.
+   *
+   * @type {Repository<Model> | undefined}
+   * @memberOf NgxBaseComponent
+   */
   @Input()
-  manager!: Repository<Model> | undefined;
+  model!: ComponentBaseModel;
+
+  /**
+   * Config for list items rendering
+   */
+  @Input()
+  item: Record<string, unknown> = {tag: ""};
+
+  /**
+   * @description Primary key field name for the model.
+   * @summary Specifies which field in the model should be used as the primary key.
+   * This is typically used for identifying unique records in operations like update and delete.
+   *
+   * @type {string}
+   * @default 'id'
+   * @memberOf NgxBaseComponent
+   */
+  @Input()
+  pk: string = 'id';
+
+  /**
+   * @description Base route for navigation related to this component.
+   * @summary Defines the base route path used for navigation actions related to this component.
+   * This is often used as a prefix for constructing navigation URLs.
+   *
+   * @type {string}
+   * @memberOf NgxBaseComponent
+   */
+  @Input()
+  route!: string;
+
+  /**
+   * @description Available CRUD operations for this component.
+   * @summary Defines which CRUD operations (Create, Read, Update, Delete) are available
+   * for this component. This affects which operations can be performed on the data.
+   *
+   * @type {[CrudOperations]}
+   * @default [OperationKeys.READ]
+   * @memberOf NgxBaseComponent
+   */
+  @Input()
+  operations: CrudOperations[] = [OperationKeys.READ];
+
+  /**
+   * @description Unique identifier for the current record.
+   * @summary A unique identifier for the current record being displayed or manipulated.
+   * This is typically used in conjunction with the primary key for operations on specific records.
+   *
+   * @type {string | number}
+   * @memberOf NgxBaseComponent
+   */
+  @Input()
+  uid!: string | number;
+
+  /**
+   * @description Field mapping configuration.
+   * @summary Defines how fields from the data model should be mapped to properties used by the component.
+   * This allows for flexible data binding between the model and the component's display logic.
+   *
+   * @type {Record<string, string>}
+   * @memberOf NgxBaseComponent
+   */
+  @Input()
+  mapper!: Record<string, string>;
 
   /**
    * @description The locale to be used for translations.
@@ -106,7 +193,7 @@ export abstract class NgxBaseComponent {
    * for a more native look and feel.
    *
    * @type {("ios" | "md" | undefined)}
-   * @default "ios"
+   * @default "md"
    * @memberOf NgxBaseComponent
    */
   @Input()
@@ -124,6 +211,11 @@ export abstract class NgxBaseComponent {
    * @memberOf NgxBaseComponent
    */
   componentLocale!: string;
+
+  @Input()
+  renderChild: string | StringOrBoolean = true;
+
+  initialized: boolean = false;
 
   /**
    * @description Creates an instance of NgxBaseComponent.
@@ -149,7 +241,18 @@ export abstract class NgxBaseComponent {
    * @memberOf NgxBaseComponent
    */
   constructor(@Inject('instanceToken') private instance: string) {
+    this.componentName = instance;
     this.componentLocale = getLocaleFromClassName(instance);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes[BaseComponentProps.MODEL]) {
+      const { currentValue } = changes[BaseComponentProps.MODEL];
+      if(currentValue)
+        this.getModel(currentValue);
+    }
+    if (changes[BaseComponentProps.LOCALE] || changes[BaseComponentProps.TRANSLATABLE])
+      this.getLocale(this.translatable);
   }
 
   /**
@@ -191,7 +294,42 @@ export abstract class NgxBaseComponent {
     if(!this.translatable)
       return "";
     if(!this.locale)
-      return this.componentLocale;
+      this.locale = this.componentLocale;
     return this.locale;
   }
+
+  getRoute(): string | undefined {
+    if(!this.route && this.model instanceof Model)
+      this.route = `/model/${this.model?.constructor.name}`;
+    return this.route;
+  }
+
+  getModel(model: string | Model) {
+    if(!(model instanceof Model))
+      this.model = getInjectablesRegistry().get(model) as Model;
+    this.setModelDefinitions(this.model as Model);
+  }
+
+  setModelDefinitions(model: Model) {
+    if(model instanceof Model) {
+      this.getRoute();
+      const {props, item} = (RenderingEngine as any).toFieldDefinition(this.model);
+      this.mapper = item?.props?.mapper || {};
+      this.item = {
+       tag: item?.tag || "",
+       ... props,
+       ... item?.props,
+       mapper: this.mapper,
+       ... {route: item?.props?.route
+        || this.route}
+      };
+    }
+  }
+
+  initialize(): void {
+    if(this.initialized)
+      return;
+    this.initialized = true;
+  }
+
 }

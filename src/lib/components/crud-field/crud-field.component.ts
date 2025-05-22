@@ -8,7 +8,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { AutocompleteTypes, SelectInterface } from '@ionic/core';
+import { AutocompleteTypes, CheckboxCustomEvent, SelectInterface } from '@ionic/core';
 import { CrudOperations } from '@decaf-ts/db-decorators';
 import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 import { Dynamic } from '../../engine/decorators';
@@ -36,6 +36,7 @@ import {
   IonButton,
   IonDatetimeButton,
 } from '@ionic/angular/standalone';
+import { HTML5CheckTypes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 
 
 
@@ -512,5 +513,9 @@ export class CrudFieldComponent
 
   ngOnInit(): void {
     super.onInit(this.updateOn);
+    if(this.type === HTML5InputTypes.RADIO && !this.value)
+      this.formGroup?.get(this.name)?.setValue(this.options[0].value)
+
   }
+
 }

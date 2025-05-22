@@ -8,16 +8,21 @@ import { SearchbarComponent } from './searchbar/searchbar.component';
 import { ListPaginatedComponent } from './list-paginated/list-paginated.component';
 import { EmptyStateComponent } from './empty-state/empty-state.component';
 import { ListItemComponent } from './list-item/list-item.component';
+import { UiElementComponent } from './ui-element/ui-element.component';
+import { PaginationComponent } from './pagination/pagination.component';
 
 const Components = [
+  ModelRendererComponent,
+  UiElementComponent,
+
   CrudFieldComponent,
   CrudFormComponent,
   EmptyStateComponent,
-  ModelRendererComponent,
   ListInfiniteComponent,
   ListPaginatedComponent,
   ListItemComponent,
-  SearchbarComponent
+  SearchbarComponent,
+  PaginationComponent
 ];
 
 @NgModule({

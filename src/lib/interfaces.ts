@@ -6,5 +6,5 @@ export interface ComponentHolder {
 }
 
 export interface FormElement extends ComponentHolder {
-  formGroup: FormGroup;
+  formGroup: FormGroup | undefined;
 }

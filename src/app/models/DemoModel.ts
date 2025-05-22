@@ -14,13 +14,14 @@ import {
 } from '@decaf-ts/decorator-validation';
 import { uielement, uimodel } from '@decaf-ts/ui-decorators';
 
-@uimodel('ngx-decaf-crud-form', {'test': 'asdf'})
+@uimodel('ngx-decaf-crud-form')
 @model()
 export class ForAngularModel extends Model {
   @id()
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.id.label',
     placeholder: 'demo.id.placeholder',
+    value: 1
   })
   id!: number;
 
@@ -33,17 +34,19 @@ export class ForAngularModel extends Model {
   name!: string;
 
   @required()
-  @minlength(5)
-  @maxlength(6)
   @uielement('ngx-decaf-crud-field', {
-    label: 'demo.slug.label',
-    placeholder: 'demo.slug.placeholder',
+    label: 'demo.gender.label',
+    type: 'radio',
+    options: [
+      {value: 'Male', text: 'Is Male' },
+      {value: 'Femae', text: 'Is Female' },
+    ]
   })
-  slug!: string;
+  gender!: string;
 
-  @date('yyyy/MM/dd')
   @required()
-  @uielement('ngx-decaf-crud-field', { label: 'demo.birthdate.label', format: 'YYYY-MM-DD' })
+  @date('yyyy-MM-dd')
+  @uielement('ngx-decaf-crud-field', { label: 'demo.birthdate.label' })
   birthdate!: Date;
 
   @required()
@@ -62,6 +65,14 @@ export class ForAngularModel extends Model {
   @password()
   @uielement('ngx-decaf-crud-field', { label: 'demo.password.label' })
   password!: string;
+
+
+  @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'demo.agree.label',
+    type: 'checkbox'
+  })
+  agree!: string;
 
   // @list(OtherModel)
   // @minlength(1)

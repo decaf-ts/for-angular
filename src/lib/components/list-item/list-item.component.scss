@@ -17,6 +17,10 @@ ion-item {
     }
   }
 
+  .dcf-info {
+    min-width: 10vw;
+  }
+
   .dcf-grid {
     padding: 0px !important;
     margin: 0px !important;
@@ -30,7 +34,7 @@ ion-item {
     // margin: 0 0 20px 0;
   }
 
-  .dcf-subtitle {
+  .dcf-description {
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -105,7 +109,7 @@ ion-item {
     align-items: flex-end;
   }
 
-  #dcf-icon {
+  .dcf-icon {
     display: flex;
     justify-content: center;
     align-items: center;

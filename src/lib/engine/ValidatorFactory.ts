@@ -10,7 +10,6 @@ import {
   RenderingEngine,
   HTML5InputTypes
 } from '@decaf-ts/ui-decorators';
-import { ReservedModels } from '@decaf-ts/decorator-validation';
 
 export class ValidatorFactory {
   static spawn(fieldProps: FieldProperties, key: string): ValidatorFn {
@@ -42,10 +41,9 @@ export class ValidatorFactory {
 
       const value =
         typeof control.value !== 'undefined'
-          ? parseValueByType(type, control.value, fieldProps)
+          ? parseValueByType(type, type === HTML5InputTypes.CHECKBOX ? fieldProps.name : control.value, fieldProps)
           : undefined;
       const actualArg = parseArgs(arg);
-
       let errs;
       try {
         errs = validator.hasErrors(value, { message: '', ...actualArg });

@@ -6,54 +6,38 @@
 }
 
 @if(showSearchbar) {
-  <ngx-decaf-searchbar
-    [emitEventToWindow]="false"
-    [debounce]="500"
-    (searchEvent)="handleSearch($event)"
-    >
-  </ngx-decaf-searchbar>
+  <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
 }
 
 @if(data?.length) {
-    <ion-list
-      [inset]="inset"
-      [lines]="lines"
-      #component
-    >
-      @if(item?.render) {
-        @for(child of items; track item['modelId']) {
-          <!-- <ngx-decaf-list-item
-            [locale]="locale"
-            [mapper]="item?.mapper"
-            [icon]="child?.['icon']"
-            [iconSlot]="child?.['iconSlot'] || 'start'"
-            [modelOperations]="child?.['modelOperations']"
-            [modelPk]="child?.['modelPk']"
-            [modelPage]="child?.['modelPage']"
-            [modelId]="child?.['modelId']"
-            [title]="child?.['title']"
-            [subtitle]="child?.['subtitle']"
-            [info]="child?.['info']"
-            [subinfo]="child?.['subinfo']"
-            [translateProps]="child?.['translateProps']"
-            (clickEvent)="handleItemAction($event)"
-            #component
-          /> -->
+  <ion-list [inset]="inset" [lines]="lines" #component>
+    @if(item?.tag) {
+      @for(child of items; track child) {
+        <ngx-decaf-ui-element
+          [tag]="item.tag"
+          (listenEvent)="handleEvent($event)"
+          [globals]='{
+            item: child,
+            mapper: mapper,
+            route: route
+          }'>
+          </ngx-decaf-ui-element>
         }
-      } @else {
-        <ng-content></ng-content>
-      }
-    </ion-list>
-    @if(loadMoreData) {
-      <ion-infinite-scroll
-        [class]="searchValue?.length ? 'dcf-hidden' : ''"
-        [position]="scrollPosition"
-        [threshold]="scrollThreshold"
-        (ionInfinite)="forceRefresh($event)">
-        <ion-infinite-scroll-content [loadingSpinner]="loadingSpinner" [loadingText]="loadingText"></ion-infinite-scroll-content>
-      </ion-infinite-scroll>
+    } @else {
+      <ng-content></ng-content>
     }
+  </ion-list>
+  @if(loadMoreData) {
+    <ion-infinite-scroll
+      [class]="searchValue?.length ? 'dcf-hidden' : ''"
+      [position]="scrollPosition"
+      [threshold]="scrollThreshold"
+      (ionInfinite)="forceRefresh($event)">
+      <ion-infinite-scroll-content [loadingSpinner]="loadingSpinner" [loadingText]="loadingText"></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  }
 } @else {
+
   @if(refreshing) {
     <ion-item *ngFor="let skl of skeletonData">
       <ion-thumbnail slot="start">
@@ -77,9 +61,11 @@
       <ngx-decaf-empty-state
         icon="search-outline"
         ngClass="empty-search"
-        [translatable]="false"
-        [title]="searchEmptyTitle"
-        [subtitle]="searchEmptySubtitle" />
+        [translatable]="true"
+        title="search.title"
+        subtitle="search.subtitle"
+        [searchValue]="searchValue"
+      />
     }
   }
 }

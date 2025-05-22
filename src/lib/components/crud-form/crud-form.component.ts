@@ -14,7 +14,9 @@ import { FormElement } from '../../interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { IonicModule } from '@ionic/angular';
 import {
+  BaseCustomEvent,
   Dynamic,
+  EventConstants,
   FieldUpdateMode,
   HTMLFormTarget,
   RenderedModel,
@@ -63,7 +65,7 @@ export class CrudFormComponent
   rendererId!: string;
 
   @Output()
-  submitEvent = new EventEmitter<FormReactiveSubmitEvent>();
+  submitEvent = new EventEmitter<BaseCustomEvent>();
 
   ngAfterViewInit() {
     if(this.operation !== OperationKeys.READ)
@@ -100,11 +102,19 @@ export class CrudFormComponent
       data: data,
     };
 
-    if (this.action)
-      return this.component.nativeElement.dispatchEvent(
-        new CustomEvent('submit', data),
-      );
+    // if (this.action)
+    //   return this.component.nativeElement.dispatchEvent(
+    //     new CustomEvent('submit', data),
+    //   );
+    console.log(submitEvent);
+    this.submitEvent.emit({
+      data: data,
+      component: 'FormReactiveComponent',
+      name: EventConstants.SUBMIT_EVENT,
+    });
+  }
 
-    this.submitEvent.emit(submitEvent);
+  reset() {
+    NgxFormService.reset();
   }
 }

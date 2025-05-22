@@ -3,6 +3,8 @@ import { ForAngularComponentsModule } from '../../../lib/components/for-angular-
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModel } from 'src/app/models/DemoModel';
 import { ComponentsModule } from 'src/app/components/components.module';
+import { FormReactiveSubmitEvent } from 'src/lib/components/crud-form/types';
+import { BaseCustomEvent, ModelRenderCustomEvent } from 'src/lib/engine';
 
 @Component({
   selector: 'app-crud',
@@ -23,7 +25,7 @@ export class CrudPage implements OnInit {
 
   model1 = new ForAngularModel({
     name: 'John Doe',
-    birthdate: new Date(),
+    birthdate: '1989-12-12',
     email: 'john.doe@example.com',
     website: 'https://johndoe.example.com',
     password: 'password123',
@@ -34,7 +36,7 @@ export class CrudPage implements OnInit {
       this.operation = OperationKeys.CREATE;
   }
 
-  handleSubmit(event: Event): void {
-    console.log(event);
+  handleSubmit(event: BaseCustomEvent): void {
+    const {data} = event;
   }
  }

@@ -15,7 +15,11 @@
       <h5 [class]="titleColor" [innerHTML]="translatable ? (title | translate) : title"></h5>
     }
     @if(subtitle) {
-      <p [class]="subtitleColor" [innerHTML]="translatable ? (subtitle | translate) : subtitle "></p>
+      @if(!searchValue) {
+        <p [class]="subtitleColor" [innerHTML]="translatable ? (subtitle | translate) : subtitle "></p>
+      } @else {
+        <p [class]="subtitleColor" [innerHTML]="translatable? (subtitle | translate : {value0: searchValue}) : subtitle"></p>
+      }
     }
     @if(buttonLink && buttonText) {
       <div>

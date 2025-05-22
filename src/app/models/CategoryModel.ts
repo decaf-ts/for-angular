@@ -1,30 +1,34 @@
-import { id } from '@decaf-ts/db-decorators';
 import {
-  date,
   model,
-  Model,
   ModelArg,
+  required
 } from '@decaf-ts/decorator-validation';
-import { uielement, uimodel } from '@decaf-ts/ui-decorators';
-import { ForAngularModel } from './DemoModel';
-import { index, pk } from '@decaf-ts/core';
-import { uilistmodel, listItemElement } from 'src/lib/engine';
+import { uilistprop, uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
 import { FakerRepository } from '../utils/FakerRepository';
 
-@uimodel('ngx-decaf-crud-field', {
-    label: 'demo.name.label',
-    placeholder: 'demo.name.placeholder',
-  })
+@uilistitem('ngx-decaf-list-item', {icon: 'cafe-outline', className: 'testing'})
+@uimodel('ngx-decaf-crud-form')
 @model()
 export class CategoryModel extends FakerRepository<CategoryModel> {
 
-  id!: number;
-
+  @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'demo.name.label',
+    placeholder: 'demo.name.placeholder',
+  })
+  @uilistprop('title')
   name!: string;
 
-  createdAt!: Date;
+  @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'demo.description.label',
+    placeholder: 'demo.description.placeholder',
+    type: 'textarea',
+  })
+  @uilistprop()
+  description!: string;
 
-  constructor(args: ModelArg<CategoryModel>) {
+  constructor(args: ModelArg<CategoryModel> = {}) {
     super('categories', args);
   }
 }

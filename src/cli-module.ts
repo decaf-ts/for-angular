@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { exec } from 'child_process';
-// import { runCommand as runCmd } from '@decaf-ts/utils';
+import { runCommand } from '@decaf-ts/utils';
+import { consoleError, consoleInfo, throwError } from './lib/helpers/logging';
 
 enum Projects {
   FOR_ANGULAR = "for-angular",
@@ -15,6 +15,8 @@ enum Types {
   DIRECTIVE = "directive",
   SCHEMATICS = "schematics"
 }
+
+const cliDescription = 'Angular CLI module';
 
 /**
  * Creates and returns a Command object for the Angular CLI module in decaf-ts.
@@ -37,17 +39,18 @@ enum Types {
  */
 export default function angular() {
   return new Command()
+    .name('decaf generate')
     .command('generate <type> <name> [project]')
-    .description("decaf-ts' angular CLI module")
+    .description(`decaf-ts ${cliDescription}`)
     .action(async(type: Types, name: string, project: Projects = Projects.FOR_ANGULAR) => {
       if(!validateType(type))
-        throw new Error(`${type} is not valid. Use service, component or directive.`)
+        return consoleError(cliDescription, `${type} is not valid. Use service, component or directive.`)
 
       if(type === Types.SCHEMATICS)
         return await generateSchematics();
 
       if(type === Types.PAGE) {
-        console.log(`Pages can be only generate for app. Forcing project to: ${Projects.FOR_ANGULAR_APP}`);
+        consoleInfo(cliDescription, `Pages can be only generate for app. Forcing project to: ${Projects.FOR_ANGULAR_APP}`);
         project = Projects.FOR_ANGULAR_APP;
       }
 
@@ -59,10 +62,10 @@ export default function angular() {
         'ionic generate' : `ng generate --project=${Projects.FOR_ANGULAR} --path=src/lib/${type}s`;
 
       try {
-        const result = await runCommand(`${command} ${type} ${name}`);
+        const result = await execute(`${command} ${type} ${name}`);
         console.info(result);
       } catch(error: any) {
-        console.error(`Error generating ${type} ${name} for project ${project}:`, error?.message || error);
+        consoleError(cliDescription, `Error generating ${type} ${name} for project ${project}:`, error?.message || error);
       }
 
     });
@@ -71,9 +74,9 @@ export default function angular() {
 
 async function generateSchematics() {
   return Promise.all([
-    await runCommand(`npm link schematics`),
-    await runCommand(`cd schematics && npm install`),
-    await runCommand(`
+    execute(`npm link schematics`),
+    execute(`cd schematics && npm install`),
+    execute(`
       cd schematics &&
       npm run build &&
       schematics .:schematics --name=decaf
@@ -91,16 +94,12 @@ async function generateSchematics() {
  * @returns A Promise that resolves with the command's stdout output as a string if successful,
  *          or rejects with an error message if the command fails or produces stderr output.
  */
-async function runCommand(command: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error)
-        return reject(`Erro: ${error.message}`);
-      if (stderr)
-        return reject(`STDERR: ${stderr}`);
-      resolve(stdout);
-    });
-  });
+async function execute(command: string): Promise<string|void> {
+  try {
+    return await runCommand(command).promise;
+  } catch (error: any) {
+    consoleError(cliDescription, error?.message || error);
+  }
 }
 
 /**

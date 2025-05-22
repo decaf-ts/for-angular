@@ -1,3 +1,4 @@
+import { Primitives } from "@decaf-ts/decorator-validation";
 import { consoleWarn } from "./logging";
 import { getLocaleLanguage } from "./utils";
 
@@ -9,7 +10,21 @@ import { getLocaleLanguage } from "./utils";
  * @return {boolean} Returns true if the value is a valid Date object (not NaN), otherwise false
  */
 export function isValidDate(date: string | Date | number): boolean {
-  return date instanceof Date && !isNaN(date as any);
+  try {
+    return (date instanceof Date && !isNaN(date as any)) || (() => {
+      const testRegex = new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date as string)
+      if(typeof date !== Primitives.STRING || !(date as string)?.includes('T') && !testRegex)
+         return false;
+
+     date = (date as string).split('T')[0];
+    if(!new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date))
+      return false;
+
+    return !!(new Date(date));
+   })();
+  } catch(e) {
+    return false;
+  }
 }
 
 /**
