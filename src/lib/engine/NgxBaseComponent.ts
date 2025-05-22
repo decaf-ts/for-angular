@@ -5,7 +5,7 @@ import { stringToBoolean } from 'src/lib/helpers/string';
 import { Model } from '@decaf-ts/decorator-validation';
 import { CrudOperations, OperationKeys, Repository } from '@decaf-ts/db-decorators';
 import { BaseComponentProps } from './constants';
-import { NgxRenderingEngine2 } from 'dist/lib';
+import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
 
 export class PaginatedQuery {
   page!: Model[];
@@ -313,14 +313,14 @@ export abstract class NgxBaseComponent implements OnChanges {
   setModelDefinitions(model: Model) {
     if(model instanceof Model) {
       this.getRoute();
-      const {props, item} = (RenderingEngine as any).toFieldDefinition(this.model);
-      this.mapper = item?.props?.mapper || {};
+      const {props, item} = RenderingEngine.getDecorators(this.model as Model, {});
+      this.mapper = item?.props!["mapper"] || {};
       this.item = {
        tag: item?.tag || "",
        ... props,
        ... item?.props,
        mapper: this.mapper,
-       ... {route: item?.props?.route
+       ... {route: item?.props!["route"]
         || this.route}
       };
     }
