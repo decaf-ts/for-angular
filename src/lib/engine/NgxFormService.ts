@@ -293,9 +293,10 @@ export class NgxFormService {
       Object.entries(controls).forEach(([key, {control, props}]) => {
         const fc = Object.values(control.controls)[0];
         const {type} = props;
-        if(!HTML5CheckTypes.includes(type)) {
+        if(!HTML5CheckTypes.includes(type))
           fc.setValue(undefined);
-        }
+        fc.markAsPristine();
+        fc.markAsUntouched();
         fc.setErrors(null);
         fc.updateValueAndValidity();
       })

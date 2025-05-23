@@ -3,3 +3,8 @@ ion-infinite-scroll-content {
       --color: var(--ion-color-primary);
   }
 }
+
+#end,
+[slot="end"] {
+  @media(max-width: 768px) {  display: none !important;}
+}

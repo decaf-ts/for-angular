@@ -58,6 +58,5 @@ export enum BaseComponentProps {
   UID = "uid",
   TRANSLATABLE = 'translatable',
   MAPPER = "mapper",
+  INITIALIZED = 'initialized',
 }
-
-

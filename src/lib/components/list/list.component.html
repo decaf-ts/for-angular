@@ -1,7 +1,7 @@
 
 @if(showRefresher) {
-  <ion-refresher slot="fixed" [pullFactor]="1" [pullMin]="100" [pullMax]="200" (ionRefresh)="forceRefresh($event)">
-    <ion-refresher-content></ion-refresher-content>
+  <ion-refresher slot="fixed" [pullFactor]="1" [pullMin]="100" [pullMax]="200" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content />
   </ion-refresher>
 }
 
@@ -13,7 +13,7 @@
   <ion-list [inset]="inset" [lines]="lines" #component>
     @if(item?.tag) {
       @for(child of items; track child) {
-        <ngx-decaf-ui-element
+        <ngx-decaf-component-renderer
           [tag]="item.tag"
           (listenEvent)="handleEvent($event)"
           [globals]='{
@@ -21,20 +21,30 @@
             mapper: mapper,
             route: route
           }'>
-          </ngx-decaf-ui-element>
+          </ngx-decaf-component-renderer>
         }
     } @else {
       <ng-content></ng-content>
     }
   </ion-list>
+
   @if(loadMoreData) {
-    <ion-infinite-scroll
-      [class]="searchValue?.length ? 'dcf-hidden' : ''"
-      [position]="scrollPosition"
-      [threshold]="scrollThreshold"
-      (ionInfinite)="forceRefresh($event)">
-      <ion-infinite-scroll-content [loadingSpinner]="loadingSpinner" [loadingText]="loadingText"></ion-infinite-scroll-content>
-    </ion-infinite-scroll>
+    @if(pages > 0 && type === 'paginated' && !searchValue?.length) {
+      <ngx-decaf-pagination
+        [pages]="pages"
+        [selected]="page"
+        (clickEvent)="handlePaginate($event)"
+      />
+
+    } @else {
+      <ion-infinite-scroll
+        [class]="searchValue?.length ? 'dcf-hidden' : ''"
+        [position]="scrollPosition"
+        [threshold]="scrollThreshold"
+        (ionInfinite)="handleRefresh($event)">
+        <ion-infinite-scroll-content [loadingSpinner]="loadingSpinner" [loadingText]="loadingText" />
+      </ion-infinite-scroll>
+    }
   }
 } @else {
 
@@ -51,12 +61,11 @@
   } @else {
     @if(!searchValue?.length) {
       <ngx-decaf-empty-state
-        [locale]="locale"
-        [title]="emptyTitle"
-        [subtitle]="emptySubtitle"
-        [icon]="emptyIcon"
-        [buttonText]="emptyButtonText"
-        [buttonLink]="emptyButtonLink" />
+        [title]="(locale + '.'+ empty.title) | translate"
+        [subtitle]="(locale + '.'+ empty.subtitle) | translate"
+        [buttonText]="empty.showButton ? (locale + '.'+ empty.button | translate) : ''"
+        [buttonLink]="empty.showButton ? empty.route : ''"
+      />
     } @else {
       <ngx-decaf-empty-state
         icon="search-outline"

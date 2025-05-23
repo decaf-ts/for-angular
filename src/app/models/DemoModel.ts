@@ -37,9 +37,6 @@ export class ForAngularModel extends Model {
   })
   name!: string;
 
-  @uiprop(CategoryModel.name)
-  category!: CategoryModel;
-
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.gender.label',

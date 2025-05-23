@@ -18,8 +18,8 @@ describe('decorators', () => {
     imports: [ReactiveFormsModule, IonItem, DecafFieldDirective],
     schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     templateUrl:
-      '../components/crud-form-field/crud-field.component.html',
-    styleUrl: '../components/crud-form-field/crud-field.component.scss',
+      '../components/crud-field/crud-field.component.html',
+    styleUrl: '../components/crud-field/crud-field.component.scss',
   })
   class DecoratorTestFormField {}
 

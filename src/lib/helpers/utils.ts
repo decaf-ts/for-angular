@@ -18,7 +18,8 @@ export function getInjectablesRegistry(): InjectablesRegistry {
 }
 
 export function isDevelopmentMode(context: string = 'localhost') {
-  if (!context) return isDevMode();
+  if (!context)
+    return isDevMode();
   return (
     isDevMode() ||
     getWindow()?.['env']?.['CONTEXT'].toLowerCase() !== context.toLowerCase() ||

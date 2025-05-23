@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { ListPaginatedComponent } from './list-paginated.component';
+import { ListComponent } from './list.component';
 
-describe('ListPaginatedComponent', () => {
-  let component: ListPaginatedComponent;
-  let fixture: ComponentFixture<ListPaginatedComponent>;
+describe('ListComponent', () => {
+  let component: ListComponent;
+  let fixture: ComponentFixture<ListComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [ForAngularModule, ListPaginatedComponent],
+      imports: [ForAngularModule, ListComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ListPaginatedComponent);
+    fixture = TestBed.createComponent(ListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

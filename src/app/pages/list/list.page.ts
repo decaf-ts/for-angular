@@ -1,13 +1,11 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { ComponentsModule } from 'src/app/components/components.module';
 import { faker } from '@faker-js/faker';
-import { KeyValue, ModelRenderCustomEvent } from 'src/lib/engine/types';
-import { ListInfiniteComponent } from 'src/lib/components/list-infinite/list-infinite.component';
+import { KeyValue } from 'src/lib/engine/types';
 import { IonCard, IonCardContent, IonCardTitle, IonSearchbar } from '@ionic/angular/standalone';
 import { generateFakerData } from 'src/app/utils';
 import { EmployeeModel } from 'src/app/models/EmployeeModel';
 import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
-import { ListPaginatedComponent } from 'src/lib/components/list-paginated/list-paginated.component';
 import { CategoryModel } from 'src/app/models/CategoryModel';
 
 @Component({
@@ -19,26 +17,24 @@ import { CategoryModel } from 'src/app/models/CategoryModel';
 })
 export class ListPage implements OnInit {
 
-  @ViewChild('listComponent')
-  component!: ListInfiniteComponent | ListPaginatedComponent;
-
   @Input()
   type?: 'infinite' | 'paginated';
 
   data!: KeyValue[];
 
-  model!: CategoryModel;
+  model!: CategoryModel | EmployeeModel;
 
   constructor() {}
 
   async ngOnInit() {
     if(!this.type)
       this.type = 'infinite';
+    this.model = this.type === 'infinite' ?
+      new EmployeeModel() : new CategoryModel();
+  }
 
-    this.model = new CategoryModel();
-    // this.data = await this.getData();
-    // this.model = new EmployeeModel({});
-    // console.log(this.model)
+  ngOnDestroy() {
+    this.data = [];
   }
 
   handleEvent(event: BaseCustomEvent) {
@@ -56,7 +52,7 @@ export class ListPage implements OnInit {
 
   async refresh(){
     this.data = [];
-    return new CategoryModel({}).readAll();
+    return this.model.readAll();
   }
 
   handleListItemClick(event: Event, item: KeyValue) {

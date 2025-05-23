@@ -6,6 +6,7 @@ import { Model } from '@decaf-ts/decorator-validation';
 import { CrudOperations, OperationKeys, Repository } from '@decaf-ts/db-decorators';
 import { BaseComponentProps } from './constants';
 import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
+import { consoleInfo } from '../helpers/logging';
 
 export class PaginatedQuery {
   page!: Model[];
@@ -250,8 +251,9 @@ export abstract class NgxBaseComponent implements OnChanges {
       const { currentValue } = changes[BaseComponentProps.MODEL];
       if(currentValue)
         this.getModel(currentValue);
+      this.getLocale(this.translatable);
     }
-    if (changes[BaseComponentProps.LOCALE] || changes[BaseComponentProps.TRANSLATABLE])
+    if (changes[BaseComponentProps.INITIALIZED] || changes[BaseComponentProps.LOCALE] || changes[BaseComponentProps.TRANSLATABLE])
       this.getLocale(this.translatable);
   }
 
@@ -298,19 +300,19 @@ export abstract class NgxBaseComponent implements OnChanges {
     return this.locale;
   }
 
-  getRoute(): string | undefined {
+  getRoute(): string {
     if(!this.route && this.model instanceof Model)
       this.route = `/model/${this.model?.constructor.name}`;
-    return this.route;
+    return this.route || "";
   }
 
-  getModel(model: string | Model) {
+  getModel(model: string | Model): void {
     if(!(model instanceof Model))
       this.model = getInjectablesRegistry().get(model) as Model;
     this.setModelDefinitions(this.model as Model);
   }
 
-  setModelDefinitions(model: Model) {
+  setModelDefinitions(model: Model): void {
     if(model instanceof Model) {
       this.getRoute();
       const {props, item} = RenderingEngine.getDecorators(this.model as Model, {});
@@ -330,6 +332,7 @@ export abstract class NgxBaseComponent implements OnChanges {
     if(this.initialized)
       return;
     this.initialized = true;
+    consoleInfo(this, `${this.componentName} Initialized`);
   }
 
 }

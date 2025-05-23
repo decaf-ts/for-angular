@@ -1,6 +1,6 @@
 import { apply, metadata } from '@decaf-ts/reflection';
 import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
-import { AngularEngineKeys, ComponentsTagNames } from './constants';
+import { AngularEngineKeys } from './constants';
 import { Constructor } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
 import { reflectComponentType, Type } from '@angular/core';
