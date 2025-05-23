@@ -1,7 +1,9 @@
 <app-header
-  title="List"
+  [model]="model"
+  [title]="'List ' + type"
   center="true"
   showBackButton="true"
+  operations="['read', 'create']"
   color="primary">
 </app-header>
 
@@ -10,66 +12,19 @@
     <app-container [hasSideMenu]="true">
       <ion-card>
         <ion-card-content>
-          <!-- <ngx-decaf-model-renderer
-            [model]="model"
-            (listenEvent)="handleEvent($event)"
-            [globals]='{
-              manager: model
-            }' /> -->
-
           @if(type === 'infinite') {
             <ngx-decaf-list-infinite
-              class="aeon-list"
-              lines="none"
-              button="true"
-              [showSearchbar]="true"
-              [showRefresher]="true"
-              [manager]="model"
-              (refreshEvent)="handleListRefreshEvent($event)"
-              #listComponent
-            >
-            @if(data?.length) {
-              @for(item of data; track item) {
-                <ion-item [button]="true" (click)="handleListItemClick($event, item)">
-                  <ion-icon aria-hidden="true" name="reader-outline" slot="start"></ion-icon>
-                  <ion-label>
-                    <p class="dcf-list-title">{{item.id}} - {{item.name}}</p>
-                    <p class="dcf-list-description">{{item.occupation}}</p>
-                  </ion-label>
-                  <ion-note slot="end">{{item.birthdate}}</ion-note>
-                </ion-item>
-              }
-            }
-            </ngx-decaf-list-infinite>
+              [model]="model"
+              (listenEvent)="handleEvent($event)"
+            />
           } @else {
             <ngx-decaf-list-paginated
-            class="aeon-list"
-            lines="none"
-            button="true"
-            [showPagination]="true"
-            [showSearchbar]="true"
-            [showRefresher]="true"
-            [source]="refresh.bind(this)"
-            (refreshEvent)="handleListRefreshEvent($event)"
-            #listComponent
-          >
-          @if(data?.length) {
-            @for(item of data; track item) {
-              <ion-item [button]="true" (click)="handleListItemClick($event, item)">
-                <ion-icon aria-hidden="true" name="reader-outline" slot="start"></ion-icon>
-                <ion-label>
-                  <p class="dcf-list-title">{{item.name}}</p>
-                  <p class="dcf-list-description">{{item.occupation}}</p>
-                </ion-label>
-                <ion-note slot="end">{{item.birthdate}}</ion-note>
-              </ion-item>
-            }
-          }
-          </ngx-decaf-list-paginated>
+              [model]="model"
+              (listenEvent)="handleEvent($event)"
+            />
           }
         </ion-card-content>
       </ion-card>
-
     </app-container>
   </main>
 </ion-content>

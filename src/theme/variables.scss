@@ -3,6 +3,12 @@
 
 /** Ionic CSS Variables **/
 
+
+// xs	0px (xsmall)
+// sm	576px (small)
+// md	768px (medium)
+// lg	992px (large)
+// xl	1200px (xlarge)
 :root {
 
   --ion-default-dynamic-font: 'Poppins', sans-serif;
@@ -94,8 +100,13 @@
   --dcf-color-gray-9: #101828;
   --dcf-color-gray-10: #0C111D;
 
-  --dcf-width-sm: 576px;
+  --dcf-width-s: 576px;
+  --dcf-width-m: 768px;
+  --dcf-width-l: 992px;
+  --dcf-width-xl: 1200px;
 }
+
+
 
 // @media (prefers-color-scheme: gray) {
 //   /*

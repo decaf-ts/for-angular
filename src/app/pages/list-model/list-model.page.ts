@@ -1,13 +1,12 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { ComponentsModule } from 'src/app/components/components.module';
-import { faker } from '@faker-js/faker';
-import { KeyValue, ModelRenderCustomEvent } from 'src/lib/engine/types';
+import { KeyValue } from 'src/lib/engine/types';
 import { ListInfiniteComponent } from 'src/lib/components/list-infinite/list-infinite.component';
 import { IonCard, IonCardContent, IonCardTitle, IonSearchbar } from '@ionic/angular/standalone';
-import { generateFakerData } from 'src/app/utils';
 import { EmployeeModel } from 'src/app/models/EmployeeModel';
-import { EventConstants } from 'src/lib/engine';
+import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
 import { ListPaginatedComponent } from 'src/lib/components/list-paginated/list-paginated.component';
+import { CategoryModel } from 'src/app/models/CategoryModel';
 
 @Component({
   selector: 'app-list-model',
@@ -27,20 +26,23 @@ export class ListModelPage implements OnInit {
 
   data!: KeyValue[];
 
-  model!: EmployeeModel;
+  model!: EmployeeModel | CategoryModel;
+
+  crudModel!: CategoryModel;
 
   constructor() {}
 
   async ngOnInit() {
     if(!this.type)
       this.type = 'infinite';
-    // this.data = await this.getData();
-    this.model = new EmployeeModel({});
-    // console.log(this.model)
+    this.model = this.type === 'infinite' ?
+      new EmployeeModel() : new CategoryModel();
+    // consoleInfo(this, JSON.stringify(this.model))
   }
 
-  handleEvent(event: ModelRenderCustomEvent) {
+  handleEvent(event: BaseCustomEvent) {
     const {name, data } = event;
+    console.log(event);
     if(name === EventConstants.REFRESH_EVENT)
       return this.handleListRefreshEvent(data as KeyValue[]);
   }
@@ -54,20 +56,7 @@ export class ListModelPage implements OnInit {
     }
   }
 
-  async refresh(){
-    this.data = [];
-    return await this.getData();
-  }
-
   handleListItemClick(event: Event, item: KeyValue) {
   }
 
-  async getData() {
-    return await generateFakerData(100, {
-      name: faker.person.fullName,
-      occupation: faker.person.jobTitle,
-      birthdate: faker.date.birthdate,
-      hiredAt: faker.date.past
-    });
-  }
 }

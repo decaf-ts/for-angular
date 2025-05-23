@@ -17,10 +17,11 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { Validation, ValidationKeys } from '@decaf-ts/decorator-validation';
+import { isValidDate, parseDate, Validation, ValidationKeys } from '@decaf-ts/decorator-validation';
 import { AngularEngineKeys } from './constants';
 import { FormElement } from '../interfaces';
 import { ValidatorFactory } from './ValidatorFactory';
+import { consoleWarn } from '../helpers/logging';
 
 /**
  * @summary Service for managing Angular forms and form controls.
@@ -121,7 +122,7 @@ export class NgxFormService {
             val = escapeHtml(control.value[key]);
         }
       } else {
-        val = control.value;
+        val = Object.values(control.value)[0];
       }
       data[key] = val;
     }
@@ -184,8 +185,10 @@ export class NgxFormService {
       {
         value:
           props.value && props.type !== HTML5InputTypes.CHECKBOX
-            ? (props.value as any)
-            : undefined,
+            ? props.type === HTML5InputTypes.DATE
+              ? !isValidDate(parseDate(props.format as string, props.value as string))
+                ? undefined : props.value :
+                  (props.value as any) : undefined,
         disabled: props.disabled,
       },
       composed
@@ -283,5 +286,20 @@ export class NgxFormService {
     if (!field) delete this.controls[formId];
     else
       delete this.controls[formId][(field as unknown as { name: string }).name];
+  }
+
+  static reset() {
+    const controls = Object.values(this.controls)[0];
+    if(controls) {
+      Object.entries(controls).forEach(([key, {control, props}]) => {
+        const fc = Object.values(control.controls)[0];
+        const {type} = props;
+        if(!HTML5CheckTypes.includes(type)) {
+          fc.setValue(undefined);
+        }
+        fc.setErrors(null);
+        fc.updateValueAndValidity();
+      })
+    }
   }
 }

@@ -4,16 +4,8 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'demo',
+    redirectTo: 'crud/read',
     pathMatch: 'full'
-  },
-  {
-    path: 'demo',
-    loadComponent: () => import('./pages/demo/demo.page').then( m => m.DemoPage)
-  },
-  {
-    path: 'demo/:operation',
-    loadComponent: () => import('./pages/demo/demo.page').then( m => m.DemoPage)
   },
   {
     path: 'crud',
@@ -38,5 +30,17 @@ export const routes: Routes = [
   {
     path: 'list-model/:type',
     loadComponent: () => import('./pages/list-model/list-model.page').then( m => m.ListModelPage)
+  },
+  {
+    path: 'model',
+    loadComponent: () => import('./pages/model/model.page').then( m => m.ModelPage)
+  },
+   {
+    path: 'model/:modelName/:operation',
+    loadComponent: () => import('./pages/model/model.page').then( m => m.ModelPage)
+  },
+  {
+    path: 'model/:modelName/:operation/:uid',
+    loadComponent: () => import('./pages/model/model.page').then( m => m.ModelPage)
   }
 ];

@@ -1,22 +1,31 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, inject, Inject, Input, OnInit } from '@angular/core';
 import {
+  CrudOperations,
   InternalError,
   IRepository,
   OperationKeys,
 } from '@decaf-ts/db-decorators';
 import { Repository } from '@decaf-ts/core';
-import { Model } from '@decaf-ts/decorator-validation';
-import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
+import { Constructor, Model, ModelArg, ModelConstructor } from '@decaf-ts/decorator-validation';
 import { ComponentsModule } from 'src/app/components/components.module';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSearchbar, NavController } from '@ionic/angular/standalone';
+import { getInjectablesRegistry } from 'src/lib/helpers/utils';
+import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
+import { consoleError, consoleWarn } from 'src/lib/helpers/logging';
+import { CategoryModel } from 'src/app/models/CategoryModel';
+import { FormReactiveSubmitEvent } from 'src/lib/components/crud-form/types';
+import { FakerRepository } from 'src/app/utils/FakerRepository';
+import { RouterService } from 'src/app/services/router.service';
+import { getNgxToastComponent } from 'src/lib/engine/NgxToastComponent';
 
 @Component({
   standalone: true,
   selector: 'app-model',
   templateUrl: './model.page.html',
-  imports: [ForAngularComponentsModule, ComponentsModule],
+  imports: [ComponentsModule, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonSearchbar],
   styleUrls: ['./model.page.scss'],
 })
-export class ModelPageComponent implements OnInit {
+export class ModelPage {
   @Input()
   operation:
     | OperationKeys.CREATE
@@ -28,9 +37,9 @@ export class ModelPageComponent implements OnInit {
   modelName!: string;
 
   @Input()
-  id!: string;
+  uid!: string;
 
-  model!: Model;
+  model!: IRepository<Model> | FakerRepository<Model> | undefined;
 
   //
   // @HostListener('window:modelCrudOperation', ['$event'])
@@ -49,6 +58,7 @@ export class ModelPageComponent implements OnInit {
   // }
 
   private _repository?: IRepository<Model>;
+  private routerService: RouterService = inject(RouterService);
 
   private get repository() {
     if (!this._repository) {
@@ -58,13 +68,13 @@ export class ModelPageComponent implements OnInit {
           'Cannot find model. was it registered with @model?',
         );
       this._repository = Repository.forModel(constructor);
+      console.log(this._repository);
     }
     return this._repository;
   }
 
-  async ngOnInit(): Promise<void> {
-    if (!this.modelName) throw new Error('No model name was provided');
-    return this.refresh();
+  async ionViewWillEnter(): Promise<void> {
+    return this.refresh(this.uid);
   }
   //
   // async ionViewDidEnter() {}
@@ -74,8 +84,28 @@ export class ModelPageComponent implements OnInit {
   // }
 
   async refresh(uid?: string) {
-    // const self: ModelPageComponent = this;
-    //
+    const self: ModelPage = this;
+    try {
+      const model = new (Model.get(!self.modelName.includes('Model') ? `${self.modelName}Model` : self.modelName) as ModelConstructor<any>)();
+      switch(self.operation){
+        case OperationKeys.CREATE:
+          this.model = model;
+        break
+        case OperationKeys.READ || OperationKeys.UPDATE || OperationKeys.DELETE:
+          this.model = await self.handleGet(model, this.uid) as any;
+        break;
+        // to DO
+        // default:
+        //   return Model.fromObject(self.manager)
+      }
+
+    } catch (error: any) {
+      consoleError(this, error?.message || error);
+    }
+    // this.model = (Model.get(self.modelName) as any)();
+    // console.log(this.model);
+    // this.model = Model.fromModel(getInjectablesRegistry().get(self.modelName)) as any;
+    // console.log(this.model)
     // if (this.operation !== OperationKeys.CREATE)
     //   await self.handleGet((uid || self.modelId) as string);
     //
@@ -100,6 +130,47 @@ export class ModelPageComponent implements OnInit {
     //   // await self.getComponent(results);
     // })
   }
+
+  async handleEvent(event: BaseCustomEvent) {
+    const { name, data } = event;
+    console.log(event);
+    switch (event.name) {
+      case EventConstants.SUBMIT_EVENT:
+        await this.handleSubmit(event);
+      break;
+    }
+  }
+
+  async handleSubmit(event: FormReactiveSubmitEvent): Promise<void | Error> {
+    try {
+      const result = await (this.model as FakerRepository<Model>).create(event.data);
+      if(result) {
+        this.routerService.backToLastPage();
+        await getNgxToastComponent().inform(`${this.operation} Item successfully`);
+      }
+    } catch (error: any) {
+      consoleError(this, error?.message || error);
+      throw new Error(error);
+    }
+    // console.log(data)
+  }
+
+  async handleGet(model: IRepository<Model>, uid: string) {
+    const self = this;
+    return new Promise(async (resolve, reject) => {
+      if (!uid) {
+        consoleWarn(
+          self,
+          'No key passed to model page read operation, backing to last page',
+        );
+        this.routerService.backToLastPage();
+        return reject(null);
+      }
+      resolve(await model.read(uid));
+    });
+  }
+
+
   //
   // changeOperation(operation: string) {
   //   // this.routeService.navigateTo(

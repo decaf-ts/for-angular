@@ -4,17 +4,18 @@
   </ng-container> -->
 
   <ng-template #componentOuter></ng-template>
-
   <ng-template #inner>
-    <div [id]="rendererId || null">
-      @for (child of output?.children; track child.inputs.name) {
-        <ng-container *ngComponentOutlet="child.component;
+    <div  [id]="rendererId || null">
+      @for (child of output?.children; track child) {
+        <ng-container  #childComponents *ngComponentOutlet="child.component;
                                     injector: child.injector;
-                                    inputs: child.inputs
-                                    content: child.content">
+                                    inputs: child.inputs;
+                                    content: child.content"
+
+
+        >
         </ng-container>
       }
     </div>
   </ng-template>
-
 

@@ -1,0 +1,27 @@
+ <div class="dcf-flex dcf-flex-center">
+  <div class="dcf-width-1-1">
+    <div class="dcf-pagination-resume" [innerHTML]="locale + '.resume' | translate: {value0: current, value1: last}"></div>
+    <div #paginationComponent class="dcf-pagination aeon-pagination dcf-flex-center">
+      <div
+        aria-label="previous"
+        tabindex="0"
+        (click)="previous()"
+        (keydown.enter)="previous()" [ngClass]="{'dcf-disabled': current === 1}">
+        <ion-icon name="chevron-back-outline" aria-hidden="true"></ion-icon>
+      </div>
+      @for(page of pages; track page) {
+        <div tabindex="0" (click)="navigate(page['index'])"
+          (keydown.enter)="navigate(page['index'])"
+          [ngClass]="{'dcf-active': current === page['index'], 'dcf-disabled': page['index'] === ndivl}">
+          <span class="page-item">{{ page['text'] }}</span>
+        </div>
+      }
+      <div
+        tabindex="0" (click)="next()"
+        (keydown.enter)="next()"
+        [ngClass]="{'dcf-disabled': current === last}">
+        <ion-icon name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+      </div>
+    </div>
+  </div>
+</div>

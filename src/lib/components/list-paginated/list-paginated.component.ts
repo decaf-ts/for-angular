@@ -1,49 +1,65 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA, HostListener, OnInit  } from '@angular/core';
-import { IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonRefresher, IonSkeletonText, IonText, IonThumbnail } from '@ionic/angular/standalone';
-import { ForAngularModule } from 'src/lib/for-angular.module';
-import { ListInfiniteComponent } from '../list-infinite/list-infinite.component';
-import { getInjectablesRegistry } from 'src/lib/helpers/utils';
-import { KeyValue, StringOrBoolean } from 'src/lib/engine/types';
-import { arraySortByDate } from 'src/lib/helpers/array';
-import { InfiniteScrollCustomEvent, RefresherCustomEvent } from '@ionic/angular/standalone';
-import { consoleError, consoleWarn } from 'src/lib/helpers/logging';
-import { SearchbarComponent } from '../searchbar/searchbar.component';
+import { Component, HostListener  } from '@angular/core';
+import { InfiniteScrollCustomEvent, RefresherCustomEvent } from '@ionic/angular';
+import {
+  IonItem,
+  IonLabel,
+  IonList,
+  IonLoading,
+  IonRefresher,
+  IonRefresherContent,
+  IonSkeletonText,
+  IonText,
+  IonIcon,
+  IonThumbnail
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { chevronBackOutline } from 'ionicons/icons';
-import { chevronForwardOutline } from 'ionicons/icons';
+import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
+import {
+  Dynamic,
+  StringOrBoolean,
+  KeyValue,
+} from 'src/lib/engine';
+import { ForAngularModule } from 'src/lib/for-angular.module';
+import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
-import { Repository } from '@decaf-ts/db-decorators';
-import { Model } from '@decaf-ts/decorator-validation';
+import { ListItemComponent } from '../list-item/list-item.component';
+import { UiElementComponent } from '../ui-element/ui-element.component';
+import { ListInfiniteComponent } from '../list-infinite/list-infinite.component';
+import { PaginationComponent } from '../pagination/pagination.component';
 
+@Dynamic()
 @Component({
   selector: 'ngx-decaf-list-paginated',
   templateUrl: './list-paginated.component.html',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   styleUrls: ['./list-paginated.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   imports: [
     ForAngularModule,
     IonRefresher,
     IonList,
+    IonIcon,
     IonItem,
+    IonLoading,
+    IonThumbnail,
+    IonSkeletonText,
     IonLabel,
     IonText,
-    IonInfiniteScroll,
-    IonInfiniteScrollContent,
+    IonRefresherContent,
     IonThumbnail,
     IonSkeletonText,
     SearchbarComponent,
-    EmptyStateComponent
+    EmptyStateComponent,
+    ListItemComponent,
+    UiElementComponent,
+    PaginationComponent
+
   ],
-  standalone: true,
 })
-export class ListPaginatedComponent extends ListInfiniteComponent implements OnInit, AfterViewInit {
+export class ListPaginatedComponent extends ListInfiniteComponent {
 
-  paginationPages!: KeyValue[];
 
-  paginationResume!: string;
+  override type: 'infinite' | 'paginated' = 'paginated';
 
-  hasPagination: StringOrBoolean = this.loadMoreData;
   /**
    * @constructor
    * @description Initializes a new instance of the ListPaginatedComponent.
@@ -52,10 +68,6 @@ export class ListPaginatedComponent extends ListInfiniteComponent implements OnI
   constructor() {
     super();
     addIcons({chevronBackOutline, chevronForwardOutline});
-  }
-
-  ngAfterViewInit(): void {
-    this.hasPagination = this.loadMoreData
   }
 
   /**
@@ -67,240 +79,104 @@ export class ListPaginatedComponent extends ListInfiniteComponent implements OnI
   // ngOnInit(): void {}
 
   override async refresh(event?: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean): Promise<void> {
-    const self = this;
-
     // if(typeof event !== 'boolean') {
     //   const {refresh} = (event as CustomEvent).detail;
     //   if(force.type !== BACK_BUTTON_NAVIGATION_EVENT)
     //     return false;
     // }
+    this.refreshing = true;
 
-    self.refreshing = true;
+    let start: number = this.page > 1 ? (this.page - 1) * this.limit : this.start;
+    let limit: number = (this.page * (this.limit > 12 ? 12 : this.limit));
 
-    let start: number = this.currentPage > 1 ? (self.currentPage - 1) * self.limit : self.start;
-    let limit: number = (self.currentPage * (self.limit > 12 ? 12 : self.limit));
-
-    if(!this.manager) {
-      await self.getFromRequest(!!event, start, limit);
+    if(!this.model) {
+      await this.getFromRequest(!!event, start, limit);
+      if(this.loadMoreData)
+        await this.getPages(this.data?.length || 0);
     } else {
       // self.refreshManager();
-      await self.getFromManager(!!event, start, limit);
+      this.data = [... await this.getFromModel(!!event, start, limit) as KeyValue[]];
+      await this.getPages(this.lastResult?.total || 0);
     }
 
-    if(self.loadMoreData)
-      await self.getPagination(self.data?.length || 0);
-
+    this.hasPagination = this.loadMoreData;
+    this.refreshEventEmit();
     setTimeout(() => {
-        self.refreshing = false;
+        this.refreshing = false;
     }, 1000);
   }
 
-  override async getFromRequest(force: boolean = false, start: number, limit: number) {
-    const self = this;
-    self.items = [] as KeyValue[];
+  // override async getFromRequest(force: boolean = false, start: number, limit: number) {
+  //   const self = this;
+  //   self.items = [] as KeyValue[];
 
-    if(!self.data?.length && !!self.source || force || self.searchValue?.length) {
+  //   if(!self.data?.length && !!self.source || force || self.searchValue?.length) {
 
-      let request: any;
+  //     let request: any;
 
-      if(!self.searchValue?.length) {
-        (self.data as KeyValue[]) = [];
+  //     if(!self.searchValue?.length) {
+  //       (self.data as KeyValue[]) = [];
 
-        if(!self.source && !self.data?.length)
-          return consoleWarn(this, 'No data and source passed to infinite list');
+  //       if(!self.source && !self.data?.length)
+  //         return consoleWarn(this, 'No data and source passed to infinite list');
 
-        // if(typeof self.source === 'string')
-        //   request = await this.requestService.prepare(self.source as string);
+  //       // if(typeof self.source === 'string')
+  //       //   request = await this.requestService.prepare(self.source as string);
 
-        if(self.source instanceof Function)
-          request = await self.source();
+  //       if(self.source instanceof Function)
+  //         request = await self.source();
 
-        if(!!request && !Array.isArray(request))
-          request = request?.response?.data || request?.results || [];
-        request = arraySortByDate(request);
-        if(!!self.item?.mapper)
-          request = self.itemsMapper(request as KeyValue[]);
-      } else {
-        request = await self.parseSearchResults(self.data as [], self.searchValue as string);
-      }
+  //       if(!!request && !Array.isArray(request))
+  //         request = request?.response?.data || request?.results || [];
+  //       request = arraySortByDate(request);
+  //       if(!!self.mapper)
+  //         request = self.mapResults(request as KeyValue[]);
+  //     } else {
+  //       request = await self.parseSearchResults(self.data as [], self.searchValue as string);
+  //     }
 
-      self.data = [...request as KeyValue[]];
-    }
+  //     self.data = [...request as KeyValue[]];
+  //   }
 
-    if(self.data?.length) {
-      if(self.searchValue) {
-        self.items = [...self.data];
-        if(self.items?.length <= self.limit)
-          self.loadMoreData = false;
-      } else {
-        self.items = [...self.data.slice(start, limit)];
-      }
-    }
+  //   if(self.data?.length) {
+  //     if(self.searchValue) {
+  //       self.items = [...self.data];
+  //       if(self.items?.length <= self.limit)
+  //         self.loadMoreData = false;
+  //     } else {
+  //       self.items = [...self.data.slice(start, limit)];
+  //     }
+  //   }
+  // }
 
-    return self.refreshEventEmit(self.items as KeyValue[]);
-  }
+  // getPreviousPage() {
+  //   const page = this.page - 1;
 
-  override async getFromManager(force: boolean = false, start: number, limit: number): Promise<any>{
-    const self = this;
-    self.items = [];
+  //   if(page === 0)
+  //     return false;
 
-    if(!self.data?.length || force || self.searchValue?.length) {
-      try {
-        let request: any;
+  //   this.page = page;
+  //   this.refresh();
+  // }
 
-        if(!self.searchValue?.length) {
-          (self.data as KeyValue[]) = [];
+  // getNextPage() {
+  //   const page = this.page + 1;
+  //   if(page > this.pages)
+  //     return false;
 
-          // if(typeof self.manager === 'string')
-          //   self.manager = getInjectablesRegistry().get(self.manager);
+  //   this.page = page;
+  //   this.refresh(true);
+  // }
 
-          if(typeof self.manager === 'string')
-                   self.manager = getInjectablesRegistry().get(self.manager) as Repository<Model>;
-        const pk = self.manager?.pk || self.modelPk;
-        const table = self.manager?.class || self.manager?.constructor?.name;
-        const query = !!self.query ?
-          typeof self.query === 'string' ? JSON.parse(self.query) : self.query : {};
-          const raw = {
-            selector: Object.assign({}, {
-              [pk]: {"$gt": null},
-              "?table": table
-            }, query)
-          };
+  // getPage(page: number | null) {
+  //   if(page === null)
+  //       return null
 
-          // if(limit!== 0) {
-          //     raw['skip']  = start;
-          //     raw['limit'] = limit;
-          // }
+  //   if(this.page === page)
+  //     return false;
 
-          // request = arraySortByDate(await self.manager.raw(raw as unknown) || []);
-          request = await self.manager?.readAll(['']) || [];
-          if(!!self.item?.mapper)
-            request = self.itemsMapper(request as KeyValue[]);
-
-        } else {
-          request = await self.parseSearchResults(self.data as [], self.searchValue as string);
-        }
-
-        self.data = [...request];
-
-      } catch(e) {
-        consoleError(this, `Unable to find ${self.manager} on registry. Return empty array from component`);
-      }
-    }
-    if(self.data?.length) {
-      if(self.searchValue) {
-        self.items = [...self.data];
-        if(self.items?.length <= self.limit)
-          self.loadMoreData = false;
-      } else {
-        self.items = [...self.data.slice(start, limit)];
-      }
-    }
-    self.refreshEventEmit(self.items);
-  }
-
-   @HostListener('window:searchbarEvent', ['$event'])
-   override async handleSearch(value: string | undefined) {
-    if(this.hasPagination)
-      this.loadMoreData = true;
-     this.searchValue = value;
-     await this.refresh(true);
-   }
-
-  async getPagination(length: number) {
-    if(length <= this.limit) {
-      this.loadMoreData = false;
-    } else {
-      this.pages = Math.floor(length / this.limit);
-      if((this.pages * this.limit) < length)
-        this.pages += 1;
-
-      if(this.pages  === 1) {
-        this.loadMoreData = false;
-      } else {
-        this.paginationPages = this.getPaginationPages(this.currentPage, this.pages);
-        const resumeLocale = `${this.locale}.pagination`;
-        this.paginationResume = `Showing page ${this.currentPage} of ${this.pages}` as string;
-        // this.paginationResume = await this.localeService.get(`${resumeLocale}`, {page: this.currentPage, total: this.pages}) as string;
-        // pegar a paginação do componente, caso não encontre no locale informado
-        // if(!this.paginationResume)
-        //   this.paginationResume = await this.localeService.get(`${getLocaleFromClassName('ListComponent')}.pagination`, {page: this.currentPage, total: self.pages}) as string;
-      }
-    }
-
-
-  }
-
-  getPaginationPages(currentPage: number, totalPages: number): KeyValue[] {
-
-    let pages: KeyValue[] = [];
-
-    function getPage(index: number | null, text: string = '') {
-      let check = pages.find(item => item['index'] === index);
-      if(check)
-          return false;
-      if(index != null)
-        text = index > 10 ? index.toString() : `0${index}${text}`;
-      pages.push({
-        index: index,
-        text: text
-      });
-    };
-
-    for(let i = 1; i <= totalPages; i++) {
-      if(totalPages <= 5) {
-          getPage(i);
-          continue;
-      } else {
-        if (i === 1 && currentPage !== 1) {
-          getPage(i, currentPage !== totalPages ? ' ...' : '');
-          continue;
-        }
-        if (i <= currentPage + 1 && i > currentPage - 1) {
-          getPage(i);
-          continue;
-        }
-        if (i + 1 >= totalPages) {
-          if (i + 1 === totalPages && i !== currentPage)
-            getPage(null, "...");
-
-          getPage(i);
-        }
-      }
-    }
-    return [... new Set(pages)];
-  }
-
-
-  getPreviousPage() {
-    const page = this.currentPage - 1;
-
-    if(page === 0)
-      return false;
-
-    this.currentPage = page;
-    this.refresh();
-  }
-
-  getNextPage() {
-    const page = this.currentPage + 1;
-    if(page > this.pages)
-      return false;
-
-    this.currentPage = page;
-    this.refresh();
-  }
-
-  getPage(page: number | null) {
-    if(page === null)
-        return null
-
-    if(this.currentPage === page)
-      return false;
-
-    this.currentPage = page;
-    this.refresh();
-  }
-
+  //   this.page = page;
+  //   this.refresh(true);
+  // }
 
 }

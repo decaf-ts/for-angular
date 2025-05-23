@@ -64,6 +64,8 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
   @Input()
   buttonSize: 'large' | 'small' | 'default' =  'default';
 
+  @Input()
+  searchValue!: string;
 
 
   private routerService: RouterService = inject(RouterService);

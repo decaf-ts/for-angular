@@ -1,17 +1,13 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import {
-  ComparisonValidationKeys,
-  Validation,
-  Validator,
-} from '@decaf-ts/decorator-validation';
-import { FieldProperties, parseValueByType } from '@decaf-ts/ui-decorators';
+import { ComparisonValidationKeys, Validation, Validator } from '@decaf-ts/decorator-validation';
+import { FieldProperties, HTML5InputTypes, parseValueByType } from '@decaf-ts/ui-decorators';
 import { NgxFormService } from './NgxFormService';
 
 export class ValidatorFactory {
   static spawn(
     fieldProps: FieldProperties,
     key: string,
-    formId: string
+    formId: string,
   ): ValidatorFn {
     if (!Validation.keys().includes(key))
       throw new Error('Unsupported custom validation');
@@ -19,13 +15,13 @@ export class ValidatorFactory {
     const type = fieldProps.type;
 
     const validatorFn: ValidatorFn = (
-      control: AbstractControl
+      control: AbstractControl,
     ): ValidationErrors | null => {
       const validator = Validation.get(key) as Validator;
 
       const value =
         typeof control.value !== 'undefined'
-          ? parseValueByType(type, control.value, fieldProps)
+          ? parseValueByType(type, type === HTML5InputTypes.CHECKBOX ? fieldProps.name : control.value, fieldProps)
           : undefined;
 
       // arg = RenderingEngine.get().translate(arg as string, false);
@@ -36,7 +32,8 @@ export class ValidatorFactory {
         try {
           formData = NgxFormService.getFormData(formId);
           console.log('formData=', formData);
-        } catch (e: any) {}
+        } catch (e: any) {
+        }
       }
 
       let errs;
@@ -46,7 +43,7 @@ export class ValidatorFactory {
           {
             [key]: fieldProps[key as keyof FieldProperties],
           },
-          formData
+          formData,
         );
       } catch (e: unknown) {
         console.warn(`${key} validator failed to validate: ${e}`);

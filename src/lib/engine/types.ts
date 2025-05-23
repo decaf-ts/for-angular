@@ -3,7 +3,7 @@ import { TextFieldTypes } from '@ionic/core';
 import { Injector, Type } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
-export type KeyValue = { [index: string]: any };
+export type KeyValue = Record<string, any>;
 
 export type ElementSizes =
   | 'small'
@@ -75,9 +75,9 @@ export type AngularFieldDefinition = Omit<
   > &
   Pick<IonTextarea, 'rows' | 'cols'> &
   Pick<IonCheckbox, 'alignment' | 'justify' | 'checked'> & {
-    type: PossibleInputTypes;
-    className: string | string[];
-  } & Record<string, unknown>;
+  type: PossibleInputTypes;
+  className: string | string[];
+} & Record<string, unknown>;
 
 export type StringOrBoolean = 'true' | 'false' | boolean;
 
@@ -95,43 +95,18 @@ export interface InputOption {
 
 export type HTMLFormTarget = '_blank' | '_self' | '_parent' | '_top' | string;
 
-export interface IListItemComponent {
-  title?: string;
-  modelId?: string;
-  modelPk?: string;
-  modelPage?: string;
-  className?: string;
-  operations?: string[];
-  lines?: 'inset' | 'full' | 'none';
-  button?: StringOrBoolean;
-  icon?: string;
-  iconSlot?: 'start' | 'end';
-  titleClassName?: string;
-  subtitle?: string;
-  subtitleClassName?: string;
-  info?: string;
-  subinfo?: string;
-}
+// export interface IListItemProp {
+//   render?: string | boolean;
+//   translateProps?: string | string[];
+//   button?: StringOrBoolean;
+//   icon?: string;
+//   iconSlot?: 'start' | 'end';
+//   title?: string;
+//   descritpion?: string;
+//   info?: string;
+//   subinfo?: string;
+// }
 
-export interface IListItemProps {
-  render: StringOrBoolean;
-  mapper?: KeyValue;
-  modelId?: string;
-  translateProps?: string | string[];
-  className?: string;
-  button?: StringOrBoolean;
-  icon?: string;
-  iconSlot?: 'start' | 'end';
-  titleClassName?: string;
-  subtitleClassName?: string;
-}
-
-export type ListItemActionEvent = {
-  action: string;
-  id: string;
-  target?: HTMLElement;
-  pk?: string;
-};
 
 export interface IListComponentRefreshEvent {
   data: KeyValue[];
@@ -147,9 +122,22 @@ export type FormServiceControls = Record<
   Record<string, FormServiceControl>
 >;
 
+
 export interface ModelRenderCustomEvent {
-  data: unknown;
+  detail: BaseCustomEvent;
+  component: string;
   name: string;
+}
+
+export interface ListItemCustomEvent extends BaseCustomEvent {
+  action: string;
+  pk?: string;
+};
+
+export interface BaseCustomEvent {
+  data: any;
+  target?: HTMLElement;
+  name?: string;
   component: string;
 }
 

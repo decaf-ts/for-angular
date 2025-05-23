@@ -33,63 +33,17 @@ import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 export class HeaderComponent extends NgxBaseComponent implements OnInit {
 
   /**
-   * @description List of CRUD operations available for the current model.
-   * @summary Defines which CRUD operations (Create, Read, Update, Delete) are available
-   * for the current model. This affects which operation buttons are displayed in the header.
-   *
-   * @type {CrudOperations[]}
-   * @default [OperationKeys.READ]
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  crudOperations: CrudOperations[] = [OperationKeys.READ];
-
-  /**
    * @description The current CRUD operation being performed.
    * @summary Indicates which CRUD operation is currently active. This affects the UI state
    * and which operation buttons are highlighted or disabled.
    *
-   * @type {CrudOperations}
+   * @type {operations}
    * @default OperationKeys.READ
    * @memberOf HeaderComponent
    */
   @Input()
   currentOperation: CrudOperations = OperationKeys.READ;
 
-  /**
-   * @description The model page route name.
-   * @summary Specifies the base route name for the model being displayed. This is used
-   * for navigation when changing operations or performing actions on the model.
-   *
-   * @type {string}
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  modelPage?: string;
-
-  /**
-   * @description The ID of the current model instance.
-   * @summary Specifies the unique identifier for the current model instance being viewed
-   * or edited. This is used for navigation when changing operations on a specific model instance.
-   *
-   * @type {string}
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  modelId?: string;
-
-  /**
-   * @description Additional operations available for the model.
-   * @summary Defines custom operations beyond the standard CRUD operations that are
-   * available for the current model. These can be used to extend the functionality
-   * of the header component with model-specific actions.
-   *
-   * @type {string[]}
-   * @default []
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  modelOperations: string[] = [];
 
   /**
    * @description Controls whether the menu button is displayed.
@@ -332,6 +286,8 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
       this.className += ` ${this.backgroundColor}`;
     if(!this.border)
       this.className += ` ion-no-border`;
+    this.getRoute();
+
   }
 
   /**
@@ -361,9 +317,9 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @memberOf HeaderComponent
    */
   async changeOperation(operation: string, id?: string): Promise<boolean> {
-    let page = `${this.modelPage}/${operation}/`.replace('//', '/');
-    if(this.modelId || id)
-        page = `${page}/${this.modelId || id}`;
+    let page = `${this.route}/${operation}/`.replace('//', '/');
+    if(this.uid || id)
+        page = `${page}/${this.uid || id}`;
     return this.routerService.navigateTo(page.replace('//', '/'))
   }
 
@@ -382,10 +338,10 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    *   participant U as UI
    *
    *   U->>H: isAllowed(operation)
-   *   alt crudOperations is undefined
+   *   alt operations is undefined
    *     H-->>U: Return false
    *   else
-   *     H->>H: Check if operation is in crudOperations
+   *     H->>H: Check if operation is in operations
    *     H->>H: Check if operation is not current operation
    *     H-->>U: Return result
    *   end
@@ -393,8 +349,8 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @memberOf HeaderComponent
    */
   isAllowed(operation: string): boolean {
-    if(!this.crudOperations)
+    if(!this.operations)
       return false;
-    return this.crudOperations.includes(operation as CrudOperations) && (this.currentOperation !== OperationKeys.CREATE && this.currentOperation.toLowerCase() !== operation);
+    return this.operations.includes(operation as CrudOperations) && (this.currentOperation !== OperationKeys.CREATE && this.currentOperation.toLowerCase() !== operation);
   }
 }

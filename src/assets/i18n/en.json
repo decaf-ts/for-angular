@@ -18,13 +18,44 @@
     "alphanum": "This field must be alphanumeric.",
     "file": "Only {0} files are allowed"
   },
+  "demo": {
+    "id": {
+      "label": "id",
+      "placeholder": "Type a number"
+    },
+    "name": {
+      "label": "Name",
+      "placeholder": "Type your name"
+    },
+    "birthdate": {
+      "label": "Birthdate"
+    },
+    "email": {
+      "label": "E-mail",
+      "placeholder": "Type your e-mail address"
+    },
+    "website": {
+      "label": "Website",
+      "placeholder": "Type your favorite website"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "Type your password"
+    },
+    "gender": {
+      "label": "Select your gender"
+    },
+    "agree": {
+      "label": "I accept the terms and conditions."
+    }
+  },
   "component": {
     "list": {
-      "pagination": "Showing page  <span class=\"text-bold\">{{page}} of {{total}}</span>",
+      "pagination": "Showing page <span class=\"text-bold\">{{value0}} of {{value1}}</span>",
       "loading": "Loading data",
       "search": {
         "title": "Not data found for search",
-        "subtitle": "You searched for: <span class=\"display-block ion-text-center text-bold\">{{value}}</span>",
+        "subtitle": "You searched for: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{{value0}}</ion-text>",
         "button": "Clear search"
       },
       "empty": {
@@ -32,14 +63,26 @@
         "button": "Create"
       }
     },
+    "list_item": {
+      "actions": "Actions",
+      "operations": {
+        "read": "Read",
+        "create": "Create",
+        "update": "Update",
+        "delete": "Delete"
+      }
+    },
     "empty_state": {
       "title": "No data found",
       "button": "Create",
       "search": {
         "title": "Not data found for search",
-        "subtitle": "You searched for: <span class=\"display-block ion-text-center text-bold\">{{value}}</span>",
+        "subtitle": "You searched for: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{{value0}}</ion-text>",
         "button": "Clear search"
       }
+    },
+    "pagination": {
+      "resume": "Showing page <span class=\"text-bold\">{{value0}} of {{value1}}</span>"
     }
   }
 }

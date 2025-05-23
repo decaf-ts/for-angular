@@ -7,10 +7,13 @@ import {
   InjectablesRegistry,
 } from '@decaf-ts/injectable-decorators';
 
+
+
 let injectableRegistry: InjectablesRegistry;
 
 export function getInjectablesRegistry(): InjectablesRegistry {
-  if (injectableRegistry) injectableRegistry = new InjectableRegistryImp();
+  if (!injectableRegistry)
+    injectableRegistry = new InjectableRegistryImp();
   return injectableRegistry;
 }
 
@@ -19,7 +22,7 @@ export function isDevelopmentMode(context: string = 'localhost') {
   return (
     isDevMode() ||
     getWindow()?.['env']?.['CONTEXT'].toLowerCase() !== context.toLowerCase() ||
-    window.location.hostname.includes(context)
+    (globalThis as any).window.location.hostname.includes(context)
   );
 }
 
@@ -62,8 +65,8 @@ export function setOnWindow(key: string, value: any) {
   getWindow()[key] = value;
 }
 
-export function getWindow() {
-  return globalThis.window as Window & KeyValue;
+export function getWindow(): any {
+  return (globalThis as any).window as any;
 }
 
 export function getWindowWidth() {
@@ -135,7 +138,7 @@ export function generateLocaleFromString(
  */
 export function getLocaleLanguage(): string {
   const win = getWindow();
-  return win.navigator.language || "em";
+  return win.navigator.language || "en";
   // return win?.[WINDOW_KEYS.LANGUAGE_SELECTED] || (win.navigator.language || '').split('-')[0] || "en";
 }
 

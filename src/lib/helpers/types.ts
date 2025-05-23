@@ -1,4 +1,5 @@
 import { AxiosError } from "axios";
+import { KeyValue } from "../engine";
 
 /**
  * @typeDef LoggerLevelTypes
@@ -10,7 +11,7 @@ export type LoggerLevelTypes = "log" | "info" | "warn" | "error" | "debug"
  * @typeDef LoggerMessage
  * @memberOf engine.types
  */
-export type LoggerMessage = Error & {loggedAt?: number} | AxiosError & {loggedAt?: number}| string;
+export type LoggerMessage = Error & {loggedAt?: number} | AxiosError & {loggedAt?: number} | string | KeyValue | KeyValue[];
 
 /**
  * @typeDef Err

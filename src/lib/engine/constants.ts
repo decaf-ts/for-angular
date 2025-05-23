@@ -8,6 +8,9 @@ export const AngularEngineKeys = {
   NG_REFLECT: 'ng-reflect-',
   RENDERED: 'rendered-as-',
   MAPPER: 'mapper',
+  CHILDREN: 'children',
+  LISTABLE: 'listable',
+  RENDER: 'render',
   RENDERED_ID: 'rendered-as-{0}',
 };
 
@@ -17,8 +20,10 @@ export const FormConstants = {
 };
 
 export enum EventConstants {
-  BACK_BUTTON_NAVIGATION = "BackButtonNavigationEndEvent",
-  REFRESH_EVENT = "refreshEvent"
+  BACK_BUTTON_NAVIGATION = "backButtonNavigationEndEvent",
+  REFRESH_EVENT = "RefreshEvent",
+  CLICK_EVENT = "ClickEvent",
+  SUBMIT_EVENT = "SubmitEvent",
 }
 
 export enum LoggerLevels {
@@ -39,5 +44,20 @@ export enum RouteDirections {
 
 export enum ComponentsTagNames {
   LIST_ITEM = "ngx-decaf-list-item",
+  LIST_INFINITE = 'ngx-decaf-list-infinite',
+  LIST_PAGINATED = 'ngx-decaf-list-paginated',
 }
+
+export enum BaseComponentProps {
+  MODEL = "model",
+  LOCALE = "locale",
+  PK = "pk",
+  ITEMS = "items",
+  ROUTE = "route",
+  OPERATIONS = "operations",
+  UID = "uid",
+  TRANSLATABLE = 'translatable',
+  MAPPER = "mapper",
+}
+
 
