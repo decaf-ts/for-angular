@@ -21,7 +21,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
   private static _components: Record<string, { constructor: Constructor<unknown> }>;
 
   // private _componentName!: string;
-
+  private _childs!: AngularDynamicOutput[];
   private _model!: Model;
 
   private static _instance: Type<unknown> | undefined;
@@ -30,56 +30,87 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     super('angular');
   }
 
-  private fromFieldDefinition(
-    fieldDef: FieldDefinition<AngularFieldDefinition>,
-    vcr: ViewContainerRef,
-    injector: Injector,
-    tpl: TemplateRef<any>,
-  ): AngularDynamicOutput {
-    const component = NgxRenderingEngine2.components(fieldDef.tag)
-      .constructor as unknown as Type<unknown>;
+private fromFieldDefinition(
+  fieldDef: FieldDefinition<AngularFieldDefinition>,
+  vcr: ViewContainerRef,
+  injector: Injector,
+  tpl: TemplateRef<any>,
+): AngularDynamicOutput {
+  const cmp = (fieldDef as any)?.component || NgxRenderingEngine2.components(fieldDef.tag);
+  const component = (cmp.constructor) as unknown as Type<unknown>;
 
-    const componentMetadata = reflectComponentType(component);
-    if (!componentMetadata) {
-      throw new InternalError(
-        `Metadata for component ${fieldDef.tag} not found.`,
-      );
-    }
-    const possibleInputs = componentMetadata.inputs;
-    const inputs = fieldDef.props;
-    const inputKeys = Object.keys(inputs);
-    const unmappedKeys = [];
-    for(let input of inputKeys) {
-      if (!inputKeys.length)
-        break;
-      const prop = possibleInputs.find((item: {propName: string}) => item.propName === input);
-      if(!prop) {
-         delete inputs[input];
-         unmappedKeys.push(input);
-      }
-    }
-    if (unmappedKeys.length)
-      console.warn(
-        `Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`,
-      );
+  const componentMetadata = reflectComponentType(component);
+  if (!componentMetadata)
+    throw new InternalError(`Metadtafor component ${fieldDef.tag} not found.`);
 
-    const result: AngularDynamicOutput = {
-      component: component,
-      inputs: inputs || {},
-      injector: injector,
+  const possibleInputs = componentMetadata.inputs;
+  const inputs = fieldDef.props;
+  const inputKeys = Object.keys(inputs);
+  const unmappedKeys = [];
+
+  for (let input of inputKeys) {
+    if (!inputKeys.length) break;
+    const prop = possibleInputs.find( (item: { propName: string }) => item.propName === input);
+    if (!prop) {
+      delete inputs[input];
+      unmappedKeys.push(input);
+    }
+  }
+
+  if (unmappedKeys.length) {
+    console.warn(
+      `Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`,
+    );
+  }
+
+  const result: AngularDynamicOutput = {
+    component: component,
+    inputs: inputs || {},
+    injector: injector,
+  };
+
+  if (fieldDef.rendererId) {
+    (result.inputs as Record<string, any>)['rendererId'] = fieldDef.rendererId;
+  }
+  let template;
+  // Processa filhos recursivamente
+  if (fieldDef.children && fieldDef.children.length) {
+    const self = this;
+
+    const processChild = (child: FieldDefinition<AngularFieldDefinition>):
+      unknown =>
+    {
+      if(!child?.tag)
+        return child;
+      // Processa o filho atual
+      const result = self.fromFieldDefinition(child, vcr, injector, tpl)
+      if (result?.children && result.children.length)
+        return (result.children || []).map(processChild as any);
+      // Se o resultado for um array, filtra apenas objet os
+      if (Array.isArray(result))
+          return (result?.children || []).filter(item => typeof item === "object" && item !== null);
+      // Se o filho tiver `children`, processa recursivamente
+      if (child?.children && child.children.length)
+        return child.children.map(processChild);
+      return result;
     };
 
-    if (fieldDef.rendererId)
-      (result.inputs as Record<string, any>)['rendererId'] = fieldDef.rendererId;
-    if (fieldDef.children && fieldDef.children.length) {
-      result.children = fieldDef.children.map((child) => this.fromFieldDefinition(child, vcr, injector, tpl));
-      vcr.clear();
-      const template = vcr.createEmbeddedView(tpl, injector).rootNodes;
-      const componentInstance = NgxRenderingEngine2.createComponent(component, {... inputs, ... {model: this._model}}, componentMetadata, vcr, injector, template);
-      result.instance = NgxRenderingEngine2._instance = componentInstance.instance as Type<unknown>;
-    }
-    return result;
+    result.children = (fieldDef.children.map(processChild) as any).flat() as AngularDynamicOutput[];
+    vcr.clear();
+    template = vcr.createEmbeddedView(tpl, injector).rootNodes;
+    const componentInstance = NgxRenderingEngine2.createComponent(
+      component,
+      { ...inputs, ...{ model: this._model } },
+      componentMetadata,
+      vcr,
+      injector,
+      template
+    );
+    result.instance = NgxRenderingEngine2._instance = componentInstance.instance as Type<unknown>;
   }
+
+  return result;
+}
 
   static createComponent(component: Type<unknown>, inputs: KeyValue = {}, metadata: ComponentMirror<unknown>, vcr: ViewContainerRef, injector: Injector, template: any): ComponentRef<unknown> {
     const componentInstance = vcr.createComponent(component as Type<unknown>, {

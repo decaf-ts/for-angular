@@ -7,6 +7,8 @@ import {
   InjectablesRegistry,
 } from '@decaf-ts/injectable-decorators';
 
+
+
 let injectableRegistry: InjectablesRegistry;
 
 export function getInjectablesRegistry(): InjectablesRegistry {
@@ -20,7 +22,7 @@ export function isDevelopmentMode(context: string = 'localhost') {
   return (
     isDevMode() ||
     getWindow()?.['env']?.['CONTEXT'].toLowerCase() !== context.toLowerCase() ||
-    window.location.hostname.includes(context)
+    (globalThis as any).window.location.hostname.includes(context)
   );
 }
 
@@ -63,8 +65,8 @@ export function setOnWindow(key: string, value: any) {
   getWindow()[key] = value;
 }
 
-export function getWindow() {
-  return globalThis.window as Window & KeyValue;
+export function getWindow(): any {
+  return (globalThis as any).window as any;
 }
 
 export function getWindowWidth() {

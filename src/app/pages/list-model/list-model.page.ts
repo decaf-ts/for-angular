@@ -38,7 +38,6 @@ export class ListModelPage implements OnInit {
     this.model = this.type === 'infinite' ?
       new EmployeeModel() : new CategoryModel();
     // consoleInfo(this, JSON.stringify(this.model))
-    this.crudModel = new CategoryModel({});
   }
 
   handleEvent(event: BaseCustomEvent) {

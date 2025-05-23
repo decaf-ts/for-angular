@@ -12,11 +12,15 @@ import {
   list,
   maxlength,
 } from '@decaf-ts/decorator-validation';
-import { uielement, uimodel } from '@decaf-ts/ui-decorators';
+import { uielement, uilistprop, uimodel, uiprop } from '@decaf-ts/ui-decorators';
+import { CategoryModel } from './CategoryModel';
 
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class ForAngularModel extends Model {
+
+
+
   @id()
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.id.label',
@@ -32,6 +36,9 @@ export class ForAngularModel extends Model {
     placeholder: 'demo.name.placeholder',
   })
   name!: string;
+
+  @uiprop(CategoryModel.name)
+  category!: CategoryModel;
 
   @required()
   @uielement('ngx-decaf-crud-field', {

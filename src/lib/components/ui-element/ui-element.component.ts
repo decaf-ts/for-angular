@@ -28,7 +28,6 @@ import {
   AngularDynamicOutput,
   AngularEngineKeys,
   BaseComponentProps,
-  NgxRenderingEngine2,
   RenderedModel,
   BaseCustomEvent,
   EventConstants,
@@ -37,7 +36,7 @@ import {
 import { KeyValue, ModelRenderCustomEvent } from 'src/lib/engine/types';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { stringToBoolean } from 'src/lib/helpers/string';
-
+import { NgxRenderingEngine2 } from 'src/lib/engine/NgxRenderingEngine2';
 
 @Component({
   selector: 'ngx-decaf-ui-element',
@@ -75,7 +74,7 @@ export class UiElementComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnDestroy(): Promise<void> {
     if(this.component) {
       this.unsubscribeEvents();
-      await NgxRenderingEngine2.destroy();
+      NgxRenderingEngine2.destroy();
     }
   }
 
