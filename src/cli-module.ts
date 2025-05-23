@@ -1,6 +1,12 @@
 import { Command } from 'commander';
 import { runCommand } from '@decaf-ts/utils';
-import { consoleError, consoleInfo, throwError } from './lib/helpers/logging';
+import { MiniLogger, DefaultTheme, Logging, LoggingConfig, LogLevel, LoggingMode } from "@decaf-ts/logging";
+
+const defaultLoggerConfig = {
+  level: LogLevel.info,
+  logLevel: true,
+  timestamp: false
+};
 
 enum Projects {
   FOR_ANGULAR = "for-angular",
@@ -17,6 +23,8 @@ enum Types {
 }
 
 const cliDescription = 'Angular CLI module';
+const Logger = new MiniLogger(cliDescription, defaultLoggerConfig);
+
 
 /**
  * Creates and returns a Command object for the Angular CLI module in decaf-ts.
@@ -44,13 +52,13 @@ export default function angular() {
     .description(`decaf-ts ${cliDescription}`)
     .action(async(type: Types, name: string, project: Projects = Projects.FOR_ANGULAR) => {
       if(!validateType(type))
-        return consoleError(cliDescription, `${type} is not valid. Use service, component or directive.`)
+        return Logger[LogLevel.error](`${type} is not valid. Use service, component or directive.`)
 
       if(type === Types.SCHEMATICS)
         return await generateSchematics();
 
       if(type === Types.PAGE) {
-        consoleInfo(cliDescription, `Pages can be only generate for app. Forcing project to: ${Projects.FOR_ANGULAR_APP}`);
+        Logger[LogLevel.info](`Pages can be only generate for app. Forcing project to: ${Projects.FOR_ANGULAR_APP}`);
         project = Projects.FOR_ANGULAR_APP;
       }
 
@@ -65,7 +73,7 @@ export default function angular() {
         const result = await execute(`${command} ${type} ${name}`);
         console.info(result);
       } catch(error: any) {
-        consoleError(cliDescription, `Error generating ${type} ${name} for project ${project}:`, error?.message || error);
+        Logger[LogLevel.error](error?.message || error);
       }
 
     });
@@ -98,7 +106,7 @@ async function execute(command: string): Promise<string|void> {
   try {
     return await runCommand(command).promise;
   } catch (error: any) {
-    consoleError(cliDescription, error?.message || error);
+    Logger[LogLevel.error](error?.message || error);
   }
 }
 
