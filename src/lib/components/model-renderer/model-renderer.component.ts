@@ -32,6 +32,7 @@ import {
 import { KeyValue, ModelRenderCustomEvent } from 'src/lib/engine/types';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { stringToBoolean } from 'src/lib/helpers/string';
+import { Renderable } from '@decaf-ts/ui-decorators';
 
 @Component({
   standalone: true,
@@ -72,20 +73,21 @@ export class ModelRendererComponent<M extends Model>
 
   private refresh(model: string | M) {
 
-    this.model =
+   model =
       typeof model === 'string'
         ? (Model.build({}, JSON.parse(model)) as M)
         : model;
-    this.output = (model as M).render<AngularDynamicOutput>(
+    this.output = (model as unknown as Renderable).render<AngularDynamicOutput>(
       this.globals || {},
       this.vcr,
       this.injector,
       this.inner,
     );
-    this.rendererId = sf(
-      AngularEngineKeys.RENDERED_ID,
-      (this.output.inputs as Record<string, any>)['rendererId'] as string,
-    );
+    if(!!this.output?.inputs)
+      this.rendererId = sf(
+        AngularEngineKeys.RENDERED_ID,
+        (this.output.inputs as Record<string, any>)['rendererId'] as string,
+      );
     this.instance = this.output?.instance;
     this.subscribeEvents();
   }

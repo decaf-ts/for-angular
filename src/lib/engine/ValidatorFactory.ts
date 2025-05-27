@@ -10,6 +10,7 @@ import {
   RenderingEngine,
   HTML5InputTypes
 } from '@decaf-ts/ui-decorators';
+import { consoleWarn } from '../helpers';
 
 export class ValidatorFactory {
   static spawn(fieldProps: FieldProperties, key: string): ValidatorFn {
@@ -30,6 +31,10 @@ export class ValidatorFactory {
           return [];
         case ValidationKeys.TYPE:
           arg = RenderingEngine.get().translate(arg as string, false);
+          break;
+        case ValidationKeys.MIN:
+        case ValidationKeys.MAX:
+          return {[key]: arg}
       }
       return [arg];
     };
@@ -48,7 +53,7 @@ export class ValidatorFactory {
       try {
         errs = validator.hasErrors(value, { message: '', ...actualArg });
       } catch (e: unknown) {
-        console.warn(`${key} validator failed to validate: ${e}`);
+        consoleWarn(this, `${key} validator failed to validate: ${e}`);
       }
       if (!errs) return null;
       const result: Record<string, boolean> = {};

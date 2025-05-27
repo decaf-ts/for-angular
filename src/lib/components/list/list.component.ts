@@ -139,7 +139,7 @@ import { IListEmptyResult, ListComponentsTypes } from './constants';
     SearchbarComponent,
     EmptyStateComponent,
     ListItemComponent,
-    ComponentRendererComponent,
+    ComponentRendererComponent
   ]
 })
 export class ListComponent extends NgxBaseComponent implements OnInit {
@@ -510,8 +510,25 @@ export class ListComponent extends NgxBaseComponent implements OnInit {
    * @type {Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent>}
    * @memberOf ListComponent
    */
-  private clickItemSubject = new Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent>();
+  private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent> = new Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent>();
 
+  /**
+   * @description Initializes a new instance of the ListComponent.
+   * @summary Creates a new ListComponent and sets up the base component with the appropriate
+   * component name. This constructor is called when Angular instantiates the component and
+   * before any input properties are set. It passes the component name to the parent class
+   * constructor to enable proper localization and component identification.
+   *
+   * The constructor is intentionally minimal, with most initialization logic deferred to
+   * the ngOnInit lifecycle hook. This follows Angular best practices by keeping the constructor
+   * focused on dependency injection and basic setup, while complex initialization that depends
+   * on input properties is handled in ngOnInit.
+   *
+   * @memberOf ListComponent
+   */
+  constructor() {
+    super("ListComponent");
+  }
   /**
    * @description Initializes the component after Angular sets the input properties.
    * @summary Sets up the component by initializing event subscriptions, processing boolean

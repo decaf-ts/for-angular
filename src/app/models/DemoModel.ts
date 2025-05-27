@@ -11,6 +11,8 @@ import {
   password,
   list,
   maxlength,
+  min,
+  max,
 } from '@decaf-ts/decorator-validation';
 import { uielement, uilistprop, uimodel, uiprop } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from './CategoryModel';
@@ -19,9 +21,9 @@ import { CategoryModel } from './CategoryModel';
 @model()
 export class ForAngularModel extends Model {
 
-
-
   @id()
+  @min(1)
+  @max(100)
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.id.label',
     placeholder: 'demo.id.placeholder',

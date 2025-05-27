@@ -280,11 +280,14 @@ export class NgxFormService {
    * @param formId - The unique identifier of the form.
    * @param field - Optional. The specific field to unregister. If not provided, the entire form is unregistered.
    */
-  static unregister(formId: string, field?: HTMLElement) {
-    if (!field)
+  static unregister(formId: string, field?: HTMLElement): void {
+    if (!field) {
       delete this.controls[formId];
-    else
-      delete this.controls[formId][(field as unknown as { name: string }).name];
+    } else {
+      const control = this.controls[formId];
+      if(control)
+         delete control[(field as unknown as { name: string }).name];
+    }
   }
 
   static reset() {

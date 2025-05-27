@@ -112,10 +112,10 @@ private fromFieldDefinition(
   return result;
 }
 
-  static createComponent(component: Type<unknown>, inputs: KeyValue = {}, metadata: ComponentMirror<unknown>, vcr: ViewContainerRef, injector: Injector, template: any): ComponentRef<unknown> {
+  static createComponent(component: Type<unknown>, inputs: KeyValue = {}, metadata: ComponentMirror<unknown>, vcr: ViewContainerRef, injector: Injector, template: any = []): ComponentRef<unknown> {
     const componentInstance = vcr.createComponent(component as Type<unknown>, {
       environmentInjector: injector as EnvironmentInjector,
-      projectableNodes: [template || []]
+      projectableNodes: [template]
     });
     this.setInputs(componentInstance, inputs, metadata);
     return componentInstance;

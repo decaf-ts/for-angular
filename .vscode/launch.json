@@ -2,6 +2,34 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+     {
+        "name": "Chrome Debug",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost:8110"
+     },
+    {
+      "name": "Test current file",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "ng",
+      "args": ["test"],
+      "runtimeArgs": ["--browsers=ChromeHeadlessCI", "--inspect-brk",  "--watch=false", "--include='${relativeFile}'"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "timeout": 60000
+    },
+     {
+      "name": "Test Watch current file",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "ng",
+      "args": ["test"],
+      "runtimeArgs": ["--browsers=ChromeHeadlessCI", "--inspect-brk", "--watch", "--include='${relativeFile}'"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "timeout": 60000,
+    },
     {
       "name": "ng serve",
       "type": "chrome",
@@ -15,12 +43,6 @@
       "request": "launch",
       "preLaunchTask": "npm: test",
       "url": "http://localhost:9876/debug.html"
-    },
-    {
-        "name": "Debug Ionic no Chrome",
-        "type": "chrome",
-        "request": "launch",
-        "url": "http://localhost:8110"
     }
   ]
 }

@@ -25,6 +25,7 @@ import { CrudFormOptions, FormReactiveSubmitEvent } from './types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
 import { ForAngularModule } from 'src/lib/for-angular.module';
+import { IonBackButton, IonIcon } from '@ionic/angular/standalone';
 
 @Dynamic()
 @Component({
@@ -32,7 +33,7 @@ import { ForAngularModule } from 'src/lib/for-angular.module';
   selector: 'ngx-decaf-crud-form',
   templateUrl: './crud-form.component.html',
   styleUrls: ['./crud-form.component.scss'],
-  imports: [ForAngularModule],
+  imports: [ForAngularModule, IonBackButton, IonIcon],
 })
 export class CrudFormComponent
   implements OnInit, AfterViewInit, FormElement, OnDestroy, RenderedModel

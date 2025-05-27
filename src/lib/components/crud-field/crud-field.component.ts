@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
   Input,
   OnDestroy,
@@ -37,6 +38,7 @@ import {
   IonDatetimeButton,
 } from '@ionic/angular/standalone';
 import { HTML5CheckTypes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
+import { stringToBoolean } from 'src/lib/helpers';
 
 
 
@@ -95,6 +97,7 @@ import { HTML5CheckTypes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
   selector: 'ngx-decaf-crud-field',
   templateUrl: './crud-field.component.html',
   styleUrl: './crud-field.component.scss',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class CrudFieldComponent
   extends NgxCrudFormField
@@ -503,6 +506,9 @@ export class CrudFieldComponent
   @Input()
   translatable: StringOrBoolean = true;
 
+  @Input()
+  locale?: string;
+
   ngAfterViewInit() {
     super.afterViewInit();
   }
@@ -512,6 +518,9 @@ export class CrudFieldComponent
   }
 
   ngOnInit(): void {
+    if(!this.locale)
+      this.translatable = false;
+    this.translatable = stringToBoolean(this.translatable);
     super.onInit(this.updateOn);
     if(this.type === HTML5InputTypes.RADIO && !this.value)
       this.formGroup?.get(this.name)?.setValue(this.options[0].value)

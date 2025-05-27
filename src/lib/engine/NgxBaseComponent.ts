@@ -14,10 +14,8 @@ export class PaginatedQuery {
   _currentPage!: number;
 }
 
-const RenderingEngine = NgxRenderingEngine2.get("angular") as unknown as NgxRenderingEngine2;
 
 export type ComponentBaseModel =  Model | Repository<Model> | undefined;
-
 
 /**
  * @description Base component class that provides common functionality for all Decaf components.
@@ -218,6 +216,8 @@ export abstract class NgxBaseComponent implements OnChanges {
 
   initialized: boolean = false;
 
+  renderingEngine: NgxRenderingEngine2 = NgxRenderingEngine2.get() as unknown as NgxRenderingEngine2;;
+
   /**
    * @description Creates an instance of NgxBaseComponent.
    * @summary Initializes a new NgxBaseComponent with the provided instance token.
@@ -315,7 +315,7 @@ export abstract class NgxBaseComponent implements OnChanges {
   setModelDefinitions(model: Model): void {
     if(model instanceof Model) {
       this.getRoute();
-      const {props, item} = RenderingEngine.getDecorators(this.model as Model, {});
+      const {props, item} = this.renderingEngine.getDecorators(this.model as Model, {});
       this.mapper = item?.props!["mapper"] || {};
       this.item = {
        tag: item?.tag || "",

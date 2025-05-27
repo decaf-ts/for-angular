@@ -17,5 +17,5 @@
     "plugins": [{ "name": "typescript-eslint-language-service" }]
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "**/__tests__/*.ts", "schematics/*/files"]
+  "exclude": ["node_modules", "**/__tests__/*.ts", "src/schematics/*/files"]
 }

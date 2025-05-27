@@ -2,8 +2,8 @@
   "errors": {
     "required": "This field is required.",
     "pattern": "The provided value does not match the pattern.",
-    "min": "The maximum value for this field is {0}.",
-    "max": "The minimum value for this field is {0}.",
+    "min": "The minimum value for this field is {0}.",
+    "max": "The maximum value for this field is {0}.",
     "minlength": "The minimum length for this field is {0}.",
     "maxlength": "The maximum length for this field is {0}.",
     "equal": "This field must be equal to {0}",

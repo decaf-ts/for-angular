@@ -19,7 +19,8 @@ const Components = [
   ListComponent,
   ListItemComponent,
   SearchbarComponent,
-  PaginationComponent
+  PaginationComponent,
+  CrudFormComponent
 ];
 
 @NgModule({
