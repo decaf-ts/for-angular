@@ -1,27 +1,13 @@
-import {
-  escapeHtml,
-  FieldProperties,
-  HTML5CheckTypes,
-  HTML5InputTypes,
-  parseToNumber,
-} from '@decaf-ts/ui-decorators';
-import {
-  AngularFieldDefinition,
-  FieldUpdateMode,
-  FormServiceControls,
-} from './types';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
-import { isValidDate, parseDate, Validation, ValidationKeys } from '@decaf-ts/decorator-validation';
+import { escapeHtml, FieldProperties, HTML5CheckTypes, HTML5InputTypes, parseToNumber } from '@decaf-ts/ui-decorators';
+import { AngularFieldDefinition, FieldUpdateMode, FormServiceControl, FormServiceControls } from './types';
+import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { getValueByPath, isValidDate, parseDate, Validation } from '@decaf-ts/decorator-validation';
 import { AngularEngineKeys } from './constants';
 import { FormElement } from '../interfaces';
 import { ValidatorFactory } from './ValidatorFactory';
-import { consoleWarn } from '../helpers/logging';
+
+const CHILDREN_OF = "childrenof";
+const VALIDATION_PARENT_KEY = Symbol('_validationParentRef');
 
 /**
  * @summary Service for managing Angular forms and form controls.
@@ -70,8 +56,9 @@ export class NgxFormService {
       el.component.nativeElement.querySelectorAll(selector)
     );
     const controls = elements.map((f: unknown) => {
-      const fieldName = (f as { attributes: Record<string, { value: string }> })
-        .attributes[`${AngularEngineKeys.NG_REFLECT}name`].value;
+      const fieldName: any = (f as { attributes: Record<string, { value: string }> }).attributes['path'].value;
+      // fieldName = fieldName.attributes[`${AngularEngineKeys.NG_REFLECT}name`].value;
+      // const fieldNamePath = fieldName.attributes["path"].value;
       const control = NgxFormService.getFieldByName(formId, fieldName);
       return control.control;
     });
@@ -103,30 +90,84 @@ export class NgxFormService {
    */
   static getFormData(formId: string): Record<string, unknown> {
     if (!(formId in this.controls)) throw new Error(`form ${formId} not found`);
-    const form = this.controls[formId];
-    let control: AbstractControl;
-    let val: unknown;
-    const data: Record<string, unknown> = {};
-    for (const key in form) {
-      control = form[key].control;
-      if (!HTML5CheckTypes.includes(form[key].props.type)) {
-        switch (form[key].props.type) {
-          case HTML5InputTypes.NUMBER:
-            val = parseToNumber(control.value);
-            break;
-          case HTML5InputTypes.DATE:
-          case HTML5InputTypes.DATETIME_LOCAL:
-            val = new Date(control.value[key]);
-            break;
-          default:
-            val = escapeHtml(control.value[key]);
+
+    function parseForm(form: Record<string, FormServiceControl | AngularFieldDefinition>): Record<string, unknown> {
+      const data: Record<string, unknown> = {};
+      for (const key in form) {
+        const node = form[key];
+        // children
+        if (!node.control && typeof node === 'object') {
+          data[key] = parseForm(node as Record<string, FormServiceControl>);
+        } else {
+          let val: unknown;
+          const { control, props } = node as FormServiceControl;
+          if (!HTML5CheckTypes.includes(props.type)) {
+            switch (props.type) {
+              case HTML5InputTypes.NUMBER:
+                val = parseToNumber(control.value);
+                break;
+              case HTML5InputTypes.DATE:
+              case HTML5InputTypes.DATETIME_LOCAL:
+                val = new Date(control.value[key]);
+                break;
+              default:
+                val = escapeHtml(control.value[key]);
+            }
+          } else {
+            val = Object.values(control.value)[0];
+          }
+          data[key] = val;
         }
-      } else {
-        val = Object.values(control.value)[0];
       }
-      data[key] = val;
+      return data;
     }
-    return data;
+
+    return parseForm(this.controls[formId]);
+  }
+
+  static getParentLinks(formId: string, path: string): Record<string, unknown> {
+    const self = this;
+    if (!(formId in this.controls)) throw new Error(`form ${formId} not found`);
+
+    function parseForm(form: Record<string, FormServiceControl | AngularFieldDefinition>, parent?: any): Record<string, unknown> {
+      const data: Record<string, unknown> = {};
+      for (const key in form) {
+        const node = form[key];
+        // children
+        const isGroup = !node.control && typeof node === 'object';
+        if (isGroup) {
+          const { [key]: prop, ...rest } = form;
+          data[key] = parseForm(node as Record<string, FormServiceControl>);
+          // Adds parent reference without circular references
+          (data[key] as any)[VALIDATION_PARENT_KEY] = rest;
+          continue;
+        }
+
+        let val: unknown;
+        const { control, props } = node as FormServiceControl;
+        if (!HTML5CheckTypes.includes(props.type)) {
+          switch (props.type) {
+            case HTML5InputTypes.NUMBER:
+              val = parseToNumber(control.value);
+              break;
+            case HTML5InputTypes.DATE:
+            case HTML5InputTypes.DATETIME_LOCAL:
+              val = new Date(control.value[key]);
+              break;
+            default:
+              val = escapeHtml(control.value[key]);
+          }
+        } else {
+          val = Object.values(control.value)[0];
+        }
+        data[key] = val;
+      }
+
+      return data;
+    }
+
+    const formData = parseForm(this.controls[formId]);
+    return path.split('.').length > 1 ? getValueByPath(formData, path) : formData;
   }
 
   /**
@@ -213,21 +254,22 @@ export class NgxFormService {
   /**
    * Retrieves a specific field from a form by its name.
    *
-   * @param formId - The unique identifier of the form.
+   * @param {string} formId - The unique identifier of the form.
    * @param name - The name of the field to retrieve.
    * @returns The field control and properties.
    * @throws Error if the field is not found in the form.
    */
-  private static getFieldByName(formId: string, name: string) {
+  public static getFieldByName(formId: string, name: string): FormServiceControl {
     const form = NgxFormService.getFormById(formId);
-    if (!(name in form))
-      throw new Error(`Could not find field ${name} in form`);
-    return form[name];
+    // if (!(name in form))
+    //   throw new Error(`Could not find field ${name} in form`);
+    return form.hasOwnProperty(name) ? form[name] : getValueByPath(form, name) as FormServiceControl;
   }
 
   /**
    * Generates an array of validator functions from the provided field properties.
    *
+   * @param {string} formId - The unique identifier of the form.
    * @param props - The field properties containing validation rules.
    * @returns An array of ValidatorFn instances.
    */
@@ -256,24 +298,49 @@ export class NgxFormService {
       el = parent;
     }
     throw new Error(
-      `No parent with the tag ${tag} was found for provided element`
+      `No parent with the tag ${tag} was found for provided element`,
     );
   }
 
   static register(
     formId: string,
     control: FormGroup,
-    props: AngularFieldDefinition
+    props: AngularFieldDefinition,
   ) {
-    if (formId.includes(AngularEngineKeys.RENDERED)) {
+    if (formId.includes(AngularEngineKeys.RENDERED))
       formId = formId.split(AngularEngineKeys.RENDERED)[1];
-    }
 
     this.controls[formId] = this.controls[formId] || {};
-    this.controls[formId][props.name] = {
-      control: control,
-      props: props,
-    };
+    let targetRegister: any = this.controls[formId];
+
+    // let parent: object;
+    if (props[CHILDREN_OF]) {
+      const keys = (props[CHILDREN_OF] as string).split('.');
+      for (const key of keys) {
+        targetRegister[key] = targetRegister[key] || {};
+        parent = targetRegister;
+        targetRegister = targetRegister[key];
+        // this.parentRegistry.set(targetRegister, parent);
+      }
+    }
+
+    if (targetRegister.hasOwnProperty(props.name))
+      console.warn(
+        `Property "${props.name}" already exists under "${props[CHILDREN_OF] || 'root'}". Existing value will be overwritten.`,
+      );
+
+    function createProxyWithParent(obj: any) {
+      return new Proxy(obj, {
+        get(target, prop) {
+          if (prop === 'parent') {
+            return 'getFormId...';
+          }
+          return target[prop];
+        },
+      });
+    }
+
+    targetRegister[props.name] = { control, props, parentId: formId }; //createProxyWithParent({ control, props, parentId: formId });
   }
 
   /**
@@ -290,16 +357,16 @@ export class NgxFormService {
 
   static reset() {
     const controls = Object.values(this.controls)[0];
-    if(controls) {
-      Object.entries(controls).forEach(([key, {control, props}]) => {
+    if (controls) {
+      Object.entries(controls).forEach(([key, { control, props }]) => {
         const fc = Object.values(control.controls)[0];
-        const {type} = props;
-        if(!HTML5CheckTypes.includes(type)) {
+        const { type } = props;
+        if (!HTML5CheckTypes.includes(type)) {
           fc.setValue(undefined);
         }
         fc.setErrors(null);
         fc.updateValueAndValidity();
-      })
+      });
     }
   }
 }

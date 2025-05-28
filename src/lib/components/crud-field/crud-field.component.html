@@ -28,13 +28,14 @@
           [fill]="fill"
           [placeholder]="translatable ? (placeholder | translate) : placeholder"
           [formControlName]="name"
-          [label]="translatable ? (label | translate) : label">
+          [attr.path]="formControlPath"
+          [label]="translatable ? (label | translate) : label"
+        >
         </ion-textarea>
       }
       @else if(type === 'checkbox') {
         <ion-item>
           <ion-checkbox
-            [formControlName]="name"
             #checkboxElement
             [name]="name"
             [mode]="mode"
@@ -45,13 +46,15 @@
             [checked]="checked"
             [readonly]="readonly"
             (ionChange)="checked = !checked"
-            [formControlName]="name">
+            [formControlName]="name"
+            [attr.path]="formControlPath"
+          >
             <span [innerHTML]="label | translate"></span>
           </ion-checkbox>
         </ion-item>
       }
       @else if(type === 'radio') {
-        <ion-radio-group [formControlName]="name" [name]="name" [value]="value" #component>
+        <ion-radio-group [formControlName]="name" [attr.path]="formControlPath" [name]="name" [value]="value" #component>
           <label class="dcf-radio-group-label" [for]="name">{{label | translate}}</label>
           @for(option of options; track option) {
             <ion-item>
@@ -81,6 +84,7 @@
             [disabled]="readonly || disabled || false"
             [placeholder]="placeholder | translate"
             [formControlName]="name"
+            [attr.path]="formControlPath"
             [interface]="interface">
             @for(option of options; track option.value) {
               <ion-select-option [value]="option.value">
@@ -108,6 +112,7 @@
           [fill]="fill"
           [placeholder]="placeholder | translate"
           [formControlName]="name"
+          [attr.path]="formControlPath"
           [displayFormat]="type === 'date' ? displayFormat : ''"
           [label]="label | translate">
         </ion-input>

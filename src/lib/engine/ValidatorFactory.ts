@@ -30,8 +30,9 @@ export class ValidatorFactory {
       let formData = {};
       if (Object.values(ComparisonValidationKeys).includes(key as any)) {
         try {
-          formData = NgxFormService.getFormData(formId);
-          console.log('formData=', formData);
+          const parentNodePath = (fieldProps as any).formControlPath.split('.').slice(0, -1).join('.'); // remove last element
+          formData = NgxFormService.getParentLinks(formId, parentNodePath);
+          // console.log('formData=', formData);
         } catch (e: any) {
         }
       }

@@ -104,6 +104,9 @@ export class CrudFieldComponent
   @Input({ required: true })
   override operation!: CrudOperations;
 
+  @Input()
+  childrenof: string = "";
+
   /**
    * @description The field name used as form control identifier.
    * @summary Specifies the name of the field, which is used as the form control identifier in the
@@ -557,6 +560,10 @@ export class CrudFieldComponent
     if(this.type === HTML5InputTypes.RADIO && !this.value)
       this.formGroup?.get(this.name)?.setValue(this.options[0].value)
 
+  }
+
+  get formControlPath() {
+    return this.childrenof ? [this.childrenof, this.name].join(".") : this.name;
   }
 
 }
