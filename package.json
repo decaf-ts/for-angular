@@ -32,7 +32,9 @@
     "drawings": "for FILE in workdocs/drawings/*.drawio; do echo \"converting $FILE to image...\" && docker run --rm -v $(pwd):/data rlespinasse/drawio-export --format png $FILE; done && cp -rf workdocs/drawings/export/* workdocs/resources/",
     "uml": "cd workdocs/uml && for FILE in ./*.puml; do docker run --rm -v $(pwd):/work -w /work miy4/plantuml -DPLANTUML_LIMIT_SIZE=8192 -tpng $FILE; done && cd ../.. && cp -fr workdocs/uml/*.png workdocs/resources/",
     "docs": "npx rimraf ./docs && mkdir docs && npx build-scripts --docs",
-    "publish-docs": "docker run -it --rm --user $(id -u):$(id -g) -v \"$(pwd)/workdocs/confluence:/content\" -e ATLASSIAN_API_TOKEN=$(cat .confluence-token) ghcr.io/markdown-confluence/publish:latest"
+    "publish-docs": "docker run -it --rm --user $(id -u):$(id -g) -v \"$(pwd)/workdocs/confluence:/content\" -e ATLASSIAN_API_TOKEN=$(cat .confluence-token) ghcr.io/markdown-confluence/publish:latest",
+    "storybook": "ng run for-angular:storybook",
+    "build-storybook": "ng run for-angular:build-storybook"
   },
   "files": [
     "dist"
@@ -53,12 +55,19 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.2",
     "@schematics/angular": "^19.2.8",
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/addon-interactions": "^8.6.14",
+    "@storybook/addon-onboarding": "^8.6.14",
+    "@storybook/angular": "^8.6.14",
+    "@storybook/blocks": "^8.6.14",
+    "@storybook/test": "^8.6.14",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^22.15.21",
     "angular-eslint": "18.4.0",
     "commander": "^13.1.0",
     "dpdm": "^3.14.0",
     "eslint": "^9.13.0",
+    "eslint-plugin-storybook": "^0.12.0",
     "jasmine-core": "~5.2.0",
     "jsdoc": "^4.0.3",
     "jsdoc-mermaid": "^1.0.0",
@@ -73,6 +82,7 @@
     "npm-check-updates": "^17.1.4",
     "rimraf": "^6.0.1",
     "rollup": "^4.40.0",
+    "storybook": "^8.6.14",
     "tslib": "^2.3.0",
     "typescript": "~5.5.2",
     "typescript-eslint": "8.10.0"
@@ -103,5 +113,10 @@
     "rxjs": "~7.8.0",
     "zone.js": "~0.14.10"
   },
-  "schematics": "./schematics/collection.json"
+  "schematics": "./schematics/collection.json",
+  "eslintConfig": {
+    "extends": [
+      "plugin:storybook/recommended"
+    ]
+  }
 }

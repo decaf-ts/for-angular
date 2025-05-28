@@ -14,7 +14,7 @@
         ]
       },
       "schematics": {
-         "@schematics/angular:component": {
+        "@schematics/angular:component": {
           "style": "scss",
           "standalone": true,
           "path": "src/lib/components"
@@ -53,6 +53,40 @@
               "zone.js/testing"
             ]
           }
+        },
+        "storybook": {
+          "builder": "@storybook/angular:start-storybook",
+          "options": {
+            "configDir": ".storybook",
+            "browserTarget": "for-angular:build",
+            "compodoc": false,
+            "port": 6006,
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              },
+              {
+                "glob": "**/*.svg",
+                "input": "node_modules/ionicons/dist/ionicons/svg",
+                "output": "./svg"
+              }
+            ],
+            "styles": [
+              "src/theme/variables.scss",
+              "src/global.scss"
+            ]
+          }
+        },
+        "build-storybook": {
+          "builder": "@storybook/angular:build-storybook",
+          "options": {
+            "configDir": "./.storybook",
+            "browserTarget": "for-angular:build",
+            "compodoc": false,
+            "outputDir": "dist/storybook/for-angular"
+          }
         }
       }
     },
@@ -69,11 +103,15 @@
             "outputPath": "www",
             "index": "src/index.html",
             "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": [
+                "src/polyfills.ts",
+                "zone.js",
+                "zone.js/testing"
+              ],
+
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "allowedCommonJsDependencies": [
-            ],
+            "allowedCommonJsDependencies": [],
             "assets": [
               {
                 "glob": "**/*",
@@ -84,7 +122,10 @@
               "src/cli-module.ts",
               "src/lib/**/*"
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": [
+              "src/global.scss",
+              "src/theme/variables.scss"
+            ],
             "serviceWorker": false,
             "ngswConfigPath": "ngsw-config.json"
           },
@@ -163,7 +204,10 @@
               "src/cli-module.ts",
               "src/lib/**/*"
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": [
+              "src/global.scss",
+              "src/theme/variables.scss"
+            ],
             "scripts": []
           },
           "configurations": {
@@ -171,6 +215,40 @@
               "progress": false,
               "watch": false
             }
+          }
+        },
+        "storybook": {
+          "builder": "@storybook/angular:start-storybook",
+          "options": {
+            "configDir": ".storybook",
+            "browserTarget": "for-angular-app:build",
+            "compodoc": false,
+            "port": 6006,
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              },
+              {
+                "glob": "**/*.svg",
+                "input": "node_modules/ionicons/dist/ionicons/svg",
+                "output": "./svg"
+              }
+            ],
+            "styles": [
+              "src/theme/variables.scss",
+              "src/global.scss"
+            ]
+          }
+        },
+        "build-storybook": {
+          "builder": "@storybook/angular:build-storybook",
+          "options": {
+            "configDir": "./.storybook",
+            "browserTarget": "for-angular-app:build",
+            "compodoc": false,
+            "outputDir": "dist/storybook/for-angular-app"
           }
         },
         "lint": {
@@ -200,7 +278,8 @@
     "@ionic/angular-toolkit:page": {
       "styleext": "scss",
       "path": "src/app/pages",
-      "standalone": true
+      "standalone": true,
+      "schematicCollections": ".schematics"
     },
     "@schematics/angular:service": {
       "path": "src/app/services"
@@ -213,5 +292,4 @@
       "path": "src/app/pipes"
     }
   }
-
 }

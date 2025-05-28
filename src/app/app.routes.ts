@@ -4,7 +4,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'crud/read',
+    redirectTo: 'login',
     pathMatch: 'full'
   },
   {
@@ -42,5 +42,9 @@ export const routes: Routes = [
   {
     path: 'model/:modelName/:operation/:uid',
     loadComponent: () => import('./pages/model/model.page').then( m => m.ModelPage)
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./pages/login/login.page').then( m => m.LoginPage)
   }
 ];

@@ -50,6 +50,9 @@ export class ForAngularModel extends Model {
   })
   gender!: string;
 
+  @uiprop(CategoryModel.name)
+  category!: CategoryModel;
+
   @required()
   @date('yyyy-MM-dd')
   @uielement('ngx-decaf-crud-field', { label: 'demo.birthdate.label' })

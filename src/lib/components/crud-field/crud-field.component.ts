@@ -36,6 +36,7 @@ import {
   IonToggle,
   IonButton,
   IonDatetimeButton,
+  IonText,
 } from '@ionic/angular/standalone';
 import { HTML5CheckTypes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { stringToBoolean } from 'src/lib/helpers';
@@ -86,10 +87,11 @@ import { stringToBoolean } from 'src/lib/helpers';
     IonRadio,
     IonSelect,
     IonSelectOption,
-    IonTextarea,
     IonDatetime,
     IonLabel,
     IonRange,
+    IonText,
+    IonTextarea,
     IonToggle,
     IonButton,
     IonDatetimeButton

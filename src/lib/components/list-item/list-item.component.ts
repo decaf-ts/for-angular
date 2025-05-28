@@ -5,10 +5,21 @@ import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { stringToBoolean, stringToCapitalCase } from 'src/lib/helpers/string';
 import { getWindowWidth, windowEventEmitter } from 'src/lib/helpers/utils';
-import { RouterService } from 'src/app/services/router.service';
 import { Dynamic, EventConstants, ListItemCustomEvent } from 'src/lib/engine';
 import { NavController } from '@ionic/angular';
-import { IonButton, IonItem, IonLabel, IonList, IonContent, IonIcon, IonListHeader, IonPopover, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonContent,
+  IonIcon,
+  IonListHeader,
+  IonPopover,
+  IonItemSliding,
+  IonItemOptions,
+  IonItemOption
+} from '@ionic/angular/standalone';
 import * as AllIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 @Dynamic()
@@ -88,6 +99,8 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
     if(this.operations?.length)
       this.className += ` action`;
     this.windowWidth = getWindowWidth();
+
+    console.log('ListItemComponent initialized');
   }
 
   async handleAction(action: CrudOperations, event: Event, target?: HTMLElement): Promise<boolean|void> {
