@@ -1,21 +1,20 @@
 import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
-import { AngularDynamicOutput, AngularFieldDefinition, BaseCustomEvent, KeyValue } from './types';
-import { AngularEngineKeys, ComponentsTagNames, EventConstants } from './constants';
+import { AngularDynamicOutput, AngularFieldDefinition, FieldUpdateMode, KeyValue } from './types';
+import { AngularEngineKeys } from './constants';
 import { Constructor, Model } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
 import {
   ComponentMirror,
   ComponentRef,
   EnvironmentInjector,
-  inject,
   Injector,
-  input,
   reflectComponentType,
   TemplateRef,
   Type,
   ViewContainerRef,
 } from '@angular/core';
-import { getLocaleFromClassName } from '../helpers/utils';
+import { NgxFormService } from './NgxFormService';
+
 export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition, AngularDynamicOutput> {
 
   private static _components: Record<string, { constructor: Constructor<unknown> }>;
@@ -147,6 +146,15 @@ private fromFieldDefinition(
         `Failed to render Model ${model.constructor.name}: ${e}`,
       );
     }
+
+    const formId = result!.inputs!["rendererId"] as string;
+    result!.children!.forEach((c) => {
+      c.inputs!['formGroup'] = NgxFormService.fromProps(
+        c.inputs as any,
+        c.inputs!["updateMode"] as FieldUpdateMode || 'change',
+        formId,
+      );
+    });
     return result;
   }
 
