@@ -132,10 +132,10 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    * @param {FieldUpdateMode} updateOn - The update mode for the field
    */
   onInit(updateOn: FieldUpdateMode): void {
-    const parent = NgxFormService.getParentEl(this.elementRef?.nativeElement, 'div');
-
-    let formId = parent.id;
-    if (formId.includes(AngularEngineKeys.RENDERED)) formId = formId.split(AngularEngineKeys.RENDERED)[1];
+    // const parent = NgxFormService.getParentEl(this.elementRef?.nativeElement, 'div');
+    //
+    // let formId = parent.id;
+    // if (formId.includes(AngularEngineKeys.RENDERED)) formId = formId.split(AngularEngineKeys.RENDERED)[1];
 
     // this.formGroup  = NgxFormService.fromProps(this, updateOn, formId);
   }

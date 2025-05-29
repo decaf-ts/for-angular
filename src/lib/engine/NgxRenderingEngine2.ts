@@ -20,7 +20,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
   private static _components: Record<string, { constructor: Constructor<unknown> }>;
 
   // private _componentName!: string;
-  private _childs!: AngularDynamicOutput[];
+  // private _childs!: AngularDynamicOutput[];
   private _model!: Model;
 
   private static _instance: Type<unknown> | undefined;
@@ -40,27 +40,19 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
 
     const componentMetadata = reflectComponentType(component);
     if (!componentMetadata)
-      throw new InternalError(`Metadtafor component ${fieldDef.tag} not found.`);
+      throw new InternalError(`Metadata for component ${fieldDef.tag} not found.`);
 
-    const possibleInputs = componentMetadata.inputs;
+    const { inputs: possibleInputs } = componentMetadata;
     const inputs = fieldDef.props;
-    const inputKeys = Object.keys(inputs);
-    const unmappedKeys = [];
-
-    for (let input of inputKeys) {
-      if (!inputKeys.length) break;
-      const prop = possibleInputs.find((item: { propName: string }) => item.propName === input);
-      if (!prop) {
+    const unmappedKeys = Object.keys(inputs).filter((input) => {
+      const isMapped = possibleInputs.find(({ propName }) => propName === input);
+      if (!isMapped)
         delete inputs[input];
-        unmappedKeys.push(input);
-      }
-    }
+      return !isMapped;
+    });
 
-    if (unmappedKeys.length) {
-      console.warn(
-        `Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`,
-      );
-    }
+    if (unmappedKeys.length > 0)
+      console.warn(`Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`);
 
     const result: AngularDynamicOutput = {
       component: component,
@@ -68,9 +60,9 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       injector: injector,
     };
 
-    if (fieldDef.rendererId) {
+    if (fieldDef.rendererId)
       (result.inputs as Record<string, any>)['rendererId'] = fieldDef.rendererId;
-    }
+
     let template;
     // Processa filhos recursivamente
     if (fieldDef.children && fieldDef.children.length) {

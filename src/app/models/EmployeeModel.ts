@@ -1,17 +1,8 @@
-import {
-  date,
-  Model,
-  model,
-  ModelArg,
-  prop,
-  required,
-} from '@decaf-ts/decorator-validation';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { uielement, uilistitem, uilistprop, uimodel, uiprop } from '@decaf-ts/ui-decorators';
+import { email, eq, model, ModelArg, required } from '@decaf-ts/decorator-validation';
+import { uielement, uilistitem, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
 import { FakerRepository } from '../utils/FakerRepository';
-import { CategoryModel } from './CategoryModel';
 
-@uilistitem('ngx-decaf-list-item', {icon: 'person-outline'})
+@uilistitem('ngx-decaf-list-item', { icon: 'person-outline' })
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class EmployeeModel extends FakerRepository<EmployeeModel> {
@@ -26,6 +17,15 @@ export class EmployeeModel extends FakerRepository<EmployeeModel> {
   })
   @uilistprop('title')
   name!: string;
+
+  @required()
+  @email()
+  @eq('../../email')
+  @uielement('ngx-decaf-crud-field', {
+    label: 'employee.companyEmail.label',
+    placeholder: 'employee.companyEmail.placeholder',
+  })
+  companyEmail!: string;
 
   @required()
   @uielement('ngx-decaf-crud-field', {
