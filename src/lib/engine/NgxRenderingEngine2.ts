@@ -1,5 +1,5 @@
 import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
-import { AngularDynamicOutput, AngularFieldDefinition, FieldUpdateMode, KeyValue } from './types';
+import { AngularDynamicOutput, AngularFieldDefinition, KeyValue } from './types';
 import { AngularEngineKeys } from './constants';
 import { Constructor, Model } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
@@ -13,7 +13,7 @@ import {
   Type,
   ViewContainerRef,
 } from '@angular/core';
-import { NgxFormService } from './NgxFormService';
+import { FormGroupEngine } from './FormGroupEngine';
 
 export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition, AngularDynamicOutput> {
 
@@ -133,14 +133,17 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       );
     }
 
+
     const formId = result!.inputs!['rendererId'] as string;
-    result!.children!.forEach((c) => {
-      c.inputs!['formGroup'] = NgxFormService.fromProps(
-        c.inputs as any,
-        c.inputs!['updateMode'] as FieldUpdateMode || 'change',
-        formId,
-      );
-    });
+    // result!.children!.forEach((c) => {
+    //   c.inputs!['formGroup'] = NgxFormService.fromProps(
+    //     c.inputs as any,
+    //     c.inputs!['updateMode'] as FieldUpdateMode || 'change',
+    //     formId,
+    //   );
+    // });
+
+    const formGroupResult = FormGroupEngine.buildFormFromComponents(result!.children! as any);
     return result;
   }
 

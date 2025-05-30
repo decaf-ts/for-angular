@@ -216,9 +216,9 @@ export class NgxFormService {
    */
   static fromProps(
     props: FieldProperties,
-    updateMode: FieldUpdateMode,
+    updateMode: FieldUpdateMode = "change",
     formId: string
-  ): FormGroup {
+  ): FormControl {
     const controls: Record<string, FormControl> = {};
     const validators = this.validatorsFromProps(formId, props);
     const composed = validators.length ? Validators.compose(validators) : null;
@@ -232,10 +232,13 @@ export class NgxFormService {
                   (props.value as any) : undefined,
         disabled: props.disabled,
       },
-      composed
+      {
+        validators: composed,
+        updateOn: updateMode
+      }
     );
 
-    return new FormGroup(controls, { updateOn: updateMode });
+    return controls[props.name]; // new FormGroup(controls, { updateOn: updateMode });
   }
 
   /**
@@ -328,17 +331,6 @@ export class NgxFormService {
       console.warn(
         `Property "${props.name}" already exists under "${props[CHILDREN_OF] || 'root'}". Existing value will be overwritten.`,
       );
-
-    function createProxyWithParent(obj: any) {
-      return new Proxy(obj, {
-        get(target, prop) {
-          if (prop === 'parent') {
-            return 'getFormId...';
-          }
-          return target[prop];
-        },
-      });
-    }
 
     targetRegister[props.name] = { control, props, parentId: formId }; //createProxyWithParent({ control, props, parentId: formId });
   }

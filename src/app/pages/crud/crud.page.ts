@@ -1,10 +1,10 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ForAngularComponentsModule } from '../../../lib/components/for-angular-components.module';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModel } from 'src/app/models/DemoModel';
 import { ComponentsModule } from 'src/app/components/components.module';
-import { FormReactiveSubmitEvent } from 'src/lib/components/crud-form/types';
-import { BaseCustomEvent, ModelRenderCustomEvent } from 'src/lib/engine';
+import { BaseCustomEvent } from 'src/lib/engine';
+
 
 @Component({
   selector: 'app-crud',
@@ -29,14 +29,15 @@ export class CrudPage implements OnInit {
     email: 'john.doe@example.com',
     website: 'https://johndoe.example.com',
     password: 'password123',
+    category: undefined
   });
 
   ngOnInit(): void {
-    if(!this.operation)
+    if (!this.operation)
       this.operation = OperationKeys.CREATE;
   }
 
   handleSubmit(event: BaseCustomEvent): void {
-    const {data} = event;
+    // const { data } = event;
   }
- }
+}
