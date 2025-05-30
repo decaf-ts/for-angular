@@ -1,12 +1,12 @@
 import { escapeHtml, FieldProperties, HTML5CheckTypes, HTML5InputTypes, parseToNumber } from '@decaf-ts/ui-decorators';
 import { AngularFieldDefinition, FieldUpdateMode, FormServiceControl, FormServiceControls } from './types';
-import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { getValueByPath, isValidDate, parseDate, Validation } from '@decaf-ts/decorator-validation';
 import { AngularEngineKeys } from './constants';
 import { FormElement } from '../interfaces';
 import { ValidatorFactory } from './ValidatorFactory';
 
-const CHILDREN_OF = "childrenof";
+const CHILDREN_OF = 'childrenof';
 const VALIDATION_PARENT_KEY = Symbol('_validationParentRef');
 
 /**
@@ -27,7 +27,8 @@ export class NgxFormService {
   private static controls: FormServiceControls = {};
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  private constructor() {}
+  private constructor() {
+  }
 
   /**
    * Initializes the form after the view has been initialized.
@@ -49,11 +50,11 @@ export class NgxFormService {
   static formAfterViewInit(
     el: FormElement,
     formId: string,
-    formUpdateMode: FieldUpdateMode = 'blur'
+    formUpdateMode: FieldUpdateMode = 'blur',
   ) {
     const selector = `*[${AngularEngineKeys.NG_REFLECT}name]`;
     const elements = Array.from(
-      el.component.nativeElement.querySelectorAll(selector)
+      el.component.nativeElement.querySelectorAll(selector),
     );
     const controls = elements.map((f: unknown) => {
       const fieldName: any = (f as { attributes: Record<string, { value: string }> }).attributes['path'].value;
@@ -126,38 +127,42 @@ export class NgxFormService {
   }
 
   /**
-   * @summary Validates form fields.
-   * @description
-   * Validates either a specific field or all fields in the form group.
+   * Recursively validates an AbstractControl.
    *
-   * @param {FormGroup} formGroup - The FormGroup to validate.
-   * @param {string} [fieldName] - Optional name of a specific field to validate.
-   * @returns {boolean} Indicates whether the validation passed (true) or failed (false).
+   * If a path is provided, and it leads to a FormControl, only that control will be validated.
+   * If the path leads to a FormGroup, it will validate all of its child controls recursively.
+   * If no path is provided, the entire form tree is validated.
+   *
+   * @param {AbstractControl} control - The root control or form group to validate.
+   * @param {string} [path] - Optional dot-separated path to a specific control (e.g., "address.zipCode").
+   * @returns {boolean} Returns true if the control is valid after validation; otherwise, false.
+   *
+   * @throws {Error} If the control at the specified path does not exist or is of an unknown type.
    */
-  static validateFields(formGroup: FormGroup, fieldName?: string): boolean {
-    function isValid(formGroup: FormGroup, fieldName: string) {
-      const control = formGroup.get(fieldName);
-      if (control instanceof FormControl) {
-        control.markAsTouched();
-        control.markAsDirty();
-        control.updateValueAndValidity({ emitEvent: true });
-        return !control.invalid;
-      } else {
-        throw new Error('This should be impossible');
-      }
+  static validateFields(control: AbstractControl, path?: string): boolean {
+    const self = this;
+    control = path ? control.get(path) as AbstractControl : control;
+    if (!control)
+      throw new Error(`No control found at path: ${path || 'root'}.`);
+
+    // Maybe add FormArray?
+    const isAllowed = [FormGroup, FormControl].some(type => control instanceof type);
+    if (!isAllowed)
+      throw new Error(`Unknown control type at: ${path || 'root'}`);
+
+    // Mark control as touched and dirty, then update its validity.
+    control.markAsTouched();
+    control.markAsDirty();
+    control.updateValueAndValidity({ emitEvent: true });
+
+    // If is a FormGroup, validate all its child controls recursively.
+    if (control instanceof FormGroup) {
+      Object.values(control.controls).forEach((childControl) => {
+        self.validateFields(childControl);
+      });
     }
 
-    if (fieldName) return isValid(formGroup, fieldName);
-
-    let isValidForm = true;
-    for (const fg of formGroup.controls as unknown as FormGroup[]) {
-      for (const key in fg.controls) {
-        const validate = isValid(fg, key);
-        if (!validate) isValidForm = false;
-      }
-    }
-
-    return isValidForm;
+    return control.valid;
   }
 
   /**
@@ -171,8 +176,8 @@ export class NgxFormService {
    */
   static fromProps(
     props: FieldProperties,
-    updateMode: FieldUpdateMode = "change",
-    formId: string
+    updateMode: FieldUpdateMode = 'change',
+    formId: string,
   ): FormControl {
     const controls: Record<string, FormControl> = {};
     const validators = this.validatorsFromProps(formId, props);
@@ -184,13 +189,13 @@ export class NgxFormService {
             ? props.type === HTML5InputTypes.DATE
               ? !isValidDate(parseDate(props.format as string, props.value as string))
                 ? undefined : props.value :
-                  (props.value as any) : undefined,
+              (props.value as any) : undefined,
         disabled: props.disabled,
       },
       {
         validators: composed,
-        updateOn: updateMode
-      }
+        updateOn: updateMode,
+      },
     );
 
     return controls[props.name]; // new FormGroup(controls, { updateOn: updateMode });

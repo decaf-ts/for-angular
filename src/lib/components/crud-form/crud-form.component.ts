@@ -93,8 +93,7 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
     event.stopImmediatePropagation();
     event.stopPropagation();
 
-    const isValid = NgxFormService.validateFields(this.formGroup);
-    if (!isValid)
+    if (!NgxFormService.validateFields(this.formGroup))
       return false;
 
     const data = NgxFormService.getFormData(this.rendererId);
