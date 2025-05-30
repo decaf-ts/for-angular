@@ -12,6 +12,8 @@ export const AngularEngineKeys = {
   LISTABLE: 'listable',
   RENDER: 'render',
   RENDERED_ID: 'rendered-as-{0}',
+  PARENT: '_parent',
+  VALIDATION_PARENT_KEY: Symbol('_validationParentRef')
 };
 
 export const FormConstants = {

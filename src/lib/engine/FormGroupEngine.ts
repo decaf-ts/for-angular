@@ -1,7 +1,7 @@
+import { FieldProperties } from '@decaf-ts/ui-decorators';
 import { FormControl, FormGroup } from '@angular/forms';
 import { NgxFormService } from './NgxFormService';
 import { FieldUpdateMode } from './types';
-import { FieldProperties } from '@decaf-ts/ui-decorators';
 
 export interface ComponentInput extends FieldProperties {
   childrenof?: string;
@@ -48,7 +48,6 @@ export class FormGroupEngine {
       const control = NgxFormService.fromProps(
         component.inputs,
         component.inputs.updateMode || 'change',
-        Math.random().toString(),
       );
       parentGroup.addControl(controlName, control);
     }

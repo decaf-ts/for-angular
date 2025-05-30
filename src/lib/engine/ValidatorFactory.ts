@@ -1,53 +1,38 @@
-import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { AbstractControl, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ComparisonValidationKeys, Validation, Validator } from '@decaf-ts/decorator-validation';
 import { FieldProperties, HTML5InputTypes, parseValueByType } from '@decaf-ts/ui-decorators';
-import { NgxFormService } from './NgxFormService';
+import { AngularEngineKeys } from './constants';
 
 export class ValidatorFactory {
-  static spawn(
-    fieldProps: FieldProperties,
-    key: string,
-    formId: string,
-  ): ValidatorFn {
+  static spawn(fieldProps: FieldProperties, key: string): ValidatorFn {
     if (!Validation.keys().includes(key))
       throw new Error('Unsupported custom validation');
 
-    const type = fieldProps.type;
-
-    const validatorFn: ValidatorFn = (
-      control: AbstractControl,
-    ): ValidationErrors | null => {
+    const validatorFn: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
       const validator = Validation.get(key) as Validator;
-
-      const value =
-        typeof control.value !== 'undefined'
-          ? parseValueByType(type, type === HTML5InputTypes.CHECKBOX ? fieldProps.name : control.value, fieldProps)
-          : undefined;
+      const { name, type } = fieldProps;
+      const value = typeof control.value !== 'undefined'
+        ? parseValueByType(type, type === HTML5InputTypes.CHECKBOX ? name : control.value, fieldProps)
+        : undefined;
 
       // arg = RenderingEngine.get().translate(arg as string, false);
       // const actualArg = parseArgs(arg);
 
-      let formData = {};
+      let proxy = {};
       if (Object.values(ComparisonValidationKeys).includes(key as any)) {
-        try {
-          const parentNodePath = (fieldProps as any).formControlPath.split('.').slice(0, -1).join('.'); // remove last element
-          // formData = NgxFormService.getParentLinks(formId, parentNodePath);
-          // console.log('formData=', formData);
-        } catch (e: any) {
-        }
+        const parent: FormGroup = control instanceof FormGroup ? control : (control as Record<string, any>)[AngularEngineKeys.PARENT];
+        proxy = ValidatorFactory.createControlProxy(parent || {});
       }
 
-      let errs;
+      let errs: string | undefined;
       try {
-        errs = validator.hasErrors(
-          value,
-          {
-            [key]: fieldProps[key as keyof FieldProperties],
-          },
-          formData,
-        );
+        const validatorOptions = {
+          [key]: fieldProps[key as keyof FieldProperties],
+        };
+        errs = validator.hasErrors(value, validatorOptions, proxy);
       } catch (e: unknown) {
-        console.warn(`${key} validator failed to validate: ${e}`);
+        errs = `${key} validator failed to validate: ${e}`;
+        console.warn(errs);
       }
 
       return errs ? { [key]: true } : null;
@@ -58,5 +43,58 @@ export class ValidatorFactory {
     });
 
     return validatorFn;
+  }
+
+  /**
+   * @summary Creates a proxy wrapper for an Angular AbstractControl to assist with custom validation logic.
+   * @description
+   * This method returns a structured proxy object that simulates a hierarchical tree
+   * of form values. It allows validators to traverse up the form tree using
+   * a `special` key (e.g., `VALIDATION_PARENT_KEY`), while accessing form values directly by key.
+   *
+   * When accessing a property (e.g. `proxy['email']`), it returns the corresponding value from the `form`.
+   * When accessing the parent (via `VALIDATION_PARENT_KEY`), it returns the parent's value,
+   * and includes another `VALIDATION_PARENT_KEY` allowing recursive access up the hierarchy.
+   *
+   * @param {AbstractControl} control - The control to wrap in a proxy.
+   * @returns {Proxy<AbstractControl>} A proxy object exposing form values and enabling recursive parent access.
+   *
+   * @example
+   * const proxy = ValidatorFactory.createControlProxy(control);
+   * proxy.email // gets value from current control
+   * proxy[VALIDATION_PARENT_KEY].email // gets value from parent
+   * proxy[VALIDATION_PARENT_KEY][VALIDATION_PARENT_KEY].email // grandparent, and so on
+   */
+  static createControlProxy(control: AbstractControl): AbstractControl {
+    const self = this;
+    return new Proxy(control, {
+      get(target, prop) {
+        // Intercepts access to the parent property and returns a proxied parent control
+        if (prop === AngularEngineKeys.VALIDATION_PARENT_KEY) {
+          const parent = (target as Record<string, any>)[AngularEngineKeys.PARENT];
+          return parent
+            ? {
+              ...parent.value,
+              [AngularEngineKeys.VALIDATION_PARENT_KEY]: self.createControlProxy.call(self, parent[AngularEngineKeys.PARENT]),
+            }
+            : undefined;
+        }
+
+        // Otherwise, return the value from the current control
+        return target.value?.[prop];
+      },
+
+      set(target, prop, value) {
+        throw new Error(`Cannot set property "${String(prop)}" on read-only control proxy`);
+      },
+
+      defineProperty(target, prop, descriptor) {
+        throw new Error(`Cannot define property "${String(prop)}" on read-only control proxy`);
+      },
+
+      deleteProperty(target, prop) {
+        throw new Error(`Cannot delete property "${String(prop)}" on read-only control proxy`);
+      },
+    });
   }
 }
