@@ -1,4 +1,4 @@
-import { Component,  CUSTOM_ELEMENTS_SCHEMA, inject, Input, OnInit } from '@angular/core';
+import { Component,  CUSTOM_ELEMENTS_SCHEMA, inject, Injector, Input, OnInit } from '@angular/core';
 import { Color } from '@ionic/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
@@ -236,7 +236,7 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @type {RouterService}
    * @memberOf HeaderComponent
    */
-  private routerService: RouterService  = inject(RouterService);
+  // private routerService: RouterService  = inject(RouterService);
 
   /**
    * @description Creates an instance of HeaderComponent.
@@ -320,7 +320,8 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
     let page = `${this.route}/${operation}/`.replace('//', '/');
     if(this.uid || id)
         page = `${page}/${this.uid || id}`;
-    return this.routerService.navigateTo(page.replace('//', '/'))
+      return true
+    // return this.routerService.navigateTo(page.replace('//', '/'))
   }
 
   /**

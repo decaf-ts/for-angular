@@ -4,7 +4,6 @@ import {
   NO_ERRORS_SCHEMA,
 } from '@angular/core';
 import { Dynamic } from './decorators';
-import { NgxRenderingEngine } from './NgxRenderingEngine';
 import {
   IonCheckbox,
   IonDatetime,
@@ -21,9 +20,8 @@ import {
   IonButton,
   IonDatetimeButton,
 } from '@ionic/angular/standalone';
-import { ForAngularModule } from '../for-angular.module';
-import { NgxRenderingEngine2 } from 'dist/for-angular/cli/lib/engine';
-
+import { ForAngularModule } from 'src/lib/for-angular.module';
+import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
 
 describe('decorators', () => {
   @Dynamic()
