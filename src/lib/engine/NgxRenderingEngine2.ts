@@ -63,31 +63,26 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     if (fieldDef.rendererId)
       (result.inputs as Record<string, any>)['rendererId'] = fieldDef.rendererId;
 
-    let template;
-    // Processa filhos recursivamente
     if (fieldDef.children && fieldDef.children.length) {
       const self = this;
 
-      const processChild = (child: FieldDefinition<AngularFieldDefinition>):
-        unknown => {
+      const processChild = (child: FieldDefinition<AngularFieldDefinition>): unknown => {
         if (!child?.tag)
           return child;
-        // Processa o filho atual
-        const result = self.fromFieldDefinition(child, vcr, injector, tpl);
-        if (result?.children && result.children.length)
-          return (result.children || []).map(processChild as any);
-        // Se o resultado for um array, filtra apenas objet os
-        if (Array.isArray(result))
-          return (result?.children || []).filter(item => typeof item === 'object' && item !== null);
-        // Se o filho tiver `children`, processa recursivamente
-        if (child?.children && child.children.length)
-          return child.children.map(processChild);
-        return result;
+
+        const childResult = self.fromFieldDefinition(child, vcr, injector, tpl);
+        if (childResult?.children && childResult.children.length)
+          return (childResult.children || []).map(processChild as any);
+
+        // if (child?.children && child.children.length)
+        //   return child.children.map(processChild);
+
+        return childResult;
       };
 
       result.children = (fieldDef.children.map(processChild) as any).flat() as AngularDynamicOutput[];
       vcr.clear();
-      template = vcr.createEmbeddedView(tpl, injector).rootNodes;
+      const template = vcr.createEmbeddedView(tpl, injector).rootNodes;
       const componentInstance = NgxRenderingEngine2.createComponent(
         component,
         { ...inputs, ...{ model: this._model } },
