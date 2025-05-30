@@ -34,8 +34,7 @@ import { ForAngularModule } from 'src/lib/for-angular.module';
   styleUrls: ['./crud-form.component.scss'],
   imports: [ForAngularModule],
 })
-export class CrudFormComponent
-  implements OnInit, AfterViewInit, FormElement, OnDestroy, RenderedModel {
+export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, OnDestroy, RenderedModel {
   @Input()
   updateOn: FieldUpdateMode = 'change';
 
@@ -57,8 +56,8 @@ export class CrudFormComponent
   @Input({ required: true })
   operation!: CrudOperations;
 
-  @Input()
-  formGroup: FormGroup = new FormGroup({});
+  @Input({ required: true })
+  formGroup!: FormGroup;
 
   @Input()
   rendererId!: string;
@@ -67,11 +66,14 @@ export class CrudFormComponent
   submitEvent = new EventEmitter<BaseCustomEvent>();
 
   ngAfterViewInit() {
-    if (this.operation !== OperationKeys.READ)
-      NgxFormService.formAfterViewInit(this, this.rendererId);
+    // if (this.operation !== OperationKeys.READ)
+    //   NgxFormService.formAfterViewInit(this, this.rendererId);
   }
 
   ngOnInit() {
+    if (this.operation === OperationKeys.READ)
+      this.formGroup.disable();
+
     this.options = Object.assign(
       {},
       DefaultFormReactiveOptions,
@@ -96,13 +98,12 @@ export class CrudFormComponent
       return false;
 
     const data = NgxFormService.getFormData(this.rendererId);
-    const submitEvent: FormReactiveSubmitEvent = { data };
-
+    // const submitEvent: FormReactiveSubmitEvent = { data };
     // if (this.action)
     //   return this.component.nativeElement.dispatchEvent(
     //     new CustomEvent('submit', data),
     //   );
-    console.log(submitEvent);
+    // console.log(submitEvent);
     this.submitEvent.emit({
       data: data,
       component: 'FormReactiveComponent',

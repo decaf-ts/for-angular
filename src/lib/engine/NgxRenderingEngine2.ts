@@ -133,9 +133,8 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       );
     }
 
-
-    const formId = result!.inputs!['rendererId'] as string;
-    const formGroupResult = FormGroupEngine.buildFormFromComponents((result.children || []) as any[]);
+    // set root for formGroup of crud-form-component. TODO: Move to fromFieldDefinition
+    (result!.instance! as any)['formGroup'] = FormGroupEngine.buildFormFromComponents((result.children || []) as any[]);
     return result;
   }
 

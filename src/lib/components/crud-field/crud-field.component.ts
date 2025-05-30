@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AutocompleteTypes, SelectInterface } from '@ionic/core';
-import { CrudOperations } from '@decaf-ts/db-decorators';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 import { Dynamic } from '../../engine/decorators';
 import { FieldUpdateMode, PossibleInputTypes, RadioOption, SelectOption, StringOrBoolean } from '../../engine/types';
@@ -533,19 +533,21 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   @Input()
   translatable: StringOrBoolean = true;
 
+  ngOnInit(): void {
+    super.onInit(this.updateOn);
+    if (this.type === HTML5InputTypes.RADIO && !this.value)
+      this.formGroup?.get(this.name)?.setValue(this.options[0].value);
+
+    if (this.operation === OperationKeys.READ)
+      this.formControl.disable();
+  }
+
   ngAfterViewInit() {
     super.afterViewInit();
   }
 
   ngOnDestroy(): void {
     this.onDestroy();
-  }
-
-  ngOnInit(): void {
-    super.onInit(this.updateOn);
-    if (this.type === HTML5InputTypes.RADIO && !this.value)
-      this.formGroup?.get(this.name)?.setValue(this.options[0].value);
-
   }
 
   get formControlPath() {
