@@ -125,51 +125,6 @@ export class NgxFormService {
     return parseForm(this.controls[formId]);
   }
 
-  static getParentLinks(formId: string, path: string): Record<string, unknown> {
-    const self = this;
-    if (!(formId in this.controls)) throw new Error(`form ${formId} not found`);
-
-    function parseForm(form: Record<string, FormServiceControl | AngularFieldDefinition>, parent?: any): Record<string, unknown> {
-      const data: Record<string, unknown> = {};
-      for (const key in form) {
-        const node = form[key];
-        // children
-        const isGroup = !node.control && typeof node === 'object';
-        if (isGroup) {
-          const { [key]: prop, ...rest } = form;
-          data[key] = parseForm(node as Record<string, FormServiceControl>);
-          // Adds parent reference without circular references
-          (data[key] as any)[VALIDATION_PARENT_KEY] = rest;
-          continue;
-        }
-
-        let val: unknown;
-        const { control, props } = node as FormServiceControl;
-        if (!HTML5CheckTypes.includes(props.type)) {
-          switch (props.type) {
-            case HTML5InputTypes.NUMBER:
-              val = parseToNumber(control.value);
-              break;
-            case HTML5InputTypes.DATE:
-            case HTML5InputTypes.DATETIME_LOCAL:
-              val = new Date(control.value[key]);
-              break;
-            default:
-              val = escapeHtml(control.value[key]);
-          }
-        } else {
-          val = Object.values(control.value)[0];
-        }
-        data[key] = val;
-      }
-
-      return data;
-    }
-
-    const formData = parseForm(this.controls[formId]);
-    return path.split('.').length > 1 ? getValueByPath(formData, path) : formData;
-  }
-
   /**
    * @summary Validates form fields.
    * @description

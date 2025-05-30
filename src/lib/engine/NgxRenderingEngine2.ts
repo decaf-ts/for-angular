@@ -135,15 +135,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
 
 
     const formId = result!.inputs!['rendererId'] as string;
-    // result!.children!.forEach((c) => {
-    //   c.inputs!['formGroup'] = NgxFormService.fromProps(
-    //     c.inputs as any,
-    //     c.inputs!['updateMode'] as FieldUpdateMode || 'change',
-    //     formId,
-    //   );
-    // });
-
-    const formGroupResult = FormGroupEngine.buildFormFromComponents(result!.children! as any);
+    const formGroupResult = FormGroupEngine.buildFormFromComponents((result.children || []) as any[]);
     return result;
   }
 

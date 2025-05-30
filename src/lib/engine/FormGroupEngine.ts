@@ -66,7 +66,7 @@ export class FormGroupEngine {
    */
   private static resolveParentGroup(rootForm: FormGroup, path: string): [FormGroup, string] {
     const parts = path.split('.');
-    const controlName = parts.pop()!;
+    const controlName = parts.pop() as string; // last element is always the control name
 
     let currentGroup = rootForm;
 
