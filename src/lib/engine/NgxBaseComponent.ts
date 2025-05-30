@@ -77,12 +77,59 @@ export type ComponentBaseModel = Model | Repository<Model> | undefined;
  * consistent behavior and reducing code duplication. Components that extend this class inherit
  * its capabilities for handling translations, accessing DOM elements, and applying custom styling.
  *
+ * @template M - The model type that this component works with
+ * @param {string} instance - The component instance token used for identification
  * @param {string} locale - The locale to be used for translations
  * @param {StringOrBoolean} translatable - Whether the component should be translated
  * @param {string} className - Additional CSS classes to apply to the component
  * @param {"ios" | "md" | undefined} mode - Component platform style
  *
- * @component NgxBaseComponent
+ * @class NgxBaseComponent
+ * @example
+ * ```typescript
+ * @Component({
+ *   selector: 'app-my-component',
+ *   templateUrl: './my-component.component.html',
+ *   styleUrls: ['./my-component.component.scss']
+ * })
+ * export class MyComponent extends NgxBaseComponent {
+ *   constructor(@Inject('instanceToken') instance: string) {
+ *     super(instance);
+ *   }
+ *
+ *   ngOnInit() {
+ *     this.initialize();
+ *     // Component-specific initialization
+ *   }
+ * }
+ * ```
+ * @mermaid
+ * sequenceDiagram
+ *   participant App as Application
+ *   participant Comp as Component
+ *   participant Base as NgxBaseComponent
+ *   participant Engine as NgxRenderingEngine2
+ *
+ *   App->>Comp: Create component
+ *   Comp->>Base: super(instance)
+ *   Base->>Base: Set componentName & componentLocale
+ *
+ *   App->>Comp: Set @Input properties
+ *   Comp->>Base: ngOnChanges(changes)
+ *
+ *   alt model changed
+ *     Base->>Base: getModel(model)
+ *     Base->>Engine: getDecorators(model, {})
+ *     Engine-->>Base: Return decorator metadata
+ *     Base->>Base: Configure mapper and item
+ *     Base->>Base: getLocale(translatable)
+ *   else locale/translatable changed
+ *     Base->>Base: getLocale(translatable)
+ *   end
+ *
+ *   App->>Comp: ngOnInit()
+ *   Comp->>Base: initialize()
+ *   Base->>Base: Set initialized flag
  */
 @Component({
   standalone: true,
@@ -384,8 +431,6 @@ export abstract class NgxBaseComponent implements OnChanges {
    *
    * @param {string | Model} model - The model instance or identifier string
    * @return {void}
-   *
-   * @memberOf NgxBaseComponent
    */
   getModel(model: string | Model): void {
     if (!(model instanceof Model))

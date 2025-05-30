@@ -372,6 +372,39 @@ private fromFieldDefinition(
     return `${AngularEngineKeys.REFLECT}${key}`;
   }
 
+  /**
+   * @description Sets input properties on a component instance
+   * @summary This static utility method sets input properties on a component instance
+   * based on the provided inputs object and component metadata. It handles both simple
+   * values and nested objects, recursively processing object properties. The method
+   * validates each input against the component's metadata to ensure only valid inputs
+   * are set.
+   *
+   * @param {ComponentRef<unknown>} component - The component reference to set inputs on
+   * @param {KeyValue} inputs - The input properties to set
+   * @param {ComponentMirror<unknown>} metadata - The component metadata for input validation
+   * @return {void}
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Caller
+   *   participant SetInputs as setInputs
+   *   participant Parse as parseInputValue
+   *   participant Component as ComponentRef
+   *
+   *   Caller->>SetInputs: setInputs(component, inputs, metadata)
+   *   SetInputs->>SetInputs: Iterate through inputs
+   *   loop For each input
+   *     SetInputs->>SetInputs: Check if input exists in metadata
+   *     alt Input is 'props'
+   *       SetInputs->>Parse: parseInputValue(component, value)
+   *       Parse->>Parse: Recursively process nested objects
+   *       Parse->>Component: setInput(key, value)
+   *     else Input is valid
+   *       SetInputs->>Component: setInput(key, value)
+   *     end
+   *   end
+   */
   static setInputs(component: ComponentRef<unknown>, inputs: KeyValue, metadata: ComponentMirror<unknown>): void {
     function parseInputValue(component: ComponentRef<unknown>, input: KeyValue) {
       Object.keys(input).forEach(key => {
