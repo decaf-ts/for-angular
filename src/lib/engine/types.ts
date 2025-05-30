@@ -217,6 +217,18 @@ export type RadioOption = InputOption & { checked?: boolean };
  */
 export type CheckboxOption = RadioOption;
 
+/**
+ * @description Base option type for input components
+ * @summary Defines the common structure for options used in select, radio, and checkbox inputs.
+ * Contains properties for the display text, value, disabled state, CSS class, and icon.
+ * @interface InputOption
+ * @property {string} text - The display text for the option
+ * @property {string|number} value - The value associated with the option
+ * @property {StringOrBoolean} [disabled] - Whether the option is disabled
+ * @property {string} [className] - CSS class name for styling the option
+ * @property {string} [icon] - Icon to display with the option
+ * @memberOf module:engine
+ */
 export interface InputOption {
   text: string;
   value: string | number;

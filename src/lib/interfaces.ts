@@ -10,6 +10,7 @@ import { ElementRef } from '@angular/core';
 export interface ComponentHolder {
   /**
    * @description Reference to the component's DOM element
+   * @property {ElementRef} component - The ElementRef instance providing access to the native DOM element
    */
   component: ElementRef;
 }
@@ -23,6 +24,7 @@ export interface ComponentHolder {
 export interface FormElement extends ComponentHolder {
   /**
    * @description The Angular FormGroup associated with this form element
+   * @property {FormGroup|undefined} formGroup - The form group instance for managing form controls and validation
    */
   formGroup: FormGroup | undefined;
 }
