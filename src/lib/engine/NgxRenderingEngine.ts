@@ -15,6 +15,8 @@ import {
  * @description Angular implementation of the RenderingEngine
  * @summary This class extends the base RenderingEngine to provide Angular-specific rendering capabilities.
  * It handles the conversion of field definitions to Angular components and manages component registration.
+ * @template AngularFieldDefinition - Type for Angular-specific field definitions
+ * @template AngularDynamicOutput - Type for Angular-specific component output
  * @param {Injector} injector - Angular injector for dependency injection
  * @param {ViewContainerRef} vcr - View container reference for component creation
  * @param {TemplateRef<any>} tpl - Template reference for content projection
@@ -62,6 +64,20 @@ export class NgxRenderingEngine extends RenderingEngine<
    * @param {Injector} injector - The Angular injector for dependency injection
    * @param {TemplateRef<any>} tpl - The template reference for content projection
    * @return {AngularDynamicOutput} The Angular component output with component reference and inputs
+   * @mermaid
+   * sequenceDiagram
+   *   participant Method as fromFieldDefinition
+   *   participant Components as NgxRenderingEngine.components
+   *   participant Angular as Angular Core
+   *
+   *   Method->>Components: components(fieldDef.tag)
+   *   Components-->>Method: component constructor
+   *   Method->>Angular: reflectComponentType(component)
+   *   Angular-->>Method: componentMetadata
+   *   Method->>Method: Check input properties
+   *   Method->>Method: Create result object
+   *   Method->>Method: Process children if any
+   *   Method-->>Caller: return AngularDynamicOutput
    */
   private fromFieldDefinition(
     fieldDef: FieldDefinition<AngularFieldDefinition>,
@@ -130,6 +146,19 @@ export class NgxRenderingEngine extends RenderingEngine<
    * @param {Injector} injector - The Angular injector for dependency injection
    * @param {TemplateRef<any>} tpl - The template reference for content projection
    * @return {AngularDynamicOutput} The Angular component output with component reference and inputs
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client as Client Code
+   *   participant Render as render method
+   *   participant ToField as toFieldDefinition
+   *   participant FromField as fromFieldDefinition
+   *
+   *   Client->>Render: render(model, globalProps, vcr, injector, tpl)
+   *   Render->>ToField: toFieldDefinition(model, globalProps)
+   *   ToField-->>Render: fieldDef
+   *   Render->>FromField: fromFieldDefinition(fieldDef, vcr, injector, tpl)
+   *   FromField-->>Render: AngularDynamicOutput
+   *   Render-->>Client: return AngularDynamicOutput
    */
   override render<M extends Model>(
     model: M,
