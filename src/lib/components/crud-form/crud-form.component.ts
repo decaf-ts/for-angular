@@ -1,18 +1,17 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
-  OnInit,
-  ViewChild,
-  AfterViewInit,
-  Input,
-  Output,
   EventEmitter,
+  Input,
   OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
 } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { FormElement } from '../../interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
-import { IonicModule } from '@ionic/angular';
 import {
   BaseCustomEvent,
   Dynamic,
@@ -21,7 +20,7 @@ import {
   HTMLFormTarget,
   RenderedModel,
 } from '../../engine';
-import { CrudFormOptions, FormReactiveSubmitEvent } from './types';
+import { CrudFormOptions } from './types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
 import { ForAngularModule } from 'src/lib/for-angular.module';

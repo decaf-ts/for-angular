@@ -1,20 +1,14 @@
 import {
-  AfterViewInit,
   Component,
-  ComponentRef,
-  ElementRef,
   EventEmitter,
   Injector,
   Input,
   OnChanges,
   OnDestroy,
-  OnInit,
   Output,
   SimpleChanges,
   TemplateRef,
-  Type,
   ViewChild,
-  ViewChildren,
   ViewContainerRef,
 } from '@angular/core';
 import { Model, sf } from '@decaf-ts/decorator-validation';
@@ -23,15 +17,12 @@ import {
   AngularDynamicOutput,
   AngularEngineKeys,
   BaseComponentProps,
+  BaseCustomEvent,
   NgxRenderingEngine2,
   RenderedModel,
-  BaseCustomEvent,
-  EventConstants,
-  ComponentsTagNames
 } from '../../engine';
 import { KeyValue, ModelRenderCustomEvent } from 'src/lib/engine/types';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { stringToBoolean } from 'src/lib/helpers/string';
 
 @Component({
   standalone: true,
@@ -41,8 +32,7 @@ import { stringToBoolean } from 'src/lib/helpers/string';
   styleUrl: './model-renderer.component.scss',
 })
 export class ModelRendererComponent<M extends Model>
-  implements OnChanges, OnDestroy, RenderedModel
-{
+  implements OnChanges, OnDestroy, RenderedModel {
   @Input({ required: true })
   model!: M | string | undefined;
 
@@ -57,7 +47,7 @@ export class ModelRendererComponent<M extends Model>
   @Input()
   rendererId?: string;
 
-  @ViewChild('componentOuter', {static: true, read: ViewContainerRef })
+  @ViewChild('componentOuter', { static: true, read: ViewContainerRef })
   vcr!: ViewContainerRef;
 
   @Output()
@@ -68,7 +58,8 @@ export class ModelRendererComponent<M extends Model>
 
   constructor(
     private injector: Injector,
-  ) {}
+  ) {
+  }
 
   private refresh(model: string | M) {
 
@@ -98,38 +89,38 @@ export class ModelRendererComponent<M extends Model>
   }
 
   async ngOnDestroy(): Promise<void> {
-    if(this.instance) {
+    if (this.instance) {
       this.unsubscribeEvents();
       await NgxRenderingEngine2.destroy();
     }
-    this.output =  undefined;
+    this.output = undefined;
   }
 
 
   private subscribeEvents(): void {
-    if(this.instance) {
+    if (this.instance) {
       const self = this;
       const componentKeys = Object.keys(this.instance);
       for (const key of componentKeys) {
         const value = this.instance[key];
-        if(value instanceof EventEmitter)
+        if (value instanceof EventEmitter)
           (self.instance as KeyValue)[key].subscribe((event: Partial<BaseCustomEvent>) => {
-          self.listenEvent.emit({
-              component: self.output?.component.name || "",
+            self.listenEvent.emit({
+              component: self.output?.component.name || '',
               name: key,
-              ... event,
-          } as ModelRenderCustomEvent);
-        })
+              ...event,
+            } as ModelRenderCustomEvent);
+          });
       }
     }
   }
 
   private unsubscribeEvents(): void {
-    if(this.instance) {
+    if (this.instance) {
       const componentKeys = Object.keys(this.instance);
       for (const key of componentKeys) {
         const value = this.instance[key];
-        if(value instanceof EventEmitter)
+        if (value instanceof EventEmitter)
           this.instance[key].unsubscribe();
       }
     }

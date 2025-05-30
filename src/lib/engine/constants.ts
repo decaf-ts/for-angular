@@ -13,7 +13,7 @@ export const AngularEngineKeys = {
   RENDER: 'render',
   RENDERED_ID: 'rendered-as-{0}',
   PARENT: '_parent',
-  VALIDATION_PARENT_KEY: Symbol('_validationParentRef')
+  VALIDATION_PARENT_KEY: Symbol('_validationParentRef'),
 };
 
 export const FormConstants = {
@@ -22,10 +22,10 @@ export const FormConstants = {
 };
 
 export enum EventConstants {
-  BACK_BUTTON_NAVIGATION = "backButtonNavigationEndEvent",
-  REFRESH_EVENT = "RefreshEvent",
-  CLICK_EVENT = "ClickEvent",
-  SUBMIT_EVENT = "SubmitEvent",
+  BACK_BUTTON_NAVIGATION = 'backButtonNavigationEndEvent',
+  REFRESH_EVENT = 'RefreshEvent',
+  CLICK_EVENT = 'ClickEvent',
+  SUBMIT_EVENT = 'SubmitEvent',
 }
 
 export enum LoggerLevels {
@@ -38,28 +38,28 @@ export enum LoggerLevels {
 };
 
 export enum RouteDirections {
-  BACK = "back",
-  FORWARD = "forward",
-  ROOT = "root",
+  BACK = 'back',
+  FORWARD = 'forward',
+  ROOT = 'root',
 };
 
 
 export enum ComponentsTagNames {
-  LIST_ITEM = "ngx-decaf-list-item",
+  LIST_ITEM = 'ngx-decaf-list-item',
   LIST_INFINITE = 'ngx-decaf-list-infinite',
   LIST_PAGINATED = 'ngx-decaf-list-paginated',
 }
 
 export enum BaseComponentProps {
-  MODEL = "model",
-  LOCALE = "locale",
-  PK = "pk",
-  ITEMS = "items",
-  ROUTE = "route",
-  OPERATIONS = "operations",
-  UID = "uid",
+  MODEL = 'model',
+  LOCALE = 'locale',
+  PK = 'pk',
+  ITEMS = 'items',
+  ROUTE = 'route',
+  OPERATIONS = 'operations',
+  UID = 'uid',
   TRANSLATABLE = 'translatable',
-  MAPPER = "mapper",
+  MAPPER = 'mapper',
 }
 
 
