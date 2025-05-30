@@ -84,7 +84,7 @@ export type ComponentBaseModel = Model | Repository<Model> | undefined;
  * @param {string} className - Additional CSS classes to apply to the component
  * @param {"ios" | "md" | undefined} mode - Component platform style
  *
- * @class NgxBaseComponent
+ * @component NgxBaseComponent
  * @example
  * ```typescript
  * @Component({
@@ -211,7 +211,6 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @summary Defines which CRUD operations (Create, Read, Update, Delete) are available
    * for this component. This affects which operations can be performed on the data.
    *
-   * @type {[CrudOperations]}
    * @default [OperationKeys.READ]
    */
   @Input()

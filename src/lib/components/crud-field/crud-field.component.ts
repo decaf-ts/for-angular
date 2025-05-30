@@ -9,7 +9,11 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { AutocompleteTypes, CheckboxCustomEvent, SelectInterface } from '@ionic/core';
+import {
+  AutocompleteTypes,
+  CheckboxCustomEvent,
+  SelectInterface,
+} from '@ionic/core';
 import { CrudOperations } from '@decaf-ts/db-decorators';
 import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 import { Dynamic } from '../../engine/decorators';
@@ -41,8 +45,6 @@ import {
 import { HTML5CheckTypes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { stringToBoolean } from 'src/lib/helpers';
 
-
-
 /**
  * @description A dynamic form field component for CRUD operations.
  * @summary The CrudFieldComponent is a versatile form field component that adapts to different
@@ -72,8 +74,19 @@ import { stringToBoolean } from 'src/lib/helpers';
  * @param {FormGroup} formGroup - The parent form group
  * @param {StringOrBoolean} translatable - Whether field labels should be translated
  *
- * @class CrudFieldComponent
- * @memberOf module:DecafComponents
+ * @component CrudFieldComponent
+ * @example
+ * <ngx-decaf-crud-field
+ *   operation="create"
+ *   name="firstName"
+ *   type="text"
+ *   label="<NAME>"
+ *   placeholder="<NAME>"
+ *   [value]="model.firstName"
+ *   [disabled]="model.readOnly">
+ *
+ *
+ * @memberOf module:for-angular
  */
 @Dynamic()
 @Component({
@@ -94,7 +107,7 @@ import { stringToBoolean } from 'src/lib/helpers';
     IonTextarea,
     IonToggle,
     IonButton,
-    IonDatetimeButton
+    IonDatetimeButton,
   ],
   selector: 'ngx-decaf-crud-field',
   templateUrl: './crud-field.component.html',
@@ -461,7 +474,8 @@ export class CrudFieldComponent
    * @memberOf CrudFieldComponent
    */
   @Input()
-  labelPlacement: 'start' | 'end' | 'floating' | 'stacked' | 'fixed' = 'floating';
+  labelPlacement: 'start' | 'end' | 'floating' | 'stacked' | 'fixed' =
+    'floating';
 
   /**
    * @description Update mode for the field.
@@ -520,13 +534,10 @@ export class CrudFieldComponent
   }
 
   ngOnInit(): void {
-    if(!this.locale)
-      this.translatable = false;
+    if (!this.locale) this.translatable = false;
     this.translatable = stringToBoolean(this.translatable);
     super.onInit(this.updateOn);
-    if(this.type === HTML5InputTypes.RADIO && !this.value)
-      this.formGroup?.get(this.name)?.setValue(this.options[0].value)
-
+    if (this.type === HTML5InputTypes.RADIO && !this.value)
+      this.formGroup?.get(this.name)?.setValue(this.options[0].value);
   }
-
 }

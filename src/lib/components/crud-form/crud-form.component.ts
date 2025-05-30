@@ -27,6 +27,26 @@ import { DefaultFormReactiveOptions } from './constants';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { IonBackButton, IonIcon } from '@ionic/angular/standalone';
 
+/**
+ * @component CrudFormComponent
+ * @example <ngx-decaf-crud-form
+ *   action="create"
+ *   operation="create"
+ *   formGroup="formGroup"
+ *   rendererId="rendererId"
+ *   submitEvent="submitEvent"
+ *   target="_self"
+ *   method="event">
+ * </ngx-decaf-crud-form>
+ *
+ * @param {string} action - The action to be performed (create, read, update, delete)
+ * @param {CrudOperations} operation - The CRUD operation being performed (create, read, update, delete)
+ * @param {FormGroup} formGroup - The form group
+ * @param {string} rendererId - The renderer id
+ * @param {SubmitEvent} submitEvent - The submit event
+ * @param {string} target - The target
+ * @param {string} method - The method
+ */
 @Dynamic()
 @Component({
   standalone: true,
@@ -69,7 +89,7 @@ export class CrudFormComponent
   submitEvent = new EventEmitter<BaseCustomEvent>();
 
   ngAfterViewInit() {
-    if(this.operation !== OperationKeys.READ)
+    if (this.operation !== OperationKeys.READ)
       NgxFormService.formAfterViewInit(this, this.rendererId);
   }
 
@@ -77,7 +97,7 @@ export class CrudFormComponent
     this.options = Object.assign(
       {},
       DefaultFormReactiveOptions,
-      this.options || {},
+      this.options || {}
     );
   }
 

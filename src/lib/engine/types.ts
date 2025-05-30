@@ -73,7 +73,7 @@ export type FieldUpdateMode = 'change' | 'blur' | 'submit';
  * @property {number} changeDetection - The change detection strategy number
  * @property {string} selector - The CSS selector for the component
  * @property {boolean} standalone - Whether the component is standalone
- * @property {(new (...args: unknown[]) => unknown)[]} imports - Array of imported modules/components
+ * @property imports - Array of imported modules/components
  * @property {string} template - The HTML template for the component
  * @property {string[]} styles - Array of CSS styles for the component
  * @memberOf module:engine
@@ -109,7 +109,7 @@ export type AngularDynamicOutput = {
   injector?: Injector;
   content?: Node[][];
   children?: AngularDynamicOutput[];
-  instance?:  Type<unknown>;
+  instance?: Type<unknown>;
 };
 
 /**
@@ -195,7 +195,6 @@ export type StringOrBoolean = 'true' | 'false' | boolean;
  * @description Option type for select inputs
  * @summary Extends the InputOption interface with a selected property to indicate
  * whether the option is selected by default.
- * @typedef {InputOption & { selected?: boolean }} SelectOption
  * @memberOf module:engine
  */
 export type SelectOption = InputOption & { selected?: boolean };
@@ -204,7 +203,6 @@ export type SelectOption = InputOption & { selected?: boolean };
  * @description Option type for radio inputs
  * @summary Extends the InputOption interface with a checked property to indicate
  * whether the option is checked by default.
- * @typedef {InputOption & { checked?: boolean }} RadioOption
  * @memberOf module:engine
  */
 export type RadioOption = InputOption & { checked?: boolean };
@@ -258,8 +256,6 @@ export type HTMLFormTarget = '_blank' | '_self' | '_parent' | '_top' | string;
 //   subinfo?: string;
 // }
 
-
-
 /**
  * @description Interface for list component refresh events
  * @summary Defines the structure of a refresh event for list components.
@@ -284,7 +280,6 @@ export type FormServiceControls = Record<
   string,
   Record<string, { control: FormGroup; props: AngularFieldDefinition }>
 >;
-
 
 /**
  * @description Interface for model render custom events
@@ -318,7 +313,7 @@ export interface ModelRenderCustomEvent {
 export interface ListItemCustomEvent extends BaseCustomEvent {
   action: string;
   pk?: string;
-};
+}
 
 /**
  * @description Base interface for custom events

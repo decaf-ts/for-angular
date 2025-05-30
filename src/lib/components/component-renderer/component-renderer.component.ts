@@ -18,7 +18,11 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { NgxRenderingEngine2 } from 'src/lib/engine/NgxRenderingEngine2';
-import { BaseCustomEvent, KeyValue, ModelRenderCustomEvent } from '../../engine';
+import {
+  BaseCustomEvent,
+  KeyValue,
+  ModelRenderCustomEvent,
+} from '../../engine';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { consoleWarn } from 'src/lib/helpers';
 
@@ -28,6 +32,14 @@ import { consoleWarn } from 'src/lib/helpers';
  * at runtime based on a tag name. It handles the creation, property binding, and event
  * subscription for dynamically loaded components. This is particularly useful for
  * building configurable UIs where components need to be determined at runtime.
+ *
+ * @component {ComponentRendererComponent}
+ * @example
+ * <ngx-decaf-component-renderer
+ *   [tag]="tag"
+ *   [globals]="globals"
+ *   (listenEvent)="listenEvent($event)">
+ * </ngx-decaf-component-renderer>
  *
  * @mermaid
  * classDiagram
@@ -59,10 +71,10 @@ import { consoleWarn } from 'src/lib/helpers';
   styleUrls: ['./component-renderer.component.scss'],
   imports: [ForAngularModule],
   standalone: true,
-
 })
-export class ComponentRendererComponent implements OnInit, OnChanges, OnDestroy {
-
+export class ComponentRendererComponent
+  implements OnInit, OnChanges, OnDestroy
+{
   /**
    * @description Reference to the container where the dynamic component will be rendered.
    * @summary This ViewContainerRef provides the container where the dynamically created
@@ -72,7 +84,7 @@ export class ComponentRendererComponent implements OnInit, OnChanges, OnDestroy 
    * @type {ViewContainerRef}
    * @memberOf ComponentRendererComponent
    */
-  @ViewChild('componentViewContainer', {static: true, read: ViewContainerRef })
+  @ViewChild('componentViewContainer', { static: true, read: ViewContainerRef })
   vcr!: ViewContainerRef;
 
   /**
@@ -86,7 +98,7 @@ export class ComponentRendererComponent implements OnInit, OnChanges, OnDestroy 
    * @required
    * @memberOf ComponentRendererComponent
    */
-  @Input({required: true})
+  @Input({ required: true })
   tag!: string;
 
   /**
@@ -137,7 +149,8 @@ export class ComponentRendererComponent implements OnInit, OnChanges, OnDestroy 
    * @memberOf ComponentRendererComponent
    */
   @Output()
-  listenEvent: EventEmitter<ModelRenderCustomEvent> = new EventEmitter<ModelRenderCustomEvent>();
+  listenEvent: EventEmitter<ModelRenderCustomEvent> =
+    new EventEmitter<ModelRenderCustomEvent>();
 
   /**
    * @description Creates an instance of ComponentRendererComponent.
@@ -198,7 +211,7 @@ export class ComponentRendererComponent implements OnInit, OnChanges, OnDestroy 
    * @memberOf ComponentRendererComponent
    */
   async ngOnDestroy(): Promise<void> {
-    if(this.component) {
+    if (this.component) {
       this.unsubscribeEvents();
       NgxRenderingEngine2.destroy();
     }
@@ -234,7 +247,8 @@ export class ComponentRendererComponent implements OnInit, OnChanges, OnDestroy 
    * @memberOf ComponentRendererComponent
    */
   private createComponent(tag: string, globals: KeyValue = {}): void {
-    const component = NgxRenderingEngine2.components(tag)?.constructor as Type<unknown>;
+    const component = NgxRenderingEngine2.components(tag)
+      ?.constructor as Type<unknown>;
     const metadata = reflectComponentType(component);
     const componentInputs = (metadata as ComponentMirror<unknown>).inputs;
     const props = globals?.['item'];
@@ -242,18 +256,20 @@ export class ComponentRendererComponent implements OnInit, OnChanges, OnDestroy 
     const inputKeys = Object.keys(props);
     const unmappedKeys = [];
 
-    for(let input of inputKeys) {
-      if (!inputKeys.length)
-        break;
-      const prop = componentInputs.find((item: {propName: string}) => item.propName === input);
-      if(!prop) {
+    for (let input of inputKeys) {
+      if (!inputKeys.length) break;
+      const prop = componentInputs.find(
+        (item: { propName: string }) => item.propName === input
+      );
+      if (!prop) {
         delete props[input];
         unmappedKeys.push(input);
       }
     }
     if (unmappedKeys.length)
-      consoleWarn(this,
-        `Unmapped input properties for component ${tag}: ${unmappedKeys.join(', ')}`,
+      consoleWarn(
+        this,
+        `Unmapped input properties for component ${tag}: ${unmappedKeys.join(', ')}`
       );
 
     this.vcr.clear();
@@ -262,7 +278,8 @@ export class ComponentRendererComponent implements OnInit, OnChanges, OnDestroy 
       props,
       metadata as ComponentMirror<unknown>,
       this.vcr,
-      this.injector as Injector, []
+      this.injector as Injector,
+      []
     );
     this.subscribeEvents();
   }
@@ -308,20 +325,22 @@ export class ComponentRendererComponent implements OnInit, OnChanges, OnDestroy 
    * @memberOf ComponentRendererComponent
    */
   private subscribeEvents(): void {
-    if(this.component) {
+    if (this.component) {
       console.log('Subscribing to events');
       const self = this;
       const instance = this.component?.instance as any;
       const componentKeys = Object.keys(instance);
       for (const key of componentKeys) {
         const value = instance[key];
-        if(value instanceof EventEmitter)
-          (instance as KeyValue)[key].subscribe((event: Partial<BaseCustomEvent>) => {
-          self.listenEvent.emit({
-              name: key,
-              ... event,
-          } as ModelRenderCustomEvent);
-        })
+        if (value instanceof EventEmitter)
+          (instance as KeyValue)[key].subscribe(
+            (event: Partial<BaseCustomEvent>) => {
+              self.listenEvent.emit({
+                name: key,
+                ...event,
+              } as ModelRenderCustomEvent);
+            }
+          );
       }
     }
   }
@@ -352,13 +371,12 @@ export class ComponentRendererComponent implements OnInit, OnChanges, OnDestroy 
    * @memberOf ComponentRendererComponent
    */
   private unsubscribeEvents(): void {
-    if(this.component) {
+    if (this.component) {
       const instance = this.component?.instance as any;
       const componentKeys = Object.keys(instance);
       for (const key of componentKeys) {
         const value = instance[key];
-        if(value instanceof EventEmitter)
-          instance[key].unsubscribe();
+        if (value instanceof EventEmitter) instance[key].unsubscribe();
       }
     }
   }

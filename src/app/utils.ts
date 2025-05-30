@@ -1,4 +1,3 @@
-
 /**
  * @description Utility functions for form field generation and data mocking.
  * @summary This module provides utility functions for creating form field properties
@@ -9,8 +8,8 @@
  * @module AppUtils
  */
 
-import { KeyValue } from "src/lib/engine/types";
-import { formatDate } from "src/lib/helpers/date";
+import { KeyValue } from 'src/lib/engine/types';
+import { formatDate } from 'src/lib/helpers/date';
 
 /**
  * @description Common properties for input fields.
@@ -21,7 +20,6 @@ import { formatDate } from "src/lib/helpers/date";
  *
  * @private
  * @type {Object}
- * @memberOf AppUtils
  */
 const commonInputProps = {
   name: 'field-name',
@@ -40,7 +38,6 @@ const commonInputProps = {
   // step?: number;
   // custom?: string[];
 };
-
 
 /**
  * @description Generates properties for a form field.
@@ -70,7 +67,7 @@ const commonInputProps = {
 export function getFormFieldProps(
   name: string,
   type = 'text',
-  value: string | number | Date = '',
+  value: string | number | Date = ''
 ): {} {
   return Object.assign({}, commonInputProps, {
     name: `field-${name}`,
@@ -80,7 +77,6 @@ export function getFormFieldProps(
     value: value,
   });
 }
-
 
 /**
  * @description Generates mock data using Faker functions.
@@ -118,15 +114,20 @@ export function getFormFieldProps(
  *
  * @memberOf AppUtils
  */
-export function generateFakerData(limit: number = 100, props: Record<string, Function>): Promise<KeyValue[]> {
+export function generateFakerData(
+  limit: number = 100,
+  props: Record<string, Function>
+): Promise<KeyValue[]> {
   return new Promise((resolve) => {
-    return resolve(Array.from({ length: limit }, () => {
-      const item: Record<string, any> = {};
-      for (const [key, value] of Object.entries(props)) {
-        const val = value();
-        item[key] = val.constructor === Date? formatDate(val) : val;
-      }
-      return item;
-    }))
-  })
+    return resolve(
+      Array.from({ length: limit }, () => {
+        const item: Record<string, any> = {};
+        for (const [key, value] of Object.entries(props)) {
+          const val = value();
+          item[key] = val.constructor === Date ? formatDate(val) : val;
+        }
+        return item;
+      })
+    );
+  });
 }
