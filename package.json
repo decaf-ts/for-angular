@@ -62,7 +62,7 @@
     "@storybook/blocks": "^8.6.14",
     "@storybook/test": "^8.6.14",
     "@types/jasmine": "~5.1.0",
-    "@types/node": "^22.15.21",
+    "@types/node": "^22.15.24",
     "angular-eslint": "18.4.0",
     "commander": "^13.1.0",
     "dpdm": "^3.14.0",
