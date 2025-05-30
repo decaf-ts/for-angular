@@ -1,4 +1,4 @@
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { NgxFormService } from './NgxFormService';
 import { FieldUpdateMode } from './types';
 import { FieldProperties } from '@decaf-ts/ui-decorators';
@@ -7,6 +7,7 @@ export interface ComponentInput extends FieldProperties {
   childrenof?: string;
   updateMode?: FieldUpdateMode;
   formGroup?: FormGroup;
+  formControl?: FormControl;
 }
 
 export interface ComponentConfig {
@@ -53,7 +54,7 @@ export class FormGroupEngine {
     }
 
     component.inputs.formGroup = parentGroup;
-    // component.inputs.formControl = parentGroup.get(controlName) as FormControl;
+    component.inputs.formControl = parentGroup.get(controlName) as FormControl;
   }
 
   /**

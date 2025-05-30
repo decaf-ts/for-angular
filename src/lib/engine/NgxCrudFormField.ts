@@ -1,11 +1,10 @@
 import { FieldProperties, RenderingError } from '@decaf-ts/ui-decorators';
-import { AngularFieldDefinition, FieldUpdateMode, PossibleInputTypes } from './types';
+import { FieldUpdateMode, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
-import { ControlValueAccessor, FormGroup } from '@angular/forms';
+import { ControlValueAccessor, FormControl, FormGroup } from '@angular/forms';
 import { ElementRef } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
-import { AngularEngineKeys } from './constants';
 
 /**
  * @class NgxCrudFormField
@@ -34,6 +33,8 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    */
   formGroup!: FormGroup;
 
+  formControl!: FormControl;
+
   name!: string;
 
   type!: PossibleInputTypes;
@@ -61,7 +62,8 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
 
   value!: string | number | Date;
 
-  protected constructor(protected elementRef: ElementRef) {}
+  protected constructor(protected elementRef: ElementRef) {
+  }
 
   /**
    * @summary Parent HTML element
@@ -81,14 +83,16 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    * @description Function called when the field value changes
    * @property {function(): unknown} onChange - onChange event handler
    */
-  onChange: () => unknown = () => {};
+  onChange: () => unknown = () => {
+  };
 
   /**
    * @summary Touch callback function
    * @description Function called when the field is touched
    * @property {function(): unknown} onTouch - onTouch event handler
    */
-  onTouch: () => unknown = () => {};
+  onTouch: () => unknown = () => {
+  };
 
   /**
    * @summary Write value to the field
@@ -157,10 +161,10 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
           parent = NgxFormService.getParentEl(this.component.nativeElement, 'div');
         } catch (e: unknown) {
           throw new RenderingError(
-            `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`
+            `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`,
           );
         }
-        NgxFormService.register(parent.id, this.formGroup, this as AngularFieldDefinition);
+        // NgxFormService.register(parent.id, this.formGroup, this as AngularFieldDefinition);
         return parent;
       default:
         throw new InternalError(`Invalid operation: ${this.operation}`);
@@ -180,15 +184,10 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    * @description Retrieves all errors associated with the field
    * @returns {Array<{key: string, message: string}>} An array of error objects
    */
-  getErrors(): { key: string; message: string }[] {
-    return Object.entries(this.formGroup.controls).reduce(
-      (accum: { key: string; message: string }[], [prop, control]) => {
-        Object.entries(control.errors as Record<string, unknown>).forEach(([k, c]) => {
-          accum.push({ key: k, message: k });
-        });
-        return accum;
-      },
-      []
-    );
+  getErrors(): Array<{ key: string; message: string; }> {
+    return Object.keys(this.formControl.errors ?? {}).map(key => ({
+      key: key,
+      message: key,
+    }));
   }
 }

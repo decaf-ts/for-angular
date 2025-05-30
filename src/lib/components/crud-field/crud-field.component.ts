@@ -1,24 +1,10 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { AutocompleteTypes, CheckboxCustomEvent, SelectInterface } from '@ionic/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { AutocompleteTypes, SelectInterface } from '@ionic/core';
 import { CrudOperations } from '@decaf-ts/db-decorators';
 import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 import { Dynamic } from '../../engine/decorators';
-import {
-  FieldUpdateMode,
-  PossibleInputTypes,
-  RadioOption,
-  SelectOption,
-  StringOrBoolean,
-} from '../../engine/types';
+import { FieldUpdateMode, PossibleInputTypes, RadioOption, SelectOption, StringOrBoolean } from '../../engine/types';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import {
   IonCheckbox,
@@ -31,7 +17,7 @@ import {
   IonSelectOption,
   IonTextarea,
 } from '@ionic/angular/standalone';
-import { HTML5CheckTypes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
+import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -84,10 +70,7 @@ import { HTML5CheckTypes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
   templateUrl: './crud-field.component.html',
   styleUrl: './crud-field.component.scss',
 })
-export class CrudFieldComponent
-  extends NgxCrudFormField
-  implements OnInit, OnDestroy, AfterViewInit
-{
+export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDestroy, AfterViewInit {
   constructor(protected override elementRef: ElementRef) {
     super(elementRef);
   }
@@ -105,7 +88,7 @@ export class CrudFieldComponent
   override operation!: CrudOperations;
 
   @Input()
-  childrenof: string = "";
+  childrenof: string = '';
 
   /**
    * @description The field name used as form control identifier.
@@ -535,6 +518,9 @@ export class CrudFieldComponent
   @Input()
   override formGroup!: FormGroup;
 
+  @Input()
+  override formControl!: FormControl;
+
   /**
    * @description Translatability of field labels.
    * @summary Indicates whether the field labels should be translated based on the current language settings.
@@ -557,13 +543,13 @@ export class CrudFieldComponent
 
   ngOnInit(): void {
     super.onInit(this.updateOn);
-    if(this.type === HTML5InputTypes.RADIO && !this.value)
-      this.formGroup?.get(this.name)?.setValue(this.options[0].value)
+    if (this.type === HTML5InputTypes.RADIO && !this.value)
+      this.formGroup?.get(this.name)?.setValue(this.options[0].value);
 
   }
 
   get formControlPath() {
-    return this.childrenof ? [this.childrenof, this.name].join(".") : this.name;
+    return this.childrenof ? [this.childrenof, this.name].join('.') : this.name;
   }
 
 }
