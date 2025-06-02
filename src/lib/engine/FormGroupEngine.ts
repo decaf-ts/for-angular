@@ -1,7 +1,7 @@
 import { FieldProperties } from '@decaf-ts/ui-decorators';
 import { FormControl, FormGroup } from '@angular/forms';
 import { NgxFormService } from './NgxFormService';
-import { FieldUpdateMode } from './types';
+import type { AngularFieldDefinition, FieldUpdateMode } from './types';
 
 export interface ComponentInput extends FieldProperties {
   childrenof?: string;
@@ -49,6 +49,7 @@ export class FormGroupEngine {
         component.inputs,
         component.inputs.updateMode || 'change',
       );
+      NgxFormService.register(control, component.inputs as AngularFieldDefinition);
       parentGroup.addControl(controlName, control);
     }
 

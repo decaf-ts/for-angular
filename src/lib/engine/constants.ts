@@ -13,7 +13,7 @@ export const AngularEngineKeys = {
   RENDER: 'render',
   RENDERED_ID: 'rendered-as-{0}',
   PARENT: '_parent',
-  VALIDATION_PARENT_KEY: Symbol('_validationParentRef'),
+  VALIDATION_PARENT_KEY: Symbol('_validationParentRef'), // TODO: replace with the decorators-validation key
 };
 
 export const FormConstants = {

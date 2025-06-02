@@ -11,6 +11,7 @@ export class ValidatorFactory {
     const validatorFn: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
       const validator = Validation.get(key) as Validator;
       const { name, type } = fieldProps;
+      // parseValueByType does not support undefined values
       const value = typeof control.value !== 'undefined'
         ? parseValueByType(type, type === HTML5InputTypes.CHECKBOX ? name : control.value, fieldProps)
         : undefined;

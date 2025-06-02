@@ -24,6 +24,7 @@ export class NgxFormService {
    * @type {FormServiceControls}
    */
   private static controls: FormServiceControls = {};
+  private static _controls = new WeakMap<AbstractControl, AngularFieldDefinition>();
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {
@@ -88,41 +89,34 @@ export class NgxFormService {
    * @returns {Record<string, unknown>} An object containing the form data.
    * @throws {Error} If the form with the given ID is not found.
    */
-  static getFormData(formId: string): Record<string, unknown> {
-    if (!(formId in this.controls)) throw new Error(`form ${formId} not found`);
-
-    function parseForm(form: Record<string, FormServiceControl | AngularFieldDefinition>): Record<string, unknown> {
-      const data: Record<string, unknown> = {};
-      for (const key in form) {
-        const node = form[key];
-        // children
-        if (!node.control && typeof node === 'object') {
-          data[key] = parseForm(node as Record<string, FormServiceControl>);
-        } else {
-          let val: unknown;
-          const { control, props } = node as FormServiceControl;
-          if (!HTML5CheckTypes.includes(props.type)) {
-            switch (props.type) {
-              case HTML5InputTypes.NUMBER:
-                val = parseToNumber(control.value);
-                break;
-              case HTML5InputTypes.DATE:
-              case HTML5InputTypes.DATETIME_LOCAL:
-                val = new Date(control.value[key]);
-                break;
-              default:
-                val = escapeHtml(control.value[key]);
-            }
-          } else {
-            val = Object.values(control.value)[0];
+  static getFormData(formGroup: FormGroup): Record<string, unknown> {
+    const data: Record<string, unknown> = {};
+    for (const key in formGroup.controls) {
+      const control = formGroup.controls[key];
+      // check for nested FormGroups
+      if (!(control instanceof FormControl)) {
+        data[key] = NgxFormService.getFormData(control as FormGroup);
+      } else {
+        const props = NgxFormService.getPropsFromControl(control);
+        let value = control.value;
+        if (!HTML5CheckTypes.includes(props["type"])) {
+          switch (props["type"]) {
+            case HTML5InputTypes.NUMBER:
+              value = parseToNumber(value);
+              break;
+            case HTML5InputTypes.DATE:
+            case HTML5InputTypes.DATETIME_LOCAL:
+              value = new Date(value);
+              break;
+            default:
+              value = escapeHtml(value);
           }
-          data[key] = val;
         }
+        data[key] = value;
       }
-      return data;
     }
 
-    return parseForm(this.controls[formId]);
+    return data;
   }
 
   /**
@@ -199,6 +193,10 @@ export class NgxFormService {
     return controls[props.name]; // new FormGroup(controls, { updateOn: updateMode });
   }
 
+  static getPropsFromControl(control: FormControl): AngularFieldDefinition {
+    return this._controls.get(control) || {} as AngularFieldDefinition;
+  }
+
   /**
    * Retrieves a form by its ID from the stored controls.
    *
@@ -262,34 +260,8 @@ export class NgxFormService {
     );
   }
 
-  static register(
-    formId: string,
-    control: FormGroup,
-    props: AngularFieldDefinition,
-  ) {
-    if (formId.includes(AngularEngineKeys.RENDERED))
-      formId = formId.split(AngularEngineKeys.RENDERED)[1];
-
-    this.controls[formId] = this.controls[formId] || {};
-    let targetRegister: any = this.controls[formId];
-
-    // let parent: object;
-    if (props[CHILDREN_OF]) {
-      const keys = (props[CHILDREN_OF] as string).split('.');
-      for (const key of keys) {
-        targetRegister[key] = targetRegister[key] || {};
-        parent = targetRegister;
-        targetRegister = targetRegister[key];
-        // this.parentRegistry.set(targetRegister, parent);
-      }
-    }
-
-    if (targetRegister.hasOwnProperty(props.name))
-      console.warn(
-        `Property "${props.name}" already exists under "${props[CHILDREN_OF] || 'root'}". Existing value will be overwritten.`,
-      );
-
-    targetRegister[props.name] = { control, props, parentId: formId }; //createProxyWithParent({ control, props, parentId: formId });
+  static register(control: AbstractControl, props: AngularFieldDefinition) {
+    this._controls.set(control, props);
   }
 
   /**
