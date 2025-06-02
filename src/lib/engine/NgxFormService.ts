@@ -1,9 +1,7 @@
 import { escapeHtml, FieldProperties, HTML5CheckTypes, HTML5InputTypes, parseToNumber } from '@decaf-ts/ui-decorators';
-import { AngularFieldDefinition, FieldUpdateMode, FormServiceControl, FormServiceControls } from './types';
+import { AngularFieldDefinition, FieldUpdateMode } from './types';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { getValueByPath, isValidDate, parseDate, Validation } from '@decaf-ts/decorator-validation';
-import { AngularEngineKeys } from './constants';
-import { FormElement } from '../interfaces';
+import { isValidDate, parseDate, Validation } from '@decaf-ts/decorator-validation';
 import { ValidatorFactory } from './ValidatorFactory';
 
 const CHILDREN_OF = 'childrenof';
@@ -20,74 +18,22 @@ export class NgxFormService {
   /**
    * @summary Storage for form controls.
    * @description
-   * A static object that stores form controls indexed by form ID and field name.
-   * @type {FormServiceControls}
+   * A static object that stores form controls props.
    */
-  private static controls: FormServiceControls = {};
-  private static _controls = new WeakMap<AbstractControl, AngularFieldDefinition>();
+  private static controls = new WeakMap<AbstractControl, AngularFieldDefinition>();
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {
   }
 
   /**
-   * Initializes the form after the view has been initialized.
-   * This method sets up the form controls and creates a FormGroup.
-   *
-   * @param el - The form element to initialize.
-   * @param formId - The unique identifier for the form.
-   * @param formUpdateMode - The update mode for the form. Defaults to 'blur'.
-   */
-  /**
-   * @summary Initializes the form after view initialization.
+   * @summary  Returns the sanitized values from the given FormGroup.
    * @description
-   * Sets up form controls and creates a FormGroup for the given form element.
+   * Iterates through the form controls and returns their current values,
+   * applying any necessary transformations or escapes.
    *
-   * @param {FormElement} el - The form element to initialize.
-   * @param {string} formId - The unique identifier for the form.
-   * @param {FieldUpdateMode} [formUpdateMode='blur'] - The update mode for the form.
-   */
-  static formAfterViewInit(
-    el: FormElement,
-    formId: string,
-    formUpdateMode: FieldUpdateMode = 'blur',
-  ) {
-    const selector = `*[${AngularEngineKeys.NG_REFLECT}name]`;
-    const elements = Array.from(
-      el.component.nativeElement.querySelectorAll(selector),
-    );
-    const controls = elements.map((f: unknown) => {
-      const fieldName: any = (f as { attributes: Record<string, { value: string }> }).attributes['path'].value;
-      // fieldName = fieldName.attributes[`${AngularEngineKeys.NG_REFLECT}name`].value;
-      // const fieldNamePath = fieldName.attributes["path"].value;
-      const control = NgxFormService.getFieldByName(formId, fieldName);
-      return control.control;
-    });
-    el.formGroup = new FormGroup(controls, {
-      updateOn: formUpdateMode,
-    });
-  }
-
-  /**
-   * @summary Handles form component destruction.
-   * @description
-   * Unregisters the form from the service when the component is destroyed.
-   *
-   * @param {FormElement} el - The form element being destroyed.
-   * @param {string} formId - The unique identifier of the form to unregister.
-   */
-  static forOnDestroy(el: FormElement, formId: string) {
-    NgxFormService.unregister(formId, el.component?.nativeElement || undefined);
-  }
-
-  /**
-   * @summary Retrieves form data for a given form ID.
-   * @description
-   * Processes form controls and returns their values as an object.
-   *
-   * @param {string} formId - The unique identifier of the form to retrieve data from.
-   * @returns {Record<string, unknown>} An object containing the form data.
-   * @throws {Error} If the form with the given ID is not found.
+   * @param formGroup - The FormGroup instance to extract values from.
+   * @returns @returns {Record<string, unknown>} An object containing the parsed form values.
    */
   static getFormData(formGroup: FormGroup): Record<string, unknown> {
     const data: Record<string, unknown> = {};
@@ -96,24 +42,25 @@ export class NgxFormService {
       // check for nested FormGroups
       if (!(control instanceof FormControl)) {
         data[key] = NgxFormService.getFormData(control as FormGroup);
-      } else {
-        const props = NgxFormService.getPropsFromControl(control);
-        let value = control.value;
-        if (!HTML5CheckTypes.includes(props["type"])) {
-          switch (props["type"]) {
-            case HTML5InputTypes.NUMBER:
-              value = parseToNumber(value);
-              break;
-            case HTML5InputTypes.DATE:
-            case HTML5InputTypes.DATETIME_LOCAL:
-              value = new Date(value);
-              break;
-            default:
-              value = escapeHtml(value);
-          }
-        }
-        data[key] = value;
+        continue;
       }
+
+      const props = NgxFormService.getPropsFromControl(control);
+      let value = control.value;
+      if (!HTML5CheckTypes.includes(props['type'])) {
+        switch (props['type']) {
+          case HTML5InputTypes.NUMBER:
+            value = parseToNumber(value);
+            break;
+          case HTML5InputTypes.DATE:
+          case HTML5InputTypes.DATETIME_LOCAL:
+            value = new Date(value);
+            break;
+          default:
+            value = escapeHtml(value);
+        }
+      }
+      data[key] = value;
     }
 
     return data;
@@ -167,10 +114,7 @@ export class NgxFormService {
    * @param {FieldUpdateMode} updateMode - The update mode for the form group.
    * @returns {FormGroup} A new FormGroup instance.
    */
-  static fromProps(
-    props: FieldProperties,
-    updateMode: FieldUpdateMode = 'change',
-  ): FormControl {
+  static fromProps(props: FieldProperties, updateMode: FieldUpdateMode = 'change'): FormControl {
     const controls: Record<string, FormControl> = {};
     const validators = this.validatorsFromProps(props);
     const composed = validators.length ? Validators.compose(validators) : null;
@@ -194,36 +138,9 @@ export class NgxFormService {
   }
 
   static getPropsFromControl(control: FormControl): AngularFieldDefinition {
-    return this._controls.get(control) || {} as AngularFieldDefinition;
+    return this.controls.get(control) || {} as AngularFieldDefinition;
   }
 
-  /**
-   * Retrieves a form by its ID from the stored controls.
-   *
-   * @param id - The unique identifier of the form to retrieve.
-   * @returns The form controls associated with the given ID.
-   * @throws Error if the form with the given ID is not found.
-   */
-  private static getFormById(id: string) {
-    if (!(id in NgxFormService.controls))
-      throw new Error(`Could not find formId ${id}`);
-    return NgxFormService.controls[id];
-  }
-
-  /**
-   * Retrieves a specific field from a form by its name.
-   *
-   * @param {string} formId - The unique identifier of the form.
-   * @param name - The name of the field to retrieve.
-   * @returns The field control and properties.
-   * @throws Error if the field is not found in the form.
-   */
-  public static getFieldByName(formId: string, name: string): FormServiceControl {
-    const form = NgxFormService.getFormById(formId);
-    // if (!(name in form))
-    //   throw new Error(`Could not find field ${name} in form`);
-    return form.hasOwnProperty(name) ? form[name] : getValueByPath(form, name) as FormServiceControl;
-  }
 
   /**
    * Generates an array of validator functions from the provided field properties.
@@ -260,34 +177,41 @@ export class NgxFormService {
     );
   }
 
+  /**
+   * Registers a control along with its metadata for internal tracking.
+   *
+   * @param control - The AbstractControl instance to register.
+   * @param props - A configuration for the control.
+   */
   static register(control: AbstractControl, props: AngularFieldDefinition) {
-    this._controls.set(control, props);
+    this.controls.set(control, props);
   }
 
   /**
-   * Unregisters a form or a specific field from the service.
+   * Unregisters the given control from tracking.
+   * This doesn't destroy the object, only removes it from the registry.
    *
-   * @param formId - The unique identifier of the form.
-   * @param field - Optional. The specific field to unregister. If not provided, the entire form is unregistered.
+   * @param control - The control instance to unregister.
+   * @returns Whether the control was successfully unregistered.
    */
-  static unregister(formId: string, field?: HTMLElement) {
-    if (!field) delete this.controls[formId];
-    else
-      delete this.controls[formId][(field as unknown as { name: string }).name];
+  static unregister(control: AbstractControl): boolean {
+    return this.controls.delete(control);
   }
 
-  static reset() {
-    const controls = Object.values(this.controls)[0];
-    if (controls) {
-      Object.entries(controls).forEach(([key, { control, props }]) => {
-        const fc = Object.values(control.controls)[0];
-        const { type } = props;
-        if (!HTML5CheckTypes.includes(type)) {
-          fc.setValue(undefined);
-        }
-        fc.setErrors(null);
-        fc.updateValueAndValidity();
-      });
+  static reset(formGroup: FormGroup) {
+    for (const key in formGroup.controls) {
+      const control = formGroup.controls[key];
+      // check for nested FormGroups
+      if (!(control instanceof FormControl)) {
+        NgxFormService.reset(control as FormGroup);
+        continue;
+      }
+
+      const { type } = NgxFormService.getPropsFromControl(control);
+      if (!HTML5CheckTypes.includes(type))
+        control.setValue(undefined);
+      control.setErrors(null);
+      control.updateValueAndValidity();
     }
   }
 }

@@ -131,20 +131,6 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
   }
 
   /**
-   * @summary Initialize the field
-   * @description Sets up the form group and field name
-   * @param {FieldUpdateMode} updateOn - The update mode for the field
-   */
-  onInit(updateOn: FieldUpdateMode): void {
-    // const parent = NgxFormService.getParentEl(this.elementRef?.nativeElement, 'div');
-    //
-    // let formId = parent.id;
-    // if (formId.includes(AngularEngineKeys.RENDERED)) formId = formId.split(AngularEngineKeys.RENDERED)[1];
-
-    // this.formGroup  = NgxFormService.fromProps(this, updateOn, formId);
-  }
-
-  /**
    * @summary After view initialization logic
    * @description Performs necessary setup after the view has been initialized
    * @returns {HTMLElement} The parent element of the field
@@ -160,9 +146,7 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
         try {
           parent = NgxFormService.getParentEl(this.component.nativeElement, 'div');
         } catch (e: unknown) {
-          throw new RenderingError(
-            `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`,
-          );
+          throw new RenderingError(`Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`);
         }
         // NgxFormService.register(parent.id, this.formGroup, this as AngularFieldDefinition);
         return parent;
@@ -176,7 +160,7 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    * @description Unregisters the field when the component is destroyed
    */
   onDestroy(): void {
-    if (this.parent) NgxFormService.unregister(this.parent.id, this.component.nativeElement);
+    NgxFormService.unregister(this.formGroup);
   }
 
   /**

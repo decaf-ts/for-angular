@@ -534,7 +534,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   translatable: StringOrBoolean = true;
 
   ngOnInit(): void {
-    super.onInit(this.updateOn);
+    // super.onInit();
     if (this.type === HTML5InputTypes.RADIO && !this.value)
       this.formGroup?.get(this.name)?.setValue(this.options[0].value);
 

@@ -24,6 +24,7 @@ import { CrudFormOptions } from './types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
 import { ForAngularModule } from 'src/lib/for-angular.module';
+import { HTML5CheckTypes } from '@decaf-ts/ui-decorators';
 
 @Dynamic()
 @Component({
@@ -81,7 +82,7 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   }
 
   ngOnDestroy() {
-    NgxFormService.forOnDestroy(this, this.rendererId);
+    NgxFormService.unregister(this.formGroup);
   }
 
   /**
@@ -110,6 +111,6 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   }
 
   reset() {
-    NgxFormService.reset();
+    NgxFormService.reset(this.formGroup);
   }
 }
