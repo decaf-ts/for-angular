@@ -8,11 +8,11 @@ import {
   Output,
   EventEmitter,
   OnDestroy,
+  inject,
 } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormElement } from '../../interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
-import { IonicModule } from '@ionic/angular';
 import {
   BaseCustomEvent,
   Dynamic,
@@ -26,6 +26,8 @@ import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { IonBackButton, IonIcon } from '@ionic/angular/standalone';
+import { consoleInfo } from 'src/lib/helpers';
+import { Location } from '@angular/common';
 
 /**
  * @component CrudFormComponent
@@ -85,11 +87,24 @@ export class CrudFormComponent
   @Input()
   rendererId!: string;
 
+  /**
+   * @description Unique identifier for the current record.
+   * @summary A unique identifier for the current record being displayed or manipulated.
+   * This is typically used in conjunction with the primary key for operations on specific records.
+   *
+   * @type {string | number}
+   */
+  @Input()
+  uid!: string | number | undefined;
+
   @Output()
   submitEvent = new EventEmitter<BaseCustomEvent>();
 
+  private location: Location  = inject(Location);
+
+
   ngAfterViewInit() {
-    if (this.operation !== OperationKeys.READ)
+    if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
       NgxFormService.formAfterViewInit(this, this.rendererId);
   }
 
@@ -118,16 +133,6 @@ export class CrudFormComponent
 
     // fix para valores de campos radio e check
     const data = NgxFormService.getFormData(this.rendererId);
-
-    const submitEvent: FormReactiveSubmitEvent = {
-      data: data,
-    };
-
-    // if (this.action)
-    //   return this.component.nativeElement.dispatchEvent(
-    //     new CustomEvent('submit', data),
-    //   );
-    console.log(submitEvent);
     this.submitEvent.emit({
       data: data,
       component: 'FormReactiveComponent',
@@ -135,7 +140,20 @@ export class CrudFormComponent
     });
   }
 
-  reset() {
-    NgxFormService.reset();
+  handleDelete() {
+    consoleInfo(this, `Deleting record with uid: ${this.uid}...`);
+    this.submitEvent.emit({
+      data: this.uid,
+      component: 'FormReactiveComponent',
+      name: EventConstants.SUBMIT_EVENT,
+    });
+  }
+
+  handleReset() {
+    this.location.back()
+    // if(OperationKeys.DELETE !== this.operation)
+    //   NgxFormService.reset();
+    // else
+    //   this.location.back();
   }
 }

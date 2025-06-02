@@ -49,6 +49,10 @@
       "label": "I accept the terms and conditions."
     }
   },
+  "category": {
+    "name": {"label": "Category name"},
+    "description": {"label": "Category Description"}
+  },
   "component": {
     "list": {
       "pagination": "Showing page <span class=\"text-bold\">{{value0}} of {{value1}}</span>",

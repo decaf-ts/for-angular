@@ -123,7 +123,7 @@ export class NgxToastComponent {
    * @param {string} message - The informational message to display
    * @return {Promise<void>} A promise that resolves when the toast is displayed
    */
-  async inform(message: string) {
+  async inform(message: string): Promise<void>  {
     await this.show(Object.assign(this.options, {message: message, color: ""}));
   }
 
@@ -137,7 +137,7 @@ export class NgxToastComponent {
    * @param {string} message - The success message to display
    * @return {Promise<void>} A promise that resolves when the toast is displayed
    */
-  async success(message: string) {
+  async success(message: string): Promise<void>  {
     await this.show(Object.assign(this.options, {message: message, color: "success"}));
   }
 

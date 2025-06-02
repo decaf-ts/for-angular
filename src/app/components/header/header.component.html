@@ -27,7 +27,7 @@
       @if(operations?.length && route) {
         <ion-buttons slot="end">
 
-            @if(!modelId) {
+            @if(!uid) {
               <ion-button *ngIf="isAllowed('create')" (click)="changeOperation('create')" fill="clear" color="light" [title]="'create' | translate ">
                 <ion-icon aria-hidden="true" name="save-outline" size="medium" color="light" slot="icon-only"></ion-icon>
               </ion-button>

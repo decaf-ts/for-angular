@@ -46,14 +46,22 @@ const component = getComponentMeta<ListComponent>([
 ]);
 console.log(component)
 const meta: Meta<ListComponent> = {
-  title: 'Components/ListComponent',
+  title: 'Components/List',
   component: ListComponent,
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   ...component,
-  args: { type: ListComponentsTypes.INFINITE }
+  args: {
+    type: ListComponentsTypes.INFINITE,
+    model: new CategoryModel({})
+  }
 };
 export default meta;
 type Story = StoryObj<ListComponent>;
 
-export const init: Story = {args: { model: new CategoryModel({}) }};
+export const infinite: Story = {args: { }};
+
+export const paginated: Story = {args: {
+  type: ListComponentsTypes.PAGINATED,
+ }};
+
 

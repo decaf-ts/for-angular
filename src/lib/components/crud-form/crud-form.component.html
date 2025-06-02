@@ -1,10 +1,10 @@
-@if(operation !== 'read') {
+@if(operation !== 'read' && operation !== 'delete') {
   <form #reactiveForm [id]="rendererId" [formGroup]="formGroup" (submit)="submit($event)" novalidate [target]="target">
     <ng-content #formContent></ng-content>
     <div class="dcf-flex dcf-flex-right">
       <div>
         @if(options.buttons.clear) {
-          <ion-button fill="clear" (click)="reset()">
+          <ion-button fill="clear" (click)="handleReset()">
             @if(options.buttons.clear?.icon) {
               <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
             }
@@ -23,24 +23,37 @@
     </div>
   </form>
 } @else {
-  <div class="dcf-flex dcf-flex-right">
+  <div [class]="'dcf-flex dcf-flex-right ' + operation" id="dcf-buttons-container">
     <div>
       @if(options.buttons.clear) {
-        <ion-button fill="clear" (click)="reset()">
+        <ion-button fill="clear" (click)="handleReset()">
           @if(options.buttons.clear?.icon) {
             <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
           }
-          {{options.buttons.clear?.text}}
+          {{ ['delete', 'read'].includes(operation) ? 'Back' : options.buttons.clear?.text}}
+        </ion-button>
+      }
+      @if(operation === 'delete' && uid) {
+        <ion-button
+          (click)="handleDelete()"
+          color="danger"
+          type="button">
+          @if(options.buttons.submit.icon) {
+            <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
+          }
+          Delete
+       </ion-button>
+      }
+      @if(operation === 'create' || operation === 'update') {
+        <ion-button
+          type="submit">
+          @if(options.buttons.submit.icon) {
+            <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
+          }
+          {{options.buttons.submit.text}}
         </ion-button>
       }
 
-      <ion-button
-        type="submit">
-        @if(options.buttons.submit.icon) {
-          <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
-        }
-        {{options.buttons.submit.text}}
-      </ion-button>
     </div>
   </div>
 }

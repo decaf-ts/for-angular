@@ -1,6 +1,6 @@
 <ng-container #component [formGroup]="formGroup">
   <div [class]="'dcf-input-item ' + operation">
-    @if(operation === 'read') {
+    @if(operation === 'read' || operation === 'delete') {
       <ion-item>
         <ion-label>
           {{ label | translate }}<br />

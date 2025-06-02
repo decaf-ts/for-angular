@@ -16,7 +16,7 @@ import { CategoryModel } from 'src/app/models/CategoryModel';
 import { FormReactiveSubmitEvent } from 'src/lib/components/crud-form/types';
 import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { RouterService } from 'src/app/services/router.service';
-import { getNgxToastComponent } from 'src/lib/engine/NgxToastComponent';
+import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 
 @Component({
   standalone: true,

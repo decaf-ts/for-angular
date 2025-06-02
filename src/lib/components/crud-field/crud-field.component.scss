@@ -1,6 +1,6 @@
 
 .dcf-input-item {
-  &:not(.read) {
+  &.create, &.update {
     margin-bottom: 1.8rem;
     margin-top: 0px !important;
     &.checkbox {
@@ -19,11 +19,12 @@
     }
   }
 
-  &.read {
+  &.read,  &.delete {
     ion-label {
       font-weight: 600;
     }
   }
+
   ion-item {
     --padding-end: 0rem;
     --padding-start: 0px !important;

@@ -6,25 +6,43 @@ import { ForAngularModel } from 'src/app/models/DemoModel';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { NgComponentOutlet } from '@angular/common';
 
-
+const model = new ForAngularModel({
+    id: 1,
+    name: 'John Doe',
+    birthdate: '1989-12-12',
+    email: 'john.doe@example.com',
+    website: 'https://johndoe.example.com',
+    password: 'password123',
+});
 const component = getComponentMeta<ModelRendererComponent<any>>([ForAngularModule, NgComponentOutlet]);
 const meta: Meta<ModelRendererComponent<any>> = {
-  title: 'Components/ModelRendererComponent',
+  title: 'Components/Model Renderer',
   component: ModelRendererComponent,
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   ...component,
   args: {
       model: new ForAngularModel({
-      name: 'John Doe',
-      birthdate: '1989-12-12',
-      email: 'john.doe@example.com',
-      website: 'https://johndoe.example.com',
-      password: 'password123',
-    }),
+       birthdate: '1989-12-12'
+      }),
     globals: {operation: OperationKeys.CREATE}
   }
 };
 export default meta;
 type Story = StoryObj<ModelRendererComponent<any>>;
 
-export const init: Story = {args: { }};
+export const Create: Story = {args: { }};
+
+export const Read: Story = {args: {
+  model,
+  globals: {operation: OperationKeys.READ}
+}};
+
+export const Update: Story = {args: {
+  model,
+  globals: {operation: OperationKeys.UPDATE}
+}};
+
+export const Delete: Story = {args: {
+  model,
+  globals: {operation: OperationKeys.DELETE, uid: 1}
+}};

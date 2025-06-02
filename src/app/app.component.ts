@@ -43,6 +43,10 @@ const Menu: MenuItem[] = [
     url: '/crud/create',
   },
   {
+    text: 'Delete',
+    url: '/crud/delete',
+  },
+  {
     text: 'Data Lists',
     icon: 'list-outline',
   },

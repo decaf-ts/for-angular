@@ -22,6 +22,8 @@ import {
   PossibleInputTypes,
 } from 'src/lib/engine/types';
 import { within } from '@storybook/test';
+import { FormControl, FormGroup } from '@angular/forms';
+import { NgxFormService } from 'src/lib/engine/NgxFormService';
 
 const component = getComponentMeta<CrudFieldComponent>([
     IonInput,
@@ -47,26 +49,32 @@ const meta: Meta<CrudFieldComponent> = {
   args: {
    operation: OperationKeys.CREATE,
    type: 'text' as PossibleInputTypes,
-   name: 'field',
+   name: 'name',
    label: 'Field Label',
    value: '',
    disabled: false,
    required: false,
-   formGroup: undefined,
+   formGroup:  new FormGroup({}),
    component: undefined,
   }
 };
 export default meta;
 type Story = StoryObj<CrudFieldComponent>;
 
-export const text: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const element = canvas.queryByRole('ion-input');
-    console.log(meta);
-    // console.log(component.propDecorators)
-  //  element.focus();
+export const init: Story = {};
+
+export const focus: Story = {
+  play: ({ args, canvasElement }) => {
+    const input = canvasElement.querySelector('ion-input') as HTMLIonInputElement;
+    console.log(input);
+    if (input) {
+      setTimeout(() => {
+        input.value = 'New Value';
+        input.setFocus();
+        // input.dispatchEvent(new CustomEvent('input', { detail: { value: 'New Value' } }));
+        // args.formGroup.updateValueAndValidity();
+        // args.formGroup.setErrors(null);
+      }, 100);
+    }
   },
 };
-
-export const focus: Story = {args: { type: 'text' }};

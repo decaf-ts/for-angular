@@ -236,7 +236,7 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @type {RouterService}
    * @memberOf HeaderComponent
    */
-  // private routerService: RouterService  = inject(RouterService);
+  private routerService: RouterService  = inject(RouterService);
 
   /**
    * @description Creates an instance of HeaderComponent.
@@ -318,10 +318,10 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    */
   async changeOperation(operation: string, id?: string): Promise<boolean> {
     let page = `${this.route}/${operation}/`.replace('//', '/');
+    console.log(page, this.uid)
     if(this.uid || id)
         page = `${page}/${this.uid || id}`;
-      return true
-    // return this.routerService.navigateTo(page.replace('//', '/'))
+    return this.routerService.navigateTo(page.replace('//', '/'))
   }
 
   /**
