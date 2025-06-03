@@ -20,7 +20,6 @@ export class NgxFormService {
    */
   private static controls = new WeakMap<AbstractControl, FieldProperties>();
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {
   }
 
@@ -31,7 +30,7 @@ export class NgxFormService {
    * applying any necessary transformations or escapes.
    *
    * @param formGroup - The FormGroup instance to extract values from.
-   * @returns @returns {Record<string, unknown>} An object containing the parsed form values.
+   * @returns {Record<string, unknown>} An object containing the parsed form values.
    */
   static getFormData(formGroup: FormGroup): Record<string, unknown> {
     const data: Record<string, unknown> = {};
@@ -104,43 +103,6 @@ export class NgxFormService {
   }
 
   /**
-   * @summary Creates a FormGroup from field properties.
-   * @description
-   * Generates a new FormGroup instance based on the provided field definition and update mode.
-   *
-   * @param {AngularFieldDefinition} props - The Angular field definition properties.
-   * @param {FieldUpdateMode} updateMode - The update mode for the form group.
-   * @returns {FormGroup} A new FormGroup instance.
-   */
-  static fromProps(props: FieldProperties, updateMode: FieldUpdateMode = 'change'): FormControl {
-    const controls: Record<string, FormControl> = {};
-    const validators = this.validatorsFromProps(props);
-    const composed = validators.length ? Validators.compose(validators) : null;
-    controls[props.name] = new FormControl(
-      {
-        value:
-          props.value && props.type !== HTML5InputTypes.CHECKBOX
-            ? props.type === HTML5InputTypes.DATE
-              ? !isValidDate(parseDate(props.format as string, props.value as string))
-                ? undefined : props.value :
-              (props.value as any) : undefined,
-        disabled: props.disabled,
-      },
-      {
-        validators: composed,
-        updateOn: updateMode,
-      },
-    );
-
-    return controls[props.name]; // new FormGroup(controls, { updateOn: updateMode });
-  }
-
-  static getPropsFromControl(control: FormControl): FieldProperties {
-    return this.controls.get(control) || {} as FieldProperties;
-  }
-
-
-  /**
    * Generates an array of validator functions from the provided field properties.
    *
    * @param props - The field properties containing validation rules.
@@ -156,11 +118,53 @@ export class NgxFormService {
   }
 
   /**
+   * @summary Creates a FormGroup from field properties.
+   * @description
+   * Generates a new FormGroup instance based on the provided field definition and update mode.
    *
-   * @param el
-   * @param tag
+   * @param {AngularFieldDefinition} props - The Angular field definition properties.
+   * @param {FieldUpdateMode} updateMode - The update mode for the form group.
+   * @returns {FormGroup} A new FormGroup instance.
+   */
+  static fromProps(props: FieldProperties, updateMode: FieldUpdateMode = 'change'): FormControl {
+    const validators = this.validatorsFromProps(props);
+    const composed = validators.length ? Validators.compose(validators) : null;
+    return new FormControl(
+      {
+        value:
+          props.value && props.type !== HTML5InputTypes.CHECKBOX
+            ? props.type === HTML5InputTypes.DATE
+              ? !isValidDate(parseDate(props.format as string, props.value as string))
+                ? undefined : props.value :
+              (props.value as any) : undefined,
+        disabled: props.disabled,
+      },
+      {
+        validators: composed,
+        updateOn: updateMode,
+      },
+    );
+  }
+
+  /**
+   * Returns the field properties associated with the given form control.
+   * Looks up the control in the `controls` map. If not found, return an empty object.
    *
-   * @throws {Error} when no parent exists with the provided tag
+   * @param {FormControl} control - The form control to look up.
+   * @returns {FieldProperties} The associated field properties or an empty object.
+   */
+  static getPropsFromControl(control: FormControl): FieldProperties {
+    return this.controls.get(control) || {} as FieldProperties;
+  }
+
+  /**
+   * Searches up the DOM tree from the given element and returns the closest parent with the specified tag name.
+   *
+   * @param {HTMLElement} el - The starting element.
+   * @param {string} tag - The tag name of the parent to find (case-insensitive).
+   * @returns {HTMLElement} The closest parent element with the specified tag.
+   *
+   * @throws {Error} If no parent element with the given tag is found.
    */
   static getParentEl(el: HTMLElement, tag: string) {
     let parent: HTMLElement | null;
@@ -196,6 +200,15 @@ export class NgxFormService {
     return this.controls.delete(control);
   }
 
+  /**
+   * Resets all controls in the given FormGroup to their "no-value" state.
+   *
+   * - Recursively resets nested FormGroups.
+   * - If a control's type is not included in `HTML5CheckTypes`, its value is set to `undefined`.
+   * - All controls are marked as pristine and untouched, with no validation errors.
+   *
+   * @param {FormGroup} formGroup - The form group to reset.
+   */
   static reset(formGroup: FormGroup) {
     for (const key in formGroup.controls) {
       const control = formGroup.controls[key];
