@@ -18,7 +18,7 @@ export class NgxFormService {
    * @description
    * A static object that stores form controls props.
    */
-  private static controls = new WeakMap<AbstractControl, AngularFieldDefinition>();
+  private static controls = new WeakMap<AbstractControl, FieldProperties>();
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {
@@ -135,8 +135,8 @@ export class NgxFormService {
     return controls[props.name]; // new FormGroup(controls, { updateOn: updateMode });
   }
 
-  static getPropsFromControl(control: FormControl): AngularFieldDefinition {
-    return this.controls.get(control) || {} as AngularFieldDefinition;
+  static getPropsFromControl(control: FormControl): FieldProperties {
+    return this.controls.get(control) || {} as FieldProperties;
   }
 
 
@@ -181,7 +181,7 @@ export class NgxFormService {
    * @param control - The AbstractControl instance to register.
    * @param props - A configuration for the control.
    */
-  static register(control: AbstractControl, props: AngularFieldDefinition) {
+  static register(control: AbstractControl, props: FieldProperties) {
     this.controls.set(control, props);
   }
 

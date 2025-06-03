@@ -49,7 +49,7 @@ export class FormGroupEngine {
         component.inputs,
         component.inputs.updateMode || 'change',
       );
-      NgxFormService.register(control, component.inputs as AngularFieldDefinition);
+      NgxFormService.register(control, component.inputs);
       parentGroup.addControl(controlName, control);
     }
 
