@@ -4,6 +4,19 @@ import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from
 import { isValidDate, parseDate, Validation } from '@decaf-ts/decorator-validation';
 import { ValidatorFactory } from './ValidatorFactory';
 
+export interface ComponentInput extends FieldProperties {
+  childrenof?: string;
+  updateMode?: FieldUpdateMode;
+  formGroup?: FormGroup;
+  formControl?: FormControl;
+}
+
+export interface ComponentConfig {
+  component: string;
+  inputs: ComponentInput;
+  injector: any;
+}
+
 /**
  * @summary Service for managing Angular forms and form controls.
  * @description
@@ -21,6 +34,70 @@ export class NgxFormService {
   private static controls = new WeakMap<AbstractControl, FieldProperties>();
 
   private constructor() {
+  }
+
+  /**
+   * Resolves the parent FormGroup and control name from a dot-delimited path.
+   * Automatically creates missing intermediate FormGroups if necessary.
+   *
+   * @param {FormGroup} formGroup -  The FormGroup to walk through
+   * @param {string} path - The full path string (e.g., 'address.billing.street')
+   * @returns {[FormGroup, string]} A tuple of parent FormGroup and the final control name.
+   */
+  private static resolveParentGroup(formGroup: FormGroup, path: string): [FormGroup, string] {
+    const parts = path.split('.');
+    const controlName = parts.pop() as string; // last element is always the control name
+
+    let currentGroup = formGroup;
+
+    for (const part of parts) {
+      if (!currentGroup.get(part)) {
+        currentGroup.addControl(part, new FormGroup({}));
+      }
+      currentGroup = currentGroup.get(part) as FormGroup;
+    }
+
+    return [currentGroup, controlName];
+  }
+
+  /**
+   * Adds a FormControl to the specified FormGroup, respecting the nesting structure
+   * defined via `childrenof`. Also updates the component's `formGroup` reference.
+   *
+   * @param {} component - The component configuration to process
+   * @param {FormGroup} formGroup - The root FormGroup to add the control to
+   */
+  private static addFormControl(component: ComponentConfig, formGroup: FormGroup): void {
+    const { name, childrenof } = component.inputs;
+    const fullPath = childrenof ? `${childrenof}.${name}` : name;
+    const [parentGroup, controlName] = this.resolveParentGroup(formGroup, fullPath);
+
+    if (!parentGroup.get(controlName)) {
+      const control = NgxFormService.fromProps(
+        component.inputs,
+        component.inputs.updateMode || 'change',
+      );
+      NgxFormService.register(control, component.inputs);
+      parentGroup.addControl(controlName, control);
+    }
+
+    component.inputs.formGroup = parentGroup;
+    component.inputs.formControl = parentGroup.get(controlName) as FormControl;
+  }
+
+  /**
+   * Builds a FormGroup from a flat array of components, using the `childrenof` property
+   * to establish nested hierarchy.
+   *
+   * @param components - Flat array of component configurations
+   * @returns {FormGroup} FormGroup - Root FormGroup containing the complete nested structure
+   */
+  static createFormFromComponents(components: ComponentConfig[]): FormGroup {
+    const rootForm = new FormGroup({});
+    components.forEach(component => {
+      this.addFormControl(component, rootForm);
+    });
+    return rootForm;
   }
 
   /**

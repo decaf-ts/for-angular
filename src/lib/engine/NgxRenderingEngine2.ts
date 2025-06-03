@@ -13,7 +13,7 @@ import {
   Type,
   ViewContainerRef,
 } from '@angular/core';
-import { FormGroupEngine } from './FormGroupEngine';
+import { NgxFormService } from './NgxFormService';
 
 /**
  * @description Angular implementation of the RenderingEngine with enhanced features
@@ -291,7 +291,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     }
 
     // set root for formGroup of crud-form-component. TODO: Move to fromFieldDefinition
-    (result!.instance! as any)['formGroup'] = FormGroupEngine.buildFormFromComponents((result.children || []) as any[]);
+    (result!.instance! as any)['formGroup'] = NgxFormService.createFormFromComponents((result.children || []) as any[]);
     return result;
   }
 
