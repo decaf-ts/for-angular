@@ -44,7 +44,7 @@
           Delete
        </ion-button>
       }
-      @if(operation === 'create' || operation === 'update') {
+      @if(operation === OperationKeys.CREATE || operation === OperationKeys.UPDATE) {
         <ion-button
           type="submit">
           @if(options.buttons.submit.icon) {

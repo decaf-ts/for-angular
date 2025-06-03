@@ -27,6 +27,7 @@ import { DefaultFormReactiveOptions } from './constants';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { IonIcon } from '@ionic/angular/standalone';
 import { Location } from '@angular/common';
+import { consoleInfo } from '../../helpers';
 
 /**
  * @component CrudFormComponent
@@ -97,7 +98,7 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   @Output()
   submitEvent = new EventEmitter<BaseCustomEvent>();
 
-  private location: Location  = inject(Location);
+  private location: Location = inject(Location);
 
 
   ngAfterViewInit() {
@@ -137,13 +138,25 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
       component: 'FormReactiveComponent',
       name: EventConstants.SUBMIT_EVENT,
     });
+    console.info('Event submitted', data);
   }
 
   handleReset() {
-    this.location.back()
+    this.location.back();
     // if(OperationKeys.DELETE !== this.operation)
     //   NgxFormService.reset(this.formGroup);
     // else
     //   this.location.back();
   }
+
+  handleDelete() {
+    consoleInfo(this, `Deleting record with uid: ${this.uid}...`);
+    this.submitEvent.emit({
+      data: this.uid,
+      component: 'FormReactiveComponent',
+      name: EventConstants.SUBMIT_EVENT,
+    });
+  }
+
+  protected readonly OperationKeys = OperationKeys;
 }

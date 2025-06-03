@@ -15,6 +15,7 @@ import {
 } from '@decaf-ts/decorator-validation';
 import { uielement, uimodel, uiprop } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from './CategoryModel';
+import { UserModel } from './UserModel';
 
 
 @uimodel('ngx-decaf-crud-form')
@@ -73,9 +74,12 @@ export class ForAngularModel extends Model {
 
   @required()
   @password()
+  @eq("user.passwordRepeat")
   @uielement('ngx-decaf-crud-field', { label: 'demo.password.label' })
   password!: string;
 
+  @uiprop(UserModel.name)
+  user!: UserModel;
 
   @required()
   @uielement('ngx-decaf-crud-field', {
