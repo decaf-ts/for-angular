@@ -101,10 +101,8 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
 
 
   ngAfterViewInit() {
-    // if (this.operation !== OperationKeys.READ)
+    // if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
     //   NgxFormService.formAfterViewInit(this, this.rendererId);
-    if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
-      NgxFormService.formAfterViewInit(this, this.rendererId);
   }
 
   ngOnInit() {

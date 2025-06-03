@@ -85,7 +85,6 @@ import { stringToBoolean } from 'src/lib/helpers';
     IonRadio,
     IonSelect,
     IonSelectOption,
-    IonDatetime,
     IonLabel,
     IonText,
     IonTextarea,
