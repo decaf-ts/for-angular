@@ -5,7 +5,6 @@ import { isValidDate, parseDate, Validation } from '@decaf-ts/decorator-validati
 import { ValidatorFactory } from './ValidatorFactory';
 
 export interface ComponentInput extends FieldProperties {
-  childrenof?: string;
   updateMode?: FieldUpdateMode;
   formGroup?: FormGroup;
   formControl?: FormControl;
@@ -68,8 +67,8 @@ export class NgxFormService {
    * @param {FormGroup} formGroup - The root FormGroup to add the control to
    */
   private static addFormControl(component: ComponentConfig, formGroup: FormGroup): void {
-    const { name, childrenof } = component.inputs;
-    const fullPath = childrenof ? `${childrenof}.${name}` : name;
+    const { name, childOf } = component.inputs;
+    const fullPath = childOf ? `${childOf}.${name}` : name;
     const [parentGroup, controlName] = this.resolveParentGroup(formGroup, fullPath);
 
     if (!parentGroup.get(controlName)) {

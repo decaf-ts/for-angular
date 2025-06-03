@@ -112,20 +112,40 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   @Input({ required: true })
   override operation!: CrudOperations;
 
-  @Input()
-  childrenof: string = '';
-
   /**
-   * @description The field name used as form control identifier.
-   * @summary Specifies the name of the field, which is used as the form control identifier in the
-   * parent FormGroup. This name should match the property name in the data model and must be unique
-   * within the form.
+   * @summary  The flat field name used as the form control identifier in immediate parent FormGroup.
+   * @description
+   * Specifies the name of the field, which is used as the FormControl identifier in immediate parent FormGroup.
+   * This value must be unique within the immediate parent FormGroup context and should not contain dots or nesting.
    *
    * @type {string}
    * @memberOf CrudFieldComponent
    */
   @Input({ required: true })
   override name!: string;
+
+
+  /**
+   * @summary The full field path used for form control resolution.
+   * @description Specifies the hierarchical path of the field, used to resolve its location within the parent FormGroup (or nested FormGroups).
+   * It is used as the identifier in the rendered HTML, and may include nesting (e.g., 'address.billing.street') and
+   * should match the structure of the data model
+   *
+   * @type {string}
+   * @memberOf CrudFieldComponent
+   */
+  @Input({ required: true })
+  override path!: string;
+
+  /**
+   * @description The parent field path, if this field is nested.
+   * @summary Specifies the full dot-delimited path of the parent field. This is only set when the field is nested.
+   *
+   * @type {string}
+   * @memberOf CrudFieldComponent
+   */
+  @Input()
+  override childOf: string = '';
 
   /**
    * @description The input type of the field.

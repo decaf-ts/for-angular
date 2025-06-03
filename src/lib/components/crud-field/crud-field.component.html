@@ -36,7 +36,7 @@
         <ion-item>
           <ion-checkbox
             #checkboxElement
-            [name]="name"
+            [name]="path"
             [mode]="mode"
             [hidden]="hidden"
             [labelPlacement]="labelPlacement"
@@ -52,8 +52,8 @@
         </ion-item>
       }
       @else if(type === 'radio') {
-        <ion-radio-group [formControlName]="name" [name]="name" [value]="value" #component>
-          <label class="dcf-radio-group-label" [for]="name">{{label | translate}}</label>
+        <ion-radio-group [formControlName]="name" [name]="path" [value]="value" #component>
+          <label class="dcf-radio-group-label" [for]="path">{{label | translate}}</label>
           @for(option of options; track option) {
             <ion-item>
               <ion-radio
@@ -72,7 +72,7 @@
       @else if(type === 'select') {
         <ion-item>
           <ion-select
-            [name]="name"
+            [name]="path"
             [mode]="mode"
             [hidden]="hidden"
             [labelPlacement]="labelPlacement"
@@ -92,6 +92,7 @@
       }
       @else {
         <ion-input
+          [name]="path"
           [type]="type"
           [mode]="mode"
           [hidden]="hidden"
