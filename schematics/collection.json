@@ -1,0 +1,20 @@
+{
+  "extends": ["@schematics/angular"],
+  "schematics": {
+    "schematics": {
+      "description": "A blank schematic.",
+      "factory": "./src/schematics/index#test"
+    },
+    "component": {
+      "aliases": ["c"],
+      "factory": "./src/component/index",
+      "description": "Create an Decaf Angular component.",
+      "schema": "./src/component/schema.json"
+    },
+    "page": {
+      "factory": "../node_modules/@ionic/angular-toolkit/page/index",
+      "description": "Create an Decaf Ioinc Standalone page",
+      "schema": "./src/page/schema.json"
+    }
+  }
+}

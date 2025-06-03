@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AutocompleteTypes, SelectInterface } from '@ionic/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
@@ -15,9 +24,11 @@ import {
   IonRadioGroup,
   IonSelect,
   IonSelectOption,
+  IonText,
   IonTextarea,
 } from '@ionic/angular/standalone';
 import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
+import { stringToBoolean } from 'src/lib/helpers';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -48,8 +59,19 @@ import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
  * @param {FormGroup} formGroup - The parent form group
  * @param {StringOrBoolean} translatable - Whether field labels should be translated
  *
- * @class CrudFieldComponent
- * @memberOf module:DecafComponents
+ * @component CrudFieldComponent
+ * @example
+ * <ngx-decaf-crud-field
+ *   operation="create"
+ *   name="firstName"
+ *   type="text"
+ *   label="<NAME>"
+ *   placeholder="<NAME>"
+ *   [value]="model.firstName"
+ *   [disabled]="model.readOnly">
+ *
+ *
+ * @memberOf module:for-angular
  */
 @Dynamic()
 @Component({
@@ -63,12 +85,16 @@ import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
     IonRadio,
     IonSelect,
     IonSelectOption,
-    IonTextarea,
+    IonDatetime,
     IonLabel,
+    IonText,
+    IonTextarea,
+
   ],
   selector: 'ngx-decaf-crud-field',
   templateUrl: './crud-field.component.html',
   styleUrl: './crud-field.component.scss',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDestroy, AfterViewInit {
   constructor(protected override elementRef: ElementRef) {
@@ -533,8 +559,14 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   @Input()
   translatable: StringOrBoolean = true;
 
+  @Input()
+  locale?: string;
+
   ngOnInit(): void {
-    // super.onInit();
+    // super.onInit(this.updateOn);
+    if (!this.locale) this.translatable = false;
+    this.translatable = stringToBoolean(this.translatable);
+
     if (this.type === HTML5InputTypes.RADIO && !this.value)
       this.formGroup?.get(this.name)?.setValue(this.options[0].value);
 
@@ -549,9 +581,4 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   ngOnDestroy(): void {
     this.onDestroy();
   }
-
-  get formControlPath() {
-    return this.childrenof ? [this.childrenof, this.name].join('.') : this.name;
-  }
-
 }

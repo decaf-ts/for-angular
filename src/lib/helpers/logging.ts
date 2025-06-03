@@ -12,7 +12,7 @@ const Logger = new MiniLogger('for-angular', defaultLoggerConfig);
 
 
 function report(_class: string, message: LoggerMessage, level: LogLevel | 'warn' = LogLevel.info) {
-  if(isDevelopmentMode('tst')) {
+  if(isDevelopmentMode()) {
     if(level === 'warn') {
       console.warn(message)
     } else {

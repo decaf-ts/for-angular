@@ -1,4 +1,4 @@
-import { Component,  CUSTOM_ELEMENTS_SCHEMA, inject, Input, OnInit } from '@angular/core';
+import { Component,  CUSTOM_ELEMENTS_SCHEMA, inject, Injector, Input, OnInit } from '@angular/core';
 import { Color } from '@ionic/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
@@ -318,6 +318,7 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    */
   async changeOperation(operation: string, id?: string): Promise<boolean> {
     let page = `${this.route}/${operation}/`.replace('//', '/');
+    console.log(page, this.uid)
     if(this.uid || id)
         page = `${page}/${this.uid || id}`;
     return this.routerService.navigateTo(page.replace('//', '/'))

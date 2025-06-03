@@ -43,27 +43,31 @@ const Menu: MenuItem[] = [
     url: '/crud/create',
   },
   {
-    text: 'Lists (Raw Data)',
+    text: 'Delete',
+    url: '/crud/delete',
+  },
+  {
+    text: 'Data Lists',
     icon: 'list-outline',
   },
   {
-    text: 'Infinte',
+    text: 'Employees (Infinite)',
     url: '/list/infinite',
   },
   {
-    text: 'Paginated',
+    text: 'Categories (Paginated)',
     url: '/list/paginated',
   },
   {
-    text: 'Lists (Model)',
+    text: 'Model Lists',
     icon: 'list-outline',
   },
   {
-    text: 'Infinte (listprop)',
+    text: 'Employees (Infinite)',
     url: '/list-model/infinite',
   },
   {
-    text: 'Categories (mapper)',
+    text: 'Categories (Paginated)',
     url: '/list-model/paginated',
   }
 ];

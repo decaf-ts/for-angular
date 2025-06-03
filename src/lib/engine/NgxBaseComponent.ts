@@ -1,22 +1,73 @@
-import { Input, Component, Inject, ViewChild, ElementRef, OnInit, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Input,
+  Component,
+  Inject,
+  ViewChild,
+  ElementRef,
+  OnInit,
+  AfterViewInit,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
-import { getInjectablesRegistry, getLocaleFromClassName } from 'src/lib/helpers/utils';
+import {
+  getInjectablesRegistry,
+  getLocaleFromClassName,
+} from 'src/lib/helpers/utils';
 import { stringToBoolean } from 'src/lib/helpers/string';
 import { Model } from '@decaf-ts/decorator-validation';
-import { CrudOperations, OperationKeys, Repository } from '@decaf-ts/db-decorators';
+import {
+  CrudOperations,
+  OperationKeys,
+  Repository,
+} from '@decaf-ts/db-decorators';
 import { BaseComponentProps } from './constants';
 import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
+import { consoleInfo } from '../helpers/logging';
 
+/**
+ * @description Class representing a paginated query result
+ * @summary This class encapsulates the result of a paginated query operation,
+ * containing the current page of model instances, the total number of items,
+ * and the current page number. It's used for handling paginated data in list
+ * components and other data display scenarios.
+ *
+ * @class PaginatedQuery
+ */
 export class PaginatedQuery {
+  /**
+   * @description The current page of model instances
+   * @summary Array of model instances for the current page
+   * @type {Model[]}
+   */
   page!: Model[];
+
+  /**
+   * @description Total number of items across all pages
+   * @summary The total count of items available in the data source
+   * @type {number}
+   */
   total!: number;
+
+  /**
+   * @description Current page number
+   * @summary The index of the current page being displayed
+   * @type {number}
+   */
   _currentPage!: number;
 }
 
-const RenderingEngine = NgxRenderingEngine2.get("angular") as unknown as NgxRenderingEngine2;
-
-export type ComponentBaseModel =  Model | Repository<Model> | undefined;
-
+/**
+ * @description Type definition for component model inputs
+ * @summary This type represents the possible values that can be used as a model
+ * for components. It can be either a direct Model instance, a Repository of models
+ * that provides CRUD operations, or undefined when no model is available.
+ * This flexibility allows components to work with different types of data sources.
+ *
+ * @typedef {(Model|Repository<Model>|undefined)} ComponentBaseModel
+ * @memberOf module:for-angular
+ */
+export type ComponentBaseModel = Model | Repository<Model> | undefined;
 
 /**
  * @description Base component class that provides common functionality for all Decaf components.
@@ -26,21 +77,65 @@ export type ComponentBaseModel =  Model | Repository<Model> | undefined;
  * consistent behavior and reducing code duplication. Components that extend this class inherit
  * its capabilities for handling translations, accessing DOM elements, and applying custom styling.
  *
+ * @template M - The model type that this component works with
+ * @param {string} instance - The component instance token used for identification
  * @param {string} locale - The locale to be used for translations
  * @param {StringOrBoolean} translatable - Whether the component should be translated
  * @param {string} className - Additional CSS classes to apply to the component
  * @param {"ios" | "md" | undefined} mode - Component platform style
  *
- * @class NgxBaseComponent
- * @memberOf module:DecafEngine
+ * @component NgxBaseComponent
+ * @example
+ * ```typescript
+ * @Component({
+ *   selector: 'app-my-component',
+ *   templateUrl: './my-component.component.html',
+ *   styleUrls: ['./my-component.component.scss']
+ * })
+ * export class MyComponent extends NgxBaseComponent {
+ *   constructor(@Inject('instanceToken') instance: string) {
+ *     super(instance);
+ *   }
+ *
+ *   ngOnInit() {
+ *     this.initialize();
+ *     // Component-specific initialization
+ *   }
+ * }
+ * ```
+ * @mermaid
+ * sequenceDiagram
+ *   participant App as Application
+ *   participant Comp as Component
+ *   participant Base as NgxBaseComponent
+ *   participant Engine as NgxRenderingEngine2
+ *
+ *   App->>Comp: Create component
+ *   Comp->>Base: super(instance)
+ *   Base->>Base: Set componentName & componentLocale
+ *
+ *   App->>Comp: Set @Input properties
+ *   Comp->>Base: ngOnChanges(changes)
+ *
+ *   alt model changed
+ *     Base->>Base: getModel(model)
+ *     Base->>Engine: getDecorators(model, {})
+ *     Engine-->>Base: Return decorator metadata
+ *     Base->>Base: Configure mapper and item
+ *     Base->>Base: getLocale(translatable)
+ *   else locale/translatable changed
+ *     Base->>Base: getLocale(translatable)
+ *   end
+ *
+ *   App->>Comp: ngOnInit()
+ *   Comp->>Base: initialize()
+ *   Base->>Base: Set initialized flag
  */
-
 @Component({
   standalone: true,
-  template: ""
+  template: '',
 })
 export abstract class NgxBaseComponent implements OnChanges {
-
   /**
    * @description Reference to the component's element.
    * @summary Provides direct access to the native DOM element of the component through Angular's
@@ -49,7 +144,6 @@ export abstract class NgxBaseComponent implements OnChanges {
    * identified by the 'component' template reference variable.
    *
    * @type {ElementRef}
-   * @memberOf NgxBaseComponent
    */
   @ViewChild('component', { read: ElementRef, static: true })
   component!: ElementRef;
@@ -63,7 +157,6 @@ export abstract class NgxBaseComponent implements OnChanges {
    * are present on the same page.
    *
    * @type {string}
-   * @memberOf NgxBaseComponent
    */
   @Input()
   rendererId!: string;
@@ -74,16 +167,23 @@ export abstract class NgxBaseComponent implements OnChanges {
    * This provides a connection to the data layer for retrieving and manipulating data.
    *
    * @type {Repository<Model> | undefined}
-   * @memberOf NgxBaseComponent
    */
   @Input()
   model!: ComponentBaseModel;
 
   /**
-   * Config for list items rendering
+   * @description Configuration for list item rendering
+   * @summary Defines how list items should be rendered in the component.
+   * This property holds a configuration object that specifies the tag name
+   * and other properties needed to render list items correctly. The tag property
+   * identifies which component should be used to render each item in a list.
+   * Additional properties can be included to customize the rendering behavior.
+   *
+   * @type {Record<string, unknown>}
+   * @default {tag: ""}
    */
   @Input()
-  item: Record<string, unknown> = {tag: ""};
+  item: Record<string, unknown> = { tag: '' };
 
   /**
    * @description Primary key field name for the model.
@@ -92,7 +192,6 @@ export abstract class NgxBaseComponent implements OnChanges {
    *
    * @type {string}
    * @default 'id'
-   * @memberOf NgxBaseComponent
    */
   @Input()
   pk: string = 'id';
@@ -103,7 +202,6 @@ export abstract class NgxBaseComponent implements OnChanges {
    * This is often used as a prefix for constructing navigation URLs.
    *
    * @type {string}
-   * @memberOf NgxBaseComponent
    */
   @Input()
   route!: string;
@@ -113,9 +211,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @summary Defines which CRUD operations (Create, Read, Update, Delete) are available
    * for this component. This affects which operations can be performed on the data.
    *
-   * @type {[CrudOperations]}
    * @default [OperationKeys.READ]
-   * @memberOf NgxBaseComponent
    */
   @Input()
   operations: CrudOperations[] = [OperationKeys.READ];
@@ -126,7 +222,6 @@ export abstract class NgxBaseComponent implements OnChanges {
    * This is typically used in conjunction with the primary key for operations on specific records.
    *
    * @type {string | number}
-   * @memberOf NgxBaseComponent
    */
   @Input()
   uid!: string | number;
@@ -137,7 +232,6 @@ export abstract class NgxBaseComponent implements OnChanges {
    * This allows for flexible data binding between the model and the component's display logic.
    *
    * @type {Record<string, string>}
-   * @memberOf NgxBaseComponent
    */
   @Input()
   mapper!: Record<string, string>;
@@ -151,7 +245,6 @@ export abstract class NgxBaseComponent implements OnChanges {
    * set to use for the component's text content.
    *
    * @type {string}
-   * @memberOf NgxBaseComponent
    */
   @Input()
   locale!: string;
@@ -165,7 +258,6 @@ export abstract class NgxBaseComponent implements OnChanges {
    *
    * @type {StringOrBoolean}
    * @default false
-   * @memberOf NgxBaseComponent
    */
   @Input()
   translatable: StringOrBoolean = false;
@@ -179,10 +271,9 @@ export abstract class NgxBaseComponent implements OnChanges {
    *
    * @type {string}
    * @default ""
-   * @memberOf NgxBaseComponent
    */
   @Input()
-  className: string = "";
+  className: string = '';
 
   /**
    * @description Component platform style.
@@ -194,10 +285,9 @@ export abstract class NgxBaseComponent implements OnChanges {
    *
    * @type {("ios" | "md" | undefined)}
    * @default "md"
-   * @memberOf NgxBaseComponent
    */
   @Input()
-  mode: "ios" | "md" | undefined = "md";
+  mode: 'ios' | 'md' | undefined = 'md';
 
   /**
    * @description The locale derived from the component's class name.
@@ -208,50 +298,72 @@ export abstract class NgxBaseComponent implements OnChanges {
    * from the component's class name.
    *
    * @type {string}
-   * @memberOf NgxBaseComponent
    */
   componentLocale!: string;
 
+  /**
+   * @description Controls whether child components should be rendered
+   * @summary Determines if child components should be rendered by the component.
+   * This can be set to a boolean value or a string that can be converted to a boolean.
+   * When true, child components defined in the model will be rendered. When false,
+   * child components will be skipped. This provides control over the rendering depth.
+   *
+   * @type {string | StringOrBoolean}
+   * @default true
+   */
   @Input()
   renderChild: string | StringOrBoolean = true;
 
+  /**
+   * @description Flag indicating if the component has been initialized
+   * @summary Tracks whether the component has completed its initialization process.
+   * This flag is used to prevent duplicate initialization and to determine if
+   * certain operations that require initialization can be performed.
+   *
+   * @type {boolean}
+   * @default false
+   */
   initialized: boolean = false;
 
   /**
-   * @description Creates an instance of NgxBaseComponent.
-   * @summary Initializes a new NgxBaseComponent with the provided instance token.
-   * The constructor uses the instance token to derive the component's locale using
-   * the getLocaleFromClassName utility function. This derived locale is stored in
-   * the componentLocale property and serves as a fallback when no explicit locale
-   * is provided.
+   * @description Reference to the rendering engine instance
+   * @summary Provides access to the NgxRenderingEngine2 singleton instance,
+   * which handles the rendering of components based on model definitions.
+   * This engine is used to extract decorator metadata and render child components.
    *
-   * @param {string} instance - The instance token used to derive the component locale
-   *
-   * @mermaid
-   * sequenceDiagram
-   *   participant C as Component
-   *   participant N as NgxBaseComponent
-   *   participant U as Utils
-   *
-   *   C->>N: constructor(instanceToken)
-   *   N->>U: getLocaleFromClassName(instanceToken)
-   *   U-->>N: Return derived locale
-   *   N->>N: Store in componentLocale
-   *
-   * @memberOf NgxBaseComponent
+   * @type {NgxRenderingEngine2}
    */
-  constructor(@Inject('instanceToken') private instance: string) {
+  renderingEngine: NgxRenderingEngine2 =
+    NgxRenderingEngine2.get() as unknown as NgxRenderingEngine2;
+
+  protected constructor(@Inject('instanceToken') private instance: string) {
     this.componentName = instance;
     this.componentLocale = getLocaleFromClassName(instance);
   }
 
+  /**
+   * @description Handles changes to component inputs
+   * @summary This Angular lifecycle hook is called when input properties change.
+   * It responds to changes in the model, locale, or translatable properties by
+   * updating the component's internal state accordingly. When the model changes,
+   * it calls getModel to process the new model and getLocale to update the locale.
+   * When locale or translatable properties change, it calls getLocale to update
+   * the translation settings.
+   *
+   * @param {SimpleChanges} changes - Object containing changed properties
+   * @return {void}
+   */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes[BaseComponentProps.MODEL]) {
       const { currentValue } = changes[BaseComponentProps.MODEL];
-      if(currentValue)
-        this.getModel(currentValue);
+      if (currentValue) this.getModel(currentValue);
+      this.getLocale(this.translatable);
     }
-    if (changes[BaseComponentProps.LOCALE] || changes[BaseComponentProps.TRANSLATABLE])
+    if (
+      changes[BaseComponentProps.INITIALIZED] ||
+      changes[BaseComponentProps.LOCALE] ||
+      changes[BaseComponentProps.TRANSLATABLE]
+    )
       this.getLocale(this.translatable);
   }
 
@@ -286,50 +398,85 @@ export abstract class NgxBaseComponent implements OnChanges {
    *       N-->>C: Return this.componentLocale
    *     end
    *   end
-   *
-   * @memberOf NgxBaseComponent
    */
   getLocale(translatable: StringOrBoolean): string {
     this.translatable = stringToBoolean(translatable);
-    if(!this.translatable)
-      return "";
-    if(!this.locale)
-      this.locale = this.componentLocale;
+    if (!this.translatable) return '';
+    if (!this.locale) this.locale = this.componentLocale;
     return this.locale;
   }
 
-  getRoute(): string | undefined {
-    if(!this.route && this.model instanceof Model)
+  /**
+   * @description Gets the route for the component
+   * @summary Retrieves the route path for the component, generating one based on the model
+   * if no route is explicitly set. This method checks if a route is already defined, and if not,
+   * it creates a default route based on the model's constructor name. The generated route follows
+   * the pattern '/model/{ModelName}'. This is useful for automatic routing in CRUD operations.
+   *
+   * @return {string} The route path for the component, or empty string if no route is available
+   */
+  getRoute(): string {
+    if (!this.route && this.model instanceof Model)
       this.route = `/model/${this.model?.constructor.name}`;
-    return this.route;
+    return this.route || '';
   }
 
-  getModel(model: string | Model) {
-    if(!(model instanceof Model))
+  /**
+   * @description Resolves and sets the component's model
+   * @summary Processes the provided model parameter, which can be either a Model instance
+   * or a string identifier. If a string is provided, it attempts to resolve the actual model
+   * from the injectables registry. After resolving the model, it calls setModelDefinitions
+   * to configure the component based on the model's metadata.
+   *
+   * @param {string | Model} model - The model instance or identifier string
+   * @return {void}
+   */
+  getModel(model: string | Model): void {
+    if (!(model instanceof Model))
       this.model = getInjectablesRegistry().get(model) as Model;
     this.setModelDefinitions(this.model as Model);
   }
 
-  setModelDefinitions(model: Model) {
-    if(model instanceof Model) {
+  /**
+   * @description Configures component properties based on model metadata
+   * @summary Extracts and applies configuration from the model's decorators to set up
+   * the component. This method uses the rendering engine to retrieve decorator metadata
+   * from the model, then configures the component's mapper and item properties accordingly.
+   * It ensures the route is properly set and merges various properties from the model's
+   * metadata into the component's configuration.
+   *
+   * @param {Model} model - The model to extract configuration from
+   * @return {void}
+   */
+  setModelDefinitions(model: Model): void {
+    if (model instanceof Model) {
       this.getRoute();
-      const {props, item} = RenderingEngine.getDecorators(this.model as Model, {});
-      this.mapper = item?.props!["mapper"] || {};
+      const { props, item } = this.renderingEngine.getDecorators(
+        this.model as Model,
+        {}
+      );
+      this.mapper = item?.props!['mapper'] || {};
       this.item = {
-       tag: item?.tag || "",
-       ... props,
-       ... item?.props,
-       mapper: this.mapper,
-       ... {route: item?.props!["route"]
-        || this.route}
+        tag: item?.tag || '',
+        ...props,
+        ...item?.props,
+        mapper: this.mapper,
+        ...{ route: item?.props!['route'] || this.route },
       };
     }
   }
 
+  /**
+   * @description Initializes the component
+   * @summary Performs one-time initialization of the component. This method checks if
+   * the component has already been initialized to prevent duplicate initialization.
+   * When called for the first time, it sets the initialized flag to true and logs
+   * an initialization message with the component name. This method is typically called
+   * during the component's lifecycle setup.
+   */
   initialize(): void {
-    if(this.initialized)
-      return;
+    if (this.initialized) return;
     this.initialized = true;
+    consoleInfo(this, `${this.componentName} Initialized`);
   }
-
 }

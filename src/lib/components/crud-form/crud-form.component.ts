@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  inject,
   Input,
   OnDestroy,
   OnInit,
@@ -24,15 +25,36 @@ import { CrudFormOptions } from './types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { HTML5CheckTypes } from '@decaf-ts/ui-decorators';
+import { IonIcon } from '@ionic/angular/standalone';
+import { Location } from '@angular/common';
 
+/**
+ * @component CrudFormComponent
+ * @example <ngx-decaf-crud-form
+ *   action="create"
+ *   operation="create"
+ *   formGroup="formGroup"
+ *   rendererId="rendererId"
+ *   submitEvent="submitEvent"
+ *   target="_self"
+ *   method="event">
+ * </ngx-decaf-crud-form>
+ *
+ * @param {string} action - The action to be performed (create, read, update, delete)
+ * @param {CrudOperations} operation - The CRUD operation being performed (create, read, update, delete)
+ * @param {FormGroup} formGroup - The form group
+ * @param {string} rendererId - The renderer id
+ * @param {SubmitEvent} submitEvent - The submit event
+ * @param {string} target - The target
+ * @param {string} method - The method
+ */
 @Dynamic()
 @Component({
   standalone: true,
   selector: 'ngx-decaf-crud-form',
   templateUrl: './crud-form.component.html',
   styleUrls: ['./crud-form.component.scss'],
-  imports: [ForAngularModule],
+  imports: [ForAngularModule, IonIcon],
 })
 export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, OnDestroy, RenderedModel {
   @Input()
@@ -62,12 +84,27 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   @Input()
   rendererId!: string;
 
+  /**
+   * @description Unique identifier for the current record.
+   * @summary A unique identifier for the current record being displayed or manipulated.
+   * This is typically used in conjunction with the primary key for operations on specific records.
+   *
+   * @type {string | number}
+   */
+  @Input()
+  uid!: string | number | undefined;
+
   @Output()
   submitEvent = new EventEmitter<BaseCustomEvent>();
+
+  private location: Location  = inject(Location);
+
 
   ngAfterViewInit() {
     // if (this.operation !== OperationKeys.READ)
     //   NgxFormService.formAfterViewInit(this, this.rendererId);
+    if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
+      NgxFormService.formAfterViewInit(this, this.rendererId);
   }
 
   ngOnInit() {
@@ -97,12 +134,6 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
       return false;
 
     const data = NgxFormService.getFormData(this.formGroup);
-    // const submitEvent: FormReactiveSubmitEvent = { data };
-    // if (this.action)
-    //   return this.component.nativeElement.dispatchEvent(
-    //     new CustomEvent('submit', data),
-    //   );
-    // console.log(submitEvent);
     this.submitEvent.emit({
       data: data,
       component: 'FormReactiveComponent',
@@ -110,7 +141,11 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
     });
   }
 
-  reset() {
-    NgxFormService.reset(this.formGroup);
+  handleReset() {
+    this.location.back()
+    // if(OperationKeys.DELETE !== this.operation)
+    //   NgxFormService.reset(this.formGroup);
+    // else
+    //   this.location.back();
   }
 }

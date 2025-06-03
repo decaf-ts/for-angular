@@ -6,6 +6,8 @@ import { ForAngularModule } from 'src/lib/for-angular.module';
 import { stringToBoolean } from 'src/lib/helpers/string';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import { IonSearchbar } from '@ionic/angular/standalone';
+import * as allIcons from 'ionicons/icons';
+import { addIcons } from 'ionicons';
 
 @Component({
   selector: 'ngx-decaf-searchbar',
@@ -103,6 +105,7 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
 
   constructor() {
     super('SearchbarComponent');
+    addIcons(allIcons)
   }
 
   /**

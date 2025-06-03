@@ -1,7 +1,10 @@
 import { id } from '@decaf-ts/db-decorators';
 import {
   date,
-  email, eq,
+  email,
+  eq,
+  max,
+  min,
   minlength,
   model,
   Model,
@@ -13,11 +16,14 @@ import {
 import { uielement, uimodel, uiprop } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from './CategoryModel';
 
+
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class ForAngularModel extends Model {
 
   @id()
+  @min(1)
+  @max(100)
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.id.label',
     placeholder: 'demo.id.placeholder',
@@ -33,19 +39,19 @@ export class ForAngularModel extends Model {
   })
   name!: string;
 
-  @uiprop(CategoryModel.name)
-  category!: CategoryModel;
-
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.gender.label',
     type: 'radio',
     options: [
       { value: 'Male', text: 'Is Male' },
-      { value: 'Femae', text: 'Is Female' },
+      { value: 'Female', text: 'Is Female' },
     ],
   })
   gender!: string;
+
+  @uiprop(CategoryModel.name)
+  category!: CategoryModel;
 
   @required()
   @date('yyyy-MM-dd')
@@ -54,7 +60,7 @@ export class ForAngularModel extends Model {
 
   @required()
   @email()
-  @eq("category.developer.companyEmail")
+  @eq('category.developer.companyEmail')
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.email.label',
     placeholder: 'demo.email.placeholder',

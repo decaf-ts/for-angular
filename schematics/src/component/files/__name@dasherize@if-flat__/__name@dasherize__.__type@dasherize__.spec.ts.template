@@ -2,16 +2,40 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 <% if(!standalone) {%>import { IonicModule } from '@ionic/angular';<%} %>
 <% if(standalone) {%>import { ForAngularModule } from 'src/lib/for-angular.module';<%} %>
 import { <%= classify(name) %><%= classify(type) %> } from './<%= dasherize(name) %>.<%= dasherize(type) %>';
+import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
+import { NgxRenderingEngine2 } from 'src/lib/engine';
+import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 
+
+const imports = [
+  ForAngularModule,
+  <%= classify(name) %><%= classify(type) %>,
+  TranslateModule.forRoot({
+    loader: {
+      provide: TranslateLoader,
+      useClass: TranslateFakeLoader
+    }
+  })
+];
 describe('<%= classify(name) %><%= classify(type) %>', () => {
   let component: <%= classify(name) %><%= classify(type) %>;
   let fixture: ComponentFixture<<%= classify(name) %><%= classify(type) %>>;
+  let engine;
+
+  beforeAll(() => {
+    try {
+      engine = new NgxRenderingEngine2();
+      Model.setBuilder(Model.fromModel as ModelBuilderFunction);
+    } catch (e: unknown) {
+      consoleWarn(this, `Engine already loaded`);
+    }
+  });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({<% if(!standalone) {%>
       declarations: [ <%= classify(name) %><%= classify(type) %> ],
       imports: [IonicModule.forRoot()]<%} %><% if(standalone) {%>
-      imports: [ForAngularModule, <%= classify(name) %><%= classify(type) %>],<%} %>
+      imports,<%} %>
     }).compileComponents();
 
     fixture = TestBed.createComponent(<%= classify(name) %><%= classify(type) %>);

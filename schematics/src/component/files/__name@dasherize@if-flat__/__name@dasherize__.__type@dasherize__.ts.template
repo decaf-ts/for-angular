@@ -1,11 +1,11 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit<% if(standalone){ %> <%} %> } from '@angular/core';
+import { Component, OnInit<% if(standalone){ %> <%} %> } from '@angular/core';
 <% if(standalone){ %>import { ForAngularModule } from 'src/lib/for-angular.module';<%} %>
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+
 
 @Component({
   selector: '<%= selector %>',
   templateUrl: './<%= dasherize(name) %>.<%= dasherize(type) %>.html',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   styleUrls: ['./<%= dasherize(name) %>.<%= dasherize(type) %>.<%= style %>'],
 <% if(standalone) {%>  imports: [ForAngularModule],
   standalone: true,
@@ -23,13 +23,15 @@ export class <%= classify(name) %><%= classify(type) %> extends NgxBaseComponent
   }
 
   /**
-  * Lifecycle hook that is called after data-bound properties of a directive are initialized.
-  * This method is part of Angular's component lifecycle and is used for any additional initialization tasks.
-  *
-  * @returns {void} This method does not return a value.
-  */
+   * Lifecycle hook that is called after data-bound properties of a directive are initialized.
+   * This method is part of Angular's component lifecycle and is used for any additional initialization tasks.
+   *
+   * @returns {void} This method does not return a value.
+   */
   ngOnInit(): void {
-    this.locale = this.getLocale(this.translatable);
+
+    // set component as initilizad, trigger change to get locale string
+    this.initialize();
   }
 
 }

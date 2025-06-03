@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { runCommand } from '@decaf-ts/utils';
-import { MiniLogger, DefaultTheme, Logging, LoggingConfig, LogLevel, LoggingMode } from "@decaf-ts/logging";
+import { MiniLogger, LogLevel } from "@decaf-ts/logging";
 
 const defaultLoggerConfig = {
   level: LogLevel.info,
@@ -83,12 +83,10 @@ export default function angular() {
 async function generateSchematics() {
   return Promise.all([
     execute(`npm link schematics`),
-    execute(`cd schematics && npm install`),
-    execute(`
-      cd schematics &&
-      npm run build &&
-      schematics .:schematics --name=decaf
-    `)
+    execute(`cd schematics`),
+    execute(`npm install`),
+    execute(`npm run build`),
+    execute(`schematics .:schematics --name=decaf`)
   ])
   .then(res => res)
   .catch(error => error)

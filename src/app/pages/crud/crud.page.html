@@ -7,11 +7,12 @@
 
 <ion-content [fullscreen]="true">
   <main class="main">
+
     <app-container [hasSideMenu]="true" size="large">
       <ngx-decaf-model-renderer
-        [model]="model1"
+        [model]="model"
         (listenEvent)="handleSubmit($event)"
-        [globals]="{operation: operation}">
+        [globals]="globals">
       </ngx-decaf-model-renderer>
     </app-container>
   </main>

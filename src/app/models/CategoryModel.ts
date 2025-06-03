@@ -13,7 +13,6 @@ import { EmployeeModel } from './EmployeeModel';
 @model()
 export class CategoryModel extends FakerRepository<CategoryModel> {
 
-
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'category.name.label',
@@ -21,10 +20,6 @@ export class CategoryModel extends FakerRepository<CategoryModel> {
   })
   @uilistprop('title')
   name!: string;
-
-
-  @uiprop(EmployeeModel.name)
-  developer!: EmployeeModel;
 
   @required()
   @uielement('ngx-decaf-crud-field', {
@@ -34,9 +29,6 @@ export class CategoryModel extends FakerRepository<CategoryModel> {
   })
   @uilistprop()
   description!: string;
-
-
-
 
   constructor(args: ModelArg<CategoryModel> = {}) {
     super('categories', args);

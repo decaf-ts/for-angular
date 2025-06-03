@@ -4,8 +4,6 @@ import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from
 import { isValidDate, parseDate, Validation } from '@decaf-ts/decorator-validation';
 import { ValidatorFactory } from './ValidatorFactory';
 
-const CHILDREN_OF = 'childrenof';
-
 /**
  * @summary Service for managing Angular forms and form controls.
  * @description
@@ -210,6 +208,8 @@ export class NgxFormService {
       const { type } = NgxFormService.getPropsFromControl(control);
       if (!HTML5CheckTypes.includes(type))
         control.setValue(undefined);
+      control.markAsPristine();
+      control.markAsUntouched();
       control.setErrors(null);
       control.updateValueAndValidity();
     }

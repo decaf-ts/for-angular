@@ -1,5 +1,5 @@
 import { AbstractControl, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { ComparisonValidationKeys, Validation, Validator } from '@decaf-ts/decorator-validation';
+import { ComparisonValidationKeys, Validation, ValidationKeys, Validator } from '@decaf-ts/decorator-validation';
 import { FieldProperties, HTML5InputTypes, parseValueByType } from '@decaf-ts/ui-decorators';
 import { AngularEngineKeys } from './constants';
 
@@ -7,10 +7,36 @@ export class ValidatorFactory {
   static spawn(fieldProps: FieldProperties, key: string): ValidatorFn {
     if (!Validation.keys().includes(key))
       throw new Error('Unsupported custom validation');
+    //  TODO: This is only needed until the validator refacture
+    //  @param arg
+    // const parseArgs = (arg: unknown) => {
+    //   switch (key) {
+    //     case ValidationKeys.REQUIRED:
+    //     case ValidationKeys.EMAIL:
+    //     case ValidationKeys.URL:
+    //     case ValidationKeys.PASSWORD:
+    //       return [];
+    //     case ValidationKeys.TYPE: {
+    //       arg = RenderingEngine.get().translate(arg as string, false);
+    //       break;
+    //     }
+    //     case ValidationKeys.MIN:
+    //     case ValidationKeys.MAX:
+    //       return {[key]: arg}
+    //   }
+    //   return [arg];
+    // };
+
+    const getValidatorKey = (key: string, type: string): string => {
+      if ([ValidationKeys.PASSWORD as string, ValidationKeys.EMAIL as string, ValidationKeys.URL as string].includes(type))
+        return type as string;
+      return key;
+    };
 
     const validatorFn: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-      const validator = Validation.get(key) as Validator;
       const { name, type } = fieldProps;
+      key = getValidatorKey(key, type);
+      const validator = Validation.get(key) as Validator;
       // parseValueByType does not support undefined values
       const value = typeof control.value !== 'undefined'
         ? parseValueByType(type, type === HTML5InputTypes.CHECKBOX ? name : control.value, fieldProps)
@@ -27,10 +53,10 @@ export class ValidatorFactory {
 
       let errs: string | undefined;
       try {
-        const validatorOptions = {
-          [key]: fieldProps[key as keyof FieldProperties],
-        };
-        errs = validator.hasErrors(value, validatorOptions, proxy);
+        const props = { [key]: fieldProps[key as keyof FieldProperties] };
+        if (key === ValidationKeys.PASSWORD)
+          Object.assign(props, { pattern: ValidationKeys.PASSWORD });
+        errs = validator.hasErrors(value, props, proxy);
       } catch (e: unknown) {
         errs = `${key} validator failed to validate: ${e}`;
         console.warn(errs);
