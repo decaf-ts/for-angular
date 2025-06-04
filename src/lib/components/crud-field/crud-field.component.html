@@ -115,7 +115,7 @@
       @if((!formControl.pristine || formControl.touched) && !formControl.valid) {
         <div class="error dcf-error dcf-flex dcf-flex-top">
           @for(error of getErrors(); track error.key) {
-           {{ sf(("errors." + error.message) | translate, this[error.key]) }}
+            * {{ sf(("errors." + error.message) | translate, this[error.key]) }}
           }
         </div>
       }

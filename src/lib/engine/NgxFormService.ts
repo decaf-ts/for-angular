@@ -61,7 +61,7 @@ export class NgxFormService {
 
   /**
    * Adds a FormControl to the specified FormGroup, respecting the nesting structure
-   * defined via `childrenof`. Also updates the component's `formGroup` reference.
+   * defined via `childOf`. Also updates the component's `formGroup` reference.
    *
    * @param {} component - The component configuration to process
    * @param {FormGroup} formGroup - The root FormGroup to add the control to
@@ -85,7 +85,7 @@ export class NgxFormService {
   }
 
   /**
-   * Builds a FormGroup from a flat array of components, using the `childrenof` property
+   * Builds a FormGroup from a flat array of components, using the `childOf` property
    * to establish nested hierarchy.
    *
    * @param components - Flat array of component configurations

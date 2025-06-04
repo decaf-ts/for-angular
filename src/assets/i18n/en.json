@@ -16,7 +16,13 @@
     "integer": "This field must be a valid integer.",
     "digits": "This field must contain only digits.",
     "alphanum": "This field must be alphanumeric.",
-    "file": "Only {0} files are allowed"
+    "file": "Only {0} files are allowed",
+    "equals": "This field must be equal to field {0}",
+    "different": "This field must be different from field {0}",
+    "lessThan": "This field must be less than field {0}",
+    "lessThanOrEqual": "This field must be less than or equal to field {0}",
+    "greaterThan": "This field must be greater than field {0}",
+    "greaterThanOrEqual": "This field must be greater than or equal to field {0}"
   },
   "demo": {
     "id": {

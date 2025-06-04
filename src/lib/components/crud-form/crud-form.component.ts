@@ -82,6 +82,16 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   @Input({ required: true })
   formGroup!: FormGroup;
 
+  /**
+   * @description Path to the parent FormGroup, if nested.
+   * @summary Full dot-delimited path of the parent FormGroup. Set only when is part of a nested structure.
+   *
+   * @type {string}
+   * @memberOf CrudFieldComponent
+   */
+  @Input()
+  childOf?: string;
+
   @Input()
   rendererId!: string;
 
