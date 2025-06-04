@@ -1,4 +1,5 @@
 import { UIKeys } from '@decaf-ts/ui-decorators';
+import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
 
 /**
  * @description Angular engine key constants
@@ -33,7 +34,7 @@ export const AngularEngineKeys = {
   RENDER: 'render',
   RENDERED_ID: 'rendered-as-{0}',
   PARENT: '_parent',
-  VALIDATION_PARENT_KEY: Symbol('_validationParentRef'), // TODO: replace with the decorators-validation key
+  VALIDATION_PARENT_KEY: VALIDATION_PARENT_KEY
 };
 
 /**

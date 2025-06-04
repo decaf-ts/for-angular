@@ -16,7 +16,7 @@ export class UserModel extends FakerRepository<UserModel> {
 
   @required()
   @password()
-  // @eq("../password")
+  @eq("../password")
   @uielement('ngx-decaf-crud-field', { label: 'user.passwordRepeat.label' })
   passwordRepeat!: string;
 

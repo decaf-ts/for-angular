@@ -61,7 +61,6 @@ export class ForAngularModel extends Model {
 
   @required()
   @email()
-  @eq('category.developer.companyEmail')
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.email.label',
     placeholder: 'demo.email.placeholder',
