@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output, Input, HostListener  } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, Input, HostListener, Type, OnDestroy  } from '@angular/core';
 import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
 import {
   IonInfiniteScroll,
@@ -14,8 +14,9 @@ import {
   IonLoading
 } from '@ionic/angular/standalone';
 import { debounceTime, Subject } from 'rxjs';
-import { OperationKeys, Repository } from '@decaf-ts/db-decorators';
+import { InternalError, IRepository, OperationKeys } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
+import { Condition, OrderDirection, Paginator, Repository } from '@decaf-ts/core';
 import {
   BaseCustomEvent,
   Dynamic,
@@ -34,7 +35,8 @@ import {
   consoleError,
   consoleWarn,
   formatDate,
-  isValidDate
+  isValidDate,
+  getInjectablesRegistry
 } from 'src/lib/helpers';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
@@ -42,7 +44,8 @@ import { ListItemComponent } from '../list-item/list-item.component';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { PaginationComponent } from '../pagination/pagination.component';
 import { PaginationCustomEvent } from '../pagination/constants';
-import { IListEmptyResult, ListComponentsTypes } from './constants';
+import { IListEmptyResult, ListComponentsTypes, DecafRepository } from './constants';
+import { consoleInfo } from 'src/lib/helpers';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -142,7 +145,7 @@ import { IListEmptyResult, ListComponentsTypes } from './constants';
     ComponentRendererComponent
   ]
 })
-export class ListComponent extends NgxBaseComponent implements OnInit {
+export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy {
 
   /**
    * @description The display mode for the list component.
@@ -352,7 +355,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit {
    * @memberOf ListComponent
    */
   @Input()
-  sort?: string | KeyValue;
+  sort: OrderDirection = OrderDirection.DSC;
 
   /**
    * @description Icon to display when the list is empty.
@@ -458,15 +461,19 @@ export class ListComponent extends NgxBaseComponent implements OnInit {
   searchValue?: string;
 
   /**
-   * @description The result of the last paginated query.
-   * @summary Caches the result of the most recent data fetch operation when using
-   * pagination. This includes metadata about the total number of items and pages.
+   * @description A paginator object for handling pagination operations.
+   * @summary Provides a paginator object that can be used to retrieve and navigate
+   * through data in chunks, reducing memory usage and improving performance.
    *
-   * @type {PaginatedQuery | undefined}
-   * @default undefined
-   * @memberOf ListComponent
+   * The paginator object is initialized in the `ngOnInit` lifecycle hook and is
+   * used to fetch and display data in the pagination component. It is an instance
+   * of the `Paginator` class from the `@decaf-ts/core` package, which provides
+   * methods for querying and manipulating paginated data.
+   *
+   * @type {Paginator<Model>}
+   * @memberOf PaginationComponent
    */
-  lastResult: PaginatedQuery | undefined = undefined;
+  paginator!: Paginator<Model> | undefined;
 
   /**
    * @description The last page number that was displayed.
@@ -512,6 +519,37 @@ export class ListComponent extends NgxBaseComponent implements OnInit {
    */
   private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent> = new Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent>();
 
+
+  /**
+   * @description The repository for interacting with the data model.
+   * @summary Provides a connection to the data layer for retrieving and manipulating data.
+   * This is an instance of the `DecafRepository` class from the `@decaf-ts/core` package,
+   * which is initialized in the `repository` getter method.
+   *
+   * The repository is used to perform CRUD (Create, Read, Update, Delete) operations on the
+   * data model, such as fetching data, creating new items, updating existing items, and deleting
+   * items. It also provides methods for querying and filtering data based on specific criteria.
+   *
+   * @type {DecafRepository<Model>}
+   * @private
+   * @memberOf ListComponent
+   */
+  private _repository?: DecafRepository<Model>;
+
+  /**
+   * @description List of available indexes for data querying and filtering.
+   * @summary Provides a list of index names that can be used to optimize data querying and filtering
+   * operations, especially in scenarios with large datasets.
+   *
+   * Indexes can significantly improve the performance of data retrieval by allowing the database
+   * to quickly locate and retrieve relevant data based on indexed fields.
+   *
+   * @type {string[]}
+   * @default []
+   * @memberOf ListComponent
+   */
+  indexes!: string[];
+
   /**
    * @description Initializes a new instance of the ListComponent.
    * @summary Creates a new ListComponent and sets up the base component with the appropriate
@@ -529,6 +567,55 @@ export class ListComponent extends NgxBaseComponent implements OnInit {
   constructor() {
     super("ListComponent");
   }
+
+  private observer: any = {refresh: (table: string, event: OperationKeys, id: string | number) => this.asd.call(this, table, event, id)}
+
+  /**
+   * @description Getter for the repository instance.
+   * @summary Provides a connection to the data layer for retrieving and manipulating data.
+   * This method initializes the `_repository` property if it is not already set, ensuring
+   * that a single instance of the repository is used throughout the component.
+   *
+   * The repository is used to perform CRUD operations on the data model, such as fetching data,
+   * creating new items, updating existing items, and deleting items. It also provides methods
+   * for querying and filtering data based on specific criteria.
+   *
+   * @returns {DecafRepository<Model>} The initialized repository instance.
+   * @private
+   * @memberOf ListComponent
+   */
+  private get repository(): DecafRepository<Model> {
+    const self = this;
+    if (!this._repository) {
+      const modelName  = (this.model as any).constructor.name
+      const constructor = Model.get(modelName);
+      if (!constructor)
+        throw new InternalError(
+          'Cannot find model. was it registered with @model?',
+        );
+      this._repository = Repository.forModel(constructor, "ram");
+      this.model = new constructor() as Model;
+      this._repository.observe(self.observer);
+    }
+    return this._repository;
+  }
+
+  async asd(table: string, event: OperationKeys, id: string | number): Promise<void> {
+    const self = this;
+    console.log(table, event, id);
+    const item = this.itemMapper(await this._repository?.read(id) || {}, this.mapper);
+    (this.items as KeyValue[]).find(i => {
+      if(Number(i['id']) === item['uid']) {
+        i = Object.assign({}, i, item);
+      }
+      console.log(i);
+    });
+
+    console.log(this.items);
+    // this.items = [... this.items];
+    // console.log(this.items);
+  }
+
   /**
    * @description Initializes the component after Angular sets the input properties.
    * @summary Sets up the component by initializing event subscriptions, processing boolean
@@ -565,7 +652,6 @@ export class ListComponent extends NgxBaseComponent implements OnInit {
     this.showRefresher = stringToBoolean(this.showRefresher);
     this.loadMoreData = stringToBoolean(this.loadMoreData);
     this.showSearchbar = stringToBoolean(this.showSearchbar);
-
     if(typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
 
@@ -586,8 +672,10 @@ export class ListComponent extends NgxBaseComponent implements OnInit {
    * @memberOf ListComponent
    */
   ngOnDestroy(): void {
-    this.model = undefined;
-    this.data = undefined;
+    if(this._repository)
+      this._repository.unObserve(this.observer);
+    this.data =  this.model = this._repository = this.paginator = undefined;
+    consoleInfo(this, "Chamou o ng on destroy da lista");
   }
 
   /**
@@ -886,7 +974,7 @@ async getFromRequest(force: boolean = false, start: number, limit: number): Prom
 
       if(!Array.isArray(request))
         request = request?.response?.data || request?.results || [];
-      this.data = [...this.parseResult(request)];
+      this.data = [... await this.parseResult(request)];
       if(this.data?.length) {}
         this.items = this.type === ListComponentsTypes.INFINITE ?
           (this.items || []).concat([...this.data.slice(start, limit)]) : [...request.slice(start, limit) as KeyValue[]];
@@ -917,22 +1005,52 @@ async getFromRequest(force: boolean = false, start: number, limit: number): Prom
 async getFromModel(force: boolean = false, start: number, limit: number): Promise<KeyValue> {
   let data = [ ... this.data || []];
   let request: KeyValue[] = [];
+
+  // getting model repository
+  if(!this._repository)
+    this.repository;
+  const repo = this._repository as DecafRepository<Model>;
   if(!this.data?.length || force || this.searchValue?.length) {
     try {
       if(!this.searchValue?.length) {
         (this.data as KeyValue[]) = [];
         // const rawQuery = this.parseQuery(self.model as Repository<Model>, start, limit);
-        request = this.parseResult(await (this.model as any)?.paginate(start, limit));
+        // request = this.parseResult(await (this.model as any)?.paginate(start, limit));
+          if(!this.paginator) {
+            this.paginator = await repo
+              .select()
+              .orderBy([this.pk as keyof Model, this.sort])
+              .paginate(this.limit);
+          }
+          request = await this.parseResult(this.paginator);
       } else {
-        request = this.parseResult(await (this.model as any)?.find(this.searchValue));
+
+        if(!this.indexes)
+          this.indexes = (Object.values(this.mapper) || [this.pk]);
+
+        const searchValue = this.searchValue as string | number;
+
+        let condition = Condition.attribute<Model>(this.pk as keyof Model).eq(!isNaN(searchValue as number) ? Number(searchValue) : searchValue);
+        for (let index of this.indexes) {
+            if(index === this.pk)
+              continue;
+            let orCondition;
+            if(!isNaN(searchValue as number)) {
+              orCondition = Condition.attribute<Model>(index as keyof Model).eq(Number(searchValue));
+            } else {
+              orCondition = Condition.attribute<Model>(index as keyof Model).regexp(searchValue as string);
+            }
+            condition = condition.or(orCondition);
+        }
+        request = await this.parseResult(await repo.select().where(condition).execute());
         data = [];
       }
-      data = this.type === ListComponentsTypes.INFINITE ?
-        [... (data).concat(...request)] : [...request];
+      data = this.type === ListComponentsTypes.INFINITE ? [... (data).concat(request)] : [...request];
     } catch(error: any) {
       consoleError(this, error?.message || `Unable to find ${this.model} on registry. Return empty array from component`);
     }
   }
+
   if(data?.length) {
     if(this.searchValue) {
       this.items = [...data];
@@ -942,8 +1060,10 @@ async getFromModel(force: boolean = false, start: number, limit: number): Promis
       this.items = [...data];
     }
   }
+  // TODO: paginator.total
   if(this.type === ListComponentsTypes.PAGINATED)
-    this.getMoreData(this.lastResult?.total || 0);
+      this.getMoreData(100);
+    // this.getMoreData(this.paginator?.total || 0);
   return data || [] as KeyValue[];
 }
 
@@ -954,15 +1074,14 @@ async getFromModel(force: boolean = false, start: number, limit: number): Promis
  * table information derived from the model.
  *
  * @protected
- * @param {Repository<Model>} manager - The repository manager to query against
  * @param {number} start - The starting index for pagination
  * @param {number} limit - The maximum number of items to retrieve
  * @returns {KeyValue} The constructed query object
  *
  * @memberOf ListComponent
  */
-protected parseQuery(manager: Repository<Model>, start: number, limit: number): KeyValue {
-  const model = this.model as Repository<Model>;
+protected parseQuery(start: number, limit: number): KeyValue {
+  const model = this._repository as IRepository<Model>;
   const pk = model?.pk || this.pk;
   const table = model?.class || model?.constructor?.name;
   const query = !!this.query ?
@@ -993,12 +1112,12 @@ protected parseQuery(manager: Repository<Model>, start: number, limit: number): 
  *
  * @memberOf ListComponent
  */
-protected parseResult(result: KeyValue[] | PaginatedQuery): KeyValue[] {
+protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyValue[]> {
   if(!Array.isArray(result) && ('page' in result && 'total' in result)) {
-    this.lastResult = result;
-    const { total, page } = result;
-    result = page;
-    this.getMoreData(total);
+    this.paginator = result;
+    result = await result.page(this.page || 1);
+    // TODO: Chage for result.total;
+    this.getMoreData(100);
   } else {
     this.getMoreData((result as KeyValue[])?.length || 0);
   }

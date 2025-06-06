@@ -21,7 +21,7 @@
             <ngx-decaf-model-renderer
               [model]="model"
               (listenEvent)="handleEvent($event)"
-              [globals]='{operation: operation}'>
+              [globals]='{operation: operation, uid: uid}'>
             </ngx-decaf-model-renderer>
           } @else {
             <div>No Model</div>

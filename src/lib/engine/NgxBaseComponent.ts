@@ -24,6 +24,7 @@ import {
 import { BaseComponentProps } from './constants';
 import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
 import { consoleInfo } from '../helpers/logging';
+import { ForAngularRepository } from 'src/app/utils/ForAngularRepository';
 
 /**
  * @description Class representing a paginated query result
@@ -40,7 +41,7 @@ export class PaginatedQuery {
    * @summary Array of model instances for the current page
    * @type {Model[]}
    */
-  page!: Model[];
+  page!: Model[] | Model[][];
 
   /**
    * @description Total number of items across all pages
@@ -64,10 +65,10 @@ export class PaginatedQuery {
  * that provides CRUD operations, or undefined when no model is available.
  * This flexibility allows components to work with different types of data sources.
  *
- * @typedef {(Model|Repository<Model>|undefined)} ComponentBaseModel
+ * @typedef {(Model|undefined)} ComponentBaseModel
  * @memberOf module:for-angular
  */
-export type ComponentBaseModel = Model | Repository<Model> | undefined;
+export type ComponentBaseModel = Model | undefined;
 
 /**
  * @description Base component class that provides common functionality for all Decaf components.

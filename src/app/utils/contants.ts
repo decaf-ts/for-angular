@@ -38,3 +38,4 @@ export const Menu: MenuItem[] = [
   }
 ];
 
+export const AdapterName = 'ForAngularAdapter';

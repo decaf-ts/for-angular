@@ -7,6 +7,9 @@ import { generateFakerData } from 'src/app/utils';
 import { EmployeeModel } from 'src/app/models/EmployeeModel';
 import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
 import { CategoryModel } from 'src/app/models/CategoryModel';
+import { DecafRepository, ListComponentsTypes } from 'src/lib/components/list/constants';
+import { Repository } from '@decaf-ts/core';
+import { Constructor, Model, ModelConstructor } from '@decaf-ts/decorator-validation';
 
 @Component({
   selector: 'app-list',
@@ -18,19 +21,22 @@ import { CategoryModel } from 'src/app/models/CategoryModel';
 export class ListPage implements OnInit {
 
   @Input()
-  type?: 'infinite' | 'paginated';
+  type: ListComponentsTypes = ListComponentsTypes.INFINITE;
 
-  data!: KeyValue[];
+  data!: Model[];
 
   model!: CategoryModel | EmployeeModel;
 
+  repository!: DecafRepository<Model>;
+
   constructor() {}
 
-  async ngOnInit() {
+  ngOnInit() {
     if(!this.type)
-      this.type = 'infinite';
-    this.model = this.type === 'infinite' ?
-      new EmployeeModel() : new CategoryModel();
+      this.type = ListComponentsTypes.INFINITE;
+    this.model = this.type === ListComponentsTypes.INFINITE ?
+      new EmployeeModel() : new EmployeeModel();
+    this.repository = Repository.forModel(this.model?.constructor as Constructor<Model>)
   }
 
   ngOnDestroy() {
@@ -47,15 +53,16 @@ export class ListPage implements OnInit {
      const { name, data } = event;
     if(data?.length)
       this.data = [... data];
-    console.log(this.data);
   }
 
-  async refresh(){
-    this.data = [];
-    return this.model.readAll();
+
+  async refresh(): Promise<Model[]>{
+    return this.repository.select().execute() || [];
   }
 
-  handleListItemClick(event: Event, item: KeyValue) {
+  handleListItemClick(event: Event, item: Model) {
+    console.log(item);
+    console.log(event);
   }
 
   async getData() {

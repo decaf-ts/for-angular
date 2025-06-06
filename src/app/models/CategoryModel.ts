@@ -1,17 +1,21 @@
 import {
+  Model,
   model,
   ModelArg,
-  prop,
   required
 } from '@decaf-ts/decorator-validation';
 import { uilistprop, uielement, uilistitem, uimodel, uiprop } from '@decaf-ts/ui-decorators';
-import { FakerRepository } from '../utils/FakerRepository';
-import { EmployeeModel } from './EmployeeModel';
-
+import { ForAngularRepository } from '../utils/ForAngularRepository';
+import { id } from '@decaf-ts/db-decorators';
+import { pk } from '@decaf-ts/core';
 @uilistitem('ngx-decaf-list-item', {icon: 'cafe-outline', className: 'testing'})
 @uimodel('ngx-decaf-crud-form')
 @model()
-export class CategoryModel extends FakerRepository<CategoryModel> {
+export class CategoryModel extends Model {
+
+  @pk()
+  @id()
+  id!: number;
 
   @required()
   @uielement('ngx-decaf-crud-field', {
@@ -21,7 +25,6 @@ export class CategoryModel extends FakerRepository<CategoryModel> {
   @uilistprop('title')
   name!: string;
 
-  @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'category.description.label',
     placeholder: 'category.description.placeholder',
@@ -31,6 +34,6 @@ export class CategoryModel extends FakerRepository<CategoryModel> {
   description!: string;
 
   constructor(args: ModelArg<CategoryModel> = {}) {
-    super('categories', args);
+    super(args);
   }
 }

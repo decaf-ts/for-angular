@@ -304,6 +304,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
 
     this.titleColor = `dcf-title color-${this.titleColor}`;
     this.subtitleColor = `dcf-subtitle color-${this.titleColor}`;
+
   }
 
   /**

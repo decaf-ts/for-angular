@@ -59,6 +59,14 @@
     "name": {"label": "Category name"},
     "description": {"label": "Category Description"}
   },
+  "employee": {
+    "name": {"label": "Employee name"},
+    "occupation": {"label": "Employee occupation"}
+  },
+  "user": {
+    "passwordRepeat": {"label": "Repeat password"},
+    "username": {"label": "Username"}
+  },
   "component": {
     "list": {
       "pagination": "Showing page <span class=\"text-bold\">{{value0}} of {{value1}}</span>",
@@ -70,6 +78,7 @@
       },
       "empty": {
         "title": "No data found",
+        "subtitle": "",
         "button": "Create"
       }
     },

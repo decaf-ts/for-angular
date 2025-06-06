@@ -1,18 +1,16 @@
 import {
   eq,
+  Model,
   model,
   ModelArg, password,
-  prop,
   required,
 } from '@decaf-ts/decorator-validation';
-import { uilistprop, uielement, uilistitem, uimodel, uiprop } from '@decaf-ts/ui-decorators';
-import { FakerRepository } from '../utils/FakerRepository';
-import { EmployeeModel } from './EmployeeModel';
+import {uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
 
 @uilistitem('ngx-decaf-list-item', {icon: 'cafe-outline'})
 @uimodel('ngx-decaf-crud-form')
 @model()
-export class UserModel extends FakerRepository<UserModel> {
+export class UserModel extends Model {
 
   @required()
   @password()
@@ -28,7 +26,7 @@ export class UserModel extends FakerRepository<UserModel> {
   username!: string;
 
   constructor(args: ModelArg<UserModel> = {}) {
-    super('users', args);
+    super(args);
   }
 }
 

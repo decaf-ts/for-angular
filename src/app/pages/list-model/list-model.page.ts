@@ -5,6 +5,8 @@ import { IonCard, IonCardContent, IonCardTitle, IonSearchbar } from '@ionic/angu
 import { EmployeeModel } from 'src/app/models/EmployeeModel';
 import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
 import { CategoryModel } from 'src/app/models/CategoryModel';
+import { ForAngularRepository } from 'src/app/utils/ForAngularRepository';
+import { Model } from '@decaf-ts/decorator-validation';
 
 @Component({
   selector: 'app-list-model',
@@ -22,8 +24,6 @@ export class ListModelPage implements OnInit {
 
   model!: EmployeeModel | CategoryModel;
 
-  crudModel!: CategoryModel;
-
   constructor() {}
 
   async ngOnInit() {
@@ -31,6 +31,10 @@ export class ListModelPage implements OnInit {
       this.type = 'infinite';
     this.model = this.type === 'infinite' ?
       new EmployeeModel() : new CategoryModel();
+
+    // const m = new ForAngularRepository(this.model);
+    // console.log(await m.repo?.readAll([1,2,3]));
+
     // consoleInfo(this, JSON.stringify(this.model))
   }
 
@@ -38,19 +42,20 @@ export class ListModelPage implements OnInit {
     const {name, data } = event;
     console.log(event);
     if(name === EventConstants.REFRESH_EVENT)
-      return this.handleListRefreshEvent(data as KeyValue[]);
+      return this.handleListRefreshEvent(data as Model[]);
+
   }
 
-  handleListRefreshEvent(items:  KeyValue[]) {
+  handleListRefreshEvent(items:  Model[]) {
     if(items.length) {
-      this.data = items.reduce((accum: KeyValue[], curr) => {
+      this.data = items.reduce((accum: Model[], curr) => {
           accum.push(curr);
         return accum;
-      }, [] as KeyValue[]);
+      }, [] as Model[]);
     }
   }
 
-  handleListItemClick(event: Event, item: KeyValue) {
+  handleListItemClick(event: Event, item: Model) {
   }
 
 }

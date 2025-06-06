@@ -561,7 +561,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @Input()
-  override formGroup!: FormGroup;
+  override formGroup!: FormGroup | undefined;
 
   @Input()
   override formControl!: FormControl;
@@ -578,25 +578,34 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   @Input()
   translatable: StringOrBoolean = true;
 
+  /**
+   * @description Unique identifier for the current record.
+   * @summary A unique identifier for the current record being displayed or manipulated.
+   * This is typically used in conjunction with the primary key for operations on specific records.
+   *
+   * @type {string | number}
+   */
   @Input()
-  locale?: string;
+  uid!: string | number | undefined;
 
   ngOnInit(): void {
     // super.onInit(this.updateOn);
-    this.translatable = !this.locale ? false : stringToBoolean(this.translatable);
+    if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
+      this.formGroup = undefined;
+    } else {
+      if (this.type === HTML5InputTypes.RADIO && !this.value)
+        this.formGroup?.get(this.name)?.setValue(this.options[0].value);
+    }
 
-    if (this.type === HTML5InputTypes.RADIO && !this.value)
-      this.formGroup?.get(this.name)?.setValue(this.options[0].value);
-
-    if (this.operation === OperationKeys.READ)
-      this.formControl.disable();
   }
 
   ngAfterViewInit() {
-    super.afterViewInit();
+    if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
+      super.afterViewInit();
   }
 
   ngOnDestroy(): void {
-    this.onDestroy();
+    if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
+      this.onDestroy();
   }
 }

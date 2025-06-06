@@ -10,6 +10,8 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
+import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router'
 import { FormGroup } from '@angular/forms';
 import { FormElement } from '../../interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
@@ -26,7 +28,7 @@ import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { IonIcon } from '@ionic/angular/standalone';
-import { Location } from '@angular/common';
+;
 import { consoleInfo } from '../../helpers';
 
 /**
@@ -79,8 +81,8 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   @Input({ required: true })
   operation!: CrudOperations;
 
-  @Input({ required: true })
-  formGroup!: FormGroup;
+  @Input()
+  formGroup!: FormGroup | undefined;
 
   /**
    * @description Path to the parent FormGroup, if nested.
@@ -105,21 +107,22 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   @Input()
   uid!: string | number | undefined;
 
+
   @Output()
   submitEvent = new EventEmitter<BaseCustomEvent>();
 
   private location: Location = inject(Location);
 
-
   ngAfterViewInit() {
+    console.log(this.operation);
+    console.log(this.uid);
     // if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
     //   NgxFormService.formAfterViewInit(this, this.rendererId);
   }
 
   ngOnInit() {
-    if (this.operation === OperationKeys.READ)
-      this.formGroup.disable();
-
+    if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)
+      this.formGroup = undefined;
     this.options = Object.assign(
       {},
       DefaultFormReactiveOptions,
@@ -128,7 +131,8 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   }
 
   ngOnDestroy() {
-    NgxFormService.unregister(this.formGroup);
+    if(this.formGroup)
+      NgxFormService.unregister(this.formGroup);
   }
 
   /**
@@ -139,10 +143,10 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
     event.stopImmediatePropagation();
     event.stopPropagation();
 
-    if (!NgxFormService.validateFields(this.formGroup))
+    if (!NgxFormService.validateFields(this.formGroup as FormGroup))
       return false;
 
-    const data = NgxFormService.getFormData(this.formGroup);
+    const data = NgxFormService.getFormData(this.formGroup as FormGroup);
     this.submitEvent.emit({
       data: data,
       component: 'FormReactiveComponent',
@@ -160,7 +164,6 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   }
 
   handleDelete() {
-    consoleInfo(this, `Deleting record with uid: ${this.uid}...`);
     this.submitEvent.emit({
       data: this.uid,
       component: 'FormReactiveComponent',

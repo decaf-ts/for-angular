@@ -95,7 +95,7 @@ export function windowEventEmitter(
  * @function getOnWindowDocument
  * @memberOf module:for-angular
  */
-export function getOnWindowDocument(key: string) {
+export function getOnWindowDocument(key: string): any {
   return getWindowDocument()?.[key];
 }
 
@@ -110,7 +110,7 @@ export function getOnWindowDocument(key: string) {
  * @function getWindowDocument
  * @memberOf module:for-angular
  */
-export function getWindowDocument() {
+export function getWindowDocument(): any {
   return getOnWindow('document');
 }
 
@@ -127,7 +127,7 @@ export function getWindowDocument() {
  * @function getOnWindow
  * @memberOf module:for-angular
  */
-export function getOnWindow(key: string) {
+export function getOnWindow(key: string): any {
   return getWindow()?.[key];
 }
 
@@ -145,7 +145,7 @@ export function getOnWindow(key: string) {
  * @function setOnWindow
  * @memberOf module:for-angular
  */
-export function setOnWindow(key: string, value: any) {
+export function setOnWindow(key: string, value: any): void {
   getWindow()[key] = value;
 }
 
@@ -260,7 +260,7 @@ export function getLocaleFromClassName(
 export function generateLocaleFromString(
   locale: string,
   phrase: string | undefined
-) {
+): string {
   if (!phrase) return '';
   if (!locale || phrase.includes(`${locale}.`)) return phrase;
   return `${locale}.${phrase}`;
@@ -300,7 +300,7 @@ export function getLocaleLanguage(): string {
  * @function generateRandomValue
  * @memberOf module:for-angular
  */
-export function generateRandomValue(length: number = 8, onlyNumbers = false): string {
+export function generateRandomValue(length: number = 8, onlyNumbers: boolean = false): string {
   const chars = onlyNumbers
     ? '0123456789'
     : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

@@ -6,7 +6,7 @@ import { NgxRenderingEngine2 } from 'src/lib/engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { CrudFormComponent } from 'dist/lib';
+import { CrudFormComponent } from 'src/lib/components/crud-form/crud-form.component';
 import { consoleWarn } from 'src/lib/helpers';
 
 const imports = [

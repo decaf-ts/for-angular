@@ -31,7 +31,7 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    * @summary Form group for the field
    * @description Angular FormGroup instance for the field
    */
-  formGroup!: FormGroup;
+  formGroup!: FormGroup | undefined;
 
   formControl!: FormControl;
 
@@ -164,7 +164,8 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    * @description Unregisters the field when the component is destroyed
    */
   onDestroy(): void {
-    NgxFormService.unregister(this.formGroup);
+    if(this.formGroup)
+      NgxFormService.unregister(this.formGroup);
   }
 
   /**

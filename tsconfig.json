@@ -32,6 +32,9 @@
     "paths": {
       "@angular/*": [
         "./node_modules/@angular/*"
+      ],
+      "@decaf-ts/core/ram": [
+        "./node_modules/@decaf-ts/core/lib/ram"
       ]
     }
   },
@@ -40,9 +43,15 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": false, // default true
+    "paths": {
+      "@decaf-ts/core/ram": [
+        "./node_modules/@decaf-ts/core/lib/ram"
+      ]
+    }
     // "enableIvy": false
   },
   "@angular/*": [
     "./node_modules/@angular/*"
   ],
+
 }

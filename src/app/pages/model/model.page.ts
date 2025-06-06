@@ -6,17 +6,15 @@ import {
   OperationKeys,
 } from '@decaf-ts/db-decorators';
 import { Repository } from '@decaf-ts/core';
-import { Constructor, Model, ModelArg, ModelConstructor } from '@decaf-ts/decorator-validation';
+import { Model } from '@decaf-ts/decorator-validation';
 import { ComponentsModule } from 'src/app/components/components.module';
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSearchbar, NavController } from '@ionic/angular/standalone';
-import { getInjectablesRegistry } from 'src/lib/helpers/utils';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSearchbar } from '@ionic/angular/standalone';
 import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
 import { consoleError, consoleWarn } from 'src/lib/helpers/logging';
-import { CategoryModel } from 'src/app/models/CategoryModel';
 import { FormReactiveSubmitEvent } from 'src/lib/components/crud-form/types';
-import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { RouterService } from 'src/app/services/router.service';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
+import { DecafRepository } from 'src/lib/components/list/constants';
 
 @Component({
   standalone: true,
@@ -39,23 +37,7 @@ export class ModelPage {
   @Input()
   uid!: string;
 
-  model!: IRepository<Model> | FakerRepository<Model> | undefined;
-
-  //
-  // @HostListener('window:modelCrudOperation', ['$event'])
-  // handleCrudOperation(event: CustomEvent) {
-  //   if (!event || !event.detail)
-  //     return getToast().error(
-  //       stringFormat(
-  //         `No data to submit for ${this.managerType} {0}`,
-  //         this.managerName as string,
-  //       ),
-  //     );
-  //   if (this.operation === CRUD_OPERATIONS.CREATE)
-  //     return this.handleCreate(event.detail);
-  //
-  //   return this.handleUpdate(event.detail);
-  // }
+  model!: Model | undefined;
 
   private _repository?: IRepository<Model>;
   private routerService: RouterService = inject(RouterService);
@@ -68,7 +50,7 @@ export class ModelPage {
           'Cannot find model. was it registered with @model?',
         );
       this._repository = Repository.forModel(constructor);
-      console.log(this._repository);
+      this.model = new constructor() as Model;
     }
     return this._repository;
   }
@@ -76,29 +58,22 @@ export class ModelPage {
   async ionViewWillEnter(): Promise<void> {
     return this.refresh(this.uid);
   }
-  //
-  // async ionViewDidEnter() {}
-  //
-  // ionViewDidLeave() {
-  //   this.manager = this.managerName = undefined;
-  // }
 
   async refresh(uid?: string) {
     const self: ModelPage = this;
     try {
-      const model = new (Model.get(!self.modelName.includes('Model') ? `${self.modelName}Model` : self.modelName) as ModelConstructor<any>)();
+      this.repository;
+      // const model = new (Model.get(!self.modelName.includes('Model') ? `${self.modelName}Model` : self.modelName) as ModelConstructor<any>)();
       switch(self.operation){
-        case OperationKeys.CREATE:
-          this.model = model;
-        break
-        case OperationKeys.READ || OperationKeys.UPDATE || OperationKeys.DELETE:
-          this.model = await self.handleGet(model, this.uid) as any;
+        case OperationKeys.READ:
+        case OperationKeys.UPDATE:
+        case OperationKeys.DELETE:
+          this.model = await self.handleGet(this.uid);
         break;
         // to DO
         // default:
         //   return Model.fromObject(self.manager)
       }
-
     } catch (error: any) {
       consoleError(this, error?.message || error);
     }
@@ -133,7 +108,6 @@ export class ModelPage {
 
   async handleEvent(event: BaseCustomEvent) {
     const { name, data } = event;
-    console.log(event);
     switch (event.name) {
       case EventConstants.SUBMIT_EVENT:
         await this.handleSubmit(event);
@@ -143,8 +117,13 @@ export class ModelPage {
 
   async handleSubmit(event: FormReactiveSubmitEvent): Promise<void | Error> {
     try {
-      const result = await (this.model as FakerRepository<Model>).create(event.data);
+      const repo = this._repository as IRepository<Model>;
+      const data = this.parseData(event.data, this.operation);
+      const result = this.operation === OperationKeys.CREATE ?
+        await repo.create(data as Model) : this.operation === OperationKeys.UPDATE ?
+          await repo.update(data as Model) : repo.delete(data as string | number);
       if(result) {
+        (repo as DecafRepository<Model>).refresh(this.modelName, this.operation, this.uid);
         this.routerService.backToLastPage();
         await getNgxToastComponent().inform(`${this.operation} Item successfully`);
       }
@@ -155,7 +134,7 @@ export class ModelPage {
     // console.log(data)
   }
 
-  async handleGet(model: IRepository<Model>, uid: string) {
+  async handleGet(uid: string): Promise<Model | undefined> {
     const self = this;
     return new Promise(async (resolve, reject) => {
       if (!uid) {
@@ -164,10 +143,22 @@ export class ModelPage {
           'No key passed to model page read operation, backing to last page',
         );
         this.routerService.backToLastPage();
-        return reject(null);
+        return reject(undefined);
       }
-      resolve(await model.read(uid));
-    });
+      resolve(await (this._repository as IRepository<Model>).read(Number(uid)));
+    })
+  }
+
+
+  private parseData(data: Partial<Model>, opration: OperationKeys): Model | string | number{
+      const repo = this._repository as IRepository<Model>;
+      let uid: number | string = this.uid;
+      if(repo.pk === 'id' as keyof Model)
+        uid = Number(uid);
+      if(this.operation !== OperationKeys.DELETE)
+        return Model.build(this.uid ? Object.assign(data, {[repo.pk]: uid}) : data, this.modelName) as Model;
+      return uid;
+
   }
 
 

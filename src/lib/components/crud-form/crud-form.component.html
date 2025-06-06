@@ -8,7 +8,7 @@
             @if(options.buttons.clear?.icon) {
               <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
             }
-            {{options.buttons.clear?.text}}
+            {{operation === 'update' ? 'Back' : options.buttons.clear?.text}}
           </ion-button>
         }
 
@@ -30,7 +30,7 @@
           @if(options.buttons.clear?.icon) {
             <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
           }
-          {{ ['delete', 'read'].includes(operation) ? 'Back' : options.buttons.clear?.text}}
+          {{ ['delete', 'read', 'update'].includes(operation) ? 'Back' : options.buttons.clear?.text}}
         </ion-button>
       }
       @if(operation === 'delete' && uid) {

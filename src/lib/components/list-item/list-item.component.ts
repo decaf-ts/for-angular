@@ -99,8 +99,6 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
     if(this.operations?.length)
       this.className += ` action`;
     this.windowWidth = getWindowWidth();
-
-    console.log('ListItemComponent initialized');
   }
 
   async handleAction(action: CrudOperations, event: Event, target?: HTMLElement): Promise<boolean|void> {
