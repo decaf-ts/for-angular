@@ -30,7 +30,7 @@
           }
 
           <div class="dcf-width-auto dcf-flex dcf-flex-middle dcf-flex-right">
-            @if(operations?.length && uid) {
+            @if((operations.includes('delete') || operations.includes('update')) && uid) {
               <div class="dcf-visible@m" id="dcf-actions">
                 <ion-button class="dcf-hidden@m" shape="round" fill="clear" color="primary" (click)="presentActionsMenu($event)">
                   <ion-icon slot="icon-only" aria-hidden="true" name="ellipsis-vertical-outline"></ion-icon>
@@ -48,16 +48,18 @@
                           <h4 class="dcf-text-capitalize" [innerHTML]="'actions' | translate"></h4>
                         </ion-list-header>
                         @for (operation of ['update', 'delete']; track operation) {
+                          @if(operations.includes(operation)) {
                           <ion-item [button]="true" (click)="handleAction(operation, $event, component)">
-                            <ion-avatar class="dcf-flex dcf-flex-middle" aria-hidden="true" slot="start">
-                              @if(operation === 'update') {
-                                <ion-icon color="primary" aria-hidden="true" name="create-outline"></ion-icon>
-                              } @else {
-                                <ion-icon color="danger" aria-hidden="true" name="trash"></ion-icon>
-                              }
-                            </ion-avatar>
-                            <ion-label class="dcf-text-capitalize">{{ operation | translate }}</ion-label>
-                          </ion-item>
+                              <ion-avatar class="dcf-flex dcf-flex-middle" aria-hidden="true" slot="start">
+                                @if(operation === 'update') {
+                                  <ion-icon color="primary" aria-hidden="true" name="create-outline"></ion-icon>
+                                } @else {
+                                  <ion-icon color="danger" aria-hidden="true" name="trash"></ion-icon>
+                                }
+                              </ion-avatar>
+                              <ion-label class="dcf-text-capitalize">{{ operation | translate }}</ion-label>
+                            </ion-item>
+                          }
                         }
                       </ion-list>
                     </ion-content>
