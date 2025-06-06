@@ -152,7 +152,6 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
       component: 'FormReactiveComponent',
       name: EventConstants.SUBMIT_EVENT,
     });
-    console.info('Event submitted', data);
   }
 
   handleReset() {

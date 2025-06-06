@@ -15,7 +15,7 @@ import {
 } from '@ionic/angular/standalone';
 import { debounceTime, Subject } from 'rxjs';
 import { InternalError, IRepository, OperationKeys } from '@decaf-ts/db-decorators';
-import { Model } from '@decaf-ts/decorator-validation';
+import { Model, set } from '@decaf-ts/decorator-validation';
 import { Condition, OrderDirection, Paginator, Repository } from '@decaf-ts/core';
 import {
   BaseCustomEvent,
@@ -520,6 +520,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
   private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent> = new Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent>();
 
 
+
   /**
    * @description The repository for interacting with the data model.
    * @summary Provides a connection to the data layer for retrieving and manipulating data.
@@ -550,6 +551,9 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    */
   indexes!: string[];
 
+  private observerSubjet: Subject<any> = new Subject<any>();
+
+
   /**
    * @description Initializes a new instance of the ListComponent.
    * @summary Creates a new ListComponent and sets up the base component with the appropriate
@@ -568,7 +572,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
     super("ListComponent");
   }
 
-  private observer: any = {refresh: (table: string, event: OperationKeys, id: string | number) => this.asd.call(this, table, event, id)}
+  private observer: any = {refresh: (table: string, event: OperationKeys, id: string | number) => this.observeRepository.call(this, table, event, id)}
 
   /**
    * @description Getter for the repository instance.
@@ -595,26 +599,11 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
         );
       this._repository = Repository.forModel(constructor, "ram");
       this.model = new constructor() as Model;
-      this._repository.observe(self.observer);
     }
     return this._repository;
   }
 
-  async asd(table: string, event: OperationKeys, id: string | number): Promise<void> {
-    const self = this;
-    console.log(table, event, id);
-    const item = this.itemMapper(await this._repository?.read(id) || {}, this.mapper);
-    (this.items as KeyValue[]).find(i => {
-      if(Number(i['id']) === item['uid']) {
-        i = Object.assign({}, i, item);
-      }
-      console.log(i);
-    });
 
-    console.log(this.items);
-    // this.items = [... this.items];
-    // console.log(this.items);
-  }
 
   /**
    * @description Initializes the component after Angular sets the input properties.
@@ -645,6 +634,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    */
   async ngOnInit(): Promise<void> {
     this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event));
+    this.observerSubjet.pipe(debounceTime(100)).subscribe(args => this.handleObserveEvent(args[0], args[1], args[2]));
 
     this.limit = Number(this.limit);
     this.start = Number(this.start);
@@ -661,7 +651,41 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
       this.empty.link = `${this.route}/${OperationKeys.CREATE}`;
 
     this.initialize();
+
+    if(this.model instanceof Model && this._repository)
+      this._repository.observe(this.observer);
   }
+
+  observeRepository(...args: any[]): void {
+    this.observerSubjet.next(args);
+  }
+
+  async handleObserveEvent(table: string, event: OperationKeys, id: string | number): Promise<void> {
+    console.log('handling observe event', table, event, id);
+    const self = this;
+    self.data = [];
+    const item = this.itemMapper(await this._repository?.read(id) || {}, this.mapper);
+    for(let child of self.items as KeyValue[]) {
+        if(child[self.pk] === item[self.pk]) {
+          child = Object.assign({}, child, item);
+          break;
+        }
+    }
+    setTimeout(() => self.data = [... self.items as KeyValue[]], 0);
+    self.refresh(false);
+    // const data = Object.assign({}, self.WSdata);
+    // self.data = data;
+    //     console.log(data);
+
+    // self.refresh(false);
+    // this.items = [... this.items];
+    // console.log(this.items);
+  }
+
+
+
+
+
 
   /**
    * @description Cleans up resources when the component is destroyed.
