@@ -31,12 +31,10 @@ import { ForAngularModule } from 'src/lib/for-angular.module';
 import { NgxBaseComponent, PaginatedQuery } from 'src/lib/engine/NgxBaseComponent';
 import {
   stringToBoolean,
-  arrayQueryByString,
   consoleError,
   consoleWarn,
   formatDate,
-  isValidDate,
-  getInjectablesRegistry
+  isValidDate
 } from 'src/lib/helpers';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
@@ -671,7 +669,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
   }
 
   async observeRepository(...args: any[]): Promise<void> {
-    this.observerSubjet.next(args);
+    return this.observerSubjet.next(args);
   }
 
   handleObserveEvent(table: string, event: OperationKeys, uid: string | number): void {
@@ -686,9 +684,15 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
         this.handleDelete(uid);
       this.refreshEventEmit();
     }
-
-
   }
+
+
+   /**
+    * Handles the create event from the repository.
+    *
+    * @param {string | number} uid - The ID of the item to create.
+    * @returns {Promise<void>} A promise that resolves when the item is created and added to the list.
+    */
    async handleCreate(uid: string | number): Promise<void> {
       const item: KeyValue = this.itemMapper(await this._repository?.read(uid) || {}, this.mapper);
       console.log(item);
@@ -982,9 +986,13 @@ async handleRefresh(event?: InfiniteScrollCustomEvent | CustomEvent): Promise<vo
  *
  * @memberOf ListComponent
  */
- parseSearchResults(results: KeyValue[], search: string): KeyValue[] {
-  return [ ... arrayQueryByString(results || [], search)];
-}
+  parseSearchResults(results: KeyValue[], search: string): KeyValue[] {
+    return results.filter((item: KeyValue) =>
+        Object.values(item).some(value =>
+            value.toString().toLowerCase().includes((search as string)?.toLowerCase())
+          )
+      );
+  }
 
 /**
  * @description Fetches data from a request source.
@@ -1071,7 +1079,6 @@ async getFromModel(force: boolean = false, start: number, limit: number): Promis
           this.indexes = (Object.values(this.mapper) || [this.pk]);
 
         const searchValue = this.searchValue as string | number;
-
         let condition = Condition.attribute<Model>(this.pk as keyof Model).eq(!isNaN(searchValue as number) ? Number(searchValue) : searchValue);
         for (let index of this.indexes) {
             if(index === this.pk)

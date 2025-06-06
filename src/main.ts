@@ -5,6 +5,5 @@ import { RamAdapter } from '@decaf-ts/core/ram';
 
 export const DbAdapter = new RamAdapter("ram");
 
-
 bootstrapApplication(AppComponent, appConfig)
   .catch((err) => console.error(err));

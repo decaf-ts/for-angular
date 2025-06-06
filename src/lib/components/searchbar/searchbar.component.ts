@@ -3,7 +3,7 @@ import { AutocompleteTypes, PredefinedColors} from '@ionic/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import {generateRandomValue, windowEventEmitter} from 'src/lib/helpers/utils';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { stringToBoolean } from 'src/lib/helpers/string';
+import { stringToBoolean } from 'src/lib/helpers/utils';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import { IonSearchbar } from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';

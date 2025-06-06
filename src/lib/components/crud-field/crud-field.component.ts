@@ -28,7 +28,6 @@ import {
   IonTextarea,
 } from '@ionic/angular/standalone';
 import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
-import { stringToBoolean } from 'src/lib/helpers';
 
 /**
  * @description A dynamic form field component for CRUD operations.

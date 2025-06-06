@@ -14,7 +14,7 @@ import {
   getInjectablesRegistry,
   getLocaleFromClassName,
 } from 'src/lib/helpers/utils';
-import { stringToBoolean } from 'src/lib/helpers/string';
+import { stringToBoolean } from 'src/lib/helpers/utils';
 import { Model } from '@decaf-ts/decorator-validation';
 import {
   CrudOperations,

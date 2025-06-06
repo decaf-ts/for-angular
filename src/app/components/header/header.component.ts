@@ -4,7 +4,7 @@ import { StringOrBoolean } from 'src/lib/engine/types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { IonHeader, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
 import { RouterService } from 'src/app/services/router.service';
-import { stringToBoolean } from 'src/lib/helpers/string';
+import { stringToBoolean } from 'src/lib/helpers/utils';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { BackButtonComponent } from '../back-button/back-button.component';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';

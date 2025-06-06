@@ -1,7 +1,8 @@
 import { stringFormat } from "@decaf-ts/decorator-validation";
-import { LoggerMessage} from "./types";
 import { isDevelopmentMode } from "./utils";
-import { MiniLogger, DefaultTheme, Logging, LoggingConfig, LogLevel, LoggingMode } from "@decaf-ts/logging";
+import { MiniLogger, LogLevel } from "@decaf-ts/logging";
+import { KeyValue } from "../engine";
+export type LoggerMessage = Error & {loggedAt?: number} | string | KeyValue | KeyValue[];
 
 const defaultLoggerConfig = {
   level: LogLevel.info,

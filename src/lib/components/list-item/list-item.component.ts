@@ -3,7 +3,7 @@ import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { StringOrBoolean, KeyValue } from 'src/lib/engine/types';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { stringToBoolean, stringToCapitalCase } from 'src/lib/helpers/string';
+import { stringToBoolean } from 'src/lib/helpers/utils';
 import { getWindowWidth, windowEventEmitter } from 'src/lib/helpers/utils';
 import { Dynamic, EventConstants, ListItemCustomEvent } from 'src/lib/engine';
 import { NavController } from '@ionic/angular';

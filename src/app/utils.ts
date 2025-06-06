@@ -9,7 +9,7 @@
  */
 
 import { KeyValue } from 'src/lib/engine/types';
-import { formatDate } from 'src/lib/helpers/date';
+import { formatDate } from 'src/lib/helpers/utils';
 
 /**
  * @description Common properties for input fields.
