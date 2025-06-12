@@ -18,7 +18,7 @@
       @if(!searchValue) {
         <p [class]="subtitleColor" [innerHTML]="translatable ? (subtitle | translate) : subtitle "></p>
       } @else {
-        <p [class]="subtitleColor" [innerHTML]="translatable? (subtitle | translate : {value0: searchValue}) : subtitle"></p>
+        <p [class]="subtitleColor" [innerHTML]="searchSubtitle"></p>
       }
     }
     @if(buttonLink && buttonText) {

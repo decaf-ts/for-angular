@@ -326,7 +326,6 @@ export class ComponentRendererComponent
    */
   private subscribeEvents(): void {
     if (this.component) {
-      console.log('Subscribing to events');
       const self = this;
       const instance = this.component?.instance as any;
       const componentKeys = Object.keys(instance);

@@ -15,8 +15,8 @@ import {
 } from '@ionic/angular/standalone';
 import { debounceTime, Subject } from 'rxjs';
 import { InternalError, IRepository, OperationKeys } from '@decaf-ts/db-decorators';
-import { Model, set } from '@decaf-ts/decorator-validation';
-import { Condition, Observable, Observer, OrderDirection, Paginator, Repository } from '@decaf-ts/core';
+import { Model } from '@decaf-ts/decorator-validation';
+import { Condition, Observer, OrderDirection, Paginator, Repository } from '@decaf-ts/core';
 import {
   BaseCustomEvent,
   Dynamic,
@@ -600,8 +600,6 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
     return this._repository;
   }
 
-
-
   /**
    * @description Initializes the component after Angular sets the input properties.
    * @summary Sets up the component by initializing event subscriptions, processing boolean
@@ -665,21 +663,22 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
     if(this._repository)
       this._repository.unObserve(this.observer);
     this.data =  this.model = this._repository = this.paginator = undefined;
-    consoleInfo(this, "Chamou o ng on destroy da lista");
   }
 
   async observeRepository(...args: any[]): Promise<void> {
+    const [table, event, uid] = args;
+    if(event === OperationKeys.CREATE && !!uid)
+      return this.handleObserveEvent(table, event, uid);
     return this.observerSubjet.next(args);
   }
 
-  handleObserveEvent(table: string, event: OperationKeys, uid: string | number): void {
+  async handleObserveEvent(table: string, event: OperationKeys, uid: string | number): Promise<void> {
     if(event === OperationKeys.CREATE) {
-      // TODO: Implement return id on create
-      // this.handleCreate(uid)
-      this.refresh(true);
+      uid ?
+        await this.handleCreate(uid) : await this.refresh(true);
     } else {
       if(event === OperationKeys.UPDATE)
-        this.handleUpdate(uid)
+        await this.handleUpdate(uid);
       if(event === OperationKeys.DELETE)
         this.handleDelete(uid);
       this.refreshEventEmit();
@@ -687,17 +686,38 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
   }
 
 
-   /**
-    * Handles the create event from the repository.
-    *
-    * @param {string | number} uid - The ID of the item to create.
-    * @returns {Promise<void>} A promise that resolves when the item is created and added to the list.
-    */
-   async handleCreate(uid: string | number): Promise<void> {
-      const item: KeyValue = this.itemMapper(await this._repository?.read(uid) || {}, this.mapper);
-      console.log(item);
-      this.items = (this.data || []).concat([... this.items, item]);
-   }
+  /**
+   * @description Function for tracking items in the list.
+   * @summary Provides a tracking function for the `*ngFor` directive in the component template.
+   * This function is used to identify and control the rendering of items in the list,
+   * preventing duplicate or unnecessary rendering.
+   *
+   * The `trackItemFn` function takes two parameters: `index` (the index of the item in the list)
+   * and `item` (the actual item from the list). It returns the tracking key, which in this case
+   * is the union of the `uid` of the item with the model name.
+   *
+   * @param {number} index - The index of the item in the list.
+
+   * @param {KeyValue & {uid: string | number}} item - The actual item from the list.
+   * @returns {string | number} The tracking key for the item.
+   * @memberOf ListComponent
+   */
+  trackItemFn(index: number, item: KeyValue & {uid: string | number}): string | number {
+    return `${item?.uid || item?.[this.pk]}-${index}`;
+  }
+
+
+  /**
+   * Handles the create event from the repository.
+   *
+   * @param {string | number} uid - The ID of the item to create.
+   * @returns {Promise<void>} A promise that resolves when the item is created and added to the list.
+   */
+  async handleCreate(uid: string | number): Promise<void> {
+    const result = await this._repository?.read(uid);
+    const item = this.mapResults([result as KeyValue])[0];
+    this.items = this.data = [item, ...this.items || []];
+  }
 
 
   /**
@@ -712,6 +732,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
   async handleUpdate(uid: string | number): Promise<void> {
     const self = this;
     const item: KeyValue = this.itemMapper(await this._repository?.read(uid) || {}, this.mapper);
+    self.data = [];
     for(let key in self.items as KeyValue[]) {
         const child = self.items[key] as KeyValue;
         if(child['uid'] === item['uid']) {
@@ -719,7 +740,9 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
           break;
         }
     }
-    self.data = [... self.items];
+    setTimeout(() => {
+      self.data = [ ...self.items];
+    }, 0);
   }
 
   /**
@@ -988,10 +1011,10 @@ async handleRefresh(event?: InfiniteScrollCustomEvent | CustomEvent): Promise<vo
  */
   parseSearchResults(results: KeyValue[], search: string): KeyValue[] {
     return results.filter((item: KeyValue) =>
-        Object.values(item).some(value =>
-            value.toString().toLowerCase().includes((search as string)?.toLowerCase())
-          )
-      );
+      Object.values(item).some(value =>
+          value.toString().toLowerCase().includes((search as string)?.toLowerCase())
+        )
+    );
   }
 
 /**
@@ -1048,11 +1071,11 @@ async getFromRequest(force: boolean = false, start: number, limit: number): Prom
  * @param {boolean} force - Whether to force a refresh even if data already exists
  * @param {number} start - The starting index for pagination
  * @param {number} limit - The maximum number of items to retrieve
- * @returns {Promise<KeyValue>} A promise that resolves to the fetched data
+ * @returns {Promise<KeyValue[]>} A promise that resolves to the fetched data
  *
  * @memberOf ListComponent
  */
-async getFromModel(force: boolean = false, start: number, limit: number): Promise<KeyValue> {
+async getFromModel(force: boolean = false, start: number, limit: number): Promise<KeyValue[]> {
   let data = [ ... this.data || []];
   let request: KeyValue[] = [];
 
@@ -1109,10 +1132,9 @@ async getFromModel(force: boolean = false, start: number, limit: number): Promis
       this.items = [...data];
     }
   }
-  // TODO: paginator.total
-  if(this.type === ListComponentsTypes.PAGINATED)
-      this.getMoreData(100);
-    // this.getMoreData(this.paginator?.total || 0);
+  // // TODO: paginator.total
+  if(this.type === ListComponentsTypes.PAGINATED && this.paginator)
+      this.getMoreData(this.paginator.total);
   return data || [] as KeyValue[];
 }
 
@@ -1163,10 +1185,10 @@ protected parseQuery(start: number, limit: number): KeyValue {
  */
 protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyValue[]> {
   if(!Array.isArray(result) && ('page' in result && 'total' in result)) {
-    this.paginator = result;
-    result = await result.page(this.page);
+    const paginator = result as Paginator<Model>;
+    result = await paginator.page(this.page);
     // TODO: Chage for result.total;
-    this.getMoreData(100);
+    this.getMoreData(paginator.total);
   } else {
     this.getMoreData((result as KeyValue[])?.length || 0);
   }
@@ -1186,12 +1208,20 @@ protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyV
  * @memberOf ListComponent
  */
 getMoreData(length: number): void {
-  if(length <= this.limit) {
-    this.loadMoreData = false;
+  if(this.type === ListComponentsTypes.INFINITE) {
+    if(this.paginator)
+      length = length * this.limit;
+    if(length <= this.limit) {
+      this.loadMoreData = false;
+    } else {
+      this.pages = Math.floor(length / this.limit);
+      if((this.pages * this.limit) < length)
+        this.pages += 1;
+      if(this.pages === 1)
+        this.loadMoreData = false;
+    }
   } else {
-    this.pages = Math.floor(length / this.limit);
-    if((this.pages * this.limit) < length)
-      this.pages += 1;
+    this.pages = length;
     if(this.pages === 1)
       this.loadMoreData = false;
   }

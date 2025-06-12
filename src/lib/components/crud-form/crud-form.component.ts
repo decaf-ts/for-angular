@@ -114,8 +114,6 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   private location: Location = inject(Location);
 
   ngAfterViewInit() {
-    console.log(this.operation);
-    console.log(this.uid);
     // if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
     //   NgxFormService.formAfterViewInit(this, this.rendererId);
   }

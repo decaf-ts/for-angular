@@ -1,6 +1,7 @@
 <ion-searchbar
   name="search"
   mode="ios"
+  (keyup.enter)="preventChange($event)"
   (ionChange)="handleChange($event)"
   (ionInput)="handleInput($event)"
   (ionClear)="handleClear()"

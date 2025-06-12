@@ -460,3 +460,10 @@ export function dataMapper<T>(data: any[], mapper: KeyValue, props?: KeyValue): 
     return accum;
   }, []);
 }
+
+
+export function removeFocusTrap() {
+  const doc = getWindowDocument();
+  if(doc.activeElement)
+    (doc.activeElement as HTMLElement)?.blur();
+}

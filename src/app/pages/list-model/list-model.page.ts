@@ -31,16 +31,10 @@ export class ListModelPage implements OnInit {
       this.type = 'infinite';
     this.model = this.type === 'infinite' ?
       new EmployeeModel() : new CategoryModel();
-
-    // const m = new ForAngularRepository(this.model);
-    // console.log(await m.repo?.readAll([1,2,3]));
-
-    // consoleInfo(this, JSON.stringify(this.model))
   }
 
   handleEvent(event: BaseCustomEvent) {
     const {name, data } = event;
-    console.log(event);
     if(name === EventConstants.REFRESH_EVENT)
       return this.handleListRefreshEvent(data as Model[]);
 

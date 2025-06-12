@@ -44,7 +44,6 @@ const component = getComponentMeta<ListComponent>([
     ListItemComponent,
     ComponentRendererComponent
 ]);
-console.log(component)
 const meta: Meta<ListComponent> = {
   title: 'Components/List',
   component: ListComponent,

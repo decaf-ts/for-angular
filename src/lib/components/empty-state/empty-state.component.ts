@@ -14,6 +14,8 @@ import { ForAngularModule } from 'src/lib/for-angular.module';
 import { StringOrBoolean } from 'src/lib/engine';
 import { generateLocaleFromString, stringToBoolean } from 'src/lib/helpers';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { TranslateService } from '@ngx-translate/core';
 
 
 /**
@@ -252,6 +254,13 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    */
   private navController: NavController = inject(NavController);
 
+  private sanitizer: DomSanitizer = inject(DomSanitizer);
+
+  private translate: TranslateService = inject(TranslateService);
+
+  searchSubtitle!: SafeHtml
+
+
   /**
    * @description Creates an instance of EmptyStateComponent.
    * @summary Initializes a new EmptyStateComponent by calling the parent class constructor
@@ -289,10 +298,10 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    *   E->>E: Format title CSS class
    *   E->>E: Format subtitle CSS class
    *
-   * @return {void}
+   * @return {Promise<void>}
    * @memberOf EmptyStateComponent
    */
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.translatable = stringToBoolean(this.translatable);
     this.showIcon = stringToBoolean(this.showIcon);
     this.locale = this.getLocale(this.translatable);
@@ -304,6 +313,9 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
 
     this.titleColor = `dcf-title color-${this.titleColor}`;
     this.subtitleColor = `dcf-subtitle color-${this.titleColor}`;
+
+    if(this.searchValue && this.translatable)
+      this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);
 
   }
 
@@ -347,5 +359,35 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
     if(fn instanceof Function)
       return fn();
     return this.navController.navigateForward(fn as string);
+  }
+
+
+ /**
+   * @description Generates a localized and sanitized subtitle for search results.
+   * @summary This method takes a content string, typically the subtitle, and processes it
+   * through the translation service. It replaces a placeholder ('value0') with the actual
+   * search value, then sanitizes the result to safely use as HTML. This is particularly
+   * useful for displaying dynamic, localized messages in the empty state when a search
+   * yields no results.
+   *
+   * @param {string} content - The content string to be translated and processed
+   * @return {Promise<SafeHtml>} A promise that resolves to a sanitized HTML string
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant E as EmptyStateComponent
+   *   participant T as TranslateService
+   *   participant S as DomSanitizer
+   *
+   *   E->>T: instant(content, {'value0': searchValue})
+   *   T-->>E: Return translated string
+   *   E->>S: bypassSecurityTrustHtml(translatedString)
+   *   S-->>E: Return sanitized SafeHtml
+   *
+   * @memberOf EmptyStateComponent
+   */
+  async getSearchSubtitle(content: string): Promise<SafeHtml> {
+    const result = await this.translate.instant(content, {'value0': this.searchValue});
+    return this.sanitizer.bypassSecurityTrustHtml(result);
   }
 }

@@ -23,7 +23,8 @@ export class FakerRepository<T> extends Model {
   constructor(table?: string, args: ModelArg<Model> = {}) {
     super(args);
     if (table) this.table = table;
-    if (!Object.keys(this.data)?.length) this.init(100);
+    if (!Object.keys(this.data)?.length)
+      this.init(100);
     // if(model instanceof Model) {
     // console.log('registrando model ' + model.constructor.name);
     // getInjectablesRegistry().register(this, model.constructor.name);

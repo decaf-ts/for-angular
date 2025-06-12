@@ -478,6 +478,5 @@ export abstract class NgxBaseComponent implements OnChanges {
   initialize(): void {
     if (this.initialized) return;
     this.initialized = true;
-    consoleInfo(this, `${this.componentName} Initialized`);
   }
 }

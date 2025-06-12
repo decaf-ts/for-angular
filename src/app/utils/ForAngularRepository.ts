@@ -41,7 +41,8 @@ export class ForAngularRepository<T extends Model> {
     this.repository;
     let data = await this._repository?.select().execute();
     if(!this.data?.length) {
-      data = ((this.model as Model).constructor.name !== 'CategoryModel' ? generateEmployes(50) : generateCatories(50)) as Model[];
+      const items = 55;
+      data = ((this.model as Model).constructor.name !== 'CategoryModel' ? generateEmployes(items) : generateCatories(items)) as Model[];
       // const model = new (Model.get(this.modelName) as ModelConstructor<T>)();
       // const created = await this.repository?.create(data[0] as Model);
       // console.log(created);
@@ -188,7 +189,7 @@ export class ForAngularRepository<T extends Model> {
 }
 
 function generateEmployes(limit: number = 100): EmployeeModel[] {
-  return getFakerData(100, {
+  return getFakerData(limit, {
     name: faker.person.fullName,
     occupation: faker.person.jobTitle,
     birthdate: faker.date.birthdate,
@@ -198,7 +199,7 @@ function generateEmployes(limit: number = 100): EmployeeModel[] {
 }
 
 function generateCatories(limit: number = 100): CategoryModel[] {
-  return getFakerData<CategoryModel>(100, {
+  return getFakerData<CategoryModel>(limit, {
     name: () =>
       faker.commerce.department() +
       ' ' +
@@ -215,7 +216,6 @@ export function getFakerData<T extends Model>(
   model?: string,
 ): T[] {
   let index = 1;
-
   return Array.from({ length: limit }, () => {
     const item = {} as T & { id: number; createdAt: Date };
     for (const [key, value] of Object.entries(data)) {
