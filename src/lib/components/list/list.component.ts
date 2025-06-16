@@ -28,11 +28,9 @@ import {
   ListItemCustomEvent
 } from 'src/lib/engine';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { NgxBaseComponent, PaginatedQuery } from 'src/lib/engine/NgxBaseComponent';
+import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import {
   stringToBoolean,
-  consoleError,
-  consoleWarn,
   formatDate,
   isValidDate
 } from 'src/lib/helpers';
@@ -43,7 +41,6 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
 import { PaginationComponent } from '../pagination/pagination.component';
 import { PaginationCustomEvent } from '../pagination/constants';
 import { IListEmptyResult, ListComponentsTypes, DecafRepository } from './constants';
-import { consoleInfo } from 'src/lib/helpers';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -1036,7 +1033,7 @@ async getFromRequest(force: boolean = false, start: number, limit: number): Prom
     // (self.data as ListItem[]) = [];
     if(!this.searchValue?.length) {
       if(!this.source && !this.data?.length) {
-        consoleWarn(this, 'No data and source passed to infinite list');
+        this.logger.info('No data and source passed to infinite list');
         return [];
       }
 
@@ -1119,7 +1116,7 @@ async getFromModel(force: boolean = false, start: number, limit: number): Promis
       }
       data = this.type === ListComponentsTypes.INFINITE ? [... (data).concat(request)] : [...request];
     } catch(error: any) {
-      consoleError(this, error?.message || `Unable to find ${this.model} on registry. Return empty array from component`);
+      this.logger.error(error?.message || `Unable to find ${this.model} on registry. Return empty array from component`);
     }
   }
 

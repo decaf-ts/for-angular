@@ -29,7 +29,6 @@ import { DefaultFormReactiveOptions } from './constants';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { IonIcon } from '@ionic/angular/standalone';
 ;
-import { consoleInfo } from '../../helpers';
 
 /**
  * @component CrudFormComponent

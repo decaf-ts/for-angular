@@ -2,7 +2,6 @@ import { isDevMode } from '@angular/core';
 import { InjectableRegistryImp, InjectablesRegistry } from '@decaf-ts/injectable-decorators';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { KeyValue, StringOrBoolean } from '../engine/types';
-import { consoleWarn } from './logging';
 
 let injectableRegistry: InjectablesRegistry;
 
@@ -394,7 +393,7 @@ export function parseToValidDate(date: string | Date | number): Date | null {
   date = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
 
   if(!isValidDate(date)) {
-    consoleWarn('parseToValidDate', 'Invalid date format', date);
+    console.warn('parseToValidDate - Invalid date format', date);
     return null;
   }
 
@@ -449,7 +448,6 @@ export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): 
  */
 export function dataMapper<T>(data: any[], mapper: KeyValue, props?: KeyValue): T[] {
   if (!data || !data.length) return [];
-  // consoleInfo(dataMapper, `Mapping data with mapper ${JSON.stringify(mapper)}`);
   return data.reduce((accum: T[], curr) => {
     let item = itemMapper(curr, mapper, props) as T;
     const hasValues =

@@ -4,7 +4,6 @@ import { RouterService } from 'src/app/services/router.service';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { NgxRenderingEngine2 } from 'src/lib/engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
-import { consoleWarn } from 'src/lib/helpers';
 import { ComponentsModule } from 'src/app/components/components.module';
 
 function getEngine(): void {
@@ -13,7 +12,7 @@ function getEngine(): void {
       engine = new NgxRenderingEngine2();
       Model.setBuilder(Model.fromModel as ModelBuilderFunction);
     } catch (e: unknown) {
-      consoleWarn(getEngine, `Engine already loaded`);
+      console.warn(`Engine already loaded`);
     }
 }
 

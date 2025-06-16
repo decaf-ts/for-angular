@@ -24,7 +24,7 @@ import {
   ModelRenderCustomEvent,
 } from '../../engine';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { consoleWarn } from 'src/lib/helpers';
+import { DefaultLoggingConfig, Logger, MiniLogger } from '@decaf-ts/logging';
 
 /**
  * @description Dynamic component renderer for Decaf Angular applications.
@@ -153,6 +153,19 @@ export class ComponentRendererComponent
     new EventEmitter<ModelRenderCustomEvent>();
 
   /**
+   * @description Logger instance for the component.
+   * @summary This property holds a Logger instance specific to this component.
+   * It's used to log information, warnings, and errors related to the component's
+   * operations, particularly useful for debugging and monitoring the dynamic
+   * component rendering process.
+   *
+   * @type {Logger}
+   * @memberOf ComponentRendererComponent
+   */
+  logger!: Logger;
+
+
+  /**
    * @description Creates an instance of ComponentRendererComponent.
    * @summary Initializes a new ComponentRendererComponent. This component doesn't require
    * any dependencies to be injected in its constructor as it uses the inject function to
@@ -160,7 +173,9 @@ export class ComponentRendererComponent
    *
    * @memberOf ComponentRendererComponent
    */
-  constructor() {}
+  constructor() {
+     this.logger = new MiniLogger('for-angular', DefaultLoggingConfig).for(this.constructor.name);
+  }
 
   /**
    * @description Initializes the component after Angular first displays the data-bound properties.
@@ -267,10 +282,7 @@ export class ComponentRendererComponent
       }
     }
     if (unmappedKeys.length)
-      consoleWarn(
-        this,
-        `Unmapped input properties for component ${tag}: ${unmappedKeys.join(', ')}`
-      );
+      this.logger.info(`Unmapped input properties for component ${tag}: ${unmappedKeys.join(', ')}`);
 
     this.vcr.clear();
     this.component = NgxRenderingEngine2.createComponent(

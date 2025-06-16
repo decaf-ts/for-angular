@@ -3,7 +3,6 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular/standalone';
 import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
-import { throwError } from '../../lib/helpers/logging';
 import { KeyValue } from '../../lib/engine/types';
 import { EventConstants, RouteDirections } from '../../lib/engine/constants';
 import { getOnWindow, windowEventEmitter } from '../../lib/helpers/utils';
