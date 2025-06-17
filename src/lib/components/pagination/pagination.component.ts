@@ -226,40 +226,36 @@ export class PaginationComponent extends NgxBaseComponent implements OnInit {
    * @memberOf PaginationComponent
    */
   getPages(total: number, current?: number): KeyValue[] {
-    if(!current)
-      current = this.current;
+    if (!current) current = this.current;
 
     const pages: KeyValue[] = [];
 
     function getPage(index: number | null, text: string = '') {
-      let check = pages.find(item => item['index'] === index);
-      if(check)
-          return false;
-      if(index != null)
-        text = index >= 10 ? index.toString() : `0${index}${text}`;
-      pages.push({index, text});
-    };
-
-    for(let i = 1; i <= total; i++) {
-      if(total <= 5) {
-          getPage(i);
-          continue;
-      } else {
-        if(i === 1 && total !== 1) {
-          getPage(i, total !== total ? ' ... ' : '');
-          continue;
-        }
-        if(i <= total + 1 && i > total - 1) {
-          getPage(i);
-          continue;
-        }
-        if(i + 1 >= total) {
-          if(i + 1 === total && i !== total)
-            getPage(null, "...");
-          getPage(i);
-        }
-      }
+        if (pages.some(item => item['index'] === index)) return;
+        pages.push({ index, text: index != null ? index.toString().padStart(2, '0') : text });
     }
+
+    if (total <= 5) {
+        for (let i = 1; i <= total; i++) getPage(i);
+    } else {
+      // Adiciona os dois primeiros
+      getPage(1);
+      getPage(2);
+
+      // Adiciona "..." entre os blocos
+      if (current && current > 3) getPage(null, '...');
+
+      // Adiciona a página atual (se estiver no meio)
+      if (current && current > 2 && current < total - 1) getPage(current);
+
+      // Adiciona "..." entre os blocos
+      if (current && current < total - 2) getPage(null, '...');
+
+      // Adiciona os dois últimos
+      getPage(total - 1);
+      getPage(total);
+    }
+
     return pages;
   }
 

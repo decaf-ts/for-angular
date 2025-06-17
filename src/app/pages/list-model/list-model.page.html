@@ -12,18 +12,12 @@
     <app-container [hasSideMenu]="true">
       <ion-card>
         <ion-card-content>
-          @if(type === 'infinite') {
             <ngx-decaf-list
               [model]="model"
+              [type]="type"
+              [operations]="['read', 'create', 'update', 'delete']"
               (listenEvent)="handleEvent($event)"
             />
-          } @else {
-            <ngx-decaf-list
-              type="paginated"
-              [model]="model"
-              (listenEvent)="handleEvent($event)"
-            />
-          }
         </ion-card-content>
       </ion-card>
     </app-container>

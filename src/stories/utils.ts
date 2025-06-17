@@ -1,16 +1,9 @@
-import {
-  ComponentRef,
-} from '@angular/core';
-import { IonApp } from '@ionic/angular/standalone';
-
 import { applicationConfig, componentWrapperDecorator, Meta, moduleMetadata } from '@storybook/angular';
 import { appConfig } from 'src/app/app.config';
 import { RouterService } from 'src/app/services/router.service';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { getLocaleFromClassName, stringToCapitalCase } from 'src/lib/helpers';
 import { NgxRenderingEngine2 } from 'src/lib/engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
-import { consoleWarn } from 'src/lib/helpers';
 import { ComponentsModule } from 'src/app/components/components.module';
 
 function getEngine(): void {
@@ -19,7 +12,7 @@ function getEngine(): void {
       engine = new NgxRenderingEngine2();
       Model.setBuilder(Model.fromModel as ModelBuilderFunction);
     } catch (e: unknown) {
-      consoleWarn(getEngine, `Engine already loaded`);
+      console.warn(`Engine already loaded`);
     }
 }
 

@@ -29,7 +29,6 @@ import { DefaultFormReactiveOptions } from './constants';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { IonIcon } from '@ionic/angular/standalone';
 ;
-import { consoleInfo } from '../../helpers';
 
 /**
  * @component CrudFormComponent
@@ -114,8 +113,6 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   private location: Location = inject(Location);
 
   ngAfterViewInit() {
-    console.log(this.operation);
-    console.log(this.uid);
     // if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
     //   NgxFormService.formAfterViewInit(this, this.rendererId);
   }
@@ -152,7 +149,6 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
       component: 'FormReactiveComponent',
       name: EventConstants.SUBMIT_EVENT,
     });
-    console.info('Event submitted', data);
   }
 
   handleReset() {

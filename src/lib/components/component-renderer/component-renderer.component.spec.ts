@@ -5,7 +5,6 @@ import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { ListItemComponent } from '../list-item/list-item.component';
-import { consoleWarn } from 'src/lib/helpers';
 
 const imports = [
   ForAngularModule,
@@ -29,7 +28,7 @@ xdescribe('ComponentRendererComponent', () => {
       engine = new NgxRenderingEngine2();
       Model.setBuilder(Model.fromModel as ModelBuilderFunction);
     } catch (e: unknown) {
-      consoleWarn(this, `Engine already loaded`);
+      console.warn(`Engine already loaded`);
     }
   });
 

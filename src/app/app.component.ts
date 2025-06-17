@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { IonApp,
   IonSplitPane,
   IonMenu,
@@ -21,7 +21,7 @@ import { RamAdapter } from '@decaf-ts/core/ram';
 import { addIcons } from 'ionicons';
 import * as IonicIcons from 'ionicons/icons';
 import { MenuItem } from 'src/app/utils/types';
-import { isDevelopmentMode } from 'src/lib/helpers';
+import { isDevelopmentMode, removeFocusTrap } from 'src/lib/helpers';
 import { ForAngularRepository } from './utils/ForAngularRepository';
 import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
@@ -109,13 +109,19 @@ export class AppComponent implements OnInit {
   menu: MenuItem[] = Menu;
 
   platform: Platform = inject(Platform);
+  router: Router = inject(Router);
+
+  activeItem: string = '';
   constructor() {
     addIcons(IonicIcons);
   }
 
   async ngOnInit(): Promise<void> {
     this.initializeApp();
-
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart)
+        removeFocusTrap();
+    });
   }
 
   async initializeApp(): Promise<void> {

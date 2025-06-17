@@ -27,7 +27,7 @@ describe('<%= classify(name) %><%= classify(type) %>', () => {
       engine = new NgxRenderingEngine2();
       Model.setBuilder(Model.fromModel as ModelBuilderFunction);
     } catch (e: unknown) {
-      consoleWarn(this, `Engine already loaded`);
+      console.warn(`Engine already loaded`);
     }
   });
 

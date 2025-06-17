@@ -14,7 +14,7 @@ import {
   getInjectablesRegistry,
   getLocaleFromClassName,
 } from 'src/lib/helpers/utils';
-import { stringToBoolean } from 'src/lib/helpers/string';
+import { stringToBoolean } from 'src/lib/helpers/utils';
 import { Model } from '@decaf-ts/decorator-validation';
 import {
   CrudOperations,
@@ -23,8 +23,7 @@ import {
 } from '@decaf-ts/db-decorators';
 import { BaseComponentProps } from './constants';
 import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
-import { consoleInfo } from '../helpers/logging';
-import { ForAngularRepository } from 'src/app/utils/ForAngularRepository';
+import { DefaultLoggingConfig, Logger, MiniLogger } from '@decaf-ts/logging';
 
 /**
  * @description Class representing a paginated query result
@@ -337,9 +336,21 @@ export abstract class NgxBaseComponent implements OnChanges {
   renderingEngine: NgxRenderingEngine2 =
     NgxRenderingEngine2.get() as unknown as NgxRenderingEngine2;
 
+   /**
+   * @description Logger instance for the component.
+   * @summary This property holds a Logger instance specific to this component.
+   * It's used to log information, warnings, and errors related to the component's
+   * operations, particularly useful for debugging and monitoring the dynamic
+   * component rendering process.
+   *
+   * @type {Logger}
+   */
+  logger!: Logger;
+
   protected constructor(@Inject('instanceToken') private instance: string) {
     this.componentName = instance;
     this.componentLocale = getLocaleFromClassName(instance);
+    this.logger = new MiniLogger('for-angular', DefaultLoggingConfig).for(this.constructor.name);
   }
 
   /**
@@ -478,6 +489,5 @@ export abstract class NgxBaseComponent implements OnChanges {
   initialize(): void {
     if (this.initialized) return;
     this.initialized = true;
-    consoleInfo(this, `${this.componentName} Initialized`);
   }
 }

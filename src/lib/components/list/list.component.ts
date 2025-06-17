@@ -16,7 +16,7 @@ import {
 import { debounceTime, Subject } from 'rxjs';
 import { InternalError, IRepository, OperationKeys } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
-import { Condition, OrderDirection, Paginator, Repository } from '@decaf-ts/core';
+import { Condition, Observer, OrderDirection, Paginator, Repository } from '@decaf-ts/core';
 import {
   BaseCustomEvent,
   Dynamic,
@@ -28,15 +28,11 @@ import {
   ListItemCustomEvent
 } from 'src/lib/engine';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { NgxBaseComponent, PaginatedQuery } from 'src/lib/engine/NgxBaseComponent';
+import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import {
   stringToBoolean,
-  arrayQueryByString,
-  consoleError,
-  consoleWarn,
   formatDate,
-  isValidDate,
-  getInjectablesRegistry
+  isValidDate
 } from 'src/lib/helpers';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
@@ -45,7 +41,6 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
 import { PaginationComponent } from '../pagination/pagination.component';
 import { PaginationCustomEvent } from '../pagination/constants';
 import { IListEmptyResult, ListComponentsTypes, DecafRepository } from './constants';
-import { consoleInfo } from 'src/lib/helpers';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -520,6 +515,8 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
   private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent> = new Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent>();
 
 
+  private observerSubjet: Subject<any> = new Subject<any>();
+
   /**
    * @description The repository for interacting with the data model.
    * @summary Provides a connection to the data layer for retrieving and manipulating data.
@@ -550,6 +547,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    */
   indexes!: string[];
 
+
   /**
    * @description Initializes a new instance of the ListComponent.
    * @summary Creates a new ListComponent and sets up the base component with the appropriate
@@ -568,7 +566,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
     super("ListComponent");
   }
 
-  private observer: any = {refresh: (table: string, event: OperationKeys, id: string | number) => this.asd.call(this, table, event, id)}
+  private observer: Observer = { refresh: async (... args: any[]): Promise<void> => this.observeRepository(...args)}
 
   /**
    * @description Getter for the repository instance.
@@ -595,25 +593,8 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
         );
       this._repository = Repository.forModel(constructor, "ram");
       this.model = new constructor() as Model;
-      this._repository.observe(self.observer);
     }
     return this._repository;
-  }
-
-  async asd(table: string, event: OperationKeys, id: string | number): Promise<void> {
-    const self = this;
-    console.log(table, event, id);
-    const item = this.itemMapper(await this._repository?.read(id) || {}, this.mapper);
-    (this.items as KeyValue[]).find(i => {
-      if(Number(i['id']) === item['uid']) {
-        i = Object.assign({}, i, item);
-      }
-      console.log(i);
-    });
-
-    console.log(this.items);
-    // this.items = [... this.items];
-    // console.log(this.items);
   }
 
   /**
@@ -645,6 +626,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    */
   async ngOnInit(): Promise<void> {
     this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event));
+    this.observerSubjet.pipe(debounceTime(100)).subscribe(args => this.handleObserveEvent(args[0], args[1], args[2]));
 
     this.limit = Number(this.limit);
     this.start = Number(this.start);
@@ -661,6 +643,9 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
       this.empty.link = `${this.route}/${OperationKeys.CREATE}`;
 
     this.initialize();
+
+    if(this.model instanceof Model && this._repository)
+      this._repository.observe(this.observer);
   }
 
   /**
@@ -675,8 +660,105 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
     if(this._repository)
       this._repository.unObserve(this.observer);
     this.data =  this.model = this._repository = this.paginator = undefined;
-    consoleInfo(this, "Chamou o ng on destroy da lista");
   }
+
+  async observeRepository(...args: any[]): Promise<void> {
+    const [table, event, uid] = args;
+    if(event === OperationKeys.CREATE && !!uid)
+      return this.handleObserveEvent(table, event, uid);
+    return this.observerSubjet.next(args);
+  }
+
+  async handleObserveEvent(table: string, event: OperationKeys, uid: string | number): Promise<void> {
+    if(event === OperationKeys.CREATE) {
+      uid ?
+        await this.handleCreate(uid) : await this.refresh(true);
+    } else {
+      if(event === OperationKeys.UPDATE)
+        await this.handleUpdate(uid);
+      if(event === OperationKeys.DELETE)
+        this.handleDelete(uid);
+      this.refreshEventEmit();
+    }
+  }
+
+
+  /**
+   * @description Function for tracking items in the list.
+   * @summary Provides a tracking function for the `*ngFor` directive in the component template.
+   * This function is used to identify and control the rendering of items in the list,
+   * preventing duplicate or unnecessary rendering.
+   *
+   * The `trackItemFn` function takes two parameters: `index` (the index of the item in the list)
+   * and `item` (the actual item from the list). It returns the tracking key, which in this case
+   * is the union of the `uid` of the item with the model name.
+   *
+   * @param {number} index - The index of the item in the list.
+
+   * @param {KeyValue & {uid: string | number}} item - The actual item from the list.
+   * @returns {string | number} The tracking key for the item.
+   * @memberOf ListComponent
+   */
+  trackItemFn(index: number, item: KeyValue & {uid: string | number}): string | number {
+    return `${item?.uid || item?.[this.pk]}-${index}`;
+  }
+
+
+  /**
+   * Handles the create event from the repository.
+   *
+   * @param {string | number} uid - The ID of the item to create.
+   * @returns {Promise<void>} A promise that resolves when the item is created and added to the list.
+   */
+  async handleCreate(uid: string | number): Promise<void> {
+    const result = await this._repository?.read(uid);
+    const item = this.mapResults([result as KeyValue])[0];
+    this.items = this.data = [item, ...this.items || []];
+  }
+
+
+  /**
+   * @description Handles the update event from the repository.
+   * @summary Updates the list item with the specified ID based on the new data.
+   *
+   * @param {string | number} uid - The ID of the item to update
+   * @returns {Promise<void>}
+   * @private
+   * @memberOf ListComponent
+   */
+  async handleUpdate(uid: string | number): Promise<void> {
+    const self = this;
+    const item: KeyValue = this.itemMapper(await this._repository?.read(uid) || {}, this.mapper);
+    self.data = [];
+    for(let key in self.items as KeyValue[]) {
+        const child = self.items[key] as KeyValue;
+        if(child['uid'] === item['uid']) {
+          self.items[key] = Object.assign({}, child, item);
+          break;
+        }
+    }
+    setTimeout(() => {
+      self.data = [ ...self.items];
+    }, 0);
+  }
+
+  /**
+   * @description Removes an item from the list by ID.
+   * @summary Filters out an item with the specified ID from the data array and
+   * refreshes the list display. This is typically used after a delete operation.
+   *
+   * @param {string} uid - The ID of the item to delete
+   * @param {string} pk - The primary key field name
+   * @returns {Promise<void>}
+   *
+   * @memberOf ListComponent
+   */
+  handleDelete(uid: string | number, pk?: string): void  {
+    if(!pk)
+      pk = this.pk;
+    this.items = this.data?.filter((item: KeyValue) => item['uid'] !== uid) || [];
+  }
+
 
   /**
    * @description Handles click events from list items.
@@ -784,22 +866,6 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    */
   private clickEventEmit(event: CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent): void {
    this.clickEvent.emit((event as ModelRenderCustomEvent)?.detail ? (event as ModelRenderCustomEvent)?.detail : event);
-  }
-
-  /**
-   * @description Removes an item from the list by ID.
-   * @summary Filters out an item with the specified ID from the data array and
-   * refreshes the list display. This is typically used after a delete operation.
-   *
-   * @param {string} id - The ID of the item to delete
-   * @param {string} pk - The primary key field name
-   * @returns {Promise<void>}
-   *
-   * @memberOf ListComponent
-   */
-  delete(id: string, pk: string): void  {
-    this.data = this.data?.filter((item: KeyValue) => item[pk || this.pk] !== id) || [];
-    this.refreshEventEmit(this.data);
   }
 
   /**
@@ -940,9 +1006,13 @@ async handleRefresh(event?: InfiniteScrollCustomEvent | CustomEvent): Promise<vo
  *
  * @memberOf ListComponent
  */
- parseSearchResults(results: KeyValue[], search: string): KeyValue[] {
-  return [ ... arrayQueryByString(results || [], search)];
-}
+  parseSearchResults(results: KeyValue[], search: string): KeyValue[] {
+    return results.filter((item: KeyValue) =>
+      Object.values(item).some(value =>
+          value.toString().toLowerCase().includes((search as string)?.toLowerCase())
+        )
+    );
+  }
 
 /**
  * @description Fetches data from a request source.
@@ -963,7 +1033,7 @@ async getFromRequest(force: boolean = false, start: number, limit: number): Prom
     // (self.data as ListItem[]) = [];
     if(!this.searchValue?.length) {
       if(!this.source && !this.data?.length) {
-        consoleWarn(this, 'No data and source passed to infinite list');
+        this.logger.info('No data and source passed to infinite list');
         return [];
       }
 
@@ -998,11 +1068,11 @@ async getFromRequest(force: boolean = false, start: number, limit: number): Prom
  * @param {boolean} force - Whether to force a refresh even if data already exists
  * @param {number} start - The starting index for pagination
  * @param {number} limit - The maximum number of items to retrieve
- * @returns {Promise<KeyValue>} A promise that resolves to the fetched data
+ * @returns {Promise<KeyValue[]>} A promise that resolves to the fetched data
  *
  * @memberOf ListComponent
  */
-async getFromModel(force: boolean = false, start: number, limit: number): Promise<KeyValue> {
+async getFromModel(force: boolean = false, start: number, limit: number): Promise<KeyValue[]> {
   let data = [ ... this.data || []];
   let request: KeyValue[] = [];
 
@@ -1029,7 +1099,6 @@ async getFromModel(force: boolean = false, start: number, limit: number): Promis
           this.indexes = (Object.values(this.mapper) || [this.pk]);
 
         const searchValue = this.searchValue as string | number;
-
         let condition = Condition.attribute<Model>(this.pk as keyof Model).eq(!isNaN(searchValue as number) ? Number(searchValue) : searchValue);
         for (let index of this.indexes) {
             if(index === this.pk)
@@ -1047,7 +1116,7 @@ async getFromModel(force: boolean = false, start: number, limit: number): Promis
       }
       data = this.type === ListComponentsTypes.INFINITE ? [... (data).concat(request)] : [...request];
     } catch(error: any) {
-      consoleError(this, error?.message || `Unable to find ${this.model} on registry. Return empty array from component`);
+      this.logger.error(error?.message || `Unable to find ${this.model} on registry. Return empty array from component`);
     }
   }
 
@@ -1060,10 +1129,9 @@ async getFromModel(force: boolean = false, start: number, limit: number): Promis
       this.items = [...data];
     }
   }
-  // TODO: paginator.total
-  if(this.type === ListComponentsTypes.PAGINATED)
-      this.getMoreData(100);
-    // this.getMoreData(this.paginator?.total || 0);
+  // // TODO: paginator.total
+  if(this.type === ListComponentsTypes.PAGINATED && this.paginator)
+      this.getMoreData(this.paginator.total);
   return data || [] as KeyValue[];
 }
 
@@ -1114,10 +1182,10 @@ protected parseQuery(start: number, limit: number): KeyValue {
  */
 protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyValue[]> {
   if(!Array.isArray(result) && ('page' in result && 'total' in result)) {
-    this.paginator = result;
-    result = await result.page(this.page || 1);
+    const paginator = result as Paginator<Model>;
+    result = await paginator.page(this.page);
     // TODO: Chage for result.total;
-    this.getMoreData(100);
+    this.getMoreData(paginator.total);
   } else {
     this.getMoreData((result as KeyValue[])?.length || 0);
   }
@@ -1137,12 +1205,20 @@ protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyV
  * @memberOf ListComponent
  */
 getMoreData(length: number): void {
-  if(length <= this.limit) {
-    this.loadMoreData = false;
+  if(this.type === ListComponentsTypes.INFINITE) {
+    if(this.paginator)
+      length = length * this.limit;
+    if(length <= this.limit) {
+      this.loadMoreData = false;
+    } else {
+      this.pages = Math.floor(length / this.limit);
+      if((this.pages * this.limit) < length)
+        this.pages += 1;
+      if(this.pages === 1)
+        this.loadMoreData = false;
+    }
   } else {
-    this.pages = Math.floor(length / this.limit);
-    if((this.pages * this.limit) < length)
-      this.pages += 1;
+    this.pages = length;
     if(this.pages === 1)
       this.loadMoreData = false;
   }

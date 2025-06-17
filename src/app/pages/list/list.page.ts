@@ -61,8 +61,7 @@ export class ListPage implements OnInit {
   }
 
   handleListItemClick(event: Event, item: Model) {
-    console.log(item);
-    console.log(event);
+
   }
 
   async getData() {

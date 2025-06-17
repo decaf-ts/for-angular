@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CrudFieldComponent } from './crud-field.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { AngularFieldDefinition } from '../../engine';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -9,7 +9,6 @@ import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { NgxRenderingEngine2 } from 'src/lib/engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
-import { consoleWarn } from 'src/lib/helpers';
 
 const imports = [
   ForAngularModule,
@@ -35,7 +34,7 @@ describe('FieldComponent', () => {
       engine = new NgxRenderingEngine2();
       Model.setBuilder(Model.fromModel as ModelBuilderFunction);
     } catch (e: unknown) {
-      consoleWarn(this, `Engine already loaded`);
+      console.warn(`Engine already loaded`);
     }
   });
   beforeEach(async () => {
@@ -113,6 +112,8 @@ describe('FieldComponent', () => {
     //   required: true,
     // } as AngularFieldDefinition;
     fixture.detectChanges();
+    if(!component.formGroup)
+      component.formGroup = new FormGroup({});
     component.formGroup.markAsTouched();
     component.formGroup.markAsDirty();
     fixture.detectChanges();
@@ -128,6 +129,8 @@ describe('FieldComponent', () => {
     component.value = 'abc';
 
     fixture.detectChanges();
+    if(!component.formGroup)
+      component.formGroup = new FormGroup({});
     component.formGroup.markAsTouched();
     component.formGroup.markAsDirty();
     fixture.detectChanges();
@@ -143,6 +146,8 @@ describe('FieldComponent', () => {
     component.value = 'abcdef';
 
     fixture.detectChanges();
+    if(!component.formGroup)
+      component.formGroup = new FormGroup({});
     component.formGroup.markAsTouched();
     component.formGroup.markAsDirty();
     fixture.detectChanges();
@@ -159,6 +164,8 @@ describe('FieldComponent', () => {
     component.value = '123';
 
     fixture.detectChanges();
+    if(!component.formGroup)
+      component.formGroup = new FormGroup({});
     component.formGroup.markAsTouched();
     component.formGroup.markAsDirty();
     fixture.detectChanges();
@@ -175,6 +182,8 @@ describe('FieldComponent', () => {
     component.value = 3;
 
     fixture.detectChanges();
+    if(!component.formGroup)
+      component.formGroup = new FormGroup({});
     component.formGroup.markAsTouched();
     component.formGroup.markAsDirty();
     fixture.detectChanges();
@@ -191,6 +200,8 @@ describe('FieldComponent', () => {
     component.value = 13;
 
     fixture.detectChanges();
+    if(!component.formGroup)
+      component.formGroup = new FormGroup({});
     component.formGroup.markAsTouched();
     component.formGroup.markAsDirty();
     fixture.detectChanges();
@@ -203,6 +214,8 @@ describe('FieldComponent', () => {
     component.label = 'Valid Field';
     component.value = 'Valid input';
     fixture.detectChanges();
+    if(!component.formGroup)
+      component.formGroup = new FormGroup({});
     component.formGroup.markAsTouched();
     component.formGroup.markAsDirty();
     fixture.detectChanges();
@@ -242,6 +255,8 @@ describe('FieldComponent', () => {
     component.readonly = true;
 
     fixture.detectChanges();
+    if(!component.formGroup)
+      component.formGroup = new FormGroup({});
     component.formGroup.markAsTouched();
     component.formGroup.markAsDirty();
     fixture.detectChanges();
@@ -254,6 +269,8 @@ describe('FieldComponent', () => {
     component.label = 'Disabled Field';
     component.value = '';
     fixture.detectChanges();
+    if(!component.formGroup)
+      component.formGroup = new FormGroup({});
     component.formGroup.disable();
 
     const input = fixture.nativeElement.querySelector('ion-input');

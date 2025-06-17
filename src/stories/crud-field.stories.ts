@@ -66,7 +66,6 @@ export const init: Story = {};
 export const focus: Story = {
   play: ({ args, canvasElement }) => {
     const input = canvasElement.querySelector('ion-input') as HTMLIonInputElement;
-    console.log(input);
     if (input) {
       setTimeout(() => {
         input.value = 'New Value';
