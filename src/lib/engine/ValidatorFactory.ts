@@ -1,7 +1,9 @@
-import { AbstractControl, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
 import {
   ComparisonValidationKeys,
   DEFAULT_PATTERNS,
+  PathProxy,
+  PathProxyEngine,
   Validation,
   ValidationKeys,
   Validator,
@@ -61,10 +63,10 @@ export class ValidatorFactory {
         : undefined;
 
       // Create a proxy to enable access to parent and child values
-      let proxy = {};
+      let proxy: PathProxy<any> = ValidatorFactory.createProxy({} as any);
       if (Object.values(ComparisonValidationKeys).includes(key as any)) {
         const parent: FormGroup = control instanceof FormGroup ? control : (control as Record<string, any>)[AngularEngineKeys.PARENT];
-        proxy = ValidatorFactory.createControlProxy(parent || {});
+        proxy = ValidatorFactory.createProxy(parent) as PathProxy<any>;
       }
 
       let errs: string | undefined;
@@ -87,54 +89,39 @@ export class ValidatorFactory {
 
   /**
    * @summary Creates a proxy wrapper for an Angular AbstractControl to assist with custom validation logic.
-   * @description
-   * This method returns a structured proxy object that simulates a hierarchical tree
-   * of form values. It allows validators to traverse up the form tree using
-   * a `special` key (e.g., `VALIDATION_PARENT_KEY`), while accessing form values directly by key.
-   *
-   * When accessing a property (e.g. `proxy['email']`), it returns the corresponding value from the `form`.
-   * When accessing the parent (via `VALIDATION_PARENT_KEY`), it returns the parent's value,
-   * and includes another `VALIDATION_PARENT_KEY` allowing recursive access up the hierarchy.
+   * @description Returns a structured proxy object that simulates a hierarchical tree of form values.
+   * Enables Validators handling method to access parent and child properties using consistent dot-notation in Angular forms.
    *
    * @param {AbstractControl} control - The control to wrap in a proxy.
-   * @returns {Proxy<AbstractControl>} A proxy object exposing form values and enabling recursive parent access.
-   *
-   * @example
-   * const proxy = ValidatorFactory.createControlProxy(control);
-   * proxy.email // gets value from current control
-   * proxy[VALIDATION_PARENT_KEY].email // gets value from parent
-   * proxy[VALIDATION_PARENT_KEY][VALIDATION_PARENT_KEY].email // grandparent, and so on
+   * @returns {PathProxy<any>} A proxy object exposing form values and enabling recursive parent access.
    */
-  static createControlProxy(control: AbstractControl): AbstractControl {
-    const self = this;
-    return new Proxy(control, {
-      get(target, prop) {
-        // Intercepts access to the parent property and returns a proxied parent control
-        if (prop === AngularEngineKeys.VALIDATION_PARENT_KEY) {
-          const parent = (target as Record<string, any>)[AngularEngineKeys.PARENT];
-          return parent
-            ? {
-              ...(parent?.value || {}),
-              [AngularEngineKeys.VALIDATION_PARENT_KEY]: self.createControlProxy.call(self, parent[AngularEngineKeys.PARENT] || {}),
-            }
-            : undefined;
+  static createProxy(control: AbstractControl): PathProxy<any> {
+    return PathProxyEngine.create(control, {
+      getValue(target: any, prop: string): any {
+        if (target instanceof FormControl)
+          return target.value;
+
+        if (target instanceof FormGroup) {
+          const control = target.controls[prop];
+          return control instanceof FormControl ? control.value : control;
         }
 
-        // Otherwise, return the value from the current control
-        return target.value?.[prop];
-      },
+        // const value = target[prop];
+        // if (value instanceof FormControl)
+        //   return value.value;
+        //
+        // if (value instanceof FormGroup) {
+        //   const control = value.controls[prop];
+        //   return control instanceof FormControl ? control.value : control;
+        // }
 
-      set(target, prop, value) {
-        throw new Error(`Cannot set property "${String(prop)}" on read-only control proxy`);
+        return target[prop];
       },
-
-      defineProperty(target, prop, descriptor) {
-        throw new Error(`Cannot define property "${String(prop)}" on read-only control proxy`);
+      getParent: function(target: any) {
+        return target._parent;
       },
-
-      deleteProperty(target, prop) {
-        throw new Error(`Cannot delete property "${String(prop)}" on read-only control proxy`);
-      },
+      ignoreUndefined: true,
+      ignoreNull: true,
     });
   }
 }
