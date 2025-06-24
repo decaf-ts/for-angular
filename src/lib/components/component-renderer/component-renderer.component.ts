@@ -23,7 +23,7 @@ import {
   KeyValue,
   ModelRenderCustomEvent,
 } from '../../engine';
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ForAngularModule, getLogger } from 'src/lib/for-angular.module';
 import { DefaultLoggingConfig, Logger, MiniLogger } from '@decaf-ts/logging';
 
 /**
@@ -174,7 +174,7 @@ export class ComponentRendererComponent
    * @memberOf ComponentRendererComponent
    */
   constructor() {
-     this.logger = new MiniLogger('for-angular', DefaultLoggingConfig).for(this.constructor.name);
+     this.logger = getLogger(this);
   }
 
   /**

@@ -11,12 +11,12 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router'
 import { FormGroup } from '@angular/forms';
 import { FormElement } from '../../interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
 import {
   BaseCustomEvent,
+  CrudFormEvent,
   Dynamic,
   EventConstants,
   FieldUpdateMode,
@@ -24,11 +24,17 @@ import {
   RenderedModel,
 } from '../../engine';
 import { CrudFormOptions } from './types';
-import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ForAngularModule, getLogger } from 'src/lib/for-angular.module';
 import { IonIcon } from '@ionic/angular/standalone';
-;
+import { Model } from '@decaf-ts/decorator-validation';
+import { Logger } from '@decaf-ts/logging';
+import { Repository } from '@decaf-ts/core';
+import { DecafRepository } from '../list/constants';
+
+
+
 
 /**
  * @component CrudFormComponent
@@ -59,6 +65,17 @@ import { IonIcon } from '@ionic/angular/standalone';
   imports: [ForAngularModule, IonIcon],
 })
 export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, OnDestroy, RenderedModel {
+
+  /**
+   * @description Repository model for data operations.
+   * @summary The data model repository that this component will use for CRUD operations.
+   * This provides a connection to the data layer for retrieving and manipulating data.
+   *
+   * @type {Model| undefined}
+   */
+  @Input()
+  model!:  Model | undefined;;
+
   @Input()
   updateOn: FieldUpdateMode = 'change';
 
@@ -79,6 +96,9 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
 
   @Input({ required: true })
   operation!: CrudOperations;
+
+  @Input()
+  handlers!: Record<string, (...args: any[]) => any | Promise<any>>
 
   @Input()
   formGroup!: FormGroup | undefined;
@@ -108,8 +128,34 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
 
 
   @Output()
-  submitEvent = new EventEmitter<BaseCustomEvent>();
+  submitEvent = new EventEmitter<CrudFormEvent>();
 
+  /**
+   * @description Logger instance for the component.
+   * @summary Provides logging capabilities for the component, allowing for consistent
+   * and structured logging of information, warnings, and errors. This logger is initialized
+   * in the ngOnInit method using the getLogger function from the ForAngularModule.
+   *
+   * The logger is used throughout the component to record important events, debug information,
+   * and potential issues. It helps in monitoring the component's behavior, tracking the flow
+   * of operations, and facilitating easier debugging and maintenance.
+   *
+   * @type {Logger}
+   * @private
+   * @memberOf CrudFormComponent
+   */
+  private logger!: Logger;
+
+  /**
+   * @description Angular Location service.
+   * @summary Injected service that provides access to the browser's URL and history.
+   * This service is used for interacting with the browser's history API, allowing
+   * for back navigation and URL manipulation outside of Angular's router.
+   *
+   * @private
+   * @type {Location}
+   * @memberOf CrudFormComponent
+   */
   private location: Location = inject(Location);
 
   ngAfterViewInit() {
@@ -117,7 +163,9 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
     //   NgxFormService.formAfterViewInit(this, this.rendererId);
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    if(!this.logger)
+      this.logger = getLogger(this);
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)
       this.formGroup = undefined;
     this.options = Object.assign(
@@ -125,6 +173,8 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
       DefaultFormReactiveOptions,
       this.options || {},
     );
+
+    console.log(this.handlers);
   }
 
   ngOnDestroy() {
@@ -133,9 +183,9 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   }
 
   /**
-   * @param  {Event} event
+   * @param  {SubmitEvent} event
    */
-  submit(event: SubmitEvent) {
+  async submit(event: SubmitEvent): Promise<boolean | void> {
     event.preventDefault();
     event.stopImmediatePropagation();
     event.stopPropagation();
@@ -144,10 +194,15 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
       return false;
 
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
+    let handler;
+    if(this.handlers && this.action)
+       handler = async () => await this.handlers?.[this.action as string](data);
+      console.log(handler);
     this.submitEvent.emit({
-      data: data,
-      component: 'FormReactiveComponent',
-      name: EventConstants.SUBMIT_EVENT,
+      data,
+      component:'FormReactiveComponent',
+      name: this.action || EventConstants.SUBMIT_EVENT,
+      handler: handler,
     });
   }
 

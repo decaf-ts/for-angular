@@ -329,3 +329,17 @@ export interface BaseCustomEvent {
   name?: string;
   component: string;
 }
+
+/**
+ * @description Base interface for custom events
+ * @summary Defines the base structure for custom events in the application.
+ * Contains properties for the event data, target element, name, and component.
+ * @interface BaseCustomEvent
+ * @property {any} data - The data associated with the event
+ * @property {HTMLElement} [target] - The target element that triggered the event
+ * @property {string} [name] - The name of the event
+ * @property {string} component - The component that triggered the event
+ * @memberOf module:engine
+ */
+export type CrudFormEvent = BaseCustomEvent & {name: string; handler?: () => any | Promise<any>}
+// export type CrudFormEvent = BaseCustomEvent & {handlers?: Record<string, (...args: any[]) => any | Promise<any>>}

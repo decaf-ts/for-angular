@@ -583,7 +583,6 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   private get repository(): DecafRepository<Model> {
-    const self = this;
     if (!this._repository) {
       const modelName  = (this.model as any).constructor.name
       const constructor = Model.get(modelName);
@@ -591,7 +590,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
         throw new InternalError(
           'Cannot find model. was it registered with @model?',
         );
-      this._repository = Repository.forModel(constructor, "ram");
+      this._repository = Repository.forModel(constructor);
       this.model = new constructor() as Model;
     }
     return this._repository;
@@ -1175,7 +1174,7 @@ protected parseQuery(start: number, limit: number): KeyValue {
  * This ensures consistent data structure regardless of the source.
  *
  * @protected
- * @param {KeyValue[] | PaginatedQuery} result - The raw query result
+ * @param {KeyValue[] | Paginator} result - The raw query result
  * @returns {KeyValue[]} The processed array of items
  *
  * @memberOf ListComponent

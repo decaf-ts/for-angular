@@ -1,6 +1,6 @@
 import { Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
 import { uielement, uilistitem, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
-import { pk } from '@decaf-ts/core';
+import { pk, uses } from '@decaf-ts/core';
 import { id } from '@decaf-ts/db-decorators';
 
 @uilistitem('ngx-decaf-list-item', { icon: 'person-outline' })

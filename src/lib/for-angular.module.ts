@@ -13,7 +13,7 @@ import {
 } from '@ionic/angular/standalone';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
-import { DefaultLoggingConfig, Logger, MiniLogger } from '@decaf-ts/logging';
+import { DefaultLoggingConfig, Logger, Logging, MiniLogger } from '@decaf-ts/logging';
 
 const ComponentsAndModules = [
   IonApp,
@@ -32,9 +32,9 @@ const ComponentsAndModules = [
   TranslatePipe,
 ];
 
-
+const log = Logging.for("for-angular");
 export function getLogger(instance: object | Function): Logger {
-  return new MiniLogger('for-angular', DefaultLoggingConfig).for(instance.constructor?.name || (instance as Function).name);
+  return log.for(instance as any);
 }
 
 /**

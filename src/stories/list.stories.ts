@@ -22,6 +22,7 @@ import { ComponentRendererComponent } from 'src/lib/components/component-rendere
 import { PaginationComponent } from 'src/lib/components/pagination/pagination.component';
 import { ListComponentsTypes } from 'src/lib/components/list/constants';
 import { CategoryModel } from 'src/app/models/CategoryModel';
+import { RamAdapter } from '@decaf-ts/core/ram';
 
 const component = getComponentMeta<ListComponent>([
     ForAngularModule,
@@ -57,7 +58,7 @@ const meta: Meta<ListComponent> = {
 export default meta;
 type Story = StoryObj<ListComponent>;
 
-export const infinite: Story = {args: { }};
+export const infinite: Story = {args: { } };
 
 export const paginated: Story = {args: {
   type: ListComponentsTypes.PAGINATED,

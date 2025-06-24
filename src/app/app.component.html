@@ -27,7 +27,7 @@
           @for (item of menu; track $index;) {
             <ion-menu-toggle auto-hide="false">
               <ion-item
-                [ngClass]="{'dcf-separator': !item.url}"
+                [class]="{'dcf-separator': !item.url}"
                 button="true"
                 detail="true"
                 [routerDirection]="'forward'"

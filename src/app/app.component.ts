@@ -27,7 +27,8 @@ import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
 import { InjectablesRegistry } from '@decaf-ts/core';
 import { DecafRepositoryAdapter } from 'src/lib/components/list/constants';
-import { DbAdapter } from 'src/main';
+import { DbAdapterProvider } from './app.config';
+// import { DbAdapter } from './app.config';
 
 try {
   new NgxRenderingEngine2();
@@ -38,6 +39,11 @@ try {
 }
 
 const Menu: MenuItem[] = [
+  {
+    text: 'Login',
+    icon: 'log-in-outline',
+    url: '/login',
+  },
   {
     text: 'Crud',
     icon: 'save-outline',
@@ -112,23 +118,26 @@ export class AppComponent implements OnInit {
   router: Router = inject(Router);
 
   activeItem: string = '';
+
+  adapter = inject(DbAdapterProvider);
+
   constructor() {
     addIcons(IonicIcons);
   }
 
   async ngOnInit(): Promise<void> {
     this.initializeApp();
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationStart)
-        removeFocusTrap();
-    });
+    // this.router.events.subscribe(event => {
+    //   if (event instanceof NavigationStart)
+    //     removeFocusTrap();
+    // });
   }
 
   async initializeApp(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
     if(isDevelopment) {
       for(let model of [new CategoryModel(), new EmployeeModel()] ) {
-        const repository = new ForAngularRepository<typeof model>(DbAdapter as DecafRepositoryAdapter, model);
+        const repository = new ForAngularRepository<typeof model>(this.adapter as DecafRepositoryAdapter, model);
         await repository.init();
       }
     }

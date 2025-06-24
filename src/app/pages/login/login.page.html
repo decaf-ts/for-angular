@@ -1,19 +1,21 @@
-<app-header
-  [title]="'Crud '+ operation"
-  center="true"
-  showBackButton="true"
-  color="primary">
-</app-header>
+
 
 <ion-content [fullscreen]="true">
-  <main class="main">
+  <main>
+    <app-container className="dcf-height-viewport dcf-flex  dcf-flex-center" [hasSideMenu]="true" size="large">
+      <ion-card>
+        <ion-card-content>
+          <div id="dcf-logo">
+            <ion-img src="assets/images/decaf-logo-dark.svg" alt="Decaf - For angular components lib" />
+          </div>
+          <ngx-decaf-model-renderer
+            [model]="model"
+            (listenEvent)="handleEvent($event)"
+            [globals]="{action: 'login'}">
+          </ngx-decaf-model-renderer>
+        </ion-card-content>
+      </ion-card>
 
-    <app-container [hasSideMenu]="true" size="large">
-      <ngx-decaf-model-renderer
-        [model]="model1"
-        (listenEvent)="handleSubmit($event)"
-        [globals]="{operation: operation}">
-      </ngx-decaf-model-renderer>
     </app-container>
   </main>
 </ion-content>

@@ -7,7 +7,7 @@ import {
 import { uilistprop, uielement, uilistitem, uimodel, uiprop } from '@decaf-ts/ui-decorators';
 import { ForAngularRepository } from '../utils/ForAngularRepository';
 import { id } from '@decaf-ts/db-decorators';
-import { pk } from '@decaf-ts/core';
+import { pk, uses } from '@decaf-ts/core';
 @uilistitem('ngx-decaf-list-item', {icon: 'cafe-outline', className: 'testing'})
 @uimodel('ngx-decaf-crud-form')
 @model()

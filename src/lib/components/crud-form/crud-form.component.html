@@ -17,7 +17,7 @@
           @if(options.buttons.submit.icon) {
             <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
           }
-          {{options.buttons.submit.text}}
+          {{ action ? action : options.buttons.submit.text}}
         </ion-button>
       </div>
     </div>
