@@ -1,29 +1,17 @@
-import { inject } from '@angular/core';
-import { Router } from '@angular/router';
 import {
   minlength,
   model,
   Model,
   ModelArg,
-  password,
   required
 } from '@decaf-ts/decorator-validation';
-import {  uielement, uimodel, uihandlers } from '@decaf-ts/ui-decorators';
-import { ToastController } from '@ionic/angular';
+import { uielement, uimodel, uihandlers } from '@decaf-ts/ui-decorators';
+import { LoginHandler } from '../utils/handlers';
 
-type Credenciais = { username: string; password: string };
-
-
-export class LoginHandler {
-  async login(credentials: Credenciais): Promise<boolean> {
-    const { username, password } = credentials;
-    return !!username && !!password;
-  }
-}
 
 @uimodel('ngx-decaf-crud-form')
 @uihandlers({
-  login: async (data: Credenciais) => new LoginHandler().login(data)
+  login: LoginHandler
 })
 @model()
 export class LoginModel extends Model {

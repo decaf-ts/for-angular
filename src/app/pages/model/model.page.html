@@ -1,7 +1,9 @@
 <app-header
   [model]="model"
   [title]="modelName + ' ' + operation"
+  [currentOperation]="operation"
   center="true"
+  showMenuButton="true"
   showBackButton="true"
   operations="['read', 'create']"
   color="primary">

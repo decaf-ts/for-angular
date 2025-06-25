@@ -13,7 +13,7 @@ import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
 import { RouterService } from 'src/app/services/router.service';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { DecafRepository } from 'src/lib/components/list/constants';
-import { DefaultLoggingConfig, Logger, MiniLogger } from '@decaf-ts/logging';
+import { Logger } from '@decaf-ts/logging';
 import { getLogger } from 'src/lib/for-angular.module';
 
 @Component({

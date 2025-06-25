@@ -174,7 +174,6 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
       this.options || {},
     );
 
-    console.log(this.handlers);
   }
 
   ngOnDestroy() {
@@ -194,15 +193,11 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
       return false;
 
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
-    let handler;
-    if(this.handlers && this.action)
-       handler = async () => await this.handlers?.[this.action as string](data);
-      console.log(handler);
     this.submitEvent.emit({
       data,
       component:'FormReactiveComponent',
       name: this.action || EventConstants.SUBMIT_EVENT,
-      handler: handler,
+      handlers: this.handlers
     });
   }
 

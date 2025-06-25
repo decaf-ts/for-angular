@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { IonApp,
   IonSplitPane,
   IonMenu,
@@ -12,6 +12,7 @@ import { IonApp,
   IonLabel,
   IonRouterOutlet,
   IonRouterLink,
+  MenuController
 } from '@ionic/angular/standalone';
 import { Platform } from '@ionic/angular';
 import { NgxRenderingEngine2 } from 'src/lib/engine';
@@ -40,9 +41,9 @@ try {
 
 const Menu: MenuItem[] = [
   {
-    text: 'Login',
-    icon: 'log-in-outline',
-    url: '/login',
+    text: 'Dashboard',
+    icon: 'apps-outline',
+    url: '/dashboard',
   },
   {
     text: 'Crud',
@@ -83,7 +84,13 @@ const Menu: MenuItem[] = [
   {
     text: 'Categories (Paginated)',
     url: '/list-model/paginated',
-  }
+  },
+  {
+    text: 'Logout',
+    icon: 'log-out-outline',
+    url: '/login',
+    color: 'danger'
+  },
 ];
 
 @Component({
@@ -121,16 +128,24 @@ export class AppComponent implements OnInit {
 
   adapter = inject(DbAdapterProvider);
 
+  private menuController: MenuController = inject(MenuController);
+
   constructor() {
     addIcons(IonicIcons);
+    this.menuController.enable(false);
   }
 
   async ngOnInit(): Promise<void> {
     this.initializeApp();
-    // this.router.events.subscribe(event => {
-    //   if (event instanceof NavigationStart)
-    //     removeFocusTrap();
-    // });
+    this.router.events.subscribe(event => {
+      if(event instanceof NavigationEnd) {
+        const {url} = event;
+        if(url.includes('login'))
+          this.menuController.enable(false);
+      }
+      if (event instanceof NavigationStart)
+        removeFocusTrap();
+    });
   }
 
   async initializeApp(): Promise<void> {

@@ -2,6 +2,7 @@ import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { Injector, Type } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { EventHandler } from '@decaf-ts/ui-decorators';
 
 export type KeyValue = Record<string, any>;
 
@@ -341,5 +342,6 @@ export interface BaseCustomEvent {
  * @property {string} component - The component that triggered the event
  * @memberOf module:engine
  */
-export type CrudFormEvent = BaseCustomEvent & {name: string; handler?: () => any | Promise<any>}
-// export type CrudFormEvent = BaseCustomEvent & {handlers?: Record<string, (...args: any[]) => any | Promise<any>>}
+export type CrudFormEvent = BaseCustomEvent & {
+  handlers?: Record<string, any>;
+};// export type CrudFormEvent = BaseCustomEvent & {handlers?: Record<string, (...args: any[]) => any | Promise<any>>}

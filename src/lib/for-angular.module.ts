@@ -13,7 +13,7 @@ import {
 } from '@ionic/angular/standalone';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
-import { DefaultLoggingConfig, Logger, Logging, MiniLogger } from '@decaf-ts/logging';
+import { Logger, Logging } from '@decaf-ts/logging';
 
 const ComponentsAndModules = [
   IonApp,
@@ -33,7 +33,7 @@ const ComponentsAndModules = [
 ];
 
 const log = Logging.for("for-angular");
-export function getLogger(instance: object | Function): Logger {
+export function getLogger(instance: object | Function | string): Logger {
   return log.for(instance as any);
 }
 

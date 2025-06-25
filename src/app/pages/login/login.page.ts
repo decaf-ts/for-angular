@@ -5,8 +5,9 @@ import { ComponentsModule } from 'src/app/components/components.module';
 import { BaseCustomEvent, CrudFormEvent } from 'src/lib/engine';
 import { LoginModel } from 'src/app/models/LoginModel';
 import { getLogger } from 'src/lib/for-angular.module';
-import { IonCard, IonCardContent, IonImg} from '@ionic/angular/standalone';
+import { IonCard, IonCardContent, IonImg, ToastController} from '@ionic/angular/standalone';
 import { LoginClass, LoginHandler, LoginHandlerProvider } from 'src/app/utils/LoginHandler';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -19,24 +20,30 @@ export class LoginPage implements OnInit {
 
     model = new LoginModel({});
 
-    private loginHandler: LoginHandler = inject(LoginHandlerProvider);
+    private router = inject(Router);
+    private toastController = inject(ToastController);
+
     ngOnInit(): void {}
 
     async handleEvent(event: CrudFormEvent): Promise<void> {
-      const {handler} = event;
-      if(handler)
-        console.log(await handler());
-      //  const {data, name, handlers} = event;
-      // if(handlers?.[name]) {
-      //   const res = await handlers?.[name](data);
-      // }
+      const {handlers} = event;
+      try {
+        if(handlers?.['login']) {
+          const success = await (new handlers['login']()).handle(event);
+          const toast = await this.toastController.create({
+            message: success ? 'Login successful!' : 'Usuário ou senha inválidos.',
+            duration: 3000,
+            color: success ? 'dark' : 'danger',
+            position: 'top',
+          });
+          if(success)
+            await this.router.navigate(['/dashboard']);
+          await toast.present();
+        }
 
-      // const logger = getLogger(this);
-      // const loginHandler = new LoginClass();
-      // // loginHandler.signIn(data).then((success) => {
-      // //   getLogger(this).info('Login successful');
-      // // })
-      // this.loginHandler(data);
+      } catch (error: any) {
+        getLogger(this).error(error?.message || error);
+      }
     }
 
 }

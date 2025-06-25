@@ -283,7 +283,6 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     try {
       this._model = model;
       const fieldDef = this.toFieldDefinition(model, globalProps);
-      console.log(fieldDef);
       result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl);
     } catch (e: unknown) {
       throw new InternalError(

@@ -24,7 +24,7 @@ import {
   ModelRenderCustomEvent,
 } from '../../engine';
 import { ForAngularModule, getLogger } from 'src/lib/for-angular.module';
-import { DefaultLoggingConfig, Logger, MiniLogger } from '@decaf-ts/logging';
+import { Logger } from '@decaf-ts/logging';
 
 /**
  * @description Dynamic component renderer for Decaf Angular applications.
