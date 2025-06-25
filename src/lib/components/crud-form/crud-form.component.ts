@@ -144,6 +144,7 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
       return false;
 
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
+    console.log("Submit=", data);
     this.submitEvent.emit({
       data: data,
       component: 'FormReactiveComponent',

@@ -14,6 +14,8 @@ export interface ComponentConfig {
   component: string;
   inputs: ComponentInput;
   injector: any;
+  children?: any[];
+  props?: any
 }
 
 /**
@@ -31,6 +33,7 @@ export class NgxFormService {
    * A static object that stores form controls props.
    */
   private static controls = new WeakMap<AbstractControl, FieldProperties>();
+  private static rootFormGroups = new Map<string, FormGroup>();
 
   private constructor() {
   }
@@ -84,6 +87,24 @@ export class NgxFormService {
     component.inputs.formControl = parentGroup.get(controlName) as FormControl;
   }
 
+  private static addFormControl2(componentProps: any, formGroup: FormGroup): void {
+    const { name, childOf } = componentProps;
+    const fullPath = childOf ? `${childOf}.${name}` : name;
+    const [parentGroup, controlName] = this.resolveParentGroup(formGroup, fullPath);
+
+    if (!parentGroup.get(controlName)) {
+      const control = NgxFormService.fromProps(
+        componentProps,
+        componentProps.updateMode || 'change',
+      );
+      NgxFormService.register(control, componentProps);
+      parentGroup.addControl(controlName, control);
+    }
+
+    // component.inputs.formGroup = parentGroup;
+    // component.inputs.formControl = parentGroup.get(controlName) as FormControl;
+  }
+
   /**
    * Builds a FormGroup from a flat array of components, using the `childOf` property
    * to establish nested hierarchy.
@@ -97,6 +118,26 @@ export class NgxFormService {
       this.addFormControl(component, rootForm);
     });
     return rootForm;
+  }
+
+  static createControlFromComponent(renderId: string, component: ComponentConfig): FormGroup | FormControl {
+    let rootForm = this.rootFormGroups.get(renderId);
+    if (!rootForm) {
+      rootForm = new FormGroup({});
+      this.rootFormGroups.set(renderId, rootForm);
+    }
+
+    if (component?.props?.path)
+      this.addFormControl2(component.props, rootForm);
+    return rootForm;
+  }
+
+  static getControlFromRootForm(renderId: string, path: string): AbstractControl {
+    const rootForm = this.rootFormGroups.get(renderId);
+    if (!rootForm)
+      throw new Error(`Not exist ${renderId}`);
+
+    return path ? rootForm.get(path) as AbstractControl : rootForm;
   }
 
   /**

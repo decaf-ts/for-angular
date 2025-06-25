@@ -5,7 +5,8 @@ import {
   ModelArg, password,
   required,
 } from '@decaf-ts/decorator-validation';
-import {uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
+import { uielement, uilistitem, uimodel, uiprop } from '@decaf-ts/ui-decorators';
+import { CategoryModel } from './CategoryModel';
 
 @uilistitem('ngx-decaf-list-item', {icon: 'cafe-outline'})
 @uimodel('ngx-decaf-crud-form')
@@ -24,6 +25,16 @@ export class UserModel extends Model {
     placeholder: 'user.username.placeholder',
   })
   username!: string;
+
+  @uiprop(CategoryModel.name)
+  category!: CategoryModel;
+
+  @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'user.username.label',
+    placeholder: 'user.username.placeholder',
+  })
+  usernamex!: string;
 
   constructor(args: ModelArg<UserModel> = {}) {
     super(args);

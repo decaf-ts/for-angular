@@ -7,14 +7,11 @@
   <ng-template #inner>
     <div  [id]="rendererId || null">
       @for (child of output?.children; track child) {
-        <ng-container  #childComponents *ngComponentOutlet="child.component;
-                                    injector: child.injector;
-                                    inputs: child.inputs;
-                                    content: child.content"
-
-
-        >
-        </ng-container>
+        <ngx-decaf-dynamic-renderer [component]="child.component"
+                                    [injector]="child.injector"
+                                    [inputs]="child.inputs"
+                                    [content]="child.content"
+        ></ngx-decaf-dynamic-renderer>
       }
     </div>
   </ng-template>

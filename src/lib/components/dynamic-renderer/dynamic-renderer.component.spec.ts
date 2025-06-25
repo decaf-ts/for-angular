@@ -1,0 +1,57 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { DynamicRendererComponent } from './dynamic-renderer.component';
+import { ForAngularModel } from '../../../app/models/DemoModel';
+import { NgxRenderingEngine2 } from 'src/lib/engine';
+import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
+import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { ForAngularModule } from 'src/lib/for-angular.module';
+import { CrudFormComponent } from 'src/lib/components/crud-form/crud-form.component';
+
+const imports = [
+  ForAngularModule,
+  DynamicRendererComponent,
+  CrudFormComponent,
+  TranslateModule.forRoot({
+    loader: {
+      provide: TranslateLoader,
+      useClass: TranslateFakeLoader
+    }
+  })
+];
+
+describe('ModelRendererComponent', () => {
+  let component: DynamicRendererComponent<Model>;
+  let fixture: ComponentFixture<DynamicRendererComponent<Model>>;
+
+   let engine;
+
+  beforeAll(() => {
+    try {
+      engine = new NgxRenderingEngine2();
+      Model.setBuilder(Model.fromModel as ModelBuilderFunction);
+    } catch (e: unknown) {
+      console.warn(`Engine already loaded`);
+    }
+  });
+
+
+  // Type 'NgxRenderingEngine2' is not assignable to type 'RenderingEngine<AngularFieldDefinition, FieldDefinition<AngularFieldDefinition>>'.
+  // The types returned by 'render(...)' are incompatible between these types.
+  //   Type 'AngularDynamicOutput' is missing the following properties from type 'FieldDefinition<AngularFieldDefinition>': tag, props
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports,
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DynamicRendererComponent);
+    component = fixture.componentInstance;
+    component.model = new ForAngularModel();
+    fixture.detectChanges();
+  });
+
+  xit('should create and properly calculate the form', () => {
+    expect(component).toBeTruthy();
+    expect(component.output).toBeDefined();
+  });
+});

@@ -1,0 +1,34 @@
+<!-- Render parent component -->
+<div #innerTemplate >
+  @if (output?.children?.length) {
+    <ng-container *ngFor="let child of output.children">
+      <ngx-decaf-dynamic-renderer [component]="child.component"
+                                  [injector]="child.injector"
+                                  [inputs]="child.inputs"
+                                  [content]="child.content"
+      ></ngx-decaf-dynamic-renderer>
+    </ng-container>
+  }
+</div>
+
+<ng-template
+  *ngComponentOutlet="component;
+                      injector: injector ;
+                      inputs: inputs;
+                      content: output?.children?.length ? [[innerTemplate]] : null"
+></ng-template>
+<!--<ng-container-->
+<!--  *ngComponentOutlet="output?.component;-->
+<!--                       injector: output?.injector;-->
+<!--                       inputs: output?.inputs;-->
+<!--                       content: output.content">-->
+<!--</ng-container>-->
+
+<!--<ng-template #childTemplate>-->
+<!--  <ng-container *ngFor="let child of output.children">-->
+<!--    <ngx-decaf-dynamic-renderer [output]="child"></ngx-decaf-dynamic-renderer>-->
+<!--  </ng-container>-->
+<!--</ng-template>-->
+
+
+

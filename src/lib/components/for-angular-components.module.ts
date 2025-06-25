@@ -9,6 +9,7 @@ import { ListItemComponent } from './list-item/list-item.component';
 import { ComponentRendererComponent } from './component-renderer/component-renderer.component';
 import { PaginationComponent } from './pagination/pagination.component';
 import { ListComponent } from './list/list.component';
+import { FieldsetComponent } from './fieldset/fieldset.component';
 
 const Components = [
   ModelRendererComponent,
@@ -20,7 +21,8 @@ const Components = [
   ListItemComponent,
   SearchbarComponent,
   PaginationComponent,
-  CrudFormComponent
+  CrudFormComponent,
+  FieldsetComponent,
 ];
 
 @NgModule({

@@ -24,10 +24,13 @@ import {
 import { KeyValue, ModelRenderCustomEvent } from 'src/lib/engine/types';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { Renderable } from '@decaf-ts/ui-decorators';
+import { DynamicRendererComponent } from '../dynamic-renderer/dynamic-renderer.component';
+import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
+import { FieldsetComponent } from '../fieldset/fieldset.component';
 
 @Component({
   standalone: true,
-  imports: [ForAngularModule, NgComponentOutlet],
+  imports: [ForAngularModule, NgComponentOutlet, DynamicRendererComponent, ComponentRendererComponent, FieldsetComponent],
   selector: 'ngx-decaf-model-renderer',
   templateUrl: './model-renderer.component.html',
   styleUrl: './model-renderer.component.scss',
@@ -85,6 +88,7 @@ export class ModelRendererComponent<M extends Model>
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes[BaseComponentProps.MODEL]) {
+      console.log("$$$ CHANGE")
       const { currentValue, previousValue, firstChange } = changes[BaseComponentProps.MODEL];
       this.refresh(currentValue);
     }
