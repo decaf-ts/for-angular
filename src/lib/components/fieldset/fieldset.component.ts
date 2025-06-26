@@ -1,31 +1,10 @@
-import {
-  AfterViewInit,
-  Component,
-  CUSTOM_ELEMENTS_SCHEMA,
-  ElementRef,
-  EventEmitter,
-  inject,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild,
-} from '@angular/core';
-import { Location } from '@angular/common';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import {
-  BaseCustomEvent,
-  Dynamic,
-  EventConstants,
-  FieldUpdateMode,
-  HTMLFormTarget,
-  RenderedModel,
-} from '../../engine';
+import { Dynamic, HTMLFormTarget } from '../../engine';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { CollapsableDirective } from 'src/lib/directives/collapsable.directive';
 import { IonAccordion, IonAccordionGroup, IonItem } from '@ionic/angular/standalone';
-
 
 
 /**
@@ -57,42 +36,34 @@ import { IonAccordion, IonAccordionGroup, IonItem } from '@ionic/angular/standal
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [ForAngularModule, IonAccordionGroup, IonAccordion, IonItem, CollapsableDirective],
 })
-export class FieldsetComponent implements OnInit, AfterViewInit, OnDestroy {
-  // @Input()
-  // updateOn: FieldUpdateMode = 'change';
-  //
+export class FieldsetComponent implements OnInit {
   @ViewChild('component', { static: false, read: ElementRef })
   component!: ElementRef;
 
-  @Input()
-  target: HTMLFormTarget = '_self';
-
-  @Input()
-  name: string = '';
+  @Input() name: string = 'Child';
+  @Input() target: HTMLFormTarget = '_self';
 
   isOpen: boolean = false;
-
-
-  ngAfterViewInit() {
-    // if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
-    //   NgxFormService.formAfterViewInit(this, this.rendererId);
-  }
 
   ngOnInit() {
   }
 
-  ngOnDestroy() {
-    // if (this.formGroup)
-    //   NgxFormService.unregister(this.formGroup);
-  }
+  // ngAfterViewInit() {
+  //   // if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
+  //   //   NgxFormService.formAfterViewInit(this, this.rendererId);
+  // }
+
+  // ngOnDestroy() {
+  //   // if (this.formGroup)
+  //   //   NgxFormService.unregister(this.formGroup);
+  // }
 
   handleChange(event: CustomEvent) {
-    const {target, detail} = event;
-    const {value} = detail;
-    if((target as HTMLIonAccordionGroupElement).tagName === 'ION-ACCORDION-GROUP')
+    const { target, detail } = event;
+    const { value } = detail;
+    if ((target as HTMLIonAccordionGroupElement).tagName === 'ION-ACCORDION-GROUP')
       this.isOpen = !!value;
   }
-
 
   protected readonly OperationKeys = OperationKeys;
 }

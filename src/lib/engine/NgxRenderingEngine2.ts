@@ -14,7 +14,6 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
-import { FormControl, FormGroup } from '@angular/forms';
 
 /**
  * @description Angular implementation of the RenderingEngine with enhanced features
@@ -101,6 +100,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
    * @param {ViewContainerRef} vcr - The view container reference for component creation
    * @param {Injector} injector - The Angular injector for dependency injection
    * @param {TemplateRef<any>} tpl - The template reference for content projection
+   * @param {string} registryFormId - Form identifier for the component renderer
    * @return {AngularDynamicOutput} The Angular component output with component reference and inputs
    *
    * @mermaid
@@ -129,77 +129,8 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     vcr: ViewContainerRef,
     injector: Injector,
     tpl: TemplateRef<any>,
+    registryFormId: string = Date.now().toString(36).toUpperCase(),
   ): AngularDynamicOutput {
-    const cmp = (fieldDef as any)?.component || NgxRenderingEngine2.components(fieldDef.tag);
-    const component = (cmp.constructor) as unknown as Type<unknown>;
-
-    const componentMetadata = reflectComponentType(component);
-    if (!componentMetadata)
-      throw new InternalError(`Metadata for component ${fieldDef.tag} not found.`);
-
-    const { inputs: possibleInputs } = componentMetadata;
-    const inputs = fieldDef.props;
-    const unmappedKeys = Object.keys(inputs).filter((input) => {
-      const isMapped = possibleInputs.find(({ propName }) => propName === input);
-      if (!isMapped)
-        delete inputs[input];
-      return !isMapped;
-    });
-
-    if (unmappedKeys.length > 0)
-      console.warn(`Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`);
-
-    const result: AngularDynamicOutput = {
-      component: component,
-      inputs: inputs || {},
-      injector: injector,
-    };
-
-    if (fieldDef.rendererId)
-      (result.inputs as Record<string, any>)['rendererId'] = fieldDef.rendererId;
-
-    if (fieldDef.children && fieldDef.children.length) {
-      const self = this;
-
-      const processChild = (child: FieldDefinition<AngularFieldDefinition>): unknown => {
-        if (!child?.tag)
-          return child;
-
-        const childResult = self.fromFieldDefinition(child, vcr, injector, tpl);
-        if (childResult?.children && childResult.children.length)
-          return (childResult.children || []).map(processChild as any);
-
-        // if (child?.children && child.children.length)
-        //   return child.children.map(processChild);
-
-        return childResult;
-      };
-
-      result.children = (fieldDef.children.map(processChild) as any).flat() as AngularDynamicOutput[];
-      // vcr.clear();
-      // const template = vcr.createEmbeddedView(tpl, injector).rootNodes;
-      const template: any[] = [];
-      const componentInstance = NgxRenderingEngine2.createComponent(
-        component,
-        { ...inputs, ...{ model: this._model } },
-        componentMetadata,
-        vcr,
-        injector,
-        template,
-      );
-      result.instance = NgxRenderingEngine2._instance = componentInstance.instance as Type<unknown>;
-    }
-    return result;
-  }
-
-  private fromFieldDefinition2(
-    fieldDef: FieldDefinition<AngularFieldDefinition>,
-    vcr: ViewContainerRef,
-    injector: Injector,
-    tpl: TemplateRef<any>,
-    rendererId?: string
-  ): AngularDynamicOutput {
-    rendererId = !rendererId ? Date.now().toString(36).toUpperCase() : rendererId;
     const cmp = (fieldDef as any)?.component || NgxRenderingEngine2.components(fieldDef.tag);
     const component = (cmp.constructor) as unknown as Type<unknown>;
 
@@ -217,36 +148,28 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       return !isMapped;
     });
 
-    if (unmappedKeys.length > 0) {
+    if (unmappedKeys.length > 0)
       console.warn(`Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`);
-    }
 
     const result: AngularDynamicOutput = {
       component,
       inputs,
       injector,
-      children: [],
     };
 
-    if (fieldDef.rendererId) {
+    if (fieldDef.rendererId)
       (result.inputs as Record<string, any>)['rendererId'] = fieldDef.rendererId;
-    }
-
-    // NgxFormService.createControlFromComponent(fieldDef.rendererId!, component);
 
     // process children
     if (fieldDef.children?.length) {
       result.children = fieldDef.children.map((child) => {
-        NgxFormService.createControlFromComponent(rendererId, child as any);
-        return this.fromFieldDefinition2(child, vcr, injector, tpl, rendererId);
+        // create a child form and add its controls as properties of child.props
+        NgxFormService.addControlFromProps(registryFormId, child.props);
+        return this.fromFieldDefinition(child, vcr, injector, tpl, registryFormId);
       });
     }
 
-
-    const path = inputs.path || inputs.childOf || "";
-    const control = NgxFormService.getControlFromRootForm(rendererId!, path);
-
-    // creating DOM
+    // generating DOM
     vcr.clear();
     const template = vcr.createEmbeddedView(tpl, injector).rootNodes;
     const componentInstance = NgxRenderingEngine2.createComponent(
@@ -255,18 +178,11 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       componentMetadata,
       vcr,
       injector,
-      template
+      template,
     );
 
     result.instance = NgxRenderingEngine2._instance = componentInstance.instance as Type<unknown>;
 
-    if (control instanceof FormControl) {
-      inputs["formControl"] = control as FormControl;
-      inputs["formGroup"] = (control as any)._parent as FormGroup;
-    }
-    if (control instanceof FormGroup && (result.children?.length || 0) > 0) {
-      (result!.instance! as any)['formGroup'] = control;
-    }
     return result;
   }
 
@@ -360,19 +276,20 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     tpl: TemplateRef<any>,
   ): AngularDynamicOutput {
     let result: AngularDynamicOutput;
-    let result2: AngularDynamicOutput;
     try {
       this._model = model;
+      const formId = Date.now().toString(36).toUpperCase();
       const fieldDef = this.toFieldDefinition(model, globalProps);
-      result = {} as any; //this.fromFieldDefinition(fieldDef, vcr, injector, tpl);
-      result = this.fromFieldDefinition2(fieldDef, vcr, injector, tpl);
+      result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl, formId);
+
+      (result!.instance! as Record<string, any>)['formGroup'] = NgxFormService.getControlFromForm(formId);
+      NgxFormService.removeRegistry(formId);
     } catch (e: unknown) {
       throw new InternalError(
         `Failed to render Model ${model.constructor.name}: ${e}`,
       );
     }
 
-    // console.log(result2);
     // set root for formGroup of crud-form-component. TODO: Move to fromFieldDefinition
     // (result!.instance! as any)['formGroup'] = NgxFormService.createFormFromComponents((result.children || []) as any[]);
     return result;

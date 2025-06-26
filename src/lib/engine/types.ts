@@ -1,7 +1,7 @@
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { Injector, Type } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 
 export type KeyValue = Record<string, any>;
 
@@ -92,6 +92,8 @@ export interface ComponentMetadata {
  * @property {Node[][]} [content] - Optional content nodes for projection
  * @property {AngularDynamicOutput[]} [children] - Optional child components
  * @property {Type<unknown>} [instance] - Optional component instance
+ * @property {FormGroup} [formGroup] - Optional component FormGroup
+ * @property {FormControl} [formControl] - Optional component FormControl
  * @memberOf module:engine
  */
 export type AngularDynamicOutput = {
@@ -102,6 +104,8 @@ export type AngularDynamicOutput = {
   content?: Node[][];
   children?: AngularDynamicOutput[];
   instance?: Type<unknown>;
+  formGroup?: FormGroup;
+  formControl?: FormControl;
 };
 
 /**

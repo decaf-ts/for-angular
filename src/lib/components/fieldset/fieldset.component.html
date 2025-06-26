@@ -1,17 +1,8 @@
-<!--<fieldset #reactiveForm-->
-<!--          [id]="rendererId"-->
-<!--          [formGroup]="formGroup"-->
-<!--          (submit)="submit($event)"-->
-<!--          novalidate-->
-<!--          [target]="target"-->
-<!--&gt;-->
-
-
 <fieldset class="dcf-fieldset" #component>
   <ion-accordion-group (ionChange)="handleChange($event)">
     <ion-accordion value="open">
       <ion-item slot="header" color="light">
-          <legend>Child</legend>
+        <legend>{{ name }}</legend>
       </ion-item>
       <div slot="content" [attr.aria-hidden]="!isOpen" decafCollapsable>
         <ng-content></ng-content>
