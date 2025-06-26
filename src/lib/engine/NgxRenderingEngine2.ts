@@ -177,7 +177,8 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
 
       result.children = (fieldDef.children.map(processChild) as any).flat() as AngularDynamicOutput[];
       // vcr.clear();
-      const template = vcr.createEmbeddedView(tpl, injector).rootNodes;
+      // const template = vcr.createEmbeddedView(tpl, injector).rootNodes;
+      const template: any[] = [];
       const componentInstance = NgxRenderingEngine2.createComponent(
         component,
         { ...inputs, ...{ model: this._model } },
@@ -188,7 +189,6 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       );
       result.instance = NgxRenderingEngine2._instance = componentInstance.instance as Type<unknown>;
     }
-
     return result;
   }
 
@@ -238,8 +238,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     if (fieldDef.children?.length) {
       result.children = fieldDef.children.map((child) => {
         NgxFormService.createControlFromComponent(rendererId, child as any);
-        const pp = this.fromFieldDefinition2(child, vcr, injector, tpl, rendererId);
-        return pp;
+        return this.fromFieldDefinition2(child, vcr, injector, tpl, rendererId);
       });
     }
 
@@ -256,7 +255,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       componentMetadata,
       vcr,
       injector,
-      template,
+      template
     );
 
     result.instance = NgxRenderingEngine2._instance = componentInstance.instance as Type<unknown>;
@@ -268,7 +267,6 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     if (control instanceof FormGroup && (result.children?.length || 0) > 0) {
       (result!.instance! as any)['formGroup'] = control;
     }
-
     return result;
   }
 

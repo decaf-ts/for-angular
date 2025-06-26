@@ -15,7 +15,7 @@
   </ng-container>
 } @else {
   <ng-container #component [formGroup]="formGroup">
-    <div [class]="'dcf-input-item ' + operation">
+    <div #container [class]="'dcf-input-item ' + operation">
         @if(type === 'textarea') {
           <ion-textarea
             [mode]="mode"
@@ -118,7 +118,7 @@
         }
         @if((!formControl.pristine || formControl.touched) && !formControl.valid) {
           <div class="error dcf-error dcf-flex dcf-flex-top">
-            @for(error of getErrors(); track error.key) {
+            @for(error of getErrors(container); track error.key) {
               * {{ sf(("errors." + error.message) | translate, this[error.key]) }}
             }
           </div>

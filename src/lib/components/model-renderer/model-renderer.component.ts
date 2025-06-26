@@ -102,7 +102,6 @@ export class ModelRendererComponent<M extends Model>
     this.output = undefined;
   }
 
-
   private subscribeEvents(): void {
     if (this.instance) {
       const self = this;

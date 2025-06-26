@@ -13,6 +13,7 @@ import {
   Output,
   reflectComponentType,
   SimpleChanges,
+  TemplateRef,
   Type,
   ViewChild,
   ViewContainerRef,
@@ -23,7 +24,7 @@ import {
   KeyValue,
   ModelRenderCustomEvent,
 } from '../../engine';
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ForAngularModule, getLogger } from 'src/lib/for-angular.module';
 import { DefaultLoggingConfig, Logger, MiniLogger } from '@decaf-ts/logging';
 
 /**
@@ -164,6 +165,12 @@ export class ComponentRendererComponent
    */
   logger!: Logger;
 
+  @Input()
+  parent: any = undefined;
+
+
+  @ViewChild('inner', { read: TemplateRef, static: true })
+  inner?: TemplateRef<any>;
 
   /**
    * @description Creates an instance of ComponentRendererComponent.
@@ -174,7 +181,7 @@ export class ComponentRendererComponent
    * @memberOf ComponentRendererComponent
    */
   constructor() {
-     this.logger = new MiniLogger('for-angular', DefaultLoggingConfig).for(this.constructor.name);
+     this.logger = getLogger(this);
   }
 
   /**
@@ -201,7 +208,9 @@ export class ComponentRendererComponent
    * @memberOf ComponentRendererComponent
    */
   ngOnInit(): void {
-    this.createComponent(this.tag, this.globals);
+    if(!this.parent)
+      this.createComponent(this.tag, this.globals);
+    this.createParentComponent()
   }
 
   /**
@@ -294,6 +303,21 @@ export class ComponentRendererComponent
       []
     );
     this.subscribeEvents();
+  }
+
+  createParentComponent() {
+    const {component, inputs} = this.parent;
+    const metadata = reflectComponentType(component) as ComponentMirror<unknown>;
+    const template = this.vcr.createEmbeddedView(this.inner as TemplateRef<any>, this.injector).rootNodes;
+    this.component = NgxRenderingEngine2.createComponent(
+      component,
+      inputs,
+      metadata,
+      this.vcr,
+      this.injector,
+      template
+    );
+    this.subscribeEvents()
   }
 
   /**

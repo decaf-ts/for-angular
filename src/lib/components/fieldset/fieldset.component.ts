@@ -22,8 +22,10 @@ import {
 } from '../../engine';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModule } from 'src/lib/for-angular.module';
+import { CollapsableDirective } from 'src/lib/directives/collapsable.directive';
+import { IonAccordion, IonAccordionGroup, IonItem } from '@ionic/angular/standalone';
 
-;
+
 
 /**
  * @component CrudFormComponent
@@ -51,17 +53,22 @@ import { ForAngularModule } from 'src/lib/for-angular.module';
   selector: 'ngx-decaf-fieldset',
   templateUrl: './fieldset.component.html',
   styleUrls: ['./fieldset.component.scss'],
-  imports: [ForAngularModule],
+  imports: [ForAngularModule, IonAccordionGroup, IonAccordion, IonItem, CollapsableDirective],
 })
 export class FieldsetComponent implements OnInit, AfterViewInit, OnDestroy {
   // @Input()
   // updateOn: FieldUpdateMode = 'change';
   //
-  // @ViewChild('reactiveForm', { static: false, read: ElementRef })
-  // component!: ElementRef;
+  @ViewChild('component', { static: false, read: ElementRef })
+  component!: ElementRef;
 
   @Input()
   target: HTMLFormTarget = '_self';
+
+  @Input()
+  name: string = '';
+
+  isOpen: boolean = false;
 
 
   ngAfterViewInit() {
@@ -70,7 +77,6 @@ export class FieldsetComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-
   }
 
   ngOnDestroy() {

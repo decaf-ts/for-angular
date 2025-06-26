@@ -5,9 +5,17 @@
 <!--          novalidate-->
 <!--          [target]="target"-->
 <!--&gt;-->
-<fieldset class="fieldset">
-  <legend>Child</legend>
-  <ng-content></ng-content>
+
+
+<fieldset class="dcf-fieldset" #component>
+  <ion-accordion-group>
+    <ion-accordion value="open">
+      <ion-item slot="header" color="light">
+          <legend>Child</legend>
+      </ion-item>
+      <div slot="content" decafCollapsable>
+        <ng-content></ng-content>
+      </div>
+    </ion-accordion>
+  </ion-accordion-group>
 </fieldset>
-
-

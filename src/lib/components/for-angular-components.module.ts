@@ -10,7 +10,9 @@ import { ComponentRendererComponent } from './component-renderer/component-rende
 import { PaginationComponent } from './pagination/pagination.component';
 import { ListComponent } from './list/list.component';
 import { FieldsetComponent } from './fieldset/fieldset.component';
+import { CollapsableDirective } from '../directives/collapsable.directive';
 
+const Directives = [CollapsableDirective];
 const Components = [
   ModelRendererComponent,
   ComponentRendererComponent,
@@ -26,9 +28,9 @@ const Components = [
 ];
 
 @NgModule({
-  imports: Components,
+  imports: [Components, Directives],
   declarations: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  exports: [Components, ForAngularModule],
+  exports: [Components, Directives, ForAngularModule],
 })
 export class ForAngularComponentsModule {}

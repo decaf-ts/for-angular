@@ -1,4 +1,17 @@
-#dcf-buttons-container {
-  margin-top: 1.8rem;
-  margin-bottom: 0px;
+.dcf-fieldset {
+  margin-bottom: 1.8rem;
+  padding-bottom: 0rem;
+  padding-top: 1rem;
+
+    ion-accordion {
+        &.accordion-collapsing,
+        &.accordion-collapsed {
+             margin-bottom: 1rem;
+        }
+
+        [slot="content"] {
+            padding-top: 1rem !important;
+        }
+
+    }
 }
