@@ -8,12 +8,12 @@
 
 
 <fieldset class="dcf-fieldset" #component>
-  <ion-accordion-group>
+  <ion-accordion-group (ionChange)="handleChange($event)">
     <ion-accordion value="open">
       <ion-item slot="header" color="light">
           <legend>Child</legend>
       </ion-item>
-      <div slot="content" decafCollapsable>
+      <div slot="content" [attr.aria-hidden]="!isOpen" decafCollapsable>
         <ng-content></ng-content>
       </div>
     </ion-accordion>
