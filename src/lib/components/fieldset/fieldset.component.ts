@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
   EventEmitter,
   inject,
@@ -53,6 +54,7 @@ import { IonAccordion, IonAccordionGroup, IonItem } from '@ionic/angular/standal
   selector: 'ngx-decaf-fieldset',
   templateUrl: './fieldset.component.html',
   styleUrls: ['./fieldset.component.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [ForAngularModule, IonAccordionGroup, IonAccordion, IonItem, CollapsableDirective],
 })
 export class FieldsetComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -82,6 +84,13 @@ export class FieldsetComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy() {
     // if (this.formGroup)
     //   NgxFormService.unregister(this.formGroup);
+  }
+
+  handleChange(event: CustomEvent) {
+    const {target, detail} = event;
+    const {value} = detail;
+    if((target as HTMLIonAccordionGroupElement).tagName === 'ION-ACCORDION-GROUP')
+      this.isOpen = !!value;
   }
 
 
