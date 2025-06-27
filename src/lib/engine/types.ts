@@ -1,8 +1,6 @@
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { Injector, Type } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { EventHandler } from '@decaf-ts/ui-decorators';
 import { FormControl, FormGroup } from '@angular/forms';
 
 export type KeyValue = Record<string, any>;
