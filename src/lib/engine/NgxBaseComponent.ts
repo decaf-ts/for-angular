@@ -4,8 +4,6 @@ import {
   Inject,
   ViewChild,
   ElementRef,
-  OnInit,
-  AfterViewInit,
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
@@ -23,51 +21,8 @@ import {
 } from '@decaf-ts/db-decorators';
 import { BaseComponentProps } from './constants';
 import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
-import { DefaultLoggingConfig, Logger, MiniLogger } from '@decaf-ts/logging';
-
-/**
- * @description Class representing a paginated query result
- * @summary This class encapsulates the result of a paginated query operation,
- * containing the current page of model instances, the total number of items,
- * and the current page number. It's used for handling paginated data in list
- * components and other data display scenarios.
- *
- * @class PaginatedQuery
- */
-export class PaginatedQuery {
-  /**
-   * @description The current page of model instances
-   * @summary Array of model instances for the current page
-   * @type {Model[]}
-   */
-  page!: Model[] | Model[][];
-
-  /**
-   * @description Total number of items across all pages
-   * @summary The total count of items available in the data source
-   * @type {number}
-   */
-  total!: number;
-
-  /**
-   * @description Current page number
-   * @summary The index of the current page being displayed
-   * @type {number}
-   */
-  _currentPage!: number;
-}
-
-/**
- * @description Type definition for component model inputs
- * @summary This type represents the possible values that can be used as a model
- * for components. It can be either a direct Model instance, a Repository of models
- * that provides CRUD operations, or undefined when no model is available.
- * This flexibility allows components to work with different types of data sources.
- *
- * @typedef {(Model|undefined)} ComponentBaseModel
- * @memberOf module:for-angular
- */
-export type ComponentBaseModel = Model | undefined;
+import { Logger } from '@decaf-ts/logging';
+import { getLogger } from '../for-angular.module';
 
 /**
  * @description Base component class that provides common functionality for all Decaf components.
@@ -166,10 +121,10 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @summary The data model repository that this component will use for CRUD operations.
    * This provides a connection to the data layer for retrieving and manipulating data.
    *
-   * @type {Repository<Model> | undefined}
+   * @type {Model| undefined}
    */
   @Input()
-  model!: ComponentBaseModel;
+  model!:  Model | undefined;;
 
   /**
    * @description Configuration for list item rendering
@@ -336,21 +291,26 @@ export abstract class NgxBaseComponent implements OnChanges {
   renderingEngine: NgxRenderingEngine2 =
     NgxRenderingEngine2.get() as unknown as NgxRenderingEngine2;
 
-   /**
+  /**
    * @description Logger instance for the component.
-   * @summary This property holds a Logger instance specific to this component.
-   * It's used to log information, warnings, and errors related to the component's
-   * operations, particularly useful for debugging and monitoring the dynamic
-   * component rendering process.
+   * @summary Provides logging capabilities for the component, allowing for consistent
+   * and structured logging of information, warnings, and errors. This logger is initialized
+   * in the ngOnInit method using the getLogger function from the ForAngularModule.
+   *
+   * The logger is used throughout the component to record important events, debug information,
+   * and potential issues. It helps in monitoring the component's behavior, tracking the flow
+   * of operations, and facilitating easier debugging and maintenance.
    *
    * @type {Logger}
+   * @private
+   * @memberOf NgxBaseComponent
    */
   logger!: Logger;
 
   protected constructor(@Inject('instanceToken') private instance: string) {
     this.componentName = instance;
     this.componentLocale = getLocaleFromClassName(instance);
-    this.logger = new MiniLogger('for-angular', DefaultLoggingConfig).for(this.constructor.name);
+    this.logger = getLogger(this);
   }
 
   /**

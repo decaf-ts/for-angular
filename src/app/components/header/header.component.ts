@@ -276,6 +276,7 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   ngOnInit(): void {
     this.menuController.enable(stringToBoolean(this.showMenuButton) as boolean);
     this.showBackButton = stringToBoolean(this.showBackButton);
+    console.log(this.showBackButton);
     this.center = stringToBoolean(this.center);
     this.translucent = stringToBoolean(this.translucent);
     this.expand = stringToBoolean(this.expand);

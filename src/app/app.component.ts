@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { IonApp,
   IonSplitPane,
   IonMenu,
@@ -12,6 +12,7 @@ import { IonApp,
   IonLabel,
   IonRouterOutlet,
   IonRouterLink,
+  MenuController
 } from '@ionic/angular/standalone';
 import { Platform } from '@ionic/angular';
 import { NgxRenderingEngine2 } from 'src/lib/engine';
@@ -27,7 +28,8 @@ import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
 import { InjectablesRegistry } from '@decaf-ts/core';
 import { DecafRepositoryAdapter } from 'src/lib/components/list/constants';
-import { DbAdapter } from 'src/main';
+import { DbAdapterProvider } from './app.config';
+// import { DbAdapter } from './app.config';
 
 try {
   new NgxRenderingEngine2();
@@ -38,6 +40,11 @@ try {
 }
 
 const Menu: MenuItem[] = [
+  {
+    text: 'Dashboard',
+    icon: 'apps-outline',
+    url: '/dashboard',
+  },
   {
     text: 'Crud',
     icon: 'save-outline',
@@ -77,7 +84,13 @@ const Menu: MenuItem[] = [
   {
     text: 'Categories (Paginated)',
     url: '/list-model/paginated',
-  }
+  },
+  {
+    text: 'Logout',
+    icon: 'log-out-outline',
+    url: '/login',
+    color: 'danger'
+  },
 ];
 
 @Component({
@@ -112,13 +125,24 @@ export class AppComponent implements OnInit {
   router: Router = inject(Router);
 
   activeItem: string = '';
+
+  adapter = inject(DbAdapterProvider);
+
+  private menuController: MenuController = inject(MenuController);
+
   constructor() {
     addIcons(IonicIcons);
+    this.menuController.enable(false);
   }
 
   async ngOnInit(): Promise<void> {
     this.initializeApp();
     this.router.events.subscribe(event => {
+      if(event instanceof NavigationEnd) {
+        const {url} = event;
+        if(url.includes('login'))
+          this.menuController.enable(false);
+      }
       if (event instanceof NavigationStart)
         removeFocusTrap();
     });
@@ -128,7 +152,7 @@ export class AppComponent implements OnInit {
     const isDevelopment = isDevelopmentMode();
     if(isDevelopment) {
       for(let model of [new CategoryModel(), new EmployeeModel()] ) {
-        const repository = new ForAngularRepository<typeof model>(DbAdapter as DecafRepositoryAdapter, model);
+        const repository = new ForAngularRepository<typeof model>(this.adapter as DecafRepositoryAdapter, model);
         await repository.init();
       }
     }

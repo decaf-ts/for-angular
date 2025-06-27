@@ -1,0 +1,56 @@
+<app-header
+  title="Dashboard"
+  center="true"
+  showMenuButton="true"
+  color="primary">
+</app-header>
+
+<ion-content [fullscreen]="true">
+   <main class="main">
+    <app-container [hasSideMenu]="true">
+      <section class="dcf-grid dcf-grid-small dcf-child-width-1-3@m">
+        <div>
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Online Users</ion-card-title>
+            </ion-card-header>
+            <ion-card-content class="dcf-flex dcf-flex-middle">
+              <ion-icon class="dcf-margin-right" name="people-outline" size="large" color="primary"></ion-icon>
+              <strong>{{ users }}</strong>
+            </ion-card-content>
+          </ion-card>
+        </div>
+
+        <div>
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Incoming</ion-card-title>
+            </ion-card-header>
+            <ion-card-content class="dcf-flex dcf-flex-middle">
+              <ion-icon class="dcf-margin-right" name="card-outline" size="large" color="primary"></ion-icon>
+              <strong>€ {{ incoming | number }}</strong>
+            </ion-card-content>
+          </ion-card>
+        </div>
+
+        <div>
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Pending Tasks</ion-card-title>
+            </ion-card-header>
+            <ion-card-content class="dcf-flex dcf-flex-middle">
+              <ion-icon class="dcf-margin-right" name="cube-outline" size="large" color="primary"></ion-icon>
+              <strong>{{ tasks }}</strong>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </section>
+
+      <ion-text color="medium">
+        <small>Last Usage: {{ lastUsage }}</small>
+      </ion-text>
+
+      <ion-button expand="block" (click)="getData()" color="secondary" class="ion-margin-top">Update</ion-button>
+    </app-container>
+  </main>
+</ion-content>

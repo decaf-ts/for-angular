@@ -10,11 +10,11 @@ import { Model } from '@decaf-ts/decorator-validation';
 import { ComponentsModule } from 'src/app/components/components.module';
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSearchbar } from '@ionic/angular/standalone';
 import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
-import { FormReactiveSubmitEvent } from 'src/lib/components/crud-form/types';
 import { RouterService } from 'src/app/services/router.service';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { DecafRepository } from 'src/lib/components/list/constants';
-import { DefaultLoggingConfig, Logger, MiniLogger } from '@decaf-ts/logging';
+import { Logger } from '@decaf-ts/logging';
+import { getLogger } from 'src/lib/for-angular.module';
 
 @Component({
   standalone: true,
@@ -39,7 +39,21 @@ export class ModelPage implements OnInit {
 
   model!: Model | undefined;
 
-  logger!: Logger;
+  /**
+   * @description Logger instance for the component.
+   * @summary Provides logging capabilities for the component, allowing for consistent
+   * and structured logging of information, warnings, and errors. This logger is initialized
+   * in the ngOnInit method using the getLogger function from the ForAngularModule.
+   *
+   * The logger is used throughout the component to record important events, debug information,
+   * and potential issues. It helps in monitoring the component's behavior, tracking the flow
+   * of operations, and facilitating easier debugging and maintenance.
+   *
+   * @type {Logger}
+   * @private
+   * @memberOf ModelPage
+   */
+  private logger!: Logger;
 
   private _repository?: IRepository<Model>;
   private routerService: RouterService = inject(RouterService);
@@ -58,7 +72,7 @@ export class ModelPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.logger = new MiniLogger('for-angular', DefaultLoggingConfig).for(this.constructor.name);
+    this.logger = getLogger(this);
   }
 
   async ionViewWillEnter(): Promise<void> {
@@ -83,33 +97,6 @@ export class ModelPage implements OnInit {
     } catch (error: any) {
       this.logger.error(error?.message || error);
     }
-    // this.model = (Model.get(self.modelName) as any)();
-    // console.log(this.model);
-    // this.model = Model.fromModel(getInjectablesRegistry().get(self.modelName)) as any;
-    // console.log(this.model)
-    // if (this.operation !== OperationKeys.CREATE)
-    //   await self.handleGet((uid || self.modelId) as string);
-    //
-    // await self.getLocale();
-    // this.getComponent();
-    // return new Promise<void>( async (resolve, reject) => {
-    //   switch(self.operation){
-    //     case CRUD_OPERATIONS.READ || CRUD_OPERATIONS.UPDATE:
-    //       self.handleGet((pk || self.pk) as string);
-    //     break;
-    //     // to DO
-    //     // default:
-    //     //   return Model.fromObject(self.manager)
-    //   }
-    //   if(this.operation === CRUD_OPERATIONS.CREATE) {}
-    //   // const filter = modelId || self.modelId;
-    //   // let condition = !filter ?
-    //   //   Condition.builder.attribute("id").dif('null') : Condition.builder.attribute("id").eq(filter);
-    //   // let results = null;
-    //   // if(self.manager)
-    //   //   results = await self.manager.read("wallet.replication");
-    //   // await self.getComponent(results);
-    // })
   }
 
   async handleEvent(event: BaseCustomEvent) {
@@ -121,7 +108,7 @@ export class ModelPage implements OnInit {
     }
   }
 
-  async handleSubmit(event: FormReactiveSubmitEvent): Promise<void | Error> {
+  async handleSubmit(event: BaseCustomEvent): Promise<void | Error> {
     try {
       const repo = this._repository as IRepository<Model>;
       const data = this.parseData(event.data, this.operation);

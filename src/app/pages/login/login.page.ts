@@ -1,42 +1,49 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostListener, inject, Input, OnInit } from '@angular/core';
 import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { ForAngularModel } from 'src/app/models/DemoModel';
 import { ComponentsModule } from 'src/app/components/components.module';
-import { BaseCustomEvent } from 'src/lib/engine';
+import { BaseCustomEvent, CrudFormEvent } from 'src/lib/engine';
+import { LoginModel } from 'src/app/models/LoginModel';
+import { getLogger } from 'src/lib/for-angular.module';
+import { IonCard, IonCardContent, IonImg, ToastController} from '@ionic/angular/standalone';
+import { LoginClass, LoginHandler, LoginHandlerProvider } from 'src/app/utils/LoginHandler';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
-  styleUrls: ['./login.page.css'],
+  styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [ForAngularComponentsModule, ComponentsModule],
+  imports: [ForAngularComponentsModule, IonCard, IonCardContent, IonImg, ComponentsModule],
 })
 export class LoginPage implements OnInit {
 
-  title = 'Decaf-ts for-angular demo';
+    model = new LoginModel({});
 
-    @Input()
-    protected readonly OperationKeys: CrudOperations = OperationKeys.CREATE;
+    private router = inject(Router);
+    private toastController = inject(ToastController);
 
-    @Input()
-    operation: CrudOperations = OperationKeys.CREATE;
+    ngOnInit(): void {}
 
-    model1 = new ForAngularModel({
-      name: 'John Doe',
-      birthdate: '1989-12-12',
-      email: 'john.doe@example.com',
-      website: 'https://johndoe.example.com',
-      password: 'password123',
-    });
+    async handleEvent(event: CrudFormEvent): Promise<void> {
+      const {handlers} = event;
+      try {
+        if(handlers?.['login']) {
+          const success = await (new handlers['login']()).handle(event);
+          const toast = await this.toastController.create({
+            message: success ? 'Login successful!' : 'Usuário ou senha inválidos.',
+            duration: 3000,
+            color: success ? 'dark' : 'danger',
+            position: 'top',
+          });
+          if(success)
+            await this.router.navigate(['/dashboard']);
+          await toast.present();
+        }
 
-    ngOnInit(): void {
-      if(!this.operation)
-        this.operation = OperationKeys.CREATE;
-    }
-
-    handleSubmit(event: BaseCustomEvent): void {
-      const {data} = event;
+      } catch (error: any) {
+        getLogger(this).error(error?.message || error);
+      }
     }
 
 }

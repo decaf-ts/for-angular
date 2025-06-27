@@ -4,7 +4,7 @@ import { ForAngularModule } from 'src/lib/for-angular.module';
 import { EventConstants, RouteDirections } from "src/lib/engine/constants";
 import { StringOrBoolean } from "src/lib/engine/types";
 import { stringToBoolean } from "src/lib/helpers/utils";
-import { RouterService } from "src/app/services/router.service";
+import { Location } from '@angular/common';
 import { windowEventEmitter } from "src/lib/helpers/utils";
 import { addIcons } from 'ionicons';
 import { chevronBackOutline } from 'ionicons/icons';
@@ -139,28 +139,16 @@ export class BackButtonComponent implements OnInit {
   isIonIcon: boolean = true;
 
   /**
-   * @description Stores the previous URL for back navigation.
-   * @summary Caches the previous URL from the router service during initialization.
-   * This is used as a fallback navigation target when no specific link is provided
-   * but the default browser history navigation is not appropriate.
+   * @description Angular Location service.
+   * @summary Injected service that provides access to the browser's URL and history.
+   * This service is used for interacting with the browser's history API, allowing
+   * for back navigation and URL manipulation outside of Angular's router.
    *
    * @private
-   * @type {string}
-   * @memberOf BackButtonComponent
+   * @type {Location}
+   * @memberOf CrudFormComponent
    */
-  private previousUrl?: string;
-
-  /**
-   * @description Service for handling routing operations.
-   * @summary Injected service that provides methods for navigating between routes,
-   * retrieving the previous URL, and managing navigation history. This service
-   * abstracts the underlying Angular Router functionality.
-   *
-   * @private
-   * @type {RouterService}
-   * @memberOf BackButtonComponent
-   */
-  private routerService: RouterService = inject(RouterService);
+  private location: Location = inject(Location);
 
   /**
    * @description Creates an instance of BackButtonComponent.
@@ -183,7 +171,7 @@ export class BackButtonComponent implements OnInit {
    * sequenceDiagram
    *   participant A as Angular Lifecycle
    *   participant B as BackButtonComponent
-   *   participant R as RouterService
+   *   participant R as Location
    *
    *   A->>B: ngOnInit()
    *   B->>B: Process preventDefault
@@ -202,7 +190,6 @@ export class BackButtonComponent implements OnInit {
     this.preventDefault = stringToBoolean(this.preventDefault);
     this.emitEvent = stringToBoolean(this.emitEvent);
     this.color = !!this.toolbarColor ? 'light' : 'primary';
-    this.previousUrl = this.routerService.getPreviousUrl();
     this.showText = stringToBoolean(this.showText);
 
     // if(this.showText)
@@ -253,10 +240,9 @@ export class BackButtonComponent implements OnInit {
 
     self.handleEndNavigation(forceRefresh);
     if(!this.link)
-      return this.routerService.backToLastPage();
+      return this.location.back();
     if(this.link instanceof Function)
       return await this.link();
-    await this.routerService.navigateTo(this.link || this.previousUrl || '/', this.direction);
   }
 
   /**

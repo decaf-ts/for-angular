@@ -1,25 +1,25 @@
-import { ApplicationConfig } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
-import '@decaf-ts/ui-decorators';
-import { HttpClient, provideHttpClient } from '@angular/common/http';
-import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
-import { I18nLoader } from '../lib/i18n/Loader';
-
+import { ApplicationConfig, InjectionToken } from '@angular/core';
 import {
+  provideRouter,
+  withComponentInputBinding,
   RouteReuseStrategy,
   withPreloading,
-  PreloadAllModules,
+  PreloadAllModules
 } from '@angular/router';
-import {
-  IonicRouteStrategy,
-  provideIonicAngular,
-} from '@ionic/angular/standalone';
+import { HttpClient, provideHttpClient } from '@angular/common/http';
+import { IonicRouteStrategy, provideIonicAngular} from '@ionic/angular/standalone';
+import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
+import { RamAdapter } from '@decaf-ts/core/ram';
+import { I18nLoader } from 'src/lib/i18n/Loader';
 import { routes } from './app.routes';
+
+export const DbAdapterProvider = new InjectionToken<RamAdapter>('DbAdapterProvider');
 
 export const appConfig: ApplicationConfig = {
   providers: [
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { provide: DbAdapterProvider, useValue: new RamAdapter() },
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
     provideHttpClient(),

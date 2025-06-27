@@ -1,29 +1,24 @@
 import { Command } from 'commander';
 import { runCommand } from '@decaf-ts/utils';
-import { MiniLogger, LogLevel } from "@decaf-ts/logging";
+import { getLogger } from './lib/for-angular.module';
 
-const defaultLoggerConfig = {
-  level: LogLevel.info,
-  logLevel: true,
-  timestamp: false
-};
 
 enum Projects {
   FOR_ANGULAR = "for-angular",
   FOR_ANGULAR_APP = "for-angular-app",
   LIB = "lib",
   APP = "app"
-}
+};
+
 enum Types {
   PAGE = "page",
   SERVICE = "service",
   COMPONENT = "component",
   DIRECTIVE = "directive",
   SCHEMATICS = "schematics"
-}
+};
 
-const cliDescription = 'Angular CLI module';
-const Logger = new MiniLogger(cliDescription, defaultLoggerConfig);
+const logger = getLogger('cli');
 
 
 /**
@@ -49,16 +44,16 @@ export default function angular() {
   return new Command()
     .name('decaf generate')
     .command('generate <type> <name> [project]')
-    .description(`decaf-ts ${cliDescription}`)
+    .description(`decaf-ts Angular CLI module`)
     .action(async(type: Types, name: string, project: Projects = Projects.FOR_ANGULAR) => {
       if(!validateType(type))
-        return Logger[LogLevel.error](`${type} is not valid. Use service, component or directive.`)
+        return logger.error(`${type} is not valid. Use service, component or directive.`)
 
       if(type === Types.SCHEMATICS)
         return await generateSchematics();
 
       if(type === Types.PAGE) {
-        Logger[LogLevel.info](`Pages can be only generate for app. Forcing project to: ${Projects.FOR_ANGULAR_APP}`);
+        logger.info(`Pages can be only generate for app. Forcing project to: ${Projects.FOR_ANGULAR_APP}`);
         project = Projects.FOR_ANGULAR_APP;
       }
 
@@ -71,11 +66,10 @@ export default function angular() {
 
       try {
         const result = await execute(`${command} ${type} ${name}`);
-        console.info(result);
+        logger.info(result as string);
       } catch(error: any) {
-        Logger[LogLevel.error](error?.message || error);
+        logger.error(error?.message || error);
       }
-
     });
 }
 
@@ -104,7 +98,7 @@ async function execute(command: string): Promise<string|void> {
   try {
     return await runCommand(command).promise;
   } catch (error: any) {
-    Logger[LogLevel.error](error?.message || error);
+    logger.error(error?.message || error);
   }
 }
 

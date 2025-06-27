@@ -27,7 +27,7 @@
           @for (item of menu; track $index;) {
             <ion-menu-toggle auto-hide="false">
               <ion-item
-                [ngClass]="{'dcf-separator': !item.url}"
+                [class]="{'dcf-separator': !item.url}"
                 button="true"
                 detail="true"
                 [routerDirection]="'forward'"
@@ -37,7 +37,7 @@
                 routerLinkActive="dcf-active"
               >
                 @if(item.icon) {
-                  <ion-icon aria-hidden="true" class="icon" [name]="item.icon"></ion-icon>
+                  <ion-icon   [color]="item.color || ''" aria-hidden="true" class="icon" [name]="item.icon"></ion-icon>
                 }
 
                 <ion-label>{{
@@ -45,7 +45,7 @@
                     (locale+'.'+item.text.toLowerCase() | translate) : item.text
                   }}
                 </ion-label>
-                @if(item?.url) {
+                @if(item?.url && item.url !== '/login') {
                   <ion-icon aria-hidden="true" slot="end" size="small" name="chevron-forward-outline"></ion-icon>
                 }
               </ion-item>

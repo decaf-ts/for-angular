@@ -16,7 +16,7 @@ function getEngine(): void {
     }
 }
 
-export function getComponentMeta<C>(imports: unknown[] = [], args: any = {}): Meta<C> {
+export function getComponentMeta<C>(imports: unknown[] = [], type: "component" | "page" = "component", args: any = {}): Meta<C> {
   getEngine();
   return {
     // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
@@ -28,13 +28,13 @@ export function getComponentMeta<C>(imports: unknown[] = [], args: any = {}): Me
     decorators: [
       applicationConfig(appConfig),
       moduleMetadata({
-        //👇 Imports both components to allow component composition with Storyboo k
+        //Imports both components to allow component composition with Storybook
         imports: [...imports, ForAngularModule, ComponentsModule],
         providers: [{ provide: RouterService, useValue: RouterService }]
       }),
-      //👇 Wraps our stories with a decorator
+      // Wraps our stories with a decorator
       componentWrapperDecorator(
-        (story) =>
+        (story) => type === "component" ? story :
           `<ion-app>
             <ion-content [fullscreen]="true">
               <main class="main">
