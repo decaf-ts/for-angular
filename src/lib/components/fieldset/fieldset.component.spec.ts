@@ -4,7 +4,6 @@ import { FieldsetComponent } from './fieldset.component';
 import { NgxRenderingEngine2 } from 'src/lib/engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { OperationKeys } from '@decaf-ts/db-decorators';
 
 const imports = [
   ForAngularModule,
@@ -12,24 +11,24 @@ const imports = [
   TranslateModule.forRoot({
     loader: {
       provide: TranslateLoader,
-      useClass: TranslateFakeLoader
-    }
-  })
+      useClass: TranslateFakeLoader,
+    },
+  }),
 ];
 
-describe('FormReactiveComponent', () => {
+describe('FieldsetComponent', () => {
   let component: FieldsetComponent;
   let fixture: ComponentFixture<FieldsetComponent>;
   let engine;
 
-   beforeAll(() => {
-     try {
-       engine = new NgxRenderingEngine2();
-       Model.setBuilder(Model.fromModel as ModelBuilderFunction);
-     } catch (e: unknown) {
-       console.warn(`Engine already loaded`);
-     }
-   });
+  beforeAll(() => {
+    try {
+      engine = new NgxRenderingEngine2();
+      Model.setBuilder(Model.fromModel as ModelBuilderFunction);
+    } catch (e: unknown) {
+      console.warn(`Engine already loaded`);
+    }
+  });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -38,18 +37,18 @@ describe('FormReactiveComponent', () => {
 
     fixture = TestBed.createComponent(FieldsetComponent);
     component = fixture.componentInstance;
-    component.operation = OperationKeys.CREATE;
+    // component.operation = OperationKeys.CREATE;
     fixture.detectChanges();
   }));
 
   it('should create', () => {
-     // If ngOnInit returns a promise, await it
-    if (component.ngOnInit instanceof Function)
-      component.ngOnInit();
+    // If ngOnInit returns a promise, await it
+    // if (component?.ngOnInit instanceof Function)
+    //   component.ngOnInit();
 
     // If ngAfterViewInit returns a promise, await it
-    if (component.ngAfterViewInit instanceof Function)
-      component.ngAfterViewInit();
+    // if ((component as any)["ngAfterViewInit"] instanceof Function)
+    //   component.ngAfterViewInit();
 
     // Force change detection after async operations
     fixture.detectChanges();

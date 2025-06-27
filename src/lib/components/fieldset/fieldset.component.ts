@@ -1,31 +1,20 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { Dynamic, HTMLFormTarget } from '../../engine';
-import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { CollapsableDirective } from 'src/lib/directives/collapsable.directive';
 import { IonAccordion, IonAccordionGroup, IonItem } from '@ionic/angular/standalone';
 
 
 /**
- * @component CrudFormComponent
- * @example <ngx-decaf-crud-form
- *   action="create"
- *   operation="create"
- *   formGroup="formGroup"
- *   rendererId="rendererId"
- *   submitEvent="submitEvent"
- *   target="_self"
- *   method="event">
- * </ngx-decaf-crud-form>
+ * @component FieldsetComponent
+ * @example <ngx-decaf-fieldset
+ *   name="Title"
+ *   target="_self">
+ * </ngx-decaf-fieldset>
  *
- * @param {string} action - The action to be performed (create, read, update, delete)
- * @param {CrudOperations} operation - The CRUD operation being performed (create, read, update, delete)
- * @param {FormGroup} formGroup - The form group
- * @param {string} rendererId - The renderer id
- * @param {SubmitEvent} submitEvent - The submit event
+ * @param {string} name - Fieldset legend/title
  * @param {string} target - The target
- * @param {string} method - The method
  */
 @Dynamic()
 @Component({
