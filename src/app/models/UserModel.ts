@@ -7,17 +7,16 @@ import { uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
 export class UserModel extends Model {
 
   @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'user.username.label'
+  })
+  username!: string;
+
+  @required()
   @password()
   @eq('../password')
   @uielement('ngx-decaf-crud-field', { label: 'user.secret.label' })
   secret!: string;
-
-  @required()
-  @uielement('ngx-decaf-crud-field', {
-    label: 'user.username.label',
-    placeholder: 'user.username.placeholder',
-  })
-  username!: string;
 
   constructor(args: ModelArg<UserModel> = {}) {
     super(args);

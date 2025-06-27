@@ -290,8 +290,6 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       );
     }
 
-    // set root for formGroup of crud-form-component. TODO: Move to fromFieldDefinition
-    // (result!.instance! as any)['formGroup'] = NgxFormService.createFormFromComponents((result.children || []) as any[]);
     return result;
   }
 
