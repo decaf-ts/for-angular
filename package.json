@@ -25,7 +25,7 @@
     "test:services": "ng test --include='./src/lib/services/*.service.spec.ts' --no-watch --browsers=ChromeHeadlessCI",
     "lint": "ng lint for-angular",
     "lint-fix": "ng lint --fix for-angular",
-    "coverage": "rimraf ./workdocs/reports/data/*.json && npm run test:all -- --coverage --config=./workdocs/reports/jest.coverage.config.ts",
+    "coverage": "rimraf ./workdocs/reports/data/*.json && npm run test:all -- --code-coverage",
     "prepare-release": "npm run lint-fix && npm run build:prod && npm run coverage && npm run docs",
     "release": "./bin/tag-release.sh",
     "clean-publish": "npx clean-publish",
