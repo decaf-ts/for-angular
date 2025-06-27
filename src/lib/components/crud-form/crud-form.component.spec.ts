@@ -18,7 +18,7 @@ const imports = [
   })
 ];
 
-xdescribe('CrudFormComponent', () => {
+describe('CrudFormComponent', () => {
   let component: CrudFormComponent;
   let fixture: ComponentFixture<CrudFormComponent>;
   let engine;

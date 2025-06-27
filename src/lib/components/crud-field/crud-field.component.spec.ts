@@ -21,7 +21,7 @@ const imports = [
   }),
 ];
 
-xdescribe('CrudFieldComponent', () => {
+describe('CrudFieldComponent', () => {
   let component: CrudFieldComponent;
   let fixture: ComponentFixture<CrudFieldComponent>;
   // let formBuilder: FormBuilder;
