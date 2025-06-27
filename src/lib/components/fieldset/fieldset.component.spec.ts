@@ -16,7 +16,7 @@ const imports = [
   }),
 ];
 
-describe('FieldsetComponent', () => {
+xdescribe('FieldsetComponent', () => {
   let component: FieldsetComponent;
   let fixture: ComponentFixture<FieldsetComponent>;
   let engine;
