@@ -66,16 +66,30 @@
     }
   },
   "category": {
-    "name": {"label": "Category name"},
-    "description": {"label": "Category Description"}
+    "name": {
+      "label": "Category name",
+      "placeholder": "Type the category"
+    },
+    "description": {
+      "label": "Category Description",
+      "placeholder": "Describe the category (optional)"
+    }
   },
   "employee": {
-    "name": {"label": "Employee name"},
-    "occupation": {"label": "Employee occupation"}
+    "name": {
+      "label": "Employee name"
+    },
+    "occupation": {
+      "label": "Employee occupation"
+    }
   },
   "user": {
-    "passwordRepeat": {"label": "Repeat password"},
-    "username": {"label": "Username"}
+    "secret": {
+      "label": "Password"
+    },
+    "username": {
+      "label": "Username"
+    }
   },
   "component": {
     "list": {

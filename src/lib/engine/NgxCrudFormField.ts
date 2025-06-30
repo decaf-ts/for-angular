@@ -173,7 +173,10 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    * @description Retrieves all errors associated with the field
    * @returns {Array<{key: string, message: string}>} An array of error objects
    */
-  getErrors(): Array<{ key: string; message: string; }> {
+  getErrors(parent: HTMLElement): Array<{ key: string; message: string; }> {
+    const collapsableContainer = parent.closest('ion-accordion-group');
+    if(collapsableContainer)
+      collapsableContainer.setAttribute('value', 'open');
     return Object.keys(this.formControl.errors ?? {}).map(key => ({
       key: key,
       message: key,

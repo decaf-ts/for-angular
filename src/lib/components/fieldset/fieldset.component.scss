@@ -1,0 +1,34 @@
+.dcf-fieldset {
+  margin-bottom: 1.8rem;
+  padding-bottom: 0;
+  padding-top: 1rem;
+  border: 1px solid #d1d1d1;
+  border-radius: 8px;
+
+  ion-accordion {
+    &.accordion-collapsing,
+    &.accordion-collapsed {
+      margin-bottom: 1rem;
+    }
+
+    ion-item[slot="header"] {
+      --border-color: transparent;
+      --border-radius: 6px;
+      --inner-border-width: 0;
+      --padding-start: 12px;
+
+      legend {
+        font-weight: 600;
+        font-size: 1rem;
+        color: #333;
+        margin: 0;
+      }
+    }
+
+    [slot="content"] {
+      padding-top: 1rem !important;
+      padding-inline: 0.75rem;
+      background-color: #fff;
+    }
+  }
+}

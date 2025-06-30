@@ -14,26 +14,14 @@ import { Location } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { FormElement } from '../../interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
-import {
-  BaseCustomEvent,
-  CrudFormEvent,
-  Dynamic,
-  EventConstants,
-  FieldUpdateMode,
-  HTMLFormTarget,
-  RenderedModel,
-} from '../../engine';
+import { CrudFormEvent, Dynamic, EventConstants, FieldUpdateMode, HTMLFormTarget, RenderedModel } from '../../engine';
 import { CrudFormOptions } from './types';
-import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
 import { ForAngularModule, getLogger } from 'src/lib/for-angular.module';
 import { IonIcon } from '@ionic/angular/standalone';
 import { Model } from '@decaf-ts/decorator-validation';
 import { Logger } from '@decaf-ts/logging';
-import { Repository } from '@decaf-ts/core';
-import { DecafRepository } from '../list/constants';
-
-
 
 
 /**
@@ -74,7 +62,7 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
    * @type {Model| undefined}
    */
   @Input()
-  model!:  Model | undefined;;
+  model!: Model | undefined;
 
   @Input()
   updateOn: FieldUpdateMode = 'change';
@@ -98,7 +86,7 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   operation!: CrudOperations;
 
   @Input()
-  handlers!: Record<string, (...args: any[]) => any | Promise<any>>
+  handlers!: Record<string, (...args: any[]) => any | Promise<any>>;
 
   @Input()
   formGroup!: FormGroup | undefined;
@@ -108,7 +96,7 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
    * @summary Full dot-delimited path of the parent FormGroup. Set only when is part of a nested structure.
    *
    * @type {string}
-   * @memberOf CrudFieldComponent
+   * @memberOf CrudFormComponent
    */
   @Input()
   childOf?: string;
@@ -164,7 +152,7 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   }
 
   async ngOnInit() {
-    if(!this.logger)
+    if (!this.logger)
       this.logger = getLogger(this);
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)
       this.formGroup = undefined;
@@ -177,7 +165,7 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
   }
 
   ngOnDestroy() {
-    if(this.formGroup)
+    if (this.formGroup)
       NgxFormService.unregister(this.formGroup);
   }
 
@@ -193,11 +181,12 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
       return false;
 
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
+    console.log('Submit=', data);
     this.submitEvent.emit({
       data,
-      component:'FormReactiveComponent',
+      component: 'FormReactiveComponent',
       name: this.action || EventConstants.SUBMIT_EVENT,
-      handlers: this.handlers
+      handlers: this.handlers,
     });
   }
 

@@ -5,6 +5,7 @@ import { NgxRenderingEngine2 } from 'src/lib/engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
+import { FormGroup } from '@angular/forms';
 
 const imports = [
   ForAngularModule,
@@ -17,7 +18,7 @@ const imports = [
   })
 ];
 
-describe('FormReactiveComponent', () => {
+describe('CrudFormComponent', () => {
   let component: CrudFormComponent;
   let fixture: ComponentFixture<CrudFormComponent>;
   let engine;
@@ -39,6 +40,7 @@ describe('FormReactiveComponent', () => {
     fixture = TestBed.createComponent(CrudFormComponent);
     component = fixture.componentInstance;
     component.operation = OperationKeys.CREATE;
+    component.formGroup = new FormGroup({});
     fixture.detectChanges();
   }));
 
