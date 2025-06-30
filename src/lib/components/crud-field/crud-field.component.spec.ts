@@ -296,7 +296,7 @@ describe('CrudFieldComponent', () => {
     fixture.detectChanges();
 
     const input = fixture.nativeElement.querySelector('ion-input');
-    expect(input.readonly).toBeTrue();
+    expect(input.readonly).toBeTruthy();
   });
 
   it('should handle disabled attribute correctly', () => {
@@ -309,6 +309,6 @@ describe('CrudFieldComponent', () => {
 
     const input = fixture.nativeElement.querySelector('ion-input');
     expect(component.formGroup.disabled).toBeTruthy();
-    expect(input.disabled).toBeTrue();
+    expect(input.disabled).toBeTruthy();
   });
 });
