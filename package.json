@@ -115,5 +115,8 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
+  },
+  "dependencies": {
+    "ts-node": "^10.9.2"
   }
 }
