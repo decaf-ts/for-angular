@@ -8,6 +8,9 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        node-version: [ 22 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,8 +20,31 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org/
+          # Cache dependencies (npm)
+      - name: Cache dependencies
+        id: cache-npm
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: deps-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            deps-${{ runner.os }}-${{ matrix.node-version }}-
       - run: npm ci
-      - run: npm run build:prod
+      - name: Cache Build
+        id: cache-build
+        uses: actions/cache@v4
+        with:
+          path: | 
+            lib
+            dist
+          key: build-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            build-${{ runner.os }}-${{ matrix.node-version }}-
+            
+      - if: ${{ steps.cache-build.outputs.cache-hit != 'true' }}
+        run: npm run build:prod  # Replace with your build command 
       - run: npm run test:all
       - run: npm publish --access public
         env:

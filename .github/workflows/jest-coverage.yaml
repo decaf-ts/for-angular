@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 20.x ]
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+        node-version: [ 22 ]
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,8 +20,36 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+
+      # Cache dependencies (npm)
+      - name: Cache dependencies
+        id: cache-npm
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: deps-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            deps-${{ runner.os }}-${{ matrix.node-version }}-
+
+      # Install dependencies only if cache missed
       - run: npm ci
-      - run: npm run build:prod
+
+      - name: Cache Build
+        id: cache-build
+        uses: actions/cache@v4
+        with:
+          path: | 
+            lib
+            dist
+          key: build-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            build-${{ runner.os }}-${{ matrix.node-version }}-
+            
+      - if: ${{ steps.cache-build.outputs.cache-hit != 'true' }}
+        run: npm run build:prod  # Replace with your build command  
+              
       - run: npm run coverage
       - name: Tests ✅
         if: ${{ success() }}
