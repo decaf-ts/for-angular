@@ -3,12 +3,16 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
+    "module": "CommonJs",
     "types": [
-      "jasmine"
-    ]
+      "jest",
+      "node"
+    ],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
   "files": [
-    "src/test.ts",
+    // "src/karmaTest.ts", // Uncomment if using Karma. Commented out to avoid conflict with Jest.
     "src/polyfills.ts"
   ],
   "include": [
