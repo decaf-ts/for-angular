@@ -698,12 +698,12 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    *
    * @param {number} index - The index of the item in the list.
 
-   * @param {KeyValue & {uid: string | number}} item - The actual item from the list.
+   * @param {KeyValue} item - The actual item from the list.
    * @returns {string | number} The tracking key for the item.
    * @memberOf ListComponent
    */
-  trackItemFn(index: number, item: KeyValue & {uid: string | number}): string | number {
-    return `${item?.uid || item?.[this.pk]}-${index}`;
+  trackItemFn(index: number, item: KeyValue): string | number {
+    return `${item?.['uid'] || item?.[this.pk]}-${index}`;
   }
 
 
