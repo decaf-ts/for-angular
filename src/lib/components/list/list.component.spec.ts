@@ -33,7 +33,25 @@ describe('ListComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports,
-    }).compileComponents();
+    }).overrideComponent(ListComponent, {
+      add: {
+         template: `
+          <ion-content>
+            <ion-list [inset]="inset" [lines]="lines" #component>
+              <ng-content></ng-content>
+            </ion-list>
+
+             <ion-infinite-scroll
+              [position]="scrollPosition"
+              [threshold]="scrollThreshold"
+              (ionInfinite)="handleRefresh($event)">
+              <ion-infinite-scroll-content [loadingSpinner]="loadingSpinner" [loadingText]="loadingText" />
+            </ion-infinite-scroll>
+          </ion-content>
+         `
+      }
+   }).compileComponents();
+
 
     fixture = TestBed.createComponent(ListComponent);
     component = fixture.componentInstance;
