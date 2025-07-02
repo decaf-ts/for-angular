@@ -33,7 +33,7 @@ const ComponentsAndModules = [
 ];
 
 const log = Logging.for("for-angular");
-export function getLogger(instance: object | Function | string): Logger {
+export function getLogger(instance: object | string): Logger {
   return log.for(instance as any);
 }
 

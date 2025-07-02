@@ -16,14 +16,14 @@ export interface IListEmptyResult {
   icon: string;
 }
 
-export type RawQuery<M extends Model> = {
+export interface RawQuery<M extends Model> {
     select: undefined | (keyof M)[];
     from: Constructor<M>;
     where: (el: M) => boolean;
     sort?: (el: M, el2: M) => number;
     limit?: number;
     skip?: number;
-};
+}
 
 export type DecafRepositoryAdapter = Adapter<Map<string, Map<string | number, any>>, RawQuery<any>, RepositoryFlags & {UUIID?: string}, Context<RepositoryFlags & {UUIID?: string}>>
 

@@ -1,13 +1,14 @@
-import { Component,  CUSTOM_ELEMENTS_SCHEMA, inject, Injector, Input, OnInit } from '@angular/core';
+import { Component,  CUSTOM_ELEMENTS_SCHEMA, inject, Input, OnInit } from '@angular/core';
 import { Color } from '@ionic/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { IonHeader, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
+import { IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 import { RouterService } from 'src/app/services/router.service';
 import { stringToBoolean } from 'src/lib/helpers/utils';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { BackButtonComponent } from '../back-button/back-button.component';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+import { FunctionType } from 'src/lib/helpers/types';
 
 /**
  * @description Header component for application pages.
@@ -92,7 +93,7 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @memberOf HeaderComponent
    */
   @Input()
-  logo: string = "";
+  logo = "";
 
   /**
    * @description Controls whether the header expands to fill available space.
@@ -147,11 +148,11 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @summary Specifies a custom URL or function to execute when the back button is clicked.
    * This overrides the default behavior of navigating to the previous page in history.
    *
-   * @type {string | Function}
+   * @type {string | FunctionType}
    * @memberOf HeaderComponent
    */
   @Input()
-  backButtonLink?: string | Function;
+  backButtonLink?: string | FunctionType;
 
   /**
    * @description Background color of the header.
@@ -215,18 +216,6 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   translucent: StringOrBoolean = false;
 
   /**
-   * @description Service for controlling the application's menu.
-   * @summary Injected service that provides methods for enabling, disabling,
-   * and toggling the application's side menu. This service is used to control
-   * the menu based on the showMenuButton property.
-   *
-   * @private
-   * @type {MenuController}
-   * @memberOf HeaderComponent
-   */
-  private menuController: MenuController = inject(MenuController);
-
-  /**
    * @description Service for handling routing operations.
    * @summary Injected service that provides methods for navigating between routes.
    * This service is used for navigation when changing operations or performing
@@ -259,7 +248,6 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   * sequenceDiagram
   *   participant A as Angular Lifecycle
   *   participant H as HeaderComponent
-  *   participant M as MenuController
   *
   *   A->>H: ngOnInit()
   *   H->>M: enable(showMenuButton)
@@ -274,7 +262,6 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   * @memberOf HeaderComponent
   */
   ngOnInit(): void {
-    // this.menuController.enable(stringToBoolean(this.showMenuButton) as boolean);
     this.showBackButton = stringToBoolean(this.showBackButton);
     console.log(this.showBackButton);
     this.center = stringToBoolean(this.center);
@@ -283,7 +270,7 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
     this.border = stringToBoolean(this.border);
     if(this.center)
       this.className = ' dcf-flex';
-    if(!!this.backgroundColor)
+    if(this.backgroundColor)
       this.className += ` ${this.backgroundColor}`;
     if(!this.border)
       this.className += ` ion-no-border`;

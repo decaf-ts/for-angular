@@ -3,7 +3,6 @@ import * as ts from 'typescript';
 import type { Change } from './change';
 import { InsertChange, NoopChange } from './change';
 
-/* tslint:disable */
 export function insertImport(
   source: ts.SourceFile,
   fileToEdit: string,
@@ -171,9 +170,7 @@ export function getContentOfKeyLiteral(_source: ts.SourceFile, node: ts.Node): s
   }
 }
 
-function _angularImportsFromNode(node: ts.ImportDeclaration): {
-  [name: string]: string;
-} {
+function _angularImportsFromNode(node: ts.ImportDeclaration): Record<string, string> {
   const ms = node.moduleSpecifier;
   let modulePath: string;
   switch (ms.kind) {
@@ -205,7 +202,7 @@ function _angularImportsFromNode(node: ts.ImportDeclaration): {
 
         return namedImports.elements
           .map((is: ts.ImportSpecifier) => (is.propertyName ? is.propertyName.text : is.name.text))
-          .reduce((acc: { [name: string]: string }, curr: string) => {
+          .reduce((acc: Record<string, string>, curr: string) => {
             acc[curr] = modulePath;
 
             return acc;
@@ -221,9 +218,9 @@ function _angularImportsFromNode(node: ts.ImportDeclaration): {
 }
 
 export function getDecoratorMetadata(source: ts.SourceFile, identifier: string, module: string): ts.Node[] {
-  const angularImports: { [name: string]: string } = findNodes(source, ts.SyntaxKind.ImportDeclaration)
+  const angularImports: Record<string, string> = findNodes(source, ts.SyntaxKind.ImportDeclaration)
     .map((node) => _angularImportsFromNode(node as ts.ImportDeclaration))
-    .reduce((acc: { [name: string]: string }, current: { [name: string]: string }) => {
+    .reduce((acc: Record<string, string>, current: Record<string, string>) => {
       for (const key of Object.keys(current)) {
         acc[key] = current[key];
       }
@@ -311,8 +308,7 @@ export function addSymbolToNgModuleMetadata(
   importPath: string | null = null
 ): Change[] {
   const nodes = getDecoratorMetadata(source, 'NgModule', '@angular/core');
-  let node: any = nodes[0]; // tslint:disable-line:no-any
-
+  let node: any = nodes[0];
   // Find the decorator declaration.
   if (!node) {
     return [];
@@ -370,8 +366,7 @@ export function addSymbolToNgModuleMetadata(
   }
 
   if (!node) {
-    // tslint:disable-next-line: no-console
-    console.error('No app module found. Please add your new class to your component.');
+       console.error('No app module found. Please add your new class to your component.');
 
     return [];
   }

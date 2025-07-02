@@ -133,7 +133,7 @@ export class ModelRendererComponent<M extends Model>
       this.injector,
       this.inner,
     );
-    if (!!this.output?.inputs)
+    if (this.output?.inputs)
       this.rendererId = sf(
         AngularEngineKeys.RENDERED_ID,
         (this.output.inputs as Record<string, any>)['rendererId'] as string,
@@ -167,14 +167,13 @@ export class ModelRendererComponent<M extends Model>
 
   private subscribeEvents(): void {
     if (this.instance) {
-      const self = this;
       const componentKeys = Object.keys(this.instance);
       for (const key of componentKeys) {
         const value = this.instance[key];
         if (value instanceof EventEmitter)
-          (self.instance as KeyValue)[key].subscribe((event: Partial<BaseCustomEvent>) => {
-            self.listenEvent.emit({
-              component: self.output?.component.name || '',
+          (this.instance as KeyValue)[key].subscribe((event: Partial<BaseCustomEvent>) => {
+            this.listenEvent.emit({
+              component: this.output?.component.name || '',
               name: key,
               ...event,
             } as ModelRenderCustomEvent);

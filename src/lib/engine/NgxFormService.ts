@@ -1,5 +1,5 @@
 import { escapeHtml, FieldProperties, HTML5CheckTypes, HTML5InputTypes, parseToNumber } from '@decaf-ts/ui-decorators';
-import { AngularFieldDefinition, FieldUpdateMode } from './types';
+import {  FieldUpdateMode } from './types';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { isValidDate, parseDate, Validation } from '@decaf-ts/decorator-validation';
 import { ValidatorFactory } from './ValidatorFactory';
@@ -34,8 +34,7 @@ export class NgxFormService {
   private static controls = new WeakMap<AbstractControl, FieldProperties>();
   private static formRegistry = new Map<string, FormGroup>();
 
-  private constructor() {
-  }
+  // private constructor() {}
 
   /**
    * Registers a FormGroup in the registry with the given identifier.
@@ -145,7 +144,7 @@ export class NgxFormService {
    * @param {boolean} registry - Whether to register the generated FormGroup
    * @returns {FormGroup} FormGroup - Root FormGroup containing the complete nested structure
    */
-  static createFormFromComponents(id: string, components: ComponentConfig[], registry: boolean = false): FormGroup {
+  static createFormFromComponents(id: string, components: ComponentConfig[], registry = false): FormGroup {
     const form = new FormGroup({});
     components.forEach(component => {
       this.addFormControl(form, component.inputs);
@@ -233,7 +232,6 @@ export class NgxFormService {
    * @throws {Error} If the control at the specified path does not exist or is of an unknown type.
    */
   static validateFields(control: AbstractControl, path?: string): boolean {
-    const self = this;
     control = path ? control.get(path) as AbstractControl : control;
     if (!control)
       throw new Error(`No control found at path: ${path || 'root'}.`);
@@ -251,7 +249,7 @@ export class NgxFormService {
     // If is a FormGroup, validate all its child controls recursively.
     if (control instanceof FormGroup) {
       Object.values(control.controls).forEach((childControl) => {
-        self.validateFields(childControl);
+        this.validateFields(childControl);
       });
     }
 
@@ -278,7 +276,7 @@ export class NgxFormService {
    * @description
    * Generates a new FormGroup instance based on the provided field definition and update mode.
    *
-   * @param {AngularFieldDefinition} props - The Angular field definition properties.
+   * @param {FieldProperties} props - The Angular field definition properties.
    * @param {FieldUpdateMode} updateMode - The update mode for the form group.
    * @returns {FormGroup} A new FormGroup instance.
    */

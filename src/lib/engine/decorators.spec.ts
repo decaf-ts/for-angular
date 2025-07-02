@@ -26,7 +26,7 @@ import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
 describe('decorators', () => {
   @Dynamic()
   @Component({
-    selector: 'ngx-decorator-test-form-field',
+    selector: 'ngx-decaf-decorator-test-form-field-component',
     standalone: true,
     imports: [
       ForAngularModule,
@@ -50,13 +50,13 @@ describe('decorators', () => {
       '../components/crud-field/crud-field.component.html',
     styleUrl: '../components/crud-field/crud-field.component.scss',
   })
-  class DecoratorTestFormField {}
+  class DecoratorTestFormFieldComponent {}
 
   // beforeEach(() => {});
 
   xit('should populate from @Component Metadata', () => {
     expect(
-      NgxRenderingEngine2.components('ngx-decorator-test-form-field'),
+      NgxRenderingEngine2.components('ngx-decaf-decorator-test-form-field-component') as DecoratorTestFormFieldComponent,
     ).toBeDefined();
   });
 });

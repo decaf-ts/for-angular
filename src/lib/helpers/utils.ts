@@ -1,7 +1,8 @@
 import { isDevMode } from '@angular/core';
 import { InjectableRegistryImp, InjectablesRegistry } from '@decaf-ts/injectable-decorators';
 import { Primitives } from '@decaf-ts/decorator-validation';
-import { KeyValue, StringOrBoolean } from '../engine/types';
+import { KeyValue, StringOrBoolean, } from '../engine/types';
+import { FunctionType } from './types';
 
 let injectableRegistry: InjectablesRegistry;
 
@@ -36,7 +37,7 @@ export function getInjectablesRegistry(): InjectablesRegistry {
  * @function isDevelopmentMode
  * @memberOf module:for-angular
  */
-export function isDevelopmentMode(context: string = 'localhost') {
+export function isDevelopmentMode(context = 'localhost') {
   if (!context)
     return isDevMode();
   return (
@@ -199,7 +200,7 @@ export function isNotUndefined(prop: StringOrBoolean | undefined): boolean {
  * string. For longer names, it uses the last part as a prefix and joins the rest with
  * underscores.
  *
- * @param {string|Function|object} instance - The input to generate the locale from (class name, constructor, or instance)
+ * @param {string|FunctionType|object} instance - The input to generate the locale from (class name, constructor, or instance)
  * @param {string} [suffix] - Optional string to append to the instance name before processing
  * @return {string} A formatted locale string derived from the input
  *
@@ -207,12 +208,12 @@ export function isNotUndefined(prop: StringOrBoolean | undefined): boolean {
  * @memberOf module:for-angular
  */
 export function getLocaleFromClassName(
-  instance: string | Function | object,
+  instance: string | FunctionType | object,
   suffix?: string
 ): string {
   if (typeof instance !== 'string')
     instance =
-      (instance as Function).name || (instance as object)?.constructor?.name;
+      (instance as FunctionType).name || (instance as object)?.constructor?.name;
 
   let name: string | string[] = instance;
 
@@ -220,7 +221,7 @@ export function getLocaleFromClassName(
 
   name = name
     .replace(/_|-/g, '')
-    .replace(/(?:^\w\_|[A-Z]|\b\w)/g, (word: string, index: number) => {
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word: string, index: number) => {
       if (index > 1) word = '.' + word;
       return word.toLowerCase();
     })
@@ -229,7 +230,7 @@ export function getLocaleFromClassName(
   if (name.length < 3)
     return name.reverse().join('.');
 
-  let preffix = name[name.length - 1];
+  const preffix = name[name.length - 1];
   name.pop();
   name = name.join('_');
   return `${preffix}.${name}`;
@@ -294,7 +295,7 @@ export function getLocaleLanguage(): string {
  * @function generateRandomValue
  * @memberOf module:for-angular
  */
-export function generateRandomValue(length: number = 8, onlyNumbers: boolean = false): string {
+export function generateRandomValue(length = 8, onlyNumbers = false): string {
   const chars = onlyNumbers
     ? '0123456789'
     : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -339,7 +340,8 @@ export function isValidDate(date: string | Date | number): boolean {
 
     return !!(new Date(date));
    })();
-  } catch(e) {
+  } catch(e: any) {
+    console.error('Error validating date:', e?.message);
     return false;
   }
 }
@@ -421,7 +423,7 @@ export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): 
       } else {
         let val;
 
-        for (let _value of arrayValue)
+        for (const _value of arrayValue)
           val = !val
             ? item[_value]
             : (typeof val === 'string' ? JSON.parse(val) : val)[_value];
@@ -449,7 +451,7 @@ export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): 
 export function dataMapper<T>(data: any[], mapper: KeyValue, props?: KeyValue): T[] {
   if (!data || !data.length) return [];
   return data.reduce((accum: T[], curr) => {
-    let item = itemMapper(curr, mapper, props) as T;
+    const item = itemMapper(curr, mapper, props) as T;
     const hasValues =
       [...new Set(Object.values(item as T[]))].filter((value) => value).length >
       0;

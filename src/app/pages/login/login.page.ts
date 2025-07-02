@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
 import { ComponentsModule } from 'src/app/components/components.module';
 import { CrudFormEvent } from 'src/lib/engine';
@@ -39,7 +39,7 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [ForAngularComponentsModule, IonCard, IonCardContent, IonImg, ComponentsModule],
 })
-export class LoginPage implements OnInit {
+export class LoginPage {
   /**
    * @description Instance of LoginModel for form data binding
    * @summary This property holds the data model for the login form
@@ -57,12 +57,6 @@ export class LoginPage implements OnInit {
    * @summary Injected ToastController service used for showing success or error messages
    */
   private toastController = inject(ToastController);
-
-  /**
-   * @description Lifecycle hook that is called after data-bound properties of a directive are initialized
-   * @summary This method is currently empty but can be used for any initialization logic
-   */
-  ngOnInit(): void {}
 
   /**
    * @description Handles form submission events

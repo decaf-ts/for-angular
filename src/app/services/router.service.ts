@@ -5,7 +5,6 @@ import { NavController } from '@ionic/angular/standalone';
 import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
 import { KeyValue } from '../../lib/engine/types';
 import { EventConstants, RouteDirections } from '../../lib/engine/constants';
-import { getOnWindow, windowEventEmitter } from '../../lib/helpers/utils';
 import { Primitives } from '@decaf-ts/decorator-validation';
 
 /**
@@ -159,7 +158,7 @@ export class RouterService {
    * @memberOf RouterService
    */
   hasQueryParam(param: string): boolean {
-    return this.route.snapshot.queryParams.hasOwnProperty(param);
+    return !!this.route.snapshot.queryParams?.[param];
   }
 
   /**

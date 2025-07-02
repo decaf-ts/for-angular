@@ -1,7 +1,7 @@
-import { Component,  ElementRef,  EventEmitter, HostListener, Input, OnInit, Output, ViewChild  } from '@angular/core';
+import { Component,  EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { AutocompleteTypes, PredefinedColors} from '@ionic/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
-import {generateRandomValue, windowEventEmitter} from 'src/lib/helpers/utils';
+import {windowEventEmitter} from 'src/lib/helpers/utils';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { stringToBoolean } from 'src/lib/helpers/utils';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
@@ -72,7 +72,7 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @default "Cancel"
    */
   @Input()
-  buttonCancelText: string = "Cancel";
+  buttonCancelText = "Cancel";
 
   /**
    * @description The icon to use for the clear button.
@@ -99,7 +99,7 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @default 500
    */
   @Input()
-  debounce: number = 500;
+  debounce = 500;
 
   /**
    * @description Whether the searchbar is disabled.
@@ -135,7 +135,7 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @default "Search"
    */
   @Input()
-  placeholder: string = "Search";
+  placeholder = "Search";
 
   /**
    * @description The icon to use for the search button.
@@ -171,7 +171,7 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @default false
    */
   @Input()
-  spellcheck: boolean = false;
+  spellcheck = false;
 
   /**
    * @description The type of input to use for the searchbar.
@@ -281,13 +281,11 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @return {void}
    */
   @HostListener("window:toggleSearchbarVisibility", ['event'])
-  handleToggleVisibility(event: CustomEvent): void {
-    const self = this;
-    self.isVisible = !self.isVisible;
-
-    if(self.isVisible && !!self.component.nativeElement) {
+  handleToggleVisibility(): void {
+    this.isVisible = !this.isVisible;
+    if(this.isVisible && !!this.component.nativeElement) {
       setTimeout(() => {
-        (self.component.nativeElement as HTMLIonSearchbarElement).setFocus();
+        (this.component.nativeElement as HTMLIonSearchbarElement).setFocus();
       }, 125);
     }
   }
@@ -298,9 +296,8 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @return {void}
    */
   search(): void {
-    const self = this;
-    const element = self.component.nativeElement as HTMLIonSearchbarElement;
-    this.searchEvent.emit(element?.value || undefined);
+    const element = this.component.nativeElement as HTMLIonSearchbarElement;
+    this.searchEvent.emit(element.value || undefined);
   }
 
   /**
@@ -310,9 +307,8 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @return {void}
    */
   handleChange(event: CustomEvent): void {
-    const {value} = event?.detail;
-    if(value?.length)
-      this.emitEvent(value);
+    const value = event?.detail?.value;
+    this.emitEvent(value ?? undefined);
   }
 
   /**
@@ -331,7 +327,7 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @return {void}
    */
   handleInput(event: CustomEvent): void {
-    const {value} = event?.detail;
+    const value = event?.detail?.value;
     if(!value || !value?.length)
       return this.handleClear();
     this.emitEvent(value);
@@ -343,7 +339,7 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @param {CustomEvent} event - The blur event from the searchbar
    * @return {void}
    */
-  handleBlur(event: CustomEvent): void {}
+  // handleBlur(event: CustomEvent): void {}
 
   /**
    * @description Emits a search event.

@@ -7,6 +7,7 @@ import { CategoryModel } from '../models/CategoryModel';
 import { KeyValue } from 'src/lib/engine/types';
 import { InternalError } from '@decaf-ts/db-decorators';
 import { Repository } from '@decaf-ts/core';
+import { FunctionType } from 'src/lib/helpers/types';
 
 export class ForAngularRepository<T extends Model> {
 
@@ -37,7 +38,7 @@ export class ForAngularRepository<T extends Model> {
   }
 
   public async init(): Promise<void> {
-    this.repository;
+    this._repository = this.repository;
     let data = await this._repository?.select().execute();
     if(!this.data?.length) {
       const items = 55;
@@ -47,7 +48,7 @@ export class ForAngularRepository<T extends Model> {
       // console.log(created);
       data = await this.repository?.createAll(data) as T[];
     }
-    this.data = data as T[];
+    this.data = data as T[] || [];
   }
 
   public async getAll(): Promise<Model[]> {
@@ -61,7 +62,7 @@ export class ForAngularRepository<T extends Model> {
   }
 }
 
-function generateEmployes(limit: number = 100): EmployeeModel[] {
+function generateEmployes(limit = 100): EmployeeModel[] {
   return getFakerData(limit, {
     name: faker.person.fullName,
     occupation: faker.person.jobTitle,
@@ -71,7 +72,7 @@ function generateEmployes(limit: number = 100): EmployeeModel[] {
   }, EmployeeModel.name);
 }
 
-function generateCatories(limit: number = 100): CategoryModel[] {
+function generateCatories(limit = 100): CategoryModel[] {
   return getFakerData<CategoryModel>(limit, {
     name: () =>
       faker.commerce.department() +
@@ -84,8 +85,8 @@ function generateCatories(limit: number = 100): CategoryModel[] {
 }
 
 export function getFakerData<T extends Model>(
-  limit: number = 100,
-  data: Record<string, Function>,
+  limit = 100,
+  data: Record<string, FunctionType>,
   model?: string,
 ): T[] {
   let index = 1;

@@ -11,8 +11,7 @@ import { IonApp,
   IonIcon,
   IonLabel,
   IonRouterOutlet,
-  IonRouterLink,
-  MenuController
+  IonRouterLink
 } from '@ionic/angular/standalone';
 import { Title } from '@angular/platform-browser';
 import { Platform } from '@ionic/angular';
@@ -187,7 +186,7 @@ export class AppComponent implements OnInit {
   /**
    * @description The currently active menu item
    */
-  activeItem: string = '';
+  activeItem = '';
 
   /**
    * @description The database adapter provider
@@ -197,7 +196,7 @@ export class AppComponent implements OnInit {
   /**
    * @description Flag indicating if the application has been initialized
    */
-  initialized: boolean = false;
+  initialized = false;
 
   /**
    * @description Angular Title service
@@ -207,7 +206,7 @@ export class AppComponent implements OnInit {
   /**
    * @description disable or enable menu on page
    */
-  disableMenu: boolean = true;
+  disableMenu = true;
 
   /**
    * @description Initializes the component
@@ -244,7 +243,7 @@ export class AppComponent implements OnInit {
     this.initialized = true;
     const isDevelopment = isDevelopmentMode();
     if(isDevelopment) {
-      for(let model of [new CategoryModel(), new EmployeeModel()] ) {
+      for(const model of [new CategoryModel(), new EmployeeModel()] ) {
         const repository = new ForAngularRepository<typeof model>(this.adapter as DecafRepositoryAdapter, model);
         await repository.init();
       }

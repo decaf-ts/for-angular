@@ -1,6 +1,5 @@
-import { Component, inject, Inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import {
-  CrudOperations,
   InternalError,
   IRepository,
   OperationKeys,
@@ -80,15 +79,15 @@ export class ModelPage implements OnInit {
   }
 
   async refresh(uid?: string) {
-    const self: ModelPage = this;
+    if(!uid)
+      uid = this.uid;
     try {
-      this.repository;
-      // const model = new (Model.get(!self.modelName.includes('Model') ? `${self.modelName}Model` : self.modelName) as ModelConstructor<any>)();
-      switch(self.operation){
+      this._repository = this.repository;
+      switch(this.operation){
         case OperationKeys.READ:
         case OperationKeys.UPDATE:
         case OperationKeys.DELETE:
-          this.model = await self.handleGet(this.uid);
+          this.model = await this.handleGet(uid);
         break;
         // to DO
         // default:
@@ -100,8 +99,8 @@ export class ModelPage implements OnInit {
   }
 
   async handleEvent(event: BaseCustomEvent) {
-    const { name, data } = event;
-    switch (event.name) {
+    const { name } = event;
+    switch (name) {
       case EventConstants.SUBMIT_EVENT:
         await this.handleSubmit(event);
       break;
@@ -111,7 +110,7 @@ export class ModelPage implements OnInit {
   async handleSubmit(event: BaseCustomEvent): Promise<void | Error> {
     try {
       const repo = this._repository as IRepository<Model>;
-      const data = this.parseData(event.data, this.operation);
+      const data = this.parseData(event.data);
       const result = this.operation === OperationKeys.CREATE ?
         await repo.create(data as Model) : this.operation === OperationKeys.UPDATE ?
           await repo.update(data as Model) : repo.delete(data as string | number);
@@ -128,19 +127,17 @@ export class ModelPage implements OnInit {
   }
 
   async handleGet(uid: string): Promise<Model | undefined> {
-    const self = this;
-    return new Promise(async (resolve, reject) => {
-      if (!uid) {
-        this.logger.info('No key passed to model page read operation, backing to last page',);
-        this.routerService.backToLastPage();
-        return reject(undefined);
-      }
-      resolve(await (this._repository as IRepository<Model>).read(Number(uid)));
-    })
+  if (!uid) {
+    this.logger.info('No key passed to model page read operation, backing to last page');
+    this.routerService.backToLastPage();
+    return undefined;
   }
+  const result = await (this._repository as IRepository<Model>).read(Number(uid));
+  return result ?? undefined;
+}
 
 
-  private parseData(data: Partial<Model>, opration: OperationKeys): Model | string | number{
+  private parseData(data: Partial<Model>): Model | string | number{
       const repo = this._repository as IRepository<Model>;
       let uid: number | string = this.uid;
       if(repo.pk === 'id' as keyof Model)
@@ -148,6 +145,5 @@ export class ModelPage implements OnInit {
       if(this.operation !== OperationKeys.DELETE)
         return Model.build(this.uid ? Object.assign(data, {[repo.pk]: uid}) : data, this.modelName) as Model;
       return uid;
-
   }
 }

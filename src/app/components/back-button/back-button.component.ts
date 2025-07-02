@@ -8,6 +8,7 @@ import { Location } from '@angular/common';
 import { windowEventEmitter } from "src/lib/helpers/utils";
 import { addIcons } from 'ionicons';
 import { chevronBackOutline } from 'ionicons/icons';
+import { FunctionType } from "src/lib/helpers/types";
 
 @Component({
   selector: 'app-back-button',
@@ -55,11 +56,11 @@ export class BackButtonComponent implements OnInit {
    * When not provided, the component will navigate to the previous URL in the browser history.
    * When a function is provided, it will be called instead of performing standard navigation.
    *
-   * @type {(string | Function | undefined)}
+   * @type {(string | FunctionType | undefined)}
    * @memberOf BackButtonComponent
    */
   @Input()
-  link?: string | Function;
+  link?: string | FunctionType;
 
   /**
    * @description The direction of navigation animation.
@@ -136,7 +137,7 @@ export class BackButtonComponent implements OnInit {
    * @default true
    * @memberOf BackButtonComponent
    */
-  isIonIcon: boolean = true;
+  isIonIcon = true;
 
   /**
    * @description Angular Location service.
@@ -189,7 +190,7 @@ export class BackButtonComponent implements OnInit {
   ngOnInit(): void {
     this.preventDefault = stringToBoolean(this.preventDefault);
     this.emitEvent = stringToBoolean(this.emitEvent);
-    this.color = !!this.toolbarColor ? 'light' : 'primary';
+    this.color = this.toolbarColor ? 'light' : 'primary';
     this.showText = stringToBoolean(this.showText);
 
     // if(this.showText)
@@ -233,12 +234,11 @@ export class BackButtonComponent implements OnInit {
    *
    * @memberOf BackButtonComponent
    */
-  async backToPage(forceRefresh: boolean = false): Promise<boolean|void> {
-    const self = this;
+  async backToPage(forceRefresh = false): Promise<boolean|void> {
     if(this.preventDefault)
-      return self.handleEndNavigation(forceRefresh);
+      return this.handleEndNavigation(forceRefresh);
 
-    self.handleEndNavigation(forceRefresh);
+    this.handleEndNavigation(forceRefresh);
     if(!this.link)
       return this.location.back();
     if(this.link instanceof Function)
@@ -295,7 +295,7 @@ export class BackButtonComponent implements OnInit {
    * @memberOf BackButtonComponent
    */
   @HostListener('window:BackButtonForceNavigationEvent', ['$event'])
-  handleModelPageEvent(event: Event): Promise<boolean|void> {
+  handleModelPageEvent(): Promise<boolean|void> {
     return this.backToPage();
   }
 }

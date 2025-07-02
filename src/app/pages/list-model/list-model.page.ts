@@ -1,11 +1,10 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ComponentsModule } from 'src/app/components/components.module';
 import { KeyValue } from 'src/lib/engine/types';
 import { IonCard, IonCardContent, IonCardTitle, IonSearchbar } from '@ionic/angular/standalone';
 import { EmployeeModel } from 'src/app/models/EmployeeModel';
 import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
 import { CategoryModel } from 'src/app/models/CategoryModel';
-import { ForAngularRepository } from 'src/app/utils/ForAngularRepository';
 import { Model } from '@decaf-ts/decorator-validation';
 
 @Component({
@@ -23,8 +22,6 @@ export class ListModelPage implements OnInit {
   data!: KeyValue[];
 
   model!: EmployeeModel | CategoryModel;
-
-  constructor() {}
 
   async ngOnInit() {
     if(!this.type)
@@ -48,8 +45,4 @@ export class ListModelPage implements OnInit {
       }, [] as Model[]);
     }
   }
-
-  handleListItemClick(event: Event, item: Model) {
-  }
-
 }

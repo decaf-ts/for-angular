@@ -96,7 +96,7 @@ export interface ComponentMetadata {
  * @property {FormControl} [formControl] - Optional component FormControl
  * @memberOf module:engine
  */
-export type AngularDynamicOutput = {
+export interface AngularDynamicOutput {
   component: Type<unknown>;
   rendererId?: string;
   inputs?: Record<string, unknown>;
@@ -106,7 +106,7 @@ export type AngularDynamicOutput = {
   instance?: Type<unknown>;
   formGroup?: FormGroup;
   formControl?: FormControl;
-};
+}
 
 /**
  * @description Interface for models that can be rendered
@@ -264,10 +264,10 @@ export interface IListComponentRefreshEvent {
   data: KeyValue[];
 }
 
-export type FormServiceControl = {
+export interface FormServiceControl {
   control: FormGroup;
   props: AngularFieldDefinition;
-};
+}
 
 /**
  * @description Type for form service controls

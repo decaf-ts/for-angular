@@ -19,7 +19,6 @@ export class DashboardPage implements OnInit {
   lastUsage!: string;
 
   constructor() {
-    this.getData();
     addIcons({
       cardOutline,
       peopleOutline,
@@ -28,6 +27,7 @@ export class DashboardPage implements OnInit {
   }
 
   ngOnInit() {
+    this.getData();
   }
 
   getData() {
