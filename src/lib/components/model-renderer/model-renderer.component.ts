@@ -25,6 +25,34 @@ import { KeyValue, ModelRenderCustomEvent } from 'src/lib/engine/types';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { Renderable } from '@decaf-ts/ui-decorators';
 
+/**
+ * @description Component for rendering dynamic models
+ * @summary This component is responsible for dynamically rendering models,
+ * handling model changes, and managing event subscriptions for the rendered components.
+ * It uses the NgxRenderingEngine2 to render the models and supports both string and Model inputs.
+ * @class
+ * @template M - Type extending Model
+ * @param {Injector} injector - Angular Injector for dependency injection
+ * @example
+ * <ngx-decaf-model-renderer
+ *   [model]="myModel"
+ *   [globals]="globalVariables"
+ *   (listenEvent)="handleEvent($event)">
+ * </ngx-decaf-model-renderer>
+ * @mermaid
+ * sequenceDiagram
+ *   participant App
+ *   participant ModelRenderer
+ *   participant RenderingEngine
+ *   participant Model
+ *   App->>ModelRenderer: Input model
+ *   ModelRenderer->>Model: Parse if string
+ *   Model-->>ModelRenderer: Parsed model
+ *   ModelRenderer->>RenderingEngine: Render model
+ *   RenderingEngine-->>ModelRenderer: Rendered output
+ *   ModelRenderer->>ModelRenderer: Subscribe to events
+ *   ModelRenderer-->>App: Emit events
+ */
 @Component({
   standalone: true,
   imports: [ForAngularModule, NgComponentOutlet],
@@ -34,36 +62,66 @@ import { Renderable } from '@decaf-ts/ui-decorators';
 })
 export class ModelRendererComponent<M extends Model>
   implements OnChanges, OnDestroy, RenderedModel {
+
+  /**
+   * @description Input model to be rendered
+   * @summary Can be a Model instance or a JSON string representation of a model
+   */
   @Input({ required: true })
   model!: M | string | undefined;
 
+  /**
+   * @description Global variables to be passed to the rendered component
+   */
   @Input()
   globals: Record<string, unknown> = {};
 
+  /**
+   * @description Template reference for inner content
+   */
   @ViewChild('inner', { read: TemplateRef, static: true })
   inner?: TemplateRef<any>;
 
+  /**
+   * @description Output of the rendered model
+   */
   output?: AngularDynamicOutput;
 
+  /**
+   * @description Unique identifier for the renderer
+   */
   @Input()
   rendererId?: string;
 
+  /**
+   * @description View container reference for dynamic component rendering
+   */
   @ViewChild('componentOuter', { static: true, read: ViewContainerRef })
   vcr!: ViewContainerRef;
 
+  /**
+   * @description Event emitter for custom events from the rendered component
+   */
   @Output()
   listenEvent = new EventEmitter<ModelRenderCustomEvent>();
 
+  /**
+   * @description Instance of the NgxRenderingEngine2
+   */
   private render!: NgxRenderingEngine2;
+
+  /**
+   * @description Instance of the rendered component
+   */
   private instance!: KeyValue | undefined;
 
-  constructor(
-    private injector: Injector,
-  ) {
-  }
+  constructor(private injector: Injector) {}
 
+  /**
+   * @description Refreshes the rendered model
+   * @param {string | M} model - The model to be rendered
+   */
   private refresh(model: string | M) {
-
     model =
       typeof model === 'string'
         ? (Model.build({}, JSON.parse(model)) as M)
@@ -83,6 +141,10 @@ export class ModelRendererComponent<M extends Model>
     this.subscribeEvents();
   }
 
+  /**
+   * @description Lifecycle hook that is called when data-bound properties of a directive change
+   * @param {SimpleChanges} changes - Object containing changes
+   */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes[BaseComponentProps.MODEL]) {
       const { currentValue, previousValue, firstChange } = changes[BaseComponentProps.MODEL];
@@ -90,6 +152,10 @@ export class ModelRendererComponent<M extends Model>
     }
   }
 
+  /**
+   * @description Lifecycle hook that is called when a directive, pipe, or service is destroyed
+   * @return {Promise<void>}
+   */
   async ngOnDestroy(): Promise<void> {
     if (this.instance) {
       this.unsubscribeEvents();
@@ -98,7 +164,9 @@ export class ModelRendererComponent<M extends Model>
     this.output = undefined;
   }
 
-
+  /**
+   * @description Subscribes to events emitted by the rendered component
+   */
   private subscribeEvents(): void {
     if (this.instance) {
       const self = this;
@@ -117,6 +185,9 @@ export class ModelRendererComponent<M extends Model>
     }
   }
 
+  /**
+   * @description Unsubscribes from events emitted by the rendered component
+   */
   private unsubscribeEvents(): void {
     if (this.instance) {
       const componentKeys = Object.keys(this.instance);

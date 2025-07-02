@@ -1,10 +1,9 @@
 import { Routes } from '@angular/router';
-// import { ModelPageComponent } from './pages/model/model.page';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/login',
+    redirectTo: 'login',
     pathMatch: 'full'
   },
   {

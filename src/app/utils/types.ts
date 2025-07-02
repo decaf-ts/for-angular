@@ -4,7 +4,8 @@ import { Context, RepositoryFlags } from "@decaf-ts/db-decorators";
 import { Constructor, Model } from "@decaf-ts/decorator-validation";
 
 export type MenuItem = {
-  text: string;
+  label: string;
+  title?: string;
   url?: string;
   icon?: string;
   color?: PredefinedColors;

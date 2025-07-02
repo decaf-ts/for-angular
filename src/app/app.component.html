@@ -1,59 +1,43 @@
-<!-- <ion-app>
-
-      <decaf-model-renderer [model]="model1" [globals]="{operation: operation}"></decaf-model-renderer>
-</ion-app>
- -->
-
-
 <ion-app>
   <ion-split-pane contentId="main-content" style="--side-max-width: 240px;">
-    <ion-menu contentId="main-content" type="overlay">
-      <section class="dcf-padding-small">
-        <ion-img src="assets/images/decaf-logo-dark.svg" alt="Decaf - For angular components lib" />
-        <div class="dcf-flex dcf-flex-right">
-          <ion-img src="assets/images/angular-logo.svg" style="width: 100px" alt="Angular logo" />
-        </div>
-      </section>
-      <ion-content>
-        <ion-list class="dcf-menu">
-
-            <!-- <ion-menu-toggle auto-hide="false">
-              <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
-                <ion-icon aria-hidden="true" slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
-                <ion-label>{{ p.title }}</ion-label>
-              </ion-item>
-            </ion-menu-toggle> -->
-
-          @for (item of menu; track $index;) {
-            <ion-menu-toggle auto-hide="false">
-              <ion-item
-                [class]="{'dcf-separator': !item.url}"
-                button="true"
-                detail="true"
-                [routerDirection]="'forward'"
-                [routerLink]="[item.url]"
-                lines="none"
-                detail="false"
-                routerLinkActive="dcf-active"
-              >
-                @if(item.icon) {
-                  <ion-icon   [color]="item.color || ''" aria-hidden="true" class="icon" [name]="item.icon"></ion-icon>
-                }
-
-                <ion-label>{{
-                  translatable ?
-                    (locale+'.'+item.text.toLowerCase() | translate) : item.text
-                  }}
-                </ion-label>
-                @if(item?.url && item.url !== '/login') {
-                  <ion-icon aria-hidden="true" slot="end" size="small" name="chevron-forward-outline"></ion-icon>
-                }
-              </ion-item>
-            </ion-menu-toggle>
-          }
-        </ion-list>
-      </ion-content>
-    </ion-menu>
+      <ion-menu contentId="main-content" type="overlay" [disabled]="disableMenu">
+        <section class="dcf-padding-small">
+          <ion-img src="assets/images/decaf-logo.svg" alt="Decaf - For angular components lib" />
+          <div class="dcf-flex dcf-flex-right">
+            <ion-img src="assets/images/angular-logo.svg" style="width: 100px" alt="Angular logo" />
+          </div>
+        </section>
+        <ion-content>
+          <ion-list class="dcf-menu">
+            @for (item of menu; track $index;) {
+              <ion-menu-toggle  auto-hide="false">
+                <ion-item
+                  [class]="{'dcf-separator': !item.url}"
+                  button="true"
+                  detail="true"
+                  [routerDirection]="'forward'"
+                  [routerLink]="[item.url]"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="dcf-active"
+                >
+                  @if(item.icon) {
+                    <ion-icon   [color]="item.color || ''" aria-hidden="true" class="icon" [name]="item.icon"></ion-icon>
+                  }
+                  <ion-label>{{
+                    translatable ?
+                      (locale+'.'+item.label.toLowerCase() | translate) : item.label
+                    }}
+                  </ion-label>
+                  @if(item?.url && item.url !== '/login') {
+                    <ion-icon aria-hidden="true" slot="end" size="small" name="chevron-forward-outline"></ion-icon>
+                  }
+                </ion-item>
+              </ion-menu-toggle>
+            }
+          </ion-list>
+        </ion-content>
+      </ion-menu>
 
     <ion-router-outlet id="main-content"></ion-router-outlet>
   </ion-split-pane>

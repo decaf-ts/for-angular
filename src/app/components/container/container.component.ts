@@ -160,7 +160,7 @@ export class ContainerComponent extends NgxBaseComponent implements OnInit {
    * @memberOf ContainerComponent
    */
   ngOnInit() {
-    this.menuController.enable(stringToBoolean(this.hasSideMenu) as boolean);
+    // this.menuController.enable(stringToBoolean(this.hasSideMenu) as boolean);
     this.expand = stringToBoolean(this.expand);
     this.flex = stringToBoolean(this.flex);
 

@@ -34,7 +34,10 @@
     "docs": "npx rimraf ./docs && mkdir docs && npx build-scripts --docs",
     "publish-docs": "docker run -it --rm --user $(id -u):$(id -g) -v \"$(pwd)/workdocs/confluence:/content\" -e ATLASSIAN_API_TOKEN=$(cat .confluence-token) ghcr.io/markdown-confluence/publish:latest",
     "storybook": "ng run for-angular:storybook",
-    "storybook:build": "ng run for-angular:build-storybook"
+    "storybook:build": "ng run for-angular:build-storybook",
+    "playwright": "npx playwright test --config=./playwright.config.ts",
+    "playwright-ui": "npx playwright test --config=./playwright.config.ts --ui",
+    "playwright-setup": "npm init playwright@latest"
   },
   "files": [
     "dist"
@@ -50,6 +53,7 @@
     "@decaf-ts/utils": "^0.2.6",
     "@faker-js/faker": "^9.7.0",
     "@ionic/angular-toolkit": "^12.1.1",
+    "@playwright/test": "^1.53.1",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
@@ -61,13 +65,15 @@
     "@storybook/angular": "^8.6.14",
     "@storybook/blocks": "^8.6.14",
     "@storybook/test": "^8.6.14",
+    "@types/fluent-ffmpeg": "^2.1.27",
     "@types/jasmine": "~5.1.0",
-    "@types/node": "^22.15.24",
+    "@types/node": "^22.15.33",
     "angular-eslint": "18.4.0",
     "commander": "^13.1.0",
     "dpdm": "^3.14.0",
     "eslint": "^9.13.0",
     "eslint-plugin-storybook": "^0.12.0",
+    "ffmpeg-static": "^5.2.0",
     "jasmine-core": "~5.2.0",
     "jsdoc": "^4.0.3",
     "jsdoc-mermaid": "^1.0.0",
@@ -118,5 +124,8 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
+  },
+  "dependencies": {
+    "fluent-ffmpeg": "^2.1.3"
   }
 }
