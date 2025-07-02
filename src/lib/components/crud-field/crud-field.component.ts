@@ -560,7 +560,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @Input()
-  override formGroup!: FormGroup | undefined;
+  override formGroup: FormGroup | undefined;
 
   @Input()
   override formControl!: FormControl;
@@ -593,7 +593,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
       this.formGroup = undefined;
     } else {
       if (this.type === HTML5InputTypes.RADIO && !this.value)
-        this.formGroup?.get(this.name)?.setValue(this.options[0].value);
+        this.formGroup?.get(this.name)?.setValue(this.options[0].value); // TODO: migrate to RenderingEngine
     }
 
   }

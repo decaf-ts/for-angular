@@ -24,6 +24,7 @@ import {
 import { KeyValue, ModelRenderCustomEvent } from 'src/lib/engine/types';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { Renderable } from '@decaf-ts/ui-decorators';
+import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 
 /**
  * @description Component for rendering dynamic models
@@ -55,7 +56,7 @@ import { Renderable } from '@decaf-ts/ui-decorators';
  */
 @Component({
   standalone: true,
-  imports: [ForAngularModule, NgComponentOutlet],
+  imports: [ForAngularModule, NgComponentOutlet, ComponentRendererComponent],
   selector: 'ngx-decaf-model-renderer',
   templateUrl: './model-renderer.component.html',
   styleUrl: './model-renderer.component.scss',
@@ -164,9 +165,6 @@ export class ModelRendererComponent<M extends Model>
     this.output = undefined;
   }
 
-  /**
-   * @description Subscribes to events emitted by the rendered component
-   */
   private subscribeEvents(): void {
     if (this.instance) {
       const self = this;

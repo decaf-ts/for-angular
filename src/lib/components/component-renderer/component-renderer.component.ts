@@ -13,16 +13,13 @@ import {
   Output,
   reflectComponentType,
   SimpleChanges,
+  TemplateRef,
   Type,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
 import { NgxRenderingEngine2 } from 'src/lib/engine/NgxRenderingEngine2';
-import {
-  BaseCustomEvent,
-  KeyValue,
-  ModelRenderCustomEvent,
-} from '../../engine';
+import { BaseCustomEvent, KeyValue, ModelRenderCustomEvent } from '../../engine';
 import { ForAngularModule, getLogger } from 'src/lib/for-angular.module';
 import { Logger } from '@decaf-ts/logging';
 
@@ -73,8 +70,7 @@ import { Logger } from '@decaf-ts/logging';
   standalone: true,
 })
 export class ComponentRendererComponent
-  implements OnInit, OnChanges, OnDestroy
-{
+  implements OnInit, OnChanges, OnDestroy {
   /**
    * @description Reference to the container where the dynamic component will be rendered.
    * @summary This ViewContainerRef provides the container where the dynamically created
@@ -164,6 +160,12 @@ export class ComponentRendererComponent
    */
   logger!: Logger;
 
+  @Input()
+  parent: any = undefined;
+
+
+  @ViewChild('inner', { read: TemplateRef, static: true })
+  inner?: TemplateRef<any>;
 
   /**
    * @description Creates an instance of ComponentRendererComponent.
@@ -174,7 +176,7 @@ export class ComponentRendererComponent
    * @memberOf ComponentRendererComponent
    */
   constructor() {
-     this.logger = getLogger(this);
+    this.logger = getLogger(this);
   }
 
   /**
@@ -201,7 +203,9 @@ export class ComponentRendererComponent
    * @memberOf ComponentRendererComponent
    */
   ngOnInit(): void {
-    this.createComponent(this.tag, this.globals);
+    if (!this.parent)
+      this.createComponent(this.tag, this.globals);
+    this.createParentComponent();
   }
 
   /**
@@ -274,7 +278,7 @@ export class ComponentRendererComponent
     for (let input of inputKeys) {
       if (!inputKeys.length) break;
       const prop = componentInputs.find(
-        (item: { propName: string }) => item.propName === input
+        (item: { propName: string }) => item.propName === input,
       );
       if (!prop) {
         delete props[input];
@@ -291,7 +295,22 @@ export class ComponentRendererComponent
       metadata as ComponentMirror<unknown>,
       this.vcr,
       this.injector as Injector,
-      []
+      [],
+    );
+    this.subscribeEvents();
+  }
+
+  createParentComponent() {
+    const { component, inputs } = this.parent;
+    const metadata = reflectComponentType(component) as ComponentMirror<unknown>;
+    const template = this.vcr.createEmbeddedView(this.inner as TemplateRef<any>, this.injector).rootNodes;
+    this.component = NgxRenderingEngine2.createComponent(
+      component,
+      inputs,
+      metadata,
+      this.vcr,
+      this.injector,
+      template,
     );
     this.subscribeEvents();
   }
@@ -306,7 +325,8 @@ export class ComponentRendererComponent
    * @return {void}
    * @memberOf ComponentRendererComponent
    */
-  ngOnChanges(changes: SimpleChanges): void {}
+  ngOnChanges(changes: SimpleChanges): void {
+  }
 
   /**
    * @description Subscribes to events emitted by the dynamic component.
@@ -350,7 +370,7 @@ export class ComponentRendererComponent
                 name: key,
                 ...event,
               } as ModelRenderCustomEvent);
-            }
+            },
           );
       }
     }

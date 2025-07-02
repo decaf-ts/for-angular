@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CrudFieldComponent } from './crud-field.component';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { FormControl, FormGroup } from '@angular/forms';
 import { AngularFieldDefinition } from '../../engine';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { NgxRenderingEngine2 } from 'src/lib/engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
+import { NgxFormService } from '../../engine/NgxFormService';
 
 const imports = [
   ForAngularModule,
@@ -16,12 +16,12 @@ const imports = [
   TranslateModule.forRoot({
     loader: {
       provide: TranslateLoader,
-      useClass: TranslateFakeLoader
-    }
-  })
+      useClass: TranslateFakeLoader,
+    },
+  }),
 ];
 
-describe('FieldComponent', () => {
+describe('CrudFieldComponent', () => {
   let component: CrudFieldComponent;
   let fixture: ComponentFixture<CrudFieldComponent>;
   // let formBuilder: FormBuilder;
@@ -49,25 +49,29 @@ describe('FieldComponent', () => {
     component.name = 'test_field';
     component.type = 'text';
     component.operation = OperationKeys.CREATE;
+    component.formControl = new FormControl('value');
+    component.formGroup = new FormGroup({
+      [component.name]: component.formControl,
+    });
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  const testCases: { type: string; selector: string }[] = [
-    { type: 'textarea', selector: 'ion-textarea' },
-    { type: 'checkbox', selector: 'ion-checkbox' },
-    { type: 'radio', selector: 'ion-radio-group' },
-    { type: 'select', selector: 'ion-select' },
-    { type: 'text', selector: 'ion-input' },
-    { type: 'number', selector: 'ion-input' },
-    { type: 'email', selector: 'ion-input' },
-    { type: 'password', selector: 'ion-input' },
-    { type: 'date', selector: 'ion-input' },
+  const testCases: { type: string; selector: string, value: any }[] = [
+    { type: 'textarea', selector: 'ion-textarea', value: 'textarea value' },
+    { type: 'checkbox', selector: 'ion-checkbox', value: 'checkbox value' },
+    { type: 'radio', selector: 'ion-radio-group', value: 'checkbox value' },
+    { type: 'select', selector: 'ion-select', value: 'select value' },
+    { type: 'text', selector: 'ion-input', value: 'text value' },
+    { type: 'number', selector: 'ion-input', value: 100 },
+    { type: 'email', selector: 'ion-input', value: 'mail@mail.com' },
+    { type: 'password', selector: 'ion-input', value: 'P@ssw0rd' },
+    { type: 'date', selector: 'ion-input', value: '2025-01-01' },
   ];
 
-  testCases.forEach(({ type, selector }) => {
+  testCases.forEach(({ type, selector, value }) => {
     it(`should render ${type} when type is ${type}`, () => {
       const props: AngularFieldDefinition = {
         name: `test_${type}`,
@@ -81,9 +85,13 @@ describe('FieldComponent', () => {
         ];
       }
 
+      component.formControl = new FormControl(value);
+      component.formGroup = new FormGroup({
+        [props.name]: component.formControl,
+      });
       component.translatable = false;
 
-      Object.entries(props).forEach(([key, value]) => (component as any)[key] = value)
+      Object.entries(props).forEach(([key, value]) => (component as any)[key] = value);
       // component.props = props;
       fixture.detectChanges();
 
@@ -112,10 +120,14 @@ describe('FieldComponent', () => {
     //   required: true,
     // } as AngularFieldDefinition;
     fixture.detectChanges();
-    if(!component.formGroup)
-      component.formGroup = new FormGroup({});
-    component.formGroup.markAsTouched();
-    component.formGroup.markAsDirty();
+
+    const validators = NgxFormService['validatorsFromProps'](component);
+    component.formControl = new FormControl(component.value, validators);
+    component.formGroup = new FormGroup({
+      [component.name]: component.formControl,
+    });
+    component.formControl.markAsTouched();
+    component.formControl.markAsDirty();
     fixture.detectChanges();
 
     const errorDiv = fixture.nativeElement.querySelector('.error');
@@ -129,10 +141,13 @@ describe('FieldComponent', () => {
     component.value = 'abc';
 
     fixture.detectChanges();
-    if(!component.formGroup)
-      component.formGroup = new FormGroup({});
-    component.formGroup.markAsTouched();
-    component.formGroup.markAsDirty();
+    const validators = NgxFormService['validatorsFromProps'](component);
+    component.formControl = new FormControl(component.value, validators);
+    component.formGroup = new FormGroup({
+      [component.name]: component.formControl,
+    });
+    component.formControl.markAsTouched();
+    component.formControl.markAsDirty();
     fixture.detectChanges();
 
     const errorDiv = fixture.nativeElement.querySelector('.error');
@@ -146,10 +161,13 @@ describe('FieldComponent', () => {
     component.value = 'abcdef';
 
     fixture.detectChanges();
-    if(!component.formGroup)
-      component.formGroup = new FormGroup({});
-    component.formGroup.markAsTouched();
-    component.formGroup.markAsDirty();
+    const validators = NgxFormService['validatorsFromProps'](component);
+    component.formControl = new FormControl(component.value, validators);
+    component.formGroup = new FormGroup({
+      [component.name]: component.formControl,
+    });
+    component.formControl.markAsTouched();
+    component.formControl.markAsDirty();
     fixture.detectChanges();
 
     const errorDiv = fixture.nativeElement.querySelector('.error');
@@ -164,10 +182,13 @@ describe('FieldComponent', () => {
     component.value = '123';
 
     fixture.detectChanges();
-    if(!component.formGroup)
-      component.formGroup = new FormGroup({});
-    component.formGroup.markAsTouched();
-    component.formGroup.markAsDirty();
+    const validators = NgxFormService['validatorsFromProps'](component);
+    component.formControl = new FormControl(component.value, validators);
+    component.formGroup = new FormGroup({
+      [component.name]: component.formControl,
+    });
+    component.formControl.markAsTouched();
+    component.formControl.markAsDirty();
     fixture.detectChanges();
 
     const errorDiv = fixture.nativeElement.querySelector('.error');
@@ -176,16 +197,19 @@ describe('FieldComponent', () => {
   });
 
   xit('should show error message when min value is not met', () => {
-    component.type =  'number';
+    component.type = 'number';
     component.label = 'Min Field';
     component.min = 5;
     component.value = 3;
 
     fixture.detectChanges();
-    if(!component.formGroup)
-      component.formGroup = new FormGroup({});
-    component.formGroup.markAsTouched();
-    component.formGroup.markAsDirty();
+    const validators = NgxFormService['validatorsFromProps'](component);
+    component.formControl = new FormControl(component.value, validators);
+    component.formGroup = new FormGroup({
+      [component.name]: component.formControl,
+    });
+    component.formControl.markAsTouched();
+    component.formControl.markAsDirty();
     fixture.detectChanges();
 
     const errorDiv = fixture.nativeElement.querySelector('.error');
@@ -194,16 +218,21 @@ describe('FieldComponent', () => {
   });
 
   it('should show error message when max value is exceeded', () => {
-    component.type =  'number';
+    component.type = 'number';
     component.label = 'Min Field';
     component.max = 5;
     component.value = 13;
 
     fixture.detectChanges();
-    if(!component.formGroup)
-      component.formGroup = new FormGroup({});
-    component.formGroup.markAsTouched();
-    component.formGroup.markAsDirty();
+    const validators = NgxFormService['validatorsFromProps'](component);
+    component.formControl = new FormControl(component.value, validators);
+    component.formGroup = new FormGroup({
+      [component.name]: component.formControl,
+    });
+    component.formControl.markAsTouched();
+    component.formControl.markAsDirty();
+    fixture.detectChanges();
+
     fixture.detectChanges();
     const errorDiv = fixture.nativeElement.querySelector('.error');
     expect(component.formGroup.invalid).toBeTruthy();
@@ -214,10 +243,15 @@ describe('FieldComponent', () => {
     component.label = 'Valid Field';
     component.value = 'Valid input';
     fixture.detectChanges();
-    if(!component.formGroup)
-      component.formGroup = new FormGroup({});
-    component.formGroup.markAsTouched();
-    component.formGroup.markAsDirty();
+    const validators = NgxFormService['validatorsFromProps'](component);
+    component.formControl = new FormControl(component.value, validators);
+    component.formGroup = new FormGroup({
+      [component.name]: component.formControl,
+    });
+    component.formControl.markAsTouched();
+    component.formControl.markAsDirty();
+    fixture.detectChanges();
+
     fixture.detectChanges();
     const errorDiv = fixture.nativeElement.querySelector('.error');
     expect(errorDiv).toBeFalsy();
@@ -255,26 +289,26 @@ describe('FieldComponent', () => {
     component.readonly = true;
 
     fixture.detectChanges();
-    if(!component.formGroup)
+    if (!component.formGroup)
       component.formGroup = new FormGroup({});
     component.formGroup.markAsTouched();
     component.formGroup.markAsDirty();
     fixture.detectChanges();
 
     const input = fixture.nativeElement.querySelector('ion-input');
-    expect(input.readonly).toBeTrue()
+    expect(input.readonly).toBeTruthy();
   });
 
   it('should handle disabled attribute correctly', () => {
     component.label = 'Disabled Field';
     component.value = '';
     fixture.detectChanges();
-    if(!component.formGroup)
+    if (!component.formGroup)
       component.formGroup = new FormGroup({});
     component.formGroup.disable();
 
     const input = fixture.nativeElement.querySelector('ion-input');
     expect(component.formGroup.disabled).toBeTruthy();
-    expect(input.disabled).toBeTrue()
+    expect(input.disabled).toBeTruthy();
   });
 });

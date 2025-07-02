@@ -1,21 +1,20 @@
-  <!-- <ng-container #outer *ngComponentOutlet="output?.component;
-                                  inputs: output?.inputs;
-                                  content: output?.content;">
-  </ng-container> -->
-
   <ng-template #componentOuter></ng-template>
   <ng-template #inner>
     <div  [id]="rendererId || null">
       @for (child of output?.children; track child) {
-        <ng-container  #childComponents *ngComponentOutlet="child.component;
-                                    injector: child.injector;
-                                    inputs: child.inputs;
-                                    content: child.content"
-
-
-        >
-        </ng-container>
+        @if(child?.children?.length) {
+          <ngx-decaf-component-renderer [parent]="child" />
+        } @else {
+          <ng-container
+            #childComponents
+            *ngComponentOutlet="
+              child.component;
+              injector: child.injector;
+              inputs: child.inputs;
+              content:child.content;
+            "
+          />
+        }
       }
     </div>
   </ng-template>
-

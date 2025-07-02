@@ -25,9 +25,13 @@ module.exports = function (config) {
       suppressAll: true, // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require("path").join(__dirname, "./workdocs/reports/coverage"),
+      dir: require("path").join(__dirname, "workdocs", "reports", "coverage"),
       subdir: ".",
-      reporters: [{ type: "html" }, { type: "text-summary" }],
+      reporters: [
+        { type: 'html' },
+        { type: 'text-summary' },
+        { type: 'lcovonly' }
+      ],
     },
     reporters: ["progress", "kjhtml"],
     colors: true,

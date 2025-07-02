@@ -14,6 +14,7 @@ export interface ComponentConfig {
   component: string;
   inputs: ComponentInput;
   injector: any;
+  children?: ComponentConfig[];
 }
 
 /**
@@ -31,8 +32,35 @@ export class NgxFormService {
    * A static object that stores form controls props.
    */
   private static controls = new WeakMap<AbstractControl, FieldProperties>();
+  private static formRegistry = new Map<string, FormGroup>();
 
   private constructor() {
+  }
+
+  /**
+   * Registers a FormGroup in the registry with the given identifier.
+   *
+   * Throws an error if the identifier already exists in the registry.
+   *
+   * @param {string} formId - Unique identifier for the form.
+   * @param {FormGroup} formGroup - The FormGroup instance to register.
+   * @throws {Error} If a FormGroup with the given id already exists.
+   */
+  static addRegistry(formId: string, formGroup: FormGroup): void {
+    if (this.formRegistry.has(formId))
+      throw new Error(`A FormGroup with id '${formId}' is already registered.`);
+    this.formRegistry.set(formId, formGroup);
+  }
+
+
+  /**
+   * Removes a FormGroup from the registry by its identifier.
+   * If the id does not exist, the operation is silently ignored.
+   *
+   * @param {string} formId - The identifier of the form to remove.
+   */
+  static removeRegistry(formId: string): void {
+    this.formRegistry.delete(formId);
   }
 
   /**
@@ -63,40 +91,92 @@ export class NgxFormService {
    * Adds a FormControl to the specified FormGroup, respecting the nesting structure
    * defined via `childOf`. Also updates the component's `formGroup` reference.
    *
-   * @param {} component - The component configuration to process
    * @param {FormGroup} formGroup - The root FormGroup to add the control to
+   * @param {ComponentInput} componentProps - The component configuration to process
    */
-  private static addFormControl(component: ComponentConfig, formGroup: FormGroup): void {
-    const { name, childOf } = component.inputs;
+  private static addFormControl(formGroup: FormGroup, componentProps: FieldProperties & ComponentInput): void {
+    const { name, childOf } = componentProps;
     const fullPath = childOf ? `${childOf}.${name}` : name;
     const [parentGroup, controlName] = this.resolveParentGroup(formGroup, fullPath);
 
     if (!parentGroup.get(controlName)) {
       const control = NgxFormService.fromProps(
-        component.inputs,
-        component.inputs.updateMode || 'change',
+        componentProps,
+        componentProps.updateMode || 'change',
       );
-      NgxFormService.register(control, component.inputs);
+      NgxFormService.register(control, componentProps);
       parentGroup.addControl(controlName, control);
     }
 
-    component.inputs.formGroup = parentGroup;
-    component.inputs.formControl = parentGroup.get(controlName) as FormControl;
+    componentProps['formGroup'] = parentGroup;
+    componentProps['formControl'] = parentGroup.get(controlName) as FormControl;
+  }
+
+  /**
+   * Retrieves a control (FormGroup, FormControl, or FormArray) from a form registered by its ID.
+   * If a path is provided, it returns the nested control at that path;
+   * otherwise, it returns the root FormGroup.
+   *
+   * @param {string} formId - The form registry identifier.
+   * @param {string} [path] - Optional dot-delimited path to the control (e.g., 'address.street').
+   * @returns {AbstractControl} The requested control.
+   * @throws {Error} If the control at the specified path does not exist.
+   */
+  static getControlFromForm(formId: string, path?: string): AbstractControl {
+    const form = this.formRegistry.get(formId);
+    if (!form)
+      throw new Error(`Form with id '${formId}' not found in the registry.`);
+
+    if (!path)
+      return form;
+
+    const control = form.get(path);
+    if (!control)
+      throw new Error(`Control with path '${path}' not found in form '${formId}'.`);
+    return control;
   }
 
   /**
    * Builds a FormGroup from a flat array of components, using the `childOf` property
    * to establish nested hierarchy.
    *
-   * @param components - Flat array of component configurations
+   * @param {string} id - form identifier
+   * @param {[ComponentConfig]} components - Flat array of component configurations
+   * @param {boolean} registry - Whether to register the generated FormGroup
    * @returns {FormGroup} FormGroup - Root FormGroup containing the complete nested structure
    */
-  static createFormFromComponents(components: ComponentConfig[]): FormGroup {
-    const rootForm = new FormGroup({});
+  static createFormFromComponents(id: string, components: ComponentConfig[], registry: boolean = false): FormGroup {
+    const form = new FormGroup({});
     components.forEach(component => {
-      this.addFormControl(component, rootForm);
+      this.addFormControl(form, component.inputs);
     });
-    return rootForm;
+
+    if (registry)
+      this.addRegistry(id, form);
+
+    return form;
+  }
+
+  /**
+   * Add a control or formGroup from the registry and
+   * adds a FormControl based on the given component configuration.
+   *
+   * If the form does not exist in the registry for the given `renderId`,
+   * it initializes a new FormGroup and registers it.
+   *
+   * @param {string} id - Unique identifier for the form instance.
+   * @param {ComponentConfig} componentProperties - Component configuration containing control metadata.
+   * @returns {AbstractControl} The updated root FormGroup.
+   */
+  static addControlFromProps(id: string, componentProperties: FieldProperties): AbstractControl {
+    const form = this.formRegistry.get(id) ?? new FormGroup({});
+    if (!this.formRegistry.has(id))
+      this.addRegistry(id, form);
+
+    if (componentProperties.path) // if a path exists, it is a field
+      this.addFormControl(form, componentProperties);
+
+    return form;
   }
 
   /**

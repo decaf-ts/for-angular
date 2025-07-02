@@ -13,7 +13,7 @@ import {
   required,
   url,
 } from '@decaf-ts/decorator-validation';
-import { uielement, uimodel, uiprop } from '@decaf-ts/ui-decorators';
+import { uichild, uielement, uimodel } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from './CategoryModel';
 import { UserModel } from './UserModel';
 
@@ -51,7 +51,7 @@ export class ForAngularModel extends Model {
   })
   gender!: string;
 
-  @uiprop(CategoryModel.name)
+  @uichild(CategoryModel.name, 'ngx-decaf-fieldset')
   category!: CategoryModel;
 
   @required()
@@ -73,11 +73,11 @@ export class ForAngularModel extends Model {
 
   @required()
   @password()
-  @eq("user.passwordRepeat")
+  @eq('user.secret')
   @uielement('ngx-decaf-crud-field', { label: 'demo.password.label' })
   password!: string;
 
-  @uiprop(UserModel.name)
+  @uichild(UserModel.name, 'ngx-decaf-fieldset')
   user!: UserModel;
 
   @required()

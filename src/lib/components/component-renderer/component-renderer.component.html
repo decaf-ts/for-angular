@@ -1,1 +1,22 @@
 <ng-template #componentViewContainer></ng-template>
+
+<ng-template #inner>
+  @if(parent?.children?.length) {
+    @for(child of parent.children; track child) {
+        @if(!child.children?.length) {
+          <ng-container
+                *ngComponentOutlet="
+                  child.component;
+                  injector: child.injector;
+                  inputs: child.inputs;
+                  content:child.content;
+                "
+          />
+        } @else {
+          <ngx-decaf-component-renderer [parent]="child"> </ngx-decaf-component-renderer>
+        }
+     }
+  }
+</ng-template>
+
+

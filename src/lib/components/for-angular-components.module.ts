@@ -9,7 +9,10 @@ import { ListItemComponent } from './list-item/list-item.component';
 import { ComponentRendererComponent } from './component-renderer/component-renderer.component';
 import { PaginationComponent } from './pagination/pagination.component';
 import { ListComponent } from './list/list.component';
+import { FieldsetComponent } from './fieldset/fieldset.component';
+import { CollapsableDirective } from '../directives/collapsable.directive';
 
+const Directives = [CollapsableDirective];
 const Components = [
   ModelRendererComponent,
   ComponentRendererComponent,
@@ -20,13 +23,14 @@ const Components = [
   ListItemComponent,
   SearchbarComponent,
   PaginationComponent,
-  CrudFormComponent
+  CrudFormComponent,
+  FieldsetComponent,
 ];
 
 @NgModule({
-  imports: Components,
+  imports: [Components, Directives],
   declarations: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  exports: [Components, ForAngularModule],
+  exports: [Components, Directives, ForAngularModule],
 })
 export class ForAngularComponentsModule {}
