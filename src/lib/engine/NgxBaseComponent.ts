@@ -149,7 +149,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @default 'id'
    */
   @Input()
-  pk: string = 'id';
+  pk = 'id';
 
   /**
    * @description Base route for navigation related to this component.
@@ -228,7 +228,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @default ""
    */
   @Input()
-  className: string = '';
+  className = '';
 
   /**
    * @description Component platform style.
@@ -278,7 +278,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @type {boolean}
    * @default false
    */
-  initialized: boolean = false;
+  initialized = false;
 
   /**
    * @description Reference to the rendering engine instance
@@ -307,10 +307,11 @@ export abstract class NgxBaseComponent implements OnChanges {
    */
   logger!: Logger;
 
-  protected constructor(@Inject('instanceToken') private instance: string) {
+  protected constructor(@Inject('instanceToken') protected instance: string) {
     this.componentName = instance;
     this.componentLocale = getLocaleFromClassName(instance);
     this.logger = getLogger(this);
+    console.log('Initializing component', instance);
   }
 
   /**

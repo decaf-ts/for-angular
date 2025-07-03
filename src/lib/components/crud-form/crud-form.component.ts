@@ -52,7 +52,7 @@ import { Logger } from '@decaf-ts/logging';
   styleUrls: ['./crud-form.component.scss'],
   imports: [ForAngularModule, IonIcon],
 })
-export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, OnDestroy, RenderedModel {
+export class CrudFormComponent implements OnInit, FormElement, OnDestroy, RenderedModel {
 
   /**
    * @description Repository model for data operations.
@@ -146,10 +146,10 @@ export class CrudFormComponent implements OnInit, AfterViewInit, FormElement, On
    */
   private location: Location = inject(Location);
 
-  ngAfterViewInit() {
+  // ngAfterViewInit() {
     // if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
     //   NgxFormService.formAfterViewInit(this, this.rendererId);
-  }
+  // }
 
   async ngOnInit() {
     if (!this.logger)

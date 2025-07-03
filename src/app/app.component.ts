@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { IonApp,
   IonSplitPane,
   IonMenu,
@@ -11,14 +11,13 @@ import { IonApp,
   IonIcon,
   IonLabel,
   IonRouterOutlet,
-  IonRouterLink,
-  MenuController
+  IonRouterLink
 } from '@ionic/angular/standalone';
+import { Title } from '@angular/platform-browser';
 import { Platform } from '@ionic/angular';
 import { NgxRenderingEngine2 } from 'src/lib/engine';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
-import { RamAdapter } from '@decaf-ts/core/ram';
 import { addIcons } from 'ionicons';
 import * as IonicIcons from 'ionicons/icons';
 import { MenuItem } from 'src/app/utils/types';
@@ -26,10 +25,8 @@ import { isDevelopmentMode, removeFocusTrap } from 'src/lib/helpers';
 import { ForAngularRepository } from './utils/ForAngularRepository';
 import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
-import { InjectablesRegistry } from '@decaf-ts/core';
 import { DecafRepositoryAdapter } from 'src/lib/components/list/constants';
 import { DbAdapterProvider } from './app.config';
-// import { DbAdapter } from './app.config';
 
 try {
   new NgxRenderingEngine2();
@@ -39,60 +36,108 @@ try {
   throw new Error(`Failed to load rendering engine: ${e}`);
 }
 
+/**
+ * @description Application title constant
+ * @summary This constant holds the main title of the application
+ */
+const title = "Decaf-ts for Angular";
+
+/**
+ * @description Menu items for the application's navigation
+ * @summary This constant defines the structure of the application's navigation menu.
+ * It includes items for the dashboard, CRUD operations, data lists, and logout.
+ * @type {MenuItem[]}
+ * @example
+ * const menuItem = Menu[0];
+ * console.log(menuItem.label); // 'Dashboard'
+ * console.log(menuItem.url); // '/dashboard'
+ */
 const Menu: MenuItem[] = [
   {
-    text: 'Dashboard',
+    label: 'Dashboard',
     icon: 'apps-outline',
     url: '/dashboard',
   },
   {
-    text: 'Crud',
+    label: 'Crud',
     icon: 'save-outline',
   },
   {
-    text: 'Read',
+    label: 'Read',
     url: '/crud/read',
   },
   {
-    text: 'Create / Update',
+    label: 'Create / Update',
     url: '/crud/create',
   },
   {
-    text: 'Delete',
+    label: 'Delete',
     url: '/crud/delete',
   },
   {
-    text: 'Data Lists',
+    label: 'Data Lists',
     icon: 'list-outline',
   },
   {
-    text: 'Employees (Infinite)',
+    label: 'Employees (Infinite)',
     url: '/list/infinite',
   },
   {
-    text: 'Categories (Paginated)',
+    label: 'Categories (Paginated)',
     url: '/list/paginated',
   },
   {
-    text: 'Model Lists',
+    label: 'Model Lists',
     icon: 'list-outline',
   },
   {
-    text: 'Employees (Infinite)',
+    label: 'Employees (Infinite)',
     url: '/list-model/infinite',
   },
   {
-    text: 'Categories (Paginated)',
+    label: 'Categories (Paginated)',
     url: '/list-model/paginated',
   },
   {
-    text: 'Logout',
+    label: 'Logout',
+    title: 'Login',
     icon: 'log-out-outline',
     url: '/login',
     color: 'danger'
   },
 ];
 
+
+/**
+ * @description Root component of the Decaf-ts for Angular application
+ * @summary This component serves as the main entry point for the application.
+ * It sets up the navigation menu, handles routing events, and initializes
+ * the application state. It also manages the application title and menu visibility.
+ * @class
+ * @param {Platform} platform - Ionic Platform service
+ * @param {Router} router - Angular Router service
+ * @param {MenuController} menuController - Ionic MenuController service
+ * @param {Title} titleService - Angular Title service
+ * @example
+ * <app-root></app-root>
+ * @mermaid
+ * sequenceDiagram
+ *   participant App as AppComponent
+ *   participant Router
+ *   participant MenuController
+ *   participant TitleService
+ *   participant Repository
+ *   App->>App: constructor()
+ *   App->>App: ngOnInit()
+ *   App->>Router: Subscribe to events
+ *   Router-->>App: Navigation events
+ *   App->>MenuController: Enable/Disable menu
+ *   App->>TitleService: Set page title
+ *   App->>App: initializeApp()
+ *   alt isDevelopmentMode
+ *     App->>Repository: Initialize repositories
+ *   end
+ */
 @Component({
   standalone: true,
   selector: 'app-root',
@@ -118,43 +163,101 @@ const Menu: MenuItem[] = [
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
+  /**
+   * @description The title of the application
+   */
   title = 'Decaf-ts for-angular demo';
+
+  /**
+   * @description The menu items for the application's navigation
+   */
   menu: MenuItem[] = Menu;
 
+  /**
+   * @description Ionic Platform service
+   */
   platform: Platform = inject(Platform);
+
+  /**
+   * @description Angular Router service
+   */
   router: Router = inject(Router);
 
-  activeItem: string = '';
+  /**
+   * @description The currently active menu item
+   */
+  activeItem = '';
 
+  /**
+   * @description The database adapter provider
+   */
   adapter = inject(DbAdapterProvider);
 
-  private menuController: MenuController = inject(MenuController);
+  /**
+   * @description Flag indicating if the application has been initialized
+   */
+  initialized = false;
 
+  /**
+   * @description Angular Title service
+   */
+  private titleService: Title = inject(Title);
+
+  /**
+   * @description disable or enable menu on page
+   */
+  disableMenu = true;
+
+  /**
+   * @description Initializes the component
+   * @summary Sets up Ionic icons and disables the menu controller
+   */
   constructor() {
     addIcons(IonicIcons);
-    this.menuController.enable(false);
   }
 
+  /**
+   * @description Lifecycle hook that is called after data-bound properties of a directive are initialized
+   * @summary Sets up router event subscriptions and initializes the application
+   * @return {Promise<void>}
+   */
   async ngOnInit(): Promise<void> {
-    this.initializeApp();
-    this.router.events.subscribe(event => {
+    this.router.events.subscribe(async event => {
       if(event instanceof NavigationEnd) {
         const {url} = event;
-        if(url.includes('login'))
-          this.menuController.enable(false);
+        this.disableMenu = url.includes('login');
+        this.setTitle(url.replace('/', '') || "login");
       }
       if (event instanceof NavigationStart)
         removeFocusTrap();
     });
+    await this.initializeApp();
   }
 
+  /**
+   * @description Initializes the application
+   * @summary Sets the initialized flag and sets up repositories if in development mode
+   * @return {Promise<void>}
+   */
   async initializeApp(): Promise<void> {
+    this.initialized = true;
     const isDevelopment = isDevelopmentMode();
     if(isDevelopment) {
-      for(let model of [new CategoryModel(), new EmployeeModel()] ) {
+      for(const model of [new CategoryModel(), new EmployeeModel()] ) {
         const repository = new ForAngularRepository<typeof model>(this.adapter as DecafRepositoryAdapter, model);
         await repository.init();
       }
     }
+  }
+
+  /**
+   * @description Sets the application title based on the current page
+   * @summary Updates the document title with the application name and current page
+   * @param {string} page - The current page URL
+   */
+  setTitle(page: string): void {
+    const activeMenu = this.menu.find(item => item?.url?.includes(page));
+    if(activeMenu)
+      this.titleService.setTitle(`${title} - ${activeMenu?.title || activeMenu?.label}`);
   }
 }

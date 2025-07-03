@@ -16,6 +16,7 @@ import { generateLocaleFromString, stringToBoolean } from 'src/lib/helpers';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
+import { FunctionType } from 'src/lib/helpers/types';
 
 
 /**
@@ -80,7 +81,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  title: string = "title";
+  title = "title";
 
   /**
    * @description The color of the title text.
@@ -93,7 +94,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  titleColor: string = 'gray-6';
+  titleColor = 'gray-6';
 
   /**
    * @description The secondary message displayed in the empty state.
@@ -118,7 +119,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  subtitleColor: string = 'gray-4';
+  subtitleColor = 'gray-4';
 
   /**
    * @description Controls whether the icon is displayed.
@@ -144,7 +145,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  icon: string = "ti-info-square-rounded";
+  icon = "ti-info-square-rounded";
 
   /**
    * @description The size of the displayed icon.
@@ -176,11 +177,11 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * it should execute. This can be either a URL string or a function that handles navigation.
    * When not provided, the button will not perform any action.
    *
-   * @type {string | Function | undefined}
+   * @type {string | FunctionType | undefined}
    * @memberOf EmptyStateComponent
    */
   @Input()
-  buttonLink?: string | Function;
+  buttonLink?: string | FunctionType;
 
   /**
    * @description The text displayed on the action button.

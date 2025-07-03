@@ -1,50 +1,58 @@
 import { escapeHtml, FieldProperties, HTML5CheckTypes, HTML5InputTypes, parseToNumber } from '@decaf-ts/ui-decorators';
-import { AngularFieldDefinition, FieldUpdateMode } from './types';
+import {  ComponentConfig, ComponentInput, FieldUpdateMode, FormParentGroup } from './types';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { isValidDate, parseDate, Validation } from '@decaf-ts/decorator-validation';
 import { ValidatorFactory } from './ValidatorFactory';
 
-export interface ComponentInput extends FieldProperties {
-  updateMode?: FieldUpdateMode;
-  formGroup?: FormGroup;
-  formControl?: FormControl;
-}
-
-export interface ComponentConfig {
-  component: string;
-  inputs: ComponentInput;
-  injector: any;
-  children?: ComponentConfig[];
-}
 
 /**
- * @summary Service for managing Angular forms and form controls.
- * @description
- * The NgxFormService provides utility methods for handling form initialization,
- * validation, data retrieval, and form control management in Angular applications.
- * It offers a centralized way to manage form controls, perform validations, and
- * handle form-related operations.
+ * @description Service for managing Angular forms and form controls.
+ * @summary The NgxFormService provides utility methods for creating, managing, and validating Angular forms and form controls. It includes functionality for registering forms, adding controls, validating fields, and handling form data.
+ *
+ * @class
+ * @param {WeakMap<AbstractControl, FieldProperties>} controls - A WeakMap to store control properties.
+ * @param {Map<string, FormGroup>} formRegistry - A Map to store registered forms.
+ *
+ * @example
+ * // Creating a form from components
+ * const components = [
+ *   { inputs: { name: 'username', type: 'text', required: true } },
+ *   { inputs: { name: 'password', type: 'password', minLength: 8 } }
+ * ];
+ * const form = NgxFormService.createFormFromComponents('loginForm', components, true);
+ *
+ * // Validating fields
+ * NgxFormService.validateFields(form);
+ *
+ * // Getting form data
+ * const formData = NgxFormService.getFormData(form);
+ *
+ * @mermaid
+ * sequenceDiagram
+ *   participant C as Component
+ *   participant NFS as NgxFormService
+ *   participant AF as Angular Forms
+ *   C->>NFS: createFormFromComponents()
+ *   NFS->>AF: new FormGroup()
+ *   NFS->>NFS: addFormControl()
+ *   NFS->>AF: addControl()
+ *   NFS-->>C: Return FormGroup
+ *   C->>NFS: validateFields()
+ *   NFS->>AF: markAsTouched(), markAsDirty(), updateValueAndValidity()
+ *   C->>NFS: getFormData()
+ *   NFS->>AF: Get control values
+ *   NFS-->>C: Return form data
  */
 export class NgxFormService {
-  /**
-   * @summary Storage for form controls.
-   * @description
-   * A static object that stores form controls props.
-   */
   private static controls = new WeakMap<AbstractControl, FieldProperties>();
   private static formRegistry = new Map<string, FormGroup>();
 
-  private constructor() {
-  }
-
   /**
-   * Registers a FormGroup in the registry with the given identifier.
-   *
-   * Throws an error if the identifier already exists in the registry.
-   *
-   * @param {string} formId - Unique identifier for the form.
-   * @param {FormGroup} formGroup - The FormGroup instance to register.
-   * @throws {Error} If a FormGroup with the given id already exists.
+   * @description Adds a form to the registry.
+   * @summary Registers a FormGroup with a unique identifier. Throws an error if the identifier is already in use.
+   * @param {string} formId - The unique identifier for the form.
+   * @param {FormGroup} formGroup - The FormGroup to be registered.
+   * @throws {Error} If a FormGroup with the given id is already registered.
    */
   static addRegistry(formId: string, formGroup: FormGroup): void {
     if (this.formRegistry.has(formId))
@@ -52,49 +60,43 @@ export class NgxFormService {
     this.formRegistry.set(formId, formGroup);
   }
 
-
   /**
-   * Removes a FormGroup from the registry by its identifier.
-   * If the id does not exist, the operation is silently ignored.
-   *
-   * @param {string} formId - The identifier of the form to remove.
+   * @description Removes a form from the registry.
+   * @summary Deletes a FormGroup from the registry using its unique identifier.
+   * @param {string} formId - The unique identifier of the form to be removed.
    */
   static removeRegistry(formId: string): void {
     this.formRegistry.delete(formId);
   }
 
   /**
-   * Resolves the parent FormGroup and control name from a dot-delimited path.
-   * Automatically creates missing intermediate FormGroups if necessary.
-   *
-   * @param {FormGroup} formGroup -  The FormGroup to walk through
-   * @param {string} path - The full path string (e.g., 'address.billing.street')
-   * @returns {[FormGroup, string]} A tuple of parent FormGroup and the final control name.
+   * @description Resolves the parent group and control name from a path.
+   * @summary Traverses the form group structure to find the parent group and control name for a given path.
+   * @param {FormGroup} formGroup - The root FormGroup.
+   * @param {string} path - The path to the control.
+   * @return {FormParentGroup} A tuple containing the parent FormGroup and the control name.
    */
-  private static resolveParentGroup(formGroup: FormGroup, path: string): [FormGroup, string] {
+  private static resolveParentGroup(formGroup: FormGroup, path: string): FormParentGroup {
     const parts = path.split('.');
-    const controlName = parts.pop() as string; // last element is always the control name
-
+    const controlName = parts.pop() as string;
     let currentGroup = formGroup;
-
     for (const part of parts) {
       if (!currentGroup.get(part)) {
         currentGroup.addControl(part, new FormGroup({}));
       }
       currentGroup = currentGroup.get(part) as FormGroup;
     }
-
     return [currentGroup, controlName];
   }
 
   /**
-   * Adds a FormControl to the specified FormGroup, respecting the nesting structure
-   * defined via `childOf`. Also updates the component's `formGroup` reference.
-   *
-   * @param {FormGroup} formGroup - The root FormGroup to add the control to
-   * @param {ComponentInput} componentProps - The component configuration to process
+   * @description Adds a form control to a form group.
+   * @summary Creates and adds a form control to the specified form group based on the provided component properties.
+   * @param {FormGroup} formGroup - The form group to add the control to.
+   * @param {ComponentInput} componentProps - The properties of the component to create the control from.
    */
-  private static addFormControl(formGroup: FormGroup, componentProps: FieldProperties & ComponentInput): void {
+  private static addFormControl(formGroup: FormGroup, componentProps: ComponentInput): void {
+
     const { name, childOf } = componentProps;
     const fullPath = childOf ? `${childOf}.${name}` : name;
     const [parentGroup, controlName] = this.resolveParentGroup(formGroup, fullPath);
@@ -113,14 +115,12 @@ export class NgxFormService {
   }
 
   /**
-   * Retrieves a control (FormGroup, FormControl, or FormArray) from a form registered by its ID.
-   * If a path is provided, it returns the nested control at that path;
-   * otherwise, it returns the root FormGroup.
-   *
-   * @param {string} formId - The form registry identifier.
-   * @param {string} [path] - Optional dot-delimited path to the control (e.g., 'address.street').
-   * @returns {AbstractControl} The requested control.
-   * @throws {Error} If the control at the specified path does not exist.
+   * @description Retrieves a control from a registered form.
+   * @summary Finds and returns an AbstractControl from a registered form using the form id and optional path.
+   * @param {string} formId - The unique identifier of the form.
+   * @param {string} [path] - The path to the control within the form.
+   * @return {AbstractControl} The requested AbstractControl.
+   * @throws {Error} If the form is not found in the registry or the control is not found in the form.
    */
   static getControlFromForm(formId: string, path?: string): AbstractControl {
     const form = this.formRegistry.get(formId);
@@ -137,15 +137,14 @@ export class NgxFormService {
   }
 
   /**
-   * Builds a FormGroup from a flat array of components, using the `childOf` property
-   * to establish nested hierarchy.
-   *
-   * @param {string} id - form identifier
-   * @param {[ComponentConfig]} components - Flat array of component configurations
-   * @param {boolean} registry - Whether to register the generated FormGroup
-   * @returns {FormGroup} FormGroup - Root FormGroup containing the complete nested structure
+   * @description Creates a form from component configurations.
+   * @summary Generates a FormGroup based on an array of component configurations and optionally registers it.
+   * @param {string} id - The unique identifier for the form.
+   * @param {ComponentConfig[]} components - An array of component configurations.
+   * @param {boolean} [registry=false] - Whether to register the created form.
+   * @return {FormGroup} The created FormGroup.
    */
-  static createFormFromComponents(id: string, components: ComponentConfig[], registry: boolean = false): FormGroup {
+  static createFormFromComponents(id: string, components: ComponentConfig[], registry = false): FormGroup {
     const form = new FormGroup({});
     components.forEach(component => {
       this.addFormControl(form, component.inputs);
@@ -158,41 +157,33 @@ export class NgxFormService {
   }
 
   /**
-   * Add a control or formGroup from the registry and
-   * adds a FormControl based on the given component configuration.
-   *
-   * If the form does not exist in the registry for the given `renderId`,
-   * it initializes a new FormGroup and registers it.
-   *
-   * @param {string} id - Unique identifier for the form instance.
-   * @param {ComponentConfig} componentProperties - Component configuration containing control metadata.
-   * @returns {AbstractControl} The updated root FormGroup.
+   * @description Adds a control to a form based on component properties.
+   * @summary Creates and adds a form control to a form (existing or new) based on the provided component properties.
+   * @param {string} id - The unique identifier of the form.
+   * @param {FieldProperties} componentProperties - The properties of the component to create the control from.
+   * @return {AbstractControl} The form or created control.
    */
   static addControlFromProps(id: string, componentProperties: FieldProperties): AbstractControl {
     const form = this.formRegistry.get(id) ?? new FormGroup({});
     if (!this.formRegistry.has(id))
       this.addRegistry(id, form);
 
-    if (componentProperties.path) // if a path exists, it is a field
+    if (componentProperties.path)
       this.addFormControl(form, componentProperties);
 
     return form;
   }
 
   /**
-   * @summary  Returns the sanitized values from the given FormGroup.
-   * @description
-   * Iterates through the form controls and returns their current values,
-   * applying any necessary transformations or escapes.
-   *
-   * @param formGroup - The FormGroup instance to extract values from.
-   * @returns {Record<string, unknown>} An object containing the parsed form values.
+   * @description Retrieves form data from a FormGroup.
+   * @summary Extracts and processes the data from a FormGroup, handling different input types and nested form groups.
+   * @param {FormGroup} formGroup - The FormGroup to extract data from.
+   * @return {Record<string, unknown>} An object containing the form data.
    */
   static getFormData(formGroup: FormGroup): Record<string, unknown> {
     const data: Record<string, unknown> = {};
     for (const key in formGroup.controls) {
       const control = formGroup.controls[key];
-      // check for nested FormGroups
       if (!(control instanceof FormControl)) {
         data[key] = NgxFormService.getFormData(control as FormGroup);
         continue;
@@ -220,38 +211,29 @@ export class NgxFormService {
   }
 
   /**
-   * Recursively validates an AbstractControl.
-   *
-   * If a path is provided, and it leads to a FormControl, only that control will be validated.
-   * If the path leads to a FormGroup, it will validate all of its child controls recursively.
-   * If no path is provided, the entire form tree is validated.
-   *
-   * @param {AbstractControl} control - The root control or form group to validate.
-   * @param {string} [path] - Optional dot-separated path to a specific control (e.g., "address.zipCode").
-   * @returns {boolean} Returns true if the control is valid after validation; otherwise, false.
-   *
-   * @throws {Error} If the control at the specified path does not exist or is of an unknown type.
+   * @description Validates fields in a form control or form group.
+   * @summary Recursively validates all fields in a form control or form group, marking them as touched and dirty.
+   * @param {AbstractControl} control - The control or form group to validate.
+   * @param {string} [path] - The path to the control within the form.
+   * @return {boolean} True if all fields are valid, false otherwise.
+   * @throws {Error} If no control is found at the specified path or if the control type is unknown.
    */
   static validateFields(control: AbstractControl, path?: string): boolean {
-    const self = this;
     control = path ? control.get(path) as AbstractControl : control;
     if (!control)
       throw new Error(`No control found at path: ${path || 'root'}.`);
 
-    // Maybe add FormArray?
     const isAllowed = [FormGroup, FormControl].some(type => control instanceof type);
     if (!isAllowed)
       throw new Error(`Unknown control type at: ${path || 'root'}`);
 
-    // Mark control as touched and dirty, then update its validity.
     control.markAsTouched();
     control.markAsDirty();
     control.updateValueAndValidity({ emitEvent: true });
 
-    // If is a FormGroup, validate all its child controls recursively.
     if (control instanceof FormGroup) {
       Object.values(control.controls).forEach((childControl) => {
-        self.validateFields(childControl);
+        this.validateFields(childControl);
       });
     }
 
@@ -259,10 +241,10 @@ export class NgxFormService {
   }
 
   /**
-   * Generates an array of validator functions from the provided field properties.
-   *
-   * @param props - The field properties containing validation rules.
-   * @returns An array of ValidatorFn instances.
+   * @description Generates validators from component properties.
+   * @summary Creates an array of ValidatorFn based on the supported validation keys in the component properties.
+   * @param {FieldProperties} props - The component properties.
+   * @return {ValidatorFn[]} An array of validator functions.
    */
   private static validatorsFromProps(props: FieldProperties): ValidatorFn[] {
     const supportedValidationKeys = Validation.keys();
@@ -274,13 +256,11 @@ export class NgxFormService {
   }
 
   /**
-   * @summary Creates a FormGroup from field properties.
-   * @description
-   * Generates a new FormGroup instance based on the provided field definition and update mode.
-   *
-   * @param {AngularFieldDefinition} props - The Angular field definition properties.
-   * @param {FieldUpdateMode} updateMode - The update mode for the form group.
-   * @returns {FormGroup} A new FormGroup instance.
+   * @description Creates a FormControl from component properties.
+   * @summary Generates a FormControl with validators based on the provided component properties.
+   * @param {FieldProperties} props - The component properties.
+   * @param {FieldUpdateMode} [updateMode='change'] - The update mode for the control.
+   * @return {FormControl} The created FormControl.
    */
   static fromProps(props: FieldProperties, updateMode: FieldUpdateMode = 'change'): FormControl {
     const validators = this.validatorsFromProps(props);
@@ -303,24 +283,22 @@ export class NgxFormService {
   }
 
   /**
-   * Returns the field properties associated with the given form control.
-   * Looks up the control in the `controls` map. If not found, return an empty object.
-   *
-   * @param {FormControl} control - The form control to look up.
-   * @returns {FieldProperties} The associated field properties or an empty object.
+   * @description Retrieves properties from a FormControl.
+   * @summary Gets the FieldProperties associated with a FormControl from the internal WeakMap.
+   * @param {FormControl} control - The FormControl to get properties for.
+   * @return {FieldProperties} The properties associated with the control.
    */
   static getPropsFromControl(control: FormControl): FieldProperties {
     return this.controls.get(control) || {} as FieldProperties;
   }
 
   /**
-   * Searches up the DOM tree from the given element and returns the closest parent with the specified tag name.
-   *
+   * @description Finds a parent element with a specific tag.
+   * @summary Traverses up the DOM tree to find the nearest parent element with the specified tag.
    * @param {HTMLElement} el - The starting element.
-   * @param {string} tag - The tag name of the parent to find (case-insensitive).
-   * @returns {HTMLElement} The closest parent element with the specified tag.
-   *
-   * @throws {Error} If no parent element with the given tag is found.
+   * @param {string} tag - The tag name to search for.
+   * @return {HTMLElement} The found parent element.
+   * @throws {Error} If no parent with the specified tag is found.
    */
   static getParentEl(el: HTMLElement, tag: string) {
     let parent: HTMLElement | null;
@@ -336,39 +314,33 @@ export class NgxFormService {
   }
 
   /**
-   * Registers a control along with its metadata for internal tracking.
-   *
-   * @param control - The AbstractControl instance to register.
-   * @param props - A configuration for the control.
+   * @description Registers a control with its properties.
+   * @summary Associates a control with its properties in the internal WeakMap.
+   * @param {AbstractControl} control - The control to register.
+   * @param {FieldProperties} props - The properties to associate with the control.
    */
   static register(control: AbstractControl, props: FieldProperties) {
     this.controls.set(control, props);
   }
 
   /**
-   * Unregisters the given control from tracking.
-   * This doesn't destroy the object, only removes it from the registry.
-   *
-   * @param control - The control instance to unregister.
-   * @returns Whether the control was successfully unregistered.
+   * @description Unregisters a control.
+   * @summary Removes a control and its associated properties from the internal WeakMap.
+   * @param {AbstractControl} control - The control to unregister.
+   * @return {boolean} True if the control was successfully unregistered, false otherwise.
    */
   static unregister(control: AbstractControl): boolean {
     return this.controls.delete(control);
   }
 
   /**
-   * Resets all controls in the given FormGroup to their "no-value" state.
-   *
-   * - Recursively resets nested FormGroups.
-   * - If a control's type is not included in `HTML5CheckTypes`, its value is set to `undefined`.
-   * - All controls are marked as pristine and untouched, with no validation errors.
-   *
+   * @description Resets a form group.
+   * @summary Recursively resets all controls in a form group, clearing values, errors, and marking them as pristine and untouched.
    * @param {FormGroup} formGroup - The form group to reset.
    */
   static reset(formGroup: FormGroup) {
     for (const key in formGroup.controls) {
       const control = formGroup.controls[key];
-      // check for nested FormGroups
       if (!(control instanceof FormControl)) {
         NgxFormService.reset(control as FormGroup);
         continue;

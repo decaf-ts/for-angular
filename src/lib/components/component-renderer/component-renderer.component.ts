@@ -7,12 +7,10 @@ import {
   inject,
   Injector,
   Input,
-  OnChanges,
   OnDestroy,
   OnInit,
   Output,
   reflectComponentType,
-  SimpleChanges,
   TemplateRef,
   Type,
   ViewChild,
@@ -70,7 +68,7 @@ import { Logger } from '@decaf-ts/logging';
   standalone: true,
 })
 export class ComponentRendererComponent
-  implements OnInit, OnChanges, OnDestroy {
+  implements OnInit, OnDestroy {
   /**
    * @description Reference to the container where the dynamic component will be rendered.
    * @summary This ViewContainerRef provides the container where the dynamically created
@@ -275,7 +273,7 @@ export class ComponentRendererComponent
     const inputKeys = Object.keys(props);
     const unmappedKeys = [];
 
-    for (let input of inputKeys) {
+    for (const input of inputKeys) {
       if (!inputKeys.length) break;
       const prop = componentInputs.find(
         (item: { propName: string }) => item.propName === input,
@@ -316,19 +314,6 @@ export class ComponentRendererComponent
   }
 
   /**
-   * @description Responds to changes in the component's input properties.
-   * @summary This lifecycle hook is called when any data-bound property of the component changes.
-   * Currently, this method is implemented as a placeholder and does not perform any actions.
-   * It could be extended in the future to handle dynamic updates to the rendered component.
-   *
-   * @param {SimpleChanges} changes - Object containing the changed properties
-   * @return {void}
-   * @memberOf ComponentRendererComponent
-   */
-  ngOnChanges(changes: SimpleChanges): void {
-  }
-
-  /**
    * @description Subscribes to events emitted by the dynamic component.
    * @summary This method sets up subscriptions to all EventEmitter properties of the
    * dynamically created component. When an event is emitted by the dynamic component,
@@ -358,7 +343,6 @@ export class ComponentRendererComponent
    */
   private subscribeEvents(): void {
     if (this.component) {
-      const self = this;
       const instance = this.component?.instance as any;
       const componentKeys = Object.keys(instance);
       for (const key of componentKeys) {
@@ -366,7 +350,7 @@ export class ComponentRendererComponent
         if (value instanceof EventEmitter)
           (instance as KeyValue)[key].subscribe(
             (event: Partial<BaseCustomEvent>) => {
-              self.listenEvent.emit({
+              this.listenEvent.emit({
                 name: key,
                 ...event,
               } as ModelRenderCustomEvent);

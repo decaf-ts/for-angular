@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { MenuController } from '@ionic/angular/standalone';
 import { ElementSizes, FlexPositions, StringOrBoolean } from 'src/lib/engine/types';
 import { stringToBoolean } from 'src/lib/helpers/utils';
@@ -160,7 +160,7 @@ export class ContainerComponent extends NgxBaseComponent implements OnInit {
    * @memberOf ContainerComponent
    */
   ngOnInit() {
-    this.menuController.enable(stringToBoolean(this.hasSideMenu) as boolean);
+    // this.menuController.enable(stringToBoolean(this.hasSideMenu) as boolean);
     this.expand = stringToBoolean(this.expand);
     this.flex = stringToBoolean(this.flex);
 

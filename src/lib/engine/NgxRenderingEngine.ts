@@ -98,7 +98,7 @@ export class NgxRenderingEngine extends RenderingEngine<
 
     const possibleInputs = componentMetadata.inputs;
     const inputKeys = Object.keys(inputs);
-    for (let input of possibleInputs) {
+    for (const input of possibleInputs) {
       const index = inputKeys.indexOf(input.propName);
       if (index !== -1) {
         inputKeys.splice(index, 1);

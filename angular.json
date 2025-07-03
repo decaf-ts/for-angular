@@ -76,6 +76,15 @@
             "compodoc": false,
             "outputDir": "dist/storybook/for-angular"
           }
+        },
+         "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     },

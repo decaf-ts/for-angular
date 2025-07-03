@@ -1,10 +1,10 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, OnInit, Output  } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
-import { BaseCustomEvent, EventConstants, KeyValue, StringOrBoolean } from 'src/lib/engine';
+import { EventConstants, KeyValue, StringOrBoolean } from 'src/lib/engine';
 import { PaginationCustomEvent } from './constants';
 
 /**
@@ -81,8 +81,8 @@ export class PaginationComponent extends NgxBaseComponent implements OnInit {
    * @required
    * @memberOf PaginationComponent
    */
-  @Input({ alias: 'pages', required: true })
-  data!: number;
+  @Input({ required: true })
+  totalPages!: number;
 
   /**
    * @description The currently active page number.
@@ -93,8 +93,8 @@ export class PaginationComponent extends NgxBaseComponent implements OnInit {
    * @default 1
    * @memberOf PaginationComponent
    */
-  @Input({alias: 'selected'})
-  current: number = 1;
+  @Input()
+  current = 1;
 
   /**
    * @description Array of page objects for rendering in the template.
@@ -160,8 +160,8 @@ export class PaginationComponent extends NgxBaseComponent implements OnInit {
    */
   ngOnInit(): void {
     this.locale = this.getLocale(this.translatable);
-    this.pages = this.getPages(this.data, this.current) as KeyValue[];
-    this.last = this.data;
+    this.pages = this.getPages(this.totalPages, this.current) as KeyValue[];
+    this.last = this.totalPages;
   }
 
   /**
@@ -230,7 +230,7 @@ export class PaginationComponent extends NgxBaseComponent implements OnInit {
 
     const pages: KeyValue[] = [];
 
-    function getPage(index: number | null, text: string = '') {
+    function getPage(index: number | null, text = '') {
         if (pages.some(item => item['index'] === index)) return;
         pages.push({ index, text: index != null ? index.toString().padStart(2, '0') : text });
     }

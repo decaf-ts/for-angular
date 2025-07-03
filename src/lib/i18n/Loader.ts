@@ -18,11 +18,11 @@ export class I18nLoader {
     })(http, './assets/i18n/', getSuffix());
   }
 
-  static loadDummy() {
-    return new (class extends TranslateLoader {
-      override getTranslation(lang: string): Observable<TranslationObject> {
-        return {} as unknown as Observable<TranslationObject>;
-      }
-    })();
-  }
+  // static loadDummy() {
+  //   return new (class extends TranslateLoader {
+  //     override getTranslation(lang: string): Observable<TranslationObject> {
+  //       return {} as unknown as Observable<TranslationObject>;
+  //     }
+  //   })();
+  // }
 }

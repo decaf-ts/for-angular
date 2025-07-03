@@ -144,7 +144,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @Input()
-  override childOf: string = '';
+  override childOf = '';
 
   /**
    * @description The input type of the field.
@@ -470,7 +470,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @Input()
-  spellcheck: boolean = false;
+  spellcheck = false;
 
   /**
    * @description Input mode for text inputs.

@@ -11,3 +11,10 @@ export type Err = Error | undefined | null;
  *
  */
 export type Callback = (err?: Err, ...args: any[]) => void;
+
+/**
+ * @typeDef FunctionType
+ * @memberOf utils.types
+ *
+ */
+export type FunctionType = (...args: any[]) => any;

@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output, Input, HostListener, Type, OnDestroy  } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, Input, HostListener, OnDestroy  } from '@angular/core';
 import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
 import {
   IonInfiniteScroll,
@@ -41,6 +41,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
 import { PaginationComponent } from '../pagination/pagination.component';
 import { PaginationCustomEvent } from '../pagination/constants';
 import { IListEmptyResult, ListComponentsTypes, DecafRepository } from './constants';
+import { FunctionType } from 'src/lib/helpers/types';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -200,12 +201,12 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * - A function that returns data when called
    * The component will call this source when it needs to load or refresh data.
    *
-   * @type {string | Function}
+   * @type {string | FunctionType}
    * @required
    * @memberOf ListComponent
    */
   @Input()
-  source!: string | Function;
+  source!: string | FunctionType;
 
   /**
    * @description The starting index for data fetching.
@@ -217,7 +218,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   @Input()
-  start: number = 0;
+  start = 0;
 
   /**
    * @description The number of items to fetch per page or load operation.
@@ -229,7 +230,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   @Input()
-  limit: number = 10;
+  limit = 10;
 
   /**
    * @description Controls whether more data can be loaded.
@@ -281,7 +282,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   @Input()
-  scrollThreshold: string = "15%";
+  scrollThreshold = "15%";
 
   /**
    * @description The position where new items are added during infinite scrolling.
@@ -399,7 +400,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @default 1
    * @memberOf ListComponent
    */
-  page: number = 1;
+  page = 1;
 
   /**
    * @description The total number of pages available.
@@ -421,7 +422,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @default false
    * @memberOf ListComponent
    */
-  refreshing: boolean = false;
+  refreshing = false;
 
   /**
    * @description Array used for rendering skeleton loading placeholders.
@@ -479,7 +480,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @default 1
    * @memberOf ListComponent
    */
-  lastPage: number = 1
+  lastPage = 1
 
   /**
    * @description Event emitter for refresh operations.
@@ -670,8 +671,11 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
 
   async handleObserveEvent(table: string, event: OperationKeys, uid: string | number): Promise<void> {
     if(event === OperationKeys.CREATE) {
-      uid ?
-        await this.handleCreate(uid) : await this.refresh(true);
+      if(uid) {
+        await this.handleCreate(uid);
+      } else {
+        await this.refresh(true);
+      }
     } else {
       if(event === OperationKeys.UPDATE)
         await this.handleUpdate(uid);
@@ -694,12 +698,12 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    *
    * @param {number} index - The index of the item in the list.
 
-   * @param {KeyValue & {uid: string | number}} item - The actual item from the list.
+   * @param {KeyValue} item - The actual item from the list.
    * @returns {string | number} The tracking key for the item.
    * @memberOf ListComponent
    */
-  trackItemFn(index: number, item: KeyValue & {uid: string | number}): string | number {
-    return `${item?.uid || item?.[this.pk]}-${index}`;
+  trackItemFn(index: number, item: KeyValue): string | number {
+    return `${item?.['uid'] || item?.[this.pk]}-${index}`;
   }
 
 
@@ -726,18 +730,17 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   async handleUpdate(uid: string | number): Promise<void> {
-    const self = this;
     const item: KeyValue = this.itemMapper(await this._repository?.read(uid) || {}, this.mapper);
-    self.data = [];
-    for(let key in self.items as KeyValue[]) {
-        const child = self.items[key] as KeyValue;
+    this.data = [];
+    for(const key in this.items as KeyValue[]) {
+        const child = this.items[key] as KeyValue;
         if(child['uid'] === item['uid']) {
-          self.items[key] = Object.assign({}, child, item);
+          this.items[key] = Object.assign({}, child, item);
           break;
         }
     }
     setTimeout(() => {
-      self.data = [ ...self.items];
+      this.data = [ ...this.items];
     }, 0);
   }
 
@@ -801,7 +804,6 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    */
   @HostListener('window:searchbarEvent', ['$event'])
   async handleSearch(value: string | undefined): Promise<void> {
-   const page = this.page;
     if(this.type === ListComponentsTypes.INFINITE) {
       this.loadMoreData = false;
       if(value === undefined) {
@@ -927,8 +929,8 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
     //  }
 
     this.refreshing = true;
-    let start: number = this.page > 1 ? (this.page - 1) * this.limit : this.start;
-    let limit: number = (this.page * (this.limit > 12 ? 12 : this.limit));
+    const start: number = this.page > 1 ? (this.page - 1) * this.limit : this.start;
+    const limit: number = (this.page * (this.limit > 12 ? 12 : this.limit));
 
     this.data = !this.model ?
       await this.getFromRequest(!!event, start, limit)
@@ -968,7 +970,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
  * @memberOf ListComponent
  */
 handlePaginate(event: PaginationCustomEvent): void {
-  const {direction, page} = event.data;
+  const { page} = event.data;
   this.page = page;
   this.refresh(true);
 }
@@ -1026,7 +1028,7 @@ async handleRefresh(event?: InfiniteScrollCustomEvent | CustomEvent): Promise<vo
  *
  * @memberOf ListComponent
  */
-async getFromRequest(force: boolean = false, start: number, limit: number): Promise<KeyValue[]> {
+async getFromRequest(force = false, start: number, limit: number): Promise<KeyValue[]> {
   let request: any = [];
   if(!this.data?.length || force || this.searchValue?.length) {
     // (self.data as ListItem[]) = [];
@@ -1036,15 +1038,13 @@ async getFromRequest(force: boolean = false, start: number, limit: number): Prom
         return [];
       }
 
-      //  if(typeof this.source === 'string')
-      //    request = await this.requestService.prepare(this.source as string);
       if(this.source instanceof Function)
         request = await this.source();
 
       if(!Array.isArray(request))
         request = request?.response?.data || request?.results || [];
       this.data = [... await this.parseResult(request)];
-      if(this.data?.length) {}
+      if(this.data?.length)
         this.items = this.type === ListComponentsTypes.INFINITE ?
           (this.items || []).concat([...this.data.slice(start, limit)]) : [...request.slice(start, limit) as KeyValue[]];
     } else {
@@ -1071,13 +1071,13 @@ async getFromRequest(force: boolean = false, start: number, limit: number): Prom
  *
  * @memberOf ListComponent
  */
-async getFromModel(force: boolean = false, start: number, limit: number): Promise<KeyValue[]> {
+async getFromModel(force = false, start: number, limit: number): Promise<KeyValue[]> {
   let data = [ ... this.data || []];
   let request: KeyValue[] = [];
 
   // getting model repository
   if(!this._repository)
-    this.repository;
+    this._repository = this.repository;
   const repo = this._repository as DecafRepository<Model>;
   if(!this.data?.length || force || this.searchValue?.length) {
     try {
@@ -1099,7 +1099,7 @@ async getFromModel(force: boolean = false, start: number, limit: number): Promis
 
         const searchValue = this.searchValue as string | number;
         let condition = Condition.attribute<Model>(this.pk as keyof Model).eq(!isNaN(searchValue as number) ? Number(searchValue) : searchValue);
-        for (let index of this.indexes) {
+        for (const index of this.indexes) {
             if(index === this.pk)
               continue;
             let orCondition;
@@ -1151,7 +1151,7 @@ protected parseQuery(start: number, limit: number): KeyValue {
   const model = this._repository as IRepository<Model>;
   const pk = model?.pk || this.pk;
   const table = model?.class || model?.constructor?.name;
-  const query = !!this.query ?
+  const query = this.query ?
     typeof this.query === 'string' ? JSON.parse(this.query) : this.query : {};
   const rawQuery: KeyValue = {
     selector: Object.assign({}, {
@@ -1251,7 +1251,7 @@ protected itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyVal
       } else {
         let val;
 
-        for (let _value of arrayValue)
+        for (const _value of arrayValue)
           val = !val
             ? item[_value]
             : (typeof val === 'string' ? JSON.parse(val) : val)[_value];

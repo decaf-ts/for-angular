@@ -105,7 +105,7 @@ export class NgxToastComponent {
   private async show(options: ToastOptions): Promise<HTMLIonToastElement>{
     options = Object.assign({duration: 5000}, options);
     let timeout = 0;
-    if(!!component) {
+    if(component) {
       await component.dismiss();
       timeout = 200;
     }

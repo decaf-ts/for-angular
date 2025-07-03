@@ -5,6 +5,7 @@ const angular = require("angular-eslint");
 module.exports = tseslint.config(
   {
     files: ["**/*.ts"],
+    ignores: ['tests/**', "**/*.spec.*", 'src/tests/**', 'src/stories/**/*.ts'],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
@@ -13,11 +14,14 @@ module.exports = tseslint.config(
     ],
     processor: angular.processInlineTemplates,
     rules: {
-      "@typescript-eslint/no-explicty-any": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
+      "no-useless-constructor": "off",
+      "@typescript-eslint/no-useless-constructor": "off",
       "@typescript-eslint/no-inferrable-types": "warn",
-      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-empty-function": "warn",
       "@angular-eslint/no-empty-lifecycle-method": "warn",
+      "@angular-eslint/prefer-inject": "off",
       "@angular-eslint/component-class-suffix": [
         "error",
         {
@@ -28,7 +32,7 @@ module.exports = tseslint.config(
         "error",
         {
           type: "attribute",
-          prefix: "app",
+          prefix: ["decaf", ""],
           style: "camelCase",
         },
       ],

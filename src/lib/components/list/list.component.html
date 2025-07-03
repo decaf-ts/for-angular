@@ -31,8 +31,8 @@
   @if(loadMoreData) {
     @if(pages > 0 && type === 'paginated' && !searchValue?.length) {
       <ngx-decaf-pagination
-        [pages]="pages"
-        [selected]="page"
+        [totalPages]="pages"
+        [current]="page"
         (clickEvent)="handlePaginate($event)"
       />
 

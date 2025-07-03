@@ -1,5 +1,5 @@
 import { FieldProperties, RenderingError } from '@decaf-ts/ui-decorators';
-import { FieldUpdateMode, PossibleInputTypes } from './types';
+import { PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormControl, FormGroup } from '@angular/forms';
 import { ElementRef } from '@angular/core';
@@ -173,7 +173,7 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    * @description Retrieves all errors associated with the field
    * @returns {Array<{key: string, message: string}>} An array of error objects
    */
-  getErrors(parent: HTMLElement): Array<{ key: string; message: string; }> {
+  getErrors(parent: HTMLElement): { key: string; message: string; }[] {
     const collapsableContainer = parent.closest('ion-accordion-group');
     if(collapsableContainer)
       collapsableContainer.setAttribute('value', 'open');

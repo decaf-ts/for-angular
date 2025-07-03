@@ -50,8 +50,8 @@ describe('CrudFormComponent', () => {
       component.ngOnInit();
 
     // If ngAfterViewInit returns a promise, await it
-    if (component.ngAfterViewInit instanceof Function)
-      component.ngAfterViewInit();
+    // if (component.ngAfterViewInit instanceof Function)
+    //   component.ngAfterViewInit();
 
     // Force change detection after async operations
     fixture.detectChanges();

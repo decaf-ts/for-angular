@@ -44,6 +44,6 @@ export class CrudPage implements OnInit {
   }
 
   handleSubmit(event: BaseCustomEvent): void {
-    // const { data } = event;
+    console.log('Submit event:', event);
   }
 }

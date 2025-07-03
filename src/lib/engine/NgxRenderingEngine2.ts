@@ -303,7 +303,8 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
    * @return {Promise<void>} A promise that resolves when initialization is complete
    */
   override async initialize(...args: any[]): Promise<void> {
-    if (this.initialized) return;
+    if (this.initialized)
+      return;
     // ValidatableByType[]
     this.initialized = true;
   }
@@ -338,7 +339,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
    * @param {string} [selector] - Optional selector to retrieve a specific component
    * @return {Object|Array} Either a specific component or an array of all components
    */
-  static components(selector?: string): object | Array<any> {
+  static components(selector?: string): object | any[] {
     if (!selector) return Object.values(this._components);
     if (!(selector in this._components))
       throw new InternalError(`No Component registered under ${selector}`);

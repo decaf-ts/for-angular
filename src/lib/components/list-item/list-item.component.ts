@@ -118,11 +118,11 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
   @Output()
   clickEvent:  EventEmitter<ListItemCustomEvent> = new EventEmitter<ListItemCustomEvent>();
 
-  showSlideItems: boolean = false;
+  showSlideItems = false;
 
   windowWidth!: number;
 
-  actionMenuOpen: boolean = false;
+  actionMenuOpen = false;
 
 
   private navController: NavController = inject(NavController);

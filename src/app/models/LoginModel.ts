@@ -3,6 +3,7 @@ import {
   model,
   Model,
   ModelArg,
+  password,
   required
 } from '@decaf-ts/decorator-validation';
 import { uielement, uimodel, uihandlers } from '@decaf-ts/ui-decorators';
@@ -29,7 +30,7 @@ export class LoginModel extends Model {
     placeholder: 'login.password.placeholder',
     type: 'textarea',
   })
-  // @password()
+  @password()
   @required()
   password!: string;
 

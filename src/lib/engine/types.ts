@@ -2,6 +2,7 @@ import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { Injector, Type } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { FieldProperties } from '@decaf-ts/ui-decorators';
 
 export type KeyValue = Record<string, any>;
 
@@ -96,7 +97,7 @@ export interface ComponentMetadata {
  * @property {FormControl} [formControl] - Optional component FormControl
  * @memberOf module:engine
  */
-export type AngularDynamicOutput = {
+export interface AngularDynamicOutput {
   component: Type<unknown>;
   rendererId?: string;
   inputs?: Record<string, unknown>;
@@ -106,7 +107,7 @@ export type AngularDynamicOutput = {
   instance?: Type<unknown>;
   formGroup?: FormGroup;
   formControl?: FormControl;
-};
+}
 
 /**
  * @description Interface for models that can be rendered
@@ -264,10 +265,10 @@ export interface IListComponentRefreshEvent {
   data: KeyValue[];
 }
 
-export type FormServiceControl = {
+export interface FormServiceControl {
   control: FormGroup;
   props: AngularFieldDefinition;
-};
+}
 
 /**
  * @description Type for form service controls
@@ -348,3 +349,21 @@ export interface BaseCustomEvent {
 export type CrudFormEvent = BaseCustomEvent & {
   handlers?: Record<string, any>;
 };// export type CrudFormEvent = BaseCustomEvent & {handlers?: Record<string, (...args: any[]) => any | Promise<any>>}
+
+
+
+export interface ComponentInput extends FieldProperties {
+  updateMode?: FieldUpdateMode;
+  formGroup?: FormGroup;
+  formControl?: FormControl;
+}
+
+export interface ComponentConfig {
+  component: string;
+  inputs: ComponentInput;
+  injector: any;
+  children?: ComponentConfig[];
+}
+
+export type FormParentGroup = [FormGroup,  string];
+

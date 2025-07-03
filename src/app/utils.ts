@@ -9,6 +9,7 @@
  */
 
 import { KeyValue } from 'src/lib/engine/types';
+import { FunctionType } from 'src/lib/helpers/types';
 import { formatDate } from 'src/lib/helpers/utils';
 
 /**
@@ -21,7 +22,7 @@ import { formatDate } from 'src/lib/helpers/utils';
  * @private
  * @type {Object}
  */
-const commonInputProps = {
+const commonInputProps: KeyValue = {
   name: 'field-name',
   label: 'field label',
   placeholder: 'field placeholder',
@@ -66,9 +67,9 @@ const commonInputProps = {
  */
 export function getFormFieldProps(
   name: string,
-  type = 'text',
+  type: 'text',
   value: string | number | Date = ''
-): {} {
+): KeyValue {
   return Object.assign({}, commonInputProps, {
     name: `field-${name}`,
     label: `Label for field ${name}`,
@@ -86,7 +87,7 @@ export function getFormFieldProps(
  * by formatting them appropriately.
  *
  * @param {number} [limit=100] - The number of data items to generate
- * @param {Record<string, Function>} fakerObj - An object mapping field names to Faker functions
+ * @param {Record<string, FunctionType>} fakerObj - An object mapping field names to Faker functions
  * @return {Promise<KeyValue[]>} A promise that resolves to an array of generated data objects
  *
  * @mermaid
@@ -115,13 +116,13 @@ export function getFormFieldProps(
  * @memberOf AppUtils
  */
 export function generateFakerData(
-  limit: number = 100,
-  props: Record<string, Function>
+  limit = 100,
+  props: KeyValue
 ): Promise<KeyValue[]> {
   return new Promise((resolve) => {
     return resolve(
       Array.from({ length: limit }, () => {
-        const item: Record<string, any> = {};
+        const item: KeyValue = {};
         for (const [key, value] of Object.entries(props)) {
           const val = value();
           item[key] = val.constructor === Date ? formatDate(val) : val;

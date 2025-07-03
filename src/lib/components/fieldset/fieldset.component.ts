@@ -25,17 +25,16 @@ import { IonAccordion, IonAccordionGroup, IonItem } from '@ionic/angular/standal
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [ForAngularModule, IonAccordionGroup, IonAccordion, IonItem, CollapsableDirective],
 })
-export class FieldsetComponent implements OnInit {
+export class FieldsetComponent {
   @ViewChild('component', { static: false, read: ElementRef })
   component!: ElementRef;
 
-  @Input() name: string = 'Child';
+  @Input() name = 'Child';
   @Input() target: HTMLFormTarget = '_self';
 
-  isOpen: boolean = false;
+  isOpen = false;
 
-  ngOnInit() {
-  }
+  protected readonly OperationKeys = OperationKeys;
 
   // ngAfterViewInit() {
   //   // if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
@@ -53,6 +52,4 @@ export class FieldsetComponent implements OnInit {
     if ((target as HTMLIonAccordionGroupElement).tagName === 'ION-ACCORDION-GROUP')
       this.isOpen = !!value;
   }
-
-  protected readonly OperationKeys = OperationKeys;
 }
