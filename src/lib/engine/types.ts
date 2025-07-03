@@ -2,6 +2,7 @@ import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { Injector, Type } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { FieldProperties } from '@decaf-ts/ui-decorators';
 
 export type KeyValue = Record<string, any>;
 
@@ -348,3 +349,21 @@ export interface BaseCustomEvent {
 export type CrudFormEvent = BaseCustomEvent & {
   handlers?: Record<string, any>;
 };// export type CrudFormEvent = BaseCustomEvent & {handlers?: Record<string, (...args: any[]) => any | Promise<any>>}
+
+
+
+export interface ComponentInput extends FieldProperties {
+  updateMode?: FieldUpdateMode;
+  formGroup?: FormGroup;
+  formControl?: FormControl;
+}
+
+export interface ComponentConfig {
+  component: string;
+  inputs: ComponentInput;
+  injector: any;
+  children?: ComponentConfig[];
+}
+
+export type FormParentGroup = [FormGroup,  string];
+
