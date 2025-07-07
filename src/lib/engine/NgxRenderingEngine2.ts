@@ -128,11 +128,11 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     fieldDef: FieldDefinition<AngularFieldDefinition>,
     vcr: ViewContainerRef,
     injector: Injector,
-    tpl: TemplateRef<any>,
+    tpl: TemplateRef<unknown>,
     registryFormId: string = Date.now().toString(36).toUpperCase(),
   ): AngularDynamicOutput {
-    const cmp = (fieldDef as any)?.component || NgxRenderingEngine2.components(fieldDef.tag);
-    const component = (cmp.constructor) as unknown as Type<unknown>;
+    const cmp = (fieldDef as KeyValue)?.['component'] || NgxRenderingEngine2.components(fieldDef.tag);
+    const component = cmp.constructor as unknown as Type<unknown>;
 
     const componentMetadata = reflectComponentType(component);
     if (!componentMetadata) {
@@ -158,7 +158,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     };
 
     if (fieldDef.rendererId)
-      (result.inputs as Record<string, any>)['rendererId'] = fieldDef.rendererId;
+      (result.inputs as Record<string, unknown>)['rendererId'] = fieldDef.rendererId;
 
     // process children
     if (fieldDef.children?.length) {
@@ -198,10 +198,10 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
    * @param {ComponentMirror<unknown>} metadata - The component metadata for input validation
    * @param {ViewContainerRef} vcr - The view container reference for component creation
    * @param {Injector} injector - The Angular injector for dependency injection
-   * @param {any} [template=[]] - The template nodes to project into the component
+   * @param {Node[]} [template=[]] - The template nodes to project into the component
    * @return {ComponentRef<unknown>} The created component reference
    */
-  static createComponent(component: Type<unknown>, inputs: KeyValue = {}, metadata: ComponentMirror<unknown>, vcr: ViewContainerRef, injector: Injector, template: any = []): ComponentRef<unknown> {
+  static createComponent(component: Type<unknown>, inputs: KeyValue = {}, metadata: ComponentMirror<unknown>, vcr: ViewContainerRef, injector: Injector, template: Node[] = []): ComponentRef<unknown> {
     const componentInstance = vcr.createComponent(component as Type<unknown>, {
       environmentInjector: injector as EnvironmentInjector,
       projectableNodes: [template],
@@ -273,7 +273,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     globalProps: Record<string, unknown>,
     vcr: ViewContainerRef,
     injector: Injector,
-    tpl: TemplateRef<any>,
+    tpl: TemplateRef<unknown>,
   ): AngularDynamicOutput {
     let result: AngularDynamicOutput;
     try {
@@ -282,7 +282,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       const fieldDef = this.toFieldDefinition(model, globalProps);
       result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl, formId);
 
-      (result!.instance! as Record<string, any>)['formGroup'] = NgxFormService.getControlFromForm(formId);
+      (result!.instance! as KeyValue)['formGroup'] = NgxFormService.getControlFromForm(formId);
       NgxFormService.removeRegistry(formId);
     } catch (e: unknown) {
       throw new InternalError(
@@ -299,10 +299,9 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
    * and sets the initialized flag to true. This method is called before the engine is used
    * to ensure it's properly set up for rendering operations.
    *
-   * @param {...any[]} args - Initialization arguments
    * @return {Promise<void>} A promise that resolves when initialization is complete
    */
-  override async initialize(...args: any[]): Promise<void> {
+  override async initialize(): Promise<void> {
     if (this.initialized)
       return;
     // ValidatableByType[]
@@ -339,7 +338,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
    * @param {string} [selector] - Optional selector to retrieve a specific component
    * @return {Object|Array} Either a specific component or an array of all components
    */
-  static components(selector?: string): object | any[] {
+  static components(selector?: string): object | string[] {
     if (!selector) return Object.values(this._components);
     if (!(selector in this._components))
       throw new InternalError(`No Component registered under ${selector}`);

@@ -1,5 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
-import { MenuController } from '@ionic/angular/standalone';
+import { Component, Input, OnInit } from '@angular/core';
 import { ElementSizes, FlexPositions, StringOrBoolean } from 'src/lib/engine/types';
 import { stringToBoolean } from 'src/lib/helpers/utils';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
@@ -111,18 +110,6 @@ export class ContainerComponent extends NgxBaseComponent implements OnInit {
   size: ElementSizes = 'block';
 
   /**
-   * @description Service for controlling the Ionic menu.
-   * @summary Injected service that provides methods for enabling, disabling,
-   * opening, and closing the Ionic side menu. Used to control menu behavior
-   * based on the hasSideMenu property.
-   *
-   * @private
-   * @type {MenuController}
-   * @memberOf ContainerComponent
-   */
-  private menuController: MenuController = inject(MenuController);
-
-  /**
    * @description Creates an instance of ContainerComponent.
    * @summary Initializes a new ContainerComponent and calls the parent constructor
    * with the component name for locale derivation.
@@ -160,7 +147,6 @@ export class ContainerComponent extends NgxBaseComponent implements OnInit {
    * @memberOf ContainerComponent
    */
   ngOnInit() {
-    // this.menuController.enable(stringToBoolean(this.hasSideMenu) as boolean);
     this.expand = stringToBoolean(this.expand);
     this.flex = stringToBoolean(this.flex);
 

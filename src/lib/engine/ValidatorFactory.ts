@@ -10,6 +10,9 @@ import {
 } from '@decaf-ts/decorator-validation';
 import { FieldProperties, HTML5InputTypes, parseValueByType } from '@decaf-ts/ui-decorators';
 import { AngularEngineKeys } from './constants';
+import { KeyValue } from './types';
+
+type ComparisonValidationKey = typeof ComparisonValidationKeys[keyof typeof ComparisonValidationKeys];
 
 /**
  *
@@ -27,9 +30,9 @@ import { AngularEngineKeys } from './constants';
  */
 const resolveValidatorKeyProps = (key: string, value: unknown, type: string): {
   validatorKey: string;
-  props: Record<string, any>;
+  props: Record<string, unknown>;
 } => {
-  const patternValidators: Record<string, any> = {
+  const patternValidators: Record<string, unknown> = {
     [ValidationKeys.PASSWORD]: DEFAULT_PATTERNS.PASSWORD.CHAR8_ONE_OF_EACH,
     [ValidationKeys.EMAIL]: DEFAULT_PATTERNS.EMAIL,
     [ValidationKeys.URL]: DEFAULT_PATTERNS.URL,
@@ -63,10 +66,10 @@ export class ValidatorFactory {
         : undefined;
 
       // Create a proxy to enable access to parent and child values
-      let proxy: PathProxy<any> = ValidatorFactory.createProxy({} as any);
-      if (Object.values(ComparisonValidationKeys).includes(key as any)) {
-        const parent: FormGroup = control instanceof FormGroup ? control : (control as Record<string, any>)[AngularEngineKeys.PARENT];
-        proxy = ValidatorFactory.createProxy(parent) as PathProxy<any>;
+      let proxy: PathProxy<unknown> = ValidatorFactory.createProxy({} as AbstractControl);
+      if (Object.values(ComparisonValidationKeys).includes(key as ComparisonValidationKey)) {
+        const parent: FormGroup = control instanceof FormGroup ? control : (control as KeyValue)[AngularEngineKeys.PARENT];
+        proxy = ValidatorFactory.createProxy(parent) as PathProxy<unknown>;
       }
 
       let errs: string | undefined;
@@ -93,11 +96,11 @@ export class ValidatorFactory {
    * Enables Validators handling method to access parent and child properties using consistent dot-notation in Angular forms.
    *
    * @param {AbstractControl} control - The control to wrap in a proxy.
-   * @returns {PathProxy<any>} A proxy object exposing form values and enabling recursive parent access.
+   * @returns {PathProxy<unknown>} A proxy object exposing form values and enabling recursive parent access.
    */
-  static createProxy(control: AbstractControl): PathProxy<any> {
+  static createProxy(control: AbstractControl): PathProxy<unknown> {
     return PathProxyEngine.create(control, {
-      getValue(target: any, prop: string): any {
+      getValue(target: AbstractControl, prop: string): unknown {
         if (target instanceof FormControl)
           return target.value;
 
@@ -115,10 +118,10 @@ export class ValidatorFactory {
         //   return control instanceof FormControl ? control.value : control;
         // }
 
-        return target[prop];
+        return (target as KeyValue)?.[prop];
       },
-      getParent: function(target: any) {
-        return target._parent;
+      getParent: function(target: AbstractControl)  {
+        return target?.['_parent'];
       },
       ignoreUndefined: true,
       ignoreNull: true,

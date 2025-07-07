@@ -16,8 +16,7 @@ import { stringToBoolean } from 'src/lib/helpers/utils';
 import { Model } from '@decaf-ts/decorator-validation';
 import {
   CrudOperations,
-  OperationKeys,
-  Repository,
+  OperationKeys
 } from '@decaf-ts/db-decorators';
 import { BaseComponentProps } from './constants';
 import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
@@ -103,6 +102,24 @@ export abstract class NgxBaseComponent implements OnChanges {
   @ViewChild('component', { read: ElementRef, static: true })
   component!: ElementRef;
 
+  /**
+   * @description The name of the component.
+   * @summary Stores the name of the component, which is typically derived from the class name.
+   * This property is used internally for various purposes such as logging, deriving the default
+   * locale, and potentially for component identification in debugging or error reporting.
+   *
+   * The `componentName` is set during the component's initialization process and should not
+   * be modified externally. It's marked as protected to allow access in derived classes while
+   * preventing direct access from outside the component hierarchy.
+   *
+   * @type {string}
+   * @protected
+   * @memberOf NgxBaseComponent
+   *
+   * @example
+   * // Inside a derived component class
+   * console.log(this.componentName); // Outputs: "MyCustomComponent"
+   */
   componentName!: string;
 
   /**
@@ -149,7 +166,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @default 'id'
    */
   @Input()
-  pk = 'id';
+  pk: string = 'id';
 
   /**
    * @description Base route for navigation related to this component.
@@ -228,7 +245,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @default ""
    */
   @Input()
-  className = '';
+  className: string = '';
 
   /**
    * @description Component platform style.
@@ -278,7 +295,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @type {boolean}
    * @default false
    */
-  initialized = false;
+  initialized: boolean = false;
 
   /**
    * @description Reference to the rendering engine instance
@@ -307,11 +324,12 @@ export abstract class NgxBaseComponent implements OnChanges {
    */
   logger!: Logger;
 
+
+  // eslint-disable-next-line @angular-eslint/prefer-inject
   protected constructor(@Inject('instanceToken') protected instance: string) {
     this.componentName = instance;
     this.componentLocale = getLocaleFromClassName(instance);
     this.logger = getLogger(this);
-    console.log('Initializing component', instance);
   }
 
   /**

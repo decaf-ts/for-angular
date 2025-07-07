@@ -1,15 +1,16 @@
-import { AfterContentInit, Directive, ElementRef } from '@angular/core';
+import { Directive, ElementRef, inject, OnInit } from '@angular/core';
 
 
 @Directive({
   selector: '[decafCollapsable]',
   standalone: true
 })
-export class CollapsableDirective implements AfterContentInit{
+export class CollapsableDirective implements OnInit{
 
-  constructor(private element?: ElementRef<HTMLElement>) {}
+  private element: ElementRef<HTMLElement> = inject(ElementRef);
+  // constructor() {}
 
-  ngAfterContentInit() {
+  ngOnInit() {
     const element = this.element?.nativeElement;
     if(element) {
       const requiredFields = element.querySelectorAll('[required]') as NodeListOf<Element>;

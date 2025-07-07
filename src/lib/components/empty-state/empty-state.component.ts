@@ -16,7 +16,7 @@ import { generateLocaleFromString, stringToBoolean } from 'src/lib/helpers';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
-import { FunctionType } from 'src/lib/helpers/types';
+import { FunctionLike } from 'src/lib/engine/types';
 
 
 /**
@@ -177,11 +177,11 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * it should execute. This can be either a URL string or a function that handles navigation.
    * When not provided, the button will not perform any action.
    *
-   * @type {string | FunctionType | undefined}
+   * @type {string | FunctionLike | undefined}
    * @memberOf EmptyStateComponent
    */
   @Input()
-  buttonLink?: string | FunctionType;
+  buttonLink?: string | FunctionLike;
 
   /**
    * @description The text displayed on the action button.

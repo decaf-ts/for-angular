@@ -159,11 +159,11 @@ export class ComponentRendererComponent
   logger!: Logger;
 
   @Input()
-  parent: any = undefined;
+  parent: undefined | KeyValue = undefined;
 
 
   @ViewChild('inner', { read: TemplateRef, static: true })
-  inner?: TemplateRef<any>;
+  inner?: TemplateRef<unknown>;
 
   /**
    * @description Creates an instance of ComponentRendererComponent.
@@ -201,9 +201,11 @@ export class ComponentRendererComponent
    * @memberOf ComponentRendererComponent
    */
   ngOnInit(): void {
-    if (!this.parent)
+    if (!this.parent) {
       this.createComponent(this.tag, this.globals);
-    this.createParentComponent();
+    } else {
+      this.createParentComponent();
+    }
   }
 
   /**
@@ -299,9 +301,9 @@ export class ComponentRendererComponent
   }
 
   createParentComponent() {
-    const { component, inputs } = this.parent;
+    const { component, inputs } = this.parent as KeyValue;
     const metadata = reflectComponentType(component) as ComponentMirror<unknown>;
-    const template = this.vcr.createEmbeddedView(this.inner as TemplateRef<any>, this.injector).rootNodes;
+    const template = this.vcr.createEmbeddedView(this.inner as TemplateRef<unknown>, this.injector).rootNodes;
     this.component = NgxRenderingEngine2.createComponent(
       component,
       inputs,
@@ -343,7 +345,7 @@ export class ComponentRendererComponent
    */
   private subscribeEvents(): void {
     if (this.component) {
-      const instance = this.component?.instance as any;
+      const instance = this.component?.instance as KeyValue;
       const componentKeys = Object.keys(instance);
       for (const key of componentKeys) {
         const value = instance[key];
@@ -387,7 +389,7 @@ export class ComponentRendererComponent
    */
   private unsubscribeEvents(): void {
     if (this.component) {
-      const instance = this.component?.instance as any;
+      const instance = this.component?.instance as KeyValue;
       const componentKeys = Object.keys(instance);
       for (const key of componentKeys) {
         const value = instance[key];

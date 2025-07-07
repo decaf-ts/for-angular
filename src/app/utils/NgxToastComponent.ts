@@ -1,4 +1,4 @@
-import { toastController } from "@ionic/core";
+import { OverlayEventDetail, toastController } from "@ionic/core";
 import { ToastOptions } from '@ionic/angular/standalone';
 
 /**
@@ -164,9 +164,9 @@ export class NgxToastComponent {
    * that indicates how the toast was dismissed (e.g., timeout, user interaction).
    *
    * @param {HTMLIonToastElement} toast - The toast element to handle dismissal for
-   * @return {Promise<any>} A promise that resolves to the dismissal data
+   * @return {Promise<OverlayEventDetail>} A promise that resolves to the dismissal data
    */
-  private async handleDidDismiss(toast: HTMLIonToastElement): Promise<any> {
+  private async handleDidDismiss(toast: HTMLIonToastElement): Promise<OverlayEventDetail> {
     const didDismiss = await toast.onDidDismiss();
     component = null;
     return didDismiss;

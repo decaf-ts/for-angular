@@ -90,9 +90,7 @@ export class RouterService {
    *
    * @memberOf RouterService
    */
-  constructor() {
-    //  injectableRegistry.register(this, &quot;RouterService&quot;);
-  }
+  // constructor() {}
 
   /**
    * @description Parses query parameters from the current route.

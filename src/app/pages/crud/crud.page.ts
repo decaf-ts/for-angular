@@ -4,6 +4,7 @@ import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModel } from 'src/app/models/DemoModel';
 import { ComponentsModule } from 'src/app/components/components.module';
 import { BaseCustomEvent, KeyValue } from 'src/lib/engine';
+import { getLogger } from 'src/lib/for-angular.module';
 
 @Component({
   selector: 'app-crud',
@@ -22,21 +23,28 @@ export class CrudPage implements OnInit {
   @Input()
   operation: CrudOperations = OperationKeys.CREATE;
 
-  model = new ForAngularModel({
-    id: 1,
-    name: 'John Doe',
-    birthdate: '1989-12-12',
-    email: 'john.doe@example.com',
-    website: 'https://johndoe.example.com',
-    password: 'password123',
-    category: undefined,
-  });
+  model!: ForAngularModel;
 
   globals!: KeyValue;
 
   ngOnInit(): void {
     if (!this.operation)
       this.operation = OperationKeys.CREATE;
+
+    this.model = new ForAngularModel({
+      id: 1,
+      name: 'John Doe',
+      birthdate: '1989-12-12',
+      email: 'john.doe@example.com',
+      website: 'https://johndoe.example.com',
+      password: 'password123',
+      ... (this.operation === OperationKeys.READ ?
+      {
+        category: {name: "Demo Category", description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry."},
+        user: {username: "Admin", secret: "DemoPass"}
+      }: {}),
+    });
+
     this.globals = {
       operation: this.operation,
       uid: (this.operation === OperationKeys.DELETE ? this.model.id : undefined),
@@ -44,6 +52,6 @@ export class CrudPage implements OnInit {
   }
 
   handleSubmit(event: BaseCustomEvent): void {
-    console.log('Submit event:', event);
+    getLogger(this).info(`Submit event: ${JSON.stringify(event)}`);
   }
 }

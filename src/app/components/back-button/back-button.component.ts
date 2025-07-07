@@ -8,7 +8,7 @@ import { Location } from '@angular/common';
 import { windowEventEmitter } from "src/lib/helpers/utils";
 import { addIcons } from 'ionicons';
 import { chevronBackOutline } from 'ionicons/icons';
-import { FunctionType } from "src/lib/helpers/types";
+import { FunctionLike } from "src/lib/engine/types";
 
 @Component({
   selector: 'app-back-button',
@@ -56,11 +56,11 @@ export class BackButtonComponent implements OnInit {
    * When not provided, the component will navigate to the previous URL in the browser history.
    * When a function is provided, it will be called instead of performing standard navigation.
    *
-   * @type {(string | FunctionType | undefined)}
+   * @type {(string | FunctionLike | undefined)}
    * @memberOf BackButtonComponent
    */
   @Input()
-  link?: string | FunctionType;
+  link?: string | FunctionLike;
 
   /**
    * @description The direction of navigation animation.
@@ -212,7 +212,6 @@ export class BackButtonComponent implements OnInit {
    *   participant U as User
    *   participant B as BackButtonComponent
    *   participant E as Event System
-   *   participant R as RouterService
    *
    *   U->>B: Click back button
    *   B->>B: backToPage(forceRefresh)

@@ -2,7 +2,8 @@ import { isDevMode } from '@angular/core';
 import { InjectableRegistryImp, InjectablesRegistry } from '@decaf-ts/injectable-decorators';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { KeyValue, StringOrBoolean, } from '../engine/types';
-import { FunctionType } from './types';
+import { FunctionLike } from '../engine/types';
+import { getLogger } from '../for-angular.module';
 
 let injectableRegistry: InjectablesRegistry;
 
@@ -37,13 +38,14 @@ export function getInjectablesRegistry(): InjectablesRegistry {
  * @function isDevelopmentMode
  * @memberOf module:for-angular
  */
-export function isDevelopmentMode(context = 'localhost') {
+export function isDevelopmentMode(context: string = 'localhost'): boolean {
   if (!context)
     return isDevMode();
+  const win = getWindow();
   return (
     isDevMode() ||
-    getWindow()?.['env']?.['CONTEXT'].toLowerCase() !== context.toLowerCase() ||
-    (globalThis as any).window.location.hostname.includes(context)
+    win?.['env']?.['CONTEXT'].toLowerCase() !== context.toLowerCase() ||
+    win?.['location']?.hostname?.includes(context)
   );
 }
 
@@ -54,7 +56,7 @@ export function isDevelopmentMode(context = 'localhost') {
  * The function allows specifying the event name, detail data, and additional event properties.
  *
  * @param {string} name - The name of the custom event to dispatch
- * @param {any} detail - The data to include in the event's detail property
+ * @param {unknown} detail - The data to include in the event's detail property
  * @param {object} [props] - Optional additional properties for the custom event
  * @return {void}
  *
@@ -63,7 +65,7 @@ export function isDevelopmentMode(context = 'localhost') {
  */
 export function windowEventEmitter(
   name: string,
-  detail: any,
+  detail: unknown,
   props?: object
 ): void {
   const data = Object.assign(
@@ -75,7 +77,7 @@ export function windowEventEmitter(
     },
     props || {}
   );
-  getWindow().dispatchEvent(new CustomEvent(name, data));
+  (getWindow() as Window).dispatchEvent(new CustomEvent(name, data));
 }
 /**
  * @description Retrieves a property from the window's document object
@@ -90,8 +92,10 @@ export function windowEventEmitter(
  * @function getOnWindowDocument
  * @memberOf module:for-angular
  */
-export function getOnWindowDocument(key: string): any {
-  return getWindowDocument()?.[key];
+export function getOnWindowDocument(key: string): Document | undefined {
+  const doc = getWindowDocument()?.[key as keyof Document];
+  return doc instanceof Document ?
+    doc : undefined;
 }
 
 /**
@@ -100,13 +104,13 @@ export function getOnWindowDocument(key: string): any {
  * It uses the getOnWindow function to retrieve the 'document' property from the window object.
  * This is useful for browser environment interactions that need access to the document.
  *
- * @return {Document|undefined} The window's document object, or undefined if it doesn't exist
+ * @return {Document | undefined} The window's document object, or undefined if it doesn't exist
  *
  * @function getWindowDocument
  * @memberOf module:for-angular
  */
-export function getWindowDocument(): any {
-  return getOnWindow('document');
+export function getWindowDocument(): Document | undefined {
+  return getOnWindow('document') as Document;
 }
 
 /**
@@ -117,12 +121,12 @@ export function getWindowDocument(): any {
  * to access window properties or APIs.
  *
  * @param {string} key - The name of the property to retrieve from the window object
- * @return {any} The value of the specified property, or undefined if the window or property doesn't exist
+ * @return {unknown | undefined} The value of the specified property, or undefined if the window or property doesn't exist
  *
  * @function getOnWindow
  * @memberOf module:for-angular
  */
-export function getOnWindow(key: string): any {
+export function getOnWindow(key: string): unknown | undefined {
   return getWindow()?.[key];
 }
 
@@ -140,7 +144,7 @@ export function getOnWindow(key: string): any {
  * @function setOnWindow
  * @memberOf module:for-angular
  */
-export function setOnWindow(key: string, value: any): void {
+export function setOnWindow(key: string, value: unknown): void {
   getWindow()[key] = value;
 }
 
@@ -156,8 +160,8 @@ export function setOnWindow(key: string, value: any): void {
  * @function getWindow
  * @memberOf module:for-angular
  */
-export function getWindow(): any {
-  return (globalThis as any).window as any;
+export function getWindow(): Window & KeyValue {
+  return (globalThis as KeyValue)?.['window'] as Window & KeyValue;
 }
 
 /**
@@ -166,17 +170,17 @@ export function getWindow(): any {
  * It uses the getOnWindow function to access the 'innerWidth' property of the window object.
  * This is useful for responsive design implementations and viewport-based calculations.
  *
- * @return {number} The current width of the browser window in pixels
+ * @return {number | undefined} The current width of the browser window in pixels
  *
  * @function getWindowWidth
  * @memberOf module:for-angular
  */
-export function getWindowWidth() {
-  return getOnWindow('innerWidth');
+export function getWindowWidth(): number {
+  return getOnWindow('innerWidth') as number || 0;
 }
 
 /**
- * @description Checks if a value is not undefined
+ * @description Checks if a value is  not undefined
  * @summary This utility function determines whether a given value is not undefined.
  * It's a simple wrapper that makes code more readable when checking for defined values.
  * The function is particularly useful for checking StringOrBoolean properties that might be undefined.
@@ -200,7 +204,7 @@ export function isNotUndefined(prop: StringOrBoolean | undefined): boolean {
  * string. For longer names, it uses the last part as a prefix and joins the rest with
  * underscores.
  *
- * @param {string|FunctionType|object} instance - The input to generate the locale from (class name, constructor, or instance)
+ * @param {string|FunctionLike|object} instance - The input to generate the locale from (class name, constructor, or instance)
  * @param {string} [suffix] - Optional string to append to the instance name before processing
  * @return {string} A formatted locale string derived from the input
  *
@@ -208,12 +212,12 @@ export function isNotUndefined(prop: StringOrBoolean | undefined): boolean {
  * @memberOf module:for-angular
  */
 export function getLocaleFromClassName(
-  instance: string | FunctionType | object,
+  instance: string | FunctionLike | object,
   suffix?: string
 ): string {
   if (typeof instance !== 'string')
     instance =
-      (instance as FunctionType).name || (instance as object)?.constructor?.name;
+      (instance as FunctionLike).name || (instance as object)?.constructor?.name;
 
   let name: string | string[] = instance;
 
@@ -275,7 +279,7 @@ export function generateLocaleFromString(
  */
 export function getLocaleLanguage(): string {
   const win = getWindow();
-  return win.navigator.language || "en";
+  return (win as Window).navigator.language || "en";
   // return win?.[WINDOW_KEYS.LANGUAGE_SELECTED] || (win.navigator.language || '').split('-')[0] || "en";
 }
 
@@ -329,7 +333,7 @@ export function stringToBoolean(prop: 'true' | 'false' | boolean): boolean {
  */
 export function isValidDate(date: string | Date | number): boolean {
   try {
-    return (date instanceof Date && !isNaN(date as any)) || (() => {
+    return (date instanceof Date && !isNaN(date as unknown as number)) || (() => {
       const testRegex = new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date as string)
       if(typeof date !== Primitives.STRING || !(date as string)?.includes('T') && !testRegex)
          return false;
@@ -340,8 +344,8 @@ export function isValidDate(date: string | Date | number): boolean {
 
     return !!(new Date(date));
    })();
-  } catch(e: any) {
-    console.error('Error validating date:', e?.message);
+  } catch(error: unknown) {
+    getLogger(isValidDate).error(error as Error | string);
     return false;
   }
 }
@@ -414,12 +418,12 @@ export function parseToValidDate(date: string | Date | number): Date | null {
  */
 export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyValue {
   return Object.entries(mapper).reduce((accum: KeyValue, [key, value]) => {
-    const arrayValue = value.split('.');
+    const arrayValue = (value as string).split('.');
     if (!value) {
       accum[key] = value;
     } else {
       if (arrayValue.length === 1) {
-        accum[key] = item?.[value] || value;
+        accum[key] = item?.[value as string] || value;
       } else {
         let val;
 
@@ -448,10 +452,10 @@ export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): 
  * @returns {T[]} - The array of mapped items. If an item in the original array does not have any non-null values after mapping,
  * the original item is returned instead.
  */
-export function dataMapper<T>(data: any[], mapper: KeyValue, props?: KeyValue): T[] {
+export function dataMapper<T>(data: T[], mapper: KeyValue, props?: KeyValue): T[] {
   if (!data || !data.length) return [];
   return data.reduce((accum: T[], curr) => {
-    const item = itemMapper(curr, mapper, props) as T;
+    const item = itemMapper(curr as KeyValue, mapper, props) as T;
     const hasValues =
       [...new Set(Object.values(item as T[]))].filter((value) => value).length >
       0;
@@ -462,8 +466,8 @@ export function dataMapper<T>(data: any[], mapper: KeyValue, props?: KeyValue): 
 }
 
 
-export function removeFocusTrap() {
+export function removeFocusTrap(): void {
   const doc = getWindowDocument();
-  if(doc.activeElement)
+  if(doc?.activeElement)
     (doc.activeElement as HTMLElement)?.blur();
 }

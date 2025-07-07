@@ -8,7 +8,7 @@ import { stringToBoolean } from 'src/lib/helpers/utils';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { BackButtonComponent } from '../back-button/back-button.component';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
-import { FunctionType } from 'src/lib/helpers/types';
+import { FunctionLike } from 'src/lib/engine/types';
 
 /**
  * @description Header component for application pages.
@@ -148,11 +148,11 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @summary Specifies a custom URL or function to execute when the back button is clicked.
    * This overrides the default behavior of navigating to the previous page in history.
    *
-   * @type {string | FunctionType}
+   * @type {string | FunctionLike}
    * @memberOf HeaderComponent
    */
   @Input()
-  backButtonLink?: string | FunctionType;
+  backButtonLink?: string | FunctionLike;
 
   /**
    * @description Background color of the header.
@@ -263,7 +263,6 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   */
   ngOnInit(): void {
     this.showBackButton = stringToBoolean(this.showBackButton);
-    console.log(this.showBackButton);
     this.center = stringToBoolean(this.center);
     this.translucent = stringToBoolean(this.translucent);
     this.expand = stringToBoolean(this.expand);

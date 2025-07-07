@@ -1,4 +1,4 @@
-<fieldset class="dcf-fieldset" #component>
+<fieldset [class]="'dcf-fieldset ' + operation" #component>
   <ion-accordion-group (ionChange)="handleChange($event)">
     <ion-accordion value="open">
       <ion-item slot="header" color="light">

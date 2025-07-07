@@ -8,7 +8,7 @@ import { Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
 import { ComponentsModule } from 'src/app/components/components.module';
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSearchbar } from '@ionic/angular/standalone';
-import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
+import { BaseCustomEvent, EventConstants, KeyValue } from 'src/lib/engine';
 import { RouterService } from 'src/app/services/router.service';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { DecafRepository } from 'src/lib/components/list/constants';
@@ -93,8 +93,8 @@ export class ModelPage implements OnInit {
         // default:
         //   return Model.fromObject(self.manager)
       }
-    } catch (error: any) {
-      this.logger.error(error?.message || error);
+    } catch (error: unknown) {
+      this.logger.error(error as Error | string);
     }
   }
 
@@ -110,7 +110,7 @@ export class ModelPage implements OnInit {
   async handleSubmit(event: BaseCustomEvent): Promise<void | Error> {
     try {
       const repo = this._repository as IRepository<Model>;
-      const data = this.parseData(event.data);
+      const data = this.parseData(event.data as KeyValue);
       const result = this.operation === OperationKeys.CREATE ?
         await repo.create(data as Model) : this.operation === OperationKeys.UPDATE ?
           await repo.update(data as Model) : repo.delete(data as string | number);
@@ -119,9 +119,9 @@ export class ModelPage implements OnInit {
         this.routerService.backToLastPage();
         await getNgxToastComponent().inform(`${this.operation} Item successfully`);
       }
-    } catch (error: any) {
-      this.logger.error(error?.message || error);
-      throw new Error(error);
+    } catch (error: unknown) {
+      this.logger.error(error as Error | string);
+      throw new Error((error as Error)?.message || error as string);
     }
     // console.log(data)
   }

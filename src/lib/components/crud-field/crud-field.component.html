@@ -5,7 +5,7 @@
         <ion-label>
           {{ label | translate }}<br />
           @if(value) {
-            <ion-text class="dcf-display-block" [innerHTML]="value"></ion-text>
+            <ion-text  [innerHTML]="type === 'password' ? '********' : value"></ion-text>
           } @else {
             <br />
           }
@@ -30,6 +30,7 @@
             [labelPlacement]="labelPlacement"
             [value]="value"
             [fill]="fill"
+            [errorText]="getErrors(container)"
             [placeholder]="translatable ? (placeholder | translate) : placeholder"
             [formControlName]="name"
             [label]="translatable ? (label | translate) : label"
@@ -42,6 +43,7 @@
               #checkboxElement
               [name]="path"
               [mode]="mode"
+              [errorText]="getErrors(container)"
               [hidden]="hidden"
               [labelPlacement]="labelPlacement"
               [justify]="justify"
@@ -61,6 +63,7 @@
             @for(option of options; track option) {
               <ion-item>
                 <ion-radio
+                  [errorText]="getErrors(container)"
                   [mode]="mode"
                   [hidden]="hidden"
                   [labelPlacement]="labelPlacement"
@@ -74,17 +77,17 @@
           </ion-radio-group>
         }
         @else if(type === 'select') {
-          <ion-item>
             <ion-select
               [name]="path"
               [mode]="mode"
               [hidden]="hidden"
               [labelPlacement]="labelPlacement"
-              [label]="translatable ? (label | translate : label) : label"
+              [label]="translatable ? (label | translate) : label"
               [value]="value"
               [fill]="fill"
               [placeholder]="translatable ? (placeholder | translate) : placeholder"
               [formControlName]="name"
+              [errorText]="getErrors(container)"
               [interface]="interface">
               @for(option of options; track option.value) {
                 <ion-select-option [value]="option.value">
@@ -92,7 +95,6 @@
                 </ion-select-option>
               }
             </ion-select>
-          </ion-item>
         }
         @else {
           <ion-input
@@ -113,15 +115,9 @@
             [fill]="fill"
             [placeholder]="translatable ? (placeholder | translate) : placeholder"
             [formControlName]="name"
+            [errorText]="getErrors(container)"
             [label]="translatable ? (label | translate) : label">
           </ion-input>
-        }
-        @if((!formControl.pristine || formControl.touched) && !formControl.valid) {
-          <div class="error dcf-error dcf-flex dcf-flex-top">
-            @for(error of getErrors(container); track error.key) {
-              * {{ sf(("errors." + error.message) | translate, this[error.key]) }}
-            }
-          </div>
         }
     </div>
   </ng-container>

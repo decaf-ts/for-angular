@@ -95,9 +95,7 @@ import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDestroy, AfterViewInit {
-  constructor(protected override elementRef: ElementRef) {
-    super(elementRef);
-  }
+  // constructor() {}
 
   /**
    * @description The CRUD operation being performed.
@@ -144,7 +142,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @Input()
-  override childOf = '';
+  override childOf: string = '';
 
   /**
    * @description The input type of the field.
@@ -436,7 +434,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @Input()
-  interface?: SelectInterface;
+  interface: SelectInterface = 'popover';
 
   /**
    * @description Options for select or radio inputs.
@@ -470,7 +468,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @Input()
-  spellcheck = false;
+  spellcheck: boolean = false;
 
   /**
    * @description Input mode for text inputs.

@@ -5,7 +5,15 @@ const angular = require("angular-eslint");
 module.exports = tseslint.config(
   {
     files: ["**/*.ts"],
-    ignores: ['tests/**', "**/*.spec.*", 'src/tests/**', 'src/stories/**/*.ts'],
+    ignores: [
+      'tests/**',
+      '**/*.spec.*',
+      '**/cli-module.*',
+      'src/tests/**',
+      'src/stories/**/*.ts',
+      'src/polyfills.ts',
+      'src/zone-flags.ts'
+    ],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
@@ -14,14 +22,14 @@ module.exports = tseslint.config(
     ],
     processor: angular.processInlineTemplates,
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
-      "no-useless-constructor": "off",
-      "@typescript-eslint/no-useless-constructor": "off",
-      "@typescript-eslint/no-inferrable-types": "warn",
-      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "no-useless-constructor": "off", // Rule disabled but warning kept for TypeScript rule compatibility (line below)
+      "@typescript-eslint/no-useless-constructor": "warn",
+      "@typescript-eslint/no-inferrable-types": "off", // disabled for compatibility with JSDoc
+      "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/no-empty-function": "warn",
       "@angular-eslint/no-empty-lifecycle-method": "warn",
-      "@angular-eslint/prefer-inject": "off",
+      "@angular-eslint/prefer-inject": "warn",
       "@angular-eslint/component-class-suffix": [
         "error",
         {

@@ -65,6 +65,21 @@ textarea {
   }
 }
 
+// fix - ionic error text element
+* {
+    &:not(.ng-untouched) {
+    .input-bottom {
+        display: none;
+      }
+    }
+
+    &.ng-touched {
+        .input-bottom {
+          display: block;
+          margin-bottom: -1rem !important;
+        }
+    }
+}
 .dcf-hidden {
   display: none !important;
 }

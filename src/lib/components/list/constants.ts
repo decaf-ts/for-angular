@@ -25,7 +25,8 @@ export interface RawQuery<M extends Model> {
     skip?: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DecafRepositoryAdapter = Adapter<Map<string, Map<string | number, any>>, RawQuery<any>, RepositoryFlags & {UUIID?: string}, Context<RepositoryFlags & {UUIID?: string}>>
 
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DecafRepository<M extends Model> = Repository<M, RawQuery<any>, DecafRepositoryAdapter, RepositoryFlags, Context<RepositoryFlags>>;

@@ -1,10 +1,11 @@
 import { FieldProperties, RenderingError } from '@decaf-ts/ui-decorators';
-import { PossibleInputTypes } from './types';
+import { KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormControl, FormGroup } from '@angular/forms';
-import { ElementRef } from '@angular/core';
+import { ElementRef, inject } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
+import { TranslateService } from '@ngx-translate/core';
 
 /**
  * @class NgxCrudFormField
@@ -66,8 +67,9 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
 
   value!: string | number | Date;
 
-  protected constructor(protected elementRef: ElementRef) {
-  }
+  private translateService = inject(TranslateService);
+
+  // protected constructor() {}
 
   /**
    * @summary Parent HTML element
@@ -87,16 +89,14 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    * @description Function called when the field value changes
    * @property {function(): unknown} onChange - onChange event handler
    */
-  onChange: () => unknown = () => {
-  };
+  onChange: () => unknown = () => {};
 
   /**
    * @summary Touch callback function
    * @description Function called when the field is touched
    * @property {function(): unknown} onTouch - onTouch event handler
    */
-  onTouch: () => unknown = () => {
-  };
+  onTouch: () => unknown = () => {};
 
   /**
    * @summary Write value to the field
@@ -171,15 +171,21 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
   /**
    * @summary Get field errors
    * @description Retrieves all errors associated with the field
-   * @returns {Array<{key: string, message: string}>} An array of error objects
+   * @returns {string|void} An array of error objects
    */
-  getErrors(parent: HTMLElement): { key: string; message: string; }[] {
-    const collapsableContainer = parent.closest('ion-accordion-group');
-    if(collapsableContainer)
-      collapsableContainer.setAttribute('value', 'open');
-    return Object.keys(this.formControl.errors ?? {}).map(key => ({
-      key: key,
-      message: key,
-    }));
+  getErrors(parent: HTMLElement): string | void {
+    const formControl = this.formControl;
+    if((!formControl.pristine || formControl.touched) && !formControl.valid) {
+
+      const collapsableContainer = parent.closest('ion-accordion-group');
+      if(collapsableContainer)
+        collapsableContainer.setAttribute('value', 'open');
+      const errors: Record<string, string>[] = Object.keys(formControl.errors ?? {}).map(key => ({
+        key: key,
+        message: key,
+      }));
+      for(const error of errors)
+        return `* ${this.sf(this.translateService.instant(`errors.${error?.['message']}`), (this as KeyValue)[error?.['key']] ?? "")}`;
+    }
   }
 }

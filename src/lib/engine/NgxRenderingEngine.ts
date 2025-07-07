@@ -83,7 +83,7 @@ export class NgxRenderingEngine extends RenderingEngine<
     fieldDef: FieldDefinition<AngularFieldDefinition>,
     vcr: ViewContainerRef,
     injector: Injector,
-    tpl: TemplateRef<any>,
+    tpl: TemplateRef<unknown>,
   ): AngularDynamicOutput {
     const component = NgxRenderingEngine.components(fieldDef.tag)
       .constructor as unknown as Type<unknown>;
@@ -118,7 +118,7 @@ export class NgxRenderingEngine extends RenderingEngine<
     };
 
     if (fieldDef.rendererId) {
-      (result.inputs as Record<string, any>)['rendererId'] =
+      (result.inputs as Record<string, unknown>)['rendererId'] =
         fieldDef.rendererId;
     }
 
@@ -165,7 +165,7 @@ export class NgxRenderingEngine extends RenderingEngine<
     globalProps: Record<string, unknown>,
     vcr: ViewContainerRef,
     injector: Injector,
-    tpl: TemplateRef<any>,
+    tpl: TemplateRef<unknown>,
   ): AngularDynamicOutput {
     let result: AngularDynamicOutput;
     try {
@@ -184,12 +184,10 @@ export class NgxRenderingEngine extends RenderingEngine<
    * @description Initializes the rendering engine
    * @summary This method initializes the rendering engine. It checks if the engine is already initialized
    * and sets the initialized flag to true. This method is called before the engine is used.
-   * @param {...any[]} args - Initialization arguments
    * @return {Promise<void>} A promise that resolves when initialization is complete
    */
-  override async initialize(...args: any[]): Promise<void> {
+  override async initialize(): Promise<void> {
     if (this.initialized) return;
-    // ValidatableByType[]
     this.initialized = true;
   }
 
