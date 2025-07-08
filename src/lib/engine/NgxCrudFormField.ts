@@ -69,13 +69,13 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
 
   private translateService = inject(TranslateService);
 
-  // protected constructor() {}
-
   /**
    * @summary Parent HTML element
    * @description Reference to the parent HTML element of the field
    */
   protected parent?: HTMLElement;
+
+  // protected constructor() {}
 
   /**
    * @summary String formatting function
@@ -176,7 +176,6 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
   getErrors(parent: HTMLElement): string | void {
     const formControl = this.formControl;
     if((!formControl.pristine || formControl.touched) && !formControl.valid) {
-
       const collapsableContainer = parent.closest('ion-accordion-group');
       if(collapsableContainer)
         collapsableContainer.setAttribute('value', 'open');

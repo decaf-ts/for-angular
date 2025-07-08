@@ -95,7 +95,6 @@ import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDestroy, AfterViewInit {
-  // constructor() {}
 
   /**
    * @description The CRUD operation being performed.
@@ -584,6 +583,10 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    */
   @Input()
   uid!: string | number | undefined;
+
+  // constructor() {
+
+  // }
 
   ngOnInit(): void {
     // super.onInit(this.updateOn);

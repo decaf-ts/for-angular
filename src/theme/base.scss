@@ -74,10 +74,19 @@ textarea {
     }
 
     &.ng-touched {
-        .input-bottom {
-          display: block;
-          margin-bottom: -1rem !important;
-        }
+      .input-bottom {
+        display: block;
+        margin-bottom: -1rem !important;
+        padding-left: 0px !important;
+      }
+
+      .error-text {
+        animation-duration: 0.1s;
+        animation-timing-function: ease-in;
+        animation-fill-mode: both;
+        animation-name: fadeBottomSmallAnimation;
+        font-weight: 600;
+      }
     }
 }
 .dcf-hidden {
@@ -97,6 +106,34 @@ textarea {
   * {
     pointer-events: none;
     touch-action: none;
+  }
+}
+
+/*
+ *
+ * Slide Top Small
+ */
+@keyframes fadeTopSmallAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/*
+* Slide Bottom Small
+*/
+@keyframes fadeBottomSmallAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

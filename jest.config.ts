@@ -5,6 +5,7 @@ const config: Config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['/tests/playwright'],
+  modulePathIgnorePatterns: ['/dist', 'src/app'],
 
   // Transform settings
   transform: {

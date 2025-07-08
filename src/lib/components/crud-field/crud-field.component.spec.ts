@@ -9,6 +9,8 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { NgxRenderingEngine2 } from 'src/lib/engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { NgxFormService } from '../../engine/NgxFormService';
+import { By } from '@angular/platform-browser';
+import { error } from 'console';
 
 const imports = [
   ForAngularModule,
@@ -20,6 +22,24 @@ const imports = [
     },
   }),
 ];
+
+async function getIonErrorElement(fixture: ComponentFixture<CrudFieldComponent>, selector: string = 'ion-input'): Promise<HTMLElement> {
+  const ionInput = fixture.debugElement.query(By.css(selector)).componentInstance;
+  await ionInput.getInputElement();
+  return fixture.nativeElement.querySelector('.error-text');
+}
+
+function updateFieldValidators(fixture: ComponentFixture<CrudFieldComponent>, component: CrudFieldComponent): void {
+    fixture.detectChanges();
+    const validators = NgxFormService['validatorsFromProps'](component);
+    component.formControl = new FormControl(component.value, validators);
+    component.formGroup = new FormGroup({
+      [component.name]: component.formControl,
+    });
+    component.formControl.markAsTouched();
+    component.formControl.markAsDirty();
+    fixture.detectChanges();
+}
 
 describe('CrudFieldComponent', () => {
   let component: CrudFieldComponent;
@@ -109,157 +129,90 @@ describe('CrudFieldComponent', () => {
     });
   });
 
-  it('should show error message when required field is empty', () => {
+  it('should show error message when required field is empty', async () => {
     component.label = 'Required Field';
     component.required = true;
     component.value = '';
-    // component = {
-    //   name: 'required_field',
-    //   type: 'text',
-    //   label: 'Required Field',
-    //   required: true,
-    // } as AngularFieldDefinition;
-    fixture.detectChanges();
 
-    const validators = NgxFormService['validatorsFromProps'](component);
-    component.formControl = new FormControl(component.value, validators);
-    component.formGroup = new FormGroup({
-      [component.name]: component.formControl,
-    });
-    component.formControl.markAsTouched();
-    component.formControl.markAsDirty();
-    fixture.detectChanges();
+    updateFieldValidators(fixture, component);
 
-    const errorDiv = fixture.nativeElement.querySelector('.error');
+    const errorDiv = await getIonErrorElement(fixture);
     expect(errorDiv).toBeTruthy();
     expect(errorDiv.textContent).toContain('required');
   });
 
-  it('should show error message when minlength is not met', () => {
+  it('should show error message when minlength is not met', async () => {
     component.label = 'Minlength Field';
     component.minlength = 5;
     component.value = 'abc';
 
-    fixture.detectChanges();
-    const validators = NgxFormService['validatorsFromProps'](component);
-    component.formControl = new FormControl(component.value, validators);
-    component.formGroup = new FormGroup({
-      [component.name]: component.formControl,
-    });
-    component.formControl.markAsTouched();
-    component.formControl.markAsDirty();
-    fixture.detectChanges();
+    updateFieldValidators(fixture, component);
 
-    const errorDiv = fixture.nativeElement.querySelector('.error');
+    const errorDiv = await getIonErrorElement(fixture);
     expect(errorDiv).toBeTruthy();
     expect(errorDiv.textContent).toContain('minlength');
   });
 
-  it('should show error message when maxlength is exceeded', () => {
+  it('should show error message when maxlength is exceeded', async () => {
     component.label = 'Maxlength Field';
     component.maxlength = 5;
     component.value = 'abcdef';
 
-    fixture.detectChanges();
-    const validators = NgxFormService['validatorsFromProps'](component);
-    component.formControl = new FormControl(component.value, validators);
-    component.formGroup = new FormGroup({
-      [component.name]: component.formControl,
-    });
-    component.formControl.markAsTouched();
-    component.formControl.markAsDirty();
-    fixture.detectChanges();
+    updateFieldValidators(fixture, component);
 
-    const errorDiv = fixture.nativeElement.querySelector('.error');
+    const errorDiv = await getIonErrorElement(fixture);
     expect(errorDiv).toBeTruthy();
     expect(errorDiv.textContent).toContain('maxlength');
   });
 
-  it('should show error message when pattern is not matched', () => {
+  it('should show error message when pattern is not matched', async () => {
 
     component.label = 'Pattern Field';
     component.pattern = '^[A-Za-z]+$';
     component.value = '123';
 
-    fixture.detectChanges();
-    const validators = NgxFormService['validatorsFromProps'](component);
-    component.formControl = new FormControl(component.value, validators);
-    component.formGroup = new FormGroup({
-      [component.name]: component.formControl,
-    });
-    component.formControl.markAsTouched();
-    component.formControl.markAsDirty();
-    fixture.detectChanges();
+    updateFieldValidators(fixture, component);
 
-    const errorDiv = fixture.nativeElement.querySelector('.error');
+    const errorDiv = await getIonErrorElement(fixture);
     expect(errorDiv).toBeTruthy();
     expect(errorDiv.textContent).toContain('pattern');
   });
 
-  xit('should show error message when min value is not met', () => {
+  it('should show error message when min value is not met', async() => {
     component.type = 'number';
     component.label = 'Min Field';
     component.min = 5;
     component.value = 3;
-
-    fixture.detectChanges();
-    const validators = NgxFormService['validatorsFromProps'](component);
-    component.formControl = new FormControl(component.value, validators);
-    component.formGroup = new FormGroup({
-      [component.name]: component.formControl,
-    });
-    component.formControl.markAsTouched();
-    component.formControl.markAsDirty();
-    fixture.detectChanges();
-
-    const errorDiv = fixture.nativeElement.querySelector('.error');
-    expect(errorDiv).toBeTruthy();
-    expect(errorDiv.textContent).toContain('value');
+    updateFieldValidators(fixture, component);
+    const errorDiv = await getIonErrorElement(fixture);
+    expect(component.formControl.errors?.['min']).toBeTruthy();
+    expect(errorDiv.textContent).toContain('min');
   });
 
-  it('should show error message when max value is exceeded', () => {
+  it('should show error message when max value is exceeded', async () => {
     component.type = 'number';
     component.label = 'Min Field';
     component.max = 5;
     component.value = 13;
 
-    fixture.detectChanges();
-    const validators = NgxFormService['validatorsFromProps'](component);
-    component.formControl = new FormControl(component.value, validators);
-    component.formGroup = new FormGroup({
-      [component.name]: component.formControl,
-    });
-    component.formControl.markAsTouched();
-    component.formControl.markAsDirty();
-    fixture.detectChanges();
-
-    fixture.detectChanges();
-    const errorDiv = fixture.nativeElement.querySelector('.error');
-    expect(component.formGroup.invalid).toBeTruthy();
+    updateFieldValidators(fixture, component);
+    const errorDiv = await getIonErrorElement(fixture);
+    expect(component.formControl.errors?.['max']).toBeTruthy();
     expect(errorDiv.textContent).toContain('max');
+
   });
 
-  it('should not show error message when field is valid', () => {
+  it('should not show error message when field is valid', async () => {
     component.label = 'Valid Field';
     component.value = 'Valid input';
-    fixture.detectChanges();
-    const validators = NgxFormService['validatorsFromProps'](component);
-    component.formControl = new FormControl(component.value, validators);
-    component.formGroup = new FormGroup({
-      [component.name]: component.formControl,
-    });
-    component.formControl.markAsTouched();
-    component.formControl.markAsDirty();
-    fixture.detectChanges();
+    updateFieldValidators(fixture, component);
 
-    fixture.detectChanges();
-    const errorDiv = fixture.nativeElement.querySelector('.error');
+    const errorDiv = await getIonErrorElement(fixture);
     expect(errorDiv).toBeFalsy();
+    expect(component.formControl.errors).toBeNull();
   });
 
   xit('should translate labels and placeholders', () => {
-
-
     // Mock translate service
     spyOn(translateService, 'instant').and.callFake((key: string) => {
       if (key === 'FIELD.LABEL') return 'Translated Label';
@@ -288,12 +241,7 @@ describe('CrudFieldComponent', () => {
     component.value = '';
     component.readonly = true;
 
-    fixture.detectChanges();
-    if (!component.formGroup)
-      component.formGroup = new FormGroup({});
-    component.formGroup.markAsTouched();
-    component.formGroup.markAsDirty();
-    fixture.detectChanges();
+    updateFieldValidators(fixture, component);
 
     const input = fixture.nativeElement.querySelector('ion-input');
     expect(input.readonly).toBeTruthy();
@@ -303,10 +251,11 @@ describe('CrudFieldComponent', () => {
     component.label = 'Disabled Field';
     component.value = '';
     fixture.detectChanges();
+
     if (!component.formGroup)
       component.formGroup = new FormGroup({});
-    component.formGroup.disable();
 
+    component.formGroup.disable();
     const input = fixture.nativeElement.querySelector('ion-input');
     expect(component.formGroup.disabled).toBeTruthy();
     expect(input.disabled).toBeTruthy();

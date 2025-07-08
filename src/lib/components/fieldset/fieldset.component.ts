@@ -1,5 +1,5 @@
 
-import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { Dynamic, HTMLFormTarget } from 'src/lib/engine';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModule } from 'src/lib/for-angular.module';
@@ -30,7 +30,7 @@ import { IonAccordion, IonAccordionGroup, IonItem } from '@ionic/angular/standal
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [ForAngularModule, IonAccordionGroup, IonAccordion, IonItem, CollapsableDirective],
 })
-export class FieldsetComponent implements AfterViewInit {
+export class FieldsetComponent implements OnInit {
 
   /**
    * @description Reference to the component's native element.
@@ -106,7 +106,7 @@ export class FieldsetComponent implements AfterViewInit {
    *
    * @memberOf FieldsetComponent
    */
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
       this.isOpen = true;
       const accordionElement = this.component?.nativeElement.querySelector('ion-accordion-group');
