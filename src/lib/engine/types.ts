@@ -1,10 +1,14 @@
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
-import { Injector, Type } from '@angular/core';
+import { EnvironmentInjector, Injector, Type } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { FieldProperties } from '@decaf-ts/ui-decorators';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type KeyValue = Record<string, any>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type FunctionLike = (...args: any[]) => any;
 
 /**
  * @description Element size options for UI components
@@ -329,7 +333,7 @@ export interface ListItemCustomEvent extends BaseCustomEvent {
  * @memberOf module:engine
  */
 export interface BaseCustomEvent {
-  data: any;
+  data: unknown;
   target?: HTMLElement;
   name?: string;
   component: string;
@@ -347,8 +351,9 @@ export interface BaseCustomEvent {
  * @memberOf module:engine
  */
 export type CrudFormEvent = BaseCustomEvent & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handlers?: Record<string, any>;
-};// export type CrudFormEvent = BaseCustomEvent & {handlers?: Record<string, (...args: any[]) => any | Promise<any>>}
+};
 
 
 
@@ -361,9 +366,11 @@ export interface ComponentInput extends FieldProperties {
 export interface ComponentConfig {
   component: string;
   inputs: ComponentInput;
-  injector: any;
+  injector: EnvironmentInjector | Injector;
   children?: ComponentConfig[];
 }
 
 export type FormParentGroup = [FormGroup,  string];
+
+
 

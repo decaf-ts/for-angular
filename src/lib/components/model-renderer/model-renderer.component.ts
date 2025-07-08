@@ -1,6 +1,7 @@
 import {
   Component,
   EventEmitter,
+  inject,
   Injector,
   Input,
   OnChanges,
@@ -81,7 +82,7 @@ export class ModelRendererComponent<M extends Model>
    * @description Template reference for inner content
    */
   @ViewChild('inner', { read: TemplateRef, static: true })
-  inner?: TemplateRef<any>;
+  inner?: TemplateRef<unknown>;
 
   /**
    * @description Output of the rendered model
@@ -116,7 +117,9 @@ export class ModelRendererComponent<M extends Model>
    */
   private instance!: KeyValue | undefined;
 
-  constructor(private injector: Injector) {}
+  private injector: Injector = inject(Injector);
+
+  // constructor() {}
 
   /**
    * @description Refreshes the rendered model
@@ -136,7 +139,7 @@ export class ModelRendererComponent<M extends Model>
     if (this.output?.inputs)
       this.rendererId = sf(
         AngularEngineKeys.RENDERED_ID,
-        (this.output.inputs as Record<string, any>)['rendererId'] as string,
+        (this.output.inputs as Record<string, unknown>)['rendererId'] as string,
       );
     this.instance = this.output?.instance;
     this.subscribeEvents();
@@ -148,7 +151,7 @@ export class ModelRendererComponent<M extends Model>
    */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes[BaseComponentProps.MODEL]) {
-      const { currentValue, previousValue, firstChange } = changes[BaseComponentProps.MODEL];
+      const { currentValue } = changes[BaseComponentProps.MODEL];
       this.refresh(currentValue);
     }
   }

@@ -47,7 +47,7 @@ export class ListPage implements OnInit, OnDestroy {
   }
 
   handleListRefreshEvent(event: BaseCustomEvent) {
-     const { data } = event;
+    const data = event.data as Model[];
     if(data?.length)
       this.data = [... data];
   }

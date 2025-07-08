@@ -93,8 +93,8 @@ export class LoginPage {
           await this.router.navigate(['/dashboard']);
         await toast.present();
       }
-    } catch (error: any) {
-      getLogger(this).error(error?.message || error);
+    } catch (error: unknown) {
+      getLogger(this).error(error as Error | string);
     }
   }
 }

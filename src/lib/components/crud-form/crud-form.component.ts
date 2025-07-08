@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
@@ -86,7 +85,7 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
   operation!: CrudOperations;
 
   @Input()
-  handlers!: Record<string, (...args: any[]) => any | Promise<any>>;
+  handlers!: Record<string, (...args: unknown[]) => unknown | Promise<unknown>>;
 
   @Input()
   formGroup!: FormGroup | undefined;
@@ -181,7 +180,6 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
       return false;
 
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
-    console.log('Submit=', data);
     this.submitEvent.emit({
       data,
       component: 'FormReactiveComponent',

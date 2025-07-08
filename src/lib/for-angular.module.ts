@@ -14,6 +14,7 @@ import {
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 import { Logger, Logging } from '@decaf-ts/logging';
+import { FunctionLike } from './engine';
 
 const ComponentsAndModules = [
   IonApp,
@@ -33,8 +34,8 @@ const ComponentsAndModules = [
 ];
 
 const log = Logging.for("for-angular");
-export function getLogger(instance: object | string): Logger {
-  return log.for(instance as any);
+export function getLogger(instance: string | FunctionLike | unknown): Logger {
+  return log.for(instance as string | FunctionLike);
 }
 
 /**

@@ -9,40 +9,87 @@
         "url": "http://localhost:8110"
      },
     {
-      "name": "Test current file",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "ng",
-      "args": ["test"],
-      "runtimeArgs": ["--browsers=ChromeHeadlessCI", "--inspect-brk",  "--watch=false", "--include='${relativeFile}'"],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "timeout": 60000
-    },
-     {
-      "name": "Test Watch current file",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "ng",
-      "args": ["test"],
-      "runtimeArgs": ["--browsers=ChromeHeadlessCI", "--inspect-brk", "--watch", "--include='${relativeFile}'"],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "timeout": 60000,
-    },
-    {
       "name": "ng serve",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: start",
       "url": "http://localhost:4200/"
     },
+    // {
+    //   "name": "Karma Test current file",
+    //   "type": "node",
+    //   "request": "launch",
+    //   "runtimeExecutable": "ng",
+    //   "args": ["test"],
+    //   "runtimeArgs": ["--browsers=ChromeHeadlessCI", "--inspect-brk",  "--watch=false", "--include='${relativeFile}'"],
+    //   "console": "integratedTerminal",
+    //   "internalConsoleOptions": "neverOpen",
+    //   "timeout": 60000
+    // },
+    // {
+    //   "name": "Karma Test Watch current file",
+    //   "type": "node",
+    //   "request": "launch",
+    //   "runtimeExecutable": "ng",
+    //   "args": ["test"],
+    //   "runtimeArgs": ["--browsers=ChromeHeadlessCI", "--inspect-brk", "--watch", "--include='${relativeFile}'"],
+    //   "console": "integratedTerminal",
+    //   "internalConsoleOptions": "neverOpen",
+    //   "timeout": 60000,
+    // },
+
     {
-      "name": "ng test",
-      "type": "chrome",
+      "type": "node",
       "request": "launch",
-      "preLaunchTask": "npm: test",
-      "url": "http://localhost:9876/debug.html"
-    }
+      "name": "Jest run current file",
+      "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+      "args": [
+        "--runTestsByPath",
+        "${relativeFile}",
+        "--runInBand",
+        "--passWithNoTests",
+        "--no-cache"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      }
+    },
+    {
+        "type": "node",
+        "request": "launch",
+        "name": "Jest watch all tests",
+        "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+        "args": [
+          "--verbose",
+          "-i",
+          "--no-cache",
+          "--watchAll"
+        ],
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+        "windows": {
+          "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+        }
+      },
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Jest watch current file",
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+        "args": [
+          "${relativeFile}",
+          "--verbose",
+          "-i",
+          "--no-cache",
+          "--watchAll"
+        ],
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+        "windows": {
+          "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+        }
+      },
   ]
 }

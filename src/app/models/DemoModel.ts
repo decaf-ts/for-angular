@@ -96,6 +96,7 @@ export class ForAngularModel extends Model {
   // })
   // children: OtherModel[] = [];
 
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(arg?: ModelArg<ForAngularModel>) {
     super(arg);
   }

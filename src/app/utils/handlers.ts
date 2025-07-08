@@ -1,5 +1,5 @@
 import { EventHandler } from "@decaf-ts/ui-decorators";
-import { CrudFormEvent } from "src/lib/engine/types";
+import { CrudFormEvent, KeyValue } from "src/lib/engine/types";
 
 /**
  * @description Handler for login events
@@ -24,7 +24,7 @@ export class LoginHandler extends EventHandler {
    * @return {Promise<boolean>} A promise that resolves to true if login is valid, false otherwise
    */
   async handle(event: CrudFormEvent): Promise<boolean> {
-    const { username, password } = event.data;
+    const { username, password } = event.data as KeyValue;
     return !!username && !!password;
   }
 }

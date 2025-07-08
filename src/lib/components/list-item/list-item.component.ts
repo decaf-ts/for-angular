@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output, ViewChild  } from '@angular/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { StringOrBoolean, KeyValue } from 'src/lib/engine/types';
+import { StringOrBoolean } from 'src/lib/engine/types';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { removeFocusTrap, stringToBoolean } from 'src/lib/helpers/utils';
@@ -92,7 +92,7 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
   lines: 'inset' | 'inseet' | 'none' = 'none';
 
   @Input()
-  override item!: Record<string, any>;
+  override item!: Record<string, unknown>;
 
   @Input()
   icon!: string;
@@ -144,7 +144,7 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
     this.className = `${this.className}  dcf-flex dcf-flex-middle grid-item`;
     if(this.operations?.length)
       this.className += ` action`;
-    this.windowWidth = getWindowWidth();
+    this.windowWidth = getWindowWidth() as number;
   }
 
   /**
@@ -190,12 +190,11 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
   /**
    * @description Enables or disables slide items based on window size and available operations.
    * @summary This method is called when the window is resized. It determines whether to show slide items based on the window width and available operations.
-   * @param {Event} [event] - The resize event object.
    * @return {boolean} Whether slide items should be shown.
    */
   @HostListener('window:resize', ['$event'])
-  enableSlideItems(event?: Event): boolean {
-    this.windowWidth = getWindowWidth();
+  enableSlideItems(): boolean {
+    this.windowWidth = getWindowWidth() as number;
     if(!this.operations?.length || this.windowWidth > 768)
       return this.showSlideItems = false;
     this.showSlideItems = this.operations.includes(OperationKeys.UPDATE) || this.operations.includes(OperationKeys.DELETE);

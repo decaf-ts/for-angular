@@ -4,10 +4,9 @@ import { faker } from '@faker-js/faker';
 import { Model } from '@decaf-ts/decorator-validation';
 import { EmployeeModel } from '../models/EmployeeModel';
 import { CategoryModel } from '../models/CategoryModel';
-import { KeyValue } from 'src/lib/engine/types';
 import { InternalError } from '@decaf-ts/db-decorators';
 import { Repository } from '@decaf-ts/core';
-import { FunctionType } from 'src/lib/helpers/types';
+import { FunctionLike } from 'src/lib/engine/types';
 
 export class ForAngularRepository<T extends Model> {
 
@@ -27,10 +26,9 @@ export class ForAngularRepository<T extends Model> {
       try {
         this.model = new constructor();
         this._repository  = Repository.forModel(constructor, (this.adapter as DecafRepositoryAdapter).flavour);
-        // this.init(new constructor());
-      } catch (errror: any) {
+      } catch (error: unknown) {
         throw new InternalError(
-          errror.message,
+          (error as Error)?.message || error as string
         );
       }
     }
@@ -43,23 +41,19 @@ export class ForAngularRepository<T extends Model> {
     if(!this.data?.length) {
       const items = 55;
       data = ((this.model as Model).constructor.name !== 'CategoryModel' ? generateEmployes(items) : generateCatories(items)) as Model[];
-      // const model = new (Model.get(this.modelName) as ModelConstructor<T>)();
-      // const created = await this.repository?.create(data[0] as Model);
-      // console.log(created);
       data = await this.repository?.createAll(data) as T[];
     }
     this.data = data as T[] || [];
   }
 
-  public async getAll(): Promise<Model[]> {
-    return await this._repository?.select().execute() || [];
-  }
+  // public async getAll(): Promise<Model[]> {
+  //   return await this._repository?.select().execute() || [];
+  // }
 
-  async read(id: string, model?: Model): Promise<Model> {
-    const res = await this._repository?.read(id) as Model;
-    console.log(res);
-    return res;
-  }
+  // async read(id: string): Promise<Model> {
+  //   const res = await this._repository?.read(id) as Model;
+  //   return res;
+  // }
 }
 
 function generateEmployes(limit = 100): EmployeeModel[] {
@@ -86,7 +80,7 @@ function generateCatories(limit = 100): CategoryModel[] {
 
 export function getFakerData<T extends Model>(
   limit = 100,
-  data: Record<string, FunctionType>,
+  data: Record<string, FunctionLike>,
   model?: string,
 ): T[] {
   let index = 1;
@@ -98,7 +92,7 @@ export function getFakerData<T extends Model>(
     }
     // item.id = index;
     // item.createdAt = faker.date.past({ refDate: '2024-01-01' });
-    index++;
+    index  = index + 1;
     return (!model ? item : Model.build(item, model)) as T;
   });
 }

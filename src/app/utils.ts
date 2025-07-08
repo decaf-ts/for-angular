@@ -8,8 +8,7 @@
  * @module AppUtils
  */
 
-import { KeyValue } from 'src/lib/engine/types';
-import { FunctionType } from 'src/lib/helpers/types';
+import { KeyValue, FunctionLike } from 'src/lib/engine/types';
 import { formatDate } from 'src/lib/helpers/utils';
 
 /**
@@ -87,7 +86,7 @@ export function getFormFieldProps(
  * by formatting them appropriately.
  *
  * @param {number} [limit=100] - The number of data items to generate
- * @param {Record<string, FunctionType>} fakerObj - An object mapping field names to Faker functions
+ * @param {Record<string, FunctionLike>} fakerObj - An object mapping field names to Faker functions
  * @return {Promise<KeyValue[]>} A promise that resolves to an array of generated data objects
  *
  * @mermaid
@@ -116,7 +115,7 @@ export function getFormFieldProps(
  * @memberOf AppUtils
  */
 export function generateFakerData(
-  limit = 100,
+  limit: number = 100,
   props: KeyValue
 ): Promise<KeyValue[]> {
   return new Promise((resolve) => {
@@ -124,7 +123,7 @@ export function generateFakerData(
       Array.from({ length: limit }, () => {
         const item: KeyValue = {};
         for (const [key, value] of Object.entries(props)) {
-          const val = value();
+          const val = (value as FunctionLike)();
           item[key] = val.constructor === Date ? formatDate(val) : val;
         }
         return item;

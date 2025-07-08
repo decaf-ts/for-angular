@@ -5,6 +5,22 @@
   "hints": {
     "no-inline-styles": "off",
     "typescript-config/consistent-casing": "off",
-    "meta-viewport": "off"
-  }
+    "meta-viewport": "off",
+    "compat-api/css": [
+      "default",
+      {
+        "ignore": [
+          "scrollbar-width"
+        ]
+      }
+    ]
+  },
+  "browserslist": [
+    "defaults",
+    "not ie 11",
+    "not chrome <= 109",
+    "not ios_saf <= 18.3",
+    "not safari <= 18.3",
+    "not samsung <= 27"
+  ]
 }
