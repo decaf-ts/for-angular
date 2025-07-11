@@ -1,0 +1,56 @@
+name: "Run on PR Merge to Master"
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  merge:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22.x]
+        language: ["javascript"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://decaf-ts-admin:${{ secrets.GH_PAT }}@github.com/decaf-ts/ts-workspace.git
+
+      - name: Bump TAG
+        run: npm version patch
+
+      - name: Build
+        run: npm run build:prod
+
+      - name: Test
+        run: npm run coverage
+
+      - name: Commit changes
+        run: |
+          TAG=$(git describe --tags --exact-match || echo "no-tag")
+          git add .
+          git commit -m  "Github Action automatic release: ${TAG_NAME}" || echo "No changes to commit"
+          git push origin HEAD:master --follow-tags
