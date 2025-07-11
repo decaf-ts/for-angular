@@ -54,7 +54,7 @@
     "@decaf-ts/utils": "^0.2.6",
     "@faker-js/faker": "^9.7.0",
     "@ionic/angular-toolkit": "^12.1.1",
-    "@playwright/test": "^1.53.2",
+    "@playwright/test": "^1.54.1",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
