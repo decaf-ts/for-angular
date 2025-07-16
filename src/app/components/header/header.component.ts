@@ -2,7 +2,7 @@ import { Component,  CUSTOM_ELEMENTS_SCHEMA, inject, Input, OnInit } from '@angu
 import { Color } from '@ionic/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { IonHeader, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
 import { RouterService } from 'src/app/services/router.service';
 import { stringToBoolean } from 'src/lib/helpers/utils';
 import { ForAngularModule } from 'src/lib/for-angular.module';
@@ -228,6 +228,18 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   private routerService: RouterService  = inject(RouterService);
 
   /**
+   * @description Root component of the Decaf-ts for Angular application
+   * @summary This component serves as the main entry point for the application.
+   * It sets up the navigation menu, handles routing events, and initializes
+   * the application state. It also manages the application title and menu visibility.
+   *
+   * @private
+   * @type {MenuController}
+   * @memberOf HeaderComponent
+   */
+  private menuController: MenuController = inject(MenuController);
+
+  /**
    * @description Creates an instance of HeaderComponent.
    * @summary Initializes a new HeaderComponent by calling the parent class constructor
    * with the component name for logging and identification purposes.
@@ -263,6 +275,9 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   */
   ngOnInit(): void {
     this.showBackButton = stringToBoolean(this.showBackButton);
+    this.showMenuButton = stringToBoolean(this.showMenuButton);
+    if(this.showMenuButton)
+      this.menuController.enable(true);
     this.center = stringToBoolean(this.center);
     this.translucent = stringToBoolean(this.translucent);
     this.expand = stringToBoolean(this.expand);

@@ -1,0 +1,30 @@
+.dcf-grid-small {
+    .dcf-grid-child {
+        margin-bottom: 2rem;
+    }
+}
+
+.dcf-grid-collapse {
+    .dcf-grid-child {
+        margin-bottom: 1.25rem;
+        ion-card {
+            margin-bottom: 1.25rem;
+        }
+    }
+}
+
+
+.dcf-grid-title {
+  font-size: 1.05rem !important;
+  background: none;
+  box-shadow: none;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+  font-weight: 600;
+  color: var(--ion-text-color);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

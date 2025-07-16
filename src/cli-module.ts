@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { runCommand } from '@decaf-ts/utils';
-import { getLogger } from './lib/for-angular.module';
+import { Logging } from '@decaf-ts/logging';
 
 
 enum Projects {
@@ -18,8 +18,7 @@ enum Types {
   SCHEMATICS = "schematics"
 };
 
-const logger = getLogger('cli');
-
+const logger = Logging.for("for-angular-cli");
 
 /**
  * Creates and returns a Command object for the Angular CLI module in decaf-ts.

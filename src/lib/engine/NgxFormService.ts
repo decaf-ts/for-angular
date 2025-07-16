@@ -144,7 +144,7 @@ export class NgxFormService {
    * @param {boolean} [registry=false] - Whether to register the created form.
    * @return {FormGroup} The created FormGroup.
    */
-  static createFormFromComponents(id: string, components: ComponentConfig[], registry = false): FormGroup {
+  static createFormFromComponents(id: string, components: ComponentConfig[], registry: boolean = false): FormGroup {
     const form = new FormGroup({});
     components.forEach(component => {
       this.addFormControl(form, component.inputs);

@@ -11,7 +11,7 @@ from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { StringOrBoolean } from 'src/lib/engine';
+import { Dynamic, StringOrBoolean } from 'src/lib/engine';
 import { generateLocaleFromString, stringToBoolean } from 'src/lib/helpers';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -54,6 +54,7 @@ import { FunctionLike } from 'src/lib/engine/types';
  * @extends {NgxBaseComponent}
  * @implements {OnInit}
  */
+@Dynamic()
 @Component({
   selector: 'ngx-decaf-empty-state',
   templateUrl: './empty-state.component.html',
@@ -106,7 +107,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  subtitle?: string;
+  subtitle: string = "";
 
   /**
    * @description The color of the subtitle text.
@@ -119,7 +120,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  subtitleColor = 'gray-4';
+  subtitleColor: string = 'gray-4';
 
   /**
    * @description Controls whether the icon is displayed.
@@ -145,7 +146,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  icon = "ti-info-square-rounded";
+  icon: string = "ti-info-square-rounded";
 
   /**
    * @description The size of the displayed icon.
@@ -303,6 +304,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   async ngOnInit(): Promise<void> {
+    this.parseProps(this);
     this.translatable = stringToBoolean(this.translatable);
     this.showIcon = stringToBoolean(this.showIcon);
     this.locale = this.getLocale(this.translatable);
@@ -317,7 +319,6 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
 
     if(this.searchValue && this.translatable)
       this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);
-
   }
 
   /**

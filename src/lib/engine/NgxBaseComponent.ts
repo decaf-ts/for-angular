@@ -6,8 +6,10 @@ import {
   ElementRef,
   OnChanges,
   SimpleChanges,
+  Output,
+  EventEmitter,
 } from '@angular/core';
-import { StringOrBoolean } from 'src/lib/engine/types';
+import { KeyValue, RendererCustomEvent, StringOrBoolean } from 'src/lib/engine/types';
 import {
   getInjectablesRegistry,
   getLocaleFromClassName,
@@ -141,7 +143,10 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @type {Model| undefined}
    */
   @Input()
-  model!:  Model | undefined;;
+  model!:  Model | undefined;
+
+  @Input()
+  props: Record<string, unknown> = {};
 
   /**
    * @description Configuration for list item rendering
@@ -298,6 +303,19 @@ export abstract class NgxBaseComponent implements OnChanges {
   initialized: boolean = false;
 
   /**
+   * @description Event emitter for custom renderer events.
+   * @summary Emits custom events that occur within child components or the layout itself.
+   * This allows parent components to listen for and respond to user interactions or
+   * state changes within the grid layout. Events are passed up the component hierarchy
+   * to enable coordinated behavior across the application.
+   *
+   * @type {EventEmitter<RendererCustomEvent>}
+   * @memberOf LayoutComponent
+   */
+  @Output()
+  listenEvent: EventEmitter<RendererCustomEvent> = new EventEmitter<RendererCustomEvent>();
+
+  /**
    * @description Reference to the rendering engine instance
    * @summary Provides access to the NgxRenderingEngine2 singleton instance,
    * which handles the rendering of components based on model definitions.
@@ -324,12 +342,87 @@ export abstract class NgxBaseComponent implements OnChanges {
    */
   logger!: Logger;
 
-
+  /**
+   * @description Creates an instance of NgxBaseComponent.
+   * @summary Initializes a new instance of the base component with the provided instance token.
+   * This constructor sets up the fundamental properties required by all Decaf components,
+   * including the component name, locale settings, and logging capabilities. The instance
+   * token is used for component identification and locale derivation.
+   *
+   * The constructor performs the following initialization steps:
+   * 1. Sets the componentName from the provided instance token
+   * 2. Derives the componentLocale from the class name using utility functions
+   * 3. Initializes the logger instance for the component
+   *
+   * @param {string} instance - The component instance token used for identification
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant A as Angular
+   *   participant C as Component
+   *   participant B as NgxBaseComponent
+   *   participant U as Utils
+   *   participant L as Logger
+   *
+   *   A->>C: new Component(instance)
+   *   C->>B: super(instance)
+   *   B->>B: Set componentName = instance
+   *   B->>U: getLocaleFromClassName(instance)
+   *   U-->>B: Return derived locale
+   *   B->>B: Set componentLocale
+   *   B->>L: getLogger(this)
+   *   L-->>B: Return logger instance
+   *   B->>B: Set logger
+   *
+   * @memberOf NgxBaseComponent
+   */
   // eslint-disable-next-line @angular-eslint/prefer-inject
   protected constructor(@Inject('instanceToken') protected instance: string) {
     this.componentName = instance;
     this.componentLocale = getLocaleFromClassName(instance);
     this.logger = getLogger(this);
+  }
+
+  /**
+   * @description Parses and applies properties from the props object to the component instance.
+   * @summary This method iterates through the properties of the provided instance object
+   * and applies any matching properties from the component's props configuration to the
+   * component instance. This allows for dynamic property assignment based on configuration
+   * stored in the props object, enabling flexible component customization without requiring
+   * explicit property binding for every possible configuration option.
+   *
+   * The method performs a safe property assignment by checking if each key from the instance
+   * exists in the props object before applying it. This prevents accidental property
+   * overwriting and ensures only intended properties are modified.
+   *
+   * @param {KeyValue} instance - The component instance object to process
+   * @return {void}
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant C as Component
+   *   participant B as NgxBaseComponent
+   *   participant P as Props Object
+   *
+   *   C->>B: parseProps(instance)
+   *   B->>B: Get Object.keys(instance)
+   *   loop For each key in instance
+   *     B->>P: Check if key exists in this.props
+   *     alt Key exists in props
+   *       B->>B: Set this[key] = this.props[key]
+   *     else Key not in props
+   *       Note over B: Skip this key
+   *     end
+   *   end
+   *
+   * @protected
+   * @memberOf NgxBaseComponent
+   */
+  protected parseProps(instance: KeyValue): void {
+    Object.keys(instance).forEach((key) => {
+      if(Object.keys(this.props).includes(key))
+        (this as KeyValue)[key] = this.props[key];
+    })
   }
 
   /**
@@ -442,17 +535,17 @@ export abstract class NgxBaseComponent implements OnChanges {
   setModelDefinitions(model: Model): void {
     if (model instanceof Model) {
       this.getRoute();
-      const { props, item } = this.renderingEngine.getDecorators(
-        this.model as Model,
-        {}
-      );
-      this.mapper = item?.props!['mapper'] || {};
+      this.model = model;
+      const field = this.renderingEngine.getDecorators(this.model as Model, {});
+      const{ props, item, children } = field;
+      this.props = Object.assign(props || {}, {children: children || []});
+      if(item?.props?.['mapper'])
+        this.mapper = item?.props!['mapper'] || {};
       this.item = {
         tag: item?.tag || '',
-        ...props,
         ...item?.props,
-        mapper: this.mapper,
-        ...{ route: item?.props!['route'] || this.route },
+        ...(this.mapper ? {mapper: this.mapper} : {}),
+        ...{ route: item?.props?.['route'] || this.route },
       };
     }
   }
@@ -466,7 +559,35 @@ export abstract class NgxBaseComponent implements OnChanges {
    * during the component's lifecycle setup.
    */
   initialize(): void {
-    if (this.initialized) return;
+    if (this.initialized)
+      return;
     this.initialized = true;
+  }
+
+  /**
+   * @description Handles custom events from child components.
+   * @summary Receives events from child renderer components and forwards them to parent
+   * components through the listenEvent output. This creates an event propagation chain
+   * that allows events to bubble up through the component hierarchy, enabling coordinated
+   * responses to user interactions across the layout structure.
+   *
+   * @param {RendererCustomEvent} event - The custom event from a child component
+   * @return {void}
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant C as Child Component
+   *   participant L as LayoutComponent
+   *   participant P as Parent Component
+   *
+   *   C->>L: Emit RendererCustomEvent
+   *   L->>L: handleEvent(event)
+   *   L->>P: listenEvent.emit(event)
+   *   Note over P: Handle event in parent
+   *
+   * @memberOf LayoutComponent
+   */
+  handleEvent(event: RendererCustomEvent): void {
+    this.listenEvent.emit(event);
   }
 }

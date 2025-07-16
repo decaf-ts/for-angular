@@ -32,8 +32,9 @@ export class ListPage implements OnInit, OnDestroy {
     if(!this.type)
       this.type = ListComponentsTypes.INFINITE;
     this.model = this.type === ListComponentsTypes.INFINITE ?
-      new EmployeeModel() : new EmployeeModel();
-    this.repository = Repository.forModel(this.model?.constructor as Constructor<Model>)
+      new EmployeeModel() : new CategoryModel();
+    this.repository = Repository.forModel(this.model?.constructor as Constructor<Model>, "ram");
+    console.log(this.repository);
   }
 
   ngOnDestroy() {
@@ -53,7 +54,7 @@ export class ListPage implements OnInit, OnDestroy {
   }
 
 
-  async refresh(): Promise<Model[]>{
+  async refresh(): Promise<Model[]|void>{
     return this.repository.select().execute() || [];
   }
 

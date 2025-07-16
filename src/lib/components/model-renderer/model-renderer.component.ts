@@ -22,7 +22,7 @@ import {
   NgxRenderingEngine2,
   RenderedModel,
 } from '../../engine';
-import { KeyValue, ModelRenderCustomEvent } from 'src/lib/engine/types';
+import { KeyValue, RendererCustomEvent } from 'src/lib/engine/types';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { Renderable } from '@decaf-ts/ui-decorators';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
@@ -105,7 +105,7 @@ export class ModelRendererComponent<M extends Model>
    * @description Event emitter for custom events from the rendered component
    */
   @Output()
-  listenEvent = new EventEmitter<ModelRenderCustomEvent>();
+  listenEvent = new EventEmitter<RendererCustomEvent>();
 
   /**
    * @description Instance of the NgxRenderingEngine2
@@ -128,7 +128,7 @@ export class ModelRendererComponent<M extends Model>
   private refresh(model: string | M) {
     model =
       typeof model === 'string'
-        ? (Model.build({}, JSON.parse(model)) as M)
+        ? (Model.build({}, model) as M)
         : model;
     this.output = (model as unknown as Renderable).render<AngularDynamicOutput>(
       this.globals || {},
@@ -179,7 +179,7 @@ export class ModelRendererComponent<M extends Model>
               component: this.output?.component.name || '',
               name: key,
               ...event,
-            } as ModelRenderCustomEvent);
+            } as RendererCustomEvent);
           });
       }
     }

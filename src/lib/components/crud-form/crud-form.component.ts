@@ -182,7 +182,7 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
     this.submitEvent.emit({
       data,
-      component: 'FormReactiveComponent',
+      component: 'CrudFormComponent',
       name: this.action || EventConstants.SUBMIT_EVENT,
       handlers: this.handlers,
     });
@@ -199,7 +199,7 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
   handleDelete() {
     this.submitEvent.emit({
       data: this.uid,
-      component: 'FormReactiveComponent',
+      component: 'CrudFormComponent',
       name: EventConstants.SUBMIT_EVENT,
     });
   }

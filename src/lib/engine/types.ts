@@ -4,9 +4,24 @@ import { EnvironmentInjector, Injector, Type } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { FieldProperties } from '@decaf-ts/ui-decorators';
 
+/**
+ * @description Generic key-value pair type
+ * @summary Represents a generic object with string keys and any type of values.
+ * This is commonly used for dynamic data structures where the properties are not known at compile time.
+ * @typedef {Record<string, any>} KeyValue
+ * @memberOf module:engine
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type KeyValue = Record<string, any>;
 
+/**
+ * @description Generic function type
+ * @summary Represents a function that accepts any number of arguments of any type
+ * and returns any type. This is useful for defining function parameters or variables
+ * where the exact function signature is not known at compile time.
+ * @typedef FunctionLike
+ * @memberOf module:engine
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FunctionLike = (...args: any[]) => any;
 
@@ -269,6 +284,15 @@ export interface IListComponentRefreshEvent {
   data: KeyValue[];
 }
 
+/**
+ * @description Form service control structure
+ * @summary Defines the structure for a form control managed by the form service.
+ * Contains the FormGroup control and the associated field properties for rendering.
+ * @interface FormServiceControl
+ * @property {FormGroup} control - The Angular FormGroup for the control
+ * @property {AngularFieldDefinition} props - The field properties for rendering the control
+ * @memberOf module:engine
+ */
 export interface FormServiceControl {
   control: FormGroup;
   props: AngularFieldDefinition;
@@ -288,20 +312,14 @@ export type FormServiceControls = Record<
 >;
 
 /**
- * @description Interface for model render custom events
- * @summary Defines the structure of custom events triggered during model rendering.
- * Contains the event detail, component name, and event name.
- * @interface ModelRenderCustomEvent
- * @property {BaseCustomEvent} detail - The detailed event information
- * @property {string} component - The component that triggered the event
- * @property {string} name - The name of the event
+ * @description Renderer custom event type
+ * @summary Combines BaseCustomEvent with KeyValue properties to create a flexible
+ * custom event type for renderer components. This allows events to carry both
+ * standard event properties and additional custom data.
+ * @typedef RendererCustomEvent
  * @memberOf module:engine
  */
-export interface ModelRenderCustomEvent {
-  detail: BaseCustomEvent;
-  component: string;
-  name: string;
-}
+export type RendererCustomEvent = BaseCustomEvent & KeyValue;
 
 /**
  * @description Interface for list item custom events
@@ -333,21 +351,18 @@ export interface ListItemCustomEvent extends BaseCustomEvent {
  * @memberOf module:engine
  */
 export interface BaseCustomEvent {
-  data: unknown;
-  target?: HTMLElement;
-  name?: string;
+  name: string;
   component: string;
+  data?: unknown;
+  target?: HTMLElement;
 }
 
 /**
- * @description Base interface for custom events
- * @summary Defines the base structure for custom events in the application.
- * Contains properties for the event data, target element, name, and component.
- * @interface BaseCustomEvent
- * @property {any} data - The data associated with the event
- * @property {HTMLElement} [target] - The target element that triggered the event
- * @property {string} [name] - The name of the event
- * @property {string} component - The component that triggered the event
+ * @description CRUD form event type
+ * @summary Extends BaseCustomEvent to include optional handlers for CRUD form operations.
+ * This event type is used for form-related actions like create, read, update, and delete operations.
+ * @typedef CrudFormEvent
+ * @property {Record<string, any>} [handlers] - Optional handlers for form operations
  * @memberOf module:engine
  */
 export type CrudFormEvent = BaseCustomEvent & {
@@ -355,14 +370,33 @@ export type CrudFormEvent = BaseCustomEvent & {
   handlers?: Record<string, any>;
 };
 
-
-
+/**
+ * @description Component input properties
+ * @summary Extends FieldProperties with additional properties specific to Angular components.
+ * Includes update mode for form controls and optional FormGroup and FormControl references.
+ * @interface ComponentInput
+ * @property {FieldUpdateMode} [updateMode] - When the field value should be updated
+ * @property {FormGroup} [formGroup] - Optional FormGroup reference
+ * @property {FormControl} [formControl] - Optional FormControl reference
+ * @memberOf module:engine
+ */
 export interface ComponentInput extends FieldProperties {
   updateMode?: FieldUpdateMode;
   formGroup?: FormGroup;
   formControl?: FormControl;
 }
 
+/**
+ * @description Component configuration structure
+ * @summary Defines the configuration for dynamically creating Angular components.
+ * Contains the component name, input properties, injector, and optional child components.
+ * @interface ComponentConfig
+ * @property {string} component - The name of the component to render
+ * @property {ComponentInput} inputs - The input properties for the component
+ * @property {EnvironmentInjector | Injector} injector - The Angular injector for dependency injection
+ * @property {ComponentConfig[]} [children] - Optional child component configurations
+ * @memberOf module:engine
+ */
 export interface ComponentConfig {
   component: string;
   inputs: ComponentInput;
@@ -370,7 +404,11 @@ export interface ComponentConfig {
   children?: ComponentConfig[];
 }
 
+/**
+ * @description Form parent group tuple
+ * @summary Represents a tuple containing a FormGroup and its associated string identifier.
+ * This is used for managing hierarchical form structures and parent-child relationships.
+ * @typedef {[FormGroup, string]} FormParentGroup
+ * @memberOf module:engine
+ */
 export type FormParentGroup = [FormGroup,  string];
-
-
-
