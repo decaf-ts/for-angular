@@ -22,7 +22,7 @@ import {
   Dynamic,
   EventConstants,
   ComponentsTagNames,
-  ModelRenderCustomEvent,
+  RendererCustomEvent,
   StringOrBoolean,
   KeyValue,
   ListItemCustomEvent
@@ -502,7 +502,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   @Output()
-  clickEvent:  EventEmitter<KeyValue> = new EventEmitter<KeyValue>();
+  clickEvent:  EventEmitter<ListItemCustomEvent|RendererCustomEvent> = new EventEmitter<ListItemCustomEvent|RendererCustomEvent>();
 
   /**
    * @description Subject for debouncing click events.
@@ -510,10 +510,10 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * period. This prevents multiple rapid clicks from triggering multiple events.
    *
    * @private
-   * @type {Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent>}
+   * @type {Subject<CustomEvent | ListItemCustomEvent | RendererCustomEvent>}
    * @memberOf ListComponent
    */
-  private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent> = new Subject<CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent>();
+  private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | RendererCustomEvent> = new Subject<CustomEvent | ListItemCustomEvent | RendererCustomEvent>();
 
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -626,7 +626,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   async ngOnInit(): Promise<void> {
-    this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event));
+    this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event as ListItemCustomEvent | RendererCustomEvent));
     this.observerSubjet.pipe(debounceTime(100)).subscribe(args => this.handleObserveEvent(args[0], args[1], args[2]));
 
     this.limit = Number(this.limit);
@@ -769,13 +769,13 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * debounced click subject. This allows the component to respond to clicks on
    * list items regardless of where they originate from.
    *
-   * @param {CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent} event - The click event
+   * @param {ListItemCustomEvent | RendererCustomEvent} event - The click event
    * @returns {void}
    *
    * @memberOf ListComponent
    */
   @HostListener('window:ListItemClickEvent', ['$event'])
-  handleClick(event: CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent): void {
+  handleClick(event: ListItemCustomEvent | RendererCustomEvent): void {
     this.clickItemSubject.next(event);
   }
 
@@ -861,13 +861,13 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * This extracts the relevant data from the event and passes it to parent components.
    *
    * @private
-   * @param {CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent} event - The click event
+   * @param {ListItemCustomEvent | RendererCustomEvent} event - The click event
    * @returns {void}
    *
    * @memberOf ListComponent
    */
-  private clickEventEmit(event: CustomEvent | ListItemCustomEvent | ModelRenderCustomEvent): void {
-   this.clickEvent.emit((event as ModelRenderCustomEvent)?.detail ? (event as ModelRenderCustomEvent)?.detail : event);
+  private clickEventEmit(event: ListItemCustomEvent | RendererCustomEvent): void {
+    this.clickEvent.emit(event);
   }
 
   /**

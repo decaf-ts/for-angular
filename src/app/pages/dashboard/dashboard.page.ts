@@ -4,6 +4,8 @@ import { ForAngularComponentsModule } from 'src/lib/components/for-angular-compo
 import { ComponentsModule } from 'src/app/components/components.module';
 import { addIcons  } from 'ionicons';
 import { cardOutline, peopleOutline, documentAttachOutline  } from 'ionicons/icons';
+import { DashboardLayout } from 'src/app/layouts/Dashboboard';
+import { RendererCustomEvent } from 'src/lib/engine';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -17,7 +19,7 @@ export class DashboardPage implements OnInit {
   incoming!: number;
   tasks!: number;
   lastUsage!: string;
-
+  model!: DashboardLayout;
   constructor() {
     addIcons({
       cardOutline,
@@ -28,6 +30,9 @@ export class DashboardPage implements OnInit {
 
   ngOnInit() {
     this.getData();
+    this.model = new DashboardLayout;
+    console.log(this.model);
+    console.log(this.model);
   }
 
   getData() {
@@ -39,6 +44,10 @@ export class DashboardPage implements OnInit {
 
   private random(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  handleEvent(event: RendererCustomEvent): void {
+    console.log('Event received:', event);
   }
 
 }

@@ -17,9 +17,10 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { NgxRenderingEngine2 } from 'src/lib/engine/NgxRenderingEngine2';
-import { BaseCustomEvent, KeyValue, ModelRenderCustomEvent } from '../../engine';
+import { BaseCustomEvent, KeyValue, RendererCustomEvent } from '../../engine';
 import { ForAngularModule, getLogger } from 'src/lib/for-angular.module';
 import { Logger } from '@decaf-ts/logging';
+import { Model } from '@decaf-ts/decorator-validation';
 
 /**
  * @description Dynamic component renderer for Decaf Angular applications.
@@ -44,7 +45,7 @@ import { Logger } from '@decaf-ts/logging';
  *     +Record~string, unknown~ globals
  *     +EnvironmentInjector injector
  *     +ComponentRef~unknown~ component
- *     +EventEmitter~ModelRenderCustomEvent~ listenEvent
+ *     +EventEmitter~RendererCustomEvent~ listenEvent
  *     +ngOnInit()
  *     +ngOnDestroy()
  *     +ngOnChanges(changes)
@@ -139,12 +140,12 @@ export class ComponentRendererComponent
    * dynamic component, creating a communication channel between the parent and the dynamically
    * rendered child.
    *
-   * @type {EventEmitter<ModelRenderCustomEvent>}
+   * @type {EventEmitter<RendererCustomEvent>}
    * @memberOf ComponentRendererComponent
    */
   @Output()
-  listenEvent: EventEmitter<ModelRenderCustomEvent> =
-    new EventEmitter<ModelRenderCustomEvent>();
+  listenEvent: EventEmitter<RendererCustomEvent> =
+    new EventEmitter<RendererCustomEvent>();
 
   /**
    * @description Logger instance for the component.
@@ -157,6 +158,16 @@ export class ComponentRendererComponent
    * @memberOf ComponentRendererComponent
    */
   logger!: Logger;
+
+  /**
+   * @description Repository model for data operations.
+   * @summary The data model repository that this component will use for CRUD operations.
+   * This provides a connection to the data layer for retrieving and manipulating data.
+   *
+   * @type {Model| undefined}
+   */
+  @Input()
+  model!:  Model | undefined;
 
   @Input()
   parent: undefined | KeyValue = undefined;
@@ -270,8 +281,9 @@ export class ComponentRendererComponent
       ?.constructor as Type<unknown>;
     const metadata = reflectComponentType(component);
     const componentInputs = (metadata as ComponentMirror<unknown>).inputs;
-    const props = globals?.['item'];
-    delete props['tag'];
+    const props = globals?.['item'] || globals?.['props'] || {};
+    if(props?.['tag'])
+      delete props['tag'];
     const inputKeys = Object.keys(props);
     const unmappedKeys = [];
 
@@ -285,9 +297,6 @@ export class ComponentRendererComponent
         unmappedKeys.push(input);
       }
     }
-    if (unmappedKeys.length)
-      this.logger.info(`Unmapped input properties for component ${tag}: ${unmappedKeys.join(', ')}`);
-
     this.vcr.clear();
     this.component = NgxRenderingEngine2.createComponent(
       component,
@@ -355,7 +364,7 @@ export class ComponentRendererComponent
               this.listenEvent.emit({
                 name: key,
                 ...event,
-              } as ModelRenderCustomEvent);
+              } as RendererCustomEvent);
             },
           );
       }

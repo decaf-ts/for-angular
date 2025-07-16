@@ -34,7 +34,7 @@ export class CrudPage implements OnInit {
     this.model = new ForAngularModel({
       id: 1,
       name: 'John Doe',
-      birthdate: '1989-12-12',
+      // birthdate: '1989-12-12',
       email: 'john.doe@example.com',
       website: 'https://johndoe.example.com',
       password: 'password123',

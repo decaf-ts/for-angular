@@ -28,7 +28,7 @@
                 <ion-icon aria-hidden="true" name="reader-outline" slot="start"></ion-icon>
                 <ion-label>
                   <p class="dcf-list-title">{{item.name}}</p>
-                  <p class="dcf-list-description">{{item.occupation}}</p>
+                  <p class="dcf-list-description">{{ type === 'infinite' ? item.occupation : item.description }}</p>
                 </ion-label>
                 <ion-note slot="end">{{item.birthdate}}</ion-note>
               </ion-item>

@@ -10,7 +10,7 @@
         <ion-content>
           <ion-list class="dcf-menu">
             @for (item of menu; track $index;) {
-              <ion-menu-toggle  auto-hide="false">
+              <ion-menu-toggle auto-hide="false">
                 <ion-item
                   [class]="{'dcf-separator': !item.url}"
                   button="true"
@@ -22,7 +22,7 @@
                   routerLinkActive="dcf-active"
                 >
                   @if(item.icon) {
-                    <ion-icon   [color]="item.color || ''" aria-hidden="true" class="icon" [name]="item.icon"></ion-icon>
+                    <ion-icon [color]="item.color || ''" aria-hidden="true" class="icon" [name]="item.icon"></ion-icon>
                   }
                   <ion-label>{{
                     translatable ?
