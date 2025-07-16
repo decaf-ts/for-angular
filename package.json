@@ -17,7 +17,7 @@
     "build:cli": "tsc --project tsconfig.cli.json --outDir dist/for-angular/cli",
     "start": "ng run for-angular-app:serve --host=localhost --port=8110",
     "server": "rimraf .angular && npm run lint && npm run start",
-    "server:pwa": "lite-server",
+    "server:pwa": "npm run build && lite-server",
     "watch": "ng build for-angular --watch --configuration development",
     "test": "npm run test:all",
     "test:all": "jest --runInBand --passWithNoTests",
