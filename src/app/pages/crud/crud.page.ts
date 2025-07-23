@@ -41,7 +41,10 @@ export class CrudPage implements OnInit {
       ... (this.operation === OperationKeys.READ ?
       {
         category: {name: "Demo Category", description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry."},
-        user: {username: "Admin", secret: "DemoPass"}
+        user: {username: "Admin", secret: "DemoPass"},
+        gender: "male",
+        birthdate: "1989-12-12",
+
       }: {}),
     });
 

@@ -1,7 +1,7 @@
 <fieldset [class]="'dcf-fieldset ' + operation" #component>
   <ion-accordion-group (ionChange)="handleChange($event)">
     <ion-accordion value="open">
-      <ion-item slot="header" color="light">
+      <ion-item slot="header" >
         <legend>{{ name }}</legend>
       </ion-item>
       <div slot="content" [attr.aria-hidden]="!isOpen" decafCollapsable>

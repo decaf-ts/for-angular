@@ -10,6 +10,12 @@ ion-header {
    .dcf-mobile-logo { padding: .5rem .75rem; }
   }
 
+  &.white {
+    background-color: white !important;
+    box-shadow: none !important;
+    border-bottom: 1px solid var(--ion-color-gray-2) !important;
+  }
+
   ion-toolbar {
 
     @media(max-width: 680px) {
@@ -69,6 +75,8 @@ ion-title {
     &.transparent {
       background-color: transparent;
       box-shadow: none !important;
+      border-bottom: 1px solid var(--ion-color-gray-2);
+
     }
   }
 }
