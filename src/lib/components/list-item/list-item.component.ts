@@ -85,57 +85,228 @@ import { addIcons } from 'ionicons';
 
 })
 export class ListItemComponent extends NgxBaseComponent implements OnInit {
+
+  /**
+   * @description Reference to the action menu popover component.
+   * @summary ViewChild reference that provides access to the HTMLIonPopoverElement
+   * used for displaying action menus. This reference is used to programmatically
+   * control the popover, such as dismissing it when necessary.
+   *
+   * @type {HTMLIonPopoverElement}
+   * @memberOf ListItemComponent
+   */
   @ViewChild('actionMenuComponent')
   actionMenuComponent!: HTMLIonPopoverElement;
 
+  /**
+   * @description Controls the display of lines around the list item.
+   * @summary Determines how lines are displayed around the list item borders.
+   * 'inset' shows lines with padding, 'full' shows full-width lines, and 'none'
+   * removes all lines. This affects the visual separation between list items.
+   *
+   * @type {'inset' | 'full' | 'none'}
+   * @default 'inset'
+   * @memberOf ListItemComponent
+   */
   @Input()
-  lines: 'inset' | 'inseet' | 'none' = 'none';
+  lines: 'inset' | 'full' | 'none' = 'inset';
 
+  /**
+   * @description The data object associated with this list item.
+   * @summary Contains the raw data that this list item represents. This object
+   * is used to extract display information and for passing to event handlers
+   * when the item is interacted with. It overrides the base item property.
+   *
+   * @type {Record<string, unknown>}
+   * @memberOf ListItemComponent
+   */
   @Input()
   override item!: Record<string, unknown>;
 
+  /**
+   * @description The name of the icon to display in the list item.
+   * @summary Specifies which icon to display using Ionic's icon system.
+   * The icon name should correspond to an available Ionic icon or a custom
+   * icon that has been registered with the icon registry.
+   *
+   * @type {string}
+   * @memberOf ListItemComponent
+   */
   @Input()
   icon!: string;
 
+  /**
+   * @description Position of the icon within the list item.
+   * @summary Determines whether the icon appears at the start (left in LTR languages)
+   * or end (right in LTR languages) of the list item. This affects the overall
+   * layout and visual hierarchy of the item content.
+   *
+   * @type {'start' | 'end'}
+   * @default 'start'
+   * @memberOf ListItemComponent
+   */
   @Input()
   iconSlot: 'start' | 'end' ='start';
 
+  /**
+   * @description Controls whether the list item behaves as a clickable button.
+   * @summary When set to true, the list item will have button-like behavior including
+   * hover effects, click handling, and appropriate accessibility attributes.
+   * When false, the item is displayed as static content without interactive behavior.
+   *
+   * @type {StringOrBoolean}
+   * @default true
+   * @memberOf ListItemComponent
+   */
   @Input()
   button: StringOrBoolean = true;
 
+  /**
+   * @description The main title text displayed in the list item.
+   * @summary Sets the primary text content that appears prominently in the list item.
+   * This is typically the most important information about the item and is displayed
+   * with emphasis in the component's visual hierarchy.
+   *
+   * @type {string}
+   * @memberOf ListItemComponent
+   */
   @Input()
   title?: string;
 
+  /**
+   * @description Secondary descriptive text for the list item.
+   * @summary Provides additional context or details about the item. This text
+   * is typically displayed below the title with less visual emphasis.
+   * Useful for providing context without cluttering the main title.
+   *
+   * @type {string}
+   * @memberOf ListItemComponent
+   */
   @Input()
   description?: string;
 
+  /**
+   * @description Additional information text for the list item.
+   * @summary Displays supplementary information that provides extra context
+   * about the item. This could include metadata, status information, or
+   * other relevant details that don't fit in the title or description.
+   *
+   * @type {string}
+   * @memberOf ListItemComponent
+   */
   @Input()
   info?: string;
 
+  /**
+   * @description Sub-information text displayed in the list item.
+   * @summary Provides tertiary level information that complements the info field.
+   * This is typically used for additional metadata or contextual details
+   * that are useful but not critical for understanding the item.
+   *
+   * @type {string}
+   * @memberOf ListItemComponent
+   */
   @Input()
   subinfo?: string;
 
+  /**
+   * @description Event emitter for list item click interactions.
+   * @summary Emits custom events when the list item is clicked or when actions
+   * are performed on it. The emitted event contains information about the action,
+   * the item data, and other relevant context for parent components to handle.
+   *
+   * @type {EventEmitter<ListItemCustomEvent>}
+   * @memberOf ListItemComponent
+   */
   @Output()
   clickEvent:  EventEmitter<ListItemCustomEvent> = new EventEmitter<ListItemCustomEvent>();
 
+  /**
+   * @description Flag indicating whether slide items are currently enabled.
+   * @summary Controls the visibility of slide actions based on screen size and
+   * available operations. When true, users can swipe on the item to reveal
+   * action buttons for operations like edit and delete.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf ListItemComponent
+   */
   showSlideItems = false;
 
+  /**
+   * @description Current window width in pixels.
+   * @summary Stores the current browser window width which is used to determine
+   * responsive behavior, such as when to show or hide slide items based on
+   * screen size. Updated automatically on window resize events.
+   *
+   * @type {number}
+   * @memberOf ListItemComponent
+   */
   windowWidth!: number;
 
+  /**
+   * @description Flag indicating whether the action menu popover is currently open.
+   * @summary Tracks the state of the action menu to prevent multiple instances
+   * from being opened simultaneously and to ensure proper cleanup when actions
+   * are performed. Used for managing the popover lifecycle.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf ListItemComponent
+   */
   actionMenuOpen = false;
 
-
+  /**
+   * @description Angular NavController service for handling navigation.
+   * @summary Injected service that provides methods for programmatic navigation
+   * within the Ionic application. Used for navigating to different routes when
+   * list item actions are performed or when the item itself is clicked.
+   *
+   * @private
+   * @type {NavController}
+   * @memberOf ListItemComponent
+   */
   private navController: NavController = inject(NavController);
 
+  /**
+   * @description Creates an instance of ListItemComponent.
+   * @summary Initializes a new ListItemComponent by calling the parent class constructor
+   * with the component name for logging and identification purposes. Also registers
+   * all available Ionic icons to ensure they can be displayed in the component.
+   *
+   * @memberOf ListItemComponent
+   */
   constructor() {
     super("ListItemComponent");
     addIcons(AllIcons)
   }
 
   /**
-   * @description Initializes the component and sets up necessary properties.
-   * @summary This method is called when the component is initialized. It sets up the slide items, button behavior, and class names based on the component's properties.
+   * @description Initializes the component after Angular first displays the data-bound properties.
+   * @summary Sets up the component by determining slide item visibility, processing boolean inputs,
+   * building CSS class names based on properties, and capturing the current window width.
+   * This method prepares the component for user interaction by ensuring all properties are
+   * properly initialized and responsive behavior is configured.
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant A as Angular Lifecycle
+   *   participant L as ListItemComponent
+   *   participant W as Window
+   *
+   *   A->>L: ngOnInit()
+   *   L->>L: enableSlideItems()
+   *   L->>L: Process button boolean
+   *   L->>L: Build className with flex classes
+   *   alt operations exist
+   *     L->>L: Add 'action' class
+   *   end
+   *   L->>W: getWindowWidth()
+   *   W-->>L: Return current width
+   *   L->>L: Store windowWidth
+   *
    * @return {Promise<void>}
+   * @memberOf ListItemComponent
    */
   async ngOnInit(): Promise<void> {
     this.showSlideItems = this.enableSlideItems();
@@ -148,30 +319,40 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
   }
 
   /**
-   * @description Handles the action when a user interacts with the list item.
-   * @summary This method is triggered when a user performs an action on the list item. It handles both click events and navigation based on the component's configuration.
-   * @param {CrudOperations} action - The type of action performed.
-   * @param {Event} event - The event object associated with the action.
-   * @param {HTMLElement} [target] - The target element of the event.
-   * @return {Promise<boolean|void>} A promise that resolves to a boolean or void, depending on the action taken.
+   * @description Handles user interactions and actions performed on the list item.
+   * @summary This method is the central action handler for list item interactions. It manages
+   * event propagation, dismisses open action menus, removes focus traps, and either emits
+   * events for parent components to handle or performs navigation based on the component's
+   * route configuration. This method supports both event-driven and navigation-driven architectures.
+   *
+   * @param {CrudOperations} action - The type of CRUD operation being performed
+   * @param {Event} event - The browser event that triggered the action
+   * @param {HTMLElement} [target] - Optional target element for the event
+   * @return {Promise<boolean|void>} A promise that resolves to navigation success or void for events
    *
    * @mermaid
    * sequenceDiagram
    *   participant U as User
-   *   participant C as Component
-   *   participant E as EventEmitter
+   *   participant L as ListItemComponent
+   *   participant P as Parent Component
    *   participant N as NavController
-   *   U->>C: Perform action
-   *   C->>C: Stop event propagation
-   *   alt Action menu is open
-   *     C->>C: Dismiss action menu
+   *   participant E as Event System
+   *
+   *   U->>L: Perform action (click/swipe)
+   *   L->>L: stopPropagation()
+   *   alt actionMenuOpen
+   *     L->>L: Dismiss action menu
    *   end
-   *   C->>C: Remove focus trap
-   *   alt No route defined
-   *     C->>E: Emit click event
-   *   else Route defined
-   *     C->>N: Navigate to route
+   *   L->>L: removeFocusTrap()
+   *   alt No route configured
+   *     L->>E: windowEventEmitter()
+   *     L->>P: clickEvent.emit()
+   *   else Route configured
+   *     L->>N: redirect(action, uid)
+   *     N-->>L: Return navigation result
    *   end
+   *
+   * @memberOf ListItemComponent
    */
   async handleAction(action: CrudOperations, event: Event, target?: HTMLElement): Promise<boolean|void> {
     event.stopPropagation();
@@ -188,9 +369,32 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
   }
 
   /**
-   * @description Enables or disables slide items based on window size and available operations.
-   * @summary This method is called when the window is resized. It determines whether to show slide items based on the window width and available operations.
-   * @return {boolean} Whether slide items should be shown.
+   * @description Responsive handler that enables or disables slide items based on screen size and operations.
+   * @summary This method is automatically called when the window is resized and also during component
+   * initialization. It determines whether slide actions should be available based on the current
+   * window width and the presence of UPDATE or DELETE operations. Slide items are typically hidden
+   * on larger screens where there's space for dedicated action buttons.
+   *
+   * @return {boolean} True if slide items should be shown, false otherwise
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant W as Window
+   *   participant L as ListItemComponent
+   *   participant U as UI
+   *
+   *   W->>L: resize event
+   *   L->>W: getWindowWidth()
+   *   W-->>L: Return current width
+   *   L->>L: Store windowWidth
+   *   alt No operations OR width > 768px
+   *     L->>U: showSlideItems = false
+   *   else Operations include UPDATE/DELETE
+   *     L->>U: showSlideItems = true
+   *   end
+   *   L-->>U: Return showSlideItems value
+   *
+   * @memberOf ListItemComponent
    */
   @HostListener('window:resize', ['$event'])
   enableSlideItems(): boolean {
@@ -202,32 +406,95 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
   }
 
   /**
-   * @description Removes an element from the DOM with an animation.
-   * @summary This method adds CSS classes to create a fade-out animation and then removes the element from the DOM after the animation completes.
-   * @param {HTMLElement} element - The element to be removed.
+   * @description Animates and removes an element from the DOM.
+   * @summary This method applies CSS animation classes to create a smooth fade-out effect
+   * before removing the element from the DOM. The animation enhances user experience by
+   * providing visual feedback when items are deleted or removed from lists. The timing
+   * is coordinated with the CSS animation duration to ensure the element is removed
+   * after the animation completes.
+   *
+   * @param {HTMLElement} element - The DOM element to animate and remove
+   * @return {void}
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant L as ListItemComponent
+   *   participant E as HTMLElement
+   *   participant D as DOM
+   *
+   *   L->>E: Add animation classes
+   *   Note over E: uk-animation-fade, uk-animation-medium, uk-animation-reverse
+   *   E->>E: Start fade animation
+   *   L->>L: setTimeout(600ms)
+   *   Note over L: Wait for animation to complete
+   *   L->>D: element.remove()
+   *   D->>D: Remove element from DOM
+   *
+   * @memberOf ListItemComponent
    */
-  removeElement(element: HTMLElement) {
+  removeElement(element: HTMLElement): void {
     element.classList.add('uk-animation-fade', 'uk-animation-medium', 'uk-animation-reverse');
     setTimeout(() => {element.remove()}, 600)
   }
 
   /**
-   * @description Navigates to a new route based on the action and ID.
-   * @summary This method uses the NavController to navigate to a new route constructed from the component's route, the given action, and an ID.
-   * @param {string} action - The action to be performed (e.g., 'edit', 'view').
-   * @param {string} [id] - The ID of the item to be acted upon.
-   * @return {Promise<boolean>} A promise that resolves to a boolean indicating whether the navigation was successful.
+   * @description Navigates to a new route based on the specified action and item ID.
+   * @summary This method constructs a navigation URL using the component's route configuration,
+   * the specified action, and an item identifier. It uses Ionic's NavController to perform
+   * forward navigation with appropriate animations. This method is typically used for
+   * CRUD operations where each action (create, read, update, delete) has its own route.
+   *
+   * @param {string} action - The action to be performed (e.g., 'edit', 'view', 'delete')
+   * @param {string} [id] - The unique identifier of the item to be acted upon
+   * @return {Promise<boolean>} A promise that resolves to true if navigation was successful
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant L as ListItemComponent
+   *   participant N as NavController
+   *   participant R as Router
+   *
+   *   L->>L: redirect(action, id)
+   *   L->>L: Construct URL: /{route}/{action}/{id}
+   *   L->>N: navigateForward(url)
+   *   N->>R: Navigate to constructed URL
+   *   R-->>N: Return navigation result
+   *   N-->>L: Return boolean success
+   *
+   * @memberOf ListItemComponent
    */
   async redirect(action: string, id?: string): Promise<boolean> {
     return await this.navController.navigateForward(`/${this.route}/${action}/${id || this.uid}`);
   }
 
   /**
-   * @description Presents the actions menu for the list item.
-   * @summary This method is called when the user wants to see the available actions for the list item. It stops event propagation, removes any existing focus trap, and opens the action menu.
-   * @param {Event} event - The event that triggered the action menu.
+   * @description Presents the actions menu popover for the list item.
+   * @summary This method handles the display of a contextual action menu when triggered by user
+   * interaction (typically a long press or right-click). It stops event propagation to prevent
+   * unwanted side effects, removes any existing focus traps for accessibility, configures the
+   * popover with the triggering event, and opens the action menu. The menu typically contains
+   * available CRUD operations for the item.
+   *
+   * @param {Event} event - The event that triggered the action menu request
+   * @return {void}
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant U as User
+   *   participant L as ListItemComponent
+   *   participant P as Popover
+   *   participant A as Accessibility
+   *
+   *   U->>L: Trigger action menu (long press/right-click)
+   *   L->>L: stopPropagation()
+   *   L->>A: removeFocusTrap()
+   *   L->>P: Set event reference
+   *   L->>L: actionMenuOpen = true
+   *   L->>P: Display popover with actions
+   *
+   * @memberOf ListItemComponent
    */
-  presentActionsMenu(event: Event) {
+  presentActionsMenu(event: Event): void {
     event.stopPropagation();
     // forcing trap focus
     removeFocusTrap();

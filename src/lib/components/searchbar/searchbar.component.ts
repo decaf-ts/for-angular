@@ -1,4 +1,4 @@
-import { Component,  EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import { Component,  EventEmitter, HostListener, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { AutocompleteTypes, PredefinedColors} from '@ionic/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import {windowEventEmitter} from 'src/lib/helpers/utils';
@@ -25,7 +25,7 @@ import { addIcons } from 'ionicons';
   templateUrl: './searchbar.component.html',
   styleUrls: ['./searchbar.component.scss'],
   standalone: true,
-  imports: [ForAngularModule, IonSearchbar]
+  imports: [ForAngularModule, IonSearchbar],
 })
 export class SearchbarComponent extends NgxBaseComponent implements OnInit {
 
@@ -35,8 +35,8 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @type {"ios" | "md" | undefined}
    * @default "ios"
    */
-  @Input()
-  override mode: "ios" | "md" | undefined = "ios";
+  // @Input()
+  // override mode: "ios" | "md" | undefined = "md";
 
   /**
    * @description The autocomplete attribute for the searchbar input.

@@ -82,7 +82,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  title = "title";
+  title: string = "title";
 
   /**
    * @description The color of the title text.

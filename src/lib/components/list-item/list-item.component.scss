@@ -7,9 +7,18 @@ ion-item {
   --padding-top: .25rem;
   --padding-bottom: .25rem;
   --padding-start: .75rem;
+   --padding-end: .75rem;
   --inner-padding-start: 0px !important;
   --inner-padding-end: 0px !important;
-  --padding-end: .75rem;
+  --border-color: var(--ion-color-gray-2);
+
+  &.item-lines-inset{
+    --padding-top: 0rem !important ;
+    --padding-bottom: 0rem !important;
+    --inner-padding-top: .5rem !important;
+    --inner-padding-bottom: .65rem !important;
+    --border-color: var(--ion-color-gray-2);
+  }
 
   &:hover {
     .dcf-info {
@@ -19,6 +28,7 @@ ion-item {
 
   .dcf-info {
     min-width: 10vw;
+    color: var(--ion-color-gray-6);
   }
 
   .dcf-grid {
@@ -27,10 +37,10 @@ ion-item {
     min-width: 100% !important;
   }
 
-  .dcf-title {
+  .dcf-item-title {
     color:  var(--ion-color-gray-8);
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
     // margin: 0 0 20px 0;
   }
 
@@ -116,6 +126,13 @@ ion-item {
     text-align: center;
     margin-right: .5rem !important;
 
+    &.dcf-grid-icon {
+      min-width: 50px;
+      text-align: left;
+      display: flex;
+      justify-content: flex-start;
+    }
+
     @media(max-width: 578px) { align-items: flex-start !important; }
 
     ion-button {
@@ -125,7 +142,11 @@ ion-item {
       --padding-end: .85rem;
       --padding-top: .85rem !important;
       --padding-bottom: .85rem !important;
-      --background: var(--ion-color-gray-2) !important;
+      --background: var(--ion-color-gray-1) !important;
+
+      ion-icon {
+        font-size: 20px;
+      }
     }
 
     ion-avatar {
@@ -144,10 +165,10 @@ ion-item {
 
 
 ion-item-sliding {
-  border: 1px solid;
-  border-color: transparent;
+  // border: 1px solid;
+  // border-color: transparent;
   box-sizing: border-box;
-  margin: 1rem 0px;
+  // margin: 1rem 0px;
 
   ion-item-option {
       &:not(.dcf-delete),
