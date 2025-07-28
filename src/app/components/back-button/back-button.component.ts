@@ -137,7 +137,7 @@ export class BackButtonComponent implements OnInit {
    * @default true
    * @memberOf BackButtonComponent
    */
-  isIonIcon = true;
+  isIonIcon: boolean = true;
 
   /**
    * @description Angular Location service.

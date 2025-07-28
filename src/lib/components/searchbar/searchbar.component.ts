@@ -99,7 +99,7 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @default 500
    */
   @Input()
-  debounce = 500;
+  debounce: number = 500;
 
   /**
    * @description Whether the searchbar is disabled.
@@ -280,7 +280,7 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @param {CustomEvent} event - The custom event triggering the visibility toggle
    * @return {void}
    */
-  @HostListener("window:toggleSearchbarVisibility", ['event'])
+  @HostListener("window:toggleSearchbarVisibility", ['$event'])
   handleToggleVisibility(): void {
     this.isVisible = !this.isVisible;
     if(this.isVisible && !!this.component.nativeElement) {
