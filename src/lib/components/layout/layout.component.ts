@@ -53,7 +53,7 @@ export class LayoutComponent extends NgxBaseComponent implements OnInit {
    * @memberOf LayoutComponent
    */
   @Input()
-  rows: number | string[] = 1;
+  rows: number | KeyValue[] | string[] = 1;
 
   /**
    * @description Media breakpoint for responsive behavior.
@@ -124,11 +124,19 @@ export class LayoutComponent extends NgxBaseComponent implements OnInit {
    * @readonly
    * @memberOf LayoutComponent
    */
-  get _rows(): string[] {
+  get _rows(): KeyValue[] {
     let rows = this.rows;
     if(typeof rows === "number")
       rows = Array.from({length: Number(rows)}, () => '');
-    return rows;
+    return rows.map((row, index) => {
+      return {
+        title: row,
+        cols: this.children.filter(child => {
+          if(child['row'] === index + 1)
+            return child;
+        })
+      };
+    });
   }
 
   /**
@@ -168,8 +176,9 @@ export class LayoutComponent extends NgxBaseComponent implements OnInit {
   override initialize() {
     this.parseProps(this);
     this.breakpoint = this.breakpoint.slice(0, 2).toLowerCase() as UIMediaBreakPoints;
-    this.rows = this._rows;
     this.cols = this._cols;
+    this.rows = this._rows;
+    console.log(this.rows);
     this.initialized = true;
   }
 

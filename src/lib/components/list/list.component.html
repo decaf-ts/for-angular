@@ -6,7 +6,13 @@
 }
 
 @if(showSearchbar) {
-  <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
+  @if(type === 'infinite') {
+    <ngx-decaf-filter />
+  } @else {
+    <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
+
+  }
+
 }
 
 @if(data?.length) {

@@ -237,7 +237,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @default false
    */
   @Input()
-  translatable: StringOrBoolean = false;
+  translatable: StringOrBoolean = true;
 
   /**
    * @description Additional CSS class names to apply to the component.
@@ -448,7 +448,7 @@ export abstract class NgxBaseComponent implements OnChanges {
       changes[BaseComponentProps.LOCALE] ||
       changes[BaseComponentProps.TRANSLATABLE]
     )
-      this.getLocale(this.translatable);
+    this.getLocale(this.translatable);
   }
 
   /**
@@ -487,6 +487,8 @@ export abstract class NgxBaseComponent implements OnChanges {
     this.translatable = stringToBoolean(translatable);
     if (!this.translatable) return '';
     if (!this.locale) this.locale = this.componentLocale;
+
+    console.log('locale is', this.locale);
     return this.locale;
   }
 

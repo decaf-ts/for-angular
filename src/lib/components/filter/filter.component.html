@@ -1,0 +1,91 @@
+  <div class="dcf-filter">
+
+    <div class="dcf-input">
+      <ion-chip
+        *ngFor="let tag of selectedFilters"
+        [outline]="true"
+        [class]="allowClear(tag) ? 'dcf-filter-value' : ''"
+        >
+        @if(allowClear(tag)) {
+          <ion-label>{{ tag }}</ion-label>
+          <ion-icon name="close" (click)="removeFilter(tag)" size="small"></ion-icon>
+        } @else {
+          <ion-label (click)="updateOption(tag)">{{ tag }}</ion-label>
+        }
+      </ion-chip>
+      <div>
+        <input
+          fill="none"
+          [(ngModel)]="value"
+          (keydown.enter)="addFilter(value, $event)"
+          (keydown.backspace)="clear(value)"
+          (input)="handleInput($event)"
+          (click)="handleFocus()"
+          type="text"
+          placeholder="{{ 'filter' | translate }}"
+          #component
+        />
+      </div>
+    </div>
+    @if(selectedFilters.length > 0) {
+      <div class="dcf-icon-clear">
+        <ion-button fill="clear" size="small" (click)="clear()">
+          <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+    }
+    <div class="dcf-icon-search">
+      <ion-button fill="clear" size="small" (click)="clear()">
+        <ion-icon name="search-outline" color="dark" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+ <div [class]="'dcf-dropdown ' + (options.length > 0 ? ' dcf-active' : '')" #optionsFilterElement>
+  <div>
+    @if(filteredOptions.length > 0) {
+      @for(key of filteredOptions; track key) {
+        <div
+          class="dcf-item"
+          tabindex="0"
+          (keydown.enter)="selectOption($event, key)"
+          (click)="selectOption($event, key)">
+          {{ key }}
+        </div>
+      }
+    } @else {
+      <div class="dcf-empty"
+      (click)="filteredOptions = options; value = ''"
+      tabindex="0"
+      (keydown.enter)="filteredOptions = options; value = ''"
+      >
+        {{ 'no_suggestions' | translate }}
+      </div>
+    }
+  </div>
+</div>
+<!--
+<ion-popover
+  #actionMenuComponent
+  showBackdrop="false"
+  side="bottom"
+  backdropDismiss="false"
+
+  [isOpen]="options.length > 0">
+    <ng-template>
+      <ion-content class="ion-padding">
+        <ion-list lines="none">
+          <div class="suggestion-box">
+            <div
+              tabindex="0"
+              class="suggestion-item"
+              *ngFor="let suggestion of options"
+              (keydown.enter)="selectOption($event, suggestion)"
+              (click)="selectOption($event, suggestion)">
+              {{ suggestion }}
+            </div>
+          </div>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+</ion-popover> -->

@@ -16,7 +16,7 @@ export class DashboardLayout extends Model {
     'subtitle': 'Uma linha e 1 uma coluna',
     'className': 'dcf-card-default'
   })
-  @uilayoutitem(1, 1)
+  @uilayoutitem(3, 1)
   left!: string;
 
   @uielement('ngx-decaf-empty-state', {subtitle: 'Subtítulo do segundo componente'})
@@ -26,11 +26,11 @@ export class DashboardLayout extends Model {
   })
   right!: string;
 
-  @uilayoutitem(2, 2)
+  @uilayoutitem(1, 2)
   @uichild(EmployeeModel.name, 'ngx-decaf-crud-form')
   employee!: EmployeeModel;
 
-  @uilayoutitem(2, 3)
+  @uilayoutitem(1, 3)
   @uichild(CategoryModel.name, 'ngx-decaf-crud-form')
   category!: CategoryModel;
 

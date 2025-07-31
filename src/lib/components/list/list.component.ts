@@ -42,6 +42,7 @@ import { PaginationComponent } from '../pagination/pagination.component';
 import { PaginationCustomEvent } from '../pagination/constants';
 import { IListEmptyResult, ListComponentsTypes, DecafRepository } from './constants';
 import { FunctionLike } from 'src/lib/engine/types';
+import { FilterComponent } from '../filter/filter.component';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -138,6 +139,7 @@ import { FunctionLike } from 'src/lib/engine/types';
     SearchbarComponent,
     EmptyStateComponent,
     ListItemComponent,
+    FilterComponent,
     ComponentRendererComponent
   ]
 })

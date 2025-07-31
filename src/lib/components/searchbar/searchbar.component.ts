@@ -171,7 +171,7 @@ export class SearchbarComponent extends NgxBaseComponent implements OnInit {
    * @default false
    */
   @Input()
-  spellcheck = false;
+  spellcheck: boolean = false;
 
   /**
    * @description The type of input to use for the searchbar.

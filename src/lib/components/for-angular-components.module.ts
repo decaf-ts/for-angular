@@ -12,6 +12,7 @@ import { ListComponent } from './list/list.component';
 import { FieldsetComponent } from './fieldset/fieldset.component';
 import { CollapsableDirective } from '../directives/collapsable.directive';
 import { LayoutComponent } from './layout/layout.component';
+import { FilterComponent } from './filter/filter.component';
 
 const Directives = [CollapsableDirective];
 const Components = [
@@ -26,7 +27,8 @@ const Components = [
   PaginationComponent,
   CrudFormComponent,
   FieldsetComponent,
-  LayoutComponent
+  LayoutComponent,
+  FilterComponent
 ];
 
 @NgModule({
