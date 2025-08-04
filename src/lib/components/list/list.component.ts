@@ -14,9 +14,9 @@ import {
   IonLoading
 } from '@ionic/angular/standalone';
 import { debounceTime, Subject } from 'rxjs';
-import { InternalError, IRepository, OperationKeys } from '@decaf-ts/db-decorators';
+import { IRepository, OperationKeys } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
-import { Condition, Observer, OrderDirection, Paginator, Repository } from '@decaf-ts/core';
+import { Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
 import {
   BaseCustomEvent,
   Dynamic,
@@ -523,23 +523,6 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
 
   private observer: Observer = { refresh: async (... args: unknown[]): Promise<void> => this.observeRepository(...args)}
 
-
-  /**
-   * @description The repository for interacting with the data model.
-   * @summary Provides a connection to the data layer for retrieving and manipulating data.
-   * This is an instance of the `DecafRepository` class from the `@decaf-ts/core` package,
-   * which is initialized in the `repository` getter method.
-   *
-   * The repository is used to perform CRUD (Create, Read, Update, Delete) operations on the
-   * data model, such as fetching data, creating new items, updating existing items, and deleting
-   * items. It also provides methods for querying and filtering data based on specific criteria.
-   *
-   * @type {DecafRepository<Model>}
-   * @private
-   * @memberOf ListComponent
-   */
-  private _repository?: DecafRepository<Model>;
-
   /**
    * @description List of available indexes for data querying and filtering.
    * @summary Provides a list of index names that can be used to optimize data querying and filtering
@@ -572,33 +555,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
   constructor() {
     super("ListComponent");
   }
-  /**
-   * @description Getter for the repository instance.
-   * @summary Provides a connection to the data layer for retrieving and manipulating data.
-   * This method initializes the `_repository` property if it is not already set, ensuring
-   * that a single instance of the repository is used throughout the component.
-   *
-   * The repository is used to perform CRUD operations on the data model, such as fetching data,
-   * creating new items, updating existing items, and deleting items. It also provides methods
-   * for querying and filtering data based on specific criteria.
-   *
-   * @returns {DecafRepository<Model>} The initialized repository instance.
-   * @private
-   * @memberOf ListComponent
-   */
-  private get repository(): DecafRepository<Model> {
-    if (!this._repository) {
-      const modelName  = (this.model as Model).constructor.name
-      const constructor = Model.get(modelName);
-      if (!constructor)
-        throw new InternalError(
-          'Cannot find model. was it registered with @model?',
-        );
-      this._repository = Repository.forModel(constructor);
-      this.model = new constructor() as Model;
-    }
-    return this._repository;
-  }
+
 
   /**
    * @description Initializes the component after Angular sets the input properties.
@@ -701,12 +658,12 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    *
    * @param {number} index - The index of the item in the list.
 
-   * @param {KeyValue} item - The actual item from the list.
+   * @param {KeyValue | string | number} item - The actual item from the list.
    * @returns {string | number} The tracking key for the item.
    * @memberOf ListComponent
    */
-  trackItemFn(index: number, item: KeyValue): string | number {
-    return `${item?.['uid'] || item?.[this.pk]}-${index}`;
+  override trackItemFn(index: number, item: KeyValue | string | number): string | number {
+    return `${ (item as KeyValue)?.['uid'] || (item as KeyValue)?.[this.pk]}-${index}`;
   }
 
 

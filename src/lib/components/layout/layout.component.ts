@@ -120,17 +120,17 @@ export class LayoutComponent extends NgxBaseComponent implements OnInit {
    * When rows is already an array, it returns the array as-is. This normalization
    * ensures consistent handling of row definitions in the template.
    *
-   * @type {string[]}
+   * @type {KeyValue[]}
    * @readonly
    * @memberOf LayoutComponent
    */
   get _rows(): KeyValue[] {
     let rows = this.rows;
     if(typeof rows === "number")
-      rows = Array.from({length: Number(rows)}, () => '');
+      rows = Array.from({length: Number(rows)}, () => ({title: ''}));
     return rows.map((row, index) => {
       return {
-        title: row,
+        title: (row as KeyValue)?.['title'],
         cols: this.children.filter(child => {
           if(child['row'] === index + 1)
             return child;
@@ -178,23 +178,6 @@ export class LayoutComponent extends NgxBaseComponent implements OnInit {
     this.breakpoint = this.breakpoint.slice(0, 2).toLowerCase() as UIMediaBreakPoints;
     this.cols = this._cols;
     this.rows = this._rows;
-    console.log(this.rows);
     this.initialized = true;
-  }
-
-  /**
-   * @description Track function for Angular's *ngFor directive optimization.
-   * @summary Provides a unique identifier for each item in the children array to help
-   * Angular's change detection optimize rendering performance. This prevents unnecessary
-   * DOM manipulation when the children array is updated. The function combines the
-   * array index with the item reference to create a unique tracking key.
-   *
-   * @param {number} index - The index of the item in the array
-   * @param {KeyValue} item - The item data object
-   * @return {string | number} A unique identifier for the item
-   * @memberOf LayoutComponent
-   */
-  trackItemFn(index: number, item: KeyValue): string | number {
-    return `${index}-${item}`;
   }
 }

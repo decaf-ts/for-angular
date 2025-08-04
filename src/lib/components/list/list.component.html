@@ -7,7 +7,7 @@
 
 @if(showSearchbar) {
   @if(type === 'infinite') {
-    <ngx-decaf-filter />
+    <ngx-decaf-filter [model]="model" />
   } @else {
     <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
 

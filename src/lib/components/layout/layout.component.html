@@ -29,35 +29,8 @@
                 />
               }
             </div>
-
         </div>
       }
-      <!-- @for (col of cols; track trackItemFn($index, col); let colIndex = $index) {
-        @for(child of children; track child) {
-          <div [class]="'dcf-width-1-'+child.col+'@'+breakpoint">
-            @if(child.col === colIndex + 1 && child.row === rowIndex + 1) {
-              <div [class]="'dcf-grid-child '+col">
-                @if(child.tag === 'ngx-decaf-crud-form') {
-                  <ion-card [class]="'dcf-height-1-1 ' + className">
-                    <ion-card-content>
-                      <ngx-decaf-model-renderer
-                        [model]="child.props.name"
-                        (listenEvent)="handleEvent($event)"
-                        />
-                      </ion-card-content>
-                    </ion-card>
-                } @else {
-                  <ngx-decaf-component-renderer
-                    [tag]="child.tag"
-                    (listenEvent)="handleEvent($event)"
-                    [globals]="{props: child.props}"
-                  />
-                }
-              </div>
-            }
-          </div>
-        }
-      } -->
     </div>
   }
 }

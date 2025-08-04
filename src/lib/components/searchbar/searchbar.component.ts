@@ -1,4 +1,4 @@
-import { Component,  EventEmitter, HostListener, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import { Component,  EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { AutocompleteTypes, PredefinedColors} from '@ionic/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import {windowEventEmitter} from 'src/lib/helpers/utils';

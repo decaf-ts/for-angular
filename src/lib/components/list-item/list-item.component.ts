@@ -231,7 +231,7 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
    * @default false
    * @memberOf ListItemComponent
    */
-  showSlideItems = false;
+  showSlideItems: boolean = false;
 
   /**
    * @description Current window width in pixels.
@@ -254,7 +254,7 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
    * @default false
    * @memberOf ListItemComponent
    */
-  actionMenuOpen = false;
+  actionMenuOpen: boolean = false;
 
   /**
    * @description Angular NavController service for handling navigation.

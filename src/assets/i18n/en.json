@@ -77,7 +77,8 @@
   },
   "employee": {
     "name": {
-      "label": "Employee name"
+      "label": "Employee name",
+      "placeholder": "Type the employee name"
     },
     "occupation": {
       "label": "Employee occupation"
@@ -126,6 +127,14 @@
     },
     "pagination": {
       "resume": "Showing page <span class=\"text-bold\">{{value0}} of {{value1}}</span>"
+    },
+    "filter": {
+      "title": "Filter",
+      "type": "Type value",
+      "select": "Filter selection",
+      "step1": "Select an index",
+      "step2": "Select a condition",
+      "step3": "Type a value"
     }
   }
 }
