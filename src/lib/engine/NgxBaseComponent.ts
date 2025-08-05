@@ -18,12 +18,15 @@ import { stringToBoolean } from 'src/lib/helpers/utils';
 import { Model } from '@decaf-ts/decorator-validation';
 import {
   CrudOperations,
+  InternalError,
   OperationKeys
 } from '@decaf-ts/db-decorators';
 import { BaseComponentProps } from './constants';
 import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
 import { Logger } from '@decaf-ts/logging';
 import { getLogger } from '../for-angular.module';
+import { DecafRepository } from '../components/list/constants';
+import { Repository } from '@decaf-ts/core';
 
 /**
  * @description Base component class that provides common functionality for all Decaf components.
@@ -100,6 +103,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * identified by the 'component' template reference variable.
    *
    * @type {ElementRef}
+   * @memberOf NgxBaseComponent
    */
   @ViewChild('component', { read: ElementRef, static: true })
   component!: ElementRef;
@@ -131,6 +135,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * are present on the same page.
    *
    * @type {string}
+   * @memberOf NgxBaseComponent
    */
   @Input()
   rendererId!: string;
@@ -141,10 +146,39 @@ export abstract class NgxBaseComponent implements OnChanges {
    * This provides a connection to the data layer for retrieving and manipulating data.
    *
    * @type {Model| undefined}
+   * @memberOf NgxBaseComponent
    */
   @Input()
   model!:  Model | undefined;
 
+  /**
+   * @description The repository for interacting with the data model.
+   * @summary Provides a connection to the data layer for retrieving and manipulating data.
+   * This is an instance of the `DecafRepository` class from the `@decaf-ts/core` package,
+   * which is initialized in the `repository` getter method.
+   *
+   * The repository is used to perform CRUD (Create, Read, Update, Delete) operations on the
+   * data model, such as fetching data, creating new items, updating existing items, and deleting
+   * items. It also provides methods for querying and filtering data based on specific criteria.
+   *
+   * @type {DecafRepository<Model>}
+   * @private
+   * @memberOf NgxBaseComponent
+   */
+  protected _repository?: DecafRepository<Model>;
+
+  /**
+   * @description Dynamic properties configuration object.
+   * @summary Contains key-value pairs of dynamic properties that can be applied to the component
+   * at runtime. This flexible configuration object allows for dynamic property assignment without
+   * requiring explicit input bindings for every possible configuration option. Properties from
+   * this object are parsed and applied to the component instance through the parseProps method,
+   * enabling customizable component behavior based on external configuration.
+   *
+   * @type {Record<string, unknown>}
+   * @default {}
+   * @memberOf NgxBaseComponent
+   */
   @Input()
   props: Record<string, unknown> = {};
 
@@ -158,6 +192,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    *
    * @type {Record<string, unknown>}
    * @default {tag: ""}
+   * @memberOf NgxBaseComponent
    */
   @Input()
   item: Record<string, unknown> = { tag: '' };
@@ -169,6 +204,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    *
    * @type {string}
    * @default 'id'
+   * @memberOf NgxBaseComponent
    */
   @Input()
   pk: string = 'id';
@@ -179,6 +215,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * This is often used as a prefix for constructing navigation URLs.
    *
    * @type {string}
+   * @memberOf NgxBaseComponent
    */
   @Input()
   route!: string;
@@ -189,6 +226,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * for this component. This affects which operations can be performed on the data.
    *
    * @default [OperationKeys.READ]
+   * @memberOf NgxBaseComponent
    */
   @Input()
   operations: CrudOperations[] = [OperationKeys.READ];
@@ -199,6 +237,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * This is typically used in conjunction with the primary key for operations on specific records.
    *
    * @type {string | number}
+   * @memberOf NgxBaseComponent
    */
   @Input()
   uid!: string | number;
@@ -209,9 +248,10 @@ export abstract class NgxBaseComponent implements OnChanges {
    * This allows for flexible data binding between the model and the component's display logic.
    *
    * @type {Record<string, string>}
+   * @memberOf NgxBaseComponent
    */
   @Input()
-  mapper!: Record<string, string>;
+  mapper: Record<string, string> = {};
 
   /**
    * @description The locale to be used for translations.
@@ -222,6 +262,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * set to use for the component's text content.
    *
    * @type {string}
+   * @memberOf NgxBaseComponent
    */
   @Input()
   locale!: string;
@@ -235,9 +276,10 @@ export abstract class NgxBaseComponent implements OnChanges {
    *
    * @type {StringOrBoolean}
    * @default false
+   * @memberOf NgxBaseComponent
    */
   @Input()
-  translatable: StringOrBoolean = false;
+  translatable: StringOrBoolean = true;
 
   /**
    * @description Additional CSS class names to apply to the component.
@@ -248,6 +290,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    *
    * @type {string}
    * @default ""
+   * @memberOf NgxBaseComponent
    */
   @Input()
   className: string = '';
@@ -262,6 +305,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    *
    * @type {("ios" | "md" | undefined)}
    * @default "md"
+   * @memberOf NgxBaseComponent
    */
   @Input()
   mode: 'ios' | 'md' | undefined = 'md';
@@ -275,6 +319,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * from the component's class name.
    *
    * @type {string}
+   * @memberOf NgxBaseComponent
    */
   componentLocale!: string;
 
@@ -287,6 +332,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    *
    * @type {string | StringOrBoolean}
    * @default true
+   * @memberOf NgxBaseComponent
    */
   @Input()
   renderChild: string | StringOrBoolean = true;
@@ -310,7 +356,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * to enable coordinated behavior across the application.
    *
    * @type {EventEmitter<RendererCustomEvent>}
-   * @memberOf LayoutComponent
+   * @memberOf NgxBaseComponent
    */
   @Output()
   listenEvent: EventEmitter<RendererCustomEvent> = new EventEmitter<RendererCustomEvent>();
@@ -381,6 +427,41 @@ export abstract class NgxBaseComponent implements OnChanges {
     this.componentName = instance;
     this.componentLocale = getLocaleFromClassName(instance);
     this.logger = getLogger(this);
+    this.getLocale(this.translatable);
+  }
+
+  /**
+   * @description Getter for the repository instance.
+   * @summary Provides a connection to the data layer for retrieving and manipulating data.
+   * This method initializes the `_repository` property if it is not already set, ensuring
+   * that a single instance of the repository is used throughout the component.
+   *
+   * The repository is used to perform CRUD operations on the data model, such as fetching data,
+   * creating new items, updating existing items, and deleting items. It also provides methods
+   * for querying and filtering data based on specific criteria.
+   *
+   * @returns {DecafRepository<Model>} The initialized repository instance.
+   * @private
+   * @memberOf NgxBaseComponent
+   */
+  protected get repository(): DecafRepository<Model> {
+    try {
+      if (!this._repository) {
+        const modelName  = (this.model as Model).constructor.name
+        const constructor = Model.get(modelName);
+        if (!constructor)
+          throw new InternalError(
+            'Cannot find model. was it registered with @model?',
+          );
+        this._repository = Repository.forModel(constructor);
+        this.model = new constructor() as Model;
+      }
+    } catch (error: unknown) {
+      throw new InternalError(
+        (error as Error)?.message || error as string
+      );
+    }
+    return this._repository;
   }
 
   /**
@@ -485,8 +566,10 @@ export abstract class NgxBaseComponent implements OnChanges {
    */
   getLocale(translatable: StringOrBoolean): string {
     this.translatable = stringToBoolean(translatable);
-    if (!this.translatable) return '';
-    if (!this.locale) this.locale = this.componentLocale;
+    if (!this.translatable)
+      return '';
+    if (!this.locale)
+      this.locale = this.componentLocale;
     return this.locale;
   }
 
@@ -559,8 +642,6 @@ export abstract class NgxBaseComponent implements OnChanges {
    * during the component's lifecycle setup.
    */
   initialize(): void {
-    if (this.initialized)
-      return;
     this.initialized = true;
   }
 
@@ -577,7 +658,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @mermaid
    * sequenceDiagram
    *   participant C as Child Component
-   *   participant L as LayoutComponent
+   *   participant L as NgxBaseComponent
    *   participant P as Parent Component
    *
    *   C->>L: Emit RendererCustomEvent
@@ -585,9 +666,26 @@ export abstract class NgxBaseComponent implements OnChanges {
    *   L->>P: listenEvent.emit(event)
    *   Note over P: Handle event in parent
    *
-   * @memberOf LayoutComponent
+   * @memberOf NgxBaseComponent
    */
   handleEvent(event: RendererCustomEvent): void {
     this.listenEvent.emit(event);
+  }
+
+  /**
+   * @description Tracks items in ngFor loops for optimal change detection.
+   * @summary Provides a tracking function for Angular's *ngFor directive to optimize rendering
+   * performance. This method generates unique identifiers for list items based on their index
+   * and content, allowing Angular to efficiently track changes and minimize DOM manipulations
+   * during list updates. The tracking function is essential for maintaining component state
+   * and preventing unnecessary re-rendering of unchanged items.
+   *
+   * @param {number} index - The index of the item in the list
+   * @param {KeyValue | string | number} item - The item data to track
+   * @returns {string | number} A unique identifier for the item
+   * @memberOf NgxBaseComponent
+   */
+  trackItemFn(index: number, item: KeyValue | string | number): string | number {
+    return `${index}-${item}`;
   }
 }

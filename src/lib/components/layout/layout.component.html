@@ -3,37 +3,33 @@
   @for (row of rows; track trackItemFn($index, row); let rowIndex = $index) {
     <div class="dcf-grid dcf-grid-collapse dcf-grid-match">
       @if(row) {
-        <div class="dcf-width-1-1">
+        <div class="dcf-width-1-1 dcf-grid-title">
           <ion-card class="dcf-grid-title">
-            {{row | translate}}
+            {{row.title | translate}}
           </ion-card>
         </div>
       }
-      @for (col of cols; track trackItemFn($index, col); let colIndex = $index) {
-        @for(child of children; track child) {
-          <div [class]="'dcf-width-1-'+child.col+'@'+breakpoint">
-            @if(child.col === colIndex + 1 && child.row === rowIndex + 1) {
-              <div [class]="'dcf-grid-child '+col">
-                @if(child.tag === 'ngx-decaf-crud-form') {
-                  <ion-card class="dcf-height-1-1">
-                    <ion-card-content>
-                      <ngx-decaf-model-renderer
-                        [model]="child.props.name"
-                        (listenEvent)="handleEvent($event)"
-                        />
-                      </ion-card-content>
-                    </ion-card>
-                } @else {
-                  <ngx-decaf-component-renderer
-                    [tag]="child.tag"
-                    (listenEvent)="handleEvent($event)"
-                    [globals]="{props: child.props}"
-                  />
-                }
-              </div>
-            }
-          </div>
-        }
+      @for (child of row.cols; track trackItemFn($index, child.col); let colIndex = $index) {
+        <div [class]="(child.col === cols.length ? 'dcf-width-1-1' : 'dcf-width-'+child.col+'-'+cols.length+'@'+breakpoint)">
+            <div [class]="'dcf-grid-child '+child.col ">
+              @if(child.tag === 'ngx-decaf-crud-form') {
+                <ion-card [class]="'dcf-height-1-1 ' + className">
+                  <ion-card-content>
+                    <ngx-decaf-model-renderer
+                      [model]="child.props.name"
+                      (listenEvent)="handleEvent($event)"
+                      />
+                    </ion-card-content>
+                  </ion-card>
+              } @else {
+                <ngx-decaf-component-renderer
+                  [tag]="child.tag"
+                  (listenEvent)="handleEvent($event)"
+                  [globals]="{props: child.props}"
+                />
+              }
+            </div>
+        </div>
       }
     </div>
   }

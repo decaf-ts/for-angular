@@ -1,4 +1,5 @@
 import {
+  date,
   Model,
   model,
   ModelArg,
@@ -6,7 +7,7 @@ import {
 } from '@decaf-ts/decorator-validation';
 import { uilistprop, uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
 import { id } from '@decaf-ts/db-decorators';
-import { pk } from '@decaf-ts/core';
+import { index, pk } from '@decaf-ts/core';
 @uilistitem('ngx-decaf-list-item', {icon: 'cafe-outline', className: 'testing'})
 @uimodel('ngx-decaf-crud-form')
 @model()
@@ -29,8 +30,18 @@ export class CategoryModel extends Model {
     placeholder: 'category.description.placeholder',
     type: 'textarea',
   })
-  @uilistprop()
+  @uilistprop('description')
+  @index()
   description!: string;
+
+  @uielement('ngx-decaf-crud-field', {
+    label: 'category.created.label',
+    placeholder: 'category.created.placeholder',
+    type: 'textarea',
+  })
+  @uilistprop('info')
+  @date()
+  createdAt!: Date;
 
   constructor(args: ModelArg<CategoryModel> = {}) {
     super(args);

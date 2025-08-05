@@ -93,7 +93,7 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @memberOf HeaderComponent
    */
   @Input()
-  logo = "";
+  logo: string = "";
 
   /**
    * @description Controls whether the header expands to fill available space.
@@ -164,7 +164,7 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @memberOf HeaderComponent
    */
   @Input()
-  backgroundColor: Color = "primary";
+  backgroundColor: Color = "white";
 
   /**
    * @description Background color of the header on mobile devices.
@@ -240,6 +240,16 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   private menuController: MenuController = inject(MenuController);
 
   /**
+   * @description Color of back button icon.
+   * @summary Sets the color of the back button icon using Ionic's predefined color palette.
+   * This allows the back button icon to match the application's color scheme.
+   *
+   * @type {Color}
+   * @memberOf HeaderComponent
+   */
+  backButtonColor!: Color;
+
+  /**
    * @description Creates an instance of HeaderComponent.
    * @summary Initializes a new HeaderComponent by calling the parent class constructor
    * with the component name for logging and identification purposes.
@@ -289,6 +299,9 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
     if(!this.border)
       this.className += ` ion-no-border`;
     this.getRoute();
+    if(this.backgroundColor === 'white') {
+      this.backButtonColor = 'primary';
+    }
 
   }
 

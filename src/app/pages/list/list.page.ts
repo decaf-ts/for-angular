@@ -34,7 +34,6 @@ export class ListPage implements OnInit, OnDestroy {
     this.model = this.type === ListComponentsTypes.INFINITE ?
       new EmployeeModel() : new CategoryModel();
     this.repository = Repository.forModel(this.model?.constructor as Constructor<Model>, "ram");
-    console.log(this.repository);
   }
 
   ngOnDestroy() {

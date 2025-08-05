@@ -7,15 +7,22 @@
       [class]="className"
       (click)="operations?.includes('read') ? handleAction('read', $event, component) : ''
     ">
-      @if(icon) {
+      @if(icon && lines !== 'inset') {
         <div class="dcf-icon" [slot]="iconSlot">
           <ion-button shape="round" fill="clear">
-            <ion-icon aria-hidden="true" name="reader-outline" color="primary" size="default"></ion-icon>
+            <ion-icon aria-hidden="true" name="reader-outline" color="dark" size="default"></ion-icon>
           </ion-button>
         </div>
       }
       <div class="dcf-width-expand">
         <div class="dcf-flex dcf-flex-middle dcf-grid-collapse" dcf-grid>
+          @if(icon && lines === 'inset') {
+            <div class="dcf-icon dcf-grid-icon">
+              <ion-button shape="round" fill="clear">
+                <ion-icon aria-hidden="true" name="reader-outline" color="dark" size="default"></ion-icon>
+              </ion-button>
+            </div>
+          }
           <div class="dcf-width-expand@s dcf-width-1-1 dcf-label">
             <ion-label class="dcf-item-title" [innerHTML]="uid + ' - ' + title" ></ion-label>
             <div *ngIf ="description" class="dcf-description" [innerHTML]="description"></div>

@@ -299,7 +299,7 @@ export function getLocaleLanguage(): string {
  * @function generateRandomValue
  * @memberOf module:for-angular
  */
-export function generateRandomValue(length = 8, onlyNumbers = false): string {
+export function generateRandomValue(length: number = 8, onlyNumbers: boolean = false): string {
   const chars = onlyNumbers
     ? '0123456789'
     : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

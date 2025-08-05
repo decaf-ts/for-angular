@@ -87,7 +87,6 @@ import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
     IonLabel,
     IonText,
     IonTextarea,
-
   ],
   selector: 'ngx-decaf-crud-field',
   templateUrl: './crud-field.component.html',
