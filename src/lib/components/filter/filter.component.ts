@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild  } from '@angular/core';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
-import { IonChip, IonIcon, IonItem, IonLabel, IonPopover, IonSearchbar } from '@ionic/angular/standalone';
+import { IonChip, IonIcon, IonItem, IonLabel} from '@ionic/angular/standalone';
 import { Dynamic, KeyValue } from 'src/lib/engine';
 import { getWindowWidth } from 'src/lib/helpers/utils';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
