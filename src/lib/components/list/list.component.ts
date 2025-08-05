@@ -781,6 +781,11 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
     }
   }
 
+
+  handleFilter(value: KeyValue | undefined): void {
+    console.log(value);
+  }
+
   /**
    * @description Clears the current search and resets the list.
    * @summary Convenience method that clears the search by calling handleSearch

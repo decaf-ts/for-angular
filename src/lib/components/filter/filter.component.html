@@ -1,4 +1,9 @@
-<div class="dcf-grid-dcf-grid-collapse dcf-grid-match">
+
+@if(!indexes.length) {
+  <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
+}
+
+<div class="dcf-grid-dcf-grid-collapse dcf-grid-match" [hidden]="!indexes.length">
   <div class="dcf-width-expand">
     <div class="dcf-filter">
       <div class="dcf-input">
@@ -24,7 +29,7 @@
             (keydown.backspace)="clear(value)"
             (input)="handleInput($event)"
             (click)="handleFocus()"
-            (focusout)="handleBlur()"
+            (blur)="handleBlur()"
             type="text"
             [readonly]="step !== 3"
             placeholder="{{ locale + (step === 3 ? '.type' : '.select') | translate }}"
@@ -45,9 +50,9 @@
                   }
                 } @else {
                   <div class="dcf-empty"
-                  (click)="filteredOptions = options; value = ''"
-                  tabindex="0"
-                  (keydown.enter)="filteredOptions = options; value = ''"
+                    (click)="filteredOptions = options; value = ''"
+                    tabindex="0"
+                    (keydown.enter)="filteredOptions = options; value = ''"
                   >
                     {{ 'no_suggestions' | translate }}
                   </div>
@@ -104,28 +109,3 @@
 </div>
 
 
-<!--
-<ion-popover
-  #actionMenuComponent
-  showBackdrop="false"
-  side="bottom"
-  backdropDismiss="false"
-
-  [isOpen]="options.length > 0">
-    <ng-template>
-      <ion-content class="ion-padding">
-        <ion-list lines="none">
-          <div class="suggestion-box">
-            <div
-              tabindex="0"
-              class="suggestion-item"
-              *ngFor="let suggestion of options"
-              (keydown.enter)="selectOption($event, suggestion)"
-              (click)="selectOption($event, suggestion)">
-              {{ suggestion }}
-            </div>
-          </div>
-        </ion-list>
-      </ion-content>
-    </ng-template>
-</ion-popover> -->

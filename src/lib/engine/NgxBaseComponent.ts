@@ -251,7 +251,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @memberOf NgxBaseComponent
    */
   @Input()
-  mapper!: Record<string, string>;
+  mapper: Record<string, string> = {};
 
   /**
    * @description The locale to be used for translations.
@@ -332,6 +332,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    *
    * @type {string | StringOrBoolean}
    * @default true
+   * @memberOf NgxBaseComponent
    */
   @Input()
   renderChild: string | StringOrBoolean = true;
@@ -444,15 +445,21 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @memberOf NgxBaseComponent
    */
   protected get repository(): DecafRepository<Model> {
-    if (!this._repository) {
-      const modelName  = (this.model as Model).constructor.name
-      const constructor = Model.get(modelName);
-      if (!constructor)
-        throw new InternalError(
-          'Cannot find model. was it registered with @model?',
-        );
-      this._repository = Repository.forModel(constructor);
-      this.model = new constructor() as Model;
+    try {
+      if (!this._repository) {
+        const modelName  = (this.model as Model).constructor.name
+        const constructor = Model.get(modelName);
+        if (!constructor)
+          throw new InternalError(
+            'Cannot find model. was it registered with @model?',
+          );
+        this._repository = Repository.forModel(constructor);
+        this.model = new constructor() as Model;
+      }
+    } catch (error: unknown) {
+      throw new InternalError(
+        (error as Error)?.message || error as string
+      );
     }
     return this._repository;
   }

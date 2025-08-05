@@ -5,6 +5,9 @@ import { IonChip, IonIcon, IonItem, IonLabel, IonPopover, IonSearchbar } from '@
 import { Dynamic, KeyValue } from 'src/lib/engine';
 import { getWindowWidth } from 'src/lib/helpers/utils';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
+import { Repository } from '@decaf-ts/core';
+import { Model } from '@decaf-ts/decorator-validation';
+import { SearchbarComponent } from '../searchbar/searchbar.component';
 
 /**
  * @description Advanced filter component for creating dynamic search filters with step-by-step construction.
@@ -52,9 +55,15 @@ import { debounceTime, fromEvent, Subscription } from 'rxjs';
   selector: 'ngx-decaf-filter',
   templateUrl: './filter.component.html',
   styleUrls: ['./filter.component.scss'],
-  imports: [ForAngularModule, IonPopover, IonLabel, IonItem, IonChip, IonIcon, IonSearchbar],
+  imports: [
+    ForAngularModule,
+    IonLabel,
+    IonItem,
+    IonChip,
+    IonIcon,
+    SearchbarComponent
+  ],
   standalone: true,
-
 })
 export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestroy {
 
@@ -94,7 +103,7 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    * @memberOf FilterComponent
    */
   @Input()
-  conditions: string[] = [];
+  conditions: string[] = ['Equal', 'Contains', 'Not Contains', 'Greater Than', 'Less Than', 'Not Equal'];
 
   /**
    * @description Available sorting options for the filtered data.
@@ -212,6 +221,17 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
   value: string = '';
 
   /**
+   * @description Subscription for window resize events.
+   * @summary RxJS subscription that listens for window resize events with debouncing
+   * to update the windowWidth property. This enables responsive behavior and prevents
+   * excessive updates during resize operations.
+   *
+   * @type {Subscription}
+   * @memberOf FilterComponent
+   */
+  windowResizeSubscription!: Subscription;
+
+  /**
    * @description Event emitter for filter changes.
    * @summary Emits filter events when the user creates, modifies, or clears filters.
    * The emitted value contains an array of complete filter objects or undefined when
@@ -224,15 +244,13 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
   filterEvent: EventEmitter<KeyValue[] | undefined> = new EventEmitter<KeyValue[] | undefined>();
 
   /**
-   * @description Subscription for window resize events.
-   * @summary RxJS subscription that listens for window resize events with debouncing
-   * to update the windowWidth property. This enables responsive behavior and prevents
-   * excessive updates during resize operations.
-   *
-   * @type {Subscription}
+   * @description Event emitter for search events.
+   * @summary Emits search events when the user interacts with the searchbar.
+   * @type {EventEmitter<string>}
    * @memberOf FilterComponent
    */
-  windowResizeSubscription!: Subscription;
+  @Output()
+  searchEvent: EventEmitter<string> = new EventEmitter<string>();
 
 
   /**
@@ -281,10 +299,18 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
      this.windowWidth = getWindowWidth() as number;
     });
 
-    if(!this.disableSort)
-      this.sort = [... this.sort, ...this.indexes];
+    this.getIndexes();
+    console.log(this.sort);
     this.initialize();
   }
+
+  getIndexes(): void {
+    if(this.model)
+      this.indexes = Object.keys(Repository.indexes(this.model as Model) || {});
+    if(!this.disableSort)
+      this.sort = [... this.sort, ...this.indexes];
+  }
+
 
   /**
    * @description Cleanup method called when the component is destroyed.
@@ -326,8 +352,6 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
   handleFocus(options: string[]  = []): void {
     if(!options.length)
      options = this.getOptions();
-    // if(this.step === 3)
-    //   options = [];
     this.filteredOptions = this.options = options;
     this.dropdownOpen = true;
   }
@@ -346,7 +370,7 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
       this.dropdownOpen = false;
       setTimeout(() => {
         this.handleBlur(true);
-      }, 400);
+      }, 100);
     } else {
       if(!this.dropdownOpen && this.options.length) {
         setTimeout(() => {
@@ -452,9 +476,10 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
         }
         this.step++;
         this.value = '';
-        this.component.nativeElement.focus();
         if(this.options.length)
           this.handleFocus(this.options);
+        console.log(this.component);
+        this.component.nativeElement.focus();
       }
     }
   }
@@ -469,7 +494,7 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    * @returns {void}
    * @memberOf FilterComponent
    */
-  selectOption(event: CustomEvent, value: string) {
+  selectOption(event: CustomEvent, value: string): void {
     this.addFilter(value);
   }
 
@@ -519,28 +544,8 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
         .replace(/\s+/g, "");          // remove all whitespace
     }
     this.value = "";
-    // if(this.filterValue.length === 1) {
-    //   this.initFilter = true;
-    //   this.selectedFilters = this.filterValue = [];
-    //   this.handleFocus(this.indexes);
-    // }
-
     this.filterValue = this.filterValue.filter((item) => cleanString(item['value']) !== cleanString(filter));
-    // const filtered: string[] = [];
-    // this.filterValue.forEach(item => {
-    //   Object.values(item).forEach(val => filtered.push(val))
-    // })
-    // this.selectedFilters = [...filtered];
-    // this.step = 1;
-    // this.filter = {};
     this.handleFocus(this.indexes);
-    // const index = this.selectedFilters.indexOf(tag);
-    // this.selectedFilters.splice(0, index + 1);
-    // if(this.selectedFilters.length === 1) {
-    //   this.handleFocus(this.conditions);
-    // } else {
-    //    this.handleFocus();
-    // }
   }
 
   /**
@@ -551,7 +556,7 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    * @returns {void}
    * @memberOf FilterComponent
    */
-  reset() {
+  reset(): void {
     this.options = this.filteredOptions = this.filterValue = [];
     this.step = 1;
     this.lastFilter = {};
@@ -567,7 +572,7 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    * @returns {void}
    * @memberOf FilterComponent
    */
-  clear(value?: string) {
+  clear(value?: string): void {
     if(!value) {
       this.reset();
       this.filterEvent.emit(undefined);
@@ -582,7 +587,7 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    * @returns {void}
    * @memberOf FilterComponent
    */
-  submit() {
+  submit(): void {
     console.log('submiting', this.filterValue);
     if(this.filterValue.length) {
       this.filterEvent.emit(this.filterValue);
@@ -647,7 +652,6 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
         filteredOption.classList.remove('dcf-filtering-item');
       return this.options;
     }
-
     const options = optionsElement.querySelectorAll('.dcf-item');
     for (const option of options) {
       const isActive = option.textContent?.toLowerCase().includes(value.toLowerCase());
@@ -659,5 +663,8 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
     return this.options.filter((option: string) => option.toLowerCase().includes(value.toLowerCase() as string));
   }
 
+  handleSearch(value: string | undefined): void {
+    this.searchEvent.emit(value);
+  }
 
 }
