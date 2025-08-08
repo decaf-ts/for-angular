@@ -1,5 +1,4 @@
 import {
-  date,
   Model,
   model,
   ModelArg,
@@ -40,7 +39,6 @@ export class CategoryModel extends Model {
     type: 'textarea',
   })
   @uilistprop('info')
-  @date()
   createdAt!: Date;
 
   constructor(args: ModelArg<CategoryModel> = {}) {
