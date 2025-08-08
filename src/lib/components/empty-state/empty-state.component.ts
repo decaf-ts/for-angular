@@ -12,7 +12,7 @@ import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { Dynamic, StringOrBoolean } from 'src/lib/engine';
-import { generateLocaleFromString, stringToBoolean } from 'src/lib/helpers';
+import { stringToBoolean } from 'src/lib/helpers';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
@@ -308,11 +308,12 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
     this.translatable = stringToBoolean(this.translatable);
     this.showIcon = stringToBoolean(this.showIcon);
     this.locale = this.getLocale(this.translatable);
-    if(this.translatable) {
-      this.title = generateLocaleFromString(this.locale, this.title);
-      this.subtitle = generateLocaleFromString(this.locale, this.subtitle);
-      this.buttonText = generateLocaleFromString(this.locale, this.buttonText);
-    }
+
+    // if(this.translatable) {
+    //   this.title = generateLocaleFromString(this.locale, this.title);
+    //   this.subtitle = generateLocaleFromString(this.locale, this.subtitle);
+    //   this.buttonText = generateLocaleFromString(this.locale, this.buttonText);
+    // }
 
     this.titleColor = `dcf-title color-${this.titleColor}`;
     this.subtitleColor = `dcf-subtitle color-${this.titleColor}`;

@@ -7,16 +7,15 @@
           name="alert-circle-outline"
           size="large"
           color="danger"
-          >
-        </ion-icon>
+          />
       </div>
     }
     @if(title) {
-      <h5 [class]="titleColor" [innerHTML]="translatable ? (title | translate) : title"></h5>
+      <h5 [class]="titleColor" [innerHTML]="title"></h5>
     }
     @if(subtitle) {
       @if(!searchValue) {
-        <p [class]="subtitleColor" [innerHTML]="translatable ? (subtitle | translate) : subtitle "></p>
+        <p [class]="subtitleColor" [innerHTML]="subtitle"></p>
       } @else {
         <p [class]="subtitleColor" [innerHTML]="searchSubtitle"></p>
       }
@@ -28,7 +27,7 @@
           [fill]="buttonFill"
           [color]="buttonColor"
           (click)="handleClick()">
-          {{  translatable ? (buttonText | translate) : buttonText }}
+          {{  buttonText }}
         </ion-button>
       </div>
     }

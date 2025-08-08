@@ -3,7 +3,7 @@
   <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
 }
 
-<div class="dcf-grid-dcf-grid-collapse dcf-grid-match" [hidden]="!indexes.length">
+<div class="dcf-grid dcf-grid-small dcf-grid-match dcf-filter-grid" [ngClass]="{'dcf-hidden': !indexes.length}">
   <div class="dcf-width-expand">
     <div class="dcf-filter">
       <div class="dcf-input">
@@ -43,8 +43,8 @@
                     <div
                       class="dcf-item"
                       tabindex="0"
-                      (keydown.enter)="selectOption($event, key)"
-                      (click)="selectOption($event, key)">
+                      (keydown.enter)="selectOption(key)"
+                      (click)="selectOption(key)">
                       {{ key }}
                     </div>
                   }
@@ -70,7 +70,7 @@
         </div>
       }
       <div class="dcf-icon-search">
-        <ion-button fill="clear" size="small" (click)="clear()">
+        <ion-button fill="clear" size="small" (click)="submit()">
           <ion-icon name="search-outline" color="dark" slot="icon-only"></ion-icon>
         </ion-button>
       </div>
@@ -83,8 +83,8 @@
               <div
                 class="dcf-item"
                 tabindex="0"
-                (keydown.enter)="selectOption($event, key)"
-                (click)="selectOption($event, key)">
+                (keydown.enter)="selectOption(key)"
+                (click)="selectOption(key)">
                 {{ key }}
               </div>
             }
@@ -102,8 +102,31 @@
     }
   </div>
   @if(!disableSort) {
-    <div class="dcf-width-1-4@m dcf-width-expand">
-
+    <div class="dcf-width-1-5@m dcf-width-1-1 dcf-sort-container">
+      <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-grid-match">
+        <div class="dcf-width-expand">
+          <ion-select
+              toggleIcon="chevron-down-outline"
+              expandedIcon="chevron-up-outline"
+              class="dcf-sort-select"
+              (ionChange)="handleSortChange($event)"
+              interface="popover"
+              [value]="sortValue"
+              label-placement="floating"
+              fill="outline"
+            >
+            @for(sort of sortBy; track sort) {
+              aa
+              <ion-select-option [value]="sort">{{ sort | translate }}</ion-select-option>
+            }
+          </ion-select>
+        </div>
+        <div class="dcf-width-auto">
+          <ion-button (click)="handleSortDirectionChange()" fill="clear">
+            <ion-icon slot="icon-only" [name]="sortDirection === 'desc' ? 'arrow-down-outline' : 'arrow-up-outline'"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
     </div>
   }
 </div>

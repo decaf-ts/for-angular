@@ -225,18 +225,3 @@ ion-radio-group {
     transform: translateY(0);
   }
 }
-
-
-// FIGMA
-ion-select,
-ion-textarea,
-ion-input {
-  --border-color: var(--ion-color-gray-3) !important;
-  --border-radius: 8px !important;
-
-    &::part(label) {
-      font-weight: 500;
-      color: var(--ion-color-gray-7) !important;
-    }
-
-}

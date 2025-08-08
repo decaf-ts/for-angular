@@ -3,6 +3,7 @@ import { TextFieldTypes } from '@ionic/core';
 import { EnvironmentInjector, Injector, Type } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { FieldProperties } from '@decaf-ts/ui-decorators';
+import { OrderDirection } from '@decaf-ts/core';
 
 /**
  * @description Generic key-value pair type
@@ -412,3 +413,49 @@ export interface ComponentConfig {
  * @memberOf module:engine
  */
 export type FormParentGroup = [FormGroup,  string];
+
+/**
+ * @description Interface for individual filter query items
+ * @summary Defines the structure of a single filter criterion in a filter query.
+ * Each item represents one condition to be applied to the data, consisting of
+ * an index (field name), a condition (comparison operator), and a value to compare against.
+ * @interface IFilterQueryItem
+ * @property {string} [index] - Optional field name or index to filter on
+ * @property {string} [condition] - Optional comparison condition (e.g., 'Equal', 'Contains', 'Greater Than')
+ * @property {string} [value] - Optional value to compare the field against
+ * @memberOf module:engine
+ */
+export interface IFilterQueryItem {
+  index?: string,
+  condition?: string,
+  value?: string
+};
+
+/**
+ * @description Interface for sorting configuration objects
+ * @summary Defines the structure for specifying sort criteria including the field
+ * to sort by and the direction of the sort (ascending or descending).
+ * @interface ISortObject
+ * @property {string} value - The field name or property to sort by
+ * @property {OrderDirection} direction - The sort direction (ASC or DSC)
+ * @memberOf module:engine
+ */
+export interface ISortObject {
+  value: string,
+  direction: OrderDirection
+};
+
+/**
+ * @description Interface for complete filter query configuration
+ * @summary Defines the complete structure for filter and sort operations.
+ * Combines multiple filter criteria with sorting configuration to provide
+ * comprehensive data filtering and ordering capabilities.
+ * @interface IFilterQuery
+ * @property {IFilterQueryItem[] | undefined} query - Array of filter criteria or undefined for no filtering
+ * @property {ISortObject} sort - Sorting configuration specifying field and direction
+ * @memberOf module:engine
+ */
+export interface IFilterQuery {
+  query: IFilterQueryItem[] | undefined,
+  sort: ISortObject
+}

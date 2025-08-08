@@ -43,7 +43,6 @@ export class ForAngularRepository<T extends Model> {
       data = ((this.model as Model).constructor.name !== 'CategoryModel' ? generateEmployes(items) : generateCatories(items)) as Model[];
       data = await this.repository?.createAll(data) as T[];
     }
-    console.log(data);
     this.data = data as T[] || [];
   }
 
@@ -76,6 +75,7 @@ function generateCatories(limit = 100): CategoryModel[] {
       ' ' +
       faker.commerce.productMaterial(),
     description: () => faker.commerce.productDescription(),
+    createdAt: () => faker.date.birthdate(),
   }, CategoryModel.name);
 }
 
@@ -92,7 +92,7 @@ export function getFakerData<T extends Model>(
       item[key as keyof T] = val.constructor === Date ? formatDate(val) : val;
     }
     // item.id = index;
-    item.createdAt = faker.date.past({ refDate: '2024-01-01' });
+    // item.createdAt = faker.date.past({ refDate: '2024-01-01' });
     index  = index + 1;
     return (!model ? item : Model.build(item, model)) as T;
   });

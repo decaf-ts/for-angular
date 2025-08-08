@@ -31,8 +31,6 @@ export class DashboardPage implements OnInit {
   ngOnInit() {
     this.getData();
     this.model = new DashboardLayout;
-    console.log(this.model);
-    console.log(this.model);
   }
 
   getData() {

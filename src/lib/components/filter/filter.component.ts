@@ -1,13 +1,15 @@
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild  } from '@angular/core';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
-import { IonChip, IonIcon, IonItem, IonLabel} from '@ionic/angular/standalone';
-import { Dynamic, KeyValue } from 'src/lib/engine';
+import { IonChip, IonIcon, IonItem, IonLabel, IonSelect} from '@ionic/angular/standalone';
+import { Dynamic, IFilterQuery, IFilterQueryItem } from 'src/lib/engine';
 import { getWindowWidth } from 'src/lib/helpers/utils';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
-import { Repository } from '@decaf-ts/core';
+import { OrderDirection, Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
+import { addIcons } from 'ionicons';
+import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 
 /**
  * @description Advanced filter component for creating dynamic search filters with step-by-step construction.
@@ -60,6 +62,8 @@ import { SearchbarComponent } from '../searchbar/searchbar.component';
     IonLabel,
     IonItem,
     IonChip,
+    IonIcon,
+    IonSelect,
     IonIcon,
     SearchbarComponent
   ],
@@ -116,7 +120,7 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    * @memberOf FilterComponent
    */
   @Input()
-  sort: string[] = [];
+  sortBy: string[] = [];
 
   /**
    * @description Controls whether sorting functionality is disabled.
@@ -174,7 +178,7 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    * @default []
    * @memberOf FilterComponent
    */
-  filterValue: KeyValue[] = [];
+  filterValue: IFilterQueryItem[] = [];
 
   /**
    * @description Current filter being constructed.
@@ -185,7 +189,7 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    * @default {}
    * @memberOf FilterComponent
    */
-  lastFilter: KeyValue = {};
+  lastFilter: IFilterQueryItem = {};
 
   /**
    * @description Current step in the filter creation process.
@@ -221,6 +225,30 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
   value: string = '';
 
   /**
+   * @description Current sorting field value.
+   * @summary Stores the field name currently selected for sorting operations.
+   * This value determines which field is used to order the filtered results.
+   * Defaults to 'id' and can be changed through the sort dropdown selection.
+   *
+   * @type {string}
+   * @default 'id'
+   * @memberOf FilterComponent
+   */
+  sortValue: string = 'id';
+
+  /**
+   * @description Current sorting direction.
+   * @summary Defines the direction of the sort operation - ascending or descending.
+   * This value works in conjunction with sortValue to determine the complete
+   * sorting configuration for filtered results.
+   *
+   * @type {OrderDirection}
+   * @default OrderDirection.DSC
+   * @memberOf FilterComponent
+   */
+  sortDirection: OrderDirection = OrderDirection.DSC;
+
+  /**
    * @description Subscription for window resize events.
    * @summary RxJS subscription that listens for window resize events with debouncing
    * to update the windowWidth property. This enables responsive behavior and prevents
@@ -241,7 +269,7 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    * @memberOf FilterComponent
    */
   @Output()
-  filterEvent: EventEmitter<KeyValue[] | undefined> = new EventEmitter<KeyValue[] | undefined>();
+  filterEvent: EventEmitter<IFilterQuery | undefined> = new EventEmitter<IFilterQuery | undefined>();
 
   /**
    * @description Event emitter for search events.
@@ -263,6 +291,7 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    */
   constructor() {
     super("FilterComponent");
+    addIcons({chevronDownOutline, chevronUpOutline});
   }
 
   /**
@@ -300,15 +329,23 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
     });
 
     this.getIndexes();
-    console.log(this.sort);
     this.initialize();
   }
 
+  /**
+   * @description Retrieves and configures available indexes for filtering and sorting.
+   * @summary Extracts field indexes from the model if available and merges them with
+   * sorting options when sorting is enabled. This method sets up the available field
+   * options for both filtering and sorting operations based on the model structure.
+   *
+   * @returns {void}
+   * @memberOf FilterComponent
+   */
   getIndexes(): void {
     if(this.model)
       this.indexes = Object.keys(Repository.indexes(this.model as Model) || {});
     if(!this.disableSort)
-      this.sort = [... this.sort, ...this.indexes];
+      this.sortBy = [... this.sortBy, ...this.indexes];
   }
 
 
@@ -323,6 +360,7 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    */
   ngOnDestroy(): void {
     this.windowResizeSubscription.unsubscribe();
+    this.clear();
   }
 
   /**
@@ -478,7 +516,6 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
         this.value = '';
         if(this.options.length)
           this.handleFocus(this.options);
-        console.log(this.component);
         this.component.nativeElement.focus();
       }
     }
@@ -494,22 +531,22 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    * @returns {void}
    * @memberOf FilterComponent
    */
-  selectOption(event: CustomEvent, value: string): void {
+  selectOption(value: string): void {
     this.addFilter(value);
   }
 
   /**
-   * @description Determines if a filter tag can be individually removed.
+   * @description Determines if a filter option can be individually removed.
    * @summary Checks whether a filter component should display a close icon for removal.
-   * Only value tags can be removed individually; index and condition tags are part
+   * Only value options can be removed individually; index and condition options are part
    * of the complete filter structure and cannot be removed separately.
    *
-   * @param {string} tag - The filter tag text to check
-   * @returns {boolean} True if the tag can be cleared individually, false otherwise
+   * @param {string} option - The filter option text to check
+   * @returns {boolean} True if the option can be cleared individually, false otherwise
    * @memberOf FilterComponent
    */
-  allowClear(tag: string): boolean {
-    return this.indexes.indexOf(tag) === -1 && this.conditions.indexOf(tag) === -1;
+  allowClear(option: string): boolean {
+    return this.indexes.indexOf(option) === -1 && this.conditions.indexOf(option) === -1;
   }
 
   /**
@@ -544,7 +581,11 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
         .replace(/\s+/g, "");          // remove all whitespace
     }
     this.value = "";
-    this.filterValue = this.filterValue.filter((item) => cleanString(item['value']) !== cleanString(filter));
+    this.filterValue = this.filterValue.filter((item) => item?.['value'] && cleanString(item?.['value']) !== cleanString(filter));
+    if(this.filterValue.length === 0) {
+      this.step = 1;
+      this.lastFilter = {};
+    }
     this.handleFocus(this.indexes);
   }
 
@@ -561,6 +602,9 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
     this.step = 1;
     this.lastFilter = {};
     this.value = '';
+    setTimeout(() => {
+       this.submit();
+    }, 100);
   }
 
   /**
@@ -573,10 +617,8 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    * @memberOf FilterComponent
    */
   clear(value?: string): void {
-    if(!value) {
+    if(!value)
       this.reset();
-      this.filterEvent.emit(undefined);
-    }
   }
 
   /**
@@ -588,32 +630,51 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    * @memberOf FilterComponent
    */
   submit(): void {
-    console.log('submiting', this.filterValue);
-    if(this.filterValue.length) {
-      this.filterEvent.emit(this.filterValue);
+    this.filterEvent.emit({
+      query: this.filterValue.length > 0 ? this.filterValue : undefined,
+      sort: {
+        value: this.sortValue,
+        direction: this.sortDirection
+      }
+    } as IFilterQuery);
+    if(this.filterValue.length === 0)
       this.options = [];
+  }
+
+  /**
+   * @description Toggles the sort direction between ascending and descending.
+   * @summary Handles sort direction changes by toggling between ASC and DSC values.
+   * When the direction changes, automatically triggers a submit to apply the new
+   * sorting configuration to the filtered results.
+   *
+   * @returns {void}
+   * @memberOf FilterComponent
+   */
+   handleSortDirectionChange(): void {
+    const direction = this.sortDirection ===  OrderDirection.ASC ? OrderDirection.DSC : OrderDirection.ASC;
+    if(direction !== this.sortDirection) {
+      this.sortDirection = direction;
+      this.submit();
     }
   }
 
   /**
-   * @description Converts a phrase to camelCase format.
-   * @summary Utility method that transforms a space-separated phrase into camelCase notation.
-   * Useful for converting display strings into property names or API parameters that follow
-   * camelCase conventions.
+   * @description Handles sort field selection changes from the dropdown.
+   * @summary Processes sort field changes when users select a different field
+   * from the sort dropdown. Updates the sortValue property and triggers
+   * a submit to apply the new sorting configuration if the value has changed.
    *
-   * @param {string} phrase - The phrase to convert to camelCase
-   * @returns {string} The camelCase version of the input phrase
+   * @param {CustomEvent} event - The select change event containing the new sort field value
+   * @returns {void}
    * @memberOf FilterComponent
    */
-  toCamelCase(phrase: string): string {
-    return phrase
-      .toLowerCase()
-      .split(/\s+/)
-      .map((word: string, index: number) =>
-        (index === 0) ?
-            word : word.charAt(0).toUpperCase() + word.slice(1)
-      )
-      .join('');
+  handleSortChange(event: CustomEvent): void {
+    const target = event.target as HTMLIonSelectElement;
+    const value = target.value;
+    if(value !== this.sortValue) {
+      this.sortValue = value as string;
+      this.submit();
+    }
   }
 
   /**
@@ -663,6 +724,16 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
     return this.options.filter((option: string) => option.toLowerCase().includes(value.toLowerCase() as string));
   }
 
+  /**
+   * @description Handles search events from the integrated searchbar component.
+   * @summary Processes search input from the searchbar and emits search events
+   * to parent components. This method acts as a bridge between the internal
+   * searchbar component and external search event listeners.
+   *
+   * @param {string | undefined} value - The search value entered by the user
+   * @returns {void}
+   * @memberOf FilterComponent
+   */
   handleSearch(value: string | undefined): void {
     this.searchEvent.emit(value);
   }
