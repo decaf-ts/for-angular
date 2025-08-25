@@ -3,6 +3,7 @@ export * from './components';
 export * from './engine';
 export * from './directives';
 export * from './helpers';
+export * from './for-angular.module';
 /**
  * @description Angular integration for the Decaf framework
  * @summary This module provides Angular components and services for integrating with the Decaf framework.
