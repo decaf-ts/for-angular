@@ -16,9 +16,9 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { NgxRenderingEngine2 } from 'src/lib/engine/NgxRenderingEngine2';
+import { NgxRenderingEngine2 } from '../../engine/NgxRenderingEngine2';
 import { BaseCustomEvent, KeyValue, RendererCustomEvent } from '../../engine';
-import { ForAngularModule, getLogger } from 'src/lib/for-angular.module';
+import { ForAngularModule, getLogger } from '../../for-angular.module';
 import { Logger } from '@decaf-ts/logging';
 import { Model } from '@decaf-ts/decorator-validation';
 
@@ -285,7 +285,7 @@ export class ComponentRendererComponent
     if(props?.['tag'])
       delete props['tag'];
     const inputKeys = Object.keys(props);
-    const unmappedKeys = [];
+    const unmappedKeys: string[] = [];
 
     for (const input of inputKeys) {
       if (!inputKeys.length) break;

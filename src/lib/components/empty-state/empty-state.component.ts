@@ -10,13 +10,13 @@ import {
 from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { ForAngularModule } from 'src/lib/for-angular.module';
-import { Dynamic, StringOrBoolean } from 'src/lib/engine';
-import { stringToBoolean } from 'src/lib/helpers';
-import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+import { ForAngularModule } from '../../for-angular.module';
+import { Dynamic, StringOrBoolean } from '../../engine';
+import { stringToBoolean } from '../../helpers';
+import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
-import { FunctionLike } from 'src/lib/engine/types';
+import { FunctionLike } from '../../engine/types';
 
 
 /**

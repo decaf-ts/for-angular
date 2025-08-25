@@ -1,11 +1,11 @@
 import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output, ViewChild  } from '@angular/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { StringOrBoolean } from 'src/lib/engine/types';
-import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
-import { ForAngularModule } from 'src/lib/for-angular.module';
-import { removeFocusTrap, stringToBoolean } from 'src/lib/helpers/utils';
-import { getWindowWidth, windowEventEmitter } from 'src/lib/helpers/utils';
-import { Dynamic, EventConstants, ListItemCustomEvent } from 'src/lib/engine';
+import { StringOrBoolean } from '../../engine/types';
+import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
+import { ForAngularModule } from '../../for-angular.module';
+import { removeFocusTrap, stringToBoolean } from '../../helpers/utils';
+import { getWindowWidth, windowEventEmitter } from '../../helpers/utils';
+import { Dynamic, EventConstants, ListItemCustomEvent } from '../../engine';
 import { NavController } from '@ionic/angular';
 import {
   IonButton,

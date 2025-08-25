@@ -2,9 +2,9 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import { ForAngularModule } from 'src/lib/for-angular.module';
-import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
-import { EventConstants, KeyValue, StringOrBoolean } from 'src/lib/engine';
+import { ForAngularModule } from '../../for-angular.module';
+import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
+import { EventConstants, KeyValue, StringOrBoolean } from '../../engine';
 import { PaginationCustomEvent } from './constants';
 
 /**

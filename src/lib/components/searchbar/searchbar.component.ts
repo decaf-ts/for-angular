@@ -1,10 +1,10 @@
 import { Component,  EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { AutocompleteTypes, PredefinedColors} from '@ionic/core';
-import { StringOrBoolean } from 'src/lib/engine/types';
-import {windowEventEmitter} from 'src/lib/helpers/utils';
-import { ForAngularModule } from 'src/lib/for-angular.module';
-import { stringToBoolean } from 'src/lib/helpers/utils';
-import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+import { StringOrBoolean } from '../../engine/types';
+import {windowEventEmitter} from '../../helpers/utils';
+import { ForAngularModule } from '../../for-angular.module';
+import { stringToBoolean } from '../../helpers/utils';
+import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { IonSearchbar } from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
