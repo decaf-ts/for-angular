@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ForAngularModule } from '../../for-angular.module';
 import { ListItemComponent } from './list-item.component';
-import { NgxRenderingEngine2 } from 'src/lib/engine';
+import { NgxRenderingEngine2 } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 

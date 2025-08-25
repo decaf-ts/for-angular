@@ -26,14 +26,14 @@ import {
   StringOrBoolean,
   KeyValue,
   ListItemCustomEvent
-} from 'src/lib/engine';
-import { ForAngularModule } from 'src/lib/for-angular.module';
-import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+} from '../../engine';
+import { ForAngularModule } from '../../for-angular.module';
+import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import {
   stringToBoolean,
   formatDate,
   isValidDate
-} from 'src/lib/helpers';
+} from '../../helpers';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { ListItemComponent } from '../list-item/list-item.component';
@@ -41,7 +41,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
 import { PaginationComponent } from '../pagination/pagination.component';
 import { PaginationCustomEvent } from '../pagination/constants';
 import { IListEmptyResult, ListComponentsTypes, DecafRepository } from './constants';
-import { FunctionLike, IFilterQuery, IFilterQueryItem } from 'src/lib/engine/types';
+import { FunctionLike, IFilterQuery, IFilterQueryItem } from '../../engine/types';
 import { FilterComponent } from '../filter/filter.component';
 
 /**

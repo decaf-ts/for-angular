@@ -22,8 +22,8 @@ import {
   NgxRenderingEngine2,
   RenderedModel,
 } from '../../engine';
-import { KeyValue, RendererCustomEvent } from 'src/lib/engine/types';
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { KeyValue, RendererCustomEvent } from '../../engine/types';
+import { ForAngularModule } from '../../for-angular.module';
 import { Renderable } from '@decaf-ts/ui-decorators';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 

@@ -1,4 +1,4 @@
-import { BaseCustomEvent } from "src/lib/engine"
+import { BaseCustomEvent } from "../../engine"
 
 export type PaginationCustomEvent = BaseCustomEvent & {
   data: {

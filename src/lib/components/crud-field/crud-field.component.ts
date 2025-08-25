@@ -14,7 +14,7 @@ import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 import { Dynamic } from '../../engine/decorators';
 import { FieldUpdateMode, PossibleInputTypes, RadioOption, SelectOption, StringOrBoolean } from '../../engine/types';
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ForAngularModule } from '../../for-angular.module';
 import {
   IonCheckbox,
   IonIcon,

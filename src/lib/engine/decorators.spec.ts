@@ -20,7 +20,7 @@ import {
   IonButton,
   IonDatetimeButton,
 } from '@ionic/angular/standalone';
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ForAngularModule } from '../for-angular.module';
 import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
 
 describe('decorators', () => {

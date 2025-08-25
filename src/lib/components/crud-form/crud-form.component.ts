@@ -17,7 +17,7 @@ import { CrudFormEvent, Dynamic, EventConstants, FieldUpdateMode, HTMLFormTarget
 import { CrudFormOptions } from './types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
-import { ForAngularModule, getLogger } from 'src/lib/for-angular.module';
+import { ForAngularModule, getLogger } from '../../for-angular.module';
 import { IonIcon } from '@ionic/angular/standalone';
 import { Model } from '@decaf-ts/decorator-validation';
 import { Logger } from '@decaf-ts/logging';

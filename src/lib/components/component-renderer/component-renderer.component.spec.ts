@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ComponentRendererComponent } from './component-renderer.component';
-import { NgxRenderingEngine2 } from 'src/lib/engine';
+import { NgxRenderingEngine2 } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ForAngularModule } from '../../for-angular.module';
 import { ListItemComponent } from '../list-item/list-item.component';
 
 const imports = [
@@ -18,7 +18,7 @@ const imports = [
   })
 ];
 
-xdescribe('ComponentRendererComponent', () => {
+describe.skip('ComponentRendererComponent', () => {
   let component: ComponentRendererComponent;
   let fixture: ComponentFixture<ComponentRendererComponent>;
   let engine;

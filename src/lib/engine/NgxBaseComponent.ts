@@ -9,12 +9,12 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
-import { KeyValue, RendererCustomEvent, StringOrBoolean } from 'src/lib/engine/types';
+import { KeyValue, RendererCustomEvent, StringOrBoolean } from './types';
 import {
   getInjectablesRegistry,
   getLocaleFromClassName,
-} from 'src/lib/helpers/utils';
-import { stringToBoolean } from 'src/lib/helpers/utils';
+  stringToBoolean
+} from '../helpers/utils';
 import { Model } from '@decaf-ts/decorator-validation';
 import {
   CrudOperations,

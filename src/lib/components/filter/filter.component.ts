@@ -1,9 +1,9 @@
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild  } from '@angular/core';
-import { ForAngularModule } from 'src/lib/for-angular.module';
-import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+import { ForAngularModule } from '../../for-angular.module';
+import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { IonChip, IonIcon, IonItem, IonLabel, IonSelect} from '@ionic/angular/standalone';
-import { Dynamic, IFilterQuery, IFilterQueryItem } from 'src/lib/engine';
-import { getWindowWidth } from 'src/lib/helpers/utils';
+import { Dynamic, IFilterQuery, IFilterQueryItem } from '../../engine';
+import { getWindowWidth } from '../../helpers/utils';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
 import { OrderDirection, Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';

@@ -1,7 +1,7 @@
 import { Component, Input, OnInit} from '@angular/core';
-import { ForAngularModule } from 'src/lib/for-angular.module';
-import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
-import { KeyValue } from 'src/lib/engine';
+import { ForAngularModule } from '../../for-angular.module';
+import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
+import { KeyValue } from '../../engine';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 import { UIMediaBreakPoints } from '@decaf-ts/ui-decorators';

@@ -1,9 +1,9 @@
 
 import { AfterViewInit, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, Input, ViewChild } from '@angular/core';
-import { Dynamic, HTMLFormTarget } from 'src/lib/engine';
+import { Dynamic, HTMLFormTarget } from '../../engine';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { ForAngularModule } from 'src/lib/for-angular.module';
-import { CollapsableDirective } from 'src/lib/directives/collapsable.directive';
+import { ForAngularModule } from '../../for-angular.module';
+import { CollapsableDirective } from '../../directives/collapsable.directive';
 import { IonAccordion, IonAccordionGroup, IonItem } from '@ionic/angular/standalone';
 
 /**

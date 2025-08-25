@@ -2,11 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ModelRendererComponent } from './model-renderer.component';
 import { ForAngularModel } from '../../../app/models/DemoModel';
-import { NgxRenderingEngine2 } from 'src/lib/engine';
+import { NgxRenderingEngine2 } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { ForAngularModule } from 'src/lib/for-angular.module';
-import { CrudFormComponent } from 'src/lib/components/crud-form/crud-form.component';
+import { ForAngularModule } from '../../for-angular.module';
+import { CrudFormComponent } from '../../components/crud-form/crud-form.component';
 
 const imports = [
   ForAngularModule,
