@@ -39,7 +39,7 @@
     "playwright-ui": "npx playwright test --config=./playwright.config.ts --ui",
     "playwright-setup": "npm init playwright@latest",
     "link": "npm run unlink && npm run build:new && cd dist && npm link && npm ls -g --depth=0 --link=true",
-      "unlink": "npm rm --global @decaf-ts/for-angular && npm ls -g --depth=0 --link=true"
+    "unlink": "npm rm --global @decaf-ts/for-angular && npm ls -g --depth=0 --link=true"
   },
   "files": [
     "dist"
