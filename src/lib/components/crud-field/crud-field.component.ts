@@ -17,6 +17,7 @@ import { FieldUpdateMode, PossibleInputTypes, RadioOption, SelectOption, StringO
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import {
   IonCheckbox,
+  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
@@ -28,6 +29,8 @@ import {
   IonTextarea,
 } from '@ionic/angular/standalone';
 import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
+import { addIcons } from 'ionicons';
+import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -87,6 +90,7 @@ import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
     IonLabel,
     IonText,
     IonTextarea,
+    IonIcon
   ],
   selector: 'ngx-decaf-crud-field',
   templateUrl: './crud-field.component.html',
@@ -590,8 +594,10 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   ngOnInit(): void {
     // super.onInit(this.updateOn);
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
+
       this.formGroup = undefined;
     } else {
+         addIcons({chevronDownOutline, chevronUpOutline})
       if (this.type === HTML5InputTypes.RADIO && !this.value)
         this.formGroup?.get(this.name)?.setValue(this.options[0].value); // TODO: migrate to RenderingEngine
     }

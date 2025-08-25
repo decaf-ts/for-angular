@@ -23,9 +23,6 @@
 // ==============================================================================================
 /** Base =============================================== */
 
-:root {
-  --ion-font-family: 'Inter', Arial, Helvetica, sans-serif;
-}
 html, body, * {
   font-family: var(--ion-font-family);
   font-style: normal;
@@ -36,10 +33,29 @@ html, body, * {
       line-height: 1.2rem !important;
     }
   }
+  ion-select {
+    &.select-fill-outline {
+      --border-radius: var(--dcf-border-radius);
+    }
+  }
   ion-select.select-label-placement-floating::part(label) {
     line-height: 1.2rem !important;
   }
 }
+
+ion-select,
+ion-textarea,
+ion-input {
+  --border-color: var(--ion-color-gray-3) !important;
+  --border-radius: var(--dcf-border-radius) !important;
+
+    &::part(label) {
+      font-weight: 500;
+      color: var(--ion-color-gray-7) !important;
+    }
+
+}
+
 
 a {
   color: var(--ion-color-dark);

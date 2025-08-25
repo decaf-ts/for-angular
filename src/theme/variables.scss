@@ -10,8 +10,11 @@
 // lg	992px (large)
 // xl	1200px (xlarge)
 :root {
+  --ion-font-family: 'Inter', Arial, Helvetica, sans-serif;
+  --ion-default-dynamic-font: 'Inter', sans-serif;
+  --dcf-border-radius: 8px;
 
-  --ion-default-dynamic-font: 'Poppins', sans-serif;
+  // --ion-default-dynamic-font: 'Poppins', sans-serif;
 
   --ion-color-primary: #3460DC;
 	--ion-color-primary-rgb: 52,96,220;

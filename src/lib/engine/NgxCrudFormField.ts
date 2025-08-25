@@ -89,6 +89,7 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    * @description Function called when the field value changes
    * @property {function(): unknown} onChange - onChange event handler
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   onChange: () => unknown = () => {};
 
   /**
@@ -96,6 +97,7 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    * @description Function called when the field is touched
    * @property {function(): unknown} onTouch - onTouch event handler
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   onTouch: () => unknown = () => {};
 
   /**

@@ -1,28 +1,37 @@
+.dcf-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
 .dcf-menu {
-  padding: 0px;
-
+  padding: 0rem .75rem;
   ion-item {
+    --border-radius: var(--dcf-border-radius);
+    --background: transparent;
+    color: var(--ion-color-gray-8);
     cursor: pointer;
-    --border-radius: 8px;
     margin-bottom: .25rem;
-
+    font-size: 0.95rem;
     .icon{
       margin-right: .5rem;
       // transform: translateY(px);
     }
 
-    &.dcf-active,
+    &.dcf-active {
+      --background: var(--ion-color-gray-2);
+    }
     &:hover {
-      --background: rgba(var(--ion-color-primary-rgb), 0.14);
       color: var(--ion-color-primary) !important;
-      --color: var(--ion-color-primary) !important;
-      --color-focused:  var(--ion-color-primary) !important;
-      --color-hover:  var(--ion-color-primary) !important;
-      --color-activated:  var(--ion-color-primary) !important;
+
+      // -
+      // --color-focused:  var(--ion-color-primary) !important;
+      // --color-hover:  var(--ion-color-primary) !important;
+      // --color-activated:  var(--ion-color-primary) !important;
       .ti,
       ion-icon,
       aeon-icon {
-        color: var(--ion-color-primary) !important;
+         color: var(--ion-color-gray-8) !important;
       }
     }
   }

@@ -14,8 +14,8 @@ import {
   IonLoading
 } from '@ionic/angular/standalone';
 import { debounceTime, Subject } from 'rxjs';
-import { IRepository, OperationKeys } from '@decaf-ts/db-decorators';
-import { Model } from '@decaf-ts/decorator-validation';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
 import {
   BaseCustomEvent,
@@ -41,7 +41,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
 import { PaginationComponent } from '../pagination/pagination.component';
 import { PaginationCustomEvent } from '../pagination/constants';
 import { IListEmptyResult, ListComponentsTypes, DecafRepository } from './constants';
-import { FunctionLike } from 'src/lib/engine/types';
+import { FunctionLike, IFilterQuery, IFilterQueryItem } from 'src/lib/engine/types';
 import { FilterComponent } from '../filter/filter.component';
 
 /**
@@ -333,16 +333,29 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
   @Input()
   loadingSpinner: SpinnerTypes = "circular";
 
+  // /**
+  //  * @description Query parameters for data fetching.
+  //  * @summary Specifies additional query parameters to use when fetching data from
+  //  * the source. This can be provided as a string (JSON) or a direct object.
+  //  *
+  //  * @type {string | KeyValue | undefined}
+  //  * @memberOf ListComponent
+  //  */
+  // @Input()
+  // query?: string | KeyValue;
+
   /**
-   * @description Query parameters for data fetching.
-   * @summary Specifies additional query parameters to use when fetching data from
-   * the source. This can be provided as a string (JSON) or a direct object.
+   * @description Controls whether the filtering functionality is enabled.
+   * @summary When set to true, enables the filter component that allows users to create
+   * complex search criteria with multiple field filters, conditions, and values.
+   * When false, disables the filter interface entirely.
    *
-   * @type {string | KeyValue | undefined}
+   * @type {StringOrBoolean}
+   * @default true
    * @memberOf ListComponent
    */
   @Input()
-  query?: string | KeyValue;
+  enableFilter: StringOrBoolean = true;
 
   /**
    * @description Sorting parameters for data fetching.
@@ -353,7 +366,34 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   @Input()
-  sort: OrderDirection = OrderDirection.DSC;
+  sortDirection: OrderDirection = OrderDirection.DSC;
+
+
+  /**
+   * @description Sorting parameters for data fetching.
+   * @summary Specifies how the fetched data should be sorted. This can be provided
+   * as a string (field name with optional direction) or a direct object.
+   *
+   * @type {string | KeyValue | undefined}
+   * @memberOf ListComponent
+   */
+  @Input()
+  sortBy!: string;
+
+
+  /**
+   * @description Controls whether sorting functionality is disabled.
+   * @summary When set to true, disables the sort controls and prevents users from
+   * changing the sort order or field. The list will maintain its default or
+   * programmatically set sort configuration without user interaction.
+   *
+   * @type {StringOrBoolean}
+   * @default false
+   * @memberOf ListComponent
+   */
+  @Input()
+  disableSort: StringOrBoolean = false;
+
 
   /**
    * @description Icon to display when the list is empty.
@@ -456,7 +496,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @type {string | undefined}
    * @memberOf ListComponent
    */
-  searchValue?: string;
+  searchValue?: string | IFilterQuery | undefined;
 
   /**
    * @description A paginator object for handling pagination operations.
@@ -518,9 +558,29 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
   private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | RendererCustomEvent> = new Subject<CustomEvent | ListItemCustomEvent | RendererCustomEvent>();
 
 
+  /**
+   * @description Subject for debouncing repository observation events.
+   * @summary RxJS Subject that collects repository change events and emits them after
+   * a debounce period. This prevents multiple rapid repository changes from triggering
+   * multiple list refresh operations, improving performance and user experience.
+   *
+   * @private
+   * @type {Subject<any>}
+   * @memberOf ListComponent
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private observerSubjet: Subject<any> = new Subject<any>();
 
+  /**
+   * @description Observer object for repository change notifications.
+   * @summary Implements the Observer interface to receive notifications when the
+   * underlying data repository changes. This enables automatic list updates when
+   * data is created, updated, or deleted through the repository.
+   *
+   * @private
+   * @type {Observer}
+   * @memberOf ListComponent
+   */
   private observer: Observer = { refresh: async (... args: unknown[]): Promise<void> => this.observeRepository(...args)}
 
   /**
@@ -536,7 +596,6 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   indexes!: string[];
-
 
   /**
    * @description Initializes a new instance of the ListComponent.
@@ -587,13 +646,14 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
   async ngOnInit(): Promise<void> {
     this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event as ListItemCustomEvent | RendererCustomEvent));
     this.observerSubjet.pipe(debounceTime(100)).subscribe(args => this.handleObserveEvent(args[0], args[1], args[2]));
-
+    this.enableFilter = stringToBoolean(this.enableFilter);
     this.limit = Number(this.limit);
     this.start = Number(this.start);
     this.inset = stringToBoolean(this.inset);
     this.showRefresher = stringToBoolean(this.showRefresher);
     this.loadMoreData = stringToBoolean(this.loadMoreData);
     this.showSearchbar = stringToBoolean(this.showSearchbar);
+    this.disableSort = stringToBoolean(this.disableSort);
     if(typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
 
@@ -622,6 +682,16 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
     this.data =  this.model = this._repository = this.paginator = undefined;
   }
 
+  /**
+   * @description Handles repository observation events with debouncing.
+   * @summary Processes repository change notifications and routes them appropriately.
+   * For CREATE events with a UID, handles them immediately. For other events,
+   * passes them to the debounced observer subject to prevent excessive updates.
+   *
+   * @param {...unknown[]} args - The repository event arguments including table, event type, and UID
+   * @returns {Promise<void>}
+   * @memberOf ListComponent
+   */
   async observeRepository(...args: unknown[]): Promise<void> {
     const [table, event, uid] = args;
     if(event === OperationKeys.CREATE && !!uid)
@@ -629,6 +699,18 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
     return this.observerSubjet.next(args);
   }
 
+  /**
+   * @description Handles specific repository events and updates the list accordingly.
+   * @summary Processes repository change events (CREATE, UPDATE, DELETE) and performs
+   * the appropriate list operations. This includes adding new items, updating existing
+   * ones, or removing deleted items from the list display.
+   *
+   * @param {string} table - The table/model name that changed
+   * @param {OperationKeys} event - The type of operation (CREATE, UPDATE, DELETE)
+   * @param {string | number} uid - The unique identifier of the affected item
+   * @returns {Promise<void>}
+   * @memberOf ListComponent
+   */
   async handleObserveEvent(table: string, event: OperationKeys, uid: string | number): Promise<void> {
     if(event === OperationKeys.CREATE) {
       if(uid) {
@@ -763,7 +845,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   @HostListener('window:searchbarEvent', ['$event'])
-  async handleSearch(value: string | undefined): Promise<void> {
+  async handleSearch(value: string | IFilterQuery | undefined): Promise<void> {
     if(this.type === ListComponentsTypes.INFINITE) {
       this.loadMoreData = false;
       if(value === undefined) {
@@ -782,8 +864,18 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
   }
 
 
-  handleFilter(value: KeyValue | undefined): void {
-    console.log(value);
+  /**
+   * @description Handles filter events from the filter component.
+   * @summary Processes filter queries from the filter component and applies them
+   * to the list data. This method acts as a bridge between the filter component
+   * and the search functionality, converting filter queries into search operations.
+   *
+   * @param {IFilterQuery | undefined} value - The filter query object or undefined to clear filters
+   * @returns {Promise<void>}
+   * @memberOf ListComponent
+   */
+  async handleFilter(value: IFilterQuery | undefined): Promise<void> {
+    await this.handleSearch(value);
   }
 
   /**
@@ -995,9 +1087,9 @@ async handleRefresh(event?: InfiniteScrollCustomEvent | CustomEvent): Promise<vo
  */
 async getFromRequest(force: boolean = false, start: number, limit: number): Promise<KeyValue[]> {
   let request: KeyValue[] = [];
-  if(!this.data?.length || force || this.searchValue?.length) {
+  if(!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
     // (self.data as ListItem[]) = [];
-    if(!this.searchValue?.length) {
+    if(!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
       if(!this.source && !this.data?.length) {
         this.logger.info('No data and source passed to infinite list');
         return [];
@@ -1044,16 +1136,16 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
   if(!this._repository)
     this._repository = this.repository;
   const repo = this._repository as DecafRepository<Model>;
-  if(!this.data?.length || force || this.searchValue?.length) {
+  if(!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
     try {
-      if(!this.searchValue?.length) {
+     if(!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
         (this.data as KeyValue[]) = [];
         // const rawQuery = this.parseQuery(self.model as Repository<Model>, start, limit);
         // request = this.parseResult(await (this.model as any)?.paginate(start, limit));
           if(!this.paginator) {
             this.paginator = await repo
               .select()
-              .orderBy([this.pk as keyof Model, this.sort])
+              .orderBy([this.pk as keyof Model, this.sortDirection])
               .paginate(this.limit);
           }
           request = await this.parseResult(this.paginator);
@@ -1062,20 +1154,8 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
         if(!this.indexes)
           this.indexes = (Object.values(this.mapper) || [this.pk]);
 
-        const searchValue = this.searchValue as string | number;
-        let condition = Condition.attribute<Model>(this.pk as keyof Model).eq(!isNaN(searchValue as number) ? Number(searchValue) : searchValue);
-        for (const index of this.indexes) {
-            if(index === this.pk)
-              continue;
-            let orCondition;
-            if(!isNaN(searchValue as number)) {
-              orCondition = Condition.attribute<Model>(index as keyof Model).eq(Number(searchValue));
-            } else {
-              orCondition = Condition.attribute<Model>(index as keyof Model).regexp(searchValue as string);
-            }
-            condition = condition.or(orCondition);
-        }
-        request = await this.parseResult(await repo.select().where(condition).execute());
+        const condition = this.parseConditions(this.searchValue as string | number | IFilterQuery);
+        request = await this.parseResult(await repo.query(condition, (this.sortBy || this.pk) as keyof Model, this.sortDirection));
         data = [];
       }
       data = this.type === ListComponentsTypes.INFINITE ? [... (data).concat(request)] : [...request];
@@ -1093,43 +1173,90 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
       this.items = [...data];
     }
   }
-  // // TODO: paginator.total
   if(this.type === ListComponentsTypes.PAGINATED && this.paginator)
       this.getMoreData(this.paginator.total);
   return data || [] as KeyValue[];
 }
 
 /**
- * @description Builds a query object for database operations.
- * @summary Creates a structured query object that can be used with the repository's
- * query methods. This includes pagination parameters, filtering criteria, and
- * table information derived from the model.
+ * @description Converts search values or filter queries into database conditions.
+ * @summary Transforms search input or complex filter queries into Condition objects
+ * that can be used for database querying. Handles both simple string/number searches
+ * across indexed fields and complex filter queries with multiple criteria.
  *
- * @protected
- * @param {number} start - The starting index for pagination
- * @param {number} limit - The maximum number of items to retrieve
- * @returns {KeyValue} The constructed query object
+ * For simple searches (string/number):
+ * - Creates conditions that search across all indexed fields
+ * - Uses equality for numeric values and regex for string values
+ * - Combines conditions with OR logic to search multiple fields
  *
+ * For complex filter queries:
+ * - Processes each filter item with its specific condition type
+ * - Supports Equal, Not Equal, Contains, Not Contains, Greater Than, Less Than
+ * - Updates sort configuration based on the filter query
+ * - Combines multiple filter conditions with OR logic
+ *
+ * @param {string | number | IFilterQuery} value - The search value or filter query object
+ * @returns {Condition<Model>} A Condition object for database querying
  * @memberOf ListComponent
  */
-protected parseQuery(start: number, limit: number): KeyValue {
-  const model = this._repository as IRepository<Model>;
-  const pk = model?.pk || this.pk;
-  const table = model?.class || model?.constructor?.name;
-  const query = this.query ?
-    typeof this.query === 'string' ? JSON.parse(this.query) : this.query : {};
-  const rawQuery: KeyValue = {
-    selector: Object.assign({}, {
-      [pk]: {"$gt": null},
-      "?table": table
-    }, query)
-  };
+parseConditions(value: string | number | IFilterQuery): Condition<Model> {
+  let _condition: Condition<Model>;
+  if(typeof value === Primitives.STRING || typeof value === Primitives.NUMBER) {
+    _condition = Condition.attribute<Model>(this.pk as keyof Model).eq(!isNaN(value as number) ? Number(value) : value);
+    for (const index of this.indexes) {
+        if(index === this.pk)
+          continue;
+        let orCondition;
+        if(!isNaN(value as number)) {
+          orCondition = Condition.attribute<Model>(index as keyof Model).eq(Number(value));
+        } else {
+          orCondition = Condition.attribute<Model>(index as keyof Model).regexp(value as string);
+        }
+        _condition = _condition.or(orCondition);
+    }
+  } else {
+    const {query, sort} = value as IFilterQuery;
+    _condition = Condition.attribute<Model>(this.pk as keyof Model).dif('null');
 
-  if(limit!== 0) {
-    rawQuery['skip']  = start;
-    rawQuery['limit'] = limit;
+    if(query?.length)
+      _condition = undefined as unknown as Condition<Model>;
+
+    (query || []).forEach((item: IFilterQueryItem) => {
+      const {value, condition, index} = item;
+      let val = value as string | number;
+      if(index === this.pk || !isNaN(val as number))
+        val = Number(val);
+      let orCondition;
+      switch (condition) {
+        case "Equal":
+          orCondition = Condition.attribute<Model>(index as keyof Model).eq(val);
+          break;
+        case "Not Equal":
+          orCondition = Condition.attribute<Model>(index as keyof Model).dif(val);
+          break;
+        case "Not Contains":
+          orCondition = !Condition.attribute<Model>(index as keyof Model).regexp(new RegExp(`^(?!.*${val}).*$`));
+          break;
+        case "Contains":
+          orCondition = Condition.attribute<Model>(index as keyof Model).regexp(val as string);
+          break;
+        case "Greater Than":
+          orCondition = Condition.attribute<Model>(index as keyof Model).gte(val);
+          break;
+        case "Less Than":
+          orCondition = Condition.attribute<Model>(index as keyof Model).lte(val);
+          break;
+      }
+      _condition = (!_condition ?
+        orCondition : _condition.and(orCondition as unknown as Condition<Model>)) as Condition<Model>;
+    });
+
+    this.sortBy = sort?.value as keyof Model || this.pk;
+    this.sortDirection = sort?.direction || this.sortDirection;
   }
-  return rawQuery;
+  console.log(_condition);
+  return _condition as Condition<Model>;
+
 }
 
 /**
