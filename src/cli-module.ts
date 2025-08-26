@@ -79,7 +79,7 @@ async function generateSchematics() {
     execute(`cd schematics`),
     execute(`npm install`),
     execute(`npm run build`),
-    execute(`schematics .:schematics --name=decaf`)
+    execute(`npx schematics .:schematics --name=decaf`)
   ])
   .then(res => res)
   .catch(error => error)
