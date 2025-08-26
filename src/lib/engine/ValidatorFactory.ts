@@ -4,6 +4,7 @@ import {
   DEFAULT_PATTERNS,
   PathProxy,
   PathProxyEngine,
+  Primitives,
   Validation,
   ValidationKeys,
   Validator,
@@ -74,6 +75,8 @@ export class ValidatorFactory {
 
       let errs: string | undefined;
       try {
+        if(!props['types'] && !props['customTypes'])
+          props['types'] = props['type'] === 'text' ? Primitives.STRING : type;
         errs = validator.hasErrors(value, props, proxy);
       } catch (e: unknown) {
         errs = `${key} validator failed to validate: ${e}`;
