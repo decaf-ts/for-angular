@@ -36,17 +36,17 @@ jobs:
         id: cache-build
         uses: actions/cache@v4
         with:
-          path: | 
+          path: |
             lib
             dist
           key: build-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             build-${{ runner.os }}-${{ matrix.node-version }}-
-            
+
       - if: ${{ steps.cache-build.outputs.cache-hit != 'true' }}
-        run: npm run build:prod  # Replace with your build command 
+        run: npm run build:prod  # Replace with your build command
       - run: npm run test:all
-      - run: npm publish --access public
+      - run: npm publish ./dist/lib --access public
         env:
           GITHUB_TOKEN: ${{ secrets.CONSECUTIVE_ACTION_TRIGGER }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

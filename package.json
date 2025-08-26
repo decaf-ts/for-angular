@@ -1,10 +1,11 @@
 {
   "name": "@decaf-ts/for-angular",
-  "version": "0.0.11",
+  "version": "0.0.14",
   "scripts": {
     "ng": "ng",
     "decaf": "npx decaf angular generate",
     "do-install": "TOKEN=$(cat .token) npm install",
+    "postinstall": "npm run build:schematics",
     "update-scripts": "npx update-scripts",
     "on-first-run": "npx update-scripts --boot",
     "set-git-auth": "git config url.\"https://api:$(cat .token)@github.com/\".insteadOf \"https://github.com/\" && git config url.\"https://ssh:$(cat .token)@github.com/\".insteadOf \"ssh://git@github.com/\" && git config url.\"https://git:$(cat .token)@github.com/\".insteadOf \"git@github.com:\"",
@@ -15,6 +16,7 @@
     "build": "ng build for-angular --configuration development && ng build for-angular-app --configuration development && npm run build:cli",
     "build:new": "rimraf ./.angular && npm run build",
     "build:cli": "tsc --project tsconfig.cli.json --outDir dist/for-angular/cli",
+    "build:schematics": "node ./bin/build-schematics.js",
     "start": "ng run for-angular-app:serve --host=localhost --port=8110",
     "server": "rimraf .angular && npm run lint && npm run start",
     "server:pwa": "npm run build && lite-server",
@@ -38,12 +40,8 @@
     "playwright": "npx playwright test --config=./playwright.config.ts",
     "playwright-ui": "npx playwright test --config=./playwright.config.ts --ui",
     "playwright-setup": "npm init playwright@latest",
-    "link": "npm run unlink && npm run build:new && cd dist && npm link && npm ls -g --depth=0 --link=true",
-    "unlink": "npm rm --global @decaf-ts/for-angular && npm ls -g --depth=0 --link=true"
+    "publish": "NPM_TOKEN=$(cat .npmtoken) npm publish ./dist/lib --access public"
   },
-  "files": [
-    "dist"
-  ],
   "author": "Tiago Venceslau",
   "license": "AGPL-3.0-or-later",
   "devDependencies": {
