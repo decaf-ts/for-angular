@@ -93,6 +93,9 @@
     }
   },
   "component": {
+    "fieldset": {
+      "add_another": "Add another"
+    },
     "list": {
       "pagination": "Showing page <span class=\"text-bold\">{{value0}} of {{value1}}</span>",
       "loading": "Loading data",

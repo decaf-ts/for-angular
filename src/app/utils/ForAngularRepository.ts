@@ -60,7 +60,7 @@ function generateEmployes(limit = 100): EmployeeModel[] {
   return getFakerData(limit, {
     name: faker.person.fullName,
     occupation: faker.person.jobTitle,
-    birthdate: faker.date.birthdate,
+    birthdate: () => faker.date.birthdate(),
     hiredAt: (random: number = Math.floor(Math.random() * 5) + 1) =>
       faker.date.past({ years: random }),
   }, EmployeeModel.name);
@@ -75,7 +75,6 @@ function generateCatories(limit = 100): CategoryModel[] {
       ' ' +
       faker.commerce.productMaterial(),
     description: () => faker.commerce.productDescription(),
-    createdAt: () => faker.date.birthdate(),
   }, CategoryModel.name);
 }
 
@@ -92,7 +91,7 @@ export function getFakerData<T extends Model>(
       item[key as keyof T] = val.constructor === Date ? formatDate(val) : val;
     }
     // item.id = index;
-    // item.createdAt = faker.date.past({ refDate: '2024-01-01' });
+    // item.createdAt = faker.date.past({ refDate: '2025-01-01' });
     index  = index + 1;
     return (!model ? item : Model.build(item, model)) as T;
   });

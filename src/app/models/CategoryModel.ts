@@ -5,15 +5,14 @@ import {
   required
 } from '@decaf-ts/decorator-validation';
 import { uilistprop, uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
-import { id } from '@decaf-ts/db-decorators';
+import { OperationKeys, timestamp } from '@decaf-ts/db-decorators';
 import { index, pk } from '@decaf-ts/core';
 @uilistitem('ngx-decaf-list-item', {icon: 'cafe-outline', className: 'testing'})
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class CategoryModel extends Model {
 
-  @pk()
-  @id()
+  @pk({type: 'Number' })
   id!: number;
 
   @required()
@@ -39,7 +38,11 @@ export class CategoryModel extends Model {
     type: 'textarea',
   })
   @uilistprop('info')
+  @timestamp([OperationKeys.CREATE])
   createdAt!: Date;
+
+  @timestamp()
+  updateAt!: Date;
 
   constructor(args: ModelArg<CategoryModel> = {}) {
     super(args);

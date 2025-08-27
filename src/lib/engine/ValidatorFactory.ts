@@ -4,7 +4,6 @@ import {
   DEFAULT_PATTERNS,
   PathProxy,
   PathProxyEngine,
-  Primitives,
   Validation,
   ValidationKeys,
   Validator,
@@ -12,6 +11,8 @@ import {
 import { FieldProperties, HTML5InputTypes, parseValueByType } from '@decaf-ts/ui-decorators';
 import { AngularEngineKeys } from './constants';
 import { KeyValue } from './types';
+import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
+
 
 type ComparisonValidationKey = typeof ComparisonValidationKeys[keyof typeof ComparisonValidationKeys];
 
@@ -38,13 +39,13 @@ const resolveValidatorKeyProps = (key: string, value: unknown, type: string): {
     [ValidationKeys.EMAIL]: DEFAULT_PATTERNS.EMAIL,
     [ValidationKeys.URL]: DEFAULT_PATTERNS.URL,
   };
-
   const isTypeBased = key === ValidationKeys.TYPE && Object.keys(patternValidators).includes(type);
   const validatorKey = isTypeBased ? type : key;
   const props: Record<string, unknown> = {
-    [validatorKey]: value,
+    // [validatorKey]: (!isTypeBased && key === 'type') ? parseType(type) : value,
+    [validatorKey]: (!isTypeBased && validatorKey === ValidationKeys.TYPE) ? NgxRenderingEngine2.get().translate(value as string, false) : value,
     // Email, Password, and URL are validated using the "pattern" key
-    ...(isTypeBased && { [ValidationKeys.PATTERN]: patternValidators[type] }),
+    ...(isTypeBased && { [ValidationKeys.PATTERN] : patternValidators[type] }),
   };
 
   return { validatorKey, props };
@@ -76,7 +77,7 @@ export class ValidatorFactory {
       let errs: string | undefined;
       try {
         if(!props['types'] && !props['customTypes'])
-          props['types'] = props['type'] === 'text' ? Primitives.STRING : type;
+          props['types'] = props['type'];
         errs = validator.hasErrors(value, props, proxy);
       } catch (e: unknown) {
         errs = `${key} validator failed to validate: ${e}`;

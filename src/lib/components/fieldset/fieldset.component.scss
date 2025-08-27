@@ -1,12 +1,34 @@
+ion-accordion-group {
+  ion-item[slot="header"] {
+    .dcf-delete {
+      width: 30px;
+      ion-button { transform: translateY(-2px); }
+      ion-icon { font-size: 1.15rem; }
+    }
+  }
+
+   &.hasValidationErrors {
+    [slot="header"],
+      ::ng-deep::part(header),
+    ion-item {
+      pointer-events: none !important;
+      * {
+         pointer-events: none !important;
+      }
+    }
+    ::ng-deep [slot="end"] {
+        opacity: .4 !important;
+    }
+
+  }
+}
+
 .dcf-fieldset {
   margin-bottom: 1.8rem;
   padding-bottom: 0;
   padding-top: 1rem;
   border: 1px solid var(--ion-color-gray-2);
   border-radius: 8px;
-  ion-accordion-group {
-      --border-color:red !important;
-  }
   &.read {
      margin-top: 1.25rem;
   }

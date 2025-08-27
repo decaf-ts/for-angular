@@ -77,8 +77,8 @@ export class ForAngularModel extends Model {
   @uielement('ngx-decaf-crud-field', { label: 'demo.password.label' })
   password!: string;
 
-  @uichild(UserModel.name, 'ngx-decaf-fieldset')
-  user!: UserModel;
+  // @uichild(UserModel.name, 'ngx-decaf-fieldset')
+  // user!: UserModel;
 
   @required()
   @uielement('ngx-decaf-crud-field', {
