@@ -15,7 +15,7 @@ import { IonApp,
 } from '@ionic/angular/standalone';
 import { Title } from '@angular/platform-browser';
 import { Platform } from '@ionic/angular';
-import { NgxRenderingEngine2 } from 'src/lib/engine';
+import { NgxRenderingEngine2 } from '../lib/engine';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { addIcons } from 'ionicons';

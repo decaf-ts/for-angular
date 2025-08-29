@@ -124,5 +124,8 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
+  },
+  "dependencies": {
+    "@angular/cdk": "^18.2.14"
   }
 }

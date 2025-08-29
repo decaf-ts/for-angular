@@ -101,7 +101,7 @@ export class ModelPage implements OnInit {
   async handleEvent(event: BaseCustomEvent) {
     const { name } = event;
     switch (name) {
-      case EventConstants.SUBMIT_EVENT:
+      case EventConstants.SUBMIT:
         await this.handleSubmit(event);
       break;
     }

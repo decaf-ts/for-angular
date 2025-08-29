@@ -1,13 +1,14 @@
 
-<fieldset [class]="'dcf-fieldset ' + operation" #component>
-  <ion-accordion-group [ngClass]="{'open': isOpen, 'hasValidationErrors': hasValidationErrors}" (validationError)="handleValidationError($event)" #accordionComponent>
+
+<fieldset [id]="uid" (fieldsetGroupValidationEvent)="handleAddAnother($event)" [class]="'dcf-fieldset ' + operation" #component>
+  <ion-accordion-group [ngClass]="{'open': isOpen, 'hasValidationErrors': hasValidationErrors}"  (validationErrorEvent)="handleValidationError($event)" #accordionComponent>
     <ion-accordion value="open">
       <ion-item slot="header" (click)="handleToggle($event)">
         <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1">
           <div class="dcf-width-expand">
             <legend>{{ name }}</legend>
           </div>
-          @if(isRequired) {
+          @if(!isRequired) {
             <div class="dcf-width-auto dcf-delete">
               <ion-button fill="clear" size="small" (click)="handleRemove($event)">
                 <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
@@ -17,13 +18,45 @@
         </div>
       </ion-item>
       <div slot="content" [attr.aria-hidden]="!isOpen">
+        @if(multiple && items.length) {
+          <ion-list>
+            <ion-reorder-group [disabled]="false" (ionItemReorder)="handleReorder($any($event))">
+              @for(item of items; track item.index) {
+                <ion-item lines="inset" button="falser">
+                  <!-- @if(items?.length > 1) { -->
+                    <ion-reorder slot="start"></ion-reorder>
+                  <!-- } -->
+                  <ion-label>{{ item.index }}. {{ item.title }}</ion-label>
+                  <ion-button fill="clear" size="small" (click)="removeValue(item.title)">
+                    <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </ion-item>
+              }
+            </ion-reorder-group>
+          </ion-list>
+        }
         <ng-content></ng-content>
-        <div class="dcf-margin">
-          <ion-button size="small" fill="clear" color="dark" (click)="handleAddAnother($event)">
-           <ion-icon name="add-outline" slot="start"></ion-icon>
-            {{ locale + '.add_another' | translate }}
-          </ion-button>
-        </div>
+        @if(multiple) {
+          @if(isUniqueError) {
+            <div class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast">
+              <div class=" dcf-grid dcf-grid-collapse dcf-width-1-1 ">
+                <div class="dcf-auto" [attr.style]="'max-width: 50px'">
+                  <ion-icon name="alert-circle-outline"></ion-icon>
+                </div>
+                <div class="dcf-width-expand">
+                  <ion-text color="danger" class="dcf-text-small">{{ locale + '.not_unique' | translate : { value: isUniqueError } }}</ion-text>
+                </div>
+              </div>
+            </div>
+          }
+          <div class="dcf-margin-bottom">
+            <ion-button size="small" fill="clear" color="dark" (click)="handleAddAnother()">
+            <ion-icon name="add-outline" slot="start"></ion-icon>
+              {{ locale + '.add_another' | translate }}
+            </ion-button>
+          </div>
+        }
+
       </div>
     </ion-accordion>
   </ion-accordion-group>

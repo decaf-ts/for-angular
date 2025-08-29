@@ -64,11 +64,14 @@ export const FormConstants = {
  * @property {string} SUBMIT_EVENT - Event fired when a form submission occurs
  * @memberOf module:engine
  */
-export enum EventConstants {
-  BACK_BUTTON_NAVIGATION = 'backButtonNavigationEndEvent',
-  REFRESH_EVENT = 'RefreshEvent',
-  CLICK_EVENT = 'ClickEvent',
-  SUBMIT_EVENT = 'SubmitEvent',
+export const EventConstants = {
+  BACK_BUTTON_NAVIGATION: 'backButtonNavigationEndEvent',
+  REFRESH: 'RefreshEvent',
+  CLICK: 'ClickEvent',
+  SUBMIT: 'SubmitEvent',
+  VALIDATION_ERROR: 'validationErrorEvent',
+  FIELDSET_ADD_GROUP: 'fieldsetAddGroupEvent',
+  FIELDSET_GROUP_VALIDATION: 'fieldsetGroupValidationEvent'
 }
 
 /**

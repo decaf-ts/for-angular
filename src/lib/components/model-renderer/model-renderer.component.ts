@@ -61,6 +61,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
   selector: 'ngx-decaf-model-renderer',
   templateUrl: './model-renderer.component.html',
   styleUrl: './model-renderer.component.scss',
+  host: {'[attr.id]': 'rendererId'},
 })
 export class ModelRendererComponent<M extends Model>
   implements OnChanges, OnDestroy, RenderedModel {
@@ -106,11 +107,6 @@ export class ModelRendererComponent<M extends Model>
    */
   @Output()
   listenEvent = new EventEmitter<RendererCustomEvent>();
-
-  /**
-   * @description Instance of the NgxRenderingEngine2
-   */
-  private render!: NgxRenderingEngine2;
 
   /**
    * @description Instance of the rendered component

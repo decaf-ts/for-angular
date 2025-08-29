@@ -361,8 +361,8 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
     // forcing trap focus
     removeFocusTrap();
     if(!this.route) {
-      const event = {target: target, action, pk: this.pk, data: this.uid, name: EventConstants.CLICK_EVENT, component: this.componentName } as ListItemCustomEvent;
-      windowEventEmitter(`ListItem${EventConstants.CLICK_EVENT}`, event);
+      const event = {target: target, action, pk: this.pk, data: this.uid, name: EventConstants.CLICK, component: this.componentName } as ListItemCustomEvent;
+      windowEventEmitter(`ListItem${EventConstants.CLICK}`, event);
       return this.clickEvent.emit(event);
     }
     return await this.redirect(action, (typeof this.uid === 'number' ? `${this.uid}`: this.uid));

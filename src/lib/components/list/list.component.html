@@ -20,7 +20,7 @@
 }
 
 @if(data?.length) {
-  <ion-list [inset]="inset" [lines]="lines" #component>
+  <ion-list [id]="uid" [inset]="inset" [lines]="lines" #component>
     @if(item?.tag) {
       @for(child of items; track trackItemFn($index, child)) {
         <ngx-decaf-component-renderer

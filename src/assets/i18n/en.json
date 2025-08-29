@@ -94,7 +94,8 @@
   },
   "component": {
     "fieldset": {
-      "add_another": "Add another"
+      "add_another": "Add another",
+      "not_unique": "The value entered already exists. Value \"{{value}}\""
     },
     "list": {
       "pagination": "Showing page <span class=\"text-bold\">{{value0}} of {{value1}}</span>",

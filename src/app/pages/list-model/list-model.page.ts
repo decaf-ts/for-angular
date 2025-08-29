@@ -32,7 +32,7 @@ export class ListModelPage implements OnInit {
 
   handleEvent(event: BaseCustomEvent) {
     const {name, data } = event;
-    if(name === EventConstants.REFRESH_EVENT)
+    if(name === EventConstants.REFRESH)
       return this.handleListRefreshEvent(data as Model[]);
 
   }

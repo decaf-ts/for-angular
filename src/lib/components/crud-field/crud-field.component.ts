@@ -31,6 +31,7 @@ import {
 import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
+import { generateRandomValue } from '../../helpers';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -96,6 +97,7 @@ import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
   templateUrl: './crud-field.component.html',
   styleUrl: './crud-field.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  host: {'[attr.id]': 'uid'},
 })
 export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDestroy, AfterViewInit {
 
@@ -584,8 +586,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    *
    * @type {string | number}
    */
-  @Input()
-  uid!: string | number | undefined;
+  uid: string = generateRandomValue(12);
 
   // constructor() {
 

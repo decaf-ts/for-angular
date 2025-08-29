@@ -21,6 +21,7 @@ import { BaseCustomEvent, KeyValue, RendererCustomEvent } from '../../engine';
 import { ForAngularModule, getLogger } from '../../for-angular.module';
 import { Logger } from '@decaf-ts/logging';
 import { Model } from '@decaf-ts/decorator-validation';
+import { generateRandomValue } from '../../helpers';
 
 /**
  * @description Dynamic component renderer for Decaf Angular applications.
@@ -67,6 +68,7 @@ import { Model } from '@decaf-ts/decorator-validation';
   styleUrls: ['./component-renderer.component.scss'],
   imports: [ForAngularModule],
   standalone: true,
+  host: {'[attr.id]': 'rendererId'},
 })
 export class ComponentRendererComponent
   implements OnInit, OnDestroy {
@@ -175,6 +177,8 @@ export class ComponentRendererComponent
 
   @ViewChild('inner', { read: TemplateRef, static: true })
   inner?: TemplateRef<unknown>;
+
+  uid: string = generateRandomValue(12);
 
   /**
    * @description Creates an instance of ComponentRendererComponent.

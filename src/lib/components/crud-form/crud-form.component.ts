@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
   inject,
   Input,
   OnDestroy,
@@ -21,6 +22,7 @@ import { ForAngularModule, getLogger } from '../../for-angular.module';
 import { IonIcon } from '@ionic/angular/standalone';
 import { Model } from '@decaf-ts/decorator-validation';
 import { Logger } from '@decaf-ts/logging';
+import { windowEventEmitter } from '../../helpers';
 
 
 /**
@@ -50,6 +52,7 @@ import { Logger } from '@decaf-ts/logging';
   templateUrl: './crud-form.component.html',
   styleUrls: ['./crud-form.component.scss'],
   imports: [ForAngularModule, IonIcon],
+   host: {'[attr.id]': 'rendererId'},
 })
 export class CrudFormComponent implements OnInit, FormElement, OnDestroy, RenderedModel {
 
@@ -167,6 +170,40 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
       NgxFormService.unregister(this.formGroup);
   }
 
+  @HostListener('window:fieldsetAddGroupEvent', ['$event'])
+  async handleValidateGroup(event: CustomEvent): Promise<void> {
+    const { group, component } = event.detail;
+    if(group) {
+      const formGroup = this.formGroup!.controls[group];
+      if(formGroup instanceof FormGroup) {
+        const isValid = NgxFormService.validateFields(formGroup as FormGroup);
+        const event = new CustomEvent(EventConstants.FIELDSET_GROUP_VALIDATION, {
+          detail: {isValid, value: formGroup.value, formGroup},
+        });
+        component.dispatchEvent(event);
+      }
+    }
+
+
+
+    // const matchingGroups: {name: string, formGroup: FormGroup}[] = [];
+
+    // Object.keys(this.formGroup.controls).forEach(controlName => {
+    //   const control = this.formGroup!.controls[controlName];
+
+    //   // Check if it's a FormGroup and if the name matches the category
+    //   if (control instanceof FormGroup) {
+    //     // Exact match
+    //     if (controlName === categoryName) {
+    //       matchingGroups.push({ name: controlName, formGroup: control });
+    //     }
+    //     // Partial match (useful for dynamic fieldsets like "category_0", "category_1", etc.)
+    //     else if (controlName.startsWith(categoryName)) {
+    //       matchingGroups.push({ name: controlName, formGroup: control });
+    //     }
+    //   }
+  }
+
   /**
    * @param  {SubmitEvent} event
    */
@@ -182,7 +219,7 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
     this.submitEvent.emit({
       data,
       component: 'CrudFormComponent',
-      name: this.action || EventConstants.SUBMIT_EVENT,
+      name: this.action || EventConstants.SUBMIT,
       handlers: this.handlers,
     });
   }
@@ -199,7 +236,7 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
     this.submitEvent.emit({
       data: this.uid,
       component: 'CrudFormComponent',
-      name: EventConstants.SUBMIT_EVENT,
+      name: EventConstants.SUBMIT,
     });
   }
 

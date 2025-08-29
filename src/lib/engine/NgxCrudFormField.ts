@@ -1,4 +1,4 @@
-import { FieldProperties, RenderingError } from '@decaf-ts/ui-decorators';
+import { CrudOperationKeys, FieldProperties, RenderingError } from '@decaf-ts/ui-decorators';
 import { KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormControl, FormGroup } from '@angular/forms';
@@ -6,6 +6,7 @@ import { ElementRef, inject, Renderer2 } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
 import { TranslateService } from '@ngx-translate/core';
+import { EventConstants } from './constants';
 
 /**
  * @class NgxCrudFormField
@@ -49,7 +50,7 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
   // Validation
 
   format?: string;
-  hidden?: boolean;
+  hidden?: boolean | CrudOperationKeys[];
   max?: number | Date;
   maxlength?: number;
   min?: number | Date;
@@ -187,7 +188,7 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
       }));
       if(errors.length) {
         if(accordionComponent && !this.validationErrorEventDispateched) {
-          const validationErrorEvent = new CustomEvent('validationError', {
+          const validationErrorEvent = new CustomEvent(EventConstants.VALIDATION_ERROR, {
             detail: {fieldName: this.name, hasErrors: true},
             bubbles: true
           });

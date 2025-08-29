@@ -905,7 +905,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
       data = this.items;
     this.skeletonData = new Array(data?.length || 2);
     this.refreshEvent.emit({
-      name: EventConstants.REFRESH_EVENT,
+      name: EventConstants.REFRESH,
       data: data || [],
       component: this.componentName
     });

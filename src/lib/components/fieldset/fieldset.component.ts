@@ -1,12 +1,16 @@
 
-import { AfterViewInit, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, Input, ViewChild, Renderer2 } from '@angular/core';
-import { Dynamic, HTMLFormTarget } from '../../engine';
+import { AfterViewInit, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild, Renderer2, Output, EventEmitter, HostListener, OnInit } from '@angular/core';
+import { Dynamic, EventConstants, HTMLFormTarget, KeyValue } from '../../engine';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModule } from '../../for-angular.module';
 import { CollapsableDirective } from '../../directives/collapsable.directive';
-import { IonAccordion, IonAccordionGroup, IonItem } from '@ionic/angular/standalone';
-import { Model } from '@decaf-ts/decorator-validation';
-import { getLocaleFromClassName } from '../../helpers';
+import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorder, IonReorderGroup } from '@ionic/angular/standalone';
+import { itemMapper, windowEventEmitter } from '../../helpers';
+import { FormGroup } from '@angular/forms';
+import { NgxFormService } from '../../engine/NgxFormService';
+import { NgxBaseComponent } from '../../engine';
+import { alertCircleOutline } from 'ionicons/icons';
+import { description } from '@decaf-ts/decorator-validation';
 
 /**
  * @description Dynamic fieldset component with collapsible accordion functionality.
@@ -65,22 +69,10 @@ import { getLocaleFromClassName } from '../../helpers';
   templateUrl: './fieldset.component.html',
   styleUrls: ['./fieldset.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [ForAngularModule, IonAccordionGroup, IonAccordion, IonItem, CollapsableDirective],
+  imports: [ForAngularModule, IonAccordionGroup, IonAccordion, IonList, IonItem, IonLabel, IonButton, IonReorderGroup, CollapsableDirective],
 })
-export class FieldsetComponent implements AfterViewInit {
+export class FieldsetComponent extends NgxBaseComponent implements OnInit, AfterViewInit {
 
-  /**
-   * @description Reference to the component's native DOM element.
-   * @summary ViewChild reference that provides direct access to the component's root DOM element.
-   * This is essential for manipulating the Ionic accordion group after view initialization,
-   * particularly for setting the initial open state programmatically. The reference is used
-   * to query and modify accordion attributes that control the component's expanded state.
-   *
-   * @type {ElementRef}
-   * @memberOf FieldsetComponent
-   */
-  @ViewChild('component', { static: false, read: ElementRef })
-  component!: ElementRef;
 
 
   /**
@@ -96,16 +88,6 @@ export class FieldsetComponent implements AfterViewInit {
   @ViewChild('accordionComponent', { static: false })
   accordionComponent!: IonAccordionGroup;
 
-  /**
-   * @description Locale identifier for internationalization.
-   * @summary String that represents the current locale setting for the component,
-   * derived from the component's class name. This is used for localization of text
-   * content and regional formatting within the fieldset component.
-   *
-   * @type {string}
-   * @memberOf FieldsetComponent
-   */
-  locale: string = getLocaleFromClassName('FieldsetComponent');
 
   /**
    * @description The display name or title of the fieldset section.
@@ -123,15 +105,18 @@ export class FieldsetComponent implements AfterViewInit {
 
 
   /**
-   * @description Repository model for data operations.
-   * @summary The data model repository that this component will use for CRUD operations.
-   * This provides a connection to the data layer for retrieving and manipulating data.
+   * @description The display name or title of the fieldset section.
+   * @summary Sets the legend or header text that appears in the accordion header. This text
+   * provides a clear label for the collapsible section, helping users understand what content
+   * is contained within. The name is displayed prominently and serves as the clickable area
+   * for expanding/collapsing the fieldset.
    *
-   * @type {Model| undefined}
-   * @memberOf NgxBaseComponent
+   * @type {string}
+   * @default 'Child'
+   * @memberOf FieldsetComponent
    */
   @Input()
-  model!:  Model | undefined;
+  childOf: string = 'Child';
 
   /**
    * @description The current CRUD operation context.
@@ -147,6 +132,15 @@ export class FieldsetComponent implements AfterViewInit {
   @Input()
   operation: OperationKeys = OperationKeys.READ;
 
+  @Input()
+  formGroup!: FormGroup;
+
+  @Input()
+  title!: string;
+
+  @Input()
+  subtitle!: string;
+
   /**
    * @description Form target attribute for nested form submissions.
    * @summary Specifies where to display the response after submitting forms contained within
@@ -160,6 +154,15 @@ export class FieldsetComponent implements AfterViewInit {
    */
   @Input()
   target: HTMLFormTarget = '_self';
+
+
+  @Input()
+  multiple: boolean = false;
+
+  @Input()
+  value: KeyValue[] = [];
+
+  items: KeyValue[] = [];
 
 
   /**
@@ -203,6 +206,8 @@ export class FieldsetComponent implements AfterViewInit {
    */
   hasValidationErrors: boolean = false;
 
+  isUniqueError: string | undefined = undefined;
+
   /**
    * @description Reference to CRUD operation constants for template usage.
    * @summary Exposes the OperationKeys enum to the component template, enabling conditional
@@ -242,6 +247,27 @@ export class FieldsetComponent implements AfterViewInit {
   private renderer: Renderer2 = inject(Renderer2);
 
   /**
+   * @description Event emitter for refresh operations.
+   * @summary Emits an event when the list data is refreshed, either through pull-to-refresh
+   * or programmatic refresh. The event includes the refreshed data and component information.
+   *
+   * @type {EventEmitter<BaseCustomEvent>}
+   * @memberOf ListComponent
+   */
+  @Output()
+  fieldsetAddGroupEvent: EventEmitter<string> = new EventEmitter<string>();
+
+  constructor() {
+    super('FieldsetComponent', {alertCircleOutline});
+  }
+
+  ngOnInit(): void {
+    if(this.model)
+      this._repository = this.repository;
+
+  }
+
+   /**
    * @description Initializes the component state after view and child components are rendered.
    * @summary This lifecycle hook implements intelligent auto-state management based on the current
    * CRUD operation. For READ and DELETE operations, the fieldset automatically opens to provide
@@ -283,11 +309,37 @@ export class FieldsetComponent implements AfterViewInit {
         this.accordionComponent.value = 'open';
         this.handleToggle();
       }
-
     }
     this.changeDetectorRef.detectChanges();
   }
 
+
+  handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
+    const fromIndex = event.detail.from;
+    const toIndex = event.detail.to;
+    const items = [...this.items];
+    if (fromIndex !== toIndex) {
+
+      // this.refreshing = true;
+      // Reorder the array
+      const itemToMove = items.splice(fromIndex, 1)[0];
+      console.log(itemToMove);
+      // items = [... items.filter(item => item['index'] !== itemToMove['index'])];
+      // console.log(items);
+      items.splice(toIndex, 0, itemToMove);
+      // // Update indices if your items have an index property
+      items.forEach((item, index) => item['index'] = index + 1);
+      // items.sort((a: KeyValue, b: KeyValue) => a['index'] - b['index']);
+      // console.log(items);
+     items.forEach(item => console.log(item['title']))
+      // Optional: Emit event or update form if needed
+      // this.onItemsReordered?.emit(items);
+    }
+    // Complete the reorder operation
+    event.detail.complete();
+    this.items = [...items];
+    this.updateValueOrder();
+  }
 
   /**
    * @description Handles accordion state change events from user interactions.
@@ -367,9 +419,34 @@ export class FieldsetComponent implements AfterViewInit {
    * @returns {void}
    * @memberOf FieldsetComponent
    */
-  handleAddAnother(event: Event): void {
-    event.stopPropagation();
-    console.log('add another');
+  async handleAddAnother(event?: CustomEvent<{formGroup: FormGroup, value: unknown, isValid: boolean}>): Promise<void> {
+
+    if(event && event instanceof CustomEvent) {
+      event.stopPropagation();
+      const {formGroup, value, isValid} = event.detail;
+      if(isValid) {
+        const isUnique = this.isUnique((value as KeyValue)?.[this.pk]);
+        if(isUnique) {
+          this.mapper = this.getMapper(value as KeyValue);
+          this.setValue(value as KeyValue);
+          NgxFormService.reset(formGroup)
+        }
+      }
+      // console.log(formGroup.value);
+    } else {
+      this.fieldsetAddGroupEvent.emit(this.childOf);
+      windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {group: this.childOf, component: this.component.nativeElement});
+    }
+
+
+    // const formComponent = this.component.nativeElement.closest('ngx-decaf-crud-form');
+    // disp(new CustomEvent(EventConstants.FIELDSET_ADD_GROUP, {
+    //   detail: this.name,
+    //   bubbles: true,
+    //   composed: true,
+    //   cancelable: false,
+
+    // }));
   }
 
   /**
@@ -392,5 +469,57 @@ export class FieldsetComponent implements AfterViewInit {
       if (parent)
         this.renderer.removeChild(parent, this.component.nativeElement);
     }, 150);
+  }
+
+  removeValue(value: string | number): void {
+    this.value = this.value.filter(item => item[this.pk] !== value);
+    this.items = this.value.map(item => {
+      return itemMapper(item as KeyValue, this.mapper);
+    });
+
+  }
+
+  private updateValueOrder(): void {
+    const values = [...this.value];
+    this.value = [];
+    this.items.forEach(item => {
+      values.forEach(v => {
+        if(v[this.pk] === item['title'])
+          this.value.push(v);
+      });
+    })
+
+    console.log(this.value);
+  }
+
+  private setValue(value: KeyValue) {
+    this.value.push(value);
+    value = Object.assign({}, value, {index: this.value.length}) as KeyValue;
+    value = itemMapper(value, this.mapper);
+    this.items.push(value);
+  }
+
+  private isUnique(value: string | number): boolean {
+    const item = this.value.find(item => item[this.pk] === value);
+    this.isUniqueError = item ? item?.[this.pk] : undefined;
+    return !item;
+  }
+
+  private getMapper(value: KeyValue) {
+    if(!this.pk)
+      this.pk = Object.keys(value)[0];
+    if(!Object.keys(this.mapper).length)
+      this.mapper['title'] = this.pk;
+    this.mapper['index'] = "index";
+    for(const key in value) {
+      if(Object.keys(this.mapper).length >= 2 || Object.keys(this.mapper).length === Object.keys(value).length)
+        break;
+      if(!this.mapper['title']) {
+        this.mapper['title'] = key;
+      } else {
+        this.mapper['subtitle'] = key;
+      }
+    }
+    return this.mapper;
   }
 }

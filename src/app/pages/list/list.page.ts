@@ -42,7 +42,7 @@ export class ListPage implements OnInit, OnDestroy {
 
   handleEvent(event: BaseCustomEvent) {
     const { name } = event;
-    if(name === EventConstants.REFRESH_EVENT)
+    if(name === EventConstants.REFRESH)
       return this.handleListRefreshEvent(event);
   }
 

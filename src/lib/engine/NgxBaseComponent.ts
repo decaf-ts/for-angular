@@ -11,8 +11,11 @@ import {
 } from '@angular/core';
 import { KeyValue, RendererCustomEvent, StringOrBoolean } from './types';
 import {
+  generateRandomValue,
   getInjectablesRegistry,
   getLocaleFromClassName,
+  getOnWindow,
+  isDevelopmentMode,
   stringToBoolean
 } from '../helpers/utils';
 import { Model } from '@decaf-ts/decorator-validation';
@@ -27,6 +30,8 @@ import { Logger } from '@decaf-ts/logging';
 import { getLogger } from '../for-angular.module';
 import { DecafRepository } from '../components/list/constants';
 import { Repository } from '@decaf-ts/core';
+import { RamAdapter } from '@decaf-ts/core/ram';
+import { addIcons } from 'ionicons';
 
 /**
  * @description Base component class that provides common functionality for all Decaf components.
@@ -92,7 +97,8 @@ import { Repository } from '@decaf-ts/core';
  */
 @Component({
   standalone: true,
-  template: '',
+  template: '<div><div>',
+  host: {'[attr.id]': 'uid'},
 })
 export abstract class NgxBaseComponent implements OnChanges {
   /**
@@ -207,7 +213,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @memberOf NgxBaseComponent
    */
   @Input()
-  pk: string = 'id';
+  pk!: string;
 
   /**
    * @description Base route for navigation related to this component.
@@ -423,11 +429,14 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @memberOf NgxBaseComponent
    */
   // eslint-disable-next-line @angular-eslint/prefer-inject
-  protected constructor(@Inject('instanceToken') protected instance: string) {
+  protected constructor(@Inject('instanceToken') protected instance: string, @Inject('iconsToken') icons: KeyValue = {}) {
+    if(Object.keys(icons).length)
+      addIcons(icons);
     this.componentName = instance;
     this.componentLocale = getLocaleFromClassName(instance);
     this.logger = getLogger(this);
     this.getLocale(this.translatable);
+    this.uid = generateRandomValue(12);
   }
 
   /**
@@ -453,8 +462,15 @@ export abstract class NgxBaseComponent implements OnChanges {
           throw new InternalError(
             'Cannot find model. was it registered with @model?',
           );
-        this._repository = Repository.forModel(constructor);
+        let dbAdapterFlavour = getOnWindow('dbAdapterFlavour');
+        if(!dbAdapterFlavour && isDevelopmentMode()) {
+          const adapter = new RamAdapter();
+          dbAdapterFlavour = adapter.flavour;
+        }
+        this._repository = Repository.forModel(constructor, dbAdapterFlavour as string);
         this.model = new constructor() as Model;
+        if(this.model && !this.pk)
+          this.pk = (this._repository as unknown as DecafRepository<Model>).pk || 'id';
       }
     } catch (error: unknown) {
       throw new InternalError(

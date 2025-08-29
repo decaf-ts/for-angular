@@ -62,3 +62,34 @@ ion-accordion-group {
     }
   }
 }
+
+.dcf-not-unique-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex: 1 1 auto;
+    > div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    ion-icon {
+        transform: translatey(2px);
+        margin-right: 5px;
+    }
+}
+
+
+ion-item {
+   // margin-bottom: 5px;
+  --min-height: 50px;
+  //  --border-radius: 10px;
+  --padding-top: .25rem;
+  --padding-bottom: .25rem;
+  --padding-start: .75rem;
+   --padding-end: .75rem;
+  --inner-padding-start: 0px !important;
+  --inner-padding-end: 0px !important;
+  --border-color: var(--ion-color-gray-2);
+}

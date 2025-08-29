@@ -193,7 +193,7 @@ export class PaginationComponent extends NgxBaseComponent implements OnInit {
     if(page)
       this.current = page;
     this.clickEvent.emit({
-      name: EventConstants.CLICK_EVENT,
+      name: EventConstants.CLICK,
       data: {
         direction,
         page: this.current

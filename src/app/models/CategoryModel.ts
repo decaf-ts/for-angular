@@ -4,7 +4,7 @@ import {
   ModelArg,
   required
 } from '@decaf-ts/decorator-validation';
-import { uilistprop, uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
+import { uilistprop, uielement, uilistitem, uimodel, hideOn } from '@decaf-ts/ui-decorators';
 import { OperationKeys, timestamp } from '@decaf-ts/db-decorators';
 import { index, pk } from '@decaf-ts/core';
 @uilistitem('ngx-decaf-list-item', {icon: 'cafe-outline', className: 'testing'})
@@ -39,6 +39,7 @@ export class CategoryModel extends Model {
   })
   @uilistprop('info')
   @timestamp([OperationKeys.CREATE])
+  @hideOn(OperationKeys.CREATE)
   createdAt!: Date;
 
   @timestamp()

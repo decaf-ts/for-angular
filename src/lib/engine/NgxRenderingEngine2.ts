@@ -1,7 +1,7 @@
-import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
+import { CrudOperationKeys, FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
 import { AngularDynamicOutput, AngularFieldDefinition, KeyValue } from './types';
 import { AngularEngineKeys } from './constants';
-import { Constructor, Model } from '@decaf-ts/decorator-validation';
+import { Constructor, Model, Primitives } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
 import {
   ComponentMirror,
@@ -14,6 +14,7 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
+import { getInjectablesRegistry } from '../helpers';
 
 /**
  * @description Angular implementation of the RenderingEngine with enhanced features
@@ -73,12 +74,16 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
    */
   private _model!: Model;
 
+  private static _operation: string | undefined = undefined;
+
   /**
    * @description Static reference to the current instance
    * @summary Singleton instance reference for the rendering engine.
    * @type {Type<unknown> | undefined}
    */
   private static _instance: Type<unknown> | undefined;
+
+
 
   /**
    * @description Creates a new instance of NgxRenderingEngine2
@@ -151,6 +156,8 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
     if (unmappedKeys.length > 0)
       console.warn(`Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`);
 
+    const operation = NgxRenderingEngine2._operation;
+    // const hiddenOn = inputs?.hidden || [];
     const result: AngularDynamicOutput = {
       component,
       inputs,
@@ -162,8 +169,16 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
 
     // process children
     if (fieldDef.children?.length) {
-      result.children = fieldDef.children.map((child) => {
-        // create a child form and add its controls as properties of child.props
+      (result.children as (AngularDynamicOutput | undefined)[]) = fieldDef.children.map((child) => {
+        if(child?.children?.length) {
+          child.children = child.children.filter(c => {
+            const hiddenOn = c?.props?.hidden || [];
+            if(!(hiddenOn as string[]).includes(operation as string))
+              return c
+          })
+        }
+
+         // create a child form and add its controls as properties of child.props
         NgxFormService.addControlFromProps(registryFormId, child.props);
         return this.fromFieldDefinition(child, vcr, injector, tpl, registryFormId);
       });
@@ -280,6 +295,9 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       this._model = model;
       const formId = Date.now().toString(36).toUpperCase();
       const fieldDef = this.toFieldDefinition(model, globalProps);
+      const props = fieldDef.props as KeyValue;
+      if(!NgxRenderingEngine2._operation)
+        NgxRenderingEngine2._operation = props?.['operation'] || undefined;
       result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl, formId);
 
       (result!.instance! as KeyValue)['formGroup'] = NgxFormService.getControlFromForm(formId);
