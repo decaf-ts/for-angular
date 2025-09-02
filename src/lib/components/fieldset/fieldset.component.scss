@@ -23,14 +23,25 @@ ion-accordion-group {
   }
 }
 
+// removing border of last field item
+::ng-deep ion-accordion ngx-decaf-crud-field:last-child ion-item {
+  --inner-border-width: 0px !important;
+  --border-width: 0px !important;
+}
+
+
+
 .dcf-fieldset {
   margin-bottom: 1.8rem;
   padding-bottom: 0;
   padding-top: 1rem;
   border: 1px solid var(--ion-color-gray-2);
   border-radius: 8px;
+  height: 100%;
   &.read {
-     margin-top: 1.25rem;
+    margin-top: 1.25rem;
+    padding-bottom: 1rem;
+    [slot="content"] { padding-top: 0px !important; background:  red;}
   }
 
   ion-accordion {
@@ -80,6 +91,11 @@ ion-accordion-group {
     }
 }
 
+.dcf-fields-list {
+  margin-top: -1rem;
+  margin-bottom: 1rem;
+  padding: 0px !important;
+}
 
 ion-item {
    // margin-bottom: 5px;
@@ -92,4 +108,9 @@ ion-item {
   --inner-padding-start: 0px !important;
   --inner-padding-end: 0px !important;
   --border-color: var(--ion-color-gray-2);
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  &.updating {
+    border-color:  var(--ion-color-primary);
+  }
 }

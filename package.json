@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "decaf": "npx decaf angular generate",
+    "schematics": "schematics",
     "do-install": "TOKEN=$(cat .token) npm install",
     "postinstall": "npm run build:schematics",
     "update-scripts": "npx update-scripts",
@@ -40,7 +41,11 @@
     "playwright": "npx playwright test --config=./playwright.config.ts",
     "playwright-ui": "npx playwright test --config=./playwright.config.ts --ui",
     "playwright-setup": "npm init playwright@latest",
-    "publish": "NPM_TOKEN=$(cat .npmtoken) npm publish ./dist/lib --access public"
+    "publish": "NPM_TOKEN=$(cat .npmtoken) npm publish ./dist/lib --access public",
+    "resources": "npm run resources:pwa",
+    "resources:android": "npx capacitor-assets generate --android --assetPath='resources' && npm run resources",
+    "resources:ios": "npx capacitor-assets generate --ios --assetPath='resources' && npm run resources",
+    "resources:pwa": "npx capacitor-assets generate --pwa --assetPath='resources' --pwaManifestPath='src/manifest.webmanifest'"
   },
   "author": "Tiago Venceslau",
   "license": "AGPL-3.0-or-later",
@@ -48,9 +53,11 @@
     "@angular-devkit/build-angular": "^18.2.12",
     "@angular-devkit/core": "^19.2.8",
     "@angular-devkit/schematics": "^18.2.18",
+    "@angular-devkit/schematics-cli": "^20.2.1",
     "@angular-eslint/schematics": "^20.1.1",
     "@angular/cli": "^18.2.12",
     "@angular/compiler-cli": "^18.2.13",
+    "@capacitor/assets": "^3.0.5",
     "@decaf-ts/utils": "^0.2.6",
     "@faker-js/faker": "^9.7.0",
     "@ionic/angular-toolkit": "^12.1.1",
@@ -94,6 +101,7 @@
     "typescript-eslint": "8.34.1"
   },
   "peerDependencies": {
+    "@angular/cdk": "^18.2.14",
     "@angular/animations": "^18.2.13",
     "@angular/common": "^18.2.13",
     "@angular/compiler": "^18.2.13",
@@ -124,8 +132,5 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
-  },
-  "dependencies": {
-    "@angular/cdk": "^18.2.14"
   }
 }

@@ -73,6 +73,10 @@
     "description": {
       "label": "Category Description",
       "placeholder": "Describe the category (optional)"
+    },
+    "created": {
+      "label": "Creation date",
+      "placeholder": "Select the creation date"
     }
   },
   "employee": {
@@ -94,7 +98,8 @@
   },
   "component": {
     "fieldset": {
-      "add_another": "Add another",
+      "add": "Add another",
+      "update": "Update item",
       "not_unique": "The value entered already exists. Value \"{{value}}\""
     },
     "list": {

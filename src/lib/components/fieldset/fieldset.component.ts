@@ -1,16 +1,45 @@
 
-import { AfterViewInit, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild, Renderer2, Output, EventEmitter, HostListener, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild, Renderer2, OnInit } from '@angular/core';
 import { Dynamic, EventConstants, HTMLFormTarget, KeyValue } from '../../engine';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModule } from '../../for-angular.module';
 import { CollapsableDirective } from '../../directives/collapsable.directive';
-import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorder, IonReorderGroup } from '@ionic/angular/standalone';
+import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorderGroup, IonReorder } from '@ionic/angular/standalone';
 import { itemMapper, windowEventEmitter } from '../../helpers';
 import { FormGroup } from '@angular/forms';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { NgxBaseComponent } from '../../engine';
-import { alertCircleOutline } from 'ionicons/icons';
-import { description } from '@decaf-ts/decorator-validation';
+import { alertCircleOutline, createOutline } from 'ionicons/icons';
+import { TranslateService } from '@ngx-translate/core';
+
+
+/**
+ * @description Interface for fieldset item representation in the UI.
+ * @summary Defines the structure for items displayed in the reorderable list within the fieldset.
+ * Each item represents a value added to the fieldset with display properties for the UI.
+ */
+interface IFieldSetItem {
+  /** @description Sequential index number for ordering items in the list */
+  index: number;
+  /** @description Primary display text for the item */
+  title: string;
+  /** @description Optional secondary text providing additional item details */
+  description?: string;
+}
+
+/**
+ * @description Interface for fieldset validation event data.
+ * @summary Defines the structure of validation events emitted when form validation occurs.
+ * Used for communication between form components and the fieldset container.
+ */
+interface IFieldSetValidationEvent {
+  /** @description The FormGroup containing the validated form controls */
+  formGroup: FormGroup;
+  /** @description The current form value being validated */
+  value: unknown;
+  /** @description Whether the form validation passed or failed */
+  isValid: boolean;
+}
 
 /**
  * @description Dynamic fieldset component with collapsible accordion functionality.
@@ -69,7 +98,7 @@ import { description } from '@decaf-ts/decorator-validation';
   templateUrl: './fieldset.component.html',
   styleUrls: ['./fieldset.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [ForAngularModule, IonAccordionGroup, IonAccordion, IonList, IonItem, IonLabel, IonButton, IonReorderGroup, CollapsableDirective],
+  imports: [ForAngularModule, IonAccordionGroup, IonAccordion, IonList, IonItem, IonLabel, IonReorder, IonButton, IonReorderGroup, CollapsableDirective],
 })
 export class FieldsetComponent extends NgxBaseComponent implements OnInit, AfterViewInit {
 
@@ -129,17 +158,52 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @default OperationKeys.READ
    * @memberOf FieldsetComponent
    */
+  /**
+   * @description The CRUD operation type for the current fieldset context.
+   * @summary Determines the component's initial behavior and state based on the current operation.
+   * This input is crucial for auto-state management: READ and DELETE operations automatically
+   * open the fieldset to show content, while CREATE and UPDATE operations keep it closed
+   * initially. This provides an intuitive user experience aligned with operation semantics.
+   *
+   * @type {OperationKeys}
+   * @default OperationKeys.READ
+   * @memberOf FieldsetComponent
+   */
   @Input()
   operation: OperationKeys = OperationKeys.READ;
 
+  /**
+   * @description Reactive form group associated with this fieldset.
+   * @summary The FormGroup instance that contains all form controls within this fieldset.
+   * Used for form validation, value management, and integration with Angular's reactive forms.
+   *
+   * @type {FormGroup}
+   * @memberOf FieldsetComponent
+   */
   @Input()
   formGroup!: FormGroup;
 
+  /**
+   * @description Primary title text for the fieldset content.
+   * @summary Display title used for fieldset identification and content organization.
+   * Provides semantic meaning to the grouped form fields.
+   *
+   * @type {string}
+   * @memberOf FieldsetComponent
+   */
   @Input()
   title!: string;
 
+  /**
+   * @description Secondary descriptive text for the fieldset.
+   * @summary Additional information that provides context or instructions
+   * related to the fieldset content and purpose.
+   *
+   * @type {string}
+   * @memberOf FieldsetComponent
+   */
   @Input()
-  subtitle!: string;
+  description!: string;
 
   /**
    * @description Form target attribute for nested form submissions.
@@ -156,13 +220,50 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
   target: HTMLFormTarget = '_self';
 
 
+  /**
+   * @description Enables multiple item management within the fieldset.
+   * @summary Boolean flag that determines if the fieldset supports adding multiple values.
+   * When true, displays a reorderable list of items with add/remove functionality.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf FieldsetComponent
+   */
   @Input()
   multiple: boolean = false;
 
+  /**
+   * @description Array of raw values stored in the fieldset.
+   * @summary Contains the actual data values that have been added to the fieldset.
+   * This is the source of truth for the fieldset's data state.
+   *
+   * @type {KeyValue[]}
+   * @default []
+   * @memberOf FieldsetComponent
+   */
   @Input()
   value: KeyValue[] = [];
 
-  items: KeyValue[] = [];
+  /**
+   * @description Array of formatted items for UI display.
+   * @summary Contains the processed items ready for display in the component template.
+   * These items are mapped from the raw values using the mapper configuration.
+   *
+   * @type {IFieldSetItem[]}
+   * @default []
+   * @memberOf FieldsetComponent
+   */
+  items: IFieldSetItem[] = [];
+
+  /**
+   * @description Currently selected item for update operations.
+   * @summary Holds the item being edited when in update mode. Used to track
+   * which item is being modified and apply changes to the correct item.
+   *
+   * @type {IFieldSetItem | undefined}
+   * @memberOf FieldsetComponent
+   */
+  updatingItem!: IFieldSetItem | undefined;
 
 
   /**
@@ -206,6 +307,14 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    */
   hasValidationErrors: boolean = false;
 
+  /**
+   * @description Validation error message for duplicate values.
+   * @summary Stores the error message when a user attempts to add a duplicate value
+   * to the fieldset. Used to display uniqueness validation feedback.
+   *
+   * @type {string | undefined}
+   * @memberOf FieldsetComponent
+   */
   isUniqueError: string | undefined = undefined;
 
   /**
@@ -247,24 +356,35 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
   private renderer: Renderer2 = inject(Renderer2);
 
   /**
-   * @description Event emitter for refresh operations.
-   * @summary Emits an event when the list data is refreshed, either through pull-to-refresh
-   * or programmatic refresh. The event includes the refreshed data and component information.
+   * @description Translation service for internationalization.
+   * @summary Injected service that provides translation capabilities for UI text.
+   * Used to translate button labels and validation messages based on the current locale.
    *
-   * @type {EventEmitter<BaseCustomEvent>}
-   * @memberOf ListComponent
+   * @private
+   * @type {TranslateService}
+   * @memberOf FieldsetComponent
    */
-  @Output()
-  fieldsetAddGroupEvent: EventEmitter<string> = new EventEmitter<string>();
+  private translateService: TranslateService = inject(TranslateService);
+
+  /**
+   * @description Localized label text for action buttons.
+   * @summary Dynamic button label that changes based on the current operation mode.
+   * Shows "Add" for create operations and "Update" for edit operations.
+   *
+   * @type {string}
+   * @memberOf FieldsetComponent
+   */
+  buttonLabel!: string;
+
 
   constructor() {
-    super('FieldsetComponent', {alertCircleOutline});
+    super('FieldsetComponent', {alertCircleOutline, createOutline});
   }
 
   ngOnInit(): void {
     if(this.model)
       this._repository = this.repository;
-
+    this.buttonLabel = this.translateService.instant(this.locale + '.add');
   }
 
    /**
@@ -297,10 +417,12 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @memberOf FieldsetComponent
    */
   ngAfterViewInit(): void {
+    console.log(this.accordionComponent)
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
       this.isOpen = true;
+      // hidden remove button
       const accordionElement = this.component?.nativeElement.querySelector('ion-accordion-group');
-      if(accordionElement)
+      if(this.accordionComponent)
         this.renderer.setAttribute(accordionElement, 'value', 'open');
     } else {
       const inputs = this.component?.nativeElement.querySelectorAll('[required]');
@@ -314,31 +436,35 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
   }
 
 
+  /**
+   * @description Handles reordering of items within the fieldset list.
+   * @summary Processes drag-and-drop reorder events from the ion-reorder-group component.
+   * Updates both the display items array and the underlying value array to maintain
+   * consistency between UI state and data state. Preserves item indices after reordering.
+   *
+   * @param {CustomEvent<ItemReorderEventDetail>} event - Ionic reorder event containing source and target indices
+   * @returns {void}
+   * @memberOf FieldsetComponent
+   *
+   * @example
+   * ```html
+   * <ion-reorder-group (ionItemReorder)="handleReorder($event)">
+   *   <!-- Reorderable items -->
+   * </ion-reorder-group>
+   * ```
+   */
   handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
     const fromIndex = event.detail.from;
     const toIndex = event.detail.to;
     const items = [...this.items];
     if (fromIndex !== toIndex) {
-
-      // this.refreshing = true;
-      // Reorder the array
       const itemToMove = items.splice(fromIndex, 1)[0];
-      console.log(itemToMove);
-      // items = [... items.filter(item => item['index'] !== itemToMove['index'])];
-      // console.log(items);
       items.splice(toIndex, 0, itemToMove);
-      // // Update indices if your items have an index property
       items.forEach((item, index) => item['index'] = index + 1);
-      // items.sort((a: KeyValue, b: KeyValue) => a['index'] - b['index']);
-      // console.log(items);
-     items.forEach(item => console.log(item['title']))
-      // Optional: Emit event or update form if needed
-      // this.onItemsReordered?.emit(items);
     }
     // Complete the reorder operation
     event.detail.complete();
-    this.items = [...items];
-    this.updateValueOrder();
+    this.updateValueOrder(items);
   }
 
   /**
@@ -408,46 +534,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
       this.accordionComponent.value = 'open';
   }
 
-  /**
-   * @description Handles adding another instance of the fieldset.
-   * @summary Event handler for adding another fieldset instance in dynamic form scenarios.
-   * This method is typically used in forms where users can add multiple instances of
-   * the same fieldset (e.g., adding multiple addresses, phone numbers, etc.).
-   * Currently logs to console but can be extended with custom logic.
-   *
-   * @param {Event} event - DOM event from the add button click
-   * @returns {void}
-   * @memberOf FieldsetComponent
-   */
-  async handleAddAnother(event?: CustomEvent<{formGroup: FormGroup, value: unknown, isValid: boolean}>): Promise<void> {
 
-    if(event && event instanceof CustomEvent) {
-      event.stopPropagation();
-      const {formGroup, value, isValid} = event.detail;
-      if(isValid) {
-        const isUnique = this.isUnique((value as KeyValue)?.[this.pk]);
-        if(isUnique) {
-          this.mapper = this.getMapper(value as KeyValue);
-          this.setValue(value as KeyValue);
-          NgxFormService.reset(formGroup)
-        }
-      }
-      // console.log(formGroup.value);
-    } else {
-      this.fieldsetAddGroupEvent.emit(this.childOf);
-      windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {group: this.childOf, component: this.component.nativeElement});
-    }
-
-
-    // const formComponent = this.component.nativeElement.closest('ngx-decaf-crud-form');
-    // disp(new CustomEvent(EventConstants.FIELDSET_ADD_GROUP, {
-    //   detail: this.name,
-    //   bubbles: true,
-    //   composed: true,
-    //   cancelable: false,
-
-    // }));
-  }
 
   /**
    * @description Handles removal of the fieldset with slide animation.
@@ -471,15 +558,68 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
     }, 150);
   }
 
-  removeValue(value: string | number): void {
-    this.value = this.value.filter(item => item[this.pk] !== value);
-    this.items = this.value.map(item => {
-      return itemMapper(item as KeyValue, this.mapper);
-    });
+  /**
+   * @description Processes and stores a new or updated value in the fieldset.
+   * @summary Handles both create and update operations for fieldset items. Parses and cleans
+   * the input value, determines the operation type based on the updating state, and either
+   * adds a new item or updates an existing one. Maintains data integrity and UI consistency.
+   *
+   * @param {KeyValue} value - The raw value object to be processed and stored
+   * @returns {void}
+   * @private
+   * @memberOf FieldsetComponent
+   */
+  private setValue(value: KeyValue) {
+    const action = !this.updatingItem ? OperationKeys.CREATE : OperationKeys.UPDATE;
+    const parsedValue = {} as KeyValue;
+    for(const [k, v] of Object.entries(value)) {
+      const vv = this.cleanSpaces(`${v}` as string);
+      if (typeof vv === 'number' || !isNaN(Number(vv))) {
+        parsedValue[k] = Number(vv);
+      } else {
+        parsedValue[k] = vv;
+      }
+    }
+    if(action === OperationKeys.CREATE) {
+      this.value.push(parsedValue);
+      value = Object.assign({}, itemMapper(parsedValue, this.mapper), {index: this.value.length}) as IFieldSetItem;
+      this.items.push(value as IFieldSetItem);
+    } else {
+      const item = this.items.find(item => item.index === this.updatingItem?.index);
+      if(item) {
+        Object.assign(item, itemMapper(parsedValue, this.mapper));
+        const _value = this.value.find(v => this.cleanSpaces(v[this.pk]) === this.cleanSpaces(this.updatingItem?.title || '')) as KeyValue;
+        if(_value)
+          Object.assign(_value, parsedValue);
+      }
+    }
 
+    this.updatingItem = undefined;
   }
 
-  private updateValueOrder(): void {
+
+  /**
+   * @description Synchronizes the value array order with the provided items array.
+   * @summary Updates both the component's items array and the underlying value array to match
+   * the provided order of items. This ensures data consistency after reordering operations
+   * by reconstructing the value array in the same sequence as the reordered items array.
+   * Essential for maintaining synchronization between UI display order and data storage order.
+   *
+   * @param {IFieldSetItem[]} items - The reordered array of items to synchronize with
+   * @returns {void}
+   * @private
+   * @memberOf FieldsetComponent
+   *
+   * @example
+   * ```typescript
+   * // After reordering items in handleReorder
+   * const reorderedItems = [...this.items];
+   * // ... perform reordering logic
+   * this.updateValueOrder(reorderedItems);
+   * ```
+   */
+  private updateValueOrder(items: IFieldSetItem[]): void {
+    this.items = [...items];
     const values = [...this.value];
     this.value = [];
     this.items.forEach(item => {
@@ -488,23 +628,133 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
           this.value.push(v);
       });
     })
-
-    console.log(this.value);
   }
 
-  private setValue(value: KeyValue) {
-    this.value.push(value);
-    value = Object.assign({}, value, {index: this.value.length}) as KeyValue;
-    value = itemMapper(value, this.mapper);
-    this.items.push(value);
+    /**
+   * @description Handles creating new items or triggering group addition events.
+   * @summary Processes form validation events for item creation or emits events to trigger
+   * the addition of new fieldset groups. When called with validation event data, it validates
+   * uniqueness and adds the item to the fieldset. When called without parameters, it triggers
+   * a group addition event for parent components to handle.
+   *
+   * @param {CustomEvent<IFieldSetValidationEvent>} [event] - Optional validation event containing form data
+   * @returns {Promise<void>}
+   * @memberOf FieldsetComponent
+   *
+   * @example
+   * ```typescript
+   * // Called from form validation
+   * handleCreateItem(validationEvent);
+   *
+   * // Called to trigger group addition
+   * handleCreateItem();
+   * ```
+   */
+  async handleCreateItem(event?: CustomEvent<IFieldSetValidationEvent>): Promise<void> {
+
+    if(event && event instanceof CustomEvent) {
+      event.stopPropagation();
+      const {formGroup, value, isValid} = event.detail;
+      if(!this.formGroup)
+        this.formGroup = formGroup;
+      if(!this.mapper)
+        this.mapper = this.getMapper(value as KeyValue);
+      if(isValid ){
+          const isUnique = this.isUnique((value as KeyValue)?.[this.pk]);
+          if(isUnique) {
+            this.setValue(value as KeyValue);
+            NgxFormService.reset(formGroup);
+            this.buttonLabel = this.translateService.instant(this.locale + '.add');
+          }
+      }
+    } else {
+      windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {group: this.childOf, component: this.component.nativeElement});
+    }
   }
 
-  private isUnique(value: string | number): boolean {
-    const item = this.value.find(item => item[this.pk] === value);
-    this.isUniqueError = item ? item?.[this.pk] : undefined;
+  /**
+   * @description Removes an item from the fieldset by its identifier.
+   * @summary Filters out the specified item from both the value and items arrays
+   * based on the primary key comparison. Updates the display items after removal.
+   *
+   * @param {string} value - The identifier value of the item to remove
+   * @returns {void}
+   * @memberOf FieldsetComponent
+   */
+  handleRemoveItem(value: string): void {
+    this.value = this.value.filter(item => `${item[this.pk]}`.toLowerCase() !== this.cleanSpaces(value));
+    this.items = this.value.map(item => itemMapper(item as KeyValue, this.mapper) as IFieldSetItem);
+  }
+
+  /**
+   * @description Prepares an item for update by populating the form with its values.
+   * @summary Sets the component to update mode for the specified item. Finds the corresponding
+   * value in the data array, updates the button label to "Update", and populates the form
+   * controls with the item's current values for editing.
+   *
+   * @param {IFieldSetItem} item - The item to be updated
+   * @returns {void}
+   * @memberOf FieldsetComponent
+   */
+  handleUpdateItem(item: IFieldSetItem): void {
+    const value = this.value.find(v => `${v[this.pk]}`.toLowerCase() === this.cleanSpaces(item.title)) as KeyValue;
+    if(value) {
+      this.buttonLabel = this.translateService.instant(this.locale + '.update');
+      this.updatingItem = Object.assign({}, item);
+      Object.keys(value).forEach(key => this.formGroup.controls[key].setValue(value[key]));
+    }
+  }
+
+  /**
+   * @description Normalizes string values by removing extra whitespace and converting to lowercase.
+   * @summary Cleans input strings by trimming whitespace, collapsing multiple spaces into single spaces,
+   * and converting to lowercase for consistent comparison operations. Used throughout the component
+   * for reliable string matching and validation.
+   *
+   * @param {string} value - The string value to be cleaned and normalized
+   * @returns {string} The cleaned and normalized string
+   * @private
+   * @memberOf FieldsetComponent
+   */
+  private cleanSpaces(value: string): string {
+    return `${value}`.trim().replace(/\s+/g, ' ').toLowerCase();
+  }
+
+  /**
+   * @description Validates uniqueness of values within the fieldset.
+   * @summary Checks if a given value already exists in the fieldset based on the current operation mode.
+   * For CREATE operations, it checks against all existing values. For UPDATE operations, it excludes
+   * the currently updating item from the uniqueness check. Sets error state if duplicate is found.
+   *
+   * @param {string} value - The value to check for uniqueness
+   * @returns {boolean} True if the value is unique, false if it's a duplicate
+   * @private
+   * @memberOf FieldsetComponent
+   */
+  private isUnique(value: string): boolean {
+    const action = !this.updatingItem ? OperationKeys.CREATE : OperationKeys.UPDATE;
+    if(action === OperationKeys.CREATE) {
+      const item = this.value.find(item => this.cleanSpaces(item[this.pk]) === this.cleanSpaces(value));
+      this.isUniqueError = item ? item?.[this.pk] : undefined;
+      return !item;
+    }
+
+    const item = this.items.find(item => this.cleanSpaces(item.title) === this.cleanSpaces(value) && item.index !== this.updatingItem?.index);
+    this.isUniqueError = item ? item?.title : undefined;
     return !item;
   }
 
+  /**
+   * @description Automatically configures the field mapping based on the value structure.
+   * @summary Analyzes the provided value object to automatically determine the primary key
+   * and create appropriate field mappings for display purposes. Sets up the mapper object
+   * with title, description, and index fields based on the available data structure.
+   *
+   * @param {KeyValue} value - Sample value object used to determine field mappings
+   * @returns {KeyValue} The configured mapper object
+   * @private
+   * @memberOf FieldsetComponent
+   */
   private getMapper(value: KeyValue) {
     if(!this.pk)
       this.pk = Object.keys(value)[0];
@@ -517,7 +767,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
       if(!this.mapper['title']) {
         this.mapper['title'] = key;
       } else {
-        this.mapper['subtitle'] = key;
+        this.mapper['description'] = key;
       }
     }
     return this.mapper;

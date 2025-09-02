@@ -1,6 +1,6 @@
 
 
-<fieldset [id]="uid" (fieldsetGroupValidationEvent)="handleAddAnother($event)" [class]="'dcf-fieldset ' + operation" #component>
+<fieldset [id]="uid" (fieldsetGroupValidationEvent)="!handleCreateItem($event)" [class]="'dcf-fieldset ' + operation" #component>
   <ion-accordion-group [ngClass]="{'open': isOpen, 'hasValidationErrors': hasValidationErrors}"  (validationErrorEvent)="handleValidationError($event)" #accordionComponent>
     <ion-accordion value="open">
       <ion-item slot="header" (click)="handleToggle($event)">
@@ -8,7 +8,7 @@
           <div class="dcf-width-expand">
             <legend>{{ name }}</legend>
           </div>
-          @if(!isRequired) {
+          @if(!isRequired && ['create', 'update'].includes(operation)) {
             <div class="dcf-width-auto dcf-delete">
               <ion-button fill="clear" size="small" (click)="handleRemove($event)">
                 <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
@@ -19,24 +19,36 @@
       </ion-item>
       <div slot="content" [attr.aria-hidden]="!isOpen">
         @if(multiple && items.length) {
-          <ion-list>
-            <ion-reorder-group [disabled]="false" (ionItemReorder)="handleReorder($any($event))">
+          <ion-list class="dcf-fields-list">
+            <ion-reorder-group [disabled]="updatingItem" (ionItemReorder)="handleReorder($any($event))" #accordionComponent>
               @for(item of items; track item.index) {
-                <ion-item lines="inset" button="falser">
-                  <!-- @if(items?.length > 1) { -->
-                    <ion-reorder slot="start"></ion-reorder>
-                  <!-- } -->
-                  <ion-label>{{ item.index }}. {{ item.title }}</ion-label>
-                  <ion-button fill="clear" size="small" (click)="removeValue(item.title)">
-                    <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
-                  </ion-button>
+                <ion-item lines="full" [button]="false" [ngClass]="{'updating': updatingItem?.title === item.title}">
+                  @if(items?.length > 1) {
+                    <ion-reorder slot="start">
+                      <ion-icon name="swap-vertical-outline"></ion-icon>
+                    </ion-reorder>
+                  }
+                  <ion-label>{{ item.index }}. {{ item.title }}
+                    @if(item.subtitle) {
+                      <br />
+                      <ion-text size="small"></ion-text>
+                    }
+                  </ion-label>
+                  @if(!updatingItem) {
+                    <ion-button fill="clear" size="small" (click)="handleUpdateItem(item)">
+                      <ion-icon name="create-outline" color="dark" slot="icon-only"></ion-icon>
+                    </ion-button>
+                    <ion-button fill="clear" size="small" (click)="handleRemoveItem(item.title)">
+                      <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
+                    </ion-button>
+                  }
                 </ion-item>
               }
             </ion-reorder-group>
           </ion-list>
         }
         <ng-content></ng-content>
-        @if(multiple) {
+        @if(multiple && ['create', 'update'].includes(operation)) {
           @if(isUniqueError) {
             <div class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast">
               <div class=" dcf-grid dcf-grid-collapse dcf-width-1-1 ">
@@ -50,9 +62,9 @@
             </div>
           }
           <div class="dcf-margin-bottom">
-            <ion-button size="small" fill="clear" color="dark" (click)="handleAddAnother()">
+            <ion-button size="small" fill="clear" color="dark" (click)="handleCreateItem()">
             <ion-icon name="add-outline" slot="start"></ion-icon>
-              {{ locale + '.add_another' | translate }}
+             {{buttonLabel}}
             </ion-button>
           </div>
         }
