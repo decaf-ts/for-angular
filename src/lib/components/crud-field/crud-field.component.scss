@@ -18,7 +18,6 @@
         }
     }
 
-
   }
 
   &.read,  &.delete {
@@ -224,4 +223,11 @@ ion-radio-group {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+
+::ng-deep ion-textarea {
+  min-height: 80px !important;
+  scrollbar-color: #888 #f0f0f0;
+  scrollbar-width: thin;
 }

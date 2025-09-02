@@ -1,7 +1,7 @@
-import { CrudOperationKeys, FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
+import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
 import { AngularDynamicOutput, AngularFieldDefinition, KeyValue } from './types';
 import { AngularEngineKeys } from './constants';
-import { Constructor, Model, Primitives } from '@decaf-ts/decorator-validation';
+import { Constructor, Model} from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
 import {
   ComponentMirror,
@@ -14,7 +14,6 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
-import { getInjectablesRegistry } from '../helpers';
 
 /**
  * @description Angular implementation of the RenderingEngine with enhanced features
@@ -157,6 +156,10 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
       console.warn(`Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`);
 
     const operation = NgxRenderingEngine2._operation;
+
+    const hiddenOn = inputs?.hidden || [];
+    if((hiddenOn as string[]).includes(operation as string))
+      return {inputs, injector};
     // const hiddenOn = inputs?.hidden || [];
     const result: AngularDynamicOutput = {
       component,
@@ -169,7 +172,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
 
     // process children
     if (fieldDef.children?.length) {
-      (result.children as (AngularDynamicOutput | undefined)[]) = fieldDef.children.map((child) => {
+      result.children = fieldDef.children.map((child) => {
         if(child?.children?.length) {
           child.children = child.children.filter(c => {
             const hiddenOn = c?.props?.hidden || [];
@@ -179,7 +182,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
         }
 
          // create a child form and add its controls as properties of child.props
-        NgxFormService.addControlFromProps(registryFormId, child.props);
+        NgxFormService.addControlFromProps(registryFormId, child.props, inputs);
         return this.fromFieldDefinition(child, vcr, injector, tpl, registryFormId);
       });
     }

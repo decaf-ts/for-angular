@@ -15,7 +15,7 @@ import { Constructor, Model} from '@decaf-ts/decorator-validation';
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.css'],
   standalone: true,
-  imports: [ComponentsModule,  IonCard, IonCardTitle, IonCardContent, IonSearchbar],
+  imports: [ComponentsModule, IonCard, IonCardTitle, IonCardContent, IonSearchbar],
 })
 export class ListPage implements OnInit, OnDestroy {
 

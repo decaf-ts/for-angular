@@ -165,14 +165,15 @@ export class ModelRendererComponent<M extends Model>
   }
 
   private subscribeEvents(): void {
-    if (this.instance) {
+    const component = this?.output?.component;
+    if (this.instance && component) {
       const componentKeys = Object.keys(this.instance);
       for (const key of componentKeys) {
         const value = this.instance[key];
         if (value instanceof EventEmitter)
           (this.instance as KeyValue)[key].subscribe((event: Partial<BaseCustomEvent>) => {
             this.listenEvent.emit({
-              component: this.output?.component.name || '',
+              component: component.name || '',
               name: key,
               ...event,
             } as RendererCustomEvent);

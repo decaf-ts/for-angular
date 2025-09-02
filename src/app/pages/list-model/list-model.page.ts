@@ -12,7 +12,7 @@ import { Model } from '@decaf-ts/decorator-validation';
   templateUrl: './list-model.page.html',
   styleUrls: ['./list-model.page.css'],
   standalone: true,
-  imports: [ComponentsModule,  IonCard, IonCardTitle, IonCardContent, IonSearchbar],
+  imports: [ComponentsModule, IonCard, IonCardTitle, IonCardContent, IonSearchbar],
 })
 export class ListModelPage implements OnInit {
 

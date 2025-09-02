@@ -28,10 +28,10 @@
                       <ion-icon name="swap-vertical-outline"></ion-icon>
                     </ion-reorder>
                   }
-                  <ion-label>{{ item.index }}. {{ item.title }}
-                    @if(item.subtitle) {
+                  <ion-label [color]="item.title === isUniqueError ? 'danger' : ''">{{ item.index }}. {{ item.title }}
+                    @if(item.description) {
                       <br />
-                      <ion-text size="small"></ion-text>
+                      <ion-text class="dcf-subtitle">{{item.description}}</ion-text>
                     }
                   </ion-label>
                   @if(!updatingItem) {

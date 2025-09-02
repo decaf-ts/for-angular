@@ -118,7 +118,7 @@ export interface ComponentMetadata {
  * @memberOf module:engine
  */
 export interface AngularDynamicOutput {
-  component: Type<unknown>;
+  component?: Type<unknown>;
   rendererId?: string;
   inputs?: Record<string, unknown>;
   injector?: Injector;

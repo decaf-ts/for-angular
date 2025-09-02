@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 <% if(!standalone) {%>import { IonicModule } from '@ionic/angular';<%} %>
-<% if(standalone) {%>import { ForAngularModule } from 'src/lib/for-angular.module';<%} %>
+<% if(standalone) {%>import { ForAngularModule } from '../../for-angular.module';<%} %>
 import { <%= classify(name) %><%= classify(type) %> } from './<%= dasherize(name) %>.<%= dasherize(type) %>';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
-import { NgxRenderingEngine2 } from 'src/lib/engine';
+import { NgxRenderingEngine2 } from '../../engine';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 
 

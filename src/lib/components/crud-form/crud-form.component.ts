@@ -11,7 +11,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Location } from '@angular/common';
-import { FormGroup } from '@angular/forms';
+import { FormArray, FormGroup } from '@angular/forms';
 import { FormElement } from '../../interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { CrudFormEvent, Dynamic, EventConstants, FieldUpdateMode, HTMLFormTarget, RenderedModel } from '../../engine';
@@ -22,7 +22,7 @@ import { ForAngularModule, getLogger } from '../../for-angular.module';
 import { IonIcon } from '@ionic/angular/standalone';
 import { Model } from '@decaf-ts/decorator-validation';
 import { Logger } from '@decaf-ts/logging';
-import { windowEventEmitter } from '../../helpers';
+import { F } from '@faker-js/faker/dist/airline-BUL6NtOJ';
 
 
 /**
@@ -172,10 +172,15 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
 
   @HostListener('window:fieldsetAddGroupEvent', ['$event'])
   async handleValidateGroup(event: CustomEvent): Promise<void> {
-    const { group, component } = event.detail;
+    const { group, component, index } = event.detail;
     if(group) {
-      const formGroup = this.formGroup!.controls[group];
-      if(formGroup instanceof FormGroup) {
+      // if(index > 0) {
+      //   const formGroup = (this.formGroup!.controls[group] as FormArray).get('0');
+      //   const validators = formGroup?.validator;
+      //   console.log(validators);
+      // }
+      const formGroup = (this.formGroup!.controls[group] as FormArray).get(`${index}`);
+      if(formGroup instanceof FormGroup || formGroup instanceof FormArray ) {
         const isValid = NgxFormService.validateFields(formGroup as FormGroup);
         const event = new CustomEvent(EventConstants.FIELDSET_GROUP_VALIDATION, {
           detail: {isValid, value: formGroup.value, formGroup},
@@ -212,9 +217,10 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
     event.stopImmediatePropagation();
     event.stopPropagation();
 
+    console.log(this.formGroup?.value)
+
     if (!NgxFormService.validateFields(this.formGroup as FormGroup))
       return false;
-
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
     this.submitEvent.emit({
       data,

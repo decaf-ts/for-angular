@@ -84,7 +84,7 @@ export class NgxRenderingEngine extends RenderingEngine<
     vcr: ViewContainerRef,
     injector: Injector,
     tpl: TemplateRef<unknown>,
-  ): AngularDynamicOutput {
+  ): AngularDynamicOutput   {
     const component = NgxRenderingEngine.components(fieldDef.tag)
       .constructor as unknown as Type<unknown>;
 

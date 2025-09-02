@@ -113,4 +113,9 @@ ion-item {
   &.updating {
     border-color:  var(--ion-color-primary);
   }
+
+  .dcf-subtitle {
+    font-size: 0.8rem;
+    color: var(--ion-color-gray-7);
+  }
 }

@@ -1,5 +1,5 @@
 import { pk } from '@decaf-ts/core';
-import { eq, Model, model, ModelArg, password, required } from '@decaf-ts/decorator-validation';
+import { eq, minlength, Model, model, ModelArg, password, required } from '@decaf-ts/decorator-validation';
 import { uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
 
 @uilistitem('ngx-decaf-list-item', { icon: 'cafe-outline' })
@@ -14,6 +14,7 @@ export class UserModel extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'user.username.label'
   })
+  @minlength(5)
   username!: string;
 
   // @required()

@@ -147,6 +147,9 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
   @Input()
   childOf: string = 'Child';
 
+  @Input()
+  children: KeyValue[] = [];
+
   /**
    * @description The current CRUD operation context.
    * @summary Determines the component's initial behavior and state based on the current operation.
@@ -668,7 +671,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
           }
       }
     } else {
-      windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {group: this.childOf, component: this.component.nativeElement});
+      windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {group: this.childOf, component: this.component.nativeElement, index: this.value?.length});
     }
   }
 
@@ -683,7 +686,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    */
   handleRemoveItem(value: string): void {
     this.value = this.value.filter(item => `${item[this.pk]}`.toLowerCase() !== this.cleanSpaces(value));
-    this.items = this.value.map(item => itemMapper(item as KeyValue, this.mapper) as IFieldSetItem);
+    this.items = this.value.map((item, index) => Object.assign(itemMapper(item as KeyValue, this.mapper), {index: index+1}) as IFieldSetItem);
   }
 
   /**

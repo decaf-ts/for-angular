@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
 import { ComponentsModule } from 'src/app/components/components.module';
 import { CrudFormEvent } from 'src/lib/engine';
-import { LoginModel } from 'src/app/models/LoginModel';
+import { LoginModel } from 'src/app/forms/LoginModel';
 import { getLogger } from 'src/lib/for-angular.module';
 import { IonCard, IonCardContent, IonImg, ToastController} from '@ionic/angular/standalone';
 import { Router } from '@angular/router';

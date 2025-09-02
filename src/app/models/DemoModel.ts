@@ -3,6 +3,7 @@ import {
   date,
   email,
   eq,
+  list,
   max,
   min,
   minlength,
@@ -54,13 +55,13 @@ export class ForAngularModel extends Model {
   // })
   // gender!: string;
 
-  @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {mapper: {title: 'name'}, pk: 'name', multiple: true})
-  @required()
+  // @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {mapper: {title: 'name'}, pk: 'name', multiple: true})
+  // @required()
   // @uielement('ngx-decaf-fieldset', {
   //   label: 'demo.gender.label',
   //   model: CategoryModel
   // })
-  category!: CategoryModel;
+  // category!: CategoryModel;
 
   // @required()
   // @date('yyyy-MM-dd')
@@ -86,6 +87,7 @@ export class ForAngularModel extends Model {
   // password!: string;
 
   @uichild(UserModel.name, 'ngx-decaf-fieldset', {mapper: {title: 'username'}, pk: 'username', multiple: true})
+  // @list(UserModel)
   user!: UserModel;
 
   // @required()
