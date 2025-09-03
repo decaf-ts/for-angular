@@ -14,8 +14,8 @@
     </div>
   </ng-container>
 } @else {
-  <ng-container #component [formGroup]="formGroup">
-    <div #container [class]="'dcf-input-item ' + (operation || 'create')">
+  <ng-container #component [formGroup]="getActiveFormGroup">
+    <div #container [class]="'dcf-input-item ' + (operation || 'create')" (createGroupEvent)="multiple ? handleFieldsetCreateGroupEvent($event) : ''">
         @if(type === 'textarea') {
           <ion-textarea
             [mode]="mode"
@@ -42,7 +42,7 @@
           <ion-item>
             <ion-checkbox
               #checkboxElement
-              [name]="path"
+
               [mode]="mode"
               [errorText]="getErrors(container)"
               [hidden]="hidden"
@@ -59,7 +59,7 @@
           </ion-item>
         }
         @else if(type === 'radio') {
-          <ion-radio-group [formControlName]="name" [name]="path" [value]="value" #component>
+          <ion-radio-group [formControlName]="name"  [value]="value" #component>
             <label class="dcf-radio-group-label" [for]="path">{{label | translate}}</label>
             @for(option of options; track option) {
               <ion-item>
@@ -81,7 +81,7 @@
             <ion-select
               toggleIcon="chevron-down-outline"
               expandedIcon="chevron-up-outline"
-              [name]="path"
+
               [mode]="mode"
               [hidden]="hidden"
               [labelPlacement]="labelPlacement"
@@ -101,7 +101,7 @@
         }
         @else {
           <ion-input
-            [name]="path"
+
             [type]="type"
             [mode]="mode"
             [hidden]="hidden"

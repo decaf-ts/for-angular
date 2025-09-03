@@ -471,3 +471,8 @@ export function removeFocusTrap(): void {
   if(doc?.activeElement)
     (doc.activeElement as HTMLElement)?.blur();
 }
+
+export function cleanSpaces(value: string, lowercase = false): string {
+  value = `${value}`.trim().replace(/\s+/g, ' ');
+  return lowercase ? value.toLowerCase() : value;
+}

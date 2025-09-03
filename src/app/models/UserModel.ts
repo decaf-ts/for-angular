@@ -14,7 +14,6 @@ export class UserModel extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'user.username.label'
   })
-  @minlength(5)
   username!: string;
 
   // @required()

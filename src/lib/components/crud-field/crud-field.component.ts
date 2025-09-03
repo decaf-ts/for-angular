@@ -3,17 +3,18 @@ import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
+  HostListener,
   Input,
   OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { Form, FormArray, FormControl, FormGroup } from '@angular/forms';
 import { AutocompleteTypes, SelectInterface } from '@ionic/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 import { Dynamic } from '../../engine/decorators';
-import { FieldUpdateMode, PossibleInputTypes, RadioOption, SelectOption, StringOrBoolean } from '../../engine/types';
+import { BaseCustomEvent, FieldUpdateMode, PossibleInputTypes, RadioOption, SelectOption, StringOrBoolean } from '../../engine/types';
 import { ForAngularModule } from '../../for-angular.module';
 import {
   IonCheckbox,
@@ -32,6 +33,8 @@ import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { generateRandomValue } from '../../helpers';
+import { NgxFormService } from 'src/lib/engine/NgxFormService';
+import { EventConstants } from 'src/lib/engine/constants';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -564,8 +567,14 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   @Input()
   override formGroup: FormGroup | undefined;
 
+  rootFormGroup: FormGroup | undefined;
+
+
   @Input()
   override formControl!: FormControl;
+
+  @Input()
+  override multiple: boolean = false;
 
   /**
    * @description Translatability of field labels.
@@ -588,22 +597,42 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    */
   uid: string = generateRandomValue(12);
 
+
+  @Input()
+  activeFormGroup: number = 0;
+
+
+  @Input()
+  pk!: string;
   // constructor() {
 
   // }
 
+  get getActiveFormGroup(): FormGroup {
+    const formGroup = this.formGroup as FormGroup;
+    return this.formGroup = this.multiple
+      ? ((formGroup.parent as FormArray)?.at(this.activeFormGroup) as FormGroup)
+      : formGroup;
+
+  }
+
+
   ngOnInit(): void {
     // super.onInit(this.updateOn);
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
-
       this.formGroup = undefined;
     } else {
-         addIcons({chevronDownOutline, chevronUpOutline})
+      addIcons({chevronDownOutline, chevronUpOutline})
+      this.rootFormGroup = (this.formGroup as FormGroup)?.root as FormGroup;
+      if(this.multiple)
+        this.formGroup = this.getActiveFormGroup as FormGroup;
       if (this.type === HTML5InputTypes.RADIO && !this.value)
         this.formGroup?.get(this.name)?.setValue(this.options[0].value); // TODO: migrate to RenderingEngine
     }
 
+    console.log(this.pk);
   }
+
 
   ngAfterViewInit() {
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
@@ -613,5 +642,34 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   ngOnDestroy(): void {
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
       this.onDestroy();
+  }
+
+  @HostListener('window:fieldsetAddGroupEvent', ['$event'])
+  handleFieldsetCreateGroupEvent(event: CustomEvent) {
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+    const { parent, component, index } = event.detail;
+
+    // console.log(this.formGroup);
+    // console.log(formGroup.parent);
+    const formGroup = this.getActiveFormGroup as FormGroup;
+    const isValid = NgxFormService.validateFields(formGroup as FormGroup) && NgxFormService.isUniqueOnGroup(formGroup.parent as FormArray, this.pk, formGroup.get(this.pk)?.value, index);
+    const parentGroup = (this.rootFormGroup as FormGroup)?.get(parent) as FormGroup;
+    event = new CustomEvent(EventConstants.FIELDSET_GROUP_VALIDATION, {
+      detail: {isValid, value: formGroup.value, formGroup: parentGroup, formService: NgxFormService},
+    });
+    component.dispatchEvent(event);
+    if(isValid) {
+      const newIndex = index + 1;
+      NgxFormService.addGroupToParent(this.rootFormGroup as FormGroup, parent, newIndex);
+      this.activeFormGroup = newIndex;
+      this.formGroup = this.getActiveFormGroup;
+      this.formControl = this.formGroup.get(this.name) as FormControl;
+    }
+  }
+
+  @HostListener('window:fieldsetIsUniqueGroupEvent', ['$event'])
+  handleFieldsetIsUniqueGroupEvent(event: CustomEvent) {
+    const { parent, component, index } = event.detail;
   }
 }

@@ -68,6 +68,8 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
 
   value!: string | number | Date;
 
+  multiple!: boolean;
+
   private translateService = inject(TranslateService);
 
   private validationErrorEventDispateched: boolean = false;

@@ -1,8 +1,9 @@
 import { escapeHtml, FieldDefinition, FieldProperties, HTML5CheckTypes, HTML5InputTypes, parseToNumber } from '@decaf-ts/ui-decorators';
 import {  AngularFieldDefinition, ComponentConfig, ComponentInput, FieldUpdateMode, FormParentGroup, KeyValue } from './types';
-import { AbstractControl, FormArray, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, Form, FormArray, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { isValidDate, parseDate, Validation } from '@decaf-ts/decorator-validation';
 import { ValidatorFactory } from './ValidatorFactory';
+import { cleanSpaces } from '../helpers';
 
 
 /**
@@ -46,7 +47,7 @@ import { ValidatorFactory } from './ValidatorFactory';
 export class NgxFormService {
   private static controls = new WeakMap<AbstractControl, FieldProperties>();
   private static formRegistry = new Map<string, FormGroup>();
-
+  protected static groupArrays: Record<string, Record<string, KeyValue>> = {};
   /**
    * @description Adds a form to the registry.
    * @summary Registers a FormGroup with a unique identifier. Throws an error if the identifier is already in use.
@@ -76,38 +77,89 @@ export class NgxFormService {
    * @param {string} path - The path to the control.
    * @return {FormParentGroup} A tuple containing the parent FormGroup and the control name.
    */
-  private static resolveParentGroup(formGroup: FormGroup, path: string, isMultiple: boolean): FormParentGroup {
+  private static resolveParentGroup(formGroup: FormGroup, path: string, componentProps: ComponentInput, isMultiple: boolean): FormParentGroup {
     const parts = path.split('.');
     const controlName = parts.pop() as string;
+    const {childOf} = componentProps
     let currentGroup = formGroup;
     for (const part of parts) {
       if (!currentGroup.get(part)) {
-        const fb = new FormGroup({});
-        currentGroup.addControl(part, isMultiple ? new FormArray([fb]) : fb);
+        if(part === childOf)
+          this.groupArrays[childOf] = this.groupArrays[childOf] || {};
+        const partFormGroup = (isMultiple && part === childOf) ? new FormArray([new FormGroup({})]) : new FormGroup({});
+        // ? new FormGroup({[part]: new FormArray([])}) : new FormGroup({});
+        if(currentGroup instanceof FormArray) {
+          (currentGroup as FormArray).push(partFormGroup);
+        } else {
+        //  for(const control of Object.values(partFormGroup.controls)) {
+        //   if(control instanceof FormControl)
+        //     this.register(control as AbstractControl, componentProps);
+        //  }
+
+          if(partFormGroup instanceof AbstractControl)
+            this.register(partFormGroup as AbstractControl, componentProps);
+          currentGroup.addControl(part, partFormGroup);
+        }
+
       }
+      if(childOf)
+        this.groupArrays[childOf] = Object.assign({},  this.groupArrays[childOf], {[controlName]: componentProps});
       currentGroup = currentGroup.get(part) as FormGroup;
     }
-
-    // const parts = path.split('.');
-    // const controlName = parts[parts.length - 1] as string;
-    // parts.pop();
-    // let currentGroup = formGroup;
-    // for (const part of parts) {
-    //   const childOf = componentProps['childOf'] || undefined;
-    //   if (!currentGroup.get(part)) {
-    //     if(part === childOf)
-    //       this.groupArrays[childOf] = this.groupArrays[childOf] || {};
-    //     const fb = new FormGroup({});
-    //     currentGroup.addControl(part, isMultiple ? new FormArray([fb]) : fb);
-    //   }
-    //   if(childOf)
-    //     this.groupArrays[childOf][controlName] = Object.assign({},componentProps);
-    //   currentGroup = currentGroup.get(part) as FormGroup;
-    // }
-    // console.log(this.groupArrays);
-    // return [currentGroup, controlName];
-
     return [currentGroup, controlName];
+  }
+
+
+  static addGroupToParent(formGroup: FormGroup, parentName: string, index: number = 1): FormGroup {
+    const componentProps = this.groupArrays[parentName] as unknown as ComponentInput;
+    Object.entries(componentProps).forEach(([key, value]) => {
+      return this.addFormControl(formGroup as FormGroup, value, {multiple: true}, index);
+    });
+
+    return this.getGroupFromParent(formGroup, parentName, index);
+  }
+
+  static getGroupFromParent(formGroup: FormGroup, parentName: string, index: number = 1): FormGroup {
+    const childGroup = ((formGroup.get(parentName) || formGroup) as FormArray).at(index);
+    if(childGroup instanceof FormGroup)
+      return childGroup;
+    return this.addGroupToParent(formGroup, parentName, index);
+  }
+
+  static isUniqueOnGroup(formGroup: FormArray, pk: string, value: string | number, index: number): boolean {
+    return !formGroup.controls.some((group, i) => i !== index && cleanSpaces(group.get(pk)?.value, true) === cleanSpaces(`${value}`, true));
+  }
+
+
+  static validateGroupArray(group: FormArray): boolean {
+    const groupArray = Object.assign({}, group) as FormArray;
+    function getControlName(control: AbstractControl): string | null {
+      const parent = control.parent as FormGroup;
+      if (!parent)
+        return null;
+      return Object.keys(parent.controls).find(name => parent.get(name) === control) || null;
+    }
+    const childProps  = Object.values(this.groupArrays[getControlName(group) as string] || [])[0];
+    const pk = childProps?.['pk'] || "";
+    const total = groupArray.controls.length;
+    if (total > 1 && pk) {
+      const lastGroup = groupArray.at(total - 1) as FormGroup;
+      const usernameControl = lastGroup.get(pk);
+      const skipLast = !usernameControl?.value?.trim();
+      groupArray.controls.forEach((formGroup, index) => {
+        if (skipLast && index === total - 1) {
+          Object.values((formGroup as FormGroup).controls).forEach((control: AbstractControl) => control?.clearValidators());
+          group?.updateValueAndValidity();
+        }
+        this.validateFields(formGroup);
+      });
+    } else {
+      groupArray.controls.forEach((formGroup) => {
+        this.validateFields(formGroup);
+      });
+    }
+
+    return groupArray.valid;
   }
 
   /**
@@ -116,12 +168,17 @@ export class NgxFormService {
    * @param {FormGroup} formGroup - The form group to add the control to.
    * @param {ComponentInput} componentProps - The properties of the component to create the control from.
    */
-  private static addFormControl(formGroup: FormGroup, componentProps: ComponentInput, parentProps: KeyValue = {}): void {
+  private static addFormControl(formGroup: FormGroup, componentProps: ComponentInput, parentProps: KeyValue = {}, index: number = 0): void {
 
     const isMultiple = parentProps?.['multiple'] ||  parentProps?.['type'] === 'Array' || false;
     const { name, childOf, } = componentProps;
-    const fullPath = childOf ? `${childOf}${isMultiple ? '.0' : ''}.${name}` : name;
-    const [parentGroup, controlName] = this.resolveParentGroup(formGroup, fullPath, isMultiple);
+    if(isMultiple)
+      componentProps['pk'] = componentProps['pk'] || parentProps?.['pk'] || '';
+    const fullPath = childOf ? isMultiple ? `${childOf}.${index}.${name}` : `${childOf}.${name}` : name;
+    const [parentGroup, controlName] = this.resolveParentGroup(formGroup, fullPath, componentProps, isMultiple);
+
+    // if(childOf && isMultiple && (name !== childOf))
+    //     this.groupArrays[childOf] = Object.assign({},  this.groupArrays[childOf], {[name]: {... componentProps}});
     if (!parentGroup.get(controlName)) {
       const control = NgxFormService.fromProps(
         componentProps,
@@ -133,6 +190,12 @@ export class NgxFormService {
 
     componentProps['formGroup'] = parentGroup;
     componentProps['formControl'] = parentGroup.get(controlName) as FormControl;
+    componentProps['multiple'] = isMultiple;
+
+
+    // console.log(componentProps);
+    // console.log((componentProps as KeyValue));
+
   }
 
   /**
@@ -239,12 +302,12 @@ export class NgxFormService {
    * @return {boolean} True if all fields are valid, false otherwise.
    * @throws {Error} If no control is found at the specified path or if the control type is unknown.
    */
-  static validateFields(control: AbstractControl, path?: string): boolean {
+  static validateFields(control: AbstractControl, pk?: string,  path?: string): boolean {
     control = path ? control.get(path) as AbstractControl : control;
     if (!control)
       throw new Error(`No control found at path: ${path || 'root'}.`);
 
-    const isAllowed = [FormArray,FormGroup, FormControl].some(type => control instanceof type);
+    const isAllowed = [FormArray, FormGroup, FormControl].some(type => control instanceof type);
     if (!isAllowed)
       throw new Error(`Unknown control type at: ${path || 'root'}`);
 
@@ -258,11 +321,8 @@ export class NgxFormService {
       });
     }
 
-    if (control instanceof FormArray) {
-      Object.values(control.controls).forEach((formGroupChild) => {
-        this.validateFields(formGroupChild);
-      });
-    }
+    if (control instanceof FormArray)
+      return this.validateGroupArray(control);
 
     return control.valid;
   }
@@ -315,7 +375,7 @@ export class NgxFormService {
    * @param {FormControl} control - The FormControl to get properties for.
    * @return {FieldProperties} The properties associated with the control.
    */
-  static getPropsFromControl(control: FormControl): FieldProperties {
+  static getPropsFromControl(control: FormControl | FormArray): FieldProperties {
     return this.controls.get(control) || {} as FieldProperties;
   }
 

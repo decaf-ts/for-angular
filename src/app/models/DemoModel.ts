@@ -56,11 +56,6 @@ export class ForAngularModel extends Model {
   // gender!: string;
 
   // @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {mapper: {title: 'name'}, pk: 'name', multiple: true})
-  // @required()
-  // @uielement('ngx-decaf-fieldset', {
-  //   label: 'demo.gender.label',
-  //   model: CategoryModel
-  // })
   // category!: CategoryModel;
 
   // @required()
@@ -86,8 +81,8 @@ export class ForAngularModel extends Model {
   // @uielement('ngx-decaf-crud-field', { label: 'demo.password.label' })
   // password!: string;
 
+  @list(UserModel, 'Array')
   @uichild(UserModel.name, 'ngx-decaf-fieldset', {mapper: {title: 'username'}, pk: 'username'}, true)
-  // @list(UserModel)
   user!: UserModel;
 
   // @required()

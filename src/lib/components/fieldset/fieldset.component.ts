@@ -1,12 +1,12 @@
 
-import { AfterViewInit, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild, Renderer2, OnInit } from '@angular/core';
-import { Dynamic, EventConstants, HTMLFormTarget, KeyValue } from '../../engine';
+import { AfterViewInit, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild, Renderer2, OnInit, EventEmitter, Output } from '@angular/core';
+import { BaseCustomEvent, Dynamic, EventConstants, HTMLFormTarget, KeyValue } from '../../engine';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModule } from '../../for-angular.module';
 import { CollapsableDirective } from '../../directives/collapsable.directive';
 import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorderGroup, IonReorder } from '@ionic/angular/standalone';
 import { itemMapper, windowEventEmitter } from '../../helpers';
-import { FormGroup } from '@angular/forms';
+import { AbstractControl, FormArray, FormGroup } from '@angular/forms';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { NgxBaseComponent } from '../../engine';
 import { alertCircleOutline, createOutline } from 'ionicons/icons';
@@ -34,12 +34,30 @@ interface IFieldSetItem {
  */
 interface IFieldSetValidationEvent {
   /** @description The FormGroup containing the validated form controls */
-  formGroup: FormGroup;
+  formGroup: FormGroup | FormArray;
   /** @description The current form value being validated */
   value: unknown;
   /** @description Whether the form validation passed or failed */
   isValid: boolean;
+  /** @description The form service instance used for form operations */
+  formService: NgxFormService;
 }
+
+
+export function logFormArrayValues(formArray: FormArray): void {
+  console.log('FormArray values:');
+  formArray.controls.forEach((control: AbstractControl, index: number) => {
+    console.log(`Index ${index}:`, control.value);
+  });
+}
+
+export function  logFormArrayEntries(formArray: FormArray): void {
+  formArray.controls.forEach((control, index) => {
+    console.log(`Index ${index}:`, control.value);
+  });
+}
+
+
 
 /**
  * @description Dynamic fieldset component with collapsible accordion functionality.
@@ -147,8 +165,20 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
   @Input()
   childOf: string = 'Child';
 
+    /**
+   * @description The display name or title of the fieldset section.
+   * @summary Sets the legend or header text that appears in the accordion header. This text
+   * provides a clear label for the collapsible section, helping users understand what content
+   * is contained within. The name is displayed prominently and serves as the clickable area
+   * for expanding/collapsing the fieldset.
+   *
+   * @type {string}
+   * @default 'Child'
+   * @memberOf FieldsetComponent
+   */
   @Input()
-  children: KeyValue[] = [];
+  path: string = 'Child';
+
 
   /**
    * @description The current CRUD operation context.
@@ -184,7 +214,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @memberOf FieldsetComponent
    */
   @Input()
-  formGroup!: FormGroup;
+  formGroup!: FormGroup | FormArray;
 
   /**
    * @description Primary title text for the fieldset content.
@@ -379,6 +409,8 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    */
   buttonLabel!: string;
 
+  @Output()
+  createGroupEvent: EventEmitter<BaseCustomEvent> = new EventEmitter<BaseCustomEvent>();
 
   constructor() {
     super('FieldsetComponent', {alertCircleOutline, createOutline});
@@ -420,7 +452,6 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @memberOf FieldsetComponent
    */
   ngAfterViewInit(): void {
-    console.log(this.accordionComponent)
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
       this.isOpen = true;
       // hidden remove button
@@ -456,7 +487,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * </ion-reorder-group>
    * ```
    */
-  handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
+  handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
     const fromIndex = event.detail.from;
     const toIndex = event.detail.to;
     const items = [...this.items];
@@ -572,31 +603,34 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @private
    * @memberOf FieldsetComponent
    */
-  private setValue(value: KeyValue) {
-    const action = !this.updatingItem ? OperationKeys.CREATE : OperationKeys.UPDATE;
-    const parsedValue = {} as KeyValue;
-    for(const [k, v] of Object.entries(value)) {
-      const vv = this.cleanSpaces(`${v}` as string);
-      if (typeof vv === 'number' || !isNaN(Number(vv))) {
-        parsedValue[k] = Number(vv);
-      } else {
-        parsedValue[k] = vv;
-      }
-    }
-    if(action === OperationKeys.CREATE) {
-      this.value.push(parsedValue);
-      value = Object.assign({}, itemMapper(parsedValue, this.mapper), {index: this.value.length}) as IFieldSetItem;
-      this.items.push(value as IFieldSetItem);
-    } else {
-      const item = this.items.find(item => item.index === this.updatingItem?.index);
-      if(item) {
-        Object.assign(item, itemMapper(parsedValue, this.mapper));
-        const _value = this.value.find(v => this.cleanSpaces(v[this.pk]) === this.cleanSpaces(this.updatingItem?.title || '')) as KeyValue;
-        if(_value)
-          Object.assign(_value, parsedValue);
-      }
-    }
-
+  private setValue(value: KeyValue): void {
+    this.value = (this.formGroup as FormArray).controls.map(({value}, index) => {
+      return value;
+    });
+    this.items = this.value.map((v, index) => Object.assign({}, itemMapper(v, this.mapper), {index: index+1}) as IFieldSetItem);
+    // const action = !this.updatingItem ? OperationKeys.CREATE : OperationKeys.UPDATE;
+    // const parsedValue = {} as KeyValue;
+    // for(const [k, v] of Object.entries(value)) {
+    //   const vv = this.cleanSpaces(`${v}` as string);
+    //   if (typeof vv === 'number' || !isNaN(Number(vv))) {
+    //     parsedValue[k] = Number(vv);
+    //   } else {
+    //     parsedValue[k] = vv;
+    //   }
+    // }
+    // if(action === OperationKeys.CREATE) {
+    //   this.value.push(parsedValue);
+    //   value = Object.assign({}, itemMapper(parsedValue, this.mapper), {index: this.value.length}) as IFieldSetItem;
+    //   this.items.push(value as IFieldSetItem);
+    // } else {
+    //   const item = this.items.find(item => item.index === this.updatingItem?.index);
+    //   if(item) {
+    //     Object.assign(item, itemMapper(parsedValue, this.mapper));
+    //     const _value = this.value.find(v => this.cleanSpaces(v[this.pk]) === this.cleanSpaces(this.updatingItem?.title || '')) as KeyValue;
+    //     if(_value)
+    //       Object.assign(_value, parsedValue);
+    //   }
+    // }
     this.updatingItem = undefined;
   }
 
@@ -655,24 +689,55 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    */
   async handleCreateItem(event?: CustomEvent<IFieldSetValidationEvent>): Promise<void> {
 
+
+    // this.createGroupEvent.emit({
+    //   data: {lastIndex: this.value?.length || 0},
+    //   component: 'FieldSetComponent',
+    //   name: EventConstants.FIELDSET_ADD_GROUP,
+    // });
+
+    // createGroupEvent
     if(event && event instanceof CustomEvent) {
       event.stopPropagation();
-      const {formGroup, value, isValid} = event.detail;
+      const {formGroup, formService, value, isValid} = event.detail;
       if(!this.formGroup)
         this.formGroup = formGroup;
       if(!this.mapper)
         this.mapper = this.getMapper(value as KeyValue);
+      // console.log((this.formGroup.parent as FormGroup).controls);
       if(isValid ){
-          const isUnique = this.isUnique((value as KeyValue)?.[this.pk]);
-          if(isUnique) {
-            this.setValue(value as KeyValue);
-            NgxFormService.reset(formGroup);
-            this.buttonLabel = this.translateService.instant(this.locale + '.add');
-          }
+          this.isUniqueError = undefined;
+          this.setValue(value as KeyValue);
+          this.buttonLabel = this.translateService.instant(this.locale + '.add');
+          logFormArrayEntries(this.formGroup as unknown as FormArray);
+      } else {
+       this.isUniqueError = (value as KeyValue)?.[this.pk] || undefined;
       }
     } else {
-      windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {group: this.childOf, component: this.component.nativeElement, index: this.value?.length});
+       windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {
+        parent: this.childOf,
+        component: this.component.nativeElement,
+        index: this.value?.length
+      });
+      // if(this.formGroup instanceof FormGroup || this.formGroup as unknown instanceof FormArray) {
+      //   this.formGroup = NgxFormService.addGroupToParent(this.formGroup.parent as FormGroup, this.childOf, this.value?.length);
+      //   console.log(this.formGroup);
+      // } else {
+      //   windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {
+      //     parent: this.childOf,
+      //     component: this.component.nativeElement,
+      //     index: this.value?.length
+      //   });
+      // }
+
     }
+  }
+
+
+
+
+  handleInputBlur(event: CustomEvent) {
+    // console.log(event);
   }
 
   /**
@@ -704,7 +769,8 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
     if(value) {
       this.buttonLabel = this.translateService.instant(this.locale + '.update');
       this.updatingItem = Object.assign({}, item);
-      Object.keys(value).forEach(key => this.formGroup.controls[key].setValue(value[key]));
+      console.log(this.formGroup);
+      // Object.keys(value).forEach(key => this.formGroup.controls[key].setValue(value[key]));
     }
   }
 
@@ -734,18 +800,18 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @private
    * @memberOf FieldsetComponent
    */
-  private isUnique(value: string): boolean {
-    const action = !this.updatingItem ? OperationKeys.CREATE : OperationKeys.UPDATE;
-    if(action === OperationKeys.CREATE) {
-      const item = this.value.find(item => this.cleanSpaces(item[this.pk]) === this.cleanSpaces(value));
-      this.isUniqueError = item ? item?.[this.pk] : undefined;
-      return !item;
-    }
+  // private isUnique(value: string): boolean {
+  //   const action = !this.updatingItem ? OperationKeys.CREATE : OperationKeys.UPDATE;
+  //   if(action === OperationKeys.CREATE) {
+  //     const item = this.value.find(item => this.cleanSpaces(item[this.pk]) === this.cleanSpaces(value));
+  //     this.isUniqueError = item ? item?.[this.pk] : undefined;
+  //     return !item;
+  //   }
 
-    const item = this.items.find(item => this.cleanSpaces(item.title) === this.cleanSpaces(value) && item.index !== this.updatingItem?.index);
-    this.isUniqueError = item ? item?.title : undefined;
-    return !item;
-  }
+  //   const item = this.items.find(item => this.cleanSpaces(item.title) === this.cleanSpaces(value) && item.index !== this.updatingItem?.index);
+  //   this.isUniqueError = item ? item?.title : undefined;
+  //   return !item;
+  // }
 
   /**
    * @description Automatically configures the field mapping based on the value structure.

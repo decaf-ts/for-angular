@@ -180,8 +180,7 @@ export class NgxRenderingEngine2 extends RenderingEngine<AngularFieldDefinition,
               return c
           })
         }
-
-         // create a child form and add its controls as properties of child.props
+        // create a child form and add its controls as properties of child.props
         NgxFormService.addControlFromProps(registryFormId, child.props, inputs);
         return this.fromFieldDefinition(child, vcr, injector, tpl, registryFormId);
       });

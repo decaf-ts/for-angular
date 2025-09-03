@@ -1,6 +1,6 @@
 
 
-<fieldset [id]="uid" (fieldsetGroupValidationEvent)="!handleCreateItem($event)" [class]="'dcf-fieldset ' + operation" #component>
+<fieldset [id]="uid" (fieldsetGroupValidationEvent)="!handleCreateItem($event)" (focusout)="handleInputBlur($event)" [class]="'dcf-fieldset ' + operation" #component>
   <ion-accordion-group [ngClass]="{'open': isOpen, 'hasValidationErrors': hasValidationErrors}"  (validationErrorEvent)="handleValidationError($event)" #accordionComponent>
     <ion-accordion value="open">
       <ion-item slot="header" (click)="handleToggle($event)">
@@ -20,7 +20,7 @@
       <div slot="content" [attr.aria-hidden]="!isOpen">
         @if(multiple && items.length) {
           <ion-list class="dcf-fields-list">
-            <ion-reorder-group [disabled]="updatingItem" (ionItemReorder)="handleReorder($any($event))" #accordionComponent>
+            <ion-reorder-group [formGroup]="formGroup.parent" [disabled]="updatingItem" (ionItemReorder)="handleReorder($any($event))" #accordionComponent>
               @for(item of items; track item.index) {
                 <ion-item lines="full" [button]="false" [ngClass]="{'updating': updatingItem?.title === item.title}">
                   @if(items?.length > 1) {
@@ -47,6 +47,7 @@
             </ion-reorder-group>
           </ion-list>
         }
+
         <ng-content></ng-content>
         @if(multiple && ['create', 'update'].includes(operation)) {
           @if(isUniqueError) {
