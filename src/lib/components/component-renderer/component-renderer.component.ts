@@ -16,11 +16,12 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { NgxRenderingEngine2 } from '../../engine/NgxRenderingEngine2';
+import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
 import { BaseCustomEvent, KeyValue, RendererCustomEvent } from '../../engine';
 import { ForAngularModule, getLogger } from '../../for-angular.module';
 import { Logger } from '@decaf-ts/logging';
 import { Model } from '@decaf-ts/decorator-validation';
+import { generateRandomValue } from '../../helpers';
 
 /**
  * @description Dynamic component renderer for Decaf Angular applications.
@@ -67,6 +68,7 @@ import { Model } from '@decaf-ts/decorator-validation';
   styleUrls: ['./component-renderer.component.scss'],
   imports: [ForAngularModule],
   standalone: true,
+  host: {'[attr.id]': 'rendererId'},
 })
 export class ComponentRendererComponent
   implements OnInit, OnDestroy {
@@ -86,7 +88,7 @@ export class ComponentRendererComponent
    * @description The tag name of the component to be dynamically rendered.
    * @summary This input property specifies which component should be rendered by providing
    * its registered tag name. The tag must correspond to a component that has been registered
-   * with the NgxRenderingEngine2. This is a required input as it determines which component
+   * with the NgxRenderingEngine. This is a required input as it determines which component
    * to create.
    *
    * @type {string}
@@ -176,6 +178,8 @@ export class ComponentRendererComponent
   @ViewChild('inner', { read: TemplateRef, static: true })
   inner?: TemplateRef<unknown>;
 
+  uid: string = generateRandomValue(12);
+
   /**
    * @description Creates an instance of ComponentRendererComponent.
    * @summary Initializes a new ComponentRendererComponent. This component doesn't require
@@ -198,7 +202,7 @@ export class ComponentRendererComponent
    * sequenceDiagram
    *   participant A as Angular Lifecycle
    *   participant C as ComponentRendererComponent
-   *   participant R as NgxRenderingEngine2
+   *   participant R as NgxRenderingEngine
    *
    *   A->>C: ngOnInit()
    *   C->>C: createComponent(tag, globals)
@@ -229,7 +233,7 @@ export class ComponentRendererComponent
    * sequenceDiagram
    *   participant A as Angular Lifecycle
    *   participant C as ComponentRendererComponent
-   *   participant R as NgxRenderingEngine2
+   *   participant R as NgxRenderingEngine
    *
    *   A->>C: ngOnDestroy()
    *   alt component exists
@@ -243,7 +247,7 @@ export class ComponentRendererComponent
   async ngOnDestroy(): Promise<void> {
     if (this.component) {
       this.unsubscribeEvents();
-      NgxRenderingEngine2.destroy();
+      NgxRenderingEngine.destroy();
     }
   }
 
@@ -260,7 +264,7 @@ export class ComponentRendererComponent
    * @mermaid
    * sequenceDiagram
    *   participant C as ComponentRendererComponent
-   *   participant R as NgxRenderingEngine2
+   *   participant R as NgxRenderingEngine
    *   participant V as ViewContainerRef
    *
    *   C->>R: components(tag)
@@ -277,7 +281,7 @@ export class ComponentRendererComponent
    * @memberOf ComponentRendererComponent
    */
   private createComponent(tag: string, globals: KeyValue = {}): void {
-    const component = NgxRenderingEngine2.components(tag)
+    const component = NgxRenderingEngine.components(tag)
       ?.constructor as Type<unknown>;
     const metadata = reflectComponentType(component);
     const componentInputs = (metadata as ComponentMirror<unknown>).inputs;
@@ -298,7 +302,7 @@ export class ComponentRendererComponent
       }
     }
     this.vcr.clear();
-    this.component = NgxRenderingEngine2.createComponent(
+    this.component = NgxRenderingEngine.createComponent(
       component,
       props,
       metadata as ComponentMirror<unknown>,
@@ -313,7 +317,7 @@ export class ComponentRendererComponent
     const { component, inputs } = this.parent as KeyValue;
     const metadata = reflectComponentType(component) as ComponentMirror<unknown>;
     const template = this.vcr.createEmbeddedView(this.inner as TemplateRef<unknown>, this.injector).rootNodes;
-    this.component = NgxRenderingEngine2.createComponent(
+    this.component = NgxRenderingEngine.createComponent(
       component,
       inputs,
       metadata,

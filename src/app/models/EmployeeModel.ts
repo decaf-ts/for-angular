@@ -1,7 +1,7 @@
-import { Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
+import {  Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
 import { uielement, uilistitem, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
 import { pk } from '@decaf-ts/core';
-import { id } from '@decaf-ts/db-decorators';
+import { OperationKeys, timestamp } from '@decaf-ts/db-decorators';
 
 @uilistitem('ngx-decaf-list-item', { icon: 'person-outline' })
 @uimodel('ngx-decaf-crud-form')
@@ -9,8 +9,7 @@ import { id } from '@decaf-ts/db-decorators';
 export class EmployeeModel extends Model {
 
   @uilistprop('uid')
-  @pk()
-  @id()
+  @pk({type: 'Number' })
   id!: number;
 
   @required()
@@ -39,11 +38,15 @@ export class EmployeeModel extends Model {
   occupation!: string;
 
   @uilistprop('info')
-  birthdate!: Date;
+  birthdate!: Date | string;
 
   hiredAt!: Date;
 
+  @timestamp([OperationKeys.CREATE])
   createdAt!: Date;
+
+  @timestamp()
+  updateAt!: Date;
 
   constructor(args: ModelArg<EmployeeModel> = {}) {
     super(args);

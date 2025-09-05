@@ -1,7 +1,7 @@
 
 @if(initialized) {
   @for (row of rows; track trackItemFn($index, row); let rowIndex = $index) {
-    <div class="dcf-grid dcf-grid-collapse dcf-grid-match">
+    <div [id]="uid" class="dcf-grid dcf-grid-collapse dcf-grid-match">
       @if(row) {
         <div class="dcf-width-1-1 dcf-grid-title">
           <ion-card class="dcf-grid-title">

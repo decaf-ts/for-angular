@@ -2,14 +2,14 @@ import { applicationConfig, componentWrapperDecorator, Meta, moduleMetadata } fr
 import { appConfig } from 'src/app/app.config';
 import { RouterService } from 'src/app/services/router.service';
 import { ForAngularModule } from 'src/lib/for-angular.module';
-import { NgxRenderingEngine2 } from 'src/lib/engine';
+import { NgxRenderingEngine } from 'src/lib/engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { ComponentsModule } from 'src/app/components/components.module';
 
 function getEngine(): void {
   let engine;
   try {
-      engine = new NgxRenderingEngine2();
+      engine = new NgxRenderingEngine();
       Model.setBuilder(Model.fromModel as ModelBuilderFunction);
     } catch (e: unknown) {
       console.warn(`Engine already loaded`);

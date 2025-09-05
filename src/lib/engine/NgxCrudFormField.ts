@@ -1,4 +1,4 @@
-import { FieldProperties, RenderingError } from '@decaf-ts/ui-decorators';
+import { CrudOperationKeys, FieldProperties, RenderingError } from '@decaf-ts/ui-decorators';
 import { KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormControl, FormGroup } from '@angular/forms';
@@ -6,6 +6,7 @@ import { ElementRef, inject } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
 import { TranslateService } from '@ngx-translate/core';
+import { EventConstants } from './constants';
 
 /**
  * @class NgxCrudFormField
@@ -46,10 +47,12 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
 
   disabled?: boolean;
 
+  uid?: string;
+
   // Validation
 
   format?: string;
-  hidden?: boolean;
+  hidden?: boolean | CrudOperationKeys[];
   max?: number | Date;
   maxlength?: number;
   min?: number | Date;
@@ -67,7 +70,11 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
 
   value!: string | number | Date;
 
+  multiple!: boolean;
+
   private translateService = inject(TranslateService);
+
+  private validationErrorEventDispateched: boolean = false;
 
   /**
    * @summary Parent HTML element
@@ -177,14 +184,22 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    */
   getErrors(parent: HTMLElement): string | void {
     const formControl = this.formControl;
+    const accordionComponent = parent.closest('ngx-decaf-fieldset')?.querySelector('ion-accordion-group');
     if((!formControl.pristine || formControl.touched) && !formControl.valid) {
-      const collapsableContainer = parent.closest('ion-accordion-group');
-      if(collapsableContainer)
-        collapsableContainer.setAttribute('value', 'open');
       const errors: Record<string, string>[] = Object.keys(formControl.errors ?? {}).map(key => ({
         key: key,
         message: key,
       }));
+      if(errors.length) {
+        if(accordionComponent && !this.validationErrorEventDispateched) {
+          const validationErrorEvent = new CustomEvent(EventConstants.VALIDATION_ERROR, {
+            detail: {fieldName: this.name, hasErrors: true},
+            bubbles: true
+          });
+          accordionComponent.dispatchEvent(validationErrorEvent);
+          this.validationErrorEventDispateched = true;
+        }
+      }
       for(const error of errors)
         return `* ${this.sf(this.translateService.instant(`errors.${error?.['message']}`), (this as KeyValue)[error?.['key']] ?? "")}`;
     }

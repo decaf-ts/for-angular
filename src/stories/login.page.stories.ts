@@ -5,7 +5,7 @@ import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-
 import { ForAngularModel } from 'src/app/models/DemoModel';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { NgComponentOutlet } from '@angular/common';
-import { LoginModel } from 'src/app/models/LoginModel';
+import { LoginModel } from 'src/app/forms/LoginForm';
 import { LoginPage } from 'src/app/pages/login/login.page';
 import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
 import { IonCard, IonCardContent, IonImg } from '@ionic/angular/standalone';

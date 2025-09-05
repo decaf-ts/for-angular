@@ -1,3 +1,4 @@
+import { pk } from '@decaf-ts/core';
 import { eq, Model, model, ModelArg, password, required } from '@decaf-ts/decorator-validation';
 import { uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
 
@@ -5,6 +6,9 @@ import { uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class UserModel extends Model {
+
+  @pk({type: 'Number' })
+  id!: number;
 
   @required()
   @uielement('ngx-decaf-crud-field', {

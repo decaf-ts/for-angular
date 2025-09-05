@@ -1,3 +1,6 @@
+  <!-- Keep to avoid id conflicts -->
+  <div [id]="rendererId"></div>
+
   <ng-template #componentOuter></ng-template>
   <ng-template #inner>
     <div  [id]="rendererId || null">

@@ -73,6 +73,10 @@
     "description": {
       "label": "Category Description",
       "placeholder": "Describe the category (optional)"
+    },
+    "created": {
+      "label": "Creation date",
+      "placeholder": "Select the creation date"
     }
   },
   "employee": {
@@ -93,6 +97,12 @@
     }
   },
   "component": {
+    "fieldset": {
+      "add": "Add another",
+      "update": "Update item",
+      "cancel": "Cancel",
+      "not_unique": "The value entered already exists. Value \"{{value}}\""
+    },
     "list": {
       "pagination": "Showing page <span class=\"text-bold\">{{value0}} of {{value1}}</span>",
       "loading": "Loading data",

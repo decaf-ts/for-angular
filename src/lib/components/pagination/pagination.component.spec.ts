@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ForAngularModule } from '../../for-angular.module';
 import { PaginationComponent } from './pagination.component';
-import { NgxRenderingEngine2 } from '../../engine';
+import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 
@@ -25,7 +25,7 @@ describe('PaginationComponent', () => {
 
   beforeAll(() => {
     try {
-      engine = new NgxRenderingEngine2();
+      engine = new NgxRenderingEngine();
       Model.setBuilder(Model.fromModel as ModelBuilderFunction);
     } catch (e: unknown) {
        console.warn(`Engine already loaded`);

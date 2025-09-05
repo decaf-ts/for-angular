@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 <% if(!standalone) {%>import { IonicModule } from '@ionic/angular';<%} %>
-<% if(standalone) {%>import { ForAngularModule } from 'src/lib/for-angular.module';<%} %>
+<% if(standalone) {%>import { ForAngularModule } from '../../for-angular.module';<%} %>
 import { <%= classify(name) %><%= classify(type) %> } from './<%= dasherize(name) %>.<%= dasherize(type) %>';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
-import { NgxRenderingEngine2 } from 'src/lib/engine';
+import { NgxRenderingEngine } from '../../engine';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 
 
@@ -24,7 +24,7 @@ describe('<%= classify(name) %><%= classify(type) %>', () => {
 
   beforeAll(() => {
     try {
-      engine = new NgxRenderingEngine2();
+      engine = new NgxRenderingEngine();
       Model.setBuilder(Model.fromModel as ModelBuilderFunction);
     } catch (e: unknown) {
       console.warn(`Engine already loaded`);

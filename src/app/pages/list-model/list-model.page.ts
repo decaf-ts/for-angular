@@ -12,7 +12,7 @@ import { Model } from '@decaf-ts/decorator-validation';
   templateUrl: './list-model.page.html',
   styleUrls: ['./list-model.page.css'],
   standalone: true,
-  imports: [ComponentsModule,  IonCard, IonCardTitle, IonCardContent, IonSearchbar],
+  imports: [ComponentsModule, IonCard, IonCardTitle, IonCardContent, IonSearchbar],
 })
 export class ListModelPage implements OnInit {
 
@@ -32,7 +32,7 @@ export class ListModelPage implements OnInit {
 
   handleEvent(event: BaseCustomEvent) {
     const {name, data } = event;
-    if(name === EventConstants.REFRESH_EVENT)
+    if(name === EventConstants.REFRESH)
       return this.handleListRefreshEvent(data as Model[]);
 
   }

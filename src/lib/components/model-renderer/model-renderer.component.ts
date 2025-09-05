@@ -19,7 +19,7 @@ import {
   AngularEngineKeys,
   BaseComponentProps,
   BaseCustomEvent,
-  NgxRenderingEngine2,
+  NgxRenderingEngine,
   RenderedModel,
 } from '../../engine';
 import { KeyValue, RendererCustomEvent } from '../../engine/types';
@@ -31,7 +31,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
  * @description Component for rendering dynamic models
  * @summary This component is responsible for dynamically rendering models,
  * handling model changes, and managing event subscriptions for the rendered components.
- * It uses the NgxRenderingEngine2 to render the models and supports both string and Model inputs.
+ * It uses the NgxRenderingEngine to render the models and supports both string and Model inputs.
  * @class
  * @template M - Type extending Model
  * @param {Injector} injector - Angular Injector for dependency injection
@@ -61,6 +61,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
   selector: 'ngx-decaf-model-renderer',
   templateUrl: './model-renderer.component.html',
   styleUrl: './model-renderer.component.scss',
+  host: {'[attr.id]': 'rendererId'},
 })
 export class ModelRendererComponent<M extends Model>
   implements OnChanges, OnDestroy, RenderedModel {
@@ -106,11 +107,6 @@ export class ModelRendererComponent<M extends Model>
    */
   @Output()
   listenEvent = new EventEmitter<RendererCustomEvent>();
-
-  /**
-   * @description Instance of the NgxRenderingEngine2
-   */
-  private render!: NgxRenderingEngine2;
 
   /**
    * @description Instance of the rendered component
@@ -163,20 +159,21 @@ export class ModelRendererComponent<M extends Model>
   async ngOnDestroy(): Promise<void> {
     if (this.instance) {
       this.unsubscribeEvents();
-      await NgxRenderingEngine2.destroy();
+      await NgxRenderingEngine.destroy();
     }
     this.output = undefined;
   }
 
   private subscribeEvents(): void {
-    if (this.instance) {
+    const component = this?.output?.component;
+    if (this.instance && component) {
       const componentKeys = Object.keys(this.instance);
       for (const key of componentKeys) {
         const value = this.instance[key];
         if (value instanceof EventEmitter)
           (this.instance as KeyValue)[key].subscribe((event: Partial<BaseCustomEvent>) => {
             this.listenEvent.emit({
-              component: this.output?.component.name || '',
+              component: component.name || '',
               name: key,
               ...event,
             } as RendererCustomEvent);

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema",
-  "$id": "SchematicsIonicAngularPage",
+  "$id": "SchematicsDecafIonicAngularPage",
   "title": "@ionic/angular Page Options Schema",
   "type": "object",
   "properties": {
@@ -69,8 +69,13 @@
     },
     "routePath": {
       "type": "string",
-      "description": "The path to use for the route of the page",
+      "description": "The path to use for the route of the page (defaults to page name)",
       "default": ""
+    },
+    "skipRoute": {
+      "type": "boolean",
+      "description": "Skip adding the route to app.routes.ts",
+      "default": false
     },
     "standalone": {
       "type": "boolean",

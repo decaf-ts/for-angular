@@ -1,6 +1,6 @@
 import { Component, OnInit<% if(standalone){ %> <%} %> } from '@angular/core';
-<% if(standalone){ %>import { ForAngularModule } from 'src/lib/for-angular.module';<%} %>
-import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+<% if(standalone){ %>import { ForAngularModule } from '../../for-angular.module';<%} %>
+import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 
 
 @Component({

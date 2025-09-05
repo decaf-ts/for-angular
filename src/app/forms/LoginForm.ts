@@ -15,7 +15,7 @@ import { LoginHandler } from '../utils/handlers';
   login: LoginHandler
 })
 @model()
-export class LoginModel extends Model {
+export class LoginForm extends Model {
 
   @required()
   @minlength(4)
@@ -34,7 +34,7 @@ export class LoginModel extends Model {
   @required()
   password!: string;
 
-  constructor(args: ModelArg<LoginModel> = {}) {
+  constructor(args: ModelArg<LoginForm> = {}) {
     super(args);
   }
 }

@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'crud/create',
     pathMatch: 'full'
   },
   {
@@ -13,6 +13,10 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     loadComponent: () => import('./pages/dashboard/dashboard.page').then( m => m.DashboardPage)
+  },
+  {
+    path: 'fieldset',
+    loadComponent: () => import('./pages/fieldset/fieldset.page').then( m => m.FieldsetPage)
   },
   {
     path: 'crud',

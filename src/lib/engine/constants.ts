@@ -34,7 +34,8 @@ export const AngularEngineKeys = {
   RENDER: 'render',
   RENDERED_ID: 'rendered-as-{0}',
   PARENT: '_parent',
-  VALIDATION_PARENT_KEY: VALIDATION_PARENT_KEY
+  VALIDATION_PARENT_KEY: VALIDATION_PARENT_KEY,
+  FORM_GROUP_COMPONENT_PROPS: 'componentProps'
 };
 
 /**
@@ -64,11 +65,16 @@ export const FormConstants = {
  * @property {string} SUBMIT_EVENT - Event fired when a form submission occurs
  * @memberOf module:engine
  */
-export enum EventConstants {
-  BACK_BUTTON_NAVIGATION = 'backButtonNavigationEndEvent',
-  REFRESH_EVENT = 'RefreshEvent',
-  CLICK_EVENT = 'ClickEvent',
-  SUBMIT_EVENT = 'SubmitEvent',
+export const EventConstants = {
+  BACK_BUTTON_NAVIGATION: 'backButtonNavigationEndEvent',
+  REFRESH: 'RefreshEvent',
+  CLICK: 'ClickEvent',
+  SUBMIT: 'SubmitEvent',
+  VALIDATION_ERROR: 'validationErrorEvent',
+  FIELDSET_ADD_GROUP: 'fieldsetAddGroupEvent',
+  FIELDSET_UPDATE_GROUP: 'fieldsetUpdateGroupEvent',
+  FIELDSET_REMOVE_GROUP: 'fieldsetRemoveGroupEvent',
+  // FIELDSET_GROUP_VALIDATION: 'fieldsetGroupValidationEvent'
 }
 
 /**

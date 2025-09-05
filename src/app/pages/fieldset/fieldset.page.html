@@ -1,0 +1,19 @@
+<app-header
+  [title]="title"
+  center="true"
+  showMenuButton="true"
+  color="primary">
+</app-header>
+
+<ion-content [fullscreen]="true">
+  <main class="main">
+
+    <app-container [hasSideMenu]="true" size="large">
+      <ngx-decaf-model-renderer
+        [model]="model"
+        (listenEvent)="handleSubmit($event)"
+        [globals]="globals">
+      </ngx-decaf-model-renderer>
+    </app-container>
+  </main>
+</ion-content>

@@ -1,5 +1,7 @@
-<ng-template #componentViewContainer></ng-template>
+<!-- Keep to avoid id conflicts -->
+<div [id]="uid"></div>
 
+<ng-template #componentViewContainer></ng-template>
 <ng-template #inner>
   @if(parent?.children?.length) {
     @for(child of parent.children; track child) {
@@ -15,8 +17,9 @@
         } @else {
           <ngx-decaf-component-renderer [parent]="child"> </ngx-decaf-component-renderer>
         }
-     }
+    }
   }
 </ng-template>
+
 
 

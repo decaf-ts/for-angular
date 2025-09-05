@@ -12,8 +12,8 @@
       "schema": "./src/component/schema.json"
     },
     "page": {
-      "factory": "../node_modules/@ionic/angular-toolkit/page/index",
-      "description": "Create an Decaf Ioinc Standalone page",
+      "factory": "./src/page/index#page",
+      "description": "Create an Decaf Ionic Standalone page",
       "schema": "./src/page/schema.json"
     }
   }

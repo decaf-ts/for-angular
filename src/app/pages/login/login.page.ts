@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
 import { ComponentsModule } from 'src/app/components/components.module';
 import { CrudFormEvent } from 'src/lib/engine';
-import { LoginModel } from 'src/app/models/LoginModel';
+import { LoginForm } from 'src/app/forms/LoginForm';
 import { getLogger } from 'src/lib/for-angular.module';
 import { IonCard, IonCardContent, IonImg, ToastController} from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 /**
  * @description Login page component for user authentication
  * @summary This component handles the login functionality, including form rendering and event handling.
- * It uses the LoginModel for data binding and interacts with the LoginHandler for authentication logic.
+ * It uses the LoginForm for data binding and interacts with the LoginHandler for authentication logic.
  * @class
  * @param {Router} router - Angular Router for navigation
  * @param {ToastController} toastController - Ionic ToastController for displaying messages
@@ -41,10 +41,10 @@ import { Router } from '@angular/router';
 })
 export class LoginPage {
   /**
-   * @description Instance of LoginModel for form data binding
+   * @description Instance of LoginForm for form data binding
    * @summary This property holds the data model for the login form
    */
-  model = new LoginModel({});
+  model = new LoginForm({});
 
   /**
    * @description Angular Router instance for navigation

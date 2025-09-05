@@ -41,7 +41,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
 import { PaginationComponent } from '../pagination/pagination.component';
 import { PaginationCustomEvent } from '../pagination/constants';
 import { IListEmptyResult, ListComponentsTypes, DecafRepository } from './constants';
-import { FunctionLike, IFilterQuery, IFilterQueryItem } from '../../engine/types';
+import { FunctionLike, IFilterQuery, IFilterQueryItem } from '../../engine';
 import { FilterComponent } from '../filter/filter.component';
 
 /**
@@ -905,7 +905,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
       data = this.items;
     this.skeletonData = new Array(data?.length || 2);
     this.refreshEvent.emit({
-      name: EventConstants.REFRESH_EVENT,
+      name: EventConstants.REFRESH,
       data: data || [],
       component: this.componentName
     });
@@ -1254,7 +1254,6 @@ parseConditions(value: string | number | IFilterQuery): Condition<Model> {
     this.sortBy = sort?.value as keyof Model || this.pk;
     this.sortDirection = sort?.direction || this.sortDirection;
   }
-  console.log(_condition);
   return _condition as Condition<Model>;
 
 }

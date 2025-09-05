@@ -423,7 +423,7 @@ export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): 
       accum[key] = value;
     } else {
       if (arrayValue.length === 1) {
-        accum[key] = item?.[value as string] || value;
+        accum[key] = item?.[value as string] || (value !== key ? value : "");
       } else {
         let val;
 
@@ -470,4 +470,9 @@ export function removeFocusTrap(): void {
   const doc = getWindowDocument();
   if(doc?.activeElement)
     (doc.activeElement as HTMLElement)?.blur();
+}
+
+export function cleanSpaces(value: string, lowercase = false): string {
+  value = `${value}`.trim().replace(/\s+/g, ' ');
+  return lowercase ? value.toLowerCase() : value;
 }

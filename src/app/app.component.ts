@@ -15,7 +15,7 @@ import { IonApp,
 } from '@ionic/angular/standalone';
 import { Title } from '@angular/platform-browser';
 import { Platform } from '@ionic/angular';
-import { NgxRenderingEngine2 } from 'src/lib/engine';
+import { NgxRenderingEngine } from '../lib/engine';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { addIcons } from 'ionicons';
@@ -29,7 +29,7 @@ import { DecafRepositoryAdapter } from 'src/lib/components/list/constants';
 import { DbAdapterProvider } from './app.config';
 
 try {
-  new NgxRenderingEngine2();
+  new NgxRenderingEngine();
   Model.setBuilder(Model.fromModel as ModelBuilderFunction);
 
 } catch (e: unknown) {
@@ -61,6 +61,10 @@ const Menu: MenuItem[] = [
   {
     label: 'Crud',
     icon: 'save-outline',
+  },
+  {
+    label: 'Fieldset',
+    url: '/fieldset',
   },
   {
     label: 'Read',

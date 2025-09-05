@@ -15,7 +15,7 @@ import { Constructor, Model} from '@decaf-ts/decorator-validation';
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.css'],
   standalone: true,
-  imports: [ComponentsModule,  IonCard, IonCardTitle, IonCardContent, IonSearchbar],
+  imports: [ComponentsModule, IonCard, IonCardTitle, IonCardContent, IonSearchbar],
 })
 export class ListPage implements OnInit, OnDestroy {
 
@@ -42,7 +42,7 @@ export class ListPage implements OnInit, OnDestroy {
 
   handleEvent(event: BaseCustomEvent) {
     const { name } = event;
-    if(name === EventConstants.REFRESH_EVENT)
+    if(name === EventConstants.REFRESH)
       return this.handleListRefreshEvent(event);
   }
 

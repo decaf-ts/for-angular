@@ -12,14 +12,26 @@ import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
 import { RamAdapter } from '@decaf-ts/core/ram';
 import { I18nLoader } from 'src/lib/i18n/Loader';
 import { routes } from './app.routes';
+import { getWindow } from '../lib/helpers';
 
 export const DbAdapterProvider = new InjectionToken<RamAdapter>('DbAdapterProvider');
+
+/**
+ * Factory function to create and configure the database adapter
+ * Sets the adapter name on the window object for global access
+ */
+function createDbAdapter(): RamAdapter {
+  const adapter = new RamAdapter();
+  // Set adapter name on window for global access
+  getWindow()['dbAdapterFlavour'] = adapter.flavour;
+  return adapter;
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    { provide: DbAdapterProvider, useValue: new RamAdapter() },
+    { provide: DbAdapterProvider, useFactory: createDbAdapter },
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
     provideHttpClient(),

@@ -125,6 +125,13 @@ textarea {
   }
 }
 
+.dcf-slide-top-small {
+  animation-duration: 0.3s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+  animation-name: fadeTopSmallAnimation;
+}
+
 /*
  *
  * Slide Top Small
@@ -1925,4 +1932,319 @@ ion-card {
   width: 100%;
   /* 3 */
   flex: auto;
+}
+
+
+/* ========================================================================
+   Component: Animation
+ ========================================================================== */
+[class*="dcf-animation-"] {
+  animation: 0.5s ease-out both;
+}
+
+/* Direction modifier
+ ========================================================================== */
+.dcf-animation-reverse {
+  animation-direction: reverse;
+  animation-timing-function: ease-in;
+}
+
+/* Duration modifier
+ ========================================================================== */
+.dcf-animation-fast {
+  animation-duration: 0.15s;
+}
+
+.dcf-animation-medium {
+  animation-duration: 0.25s;
+}
+/* Animations
+ ========================================================================== */
+/*
+ * Fade
+ */
+.dcf-animation-fade {
+  animation-name: dcf-fade;
+  animation-duration: 0.8s;
+  animation-timing-function: linear;
+}
+/*
+ * Scale
+ */
+.dcf-animation-scale-up {
+  animation-name: dcf-fade, dcf-scale-up;
+}
+.dcf-animation-scale-down {
+  animation-name: dcf-fade, dcf-scale-down;
+}
+/*
+ * Slide
+ */
+.dcf-animation-slide-top {
+  animation-name: dcf-fade, dcf-slide-top;
+}
+.dcf-animation-slide-bottom {
+  animation-name: dcf-fade, dcf-slide-bottom;
+}
+.dcf-animation-slide-left {
+  animation-name: dcf-fade, dcf-slide-left;
+}
+.dcf-animation-slide-right {
+  animation-name: dcf-fade, dcf-slide-right;
+}
+/*
+ * Slide Small
+ */
+.dcf-animation-slide-top-small {
+  animation-name: dcf-fade, dcf-slide-top-small;
+}
+.dcf-animation-slide-bottom-small {
+  animation-name: dcf-fade, dcf-slide-bottom-small;
+}
+.dcf-animation-slide-left-small {
+  animation-name: dcf-fade, dcf-slide-left-small;
+}
+.dcf-animation-slide-right-small {
+  animation-name: dcf-fade, dcf-slide-right-small;
+}
+/*
+ * Slide Medium
+ */
+.dcf-animation-slide-top-medium {
+  animation-name: dcf-fade, dcf-slide-top-medium;
+}
+.dcf-animation-slide-bottom-medium {
+  animation-name: dcf-fade, dcf-slide-bottom-medium;
+}
+.dcf-animation-slide-left-medium {
+  animation-name: dcf-fade, dcf-slide-left-medium;
+}
+.dcf-animation-slide-right-medium {
+  animation-name: dcf-fade, dcf-slide-right-medium;
+}
+/*
+ * Kenburns
+ */
+.dcf-animation-kenburns {
+  animation-name: dcf-kenburns;
+  animation-duration: 15s;
+}
+/*
+ * Shake
+ */
+.dcf-animation-shake {
+  animation-name: dcf-shake;
+}
+/*
+ * SVG Stroke
+ * The `--dcf-animation-stroke` custom property contains the longest path length.
+ * Set it manually or use `dcf-svg="stroke-animation: true"` to set it automatically.
+ * All strokes are animated by the same pace and doesn't end simultaneously.
+ * To end simultaneously, `pathLength="1"` could be used, but it's not working in Safari yet.
+ */
+.dcf-animation-stroke {
+  animation-name: dcf-stroke;
+  animation-duration: 2s;
+  stroke-dasharray: var(--dcf-animation-stroke);
+}
+
+/* Toggle animation based on the State of the Parent Element
+ ========================================================================== */
+.dcf-animation-toggle:not(:hover):not(:focus) [class*="dcf-animation-"] {
+  animation-name: none;
+}
+/* Keyframes used by animation classes
+ ========================================================================== */
+/*
+ * Fade
+ */
+@keyframes dcf-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+/*
+ * Scale
+ */
+@keyframes dcf-scale-up {
+  0% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes dcf-scale-down {
+  0% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/*
+ * Slide
+ */
+@keyframes dcf-slide-top {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes dcf-slide-bottom {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes dcf-slide-left {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes dcf-slide-right {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+/*
+ * Slide Small
+ */
+@keyframes dcf-slide-top-small {
+  0% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes dcf-slide-bottom-small {
+  0% {
+    transform: translateY(10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes dcf-slide-left-small {
+  0% {
+    transform: translateX(-10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes dcf-slide-right-small {
+  0% {
+    transform: translateX(10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+/*
+ * Slide Medium
+ */
+@keyframes dcf-slide-top-medium {
+  0% {
+    transform: translateY(-50px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes dcf-slide-bottom-medium {
+  0% {
+    transform: translateY(50px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes dcf-slide-left-medium {
+  0% {
+    transform: translateX(-50px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes dcf-slide-right-medium {
+  0% {
+    transform: translateX(50px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+/*
+ * Kenburns
+ */
+@keyframes dcf-kenburns {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.2);
+  }
+}
+/*
+ * Shake
+ */
+@keyframes dcf-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10% {
+    transform: translateX(-9px);
+  }
+  20% {
+    transform: translateX(8px);
+  }
+  30% {
+    transform: translateX(-7px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  50% {
+    transform: translateX(-5px);
+  }
+  60% {
+    transform: translateX(4px);
+  }
+  70% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+  90% {
+    transform: translateX(-1px);
+  }
+}
+/*
+ * Stroke
+ */
+@keyframes dcf-stroke {
+  0% {
+    stroke-dashoffset: var(--dcf-animation-stroke);
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
