@@ -7,20 +7,20 @@ ion-accordion-group {
     }
   }
 
-   &.hasValidationErrors {
-    [slot="header"],
-      ::ng-deep::part(header),
-    ion-item {
-      pointer-events: none !important;
-      * {
-         pointer-events: none !important;
-      }
-    }
-    ::ng-deep [slot="end"] {
-        opacity: .4 !important;
-    }
+  //  &.hasValidationErrors {
+  //   [slot="header"],
+  //     ::ng-deep::part(header),
+  //   ion-item {
+  //     pointer-events: none !important;
+  //     * {
+  //        pointer-events: none !important;
+  //     }
+  //   }
+  //   ::ng-deep [slot="end"] {
+  //       opacity: .4 !important;
+  //   }
 
-  }
+  // }
 }
 
 // removing border of last field item

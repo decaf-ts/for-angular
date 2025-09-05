@@ -21,7 +21,7 @@ import {
   IonDatetimeButton,
 } from '@ionic/angular/standalone';
 import { ForAngularModule } from '../for-angular.module';
-import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
+import { NgxRenderingEngine } from './NgxRenderingEngine';
 
 describe('decorators', () => {
   @Dynamic()
@@ -56,7 +56,7 @@ describe('decorators', () => {
 
   xit('should populate from @Component Metadata', () => {
     expect(
-      NgxRenderingEngine2.components('ngx-decaf-decorator-test-form-field-component') as DecoratorTestFormFieldComponent,
+      NgxRenderingEngine.components('ngx-decaf-decorator-test-form-field-component') as DecoratorTestFormFieldComponent,
     ).toBeDefined();
   });
 });

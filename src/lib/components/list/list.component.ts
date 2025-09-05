@@ -1254,7 +1254,6 @@ parseConditions(value: string | number | IFilterQuery): Condition<Model> {
     this.sortBy = sort?.value as keyof Model || this.pk;
     this.sortDirection = sort?.direction || this.sortDirection;
   }
-  console.log(_condition);
   return _condition as Condition<Model>;
 
 }

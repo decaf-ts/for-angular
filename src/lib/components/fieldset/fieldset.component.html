@@ -1,16 +1,20 @@
 
 
-<fieldset [id]="uid" (fieldsetGroupValidationEvent)="!handleCreateItem($event)" (focusout)="handleInputBlur($event)" [class]="'dcf-fieldset ' + operation" #component>
+<fieldset [id]="uid"
+  (fieldsetAddGroupEvent)="handleCreateItem($event)"
+  (fieldsetRemoveGroupEvent)="handleRemoveItem(undefined, $event)"
+  [class]="'dcf-fieldset ' + operation"
+  #component>
   <ion-accordion-group [ngClass]="{'open': isOpen, 'hasValidationErrors': hasValidationErrors}"  (validationErrorEvent)="handleValidationError($event)" #accordionComponent>
     <ion-accordion value="open">
-      <ion-item slot="header" (click)="handleToggle($event)">
+      <ion-item slot="header" (click)="handleAccordionToggle($event)">
         <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1">
           <div class="dcf-width-expand">
             <legend>{{ name }}</legend>
           </div>
           @if(!isRequired && ['create', 'update'].includes(operation)) {
             <div class="dcf-width-auto dcf-delete">
-              <ion-button fill="clear" size="small" (click)="handleRemove($event)">
+              <ion-button fill="clear" size="small" (click)="handleRemoveComponent($event)">
                 <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
               </ion-button>
             </div>
@@ -20,22 +24,22 @@
       <div slot="content" [attr.aria-hidden]="!isOpen">
         @if(multiple && items.length) {
           <ion-list class="dcf-fields-list">
-            <ion-reorder-group [formGroup]="formGroup.parent" [disabled]="updatingItem" (ionItemReorder)="handleReorder($any($event))" #accordionComponent>
+            <ion-reorder-group [formGroup]="formGroup.parent" [disabled]="updatingItem" (ionItemReorder)="handleReorderItems($any($event))" #accordionComponent>
               @for(item of items; track item.index) {
-                <ion-item lines="full" [button]="false" [ngClass]="{'updating': updatingItem?.title === item.title}">
+                <ion-item lines="full" [button]="false" [ngClass]="{'updating': updatingItem?.[pk] === item.title}">
                   @if(items?.length > 1) {
                     <ion-reorder slot="start">
                       <ion-icon name="swap-vertical-outline"></ion-icon>
                     </ion-reorder>
                   }
                   <ion-label [color]="item.title === isUniqueError ? 'danger' : ''">{{ item.index }}. {{ item.title }}
-                    @if(item.description) {
+                    @if(item.description?.length > 0) {
                       <br />
                       <ion-text class="dcf-subtitle">{{item.description}}</ion-text>
                     }
                   </ion-label>
                   @if(!updatingItem) {
-                    <ion-button fill="clear" size="small" (click)="handleUpdateItem(item)">
+                    <ion-button fill="clear" size="small" (click)="handleUpdateItem(item.title, item.index - 1)">
                       <ion-icon name="create-outline" color="dark" slot="icon-only"></ion-icon>
                     </ion-button>
                     <ion-button fill="clear" size="small" (click)="handleRemoveItem(item.title)">

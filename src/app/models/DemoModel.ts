@@ -55,7 +55,7 @@ export class ForAngularModel extends Model {
   // })
   // gender!: string;
 
-  // @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {mapper: {title: 'name'}, pk: 'name', multiple: true})
+  // @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {mapper: {title: 'name'}, pk: 'name'}, true)
   // category!: CategoryModel;
 
   // @required()

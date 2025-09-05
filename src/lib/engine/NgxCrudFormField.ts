@@ -47,6 +47,8 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
 
   disabled?: boolean;
 
+  uid?: string;
+
   // Validation
 
   format?: string;

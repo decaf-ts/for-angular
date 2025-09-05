@@ -11,7 +11,7 @@ import {
 import { FieldProperties, HTML5InputTypes, parseValueByType } from '@decaf-ts/ui-decorators';
 import { AngularEngineKeys } from './constants';
 import { KeyValue } from './types';
-import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
+import { NgxRenderingEngine } from './NgxRenderingEngine';
 
 
 type ComparisonValidationKey = typeof ComparisonValidationKeys[keyof typeof ComparisonValidationKeys];
@@ -43,7 +43,7 @@ const resolveValidatorKeyProps = (key: string, value: unknown, type: string): {
   const validatorKey = isTypeBased ? type : key;
   const props: Record<string, unknown> = {
     // [validatorKey]: (!isTypeBased && key === 'type') ? parseType(type) : value,
-    [validatorKey]: (!isTypeBased && validatorKey === ValidationKeys.TYPE) ? NgxRenderingEngine2.get().translate(value as string, false) : value,
+    [validatorKey]: (!isTypeBased && validatorKey === ValidationKeys.TYPE) ? NgxRenderingEngine.get().translate(value as string, false) : value,
     // Email, Password, and URL are validated using the "pattern" key
     ...(isTypeBased && { [ValidationKeys.PATTERN] : patternValidators[type] }),
   };

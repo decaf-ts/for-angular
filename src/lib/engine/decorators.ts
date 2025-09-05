@@ -1,5 +1,5 @@
 import { apply, metadata } from '@decaf-ts/reflection';
-import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
+import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { AngularEngineKeys } from './constants';
 import { Constructor } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
@@ -7,7 +7,7 @@ import { reflectComponentType, Type } from '@angular/core';
 
 /**
  * @description Marks an Angular component as dynamically loadable
- * @summary Decorator that registers an Angular component with the NgxRenderingEngine2 for dynamic loading.
+ * @summary Decorator that registers an Angular component with the NgxRenderingEngine for dynamic loading.
  * This decorator must be applied before the @Component decorator to properly extract component metadata.
  * It adds metadata to the component class and registers it with the rendering engine using its selector.
  * @function Dynamic
@@ -16,7 +16,7 @@ import { reflectComponentType, Type } from '@angular/core';
  * sequenceDiagram
  *   participant C as Component Class
  *   participant D as Dynamic Decorator
- *   participant R as NgxRenderingEngine2
+ *   participant R as NgxRenderingEngine
  *   participant M as Angular Metadata
  *   C->>D: Apply decorator
  *   D->>M: reflectComponentType()
@@ -39,11 +39,11 @@ export function Dynamic() {
           `Could not find Component metadata. @Dynamic decorator must come above @Component`
         );
 
-      NgxRenderingEngine2.registerComponent(
+      NgxRenderingEngine.registerComponent(
         metadata.selector,
         original as unknown as Constructor<unknown>
       );
     },
-    metadata(NgxRenderingEngine2.key(AngularEngineKeys.DYNAMIC), true)
+    metadata(NgxRenderingEngine.key(AngularEngineKeys.DYNAMIC), true)
   );
 }

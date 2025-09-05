@@ -2,7 +2,6 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  HostListener,
   inject,
   Input,
   OnDestroy,
@@ -11,7 +10,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Location } from '@angular/common';
-import { FormArray, FormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { FormElement } from '../../interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { CrudFormEvent, Dynamic, EventConstants, FieldUpdateMode, HTMLFormTarget, RenderedModel } from '../../engine';
@@ -170,60 +169,9 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
       NgxFormService.unregister(this.formGroup);
   }
 
-
-  // async handleValidateGroup(event: CustomEvent): Promise<void> {
-  //   const { parent, component, index } = event.detail;
-  //   if(parent) {
-  //     // if(index > 0) {
-  //     //   const formGroup = (this.formGroup!.controls[group] as FormArray).get('0');
-  //     //   const validators = formGroup?.validator;
-  //     //   console.log(validators);
-  //     // }
-
-  //     const parentGroup = this.formGroup?.get(parent);
-  //     if(parentGroup instanceof FormGroup || parentGroup instanceof FormArray) {
-  //       const formGroup = index === 0 ? (parentGroup as FormArray).at(0) : NgxFormService.addGroupToParent(this.formGroup as FormGroup, parent, index);
-  //       // console.log(parentGroup);
-  //       // console.log((formGroup as FormGroup).controls);
-  //       // console.log(formGroup.value);
-  //       const isValid = NgxFormService.validateFields(formGroup);
-  //       const event = new CustomEvent(EventConstants.FIELDSET_GROUP_VALIDATION, {
-  //         detail: {isValid, value: formGroup.value, formGroup: parentGroup, formService: NgxFormService},
-  //       });
-  //       component.dispatchEvent(event);
-  //     }
-  //   }
-
-
-
-  //   // const matchingGroups: {name: string, formGroup: FormGroup}[] = [];
-
-  //   // Object.keys(this.formGroup.controls).forEach(controlName => {
-  //   //   const control = this.formGroup!.controls[controlName];
-
-  //   //   // Check if it's a FormGroup and if the name matches the category
-  //   //   if (control instanceof FormGroup) {
-  //   //     // Exact match
-  //   //     if (controlName === categoryName) {
-  //   //       matchingGroups.push({ name: controlName, formGroup: control });
-  //   //     }
-  //   //     // Partial match (useful for dynamic fieldsets like "category_0", "category_1", etc.)
-  //   //     else if (controlName.startsWith(categoryName)) {
-  //   //       matchingGroups.push({ name: controlName, formGroup: control });
-  //   //     }
-  //   //   }
-  // }
-
-  /**
-   * @param  {SubmitEvent} event
-   */
   async submit(event: SubmitEvent): Promise<boolean | void> {
     event.preventDefault();
     event.stopImmediatePropagation();
-    event.stopPropagation();
-
-    console.log(this.formGroup?.value)
-
     if (!NgxFormService.validateFields(this.formGroup as FormGroup))
       return false;
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
@@ -235,12 +183,10 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
     });
   }
 
-  handleReset() {
+  handleReset(): void {
+    if(![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation))
+      return NgxFormService.reset(this.formGroup as FormGroup);
     this.location.back();
-    // if(OperationKeys.DELETE !== this.operation)
-    //   NgxFormService.reset(this.formGroup);
-    // else
-    //   this.location.back();
   }
 
   handleDelete() {

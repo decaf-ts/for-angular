@@ -423,7 +423,7 @@ export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): 
       accum[key] = value;
     } else {
       if (arrayValue.length === 1) {
-        accum[key] = item?.[value as string] || value;
+        accum[key] = item?.[value as string] || (value !== key ? value : "");
       } else {
         let val;
 

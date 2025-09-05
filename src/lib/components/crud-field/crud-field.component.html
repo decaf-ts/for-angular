@@ -14,7 +14,7 @@
     </div>
   </ng-container>
 } @else {
-  <ng-container #component [formGroup]="getActiveFormGroup">
+  <ng-container [formGroup]="getActiveFormGroup">
     <div #container [class]="'dcf-input-item ' + (operation || 'create')" (createGroupEvent)="multiple ? handleFieldsetCreateGroupEvent($event) : ''">
         @if(type === 'textarea') {
           <ion-textarea
@@ -35,7 +35,7 @@
             [placeholder]="translatable ? (placeholder | translate) : placeholder"
             [formControlName]="name"
             [label]="translatable ? (label | translate) : label"
-          >
+           #component>
           </ion-textarea>
         }
         @else if(type === 'checkbox') {
@@ -53,13 +53,13 @@
               [readonly]="readonly"
               (ionChange)="checked = !checked"
               [formControlName]="name"
-            >
+             #component>
               <span [innerHTML]="label | translate"></span>
             </ion-checkbox>
           </ion-item>
         }
         @else if(type === 'radio') {
-          <ion-radio-group [formControlName]="name"  [value]="value" #component>
+          <ion-radio-group [formControlName]="name" [value]="value" #component>
             <label class="dcf-radio-group-label" [for]="path">{{label | translate}}</label>
             @for(option of options; track option) {
               <ion-item>
@@ -91,7 +91,7 @@
               [placeholder]="translatable ? (placeholder | translate) : placeholder"
               [formControlName]="name"
               [errorText]="getErrors(container)"
-              [interface]="interface">
+              [interface]="interface"  #component>
               @for(option of options; track option.value) {
                 <ion-select-option [value]="option.value">
                   {{ translatable ? (option.text | translate) : options.text }}
@@ -101,7 +101,6 @@
         }
         @else {
           <ion-input
-
             [type]="type"
             [mode]="mode"
             [hidden]="hidden"
@@ -119,8 +118,7 @@
             [placeholder]="translatable ? (placeholder | translate) : placeholder"
             [formControlName]="name"
             [errorText]="getErrors(container)"
-            [label]="translatable ? (label | translate) : label">
-          </ion-input>
+            [label]="translatable ? (label | translate) : label" #component />
         }
     </div>
   </ng-container>

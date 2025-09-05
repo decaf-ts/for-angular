@@ -19,7 +19,7 @@ import {
   AngularEngineKeys,
   BaseComponentProps,
   BaseCustomEvent,
-  NgxRenderingEngine2,
+  NgxRenderingEngine,
   RenderedModel,
 } from '../../engine';
 import { KeyValue, RendererCustomEvent } from '../../engine/types';
@@ -31,7 +31,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
  * @description Component for rendering dynamic models
  * @summary This component is responsible for dynamically rendering models,
  * handling model changes, and managing event subscriptions for the rendered components.
- * It uses the NgxRenderingEngine2 to render the models and supports both string and Model inputs.
+ * It uses the NgxRenderingEngine to render the models and supports both string and Model inputs.
  * @class
  * @template M - Type extending Model
  * @param {Injector} injector - Angular Injector for dependency injection
@@ -159,7 +159,7 @@ export class ModelRendererComponent<M extends Model>
   async ngOnDestroy(): Promise<void> {
     if (this.instance) {
       this.unsubscribeEvents();
-      await NgxRenderingEngine2.destroy();
+      await NgxRenderingEngine.destroy();
     }
     this.output = undefined;
   }

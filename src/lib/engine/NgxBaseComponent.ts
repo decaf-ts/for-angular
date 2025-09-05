@@ -25,7 +25,7 @@ import {
   OperationKeys
 } from '@decaf-ts/db-decorators';
 import { BaseComponentProps } from './constants';
-import { NgxRenderingEngine2 } from './NgxRenderingEngine2';
+import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { Logger } from '@decaf-ts/logging';
 import { getLogger } from '../for-angular.module';
 import { DecafRepository } from '../components/list/constants';
@@ -72,7 +72,7 @@ import { addIcons } from 'ionicons';
  *   participant App as Application
  *   participant Comp as Component
  *   participant Base as NgxBaseComponent
- *   participant Engine as NgxRenderingEngine2
+ *   participant Engine as NgxRenderingEngine
  *
  *   App->>Comp: Create component
  *   Comp->>Base: super(instance)
@@ -369,14 +369,14 @@ export abstract class NgxBaseComponent implements OnChanges {
 
   /**
    * @description Reference to the rendering engine instance
-   * @summary Provides access to the NgxRenderingEngine2 singleton instance,
+   * @summary Provides access to the NgxRenderingEngine singleton instance,
    * which handles the rendering of components based on model definitions.
    * This engine is used to extract decorator metadata and render child components.
    *
-   * @type {NgxRenderingEngine2}
+   * @type {NgxRenderingEngine}
    */
-  renderingEngine: NgxRenderingEngine2 =
-    NgxRenderingEngine2.get() as unknown as NgxRenderingEngine2;
+  renderingEngine: NgxRenderingEngine =
+    NgxRenderingEngine.get() as unknown as NgxRenderingEngine;
 
   /**
    * @description Logger instance for the component.

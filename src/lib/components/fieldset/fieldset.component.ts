@@ -1,13 +1,12 @@
 
-import { AfterViewInit, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild, Renderer2, OnInit, EventEmitter, Output } from '@angular/core';
-import { BaseCustomEvent, Dynamic, EventConstants, HTMLFormTarget, KeyValue } from '../../engine';
+import { AfterViewInit, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild, Renderer2, OnInit } from '@angular/core';
+import { Dynamic, EventConstants, HTMLFormTarget, KeyValue } from '../../engine';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModule } from '../../for-angular.module';
 import { CollapsableDirective } from '../../directives/collapsable.directive';
 import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorderGroup, IonReorder } from '@ionic/angular/standalone';
-import { itemMapper, windowEventEmitter } from '../../helpers';
-import { AbstractControl, FormArray, FormGroup } from '@angular/forms';
-import { NgxFormService } from '../../engine/NgxFormService';
+import { cleanSpaces, itemMapper, windowEventEmitter } from '../../helpers';
+import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/forms';
 import { NgxBaseComponent } from '../../engine';
 import { alertCircleOutline, createOutline } from 'ionicons/icons';
 import { TranslateService } from '@ngx-translate/core';
@@ -34,13 +33,11 @@ interface IFieldSetItem {
  */
 interface IFieldSetValidationEvent {
   /** @description The FormGroup containing the validated form controls */
-  formGroup: FormGroup | FormArray;
+  formGroup:  FormArray;
   /** @description The current form value being validated */
   value: unknown;
   /** @description Whether the form validation passed or failed */
   isValid: boolean;
-  /** @description The form service instance used for form operations */
-  formService: NgxFormService;
 }
 
 
@@ -165,7 +162,8 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
   @Input()
   childOf: string = 'Child';
 
-    /**
+
+  /**
    * @description The display name or title of the fieldset section.
    * @summary Sets the legend or header text that appears in the accordion header. This text
    * provides a clear label for the collapsible section, helping users understand what content
@@ -177,8 +175,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @memberOf FieldsetComponent
    */
   @Input()
-  path: string = 'Child';
-
+  customTypes!: string | string[];
 
   /**
    * @description The current CRUD operation context.
@@ -214,7 +211,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @memberOf FieldsetComponent
    */
   @Input()
-  formGroup!: FormGroup | FormArray;
+  formGroup!:  FormArray;
 
   /**
    * @description Primary title text for the fieldset content.
@@ -276,6 +273,9 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    */
   @Input()
   value: KeyValue[] = [];
+
+  @Input()
+  handlers!: Record<string, (...args: unknown[]) => unknown | Promise<unknown>>;
 
   /**
    * @description Array of formatted items for UI display.
@@ -409,9 +409,6 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    */
   buttonLabel!: string;
 
-  @Output()
-  createGroupEvent: EventEmitter<BaseCustomEvent> = new EventEmitter<BaseCustomEvent>();
-
   constructor() {
     super('FieldsetComponent', {alertCircleOutline, createOutline});
   }
@@ -463,10 +460,125 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
       this.isRequired = inputs.length > 0;
       if(this.isRequired) {
         this.accordionComponent.value = 'open';
-        this.handleToggle();
+        this.handleAccordionToggle();
       }
     }
+    console.log(this);
     this.changeDetectorRef.detectChanges();
+  }
+
+  /**
+   * @description Handles removal of the fieldset with slide animation.
+   * @summary Initiates the removal process for the fieldset with a smooth slide-up animation.
+   * The method applies CSS classes for the slide animation and then safely removes the
+   * element from the DOM using Renderer2. This provides a polished user experience
+   * when removing fieldset instances from dynamic forms.
+   *
+   * @param {Event} event - DOM event from the remove button click
+   * @returns {void}
+   * @memberOf FieldsetComponent
+   */
+  handleRemoveComponent(event: Event): void {
+    event.stopImmediatePropagation();
+    this.component.nativeElement.classList.add('dcf-animation', 'dcf-animation-slide-top-medium', 'dcf-animation-reverse', 'dcf-animation-fast');
+    setTimeout(() => {
+      // Use Renderer2 to safely remove the element
+      const parent = this.renderer.parentNode(this.component.nativeElement);
+      if (parent)
+        this.renderer.removeChild(parent, this.component.nativeElement);
+    }, 150);
+  }
+
+
+  /**
+   * @description Handles creating new items or triggering group addition events.
+   * @summary Processes form validation events for item creation or emits events to trigger
+   * the addition of new fieldset groups. When called with validation event data, it validates
+   * uniqueness and adds the item to the fieldset. When called without parameters, it triggers
+   * a group addition event for parent components to handle.
+   *
+   * @param {CustomEvent<IFieldSetValidationEvent>} [event] - Optional validation event containing form data
+   * @returns {Promise<void>}
+   * @memberOf FieldsetComponent
+   *
+   * @example
+   * ```typescript
+   * // Called from form validation
+   * handleCreateItem(validationEvent);
+   *
+   * // Called to trigger group addition
+   * handleCreateItem();
+   * ```
+   */
+  async handleCreateItem(event?: CustomEvent<IFieldSetValidationEvent>): Promise<void> {
+    if(event && event instanceof CustomEvent) {
+      event.stopImmediatePropagation();
+      const {formGroup, value, isValid} = event.detail;
+      this.formGroup = formGroup as FormArray;
+      if(!this.mapper)
+        this.mapper = this.getMapper(value as KeyValue);
+      // console.log((this.formGroup.parent as FormGroup).controls);
+      if(isValid ){
+          this.isUniqueError = undefined;
+          this.buttonLabel = this.translateService.instant(this.locale + '.add');
+          this.setValue();
+      } else {
+       this.isUniqueError = (value as KeyValue)?.[this.pk] || undefined;
+      }
+    } else {
+      windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {
+        component: this.component.nativeElement,
+        index: this.value?.length,
+        parent: this.childOf,
+        operation: !this.updatingItem ? OperationKeys.CREATE : OperationKeys.UPDATE
+      });
+    }
+  }
+
+
+  handleUpdateItem(value: string | number, index: number): void {
+    const item = this.formGroup.controls.find(control => `${control.get(this.pk)?.value}`.toLowerCase() === cleanSpaces(`${value}`, true)) as FormControl;
+    if(item) {
+      this.buttonLabel = this.translateService.instant(this.locale + '.update');
+      this.updatingItem = Object.assign({}, item.value || {});
+      console.log(this.updatingItem);
+      windowEventEmitter(EventConstants.FIELDSET_UPDATE_GROUP, {
+        parent: this.childOf,
+        component: this.component.nativeElement,
+        index
+      });
+    }
+  }
+
+
+
+  /**
+   * @description Removes an item from the fieldset by its identifier.
+   * @summary Filters out the specified item from both the value and items arrays
+   * based on the primary key comparison. Updates the display items after removal.
+   *
+   * @param {string} value - The identifier value of the item to remove
+   * @returns {void}
+   * @memberOf FieldsetComponent
+   */
+  handleRemoveItem(value: string | undefined, event?: CustomEvent): void {
+    if(event && event instanceof CustomEvent) {
+      event.stopImmediatePropagation();
+      return this.setValue();
+    }
+    const formArray = this.formGroup as FormArray;
+    const arrayLength = formArray.length;
+    for (let index = arrayLength - 1; index >= 0; index--) {
+      const group = formArray.at(index) as FormGroup;
+      if (cleanSpaces(group.get(this.pk)?.value) === cleanSpaces(value as string)) {
+        windowEventEmitter(EventConstants.FIELDSET_REMOVE_GROUP, {
+          parent: this.childOf,
+          component: this.component.nativeElement,
+          index,
+          formGroup: group
+        });
+      }
+    }
   }
 
 
@@ -487,18 +599,26 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * </ion-reorder-group>
    * ```
    */
-  handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
-    const fromIndex = event.detail.from;
+  handleReorderItems(event: CustomEvent<ItemReorderEventDetail>): void {
+   const fromIndex = event.detail.from;
     const toIndex = event.detail.to;
-    const items = [...this.items];
+
+    const items = [...this.items]; // sua estrutura visual
+    const formArray = this.formGroup as FormArray; // FormArray reativo
+
     if (fromIndex !== toIndex) {
+      // Reordenar os dados visuais
       const itemToMove = items.splice(fromIndex, 1)[0];
       items.splice(toIndex, 0, itemToMove);
       items.forEach((item, index) => item['index'] = index + 1);
+
+      // Reordenar os controles do FormArray
+      const controlToMove = formArray.at(fromIndex);
+      formArray.removeAt(fromIndex);
+      formArray.insert(toIndex, controlToMove);
     }
-    // Complete the reorder operation
+    // Finaliza a operação de reorder do Ionic
     event.detail.complete();
-    this.updateValueOrder(items);
   }
 
   /**
@@ -528,6 +648,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    *
    * @memberOf FieldsetComponent
    */
+
   /**
    * @description Handles accordion toggle functionality with validation error consideration.
    * @summary Manages the expand/collapse state of the accordion while respecting validation error states.
@@ -539,9 +660,9 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @returns {void}
    * @memberOf FieldsetComponent
    */
-  handleToggle(event?: CustomEvent): void {
+  handleAccordionToggle(event?: CustomEvent): void {
     if(event)
-      event.stopPropagation();
+      event.stopImmediatePropagation();
     if(!this.hasValidationErrors) {
       this.accordionComponent.value = this.isOpen ? undefined : 'open';
       this.isOpen = !!this.accordionComponent.value;
@@ -560,7 +681,6 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @memberOf FieldsetComponent
    */
   handleValidationError(event: CustomEvent): void {
-    event.stopPropagation();
     event.stopImmediatePropagation();
     const {hasErrors} = event.detail;
     this.isOpen = this.hasValidationErrors = hasErrors;
@@ -568,29 +688,6 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
       this.accordionComponent.value = 'open';
   }
 
-
-
-  /**
-   * @description Handles removal of the fieldset with slide animation.
-   * @summary Initiates the removal process for the fieldset with a smooth slide-up animation.
-   * The method applies CSS classes for the slide animation and then safely removes the
-   * element from the DOM using Renderer2. This provides a polished user experience
-   * when removing fieldset instances from dynamic forms.
-   *
-   * @param {Event} event - DOM event from the remove button click
-   * @returns {void}
-   * @memberOf FieldsetComponent
-   */
-  handleRemove(event: Event): void {
-    event.stopPropagation();
-    this.component.nativeElement.classList.add('dcf-animation', 'dcf-animation-slide-top-medium', 'dcf-animation-reverse', 'dcf-animation-fast');
-    setTimeout(() => {
-      // Use Renderer2 to safely remove the element
-      const parent = this.renderer.parentNode(this.component.nativeElement);
-      if (parent)
-        this.renderer.removeChild(parent, this.component.nativeElement);
-    }, 150);
-  }
 
   /**
    * @description Processes and stores a new or updated value in the fieldset.
@@ -603,215 +700,26 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @private
    * @memberOf FieldsetComponent
    */
-  private setValue(value: KeyValue): void {
-    this.value = (this.formGroup as FormArray).controls.map(({value}, index) => {
-      return value;
+  private setValue(): void {
+    console.log(this.mapper);
+    this.value = (this.formGroup as FormArray).controls.map(({value}) => value);
+    this.items = this.value
+    .filter(v => v[this.pk] !== undefined)
+    .map((v, index) => {
+      return {
+        ...itemMapper(v, this.mapper),
+        index: index + 1
+      } as IFieldSetItem;
     });
-    this.items = this.value.map((v, index) => Object.assign({}, itemMapper(v, this.mapper), {index: index+1}) as IFieldSetItem);
-    // const action = !this.updatingItem ? OperationKeys.CREATE : OperationKeys.UPDATE;
-    // const parsedValue = {} as KeyValue;
-    // for(const [k, v] of Object.entries(value)) {
-    //   const vv = this.cleanSpaces(`${v}` as string);
-    //   if (typeof vv === 'number' || !isNaN(Number(vv))) {
-    //     parsedValue[k] = Number(vv);
-    //   } else {
-    //     parsedValue[k] = vv;
-    //   }
-    // }
-    // if(action === OperationKeys.CREATE) {
-    //   this.value.push(parsedValue);
-    //   value = Object.assign({}, itemMapper(parsedValue, this.mapper), {index: this.value.length}) as IFieldSetItem;
-    //   this.items.push(value as IFieldSetItem);
-    // } else {
-    //   const item = this.items.find(item => item.index === this.updatingItem?.index);
-    //   if(item) {
-    //     Object.assign(item, itemMapper(parsedValue, this.mapper));
-    //     const _value = this.value.find(v => this.cleanSpaces(v[this.pk]) === this.cleanSpaces(this.updatingItem?.title || '')) as KeyValue;
-    //     if(_value)
-    //       Object.assign(_value, parsedValue);
-    //   }
-    // }
+    const inputContainers = this.component.nativeElement.querySelectorAll('.dcf-input-item');
+    inputContainers.forEach((container: HTMLElement) => {
+      const input = container.querySelector('input, ion-input, ion-textarea, textarea') as HTMLInputElement | null;
+      if(input)
+        input.value = '';
+    })
+    console.log(this.items);
     this.updatingItem = undefined;
   }
-
-
-  /**
-   * @description Synchronizes the value array order with the provided items array.
-   * @summary Updates both the component's items array and the underlying value array to match
-   * the provided order of items. This ensures data consistency after reordering operations
-   * by reconstructing the value array in the same sequence as the reordered items array.
-   * Essential for maintaining synchronization between UI display order and data storage order.
-   *
-   * @param {IFieldSetItem[]} items - The reordered array of items to synchronize with
-   * @returns {void}
-   * @private
-   * @memberOf FieldsetComponent
-   *
-   * @example
-   * ```typescript
-   * // After reordering items in handleReorder
-   * const reorderedItems = [...this.items];
-   * // ... perform reordering logic
-   * this.updateValueOrder(reorderedItems);
-   * ```
-   */
-  private updateValueOrder(items: IFieldSetItem[]): void {
-    this.items = [...items];
-    const values = [...this.value];
-    this.value = [];
-    this.items.forEach(item => {
-      values.forEach(v => {
-        if(v[this.pk] === item['title'])
-          this.value.push(v);
-      });
-    })
-  }
-
-    /**
-   * @description Handles creating new items or triggering group addition events.
-   * @summary Processes form validation events for item creation or emits events to trigger
-   * the addition of new fieldset groups. When called with validation event data, it validates
-   * uniqueness and adds the item to the fieldset. When called without parameters, it triggers
-   * a group addition event for parent components to handle.
-   *
-   * @param {CustomEvent<IFieldSetValidationEvent>} [event] - Optional validation event containing form data
-   * @returns {Promise<void>}
-   * @memberOf FieldsetComponent
-   *
-   * @example
-   * ```typescript
-   * // Called from form validation
-   * handleCreateItem(validationEvent);
-   *
-   * // Called to trigger group addition
-   * handleCreateItem();
-   * ```
-   */
-  async handleCreateItem(event?: CustomEvent<IFieldSetValidationEvent>): Promise<void> {
-
-
-    // this.createGroupEvent.emit({
-    //   data: {lastIndex: this.value?.length || 0},
-    //   component: 'FieldSetComponent',
-    //   name: EventConstants.FIELDSET_ADD_GROUP,
-    // });
-
-    // createGroupEvent
-    if(event && event instanceof CustomEvent) {
-      event.stopPropagation();
-      const {formGroup, formService, value, isValid} = event.detail;
-      if(!this.formGroup)
-        this.formGroup = formGroup;
-      if(!this.mapper)
-        this.mapper = this.getMapper(value as KeyValue);
-      // console.log((this.formGroup.parent as FormGroup).controls);
-      if(isValid ){
-          this.isUniqueError = undefined;
-          this.setValue(value as KeyValue);
-          this.buttonLabel = this.translateService.instant(this.locale + '.add');
-          logFormArrayEntries(this.formGroup as unknown as FormArray);
-      } else {
-       this.isUniqueError = (value as KeyValue)?.[this.pk] || undefined;
-      }
-    } else {
-       windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {
-        parent: this.childOf,
-        component: this.component.nativeElement,
-        index: this.value?.length
-      });
-      // if(this.formGroup instanceof FormGroup || this.formGroup as unknown instanceof FormArray) {
-      //   this.formGroup = NgxFormService.addGroupToParent(this.formGroup.parent as FormGroup, this.childOf, this.value?.length);
-      //   console.log(this.formGroup);
-      // } else {
-      //   windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {
-      //     parent: this.childOf,
-      //     component: this.component.nativeElement,
-      //     index: this.value?.length
-      //   });
-      // }
-
-    }
-  }
-
-
-
-
-  handleInputBlur(event: CustomEvent) {
-    // console.log(event);
-  }
-
-  /**
-   * @description Removes an item from the fieldset by its identifier.
-   * @summary Filters out the specified item from both the value and items arrays
-   * based on the primary key comparison. Updates the display items after removal.
-   *
-   * @param {string} value - The identifier value of the item to remove
-   * @returns {void}
-   * @memberOf FieldsetComponent
-   */
-  handleRemoveItem(value: string): void {
-    this.value = this.value.filter(item => `${item[this.pk]}`.toLowerCase() !== this.cleanSpaces(value));
-    this.items = this.value.map((item, index) => Object.assign(itemMapper(item as KeyValue, this.mapper), {index: index+1}) as IFieldSetItem);
-  }
-
-  /**
-   * @description Prepares an item for update by populating the form with its values.
-   * @summary Sets the component to update mode for the specified item. Finds the corresponding
-   * value in the data array, updates the button label to "Update", and populates the form
-   * controls with the item's current values for editing.
-   *
-   * @param {IFieldSetItem} item - The item to be updated
-   * @returns {void}
-   * @memberOf FieldsetComponent
-   */
-  handleUpdateItem(item: IFieldSetItem): void {
-    const value = this.value.find(v => `${v[this.pk]}`.toLowerCase() === this.cleanSpaces(item.title)) as KeyValue;
-    if(value) {
-      this.buttonLabel = this.translateService.instant(this.locale + '.update');
-      this.updatingItem = Object.assign({}, item);
-      console.log(this.formGroup);
-      // Object.keys(value).forEach(key => this.formGroup.controls[key].setValue(value[key]));
-    }
-  }
-
-  /**
-   * @description Normalizes string values by removing extra whitespace and converting to lowercase.
-   * @summary Cleans input strings by trimming whitespace, collapsing multiple spaces into single spaces,
-   * and converting to lowercase for consistent comparison operations. Used throughout the component
-   * for reliable string matching and validation.
-   *
-   * @param {string} value - The string value to be cleaned and normalized
-   * @returns {string} The cleaned and normalized string
-   * @private
-   * @memberOf FieldsetComponent
-   */
-  private cleanSpaces(value: string): string {
-    return `${value}`.trim().replace(/\s+/g, ' ').toLowerCase();
-  }
-
-  /**
-   * @description Validates uniqueness of values within the fieldset.
-   * @summary Checks if a given value already exists in the fieldset based on the current operation mode.
-   * For CREATE operations, it checks against all existing values. For UPDATE operations, it excludes
-   * the currently updating item from the uniqueness check. Sets error state if duplicate is found.
-   *
-   * @param {string} value - The value to check for uniqueness
-   * @returns {boolean} True if the value is unique, false if it's a duplicate
-   * @private
-   * @memberOf FieldsetComponent
-   */
-  // private isUnique(value: string): boolean {
-  //   const action = !this.updatingItem ? OperationKeys.CREATE : OperationKeys.UPDATE;
-  //   if(action === OperationKeys.CREATE) {
-  //     const item = this.value.find(item => this.cleanSpaces(item[this.pk]) === this.cleanSpaces(value));
-  //     this.isUniqueError = item ? item?.[this.pk] : undefined;
-  //     return !item;
-  //   }
-
-  //   const item = this.items.find(item => this.cleanSpaces(item.title) === this.cleanSpaces(value) && item.index !== this.updatingItem?.index);
-  //   this.isUniqueError = item ? item?.title : undefined;
-  //   return !item;
-  // }
 
   /**
    * @description Automatically configures the field mapping based on the value structure.
@@ -824,7 +732,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @private
    * @memberOf FieldsetComponent
    */
-  private getMapper(value: KeyValue) {
+  private getMapper(value: KeyValue): KeyValue {
     if(!this.pk)
       this.pk = Object.keys(value)[0];
     if(!Object.keys(this.mapper).length)

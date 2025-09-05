@@ -34,7 +34,8 @@ export const AngularEngineKeys = {
   RENDER: 'render',
   RENDERED_ID: 'rendered-as-{0}',
   PARENT: '_parent',
-  VALIDATION_PARENT_KEY: VALIDATION_PARENT_KEY
+  VALIDATION_PARENT_KEY: VALIDATION_PARENT_KEY,
+  FORM_GROUP_COMPONENT_PROPS: 'componentProps'
 };
 
 /**
@@ -71,7 +72,9 @@ export const EventConstants = {
   SUBMIT: 'SubmitEvent',
   VALIDATION_ERROR: 'validationErrorEvent',
   FIELDSET_ADD_GROUP: 'fieldsetAddGroupEvent',
-  FIELDSET_GROUP_VALIDATION: 'fieldsetGroupValidationEvent'
+  FIELDSET_UPDATE_GROUP: 'fieldsetUpdateGroupEvent',
+  FIELDSET_REMOVE_GROUP: 'fieldsetRemoveGroupEvent',
+  // FIELDSET_GROUP_VALIDATION: 'fieldsetGroupValidationEvent'
 }
 
 /**

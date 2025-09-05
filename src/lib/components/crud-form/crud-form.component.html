@@ -1,5 +1,5 @@
 @if(operation !== 'read' && operation !== 'delete') {
-  <form #reactiveForm [id]="rendererId" [formGroup]="formGroup"  (submit)="submit($event)" (fieldsetAddGroupEvent)="handleValidateGroup($event)" novalidate [target]="target">
+  <form #reactiveForm [id]="rendererId" [formGroup]="formGroup" (submit)="submit($event)" novalidate [target]="target">
     <ng-content #formContent></ng-content>
     <div id="dcf-buttons-container" class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
       <div>

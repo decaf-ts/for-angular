@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ModelRendererComponent } from './model-renderer.component';
 import { ForAngularModel } from '../../../app/models/DemoModel';
-import { NgxRenderingEngine2 } from '../../engine';
+import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { ForAngularModule } from '../../for-angular.module';
@@ -28,7 +28,7 @@ describe('ModelRendererComponent', () => {
 
   beforeAll(() => {
     try {
-      engine = new NgxRenderingEngine2();
+      engine = new NgxRenderingEngine();
       Model.setBuilder(Model.fromModel as ModelBuilderFunction);
     } catch (e: unknown) {
       console.warn(`Engine already loaded`);
@@ -36,7 +36,7 @@ describe('ModelRendererComponent', () => {
   });
 
 
-  // Type 'NgxRenderingEngine2' is not assignable to type 'RenderingEngine<AngularFieldDefinition, FieldDefinition<AngularFieldDefinition>>'.
+  // Type 'NgxRenderingEngine' is not assignable to type 'RenderingEngine<AngularFieldDefinition, FieldDefinition<AngularFieldDefinition>>'.
   // The types returned by 'render(...)' are incompatible between these types.
   //   Type 'AngularDynamicOutput' is missing the following properties from type 'FieldDefinition<AngularFieldDefinition>': tag, props
   beforeEach(async () => {

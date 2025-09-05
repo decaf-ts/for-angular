@@ -339,7 +339,7 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
    *   participant E as Event System
    *
    *   U->>L: Perform action (click/swipe)
-   *   L->>L: stopPropagation()
+   *   L->>L: stopImmediatePropagation()
    *   alt actionMenuOpen
    *     L->>L: Dismiss action menu
    *   end
@@ -355,7 +355,7 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
    * @memberOf ListItemComponent
    */
   async handleAction(action: CrudOperations, event: Event, target?: HTMLElement): Promise<boolean|void> {
-    event.stopPropagation();
+    event.stopImmediatePropagation();
     if(this.actionMenuOpen)
       await this.actionMenuComponent.dismiss();
     // forcing trap focus
@@ -486,7 +486,7 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
    *   participant A as Accessibility
    *
    *   U->>L: Trigger action menu (long press/right-click)
-   *   L->>L: stopPropagation()
+   *   L->>L: stopImmediatePropagation()
    *   L->>A: removeFocusTrap()
    *   L->>P: Set event reference
    *   L->>L: actionMenuOpen = true
@@ -495,7 +495,7 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
    * @memberOf ListItemComponent
    */
   presentActionsMenu(event: Event): void {
-    event.stopPropagation();
+    event.stopImmediatePropagation();
     // forcing trap focus
     removeFocusTrap();
     this.actionMenuComponent.event = event;
