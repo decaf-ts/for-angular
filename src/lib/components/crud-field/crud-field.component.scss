@@ -23,13 +23,13 @@
   &.read,  &.delete {
     ion-label {
       font-weight: 600;
-      color: var(--ion-color-gray-7);
+      color: var(--dcf-color-gray-7);
     }
 
     ion-text {
       display: block;
       margin-top: .5rem !important;
-      color: var(--ion-color-gray-5);
+      color: var(--dcf-color-gray-5);
     }
   }
 
@@ -39,16 +39,16 @@
     --padding-top: 0px !important;
 
     --background: transparent;
-    --background-hover: var(--ion-color-primary);
+    --background-hover: var(--dcf-color-primary);
     --background-hover-opacity: .1;
 
-    --background-hover: var(--ion-color-primary);
+    --background-hover: var(--dcf-color-primary);
     --background-activated-opacity: .15;
 
-    --background-focused: var(--ion-color-primary);
+    --background-focused: var(--dcf-color-primary);
     --background-focused-opacity: .15;
 
-    --border-color: var(--ion-color-gray-2);
+    --border-color: var(--dcf-color-gray-2);
 
 
     span,
@@ -107,7 +107,7 @@ ion-select.dcf-select-label-placement-floating::part(label) {
 // Customizando o checkbox
 ion-checkbox {
   --size: 1.5rem;
-  --checkbox-background-checked: var(--ion-color-primary);
+  --checkbox-background-checked: var(--dcf-color-primary);
   --checkmark-width: 2px;
 }
 ion-item {
@@ -116,7 +116,7 @@ ion-item {
 
 ion-checkbox::part(container) {
   border-radius: 50%;
-  border: 2px solid var(--ion-color-primary);
+  border: 2px solid var(--dcf-color-primary);
   padding: 3px;
 }
 
@@ -138,7 +138,7 @@ ion-radio-group {
 
 .dcf-error {
   position: absolute;
-  color: var(--ion-color-danger) !important;
+  color: var(--dcf-color-danger) !important;
   font-size: 0.8rem !important;
   font-weight: 600 !important;
   line-height: 1.1rem;
@@ -175,8 +175,8 @@ ion-radio-group {
   margin-bottom: -0.75rem;
   &.dcf-has-action {
       cursor: pointer;
-      color: var(--ion-color-gray-7) !important;
-      // color: var(--ion-color-primary) !important;
+      color: var(--dcf-color-gray-7) !important;
+      // color: var(--dcf-color-primary) !important;
       text-decoration: underline;
   }
 }

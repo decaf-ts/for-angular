@@ -4,47 +4,62 @@
   justify-content: center;
   padding: 2rem 1rem;
 }
+
 .dcf-menu {
   padding: 0rem .75rem;
   ion-item {
     --border-radius: var(--dcf-border-radius);
     --background: transparent;
-    color: var(--ion-color-gray-8);
-    cursor: pointer;
-    margin-bottom: .25rem;
-    font-size: 0.95rem;
-    .icon{
-      margin-right: .5rem;
-      // transform: translateY(px);
-    }
+    &:not(.dcf-separator) {
+      font-size: .975rem !important;
+      font-weight: 400 !important;
+        // color: var(--ion-color-gray-8);
+      color: #2F2B3DE5 !important;
+      cursor: pointer;
+      margin-bottom: .1rem;
 
-    &.dcf-active {
-      --background: var(--ion-color-gray-2);
-    }
-    &:hover {
-      color: var(--ion-color-primary) !important;
+      .icon{
+        font-size: 1.375rem !important;
+        margin-right: .5rem;
+        transform: translateY(-1px);
+      }
 
-      // -
-      // --color-focused:  var(--ion-color-primary) !important;
-      // --color-hover:  var(--ion-color-primary) !important;
-      // --color-activated:  var(--ion-color-primary) !important;
-      .ti,
-      ion-icon,
-      aeon-icon {
-         color: var(--ion-color-gray-8) !important;
+      &.dcf-active {
+        --background: var(--ion-color-gray-2);
+        color: var(--dcf-color-gray-9) !important;
+      }
+      &:hover {
+
+        --background: rgba(var(--dcf-color-dark-rgb), 0); /* subtle primary tint */
+        --color:  rgba(var(--dcf-color-dark-rgb), 1);
+        * {
+          color: var(--dcf-color-dark) !important;
+        }
+
+        .ti,
+        ion-icon,
+        aeon-icon {
+          color: var(--ion-color-gray-8) !important;
+        }
       }
     }
   }
 
-
-
   ion-list-header,
   .dcf-separator {
-    color: var(--ion-color-gray8) !important;
+    color: var(--ion-color-gray-9) !important;
+    ion-label { font-size: 0.8125rem !important; }
+    ion-icon {
+      margin-right: .5rem;
+      font-size: 0.975rem !important;
+    }
     font-weight: 600;
-    font-size: 1rem;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    // font-size: 1rem;
     pointer-events: none;
-    border-top: 1px solid var(--dcf-color-gray-2);
+    border-top: 1px solid var(--dcf-color-gray-1);
+    margin-top: 1rem;
     cursor: text;
   }
 }

@@ -1,7 +1,7 @@
-import { dateFromFormat, Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
+import {  Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
 import { uielement, uilistitem, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
 import { pk } from '@decaf-ts/core';
-import { id, OperationKeys, timestamp } from '@decaf-ts/db-decorators';
+import { OperationKeys, timestamp } from '@decaf-ts/db-decorators';
 
 @uilistitem('ngx-decaf-list-item', { icon: 'person-outline' })
 @uimodel('ngx-decaf-crud-form')

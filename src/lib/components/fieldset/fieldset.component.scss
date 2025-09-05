@@ -35,7 +35,7 @@ ion-accordion-group {
   margin-bottom: 1.8rem;
   padding-bottom: 0;
   padding-top: 1rem;
-  border: 1px solid var(--ion-color-gray-2);
+  border: 1px solid var(--dcf-color-gray-2);
   border-radius: 8px;
   height: 100%;
   &.read {
@@ -107,15 +107,26 @@ ion-item {
    --padding-end: .75rem;
   --inner-padding-start: 0px !important;
   --inner-padding-end: 0px !important;
-  --border-color: var(--ion-color-gray-2);
+  --border-color: var(--dcf-color-gray-2);
   border: 1px solid transparent;
   box-sizing: border-box;
-  &.updating {
-    border-color:  var(--ion-color-primary);
+
+  ion-icon.dcf-reorder-disabled {
+    width: 1rem;
+    transform: translatey(2px);
+    color: var(--dcf-color-gray-4);
   }
 
+  &.updating {
+  --background: rgba(var(--dcf-color-primary-rgb), 0.1) !important;
+    // border-color:  var(--dcf-color-primary);
+  }
+  &.not-unique {
+  --background: rgba(var(--dcf-color-danger-rgb), 0.05) !important;
+    // --border-color: var(--dcf-color-danger) !important;
+  }
   .dcf-subtitle {
     font-size: 0.8rem;
-    color: var(--ion-color-gray-7);
+    color: var(--dcf-color-gray-7);
   }
 }

@@ -1,58 +1,17 @@
 
 import { AfterViewInit, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild, Renderer2, OnInit } from '@angular/core';
-import { Dynamic, EventConstants, HTMLFormTarget, KeyValue } from '../../engine';
+import { Dynamic, EventConstants, HandlerLike, HTMLFormTarget, KeyValue } from '../../engine';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModule } from '../../for-angular.module';
 import { CollapsableDirective } from '../../directives/collapsable.directive';
 import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorderGroup, IonReorder } from '@ionic/angular/standalone';
 import { cleanSpaces, itemMapper, windowEventEmitter } from '../../helpers';
-import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { NgxBaseComponent } from '../../engine';
 import { alertCircleOutline, createOutline } from 'ionicons/icons';
 import { TranslateService } from '@ngx-translate/core';
+import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
 
-
-/**
- * @description Interface for fieldset item representation in the UI.
- * @summary Defines the structure for items displayed in the reorderable list within the fieldset.
- * Each item represents a value added to the fieldset with display properties for the UI.
- */
-interface IFieldSetItem {
-  /** @description Sequential index number for ordering items in the list */
-  index: number;
-  /** @description Primary display text for the item */
-  title: string;
-  /** @description Optional secondary text providing additional item details */
-  description?: string;
-}
-
-/**
- * @description Interface for fieldset validation event data.
- * @summary Defines the structure of validation events emitted when form validation occurs.
- * Used for communication between form components and the fieldset container.
- */
-interface IFieldSetValidationEvent {
-  /** @description The FormGroup containing the validated form controls */
-  formGroup:  FormArray;
-  /** @description The current form value being validated */
-  value: unknown;
-  /** @description Whether the form validation passed or failed */
-  isValid: boolean;
-}
-
-
-export function logFormArrayValues(formArray: FormArray): void {
-  console.log('FormArray values:');
-  formArray.controls.forEach((control: AbstractControl, index: number) => {
-    console.log(`Index ${index}:`, control.value);
-  });
-}
-
-export function  logFormArrayEntries(formArray: FormArray): void {
-  formArray.controls.forEach((control, index) => {
-    console.log(`Index ${index}:`, control.value);
-  });
-}
 
 
 
@@ -149,11 +108,10 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
 
 
   /**
-   * @description The display name or title of the fieldset section.
-   * @summary Sets the legend or header text that appears in the accordion header. This text
-   * provides a clear label for the collapsible section, helping users understand what content
-   * is contained within. The name is displayed prominently and serves as the clickable area
-   * for expanding/collapsing the fieldset.
+   * @description The parent component identifier for hierarchical fieldset relationships.
+   * @summary Specifies the parent component name that this fieldset belongs to in a hierarchical
+   * form structure. This property is used for event bubbling and establishing parent-child
+   * relationships between fieldsets in complex forms with nested structures.
    *
    * @type {string}
    * @default 'Child'
@@ -164,14 +122,12 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
 
 
   /**
-   * @description The display name or title of the fieldset section.
-   * @summary Sets the legend or header text that appears in the accordion header. This text
-   * provides a clear label for the collapsible section, helping users understand what content
-   * is contained within. The name is displayed prominently and serves as the clickable area
-   * for expanding/collapsing the fieldset.
+   * @description Custom type definitions for specialized fieldset behavior.
+   * @summary Defines custom data types or validation rules that should be applied to this fieldset.
+   * Can be a single type string or array of types that determine how the fieldset handles
+   * data validation, formatting, and display behavior for specialized use cases.
    *
-   * @type {string}
-   * @default 'Child'
+   * @type {string | string[]}
    * @memberOf FieldsetComponent
    */
   @Input()
@@ -274,8 +230,17 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
   @Input()
   value: KeyValue[] = [];
 
+  /**
+   * @description Event handler functions for custom fieldset actions.
+   * @summary A record of event handler functions keyed by event names that can be triggered
+   * within the fieldset. These handlers provide extensibility for custom business logic
+   * and can be invoked for various fieldset operations and user interactions.
+   *
+   * @type {HandlerLike}
+   * @memberOf FieldsetComponent
+   */
   @Input()
-  handlers!: Record<string, (...args: unknown[]) => unknown | Promise<unknown>>;
+  handlers!: HandlerLike;
 
   /**
    * @description Array of formatted items for UI display.
@@ -409,10 +374,27 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    */
   buttonLabel!: string;
 
+  /**
+   * @description Component constructor that initializes the fieldset with icons and component name.
+   * @summary Calls the parent NgxBaseComponent constructor with the component name and
+   * required Ionic icons (alertCircleOutline for validation errors and createOutline for add actions).
+   * Sets up the foundational component structure and icon registry.
+   *
+   * @memberOf FieldsetComponent
+   */
   constructor() {
     super('FieldsetComponent', {alertCircleOutline, createOutline});
   }
 
+  /**
+   * @description Component initialization lifecycle method.
+   * @summary Initializes the component by setting up repository relationships if a model exists,
+   * and configures the initial button label for the add action based on the current locale.
+   * This method ensures proper setup of translation services and component state.
+   *
+   * @returns {void}
+   * @memberOf FieldsetComponent
+   */
   ngOnInit(): void {
     if(this.model)
       this._repository = this.repository;
@@ -463,7 +445,6 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
         this.handleAccordionToggle();
       }
     }
-    console.log(this);
     this.changeDetectorRef.detectChanges();
   }
 
@@ -517,7 +498,6 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
       this.formGroup = formGroup as FormArray;
       if(!this.mapper)
         this.mapper = this.getMapper(value as KeyValue);
-      // console.log((this.formGroup.parent as FormGroup).controls);
       if(isValid ){
           this.isUniqueError = undefined;
           this.buttonLabel = this.translateService.instant(this.locale + '.add');
@@ -536,28 +516,58 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
   }
 
 
+  /**
+   * @description Handles item update operations with form state management.
+   * @summary Locates an item in the form array for editing and prepares the component
+   * for update mode. Updates the button label to reflect the edit state and stores
+   * the item being updated. Triggers a window event to notify parent components.
+   *
+   * @param {string | number} value - The identifier value of the item to update
+   * @param {number} index - The array index position of the item
+   * @returns {void}
+   * @memberOf FieldsetComponent
+   */
   handleUpdateItem(value: string | number, index: number): void {
     const item = this.formGroup.controls.find(control => `${control.get(this.pk)?.value}`.toLowerCase() === cleanSpaces(`${value}`, true)) as FormControl;
     if(item) {
       this.buttonLabel = this.translateService.instant(this.locale + '.update');
       this.updatingItem = Object.assign({}, item.value || {});
-      console.log(this.updatingItem);
       windowEventEmitter(EventConstants.FIELDSET_UPDATE_GROUP, {
         parent: this.childOf,
         component: this.component.nativeElement,
-        index
+        index: index
       });
     }
   }
 
+  /**
+   * @description Cancels the update mode and resets the UI state.
+   * @summary Exits the update mode by resetting the button label and clearing the updating item,
+   * restoring the component to its default state for adding new items. Notifies parent components
+   * that the update operation has been cancelled.
+   *
+   * @returns {void}
+   * @memberOf FieldsetComponent
+   */
+  handleCancelUpdateItem(): void {
+    this.buttonLabel = this.translateService.instant(this.locale + '.add');
+    this.updatingItem = undefined;
+    windowEventEmitter(EventConstants.FIELDSET_UPDATE_GROUP, {
+      parent: this.childOf,
+      component: this.component.nativeElement,
+      index: this.value?.length
+    });
+  }
 
 
   /**
-   * @description Removes an item from the fieldset by its identifier.
-   * @summary Filters out the specified item from both the value and items arrays
-   * based on the primary key comparison. Updates the display items after removal.
+   * @description Handles item removal operations with form array management.
+   * @summary Processes item removal by either handling validation events or removing specific
+   * items from the form array. When called with a validation event, it triggers value updates.
+   * When called with an identifier, it locates and removes the matching item from the form array.
    *
-   * @param {string} value - The identifier value of the item to remove
+   * @param {string | undefined} value - The identifier of the item to remove
+   * @param {CustomEvent} [event] - Optional validation event for form updates
    * @returns {void}
    * @memberOf FieldsetComponent
    */
@@ -695,13 +705,11 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * the input value, determines the operation type based on the updating state, and either
    * adds a new item or updates an existing one. Maintains data integrity and UI consistency.
    *
-   * @param {KeyValue} value - The raw value object to be processed and stored
    * @returns {void}
    * @private
    * @memberOf FieldsetComponent
    */
   private setValue(): void {
-    console.log(this.mapper);
     this.value = (this.formGroup as FormArray).controls.map(({value}) => value);
     this.items = this.value
     .filter(v => v[this.pk] !== undefined)
@@ -717,7 +725,6 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
       if(input)
         input.value = '';
     })
-    console.log(this.items);
     this.updatingItem = undefined;
   }
 

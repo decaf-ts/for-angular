@@ -63,6 +63,10 @@ const Menu: MenuItem[] = [
     icon: 'save-outline',
   },
   {
+    label: 'Fieldset',
+    url: '/fieldset',
+  },
+  {
     label: 'Read',
     url: '/crud/read',
   },

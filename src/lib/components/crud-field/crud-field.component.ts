@@ -35,7 +35,6 @@ import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { generateRandomValue } from '../../helpers';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { EventConstants } from '../../engine/constants';
-import { logFormArrayEntries } from '../fieldset/fieldset.component';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -147,6 +146,16 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @summary Specifies the full dot-delimited path of the parent field. This is only set when the field is nested.
    *
    * @type {string}
+   * @memberOf CrudFieldComponent
+   */
+  /**
+   * @description The parent field path for nested field structures.
+   * @summary Specifies the full dot-delimited path of the parent field when this field
+   * is part of a nested structure. This is used for hierarchical form organization
+   * and proper form control resolution in complex form structures.
+   *
+   * @type {string}
+   * @default ''
    * @memberOf CrudFieldComponent
    */
   @Input()
@@ -320,48 +329,70 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   override step?: number;
 
   /**
-   * @description Field name for equals comparison.
-   * @type {string}
+   * @description Field name for equality validation comparison.
+   * @summary Specifies another field name that this field's value must be equal to for validation.
+   * This is commonly used for password confirmation fields or other scenarios where
+   * two fields must contain the same value.
+   *
+   * @type {string | undefined}
    * @memberOf CrudFieldComponent
    */
   @Input()
   override equals?: string;
 
   /**
-   * @description Field name for different comparison.
-   * @type {string}
+   * @description Field name for inequality validation comparison.
+   * @summary Specifies another field name that this field's value must be different from for validation.
+   * This is used to ensure that two fields do not contain the same value, which might be
+   * required for certain business rules or security constraints.
+   *
+   * @type {string | undefined}
    * @memberOf CrudFieldComponent
    */
   @Input()
   override different?: string;
 
   /**
-   * @description Field name for less than comparison.
-   * @type {string}
+   * @description Field name for less-than validation comparison.
+   * @summary Specifies another field name that this field's value must be less than for validation.
+   * This is commonly used for date ranges, numeric ranges, or other scenarios where
+   * one field must have a smaller value than another.
+   *
+   * @type {string | undefined}
    * @memberOf CrudFieldComponent
    */
   @Input()
   override lessThan?: string;
 
   /**
-   * @description Field name for less than or equal comparison.
-   * @type {string}
+   * @description Field name for less-than-or-equal validation comparison.
+   * @summary Specifies another field name that this field's value must be less than or equal to
+   * for validation. This provides inclusive upper bound validation for numeric or date comparisons.
+   *
+   * @type {string | undefined}
    * @memberOf CrudFieldComponent
    */
   @Input()
   override lessThanOrEqual?: string;
 
   /**
-   * @description Field name for greater than comparison.
-   * @type {string}
+   * @description Field name for greater-than validation comparison.
+   * @summary Specifies another field name that this field's value must be greater than for validation.
+   * This is commonly used for date ranges, numeric ranges, or other scenarios where
+   * one field must have a larger value than another.
+   *
+   * @type {string | undefined}
    * @memberOf CrudFieldComponent
    */
   @Input()
   override greaterThan?: string;
 
   /**
-   * @description Field name for greater than or equal comparison.
-   * @type {string}
+   * @description Field name for greater-than-or-equal validation comparison.
+   * @summary Specifies another field name that this field's value must be greater than or equal to
+   * for validation. This provides inclusive lower bound validation for numeric or date comparisons.
+   *
+   * @type {string | undefined}
    * @memberOf CrudFieldComponent
    */
   @Input()
@@ -569,9 +600,28 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   override formGroup: FormGroup | undefined;
 
 
+  /**
+   * @description Angular FormControl instance for this field.
+   * @summary The specific FormControl instance that manages this field's state, validation,
+   * and value. This provides direct access to Angular's reactive forms functionality
+   * for this individual field within the broader form structure.
+   *
+   * @type {FormControl}
+   * @memberOf CrudFieldComponent
+   */
   @Input()
   override formControl!: FormControl;
 
+  /**
+   * @description Indicates if this field supports multiple values.
+   * @summary When true, this field can handle multiple values, typically used in
+   * multi-select scenarios or when the field is part of a form array structure
+   * that allows multiple entries of the same field type.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf CrudFieldComponent
+   */
   @Input()
   override multiple: boolean = false;
 
@@ -600,15 +650,52 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
 
 
 
+  /**
+   * @description Index of the currently active form group in a form array.
+   * @summary When working with multiple form groups (form arrays), this indicates
+   * which form group is currently active or being edited. This is used to manage
+   * focus and data binding in multi-entry scenarios.
+   *
+   * @type {number}
+   * @default 0
+   * @memberOf CrudFieldComponent
+   */
   @Input()
   activeFormGroup: number = 0;
 
+  /**
+   * @description FormArray containing multiple form groups for this field.
+   * @summary When this field is part of a multi-entry structure, this FormArray
+   * contains all the form groups. This enables management of multiple instances
+   * of the same field structure within a single form.
+   *
+   * @type {FormArray}
+   * @memberOf CrudFieldComponent
+   */
   formGroupArray!: FormArray;
 
+  /**
+   * @description Primary key field name for uniqueness validation.
+   * @summary Specifies the field name that serves as the primary key for uniqueness
+   * validation within form arrays. This is used to prevent duplicate entries
+   * and ensure data integrity in multi-entry forms.
+   *
+   * @type {string}
+   * @memberOf CrudFieldComponent
+   */
   @Input()
   pk!: string;
 
 
+  /**
+   * @description Gets the currently active form group based on context.
+   * @summary Returns the appropriate FormGroup based on whether this field supports
+   * multiple values. For single-value fields, returns the main form group.
+   * For multi-value fields, returns the form group at the active index from the parent FormArray.
+   *
+   * @returns {FormGroup} The currently active FormGroup for this field
+   * @memberOf CrudFieldComponent
+   */
   get getActiveFormGroup(): FormGroup {
     const formGroup = this.formGroup as FormGroup;
     return this.multiple
@@ -618,6 +705,16 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   }
 
 
+  /**
+   * @description Component initialization lifecycle method.
+   * @summary Initializes the field component based on the operation type and field configuration.
+   * For READ and DELETE operations, removes the form group to make fields read-only.
+   * For other operations, sets up icons, configures multi-value support if needed,
+   * and sets default values for radio buttons if no value is provided.
+   *
+   * @returns {void}
+   * @memberOf CrudFieldComponent
+   */
   ngOnInit(): void {
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
@@ -635,16 +732,45 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   }
 
 
+  /**
+   * @description Component after view initialization lifecycle method.
+   * @summary Calls the parent afterViewInit method for READ and DELETE operations.
+   * This ensures proper initialization of read-only fields that don't require
+   * form functionality but still need view setup.
+   *
+   * @returns {void}
+   * @memberOf CrudFieldComponent
+   */
   ngAfterViewInit() {
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
       super.afterViewInit();
   }
 
+  /**
+   * @description Component cleanup lifecycle method.
+   * @summary Performs cleanup operations for READ and DELETE operations by calling
+   * the parent onDestroy method. This ensures proper resource cleanup for
+   * read-only field components.
+   *
+   * @returns {void}
+   * @memberOf CrudFieldComponent
+   */
   ngOnDestroy(): void {
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
       this.onDestroy();
   }
 
+  /**
+   * @description Handles fieldset group creation events from parent fieldsets.
+   * @summary Processes events triggered when a new group needs to be added to a fieldset.
+   * Validates the current form group, checks for uniqueness if applicable, and either
+   * creates a new group or provides validation feedback. Updates the active form group
+   * and resets the field for new input after successful creation.
+   *
+   * @param {CustomEvent} event - The fieldset create group event containing group details
+   * @returns {void}
+   * @memberOf CrudFieldComponent
+   */
   @HostListener('window:fieldsetAddGroupEvent', ['$event'])
   handleFieldsetCreateGroupEvent(event: CustomEvent) {
     event.stopImmediatePropagation();
@@ -652,11 +778,9 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
     const formGroup = this.formGroup as FormGroup;
     const parentFormGroup = this.formGroup?.parent as FormArray;
     const isValid = NgxFormService.validateFields(formGroup as FormGroup);
-    const indexToCheck = index === 0 ? index : parentFormGroup.length - 1;
+    const indexToCheck = operation === OperationKeys.CREATE ?
+      index === 0 ? index : parentFormGroup.length - 1 : index - 1;
 
-
-    // const indexToCheck = index !== undefined ? index : parentFormGroup.length -1;
-    //  NgxFormService.isUniqueOnGroup(this.formGroupArray, this.pk, formGroup.get(this.pk)?.value, indexToCheck);
     const isUnique = NgxFormService.isUniqueOnGroup(formGroup, indexToCheck, operation || OperationKeys.CREATE);
     event = new CustomEvent(EventConstants.FIELDSET_ADD_GROUP, {
       detail: {isValid: isValid && isUnique, value: formGroup.value, formGroup: parentFormGroup, formService: NgxFormService},
@@ -671,32 +795,49 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
       } else {
         this.activeFormGroup = newIndex - 1;
       }
-        this.formGroup = this.getActiveFormGroup;
-      NgxFormService.reset(this.formGroup as FormGroup);
+      this.formGroup = this.getActiveFormGroup;
+      // NgxFormService.reset(this.formGroup as FormGroup);
       this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
-      NgxFormService.reset(this.formControl);
-      this.component.nativeElement.setFocus();
+      // NgxFormService.reset(this.formControl);
+      // this.component.nativeElement.setFocus();
     } else {
       if(isUnique)
         this.component.nativeElement.setFocus();
     }
-    console.log(this);
-    console.log(this.name, this.required);
   }
 
 
+  /**
+   * @description Handles fieldset group update events from parent fieldsets.
+   * @summary Processes events triggered when an existing group needs to be updated.
+   * Updates the active form group index and refreshes the form group and form control
+   * references to point to the group being edited.
+   *
+   * @param {CustomEvent} event - The fieldset update group event containing update details
+   * @returns {void}
+   * @memberOf CrudFieldComponent
+   */
   @HostListener('window:fieldsetUpdateGroupEvent', ['$event'])
-  handleFieldsetUpdateGroupEvent(event: CustomEvent) {
+  handleFieldsetUpdateGroupEvent(event: CustomEvent): void {
     const {index} = event.detail;
     this.activeFormGroup = index;
     this.formGroup = this.getActiveFormGroup;
     this.formControl = this.formGroup.get(this.name) as FormControl;
-    logFormArrayEntries(this.formGroupArray);
   }
 
 
+  /**
+   * @description Handles fieldset group removal events from parent fieldsets.
+   * @summary Processes events triggered when a group needs to be removed from a fieldset.
+   * Removes the specified group from the form array, updates the active form group index,
+   * and refreshes the form references. Dispatches a confirmation event back to the component.
+   *
+   * @param {CustomEvent} event - The fieldset remove group event containing removal details
+   * @returns {void}
+   * @memberOf CrudFieldComponent
+   */
   @HostListener('window:fieldsetRemoveGroupEvent', ['$event'])
-  handleFieldsetRemoveGroupEvent(event: CustomEvent) {
+  handleFieldsetRemoveGroupEvent(event: CustomEvent): void {
     const { component, index } = event.detail;
     const formArray = this.formGroup?.parent as FormArray;
     formArray.removeAt(index);

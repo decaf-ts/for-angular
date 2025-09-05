@@ -10,14 +10,14 @@ ion-item {
    --padding-end: .75rem;
   --inner-padding-start: 0px !important;
   --inner-padding-end: 0px !important;
-  --border-color: var(--ion-color-gray-2);
+  --border-color: var(--dcf-color-gray-2);
 
   &.item-lines-inset{
     --padding-top: 0rem !important ;
     --padding-bottom: 0rem !important;
     --inner-padding-top: .5rem !important;
     --inner-padding-bottom: .65rem !important;
-    --border-color: var(--ion-color-gray-2);
+    --border-color: var(--dcf-color-gray-2);
   }
 
   &:hover {
@@ -28,7 +28,7 @@ ion-item {
 
   .dcf-info {
     min-width: 10vw;
-    color: var(--ion-color-gray-6);
+    color: var(--dcf-color-gray-6);
   }
 
   .dcf-grid {
@@ -38,7 +38,7 @@ ion-item {
   }
 
   .dcf-item-title {
-    color:  var(--ion-color-gray-8);
+    color:  var(--dcf-color-gray-8);
     font-style: normal;
     font-weight: 700;
     // margin: 0 0 20px 0;
@@ -49,7 +49,7 @@ ion-item {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: var(--ion-color-gray-6);
+    color: var(--dcf-color-gray-6);
     font-style: normal;
     font-weight: 400;
     font-size: .925rem;
@@ -99,7 +99,7 @@ ion-item {
       --padding-bottom: .85rem !important;
       color: #ccc;
       margin-right: .5rem !important;
-      --background: var(--ion-color-gray-2) !important;
+      --background: var(--dcf-color-gray-2) !important;
 
       ion-icon {
         position: relative;
@@ -142,7 +142,7 @@ ion-item {
       --padding-end: .85rem;
       --padding-top: .85rem !important;
       --padding-bottom: .85rem !important;
-      --background: var(--ion-color-gray-1) !important;
+      --background: var(--dcf-color-gray-1) !important;
 
       ion-icon {
         font-size: 20px;
@@ -151,7 +151,7 @@ ion-item {
 
     ion-avatar {
       transform: scale(.9);
-      background: var(--ion-color-gray-1);
+      background: var(--dcf-color-gray-1);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -173,40 +173,40 @@ ion-item-sliding {
   ion-item-option {
       &:not(.dcf-delete),
       &:not(.dcf-update) {
-        background: rgba(var(--ion-color-dark-rgb), .25) !important;
+        background: rgba(var(--dcf-color-dark-rgb), .25) !important;
         .dcf-ti,
         ion-icon {
-          color: var(--ion-color-gray-7) !important;
+          color: var(--dcf-color-gray-7) !important;
         }
       }
 
       &.dcf-delete {
-        background: rgba(var(--ion-color-danger-rgb), .15) !important;
+        background: rgba(var(--dcf-color-danger-rgb), .15) !important;
         .dcf-ti,
           *,
         ion-icon {
-          color: var(--ion-color-danger) !important;
+          color: var(--dcf-color-danger) !important;
         }
       }
 
       &.dcf-update {
-        background: rgba(var(--ion-color-primary-rgb), .25) !important;
+        background: rgba(var(--dcf-color-primary-rgb), .25) !important;
         .dcf-ti,
         ion-icon {
-          color: var(--ion-color-gray-7) !important;
+          color: var(--dcf-color-gray-7) !important;
         }
       }
   }
 
 
   &[class*="active-slide"] {
-    border-color: var(--ion-color-gray-3);
+    border-color: var(--dcf-color-gray-3);
 
   }
 
   ion-item-option {
-    color: var(--ion-color-gray-5);
-    box-shadow: inset 0 0 5px rgba(var(--ion-color-dark-rgb), .15) !important;
-    background: var(--ion-color-gray-3);
+    color: var(--dcf-color-gray-5);
+    box-shadow: inset 0 0 5px rgba(var(--dcf-color-dark-rgb), .15) !important;
+    background: var(--dcf-color-gray-3);
   }
 }

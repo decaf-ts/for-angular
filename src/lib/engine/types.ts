@@ -1,9 +1,11 @@
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
-import { EnvironmentInjector, Injector, Type } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { FieldProperties } from '@decaf-ts/ui-decorators';
-import { OrderDirection } from '@decaf-ts/core';
+import { FormGroup } from '@angular/forms';
+import { BaseCustomEvent, FormServiceControl, InputOption } from './interfaces';
+
+
+
+export type HandlerLike = Record<string, (...args: unknown[]) => unknown | Promise<unknown>>
 
 /**
  * @description Generic key-value pair type
@@ -77,57 +79,7 @@ export type FlexPositions =
  */
 export type FieldUpdateMode = 'change' | 'blur' | 'submit';
 
-/**
- * @description Metadata structure for Angular components
- * @summary Defines the structure of metadata for Angular components, including
- * change detection strategy, selector, standalone status, imports, template, and styles.
- * This is used for reflection and dynamic component creation.
- * @interface ComponentMetadata
- * @property {number} changeDetection - The change detection strategy number
- * @property {string} selector - The CSS selector for the component
- * @property {boolean} standalone - Whether the component is standalone
- * @property imports - Array of imported modules/components
- * @property {string} template - The HTML template for the component
- * @property {string[]} styles - Array of CSS styles for the component
- * @memberOf module:engine
- */
-export interface ComponentMetadata {
-  changeDetection: number;
-  selector: string;
-  standalone: boolean;
-  imports: (new (...args: unknown[]) => unknown)[];
-  template: string;
-  styles: string[];
-}
 
-/**
- * @description Output structure from the Angular rendering engine
- * @summary Defines the structure of the output produced by the NgxRenderingEngine
- * when rendering a component. Contains the component type, inputs, injector,
- * content nodes, and child components.
- * @typedef {Object} AngularDynamicOutput
- * @property {Type<unknown>} component - The Angular component type
- * @property {string} [rendererId] - Optional unique ID for the rendered component
- * @property {Record<string, unknown>} [inputs] - Optional input properties for the component
- * @property {Injector} [injector] - Optional Angular injector for dependency injection
- * @property {Node[][]} [content] - Optional content nodes for projection
- * @property {AngularDynamicOutput[]} [children] - Optional child components
- * @property {Type<unknown>} [instance] - Optional component instance
- * @property {FormGroup} [formGroup] - Optional component FormGroup
- * @property {FormControl} [formControl] - Optional component FormControl
- * @memberOf module:engine
- */
-export interface AngularDynamicOutput {
-  component?: Type<unknown>;
-  rendererId?: string;
-  inputs?: Record<string, unknown>;
-  injector?: Injector;
-  content?: Node[][];
-  children?: AngularDynamicOutput[];
-  instance?: Type<unknown>;
-  formGroup?: FormGroup;
-  formControl?: FormControl;
-}
 
 /**
  * @description Interface for models that can be rendered
@@ -232,25 +184,7 @@ export type RadioOption = InputOption & { checked?: boolean };
  */
 export type CheckboxOption = RadioOption;
 
-/**
- * @description Base option type for input components
- * @summary Defines the common structure for options used in select, radio, and checkbox inputs.
- * Contains properties for the display text, value, disabled state, CSS class, and icon.
- * @interface InputOption
- * @property {string} text - The display text for the option
- * @property {string|number} value - The value associated with the option
- * @property {StringOrBoolean} [disabled] - Whether the option is disabled
- * @property {string} [className] - CSS class name for styling the option
- * @property {string} [icon] - Icon to display with the option
- * @memberOf module:engine
- */
-export interface InputOption {
-  text: string;
-  value: string | number;
-  disabled?: StringOrBoolean;
-  className?: string;
-  icon?: string;
-}
+
 
 /**
  * @description Target options for HTML forms
@@ -273,31 +207,7 @@ export type HTMLFormTarget = '_blank' | '_self' | '_parent' | '_top' | string;
 //   subinfo?: string;
 // }
 
-/**
- * @description Interface for list component refresh events
- * @summary Defines the structure of a refresh event for list components.
- * Contains an array of key-value pairs representing the new data for the list.
- * @interface IListComponentRefreshEvent
- * @property {KeyValue[]} data - Array of key-value pairs representing the new data
- * @memberOf module:engine
- */
-export interface IListComponentRefreshEvent {
-  data: KeyValue[];
-}
 
-/**
- * @description Form service control structure
- * @summary Defines the structure for a form control managed by the form service.
- * Contains the FormGroup control and the associated field properties for rendering.
- * @interface FormServiceControl
- * @property {FormGroup} control - The Angular FormGroup for the control
- * @property {AngularFieldDefinition} props - The field properties for rendering the control
- * @memberOf module:engine
- */
-export interface FormServiceControl {
-  control: FormGroup;
-  props: AngularFieldDefinition;
-}
 
 /**
  * @description Type for form service controls
@@ -322,41 +232,6 @@ export type FormServiceControls = Record<
  */
 export type RendererCustomEvent = BaseCustomEvent & KeyValue;
 
-/**
- * @description Interface for list item custom events
- * @summary Defines the structure of custom events triggered by list items.
- * Extends BaseCustomEvent with additional properties for the action and primary key.
- * @interface ListItemCustomEvent
- * @property {string} action - The action performed on the list item
- * @property {string} [pk] - Optional primary key of the affected item
- * @property {any} data - The data associated with the event (inherited from BaseCustomEvent)
- * @property {HTMLElement} [target] - The target element (inherited from BaseCustomEvent)
- * @property {string} [name] - The name of the event (inherited from BaseCustomEvent)
- * @property {string} component - The component that triggered the event (inherited from BaseCustomEvent)
- * @memberOf module:engine
- */
-export interface ListItemCustomEvent extends BaseCustomEvent {
-  action: string;
-  pk?: string;
-}
-
-/**
- * @description Base interface for custom events
- * @summary Defines the base structure for custom events in the application.
- * Contains properties for the event data, target element, name, and component.
- * @interface BaseCustomEvent
- * @property {any} data - The data associated with the event
- * @property {HTMLElement} [target] - The target element that triggered the event
- * @property {string} [name] - The name of the event
- * @property {string} component - The component that triggered the event
- * @memberOf module:engine
- */
-export interface BaseCustomEvent {
-  name: string;
-  component: string;
-  data?: unknown;
-  target?: HTMLElement;
-}
 
 /**
  * @description CRUD form event type
@@ -371,39 +246,6 @@ export type CrudFormEvent = BaseCustomEvent & {
   handlers?: Record<string, any>;
 };
 
-/**
- * @description Component input properties
- * @summary Extends FieldProperties with additional properties specific to Angular components.
- * Includes update mode for form controls and optional FormGroup and FormControl references.
- * @interface ComponentInput
- * @property {FieldUpdateMode} [updateMode] - When the field value should be updated
- * @property {FormGroup} [formGroup] - Optional FormGroup reference
- * @property {FormControl} [formControl] - Optional FormControl reference
- * @memberOf module:engine
- */
-export interface ComponentInput extends FieldProperties {
-  updateMode?: FieldUpdateMode;
-  formGroup?: FormGroup;
-  formControl?: FormControl;
-}
-
-/**
- * @description Component configuration structure
- * @summary Defines the configuration for dynamically creating Angular components.
- * Contains the component name, input properties, injector, and optional child components.
- * @interface ComponentConfig
- * @property {string} component - The name of the component to render
- * @property {ComponentInput} inputs - The input properties for the component
- * @property {EnvironmentInjector | Injector} injector - The Angular injector for dependency injection
- * @property {ComponentConfig[]} [children] - Optional child component configurations
- * @memberOf module:engine
- */
-export interface ComponentConfig {
-  component: string;
-  inputs: ComponentInput;
-  injector: EnvironmentInjector | Injector;
-  children?: ComponentConfig[];
-}
 
 /**
  * @description Form parent group tuple
@@ -414,48 +256,3 @@ export interface ComponentConfig {
  */
 export type FormParentGroup = [FormGroup,  string];
 
-/**
- * @description Interface for individual filter query items
- * @summary Defines the structure of a single filter criterion in a filter query.
- * Each item represents one condition to be applied to the data, consisting of
- * an index (field name), a condition (comparison operator), and a value to compare against.
- * @interface IFilterQueryItem
- * @property {string} [index] - Optional field name or index to filter on
- * @property {string} [condition] - Optional comparison condition (e.g., 'Equal', 'Contains', 'Greater Than')
- * @property {string} [value] - Optional value to compare the field against
- * @memberOf module:engine
- */
-export interface IFilterQueryItem {
-  index?: string,
-  condition?: string,
-  value?: string
-};
-
-/**
- * @description Interface for sorting configuration objects
- * @summary Defines the structure for specifying sort criteria including the field
- * to sort by and the direction of the sort (ascending or descending).
- * @interface ISortObject
- * @property {string} value - The field name or property to sort by
- * @property {OrderDirection} direction - The sort direction (ASC or DSC)
- * @memberOf module:engine
- */
-export interface ISortObject {
-  value: string,
-  direction: OrderDirection
-};
-
-/**
- * @description Interface for complete filter query configuration
- * @summary Defines the complete structure for filter and sort operations.
- * Combines multiple filter criteria with sorting configuration to provide
- * comprehensive data filtering and ordering capabilities.
- * @interface IFilterQuery
- * @property {IFilterQueryItem[] | undefined} query - Array of filter criteria or undefined for no filtering
- * @property {ISortObject} sort - Sorting configuration specifying field and direction
- * @memberOf module:engine
- */
-export interface IFilterQuery {
-  query: IFilterQueryItem[] | undefined,
-  sort: ISortObject
-}

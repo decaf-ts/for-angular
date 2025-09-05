@@ -11,9 +11,9 @@ import {
 } from '@angular/core';
 import { Location } from '@angular/common';
 import { FormGroup } from '@angular/forms';
-import { FormElement } from '../../interfaces';
+import { IFormElement } from '../../engine/interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
-import { CrudFormEvent, Dynamic, EventConstants, FieldUpdateMode, HTMLFormTarget, RenderedModel } from '../../engine';
+import { CrudFormEvent, Dynamic, EventConstants, FieldUpdateMode, HandlerLike, HTMLFormTarget, RenderedModel } from '../../engine';
 import { CrudFormOptions } from './types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
@@ -52,7 +52,7 @@ import { Logger } from '@decaf-ts/logging';
   imports: [ForAngularModule, IonIcon],
    host: {'[attr.id]': 'rendererId'},
 })
-export class CrudFormComponent implements OnInit, FormElement, OnDestroy, RenderedModel {
+export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, RenderedModel {
 
   /**
    * @description Repository model for data operations.
@@ -60,34 +60,120 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
    * This provides a connection to the data layer for retrieving and manipulating data.
    *
    * @type {Model| undefined}
+   * @memberOf CrudFormComponent
    */
   @Input()
   model!: Model | undefined;
 
+  /**
+   * @description Field update trigger mode for form validation.
+   * @summary Determines when form field validation should be triggered. Options include
+   * 'change', 'blur', or 'submit'. This affects the user experience by controlling
+   * when validation feedback is shown to the user during form interaction.
+   *
+   * @type {FieldUpdateMode}
+   * @default 'change'
+   * @memberOf CrudFormComponent
+   */
   @Input()
   updateOn: FieldUpdateMode = 'change';
 
+  /**
+   * @description Reference to the reactive form DOM element.
+   * @summary ViewChild reference that provides direct access to the form's DOM element.
+   * This enables programmatic manipulation of the form element and access to native
+   * HTML form properties and methods when needed.
+   *
+   * @type {ElementRef}
+   * @memberOf CrudFormComponent
+   */
   @ViewChild('reactiveForm', { static: false, read: ElementRef })
   component!: ElementRef;
 
+  /**
+   * @description Form submission target specification.
+   * @summary Specifies where to display the response after form submission, similar
+   * to the HTML form target attribute. Options include '_self', '_blank', '_parent',
+   * '_top', or a named frame. Controls the browser behavior for form responses.
+   *
+   * @type {HTMLFormTarget}
+   * @default '_self'
+   * @memberOf CrudFormComponent
+   */
   @Input()
   target: HTMLFormTarget = '_self';
 
+  /**
+   * @description HTTP method or submission strategy for the form.
+   * @summary Defines how the form should be submitted. 'get' and 'post' correspond
+   * to standard HTTP methods for traditional form submission, while 'event' uses
+   * Angular event-driven submission for single-page application workflows.
+   *
+   * @type {'get' | 'post' | 'event'}
+   * @default 'event'
+   * @memberOf CrudFormComponent
+   */
   @Input()
   method: 'get' | 'post' | 'event' = 'event';
 
+  /**
+   * @description Configuration options for the CRUD form behavior.
+   * @summary Contains various configuration settings that control form rendering,
+   * validation, and behavior. These options are merged with default settings
+   * during component initialization to customize the form's functionality.
+   *
+   * @type {CrudFormOptions}
+   * @memberOf CrudFormComponent
+   */
   @Input()
   options!: CrudFormOptions;
 
+  /**
+   * @description Optional action identifier for form submission context.
+   * @summary Specifies a custom action name that will be included in the submit event.
+   * If not provided, defaults to the standard submit event constant. Used to
+   * distinguish between different types of form submissions within the same component.
+   *
+   * @type {string | undefined}
+   * @memberOf CrudFormComponent
+   */
   @Input()
   action?: string;
 
+  /**
+   * @description The current CRUD operation being performed.
+   * @summary Specifies the type of operation this form is handling (CREATE, READ, UPDATE, DELETE).
+   * This is a required input that determines form behavior, validation rules, and available actions.
+   * The operation affects form state, button visibility, and submission logic.
+   *
+   * @type {CrudOperations}
+   * @required
+   * @memberOf CrudFormComponent
+   */
   @Input({ required: true })
   operation!: CrudOperations;
 
+  /**
+   * @description Custom event handlers for form actions.
+   * @summary A record of event handler functions keyed by event names that can be
+   * triggered during form operations. These handlers provide extensibility for
+   * custom business logic and can be invoked for various form events and actions.
+   *
+   * @type {HandlerLike}
+   * @memberOf CrudFormComponent
+   */
   @Input()
-  handlers!: Record<string, (...args: unknown[]) => unknown | Promise<unknown>>;
+  handlers!: HandlerLike;
 
+  /**
+   * @description Angular reactive FormGroup for form state management.
+   * @summary The FormGroup instance that manages all form controls, validation,
+   * and form state. This is the main interface for accessing form values and
+   * controlling form behavior. May be undefined for read-only operations.
+   *
+   * @type {FormGroup | undefined}
+   * @memberOf CrudFormComponent
+   */
   @Input()
   formGroup!: FormGroup | undefined;
 
@@ -101,6 +187,15 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
   @Input()
   childOf?: string;
 
+  /**
+   * @description Unique identifier for the form renderer.
+   * @summary A unique string identifier used to register and manage this form
+   * instance within the NgxFormService. This ID is also used as the HTML id
+   * attribute for the form element, enabling DOM queries and form management.
+   *
+   * @type {string}
+   * @memberOf CrudFormComponent
+   */
   @Input()
   rendererId!: string;
 
@@ -110,13 +205,23 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
    * This is typically used in conjunction with the primary key for operations on specific records.
    *
    * @type {string | number}
+   * @memberOf CrudFormComponent
    */
   @Input()
   uid!: string | number | undefined;
 
 
+  /**
+   * @description Event emitter for form submission events.
+   * @summary Emits CrudFormEvent objects when the form is submitted, providing
+   * form data, component information, and any associated handlers to parent
+   * components. This enables decoupled handling of form submission logic.
+   *
+   * @type {EventEmitter<CrudFormEvent>}
+   * @memberOf CrudFormComponent
+   */
   @Output()
-  submitEvent = new EventEmitter<CrudFormEvent>();
+  submitEvent: EventEmitter<CrudFormEvent> = new EventEmitter<CrudFormEvent>();
 
   /**
    * @description Logger instance for the component.
@@ -151,6 +256,16 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
     //   NgxFormService.formAfterViewInit(this, this.rendererId);
   // }
 
+  /**
+   * @description Component initialization lifecycle method.
+   * @summary Initializes the component by setting up the logger, configuring form state
+   * based on the operation type, and merging configuration options. For READ and DELETE
+   * operations, the formGroup is set to undefined since these operations don't require
+   * form input. Configuration options are merged with default settings.
+   *
+   * @returns {Promise<void>}
+   * @memberOf CrudFormComponent
+   */
   async ngOnInit() {
     if (!this.logger)
       this.logger = getLogger(this);
@@ -164,11 +279,31 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
 
   }
 
+  /**
+   * @description Component cleanup lifecycle method.
+   * @summary Performs cleanup operations when the component is destroyed.
+   * Unregisters the FormGroup from the NgxFormService to prevent memory leaks
+   * and ensure proper resource cleanup.
+   *
+   * @returns {void}
+   * @memberOf CrudFormComponent
+   */
   ngOnDestroy() {
     if (this.formGroup)
       NgxFormService.unregister(this.formGroup);
   }
 
+  /**
+   * @description Handles form submission with validation and event emission.
+   * @summary Processes form submission by first preventing default browser behavior,
+   * then validating all form fields using NgxFormService. If validation passes,
+   * extracts form data and emits a submitEvent with the data, component information,
+   * and any associated handlers. Returns false if validation fails.
+   *
+   * @param {SubmitEvent} event - The browser's native form submit event
+   * @returns {Promise<boolean | void>} Returns false if validation fails, void if successful
+   * @memberOf CrudFormComponent
+   */
   async submit(event: SubmitEvent): Promise<boolean | void> {
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -183,13 +318,33 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
     });
   }
 
+  /**
+   * @description Handles form reset or navigation back functionality.
+   * @summary Provides different reset behavior based on the current operation.
+   * For CREATE and UPDATE operations, resets the form to its initial state.
+   * For READ and DELETE operations, navigates back in the browser history
+   * since these operations don't have modifiable form data to reset.
+   *
+   * @returns {void}
+   * @memberOf CrudFormComponent
+   */
   handleReset(): void {
     if(![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation))
       return NgxFormService.reset(this.formGroup as FormGroup);
     this.location.back();
   }
 
-  handleDelete() {
+  /**
+   * @description Handles delete operations by emitting delete events.
+   * @summary Processes delete requests by emitting a submit event with the
+   * record's unique identifier as data. This allows parent components to
+   * handle the actual deletion logic while maintaining separation of concerns.
+   * The event includes the uid and standard component identification.
+   *
+   * @returns {void}
+   * @memberOf CrudFormComponent
+   */
+  handleDelete(): void {
     this.submitEvent.emit({
       data: this.uid,
       component: 'CrudFormComponent',
@@ -197,5 +352,17 @@ export class CrudFormComponent implements OnInit, FormElement, OnDestroy, Render
     });
   }
 
+  /**
+   * @description Reference to CRUD operation constants for template usage.
+   * @summary Exposes the OperationKeys enum to the component template, enabling
+   * conditional rendering and behavior based on operation types. This protected
+   * readonly property ensures that template logic can access operation constants
+   * while maintaining encapsulation and preventing accidental modification.
+   *
+   * @type {CrudOperations}
+   * @protected
+   * @readonly
+   * @memberOf CrudFormComponent
+   */
   protected readonly OperationKeys = OperationKeys;
 }

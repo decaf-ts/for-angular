@@ -1,5 +1,6 @@
 import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
-import { AngularDynamicOutput, AngularFieldDefinition, KeyValue } from './types';
+import { AngularFieldDefinition, KeyValue } from './types';
+import { AngularDynamicOutput } from './interfaces';
 import { AngularEngineKeys } from './constants';
 import { Constructor, Model} from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';

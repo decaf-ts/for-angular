@@ -41,7 +41,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
 import { PaginationComponent } from '../pagination/pagination.component';
 import { PaginationCustomEvent } from '../pagination/constants';
 import { IListEmptyResult, ListComponentsTypes, DecafRepository } from './constants';
-import { FunctionLike, IFilterQuery, IFilterQueryItem } from '../../engine/types';
+import { FunctionLike, IFilterQuery, IFilterQueryItem } from '../../engine';
 import { FilterComponent } from '../filter/filter.component';
 
 /**

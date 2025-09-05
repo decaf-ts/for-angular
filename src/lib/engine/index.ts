@@ -9,9 +9,10 @@
  */
 export * from './constants';
 export * from './decorators';
+export * from './types';
+export * from './interfaces';
 export * from './DynamicModule';
 export * from './NgxRenderingEngine';
-export * from './types';
 export * from './NgxBaseComponent';
 export * from './NgxCrudFormField';
 export * from './NgxFormService';

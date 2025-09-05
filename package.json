@@ -101,8 +101,8 @@
     "typescript-eslint": "8.34.1"
   },
   "peerDependencies": {
-    "@angular/cdk": "^18.2.14",
     "@angular/animations": "^18.2.13",
+    "@angular/cdk": "^18.2.14",
     "@angular/common": "^18.2.13",
     "@angular/compiler": "^18.2.13",
     "@angular/core": "^18.2.13",
