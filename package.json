@@ -92,7 +92,7 @@
     "markdown-include": "^0.4.3",
     "ng-packagr": "^18.2.1",
     "npm-check-updates": "^17.1.4",
-    "npx rimraf": "^6.0.1",
+    "rimraf": "^6.0.1",
     "rollup": "^4.40.0",
     "storybook": "^8.6.14",
     "ts-node": "^10.9.2",
