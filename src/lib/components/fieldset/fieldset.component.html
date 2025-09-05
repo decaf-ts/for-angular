@@ -1,6 +1,6 @@
 
 
-<fieldset [id]="uid"
+<fieldset
   (fieldsetAddGroupEvent)="handleCreateItem($event)"
   (fieldsetRemoveGroupEvent)="handleRemoveItem(undefined, $event)"
   [class]="'dcf-fieldset ' + operation"

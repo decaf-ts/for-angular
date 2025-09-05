@@ -5,7 +5,7 @@ import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModule } from '../../for-angular.module';
 import { CollapsableDirective } from '../../directives/collapsable.directive';
 import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorderGroup, IonReorder } from '@ionic/angular/standalone';
-import { cleanSpaces, itemMapper, windowEventEmitter } from '../../helpers';
+import { cleanSpaces, generateRandomValue, itemMapper, windowEventEmitter } from '../../helpers';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { NgxBaseComponent } from '../../engine';
 import { alertCircleOutline, createOutline } from 'ionicons/icons';
@@ -73,6 +73,7 @@ import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces
   styleUrls: ['./fieldset.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [ForAngularModule, IonAccordionGroup, IonAccordion, IonList, IonItem, IonLabel, IonReorder, IonButton, IonReorderGroup, CollapsableDirective],
+  host: {'[attr.id]': 'overriode '},
 })
 export class FieldsetComponent extends NgxBaseComponent implements OnInit, AfterViewInit {
 
@@ -119,6 +120,20 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    */
   @Input()
   childOf: string = 'Child';
+
+
+  /**
+   * @description The parent component identifier for hierarchical fieldset relationships.
+   * @summary Specifies the parent component name that this fieldset belongs to in a hierarchical
+   * form structure. This property is used for event bubbling and establishing parent-child
+   * relationships between fieldsets in complex forms with nested structures.
+   *
+   * @type {string}
+   * @default 'Child'
+   * @memberOf FieldsetComponent
+   */
+  @Input()
+  override uid: string = generateRandomValue(12);
 
 
   /**

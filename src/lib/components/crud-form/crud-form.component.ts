@@ -21,6 +21,7 @@ import { ForAngularModule, getLogger } from '../../for-angular.module';
 import { IonIcon } from '@ionic/angular/standalone';
 import { Model } from '@decaf-ts/decorator-validation';
 import { Logger } from '@decaf-ts/logging';
+import { generateRandomValue } from '../../helpers';
 
 
 /**
@@ -50,7 +51,7 @@ import { Logger } from '@decaf-ts/logging';
   templateUrl: './crud-form.component.html',
   styleUrls: ['./crud-form.component.scss'],
   imports: [ForAngularModule, IonIcon],
-   host: {'[attr.id]': 'rendererId'},
+  host: {'[attr.id]': 'uid'},
 })
 export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, RenderedModel {
 
@@ -208,7 +209,7 @@ export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, Rende
    * @memberOf CrudFormComponent
    */
   @Input()
-  uid!: string | number | undefined;
+  uid: string = generateRandomValue(12);
 
 
   /**
