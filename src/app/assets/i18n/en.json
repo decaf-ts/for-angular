@@ -1,0 +1,74 @@
+{
+  "login": {
+     "username": {
+      "label": "Username",
+      "placeholder": "Type your username"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "Type your password"
+    }
+  },
+  "demo": {
+    "id": {
+      "label": "id",
+      "placeholder": "Type a number"
+    },
+    "name": {
+      "label": "Name",
+      "placeholder": "Type your name"
+    },
+    "birthdate": {
+      "label": "Birthdate"
+    },
+    "email": {
+      "label": "E-mail",
+      "placeholder": "Type your e-mail address"
+    },
+    "website": {
+      "label": "Website",
+      "placeholder": "Type your favorite website"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "Type your password"
+    },
+    "gender": {
+      "label": "Select your gender"
+    },
+    "agree": {
+      "label": "I accept the terms and conditions."
+    }
+  },
+    "category": {
+    "name": {
+      "label": "Category name",
+      "placeholder": "Type the category"
+    },
+    "description": {
+      "label": "Category Description",
+      "placeholder": "Describe the category (optional)"
+    },
+    "created": {
+      "label": "Creation date",
+      "placeholder": "Select the creation date"
+    }
+  },
+  "employee": {
+    "name": {
+      "label": "Employee name",
+      "placeholder": "Type the employee name"
+    },
+    "occupation": {
+      "label": "Employee occupation"
+    }
+  },
+  "user": {
+    "secret": {
+      "label": "Password"
+    },
+    "username": {
+      "label": "Username"
+    }
+  }
+}

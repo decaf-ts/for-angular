@@ -212,24 +212,21 @@ export function isNotUndefined(prop: StringOrBoolean | undefined): boolean {
  * @memberOf module:for-angular
  */
 export function getLocaleFromClassName(
-  instance: string | FunctionLike | object,
+  instance: string | FunctionLike | KeyValue,
   suffix?: string
 ): string {
-  if (typeof instance !== 'string')
-    instance =
-      (instance as FunctionLike).name || (instance as object)?.constructor?.name;
+  if (typeof instance !== Primitives.STRING)
+    instance = (instance as FunctionLike).name || (instance as object)?.constructor?.name;
 
-  let name: string | string[] = instance;
+  let name: string | string[] = instance as string;
 
-  if (suffix) name = `${instance}${suffix.charAt(0).toUpperCase() + suffix.slice(1)}`;
+  if (suffix)
+    name = `${instance}${suffix.charAt(0).toUpperCase() + suffix.slice(1)}`;
 
-  name = name
-    .replace(/_|-/g, '')
-    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word: string, index: number) => {
+  name = name.replace(/_|-/g, '').replace(/(?:^\w|[A-Z]|\b\w)/g, (word: string, index: number) => {
       if (index > 1) word = '.' + word;
       return word.toLowerCase();
-    })
-    .split('.');
+    }).split('.');
 
   if (name.length < 3)
     return name.reverse().join('.');
@@ -238,8 +235,6 @@ export function getLocaleFromClassName(
   name.pop();
   name = name.join('_');
   return `${preffix}.${name}`;
-
-
 }
 
 /**

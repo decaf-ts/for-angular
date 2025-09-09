@@ -284,3 +284,11 @@ export interface BaseCustomEvent {
   target?: HTMLElement;
 }
 
+
+/**
+ * Configuration for internationalization (i18n) resource file paths.
+ *
+ * @property prefix - The prefix to be used for the resource file path.
+ * @property suffix - The suffix to be appended to the resource file path.
+ */
+export interface I18nResourceConfig { prefix: string, suffix: string }

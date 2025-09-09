@@ -10,7 +10,7 @@ import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { IonicRouteStrategy, provideIonicAngular} from '@ionic/angular/standalone';
 import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
 import { RamAdapter } from '@decaf-ts/core/ram';
-import { I18nLoader } from 'src/lib/i18n/Loader';
+import { getI18nLoaderFactoryProviderConfig, I18nLoaderFactory } from 'src/lib/i18n/Loader';
 import { routes } from './app.routes';
 import { getWindow } from '../lib/helpers';
 
@@ -40,9 +40,10 @@ export const appConfig: ApplicationConfig = {
       useDefaultLang: true,
       loader: {
         provide: TranslateLoader,
-        useFactory: I18nLoader.loadFromHttp,
+        useFactory: I18nLoaderFactory,
         deps: [HttpClient],
       },
     }),
+    { ... getI18nLoaderFactoryProviderConfig({ prefix: './app/assets/i18n/', suffix: '.json' })}
   ],
 };

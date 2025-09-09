@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
 import { ComponentsModule } from 'src/app/components/components.module';
 import { CrudFormEvent } from 'src/lib/engine';
@@ -6,12 +6,17 @@ import { LoginForm } from 'src/app/forms/LoginForm';
 import { getLogger } from 'src/lib/for-angular.module';
 import { IonCard, IonCardContent, IonImg, ToastController} from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
+import { getLocaleContext } from 'src/lib/i18n/Loader';
 
 /**
  * @description Login page component for user authentication
  * @summary This component handles the login functionality, including form rendering and event handling.
  * It uses the LoginForm for data binding and interacts with the LoginHandler for authentication logic.
+ * The component also manages locale context for internationalization and provides user feedback
+ * through toast messages for login operations.
  * @class
+ * @param {LoginForm} model - Form model instance for login data binding
+ * @param {string} locale - Locale context for internationalization
  * @param {Router} router - Angular Router for navigation
  * @param {ToastController} toastController - Ionic ToastController for displaying messages
  * @example
@@ -39,24 +44,64 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [ForAngularComponentsModule, IonCard, IonCardContent, IonImg, ComponentsModule],
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
+
   /**
    * @description Instance of LoginForm for form data binding
-   * @summary This property holds the data model for the login form
+   * @summary This property holds the data model for the login form, containing
+   * username and password fields with their respective validation rules.
+   * It's used to bind form controls and manage form state throughout the login process.
+   *
+   * @type {LoginForm}
+   * @memberOf LoginPage
    */
   model = new LoginForm({});
 
   /**
-   * @description Angular Router instance for navigation
-   * @summary Injected Router service used for navigating to other pages after successful login
+   * @description Locale context string for internationalization
+   * @summary Contains the locale context key ('Login') used for translation
+   * and internationalization purposes. This key is used to determine the
+   * appropriate language resources and translation context for this page.
+   *
+   * @type {string}
+   * @memberOf LoginPage
    */
-  private router = inject(Router);
+  locale: string = getLocaleContext('Login');
+
+  /**
+   * @description Angular Router instance for navigation
+   * @summary Injected Router service used for programmatic navigation
+   * to other pages after successful login or other routing operations.
+   *
+   * @private
+   * @type {Router}
+   * @memberOf LoginPage
+   */
+  private router: Router = inject(Router);
 
   /**
    * @description Ionic ToastController instance for displaying messages
-   * @summary Injected ToastController service used for showing success or error messages
+   * @summary Injected ToastController service used for showing success
+   * or error messages to the user as toast notifications.
+   *
+   * @private
+   * @type {ToastController}
+   * @memberOf LoginPage
    */
   private toastController = inject(ToastController);
+
+  /**
+   * @description Component initialization lifecycle method
+   * @summary Initializes the login page component by logging the locale context
+   * for debugging purposes. This method is called after Angular has initialized
+   * all data-bound properties and before the view is rendered.
+   *
+   * @returns {void}
+   * @memberOf LoginPage
+   */
+  ngOnInit(): void {
+    console.log(this.locale);
+  }
 
   /**
    * @description Handles form submission events

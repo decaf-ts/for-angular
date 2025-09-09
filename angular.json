@@ -116,6 +116,11 @@
                 "input": "src/assets",
                 "output": "assets"
               },
+              {
+                "glob": "**/*",
+                "input": "src/app/assets",
+                "output": "app/assets"
+              },
               "src/manifest.webmanifest",
               "src/cli-module.ts",
               "src/lib/**/*"

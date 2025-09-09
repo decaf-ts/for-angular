@@ -9,22 +9,11 @@
 
 */
 
-
-.model-renderer-child {
-  border: 2px solid red;
-}
-
-.dcf-fieldset {
-  .dcf-fieldset{
-    margin-top: 2.25rem !important;
-  }
-}
-
 // ==============================================================================================
 /** Base =============================================== */
 
 html, body, * {
-  font-family: var(--ion-font-family);
+  font-family: var(--dcf-font-family);
   font-style: normal;
 
   // Ajuste para label floating com a fonte poppins
@@ -46,19 +35,25 @@ html, body, * {
 ion-select,
 ion-textarea,
 ion-input {
-  --border-color: var(--ion-color-gray-3) !important;
+  --border-color: var(--dcf-color-gray-3) !important;
   --border-radius: var(--dcf-border-radius) !important;
 
     &::part(label) {
       font-weight: 500;
-      color: var(--ion-color-gray-7) !important;
+      color: var(--dcf-color-gray-7) !important;
     }
 
 }
 
+.dcf-fieldset {
+  .dcf-fieldset{
+    margin-top: 2.25rem !important;
+  }
+}
+
 
 a {
-  color: var(--ion-color-dark);
+  color: var(--dcf-color-dark);
   font-weight: 500;
 }
 
@@ -73,7 +68,7 @@ textarea {
   &:-webkit-autofill {
 
     border:none !important;
-    -webkit-text-fill-color: var(--ion-color-primary) !important;
+    -webkit-text-fill-color: var(--dcf-color-primary) !important;
     -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset;
     box-shadow: 0 0 0px 1000px #FFFFFF inset;
     -webkit-transition: box-shadow 50s ease-in-out;
@@ -172,7 +167,7 @@ textarea {
 // ***** Figma
 ion-popover::part(content) {
   border-radius: 8px;
-  border: 1px solid var(--ion-color-gray-3);
+  border: 1px solid var(--dcf-color-gray-3);
   box-shadow: 0px 12px 16px -4px rgba(10, 13, 18, 0.08), 0px 4px 6px -2px rgba(10, 13, 18, 0.03), 0px 2px 2px -1px rgba(10, 13, 18, 0.04);
 
 }
@@ -184,7 +179,7 @@ ion-button {
 ion-searchbar.dcf-searchbar {
   --background: transparent;
   .searchbar-input {
-    border: 1px solid var(--ion-color-gray-3) !important;
+    border: 1px solid var(--dcf-color-gray-3) !important;
     min-height: 40px;
     box-shadow: 0px 1px 2px rgba(10, 13, 18, 0.05);
     border-radius: 8px;
@@ -194,7 +189,7 @@ ion-searchbar.dcf-searchbar {
 ion-card {
   &.dcf-card-default {
     box-shadow: none;
-    border: 1px solid var(--ion-color-gray-2);
+    border: 1px solid var(--dcf-color-gray-2);
   }
 }
 
@@ -1250,18 +1245,18 @@ ion-card {
  .dcf-text-lead {
   font-size: 1.5rem;
   line-height: 1.5;
-  color: var(--ion-color-dark-tint);
+  color: var(--dcf-color-dark-tint);
 }
 .dcf-text-meta {
   font-size: 0.875rem;
   line-height: 1.4;
-  color: var(--ion-color-medium);
+  color: var(--dcf-color-medium);
 }
 .dcf-text-meta > a {
-  color: var(--ion-color-medium);
+  color: var(--dcf-color-medium);
 }
 .dcf-text-meta > a:hover {
-  color: var(--ion-color-medium-shade);
+  color: var(--dcf-color-medium-shade);
   text-decoration: none;
 }
 /* Size modifiers

@@ -49,6 +49,14 @@
   },
   "author": "Tiago Venceslau",
   "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/decaf-ts/for-angular.git"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.12",
     "@angular-devkit/core": "^19.2.8",

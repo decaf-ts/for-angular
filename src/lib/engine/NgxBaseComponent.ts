@@ -9,7 +9,7 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
-import { KeyValue, RendererCustomEvent, StringOrBoolean } from './types';
+import { FunctionLike, KeyValue, RendererCustomEvent, StringOrBoolean } from './types';
 import {
   generateRandomValue,
   getInjectablesRegistry,
@@ -704,4 +704,24 @@ export abstract class NgxBaseComponent implements OnChanges {
   trackItemFn(index: number, item: KeyValue | string | number): string | number {
     return `${index}-${item}`;
   }
+}
+
+
+// document all below
+export interface ILocaleObject {
+    [key: string]: StrictLocale;
+}
+
+export type LocaleType = StrictLocale | unknown;
+
+export type StrictLocale = string | StrictLocale[] | ILocaleObject | undefined | null;
+
+export interface ILocaleService {
+  get(key: string | string[], params?: string | KeyValue): Promise<LocaleType>;
+  changeLanguage(lang: string): void;
+  getCurrentLanguage(): string;
+  getAvailableLanguages(): string[];
+  setFallbackLanguage(lang: string): void;
+  getTranslations(lang: string): Promise<ILocaleObject>;
+  setCurrentLocaleKey(key:  string | FunctionLike | object): string;
 }
