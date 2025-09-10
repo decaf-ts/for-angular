@@ -35,6 +35,7 @@ import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { generateRandomValue } from '../../helpers';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { EventConstants } from '../../engine/constants';
+import { getLocaleContextByKey } from '../../i18n/Loader';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -704,6 +705,23 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
 
   }
 
+  /**
+   * Returns a list of options for select or radio inputs, with their `text` property
+   * localized if it does not already include the word 'options'. The localization key
+   * is generated from the component's label, replacing 'label' with 'options'.
+   *
+   * @returns {(SelectOption | RadioOption)[]} The array of parsed and localized options.
+   * @memberOf CrudFieldComponent
+   */
+  get parsedOptions(): (SelectOption | RadioOption)[] {
+    return this.options.map((option) => {
+      return {
+        ...option,
+        text: !option.text.includes('options') ?
+          getLocaleContextByKey(`${this.label.toLowerCase().replace('label', 'options')}`, option.text) : option.text
+      };
+    });
+  }
 
   /**
    * @description Component initialization lifecycle method.
@@ -716,16 +734,16 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   ngOnInit(): void {
+    if(this.options?.length)
+      this.options = this.parsedOptions;
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
     } else {
       addIcons({chevronDownOutline, chevronUpOutline})
-
       if(this.multiple) {
         this.formGroup = this.getActiveFormGroup as FormGroup;
         this.formGroupArray = this.formGroup.parent as FormArray;
       }
-
       if (this.type === HTML5InputTypes.RADIO && !this.value)
         this.formGroup?.get(this.name)?.setValue(this.options[0].value); // TODO: migrate to RenderingEngine
     }
@@ -741,7 +759,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @returns {void}
    * @memberOf CrudFieldComponent
    */
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
       super.afterViewInit();
   }
@@ -772,7 +790,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @HostListener('window:fieldsetAddGroupEvent', ['$event'])
-  handleFieldsetCreateGroupEvent(event: CustomEvent) {
+  handleFieldsetCreateGroupEvent(event: CustomEvent): void {
     event.stopImmediatePropagation();
     const { parent, component, index, operation } = event.detail;
     const formGroup = this.formGroup as FormGroup;

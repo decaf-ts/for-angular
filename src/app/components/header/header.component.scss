@@ -14,9 +14,10 @@ ion-header {
     background-color: white !important;
     box-shadow: none !important;
     border-bottom: 1px solid var(--ion-color-gray-2) !important;
-  }
 
-  ion-toolbar {
+    ion-icon {
+      color: var(--ion-color-gray-7) !important;
+    }
 
     @media(max-width: 680px) {
       padding-right: .25rem;
@@ -35,6 +36,11 @@ ion-header {
       svg { stroke: var(--ion-color-gray-1) !important; }
     }
   }
+
+  // ion-toolbar {
+
+
+  // }
 
 .dcf-header-container {
   padding: 0px;

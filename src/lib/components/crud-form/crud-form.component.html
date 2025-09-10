@@ -11,22 +11,21 @@
           {{ action ? action : options.buttons.submit.text}}
         </ion-button>
       </div>
-      <div>
-          @if(options.buttons.clear) {
-            <ion-button fill="clear" (click)="handleReset()">
-              @if(options.buttons.clear?.icon) {
-                <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
-              }
-              {{ ['create', 'update'].includes(operation) ? 'Back' : options.buttons.clear?.text}}
-            </ion-button>
-          }
+      @if(!action) {
+        <div>
+          <ion-button fill="clear" (click)="handleReset()">
+            @if(options.buttons.clear?.icon) {
+              <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
+            }
+            Back
+          </ion-button>
         </div>
+      }
     </div>
   </form>
 } @else {
   <div [class]="'dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left ' + operation" [id]="uid">
-
-    @if(operation === 'delete' && uid) {
+    @if(operation === OperationKeys.READ && modelId) {
       <div>
         <ion-button
           (click)="handleDelete()"
@@ -41,6 +40,7 @@
 
     }
     @if(operation === OperationKeys.CREATE || operation === OperationKeys.UPDATE) {
+
       <div>
         <ion-button
           type="submit">
@@ -58,7 +58,7 @@
           @if(options.buttons.clear?.icon) {
             <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
           }
-          {{ ['delete', 'read', 'update'].includes(operation) ? 'Back' : options.buttons.clear?.text}}
+          {{ [OperationKeys.DELETE, OperationKeys.READ, OperationKeys.UPDATE].includes(operation) ? 'Back' : options.buttons.clear?.text}}
         </ion-button>
       </div>
 

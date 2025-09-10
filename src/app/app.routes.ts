@@ -51,7 +51,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/model/model.page').then( m => m.ModelPage)
   },
   {
-    path: 'model/:modelName/:operation/:uid',
+    path: 'model/:modelName/:operation/:modelId',
     loadComponent: () => import('./pages/model/model.page').then( m => m.ModelPage)
   }
 ];

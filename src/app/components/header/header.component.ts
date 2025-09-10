@@ -4,7 +4,7 @@ import { StringOrBoolean } from 'src/lib/engine/types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { IonHeader, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
 import { RouterService } from 'src/app/services/router.service';
-import { stringToBoolean } from 'src/lib/helpers/utils';
+import { isDarkMode, stringToBoolean } from 'src/lib/helpers/utils';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { BackButtonComponent } from '../back-button/back-button.component';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
@@ -44,6 +44,19 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    */
   @Input()
   currentOperation: CrudOperations = OperationKeys.READ;
+
+
+
+  /**
+   * @description The identifier of the current operation model.
+   * @summary  Accepts either a string or a number.
+   *
+   * @type {string|number}
+   * @default OperationKeys.READ
+   * @memberOf HeaderComponent
+   */
+  @Input()
+  modelId!: string | number;
 
 
   /**
@@ -249,6 +262,23 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    */
   backButtonColor!: Color;
 
+
+
+  /**
+   * @description Reference to CRUD operation constants for template usage.
+   * @summary Exposes the OperationKeys enum to the component template, enabling
+   * conditional rendering and behavior based on operation types. This protected
+   * readonly property ensures that template logic can access operation constants
+   * while maintaining encapsulation and preventing accidental modification.
+   *
+   * @type {CrudOperations}
+   * @protected
+   * @readonly
+   * @memberOf CrudFormComponent
+   */
+  protected readonly OperationKeys: typeof OperationKeys = OperationKeys;
+
+
   /**
    * @description Creates an instance of HeaderComponent.
    * @summary Initializes a new HeaderComponent by calling the parent class constructor
@@ -284,6 +314,10 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   * @memberOf HeaderComponent
   */
   ngOnInit(): void {
+    if(isDarkMode()) {
+      this.translucent = true;
+      this.backgroundColor = '';
+    }
     this.showBackButton = stringToBoolean(this.showBackButton);
     this.showMenuButton = stringToBoolean(this.showMenuButton);
     if(this.showMenuButton)
@@ -300,9 +334,9 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
       this.className += ` ion-no-border`;
     this.getRoute();
     if(this.backgroundColor === 'white') {
-      this.backButtonColor = 'primary';
+      this.backButtonColor = 'medium';
     }
-
+    this.backButtonColor = 'translucent';
   }
 
   /**
@@ -331,10 +365,10 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    *
    * @memberOf HeaderComponent
    */
-  async changeOperation(operation: string, id?: string): Promise<boolean> {
+  async changeOperation(operation: string, id: string): Promise<boolean> {
     let page = `${this.route}/${operation}/`.replace('//', '/');
-    if(this.uid || id)
-        page = `${page}/${this.uid || id}`;
+    if(this.modelId || id)
+        page = `${page}/${this.modelId || id}`;
     return this.routerService.navigateTo(page.replace('//', '/'))
   }
 

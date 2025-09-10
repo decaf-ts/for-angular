@@ -21,7 +21,7 @@ import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { addIcons } from 'ionicons';
 import * as IonicIcons from 'ionicons/icons';
 import { MenuItem } from 'src/app/utils/types';
-import { isDevelopmentMode, removeFocusTrap } from 'src/lib/helpers';
+import { isDevelopmentMode, removeFocusTrap, isDarkMode } from 'src/lib/helpers';
 import { ForAngularRepository } from './utils/ForAngularRepository';
 import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
@@ -178,6 +178,11 @@ export class AppComponent implements OnInit {
   menu: MenuItem[] = Menu;
 
   /**
+   * @description App logo
+   */
+  logo: string = 'assets/images/decaf-logo.svg';
+
+  /**
    * @description Ionic Platform service
    */
   platform: Platform = inject(Platform);
@@ -246,6 +251,8 @@ export class AppComponent implements OnInit {
   async initializeApp(): Promise<void> {
     this.initialized = true;
     const isDevelopment = isDevelopmentMode();
+    if(isDarkMode())
+      this.logo = 'assets/images/decaf-logo-lw.svg';
     if(isDevelopment) {
       for(const model of [new CategoryModel(), new EmployeeModel()] ) {
         const repository = new ForAngularRepository<typeof model>(this.adapter as DecafRepositoryAdapter, model);

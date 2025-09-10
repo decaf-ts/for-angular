@@ -35,7 +35,20 @@
       "placeholder": "Escreva a sua palavra-passe"
     },
     "gender": {
-      "label": "Selecione o seu género"
+      "label": "Selecione o seu género",
+      "options": {
+        "male": "Masculino",
+        "female": "Feminino"
+      }
+    },
+    "contact": {
+      "label": "Preferência de contacto",
+      "options": {
+        "morning": "Manhã",
+        "afternoon": "Tarde",
+        "evening": "Noite",
+        "all": "Todos"
+      }
     },
     "agree": {
       "label": "Aceito os termos e condições."

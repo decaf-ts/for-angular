@@ -125,7 +125,7 @@ export class BackButtonComponent implements OnInit {
    * @memberOf BackButtonComponent
    */
   @Input()
-  toolbarColor?: string;
+  toolbarColor?: string | PredefinedColors;
 
   /**
    * @description Flag indicating if the icon is an Ionic icon.
@@ -190,7 +190,9 @@ export class BackButtonComponent implements OnInit {
   ngOnInit(): void {
     this.preventDefault = stringToBoolean(this.preventDefault);
     this.emitEvent = stringToBoolean(this.emitEvent);
-    this.color = this.toolbarColor ? 'light' : 'primary';
+    if(this.toolbarColor)
+      this.color = this.toolbarColor as PredefinedColors;
+    // this.color = this.toolbarColor ? 'light' : 'primary';
     this.showText = stringToBoolean(this.showText);
 
     // if(this.showText)

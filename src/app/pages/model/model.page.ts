@@ -23,6 +23,7 @@ import { getLogger } from 'src/lib/for-angular.module';
   styleUrls: ['./model.page.scss'],
 })
 export class ModelPage implements OnInit {
+
   @Input()
   operation:
     | OperationKeys.CREATE
@@ -34,9 +35,12 @@ export class ModelPage implements OnInit {
   modelName!: string;
 
   @Input()
-  uid!: string;
+  modelId!: string;
+
+  allowedOperations: OperationKeys[] = [OperationKeys.CREATE, OperationKeys.READ];
 
   model!: Model | undefined;
+
 
   /**
    * @description Logger instance for the component.
@@ -75,12 +79,14 @@ export class ModelPage implements OnInit {
   }
 
   async ionViewWillEnter(): Promise<void> {
-    return this.refresh(this.uid);
+    if(this.modelId)
+      this.allowedOperations =  this.allowedOperations.concat([OperationKeys.UPDATE, OperationKeys.DELETE]);
+    await this.refresh(this.modelId);
   }
 
   async refresh(uid?: string) {
     if(!uid)
-      uid = this.uid;
+      uid = this.modelId;
     try {
       this._repository = this.repository;
       switch(this.operation){
@@ -89,9 +95,6 @@ export class ModelPage implements OnInit {
         case OperationKeys.DELETE:
           this.model = await this.handleGet(uid);
         break;
-        // to DO
-        // default:
-        //   return Model.fromObject(self.manager)
       }
     } catch (error: unknown) {
       this.logger.error(error as Error | string);
@@ -115,7 +118,7 @@ export class ModelPage implements OnInit {
         await repo.create(data as Model) : this.operation === OperationKeys.UPDATE ?
           await repo.update(data as Model) : repo.delete(data as string | number);
       if(result) {
-        (repo as DecafRepository<Model>).refresh(this.modelName, this.operation, this.uid);
+        (repo as DecafRepository<Model>).refresh(this.modelName, this.operation, this.modelId);
         this.routerService.backToLastPage();
         await getNgxToastComponent().inform(`${this.operation} Item successfully`);
       }
@@ -123,27 +126,26 @@ export class ModelPage implements OnInit {
       this.logger.error(error as Error | string);
       throw new Error((error as Error)?.message || error as string);
     }
-    // console.log(data)
   }
 
   async handleGet(uid: string): Promise<Model | undefined> {
-  if (!uid) {
-    this.logger.info('No key passed to model page read operation, backing to last page');
-    this.routerService.backToLastPage();
-    return undefined;
+    if (!uid) {
+      this.logger.info('No key passed to model page read operation, backing to last page');
+      this.routerService.backToLastPage();
+      return undefined;
+    }
+    const result = await (this._repository as IRepository<Model>).read(isNaN(Number(uid)) ? uid : Number(uid));
+    return result ?? undefined;
   }
-  const result = await (this._repository as IRepository<Model>).read(Number(uid));
-  return result ?? undefined;
-}
 
 
-  private parseData(data: Partial<Model>): Model | string | number{
+  private parseData(data: Partial<Model>): Model | string | number {
       const repo = this._repository as IRepository<Model>;
-      let uid: number | string = this.uid;
+      let uid: number | string = this.modelId;
       if(repo.pk === 'id' as keyof Model)
         uid = Number(uid);
       if(this.operation !== OperationKeys.DELETE)
-        return Model.build(this.uid ? Object.assign(data, {[repo.pk]: uid}) : data, this.modelName) as Model;
+        return Model.build(this.modelId ? Object.assign(data, {[repo.pk]: uid}) : data, this.modelName) as Model;
       return uid;
   }
 }

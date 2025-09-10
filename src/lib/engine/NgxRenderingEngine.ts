@@ -53,42 +53,67 @@ import { NgxFormService } from './NgxFormService';
 export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, AngularDynamicOutput> {
 
   /**
-   * @description Registry of registered components
-   * @summary Static registry that maps component names to their constructors.
-   * This allows the engine to look up components by name when rendering.
+   * @description Registry of components available for rendering
+   * @summary Static registry that stores all registered components indexed by their selector name.
+   * Each component entry contains a constructor reference that can be used to instantiate
+   * the component during the rendering process. This registry is shared across all instances
+   * of the rendering engine and is populated through the registerComponent method.
+   *
+   * @private
+   * @static
    * @type {Record<string, { constructor: Constructor<unknown> }>}
    */
   private static _components: Record<string, { constructor: Constructor<unknown> }>;
 
   /**
-   * @description Collection of child component outputs
-   * @summary Stores the outputs of child components during rendering.
-   * @type {AngularDynamicOutput[]}
-   */
-  private _childs!: AngularDynamicOutput[];
-
-  /**
-   * @description Current model being rendered
-   * @summary Reference to the model currently being processed by the rendering engine.
+   * @description Currently active model being rendered
+   * @summary Stores a reference to the model instance that is currently being processed
+   * by the rendering engine. This property is set during the render method execution
+   * and is used throughout the rendering lifecycle to access model data and metadata.
+   * The definite assignment assertion (!) is used because this property is always
+   * initialized before use within the render method.
+   *
+   * @private
    * @type {Model}
    */
   private _model!: Model;
 
+  /**
+   * @description Current operation context for component visibility control
+   * @summary Static property that stores the current operation being performed,
+   * which is used to determine component visibility through the 'hidden' property.
+   * Components can specify operations where they should be hidden, and this property
+   * provides the context for those visibility checks. The value is typically extracted
+   * from the global properties during the rendering process.
+   *
+   * @private
+   * @static
+   * @type {string | undefined}
+   */
   private static _operation: string | undefined = undefined;
 
   /**
-   * @description Static reference to the current instance
-   * @summary Singleton instance reference for the rendering engine.
+   * @description Reference to the currently active component instance
+   * @summary Static property that maintains a reference to the most recently created
+   * component instance. This is used internally for component lifecycle management
+   * and can be cleared through the destroy method. The reference allows access to
+   * the active component instance for operations that need to interact with the
+   * currently rendered component.
+   *
+   * @private
+   * @static
    * @type {Type<unknown> | undefined}
    */
   private static _instance: Type<unknown> | undefined;
 
-
-
   /**
-   * @description Creates a new instance of NgxRenderingEngine
-   * @summary Initializes the rendering engine with the 'angular' engine type.
-   * This constructor sets up the base configuration needed for Angular-specific rendering.
+   * @description Constructs a new NgxRenderingEngine instance
+   * @summary Initializes a new instance of the Angular rendering engine by calling the parent
+   * constructor with the 'angular' engine type identifier. This constructor sets up the base
+   * rendering engine functionality with Angular-specific configurations and prepares the
+   * instance for component registration and rendering operations.
+   *
+   * @constructor
    */
   constructor() {
     super('angular');

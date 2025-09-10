@@ -237,28 +237,6 @@ export function getLocaleFromClassName(
   return `${preffix}.${name}`;
 }
 
-/**
- * @description Generates a localized string by combining locale and phrase
- * @summary This utility function creates a properly formatted locale string by combining
- * a locale identifier with a phrase. It handles edge cases such as empty phrases,
- * missing locales, and phrases that already include the locale prefix. This function
- * is useful for ensuring consistent formatting of localized strings throughout the application.
- *
- * @param {string} locale - The locale identifier (e.g., 'en', 'fr')
- * @param {string | undefined} phrase - The phrase to localize
- * @return {string} The formatted locale string, or empty string if phrase is undefined
- *
- * @function generateLocaleFromString
- * @memberOf module:for-angular
- */
-export function generateLocaleFromString(
-  locale: string,
-  phrase: string | undefined
-): string {
-  if (!phrase) return '';
-  if (!locale || phrase.includes(`${locale}.`)) return phrase;
-  return `${locale}.${phrase}`;
-}
 
 
 /**
@@ -470,4 +448,10 @@ export function removeFocusTrap(): void {
 export function cleanSpaces(value: string, lowercase = false): string {
   value = `${value}`.trim().replace(/\s+/g, ' ');
   return lowercase ? value.toLowerCase() : value;
+}
+
+
+export function isDarkMode(): boolean {
+  const {matches} = getWindow().matchMedia('(prefers-color-scheme: dark)');
+  return matches;
 }

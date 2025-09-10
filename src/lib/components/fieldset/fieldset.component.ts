@@ -11,6 +11,7 @@ import { NgxBaseComponent } from '../../engine';
 import { alertCircleOutline, createOutline } from 'ionicons/icons';
 import { TranslateService } from '@ngx-translate/core';
 import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
+import { addIcons } from 'ionicons';
 
 
 
@@ -398,7 +399,8 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @memberOf FieldsetComponent
    */
   constructor() {
-    super('FieldsetComponent', {alertCircleOutline, createOutline});
+    super('FieldsetComponent');
+    addIcons({ alertCircleOutline, createOutline });
   }
 
   /**

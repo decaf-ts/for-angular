@@ -36,11 +36,20 @@
     "gender": {
       "label": "Select your gender"
     },
+    "contact": {
+      "label": "Contact Preference",
+      "options": {
+        "morning": "Morning",
+        "afternoon": "Afternoon",
+        "evening": "Evening",
+        "all": "All"
+      }
+    },
     "agree": {
       "label": "I accept the terms and conditions."
     }
   },
-    "category": {
+  "category": {
     "name": {
       "label": "Category name",
       "placeholder": "Type the category"

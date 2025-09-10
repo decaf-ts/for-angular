@@ -72,7 +72,7 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
 
   multiple!: boolean;
 
-  private translateService = inject(TranslateService);
+  protected translateService = inject(TranslateService);
 
   private validationErrorEventDispateched: boolean = false;
 

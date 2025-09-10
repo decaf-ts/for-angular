@@ -55,7 +55,7 @@ export class LoginPage implements OnInit {
    * @type {LoginForm}
    * @memberOf LoginPage
    */
-  model = new LoginForm({});
+  model: LoginForm = new LoginForm({});
 
   /**
    * @description Locale context string for internationalization
@@ -67,6 +67,12 @@ export class LoginPage implements OnInit {
    * @memberOf LoginPage
    */
   locale: string = getLocaleContext('Login');
+
+  /**
+   * @description App logo
+   */
+  logo: string = 'assets/images/decaf-logo.svg';
+
 
   /**
    * @description Angular Router instance for navigation
@@ -88,7 +94,7 @@ export class LoginPage implements OnInit {
    * @type {ToastController}
    * @memberOf LoginPage
    */
-  private toastController = inject(ToastController);
+  private toastController: ToastController = inject(ToastController);
 
   /**
    * @description Component initialization lifecycle method
@@ -100,7 +106,9 @@ export class LoginPage implements OnInit {
    * @memberOf LoginPage
    */
   ngOnInit(): void {
-    console.log(this.locale);
+   const {matches} = window.matchMedia('(prefers-color-scheme: dark)');
+    if(matches)
+      this.logo = 'assets/images/decaf-logo-lw.svg';
   }
 
   /**

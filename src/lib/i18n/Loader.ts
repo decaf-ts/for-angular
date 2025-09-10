@@ -6,7 +6,7 @@ import { map } from 'rxjs/operators';
 import {I18nResourceConfig} from '../engine/interfaces';
 import { inject, InjectionToken } from '@angular/core';
 import { FunctionLike } from '../engine';
-import { getLocaleFromClassName } from '../public-apis';
+import { cleanSpaces, getLocaleFromClassName } from '../helpers';
 export class I18nLoader {
   static loadFromHttp(http: HttpClient): TranslateLoader {
     function getSuffix() {
@@ -24,8 +24,34 @@ export class I18nLoader {
 }
 
 
-export function getLocaleContext(clazz: FunctionLike | object | string) {
-  return getLocaleFromClassName(clazz);
+export function getLocaleContext(clazz: FunctionLike | object | string, suffix?: string): string {
+  return getLocaleFromClassName(clazz, suffix);
+}
+
+/**
+ * @description Generates a localized string by combining locale and phrase
+ * @summary This utility function creates a properly formatted locale string by combining
+ * a locale identifier with a phrase. It handles edge cases such as empty phrases,
+ * missing locales, and phrases that already include the locale prefix. This function
+ * is useful for ensuring consistent formatting of localized strings throughout the application.
+ *
+ * @param {string} locale - The locale identifier (e.g., 'en', 'fr')
+ * @param {string | undefined} phrase - The phrase to localize
+ * @return {string} The formatted locale string, or empty string if phrase is undefined
+ *
+ * @function generateLocaleFromString
+ * @memberOf module:for-angular
+ */
+export function getLocaleContextByKey(
+  locale: string,
+  phrase: string | undefined
+): string {
+  if (!phrase)
+    return locale;
+  if (!locale || phrase.includes(`${locale}.`))
+    return phrase;
+  const parts = phrase.split(' ');
+  return `${locale}.${cleanSpaces(parts.join('.'), true)}`;
 }
 
 export const I18N_CONFIG_TOKEN = new InjectionToken<{resources: I18nResourceConfig[]; versionedSuffix: false}>('I18N_CONFIG_TOKEN');
@@ -47,10 +73,8 @@ export function getI18nLoaderFactoryProviderConfig(resources: I18nResourceConfig
   }
 }
 
-export class MultiI18nLoader implements TranslateLoader {
+export class MultiI18nLoader implements I18nLoader {
   constructor(private http: HttpClient, private resources: I18nResourceConfig[] = [], private versionedSuffix: boolean = false) {}
-
-  // Sources of components
 
   private getSuffix(suffix: string): string {
     if(!this.versionedSuffix)
