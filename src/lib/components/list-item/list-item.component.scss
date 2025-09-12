@@ -1,9 +1,7 @@
 
 
 ion-item {
-  // margin-bottom: 5px;
   --min-height: 50px;
-  //  --border-radius: 10px;
   --padding-top: .25rem;
   --padding-bottom: .25rem;
   --padding-start: .75rem;
@@ -14,20 +12,14 @@ ion-item {
   --background-focused: var(--dcf-color-gray-8);
 
   @media (prefers-color-scheme: dark)  {
-    // for ionic default dark colors
-    // --background-hover-opacity: 1;
-    // --background-focused-opacity: 1;
-
     --background-hover-opacity: .25;
     --background-focused-opacity: .25;
-
   }
 
   @media (prefers-color-scheme: light)  {
     --background-hover-opacity: .1;
     --background-focused-opacity: .1;
   }
-
 
   &.item-lines-full {
     --padding-top: .5rem;
@@ -42,7 +34,6 @@ ion-item {
     --padding-bottom: 0rem !important;
     --inner-padding-top: .5rem !important;
     --inner-padding-bottom: .65rem !important;
-    // --border-color: var(--dcf-color-gray-2);
   }
 
   @media (prefers-color-scheme: light) {
@@ -79,7 +70,6 @@ ion-item {
   .dcf-item-title {
     font-style: normal;
     font-weight: 700;
-    // margin: 0 0 20px 0;
   }
 
   .dcf-description {

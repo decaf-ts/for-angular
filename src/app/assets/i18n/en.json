@@ -34,10 +34,14 @@
       "placeholder": "Type your password"
     },
     "gender": {
-      "label": "Select your gender"
+      "label": "Select your gender",
+      "options": {
+        "male": "Male",
+        "female": "Female"
+      }
     },
     "contact": {
-      "label": "Contact Preference",
+      "label": "Contact",
       "options": {
         "morning": "Morning",
         "afternoon": "Afternoon",
