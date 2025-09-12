@@ -7,9 +7,10 @@ testWithVideo('Simulate Login', async ({ page, browser }) => {
   await page.goto(baseUrl);
   const username = "decaf";
   const password = "Passd123-";
-
   await page.locator('.native-wrapper').first().click();
-  const usernameInput = page.getByRole('textbox', { name: 'Username' });
+
+  // const usernameInput = page.getByRole('textbox', { name: 'Username' });
+  const usernameInput = page.locator('[ng-reflect-name="username"] input');
   await usernameInput.fill(username);
 
   const usernameValue = await usernameInput.inputValue();
@@ -17,7 +18,7 @@ testWithVideo('Simulate Login', async ({ page, browser }) => {
 
   await page.waitForTimeout(500);
 
-  const passwordInput = page.getByRole('textbox', { name: 'Password' });
+  const passwordInput = page.locator('[ng-reflect-name="password"] input');
   await passwordInput.fill(password);
   const passwordValue = await passwordInput.inputValue();
 
