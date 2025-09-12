@@ -58,6 +58,7 @@ The following npm scripts are available for development:
 - `test:all` - runs all tests;
 - `test:circular` - tests for circular dependencies;
 - `coverage` - runs all tests, calculates coverage (html/csv), generates a test report (HTML and junit) and generates badges for readme;
+- `prepare-pr`: same as prepare-release,
 - `lint` - runs es lint on the code folder;
 - `lint-fix` - tries to auto-fix the code folder;
 - `prepare-release` - defines the commands to run prior to a new tag (defaults to linting, building production code,
