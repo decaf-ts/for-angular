@@ -39,7 +39,7 @@ export class ForAngularRepository<T extends Model> {
     this._repository = this.repository;
     let data = await this._repository?.select().execute();
     if(!this.data?.length) {
-      const items = 55;
+      const items = 15;
       data = ((this.model as Model).constructor.name !== 'CategoryModel' ? generateEmployes(items) : generateCatories(items)) as Model[];
       data = await this.repository?.createAll(data) as T[];
     }

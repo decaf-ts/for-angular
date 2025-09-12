@@ -300,12 +300,11 @@ export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, Rende
    * readonly property ensures that template logic can access operation constants
    * while maintaining encapsulation and preventing accidental modification.
    *
-   * @type {CrudOperations}
    * @protected
    * @readonly
    * @memberOf CrudFormComponent
    */
-  protected readonly OperationKeys: typeof OperationKeys = OperationKeys;
+  protected readonly OperationKeys = OperationKeys;
 
 
   /**

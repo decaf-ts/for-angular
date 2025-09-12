@@ -15,10 +15,6 @@ ion-header {
     box-shadow: none !important;
     border-bottom: 1px solid var(--ion-color-gray-2) !important;
 
-    ion-icon {
-      color: var(--ion-color-gray-7) !important;
-    }
-
     @media(max-width: 680px) {
       padding-right: .25rem;
       padding-left:  .25rem;
@@ -34,13 +30,23 @@ ion-header {
     &.ion-color-success,
     &.ion-color-dark {
       svg { stroke: var(--ion-color-gray-1) !important; }
+      ion-icon  { color: var(--ion-color-gray-7) !important; }
     }
   }
 
-  // ion-toolbar {
-
-
-  // }
+  @media (prefers-color-scheme: dark) {
+    svg { stroke: var(--ion-color-gray-1); }
+    .ion-color-primary,
+    .ion-color-secondary,
+    .ion-color-tertiary,
+    .ion-color-danger,
+    .ion-color-warning,
+    .ion-color-success,
+    .ion-color-dark {
+      svg { stroke: var(--ion-color-gray-1); }
+      ion-icon  { color: var(--ion-color-gray-1); }
+    }
+  }
 
 .dcf-header-container {
   padding: 0px;

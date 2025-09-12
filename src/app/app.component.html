@@ -2,12 +2,7 @@
   <ion-split-pane contentId="main-content" >
       <ion-menu contentId="main-content" type="overlay" [disabled]="disableMenu">
         <section class="dcf-logo-container">
-          <div>
-            <ion-img [src]="logo" alt="Decaf - For angular components lib" style="width: 180px;" />
-            <div class="dcf-flex dcf-flex-right">
-              <ion-img src="assets/images/angular-logo.svg" style="width: 60px" alt="Angular logo" />
-            </div>
-          </div>
+          <app-logo></app-logo>
         </section>
         <ion-content>
           <ion-list class="dcf-menu">

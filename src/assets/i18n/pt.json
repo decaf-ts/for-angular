@@ -28,7 +28,8 @@
     "fieldset": {
       "add": "Adicionar outro",
       "update": "Atualizar item",
-      "not_unique": "O valor introduzido já existe. Valor \"{{value}}\""
+      "not_unique": "O valor introduzido já existe. Valor \"{{value}}\".",
+      "cancel": "Cancelar"
     },
     "list": {
       "pagination": "A mostrar a página <span class=\"text-bold\">{{value0}} de {{value1}}</span>",
@@ -71,7 +72,9 @@
       "select": "Seleção de filtro",
       "step1": "Selecione um índice",
       "step2": "Selecione uma condição",
-      "step3": "Escreva um valor"
+      "step3": "Escreva um valor",
+      "no_suggestions": "Sem sugestões",
+      "sort": "Ordenar por"
     }
   }
 }

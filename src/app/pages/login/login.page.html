@@ -2,20 +2,21 @@
 
 <ion-content [fullscreen]="true">
   <main>
-    <app-container className="dcf-height-viewport dcf-flex  dcf-flex-center" [hasSideMenu]="false" size="large">
-      <ion-card>
+    <app-container className="dcf-height-viewport dcf-flex dcf-flex-center dcf-animation dcf-animation-fade dcf-animation-fast" [hasSideMenu]="false" size="large">
+      <ion-card class="dcf-card-default">
         <ion-card-content>
-          <div id="dcf-logo">
-            <ion-img [src]="logo" alt="Decaf - For angular components lib" />
+          <div class="dcf-animation dcf-animation-slide-top-small dcf-animation-medium" id="dcf-logo">
+            <app-logo width="220"></app-logo>
           </div>
-          <ngx-decaf-model-renderer
-            [model]="model"
-            (listenEvent)="handleEvent($event)"
-            [globals]="{action: 'login'}">
-          </ngx-decaf-model-renderer>
+          <div class="dcf-animation dcf-animation-slide-bottom-small dcf-animation-medium">
+            <ngx-decaf-model-renderer
+              [model]="model"
+              (listenEvent)="handleEvent($event)"
+              [globals]="{action: 'login'}">
+            </ngx-decaf-model-renderer>
+          </div>
         </ion-card-content>
       </ion-card>
-
     </app-container>
   </main>
 </ion-content>

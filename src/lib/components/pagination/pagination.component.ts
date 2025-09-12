@@ -230,9 +230,9 @@ export class PaginationComponent extends NgxBaseComponent implements OnInit {
 
     const pages: KeyValue[] = [];
 
-    function getPage(index: number | null, text = '') {
+    function getPage(index: number | null, text = '', clazz = 'button'): void {
         if (pages.some(item => item['index'] === index)) return;
-        pages.push({ index, text: index != null ? index.toString().padStart(2, '0') : text });
+        pages.push({ index, text: index != null ? index.toString().padStart(2, '0') : text, class: clazz });
     }
 
     if (total <= 5) {
@@ -249,7 +249,7 @@ export class PaginationComponent extends NgxBaseComponent implements OnInit {
       if (current && current > 2 && current < total - 1) getPage(current);
 
       // Adiciona "..." entre os blocos
-      if (current && current < total - 2) getPage(null, '...');
+      if (current && current < total - 2) getPage(null, '...' , 'separator');
 
       // Adiciona os dois últimos
       getPage(total - 1);

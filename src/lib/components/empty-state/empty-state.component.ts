@@ -1,5 +1,4 @@
 import { Component, inject, Input, OnInit  } from '@angular/core';
-import { Color, PredefinedColors } from '@ionic/core';
 import {
   IonCard,
   IonCardContent,
@@ -37,11 +36,11 @@ import { Router } from '@angular/router';
  *     +StringOrBoolean showIcon
  *     +string icon
  *     +string iconSize
- *     +PredefinedColors iconColor
+ *     +string iconColor
  *     +string|Function buttonLink
  *     +string buttonText
  *     +string buttonFill
- *     +Color buttonColor
+ *     +string buttonColor
  *     +string buttonSize
  *     +string searchValue
  *     -Router Router
@@ -170,7 +169,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  iconColor?: PredefinedColors = 'medium';
+  iconColor?: string = 'medium';
 
   /**
    * @description The navigation target or action for the button.
@@ -214,12 +213,12 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @summary Specifies the color for the button using Ionic's color system.
    * This allows the button to match the application's color scheme.
    *
-   * @type {Color}
+   * @type {string}
    * @default 'primary'
    * @memberOf EmptyStateComponent
    */
   @Input()
-  buttonColor: Color =  'primary';
+  buttonColor: string =  'primary';
 
   /**
    * @description The size of the action button.

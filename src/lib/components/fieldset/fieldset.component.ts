@@ -390,6 +390,18 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    */
   buttonLabel!: string;
 
+
+  /**
+   * @description Localized label text for action buttons.
+   * @summary Dynamic button label that changes based on the current operation mode.
+   * Shows "Cancel" for update operations
+   *
+   * @type {string}
+   * @memberOf FieldsetComponent
+   */
+  buttonCancelLabel!: string;
+
+
   /**
    * @description Component constructor that initializes the fieldset with icons and component name.
    * @summary Calls the parent NgxBaseComponent constructor with the component name and
@@ -416,6 +428,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
     if(this.model)
       this._repository = this.repository;
     this.buttonLabel = this.translateService.instant(this.locale + '.add');
+    this.buttonCancelLabel = this.translateService.instant(this.locale + '.cancel');
   }
 
    /**

@@ -5,13 +5,14 @@ import { ForAngularModel } from 'src/app/models/DemoModel';
 import { ComponentsModule } from 'src/app/components/components.module';
 import { BaseCustomEvent, KeyValue } from 'src/lib/engine';
 import { getLogger } from 'src/lib/for-angular.module';
+import { IonCard, IonCardContent } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-crud',
   templateUrl: './crud.page.html',
   styleUrls: ['./crud.page.css'],
   standalone: true,
-  imports: [ForAngularComponentsModule, ComponentsModule],
+  imports: [ForAngularComponentsModule, ComponentsModule, IonCard, IonCardContent],
 })
 export class CrudPage implements OnInit {
 

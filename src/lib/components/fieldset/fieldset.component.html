@@ -36,7 +36,7 @@
                       <ion-icon class="dcf-reorder-disabled" size="small" name="swap-vertical-outline" disabled></ion-icon>
                     </div>
                   }
-                  <ion-label [color]="item.title === isUniqueError ? 'danger' : ''">{{ item.index }}. {{ item.title }}
+                  <ion-label [color]="(item.title === isUniqueError && !updatingItem.title === item.title) ? 'danger' : ''">{{ item.index }}. {{ item.title }}
                     @if(item.description?.length > 0) {
                       <br />
                       <ion-text class="dcf-subtitle">{{item.description}}</ion-text>
@@ -60,6 +60,7 @@
         }
 
         <ng-content></ng-content>
+
         @if(multiple && ['create', 'update'].includes(operation)) {
           @if(isUniqueError) {
             <div class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast">
@@ -76,10 +77,10 @@
           <div class="dcf-margin-bottom dcf-grid dcf-grid-collapse dcf-flex">
             @if(updatingItem) {
               <ion-button size="small" fill="clear" color="danger" (click)="handleCancelUpdateItem()">
-                {{ locale + '.cancel' | translate }}
+                {{ buttonCancelLabel }}
               </ion-button>
             }
-            <ion-button size="small" fill="clear" color="dark" (click)="handleCreateItem()">
+            <ion-button size="small" fill="clear" class="dcf-button-add" (click)="handleCreateItem()">
               <ion-icon name="add-outline" slot="start"></ion-icon>
               {{buttonLabel}}
             </ion-button>

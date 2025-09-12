@@ -72,7 +72,9 @@
       "select": "Filter selection",
       "step1": "Select an index",
       "step2": "Select a condition",
-      "step3": "Type a value"
+      "step3": "Type a value",
+      "no_suggestions": "No suggestions",
+      "sort": "Sort by"
     }
   }
 }

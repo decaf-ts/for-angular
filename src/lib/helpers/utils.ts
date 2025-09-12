@@ -432,26 +432,63 @@ export function dataMapper<T>(data: T[], mapper: KeyValue, props?: KeyValue): T[
     const hasValues =
       [...new Set(Object.values(item as T[]))].filter((value) => value).length >
       0;
-    // caso o item filtrado não possua nenhum valor, passar o objeto original
     accum.push(hasValues ? item : curr);
     return accum;
   }, []);
 }
 
-
+/**
+ * @description Removes focus from the currently active DOM element
+ * @summary This utility function blurs the currently focused element in the document,
+ * effectively removing focus traps that might prevent proper navigation or keyboard
+ * interaction. It safely accesses the document's activeElement and calls blur() if
+ * an element is currently focused. This is useful for accessibility and user experience
+ * improvements, particularly when closing modals or dialogs.
+ *
+ * @return {void}
+ *
+ * @function removeFocusTrap
+ * @memberOf module:for-angular
+ */
 export function removeFocusTrap(): void {
   const doc = getWindowDocument();
   if(doc?.activeElement)
     (doc.activeElement as HTMLElement)?.blur();
 }
 
-export function cleanSpaces(value: string, lowercase = false): string {
+/**
+ * @description Cleans and normalizes whitespace in a string value
+ * @summary This utility function trims leading and trailing whitespace from a string
+ * and replaces multiple consecutive whitespace characters with a single space.
+ * Optionally converts the result to lowercase for consistent text processing.
+ * This is useful for normalizing user input, search terms, or data sanitization.
+ *
+ * @param {string} value - The string value to clean and normalize
+ * @param {boolean} [lowercase=false] - Whether to convert the result to lowercase
+ * @return {string} The cleaned and normalized string
+ *
+ * @function cleanSpaces
+ * @memberOf module:for-angular
+ */
+export function cleanSpaces(value: string = "", lowercase: boolean = false): string {
   value = `${value}`.trim().replace(/\s+/g, ' ');
   return lowercase ? value.toLowerCase() : value;
 }
 
 
-export function isDarkMode(): boolean {
+/**
+ * @description Determines if the user's system is currently in dark mode
+ * @summary This function checks the user's color scheme preference using the CSS media query
+ * '(prefers-color-scheme: dark)'. It returns a boolean indicating whether the system is
+ * currently set to dark mode. This is useful for implementing theme-aware functionality
+ * and adjusting UI elements based on the user's preferred color scheme.
+ *
+ * @return {Promise<boolean>} True if the system is in dark mode, false otherwise
+ *
+ * @function isDarkMode
+ * @memberOf module:for-angular
+ */
+export async function isDarkMode(): Promise<boolean> {
   const {matches} = getWindow().matchMedia('(prefers-color-scheme: dark)');
   return matches;
 }

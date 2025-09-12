@@ -10,18 +10,18 @@
     ">
       @if(icon && lines !== 'inset') {
         <div class="dcf-icon" [slot]="iconSlot">
-          <ion-button shape="round" fill="clear">
-            <ion-icon aria-hidden="true" name="reader-outline" color="dark" size="default"></ion-icon>
-          </ion-button>
+          <ion-avatar>
+            <ion-icon aria-hidden="true" name="reader-outline" size="default"></ion-icon>
+          </ion-avatar>
         </div>
       }
       <div class="dcf-width-expand">
         <div class="dcf-flex dcf-flex-middle dcf-grid-collapse" dcf-grid>
           @if(icon && lines === 'inset') {
             <div class="dcf-icon dcf-grid-icon">
-              <ion-button shape="round" fill="clear">
-                <ion-icon aria-hidden="true" name="reader-outline" color="dark" size="default"></ion-icon>
-              </ion-button>
+              <ion-avatar>
+                <ion-icon aria-hidden="true" name="reader-outline"  size="default"></ion-icon>
+              </ion-avatar>
             </div>
           }
           <div class="dcf-width-expand@s dcf-width-1-1 dcf-label">
@@ -102,12 +102,12 @@
     @if(showSlideItems && uid) {
       <ion-item-options side="end" (ionSwipe)="operations.length === 1 ? handleAction(operations[0],  $event, component) : ''">
         @if(operations?.includes('update')) {
-          <ion-item-option class="update" (click)="handleAction('update', $event, component)" [expandable]="operations.length === 1">
+          <ion-item-option class="dcf-update" (click)="handleAction('update', $event, component)" [expandable]="operations.length === 1">
             <ion-icon aria-hidden="true" slot="icon-only" name="create-outline"></ion-icon>
           </ion-item-option>
         }
         @if(operations?.includes('delete')) {
-          <ion-item-option class="delete" (click)="handleAction('delete',  $event, component)" [expandable]="operations.length === 1">
+        <ion-item-option class="dcf-          delete" (click)="handleAction('delete',  $event, component)" [expandable]="operations.length === 1">
             <ion-icon aria-hidden="true" slot="icon-only" name="trash"></ion-icon>
           </ion-item-option>
         }
