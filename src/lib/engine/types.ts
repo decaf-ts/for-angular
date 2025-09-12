@@ -160,6 +160,16 @@ export type AngularFieldDefinition = Omit<
  */
 export type StringOrBoolean = 'true' | 'false' | boolean;
 
+
+/**
+ * @description Option type for CRUD field inputs
+ * @summary Represents a union type that can be either a SelectOption or RadioOption.
+ * This is used for defining options in form fields that support both select and radio input types.
+ * @typedef {(SelectOption|RadioOption)} CrudFieldOption
+ * @memberOf module:engine
+ */
+export type CrudFieldOption = SelectOption | RadioOption;
+
 /**
  * @description Option type for select inputs
  * @summary Extends the InputOption interface with a selected property to indicate

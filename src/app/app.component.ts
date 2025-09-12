@@ -27,6 +27,7 @@ import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
 import { DecafRepositoryAdapter } from 'src/lib/components/list/constants';
 import { DbAdapterProvider } from './app.config';
+import { ComponentsModule } from './components/components.module';
 
 try {
   new NgxRenderingEngine();
@@ -161,7 +162,8 @@ const Menu: MenuItem[] = [
     IonIcon,
     IonLabel,
     IonRouterLink,
-    IonRouterOutlet
+    IonRouterOutlet,
+    ComponentsModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -176,6 +178,7 @@ export class AppComponent implements OnInit {
    * @description The menu items for the application's navigation
    */
   menu: MenuItem[] = Menu;
+
 
   /**
    * @description Ionic Platform service

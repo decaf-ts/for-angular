@@ -1,4 +1,5 @@
 
+
 .dcf-input-item {
   &.create, &.update {
     margin-bottom: 1.8rem;
@@ -23,13 +24,14 @@
   &.read,  &.delete {
     ion-label {
       font-weight: 600;
-      color: var(--dcf-color-gray-7);
+      @media (prefers-color-scheme: light) {  color: var(--dcf-color-gray-7); }
+
     }
 
     ion-text {
       display: block;
       margin-top: .5rem !important;
-      color: var(--dcf-color-gray-5);
+
     }
   }
 
@@ -39,16 +41,21 @@
     --padding-top: 0px !important;
 
     --background: transparent;
-    --background-hover: var(--dcf-color-primary);
     --background-hover-opacity: .1;
 
-    --background-hover: var(--dcf-color-primary);
     --background-activated-opacity: .15;
 
-    --background-focused: var(--dcf-color-primary);
     --background-focused-opacity: .15;
 
-    --border-color: var(--dcf-color-gray-2);
+      @media (prefers-color-scheme: dark) {
+        --border-color: var(--dcf-color-gray-6);
+      }
+
+      @media (prefers-color-scheme: light) {
+        --background-hover: var(--dcf-color-primary);
+        --background-focused: var(--dcf-color-primary);
+        --border-color: var(--dcf-color-gray-2);
+      }
 
 
     span,
@@ -115,8 +122,10 @@ ion-item {
 }
 
 ion-checkbox::part(container) {
+  @media (prefers-color-scheme: light) {
+    border: 2px solid var(--dcf-color-primary);
+  }
   border-radius: 50%;
-  border: 2px solid var(--dcf-color-primary);
   padding: 3px;
 }
 

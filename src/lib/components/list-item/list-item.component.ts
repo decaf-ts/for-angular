@@ -109,7 +109,7 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
    * @memberOf ListItemComponent
    */
   @Input()
-  lines: 'inset' | 'full' | 'none' = 'inset';
+  lines: 'inset' | 'full' | 'none' = 'full';
 
   /**
    * @description The data object associated with this list item.

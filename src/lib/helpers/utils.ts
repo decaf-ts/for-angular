@@ -212,24 +212,21 @@ export function isNotUndefined(prop: StringOrBoolean | undefined): boolean {
  * @memberOf module:for-angular
  */
 export function getLocaleFromClassName(
-  instance: string | FunctionLike | object,
+  instance: string | FunctionLike | KeyValue,
   suffix?: string
 ): string {
-  if (typeof instance !== 'string')
-    instance =
-      (instance as FunctionLike).name || (instance as object)?.constructor?.name;
+  if (typeof instance !== Primitives.STRING)
+    instance = (instance as FunctionLike).name || (instance as object)?.constructor?.name;
 
-  let name: string | string[] = instance;
+  let name: string | string[] = instance as string;
 
-  if (suffix) name = `${instance}${suffix.charAt(0).toUpperCase() + suffix.slice(1)}`;
+  if (suffix)
+    name = `${instance}${suffix.charAt(0).toUpperCase() + suffix.slice(1)}`;
 
-  name = name
-    .replace(/_|-/g, '')
-    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word: string, index: number) => {
+  name = name.replace(/_|-/g, '').replace(/(?:^\w|[A-Z]|\b\w)/g, (word: string, index: number) => {
       if (index > 1) word = '.' + word;
       return word.toLowerCase();
-    })
-    .split('.');
+    }).split('.');
 
   if (name.length < 3)
     return name.reverse().join('.');
@@ -238,32 +235,8 @@ export function getLocaleFromClassName(
   name.pop();
   name = name.join('_');
   return `${preffix}.${name}`;
-
-
 }
 
-/**
- * @description Generates a localized string by combining locale and phrase
- * @summary This utility function creates a properly formatted locale string by combining
- * a locale identifier with a phrase. It handles edge cases such as empty phrases,
- * missing locales, and phrases that already include the locale prefix. This function
- * is useful for ensuring consistent formatting of localized strings throughout the application.
- *
- * @param {string} locale - The locale identifier (e.g., 'en', 'fr')
- * @param {string | undefined} phrase - The phrase to localize
- * @return {string} The formatted locale string, or empty string if phrase is undefined
- *
- * @function generateLocaleFromString
- * @memberOf module:for-angular
- */
-export function generateLocaleFromString(
-  locale: string,
-  phrase: string | undefined
-): string {
-  if (!phrase) return '';
-  if (!locale || phrase.includes(`${locale}.`)) return phrase;
-  return `${locale}.${phrase}`;
-}
 
 
 /**
@@ -459,20 +432,63 @@ export function dataMapper<T>(data: T[], mapper: KeyValue, props?: KeyValue): T[
     const hasValues =
       [...new Set(Object.values(item as T[]))].filter((value) => value).length >
       0;
-    // caso o item filtrado não possua nenhum valor, passar o objeto original
     accum.push(hasValues ? item : curr);
     return accum;
   }, []);
 }
 
-
+/**
+ * @description Removes focus from the currently active DOM element
+ * @summary This utility function blurs the currently focused element in the document,
+ * effectively removing focus traps that might prevent proper navigation or keyboard
+ * interaction. It safely accesses the document's activeElement and calls blur() if
+ * an element is currently focused. This is useful for accessibility and user experience
+ * improvements, particularly when closing modals or dialogs.
+ *
+ * @return {void}
+ *
+ * @function removeFocusTrap
+ * @memberOf module:for-angular
+ */
 export function removeFocusTrap(): void {
   const doc = getWindowDocument();
   if(doc?.activeElement)
     (doc.activeElement as HTMLElement)?.blur();
 }
 
-export function cleanSpaces(value: string, lowercase = false): string {
+/**
+ * @description Cleans and normalizes whitespace in a string value
+ * @summary This utility function trims leading and trailing whitespace from a string
+ * and replaces multiple consecutive whitespace characters with a single space.
+ * Optionally converts the result to lowercase for consistent text processing.
+ * This is useful for normalizing user input, search terms, or data sanitization.
+ *
+ * @param {string} value - The string value to clean and normalize
+ * @param {boolean} [lowercase=false] - Whether to convert the result to lowercase
+ * @return {string} The cleaned and normalized string
+ *
+ * @function cleanSpaces
+ * @memberOf module:for-angular
+ */
+export function cleanSpaces(value: string = "", lowercase: boolean = false): string {
   value = `${value}`.trim().replace(/\s+/g, ' ');
   return lowercase ? value.toLowerCase() : value;
+}
+
+
+/**
+ * @description Determines if the user's system is currently in dark mode
+ * @summary This function checks the user's color scheme preference using the CSS media query
+ * '(prefers-color-scheme: dark)'. It returns a boolean indicating whether the system is
+ * currently set to dark mode. This is useful for implementing theme-aware functionality
+ * and adjusting UI elements based on the user's preferred color scheme.
+ *
+ * @return {Promise<boolean>} True if the system is in dark mode, false otherwise
+ *
+ * @function isDarkMode
+ * @memberOf module:for-angular
+ */
+export async function isDarkMode(): Promise<boolean> {
+  const {matches} = getWindow().matchMedia('(prefers-color-scheme: dark)');
+  return matches;
 }

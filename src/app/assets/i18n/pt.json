@@ -1,0 +1,88 @@
+
+{
+  "login": {
+    "username": {
+      "label": "Nome de utilizador",
+      "placeholder": "Escreva o seu nome de utilizador"
+    },
+    "password": {
+      "label": "Palavra-passe",
+      "placeholder": "Escreva a sua palavra-passe"
+    }
+  },
+  "demo": {
+    "id": {
+      "label": "ID",
+      "placeholder": "Escreva um número"
+    },
+    "name": {
+      "label": "Nome",
+      "placeholder": "Escreva o seu nome"
+    },
+    "birthdate": {
+      "label": "Data de nascimento"
+    },
+    "email": {
+      "label": "E-mail",
+      "placeholder": "Escreva o seu endereço de e-mail"
+    },
+    "website": {
+      "label": "Website",
+      "placeholder": "Escreva o seu website favorito"
+    },
+    "password": {
+      "label": "Palavra-passe",
+      "placeholder": "Escreva a sua palavra-passe"
+    },
+    "gender": {
+      "label": "Selecione o seu género",
+      "options": {
+        "male": "Masculino",
+        "female": "Feminino"
+      }
+    },
+    "contact": {
+      "label": "Preferência de contacto",
+      "options": {
+        "morning": "Manhã",
+        "afternoon": "Tarde",
+        "evening": "Noite",
+        "all": "Todos"
+      }
+    },
+    "agree": {
+      "label": "Aceito os termos e condições."
+    }
+  },
+  "category": {
+    "name": {
+      "label": "Nome da categoria",
+      "placeholder": "Escreva a categoria"
+    },
+    "description": {
+      "label": "Descrição da categoria",
+      "placeholder": "Descreva a categoria (opcional)"
+    },
+    "created": {
+      "label": "Data de criação",
+      "placeholder": "Selecione a data de criação"
+    }
+  },
+  "employee": {
+    "name": {
+      "label": "Nome do funcionário",
+      "placeholder": "Escreva o nome do funcionário"
+    },
+    "occupation": {
+      "label": "Função do funcionário"
+    }
+  },
+  "user": {
+    "secret": {
+      "label": "Palavra-passe"
+    },
+    "username": {
+      "label": "Nome de utilizador"
+    }
+  }
+}

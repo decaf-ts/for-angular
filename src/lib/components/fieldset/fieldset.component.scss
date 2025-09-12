@@ -6,21 +6,6 @@ ion-accordion-group {
       ion-icon { font-size: 1.15rem; }
     }
   }
-
-  //  &.hasValidationErrors {
-  //   [slot="header"],
-  //     ::ng-deep::part(header),
-  //   ion-item {
-  //     pointer-events: none !important;
-  //     * {
-  //        pointer-events: none !important;
-  //     }
-  //   }
-  //   ::ng-deep [slot="end"] {
-  //       opacity: .4 !important;
-  //   }
-
-  // }
 }
 
 // removing border of last field item
@@ -33,19 +18,32 @@ ion-accordion-group {
 
 .dcf-fieldset {
   margin-bottom: 1.8rem;
+  margin-top: 1rem;
   padding-bottom: 0;
   padding-top: 1rem;
-  border: 1px solid var(--dcf-color-gray-2);
-  border-radius: 8px;
+  background: var(--dcf-card-background);
+  @media (prefers-color-scheme: light) {
+   border: 1px solid var(--dcf-color-gray-3);
+    .dcf-button-add { color: var(--ion-color-dark) !important; }
+  }
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid var(--dcf-color-step-400);
+    .dcf-button-add { color: var(--ion-color-gray-2); }
+  }
+
+  border-radius: 6px;
   height: 100%;
-  &.read {
+  &.read, &.delete {
     margin-top: 1.25rem;
     padding-bottom: 1rem;
-    [slot="content"] { padding-top: 0px !important; background:  red;}
+    [slot="content"] { padding-top: 0px !important;}
+    ion-accordion { margin-bottom: 0rem !important; }
+    @media (prefers-color-scheme: dark) { border: 1px solid var(--dcf-color-gray-6); }
   }
 
   ion-accordion {
-
+    background: var(--dcf-card-background);
+    margin-bottom: 1rem;
     &.accordion-collapsing,
     &.accordion-collapsed {
       margin-bottom: 1rem;
@@ -56,20 +54,20 @@ ion-accordion-group {
       --border-radius: 6px;
       --inner-border-width: 0;
       --padding-start: 12px;
-
-
       legend {
         font-weight: 600;
         font-size: 1rem;
-        color: #333;
+        @media (prefers-color-scheme: light) {
+            color: var(--dcf-color-gray-7);
+        }
         margin: 0;
       }
     }
 
     [slot="content"] {
-      padding-top: 1rem !important;
+      padding-top: 2rem !important;
       padding-inline: 0.75rem;
-      background-color: #fff;
+
     }
   }
 }
@@ -95,38 +93,38 @@ ion-accordion-group {
   margin-top: -1rem;
   margin-bottom: 1rem;
   padding: 0px !important;
-}
 
-ion-item {
-   // margin-bottom: 5px;
-  --min-height: 50px;
-  //  --border-radius: 10px;
-  --padding-top: .25rem;
-  --padding-bottom: .25rem;
-  --padding-start: .75rem;
-   --padding-end: .75rem;
-  --inner-padding-start: 0px !important;
-  --inner-padding-end: 0px !important;
-  --border-color: var(--dcf-color-gray-2);
-  border: 1px solid transparent;
-  box-sizing: border-box;
+  ion-item {
+    // margin-bottom: 5px;
+    --min-height: 50px;
+    //  --border-radius: 10px;
+    --padding-top: .25rem;
+    --padding-bottom: .25rem;
+    --padding-start: .75rem;
+    --padding-end: .75rem;
+    --inner-padding-start: 0px !important;
+    --inner-padding-end: 0px !important;
+    --border-color: var(--dcf-color-gray-2) !important;
+    border: 1px solid transparent;
+    box-sizing: border-box;
 
-  ion-icon.dcf-reorder-disabled {
-    width: 1rem;
-    transform: translatey(2px);
-    color: var(--dcf-color-gray-4);
-  }
+    ion-icon.dcf-reorder-disabled {
+      width: 1rem;
+      transform: translatey(2px);
+      color: var(--dcf-color-gray-4);
+    }
 
-  &.updating {
-  --background: rgba(var(--dcf-color-primary-rgb), 0.1) !important;
-    // border-color:  var(--dcf-color-primary);
-  }
-  &.not-unique {
-  --background: rgba(var(--dcf-color-danger-rgb), 0.05) !important;
-    // --border-color: var(--dcf-color-danger) !important;
-  }
-  .dcf-subtitle {
-    font-size: 0.8rem;
-    color: var(--dcf-color-gray-7);
+    &.updating {
+    --background: rgba(var(--dcf-color-primary-rgb), 0.1) !important;
+      // border-color:  var(--dcf-color-primary);
+    }
+    &.not-unique {
+    --background: rgba(var(--dcf-color-danger-rgb), 0.05) !important;
+      // --border-color: var(--dcf-color-danger) !important;
+    }
+    .dcf-subtitle {
+      font-size: 0.8rem;
+      color: var(--dcf-color-gray-7);
+    }
   }
 }

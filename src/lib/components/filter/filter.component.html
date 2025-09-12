@@ -22,6 +22,7 @@
           }
         }
         <div class="dcf-width-1-1">
+             <!-- [readonly]="step !== 3" -->
           <input
             fill="none"
             [(ngModel)]="value"
@@ -31,7 +32,7 @@
             (click)="handleFocus()"
             (blur)="handleBlur()"
             type="text"
-            [readonly]="step !== 3"
+
             placeholder="{{ locale + (step === 3 ? '.type' : '.select') | translate }}"
             #component
           />
@@ -54,7 +55,7 @@
                     tabindex="0"
                     (keydown.enter)="filteredOptions = options; value = ''"
                   >
-                    {{ 'no_suggestions' | translate }}
+                    {{ locale + '.no_suggestions' | translate }}
                   </div>
                 }
               </div>
@@ -65,13 +66,13 @@
       @if(filterValue.length > 0) {
         <div class="dcf-icon-clear">
           <ion-button fill="clear" size="small" (click)="clear()">
-            <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
+            <ion-icon name="trash-outline" [color]="!isDarkMode ? 'dark' : 'medium'" slot="icon-only"></ion-icon>
           </ion-button>
         </div>
       }
       <div class="dcf-icon-search">
         <ion-button fill="clear" size="small" (click)="submit()">
-          <ion-icon name="search-outline" color="dark" slot="icon-only"></ion-icon>
+          <ion-icon name="search-outline" [color]="!isDarkMode ? 'dark' : 'medium'" slot="icon-only"></ion-icon>
         </ion-button>
       </div>
     </div>
@@ -94,7 +95,7 @@
             tabindex="0"
             (keydown.enter)="filteredOptions = options; value = ''"
             >
-              {{ 'no_suggestions' | translate }}
+              {{ locale + '.no_suggestions' | translate }}
             </div>
           }
         </div>
@@ -114,16 +115,17 @@
               [value]="sortValue"
               label-placement="floating"
               fill="outline"
+              [label]="locale + '.sort' | translate"
             >
             @for(sort of sortBy; track sort) {
-              aa
+
               <ion-select-option [value]="sort">{{ sort | translate }}</ion-select-option>
             }
           </ion-select>
         </div>
         <div class="dcf-width-auto">
           <ion-button (click)="handleSortDirectionChange()" fill="clear">
-            <ion-icon slot="icon-only" [name]="sortDirection === 'desc' ? 'arrow-down-outline' : 'arrow-up-outline'"></ion-icon>
+            <ion-icon slot="icon-only" [color]="!isDarkMode ? 'primary' : 'medium'" [name]="sortDirection === 'desc' ? 'arrow-down-outline' : 'arrow-up-outline'"></ion-icon>
           </ion-button>
         </div>
       </div>

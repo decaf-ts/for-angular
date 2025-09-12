@@ -1,3 +1,35 @@
 {
-  "cSpell.enabled": false
+  "cSpell.enabled": false,
+  "jest.jestCommandLine": "npm run test --",
+  "jest.runMode": "on-demand",
+  "jest.coverageColors": {
+    "uncovered": "rgba(255,99,71, 0.6)",
+    "partially-covered": "rgba(255,215,0, 0.6)"
+  },
+  "jest.coverageFormatter": "GutterFormatter",
+  "editor.renderWhitespace": "none",
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
+    "source.fixAll.eslint": "always"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "scss",
+    "sass"
+  ],
+  "prettier.requireConfig": true
 }

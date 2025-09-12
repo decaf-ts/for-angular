@@ -1,10 +1,9 @@
 import { Component,  CUSTOM_ELEMENTS_SCHEMA, inject, Input, OnInit } from '@angular/core';
-import { Color } from '@ionic/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { IonHeader, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
 import { RouterService } from 'src/app/services/router.service';
-import { stringToBoolean } from 'src/lib/helpers/utils';
+import { getWindow, stringToBoolean } from 'src/lib/helpers/utils';
 import { ForAngularModule } from 'src/lib/for-angular.module';
 import { BackButtonComponent } from '../back-button/back-button.component';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
@@ -44,6 +43,19 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    */
   @Input()
   currentOperation: CrudOperations = OperationKeys.READ;
+
+
+
+  /**
+   * @description The identifier of the current operation model.
+   * @summary  Accepts either a string or a number.
+   *
+   * @type {string|number}
+   * @default OperationKeys.READ
+   * @memberOf HeaderComponent
+   */
+  @Input()
+  modelId!: string | number;
 
 
   /**
@@ -159,24 +171,25 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @summary Sets the background color of the header using Ionic's predefined color palette.
    * This allows the header to match the application's color scheme.
    *
-   * @type {Color}
+   * @type {string}
    * @default "primary"
    * @memberOf HeaderComponent
    */
   @Input()
-  backgroundColor: Color = "white";
+  backgroundColor: string = "white";
 
   /**
    * @description Background color of the header on mobile devices.
    * @summary Sets a different background color for the header when viewed on mobile devices.
-   * This allows for responsive design adjustments based on screen size.
+   * This allows for responsive design adjustments based on screen size. Uses Ionic's predefined
+   * color palette to maintain consistency with the application's color scheme.
    *
-   * @type {Color}
+   * @type {string}
    * @default ""
    * @memberOf HeaderComponent
    */
   @Input()
-  mobileBackgroundColor: Color = "";
+  mobileBackgroundColor: string = "";
 
   /**
    * @description Position of the menu button on mobile devices.
@@ -244,10 +257,41 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @summary Sets the color of the back button icon using Ionic's predefined color palette.
    * This allows the back button icon to match the application's color scheme.
    *
-   * @type {Color}
+   * @type {string}
    * @memberOf HeaderComponent
    */
-  backButtonColor!: Color;
+  backButtonColor: string = 'translucent';
+
+
+  /**
+   * @description Stores the original background color value before theme modifications.
+   * @summary Preserves the initial backgroundColor input value before any theme-based
+   * modifications are applied during component initialization. This allows the component
+   * to restore or reference the original color value when switching between themes
+   * or when resetting the header appearance to its default state.
+   *
+   * @type {string}
+   * @private
+   * @memberOf HeaderComponent
+   */
+  private initialBackgroundColor!: string;
+
+
+
+  /**
+   * @description Reference to CRUD operation constants for template usage.
+   * @summary Exposes the OperationKeys enum to the component template, enabling
+   * conditional rendering and behavior based on operation types. This protected
+   * readonly property ensures that template logic can access operation constants
+   * while maintaining encapsulation and preventing accidental modification.
+   *
+
+   * @protected
+   * @readonly
+   * @memberOf CrudFormComponent
+   */
+  protected readonly OperationKeys = OperationKeys;
+
 
   /**
    * @description Creates an instance of HeaderComponent.
@@ -280,10 +324,12 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   *   H->>H: Process border
   *   H->>H: Build CSS class string
   *
-  * @returns {void}
+  * @returns {Promise<void> }
   * @memberOf HeaderComponent
   */
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    this.initialBackgroundColor = this.backgroundColor;
+    this.observeThemeChange();
     this.showBackButton = stringToBoolean(this.showBackButton);
     this.showMenuButton = stringToBoolean(this.showMenuButton);
     if(this.showMenuButton)
@@ -293,16 +339,34 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
     this.expand = stringToBoolean(this.expand);
     this.border = stringToBoolean(this.border);
     if(this.center)
-      this.className = ' dcf-flex';
-    if(this.backgroundColor)
-      this.className += ` ${this.backgroundColor}`;
+      this.className += ' dcf-flex';
     if(!this.border)
       this.className += ` ion-no-border`;
     this.getRoute();
     if(this.backgroundColor === 'white') {
-      this.backButtonColor = 'primary';
+      this.backButtonColor = 'medium';
     }
 
+  }
+
+  /**
+   * @description Observes system theme changes and updates header appearance accordingly.
+   * @summary Sets up a media query listener to detect changes in the user's color scheme preference
+   * (light/dark mode). When the theme changes, automatically adjusts the header's background color
+   * by either restoring the original color for light mode or clearing it for dark mode. This ensures
+   * the header appearance remains consistent with the system theme preferences.
+   *
+   * @private
+   * @return {void}
+   * @memberOf HeaderComponent
+   */
+  private observeThemeChange(): void {
+    const win = getWindow() as Window;
+    const colorSchemePreference = win.matchMedia('(prefers-color-scheme: dark)');
+    this.backgroundColor =  colorSchemePreference.matches ? '' : this.initialBackgroundColor;
+    colorSchemePreference.addEventListener('change', () => {
+        this.backgroundColor =  colorSchemePreference.matches ? '' : this.initialBackgroundColor;
+    });
   }
 
   /**
@@ -331,10 +395,10 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    *
    * @memberOf HeaderComponent
    */
-  async changeOperation(operation: string, id?: string): Promise<boolean> {
+  async changeOperation(operation: string, id: string): Promise<boolean> {
     let page = `${this.route}/${operation}/`.replace('//', '/');
-    if(this.uid || id)
-        page = `${page}/${this.uid || id}`;
+    if(this.modelId || id)
+        page = `${page}/${this.modelId || id}`;
     return this.routerService.navigateTo(page.replace('//', '/'))
   }
 

@@ -13,11 +13,11 @@ import { KeyValue, RendererCustomEvent, StringOrBoolean } from './types';
 import {
   generateRandomValue,
   getInjectablesRegistry,
-  getLocaleFromClassName,
   getOnWindow,
   isDevelopmentMode,
   stringToBoolean
 } from '../helpers/utils';
+import { getLocaleContext } from '../i18n/Loader';
 import { Model } from '@decaf-ts/decorator-validation';
 import {
   CrudOperations,
@@ -31,7 +31,6 @@ import { getLogger } from '../for-angular.module';
 import { DecafRepository } from '../components/list/constants';
 import { Repository } from '@decaf-ts/core';
 import { RamAdapter } from '@decaf-ts/core/ram';
-import { addIcons } from 'ionicons';
 
 /**
  * @description Base component class that provides common functionality for all Decaf components.
@@ -321,7 +320,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @summary Stores the automatically derived locale based on the component's class name.
    * This is determined during component initialization and serves as a fallback when no
    * explicit locale is provided via the locale input property. The derivation is handled
-   * by the getLocaleFromClassName utility function, which extracts a locale identifier
+   * by the getLocaleContext utility function, which extracts a locale identifier
    * from the component's class name.
    *
    * @type {string}
@@ -419,7 +418,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    *   A->>C: new Component(instance)
    *   C->>B: super(instance)
    *   B->>B: Set componentName = instance
-   *   B->>U: getLocaleFromClassName(instance)
+   *   B->>U: getLocaleContext(instance)
    *   U-->>B: Return derived locale
    *   B->>B: Set componentLocale
    *   B->>L: getLogger(this)
@@ -429,11 +428,9 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @memberOf NgxBaseComponent
    */
   // eslint-disable-next-line @angular-eslint/prefer-inject
-  protected constructor(@Inject('instanceToken') protected instance: string, @Inject('iconsToken') icons: KeyValue = {}) {
-    if(Object.keys(icons).length)
-      addIcons(icons);
+  protected constructor(@Inject('instanceToken') protected instance: string) {
     this.componentName = instance;
-    this.componentLocale = getLocaleFromClassName(instance);
+    this.componentLocale = getLocaleContext(instance);
     this.logger = getLogger(this);
     this.getLocale(this.translatable);
     this.uid = generateRandomValue(12);
@@ -478,48 +475,6 @@ export abstract class NgxBaseComponent implements OnChanges {
       );
     }
     return this._repository;
-  }
-
-  /**
-   * @description Parses and applies properties from the props object to the component instance.
-   * @summary This method iterates through the properties of the provided instance object
-   * and applies any matching properties from the component's props configuration to the
-   * component instance. This allows for dynamic property assignment based on configuration
-   * stored in the props object, enabling flexible component customization without requiring
-   * explicit property binding for every possible configuration option.
-   *
-   * The method performs a safe property assignment by checking if each key from the instance
-   * exists in the props object before applying it. This prevents accidental property
-   * overwriting and ensures only intended properties are modified.
-   *
-   * @param {KeyValue} instance - The component instance object to process
-   * @return {void}
-   *
-   * @mermaid
-   * sequenceDiagram
-   *   participant C as Component
-   *   participant B as NgxBaseComponent
-   *   participant P as Props Object
-   *
-   *   C->>B: parseProps(instance)
-   *   B->>B: Get Object.keys(instance)
-   *   loop For each key in instance
-   *     B->>P: Check if key exists in this.props
-   *     alt Key exists in props
-   *       B->>B: Set this[key] = this.props[key]
-   *     else Key not in props
-   *       Note over B: Skip this key
-   *     end
-   *   end
-   *
-   * @protected
-   * @memberOf NgxBaseComponent
-   */
-  protected parseProps(instance: KeyValue): void {
-    Object.keys(instance).forEach((key) => {
-      if(Object.keys(this.props).includes(key))
-        (this as KeyValue)[key] = this.props[key];
-    })
   }
 
   /**
@@ -703,5 +658,47 @@ export abstract class NgxBaseComponent implements OnChanges {
    */
   trackItemFn(index: number, item: KeyValue | string | number): string | number {
     return `${index}-${item}`;
+  }
+
+  /**
+   * @description Parses and applies properties from the props object to the component instance.
+   * @summary This method iterates through the properties of the provided instance object
+   * and applies any matching properties from the component's props configuration to the
+   * component instance. This allows for dynamic property assignment based on configuration
+   * stored in the props object, enabling flexible component customization without requiring
+   * explicit property binding for every possible configuration option.
+   *
+   * The method performs a safe property assignment by checking if each key from the instance
+   * exists in the props object before applying it. This prevents accidental property
+   * overwriting and ensures only intended properties are modified.
+   *
+   * @param {KeyValue} instance - The component instance object to process
+   * @return {void}
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant C as Component
+   *   participant B as NgxBaseComponent
+   *   participant P as Props Object
+   *
+   *   C->>B: parseProps(instance)
+   *   B->>B: Get Object.keys(instance)
+   *   loop For each key in instance
+   *     B->>P: Check if key exists in this.props
+   *     alt Key exists in props
+   *       B->>B: Set this[key] = this.props[key]
+   *     else Key not in props
+   *       Note over B: Skip this key
+   *     end
+   *   end
+   *
+   * @protected
+   * @memberOf NgxBaseComponent
+   */
+  protected parseProps(instance: KeyValue): void {
+    Object.keys(instance).forEach((key) => {
+      if(Object.keys(this.props).includes(key))
+        (this as KeyValue)[key] = this.props[key];
+    })
   }
 }

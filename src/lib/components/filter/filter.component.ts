@@ -3,7 +3,7 @@ import { ForAngularModule } from '../../for-angular.module';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { IonChip, IonIcon, IonItem, IonLabel, IonSelect} from '@ionic/angular/standalone';
 import { Dynamic, IFilterQuery, IFilterQueryItem } from '../../engine';
-import { getWindowWidth } from '../../helpers/utils';
+import { getWindowWidth, isDarkMode } from '../../helpers/utils';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
 import { OrderDirection, Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
@@ -260,6 +260,16 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
   windowResizeSubscription!: Subscription;
 
   /**
+   * @description Browsing mode (dark or light).
+   * @summary Indicates whether the dark mode theme is currently enabled.
+   * Defaults to `false`.
+   *
+   * @type {boolean}
+   * @memberOf FilterComponent
+   */
+  isDarkMode: boolean = false;
+
+  /**
    * @description Event emitter for filter changes.
    * @summary Emits filter events when the user creates, modifies, or clears filters.
    * The emitted value contains an array of complete filter objects or undefined when
@@ -317,10 +327,11 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
    *   end
    *   F->>F: Call initialize()
    *
-   * @returns {void}
+   * @returns {Promise<void>}
    * @memberOf FilterComponent
    */
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    this.isDarkMode = await isDarkMode();
     this.windowWidth = getWindowWidth() as number;
     this.windowResizeSubscription = fromEvent(window, 'resize')
     .pipe(debounceTime(300))

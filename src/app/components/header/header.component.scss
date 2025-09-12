@@ -14,9 +14,6 @@ ion-header {
     background-color: white !important;
     box-shadow: none !important;
     border-bottom: 1px solid var(--ion-color-gray-2) !important;
-  }
-
-  ion-toolbar {
 
     @media(max-width: 680px) {
       padding-right: .25rem;
@@ -33,6 +30,21 @@ ion-header {
     &.ion-color-success,
     &.ion-color-dark {
       svg { stroke: var(--ion-color-gray-1) !important; }
+      ion-icon  { color: var(--ion-color-gray-7) !important; }
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    svg { stroke: var(--ion-color-gray-1); }
+    .ion-color-primary,
+    .ion-color-secondary,
+    .ion-color-tertiary,
+    .ion-color-danger,
+    .ion-color-warning,
+    .ion-color-success,
+    .ion-color-dark {
+      svg { stroke: var(--ion-color-gray-1); }
+      ion-icon  { color: var(--ion-color-gray-1); }
     }
   }
 

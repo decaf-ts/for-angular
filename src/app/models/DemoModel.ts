@@ -45,11 +45,24 @@ export class ForAngularModel extends Model {
     label: 'demo.gender.label',
     type: 'radio',
     options: [
-      { value: 'Male', text: 'Is Male' },
-      { value: 'Female', text: 'Is Female' },
+      { value: 'Male', text: 'male' },
+      { value: 'Female', text: 'female' },
     ],
   })
   gender!: string;
+
+  @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'demo.contact.label',
+    type: 'select',
+    options: [
+      { value: 'morning', text: 'morning' },
+      { value: 'afternoon', text: 'afternoon' },
+      { value: 'evening', text: 'evening' },
+      { value: 'all', text: 'all' },
+    ],
+  })
+  contact!: string;
 
   @uichild(CategoryModel.name, 'ngx-decaf-fieldset')
   category!: CategoryModel;

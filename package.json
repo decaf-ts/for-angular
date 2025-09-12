@@ -13,14 +13,13 @@
     "flash-forward": "npx npm-check-updates -u && npm run do-install",
     "update-dependencies": "PREFIX=\"decaf-ts\"; npm ls | grep \"$PREFIX\" | awk -F/ '{print $NF}' | sed 's/@.*//' | xargs -I package npm update @\"$PREFIX\"/package && ng cache clean",
     "reset": "rm -rf * && git checkout . && git pull && npm run do-install",
-    "build:prod": "ng build for-angular && ng  build  for-angular-app",
-    "build": "ng build for-angular --configuration development && ng build for-angular-app --configuration development && npm run build:cli",
-    "build:new": "npx rimraf ./.angular && npm run build",
+    "build:prod": "npm run lint && ng build for-angular && ng build  for-angular-app",
+    "build": "npx rimraf .angular && npm run lint && ng build for-angular --configuration development && ng build for-angular-app --configuration development && npm run build:cli",
     "build:cli": "tsc --project tsconfig.cli.json --outDir dist/for-angular/cli",
     "build:schematics": "node ./bin/build-schematics.js",
-    "start": "ng run for-angular-app:serve --host=localhost --port=8110",
-    "server": "npx rimraf .angular && npm run lint && npm run start",
-    "server:pwa": "npm run build && lite-server",
+    "start": "npx rimraf .angular && ng run for-angular-app:serve --host=localhost --port=8110",
+    "server": "npm run start",
+    "server:pwa": "npm run build:prod && lite-server",
     "watch": "ng build for-angular --watch --configuration development",
     "test": "npm run test:all",
     "test:all": "jest --runInBand --passWithNoTests",
@@ -46,10 +45,19 @@
     "resources": "npm run resources:pwa",
     "resources:android": "npx capacitor-assets generate --android --assetPath='resources' && npm run resources",
     "resources:ios": "npx capacitor-assets generate --ios --assetPath='resources' && npm run resources",
-    "resources:pwa": "npx capacitor-assets generate --pwa --assetPath='resources' --pwaManifestPath='src/manifest.webmanifest'"
+    "resources:pwa": "npx capacitor-assets generate --pwa --assetPath='resources' --pwaManifestPath='src/manifest.webmanifest'",
+    "link:styles": "npx rimraf ./node_modules/@decaf-ts/styles && npm link @decaf-ts/styles"
   },
   "author": "Tiago Venceslau",
   "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/decaf-ts/for-angular.git"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.12",
     "@angular-devkit/core": "^19.2.8",
@@ -117,6 +125,7 @@
     "@decaf-ts/decorator-validation": "^1.6.4",
     "@decaf-ts/for-http": "latest",
     "@decaf-ts/reflection": "latest",
+    "@decaf-ts/styles": "^0.0.3",
     "@decaf-ts/ui-decorators": "latest",
     "@ionic/angular": "^8.5.5",
     "@ngx-translate/core": "^16.0.4",

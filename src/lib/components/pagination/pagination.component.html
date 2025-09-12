@@ -1,7 +1,7 @@
  <div [id]="uid" class="dcf-paginator-container dcf-flex dcf-flex-center">
   <div class="dcf-width-1-1">
     <div class="dcf-pagination-resume" [innerHTML]="locale + '.resume' | translate: {value0: current, value1: last}"></div>
-    <div #paginationComponent class="dcf-pagination aeon-pagination dcf-flex-center">
+    <div #paginationComponent class="dcf-pagination dcf-flex-center">
       <div
         aria-label="previous"
         tabindex="0"
@@ -10,9 +10,9 @@
         <ion-icon name="chevron-back-outline" aria-hidden="true"></ion-icon>
       </div>
       @for(page of pages; track page) {
-        <div tabindex="0" (click)="navigate(page['index'])"
+        <div tabindex="0" [class]="page['class']" (click)="navigate(page['index'])"
           (keydown.enter)="navigate(page['index'])"
-          [ngClass]="{'dcf-active': current === page['index'], 'dcf-disabled': page['index'] === ndivl}">
+          [ngClass]="{'dcf-active': current === page['index']}">
           <span class="page-item">{{ page['text'] }}</span>
         </div>
       }

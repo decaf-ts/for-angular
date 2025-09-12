@@ -53,6 +53,59 @@ import { generateRandomValue } from '../../helpers';
   imports: [ForAngularModule, IonIcon],
   host: {'[attr.id]': 'uid'},
 })
+/**
+ * @class CrudFormComponent
+ * @implements OnInit, IFormElement, OnDestroy, RenderedModel
+ *
+ * @description
+ * The `CrudFormComponent` is an Angular component designed to provide a flexible and extensible form interface for performing CRUD (Create, Read, Update, Delete) operations on a data model. It integrates with Angular's reactive forms and supports advanced configuration, validation, and event handling for a wide range of use cases.
+ *
+ * @summary
+ * - Supports dynamic form rendering based on the provided data model and operation type.
+ * - Handles form validation, submission, and reset logic with customizable behavior.
+ * - Emits structured events for form actions, enabling decoupled business logic.
+ * - Integrates with external services for logging, form management, and navigation.
+ * - Provides extensive configuration options for form appearance and behavior.
+ *
+ * @inputs
+ * - `model`: The repository model for data operations.
+ * - `modelId`: The primary data model instance for CRUD operations.
+ * - `updateOn`: Determines when form field validation is triggered (`change`, `blur`, or `submit`).
+ * - `component`: Reference to the reactive form DOM element.
+ * - `target`: Specifies the form submission target (e.g., `_self`, `_blank`).
+ * - `method`: Defines the form submission strategy (`get`, `post`, or `event`).
+ * - `options`: Configuration options for form behavior and rendering.
+ * - `action`: Optional custom action identifier for submission context.
+ * - `operation`: The current CRUD operation being performed (required).
+ * - `handlers`: Custom event handlers for form actions.
+ * - `formGroup`: Angular FormGroup for form state management.
+ * - `childOf`: Path to the parent FormGroup if nested.
+ * - `rendererId`: Unique identifier for the form renderer.
+ * - `uid`: Unique identifier for the current record.
+ * - `allowClear`: Enables or disables form clearing functionality.
+ *
+ * @outputs
+ * - `submitEvent`: Emits `CrudFormEvent` objects on form submission.
+ *
+ * @protected
+ * - `OperationKeys`: Reference to CRUD operation constants for template usage.
+ *
+ * @private
+ * - `logger`: Logger instance for structured logging.
+ * - `location`: Angular Location service for navigation.
+ *
+ * @lifecycle
+ * - `ngOnInit`: Initializes the component, configures logger, merges options, and sets form state based on operation.
+ * - `ngOnDestroy`: Cleans up resources and unregisters the FormGroup.
+ *
+ * @methods
+ * - `submit(event: SubmitEvent)`: Handles form submission, validation, and event emission.
+ * - `handleReset()`: Resets the form or navigates back based on the operation.
+ * - `handleDelete()`: Emits a delete event for the current record.
+ *
+ * @usage
+ * Use this component within Angular templates to provide a robust CRUD form interface. Configure inputs to match your data model and desired behavior, and handle output events to implement custom business logic.
+ */
 export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, RenderedModel {
 
   /**
@@ -65,6 +118,20 @@ export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, Rende
    */
   @Input()
   model!: Model | undefined;
+
+
+  /**
+   * @description The primary data model used for CRUD operations.
+   * @summary This input provides the main Model instance that the form interacts with for
+   * creating, reading, updating, or deleting records. It serves as the source of schema
+   * and validation rules for the form fields, and is required for most operations except
+   * for certain read or delete scenarios.
+   *
+   * @type {Model | undefined}
+   * @memberOf CrudFormComponent
+   */
+  @Input()
+  modelId!: Model | undefined;
 
   /**
    * @description Field update trigger mode for form validation.
@@ -213,6 +280,34 @@ export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, Rende
 
 
   /**
+   * @description Unique identifier for the current record instance.
+   * @summary This property holds a unique string value that identifies the specific record being managed by the form.
+   * It is automatically generated if not provided, ensuring each form instance has a distinct identifier.
+   * The uid is used for tracking, referencing, and emitting events related to the current record, and may be used
+   * in conjunction with the primary key for CRUD operations.
+   *
+   * @type {string}
+   * @default Randomly generated 12-character string
+   * @memberOf CrudFormComponent
+   */
+  @Input()
+  allowClear: boolean = true;
+
+  /**
+   * @description Reference to CRUD operation constants for template usage.
+   * @summary Exposes the OperationKeys enum to the component template, enabling
+   * conditional rendering and behavior based on operation types. This protected
+   * readonly property ensures that template logic can access operation constants
+   * while maintaining encapsulation and preventing accidental modification.
+   *
+   * @protected
+   * @readonly
+   * @memberOf CrudFormComponent
+   */
+  protected readonly OperationKeys = OperationKeys;
+
+
+  /**
    * @description Event emitter for form submission events.
    * @summary Emits CrudFormEvent objects when the form is submitted, providing
    * form data, component information, and any associated handlers to parent
@@ -267,7 +362,7 @@ export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, Rende
    * @returns {Promise<void>}
    * @memberOf CrudFormComponent
    */
-  async ngOnInit() {
+  async ngOnInit(): Promise<void> {
     if (!this.logger)
       this.logger = getLogger(this);
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)
@@ -277,7 +372,6 @@ export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, Rende
       DefaultFormReactiveOptions,
       this.options || {},
     );
-
   }
 
   /**
@@ -289,7 +383,7 @@ export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, Rende
    * @returns {void}
    * @memberOf CrudFormComponent
    */
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     if (this.formGroup)
       NgxFormService.unregister(this.formGroup);
   }
@@ -330,7 +424,7 @@ export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, Rende
    * @memberOf CrudFormComponent
    */
   handleReset(): void {
-    if(![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation))
+    if(![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation) && this.allowClear)
       return NgxFormService.reset(this.formGroup as FormGroup);
     this.location.back();
   }
@@ -347,23 +441,10 @@ export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, Rende
    */
   handleDelete(): void {
     this.submitEvent.emit({
-      data: this.uid,
+      data: this.modelId,
       component: 'CrudFormComponent',
       name: EventConstants.SUBMIT,
     });
   }
 
-  /**
-   * @description Reference to CRUD operation constants for template usage.
-   * @summary Exposes the OperationKeys enum to the component template, enabling
-   * conditional rendering and behavior based on operation types. This protected
-   * readonly property ensures that template logic can access operation constants
-   * while maintaining encapsulation and preventing accidental modification.
-   *
-   * @type {CrudOperations}
-   * @protected
-   * @readonly
-   * @memberOf CrudFormComponent
-   */
-  protected readonly OperationKeys = OperationKeys;
 }

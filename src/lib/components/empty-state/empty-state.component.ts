@@ -1,11 +1,9 @@
 import { Component, inject, Input, OnInit  } from '@angular/core';
-import { Color, PredefinedColors } from '@ionic/core';
 import {
   IonCard,
   IonCardContent,
   IonIcon,
-  IonTitle,
-  NavController
+  IonTitle
 }
 from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';
@@ -17,6 +15,7 @@ import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 import { FunctionLike } from '../../engine/types';
+import { Router } from '@angular/router';
 
 
 /**
@@ -37,14 +36,14 @@ import { FunctionLike } from '../../engine/types';
  *     +StringOrBoolean showIcon
  *     +string icon
  *     +string iconSize
- *     +PredefinedColors iconColor
+ *     +string iconColor
  *     +string|Function buttonLink
  *     +string buttonText
  *     +string buttonFill
- *     +Color buttonColor
+ *     +string buttonColor
  *     +string buttonSize
  *     +string searchValue
- *     -NavController navController
+ *     -Router Router
  *     +ngOnInit()
  *     +handleClick()
  *   }
@@ -170,7 +169,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  iconColor?: PredefinedColors = 'medium';
+  iconColor?: string = 'medium';
 
   /**
    * @description The navigation target or action for the button.
@@ -214,12 +213,12 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @summary Specifies the color for the button using Ionic's color system.
    * This allows the button to match the application's color scheme.
    *
-   * @type {Color}
+   * @type {string}
    * @default 'primary'
    * @memberOf EmptyStateComponent
    */
   @Input()
-  buttonColor: Color =  'primary';
+  buttonColor: string =  'primary';
 
   /**
    * @description The size of the action button.
@@ -251,10 +250,10 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * This service is used when the buttonLink is a string URL to navigate to that location.
    *
    * @private
-   * @type {NavController}
+   * @type {Router}
    * @memberOf EmptyStateComponent
    */
-  private navController: NavController = inject(NavController);
+  private router: Router = inject(Router);
 
   private sanitizer: DomSanitizer = inject(DomSanitizer);
 
@@ -334,7 +333,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * sequenceDiagram
    *   participant U as User
    *   participant E as EmptyStateComponent
-   *   participant N as NavController
+   *   participant N as Router
    *
    *   U->>E: Click action button
    *   E->>E: handleClick()
@@ -361,7 +360,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
       return false;
     if(fn instanceof Function)
       return fn();
-    return this.navController.navigateForward(fn as string);
+    this.router.navigate([fn as string]);
   }
 
 
