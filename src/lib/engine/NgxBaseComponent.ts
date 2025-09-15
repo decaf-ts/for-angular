@@ -15,14 +15,14 @@ import {
   getInjectablesRegistry,
   getOnWindow,
   isDevelopmentMode,
-  stringToBoolean
+  stringToBoolean,
 } from '../helpers/utils';
 import { getLocaleContext } from '../i18n/Loader';
 import { Model } from '@decaf-ts/decorator-validation';
 import {
   CrudOperations,
   InternalError,
-  OperationKeys
+  OperationKeys,
 } from '@decaf-ts/db-decorators';
 import { BaseComponentProps } from './constants';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
@@ -96,8 +96,8 @@ import { RamAdapter } from '@decaf-ts/core/ram';
  */
 @Component({
   standalone: true,
-  template: '<div><div>',
-  host: {'[attr.id]': 'uid'},
+  template: '<div></div>',
+  host: { '[attr.id]': 'uid' },
 })
 export abstract class NgxBaseComponent implements OnChanges {
   /**
@@ -154,7 +154,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @memberOf NgxBaseComponent
    */
   @Input()
-  model!:  Model | undefined;
+  model!: Model | undefined;
 
   /**
    * @description The repository for interacting with the data model.
@@ -364,7 +364,8 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @memberOf NgxBaseComponent
    */
   @Output()
-  listenEvent: EventEmitter<RendererCustomEvent> = new EventEmitter<RendererCustomEvent>();
+  listenEvent: EventEmitter<RendererCustomEvent> =
+    new EventEmitter<RendererCustomEvent>();
 
   /**
    * @description Reference to the rendering engine instance
@@ -453,26 +454,28 @@ export abstract class NgxBaseComponent implements OnChanges {
   protected get repository(): DecafRepository<Model> {
     try {
       if (!this._repository) {
-        const modelName  = (this.model as Model).constructor.name
+        const modelName = (this.model as Model).constructor.name;
         const constructor = Model.get(modelName);
         if (!constructor)
           throw new InternalError(
-            'Cannot find model. was it registered with @model?',
+            'Cannot find model. was it registered with @model?'
           );
         let dbAdapterFlavour = getOnWindow('dbAdapterFlavour');
-        if(!dbAdapterFlavour && isDevelopmentMode()) {
-          const adapter = new RamAdapter();
+        if (!dbAdapterFlavour && isDevelopmentMode()) {
+          const adapter = new RamAdapter({ user: 'user' });
           dbAdapterFlavour = adapter.flavour;
         }
-        this._repository = Repository.forModel(constructor, dbAdapterFlavour as string);
+        this._repository = Repository.forModel(
+          constructor,
+          dbAdapterFlavour as string
+        );
         this.model = new constructor() as Model;
-        if(this.model && !this.pk)
-          this.pk = (this._repository as unknown as DecafRepository<Model>).pk || 'id';
+        if (this.model && !this.pk)
+          this.pk =
+            (this._repository as unknown as DecafRepository<Model>).pk || 'id';
       }
     } catch (error: unknown) {
-      throw new InternalError(
-        (error as Error)?.message || error as string
-      );
+      throw new InternalError((error as Error)?.message || (error as string));
     }
     return this._repository;
   }
@@ -537,10 +540,8 @@ export abstract class NgxBaseComponent implements OnChanges {
    */
   getLocale(translatable: StringOrBoolean): string {
     this.translatable = stringToBoolean(translatable);
-    if (!this.translatable)
-      return '';
-    if (!this.locale)
-      this.locale = this.componentLocale;
+    if (!this.translatable) return '';
+    if (!this.locale) this.locale = this.componentLocale;
     return this.locale;
   }
 
@@ -591,14 +592,13 @@ export abstract class NgxBaseComponent implements OnChanges {
       this.getRoute();
       this.model = model;
       const field = this.renderingEngine.getDecorators(this.model as Model, {});
-      const{ props, item, children } = field;
-      this.props = Object.assign(props || {}, {children: children || []});
-      if(item?.props?.['mapper'])
-        this.mapper = item?.props!['mapper'] || {};
+      const { props, item, children } = field;
+      this.props = Object.assign(props || {}, { children: children || [] });
+      if (item?.props?.['mapper']) this.mapper = item?.props!['mapper'] || {};
       this.item = {
         tag: item?.tag || '',
         ...item?.props,
-        ...(this.mapper ? {mapper: this.mapper} : {}),
+        ...(this.mapper ? { mapper: this.mapper } : {}),
         ...{ route: item?.props?.['route'] || this.route },
       };
     }
@@ -656,7 +656,10 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @returns {string | number} A unique identifier for the item
    * @memberOf NgxBaseComponent
    */
-  trackItemFn(index: number, item: KeyValue | string | number): string | number {
+  trackItemFn(
+    index: number,
+    item: KeyValue | string | number
+  ): string | number {
     return `${index}-${item}`;
   }
 
@@ -697,8 +700,8 @@ export abstract class NgxBaseComponent implements OnChanges {
    */
   protected parseProps(instance: KeyValue): void {
     Object.keys(instance).forEach((key) => {
-      if(Object.keys(this.props).includes(key))
+      if (Object.keys(this.props).includes(key))
         (this as KeyValue)[key] = this.props[key];
-    })
+    });
   }
 }
