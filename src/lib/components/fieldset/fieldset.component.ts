@@ -538,7 +538,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
     } else {
       windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {
         component: this.component.nativeElement,
-        index: this.value?.length,
+        index: this.updatingItem ? this.updatingItem.index : this.value?.length,
         parent: this.childOf,
         operation: !this.updatingItem ? OperationKeys.CREATE : OperationKeys.UPDATE
       });
@@ -561,7 +561,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
     const item = this.formGroup.controls.find(control => `${control.get(this.pk)?.value}`.toLowerCase() === cleanSpaces(`${value}`, true)) as FormControl;
     if(item) {
       this.buttonLabel = this.translateService.instant(this.locale + '.update');
-      this.updatingItem = Object.assign({}, item.value || {});
+      this.updatingItem = Object.assign({}, item.value || {}, {index});
       windowEventEmitter(EventConstants.FIELDSET_UPDATE_GROUP, {
         parent: this.childOf,
         component: this.component.nativeElement,
@@ -745,7 +745,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
     .filter(v => v[this.pk] !== undefined)
     .map((v, index) => {
       return {
-        ...itemMapper(v, this.mapper),
+        ...itemMapper(Object.assign({}, v), this.mapper),
         index: index + 1
       } as IFieldSetItem;
     });

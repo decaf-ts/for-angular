@@ -797,7 +797,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
     const parentFormGroup = this.formGroup?.parent as FormArray;
     const isValid = NgxFormService.validateFields(formGroup as FormGroup);
     const indexToCheck = operation === OperationKeys.CREATE ?
-      index === 0 ? index : parentFormGroup.length - 1 : index - 1;
+      index === 0 ? index : parentFormGroup.length - 1 : index;
 
     const isUnique = NgxFormService.isUniqueOnGroup(formGroup, indexToCheck, operation || OperationKeys.CREATE);
     event = new CustomEvent(EventConstants.FIELDSET_ADD_GROUP, {
@@ -842,6 +842,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
     this.activeFormGroup = index;
     this.formGroup = this.getActiveFormGroup;
     this.formControl = this.formGroup.get(this.name) as FormControl;
+    this.value = this.formControl.value;
   }
 
 
