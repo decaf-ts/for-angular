@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslationObject } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { forkJoin, from, Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { forkJoin,  Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {I18nResourceConfig} from '../engine/interfaces';
 import { inject, InjectionToken } from '@angular/core';
 import { FunctionLike, KeyValue } from '../engine';
@@ -104,29 +104,4 @@ export class MultiI18nLoader implements I18nLoader {
       })
     );
   }
-
-  // getTranslation(lang: string): Observable<TranslationObject> {
-  //   const libLanguage = (async () => await import(`./data/${lang}.json`).then(mod => mod.default))();
-
-  //   const httpRequests$: Observable<TranslationObject[]> = forkJoin(
-  //     this.resources.map(config =>
-  //       this.http.get<TranslationObject>(`${config.prefix}${lang}${this.getSuffix(config.suffix)}`)
-  //     )
-  //   );
-
-  //   return from(libLanguage).pipe(
-  //     switchMap(libKeys =>
-  //       httpRequests$.pipe(
-  //         map(res => {
-  //           console.log('loaded component language keys');
-  //           console.log(libKeys);
-  //           return {
-  //             ...libKeys,
-  //             ...res.reduce((acc, current) => ({ ...acc, ...current }), {})
-  //           };
-  //         })
-  //       )
-  //     )
-  //   );
-  // }
 }

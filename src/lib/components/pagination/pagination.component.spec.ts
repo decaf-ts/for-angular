@@ -4,11 +4,13 @@ import { PaginationComponent } from './pagination.component';
 import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { IonIcon } from '@ionic/angular/standalone';
 
 
 const imports = [
   ForAngularCommonModule,
   PaginationComponent,
+  IonIcon,
   TranslateModule.forRoot({
     loader: {
       provide: TranslateLoader,

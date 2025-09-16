@@ -26,6 +26,7 @@ const config: Config = {
     '^src/lib/helpers/(.*)$': '<rootDir>/src/lib/helpers/$1',
     '^src/lib/(.*)$': '<rootDir>/src/lib/$1',
     '^lodash-es$': 'lodash',
+    '^ionicons/components/ion-icon.js$': '@ionic/core/components/ion-icon.js'
   },
 
   // Critical for Ionic/Stencil modules
