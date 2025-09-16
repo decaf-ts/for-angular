@@ -6,20 +6,20 @@
         aria-label="previous"
         tabindex="0"
         (click)="previous()"
-        (keydown.enter)="previous()" [ngClass]="{'dcf-disabled': current === 1}">
+        (keydown.enter)="previous()" [class.dcf-disabled]="current === 1">
         <ion-icon name="chevron-back-outline" aria-hidden="true"></ion-icon>
       </div>
       @for(page of pages; track page) {
         <div tabindex="0" [class]="page['class']" (click)="navigate(page['index'])"
           (keydown.enter)="navigate(page['index'])"
-          [ngClass]="{'dcf-active': current === page['index']}">
+          [class.dcf-active]="current === page['index']">
           <span class="page-item">{{ page['text'] }}</span>
         </div>
       }
       <div
         tabindex="0" (click)="next()"
         (keydown.enter)="next()"
-        [ngClass]="{'dcf-disabled': current === last}">
+        [class.dcf-disabled]="current === last">
         <ion-icon name="chevron-forward-outline" aria-hidden="true"></ion-icon>
       </div>
     </div>

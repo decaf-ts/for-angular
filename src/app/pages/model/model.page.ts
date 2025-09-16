@@ -6,20 +6,23 @@ import {
 } from '@decaf-ts/db-decorators';
 import { Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
-import { ComponentsModule } from 'src/app/components/components.module';
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSearchbar } from '@ionic/angular/standalone';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonSearchbar } from '@ionic/angular/standalone';
 import { BaseCustomEvent, EventConstants, KeyValue } from 'src/lib/engine';
 import { RouterService } from 'src/app/services/router.service';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { DecafRepository } from 'src/lib/components/list/constants';
 import { Logger } from '@decaf-ts/logging';
-import { getLogger } from 'src/lib/for-angular.module';
+import { getLogger } from 'src/lib/for-angular-common.module';
+import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
+import { HeaderComponent } from 'src/app/components/header/header.component';
+import { ContainerComponent } from 'src/app/components/container/container.component';
 
 @Component({
   standalone: true,
   selector: 'app-model',
   templateUrl: './model.page.html',
-  imports: [ComponentsModule, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonSearchbar],
+  imports: [ModelRendererComponent, HeaderComponent, ContainerComponent, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonSearchbar],
+
   styleUrls: ['./model.page.scss'],
 })
 export class ModelPage implements OnInit {
@@ -46,7 +49,7 @@ export class ModelPage implements OnInit {
    * @description Logger instance for the component.
    * @summary Provides logging capabilities for the component, allowing for consistent
    * and structured logging of information, warnings, and errors. This logger is initialized
-   * in the ngOnInit method using the getLogger function from the ForAngularModule.
+   * in the ngOnInit method using the getLogger function from the ForAngularCommonModule.
    *
    * The logger is used throughout the component to record important events, debug information,
    * and potential issues. It helps in monitoring the component's behavior, tracking the flow

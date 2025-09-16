@@ -5,11 +5,11 @@ import { ForAngularModel } from '../../../app/models/DemoModel';
 import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { ForAngularModule } from '../../for-angular.module';
+import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { CrudFormComponent } from '../../components/crud-form/crud-form.component';
 
 const imports = [
-  ForAngularModule,
+  ForAngularCommonModule,
   ModelRendererComponent,
   CrudFormComponent,
   TranslateModule.forRoot({

@@ -15,6 +15,7 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
+import { isDevelopmentMode } from '../helpers';
 
 /**
  * @description Angular implementation of the RenderingEngine with enhanced features
@@ -178,7 +179,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       return !isMapped;
     });
 
-    if (unmappedKeys.length > 0)
+    if (unmappedKeys.length > 0 && isDevelopmentMode())
       console.warn(`Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`);
 
     const operation = NgxRenderingEngine._operation;

@@ -3,11 +3,11 @@ import { ComponentRendererComponent } from './component-renderer.component';
 import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { ForAngularModule } from '../../for-angular.module';
+import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { ListItemComponent } from '../list-item/list-item.component';
 
 const imports = [
-  ForAngularModule,
+  ForAngularCommonModule,
   ComponentRendererComponent,
   ListItemComponent,
   TranslateModule.forRoot({

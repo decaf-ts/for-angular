@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { ForAngularModule } from '../../for-angular.module';
+import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { CrudFormComponent } from './crud-form.component';
 import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
@@ -8,7 +8,7 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { FormGroup } from '@angular/forms';
 
 const imports = [
-  ForAngularModule,
+  ForAngularCommonModule,
   CrudFormComponent,
   TranslateModule.forRoot({
     loader: {

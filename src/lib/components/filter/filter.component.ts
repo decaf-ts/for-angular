@@ -1,7 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild  } from '@angular/core';
-import { ForAngularModule } from '../../for-angular.module';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
-import { IonChip, IonIcon, IonItem, IonLabel, IonSelect} from '@ionic/angular/standalone';
+import { IonButton, IonChip, IonIcon, IonItem, IonLabel, IonSelect, IonSelectOption} from '@ionic/angular/standalone';
 import { Dynamic, IFilterQuery, IFilterQueryItem } from '../../engine';
 import { getWindowWidth, isDarkMode } from '../../helpers/utils';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
@@ -10,6 +9,8 @@ import { Model } from '@decaf-ts/decorator-validation';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
+import { TranslatePipe } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
 
 /**
  * @description Advanced filter component for creating dynamic search filters with step-by-step construction.
@@ -50,7 +51,7 @@ import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
  *   F->>P: Emit filterEvent with new filter array
  *   F->>F: Reset to step 1 for next filter
  *
- * @memberOf ForAngularModule
+ * @memberOf ForAngularCommonModule
  */
 @Dynamic()
 @Component({
@@ -58,12 +59,15 @@ import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
   templateUrl: './filter.component.html',
   styleUrls: ['./filter.component.scss'],
   imports: [
-    ForAngularModule,
+    FormsModule,
+    TranslatePipe,
     IonLabel,
     IonItem,
     IonChip,
     IonIcon,
+    IonButton,
     IonSelect,
+    IonSelectOption,
     IonIcon,
     SearchbarComponent
   ],

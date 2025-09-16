@@ -27,7 +27,6 @@ import {
   KeyValue,
   ListItemCustomEvent
 } from '../../engine';
-import { ForAngularModule } from '../../for-angular.module';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import {
   stringToBoolean,
@@ -121,7 +120,6 @@ import { FilterComponent } from '../filter/filter.component';
   styleUrls: ['./list.component.scss'],
   standalone: true,
   imports: [
-    ForAngularModule,
     IonRefresher,
     IonLoading,
     PaginationComponent,
@@ -1335,7 +1333,7 @@ protected itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyVal
       accum[key] = value;
     } else {
       if (arrayValue.length === 1) {
-        value = item?.[value] || value;
+        value = item?.[value] ? item[value] : value !== key ? value : "";
         if(isValidDate(value))
           value = `${formatDate(value)}`;
         accum[key] = value;

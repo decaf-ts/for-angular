@@ -2,10 +2,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import { ForAngularModule } from '../../for-angular.module';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { EventConstants, KeyValue, StringOrBoolean } from '../../engine';
 import { PaginationCustomEvent } from './constants';
+import { TranslateModule } from '@ngx-translate/core';
 
 /**
  * @description A pagination component for navigating through multiple pages of content.
@@ -53,7 +53,7 @@ import { PaginationCustomEvent } from './constants';
   templateUrl: './pagination.component.html',
   styleUrls: ['./pagination.component.scss'],
   imports: [
-    ForAngularModule,
+    TranslateModule,
     IonIcon
   ],
   standalone: true,

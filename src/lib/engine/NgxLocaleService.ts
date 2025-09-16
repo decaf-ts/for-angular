@@ -3,7 +3,7 @@ import { ILocaleObject, ILocaleService, LocaleType } from './NgxBaseComponent';
 import { TranslateService } from '@ngx-translate/core';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { firstValueFrom } from 'rxjs';
-import { getLogger } from '../for-angular.module';
+import { getLogger } from '../for-angular-common.module';
 import { FunctionLike, KeyValue } from './types';
 import { getLocaleFromClassName } from '../helpers';
 

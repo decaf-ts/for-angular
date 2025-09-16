@@ -3,17 +3,15 @@ import {
   IonCard,
   IonCardContent,
   IonIcon,
-  IonTitle
 }
 from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { ForAngularModule } from '../../for-angular.module';
 import { Dynamic, StringOrBoolean } from '../../engine';
 import { stringToBoolean } from '../../helpers';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FunctionLike } from '../../engine/types';
 import { Router } from '@angular/router';
 
@@ -60,10 +58,9 @@ import { Router } from '@angular/router';
   styleUrls: ['./empty-state.component.scss'],
   standalone: true,
   imports: [
-    ForAngularModule,
+    TranslatePipe,
     IonCard,
     IonCardContent,
-    IonTitle,
     IonIcon
   ]
 

@@ -9,13 +9,12 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { AutocompleteTypes, SelectInterface } from '@ionic/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
 import { Dynamic } from '../../engine/decorators';
 import { CrudFieldOption, FieldUpdateMode, PossibleInputTypes, StringOrBoolean } from '../../engine/types';
-import { ForAngularModule } from '../../for-angular.module';
 import {
   IonCheckbox,
   IonIcon,
@@ -36,6 +35,7 @@ import { generateRandomValue } from '../../helpers';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { EventConstants } from '../../engine/constants';
 import { getLocaleContextByKey } from '../../i18n/Loader';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -84,7 +84,8 @@ import { getLocaleContextByKey } from '../../i18n/Loader';
 @Component({
   standalone: true,
   imports: [
-    ForAngularModule,
+    ReactiveFormsModule,
+    TranslatePipe,
     IonInput,
     IonItem,
     IonCheckbox,
@@ -743,6 +744,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
       if(this.multiple) {
         this.formGroup = this.getActiveFormGroup as FormGroup;
         this.formGroupArray = this.formGroup.parent as FormArray;
+        this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
       }
       if (this.type === HTML5InputTypes.RADIO && !this.value)
         this.formGroup?.get(this.name)?.setValue(this.options[0].value); // TODO: migrate to RenderingEngine
@@ -806,7 +808,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
     component.dispatchEvent(event);
 
     if(isValid && isUnique) {
-      const newIndex = parentFormGroup.length;
+      const newIndex = parentFormGroup?.length;
 
       if(operation === OperationKeys.CREATE) {
         NgxFormService.addGroupToParent(parentFormGroup?.parent as FormGroup, parent, newIndex);

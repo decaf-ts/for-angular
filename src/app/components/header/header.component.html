@@ -13,7 +13,7 @@
 
       @if(showBackButton) {
         <ion-buttons [slot]="(!showMenuButton || (modelId && ![OperationKeys.READ,  OperationKeys.UPDATE].includes(currentOperation))) ?  'end' : 'start'">
-          <app-back-button [link]="backButtonLink"  [locale]="locale" [toolbarColor]="backButtonColor"></app-back-button>
+          <app-back-button [link]="backButtonLink" [toolbarColor]="backButtonColor"></app-back-button>
         </ion-buttons>
       }
       <ng-content select="[slot='start']"></ng-content>

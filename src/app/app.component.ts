@@ -16,7 +16,6 @@ import { IonApp,
 import { Title } from '@angular/platform-browser';
 import { Platform } from '@ionic/angular';
 import { NgxRenderingEngine } from '../lib/engine';
-import { ForAngularModule } from 'src/lib/for-angular.module';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { addIcons } from 'ionicons';
 import * as IonicIcons from 'ionicons/icons';
@@ -27,7 +26,8 @@ import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
 import { DecafRepositoryAdapter } from 'src/lib/components/list/constants';
 import { DbAdapterProvider } from './app.config';
-import { ComponentsModule } from './components/components.module';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LogoComponent } from './components/logo/logo.component';
 
 try {
   new NgxRenderingEngine();
@@ -78,18 +78,6 @@ const Menu: MenuItem[] = [
   {
     label: 'Delete',
     url: '/crud/delete',
-  },
-  {
-    label: 'Data Lists',
-    icon: 'list-outline',
-  },
-  {
-    label: 'Employees (Infinite)',
-    url: '/list/infinite',
-  },
-  {
-    label: 'Categories (Paginated)',
-    url: '/list/paginated',
   },
   {
     label: 'Model Lists',
@@ -148,8 +136,7 @@ const Menu: MenuItem[] = [
   selector: 'app-root',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
-    ForAngularModule,
-    IonApp,
+   IonApp,
     IonSplitPane,
     IonMenu,
     RouterLink,
@@ -163,7 +150,8 @@ const Menu: MenuItem[] = [
     IonLabel,
     IonRouterLink,
     IonRouterOutlet,
-    ComponentsModule
+    TranslatePipe,
+    LogoComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

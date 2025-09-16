@@ -10,18 +10,18 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Location } from '@angular/common';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { IFormElement } from '../../engine/interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { CrudFormEvent, Dynamic, EventConstants, FieldUpdateMode, HandlerLike, HTMLFormTarget, RenderedModel } from '../../engine';
 import { CrudFormOptions } from './types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
-import { ForAngularModule, getLogger } from '../../for-angular.module';
-import { IonIcon } from '@ionic/angular/standalone';
 import { Model } from '@decaf-ts/decorator-validation';
 import { Logger } from '@decaf-ts/logging';
 import { generateRandomValue } from '../../helpers';
+import { getLogger } from '../../for-angular-common.module';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 
 /**
@@ -50,7 +50,7 @@ import { generateRandomValue } from '../../helpers';
   selector: 'ngx-decaf-crud-form',
   templateUrl: './crud-form.component.html',
   styleUrls: ['./crud-form.component.scss'],
-  imports: [ForAngularModule, IonIcon],
+  imports: [ReactiveFormsModule, IonButton, IonIcon],
   host: {'[attr.id]': 'uid'},
 })
 /**
@@ -323,7 +323,7 @@ export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, Rende
    * @description Logger instance for the component.
    * @summary Provides logging capabilities for the component, allowing for consistent
    * and structured logging of information, warnings, and errors. This logger is initialized
-   * in the ngOnInit method using the getLogger function from the ForAngularModule.
+   * in the ngOnInit method using the getLogger function from the ForAngularCommonModule.
    *
    * The logger is used throughout the component to record important events, debug information,
    * and potential issues. It helps in monitoring the component's behavior, tracking the flow

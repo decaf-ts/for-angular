@@ -463,7 +463,14 @@ export class NgxFormService {
       }
     }
 
-    return control.valid;
+    function getControlName(control: AbstractControl): string | null {
+      const group = control.parent as FormGroup;
+      if (!group)
+          return null;
+      return Object.keys(group.controls).find(name => control === group.get(name)) || null;
+    }
+
+    return !getControlName(control) ? true : control.valid;
   }
 
   /**

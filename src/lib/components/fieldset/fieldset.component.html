@@ -5,7 +5,7 @@
   (fieldsetRemoveGroupEvent)="handleRemoveItem(undefined, $event)"
   [class]="'dcf-fieldset ' + operation"
   #component>
-  <ion-accordion-group [ngClass]="{'open': isOpen, 'hasValidationErrors': hasValidationErrors}"  (validationErrorEvent)="handleValidationError($event)" #accordionComponent>
+  <ion-accordion-group [class.open]="isOpen" [class.hasValidationErrors]="hasValidationErrors" (validationErrorEvent)="handleValidationError($event)" #accordionComponent>
     <ion-accordion value="open">
       <ion-item slot="header" (click)="handleAccordionToggle($event)">
         <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1">
@@ -26,7 +26,7 @@
           <ion-list class="dcf-fields-list">
             <ion-reorder-group [formGroup]="formGroup.parent" [disabled]="updatingItem" (ionItemReorder)="handleReorderItems($any($event))" #accordionComponent>
               @for(item of items; track item.index) {
-                <ion-item [ngClass]="{'not-unique': item.title === isUniqueError}" lines="full" [button]="false" [ngClass]="{'updating': updatingItem?.[pk] === item.title}">
+                <ion-item [class.not-unique]="item.title === isUniqueError"  [class.updating]="updatingItem?.[pk] === item.title" lines="full" [button]="false">
                   @if(items?.length > 1 && !updatingItem) {
                     <ion-reorder slot="start">
                       <ion-icon name="swap-vertical-outline"></ion-icon>
@@ -36,7 +36,7 @@
                       <ion-icon class="dcf-reorder-disabled" size="small" name="swap-vertical-outline" disabled></ion-icon>
                     </div>
                   }
-                  <ion-label [color]="(item.title === isUniqueError && !updatingItem.title === item.title) ? 'danger' : ''">{{ item.index }}. {{ item.title }}
+                  <ion-label [color]="(item.title === isUniqueError && !updatingItem?.[pk] === item.title) ? 'danger' : ''">{{ item.index }}. {{ item.title }}
                     @if(item.description?.length > 0) {
                       <br />
                       <ion-text class="dcf-subtitle">{{item.description}}</ion-text>

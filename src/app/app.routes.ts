@@ -27,14 +27,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/crud/crud.page').then( m => m.CrudPage)
   },
   {
-    path: 'list',
-    loadComponent: () => import('./pages/list/list.page').then( m => m.ListPage)
-  },
-  {
-    path: 'list/:type',
-    loadComponent: () => import('./pages/list/list.page').then( m => m.ListPage)
-  },
-  {
     path: 'list-model',
     loadComponent: () => import('./pages/list-model/list-model.page').then( m => m.ListModelPage)
   },

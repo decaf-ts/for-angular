@@ -1,19 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { IonCard, IonCardContent } from '@ionic/angular/standalone';
-import { ForAngularComponentsModule } from '../../../lib/components/for-angular-components.module';
-import { ComponentsModule } from '../../components/components.module';
+import { IonCard, IonContent } from '@ionic/angular/standalone';
 import { FieldSetForm } from 'src/app/forms/FieldsetForm';
 import { KeyValue } from 'src/lib/engine/types';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { BaseCustomEvent } from 'src/lib/engine';
-import { getLogger } from 'src/lib/for-angular.module';
+import { getLogger } from 'src/lib/for-angular-common.module';
+import { HeaderComponent } from 'src/app/components/header/header.component';
+import { ContainerComponent } from 'src/app/components/container/container.component';
+import { ModelRendererComponent } from 'src/lib/components';
 
 @Component({
   standalone: true,
   selector: 'app-fieldset',
   templateUrl: './fieldset.page.html',
   styleUrls: ['./fieldset.page.scss'],
-  imports: [ForAngularComponentsModule, ComponentsModule, IonCard, IonCardContent]
+  imports: [HeaderComponent, ContainerComponent, ModelRendererComponent, IonContent, IonCard]
 })
 export class FieldsetPage implements OnInit {
 

@@ -1,10 +1,10 @@
 import { Component, Input, OnInit} from '@angular/core';
-import { ForAngularModule } from '../../for-angular.module';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { KeyValue } from '../../engine';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 import { UIMediaBreakPoints } from '@decaf-ts/ui-decorators';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * @description Layout component for creating responsive grid layouts in Angular applications.
@@ -22,7 +22,7 @@ import { UIMediaBreakPoints } from '@decaf-ts/ui-decorators';
   selector: 'ngx-decaf-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
-  imports: [ForAngularModule, ModelRendererComponent, ComponentRendererComponent],
+  imports: [TranslatePipe, ModelRendererComponent, ComponentRendererComponent],
   standalone: true,
 
 })

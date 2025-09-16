@@ -20,7 +20,7 @@ import {
   IonButton,
   IonDatetimeButton,
 } from '@ionic/angular/standalone';
-import { ForAngularModule } from '../for-angular.module';
+import { ForAngularCommonModule } from '../for-angular-common.module';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 
 describe('decorators', () => {
@@ -29,7 +29,7 @@ describe('decorators', () => {
     selector: 'ngx-decaf-decorator-test-form-field-component',
     standalone: true,
     imports: [
-      ForAngularModule,
+      ForAngularCommonModule,
       IonInput,
       IonItem,
       IonCheckbox,

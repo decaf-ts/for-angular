@@ -1,18 +1,19 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ForAngularComponentsModule } from '../../../lib/components/for-angular-components.module';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModel } from 'src/app/models/DemoModel';
-import { ComponentsModule } from 'src/app/components/components.module';
 import { BaseCustomEvent, KeyValue } from 'src/lib/engine';
-import { getLogger } from 'src/lib/for-angular.module';
-import { IonCard, IonCardContent } from '@ionic/angular/standalone';
+import { getLogger } from 'src/lib/for-angular-common.module';
+import { IonCard, IonCardContent, IonContent } from '@ionic/angular/standalone';
+import { ContainerComponent } from 'src/app/components/container/container.component';
+import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
+import { HeaderComponent } from 'src/app/components/header/header.component';
 
 @Component({
   selector: 'app-crud',
   templateUrl: './crud.page.html',
   styleUrls: ['./crud.page.css'],
   standalone: true,
-  imports: [ForAngularComponentsModule, ComponentsModule, IonCard, IonCardContent],
+  imports: [ModelRendererComponent, HeaderComponent, ContainerComponent, IonContent, IonCard,  IonCardContent]
 })
 export class CrudPage implements OnInit {
 

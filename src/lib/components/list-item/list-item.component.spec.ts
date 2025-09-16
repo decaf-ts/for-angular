@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { ForAngularModule } from '../../for-angular.module';
+import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { ListItemComponent } from './list-item.component';
 import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 
 const imports = [
-  ForAngularModule,
+  ForAngularCommonModule,
   ListItemComponent,
   TranslateModule.forRoot({
     loader: {
@@ -32,7 +32,7 @@ describe('ListItemComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [ForAngularModule, ListItemComponent],
+      imports: [ForAngularCommonModule, ListItemComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ListItemComponent);

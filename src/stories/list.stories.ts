@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { getComponentMeta } from './utils';
 import {
   IonInfiniteScroll,
@@ -25,7 +25,7 @@ import { CategoryModel } from 'src/app/models/CategoryModel';
 import { RamAdapter } from '@decaf-ts/core/ram';
 
 const component = getComponentMeta<ListComponent>([
-    ForAngularModule,
+    ForAngularCommonModule,
     IonRefresher,
     IonLoading,
     PaginationComponent,

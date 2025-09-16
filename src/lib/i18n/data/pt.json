@@ -1,0 +1,80 @@
+{
+  "errors": {
+    "required": "Este campo é obrigatório.",
+    "pattern": "O valor fornecido não corresponde ao padrão.",
+    "min": "O valor mínimo para este campo é {0}.",
+    "max": "O valor máximo para este campo é {0}.",
+    "minlength": "O comprimento mínimo para este campo é {0}.",
+    "maxlength": "O comprimento máximo para este campo é {0}.",
+    "equal": "Este campo deve ser igual a {0}",
+    "default": "Este valor parece ser inválido.",
+    "unique": "O campo {0} deve ser único",
+    "password": "A palavra-passe deve ter pelo menos 8 caracteres e conter um número, letras maiúsculas e minúsculas, e um carácter especial (@$!%*?&_-.,)",
+    "email": "Este campo deve conter um endereço de e-mail válido.",
+    "url": "Este campo deve conter um URL válido.",
+    "number": "Este campo deve conter um número válido.",
+    "integer": "Este campo deve conter um número inteiro válido.",
+    "digits": "Este campo deve conter apenas dígitos.",
+    "alphanum": "Este campo deve ser alfanumérico.",
+    "file": "Apenas {0} ficheiros são permitidos",
+    "equals": "Este campo deve ser igual ao campo {0}",
+    "different": "Este campo deve ser diferente do campo {0}",
+    "lessThan": "Este campo deve ser inferior ao campo {0}",
+    "lessThanOrEqual": "Este campo deve ser inferior ou igual ao campo {0}",
+    "greaterThan": "Este campo deve ser superior ao campo {0}",
+    "greaterThanOrEqual": "Este campo deve ser superior ou igual ao campo {0}"
+  },
+  "component": {
+    "fieldset": {
+      "add": "Adicionar outro",
+      "update": "Atualizar item",
+      "not_unique": "O valor introduzido já existe. Valor \"{{value}}\".",
+      "cancel": "Cancelar"
+    },
+    "list": {
+      "pagination": "A mostrar a página <span class=\"text-bold\">{{value0}} de {{value1}}</span>",
+      "loading": "A carregar dados",
+      "search": {
+        "title": "Não foram encontrados dados para a pesquisa",
+        "subtitle": "Pesquisou por: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{{value0}}</ion-text>",
+        "button": "Limpar pesquisa"
+      },
+      "empty": {
+        "title": "Não foram encontrados dados",
+        "subtitle": "",
+        "button": "Criar"
+      }
+    },
+    "list_item": {
+      "actions": "Ações",
+      "operations": {
+        "read": "Ler",
+        "create": "Criar",
+        "update": "Atualizar",
+        "delete": "Eliminar"
+      }
+    },
+    "empty_state": {
+      "title": "Não foram encontrados dados",
+      "button": "Criar",
+      "search": {
+        "title": "Não foram encontrados dados para a pesquisa",
+        "subtitle": "Pesquisou por: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{{value0}}</ion-text>",
+        "button": "Limpar pesquisa"
+      }
+    },
+    "pagination": {
+      "resume": "A mostrar a página <span class=\"text-bold\">{{value0}} de {{value1}}</span>"
+    },
+    "filter": {
+      "title": "Filtro",
+      "type": "Escreva um valor",
+      "select": "Seleção de filtro",
+      "step1": "Selecione um índice",
+      "step2": "Selecione uma condição",
+      "step3": "Escreva um valor",
+      "no_suggestions": "Sem sugestões",
+      "sort": "Ordenar por"
+    }
+  }
+}

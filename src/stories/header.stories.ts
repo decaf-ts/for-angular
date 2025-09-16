@@ -2,12 +2,12 @@ import type { Meta, StoryObj } from '@storybook/angular';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 import { BackButtonComponent } from 'src/app/components/back-button/back-button.component';
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { getComponentMeta } from './utils';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 
 
-const component = getComponentMeta<HeaderComponent>([ForAngularModule, IonHeader, IonTitle, IonToolbar, BackButtonComponent]);
+const component = getComponentMeta<HeaderComponent>([ForAngularCommonModule, IonHeader, IonTitle, IonToolbar, BackButtonComponent]);
 const meta: Meta<HeaderComponent> = {
   title: 'Components/Header',
   component: HeaderComponent,

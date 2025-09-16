@@ -6,7 +6,7 @@
     "decaf": "npx decaf angular generate",
     "schematics": "schematics",
     "do-install": "TOKEN=$(cat .token) npm install",
-    "postinstall": "npm run build:schematics",
+
     "update-scripts": "npx update-scripts",
     "on-first-run": "npx update-scripts --boot",
     "set-git-auth": "git config url.\"https://api:$(cat .token)@github.com/\".insteadOf \"https://github.com/\" && git config url.\"https://ssh:$(cat .token)@github.com/\".insteadOf \"ssh://git@github.com/\" && git config url.\"https://git:$(cat .token)@github.com/\".insteadOf \"git@github.com:\"",
@@ -46,7 +46,8 @@
     "resources:android": "npx capacitor-assets generate --android --assetPath='resources' && npm run resources",
     "resources:ios": "npx capacitor-assets generate --ios --assetPath='resources' && npm run resources",
     "resources:pwa": "npx capacitor-assets generate --pwa --assetPath='resources' --pwaManifestPath='src/manifest.webmanifest'",
-    "link:styles": "npx rimraf ./node_modules/@decaf-ts/styles && npm link @decaf-ts/styles"
+    "link:styles": "npx rimraf ./node_modules/@decaf-ts/styles && npm link @decaf-ts/styles",
+    "apache": "rm -rf /var/www/html/angular/* && cp -r www/* /var/www/html/angular/"
   },
   "author": "Tiago Venceslau",
   "license": "AGPL-3.0-or-later",
@@ -124,11 +125,11 @@
     "@decaf-ts/db-decorators": "latest",
     "@decaf-ts/decorator-validation": "latest",
     "@decaf-ts/for-http": "latest",
-    "@decaf-ts/reflection": "latest",
-    "@decaf-ts/logging": "latest",
     "@decaf-ts/injectable-decorators": "latest",
-    "@decaf-ts/transactional-decorators": "latest",
+    "@decaf-ts/logging": "latest",
+    "@decaf-ts/reflection": "latest",
     "@decaf-ts/styles": "latest",
+    "@decaf-ts/transactional-decorators": "latest",
     "@decaf-ts/ui-decorators": "latest",
     "@ionic/angular": "^8.5.5",
     "@ngx-translate/core": "^16.0.4",

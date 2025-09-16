@@ -26,13 +26,19 @@
           }
           <div class="dcf-width-expand@s dcf-width-1-1 dcf-label">
             <ion-label class="dcf-item-title" [innerHTML]="uid + ' - ' + title" ></ion-label>
-            <div *ngIf ="description" class="dcf-description" [innerHTML]="description"></div>
+            @if(description) {
+              <div class="dcf-description" [innerHTML]="description"></div>
+            }
           </div>
           @if(info || subinfo) {
             <div class="dcf-width-auto@s dcf-width-expand dcf-info dcf-flex dcf-flex-right@s">
               <div>
-                  <span *ngIf="info" [innerHTML]="info"></span>
-                  <div *ngIf="subinfo" class="dcf-subinfo dcf-text-truncate" [innerHTML]="subinfo" ></div>
+                @if(info) {
+                <span  [innerHTML]="info"></span>
+                }
+                @if(subinfo) {
+                  <div class="dcf-subinfo dcf-text-truncate" [innerHTML]="subinfo" ></div>
+                }
               </div>
             </div>
           }
@@ -90,7 +96,7 @@
                 }
               </div>
             } -->
-            @if(windowWidth > 768) {
+            @if(windowWidth > 639) {
               <div id="end">
                 <ng-content select="[slot='end']"></ng-content>
               </div>
