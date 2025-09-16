@@ -1,12 +1,11 @@
 {
   "name": "@decaf-ts/for-angular",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "scripts": {
     "ng": "ng",
     "decaf": "npx decaf angular generate",
     "schematics": "schematics",
     "do-install": "TOKEN=$(cat .token) npm install",
-
     "update-scripts": "npx update-scripts",
     "on-first-run": "npx update-scripts --boot",
     "set-git-auth": "git config url.\"https://api:$(cat .token)@github.com/\".insteadOf \"https://github.com/\" && git config url.\"https://ssh:$(cat .token)@github.com/\".insteadOf \"ssh://git@github.com/\" && git config url.\"https://git:$(cat .token)@github.com/\".insteadOf \"git@github.com:\"",
