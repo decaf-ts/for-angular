@@ -58,15 +58,18 @@
   }
 } @else {
   @if(refreshing) {
-    <ion-item *ngFor="let skl of skeletonData">
-      <ion-thumbnail slot="start">
-        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-      </ion-thumbnail>
-      <ion-label>
-        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-        <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
-      </ion-label>
-    </ion-item>
+    @for(skl of skeletonData; track skl) {
+      <ion-item>
+        <ion-thumbnail slot="start">
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+        </ion-thumbnail>
+        <ion-label>
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+          <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
+        </ion-label>
+      </ion-item>
+    }
+
   } @else {
     @if(!searchValue?.length) {
       <ngx-decaf-empty-state

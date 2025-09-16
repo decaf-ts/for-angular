@@ -42,8 +42,6 @@ export class CategoryModel extends Model {
   @hideOn(OperationKeys.CREATE)
   createdAt!: Date;
 
-  @timestamp()
-  updateAt!: Date;
 
   constructor(args: ModelArg<CategoryModel> = {}) {
     super(args);

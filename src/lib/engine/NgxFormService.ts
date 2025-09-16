@@ -235,9 +235,10 @@ export class NgxFormService {
     if(operation === OperationKeys.CREATE)
       return !formGroupArray.controls.some((group, i) => i !== index && cleanSpaces(`${group.get(pk)?.value}`, true) === controlValue);
 
-    return !formGroupArray.controls.some((group, i) =>
-      i !== index && controlValue === cleanSpaces(`${group.get(pk)?.value}`, true)
-    );
+    return !formGroupArray.controls.some((group, i) => {
+      const value = cleanSpaces(`${group.get(pk)?.value}`, true);
+      return i !== index && controlValue === value;
+    });
   }
 
   /**
@@ -462,7 +463,14 @@ export class NgxFormService {
       }
     }
 
-    return control.valid;
+    function getControlName(control: AbstractControl): string | null {
+      const group = control.parent as FormGroup;
+      if (!group)
+          return null;
+      return Object.keys(group.controls).find(name => control === group.get(name)) || null;
+    }
+
+    return !getControlName(control) ? true : control.valid;
   }
 
   /**

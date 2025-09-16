@@ -1,12 +1,13 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
-import { ComponentsModule } from 'src/app/components/components.module';
 import { CrudFormEvent } from 'src/lib/engine';
 import { LoginForm } from 'src/app/forms/LoginForm';
-import { getLogger } from 'src/lib/for-angular.module';
-import { IonCard, IonCardContent, IonImg, ToastController} from '@ionic/angular/standalone';
+import { getLogger } from 'src/lib/for-angular-common.module';
+import { IonCard, IonCardContent, IonContent, IonImg, ToastController} from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { getLocaleContext } from 'src/lib/i18n/Loader';
+import { LogoComponent } from 'src/app/components/logo/logo.component';
+import { ContainerComponent } from 'src/app/components/container/container.component';
+import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 
 /**
  * @description Login page component for user authentication
@@ -42,7 +43,8 @@ import { getLocaleContext } from 'src/lib/i18n/Loader';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [ForAngularComponentsModule, IonCard, IonCardContent, IonImg, ComponentsModule],
+  imports: [IonContent, IonCard, IonCardContent, IonImg, LogoComponent, ContainerComponent, ModelRendererComponent],
+
 })
 export class LoginPage implements OnInit {
 

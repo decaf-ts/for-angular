@@ -1,7 +1,7 @@
 import { applicationConfig, componentWrapperDecorator, Meta, moduleMetadata } from '@storybook/angular';
 import { appConfig } from 'src/app/app.config';
 import { RouterService } from 'src/app/services/router.service';
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { NgxRenderingEngine } from 'src/lib/engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { ComponentsModule } from 'src/app/components/components.module';
@@ -29,7 +29,7 @@ export function getComponentMeta<C>(imports: unknown[] = [], type: "component" |
       applicationConfig(appConfig),
       moduleMetadata({
         //Imports both components to allow component composition with Storybook
-        imports: [...imports, ForAngularModule, ComponentsModule],
+        imports: [...imports, ForAngularCommonModule, ComponentsModule],
         providers: [{ provide: RouterService, useValue: RouterService }]
       }),
       // Wraps our stories with a decorator

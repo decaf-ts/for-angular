@@ -1,5 +1,5 @@
 import { Component, OnInit<% if(standalone){ %> <%} %> } from '@angular/core';
-<% if(standalone){ %>import { ForAngularModule } from '../../for-angular.module';<%} %>
+<% if(standalone){ %>import { ForAngularCommonModule } from '../../for-angular-common.module';<%} %>
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 
 
@@ -7,7 +7,7 @@ import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
   selector: '<%= selector %>',
   templateUrl: './<%= dasherize(name) %>.<%= dasherize(type) %>.html',
   styleUrls: ['./<%= dasherize(name) %>.<%= dasherize(type) %>.<%= style %>'],
-<% if(standalone) {%>  imports: [ForAngularModule],
+<% if(standalone) {%>  imports: [ForAngularCommonModule],
   standalone: true,
 <%} %>
 })

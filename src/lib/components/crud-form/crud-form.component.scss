@@ -3,10 +3,10 @@
   margin-bottom: 0px;
 
   &.dcf-flex {
-    @media(min-width: 991px) {
+    @media(min-width: 768px) {
       flex-direction: row-reverse;
     }
-    @media(max-width: 990px) {
+    @media(max-width: 767px) {
       div {
         width: 100%;
       }

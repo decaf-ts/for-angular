@@ -1,18 +1,20 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ComponentsModule } from 'src/app/components/components.module';
 import { KeyValue } from 'src/lib/engine/types';
-import { IonCard, IonCardContent, IonCardTitle, IonSearchbar } from '@ionic/angular/standalone';
+import { IonCard, IonCardContent, IonCardTitle, IonContent, IonSearchbar } from '@ionic/angular/standalone';
 import { EmployeeModel } from 'src/app/models/EmployeeModel';
 import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
 import { CategoryModel } from 'src/app/models/CategoryModel';
 import { Model } from '@decaf-ts/decorator-validation';
+import { HeaderComponent } from 'src/app/components/header/header.component';
+import { ContainerComponent } from 'src/app/components/container/container.component';
+import { ListComponent } from 'src/lib/components';
 
 @Component({
   selector: 'app-list-model',
   templateUrl: './list-model.page.html',
   styleUrls: ['./list-model.page.css'],
   standalone: true,
-  imports: [ComponentsModule, IonCard, IonCardTitle, IonCardContent, IonSearchbar],
+  imports: [HeaderComponent, ContainerComponent, ListComponent, IonContent, IonCard, IonCardTitle, IonCardContent, IonSearchbar],
 })
 export class ListModelPage implements OnInit {
 

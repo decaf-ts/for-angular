@@ -2,7 +2,6 @@ import { Component,  EventEmitter, HostListener, Input, OnInit, Output } from '@
 import { AutocompleteTypes, PredefinedColors} from '@ionic/core';
 import { StringOrBoolean } from '../../engine/types';
 import {windowEventEmitter} from '../../helpers/utils';
-import { ForAngularModule } from '../../for-angular.module';
 import { stringToBoolean } from '../../helpers/utils';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { IonSearchbar } from '@ionic/angular/standalone';
@@ -27,7 +26,7 @@ import { addIcons } from 'ionicons';
   templateUrl: './searchbar.component.html',
   styleUrls: ['./searchbar.component.scss'],
   standalone: true,
-  imports: [ForAngularModule, IonSearchbar],
+  imports: [IonSearchbar],
 })
 export class SearchbarComponent extends NgxBaseComponent implements OnInit {
 

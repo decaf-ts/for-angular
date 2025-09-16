@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { getComponentMeta } from './utils';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { ForAngularModel } from 'src/app/models/DemoModel';

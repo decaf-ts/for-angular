@@ -16,9 +16,11 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
+import { NgComponentOutlet } from '@angular/common';
+
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
 import { BaseCustomEvent, KeyValue, RendererCustomEvent } from '../../engine';
-import { ForAngularModule, getLogger } from '../../for-angular.module';
+import { getLogger } from '../../for-angular-common.module';
 import { Logger } from '@decaf-ts/logging';
 import { Model } from '@decaf-ts/decorator-validation';
 import { generateRandomValue } from '../../helpers';
@@ -66,7 +68,7 @@ import { generateRandomValue } from '../../helpers';
   selector: 'ngx-decaf-component-renderer',
   templateUrl: './component-renderer.component.html',
   styleUrls: ['./component-renderer.component.scss'],
-  imports: [ForAngularModule],
+  imports: [NgComponentOutlet],
   standalone: true,
   host: {'[attr.id]': 'rendererId'},
 })

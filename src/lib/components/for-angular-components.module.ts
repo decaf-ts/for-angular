@@ -2,7 +2,6 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CrudFieldComponent } from './crud-field/crud-field.component';
 import { CrudFormComponent } from './crud-form/crud-form.component';
 import { ModelRendererComponent } from './model-renderer/model-renderer.component';
-import { ForAngularModule } from '../for-angular.module';
 import { SearchbarComponent } from './searchbar/searchbar.component';
 import { EmptyStateComponent } from './empty-state/empty-state.component';
 import { ListItemComponent } from './list-item/list-item.component';
@@ -32,9 +31,9 @@ const Components = [
 ];
 
 @NgModule({
-  imports: [Components, Directives],
+  imports: [...Components, ...Directives],
   declarations: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  exports: [Components, Directives, ForAngularModule],
+  exports: [...Components, ...Directives],
 })
 export class ForAngularComponentsModule {}

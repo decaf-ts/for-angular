@@ -30,12 +30,7 @@
     ],
     "useDefineForClassFields": false,
     "paths": {
-      "@angular/*": [
-        "./node_modules/@angular/*"
-      ],
-      "@decaf-ts/core/ram": [
-        "./node_modules/@decaf-ts/core/lib/ram"
-      ]
+      "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"]
     }
   },
   "angularCompilerOptions": {
@@ -43,15 +38,9 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": false, // default true
-    "paths": {
-      "@decaf-ts/core/ram": [
-        "./node_modules/@decaf-ts/core/lib/ram"
-      ]
+      "paths": {
+        "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"]
+      }
     }
     // "enableIvy": false
-  },
-  "@angular/*": [
-    "./node_modules/@angular/*"
-  ],
-
-}
+  }

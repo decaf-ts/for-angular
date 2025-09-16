@@ -1,15 +1,13 @@
 
-import { AfterViewInit, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild, Renderer2, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, inject, Input, ViewChild, Renderer2, OnInit } from '@angular/core';
 import { Dynamic, EventConstants, HandlerLike, HTMLFormTarget, KeyValue } from '../../engine';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { ForAngularModule } from '../../for-angular.module';
-import { CollapsableDirective } from '../../directives/collapsable.directive';
-import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorderGroup, IonReorder } from '@ionic/angular/standalone';
+import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorderGroup, IonReorder, IonIcon, IonText } from '@ionic/angular/standalone';
 import { cleanSpaces, generateRandomValue, itemMapper, windowEventEmitter } from '../../helpers';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NgxBaseComponent } from '../../engine';
 import { alertCircleOutline, createOutline } from 'ionicons/icons';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
 import { addIcons } from 'ionicons';
 
@@ -64,7 +62,7 @@ import { addIcons } from 'ionicons';
  *   F->>F: Update isOpen state
  *   F->>I: Reflect new state
  *
- * @memberOf ForAngularModule
+ * @memberOf FieldsetComponent
  */
 @Dynamic()
 @Component({
@@ -72,8 +70,21 @@ import { addIcons } from 'ionicons';
   selector: 'ngx-decaf-fieldset',
   templateUrl: './fieldset.component.html',
   styleUrls: ['./fieldset.component.scss'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [ForAngularModule, IonAccordionGroup, IonAccordion, IonList, IonItem, IonLabel, IonReorder, IonButton, IonReorderGroup, CollapsableDirective],
+  schemas: [],
+  imports: [
+    TranslatePipe,
+    ReactiveFormsModule,
+    IonAccordionGroup,
+    IonAccordion,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonReorder,
+    IonText,
+    IonReorderGroup,
+    IonButton,
+    IonIcon,
+  ],
   host: {'[attr.id]': 'overriode '},
 })
 export class FieldsetComponent extends NgxBaseComponent implements OnInit, AfterViewInit {
@@ -538,7 +549,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
     } else {
       windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {
         component: this.component.nativeElement,
-        index: this.value?.length,
+        index: this.updatingItem ? this.updatingItem.index : this.value?.length,
         parent: this.childOf,
         operation: !this.updatingItem ? OperationKeys.CREATE : OperationKeys.UPDATE
       });
@@ -561,7 +572,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
     const item = this.formGroup.controls.find(control => `${control.get(this.pk)?.value}`.toLowerCase() === cleanSpaces(`${value}`, true)) as FormControl;
     if(item) {
       this.buttonLabel = this.translateService.instant(this.locale + '.update');
-      this.updatingItem = Object.assign({}, item.value || {});
+      this.updatingItem = Object.assign({}, item.value || {}, {index});
       windowEventEmitter(EventConstants.FIELDSET_UPDATE_GROUP, {
         parent: this.childOf,
         component: this.component.nativeElement,
@@ -745,7 +756,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
     .filter(v => v[this.pk] !== undefined)
     .map((v, index) => {
       return {
-        ...itemMapper(v, this.mapper),
+        ...itemMapper(Object.assign({}, v), this.mapper),
         index: index + 1
       } as IFieldSetItem;
     });

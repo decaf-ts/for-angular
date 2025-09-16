@@ -71,7 +71,7 @@ function addRouteToAppRoutes(options: Schema): Rule {
     }
 
     tree.overwrite(routesPath, updatedContent);
-    console.log(`✅ Route added to ${routesPath}: ${routePath} -> ${className}`);
+    console.log(`Route added to ${routesPath}: ${routePath} -> ${className}`);
 
     return tree;
   };

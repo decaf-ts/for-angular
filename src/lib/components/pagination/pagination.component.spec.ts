@@ -1,14 +1,16 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { ForAngularModule } from '../../for-angular.module';
+import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { PaginationComponent } from './pagination.component';
 import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { IonIcon } from '@ionic/angular/standalone';
 
 
 const imports = [
-  ForAngularModule,
+  ForAngularCommonModule,
   PaginationComponent,
+  IonIcon,
   TranslateModule.forRoot({
     loader: {
       provide: TranslateLoader,

@@ -2,7 +2,6 @@ import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output, V
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { StringOrBoolean } from '../../engine/types';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
-import { ForAngularModule } from '../../for-angular.module';
 import { removeFocusTrap, stringToBoolean } from '../../helpers/utils';
 import { getWindowWidth, windowEventEmitter } from '../../helpers/utils';
 import { Dynamic, EventConstants, ListItemCustomEvent } from '../../engine';
@@ -69,7 +68,6 @@ import { addIcons } from 'ionicons';
   styleUrls: ['./list-item.component.scss'],
   standalone: true,
   imports: [
-    ForAngularModule,
     IonList,
     IonListHeader,
     IonItem,
@@ -387,7 +385,7 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
    *   L->>W: getWindowWidth()
    *   W-->>L: Return current width
    *   L->>L: Store windowWidth
-   *   alt No operations OR width > 768px
+   *   alt No operations OR width > 639px
    *     L->>U: showSlideItems = false
    *   else Operations include UPDATE/DELETE
    *     L->>U: showSlideItems = true
@@ -399,7 +397,7 @@ export class ListItemComponent extends NgxBaseComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   enableSlideItems(): boolean {
     this.windowWidth = getWindowWidth() as number;
-    if(!this.operations?.length || this.windowWidth > 768)
+    if(!this.operations?.length || this.windowWidth > 639)
       return this.showSlideItems = false;
     this.showSlideItems = this.operations.includes(OperationKeys.UPDATE) || this.operations.includes(OperationKeys.DELETE);
     return this.showSlideItems;

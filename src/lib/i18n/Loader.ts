@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslationObject } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin,  Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {I18nResourceConfig} from '../engine/interfaces';
 import { inject, InjectionToken } from '@angular/core';
-import { FunctionLike } from '../engine';
+import { FunctionLike, KeyValue } from '../engine';
 import { cleanSpaces, getLocaleFromClassName } from '../helpers';
+import en from './data/en.json';
 export class I18nLoader {
   static loadFromHttp(http: HttpClient): TranslateLoader {
     function getSuffix() {
@@ -73,6 +74,8 @@ export function getI18nLoaderFactoryProviderConfig(resources: I18nResourceConfig
   }
 }
 
+const libLanguage: Record<string, TranslationObject> = {en};
+
 export class MultiI18nLoader implements I18nLoader {
   constructor(private http: HttpClient, private resources: I18nResourceConfig[] = [], private versionedSuffix: boolean = false) {}
 
@@ -84,15 +87,20 @@ export class MultiI18nLoader implements I18nLoader {
   }
 
   getTranslation(lang: string): Observable<TranslationObject> {
-    const requests = this.resources.map(config =>
-      this.http.get(`${config.prefix}${lang}${this.getSuffix(config.suffix)}`)
+    const libKeys = libLanguage[lang] || libLanguage["en"] || {};
+    const httpRequests$ = forkJoin(
+      this.resources.map(config =>
+        this.http.get<TranslationObject>(
+          `${config.prefix}${lang}${this.getSuffix(config.suffix)}`
+        )
+      )
     );
-
-    return forkJoin(requests).pipe(
-      map(responseArray => {
-        return responseArray.reduce((acc, current) => {
-          return { ...acc, ...current };
-        }, {});
+    return httpRequests$.pipe(
+      map(res => {
+        return {
+          ...libKeys,
+          ...res.reduce((acc, current) => ({ ...acc, ...current }), {})
+        };
       })
     );
   }

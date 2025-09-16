@@ -3,7 +3,7 @@ import { CrudFieldComponent } from './crud-field.component';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AngularFieldDefinition } from '../../engine';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ForAngularModule } from '../../for-angular.module';
+import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { NgxRenderingEngine } from '../../engine';
@@ -13,7 +13,7 @@ import { By } from '@angular/platform-browser';
 import { error } from 'console';
 
 const imports = [
-  ForAngularModule,
+  ForAngularCommonModule,
   CrudFieldComponent,
   TranslateModule.forRoot({
     loader: {

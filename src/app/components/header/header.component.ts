@@ -1,13 +1,15 @@
-import { Component,  CUSTOM_ELEMENTS_SCHEMA, inject, Input, OnInit } from '@angular/core';
+import { Component,  inject, Input, OnInit } from '@angular/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { IonHeader, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonHeader, IonIcon, IonMenuButton, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
 import { RouterService } from 'src/app/services/router.service';
 import { getWindow, stringToBoolean } from 'src/lib/helpers/utils';
-import { ForAngularModule } from 'src/lib/for-angular.module';
 import { BackButtonComponent } from '../back-button/back-button.component';
 import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
 import { FunctionLike } from 'src/lib/engine/types';
+import { saveOutline, folderOpenOutline, createOutline } from "ionicons/icons";
+import { addIcons } from 'ionicons';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * @description Header component for application pages.
@@ -25,8 +27,8 @@ import { FunctionLike } from 'src/lib/engine/types';
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
-  imports: [ForAngularModule, IonHeader, IonTitle, IonToolbar, BackButtonComponent],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [TranslatePipe, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonMenuButton, IonIcon,  BackButtonComponent],
+  schemas: [],
   standalone: true,
 
 })
@@ -302,6 +304,7 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    */
   constructor() {
     super("HeaderComponent");
+    addIcons({ saveOutline, folderOpenOutline, createOutline });
   }
 
  /**
@@ -395,7 +398,7 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    *
    * @memberOf HeaderComponent
    */
-  async changeOperation(operation: string, id: string): Promise<boolean> {
+  async changeOperation(operation: string, id?: string): Promise<boolean> {
     let page = `${this.route}/${operation}/`.replace('//', '/');
     if(this.modelId || id)
         page = `${page}/${this.modelId || id}`;

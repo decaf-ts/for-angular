@@ -23,7 +23,6 @@ import {
   RenderedModel,
 } from '../../engine';
 import { KeyValue, RendererCustomEvent } from '../../engine/types';
-import { ForAngularModule } from '../../for-angular.module';
 import { Renderable } from '@decaf-ts/ui-decorators';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 
@@ -57,7 +56,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
  */
 @Component({
   standalone: true,
-  imports: [ForAngularModule, NgComponentOutlet, ComponentRendererComponent],
+  imports: [ NgComponentOutlet, ComponentRendererComponent],
   selector: 'ngx-decaf-model-renderer',
   templateUrl: './model-renderer.component.html',
   styleUrl: './model-renderer.component.scss',

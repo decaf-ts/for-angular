@@ -1,6 +1,6 @@
 import { OnInit, CUSTOM_ELEMENTS_SCHEMA, Input, Component, inject, HostListener } from "@angular/core";
 import { PredefinedColors } from "@ionic/core";
-import { ForAngularModule } from 'src/lib/for-angular.module';
+import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { EventConstants, RouteDirections } from "src/lib/engine/constants";
 import { StringOrBoolean } from "src/lib/engine/types";
 import { stringToBoolean } from "src/lib/helpers/utils";
@@ -15,7 +15,7 @@ import { FunctionLike } from "src/lib/engine/types";
   templateUrl: './back-button.component.html',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   styleUrls: ['./back-button.component.scss'],
-  imports: [ForAngularModule],
+  imports: [ForAngularCommonModule],
   standalone: true,
 
 })

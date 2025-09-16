@@ -3,7 +3,7 @@
   <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
 }
 
-<div [id]="uid" class="dcf-grid dcf-grid-small dcf-grid-match dcf-filter-grid" [ngClass]="{'dcf-hidden': !indexes.length}">
+<div [id]="uid" class="dcf-grid dcf-grid-small dcf-grid-match dcf-filter-grid" [class.dcf-hidden]="!indexes.length">
   <div class="dcf-width-expand">
     <div class="dcf-filter">
       <div class="dcf-input">

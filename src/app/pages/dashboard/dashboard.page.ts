@@ -1,17 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon } from '@ionic/angular/standalone';
-import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
-import { ComponentsModule } from 'src/app/components/components.module';
-import { addIcons  } from 'ionicons';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonIcon } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
 import { cardOutline, peopleOutline, documentAttachOutline  } from 'ionicons/icons';
 import { DashboardLayout } from 'src/app/layouts/Dashboboard';
 import { RendererCustomEvent } from 'src/lib/engine';
+import { HeaderComponent } from 'src/app/components/header/header.component';
+import { ContainerComponent } from 'src/app/components/container/container.component';
+import { LayoutComponent } from 'src/lib/components';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
-  imports: [ForAngularComponentsModule, IonCard, IonIcon, IonCardHeader, IonCardTitle, IonCardContent, ComponentsModule],
+   imports: [HeaderComponent, ContainerComponent, IonContent, IonCard, IonIcon, IonCardHeader, IonCardTitle, IonCardContent, LayoutComponent],
 })
 export class DashboardPage implements OnInit {
 

@@ -27,7 +27,7 @@ import {
 import { BaseComponentProps } from './constants';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { Logger } from '@decaf-ts/logging';
-import { getLogger } from '../for-angular.module';
+import { getLogger } from '../for-angular-common.module';
 import { DecafRepository } from '../components/list/constants';
 import { Repository } from '@decaf-ts/core';
 import { RamAdapter } from '@decaf-ts/core/ram';
@@ -382,7 +382,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @description Logger instance for the component.
    * @summary Provides logging capabilities for the component, allowing for consistent
    * and structured logging of information, warnings, and errors. This logger is initialized
-   * in the ngOnInit method using the getLogger function from the ForAngularModule.
+   * in the ngOnInit method using the getLogger function from the ForAngularCommonModule.
    *
    * The logger is used throughout the component to record important events, debug information,
    * and potential issues. It helps in monitoring the component's behavior, tracking the flow
