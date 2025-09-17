@@ -5,7 +5,7 @@
   </ion-refresher>
 }
 
-@if(showSearchbar) {
+@if(showSearchbar && data?.length) {
   @if(model && enableFilter) {
     <ngx-decaf-filter
       [model]="model"

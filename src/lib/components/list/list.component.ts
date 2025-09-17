@@ -42,6 +42,7 @@ import { PaginationCustomEvent } from '../pagination/constants';
 import { IListEmptyResult, ListComponentsTypes, DecafRepository } from './constants';
 import { FunctionLike, IFilterQuery, IFilterQueryItem } from '../../engine';
 import { FilterComponent } from '../filter/filter.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -120,6 +121,7 @@ import { FilterComponent } from '../filter/filter.component';
   styleUrls: ['./list.component.scss'],
   standalone: true,
   imports: [
+    TranslatePipe,
     IonRefresher,
     IonLoading,
     PaginationComponent,
