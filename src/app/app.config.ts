@@ -12,7 +12,7 @@ import {
   provideIonicAngular,
 } from '@ionic/angular/standalone';
 import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
-import { RamAdapter } from '@decaf-ts/core/ram';
+import { RamAdapter } from '@decaf-ts/core/ram/RamAdapter';
 import {
   getI18nLoaderFactoryProviderConfig,
   I18nLoaderFactory,

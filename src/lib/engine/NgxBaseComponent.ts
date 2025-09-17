@@ -30,7 +30,7 @@ import { Logger } from '@decaf-ts/logging';
 import { getLogger } from '../for-angular-common.module';
 import { DecafRepository } from '../components/list/constants';
 import { Repository } from '@decaf-ts/core';
-import { RamAdapter } from '@decaf-ts/core/ram';
+import { RamAdapter } from '@decaf-ts/core/ram/RamAdapter';
 
 /**
  * @description Base component class that provides common functionality for all Decaf components.

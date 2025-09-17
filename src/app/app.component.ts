@@ -239,7 +239,7 @@ export class AppComponent implements OnInit {
     const isDevelopment = isDevelopmentMode();
     if(isDevelopment) {
       for(const model of [new CategoryModel(), new EmployeeModel()] ) {
-        const repository = new ForAngularRepository<typeof model>(this.adapter as DecafRepositoryAdapter, model);
+        const repository = new ForAngularRepository<typeof model>(this.adapter as unknown as DecafRepositoryAdapter, model);
         await repository.init();
       }
     }
