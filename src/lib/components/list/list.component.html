@@ -59,7 +59,7 @@
   }
 } @else {
   @if(refreshing) {
-    @for(skl of skeletonData; track skl) {
+    @for(skl of skeletonData; track $index) {
       <ion-item>
         <ion-thumbnail slot="start">
           <ion-skeleton-text [animated]="true"></ion-skeleton-text>

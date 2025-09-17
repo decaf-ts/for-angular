@@ -1273,9 +1273,14 @@ parseConditions(value: string | number | IFilterQuery): Condition<Model> {
 protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyValue[]> {
   if(!Array.isArray(result) && ('page' in result && 'total' in result)) {
     const paginator = result as Paginator<Model>;
-    result = await paginator.page(this.page);
-    // TODO: Chage for result.total;
-    this.getMoreData(paginator.total);
+    try {
+      result = await paginator.page(this.page);
+      // TODO: Chage for result.total;
+      this.getMoreData(paginator.total);
+    } catch(error: unknown) {
+      result = [];
+    }
+
   } else {
     this.getMoreData((result as KeyValue[])?.length || 0);
   }
