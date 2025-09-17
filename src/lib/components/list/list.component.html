@@ -49,6 +49,7 @@
     } @else {
       <ion-infinite-scroll
         [class]="searchValue?.length ? 'dcf-hidden' : ''"
+
         [position]="scrollPosition"
         [threshold]="scrollThreshold"
         (ionInfinite)="handleRefresh($event)">

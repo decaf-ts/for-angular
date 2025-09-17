@@ -5,7 +5,7 @@ import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { EventConstants, KeyValue, StringOrBoolean } from '../../engine';
 import { PaginationCustomEvent } from './constants';
-import { TranslateModule } from '@ngx-translate/core';
+import {  TranslatePipe } from '@ngx-translate/core';
 
 /**
  * @description A pagination component for navigating through multiple pages of content.
@@ -53,7 +53,7 @@ import { TranslateModule } from '@ngx-translate/core';
   templateUrl: './pagination.component.html',
   styleUrls: ['./pagination.component.scss'],
   imports: [
-    TranslateModule,
+    TranslatePipe,
     IonIcon
   ],
   standalone: true,

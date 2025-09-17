@@ -21,6 +21,7 @@ import {
 } from '@ionic/angular/standalone';
 import * as AllIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
+import { TranslatePipe } from '@ngx-translate/core';
 
 
 /**
@@ -68,6 +69,7 @@ import { addIcons } from 'ionicons';
   styleUrls: ['./list-item.component.scss'],
   standalone: true,
   imports: [
+    TranslatePipe,
     IonList,
     IonListHeader,
     IonItem,
