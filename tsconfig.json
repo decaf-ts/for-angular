@@ -30,7 +30,9 @@
     ],
     "useDefineForClassFields": false,
     "paths": {
-      "@decaf-ts/core/ram/*": ["node_modules/@decaf-ts/core/lib/esm/ram/*"]
+
+      "@decaf-ts/core/ram/RamAdapter": ["node_modules/@decaf-ts/core/lib/esm/ram/RamAdapter"],
+      "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"],
     }
   },
   "angularCompilerOptions": {
@@ -39,7 +41,8 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": false, // default true
       "paths": {
-        "@decaf-ts/core/ram/*": ["node_modules/@decaf-ts/core/lib/esm/ram/*"]
+        "@decaf-ts/core/ram/RamAdapter": ["node_modules/@decaf-ts/core/lib/esm/ram/RamAdapter"],
+      "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"],
       }
     }
   }
