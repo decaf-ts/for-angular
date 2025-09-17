@@ -1,6 +1,17 @@
-ion-infinite-scroll-content {
-  ion-spinner {
+ion-infinite-scroll {
+  max-height: 50px;
+
+  &:not(.infinite-scroll-loading) {
+    ::ng-deep {
+      max-height: 1.5rem;
+    }
+  }
+
+  ::ng-deep {
+    ion-spinner {
       --color: var(--dcf-color-primary);
+      padding-top: 1rem;
+    }
   }
 }
 

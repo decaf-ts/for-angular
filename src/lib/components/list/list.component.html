@@ -5,7 +5,7 @@
   </ion-refresher>
 }
 
-@if(showSearchbar) {
+@if(showSearchbar && data?.length) {
   @if(model && enableFilter) {
     <ngx-decaf-filter
       [model]="model"
@@ -49,6 +49,7 @@
     } @else {
       <ion-infinite-scroll
         [class]="searchValue?.length ? 'dcf-hidden' : ''"
+
         [position]="scrollPosition"
         [threshold]="scrollThreshold"
         (ionInfinite)="handleRefresh($event)">
