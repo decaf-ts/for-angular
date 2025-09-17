@@ -8,6 +8,7 @@ import { getLocaleContext } from 'src/lib/i18n/Loader';
 import { LogoComponent } from 'src/app/components/logo/logo.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
+import { MenuController } from '@ionic/angular';
 
 /**
  * @description Login page component for user authentication
@@ -97,6 +98,22 @@ export class LoginPage implements OnInit {
    * @memberOf LoginPage
    */
   private toastController: ToastController = inject(ToastController);
+
+
+  /**
+   * @description Ionic MenuController instance for controlling the app menu
+   * @summary Injected MenuController service used for enabling or disabling the app menu.
+   *
+   * @private
+   * @type {MenuController}
+   * @memberOf LoginPage
+   */
+  private menuController: MenuController = inject(MenuController);
+
+
+  constructor() {
+    this.menuController.enable(false);
+  }
 
   /**
    * @description Component initialization lifecycle method
