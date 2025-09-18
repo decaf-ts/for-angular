@@ -5,7 +5,7 @@ import { forkJoin,  Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {I18nResourceConfig} from '../engine/interfaces';
 import { inject, InjectionToken } from '@angular/core';
-import { FunctionLike, KeyValue } from '../engine';
+import { FunctionLike } from '../engine';
 import { cleanSpaces, getLocaleFromClassName } from '../helpers';
 import en from './data/en.json';
 export class I18nLoader {

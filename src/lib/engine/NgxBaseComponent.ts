@@ -460,15 +460,12 @@ export abstract class NgxBaseComponent implements OnChanges {
           throw new InternalError(
             'Cannot find model. was it registered with @model?'
           );
-        let dbAdapterFlavour = getOnWindow('dbAdapterFlavour');
-        if (!dbAdapterFlavour && isDevelopmentMode()) {
-          const adapter = new RamAdapter({ user: 'user' });
-          dbAdapterFlavour = adapter.flavour;
-        }
-        this._repository = Repository.forModel(
-          constructor,
-          dbAdapterFlavour as string
-        );
+        // let dbAdapterFlavour = getOnWindow('dbAdapterFlavour');
+        // if (!dbAdapterFlavour && isDevelopmentMode()) {
+        //   const adapter = new RamAdapter({ user: 'user' });
+        //   dbAdapterFlavour = adapter.flavour;
+        // }
+        this._repository = Repository.forModel(constructor);
         this.model = new constructor() as Model;
         if (this.model && !this.pk)
           this.pk =

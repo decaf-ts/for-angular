@@ -1278,6 +1278,7 @@ protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyV
       // TODO: Chage for result.total;
       this.getMoreData(paginator.total);
     } catch(error: unknown) {
+      this.logger.info((error as Error)?.message || 'Unable to get page from paginator. Return empty array from component');
       result = [];
     }
 
