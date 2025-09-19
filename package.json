@@ -45,9 +45,7 @@
     "resources": "npm run resources:pwa",
     "resources:android": "npx capacitor-assets generate --android --assetPath='resources' && npm run resources",
     "resources:ios": "npx capacitor-assets generate --ios --assetPath='resources' && npm run resources",
-    "resources:pwa": "npx capacitor-assets generate --pwa --assetPath='resources' --pwaManifestPath='src/manifest.webmanifest'",
-    "link:styles": "npx rimraf ./node_modules/@decaf-ts/styles && npm link @decaf-ts/styles",
-    "apache": "rm -rf /var/www/html/angular/* && cp -r www/* /var/www/html/angular/"
+    "resources:pwa": "npx capacitor-assets generate --pwa --assetPath='resources' --pwaManifestPath='src/manifest.webmanifest'"
   },
   "author": "Tiago Venceslau",
   "license": "AGPL-3.0-or-later",
@@ -61,12 +59,12 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.14",
-    "@angular/cli": "^18.2.14",
-    "@angular/compiler-cli": "^18.2.14",
     "@angular-devkit/core": "^18.2.14",
     "@angular-devkit/schematics": "^18.2.14",
     "@angular-devkit/schematics-cli": "^18.2.14",
     "@angular-eslint/schematics": "^18.2.14",
+    "@angular/cli": "^18.2.14",
+    "@angular/compiler-cli": "^18.2.14",
     "@capacitor/assets": "^3.0.5",
     "@decaf-ts/utils": "^0.2.6",
     "@faker-js/faker": "^9.7.0",

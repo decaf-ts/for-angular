@@ -1,9 +1,15 @@
-import { NgModule, ModuleWithProviders } from '@angular/core';
+import { NgModule, ModuleWithProviders, InjectionToken } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 import { Logger, Logging } from '@decaf-ts/logging';
-import { FunctionLike } from './engine';
+import { FunctionLike, I18nResourceConfig } from './engine';
+import { DecafRepositoryAdapter } from './engine/types';
+
+
+export const DB_ADAPTER_PROVIDER_TOKEN = new InjectionToken<DecafRepositoryAdapter>('DB_ADAPTER_PROVIDER');
+
+export const I18N_CONFIG_TOKEN = new InjectionToken<{resources: I18nResourceConfig[]; versionedSuffix: boolean}>('I18N_CONFIG_TOKEN');
 
 const ComponentsAndModules = [
   CommonModule,
@@ -12,6 +18,7 @@ const ComponentsAndModules = [
   TranslateModule,
   TranslatePipe
 ];
+
 
 const log = Logging.for("for-angular");
 export function getLogger(instance: string | FunctionLike | unknown): Logger {

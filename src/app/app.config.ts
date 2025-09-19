@@ -1,4 +1,4 @@
-import { ApplicationConfig, InjectionToken } from '@angular/core';
+import { ApplicationConfig } from '@angular/core';
 import {
   provideRouter,
   withComponentInputBinding,
@@ -12,17 +12,15 @@ import {
   provideIonicAngular,
 } from '@ionic/angular/standalone';
 import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
-import { RamAdapter } from '@decaf-ts/core/ram/RamAdapter';
+import { RamAdapter } from '@decaf-ts/core';
 import {
   getI18nLoaderFactoryProviderConfig,
   I18nLoaderFactory,
 } from 'src/lib/i18n/Loader';
 import { routes } from './app.routes';
 import { getWindow } from '../lib/helpers';
+import { DB_ADAPTER_PROVIDER_TOKEN } from 'src/lib/for-angular-common.module';
 
-export const DbAdapterProvider = new InjectionToken<RamAdapter>(
-  'DbAdapterProvider'
-);
 
 /**
  * Factory function to create and configure the database adapter
@@ -39,7 +37,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    { provide: DbAdapterProvider, useFactory: createDbAdapter },
+    { provide: DB_ADAPTER_PROVIDER_TOKEN, useFactory: createDbAdapter },
     provideIonicAngular(),
     provideRouter(
       routes,

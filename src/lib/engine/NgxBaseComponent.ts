@@ -13,8 +13,6 @@ import { KeyValue, RendererCustomEvent, StringOrBoolean } from './types';
 import {
   generateRandomValue,
   getInjectablesRegistry,
-  getOnWindow,
-  isDevelopmentMode,
   stringToBoolean,
 } from '../helpers/utils';
 import { getLocaleContext } from '../i18n/Loader';
@@ -28,9 +26,8 @@ import { BaseComponentProps } from './constants';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { Logger } from '@decaf-ts/logging';
 import { getLogger } from '../for-angular-common.module';
-import { DecafRepository } from '../components/list/constants';
+import { DecafRepository } from './types';
 import { Repository } from '@decaf-ts/core';
-import { RamAdapter } from '@decaf-ts/core/ram';
 
 /**
  * @description Base component class that provides common functionality for all Decaf components.
@@ -460,11 +457,6 @@ export abstract class NgxBaseComponent implements OnChanges {
           throw new InternalError(
             'Cannot find model. was it registered with @model?'
           );
-        // let dbAdapterFlavour = getOnWindow('dbAdapterFlavour');
-        // if (!dbAdapterFlavour && isDevelopmentMode()) {
-        //   const adapter = new RamAdapter({ user: 'user' });
-        //   dbAdapterFlavour = adapter.flavour;
-        // }
         this._repository = Repository.forModel(constructor);
         this.model = new constructor() as Model;
         if (this.model && !this.pk)

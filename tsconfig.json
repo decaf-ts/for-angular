@@ -29,19 +29,19 @@
       "DOM"
     ],
     "useDefineForClassFields": false,
-    "paths": {
-      "@decaf-ts/core/ram/RamAdapter": ["node_modules/@decaf-ts/core/lib/esm/ram/RamAdapter"],
-      "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"],
-    }
+    // "paths": {
+    //   "@decaf-ts/core/ram/RamAdapter": ["node_modules/@decaf-ts/core/lib/esm/ram/RamAdapter"],
+    //   "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"],
+    // }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": false, // default true
-      "paths": {
-        "@decaf-ts/core/ram/RamAdapter": ["node_modules/@decaf-ts/core/lib/esm/ram/RamAdapter"],
-        "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"],
-      }
+      // "paths": {
+      //   "@decaf-ts/core/ram/RamAdapter": ["node_modules/@decaf-ts/core/lib/esm/ram/RamAdapter"],
+      //   "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"],
+      // }
     }
   }

@@ -10,7 +10,7 @@ import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonSe
 import { BaseCustomEvent, EventConstants, KeyValue } from 'src/lib/engine';
 import { RouterService } from 'src/app/services/router.service';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
-import { DecafRepository } from 'src/lib/components/list/constants';
+import { DecafRepository } from 'src/lib/engine/types';
 import { Logger } from '@decaf-ts/logging';
 import { getLogger } from 'src/lib/for-angular-common.module';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';

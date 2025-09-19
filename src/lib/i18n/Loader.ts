@@ -4,10 +4,11 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { forkJoin,  Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {I18nResourceConfig} from '../engine/interfaces';
-import { inject, InjectionToken } from '@angular/core';
+import { inject } from '@angular/core';
 import { FunctionLike } from '../engine';
 import { cleanSpaces, getLocaleFromClassName } from '../helpers';
 import en from './data/en.json';
+import { I18N_CONFIG_TOKEN } from '../for-angular-common.module';
 export class I18nLoader {
   static loadFromHttp(http: HttpClient): TranslateLoader {
     function getSuffix() {
@@ -55,8 +56,6 @@ export function getLocaleContextByKey(
   return `${locale}.${cleanSpaces(parts.join('.'), true)}`;
 }
 
-export const I18N_CONFIG_TOKEN = new InjectionToken<{resources: I18nResourceConfig[]; versionedSuffix: false}>('I18N_CONFIG_TOKEN');
-
 export function I18nLoaderFactory(http: HttpClient): TranslateLoader {
   const {resources, versionedSuffix} = inject(I18N_CONFIG_TOKEN, { optional: true }) ?? getI18nLoaderFactoryProviderConfig().useValue;
   return new MultiI18nLoader(http, resources, versionedSuffix);
@@ -68,7 +67,7 @@ export function getI18nLoaderFactoryProviderConfig(resources: I18nResourceConfig
   return {
     provide: I18N_CONFIG_TOKEN,
     useValue: { resources: [
-      { prefix: './assets/i18n/', suffix: '.json' },
+      // { prefix: './assets/i18n/', suffix: '.json' },
       ...resources
     ], versionedSuffix}
   }
