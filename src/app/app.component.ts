@@ -24,10 +24,10 @@ import { isDevelopmentMode, removeFocusTrap } from 'src/lib/helpers';
 import { ForAngularRepository } from './utils/ForAngularRepository';
 import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
-import { DecafRepositoryAdapter } from 'src/lib/components/list/constants';
-import { DbAdapterProvider } from './app.config';
+import { DecafRepositoryAdapter } from 'src/lib/engine/types';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LogoComponent } from './components/logo/logo.component';
+import { DB_ADAPTER_PROVIDER_TOKEN } from 'src/lib/for-angular-common.module';
 
 try {
   new NgxRenderingEngine();
@@ -186,7 +186,7 @@ export class AppComponent implements OnInit {
   /**
    * @description The database adapter provider
    */
-  adapter = inject(DbAdapterProvider);
+  adapter = inject(DB_ADAPTER_PROVIDER_TOKEN);
 
   /**
    * @description Flag indicating if the application has been initialized

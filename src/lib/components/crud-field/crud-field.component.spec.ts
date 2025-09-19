@@ -23,10 +23,13 @@ const imports = [
   }),
 ];
 
-async function getIonErrorElement(fixture: ComponentFixture<CrudFieldComponent>, selector: string = 'ion-input'): Promise<HTMLElement> {
+async function getErrorMessage(fixture: ComponentFixture<CrudFieldComponent>, selector: string = 'ion-input'): Promise<HTMLElement> {
   const ionInput = fixture.debugElement.query(By.css(selector)).componentInstance;
   await ionInput.getInputElement();
-  return fixture.nativeElement.querySelector('.error-text');
+  const errorText = ionInput.errorText;
+  const errorElement = fixture.nativeElement.querySelector('.error-text');
+  fixture.detectChanges();
+  return errorElement?.textContent || errorText;
 }
 
 function updateFieldValidators(fixture: ComponentFixture<CrudFieldComponent>, component: CrudFieldComponent): void {
@@ -36,9 +39,11 @@ function updateFieldValidators(fixture: ComponentFixture<CrudFieldComponent>, co
     component.formGroup = new FormGroup({
       [component.name]: component.formControl,
     });
-    component.formControl.markAsTouched();
-    component.formControl.markAsDirty();
+    component.formGroup.get(component.name)?.markAsTouched();
+    component.formGroup.get(component.name)?.markAsDirty();
+
     fixture.detectChanges();
+
 }
 
 describe('CrudFieldComponent', () => {
@@ -136,9 +141,9 @@ describe('CrudFieldComponent', () => {
 
     updateFieldValidators(fixture, component);
 
-    const errorDiv = await getIonErrorElement(fixture);
-    expect(errorDiv).toBeTruthy();
-    expect(errorDiv.textContent).toContain('required');
+    const errorMessage = await getErrorMessage(fixture);
+    expect(errorMessage).toBeTruthy();
+    expect(errorMessage).toContain('required');
   });
 
   it('should show error message when minlength is not met', async () => {
@@ -148,9 +153,9 @@ describe('CrudFieldComponent', () => {
 
     updateFieldValidators(fixture, component);
 
-    const errorDiv = await getIonErrorElement(fixture);
-    expect(errorDiv).toBeTruthy();
-    expect(errorDiv.textContent).toContain('minlength');
+    const errorMessage = await getErrorMessage(fixture);
+    expect(errorMessage).toBeTruthy();
+    expect(errorMessage).toContain('minlength');
   });
 
   it('should show error message when maxlength is exceeded', async () => {
@@ -160,9 +165,9 @@ describe('CrudFieldComponent', () => {
 
     updateFieldValidators(fixture, component);
 
-    const errorDiv = await getIonErrorElement(fixture);
-    expect(errorDiv).toBeTruthy();
-    expect(errorDiv.textContent).toContain('maxlength');
+    const errorMessage = await getErrorMessage(fixture);
+    expect(errorMessage).toBeTruthy();
+    expect(errorMessage).toContain('maxlength');
   });
 
   it('should show error message when pattern is not matched', async () => {
@@ -173,9 +178,9 @@ describe('CrudFieldComponent', () => {
 
     updateFieldValidators(fixture, component);
 
-    const errorDiv = await getIonErrorElement(fixture);
-    expect(errorDiv).toBeTruthy();
-    expect(errorDiv.textContent).toContain('pattern');
+    const errorMessage = await getErrorMessage(fixture);
+    expect(errorMessage).toBeTruthy();
+    expect(errorMessage).toContain('pattern');
   });
 
   it('should show error message when min value is not met', async() => {
@@ -184,9 +189,9 @@ describe('CrudFieldComponent', () => {
     component.min = 5;
     component.value = 3;
     updateFieldValidators(fixture, component);
-    const errorDiv = await getIonErrorElement(fixture);
+    const errorMessage = await getErrorMessage(fixture);
     expect(component.formControl.errors?.['min']).toBeTruthy();
-    expect(errorDiv.textContent).toContain('min');
+    expect(errorMessage).toContain('min');
   });
 
   it('should show error message when max value is exceeded', async () => {
@@ -196,9 +201,9 @@ describe('CrudFieldComponent', () => {
     component.value = 13;
 
     updateFieldValidators(fixture, component);
-    const errorDiv = await getIonErrorElement(fixture);
+    const errorMessage = await getErrorMessage(fixture);
     expect(component.formControl.errors?.['max']).toBeTruthy();
-    expect(errorDiv.textContent).toContain('max');
+    expect(errorMessage).toContain('max');
 
   });
 
@@ -207,8 +212,8 @@ describe('CrudFieldComponent', () => {
     component.value = 'Valid input';
     updateFieldValidators(fixture, component);
 
-    const errorDiv = await getIonErrorElement(fixture);
-    expect(errorDiv).toBeFalsy();
+    const errorMessage = await getErrorMessage(fixture);
+    expect(errorMessage).toBeFalsy();
     expect(component.formControl.errors).toBeNull();
   });
 

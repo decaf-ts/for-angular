@@ -39,8 +39,7 @@ import { ListItemComponent } from '../list-item/list-item.component';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { PaginationComponent } from '../pagination/pagination.component';
 import { PaginationCustomEvent } from '../pagination/constants';
-import { IListEmptyResult, ListComponentsTypes, DecafRepository } from './constants';
-import { FunctionLike, IFilterQuery, IFilterQueryItem } from '../../engine';
+import { FunctionLike, IFilterQuery, IFilterQueryItem, DecafRepository, IListEmptyResult, ListComponentsTypes } from '../../engine';
 import { FilterComponent } from '../filter/filter.component';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -1278,6 +1277,7 @@ protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyV
       // TODO: Chage for result.total;
       this.getMoreData(paginator.total);
     } catch(error: unknown) {
+      this.logger.info((error as Error)?.message || 'Unable to get page from paginator. Return empty array from component');
       result = [];
     }
 

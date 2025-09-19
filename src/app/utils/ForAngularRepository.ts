@@ -1,4 +1,4 @@
-import { DecafRepository, DecafRepositoryAdapter } from 'src/lib/components/list/constants';
+import { DecafRepository, DecafRepositoryAdapter } from 'src/lib/engine/types';
 import { formatDate } from 'src/lib/helpers/utils';
 import { faker } from '@faker-js/faker';
 import { Model } from '@decaf-ts/decorator-validation';

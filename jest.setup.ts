@@ -7,6 +7,21 @@ setupZoneTestEnv();
 // Jest + Ionic
 Object.defineProperty(window, 'CSS', { value: null });
 
+// Mocking window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // obsoleto
+    removeListener: jest.fn(), // obsoleto
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
 // JSDOM: https://thymikee.github.io/jest-preset-angular/docs/getting-started/installation/#customizing
 Object.defineProperty(document, 'doctype', {
   value: '<!DOCTYPE html>',
@@ -31,7 +46,5 @@ Object.defineProperty(document.body.style, 'transform', {
   },
 });
 
-// node 18+ polyfills
-global.TextEncoder = TextEncoder;
-// @ts-expect-error
-global.TextDecoder = TextDecoder;
+(global as Record<string, unknown>)['TextEncoder'] = TextEncoder;
+(global as Record<string, unknown>)['TextDecoder'] = TextDecoder;
