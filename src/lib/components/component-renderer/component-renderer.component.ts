@@ -70,7 +70,7 @@ import { generateRandomValue } from '../../helpers';
   styleUrls: ['./component-renderer.component.scss'],
   imports: [NgComponentOutlet],
   standalone: true,
-  host: {'[attr.id]': 'rendererId'},
+  host: {'[attr.id]': 'uid'},
 })
 export class ComponentRendererComponent
   implements OnInit, OnDestroy {
@@ -137,6 +137,9 @@ export class ComponentRendererComponent
    */
   component!: ComponentRef<unknown>;
 
+  @Input()
+  children: KeyValue[] = [];
+
   /**
    * @description Event emitter for events from the rendered component.
    * @summary This output property emits events that originate from the dynamically rendered
@@ -175,7 +178,6 @@ export class ComponentRendererComponent
 
   @Input()
   parent: undefined | KeyValue = undefined;
-
 
   @ViewChild('inner', { read: TemplateRef, static: true })
   inner?: TemplateRef<unknown>;
@@ -283,6 +285,8 @@ export class ComponentRendererComponent
    * @memberOf ComponentRendererComponent
    */
   private createComponent(tag: string, globals: KeyValue = {}): void {
+
+
     const component = NgxRenderingEngine.components(tag)
       ?.constructor as Type<unknown>;
     const metadata = reflectComponentType(component);
@@ -290,6 +294,8 @@ export class ComponentRendererComponent
     const props = globals?.['item'] || globals?.['props'] || {};
     if(props?.['tag'])
       delete props['tag'];
+     if(props?.['children'] && !this.children.length)
+      this.children = props['children'] as KeyValue[];
     const inputKeys = Object.keys(props);
     const unmappedKeys: string[] = [];
 
@@ -303,19 +309,21 @@ export class ComponentRendererComponent
         unmappedKeys.push(input);
       }
     }
+
     this.vcr.clear();
+    const template = this.children?.length ? this.vcr.createEmbeddedView(this.inner as TemplateRef<unknown>, this.injector).rootNodes : [];
     this.component = NgxRenderingEngine.createComponent(
       component,
       props,
       metadata as ComponentMirror<unknown>,
       this.vcr,
       this.injector as Injector,
-      [],
+      template,
     );
     this.subscribeEvents();
   }
 
-  createParentComponent() {
+  private createParentComponent() {
     const { component, inputs } = this.parent as KeyValue;
     const metadata = reflectComponentType(component) as ComponentMirror<unknown>;
     const template = this.vcr.createEmbeddedView(this.inner as TemplateRef<unknown>, this.injector).rootNodes;

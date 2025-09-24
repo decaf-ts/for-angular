@@ -300,7 +300,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   async ngOnInit(): Promise<void> {
-    this.parseProps(this);
+    this.initialize();
     this.translatable = stringToBoolean(this.translatable);
     this.showIcon = stringToBoolean(this.showIcon);
     this.locale = this.getLocale(this.translatable);

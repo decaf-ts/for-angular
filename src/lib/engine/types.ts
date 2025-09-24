@@ -1,6 +1,6 @@
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
-import { FormGroup } from '@angular/forms';
+import { FormArray, FormGroup } from '@angular/forms';
 import { BaseCustomEvent, FormServiceControl, InputOption } from './interfaces';
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
@@ -283,12 +283,14 @@ export type CrudFormEvent = BaseCustomEvent & {
 };
 
 
+export type FormParent = FormGroup | FormArray;
+
 /**
  * @description Form parent group tuple
  * @summary Represents a tuple containing a FormGroup and its associated string identifier.
  * This is used for managing hierarchical form structures and parent-child relationships.
- * @typedef {[FormGroup, string]} FormParentGroup
+ * @typedef {[FormParent, string]} FormParentGroup
  * @memberOf module:engine
  */
-export type FormParentGroup = [FormGroup,  string];
+export type FormParentGroup = [FormParent,  string];
 

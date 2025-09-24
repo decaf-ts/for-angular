@@ -8,7 +8,7 @@ import {
   ValidationKeys,
   Validator,
 } from '@decaf-ts/decorator-validation';
-import { FieldProperties, HTML5InputTypes, parseValueByType } from '@decaf-ts/ui-decorators';
+import { FieldProperties, parseValueByType } from '@decaf-ts/ui-decorators';
 import { AngularEngineKeys } from './constants';
 import { KeyValue } from './types';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
@@ -58,13 +58,13 @@ export class ValidatorFactory {
       throw new Error('Unsupported custom validation');
 
     const validatorFn: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-      const { name, type } = fieldProps;
+      const { type } = fieldProps;
       const { validatorKey, props } = resolveValidatorKeyProps(key, fieldProps[key as keyof FieldProperties], type);
       const validator = Validation.get(validatorKey) as Validator;
 
       // parseValueByType does not support undefined values
       const value = typeof control.value !== 'undefined'
-        ? parseValueByType(type, type === HTML5InputTypes.CHECKBOX ? name : control.value, fieldProps)
+        ? parseValueByType(type, control.value, fieldProps)
         : undefined;
 
       // Create a proxy to enable access to parent and child values

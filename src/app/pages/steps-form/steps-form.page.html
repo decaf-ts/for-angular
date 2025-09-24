@@ -9,11 +9,16 @@
    <main>
     <app-container [hasSideMenu]="true" size="2xlarge">
        <ion-card class="dcf-card-default dcf-padding-small">
-        <ngx-decaf-model-renderer
+       <ngx-decaf-model-renderer
           [model]="model"
+          [projectable]="false"
           (listenEvent)="handleSubmit($event)"
           [globals]="globals">
         </ngx-decaf-model-renderer>
+
+          <!-- <ngx-decaf-steped-form
+          [model]="model"
+          (listenEvent)="handleSubmit($event)" /> -->
        </ion-card>
     </app-container>
   </main>

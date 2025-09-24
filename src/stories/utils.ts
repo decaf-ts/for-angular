@@ -37,7 +37,7 @@ export function getComponentMeta<C>(imports: unknown[] = [], type: "component" |
         (story) => type === "component" ? story :
           `<ion-app>
             <ion-content [fullscreen]="true">
-              <main class="main">
+               <main>
                 <app-container [hasSideMenu]="true" size="expand">
                   ${story}
                 </app-container>

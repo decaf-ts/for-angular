@@ -3,8 +3,7 @@
     <ng-content #formContent></ng-content>
     <div class="dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
       <div>
-        <ion-button
-          type="submit">
+        <ion-button type="submit" [expand]="action ? 'block' : 'default'">
           @if(options.buttons.submit.icon) {
             <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
           }

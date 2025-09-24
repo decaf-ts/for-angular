@@ -54,11 +54,9 @@ export const appConfig: ApplicationConfig = {
         deps: [HttpClient],
       },
     }),
-    {
-      ...getI18nLoaderFactoryProviderConfig({
-        prefix: './app/assets/i18n/',
-        suffix: '.json',
-      }),
-    },
+    getI18nLoaderFactoryProviderConfig({
+      prefix: './app/assets/i18n/',
+      suffix: '.json',
+    }),
   ],
 };

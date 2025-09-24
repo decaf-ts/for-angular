@@ -10,6 +10,80 @@ import { addIcons } from 'ionicons';
 import { chevronBackOutline } from 'ionicons/icons';
 import { FunctionLike } from "src/lib/engine/types";
 
+/**
+ * @description Back button component for navigation within Angular applications.
+ * @summary The BackButtonComponent provides a standardized back navigation button with
+ * customizable appearance and behavior. It supports both traditional browser back navigation
+ * and custom navigation logic through function callbacks. The component integrates with
+ * Angular's Location service for browser history management and provides event emission
+ * capabilities for external components to react to navigation actions.
+ *
+ * Key features include:
+ * - Customizable appearance with Ionic color schemes
+ * - Prevention of default navigation behavior for custom handling
+ * - Event emission for external component integration
+ * - Support for custom navigation targets (URLs or functions)
+ * - Configurable text display alongside the icon
+ * - Integration with browser history API
+ *
+ * @component BackButtonComponent
+ * @example
+ * ```html
+ * <!-- Basic back button -->
+ * <app-back-button></app-back-button>
+ *
+ * <!-- Custom colored back button with text -->
+ * <app-back-button
+ *   color="secondary"
+ *   showText="true"
+ *   text="Go Back">
+ * </app-back-button>
+ *
+ * <!-- Back button with custom navigation -->
+ * <app-back-button
+ *   [link]="customBackFunction"
+ *   preventDefault="true">
+ * </app-back-button>
+ *
+ * <!-- Back button that navigates to specific URL -->
+ * <app-back-button
+ *   link="/dashboard"
+ *   direction="forward">
+ * </app-back-button>
+ * ```
+ *
+ * @mermaid
+ * sequenceDiagram
+ *   participant U as User
+ *   participant BBC as BackButtonComponent
+ *   participant L as Location Service
+ *   participant E as Event System
+ *   participant C as Custom Function
+ *
+ *   U->>BBC: Click back button
+ *   BBC->>BBC: backToPage()
+ *
+ *   alt preventDefault is true
+ *     BBC->>BBC: handleEndNavigation()
+ *     BBC->>E: Emit navigation event
+ *     Note over BBC: Navigation prevented
+ *   else preventDefault is false
+ *     BBC->>BBC: handleEndNavigation()
+ *     BBC->>E: Emit navigation event
+ *
+ *     alt No custom link
+ *       BBC->>L: location.back()
+ *       L->>L: Navigate to previous page
+ *     else Custom function provided
+ *       BBC->>C: Execute custom function
+ *       C->>C: Handle custom navigation
+ *     else URL string provided
+ *       Note over BBC: Navigate to URL (implementation dependent)
+ *     end
+ *   end
+ *
+ * @memberOf app.components
+ */
 @Component({
   selector: 'app-back-button',
   templateUrl: './back-button.component.html',

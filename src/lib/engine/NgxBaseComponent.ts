@@ -583,7 +583,8 @@ export abstract class NgxBaseComponent implements OnChanges {
       const field = this.renderingEngine.getDecorators(this.model as Model, {});
       const { props, item, children } = field;
       this.props = Object.assign(props || {}, { children: children || [] });
-      if (item?.props?.['mapper']) this.mapper = item?.props!['mapper'] || {};
+      if (item?.props?.['mapper'])
+        this.mapper = item?.props!['mapper'] || {};
       this.item = {
         tag: item?.tag || '',
         ...item?.props,
@@ -601,7 +602,9 @@ export abstract class NgxBaseComponent implements OnChanges {
    * an initialization message with the component name. This method is typically called
    * during the component's lifecycle setup.
    */
-  initialize(): void {
+  async initialize(parseProps: boolean = true, skip?: string[]): Promise<void> {
+    if(!this.initialized && parseProps)
+      return this.parseProps(this, skip || []);
     this.initialized = true;
   }
 
@@ -687,10 +690,14 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @protected
    * @memberOf NgxBaseComponent
    */
-  protected parseProps(instance: KeyValue): void {
+  protected parseProps(instance: KeyValue, skip: string[]): void {
     Object.keys(instance).forEach((key) => {
-      if (Object.keys(this.props).includes(key))
+      if (Object.keys(this.props).includes(key) && !skip.includes(key)) {
         (this as KeyValue)[key] = this.props[key];
+        delete this.props[key];
+      }
     });
+    if(!this.initialized)
+      this.initialized = true;
   }
 }

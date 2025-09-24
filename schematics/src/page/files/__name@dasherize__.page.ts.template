@@ -1,18 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { IonCard, IonCardContent } from '@ionic/angular/standalone';
-import { ForAngularComponentsModule } from '../../../lib/components/for-angular-components.module';
-import { ComponentsModule } from '../../components/components.module';
+import { IonCard, IonCardContent, IonContent } from '@ionic/angular/standalone';
+import { HeaderComponent } from 'src/app/components/header/header.component';
+import { ContainerComponent } from 'src/app/components/container/container.component';
 
 @Component({
   standalone: true,
   selector: 'app-<%= dasherize(name) %>',
   templateUrl: './<%= dasherize(name) %>.page.html',
   styleUrls: ['./<%= dasherize(name) %>.page.scss'],
-  imports: [ForAngularComponentsModule, ComponentsModule, IonCard, IonCardContent]
+  imports: [HeaderComponent, ContainerComponent, IonContent, IonCard]
 })
 export class <%= classify(name) %>Page implements OnInit {
 
   constructor() {}
 
   ngOnInit() {}
+
 }

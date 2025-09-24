@@ -16,15 +16,18 @@ ion-menu {
     ion-content { background: var(--ion-item-background, var(--ion-background-color, #fff)) !important; }
   }
   ion-list {
-    // background: transparent !important;
+    pointer-events: none ;
+    touch-action: none;
+  // background: transparent !important;
     padding: 0rem .75rem;
-     ion-list-header,
+    ion-list-header,
     .dcf-separator {
       font-weight: 600;
       letter-spacing: 0.4px;
       text-transform: uppercase;
       // font-size: 1rem;
-      pointer-events: none;
+      pointer-events: none !important;
+      touch-action: none !important;
 
       margin-top: 1rem;
       cursor: text;
@@ -47,6 +50,8 @@ ion-menu {
     ion-item {
       --border-radius: var(--dcf-border-radius);
       --background: transparent;
+      pointer-events: auto !important;
+      touch-action: auto !important;
 
       @media (prefers-color-scheme: light) {
         &.dcf-active {

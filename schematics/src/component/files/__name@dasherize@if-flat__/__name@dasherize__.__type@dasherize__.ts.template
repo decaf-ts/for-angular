@@ -28,10 +28,10 @@ export class <%= classify(name) %><%= classify(type) %> extends NgxBaseComponent
    *
    * @returns {void} This method does not return a value.
    */
-  ngOnInit(): void {
+  async ngOnInit(): void {
 
     // set component as initilizad, trigger change to get locale string
-    this.initialize();
+    await this.initialize();
   }
 
 }
