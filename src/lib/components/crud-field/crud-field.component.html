@@ -32,9 +32,9 @@
             [value]="value"
             [fill]="fill"
             [errorText]="getErrors(container)"
-            [placeholder]="translatable ? (placeholder | translate) : placeholder"
+            [placeholder]="placeholder | translate"
             [formControlName]="name"
-            [label]="translatable ? (label | translate) : label"
+            [label]="label | translate"
            #component>
           </ion-textarea>
         }
@@ -42,7 +42,6 @@
           <ion-item>
             <ion-checkbox
               #checkboxElement
-
               [mode]="mode"
               [errorText]="getErrors(container)"
               [hidden]="hidden"
@@ -53,7 +52,7 @@
               [readonly]="readonly"
               (ionChange)="checked = !checked"
               [formControlName]="name"
-             #component>
+              #component>
               <span [innerHTML]="label | translate"></span>
             </ion-checkbox>
           </ion-item>
@@ -81,17 +80,16 @@
             <ion-select
               toggleIcon="chevron-down-outline"
               expandedIcon="chevron-up-outline"
-
               [mode]="mode"
               [hidden]="hidden"
               [labelPlacement]="labelPlacement"
               [label]="translatable ? (label | translate) : label"
               [value]="value"
               [fill]="fill"
-              [placeholder]="translatable ? (placeholder | translate) : placeholder"
+              [placeholder]="placeholder | translate"
               [formControlName]="name"
               [errorText]="getErrors(container)"
-              [interface]="interface"  #component>
+              [interface]="interface" #component>
               @for(option of options; track option.value) {
                 <ion-select-option [value]="option.value">
                   {{ option.text | translate }}
@@ -115,10 +113,10 @@
             [pattern]="pattern !== undefined ? pattern : null"
             [step]="step !== undefined ? step : null"
             [fill]="fill"
-            [placeholder]="translatable ? (placeholder | translate) : placeholder"
+            [placeholder]="placeholder | translate"
             [formControlName]="name"
             [errorText]="getErrors(container)"
-            [label]="translatable ? (label | translate) : label" #component />
+            [label]="label | translate" #component />
         }
     </div>
   </ng-container>

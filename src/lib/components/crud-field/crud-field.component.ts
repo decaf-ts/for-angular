@@ -28,7 +28,7 @@ import {
   IonText,
   IonTextarea,
 } from '@ionic/angular/standalone';
-import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
+import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { generateRandomValue } from '../../helpers';
@@ -240,7 +240,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @Input()
-  override hidden?: boolean;
+  override hidden: boolean | CrudOperationKeys[] = false;
 
   /**
    * @description Maximum allowed value for the field.
@@ -637,6 +637,9 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   @Input()
   override uid: string = generateRandomValue(12);
 
+
+  @Input()
+  override page!: number;
 
   /**
    * @description Translatability of field labels.

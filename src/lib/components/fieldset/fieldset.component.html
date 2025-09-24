@@ -59,7 +59,7 @@
           </ion-list>
         }
 
-        <ng-content></ng-content>
+        <ng-content select="[slot=content]"></ng-content>
 
         @if(multiple && ['create', 'update'].includes(operation)) {
           @if(isUniqueError) {

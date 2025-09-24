@@ -6,7 +6,7 @@
 </app-header>
 
 <ion-content [fullscreen]="true">
-  <main class="main">
+  <main>
     <app-container [hasSideMenu]="true">
       <ion-card>
         <ion-card-content>

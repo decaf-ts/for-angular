@@ -661,7 +661,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
     if(this.operations.includes(OperationKeys.CREATE) && this.route)
       this.empty.link = `${this.route}/${OperationKeys.CREATE}`;
 
-    this.initialize();
+    await this.initialize();
 
     if(this.model instanceof Model && this._repository)
       this._repository.observe(this.observer);

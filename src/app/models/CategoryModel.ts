@@ -13,6 +13,7 @@ import { index, pk } from '@decaf-ts/core';
 export class CategoryModel extends Model {
 
   @pk({type: 'Number' })
+  @uilistprop('uid')
   id!: number;
 
   @required()

@@ -68,6 +68,10 @@ const Menu: MenuItem[] = [
     url: '/fieldset',
   },
   {
+    label: 'Steps Form',
+    url: '/steps-form',
+  },
+  {
     label: 'Read',
     url: '/crud/read',
   },

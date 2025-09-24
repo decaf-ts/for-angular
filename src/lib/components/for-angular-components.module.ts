@@ -12,6 +12,7 @@ import { FieldsetComponent } from './fieldset/fieldset.component';
 import { CollapsableDirective } from '../directives/collapsable.directive';
 import { LayoutComponent } from './layout/layout.component';
 import { FilterComponent } from './filter/filter.component';
+import { StepedFormComponent } from './steped-form/steped-form.component';
 
 const Directives = [CollapsableDirective];
 const Components = [
@@ -27,7 +28,8 @@ const Components = [
   CrudFormComponent,
   FieldsetComponent,
   LayoutComponent,
-  FilterComponent
+  FilterComponent,
+  StepedFormComponent
 ];
 
 @NgModule({

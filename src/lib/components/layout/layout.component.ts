@@ -147,34 +147,8 @@ export class LayoutComponent extends NgxBaseComponent implements OnInit {
    *
    * @memberOf LayoutComponent
    */
-  ngOnInit(): void {
-    this.initialize();
-  }
-
-  /**
-   * @description Initializes the layout component with processed properties.
-   * @summary Overrides the base component's initialize method to set up the grid layout.
-   * This method processes input properties, normalizes the breakpoint value, converts
-   * rows and columns to their array representations, and marks the component as initialized.
-   * The initialization ensures all properties are in the correct format for rendering.
-   *
-   * @mermaid
-   * sequenceDiagram
-   *   participant L as LayoutComponent
-   *   participant B as NgxBaseComponent
-   *
-   *   L->>B: parseProps(this)
-   *   Note over L: Process component properties
-   *   L->>L: Normalize breakpoint to lowercase
-   *   L->>L: Convert rows to array format
-   *   L->>L: Convert cols to array format
-   *   L->>L: Set initialized = true
-   *
-   * @override
-   * @memberOf LayoutComponent
-   */
-  override initialize() {
-    this.parseProps(this);
+  async ngOnInit(): Promise<void> {
+    await this.initialize();
     this.breakpoint = this.breakpoint.slice(0, 2).toLowerCase() as UIMediaBreakPoints;
     this.cols = this._cols;
     this.rows = this._rows;

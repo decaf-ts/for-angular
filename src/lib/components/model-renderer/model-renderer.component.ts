@@ -79,6 +79,13 @@ export class ModelRendererComponent<M extends Model>
   globals: Record<string, unknown> = {};
 
   /**
+   * @description Set if render content projection is allowed
+   * @default true
+   */
+  @Input()
+  projectable: boolean = true;
+
+  /**
    * @description Template reference for inner content
    */
   @ViewChild('inner', { read: TemplateRef, static: true })
@@ -130,6 +137,7 @@ export class ModelRendererComponent<M extends Model>
       this.vcr,
       this.injector,
       this.inner,
+      this.projectable
     );
     if (this.output?.inputs)
       this.rendererId = sf(

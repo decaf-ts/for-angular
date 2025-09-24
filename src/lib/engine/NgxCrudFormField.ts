@@ -49,6 +49,8 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
 
   uid?: string;
 
+  page!: number;
+
   // Validation
 
   format?: string;
@@ -184,24 +186,27 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
    */
   getErrors(parent: HTMLElement): string | void {
     const formControl = this.formControl;
-    const accordionComponent = parent.closest('ngx-decaf-fieldset')?.querySelector('ion-accordion-group');
-    if((!formControl.pristine || formControl.touched) && !formControl.valid) {
-      const errors: Record<string, string>[] = Object.keys(formControl.errors ?? {}).map(key => ({
-        key: key,
-        message: key,
-      }));
-      if(errors.length) {
-        if(accordionComponent && !this.validationErrorEventDispateched) {
-          const validationErrorEvent = new CustomEvent(EventConstants.VALIDATION_ERROR, {
-            detail: {fieldName: this.name, hasErrors: true},
-            bubbles: true
-          });
-          accordionComponent.dispatchEvent(validationErrorEvent);
-          this.validationErrorEventDispateched = true;
+    if(formControl) {
+      const accordionComponent = parent.closest('ngx-decaf-fieldset')?.querySelector('ion-accordion-group');
+      if((!formControl.pristine || formControl.touched) && !formControl.valid) {
+        const errors: Record<string, string>[] = Object.keys(formControl.errors ?? {}).map(key => ({
+          key: key,
+          message: key,
+        }));
+        if(errors.length) {
+          if(accordionComponent && !this.validationErrorEventDispateched) {
+            const validationErrorEvent = new CustomEvent(EventConstants.VALIDATION_ERROR, {
+              detail: {fieldName: this.name, hasErrors: true},
+              bubbles: true
+            });
+            accordionComponent.dispatchEvent(validationErrorEvent);
+            this.validationErrorEventDispateched = true;
+          }
         }
+        for(const error of errors)
+          return `* ${this.sf(this.translateService.instant(`errors.${error?.['message']}`), (this as KeyValue)[error?.['key']] ?? "")}`;
       }
-      for(const error of errors)
-        return `* ${this.sf(this.translateService.instant(`errors.${error?.['message']}`), (this as KeyValue)[error?.['key']] ?? "")}`;
     }
+
   }
 }

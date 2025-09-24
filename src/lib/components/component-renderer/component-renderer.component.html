@@ -19,7 +19,18 @@
         }
     }
   }
+  @if(children?.length) {
+    @for(child of children; track child) {
+      @if(child.children?.length) {
+      <ngx-decaf-component-renderer [parent]="child"> </ngx-decaf-component-renderer>
+      } @else {
+        <ngx-decaf-component-renderer
+          [tag]="child?.tag"
+          (listenEvent)="handleEvent($event)"
+          [globals]="{props: child.props}" />
+      }
+    }
+  }
 </ng-template>
-
 
 

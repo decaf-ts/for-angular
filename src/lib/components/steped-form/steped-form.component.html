@@ -1,0 +1,53 @@
+ <!-- @for(child of children; track trackItemFn($index, child)) {
+    {{child.tag }}
+    <ngx-decaf-component-renderer
+      [tag]="child.tag"
+      (listenEvent)="handleEvent($event)"
+      [globals]='{props: child.props}'>
+      </ngx-decaf-component-renderer>
+    } -->
+    <form class="dcf-steped-form" novalidate>
+      <div class="dcf-page-steps">
+        <div>
+           @for(page of pagesArray; track $index;) {
+            <div [class.dcf-active]="activePage === $index + 1" [class.dcf-passed]="($index + 1) < activePage">{{ $index + 1 }}</div>
+          }
+        </div>
+      </div>
+      @if(formGroup) {
+        @for(child of activeChildren;  track $index) {
+          <ngx-decaf-component-renderer
+            [tag]="child?.tag"
+            (listenEvent)="handleEvent($event)"
+            [children]="child?.children || []"
+            [globals]="{props: child.props}"
+          />
+        }
+      } @else {
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+        <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
+        <br />
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+        <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
+      }
+
+      <div class="dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
+        <div class="dcf-width-1-2@s">
+          <ion-button fill="clear" (click)="handleBack()" [disabled]="activePage <= 1">
+            <ion-icon aria-hidden="true" name="arrow-back-outline"></ion-icon>
+            Previous
+          </ion-button>
+        </div>
+
+        <div class="dcf-width-1-2@s">
+          <ion-button [fill]="activePage === pages ? 'solid' : 'outline'"  (click)="handleNext(activePage === pages ? true : false)">
+            @if(activePage === pages) {
+              Submit
+            } @else {
+              Next
+              <ion-icon aria-hidden="true" name="arrow-forward-outline"></ion-icon>
+            }
+          </ion-button>
+        </div>
+      </div>
+    </form>

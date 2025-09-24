@@ -279,7 +279,7 @@ export interface ListItemCustomEvent extends BaseCustomEvent {
  */
 export interface BaseCustomEvent {
   name: string;
-  component: string;
+  component?: string;
   data?: unknown;
   target?: HTMLElement;
 }

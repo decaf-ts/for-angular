@@ -135,6 +135,19 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
 
 
   /**
+   * @description Unique identifier for the current record.
+   * @summary A unique identifier for the current record being displayed or manipulated.
+   * This is typically used in conjunction with the primary key for operations on specific records.
+   *
+   * @type {string | number}
+   * @memberOf FieldsetComponent
+   */
+  @Input()
+  page!: number;
+
+
+
+  /**
    * @description The parent component identifier for hierarchical fieldset relationships.
    * @summary Specifies the parent component name that this fieldset belongs to in a hierarchical
    * form structure. This property is used for event bubbling and establishing parent-child
