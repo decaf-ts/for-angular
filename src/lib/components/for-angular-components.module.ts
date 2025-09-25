@@ -1,4 +1,4 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { CrudFieldComponent } from './crud-field/crud-field.component';
 import { CrudFormComponent } from './crud-form/crud-form.component';
 import { ModelRendererComponent } from './model-renderer/model-renderer.component';
@@ -12,7 +12,7 @@ import { FieldsetComponent } from './fieldset/fieldset.component';
 import { CollapsableDirective } from '../directives/collapsable.directive';
 import { LayoutComponent } from './layout/layout.component';
 import { FilterComponent } from './filter/filter.component';
-import { StepedFormComponent } from './steped-form/steped-form.component';
+import { SteppedFormComponent } from './stepped-form/stepped-form.component';
 
 const Directives = [CollapsableDirective];
 const Components = [
@@ -29,13 +29,13 @@ const Components = [
   FieldsetComponent,
   LayoutComponent,
   FilterComponent,
-  StepedFormComponent
+  SteppedFormComponent
 ];
 
 @NgModule({
   imports: [...Components, ...Directives],
   declarations: [],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  schemas: [],
   exports: [...Components, ...Directives],
 })
 export class ForAngularComponentsModule {}

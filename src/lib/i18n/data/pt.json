@@ -68,13 +68,18 @@
     },
     "filter": {
       "title": "Filtro",
-      "type": "Escreva um valor",
+      "type": "Introduza um valor",
       "select": "Seleção de filtro",
       "step1": "Selecione um índice",
       "step2": "Selecione uma condição",
-      "step3": "Escreva um valor",
+      "step3": "Introduza um valor",
       "no_suggestions": "Sem sugestões",
       "sort": "Ordenar por"
+    },
+    "stepped_form": {
+      "next": "Seguinte",
+      "previous": "Anterior",
+      "submit": "Submeter"
     }
   }
 }

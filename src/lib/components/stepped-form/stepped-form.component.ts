@@ -9,17 +9,43 @@ import { BaseCustomEvent, Dynamic, EventConstants, KeyValue, NgxFormService } fr
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 import { Subscription, timer } from 'rxjs';
+import { getLocaleContext } from '../../i18n/Loader';
+import { TranslatePipe } from '@ngx-translate/core';
 
 
 @Dynamic()
 @Component({
-  selector: 'ngx-decaf-steped-form',
-  templateUrl: './steped-form.component.html',
-  styleUrls: ['./steped-form.component.scss'],
-  imports: [ReactiveFormsModule, IonSkeletonText, IonText, IonButton, IonIcon, ModelRendererComponent, ComponentRendererComponent],
+  selector: 'ngx-decaf-stepped-form',
+  templateUrl: './stepped-form.component.html',
+  styleUrls: ['./stepped-form.component.scss'],
+  imports: [
+    TranslatePipe,
+    ReactiveFormsModule,
+    IonSkeletonText,
+    IonText,
+    IonButton,
+    IonIcon,
+    ModelRendererComponent,
+    ComponentRendererComponent
+  ],
   standalone: true,
 })
-export class StepedFormComponent implements OnInit, OnDestroy {
+export class SteppedFormComponent implements OnInit, OnDestroy {
+
+    /**
+   * @description The locale to be used for translations.
+   * @summary Specifies the locale identifier to use when translating component text.
+   * This can be set explicitly via input property to override the automatically derived
+   * locale from the component name. The locale is typically a language code (e.g., 'en', 'fr')
+   * or a language-region code (e.g., 'en-US', 'fr-CA') that determines which translation
+   * set to use for the component's text content.
+   *
+   * @type {string}
+   * @memberOf SteppedFormComponent
+   */
+  @Input()
+  locale!: string;
+
 
   /**
    * @description Number of pages in the stepped form.
@@ -29,7 +55,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    *
    * @type {number}
    * @default 1
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   @Input()
   pages: number = 1;
@@ -42,7 +68,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    *
    * @type {CrudOperations}
    * @default OperationKeys.CREATE
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   @Input()
   operation: CrudOperations = OperationKeys.CREATE;
@@ -55,7 +81,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    *
    * @type {number}
    * @default 1
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   @Input()
   startPage: number = 1;
@@ -68,7 +94,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    * page assignment, and display properties.
    *
    * @type {UIModelMetadata[]}
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   @Input()
   children!: UIModelMetadata[];
@@ -80,7 +106,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    * FormGroup, it contains all form controls for the entire stepped form.
    *
    * @type {FormGroup | FormArray | undefined}
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   @Input()
   formGroup!: FormGroup | FormArray | undefined;
@@ -92,7 +118,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    * updated whenever the user navigates between pages.
    *
    * @type {UIModelMetadata[] | undefined}
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   activeChildren: UIModelMetadata[] | undefined = undefined;
 
@@ -103,7 +129,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    * when using FormArray structure.
    *
    * @type {FormGroup | undefined}
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   activeFormGroup: FormGroup | undefined = undefined;
 
@@ -114,7 +140,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    * the next/back buttons or programmatic navigation.
    *
    * @type {number}
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   activePage: number = 1;
 
@@ -125,7 +151,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    * logical pages and provide navigation structure.
    *
    * @type {UIModelMetadata[]}
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   pagesArray: UIModelMetadata[] = [];
 
@@ -137,7 +163,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    *
    * @private
    * @type {Subscription}
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   private timerSubscription!: Subscription;
 
@@ -148,17 +174,17 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    * event type information for parent components to handle.
    *
    * @type {EventEmitter<BaseCustomEvent>}
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   @Output()
   submitEvent: EventEmitter<BaseCustomEvent> = new EventEmitter<BaseCustomEvent>();
 
   /**
-   * @description Creates an instance of StepedFormComponent.
-   * @summary Initializes a new StepedFormComponent instance and registers the required
+   * @description Creates an instance of SteppedFormComponent.
+   * @summary Initializes a new SteppedFormComponent instance and registers the required
    * Ionic icons for navigation buttons (forward and back arrows).
    *
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   constructor() {
     addIcons({arrowForwardOutline, arrowBackOutline});
@@ -173,7 +199,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    * @mermaid
    * sequenceDiagram
    *   participant A as Angular Lifecycle
-   *   participant S as StepedFormComponent
+   *   participant S as SteppedFormComponent
    *   participant F as Form Service
    *
    *   A->>S: ngOnInit()
@@ -185,9 +211,11 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    *   S->>F: Extract FormGroup for active page
    *   F-->>S: Return activeFormGroup
    *
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   ngOnInit(): void  {
+    if(!this.locale)
+      this.locale = getLocaleContext("SteppedFormComponent")
     this.activePage = this.startPage;
 
     this.pagesArray = (this.children.reduce((acc, curr, index) => {
@@ -215,7 +243,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    * @summary Unsubscribes from any active timer subscriptions to prevent memory leaks.
    * This is part of Angular's component lifecycle and ensures proper resource cleanup.
    *
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   ngOnDestroy(): void {
     if(this.timerSubscription)
@@ -234,7 +262,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    * @mermaid
    * sequenceDiagram
    *   participant U as User
-   *   participant S as StepedFormComponent
+   *   participant S as SteppedFormComponent
    *   participant F as Form Service
    *   participant P as Parent Component
    *
@@ -250,7 +278,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    *     S->>P: submitEvent.emit({data, name: SUBMIT})
    *   end
    *
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   handleNext(lastPage: boolean = false): void {
     const isValid = NgxFormService.validateFields(this.activeFormGroup as FormGroup);
@@ -281,14 +309,14 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    * @mermaid
    * sequenceDiagram
    *   participant U as User
-   *   participant S as StepedFormComponent
+   *   participant S as SteppedFormComponent
    *
    *   U->>S: Click Back
    *   S->>S: activePage--
    *   S->>S: getCurrentFormGroup(activePage)
    *   Note over S: Update active form and children
    *
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   handleBack(): void {
     this.activePage = this.activePage - 1;
@@ -307,7 +335,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    * @private
    * @mermaid
    * sequenceDiagram
-   *   participant S as StepedFormComponent
+   *   participant S as SteppedFormComponent
    *   participant F as FormArray
    *   participant T as Timer
    *
@@ -318,7 +346,7 @@ export class StepedFormComponent implements OnInit, OnDestroy {
    *   T-->>S: Filter children for active page
    *   S->>S: Set activeChildren
    *
-   * @memberOf StepedFormComponent
+   * @memberOf SteppedFormComponent
    */
   private getCurrentFormGroup(page: number): void {
     this.activeFormGroup = (this.formGroup as FormArray).at(page - 1) as FormGroup;
