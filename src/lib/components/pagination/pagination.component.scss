@@ -59,7 +59,7 @@
 
 
 .dcf-pagination-resume {
-    @media (prefers-color-scheme: light) {color: var(--dcf-color-gray-8); }
-    margin: 1rem 0px;
-    text-align: center;
+  margin: 1rem 0px;
+  text-align: center;
+  @media (prefers-color-scheme: light) {color: var(--dcf-color-gray-8); }
 }

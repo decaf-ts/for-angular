@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslationObject } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { forkJoin,  Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {I18nResourceConfig} from '../engine/interfaces';
@@ -9,26 +8,12 @@ import { FunctionLike } from '../engine';
 import { cleanSpaces, getLocaleFromClassName } from '../helpers';
 import en from './data/en.json';
 import { I18N_CONFIG_TOKEN } from '../for-angular-common.module';
-export class I18nLoader {
-  static loadFromHttp(http: HttpClient): TranslateLoader {
-    function getSuffix() {
-      const today = new Date();
-      return `.json?version=${today.getFullYear()}${today.getMonth()}${today.getDay()}` as string;
-    }
-
-    return new (class extends TranslateHttpLoader {
-      override getTranslation(lang: string): Observable<TranslationObject> {
-        const res = super.getTranslation(lang);
-        return res;
-      }
-    })(http, './assets/i18n/', getSuffix());
-  }
-}
 
 
 export function getLocaleContext(clazz: FunctionLike | object | string, suffix?: string): string {
   return getLocaleFromClassName(clazz, suffix);
 }
+
 
 /**
  * @description Generates a localized string by combining locale and phrase
@@ -57,17 +42,16 @@ export function getLocaleContextByKey(
 }
 
 export function I18nLoaderFactory(http: HttpClient): TranslateLoader {
-  const {resources, versionedSuffix} = inject(I18N_CONFIG_TOKEN, { optional: true }) ?? getI18nLoaderFactoryProviderConfig().useValue;
-  return new MultiI18nLoader(http, resources, versionedSuffix);
+  const {resources, versionedSuffix} = inject(I18N_CONFIG_TOKEN, { optional: true }) ?? provideI18nLoader().useValue;
+  return new I18nLoader(http, resources?.length ? resources : [{prefix: './app/assets/i18n/', suffix: '.json'}], versionedSuffix);
 }
 
-export function getI18nLoaderFactoryProviderConfig(resources: I18nResourceConfig | I18nResourceConfig[] = [], versionedSuffix: boolean = false) {
+export function provideI18nLoader(resources: I18nResourceConfig | I18nResourceConfig[] = [], versionedSuffix: boolean = false) {
   if(!Array.isArray(resources))
     resources = [resources];
   return {
     provide: I18N_CONFIG_TOKEN,
     useValue: { resources: [
-      // { prefix: './assets/i18n/', suffix: '.json' },
       ...resources
     ], versionedSuffix}
   }
@@ -75,7 +59,7 @@ export function getI18nLoaderFactoryProviderConfig(resources: I18nResourceConfig
 
 const libLanguage: Record<string, TranslationObject> = {en};
 
-export class MultiI18nLoader implements I18nLoader {
+export class I18nLoader implements TranslateLoader {
   constructor(private http: HttpClient, private resources: I18nResourceConfig[] = [], private versionedSuffix: boolean = false) {}
 
   private getSuffix(suffix: string): string {

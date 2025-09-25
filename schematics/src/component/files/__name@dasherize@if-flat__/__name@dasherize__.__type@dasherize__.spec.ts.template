@@ -4,7 +4,8 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { <%= classify(name) %><%= classify(type) %> } from './<%= dasherize(name) %>.<%= dasherize(type) %>';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { NgxRenderingEngine } from '../../engine';
-import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { I18nFakeLoader } from 'src/lib/i18n';
 
 
 const imports = [
@@ -13,7 +14,7 @@ const imports = [
   TranslateModule.forRoot({
     loader: {
       provide: TranslateLoader,
-      useClass: TranslateFakeLoader
+      useClass: I18nFakeLoader
     }
   })
 ];

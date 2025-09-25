@@ -7,7 +7,6 @@ import { UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { BaseCustomEvent, Dynamic, EventConstants, KeyValue, NgxFormService } from '../../engine';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
-import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 import { Subscription, timer } from 'rxjs';
 import { getLocaleContext } from '../../i18n/Loader';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -25,7 +24,6 @@ import { TranslatePipe } from '@ngx-translate/core';
     IonText,
     IonButton,
     IonIcon,
-    ModelRendererComponent,
     ComponentRendererComponent
   ],
   standalone: true,
@@ -353,7 +351,6 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
     this.activeChildren = undefined;
     this.timerSubscription = timer(10).subscribe(() => {
       this.activeChildren = this.children.filter(c => c.props?.['page'] === page);
-      console.log(this.activeChildren);
     });
   }
 
