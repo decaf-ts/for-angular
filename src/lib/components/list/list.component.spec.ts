@@ -3,7 +3,8 @@ import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { ListComponent } from './list.component';
 import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
-import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { I18nFakeLoader } from '../../i18n';
 
 const imports = [
   ForAngularCommonModule,
@@ -11,7 +12,7 @@ const imports = [
   TranslateModule.forRoot({
     loader: {
       provide: TranslateLoader,
-      useClass: TranslateFakeLoader
+      useClass: I18nFakeLoader
     }
   })
 ];

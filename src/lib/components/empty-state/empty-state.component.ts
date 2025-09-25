@@ -11,7 +11,7 @@ import { Dynamic, StringOrBoolean } from '../../engine';
 import { stringToBoolean } from '../../helpers';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { FunctionLike } from '../../engine/types';
 import { Router } from '@angular/router';
 
@@ -58,7 +58,6 @@ import { Router } from '@angular/router';
   styleUrls: ['./empty-state.component.scss'],
   standalone: true,
   imports: [
-    TranslatePipe,
     IonCard,
     IonCardContent,
     IonIcon

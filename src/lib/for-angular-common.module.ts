@@ -1,15 +1,30 @@
-import { NgModule, ModuleWithProviders, InjectionToken } from '@angular/core';
+import { NgModule, ModuleWithProviders, InjectionToken, Provider } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 import { Logger, Logging } from '@decaf-ts/logging';
 import { FunctionLike, I18nResourceConfig } from './engine';
-import { DecafRepositoryAdapter } from './engine/types';
+import { DecafRepositoryAdapter, KeyValue } from './engine/types';
+import { Constructor } from '@decaf-ts/decorator-validation';
 
-
+/** */
 export const DB_ADAPTER_PROVIDER_TOKEN = new InjectionToken<DecafRepositoryAdapter>('DB_ADAPTER_PROVIDER');
 
 export const I18N_CONFIG_TOKEN = new InjectionToken<{resources: I18nResourceConfig[]; versionedSuffix: boolean}>('I18N_CONFIG_TOKEN');
+
+export function provideDbAdapter<DbAdapter extends { flavour: string }>(
+  adapterClass: Constructor<DbAdapter>,
+  options: KeyValue = {}
+): Provider {
+  const adapter = new adapterClass(options);
+  // Log and expose adapter flavour globally
+  getLogger(provideDbAdapter).info(`Using ${adapter.flavour} as Db Provider`);
+  // getWindow()['dbAdapterFlavour'] = adapter.flavour;
+  return {
+    provide: DB_ADAPTER_PROVIDER_TOKEN,
+    useValue: adapter,
+  };
+}
 
 const ComponentsAndModules = [
   CommonModule,

@@ -17,7 +17,6 @@ import { Dynamic } from '../../engine/decorators';
 import { CrudFieldOption, FieldUpdateMode, PossibleInputTypes, StringOrBoolean } from '../../engine/types';
 import {
   IonCheckbox,
-  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
@@ -95,8 +94,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     IonSelectOption,
     IonLabel,
     IonText,
-    IonTextarea,
-    IonIcon
+    IonTextarea
   ],
   selector: 'ngx-decaf-crud-field',
   templateUrl: './crud-field.component.html',

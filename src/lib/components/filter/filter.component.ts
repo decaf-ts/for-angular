@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild  } from '@angular/core';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
-import { IonButton, IonChip, IonIcon, IonItem, IonLabel, IonSelect, IonSelectOption} from '@ionic/angular/standalone';
+import { IonButton, IonChip, IonIcon, IonSelect, IonSelectOption} from '@ionic/angular/standalone';
 import { Dynamic, IFilterQuery, IFilterQueryItem } from '../../engine';
 import { getWindowWidth, isDarkMode } from '../../helpers/utils';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
@@ -61,8 +61,6 @@ import { FormsModule } from '@angular/forms';
   imports: [
     FormsModule,
     TranslatePipe,
-    IonLabel,
-    IonItem,
     IonChip,
     IonIcon,
     IonButton,

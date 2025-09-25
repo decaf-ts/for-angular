@@ -40,7 +40,6 @@ export class LogoComponent implements OnInit {
       this.width = `${this.width}`.replace('px','');
     colorSchemePreference.addEventListener('change', () => {
       this.activeLogo = colorSchemePreference.matches ? this.logoContrast : this.logo;
-      console.log(this.activeLogo);
     });
 
   }

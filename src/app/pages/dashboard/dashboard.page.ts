@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonIcon } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cardOutline, peopleOutline, documentAttachOutline  } from 'ionicons/icons';
 import { DashboardLayout } from 'src/app/layouts/Dashboboard';
@@ -12,7 +12,7 @@ import { LayoutComponent } from 'src/lib/components';
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
-   imports: [HeaderComponent, ContainerComponent, IonContent, IonCard, IonIcon, IonCardHeader, IonCardTitle, IonCardContent, LayoutComponent],
+   imports: [HeaderComponent, ContainerComponent, IonContent, LayoutComponent],
 })
 export class DashboardPage implements OnInit {
 

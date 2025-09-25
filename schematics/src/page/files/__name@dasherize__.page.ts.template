@@ -8,7 +8,7 @@ import { ContainerComponent } from 'src/app/components/container/container.compo
   selector: 'app-<%= dasherize(name) %>',
   templateUrl: './<%= dasherize(name) %>.page.html',
   styleUrls: ['./<%= dasherize(name) %>.page.scss'],
-  imports: [HeaderComponent, ContainerComponent, IonContent, IonCard]
+  imports: [HeaderComponent, ContainerComponent, IonContent, IonCard, IonCardContent]
 })
 export class <%= classify(name) %>Page implements OnInit {
 

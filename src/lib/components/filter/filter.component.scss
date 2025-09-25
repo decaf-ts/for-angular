@@ -1,26 +1,5 @@
-.dcf-filter-grid{
-  padding: 0 .5rem;
-  margin-top: .75rem;
-  margin-bottom: .75rem;
-}
-
-ion-select {
-  min-height: 44px !important;
-}
-
-.dcf-hidden {
-  display: none !important;
-}
-
-.dcf-filter {
-  display: flex;
-  width: 100%;
-  min-height: 40px;
-  box-shadow: 0px 1px 2px rgba(10, 13, 18, 0.05);
-  border-radius: var(--dcf-border-radius);
-  box-sizing: border-box;
-  @media (prefers-color-scheme: light) {
-
+@media (prefers-color-scheme: light) {
+  .dcf-filter {
     border: 1px solid var(--dcf-color-gray-3);
     background-color: #fff;
 
@@ -30,21 +9,126 @@ ion-select {
     }
   }
 
-  @media (prefers-color-scheme: dark) {
-      // for ionic default dark colors
-      // border: 1px solid var(--dcf-color-step-300);
-      border: 1px solid var(--dcf-color-step-500);
-      ::-webkit-input-placeholder,
-      ::placeholder {
-        color: var(--dcf-color-gray-4) !important;
+  ion-chip {
+    border: 1px solid var(--dcf-color-gray-3);
+    color: var(--dcf-color-gray-7);
+    &.dcf-filter-value {
+      background: var(--dcf-color-gray-2);
+      border-color:  var(--dcf-color-gray-4) !important;
+      color: var(--dcf-color-gray-8) !important;
+    }
+  }
+  .dcf-input {
+    input {
+      color: var(--dcf-color-gray-7);
+    }
+  }
+
+  .dcf-dropdown {
+    background-color: white;
+    &.dcf-active {
+      border: 1px solid var(--dcf-color-gray-2);
+
+      > div > div {
+        color: var(--dcf-color-gray-8);
+        &.dcf-filtering-item,
+        &:only-child {
+          &.dcf-empty {
+            pointer-events: none;
+            touch-action: none;
+            cursor: text !important;
+            border-color: transparent !important;
+          }
+          border-color:  var(--dcf-color-gray-3);
+        }
+        &:hover {
+          background-color: var(--dcf-color-gray-1);
+        }
       }
-      &:hover {
-        border-color: var(--dcf-color-gray-2);
-      }
+    }
+  }
+}
+
+
+
+@media (prefers-color-scheme: dark) {
+  .dcf-filter {
+    // for ionic default dark colors
+    // border: 1px solid var(--dcf-color-step-300);
+    border: 1px solid var(--dcf-color-step-500);
+    ::-webkit-input-placeholder,
+    ::placeholder {
+      color: var(--dcf-color-gray-4) !important;
+    }
+    &:hover {
+      border-color: var(--dcf-color-gray-2);
+    }
     &:focus-within {
       border-color: var(--dcf-color-gray-2);
     }
   }
+
+  ion-chip  {
+    border-color: var(--dcf-color-step-300);
+    background: rgba(var(--dcf-color-medium-rgb), .10);
+
+    &.dcf-filter-value {
+      background: rgba(var(--dcf-color-medium-rgb), .30) !important;
+      border-color: var(--dcf-color-step-500);
+    }
+  }
+
+  .dcf-input {
+    input {
+      color: var(--dcf-color-gray-1);
+    }
+  }
+
+  .dcf-dropdown {
+    background-color: var(--dcf-item-background);
+    &.dcf-active {
+      // for ionic default dark colors
+      // border: 1px solid var(--dcf-color-step-500);
+      border: 1px solid var(--dcf-color-step-600);
+
+      > div > div {
+        color: var(--dcf-color-gray-1);
+        &.dcf-filtering-item,
+        &:only-child {
+          &.dcf-empty {
+            cursor: text !important;
+            pointer-events: none;
+            touch-action: none;
+              border-color: transparent !important;
+          }
+          border-color:  var(--dcf-color-gray-5);
+        }
+        &:hover {
+          background-color: var(--dcf-color-gray-8);
+        }
+      }
+    }
+  }
+}
+
+
+.dcf-filter-grid{
+  padding: 0 .5rem;
+  margin-top: .75rem;
+  margin-bottom: .75rem;
+}
+
+ion-select { min-height: 44px !important; }
+
+.dcf-hidden { display: none !important; }
+
+.dcf-filter {
+  display: flex;
+  width: 100%;
+  min-height: 40px;
+  box-shadow: 0px 1px 2px rgba(10, 13, 18, 0.05);
+  border-radius: var(--dcf-border-radius);
+  box-sizing: border-box;
 
   ion-chip {
     border-radius: 6px;
@@ -52,33 +136,11 @@ ion-select {
     height: 24px;
     min-height: 24px;
     font-size: 0.75rem;
-
-
     font-style: normal;
     font-weight: 500;
     flex-shrink: 0;
     margin-right: 2px;
     white-space: nowrap;
-
-    @media (prefers-color-scheme: light) {
-        border: 1px solid var(--dcf-color-gray-3);
-        color: var(--dcf-color-gray-7);
-        &.dcf-filter-value {
-          background: var(--dcf-color-gray-2);
-          border-color:  var(--dcf-color-gray-4) !important;
-          color: var(--dcf-color-gray-8) !important;
-        }
-    }
-
-    @media (prefers-color-scheme: dark) {
-        border-color: var(--dcf-color-step-300);
-        background: rgba(var(--dcf-color-medium-rgb), .10);
-
-        &.dcf-filter-value {
-          background: rgba(var(--dcf-color-medium-rgb), .30) !important;
-          border-color: var(--dcf-color-step-500);
-        }
-    }
 
     &.sc-ion-chip-md-h,
     &.sc-ion-chip-ios-h {
@@ -116,8 +178,7 @@ ion-select {
 
     input {
       min-height: 40px;
-      @media (prefers-color-scheme: light) { color: var(--dcf-color-gray-7); }
-      @media (prefers-color-scheme: dark) { color: var(--dcf-color-gray-1); }
+
       min-width: 100px;
       width: 100%;
       font-size: 1rem;
@@ -174,84 +235,30 @@ ion-select {
   position: absolute;
   max-height: 200px;
   overflow-y: auto;
-
   border-radius: 4px;
   z-index: 1000 !important;
   min-width: 200px;
   max-width: 300px;
   display: none;
-  @media (prefers-color-scheme: light) {
-    background-color: white;
-    &.dcf-active {
-      border: 1px solid var(--dcf-color-gray-2);
-    }
-  }
-
-  @media (prefers-color-scheme: dark) {
-    background-color: var(--dcf-item-background);
-    &.dcf-active {
-      // for ionic default dark colors
-      // border: 1px solid var(--dcf-color-step-500);
-      border: 1px solid var(--dcf-color-step-600);
-    }
-  }
 
   &.dcf-active {
     display: block;
     margin-top: -3px;
     box-shadow: 0px 12px 16px -4px rgba(10, 13, 18, 0.08), 0px 4px 6px -2px rgba(10, 13, 18, 0.03), 0px 2px 2px -1px rgba(10, 13, 18, 0.04) !important;
-
     border-radius: var(--dcf-border-radius);
     padding: .5rem .25rem;
     @media(max-width: 768px) {
       margin-top: 55px;
     }
-    > div {
-
-      > div {
-        cursor: pointer;
-        height: 35px;
-        padding: .5rem 1rem;
-        border: 1px solid transparent;
-        font-size: 1rem;
-        display: flex;
-        align-items: center;
-        border-radius: 6px;
-          @media (prefers-color-scheme: light) {
-            color: var(--dcf-color-gray-8);
-            &.dcf-filtering-item,
-            &:only-child {
-              &.dcf-empty {
-                pointer-events: none;
-                touch-action: none;
-                cursor: text !important;
-                border-color: transparent !important;
-              }
-              border-color:  var(--dcf-color-gray-3);
-            }
-            &:hover {
-              background-color: var(--dcf-color-gray-1);
-            }
-          }
-
-        @media (prefers-color-scheme: dark) {
-            color: var(--dcf-color-gray-1);
-            &.dcf-filtering-item,
-            &:only-child {
-              &.dcf-empty {
-                cursor: text !important;
-                pointer-events: none;
-                touch-action: none;
-                 border-color: transparent !important;
-              }
-              border-color:  var(--dcf-color-gray-5);
-            }
-            &:hover {
-              background-color: var(--dcf-color-gray-8);
-            }
-          }
-
-      }
+    > div > div {
+      cursor: pointer;
+      height: 35px;
+      padding: .5rem 1rem;
+      border: 1px solid transparent;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      border-radius: 6px;
     }
   }
 }

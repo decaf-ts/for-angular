@@ -6,7 +6,7 @@ import { BaseCustomEvent } from 'src/lib/engine';
 import { getLogger } from 'src/lib/for-angular-common.module';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
-import { ModelRendererComponent, SteppedFormComponent } from 'src/lib/components';
+import { ModelRendererComponent } from 'src/lib/components';
 import { SteppedForm } from 'src/app/forms/SteppedForm';
 
 
@@ -15,7 +15,7 @@ import { SteppedForm } from 'src/app/forms/SteppedForm';
   selector: 'app-steps-form',
   templateUrl: './steps-form.page.html',
   styleUrls: ['./steps-form.page.scss'],
-  imports: [HeaderComponent, ContainerComponent, ModelRendererComponent, SteppedFormComponent, IonContent, IonCard]
+  imports: [HeaderComponent, ContainerComponent, ModelRendererComponent,  IonContent, IonCard]
 
 })
 export class StepsFormPage implements OnInit {

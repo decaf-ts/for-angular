@@ -11,13 +11,13 @@
 
 
 /* Core CSS required for Ionic components to work properly */
-@import "@ionic/angular/css/core.css";
+@use "@ionic/angular/css/core.css";
 
 /* Basic CSS for apps built with Ionic */
-@import "@ionic/angular/css/normalize.css";
-@import "@ionic/angular/css/structure.css";
-@import "@ionic/angular/css/typography.css";
-@import "@ionic/angular/css/display.css";
+@use "@ionic/angular/css/normalize.css";
+@use "@ionic/angular/css/structure.css";
+@use "@ionic/angular/css/typography.css";
+@use "@ionic/angular/css/display.css";
 
 /* Optional CSS utils that can be commented out */
 // @import "@ionic/angular/css/padding.css";
@@ -32,7 +32,8 @@
 /* Importing @decaf-ts/styles system styles */
 
 /* You can import all files */
-@import "@decaf-ts/styles/dist/main.css";
+@use "@decaf-ts/styles/dist/main.css";
+@use "./theme/variables.scss";
 
 /* Or import only core and components you need */
 // @import "@decaf-ts/styles/dist/core.css";
@@ -43,7 +44,6 @@
 // @import "@decaf-ts/styles/dist/components/animations.css";
 
 // import css custom global
-@import "./theme/variables.scss";
 
 // input,
 // select,
