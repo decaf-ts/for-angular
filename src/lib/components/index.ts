@@ -16,6 +16,6 @@ export * from './searchbar/searchbar.component';
 export * from './crud-form/constants';
 export * from './pagination/constants';
 
-export * from './steped-form/steped-form.component';
+export * from './stepped-form/stepped-form.component';
 // Module export
 export * from './for-angular-components.module';

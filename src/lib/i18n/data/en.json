@@ -75,6 +75,11 @@
       "step3": "Type a value",
       "no_suggestions": "No suggestions",
       "sort": "Sort by"
+    },
+    "stepped_form": {
+      "next": "Next",
+      "previous": "Previous",
+      "submit": "Submit"
     }
   }
 }
