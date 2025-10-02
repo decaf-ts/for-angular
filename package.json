@@ -47,7 +47,7 @@
     "resources:pwa": "npx capacitor-assets generate --pwa --assetPath='resources' --pwaManifestPath='src/manifest.webmanifest'"
   },
   "author": "Tiago Venceslau",
-  "license": "AGPL-3.0-or-later",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/decaf-ts/for-angular.git"
