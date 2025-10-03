@@ -5,7 +5,15 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && jasmine src/**/*_spec.js",
-    "schematics": "schematics"
+    "schematics": "schematics",
+    "prepare-pr": "npm run repo:pr && npm run lint-fix && npm run build:prod && npm run coverage && npm run docs",
+    "repo:init": "codex exec \"$(cat ./.codex/prompts/repo-setup.md)\nbase_path is `./`, initialize the repository\"",
+    "repo:setup": "codex exec \"$(cat ./.codex/prompts/repo-setup.md)\nbase_path is ./\"",
+    "repo:doc": "codex exec \"$(cat ./.codex/prompts/doc.md) $(cat ./.codex/prompts/bulk-docs.md)\nbase_path is ./\"",
+    "repo:tests": "codex exec \"$(cat ./.codex/prompts/bulk-tests.md)\nbase_path is ./ and coverage is 95%\" -s workspace-write",
+    "repo:readme": "codex exec \"$(cat ./.codex/prompts/update-readme.md)\nbase_path is ./\"",
+    "repo:pr": "npm run repo:doc && npm run repo:tests && npm run repo:readme",
+    "sync-codex": "./bin/sync-codex.sh"
   },
   "keywords": [
     "schematics"
