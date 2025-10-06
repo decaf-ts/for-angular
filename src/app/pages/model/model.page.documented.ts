@@ -6,7 +6,7 @@ import {
 } from '@decaf-ts/db-decorators';
 import { Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonSearchbar } from '@ionic/angular/standalone';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent } from '@ionic/angular/standalone';
 import { BaseCustomEvent, EventConstants, KeyValue } from 'src/lib/engine';
 import { RouterService } from 'src/app/services/router.service';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
@@ -111,8 +111,7 @@ import { ContainerComponent } from 'src/app/components/container/container.compo
   standalone: true,
   selector: 'app-model',
   templateUrl: './model.page.html',
-  imports: [ModelRendererComponent, HeaderComponent, ContainerComponent, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonSearchbar],
-
+  imports: [ModelRendererComponent, HeaderComponent, ContainerComponent, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent],
   styleUrls: ['./model.page.scss'],
 })
 export class ModelPage implements OnInit {
@@ -126,7 +125,7 @@ export class ModelPage implements OnInit {
    *
    * @type {OperationKeys.CREATE | OperationKeys.READ | OperationKeys.UPDATE | OperationKeys.DELETE}
    * @default OperationKeys.READ
-   *  @memberOf ModelPage
+   * @memberOf ModelPage
    */
   @Input()
   operation:
@@ -143,7 +142,7 @@ export class ModelPage implements OnInit {
    * be properly registered using the @Model decorator for resolution to work.
    *
    * @type {string}
-   *  @memberOf ModelPage
+   * @memberOf ModelPage
    */
   @Input()
   modelName!: string;
@@ -194,8 +193,8 @@ export class ModelPage implements OnInit {
    * tracking and debugging support.
    *
    * @type {Logger}
-   * @memberOf ModelPage
    * @private
+   * @memberOf ModelPage
    */
   private logger!: Logger;
 
@@ -206,8 +205,8 @@ export class ModelPage implements OnInit {
    * appropriate repository based on the model name and ensures proper model registration.
    *
    * @type {IRepository<Model> | undefined}
-   * @memberOf ModelPage
    * @private
+   * @memberOf ModelPage
    */
   private _repository?: IRepository<Model>;
 
@@ -218,8 +217,8 @@ export class ModelPage implements OnInit {
    * a consistent navigation experience and maintains the application's routing flow.
    *
    * @type {RouterService}
-   * @memberOf ModelPage
    * @private
+   * @memberOf ModelPage
    */
   private routerService: RouterService = inject(RouterService);
 
@@ -231,8 +230,8 @@ export class ModelPage implements OnInit {
    * properly registered with the @Model decorator.
    *
    * @return {IRepository<Model>} The repository instance for the current model
-   *
    * @throws {InternalError} When the model is not found in the registry
+   * @memberOf ModelPage
    */
   private get repository(): IRepository<Model> {
     if (!this._repository) {
@@ -252,6 +251,8 @@ export class ModelPage implements OnInit {
    * @summary Initializes the component by setting up the logger instance using the getLogger
    * utility. This ensures that logging is available throughout the component's lifecycle
    * for error tracking and debugging purposes.
+   *
+   * @memberOf ModelPage
    */
   ngOnInit(): void {
     this.logger = getLogger(this);
@@ -263,6 +264,8 @@ export class ModelPage implements OnInit {
    * refreshes the component data. If a modelId is provided, UPDATE and DELETE operations
    * are added to the allowed operations array, enabling full CRUD functionality for
    * existing model instances.
+   *
+   * @memberOf ModelPage
    */
   async ionViewWillEnter(): Promise<void> {
     if(this.modelId)
@@ -278,6 +281,7 @@ export class ModelPage implements OnInit {
    * the logger instance.
    *
    * @param {string} [uid] - The unique identifier of the model to load; defaults to modelId
+   * @memberOf ModelPage
    */
   async refresh(uid?: string) {
     if(!uid)
@@ -304,6 +308,7 @@ export class ModelPage implements OnInit {
    * extension and consistent event processing.
    *
    * @param {BaseCustomEvent} event - The event object containing event data and metadata
+   * @memberOf ModelPage
    */
   async handleEvent(event: BaseCustomEvent) {
     const { name } = event;
@@ -325,6 +330,7 @@ export class ModelPage implements OnInit {
    * @param {BaseCustomEvent} event - The submit event containing form data
    * @return {Promise<void | Error>} Promise that resolves on success or throws on error
    * @throws {Error} Re-throws repository errors with proper error message handling
+   * @memberOf ModelPage
    */
   async handleSubmit(event: BaseCustomEvent): Promise<void | Error> {
     try {
@@ -353,6 +359,7 @@ export class ModelPage implements OnInit {
    *
    * @param {string} uid - The unique identifier of the model instance to retrieve
    * @return {Promise<Model | undefined>} Promise resolving to the model instance or undefined
+   * @memberOf ModelPage
    */
   async handleGet(uid: string): Promise<Model | undefined> {
     if (!uid) {
@@ -374,6 +381,7 @@ export class ModelPage implements OnInit {
    * @param {Partial<Model>} data - The raw form data to be processed
    * @return {Model | string | number} Processed data ready for repository operations
    * @private
+   * @memberOf ModelPage
    */
   private parseData(data: Partial<Model>): Model | string | number {
       const repo = this._repository as IRepository<Model>;

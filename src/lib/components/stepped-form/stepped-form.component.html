@@ -1,11 +1,46 @@
 <form class="dcf-steped-form" novalidate>
   <div class="dcf-page-steps">
-    <div>
-        @for(page of pagesArray; track $index;) {
-        <div [class.dcf-active]="activePage === $index + 1" [class.dcf-passed]="($index + 1) < activePage">{{ $index + 1 }}</div>
+    <div class="dcf-grid dcf-grid-collapse skip">
+      @for(page of pageTitles; track $index;) {
+        <div class="dcf-flex dcf-flex-middle">
+          <div class="dcf-step" [class.dcf-active]="activePage === $index + 1" [class.dcf-passed]="($index + 1) < activePage">{{ $index + 1 }}</div>
+          @if((page?.title || page?.description)) {
+            <div class="dcf-information dcf-visible@s">
+              @if(page?.title) {
+                <div class="dcf-title">{{ page?.title | translate }}</div>
+              }
+              @if(page?.description) {
+                <div class="dcf-description">{{ page?.description | translate }}</div>
+              }
+              <div class="dcf-separator"></div>
+            </div>
+          }
+          @if($index < pageTitles.length - 1) {
+            <div class="dcf-arrow-container">
+              <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1.5 1L6.5 6L1.5 11" />
+              </svg>
+            </div>
+          }
+        </div>
       }
     </div>
   </div>
+
+  @if(pageTitles[activePage - 1]?.title || pageTitles[activePage - 1]?.description) {
+    <div class="dcf-current-step">
+      <div>
+        @if(pageTitles[activePage - 1]?.title) {
+          <div class="dcf-title">{{  pageTitles[activePage - 1]?.title  | translate }}</div>
+        }
+        @if(pageTitles[activePage - 1]?.description) {
+          <div class="dcf-description">{{ pageTitles[activePage - 1]?.description | translate }}</div>
+        }
+      </div>
+    </div>
+  }
+
+
   @if(formGroup) {
     @for(child of activeChildren;  track $index) {
       <ngx-decaf-component-renderer
@@ -25,19 +60,19 @@
 
   <div class="dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
     <div class="dcf-width-1-2@s">
-      <ion-button fill="clear" (click)="handleBack()" [disabled]="activePage <= 1">
-        <ion-icon aria-hidden="true" name="arrow-back-outline"></ion-icon>
+      <ion-button  color="light" (click)="handleBack()" [disabled]="activePage <= 1">
+        <!-- <ion-icon aria-hidden="true" name="arrow-back-outline"></ion-icon> -->
           {{locale + '.previous' | translate}}
       </ion-button>
     </div>
 
     <div class="dcf-width-1-2@s">
-      <ion-button [fill]="activePage === pages ? 'solid' : 'outline'"  (click)="handleNext(activePage === pages ? true : false)">
+      <ion-button fill="solid"  (click)="handleNext(activePage === pages ? true : false)">
         @if(activePage === pages) {
           {{locale + '.submit' | translate}}
         } @else {
           {{locale + '.next' | translate}}
-          <ion-icon aria-hidden="true" name="arrow-forward-outline"></ion-icon>
+          <!-- <ion-icon aria-hidden="true" name="arrow-forward-outline"></ion-icon> -->
         }
       </ion-button>
     </div>

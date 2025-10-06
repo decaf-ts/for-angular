@@ -1,11 +1,11 @@
 import { Component, Input, OnInit, OnDestroy, Output, EventEmitter  } from '@angular/core';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { IonButton, IonIcon, IonSkeletonText, IonText } from '@ionic/angular/standalone';
+import { IonButton, IonSkeletonText, IonText } from '@ionic/angular/standalone';
 import { arrowForwardOutline, arrowBackOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { BaseCustomEvent, Dynamic, EventConstants, KeyValue, NgxFormService } from '../../engine';
+import { BaseCustomEvent, Dynamic, EventConstants, NgxFormService } from '../../engine';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 import { Subscription, timer } from 'rxjs';
@@ -24,8 +24,6 @@ import { TranslatePipe } from '@ngx-translate/core';
     IonSkeletonText,
     IonText,
     IonButton,
-    IonIcon,
-    ModelRendererComponent,
     ComponentRendererComponent
   ],
   standalone: true,
@@ -59,6 +57,20 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
    */
   @Input()
   pages: number = 1;
+
+  /**
+   * List of titles and descriptions for each page of the stepped form.
+   * Each object in the array represents a page, containing a title and a description.
+   *
+   * @example
+   * pageTitles = [
+   *   { title: 'Personal Information', description: 'Fill in your personal details.' },
+   *   { title: 'Address', description: 'Provide your residential address.' }
+   * ];
+   */
+  @Input()
+  pageTitles: { title: string; description: string }[] = [];
+
 
   /**
    * @description The CRUD operation type for this form.
@@ -204,7 +216,6 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
    *
    *   A->>S: ngOnInit()
    *   S->>S: Set activePage = startPage
-   *   S->>S: Process children into pagesArray
    *   S->>S: Calculate total pages
    *   S->>S: Assign page props to children
    *   S->>S: getCurrentFormGroup(activePage)
@@ -218,15 +229,10 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
       this.locale = getLocaleContext("SteppedFormComponent")
     this.activePage = this.startPage;
 
-    this.pagesArray = (this.children.reduce((acc, curr, index) => {
-      const page = curr.props?.['page'] || index + 1;
-      if(!acc[page])
-        acc[page] = [];
-      acc[page].push({index: page});
-      return acc;
-    }, [] as KeyValue) as []).filter(Boolean);
+    if(!this.pageTitles.length)
+      this.pageTitles =  Array.from({ length: this.pages }, () => ({ title: '', description: '' }));
 
-    this.pages = this.pagesArray.length;
+    this.pages = this.pageTitles.length;
     this.children = [... this.children.map((c) => {
       if(!c.props)
         c.props = {};
@@ -235,6 +241,7 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
       c.props['page'] = page > this.pages ? this.pages : page;
       return c;
     })];
+    console.log(this.pageTitles);
     this.getCurrentFormGroup(this.activePage);
   }
 
@@ -351,10 +358,9 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
   private getCurrentFormGroup(page: number): void {
     this.activeFormGroup = (this.formGroup as FormArray).at(page - 1) as FormGroup;
     this.activeChildren = undefined;
-    this.timerSubscription = timer(10).subscribe(() => {
-      this.activeChildren = this.children.filter(c => c.props?.['page'] === page);
-      console.log(this.activeChildren);
-    });
+    this.timerSubscription = timer(10).subscribe(() =>
+      this.activeChildren = this.children.filter(c => c.props?.['page'] === page)
+    );
   }
 
 }
