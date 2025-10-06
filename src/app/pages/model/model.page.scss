@@ -2,18 +2,18 @@ ion-card-content {
   padding-bottom: 2rem !important;
 }
 
- ion-item {
-    --padding-end: 0rem;
-    --padding-start: 0px !important;
-    --padding-top: 0px !important;
+ion-item {
+  --padding-end: 0rem;
+  --padding-start: 0px !important;
+  --padding-top: 0px !important;
 
-    --background: transparent;
-    --background-hover: var(--ion-color-primary);
-    --background-hover-opacity: .1;
+  --background: transparent;
+  --background-hover: var(--ion-color-primary);
+  --background-hover-opacity: .1;
 
-    --background-hover: var(--ion-color-primary);
-    --background-activated-opacity: .15;
+  --background-hover: var(--ion-color-primary);
+  --background-activated-opacity: .15;
 
-    --background-focused: var(--ion-color-primary);
-    --background-focused-opacity: .15;
+  --background-focused: var(--ion-color-primary);
+  --background-focused-opacity: .15;
 }

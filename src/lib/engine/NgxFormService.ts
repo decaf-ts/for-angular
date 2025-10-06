@@ -72,8 +72,6 @@ export class NgxFormService {
    */
   private static formRegistry: Map<string, FormParent> = new Map<string, FormParent>();
 
-  private static pageMapper: KeyValue = {};
-
   /**
    * @description Creates a new form group or form array with the specified identifier.
    * @summary Generates a FormGroup or FormArray based on the provided properties. If pages are specified

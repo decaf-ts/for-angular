@@ -1,3 +1,5 @@
+$height: 38px;
+
 .dcf-buttons-container {
   margin-top: 1.8rem;
   margin-bottom: 0px;
@@ -31,39 +33,104 @@
 .dcf-page-steps {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-bottom: 2rem;
-  > div {
-    justify-content: center;
-    min-width: 200px;
-    max-width: 200px;
-    display: flex;
-    column-gap: 0.25em;
-    display: flex;
-      > div {
-      width: 30px;
-      text-align: center;
-      border-bottom: solid var(--dcf-color-gray-3);
-      box-sizing: border-box;
-       border-width: 3px;
-      // font-size: .5rem;
-      // line-height: 1.2rem;
-      font-size: 0px;
-      font-weight: 600;
-      &.dcf-active {
-          border-width: 5px;
-          font-size: 1rem;
-          color: var(--ion-color-gray-7);
-          border-color: var(--ion-color-primary);
-          line-height: 1rem;
-      }
+  overflow-x: auto;
+  flex-wrap: nowrap;
 
-      &.dcf-passed {
-        border-width: 4px;
-        font-size: .5rem;
-        line-height: 1.2rem;
-        border-color: var(--dcf-color-gray-5);
-        color: var(--ion-color-primary);
-      }
+  .dcf-grid {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center;
+  }
+}
+
+
+.dcf-step {
+    height: $height;
+    min-width: $height;
+    width: $height;
+    background: var(--dcf-color-gray-2);
+    margin: 0;
+    display: flex;
+    color: var(--dcf-color-gray-7);
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: var(--dcf-border-radius);
+    &.dcf-active {
+      color: var(--dcf-color-light);
+      background: var(--ion-color-primary);
+      box-shadow: 0 2px 6px 0 rgba(20, 76, 113, 0.30);
     }
+    &.dcf-passed {
+      color: var(--dcf-color-primary-shade);
+      background: var(--dcf-color-gray-3);
+    }
+
+}
+
+.dcf-information {
+  padding-left: .5rem;
+}
+
+.dcf-title {
+  font-size: .875rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--dcf-color-gray-7);
+}
+
+.dcf-description {
+  font-size: .800rem;
+  font-weight: 500;
+  margin: 0;
+  margin-top: .25rem;
+  color: var(--dcf-color-gray-4);
+}
+
+.dcf-arrow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 .5rem;
+    height: $height
+}
+
+.dcf-arrow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    height: 40px;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+      stroke: var(--dcf-color-gray-8);
+      stroke-opacity: 0.7;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+}
+
+
+
+ion-button {
+    &[color="light"] {
+        --background: var(--dcf-color-gray-7) !important;
+    }
+}
+
+.dcf-current-step {
+  margin-top: -0.5rem !important;
+  margin-bottom: 1.75rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @media(min-width: 639px) {
+    display: none;
   }
 }

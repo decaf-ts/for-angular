@@ -83,5 +83,19 @@
     "username": {
       "label": "Username"
     }
+  },
+  "stepped-form": {
+    "step1": {
+      "title": "Step 1",
+      "description": "This is the first step"
+    },
+    "step2": {
+      "title": "Step 2",
+      "description": "This is the second step"
+    },
+    "step3": {
+      "title": "Step 3",
+      "description": "This is the last step"
+    }
   }
 }
