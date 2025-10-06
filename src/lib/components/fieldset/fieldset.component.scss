@@ -15,6 +15,30 @@ ion-accordion-group {
 }
 
 
+@media (prefers-color-scheme: light) {
+  .dcf-fieldset {
+    border: 1px solid var(--dcf-color-gray-3);
+    .dcf-button-add { color: var(--ion-color-dark) !important; }
+  }
+   ion-accordion {
+      ion-item[slot="header"] {
+        legend {
+          color: var(--dcf-color-gray-7);
+        }
+      }
+   }
+}
+
+@media (prefers-color-scheme: dark) {
+  .dcf-fieldset {
+    border: 1px solid var(--dcf-color-step-400);
+    .dcf-button-add { color: var(--ion-color-gray-2); }
+
+     &.read, &.delete {
+      border: 1px solid var(--dcf-color-gray-6);
+    }
+  }
+}
 
 .dcf-fieldset {
   margin-bottom: 1.8rem;
@@ -22,14 +46,6 @@ ion-accordion-group {
   padding-bottom: 0;
   padding-top: 1rem;
   background: var(--dcf-card-background);
-  @media (prefers-color-scheme: light) {
-   border: 1px solid var(--dcf-color-gray-3);
-    .dcf-button-add { color: var(--ion-color-dark) !important; }
-  }
-  @media (prefers-color-scheme: dark) {
-    border: 1px solid var(--dcf-color-step-400);
-    .dcf-button-add { color: var(--ion-color-gray-2); }
-  }
 
   border-radius: 6px;
   height: 100%;
@@ -38,7 +54,6 @@ ion-accordion-group {
     padding-bottom: 1rem;
     [slot="content"] { padding-top: 0px !important;}
     ion-accordion { margin-bottom: 0rem !important; }
-    @media (prefers-color-scheme: dark) { border: 1px solid var(--dcf-color-gray-6); }
   }
 
   ion-accordion {
@@ -57,9 +72,6 @@ ion-accordion-group {
       legend {
         font-weight: 600;
         font-size: 1rem;
-        @media (prefers-color-scheme: light) {
-            color: var(--dcf-color-gray-7);
-        }
         margin: 0;
       }
     }

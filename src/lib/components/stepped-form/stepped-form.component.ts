@@ -7,7 +7,6 @@ import { UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { BaseCustomEvent, Dynamic, EventConstants, NgxFormService } from '../../engine';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
-import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 import { Subscription, timer } from 'rxjs';
 import { getLocaleContext } from '../../i18n/Loader';
 import { TranslatePipe } from '@ngx-translate/core';

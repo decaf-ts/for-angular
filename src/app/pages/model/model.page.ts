@@ -6,7 +6,7 @@ import {
 } from '@decaf-ts/db-decorators';
 import { Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonSearchbar } from '@ionic/angular/standalone';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent } from '@ionic/angular/standalone';
 import { BaseCustomEvent, EventConstants, KeyValue } from 'src/lib/engine';
 import { RouterService } from 'src/app/services/router.service';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
@@ -111,7 +111,7 @@ import { ContainerComponent } from 'src/app/components/container/container.compo
   standalone: true,
   selector: 'app-model',
   templateUrl: './model.page.html',
-  imports: [ModelRendererComponent, HeaderComponent, ContainerComponent, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonSearchbar],
+  imports: [ModelRendererComponent, HeaderComponent, ContainerComponent, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent],
 
   styleUrls: ['./model.page.scss'],
 })

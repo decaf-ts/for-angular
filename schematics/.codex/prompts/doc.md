@@ -1,0 +1,2 @@
+You're a senior TypeScript developer writing JSDoc documentation for a class to be used with better-docs. Given the module code:
+Generate a JSDoc comment block for a TypeScript module file using better-docs formatting:

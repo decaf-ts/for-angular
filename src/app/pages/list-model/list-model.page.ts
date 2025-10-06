@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { KeyValue } from 'src/lib/engine/types';
-import { IonCard, IonCardContent, IonCardTitle, IonContent, IonSearchbar } from '@ionic/angular/standalone';
+import { IonCard, IonCardContent, IonContent } from '@ionic/angular/standalone';
 import { EmployeeModel } from 'src/app/models/EmployeeModel';
 import { BaseCustomEvent, EventConstants } from 'src/lib/engine';
 import { CategoryModel } from 'src/app/models/CategoryModel';
@@ -14,7 +14,7 @@ import { ListComponent } from 'src/lib/components';
   templateUrl: './list-model.page.html',
   styleUrls: ['./list-model.page.css'],
   standalone: true,
-  imports: [HeaderComponent, ContainerComponent, ListComponent, IonContent, IonCard, IonCardTitle, IonCardContent, IonSearchbar],
+  imports: [HeaderComponent, ContainerComponent, ListComponent, IonContent, IonCard, IonCardContent],
 })
 export class ListModelPage implements OnInit {
 

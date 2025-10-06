@@ -10,8 +10,7 @@ import {
   IonRefresherContent,
   IonSkeletonText,
   IonText,
-  IonThumbnail,
-  IonLoading
+  IonThumbnail
 } from '@ionic/angular/standalone';
 import { debounceTime, Subject } from 'rxjs';
 import { OperationKeys } from '@decaf-ts/db-decorators';
@@ -35,7 +34,6 @@ import {
 } from '../../helpers';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
-import { ListItemComponent } from '../list-item/list-item.component';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { PaginationComponent } from '../pagination/pagination.component';
 import { PaginationCustomEvent } from '../pagination/constants';
@@ -122,7 +120,6 @@ import { TranslatePipe } from '@ngx-translate/core';
   imports: [
     TranslatePipe,
     IonRefresher,
-    IonLoading,
     PaginationComponent,
     IonList,
     IonItem,
@@ -137,7 +134,6 @@ import { TranslatePipe } from '@ngx-translate/core';
     IonSkeletonText,
     SearchbarComponent,
     EmptyStateComponent,
-    ListItemComponent,
     FilterComponent,
     ComponentRendererComponent
   ]
@@ -580,7 +576,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @type {Observer}
    * @memberOf ListComponent
    */
-  private observer: Observer = { refresh: async (... args: unknown[]): Promise<void> => this.observeRepository(...args)}
+  private observer!: Observer;
 
   /**
    * @description List of available indexes for data querying and filtering.
@@ -643,6 +639,9 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   async ngOnInit(): Promise<void> {
+
+    this.observer = { refresh: async (... args: unknown[]): Promise<void> => this.observeRepository(...args)}
+
     this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event as ListItemCustomEvent | RendererCustomEvent));
     this.observerSubjet.pipe(debounceTime(100)).subscribe(args => this.handleObserveEvent(args[0], args[1], args[2]));
     this.enableFilter = stringToBoolean(this.enableFilter);

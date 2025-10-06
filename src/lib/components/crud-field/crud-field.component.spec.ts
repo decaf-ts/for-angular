@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CrudFieldComponent } from './crud-field.component';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AngularFieldDefinition } from '../../engine';
-import { TranslateFakeLoader, TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
@@ -10,7 +10,8 @@ import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { By } from '@angular/platform-browser';
-import { error } from 'console';
+import { I18nFakeLoader } from '../../i18n';
+
 
 const imports = [
   ForAngularCommonModule,
@@ -18,7 +19,7 @@ const imports = [
   TranslateModule.forRoot({
     loader: {
       provide: TranslateLoader,
-      useClass: TranslateFakeLoader,
+      useClass: I18nFakeLoader,
     },
   }),
 ];
