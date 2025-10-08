@@ -53,7 +53,7 @@
     "repo:pr": "npm run repo:doc && npm run repo:tests && npm run repo:readme",
     "sync-codex": "./bin/sync-codex.sh"
   },
-  "author": "Tiago Venceslau",
+  "author": "Tiago Venceslau and Contributors",
   "license": "MIT",
   "repository": {
     "type": "git",

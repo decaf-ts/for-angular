@@ -18,7 +18,7 @@
   "keywords": [
     "schematics"
   ],
-  "author": "",
+  "author": "Tiago Venceslau and Contributors",
   "license": "MIT",
   "schematics": "./collection.json",
   "dependencies": {
