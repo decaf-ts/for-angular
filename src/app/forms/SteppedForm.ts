@@ -11,11 +11,16 @@ import {
 import { uichild, uielement, uimodel } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from '../models/CategoryModel';
 
-@uimodel('ngx-decaf-stepped-form', {pages: 3, startPage: 1, pageTitles: [
-  {title: 'stepped-form.step1.title', description: 'stepped-form.step1.description'},
-  {title: 'stepped-form.step2.title', description: 'stepped-form.step2.description'},
-  {title: 'stepped-form.step3.title', description: 'stepped-form.step3.description'},
-]})
+@uimodel('ngx-decaf-stepped-form', {
+  paginated: false,
+  pages: 3,
+  startPage: 1,
+  pageTitles: [
+    {title: 'stepped-form.step1.title', description: 'stepped-form.step1.description'},
+    {title: 'stepped-form.step2.title', description: 'stepped-form.step2.description'},
+    {title: 'stepped-form.step3.title', description: 'stepped-form.step3.description'},
+  ]
+})
 @model()
 export class SteppedForm extends Model {
 

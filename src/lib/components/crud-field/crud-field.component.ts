@@ -100,7 +100,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   templateUrl: './crud-field.component.html',
   styleUrl: './crud-field.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  host: {'[attr.id]': 'uid'},
+  host: {'[attr.id]': 'uid', '[attr.class]': 'className'},
 })
 export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDestroy, AfterViewInit {
 
@@ -128,6 +128,9 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   @Input({ required: true })
   override name!: string;
 
+
+  @Input()
+  className: string = 'dcf-width-1-1';
 
   /**
    * @summary The full field path used for form control resolution.

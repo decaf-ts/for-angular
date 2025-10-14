@@ -135,6 +135,19 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
 
 
   /**
+   * @description The parent component identifier for hierarchical fieldset relationships.
+   * @summary Specifies the parent component name that this fieldset belongs to in a hierarchical
+   * form structure. This property is used for event bubbling and establishing parent-child
+   * relationships between fieldsets in complex forms with nested structures.
+   *
+   * @type {string}
+   * @default 'Child'
+   * @memberOf FieldsetComponent
+   */
+  @Input()
+  collapsable: boolean = true;
+
+  /**
    * @description Unique identifier for the current record.
    * @summary A unique identifier for the current record being displayed or manipulated.
    * This is typically used in conjunction with the primary key for operations on specific records.
@@ -144,7 +157,6 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    */
   @Input()
   page!: number;
-
 
 
   /**
@@ -485,6 +497,8 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @memberOf FieldsetComponent
    */
   ngAfterViewInit(): void {
+    if(!this.collapsable)
+      this.isOpen = true;
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
       this.isOpen = true;
       // hidden remove button
@@ -667,21 +681,20 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    const fromIndex = event.detail.from;
     const toIndex = event.detail.to;
 
-    const items = [...this.items]; // sua estrutura visual
-    const formArray = this.formGroup as FormArray; // FormArray reativo
+    const items = [...this.items]; // visual data
+    const formArray = this.formGroup as FormArray; // FormArray
 
     if (fromIndex !== toIndex) {
-      // Reordenar os dados visuais
+      // reorder visual data
       const itemToMove = items.splice(fromIndex, 1)[0];
       items.splice(toIndex, 0, itemToMove);
       items.forEach((item, index) => item['index'] = index + 1);
 
-      // Reordenar os controles do FormArray
+      // reorder FormArray controls
       const controlToMove = formArray.at(fromIndex);
       formArray.removeAt(fromIndex);
       formArray.insert(toIndex, controlToMove);
     }
-    // Finaliza a operação de reorder do Ionic
     event.detail.complete();
   }
 
@@ -727,9 +740,14 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
   handleAccordionToggle(event?: CustomEvent): void {
     if(event)
       event.stopImmediatePropagation();
-    if(!this.hasValidationErrors) {
-      this.accordionComponent.value = this.isOpen ? undefined : 'open';
-      this.isOpen = !!this.accordionComponent.value;
+
+    if(!this.collapsable) {
+      this.isOpen = true;
+    } else {
+       if(!this.hasValidationErrors) {
+        this.accordionComponent.value = this.isOpen ? undefined : 'open';
+        this.isOpen = !!this.accordionComponent.value;
+      }
     }
   }
 

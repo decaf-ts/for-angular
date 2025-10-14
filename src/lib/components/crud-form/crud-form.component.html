@@ -1,6 +1,9 @@
 @if(operation !== 'read' && operation !== 'delete') {
-  <form #reactiveForm [id]="rendererId" [formGroup]="formGroup" (submit)="submit($event)" novalidate [target]="target">
-    <ng-content #formContent></ng-content>
+  <form class="grid flex" #reactiveForm [id]="rendererId" [formGroup]="formGroup" (submit)="submit($event)" novalidate [target]="target">
+    <ng-content class="test" #formContent>
+
+    </ng-content>
+
     <div class="dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
       <div>
         <ion-button type="submit" [expand]="action ? 'block' : 'default'">

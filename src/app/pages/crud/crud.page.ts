@@ -40,12 +40,13 @@ export class CrudPage implements OnInit {
       email: 'john.doe@example.com',
       website: 'https://johndoe.example.com',
       password: 'password123',
-      ... (this.operation === OperationKeys.READ ?
+      ... ((this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)?
       {
         category: {name: "Demo Category", description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry."},
         user: {username: "Admin", secret: "DemoPass"},
         gender: "male",
         birthdate: "1989-12-12",
+        contact: "morning",
 
       }: {}),
     });

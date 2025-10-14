@@ -72,12 +72,6 @@ export class LoginPage implements OnInit {
   locale: string = getLocaleContext('Login');
 
   /**
-   * @description App logo
-   */
-  logo: string = 'assets/images/decaf-logo.svg';
-
-
-  /**
    * @description Angular Router instance for navigation
    * @summary Injected Router service used for programmatic navigation
    * to other pages after successful login or other routing operations.
@@ -110,24 +104,17 @@ export class LoginPage implements OnInit {
    */
   private menuController: MenuController = inject(MenuController);
 
-
-  constructor() {
-    this.menuController.enable(false);
-  }
-
   /**
    * @description Component initialization lifecycle method
    * @summary Initializes the login page component by logging the locale context
    * for debugging purposes. This method is called after Angular has initialized
    * all data-bound properties and before the view is rendered.
    *
-   * @returns {void}
+   * @returns {Promise<void>}
    * @memberOf LoginPage
    */
-  ngOnInit(): void {
-   const {matches} = window.matchMedia('(prefers-color-scheme: dark)');
-    if(matches)
-      this.logo = 'assets/images/decaf-logo-lw.svg';
+  async ngOnInit(): Promise<void> {
+   await this.menuController.enable(false);
   }
 
   /**

@@ -63,14 +63,6 @@ const Menu: MenuItem[] = [
     icon: 'save-outline',
   },
   {
-    label: 'Fieldset',
-    url: '/fieldset',
-  },
-  {
-    label: 'Steps Form',
-    url: '/steps-form',
-  },
-  {
     label: 'Read',
     url: '/crud/read',
   },
@@ -82,16 +74,24 @@ const Menu: MenuItem[] = [
     label: 'Delete',
     url: '/crud/delete',
   },
+   {
+    label: 'Fieldset',
+    url: '/fieldset',
+  },
+  {
+    label: 'Steps Form',
+    url: '/steps-form',
+  },
   {
     label: 'Model Lists',
     icon: 'list-outline',
   },
   {
-    label: 'Employees (Infinite)',
+    label: 'Infinite List',
     url: '/list-model/infinite',
   },
   {
-    label: 'Categories (Paginated)',
+    label: 'Paginated List',
     url: '/list-model/paginated',
   },
   {

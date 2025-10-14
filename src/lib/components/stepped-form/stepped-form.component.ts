@@ -3,7 +3,7 @@ import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { IonButton, IonSkeletonText, IonText } from '@ionic/angular/standalone';
 import { arrowForwardOutline, arrowBackOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { UIModelMetadata} from '@decaf-ts/ui-decorators';
+import { UIElementMetadata, UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { BaseCustomEvent, Dynamic, EventConstants, NgxFormService } from '../../engine';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
@@ -29,7 +29,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 })
 export class SteppedFormComponent implements OnInit, OnDestroy {
 
-    /**
+  /**
    * @description The locale to be used for translations.
    * @summary Specifies the locale identifier to use when translating component text.
    * This can be set explicitly via input property to override the automatically derived
@@ -42,6 +42,21 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
    */
   @Input()
   locale!: string;
+
+
+  /**
+   * @description The locale to be used for translations.
+   * @summary Specifies the locale identifier to use when translating component text.
+   * This can be set explicitly via input property to override the automatically derived
+   * locale from the component name. The locale is typically a language code (e.g., 'en', 'fr')
+   * or a language-region code (e.g., 'en-US', 'fr-CA') that determines which translation
+   * set to use for the component's text content.
+   *
+   * @type {string}
+   * @memberOf SteppedFormComponent
+   */
+  @Input()
+  paginated: boolean = true;
 
 
   /**
@@ -68,7 +83,7 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
    * ];
    */
   @Input()
-  pageTitles: { title: string; description: string }[] = [];
+  pageTitles: { title: string; description: string;}[] = [];
 
 
   /**
@@ -108,7 +123,7 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
    * @memberOf SteppedFormComponent
    */
   @Input()
-  children!: UIModelMetadata[];
+  children!: UIModelMetadata[] | { title: string; description: string; items?:  UIModelMetadata[]  }[];
 
   /**
    * @description Angular reactive FormGroup or FormArray for form state management.
@@ -178,6 +193,7 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
    */
   private timerSubscription!: Subscription;
 
+
   /**
    * @description Event emitter for form submission.
    * @summary Emits events when the form is submitted, typically on the last page
@@ -229,19 +245,35 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
     this.activePage = this.startPage;
 
     if(!this.pageTitles.length)
-      this.pageTitles =  Array.from({ length: this.pages }, () => ({ title: '', description: '' }));
+      this.pageTitles =  Array.from({ length: this.pages }, () => ({ title: '', description: '', rendered: this.paginated }));
 
     this.pages = this.pageTitles.length;
-    this.children = [... this.children.map((c) => {
-      if(!c.props)
-        c.props = {};
-      const page = c.props['page'] || 1;
-      // prevent page overflow
-      c.props['page'] = page > this.pages ? this.pages : page;
-      return c;
-    })];
-    console.log(this.pageTitles);
-    this.getCurrentFormGroup(this.activePage);
+
+    if(this.paginated) {
+      this.children = [... (this.children as UIModelMetadata[]).map((c) => {
+        if(!c.props)
+          c.props = {};
+        const page = c.props['page'] || 1;
+        // prevent page overflow
+        c.props['page'] = page > this.pages ? this.pages : page;
+        return c;
+      })];
+      this.getCurrentFormGroup(this.activePage);
+    } else {
+      this.children =  this.pageTitles.map((page, index) => {
+        const pageNumber = index + 1;
+        const items = (this.children as UIModelMetadata[]).filter(({ props }: UIElementMetadata) => props?.['page'] === pageNumber);
+        return {
+          page: pageNumber,
+          title: page.title,
+          description: page.description,
+          items
+        };
+      });
+
+      this.activeFormGroup = this.formGroup as FormGroup;
+    }
+
   }
 
   /**
@@ -358,8 +390,7 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
     this.activeFormGroup = (this.formGroup as FormArray).at(page - 1) as FormGroup;
     this.activeChildren = undefined;
     this.timerSubscription = timer(10).subscribe(() =>
-      this.activeChildren = this.children.filter(c => c.props?.['page'] === page)
+      this.activeChildren = (this.children as UIModelMetadata[]).filter(c => c.props?.['page'] === page)
     );
   }
-
 }

@@ -4,15 +4,16 @@
   (fieldsetAddGroupEvent)="handleCreateItem($event)"
   (fieldsetRemoveGroupEvent)="handleRemoveItem(undefined, $event)"
   [class]="'dcf-fieldset ' + operation"
+  [class.open]="isOpen"
   #component>
   <ion-accordion-group [class.open]="isOpen" [class.hasValidationErrors]="hasValidationErrors" (validationErrorEvent)="handleValidationError($event)" #accordionComponent>
     <ion-accordion value="open">
-      <ion-item slot="header" (click)="handleAccordionToggle($event)">
+      <ion-item [class.disable-collapse]="!collapsable" slot="header" [button]="collapsable" (click)="handleAccordionToggle($event)">
         <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1">
           <div class="dcf-width-expand">
             <legend>{{ name | translate }}</legend>
           </div>
-          @if(!isRequired && ['create', 'update'].includes(operation)) {
+          @if((!isRequired && ['create', 'update'].includes(operation))) {
             <div class="dcf-width-auto dcf-delete">
               <ion-button fill="clear" size="small" (click)="handleRemoveComponent($event)">
                 <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
@@ -84,10 +85,8 @@
               <ion-icon name="add-outline" slot="start"></ion-icon>
               {{buttonLabel}}
             </ion-button>
-
           </div>
         }
-
       </div>
     </ion-accordion>
   </ion-accordion-group>
