@@ -1,6 +1,6 @@
 {
   "name": "@decaf-ts/for-angular",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "scripts": {
     "ng": "ng",
     "decaf": "npx decaf angular generate",
