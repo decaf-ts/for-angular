@@ -1,4 +1,4 @@
-import { id } from '@decaf-ts/db-decorators';
+import { id, OperationKeys } from '@decaf-ts/db-decorators';
 import {
   date,
   email,
@@ -13,7 +13,7 @@ import {
   required,
   url,
 } from '@decaf-ts/decorator-validation';
-import { uichild, uielement, uimodel } from '@decaf-ts/ui-decorators';
+import { hidden, hideOn, uichild, uielement, uimodel } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from './CategoryModel';
 import { UserModel } from './UserModel';
 
@@ -28,7 +28,7 @@ export class ForAngularModel extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.id.label',
     placeholder: 'demo.id.placeholder',
-    value: 1,
+    className: 'dcf-width-1-2@s dcf-width-1-1',
   })
   id!: number;
 
@@ -37,6 +37,7 @@ export class ForAngularModel extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.name.label',
     placeholder: 'demo.name.placeholder',
+    className: 'dcf-width-1-2@s dcf-width-1-1',
   })
   name!: string;
 
@@ -64,7 +65,7 @@ export class ForAngularModel extends Model {
   })
   contact!: string;
 
-  @uichild(CategoryModel.name, 'ngx-decaf-fieldset')
+  @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {collapsable: false})
   category!: CategoryModel;
 
   @required()
@@ -98,6 +99,7 @@ export class ForAngularModel extends Model {
     label: 'demo.agree.label',
     type: 'checkbox',
   })
+  @hideOn(OperationKeys.DELETE, OperationKeys.READ)
   agree!: string;
 
   // @list(OtherModel)

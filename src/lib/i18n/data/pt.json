@@ -79,7 +79,8 @@
     "stepped_form": {
       "next": "Seguinte",
       "previous": "Anterior",
-      "submit": "Submeter"
+      "submit": "Submeter",
+      "cancel": "Cancelar"
     }
   }
 }

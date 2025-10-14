@@ -3,7 +3,7 @@
 
   <ng-template #componentOuter></ng-template>
   <ng-template #inner>
-    <div  [id]="rendererId || null">
+    <div class="dcf-grid dcf-grid-small dcf-model-renderer-component dcf-child-width-1-1"  [id]="rendererId || null">
       @for (child of output?.children; track child) {
         @if(child?.children?.length) {
           <ngx-decaf-component-renderer [parent]="child" />

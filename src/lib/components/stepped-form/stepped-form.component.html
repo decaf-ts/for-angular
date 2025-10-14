@@ -1,80 +1,129 @@
-<form class="dcf-steped-form" novalidate>
-  <div class="dcf-page-steps">
-    <div class="dcf-grid dcf-grid-collapse skip">
-      @for(page of pageTitles; track $index;) {
-        <div class="dcf-flex dcf-flex-middle">
-          <div class="dcf-step" [class.dcf-active]="activePage === $index + 1" [class.dcf-passed]="($index + 1) < activePage">{{ $index + 1 }}</div>
-          @if((page?.title || page?.description)) {
-            <div class="dcf-information dcf-visible@s">
-              @if(page?.title) {
-                <div class="dcf-title">{{ page?.title | translate }}</div>
-              }
-              @if(page?.description) {
-                <div class="dcf-description">{{ page?.description | translate }}</div>
-              }
-              <div class="dcf-separator"></div>
-            </div>
-          }
-          @if($index < pageTitles.length - 1) {
-            <div class="dcf-arrow-container">
-              <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1.5 1L6.5 6L1.5 11" />
-              </svg>
-            </div>
-          }
-        </div>
-      }
-    </div>
-  </div>
-
-  @if(pageTitles[activePage - 1]?.title || pageTitles[activePage - 1]?.description) {
-    <div class="dcf-current-step">
-      <div>
-        @if(pageTitles[activePage - 1]?.title) {
-          <div class="dcf-title">{{  pageTitles[activePage - 1]?.title  | translate }}</div>
-        }
-        @if(pageTitles[activePage - 1]?.description) {
-          <div class="dcf-description">{{ pageTitles[activePage - 1]?.description | translate }}</div>
+<form class="dcf-steped-form"  novalidate>
+  @if(paginated) {
+    <div class="dcf-page-steps">
+      <div class="dcf-grid dcf-grid-collapse skip">
+        @for(page of pageTitles; track $index;) {
+          <div class="dcf-flex dcf-flex-middle">
+            <div class="dcf-step" [class.dcf-active]="activePage === $index + 1" [class.dcf-passed]="($index + 1) < activePage">{{ $index + 1 }}</div>
+            @if((page?.title || page?.description)) {
+              <div class="dcf-information dcf-visible@s">
+                @if(page?.title) {
+                  <div class="dcf-title">{{ page?.title | translate }}</div>
+                }
+                @if(page?.description) {
+                  <div class="dcf-description">{{ page?.description | translate }}</div>
+                }
+                <div class="dcf-separator"></div>
+              </div>
+            }
+            @if($index < pageTitles.length - 1) {
+              <div class="dcf-arrow-container">
+                <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1.5 1L6.5 6L1.5 11" />
+                </svg>
+              </div>
+            }
+          </div>
         }
       </div>
     </div>
-  }
 
-
-  @if(formGroup) {
-    @for(child of activeChildren;  track $index) {
-      <ngx-decaf-component-renderer
-        [tag]="child?.tag"
-        (listenEvent)="handleEvent($event)"
-        [children]="child?.children || []"
-        [globals]="{props: child.props}"
-      />
+    @if(pageTitles[activePage - 1]?.title || pageTitles[activePage - 1]?.description) {
+      <div class="dcf-current-step">
+        <div>
+          @if(pageTitles[activePage - 1]?.title) {
+            <div class="dcf-title">{{  pageTitles[activePage - 1]?.title  | translate }}</div>
+          }
+          @if(pageTitles[activePage - 1]?.description) {
+            <div class="dcf-description">{{ pageTitles[activePage - 1]?.description | translate }}</div>
+          }
+        </div>
+      </div>
     }
+
+    @if(formGroup) {
+      @for(child of activeChildren;  track $index) {
+        <ngx-decaf-component-renderer
+          [tag]="child?.tag"
+          (listenEvent)="handleEvent($event)"
+          [children]="child?.children || []"
+          [globals]="{props: child.props}"
+        />
+      }
+    } @else {
+      <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
+      <br />
+      <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
+    }
+    <div class="dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
+      <div class="dcf-width-1-2@s">
+        <ion-button  color="light" (click)="handleBack()" [disabled]="activePage <= 1">
+          <!-- <ion-icon aria-hidden="true" name="arrow-back-outline"></ion-icon> -->
+            {{locale + '.previous' | translate}}
+        </ion-button>
+      </div>
+
+      <div class="dcf-width-1-2@s">
+        <ion-button fill="solid"  (click)="handleNext(activePage === pages ? true : false)">
+          @if(activePage === pages) {
+            {{locale + '.submit' | translate}}
+          } @else {
+            {{locale + '.next' | translate}}
+            <!-- <ion-icon aria-hidden="true" name="arrow-forward-outline"></ion-icon> -->
+          }
+        </ion-button>
+      </div>
+    </div>
   } @else {
-    <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-    <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
-    <br />
-    <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-    <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
-  }
+    <div class="dcf-single-step">
 
-  <div class="dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
-    <div class="dcf-width-1-2@s">
-      <ion-button  color="light" (click)="handleBack()" [disabled]="activePage <= 1">
-        <!-- <ion-icon aria-hidden="true" name="arrow-back-outline"></ion-icon> -->
-          {{locale + '.previous' | translate}}
-      </ion-button>
-    </div>
+      @for (item of children; track $index) {
+        <ion-card>
+          <ion-card-content>
+            @if(item.title || item.description) {
+                <div class="dcf-information">
+                  <div>
+                    @if(item.title) {
+                      <div class="dcf-title">{{  item.title | translate }}</div>
+                    }
+                    @if(item.description) {
+                      <div class="dcf-description">{{ item.description | translate }}</div>
+                    }
+                  </div>
+                </div>
+              }
+              @for (child of item.items; track $index) {
+                <div class="dcf-content">
+                  <ngx-decaf-component-renderer
+                    [tag]="child?.tag"
+                    (listenEvent)="handleEvent($event)"
+                    [children]="child?.children || []"
+                    [globals]="{props: child.props}"
+                  />
+                </div>
+            }
+          </ion-card-content>
+        </ion-card>
+      }
+      <div class="dcf-buttons-container dcf-grid dcf-grid-small dcf-flex dcf-flex-right">
+        <div class="dcf-width-auto@s dcf-width-1-1">
+          <ion-button  color="light" (click)="handleBack()">
+                {{locale + '.cancel' | translate}}
+            </ion-button>
+          </div>
 
-    <div class="dcf-width-1-2@s">
-      <ion-button fill="solid"  (click)="handleNext(activePage === pages ? true : false)">
-        @if(activePage === pages) {
-          {{locale + '.submit' | translate}}
-        } @else {
-          {{locale + '.next' | translate}}
-          <!-- <ion-icon aria-hidden="true" name="arrow-forward-outline"></ion-icon> -->
-        }
-      </ion-button>
-    </div>
-  </div>
+          <div class="dcf-width-auto@s dcf-width-1-1">
+            <ion-button fill="solid"  (click)="handleNext(true)">
+              {{locale + '.submit' | translate}}
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    }
+
+
+
+
 </form>

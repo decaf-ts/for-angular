@@ -134,3 +134,20 @@ ion-button {
     display: none;
   }
 }
+
+.dcf-single-step {
+  .dcf-information {
+    margin-bottom: 1rem;
+  }
+
+  .dcf-content {
+    padding: 0 .5rem;
+  }
+
+  ion-card {
+    margin-bottom: 1.5rem;
+    .dcf-information {
+      margin-top: .75rem;
+    }
+  }
+}
