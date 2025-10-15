@@ -13,7 +13,8 @@
     "repo:tests": "codex exec \"$(cat ./.codex/prompts/bulk-tests.md)\nbase_path is ./ and coverage is 95%\" -s workspace-write",
     "repo:readme": "codex exec \"$(cat ./.codex/prompts/update-readme.md)\nbase_path is ./\"",
     "repo:pr": "npm run repo:doc && npm run repo:tests && npm run repo:readme",
-    "sync-codex": "./bin/sync-codex.sh"
+    "sync-codex": "./bin/sync-codex.sh",
+    "do-install": "NPM_TOKEN=$(cat .npmtoken) npm install"
   },
   "keywords": [
     "schematics"
