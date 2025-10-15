@@ -29,7 +29,6 @@ export class EmployeeModel extends Model {
   // })
   // companyEmail!: string;
 
-  @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'employee.occupation.label',
     placeholder: 'employee.occupation.placeholder',

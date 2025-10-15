@@ -23,10 +23,8 @@ import { isDevelopmentMode, removeFocusTrap } from 'src/lib/helpers';
 import { ForAngularRepository } from './utils/ForAngularRepository';
 import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
-import { DecafRepositoryAdapter } from 'src/lib/engine/types';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LogoComponent } from './components/logo/logo.component';
-import { DB_ADAPTER_PROVIDER_TOKEN } from 'src/lib/for-angular-common.module';
 
 try {
   new NgxRenderingEngine();
@@ -188,7 +186,7 @@ export class AppComponent implements OnInit {
   /**
    * @description The database adapter provider
    */
-  adapter = inject(DB_ADAPTER_PROVIDER_TOKEN);
+  // adapter = inject(DB_ADAPTER_PROVIDER_TOKEN);
 
   /**
    * @description Flag indicating if the application has been initialized
@@ -241,7 +239,7 @@ export class AppComponent implements OnInit {
     const isDevelopment = isDevelopmentMode();
     if(isDevelopment) {
       for(const model of [new CategoryModel(), new EmployeeModel()] ) {
-        const repository = new ForAngularRepository<typeof model>(this.adapter as unknown as DecafRepositoryAdapter, model);
+        const repository = new ForAngularRepository<typeof model>(model);
         await repository.init();
       }
     }
