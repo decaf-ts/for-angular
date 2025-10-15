@@ -52,7 +52,7 @@ if [[ $# -ne 0 ]];then
   MESSAGE="$*"
 fi
 
-echo "Preparing Release... "
+echo "Preparing release prerequisites..."
 npm run prepare-release
 
 if [[ -z "$TAG" ]];then
@@ -69,14 +69,21 @@ fi
 
 if [[ $(git status --porcelain) ]]; then
   git add .
-  git commit -m "$TAG - $MESSAGE - before tag"
+  git commit -m "$TAG - $MESSAGE - after release preparation"
 fi
 
 npm version "$TAG" -m "$MESSAGE"
 
-git push --follow-tags
+GIT_USER=$(git config user.name)
+
+REMOTE_URL=$(git remote get-url origin)
+
+if [[ "$(cat .token)" ]]; then
+  git push -u "https://${GIT_USER}:$(cat .token)@${REMOTE_URL#https://}" --follow-tags
+else
+  git push --follow-tags
+fi
 
 if [[ "$MESSAGE" =~ -no-ci$ ]]; then
   NPM_TOKEN=$(cat .npmtoken) npm publish --access public
 fi
-
