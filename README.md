@@ -87,6 +87,6 @@ So if you can, if this project in any way. either by learning something or simpl
 
 ## License
 
-This project is released under MIT with an AGPL-3.0 trigger for AI-generated code usage; see [LICENSE.md](./LICENSE.md) for full terms.
+This project is released under the [MIT License](./LICENSE.md).
 
 By developers, for developers...

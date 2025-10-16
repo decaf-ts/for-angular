@@ -53,7 +53,7 @@
     "sync-codex": "./bin/sync-codex.sh"
   },
   "author": "Tiago Venceslau and Contributors",
-  "license": "MIT OR AGPL-3.0-only",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/decaf-ts/for-angular.git"
