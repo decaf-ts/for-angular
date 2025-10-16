@@ -1,4 +1,4 @@
-import { DecafRepository, DecafRepositoryAdapter } from 'src/lib/engine/types';
+import { DecafRepository } from 'src/lib/engine/types';
 import { formatDate } from 'src/lib/helpers/utils';
 import { faker } from '@faker-js/faker';
 import { Model } from '@decaf-ts/decorator-validation';
@@ -14,7 +14,7 @@ export class ForAngularRepository<T extends Model> {
 
   private _repository: DecafRepository<Model> | undefined = undefined;
 
-  constructor(protected adapter: DecafRepositoryAdapter, protected model?: string | Model) {}
+  constructor(protected model?: string | Model) {}
 
   private get repository():  DecafRepository<Model> {
     if (!this._repository) {
@@ -25,7 +25,7 @@ export class ForAngularRepository<T extends Model> {
         );
       try {
         this.model = new constructor();
-        this._repository  = Repository.forModel(constructor, (this.adapter as DecafRepositoryAdapter).flavour);
+        this._repository  = Repository.forModel(constructor);
       } catch (error: unknown) {
         throw new InternalError(
           (error as Error)?.message || error as string
@@ -43,6 +43,7 @@ export class ForAngularRepository<T extends Model> {
       data = ((this.model as Model).constructor.name !== 'CategoryModel' ? generateEmployes(items) : generateCatories(items)) as Model[];
       data = await this.repository?.createAll(data) as T[];
     }
+    console.log(this.data);
     this.data = data as T[] || [];
   }
 
@@ -90,6 +91,8 @@ export function getFakerData<T extends Model>(
       const val = value();
       item[key as keyof T] = val.constructor === Date ? formatDate(val) : val;
     }
+    // if((item as any)?.['code'])
+    //   (item as any).code = `${index}`;
     // item.id = index;
     // item.createdAt = faker.date.past({ refDate: '2025-01-01' });
     index  = index + 1;

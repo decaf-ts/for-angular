@@ -357,8 +357,11 @@ export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestr
   getIndexes(): void {
     if(this.model)
       this.indexes = Object.keys(Repository.indexes(this.model as Model) || {});
-    if(!this.disableSort)
+    if(!this.disableSort) {
       this.sortBy = [... this.sortBy, ...this.indexes];
+      if(this.repository)
+        this.sortValue = this.repository.pk || this.sortValue;
+    }
   }
 
 
