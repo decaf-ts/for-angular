@@ -3,7 +3,7 @@ import { getWindow } from '../helpers/index';
 export class MediaService {
   private static _window?: Window;
 
-  private constructor() {}
+  // private constructor() {}
 
   protected static get window() {
     if (!MediaService._window) MediaService._window = getWindow();

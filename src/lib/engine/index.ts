@@ -16,3 +16,6 @@ export * from './NgxRenderingEngine';
 export * from './NgxBaseComponent';
 export * from './NgxCrudFormField';
 export * from './NgxFormService';
+export * from './NgxEventHandler';
+export * from './NgxBasePage';
+export * from './NgxDecafComponent';

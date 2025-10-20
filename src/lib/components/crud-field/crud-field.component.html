@@ -40,28 +40,52 @@
           </ion-textarea>
         }
         @else if(type === 'checkbox') {
-          <ion-item>
-            <ion-checkbox
-              [id]="name"
-              [mode]="mode"
-              [errorText]="getErrors(container)"
-              [hidden]="hidden"
-              [labelPlacement]="labelPlacement"
-              [justify]="justify"
-              [value]="value"
-              [checked]="checked"
-              [readonly]="readonly"
-              (ionChange)="checked = !checked"
-              [formControlName]="name"
-              #component>
-              <span [innerHTML]="label | translate"></span>
-            </ion-checkbox>
-          </ion-item>
+          @if(!options?.length) {
+             <ion-item>
+              <ion-checkbox
+                [id]="name"
+                [mode]="mode"
+                [errorText]="getErrors(container)"
+                [hidden]="hidden"
+                [labelPlacement]="labelPlacement"
+                [justify]="justify"
+                [value]="value"
+                [checked]="checked"
+                [readonly]="readonly"
+                (ionChange)="checked = !checked"
+                [formControlName]="name"
+                #component>
+                <span [innerHTML]="label | translate"></span>
+              </ion-checkbox>
+            </ion-item>
+          } @else {
+            <div class="dcf-checkbox-group">
+              <label class="dcf-label" [for]="path">{{ label | translate }}</label>
+              @for(option of options; track trackItemFn($index, option.text)) {
+                <ion-item >
+                  <ion-checkbox
+                    [id]="option.text"
+                    [mode]="mode"
+                    [labelPlacement]="labelPlacement"
+                    [justify]="justify"
+                    [value]="option.value"
+                    [readonly]="readonly"
+                    [checked]="isOptionChecked(option.value)"
+                    (ionChange)="toggleOptionSelection(option.value, $event)"
+                    #component>
+                    <span>{{ $index + 1 }}. {{ option?.text | translate }}</span>
+                  </ion-checkbox>
+                </ion-item>
+              }
+              <span class="dcf-error" [innerHTML]="getErrors(container)"></span>
+            </div>
+          }
+
         }
         @else if(type === 'radio') {
           <ion-radio-group [formControlName]="name" [value]="value" #component>
             <label class="dcf-radio-group-label" [for]="path">{{label | translate}}</label>
-            @for(option of options; track option) {
+            @for(option of options; track trackItemFn($index, option.text)) {
               <ion-item>
                 <ion-radio
                   [id]="name"
@@ -73,7 +97,7 @@
                   [justify]="justify"
                   [readonly]="readonly"
                   [value]="option.value"
-                >{{ translatable ?  (option?.text | translate) : option?.text }}</ion-radio>
+                >{{ option?.text | translate }}</ion-radio>
               </ion-item>
             }
           </ion-radio-group>
@@ -86,18 +110,21 @@
               [mode]="mode"
               [hidden]="hidden"
               [labelPlacement]="labelPlacement"
-              [label]="translatable ? (label | translate) : label"
+              [label]="label | translate"
               [value]="value"
               [fill]="fill"
               [placeholder]="placeholder | translate"
               [formControlName]="name"
               [errorText]="getErrors(container)"
               [interface]="interface" #component>
-              @for(option of options; track option.value) {
-                <ion-select-option [value]="option.value">
-                  {{ option.text | translate }}
-                </ion-select-option>
+              @if(options?.length) {
+                @for(option of options; track trackItemFn($index, option.text)) {
+                  <ion-select-option [value]="option.value">
+                    {{ option.text | translate }}
+                  </ion-select-option>
+                }
               }
+
             </ion-select>
         }
         @else {

@@ -20,10 +20,12 @@ import {
 import { routes } from './app.routes';
 import { provideDbAdapter } from 'src/lib/for-angular-common.module';
 
+export const dbAdapterFlavour = 'ram';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     // Providing RamAdapter as the database adapter for Decaf
-    provideDbAdapter(RamAdapter, {user: "user"}),
+    provideDbAdapter(RamAdapter, {user: "user"}, dbAdapterFlavour),
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),

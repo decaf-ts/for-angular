@@ -4,22 +4,49 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 import { Logger, Logging } from '@decaf-ts/logging';
 import { FunctionLike, I18nResourceConfig } from './engine';
-import { DecafRepositoryAdapter, KeyValue } from './engine/types';
-import { Constructor } from '@decaf-ts/decorator-validation';
+import { getOnWindow, getWindow } from './helpers/utils';
+import { DecafRepository, DecafRepositoryAdapter, KeyValue } from './engine/types';
+import { Constructor, Model, Primitives } from '@decaf-ts/decorator-validation';
+import { InternalError } from '@decaf-ts/db-decorators';
+import { Repository, uses } from '@decaf-ts/core';
 
 /** */
-export const DB_ADAPTER_PROVIDER_TOKEN = new InjectionToken<DecafRepositoryAdapter>('DB_ADAPTER_PROVIDER');
+export const DB_ADAPTER_PROVIDER = 'DB_ADAPTER_PROVIDER';
+export const DB_ADAPTER_PROVIDER_TOKEN = new InjectionToken<DecafRepositoryAdapter>(DB_ADAPTER_PROVIDER);
 
 export const I18N_CONFIG_TOKEN = new InjectionToken<{resources: I18nResourceConfig[]; versionedSuffix: boolean}>('I18N_CONFIG_TOKEN');
 
+export function getModelRepository(model: Model | string): DecafRepository<Model> {
+  try {
+    const modelName = typeof model === Primitives.STRING ? model : (model as Model).constructor.name;
+    const constructor = Model.get(modelName as string);
+    if (!constructor)
+      throw new InternalError(
+        `Cannot find model for ${modelName}. was it registered with @model?`
+      );
+    const dbAdapterFlavour = getOnWindow(DB_ADAPTER_PROVIDER) || undefined;
+    if(dbAdapterFlavour)
+      uses(dbAdapterFlavour as string)(constructor);
+    const repo = Repository.forModel(constructor);
+    model = new constructor() as Model;
+    return repo;
+  } catch (error: unknown) {
+    throw new InternalError((error as Error)?.message || (error as string));
+  }
+}
+
+
 export function provideDbAdapter<DbAdapter extends { flavour: string }>(
   adapterClass: Constructor<DbAdapter>,
-  options: KeyValue = {}
+  options: KeyValue = {},
+  flavour?: string
 ): Provider {
   const adapter = new adapterClass(options);
+  if(flavour)
+    flavour = adapter.flavour;
   // Log and expose adapter flavour globally
-  getLogger(provideDbAdapter).info(`Using ${adapter.flavour} as Db Provider`);
-  // getWindow()['dbAdapterFlavour'] = adapter.flavour;
+  getLogger(provideDbAdapter).info(`Using ${adapter.constructor.name} ${flavour} as Db Provider`);
+  getWindow()[DB_ADAPTER_PROVIDER] = flavour;
   return {
     provide: DB_ADAPTER_PROVIDER_TOKEN,
     useValue: adapter,

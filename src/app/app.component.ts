@@ -21,10 +21,9 @@ import * as IonicIcons from 'ionicons/icons';
 import { MenuItem } from 'src/app/utils/types';
 import { isDevelopmentMode, removeFocusTrap } from 'src/lib/helpers';
 import { ForAngularRepository } from './utils/ForAngularRepository';
-import { CategoryModel } from './models/CategoryModel';
-import { EmployeeModel } from './models/EmployeeModel';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LogoComponent } from './components/logo/logo.component';
+import { AIModel } from './models/AIVendorModel';
 
 try {
   new NgxRenderingEngine();
@@ -85,11 +84,11 @@ const Menu: MenuItem[] = [
     icon: 'list-outline',
   },
   {
-    label: 'Infinite List',
+    label: 'AI Models (Infinite)',
     url: '/list-model/infinite',
   },
   {
-    label: 'Paginated List',
+    label: 'AI Vendors (Paginated)',
     url: '/list-model/paginated',
   },
   {
@@ -238,8 +237,12 @@ export class AppComponent implements OnInit {
     this.initialized = true;
     const isDevelopment = isDevelopmentMode();
     if(isDevelopment) {
-      for(const model of [new CategoryModel(), new EmployeeModel()] ) {
-        const repository = new ForAngularRepository<typeof model>(model);
+      // const aiVendorModel = new AIVendorModel();
+      const aiModel = new AIModel();
+      // const models = [aiModel, new CategoryModel(), new EmployeeModel()];
+      const models = [aiModel];
+      for(const model of models) {
+        const repository = new ForAngularRepository(model, 3);
         await repository.init();
       }
     }

@@ -51,7 +51,7 @@ export const AngularEngineKeys = {
 export const FormConstants = {
   VALID: 'VALID',
   INVALID: 'INVALID',
-};
+} as const;
 
 /**
  * @description Event name constants
@@ -75,7 +75,7 @@ export const EventConstants = {
   FIELDSET_UPDATE_GROUP: 'fieldsetUpdateGroupEvent',
   FIELDSET_REMOVE_GROUP: 'fieldsetRemoveGroupEvent',
   // FIELDSET_GROUP_VALIDATION: 'fieldsetGroupValidationEvent'
-}
+} as const;
 
 /**
  * @description Logger level constants

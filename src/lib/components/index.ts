@@ -14,7 +14,6 @@ export * from './searchbar/searchbar.component';
 
 // Constants exports
 export * from './crud-form/constants';
-export * from './pagination/constants';
 
 export * from './stepped-form/stepped-form.component';
 // Module export

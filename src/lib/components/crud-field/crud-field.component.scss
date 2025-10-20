@@ -142,6 +142,21 @@ ion-radio-group {
   }
 }
 
+.dcf-checkbox-group {
+   .dcf-label {
+    // margin-left: .5rem;
+    font-weight: 600;
+    ~ ion-item {
+      margin-top: .5rem;
+      --inner-padding-start: .75rem;
+    }
+  }
+  + .dcf-helper {
+    padding-left: .75rem;
+    position: relative;
+  }
+}
+
 .dcf-error {
   position: absolute;
   color: var(--dcf-color-danger) !important;

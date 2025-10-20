@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModel } from 'src/app/models/DemoModel';
-import { BaseCustomEvent, KeyValue } from 'src/lib/engine';
+import { IBaseCustomEvent, KeyValue } from 'src/lib/engine';
 import { getLogger } from 'src/lib/for-angular-common.module';
 import { IonCard, IonCardContent, IonContent } from '@ionic/angular/standalone';
 import { ContainerComponent } from 'src/app/components/container/container.component';
@@ -57,7 +57,7 @@ export class CrudPage implements OnInit {
     };
   }
 
-  handleSubmit(event: BaseCustomEvent): void {
+  handleSubmit(event: IBaseCustomEvent): void {
     getLogger(this).info(`Submit event: ${JSON.stringify(event)}`);
   }
 }

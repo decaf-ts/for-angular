@@ -7,14 +7,12 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { AutocompleteTypes, SelectInterface } from '@ionic/core';
+import { TranslatePipe} from '@ngx-translate/core';
+import { AutocompleteTypes, CheckboxCustomEvent, SelectInterface } from '@ionic/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
-import { Dynamic } from '../../engine/decorators';
-import { CrudFieldOption, FieldUpdateMode, PossibleInputTypes, StringOrBoolean } from '../../engine/types';
 import {
   IonCheckbox,
   IonInput,
@@ -30,11 +28,14 @@ import {
 import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
-import { generateRandomValue } from '../../helpers';
+import { getModelRepository } from '../../for-angular-common.module';
+import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, StringOrBoolean } from '../../engine/types';
+import { dataMapper, generateRandomValue } from '../../helpers';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { EventConstants } from '../../engine/constants';
+import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
+import { Dynamic } from '../../engine/decorators';
 import { getLocaleContextByKey } from '../../i18n/Loader';
-import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -130,7 +131,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
 
 
   @Input()
-  className: string = 'dcf-width-1-1';
+  override className: string = 'dcf-width-1-1';
 
   /**
    * @summary The full field path used for form control resolution.
@@ -186,7 +187,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @Input()
-  override value: string | number | Date = '';
+  override value: string | number | Date | string[] = '';
 
   /**
    * @description Whether the field is disabled.
@@ -487,7 +488,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @Input()
-  options!: CrudFieldOption[];
+  options!: FunctionLike | CrudFieldOption[] | KeyValue[];
 
   /**
    * @description Mode of the field.
@@ -692,6 +693,16 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   @Input()
   pk!: string;
 
+  /**
+   * @description Field mapping configuration.
+   * @summary Defines how fields from the data model should be mapped to properties used by the component.
+   * This allows for flexible data binding between the model and the component's display logic.
+   *
+   * @type {Record<string, string>}
+   * @memberOf CrudFieldComponent
+   */
+  @Input()
+  override optionsMapper: Record<string, string> | FunctionLike = {};
 
   /**
    * @description Gets the currently active form group based on context.
@@ -707,25 +718,6 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
     return this.multiple
       ? ((formGroup.parent as FormArray)?.at(this.activeFormGroup) as FormGroup)
       : formGroup;
-
-  }
-
-  /**
-   * Returns a list of options for select or radio inputs, with their `text` property
-   * localized if it does not already include the word 'options'. The localization key
-   * is generated from the component's label, replacing 'label' with 'options'.
-   *
-   * @returns {CrudFieldOption[]} The array of parsed and localized options.
-   * @memberOf CrudFieldComponent
-   */
-  get parsedOptions(): CrudFieldOption[] {
-    return this.options.map((option) => {
-      return {
-        ...option,
-        text: !option.text.includes('options') ?
-          getLocaleContextByKey(`${this.label.toLowerCase().replace('label', 'options')}`, option.text) : option.text
-      };
-    });
   }
 
   /**
@@ -738,21 +730,64 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @returns {void}
    * @memberOf CrudFieldComponent
    */
-  ngOnInit(): void {
-    if(this.options?.length)
-      this.options = this.parsedOptions;
+  async ngOnInit(): Promise<void> {
+    addIcons({chevronDownOutline, chevronUpOutline})
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
     } else {
-      addIcons({chevronDownOutline, chevronUpOutline})
+      if(this.options?.length || this.options instanceof Function)
+        this.options = await this.getOptions();
+
       if(this.multiple) {
         this.formGroup = this.getActiveFormGroup as FormGroup;
         this.formGroupArray = this.formGroup.parent as FormArray;
         this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
       }
-      if (this.type === HTML5InputTypes.RADIO && !this.value)
-        this.formGroup?.get(this.name)?.setValue(this.options[0].value); // TODO: migrate to RenderingEngine
+      if(this.type === HTML5InputTypes.CHECKBOX && Array.isArray(this.value)) {
+        this.setValue(this.value);
+      }
     }
+  }
+
+   /**
+   * Returns a list of options for select or radio inputs, with their `text` property
+   * localized if it does not already include the word 'options'. The localization key
+   * is generated from the component's label, replacing 'label' with 'options'.
+   *
+   * @returns {CrudFieldOption[]} The array of parsed and localized options.
+   * @memberOf CrudFieldComponent
+   */
+  async getOptions(): Promise<CrudFieldOption[]> {
+    if(this.options instanceof Function) {
+      const repo = getModelRepository(this.options().name);
+      this.options = await repo?.select().execute();
+    }
+    if(this.optionsMapper) {
+      if (this.optionsMapper instanceof Function) {
+        const mapper = this.optionsMapper as (option: KeyValue) => CrudFieldOption;
+        this.options = (this.options as (CrudFieldOption | KeyValue)[]).map((option: KeyValue) => {
+          return mapper(option);
+        });
+      } else if (Object.keys(this.optionsMapper).length > 0) {
+        this.options = dataMapper(this.options as KeyValue[], this.optionsMapper as Record<string, string>);
+      }
+    }
+    const translate = (text: string) => {
+      const phrase = this.translateService.instant(text);
+      if(phrase.includes('options.')) {
+        const name = phrase.split('.').pop();
+        return name.charAt(0).toUpperCase() + name.slice(1);
+      }
+      return phrase;
+    }
+    return (this.options as CrudFieldOption[]).map((option) => {
+      return {
+        ...option,
+        text: translate((!option.text.includes('options') ?
+          getLocaleContextByKey(`${this.label.toLowerCase().replace('label', 'options')}`, option.text)
+          : option.text))
+      };
+    });
   }
 
 
@@ -766,8 +801,13 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   ngAfterViewInit(): void {
-    if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
+    if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       super.afterViewInit();
+    } else {
+      if (this.type === HTML5InputTypes.RADIO && !this.value)
+        this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
+    }
+
   }
 
   /**
@@ -784,6 +824,32 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
       this.onDestroy();
   }
 
+  toggleOptionSelection(val: string, event: CheckboxCustomEvent) {
+
+    const { checked } = event.detail;
+    console.log(checked, val);
+    let value = Array.isArray(this.formControl.value) ? this.formControl.value : [];
+     if (checked) {
+      if (!value.includes(val))
+        value = [...value, val];
+    } else {
+      value = value.filter(v => v !== val);
+    }
+    this.setValue(value);
+    this.formControl.updateValueAndValidity();
+  }
+
+
+  isOptionChecked(value: string): boolean {
+    if(!this.formControl.value || !Array.isArray(this.formControl.value))
+      return false;
+    return this.formControl.value.includes(value);
+  }
+
+  setValue(value: unknown): void {
+    this.formControl.setValue(value);
+  }
+
   /**
    * @description Handles fieldset group creation events from parent fieldsets.
    * @summary Processes events triggered when a new group needs to be added to a fieldset.
@@ -796,7 +862,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @HostListener('window:fieldsetAddGroupEvent', ['$event'])
-  handleFieldsetCreateGroupEvent(event: CustomEvent): void {
+    handleFieldsetCreateGroupEvent(event: CustomEvent): void {
     event.stopImmediatePropagation();
     const { parent, component, index, operation } = event.detail;
     const formGroup = this.formGroup as FormGroup;

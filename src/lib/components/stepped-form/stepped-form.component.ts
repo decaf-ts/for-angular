@@ -5,7 +5,7 @@ import { arrowForwardOutline, arrowBackOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { UIElementMetadata, UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { BaseCustomEvent, Dynamic, EventConstants, NgxFormService } from '../../engine';
+import { IBaseCustomEvent, Dynamic, EventConstants, NgxFormService } from '../../engine';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { Subscription, timer } from 'rxjs';
 import { getLocaleContext } from '../../i18n/Loader';
@@ -200,11 +200,11 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
    * when all validation passes. The emitted event contains the form data and
    * event type information for parent components to handle.
    *
-   * @type {EventEmitter<BaseCustomEvent>}
+   * @type {EventEmitter<IBaseCustomEvent>}
    * @memberOf SteppedFormComponent
    */
   @Output()
-  submitEvent: EventEmitter<BaseCustomEvent> = new EventEmitter<BaseCustomEvent>();
+  submitEvent: EventEmitter<IBaseCustomEvent> = new EventEmitter<IBaseCustomEvent>();
 
   /**
    * @description Creates an instance of SteppedFormComponent.

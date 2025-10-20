@@ -250,17 +250,17 @@ export interface FormServiceControl {
 /**
  * @description Interface for list item custom events
  * @summary Defines the structure of custom events triggered by list items.
- * Extends BaseCustomEvent with additional properties for the action and primary key.
+ * Extends IBaseCustomEvent with additional properties for the action and primary key.
  * @interface ListItemCustomEvent
  * @property {string} action - The action performed on the list item
  * @property {string} [pk] - Optional primary key of the affected item
- * @property {any} data - The data associated with the event (inherited from BaseCustomEvent)
- * @property {HTMLElement} [target] - The target element (inherited from BaseCustomEvent)
- * @property {string} [name] - The name of the event (inherited from BaseCustomEvent)
- * @property {string} component - The component that triggered the event (inherited from BaseCustomEvent)
+ * @property {any} data - The data associated with the event (inherited from IBaseCustomEvent)
+ * @property {HTMLElement} [target] - The target element (inherited from IBaseCustomEvent)
+ * @property {string} [name] - The name of the event (inherited from IBaseCustomEvent)
+ * @property {string} component - The component that triggered the event (inherited from IBaseCustomEvent)
  * @memberOf module:engine
  */
-export interface ListItemCustomEvent extends BaseCustomEvent {
+export interface ListItemCustomEvent extends IBaseCustomEvent {
   action: string;
   pk?: string;
 }
@@ -270,14 +270,14 @@ export interface ListItemCustomEvent extends BaseCustomEvent {
  * @description Base interface for custom events
  * @summary Defines the base structure for custom events in the application.
  * Contains properties for the event data, target element, name, and component.
- * @interface BaseCustomEvent
+ * @interface IBaseCustomEvent
  * @property {any} data - The data associated with the event
  * @property {HTMLElement} [target] - The target element that triggered the event
  * @property {string} [name] - The name of the event
  * @property {string} component - The component that triggered the event
  * @memberOf module:engine
  */
-export interface BaseCustomEvent {
+export interface IBaseCustomEvent {
   name: string;
   component?: string;
   data?: unknown;
@@ -292,3 +292,23 @@ export interface BaseCustomEvent {
  * @property suffix - The suffix to be appended to the resource file path.
  */
 export interface I18nResourceConfig { prefix: string, suffix: string }
+
+
+/**
+ * @description CRUD form event type
+ * @summary Extends IBaseCustomEvent to include optional handlers for CRUD form operations.
+ * This event type is used for form-related actions like create, read, update, and delete operations.
+ * @typedef ICrudFormEvent
+ * @property {Record<string, any>} [handlers] - Optional handlers for form operations
+ * @memberOf module:engine
+ */
+export interface ICrudFormEvent extends IBaseCustomEvent {
+  handlers?: Record<string, unknown>;
+};
+
+export interface IPaginationCustomEvent extends IBaseCustomEvent {
+  data: {
+    page: number,
+    direction: 'next' | 'previous'
+  }
+}

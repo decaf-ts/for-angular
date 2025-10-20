@@ -5,9 +5,9 @@ import {
   OperationKeys,
 } from '@decaf-ts/db-decorators';
 import { Repository } from '@decaf-ts/core';
-import { Model } from '@decaf-ts/decorator-validation';
+import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent } from '@ionic/angular/standalone';
-import { BaseCustomEvent, EventConstants, KeyValue } from 'src/lib/engine';
+import { IBaseCustomEvent, EventConstants, KeyValue } from 'src/lib/engine';
 import { RouterService } from 'src/app/services/router.service';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { DecafRepository } from 'src/lib/engine/types';
@@ -303,9 +303,9 @@ export class ModelPage implements OnInit {
    * the handleSubmit method. This centralized event handling approach allows for easy
    * extension and consistent event processing.
    *
-   * @param {BaseCustomEvent} event - The event object containing event data and metadata
+   * @param {IBaseCustomEvent} event - The event object containing event data and metadata
    */
-  async handleEvent(event: BaseCustomEvent) {
+  async handleEvent(event: IBaseCustomEvent) {
     const { name } = event;
     switch (name) {
       case EventConstants.SUBMIT:
@@ -322,11 +322,11 @@ export class ModelPage implements OnInit {
    * page, and displays success notifications. Comprehensive error handling ensures robust
    * operation with detailed logging.
    *
-   * @param {BaseCustomEvent} event - The submit event containing form data
+   * @param {IBaseCustomEvent} event - The submit event containing form data
    * @return {Promise<void | Error>} Promise that resolves on success or throws on error
    * @throws {Error} Re-throws repository errors with proper error message handling
    */
-  async handleSubmit(event: BaseCustomEvent): Promise<void | Error> {
+  async handleSubmit(event: IBaseCustomEvent): Promise<void | Error> {
     try {
       const repo = this._repository as IRepository<Model>;
       const data = this.parseData(event.data as KeyValue);
@@ -360,7 +360,10 @@ export class ModelPage implements OnInit {
       this.routerService.backToLastPage();
       return undefined;
     }
-    const result = await (this._repository as IRepository<Model>).read(isNaN(Number(uid)) ? uid : Number(uid));
+    const type = Reflect.getMetadata("design:type", this.model as KeyValue, this.repository.pk as string).name;
+    const result = await (this._repository as IRepository<Model>).read(
+      [Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase()) ? Number(uid) : uid
+    );
     return result ?? undefined;
   }
 

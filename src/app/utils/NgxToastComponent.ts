@@ -102,7 +102,7 @@ export class NgxToastComponent {
    * @param {ToastOptions} options - Configuration options for the toast
    * @return {Promise<HTMLIonToastElement>} A promise that resolves to the created toast element
    */
-  private async show(options: ToastOptions): Promise<HTMLIonToastElement>{
+  async show(options: ToastOptions): Promise<HTMLIonToastElement>{
     options = Object.assign({duration: 5000}, options);
     let timeout = 0;
     if(component) {

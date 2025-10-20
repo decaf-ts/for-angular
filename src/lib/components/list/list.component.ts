@@ -17,11 +17,10 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
 import {
-  BaseCustomEvent,
   Dynamic,
   EventConstants,
   ComponentsTagNames,
-  RendererCustomEvent,
+  IBaseCustomEvent,
   StringOrBoolean,
   KeyValue,
   ListItemCustomEvent
@@ -36,7 +35,7 @@ import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { PaginationComponent } from '../pagination/pagination.component';
-import { PaginationCustomEvent } from '../pagination/constants';
+import { IPaginationCustomEvent } from '../../engine/interfaces';
 import { FunctionLike, IFilterQuery, IFilterQueryItem, DecafRepository, IListEmptyResult, ListComponentsTypes } from '../../engine';
 import { FilterComponent } from '../filter/filter.component';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -524,11 +523,11 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @summary Emits an event when the list data is refreshed, either through pull-to-refresh
    * or programmatic refresh. The event includes the refreshed data and component information.
    *
-   * @type {EventEmitter<BaseCustomEvent>}
+   * @type {EventEmitter<IBaseCustomEvent>}
    * @memberOf ListComponent
    */
   @Output()
-  refreshEvent: EventEmitter<BaseCustomEvent> = new EventEmitter<BaseCustomEvent>();
+  refreshEvent: EventEmitter<IBaseCustomEvent> = new EventEmitter<IBaseCustomEvent>();
 
   /**
    * @description Event emitter for item click interactions.
@@ -539,7 +538,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   @Output()
-  clickEvent:  EventEmitter<ListItemCustomEvent|RendererCustomEvent> = new EventEmitter<ListItemCustomEvent|RendererCustomEvent>();
+  clickEvent:  EventEmitter<ListItemCustomEvent|IBaseCustomEvent> = new EventEmitter<ListItemCustomEvent|IBaseCustomEvent>();
 
   /**
    * @description Subject for debouncing click events.
@@ -547,10 +546,10 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * period. This prevents multiple rapid clicks from triggering multiple events.
    *
    * @private
-   * @type {Subject<CustomEvent | ListItemCustomEvent | RendererCustomEvent>}
+   * @type {Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent>}
    * @memberOf ListComponent
    */
-  private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | RendererCustomEvent> = new Subject<CustomEvent | ListItemCustomEvent | RendererCustomEvent>();
+  private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent> = new Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent>();
 
 
   /**
@@ -642,7 +641,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
 
     this.observer = { refresh: async (... args: unknown[]): Promise<void> => this.observeRepository(...args)}
 
-    this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event as ListItemCustomEvent | RendererCustomEvent));
+    this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event as ListItemCustomEvent | IBaseCustomEvent));
     this.observerSubjet.pipe(debounceTime(100)).subscribe(args => this.handleObserveEvent(args[0], args[1], args[2]));
     this.enableFilter = stringToBoolean(this.enableFilter);
     this.limit = Number(this.limit);
@@ -808,13 +807,13 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * debounced click subject. This allows the component to respond to clicks on
    * list items regardless of where they originate from.
    *
-   * @param {ListItemCustomEvent | RendererCustomEvent} event - The click event
+   * @param {ListItemCustomEvent | IBaseCustomEvent} event - The click event
    * @returns {void}
    *
    * @memberOf ListComponent
    */
   @HostListener('window:ListItemClickEvent', ['$event'])
-  handleClick(event: ListItemCustomEvent | RendererCustomEvent): void {
+  handleClick(event: ListItemCustomEvent | IBaseCustomEvent): void {
     this.clickItemSubject.next(event);
   }
 
@@ -915,12 +914,12 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * This extracts the relevant data from the event and passes it to parent components.
    *
    * @private
-   * @param {ListItemCustomEvent | RendererCustomEvent} event - The click event
+   * @param {ListItemCustomEvent | IBaseCustomEvent} event - The click event
    * @returns {void}
    *
    * @memberOf ListComponent
    */
-  private clickEventEmit(event: ListItemCustomEvent | RendererCustomEvent): void {
+  private clickEventEmit(event: ListItemCustomEvent | IBaseCustomEvent): void {
     this.clickEvent.emit(event);
   }
 
@@ -1019,12 +1018,12 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
  * refreshing the list data to display the selected page. This method is called
  * when a user interacts with the pagination controls to navigate between pages.
  *
- * @param {PaginationCustomEvent} event - The pagination event containing page information
+ * @param {IPaginationCustomEvent} event - The pagination event containing page information
  * @returns {void}
  *
  * @memberOf ListComponent
  */
-handlePaginate(event: PaginationCustomEvent): void {
+handlePaginate(event: IPaginationCustomEvent): void {
   const { page} = event.data;
   this.page = page;
   this.refresh(true);

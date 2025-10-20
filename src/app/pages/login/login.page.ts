@@ -1,14 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CrudFormEvent } from 'src/lib/engine';
+import { Component } from '@angular/core';
 import { LoginForm } from 'src/app/forms/LoginForm';
-import { getLogger } from 'src/lib/for-angular-common.module';
-import { IonCard, IonCardContent, IonContent, ToastController} from '@ionic/angular/standalone';
-import { Router } from '@angular/router';
-import { getLocaleContext } from 'src/lib/i18n/Loader';
+import { IonCard, IonCardContent, IonContent} from '@ionic/angular/standalone';
 import { LogoComponent } from 'src/app/components/logo/logo.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
-import { MenuController } from '@ionic/angular';
+import { NgxBasePage } from 'src/lib/engine';
 
 /**
  * @description Login page component for user authentication
@@ -47,7 +43,7 @@ import { MenuController } from '@ionic/angular';
   imports: [IonContent, IonCard, IonCardContent, LogoComponent, ContainerComponent, ModelRendererComponent],
 
 })
-export class LoginPage implements OnInit {
+export class LoginPage extends NgxBasePage {
 
   /**
    * @description Instance of LoginForm for form data binding
@@ -58,102 +54,12 @@ export class LoginPage implements OnInit {
    * @type {LoginForm}
    * @memberOf LoginPage
    */
-  model: LoginForm = new LoginForm({});
+  model: LoginForm = new LoginForm({
+    username: 'user',
+    password: 'Pass123-'
+  });
 
-  /**
-   * @description Locale context string for internationalization
-   * @summary Contains the locale context key ('Login') used for translation
-   * and internationalization purposes. This key is used to determine the
-   * appropriate language resources and translation context for this page.
-   *
-   * @type {string}
-   * @memberOf LoginPage
-   */
-  locale: string = getLocaleContext('Login');
-
-  /**
-   * @description Angular Router instance for navigation
-   * @summary Injected Router service used for programmatic navigation
-   * to other pages after successful login or other routing operations.
-   *
-   * @private
-   * @type {Router}
-   * @memberOf LoginPage
-   */
-  private router: Router = inject(Router);
-
-  /**
-   * @description Ionic ToastController instance for displaying messages
-   * @summary Injected ToastController service used for showing success
-   * or error messages to the user as toast notifications.
-   *
-   * @private
-   * @type {ToastController}
-   * @memberOf LoginPage
-   */
-  private toastController: ToastController = inject(ToastController);
-
-
-  /**
-   * @description Ionic MenuController instance for controlling the app menu
-   * @summary Injected MenuController service used for enabling or disabling the app menu.
-   *
-   * @private
-   * @type {MenuController}
-   * @memberOf LoginPage
-   */
-  private menuController: MenuController = inject(MenuController);
-
-  /**
-   * @description Component initialization lifecycle method
-   * @summary Initializes the login page component by logging the locale context
-   * for debugging purposes. This method is called after Angular has initialized
-   * all data-bound properties and before the view is rendered.
-   *
-   * @returns {Promise<void>}
-   * @memberOf LoginPage
-   */
-  async ngOnInit(): Promise<void> {
-   await this.menuController.enable(false);
-  }
-
-  /**
-   * @description Handles form submission events
-   * @summary This method processes the login form submission, authenticates the user,
-   * displays appropriate messages, and navigates to the dashboard on successful login
-   * @param {CrudFormEvent} event - The event object containing form data and handlers
-   * @return {Promise<void>}
-   * @mermaid
-   * sequenceDiagram
-   *   participant LoginPage
-   *   participant LoginHandler
-   *   participant ToastController
-   *   participant Router
-   *   LoginPage->>LoginHandler: Handle login event
-   *   LoginHandler-->>LoginPage: Return login result
-   *   LoginPage->>ToastController: Create toast message
-   *   alt Login successful
-   *     LoginPage->>Router: Navigate to dashboard
-   *   end
-   *   LoginPage->>ToastController: Present toast
-   */
-  async handleEvent(event: CrudFormEvent): Promise<void> {
-    const {handlers} = event;
-    try {
-      if(handlers?.['login']) {
-        const success = await (new handlers['login']()).handle(event);
-        const toast = await this.toastController.create({
-          message: success ? 'Login successful!' : 'Usuário ou senha inválidos.',
-          duration: 3000,
-          color: success ? 'dark' : 'danger',
-          position: 'top',
-        });
-        if(success)
-          await this.router.navigate(['/dashboard']);
-        await toast.present();
-      }
-    } catch (error: unknown) {
-      getLogger(this).error(error as Error | string);
-    }
+  constructor() {
+    super("LoginPage", false);
   }
 }

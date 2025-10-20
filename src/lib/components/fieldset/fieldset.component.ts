@@ -815,15 +815,15 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
     if(!this.pk)
       this.pk = Object.keys(value)[0];
     if(!Object.keys(this.mapper).length)
-      this.mapper['title'] = this.pk;
-    this.mapper['index'] = "index";
+      (this.mapper as KeyValue)['title'] = this.pk;
+    (this.mapper as KeyValue)['index'] = "index";
     for(const key in value) {
       if(Object.keys(this.mapper).length >= 2 || Object.keys(this.mapper).length === Object.keys(value).length)
         break;
-      if(!this.mapper['title']) {
-        this.mapper['title'] = key;
+      if(!(this.mapper as KeyValue)['title']) {
+        (this.mapper as KeyValue)['title'] = key;
       } else {
-        this.mapper['description'] = key;
+        (this.mapper as KeyValue)['description'] = key;
       }
     }
     return this.mapper;

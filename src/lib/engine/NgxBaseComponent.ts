@@ -1,15 +1,13 @@
 import {
   Input,
-  Component,
   Inject,
   ViewChild,
   ElementRef,
   OnChanges,
   SimpleChanges,
-  Output,
-  EventEmitter,
+  Directive,
 } from '@angular/core';
-import { KeyValue, RendererCustomEvent, StringOrBoolean } from './types';
+import { KeyValue, StringOrBoolean } from './types';
 import {
   generateRandomValue,
   getInjectablesRegistry,
@@ -24,10 +22,10 @@ import {
 } from '@decaf-ts/db-decorators';
 import { BaseComponentProps } from './constants';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
-import { Logger } from '@decaf-ts/logging';
-import { getLogger } from '../for-angular-common.module';
+import { getModelRepository } from '../for-angular-common.module';
 import { DecafRepository } from './types';
-import { Repository } from '@decaf-ts/core';
+import { FunctionLike } from '../engine/types';
+import { NgxDecafComponent } from './NgxDecafComponent';
 
 /**
  * @description Base component class that provides common functionality for all Decaf components.
@@ -91,12 +89,8 @@ import { Repository } from '@decaf-ts/core';
  *   Comp->>Base: initialize()
  *   Base->>Base: Set initialized flag
  */
-@Component({
-  standalone: true,
-  template: '<div></div>',
-  host: { '[attr.id]': 'uid' },
-})
-export abstract class NgxBaseComponent implements OnChanges {
+@Directive()
+export abstract class NgxBaseComponent extends NgxDecafComponent implements OnChanges {
   /**
    * @description Reference to the component's element.
    * @summary Provides direct access to the native DOM element of the component through Angular's
@@ -253,21 +247,8 @@ export abstract class NgxBaseComponent implements OnChanges {
    * @memberOf NgxBaseComponent
    */
   @Input()
-  mapper: Record<string, string> = {};
+  mapper: Record<string, string> | FunctionLike = {};
 
-  /**
-   * @description The locale to be used for translations.
-   * @summary Specifies the locale identifier to use when translating component text.
-   * This can be set explicitly via input property to override the automatically derived
-   * locale from the component name. The locale is typically a language code (e.g., 'en', 'fr')
-   * or a language-region code (e.g., 'en-US', 'fr-CA') that determines which translation
-   * set to use for the component's text content.
-   *
-   * @type {string}
-   * @memberOf NgxBaseComponent
-   */
-  @Input()
-  locale!: string;
 
   /**
    * @description Determines if the component should be translated.
@@ -350,19 +331,7 @@ export abstract class NgxBaseComponent implements OnChanges {
    */
   initialized: boolean = false;
 
-  /**
-   * @description Event emitter for custom renderer events.
-   * @summary Emits custom events that occur within child components or the layout itself.
-   * This allows parent components to listen for and respond to user interactions or
-   * state changes within the grid layout. Events are passed up the component hierarchy
-   * to enable coordinated behavior across the application.
-   *
-   * @type {EventEmitter<RendererCustomEvent>}
-   * @memberOf NgxBaseComponent
-   */
-  @Output()
-  listenEvent: EventEmitter<RendererCustomEvent> =
-    new EventEmitter<RendererCustomEvent>();
+
 
   /**
    * @description Reference to the rendering engine instance
@@ -375,21 +344,6 @@ export abstract class NgxBaseComponent implements OnChanges {
   renderingEngine: NgxRenderingEngine =
     NgxRenderingEngine.get() as unknown as NgxRenderingEngine;
 
-  /**
-   * @description Logger instance for the component.
-   * @summary Provides logging capabilities for the component, allowing for consistent
-   * and structured logging of information, warnings, and errors. This logger is initialized
-   * in the ngOnInit method using the getLogger function from the ForAngularCommonModule.
-   *
-   * The logger is used throughout the component to record important events, debug information,
-   * and potential issues. It helps in monitoring the component's behavior, tracking the flow
-   * of operations, and facilitating easier debugging and maintenance.
-   *
-   * @type {Logger}
-   * @private
-   * @memberOf NgxBaseComponent
-   */
-  logger!: Logger;
 
   /**
    * @description Creates an instance of NgxBaseComponent.
@@ -427,9 +381,9 @@ export abstract class NgxBaseComponent implements OnChanges {
    */
   // eslint-disable-next-line @angular-eslint/prefer-inject
   protected constructor(@Inject('instanceToken') protected instance: string) {
+    super();
     this.componentName = instance;
     this.componentLocale = getLocaleContext(instance);
-    this.logger = getLogger(this);
     this.getLocale(this.translatable);
     this.uid = generateRandomValue(12);
   }
@@ -451,14 +405,7 @@ export abstract class NgxBaseComponent implements OnChanges {
   protected get repository(): DecafRepository<Model> {
     try {
       if (!this._repository) {
-        const modelName = (this.model as Model).constructor.name;
-        const constructor = Model.get(modelName);
-        if (!constructor)
-          throw new InternalError(
-            'Cannot find model. was it registered with @model?'
-          );
-        this._repository = Repository.forModel(constructor);
-        this.model = new constructor() as Model;
+        this._repository = getModelRepository(this.model as Model);
         if (this.model && !this.pk)
           this.pk =
             (this._repository as unknown as DecafRepository<Model>).pk || 'id';
@@ -492,7 +439,7 @@ export abstract class NgxBaseComponent implements OnChanges {
       changes[BaseComponentProps.LOCALE] ||
       changes[BaseComponentProps.TRANSLATABLE]
     )
-      this.getLocale(this.translatable);
+    this.getLocale(this.translatable);
   }
 
   /**
@@ -529,8 +476,10 @@ export abstract class NgxBaseComponent implements OnChanges {
    */
   getLocale(translatable: StringOrBoolean): string {
     this.translatable = stringToBoolean(translatable);
-    if (!this.translatable) return '';
-    if (!this.locale) this.locale = this.componentLocale;
+    if (!this.translatable)
+      return '';
+    if (!this.locale)
+      this.locale = this.componentLocale;
     return this.locale;
   }
 
@@ -606,53 +555,6 @@ export abstract class NgxBaseComponent implements OnChanges {
     if(!this.initialized && parseProps)
       return this.parseProps(this, skip || []);
     this.initialized = true;
-  }
-
-  /**
-   * @description Handles custom events from child components.
-   * @summary Receives events from child renderer components and forwards them to parent
-   * components through the listenEvent output. This creates an event propagation chain
-   * that allows events to bubble up through the component hierarchy, enabling coordinated
-   * responses to user interactions across the layout structure.
-   *
-   * @param {RendererCustomEvent} event - The custom event from a child component
-   * @return {void}
-   *
-   * @mermaid
-   * sequenceDiagram
-   *   participant C as Child Component
-   *   participant L as NgxBaseComponent
-   *   participant P as Parent Component
-   *
-   *   C->>L: Emit RendererCustomEvent
-   *   L->>L: handleEvent(event)
-   *   L->>P: listenEvent.emit(event)
-   *   Note over P: Handle event in parent
-   *
-   * @memberOf NgxBaseComponent
-   */
-  handleEvent(event: RendererCustomEvent): void {
-    this.listenEvent.emit(event);
-  }
-
-  /**
-   * @description Tracks items in ngFor loops for optimal change detection.
-   * @summary Provides a tracking function for Angular's *ngFor directive to optimize rendering
-   * performance. This method generates unique identifiers for list items based on their index
-   * and content, allowing Angular to efficiently track changes and minimize DOM manipulations
-   * during list updates. The tracking function is essential for maintaining component state
-   * and preventing unnecessary re-rendering of unchanged items.
-   *
-   * @param {number} index - The index of the item in the list
-   * @param {KeyValue | string | number} item - The item data to track
-   * @returns {string | number} A unique identifier for the item
-   * @memberOf NgxBaseComponent
-   */
-  trackItemFn(
-    index: number,
-    item: KeyValue | string | number
-  ): string | number {
-    return `${index}-${item}`;
   }
 
   /**

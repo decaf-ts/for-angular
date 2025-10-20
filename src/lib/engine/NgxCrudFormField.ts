@@ -7,6 +7,8 @@ import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
 import { TranslateService } from '@ngx-translate/core';
 import { EventConstants } from './constants';
+import { FunctionLike } from '../engine/types';
+import { NgxDecafComponent } from './NgxDecafComponent';
 
 /**
  * @class NgxCrudFormField
@@ -16,7 +18,7 @@ import { EventConstants } from './constants';
  * @description This class provides the base implementation for CRUD form fields in Angular,
  * implementing both CrudFormField and ControlValueAccessor interfaces.
  */
-export abstract class NgxCrudFormField implements ControlValueAccessor, FieldProperties {
+export abstract class NgxCrudFormField extends NgxDecafComponent implements ControlValueAccessor, FieldProperties {
   /**
    * @summary Reference to the component's element
    * @description ElementRef representing the component's native element
@@ -69,14 +71,16 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
   lessThanOrEqual?: string;
   greaterThan?: string;
   greaterThanOrEqual?: string;
+  className?: string;
+  optionsMapper?: Record<string, unknown> | FunctionLike;
 
-  value!: string | number | Date;
+  value!: string | number | Date | string[];
 
   multiple!: boolean;
 
   protected translateService = inject(TranslateService);
 
-  private validationErrorEventDispateched: boolean = false;
+  private validationErrorEventDispatched: boolean = false;
 
   /**
    * @summary Parent HTML element
@@ -194,13 +198,13 @@ export abstract class NgxCrudFormField implements ControlValueAccessor, FieldPro
           message: key,
         }));
         if(errors.length) {
-          if(accordionComponent && !this.validationErrorEventDispateched) {
+          if(accordionComponent && !this.validationErrorEventDispatched) {
             const validationErrorEvent = new CustomEvent(EventConstants.VALIDATION_ERROR, {
               detail: {fieldName: this.name, hasErrors: true},
               bubbles: true
             });
             accordionComponent.dispatchEvent(validationErrorEvent);
-            this.validationErrorEventDispateched = true;
+            this.validationErrorEventDispatched = true;
           }
         }
         for(const error of errors)

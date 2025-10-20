@@ -4,7 +4,7 @@ import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { EventConstants, KeyValue, StringOrBoolean } from '../../engine';
-import { PaginationCustomEvent } from './constants';
+import { IPaginationCustomEvent } from '../../engine/interfaces';
 import {  TranslatePipe } from '@ngx-translate/core';
 
 /**
@@ -26,17 +26,17 @@ import {  TranslatePipe } from '@ngx-translate/core';
  *   U->>P: Click page number
  *   P->>P: navigate(page)
  *   P->>P: handleClick(direction, page)
- *   P->>E: Emit clickEvent with PaginationCustomEvent
+ *   P->>E: Emit clickEvent with IPaginationCustomEvent
  *
  *   U->>P: Click next button
  *   P->>P: next()
  *   P->>P: handleClick('next')
- *   P->>E: Emit clickEvent with PaginationCustomEvent
+ *   P->>E: Emit clickEvent with IPaginationCustomEvent
  *
  *   U->>P: Click previous button
  *   P->>P: previous()
  *   P->>P: handleClick('previous')
- *   P->>E: Emit clickEvent with PaginationCustomEvent
+ *   P->>E: Emit clickEvent with IPaginationCustomEvent
  *
  * @example
  * <ngx-decaf-pagination
@@ -121,11 +121,11 @@ export class PaginationComponent extends NgxBaseComponent implements OnInit {
    * on page numbers or using the next/previous buttons. The event contains information
    * about the navigation direction and the target page number.
    *
-   * @type {EventEmitter<PaginationCustomEvent>}
+   * @type {EventEmitter<IPaginationCustomEvent>}
    * @memberOf PaginationComponent
    */
   @Output()
-  clickEvent: EventEmitter<PaginationCustomEvent> = new EventEmitter<PaginationCustomEvent>();
+  clickEvent: EventEmitter<IPaginationCustomEvent> = new EventEmitter<IPaginationCustomEvent>();
 
   /**
    * @constructor
@@ -199,7 +199,7 @@ export class PaginationComponent extends NgxBaseComponent implements OnInit {
         page: this.current
       },
       component: this.componentName
-    } as PaginationCustomEvent);
+    } as IPaginationCustomEvent);
   }
 
   /**

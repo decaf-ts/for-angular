@@ -6,7 +6,6 @@ import {
   Input,
   OnChanges,
   OnDestroy,
-  Output,
   SimpleChanges,
   TemplateRef,
   ViewChild,
@@ -18,13 +17,14 @@ import {
   AngularDynamicOutput,
   AngularEngineKeys,
   BaseComponentProps,
-  BaseCustomEvent,
+  IBaseCustomEvent,
   NgxRenderingEngine,
   RenderedModel,
 } from '../../engine';
-import { KeyValue, RendererCustomEvent } from '../../engine/types';
+import { KeyValue } from '../../engine/types';
 import { Renderable } from '@decaf-ts/ui-decorators';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
+import { NgxDecafComponent } from 'src/lib/engine/NgxDecafComponent';
 
 /**
  * @description Component for rendering dynamic models
@@ -63,7 +63,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
   host: {'[attr.id]': 'rendererId'},
 })
 export class ModelRendererComponent<M extends Model>
-  implements OnChanges, OnDestroy, RenderedModel {
+  extends NgxDecafComponent implements OnChanges, OnDestroy, RenderedModel {
 
   /**
    * @description Input model to be rendered
@@ -107,12 +107,6 @@ export class ModelRendererComponent<M extends Model>
    */
   @ViewChild('componentOuter', { static: true, read: ViewContainerRef })
   vcr!: ViewContainerRef;
-
-  /**
-   * @description Event emitter for custom events from the rendered component
-   */
-  @Output()
-  listenEvent = new EventEmitter<RendererCustomEvent>();
 
   /**
    * @description Instance of the rendered component
@@ -171,19 +165,19 @@ export class ModelRendererComponent<M extends Model>
     this.output = undefined;
   }
 
-  private subscribeEvents(): void {
+  private async subscribeEvents(): Promise<void> {
     const component = this?.output?.component;
     if (this.instance && component) {
       const componentKeys = Object.keys(this.instance);
       for (const key of componentKeys) {
         const value = this.instance[key];
         if (value instanceof EventEmitter)
-          (this.instance as KeyValue)[key].subscribe((event: Partial<BaseCustomEvent>) => {
-            this.listenEvent.emit({
+          (this.instance as KeyValue)[key].subscribe(async (event: Partial<IBaseCustomEvent>) => {
+            await this.handleEvent({
               component: component.name || '',
               name: key,
               ...event,
-            } as RendererCustomEvent);
+            } as IBaseCustomEvent);
           });
       }
     }

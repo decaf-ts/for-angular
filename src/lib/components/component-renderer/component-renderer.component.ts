@@ -19,7 +19,7 @@ import {
 import { NgComponentOutlet } from '@angular/common';
 
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
-import { BaseCustomEvent, KeyValue, RendererCustomEvent } from '../../engine';
+import { IBaseCustomEvent, KeyValue } from '../../engine';
 import { getLogger } from '../../for-angular-common.module';
 import { Logger } from '@decaf-ts/logging';
 import { Model } from '@decaf-ts/decorator-validation';
@@ -48,7 +48,7 @@ import { generateRandomValue } from '../../helpers';
  *     +Record~string, unknown~ globals
  *     +EnvironmentInjector injector
  *     +ComponentRef~unknown~ component
- *     +EventEmitter~RendererCustomEvent~ listenEvent
+ *     +EventEmitter~IBaseCustomEvent~ listenEvent
  *     +ngOnInit()
  *     +ngOnDestroy()
  *     +ngOnChanges(changes)
@@ -147,12 +147,12 @@ export class ComponentRendererComponent
    * dynamic component, creating a communication channel between the parent and the dynamically
    * rendered child.
    *
-   * @type {EventEmitter<RendererCustomEvent>}
+   * @type {EventEmitter<IBaseCustomEvent>}
    * @memberOf ComponentRendererComponent
    */
   @Output()
-  listenEvent: EventEmitter<RendererCustomEvent> =
-    new EventEmitter<RendererCustomEvent>();
+  listenEvent: EventEmitter<IBaseCustomEvent> =
+    new EventEmitter<IBaseCustomEvent>();
 
   /**
    * @description Logger instance for the component.
@@ -374,11 +374,11 @@ export class ComponentRendererComponent
         const value = instance[key];
         if (value instanceof EventEmitter)
           (instance as KeyValue)[key].subscribe(
-            (event: Partial<BaseCustomEvent>) => {
+            (event: Partial<IBaseCustomEvent>) => {
               this.listenEvent.emit({
                 name: key,
                 ...event,
-              } as RendererCustomEvent);
+              } as IBaseCustomEvent);
             },
           );
       }

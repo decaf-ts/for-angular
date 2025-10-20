@@ -683,6 +683,9 @@ export class NgxFormService {
           default:
             value = escapeHtml(value);
         }
+      } else {
+        if(props['type'] === HTML5InputTypes.CHECKBOX && Array.isArray(value))
+          value = control.value;
       }
       data[key] = value;
     }
@@ -793,15 +796,15 @@ export class NgxFormService {
   /**
    * @description Generates validators from component properties.
    * @summary Creates an array of ValidatorFn based on the supported validation keys in the component properties.
-   * @param {FieldProperties} props - The component properties.
+   * @param {KeyValue} props - The component properties.
    * @return {ValidatorFn[]} An array of validator functions.
    */
-  private static validatorsFromProps(props: FieldProperties): ValidatorFn[] {
+  private static validatorsFromProps(props: KeyValue): ValidatorFn[] {
     const supportedValidationKeys = Validation.keys();
     return Object.keys(props)
       .filter((k: string) => supportedValidationKeys.includes(k))
       .map((k: string) => {
-        return ValidatorFactory.spawn(props, k);
+        return ValidatorFactory.spawn(props as FieldProperties, k);
       });
   }
 
@@ -846,8 +849,10 @@ export class NgxFormService {
     return new FormControl(
       {
         value:
-          props.value && props.type !== HTML5InputTypes.CHECKBOX
-            ? props.type === HTML5InputTypes.DATE
+          props.value
+          ? props.type === HTML5InputTypes.CHECKBOX ?
+            Array.isArray(props.value) ? props.value : undefined
+            : props.type === HTML5InputTypes.DATE
               ? !isValidDate(parseDate(props.format as string, props.value as string))
                 ? undefined : props.value :
               (props.value as unknown) : undefined,

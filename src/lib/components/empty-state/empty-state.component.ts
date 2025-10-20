@@ -13,7 +13,6 @@ import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 import { FunctionLike } from '../../engine/types';
-import { Router } from '@angular/router';
 
 
 /**
@@ -239,17 +238,6 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    */
   @Input()
   searchValue!: string;
-
-  /**
-   * @description Service for handling navigation operations.
-   * @summary Injected service that provides methods for navigating between routes.
-   * This service is used when the buttonLink is a string URL to navigate to that location.
-   *
-   * @private
-   * @type {Router}
-   * @memberOf EmptyStateComponent
-   */
-  private router: Router = inject(Router);
 
   private sanitizer: DomSanitizer = inject(DomSanitizer);
 

@@ -4,11 +4,12 @@ import {
   DEFAULT_PATTERNS,
   PathProxy,
   PathProxyEngine,
+  Primitives,
   Validation,
   ValidationKeys,
   Validator,
 } from '@decaf-ts/decorator-validation';
-import { FieldProperties, parseValueByType } from '@decaf-ts/ui-decorators';
+import { FieldProperties, HTML5InputTypes, parseValueByType } from '@decaf-ts/ui-decorators';
 import { AngularEngineKeys } from './constants';
 import { KeyValue } from './types';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
@@ -41,6 +42,8 @@ const resolveValidatorKeyProps = (key: string, value: unknown, type: string): {
   };
   const isTypeBased = key === ValidationKeys.TYPE && Object.keys(patternValidators).includes(type);
   const validatorKey = isTypeBased ? type : key;
+  if(key === ValidationKeys.TYPE && HTML5InputTypes.CHECKBOX && value !== type )
+    value = type;
   const props: Record<string, unknown> = {
     // [validatorKey]: (!isTypeBased && key === 'type') ? parseType(type) : value,
     [validatorKey]: (!isTypeBased && validatorKey === ValidationKeys.TYPE) ? NgxRenderingEngine.get().translate(value as string, false) : value,
@@ -58,13 +61,17 @@ export class ValidatorFactory {
       throw new Error('Unsupported custom validation');
 
     const validatorFn: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-      const { type } = fieldProps;
-      const { validatorKey, props } = resolveValidatorKeyProps(key, fieldProps[key as keyof FieldProperties], type);
+      const { type, customTypes, options } = fieldProps;
+      let fieldType = (customTypes || type) as string;
+      if((fieldType === HTML5InputTypes.CHECKBOX || fieldType === Array.name)  && Array.isArray(options))
+        fieldType = Primitives.STRING;
+
+      const { validatorKey, props } = resolveValidatorKeyProps(key, fieldProps[key as keyof FieldProperties], fieldType);
       const validator = Validation.get(validatorKey) as Validator;
 
       // parseValueByType does not support undefined values
       const value = typeof control.value !== 'undefined'
-        ? parseValueByType(type, control.value, fieldProps)
+        ? parseValueByType(fieldType, control.value, fieldProps)
         : undefined;
 
       // Create a proxy to enable access to parent and child values
@@ -76,14 +83,12 @@ export class ValidatorFactory {
 
       let errs: string | undefined;
       try {
-        if(!props['types'] && !props['customTypes'])
-          props['types'] = props['type'];
+
         errs = validator.hasErrors(value, props, proxy);
       } catch (e: unknown) {
         errs = `${key} validator failed to validate: ${e}`;
         console.warn(errs);
       }
-
       return errs ? { [validatorKey]: true } : null;
     };
 

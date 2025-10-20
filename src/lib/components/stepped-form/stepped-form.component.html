@@ -78,7 +78,6 @@
     </div>
   } @else {
     <div class="dcf-single-step">
-
       @for (item of children; track $index) {
         <ion-card>
           <ion-card-content>
@@ -94,16 +93,18 @@
                   </div>
                 </div>
               }
-              @for (child of item.items; track $index) {
-                <div class="dcf-content">
-                  <ngx-decaf-component-renderer
-                    [tag]="child?.tag"
-                    (listenEvent)="handleEvent($event)"
-                    [children]="child?.children || []"
-                    [globals]="{props: child.props}"
-                  />
-                </div>
-            }
+              <div class="dcf-grid dcf-grid-collapse  dcf-child-width-1-1">
+                @for (child of item.items; track $index) {
+                  <div [class]="'dcf-content' + (child?.props?.className ? ' ' + child.props.className : '')">
+                    <ngx-decaf-component-renderer
+                      [tag]="child?.tag"
+                      (listenEvent)="handleEvent($event)"
+                      [children]="child?.children || []"
+                      [globals]="{props: child.props}"
+                    />
+                  </div>
+                }
+              </div>
           </ion-card-content>
         </ion-card>
       }

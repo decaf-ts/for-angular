@@ -1,7 +1,7 @@
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import { BaseCustomEvent, FormServiceControl, InputOption } from './interfaces';
+import { FormServiceControl, InputOption } from './interfaces';
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
 import { Constructor, Model } from '@decaf-ts/decorator-validation';
@@ -258,29 +258,6 @@ export type FormServiceControls = Record<
   Record<string, FormServiceControl>
 >;
 
-/**
- * @description Renderer custom event type
- * @summary Combines BaseCustomEvent with KeyValue properties to create a flexible
- * custom event type for renderer components. This allows events to carry both
- * standard event properties and additional custom data.
- * @typedef RendererCustomEvent
- * @memberOf module:engine
- */
-export type RendererCustomEvent = BaseCustomEvent & KeyValue;
-
-
-/**
- * @description CRUD form event type
- * @summary Extends BaseCustomEvent to include optional handlers for CRUD form operations.
- * This event type is used for form-related actions like create, read, update, and delete operations.
- * @typedef CrudFormEvent
- * @property {Record<string, any>} [handlers] - Optional handlers for form operations
- * @memberOf module:engine
- */
-export type CrudFormEvent = BaseCustomEvent & {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handlers?: Record<string, any>;
-};
 
 
 export type FormParent = FormGroup | FormArray;

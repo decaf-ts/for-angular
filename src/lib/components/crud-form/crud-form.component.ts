@@ -13,7 +13,7 @@ import { Location } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { IFormElement } from '../../engine/interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
-import { CrudFormEvent, Dynamic, EventConstants, FieldUpdateMode, HandlerLike, HTMLFormTarget, RenderedModel } from '../../engine';
+import { ICrudFormEvent, Dynamic, EventConstants, FieldUpdateMode, HandlerLike, HTMLFormTarget, RenderedModel } from '../../engine';
 import { CrudFormOptions } from './types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { DefaultFormReactiveOptions } from './constants';
@@ -85,7 +85,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
  * - `allowClear`: Enables or disables form clearing functionality.
  *
  * @outputs
- * - `submitEvent`: Emits `CrudFormEvent` objects on form submission.
+ * - `submitEvent`: Emits `ICrudFormEvent` objects on form submission.
  *
  * @protected
  * - `OperationKeys`: Reference to CRUD operation constants for template usage.
@@ -309,15 +309,15 @@ export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, Rende
 
   /**
    * @description Event emitter for form submission events.
-   * @summary Emits CrudFormEvent objects when the form is submitted, providing
+   * @summary Emits ICrudFormEvent objects when the form is submitted, providing
    * form data, component information, and any associated handlers to parent
    * components. This enables decoupled handling of form submission logic.
    *
-   * @type {EventEmitter<CrudFormEvent>}
+   * @type {EventEmitter<ICrudFormEvent>}
    * @memberOf CrudFormComponent
    */
   @Output()
-  submitEvent: EventEmitter<CrudFormEvent> = new EventEmitter<CrudFormEvent>();
+  submitEvent: EventEmitter<ICrudFormEvent> = new EventEmitter<ICrudFormEvent>();
 
   /**
    * @description Logger instance for the component.
