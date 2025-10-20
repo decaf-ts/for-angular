@@ -25,7 +25,11 @@
             </div>
           }
           <div class="dcf-width-expand@s dcf-width-1-1 dcf-label">
-            <ion-label class="dcf-item-title" [innerHTML]="uid + ' - ' + title" ></ion-label>
+            @if(title) {
+              <ion-label class="dcf-item-title">
+                {{ uid !== title ? (uid + ' - ' + title) : title }}
+              </ion-label>
+            }
             @if(description) {
               <div class="dcf-description" [innerHTML]="description"></div>
             }
@@ -45,8 +49,9 @@
 
           <div class="dcf-width-auto dcf-flex dcf-flex-middle dcf-flex-right">
             @if((operations.includes('delete') || operations.includes('update')) && uid) {
-              <div class="dcf-visible@m" id="dcf-actions">
-                <ion-button class="dcf-hidden@m" shape="round" fill="clear" color="primary" (click)="presentActionsMenu($event)">
+
+              <div class="dcf-visible@s" id="dcf-actions">
+                <ion-button class="" shape="round" fill="clear" color="primary" (click)="presentActionsMenu($event)">
                   <ion-icon slot="icon-only" aria-hidden="true" name="ellipsis-vertical-outline"></ion-icon>
                 </ion-button>
                 <ion-popover

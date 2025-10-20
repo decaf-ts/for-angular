@@ -13,7 +13,7 @@ import {
   required,
   url,
 } from '@decaf-ts/decorator-validation';
-import { hidden, hideOn, uichild, uielement, uimodel } from '@decaf-ts/ui-decorators';
+import { hideOn, uichild, uielement, uimodel } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from './CategoryModel';
 import { UserModel } from './UserModel';
 
