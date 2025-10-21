@@ -16,7 +16,7 @@ import { getLogger } from 'src/lib/for-angular-common.module';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
-import { ListComponent } from 'dist/lib';
+import { ListComponent } from 'src/lib/components/list/list.component';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
