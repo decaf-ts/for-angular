@@ -24,7 +24,7 @@ import {
 import { KeyValue } from '../../engine/types';
 import { Renderable } from '@decaf-ts/ui-decorators';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
-import { NgxDecafComponent } from 'src/lib/engine/NgxDecafComponent';
+import { NgxDecafComponent } from '../../engine/NgxDecafComponent';
 
 /**
  * @description Component for rendering dynamic models

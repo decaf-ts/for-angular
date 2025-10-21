@@ -1,4 +1,4 @@
-import { getWindow } from '../helpers/index';
+import { getWindow } from '../helpers';
 
 export class MediaService {
   private static _window?: Window;

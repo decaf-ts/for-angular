@@ -24,7 +24,7 @@
 
       <ng-content select="[slot='end']"></ng-content>
 
-      @if(operations?.length && route && (currentOperation === OperationKeys.READ)) {
+      @if(operations?.length && route && (!currentOperation || currentOperation === OperationKeys.READ)) {
         <ion-buttons slot="end">
           @if(!modelId && isAllowed(OperationKeys.CREATE)) {
             <ion-button (click)="changeOperation(OperationKeys.CREATE)" fill="clear" [title]="'create' | translate ">

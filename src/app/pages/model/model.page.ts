@@ -16,6 +16,7 @@ import { getLogger } from 'src/lib/for-angular-common.module';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
+import { ListComponent } from 'dist/lib';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -111,9 +112,9 @@ import { ContainerComponent } from 'src/app/components/container/container.compo
   standalone: true,
   selector: 'app-model',
   templateUrl: './model.page.html',
-  imports: [ModelRendererComponent, HeaderComponent, ContainerComponent, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent],
-
+  imports: [ModelRendererComponent, ListComponent, HeaderComponent, ContainerComponent, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent],
   styleUrls: ['./model.page.scss'],
+  host: {'[attr.id]': 'uid'},
 })
 export class ModelPage implements OnInit {
 

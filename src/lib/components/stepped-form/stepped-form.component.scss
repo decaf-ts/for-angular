@@ -25,7 +25,10 @@ $height: 38px;
 }
 
 .dcf-steped-form {
-  padding: 2rem 1rem;
+  &.paginated {
+    padding: 2rem 1rem;
+  }
+
 }
 
 

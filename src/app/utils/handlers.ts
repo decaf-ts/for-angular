@@ -32,7 +32,6 @@ export class LoginHandler extends NgxEventHandler<ICrudFormEvent> {
    * @return {Promise<boolean>} A promise that resolves to true if login is valid, false otherwise
    */
   async handle(event: ICrudFormEvent): Promise<void> {
-    console.log("LoginHandler event:", event);
     const { username, password } = event.data as KeyValue;
     const success = !!username && !!password;
     const toast = await this.toastComponent.show({

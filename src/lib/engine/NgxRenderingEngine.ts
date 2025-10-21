@@ -206,8 +206,11 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
 
     // process children
     if (fieldDef.children?.length) {
-      if(!NgxRenderingEngine._parentProps && inputs?.pages)
-        NgxRenderingEngine._parentProps = {pages: inputs?.pages};
+      if(!NgxRenderingEngine._parentProps && inputs?.pages) {
+          NgxRenderingEngine._parentProps = {pages: inputs?.pages};
+           NgxRenderingEngine._projectable = false;
+      }
+
       result.children = fieldDef.children.map((child) => {
         if(child?.children?.length) {
           child.children = child.children.filter(c => {

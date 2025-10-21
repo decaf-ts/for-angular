@@ -108,7 +108,7 @@ export class NgxFormService {
    * @memberOf NgxFormService
    */
   static createForm(id: string, props: Partial<IComponentInput> = {}, registry: boolean = true): FormGroup | FormArray {
-    const form = this.formRegistry.get(id) ?? (props?.pages && props?.pages  > 1 ? new FormArray([]) : new FormGroup({}));
+    const form = this.formRegistry.get(id) ?? (props?.pages && props?.pages  >= 1 ? new FormArray([]) : new FormGroup({}));
     if (!this.formRegistry.has(id) && registry)
       this.addRegistry(id, form as FormArray | FormGroup);
     return form as FormArray | FormGroup;
@@ -576,7 +576,7 @@ export class NgxFormService {
   static addControlFromProps(id: string, componentProperties: FieldProperties, parentProps?: FieldProperties): AbstractControl {
     let form = this.createForm(id, parentProps, true);
     const formLength = (form as FormArray).length;
-    if(parentProps?.pages && parentProps?.pages > 1) {
+    if(parentProps?.pages && parentProps?.pages > 0) {
       let index = componentProperties.page || parentProps.page;
       if(!(typeof index === 'number') || index === 0)
         throw Error(`Property 'page' is required and greather than 0 on ${componentProperties.name}`);
@@ -590,6 +590,7 @@ export class NgxFormService {
             index: formLength + 1
           };
           index = formLength + 1;
+
         }
       }
 

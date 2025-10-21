@@ -1,8 +1,6 @@
 @if(operation !== 'read' && operation !== 'delete') {
-  <form class="grid flex" #reactiveForm [id]="rendererId" [formGroup]="formGroup" (submit)="submit($event)" novalidate [target]="target">
-    <ng-content class="test" #formContent>
-
-    </ng-content>
+  <form #reactiveForm [id]="rendererId" [formGroup]="formGroup" (submit)="submit($event)" novalidate [target]="target">
+    <ng-content #formContent></ng-content>
 
     <div class="dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
       <div>
@@ -26,6 +24,7 @@
     </div>
   </form>
 } @else {
+
   <div [class]="'dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left ' + operation" [id]="uid">
     @if(operation === OperationKeys.READ && modelId) {
       <div>

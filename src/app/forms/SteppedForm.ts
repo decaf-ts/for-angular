@@ -12,7 +12,7 @@ import { uichild, uielement, uimodel } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from '../models/CategoryModel';
 
 @uimodel('ngx-decaf-stepped-form', {
-  paginated: false,
+  paginated: true,
   pages: 3,
   startPage: 1,
   pageTitles: [

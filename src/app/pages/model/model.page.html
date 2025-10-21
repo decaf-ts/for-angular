@@ -1,8 +1,8 @@
 <app-header
   [model]="model"
-  [title]="modelName + ' ' + operation"
+  [title]="modelName + ' ' + (operation ? operation : ' List')"
   [currentOperation]="operation"
-  center="true"
+  [center]="true"
   [modelId]="modelId"
   showMenuButton="true"
   showBackButton="true"
@@ -11,21 +11,32 @@
 </app-header>
 
 <ion-content [fullscreen]="true">
-   <main>
+  <main class="main">
     <app-container [hasSideMenu]="true" size="2xlarge">
       <ion-card class="dcf-card-default">
          <ion-card-header>
           <ion-card-title>
-            Current Operation is {{operation}}
+            <span style="text-transform: capitalize;">{{operation}}</span> {{ operation ? modelName : 'Listing'}}
           </ion-card-title>
         </ion-card-header>
         <ion-card-content class="dcf-margin-top">
-          @if(model) {
-            <ngx-decaf-model-renderer
-              [model]="model"
-              (listenEvent)="handleEvent($event)"
-              [globals]='{operation, modelId, allowClear: false}'>
-            </ngx-decaf-model-renderer>
+            @if(model) {
+
+              @if(!operation) {
+                <ngx-decaf-list
+                  [model]="model"
+                  type="paginated"
+                  [operations]="['read', 'create', 'update', 'delete']"
+                  (listenEvent)="handleEvent($event)"
+                />
+            } @else {
+
+              <ngx-decaf-model-renderer
+                [model]="model"
+                (listenEvent)="handleEvent($event)"
+                [globals]='{operation, modelId, allowClear: false}'>
+              </ngx-decaf-model-renderer>
+            }
           } @else {
             <div>No Model</div>
           }

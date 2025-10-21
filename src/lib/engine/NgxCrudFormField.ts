@@ -7,7 +7,7 @@ import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
 import { TranslateService } from '@ngx-translate/core';
 import { EventConstants } from './constants';
-import { FunctionLike } from '../engine/types';
+import { FunctionLike } from './types';
 import { NgxDecafComponent } from './NgxDecafComponent';
 
 /**
@@ -49,7 +49,7 @@ export abstract class NgxCrudFormField extends NgxDecafComponent implements Cont
 
   disabled?: boolean;
 
-  uid?: string;
+  uid?: string | undefined;
 
   page!: number;
 

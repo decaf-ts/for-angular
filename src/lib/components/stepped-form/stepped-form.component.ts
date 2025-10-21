@@ -26,6 +26,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     ComponentRendererComponent
   ],
   standalone: true,
+   host: {'[attr.id]': 'uid'},
 })
 export class SteppedFormComponent implements OnInit, OnDestroy {
 
@@ -243,7 +244,6 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
     if(!this.locale)
       this.locale = getLocaleContext("SteppedFormComponent")
     this.activePage = this.startPage;
-
     if(!this.pageTitles.length)
       this.pageTitles =  Array.from({ length: this.pages }, () => ({ title: '', description: '', rendered: this.paginated }));
 

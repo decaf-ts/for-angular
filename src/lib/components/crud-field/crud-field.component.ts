@@ -731,7 +731,11 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   async ngOnInit(): Promise<void> {
-    addIcons({chevronDownOutline, chevronUpOutline})
+    addIcons({chevronDownOutline, chevronUpOutline});
+    // if(Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation)) {
+    //   this.hidden = false;
+    // }
+
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
     } else {
@@ -801,8 +805,10 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   ngAfterViewInit(): void {
+
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       super.afterViewInit();
+
     } else {
       if (this.type === HTML5InputTypes.RADIO && !this.value)
         this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
@@ -825,9 +831,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   }
 
   toggleOptionSelection(val: string, event: CheckboxCustomEvent) {
-
     const { checked } = event.detail;
-    console.log(checked, val);
     let value = Array.isArray(this.formControl.value) ? this.formControl.value : [];
      if (checked) {
       if (!value.includes(val))

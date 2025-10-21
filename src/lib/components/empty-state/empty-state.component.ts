@@ -61,7 +61,6 @@ import { FunctionLike } from '../../engine/types';
     IonCardContent,
     IonIcon
   ]
-
 })
 export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
 

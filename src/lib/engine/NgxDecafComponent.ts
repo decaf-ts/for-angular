@@ -1,7 +1,7 @@
 import { Directive, EventEmitter, inject, Output } from '@angular/core';
 import { LoggedClass, Logger } from '@decaf-ts/logging';
 import { KeyValue } from './types';
-import { IBaseCustomEvent, ICrudFormEvent } from '../engine/interfaces';
+import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
 import { NgxEventHandler } from './NgxEventHandler';
 import { Router } from '@angular/router';
 

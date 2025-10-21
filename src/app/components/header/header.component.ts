@@ -44,7 +44,7 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @memberOf HeaderComponent
    */
   @Input()
-  currentOperation: CrudOperations = OperationKeys.READ;
+  currentOperation: OperationKeys = OperationKeys.READ;
 
 
 
@@ -349,7 +349,6 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
     if(this.backgroundColor === 'white') {
       this.backButtonColor = 'medium';
     }
-
   }
 
   /**
@@ -433,6 +432,11 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   isAllowed(operation: string): boolean {
     if(!this.operations)
       return false;
-    return this.operations.includes(operation as CrudOperations) && (this.currentOperation !== OperationKeys.CREATE && this.currentOperation.toLowerCase() !== operation);
+    return this.operations.includes(operation as CrudOperations) && (this.currentOperation !== OperationKeys.CREATE && ((this.currentOperation || "").toLowerCase() !== operation || !this.currentOperation));
+  }
+
+
+  getBackButtonSlot(): string {
+    return this.modelId && ![OperationKeys.READ,  OperationKeys.UPDATE].includes(this.currentOperation as OperationKeys) ? 'start' : 'end';
   }
 }

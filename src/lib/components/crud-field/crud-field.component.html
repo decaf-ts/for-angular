@@ -15,7 +15,7 @@
   </ng-container>
 } @else {
   <ng-container [formGroup]="getActiveFormGroup">
-    <div #container [class]="'dcf-input-item ' + (operation || 'create')" (createGroupEvent)="multiple ? handleFieldsetCreateGroupEvent($event) : ''">
+    <div [id]="uid" #container [class]="'dcf-input-item ' + (operation || 'create')" (createGroupEvent)="multiple ? handleFieldsetCreateGroupEvent($event) : ''">
         @if(type === 'textarea') {
           <ion-textarea
             [id]="name"
@@ -41,22 +41,23 @@
         }
         @else if(type === 'checkbox') {
           @if(!options?.length) {
-             <ion-item>
+             <ion-item [hidden]="hidden">
               <ion-checkbox
                 [id]="name"
                 [mode]="mode"
                 [errorText]="getErrors(container)"
                 [hidden]="hidden"
                 [labelPlacement]="labelPlacement"
-                [justify]="justify"
+                [justify]="left"
                 [value]="value"
                 [checked]="checked"
                 [readonly]="readonly"
                 (ionChange)="checked = !checked"
                 [formControlName]="name"
                 #component>
-                <span [innerHTML]="label | translate"></span>
+                 <span>{{label | translate}}</span>
               </ion-checkbox>
+
             </ion-item>
           } @else {
             <div class="dcf-checkbox-group">

@@ -5,7 +5,7 @@ import {
   ElementRef,
   OnChanges,
   SimpleChanges,
-  Directive,
+  Component,
 } from '@angular/core';
 import { KeyValue, StringOrBoolean } from './types';
 import {
@@ -23,8 +23,7 @@ import {
 import { BaseComponentProps } from './constants';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { getModelRepository } from '../for-angular-common.module';
-import { DecafRepository } from './types';
-import { FunctionLike } from '../engine/types';
+import { DecafRepository, FunctionLike } from './types';
 import { NgxDecafComponent } from './NgxDecafComponent';
 
 /**
@@ -89,7 +88,11 @@ import { NgxDecafComponent } from './NgxDecafComponent';
  *   Comp->>Base: initialize()
  *   Base->>Base: Set initialized flag
  */
-@Directive()
+@Component({
+  standalone: true,
+  template: '<div></div>',
+  host: { '[attr.id]': 'uid' },
+})
 export abstract class NgxBaseComponent extends NgxDecafComponent implements OnChanges {
   /**
    * @description Reference to the component's element.

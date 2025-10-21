@@ -2,7 +2,7 @@
   .dcf-input-item {
     &.read,  &.delete {
       ion-label {
-        color: var(--dcf-color-gray-7);
+        color: var(--dcf-color-gray-7) !important;
       }
     }
 

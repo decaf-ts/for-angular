@@ -59,7 +59,6 @@ export class ForAngularRepository<T extends Model> {
       data = await this.repository?.createAll(data) as T[];
     }
     this.data = data as T[] || [];
-    console.log(this.data);
   }
 
  async generateData<T extends Model>(pkValues?: KeyValue, pk?: string, pkType?: string): Promise<T[]> {
