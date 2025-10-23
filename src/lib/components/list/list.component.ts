@@ -1338,7 +1338,8 @@ protected itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyVal
       accum[key] = value;
     } else {
       if (arrayValue.length === 1) {
-        value = item?.[value] ? item[value] : value !== key ? value : "";
+        value = item?.[value] ? item[value] : "";
+        // value = item?.[value] ? item[value] : value !== key ? value : "";
         if(isValidDate(value))
           value = `${formatDate(value)}`;
         accum[key] = value;

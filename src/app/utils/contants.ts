@@ -1,3 +1,66 @@
+import { IMenuItem } from "src/lib/engine/interfaces";
+
+export const AppMenu: IMenuItem[] = [
+  {
+    label: 'Dashboard',
+    icon: 'apps-outline',
+    url: '/dashboard',
+  },
+   {
+    label: 'Category',
+    icon: 'medkit-outline',
+    url: '/model/CategoryModel',
+  },
+  {
+    label: 'Employee',
+    icon: 'medkit-outline',
+    url: '/model/EmployeeModel',
+  },
+  {
+    label: 'Crud',
+    icon: 'save-outline',
+  },
+  {
+    label: 'Read',
+    url: '/crud/read',
+  },
+  {
+    label: 'Create / Update',
+    url: '/crud/create',
+  },
+  {
+    label: 'Delete',
+    url: '/crud/delete',
+  },
+   {
+    label: 'Fieldset',
+    url: '/fieldset',
+  },
+  {
+    label: 'Steps Form',
+    url: '/steps-form',
+  },
+  {
+    label: 'Model Lists',
+    icon: 'list-outline',
+  },
+  {
+    label: 'AI Models (Infinite)',
+    url: '/list-model/infinite',
+  },
+  {
+    label: 'AI Vendors (Paginated)',
+    url: '/list-model/paginated',
+  },
+  {
+    label: 'Logout',
+    title: 'Login',
+    icon: 'log-out-outline',
+    url: '/login',
+    color: 'danger'
+  },
+] as const;
+
 
 
 /**

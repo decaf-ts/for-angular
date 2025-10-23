@@ -71,8 +71,8 @@ export class ForAngularRepository<T extends Model> {
     const props = Object.keys(this.model as KeyValue).filter((k) => ![pk, 'updatedBy', 'createdAt','createdBy', 'updatedAt'].includes(k));
     const dataProps: Record<string, FunctionLike> = {};
     for(const prop of props) {
-      const type = Reflect.getMetadata("design:type", this.model as KeyValue, prop).name;
-      switch(type.toLowerCase()) {
+      const type = Reflect.getMetadata("design:type", this.model as KeyValue, prop);
+      switch((type?.name || "").toLowerCase()) {
         case 'string':
           dataProps[prop] = () => faker.lorem.word();
           break;
@@ -90,6 +90,12 @@ export class ForAngularRepository<T extends Model> {
           break;
         case 'date':
           dataProps[prop] = () => faker.date.past();
+          break;
+        case 'url':
+          dataProps[prop] = () => faker.internet.url();
+          break;
+        case 'array':
+          dataProps[prop] = () => faker.lorem.words({min: 2, max: 5}).split(' ');
           break;
         default:
           dataProps[prop] = () => faker.lorem.word();

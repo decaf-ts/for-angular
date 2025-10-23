@@ -65,12 +65,6 @@ import { NgxDecafComponent } from '../../engine/NgxDecafComponent';
 export class ModelRendererComponent<M extends Model>
   extends NgxDecafComponent implements OnChanges, OnDestroy, RenderedModel {
 
-  /**
-   * @description Input model to be rendered
-   * @summary Can be a Model instance or a JSON string representation of a model
-   */
-  @Input({ required: true })
-  model!: M | string | undefined;
 
   /**
    * @description Global variables to be passed to the rendered component

@@ -1,24 +1,28 @@
 import { pk } from '@decaf-ts/core';
-import { OperationKeys } from '@decaf-ts/db-decorators';
 import { list, Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
-import { hideOn, uichild, uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
-import { CategoryModel } from '../models/CategoryModel';
+import { uichild, uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
 
 @uilistitem('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uimodel('ngx-decaf-crud-form')
 @model()
-export class User extends Model {
+export class Person extends Model {
 
-  @pk({type: 'Number' })
-  id!: number;
+  // @pk({type: 'Number' })
+  // id!: number;
 
+  @pk({type: 'String'})
   @required()
   @uielement('ngx-decaf-crud-field', {
-    label: 'user.username.label'
+    label: 'user.name.label'
   })
-  username!: string;
+  name!: string;
 
-  constructor(args: ModelArg<User> = {}) {
+  @uielement('ngx-decaf-crud-field', {
+    label: 'user.occupation.label'
+  })
+  occupation!: string;
+
+  constructor(args: ModelArg<Person> = {}) {
     super(args);
   }
 }
@@ -29,14 +33,13 @@ export class User extends Model {
 @model()
 export class FieldSetForm extends Model {
 
-  @pk({type: 'Number' })
-  @hideOn(OperationKeys.CREATE, OperationKeys.UPDATE)
-  id!: number;
+  // must keep id to prevent pk error from repository
+  // @pk({type: 'Number' })
+  // id!: number;
 
-
-  @list(User, 'Array')
-  @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {pk: 'name'}, true)
-  category!: CategoryModel;
+  @list(Person, 'Array')
+  @uichild(Person.name, 'ngx-decaf-fieldset', {}, true)
+  person!: Person;
 
   constructor(args: ModelArg<FieldSetForm> = {}) {
     super(args);

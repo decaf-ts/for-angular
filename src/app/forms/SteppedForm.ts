@@ -28,7 +28,7 @@ export class SteppedForm extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.contact.label',
     type: 'select',
-   className: 'dcf-width-1-2@s dcf-width-1-1',
+    className: 'dcf-width-1-2@s dcf-width-1-1',
     page: 1,
     options: [
       { value: 'morning', text: 'morning' },

@@ -41,6 +41,11 @@ ion-accordion-group {
 }
 
 .dcf-fieldset {
+  &.remove-border {
+    border: none !important;
+    padding: 0px !important;
+    margin: 0px !important;
+  }
   &.open {
     //  margin-bottom: 1.8rem;
      ion-accordion {
@@ -85,8 +90,6 @@ ion-accordion-group {
     }
   }
 }
-
-
 
 .dcf-not-unique-container {
     display: flex;

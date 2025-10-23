@@ -1,12 +1,45 @@
-import { Directive, EventEmitter, inject, Output } from '@angular/core';
+import { Directive, EventEmitter, inject, Input, Output } from '@angular/core';
 import { LoggedClass, Logger } from '@decaf-ts/logging';
 import { KeyValue } from './types';
 import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
 import { NgxEventHandler } from './NgxEventHandler';
 import { Router } from '@angular/router';
+import { getLocaleContext } from '../i18n/Loader';
+import { NgxRenderingEngine } from './NgxRenderingEngine';
+import { MenuController } from '@ionic/angular';
+import { Model } from '@decaf-ts/decorator-validation';
+
+try {
+  new NgxRenderingEngine();
+} catch (e: unknown) {
+  throw new Error(`Failed to load rendering engine: ${e}`);
+}
 
 @Directive()
 export abstract class NgxDecafComponent extends LoggedClass {
+
+    /**
+   * @description Repository model for data operations.
+   * @summary The data model repository that this component will use for CRUD operations.
+   * This provides a connection to the data layer for retrieving and manipulating data.
+   *
+   * @type {Model| undefined}
+   * @memberOf NgxDecafComponent
+   */
+  @Input()
+  model!: Model | undefined;
+
+  /**
+   * @description Root component of the Decaf-ts for Angular application
+   * @summary This component serves as the main entry point for the application.
+   * It sets up the navigation menu, handles routing events, and initializes
+   * the application state. It also manages the application title and menu visibility.
+   *
+   * @private
+   * @type {MenuController}
+   * @memberOf NgxDecafComponent
+   */
+  protected menuController: MenuController = inject(MenuController);
 
   /**
    * @description Logger instance for the component.
@@ -44,15 +77,65 @@ export abstract class NgxDecafComponent extends LoggedClass {
    *
    * @private
    * @type {Router}
-   * @memberOf LoginPage
+   * @memberOf NgxDecafComponent
    */
   protected router: Router = inject(Router);
 
+  /**
+   * @description Angular Router instance for navigation
+   * @summary Injected Router service used for programmatic navigation
+   * to other pages after successful login or other routing operations.
+   *
+   * @private
+   * @type {Router}
+   * @memberOf NgxDecafComponent
+   */
+  protected componentName: string = "NgxDecafComponent";
+
+  /**
+   * @description Angular Router instance for navigation
+   * @summary Injected Router service used for programmatic navigation
+   * to other pages after successful login or other routing operations.
+   *
+   * @private
+   * @type {Router}
+   * @memberOf NgxDecafComponent
+   */
+  protected localeRoot!: string;
+
+  /**
+   * @description Angular Router instance for navigation
+   * @summary Injected Router service used for programmatic navigation
+   * to other pages after successful login or other routing operations.
+   *
+   * @private
+   * @type {Router}
+   * @memberOf NgxDecafComponent
+   */
   locale?: string;
+
+  /**
+   * @description Flag indicating if the component has been initialized
+   * @summary Tracks whether the component has completed its initialization process.
+   * This flag is used to prevent duplicate initialization and to determine if
+   * certain operations that require initialization can be performed.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf NgxDecafComponent
+   */
+  initialized: boolean = false;
+
 
   constructor() {
 		super();
     this.logger = this.log;
+	}
+
+  get localeContext(){
+		if (!this.locale)
+			this.locale = getLocaleContext(this.localeRoot || this.componentName)
+		return this.locale;
 	}
 
   /**
@@ -87,7 +170,7 @@ export abstract class NgxDecafComponent extends LoggedClass {
     }
     const handlers = (event as ICrudFormEvent)?.['handlers'] as Record<string, NgxEventHandler<unknown>> | undefined;
     name = name || (event as IBaseCustomEvent)?.['name'];
-    if(handlers) {
+    if(handlers && Object.keys(handlers || {})?.length) {
       if(!handlers[name])
         return log.debug(`No handler found for event ${name}`);
       try {

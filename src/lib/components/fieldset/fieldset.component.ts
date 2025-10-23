@@ -12,8 +12,6 @@ import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces
 import { addIcons } from 'ionicons';
 
 
-
-
 /**
  * @description Dynamic fieldset component with collapsible accordion functionality.
  * @summary This component provides a sophisticated fieldset container that automatically
@@ -85,11 +83,9 @@ import { addIcons } from 'ionicons';
     IonButton,
     IonIcon,
   ],
-  host: {'[attr.id]': 'overriode '},
+  host: {'[attr.id]': 'uid'},
 })
 export class FieldsetComponent extends NgxBaseComponent implements OnInit, AfterViewInit {
-
-
 
   /**
    * @description Reference to the ion-accordion-group component for programmatic control.
@@ -103,36 +99,6 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    */
   @ViewChild('accordionComponent', { static: false })
   accordionComponent!: IonAccordionGroup;
-
-
-  /**
-   * @description The display name or title of the fieldset section.
-   * @summary Sets the legend or header text that appears in the accordion header. This text
-   * provides a clear label for the collapsible section, helping users understand what content
-   * is contained within. The name is displayed prominently and serves as the clickable area
-   * for expanding/collapsing the fieldset.
-   *
-   * @type {string}
-   * @default 'Child'
-   * @memberOf FieldsetComponent
-   */
-  @Input()
-  name: string = 'Child';
-
-
-  /**
-   * @description The parent component identifier for hierarchical fieldset relationships.
-   * @summary Specifies the parent component name that this fieldset belongs to in a hierarchical
-   * form structure. This property is used for event bubbling and establishing parent-child
-   * relationships between fieldsets in complex forms with nested structures.
-   *
-   * @type {string}
-   * @default 'Child'
-   * @memberOf FieldsetComponent
-   */
-  @Input()
-  childOf: string = 'Child';
-
 
   /**
    * @description The parent component identifier for hierarchical fieldset relationships.
@@ -268,7 +234,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @memberOf FieldsetComponent
    */
   @Input()
-  multiple: boolean = false;
+  multiple: boolean = true;
 
   /**
    * @description Array of raw values stored in the fieldset.
@@ -293,6 +259,18 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    */
   @Input()
   handlers!: HandlerLike;
+
+  /**
+   * @description Controls whether borders are displayed around the fieldset.
+   * @summary Boolean flag that determines if the fieldset should be visually outlined with borders.
+   * When true, borders are shown to visually separate the fieldset from surrounding content.
+   *
+   * @type {boolean}
+   * @default true
+   * @memberOf FieldsetComponent
+   */
+  @Input()
+  borders: boolean = true;
 
   /**
    * @description Array of formatted items for UI display.
@@ -436,6 +414,16 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @memberOf FieldsetComponent
    */
   buttonCancelLabel!: string;
+  /**
+   * @description Maximum allowed items in the fieldset.
+   * @summary Numeric limit that controls how many items can be added when `multiple` is true.
+   * When set to Infinity there is no limit.
+   *
+   * @type {number}
+   * @default Infinity
+   * @memberOf FieldsetComponent
+   */
+  max: number | undefined = undefined;
 
 
   /**
@@ -465,6 +453,9 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
       this._repository = this.repository;
     this.buttonLabel = this.translateService.instant(this.locale + '.add');
     this.buttonCancelLabel = this.translateService.instant(this.locale + '.cancel');
+    console.log(this.name);
+    console.log(this.childOf);
+
   }
 
    /**
@@ -564,8 +555,7 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
       event.stopImmediatePropagation();
       const {formGroup, value, isValid} = event.detail;
       this.formGroup = formGroup as FormArray;
-      if(!this.mapper)
-        this.mapper = this.getMapper(value as KeyValue);
+      this.mapper = this.getMapper(value as KeyValue);
       if(isValid ){
           this.isUniqueError = undefined;
           this.buttonLabel = this.translateService.instant(this.locale + '.add');
@@ -639,24 +629,31 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @returns {void}
    * @memberOf FieldsetComponent
    */
-  handleRemoveItem(value: string | undefined, event?: CustomEvent): void {
+  handleRemoveItem(index: number, value: string | undefined, event?: CustomEvent): void {
     if(event && event instanceof CustomEvent) {
       event.stopImmediatePropagation();
       return this.setValue();
     }
     const formArray = this.formGroup as FormArray;
-    const arrayLength = formArray.length;
-    for (let index = arrayLength - 1; index >= 0; index--) {
-      const group = formArray.at(index) as FormGroup;
-      if (cleanSpaces(group.get(this.pk)?.value) === cleanSpaces(value as string)) {
-        windowEventEmitter(EventConstants.FIELDSET_REMOVE_GROUP, {
-          parent: this.childOf,
-          component: this.component.nativeElement,
-          index,
-          formGroup: group
-        });
-      }
-    }
+    const group = formArray.at(index) as FormGroup;
+    windowEventEmitter(EventConstants.FIELDSET_REMOVE_GROUP, {
+      parent: this.childOf,
+      component: this.component.nativeElement,
+      index,
+      formGroup: group
+    });
+    // const arrayLength = formArray.length;
+    // for (let index = arrayLength - 1; index >= 0; index--) {
+
+    //   if (cleanSpaces(group.get(this.pk)?.value) === cleanSpaces(value as string)) {
+    //     windowEventEmitter(EventConstants.FIELDSET_REMOVE_GROUP, {
+    //       parent: this.childOf,
+    //       component: this.component.nativeElement,
+    //       index,
+    //       formGroup: group
+    //     });
+    //   }
+    // }
   }
 
 
@@ -678,24 +675,24 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * ```
    */
   handleReorderItems(event: CustomEvent<ItemReorderEventDetail>): void {
-   const fromIndex = event.detail.from;
+    const fromIndex = event.detail.from;
     const toIndex = event.detail.to;
-
     const items = [...this.items]; // visual data
     const formArray = this.formGroup as FormArray; // FormArray
-
     if (fromIndex !== toIndex) {
       // reorder visual data
       const itemToMove = items.splice(fromIndex, 1)[0];
       items.splice(toIndex, 0, itemToMove);
       items.forEach((item, index) => item['index'] = index + 1);
-
+      console.log(items);
       // reorder FormArray controls
       const controlToMove = formArray.at(fromIndex);
       formArray.removeAt(fromIndex);
       formArray.insert(toIndex, controlToMove);
     }
+    this.items = [...items];
     event.detail.complete();
+
   }
 
   /**
@@ -812,6 +809,8 @@ export class FieldsetComponent extends NgxBaseComponent implements OnInit, After
    * @memberOf FieldsetComponent
    */
   private getMapper(value: KeyValue): KeyValue {
+    if(Object.keys(this.mapper).length > 0)
+      return this.mapper;
     if(!this.pk)
       this.pk = Object.keys(value)[0];
     if(!Object.keys(this.mapper).length)

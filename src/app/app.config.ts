@@ -19,13 +19,18 @@ import {
 } from 'src/lib/i18n/Loader';
 import { routes } from './app.routes';
 import { provideDbAdapter } from 'src/lib/for-angular-common.module';
+// import { Product } from './models/Product';
+// import { Batch } from './models/Batch';
+import { CategoryModel } from './models/CategoryModel';
+import { EmployeeModel } from './models/EmployeeModel';
 
-export const dbAdapterFlavour = 'ram';
+export const DbAdapterFlavour = 'ram';
+export const AppModels = [new CategoryModel(), new EmployeeModel()];
 
-export const appConfig: ApplicationConfig = {
+export const AppConfig: ApplicationConfig = {
   providers: [
     // Providing RamAdapter as the database adapter for Decaf
-    provideDbAdapter(RamAdapter, {user: "user"}, dbAdapterFlavour),
+    provideDbAdapter(RamAdapter, {user: "user"}, DbAdapterFlavour),
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),

@@ -1,5 +1,6 @@
 import { UIKeys } from '@decaf-ts/ui-decorators';
 import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
+import { ICrudFormOptions } from './interfaces';
 
 /**
  * @description Angular engine key constants
@@ -34,6 +35,7 @@ export const AngularEngineKeys = {
   RENDER: 'render',
   RENDERED_ID: 'rendered-as-{0}',
   PARENT: '_parent',
+  PARENT_FORM_ID: 'parentFormId',
   VALIDATION_PARENT_KEY: VALIDATION_PARENT_KEY,
   FORM_GROUP_COMPONENT_PROPS: 'componentProps'
 };
@@ -156,6 +158,7 @@ export enum ComponentsTagNames {
 export enum BaseComponentProps {
   MODEL = 'model',
   LOCALE = 'locale',
+  LOCALE_ROOT = 'locale_root',
   PK = 'pk',
   ITEMS = 'items',
   ROUTE = 'route',
@@ -164,6 +167,7 @@ export enum BaseComponentProps {
   TRANSLATABLE = 'translatable',
   MAPPER = 'mapper',
   INITIALIZED = 'initialized',
+  COMPONENT_NAME = 'componentName'
 }
 
 
@@ -172,12 +176,19 @@ export enum ListComponentsTypes {
   PAGINATED = 'paginated',
 }
 
-export interface IListEmptyResult {
-  title: string;
-  subtitle: string;
-  showButton: boolean;
-  buttonText: string;
-  link: string;
-  icon: string;
-}
 
+
+export const CssClasses = {
+  BUTTONS_CONTAINER: 'buttons-container',
+};
+
+export const DefaultFormReactiveOptions: ICrudFormOptions = {
+  buttons: {
+    submit: {
+      text: 'Submit',
+    },
+    clear: {
+      text: 'Clear',
+    },
+  },
+};

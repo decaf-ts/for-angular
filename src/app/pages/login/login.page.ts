@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { LoginForm } from 'src/app/forms/LoginForm';
 import { IonCard, IonCardContent, IonContent} from '@ionic/angular/standalone';
 import { LogoComponent } from 'src/app/components/logo/logo.component';
@@ -43,23 +43,18 @@ import { NgxBasePage } from 'src/lib/engine';
   imports: [IonContent, IonCard, IonCardContent, LogoComponent, ContainerComponent, ModelRendererComponent],
 
 })
-export class LoginPage extends NgxBasePage {
-
-  /**
-   * @description Instance of LoginForm for form data binding
-   * @summary This property holds the data model for the login form, containing
-   * username and password fields with their respective validation rules.
-   * It's used to bind form controls and manage form state throughout the login process.
-   *
-   * @type {LoginForm}
-   * @memberOf LoginPage
-   */
-  model: LoginForm = new LoginForm({
-    username: 'user',
-    password: 'Pass123-'
-  });
+export class LoginPage extends NgxBasePage implements OnInit {
 
   constructor() {
-    super("LoginPage", false);
+    super();
+    this.hasMenu = false;
+    this.localeRoot = "LoginPage";
+  }
+
+  async ngOnInit() {
+      this.model = new LoginForm({
+      username: 'user',
+      password: 'Pass123-'
+    });
   }
 }

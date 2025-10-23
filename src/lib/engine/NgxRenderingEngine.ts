@@ -212,13 +212,16 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       }
 
       result.children = fieldDef.children.map((child) => {
-        if(child?.children?.length) {
-          child.children = child.children.filter(c => {
-            const hiddenOn = c?.props?.hidden || [];
-            if(!(hiddenOn as string[]).includes(operation as string))
-              return c
-          })
-        }
+        // const hiddenOn = (child?.props?.hidden || []) as CrudOperations[];
+        // moved to ui decorators
+        // if(child?.children?.length) {
+        //   child.children = child.children.filter(c => {
+        //     const hiddenOn = c?.props?.hidden || [];
+        //     if(!(hiddenOn as string[]).includes(operation as string))
+        //       return c
+        //   })
+        // }
+        // if(!hiddenOn?.length || !(hiddenOn as CrudOperations[]).includes(operation as CrudOperations))
         NgxFormService.addControlFromProps(registryFormId, child.props, {...inputs, ...NgxRenderingEngine._parentProps || {}});
         return this.fromFieldDefinition(child, vcr, injector, tpl, registryFormId);
       });
@@ -229,7 +232,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     vcr.clear();
     const template = !projectable ? [] : vcr.createEmbeddedView(tpl, injector).rootNodes;
     const hasChildren = Object.values(possibleInputs).some(({propName}) => propName === 'children');
-    const hasModel = Object.values(possibleInputs).some(({propName}) => propName === 'children');
+    const hasModel = Object.values(possibleInputs).some(({propName}) => propName === 'model');
     const componentInputs =  Object.assign(inputs,
         ( hasModel ? { model: this._model } : { }),
         ( hasChildren ? { children: fieldDef?.['children'] || [] } : {}));

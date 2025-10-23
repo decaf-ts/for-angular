@@ -18,7 +18,8 @@ export const I18N_CONFIG_TOKEN = new InjectionToken<{resources: I18nResourceConf
 
 export function getModelRepository(model: Model | string): DecafRepository<Model> {
   try {
-    const modelName = typeof model === Primitives.STRING ? model : (model as Model).constructor.name;
+    const modelName = typeof model === Primitives.STRING ?
+      (model as string).charAt(0).toUpperCase() + (model as string).slice(1) : (model as Model).constructor.name;
     const constructor = Model.get(modelName as string);
     if (!constructor)
       throw new InternalError(

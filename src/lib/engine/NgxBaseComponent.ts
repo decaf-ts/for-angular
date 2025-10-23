@@ -108,26 +108,6 @@ export abstract class NgxBaseComponent extends NgxDecafComponent implements OnCh
   component!: ElementRef;
 
   /**
-   * @description The name of the component.
-   * @summary Stores the name of the component, which is typically derived from the class name.
-   * This property is used internally for various purposes such as logging, deriving the default
-   * locale, and potentially for component identification in debugging or error reporting.
-   *
-   * The `componentName` is set during the component's initialization process and should not
-   * be modified externally. It's marked as protected to allow access in derived classes while
-   * preventing direct access from outside the component hierarchy.
-   *
-   * @type {string}
-   * @protected
-   * @memberOf NgxBaseComponent
-   *
-   * @example
-   * // Inside a derived component class
-   * console.log(this.componentName); // Outputs: "MyCustomComponent"
-   */
-  componentName!: string;
-
-  /**
    * @description Unique identifier for the renderer.
    * @summary A unique identifier used to reference the component's renderer instance.
    * This can be used for targeting specific renderer instances when multiple components
@@ -139,16 +119,35 @@ export abstract class NgxBaseComponent extends NgxDecafComponent implements OnCh
   @Input()
   rendererId!: string;
 
-  /**
-   * @description Repository model for data operations.
-   * @summary The data model repository that this component will use for CRUD operations.
-   * This provides a connection to the data layer for retrieving and manipulating data.
+
+
+   /**
+   * @description The display name or title of the fieldset section.
+   * @summary Sets the legend or header text that appears in the accordion header. This text
+   * provides a clear label for the collapsible section, helping users understand what content
+   * is contained within. The name is displayed prominently and serves as the clickable area
+   * for expanding/collapsing the fieldset.
    *
-   * @type {Model| undefined}
+   * @type {string}
    * @memberOf NgxBaseComponent
    */
   @Input()
-  model!: Model | undefined;
+  name?: string;
+
+    /**
+   * @description The parent component identifier for hierarchical fieldset relationships.
+   * @summary Specifies the parent component name that this fieldset belongs to in a hierarchical
+   * form structure. This property is used for event bubbling and establishing parent-child
+   * relationships between fieldsets in complex forms with nested structures.
+   *
+   * @type {string}
+   * @default 'Child'
+   * @memberOf FieldsetComponent
+   */
+  @Input()
+  childOf?: string;
+
+
 
   /**
    * @description The repository for interacting with the data model.
@@ -323,17 +322,6 @@ export abstract class NgxBaseComponent extends NgxDecafComponent implements OnCh
   @Input()
   renderChild: string | StringOrBoolean = true;
 
-  /**
-   * @description Flag indicating if the component has been initialized
-   * @summary Tracks whether the component has completed its initialization process.
-   * This flag is used to prevent duplicate initialization and to determine if
-   * certain operations that require initialization can be performed.
-   *
-   * @type {boolean}
-   * @default false
-   */
-  initialized: boolean = false;
-
 
 
   /**
@@ -408,7 +396,7 @@ export abstract class NgxBaseComponent extends NgxDecafComponent implements OnCh
   protected get repository(): DecafRepository<Model> {
     try {
       if (!this._repository) {
-        this._repository = getModelRepository(this.model as Model);
+        this._repository = getModelRepository(this.childOf || this.model as Model);
         if (this.model && !this.pk)
           this.pk =
             (this._repository as unknown as DecafRepository<Model>).pk || 'id';
@@ -416,6 +404,7 @@ export abstract class NgxBaseComponent extends NgxDecafComponent implements OnCh
     } catch (error: unknown) {
       throw new InternalError((error as Error)?.message || (error as string));
     }
+
     return this._repository;
   }
 

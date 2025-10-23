@@ -11,10 +11,9 @@ export * from './list-item/list-item.component';
 export * from './model-renderer/model-renderer.component';
 export * from './pagination/pagination.component';
 export * from './searchbar/searchbar.component';
+export * from './stepped-form/stepped-form.component';
 
 // Constants exports
-export * from './crud-form/constants';
 
-export * from './stepped-form/stepped-form.component';
 // Module export
 export * from './for-angular-components.module';

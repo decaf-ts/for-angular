@@ -14,9 +14,9 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { IFormElement } from '../../engine/interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { ICrudFormEvent, Dynamic, EventConstants, FieldUpdateMode, HandlerLike, HTMLFormTarget, RenderedModel } from '../../engine';
-import { CrudFormOptions } from './types';
+import { ICrudFormOptions } from '../../engine/interfaces';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { DefaultFormReactiveOptions } from './constants';
+import { DefaultFormReactiveOptions } from '../../engine/constants';
 import { Model } from '@decaf-ts/decorator-validation';
 import { Logger } from '@decaf-ts/logging';
 import { generateRandomValue } from '../../helpers';
@@ -190,11 +190,11 @@ export class CrudFormComponent implements OnInit, IFormElement, OnDestroy, Rende
    * validation, and behavior. These options are merged with default settings
    * during component initialization to customize the form's functionality.
    *
-   * @type {CrudFormOptions}
+   * @type {ICrudFormOptions}
    * @memberOf CrudFormComponent
    */
   @Input()
-  options!: CrudFormOptions;
+  options!: ICrudFormOptions;
 
   /**
    * @description Optional action identifier for form submission context.

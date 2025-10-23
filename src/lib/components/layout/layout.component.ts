@@ -1,6 +1,6 @@
 import { Component, Input, OnInit} from '@angular/core';
 import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
-import { KeyValue } from '../../engine';
+import { Dynamic, KeyValue } from '../../engine';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 import { UIMediaBreakPoints } from '@decaf-ts/ui-decorators';
@@ -18,6 +18,7 @@ import { TranslatePipe } from '@ngx-translate/core';
  * @implements {OnInit}
  * @memberOf LayoutComponent
  */
+@Dynamic()
 @Component({
   selector: 'ngx-decaf-layout',
   templateUrl: './layout.component.html',
@@ -149,7 +150,7 @@ export class LayoutComponent extends NgxBaseComponent implements OnInit {
    */
   async ngOnInit(): Promise<void> {
     await this.initialize();
-    this.breakpoint = this.breakpoint.slice(0, 2).toLowerCase() as UIMediaBreakPoints;
+    this.breakpoint = this.breakpoint.slice(0, 1).toLowerCase() as UIMediaBreakPoints;
     this.cols = this._cols;
     this.rows = this._rows;
     this.initialized = true;

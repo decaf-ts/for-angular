@@ -3,6 +3,21 @@ import { ElementRef, EnvironmentInjector, Injector, Type } from '@angular/core';
 import { OrderDirection } from '@decaf-ts/core';
 import { AngularFieldDefinition, FieldUpdateMode, KeyValue, StringOrBoolean } from './types';
 import { FieldProperties } from '@decaf-ts/ui-decorators';
+import { FormParent } from './types';
+
+
+/**
+ * @description Interface for models that can be rendered
+ * @summary Defines the basic structure for models that can be rendered by the engine.
+ * Contains an optional rendererId that uniquely identifies the rendered instance.
+ * @interface IRenderedModel
+ * @property {string} [rendererId] - Optional unique ID for the rendered model instance
+ * @memberOf module:engine
+ */
+export interface IRenderedModel {
+  rendererId?: string;
+}
+
 
 /**
  * @description Interface for components that hold an ElementRef
@@ -29,7 +44,7 @@ export interface IFormElement extends IComponentHolder {
    * @description The Angular FormGroup associated with this form element
    * @property {FormGroup|undefined} formGroup - The form group instance for managing form controls and validation
    */
-  formGroup: FormGroup | undefined;
+  formGroup: FormParent | undefined;
 }
 
 
@@ -196,6 +211,7 @@ export interface AngularDynamicOutput {
   instance?: Type<unknown>;
   formGroup?: FormGroup;
   formControl?: FormControl;
+  projectable?: boolean;
 }
 
 
@@ -306,9 +322,61 @@ export interface ICrudFormEvent extends IBaseCustomEvent {
   handlers?: Record<string, unknown>;
 };
 
+/**
+ * @description Pagination custom event
+ * @summary Event emitted by pagination components to signal page navigation.
+ * Extends IBaseCustomEvent and carries a payload with the target page number and navigation direction.
+ * @interface IPaginationCustomEvent
+ * @memberOf module:engine
+ */
 export interface IPaginationCustomEvent extends IBaseCustomEvent {
   data: {
-    page: number,
-    direction: 'next' | 'previous'
-  }
+    page: number;
+    direction: 'next' | 'previous';
+  };
+}
+
+/**
+ * @description Menu item definition
+ * @summary Represents a single item in a navigation or contextual menu.
+ * Includes the visible label and optional metadata such as accessibility title, target URL, icon, and color.
+ * @interface IMenuItem
+ * @memberOf module:engine
+ */
+export interface IMenuItem {
+  label: string;
+  title?: string;
+  url?: string;
+  icon?: string;
+  color?: string;
+}
+
+
+export interface IFormReactiveSubmitEvent {
+  data: Record<string, unknown>;
+}
+
+export interface ICrudFormOptions {
+  buttons: {
+    submit: {
+      icon?: string;
+      iconSlot?: 'start' | 'end';
+      text?: string;
+    };
+    clear?: {
+      icon?: string;
+      iconSlot?: 'start' | 'end';
+      text?: string;
+    };
+  };
+}
+
+
+export interface IListEmptyResult {
+  title: string;
+  subtitle: string;
+  showButton: boolean;
+  buttonText: string;
+  link: string;
+  icon: string;
 }

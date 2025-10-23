@@ -1,4 +1,5 @@
-import { Component, Input, OnInit, OnDestroy, Output, EventEmitter  } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, Output, EventEmitter, inject  } from '@angular/core';
+import { Location } from '@angular/common';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { IonButton, IonSkeletonText, IonText } from '@ionic/angular/standalone';
 import { arrowForwardOutline, arrowBackOutline } from 'ionicons/icons';
@@ -194,6 +195,18 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
    */
   private timerSubscription!: Subscription;
 
+  /**
+   * @description Angular Location service.
+   * @summary Injected service that provides access to the browser's URL and history.
+   * This service is used for interacting with the browser's history API, allowing
+   * for back navigation and URL manipulation outside of Angular's router.
+   *
+   * @private
+   * @type {Location}
+   * @memberOf CrudFormComponent
+   */
+  private location: Location = inject(Location);
+
 
   /**
    * @description Event emitter for form submission.
@@ -357,8 +370,11 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
    * @memberOf SteppedFormComponent
    */
   handleBack(): void {
-    this.activePage = this.activePage - 1;
-    this.getCurrentFormGroup(this.activePage);
+    if(this.paginated) {
+      this.activePage = this.activePage - 1;
+      this.getCurrentFormGroup(this.activePage);
+    }
+    this.location.back();
   }
 
   /**

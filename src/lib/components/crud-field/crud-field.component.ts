@@ -732,9 +732,9 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    */
   async ngOnInit(): Promise<void> {
     addIcons({chevronDownOutline, chevronUpOutline});
-    // if(Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation)) {
-    //   this.hidden = false;
-    // }
+    if(Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation)) {
+      this.hidden = false;
+    }
 
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;

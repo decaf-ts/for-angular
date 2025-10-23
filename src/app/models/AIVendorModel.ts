@@ -1,8 +1,9 @@
 import { list, Model, model, required, type } from "@decaf-ts/decorator-validation";
 import type { ModelArg } from "@decaf-ts/decorator-validation";
 import { pk, table } from "@decaf-ts/core";
-import { HTML5InputTypes, uielement, uilistitem, uilistprop, uimodel } from "@decaf-ts/ui-decorators";
+import { hideOn, HTML5InputTypes, uielement, uilistitem, uilistprop, uimodel } from "@decaf-ts/ui-decorators";
 import {AIFeatures, AIVendors} from '../utils/contants';
+import { OperationKeys } from "@decaf-ts/db-decorators";
 
 
 @table("ai_vendors")
@@ -71,8 +72,8 @@ export class AIModel extends Model {
     options: Object.values(AIFeatures).map(item => ({text: item, value: item})),
   })
   @uilistprop('description')
-  @required()
   @list(String)
+  @hideOn(OperationKeys.CREATE)
   features!: AIFeatures[];
 
 

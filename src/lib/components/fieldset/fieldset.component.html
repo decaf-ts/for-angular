@@ -2,8 +2,8 @@
 
 <fieldset
   (fieldsetAddGroupEvent)="handleCreateItem($event)"
-  (fieldsetRemoveGroupEvent)="handleRemoveItem(undefined, $event)"
   [class]="'dcf-fieldset ' + operation"
+  [class.remove-border]="!borders"
   [class.open]="isOpen"
   #component>
   <ion-accordion-group [class.open]="isOpen" [class.hasValidationErrors]="hasValidationErrors" (validationErrorEvent)="handleValidationError($event)" #accordionComponent>
@@ -26,8 +26,8 @@
         @if(multiple && items.length) {
           <ion-list class="dcf-fields-list">
             <ion-reorder-group [formGroup]="formGroup.parent" [disabled]="updatingItem" (ionItemReorder)="handleReorderItems($any($event))" #accordionComponent>
-              @for(item of items; track item.index) {
-                <ion-item [class.not-unique]="item.title === isUniqueError"  [class.updating]="updatingItem?.[pk] === item.title" lines="full" [button]="false">
+              @for(item of items; track item.index;) {
+                <ion-item [class.not-unique]="isUniqueError && item.title === isUniqueError"  [class.updating]="updatingItem?.[pk] === item.title" lines="full" [button]="false">
                   @if(items?.length > 1 && !updatingItem) {
                     <ion-reorder slot="start">
                       <ion-icon name="swap-vertical-outline"></ion-icon>
@@ -50,7 +50,7 @@
                   }
 
                   @if(!updatingItem) {
-                    <ion-button fill="clear" size="small" (click)="handleRemoveItem(item.title)">
+                    <ion-button fill="clear" size="small" (click)="handleRemoveItem(item.index - 1, item.title)">
                       <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
                     </ion-button>
                   }
@@ -81,10 +81,12 @@
                 {{ buttonCancelLabel }}
               </ion-button>
             }
-            <ion-button size="small" fill="clear" class="dcf-button-add" (click)="handleCreateItem()">
-              <ion-icon name="add-outline" slot="start"></ion-icon>
-              {{buttonLabel}}
-            </ion-button>
+            @if(items.length < max || !max) {
+              <ion-button size="small" fill="clear" class="dcf-button-add" (click)="handleCreateItem()">
+                <ion-icon name="add-outline" slot="start"></ion-icon>
+                {{buttonLabel}}
+              </ion-button>
+            }
           </div>
         }
       </div>

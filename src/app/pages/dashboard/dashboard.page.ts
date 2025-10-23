@@ -20,10 +20,11 @@ export class DashboardPage extends NgxBasePage implements OnInit {
   incoming!: number;
   tasks!: number;
   lastUsage!: string;
-  model!: DashboardLayout;
 
   constructor() {
-    super("DashboardPage", true);
+    super();
+    this.localeRoot = "DashboardPage";
+    this.hasMenu = true;
     addIcons({
       cardOutline,
       peopleOutline,
@@ -33,7 +34,8 @@ export class DashboardPage extends NgxBasePage implements OnInit {
 
   ngOnInit() {
     this.getData();
-    this.model = new DashboardLayout;
+       this.model = new DashboardLayout();
+
   }
 
   getData() {
