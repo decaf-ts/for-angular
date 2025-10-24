@@ -1,184 +1,182 @@
-{
-  "for-angular": [
-    {
-      "Slogan": "Decaf‑TS for Angular: build components, not caffeine panic.",
-      "Tags": "Angular, Coffee‑themed, Frontend"
-    },
-    {
-      "Slogan": "Templates that flow smoother than your decaf espresso.",
-      "Tags": "Templates, Chill, Coffee‑themed"
-    },
-    {
-      "Slogan": "Modules, components and services—all served decaffeinated.",
-      "Tags": "Modules, Coffee‑themed, Technical"
-    },
-    {
-      "Slogan": "When change detection relaxes, so does your heart rate.",
-      "Tags": "ChangeDetection, Calm, Frontend"
-    },
-    {
-      "Slogan": "Angular + Decaf‑TS = UI that won’t keep you up at night.",
-      "Tags": "Angular, Calm, Branding"
-    },
-    {
-      "Slogan": "Lazy‑loaded routes, fully awake developers (without the caffeine).",
-      "Tags": "Routing, LazyLoad, Humor"
-    },
-    {
-      "Slogan": "Components that stay composed—even when your data doesn’t.",
-      "Tags": "Components, Chill, Developer"
-    },
-    {
-      "Slogan": "No jittery animations, just smooth transitions and smooth devs.",
-      "Tags": "Animations, Calm, Coffee‑themed"
-    },
-    {
-      "Slogan": "Services that inject calm instead of adrenaline.",
-      "Tags": "Services, Calm, Angular"
-    },
-    {
-      "Slogan": "Write directives like you write your morning brew—full of flavor, zero crash.",
-      "Tags": "Directives, Coffee‑themed, Fun"
-    },
-    {
-      "Slogan": "Angular forms that keep your UI steady and your caffeine intake low.",
-      "Tags": "Forms, Calm, Frontend"
-    },
-    {
-      "Slogan": "State management? More like state‑relaxation management.",
-      "Tags": "State, Chill, Frontend"
-    },
-    {
-      "Slogan": "Build your SPA while sipping decaf—framework won’t outpace you.",
-      "Tags": "SPA, Coffee‑themed, Developer"
-    },
-    {
-      "Slogan": "Pipes that filter chaos from your code.",
-      "Tags": "Pipes, Calm, Humor"
-    },
-    {
-      "Slogan": "Components with metadata that feel like latte art.",
-      "Tags": "Metadata, Coffee‑themed, Tech"
-    },
-    {
-      "Slogan": "When your change bags are quiet, your users don’t panic.",
-      "Tags": "ChangeDetection, Calm, UX"
-    },
-    {
-      "Slogan": "Decaf‑TS for Angular: where UI code relaxes and features deploy fast.",
-      "Tags": "UI, Calm, Productivity"
-    },
-    {
-      "Slogan": "Bindings that don’t bind you to adrenaline.",
-      "Tags": "Bindings, Calm, Frontend"
-    },
-    {
-      "Slogan": "Animations that ease in like a steaming cup of decaf.",
-      "Tags": "Animations, Coffee‑themed, UI"
-    },
-    {
-      "Slogan": "RxJS observables that observe your calm, not your heart rate.",
-      "Tags": "RxJS, Chill, Humor"
-    },
-    {
-      "Slogan": "You write the logic; the framework writes the latte foam.",
-      "Tags": "Developer, Coffee‑themed, Frontend"
-    },
-    {
-      "Slogan": "When the UI adapts, you relax.",
-      "Tags": "UI, Calm, Adaptation"
-    },
-    {
-      "Slogan": "Angular modules that feel like a restful Sunday morning.",
-      "Tags": "Modules, Calm, Metaphor"
-    },
-    {
-      "Slogan": "Directive your stress to zero.",
-      "Tags": "Directives, Humor, Calm"
-    },
-    {
-      "Slogan": "Decaf mode: code components, sip coffee, deploy features.",
-      "Tags": "Coffee‑themed, Workflow, Frontend"
-    },
-    {
-      "Slogan": "Your UI stack’s decaf shot—strong features, gentle developer experience.",
-      "Tags": "UI Stack, Branding, Calm"
-    },
-    {
-      "Slogan": "Forms that validate so smoothly you forget about the coffee break.",
-      "Tags": "Forms, Smooth, Developer"
-    },
-    {
-      "Slogan": "When your UI layer relaxes, your backend gets jealous.",
-      "Tags": "UI, Humor, Fullstack"
-    },
-    {
-      "Slogan": "Angular routes that don’t dig into your veins.",
-      "Tags": "Routing, Humor, Calm"
-    },
-    {
-      "Slogan": "Change detection strategy: OnPush your heart‑rate too.",
-      "Tags": "ChangeDetection, Humor, Angular"
-    },
-    {
-      "Slogan": "Components that serve features, not caffeine bursts.",
-      "Tags": "Components, Coffee‑themed, Developer"
-    },
-    {
-      "Slogan": "Templates that load like your server: calm and measured.",
-      "Tags": "Templates, Chill, Tech"
-    },
-    {
-      "Slogan": "Services that whisper requests rather than shout them.",
-      "Tags": "Services, Calm, Frontend"
-    },
-    {
-      "Slogan": "When your UI feels like a café lounge, not a roller‑coaster.",
-      "Tags": "UI, Metaphor, Calm"
-    },
-    {
-      "Slogan": "Build your Angular app while your code stays decaf‑serene.",
-      "Tags": "Build, Calm, Branding"
-    },
-    {
-      "Slogan": "No caffeine crash in your UI stack, just smooth user experience.",
-      "Tags": "UX, Calm, Coffee‑themed"
-    },
-    {
-      "Slogan": "Directives that make your code shine… without shining your pupils.",
-      "Tags": "Directives, Humor, Frontend"
-    },
-    {
-      "Slogan": "Keep calm and compile Angular.",
-      "Tags": "Compile, Playful, Calm"
-    },
-    {
-      "Slogan": "Decaf‑TS for Angular: sip your coffee, ship your UI.",
-      "Tags": "UI, Coffee‑themed, Productivity"
-    },
-    {
-      "Slogan": "Your components deserve the decaf treatment.",
-      "Tags": "Components, Branding, Coffee‑themed"
-    },
-    {
-      "Slogan": "Services with calm APIs, not caffeine APIs.",
-      "Tags": "Services, Calm, Technical"
-    },
-    {
-      "Slogan": "Modules that plug in seamlessly… like your decaf plug in the morning.",
-      "Tags": "Modules, Humor, Coffee‑themed"
-    },
-    {
-      "Slogan": "Templates that keep your DOM awake—and your nerves asleep.",
-      "Tags": "DOM, Humor, Calm"
-    },
-    {
-      "Slogan": "When the UI updates quietly, the product gets spotlighted.",
-      "Tags": "UI, DevX, Calm"
-    },
-    {
-      "Slogan": "Build with Angular. Brew with Decaf‑TS.",
-      "Tags": "Angular, Coffee‑themed, Branding"
-    }
-  ]
-}
+[
+  {
+    "Slogan": "Decaf‑TS for Angular: build components, not caffeine panic.",
+    "Tags": "Angular, Coffee‑themed, Frontend"
+  },
+  {
+    "Slogan": "Templates that flow smoother than your decaf espresso.",
+    "Tags": "Templates, Chill, Coffee‑themed"
+  },
+  {
+    "Slogan": "Modules, components and services—all served decaffeinated.",
+    "Tags": "Modules, Coffee‑themed, Technical"
+  },
+  {
+    "Slogan": "When change detection relaxes, so does your heart rate.",
+    "Tags": "ChangeDetection, Calm, Frontend"
+  },
+  {
+    "Slogan": "Angular + Decaf‑TS = UI that won’t keep you up at night.",
+    "Tags": "Angular, Calm, Branding"
+  },
+  {
+    "Slogan": "Lazy‑loaded routes, fully awake developers (without the caffeine).",
+    "Tags": "Routing, LazyLoad, Humor"
+  },
+  {
+    "Slogan": "Components that stay composed—even when your data doesn’t.",
+    "Tags": "Components, Chill, Developer"
+  },
+  {
+    "Slogan": "No jittery animations, just smooth transitions and smooth devs.",
+    "Tags": "Animations, Calm, Coffee‑themed"
+  },
+  {
+    "Slogan": "Services that inject calm instead of adrenaline.",
+    "Tags": "Services, Calm, Angular"
+  },
+  {
+    "Slogan": "Write directives like you write your morning brew—full of flavor, zero crash.",
+    "Tags": "Directives, Coffee‑themed, Fun"
+  },
+  {
+    "Slogan": "Angular forms that keep your UI steady and your caffeine intake low.",
+    "Tags": "Forms, Calm, Frontend"
+  },
+  {
+    "Slogan": "State management? More like state‑relaxation management.",
+    "Tags": "State, Chill, Frontend"
+  },
+  {
+    "Slogan": "Build your SPA while sipping decaf—framework won’t outpace you.",
+    "Tags": "SPA, Coffee‑themed, Developer"
+  },
+  {
+    "Slogan": "Pipes that filter chaos from your code.",
+    "Tags": "Pipes, Calm, Humor"
+  },
+  {
+    "Slogan": "Components with metadata that feel like latte art.",
+    "Tags": "Metadata, Coffee‑themed, Tech"
+  },
+  {
+    "Slogan": "When your change bags are quiet, your users don’t panic.",
+    "Tags": "ChangeDetection, Calm, UX"
+  },
+  {
+    "Slogan": "Decaf‑TS for Angular: where UI code relaxes and features deploy fast.",
+    "Tags": "UI, Calm, Productivity"
+  },
+  {
+    "Slogan": "Bindings that don’t bind you to adrenaline.",
+    "Tags": "Bindings, Calm, Frontend"
+  },
+  {
+    "Slogan": "Animations that ease in like a steaming cup of decaf.",
+    "Tags": "Animations, Coffee‑themed, UI"
+  },
+  {
+    "Slogan": "RxJS observables that observe your calm, not your heart rate.",
+    "Tags": "RxJS, Chill, Humor"
+  },
+  {
+    "Slogan": "You write the logic; the framework writes the latte foam.",
+    "Tags": "Developer, Coffee‑themed, Frontend"
+  },
+  {
+    "Slogan": "When the UI adapts, you relax.",
+    "Tags": "UI, Calm, Adaptation"
+  },
+  {
+    "Slogan": "Angular modules that feel like a restful Sunday morning.",
+    "Tags": "Modules, Calm, Metaphor"
+  },
+  {
+    "Slogan": "Directive your stress to zero.",
+    "Tags": "Directives, Humor, Calm"
+  },
+  {
+    "Slogan": "Decaf mode: code components, sip coffee, deploy features.",
+    "Tags": "Coffee‑themed, Workflow, Frontend"
+  },
+  {
+    "Slogan": "Your UI stack’s decaf shot—strong features, gentle developer experience.",
+    "Tags": "UI Stack, Branding, Calm"
+  },
+  {
+    "Slogan": "Forms that validate so smoothly you forget about the coffee break.",
+    "Tags": "Forms, Smooth, Developer"
+  },
+  {
+    "Slogan": "When your UI layer relaxes, your backend gets jealous.",
+    "Tags": "UI, Humor, Fullstack"
+  },
+  {
+    "Slogan": "Angular routes that don’t dig into your veins.",
+    "Tags": "Routing, Humor, Calm"
+  },
+  {
+    "Slogan": "Change detection strategy: OnPush your heart‑rate too.",
+    "Tags": "ChangeDetection, Humor, Angular"
+  },
+  {
+    "Slogan": "Components that serve features, not caffeine bursts.",
+    "Tags": "Components, Coffee‑themed, Developer"
+  },
+  {
+    "Slogan": "Templates that load like your server: calm and measured.",
+    "Tags": "Templates, Chill, Tech"
+  },
+  {
+    "Slogan": "Services that whisper requests rather than shout them.",
+    "Tags": "Services, Calm, Frontend"
+  },
+  {
+    "Slogan": "When your UI feels like a café lounge, not a roller‑coaster.",
+    "Tags": "UI, Metaphor, Calm"
+  },
+  {
+    "Slogan": "Build your Angular app while your code stays decaf‑serene.",
+    "Tags": "Build, Calm, Branding"
+  },
+  {
+    "Slogan": "No caffeine crash in your UI stack, just smooth user experience.",
+    "Tags": "UX, Calm, Coffee‑themed"
+  },
+  {
+    "Slogan": "Directives that make your code shine… without shining your pupils.",
+    "Tags": "Directives, Humor, Frontend"
+  },
+  {
+    "Slogan": "Keep calm and compile Angular.",
+    "Tags": "Compile, Playful, Calm"
+  },
+  {
+    "Slogan": "Decaf‑TS for Angular: sip your coffee, ship your UI.",
+    "Tags": "UI, Coffee‑themed, Productivity"
+  },
+  {
+    "Slogan": "Your components deserve the decaf treatment.",
+    "Tags": "Components, Branding, Coffee‑themed"
+  },
+  {
+    "Slogan": "Services with calm APIs, not caffeine APIs.",
+    "Tags": "Services, Calm, Technical"
+  },
+  {
+    "Slogan": "Modules that plug in seamlessly… like your decaf plug in the morning.",
+    "Tags": "Modules, Humor, Coffee‑themed"
+  },
+  {
+    "Slogan": "Templates that keep your DOM awake—and your nerves asleep.",
+    "Tags": "DOM, Humor, Calm"
+  },
+  {
+    "Slogan": "When the UI updates quietly, the product gets spotlighted.",
+    "Tags": "UI, DevX, Calm"
+  },
+  {
+    "Slogan": "Build with Angular. Brew with Decaf‑TS.",
+    "Tags": "Angular, Coffee‑themed, Branding"
+  }
+]
