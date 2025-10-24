@@ -1,8 +1,12 @@
 
 @if(initialized) {
   @for (row of rows; track trackItemFn($index, row); let rowIndex = $index) {
-    <div [id]="uid" class="dcf-grid dcf-grid-collapse dcf-grid-match">
-      @if(row) {
+    <div [id]="uid"
+      [class]="'dcf-grid ' + 'dcf-grid-' + gap"
+      [class.dcf-grid-match]="match"
+
+      >
+      @if(row?.title?.length) {
         <div class="dcf-width-1-1 dcf-grid-title">
           <ion-card class="dcf-grid-title">
             {{row.title | translate}}
@@ -10,7 +14,7 @@
         </div>
       }
       @for (child of row.cols; track trackItemFn($index, child.col); let colIndex = $index) {
-        <div [class]="(child.col === cols.length ? 'dcf-width-1-1' : 'dcf-width-'+child.col+'-'+cols.length+'@'+breakpoint)">
+        <div [class]="(child.col === cols.length ? 'dcf-width-1-1' : 'dcf-width-'+child.col+'-'+cols.length+breakpoint)">
             <div [class]="'dcf-grid-child '+child.col ">
               @if(child.tag === 'ngx-decaf-crud-form') {
                 <ion-card [class]="'dcf-height-1-1 ' + className">
@@ -24,6 +28,8 @@
               } @else {
                 <ngx-decaf-component-renderer
                   [tag]="child.tag"
+                  [parentComponent]="parentComponent || child.parentComponent || child?.formGroup"
+                  [children]="child?.children || []"
                   (listenEvent)="handleEvent($event)"
                   [globals]="{props: child.props}"
                 />

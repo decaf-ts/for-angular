@@ -2,7 +2,7 @@
   .dcf-input-item {
     &.read,  &.delete {
       ion-label {
-        color: var(--dcf-color-gray-7);
+        color: var(--dcf-color-gray-7) !important;
       }
     }
 
@@ -29,8 +29,7 @@
 .dcf-input-item {
   &.create, &.update
   {
-    margin-bottom: 1.8rem;
-    margin-top: 0px !important;
+
 
     &.checkbox + .checkbox {
       margin-top: - .25rem !important;
@@ -49,11 +48,26 @@
 
   &.read,
   &.delete {
+    margin-bottom: 0px !important;
+    padding: 0px;
+    margin: 0px !important;
     ion-label { font-weight: 600; }
     ion-text {
       display: block;
       margin-top: .5rem !important;
     }
+
+    ion-item {
+      --min-height: 30px;
+        margin-bottom: 0px;
+
+        ion-label {
+          margin-top: 0px !important;
+          margin-bottom: .25rem !important;
+        }
+    }
+
+
   }
 
   ion-item {
@@ -129,6 +143,21 @@ ion-checkbox::part(container) {
 ion-item,
 ion-radio-group {
   .dcf-radio-group-label {
+    // margin-left: .5rem;
+    font-weight: 600;
+    ~ ion-item {
+      margin-top: .5rem;
+      --inner-padding-start: .75rem;
+    }
+  }
+  + .dcf-helper {
+    padding-left: .75rem;
+    position: relative;
+  }
+}
+
+.dcf-checkbox-group {
+   .dcf-label {
     // margin-left: .5rem;
     font-weight: 600;
     ~ ion-item {

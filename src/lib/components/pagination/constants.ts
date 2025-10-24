@@ -1,8 +1,6 @@
-import { BaseCustomEvent } from "../../engine"
+/**
+ * @module module:lib/components/pagination/constants
+ * @description Pagination constants module.
+ * @summary Exports pagination related constants used by `PaginationComponent`.
+ */
 
-export type PaginationCustomEvent = BaseCustomEvent & {
-  data: {
-    page: number,
-    direction: 'next' | 'previous'
-  }
-}

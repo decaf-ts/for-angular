@@ -8,7 +8,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
-import { NgxFormService } from '../../engine/NgxFormService';
+import { NgxDecafFormService } from '../../engine/NgxDecafFormService';
 import { By } from '@angular/platform-browser';
 import { I18nFakeLoader } from '../../i18n';
 
@@ -35,7 +35,7 @@ async function getErrorMessage(fixture: ComponentFixture<CrudFieldComponent>, se
 
 function updateFieldValidators(fixture: ComponentFixture<CrudFieldComponent>, component: CrudFieldComponent): void {
     fixture.detectChanges();
-    const validators = NgxFormService['validatorsFromProps'](component);
+    const validators = NgxDecafFormService['validatorsFromProps'](component);
     component.formControl = new FormControl(component.value, validators);
     component.formGroup = new FormGroup({
       [component.name]: component.formControl,

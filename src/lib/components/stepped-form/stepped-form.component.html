@@ -1,4 +1,4 @@
-<form class="dcf-steped-form"  novalidate>
+<form class="dcf-steped-form" [class.paginated]="paginated"  novalidate>
   @if(paginated) {
     <div class="dcf-page-steps">
       <div class="dcf-grid dcf-grid-collapse skip">
@@ -42,13 +42,24 @@
     }
 
     @if(formGroup) {
+         <!-- <ngx-decaf-layout
+          [children]="children || []"
+          [parentComponent]="formGroup || parentComponent"
+          gap="small"
+          [initializeProps]="false"
+          [rows]="rows ?? 1"
+          [cols]="cols ?? 1" /> -->
       @for(child of activeChildren;  track $index) {
-        <ngx-decaf-component-renderer
-          [tag]="child?.tag"
-          (listenEvent)="handleEvent($event)"
-          [children]="child?.children || []"
-          [globals]="{props: child.props}"
-        />
+        <div class="dcf-step-form-container">
+           <ngx-decaf-component-renderer
+            [tag]="child?.tag"
+            (listenEvent)="handleEvent($event)"
+            [children]="child?.children || []"
+            [globals]="{props: child.props}"
+          />
+        </div>
+
+
       }
     } @else {
       <ion-skeleton-text [animated]="true"></ion-skeleton-text>
@@ -78,7 +89,6 @@
     </div>
   } @else {
     <div class="dcf-single-step">
-
       @for (item of children; track $index) {
         <ion-card>
           <ion-card-content>
@@ -94,16 +104,18 @@
                   </div>
                 </div>
               }
-              @for (child of item.items; track $index) {
-                <div class="dcf-content">
+              <div class="dcf-grid dcf-grid-small  dcf-child-width-1-1">
+                @for (child of item.items; track $index) {
                   <ngx-decaf-component-renderer
+                    [class]="'dcf-step-container ' + (child?.props?.className ? child.props.className + ' ' : ' ') + child.tag"
                     [tag]="child?.tag"
+                    [projectable]="false"
                     (listenEvent)="handleEvent($event)"
                     [children]="child?.children || []"
                     [globals]="{props: child.props}"
                   />
-                </div>
-            }
+                }
+              </div>
           </ion-card-content>
         </ion-card>
       }
@@ -122,8 +134,4 @@
         </div>
       </div>
     }
-
-
-
-
 </form>

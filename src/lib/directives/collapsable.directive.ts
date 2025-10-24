@@ -1,3 +1,11 @@
+/**
+ * @module module:lib/directives/collapsable
+ * @description Directive to auto-open accordions when required fields are present.
+ * @summary CollapsableDirective inspects a DOM subtree for required inputs and, when found,
+ * opens the closest ion-accordion-group to surface validation to the user.
+ *
+ * @link {@link CollapsableDirective}
+ */
 import { Directive, ElementRef, inject, OnInit, Injector } from '@angular/core';
 
 

@@ -1,5 +1,6 @@
 import { UIKeys } from '@decaf-ts/ui-decorators';
 import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
+import { ICrudFormOptions } from './interfaces';
 
 /**
  * @description Angular engine key constants
@@ -35,7 +36,6 @@ export const AngularEngineKeys = {
   RENDERED_ID: 'rendered-as-{0}',
   PARENT: '_parent',
   VALIDATION_PARENT_KEY: VALIDATION_PARENT_KEY,
-  FORM_GROUP_COMPONENT_PROPS: 'componentProps'
 };
 
 /**
@@ -51,7 +51,7 @@ export const AngularEngineKeys = {
 export const FormConstants = {
   VALID: 'VALID',
   INVALID: 'INVALID',
-};
+} as const;
 
 /**
  * @description Event name constants
@@ -75,7 +75,7 @@ export const EventConstants = {
   FIELDSET_UPDATE_GROUP: 'fieldsetUpdateGroupEvent',
   FIELDSET_REMOVE_GROUP: 'fieldsetRemoveGroupEvent',
   // FIELDSET_GROUP_VALIDATION: 'fieldsetGroupValidationEvent'
-}
+} as const;
 
 /**
  * @description Logger level constants
@@ -133,6 +133,8 @@ export enum ComponentsTagNames {
   LIST_ITEM = 'ngx-decaf-list-item',
   LIST_INFINITE = 'ngx-decaf-list-infinite',
   LIST_PAGINATED = 'ngx-decaf-list-paginated',
+  CRUD_FIELD = 'ngx-decaf-crud-field',
+  LAYOUT_COMPONENT = 'ngx-decaf-layout',
 }
 
 /**
@@ -156,6 +158,7 @@ export enum ComponentsTagNames {
 export enum BaseComponentProps {
   MODEL = 'model',
   LOCALE = 'locale',
+  LOCALE_ROOT = 'locale_root',
   PK = 'pk',
   ITEMS = 'items',
   ROUTE = 'route',
@@ -164,6 +167,9 @@ export enum BaseComponentProps {
   TRANSLATABLE = 'translatable',
   MAPPER = 'mapper',
   INITIALIZED = 'initialized',
+  COMPONENT_NAME = 'componentName',
+  PARENT_COMPONENT = 'parentComponent',
+  FORM_GROUP_COMPONENT_PROPS = 'componentProps'
 }
 
 
@@ -172,12 +178,19 @@ export enum ListComponentsTypes {
   PAGINATED = 'paginated',
 }
 
-export interface IListEmptyResult {
-  title: string;
-  subtitle: string;
-  showButton: boolean;
-  buttonText: string;
-  link: string;
-  icon: string;
-}
 
+
+export const CssClasses = {
+  BUTTONS_CONTAINER: 'buttons-container',
+};
+
+export const DefaultFormReactiveOptions: ICrudFormOptions = {
+  buttons: {
+    submit: {
+      text: 'Submit',
+    },
+    clear: {
+      text: 'Clear',
+    },
+  },
+};

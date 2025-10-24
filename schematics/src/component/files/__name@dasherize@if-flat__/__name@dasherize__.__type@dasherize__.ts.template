@@ -1,6 +1,6 @@
 import { Component, OnInit<% if(standalone){ %> <%} %> } from '@angular/core';
 <% if(standalone){ %>import { ForAngularCommonModule } from '../../for-angular-common.module';<%} %>
-import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
+import { NgxBaseComponentDirective } from '../../engine/NgxBaseComponentDirective';
 
 
 @Component({
@@ -11,7 +11,7 @@ import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
   standalone: true,
 <%} %>
 })
-export class <%= classify(name) %><%= classify(type) %> extends NgxBaseComponent implements OnInit {
+export class <%= classify(name) %><%= classify(type) %> extends NgxBaseComponentDirective implements OnInit {
 
   /**
    * @constructor

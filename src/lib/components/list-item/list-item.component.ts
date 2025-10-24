@@ -1,11 +1,17 @@
+/**
+ * @module module:lib/components/list-item/list-item.component
+ * @description List item component module.
+ * @summary Exposes `ListItemComponent` which renders a single list item with
+ * configurable icon, title, description, actions and navigation. The component
+ * supports slide actions, popover menus and emits click events for parent
+ * components to handle.
+ *
+ * @link {@link ListItemComponent}
+ */
+
 import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output, ViewChild  } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { StringOrBoolean } from '../../engine/types';
-import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
-import { removeFocusTrap, stringToBoolean } from '../../helpers/utils';
-import { getWindowWidth, windowEventEmitter } from '../../helpers/utils';
-import { Dynamic, EventConstants, ListItemCustomEvent } from '../../engine';
-import { NavController } from '@ionic/angular';
 import {
   IonButton,
   IonItem,
@@ -19,17 +25,22 @@ import {
   IonItemOptions,
   IonItemOption
 } from '@ionic/angular/standalone';
+import { StringOrBoolean } from '../../engine/types';
+import { removeFocusTrap, stringToBoolean } from '../../helpers/utils';
+import { getWindowWidth, windowEventEmitter } from '../../helpers/utils';
+import { Dynamic, EventConstants, ListItemCustomEvent, NgxDecafComponentDirective } from '../../engine';
+import { NavController } from '@ionic/angular';
+
 import * as AllIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { TranslatePipe } from '@ngx-translate/core';
 
 
 /**
  * @description A component for displaying a list item with various customization options.
- * @summary The ListItemComponent is an Angular component that extends NgxBaseComponent. It provides a flexible and customizable list item interface with support for icons, buttons, and various text elements. The component also handles actions and navigation based on user interactions.
+ * @summary The ListItemComponent is an Angular component that extends NgxBaseComponentDirective. It provides a flexible and customizable list item interface with support for icons, buttons, and various text elements. The component also handles actions and navigation based on user interactions.
  *
  * @class
- * @extends NgxBaseComponent
+ * @extends NgxBaseComponentDirective
  *
  * @param {string} [lines='none'] - Determines the line style of the item. Can be 'inset', 'inseet', or 'none'.
  * @param {Record<string, any>} item - The data item to be displayed in the list item.
@@ -84,7 +95,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   ]
 
 })
-export class ListItemComponent extends NgxBaseComponent implements OnInit {
+export class ListItemComponent extends NgxDecafComponentDirective implements OnInit {
 
   /**
    * @description Reference to the action menu popover component.

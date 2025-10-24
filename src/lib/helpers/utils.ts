@@ -1,3 +1,15 @@
+/**
+ * @module module:lib/helpers/utils
+ * @description General helper utilities used across the library.
+ * @summary Exposes small, reusable utility functions for window/document access, date handling,
+ * string manipulation, simple mapping helpers and environment helpers used by UI components
+ * and services. This module's functions include `getWindow`, `getWindowDocument`, `formatDate`,
+ * `isValidDate`, `itemMapper`, `dataMapper`, and event helpers like `windowEventEmitter`.
+ *
+ * Do not document individual exports here — functions are documented inline.
+ * @link {@link getWindow}
+ */
+
 import { isDevMode } from '@angular/core';
 import { InjectableRegistryImp, InjectablesRegistry } from '@decaf-ts/injectable-decorators';
 import { Primitives } from '@decaf-ts/decorator-validation';

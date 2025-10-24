@@ -97,5 +97,85 @@
       "title": "Step 3",
       "description": "This is the last step"
     }
+  },
+  "aimodel": {
+    "name": {
+      "label": "Name",
+      "placeholder": "Type model name"
+    },
+    "features": {
+      "label": "Features",
+      "placeholder": "Select model features",
+      "options": {
+        "personal-identifiers": "Personal Identifiers",
+        "summarization": "Summarization",
+        "contextualization": "Contextualization",
+        "keywords": "Keywords",
+        "reranking": "Reranking",
+        "text-to-speech": "Text To Speech",
+        "speech-to-text": "Speech To Text",
+        "image-to-text": "Image To Text",
+        "text-to-image": "Text To Image",
+        "text-to-video": "Text To Video",
+        "vision-to-text": "Vision To Text",
+        "object-recognition": "Object Recognition",
+        "reasoning": "Reasoning",
+        "question-answering": "Question Answering",
+        "chat": "Chat",
+        "translation": "Translation",
+        "planning": "Planning",
+        "research": "Research",
+        "deep-research": "Deep Research",
+        "tool-usage": "Tool Usage",
+        "coding": "Coding",
+        "lightweight": "Lightweight",
+        "heavyweight": "Heavyweight"
+      }
+    }
+  },
+   "aivendors": {
+    "name": {
+      "label": "Name",
+      "placeholder": "Select vendor",
+      "options": {
+       "google": "Google",
+       "openai": "OpenAI",
+       "anthropic": "Anthropic",
+       "perplexity": "Perplexity",
+       "midjourney": "Midjourney",
+       "runway": "Runway",
+       "ollama": "Ollama",
+       "mistralai": "Mistral AI"
+      }
+    },
+    "models": {
+      "label": "Models",
+      "placeholder": "Select model",
+      "options": {
+        "personal-identifiers": "Personal Identifiers",
+        "summarization": "Summarization",
+        "contextualization": "Contextualization",
+        "keywords": "Keywords",
+        "reranking": "Reranking",
+        "text-to-speech": "Text To Speech",
+        "speech-to-text": "Speech To Text",
+        "image-to-text": "Image To Text",
+        "text-to-image": "Text To Image",
+        "text-to-video": "Text To Video",
+        "vision-to-text": "Vision To Text",
+        "object-recognition": "Object Recognition",
+        "reasoning": "Reasoning",
+        "question-answering": "Question Answering",
+        "chat": "Chat",
+        "translation": "Translation",
+        "planning": "Planning",
+        "research": "Research",
+        "deep-research": "Deep Research",
+        "tool-usage": "Tool Usage",
+        "coding": "Coding",
+        "lightweight": "Lightweight",
+        "heavyweight": "Heavyweight"
+      }
+    }
   }
 }

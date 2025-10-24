@@ -1,8 +1,32 @@
+/**
+ * @module module:lib/engine/interfaces
+ * @description Type and interface definitions used by the Angular rendering engine.
+ * @summary Exposes interfaces for component input metadata, rendering outputs, form events,
+ * and supporting types used across the engine and components.
+ *
+ * @link {@link AngularDynamicOutput}
+ */
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ElementRef, EnvironmentInjector, Injector, Type } from '@angular/core';
 import { OrderDirection } from '@decaf-ts/core';
 import { AngularFieldDefinition, FieldUpdateMode, KeyValue, StringOrBoolean } from './types';
-import { FieldProperties } from '@decaf-ts/ui-decorators';
+import { CrudOperationKeys, FieldProperties } from '@decaf-ts/ui-decorators';
+import { FormParent } from './types';
+import { Model } from '@decaf-ts/decorator-validation';
+
+
+/**
+ * @description Interface for models that can be rendered
+ * @summary Defines the basic structure for models that can be rendered by the engine.
+ * Contains an optional rendererId that uniquely identifies the rendered instance.
+ * @interface IRenderedModel
+ * @property {string} [rendererId] - Optional unique ID for the rendered model instance
+ * @memberOf module:engine
+ */
+export interface IRenderedModel {
+  rendererId?: string;
+}
+
 
 /**
  * @description Interface for components that hold an ElementRef
@@ -29,7 +53,7 @@ export interface IFormElement extends IComponentHolder {
    * @description The Angular FormGroup associated with this form element
    * @property {FormGroup|undefined} formGroup - The form group instance for managing form controls and validation
    */
-  formGroup: FormGroup | undefined;
+  formGroup: FormParent | undefined;
 }
 
 
@@ -125,7 +149,11 @@ export interface IComponentInput extends FieldProperties {
   updateMode?: FieldUpdateMode;
   formGroup?: FormGroup;
   formControl?: FormControl;
+  model?: Model | string;
+  operation?: CrudOperationKeys | undefined;
 }
+
+
 
 /**
  * @description Component configuration structure
@@ -196,6 +224,7 @@ export interface AngularDynamicOutput {
   instance?: Type<unknown>;
   formGroup?: FormGroup;
   formControl?: FormControl;
+  projectable?: boolean;
 }
 
 
@@ -250,17 +279,17 @@ export interface FormServiceControl {
 /**
  * @description Interface for list item custom events
  * @summary Defines the structure of custom events triggered by list items.
- * Extends BaseCustomEvent with additional properties for the action and primary key.
+ * Extends IBaseCustomEvent with additional properties for the action and primary key.
  * @interface ListItemCustomEvent
  * @property {string} action - The action performed on the list item
  * @property {string} [pk] - Optional primary key of the affected item
- * @property {any} data - The data associated with the event (inherited from BaseCustomEvent)
- * @property {HTMLElement} [target] - The target element (inherited from BaseCustomEvent)
- * @property {string} [name] - The name of the event (inherited from BaseCustomEvent)
- * @property {string} component - The component that triggered the event (inherited from BaseCustomEvent)
+ * @property {any} data - The data associated with the event (inherited from IBaseCustomEvent)
+ * @property {HTMLElement} [target] - The target element (inherited from IBaseCustomEvent)
+ * @property {string} [name] - The name of the event (inherited from IBaseCustomEvent)
+ * @property {string} component - The component that triggered the event (inherited from IBaseCustomEvent)
  * @memberOf module:engine
  */
-export interface ListItemCustomEvent extends BaseCustomEvent {
+export interface ListItemCustomEvent extends IBaseCustomEvent {
   action: string;
   pk?: string;
 }
@@ -270,14 +299,14 @@ export interface ListItemCustomEvent extends BaseCustomEvent {
  * @description Base interface for custom events
  * @summary Defines the base structure for custom events in the application.
  * Contains properties for the event data, target element, name, and component.
- * @interface BaseCustomEvent
+ * @interface IBaseCustomEvent
  * @property {any} data - The data associated with the event
  * @property {HTMLElement} [target] - The target element that triggered the event
  * @property {string} [name] - The name of the event
  * @property {string} component - The component that triggered the event
  * @memberOf module:engine
  */
-export interface BaseCustomEvent {
+export interface IBaseCustomEvent {
   name: string;
   component?: string;
   data?: unknown;
@@ -292,3 +321,75 @@ export interface BaseCustomEvent {
  * @property suffix - The suffix to be appended to the resource file path.
  */
 export interface I18nResourceConfig { prefix: string, suffix: string }
+
+
+/**
+ * @description CRUD form event type
+ * @summary Extends IBaseCustomEvent to include optional handlers for CRUD form operations.
+ * This event type is used for form-related actions like create, read, update, and delete operations.
+ * @typedef ICrudFormEvent
+ * @property {Record<string, any>} [handlers] - Optional handlers for form operations
+ * @memberOf module:engine
+ */
+export interface ICrudFormEvent extends IBaseCustomEvent {
+  handlers?: Record<string, unknown>;
+};
+
+/**
+ * @description Pagination custom event
+ * @summary Event emitted by pagination components to signal page navigation.
+ * Extends IBaseCustomEvent and carries a payload with the target page number and navigation direction.
+ * @interface IPaginationCustomEvent
+ * @memberOf module:engine
+ */
+export interface IPaginationCustomEvent extends IBaseCustomEvent {
+  data: {
+    page: number;
+    direction: 'next' | 'previous';
+  };
+}
+
+/**
+ * @description Menu item definition
+ * @summary Represents a single item in a navigation or contextual menu.
+ * Includes the visible label and optional metadata such as accessibility title, target URL, icon, and color.
+ * @interface IMenuItem
+ * @memberOf module:engine
+ */
+export interface IMenuItem {
+  label: string;
+  title?: string;
+  url?: string;
+  icon?: string;
+  color?: string;
+}
+
+
+export interface IFormReactiveSubmitEvent {
+  data: Record<string, unknown>;
+}
+
+export interface ICrudFormOptions {
+  buttons: {
+    submit: {
+      icon?: string;
+      iconSlot?: 'start' | 'end';
+      text?: string;
+    };
+    clear?: {
+      icon?: string;
+      iconSlot?: 'start' | 'end';
+      text?: string;
+    };
+  };
+}
+
+
+export interface IListEmptyResult {
+  title: string;
+  subtitle: string;
+  showButton: boolean;
+  buttonText: string;
+  link: string;
+  icon: string;
+}

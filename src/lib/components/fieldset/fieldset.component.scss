@@ -41,6 +41,11 @@ ion-accordion-group {
 }
 
 .dcf-fieldset {
+  &.remove-border {
+    border: none !important;
+    padding: 0px !important;
+    margin: 0px !important;
+  }
   &.open {
     //  margin-bottom: 1.8rem;
      ion-accordion {
@@ -51,15 +56,15 @@ ion-accordion-group {
       }
      }
   }
-  margin-top: 1rem;
+  // margin-top: 1rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
   background: var(--dcf-card-background);
   border-radius: 6px;
 
   &.read, &.delete {
-    margin-top: 1.25rem;
-    margin-bottom: -1.75rem !important;
+    // margin-top: 1.25rem;
+    // margin-bottom: -1.75rem !important;
     [slot="content"] { padding-top: 0px !important;}
     ion-accordion { margin-bottom: 0rem !important; }
   }
@@ -86,8 +91,6 @@ ion-accordion-group {
   }
 }
 
-
-
 .dcf-not-unique-container {
     display: flex;
     justify-content: center;
@@ -106,7 +109,7 @@ ion-accordion-group {
 }
 
 .dcf-fields-list {
-  margin-top: -1rem;
+  // margin-top: -1rem;
   margin-bottom: 1rem;
   padding: 0px !important;
 

@@ -1,25 +1,69 @@
+/**
+ * @module module:lib/for-angular-common.module
+ * @description Core Angular module and providers for Decaf's for-angular package.
+ * @summary Provides the shared Angular module, injection tokens and helper functions used
+ * by the for-angular integration. This module wires up common imports (forms, translation)
+ * and exposes helper providers such as DB adapter registration and logger utilities.
+ *
+ * @link {@link ForAngularCommonModule}
+ */
 import { NgModule, ModuleWithProviders, InjectionToken, Provider } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 import { Logger, Logging } from '@decaf-ts/logging';
 import { FunctionLike, I18nResourceConfig } from './engine';
-import { DecafRepositoryAdapter, KeyValue } from './engine/types';
-import { Constructor } from '@decaf-ts/decorator-validation';
+import { getOnWindow, getWindow } from './helpers/utils';
+import { DecafRepository, DecafRepositoryAdapter, KeyValue } from './engine/types';
+import { Constructor, Model, Primitives } from '@decaf-ts/decorator-validation';
+import { InternalError } from '@decaf-ts/db-decorators';
+import { Repository, uses } from '@decaf-ts/core';
 
 /** */
-export const DB_ADAPTER_PROVIDER_TOKEN = new InjectionToken<DecafRepositoryAdapter>('DB_ADAPTER_PROVIDER');
+export const DB_ADAPTER_PROVIDER = 'DB_ADAPTER_PROVIDER';
+export const DB_ADAPTER_PROVIDER_TOKEN = new InjectionToken<DecafRepositoryAdapter>(DB_ADAPTER_PROVIDER);
+export const LOCALE_ROOT_TOKEN = new InjectionToken<string>('LOCALE_ROOT_TOKEN');
+
+/* Generic token for injecting on class constuctors */
+export const CPTKN = new InjectionToken<unknown>('CPTKN', {providedIn: 'root', factory: () => ''});
 
 export const I18N_CONFIG_TOKEN = new InjectionToken<{resources: I18nResourceConfig[]; versionedSuffix: boolean}>('I18N_CONFIG_TOKEN');
 
+export function getModelRepository(model: Model | string): DecafRepository<Model> {
+  try {
+    const modelName = (typeof model === Primitives.STRING ? model : (model as Model).constructor.name) as string;
+    const constructor = Model.get(modelName.charAt(0).toUpperCase() + modelName.slice(1) as string);
+    if (!constructor)
+      throw new InternalError(
+        `Cannot find model for ${modelName}. was it registered with @model?`
+      );
+    const dbAdapterFlavour = getOnWindow(DB_ADAPTER_PROVIDER) || undefined;
+    if(dbAdapterFlavour)
+      uses(dbAdapterFlavour as string)(constructor);
+    const repo = Repository.forModel(constructor);
+    model = new constructor() as Model;
+    return repo;
+  } catch (error: unknown) {
+    throw new InternalError((error as Error)?.message || (error as string));
+  }
+}
+
+
+// export function provideRenderEngine(): Provider[] {
+
+// }
+
 export function provideDbAdapter<DbAdapter extends { flavour: string }>(
   adapterClass: Constructor<DbAdapter>,
-  options: KeyValue = {}
+  options: KeyValue = {},
+  flavour?: string
 ): Provider {
   const adapter = new adapterClass(options);
+  if(flavour)
+    flavour = adapter.flavour;
   // Log and expose adapter flavour globally
-  getLogger(provideDbAdapter).info(`Using ${adapter.flavour} as Db Provider`);
-  // getWindow()['dbAdapterFlavour'] = adapter.flavour;
+  getLogger(provideDbAdapter).info(`Using ${adapter.constructor.name} ${flavour} as Db Provider`);
+  getWindow()[DB_ADAPTER_PROVIDER] = flavour;
   return {
     provide: DB_ADAPTER_PROVIDER_TOKEN,
     useValue: adapter,
@@ -66,6 +110,9 @@ export function getLogger(instance: string | FunctionLike | unknown): Logger {
   declarations: [],
   exports: ComponentsAndModules,
   schemas: [],
+  providers: [
+    { provide: CPTKN, useValue: ''},
+  ],
 })
 export class ForAngularCommonModule {
   /**
@@ -80,6 +127,7 @@ export class ForAngularCommonModule {
   static forRoot(): ModuleWithProviders<ForAngularCommonModule> {
     return {
       ngModule: ForAngularCommonModule,
+
     };
   }
 }

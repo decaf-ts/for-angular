@@ -5,7 +5,7 @@ import { IonButton, IonButtons, IonHeader, IonIcon, IonMenuButton, IonTitle, Ion
 import { RouterService } from 'src/app/services/router.service';
 import { getWindow, stringToBoolean } from 'src/lib/helpers/utils';
 import { BackButtonComponent } from '../back-button/back-button.component';
-import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+import { NgxDecafComponentDirective } from 'src/lib/engine/NgxDecafComponentDirective';
 import { FunctionLike } from 'src/lib/engine/types';
 import { saveOutline, folderOpenOutline, createOutline } from "ionicons/icons";
 import { addIcons } from 'ionicons';
@@ -15,12 +15,12 @@ import { TranslatePipe } from '@ngx-translate/core';
  * @description Header component for application pages.
  * @summary The HeaderComponent provides a consistent header across the application with
  * configurable elements such as title, back button, menu button, and CRUD operation controls.
- * It extends NgxBaseComponent to inherit common functionality and implements OnInit for
+ * It extends NgxDecafComponentDirective to inherit common functionality and implements OnInit for
  * initialization logic. This component is designed to be flexible and adaptable to different
  * page contexts, supporting various navigation patterns and visual styles.
  *
  * @class HeaderComponent
- * @extends {NgxBaseComponent}
+ * @extends {NgxDecafComponentDirective}
  * @implements {OnInit}
  */
 @Component({
@@ -32,7 +32,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   standalone: true,
 
 })
-export class HeaderComponent extends NgxBaseComponent implements OnInit {
+export class HeaderComponent extends NgxDecafComponentDirective implements OnInit {
 
   /**
    * @description The current CRUD operation being performed.
@@ -44,20 +44,7 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    * @memberOf HeaderComponent
    */
   @Input()
-  currentOperation: CrudOperations = OperationKeys.READ;
-
-
-
-  /**
-   * @description The identifier of the current operation model.
-   * @summary  Accepts either a string or a number.
-   *
-   * @type {string|number}
-   * @default OperationKeys.READ
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  modelId!: string | number;
+  currentOperation: OperationKeys = OperationKeys.READ;
 
 
   /**
@@ -243,18 +230,6 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   private routerService: RouterService  = inject(RouterService);
 
   /**
-   * @description Root component of the Decaf-ts for Angular application
-   * @summary This component serves as the main entry point for the application.
-   * It sets up the navigation menu, handles routing events, and initializes
-   * the application state. It also manages the application title and menu visibility.
-   *
-   * @private
-   * @type {MenuController}
-   * @memberOf HeaderComponent
-   */
-  private menuController: MenuController = inject(MenuController);
-
-  /**
    * @description Color of back button icon.
    * @summary Sets the color of the back button icon using Ionic's predefined color palette.
    * This allows the back button icon to match the application's color scheme.
@@ -349,7 +324,6 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
     if(this.backgroundColor === 'white') {
       this.backButtonColor = 'medium';
     }
-
   }
 
   /**
@@ -433,6 +407,11 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
   isAllowed(operation: string): boolean {
     if(!this.operations)
       return false;
-    return this.operations.includes(operation as CrudOperations) && (this.currentOperation !== OperationKeys.CREATE && this.currentOperation.toLowerCase() !== operation);
+    return this.operations.includes(operation as CrudOperations) && (this.currentOperation !== OperationKeys.CREATE && ((this.currentOperation || "").toLowerCase() !== operation || !this.currentOperation));
+  }
+
+
+  getBackButtonSlot(): string {
+    return this.modelId && ![OperationKeys.READ,  OperationKeys.UPDATE].includes(this.currentOperation as OperationKeys) ? 'start' : 'end';
   }
 }

@@ -1,8 +1,17 @@
+/**
+ * @module module:lib/engine/NgxRenderingEngine
+ * @description Angular rendering engine for Decaf model-driven UIs.
+ * @summary Implements NgxRenderingEngine which converts model decorator metadata
+ * into Angular components, manages component registration, and orchestrates
+ * dynamic component creation and input mapping.
+ *
+ * @link {@link NgxRenderingEngine}
+ */
 import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
 import { AngularFieldDefinition, KeyValue } from './types';
-import { AngularDynamicOutput } from './interfaces';
+import { AngularDynamicOutput, IComponentInput } from './interfaces';
 import { AngularEngineKeys } from './constants';
-import { Constructor, Model } from '@decaf-ts/decorator-validation';
+import { Constructor, Model, ModelKeys } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
 import {
   ComponentMirror,
@@ -14,8 +23,9 @@ import {
   Type,
   ViewContainerRef,
 } from '@angular/core';
-import { NgxFormService } from './NgxFormService';
+import { NgxDecafFormService } from './NgxDecafFormService';
 import { isDevelopmentMode } from '../helpers';
+import { FormParent } from './types';
 
 /**
  * @description Angular implementation of the RenderingEngine with enhanced features
@@ -107,9 +117,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    */
   private static _instance: Type<unknown> | undefined;
 
-
-  private static _projectable: boolean = true
-
+  // private static _projectable: boolean = true
 
   private static _parentProps: KeyValue | undefined = undefined;
 
@@ -168,6 +176,8 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     injector: Injector,
     tpl: TemplateRef<unknown>,
     registryFormId: string = Date.now().toString(36).toUpperCase(),
+    createComponent: boolean = true,
+    formGroup?: FormParent,
   ): AngularDynamicOutput {
     const cmp = (fieldDef as KeyValue)?.['component'] || NgxRenderingEngine.components(fieldDef.tag);
     const component = cmp.constructor as unknown as Type<unknown>;
@@ -195,6 +205,10 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     if((hiddenOn as string[]).includes(operation as string))
       return {inputs, injector};
 
+    // const customTypes = (inputs as KeyValue)?.['customTypes'] || [];
+    // const hasFormRoot = Object.values(possibleInputs).some(({propName}) => propName ===  AngularEngineKeys.PARENT_COMPONENT);
+    // if(hasFormRoot && !inputs?.[AngularEngineKeys.PARENT_COMPONENT] && formGroup)
+    //   inputs[AngularEngineKeys.PARENT_COMPONENT] = formGroup;
     const result: AngularDynamicOutput = {
       component,
       inputs,
@@ -203,42 +217,49 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
 
     if (fieldDef.rendererId)
       (result.inputs as Record<string, unknown>)['rendererId'] = fieldDef.rendererId;
-
     // process children
-    if (fieldDef.children?.length) {
-      if(!NgxRenderingEngine._parentProps && inputs?.pages)
-        NgxRenderingEngine._parentProps = {pages: inputs?.pages};
-      result.children = fieldDef.children.map((child) => {
-        if(child?.children?.length) {
-          child.children = child.children.filter(c => {
-            const hiddenOn = c?.props?.hidden || [];
-            if(!(hiddenOn as string[]).includes(operation as string))
-              return c
-          })
-        }
-        NgxFormService.addControlFromProps(registryFormId, child.props, {...inputs, ...NgxRenderingEngine._parentProps || {}});
-        return this.fromFieldDefinition(child, vcr, injector, tpl, registryFormId);
-      });
-    }
-
     // generating DOM
-    const projectable = NgxRenderingEngine._projectable;
-    vcr.clear();
-    const template = !projectable ? [] : vcr.createEmbeddedView(tpl, injector).rootNodes;
-    const hasChildren = Object.values(possibleInputs).some(({propName}) => propName === 'children');
-    const hasModel = Object.values(possibleInputs).some(({propName}) => propName === 'children');
+    // const projectable = NgxRenderingEngine._projectable;
+    // const template = !projectable ? [] : vcr.createEmbeddedView(tpl, injector).rootNodes;
+    // const template = [];
+    const hasChildren = Object.values(possibleInputs).some(({propName}) => propName ===  AngularEngineKeys.CHILDREN);
+    const hasModel = Object.values(possibleInputs).some(({propName}) => propName === ModelKeys.MODEL);
     const componentInputs =  Object.assign(inputs,
         ( hasModel ? { model: this._model } : { }),
         ( hasChildren ? { children: fieldDef?.['children'] || [] } : {}));
-    const componentInstance = NgxRenderingEngine.createComponent(
-      component,
-      componentInputs,
-      componentMetadata,
-      vcr,
-      injector,
-      template,
-    );
-    result.instance = NgxRenderingEngine._instance = componentInstance.instance as Type<unknown>;
+    if(createComponent) {
+      vcr.clear();
+      const componentInstance = NgxRenderingEngine.createComponent(
+        component,
+        componentInputs,
+        componentMetadata,
+        vcr,
+        injector,
+        []
+      );
+      result.instance = NgxRenderingEngine._instance = componentInstance.instance as Type<unknown>;
+    }
+    if (fieldDef.children?.length) {
+      if(!NgxRenderingEngine._parentProps && inputs?.pages) {
+          NgxRenderingEngine._parentProps = {pages: inputs?.pages};
+          //  NgxRenderingEngine._projectable = false;
+      }
+
+      result.children = fieldDef.children.map((child) => {
+        // const hiddenOn = (child?.props?.hidden || []) as CrudOperations[];
+        // moved to ui decorators
+        // if(child?.children?.length) {
+        //   child.children = child.children.filter(c => {
+        //     const hiddenOn = c?.props?.hidden || [];
+        //     if(!(hiddenOn as string[]).includes(operation as string))
+        //       return c
+        //   })
+        // }
+        // if(!hiddenOn?.length || !(hiddenOn as CrudOperations[]).includes(operation as CrudOperations))
+        NgxDecafFormService.addControlFromProps(registryFormId, child.props, {...inputs, ...NgxRenderingEngine._parentProps || {}});
+        return this.fromFieldDefinition(child, vcr, injector, tpl, registryFormId, false, formGroup);
+      });
+    }
     return result;
   }
 
@@ -291,7 +312,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    */
   static async destroy(formId?: string): Promise<void> {
     if(formId)
-      NgxFormService.removeRegistry(formId);
+      NgxDecafFormService.removeRegistry(formId);
     NgxRenderingEngine._instance = undefined;
     NgxRenderingEngine._parentProps = undefined;
   }
@@ -333,23 +354,20 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     vcr: ViewContainerRef,
     injector: Injector,
     tpl: TemplateRef<unknown>,
-    projectable: boolean = true,
   ): AngularDynamicOutput {
     let result: AngularDynamicOutput;
     try {
-
       this._model = model;
-      NgxRenderingEngine._projectable = projectable;
-
       const formId = Date.now().toString(36).toUpperCase();
       const fieldDef = this.toFieldDefinition(model, globalProps);
-      const props = fieldDef.props as KeyValue;
+      const props = fieldDef.props as Partial<IComponentInput>;
       if(!NgxRenderingEngine._operation)
-        NgxRenderingEngine._operation = props?.['operation'] || undefined;
-      const formGroup  = NgxFormService.createForm(formId, props);
-      result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl, formId);
-
-      (result!.instance! as KeyValue)['formGroup'] = formGroup;
+        NgxRenderingEngine._operation = props?.operation || undefined;
+      const isArray = (props?.pages && props?.pages  >= 1 || props?.multiple === true);
+      const formGroup = NgxDecafFormService.createForm(formId, isArray);
+      result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl, formId, true, formGroup);
+      if(result.instance)
+        (result.instance as KeyValue)['formGroup'] = formGroup;
       NgxRenderingEngine.destroy(formId);
     } catch (e: unknown) {
       throw new InternalError(

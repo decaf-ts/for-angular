@@ -7,21 +7,21 @@ import { uichild, uilayoutitem, uielement, uilayout } from '@decaf-ts/ui-decorat
 import { CategoryModel } from '../models/CategoryModel';
 import { EmployeeModel } from '../models/EmployeeModel';
 
-@uilayout('ngx-decaf-layout', 3, ['Primeira Linha', 'Segunda Linha', 'Terceira Linha'])
+@uilayout('ngx-decaf-layout', 3, ['Title of first Line', 'Title of second Line', 'Title of third Line'])
 @model()
 export class DashboardLayout extends Model {
 
   @uielement('ngx-decaf-empty-state', {
-    'title': 'Primeiro componente',
-    'subtitle': 'Uma linha e 1 uma coluna',
+    'title': 'First component - full width',
+    'subtitle': 'Using all layout columns',
     'className': 'dcf-card-default'
   })
   @uilayoutitem(3, 1)
   left!: string;
 
-  @uielement('ngx-decaf-empty-state', {subtitle: 'Subtítulo do segundo componente'})
+  @uielement('ngx-decaf-empty-state')
   @uilayoutitem(2, 2, {
-    title: 'Segundo componente',
+    title: 'Using two columns of second row',
     className: 'dcf-card-default'
   })
   right!: string;
@@ -41,10 +41,6 @@ export class DashboardLayout extends Model {
   })
   @uilayoutitem(2, 3)
   right2!: string;
-
-  // @uilayoutitem(2, 3)
-  // @uichild(ForAngularModel.name, 'ngx-decaf-crud-form')
-  // demoModel!: ForAngularModel;
 
   constructor(args: ModelArg<DashboardLayout> = {}) {
     super(args);

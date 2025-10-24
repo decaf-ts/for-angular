@@ -1,7 +1,16 @@
+/**
+ * @module module:lib/components/filter/filter.component
+ * @description Filter component module.
+ * @summary Provides `FilterComponent` which builds advanced, multi-step filter
+ * queries (index → condition → value) and emits filter events for data querying.
+ * It supports responsive behavior, suggestions and integration with `SearchbarComponent`.
+ *
+ * @link {@link FilterComponent}
+ */
+
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild  } from '@angular/core';
-import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { IonButton, IonChip, IonIcon, IonSelect, IonSelectOption} from '@ionic/angular/standalone';
-import { Dynamic, IFilterQuery, IFilterQueryItem } from '../../engine';
+import { Dynamic, IFilterQuery, IFilterQueryItem, NgxDecafComponentDirective } from '../../engine';
 import { getWindowWidth, isDarkMode } from '../../helpers/utils';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
 import { OrderDirection, Repository } from '@decaf-ts/core';
@@ -71,7 +80,7 @@ import { FormsModule } from '@angular/forms';
   ],
   standalone: true,
 })
-export class FilterComponent extends NgxBaseComponent implements OnInit, OnDestroy {
+export class FilterComponent extends NgxDecafComponentDirective implements OnInit, OnDestroy {
 
   /**
    * @description Reference to the dropdown options container element.

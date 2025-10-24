@@ -25,7 +25,10 @@ $height: 38px;
 }
 
 .dcf-steped-form {
-  padding: 2rem 1rem;
+  &.paginated {
+    padding: 2rem 1rem;
+  }
+
 }
 
 
@@ -140,14 +143,39 @@ ion-button {
     margin-bottom: 1rem;
   }
 
-  .dcf-content {
-    padding: 0 .5rem;
+  .dcf-step-container {
+    &:not(.ngx-decaf-fieldset) {
+        padding-bottom: 1.5rem;
+        padding-top: .5rem;
+    }
+    &.ngx-decaf-fieldset {
+      // margin: 0px;
+    }
   }
 
   ion-card {
     margin-bottom: 1.5rem;
     .dcf-information {
       margin-top: .75rem;
+    }
+  }
+}
+
+.dcf-step-form-container {
+    margin-bottom: 1.75rem !important;
+}
+
+// ::ng-deep ngx-decaf-component-renderer > * > div {
+//   margin-bottom: 100rem !important;
+// }
+
+::ng-deep  {
+    ngx-decaf-component-renderer.ngx-decaf-fieldset,
+    ngx-decaf-fieldset {
+      padding-top: 0px !important;
+      padding-bottom: 0px !important;
+      ion-button {
+        margin-top: 1rem !important;
     }
   }
 }
