@@ -658,10 +658,11 @@ export class ListComponent extends NgxDecafComponentDirective implements OnInit,
     if(this.operations.includes(OperationKeys.CREATE) && this.route)
       this.empty.link = `${this.route}/${OperationKeys.CREATE}`;
 
-    this._repository = this.repository;
 
-    if(this._repository)
-      this._repository.observe(this.observer);
+    if(!this.initialized)
+      return this.parseProps(this);
+
+    this.initialized = true;
   }
 
   /**
@@ -1129,8 +1130,12 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
   let request: KeyValue[] = [];
 
   // getting model repository
-  if(!this._repository)
+  if(!this._repository) {
     this._repository = this.repository;
+    if(this.model instanceof Model && this._repository)
+      this._repository.observe(this.observer);
+  }
+
   const repo = this._repository as DecafRepository<Model>;
   if(!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
     try {
