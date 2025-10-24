@@ -13,7 +13,6 @@ import { FormServiceControl, I18nResourceConfig, InputOption } from './interface
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
 import { Constructor, Model } from '@decaf-ts/decorator-validation';
-import { I } from '@faker-js/faker/dist/airline-CLphikKp';
 
 
 export type HandlerLike = Record<string, (...args: unknown[]) => unknown | Promise<unknown>>
