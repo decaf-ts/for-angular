@@ -1,3 +1,13 @@
+/**
+ * @module module:lib/components/stepped-form/stepped-form.component
+ * @description Stepped form component module.
+ * @summary Provides `SteppedFormComponent` which implements a multi-page form
+ * UI with navigation, validation and submission support. Useful for forms that
+ * need to be split into logical steps/pages.
+ *
+ * @link {@link SteppedFormComponent}
+ */
+
 import { Component, Input, OnInit, OnDestroy, Output, EventEmitter, inject  } from '@angular/core';
 import { Location } from '@angular/common';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -6,11 +16,13 @@ import { arrowForwardOutline, arrowBackOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { UIElementMetadata, UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { IBaseCustomEvent, Dynamic, EventConstants, NgxFormService } from '../../engine';
+import { IBaseCustomEvent, Dynamic, EventConstants, NgxDecafFormService } from '../../engine';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { Subscription, timer } from 'rxjs';
 import { getLocaleContext } from '../../i18n/Loader';
 import { TranslatePipe } from '@ngx-translate/core';
+import { NgxParentComponentDirective } from 'src/lib/engine/NgxParentComponentDirective';
+import { LayoutComponent } from '../layout/layout.component';
 
 
 @Dynamic()
@@ -24,26 +36,26 @@ import { TranslatePipe } from '@ngx-translate/core';
     IonSkeletonText,
     IonText,
     IonButton,
+    LayoutComponent,
     ComponentRendererComponent
   ],
   standalone: true,
    host: {'[attr.id]': 'uid'},
 })
-export class SteppedFormComponent implements OnInit, OnDestroy {
+export class SteppedFormComponent extends NgxParentComponentDirective implements OnInit, OnDestroy {
 
   /**
-   * @description The locale to be used for translations.
-   * @summary Specifies the locale identifier to use when translating component text.
-   * This can be set explicitly via input property to override the automatically derived
-   * locale from the component name. The locale is typically a language code (e.g., 'en', 'fr')
-   * or a language-region code (e.g., 'en-US', 'fr-CA') that determines which translation
-   * set to use for the component's text content.
+   * @description Array of UI model metadata for all form fields.
+   * @summary Contains the complete collection of UI model metadata that defines
+   * the structure, validation, and presentation of form fields across all pages.
+   * Each metadata object contains information about field type, validation rules,
+   * page assignment, and display properties.
    *
-   * @type {string}
+   * @type {UIModelMetadata[]}
    * @memberOf SteppedFormComponent
    */
   @Input()
-  locale!: string;
+  override children!: UIModelMetadata[] | { title: string; description: string; items?:  UIModelMetadata[]  }[];
 
 
   /**
@@ -114,18 +126,7 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
   @Input()
   startPage: number = 1;
 
-  /**
-   * @description Array of UI model metadata for all form fields.
-   * @summary Contains the complete collection of UI model metadata that defines
-   * the structure, validation, and presentation of form fields across all pages.
-   * Each metadata object contains information about field type, validation rules,
-   * page assignment, and display properties.
-   *
-   * @type {UIModelMetadata[]}
-   * @memberOf SteppedFormComponent
-   */
-  @Input()
-  children!: UIModelMetadata[] | { title: string; description: string; items?:  UIModelMetadata[]  }[];
+
 
   /**
    * @description Angular reactive FormGroup or FormArray for form state management.
@@ -228,6 +229,7 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
    * @memberOf SteppedFormComponent
    */
   constructor() {
+    super("SteppedFormComponent");
     addIcons({arrowForwardOutline, arrowBackOutline});
   }
 
@@ -253,7 +255,8 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
    *
    * @memberOf SteppedFormComponent
    */
-  ngOnInit(): void  {
+  override async ngOnInit(): Promise<void>  {
+    console.log(this);
     if(!this.locale)
       this.locale = getLocaleContext("SteppedFormComponent")
     this.activePage = this.startPage;
@@ -332,7 +335,7 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
    * @memberOf SteppedFormComponent
    */
   handleNext(lastPage: boolean = false): void {
-    const isValid = NgxFormService.validateFields(this.activeFormGroup as FormGroup);
+    const isValid = NgxDecafFormService.validateFields(this.activeFormGroup as FormGroup);
     if (!lastPage) {
       if (isValid) {
         this.activePage = this.activePage + 1;
@@ -340,7 +343,7 @@ export class SteppedFormComponent implements OnInit, OnDestroy {
       }
     } else {
      if (isValid) {
-      const data = Object.assign({}, ...Object.values(NgxFormService.getFormData(this.formGroup as FormGroup)));
+      const data = Object.assign({}, ...Object.values(NgxDecafFormService.getFormData(this.formGroup as FormGroup)));
       this.submitEvent.emit({
         data,
         name: EventConstants.SUBMIT,

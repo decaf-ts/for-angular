@@ -1,3 +1,12 @@
+/**
+ * @module module:lib/engine/ValidatorFactory
+ * @description Factory for generating Angular ValidatorFn from Decaf validation metadata.
+ * @summary ValidatorFactory maps validation keys defined by the Decaf validation system
+ * into Angular ValidatorFn instances. It supports type-based resolution and comparison
+ * validators and provides helpers to create proxies for nested control validation.
+ *
+ * @link {@link ValidatorFactory}
+ */
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
 import {
   ComparisonValidationKeys,

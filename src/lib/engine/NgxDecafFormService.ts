@@ -1,17 +1,27 @@
+/**
+ * @module module:lib/engine/NgxDecafFormService
+ * @description Utilities to create and manage Angular forms in Decaf components.
+ * @summary The NgxDecafFormService exposes helpers to build FormGroup/FormArray instances
+ * from component metadata or UI model definitions, register forms in a registry,
+ * validate and extract form data, and create controls with appropriate validators.
+ *
+ * @link {@link NgxDecafFormService}
+ */
 import { escapeHtml, FieldProperties, HTML5CheckTypes, HTML5InputTypes, parseToNumber, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { FieldUpdateMode, FormParent, FormParentGroup, KeyValue } from './types';
 import { IComponentConfig, IComponentInput } from './interfaces';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { isValidDate, ModelKeys, parseDate, Primitives, Validation } from '@decaf-ts/decorator-validation';
+import { isValidDate, Model, ModelKeys, parseDate, Primitives, Validation } from '@decaf-ts/decorator-validation';
 import { ValidatorFactory } from './ValidatorFactory';
 import { cleanSpaces } from '../helpers';
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { AngularEngineKeys, BaseComponentProps } from '../engine/constants';
+import { AngularEngineKeys, BaseComponentProps } from './constants';
+import { getModelRepository } from '../for-angular-common.module';
 
 
 /**
  * @description Service for managing Angular forms and form controls.
- * @summary The NgxFormService provides utility methods for creating, managing, and validating Angular forms and form controls. It includes functionality for registering forms, adding controls, validating fields, and handling form data.
+ * @summary The NgxDecafFormService provides utility methods for creating, managing, and validating Angular forms and form controls. It includes functionality for registering forms, adding controls, validating fields, and handling form data.
  *
  * @class
  * @param {WeakMap<AbstractControl, FieldProperties>} controls - A WeakMap to store control properties.
@@ -23,18 +33,18 @@ import { AngularEngineKeys, BaseComponentProps } from '../engine/constants';
  *   { inputs: { name: 'username', type: 'text', required: true } },
  *   { inputs: { name: 'password', type: 'password', minLength: 8 } }
  * ];
- * const form = NgxFormService.createFormFromComponents('loginForm', components, true);
+ * const form = NgxDecafFormService.createFormFromComponents('loginForm', components, true);
  *
  * // Validating fields
- * NgxFormService.validateFields(form);
+ * NgxDecafFormService.validateFields(form);
  *
  * // Getting form data
- * const formData = NgxFormService.getFormData(form);
+ * const formData = NgxDecafFormService.getFormData(form);
  *
  * @mermaid
  * sequenceDiagram
  *   participant C as Component
- *   participant NFS as NgxFormService
+ *   participant NFS as NgxDecafFormService
  *   participant AF as Angular Forms
  *   C->>NFS: createFormFromComponents()
  *   NFS->>AF: new FormGroup()
@@ -47,7 +57,7 @@ import { AngularEngineKeys, BaseComponentProps } from '../engine/constants';
  *   NFS->>AF: Get control values
  *   NFS-->>C: Return form data
  */
-export class NgxFormService {
+export class NgxDecafFormService {
   /**
    * @description WeakMap that stores control properties for form controls.
    * @summary A WeakMap that associates AbstractControl instances with their corresponding FieldProperties.
@@ -56,7 +66,7 @@ export class NgxFormService {
    * @type {WeakMap<AbstractControl, FieldProperties>}
    * @private
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   private static controls: WeakMap<AbstractControl, FieldProperties> = new WeakMap<AbstractControl, FieldProperties>();
 
@@ -68,7 +78,7 @@ export class NgxFormService {
    * @type {Map<string, FormGroup>}
    * @private
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   private static formRegistry: Map<string, FormParent> = new Map<string, FormParent>();
 
@@ -86,7 +96,7 @@ export class NgxFormService {
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
-   *   participant NFS as NgxFormService
+   *   participant NFS as NgxDecafFormService
    *   participant FR as Form Registry
    *   participant AF as Angular Forms
    *
@@ -105,10 +115,10 @@ export class NgxFormService {
    *   NFS-->>C: Return FormGroup | FormArray
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
-  static createForm(id: string, props: Partial<IComponentInput> = {}, registry: boolean = true): FormGroup | FormArray {
-    const form = this.formRegistry.get(id) ?? (props?.pages && props?.pages  >= 1 ? new FormArray([]) : new FormGroup({}));
+  static createForm(id: string, formArray = false, registry: boolean = true): FormGroup | FormArray {
+    const form = this.formRegistry.get(id) ?? (formArray ? new FormArray([]) : new FormGroup({}));
     if (!this.formRegistry.has(id) && registry)
       this.addRegistry(id, form as FormArray | FormGroup);
     return form as FormArray | FormGroup;
@@ -127,12 +137,16 @@ export class NgxFormService {
    * @throws {Error} If a FormGroup with the given id is already registered
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static addRegistry(formId: string, formGroup: FormParent): void {
     if (this.formRegistry.has(formId))
       throw new Error(`A FormGroup with id '${formId}' is already registered.`);
     this.formRegistry.set(formId, formGroup);
+  }
+
+  static getOnRegistry(id?: string): FormParent | undefined {
+    return this.formRegistry.get(id as string);
   }
 
   /**
@@ -145,7 +159,7 @@ export class NgxFormService {
    * @return {void}
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static removeRegistry(formId: string): void {
     this.formRegistry.delete(formId);
@@ -166,7 +180,7 @@ export class NgxFormService {
    * @private
    * @mermaid
    * sequenceDiagram
-   *   participant NFS as NgxFormService
+   *   participant NFS as NgxDecafFormService
    *   participant FG as FormGroup
    *   participant FA as FormArray
    *
@@ -185,17 +199,22 @@ export class NgxFormService {
    *   NFS-->>NFS: Return [parentGroup, controlName]
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
-  private static resolveParentGroup(formGroup: FormGroup, path: string, componentProps: IComponentInput, parentProps: KeyValue): FormParentGroup {
-    const isMultiple = parentProps?.['multiple'] || parentProps?.['type'] === 'Array' || false;
+  private static resolveParentGroup<T extends Model>(
+    formGroup: FormGroup,
+    path: string,
+    componentProps: IComponentInput,
+    parentProps: Partial<IComponentInput>
+  ): FormParentGroup {
+    const isMultiple = parentProps?.multiple || parentProps?.type === Array.name || false;
     const parts = path.split('.');
     const controlName = parts.pop() as string;
     const {childOf} = componentProps
     let currentGroup = formGroup;
 
-    function setArrayComponentProps(formGroupArray: FormArray) {
-      const props = (formGroupArray as KeyValue)[AngularEngineKeys.FORM_GROUP_COMPONENT_PROPS] || {};
+    function setArrayComponentProps(formGroupArray: KeyValue) {
+      const props = formGroupArray?.[BaseComponentProps.FORM_GROUP_COMPONENT_PROPS] || {};
         if(!props[ModelKeys.MODEL][controlName])
           props[ModelKeys.MODEL] = Object.assign({}, props[ModelKeys.MODEL], {[controlName]: {...componentProps}});
     }
@@ -203,11 +222,17 @@ export class NgxFormService {
     for (const part of parts) {
       if (!currentGroup.get(part)) {
         const partFormGroup = (isMultiple && part === childOf) ? new FormArray([new FormGroup({})]) : new FormGroup({});
-        (partFormGroup as KeyValue)[AngularEngineKeys.FORM_GROUP_COMPONENT_PROPS] = {
+        let pk = componentProps?.['pk'] || parentProps?.['pk'] || '';
+        if(!pk) {
+          const repository = getModelRepository(componentProps?.model as string | T);
+          if(repository && repository.pk)
+            pk = repository.pk;
+        }
+        (partFormGroup as KeyValue)[BaseComponentProps.FORM_GROUP_COMPONENT_PROPS] = {
           childOf: childOf || '',
           isMultiple: isMultiple,
           name: part,
-          pk: componentProps?.['pk'] || parentProps?.['pk'] || '',
+          pk,
           [ModelKeys.MODEL]: {},
         } as Partial<FieldProperties> & {model: KeyValue};
 
@@ -245,12 +270,12 @@ export class NgxFormService {
    * @return {Partial<FieldProperties>} The component properties or a specific property if key is provided
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static getComponentPropsFromGroupArray(formGroup: FormGroup | FormArray, key?: string, groupArrayName?: string | undefined): Partial<FieldProperties> {
     if(!(formGroup instanceof FormArray) && typeof groupArrayName === Primitives.STRING)
       formGroup = formGroup.root.get(groupArrayName as string) as FormArray || {};
-    const props = (formGroup as KeyValue)?.[AngularEngineKeys.FORM_GROUP_COMPONENT_PROPS] || {};
+    const props = (formGroup as KeyValue)?.[BaseComponentProps.FORM_GROUP_COMPONENT_PROPS] || {};
     return (!key ? props : props?.[key]) || {};
   }
 
@@ -260,21 +285,19 @@ export class NgxFormService {
    * component properties stored in the parent's metadata. This is used for dynamic form arrays
    * where new groups need to be added at runtime.
    *
-   * @param {FormGroup} formGroup - The root form group containing the parent FormArray
-   * @param {string} parentName - The name of the parent FormArray to add the group to
-   * @param {number} [index=1] - The index position where the new group should be added
+   * @param {FormParent} parentForm - The root form group containing the parent FormArray
+   * @param {number} index - The index position where the new group should be added
    * @return {FormGroup} The newly created and added FormGroup
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
-  static addGroupToParent(formGroup: FormGroup, parentName: string, index: number = 1): FormGroup {
-    const componentProps = this.getComponentPropsFromGroupArray(formGroup, ModelKeys.MODEL, parentName);
-    Object.entries(componentProps as KeyValue).forEach(([, value]) => {
-      return this.addFormControl(formGroup, value, {multiple: true}, index);
-    });
-
-    return this.getGroupFromParent(formGroup, parentName, index);
+  static addGroupToParent(parentForm: FormParent, index?: number): FormArray {
+    if(parentForm instanceof FormGroup)
+      parentForm = parentForm.parent as FormArray;
+    index = index || (parentForm.length === 0 ? 0 : parentForm.length - 1);
+    parentForm.push(this.cloneFormControl(parentForm.at(index)));
+    return parentForm;
   }
 
   /**
@@ -288,13 +311,50 @@ export class NgxFormService {
    * @return {FormGroup} The FormGroup at the specified index
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
-  static getGroupFromParent(formGroup: FormGroup, parentName: string, index: number = 1): FormGroup {
+  static getGroupFromParent(formGroup: FormParent, parentName: string, index: number = 1): FormGroup {
     const childGroup = ((formGroup.get(parentName) || formGroup) as FormArray).at(index);
     if(childGroup instanceof FormGroup)
       return childGroup;
-    return this.addGroupToParent(formGroup, parentName, index);
+    return this.addGroupToParent(formGroup, index).at(index) as FormGroup;
+  }
+
+  static cloneFormControl(control: AbstractControl): AbstractControl {
+    const syncValidators = (control.validator ? [control.validator] : []).filter(fn => {
+      // if(lastIndex > 0)
+      //   if(fn !== Validators.required)
+      //     return fn;
+      return fn;
+    });
+    const asyncValidators = control.asyncValidator ?? null;
+    const validators = {
+       validators: syncValidators,
+       asyncValidators
+    }
+    if (control instanceof FormControl) {
+      control = new FormControl("", validators);
+      // control.markAsPristine();
+      // control.markAsUntouched();
+      // control.setErrors(null);
+      // control.updateValueAndValidity();
+      return control;
+    }
+
+    if (control instanceof FormGroup) {
+      const groupControls: Record<string, AbstractControl> = {};
+      for (const key in control.controls) {
+        groupControls[key] = this.cloneFormControl(control.controls[key]);
+      }
+      return new FormGroup(groupControls, validators);
+    }
+
+    if (control instanceof FormArray) {
+      const arrayControls = control.controls.map(child => this.cloneFormControl(child));
+      return new FormArray(arrayControls, validators);
+    }
+
+    throw new Error('Unsupported control type');
   }
 
   /**
@@ -308,23 +368,28 @@ export class NgxFormService {
    * @return {boolean} True if the value is unique, false otherwise
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
-  static isUniqueOnGroup(formGroup: FormGroup, index: number, operation: OperationKeys = OperationKeys.CREATE): boolean {
-    const formGroupArray = formGroup.parent as FormArray;
-    const pk = this.getComponentPropsFromGroupArray(formGroupArray, BaseComponentProps.PK as string) as string;
+  static isUniqueOnGroup(formGroup: FormGroup, operation: OperationKeys = OperationKeys.CREATE, index?: number): boolean {
+    const formArray = formGroup.parent as FormArray;
+    if(index === undefined || index === null)
+      index = formArray.length - 1;
+    const pk = this.getComponentPropsFromGroupArray(formArray, BaseComponentProps.PK as string) as string;
     const controlName = Object.keys(formGroup.controls)[0];
 
-    // only check for unique if is the pk control
-    if(controlName !== pk)
+    if(controlName !== pk || !pk)
       return true;
     const controlValue = cleanSpaces(`${formGroup.get(pk)?.value}`, true);
-    if(operation === OperationKeys.CREATE)
-      return !formGroupArray.controls.some((group, i) => i !== index && cleanSpaces(`${group.get(pk)?.value}`, true) === controlValue);
+    if(operation === OperationKeys.CREATE) {
+      return !formArray.controls.some((group, i) => {
+        const value = cleanSpaces(`${group.get(pk)?.value}`, true);
+        return i !== index && value === controlValue;
+      });
+    }
 
-    return !formGroupArray.controls.some((group, i) => {
+    return !formArray.controls.some((group, i) => {
       const value = cleanSpaces(`${group.get(pk)?.value}`, true);
-      return i !== index && controlValue === value;
+      return i !== index && value === controlValue;
     });
   }
 
@@ -337,7 +402,7 @@ export class NgxFormService {
    * @return {void}
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static enableAllGroupControls(formGroup: FormArray | FormGroup): void {
     Object.keys(formGroup.controls).forEach(key => {
@@ -367,9 +432,9 @@ export class NgxFormService {
    *
    * @private
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
-  private static addFormControl(formGroup: FormParent, componentProps: IComponentInput, parentProps: KeyValue = {}, index: number = 0): void {
+  private static addFormControl(formGroup: FormParent, componentProps: IComponentInput, parentProps: Partial<IComponentInput> = {}, index: number = 0): FormParent {
 
     const isMultiple = parentProps?.['multiple'] || parentProps?.['type'] === 'Array' || false;
     const { name, childOf, } = componentProps;
@@ -379,11 +444,11 @@ export class NgxFormService {
     const [parentGroup, controlName] = this.resolveParentGroup(formGroup as FormGroup, fullPath, componentProps, parentProps);
 
     if (!parentGroup.get(controlName)) {
-      const control = NgxFormService.fromProps(
+      const control = NgxDecafFormService.fromProps(
         componentProps,
         componentProps.updateMode || 'change',
       );
-      NgxFormService.register(control, componentProps);
+      NgxDecafFormService.register(control, componentProps);
       if (parentGroup instanceof FormGroup) {
         parentGroup.addControl(controlName, control);
       }
@@ -399,7 +464,9 @@ export class NgxFormService {
     const root = parentGroup instanceof FormArray ? parentGroup.controls[(componentProps as KeyValue)?.['page'] - 1] : parentGroup;
     componentProps['formGroup'] = root as FormGroup;
     componentProps['formControl'] = parentGroup.get(controlName) as FormControl;
-    componentProps['multiple'] = isMultiple
+    // componentProps['multiple'] = isMultiple;
+
+    return root as FormParent;
   }
 
   /**
@@ -416,7 +483,7 @@ export class NgxFormService {
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
-   *   participant NFS as NgxFormService
+   *   participant NFS as NgxDecafFormService
    *   participant FR as Form Registry
    *
    *   C->>NFS: getControlFromForm(formId, path?)
@@ -439,7 +506,7 @@ export class NgxFormService {
    *   end
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static getControlFromForm(formId: string, path?: string): AbstractControl {
     const form = this.formRegistry.get(formId);
@@ -470,7 +537,7 @@ export class NgxFormService {
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
-   *   participant NFS as NgxFormService
+   *   participant NFS as NgxDecafFormService
    *   participant AF as Angular Forms
    *
    *   C->>NFS: createFormFromChildren(id, registry, children)
@@ -485,7 +552,7 @@ export class NgxFormService {
    *   NFS-->>C: Return FormGroup
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static createFormFromChildren(id: string, registry: boolean = false,  children?: UIModelMetadata[],): FormGroup {
     const form = new FormGroup({});
@@ -512,7 +579,7 @@ export class NgxFormService {
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
-   *   participant NFS as NgxFormService
+   *   participant NFS as NgxDecafFormService
    *   participant AF as Angular Forms
    *
    *   C->>NFS: createFormFromComponents(id, components, registry)
@@ -527,7 +594,7 @@ export class NgxFormService {
    *   NFS-->>C: Return FormGroup
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static createFormFromComponents(id: string, components: IComponentConfig[], registry: boolean = false): FormGroup {
     const form = new FormGroup({});
@@ -555,7 +622,7 @@ export class NgxFormService {
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
-   *   participant NFS as NgxFormService
+   *   participant NFS as NgxDecafFormService
    *   participant F as Form
    *
    *   C->>NFS: addControlFromProps(id, componentProps, parentProps?)
@@ -571,10 +638,11 @@ export class NgxFormService {
    *   NFS-->>C: Return form/control
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
-  static addControlFromProps(id: string, componentProperties: FieldProperties, parentProps?: FieldProperties): AbstractControl {
-    let form = this.createForm(id, parentProps, true);
+  static addControlFromProps(id: string, componentProperties: FieldProperties, parentProps?: FieldProperties): FormParent {
+    const formArray = (componentProperties?.pages && componentProperties?.pages  >= 1 || componentProperties.multiple === true);
+    let form = this.createForm(id, formArray, true);
     const formLength = (form as FormArray).length;
     if(parentProps?.pages && parentProps?.pages > 0) {
       let index = componentProperties.page || parentProps.page;
@@ -602,7 +670,7 @@ export class NgxFormService {
       form = group as FormGroup;
     }
     if(componentProperties.path)
-      this.addFormControl(form, componentProperties, parentProps);
+      form = this.addFormControl(form, componentProperties, parentProps);
     return form;
   }
 
@@ -618,7 +686,7 @@ export class NgxFormService {
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
-   *   participant NFS as NgxFormService
+   *   participant NFS as NgxDecafFormService
    *   participant FG as FormGroup
    *   participant FC as FormControl
    *
@@ -647,15 +715,15 @@ export class NgxFormService {
    *   NFS-->>C: Return processed data object
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static getFormData(formGroup: FormGroup): Record<string, unknown> {
     const data: Record<string, unknown> = {};
     for (const key in formGroup.controls) {
       const control = formGroup.controls[key];
-      const parentProps = NgxFormService.getPropsFromControl(formGroup as FormGroup | FormArray);
+      const parentProps = NgxDecafFormService.getPropsFromControl(formGroup as FormGroup | FormArray);
       if (!(control instanceof FormControl)) {
-        const value = NgxFormService.getFormData(control as FormGroup);
+        const value = NgxDecafFormService.getFormData(control as FormGroup);
         const isValid = control.valid;
         if(parentProps.multiple) {
             if(isValid) {
@@ -670,7 +738,7 @@ export class NgxFormService {
         continue;
       }
 
-      const props = NgxFormService.getPropsFromControl(control as FormControl | FormArray);
+      const props = NgxDecafFormService.getPropsFromControl(control as FormControl | FormArray);
       let value = control.value;
       if (!HTML5CheckTypes.includes(props['type'])) {
         switch (props['type']) {
@@ -690,7 +758,7 @@ export class NgxFormService {
       }
       data[key] = value;
     }
-    NgxFormService.enableAllGroupControls(formGroup as FormGroup);
+    NgxDecafFormService.enableAllGroupControls(formGroup as FormGroup);
     return data;
   }
 
@@ -709,7 +777,7 @@ export class NgxFormService {
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
-   *   participant NFS as NgxFormService
+   *   participant NFS as NgxDecafFormService
    *   participant FC as FormControl
    *   participant FG as FormGroup
    *   participant FA as FormArray
@@ -741,7 +809,7 @@ export class NgxFormService {
    *   end
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static validateFields(control: AbstractControl, pk?: string,  path?: string): boolean {
     control = path ? control.get(path) as AbstractControl : control;
@@ -822,7 +890,7 @@ export class NgxFormService {
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
-   *   participant NFS as NgxFormService
+   *   participant NFS as NgxDecafFormService
    *   participant VF as ValidatorFactory
    *   participant AF as Angular Forms
    *
@@ -842,7 +910,7 @@ export class NgxFormService {
    *   NFS-->>C: Return configured FormControl
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static fromProps(props: FieldProperties, updateMode: FieldUpdateMode = 'change'): FormControl {
     const validators = this.validatorsFromProps(props);
@@ -876,7 +944,7 @@ export class NgxFormService {
    * @return {FieldProperties} The properties associated with the control, or empty object if not found
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static getPropsFromControl(control: FormControl | FormArray | FormGroup): FieldProperties {
     return this.controls.get(control) || {} as FieldProperties;
@@ -896,7 +964,7 @@ export class NgxFormService {
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
-   *   participant NFS as NgxFormService
+   *   participant NFS as NgxDecafFormService
    *   participant DOM as DOM Tree
    *
    *   C->>NFS: getParentEl(element, tagName)
@@ -911,7 +979,7 @@ export class NgxFormService {
    *   end
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static getParentEl(el: HTMLElement, tag: string): HTMLElement {
     let parent: HTMLElement | null;
@@ -937,7 +1005,7 @@ export class NgxFormService {
    * @return {void}
    *
    * @static
-   * @memberOf NgxFormService
+   * @memberOf NgxDecafFormService
    */
   static register(control: AbstractControl, props: FieldProperties): void {
     this.controls.set(control, props);
@@ -961,9 +1029,9 @@ export class NgxFormService {
   static reset(formGroup: FormGroup | FormControl): void {
     if(formGroup instanceof FormControl) {
       const control = formGroup as FormControl;
-      const { type } = NgxFormService.getPropsFromControl(control);
+      const { type } = NgxDecafFormService.getPropsFromControl(control);
       if (!HTML5CheckTypes.includes(type))
-        control.setValue("");
+      control.setValue("");
       control.markAsPristine();
       control.markAsUntouched();
       control.setErrors(null);
@@ -971,7 +1039,7 @@ export class NgxFormService {
     } else {
       for (const key in formGroup.controls) {
         const control = formGroup.controls[key];
-        NgxFormService.reset(control as FormControl);
+        NgxDecafFormService.reset(control as FormControl);
         continue;
       }
     }

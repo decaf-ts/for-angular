@@ -1,5 +1,5 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA,  OnInit } from '@angular/core';
-import {  RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
+import { NavigationEnd, NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { IonApp,
   IonSplitPane,
   IonMenu,
@@ -19,13 +19,16 @@ import { ModelConstructor } from '@decaf-ts/decorator-validation';
 import * as IonicIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 
-import { NgxBasePage } from '../lib/engine';
-import { isDevelopmentMode } from '../lib/helpers';
+import { IMenuItem, NgxPageDirective } from '../lib/engine';
+import { isDevelopmentMode, removeFocusTrap } from '../lib/helpers';
 import { ForAngularRepository } from './utils/ForAngularRepository';
 import { LogoComponent } from './components/logo/logo.component';
 import { AppModels, DbAdapterFlavour } from './app.config';
-import { uses } from '@decaf-ts/core';
-import { AppMenu } from './utils/contants';
+import { Repository, uses } from '@decaf-ts/core';
+import { AppMenu, DashboardMenuItem, LogoutMenuItem } from './utils/contants';
+import { AIModel } from './models/AIVendorModel';
+import { Product } from './models/Product';
+import { getNgxLoadingComponent } from './utils/NgxLoadingController';
 
 
 @Component({
@@ -46,18 +49,16 @@ import { AppMenu } from './utils/contants';
     IonLabel,
     IonRouterLink,
     IonRouterOutlet,
-    TranslatePipe,
     LogoComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent extends NgxBasePage implements OnInit {
+export class AppComponent extends NgxPageDirective implements OnInit {
 
   constructor() {
-    super();
+    super("", false);
     this.title = "Decaf-ts for-angular demo";
-    this.menu = AppMenu;
     addIcons(IonicIcons);
   }
 
@@ -67,6 +68,16 @@ export class AppComponent extends NgxBasePage implements OnInit {
    * @return {Promise<void>}
    */
   async ngOnInit(): Promise<void> {
+      this.router.events.subscribe(async event => {
+      if(event instanceof NavigationEnd) {
+        const url = (event?.url || "").replace('/', '');
+        this.hasMenu = url !== "login" && url !== "";
+        this.setPageTitle(url);
+      }
+      if (event instanceof NavigationStart)
+        removeFocusTrap();
+    });
+    await this.menuController.enable(this.hasMenu);
     await this.initialize();
   }
 
@@ -76,26 +87,35 @@ export class AppComponent extends NgxBasePage implements OnInit {
    * @return {Promise<void>}
    */
   override async initialize(): Promise<void> {
-
-    super.initialize();
-
     const isDevelopment = isDevelopmentMode();
-    const populate = ['CategoryModel', 'EmployeeModel'];
-    if(isDevelopment) {
-      // const aiVendorModel = new AIVendorModel();
-      // const models = [aiModel, new CategoryModel(), new EmployeeModel()];
-      const models = AppModels;
-      for(let model of models) {
-        if(model instanceof Function)
-          model = new (model as unknown as ModelConstructor<any>)();
-        const name = model.constructor.name.replace(/[0-9]/g, '');
-        uses(DbAdapterFlavour)(model);
-        if(populate.includes(name as string)) {
+    const populate = [Product.name, AIModel.name];
+    const menu = [];
+    const loading = getNgxLoadingComponent();
+    const models = AppModels;
+    for(let model of models) {
+      uses(DbAdapterFlavour)(model);
+      if(model instanceof Function)
+        model = new (model as unknown as ModelConstructor<any>)();
+      const name = model.constructor.name.replace(/[0-9]/g, '');
+      if (isDevelopment) {
+        if(populate.includes(name)) {
+          this.logger.info(`Populating repository for model: ${name}`);
           const repository = new ForAngularRepository(model, 3);
           await repository.init();
         }
       }
+      menu.push({label: await this.translate(name),  name, url: `/model/${Repository.table(model)}`, icon: 'cube-outline'})
     }
+
+    if(loading.isVisible())
+      await loading.remove();
+    this.menu = [
+      DashboardMenuItem,
+      ...menu as IMenuItem[],
+      ...AppMenu,
+      LogoutMenuItem
+    ];
+    await super.initialize();
   }
 
 }

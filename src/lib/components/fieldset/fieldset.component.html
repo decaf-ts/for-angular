@@ -6,14 +6,14 @@
   [class.remove-border]="!borders"
   [class.open]="isOpen"
   #component>
-  <ion-accordion-group [class.open]="isOpen" [class.hasValidationErrors]="hasValidationErrors" (validationErrorEvent)="handleValidationError($event)" #accordionComponent>
+  <ion-accordion-group class="dcf-width-1-1" [class.open]="isOpen" [class.hasValidationErrors]="hasValidationErrors" [value]="operation === 'read' ? 'open' : ''" #accordionComponent>
     <ion-accordion value="open">
       <ion-item [class.disable-collapse]="!collapsable" slot="header" [button]="collapsable" (click)="handleAccordionToggle($event)">
         <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1">
           <div class="dcf-width-expand">
             <legend>{{ name | translate }}</legend>
           </div>
-          @if((!isRequired && ['create', 'update'].includes(operation))) {
+          @if ((!isRequired && ['create', 'update'].includes(operation))) {
             <div class="dcf-width-auto dcf-delete">
               <ion-button fill="clear" size="small" (click)="handleRemoveComponent($event)">
                 <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
@@ -23,12 +23,12 @@
         </div>
       </ion-item>
       <div slot="content" [attr.aria-hidden]="!isOpen">
-        @if(multiple && items.length) {
+        @if (multiple && items.length) {
           <ion-list class="dcf-fields-list">
             <ion-reorder-group [formGroup]="formGroup.parent" [disabled]="updatingItem" (ionItemReorder)="handleReorderItems($any($event))" #accordionComponent>
-              @for(item of items; track item.index;) {
-                <ion-item [class.not-unique]="isUniqueError && item.title === isUniqueError"  [class.updating]="updatingItem?.[pk] === item.title" lines="full" [button]="false">
-                  @if(items?.length > 1 && !updatingItem) {
+              @for(item of items; track item.index) {
+                <ion-item [class.not-unique]="item.title === isUniqueError"  [class.updating]="updatingItem?.[pk] === item.title" lines="full" [button]="false">
+                  @if (items?.length > 1 && !updatingItem) {
                     <ion-reorder slot="start">
                       <ion-icon name="swap-vertical-outline"></ion-icon>
                     </ion-reorder>
@@ -38,19 +38,19 @@
                     </div>
                   }
                   <ion-label [color]="(item.title === isUniqueError && !updatingItem?.[pk] === item.title) ? 'danger' : ''">{{ item.index }}. {{ item.title }}
-                    @if(item.description?.length > 0) {
+                    @if (item.description?.length > 0) {
                       <br />
                       <ion-text class="dcf-subtitle">{{item.description}}</ion-text>
                     }
                   </ion-label>
-                  @if(!updatingItem || updatingItem?.[pk] !== item.title) {
-                    <ion-button fill="clear" size="small" (click)="handleUpdateItem(item.title, $index)">
+                  @if (!updatingItem || updatingItem?.[pk] !== item.title) {
+                    <ion-button fill="clear" size="small" (click)="handleUpdateItem($index)">
                       <ion-icon name="create-outline" color="dark" slot="icon-only"></ion-icon>
                     </ion-button>
                   }
 
-                  @if(!updatingItem) {
-                    <ion-button fill="clear" size="small" (click)="handleRemoveItem(item.index - 1, item.title)">
+                  @if (!updatingItem) {
+                    <ion-button fill="clear" size="small" (click)="handleRemoveItem($index)">
                       <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
                     </ion-button>
                   }
@@ -59,11 +59,21 @@
             </ion-reorder-group>
           </ion-list>
         }
+         <ng-content select="[slot=content]"></ng-content>
 
-        <ng-content select="[slot=content]"></ng-content>
-
-        @if(multiple && ['create', 'update'].includes(operation)) {
-          @if(isUniqueError) {
+        @if (this.children?.length) {
+           @for (child of children; track $index) {
+            <ngx-decaf-component-renderer
+              [class]="(child?.props?.className ? ' ' + child.props.className : '')"
+              [tag]="child?.tag"
+              [parentComponent]="formGroup || parentComponent"
+              [children]="child?.children || []"
+              [globals]="{props: child.props}"
+            />
+          }
+        }
+        @if (multiple && ['create', 'update'].includes(operation)) {
+          @if (isUniqueError) {
             <div class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast">
               <div class=" dcf-grid dcf-grid-collapse dcf-width-1-1 ">
                 <div class="dcf-auto" [attr.style]="'max-width: 50px'">
@@ -76,12 +86,12 @@
             </div>
           }
           <div class="dcf-margin-bottom dcf-grid dcf-grid-collapse dcf-flex">
-            @if(updatingItem) {
+            @if (updatingItem) {
               <ion-button size="small" fill="clear" color="danger" (click)="handleCancelUpdateItem()">
                 {{ buttonCancelLabel }}
               </ion-button>
             }
-            @if(items.length < max || !max) {
+            @if (items.length < max || !max) {
               <ion-button size="small" fill="clear" class="dcf-button-add" (click)="handleCreateItem()">
                 <ion-icon name="add-outline" slot="start"></ion-icon>
                 {{buttonLabel}}

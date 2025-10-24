@@ -1,13 +1,23 @@
-import { HttpClient } from '@angular/common/http';
-import { TranslateLoader, TranslationObject } from '@ngx-translate/core';
+/**
+ * @module module:lib/i18n/Loader
+ * @description Internationalization loader and helpers for the for-angular package.
+ * @summary Provides an implementation of TranslateLoader (I18nLoader) and helper factories
+ * to load translation resources. Also exposes locale utilities used by components to resolve
+ * localized keys.
+ *
+ * @link {@link I18nLoader}
+ */
+import { HttpClient, provideHttpClient } from '@angular/common/http';
+import { provideTranslateParser, provideTranslateService, RootTranslateServiceConfig, TranslateLoader, TranslateParser, TranslationObject } from '@ngx-translate/core';
 import { forkJoin,  Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {I18nResourceConfig} from '../engine/interfaces';
 import { inject } from '@angular/core';
-import { FunctionLike } from '../engine';
+import { FunctionLike, I18nResourceConfigType } from '../engine';
 import { cleanSpaces, getLocaleFromClassName } from '../helpers';
 import en from './data/en.json';
 import { I18N_CONFIG_TOKEN } from '../for-angular-common.module';
+import { Primitives, sf } from '@decaf-ts/decorator-validation';
 
 
 export function getLocaleContext(clazz: FunctionLike | object | string, suffix?: string): string {
@@ -46,7 +56,7 @@ export function I18nLoaderFactory(http: HttpClient): TranslateLoader {
   return new I18nLoader(http, resources?.length ? resources : [{prefix: './app/assets/i18n/', suffix: '.json'}], versionedSuffix);
 }
 
-export function provideI18nLoader(resources: I18nResourceConfig | I18nResourceConfig[] = [], versionedSuffix: boolean = false) {
+export function provideI18nLoader(resources: I18nResourceConfigType = [], versionedSuffix: boolean = false) {
   if(!Array.isArray(resources))
     resources = [resources];
   return {
@@ -78,6 +88,7 @@ export class I18nLoader implements TranslateLoader {
         )
       )
     );
+
     return httpRequests$.pipe(
       map(res => {
         return {
@@ -87,4 +98,34 @@ export class I18nLoader implements TranslateLoader {
       })
     );
   }
+}
+
+
+export class I18nParser extends TranslateParser {
+  interpolate(value: string, params: object | string = {}): string {
+    if(typeof params === Primitives.STRING)
+      params = {"0": params};
+   return sf(value, ...Object.values(params));
+  }
+}
+
+export function provideI18n(
+  config: RootTranslateServiceConfig = {fallbackLang: 'en', lang: 'en'},
+  resources: I18nResourceConfigType = [],
+  versionedSuffix: boolean = false
+) {
+  return [
+    provideHttpClient(),
+    provideTranslateService({
+      fallbackLang: config.fallbackLang,
+      lang: config.lang,
+      parser: provideTranslateParser(I18nParser),
+      loader: {
+        provide: TranslateLoader,
+        useFactory: I18nLoaderFactory,
+        deps: [HttpClient],
+      },
+    }),
+    provideI18nLoader(resources, versionedSuffix)
+  ]
 }

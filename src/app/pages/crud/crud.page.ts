@@ -36,21 +36,22 @@ export class CrudPage implements OnInit {
     this.model = new ForAngularModel({
       id: 1,
       name: 'John Doe',
-      // birthdate: '1989-12-12',
-      email: 'john.doe@example.com',
-      website: 'https://johndoe.example.com',
-      password: 'password123',
-      ... ((this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)?
-      {
-        category: {name: "Demo Category", description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry."},
-        user: {username: "Admin", secret: "DemoPass"},
-        gender: "male",
-        birthdate: "1989-12-12",
-        contact: "morning",
+      // // birthdate: '1989-12-12',
+      // email: 'john.doe@example.com',
+      // website: 'https://johndoe.example.com',
+      // password: 'password123',
+      // ... ((this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)?
+      // {
+      //   category: {name: "Demo Category", description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry."},
+      //   user: {username: "Admin", secret: "DemoPass"},
+      //   gender: "male",
+      //   birthdate: "1989-12-12",
+      //   contact: "morning",
 
-      }: {}),
+      // }: {}),
     });
 
+    console.log(this.model);
     this.globals = {
       operation: this.operation,
       uid: (this.operation === OperationKeys.DELETE ? this.model.id : undefined),

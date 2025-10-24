@@ -1,5 +1,6 @@
 <ion-app>
   <ion-split-pane contentId="main-content" >
+    @if(initialized) {
       <ion-menu contentId="main-content" type="overlay" [disabled]="!hasMenu">
         <section class="dcf-logo-container">
           <app-logo></app-logo>
@@ -21,7 +22,7 @@
                   @if(item.icon) {
                     <ion-icon [color]="item.color || ''" aria-hidden="true" class="icon" [name]="item.icon"></ion-icon>
                   }
-                  <ion-label>{{ item.label | translate }}
+                  <ion-label>{{ item.label }}
                   </ion-label>
                   <!-- @if(item?.url && item.url !== '/login') {
                     <ion-icon aria-hidden="true" slot="end" size="small" name="chevron-forward-outline"></ion-icon>
@@ -32,6 +33,7 @@
           </ion-list>
         </ion-content>
       </ion-menu>
+    }
 
     <ion-router-outlet id="main-content"></ion-router-outlet>
   </ion-split-pane>

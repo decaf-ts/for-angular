@@ -1,11 +1,20 @@
+/**
+ * @module module:lib/components/pagination/pagination.component
+ * @description Pagination component module.
+ * @summary Provides `PaginationComponent` for displaying page navigation controls
+ * and emitting pagination events. Use this component to navigate paginated data
+ * in lists and other collections.
+ *
+ * @link {@link PaginationComponent}
+ */
+
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
-import { EventConstants, KeyValue, StringOrBoolean } from '../../engine';
+import { EventConstants, KeyValue, NgxDecafComponentDirective, StringOrBoolean } from '../../engine';
 import { IPaginationCustomEvent } from '../../engine/interfaces';
-import {  TranslatePipe } from '@ngx-translate/core';
 
 /**
  * @description A pagination component for navigating through multiple pages of content.
@@ -45,7 +54,7 @@ import {  TranslatePipe } from '@ngx-translate/core';
  *   (clickEvent)="handlePageChange($event)">
  * </ngx-decaf-pagination>
  *
- * @extends {NgxBaseComponent}
+ * @extends {NgxBaseComponentDirective}
  * @implements {OnInit}
  */
 @Component({
@@ -59,18 +68,7 @@ import {  TranslatePipe } from '@ngx-translate/core';
   standalone: true,
 
 })
-export class PaginationComponent extends NgxBaseComponent implements OnInit {
-
-  /**
-   * @description Controls whether the component uses translation services.
-   * @summary When set to true, the component will attempt to use translation services
-   * for any text content. This allows for internationalization of the pagination component.
-   *
-   * @type {StringOrBoolean}
-   * @default true
-   * @memberOf PaginationComponent
-   */
-  override translatable: StringOrBoolean = true;
+export class PaginationComponent extends NgxDecafComponentDirective implements OnInit {
 
   /**
    * @description The total number of pages to display in the pagination component.
@@ -159,7 +157,7 @@ export class PaginationComponent extends NgxBaseComponent implements OnInit {
    * @memberOf PaginationComponent
    */
   ngOnInit(): void {
-    this.locale = this.getLocale(this.translatable);
+    // this.locale = this.getLocale(this.translatable);
     this.pages = this.getPages(this.totalPages, this.current) as KeyValue[];
     this.last = this.totalPages;
   }

@@ -1,11 +1,11 @@
 import { Component,  inject, Input, OnInit } from '@angular/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { IonButton, IonButtons, IonHeader, IonIcon, IonMenuButton, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonHeader, IonIcon, IonMenuButton, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
 import { RouterService } from 'src/app/services/router.service';
 import { getWindow, stringToBoolean } from 'src/lib/helpers/utils';
 import { BackButtonComponent } from '../back-button/back-button.component';
-import { NgxBaseComponent } from 'src/lib/engine/NgxBaseComponent';
+import { NgxDecafComponentDirective } from 'src/lib/engine/NgxDecafComponentDirective';
 import { FunctionLike } from 'src/lib/engine/types';
 import { saveOutline, folderOpenOutline, createOutline } from "ionicons/icons";
 import { addIcons } from 'ionicons';
@@ -15,12 +15,12 @@ import { TranslatePipe } from '@ngx-translate/core';
  * @description Header component for application pages.
  * @summary The HeaderComponent provides a consistent header across the application with
  * configurable elements such as title, back button, menu button, and CRUD operation controls.
- * It extends NgxBaseComponent to inherit common functionality and implements OnInit for
+ * It extends NgxDecafComponentDirective to inherit common functionality and implements OnInit for
  * initialization logic. This component is designed to be flexible and adaptable to different
  * page contexts, supporting various navigation patterns and visual styles.
  *
  * @class HeaderComponent
- * @extends {NgxBaseComponent}
+ * @extends {NgxDecafComponentDirective}
  * @implements {OnInit}
  */
 @Component({
@@ -32,7 +32,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   standalone: true,
 
 })
-export class HeaderComponent extends NgxBaseComponent implements OnInit {
+export class HeaderComponent extends NgxDecafComponentDirective implements OnInit {
 
   /**
    * @description The current CRUD operation being performed.
@@ -45,19 +45,6 @@ export class HeaderComponent extends NgxBaseComponent implements OnInit {
    */
   @Input()
   currentOperation: OperationKeys = OperationKeys.READ;
-
-
-
-  /**
-   * @description The identifier of the current operation model.
-   * @summary  Accepts either a string or a number.
-   *
-   * @type {string|number}
-   * @default OperationKeys.READ
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  modelId!: string | number;
 
 
   /**

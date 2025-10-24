@@ -4,7 +4,7 @@ import { IonCard, IonCardContent, IonContent} from '@ionic/angular/standalone';
 import { LogoComponent } from 'src/app/components/logo/logo.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
-import { NgxBasePage } from 'src/lib/engine';
+import { NgxPageDirective } from 'src/lib/engine/NgxPageDirective';
 
 /**
  * @description Login page component for user authentication
@@ -43,18 +43,16 @@ import { NgxBasePage } from 'src/lib/engine';
   imports: [IonContent, IonCard, IonCardContent, LogoComponent, ContainerComponent, ModelRendererComponent],
 
 })
-export class LoginPage extends NgxBasePage implements OnInit {
+export class LoginPage extends NgxPageDirective implements OnInit {
 
   constructor() {
-    super();
-    this.hasMenu = false;
-    this.localeRoot = "LoginPage";
+    super("LoginPage", false);
   }
 
-  async ngOnInit() {
-      this.model = new LoginForm({
-      username: 'user',
-      password: 'Pass123-'
-    });
+  ngOnInit(): void {
+   this.model = new LoginForm({
+    username: 'User',
+    password: 'Decafts123-'
+   });
   }
 }

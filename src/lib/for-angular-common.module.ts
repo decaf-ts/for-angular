@@ -1,3 +1,12 @@
+/**
+ * @module module:lib/for-angular-common.module
+ * @description Core Angular module and providers for Decaf's for-angular package.
+ * @summary Provides the shared Angular module, injection tokens and helper functions used
+ * by the for-angular integration. This module wires up common imports (forms, translation)
+ * and exposes helper providers such as DB adapter registration and logger utilities.
+ *
+ * @link {@link ForAngularCommonModule}
+ */
 import { NgModule, ModuleWithProviders, InjectionToken, Provider } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -13,14 +22,17 @@ import { Repository, uses } from '@decaf-ts/core';
 /** */
 export const DB_ADAPTER_PROVIDER = 'DB_ADAPTER_PROVIDER';
 export const DB_ADAPTER_PROVIDER_TOKEN = new InjectionToken<DecafRepositoryAdapter>(DB_ADAPTER_PROVIDER);
+export const LOCALE_ROOT_TOKEN = new InjectionToken<string>('LOCALE_ROOT_TOKEN');
+
+/* Generic token for injecting on class constuctors */
+export const CPTKN = new InjectionToken<unknown>('CPTKN', {providedIn: 'root', factory: () => ''});
 
 export const I18N_CONFIG_TOKEN = new InjectionToken<{resources: I18nResourceConfig[]; versionedSuffix: boolean}>('I18N_CONFIG_TOKEN');
 
 export function getModelRepository(model: Model | string): DecafRepository<Model> {
   try {
-    const modelName = typeof model === Primitives.STRING ?
-      (model as string).charAt(0).toUpperCase() + (model as string).slice(1) : (model as Model).constructor.name;
-    const constructor = Model.get(modelName as string);
+    const modelName = (typeof model === Primitives.STRING ? model : (model as Model).constructor.name) as string;
+    const constructor = Model.get(modelName.charAt(0).toUpperCase() + modelName.slice(1) as string);
     if (!constructor)
       throw new InternalError(
         `Cannot find model for ${modelName}. was it registered with @model?`
@@ -36,6 +48,10 @@ export function getModelRepository(model: Model | string): DecafRepository<Model
   }
 }
 
+
+// export function provideRenderEngine(): Provider[] {
+
+// }
 
 export function provideDbAdapter<DbAdapter extends { flavour: string }>(
   adapterClass: Constructor<DbAdapter>,
@@ -94,6 +110,9 @@ export function getLogger(instance: string | FunctionLike | unknown): Logger {
   declarations: [],
   exports: ComponentsAndModules,
   schemas: [],
+  providers: [
+    { provide: CPTKN, useValue: ''},
+  ],
 })
 export class ForAngularCommonModule {
   /**
@@ -108,6 +127,7 @@ export class ForAngularCommonModule {
   static forRoot(): ModuleWithProviders<ForAngularCommonModule> {
     return {
       ngModule: ForAngularCommonModule,
+
     };
   }
 }

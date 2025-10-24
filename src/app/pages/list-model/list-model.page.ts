@@ -22,12 +22,12 @@ export class ListModelPage implements OnInit {
   data!: KeyValue[];
 
   model!: AIModel | AIVendorModel;
-
   async ngOnInit() {
     if(!this.type)
       this.type = 'infinite';
-    this.model = this.type === 'infinite' ?
+    this.model = this.type === 'paginated' ?
       new AIModel() : new AIVendorModel();
+    console.log(this.model);
   }
 
   handleEvent(event: IBaseCustomEvent) {

@@ -6,7 +6,7 @@ import { DashboardLayout } from 'src/app/layouts/Dashboboard';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { LayoutComponent } from 'src/lib/components';
-import { NgxBasePage } from 'src/lib/engine';
+import { NgxPageDirective } from 'src/lib/engine';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -14,7 +14,7 @@ import { NgxBasePage } from 'src/lib/engine';
   standalone: true,
    imports: [HeaderComponent, ContainerComponent, IonContent, LayoutComponent],
 })
-export class DashboardPage extends NgxBasePage implements OnInit {
+export class DashboardPage extends NgxPageDirective implements OnInit {
 
   users!: number;
   incoming!: number;
@@ -22,9 +22,7 @@ export class DashboardPage extends NgxBasePage implements OnInit {
   lastUsage!: string;
 
   constructor() {
-    super();
-    this.localeRoot = "DashboardPage";
-    this.hasMenu = true;
+    super("DashboardPage", true);
     addIcons({
       cardOutline,
       peopleOutline,
@@ -34,8 +32,7 @@ export class DashboardPage extends NgxBasePage implements OnInit {
 
   ngOnInit() {
     this.getData();
-       this.model = new DashboardLayout();
-
+    this.model = new DashboardLayout;
   }
 
   getData() {

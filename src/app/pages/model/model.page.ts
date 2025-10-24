@@ -245,6 +245,7 @@ export class ModelPage implements OnInit {
       this._repository = Repository.forModel(constructor);
       this.model = new constructor() as Model;
     }
+    console.log(this.model);
     return this._repository;
   }
 
@@ -307,6 +308,7 @@ export class ModelPage implements OnInit {
    * @param {IBaseCustomEvent} event - The event object containing event data and metadata
    */
   async handleEvent(event: IBaseCustomEvent) {
+    console.log('ModelPage handleEvent', event);
     const { name } = event;
     switch (name) {
       case EventConstants.SUBMIT:

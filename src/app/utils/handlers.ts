@@ -34,14 +34,14 @@ export class LoginHandler extends NgxEventHandler<ICrudFormEvent> {
   async handle(event: ICrudFormEvent): Promise<void> {
     const { username, password } = event.data as KeyValue;
     const success = !!username && !!password;
+    if(success)
+      await this.router.navigate(['/dashboard']);
     const toast = await this.toastComponent.show({
       message: success ? 'Login successful!' : 'Usuário ou senha inválidos.',
       duration: 3000,
       color: success ? 'dark' : 'danger',
       position: 'top',
     });
-    if(success)
-      await this.router.navigate(['/dashboard']);
     await toast.present();
   }
 }

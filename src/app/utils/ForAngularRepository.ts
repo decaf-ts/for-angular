@@ -44,6 +44,7 @@ export class ForAngularRepository<T extends Model> {
   public async init(): Promise<void> {
     this._repository = this.repository;
     let data = await this._repository?.select().execute();
+    const pk = this._repository?.pk as string;
     if(!this.data?.length) {
       const name = (this.model as Model).constructor.name;
       switch(name) {
@@ -109,18 +110,23 @@ export class ForAngularRepository<T extends Model> {
       return data;
 
     const values = Object.values(pkValues as KeyValue);
-
+    const iterated: (string | number)[] = [];
     function getPkValue(item: KeyValue): T {
       if (values.length > 0) {
         const randomIndex = Math.floor(Math.random() * values.length);
         const selected = values.splice(randomIndex, 1)[0];
+        const value = pkType === Primitives.STRING ? selected : pkType === Primitives.NUMBER
+            ? parseToNumber(selected) : pkType === Array.name ? [selected] : selected;
+        iterated.push(value);
         item[pk as string] =
           pkType === Primitives.STRING ? selected : pkType === Primitives.NUMBER
             ? parseToNumber(selected) : pkType === Array.name ? [selected] : selected;
       }
-      return item as T;
+      if(!iterated.includes(item[pk as string]))
+        return item as T;
+      return undefined as unknown as T;
     }
-    return data.map((d) => getPkValue(d));
+    return data.map((d) => getPkValue(d)).filter(Boolean) as T[];
   }
 }
 

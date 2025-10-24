@@ -1,21 +1,20 @@
 import { IMenuItem } from "src/lib/engine/interfaces";
 
+export const DashboardMenuItem =  {
+  label: 'Dashboard',
+  icon: 'apps-outline',
+  url: '/dashboard',
+};
+
+export const LogoutMenuItem =   {
+  label: 'Logout',
+  title: 'Login',
+  icon: 'log-out-outline',
+  url: '/login',
+  color: 'danger'
+};
+
 export const AppMenu: IMenuItem[] = [
-  {
-    label: 'Dashboard',
-    icon: 'apps-outline',
-    url: '/dashboard',
-  },
-   {
-    label: 'Category',
-    icon: 'medkit-outline',
-    url: '/model/CategoryModel',
-  },
-  {
-    label: 'Employee',
-    icon: 'medkit-outline',
-    url: '/model/EmployeeModel',
-  },
   {
     label: 'Crud',
     icon: 'save-outline',
@@ -52,14 +51,7 @@ export const AppMenu: IMenuItem[] = [
     label: 'AI Vendors (Paginated)',
     url: '/list-model/paginated',
   },
-  {
-    label: 'Logout',
-    title: 'Login',
-    icon: 'log-out-outline',
-    url: '/login',
-    color: 'danger'
-  },
-] as const;
+];
 
 
 

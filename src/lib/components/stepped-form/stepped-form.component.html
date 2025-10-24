@@ -42,14 +42,21 @@
     }
 
     @if(formGroup) {
-      @for(child of activeChildren;  track $index) {
+         <ngx-decaf-layout
+          [children]="children || []"
+          [parentComponent]="formGroup || parentComponent"
+          gap="small"
+          [initializeProps]="false"
+          [rows]="rows ?? 1"
+          [cols]="cols ?? 1" />
+      <!-- @for(child of activeChildren;  track $index) {
         <ngx-decaf-component-renderer
           [tag]="child?.tag"
           (listenEvent)="handleEvent($event)"
           [children]="child?.children || []"
           [globals]="{props: child.props}"
         />
-      }
+      } -->
     } @else {
       <ion-skeleton-text [animated]="true"></ion-skeleton-text>
       <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
@@ -93,16 +100,16 @@
                   </div>
                 </div>
               }
-              <div class="dcf-grid dcf-grid-collapse  dcf-child-width-1-1">
+              <div class="dcf-grid dcf-grid-small  dcf-child-width-1-1">
                 @for (child of item.items; track $index) {
-                  <div [class]="'dcf-content' + (child?.props?.className ? ' ' + child.props.className : '')">
-                    <ngx-decaf-component-renderer
-                      [tag]="child?.tag"
-                      (listenEvent)="handleEvent($event)"
-                      [children]="child?.children || []"
-                      [globals]="{props: child.props}"
-                    />
-                  </div>
+                  <ngx-decaf-component-renderer
+                    [class]="'dcf-step-container ' + (child?.props?.className ? child.props.className + ' ' : ' ') + child.tag"
+                    [tag]="child?.tag"
+                    [projectable]="false"
+                    (listenEvent)="handleEvent($event)"
+                    [children]="child?.children || []"
+                    [globals]="{props: child.props}"
+                  />
                 }
               </div>
           </ion-card-content>

@@ -1,3 +1,13 @@
+/**
+ * @module module:lib/components/model-renderer/model-renderer.component
+ * @description Model renderer component module.
+ * @summary Exposes `ModelRendererComponent` which dynamically renders UI components
+ * from model definitions using the `NgxRenderingEngine`. It handles model changes,
+ * event subscription and lifecycle for the rendered output.
+ *
+ * @link {@link ModelRendererComponent}
+ */
+
 import {
   Component,
   EventEmitter,
@@ -10,6 +20,7 @@ import {
   TemplateRef,
   ViewChild,
   ViewContainerRef,
+  ViewEncapsulation,
 } from '@angular/core';
 import { Model, sf } from '@decaf-ts/decorator-validation';
 import { NgComponentOutlet } from '@angular/common';
@@ -19,12 +30,12 @@ import {
   BaseComponentProps,
   IBaseCustomEvent,
   NgxRenderingEngine,
-  RenderedModel,
+  IRenderedModel,
 } from '../../engine';
 import { KeyValue } from '../../engine/types';
 import { Renderable } from '@decaf-ts/ui-decorators';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
-import { NgxDecafComponent } from '../../engine/NgxDecafComponent';
+import { NgxDecafComponentDirective } from '../../engine/NgxDecafComponentDirective';
 
 /**
  * @description Component for rendering dynamic models
@@ -56,15 +67,22 @@ import { NgxDecafComponent } from '../../engine/NgxDecafComponent';
  */
 @Component({
   standalone: true,
-  imports: [ NgComponentOutlet, ComponentRendererComponent],
+  imports: [],
   selector: 'ngx-decaf-model-renderer',
   templateUrl: './model-renderer.component.html',
   styleUrl: './model-renderer.component.scss',
   host: {'[attr.id]': 'rendererId'},
+  encapsulation: ViewEncapsulation.None
 })
 export class ModelRendererComponent<M extends Model>
-  extends NgxDecafComponent implements OnChanges, OnDestroy, RenderedModel {
+  extends NgxDecafComponentDirective implements OnChanges, OnDestroy, IRenderedModel {
 
+  // /**
+  //  * @description Input model to be rendered
+  //  * @summary Can be a Model instance or a JSON string representation of a model
+  //  */
+  // @Input({ required: true })
+  // model!: M | string | undefined;
 
   /**
    * @description Global variables to be passed to the rendered component
@@ -140,7 +158,7 @@ export class ModelRendererComponent<M extends Model>
    * @description Lifecycle hook that is called when data-bound properties of a directive change
    * @param {SimpleChanges} changes - Object containing changes
    */
-  ngOnChanges(changes: SimpleChanges): void {
+  override ngOnChanges(changes: SimpleChanges): void {
     if (changes[BaseComponentProps.MODEL]) {
       const { currentValue } = changes[BaseComponentProps.MODEL];
       this.refresh(currentValue);

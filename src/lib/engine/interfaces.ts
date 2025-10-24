@@ -1,9 +1,18 @@
+/**
+ * @module module:lib/engine/interfaces
+ * @description Type and interface definitions used by the Angular rendering engine.
+ * @summary Exposes interfaces for component input metadata, rendering outputs, form events,
+ * and supporting types used across the engine and components.
+ *
+ * @link {@link AngularDynamicOutput}
+ */
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ElementRef, EnvironmentInjector, Injector, Type } from '@angular/core';
 import { OrderDirection } from '@decaf-ts/core';
 import { AngularFieldDefinition, FieldUpdateMode, KeyValue, StringOrBoolean } from './types';
-import { FieldProperties } from '@decaf-ts/ui-decorators';
+import { CrudOperationKeys, FieldProperties } from '@decaf-ts/ui-decorators';
 import { FormParent } from './types';
+import { Model } from '@decaf-ts/decorator-validation';
 
 
 /**
@@ -140,7 +149,11 @@ export interface IComponentInput extends FieldProperties {
   updateMode?: FieldUpdateMode;
   formGroup?: FormGroup;
   formControl?: FormControl;
+  model?: Model | string;
+  operation?: CrudOperationKeys | undefined;
 }
+
+
 
 /**
  * @description Component configuration structure

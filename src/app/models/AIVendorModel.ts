@@ -70,6 +70,7 @@ export class AIModel extends Model {
     placeholder: "aimodel.features.placeholder",
     type: 'checkbox',
     options: Object.values(AIFeatures).map(item => ({text: item, value: item})),
+    //  optionsMapper: (item: AIModel) => ({text: item.name, value: item.name}),
   })
   @uilistprop('description')
   @list(String)

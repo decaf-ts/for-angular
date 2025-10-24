@@ -22,7 +22,8 @@
     "lessThan": "Este campo deve ser inferior ao campo {0}",
     "lessThanOrEqual": "Este campo deve ser inferior ou igual ao campo {0}",
     "greaterThan": "Este campo deve ser superior ao campo {0}",
-    "greaterThanOrEqual": "Este campo deve ser superior ou igual ao campo {0}"
+    "greaterThanOrEqual": "Este campo deve ser superior ou igual ao campo {0}",
+    "form_control": "Controlador de formulário não localizado para {0}."
   },
   "component": {
     "fieldset": {
@@ -32,11 +33,11 @@
       "cancel": "Cancelar"
     },
     "list": {
-      "pagination": "A mostrar a página <span class=\"text-bold\">{{value0}} de {{value1}}</span>",
+      "pagination": "A mostrar a página <span class=\"text-bold\">{0} de {1}</span>",
       "loading": "A carregar dados",
       "search": {
         "title": "Não foram encontrados dados para a pesquisa",
-        "subtitle": "Pesquisou por: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{{value0}}</ion-text>",
+        "subtitle": "Pesquisou por: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{0}</ion-text>",
         "button": "Limpar pesquisa"
       },
       "empty": {
@@ -59,12 +60,12 @@
       "button": "Criar",
       "search": {
         "title": "Não foram encontrados dados para a pesquisa",
-        "subtitle": "Pesquisou por: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{{value0}}</ion-text>",
+        "subtitle": "Pesquisou por: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{0}</ion-text>",
         "button": "Limpar pesquisa"
       }
     },
     "pagination": {
-      "resume": "A mostrar a página <span class=\"text-bold\">{{value0}} de {{value1}}</span>"
+      "resume": "A mostrar a página <span class=\"text-bold\">{0} de {1}</span>"
     },
     "filter": {
       "title": "Filtro",

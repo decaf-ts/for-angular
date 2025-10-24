@@ -1,3 +1,12 @@
+/**
+ * @module module:lib/components/crud-field/crud-field.component
+ * @description CRUD field component module.
+ * @summary Exposes `CrudFieldComponent`, a dynamic form field used in CRUD forms supporting
+ * many input types, validation and integration with `NgxDecafFormFieldDirective` utilities.
+ *
+ * @link {@link CrudFieldComponent}
+ */
+
 import {
   AfterViewInit,
   Component,
@@ -5,8 +14,10 @@ import {
   ElementRef,
   HostListener,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
+  SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -29,18 +40,17 @@ import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { getModelRepository } from '../../for-angular-common.module';
-import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, StringOrBoolean } from '../../engine/types';
+import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, StringOrBoolean, FormParent } from '../../engine/types';
 import { dataMapper, generateRandomValue } from '../../helpers';
-import { NgxFormService } from '../../engine/NgxFormService';
 import { EventConstants } from '../../engine/constants';
-import { NgxCrudFormField } from '../../engine/NgxCrudFormField';
+import { NgxDecafFormFieldDirective } from '../../engine/NgxDecafFormFieldDirective';
 import { Dynamic } from '../../engine/decorators';
 import { getLocaleContextByKey } from '../../i18n/Loader';
 
 /**
  * @description A dynamic form field component for CRUD operations.
  * @summary The CrudFieldComponent is a versatile form field component that adapts to different
- * input types and CRUD operations. It extends NgxCrudFormField to inherit form handling capabilities
+ * input types and CRUD operations. It extends NgxDecafFormFieldDirective to inherit form handling capabilities
  * and implements lifecycle hooks to properly initialize, render, and clean up. This component
  * supports various input types (text, number, date, select, etc.), validation rules, and styling
  * options, making it suitable for building dynamic forms for create, read, update, and delete
@@ -103,7 +113,7 @@ import { getLocaleContextByKey } from '../../i18n/Loader';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: {'[attr.id]': 'uid', '[attr.class]': 'className'},
 })
-export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDestroy, AfterViewInit {
+export class CrudFieldComponent extends NgxDecafFormFieldDirective implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * @description The CRUD operation being performed.
@@ -403,28 +413,6 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   override greaterThanOrEqual?: string;
 
   /**
-   * @description Number of columns for textarea inputs.
-   * @summary For textarea inputs, this sets the visible width of the text area in average character widths.
-   * This is used alongside rows to define the dimensions of the textarea.
-   *
-   * @type {number}
-   * @memberOf CrudFieldComponent
-   */
-  @Input()
-  cols?: number;
-
-  /**
-   * @description Number of rows for textarea inputs.
-   * @summary For textarea inputs, this sets the visible height of the text area in lines of text.
-   * This is used alongside cols to define the dimensions of the textarea.
-   *
-   * @type {number}
-   * @memberOf CrudFieldComponent
-   */
-  @Input()
-  rows?: number;
-
-  /**
    * @description Alignment of the field content.
    * @summary Controls the horizontal alignment of the field content.
    * This affects how the content is positioned within the field container.
@@ -655,71 +643,6 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
   @Input()
   translatable: StringOrBoolean = true;
 
-
-
-  /**
-   * @description Index of the currently active form group in a form array.
-   * @summary When working with multiple form groups (form arrays), this indicates
-   * which form group is currently active or being edited. This is used to manage
-   * focus and data binding in multi-entry scenarios.
-   *
-   * @type {number}
-   * @default 0
-   * @memberOf CrudFieldComponent
-   */
-  @Input()
-  activeFormGroup: number = 0;
-
-  /**
-   * @description FormArray containing multiple form groups for this field.
-   * @summary When this field is part of a multi-entry structure, this FormArray
-   * contains all the form groups. This enables management of multiple instances
-   * of the same field structure within a single form.
-   *
-   * @type {FormArray}
-   * @memberOf CrudFieldComponent
-   */
-  formGroupArray!: FormArray;
-
-  /**
-   * @description Primary key field name for uniqueness validation.
-   * @summary Specifies the field name that serves as the primary key for uniqueness
-   * validation within form arrays. This is used to prevent duplicate entries
-   * and ensure data integrity in multi-entry forms.
-   *
-   * @type {string}
-   * @memberOf CrudFieldComponent
-   */
-  @Input()
-  pk!: string;
-
-  /**
-   * @description Field mapping configuration.
-   * @summary Defines how fields from the data model should be mapped to properties used by the component.
-   * This allows for flexible data binding between the model and the component's display logic.
-   *
-   * @type {Record<string, string>}
-   * @memberOf CrudFieldComponent
-   */
-  @Input()
-  override optionsMapper: Record<string, string> | FunctionLike = {};
-
-  /**
-   * @description Gets the currently active form group based on context.
-   * @summary Returns the appropriate FormGroup based on whether this field supports
-   * multiple values. For single-value fields, returns the main form group.
-   * For multi-value fields, returns the form group at the active index from the parent FormArray.
-   *
-   * @returns {FormGroup} The currently active FormGroup for this field
-   * @memberOf CrudFieldComponent
-   */
-  get getActiveFormGroup(): FormGroup {
-    const formGroup = this.formGroup as FormGroup;
-    return this.multiple
-      ? ((formGroup.parent as FormArray)?.at(this.activeFormGroup) as FormGroup)
-      : formGroup;
-  }
-
   /**
    * @description Component initialization lifecycle method.
    * @summary Initializes the field component based on the operation type and field configuration.
@@ -731,20 +654,22 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   async ngOnInit(): Promise<void> {
+    this.options = await this.getOptions();
     addIcons({chevronDownOutline, chevronUpOutline});
     if(Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation)) {
       this.hidden = false;
     }
-
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
     } else {
-      if(this.options?.length || this.options instanceof Function)
-        this.options = await this.getOptions();
+
+      if(!this.parentComponent && this.formGroup instanceof FormGroup || this.formGroup instanceof FormArray)
+        this.parentComponent = (this.formGroup.root || this.formControl.root) as FormParent;
 
       if(this.multiple) {
-        this.formGroup = this.getActiveFormGroup as FormGroup;
-        this.formGroupArray = this.formGroup.parent as FormArray;
+        this.formGroup = this.activeFormGroup as FormGroup;
+        if(!this.parentComponent)
+          this.parentComponent = this.formGroup.parent as FormArray;
         this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
       }
       if(this.type === HTML5InputTypes.CHECKBOX && Array.isArray(this.value)) {
@@ -752,6 +677,7 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
       }
     }
   }
+
 
    /**
    * Returns a list of options for select or radio inputs, with their `text` property
@@ -762,13 +688,16 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   async getOptions(): Promise<CrudFieldOption[]> {
+    if(!this.options)
+      return [];
     if(this.options instanceof Function) {
       const repo = getModelRepository(this.options().name);
       this.options = await repo?.select().execute();
     }
     if(this.optionsMapper) {
-      if (this.optionsMapper instanceof Function) {
+      if (this.optionsMapper instanceof Function || typeof this.optionsMapper === 'function') {
         const mapper = this.optionsMapper as (option: KeyValue) => CrudFieldOption;
+        console.log(this.options);
         this.options = (this.options as (CrudFieldOption | KeyValue)[]).map((option: KeyValue) => {
           return mapper(option);
         });
@@ -776,22 +705,16 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
         this.options = dataMapper(this.options as KeyValue[], this.optionsMapper as Record<string, string>);
       }
     }
-    const translate = (text: string) => {
-      const phrase = this.translateService.instant(text);
-      if(phrase.includes('options.')) {
-        const name = phrase.split('.').pop();
-        return name.charAt(0).toUpperCase() + name.slice(1);
-      }
-      return phrase;
-    }
-    return (this.options as CrudFieldOption[]).map((option) => {
-      return {
-        ...option,
-        text: translate((!option.text.includes('options') ?
+    const options = (this.options as CrudFieldOption[]).map(async(option) => {
+      const text = await this.translate((!option.text.includes('options') ?
           getLocaleContextByKey(`${this.label.toLowerCase().replace('label', 'options')}`, option.text)
-          : option.text))
+          : option.text));
+      return {
+        value: option.value,
+        text: text as string
       };
     });
+    return Promise.all(options);
   }
 
 
@@ -805,16 +728,14 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   ngAfterViewInit(): void {
-
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       super.afterViewInit();
-
     } else {
       if (this.type === HTML5InputTypes.RADIO && !this.value)
         this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
     }
-
   }
+
 
   /**
    * @description Component cleanup lifecycle method.
@@ -850,9 +771,6 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
     return this.formControl.value.includes(value);
   }
 
-  setValue(value: unknown): void {
-    this.formControl.setValue(value);
-  }
 
   /**
    * @description Handles fieldset group creation events from parent fieldsets.
@@ -866,39 +784,39 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    * @memberOf CrudFieldComponent
    */
   @HostListener('window:fieldsetAddGroupEvent', ['$event'])
-    handleFieldsetCreateGroupEvent(event: CustomEvent): void {
+  handleFieldsetCreateGroupEvent(event: CustomEvent): void {
     event.stopImmediatePropagation();
-    const { parent, component, index, operation } = event.detail;
-    const formGroup = this.formGroup as FormGroup;
-    const parentFormGroup = this.formGroup?.parent as FormArray;
-    const isValid = NgxFormService.validateFields(formGroup as FormGroup);
-    const indexToCheck = operation === OperationKeys.CREATE ?
-      index === 0 ? index : parentFormGroup.length - 1 : index;
+    const { formGroup } = event.detail;
+    // const formGroup = this.formGroup as FormGroup;
+    // const parentFormGroup = this.formGroup?.parent as FormArray;
+    // const isValid = NgxDecafFormService.validateFields(formGroup as FormGroup);
+    // const indexToCheck = operation === OperationKeys.CREATE ?
+    //   index === 0 ? index : parentFormGroup.length - 1 : index;
 
-    const isUnique = NgxFormService.isUniqueOnGroup(formGroup, indexToCheck, operation || OperationKeys.CREATE);
-    event = new CustomEvent(EventConstants.FIELDSET_ADD_GROUP, {
-      detail: {isValid: isValid && isUnique, value: formGroup.value, formGroup: parentFormGroup, formService: NgxFormService},
-    });
-    component.dispatchEvent(event);
+    // const isUnique = NgxDecafFormService.isUniqueOnGroup(formGroup, indexToCheck, operation || OperationKeys.CREATE);
+    // event = new CustomEvent(EventConstants.FIELDSET_ADD_GROUP, {
+    //   detail: {isValid: isValid && isUnique, value: formGroup.value, formGroup: parentFormGroup, formService: NgxDecafFormService},
+    // });
+    // component.dispatchEvent(event);
 
-    if(isValid && isUnique) {
-      const newIndex = parentFormGroup?.length;
+    // if(isValid && isUnique) {
+    //   const newIndex = parentFormGroup?.length;
 
-      if(operation === OperationKeys.CREATE) {
-        NgxFormService.addGroupToParent(parentFormGroup?.parent as FormGroup, parent, newIndex);
-        this.activeFormGroup = newIndex;
-      } else {
-        this.activeFormGroup = newIndex - 1;
-      }
-      this.formGroup = this.getActiveFormGroup;
-      // NgxFormService.reset(this.formGroup as FormGroup);
-      this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
-      // NgxFormService.reset(this.formControl);
-      // this.component.nativeElement.setFocus();
-    } else {
-      if(isUnique)
-        this.component.nativeElement.setFocus();
-    }
+    //   if(operation === OperationKeys.CREATE) {
+    //     NgxDecafFormService.addGroupToParent(parentFormGroup?.parent as FormGroup, parent, newIndex);
+    //     this.activeFormGroup = newIndex;
+    //   } else {
+    //     this.activeFormGroup = newIndex - 1;
+    //   }
+    //   this.formGroup = this.activeFormGroup;
+    //   // NgxDecafFormService.reset(this.formGroup as FormGroup);
+    //   this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
+    //   // NgxDecafFormService.reset(this.formControl);
+    //   // this.component.nativeElement.setFocus();
+    // } else {
+    //   if(isUnique)
+    //     this.component.nativeElement.setFocus();
+    // }
   }
 
 
@@ -914,10 +832,10 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
    */
   @HostListener('window:fieldsetUpdateGroupEvent', ['$event'])
   handleFieldsetUpdateGroupEvent(event: CustomEvent): void {
-    const {index} = event.detail;
-    this.activeFormGroup = index;
-    this.formGroup = this.getActiveFormGroup;
-    this.formControl = this.formGroup.get(this.name) as FormControl;
+    const {formGroup, index} = event.detail;
+    this.activeFormGroupIndex = index;
+    this.formGroup = formGroup;
+    this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
     this.value = this.formControl.value;
   }
 
@@ -937,10 +855,10 @@ export class CrudFieldComponent extends NgxCrudFormField implements OnInit, OnDe
     const { component, index } = event.detail;
     const formArray = this.formGroup?.parent as FormArray;
     formArray.removeAt(index);
-    this.activeFormGroup = formArray.length === 1 ? 0 : formArray.length - 1;
-    this.formGroup = this.getActiveFormGroup;
+    this.activeFormGroupIndex = formArray.length === 1 ? 0 : formArray.length - 1;
+    this.formGroup = this.activeFormGroup;
     this.formControl = this.formGroup.get(this.name) as FormControl;
-    this.formGroupArray = formArray
+    this.parentComponent = formArray
     event = new CustomEvent(EventConstants.FIELDSET_REMOVE_GROUP, {
       detail: {value: true},
     });

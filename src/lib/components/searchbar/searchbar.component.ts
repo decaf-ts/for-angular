@@ -1,23 +1,34 @@
+/**
+ * @module module:lib/components/searchbar/searchbar.component
+ * @description Searchbar component module.
+ * @summary Exposes `SearchbarComponent` providing a configurable search input with
+ * debouncing, clear/cancel handling and optional global window events. Use this
+ * component to add search UI across lists and pages.
+ *
+ * @link {@link SearchbarComponent}
+ */
+
 import { Component,  EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
-import { AutocompleteTypes, PredefinedColors} from '@ionic/core';
-import { StringOrBoolean } from '../../engine/types';
-import {windowEventEmitter} from '../../helpers/utils';
-import { stringToBoolean } from '../../helpers/utils';
-import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { IonSearchbar } from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
+import { AutocompleteTypes, PredefinedColors} from '@ionic/core';
+import { NgxDecafComponentDirective } from '../../engine/NgxDecafComponentDirective';
+import { StringOrBoolean } from '../../engine/types';
+import {windowEventEmitter} from '../../helpers/utils';
+import { stringToBoolean } from '../../helpers/utils';
+
 
 /**
  * @description Searchbar component for Angular applications.
  * @summary The SearchbarComponent provides a highly customizable search input field with comprehensive
- * options for appearance, behavior, and interaction patterns. It extends NgxBaseComponent to inherit
+ * options for appearance, behavior, and interaction patterns. It extends NgxBaseComponentDirective to inherit
  * common functionality and implements OnInit for proper lifecycle management. This component features
  * debounced input handling, window event integration, visibility controls, and extensive styling options.
  * It's designed to be flexible and adaptable to different search requirements within modern web applications.
  *
  * @class SearchbarComponent
- * @extends {NgxBaseComponent}
+ * @extends {NgxBaseComponentDirective}
  * @implements {OnInit}
  * @memberOf SearchbarComponent
  */
@@ -28,7 +39,7 @@ import { addIcons } from 'ionicons';
   standalone: true,
   imports: [IonSearchbar],
 })
-export class SearchbarComponent extends NgxBaseComponent implements OnInit {
+export class SearchbarComponent extends NgxDecafComponentDirective implements OnInit {
 
   /**
    * @description The mode of the searchbar.

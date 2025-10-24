@@ -1,8 +1,34 @@
 @if(operation !== 'read' && operation !== 'delete') {
-  <form #reactiveForm [id]="rendererId" [formGroup]="formGroup" (submit)="submit($event)" novalidate [target]="target">
-    <ng-content #formContent></ng-content>
+  <form
+    [class]="'dcf-grid dcf-grid-small dcf-child-width-1-1 dcf-form-grid ' + operation" #component
+    [id]="rendererId"
+    [formGroup]="formGroup"
+    (submit)="submit($event)"
+    novalidate
+    [target]="target">
+    @if(!children?.length) {
+      <ng-content #formContent></ng-content>
+    } @else {
+        <ngx-decaf-layout
+          [children]="children || []"
+          [parentComponent]="formGroup || parentComponent"
+          gap="small"
+          [initializeProps]="false"
+          [rows]="rows"
+          [cols]="cols" />
 
-    <div class="dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
+      <!-- @for (child of children; track $index) {
+        <ngx-decaf-component-renderer
+          [class]="(child?.props?.className ? 'dcf-form-item ' + child.props.className : 'dcf-form-item')"
+          [tag]="child?.tag"
+          [projectable]="false"
+          [formRoot]="formGroup"
+          [children]="child?.children || []"
+          [globals]="{props: child.props}"
+        />
+      } -->
+    }
+    <div class="dcf-buttons-grid dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
       <div>
         <ion-button type="submit" [expand]="action ? 'block' : 'default'">
           @if(options.buttons.submit.icon) {
@@ -24,8 +50,23 @@
     </div>
   </form>
 } @else {
-
-  <div [class]="'dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left ' + operation" [id]="uid">
+  <section [class]="'dcf-grid dcf-grid-small dcf-child-width-1-1 dcf-form-grid ' + operation" #component [id]="uid">
+    @if(!children?.length) {
+      <ng-content #formContent></ng-content>
+    } @else {
+      @for (child of children; track $index) {
+        <div [class]="(child?.props?.className ? 'dcf-form-item ' + child.props.className : 'dcf-form-item')">
+            <ngx-decaf-component-renderer
+              [tag]="child?.tag"
+              [projectable]="false"
+              [children]="child?.children || []"
+              [globals]="{props: child.props}"
+            />
+        </div>
+      }
+    }
+  </section>
+  <section [class]="'dcf-buttons-grid dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left ' + operation" [id]="uid">
     @if(operation === OperationKeys.READ && modelId) {
       <div>
         <ion-button
@@ -64,6 +105,6 @@
       </div>
 
     }
-  </div>
+  </section>
 }
 

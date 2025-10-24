@@ -35,9 +35,7 @@ export const AngularEngineKeys = {
   RENDER: 'render',
   RENDERED_ID: 'rendered-as-{0}',
   PARENT: '_parent',
-  PARENT_FORM_ID: 'parentFormId',
   VALIDATION_PARENT_KEY: VALIDATION_PARENT_KEY,
-  FORM_GROUP_COMPONENT_PROPS: 'componentProps'
 };
 
 /**
@@ -135,6 +133,8 @@ export enum ComponentsTagNames {
   LIST_ITEM = 'ngx-decaf-list-item',
   LIST_INFINITE = 'ngx-decaf-list-infinite',
   LIST_PAGINATED = 'ngx-decaf-list-paginated',
+  CRUD_FIELD = 'ngx-decaf-crud-field',
+  LAYOUT_COMPONENT = 'ngx-decaf-layout',
 }
 
 /**
@@ -167,7 +167,9 @@ export enum BaseComponentProps {
   TRANSLATABLE = 'translatable',
   MAPPER = 'mapper',
   INITIALIZED = 'initialized',
-  COMPONENT_NAME = 'componentName'
+  COMPONENT_NAME = 'componentName',
+  PARENT_COMPONENT = 'parentComponent',
+  FORM_GROUP_COMPONENT_PROPS = 'componentProps'
 }
 
 

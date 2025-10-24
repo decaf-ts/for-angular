@@ -1,9 +1,9 @@
   <!-- Keep to avoid id conflicts -->
-  <div [id]="rendererId"></div>
+  <div class="dcf-hidden" [id]="rendererId"></div>
 
   <ng-template #componentOuter></ng-template>
-  <ng-template #inner>
-    <div class="dcf-grid dcf-grid-small dcf-model-renderer-component dcf-child-width-1-1"  [id]="rendererId || null">
+  <!-- <ng-template #inner>
+    <div class="dcf-grid dcf-grid-small dcf-model-renderer-component dcf-child-width-1-1"  [id]="rendererId || ''">
       @for (child of output?.children; track child) {
         @if(child?.children?.length) {
           <ngx-decaf-component-renderer [parent]="child" />
@@ -20,4 +20,4 @@
         }
       }
     </div>
-  </ng-template>
+  </ng-template> -->

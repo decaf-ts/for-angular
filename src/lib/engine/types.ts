@@ -1,10 +1,19 @@
+/**
+ * @module module:lib/engine/types
+ * @description Shared type aliases and helper types used by the rendering engine and components.
+ * @summary Defines common TypeScript types, typedefs, and unions used across engine, components,
+ * and form helpers (e.g., KeyValue, FunctionLike, AngularFieldDefinition, FieldUpdateMode).
+ *
+ * @link {@link KeyValue}
+ */
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import { FormServiceControl, InputOption } from './interfaces';
+import { FormServiceControl, I18nResourceConfig, InputOption } from './interfaces';
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
 import { Constructor, Model } from '@decaf-ts/decorator-validation';
+import { I } from '@faker-js/faker/dist/airline-CLphikKp';
 
 
 export type HandlerLike = Record<string, (...args: unknown[]) => unknown | Promise<unknown>>
@@ -106,18 +115,6 @@ export type FlexPositions =
 export type FieldUpdateMode = 'change' | 'blur' | 'submit';
 
 
-
-/**
- * @description Interface for models that can be rendered
- * @summary Defines the basic structure for models that can be rendered by the engine.
- * Contains an optional rendererId that uniquely identifies the rendered instance.
- * @interface RenderedModel
- * @property {string} [rendererId] - Optional unique ID for the rendered model instance
- * @memberOf module:engine
- */
-export interface RenderedModel {
-  rendererId?: string;
-}
 
 /**
  * @description Possible input types for form fields
@@ -270,4 +267,6 @@ export type FormParent = FormGroup | FormArray;
  * @memberOf module:engine
  */
 export type FormParentGroup = [FormParent,  string];
+
+export type I18nResourceConfigType = I18nResourceConfig | I18nResourceConfig[];
 

@@ -1,3 +1,14 @@
+/**
+ * @module module:lib/components/list/list.component
+ * @description List component module.
+ * @summary Provides the `ListComponent` which renders collections of data with
+ * support for infinite scroll, pagination, searching, filtering, custom item
+ * rendering and refresh events. Use this module's `ListComponent` to display
+ * lists sourced from models, functions or direct data arrays.
+ *
+ * @link {@link ListComponent}
+ */
+
 import { Component, OnInit, EventEmitter, Output, Input, HostListener, OnDestroy  } from '@angular/core';
 import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
 import {
@@ -23,9 +34,9 @@ import {
   IBaseCustomEvent,
   StringOrBoolean,
   KeyValue,
-  ListItemCustomEvent
+  ListItemCustomEvent,
+  NgxDecafComponentDirective
 } from '../../engine';
-import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import {
   stringToBoolean,
   formatDate,
@@ -107,7 +118,7 @@ import { TranslatePipe } from '@ngx-translate/core';
  *   (refreshEvent)="handleRefresh($event)">
  * </ngx-decaf-list>
  *
- * @extends {NgxBaseComponent}
+ * @extends {NgxBaseComponentDirective}
  * @implements {OnInit}
  */
 @Dynamic()
@@ -137,7 +148,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     ComponentRendererComponent
   ]
 })
-export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy {
+export class ListComponent extends NgxDecafComponentDirective implements OnInit, OnDestroy {
 
   /**
    * @description The display mode for the list component.
@@ -151,18 +162,6 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    */
   @Input()
   type: ListComponentsTypes = ListComponentsTypes.INFINITE;
-
-  /**
-   * @description Controls whether the component uses translation services.
-   * @summary When set to true, the component will attempt to use translation services
-   * for any text content. This allows for internationalization of the list component.
-   *
-   * @type {StringOrBoolean}
-   * @default true
-   * @memberOf ListComponent
-   */
-  @Input()
-  override translatable: StringOrBoolean = true;
 
   /**
    * @description Controls the visibility of the search bar.
@@ -659,9 +658,9 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
     if(this.operations.includes(OperationKeys.CREATE) && this.route)
       this.empty.link = `${this.route}/${OperationKeys.CREATE}`;
 
-    await this.initialize();
+    this._repository = this.repository;
 
-    if(this.model instanceof Model && this._repository)
+    if(this._repository)
       this._repository.observe(this.observer);
   }
 
