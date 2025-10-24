@@ -222,7 +222,7 @@ export class NgxDecafFormService {
     for (const part of parts) {
       if (!currentGroup.get(part)) {
         const partFormGroup = (isMultiple && part === childOf) ? new FormArray([new FormGroup({})]) : new FormGroup({});
-        let pk = componentProps?.pk || parentProps?.pk || '';
+        const pk = componentProps?.pk || parentProps?.pk || '';
         (partFormGroup as KeyValue)[BaseComponentProps.FORM_GROUP_COMPONENT_PROPS] = {
           childOf: childOf || '',
           isMultiple: isMultiple,
