@@ -281,7 +281,7 @@ export abstract class NgxDecafFormFieldDirective extends NgxDecafComponentDirect
           }
         }
         for(const error of errors)
-          return `* ${this.translate(`errors.${error?.['message']}`, (this as KeyValue)[error?.['key']] ?? "")}`;
+          return `* ${this.sf(this.translateService.instant(`errors.${error?.['message']}`), (this as KeyValue)[error?.['key']] ?? "")}`;
       }
     }
 

@@ -26,9 +26,6 @@ import { LogoComponent } from './components/logo/logo.component';
 import { AppModels, DbAdapterFlavour } from './app.config';
 import { Repository, uses } from '@decaf-ts/core';
 import { AppMenu, DashboardMenuItem, LogoutMenuItem } from './utils/contants';
-import { AIModel } from './models/AIVendorModel';
-import { Product } from './models/Product';
-import { getNgxLoadingComponent } from './utils/NgxLoadingController';
 
 
 @Component({
@@ -56,8 +53,9 @@ import { getNgxLoadingComponent } from './utils/NgxLoadingController';
 })
 export class AppComponent extends NgxPageDirective implements OnInit {
 
+
   constructor() {
-    super("", false);
+    super("", true);
     this.title = "Decaf-ts for-angular demo";
     addIcons(IonicIcons);
   }
@@ -68,7 +66,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    * @return {Promise<void>}
    */
   async ngOnInit(): Promise<void> {
-      this.router.events.subscribe(async event => {
+    this.router.events.subscribe(async event => {
       if(event instanceof NavigationEnd) {
         const url = (event?.url || "").replace('/', '');
         this.hasMenu = url !== "login" && url !== "";
@@ -77,7 +75,6 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       if (event instanceof NavigationStart)
         removeFocusTrap();
     });
-    await this.menuController.enable(this.hasMenu);
     await this.initialize();
   }
 
@@ -88,9 +85,8 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    */
   override async initialize(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
-    const populate = [Product.name, AIModel.name];
+    const populate = ['AIModel', 'AIVendorModel'];
     const menu = [];
-    const loading = getNgxLoadingComponent();
     const models = AppModels;
     for(let model of models) {
       uses(DbAdapterFlavour)(model);
@@ -104,18 +100,18 @@ export class AppComponent extends NgxPageDirective implements OnInit {
           await repository.init();
         }
       }
-      menu.push({label: await this.translate(name),  name, url: `/model/${Repository.table(model)}`, icon: 'cube-outline'})
-    }
 
-    if(loading.isVisible())
-      await loading.remove();
+      menu.push({label: name,  name, url: `/model/${Repository.table(model)}`, icon: 'cube-outline'})
+    }
+    this.initialized = true;
+    console.log(this.hasMenu);
     this.menu = [
       DashboardMenuItem,
       ...menu as IMenuItem[],
       ...AppMenu,
       LogoutMenuItem
     ];
-    await super.initialize();
+
   }
 
 }

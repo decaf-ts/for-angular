@@ -37,6 +37,7 @@ export class AIVendorModel extends Model {
   })
   @uilistprop('title')
   @required()
+  @list(String)
   models!: string[];
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor

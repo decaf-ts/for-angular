@@ -64,7 +64,7 @@ export class ForAngularRepository<T extends Model> {
 
  async generateData<T extends Model>(pkValues?: KeyValue, pk?: string, pkType?: string): Promise<T[]> {
 
-    const limit = Object.values(pkValues || {}).length || this.limit;
+    const limit = Object.values(pkValues || {}).length - 1 || this.limit;
     if(!pk)
       pk = this._repository?.pk as string;
     if(!pkType)

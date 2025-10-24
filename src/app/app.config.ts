@@ -21,14 +21,14 @@ import {
 } from 'src/lib/i18n/Loader';
 import { routes } from './app.routes';
 import { provideDbAdapter } from 'src/lib/for-angular-common.module';
-import { Product } from './models/Product';
-import { Batch } from './models/Batch';
-import { AIModel } from './models/AIVendorModel';
-import { sf } from '@decaf-ts/logging';
+import { AIModel, AIVendorModel } from './models/AIVendorModel';
 import { I18nResourceConfigType } from 'src/lib/engine';
+import { CategoryModel } from './models/CategoryModel';
+import { EmployeeModel } from './models/EmployeeModel';
 
 export const DbAdapterFlavour = 'ram';
-export const AppModels = [new Product(), new Batch(), new AIModel()];
+// export const AppModels = [new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
+export const AppModels = [new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
 
 export const AppConfig: ApplicationConfig = {
   providers: [

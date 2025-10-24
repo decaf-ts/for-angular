@@ -383,6 +383,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     this.initialized = true;
   }
 
+
    /**
    * @description Initializes the component state after view and child components are rendered.
    * @summary This lifecycle hook implements intelligent auto-state management based on the current
@@ -488,6 +489,8 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     // console.log((currentGroup.parent as FormArray).value);
     const parent = formGroup.parent as FormArray;
     const isValid  = NgxDecafFormService.validateFields(formGroup);
+
+    // must pass correct pk here
     const isUnique = NgxDecafFormService.isUniqueOnGroup(formGroup, action, action === OperationKeys.UPDATE ? this.updatingItem?.index : undefined);
     const value = formGroup.value;
     if(isValid) {

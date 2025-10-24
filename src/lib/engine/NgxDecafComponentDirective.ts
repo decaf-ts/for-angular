@@ -23,6 +23,7 @@ import { BaseComponentProps } from './constants';
 import { UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { generateRandomValue } from '../helpers';
 import { TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 
 try {
   new NgxRenderingEngine();
@@ -414,10 +415,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
     return new Promise((resolve, reject) => {
       if(typeof params === Primitives.STRING)
         params = {"0": params};
-      return this.translateService.get(phrase, (params || {}) as object).subscribe({
-        next: (response: string) => resolve(!params ? response : sf(response, ...Object.values(params as KeyValue))),
-        error: (e) => reject(e)
-      }).unsubscribe();
+      return firstValueFrom(this.translateService.get(phrase, (params || {}) as object));
     });
   }
 

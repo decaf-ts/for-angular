@@ -263,7 +263,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * @memberOf CrudFormComponent
    */
   override async ngOnInit(model?: Model | string): Promise<void> {
-    await super.ngOnInit(model);
+    // dont call super.ngOnInit to model conflicts
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)
       this.formGroup = undefined;
   }
