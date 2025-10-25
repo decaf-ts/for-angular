@@ -321,3 +321,17 @@ Common commands for builds, tests, and documentation generation are available in
 
 - Setup for node 20, but will work at least with 16;
 - Requires docker to build documentation (drawings and PlantUML)
+
+
+
+## Coding Principles
+
+- group similar functionality in folders (analog to namespaces but without any namespace declaration)
+- one class per file;
+- one interface per file (unless interface is just used as a type);
+- group types as other interfaces in a types.ts file per folder;
+- group constants or enums in a constants.ts file per folder;
+- group decorators in a decorators.ts file per folder;
+- group pure/utilitarian functions in a utils.ts file per folder, or create a dedicated file per related functionality. Try to limit the export of these outside the package.
+- always import from the specific file, never from a folder or index file (exceptions for dependencies on other packages)
+- All classes, interfaces, constants and types should always be exported
