@@ -1,3 +1,13 @@
+/**
+ * @module module:lib/components/empty-state/empty-state.component
+ * @description Empty state component module.
+ * @summary Exposes `EmptyStateComponent` which displays a standardized empty
+ * state UI with optional icon, title, subtitle and action button. Supports
+ * localization and sanitized HTML for dynamic subtitles.
+ *
+ * @link {@link EmptyStateComponent}
+ */
+
 import { Component, inject, Input, OnInit  } from '@angular/core';
 import {
   IonCard,
@@ -7,13 +17,11 @@ import {
 from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { Dynamic, StringOrBoolean } from '../../engine';
+import { Dynamic, NgxDecafComponentDirective, StringOrBoolean } from '../../engine';
 import { stringToBoolean } from '../../helpers';
-import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 import { FunctionLike } from '../../engine/types';
-import { Router } from '@angular/router';
 
 
 /**
@@ -45,10 +53,10 @@ import { Router } from '@angular/router';
  *     +ngOnInit()
  *     +handleClick()
  *   }
- *   EmptyStateComponent --|> NgxBaseComponent
+ *   EmptyStateComponent --|> NgxBaseComponentDirective
  *   EmptyStateComponent --|> OnInit
  *
- * @extends {NgxBaseComponent}
+ * @extends {NgxBaseComponentDirective}
  * @implements {OnInit}
  */
 @Dynamic()
@@ -62,9 +70,8 @@ import { Router } from '@angular/router';
     IonCardContent,
     IonIcon
   ]
-
 })
-export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
+export class EmptyStateComponent extends NgxDecafComponentDirective implements OnInit {
 
   /**
    * @description The main title displayed in the empty state.
@@ -240,20 +247,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
   @Input()
   searchValue!: string;
 
-  /**
-   * @description Service for handling navigation operations.
-   * @summary Injected service that provides methods for navigating between routes.
-   * This service is used when the buttonLink is a string URL to navigate to that location.
-   *
-   * @private
-   * @type {Router}
-   * @memberOf EmptyStateComponent
-   */
-  private router: Router = inject(Router);
-
   private sanitizer: DomSanitizer = inject(DomSanitizer);
-
-  private translate: TranslateService = inject(TranslateService);
 
   searchSubtitle!: SafeHtml
 
@@ -300,9 +294,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    */
   async ngOnInit(): Promise<void> {
     this.initialize();
-    this.translatable = stringToBoolean(this.translatable);
     this.showIcon = stringToBoolean(this.showIcon);
-    this.locale = this.getLocale(this.translatable);
 
     // if(this.translatable) {
     //   this.title = generateLocaleFromString(this.locale, this.title);
@@ -313,7 +305,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
     this.titleColor = `dcf-title color-${this.titleColor}`;
     this.subtitleColor = `dcf-subtitle color-${this.titleColor}`;
 
-    if(this.searchValue && this.translatable)
+    if(this.searchValue)
       this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);
   }
 
@@ -385,7 +377,7 @@ export class EmptyStateComponent extends NgxBaseComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   async getSearchSubtitle(content: string): Promise<SafeHtml> {
-    const result = await this.translate.instant(content, {'value0': this.searchValue});
+    const result = await this.translate(content, {'value0': this.searchValue});
     return this.sanitizer.bypassSecurityTrustHtml(result);
   }
 }

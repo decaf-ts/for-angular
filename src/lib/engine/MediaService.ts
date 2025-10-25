@@ -1,11 +1,9 @@
-import { getWindow } from '../helpers/index';
+import { getWindow } from '../helpers';
 
 export class MediaService {
   private static _window?: Window;
 
-  private constructor() {
-    /* empty */
-  }
+  // private constructor() {}
 
   protected static get window() {
     if (!MediaService._window) MediaService._window = getWindow();

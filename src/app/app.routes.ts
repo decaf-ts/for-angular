@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'login',
     pathMatch: 'full'
   },
   {
@@ -34,13 +34,17 @@ export const routes: Routes = [
     path: 'list-model/:type',
     loadComponent: () => import('./pages/list-model/list-model.page').then( m => m.ListModelPage)
   },
-  {
-    path: 'model',
-    loadComponent: () => import('./pages/model/model.page').then( m => m.ModelPage)
+ {
+    path: 'model/:modelName',
+    loadComponent: () => import('./pages/model/model.page').then(m => m.ModelPage)
   },
-   {
+  {
     path: 'model/:modelName/:operation',
-    loadComponent: () => import('./pages/model/model.page').then( m => m.ModelPage)
+    loadComponent: () => import('./pages/model/model.page').then(m => m.ModelPage)
+  },
+  {
+    path: 'model/:modelName/:operation/:modelId',
+    loadComponent: () => import('./pages/model/model.page').then(m => m.ModelPage)
   },
   {
     path: 'model/:modelName/:operation/:modelId',

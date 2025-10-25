@@ -3,7 +3,7 @@ import { IonCard, IonContent } from '@ionic/angular/standalone';
 import { FieldSetForm } from 'src/app/forms/FieldsetForm';
 import { KeyValue } from 'src/lib/engine/types';
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { BaseCustomEvent } from 'src/lib/engine';
+import { IBaseCustomEvent, NgxPageDirective } from 'src/lib/engine';
 import { getLogger } from 'src/lib/for-angular-common.module';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
@@ -16,20 +16,22 @@ import { ModelRendererComponent } from 'src/lib/components';
   styleUrls: ['./fieldset.page.scss'],
   imports: [HeaderComponent, ContainerComponent, ModelRendererComponent, IonContent, IonCard]
 })
-export class FieldsetPage implements OnInit {
+export class FieldsetPage extends NgxPageDirective implements OnInit {
 
-  title = 'Fieldset Component';
-
-  model!: FieldSetForm;
 
   globals!: KeyValue;
 
-  ngOnInit(): void {
-    this.model = new FieldSetForm({});
-    this.globals = {operation: OperationKeys.CREATE,};
+  constructor() {
+    super('FieldsetPage');
+    this.title = 'Fieldset';
   }
 
-  handleSubmit(event: BaseCustomEvent): void {
+  async ngOnInit(): Promise<void> {
+    this.model = new FieldSetForm();
+    this.globals = {operation: OperationKeys.CREATE};
+  }
+
+  handleSubmit(event: IBaseCustomEvent): void {
     getLogger(this).info(`Submit event: ${JSON.stringify(event)}`);
   }
 }

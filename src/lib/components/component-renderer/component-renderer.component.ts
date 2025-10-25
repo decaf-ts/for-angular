@@ -2,6 +2,7 @@ import {
   Component,
   ComponentMirror,
   ComponentRef,
+  ElementRef,
   EnvironmentInjector,
   EventEmitter,
   inject,
@@ -15,11 +16,21 @@ import {
   Type,
   ViewChild,
   ViewContainerRef,
+  ViewEncapsulation,
 } from '@angular/core';
+/**
+ * @module module:lib/components/component-renderer/component-renderer.component
+ * @description Component renderer module.
+ * @summary Provides `ComponentRendererComponent` which renders dynamic child
+ * components based on configuration or data. Useful for rendering custom
+ * fields, nested components or templated content at runtime.
+ *
+ * @link {@link ComponentRendererComponent}
+ */
 import { NgComponentOutlet } from '@angular/common';
 
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
-import { BaseCustomEvent, KeyValue, RendererCustomEvent } from '../../engine';
+import { AngularEngineKeys, BaseComponentProps, FormParent, IBaseCustomEvent, KeyValue } from '../../engine';
 import { getLogger } from '../../for-angular-common.module';
 import { Logger } from '@decaf-ts/logging';
 import { Model } from '@decaf-ts/decorator-validation';
@@ -48,7 +59,7 @@ import { generateRandomValue } from '../../helpers';
  *     +Record~string, unknown~ globals
  *     +EnvironmentInjector injector
  *     +ComponentRef~unknown~ component
- *     +EventEmitter~RendererCustomEvent~ listenEvent
+ *     +EventEmitter~IBaseCustomEvent~ listenEvent
  *     +ngOnInit()
  *     +ngOnDestroy()
  *     +ngOnChanges(changes)
@@ -70,6 +81,7 @@ import { generateRandomValue } from '../../helpers';
   styleUrls: ['./component-renderer.component.scss'],
   imports: [NgComponentOutlet],
   standalone: true,
+  encapsulation: ViewEncapsulation.None,
   host: {'[attr.id]': 'uid'},
 })
 export class ComponentRendererComponent
@@ -140,6 +152,10 @@ export class ComponentRendererComponent
   @Input()
   children: KeyValue[] = [];
 
+
+  @Input()
+  projectable: boolean = true;
+
   /**
    * @description Event emitter for events from the rendered component.
    * @summary This output property emits events that originate from the dynamically rendered
@@ -147,12 +163,12 @@ export class ComponentRendererComponent
    * dynamic component, creating a communication channel between the parent and the dynamically
    * rendered child.
    *
-   * @type {EventEmitter<RendererCustomEvent>}
+   * @type {EventEmitter<IBaseCustomEvent>}
    * @memberOf ComponentRendererComponent
    */
   @Output()
-  listenEvent: EventEmitter<RendererCustomEvent> =
-    new EventEmitter<RendererCustomEvent>();
+  listenEvent: EventEmitter<IBaseCustomEvent> =
+    new EventEmitter<IBaseCustomEvent>();
 
   /**
    * @description Logger instance for the component.
@@ -175,6 +191,16 @@ export class ComponentRendererComponent
    */
   @Input()
   model!:  Model | undefined;
+
+    /**
+   * @description Repository model for data operations.
+   * @summary The data model repository that this component will use for CRUD operations.
+   * This provides a connection to the data layer for retrieving and manipulating data.
+   *
+   * @type {Model| undefined}
+   */
+  @Input()
+  parentComponent!:  FormParent | ElementRef<unknown> | undefined;
 
   @Input()
   parent: undefined | KeyValue = undefined;
@@ -285,8 +311,6 @@ export class ComponentRendererComponent
    * @memberOf ComponentRendererComponent
    */
   private createComponent(tag: string, globals: KeyValue = {}): void {
-
-
     const component = NgxRenderingEngine.components(tag)
       ?.constructor as Type<unknown>;
     const metadata = reflectComponentType(component);
@@ -296,6 +320,7 @@ export class ComponentRendererComponent
       delete props['tag'];
      if(props?.['children'] && !this.children.length)
       this.children = props['children'] as KeyValue[];
+    props['children'] = this.children || [];
     const inputKeys = Object.keys(props);
     const unmappedKeys: string[] = [];
 
@@ -309,16 +334,24 @@ export class ComponentRendererComponent
         unmappedKeys.push(input);
       }
     }
+    const hasChildrenInput = Object.values(componentInputs).some(({propName}) => propName === AngularEngineKeys.CHILDREN);
+    if(!this.projectable && hasChildrenInput)
+      props[AngularEngineKeys.CHILDREN] = this.children;
+
+    const hasRootForm = Object.values(componentInputs).some(({propName}) => propName === BaseComponentProps.PARENT_COMPONENT);
+    if(hasRootForm && this.parentComponent)
+      props[BaseComponentProps.PARENT_COMPONENT] = this.parentComponent;
 
     this.vcr.clear();
-    const template = this.children?.length ? this.vcr.createEmbeddedView(this.inner as TemplateRef<unknown>, this.injector).rootNodes : [];
+    // const projectable = (this.children?.length && this.projectable);
+    // const template = projectable ? this.vcr.createEmbeddedView(this.inner as TemplateRef<unknown>, this.injector).rootNodes : [];
     this.component = NgxRenderingEngine.createComponent(
       component,
       props,
       metadata as ComponentMirror<unknown>,
       this.vcr,
       this.injector as Injector,
-      template,
+      [],
     );
     this.subscribeEvents();
   }
@@ -326,7 +359,7 @@ export class ComponentRendererComponent
   private createParentComponent() {
     const { component, inputs } = this.parent as KeyValue;
     const metadata = reflectComponentType(component) as ComponentMirror<unknown>;
-    const template = this.vcr.createEmbeddedView(this.inner as TemplateRef<unknown>, this.injector).rootNodes;
+    const template = this.projectable ? this.vcr.createEmbeddedView(this.inner as TemplateRef<unknown>, this.injector).rootNodes : [];
     this.component = NgxRenderingEngine.createComponent(
       component,
       inputs,
@@ -374,11 +407,11 @@ export class ComponentRendererComponent
         const value = instance[key];
         if (value instanceof EventEmitter)
           (instance as KeyValue)[key].subscribe(
-            (event: Partial<BaseCustomEvent>) => {
+            (event: Partial<IBaseCustomEvent>) => {
               this.listenEvent.emit({
                 name: key,
                 ...event,
-              } as RendererCustomEvent);
+              } as IBaseCustomEvent);
             },
           );
       }

@@ -1,6 +1,6 @@
 {
   "name": "@decaf-ts/for-angular",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "scripts": {
     "ng": "ng",
     "decaf": "npx decaf angular generate",
@@ -128,7 +128,7 @@
     "@decaf-ts/reflection": "latest",
     "@decaf-ts/styles": "latest",
     "@decaf-ts/transactional-decorators": "latest",
-    "@decaf-ts/ui-decorators": "latest",
+    "@decaf-ts/ui-decorators": "^0.5.26",
     "@ionic/angular": "^8.7.4",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",

@@ -1,3 +1,14 @@
+/**
+ * @module module:lib/components/list/list.component
+ * @description List component module.
+ * @summary Provides the `ListComponent` which renders collections of data with
+ * support for infinite scroll, pagination, searching, filtering, custom item
+ * rendering and refresh events. Use this module's `ListComponent` to display
+ * lists sourced from models, functions or direct data arrays.
+ *
+ * @link {@link ListComponent}
+ */
+
 import { Component, OnInit, EventEmitter, Output, Input, HostListener, OnDestroy  } from '@angular/core';
 import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
 import {
@@ -17,16 +28,15 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
 import {
-  BaseCustomEvent,
   Dynamic,
   EventConstants,
   ComponentsTagNames,
-  RendererCustomEvent,
+  IBaseCustomEvent,
   StringOrBoolean,
   KeyValue,
-  ListItemCustomEvent
+  ListItemCustomEvent,
+  NgxDecafComponentDirective
 } from '../../engine';
-import { NgxBaseComponent } from '../../engine/NgxBaseComponent';
 import {
   stringToBoolean,
   formatDate,
@@ -36,7 +46,7 @@ import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { PaginationComponent } from '../pagination/pagination.component';
-import { PaginationCustomEvent } from '../pagination/constants';
+import { IPaginationCustomEvent } from '../../engine/interfaces';
 import { FunctionLike, IFilterQuery, IFilterQueryItem, DecafRepository, IListEmptyResult, ListComponentsTypes } from '../../engine';
 import { FilterComponent } from '../filter/filter.component';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -108,7 +118,7 @@ import { TranslatePipe } from '@ngx-translate/core';
  *   (refreshEvent)="handleRefresh($event)">
  * </ngx-decaf-list>
  *
- * @extends {NgxBaseComponent}
+ * @extends {NgxBaseComponentDirective}
  * @implements {OnInit}
  */
 @Dynamic()
@@ -138,7 +148,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     ComponentRendererComponent
   ]
 })
-export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy {
+export class ListComponent extends NgxDecafComponentDirective implements OnInit, OnDestroy {
 
   /**
    * @description The display mode for the list component.
@@ -152,18 +162,6 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    */
   @Input()
   type: ListComponentsTypes = ListComponentsTypes.INFINITE;
-
-  /**
-   * @description Controls whether the component uses translation services.
-   * @summary When set to true, the component will attempt to use translation services
-   * for any text content. This allows for internationalization of the list component.
-   *
-   * @type {StringOrBoolean}
-   * @default true
-   * @memberOf ListComponent
-   */
-  @Input()
-  override translatable: StringOrBoolean = true;
 
   /**
    * @description Controls the visibility of the search bar.
@@ -524,11 +522,11 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @summary Emits an event when the list data is refreshed, either through pull-to-refresh
    * or programmatic refresh. The event includes the refreshed data and component information.
    *
-   * @type {EventEmitter<BaseCustomEvent>}
+   * @type {EventEmitter<IBaseCustomEvent>}
    * @memberOf ListComponent
    */
   @Output()
-  refreshEvent: EventEmitter<BaseCustomEvent> = new EventEmitter<BaseCustomEvent>();
+  refreshEvent: EventEmitter<IBaseCustomEvent> = new EventEmitter<IBaseCustomEvent>();
 
   /**
    * @description Event emitter for item click interactions.
@@ -539,7 +537,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * @memberOf ListComponent
    */
   @Output()
-  clickEvent:  EventEmitter<ListItemCustomEvent|RendererCustomEvent> = new EventEmitter<ListItemCustomEvent|RendererCustomEvent>();
+  clickEvent:  EventEmitter<ListItemCustomEvent|IBaseCustomEvent> = new EventEmitter<ListItemCustomEvent|IBaseCustomEvent>();
 
   /**
    * @description Subject for debouncing click events.
@@ -547,10 +545,10 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * period. This prevents multiple rapid clicks from triggering multiple events.
    *
    * @private
-   * @type {Subject<CustomEvent | ListItemCustomEvent | RendererCustomEvent>}
+   * @type {Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent>}
    * @memberOf ListComponent
    */
-  private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | RendererCustomEvent> = new Subject<CustomEvent | ListItemCustomEvent | RendererCustomEvent>();
+  private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent> = new Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent>();
 
 
   /**
@@ -642,7 +640,7 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
 
     this.observer = { refresh: async (... args: unknown[]): Promise<void> => this.observeRepository(...args)}
 
-    this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event as ListItemCustomEvent | RendererCustomEvent));
+    this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event as ListItemCustomEvent | IBaseCustomEvent));
     this.observerSubjet.pipe(debounceTime(100)).subscribe(args => this.handleObserveEvent(args[0], args[1], args[2]));
     this.enableFilter = stringToBoolean(this.enableFilter);
     this.limit = Number(this.limit);
@@ -660,10 +658,11 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
     if(this.operations.includes(OperationKeys.CREATE) && this.route)
       this.empty.link = `${this.route}/${OperationKeys.CREATE}`;
 
-    await this.initialize();
 
-    if(this.model instanceof Model && this._repository)
-      this._repository.observe(this.observer);
+    if(!this.initialized)
+      return this.parseProps(this);
+
+    this.initialized = true;
   }
 
   /**
@@ -808,13 +807,13 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * debounced click subject. This allows the component to respond to clicks on
    * list items regardless of where they originate from.
    *
-   * @param {ListItemCustomEvent | RendererCustomEvent} event - The click event
+   * @param {ListItemCustomEvent | IBaseCustomEvent} event - The click event
    * @returns {void}
    *
    * @memberOf ListComponent
    */
   @HostListener('window:ListItemClickEvent', ['$event'])
-  handleClick(event: ListItemCustomEvent | RendererCustomEvent): void {
+  handleClick(event: ListItemCustomEvent | IBaseCustomEvent): void {
     this.clickItemSubject.next(event);
   }
 
@@ -915,12 +914,12 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
    * This extracts the relevant data from the event and passes it to parent components.
    *
    * @private
-   * @param {ListItemCustomEvent | RendererCustomEvent} event - The click event
+   * @param {ListItemCustomEvent | IBaseCustomEvent} event - The click event
    * @returns {void}
    *
    * @memberOf ListComponent
    */
-  private clickEventEmit(event: ListItemCustomEvent | RendererCustomEvent): void {
+  private clickEventEmit(event: ListItemCustomEvent | IBaseCustomEvent): void {
     this.clickEvent.emit(event);
   }
 
@@ -1019,12 +1018,12 @@ export class ListComponent extends NgxBaseComponent implements OnInit, OnDestroy
  * refreshing the list data to display the selected page. This method is called
  * when a user interacts with the pagination controls to navigate between pages.
  *
- * @param {PaginationCustomEvent} event - The pagination event containing page information
+ * @param {IPaginationCustomEvent} event - The pagination event containing page information
  * @returns {void}
  *
  * @memberOf ListComponent
  */
-handlePaginate(event: PaginationCustomEvent): void {
+handlePaginate(event: IPaginationCustomEvent): void {
   const { page} = event.data;
   this.page = page;
   this.refresh(true);
@@ -1131,8 +1130,12 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
   let request: KeyValue[] = [];
 
   // getting model repository
-  if(!this._repository)
+  if(!this._repository) {
     this._repository = this.repository;
+    if(this.model instanceof Model && this._repository)
+      this._repository.observe(this.observer);
+  }
+
   const repo = this._repository as DecafRepository<Model>;
   if(!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
     try {
@@ -1339,7 +1342,8 @@ protected itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyVal
       accum[key] = value;
     } else {
       if (arrayValue.length === 1) {
-        value = item?.[value] ? item[value] : value !== key ? value : "";
+        value = item?.[value] ? item[value] : "";
+        // value = item?.[value] ? item[value] : value !== key ? value : "";
         if(isValidDate(value))
           value = `${formatDate(value)}`;
         accum[key] = value;

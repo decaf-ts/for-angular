@@ -1,6 +1,6 @@
  <div [id]="uid" class="dcf-paginator-container dcf-flex dcf-flex-center">
   <div class="dcf-width-1-1">
-    <div class="dcf-pagination-resume" [innerHTML]="locale + '.resume' | translate: {value0: current, value1: last}"></div>
+    <div class="dcf-pagination-resume" [innerHTML]="locale + '.resume' | translate:{'0': current, '1': last}"></div>
     <div #paginationComponent class="dcf-pagination dcf-flex-center">
       <div
         aria-label="previous"

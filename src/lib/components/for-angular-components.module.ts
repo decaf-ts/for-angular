@@ -1,3 +1,14 @@
+/**
+ * @module module:lib/components/for-angular-components.module
+ * @description Aggregate module for library components.
+ * @summary Bundles and exports all UI components from `src/lib/components` as an
+ * Angular `NgModule`. This module re-exports components like `ListComponent`,
+ * `PaginationComponent`, `SearchbarComponent`, and others so they can be imported
+ * together in consumer applications.
+ *
+ * @link {@link ForAngularComponentsModule}
+ */
+
 import { NgModule } from '@angular/core';
 import { CrudFieldComponent } from './crud-field/crud-field.component';
 import { CrudFormComponent } from './crud-form/crud-form.component';

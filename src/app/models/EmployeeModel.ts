@@ -1,10 +1,10 @@
 import {  Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
-import { uielement, uilistitem, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
+import { HTML5InputTypes, uielement, uilistitem, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
 import { pk } from '@decaf-ts/core';
 import { OperationKeys, timestamp } from '@decaf-ts/db-decorators';
 
 @uilistitem('ngx-decaf-list-item', { icon: 'person-outline' })
-@uimodel('ngx-decaf-crud-form')
+@uimodel('ngx-decaf-crud-form', {rows: 1, cols: 1})
 @model()
 export class EmployeeModel extends Model {
 
@@ -29,11 +29,21 @@ export class EmployeeModel extends Model {
   // })
   // companyEmail!: string;
 
+
+
+  @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'employee.occupation.label',
     placeholder: 'employee.occupation.placeholder',
+    type: HTML5InputTypes.SELECT,
+    options: [
+    {text: "Software Engineer", value: "Software Engineer"},
+    {text: "Frontend Developer", value: "Frontend Developer"},
+    {text: "Backend Developer", value: "Backend Developer"},
+    {text: "QA Engineer", value: "QA Engineer"},
+    {text: "Product Manager", value: "Product Manager"}
+    ],
   })
-  @uilistprop('description')
   occupation!: string;
 
   @uilistprop('info')

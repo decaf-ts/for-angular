@@ -1,3 +1,13 @@
+/**
+ * @module module:lib/components/model-renderer/model-renderer.component
+ * @description Model renderer component module.
+ * @summary Exposes `ModelRendererComponent` which dynamically renders UI components
+ * from model definitions using the `NgxRenderingEngine`. It handles model changes,
+ * event subscription and lifecycle for the rendered output.
+ *
+ * @link {@link ModelRendererComponent}
+ */
+
 import {
   Component,
   EventEmitter,
@@ -6,11 +16,11 @@ import {
   Input,
   OnChanges,
   OnDestroy,
-  Output,
   SimpleChanges,
   TemplateRef,
   ViewChild,
   ViewContainerRef,
+  ViewEncapsulation,
 } from '@angular/core';
 import { Model, sf } from '@decaf-ts/decorator-validation';
 import { NgComponentOutlet } from '@angular/common';
@@ -18,13 +28,14 @@ import {
   AngularDynamicOutput,
   AngularEngineKeys,
   BaseComponentProps,
-  BaseCustomEvent,
+  IBaseCustomEvent,
   NgxRenderingEngine,
-  RenderedModel,
+  IRenderedModel,
 } from '../../engine';
-import { KeyValue, RendererCustomEvent } from '../../engine/types';
+import { KeyValue } from '../../engine/types';
 import { Renderable } from '@decaf-ts/ui-decorators';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
+import { NgxDecafComponentDirective } from '../../engine/NgxDecafComponentDirective';
 
 /**
  * @description Component for rendering dynamic models
@@ -56,21 +67,22 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
  */
 @Component({
   standalone: true,
-  imports: [ NgComponentOutlet, ComponentRendererComponent],
+  imports: [],
   selector: 'ngx-decaf-model-renderer',
   templateUrl: './model-renderer.component.html',
   styleUrl: './model-renderer.component.scss',
   host: {'[attr.id]': 'rendererId'},
+  encapsulation: ViewEncapsulation.None
 })
 export class ModelRendererComponent<M extends Model>
-  implements OnChanges, OnDestroy, RenderedModel {
+  extends NgxDecafComponentDirective implements OnChanges, OnDestroy, IRenderedModel {
 
-  /**
-   * @description Input model to be rendered
-   * @summary Can be a Model instance or a JSON string representation of a model
-   */
-  @Input({ required: true })
-  model!: M | string | undefined;
+  // /**
+  //  * @description Input model to be rendered
+  //  * @summary Can be a Model instance or a JSON string representation of a model
+  //  */
+  // @Input({ required: true })
+  // model!: M | string | undefined;
 
   /**
    * @description Global variables to be passed to the rendered component
@@ -107,12 +119,6 @@ export class ModelRendererComponent<M extends Model>
    */
   @ViewChild('componentOuter', { static: true, read: ViewContainerRef })
   vcr!: ViewContainerRef;
-
-  /**
-   * @description Event emitter for custom events from the rendered component
-   */
-  @Output()
-  listenEvent = new EventEmitter<RendererCustomEvent>();
 
   /**
    * @description Instance of the rendered component
@@ -152,7 +158,7 @@ export class ModelRendererComponent<M extends Model>
    * @description Lifecycle hook that is called when data-bound properties of a directive change
    * @param {SimpleChanges} changes - Object containing changes
    */
-  ngOnChanges(changes: SimpleChanges): void {
+  override ngOnChanges(changes: SimpleChanges): void {
     if (changes[BaseComponentProps.MODEL]) {
       const { currentValue } = changes[BaseComponentProps.MODEL];
       this.refresh(currentValue);
@@ -171,19 +177,19 @@ export class ModelRendererComponent<M extends Model>
     this.output = undefined;
   }
 
-  private subscribeEvents(): void {
+  private async subscribeEvents(): Promise<void> {
     const component = this?.output?.component;
     if (this.instance && component) {
       const componentKeys = Object.keys(this.instance);
       for (const key of componentKeys) {
         const value = this.instance[key];
         if (value instanceof EventEmitter)
-          (this.instance as KeyValue)[key].subscribe((event: Partial<BaseCustomEvent>) => {
-            this.listenEvent.emit({
+          (this.instance as KeyValue)[key].subscribe(async (event: Partial<IBaseCustomEvent>) => {
+            await this.handleEvent({
               component: component.name || '',
               name: key,
               ...event,
-            } as RendererCustomEvent);
+            } as IBaseCustomEvent);
           });
       }
     }

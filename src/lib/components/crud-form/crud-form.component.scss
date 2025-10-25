@@ -1,24 +1,50 @@
-.dcf-buttons-container {
-  margin-top: 1.8rem;
+.dcf-buttons-grid {
+  margin-top: .5rem;
   margin-bottom: 0px;
-
+  &.read {
+    margin-bottom: 1rem;
+  }
   &.dcf-flex {
-    @media(min-width: 768px) {
+    @media(min-width: 577px) {
       flex-direction: row-reverse;
     }
-    @media(max-width: 767px) {
-      div {
+    @media(max-width: 576px) {
+      > div {
         width: 100%;
+        + div {
+          margin-top: 1rem;
+        }
       }
       ion-button {
         width: 100%;
-        margin-bottom: 1rem;
       }
     }
   }
 }
 
 
-form {
-  padding: 2rem 1rem;
+.dcf-form-grid {
+  padding: 1rem;
+  .dcf-form-item {
+    margin-bottom: 1.8rem;
+    margin-top: 0px !important;
+  }
+  &.read {
+    .dcf-form-item {
+      margin-bottom: 1rem;
+    }
+  }
 }
+
+::ng-deep {
+ ngx-decaf-stepped-form  .dcf-input-item {
+    margin-bottom: 1.8rem;
+    margin-top: 0px !important;
+  }
+  ngx-decaf-fieldset .dcf-input-item {
+    margin-bottom: 1.8rem;
+    margin-top: 0px !important;
+  }
+}
+
+

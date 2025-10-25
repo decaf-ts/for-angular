@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ForAngularModel } from 'src/app/models/DemoModel';
-import { BaseCustomEvent, KeyValue } from 'src/lib/engine';
+import { IBaseCustomEvent, KeyValue } from 'src/lib/engine';
 import { getLogger } from 'src/lib/for-angular-common.module';
 import { IonCard, IonCardContent, IonContent } from '@ionic/angular/standalone';
 import { ContainerComponent } from 'src/app/components/container/container.component';
@@ -36,28 +36,29 @@ export class CrudPage implements OnInit {
     this.model = new ForAngularModel({
       id: 1,
       name: 'John Doe',
-      // birthdate: '1989-12-12',
-      email: 'john.doe@example.com',
-      website: 'https://johndoe.example.com',
-      password: 'password123',
-      ... ((this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)?
-      {
-        category: {name: "Demo Category", description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry."},
-        user: {username: "Admin", secret: "DemoPass"},
-        gender: "male",
-        birthdate: "1989-12-12",
-        contact: "morning",
+      // // birthdate: '1989-12-12',
+      // email: 'john.doe@example.com',
+      // website: 'https://johndoe.example.com',
+      // password: 'password123',
+      // ... ((this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)?
+      // {
+      //   category: {name: "Demo Category", description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry."},
+      //   user: {username: "Admin", secret: "DemoPass"},
+      //   gender: "male",
+      //   birthdate: "1989-12-12",
+      //   contact: "morning",
 
-      }: {}),
+      // }: {}),
     });
 
+    console.log(this.model);
     this.globals = {
       operation: this.operation,
       uid: (this.operation === OperationKeys.DELETE ? this.model.id : undefined),
     };
   }
 
-  handleSubmit(event: BaseCustomEvent): void {
+  handleSubmit(event: IBaseCustomEvent): void {
     getLogger(this).info(`Submit event: ${JSON.stringify(event)}`);
   }
 }

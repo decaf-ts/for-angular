@@ -12,7 +12,7 @@ import { uichild, uielement, uimodel } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from '../models/CategoryModel';
 
 @uimodel('ngx-decaf-stepped-form', {
-  paginated: false,
+  paginated: true,
   pages: 3,
   startPage: 1,
   pageTitles: [
@@ -28,6 +28,7 @@ export class SteppedForm extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.contact.label',
     type: 'select',
+    className: 'dcf-width-1-2@s dcf-width-1-1',
     page: 1,
     options: [
       { value: 'morning', text: 'morning' },
@@ -43,6 +44,7 @@ export class SteppedForm extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'demo.name.label',
     placeholder: 'demo.name.placeholder',
+    className: 'dcf-width-1-2@s dcf-width-1-1',
     page: 1
   })
   name!: string;

@@ -1,7 +1,8 @@
 <!-- Keep to avoid id conflicts -->
-<div [id]="uid"></div>
+<div class="dcf-hidden" [id]="uid"></div>
 
 <ng-template #componentViewContainer></ng-template>
+
 <ng-template #inner>
   @if(parent?.children?.length) {
     @for(child of parent.children; track child) {
@@ -19,18 +20,31 @@
         }
     }
   }
-  @if(children?.length) {
-    @for(child of children; track child) {
-      @if(child.children?.length) {
-      <ngx-decaf-component-renderer [parent]="child"> </ngx-decaf-component-renderer>
-      } @else {
-        <ngx-decaf-component-renderer
-          [tag]="child?.tag"
-          (listenEvent)="handleEvent($event)"
-          [globals]="{props: child.props}" />
+  @if(projectable) {
+    @if(children?.length) {
+      @for(child of children; track child) {
+        @if(child.children?.length) {
+         <ng-container
+                *ngComponentOutlet="
+                  child.component;
+                  injector: child.injector;
+                  inputs: child.inputs;
+                  content:child.content;
+                "
+          />
+        } @else {
+           <ng-container
+                *ngComponentOutlet="
+                  child.component;
+                  injector: child.injector;
+                  inputs: child.inputs;
+                  content:child.content;
+                "
+          />
+        }
       }
     }
   }
-</ng-template>
 
+</ng-template>
 

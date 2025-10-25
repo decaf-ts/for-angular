@@ -1,3 +1,12 @@
+/**
+ * @module module:lib/public-apis
+ * @description Public exports for the for-angular package.
+ * @summary Re-exports the public API surface for the Decaf for-Angular integration. Consumers
+ * should import from this barrel to access components, engine utilities, directives, helpers,
+ * and i18n loaders provided by the library.
+ *
+ * @link {@link ForAngularCommonModule}
+ */
 import '@decaf-ts/ui-decorators';
 export * from './components';
 export * from './engine';
