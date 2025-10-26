@@ -20,9 +20,9 @@ import { EmptyStateComponent } from 'src/lib/components/empty-state/empty-state.
 import { ListItemComponent } from 'src/lib/components/list-item/list-item.component';
 import { ComponentRendererComponent } from 'src/lib/components/component-renderer/component-renderer.component';
 import { PaginationComponent } from 'src/lib/components/pagination/pagination.component';
-import { ListComponentsTypes } from 'src/lib/components/list/constants';
+import { ListComponentsTypes } from 'src/lib/engine/constants';
 import { CategoryModel } from 'src/app/models/CategoryModel';
-import { RamAdapter } from '@decaf-ts/core/ram';
+import { RamAdapter } from '@decaf-ts/core';
 
 const component = getComponentMeta<ListComponent>([
     ForAngularCommonModule,
