@@ -23,6 +23,6 @@ So if you can, if this project in any way. either by learning something or simpl
 
 ## License
 
-This project is released under the [MIT License](./LICENSE.md).
+This project is licensed under the Mozilla Public License 2.0 (MPL-2.0). See `./LICENSE.md` for a Fair Usage Addendum that explains when AGPL-3.0 applies (automated AI/Decaf MCP code generation and non-deterministic UI generation).
 
 By developers, for developers...
