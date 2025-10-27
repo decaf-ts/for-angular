@@ -21,7 +21,7 @@ import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.com
 import {
   PossibleInputTypes,
 } from 'src/lib/engine/types';
-import { within } from '@storybook/test';
+import { within } from 'storybook/test';
 import { FormControl, FormGroup } from '@angular/forms';
 import { NgxDecafFormService } from 'src/lib/engine/NgxDecafFormService';
 
