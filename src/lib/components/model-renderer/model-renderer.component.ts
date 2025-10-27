@@ -23,7 +23,6 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { Model, sf } from '@decaf-ts/decorator-validation';
-import { NgComponentOutlet } from '@angular/common';
 import {
   AngularDynamicOutput,
   AngularEngineKeys,
@@ -34,7 +33,6 @@ import {
 } from '../../engine';
 import { KeyValue } from '../../engine/types';
 import { Renderable } from '@decaf-ts/ui-decorators';
-import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { NgxDecafComponentDirective } from '../../engine/NgxDecafComponentDirective';
 
 /**

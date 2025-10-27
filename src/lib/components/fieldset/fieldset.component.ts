@@ -8,21 +8,19 @@
  * @link {@link FieldsetComponent}
  */
 
-import { AfterViewInit, ChangeDetectorRef, Component, inject, Input, ViewChild, Renderer2, OnInit } from '@angular/core';
-import { AngularEngineKeys, Dynamic, EventConstants, KeyValue } from '../../engine';
+import { AfterViewInit, Component, Input, ViewChild, OnInit } from '@angular/core';
+import {  Dynamic, EventConstants, KeyValue } from '../../engine';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorderGroup, IonReorder, IonIcon, IonText } from '@ionic/angular/standalone';
 import { itemMapper, windowEventEmitter } from '../../helpers';
 import { FormArray,  FormControl,  FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { alertCircleOutline, createOutline } from 'ionicons/icons';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
 import { addIcons } from 'ionicons';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxDecafFormService } from '../../engine/NgxDecafFormService';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
-import { CrudFieldComponent } from '../crud-field/crud-field.component';
-import { getModelRepository } from '../../for-angular-common.module';
 import { ReservedModels } from '@decaf-ts/decorator-validation';
 
 

@@ -1,17 +1,14 @@
-import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, Inject, inject, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
+import { Directive, ElementRef, EventEmitter, Inject, inject, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { FormArray, FormGroup } from "@angular/forms";
 import { Location } from '@angular/common';
 import { CrudOperations, OperationKeys } from "@decaf-ts/db-decorators";
 import { Model } from "@decaf-ts/decorator-validation";
-import { NgxDecafComponentDirective } from "./NgxDecafComponentDirective";
 import { NgxDecafFormService } from "./NgxDecafFormService";
 import { ICrudFormEvent, IFormElement } from "./interfaces";
 import { FieldUpdateMode, FormParent, HandlerLike, HTMLFormTarget } from "./types";
 import { ICrudFormOptions, IRenderedModel } from "./interfaces";
-import { ComponentsTagNames, DefaultFormReactiveOptions, EventConstants } from "./constants";
-import { UIModelMetadata } from "@decaf-ts/ui-decorators";
+import { ComponentsTagNames, EventConstants } from "./constants";
 import { NgxParentComponentDirective } from "./NgxParentComponentDirective";
-import { TranslateService } from "@ngx-translate/core";
 import { NgxDecafFormFieldDirective } from "./NgxDecafFormFieldDirective";
 
 @Directive()
@@ -262,6 +259,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * @returns {Promise<void>}
    * @memberOf CrudFormComponent
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override async ngOnInit(model?: Model | string): Promise<void> {
     // dont call super.ngOnInit to model conflicts
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)
