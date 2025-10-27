@@ -93,7 +93,7 @@
     "typescript": "~5.8.3",
     "typescript-eslint": "8.34.1"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@angular/animations": "^20.2.4",
     "@angular/common": "^20.2.4",
     "@angular/compiler": "^20.2.4",
