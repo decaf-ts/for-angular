@@ -85,11 +85,11 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * and validation rules for the form fields, and is required for most operations except
    * for certain read or delete scenarios.
    *
-   * @type {Model | undefined}
+   * @type {string | number | undefined}
    * @memberOf NgxDecafComponentDirective
    */
   @Input()
-  modelId!: Model | undefined;
+  modelId?: string | number;
 
 
   /**

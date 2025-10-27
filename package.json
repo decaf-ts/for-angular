@@ -63,6 +63,7 @@
     "npm": ">=10.0.0"
   },
   "devDependencies": {
+    "@decaf-ts/cli": "latest",
     "@angular-devkit/schematics": "^20.2.0",
     "@angular-devkit/schematics-cli": "^20.2.0",
     "@angular-eslint/builder": "^20.5.0",
@@ -86,7 +87,6 @@
     "jest-junit": "^16.0.0",
     "jest-preset-angular": "^14.6.0",
     "ng-packagr": "^20.3.0",
-    "rimraf": "^6.0.1",
     "storybook": "9.1.5",
     "ts-node": "^10.9.2",
     "tslib": "^2.3.0",
@@ -102,9 +102,9 @@
     "@angular/platform-browser": "^20.2.4",
     "@angular/platform-browser-dynamic": "^20.2.4",
     "@angular/router": "^20.2.4",
-    "@decaf-ts/cli": "latest",
     "@decaf-ts/core": "latest",
-    "@decaf-ts/db-decorators": "^0.6.12",
+    "@decaf-ts/db-decorators": "latest",
+    "@decaf-ts/decoration": "latest",
     "@decaf-ts/decorator-validation": "latest",
     "@decaf-ts/for-http": "latest",
     "@decaf-ts/injectable-decorators": "latest",

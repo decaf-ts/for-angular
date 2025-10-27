@@ -5,19 +5,15 @@ import {
   RouteReuseStrategy,
   withPreloading,
   PreloadAllModules,
-  PreloadingStrategy,
 } from '@angular/router';
-import { HttpClient, provideHttpClient } from '@angular/common/http';
-import { RamAdapter } from '@decaf-ts/core';
-import { provideTranslateParser, provideTranslateService, RootTranslateServiceConfig, TranslateLoader } from '@ngx-translate/core';
+import { RamAdapter } from '@decaf-ts/core/ram';
+import { RootTranslateServiceConfig, TranslateLoader } from '@ngx-translate/core';
 import {
   IonicRouteStrategy,
   provideIonicAngular,
 } from '@ionic/angular/standalone';
 import {
-  I18nLoaderFactory,
   provideI18n,
-  provideI18nLoader,
 } from 'src/lib/i18n/Loader';
 import { routes } from './app.routes';
 import { provideDbAdapter } from 'src/lib/for-angular-common.module';
