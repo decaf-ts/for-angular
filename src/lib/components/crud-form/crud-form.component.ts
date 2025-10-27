@@ -12,7 +12,7 @@ import {
   Component
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { DefaultFormReactiveOptions, Dynamic, EventConstants, KeyValue } from '../../engine';
+import { DefaultFormReactiveOptions, Dynamic, EventConstants } from '../../engine';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { ComponentRendererComponent } from '../../components/component-renderer/component-renderer.component';

@@ -1,7 +1,7 @@
 import { CrudOperationKeys, FieldProperties, RenderingError } from '@decaf-ts/ui-decorators';
 import { FormParent, KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
-import { ControlValueAccessor, Form, FormArray, FormControl, FormGroup } from '@angular/forms';
+import { ControlValueAccessor, FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Directive, Input, SimpleChanges } from '@angular/core';
 import { NgxDecafFormService } from './NgxDecafFormService';
 import { sf } from '@decaf-ts/decorator-validation';

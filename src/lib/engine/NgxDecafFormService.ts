@@ -15,8 +15,7 @@ import { isValidDate, Model, ModelKeys, parseDate, Primitives, Validation } from
 import { ValidatorFactory } from './ValidatorFactory';
 import { cleanSpaces } from '../helpers';
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { AngularEngineKeys, BaseComponentProps } from './constants';
-import { getModelRepository } from '../for-angular-common.module';
+import { BaseComponentProps } from './constants';
 
 
 /**
@@ -201,7 +200,7 @@ export class NgxDecafFormService {
    * @static
    * @memberOf NgxDecafFormService
    */
-  private static resolveParentGroup<T extends Model>(
+  private static resolveParentGroup(
     formGroup: FormGroup,
     path: string,
     componentProps: IComponentInput,

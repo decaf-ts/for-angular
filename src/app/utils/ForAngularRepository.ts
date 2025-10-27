@@ -44,7 +44,7 @@ export class ForAngularRepository<T extends Model> {
   public async init(): Promise<void> {
     this._repository = this.repository;
     let data = await this._repository?.select().execute();
-    const pk = this._repository?.pk as string;
+    // const pk = this._repository?.pk as string;
     if(!this.data?.length) {
       const name = (this.model as Model).constructor.name;
       switch(name) {

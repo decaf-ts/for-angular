@@ -20,7 +20,6 @@ import { addIcons } from 'ionicons';
 import { Dynamic, NgxDecafComponentDirective, StringOrBoolean } from '../../engine';
 import { stringToBoolean } from '../../helpers';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { TranslateService } from '@ngx-translate/core';
 import { FunctionLike } from '../../engine/types';
 
 

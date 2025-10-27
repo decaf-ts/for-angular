@@ -13,7 +13,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import { EventConstants, KeyValue, NgxDecafComponentDirective, StringOrBoolean } from '../../engine';
+import { EventConstants, KeyValue, NgxDecafComponentDirective } from '../../engine';
 import { IPaginationCustomEvent } from '../../engine/interfaces';
 
 /**

@@ -17,10 +17,9 @@ import { getLocaleContext } from '../i18n/Loader';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { MenuController } from '@ionic/angular';
 import { getModelRepository,  CPTKN } from '../for-angular-common.module';
-import { Model, ModelConstructor, Primitives, sf } from '@decaf-ts/decorator-validation';
+import { Model, ModelConstructor, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { BaseComponentProps } from './constants';
-import { UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { generateRandomValue } from '../helpers';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
@@ -412,13 +411,14 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
 
 
   protected translate(phrase: string | string[], params?: object | string): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if(typeof params === Primitives.STRING)
         params = {"0": params};
-      return firstValueFrom(this.translateService.get(phrase, (params || {}) as object));
+      return resolve(firstValueFrom(this.translateService.get(phrase, (params || {}) as object)));
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async initialize(...args: unknown[]): Promise<void> {
     this.initialized = true;
   }

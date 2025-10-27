@@ -14,10 +14,8 @@ import {
   ElementRef,
   HostListener,
   Input,
-  OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
