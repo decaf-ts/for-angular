@@ -77,7 +77,7 @@
     "@angular/platform-browser-dynamic": "^20.2.4",
     "@angular/router": "^20.2.4",
     "@decaf-ts/cli": "latest",
-    "@decaf-ts/core": "^0.5.29",
+    "@decaf-ts/core": "latest",
     "@decaf-ts/db-decorators": "latest",
     "@decaf-ts/decorator-validation": "latest",
     "@decaf-ts/for-http": "latest",
@@ -85,13 +85,14 @@
     "@decaf-ts/reflection": "latest",
     "@decaf-ts/styles": "latest",
     "@decaf-ts/transactional-decorators": "latest",
-    "@decaf-ts/ui-decorators": "^0.5.26",
+    "@decaf-ts/ui-decorators": "latest",
     "@ionic/angular": "^8.7.4",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "@storybook/addon-docs": "^9.1.15",
     "@storybook/addon-onboarding": "^9.1.15",
     "@storybook/angular": "^9.1.15",
+    "@storybook/test": "^8.6.14",
     "@tabler/icons-webfont": "^3.31.0",
     "ionicons": "^7.4.0",
     "reflect-metadata": "^0.2.1",
@@ -104,8 +105,5 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
-  },
-  "dependencies": {
-    "@storybook/test": "^8.6.14"
   }
 }
