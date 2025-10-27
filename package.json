@@ -1,6 +1,6 @@
 {
   "name": "@decaf-ts/for-angular",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "scripts": {
     "ng": "ng",
     "decaf": "npx decaf angular generate",
@@ -63,6 +63,7 @@
     "npm": ">=10.0.0"
   },
   "devDependencies": {
+    "@decaf-ts/cli": "latest",
     "@angular-devkit/schematics": "^20.2.0",
     "@angular-devkit/schematics-cli": "^20.2.0",
     "@angular-eslint/builder": "^20.5.0",
@@ -101,9 +102,9 @@
     "@angular/platform-browser": "^20.2.4",
     "@angular/platform-browser-dynamic": "^20.2.4",
     "@angular/router": "^20.2.4",
-    "@decaf-ts/cli": "latest",
     "@decaf-ts/core": "latest",
-    "@decaf-ts/db-decorators": "^0.6.12",
+    "@decaf-ts/db-decorators": "latest",
+    "@decaf-ts/decoration": "latest",
     "@decaf-ts/decorator-validation": "latest",
     "@decaf-ts/for-http": "latest",
     "@decaf-ts/injectable-decorators": "latest",

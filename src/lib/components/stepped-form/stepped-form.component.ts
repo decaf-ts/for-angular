@@ -21,7 +21,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
 import { Subscription, timer } from 'rxjs';
 import { getLocaleContext } from '../../i18n/Loader';
 import { TranslatePipe } from '@ngx-translate/core';
-import { NgxParentComponentDirective } from 'src/lib/engine/NgxParentComponentDirective';
+import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { LayoutComponent } from '../layout/layout.component';
 
 
@@ -36,7 +36,7 @@ import { LayoutComponent } from '../layout/layout.component';
     IonSkeletonText,
     IonText,
     IonButton,
-    LayoutComponent,
+    // LayoutComponent,
     ComponentRendererComponent
   ],
   standalone: true,
