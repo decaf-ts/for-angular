@@ -59,19 +59,17 @@
             </ion-reorder-group>
           </ion-list>
         }
-         <ng-content select="[slot=content]"></ng-content>
 
-        @if (this.children?.length) {
-           @for (child of children; track $index) {
-            <ngx-decaf-component-renderer
-              [class]="(child?.props?.className ? ' ' + child.props.className : '')"
-              [tag]="child?.tag"
-              [parentComponent]="formGroup || parentComponent"
-              [children]="child?.children || []"
-              [globals]="{props: child.props}"
-            />
-          }
+        @if(children?.length) {
+          <ngx-decaf-layout
+            [children]="children || []"
+            [parentComponent]="formGroup || parentComponent"
+            gap="small"
+            [initializeProps]="false"
+            [rows]="rows"
+            [cols]="cols" />
         }
+
         @if (multiple && ['create', 'update'].includes(operation)) {
           @if (isUniqueError) {
             <div class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast">

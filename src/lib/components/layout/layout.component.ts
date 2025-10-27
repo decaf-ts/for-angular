@@ -74,6 +74,9 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
   @Input()
   breakpoint: UIMediaBreakPointsType | string = UIMediaBreakPoints.MEDIUM;
 
+
+  grid: boolean = true;
+
   /**
    * @description Creates an instance of LayoutComponent.
    * @summary Initializes a new LayoutComponent with the component name "LayoutComponent".
@@ -149,6 +152,10 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
     this.cols = this._cols;
     this.rows = this._rows;
     this.initialized = true;
+
+   if(this._rows.length === 1 && this._cols.length === 1)
+    this.grid = false;
+
   }
 
 

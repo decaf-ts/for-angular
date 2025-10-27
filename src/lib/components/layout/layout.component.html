@@ -2,7 +2,7 @@
 @if(initialized) {
   @for (row of rows; track trackItemFn($index, row); let rowIndex = $index) {
     <div [id]="uid"
-      [class]="'dcf-grid ' + 'dcf-grid-' + gap"
+      [class]=" !grid ? '' : 'dcf-grid ' + 'dcf-grid-' + gap"
       [class.dcf-grid-match]="match"
 
       >

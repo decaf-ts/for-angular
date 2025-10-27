@@ -22,6 +22,7 @@ import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxDecafFormService } from '../../engine/NgxDecafFormService';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { ReservedModels } from '@decaf-ts/decorator-validation';
+import { LayoutComponent } from '../layout/layout.component';
 
 
 /**
@@ -95,8 +96,8 @@ import { ReservedModels } from '@decaf-ts/decorator-validation';
     IonReorderGroup,
     IonButton,
     IonIcon,
+    LayoutComponent
   ],
-  host: {'[attr.id]': 'uid'},
 })
 export class FieldsetComponent extends NgxFormDirective implements OnInit, AfterViewInit {
 
@@ -412,6 +413,9 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   ngAfterViewInit(): void {
+    console.log(this.rows);
+    console.log(this.cols);
+    console.log(this.children);
     if(!this.collapsable)
       this.isOpen = true;
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
