@@ -36,11 +36,11 @@ import { LayoutComponent } from '../layout/layout.component';
     IonSkeletonText,
     IonText,
     IonButton,
-    // LayoutComponent,
+    LayoutComponent,
     ComponentRendererComponent
   ],
   standalone: true,
-   host: {'[attr.id]': 'uid'},
+  //  host: {'[attr.id]': 'uid'},
 })
 export class SteppedFormComponent extends NgxParentComponentDirective implements OnInit, OnDestroy {
 
@@ -84,7 +84,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * @memberOf SteppedFormComponent
    */
   @Input()
-  pages: number = 1;
+  pages: number | {title: string; description: string}[] = 1;
 
   /**
    * List of titles and descriptions for each page of the stepped form.
@@ -97,7 +97,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * ];
    */
   @Input()
-  pageTitles: { title: string; description: string;}[] = [];
+  pageTitles: { title: string; description: string}[] = [];
 
 
   /**
@@ -111,7 +111,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * @memberOf SteppedFormComponent
    */
   @Input()
-  operation: CrudOperations = OperationKeys.CREATE;
+  override operation: CrudOperations = OperationKeys.CREATE;
 
   /**
    * @description The initial page to display when the form loads.
@@ -125,8 +125,6 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    */
   @Input()
   startPage: number = 1;
-
-
 
   /**
    * @description Angular reactive FormGroup or FormArray for form state management.
@@ -208,7 +206,6 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    */
   private location: Location = inject(Location);
 
-
   /**
    * @description Event emitter for form submission.
    * @summary Emits events when the form is submitted, typically on the last page
@@ -256,12 +253,15 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * @memberOf SteppedFormComponent
    */
   override async ngOnInit(): Promise<void>  {
-    console.log(this);
     if(!this.locale)
       this.locale = getLocaleContext("SteppedFormComponent")
     this.activePage = this.startPage;
-    if(!this.pageTitles.length)
-      this.pageTitles =  Array.from({ length: this.pages }, () => ({ title: '', description: '', rendered: this.paginated }));
+    if(typeof this.pages === 'object') {
+      this.pageTitles = this.pages;
+    } else {
+       if(!this.pageTitles.length)
+      this.pageTitles =  Array.from({ length: this.pages }, () => ({ title: '', description: ''}));
+    }
 
     this.pages = this.pageTitles.length;
 
@@ -289,7 +289,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
 
       this.activeFormGroup = this.formGroup as FormGroup;
     }
-
+    this.initialized = true;
   }
 
   /**

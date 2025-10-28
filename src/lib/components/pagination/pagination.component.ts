@@ -132,7 +132,7 @@ export class PaginationComponent extends NgxDecafComponentDirective implements O
    */
   constructor() {
     super("PaginationComponent");
-     addIcons({chevronBackOutline, chevronForwardOutline});
+    addIcons({chevronBackOutline, chevronForwardOutline});
   }
 
   /**

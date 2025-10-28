@@ -4,10 +4,10 @@ import {
   ModelArg,
   required
 } from '@decaf-ts/decorator-validation';
-import { uilistprop, uielement, uilistitem, uimodel, hideOn } from '@decaf-ts/ui-decorators';
+import { uilistprop, uielement, uilistmodel, uimodel, hideOn, uilayoutprop } from '@decaf-ts/ui-decorators';
 import { OperationKeys, timestamp } from '@decaf-ts/db-decorators';
 import { index, pk } from '@decaf-ts/core';
-@uilistitem('ngx-decaf-list-item', {icon: 'cafe-outline', className: 'testing'})
+@uilistmodel('ngx-decaf-list-item', {icon: 'cafe-outline', className: 'testing'})
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class CategoryModel extends Model {
@@ -22,6 +22,7 @@ export class CategoryModel extends Model {
     placeholder: 'category.name.placeholder',
   })
   @uilistprop('title')
+  @uilayoutprop(1,2)
   name!: string;
 
   @uielement('ngx-decaf-crud-field', {
@@ -31,6 +32,7 @@ export class CategoryModel extends Model {
   })
   @uilistprop('description')
   @index()
+  @uilayoutprop(1,2)
   description!: string;
 
   @uielement('ngx-decaf-crud-field', {

@@ -35,19 +35,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 export class HeaderComponent extends NgxDecafComponentDirective implements OnInit {
 
   /**
-   * @description The current CRUD operation being performed.
-   * @summary Indicates which CRUD operation is currently active. This affects the UI state
-   * and which operation buttons are highlighted or disabled.
-   *
-   * @type {operations}
-   * @default OperationKeys.READ
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  currentOperation: OperationKeys = OperationKeys.READ;
-
-
-  /**
    * @description Controls whether the menu button is displayed.
    * @summary When set to true, the component will display a menu button that can be used
    * to toggle the application's side menu. This is particularly useful for mobile
@@ -254,22 +241,6 @@ export class HeaderComponent extends NgxDecafComponentDirective implements OnIni
   private initialBackgroundColor!: string;
 
 
-
-  /**
-   * @description Reference to CRUD operation constants for template usage.
-   * @summary Exposes the OperationKeys enum to the component template, enabling
-   * conditional rendering and behavior based on operation types. This protected
-   * readonly property ensures that template logic can access operation constants
-   * while maintaining encapsulation and preventing accidental modification.
-   *
-
-   * @protected
-   * @readonly
-   * @memberOf CrudFormComponent
-   */
-  protected readonly OperationKeys = OperationKeys;
-
-
   /**
    * @description Creates an instance of HeaderComponent.
    * @summary Initializes a new HeaderComponent by calling the parent class constructor
@@ -346,72 +317,7 @@ export class HeaderComponent extends NgxDecafComponentDirective implements OnIni
     });
   }
 
-  /**
-   * @description Navigates to a different operation for the current model.
-   * @summary This method constructs a navigation URL based on the model page,
-   * the requested operation, and optionally a model ID. It then uses the router
-   * service to navigate to the constructed URL. This is typically used when
-   * switching between different CRUD operations on a model.
-   *
-   * @param {string} operation - The operation to navigate to (e.g., 'create', 'read', 'update', 'delete')
-   * @param {string} [id] - Optional model ID to include in the navigation URL
-   * @return {Promise<boolean>} A promise that resolves to true if navigation was successful
-   *
-   * @mermaid
-   * sequenceDiagram
-   *   participant U as User
-   *   participant H as HeaderComponent
-   *   participant R as RouterService
-   *
-   *   U->>H: Click operation button
-   *   H->>H: changeOperation(operation, id)
-   *   H->>H: Construct navigation URL
-   *   H->>R: navigateTo(page)
-   *   R-->>H: Return navigation result
-   *   H-->>U: Display new operation view
-   *
-   * @memberOf HeaderComponent
-   */
-  async changeOperation(operation: string, id?: string): Promise<boolean> {
-    let page = `${this.route}/${operation}/`.replace('//', '/');
-    if(this.modelId || id)
-        page = `${page}/${this.modelId || id}`;
-    return this.routerService.navigateTo(page.replace('//', '/'))
-  }
-
-  /**
-   * @description Determines if a specific operation is allowed in the current context.
-   * @summary This method checks if an operation is included in the list of available
-   * CRUD operations and if it's not the current operation (unless the current operation
-   * is CREATE). This is used to enable/disable or show/hide operation buttons in the UI.
-   *
-   * @param {string} operation - The operation to check
-   * @return {boolean} True if the operation is allowed, false otherwise
-   *
-   * @mermaid
-   * sequenceDiagram
-   *   participant H as HeaderComponent
-   *   participant U as UI
-   *
-   *   U->>H: isAllowed(operation)
-   *   alt operations is undefined
-   *     H-->>U: Return false
-   *   else
-   *     H->>H: Check if operation is in operations
-   *     H->>H: Check if operation is not current operation
-   *     H-->>U: Return result
-   *   end
-   *
-   * @memberOf HeaderComponent
-   */
-  isAllowed(operation: string): boolean {
-    if(!this.operations)
-      return false;
-    return this.operations.includes(operation as CrudOperations) && (this.currentOperation !== OperationKeys.CREATE && ((this.currentOperation || "").toLowerCase() !== operation || !this.currentOperation));
-  }
-
-
   getBackButtonSlot(): string {
-    return this.modelId && ![OperationKeys.READ,  OperationKeys.UPDATE].includes(this.currentOperation as OperationKeys) ? 'start' : 'end';
+    return this.modelId && ![OperationKeys.READ,  OperationKeys.UPDATE].includes(this.operation as OperationKeys) ? 'start' : 'end';
   }
 }

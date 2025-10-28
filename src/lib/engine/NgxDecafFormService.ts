@@ -639,22 +639,22 @@ export class NgxDecafFormService {
     let form = this.createForm(id, formArray, true);
     const formLength = (form as FormArray).length;
     if(parentProps?.pages && parentProps?.pages > 0) {
-      let index = componentProperties.page || parentProps.page;
+      const index = componentProperties.page || parentProps.page;
       if(!(typeof index === 'number') || index === 0)
         throw Error(`Property 'page' is required and greather than 0 on ${componentProperties.name}`);
 
-      if(index > formLength) {
-        if((form as KeyValue)?.['lastIndex'] && index === (form as KeyValue)['lastIndex']['page']) {
-          index = (form as KeyValue)['lastIndex']['index'];
-        } else {
-          (form as KeyValue)['lastIndex'] = {
-            page: index,
-            index: formLength + 1
-          };
-          index = formLength + 1;
+      // if(index > formLength) {
+      //   if((form as KeyValue)?.['lastIndex'] && index === (form as KeyValue)['lastIndex']['page']) {
+      //     index = (form as KeyValue)['lastIndex']['index'];
+      //   } else {
+      //     (form as KeyValue)['lastIndex'] = {
+      //       page: index,
+      //       index: formLength + 1
+      //     };
+      //     index = formLength + 1;
 
-        }
-      }
+      //   }
+      // }
 
       let group = (form as FormArray).controls[(index as number) - 1];
       if(!group) {

@@ -128,7 +128,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * @memberOf CrudFormComponent
    */
   @Input({ required: true })
-  operation!: CrudOperations;
+  override operation!: CrudOperations;
 
   /**
    * @description Custom event handlers for form actions.
@@ -229,19 +229,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   //  */
   // protected translateService: TranslateService = inject(TranslateService);
 
-
-   /**
-   * @description Reference to CRUD operation constants for template usage.
-   * @summary Exposes the OperationKeys enum to the component template, enabling
-   * conditional rendering and behavior based on operation types. This protected
-   * readonly property ensures that template logic can access operation constants
-   * while maintaining encapsulation and preventing accidental modification.
-   *
-   * @protected
-   * @readonly
-   * @memberOf CrudFormComponent
-   */
-  protected readonly OperationKeys = OperationKeys;
 
   protected activeFormGroupIndex: number = 0;
 

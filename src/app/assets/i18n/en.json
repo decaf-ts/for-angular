@@ -81,7 +81,12 @@
       "label": "Password"
     },
     "username": {
-      "label": "Username"
+      "label": "Username",
+      "placeholder": "Type user name"
+    },
+    "id": {
+      "label": "ID",
+      "placeholder": "Type user ID"
     }
   },
   "stepped-form": {

@@ -10,7 +10,7 @@ import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ElementRef, EnvironmentInjector, Injector, Type } from '@angular/core';
 import { OrderDirection } from '@decaf-ts/core';
 import { AngularFieldDefinition, FieldUpdateMode, KeyValue, StringOrBoolean } from './types';
-import { CrudOperationKeys, FieldProperties } from '@decaf-ts/ui-decorators';
+import { CrudOperationKeys, FieldProperties, ISteppedModelPage } from '@decaf-ts/ui-decorators';
 import { FormParent } from './types';
 import { Model } from '@decaf-ts/decorator-validation';
 
@@ -151,6 +151,9 @@ export interface IComponentInput extends FieldProperties {
   formControl?: FormControl;
   model?: Model | string;
   operation?: CrudOperationKeys | undefined;
+  pages?: number;
+  cols?: number;
+  rows?: number;
 }
 
 
@@ -223,6 +226,7 @@ export interface AngularDynamicOutput {
   children?: AngularDynamicOutput[];
   instance?: Type<unknown>;
   formGroup?: FormGroup;
+  page?: number;
   formControl?: FormControl;
   projectable?: boolean;
 }
@@ -385,7 +389,7 @@ export interface ICrudFormOptions {
 }
 
 
-export interface IListEmptyResult {
+export interface IListEmptyOptions {
   title: string;
   subtitle: string;
   showButton: boolean;

@@ -1,38 +1,37 @@
-
 {
   "login": {
     "username": {
       "label": "Nome de utilizador",
-      "placeholder": "Escreva o seu nome de utilizador"
+      "placeholder": "Introduza o seu nome de utilizador"
     },
     "password": {
       "label": "Palavra-passe",
-      "placeholder": "Escreva a sua palavra-passe"
+      "placeholder": "Introduza a sua palavra-passe"
     }
   },
   "demo": {
     "id": {
       "label": "ID",
-      "placeholder": "Escreva um número"
+      "placeholder": "Introduza um número"
     },
     "name": {
       "label": "Nome",
-      "placeholder": "Escreva o seu nome"
+      "placeholder": "Introduza o seu nome"
     },
     "birthdate": {
       "label": "Data de nascimento"
     },
     "email": {
       "label": "E-mail",
-      "placeholder": "Escreva o seu endereço de e-mail"
+      "placeholder": "Introduza o seu endereço de e-mail"
     },
     "website": {
-      "label": "Website",
-      "placeholder": "Escreva o seu website favorito"
+      "label": "Site",
+      "placeholder": "Introduza o seu site preferido"
     },
     "password": {
       "label": "Palavra-passe",
-      "placeholder": "Escreva a sua palavra-passe"
+      "placeholder": "Introduza a sua palavra-passe"
     },
     "gender": {
       "label": "Selecione o seu género",
@@ -42,12 +41,12 @@
       }
     },
     "contact": {
-      "label": "Preferência de contacto",
+      "label": "Contacto",
       "options": {
         "morning": "Manhã",
         "afternoon": "Tarde",
         "evening": "Noite",
-        "all": "Todos"
+        "all": "Qualquer horário"
       }
     },
     "agree": {
@@ -57,7 +56,7 @@
   "category": {
     "name": {
       "label": "Nome da categoria",
-      "placeholder": "Escreva a categoria"
+      "placeholder": "Introduza a categoria"
     },
     "description": {
       "label": "Descrição da categoria",
@@ -70,11 +69,11 @@
   },
   "employee": {
     "name": {
-      "label": "Nome do funcionário",
-      "placeholder": "Escreva o nome do funcionário"
+      "label": "Nome do colaborador",
+      "placeholder": "Introduza o nome do colaborador"
     },
     "occupation": {
-      "label": "Função do funcionário"
+      "label": "Função do colaborador"
     }
   },
   "user": {
@@ -82,7 +81,106 @@
       "label": "Palavra-passe"
     },
     "username": {
-      "label": "Nome de utilizador"
+      "label": "Nome de utilizador",
+      "placeholder": "Introduza o nome de utilizador"
+    },
+    "id": {
+      "label": "ID",
+      "placeholder": "Introduza o ID do utilizador"
+    }
+  },
+  "stepped-form": {
+    "step1": {
+      "title": "Etapa 1",
+      "description": "Esta é a primeira etapa"
+    },
+    "step2": {
+      "title": "Etapa 2",
+      "description": "Esta é a segunda etapa"
+    },
+    "step3": {
+      "title": "Etapa 3",
+      "description": "Esta é a última etapa"
+    }
+  },
+  "aimodel": {
+    "name": {
+      "label": "Nome",
+      "placeholder": "Introduza o nome do modelo"
+    },
+    "features": {
+      "label": "Funcionalidades",
+      "placeholder": "Selecione as funcionalidades do modelo",
+      "options": {
+        "personal-identifiers": "Identificadores pessoais",
+        "summarization": "Resumo",
+        "contextualization": "Contextualização",
+        "keywords": "Palavras-chave",
+        "reranking": "Reordenação",
+        "text-to-speech": "Texto para fala",
+        "speech-to-text": "Fala para texto",
+        "image-to-text": "Imagem para texto",
+        "text-to-image": "Texto para imagem",
+        "text-to-video": "Texto para vídeo",
+        "vision-to-text": "Visão para texto",
+        "object-recognition": "Reconhecimento de objetos",
+        "reasoning": "Raciocínio",
+        "question-answering": "Resposta a perguntas",
+        "chat": "Chat",
+        "translation": "Tradução",
+        "planning": "Planeamento",
+        "research": "Pesquisa",
+        "deep-research": "Pesquisa aprofundada",
+        "tool-usage": "Utilização de ferramentas",
+        "coding": "Programação",
+        "lightweight": "Leve",
+        "heavyweight": "Pesado"
+      }
+    }
+  },
+  "aivendors": {
+    "name": {
+      "label": "Nome",
+      "placeholder": "Selecione o fornecedor",
+      "options": {
+        "google": "Google",
+        "openai": "OpenAI",
+        "anthropic": "Anthropic",
+        "perplexity": "Perplexity",
+        "midjourney": "Midjourney",
+        "runway": "Runway",
+        "ollama": "Ollama",
+        "mistralai": "Mistral AI"
+      }
+    },
+    "models": {
+      "label": "Modelos",
+      "placeholder": "Selecione o modelo",
+      "options": {
+        "personal-identifiers": "Identificadores pessoais",
+        "summarization": "Resumo",
+        "contextualization": "Contextualização",
+        "keywords": "Palavras-chave",
+        "reranking": "Reordenação",
+        "text-to-speech": "Texto para fala",
+        "speech-to-text": "Fala para texto",
+        "image-to-text": "Imagem para texto",
+        "text-to-image": "Texto para imagem",
+        "text-to-video": "Texto para vídeo",
+        "vision-to-text": "Visão para texto",
+        "object-recognition": "Reconhecimento de objetos",
+        "reasoning": "Raciocínio",
+        "question-answering": "Resposta a perguntas",
+        "chat": "Chat",
+        "translation": "Tradução",
+        "planning": "Planeamento",
+        "research": "Pesquisa",
+        "deep-research": "Pesquisa aprofundada",
+        "tool-usage": "Utilização de ferramentas",
+        "coding": "Programação",
+        "lightweight": "Leve",
+        "heavyweight": "Pesado"
+      }
     }
   }
 }

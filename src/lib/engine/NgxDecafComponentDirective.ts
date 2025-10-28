@@ -48,9 +48,29 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
   component!: ElementRef;
 
 
+  /**
+   * @description Name identifier for the component.
+   * @summary Provides a string identifier that can be used to name or label the component
+   * instance. This name can be used for debugging purposes, logging, or to identify specific
+   * component instances within a larger application structure. It serves as a human-readable
+   * identifier that helps distinguish between multiple instances of the same component type.
+   *
+   * @type {string}
+   * @memberOf NgxDecafComponentDirective
+   */
   @Input()
   name!: string;
 
+  /**
+   * @description Parent component identifier.
+   * @summary Specifies the identifier of the parent component in a hierarchical component structure.
+   * This property establishes a parent-child relationship between components, allowing for
+   * proper nesting and organization of components within a layout. It can be used to track
+   * component dependencies and establish component hierarchies for rendering and event propagation.
+   *
+   * @type {string | undefined}
+   * @memberOf NgxDecafComponentDirective
+   */
   @Input()
   childOf!: string | undefined;
 
@@ -115,7 +135,6 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
   @Input()
   mapper: Record<string, string> | FunctionLike = {};
 
-
   /**
    * @description Available CRUD operations for this component.
    * @summary Defines which CRUD operations (Create, Read, Update, Delete) are available
@@ -129,9 +148,22 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
 
 
   /**
-   * @description Primary key field name for the model.
-   * @summary Specifies which field in the model should be used as the primary key.
-   * This is typically used for identifying unique records in operations like update and delete.
+   * @description The current CRUD operation being performed.
+   * @summary Indicates which CRUD operation is currently active. This affects the UI state
+   * and which operation buttons are highlighted or disabled.
+   *
+   * @type {OperationKeys}
+   * @memberOf NgxDecafComponentDirective
+   */
+  @Input()
+  operation!: OperationKeys;
+
+
+  /**
+   * @description Row position in a grid layout.
+   * @summary Specifies the row position of this component when rendered within a grid-based layout.
+   * This property is used for positioning components in multi-row, multi-column layouts and helps
+   * establish the component's vertical placement within the grid structure.
    *
    * @type {number}
    * @default 1
@@ -142,9 +174,10 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
 
 
   /**
-   * @description Primary key field name for the model.
-   * @summary Specifies which field in the model should be used as the primary key.
-   * This is typically used for identifying unique records in operations like update and delete.
+   * @description Column position in a grid layout.
+   * @summary Specifies the column position of this component when rendered within a grid-based layout.
+   * This property is used for positioning components in multi-row, multi-column layouts and helps
+   * establish the component's horizontal placement within the grid structure.
    *
    * @type {number}
    * @default 1
@@ -187,66 +220,66 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
 
 
   /**
-   * @description Root component of the Decaf-ts for Angular application
-   * @summary This component serves as the main entry point for the application.
-   * It sets up the navigation menu, handles routing events, and initializes
-   * the application state. It also manages the application title and menu visibility.
+   * @description Ionic menu controller service.
+   * @summary Injected service that provides programmatic control over Ionic menu components.
+   * This service allows the component to open, close, toggle, and manage menu states within
+   * the application. It provides access to menu functionality for implementing navigation
+   * and layout features that require menu interaction.
    *
-   * @private
+   * @protected
    * @type {MenuController}
    * @memberOf NgxDecafComponentDirective
    */
   protected menuController: MenuController = inject(MenuController);
 
-   /**
-     * @description Angular change detection service.
-     * @summary Injected service that provides manual control over change detection cycles.
-     * This is essential for ensuring that programmatic DOM changes (like setting accordion
-     * attributes) are properly reflected in the component's state and trigger appropriate
-     * view updates when modifications occur outside the normal Angular change detection flow.
-     *
-     * @protected
-     * @type {ChangeDetectorRef}
-     * @memberOf CrudFormComponent
-     */
-    protected changeDetectorRef: ChangeDetectorRef = inject(ChangeDetectorRef);
+  /**
+   * @description Angular change detection service.
+   * @summary Injected service that provides manual control over change detection cycles.
+   * This is essential for ensuring that programmatic DOM changes (like setting accordion
+   * attributes) are properly reflected in the component's state and trigger appropriate
+   * view updates when modifications occur outside the normal Angular change detection flow.
+   *
+   * @protected
+   * @type {ChangeDetectorRef}
+   * @memberOf NgxDecafComponentDirective
+   */
+  protected changeDetectorRef: ChangeDetectorRef = inject(ChangeDetectorRef);
 
-    /**
-     * @description Angular Renderer2 service for safe DOM manipulation.
-     * @summary Injected service that provides a safe, platform-agnostic way to manipulate DOM elements.
-     * This service ensures proper handling of DOM operations across different platforms and environments,
-     * including server-side rendering and web workers.
-     *
-     * @protected
-     * @type {Renderer2}
-     * @memberOf CrudFormComponent
-     */
-    protected renderer: Renderer2 = inject(Renderer2);
+  /**
+   * @description Angular Renderer2 service for safe DOM manipulation.
+   * @summary Injected service that provides a safe, platform-agnostic way to manipulate DOM elements.
+   * This service ensures proper handling of DOM operations across different platforms and environments,
+   * including server-side rendering and web workers.
+   *
+   * @protected
+   * @type {Renderer2}
+   * @memberOf NgxDecafComponentDirective
+   */
+  protected renderer: Renderer2 = inject(Renderer2);
 
-    /**
-     * @description Translation service for internationalization.
-     * @summary Injected service that provides translation capabilities for UI text.
-     * Used to translate button labels and validation messages based on the current locale.
-     *
-     * @protected
-     * @type {TranslateService}
-     * @memberOf CrudFormComponent
-     */
-    protected translateService: TranslateService = inject(TranslateService);
+  /**
+   * @description Translation service for internationalization.
+   * @summary Injected service that provides translation capabilities for UI text.
+   * Used to translate button labels and validation messages based on the current locale.
+   *
+   * @protected
+   * @type {TranslateService}
+   * @memberOf NgxDecafComponentDirective
+   */
+  protected translateService: TranslateService = inject(TranslateService);
 
 
   /**
    * @description Logger instance for the component.
    * @summary Provides logging capabilities for the component, allowing for consistent
-   * and structured logging of information, warnings, and errors. This logger is initialized
-   * in the ngOnInit method using the getLogger function from the ForAngularCommonModule.
+   * and structured logging of information, warnings, and errors. This logger is inherited
+   * from the LoggedClass and provides access to structured logging functionality.
    *
    * The logger is used throughout the component to record important events, debug information,
    * and potential issues. It helps in monitoring the component's behavior, tracking the flow
    * of operations, and facilitating easier debugging and maintenance.
    *
    * @type {Logger}
-   * @private
    * @memberOf NgxDecafComponentDirective
    */
   logger!: Logger;
@@ -265,11 +298,12 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
   listenEvent: EventEmitter<IBaseCustomEvent> = new EventEmitter<IBaseCustomEvent>();
 
   /**
-   * @description Angular Router instance for navigation
-   * @summary Injected Router service used for programmatic navigation
-   * to other pages after successful login or other routing operations.
+   * @description Angular Router instance for navigation.
+   * @summary Injected Router service used for programmatic navigation between routes
+   * in the application. This service enables navigation to different views and operations,
+   * handles route parameters, and manages the browser's navigation history.
    *
-   * @private
+   * @protected
    * @type {Router}
    * @memberOf NgxDecafComponentDirective
    */
@@ -277,12 +311,13 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
 
 
   /**
-   * @description Angular Router instance for navigation
-   * @summary Injected Router service used for programmatic navigation
-   * to other pages after successful login or other routing operations.
+   * @description Current locale identifier for internationalization.
+   * @summary Specifies the locale code (e.g., 'en-US', 'pt-BR') used for translating UI text
+   * and formatting data according to regional conventions. This property can be set to override
+   * the default application locale for this specific component instance, enabling per-component
+   * localization when needed.
    *
-   * @private
-   * @type {Router}
+   * @type {string | undefined}
    * @memberOf NgxDecafComponentDirective
    */
   @Input()
@@ -345,31 +380,77 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
   initialized: boolean = false;
 
 
+  /**
+   * @description Component name identifier for logging and localization.
+   * @summary Stores the component's name which is used as a key for logging contexts
+   * and as a base for locale resolution. Can be injected via the CPTKN token or defaults
+   * to "NgxDecafComponentDirective" if not provided.
+   *
+   * @protected
+   * @type {string | undefined}
+   * @memberOf NgxDecafComponentDirective
+   */
+  protected componentName?: string;
+
+  /**
+   * @description Root key for locale context resolution.
+   * @summary Defines the base key used to resolve localization contexts for this component.
+   * If not explicitly provided, it defaults to the component's name. This key is used to
+   * load appropriate translation resources and locale-specific configurations.
+   *
+   * @protected
+   * @type {string | undefined}
+   * @memberOf NgxDecafComponentDirective
+   */
+  protected localeRoot?: string;
+
+  /**
+   * @description Reference to CRUD operation constants for template usage.
+   * @summary Exposes the OperationKeys enum to the component template, enabling
+   * conditional rendering and behavior based on operation types. This protected
+   * readonly property ensures that template logic can access operation constants
+   * while maintaining encapsulation and preventing accidental modification.
+   *
+
+    * @protected
+    * @readonly
+    * @memberOf NgxDecafComponentDirective
+    */
+  protected readonly OperationKeys = OperationKeys;
+
   // eslint-disable-next-line @angular-eslint/prefer-inject
-  constructor(@Inject(CPTKN) protected componentName?: string, @Inject(CPTKN) protected localeRoot?: string) {
+  constructor(@Inject(CPTKN) componentName?: string, @Inject(CPTKN) localeRoot?: string) {
 		super();
-    this.componentName = this.componentName || "NgxDecafComponentDirective";
-    if(!this.localeRoot)
+    this.componentName = componentName || "NgxDecafComponentDirective";
+    this.localeRoot = localeRoot;
+    if(!this.localeRoot && this.componentName)
       this.localeRoot = this.componentName;
+    if(this.localeRoot)
+      this.getLocale(this.localeRoot);
     this.logger = this.log;
 	}
 
+  /**
+   * @description Getter for the current locale context.
+   * @summary Returns the current locale identifier by calling the getLocale method.
+   * This property provides convenient access to the component's active locale setting.
+   *
+   * @returns {string} The current locale identifier
+   * @memberOf NgxDecafComponentDirective
+   */
   get localeContext(){
 		return this.getLocale();
 	}
 
   /**
-   * @description Getter for the repository instance.
-   * @summary Provides a connection to the data layer for retrieving and manipulating data.
-   * This method initializes the `_repository` property if it is not already set, ensuring
-   * that a single instance of the repository is used throughout the component.
+   * @description Getter for the data repository instance.
+   * @summary Lazily initializes and returns the DecafRepository instance for the current model.
+   * This getter ensures the repository is created only when needed and reused for subsequent
+   * access. It also automatically sets the primary key field if not explicitly configured.
    *
-   * The repository is used to perform CRUD operations on the data model, such as fetching data,
-   * creating new items, updating existing items, and deleting items. It also provides methods
-   * for querying and filtering data based on specific criteria.
-   *
-   * @returns {DecafRepository<Model>} The initialized repository instance.
-   * @private
+   * @protected
+   * @returns {DecafRepository<Model>} The repository instance for the current model
+   * @throws {InternalError} If repository initialization fails
    * @memberOf NgxDecafComponentDirective
    */
   protected get repository(): DecafRepository<Model> {
@@ -387,16 +468,15 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
   }
 
   /**
-   * @description Handles changes to component inputs
-   * @summary This Angular lifecycle hook is called when input properties change.
-   * It responds to changes in the model, locale, or translatable properties by
-   * updating the component's internal state accordingly. When the model changes,
-   * it calls getModel to process the new model and getLocale to update the locale.
-   * When locale or translatable properties change, it calls getLocale to update
-   * the translation settings.
+   * @description Angular lifecycle hook for handling input property changes.
+   * @summary Responds to changes in component input properties, specifically monitoring changes
+   * to the model, locale root, and component name properties. When the model changes, it triggers
+   * model initialization and locale context updates. When locale-related properties change,
+   * it updates the component's locale setting accordingly.
    *
-   * @param {SimpleChanges} changes - Object containing changed properties
-   * @return {void}
+   * @param {SimpleChanges} changes - Object containing the changed properties with their previous and current values
+   * @returns {void}
+   * @memberOf NgxDecafComponentDirective
    */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes[BaseComponentProps.MODEL]) {
@@ -409,7 +489,19 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
       this.locale = this.localeContext;
   }
 
-
+  /**
+   * @description Translates a phrase or phrases using the translation service.
+   * @summary Provides a promise-based wrapper around the translation service to translate
+   * UI text based on the current locale. Supports both single phrases and arrays of phrases,
+   * and accepts optional parameters for template interpolation. When a string parameter is
+   * provided, it's automatically converted to an object format for the translation service.
+   *
+   * @protected
+   * @param {string | string[]} phrase - The translation key or array of keys to translate
+   * @param {object | string} [params] - Optional parameters for interpolation in translated text
+   * @returns {Promise<string>} A promise that resolves to the translated text
+   * @memberOf NgxDecafComponentDirective
+   */
   protected translate(phrase: string | string[], params?: object | string): Promise<string> {
     return new Promise((resolve) => {
       if(typeof params === Primitives.STRING)
@@ -418,11 +510,34 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
     });
   }
 
+  /**
+   * @description Initializes the component asynchronously.
+   * @summary Abstract initialization method that can be overridden by child components to perform
+   * custom initialization logic. By default, it simply sets the initialized flag to true.
+   * Child components can extend this method to load data, configure settings, or perform
+   * other setup operations required before the component is fully functional.
+   *
+   * @protected
+   * @param {...unknown[]} args - Variable number of arguments that can be used by child implementations
+   * @returns {Promise<void>} A promise that resolves when initialization is complete
+   * @memberOf NgxDecafComponentDirective
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async initialize(...args: unknown[]): Promise<void> {
     this.initialized = true;
   }
 
+  /**
+   * @description Retrieves or sets the locale context for the component.
+   * @summary Gets the locale identifier from the locale context system. If a locale parameter
+   * is provided, it updates the localeRoot property and resolves the new locale context.
+   * If no locale is currently set, it initializes it from the localeRoot.
+   *
+   * @protected
+   * @param {string} [locale] - Optional locale identifier to set
+   * @returns {string} The current locale identifier
+   * @memberOf NgxDecafComponentDirective
+   */
   protected getLocale(locale?: string): string {
     if (locale || !this.locale) {
       if(locale)
@@ -433,13 +548,14 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
   }
 
   /**
-   * @description Gets the route for the component
-   * @summary Retrieves the route path for the component, generating one based on the model
-   * if no route is explicitly set. This method checks if a route is already defined, and if not,
-   * it creates a default route based on the model's constructor name. The generated route follows
-   * the pattern '/model/{ModelName}'. This is useful for automatic routing in CRUD operations.
+   * @description Retrieves or generates the route path for the component.
+   * @summary Gets the navigation route associated with this component. If no route is explicitly
+   * set and a model is available, it automatically generates a route based on the model's
+   * class name using the pattern `/model/{ModelName}`. Returns an empty string if neither
+   * a route nor a model is available.
    *
-   * @return {string} The route path for the component, or empty string if no route is available
+   * @returns {string} The route path for this component
+   * @memberOf NgxDecafComponentDirective
    */
   getRoute(): string {
     if (!this.route && this.model instanceof Model)
@@ -447,16 +563,17 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
     return this.route || '';
   }
 
-
   /**
-   * @description Resolves and sets the component's model
-   * @summary Processes the provided model parameter, which can be either a Model instance
-   * or a string identifier. If a string is provided, it attempts to resolve the actual model
-   * from the injectables registry. After resolving the model, it calls setModelDefinitions
-   * to configure the component based on the model's metadata.
+   * @description Resolves and initializes a model from various input formats.
+   * @summary Accepts a model in multiple formats (string name, Model instance, or ModelConstructor)
+   * and resolves it to a Model instance. When a string is provided, it looks up the model
+   * by name in the Model registry. After resolution, it delegates to setModelDefinitions
+   * to complete the model initialization and configuration.
    *
-   * @param {string | Model} model - The model instance or identifier string
-   * @return {void}
+   * @template M - The model type extending from Model
+   * @param {string | Model | ModelConstructor<M>} model - The model to resolve and initialize
+   * @returns {void}
+   * @memberOf NgxDecafComponentDirective
    */
   getModel<M extends Model>(model: string | Model | ModelConstructor<M>): void {
     if (!(model instanceof Model) && typeof model === Primitives.STRING)
@@ -464,16 +581,17 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
     this.setModelDefinitions(this.model as Model);
   }
 
-    /**
-   * @description Configures component properties based on model metadata
-   * @summary Extracts and applies configuration from the model's decorators to set up
-   * the component. This method uses the rendering engine to retrieve decorator metadata
-   * from the model, then configures the component's mapper and item properties accordingly.
-   * It ensures the route is properly set and merges various properties from the model's
-   * metadata into the component's configuration.
+  /**
+   * @description Configures component properties based on model decorators and metadata.
+   * @summary Extracts rendering configuration from the model's decorators using the rendering
+   * engine. This includes props, item configuration, and child component definitions. It sets
+   * up the mapper for field transformations, configures the item renderer with appropriate
+   * properties, and establishes the route for navigation. This method bridges the model's
+   * decorator metadata with the component's runtime configuration.
    *
-   * @param {Model} model - The model to extract configuration from
-   * @return {void}
+   * @param {Model} model - The model instance to extract definitions from
+   * @returns {void}
+   * @memberOf NgxDecafComponentDirective
    */
   setModelDefinitions(model: Model): void {
     if (model instanceof Model) {
@@ -507,27 +625,32 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * overwriting and ensures only intended properties are modified.
    *
    * @param {KeyValue} instance - The component instance object to process
-   * @return {void}
+   * @param {string[]} [skip=[]] - Array of property names to skip during parsing
+   * @returns {void}
    *
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
-   *   participant B as NgxBaseComponentDirective
+   *   participant D as NgxDecafComponentDirective
    *   participant P as Props Object
    *
-   *   C->>B: parseProps(instance)
-   *   B->>B: Get Object.keys(instance)
+   *   C->>D: parseProps(instance, skip)
+   *   D->>D: Get Object.keys(instance)
    *   loop For each key in instance
-   *     B->>P: Check if key exists in this.props
-   *     alt Key exists in props
-   *       B->>B: Set this[key] = this.props[key]
-   *     else Key not in props
-   *       Note over B: Skip this key
+   *     D->>D: Check if key in skip array
+   *     alt Key not in skip
+   *       D->>P: Check if key exists in this.props
+   *       alt Key exists in props
+   *         D->>D: Set this[key] = this.props[key]
+   *         D->>P: delete this.props[key]
+   *       else Key not in props
+   *         Note over D: Skip this key
+   *       end
    *     end
    *   end
    *
    * @protected
-   * @memberOf NgxBaseComponentDirective
+   * @memberOf NgxDecafComponentDirective
    */
   protected parseProps(instance: KeyValue, skip: string[] = []): void {
     Object.keys(instance).forEach((key) => {
@@ -547,6 +670,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * during list updates. The tracking function is essential for maintaining component state
    * and preventing unnecessary re-rendering of unchanged items.
    *
+   * @protected
    * @param {number} index - The index of the item in the list
    * @param {KeyValue | string | number} item - The item data to track
    * @returns {string | number} A unique identifier for the item
@@ -559,6 +683,43 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
     return `${index}-${item}`;
   }
 
+  /**
+   * @description Handles custom events from child components or DOM elements.
+   * @summary Processes custom events by extracting event handlers and delegating to appropriate
+   * handler classes. Supports both CustomEvent format with detail property and direct event
+   * objects. If specific handlers are defined in the event, it instantiates the handler class
+   * and invokes its handle method. If no handler is found or defined, the event is emitted
+   * up the component hierarchy via the listenEvent output.
+   *
+   * @param {IBaseCustomEvent | ICrudFormEvent | CustomEvent} event - The event to handle
+   * @returns {Promise<void>} A promise that resolves when event handling is complete
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant C as Child Component
+   *   participant D as NgxDecafComponentDirective
+   *   participant H as Event Handler
+   *   participant P as Parent Component
+   *
+   *   C->>D: handleEvent(event)
+   *   alt Event is CustomEvent
+   *     D->>D: Extract event.detail
+   *   end
+   *   D->>D: Get event name and handlers
+   *   alt Handlers defined
+   *     alt Handler exists for event
+   *       D->>H: new Handler(router)
+   *       D->>H: handle(event)
+   *       H-->>D: return result
+   *     else No handler found
+   *       D->>D: log.debug("No handler found")
+   *     end
+   *   else No handlers
+   *     D->>P: listenEvent.emit(event)
+   *   end
+   *
+   * @memberOf NgxDecafComponentDirective
+   */
 	async handleEvent(event: IBaseCustomEvent | ICrudFormEvent | CustomEvent): Promise<void> {
     let name = "";
     const log = this.log.for(this.handleEvent);
@@ -585,9 +746,72 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
     this.listenEvent.emit(event as IBaseCustomEvent | ICrudFormEvent);
 	}
 
-	// ngOnInit() {
-		// this.setColorScheme(MediaService.isDarkMode() ? "dark" : "light");
-	// }
+  /**
+   * @description Determines if a specific operation is allowed in the current context.
+   * @summary This method checks if an operation is included in the list of available
+   * CRUD operations and if it's not the current operation (unless the current operation
+   * is CREATE). This is used to enable/disable or show/hide operation buttons in the UI.
+   * Returns false if the operations array is undefined or the operation is not in the list.
+   *
+   * @param {string} operation - The operation to check
+   * @returns {boolean} True if the operation is allowed, false otherwise
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant D as NgxDecafComponentDirective
+   *   participant U as UI
+   *
+   *   U->>D: isAllowed(operation)
+   *   alt operations is undefined
+   *     D-->>U: Return false
+   *   else
+   *     D->>D: Check if operation is in operations
+   *     D->>D: Check if operation is not current operation
+   *     D-->>U: Return result
+   *   end
+   *
+   * @memberOf NgxDecafComponentDirective
+   */
+  isAllowed(operation: string): boolean {
+    if(!this.operations)
+      return false;
+    return this.operations.includes(operation as CrudOperations) && (this.operation !== OperationKeys.CREATE && ((this.operation || "").toLowerCase() !== operation || !this.operation));
+  }
 
-	// protected setColorScheme(scheme: "light" | "dark") {}
+
+  /**
+   * @description Navigates to a different operation for the current model.
+   * @summary This method constructs a navigation URL based on the component's base route,
+   * the requested operation, and optionally a model ID. It then uses the Angular router
+   * service to navigate to the constructed URL. This is typically used when switching
+   * between different CRUD operations (create, read, update, delete) on a model.
+   * The URL format is: {route}/{operation}/{id?}
+   *
+   * @param {string} operation - The operation to navigate to (e.g., 'create', 'read', 'update', 'delete')
+   * @param {string} [id] - Optional model ID to include in the navigation URL
+   * @returns {Promise<boolean>} A promise that resolves to true if navigation was successful
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant U as UI
+   *   participant D as NgxDecafComponentDirective
+   *   participant R as Router
+   *
+   *   U->>D: Click operation button
+   *   D->>D: changeOperation(operation, id)
+   *   D->>D: Construct navigation URL
+   *   Note over D: URL: {route}/{operation}/{id?}
+   *   D->>R: navigateByUrl(page)
+   *   R->>R: Navigate to new route
+   *   R-->>D: Return navigation result
+   *   D-->>U: Display new operation view
+   *
+   * @memberOf NgxDecafComponentDirective
+   */
+  async changeOperation(operation: string, id?: string): Promise<boolean> {
+    let page = `${this.route}/${operation}/`.replace('//', '/');
+    if(this.modelId || id)
+        page = `${page}/${this.modelId || id}`;
+    return this.router.navigateByUrl(page);
+  }
 }

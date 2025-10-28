@@ -10,6 +10,7 @@
 
 import { Component, inject, Input, OnInit  } from '@angular/core';
 import {
+  IonButton,
   IonCard,
   IonCardContent,
   IonIcon,
@@ -21,6 +22,7 @@ import { Dynamic, NgxDecafComponentDirective, StringOrBoolean } from '../../engi
 import { stringToBoolean } from '../../helpers';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FunctionLike } from '../../engine/types';
+import { TranslatePipe } from '@ngx-translate/core';
 
 
 /**
@@ -67,7 +69,9 @@ import { FunctionLike } from '../../engine/types';
   imports: [
     IonCard,
     IonCardContent,
-    IonIcon
+    IonIcon,
+    TranslatePipe,
+    IonButton
   ]
 })
 export class EmptyStateComponent extends NgxDecafComponentDirective implements OnInit {
@@ -96,7 +100,7 @@ export class EmptyStateComponent extends NgxDecafComponentDirective implements O
    * @memberOf EmptyStateComponent
    */
   @Input()
-  titleColor = 'gray-6';
+  titleColor: string = 'gray-6';
 
   /**
    * @description The secondary message displayed in the empty state.
@@ -143,11 +147,11 @@ export class EmptyStateComponent extends NgxDecafComponentDirective implements O
    * and this value should correspond to an available icon name.
    *
    * @type {string}
-   * @default "ti-info-square-rounded"
+   * @default "folder-open-outline"
    * @memberOf EmptyStateComponent
    */
   @Input()
-  icon: string = "ti-info-square-rounded";
+  icon: string = "folder-open-outline";
 
   /**
    * @description The size of the displayed icon.
@@ -250,6 +254,8 @@ export class EmptyStateComponent extends NgxDecafComponentDirective implements O
 
   searchSubtitle!: SafeHtml
 
+  enableCreationByModelRoute: boolean = false;
+
 
   /**
    * @description Creates an instance of EmptyStateComponent.
@@ -295,6 +301,8 @@ export class EmptyStateComponent extends NgxDecafComponentDirective implements O
     this.initialize();
     this.showIcon = stringToBoolean(this.showIcon);
 
+    console.log(this.icon);
+
     // if(this.translatable) {
     //   this.title = generateLocaleFromString(this.locale, this.title);
     //   this.subtitle = generateLocaleFromString(this.locale, this.subtitle);
@@ -306,6 +314,13 @@ export class EmptyStateComponent extends NgxDecafComponentDirective implements O
 
     if(this.searchValue)
       this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);
+    if(!this.buttonLink && this.model && this.route) {
+      this.enableCreationByModelRoute = true;
+      console.log(this.getRoute());
+      console.log(this.model);
+      console.log(this.locale + '.button.create');
+    }
+
   }
 
   /**

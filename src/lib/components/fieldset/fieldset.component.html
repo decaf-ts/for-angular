@@ -62,12 +62,14 @@
 
         @if(children?.length) {
           <ngx-decaf-layout
+            gap="small"
             [children]="children || []"
             [parentComponent]="formGroup || parentComponent"
-            gap="small"
-            [initializeProps]="false"
+            [match]="false"
+
             [rows]="rows"
-            [cols]="cols" />
+            [cols]="cols"
+          />
         }
 
         @if (multiple && ['create', 'update'].includes(operation)) {

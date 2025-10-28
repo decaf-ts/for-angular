@@ -1,9 +1,9 @@
 import {  Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
-import { HTML5InputTypes, uielement, uilistitem, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
+import { HTML5InputTypes, uielement, uilistmodel, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
 import { pk } from '@decaf-ts/core';
 import { OperationKeys, timestamp } from '@decaf-ts/db-decorators';
 
-@uilistitem('ngx-decaf-list-item', { icon: 'person-outline' })
+@uilistmodel('ngx-decaf-list-item', { icon: 'person-outline' })
 @uimodel('ngx-decaf-crud-form', {rows: 1, cols: 1})
 @model()
 export class EmployeeModel extends Model {

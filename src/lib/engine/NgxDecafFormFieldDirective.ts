@@ -58,12 +58,6 @@ export abstract class NgxDecafFormFieldDirective extends NgxDecafComponentDirect
 
 
   /**
-   * @summary Current CRUD operation
-   * @description Represents the current CRUD operation being performed
-   */
-  operation!: CrudOperations;
-
-  /**
    * @summary Form group for the field
    * @description Angular FormGroup instance for the field
    */

@@ -1,9 +1,9 @@
 import { pk } from '@decaf-ts/core';
 import { eq, Model, model, ModelArg, password, required } from '@decaf-ts/decorator-validation';
-import { uichild, uielement, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
+import { uichild, uielement, uilistmodel, uimodel } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from './CategoryModel';
 
-@uilistitem('ngx-decaf-list-item', { icon: 'cafe-outline' })
+@uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class UserModel extends Model {

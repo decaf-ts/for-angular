@@ -4,9 +4,9 @@
     @if(icon && showIcon) {
       <div class="dcf-icon-container">
         <ion-icon
-          name="alert-circle-outline"
-          size="large"
-          color="danger"
+          [name]="icon"
+          [size]="iconSize"
+          [color]="iconColor"
           />
       </div>
     }
@@ -20,16 +20,32 @@
         <p [class]="subtitleColor" [innerHTML]="searchSubtitle"></p>
       }
     }
-    @if(buttonLink && buttonText) {
+    @if(!enableCreationByModelRoute) {
+       @if(buttonLink && buttonText) {
+        <div>
+          <ion-button
+            [size]="buttonSize"
+            [fill]="buttonFill"
+            [color]="buttonColor"
+            (click)="handleClick()">
+            {{  buttonText }}
+          </ion-button>
+        </div>
+      }
+    } @else {
+
       <div>
         <ion-button
+          class="dcf-margin-top"
           [size]="buttonSize"
           [fill]="buttonFill"
           [color]="buttonColor"
-          (click)="handleClick()">
-          {{  buttonText }}
+          (click)="changeOperation(OperationKeys.CREATE)" fill="clear">
+          {{  buttonText?.length ? buttonText : locale + '.button_create' | translate }}
         </ion-button>
       </div>
+
     }
+
   </ion-card-content>
 </ion-card>

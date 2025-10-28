@@ -1,7 +1,7 @@
 <ion-header [translucent]="translucent" [class]="className + ' ' + backgroundColor">
   <div [class]="{'dcf-header-container': center, 'dcf-width-expand': expand}">
     <ion-toolbar [color]="backgroundColor">
-      @if(showMenuButton && (currentOperation === OperationKeys.READ && !modelId)) {
+      @if(showMenuButton && (operation === OperationKeys.READ && !modelId)) {
         <ion-buttons [slot]="showBackButton ? 'end' : buttonMenuSlot">
           <ion-menu-button >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -12,7 +12,7 @@
       }
 
       @if(showBackButton) {
-        <ion-buttons [slot]="(!showMenuButton || (modelId && ![OperationKeys.READ,  OperationKeys.UPDATE].includes(currentOperation))) ?  'end' : 'start'">
+        <ion-buttons [slot]="(!showMenuButton || (modelId && ![OperationKeys.READ,  OperationKeys.UPDATE].includes(operation))) ?  'end' : 'start'">
           <app-back-button [link]="backButtonLink" [toolbarColor]="backButtonColor"></app-back-button>
         </ion-buttons>
       }
@@ -24,7 +24,7 @@
 
       <ng-content select="[slot='end']"></ng-content>
 
-      @if(operations?.length && route && (!currentOperation || currentOperation === OperationKeys.READ)) {
+      @if(operations?.length && route && (!operation || operation === OperationKeys.READ)) {
         <ion-buttons slot="end">
           @if(!modelId && isAllowed(OperationKeys.CREATE)) {
             <ion-button (click)="changeOperation(OperationKeys.CREATE)" fill="clear" [title]="'create' | translate ">

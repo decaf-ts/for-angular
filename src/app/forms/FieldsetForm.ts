@@ -1,10 +1,10 @@
 import { pk } from '@decaf-ts/core';
 import { id } from '@decaf-ts/db-decorators';
 import { list, max, Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
-import { uichild, uielement, uilayout, uilayoutitem, uilistitem, uimodel } from '@decaf-ts/ui-decorators';
+import { uichild, uielement, uilayout, uilayoutprop, uilistmodel, uimodel } from '@decaf-ts/ui-decorators';
 
-@uilistitem('ngx-decaf-list-item', { icon: 'cafe-outline' })
-@uimodel('ngx-decaf-crud-form', {cols: 2, rows: 1})
+@uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
+@uimodel('ngx-decaf-crud-form', {cols: 2})
 @model()
 export class User extends Model {
 
@@ -13,16 +13,18 @@ export class User extends Model {
   @id()
   @required()
   @uielement('ngx-decaf-crud-field', {
-    label: 'user.id.label'
+    label: 'user.id.label',
+    placeholder: 'user.id.placeholder'
   })
-  @uilayoutitem(1)
+  @uilayoutprop(1)
   id!: string;
 
 
   @uielement('ngx-decaf-crud-field', {
-    label: 'user.username.label'
+    label: 'user.username.label',
+    placeholder: 'user.username.placeholder'
   })
-  @uilayoutitem(1)
+  @uilayoutprop(1)
   username!: string;
 
 
@@ -32,7 +34,7 @@ export class User extends Model {
 }
 
 
-@uilistitem('ngx-decaf-list-item', { icon: 'cafe-outline' })
+@uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class FieldSetForm extends Model {
@@ -43,7 +45,7 @@ export class FieldSetForm extends Model {
 
   @list(User, 'Array')
   @max(4)
-  @uichild(User.name, 'ngx-decaf-fieldset', {cols: 2, rows: 1}, true)
+  @uichild(User.name, 'ngx-decaf-fieldset', {cols: 2}, true)
   user!: User;
 
   constructor(args: ModelArg<FieldSetForm> = {}) {

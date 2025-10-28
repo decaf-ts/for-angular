@@ -5,7 +5,7 @@
   </ion-refresher>
 }
 
-@if(showSearchbar && data?.length) {
+@if(showSearchbar) {
   @if(model && enableFilter) {
     <ngx-decaf-filter
       [model]="model"
@@ -72,20 +72,20 @@
     }
 
   } @else {
-    @if(!searchValue?.length) {
+    @if(!searching) {
       <ngx-decaf-empty-state
         [title]="(locale + '.'+ empty.title) | translate"
-        [subtitle]="(locale + '.'+ empty.subtitle) | translate"
-        [buttonText]="empty.showButton ? (locale + '.'+ empty.button | translate) : ''"
-        [buttonLink]="empty.showButton ? empty.route : ''"
-      />
+        [model]="model"
+        [icon]="empty.icon"
+        [subtitle]="(locale + '.'+ empty.subtitle) | translate" />
     } @else {
       <ngx-decaf-empty-state
         icon="search-outline"
-        ngClass="empty-search"
+        [model]="model"
+        className="empty-search"
         [translatable]="true"
-        title="search.title"
-        subtitle="search.subtitle"
+        [title]="locale + '.search.title' | translate"
+        [subtitle]="locale + '.search.subtitle' | translate: {'0': parseSearchValue()}"
         [searchValue]="searchValue"
       />
     }

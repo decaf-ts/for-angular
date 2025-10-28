@@ -1,11 +1,14 @@
 import { UIKeys } from '@decaf-ts/ui-decorators';
 import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
-import { ICrudFormOptions } from './interfaces';
+import { ICrudFormOptions, IListEmptyOptions } from './interfaces';
 
 /**
- * @description Angular engine key constants
+ * @description Angular engine key constants.
  * @summary Contains key strings used by the Angular rendering engine for reflection,
- * dynamic component creation, and other engine operations.
+ * dynamic component creation, and other engine operations. These constants provide
+ * consistent naming for metadata keys, DOM attributes, and component identification
+ * throughout the rendering system.
+ *
  * @typedef {Object} AngularEngineKeys
  * @property {string} REFLECT - Prefix for reflection metadata keys
  * @property {string} DYNAMIC - Key for dynamic component identification
@@ -19,8 +22,10 @@ import { ICrudFormOptions } from './interfaces';
  * @property {string} RENDER - Key for renderable components
  * @property {string} RENDERED_ID - Template for rendered component IDs
  * @property {string} PARENT - Key for comparison decorators and validators
+ * @property {string} VALIDATION_PARENT_KEY - Key for validation parent reference
+ *
  * @const AngularEngineKeys
- * @memberOf module:engine
+ * @memberOf module:lib/engine/constants
  */
 export const AngularEngineKeys = {
   REFLECT: `${UIKeys.REFLECT}.angular.`,
@@ -36,17 +41,22 @@ export const AngularEngineKeys = {
   RENDERED_ID: 'rendered-as-{0}',
   PARENT: '_parent',
   VALIDATION_PARENT_KEY: VALIDATION_PARENT_KEY,
+  FLAVOUR: "angular",
 };
 
 /**
- * @description Form validation state constants
+ * @description Form validation state constants.
  * @summary Contains constants representing the possible validation states of a form.
  * These are used to check and handle form validation throughout the application.
+ * The VALID state indicates all form controls pass validation, while INVALID
+ * indicates one or more validation errors exist.
+ *
  * @typedef {Object} FormConstants
  * @property {string} VALID - Constant representing a valid form state
  * @property {string} INVALID - Constant representing an invalid form state
+ *
  * @const FormConstants
- * @memberOf module:engine
+ * @memberOf module:lib/engine/constants
  */
 export const FormConstants = {
   VALID: 'VALID',
@@ -54,16 +64,23 @@ export const FormConstants = {
 } as const;
 
 /**
- * @description Event name constants
- * @summary Enum containing constants for event names used throughout the application.
- * These are used to standardize event naming and handling.
- * @enum {string}
- * @readonly
+ * @description Event name constants.
+ * @summary Contains constants for standardized event names used throughout the application.
+ * These constants ensure consistent event naming across components and make it easier to
+ * track and handle events. Each constant represents a specific application event type.
+ *
+ * @typedef {Object} EventConstants
  * @property {string} BACK_BUTTON_NAVIGATION - Event fired when back button navigation ends
- * @property {string} REFRESH_EVENT - Event fired when a refresh action occurs
- * @property {string} CLICK_EVENT - Event fired when a click action occurs
- * @property {string} SUBMIT_EVENT - Event fired when a form submission occurs
- * @memberOf module:engine
+ * @property {string} REFRESH - Event fired when a refresh action occurs
+ * @property {string} CLICK - Event fired when a click action occurs
+ * @property {string} SUBMIT - Event fired when a form submission occurs
+ * @property {string} VALIDATION_ERROR - Event fired when a validation error occurs
+ * @property {string} FIELDSET_ADD_GROUP - Event fired when adding a group to a fieldset
+ * @property {string} FIELDSET_UPDATE_GROUP - Event fired when updating a fieldset group
+ * @property {string} FIELDSET_REMOVE_GROUP - Event fired when removing a fieldset group
+ *
+ * @const EventConstants
+ * @memberOf module:lib/engine/constants
  */
 export const EventConstants = {
   BACK_BUTTON_NAVIGATION: 'backButtonNavigationEndEvent',
@@ -78,9 +95,12 @@ export const EventConstants = {
 } as const;
 
 /**
- * @description Logger level constants
- * @summary Enum defining the logging levels used in the application's logging system.
- * Lower values represent more verbose logging, while higher values represent more critical logs.
+ * @description Logger level constants.
+ * @summary Defines the logging levels used in the application's logging system.
+ * Lower numeric values represent more verbose logging, while higher values represent
+ * more critical logs. These levels control which log messages are output based on
+ * the configured logging threshold.
+ *
  * @enum {number}
  * @readonly
  * @property {number} ALL - Log everything (most verbose)
@@ -89,7 +109,8 @@ export const EventConstants = {
  * @property {number} WARN - Log warnings
  * @property {number} ERROR - Log errors
  * @property {number} CRITICAL - Log critical errors (least verbose)
- * @memberOf module:engine
+ *
+ * @memberOf module:lib/engine/constants
  */
 export enum LoggerLevels {
   ALL = 0,
@@ -101,15 +122,18 @@ export enum LoggerLevels {
 };
 
 /**
- * @description Route direction constants
- * @summary Enum defining the possible navigation directions in the application.
- * Used for controlling navigation flow and animation directions.
+ * @description Route direction constants.
+ * @summary Defines the possible navigation directions in the application.
+ * Used for controlling navigation flow and animation directions during route transitions.
+ * These constants help maintain consistent navigation behavior throughout the app.
+ *
  * @enum {string}
  * @readonly
  * @property {string} BACK - Navigate back to the previous page
  * @property {string} FORWARD - Navigate forward to the next page
  * @property {string} ROOT - Navigate to the root/home page
- * @memberOf module:engine
+ *
+ * @memberOf module:lib/engine/constants
  */
 export enum RouteDirections {
   BACK = 'back',
@@ -119,15 +143,20 @@ export enum RouteDirections {
 
 
 /**
- * @description Component tag name constants
- * @summary Enum defining the tag names for custom components used in the application.
- * These tag names are used for component registration and rendering.
+ * @description Component tag name constants.
+ * @summary Defines the custom HTML tag names for specialized components used in the application.
+ * These tag names are registered with Angular and used for component rendering and identification.
+ * Each constant represents the selector for a specific custom component type.
+ *
  * @enum {string}
  * @readonly
  * @property {string} LIST_ITEM - Tag name for list item component
  * @property {string} LIST_INFINITE - Tag name for infinite scrolling list component
  * @property {string} LIST_PAGINATED - Tag name for paginated list component
- * @memberOf module:engine
+ * @property {string} CRUD_FIELD - Tag name for CRUD form field component
+ * @property {string} LAYOUT_COMPONENT - Tag name for layout container component
+ *
+ * @memberOf module:lib/engine/constants
  */
 export enum ComponentsTagNames {
   LIST_ITEM = 'ngx-decaf-list-item',
@@ -138,13 +167,17 @@ export enum ComponentsTagNames {
 }
 
 /**
- * @description Base component property name constants
- * @summary Enum defining the standard property names used by base components in the application.
- * These property names are used for consistent property access across components.
+ * @description Base component property name constants.
+ * @summary Defines the standard property names used by base components throughout the application.
+ * These constants ensure consistent property naming across components and facilitate
+ * property access, validation, and data binding. Used primarily for component input
+ * properties and change detection.
+ *
  * @enum {string}
  * @readonly
  * @property {string} MODEL - Property name for the component's data model
  * @property {string} LOCALE - Property name for localization settings
+ * @property {string} LOCALE_ROOT - Property name for the locale root identifier
  * @property {string} PK - Property name for primary key
  * @property {string} ITEMS - Property name for collection items
  * @property {string} ROUTE - Property name for routing information
@@ -153,7 +186,11 @@ export enum ComponentsTagNames {
  * @property {string} TRANSLATABLE - Property name for translation flag
  * @property {string} MAPPER - Property name for property mapper
  * @property {string} INITIALIZED - Property name for initialization state
- * @memberOf module:engine
+ * @property {string} COMPONENT_NAME - Property name for component identifier
+ * @property {string} PARENT_COMPONENT - Property name for parent component reference
+ * @property {string} FORM_GROUP_COMPONENT_PROPS - Property name for form group component properties
+ *
+ * @memberOf module:lib/engine/constants
  */
 export enum BaseComponentProps {
   MODEL = 'model',
@@ -173,17 +210,55 @@ export enum BaseComponentProps {
 }
 
 
+/**
+ * @description List component type constants.
+ * @summary Defines the available types for list components, determining their
+ * pagination and scrolling behavior. Used to configure list rendering strategies.
+ *
+ * @enum {string}
+ * @readonly
+ * @property {string} INFINITE - Infinite scroll list type
+ * @property {string} PAGINATED - Paginated list type with page navigation
+ *
+ * @memberOf module:lib/engine/constants
+ */
 export enum ListComponentsTypes {
   INFINITE = 'infinite',
   PAGINATED = 'paginated',
 }
 
-
-
+/**
+ * @description CSS class name constants.
+ * @summary Contains predefined CSS class names used for consistent styling
+ * across components. These constants help maintain a unified visual language
+ * and make it easier to apply standard styles.
+ *
+ * @typedef {Object} CssClasses
+ * @property {string} BUTTONS_CONTAINER - CSS class for button container elements
+ *
+ * @const CssClasses
+ * @memberOf module:lib/engine/constants
+ */
 export const CssClasses = {
   BUTTONS_CONTAINER: 'buttons-container',
 };
 
+/**
+ * @description Default options for reactive CRUD forms.
+ * @summary Provides default configuration for form buttons in CRUD operations.
+ * Includes default text labels for submit and clear buttons, which can be
+ * overridden by individual form implementations.
+ *
+ * @type {ICrudFormOptions}
+ * @property {Object} buttons - Configuration for form action buttons
+ * @property {Object} buttons.submit - Submit button configuration
+ * @property {string} buttons.submit.text - Default text for submit button
+ * @property {Object} buttons.clear - Clear button configuration
+ * @property {string} buttons.clear.text - Default text for clear button
+ *
+ * @const DefaultFormReactiveOptions
+ * @memberOf module:lib/engine/constants
+ */
 export const DefaultFormReactiveOptions: ICrudFormOptions = {
   buttons: {
     submit: {
@@ -194,3 +269,13 @@ export const DefaultFormReactiveOptions: ICrudFormOptions = {
     },
   },
 };
+
+
+export const DefaultListEmptyOptions = {
+  title: 'empty.title',
+  subtitle: 'empty.subtitle',
+  showButton: false,
+  icon: 'folder-open-outline',
+  buttonText: 'locale.empty.button',
+  link: ''
+} as IListEmptyOptions

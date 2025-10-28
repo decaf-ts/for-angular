@@ -35,7 +35,8 @@ import {
   StringOrBoolean,
   KeyValue,
   ListItemCustomEvent,
-  NgxDecafComponentDirective
+  NgxDecafComponentDirective,
+  DefaultListEmptyOptions
 } from '../../engine';
 import {
   stringToBoolean,
@@ -47,7 +48,7 @@ import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { PaginationComponent } from '../pagination/pagination.component';
 import { IPaginationCustomEvent } from '../../engine/interfaces';
-import { FunctionLike, IFilterQuery, IFilterQueryItem, DecafRepository, IListEmptyResult, ListComponentsTypes } from '../../engine';
+import { FunctionLike, IFilterQuery, IFilterQueryItem, DecafRepository, IListEmptyOptions, ListComponentsTypes } from '../../engine';
 import { FilterComponent } from '../filter/filter.component';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -388,24 +389,15 @@ export class ListComponent extends NgxDecafComponentDirective implements OnInit,
   disableSort: StringOrBoolean = false;
 
 
-  /**
-   * @description Icon to display when the list is empty.
-   * @summary Specifies the icon shown in the empty state when no data is available.
-   * This can be any icon name supported by the application's icon system.
-   *
-   * @type {string | undefined}
-   * @default 'ti-database-exclamation'
-   * @memberOf ListComponent
-   */
-  @Input()
-  emptyIcon?: string = 'ti-database-exclamation';
 
-  /**
+
+
+    /**
    * @description Configuration for the empty state display.
    * @summary Customizes how the empty state is displayed when no data is available.
    * This includes the title, subtitle, button text, icon, and navigation link.
    *
-   * @type {Partial<IListEmptyResult>}
+   * @type {Partial<IListEmptyOptions>}
    * @default {
    *   title: 'empty.title',
    *   subtitle: 'empty.subtitle',
@@ -417,14 +409,7 @@ export class ListComponent extends NgxDecafComponentDirective implements OnInit,
    * @memberOf ListComponent
    */
   @Input()
-  empty: Partial<IListEmptyResult> = {
-    title: 'empty.title',
-    subtitle: 'empty.subtitle',
-    showButton: false,
-    icon: 'alert-circle-outline',
-    buttonText: 'locale.empty.button',
-    link: ''
-  }
+  empty: Partial<IListEmptyOptions> = {};
 
   /**
    * @description The current page number in paginated mode.
@@ -490,6 +475,9 @@ export class ListComponent extends NgxDecafComponentDirective implements OnInit,
    * @memberOf ListComponent
    */
   searchValue?: string | IFilterQuery | undefined;
+
+
+  searching: boolean = false;
 
   /**
    * @description A paginator object for handling pagination operations.
@@ -653,11 +641,11 @@ export class ListComponent extends NgxDecafComponentDirective implements OnInit,
     if(typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
 
+    this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     await this.refresh();
 
-    if(this.operations.includes(OperationKeys.CREATE) && this.route)
-      this.empty.link = `${this.route}/${OperationKeys.CREATE}`;
-
+    // if(this.operations.includes(OperationKeys.CREATE) && this.route)
+    //   this.empty.link = `${this.route}/${OperationKeys.CREATE}`;
 
     if(!this.initialized)
       return this.parseProps(this);
@@ -843,6 +831,8 @@ export class ListComponent extends NgxDecafComponentDirective implements OnInit,
    */
   @HostListener('window:searchbarEvent', ['$event'])
   async handleSearch(value: string | IFilterQuery | undefined): Promise<void> {
+    this.searching = value !== undefined;
+
     if(this.type === ListComponentsTypes.INFINITE) {
       this.loadMoreData = false;
       if(value === undefined) {
@@ -1156,8 +1146,11 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
           this.indexes = (Object.values(this.mapper) || [this.pk]);
 
         const condition = this.parseConditions(this.searchValue as string | number | IFilterQuery);
+          this.changeDetectorRef.detectChanges();
         request = await this.parseResult(await repo.query(condition, (this.sortBy || this.pk) as keyof Model, this.sortDirection));
         data = [];
+        this.changeDetectorRef.detectChanges();
+        console.log(this.searchValue);
       }
       data = this.type === ListComponentsTypes.INFINITE ? [... (data).concat(request)] : [...request];
     } catch(error: unknown) {
@@ -1398,6 +1391,14 @@ protected itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyVal
         accum.push({... this.itemMapper(curr, this.mapper as KeyValue, props), ... {pk: this.pk}});
         return accum;
     }, []);
+  }
+
+
+  parseSearchValue() {
+    if(typeof this.searchValue === Primitives.STRING)
+      return this.searchValue || "";
+    const searchValue = this.searchValue as IFilterQuery;
+    return (searchValue?.query as IFilterQueryItem[]).map(item => `${item.index} ${item.condition} ${item.value}`).join(", ");
   }
 }
 

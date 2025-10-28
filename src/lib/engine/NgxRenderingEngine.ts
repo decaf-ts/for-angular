@@ -132,7 +132,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @constructor
    */
   constructor() {
-    super('angular');
+    super(AngularEngineKeys.FLAVOUR);
   }
 
   /**
@@ -363,7 +363,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       const props = fieldDef.props as Partial<IComponentInput>;
       if(!NgxRenderingEngine._operation)
         NgxRenderingEngine._operation = props?.operation || undefined;
-      const isArray = (props?.pages && props?.pages  >= 1 || props?.multiple === true);
+      const isArray = (props?.pages && (props?.pages as number)  >= 1 || props?.multiple === true);
       const formGroup = NgxDecafFormService.createForm(formId, isArray);
       result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl, formId, true, formGroup);
       if(result.instance)

@@ -57,7 +57,7 @@
     },
     "empty_state": {
       "title": "No data found",
-      "button": "Create",
+      "button_create": "Create",
       "search": {
         "title": "Not data found for search",
         "subtitle": "You searched for: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{0}</ion-text>",
