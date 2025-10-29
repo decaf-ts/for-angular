@@ -1,5 +1,11 @@
 #!/bin/bash -e
 
+current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+if [[ "$current_branch" != "master" && "$current_branch" != "main" ]]; then
+  echo "Error: release must be run from 'master' or 'main' branch. Current branch: $current_branch" >&2
+  exit 1
+fi
+
 function ask_yes_or_no(){
     # Test if there are enough arguments
     if [[ $# -gt 2 ]]; then
@@ -43,6 +49,35 @@ function ask(){
     echo "$real_answer"
 }
 
+# Default publish preference is public
+PUBLISH_ACCESS_FLAG="public"
+
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --public)
+      PUBLISH_ACCESS_FLAG="public"
+      shift
+      ;;
+    --private)
+      PUBLISH_ACCESS_FLAG="private"
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -* )
+      # Unknown flag: stop flag parsing so older behavior (treat as TAG) remains
+      break
+      ;;
+    *)
+      # first non-flag — stop parsing
+      break
+      ;;
+  esac
+done
+
 if [[ $# -ne 0 ]];then
   TAG="$1"
   if [[ -n "$TAG" ]];then
@@ -78,12 +113,29 @@ GIT_USER=$(git config user.name)
 
 REMOTE_URL=$(git remote get-url origin)
 
-if [[ "$(cat .token)" ]]; then
-  git push -u "https://${GIT_USER}:$(cat .token)@${REMOTE_URL#https://}" --follow-tags
+if [[ -s .token ]]; then
+  # Save current branch and upstream before pushing
+  CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || true)
+
+  # Push using token; omit -u to avoid changing upstream
+  git push "https://${GIT_USER}:$(cat .token)@${REMOTE_URL#https://}" --follow-tags
+  # Restore upstream tracking if it existed
+  if [[ -n "$UPSTREAM" ]]; then
+    git branch --set-upstream-to="$UPSTREAM" "$CURRENT_BRANCH" 2>/dev/null || true
+  fi
 else
   git push --follow-tags
 fi
 
+# Map user-friendly flag to npm --access value. npm expects "public" or "restricted"
+if [[ "$PUBLISH_ACCESS_FLAG" == "public" ]]; then
+  NPM_ACCESS_VALUE="public"
+else
+  NPM_ACCESS_VALUE="restricted"
+fi
+
 if [[ "$MESSAGE" =~ -no-ci$ ]]; then
-  NPM_TOKEN=$(cat .npmtoken) npm publish --access public
+  # Use .npmtoken for publishing; respect chosen access level
+  NPM_TOKEN=$(cat .npmtoken) npm publish --access "$NPM_ACCESS_VALUE"
 fi
