@@ -5,11 +5,13 @@
  * offers page-focused utilities such as menu management, title handling and router event hooks.
  * @link {@link NgxPageDirective}
  */
-import { Directive, Inject, inject } from "@angular/core";
+import { AfterViewInit, Directive, Inject, inject, SimpleChanges } from "@angular/core";
 import { NgxDecafComponentDirective} from "./NgxDecafComponentDirective";
 import { Title } from "@angular/platform-browser";
 import { IMenuItem } from "./interfaces";
 import { CPTKN } from "../for-angular-common.module";
+import { NavigationEnd, NavigationStart } from "@angular/router";
+import { removeFocusTrap } from "../helpers/utils";
 
 /**
  * @description Base directive for page-level components in Decaf Angular applications.
@@ -22,7 +24,7 @@ import { CPTKN } from "../for-angular-common.module";
  * @memberOf module:lib/engine/NgxPageDirective
  */
 @Directive()
-export abstract class NgxPageDirective extends NgxDecafComponentDirective {
+export abstract class NgxPageDirective extends NgxDecafComponentDirective implements AfterViewInit {
 
   /**
    * @description Page title text for the current view.
@@ -59,6 +61,8 @@ export abstract class NgxPageDirective extends NgxDecafComponentDirective {
    */
   protected titleService: Title = inject(Title);
 
+
+
   /**
    * @description Constructor for NgxPageDirective.
    * @summary Initializes the page directive with optional locale root and menu visibility settings.
@@ -82,9 +86,20 @@ export abstract class NgxPageDirective extends NgxDecafComponentDirective {
    * @return {Promise<void>} A promise that resolves when menu state is updated
    * @memberOf module:lib/engine/NgxPageDirective
    */
-	async ionViewWillEnter(): Promise<void> {
-		await this.menuController.enable(this.hasMenu);
+	async ngAfterViewInit(): Promise<void> {
+      this.router.events.subscribe(async event => {
+      if(event instanceof NavigationEnd) {
+        const url = (event?.url || "").replace('/', '');
+        this.hasMenu = url !== "login" && url !== "";
+        this.setPageTitle(url);
+      }
+      if (event instanceof NavigationStart)
+        removeFocusTrap();
+    });
+    await this.menuController.enable(this.hasMenu);
 	}
+
+
 
   /**
    * @description Sets the browser page title based on the current route.
@@ -99,12 +114,14 @@ export abstract class NgxPageDirective extends NgxDecafComponentDirective {
    * @return {void}
    * @memberOf module:lib/engine/NgxPageDirective
    */
-  protected setPageTitle(route: string, menu?: IMenuItem[]): void {
+  protected setPageTitle(route?: string, menu?: IMenuItem[]): void {
+    if(!route)
+      route = this.router.url.replace('/', '');
     if(menu)
       menu = this.menu;
     const activeMenu = this.menu.find(item => item?.url?.includes(route));
     if(activeMenu)
-      this.titleService.setTitle(`Decaf For Angular - ${activeMenu?.title || activeMenu?.label}`);
+      this.titleService.setTitle(`${activeMenu?.title || activeMenu?.label}`);
   }
 
 }

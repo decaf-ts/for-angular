@@ -22,7 +22,7 @@ import { IMenuItem, NgxPageDirective } from '../lib/engine';
 import { isDevelopmentMode, removeFocusTrap } from '../lib/helpers';
 import { ForAngularRepository } from './utils/ForAngularRepository';
 import { LogoComponent } from './components/logo/logo.component';
-import { AppModels, DbAdapterFlavour } from './app.config';
+import { AppModels, AppName, DbAdapterFlavour } from './app.config';
 import { Repository, uses } from '@decaf-ts/core';
 import { AppMenu, DashboardMenuItem, LogoutMenuItem } from './utils/contants';
 
@@ -65,15 +65,6 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    * @return {Promise<void>}
    */
   async ngOnInit(): Promise<void> {
-    this.router.events.subscribe(async event => {
-      if(event instanceof NavigationEnd) {
-        const url = (event?.url || "").replace('/', '');
-        this.hasMenu = url !== "login" && url !== "";
-        this.setPageTitle(url);
-      }
-      if (event instanceof NavigationStart)
-        removeFocusTrap();
-    });
     await this.initialize();
   }
 
@@ -109,7 +100,31 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       ...AppMenu,
       LogoutMenuItem
     ];
+    this.setPageTitle(this.router.url.replace('/', ''));
+  }
 
+
+  /**
+   * @description Sets the browser page title based on the current route.
+   * @summary Updates the browser's document title by finding the active menu item that matches
+   * the provided route. If a matching menu item is found, it sets the title using the format
+   * "Decaf For Angular - {menu title or label}". This improves SEO and provides clear context
+   * to users about the current page. If a custom menu array is provided, it uses that instead
+   * of the component's default menu.
+   * @protected
+   * @param {string} route - The current route path to match against menu items
+   * @param {IMenuItem[]} [menu] - Optional custom menu array to search (uses this.menu if not provided)
+   * @return {void}
+   * @memberOf module:lib/engine/NgxPageDirective
+   */
+  protected override setPageTitle(route?: string, menu?: IMenuItem[]): void {
+    if(!route)
+      route = this.router.url.replace('/', '');
+    if(menu)
+      menu = this.menu;
+    const activeMenu = this.menu.find(item => item?.url?.includes(route));
+    if(activeMenu)
+      this.titleService.setTitle(`${activeMenu?.title || activeMenu?.label} - ${AppName}`);
   }
 
 }

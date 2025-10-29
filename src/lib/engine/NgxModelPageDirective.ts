@@ -136,8 +136,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * utility. This ensures that logging is available throughout the component's lifecycle
    * for error tracking and debugging purposes.
    */
-  override async ionViewWillEnter(): Promise<void> {
-    await super.ionViewWillEnter();
+   async ionViewWillEnter(): Promise<void> {
+    // await super.ionViewWillEnter();
     if(this.modelId)
       this.allowedOperations =  this.allowedOperations.concat([OperationKeys.UPDATE, OperationKeys.DELETE]);
     await this.refresh(this.modelId);

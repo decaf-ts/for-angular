@@ -24,6 +24,7 @@ import { EmployeeModel } from './models/EmployeeModel';
 import { User } from './forms/FieldsetForm';
 
 export const DbAdapterFlavour = 'ram';
+export const AppName = 'Decaf For Angular';
 // export const AppModels = [new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
 export const AppModels = [new User(), new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
 

@@ -58,10 +58,16 @@ export class ForAngularRepository<T extends Model> {
         default:
           data = await this.generateData();
       }
-      data = DbAdapterFlavour === "ram" ?
-      data = await Promise.all(
-          data.map((item) => this.repository?.create(item))
-        ) as T[] : await this.repository?.createAll(data) as T[];
+      try {
+         data = await this.repository?.createAll(data) as T[];
+      } catch (error: unknown) {
+        console.warn(error);
+      }
+
+        //  data = DbAdapterFlavour === "ram" ?
+      // data = await Promise.all(
+      //     data.map((item) => this.repository?.create(item))
+      //   ) as T[] : await this.repository?.createAll(data) as T[];
     }
     this.data = data as T[] || [];
   }
