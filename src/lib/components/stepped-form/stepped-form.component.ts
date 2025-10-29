@@ -17,7 +17,6 @@ import { addIcons } from 'ionicons';
 import { UIElementMetadata, UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { IBaseCustomEvent, Dynamic, EventConstants, NgxDecafFormService } from '../../engine';
-import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { Subscription, timer } from 'rxjs';
 import { getLocaleContext } from '../../i18n/Loader';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -36,8 +35,7 @@ import { LayoutComponent } from '../layout/layout.component';
     IonSkeletonText,
     IonText,
     IonButton,
-    LayoutComponent,
-    ComponentRendererComponent
+    LayoutComponent
   ],
   standalone: true,
   //  host: {'[attr.id]': 'uid'},
@@ -194,17 +192,6 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    */
   private timerSubscription!: Subscription;
 
-  /**
-   * @description Angular Location service.
-   * @summary Injected service that provides access to the browser's URL and history.
-   * This service is used for interacting with the browser's history API, allowing
-   * for back navigation and URL manipulation outside of Angular's router.
-   *
-   * @private
-   * @type {Location}
-   * @memberOf CrudFormComponent
-   */
-  private location: Location = inject(Location);
 
   /**
    * @description Event emitter for form submission.

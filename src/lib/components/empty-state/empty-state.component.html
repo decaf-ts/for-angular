@@ -14,11 +14,7 @@
       <h5 [class]="titleColor" [innerHTML]="title"></h5>
     }
     @if(subtitle) {
-      @if(!searchValue) {
-        <p [class]="subtitleColor" [innerHTML]="subtitle"></p>
-      } @else {
-        <p [class]="subtitleColor" [innerHTML]="searchSubtitle"></p>
-      }
+      <p [class]="subtitleColor" [innerHTML]="searchValue ? searchSubtitle : subtitle"></p>
     }
     @if(!enableCreationByModelRoute) {
        @if(buttonLink && buttonText) {

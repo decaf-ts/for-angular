@@ -1,4 +1,4 @@
-import { id, OperationKeys } from '@decaf-ts/db-decorators';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 import {
   date,
   email,
@@ -13,7 +13,7 @@ import {
   required,
   url,
 } from '@decaf-ts/decorator-validation';
-import { hideOn, uichild, uielement, uilayout, uilayoutprop, uimodel } from '@decaf-ts/ui-decorators';
+import { hideOn, uichild, uielement, uilayoutprop, uimodel } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from './CategoryModel';
 import { UserModel } from './UserModel';
 import { pk } from '@decaf-ts/core';

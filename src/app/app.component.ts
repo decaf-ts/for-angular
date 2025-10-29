@@ -1,5 +1,5 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
-import { NavigationEnd, NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { NavigationEnd, NavigationStart, RouterLink, RouterLinkActive } from '@angular/router';
 import { IonApp,
   IonSplitPane,
   IonMenu,
@@ -12,7 +12,6 @@ import { IonApp,
   IonRouterOutlet,
   IonRouterLink
 } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
 
 import { ModelConstructor } from '@decaf-ts/decorator-validation';
 
@@ -91,7 +90,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     for(let model of models) {
       uses(DbAdapterFlavour)(model);
       if(model instanceof Function)
-        model = new (model as unknown as ModelConstructor<any>)();
+        model = new (model as unknown as ModelConstructor<typeof model>)();
       const name = model.constructor.name.replace(/[0-9]/g, '');
       if (isDevelopment) {
         if(populate.includes(name)) {
@@ -104,7 +103,6 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       menu.push({label: name,  name, url: `/model/${Repository.table(model)}`, icon: 'cube-outline'})
     }
     this.initialized = true;
-    console.log(this.hasMenu);
     this.menu = [
       DashboardMenuItem,
       ...menu as IMenuItem[],

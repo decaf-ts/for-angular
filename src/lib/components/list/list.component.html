@@ -7,13 +7,15 @@
 
 @if(showSearchbar) {
   @if(model && enableFilter) {
-    <ngx-decaf-filter
-      [model]="model"
-      [sortDirection]="sortDirection"
-      [disableSort]="disableSort"
-      (filterEvent)="handleFilter($event)"
-      (searchEvent)="handleSearch($event)"
-    />
+    @if(data?.length || searching) {
+      <ngx-decaf-filter
+        [model]="model"
+        [sortDirection]="sortDirection"
+        [disableSort]="disableSort"
+        (filterEvent)="handleFilter($event)"
+        (searchEvent)="handleSearch($event)"
+      />
+    }
   } @else {
     <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
   }

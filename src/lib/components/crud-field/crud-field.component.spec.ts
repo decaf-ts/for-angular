@@ -53,16 +53,6 @@ describe('CrudFieldComponent', () => {
   // let formBuilder: FormBuilder;
   let translateService: TranslateService;
 
-  let engine;
-
-  beforeAll(() => {
-    try {
-      engine = new NgxRenderingEngine();
-      Model.setBuilder(Model.fromModel as ModelBuilderFunction);
-    } catch (e: unknown) {
-      console.warn(`Engine already loaded`);
-    }
-  });
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports,

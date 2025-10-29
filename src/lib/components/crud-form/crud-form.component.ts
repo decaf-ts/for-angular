@@ -33,8 +33,7 @@ import { LayoutComponent } from '../layout/layout.component';
 export class CrudFormComponent extends NgxFormDirective {
 
   constructor() {
-    super();
-    this.componentName = 'CrudFormComponent';
+    super('CrudFormComponent');
   }
 
   /**
@@ -48,7 +47,6 @@ export class CrudFormComponent extends NgxFormDirective {
    * @memberOf CrudFormComponent
    */
   override async ngOnInit(): Promise<void> {
-    // console.log(this.formGroup);
     this.options = Object.assign(
       {},
       DefaultFormReactiveOptions,

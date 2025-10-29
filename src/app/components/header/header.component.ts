@@ -1,7 +1,7 @@
 import { Component,  inject, Input, OnInit } from '@angular/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
-import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { IonButton, IonButtons, IonHeader, IonIcon, IonMenuButton, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { IonButton, IonButtons, IonHeader, IonIcon, IonMenuButton, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 import { RouterService } from 'src/app/services/router.service';
 import { getWindow, stringToBoolean } from 'src/lib/helpers/utils';
 import { BackButtonComponent } from '../back-button/back-button.component';

@@ -9,6 +9,7 @@ import { AIModel } from '../models/AIVendorModel';
 import {  AIFeatures } from './contants';
 import { DB_ADAPTER_PROVIDER } from 'src/lib/for-angular-common.module';
 import { parseToNumber } from '@decaf-ts/ui-decorators';
+import { DbAdapterFlavour } from '../app.config';
 
 export class ForAngularRepository<T extends Model> {
 
@@ -57,7 +58,10 @@ export class ForAngularRepository<T extends Model> {
         default:
           data = await this.generateData();
       }
-      data = await this.repository?.createAll(data) as T[];
+      data = DbAdapterFlavour === "ram" ?
+      data = await Promise.all(
+          data.map((item) => this.repository?.create(item))
+        ) as T[] : await this.repository?.createAll(data) as T[];
     }
     this.data = data as T[] || [];
   }
@@ -126,8 +130,15 @@ export class ForAngularRepository<T extends Model> {
         return item as T;
       return undefined as unknown as T;
     }
-    return data.map((d) => getPkValue(d)).filter(Boolean) as T[];
-  }
+    const uids = new Set();
+    return data
+      .map((d) => getPkValue(d))
+      .filter((item: KeyValue) => {
+        if (!item || uids.has(item[pk])) return false;
+        uids.add(item[pk]);
+        return true;
+      }) as T[];
+    }
 }
 
 // function generateEmployes(limit = 100): EmployeeModel[] {

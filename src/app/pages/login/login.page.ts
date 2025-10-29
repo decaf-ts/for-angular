@@ -52,7 +52,8 @@ export class LoginPage extends NgxPageDirective implements OnInit {
   ngOnInit(): void {
    this.model = new LoginForm({
     username: 'User',
-    password: 'Decafts123-'
+    password: 'Decafts123-',
+    action: 'Login'
    });
   }
 }

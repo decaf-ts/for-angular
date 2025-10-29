@@ -21,16 +21,6 @@ const imports = [
 describe('<%= classify(name) %><%= classify(type) %>', () => {
   let component: <%= classify(name) %><%= classify(type) %>;
   let fixture: ComponentFixture<<%= classify(name) %><%= classify(type) %>>;
-  let engine;
-
-  beforeAll(() => {
-    try {
-      engine = new NgxRenderingEngine();
-      Model.setBuilder(Model.fromModel as ModelBuilderFunction);
-    } catch (e: unknown) {
-      console.warn(`Engine already loaded`);
-    }
-  });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({<% if(!standalone) {%>

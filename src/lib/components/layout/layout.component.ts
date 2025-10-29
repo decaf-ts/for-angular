@@ -173,12 +173,10 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
       this.breakpoint = `@${this.breakpoint}`.toLowerCase();
     this.cols = this._cols;
     this.rows = this._rows;
-    console.log(this);
     // if(this._rows.length === 1)
     //   this.match = false;
     // if(this._cols.length === 1)
     //   this.grid = false;
-    console.log(this);
     this.initialized = true;
   }
 }

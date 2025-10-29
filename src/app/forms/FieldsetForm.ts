@@ -1,7 +1,7 @@
 import { pk } from '@decaf-ts/core';
 import { id } from '@decaf-ts/db-decorators';
 import { list, max, Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
-import { uichild, uielement, uilayout, uilayoutprop, uilistmodel, uimodel } from '@decaf-ts/ui-decorators';
+import { uichild, uielement, uilayoutprop, uilistmodel, uimodel } from '@decaf-ts/ui-decorators';
 
 @uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uimodel('ngx-decaf-crud-form', {cols: 2})

@@ -301,25 +301,13 @@ export class EmptyStateComponent extends NgxDecafComponentDirective implements O
     this.initialize();
     this.showIcon = stringToBoolean(this.showIcon);
 
-    console.log(this.icon);
-
-    // if(this.translatable) {
-    //   this.title = generateLocaleFromString(this.locale, this.title);
-    //   this.subtitle = generateLocaleFromString(this.locale, this.subtitle);
-    //   this.buttonText = generateLocaleFromString(this.locale, this.buttonText);
-    // }
-
     this.titleColor = `dcf-title color-${this.titleColor}`;
     this.subtitleColor = `dcf-subtitle color-${this.titleColor}`;
 
     if(this.searchValue)
       this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);
-    if(!this.buttonLink && this.model && this.route) {
+    if(!this.buttonLink && this.model && this.route)
       this.enableCreationByModelRoute = true;
-      console.log(this.getRoute());
-      console.log(this.model);
-      console.log(this.locale + '.button.create');
-    }
 
   }
 

@@ -1150,7 +1150,6 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
         request = await this.parseResult(await repo.query(condition, (this.sortBy || this.pk) as keyof Model, this.sortDirection));
         data = [];
         this.changeDetectorRef.detectChanges();
-        console.log(this.searchValue);
       }
       data = this.type === ListComponentsTypes.INFINITE ? [... (data).concat(request)] : [...request];
     } catch(error: unknown) {

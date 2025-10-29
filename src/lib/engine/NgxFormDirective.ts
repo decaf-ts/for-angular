@@ -1,4 +1,4 @@
-import { Directive, ElementRef, EventEmitter, Inject, inject, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
+import { Directive, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { FormArray, FormGroup } from "@angular/forms";
 import { Location } from '@angular/common';
 import { CrudOperations, OperationKeys } from "@decaf-ts/db-decorators";
@@ -22,7 +22,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * Used for form validation, value management, and integration with Angular's reactive forms.
    *
    * @type {FormGroup}
-   * @memberOf CrudFormComponent
    */
   @Input()
   parentFormId!: string;
@@ -35,22 +34,9 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * HTML form properties and methods when needed.
    *
    * @type {ElementRef}
-   * @memberOf CrudFormComponent
    */
   @ViewChild('component', { static: false, read: ElementRef })
   override component!: ElementRef;
-
-  /**
-   * @description Angular Location service.
-   * @summary Injected service that provides access to the browser's URL and history.
-   * This service is used for interacting with the browser's history API, allowing
-   * for back navigation and URL manipulation outside of Angular's router.
-   *
-   * @private
-   * @type {Location}
-   * @memberOf CrudFormComponent
-   */
-  private location: Location = inject(Location);
 
 
   /**
@@ -61,7 +47,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    *
    * @type {FieldUpdateMode}
    * @default 'change'
-   * @memberOf CrudFormComponent
    */
   @Input()
   updateOn: FieldUpdateMode = 'change';
@@ -74,7 +59,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    *
    * @type {HTMLFormTarget}
    * @default '_self'
-   * @memberOf CrudFormComponent
    */
   @Input()
   target: HTMLFormTarget = '_self';
@@ -87,7 +71,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    *
    * @type {'get' | 'post' | 'event'}
    * @default 'event'
-   * @memberOf CrudFormComponent
    */
   @Input()
   method: 'get' | 'post' | 'event' = 'event';
@@ -99,7 +82,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * during component initialization to customize the form's functionality.
    *
    * @type {ICrudFormOptions}
-   * @memberOf CrudFormComponent
    */
   @Input()
   options!: ICrudFormOptions;
@@ -112,7 +94,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * distinguish between different types of form submissions within the same component.
    *
    * @type {string | undefined}
-   * @memberOf CrudFormComponent
    */
   @Input()
   action?: string;
@@ -125,10 +106,9 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    *
    * @type {CrudOperations}
    * @required
-   * @memberOf CrudFormComponent
    */
   @Input({ required: true })
-  override operation!: CrudOperations;
+  override operation: CrudOperations = OperationKeys.CREATE;
 
   /**
    * @description Custom event handlers for form actions.
@@ -137,7 +117,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * custom business logic and can be invoked for various form events and actions.
    *
    * @type {HandlerLike}
-   * @memberOf CrudFormComponent
    */
   @Input()
   handlers!: HandlerLike;
@@ -149,7 +128,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * controlling form behavior. May be undefined for read-only operations.
    *
    * @type {FormGroup | undefined}
-   * @memberOf CrudFormComponent
    */
   @Input()
   formGroup: FormParent | undefined = undefined;
@@ -161,7 +139,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * attribute for the form element, enabling DOM queries and form management.
    *
    * @type {string}
-   * @memberOf CrudFormComponent
    */
   @Input()
   rendererId!: string;
@@ -174,7 +151,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * components. This enables decoupled handling of form submission logic.
    *
    * @type {EventEmitter<ICrudFormEvent>}
-   * @memberOf CrudFormComponent
    */
   @Output()
   submitEvent: EventEmitter<ICrudFormEvent> = new EventEmitter<ICrudFormEvent>();
@@ -188,7 +164,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    *
    * @type {string}
    * @default Randomly generated 12-character string
-   * @memberOf CrudFormComponent
    */
   @Input()
   allowClear: boolean = true;
@@ -244,13 +219,13 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * form input. Configuration options are merged with default settings.
    *
    * @returns {Promise<void>}
-   * @memberOf CrudFormComponent
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override async ngOnInit(model?: Model | string): Promise<void> {
     // dont call super.ngOnInit to model conflicts
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)
       this.formGroup = undefined;
+    this.initialized = true;
   }
 
   /**
@@ -260,7 +235,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * and ensure proper resource cleanup.
    *
    * @returns {void}
-   * @memberOf CrudFormComponent
    */
   ngOnDestroy(): void {
     if (this.formGroup)
@@ -301,7 +275,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * since these operations don't have modifiable form data to reset.
    *
    * @returns {void}
-   * @memberOf CrudFormComponent
    */
   handleReset(): void {
     if(![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation) && this.allowClear)

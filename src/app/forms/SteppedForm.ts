@@ -8,7 +8,7 @@ import {
   required,
   url,
 } from '@decaf-ts/decorator-validation';
-import { uichild, uielement, uilayout, uilayoutprop, uimodel, uipageprop, uisteppedmodel } from '@decaf-ts/ui-decorators';
+import { uichild, uielement,  uilayoutprop, uipageprop, uisteppedmodel } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from '../models/CategoryModel';
 
 @uisteppedmodel('ngx-decaf-stepped-form',

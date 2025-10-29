@@ -23,7 +23,8 @@
     "lessThanOrEqual": "Este campo deve ser inferior ou igual ao campo {0}",
     "greaterThan": "Este campo deve ser superior ao campo {0}",
     "greaterThanOrEqual": "Este campo deve ser superior ou igual ao campo {0}",
-    "form_control": "Controlador de formulário não localizado para {0}."
+    "form_control": "Controlador de formulário não localizado para {0}.",
+    "not_found": "Não foram encontrados registos com <span class=\"text-bold\">{0}: {1} em {2}</span>."
   },
   "component": {
     "fieldset": {

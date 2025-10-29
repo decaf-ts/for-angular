@@ -1,16 +1,14 @@
 /**
- * @module module:lib/engine/interfaces
+ * @module lib/engine/interfaces
  * @description Type and interface definitions used by the Angular rendering engine.
  * @summary Exposes interfaces for component input metadata, rendering outputs, form events,
  * and supporting types used across the engine and components.
- *
- * @link {@link AngularDynamicOutput}
  */
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ElementRef, EnvironmentInjector, Injector, Type } from '@angular/core';
 import { OrderDirection } from '@decaf-ts/core';
 import { AngularFieldDefinition, FieldUpdateMode, KeyValue, StringOrBoolean } from './types';
-import { CrudOperationKeys, FieldProperties, ISteppedModelPage } from '@decaf-ts/ui-decorators';
+import { CrudOperationKeys, FieldProperties } from '@decaf-ts/ui-decorators';
 import { FormParent } from './types';
 import { Model } from '@decaf-ts/decorator-validation';
 
@@ -319,10 +317,13 @@ export interface IBaseCustomEvent {
 
 
 /**
- * Configuration for internationalization (i18n) resource file paths.
- *
- * @property prefix - The prefix to be used for the resource file path.
- * @property suffix - The suffix to be appended to the resource file path.
+ * @description Configuration for internationalization (i18n) resource file paths
+ * @summary Defines the structure for configuring i18n resource file paths with prefix and suffix.
+ * Used by the translation system to locate and load language resource files.
+ * @interface I18nResourceConfig
+ * @property {string} prefix - The prefix to be used for the resource file path
+ * @property {string} suffix - The suffix to be appended to the resource file path
+ * @memberOf module:engine
  */
 export interface I18nResourceConfig { prefix: string, suffix: string }
 
@@ -331,8 +332,12 @@ export interface I18nResourceConfig { prefix: string, suffix: string }
  * @description CRUD form event type
  * @summary Extends IBaseCustomEvent to include optional handlers for CRUD form operations.
  * This event type is used for form-related actions like create, read, update, and delete operations.
- * @typedef ICrudFormEvent
- * @property {Record<string, any>} [handlers] - Optional handlers for form operations
+ * @interface ICrudFormEvent
+ * @property {Record<string, unknown>} [handlers] - Optional handlers for form operations
+ * @property {string} name - The name of the event (inherited from IBaseCustomEvent)
+ * @property {string} [component] - The component that triggered the event (inherited from IBaseCustomEvent)
+ * @property {unknown} [data] - The data associated with the event (inherited from IBaseCustomEvent)
+ * @property {HTMLElement} [target] - The target element (inherited from IBaseCustomEvent)
  * @memberOf module:engine
  */
 export interface ICrudFormEvent extends IBaseCustomEvent {
@@ -344,6 +349,9 @@ export interface ICrudFormEvent extends IBaseCustomEvent {
  * @summary Event emitted by pagination components to signal page navigation.
  * Extends IBaseCustomEvent and carries a payload with the target page number and navigation direction.
  * @interface IPaginationCustomEvent
+ * @property {Object} data - The pagination data payload
+ * @property {number} data.page - The target page number
+ * @property {'next' | 'previous'} data.direction - The navigation direction
  * @memberOf module:engine
  */
 export interface IPaginationCustomEvent extends IBaseCustomEvent {
@@ -358,6 +366,11 @@ export interface IPaginationCustomEvent extends IBaseCustomEvent {
  * @summary Represents a single item in a navigation or contextual menu.
  * Includes the visible label and optional metadata such as accessibility title, target URL, icon, and color.
  * @interface IMenuItem
+ * @property {string} label - The visible text label for the menu item
+ * @property {string} [title] - Optional accessibility title or tooltip text
+ * @property {string} [url] - Optional target URL for navigation
+ * @property {string} [icon] - Optional icon identifier to display with the menu item
+ * @property {string} [color] - Optional color theme for the menu item
  * @memberOf module:engine
  */
 export interface IMenuItem {
@@ -368,11 +381,34 @@ export interface IMenuItem {
   color?: string;
 }
 
-
+/**
+ * @description Form reactive submit event data
+ * @summary Defines the structure of data emitted when a reactive form is submitted.
+ * Contains the processed form data as key-value pairs.
+ * @interface IFormReactiveSubmitEvent
+ * @property {Record<string, unknown>} data - The form data as key-value pairs
+ * @memberOf module:engine
+ */
 export interface IFormReactiveSubmitEvent {
   data: Record<string, unknown>;
 }
 
+/**
+ * @description CRUD form options configuration
+ * @summary Defines the configuration options for CRUD form buttons including submit and clear buttons.
+ * Each button can be customized with text, icon, and icon position.
+ * @interface ICrudFormOptions
+ * @property {Object} buttons - Configuration for form action buttons
+ * @property {Object} buttons.submit - Submit button configuration
+ * @property {string} [buttons.submit.icon] - Optional icon for the submit button
+ * @property {'start' | 'end'} [buttons.submit.iconSlot] - Position of the icon relative to text
+ * @property {string} [buttons.submit.text] - Text label for the submit button
+ * @property {Object} [buttons.clear] - Optional clear button configuration
+ * @property {string} [buttons.clear.icon] - Optional icon for the clear button
+ * @property {'start' | 'end'} [buttons.clear.iconSlot] - Position of the icon relative to text
+ * @property {string} [buttons.clear.text] - Text label for the clear button
+ * @memberOf module:engine
+ */
 export interface ICrudFormOptions {
   buttons: {
     submit: {
@@ -388,7 +424,19 @@ export interface ICrudFormOptions {
   };
 }
 
-
+/**
+ * @description Empty list display options
+ * @summary Defines the configuration for displaying an empty state in list components
+ * when no data is available. Includes text, button, icon, and link settings.
+ * @interface IListEmptyOptions
+ * @property {string} title - Title text or translation key for empty state
+ * @property {string} subtitle - Subtitle text or translation key for empty state
+ * @property {boolean} showButton - Whether to show an action button in empty state
+ * @property {string} buttonText - Button text or translation key
+ * @property {string} link - Navigation link for the button
+ * @property {string} icon - Icon identifier for the empty state
+ * @memberOf module:engine
+ */
 export interface IListEmptyOptions {
   title: string;
   subtitle: string;
