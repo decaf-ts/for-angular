@@ -13,8 +13,13 @@ export * from './types';
 export * from './interfaces';
 export * from './DynamicModule';
 export * from './NgxRenderingEngine';
-export * from './NgxDecafFormFieldDirective';
-export * from './NgxDecafFormService';
+export * from './NgxFormFieldDirective';
+export * from './NgxFormService';
 export * from './NgxEventHandler';
+export * from './NgxModelPageDirective';
 export * from './NgxPageDirective';
-export * from './NgxDecafComponentDirective';
+export * from './NgxFormDirective';
+export * from './NgxParentComponentDirective';
+export * from './NgxComponentDirective';
+// export * from './NgxFormDirective';
+//

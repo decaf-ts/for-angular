@@ -2,7 +2,7 @@
  * @module module:lib/components/crud-field/crud-field.component
  * @description CRUD field component module.
  * @summary Exposes `CrudFieldComponent`, a dynamic form field used in CRUD forms supporting
- * many input types, validation and integration with `NgxDecafFormFieldDirective` utilities.
+ * many input types, validation and integration with `NgxFormFieldDirective` utilities.
  *
  * @link {@link CrudFieldComponent}
  */
@@ -40,14 +40,14 @@ import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { getModelRepository } from '../../for-angular-common.module';
 import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, StringOrBoolean, FormParent } from '../../engine/types';
 import { dataMapper, generateRandomValue } from '../../helpers';
-import { NgxDecafFormFieldDirective } from '../../engine/NgxDecafFormFieldDirective';
+import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { Dynamic } from '../../engine/decorators';
 import { getLocaleContextByKey } from '../../i18n/Loader';
 
 /**
  * @description A dynamic form field component for CRUD operations.
  * @summary The CrudFieldComponent is a versatile form field component that adapts to different
- * input types and CRUD operations. It extends NgxDecafFormFieldDirective to inherit form handling capabilities
+ * input types and CRUD operations. It extends NgxFormFieldDirective to inherit form handling capabilities
  * and implements lifecycle hooks to properly initialize, render, and clean up. This component
  * supports various input types (text, number, date, select, etc.), validation rules, and styling
  * options, making it suitable for building dynamic forms for create, read, update, and delete
@@ -110,7 +110,7 @@ import { getLocaleContextByKey } from '../../i18n/Loader';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: {'[attr.id]': 'uid', '[attr.class]': 'className'},
 })
-export class CrudFieldComponent extends NgxDecafFormFieldDirective implements OnInit, OnDestroy, AfterViewInit {
+export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * @description The CRUD operation being performed.

@@ -9,7 +9,7 @@
  * @link {@link ListItemComponent}
  */
 
-import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output, ViewChild  } from '@angular/core';
+import { Component, EventEmitter, HostListener,Input, OnInit, Output, ViewChild  } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import {
@@ -25,14 +25,15 @@ import {
   IonItemOptions,
   IonItemOption
 } from '@ionic/angular/standalone';
-import { StringOrBoolean } from '../../engine/types';
-import { removeFocusTrap, stringToBoolean } from '../../helpers/utils';
-import { getWindowWidth, windowEventEmitter } from '../../helpers/utils';
-import { Dynamic, EventConstants, ListItemCustomEvent, NgxDecafComponentDirective } from '../../engine';
-import { NavController } from '@ionic/angular';
-
 import * as AllIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
+import { StringOrBoolean } from '../../engine/types';
+import { getWindowWidth, windowEventEmitter, removeFocusTrap, stringToBoolean } from '../../helpers/utils';
+import { EventConstants } from '../../engine/constants';
+import {ListItemCustomEvent} from '../../engine/interfaces';
+import { Dynamic } from '../../engine/decorators';
+import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
+
 
 
 /**
@@ -95,7 +96,7 @@ import { addIcons } from 'ionicons';
   ]
 
 })
-export class ListItemComponent extends NgxDecafComponentDirective implements OnInit {
+export class ListItemComponent extends NgxComponentDirective implements OnInit {
 
   /**
    * @description Reference to the action menu popover component.
@@ -267,17 +268,7 @@ export class ListItemComponent extends NgxDecafComponentDirective implements OnI
    */
   actionMenuOpen: boolean = false;
 
-  /**
-   * @description Angular NavController service for handling navigation.
-   * @summary Injected service that provides methods for programmatic navigation
-   * within the Ionic application. Used for navigating to different routes when
-   * list item actions are performed or when the item itself is clicked.
-   *
-   * @private
-   * @type {NavController}
-   * @memberOf ListItemComponent
-   */
-  private navController: NavController = inject(NavController);
+
 
   /**
    * @description Creates an instance of ListItemComponent.
@@ -346,7 +337,7 @@ export class ListItemComponent extends NgxDecafComponentDirective implements OnI
    *   participant U as User
    *   participant L as ListItemComponent
    *   participant P as Parent Component
-   *   participant N as NavController
+   *   participant N as Router
    *   participant E as Event System
    *
    *   U->>L: Perform action (click/swipe)
@@ -451,7 +442,7 @@ export class ListItemComponent extends NgxDecafComponentDirective implements OnI
   /**
    * @description Navigates to a new route based on the specified action and item ID.
    * @summary This method constructs a navigation URL using the component's route configuration,
-   * the specified action, and an item identifier. It uses Ionic's NavController to perform
+   * the specified action, and an item identifier. It uses Ionic's Router to perform
    * forward navigation with appropriate animations. This method is typically used for
    * CRUD operations where each action (create, read, update, delete) has its own route.
    *
@@ -462,7 +453,7 @@ export class ListItemComponent extends NgxDecafComponentDirective implements OnI
    * @mermaid
    * sequenceDiagram
    *   participant L as ListItemComponent
-   *   participant N as NavController
+   *   participant N as Router
    *   participant R as Router
    *
    *   L->>L: redirect(action, id)
@@ -475,7 +466,7 @@ export class ListItemComponent extends NgxDecafComponentDirective implements OnI
    * @memberOf ListItemComponent
    */
   async redirect(action: string, id?: string): Promise<boolean> {
-    return await this.navController.navigateForward(`/${this.route}/${action}/${id || this.uid}`);
+    return await this.router.navigateByUrl(`/${this.route}/${action}/${id || this.uid}`);
   }
 
   /**

@@ -26,6 +26,24 @@
     "form_control": "Controlador de formulário não localizado para {0}.",
     "not_found": "Não foram encontrados registos com <span class=\"text-bold\">{0}: {1} em {2}</span>."
   },
+   "operations": {
+    "read": {
+      "success": "Item {0} {1} encontrado.",
+      "error": "Item {0} {1} não encontrado."
+    },
+    "create": {
+      "success": "Item com {0} {1} criado com sucesso.",
+      "error": "Erro ao criar o item com {0} {1}."
+    },
+    "update": {
+      "success": "Item com {0} {1} atualizado com sucesso.",
+      "error": "Erro ao atualizar o item com {0} {1}."
+    },
+    "delete": {
+      "success": "Item com {0} {1} eliminado com sucesso.",
+      "error": "Erro ao eliminar o item com {0} {1}."
+    }
+  },
   "component": {
     "fieldset": {
       "add": "Adicionar outro",

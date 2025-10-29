@@ -19,7 +19,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
 import { addIcons } from 'ionicons';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
-import { NgxDecafFormService } from '../../engine/NgxDecafFormService';
+import { NgxFormService } from '../../engine/NgxFormService';
 import { ReservedModels } from '@decaf-ts/decorator-validation';
 import { LayoutComponent } from '../layout/layout.component';
 
@@ -476,17 +476,17 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       event.stopImmediatePropagation();
     const action = this.updatingItem ? OperationKeys.UPDATE :  OperationKeys.CREATE;
     const formGroup = this.activeFormGroup as FormGroup;
-    const isValid  = NgxDecafFormService.validateFields(formGroup);
+    const isValid  = NgxFormService.validateFields(formGroup);
 
     // must pass correct pk here
-    const isUnique = NgxDecafFormService.isUniqueOnGroup(formGroup, action, action === OperationKeys.UPDATE ? this.updatingItem?.index : undefined);
+    const isUnique = NgxFormService.isUniqueOnGroup(formGroup, action, action === OperationKeys.UPDATE ? this.updatingItem?.index : undefined);
     const value = formGroup.value;
     if(isValid) {
       this.mapper = this.getMapper(value as KeyValue);
       if(isUnique) {
         this.isUniqueError = this.updatingItem =  undefined;
         this.setValue();
-        NgxDecafFormService.addGroupToParent(formGroup.parent as FormArray);
+        NgxFormService.addGroupToParent(formGroup.parent as FormArray);
         this.activeFormGroupIndex = (formGroup.parent as FormArray).length - 1;
         this.getFormArrayIndex(this.activeFormGroupIndex);
       } else {

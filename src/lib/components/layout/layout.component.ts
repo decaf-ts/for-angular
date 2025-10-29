@@ -177,6 +177,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
     //   this.match = false;
     // if(this._cols.length === 1)
     //   this.grid = false;
+    console.log(this.children);
     this.initialized = true;
   }
 }

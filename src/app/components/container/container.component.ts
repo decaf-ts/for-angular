@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ElementSizes, FlexPositions, StringOrBoolean } from 'src/lib/engine/types';
 import { stringToBoolean } from 'src/lib/helpers/utils';
 import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
-import { NgxDecafComponentDirective } from 'src/lib/engine';
+import { NgxComponentDirective } from 'src/lib/engine';
 
 /**
  * @description A flexible container component for layout management.
@@ -29,7 +29,7 @@ import { NgxDecafComponentDirective } from 'src/lib/engine';
   standalone: true,
   imports: [ForAngularComponentsModule]
 })
-export class ContainerComponent extends NgxDecafComponentDirective implements OnInit {
+export class ContainerComponent extends NgxComponentDirective implements OnInit {
 
   /**
    * @description Controls whether the side menu is enabled for this container.

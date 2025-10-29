@@ -12,7 +12,7 @@ import { index, pk } from '@decaf-ts/core';
 @model()
 export class CategoryModel extends Model {
 
-  @pk({type: 'Number' })
+  @pk({type: Number.name })
   @uilistprop('uid')
   id!: number;
 

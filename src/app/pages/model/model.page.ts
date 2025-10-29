@@ -1,18 +1,5 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
-import {
-  InternalError,
-  IRepository,
-  OperationKeys,
-} from '@decaf-ts/db-decorators';
-import { EventIds, Repository } from '@decaf-ts/core';
-import { Model, Primitives } from '@decaf-ts/decorator-validation';
+import { Component} from '@angular/core';
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent } from '@ionic/angular/standalone';
-import { IBaseCustomEvent, EventConstants, KeyValue } from 'src/lib/engine';
-import { RouterService } from 'src/app/services/router.service';
-import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
-import { DecafRepository } from 'src/lib/engine/types';
-import { Logger } from '@decaf-ts/logging';
-import { getLogger } from 'src/lib/for-angular-common.module';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
@@ -20,6 +7,8 @@ import { ListComponent } from 'src/lib/components/list/list.component';
 import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
 import { EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
+import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
+import { IBaseCustomEvent, IModelPageCustomEvent } from 'src/lib/engine/interfaces';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -119,8 +108,20 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrls: ['./model.page.scss'],
 })
 export class ModelPage extends NgxModelPageDirective {
+  // constructor() {
+  //   super(true, getNgxToastComponent() as unknown as ToastController);
+  // }
 
   override async ionViewWillEnter(): Promise<void> {
    await super.ionViewWillEnter();
+  }
+
+  override async handleEvent(event: IBaseCustomEvent): Promise<void> {
+    const {success, message} = await super.handleSubmit(event) as IModelPageCustomEvent;
+    const toast = getNgxToastComponent({
+      color: success ? 'dark' : 'danger',
+      message,
+    });
+    await toast.show();
   }
 }

@@ -1,10 +1,10 @@
 /**
- * @module lib/engine/NgxDecafComponentDirective
+ * @module lib/engine/NgxComponentDirective
  * @description Base decaf component abstraction providing shared inputs and utilities.
- * @summary NgxDecafComponentDirective is the abstract foundation for Decaf components and provides common
+ * @summary NgxComponentDirective is the abstract foundation for Decaf components and provides common
  * inputs (model, mapper, pk, props), logging, repository resolution, and event dispatch helpers.
  * It centralizes shared behavior for child components and simplifies integration with the rendering engine.
- * @link {@link NgxDecafComponentDirective}
+ * @link {@link NgxComponentDirective}
  */
 import { Directive, ElementRef, EventEmitter, Inject, inject, Input, Output, SimpleChanges, ViewChild, OnChanges, ChangeDetectorRef, Renderer2 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -39,13 +39,13 @@ try {
  * internationalization support. It implements OnChanges to respond to input property changes
  * and includes utilities for navigation, localization, and dynamic property binding. All Decaf
  * components should extend this directive to inherit its foundational capabilities.
- * @class NgxDecafComponentDirective
+ * @class NgxComponentDirective
  * @extends {LoggedClass}
  * @implements {OnChanges}
- * @memberOf module:lib/engine/NgxDecafComponentDirective
+ * @memberOf module:lib/engine/NgxComponentDirective
  */
 @Directive({host: {'[attr.id]': 'uid'}})
-export abstract class NgxDecafComponentDirective extends LoggedClass implements OnChanges {
+export abstract class NgxComponentDirective extends LoggedClass implements OnChanges {
 
 
   /**
@@ -55,7 +55,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * apply custom styles, or access native element properties and methods. The element is
    * identified by the 'component' template reference variable.
    * @type {ElementRef}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @ViewChild('component', { read: ElementRef, static: true })
   component!: ElementRef;
@@ -68,7 +68,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * component instances within a larger application structure. It serves as a human-readable
    * identifier that helps distinguish between multiple instances of the same component type.
    * @type {string}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   name!: string;
@@ -80,7 +80,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * proper nesting and organization of components within a layout. It can be used to track
    * component dependencies and establish component hierarchies for rendering and event propagation.
    * @type {string | undefined}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   childOf!: string | undefined;
@@ -92,7 +92,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * By default, it generates a random 16-character value, but it can be explicitly set via input.
    * @type {string | number}
    * @default generateRandomValue(16)
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   uid: string | number = generateRandomValue(16);
@@ -105,7 +105,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * When set, this property provides the component with access to the model's schema, validation rules,
    * and metadata needed for rendering and data operations.
    * @type {Model | string | undefined}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   model!: Model | string | undefined;
@@ -118,7 +118,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * specific records, such as read, update, and delete operations. The value corresponds to
    * the field designated as the primary key in the model definition.
    * @type {EventIds}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   modelId?: EventIds;
@@ -131,7 +131,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * If not explicitly set, it defaults to the repository's configured primary key or 'id'.
    * @type {string}
    * @default 'id'
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   pk!: string;
@@ -143,7 +143,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * provided as a static object mapping or as a function for dynamic mapping transformations.
    * @type {Record<string, string> | FunctionLike}
    * @default {}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   mapper: Record<string, string> | FunctionLike = {};
@@ -155,7 +155,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * which operation buttons are displayed in the UI. By default, only READ operations are enabled.
    * @type {CrudOperations[]}
    * @default [OperationKeys.READ]
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   operations: CrudOperations[] = [OperationKeys.READ];
@@ -186,7 +186,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * establish the component's vertical placement within the grid structure.
    * @type {number}
    * @default 1
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   row: number = 1;
@@ -199,7 +199,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * establish the component's horizontal placement within the grid structure.
    * @type {number}
    * @default 1
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   col: number = 1;
@@ -213,7 +213,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * This provides a way to customize the component's appearance beyond the built-in styling options.
    * @type {string}
    * @default ""
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   className: string = '';
@@ -227,7 +227,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * data model and provides methods for querying and filtering data based on specific criteria.
    * @type {DecafRepository<Model>}
    * @private
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected _repository?: DecafRepository<Model>;
 
@@ -240,7 +240,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * and layout features that require menu interaction.
    * @protected
    * @type {MenuController}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected menuController: MenuController = inject(MenuController);
 
@@ -252,7 +252,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * view updates when modifications occur outside the normal Angular change detection flow.
    * @protected
    * @type {ChangeDetectorRef}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected changeDetectorRef: ChangeDetectorRef = inject(ChangeDetectorRef);
 
@@ -263,7 +263,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * including server-side rendering and web workers, without direct DOM access.
    * @protected
    * @type {Renderer2}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected renderer: Renderer2 = inject(Renderer2);
 
@@ -274,7 +274,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * on the current locale setting, enabling multilingual support throughout the application.
    * @protected
    * @type {TranslateService}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected translateService: TranslateService = inject(TranslateService);
 
@@ -287,7 +287,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * The logger is used throughout the component to record important events, debug information,
    * and potential issues, facilitating easier debugging and maintenance.
    * @type {Logger}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   logger!: Logger;
 
@@ -298,7 +298,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * state changes. Events are passed up the component hierarchy to enable coordinated
    * behavior across the application.
    * @type {EventEmitter<IBaseCustomEvent>}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Output()
   listenEvent: EventEmitter<IBaseCustomEvent> = new EventEmitter<IBaseCustomEvent>();
@@ -310,7 +310,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * handles route parameters, and manages the browser's navigation history.
    * @protected
    * @type {Router}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected router: Router = inject(Router);
 
@@ -322,7 +322,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * the default application locale for this specific component instance, enabling per-component
    * localization when needed.
    * @type {string | undefined}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   locale?: string;
@@ -337,7 +337,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * Additional properties can be included to customize the rendering behavior.
    * @type {Record<string, unknown>}
    * @default {tag: ""}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   item: Record<string, unknown> = { tag: '' };
@@ -351,7 +351,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * enabling customizable component behavior based on external configuration.
    * @type {Record<string, unknown>}
    * @default {}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   props: Record<string, unknown> = {};
@@ -364,7 +364,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * different operations or views. The route helps establish the component's position in the
    * application's routing hierarchy.
    * @type {string}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   route!: string;
@@ -377,7 +377,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * certain operations that require initialization can be performed.
    * @type {boolean}
    * @default false
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   initialized: boolean = false;
 
@@ -386,10 +386,10 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * @description Component name identifier for logging and localization contexts.
    * @summary Stores the component's name which is used as a key for logging contexts
    * and as a base for locale resolution. Can be injected via the CPTKN token or defaults
-   * to "NgxDecafComponentDirective" if not provided.
+   * to "NgxComponentDirective" if not provided.
    * @protected
    * @type {string | undefined}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected componentName?: string;
 
@@ -400,7 +400,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * load appropriate translation resources and locale-specific configurations.
    * @protected
    * @type {string | undefined}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected localeRoot?: string;
 
@@ -412,7 +412,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * while maintaining encapsulation and preventing accidental modification.
    * @protected
    * @readonly
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected readonly OperationKeys = OperationKeys;
 
@@ -430,19 +430,19 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
 
 
   /**
-   * @description Constructor for NgxDecafComponentDirective.
+   * @description Constructor for NgxComponentDirective.
    * @summary Initializes the directive by setting up the component name, locale root,
    * and logger. Calls the parent LoggedClass constructor and configures localization
    * context. The component name and locale root can be optionally injected via the
    * CPTKN token, otherwise defaults are used.
    * @param {string} [componentName] - Optional component name for identification and logging
    * @param {string} [localeRoot] - Optional locale root key for internationalization
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(@Inject(CPTKN) componentName?: string, @Inject(CPTKN) localeRoot?: string) {
 		super();
-    this.componentName = componentName || "NgxDecafComponentDirective";
+    this.componentName = componentName || "NgxComponentDirective";
     this.localeRoot = localeRoot;
     if(!this.localeRoot && this.componentName)
       this.localeRoot = this.componentName;
@@ -456,7 +456,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * @summary Returns the current locale identifier by calling the getLocale method.
    * This property provides convenient access to the component's active locale setting.
    * @returns {string} The current locale identifier
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   get localeContext(){
 		return this.getLocale();
@@ -470,7 +470,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * @protected
    * @returns {DecafRepository<Model>} The repository instance for the current model
    * @throws {InternalError} If repository initialization fails
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected get repository(): DecafRepository<Model> {
     try {
@@ -494,7 +494,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * it updates the component's locale setting accordingly.
    * @param {SimpleChanges} changes - Object containing the changed properties with their previous and current values
    * @return {void}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes[BaseComponentProps.MODEL]) {
@@ -517,14 +517,12 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * @param {string | string[]} phrase - The translation key or array of keys to translate
    * @param {object | string} [params] - Optional parameters for interpolation in translated text
    * @return {Promise<string>} A promise that resolves to the translated text
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected translate(phrase: string | string[], params?: object | string): Promise<string> {
-    return new Promise((resolve) => {
-      if(typeof params === Primitives.STRING)
-        params = {"0": params};
-      return resolve(firstValueFrom(this.translateService.get(phrase, (params || {}) as object)));
-    });
+  protected async translate(phrase: string | string[], params?: object | string): Promise<string> {
+    if(typeof params === Primitives.STRING)
+      params = {"0": params};
+    return await firstValueFrom(this.translateService.get(phrase, (params || {}) as object));;
   }
 
   /**
@@ -536,7 +534,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * @protected
    * @param {...unknown[]} args - Variable number of arguments that can be used by child implementations
    * @return {Promise<void>} A promise that resolves when initialization is complete
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async initialize(...args: unknown[]): Promise<void> {
@@ -551,13 +549,14 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * @protected
    * @param {string} [locale] - Optional locale identifier to set
    * @return {string} The current locale identifier
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected getLocale(locale?: string): string {
     if (locale || !this.locale) {
       if(locale)
         this.localeRoot = locale;
-      this.locale = getLocaleContext(this.localeRoot as string)
+      if(this.localeRoot)
+        this.locale = getLocaleContext(this.localeRoot as string)
     }
     return this.locale as string;
   }
@@ -569,7 +568,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * class name using the pattern `/model/{ModelName}`. Returns an empty string if neither
    * a route nor a model is available.
    * @return {string} The route path for this component
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   getRoute(): string {
     if (!this.route && this.model instanceof Model)
@@ -586,7 +585,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * @template M - The model type extending from Model
    * @param {string | Model | ModelConstructor<M>} model - The model to resolve and initialize
    * @return {void}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   getModel<M extends Model>(model: string | Model | ModelConstructor<M>): void {
     if (!(model instanceof Model) && typeof model === Primitives.STRING)
@@ -603,7 +602,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * decorator metadata with the component's runtime configuration.
    * @param {Model} model - The model instance to extract definitions from
    * @return {void}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   setModelDefinitions(model: Model): void {
     if (model instanceof Model) {
@@ -640,7 +639,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
-   *   participant D as NgxDecafComponentDirective
+   *   participant D as NgxComponentDirective
    *   participant P as Props Object
    *
    *   C->>D: parseProps(instance, skip)
@@ -658,7 +657,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    *     end
    *   end
    * @protected
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected parseProps(instance: KeyValue, skip: string[] = []): void {
     Object.keys(instance).forEach((key) => {
@@ -681,7 +680,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * @param {number} index - The index of the item in the list
    * @param {KeyValue | string | number} item - The item data to track
    * @return {string | number} A unique identifier for the item
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected trackItemFn(
     index: number,
@@ -702,7 +701,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * @mermaid
    * sequenceDiagram
    *   participant C as Child Component
-   *   participant D as NgxDecafComponentDirective
+   *   participant D as NgxComponentDirective
    *   participant H as Event Handler
    *   participant P as Parent Component
    *
@@ -722,7 +721,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    *   else No handlers
    *     D->>P: listenEvent.emit(event)
    *   end
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
 	async handleEvent(event: IBaseCustomEvent | ICrudFormEvent | CustomEvent): Promise<void> {
     let name = "";
@@ -760,7 +759,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * @return {boolean} True if the operation is allowed, false otherwise
    * @mermaid
    * sequenceDiagram
-   *   participant D as NgxDecafComponentDirective
+   *   participant D as NgxComponentDirective
    *   participant U as UI
    *
    *   U->>D: isAllowed(operation)
@@ -771,7 +770,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    *     D->>D: Check if operation is not current operation
    *     D-->>U: Return result
    *   end
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   isAllowed(operation: string): boolean {
     if(!this.operations)
@@ -793,7 +792,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    * @mermaid
    * sequenceDiagram
    *   participant U as UI
-   *   participant D as NgxDecafComponentDirective
+   *   participant D as NgxComponentDirective
    *   participant R as Router
    *
    *   U->>D: Click operation button
@@ -804,7 +803,7 @@ export abstract class NgxDecafComponentDirective extends LoggedClass implements 
    *   R->>R: Navigate to new route
    *   R-->>D: Return navigation result
    *   D-->>U: Display new operation view
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   async changeOperation(operation: string, id?: string): Promise<boolean> {
     let page = `${this.route}/${operation}/`.replace('//', '/');

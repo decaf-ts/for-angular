@@ -9,7 +9,6 @@ import { AIModel } from '../models/AIVendorModel';
 import {  AIFeatures } from './contants';
 import { DB_ADAPTER_PROVIDER } from 'src/lib/for-angular-common.module';
 import { parseToNumber } from '@decaf-ts/ui-decorators';
-import { DbAdapterFlavour } from '../app.config';
 
 export class ForAngularRepository<T extends Model> {
 

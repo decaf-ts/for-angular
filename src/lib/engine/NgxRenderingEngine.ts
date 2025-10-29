@@ -22,7 +22,7 @@ import {
   Type,
   ViewContainerRef,
 } from '@angular/core';
-import { NgxDecafFormService } from './NgxDecafFormService';
+import { NgxFormService } from './NgxFormService';
 import { isDevelopmentMode } from '../helpers';
 import { FormParent } from './types';
 
@@ -267,7 +267,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
         //   })
         // }
         // if(!hiddenOn?.length || !(hiddenOn as CrudOperations[]).includes(operation as CrudOperations))
-        NgxDecafFormService.addControlFromProps(registryFormId, child.props, {...inputs, ...NgxRenderingEngine._parentProps || {}});
+        NgxFormService.addControlFromProps(registryFormId, child.props, {...inputs, ...NgxRenderingEngine._parentProps || {}});
         return this.fromFieldDefinition(child, vcr, injector, tpl, registryFormId, false, formGroup);
       });
     }
@@ -327,7 +327,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    */
   static async destroy(formId?: string): Promise<void> {
     if(formId)
-      NgxDecafFormService.removeRegistry(formId);
+      NgxFormService.removeRegistry(formId);
     NgxRenderingEngine._instance = undefined;
     NgxRenderingEngine._parentProps = undefined;
   }
@@ -379,7 +379,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       if(!NgxRenderingEngine._operation)
         NgxRenderingEngine._operation = props?.operation || undefined;
       const isArray = (props?.pages && (props?.pages as number)  >= 1 || props?.multiple === true);
-      const formGroup = NgxDecafFormService.createForm(formId, isArray);
+      const formGroup = NgxFormService.createForm(formId, isArray);
       result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl, formId, true, formGroup);
       if(result.instance)
         (result.instance as KeyValue)['formGroup'] = formGroup;

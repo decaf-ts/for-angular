@@ -7,7 +7,7 @@
  * @link {@link NgxParentComponentDirective}
  */
 import { Directive, Input, OnInit } from '@angular/core';
-import { NgxDecafComponentDirective } from './NgxDecafComponentDirective';
+import { NgxComponentDirective } from './NgxComponentDirective';
 import {  FormParent, KeyValue } from './types';
 import { UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
@@ -16,7 +16,7 @@ import { Model } from '@decaf-ts/decorator-validation';
  * @description Layout component for creating responsive grid layouts in Angular applications.
  * @summary This component provides a flexible grid system that can be configured with dynamic
  * rows and columns. It supports responsive breakpoints and can render child components within
- * the grid structure. The component extends NgxDecafComponentDirective to inherit common functionality
+ * the grid structure. The component extends NgxComponentDirective to inherit common functionality
  * and integrates with the model and component renderer systems.
  *
  * @class NgxParentComponentDirective
@@ -24,7 +24,7 @@ import { Model } from '@decaf-ts/decorator-validation';
  * @implements {OnInit}
  */
 @Directive()
-export class NgxParentComponentDirective extends NgxDecafComponentDirective implements OnInit {
+export class NgxParentComponentDirective extends NgxComponentDirective implements OnInit {
 
 
   /**

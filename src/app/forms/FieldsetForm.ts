@@ -1,7 +1,7 @@
 import { pk } from '@decaf-ts/core';
-import { id } from '@decaf-ts/db-decorators';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 import { list, max, Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
-import { uichild, uielement, uilayoutprop, uilistmodel, uimodel } from '@decaf-ts/ui-decorators';
+import { hideOn, uichild, uielement, uilayoutprop, uilistmodel, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
 
 @uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uimodel('ngx-decaf-crud-form', {cols: 2})
@@ -10,14 +10,16 @@ export class User extends Model {
 
   // @pk({type: 'Number' })
   // id!: number;
-  @id()
+  @pk({type: 'Number' })
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'user.id.label',
     placeholder: 'user.id.placeholder'
   })
+  @hideOn(OperationKeys.CREATE)
   @uilayoutprop(1)
-  id!: string;
+  @uilistprop('uid')
+  id!: number;
 
 
   @uielement('ngx-decaf-crud-field', {
@@ -25,6 +27,8 @@ export class User extends Model {
     placeholder: 'user.username.placeholder'
   })
   @uilayoutprop(1)
+  @uilistprop('title')
+  @required()
   username!: string;
 
 

@@ -35,7 +35,7 @@ import {
   StringOrBoolean,
   KeyValue,
   ListItemCustomEvent,
-  NgxDecafComponentDirective,
+  NgxComponentDirective,
   DefaultListEmptyOptions
 } from '../../engine';
 import {
@@ -149,7 +149,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     ComponentRendererComponent
   ]
 })
-export class ListComponent extends NgxDecafComponentDirective implements OnInit, OnDestroy {
+export class ListComponent extends NgxComponentDirective implements OnInit, OnDestroy {
 
   /**
    * @description The display mode for the list component.

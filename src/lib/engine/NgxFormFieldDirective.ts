@@ -1,7 +1,7 @@
 /**
- * @module lib/engine/NgxDecafFormFieldDirective
+ * @module lib/engine/NgxFormFieldDirective
  * @description Base directive for CRUD form fields in Decaf Angular applications.
- * @summary Provides the NgxDecafFormFieldDirective abstract class that implements ControlValueAccessor
+ * @summary Provides the NgxFormFieldDirective abstract class that implements ControlValueAccessor
  * and FieldProperties to enable form field integration with Angular's reactive forms system.
  * This directive handles form control lifecycle, validation, multi-entry forms, and CRUD operations.
  */
@@ -10,11 +10,11 @@ import { FormParent, KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Directive, Input, SimpleChanges } from '@angular/core';
-import { NgxDecafFormService } from './NgxDecafFormService';
+import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
 import { EventConstants } from './constants';
 import { FunctionLike } from './types';
-import { NgxDecafComponentDirective } from './NgxDecafComponentDirective';
+import { NgxComponentDirective } from './NgxComponentDirective';
 
 /**
  * @description Abstract base directive for CRUD form fields in Angular applications.
@@ -24,8 +24,8 @@ import { NgxDecafComponentDirective } from './NgxDecafComponentDirective';
  * It handles form group lifecycle, error messaging, change detection, and parent-child form relationships.
  * Extend this class to create custom form field components that seamlessly integrate with Angular's
  * reactive forms and Decaf's validation system.
- * @class NgxDecafFormFieldDirective
- * @extends {NgxDecafComponentDirective}
+ * @class NgxFormFieldDirective
+ * @extends {NgxComponentDirective}
  * @implements {ControlValueAccessor}
  * @implements {FieldProperties}
  * @example
@@ -39,7 +39,7 @@ import { NgxDecafComponentDirective } from './NgxDecafComponentDirective';
  *     multi: true
  *   }]
  * })
- * export class TextFieldComponent extends NgxDecafFormFieldDirective {
+ * export class TextFieldComponent extends NgxFormFieldDirective {
  *   constructor() {
  *     super();
  *   }
@@ -47,7 +47,7 @@ import { NgxDecafComponentDirective } from './NgxDecafComponentDirective';
  * ```
  */
 @Directive()
-export abstract class NgxDecafFormFieldDirective extends NgxDecafComponentDirective implements ControlValueAccessor, FieldProperties {
+export abstract class NgxFormFieldDirective extends NgxComponentDirective implements ControlValueAccessor, FieldProperties {
 
   /**
    * @description Index of the currently active form group in a form array.
@@ -408,11 +408,11 @@ export abstract class NgxDecafFormFieldDirective extends NgxDecafComponentDirect
       case OperationKeys.CREATE:
       case OperationKeys.UPDATE:
         try {
-          parent = NgxDecafFormService.getParentEl(this.component.nativeElement, 'div');
+          parent = NgxFormService.getParentEl(this.component.nativeElement, 'div');
         } catch (e: unknown) {
           throw new RenderingError(`Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`);
         }
-        // NgxDecafFormService.register(parent.id, this.formGroup, this as AngularFieldDefinition);
+        // NgxFormService.register(parent.id, this.formGroup, this as AngularFieldDefinition);
         return parent;
       default:
         throw new InternalError(`Invalid operation: ${this.operation}`);
@@ -453,7 +453,7 @@ export abstract class NgxDecafFormFieldDirective extends NgxDecafComponentDirect
    */
   onDestroy(): void {
     if(this.formGroup)
-      NgxDecafFormService.unregister(this.formGroup);
+      NgxFormService.unregister(this.formGroup);
   }
 
   /**

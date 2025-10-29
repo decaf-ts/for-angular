@@ -26,6 +26,24 @@
     "form_control": "Controlador do formulário não encontrado para {0}.",
     "not_found": "No records found with <span class=\"text-bold\">{0}: {1} in {2}</span>."
   },
+  "operations": {
+    "read": {
+      "success": "Successfully read item with {0} {1}.",
+      "error": "Error reading item with {0} {1}."
+    },
+    "create": {
+      "success": "Successfully created item with {0} {1}.",
+      "error": "Error creating item with {0} {1}."
+    },
+    "update": {
+      "success": "Successfully updated item with {0} {1}.",
+      "error": "Error updating item with {0} {1}."
+    },
+    "delete": {
+      "success": "Successfully deleted item with {0} {1}.",
+      "error": "Error deleting item with {0} {1}."
+    }
+  },
   "component": {
     "fieldset": {
       "add": "Add another",

@@ -8,18 +8,20 @@
  * @link {@link SteppedFormComponent}
  */
 
-import { Component, Input, OnInit, OnDestroy, Output, EventEmitter, inject  } from '@angular/core';
-import { Location } from '@angular/common';
+import { Component, Input, OnInit, OnDestroy, Output, EventEmitter  } from '@angular/core';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonSkeletonText, IonText } from '@ionic/angular/standalone';
 import { arrowForwardOutline, arrowBackOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
+import { Subscription, timer } from 'rxjs';
 import { UIElementMetadata, UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { IBaseCustomEvent, Dynamic, EventConstants, NgxDecafFormService } from '../../engine';
-import { Subscription, timer } from 'rxjs';
+import { EventConstants } from '../../engine/constants';
+import { Dynamic } from '../../engine/decorators';
+import { IBaseCustomEvent } from '../../engine/interfaces';
+import { NgxFormService } from '../../engine/NgxFormService';
 import { getLocaleContext } from '../../i18n/Loader';
-import { TranslatePipe } from '@ngx-translate/core';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { LayoutComponent } from '../layout/layout.component';
 
@@ -322,7 +324,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * @memberOf SteppedFormComponent
    */
   handleNext(lastPage: boolean = false): void {
-    const isValid = NgxDecafFormService.validateFields(this.activeFormGroup as FormGroup);
+    const isValid = NgxFormService.validateFields(this.activeFormGroup as FormGroup);
     if (!lastPage) {
       if (isValid) {
         this.activePage = this.activePage + 1;
@@ -330,7 +332,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
       }
     } else {
      if (isValid) {
-      const data = Object.assign({}, ...Object.values(NgxDecafFormService.getFormData(this.formGroup as FormGroup)));
+      const data = Object.assign({}, ...Object.values(NgxFormService.getFormData(this.formGroup as FormGroup)));
       this.submitEvent.emit({
         data,
         name: EventConstants.SUBMIT,
