@@ -12,7 +12,8 @@ import {
   Component
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { DefaultFormReactiveOptions, Dynamic, EventConstants } from '../../engine';
+import { Dynamic, EventConstants } from '../../engine';
+import { DefaultFormReactiveOptions } from '../../engine/constants';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { ComponentRendererComponent } from '../../components/component-renderer/component-renderer.component';
@@ -32,8 +33,7 @@ import { LayoutComponent } from '../layout/layout.component';
 export class CrudFormComponent extends NgxFormDirective {
 
   constructor() {
-    super();
-    this.componentName = 'CrudFormComponent';
+    super('CrudFormComponent');
   }
 
   /**
@@ -47,7 +47,6 @@ export class CrudFormComponent extends NgxFormDirective {
    * @memberOf CrudFormComponent
    */
   override async ngOnInit(): Promise<void> {
-    // console.log(this.formGroup);
     this.options = Object.assign(
       {},
       DefaultFormReactiveOptions,

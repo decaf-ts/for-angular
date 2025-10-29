@@ -4,7 +4,7 @@ import {
   IRepository,
   OperationKeys,
 } from '@decaf-ts/db-decorators';
-import { Repository } from '@decaf-ts/core';
+import { EventIds, Repository } from '@decaf-ts/core';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent } from '@ionic/angular/standalone';
 import { IBaseCustomEvent, EventConstants, KeyValue } from 'src/lib/engine';
@@ -17,6 +17,9 @@ import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { ListComponent } from 'src/lib/components/list/list.component';
+import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
+import { EmptyStateComponent } from 'src/lib/components';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -112,282 +115,12 @@ import { ListComponent } from 'src/lib/components/list/list.component';
   standalone: true,
   selector: 'app-model',
   templateUrl: './model.page.html',
-  imports: [ModelRendererComponent, ListComponent, HeaderComponent, ContainerComponent, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent],
+  imports: [ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent],
   styleUrls: ['./model.page.scss'],
-  host: {'[attr.id]': 'uid'},
 })
-export class ModelPage implements OnInit {
+export class ModelPage extends NgxModelPageDirective {
 
-  /**
-   * @description The CRUD operation type to be performed on the model.
-   * @summary Specifies which operation (Create, Read, Update, Delete) this component instance
-   * should perform. This determines the UI behavior, form configuration, and available actions.
-   * The operation affects form validation, field availability, and the specific repository
-   * method called during data submission.
-   *
-   * @type {OperationKeys.CREATE | OperationKeys.READ | OperationKeys.UPDATE | OperationKeys.DELETE}
-   * @default OperationKeys.READ
-   *  @memberOf ModelPage
-   */
-  @Input()
-  operation:
-    | OperationKeys.CREATE
-    | OperationKeys.READ
-    | OperationKeys.UPDATE
-    | OperationKeys.DELETE = OperationKeys.READ;
-
-  /**
-   * @description The name of the model class to operate on.
-   * @summary Identifies which registered model class this component should work with.
-   * This name is used to resolve the model constructor from the global model registry
-   * and instantiate the appropriate repository for data operations. The model must
-   * be properly registered using the @Model decorator for resolution to work.
-   *
-   * @type {string}
-   *  @memberOf ModelPage
-   */
-  @Input()
-  modelName!: string;
-
-  /**
-   * @description The unique identifier of the model instance.
-   * @summary For READ, UPDATE, and DELETE operations, this identifies the specific
-   * model instance to operate on. The ID is used to fetch existing data from the
-   * repository and populate forms for editing or display. For CREATE operations,
-   * this value is typically undefined as a new instance is being created.
-   *
-   * @type {string}
-   * @memberOf ModelPage
-   */
-  @Input()
-  modelId!: string;
-
-  /**
-   * @description Array of operations allowed for the current model instance.
-   * @summary Dynamically determined list of operations that are permitted based on
-   * the current context and model state. Initially contains CREATE and READ operations,
-   * with UPDATE and DELETE added when a modelId is present. This controls which
-   * action buttons are displayed and which operations are accessible to the user.
-   *
-   * @type {OperationKeys[]}
-   * @default [OperationKeys.CREATE, OperationKeys.READ]
-   * @memberOf ModelPage
-   */
-  allowedOperations: OperationKeys[] = [OperationKeys.CREATE, OperationKeys.READ];
-
-  /**
-   * @description The current model instance being operated on.
-   * @summary Holds the model data for the current operation. For READ and UPDATE operations,
-   * this contains the data loaded from the repository. For CREATE operations, this holds
-   * a new instance of the model class. The model structure and validation rules are
-   * determined by the class definition and decorators.
-   *
-   * @type {Model | undefined}
-   * @memberOf ModelPage
-   */
-  model!: Model | undefined;
-
-  /**
-   * @description Logger instance for error tracking and debugging.
-   * @summary Provides logging capabilities for tracking errors, debugging information,
-   * and operational events within the component. The logger is initialized using the
-   * getLogger utility and is used throughout the component for comprehensive error
-   * tracking and debugging support.
-   *
-   * @type {Logger}
-   * @memberOf ModelPage
-   * @private
-   */
-  private logger!: Logger;
-
-  /**
-   * @description Repository instance for data access operations.
-   * @summary Private repository instance used for performing CRUD operations on the model.
-   * This is lazily initialized through the repository getter method, which resolves the
-   * appropriate repository based on the model name and ensures proper model registration.
-   *
-   * @type {IRepository<Model> | undefined}
-   * @memberOf ModelPage
-   * @private
-   */
-  private _repository?: IRepository<Model>;
-
-  /**
-   * @description Router service for navigation management.
-   * @summary Injected service that handles navigation operations, particularly for
-   * returning to the previous page after successful operations. This service provides
-   * a consistent navigation experience and maintains the application's routing flow.
-   *
-   * @type {RouterService}
-   * @memberOf ModelPage
-   * @private
-   */
-  private routerService: RouterService = inject(RouterService);
-
-  /**
-   * @description Lazy-initialized repository getter with model resolution.
-   * @summary Creates and returns a repository instance for the specified model name.
-   * Resolves the model constructor from the global registry, instantiates the repository,
-   * and creates a new model instance. Throws an InternalError if the model is not
-   * properly registered with the @Model decorator.
-   *
-   * @return {IRepository<Model>} The repository instance for the current model
-   *
-   * @throws {InternalError} When the model is not found in the registry
-   */
-  private get repository(): IRepository<Model> {
-    if (!this._repository) {
-      const constructor = Model.get(this.modelName);
-      if (!constructor)
-        throw new InternalError(
-          'Cannot find model. was it registered with @model?',
-        );
-      this._repository = Repository.forModel(constructor);
-      this.model = new constructor() as Model;
-    }
-    console.log(this.model);
-    return this._repository;
-  }
-
-  /**
-   * @description Angular lifecycle hook for component initialization.
-   * @summary Initializes the component by setting up the logger instance using the getLogger
-   * utility. This ensures that logging is available throughout the component's lifecycle
-   * for error tracking and debugging purposes.
-   */
-  ngOnInit(): void {
-    this.logger = getLogger(this);
-  }
-
-  /**
-   * @description Ionic lifecycle hook executed when the view is about to enter.
-   * @summary Configures the allowed operations based on the presence of a modelId and
-   * refreshes the component data. If a modelId is provided, UPDATE and DELETE operations
-   * are added to the allowed operations array, enabling full CRUD functionality for
-   * existing model instances.
-   */
-  async ionViewWillEnter(): Promise<void> {
-    if(this.modelId)
-      this.allowedOperations =  this.allowedOperations.concat([OperationKeys.UPDATE, OperationKeys.DELETE]);
-    await this.refresh(this.modelId);
-  }
-
-  /**
-   * @description Refreshes the component data by loading the specified model instance.
-   * @summary Loads model data from the repository based on the current operation type.
-   * For READ, UPDATE, and DELETE operations, fetches the existing model data using
-   * the provided unique identifier. Handles errors gracefully by logging them through
-   * the logger instance.
-   *
-   * @param {string} [uid] - The unique identifier of the model to load; defaults to modelId
-   */
-  async refresh(uid?: string) {
-    if(!uid)
-      uid = this.modelId;
-    try {
-      this._repository = this.repository;
-      switch(this.operation){
-        case OperationKeys.READ:
-        case OperationKeys.UPDATE:
-        case OperationKeys.DELETE:
-          this.model = await this.handleGet(uid);
-        break;
-      }
-    } catch (error: unknown) {
-      this.logger.error(error as Error | string);
-    }
-  }
-
-  /**
-   * @description Generic event handler for component events.
-   * @summary Processes incoming events from child components and routes them to appropriate
-   * handlers based on the event name. Currently handles SUBMIT events by delegating to
-   * the handleSubmit method. This centralized event handling approach allows for easy
-   * extension and consistent event processing.
-   *
-   * @param {IBaseCustomEvent} event - The event object containing event data and metadata
-   */
-  async handleEvent(event: IBaseCustomEvent) {
-    console.log('ModelPage handleEvent', event);
-    const { name } = event;
-    switch (name) {
-      case EventConstants.SUBMIT:
-        await this.handleSubmit(event);
-      break;
-    }
-  }
-
-  /**
-   * @description Handles form submission events for CRUD operations.
-   * @summary Processes form submission by executing the appropriate repository operation
-   * based on the current operation type. Handles CREATE, UPDATE, and DELETE operations,
-   * processes the form data, refreshes the repository cache, navigates back to the previous
-   * page, and displays success notifications. Comprehensive error handling ensures robust
-   * operation with detailed logging.
-   *
-   * @param {IBaseCustomEvent} event - The submit event containing form data
-   * @return {Promise<void | Error>} Promise that resolves on success or throws on error
-   * @throws {Error} Re-throws repository errors with proper error message handling
-   */
-  async handleSubmit(event: IBaseCustomEvent): Promise<void | Error> {
-    try {
-      const repo = this._repository as IRepository<Model>;
-      const data = this.parseData(event.data as KeyValue);
-      const result = this.operation === OperationKeys.CREATE ?
-        await repo.create(data as Model) : this.operation === OperationKeys.UPDATE ?
-          await repo.update(data as Model) : repo.delete(data as string | number);
-      if(result) {
-        (repo as DecafRepository<Model>).refresh(this.modelName, this.operation, this.modelId);
-        this.routerService.backToLastPage();
-        await getNgxToastComponent().inform(`${this.operation} Item successfully`);
-      }
-    } catch (error: unknown) {
-      this.logger.error(error as Error | string);
-      throw new Error((error as Error)?.message || error as string);
-    }
-  }
-
-  /**
-   * @description Retrieves a model instance from the repository by unique identifier.
-   * @summary Fetches a specific model instance using the repository's read method.
-   * Handles both string and numeric identifiers by automatically converting numeric
-   * strings to numbers. If no identifier is provided, logs an informational message
-   * and navigates back to the previous page. Returns undefined for missing instances.
-   *
-   * @param {string} uid - The unique identifier of the model instance to retrieve
-   * @return {Promise<Model | undefined>} Promise resolving to the model instance or undefined
-   */
-  async handleGet(uid: string): Promise<Model | undefined> {
-    if (!uid) {
-      this.logger.info('No key passed to model page read operation, backing to last page');
-      this.routerService.backToLastPage();
-      return undefined;
-    }
-    const type = Reflect.getMetadata("design:type", this.model as KeyValue, this.repository.pk as string).name;
-    const result = await (this._repository as IRepository<Model>).read(
-      [Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase()) ? Number(uid) : uid
-    );
-    return result ?? undefined;
-  }
-
-  /**
-   * @description Parses and transforms form data for repository operations.
-   * @summary Converts raw form data into the appropriate format for repository operations.
-   * For DELETE operations, returns the primary key value (string or number). For CREATE
-   * and UPDATE operations, builds a complete model instance using the Model.build method
-   * with proper primary key assignment for updates.
-   *
-   * @param {Partial<Model>} data - The raw form data to be processed
-   * @return {Model | string | number} Processed data ready for repository operations
-   * @private
-   */
-  private parseData(data: Partial<Model>): Model | string | number {
-      const repo = this._repository as IRepository<Model>;
-      let uid: number | string = this.modelId;
-      if(repo.pk === 'id' as keyof Model)
-        uid = Number(uid);
-      if(this.operation !== OperationKeys.DELETE)
-        return Model.build(this.modelId ? Object.assign(data, {[repo.pk]: uid}) : data, this.modelName) as Model;
-      return uid;
+  override async ionViewWillEnter(): Promise<void> {
+   await super.ionViewWillEnter();
   }
 }

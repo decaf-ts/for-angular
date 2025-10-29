@@ -1,10 +1,9 @@
 /**
- * @module module:lib/engine/NgxRenderingEngine
+ * @module lib/engine/NgxRenderingEngine
  * @description Angular rendering engine for Decaf model-driven UIs.
  * @summary Implements NgxRenderingEngine which converts model decorator metadata
  * into Angular components, manages component registration, and orchestrates
  * dynamic component creation and input mapping.
- *
  * @link {@link NgxRenderingEngine}
  */
 import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
@@ -28,23 +27,21 @@ import { isDevelopmentMode } from '../helpers';
 import { FormParent } from './types';
 
 /**
- * @description Angular implementation of the RenderingEngine with enhanced features
- * @summary This class extends the base RenderingEngine to provide Angular-specific rendering capabilities
- * with additional features compared to NgxRenderingEngine. It handles the conversion of field definitions
- * to Angular components, manages component registration, and provides utilities for component creation
- * and input handling. This implementation uses Angular's newer component APIs.
- *
+ * @description Angular implementation of the RenderingEngine for Decaf components.
+ * @summary This class extends the base RenderingEngine to provide Angular-specific rendering capabilities.
+ * It handles the conversion of field definitions to Angular components, manages component registration,
+ * and provides utilities for component creation and input handling. The engine converts model decorator
+ * metadata into dynamically created Angular components with proper input binding and lifecycle management.
  * @template AngularFieldDefinition - Type for Angular-specific field definitions
  * @template AngularDynamicOutput - Type for Angular-specific component output
- *
  * @class NgxRenderingEngine
+ * @extends {RenderingEngine<AngularFieldDefinition, AngularDynamicOutput>}
  * @example
  * ```typescript
  * const engine = NgxRenderingEngine.get();
  * engine.initialize();
  * const output = engine.render(myModel, {}, viewContainerRef, injector, templateRef);
  * ```
- *
  * @mermaid
  * sequenceDiagram
  *   participant Client
@@ -60,95 +57,107 @@ import { FormParent } from './types';
  *   Components-->>Engine: component constructor
  *   Engine->>Engine: createComponent(component, inputs, metadata, vcr, injector, template)
  *   Engine-->>Client: return AngularDynamicOutput
+ * @memberOf module:lib/engine/NgxRenderingEngine
  */
 export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, AngularDynamicOutput> {
 
   /**
-   * @description Registry of components available for rendering
+   * @description Registry of components available for dynamic rendering.
    * @summary Static registry that stores all registered components indexed by their selector name.
    * Each component entry contains a constructor reference that can be used to instantiate
    * the component during the rendering process. This registry is shared across all instances
    * of the rendering engine and is populated through the registerComponent method.
-   *
    * @private
    * @static
    * @type {Record<string, { constructor: Constructor<unknown> }>}
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   private static _components: Record<string, { constructor: Constructor<unknown> }>;
 
   /**
-   * @description Currently active model being rendered
+   * @description Currently active model being rendered by the engine.
    * @summary Stores a reference to the model instance that is currently being processed
    * by the rendering engine. This property is set during the render method execution
    * and is used throughout the rendering lifecycle to access model data and metadata.
    * The definite assignment assertion (!) is used because this property is always
    * initialized before use within the render method.
-   *
    * @private
    * @type {Model}
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   private _model!: Model;
 
   /**
-   * @description Current operation context for component visibility control
+   * @description Current operation context for component visibility control.
    * @summary Static property that stores the current operation being performed,
    * which is used to determine component visibility through the 'hidden' property.
    * Components can specify operations where they should be hidden, and this property
    * provides the context for those visibility checks. The value is typically extracted
    * from the global properties during the rendering process.
-   *
    * @private
    * @static
    * @type {string | undefined}
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   private static _operation: string | undefined = undefined;
 
   /**
-   * @description Reference to the currently active component instance
+   * @description Reference to the currently active component instance.
    * @summary Static property that maintains a reference to the most recently created
    * component instance. This is used internally for component lifecycle management
    * and can be cleared through the destroy method. The reference allows access to
    * the active component instance for operations that need to interact with the
    * currently rendered component.
-   *
    * @private
    * @static
    * @type {Type<unknown> | undefined}
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   private static _instance: Type<unknown> | undefined;
 
   // private static _projectable: boolean = true
 
+  /**
+   * @description Parent component properties for child component inheritance.
+   * @summary Static property that stores parent component properties that should be
+   * inherited by child components. This is particularly used for passing page configuration
+   * down to child components in multi-page forms. The property is cleared after rendering
+   * to prevent property leakage between unrelated component trees.
+   * @private
+   * @static
+   * @type {KeyValue | undefined}
+   * @memberOf module:lib/engine/NgxRenderingEngine
+   */
   private static _parentProps: KeyValue | undefined = undefined;
 
 
   /**
-   * @description Constructs a new NgxRenderingEngine instance
+   * @description Constructs a new NgxRenderingEngine instance.
    * @summary Initializes a new instance of the Angular rendering engine by calling the parent
    * constructor with the 'angular' engine type identifier. This constructor sets up the base
    * rendering engine functionality with Angular-specific configurations and prepares the
    * instance for component registration and rendering operations.
-   *
    * @constructor
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   constructor() {
-    super('angular');
+    super(AngularEngineKeys.FLAVOUR);
   }
 
   /**
-   * @description Converts a field definition to an Angular component output
+   * @description Converts a field definition to an Angular component output.
    * @summary This private method takes a field definition and creates the corresponding Angular component.
-   * It handles component instantiation, input property mapping, and child component rendering.
-   * The method validates input properties against the component's metadata and processes
+   * It handles component instantiation, input property mapping, child component rendering, and visibility
+   * control. The method validates input properties against the component's metadata and processes
    * child components recursively.
-   *
    * @param {FieldDefinition<AngularFieldDefinition>} fieldDef - The field definition to convert
    * @param {ViewContainerRef} vcr - The view container reference for component creation
    * @param {Injector} injector - The Angular injector for dependency injection
    * @param {TemplateRef<any>} tpl - The template reference for content projection
    * @param {string} registryFormId - Form identifier for the component renderer
+   * @param {boolean} createComponent - Whether to create the component instance
+   * @param {FormParent} [formGroup] - Optional form group for form components
    * @return {AngularDynamicOutput} The Angular component output with component reference and inputs
-   *
    * @mermaid
    * sequenceDiagram
    *   participant Method as fromFieldDefinition
@@ -169,6 +178,8 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    *     Method->>Method: Create component instance
    *   end
    *   Method-->>Caller: return AngularDynamicOutput
+   * @private
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   private fromFieldDefinition(
     fieldDef: FieldDefinition<AngularFieldDefinition>,
@@ -265,11 +276,10 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
 
 
   /**
-   * @description Creates an Angular component instance
+   * @description Creates an Angular component instance with inputs and template projection.
    * @summary This static utility method creates an Angular component instance with the specified
    * inputs and template. It uses Angular's component creation API to instantiate the component
    * and then sets the input properties using the provided metadata.
-   *
    * @param {Type<unknown>} component - The component type to create
    * @param {KeyValue} [inputs={}] - The input properties to set on the component
    * @param {ComponentMirror<unknown>} metadata - The component metadata for input validation
@@ -277,6 +287,8 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @param {Injector} injector - The Angular injector for dependency injection
    * @param {Node[]} [template=[]] - The template nodes to project into the component
    * @return {ComponentRef<unknown>} The created component reference
+   * @static
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   static createComponent(component: Type<unknown>, inputs: KeyValue = {}, metadata: ComponentMirror<unknown>, vcr: ViewContainerRef, injector: Injector, template: Node[] = []): ComponentRef<unknown> {
     const componentInstance = vcr.createComponent(component as Type<unknown>, {
@@ -288,27 +300,30 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
   }
 
   /**
-   * @description Extracts decorator metadata from a model
+   * @description Extracts decorator metadata from a model.
    * @summary This method provides access to the field definition generated from a model's
    * decorators. It's a convenience wrapper around the toFieldDefinition method that
    * converts a model to a field definition based on its decorators and the provided
    * global properties.
-   *
    * @param {Model} model - The model to extract decorators from
    * @param {Record<string, unknown>} globalProps - Global properties to include in the field definition
    * @return {FieldDefinition<AngularFieldDefinition>} The field definition generated from the model
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   getDecorators(model: Model, globalProps: Record<string, unknown>): FieldDefinition<AngularFieldDefinition> {
     return this.toFieldDefinition(model, globalProps);
   }
 
   /**
-   * @description Destroys the current engine instance
-   * @summary This static method clears the current instance reference, effectively
-   * destroying the singleton instance of the rendering engine. This can be used
-   * to reset the engine state or to prepare for a new instance creation.
-   *
+   * @description Destroys the current engine instance and cleans up resources.
+   * @summary This static method clears the current instance reference and parent props,
+   * effectively destroying the singleton instance of the rendering engine. Optionally
+   * removes the form registry for the specified form ID. This can be used to reset the
+   * engine state or to prepare for a new instance creation.
+   * @param {string} [formId] - Optional form ID to remove from registry
    * @return {Promise<void>} A promise that resolves when the instance is destroyed
+   * @static
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   static async destroy(formId?: string): Promise<void> {
     if(formId)
@@ -319,12 +334,11 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
 
 
   /**
-   * @description Renders a model into an Angular component output
+   * @description Renders a model into an Angular component output.
    * @summary This method takes a model and converts it to an Angular component output.
    * It first stores a reference to the model, then converts it to a field definition
    * using the base RenderingEngine's toFieldDefinition method, and finally converts
    * that field definition to an Angular component output using fromFieldDefinition.
-   *
    * @template M - Type extending Model
    * @param {M} model - The model to render
    * @param {Record<string, unknown>} globalProps - Global properties to pass to the component
@@ -332,7 +346,6 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @param {Injector} injector - The Angular injector for dependency injection
    * @param {TemplateRef<any>} tpl - The template reference for content projection
    * @return {AngularDynamicOutput} The Angular component output with component reference and inputs
-   *
    * @mermaid
    * sequenceDiagram
    *   participant Client as Client Code
@@ -347,6 +360,8 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    *   Render->>FromField: fromFieldDefinition(fieldDef, vcr, injector, tpl)
    *   FromField-->>Render: AngularDynamicOutput
    *   Render-->>Client: return AngularDynamicOutput
+   * @override
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   override render<M extends Model>(
     model: M,
@@ -363,7 +378,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       const props = fieldDef.props as Partial<IComponentInput>;
       if(!NgxRenderingEngine._operation)
         NgxRenderingEngine._operation = props?.operation || undefined;
-      const isArray = (props?.pages && props?.pages  >= 1 || props?.multiple === true);
+      const isArray = (props?.pages && (props?.pages as number)  >= 1 || props?.multiple === true);
       const formGroup = NgxDecafFormService.createForm(formId, isArray);
       result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl, formId, true, formGroup);
       if(result.instance)
@@ -379,12 +394,13 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
   }
 
   /**
-   * @description Initializes the rendering engine
+   * @description Initializes the rendering engine.
    * @summary This method initializes the rendering engine. It checks if the engine is already initialized
    * and sets the initialized flag to true. This method is called before the engine is used
    * to ensure it's properly set up for rendering operations.
-   *
    * @return {Promise<void>} A promise that resolves when initialization is complete
+   * @override
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   override async initialize(): Promise<void> {
     if (this.initialized)
@@ -394,15 +410,16 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
   }
 
   /**
-   * @description Registers a component with the rendering engine
+   * @description Registers a component with the rendering engine.
    * @summary This static method registers a component constructor with the rendering engine
    * under a specific name. It initializes the components registry if needed and throws
    * an error if a component is already registered under the same name to prevent
    * accidental overrides.
-   *
    * @param {string} name - The name to register the component under
    * @param {Constructor<unknown>} constructor - The component constructor
    * @return {void}
+   * @static
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   static registerComponent(name: string, constructor: Constructor<unknown>): void {
     if (!this._components) this._components = {};
@@ -414,14 +431,15 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
   }
 
   /**
-   * @description Retrieves registered components from the rendering engine
+   * @description Retrieves registered components from the rendering engine.
    * @summary This static method retrieves either all registered components or a specific component
    * by its selector. When called without a selector, it returns an array of all registered
    * components. When called with a selector, it returns the specific component if found,
    * or throws an error if the component is not registered.
-   *
    * @param {string} [selector] - Optional selector to retrieve a specific component
    * @return {Object|Array} Either a specific component or an array of all components
+   * @static
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   static components(selector?: string): object | string[] {
     if (!selector) return Object.values(this._components);
@@ -431,31 +449,31 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
   }
 
   /**
-   * @description Generates a key for reflection metadata
+   * @description Generates a key for reflection metadata storage.
    * @summary This static method generates a key for reflection metadata by prefixing the input key
    * with the Angular engine's reflection prefix. This is used for storing and retrieving
    * metadata in a namespaced way to avoid conflicts with other metadata.
-   *
    * @param {string} key - The base key to prefix
    * @return {string} The prefixed key for reflection metadata
+   * @static
+   * @override
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   static override key(key: string): string {
     return `${AngularEngineKeys.REFLECT}${key}`;
   }
 
   /**
-   * @description Sets input properties on a component instance
+   * @description Sets input properties on a component instance.
    * @summary This static utility method sets input properties on a component instance
    * based on the provided inputs object and component metadata. It handles both simple
    * values and nested objects, recursively processing object properties. The method
    * validates each input against the component's metadata to ensure only valid inputs
    * are set.
-   *
    * @param {ComponentRef<unknown>} component - The component reference to set inputs on
    * @param {KeyValue} inputs - The input properties to set
    * @param {ComponentMirror<unknown>} metadata - The component metadata for input validation
    * @return {void}
-   *
    * @mermaid
    * sequenceDiagram
    *   participant Caller
@@ -475,6 +493,8 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    *       SetInputs->>Component: setInput(key, value)
    *     end
    *   end
+   * @static
+   * @memberOf module:lib/engine/NgxRenderingEngine
    */
   static setInputs(component: ComponentRef<unknown>, inputs: KeyValue, metadata: ComponentMirror<unknown>): void {
     function parseInputValue(component: ComponentRef<unknown>, input: KeyValue) {

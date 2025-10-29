@@ -25,18 +25,6 @@ describe('ModelRendererComponent', () => {
   let component: ModelRendererComponent<Model>;
   let fixture: ComponentFixture<ModelRendererComponent<Model>>;
 
-   let engine;
-
-  beforeAll(() => {
-    try {
-      engine = new NgxRenderingEngine();
-      Model.setBuilder(Model.fromModel as ModelBuilderFunction);
-    } catch (e: unknown) {
-      console.warn(`Engine already loaded`);
-    }
-  });
-
-
   // Type 'NgxRenderingEngine' is not assignable to type 'RenderingEngine<AngularFieldDefinition, FieldDefinition<AngularFieldDefinition>>'.
   // The types returned by 'render(...)' are incompatible between these types.
   //   Type 'AngularDynamicOutput' is missing the following properties from type 'FieldDefinition<AngularFieldDefinition>': tag, props

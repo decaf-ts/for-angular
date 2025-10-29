@@ -1,17 +1,15 @@
 /**
- * @module module:lib/engine/NgxDecafFormService
+ * @module lib/engine/NgxDecafFormService
  * @description Utilities to create and manage Angular forms in Decaf components.
  * @summary The NgxDecafFormService exposes helpers to build FormGroup/FormArray instances
  * from component metadata or UI model definitions, register forms in a registry,
  * validate and extract form data, and create controls with appropriate validators.
- *
- * @link {@link NgxDecafFormService}
  */
 import { escapeHtml, FieldProperties, HTML5CheckTypes, HTML5InputTypes, parseToNumber, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { FieldUpdateMode, FormParent, FormParentGroup, KeyValue } from './types';
 import { IComponentConfig, IComponentInput } from './interfaces';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { isValidDate, Model, ModelKeys, parseDate, Primitives, Validation } from '@decaf-ts/decorator-validation';
+import { isValidDate, ModelKeys, parseDate, Primitives, Validation } from '@decaf-ts/decorator-validation';
 import { ValidatorFactory } from './ValidatorFactory';
 import { cleanSpaces } from '../helpers';
 import { OperationKeys } from '@decaf-ts/db-decorators';
@@ -39,7 +37,6 @@ import { BaseComponentProps } from './constants';
  *
  * // Getting form data
  * const formData = NgxDecafFormService.getFormData(form);
- *
  * @mermaid
  * sequenceDiagram
  *   participant C as Component
@@ -61,11 +58,9 @@ export class NgxDecafFormService {
    * @description WeakMap that stores control properties for form controls.
    * @summary A WeakMap that associates AbstractControl instances with their corresponding FieldProperties.
    * This allows the service to track metadata for form controls without creating memory leaks.
-   *
    * @type {WeakMap<AbstractControl, FieldProperties>}
    * @private
    * @static
-   * @memberOf NgxDecafFormService
    */
   private static controls: WeakMap<AbstractControl, FieldProperties> = new WeakMap<AbstractControl, FieldProperties>();
 
@@ -73,36 +68,34 @@ export class NgxDecafFormService {
    * @description Registry of form groups indexed by their unique identifiers.
    * @summary A Map that stores FormGroup instances with their unique string identifiers.
    * This allows global access to registered forms throughout the application.
-   *
    * @type {Map<string, FormGroup>}
    * @private
    * @static
-   * @memberOf NgxDecafFormService
    */
   private static formRegistry: Map<string, FormParent> = new Map<string, FormParent>();
 
   /**
    * @description Creates a new form group or form array with the specified identifier.
-   * @summary Generates a FormGroup or FormArray based on the provided properties. If pages are specified
-   * and greater than 1, creates a FormArray; otherwise creates a FormGroup. The form can optionally
-   * be registered in the global form registry for later access throughout the application.
-   *
+   * @summary Generates a FormGroup or FormArray based on the provided parameters. If formArray is true,
+   * creates a FormArray; otherwise creates a FormGroup. The form can optionally be registered in the
+   * global form registry for later access throughout the application. If a form with the given id
+   * already exists in the registry, it returns the existing form.
    * @param {string} id - Unique identifier for the form
-   * @param {Partial<IComponentInput>} [props={}] - Configuration properties for the form
+   * @param {boolean} [formArray=false] - Whether to create a FormArray instead of a FormGroup
    * @param {boolean} [registry=true] - Whether to register the form in the global registry
-   * @return {FormGroup | FormArray} The created form instance
-   *
+   * @return {FormGroup | FormArray} The created or existing form instance
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
    *   participant NFS as NgxDecafFormService
    *   participant FR as Form Registry
    *   participant AF as Angular Forms
-   *
-   *   C->>NFS: createForm(id, props, registry)
+   *   C->>NFS: createForm(id, formArray, registry)
    *   NFS->>FR: Check if form exists
-   *   alt Form doesn't exist
-   *     alt props.pages > 1
+   *   alt Form exists
+   *     FR-->>NFS: Return existing form
+   *   else Form doesn't exist
+   *     alt formArray is true
    *       NFS->>AF: new FormArray([])
    *     else
    *       NFS->>AF: new FormGroup({})
@@ -112,9 +105,7 @@ export class NgxDecafFormService {
    *     end
    *   end
    *   NFS-->>C: Return FormGroup | FormArray
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static createForm(id: string, formArray = false, registry: boolean = true): FormGroup | FormArray {
     const form = this.formRegistry.get(id) ?? (formArray ? new FormArray([]) : new FormGroup({}));
@@ -129,14 +120,11 @@ export class NgxDecafFormService {
    * @summary Registers a FormGroup or FormArray with a unique identifier for global access throughout
    * the application. This allows forms to be retrieved and managed centrally. Throws an error if
    * the identifier is already in use to prevent conflicts.
-   *
    * @param {string} formId - The unique identifier for the form
    * @param {FormParent} formGroup - The FormGroup or FormArray to be registered
    * @return {void}
    * @throws {Error} If a FormGroup with the given id is already registered
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static addRegistry(formId: string, formGroup: FormParent): void {
     if (this.formRegistry.has(formId))
@@ -144,6 +132,15 @@ export class NgxDecafFormService {
     this.formRegistry.set(formId, formGroup);
   }
 
+  /**
+   * @description Retrieves a form from the registry by its identifier.
+   * @summary Gets a FormGroup or FormArray from the registry using its unique identifier.
+   * Returns undefined if the form is not found in the registry. This method provides
+   * safe access to registered forms without throwing errors.
+   * @param {string} [id] - The unique identifier of the form to retrieve
+   * @return {FormParent | undefined} The FormGroup or FormArray if found, undefined otherwise
+   * @static
+   */
   static getOnRegistry(id?: string): FormParent | undefined {
     return this.formRegistry.get(id as string);
   }
@@ -153,12 +150,9 @@ export class NgxDecafFormService {
    * @summary Deletes a FormGroup or FormArray from the registry using its unique identifier.
    * This cleans up the registry and allows the identifier to be reused. The form itself
    * is not destroyed, only removed from the central registry.
-   *
    * @param {string} formId - The unique identifier of the form to be removed
    * @return {void}
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static removeRegistry(formId: string): void {
     this.formRegistry.delete(formId);
@@ -169,20 +163,17 @@ export class NgxDecafFormService {
    * @summary Traverses the form group structure to find the parent group and control name for a given path.
    * Handles complex nested structures including arrays and sub-groups. Creates missing intermediate
    * groups as needed and properly configures FormArray controls for multiple value scenarios.
-   *
    * @param {FormGroup} formGroup - The root FormGroup to traverse
    * @param {string} path - The dot-separated path to the control (e.g., 'user.address.street')
    * @param {IComponentInput} componentProps - Properties defining the component configuration
    * @param {KeyValue} parentProps - Properties from the parent component for context
    * @return {FormParentGroup} A tuple containing the parent FormGroup and the control name
-   *
    * @private
    * @mermaid
    * sequenceDiagram
    *   participant NFS as NgxDecafFormService
    *   participant FG as FormGroup
    *   participant FA as FormArray
-   *
    *   NFS->>NFS: Split path into parts
    *   loop For each path part
    *     alt Control doesn't exist
@@ -196,9 +187,7 @@ export class NgxDecafFormService {
    *     NFS->>NFS: Navigate to next level
    *   end
    *   NFS-->>NFS: Return [parentGroup, controlName]
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   private static resolveParentGroup(
     formGroup: FormGroup,
@@ -257,14 +246,11 @@ export class NgxDecafFormService {
    * @description Retrieves component properties from a FormGroup or FormArray.
    * @summary Extracts component properties stored in the form group metadata. If a FormGroup is provided
    * and groupArrayName is specified, it will look for the FormArray within the form structure.
-   *
    * @param {FormGroup | FormArray} formGroup - The form group or form array to extract properties from
    * @param {string} [key] - Optional key to retrieve a specific property
    * @param {string} [groupArrayName] - Optional name of the group array if formGroup is not a FormArray
    * @return {Partial<FieldProperties>} The component properties or a specific property if key is provided
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static getComponentPropsFromGroupArray(formGroup: FormGroup | FormArray, key?: string, groupArrayName?: string | undefined): Partial<FieldProperties> {
     if(!(formGroup instanceof FormArray) && typeof groupArrayName === Primitives.STRING)
@@ -277,14 +263,12 @@ export class NgxDecafFormService {
    * @description Adds a new group to a parent FormArray.
    * @summary Creates and adds a new FormGroup to the specified parent FormArray based on the
    * component properties stored in the parent's metadata. This is used for dynamic form arrays
-   * where new groups need to be added at runtime.
-   *
-   * @param {FormParent} parentForm - The root form group containing the parent FormArray
-   * @param {number} index - The index position where the new group should be added
-   * @return {FormGroup} The newly created and added FormGroup
-   *
+   * where new groups need to be added at runtime. Clones the control at the specified index
+   * to maintain the same structure and validators.
+   * @param {FormParent} parentForm - The FormArray or FormGroup containing the parent FormArray
+   * @param {number} [index] - The index position to clone from; defaults to last index if length > 0, otherwise 0
+   * @return {FormArray} The parent FormArray after adding the new group
    * @static
-   * @memberOf NgxDecafFormService
    */
   static addGroupToParent(parentForm: FormParent, index?: number): FormArray {
     if(parentForm instanceof FormGroup)
@@ -298,14 +282,11 @@ export class NgxDecafFormService {
    * @description Retrieves a FormGroup from a parent FormArray at the specified index.
    * @summary Gets a FormGroup from the specified parent FormArray. If the group doesn't exist
    * at the given index, it will create a new one using addGroupToParent.
-   *
-   * @param {FormGroup} formGroup - The root form group containing the parent FormArray
+   * @param {FormParent} formGroup - The root form group containing the parent FormArray
    * @param {string} parentName - The name of the parent FormArray to retrieve the group from
    * @param {number} [index=1] - The index of the group to retrieve
    * @return {FormGroup} The FormGroup at the specified index
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static getGroupFromParent(formGroup: FormParent, parentName: string, index: number = 1): FormGroup {
     const childGroup = ((formGroup.get(parentName) || formGroup) as FormArray).at(index);
@@ -314,6 +295,17 @@ export class NgxDecafFormService {
     return this.addGroupToParent(formGroup, index).at(index) as FormGroup;
   }
 
+  /**
+   * @description Clones a form control with its validators.
+   * @summary Creates a deep copy of a FormControl, FormGroup, or FormArray, preserving
+   * validators but resetting values and state. This is useful for creating new instances
+   * of form controls with the same validation rules, particularly in dynamic FormArrays
+   * where new groups need to be added with identical structure.
+   * @param {AbstractControl} control - The control to clone (FormControl, FormGroup, or FormArray)
+   * @return {AbstractControl} A new instance of the control with the same validators
+   * @throws {Error} If the control type is not supported
+   * @static
+   */
   static cloneFormControl(control: AbstractControl): AbstractControl {
     const syncValidators = (control.validator ? [control.validator] : []).filter(fn => {
       // if(lastIndex > 0)
@@ -355,14 +347,13 @@ export class NgxDecafFormService {
    * @description Checks if a value is unique within a FormArray group.
    * @summary Validates that the primary key value in a FormGroup is unique among all groups
    * in the parent FormArray. The uniqueness check behavior differs based on the operation type.
-   *
+   * For both CREATE and UPDATE operations, it checks that no other group in the array has the same
+   * primary key value.
    * @param {FormGroup} formGroup - The FormGroup to check for uniqueness
-   * @param {number} index - The index of the current group within the FormArray
    * @param {OperationKeys} [operation=OperationKeys.CREATE] - The type of operation being performed
+   * @param {number} [index] - The index of the current group within the FormArray
    * @return {boolean} True if the value is unique, false otherwise
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static isUniqueOnGroup(formGroup: FormGroup, operation: OperationKeys = OperationKeys.CREATE, index?: number): boolean {
     const formArray = formGroup.parent as FormArray;
@@ -391,12 +382,9 @@ export class NgxDecafFormService {
    * @description Enables all controls within a FormGroup or FormArray.
    * @summary Recursively enables all form controls within the provided FormGroup or FormArray.
    * This is useful for making all controls interactive after they have been disabled.
-   *
    * @param {FormArray | FormGroup} formGroup - The FormGroup or FormArray to enable all controls for
    * @return {void}
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static enableAllGroupControls(formGroup: FormArray | FormGroup): void {
     Object.keys(formGroup.controls).forEach(key => {
@@ -416,17 +404,15 @@ export class NgxDecafFormService {
    * @description Adds a form control to a form group based on component properties.
    * @summary Creates and configures a FormControl within the specified FormGroup using the provided
    * component properties. Handles nested paths, multiple controls (FormArrays), and control registration.
-   * This method supports complex form structures with nested groups and arrays.
-   *
-   * @param {FormGroup} formGroup - The form group to add the control to
+   * This method supports complex form structures with nested groups and arrays. It also manages
+   * page-based forms and FormArray indexing.
+   * @param {FormParent} formGroup - The form group or form array to add the control to
    * @param {IComponentInput} componentProps - The component properties defining the control configuration
-   * @param {KeyValue} [parentProps={}] - Properties from the parent component for context
+   * @param {Partial<IComponentInput>} [parentProps={}] - Properties from the parent component for context
    * @param {number} [index=0] - The index for multiple controls in FormArrays
-   * @return {void}
-   *
+   * @return {FormParent} The updated form parent (FormGroup or FormArray)
    * @private
    * @static
-   * @memberOf NgxDecafFormService
    */
   private static addFormControl(formGroup: FormParent, componentProps: IComponentInput, parentProps: Partial<IComponentInput> = {}, index: number = 0): FormParent {
 
@@ -468,18 +454,15 @@ export class NgxDecafFormService {
    * @summary Finds and returns an AbstractControl from a registered form using the form id and optional path.
    * This method provides centralized access to form controls across the application by leveraging
    * the form registry system.
-   *
    * @param {string} formId - The unique identifier of the form in the registry
    * @param {string} [path] - The optional dot-separated path to a specific control within the form
    * @return {AbstractControl} The requested AbstractControl (FormGroup, FormArray, or FormControl)
    * @throws {Error} If the form is not found in the registry or the control is not found in the form
-   *
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
    *   participant NFS as NgxDecafFormService
    *   participant FR as Form Registry
-   *
    *   C->>NFS: getControlFromForm(formId, path?)
    *   NFS->>FR: Get form by formId
    *   alt Form not found
@@ -498,9 +481,7 @@ export class NgxDecafFormService {
    *       NFS-->>C: Return form
    *     end
    *   end
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static getControlFromForm(formId: string, path?: string): AbstractControl {
     const form = this.formRegistry.get(formId);
@@ -522,18 +503,15 @@ export class NgxDecafFormService {
    * @summary Generates a FormGroup from an array of UIModelMetadata objects, extracting component
    * properties and creating appropriate form controls. This method is specifically designed to work
    * with the UI decorator system and provides automatic form generation from metadata.
-   *
    * @param {string} id - Unique identifier for the form
    * @param {boolean} [registry=false] - Whether to register the created form in the global registry
    * @param {UIModelMetadata[]} [children] - Array of UI model metadata objects to create controls from
    * @return {FormGroup} The created FormGroup with controls for each child metadata
-   *
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
    *   participant NFS as NgxDecafFormService
    *   participant AF as Angular Forms
-   *
    *   C->>NFS: createFormFromChildren(id, registry, children)
    *   NFS->>AF: new FormGroup({})
    *   loop For each child metadata
@@ -544,9 +522,7 @@ export class NgxDecafFormService {
    *     NFS->>NFS: addRegistry(id, form)
    *   end
    *   NFS-->>C: Return FormGroup
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static createFormFromChildren(id: string, registry: boolean = false,  children?: UIModelMetadata[],): FormGroup {
     const form = new FormGroup({});
@@ -564,18 +540,15 @@ export class NgxDecafFormService {
    * @summary Generates a FormGroup based on an array of component configurations and optionally registers it.
    * This method processes component input configurations to create appropriate form controls with
    * validation and initial values.
-   *
    * @param {string} id - The unique identifier for the form
    * @param {IComponentConfig[]} components - An array of component configurations defining the form structure
    * @param {boolean} [registry=false] - Whether to register the created form in the global registry
    * @return {FormGroup} The created FormGroup with controls for each component configuration
-   *
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
    *   participant NFS as NgxDecafFormService
    *   participant AF as Angular Forms
-   *
    *   C->>NFS: createFormFromComponents(id, components, registry)
    *   NFS->>AF: new FormGroup({})
    *   loop For each component config
@@ -586,9 +559,7 @@ export class NgxDecafFormService {
    *     NFS->>NFS: addRegistry(id, form)
    *   end
    *   NFS-->>C: Return FormGroup
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static createFormFromComponents(id: string, components: IComponentConfig[], registry: boolean = false): FormGroup {
     const form = new FormGroup({});
@@ -606,55 +577,53 @@ export class NgxDecafFormService {
    * @description Adds a control to a form based on component properties.
    * @summary Creates and adds a form control to a form (existing or new) based on the provided component properties.
    * Handles multi-page forms by managing FormArray structures and proper indexing. This method supports
-   * complex form scenarios including nested controls and page-based form organization.
-   *
+   * complex form scenarios including nested controls and page-based form organization. It automatically
+   * creates FormArrays for forms with multiple pages and manages page indexing.
    * @param {string} id - The unique identifier of the form
    * @param {FieldProperties} componentProperties - The properties of the component to create the control from
    * @param {FieldProperties} [parentProps] - Optional parent properties for context and configuration
-   * @return {AbstractControl} The form or created control
-   *
+   * @return {FormParent} The form or created control (FormGroup or FormArray)
+   * @throws {Error} If page property is required but not provided or is invalid
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
    *   participant NFS as NgxDecafFormService
    *   participant F as Form
-   *
    *   C->>NFS: addControlFromProps(id, componentProps, parentProps?)
-   *   NFS->>NFS: createForm(id, parentProps, true)
-   *   alt Multi-page form (parentProps.pages > 1)
+   *   NFS->>NFS: createForm(id, formArray, true)
+   *   alt Multi-page form (parentProps.pages > 0)
    *     NFS->>NFS: Calculate page index
-   *     NFS->>F: Get or create FormGroup at index
+   *     alt Group doesn't exist at index
+   *       NFS->>F: Create new FormGroup at index
+   *     end
    *     NFS->>NFS: Set form to page FormGroup
    *   end
    *   alt componentProperties has path
    *     NFS->>NFS: addFormControl(form, componentProperties, parentProps)
    *   end
    *   NFS-->>C: Return form/control
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static addControlFromProps(id: string, componentProperties: FieldProperties, parentProps?: FieldProperties): FormParent {
     const formArray = (componentProperties?.pages && componentProperties?.pages  >= 1 || componentProperties.multiple === true);
     let form = this.createForm(id, formArray, true);
-    const formLength = (form as FormArray).length;
     if(parentProps?.pages && parentProps?.pages > 0) {
-      let index = componentProperties.page || parentProps.page;
+      const index = componentProperties.page || parentProps.page;
       if(!(typeof index === 'number') || index === 0)
         throw Error(`Property 'page' is required and greather than 0 on ${componentProperties.name}`);
 
-      if(index > formLength) {
-        if((form as KeyValue)?.['lastIndex'] && index === (form as KeyValue)['lastIndex']['page']) {
-          index = (form as KeyValue)['lastIndex']['index'];
-        } else {
-          (form as KeyValue)['lastIndex'] = {
-            page: index,
-            index: formLength + 1
-          };
-          index = formLength + 1;
+      // if(index > formLength) {
+      //   if((form as KeyValue)?.['lastIndex'] && index === (form as KeyValue)['lastIndex']['page']) {
+      //     index = (form as KeyValue)['lastIndex']['index'];
+      //   } else {
+      //     (form as KeyValue)['lastIndex'] = {
+      //       page: index,
+      //       index: formLength + 1
+      //     };
+      //     index = formLength + 1;
 
-        }
-      }
+      //   }
+      // }
 
       let group = (form as FormArray).controls[(index as number) - 1];
       if(!group) {
@@ -673,17 +642,14 @@ export class NgxDecafFormService {
    * @summary Extracts and processes the data from a FormGroup, handling different input types and nested form groups.
    * Performs type conversion for various HTML5 input types, validates nested controls, and manages
    * multiple control scenarios. Automatically enables all group controls after data extraction.
-   *
    * @param {FormGroup} formGroup - The FormGroup to extract data from
    * @return {Record<string, unknown>} An object containing the processed form data with proper type conversions
-   *
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
    *   participant NFS as NgxDecafFormService
    *   participant FG as FormGroup
    *   participant FC as FormControl
-   *
    *   C->>NFS: getFormData(formGroup)
    *   loop For each control in formGroup
    *     alt Control is not FormControl
@@ -707,9 +673,7 @@ export class NgxDecafFormService {
    *   end
    *   NFS->>NFS: enableAllGroupControls(formGroup)
    *   NFS-->>C: Return processed data object
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static getFormData(formGroup: FormGroup): Record<string, unknown> {
     const data: Record<string, unknown> = {};
@@ -761,13 +725,11 @@ export class NgxDecafFormService {
    * @summary Recursively validates all fields in a form control or form group, marking them as touched and dirty.
    * Performs comprehensive validation including uniqueness checks for primary keys in FormArray scenarios.
    * This method ensures all validation rules are applied and form state is properly updated.
-   *
    * @param {AbstractControl} control - The control or form group to validate
    * @param {string} [pk] - Optional primary key field name for uniqueness validation
    * @param {string} [path] - The path to the control within the form for error reporting
    * @return {boolean} True if all fields are valid, false otherwise
    * @throws {Error} If no control is found at the specified path or if the control type is unknown
-   *
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
@@ -775,7 +737,6 @@ export class NgxDecafFormService {
    *   participant FC as FormControl
    *   participant FG as FormGroup
    *   participant FA as FormArray
-   *
    *   C->>NFS: validateFields(control, pk?, path?)
    *   alt Control is FormControl
    *     NFS->>FC: markAsTouched()
@@ -801,9 +762,7 @@ export class NgxDecafFormService {
    *   else Unknown control type
    *     NFS-->>C: Throw Error
    *   end
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static validateFields(control: AbstractControl, pk?: string,  path?: string): boolean {
     control = path ? control.get(path) as AbstractControl : control;
@@ -859,8 +818,12 @@ export class NgxDecafFormService {
   /**
    * @description Generates validators from component properties.
    * @summary Creates an array of ValidatorFn based on the supported validation keys in the component properties.
-   * @param {KeyValue} props - The component properties.
-   * @return {ValidatorFn[]} An array of validator functions.
+   * Maps each validation property to its corresponding Angular validator function using the ValidatorFactory.
+   * Only processes properties that are recognized as validation keys by the Validation utility.
+   * @param {KeyValue} props - The component properties containing validation rules
+   * @return {ValidatorFn[]} An array of validator functions
+   * @private
+   * @static
    */
   private static validatorsFromProps(props: KeyValue): ValidatorFn[] {
     const supportedValidationKeys = Validation.keys();
@@ -876,18 +839,15 @@ export class NgxDecafFormService {
    * @summary Generates a FormControl with validators and initial configuration based on the provided
    * component properties. Handles different input types, sets initial values, and configures
    * validation rules and update modes.
-   *
    * @param {FieldProperties} props - The component properties defining the control configuration
    * @param {FieldUpdateMode} [updateMode='change'] - The update mode for the control ('change', 'blur', 'submit')
    * @return {FormControl} The created FormControl with proper configuration and validators
-   *
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
    *   participant NFS as NgxDecafFormService
    *   participant VF as ValidatorFactory
    *   participant AF as Angular Forms
-   *
    *   C->>NFS: fromProps(props, updateMode?)
    *   NFS->>NFS: validatorsFromProps(props)
    *   NFS->>VF: Create validators from props
@@ -902,9 +862,7 @@ export class NgxDecafFormService {
    *   NFS->>AF: new FormControl(config)
    *   AF-->>NFS: Return FormControl
    *   NFS-->>C: Return configured FormControl
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static fromProps(props: FieldProperties, updateMode: FieldUpdateMode = 'change'): FormControl {
     const validators = this.validatorsFromProps(props);
@@ -933,12 +891,9 @@ export class NgxDecafFormService {
    * @summary Gets the FieldProperties associated with a form control from the internal WeakMap.
    * This method provides access to the original component properties that were used to create
    * the control, enabling validation, rendering, and behavior configuration.
-   *
    * @param {FormControl | FormArray | FormGroup} control - The form control to get properties for
    * @return {FieldProperties} The properties associated with the control, or empty object if not found
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static getPropsFromControl(control: FormControl | FormArray | FormGroup): FieldProperties {
     return this.controls.get(control) || {} as FieldProperties;
@@ -949,18 +904,15 @@ export class NgxDecafFormService {
    * @summary Traverses up the DOM tree to find the nearest parent element with the specified tag name.
    * This is useful for finding container elements or specific parent components in the DOM hierarchy.
    * The search is case-insensitive for tag name matching.
-   *
    * @param {HTMLElement} el - The starting element to traverse from
    * @param {string} tag - The tag name to search for (case-insensitive)
    * @return {HTMLElement} The found parent element with the specified tag
    * @throws {Error} If no parent with the specified tag is found in the DOM tree
-   *
    * @mermaid
    * sequenceDiagram
    *   participant C as Component
    *   participant NFS as NgxDecafFormService
    *   participant DOM as DOM Tree
-   *
    *   C->>NFS: getParentEl(element, tagName)
    *   loop Traverse up DOM tree
    *     NFS->>DOM: Get parentElement
@@ -971,9 +923,7 @@ export class NgxDecafFormService {
    *       NFS-->>C: Throw Error
    *     end
    *   end
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static getParentEl(el: HTMLElement, tag: string): HTMLElement {
     let parent: HTMLElement | null;
@@ -993,32 +943,37 @@ export class NgxDecafFormService {
    * @summary Associates a form control with its component properties for later retrieval.
    * This enables the service to maintain metadata about controls without creating memory leaks,
    * as WeakMap automatically cleans up references when controls are garbage collected.
-   *
    * @param {AbstractControl} control - The control to register (FormControl, FormGroup, or FormArray)
    * @param {FieldProperties} props - The properties to associate with the control
    * @return {void}
-   *
    * @static
-   * @memberOf NgxDecafFormService
    */
   static register(control: AbstractControl, props: FieldProperties): void {
     this.controls.set(control, props);
   }
 
   /**
-   * @description Unregisters a control.
+   * @description Unregisters a control from the internal WeakMap.
    * @summary Removes a control and its associated properties from the internal WeakMap.
-   * @param {AbstractControl} control - The control to unregister.
-   * @return {boolean} True if the control was successfully unregistered, false otherwise.
+   * This cleans up the metadata tracking for the control and frees up memory. Returns
+   * true if the control was found and removed, false if it was not in the registry.
+   * @param {AbstractControl} control - The control to unregister (FormControl, FormGroup, or FormArray)
+   * @return {boolean} True if the control was successfully unregistered, false otherwise
+   * @static
    */
   static unregister(control: AbstractControl): boolean {
     return this.controls.delete(control);
   }
 
   /**
-   * @description Resets a form group.
-   * @summary Recursively resets all controls in a form group, clearing values, errors, and marking them as pristine and untouched.
-   * @param {FormGroup} formGroup - The form group to reset.
+   * @description Resets a form group or form control.
+   * @summary Recursively resets all controls in a form group or a single form control, clearing values,
+   * errors, and marking them as pristine and untouched. For FormControls, it sets the value to empty
+   * string (except for checkbox types) and clears validation errors. For FormGroups, it recursively
+   * resets all child controls.
+   * @param {FormGroup | FormControl} formGroup - The form group or form control to reset
+   * @return {void}
+   * @static
    */
   static reset(formGroup: FormGroup | FormControl): void {
     if(formGroup instanceof FormControl) {

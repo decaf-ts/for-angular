@@ -22,7 +22,6 @@ import { Model } from '@decaf-ts/decorator-validation';
  * @class NgxParentComponentDirective
  * @extends {NgxParentComponentDirective}
  * @implements {OnInit}
- * @memberOf NgxParentComponentDirective
  */
 @Directive()
 export class NgxParentComponentDirective extends NgxDecafComponentDirective implements OnInit {
@@ -37,7 +36,6 @@ export class NgxParentComponentDirective extends NgxDecafComponentDirective impl
    *
    * @type {string}
    * @default 'Child'
-   * @memberOf FieldsetComponent
    */
   @Input()
   parentComponent!: FormParent;
@@ -50,7 +48,6 @@ export class NgxParentComponentDirective extends NgxDecafComponentDirective impl
    * page assignment, and display properties.
    *
    * @type {UIModelMetadata[]}
-   * @memberOf NgxParentComponentDirective
    */
   @Input()
   children: UIModelMetadata[] | KeyValue[] = [];
@@ -65,7 +62,6 @@ export class NgxParentComponentDirective extends NgxDecafComponentDirective impl
    *
    * @type {(number | string[])}
    * @default 1
-   * @memberOf NgxParentComponentDirective
    */
   @Input()
   cols: number | string[] = 1;
@@ -78,7 +74,6 @@ export class NgxParentComponentDirective extends NgxDecafComponentDirective impl
    *
    * @type {(number | string[])}
    * @default 1
-   * @memberOf NgxParentComponentDirective
    */
   @Input()
   rows: number | KeyValue[] | string[] = 1;

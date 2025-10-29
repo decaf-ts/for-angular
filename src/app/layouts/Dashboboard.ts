@@ -3,7 +3,7 @@ import {
   Model,
   ModelArg,
 } from '@decaf-ts/decorator-validation';
-import { uichild, uilayoutitem, uielement, uilayout } from '@decaf-ts/ui-decorators';
+import { uichild, uilayoutprop, uielement, uilayout } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from '../models/CategoryModel';
 import { EmployeeModel } from '../models/EmployeeModel';
 
@@ -16,21 +16,18 @@ export class DashboardLayout extends Model {
     'subtitle': 'Using all layout columns',
     'className': 'dcf-card-default'
   })
-  @uilayoutitem(3, 1)
+  @uilayoutprop(3, 1)
   left!: string;
 
   @uielement('ngx-decaf-empty-state')
-  @uilayoutitem(2, 2, {
-    title: 'Using two columns of second row',
-    className: 'dcf-card-default'
-  })
+  @uilayoutprop(2, 2)
   right!: string;
 
-  @uilayoutitem(1, 2)
+  @uilayoutprop(1, 2)
   @uichild(EmployeeModel.name, 'ngx-decaf-crud-form')
   employee!: EmployeeModel;
 
-  @uilayoutitem(1, 3)
+  @uilayoutprop(1, 3)
   @uichild(CategoryModel.name, 'ngx-decaf-crud-form')
   category!: CategoryModel;
 
@@ -39,7 +36,7 @@ export class DashboardLayout extends Model {
     subtitle: 'Subtítulo do segundo componente',
     className: 'dcf-card-default'
   })
-  @uilayoutitem(2, 3)
+  @uilayoutprop(2, 3)
   right2!: string;
 
   constructor(args: ModelArg<DashboardLayout> = {}) {

@@ -40,9 +40,6 @@ import { Primitives } from '@decaf-ts/decorator-validation';
 })
 export class LayoutComponent extends NgxParentComponentDirective implements OnInit {
 
-  @Input()
-  initializeProps: boolean = true;
-
   /**
    * @description Media breakpoint for responsive behavior.
    * @summary Determines the responsive breakpoint at which the layout should adapt.
@@ -56,9 +53,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    */
   @Input()
   gap: 'small' | 'medium' | 'large' | 'collapse' = 'collapse';
-
-  @Input()
-  match: boolean = true;
 
   /**
    * @description Media breakpoint for responsive behavior.
@@ -75,6 +69,35 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
   breakpoint: UIMediaBreakPointsType | string = UIMediaBreakPoints.MEDIUM;
 
   /**
+   * @description Media breakpoint for responsive behavior.
+   * @summary Determines the responsive breakpoint at which the layout should adapt.
+   * This affects how the grid behaves on different screen sizes, allowing for
+   * mobile-first or desktop-first responsive design patterns. The breakpoint
+   * is automatically processed to ensure compatibility with the UI framework.
+   *
+   * @type {UIMediaBreakPointsType}
+   * @default 'medium'
+   * @memberOf LayoutComponent
+   */
+  @Input()
+  grid: boolean = true;
+
+
+  /**
+   * @description Media breakpoint for responsive behavior.
+   * @summary Determines the responsive breakpoint at which the layout should adapt.
+   * This affects how the grid behaves on different screen sizes, allowing for
+   * mobile-first or desktop-first responsive design patterns. The breakpoint
+   * is automatically processed to ensure compatibility with the UI framework.
+   *
+   * @type {UIMediaBreakPointsType}
+   * @default 'medium'
+   * @memberOf LayoutComponent
+   */
+  @Input()
+  match: boolean = true;
+
+  /**
    * @description Creates an instance of LayoutComponent.
    * @summary Initializes a new LayoutComponent with the component name "LayoutComponent".
    * This constructor calls the parent NgxParentComponentDirective constructor to set up base
@@ -83,8 +106,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    * @memberOf LayoutComponent
    */
   constructor() {
-    super()
-    this.componentName = 'LayoutComponent';
+    super('LayoutComponent')
   }
 
   /**
@@ -121,10 +143,13 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
     if(typeof rows === Primitives.NUMBER)
       rows = Array.from({length: Number(rows)}, () => ({title: ''}))  as KeyValue[];
     return (rows as KeyValue[]).map((row, index) => {
+      const rowsLength = this.rows;
       return {
         title: typeof row === Primitives.STRING ? row : row?.['title'] || "",
         cols: this.children.filter((child) => {
-          const row = (child as UIElementMetadata).props?.['row'] ?? 1;
+          let row = (child as UIElementMetadata).props?.['row'] ?? 1;
+          if(row > rowsLength)
+            row = rowsLength as number;
           child['col'] = (child as UIElementMetadata).props?.['col'] ?? (this.cols as string[])?.length ?? 1;
           if(row === index + 1)
             return child;
@@ -148,8 +173,10 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
       this.breakpoint = `@${this.breakpoint}`.toLowerCase();
     this.cols = this._cols;
     this.rows = this._rows;
+    // if(this._rows.length === 1)
+    //   this.match = false;
+    // if(this._cols.length === 1)
+    //   this.grid = false;
     this.initialized = true;
   }
-
-
 }

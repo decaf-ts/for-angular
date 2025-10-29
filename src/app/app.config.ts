@@ -7,7 +7,7 @@ import {
   PreloadAllModules,
 } from '@angular/router';
 import { RamAdapter } from '@decaf-ts/core/ram';
-import { RootTranslateServiceConfig, TranslateLoader } from '@ngx-translate/core';
+import { RootTranslateServiceConfig } from '@ngx-translate/core';
 import {
   IonicRouteStrategy,
   provideIonicAngular,
@@ -21,10 +21,12 @@ import { AIModel, AIVendorModel } from './models/AIVendorModel';
 import { I18nResourceConfigType } from 'src/lib/engine';
 import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
+import { User } from './forms/FieldsetForm';
 
 export const DbAdapterFlavour = 'ram';
+export const AppName = 'Decaf For Angular';
 // export const AppModels = [new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
-export const AppModels = [new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
+export const AppModels = [new User(), new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
 
 export const AppConfig: ApplicationConfig = {
   providers: [

@@ -40,7 +40,6 @@ import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { getModelRepository } from '../../for-angular-common.module';
 import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, StringOrBoolean, FormParent } from '../../engine/types';
 import { dataMapper, generateRandomValue } from '../../helpers';
-import { EventConstants } from '../../engine/constants';
 import { NgxDecafFormFieldDirective } from '../../engine/NgxDecafFormFieldDirective';
 import { Dynamic } from '../../engine/decorators';
 import { getLocaleContextByKey } from '../../i18n/Loader';
@@ -695,7 +694,6 @@ export class CrudFieldComponent extends NgxDecafFormFieldDirective implements On
     if(this.optionsMapper) {
       if (this.optionsMapper instanceof Function || typeof this.optionsMapper === 'function') {
         const mapper = this.optionsMapper as (option: KeyValue) => CrudFieldOption;
-        console.log(this.options);
         this.options = (this.options as (CrudFieldOption | KeyValue)[]).map((option: KeyValue) => {
           return mapper(option);
         });
@@ -771,54 +769,6 @@ export class CrudFieldComponent extends NgxDecafFormFieldDirective implements On
 
 
   /**
-   * @description Handles fieldset group creation events from parent fieldsets.
-   * @summary Processes events triggered when a new group needs to be added to a fieldset.
-   * Validates the current form group, checks for uniqueness if applicable, and either
-   * creates a new group or provides validation feedback. Updates the active form group
-   * and resets the field for new input after successful creation.
-   *
-   * @param {CustomEvent} event - The fieldset create group event containing group details
-   * @returns {void}
-   * @memberOf CrudFieldComponent
-   */
-  @HostListener('window:fieldsetAddGroupEvent', ['$event'])
-  handleFieldsetCreateGroupEvent(event: CustomEvent): void {
-    event.stopImmediatePropagation();
-    const { formGroup } = event.detail;
-    // const formGroup = this.formGroup as FormGroup;
-    // const parentFormGroup = this.formGroup?.parent as FormArray;
-    // const isValid = NgxDecafFormService.validateFields(formGroup as FormGroup);
-    // const indexToCheck = operation === OperationKeys.CREATE ?
-    //   index === 0 ? index : parentFormGroup.length - 1 : index;
-
-    // const isUnique = NgxDecafFormService.isUniqueOnGroup(formGroup, indexToCheck, operation || OperationKeys.CREATE);
-    // event = new CustomEvent(EventConstants.FIELDSET_ADD_GROUP, {
-    //   detail: {isValid: isValid && isUnique, value: formGroup.value, formGroup: parentFormGroup, formService: NgxDecafFormService},
-    // });
-    // component.dispatchEvent(event);
-
-    // if(isValid && isUnique) {
-    //   const newIndex = parentFormGroup?.length;
-
-    //   if(operation === OperationKeys.CREATE) {
-    //     NgxDecafFormService.addGroupToParent(parentFormGroup?.parent as FormGroup, parent, newIndex);
-    //     this.activeFormGroup = newIndex;
-    //   } else {
-    //     this.activeFormGroup = newIndex - 1;
-    //   }
-    //   this.formGroup = this.activeFormGroup;
-    //   // NgxDecafFormService.reset(this.formGroup as FormGroup);
-    //   this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
-    //   // NgxDecafFormService.reset(this.formControl);
-    //   // this.component.nativeElement.setFocus();
-    // } else {
-    //   if(isUnique)
-    //     this.component.nativeElement.setFocus();
-    // }
-  }
-
-
-  /**
    * @description Handles fieldset group update events from parent fieldsets.
    * @summary Processes events triggered when an existing group needs to be updated.
    * Updates the active form group index and refreshes the form group and form control
@@ -835,31 +785,5 @@ export class CrudFieldComponent extends NgxDecafFormFieldDirective implements On
     this.formGroup = formGroup;
     this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
     this.value = this.formControl.value;
-  }
-
-
-  /**
-   * @description Handles fieldset group removal events from parent fieldsets.
-   * @summary Processes events triggered when a group needs to be removed from a fieldset.
-   * Removes the specified group from the form array, updates the active form group index,
-   * and refreshes the form references. Dispatches a confirmation event back to the component.
-   *
-   * @param {CustomEvent} event - The fieldset remove group event containing removal details
-   * @returns {void}
-   * @memberOf CrudFieldComponent
-   */
-  @HostListener('window:fieldsetRemoveGroupEvent', ['$event'])
-  handleFieldsetRemoveGroupEvent(event: CustomEvent): void {
-    const { component, index } = event.detail;
-    const formArray = this.formGroup?.parent as FormArray;
-    formArray.removeAt(index);
-    this.activeFormGroupIndex = formArray.length === 1 ? 0 : formArray.length - 1;
-    this.formGroup = this.activeFormGroup;
-    this.formControl = this.formGroup.get(this.name) as FormControl;
-    this.parentComponent = formArray
-    event = new CustomEvent(EventConstants.FIELDSET_REMOVE_GROUP, {
-      detail: {value: true},
-    });
-    component.dispatchEvent(event);
   }
 }

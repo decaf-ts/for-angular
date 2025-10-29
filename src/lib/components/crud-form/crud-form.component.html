@@ -1,6 +1,6 @@
 @if(operation !== 'read' && operation !== 'delete') {
   <form
-    [class]="'dcf-grid dcf-grid-small dcf-child-width-1-1 dcf-form-grid ' + operation" #component
+    [class]="'dcf-form-grid ' + operation" #component
     [id]="rendererId"
     [formGroup]="formGroup"
     (submit)="submit($event)"
@@ -13,7 +13,6 @@
           [children]="children || []"
           [parentComponent]="formGroup || parentComponent"
           gap="small"
-          [initializeProps]="false"
           [rows]="rows"
           [cols]="cols" />
 
@@ -28,26 +27,29 @@
         />
       } -->
     }
-    <div class="dcf-buttons-grid dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
-      <div>
-        <ion-button type="submit" [expand]="action ? 'block' : 'default'">
-          @if(options.buttons.submit.icon) {
-            <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
-          }
-          {{ action ? action : options.buttons.submit.text}}
-        </ion-button>
-      </div>
-      @if(!action) {
+    @if(initialized) {
+      <div class="dcf-buttons-grid dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
         <div>
-          <ion-button fill="clear" (click)="handleReset()">
-            @if(options.buttons.clear?.icon) {
-              <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
+          <ion-button type="submit" [expand]="action ? 'block' : 'default'">
+            @if(options.buttons.submit.icon) {
+              <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
             }
-            Back
+            {{ action ? action : options.buttons.submit.text}}
           </ion-button>
         </div>
-      }
-    </div>
+        @if(!action) {
+          <div>
+            <ion-button fill="clear" (click)="handleReset()">
+              @if(options.buttons.clear?.icon) {
+                <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
+              }
+              Back
+            </ion-button>
+          </div>
+        }
+      </div>
+    }
+
   </form>
 } @else {
   <section [class]="'dcf-grid dcf-grid-small dcf-child-width-1-1 dcf-form-grid ' + operation" #component [id]="uid">

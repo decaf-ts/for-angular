@@ -20,8 +20,8 @@ import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces
 import { addIcons } from 'ionicons';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxDecafFormService } from '../../engine/NgxDecafFormService';
-import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { ReservedModels } from '@decaf-ts/decorator-validation';
+import { LayoutComponent } from '../layout/layout.component';
 
 
 /**
@@ -83,7 +83,6 @@ import { ReservedModels } from '@decaf-ts/decorator-validation';
   schemas: [],
   imports: [
     TranslatePipe,
-    ComponentRendererComponent,
     ReactiveFormsModule,
     IonAccordionGroup,
     IonAccordion,
@@ -95,8 +94,8 @@ import { ReservedModels } from '@decaf-ts/decorator-validation';
     IonReorderGroup,
     IonButton,
     IonIcon,
+    LayoutComponent
   ],
-  host: {'[attr.id]': 'uid'},
 })
 export class FieldsetComponent extends NgxFormDirective implements OnInit, AfterViewInit {
 
@@ -373,11 +372,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
         return child;
       });
     }
-    // if(this.model) {
-    //   this._repository = getModelRepository(this.model);
-    //   console.log(this._repository);
-    // }
-    // console.log(this._repository);
+
     this.initialized = true;
   }
 
@@ -479,13 +474,8 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   async handleCreateItem(event?: CustomEvent<IFieldSetValidationEvent>): Promise<void> {
     if(event && event instanceof CustomEvent)
       event.stopImmediatePropagation();
-    // if(this.updatingItem)
-    //   return this.handleUpdateItem(this.updatingItem.index, true);
     const action = this.updatingItem ? OperationKeys.UPDATE :  OperationKeys.CREATE;
     const formGroup = this.activeFormGroup as FormGroup;
-    // currentGroup.updateValueAndValidity();
-    // console.log((currentGroup.parent as FormArray).value);
-    const parent = formGroup.parent as FormArray;
     const isValid  = NgxDecafFormService.validateFields(formGroup);
 
     // must pass correct pk here
@@ -504,78 +494,15 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
           (value as KeyValue)?.[this.pk] || undefined : value;
       }
     }
-
-    // windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {
-    //   formGroup: this.updatingItem ? this.updatingItem : this.formGroup
-    // });
-    // const formParent = this.formGroup as FormArray;
-    // const index = formParent.length - 1;
-    // const formGroup = formParent.at(index) as FormGroup;
-    // console.log(formGroup.errors);
-    // const isValid  = NgxDecafFormService.validateFields(this.formGroup as FormGroup);
-    // const isUnique = NgxDecafFormService.isUniqueOnGroup(formGroup, index, OperationKeys.CREATE);
-    // const value = formGroup.value;
-    // console.log(isValid, isUnique);
-
-    // this.changeDetectorRef.detectChanges();
-    // if(!Object.keys(this.mapper).length)
-    //   this.mapper = this.getMapper(value as KeyValue);
-    // if(isValid && isUnique) {
-    //     this.isUniqueError = undefined;
-    //     this.buttonLabel = this.translateService.instant(this.locale + '.add');
-    //     this.setValue();
-    //     // const fb = NgxDecafFormService.addGroupToParent((this.formGroup as FormArray).root as FormGroup, this.childOf as string,  formParent.length).parent as FormArray;
-    // } else {
-    //   this.isUniqueError = typeof value === 'object' ? (value as KeyValue)?.[this.pk] || undefined : value;
-    // }
-
-
-
-    // console.log(this.formGroup);
-    // if(event && event instanceof CustomEvent) {
-    //   event.stopImmediatePropagation();
-    //   const {formGroup, value, isValid} = event.detail;
-    //   this.formGroup = formGroup as FormArray;
-    //   if(!this.mapper)
-    //     this.mapper = this.getMapper(value as KeyValue);
-    //   if(isValid ){
-    //       this.isUniqueError = undefined;
-    //       this.buttonLabel = this.translateService.instant(this.locale + '.add');
-    //       this.setValue();
-    //   } else {
-    //    this.isUniqueError = (value as KeyValue)?.[this.pk] || undefined;
-    //   }
-    // } else {
-    //   windowEventEmitter(EventConstants.FIELDSET_ADD_GROUP, {
-    //     component: this.component.nativeElement,
-    //     index: this.updatingItem ? this.updatingItem.index : this.value?.length,
-    //     parent: this.childOf,
-    //     operation: !this.updatingItem ? OperationKeys.CREATE : OperationKeys.UPDATE
-    //   });
-    // }
   }
 
 
-  handleUpdateItem(index: number, save: boolean = false): void {
+  handleUpdateItem(index: number): void {
     const formGroup =  this.getFormArrayIndex(index);
     if(formGroup) {
       this.updatingItem = Object.assign({}, formGroup.value || {}, {index});
       this.activeFormGroupIndex = index;
     }
-
-
-
-    // this.changeDetectorRef.detectChanges();
-    // const item = this.formGroup.controls.find(control => `${control.get(this.pk)?.value}`.toLowerCase() === cleanSpaces(`${value}`, true)) as FormControl;
-    // if(item) {
-    //   this.buttonLabel = this.translateService.instant(this.locale + '.update');
-    //   this.updatingItem = Object.assign({}, item.value || {}, {index});
-    //   windowEventEmitter(EventConstants.FIELDSET_UPDATE_GROUP, {
-    //     parent: this.childOf,
-    //     component: this.component.nativeElement,
-    //     index: index
-    //   });
-    // }
   }
 
   /**
@@ -623,23 +550,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     this.setValue();
     if(this.activeFormGroupIndex > 0)
       this.activeFormGroupIndex = this.activeFormGroupIndex - 1;
-    // if(event && event instanceof CustomEvent) {
-    //   event.stopImmediatePropagation();
-    //   return this.setValue();
-    // }
-    // const formArray = this.formGroup as FormArray;
-    // const arrayLength = formArray.length;
-    // for (let index = arrayLength - 1; index >= 0; index--) {
-    //   const group = formArray.at(index) as FormGroup;
-    //   if (cleanSpaces(group.get(this.pk)?.value) === cleanSpaces(value as string)) {
-    //     windowEventEmitter(EventConstants.FIELDSET_REMOVE_GROUP, {
-    //       parent: this.childOf,
-    //       component: this.component.nativeElement,
-    //       index,
-    //       formGroup: group
-    //     });
-    //   }
-    // }
   }
 
 
@@ -776,16 +686,9 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
         index: index + 1
       } as IFieldSetItem;
     });
-    // const inputContainers = this.component.nativeElement.querySelectorAll('.dcf-input-item');
-    // inputContainers.forEach((container: HTMLElement) => {
-    //   const input = container.querySelector('input, ion-input, ion-textarea, textarea') as HTMLInputElement | null;
-    //   if(input)
-    //     input.value = '';
-    // })
+
     this.updatingItem = undefined;
-    // console.log(this.isUniqueError);
-    // console.log(this.mapper);
-    // console.log(this.items);
+
   }
 
   /**

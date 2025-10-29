@@ -23,7 +23,8 @@
     "lessThanOrEqual": "This field must be less than or equal to field {0}",
     "greaterThan": "This field must be greater than field {0}",
     "greaterThanOrEqual": "This field must be greater than or equal to field {0}",
-    "form_control": "Controlador do formulário não encontrado para {0}."
+    "form_control": "Controlador do formulário não encontrado para {0}.",
+    "not_found": "No records found with <span class=\"text-bold\">{0}: {1} in {2}</span>."
   },
   "component": {
     "fieldset": {
@@ -57,7 +58,7 @@
     },
     "empty_state": {
       "title": "No data found",
-      "button": "Create",
+      "button_create": "Create",
       "search": {
         "title": "Not data found for search",
         "subtitle": "You searched for: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{0}</ion-text>",

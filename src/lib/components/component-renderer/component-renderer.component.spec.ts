@@ -22,16 +22,6 @@ const imports = [
 describe.skip('ComponentRendererComponent', () => {
   let component: ComponentRendererComponent;
   let fixture: ComponentFixture<ComponentRendererComponent>;
-  let engine;
-
-  beforeAll(() => {
-    try {
-      engine = new NgxRenderingEngine();
-      Model.setBuilder(Model.fromModel as ModelBuilderFunction);
-    } catch (e: unknown) {
-      console.warn(`Engine already loaded`);
-    }
-  });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({

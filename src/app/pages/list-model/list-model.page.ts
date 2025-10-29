@@ -27,7 +27,6 @@ export class ListModelPage implements OnInit {
       this.type = 'infinite';
     this.model = this.type === 'paginated' ?
       new AIModel() : new AIVendorModel();
-    console.log(this.model);
   }
 
   handleEvent(event: IBaseCustomEvent) {

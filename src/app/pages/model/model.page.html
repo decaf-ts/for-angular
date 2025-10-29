@@ -1,7 +1,7 @@
 <app-header
   [model]="model"
   [title]="modelName + ' ' + (operation ? operation : ' List')"
-  [currentOperation]="operation"
+  [operation]="operation"
   [center]="true"
   [modelId]="modelId"
   showMenuButton="true"
@@ -29,11 +29,20 @@
                   (listenEvent)="handleEvent($event)"
                 />
             } @else {
-              <ngx-decaf-model-renderer
-                [model]="model"
-                (listenEvent)="handleEvent($event)"
-                [globals]='{operation, modelId, allowClear: false}'>
-              </ngx-decaf-model-renderer>
+              @if(!errorMessage) {
+                <ngx-decaf-model-renderer
+                  [model]="model"
+                  (listenEvent)="handleEvent($event)"
+                  [globals]='{operation: operation, modelId, allowClear: false}'>
+                </ngx-decaf-model-renderer>
+              } @else {
+                <ngx-decaf-empty-state
+                  [model]="model"
+                  title="404 - Not Found"
+                  iconColor="danger"
+                  icon="sad-outline"
+                  [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}" />
+              }
             }
           } @else {
             <div>No Model</div>

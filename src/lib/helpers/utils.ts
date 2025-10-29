@@ -297,11 +297,17 @@ export function generateRandomValue(length: number = 8, onlyNumbers: boolean = f
 
 
 /**
- * Converts a string representation of a boolean or a boolean value to a boolean type.
+ * @description Converts a string representation of a boolean or a boolean value to a boolean type.
+ * @summary This utility function handles conversion of string-based boolean values ('true', 'false')
+ * to actual boolean types. It performs case-insensitive string comparison and returns the
+ * corresponding boolean value. This is particularly useful when parsing configuration values,
+ * URL parameters, or form inputs that may come as strings but need to be used as booleans.
  *
- * @export
- * @param {('true' | 'false' | boolean)} prop - The value to convert. Can be the string 'true', 'false', or a boolean.
- * @returns {boolean} The boolean representation of the input value. Returns true if the input is the string 'true' or boolean true, false otherwise.
+ * @param {'true' | 'false' | boolean} prop - The value to convert. Can be the string 'true', 'false', or a boolean
+ * @returns {boolean} The boolean representation of the input value. Returns true if the input is the string 'true' or boolean true, false otherwise
+ *
+ * @function stringToBoolean
+ * @memberOf module:lib/helpers/utils
  */
 export function stringToBoolean(prop: 'true' | 'false' | boolean): boolean {
   if(typeof prop === 'string')
@@ -311,10 +317,18 @@ export function stringToBoolean(prop: 'true' | 'false' | boolean): boolean {
 
 
 /**
- * Checks if a value is a valid Date object
+ * @description Checks if a value is a valid Date object.
+ * @summary This validation function determines whether a given value represents a valid date.
+ * It handles multiple input types including Date objects, timestamp numbers, and date strings.
+ * For string inputs, it supports ISO 8601 format (YYYY-MM-DD) with or without time components.
+ * The function performs comprehensive validation including regex pattern matching and Date
+ * object creation to ensure the date is not only parseable but also represents a real date.
  *
- * @param {(string | Date | number)} date - The value to check. Can be a Date object, a timestamp number, or a date string
- * @return {boolean} Returns true if the value is a valid Date object (not NaN), otherwise false
+ * @param {string | Date | number} date - The value to check. Can be a Date object, a timestamp number, or a date string
+ * @returns {boolean} Returns true if the value is a valid Date object (not NaN), otherwise false
+ *
+ * @function isValidDate
+ * @memberOf module:lib/helpers/utils
  */
 export function isValidDate(date: string | Date | number): boolean {
   try {
@@ -336,12 +350,21 @@ export function isValidDate(date: string | Date | number): boolean {
 }
 
 /**
- * Formats a date into a localized string representation
+ * @description Formats a date into a localized string representation.
+ * @summary This function converts a date value into a formatted string according to a specified
+ * or system locale. It accepts multiple input formats (Date objects, timestamps, or date strings)
+ * and returns a consistently formatted date string in DD/MM/YYYY format. If the input date is
+ * invalid, the function returns the original input as a string. The function automatically
+ * uses the system locale if none is provided and handles string format conversions by replacing
+ * forward slashes with hyphens for proper Date parsing.
  *
- * @param {(string | Date | number)} date - The date to format. Can be a Date object, a timestamp number, or a date string
+ * @param {string | Date | number} date - The date to format. Can be a Date object, a timestamp number, or a date string
  * @param {string} [locale] - The locale to use for formatting. If not provided, the system's locale will be used
- * @return {(Date | string)} A formatted date string in the format DD/MM/YYYY according to the specified locale,
- *                           or the original input as a string if the date is invalid
+ * @returns {Date | string} A formatted date string in the format DD/MM/YYYY according to the specified locale,
+ *                          or the original input as a string if the date is invalid
+ *
+ * @function formatDate
+ * @memberOf module:lib/helpers/utils
  */
 export function formatDate(date: string | Date | number, locale?: string | undefined): Date | string {
 
@@ -364,12 +387,21 @@ export function formatDate(date: string | Date | number, locale?: string | undef
 }
 
 /**
- * Attempts to parse a date string, Date object, or number into a valid Date object
+ * @description Attempts to parse a date string, Date object, or number into a valid Date object.
+ * @summary This function provides robust date parsing functionality that handles the specific
+ * format "DD/MM/YYYY HH:MM:SS:MS". It first validates the input date, and if already valid,
+ * returns it as-is. For string inputs, it parses the date and time components separately,
+ * extracts numeric values, and constructs a new Date object. The function includes validation
+ * to ensure the resulting Date object is valid and logs a warning if parsing fails.
+ * Returns null for invalid or unsupported date formats.
  *
- * @param {(string | Date | number)} date - The date to parse. Can be a Date object, a timestamp number,
- *                                         or a date string in the format "DD/MM/YYYY HH:MM:SS:MS"
- * @return {(Date | null)} A valid Date object if parsing is successful, or null if the date is invalid
- *                         or doesn't match the expected format
+ * @param {string | Date | number} date - The date to parse. Can be a Date object, a timestamp number,
+ *                                        or a date string in the format "DD/MM/YYYY HH:MM:SS:MS"
+ * @returns {Date | null} A valid Date object if parsing is successful, or null if the date is invalid
+ *                        or doesn't match the expected format
+ *
+ * @function parseToValidDate
+ * @memberOf module:lib/helpers/utils
  */
 export function parseToValidDate(date: string | Date | number): Date | null {
   if(isValidDate(date))
@@ -393,13 +425,22 @@ export function parseToValidDate(date: string | Date | number): Date | null {
 
 
 /**
- * Maps an item object using a provided mapper object and optional additional properties.
+ * @description Maps an item object using a provided mapper object and optional additional properties.
+ * @summary This function transforms a source object into a new object based on mapping rules defined
+ * in the mapper parameter. It supports dot notation for nested property access (e.g., 'user.name.first')
+ * and handles various data types including strings and complex objects. For date values, it automatically
+ * formats them using the formatDate function. The function also allows merging additional properties
+ * into the result. When a mapped value is null or undefined, it uses the original mapper value as
+ * a fallback.
  *
- * @param {KeyValue} item - The source object to be mapped.
+ * @param {KeyValue} item - The source object to be mapped
  * @param {KeyValue} mapper - An object that defines the mapping rules. Keys represent the new property names,
- *                            and values represent the path to the corresponding values in the source object.
- * @param {KeyValue} [props] - Optional additional properties to be included in the mapped object.
- * @returns {KeyValue} A new object with properties mapped according to the mapper object and including any additional properties.
+ *                            and values represent the path to the corresponding values in the source object
+ * @param {KeyValue} [props] - Optional additional properties to be included in the mapped object
+ * @returns {KeyValue} A new object with properties mapped according to the mapper object and including any additional properties
+ *
+ * @function itemMapper
+ * @memberOf module:lib/helpers/utils
  */
 export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyValue {
   return Object.entries(mapper).reduce((accum: KeyValue, [key, value]) => {
@@ -427,15 +468,23 @@ export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): 
 }
 
 /**
- * Maps an array of data objects using a provided mapper object.
+ * @description Maps an array of data objects using a provided mapper object.
+ * @summary This function transforms an array of objects by applying mapping rules to each item
+ * using the itemMapper function. It processes each element in the data array and creates
+ * new mapped objects based on the mapper configuration. The function includes validation
+ * to ensure meaningful data: if a mapped item contains only null/undefined values, it
+ * preserves the original item instead. This prevents data loss during transformation.
+ * Returns an empty array if the input data is null, undefined, or empty.
  *
- * @template T - The type of the resulting mapped items.
- * @param {any[]} data - The array of data objects to be mapped.
- * @param {KeyValue} mapper - An object that defines the mapping rules.
- * @param {KeyValue} [props] - Additional properties to be included in the mapped items.
+ * @template T - The type of the resulting mapped items
+ * @param {T[]} data - The array of data objects to be mapped
+ * @param {KeyValue} mapper - An object that defines the mapping rules
+ * @param {KeyValue} [props] - Additional properties to be included in the mapped items
+ * @returns {T[]} The array of mapped items. If an item in the original array does not have any non-null values after mapping,
+ *                the original item is returned instead
  *
- * @returns {T[]} - The array of mapped items. If an item in the original array does not have any non-null values after mapping,
- * the original item is returned instead.
+ * @function dataMapper
+ * @memberOf module:lib/helpers/utils
  */
 export function dataMapper<T>(data: T[], mapper: KeyValue, props?: KeyValue): T[] {
   if (!data || !data.length) return [];

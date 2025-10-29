@@ -17,7 +17,6 @@ import { addIcons } from 'ionicons';
 import { UIElementMetadata, UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { IBaseCustomEvent, Dynamic, EventConstants, NgxDecafFormService } from '../../engine';
-import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { Subscription, timer } from 'rxjs';
 import { getLocaleContext } from '../../i18n/Loader';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -36,11 +35,10 @@ import { LayoutComponent } from '../layout/layout.component';
     IonSkeletonText,
     IonText,
     IonButton,
-    // LayoutComponent,
-    ComponentRendererComponent
+    LayoutComponent
   ],
   standalone: true,
-   host: {'[attr.id]': 'uid'},
+  //  host: {'[attr.id]': 'uid'},
 })
 export class SteppedFormComponent extends NgxParentComponentDirective implements OnInit, OnDestroy {
 
@@ -84,7 +82,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * @memberOf SteppedFormComponent
    */
   @Input()
-  pages: number = 1;
+  pages: number | {title: string; description: string}[] = 1;
 
   /**
    * List of titles and descriptions for each page of the stepped form.
@@ -97,7 +95,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * ];
    */
   @Input()
-  pageTitles: { title: string; description: string;}[] = [];
+  pageTitles: { title: string; description: string}[] = [];
 
 
   /**
@@ -111,7 +109,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * @memberOf SteppedFormComponent
    */
   @Input()
-  operation: CrudOperations = OperationKeys.CREATE;
+  override operation: CrudOperations = OperationKeys.CREATE;
 
   /**
    * @description The initial page to display when the form loads.
@@ -125,8 +123,6 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    */
   @Input()
   startPage: number = 1;
-
-
 
   /**
    * @description Angular reactive FormGroup or FormArray for form state management.
@@ -196,18 +192,6 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    */
   private timerSubscription!: Subscription;
 
-  /**
-   * @description Angular Location service.
-   * @summary Injected service that provides access to the browser's URL and history.
-   * This service is used for interacting with the browser's history API, allowing
-   * for back navigation and URL manipulation outside of Angular's router.
-   *
-   * @private
-   * @type {Location}
-   * @memberOf CrudFormComponent
-   */
-  private location: Location = inject(Location);
-
 
   /**
    * @description Event emitter for form submission.
@@ -256,12 +240,15 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * @memberOf SteppedFormComponent
    */
   override async ngOnInit(): Promise<void>  {
-    console.log(this);
     if(!this.locale)
       this.locale = getLocaleContext("SteppedFormComponent")
     this.activePage = this.startPage;
-    if(!this.pageTitles.length)
-      this.pageTitles =  Array.from({ length: this.pages }, () => ({ title: '', description: '', rendered: this.paginated }));
+    if(typeof this.pages === 'object') {
+      this.pageTitles = this.pages;
+    } else {
+       if(!this.pageTitles.length)
+      this.pageTitles =  Array.from({ length: this.pages }, () => ({ title: '', description: ''}));
+    }
 
     this.pages = this.pageTitles.length;
 
@@ -289,7 +276,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
 
       this.activeFormGroup = this.formGroup as FormGroup;
     }
-
+    this.initialized = true;
   }
 
   /**
