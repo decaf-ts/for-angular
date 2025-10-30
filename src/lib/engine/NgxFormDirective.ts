@@ -1,15 +1,14 @@
-import { Directive, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
+import { Directive, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { FormArray, FormGroup } from "@angular/forms";
-import { Location } from '@angular/common';
 import { CrudOperations, OperationKeys } from "@decaf-ts/db-decorators";
 import { Model } from "@decaf-ts/decorator-validation";
-import { NgxDecafFormService } from "./NgxDecafFormService";
+import { NgxFormService } from "./NgxFormService";
 import { ICrudFormEvent, IFormElement } from "./interfaces";
 import { FieldUpdateMode, FormParent, HandlerLike, HTMLFormTarget } from "./types";
 import { ICrudFormOptions, IRenderedModel } from "./interfaces";
 import { ComponentsTagNames, EventConstants } from "./constants";
 import { NgxParentComponentDirective } from "./NgxParentComponentDirective";
-import { NgxDecafFormFieldDirective } from "./NgxDecafFormFieldDirective";
+import { NgxFormFieldDirective } from "./NgxFormFieldDirective";
 
 @Directive()
 export abstract class NgxFormDirective extends NgxParentComponentDirective implements OnInit, IFormElement, OnDestroy, IRenderedModel {
@@ -135,7 +134,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   /**
    * @description Unique identifier for the form renderer.
    * @summary A unique string identifier used to register and manage this form
-   * instance within the NgxDecafFormService. This ID is also used as the HTML id
+   * instance within the NgxFormService. This ID is also used as the HTML id
    * attribute for the form element, enabling DOM queries and form management.
    *
    * @type {string}
@@ -231,14 +230,14 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   /**
    * @description Component cleanup lifecycle method.
    * @summary Performs cleanup operations when the component is destroyed.
-   * Unregisters the FormGroup from the NgxDecafFormService to prevent memory leaks
+   * Unregisters the FormGroup from the NgxFormService to prevent memory leaks
    * and ensure proper resource cleanup.
    *
    * @returns {void}
    */
   ngOnDestroy(): void {
     if (this.formGroup)
-      NgxDecafFormService.unregister(this.formGroup);
+      NgxFormService.unregister(this.formGroup);
   }
 
   getFormArrayIndex(index: number): FormParent | undefined {
@@ -251,7 +250,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
         this.children = [];
         this.changeDetectorRef.detectChanges();
         this.children = [... children.map(child => {
-          const props = (child.props || {}) as NgxDecafFormFieldDirective;
+          const props = (child.props || {}) as NgxFormFieldDirective;
           const name = props.name;
           const control = formGroup.get(name);
           child.props.value = control?.value;
@@ -278,7 +277,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    */
   handleReset(): void {
     if(![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation) && this.allowClear)
-      return NgxDecafFormService.reset(this.formGroup as FormGroup);
+      return NgxFormService.reset(this.formGroup as FormGroup);
     this.location.back();
   }
 
@@ -288,9 +287,9 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
       event.stopImmediatePropagation();
     }
 
-    if (!NgxDecafFormService.validateFields(this.formGroup as FormGroup))
+    if (!NgxFormService.validateFields(this.formGroup as FormGroup))
       return false;
-    const data = NgxDecafFormService.getFormData(this.formGroup as FormGroup);
+    const data = NgxFormService.getFormData(this.formGroup as FormGroup);
     this.submitEvent.emit({
       data,
       component: componentName || this.componentName,

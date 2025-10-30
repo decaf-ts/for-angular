@@ -13,7 +13,7 @@ import { IonSearchbar } from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { AutocompleteTypes, PredefinedColors} from '@ionic/core';
-import { NgxDecafComponentDirective } from '../../engine/NgxDecafComponentDirective';
+import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { StringOrBoolean } from '../../engine/types';
 import {windowEventEmitter} from '../../helpers/utils';
 import { stringToBoolean } from '../../helpers/utils';
@@ -39,7 +39,7 @@ import { stringToBoolean } from '../../helpers/utils';
   standalone: true,
   imports: [IonSearchbar],
 })
-export class SearchbarComponent extends NgxDecafComponentDirective implements OnInit {
+export class SearchbarComponent extends NgxComponentDirective implements OnInit {
 
   /**
    * @description The mode of the searchbar.

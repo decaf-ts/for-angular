@@ -5,7 +5,7 @@ import { IonButton, IonButtons, IonHeader, IonIcon, IonMenuButton, IonTitle, Ion
 import { RouterService } from 'src/app/services/router.service';
 import { getWindow, stringToBoolean } from 'src/lib/helpers/utils';
 import { BackButtonComponent } from '../back-button/back-button.component';
-import { NgxDecafComponentDirective } from 'src/lib/engine/NgxDecafComponentDirective';
+import { NgxComponentDirective } from 'src/lib/engine/NgxComponentDirective';
 import { FunctionLike } from 'src/lib/engine/types';
 import { saveOutline, folderOpenOutline, createOutline } from "ionicons/icons";
 import { addIcons } from 'ionicons';
@@ -15,12 +15,12 @@ import { TranslatePipe } from '@ngx-translate/core';
  * @description Header component for application pages.
  * @summary The HeaderComponent provides a consistent header across the application with
  * configurable elements such as title, back button, menu button, and CRUD operation controls.
- * It extends NgxDecafComponentDirective to inherit common functionality and implements OnInit for
+ * It extends NgxComponentDirective to inherit common functionality and implements OnInit for
  * initialization logic. This component is designed to be flexible and adaptable to different
  * page contexts, supporting various navigation patterns and visual styles.
  *
  * @class HeaderComponent
- * @extends {NgxDecafComponentDirective}
+ * @extends {NgxComponentDirective}
  * @implements {OnInit}
  */
 @Component({
@@ -32,7 +32,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   standalone: true,
 
 })
-export class HeaderComponent extends NgxDecafComponentDirective implements OnInit {
+export class HeaderComponent extends NgxComponentDirective implements OnInit {
 
   /**
    * @description Controls whether the menu button is displayed.

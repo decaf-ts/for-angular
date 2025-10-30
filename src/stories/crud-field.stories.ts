@@ -23,7 +23,7 @@ import {
 } from 'src/lib/engine/types';
 import { within } from 'storybook/test';
 import { FormControl, FormGroup } from '@angular/forms';
-import { NgxDecafFormService } from 'src/lib/engine/NgxDecafFormService';
+import { NgxFormService } from 'src/lib/engine/NgxFormService';
 
 const component = getComponentMeta<CrudFieldComponent>([
     IonInput,

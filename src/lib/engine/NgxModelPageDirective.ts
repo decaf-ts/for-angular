@@ -1,19 +1,16 @@
-import { Component, Directive, inject, Input, OnInit } from '@angular/core';
+import { Directive, Input } from '@angular/core';
 import {
   InternalError,
   IRepository,
   NotFoundError,
   OperationKeys,
 } from '@decaf-ts/db-decorators';
+import { EventIds, Repository } from '@decaf-ts/core';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
-import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
-import { DecafRepository } from 'src/lib/engine/types';
 import { NgxPageDirective } from './NgxPageDirective';
 import { EventConstants } from './constants';
-import { IBaseCustomEvent } from './interfaces';
-import { KeyValue } from './types';
-import { EventIds, Repository } from '@decaf-ts/core';
-import { Constructor } from '@decaf-ts/decoration';
+import { IBaseCustomEvent, IModelPageCustomEvent } from './interfaces';
+import { KeyValue, DecafRepository } from './types';
 
 
 @Directive()
@@ -26,7 +23,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * specific records, such as read, update, and delete operations. The value corresponds to
    * the field designated as the primary key in the model definition.
    * @type {EventIds}
-   * @memberOf module:lib/engine/NgxDecafComponentDirective
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
   override modelId!: EventIds;
@@ -100,9 +97,10 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    */
   errorMessage: string | undefined = undefined;
 
-  constructor() {
-    super('ModelPageDirective', true);
-  }
+
+  // constructor(@Inject(CPTKN) hm: boolean = true, @Inject(CPTKN) protected toastController?: ToastController) {
+  //   super("NgxModelPageDirective");
+  // }
 
   /**
    * @description Lazy-initialized repository getter with model resolution.
@@ -140,6 +138,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     // await super.ionViewWillEnter();
     if(this.modelId)
       this.allowedOperations =  this.allowedOperations.concat([OperationKeys.UPDATE, OperationKeys.DELETE]);
+    this.getLocale(this.modelName as string);
     await this.refresh(this.modelId);
     this.initialized = true;
   }
@@ -201,24 +200,38 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * operation with detailed logging.
    *
    * @param {IBaseCustomEvent} event - The submit event containing form data
-   * @return {Promise<void | Error>} Promise that resolves on success or throws on error
-   * @throws {Error} Re-throws repository errors with proper error message handling
+   * @return {Promise<IModelPageCustomEvent|void>} Promise that resolves on success or throws on error
    */
-  async handleSubmit(event: IBaseCustomEvent): Promise<void | Error> {
+  async handleSubmit(event: IBaseCustomEvent): Promise<IModelPageCustomEvent|void> {
     try {
       const repo = this._repository as IRepository<Model>;
       const data = this.parseData(event.data as KeyValue);
       const result = this.operation === OperationKeys.CREATE ?
         await repo.create(data as Model) : this.operation === OperationKeys.UPDATE ?
           await repo.update(data as Model) : repo.delete(data as string | number);
+      const message = await this.translate(
+        `operations.${this.operation}.${result ? 'success' : 'error'}`, {
+          "0": this.pk,
+          "1": this.modelId || (result as KeyValue)[this.pk],
+        }
+      );
+
       if(result) {
         (repo as DecafRepository<Model>).refresh(this.modelName, this.operation, this.modelId as EventIds);
         this.location.back();
-        await getNgxToastComponent().inform(`${this.operation} Item successfully`);
       }
+      return {
+        ... event,
+        success: result ? true : false,
+        message
+      };
     } catch (error: unknown) {
       this.logger.error(error as Error | string);
-      throw new Error((error as Error)?.message || error as string);
+      return {
+        ... event,
+        success:  false,
+        message: error instanceof Error ? error.message : error as string
+      };
     }
   }
 

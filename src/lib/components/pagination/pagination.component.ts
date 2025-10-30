@@ -13,7 +13,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import { EventConstants, KeyValue, NgxDecafComponentDirective } from '../../engine';
+import { EventConstants, KeyValue, NgxComponentDirective } from '../../engine';
 import { IPaginationCustomEvent } from '../../engine/interfaces';
 
 /**
@@ -68,7 +68,7 @@ import { IPaginationCustomEvent } from '../../engine/interfaces';
   standalone: true,
 
 })
-export class PaginationComponent extends NgxDecafComponentDirective implements OnInit {
+export class PaginationComponent extends NgxComponentDirective implements OnInit {
 
   /**
    * @description The total number of pages to display in the pagination component.

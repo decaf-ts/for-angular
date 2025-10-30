@@ -102,8 +102,8 @@ export class NgxToastComponent {
    * @param {ToastOptions} options - Configuration options for the toast
    * @return {Promise<HTMLIonToastElement>} A promise that resolves to the created toast element
    */
-  async show(options: ToastOptions): Promise<HTMLIonToastElement>{
-    options = Object.assign({duration: 5000}, options);
+  async show(options: ToastOptions = {}): Promise<HTMLIonToastElement>{
+    options = Object.assign(this.options, {duration: 5000}, options);
     let timeout = 0;
     if(component) {
       await component.dismiss();
@@ -187,7 +187,7 @@ export class NgxToastComponent {
  * @function getNgxToastComponent
  * @memberOf module:for-angular
  */
-export function getNgxToastComponent(options: ToastOptions = {}): NgxToastComponent {
+export function getNgxToastComponent(options: Partial<ToastOptions> = {}): NgxToastComponent {
   if(!instance)
     instance = new NgxToastComponent(options);
   return instance;

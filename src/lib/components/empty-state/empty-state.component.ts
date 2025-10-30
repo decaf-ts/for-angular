@@ -18,7 +18,7 @@ import {
 from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { Dynamic, NgxDecafComponentDirective, StringOrBoolean } from '../../engine';
+import { Dynamic, NgxComponentDirective, StringOrBoolean } from '../../engine';
 import { stringToBoolean } from '../../helpers';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FunctionLike } from '../../engine/types';
@@ -74,7 +74,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     IonButton
   ]
 })
-export class EmptyStateComponent extends NgxDecafComponentDirective implements OnInit {
+export class EmptyStateComponent extends NgxComponentDirective implements OnInit {
 
   /**
    * @description The main title displayed in the empty state.

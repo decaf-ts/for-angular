@@ -10,14 +10,14 @@
 
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild  } from '@angular/core';
 import { IonButton, IonChip, IonIcon, IonSelect, IonSelectOption} from '@ionic/angular/standalone';
-import { Dynamic, IFilterQuery, IFilterQueryItem, NgxDecafComponentDirective } from '../../engine';
+import { Dynamic, IFilterQuery, IFilterQueryItem, NgxComponentDirective } from '../../engine';
 import { getWindowWidth, isDarkMode } from '../../helpers/utils';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
 import { OrderDirection, Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { addIcons } from 'ionicons';
-import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
+import { chevronDownOutline, trashOutline, chevronUpOutline } from 'ionicons/icons';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 
@@ -80,7 +80,7 @@ import { FormsModule } from '@angular/forms';
   ],
   standalone: true,
 })
-export class FilterComponent extends NgxDecafComponentDirective implements OnInit, OnDestroy {
+export class FilterComponent extends NgxComponentDirective implements OnInit, OnDestroy {
 
   /**
    * @description Reference to the dropdown options container element.
@@ -312,7 +312,7 @@ export class FilterComponent extends NgxDecafComponentDirective implements OnIni
    */
   constructor() {
     super("FilterComponent");
-    addIcons({chevronDownOutline, chevronUpOutline});
+    addIcons({chevronDownOutline, trashOutline, chevronUpOutline});
   }
 
   /**

@@ -58,7 +58,7 @@ export class CrudFormComponent extends NgxFormDirective {
   /**
    * @description Handles form submission with validation and event emission.
    * @summary Processes form submission by first preventing default browser behavior,
-   * then validating all form fields using NgxDecafFormService. If validation passes,
+   * then validating all form fields using NgxFormService. If validation passes,
    * extracts form data and emits a submitEvent with the data, component information,
    * and any associated handlers. Returns false if validation fails.
    *

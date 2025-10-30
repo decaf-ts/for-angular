@@ -128,6 +128,7 @@ export type PossibleInputTypes =
   | 'radio'
   | 'select'
   | TextFieldTypes
+  | 'file'
   | 'textarea';
 
 /**
@@ -268,4 +269,6 @@ export type FormParent = FormGroup | FormArray;
 export type FormParentGroup = [FormParent,  string];
 
 export type I18nResourceConfigType = I18nResourceConfig | I18nResourceConfig[];
+
+export type WindowColorScheme = 'dark' | 'light' | unknown;
 

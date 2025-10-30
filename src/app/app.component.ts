@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
-import { NavigationEnd, NavigationStart, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { IonApp,
   IonSplitPane,
   IonMenu,
@@ -19,7 +19,7 @@ import * as IonicIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 
 import { IMenuItem, NgxPageDirective } from '../lib/engine';
-import { isDevelopmentMode, removeFocusTrap } from '../lib/helpers';
+import { isDevelopmentMode } from '../lib/helpers';
 import { ForAngularRepository } from './utils/ForAngularRepository';
 import { LogoComponent } from './components/logo/logo.component';
 import { AppModels, AppName, DbAdapterFlavour } from './app.config';

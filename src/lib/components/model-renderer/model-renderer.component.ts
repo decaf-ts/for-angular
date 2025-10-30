@@ -33,7 +33,7 @@ import {
 } from '../../engine';
 import { KeyValue } from '../../engine/types';
 import { Renderable } from '@decaf-ts/ui-decorators';
-import { NgxDecafComponentDirective } from '../../engine/NgxDecafComponentDirective';
+import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 
 /**
  * @description Component for rendering dynamic models
@@ -73,7 +73,7 @@ import { NgxDecafComponentDirective } from '../../engine/NgxDecafComponentDirect
   encapsulation: ViewEncapsulation.None
 })
 export class ModelRendererComponent<M extends Model>
-  extends NgxDecafComponentDirective implements OnChanges, OnDestroy, IRenderedModel {
+  extends NgxComponentDirective implements OnChanges, OnDestroy, IRenderedModel {
 
   // /**
   //  * @description Input model to be rendered

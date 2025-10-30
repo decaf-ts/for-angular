@@ -316,6 +316,12 @@ export interface IBaseCustomEvent {
 }
 
 
+export interface IModelPageCustomEvent extends IBaseCustomEvent {
+  success: boolean;
+  message?: string;
+}
+
+
 /**
  * @description Configuration for internationalization (i18n) resource file paths
  * @summary Defines the structure for configuring i18n resource file paths with prefix and suffix.
@@ -445,3 +451,6 @@ export interface IListEmptyOptions {
   link: string;
   icon: string;
 }
+
+
+export interface IWindowResizeEvent { width: number; height: number }

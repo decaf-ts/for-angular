@@ -1,12 +1,12 @@
 /**
  * @module lib/engine/NgxPageDirective
  * @description Base page component for Decaf Angular applications.
- * @summary Provides a page-level base class (NgxPageDirective) that extends NgxDecafComponentDirective and
+ * @summary Provides a page-level base class (NgxPageDirective) that extends NgxComponentDirective and
  * offers page-focused utilities such as menu management, title handling and router event hooks.
  * @link {@link NgxPageDirective}
  */
-import { AfterViewInit, Directive, Inject, inject, SimpleChanges } from "@angular/core";
-import { NgxDecafComponentDirective} from "./NgxDecafComponentDirective";
+import { AfterViewInit, Directive, Inject, inject } from "@angular/core";
+import { NgxComponentDirective} from "./NgxComponentDirective";
 import { Title } from "@angular/platform-browser";
 import { IMenuItem } from "./interfaces";
 import { CPTKN } from "../for-angular-common.module";
@@ -16,15 +16,15 @@ import { removeFocusTrap } from "../helpers/utils";
 /**
  * @description Base directive for page-level components in Decaf Angular applications.
  * @summary Abstract directive that provides foundational functionality for page components.
- * Extends NgxDecafComponentDirective to add page-specific features including menu management,
+ * Extends NgxComponentDirective to add page-specific features including menu management,
  * page title handling, and Ionic lifecycle hooks. This directive serves as the base class for
  * all page-level components, providing consistent behavior for navigation, routing, and UI state.
  * @class NgxPageDirective
- * @extends {NgxDecafComponentDirective}
+ * @extends {NgxComponentDirective}
  * @memberOf module:lib/engine/NgxPageDirective
  */
 @Directive()
-export abstract class NgxPageDirective extends NgxDecafComponentDirective implements AfterViewInit {
+export abstract class NgxPageDirective extends NgxComponentDirective implements AfterViewInit {
 
   /**
    * @description Page title text for the current view.
@@ -62,19 +62,33 @@ export abstract class NgxPageDirective extends NgxDecafComponentDirective implem
   protected titleService: Title = inject(Title);
 
 
+  /**
+   * @description Flag indicating whether the page should display the navigation menu.
+   * @summary Controls the visibility and availability of the application menu for this page.
+   * When set to true, the menu is enabled and accessible to users. When false, the menu
+   * is disabled, which is useful for pages like login screens or standalone views that
+   * should not show navigation options.
+   * @protected
+   * @type {boolean}
+   * @default true
+   * @memberOf module:lib/engine/NgxPageDirective
+   */
+  protected hasMenu: boolean = true;
+
 
   /**
    * @description Constructor for NgxPageDirective.
    * @summary Initializes the page directive with optional locale root and menu visibility settings.
-   * Calls the parent NgxDecafComponentDirective constructor to set up base functionality including
+   * Calls the parent NgxComponentDirective constructor to set up base functionality including
    * logging, localization, and component identification.
    * @param {string} [localeRoot] - Optional locale root key for internationalization
    * @param {boolean} [hasMenu=true] - Whether this page should display the menu
    * @memberOf module:lib/engine/NgxPageDirective
    */
   // eslint-disable-next-line @angular-eslint/prefer-inject
-  constructor(@Inject(CPTKN) protected override localeRoot?: string, @Inject(CPTKN) protected hasMenu: boolean = true) {
+  constructor(@Inject(CPTKN) localeRoot: string = "NgxPageDirective", @Inject(CPTKN) hasMenu: boolean = true) {
     super(localeRoot);
+    this.hasMenu = hasMenu;
   }
 
   /**

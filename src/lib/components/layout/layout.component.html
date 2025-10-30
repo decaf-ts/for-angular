@@ -14,7 +14,7 @@
         </div>
       }
       @for (child of row.cols; track trackItemFn($index, child.col); let colIndex = $index) {
-        <div [class]="(child.col === cols.length ? 'dcf-width-1-1' : 'dcf-width-'+child.col+'-'+cols.length+breakpoint)">
+        <div [class]="((child.col === cols.length || row.cols.length === 1)? 'dcf-width-1-1' : 'dcf-width-'+child.col+'-'+cols.length+breakpoint)">
             <div [class]="'dcf-grid-child '+child.col ">
               @if(child.tag === 'ngx-decaf-crud-form') {
                 <ion-card [class]="'dcf-height-1-1 ' + className">
