@@ -451,3 +451,6 @@ export interface IListEmptyOptions {
   link: string;
   icon: string;
 }
+
+
+export interface IWindowResizeEvent { width: number; height: number }

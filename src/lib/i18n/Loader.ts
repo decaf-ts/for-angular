@@ -7,17 +7,17 @@
  *
  * @link {@link I18nLoader}
  */
+import { inject } from '@angular/core';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { provideTranslateParser, provideTranslateService, RootTranslateServiceConfig, TranslateLoader, TranslateParser, TranslationObject } from '@ngx-translate/core';
+import { Primitives, sf } from '@decaf-ts/decorator-validation';
 import { forkJoin,  Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {I18nResourceConfig} from '../engine/interfaces';
-import { inject } from '@angular/core';
-import { FunctionLike, I18nResourceConfigType } from '../engine';
+import { FunctionLike, I18nResourceConfigType, KeyValue } from '../engine/types';
 import { cleanSpaces, getLocaleFromClassName } from '../helpers';
 import en from './data/en.json';
 import { I18N_CONFIG_TOKEN } from '../for-angular-common.module';
-import { Primitives, sf } from '@decaf-ts/decorator-validation';
 
 
 export function getLocaleContext(clazz: FunctionLike | object | string, suffix?: string): string {
@@ -80,23 +80,27 @@ export class I18nLoader implements TranslateLoader {
   }
 
   getTranslation(lang: string): Observable<TranslationObject> {
-    const libKeys = libLanguage[lang] || libLanguage["en"] || {};
+    const libKeys: KeyValue = libLanguage[lang] || libLanguage["en"] || {};
     const httpRequests$ = forkJoin(
       this.resources.map(config =>
-        this.http.get<TranslationObject>(
-          `${config.prefix}${lang}${this.getSuffix(config.suffix)}`
-        )
+        this.http.get<TranslationObject>(`${config.prefix}${lang}${this.getSuffix(config.suffix)}`)
       )
     );
-
     return httpRequests$.pipe(
       map(res => {
-        return {
-          ...libKeys,
-          ...res.reduce((acc, current) => ({ ...acc, ...current }), {})
-        };
+        const merged = res.reduce((acc: KeyValue, current: KeyValue) => {
+          for (const key in current) {
+            acc[key] = {
+              ...(libKeys[key] || {}),
+              ...(acc[key] || {}),
+              ...(current[key] || {})
+            };
+          }
+          return acc;
+        }, {});
+        return merged;
       })
-    );
+    )
   }
 }
 

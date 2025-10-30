@@ -21,5 +21,4 @@ export * from './NgxPageDirective';
 export * from './NgxFormDirective';
 export * from './NgxParentComponentDirective';
 export * from './NgxComponentDirective';
-// export * from './NgxFormDirective';
-//
+export * from './NgxMediaDirective';

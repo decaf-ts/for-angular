@@ -14,7 +14,7 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorderGroup, IonReorder, IonIcon, IonText } from '@ionic/angular/standalone';
 import { itemMapper, windowEventEmitter } from '../../helpers';
 import { FormArray,  FormControl,  FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { alertCircleOutline, createOutline } from 'ionicons/icons';
+import { alertCircleOutline, createOutline, trashOutline } from 'ionicons/icons';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
 import { addIcons } from 'ionicons';
@@ -337,7 +337,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   constructor() {
     super("FieldsetComponent");
-    addIcons({ alertCircleOutline, createOutline });
+    addIcons({ alertCircleOutline, trashOutline, createOutline });
   }
 
 

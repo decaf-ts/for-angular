@@ -17,7 +17,7 @@ import { OrderDirection, Repository } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { addIcons } from 'ionicons';
-import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
+import { chevronDownOutline, trashOutline, chevronUpOutline } from 'ionicons/icons';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 
@@ -312,7 +312,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    */
   constructor() {
     super("FilterComponent");
-    addIcons({chevronDownOutline, chevronUpOutline});
+    addIcons({chevronDownOutline, trashOutline, chevronUpOutline});
   }
 
   /**

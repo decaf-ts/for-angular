@@ -9,12 +9,13 @@ import { CrudOperationKeys, FieldProperties, RenderingError } from '@decaf-ts/ui
 import { FormParent, KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormArray, FormControl, FormGroup } from '@angular/forms';
-import { Directive, Input, SimpleChanges } from '@angular/core';
+import { Directive, Inject, Input, SimpleChanges } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
 import { EventConstants } from './constants';
 import { FunctionLike } from './types';
 import { NgxComponentDirective } from './NgxComponentDirective';
+import { CPTKN } from '../for-angular-common.module';
 
 /**
  * @description Abstract base directive for CRUD form fields in Angular applications.
@@ -119,7 +120,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @type {PossibleInputTypes}
    * @public
    */
-  type!: PossibleInputTypes;
+  type!: PossibleInputTypes ;
 
   /**
    * @description Whether the field is disabled.
@@ -284,8 +285,9 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    */
   protected parent?: HTMLElement;
 
-  constructor() {
-    super("CrudFormField");
+  // eslint-disable-next-line @angular-eslint/prefer-inject
+  constructor(@Inject(CPTKN) componentName: string = "ComponentCrudField") {
+    super(componentName);
   }
 
 

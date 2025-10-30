@@ -51,7 +51,6 @@ export class CrudPage implements OnInit {
       // }: {}),
     });
 
-    console.log(this.model);
     this.globals = {
       operation: this.operation,
       uid: (this.operation === OperationKeys.DELETE ? this.model.id : undefined),

@@ -251,10 +251,10 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       result.instance = NgxRenderingEngine._instance = componentInstance.instance as Type<unknown>;
     }
     if (fieldDef.children?.length) {
-      if(!NgxRenderingEngine._parentProps && inputs?.pages) {
-          NgxRenderingEngine._parentProps = {pages: inputs?.pages};
-          //  NgxRenderingEngine._projectable = false;
-      }
+      // if(!NgxRenderingEngine._parentProps && inputs?.pages) {
+      //     NgxRenderingEngine._parentProps = {pages: inputs?.pages};
+      //     //  NgxRenderingEngine._projectable = false;
+      // }
 
       result.children = fieldDef.children.map((child) => {
         // const hiddenOn = (child?.props?.hidden || []) as CrudOperations[];

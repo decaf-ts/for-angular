@@ -62,6 +62,19 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
   protected titleService: Title = inject(Title);
 
 
+  /**
+   * @description Flag indicating whether the page should display the navigation menu.
+   * @summary Controls the visibility and availability of the application menu for this page.
+   * When set to true, the menu is enabled and accessible to users. When false, the menu
+   * is disabled, which is useful for pages like login screens or standalone views that
+   * should not show navigation options.
+   * @protected
+   * @type {boolean}
+   * @default true
+   * @memberOf module:lib/engine/NgxPageDirective
+   */
+  protected hasMenu: boolean = true;
+
 
   /**
    * @description Constructor for NgxPageDirective.
@@ -73,8 +86,9 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
    * @memberOf module:lib/engine/NgxPageDirective
    */
   // eslint-disable-next-line @angular-eslint/prefer-inject
-  constructor(@Inject(CPTKN) protected override localeRoot?: string, @Inject(CPTKN) protected hasMenu: boolean = true) {
+  constructor(@Inject(CPTKN) localeRoot: string = "NgxPageDirective", @Inject(CPTKN) hasMenu: boolean = true) {
     super(localeRoot);
+    this.hasMenu = hasMenu;
   }
 
   /**
