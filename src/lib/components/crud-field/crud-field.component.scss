@@ -14,7 +14,9 @@
   }
 
   ion-checkbox::part(container) {
-     border: 2px solid var(--dcf-color-primary);
+    border: 2px solid var(--dcf-color-primary);
+    margin-left: .5rem;
+    margin-right: .5rem;
   }
 }
 

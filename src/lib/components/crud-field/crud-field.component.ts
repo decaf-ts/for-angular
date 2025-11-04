@@ -43,7 +43,6 @@ import { dataMapper, generateRandomValue } from '../../helpers';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { Dynamic } from '../../engine/decorators';
 import { getLocaleContextByKey } from '../../i18n/Loader';
-import { Repository } from '@decaf-ts/core';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -688,13 +687,15 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     if(!this.options)
       return [];
     if(this.options instanceof Function) {
-      if(this.options instanceof Repository) {
-        const repo = getModelRepository(this.options().name);
-        this.options = await repo?.select().execute();
-      } else{
+      if(this.options.name === 'options')
         this.options = this.options();
+      const fnName = (this.options as FunctionLike).name;
+      if(fnName === 'function') {
+         this.options = (this.options as FunctionLike)();
+      } else {
+        const repo = getModelRepository((this.options as KeyValue)?.['name']);
+        this.options = await repo?.select().execute();
       }
-
     }
     if(this.optionsMapper) {
       if (this.optionsMapper instanceof Function || typeof this.optionsMapper === 'function') {

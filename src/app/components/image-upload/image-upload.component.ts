@@ -25,7 +25,7 @@ import { PossibleInputTypes } from 'src/lib/engine/types';
   templateUrl: './image-upload.component.html',
   styleUrls: ['./image-upload.component.scss'],
   standalone: true,
-  imports: [IonCard, IonCardContent, IonCardHeader, IonText, TranslatePipe, IonCardTitle, IonIcon, IonButton, IonList, IonItem, IonRow, IonCol, IonLabel],
+  imports: [IonCard, IonCardContent, IonText, TranslatePipe,  IonIcon, IonButton],
 })
 export class ImageUploadComponent extends NgxFormFieldDirective implements OnInit {
 
