@@ -20,7 +20,7 @@ const imports = [
   })
 ];
 
-xdescribe('ModelRendererComponent', () => {
+describe('ModelRendererComponent', () => {
   let component: ModelRendererComponent<Model>;
   let fixture: ComponentFixture<ModelRendererComponent<Model>>;
 

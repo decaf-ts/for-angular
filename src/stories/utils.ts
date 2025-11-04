@@ -4,7 +4,10 @@ import { RouterService } from 'src/app/services/router.service';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { NgxRenderingEngine } from 'src/lib/engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
-import { ComponentsModule } from 'src/app/components/components.module';
+import { HeaderComponent } from 'src/app/components/header/header.component';
+import { ContainerComponent } from 'src/app/components/container/container.component';
+import { BackButtonComponent } from 'src/app/components/back-button/back-button.component';
+import { LogoComponent } from 'src/app/components/logo/logo.component';
 
 function getEngine(): void {
   let engine;
@@ -29,7 +32,7 @@ export function getComponentMeta<C>(imports: unknown[] = [], type: "component" |
       applicationConfig(AppConfig),
       moduleMetadata({
         //Imports both components to allow component composition with Storybook
-        imports: [...imports, ForAngularCommonModule, ComponentsModule],
+        imports: [...imports, ForAngularCommonModule, HeaderComponent, ContainerComponent, BackButtonComponent, LogoComponent],
         providers: [{ provide: RouterService, useValue: RouterService }]
       }),
       // Wraps our stories with a decorator

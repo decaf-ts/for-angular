@@ -22,7 +22,7 @@ import { ComponentRendererComponent } from 'src/lib/components/component-rendere
 import { PaginationComponent } from 'src/lib/components/pagination/pagination.component';
 import { ListComponentsTypes } from 'src/lib/engine/constants';
 import { CategoryModel } from 'src/app/models/CategoryModel';
-import { RamAdapter } from '@decaf-ts/core';
+import { RamAdapter } from '@decaf-ts/core/ram';
 
 const component = getComponentMeta<ListComponent>([
     ForAngularCommonModule,

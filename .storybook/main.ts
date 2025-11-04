@@ -5,14 +5,18 @@ const config: StorybookConfig = {
     "../src/**/*.mdx",
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
   ],
-  "addons": [
-    "@storybook/addon-essentials",
-    "@storybook/addon-onboarding",
-    "@storybook/addon-interactions"
-  ],
   "framework": {
     "name": "@storybook/angular",
     "options": {}
+  },
+  "staticDirs": ["../src/stories/assets"],
+  webpackFinal: async (config) => {
+    config.performance = {
+      maxAssetSize: 512000, // 500 KiB
+      hints: false,         // ou 'warning' para manter os avisos
+    };
+    return config;
   }
+
 };
 export default config;

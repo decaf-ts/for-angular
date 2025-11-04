@@ -23,7 +23,7 @@ const imports = [
   })
 ];
 
-xdescribe('ListComponent', () => {
+describe('ListComponent', () => {
   let component: ListComponent;
   let fixture: ComponentFixture<ListComponent>;
 
