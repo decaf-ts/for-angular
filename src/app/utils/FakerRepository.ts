@@ -10,7 +10,7 @@ import {  AIFeatures } from './contants';
 import { DB_ADAPTER_PROVIDER } from 'src/lib/for-angular-common.module';
 import { parseToNumber } from '@decaf-ts/ui-decorators';
 
-export class ForAngularRepository<T extends Model> {
+export class FakerRepository<T extends Model> {
 
   private data: T[] = [];
 
@@ -77,14 +77,19 @@ export class ForAngularRepository<T extends Model> {
     if(!pk)
       pk = this._repository?.pk as string;
     if(!pkType)
-      pkType = Primitives.STRING;
-    const props = Object.keys(this.model as KeyValue).filter((k) => ![pk, 'updatedBy', 'createdAt','createdBy', 'updatedAt'].includes(k));
+      pkType = Reflect.getMetadata("design:type", this.model as KeyValue, pk).name.toLowerCase();
+
+    const props = Object.keys(this.model as KeyValue).filter((k) => {
+      if(pkType === Primitives.STRING)
+        return !['updatedBy', 'createdAt','createdBy', 'updatedAt'].includes(k);
+      return ![pk, 'updatedBy', 'createdAt','createdBy', 'updatedAt'].includes(k)
+    });
     const dataProps: Record<string, FunctionLike> = {};
     for(const prop of props) {
       const type = Reflect.getMetadata("design:type", this.model as KeyValue, prop);
       switch((type?.name || "").toLowerCase()) {
         case 'string':
-          dataProps[prop] = () => faker.lorem.word();
+          dataProps[prop] = () => `${faker.lorem.word()} ${pk === prop  ? ' - ' + faker.number.int({min: 1, max: 200}) : ''}`;
           break;
         case 'step':
           dataProps[prop] = () => faker.lorem.word();

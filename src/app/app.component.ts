@@ -20,7 +20,7 @@ import { addIcons } from 'ionicons';
 
 import { IMenuItem, NgxPageDirective } from '../lib/engine';
 import { isDevelopmentMode } from '../lib/helpers';
-import { ForAngularRepository } from './utils/ForAngularRepository';
+import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { LogoComponent } from './components/logo/logo.component';
 import { AppModels, AppName, DbAdapterFlavour } from './app.config';
 import { Repository, uses } from '@decaf-ts/core';
@@ -86,7 +86,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       if (isDevelopment) {
         if(populate.includes(name)) {
           this.logger.info(`Populating repository for model: ${name}`);
-          const repository = new ForAngularRepository(model, 36);
+          const repository = new FakerRepository(model, 36);
           await repository.init();
         }
       }

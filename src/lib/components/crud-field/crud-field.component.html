@@ -131,7 +131,7 @@
                 expandedIcon="chevron-up-outline"
                 [interface]="interface"
                 [mode]="mode"
-                [hidden]="hidden"
+                [hidden]="hidden || !options?.length"
                 [labelPlacement]="labelPlacement"
                 [label]="label | translate"
                 [value]="value"
@@ -141,15 +141,18 @@
                 [interface]="interface" #component>
                 @if(options?.length) {
                   @for(option of options; track trackItemFn($index, option.text)) {
-
                     <ion-select-option [value]="option.value">
                       {{ option.text | translate }}
                     </ion-select-option>
                   }
                 }
-
               </ion-select>
               <div class="dcf-error" [innerHTML]="getErrors(container)"></div>
+              @if(!options?.length) {
+                <ion-text color="danger">
+                  * {{ 'errors.empty_options' | translate:{'0': name} }}
+                </ion-text>
+              }
           </div>
           }
           @else {
