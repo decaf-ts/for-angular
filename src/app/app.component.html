@@ -1,7 +1,7 @@
 <ion-app>
   <ion-split-pane contentId="main-content" >
     @if(initialized) {
-      <ion-menu contentId="main-content" type="overlay" [disabled]="!hasMenu">
+      <ion-menu when="xl" contentId="main-content" type="overlay" [disabled]="!hasMenu">
         <section class="dcf-logo-container">
           <app-logo></app-logo>
         </section>

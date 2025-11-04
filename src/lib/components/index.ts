@@ -22,9 +22,8 @@ export * from './list-item/list-item.component';
 export * from './model-renderer/model-renderer.component';
 export * from './pagination/pagination.component';
 export * from './searchbar/searchbar.component';
-
-// Constants exports
-
 export * from './stepped-form/stepped-form.component';
+export * from './modal/modal.component';
+
 // Module export
 export * from './for-angular-components.module';

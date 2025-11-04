@@ -18,8 +18,10 @@ import {
 from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { Dynamic, NgxComponentDirective, StringOrBoolean } from '../../engine';
-import { stringToBoolean } from '../../helpers';
+import { StringOrBoolean } from '../../engine/types';
+import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
+import { Dynamic } from '../../engine/decorators';
+import { stringToBoolean } from '../../helpers/utils';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FunctionLike } from '../../engine/types';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -250,10 +252,29 @@ export class EmptyStateComponent extends NgxComponentDirective implements OnInit
   @Input()
   searchValue!: string;
 
+  /**
+   * @description Sanitizer instance for bypassing security and sanitizing HTML content.
+   * @summary Used to sanitize dynamic HTML content, ensuring it is safe to render in the DOM.
+   * @type {DomSanitizer}
+   * @memberOf EmptyStateComponent
+   */
   private sanitizer: DomSanitizer = inject(DomSanitizer);
 
-  searchSubtitle!: SafeHtml
+  /**
+   * @description The sanitized subtitle for search results.
+   * @summary Holds the processed and sanitized HTML content for the subtitle when a search yields no results.
+   * @type {SafeHtml}
+   * @memberOf EmptyStateComponent
+   */
+  searchSubtitle!: SafeHtml;
 
+  /**
+   * @description Flag to enable creation by model route.
+   * @summary Indicates whether the component should allow creation of new items via a model route when no button link is provided.
+   * @type {boolean}
+   * @default false
+   * @memberOf EmptyStateComponent
+   */
   enableCreationByModelRoute: boolean = false;
 
 
@@ -338,26 +359,26 @@ export class EmptyStateComponent extends NgxComponentDirective implements OnInit
    *     E-->>U: Return navigation result
    *   end
    *
-   * @return {boolean | void | Promise<boolean>}
+   * @return {boolean | void | Promise<boolean> | FunctionLike}
    *   - false if no action is taken
    *   - The result of the buttonLink function if it's a function
    *   - A Promise resolving to the navigation result if buttonLink is a URL
    * @memberOf EmptyStateComponent
    */
-  handleClick(): boolean | void | Promise<boolean> {
+  handleClick(): boolean | void | Promise<boolean> | FunctionLike {
     const fn = this.buttonLink;
     if(!fn)
       return false;
     if(fn instanceof Function)
-      return fn();
-    this.router.navigate([fn as string]);
+      return fn() as FunctionLike;
+    return this.router.navigate([fn as string]);
   }
 
 
  /**
    * @description Generates a localized and sanitized subtitle for search results.
    * @summary This method takes a content string, typically the subtitle, and processes it
-   * through the translation service. It replaces a placeholder ('value0') with the actual
+   * through the translation service. It replaces a placeholder ('0') with the actual
    * search value, then sanitizes the result to safely use as HTML. This is particularly
    * useful for displaying dynamic, localized messages in the empty state when a search
    * yields no results.
@@ -371,7 +392,7 @@ export class EmptyStateComponent extends NgxComponentDirective implements OnInit
    *   participant T as TranslateService
    *   participant S as DomSanitizer
    *
-   *   E->>T: instant(content, {'value0': searchValue})
+   *   E->>T: instant(content, {'0': searchValue})
    *   T-->>E: Return translated string
    *   E->>S: bypassSecurityTrustHtml(translatedString)
    *   S-->>E: Return sanitized SafeHtml
@@ -379,7 +400,7 @@ export class EmptyStateComponent extends NgxComponentDirective implements OnInit
    * @memberOf EmptyStateComponent
    */
   async getSearchSubtitle(content: string): Promise<SafeHtml> {
-    const result = await this.translate(content, {'value0': this.searchValue});
+    const result = await this.translate(content, {'0': this.searchValue});
     return this.sanitizer.bypassSecurityTrustHtml(result);
   }
 }

@@ -6,6 +6,12 @@ import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { I18nFakeLoader } from '../../i18n';
 
+try {
+  new NgxRenderingEngine();
+} catch (e) {
+  // Component already registered
+}
+
 const imports = [
   ForAngularCommonModule,
   ListComponent,

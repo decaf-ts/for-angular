@@ -1,8 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { CrudFormComponent } from './crud-form.component';
-import { NgxRenderingEngine } from '../../engine';
-import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { FormGroup } from '@angular/forms';

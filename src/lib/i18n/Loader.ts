@@ -86,19 +86,33 @@ export class I18nLoader implements TranslateLoader {
         this.http.get<TranslationObject>(`${config.prefix}${lang}${this.getSuffix(config.suffix)}`)
       )
     );
+
+    function recursiveMerge(target: KeyValue, source: KeyValue): KeyValue {
+      for (const key of Object.keys(source)) {
+        if (source[key] instanceof Object) {
+          if (!target[key]) Object.assign(target, { [key]: {} });
+          recursiveMerge(target[key], source[key]);
+        } else {
+          Object.assign(target, { [key]: source[key] });
+        }
+      }
+      return target;
+    }
+
     return httpRequests$.pipe(
       map(res => {
-        const merged = res.reduce((acc: KeyValue, current: KeyValue) => {
-          for (const key in current) {
-            acc[key] = {
-              ...(libKeys[key] || {}),
-              ...(acc[key] || {}),
-              ...(current[key] || {})
-            };
-          }
-          return acc;
-        }, {});
-        return merged;
+        const merged = {
+          ...libKeys,
+          ...res.reduce((acc: KeyValue, current: KeyValue) => {
+            for (const key in current) {
+              let value = current[key] || {};
+              if(libKeys[key])
+                value = {...libKeys[key], ...recursiveMerge(libKeys[key] as KeyValue, current[key] as KeyValue)};
+              acc[key] = value;
+            }
+            return acc;
+          }, {})};
+        return merged
       })
     )
   }

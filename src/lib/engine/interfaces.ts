@@ -8,7 +8,7 @@ import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ElementRef, EnvironmentInjector, Injector, Type } from '@angular/core';
 import { OrderDirection } from '@decaf-ts/core';
 import { AngularFieldDefinition, FieldUpdateMode, KeyValue, StringOrBoolean } from './types';
-import { CrudOperationKeys, FieldProperties } from '@decaf-ts/ui-decorators';
+import { CrudOperationKeys, FieldProperties, IPagedComponentProperties } from '@decaf-ts/ui-decorators';
 import { FormParent } from './types';
 import { Model } from '@decaf-ts/decorator-validation';
 
@@ -137,23 +137,24 @@ export interface IFilterQuery {
  * @description Component input properties
  * @summary Extends FieldProperties with additional properties specific to Angular components.
  * Includes update mode for form controls and optional FormGroup and FormControl references.
- * @interface IComponentInput
+ * @interface IComponentProperties
  * @property {FieldUpdateMode} [updateMode] - When the field value should be updated
  * @property {FormGroup} [formGroup] - Optional FormGroup reference
  * @property {FormControl} [formControl] - Optional FormControl reference
  * @memberOf module:engine
  */
-export interface IComponentInput extends FieldProperties {
-  updateMode?: FieldUpdateMode;
-  formGroup?: FormGroup;
-  formControl?: FormControl;
+export interface IComponentProperties extends FieldProperties, IPagedComponentProperties {
   model?: Model | string;
-  operation?: CrudOperationKeys | undefined;
-  pages?: number;
-  cols?: number;
-  rows?: number;
+  props?: FieldProperties;
 }
 
+
+export interface IFormComponentProperties extends IComponentProperties {
+  updateMode?: FieldUpdateMode;
+  formGroup?: FormGroup;
+  operation?: CrudOperationKeys | undefined;
+  formControl?: FormControl;
+}
 
 
 /**
@@ -162,14 +163,14 @@ export interface IComponentInput extends FieldProperties {
  * Contains the component name, input properties, injector, and optional child components.
  * @interface IComponentConfig
  * @property {string} component - The name of the component to render
- * @property {IComponentInput} inputs - The input properties for the component
+ * @property {IComponentProperties} inputs - The input properties for the component
  * @property {EnvironmentInjector | Injector} injector - The Angular injector for dependency injection
  * @property {IComponentConfig[]} [children] - Optional child component configurations
  * @memberOf module:engine
  */
 export interface IComponentConfig {
   component: string;
-  inputs: IComponentInput;
+  inputs: IComponentProperties;
   injector: EnvironmentInjector | Injector;
   children?: IComponentConfig[];
 }
@@ -222,7 +223,6 @@ export interface AngularDynamicOutput {
   injector?: Injector;
   content?: Node[][];
   children?: AngularDynamicOutput[];
-  instance?: Type<unknown>;
   formGroup?: FormGroup;
   page?: number;
   formControl?: FormControl;

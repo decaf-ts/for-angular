@@ -9,17 +9,24 @@
  */
 
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild  } from '@angular/core';
-import { IonButton, IonChip, IonIcon, IonSelect, IonSelectOption} from '@ionic/angular/standalone';
-import { Dynamic, IFilterQuery, IFilterQueryItem, NgxComponentDirective } from '../../engine';
-import { getWindowWidth, isDarkMode } from '../../helpers/utils';
-import { debounceTime, fromEvent, Subscription } from 'rxjs';
-import { OrderDirection, Repository } from '@decaf-ts/core';
-import { Model } from '@decaf-ts/decorator-validation';
-import { SearchbarComponent } from '../searchbar/searchbar.component';
-import { addIcons } from 'ionicons';
-import { chevronDownOutline, trashOutline, chevronUpOutline } from 'ionicons/icons';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
+import { debounceTime, fromEvent, Subscription } from 'rxjs';
+import { IonButton, IonChip, IonIcon, IonSelect, IonSelectOption} from '@ionic/angular/standalone';
+import { chevronDownOutline, trashOutline, closeOutline, searchOutline, arrowDownOutline, arrowUpOutline, chevronUpOutline } from 'ionicons/icons';
+import { addIcons } from 'ionicons';
+
+import { OrderDirection, Repository } from '@decaf-ts/core';
+
+import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
+import { Dynamic } from '../../engine/decorators';
+import { IFilterQuery, IFilterQueryItem } from '../../engine/interfaces';
+
+import { getWindowWidth, isDarkMode } from '../../helpers/utils';
+import { Model } from '@decaf-ts/decorator-validation';
+import { SearchbarComponent } from '../searchbar/searchbar.component';
+
+
 
 /**
  * @description Advanced filter component for creating dynamic search filters with step-by-step construction.
@@ -312,7 +319,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    */
   constructor() {
     super("FilterComponent");
-    addIcons({chevronDownOutline, trashOutline, chevronUpOutline});
+    addIcons({chevronDownOutline, trashOutline, closeOutline, searchOutline, arrowDownOutline, arrowUpOutline, chevronUpOutline});
   }
 
   /**

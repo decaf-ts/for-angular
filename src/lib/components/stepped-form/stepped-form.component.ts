@@ -8,7 +8,7 @@
  * @link {@link SteppedFormComponent}
  */
 
-import { Component, Input, OnInit, OnDestroy, Output, EventEmitter  } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonSkeletonText, IonText } from '@ionic/angular/standalone';
@@ -19,11 +19,11 @@ import { UIElementMetadata, UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { EventConstants } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
-import { IBaseCustomEvent } from '../../engine/interfaces';
 import { NgxFormService } from '../../engine/NgxFormService';
 import { getLocaleContext } from '../../i18n/Loader';
-import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { LayoutComponent } from '../layout/layout.component';
+import { NgxFormDirective } from '../../engine/NgxFormDirective';
+import { FormParent } from '../../engine/types';
 
 
 @Dynamic()
@@ -42,7 +42,7 @@ import { LayoutComponent } from '../layout/layout.component';
   standalone: true,
   //  host: {'[attr.id]': 'uid'},
 })
-export class SteppedFormComponent extends NgxParentComponentDirective implements OnInit, OnDestroy {
+export class SteppedFormComponent extends NgxFormDirective implements OnInit, OnDestroy {
 
   /**
    * @description Array of UI model metadata for all form fields.
@@ -73,6 +73,19 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
   paginated: boolean = true;
 
 
+  // /**
+  //  * @description Optional action identifier for form submission context.
+  //  * @summary Specifies a custom action name that will be included in the submit event.
+  //  * If not provided, defaults to the standard submit event constant. Used to
+  //  * distinguish between different types of form submissions within the same component.
+  //  *
+  //  * @type {string | undefined}
+  //  */
+  // @Input()
+  // action?: string;
+
+
+
   /**
    * @description Number of pages in the stepped form.
    * @summary Represents the total number of steps/pages in the multi-step form.
@@ -84,7 +97,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * @memberOf SteppedFormComponent
    */
   @Input()
-  pages: number | {title: string; description: string}[] = 1;
+  override pages: number | {title: string; description: string}[] = 1;
 
   /**
    * List of titles and descriptions for each page of the stepped form.
@@ -126,50 +139,17 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
   @Input()
   startPage: number = 1;
 
-  /**
-   * @description Angular reactive FormGroup or FormArray for form state management.
-   * @summary The form instance that manages all form controls, validation, and form state.
-   * When using FormArray, each array element represents a page's FormGroup. When using
-   * FormGroup, it contains all form controls for the entire stepped form.
-   *
-   * @type {FormGroup | FormArray | undefined}
-   * @memberOf SteppedFormComponent
-   */
-  @Input()
-  formGroup!: FormGroup | FormArray | undefined;
-
-  /**
-   * @description Array of UI model metadata for the currently active page.
-   * @summary Contains only the UI model metadata for fields that should be displayed
-   * on the currently active page. This is a filtered subset of the children array,
-   * updated whenever the user navigates between pages.
-   *
-   * @type {UIModelMetadata[] | undefined}
-   * @memberOf SteppedFormComponent
-   */
-  activeChildren: UIModelMetadata[] | undefined = undefined;
-
-  /**
-   * @description FormGroup for the currently active page.
-   * @summary The FormGroup instance that manages form controls and validation
-   * for the current page only. This is extracted from the main formGroup
-   * when using FormArray structure.
-   *
-   * @type {FormGroup | undefined}
-   * @memberOf SteppedFormComponent
-   */
-  activeFormGroup: FormGroup | undefined = undefined;
-
-  /**
-   * @description The currently active page number.
-   * @summary Tracks which page of the multi-step form is currently being displayed.
-   * This property is updated as users navigate through the form steps using
-   * the next/back buttons or programmatic navigation.
-   *
-   * @type {number}
-   * @memberOf SteppedFormComponent
-   */
-  activePage: number = 1;
+  // /**
+  //  * @description Angular reactive FormGroup or FormArray for form state management.
+  //  * @summary The form instance that manages all form controls, validation, and form state.
+  //  * When using FormArray, each array element represents a page's FormGroup. When using
+  //  * FormGroup, it contains all form controls for the entire stepped form.
+  //  *
+  //  * @type {FormGroup | FormArray | undefined}
+  //  * @memberOf SteppedFormComponent
+  //  */
+  // @Input()
+  // formGroup!: FormGroup | FormArray | undefined;
 
   /**
    * @description Array representing the structure of pages.
@@ -194,6 +174,18 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    */
   private timerSubscription!: Subscription;
 
+  // /**
+  //  * @description Custom event handlers for form actions.
+  //  * @summary A record of event handler functions keyed by event names that can be
+  //  * triggered during form operations. These handlers provide extensibility for
+  //  * custom business logic and can be invoked for various form events and actions.
+  //  *
+  //  * @type {HandlerLike}
+  //  */
+  // @Input()
+  // handlers!: HandlerLike;
+
+
 
   /**
    * @description Event emitter for form submission.
@@ -204,8 +196,8 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * @type {EventEmitter<IBaseCustomEvent>}
    * @memberOf SteppedFormComponent
    */
-  @Output()
-  submitEvent: EventEmitter<IBaseCustomEvent> = new EventEmitter<IBaseCustomEvent>();
+  // @Output()
+  // submitEvent: EventEmitter<ICrudFormEvent> = new EventEmitter<ICrudFormEvent>();
 
   /**
    * @description Creates an instance of SteppedFormComponent.
@@ -232,10 +224,10 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    *   participant F as Form Service
    *
    *   A->>S: ngOnInit()
-   *   S->>S: Set activePage = startPage
+   *   S->>S: Set activeIndex = startPage
    *   S->>S: Calculate total pages
    *   S->>S: Assign page props to children
-   *   S->>S: getCurrentFormGroup(activePage)
+   *   S->>S: getCurrentFormGroup(activeIndex)
    *   S->>F: Extract FormGroup for active page
    *   F-->>S: Return activeFormGroup
    *
@@ -244,7 +236,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
   override async ngOnInit(): Promise<void>  {
     if(!this.locale)
       this.locale = getLocaleContext("SteppedFormComponent")
-    this.activePage = this.startPage;
+    this.activeIndex = this.startPage;
     if(typeof this.pages === 'object') {
       this.pageTitles = this.pages;
     } else {
@@ -255,6 +247,8 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
     this.pages = this.pageTitles.length;
 
     if(this.paginated) {
+      if(!this.parentForm)
+        this.parentForm = (this.formGroup?.root || this.formGroup) as FormParent;
       this.children = [... (this.children as UIModelMetadata[]).map((c) => {
         if(!c.props)
           c.props = {};
@@ -263,7 +257,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
         c.props['page'] = page > this.pages ? this.pages : page;
         return c;
       })];
-      this.getCurrentFormGroup(this.activePage);
+      this.getCurrentFormGroup(this.activeIndex);
     } else {
       this.children =  this.pageTitles.map((page, index) => {
         const pageNumber = index + 1;
@@ -275,8 +269,6 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
           items
         };
       });
-
-      this.activeFormGroup = this.formGroup as FormGroup;
     }
     this.initialized = true;
   }
@@ -288,7 +280,8 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    *
    * @memberOf SteppedFormComponent
    */
-  ngOnDestroy(): void {
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
     if(this.timerSubscription)
       this.timerSubscription.unsubscribe();
   }
@@ -313,8 +306,8 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    *   S->>F: validateFields(activeFormGroup)
    *   F-->>S: Return validation result
    *   alt Not last page and valid
-   *     S->>S: activePage++
-   *     S->>S: getCurrentFormGroup(activePage)
+   *     S->>S: activeIndex++
+   *     S->>S: getCurrentFormGroup(activeIndex)
    *   else Last page and valid
    *     S->>F: getFormData(formGroup)
    *     F-->>S: Return form data
@@ -324,18 +317,23 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * @memberOf SteppedFormComponent
    */
   handleNext(lastPage: boolean = false): void {
-    const isValid = NgxFormService.validateFields(this.activeFormGroup as FormGroup);
+    const isValid = this.paginated ?
+      NgxFormService.validateFields(this.formGroup as FormGroup) :
+      (this.formGroup as FormArray)?.controls.every(control => NgxFormService.validateFields(control as FormGroup));
     if (!lastPage) {
       if (isValid) {
-        this.activePage = this.activePage + 1;
-        this.getCurrentFormGroup(this.activePage);
+        this.activeIndex = this.activeIndex + 1;
+        this.getCurrentFormGroup(this.activeIndex);
       }
     } else {
      if (isValid) {
-      const data = Object.assign({}, ...Object.values(NgxFormService.getFormData(this.formGroup as FormGroup)));
+      const rootForm = this.formGroup?.root || this.formGroup;
+      const data = Object.assign({}, ...Object.values(NgxFormService.getFormData(rootForm as FormGroup)));
       this.submitEvent.emit({
         data,
-        name: EventConstants.SUBMIT,
+        component:  this.componentName,
+        name: this.action || EventConstants.SUBMIT,
+        handlers: this.handlers,
       });
      }
     }
@@ -355,16 +353,16 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    *   participant S as SteppedFormComponent
    *
    *   U->>S: Click Back
-   *   S->>S: activePage--
-   *   S->>S: getCurrentFormGroup(activePage)
+   *   S->>S: activeIndex--
+   *   S->>S: getCurrentFormGroup(activeIndex)
    *   Note over S: Update active form and children
    *
    * @memberOf SteppedFormComponent
    */
   handleBack(): void {
     if(this.paginated) {
-      this.activePage = this.activePage - 1;
-      this.getCurrentFormGroup(this.activePage);
+      this.activeIndex = this.activeIndex - 1;
+      this.getCurrentFormGroup(this.activeIndex);
     }
     this.location.back();
   }
@@ -373,7 +371,7 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    * @description Updates the active form group and children for the specified page.
    * @summary Extracts the FormGroup for the given page from the FormArray and filters
    * the children to show only fields belonging to that page. Uses a timer to ensure
-   * proper Angular change detection when updating the activeChildren.
+   * proper Angular change detection when updating the activeContent.
    *
    * @param {number} page - The page number to activate
    * @return {void}
@@ -387,18 +385,38 @@ export class SteppedFormComponent extends NgxParentComponentDirective implements
    *
    *   S->>F: Extract FormGroup at index (page - 1)
    *   F-->>S: Return page FormGroup
-   *   S->>S: Set activeChildren = undefined
+   *   S->>S: Set activeContent = undefined
    *   S->>T: timer(10).subscribe()
    *   T-->>S: Filter children for active page
-   *   S->>S: Set activeChildren
+   *   S->>S: Set activeContent
    *
    * @memberOf SteppedFormComponent
    */
   private getCurrentFormGroup(page: number): void {
-    this.activeFormGroup = (this.formGroup as FormArray).at(page - 1) as FormGroup;
-    this.activeChildren = undefined;
+    if(!(this.formGroup instanceof FormArray))
+      this.formGroup = this.formGroup?.parent as FormArray;
+    this.formGroup  = (this.formGroup as FormArray).at(page - 1) as FormGroup;
+    this.activeContent = undefined;
     this.timerSubscription = timer(10).subscribe(() =>
-      this.activeChildren = (this.children as UIModelMetadata[]).filter(c => c.props?.['page'] === page)
+      this.activeContent = (this.children as UIModelMetadata[]).filter(c => c.props?.['page'] === page)
     );
   }
+
+
+  // async handleSubmit(event?: SubmitEvent, eventName?: string, componentName?: string): Promise<boolean | void> {
+  //   if(event) {
+  //     event.preventDefault();
+  //     event.stopImmediatePropagation();
+  //   }
+
+  //   if (!NgxFormService.validateFields(this.formGroup as FormGroup))
+  //     return false;
+  //   const data = NgxFormService.getFormData(this.formGroup as FormGroup);
+  //   this.submitEvent.emit({
+  //     data,
+  //     component: componentName || this.componentName,
+  //     name: eventName || this.action || EventConstants.SUBMIT,
+  //     handlers: this.handlers,
+  //   });
+  // }
 }

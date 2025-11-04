@@ -1,4 +1,15 @@
 {
+  "component": {
+    "image_upload": {
+      "drag_file": "Drag and drop your image here",
+      "button_select": "Select file",
+      "button_clear": "Clear",
+      "preview": "Preview"
+    },
+    "filter": {
+      "title": "Custom filter title"
+    }
+  },
   "login": {
      "username": {
       "label": "Username",

@@ -1,5 +1,5 @@
 
-<ion-card [id]="uid" [class]="className">
+<ion-card [id]="uid" [class]="className ? className : 'dcf-card-default'">
   <ion-card-content>
     @if(icon && showIcon) {
       <div class="dcf-icon-container">

@@ -1,0 +1,152 @@
+.dcf-switcher-grid {
+  width: 100%;
+  @media(min-width: 992px) {
+  .left {
+      max-width: 320px !important;
+    }
+  }
+}
+.dcf-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -20px;
+  padding: 0;
+  list-style: none;
+  position: relative;
+
+
+
+  &.dcf-switcher-button {
+    > * {
+        a {
+          font-size: .950rem;
+          padding: 0.5rem 1.25rem;
+        }
+    }
+    &.dcf-switcher-left {
+       @media(min-width: 992px) {
+        flex-direction: column;
+        margin-left: 0;
+        margin-right: 2rem;
+
+         > * {
+          padding-left: 0;
+
+          > a {
+            justify-content: left;
+            border: transparent;
+            border-bottom: none;
+          }
+        }
+        &::before {
+          content: "";
+          position: absolute;
+          bottom: 0;
+          right: -1.5rem;
+          height: 100%;
+          border-right: 1px solid #e5e5e5;
+        }
+       }
+    }
+  }
+
+  &:not(.dcf-switcher-button) {
+    &::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 20px;
+      right: 0;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    &.dcf-switcher-left {
+      flex-direction: column;
+      margin-left: 0;
+
+      > * {
+        padding-left: 0;
+
+        > a {
+          justify-content: left;
+          border-left: 1px solid transparent;
+          border-bottom: none;
+        }
+      }
+      &::before {
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: auto;
+        border-left: 1px solid #e5e5e5;
+        border-bottom: none;
+      }
+    }
+
+    > * {
+        a {
+          border-bottom: 1px solid transparent;
+          text-transform: uppercase;
+        }
+    }
+
+    > .dcf-active {
+      > a {
+        color: var(--dcf-color-gray-8);
+        border-color: var(--dcf-color-primary);
+
+        &:hover {
+          color: var(--dcf-color-gray-5);
+          text-decoration: none;
+        }
+      }
+    }
+  }
+
+
+  > * {
+    flex: none;
+    padding-left: 20px;
+    position: relative;
+    cursor: pointer;
+
+    > a {
+      display: flex;
+      align-items: center;
+      column-gap: 0.25em;
+      justify-content: center;
+      padding: 5px 10px;
+      color: var(--dcf-color-gray-4);
+      font-size: 0.875rem;
+      transition: color 0.1s ease-in-out;
+
+      &:hover {
+        text-decoration: none;
+        color: var(--dcf-color-gray-7);
+      }
+    }
+  }
+
+  > .dcf-active {
+    > a {
+      background: var(--dcf-color-primary);
+      color: white;
+      border-radius: var(--dcf-border-radius-small);
+
+       &:active, &:hover, &:focus {
+        color: white;
+        text-decoration: none;
+       }
+    }
+  }
+
+  >.dcf-disabled {
+    > a {
+      color: var(--dcf-color-gray-4);
+    }
+  }
+
+  .dcf-dropdown {
+    margin-left: 30px;
+  }
+}

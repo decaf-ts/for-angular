@@ -8,19 +8,22 @@
  */
 import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
 import { AngularFieldDefinition, KeyValue } from './types';
-import { AngularDynamicOutput, IComponentInput } from './interfaces';
+import { AngularDynamicOutput,  IFormComponentProperties, } from './interfaces';
 import { AngularEngineKeys } from './constants';
-import { Constructor, Model, ModelKeys } from '@decaf-ts/decorator-validation';
+import { Constructor, Model, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
 import {
   ComponentMirror,
   ComponentRef,
+  createEnvironmentInjector,
   EnvironmentInjector,
   Injector,
   reflectComponentType,
+  runInInjectionContext,
   TemplateRef,
   Type,
   ViewContainerRef,
+  createComponent
 } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
 import { isDevelopmentMode } from '../helpers';
@@ -60,6 +63,8 @@ import { FormParent } from './types';
  * @memberOf module:lib/engine/NgxRenderingEngine
  */
 export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, AngularDynamicOutput> {
+
+  private static _injector?: Injector;
 
   /**
    * @description Registry of components available for dynamic rendering.
@@ -217,9 +222,9 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       return {inputs, injector};
 
     // const customTypes = (inputs as KeyValue)?.['customTypes'] || [];
-    // const hasFormRoot = Object.values(possibleInputs).some(({propName}) => propName ===  AngularEngineKeys.PARENT_COMPONENT);
-    // if(hasFormRoot && !inputs?.[AngularEngineKeys.PARENT_COMPONENT] && formGroup)
-    //   inputs[AngularEngineKeys.PARENT_COMPONENT] = formGroup;
+    // const hasFormRoot = Object.values(possibleInputs).some(({propName}) => propName ===  AngularEngineKeys.PARENT_FORM);
+    // if(hasFormRoot && !inputs?.[AngularEngineKeys.PARENT_FORM] && formGroup)
+    //   inputs[AngularEngineKeys.PARENT_FORM] = formGroup;
     const result: AngularDynamicOutput = {
       component,
       inputs,
@@ -243,18 +248,18 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       const componentInstance = NgxRenderingEngine.createComponent(
         component,
         componentInputs,
+        injector,
         componentMetadata,
         vcr,
-        injector,
         []
       );
-      result.instance = NgxRenderingEngine._instance = componentInstance.instance as Type<unknown>;
+      result.component = NgxRenderingEngine._instance = componentInstance as Type<unknown>;
     }
     if (fieldDef.children?.length) {
-      // if(!NgxRenderingEngine._parentProps && inputs?.pages) {
-      //     NgxRenderingEngine._parentProps = {pages: inputs?.pages};
-      //     //  NgxRenderingEngine._projectable = false;
-      // }
+      if(!NgxRenderingEngine._parentProps && inputs?.['pages']) {
+          NgxRenderingEngine._parentProps = {pages: inputs?.['pages']};
+          //  NgxRenderingEngine._projectable = false;
+      }
 
       result.children = fieldDef.children.map((child) => {
         // const hiddenOn = (child?.props?.hidden || []) as CrudOperations[];
@@ -290,13 +295,66 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @static
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
-  static createComponent(component: Type<unknown>, inputs: KeyValue = {}, metadata: ComponentMirror<unknown>, vcr: ViewContainerRef, injector: Injector, template: Node[] = []): ComponentRef<unknown> {
-    const componentInstance = vcr.createComponent(component as Type<unknown>, {
+  static createComponent<C>(component: Type<unknown>, inputs: KeyValue = {},  injector?: Injector, metadata?: ComponentMirror<unknown>, vcr?: ViewContainerRef, template?: Node[]): C {
+    if(vcr && metadata && injector)
+      return NgxRenderingEngine.createViewComponent(component, inputs, metadata, vcr, injector, template || []);
+    return NgxRenderingEngine.createHostComponent(component, inputs, injector);
+  }
+
+  static createViewComponent<C>(component: Type<unknown>, inputs: KeyValue = {}, metadata: ComponentMirror<unknown>, vcr: ViewContainerRef, injector: Injector, template: Node[] = []): C {
+
+    const cmp = vcr.createComponent(component as Type<unknown>, {
       environmentInjector: injector as EnvironmentInjector,
       projectableNodes: [template],
     });
-    this.setInputs(componentInstance, inputs, metadata);
-    return componentInstance;
+    this.setInputs(cmp, inputs, metadata);
+    return cmp.instance as C;
+  }
+
+  static createHostComponent<C>(
+    component: Type<C | unknown> | string,
+    props: KeyValue = {},
+    injector?: Injector,
+  ): C {
+    if(!injector)
+      injector = NgxRenderingEngine._injector || Injector.create({providers: [], parent: Injector.NULL});
+    const envInjector: EnvironmentInjector = createEnvironmentInjector([], injector as EnvironmentInjector);
+
+    let cmp: ComponentRef<unknown> = {} as ComponentRef<C>;
+
+    runInInjectionContext(envInjector, () => {
+      const host = document.createElement('div');
+      component = typeof component === Primitives.STRING ? NgxRenderingEngine.components(component as string) as Type<unknown> : component ;
+      if (!host)
+        throw new Error('Cant create host element for component');
+
+      cmp = createComponent(component as Type<unknown>, {
+        environmentInjector: envInjector,
+        hostElement: host
+      });
+
+      const metadata = reflectComponentType(component as Type<unknown>);
+      if (!metadata)
+        throw new InternalError(`Metadata for component ${component} not found.`);
+
+      const { inputs: possibleInputs } = metadata;
+      const inputs = { ...props };
+
+      const unmappedKeys = Object.keys(inputs).filter(input => {
+        const isMapped = possibleInputs.find(({ propName }) => propName === input);
+        if (!isMapped) delete inputs[input];
+        return !isMapped;
+      });
+
+      if (unmappedKeys.length > 0 && isDevelopmentMode())
+        console.warn(`Unmapped input properties for component ${component}: ${unmappedKeys.join(', ')}`);
+
+      if(metadata)
+        this.setInputs(cmp as ComponentRef<unknown>, inputs, metadata as ComponentMirror<unknown>);
+      document.body.querySelector('ion-app')?.appendChild(host);
+    });
+
+    return cmp.instance as C;
   }
 
   /**
@@ -371,18 +429,20 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     tpl: TemplateRef<unknown>,
   ): AngularDynamicOutput {
     let result: AngularDynamicOutput;
+    if(!NgxRenderingEngine._injector)
+      NgxRenderingEngine._injector = injector;
     try {
       this._model = model;
       const formId = Date.now().toString(36).toUpperCase();
       const fieldDef = this.toFieldDefinition(model, globalProps);
-      const props = fieldDef.props as Partial<IComponentInput>;
+      const props = fieldDef.props as Partial<IFormComponentProperties>;
       if(!NgxRenderingEngine._operation)
         NgxRenderingEngine._operation = props?.operation || undefined;
       const isArray = (props?.pages && (props?.pages as number)  >= 1 || props?.multiple === true);
       const formGroup = NgxFormService.createForm(formId, isArray);
       result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl, formId, true, formGroup);
-      if(result.instance)
-        (result.instance as KeyValue)['formGroup'] = formGroup;
+      if(result.component)
+        (result.component as KeyValue)['formGroup'] = formGroup;
       NgxRenderingEngine.destroy(formId);
     } catch (e: unknown) {
       throw new InternalError(

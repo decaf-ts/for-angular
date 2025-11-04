@@ -1,4 +1,4 @@
-import { list, Model, model, required, type } from "@decaf-ts/decorator-validation";
+import { list, Model, model, required } from "@decaf-ts/decorator-validation";
 import type { ModelArg } from "@decaf-ts/decorator-validation";
 import { pk, table } from "@decaf-ts/core";
 import { hideOn, HTML5InputTypes, uielement, uilistmodel, uilistprop, uimodel } from "@decaf-ts/ui-decorators";
@@ -12,12 +12,14 @@ import { OperationKeys } from "@decaf-ts/db-decorators";
 @model()
 export class AIVendorModel extends Model {
 
+  // @pk({ type: Number.name })
+  // id!: number;
+
   /**
    * @description Unique identifier for the AI provider
    * @summary The provider's unique identifier string
    */
   @pk({ type: "String", generated: false })
-  @type(String.name)
   @uielement('ngx-decaf-crud-field', {
     label: "aivendors.name.label",
     placeholder: "aivendors.name.placeholder",

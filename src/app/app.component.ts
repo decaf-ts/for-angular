@@ -75,7 +75,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    */
   override async initialize(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
-    const populate = ['AIModel', 'AIVendorModel'];
+    const populate = ['CategoryModel', 'AIVendorModel'];
     const menu = [];
     const models = AppModels;
     for(let model of models) {
@@ -86,7 +86,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       if (isDevelopment) {
         if(populate.includes(name)) {
           this.logger.info(`Populating repository for model: ${name}`);
-          const repository = new ForAngularRepository(model, 3);
+          const repository = new ForAngularRepository(model, 36);
           await repository.init();
         }
       }

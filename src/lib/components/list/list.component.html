@@ -79,6 +79,7 @@
         [title]="(locale + '.'+ empty.title) | translate"
         [model]="model"
         [icon]="empty.icon"
+        className="dcf-empty-data"
         [subtitle]="(locale + '.'+ empty.subtitle) | translate" />
     } @else {
       <ngx-decaf-empty-state
@@ -86,6 +87,7 @@
         [model]="model"
         className="empty-search"
         [translatable]="true"
+        className="dcf-empty-data"
         [title]="locale + '.search.title' | translate"
         [subtitle]="locale + '.search.subtitle' | translate: {'0': parseSearchValue()}"
         [searchValue]="searchValue"

@@ -15,9 +15,9 @@ import { CategoryModel } from '../models/CategoryModel';
   [
     {title: 'stepped-form.step1.title', description: 'stepped-form.step1.description'},
     {title: 'stepped-form.step2.title', description: 'stepped-form.step2.description'},
-    {title: 'stepped-form.step3.title', description: 'stepped-form.step3.description'},
+    // {title: 'stepped-form.step3.title', description: 'stepped-form.step3.description'},
   ],
-  false,
+  true,
   {cols: 2, rows: 2}
 )
 @model()

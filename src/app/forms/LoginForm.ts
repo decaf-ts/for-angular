@@ -30,7 +30,6 @@ export class LoginForm extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'login.password.label',
     placeholder: 'login.password.placeholder',
-    type: 'textarea',
   })
   @password()
   @required()

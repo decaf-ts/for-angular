@@ -1,0 +1,38 @@
+<ion-modal [id]="uid"
+  [isOpen]="isOpen"
+  (willDismiss)="handleWillDismiss($event)"
+  [backdropDismiss]="options?.backdropDismiss"
+  [showBackdrop]="options?.showBackdrop"
+  [animated]="options?.animated"
+  [canDismiss]="options?.canDismiss"
+  [class.dcf-fullscreen-modal]="fullscreen"
+  >
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        @if(title) {
+          <ion-title>{{title | translate}}</ion-title>
+        }
+        <ion-buttons slot="end">
+          <ion-button type="button" class="dcf-button-close" (click)="cancel()">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <section class="dcf-modal-body">
+        @if(model) {
+          <ngx-decaf-model-renderer (onIonChange)="handleEvent($event)" (listenEvent)="handleEvent($event)" [model]="model" [globals]="globals" />
+
+        } @else {
+          <div class="dcf-loading-container">
+            <ion-spinner name="crescent" color="primary" ></ion-spinner>
+          </div>
+        }
+
+      </section>
+
+    </ion-content>
+  </ng-template>
+</ion-modal>

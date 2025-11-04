@@ -12,9 +12,9 @@ import {
   Component
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Dynamic, EventConstants } from '../../engine';
-import { DefaultFormReactiveOptions } from '../../engine/constants';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { Dynamic } from '../../engine/decorators';
+import { DefaultFormReactiveOptions, EventConstants } from '../../engine/constants';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { ComponentRendererComponent } from '../../components/component-renderer/component-renderer.component';
 import { LayoutComponent } from '../layout/layout.component';
@@ -27,7 +27,7 @@ import { LayoutComponent } from '../layout/layout.component';
   templateUrl: './crud-form.component.html',
   styleUrls: ['./crud-form.component.scss'],
   imports: [ReactiveFormsModule, LayoutComponent, ComponentRendererComponent, IonButton, IonIcon],
-  host: {'[attr.id]': 'uid'},
+ // host: {'[attr.id]': 'uid'},
 })
 
 export class CrudFormComponent extends NgxFormDirective {
@@ -53,23 +53,7 @@ export class CrudFormComponent extends NgxFormDirective {
       this.options || {},
     );
     await super.ngOnInit();
-
   }
-  /**
-   * @description Handles form submission with validation and event emission.
-   * @summary Processes form submission by first preventing default browser behavior,
-   * then validating all form fields using NgxFormService. If validation passes,
-   * extracts form data and emits a submitEvent with the data, component information,
-   * and any associated handlers. Returns false if validation fails.
-   *
-   * @param {SubmitEvent} event - The browser's native form submit event
-   * @returns {Promise<boolean | void>} Returns false if validation fails, void if successful
-   * @memberOf CrudFormComponent
-   */
-  async submit(event: SubmitEvent): Promise<boolean | void> {
-    super.handleSubmit(event);
-  }
-
 
   /**
    * @description Handles delete operations by emitting delete events.
@@ -88,5 +72,4 @@ export class CrudFormComponent extends NgxFormDirective {
       name: EventConstants.SUBMIT,
     });
   }
-
 }

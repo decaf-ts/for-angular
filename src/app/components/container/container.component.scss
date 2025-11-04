@@ -14,37 +14,39 @@
     padding: 1.25rem .75rem;
   }
 
-  &.dcf-width-small {
+  .dcf-width-small {
     div {  width: 150px; }
   }
-  &.dcf-width-medium {
+  .dcf-width-medium {
     div { width: 300px; }
   }
-  &.dcf-width-large {
+  .dcf-width-large {
     div { width: 450px; }
   }
-  &.dcf-width-xlarge {
+  .dcf-width-xlarge {
     div { width: 600px;}
   }
-  &.dcf-width-2xlarge {
+  .dcf-width-2xlarge {
     div { width: 750px;}
   }
 
-  &.dcf-width-auto {
+  .dcf-width-auto {
     div {
       width: auto;
     }
   }
 
-  &.dcf-width-block {
+  .dcf-width-block {
+    width: 100%;
     div {
-      width: 100%;
-      max-width: 1200px;
+     flex: 1;
+     min-width: 1px;
     }
   }
 
   /* Expand */
-  &.dcf-width-expand {
+  .dcf-width-expand {
+    max-width: 75vw !important;
     div {
       flex: 1;
       min-width: 1px;

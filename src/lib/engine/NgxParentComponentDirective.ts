@@ -8,9 +8,10 @@
  */
 import { Directive, Input, OnInit } from '@angular/core';
 import { NgxComponentDirective } from './NgxComponentDirective';
-import {  FormParent, KeyValue } from './types';
-import { UIModelMetadata } from '@decaf-ts/ui-decorators';
+import { FormParent, KeyValue } from './types';
+import { FieldDefinition, IPagedComponentProperties, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
+import { IComponentProperties } from './interfaces';
 
 /**
  * @description Layout component for creating responsive grid layouts in Angular applications.
@@ -26,19 +27,64 @@ import { Model } from '@decaf-ts/decorator-validation';
 @Directive()
 export class NgxParentComponentDirective extends NgxComponentDirective implements OnInit {
 
-
-  /**
-   * @description The display name or title of the fieldset section.
-   * @summary Sets the legend or header text that appears in the accordion header. This text
-   * provides a clear label for the collapsible section, helping users understand what content
-   * is contained within. The name is displayed prominently and serves as the clickable area
-   * for expanding/collapsing the fieldset.
+    /**
+   * @description Unique identifier for the current record.
+   * @summary A unique identifier for the current record being displayed or manipulated.
+   * This is typically used in conjunction with the primary key for operations on specific records.
    *
-   * @type {string}
-   * @default 'Child'
+   * @type {string | number}
+   * @memberOf FieldsetComponent
    */
   @Input()
-  parentComponent!: FormParent;
+  page: number = 1;
+
+
+  /**
+   * @description Unique identifier for the current record.
+   * @summary A unique identifier for the current record being displayed or manipulated.
+   * This is typically used in conjunction with the primary key for operations on specific records.
+   *
+   * @type {string | number}
+   * @memberOf FieldsetComponent
+   */
+  @Input()
+  pages: number | IPagedComponentProperties[] = 1;
+
+
+  /**
+   * @description Array of UI model metadata for the currently active page.
+   * @summary Contains only the UI model metadata for fields that should be displayed
+   * on the currently active page. This is a filtered subset of the children array,
+   * updated whenever the user navigates between pages.
+   *
+   * @type {UIModelMetadata | UIModelMetadata[] | undefined}
+   * @memberOf SteppedFormComponent
+   */
+  activeContent: UIModelMetadata | UIModelMetadata[] | FieldDefinition | FieldDefinition[] | undefined = undefined;
+
+
+  /**
+   * @description The currently active page number.
+   * @summary Tracks which page of the multi-step form is currently being displayed.
+   * This property is updated as users navigate through the form steps using
+   * the next/back buttons or programmatic navigation.
+   *
+   * @type {number}
+   * @memberOf SteppedFormComponent
+   */
+  activeIndex: number = 1;
+
+  /**
+   * @description The parent form object that represents the parent-child relationship in the form hierarchy.
+   * @summary This input binds the parent form object to the directive, enabling hierarchical form structures.
+   * It allows the directive to interact with the parent form and manage child components effectively.
+   *
+   * @type {FormParent}
+   * @memberOf NgxParentComponentDirective
+   */
+  @Input()
+  parentForm!: FormParent;
+
 
   /**
    * @description Array of UI model metadata for all form fields.
@@ -50,7 +96,7 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
    * @type {UIModelMetadata[]}
    */
   @Input()
-  children: UIModelMetadata[] | KeyValue[] = [];
+  children: UIModelMetadata[] | IComponentProperties[] | FieldDefinition[] | KeyValue[] = [];
 
 
   /**

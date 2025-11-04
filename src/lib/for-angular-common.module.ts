@@ -87,7 +87,7 @@ export const I18N_CONFIG_TOKEN = new InjectionToken<{resources: I18nResourceConf
  * ]
  */
 export function provideDynamicComponents(...components: Constructor<unknown>[]): Constructor<unknown>[] {
-    return components;
+  return components;
 }
 
 

@@ -1,0 +1,121 @@
+<ion-card [class]="'ion-card ' + className">
+
+  <ion-card-content>
+    <div
+      class="dcf-drop-area"
+      [class.dcf-dragging]="dragging"
+      (drop)="handleDrop($event)"
+      (dragover)="handleDragOver($event)"
+      (dragleave)="handleDragLeave($event)"
+    >
+     <input
+      #component
+      type="file"
+      [attr.accept]="accept"
+      [attr.multiple]="multiple ? true : null"
+      (change)="handleFileSelect($event)"
+      hidden
+    />
+
+    <div>
+      @if(!preview) {
+        <ion-button class="dcf-upload-icon"  color="light">
+          <ion-icon slot="icon-only" name="cloud-upload-outline" size="large"></ion-icon>
+        </ion-button>
+        <p class="dcf-drag-description">{{locale + '.drag_file' | translate}}</p>
+        <ion-button  (click)="handleClickToSelect()" class="dcf-margin-small-top" color="light">
+          <ion-text color="primary">{{locale + '.button_select' | translate}}</ion-text>
+        </ion-button>
+      } @else {
+         <div class="dcf-preview dcf-grid dcf-grid-match dcf-grid-collapse">
+          <div class="image dcf-width-1-4@s">
+             <ion-img [src]="preview" title="Preview Image" alt="Preview Image"></ion-img>
+          </div>
+          <div class="description dcf-flex dcf-flex-middle dcf-width-expand@s">
+            <div>
+              <p class="title">{{locale + '.preview' | translate}}</p>
+              <p class="subtitle">{{ files[0].name }}</p>
+              <ion-button class="dcf-margin-top" (click)="handleClear()" class="dcf-margin-small-top" fill="clear" color="danger" size="small">
+                <ion-text color="primary">{{locale + '.button_clear' | translate}}</ion-text>
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+  </ion-card-content>
+
+  <!-- <ion-card-header>
+    <ion-card-title>Upload de Imagem</ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+    <div
+      class="dcf-drop-area"
+      [class.dragging]="dragging"
+      (drop)="onDrop($event)"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+    >
+      <div class="dcf-drop-content">
+        <ion-icon name="cloud-upload-outline" size="large"></ion-icon>
+        <p>Arraste e solte aqui ou</p>
+        <ion-button size="small" fill="outline" (click)="triggerFileSelect()">Selecionar arquivo</ion-button>
+      </div>
+    </div>
+
+    <input
+      #fileInput
+      type="file"
+      [attr.accept]="accept"
+      [attr.multiple]="multiple ? true : null"
+      (change)="onFileSelected($event)"
+      hidden
+    />
+
+    <div *ngIf="previewUrl" class="dcf-preview">
+      <ion-item>
+        <div slot="start">
+          <ion-img [src]="previewUrl"></ion-img>
+        </div>
+        <ion-label>
+          <h3>Pré-visualização</h3>
+          <p *ngIf="files.length">{{ files[0].name }}</p>
+        </ion-label>
+      </ion-item>
+    </div>
+
+    <ion-list *ngIf="files.length">
+      <ion-list-header>
+        <ion-label>Arquivos selecionados</ion-label>
+      </ion-list-header>
+      <ion-item *ngFor="let f of files; let i = index">
+        <ion-label>{{ f.name }}</ion-label>
+        <ion-note slot="end">{{ (f.size / 1024 / 1024) | number:'1.1-1' }} MB</ion-note>
+        <ion-button fill="clear" slot="end" (click)="removeFile(i)">
+          <ion-icon slot="icon-only" name="close-circle"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-list>
+
+    <div *ngIf="errors.length">
+      <ion-list>
+        <ion-item *ngFor="let err of errors">
+          <ion-icon name="alert-circle" slot="start" color="danger"></ion-icon>
+          <ion-label color="danger">{{ err }}</ion-label>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <ion-row class="dcf-actions">
+      <ion-col>
+        <ion-button expand="block" (click)="triggerFileSelect()">Selecionar</ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand="block" color="danger" fill="outline" (click)="clear()">Limpar</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-card-content> -->
+</ion-card>

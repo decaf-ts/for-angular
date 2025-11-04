@@ -13,7 +13,9 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import { EventConstants, KeyValue, NgxComponentDirective } from '../../engine';
+import {  NgxComponentDirective } from '../../engine/NgxComponentDirective';
+import { KeyValue } from '../../engine/types';
+import { EventConstants } from '../../engine/constants';
 import { IPaginationCustomEvent } from '../../engine/interfaces';
 
 /**

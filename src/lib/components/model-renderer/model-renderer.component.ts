@@ -10,30 +10,15 @@
 
 import {
   Component,
-  EventEmitter,
-  inject,
-  Injector,
   Input,
-  OnChanges,
-  OnDestroy,
   SimpleChanges,
-  TemplateRef,
-  ViewChild,
-  ViewContainerRef,
   ViewEncapsulation,
 } from '@angular/core';
 import { Model, sf } from '@decaf-ts/decorator-validation';
-import {
-  AngularDynamicOutput,
-  AngularEngineKeys,
-  BaseComponentProps,
-  IBaseCustomEvent,
-  NgxRenderingEngine,
-  IRenderedModel,
-} from '../../engine';
-import { KeyValue } from '../../engine/types';
+import { AngularEngineKeys, BaseComponentProps } from '../../engine/constants';
+import { AngularDynamicOutput } from '../../engine/interfaces';
 import { Renderable } from '@decaf-ts/ui-decorators';
-import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
+import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableComponentDirective';
 
 /**
  * @description Component for rendering dynamic models
@@ -73,57 +58,16 @@ import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
   encapsulation: ViewEncapsulation.None
 })
 export class ModelRendererComponent<M extends Model>
-  extends NgxComponentDirective implements OnChanges, OnDestroy, IRenderedModel {
-
-  // /**
-  //  * @description Input model to be rendered
-  //  * @summary Can be a Model instance or a JSON string representation of a model
-  //  */
-  // @Input({ required: true })
-  // model!: M | string | undefined;
-
-  /**
-   * @description Global variables to be passed to the rendered component
-   */
-  @Input()
-  globals: Record<string, unknown> = {};
+  extends NgxRenderableComponentDirective {
 
   /**
    * @description Set if render content projection is allowed
    * @default true
    */
   @Input()
-  projectable: boolean = true;
+  override projectable: boolean = true;
 
-  /**
-   * @description Template reference for inner content
-   */
-  @ViewChild('inner', { read: TemplateRef, static: true })
-  inner?: TemplateRef<unknown>;
-
-  /**
-   * @description Output of the rendered model
-   */
-  output?: AngularDynamicOutput;
-
-  /**
-   * @description Unique identifier for the renderer
-   */
-  @Input()
-  rendererId?: string;
-
-  /**
-   * @description View container reference for dynamic component rendering
-   */
-  @ViewChild('componentOuter', { static: true, read: ViewContainerRef })
-  vcr!: ViewContainerRef;
-
-  /**
-   * @description Instance of the rendered component
-   */
-  private instance!: KeyValue | undefined;
-
-  private injector: Injector = inject(Injector);
+  // private injector: Injector = inject(Injector);
 
   // constructor() {}
 
@@ -148,7 +92,7 @@ export class ModelRendererComponent<M extends Model>
         AngularEngineKeys.RENDERED_ID,
         (this.output.inputs as Record<string, unknown>)['rendererId'] as string,
       );
-    this.instance = this.output?.instance;
+    this.instance = this.output?.component;
     this.subscribeEvents();
   }
 
@@ -163,49 +107,5 @@ export class ModelRendererComponent<M extends Model>
     }
   }
 
-  /**
-   * @description Lifecycle hook that is called when a directive, pipe, or service is destroyed
-   * @return {Promise<void>}
-   */
-  async ngOnDestroy(): Promise<void> {
-    if (this.instance) {
-      this.unsubscribeEvents();
-      await NgxRenderingEngine.destroy();
-    }
-    this.output = undefined;
-  }
 
-  private async subscribeEvents(): Promise<void> {
-    const component = this?.output?.component;
-    if (this.instance && component) {
-      const componentKeys = Object.keys(this.instance);
-      for (const key of componentKeys) {
-        const value = this.instance[key];
-        if (value instanceof EventEmitter)
-          (this.instance as KeyValue)[key].subscribe(async (event: Partial<IBaseCustomEvent>) => {
-            await this.handleEvent({
-              component: component.name || '',
-              name: key,
-              ...event,
-            } as IBaseCustomEvent);
-          });
-      }
-    }
-  }
-
-  /**
-   * @description Unsubscribes from events emitted by the rendered component
-   */
-  private unsubscribeEvents(): void {
-    if (this.instance) {
-      const componentKeys = Object.keys(this.instance);
-      for (const key of componentKeys) {
-        const value = this.instance[key];
-        if (value instanceof EventEmitter)
-          this.instance[key].unsubscribe();
-      }
-    }
-  }
-
-  protected readonly JSON = JSON;
 }

@@ -2,8 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ModelRendererComponent } from './model-renderer.component';
 import { ForAngularModel } from '../../../app/models/DemoModel';
-import { NgxRenderingEngine } from '../../engine';
-import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
+import { Model } from '@decaf-ts/decorator-validation';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { CrudFormComponent } from '../../components/crud-form/crud-form.component';
@@ -39,8 +38,7 @@ describe('ModelRendererComponent', () => {
     fixture.detectChanges();
   });
 
-  xit('should create and properly calculate the form', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    expect(component.output).toBeDefined();
   });
 });
