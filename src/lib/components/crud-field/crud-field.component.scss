@@ -27,8 +27,12 @@
 }
 
 .dcf-input-item {
-  &.create, &.update
-  {
+  // force expand (prevent layout glitches)
+  > *,
+  ion-select {
+      width: 100% !important;
+  }
+  &.create, &.update {
 
 
     &.checkbox + .checkbox {
@@ -176,21 +180,9 @@ ion-radio-group {
   position: absolute;
   color: var(--dcf-color-danger) !important;
   font-size: 0.8rem !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
   line-height: 1.1rem;
-  // background: rgba(0,0,0, .75) !important;
-  // background: rgba(255,255,2P55, .75) !important;
-  box-sizing: border-box;
   z-index: 9999;
-
-  margin-top: 0px;
-  animation-duration: 0.1s;
-  animation-timing-function: ease-out;
-  animation-fill-mode: both;
-  animation-name: fadeTopSmallAnimation;
-  display: flex;
-  align-items: flex-start;
-  gap: .25rem;
 
  .ti,
   ion-icon {
@@ -219,46 +211,6 @@ ion-radio-group {
 
 .dcf-error  + .dcf-helper  {
   padding-top: 1rem;
-}
-
-
-/*
-* Slide Top Small
-*/
-@keyframes fadeTopSmallAnimation {
-  0% {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-/*
-* Slide Bottom Small
-*/
-@keyframes fadeBottomSmallAnimation {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
-@keyframes fadeTopMediumAnimation {
-  0% {
-    opacity: 0;
-    transform: translateY(-50px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 

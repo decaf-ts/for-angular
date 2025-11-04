@@ -49,7 +49,7 @@ export class ForAngularRepository<T extends Model> {
       const name = (this.model as Model).constructor.name;
       switch(name) {
         case AIModel.name:
-          data = await this.generateData<AIModel>(AIFeatures, 'features', Array.name);
+          data = await this.generateData<AIModel>(AIFeatures, 'features', "name");
           break;
         // case AIFeature.name:
         //   data = await this.generateData<AIFeature>(AIFeatures);
@@ -60,7 +60,7 @@ export class ForAngularRepository<T extends Model> {
       try {
          data = await this.repository?.createAll(data) as T[];
       } catch (error: unknown) {
-        console.warn(error);
+        console.error(error);
       }
 
         //  data = DbAdapterFlavour === "ram" ?
@@ -73,7 +73,7 @@ export class ForAngularRepository<T extends Model> {
 
  async generateData<T extends Model>(pkValues?: KeyValue, pk?: string, pkType?: string): Promise<T[]> {
 
-    const limit = Object.values(pkValues || {}).length - 1 || this.limit;
+    const limit = pkValues ? Object.values(pkValues || {}).length - 1 : this.limit;
     if(!pk)
       pk = this._repository?.pk as string;
     if(!pkType)
@@ -139,34 +139,13 @@ export class ForAngularRepository<T extends Model> {
     return data
       .map((d) => getPkValue(d))
       .filter((item: KeyValue) => {
-        if (!item || uids.has(item[pk])) return false;
+        if (!item || uids.has(item[pk]) || !item[pk] || item[pk] === undefined) return false;
         uids.add(item[pk]);
         return true;
-      }) as T[];
-    }
+      }).filter(Boolean) as T[];
+  }
 }
 
-// function generateEmployes(limit = 100): EmployeeModel[] {
-//   return getFakerData(limit, {
-//     name: faker.person.fullName,
-//     occupation: faker.person.jobTitle,
-//     birthdate: () => faker.date.birthdate(),
-//     hiredAt: (random: number = Math.floor(Math.random() * 5) + 1) =>
-//       faker.date.past({ years: random }),
-//   }, EmployeeModel.name);
-// }
-
-// function generateCatories(limit = 100): CategoryModel[] {
-//   return getFakerData<CategoryModel>(limit, {
-//     name: () =>
-//       faker.commerce.department() +
-//       ' ' +
-//       faker.commerce.productAdjective() +
-//       ' ' +
-//       faker.commerce.productMaterial(),
-//     description: () => faker.commerce.productDescription(),
-//   }, CategoryModel.name);
-// }
 
 export function getFakerData<T extends Model>(
   limit = 100,

@@ -1,0 +1,25 @@
+.dcf-modal-body {
+   height: 100%;
+   padding: 1.5rem 1rem;
+}
+.dcf-loading-container {
+    height: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    ion-spinner {
+      width: 60px;
+      height: 60px;
+    }
+}
+
+
+ion-modal {
+  &.dcf-fullscreen-modal {
+    --height: 100%;
+    --width: 100%;
+    --max-width: 100%;
+    --border-radius: 0;
+  }
+}

@@ -2,6 +2,8 @@ import { UIKeys } from '@decaf-ts/ui-decorators';
 import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
 import { ICrudFormOptions, IListEmptyOptions } from './interfaces';
 
+import { ModalOptions } from '@ionic/angular/standalone';
+
 /**
  * @description Angular engine key constants.
  * @summary Contains key strings used by the Angular rendering engine for reflection,
@@ -41,7 +43,8 @@ export const AngularEngineKeys = {
   PARENT: '_parent',
   VALIDATION_PARENT_KEY: VALIDATION_PARENT_KEY,
   FLAVOUR: "angular",
-};
+  LOADED: 'engineLoaded',
+} as const;
 
 /**
  * @description Form validation state constants.
@@ -175,7 +178,7 @@ export enum ComponentsTagNames {
  * @property {string} MAPPER - Property name for property mapper
  * @property {string} INITIALIZED - Property name for initialization state
  * @property {string} COMPONENT_NAME - Property name for component identifier
- * @property {string} PARENT_COMPONENT - Property name for parent component reference
+ * @property {string} PARENT_FORM - Property name for parent component reference
  * @property {string} FORM_GROUP_COMPONENT_PROPS - Property name for form group component properties
  * @memberOf module:lib/engine/constants
  */
@@ -192,7 +195,7 @@ export enum BaseComponentProps {
   MAPPER = 'mapper',
   INITIALIZED = 'initialized',
   COMPONENT_NAME = 'componentName',
-  PARENT_COMPONENT = 'parentComponent',
+  PARENT_FORM = 'parentForm',
   FORM_GROUP_COMPONENT_PROPS = 'componentProps'
 }
 
@@ -276,3 +279,22 @@ export const DefaultListEmptyOptions = {
   buttonText: 'locale.empty.button',
   link: ''
 } as IListEmptyOptions
+
+
+export const DefaultModalOptions = {
+    component: "",
+    showBackdrop: true,
+    backdropDismiss: false,
+    animated: true,
+    canDismiss: true,
+    showBackdropTapClose: true,
+    focusTrap: true,
+} as ModalOptions;
+
+export const ActionRoles = {
+  cancel: 'cancel',
+  confirm: 'confirm',
+  submit: 'submit',
+  clear: 'clear',
+  back: 'back'
+} as const;

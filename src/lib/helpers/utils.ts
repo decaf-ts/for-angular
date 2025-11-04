@@ -553,3 +553,25 @@ export async function isDarkMode(): Promise<boolean> {
   const {matches} = getWindow().matchMedia('(prefers-color-scheme: dark)');
   return matches;
 }
+
+/**
+ * @description Filters out strings containing or not containing a specific substring from an array or space-separated string.
+ * @summary This function removes or retains strings based on whether they include the specified substring.
+ * If the input is a single string, it is split into an array using spaces as delimiters before filtering.
+ *
+ * @param {string | string[]} original - The input string or array of strings to filter.
+ * @param {string} value - The substring to filter by.
+ * @param {boolean} [contain=true] - Determines the filtering behavior. If true, retains strings containing the substring; otherwise, removes them.
+ * @returns {string} A string that contains or excludes the specified substring based on the `contain` parameter.
+ *
+ * @function filterString
+ * @memberOf module:lib/helpers/utils
+ */
+export function filterString(original: string | string[], value: string, contain: boolean = true): string {
+  if(typeof original === Primitives.STRING)
+    original = (original as string).split(' ');
+   return ((original as string[]).filter(str =>
+    contain ?
+      str.includes(value) : !str.includes(value)
+  ) || []).join(' ');
+}

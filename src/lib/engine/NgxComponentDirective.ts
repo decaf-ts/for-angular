@@ -21,12 +21,15 @@ import { getLocaleContext } from '../i18n/Loader';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { MenuController } from '@ionic/angular';
 import { getModelRepository,  CPTKN } from '../for-angular-common.module';
-import { BaseComponentProps } from './constants';
-import { generateRandomValue } from '../helpers';
+import { AngularEngineKeys, BaseComponentProps } from './constants';
+import { generateRandomValue, getWindow, setOnWindow } from '../helpers';
 import { EventIds } from '@decaf-ts/core';
 
 try {
-  new NgxRenderingEngine();
+  const win = getWindow();
+  if(!win?.[AngularEngineKeys.LOADED])
+    new NgxRenderingEngine();
+  setOnWindow(AngularEngineKeys.LOADED, true);
 } catch (e: unknown) {
   throw new Error(`Failed to load rendering engine: ${e}`);
 }
@@ -278,7 +281,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   protected translateService: TranslateService = inject(TranslateService);
 
-
   /**
    * @description Logger instance for structured component logging.
    * @summary Provides logging capabilities for the component, allowing for consistent
@@ -429,6 +431,9 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   protected location: Location = inject(Location);
 
 
+  protected isModalChild: boolean = false;
+
+
   /**
    * @description Constructor for NgxComponentDirective.
    * @summary Initializes the directive by setting up the component name, locale root,
@@ -502,6 +507,8 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
       if (currentValue)
         this.getModel(currentValue);
       this.locale = this.localeContext;
+      if(!this.initialized)
+        this.initialized = true;
     }
     if (changes[BaseComponentProps.LOCALE_ROOT] || changes[BaseComponentProps.COMPONENT_NAME])
       this.locale = this.localeContext;

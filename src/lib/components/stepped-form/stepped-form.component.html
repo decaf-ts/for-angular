@@ -1,10 +1,10 @@
-<form class="dcf-steped-form" [class.paginated]="paginated"  novalidate>
+<form class="dcf-steped-form" [class.paginated]="paginated" novalidate>
   @if(paginated) {
     <div class="dcf-page-steps">
       <div class="dcf-grid dcf-grid-collapse skip">
         @for(page of pageTitles; track $index;) {
           <div class="dcf-flex dcf-flex-middle">
-            <div class="dcf-step" [class.dcf-active]="activePage === $index + 1" [class.dcf-passed]="($index + 1) < activePage">{{ $index + 1 }}</div>
+            <div class="dcf-step" [class.dcf-active]="activeIndex === $index + 1" [class.dcf-passed]="($index + 1) < activeIndex">{{ $index + 1 }}</div>
             @if((page?.title || page?.description)) {
               <div class="dcf-information dcf-visible@s">
                 @if(page?.title) {
@@ -28,30 +28,30 @@
       </div>
     </div>
 
-    @if(pageTitles[activePage - 1]?.title || pageTitles[activePage - 1]?.description) {
+    @if(pageTitles[activeIndex - 1]?.title || pageTitles[activeIndex - 1]?.description) {
       <div class="dcf-current-step">
         <div>
-          @if(pageTitles[activePage - 1]?.title) {
-            <div class="dcf-title">{{  pageTitles[activePage - 1]?.title  | translate }}</div>
+          @if(pageTitles[activeIndex - 1]?.title) {
+            <div class="dcf-title">{{  pageTitles[activeIndex - 1]?.title  | translate }}</div>
           }
-          @if(pageTitles[activePage - 1]?.description) {
-            <div class="dcf-description">{{ pageTitles[activePage - 1]?.description | translate }}</div>
+          @if(pageTitles[activeIndex - 1]?.description) {
+            <div class="dcf-description">{{ pageTitles[activeIndex - 1]?.description | translate }}</div>
           }
         </div>
       </div>
     }
 
-    @if(initialized && activeChildren?.length) {
+    @if(initialized && activeContent?.length) {
         <ngx-decaf-layout
-          [children]="activeChildren || []"
-          [parentComponent]="formGroup || parentComponent"
+          [children]="activeContent || []"
+          [parentForm]="formGroup || parentForm"
           gap="small"
           [rows]="rows"
           [cols]="cols"
           [match]="false"
 
         />
-      <!-- @for(child of activeChildren;  track $index) {
+      <!-- @for(child of activeContent;  track $index) {
         <div class="dcf-step-form-container">
            <ngx-decaf-component-renderer
             [tag]="child?.tag"
@@ -72,15 +72,15 @@
     }
     <div class="dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
       <div class="dcf-width-1-2@s">
-        <ion-button  color="light" (click)="handleBack()" [disabled]="activePage <= 1">
+        <ion-button  color="light" (click)="handleBack()" [disabled]="activeIndex <= 1">
           <!-- <ion-icon aria-hidden="true" name="arrow-back-outline"></ion-icon> -->
             {{locale + '.previous' | translate}}
         </ion-button>
       </div>
 
       <div class="dcf-width-1-2@s">
-        <ion-button fill="solid"  (click)="handleNext(activePage === pages ? true : false)">
-          @if(activePage === pages) {
+        <ion-button fill="solid"  (click)="handleNext(activeIndex === pages ? true : false)">
+          @if(activeIndex === pages) {
             {{locale + '.submit' | translate}}
           } @else {
             {{locale + '.next' | translate}}
@@ -111,7 +111,7 @@
                   <div>
                     <ngx-decaf-layout
                       [children]="item.items || []"
-                      [parentComponent]="formGroup || parentComponent"
+                      [parentForm]="formGroup || parentForm"
                       gap="small"
                       [rows]="rows"
                       [cols]="cols"

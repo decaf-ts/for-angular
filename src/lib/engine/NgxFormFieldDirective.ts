@@ -9,7 +9,7 @@ import { CrudOperationKeys, FieldProperties, RenderingError } from '@decaf-ts/ui
 import { FormParent, KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormArray, FormControl, FormGroup } from '@angular/forms';
-import { Directive, Inject, Input, SimpleChanges } from '@angular/core';
+import { Directive, Inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxFormService } from './NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
 import { EventConstants } from './constants';
@@ -48,7 +48,7 @@ import { CPTKN } from '../for-angular-common.module';
  * ```
  */
 @Directive()
-export abstract class NgxFormFieldDirective extends NgxComponentDirective implements ControlValueAccessor, FieldProperties {
+export abstract class NgxFormFieldDirective extends NgxComponentDirective implements OnChanges, ControlValueAccessor, FieldProperties {
 
   /**
    * @description Index of the currently active form group in a form array.
@@ -76,7 +76,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @public
    */
   @Input()
-  parentComponent!: FormParent;
+  parentForm!: FormParent;
 
   /**
    * @description Field mapping configuration for options.
@@ -403,6 +403,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    */
   afterViewInit(): HTMLElement {
     let parent: HTMLElement;
+    this.isModalChild = this.component.nativeElement.closest('ion-modal') ? true : false;
     switch (this.operation) {
       case OperationKeys.READ:
       case OperationKeys.DELETE:
@@ -471,6 +472,11 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
     this.formControl.updateValueAndValidity();
   }
 
+  handleModalChildChanges() {
+    if(this.isModalChild)
+      this.changeDetectorRef.detectChanges();
+  }
+
   /**
    * @description Retrieves validation error messages for the field.
    * @summary Checks the form control for validation errors and returns formatted error messages.
@@ -499,10 +505,12 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
             this.validationErrorEventDispatched = true;
           }
         }
-        for(const error of errors)
-          return `* ${this.sf(this.translateService.instant(`errors.${error?.['message']}`), (this as KeyValue)[error?.['key']] ?? "")}`;
+        for(const error of errors) {
+          const instance = this as KeyValue;
+          return `* ${ this.translateService.instant(`errors.${error?.['message']}`, {"0": `${instance[error?.['key']] ?? ""}`})}`;
+        }
+
       }
     }
-
   }
 }

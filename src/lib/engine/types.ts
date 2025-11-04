@@ -13,6 +13,7 @@ import { FormServiceControl, I18nResourceConfig, InputOption } from './interface
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
 import { Constructor, Model } from '@decaf-ts/decorator-validation';
+import { ActionRoles } from './constants';
 
 
 export type HandlerLike = Record<string, (...args: unknown[]) => unknown | Promise<unknown>>
@@ -268,7 +269,24 @@ export type FormParent = FormGroup | FormArray;
  */
 export type FormParentGroup = [FormParent,  string];
 
+/**
+ * @description Configuration for internationalization resources
+ * @summary Represents a single or an array of internationalization resource configurations.
+ * @typedef {I18nResourceConfig | I18nResourceConfig[]} I18nResourceConfigType
+ * @memberOf module:lib/engine/types
+ */
 export type I18nResourceConfigType = I18nResourceConfig | I18nResourceConfig[];
 
+/**
+ * @description Color scheme options for the application window
+ * @summary Defines the possible color schemes that can be applied to the application window.
+ * - 'dark': Dark mode
+ * - 'light': Light mode
+ * - unknown: Any other unspecified color scheme
+ * @typedef {('dark' | 'light' | unknown)} WindowColorScheme
+ * @memberOf module:lib/engine/types
+ */
 export type WindowColorScheme = 'dark' | 'light' | unknown;
 
+
+export type ActionRole = typeof ActionRoles[keyof typeof ActionRoles];

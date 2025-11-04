@@ -43,6 +43,7 @@ import { dataMapper, generateRandomValue } from '../../helpers';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { Dynamic } from '../../engine/decorators';
 import { getLocaleContextByKey } from '../../i18n/Loader';
+import { Repository } from '@decaf-ts/core';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -108,7 +109,7 @@ import { getLocaleContextByKey } from '../../i18n/Loader';
   templateUrl: './crud-field.component.html',
   styleUrl: './crud-field.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  host: {'[attr.id]': 'uid', '[attr.class]': 'className'},
+  // host: {'[attr.id]': 'uid', '[attr.class]': 'className'},
 })
 export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit, OnDestroy, AfterViewInit {
 
@@ -659,14 +660,13 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
     } else {
-
-      if(!this.parentComponent && this.formGroup instanceof FormGroup || this.formGroup instanceof FormArray)
-        this.parentComponent = (this.formGroup.root || this.formControl.root) as FormParent;
+      if(!this.parentForm && this.formGroup instanceof FormGroup || this.formGroup instanceof FormArray)
+        this.parentForm = (this.formGroup.root || this.formControl.root) as FormParent;
 
       if(this.multiple) {
         this.formGroup = this.activeFormGroup as FormGroup;
-        if(!this.parentComponent)
-          this.parentComponent = this.formGroup.parent as FormArray;
+        if(!this.parentForm)
+          this.parentForm = this.formGroup.parent as FormArray;
         this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
       }
       if(this.type === HTML5InputTypes.CHECKBOX && Array.isArray(this.value)) {
@@ -688,8 +688,13 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     if(!this.options)
       return [];
     if(this.options instanceof Function) {
-      const repo = getModelRepository(this.options().name);
-      this.options = await repo?.select().execute();
+      if(this.options instanceof Repository) {
+        const repo = getModelRepository(this.options().name);
+        this.options = await repo?.select().execute();
+      } else{
+        this.options = this.options();
+      }
+
     }
     if(this.optionsMapper) {
       if (this.optionsMapper instanceof Function || typeof this.optionsMapper === 'function') {
@@ -710,7 +715,10 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         text: text as string
       };
     });
-    return Promise.all(options);
+    this.options = await Promise.all(options);
+    if(this.options.length > 10 && this.interface === 'popover')
+      this.interface = 'modal';
+    return this.options as CrudFieldOption[];
   }
 
 
@@ -724,7 +732,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   ngAfterViewInit(): void {
-    if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
+    if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       super.afterViewInit();
     } else {
       if (this.type === HTML5InputTypes.RADIO && !this.value)

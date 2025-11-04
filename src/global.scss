@@ -32,7 +32,7 @@
 /* Importing @decaf-ts/styles system styles */
 
 /* You can import all files */
-@use "@decaf-ts/styles/dist/main.min.css";
+@use "@decaf-ts/styles/dist/main.css";
 @use "./theme/variables.scss";
 
 
@@ -77,4 +77,7 @@
 //
 // @import "@ionic/angular/css/palettes/dark.always.css"
 // @import "@ionic/angular/css/palettes/dark.class.css";
+
+
+
 

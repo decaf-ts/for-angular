@@ -6,101 +6,112 @@
   [class.remove-border]="!borders"
   [class.open]="isOpen"
   #component>
-  <ion-accordion-group class="dcf-width-1-1" [class.open]="isOpen" [class.hasValidationErrors]="hasValidationErrors" [value]="operation === 'read' ? 'open' : ''" #accordionComponent>
-    <ion-accordion value="open">
-      <ion-item [class.disable-collapse]="!collapsable" slot="header" [button]="collapsable" (click)="handleAccordionToggle($event)">
-        <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1">
-          <div class="dcf-width-expand">
-            <legend>{{ name | translate }}</legend>
-          </div>
-          @if ((!isRequired && ['create', 'update'].includes(operation))) {
-            <div class="dcf-width-auto dcf-delete">
-              <ion-button fill="clear" size="small" (click)="handleRemoveComponent($event)">
-                <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
-              </ion-button>
+  <div class="dcf-width-1-1">
+    @if(!collapsable) {
+      <div class="dcf-title">
+        <legend>{{ (title ? title : name) | translate }}</legend>
+      </div>
+    }
+    <ion-accordion-group class="dcf-width-1-1" [class.open]="isOpen" [class.hasValidationErrors]="hasValidationErrors" [value]="(operation === 'read' || !collapsable) ? 'open' : ''" #accordionComponent>
+      <ion-accordion value="open"
+        [class.not-collapsable]="!collapsable"
+        >
+        @if(collapsable) {
+          <ion-item [class.disable-collapse]="!collapsable" slot="header" [button]="collapsable" (click)="handleAccordionToggle($event)">
+            <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1">
+              <div class="dcf-width-expand">
+                <legend>{{ (title ? title : name) | translate }}</legend>
+              </div>
+              @if (!isRequired && ['create', 'update'].includes(operation) && collapsable) {
+                <div class="dcf-width-auto dcf-delete">
+                  <ion-button fill="clear" size="small" (click)="handleRemoveComponent($event)">
+                    <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </div>
+              }
+            </div>
+          </ion-item>
+        }
+        <div slot="content" [attr.aria-hidden]="!isOpen">
+          @if (multiple && items.length) {
+            <ion-list class="dcf-fields-list">
+              <ion-reorder-group [formGroup]="formGroup.parent" [disabled]="updatingItem" (ionItemReorder)="handleReorderItems($any($event))" #accordionComponent>
+                @for(item of items; track item.index) {
+                  <ion-item [class.not-unique]="item.title === isUniqueError"  [class.updating]="updatingItem?.[pk] === item.title" lines="full" [button]="false">
+                    @if (items?.length > 1 && !updatingItem) {
+                      <ion-reorder slot="start">
+                        <ion-icon name="swap-vertical-outline"></ion-icon>
+                      </ion-reorder>
+                    } @else {
+                      <div slot="start">
+                        <ion-icon class="dcf-reorder-disabled" size="small" name="swap-vertical-outline" disabled></ion-icon>
+                      </div>
+                    }
+                    <ion-label [color]="(item.title === isUniqueError && !updatingItem?.[pk] === item.title) ? 'danger' : ''">{{ item.index }}. {{ item.title }}
+                      @if (item.description?.length > 0) {
+                        <br />
+                        <ion-text class="dcf-subtitle">{{item.description}}</ion-text>
+                      }
+                    </ion-label>
+                    @if (!updatingItem || updatingItem?.[pk] !== item.title) {
+                      <ion-button fill="clear" size="small" (click)="handleUpdateItem($index)">
+                        <ion-icon name="create-outline" color="dark" slot="icon-only"></ion-icon>
+                      </ion-button>
+                    }
+
+                    @if (!updatingItem) {
+                      <ion-button fill="clear" size="small" (click)="handleRemoveItem($index)">
+                        <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
+                      </ion-button>
+                    }
+                  </ion-item>
+                }
+              </ion-reorder-group>
+            </ion-list>
+          }
+
+          @if(children?.length) {
+            <ngx-decaf-layout
+              gap="small"
+              [children]="children || []"
+              [parentForm]="formGroup || parentForm"
+              [match]="false"
+
+              [rows]="rows"
+              [cols]="cols"
+            />
+          }
+
+          @if (multiple && ['create', 'update'].includes(operation)) {
+            @if (isUniqueError) {
+              <div class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast">
+                <div class=" dcf-grid dcf-grid-collapse dcf-width-1-1 ">
+                  <div class="dcf-auto" [attr.style]="'max-width: 50px'">
+                    <ion-icon name="alert-circle-outline"></ion-icon>
+                  </div>
+                  <div class="dcf-width-expand">
+                    <ion-text color="danger" class="dcf-text-small">{{ locale + '.not_unique' | translate : { value: isUniqueError } }}</ion-text>
+                  </div>
+                </div>
+              </div>
+            }
+            <div class="dcf-margin-bottom dcf-grid dcf-grid-collapse dcf-flex">
+              @if (updatingItem) {
+                <ion-button size="small" fill="clear" color="danger" (click)="handleCancelUpdateItem()">
+                  {{ buttonCancelLabel }}
+                </ion-button>
+              }
+              @if (items.length < max || !max) {
+                <ion-button size="small" fill="clear" class="dcf-button-add" (click)="handleCreateItem()">
+                  <ion-icon name="add-outline" slot="start"></ion-icon>
+                  {{buttonLabel}}
+                </ion-button>
+              }
             </div>
           }
         </div>
-      </ion-item>
-      <div slot="content" [attr.aria-hidden]="!isOpen">
-        @if (multiple && items.length) {
-          <ion-list class="dcf-fields-list">
-            <ion-reorder-group [formGroup]="formGroup.parent" [disabled]="updatingItem" (ionItemReorder)="handleReorderItems($any($event))" #accordionComponent>
-              @for(item of items; track item.index) {
-                <ion-item [class.not-unique]="item.title === isUniqueError"  [class.updating]="updatingItem?.[pk] === item.title" lines="full" [button]="false">
-                  @if (items?.length > 1 && !updatingItem) {
-                    <ion-reorder slot="start">
-                      <ion-icon name="swap-vertical-outline"></ion-icon>
-                    </ion-reorder>
-                  } @else {
-                    <div slot="start">
-                      <ion-icon class="dcf-reorder-disabled" size="small" name="swap-vertical-outline" disabled></ion-icon>
-                    </div>
-                  }
-                  <ion-label [color]="(item.title === isUniqueError && !updatingItem?.[pk] === item.title) ? 'danger' : ''">{{ item.index }}. {{ item.title }}
-                    @if (item.description?.length > 0) {
-                      <br />
-                      <ion-text class="dcf-subtitle">{{item.description}}</ion-text>
-                    }
-                  </ion-label>
-                  @if (!updatingItem || updatingItem?.[pk] !== item.title) {
-                    <ion-button fill="clear" size="small" (click)="handleUpdateItem($index)">
-                      <ion-icon name="create-outline" color="dark" slot="icon-only"></ion-icon>
-                    </ion-button>
-                  }
-
-                  @if (!updatingItem) {
-                    <ion-button fill="clear" size="small" (click)="handleRemoveItem($index)">
-                      <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
-                    </ion-button>
-                  }
-                </ion-item>
-              }
-            </ion-reorder-group>
-          </ion-list>
-        }
-
-        @if(children?.length) {
-          <ngx-decaf-layout
-            gap="small"
-            [children]="children || []"
-            [parentComponent]="formGroup || parentComponent"
-            [match]="false"
-
-            [rows]="rows"
-            [cols]="cols"
-          />
-        }
-
-        @if (multiple && ['create', 'update'].includes(operation)) {
-          @if (isUniqueError) {
-            <div class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast">
-              <div class=" dcf-grid dcf-grid-collapse dcf-width-1-1 ">
-                <div class="dcf-auto" [attr.style]="'max-width: 50px'">
-                  <ion-icon name="alert-circle-outline"></ion-icon>
-                </div>
-                <div class="dcf-width-expand">
-                  <ion-text color="danger" class="dcf-text-small">{{ locale + '.not_unique' | translate : { value: isUniqueError } }}</ion-text>
-                </div>
-              </div>
-            </div>
-          }
-          <div class="dcf-margin-bottom dcf-grid dcf-grid-collapse dcf-flex">
-            @if (updatingItem) {
-              <ion-button size="small" fill="clear" color="danger" (click)="handleCancelUpdateItem()">
-                {{ buttonCancelLabel }}
-              </ion-button>
-            }
-            @if (items.length < max || !max) {
-              <ion-button size="small" fill="clear" class="dcf-button-add" (click)="handleCreateItem()">
-                <ion-icon name="add-outline" slot="start"></ion-icon>
-                {{buttonLabel}}
-              </ion-button>
-            }
-          </div>
-        }
-      </div>
-    </ion-accordion>
-  </ion-accordion-group>
+      </ion-accordion>
+    </ion-accordion-group>
+  </div>
 </fieldset>
 

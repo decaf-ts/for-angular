@@ -150,7 +150,6 @@ export class ContainerComponent extends NgxComponentDirective implements OnInit 
     this.expand = stringToBoolean(this.expand);
     this.flex = stringToBoolean(this.flex);
 
-    this.size += ` dcf-width-${this.expand ? 'expand' : this.size}`;
 
     if(this.flex && !this.className.includes('dcf-flex-'))
       this.className += ` dcf-flex dcf-flex-${this.position}`;
@@ -158,5 +157,8 @@ export class ContainerComponent extends NgxComponentDirective implements OnInit 
     this.fullscreen = stringToBoolean(this.fullscreen);
     if(this.fullscreen)
       this.className += ' dcf-height-viewport';
+
+    this.size += ` dcf-width-${this.expand ? 'expand' : this.size}`;
+    // this.className += `${this.size}`
   }
 }

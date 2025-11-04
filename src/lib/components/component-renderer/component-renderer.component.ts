@@ -1,21 +1,13 @@
 import {
   Component,
   ComponentMirror,
-  ComponentRef,
-  ElementRef,
-  EnvironmentInjector,
-  EventEmitter,
-  inject,
   Injector,
   Input,
   OnDestroy,
   OnInit,
-  Output,
   reflectComponentType,
   TemplateRef,
   Type,
-  ViewChild,
-  ViewContainerRef,
   ViewEncapsulation,
 } from '@angular/core';
 /**
@@ -30,11 +22,9 @@ import {
 import { NgComponentOutlet } from '@angular/common';
 
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
-import { AngularEngineKeys, BaseComponentProps, FormParent, IBaseCustomEvent, KeyValue } from '../../engine';
-import { getLogger } from '../../for-angular-common.module';
-import { Logger } from '@decaf-ts/logging';
-import { Model } from '@decaf-ts/decorator-validation';
-import { generateRandomValue } from '../../helpers';
+import { KeyValue } from '../../engine/types';
+import { AngularEngineKeys, BaseComponentProps } from '../../engine/constants';
+import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableComponentDirective';
 
 /**
  * @description Dynamic component renderer for Decaf Angular applications.
@@ -84,19 +74,7 @@ import { generateRandomValue } from '../../helpers';
   encapsulation: ViewEncapsulation.None,
   host: {'[attr.id]': 'uid'},
 })
-export class ComponentRendererComponent
-  implements OnInit, OnDestroy {
-  /**
-   * @description Reference to the container where the dynamic component will be rendered.
-   * @summary This ViewContainerRef provides the container where the dynamically created
-   * component will be inserted into the DOM. It's marked as static to ensure it's available
-   * during the ngOnInit lifecycle hook when the component is created.
-   *
-   * @type {ViewContainerRef}
-   * @memberOf ComponentRendererComponent
-   */
-  @ViewChild('componentViewContainer', { static: true, read: ViewContainerRef })
-  vcr!: ViewContainerRef;
+export class ComponentRendererComponent extends NgxRenderableComponentDirective implements OnInit, OnDestroy {
 
   /**
    * @description The tag name of the component to be dynamically rendered.
@@ -112,115 +90,15 @@ export class ComponentRendererComponent
   @Input({ required: true })
   tag!: string;
 
-  /**
-   * @description Global properties to pass to the rendered component.
-   * @summary This input property allows passing a set of properties to the dynamically
-   * rendered component. These properties will be mapped to the component's inputs if they
-   * match. Properties that don't match any input on the target component will be filtered out
-   * with a warning.
-   *
-   * @type {Record<string, unknown>}
-   * @default {}
-   * @memberOf ComponentRendererComponent
-   */
-  @Input()
-  globals: Record<string, unknown> = {};
-
-  /**
-   * @description Injector used for dependency injection in the dynamic component.
-   * @summary This injector is used when creating the dynamic component to provide it with
-   * access to the application's dependency injection system. It ensures that the dynamically
-   * created component can access the same services and dependencies as statically created
-   * components.
-   *
-   * @type {EnvironmentInjector}
-   * @memberOf ComponentRendererComponent
-   */
-  injector: EnvironmentInjector = inject(EnvironmentInjector);
-
-  /**
-   * @description Reference to the dynamically created component.
-   * @summary This property holds a reference to the ComponentRef of the dynamically created
-   * component. It's used to interact with the component instance, subscribe to its events,
-   * and properly destroy it when the renderer is destroyed.
-   *
-   * @type {ComponentRef<unknown>}
-   * @memberOf ComponentRendererComponent
-   */
-  component!: ComponentRef<unknown>;
-
   @Input()
   children: KeyValue[] = [];
 
-
   @Input()
-  projectable: boolean = true;
-
-  /**
-   * @description Event emitter for events from the rendered component.
-   * @summary This output property emits events that originate from the dynamically rendered
-   * component. It allows the parent component to listen for and respond to events from the
-   * dynamic component, creating a communication channel between the parent and the dynamically
-   * rendered child.
-   *
-   * @type {EventEmitter<IBaseCustomEvent>}
-   * @memberOf ComponentRendererComponent
-   */
-  @Output()
-  listenEvent: EventEmitter<IBaseCustomEvent> =
-    new EventEmitter<IBaseCustomEvent>();
-
-  /**
-   * @description Logger instance for the component.
-   * @summary This property holds a Logger instance specific to this component.
-   * It's used to log information, warnings, and errors related to the component's
-   * operations, particularly useful for debugging and monitoring the dynamic
-   * component rendering process.
-   *
-   * @type {Logger}
-   * @memberOf ComponentRendererComponent
-   */
-  logger!: Logger;
-
-  /**
-   * @description Repository model for data operations.
-   * @summary The data model repository that this component will use for CRUD operations.
-   * This provides a connection to the data layer for retrieving and manipulating data.
-   *
-   * @type {Model| undefined}
-   */
-  @Input()
-  model!:  Model | undefined;
-
-    /**
-   * @description Repository model for data operations.
-   * @summary The data model repository that this component will use for CRUD operations.
-   * This provides a connection to the data layer for retrieving and manipulating data.
-   *
-   * @type {Model| undefined}
-   */
-  @Input()
-  parentComponent!:  FormParent | ElementRef<unknown> | undefined;
+  override projectable: boolean = true;
 
   @Input()
   parent: undefined | KeyValue = undefined;
 
-  @ViewChild('inner', { read: TemplateRef, static: true })
-  inner?: TemplateRef<unknown>;
-
-  uid: string = generateRandomValue(12);
-
-  /**
-   * @description Creates an instance of ComponentRendererComponent.
-   * @summary Initializes a new ComponentRendererComponent. This component doesn't require
-   * any dependencies to be injected in its constructor as it uses the inject function to
-   * obtain the EnvironmentInjector.
-   *
-   * @memberOf ComponentRendererComponent
-   */
-  constructor() {
-    this.logger = getLogger(this);
-  }
 
   /**
    * @description Initializes the component after Angular first displays the data-bound properties.
@@ -250,34 +128,6 @@ export class ComponentRendererComponent
       this.createComponent(this.tag, this.globals);
     } else {
       this.createParentComponent();
-    }
-  }
-
-  /**
-   * @description Cleans up resources when the component is destroyed.
-   * @summary Performs cleanup operations when the component is being destroyed by Angular.
-   * This includes unsubscribing from all event emitters of the dynamic component and
-   * destroying the rendering engine instance to prevent memory leaks.
-   *
-   * @mermaid
-   * sequenceDiagram
-   *   participant A as Angular Lifecycle
-   *   participant C as ComponentRendererComponent
-   *   participant R as NgxRenderingEngine
-   *
-   *   A->>C: ngOnDestroy()
-   *   alt component exists
-   *     C->>C: unsubscribeEvents()
-   *     C->>R: destroy()
-   *   end
-   *
-   * @return {Promise<void>} A promise that resolves when cleanup is complete
-   * @memberOf ComponentRendererComponent
-   */
-  async ngOnDestroy(): Promise<void> {
-    if (this.component) {
-      this.unsubscribeEvents();
-      NgxRenderingEngine.destroy();
     }
   }
 
@@ -318,9 +168,9 @@ export class ComponentRendererComponent
     const props = globals?.['item'] || globals?.['props'] || {};
     if(props?.['tag'])
       delete props['tag'];
-     if(props?.['children'] && !this.children.length)
-      this.children = props['children'] as KeyValue[];
-    props['children'] = this.children || [];
+     if(props?.[AngularEngineKeys.CHILDREN] && !this.children.length)
+      this.children = props[AngularEngineKeys.CHILDREN] as KeyValue[];
+    props[AngularEngineKeys.CHILDREN] = this.children || [];
     const inputKeys = Object.keys(props);
     const unmappedKeys: string[] = [];
 
@@ -334,23 +184,28 @@ export class ComponentRendererComponent
         unmappedKeys.push(input);
       }
     }
-    const hasChildrenInput = Object.values(componentInputs).some(({propName}) => propName === AngularEngineKeys.CHILDREN);
+
+    function hasProperty(key: string): boolean {
+      return Object.values(componentInputs).some(({propName}) => propName === key);
+    }
+
+    const hasChildrenInput = hasProperty(AngularEngineKeys.CHILDREN);
     if(!this.projectable && hasChildrenInput)
       props[AngularEngineKeys.CHILDREN] = this.children;
 
-    const hasRootForm = Object.values(componentInputs).some(({propName}) => propName === BaseComponentProps.PARENT_COMPONENT);
-    if(hasRootForm && this.parentComponent)
-      props[BaseComponentProps.PARENT_COMPONENT] = this.parentComponent;
+    const hasRootForm = hasProperty(BaseComponentProps.PARENT_FORM);
+    if(hasRootForm && this.parentForm)
+      props[BaseComponentProps.PARENT_FORM] = this.parentForm;
 
     this.vcr.clear();
     // const projectable = (this.children?.length && this.projectable);
     // const template = projectable ? this.vcr.createEmbeddedView(this.inner as TemplateRef<unknown>, this.injector).rootNodes : [];
-    this.component = NgxRenderingEngine.createComponent(
+    this.instance = NgxRenderingEngine.createComponent(
       component,
       props,
+      this.injector as Injector,
       metadata as ComponentMirror<unknown>,
       this.vcr,
-      this.injector as Injector,
       [],
     );
     this.subscribeEvents();
@@ -360,97 +215,14 @@ export class ComponentRendererComponent
     const { component, inputs } = this.parent as KeyValue;
     const metadata = reflectComponentType(component) as ComponentMirror<unknown>;
     const template = this.projectable ? this.vcr.createEmbeddedView(this.inner as TemplateRef<unknown>, this.injector).rootNodes : [];
-    this.component = NgxRenderingEngine.createComponent(
+    this.instance = NgxRenderingEngine.createComponent(
       component,
       inputs,
+      this.injector,
       metadata,
       this.vcr,
-      this.injector,
       template,
     );
     this.subscribeEvents();
-  }
-
-  /**
-   * @description Subscribes to events emitted by the dynamic component.
-   * @summary This method sets up subscriptions to all EventEmitter properties of the
-   * dynamically created component. When an event is emitted by the dynamic component,
-   * it is captured and re-emitted through the listenEvent output property with additional
-   * metadata about the event source.
-   *
-   * @mermaid
-   * sequenceDiagram
-   *   participant C as ComponentRendererComponent
-   *   participant D as Dynamic Component
-   *   participant P as Parent Component
-   *
-   *   C->>C: subscribeEvents()
-   *   C->>D: Get instance properties
-   *   loop For each property
-   *     C->>C: Check if property is EventEmitter
-   *     alt is EventEmitter
-   *       C->>D: Subscribe to event
-   *       D-->>C: Event emitted
-   *       C->>P: Re-emit event with metadata
-   *     end
-   *   end
-   *
-   * @private
-   * @return {void}
-   * @memberOf ComponentRendererComponent
-   */
-  private subscribeEvents(): void {
-    if (this.component) {
-      const instance = this.component?.instance as KeyValue;
-      const componentKeys = Object.keys(instance);
-      for (const key of componentKeys) {
-        const value = instance[key];
-        if (value instanceof EventEmitter)
-          (instance as KeyValue)[key].subscribe(
-            (event: Partial<IBaseCustomEvent>) => {
-              this.listenEvent.emit({
-                name: key,
-                ...event,
-              } as IBaseCustomEvent);
-            },
-          );
-      }
-    }
-  }
-
-  /**
-   * @description Unsubscribes from all events of the dynamic component.
-   * @summary This method cleans up event subscriptions when the component is being destroyed.
-   * It iterates through all properties of the dynamic component instance and unsubscribes
-   * from any EventEmitter properties to prevent memory leaks and unexpected behavior after
-   * the component is destroyed.
-   *
-   * @mermaid
-   * sequenceDiagram
-   *   participant C as ComponentRendererComponent
-   *   participant D as Dynamic Component
-   *
-   *   C->>C: unsubscribeEvents()
-   *   C->>D: Get instance properties
-   *   loop For each property
-   *     C->>C: Check if property is EventEmitter
-   *     alt is EventEmitter
-   *       C->>D: Unsubscribe from event
-   *     end
-   *   end
-   *
-   * @private
-   * @return {void}
-   * @memberOf ComponentRendererComponent
-   */
-  private unsubscribeEvents(): void {
-    if (this.component) {
-      const instance = this.component?.instance as KeyValue;
-      const componentKeys = Object.keys(instance);
-      for (const key of componentKeys) {
-        const value = instance[key];
-        if (value instanceof EventEmitter) instance[key].unsubscribe();
-      }
-    }
   }
 }

@@ -7,25 +7,25 @@ import { uichild, uilayoutprop, uielement, uilayout } from '@decaf-ts/ui-decorat
 import { CategoryModel } from '../models/CategoryModel';
 import { EmployeeModel } from '../models/EmployeeModel';
 
-@uilayout('ngx-decaf-layout', 3, ['Title of first Line', 'Title of second Line', 'Title of third Line'])
+@uilayout('ngx-decaf-layout', true, ['Title of first Line', 'Title of second Line', 'Title of third Line'])
 @model()
 export class DashboardLayout extends Model {
 
   @uielement('ngx-decaf-empty-state', {
     'title': 'First component - full width',
     'subtitle': 'Using all layout columns',
-    'className': 'dcf-card-default'
   })
-  @uilayoutprop(3, 1)
-  left!: string;
+  @uilayoutprop('full', 1)
+  main!: string;
 
-  @uielement('ngx-decaf-empty-state')
-  @uilayoutprop(2, 2)
-  right!: string;
-
-  @uilayoutprop(1, 2)
+  @uilayoutprop(3, 2)
   @uichild(EmployeeModel.name, 'ngx-decaf-crud-form')
   employee!: EmployeeModel;
+
+  @uielement('ngx-decaf-empty-state')
+  @uilayoutprop(1, 2)
+  employeeRight!: string;
+
 
   @uilayoutprop(1, 3)
   @uichild(CategoryModel.name, 'ngx-decaf-crud-form')
@@ -37,7 +37,7 @@ export class DashboardLayout extends Model {
     className: 'dcf-card-default'
   })
   @uilayoutprop(2, 3)
-  right2!: string;
+  categoryRight!: string;
 
   constructor(args: ModelArg<DashboardLayout> = {}) {
     super(args);

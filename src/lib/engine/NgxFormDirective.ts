@@ -1,4 +1,4 @@
-import { Directive, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
+import { AfterViewInit, Directive, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { FormArray, FormGroup } from "@angular/forms";
 import { CrudOperations, OperationKeys } from "@decaf-ts/db-decorators";
 import { Model } from "@decaf-ts/decorator-validation";
@@ -6,12 +6,12 @@ import { NgxFormService } from "./NgxFormService";
 import { ICrudFormEvent, IFormElement } from "./interfaces";
 import { FieldUpdateMode, FormParent, HandlerLike, HTMLFormTarget } from "./types";
 import { ICrudFormOptions, IRenderedModel } from "./interfaces";
-import { ComponentsTagNames, EventConstants } from "./constants";
+import { ActionRoles, ComponentsTagNames, EventConstants } from "./constants";
 import { NgxParentComponentDirective } from "./NgxParentComponentDirective";
 import { NgxFormFieldDirective } from "./NgxFormFieldDirective";
 
 @Directive()
-export abstract class NgxFormDirective extends NgxParentComponentDirective implements OnInit, IFormElement, OnDestroy, IRenderedModel {
+export abstract class NgxFormDirective extends NgxParentComponentDirective implements OnInit, AfterViewInit, IFormElement, OnDestroy, IRenderedModel {
 
   crudFieldComponent: string = ComponentsTagNames.CRUD_FIELD;
 
@@ -24,6 +24,9 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    */
   @Input()
   parentFormId!: string;
+
+  @Input()
+  modalForm: boolean = false;
 
 
   /**
@@ -227,6 +230,12 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     this.initialized = true;
   }
 
+  ngAfterViewInit(): void {
+    this.isModalChild = this.component.nativeElement?.closest('ion-modal') ? true : false;
+    if(this.isModalChild)
+      this.changeDetectorRef.detectChanges();
+  }
+
   /**
    * @description Component cleanup lifecycle method.
    * @summary Performs cleanup operations when the component is destroyed.
@@ -276,6 +285,14 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * @returns {void}
    */
   handleReset(): void {
+    if(this.isModalChild) {
+      this.submitEvent.emit({
+        data: null,
+        component: this.componentName,
+        name: ActionRoles.cancel,
+      });
+      return;
+    }
     if(![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation) && this.allowClear)
       return NgxFormService.reset(this.formGroup as FormGroup);
     this.location.back();
@@ -286,8 +303,10 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
       event.preventDefault();
       event.stopImmediatePropagation();
     }
-
-    if (!NgxFormService.validateFields(this.formGroup as FormGroup))
+    const isValid = NgxFormService.validateFields(this.formGroup as FormGroup);
+    if(this.isModalChild)
+      this.changeDetectorRef.detectChanges();
+    if (!isValid)
       return false;
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
     this.submitEvent.emit({

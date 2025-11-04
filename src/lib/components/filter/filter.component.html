@@ -17,7 +17,7 @@
           @if(filter?.['value']) {
             <ion-chip [outline]="true" class="dcf-filter-value">
               {{ filter?.['value'] }}
-              <ion-icon name="close" (click)="removeFilter(filter?.['value'])" size="small"></ion-icon>
+              <ion-icon name="close-outline" (click)="removeFilter(filter?.['value'])" size="small"></ion-icon>
             </ion-chip>
           }
         }

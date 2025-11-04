@@ -5,9 +5,9 @@
  * from component metadata or UI model definitions, register forms in a registry,
  * validate and extract form data, and create controls with appropriate validators.
  */
-import { escapeHtml, FieldProperties, HTML5CheckTypes, HTML5InputTypes, parseToNumber, UIModelMetadata } from '@decaf-ts/ui-decorators';
+import { escapeHtml, FieldProperties, HTML5CheckTypes, HTML5InputTypes, IPagedComponentProperties, parseToNumber, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { FieldUpdateMode, FormParent, FormParentGroup, KeyValue } from './types';
-import { IComponentConfig, IComponentInput } from './interfaces';
+import { IComponentConfig, IFormComponentProperties } from './interfaces';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { isValidDate, ModelKeys, parseDate, Primitives, Validation } from '@decaf-ts/decorator-validation';
 import { ValidatorFactory } from './ValidatorFactory';
@@ -165,7 +165,7 @@ export class NgxFormService {
    * groups as needed and properly configures FormArray controls for multiple value scenarios.
    * @param {FormGroup} formGroup - The root FormGroup to traverse
    * @param {string} path - The dot-separated path to the control (e.g., 'user.address.street')
-   * @param {IComponentInput} componentProps - Properties defining the component configuration
+   * @param {IFormComponentProperties} componentProps - Properties defining the component configuration
    * @param {KeyValue} parentProps - Properties from the parent component for context
    * @return {FormParentGroup} A tuple containing the parent FormGroup and the control name
    * @private
@@ -192,8 +192,8 @@ export class NgxFormService {
   private static resolveParentGroup(
     formGroup: FormGroup,
     path: string,
-    componentProps: IComponentInput,
-    parentProps: Partial<IComponentInput>
+    componentProps: IFormComponentProperties,
+    parentProps: Partial<IFormComponentProperties>
   ): FormParentGroup {
     const isMultiple = parentProps?.multiple || parentProps?.type === Array.name || false;
     const parts = path.split('.');
@@ -407,14 +407,14 @@ export class NgxFormService {
    * This method supports complex form structures with nested groups and arrays. It also manages
    * page-based forms and FormArray indexing.
    * @param {FormParent} formGroup - The form group or form array to add the control to
-   * @param {IComponentInput} componentProps - The component properties defining the control configuration
-   * @param {Partial<IComponentInput>} [parentProps={}] - Properties from the parent component for context
+   * @param {IFormComponentProperties} componentProps - The component properties defining the control configuration
+   * @param {Partial<IFormComponentProperties>} [parentProps={}] - Properties from the parent component for context
    * @param {number} [index=0] - The index for multiple controls in FormArrays
    * @return {FormParent} The updated form parent (FormGroup or FormArray)
    * @private
    * @static
    */
-  private static addFormControl(formGroup: FormParent, componentProps: IComponentInput, parentProps: Partial<IComponentInput> = {}, index: number = 0): FormParent {
+  private static addFormControl(formGroup: FormParent, componentProps: IFormComponentProperties, parentProps: Partial<IFormComponentProperties> = {}, index: number = 0): FormParent {
 
     const isMultiple = parentProps?.['multiple'] || parentProps?.['type'] === 'Array' || false;
     const { name, childOf, } = componentProps;
@@ -528,7 +528,7 @@ export class NgxFormService {
     const form = new FormGroup({});
     if(children?.length)
       children.forEach(child => {
-        this.addFormControl(form, child.props as IComponentInput);
+        this.addFormControl(form, child.props as IFormComponentProperties);
       });
     if (registry)
       this.addRegistry(id, form);
@@ -580,8 +580,8 @@ export class NgxFormService {
    * complex form scenarios including nested controls and page-based form organization. It automatically
    * creates FormArrays for forms with multiple pages and manages page indexing.
    * @param {string} id - The unique identifier of the form
-   * @param {FieldProperties} componentProperties - The properties of the component to create the control from
-   * @param {FieldProperties} [parentProps] - Optional parent properties for context and configuration
+   * @param {ComponentProperties} props - The properties of the component to create the control from
+   * @param {props} [parentProps] - Optional parent properties for context and configuration
    * @return {FormParent} The form or created control (FormGroup or FormArray)
    * @throws {Error} If page property is required but not provided or is invalid
    * @mermaid
@@ -589,7 +589,7 @@ export class NgxFormService {
    *   participant C as Component
    *   participant NFS as NgxFormService
    *   participant F as Form
-   *   C->>NFS: addControlFromProps(id, componentProps, parentProps?)
+   *   C->>NFS: addControlFromProps(id, props, parentProps?)
    *   NFS->>NFS: createForm(id, formArray, true)
    *   alt Multi-page form (parentProps.pages > 0)
    *     NFS->>NFS: Calculate page index
@@ -598,20 +598,29 @@ export class NgxFormService {
    *     end
    *     NFS->>NFS: Set form to page FormGroup
    *   end
-   *   alt componentProperties has path
-   *     NFS->>NFS: addFormControl(form, componentProperties, parentProps)
+   *   alt props has path
+   *     NFS->>NFS: addFormControl(form, props, parentProps)
    *   end
    *   NFS-->>C: Return form/control
    * @static
    */
-  static addControlFromProps(id: string, componentProperties: FieldProperties, parentProps?: FieldProperties): FormParent {
-    const formArray = (componentProperties?.pages && componentProperties?.pages  >= 1 || componentProperties.multiple === true);
-    let form = this.createForm(id, formArray, true);
-    if(parentProps?.pages && parentProps?.pages > 0) {
-      const index = componentProperties.page || parentProps.page;
-      if(!(typeof index === 'number') || index === 0)
-        throw Error(`Property 'page' is required and greather than 0 on ${componentProperties.name}`);
+  static addControlFromProps(id: string, props: IFormComponentProperties, parentProps?: IFormComponentProperties): FormParent {
 
+    const componentPages = (typeof props?.pages === Primitives.NUMBER ?
+      props?.pages : (props?.pages as IPagedComponentProperties[])?.length) as number;
+    const parentPages = (typeof  parentProps?.pages === Primitives.NUMBER ?
+    parentProps?.pages : (parentProps?.pages as IPagedComponentProperties[])?.length) as number;
+
+    const isFormArray = (componentPages && componentPages  >= 1 || props.multiple === true);
+    let form = this.createForm(id, isFormArray, true);
+
+    if(parentPages && parentPages > 0) {
+      const childOf = props.childOf || "";
+      const parentChildOf = parentProps?.childOf || "";
+      const index = props.page || parentProps?.page;
+      // dont check page in nested childs with same childOf
+      if((!(typeof index === 'number') || index === 0) && (childOf.length && childOf !== parentChildOf))
+        throw Error(`Property 'page' is required and greather than 0 on ${props.name}`);
       // if(index > formLength) {
       //   if((form as KeyValue)?.['lastIndex'] && index === (form as KeyValue)['lastIndex']['page']) {
       //     index = (form as KeyValue)['lastIndex']['index'];
@@ -624,7 +633,6 @@ export class NgxFormService {
 
       //   }
       // }
-
       let group = (form as FormArray).controls[(index as number) - 1];
       if(!group) {
         group = new FormGroup({});
@@ -632,8 +640,8 @@ export class NgxFormService {
       }
       form = group as FormGroup;
     }
-    if(componentProperties.path)
-      form = this.addFormControl(form, componentProperties, parentProps);
+    if(props.path)
+      form = this.addFormControl(form, props, parentProps);
     return form;
   }
 
@@ -775,7 +783,7 @@ export class NgxFormService {
 
     control.markAsTouched();
     control.markAsDirty();
-    control.updateValueAndValidity({ emitEvent: true });
+    control.updateValueAndValidity();
 
     if (control instanceof FormGroup) {
       Object.values(control.controls).forEach(childControl => {

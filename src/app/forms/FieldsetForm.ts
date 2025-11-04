@@ -4,7 +4,7 @@ import { list, max, Model, model, ModelArg, required } from '@decaf-ts/decorator
 import { hideOn, uichild, uielement, uilayoutprop, uilistmodel, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
 
 @uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
-@uimodel('ngx-decaf-crud-form', {cols: 2})
+@uimodel('ngx-decaf-crud-form')
 @model()
 export class User extends Model {
 
@@ -49,7 +49,7 @@ export class FieldSetForm extends Model {
 
   @list(User, 'Array')
   @max(4)
-  @uichild(User.name, 'ngx-decaf-fieldset', {cols: 2}, true)
+  @uichild(User.name, 'ngx-decaf-fieldset', {}, true)
   user!: User;
 
   constructor(args: ModelArg<FieldSetForm> = {}) {

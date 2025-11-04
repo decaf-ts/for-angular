@@ -8,6 +8,13 @@ ion-accordion-group {
   }
 }
 
+.dcf-title legend {
+  font-size: .875rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--dcf-color-gray-7);
+}
+
 // removing border of last field item
 ::ng-deep ion-accordion ngx-decaf-crud-field:last-child ion-item {
   --inner-border-width: 0px !important;
@@ -83,11 +90,19 @@ ion-accordion-group {
         margin: 0;
       }
     }
-
-    [slot="content"] {
-      padding-top: 1.5rem !important;
-      padding-inline: 0.75rem;
+    &:not(.not-collapsable) {
+     [slot="content"] {
+        padding-top: 1.5rem !important;
+        padding-inline: 0.75rem;
+      }
     }
+
+    &.not-collapsable {
+     [slot="content"] {
+        padding-top: 1rem !important;
+      }
+    }
+
   }
 }
 

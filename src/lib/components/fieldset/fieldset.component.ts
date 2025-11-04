@@ -9,19 +9,21 @@
  */
 
 import { AfterViewInit, Component, Input, ViewChild, OnInit } from '@angular/core';
-import {  Dynamic, EventConstants, KeyValue } from '../../engine';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorderGroup, IonReorder, IonIcon, IonText } from '@ionic/angular/standalone';
-import { itemMapper, windowEventEmitter } from '../../helpers';
 import { FormArray,  FormControl,  FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { alertCircleOutline, createOutline, trashOutline } from 'ionicons/icons';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
+import { alertCircleOutline, createOutline, addOutline, trashOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
+import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorderGroup, IonReorder, IonIcon, IonText } from '@ionic/angular/standalone';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { ReservedModels } from '@decaf-ts/decorator-validation';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxFormService } from '../../engine/NgxFormService';
-import { ReservedModels } from '@decaf-ts/decorator-validation';
 import { LayoutComponent } from '../layout/layout.component';
+import { KeyValue } from '../../engine/types';
+import { EventConstants } from '../../engine/constants';
+import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
+import { Dynamic } from '../../engine/decorators';
+import { itemMapper, windowEventEmitter } from '../../helpers/utils';
 
 
 /**
@@ -127,7 +129,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   @Input()
   formControl!: FormControl;
 
-
   /**
    * @description The parent component identifier for hierarchical fieldset relationships.
    * @summary Specifies the parent component name that this fieldset belongs to in a hierarchical
@@ -141,16 +142,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   @Input()
   collapsable: boolean = true;
 
-  /**
-   * @description Unique identifier for the current record.
-   * @summary A unique identifier for the current record being displayed or manipulated.
-   * This is typically used in conjunction with the primary key for operations on specific records.
-   *
-   * @type {string | number}
-   * @memberOf FieldsetComponent
-   */
-  @Input()
-  page!: number;
 
   /**
    * @description Custom type definitions for specialized fieldset behavior.
@@ -337,7 +328,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   constructor() {
     super("FieldsetComponent");
-    addIcons({ alertCircleOutline, trashOutline, createOutline });
+    addIcons({ alertCircleOutline, addOutline, trashOutline, createOutline });
   }
 
 
@@ -357,10 +348,10 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     this.buttonCancelLabel = this.translateService.instant(this.locale + '.cancel');
     if([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
       if(!this.formGroup) {
-        if(this.parentComponent instanceof FormGroup)
-          this.formGroup = (this.parentComponent as FormGroup).controls[this.childOf as string] as FormArray;
-        if(!this.formGroup && this.parentComponent instanceof FormArray)
-          this.formGroup = this.parentComponent;
+        if(this.parentForm instanceof FormGroup)
+          this.formGroup = (this.parentForm as FormGroup).controls[this.childOf as string] as FormArray;
+        if(!this.formGroup && this.parentForm instanceof FormArray)
+          this.formGroup = this.parentForm;
         if(!this.formGroup && (this.children[0] as KeyValue)?.['formGroup'] instanceof FormGroup)
           this.formGroup = (this.children[0] as KeyValue)?.['formGroup'].parent as FormArray;
       }
@@ -406,7 +397,8 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @returns {void}
    * @memberOf FieldsetComponent
    */
-  ngAfterViewInit(): void {
+  override ngAfterViewInit(): void {
+    super.ngAfterViewInit();
     if(!this.collapsable)
       this.isOpen = true;
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
@@ -471,29 +463,38 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * handleCreateItem();
    * ```
    */
-  async handleCreateItem(event?: CustomEvent<IFieldSetValidationEvent>): Promise<void> {
+  async handleCreateItem(event?: CustomEvent<IFieldSetValidationEvent>): Promise<void|boolean> {
     if(event && event instanceof CustomEvent)
       event.stopImmediatePropagation();
-    const action = this.updatingItem ? OperationKeys.UPDATE :  OperationKeys.CREATE;
     const formGroup = this.activeFormGroup as FormGroup;
-    const isValid  = NgxFormService.validateFields(formGroup);
-
-    // must pass correct pk here
-    const isUnique = NgxFormService.isUniqueOnGroup(formGroup, action, action === OperationKeys.UPDATE ? this.updatingItem?.index : undefined);
     const value = formGroup.value;
-    if(isValid) {
-      this.mapper = this.getMapper(value as KeyValue);
-      if(isUnique) {
-        this.isUniqueError = this.updatingItem =  undefined;
-        this.setValue();
-        NgxFormService.addGroupToParent(formGroup.parent as FormArray);
-        this.activeFormGroupIndex = (formGroup.parent as FormArray).length - 1;
-        this.getFormArrayIndex(this.activeFormGroupIndex);
-      } else {
-        this.isUniqueError = typeof value === ReservedModels.OBJECT ?
-          (value as KeyValue)?.[this.pk] || undefined : value;
+    const hasSomeValue = this.hasValue(value);
+
+    if(hasSomeValue) {
+      const action = this.updatingItem ? OperationKeys.UPDATE :  OperationKeys.CREATE;
+      const isValid  = NgxFormService.validateFields(formGroup);
+
+      // must pass correct pk here
+      const isUnique = NgxFormService.isUniqueOnGroup(formGroup, action, action === OperationKeys.UPDATE ? this.updatingItem?.index : undefined);
+      if(isValid) {
+        this.mapper = this.getMapper(value as KeyValue);
+        if(isUnique) {
+          this.isUniqueError = this.updatingItem =  undefined;
+          this.setValue();
+          NgxFormService.addGroupToParent(formGroup.parent as FormArray);
+          this.activeFormGroupIndex = (formGroup.parent as FormArray).length - 1;
+          this.getFormArrayIndex(this.activeFormGroupIndex);
+        } else {
+          this.isUniqueError = typeof value === ReservedModels.OBJECT ?
+            (value as KeyValue)?.[this.pk] || undefined : value;
+        }
       }
     }
+  }
+
+
+  hasValue(value: KeyValue = {}): boolean {
+    return Object.keys(value).some((key) => value[key] !== null && value[key] !== undefined && value[key] !== '');
   }
 
 

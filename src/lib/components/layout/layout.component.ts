@@ -10,12 +10,15 @@
 
 import { Component, Input, OnInit} from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Primitives } from '@decaf-ts/decorator-validation';
+import { UIElementMetadata, UIMediaBreakPoints, UIMediaBreakPointsType } from '@decaf-ts/ui-decorators';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
-import { Dynamic, KeyValue } from '../../engine';
+import { KeyValue } from '../../engine/types';
+import { IComponentProperties } from '../../engine/interfaces';
+import { Dynamic } from '../../engine/decorators';
+import { filterString } from '../../helpers/utils';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
-import { UIElementMetadata, UIMediaBreakPoints, UIMediaBreakPointsType } from '@decaf-ts/ui-decorators';
-import { Primitives } from '@decaf-ts/decorator-validation';
 
 /**
  * @description Layout component for creating responsive grid layouts in Angular applications.
@@ -98,6 +101,47 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
   match: boolean = true;
 
   /**
+   * @description Media breakpoint for responsive behavior.
+   * @summary Determines the responsive breakpoint at which the layout should adapt.
+   * This affects how the grid behaves on different screen sizes, allowing for
+   * mobile-first or desktop-first responsive design patterns. The breakpoint
+   * is automatically processed to ensure compatibility with the UI framework.
+   *
+   * @type {UIMediaBreakPointsType}
+   * @default 'medium'
+   * @memberOf LayoutComponent
+   */
+  @Input()
+  flexMode: boolean = false;
+
+  /**
+   * @description Media breakpoint for responsive behavior.
+   * @summary Determines the responsive breakpoint at which the layout should adapt.
+   * This affects how the grid behaves on different screen sizes, allowing for
+   * mobile-first or desktop-first responsive design patterns. The breakpoint
+   * is automatically processed to ensure compatibility with the UI framework.
+   *
+   * @type {UIMediaBreakPointsType}
+   * @default 'medium'
+   * @memberOf LayoutComponent
+   */
+  @Input()
+  rowCard: boolean = true;
+
+  /**
+   * @description Maximum number of columns allowed in the grid layout.
+   * @summary Specifies the upper limit for the number of columns that can be displayed in the grid.
+   * This ensures that the layout remains visually consistent and prevents excessive columns
+   * from being rendered, which could disrupt the design.
+   *
+   * @type {number}
+   * @default 6
+   * @memberOf LayoutComponent
+   */
+  @Input()
+  private maxColsLength: number = 6;
+
+  /**
    * @description Creates an instance of LayoutComponent.
    * @summary Initializes a new LayoutComponent with the component name "LayoutComponent".
    * This constructor calls the parent NgxParentComponentDirective constructor to set up base
@@ -127,6 +171,32 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
     return cols as string[];
   }
 
+
+  /**
+   * @description Calculates the number of columns for a given row.
+   * @summary Determines the effective number of columns in a row based on the row's column definitions,
+   * the total number of columns in the layout, and the maximum allowed columns.
+   *
+   * @param {KeyValue | IComponentProperties} row - The row object containing column definitions.
+   * @returns {number} The number of columns for the row, constrained by the layout's maximum column limit.
+   * @memberOf LayoutComponent
+   */
+  getRowColsLength(row: KeyValue | IComponentProperties): number {
+    const length = (row.cols as [])?.length ?? 1;
+    const colsLength = (this.cols as [])?.length;
+
+    if (length > this.maxColsLength)
+      return this.maxColsLength;
+
+    if (length !== colsLength) {
+      return this.flexMode ?
+      row.cols.reduce((acc: number, curr: KeyValue) => {
+        return acc + (typeof curr['col'] === Primitives.NUMBER ? curr['col']: 1);
+      }, 0) : colsLength;
+    }
+    return length;
+  }
+
   /**
    * @description Getter that converts rows input to an array format.
    * @summary Transforms the rows input property into a standardized string array format.
@@ -141,7 +211,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
   get _rows(): KeyValue[] {
     let rows = this.rows;
     if(typeof rows === Primitives.NUMBER)
-      rows = Array.from({length: Number(rows)}, () => ({title: ''}))  as KeyValue[];
+      rows = Array.from({length: Number(rows)}, () => ({title: ''}))  as Partial<IComponentProperties>[];
     return (rows as KeyValue[]).map((row, index) => {
       const rowsLength = this.rows;
       return {
@@ -155,8 +225,47 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
             return child;
         })
       };
-    });
+    }).map(row => {
+      const colsLength = this.getRowColsLength(row);
+      row.cols = row.cols.map((c: KeyValue) => {
+        let {col} = c;
+        switch(col) {
+          case typeof col === Primitives.NUMBER: {
+            col = (col === colsLength ?
+              `dcf-child dcf-width-1-1` : `dcf-child dcf-width-${col}-${colsLength}`);
+          }
+          break;
+          case 'half':
+            col = !this.flexMode ?
+              `dcf-child-half-${this.breakpoint} dcf-width-1-2` : `dcf-child-half-${this.breakpoint} dcf-width-1-${colsLength}` ;
+            break;
+          case 'auto':
+            col = `dcf-child-auto-${this.breakpoint} dcf-width-auto`;
+          break;
+          case 'expand':
+            col = `dcf-child-expand-${this.breakpoint} dcf-width-expand`;
+          break;
+          case 'full':
+          case colsLength: {
+            col = 'dcf-width-1-1';
+            break;
+          }
+          default:
+            col = `dcf-width-${col}-${colsLength}`;
+        }
+        const childClassName = c?.['props']?.className || '';
+        const colClass = `${col}@${this.breakpoint} ${filterString(childClassName ,'-width-')}`;
+
+        // to prevent layout glitches, before send class to child component remove width classes
+        if(c?.['props']?.className)
+          c['props'].className = filterString(c?.['props']?.className ,'-width-', false);
+        return Object.assign(c, {colClass});
+      })
+      return row;
+    })
   }
+
+
 
 
   /**
@@ -170,7 +279,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
   override async ngOnInit(): Promise<void> {
     super.parseProps(this);
     if(this.breakpoint)
-      this.breakpoint = `@${this.breakpoint}`.toLowerCase();
+      this.breakpoint = `${this.breakpoint}`.toLowerCase();
     this.cols = this._cols;
     this.rows = this._rows;
     // if(this._rows.length === 1)

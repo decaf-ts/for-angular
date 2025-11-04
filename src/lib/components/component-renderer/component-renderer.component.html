@@ -1,9 +1,9 @@
 <!-- Keep to avoid id conflicts -->
 <div class="dcf-hidden" [id]="uid"></div>
 
-<ng-template #componentViewContainer></ng-template>
+<ng-template #componentOuter></ng-template>
 
-<ng-template #inner>
+<ng-template #componentInner>
   @if(parent?.children?.length) {
     @for(child of parent.children; track child) {
         @if(!child.children?.length) {
