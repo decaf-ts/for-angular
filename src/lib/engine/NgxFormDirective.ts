@@ -232,7 +232,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
 
   ngAfterViewInit(): void {
     this.isModalChild = this.component.nativeElement?.closest('ion-modal') ? true : false;
-    if(this.isModalChild)
+    if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
   }
 
@@ -250,11 +250,11 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   }
 
   getFormArrayIndex(index: number): FormParent | undefined {
-    if(!(this.formGroup instanceof FormArray) && this.formGroup)
+    if (!(this.formGroup instanceof FormArray) && this.formGroup)
       return this.formGroup;
     const formGroup = (this.formGroup as FormArray).at(index) as FormGroup;
-    if(formGroup) {
-      if(this.children.length) {
+    if (formGroup) {
+      if (this.children.length) {
         const children = [... this.children];
         this.children = [];
         this.changeDetectorRef.detectChanges();
@@ -285,7 +285,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * @returns {void}
    */
   handleReset(): void {
-    if(this.isModalChild) {
+    if (this.isModalChild) {
       this.submitEvent.emit({
         data: null,
         component: this.componentName,
@@ -293,18 +293,18 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
       });
       return;
     }
-    if(![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation) && this.allowClear)
+    if (![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation) && this.allowClear)
       return NgxFormService.reset(this.formGroup as FormGroup);
     this.location.back();
   }
 
   async handleSubmit(event?: SubmitEvent, eventName?: string, componentName?: string): Promise<boolean | void> {
-    if(event) {
+    if (event) {
       event.preventDefault();
       event.stopImmediatePropagation();
     }
     const isValid = NgxFormService.validateFields(this.formGroup as FormGroup);
-    if(this.isModalChild)
+    if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
     if (!isValid)
       return false;

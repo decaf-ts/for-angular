@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ElementSizes, FlexPositions, StringOrBoolean } from 'src/lib/engine/types';
-import { stringToBoolean } from 'src/lib/helpers/utils';
+import { stringToBoolean } from 'src/lib/utils/helpers';
 import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
 import { NgxComponentDirective } from 'src/lib/engine';
 
@@ -149,7 +149,6 @@ export class ContainerComponent extends NgxComponentDirective implements OnInit 
   ngOnInit() {
     this.expand = stringToBoolean(this.expand);
     this.flex = stringToBoolean(this.flex);
-
 
     if(this.flex && !this.className.includes('dcf-flex-'))
       this.className += ` dcf-flex dcf-flex-${this.position}`;

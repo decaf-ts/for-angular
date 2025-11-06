@@ -121,7 +121,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
           'Cannot find model. was it registered with @model?',
         );
       this._repository = Repository.forModel(constructor);
-      if(!this.pk)
+      if (!this.pk)
         this.pk = this._repository.pk as string;
       this.model = new constructor() as Model;
     }
@@ -136,7 +136,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    */
    async ionViewWillEnter(): Promise<void> {
     // await super.ionViewWillEnter();
-    if(this.modelId)
+    if (this.modelId)
       this.allowedOperations =  this.allowedOperations.concat([OperationKeys.UPDATE, OperationKeys.DELETE]);
     this.getLocale(this.modelName as string);
     await this.refresh(this.modelId);
@@ -154,7 +154,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @param {string} [uid] - The unique identifier of the model to load; defaults to modelId
    */
   async refresh(uid?: EventIds): Promise<void> {
-    if(!uid)
+    if (!uid)
       uid = this.modelId;
     try {
       this._repository = this.repository;
@@ -166,7 +166,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         break;
       }
     } catch (error: unknown) {
-      if(error instanceof NotFoundError) {
+      if (error instanceof NotFoundError) {
         this.errorMessage = error.message;
       }
       this.logger.error(error as Error | string);
@@ -216,7 +216,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         }
       );
 
-      if(result) {
+      if (result) {
         (repo as DecafRepository<Model>).refresh(this.modelName, this.operation, this.modelId as EventIds);
         this.location.back();
       }
@@ -272,9 +272,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
   private parseData(data: Partial<Model>): Model | EventIds {
       const repo = this._repository as IRepository<Model>;
       let uid = this.modelId as EventIds;
-      if(repo.pk === 'id' as keyof Model)
+      if (repo.pk === 'id' as keyof Model)
         uid = Number(uid);
-      if(this.operation !== OperationKeys.DELETE)
+      if (this.operation !== OperationKeys.DELETE)
         return Model.build(this.modelId ? Object.assign(data, {[repo.pk]: uid}) : data, this.modelName) as Model;
       return uid as EventIds;
   }

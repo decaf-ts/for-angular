@@ -48,8 +48,7 @@ export class FieldSetForm extends Model {
 
 
   @list(User, 'Array')
-  @max(4)
-  @uichild(User.name, 'ngx-decaf-fieldset', {}, true)
+  @uichild(User.name, 'ngx-decaf-fieldset', {max: 2, mergeInParent: true}, true)
   user!: User;
 
   constructor(args: ModelArg<FieldSetForm> = {}) {

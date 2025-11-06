@@ -15,7 +15,7 @@ import { forkJoin,  Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {I18nResourceConfig} from '../engine/interfaces';
 import { FunctionLike, I18nResourceConfigType, KeyValue } from '../engine/types';
-import { cleanSpaces, getLocaleFromClassName } from '../helpers';
+import { cleanSpaces, getLocaleFromClassName } from '../utils';
 import en from './data/en.json';
 import { I18N_CONFIG_TOKEN } from '../for-angular-common.module';
 
@@ -57,7 +57,7 @@ export function I18nLoaderFactory(http: HttpClient): TranslateLoader {
 }
 
 export function provideI18nLoader(resources: I18nResourceConfigType = [], versionedSuffix: boolean = false) {
-  if(!Array.isArray(resources))
+  if (!Array.isArray(resources))
     resources = [resources];
   return {
     provide: I18N_CONFIG_TOKEN,
@@ -73,7 +73,7 @@ export class I18nLoader implements TranslateLoader {
   constructor(private http: HttpClient, private resources: I18nResourceConfig[] = [], private versionedSuffix: boolean = false) {}
 
   private getSuffix(suffix: string): string {
-    if(!this.versionedSuffix)
+    if (!this.versionedSuffix)
       return suffix;
     const today = new Date();
     return `${suffix}?version=${today.getFullYear()}${today.getMonth()}${today.getDay()}` as string;
@@ -106,7 +106,7 @@ export class I18nLoader implements TranslateLoader {
           ...res.reduce((acc: KeyValue, current: KeyValue) => {
             for (const key in current) {
               let value = current[key] || {};
-              if(libKeys[key])
+              if (libKeys[key])
                 value = {...libKeys[key], ...recursiveMerge(libKeys[key] as KeyValue, current[key] as KeyValue)};
               acc[key] = value;
             }
@@ -121,7 +121,7 @@ export class I18nLoader implements TranslateLoader {
 
 export class I18nParser extends TranslateParser {
   interpolate(value: string, params: object | string = {}): string {
-    if(typeof params === Primitives.STRING)
+    if (typeof params === Primitives.STRING)
       params = {"0": params};
    return sf(value, ...Object.values(params));
   }

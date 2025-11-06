@@ -310,7 +310,7 @@ export function generateRandomValue(length: number = 8, onlyNumbers: boolean = f
  * @memberOf module:lib/helpers/utils
  */
 export function stringToBoolean(prop: 'true' | 'false' | boolean): boolean {
-  if(typeof prop === 'string')
+  if (typeof prop === 'string')
     prop = prop.toLowerCase() === 'true' ? true : false;
   return prop;
 }
@@ -334,11 +334,11 @@ export function isValidDate(date: string | Date | number): boolean {
   try {
     return (date instanceof Date && !isNaN(date as unknown as number)) || (() => {
       const testRegex = new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date as string)
-      if(typeof date !== Primitives.STRING || !(date as string)?.includes('T') && !testRegex)
+      if (typeof date !== Primitives.STRING || !(date as string)?.includes('T') && !testRegex)
          return false;
 
      date = (date as string).split('T')[0];
-    if(!new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date))
+    if (!new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date))
       return false;
 
     return !!(new Date(date));
@@ -368,13 +368,13 @@ export function isValidDate(date: string | Date | number): boolean {
  */
 export function formatDate(date: string | Date | number, locale?: string | undefined): Date | string {
 
-  if(!locale)
+  if (!locale)
     locale = getLocaleLanguage();
 
-  if(typeof date === 'string' || typeof date === 'number')
+  if (typeof date === 'string' || typeof date === 'number')
     date = new Date(typeof date === 'string' ? date.replace(/\//g, '-') : date);
 
-  if(!isValidDate(date))
+  if (!isValidDate(date))
     return `${date}` as string;
   const r = date.toLocaleString(locale, {
       year: "numeric",
@@ -404,10 +404,10 @@ export function formatDate(date: string | Date | number, locale?: string | undef
  * @memberOf module:lib/helpers/utils
  */
 export function parseToValidDate(date: string | Date | number): Date | null {
-  if(isValidDate(date))
+  if (isValidDate(date))
     return date as Date;
 
-  if(!`${date}`.includes('/'))
+  if (!`${date}`.includes('/'))
     return null;
 
   const [dateString, timeString] = (date as string).split(' ');
@@ -415,7 +415,7 @@ export function parseToValidDate(date: string | Date | number): Date | null {
   const [hours, minutes, seconds, milliseconds] = timeString.split(':').map(Number);
   date = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
 
-  if(!isValidDate(date)) {
+  if (!isValidDate(date)) {
     console.warn('parseToValidDate - Invalid date format', date);
     return null;
   }
@@ -513,7 +513,7 @@ export function dataMapper<T>(data: T[], mapper: KeyValue, props?: KeyValue): T[
  */
 export function removeFocusTrap(): void {
   const doc = getWindowDocument();
-  if(doc?.activeElement)
+  if (doc?.activeElement)
     (doc.activeElement as HTMLElement)?.blur();
 }
 
@@ -568,7 +568,7 @@ export async function isDarkMode(): Promise<boolean> {
  * @memberOf module:lib/helpers/utils
  */
 export function filterString(original: string | string[], value: string, contain: boolean = true): string {
-  if(typeof original === Primitives.STRING)
+  if (typeof original === Primitives.STRING)
     original = (original as string).split(' ');
    return ((original as string[]).filter(str =>
     contain ?

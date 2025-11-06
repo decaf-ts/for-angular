@@ -1,15 +1,16 @@
 import { Component,  inject, Input, OnInit } from '@angular/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { IonButton, IonButtons, IonHeader, IonIcon, IonMenuButton, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { IonAvatar, IonButton, IonButtons, IonHeader, IonIcon, IonImg, IonMenuButton, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 import { RouterService } from 'src/app/services/router.service';
-import { getWindow, stringToBoolean } from 'src/lib/helpers/utils';
+import { getOnWindow, getWindow, stringToBoolean } from 'src/lib/utils/helpers';
 import { BackButtonComponent } from '../back-button/back-button.component';
 import { NgxComponentDirective } from 'src/lib/engine/NgxComponentDirective';
 import { FunctionLike } from 'src/lib/engine/types';
 import { saveOutline, folderOpenOutline, createOutline } from "ionicons/icons";
 import { addIcons } from 'ionicons';
 import { TranslatePipe } from '@ngx-translate/core';
+import { NgxMediaDirective } from 'src/lib/engine';
 
 /**
  * @description Header component for application pages.
@@ -27,7 +28,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
-  imports: [TranslatePipe, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonMenuButton, IonIcon,  BackButtonComponent],
+  imports: [TranslatePipe, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonMenuButton, IonIcon, IonImg, IonAvatar,  BackButtonComponent],
   schemas: [],
   standalone: true,
 
@@ -240,6 +241,9 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    */
   private initialBackgroundColor!: string;
 
+  user!: string;
+
+  colorSchema: 'dark' | 'light' = 'light';
 
   /**
    * @description Creates an instance of HeaderComponent.
@@ -252,6 +256,7 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
     super("HeaderComponent");
     addIcons({ saveOutline, folderOpenOutline, createOutline });
   }
+
 
  /**
   * @description Initializes the component after Angular first displays the data-bound properties.
@@ -277,10 +282,16 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   * @memberOf HeaderComponent
   */
   async ngOnInit(): Promise<void> {
+    this.colorScheme$.subscribe(scheme => {
+        this.colorSchema = scheme as 'dark' | 'light';
+      this.changeColorSchema(this.colorSchema);
+    });
+    const isLoggedIn = await this.isLoggedIn() || 'User';
+    if(!isLoggedIn)
+      this.routerService.navigateTo('/login');
+    this.user = isLoggedIn as string;
     this.initialBackgroundColor = this.backgroundColor;
-    this.observeThemeChange();
     this.showBackButton = stringToBoolean(this.showBackButton);
-    this.showMenuButton = stringToBoolean(this.showMenuButton);
     if(this.showMenuButton)
       this.menuController.enable(true);
     this.center = stringToBoolean(this.center);
@@ -295,29 +306,31 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
     if(this.backgroundColor === 'white') {
       this.backButtonColor = 'medium';
     }
+
+    this.initialized = true;
   }
 
-  /**
-   * @description Observes system theme changes and updates header appearance accordingly.
-   * @summary Sets up a media query listener to detect changes in the user's color scheme preference
-   * (light/dark mode). When the theme changes, automatically adjusts the header's background color
-   * by either restoring the original color for light mode or clearing it for dark mode. This ensures
-   * the header appearance remains consistent with the system theme preferences.
-   *
-   * @private
-   * @return {void}
-   * @memberOf HeaderComponent
-   */
-  private observeThemeChange(): void {
-    const win = getWindow() as Window;
-    const colorSchemePreference = win.matchMedia('(prefers-color-scheme: dark)');
-    this.backgroundColor =  colorSchemePreference.matches ? '' : this.initialBackgroundColor;
-    colorSchemePreference.addEventListener('change', () => {
-        this.backgroundColor =  colorSchemePreference.matches ? '' : this.initialBackgroundColor;
-    });
+  async isLoggedIn(): Promise<string|undefined> {
+    const isLoggedIn = getOnWindow('loggedUser') as string;
+    console.log("isLoggedIn:", isLoggedIn);
+    return isLoggedIn;
+  }
+
+  navigateToAccount(): void {
+    this.routerService.navigateTo('/account');
+  }
+
+  changeColorSchema(schema?: 'dark' | 'light'): void {
+    if(!schema) {
+      schema = this.colorSchema === 'dark' ? 'light' : 'dark';
+      document.documentElement.classList.toggle('dcf-palette-dark', schema === 'dark');
+    }
+    this.colorSchema = schema;
+    this.backgroundColor = schema === 'dark' ? '' : this.initialBackgroundColor;
   }
 
   getBackButtonSlot(): string {
     return this.modelId && ![OperationKeys.READ,  OperationKeys.UPDATE].includes(this.operation as OperationKeys) ? 'start' : 'end';
   }
 }
+

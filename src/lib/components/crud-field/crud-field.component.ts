@@ -39,7 +39,7 @@ import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { getModelRepository } from '../../for-angular-common.module';
 import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, StringOrBoolean, FormParent } from '../../engine/types';
-import { dataMapper, generateRandomValue } from '../../helpers';
+import { dataMapper, generateRandomValue } from '../../utils';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { Dynamic } from '../../engine/decorators';
 import { getLocaleContextByKey } from '../../i18n/Loader';
@@ -653,22 +653,22 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   async ngOnInit(): Promise<void> {
     this.options = await this.getOptions();
     addIcons({chevronDownOutline, chevronUpOutline});
-    if(Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation)) {
+    if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation)) {
       this.hidden = false;
     }
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
     } else {
-      if(!this.parentForm && this.formGroup instanceof FormGroup || this.formGroup instanceof FormArray)
+      if (!this.parentForm && this.formGroup instanceof FormGroup || this.formGroup instanceof FormArray)
         this.parentForm = (this.formGroup.root || this.formControl.root) as FormParent;
 
-      if(this.multiple) {
+      if (this.multiple) {
         this.formGroup = this.activeFormGroup as FormGroup;
-        if(!this.parentForm)
+        if (!this.parentForm)
           this.parentForm = this.formGroup.parent as FormArray;
         this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
       }
-      if(this.type === HTML5InputTypes.CHECKBOX && Array.isArray(this.value)) {
+      if (this.type === HTML5InputTypes.CHECKBOX && Array.isArray(this.value)) {
         this.setValue(this.value);
       }
     }
@@ -684,20 +684,22 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   async getOptions(): Promise<CrudFieldOption[]> {
-    if(!this.options)
+    if (!this.options)
       return [];
-    if(this.options instanceof Function) {
-      if(this.options.name === 'options')
+    if (this.options instanceof Function) {
+      if (this.options.name === 'options')
         this.options = this.options();
-      const fnName = (this.options as FunctionLike).name;
-      if(fnName === 'function') {
-         this.options = (this.options as FunctionLike)();
-      } else {
-        const repo = getModelRepository((this.options as KeyValue)?.['name']);
-        this.options = await repo?.select().execute();
+      const fnName = (this.options as FunctionLike)?.name;
+      if (fnName) {
+         if (fnName === 'function') {
+          this.options = (this.options as FunctionLike)();
+        } else {
+          const repo = getModelRepository((this.options as KeyValue)?.['name']);
+          this.options = await repo?.select().execute();
+        }
       }
     }
-    if(this.optionsMapper) {
+    if (this.optionsMapper) {
       if (this.optionsMapper instanceof Function || typeof this.optionsMapper === 'function') {
         const mapper = this.optionsMapper as (option: KeyValue) => CrudFieldOption;
         this.options = (this.options as (CrudFieldOption | KeyValue)[]).map((option: KeyValue) => {
@@ -713,11 +715,11 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
           : option.text));
       return {
         value: option.value,
-        text: text as string
+        text: text.includes('.options') ? option.text : text
       };
     });
     this.options = await Promise.all(options);
-    if(this.options.length > 10 && this.interface === 'popover')
+    if (this.options.length > 10 && this.interface === 'popover')
       this.interface = 'modal';
     return this.options as CrudFieldOption[];
   }
@@ -771,7 +773,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
 
 
   isOptionChecked(value: string): boolean {
-    if(!this.formControl.value || !Array.isArray(this.formControl.value))
+    if (!this.formControl.value || !Array.isArray(this.formControl.value))
       return false;
     return this.formControl.value.includes(value);
   }

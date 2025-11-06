@@ -1,58 +1,60 @@
 .dcf-grid {
-    + .dcf-layout-row {
-      // removing margin top of sequenced rows
-      &.dcf-grid-small {
-        margin-top: 0px !important;
-      }
-
-    }
-    > div:not(.dcf-grid-title) {
-        // ion-card {
-        //     margin-top: 0px;
-        //     height: 100%;
-        // }
-
-      // TODO: use ng deep or view encapsulation?
-      ::ng-deep ngx-decaf-component-renderer > * > * {
-            height: 100%;
-            display: flex;
-            justify-content: center !important;
-            align-items: center !important;
-        }
-    }
-    ion-card.dcf-height-1-1 > ion-card-content {
-       margin-top: 2rem;
-    }
-
+  + .dcf-layout-row {
+    // removing margin top of sequenced rows
     &.dcf-grid-small {
-        // keep margin bottom smaller for small grids
-        .dcf-grid-child {
-            margin-bottom: 2rem !important;
-        }
+      margin-top: 0px !important;
     }
+  }
+  > div:not(.dcf-grid-title) {
+    // ion-card {
+    //     margin-top: 0px;
+    //     height: 100%;
+    // }
 
-    &.dcf-grid-collapse {
-        .dcf-grid-child {
-            margin-bottom: 1.25rem;
-            ion-card {
-                margin-bottom: 1.25rem;
-            }
-        }
+    //TODO: use ng deep or view encapsulation?
+    ::ng-deep ngx-decaf-component-renderer > * > * {
+      height: 100%;
+      display: flex;
+      justify-content: center !important;
+      align-items: center !important;
     }
+  }
+  ion-card.dcf-height-1-1 > ion-card-content {
+    margin-top: 2rem;
+  }
+
+  &.dcf-grid-small.dcf-crud-form-grid {
+    // keep margin bottom smaller for small grids
+    > .dcf-grid-child {
+      margin-bottom: 2rem !important;
+    }
+  }
+
+  &.dcf-grid-collapse {
+    > .dcf-grid-child {
+      margin-bottom: 1.25rem;
+      ion-card {
+        margin-bottom: 1.25rem;
+      }
+    }
+  }
 }
 
-
-.dcf-grid-title {
-  font-size: 1.05rem !important;
+.dcf-card-title {
   background: none;
   box-shadow: none;
   margin-bottom: 0px;
   padding-bottom: 0px;
-  font-weight: 600;
-  color: var(--dcf-color-dark);
+
+  // color: var(--dcf-color-dark);
   display: flex;
   align-items: center;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+
+  > * {
+    font-size: 1.05rem !important;
+    font-weight: 600;
+  }
 }

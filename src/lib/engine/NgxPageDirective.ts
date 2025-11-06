@@ -11,7 +11,7 @@ import { Title } from "@angular/platform-browser";
 import { IMenuItem } from "./interfaces";
 import { CPTKN } from "../for-angular-common.module";
 import { NavigationEnd, NavigationStart } from "@angular/router";
-import { removeFocusTrap } from "../helpers/utils";
+import { removeFocusTrap } from "../utils/helpers";
 
 /**
  * @description Base directive for page-level components in Decaf Angular applications.
@@ -89,6 +89,7 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
   constructor(@Inject(CPTKN) localeRoot: string = "NgxPageDirective", @Inject(CPTKN) hasMenu: boolean = true) {
     super(localeRoot);
     this.hasMenu = hasMenu;
+    this.colorScheme$.subscribe();
   }
 
   /**

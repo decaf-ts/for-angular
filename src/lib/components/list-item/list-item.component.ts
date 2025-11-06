@@ -28,7 +28,7 @@ import {
 import * as AllIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { StringOrBoolean } from '../../engine/types';
-import { getWindowWidth, windowEventEmitter, removeFocusTrap, stringToBoolean } from '../../helpers/utils';
+import { getWindowWidth, windowEventEmitter, removeFocusTrap, stringToBoolean } from '../../utils/helpers';
 import { EventConstants } from '../../engine/constants';
 import {ListItemCustomEvent} from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
@@ -315,7 +315,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit {
     this.button = stringToBoolean(this.button);
 
     this.className = `${this.className}  dcf-flex dcf-flex-middle grid-item`;
-    if(this.operations?.length)
+    if (this.operations?.length)
       this.className += ` action`;
     this.windowWidth = getWindowWidth() as number;
   }
@@ -358,11 +358,11 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit {
    */
   async handleAction(action: CrudOperations, event: Event, target?: HTMLElement): Promise<boolean|void> {
     event.stopImmediatePropagation();
-    if(this.actionMenuOpen)
+    if (this.actionMenuOpen)
       await this.actionMenuComponent.dismiss();
     // forcing trap focus
     removeFocusTrap();
-    if(!this.route) {
+    if (!this.route) {
       const event = {target: target, action, pk: this.pk, data: this.uid, name: EventConstants.CLICK, component: this.componentName } as ListItemCustomEvent;
       windowEventEmitter(`ListItem${EventConstants.CLICK}`, event);
       return this.clickEvent.emit(event);
@@ -401,7 +401,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit {
   @HostListener('window:resize', ['$event'])
   enableSlideItems(): boolean {
     this.windowWidth = getWindowWidth() as number;
-    if(!this.operations?.length || this.windowWidth > 639)
+    if (!this.operations?.length || this.windowWidth > 639)
       return this.showSlideItems = false;
     this.showSlideItems = this.operations.includes(OperationKeys.UPDATE) || this.operations.includes(OperationKeys.DELETE);
     return this.showSlideItems;

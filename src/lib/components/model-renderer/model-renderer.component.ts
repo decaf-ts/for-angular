@@ -55,7 +55,7 @@ import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableCompo
   templateUrl: './model-renderer.component.html',
   styleUrl: './model-renderer.component.scss',
   host: {'[attr.id]': 'rendererId'},
-  encapsulation: ViewEncapsulation.None
+
 })
 export class ModelRendererComponent<M extends Model>
   extends NgxRenderableComponentDirective {

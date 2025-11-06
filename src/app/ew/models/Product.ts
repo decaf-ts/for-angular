@@ -9,7 +9,7 @@ import {  HTML5InputTypes, uichild, uielement,  uilayoutprop, uilistmodel, uilis
 import { EpiForm } from "../forms/EpiForm";
 
 // import { ProductStrength } from "./ProductStrength";
-// import { ProductMarket } from "./ProductMarket";
+import { MarketForm } from "../forms/MarketForm";
 
 
 export enum ProductNames {
@@ -144,8 +144,8 @@ export class Product extends Model {
   // @list(ProductStrength)
   // strengths?: ProductStrength[];
 
-  // @list(ProductMarket)
-  // markets?: ProductMarket[];
+  // @list(MarketForm)
+  // markets?: MarketForm[];
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: ModelArg<Product>) {

@@ -1,6 +1,6 @@
-import { Directive, Inject, NgZone, OnDestroy, inject } from '@angular/core';
-import { fromEvent, Subject, Observable, firstValueFrom, BehaviorSubject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { Directive, Inject, NgZone, OnDestroy, OnInit, inject } from '@angular/core';
+import { fromEvent, Subject, Observable, firstValueFrom, BehaviorSubject, merge, of } from 'rxjs';
+import { distinctUntilChanged, map, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { NgxComponentDirective } from './NgxComponentDirective';
 import { CPTKN } from '../for-angular-common.module';
 import { IWindowResizeEvent } from './interfaces';
@@ -9,9 +9,7 @@ import { WindowColorScheme } from './types';
 
 
 @Directive()
-export abstract class NgxMediaDirective extends NgxComponentDirective implements OnDestroy {
-
-  private destroy$ = new Subject<void>();
+export abstract class NgxMediaDirective extends NgxComponentDirective implements OnInit, OnDestroy {
 
   private resizeSubject = new BehaviorSubject<IWindowResizeEvent>({
     width: window.innerWidth,
@@ -19,8 +17,6 @@ export abstract class NgxMediaDirective extends NgxComponentDirective implements
   });
 
   resize$: Observable<IWindowResizeEvent> = this.resizeSubject.asObservable();
-
-  colorScheme$: Observable<WindowColorScheme>;
 
   protected zone: NgZone = inject(NgZone);
 
@@ -42,17 +38,10 @@ export abstract class NgxMediaDirective extends NgxComponentDirective implements
           this.zone.run(() => this.resizeSubject.next(dimensions));
         });
     });
+  }
 
-    // listen for color scheme changes
-    this.colorScheme$ = new Observable<WindowColorScheme>(observer => {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const emit = () => observer.next(mediaQuery.matches ? 'dark' : 'light');
-
-      emit(); // valor inicial
-      mediaQuery.addEventListener('change', emit);
-
-      return () => mediaQuery.removeEventListener('change', emit);
-    }).pipe(takeUntil(this.destroy$));
+  async ngOnInit(): Promise<void> {
+    this.colorScheme$.subscribe();
   }
 
   async isDarkMode(): Promise<boolean> {
@@ -62,7 +51,9 @@ export abstract class NgxMediaDirective extends NgxComponentDirective implements
   }
 
   ngOnDestroy(): void {
+     console.log(this.destroy$);
     this.destroy$.next();
     this.destroy$.complete();
+    console.log(this.destroy$);
   }
 }

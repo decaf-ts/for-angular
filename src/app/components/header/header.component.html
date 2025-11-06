@@ -4,8 +4,8 @@
       @if(showMenuButton && (operation === OperationKeys.READ && !modelId)) {
         <ion-buttons [slot]="showBackButton ? 'end' : buttonMenuSlot">
           <ion-menu-button >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 12H15M3 6H21M3 18H21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--dcf-text-color)" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 12H15M3 6H21M3 18H21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </ion-menu-button>
         </ion-buttons>
@@ -22,10 +22,10 @@
         <ion-title class="ion-text-{{titleAligment}}">{{ locale ? (title | translate) : title }}</ion-title>
       }
 
-      <ng-content select="[slot='end']"></ng-content>
 
-      @if(operations?.length && route && (!operation || operation === OperationKeys.READ)) {
-        <ion-buttons slot="end">
+      <ng-content select="[slot='end']"></ng-content>
+      <ion-buttons slot="end">
+        @if(operations?.length && route && (!operation || operation === OperationKeys.READ)) {
           @if(!modelId && isAllowed(OperationKeys.CREATE)) {
             <ion-button (click)="changeOperation(OperationKeys.CREATE)" fill="clear" [title]="'create' | translate ">
               <ion-icon aria-hidden="true" name="save-outline" slot="icon-only"></ion-icon>
@@ -50,8 +50,18 @@
               </ion-button>
             } -->
           }
-        </ion-buttons>
-      }
+        }
+        <ion-button shape="round" (click)="changeColorSchema()" fill="clear">
+          <ion-img src="assets/images/icons/moon-stars.svg" slot="icon-only" alt="Change Color Schema" title="Change Color Schema" />
+        </ion-button>
+        @if(user) {
+          <ion-avatar (click)="navigateToAccount()" title="{{ 'menu.account' | translate }}">
+            <div class="avatar-content">
+              {{ user.charAt(0).toUpperCase() + user.charAt(1).toUpperCase() }}
+            </div>
+          </ion-avatar>
+        }
+      </ion-buttons>
     </ion-toolbar>
   </div>
 </ion-header>

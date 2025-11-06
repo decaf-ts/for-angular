@@ -71,8 +71,6 @@ import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableCompo
   styleUrls: ['./component-renderer.component.scss'],
   imports: [NgComponentOutlet],
   standalone: true,
-  encapsulation: ViewEncapsulation.None,
-  host: {'[attr.id]': 'uid'},
 })
 export class ComponentRendererComponent extends NgxRenderableComponentDirective implements OnInit, OnDestroy {
 
@@ -166,9 +164,9 @@ export class ComponentRendererComponent extends NgxRenderableComponentDirective 
     const metadata = reflectComponentType(component);
     const componentInputs = (metadata as ComponentMirror<unknown>).inputs;
     const props = globals?.['item'] || globals?.['props'] || {};
-    if(props?.['tag'])
+    if (props?.['tag'])
       delete props['tag'];
-     if(props?.[AngularEngineKeys.CHILDREN] && !this.children.length)
+     if (props?.[AngularEngineKeys.CHILDREN] && !this.children.length)
       this.children = props[AngularEngineKeys.CHILDREN] as KeyValue[];
     props[AngularEngineKeys.CHILDREN] = this.children || [];
     const inputKeys = Object.keys(props);
@@ -190,11 +188,11 @@ export class ComponentRendererComponent extends NgxRenderableComponentDirective 
     }
 
     const hasChildrenInput = hasProperty(AngularEngineKeys.CHILDREN);
-    if(!this.projectable && hasChildrenInput)
+    if (!this.projectable && hasChildrenInput)
       props[AngularEngineKeys.CHILDREN] = this.children;
 
     const hasRootForm = hasProperty(BaseComponentProps.PARENT_FORM);
-    if(hasRootForm && this.parentForm)
+    if (hasRootForm && this.parentForm)
       props[BaseComponentProps.PARENT_FORM] = this.parentForm;
 
     this.vcr.clear();

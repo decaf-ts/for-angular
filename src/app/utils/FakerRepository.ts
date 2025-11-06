@@ -1,50 +1,14 @@
-import { DecafRepository, KeyValue } from 'src/lib/engine/types';
-import { formatDate, getOnWindow } from 'src/lib/helpers/utils';
-import { faker } from '@faker-js/faker';
-import { Model, Primitives } from '@decaf-ts/decorator-validation';
-import { InternalError } from '@decaf-ts/db-decorators';
-import { Repository, uses } from '@decaf-ts/core';
-import { FunctionLike } from 'src/lib/engine/types';
+import { Model } from '@decaf-ts/decorator-validation';
+import { DecafRepository } from 'src/lib/engine/types';
 import { AIModel } from '../models/AIVendorModel';
 import {  AIFeatures } from './contants';
-import { DB_ADAPTER_PROVIDER } from 'src/lib/for-angular-common.module';
-import { parseToNumber } from '@decaf-ts/ui-decorators';
+import { DecafFakerRepository } from 'src/lib/utils/DecafFakerRepository';
+export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
 
-export class FakerRepository<T extends Model> {
-
-  private data: T[] = [];
-
-  private _repository: DecafRepository<Model> | undefined = undefined;
-
-  constructor(protected model: string | Model, protected limit: number = 36) {}
-
-  private get repository():  DecafRepository<Model> {
-    if (!this._repository) {
-      const modelName = typeof this.model === 'string' ? this.model : (this.model as Model).constructor.name;
-      const constructor = Model.get(modelName);
-      if (!constructor)
-        throw new InternalError(
-          `Cannot find model ${modelName}. was it registered with @model?`,
-        );
-      try {
-        this.model = new constructor();
-        const dbAdapterFlavour = getOnWindow(DB_ADAPTER_PROVIDER) || undefined;
-        if(dbAdapterFlavour)
-          uses(dbAdapterFlavour as string)(constructor);
-        this._repository  = Repository.forModel(constructor);
-      } catch (error: unknown) {
-        throw new InternalError(
-          (error as Error)?.message || error as string
-        );
-      }
-    }
-    return this._repository;
-  }
-
-  public async init(): Promise<void> {
-    this._repository = this.repository;
-    let data = await this._repository?.select().execute();
-    // const pk = this._repository?.pk as string;
+  public override async initialize(): Promise<void> {
+    super.initialize();
+    const repo = this._repository as DecafRepository<Model>;
+    let data = await repo.select().execute();
     if(!this.data?.length) {
       const name = (this.model as Model).constructor.name;
       switch(name) {
@@ -58,117 +22,11 @@ export class FakerRepository<T extends Model> {
           data = await this.generateData();
       }
       try {
-         data = await this.repository?.createAll(data) as T[];
+         data = await this.repository?.createAll(data);
       } catch (error: unknown) {
         console.error(error);
       }
-
-        //  data = DbAdapterFlavour === "ram" ?
-      // data = await Promise.all(
-      //     data.map((item) => this.repository?.create(item))
-      //   ) as T[] : await this.repository?.createAll(data) as T[];
     }
-    this.data = data as T[] || [];
+    this.data = data as T[];
   }
-
- async generateData<T extends Model>(pkValues?: KeyValue, pk?: string, pkType?: string): Promise<T[]> {
-
-    const limit = pkValues ? Object.values(pkValues || {}).length - 1 : this.limit;
-    if(!pk)
-      pk = this._repository?.pk as string;
-    if(!pkType)
-      pkType = Reflect.getMetadata("design:type", this.model as KeyValue, pk).name.toLowerCase();
-
-    const props = Object.keys(this.model as KeyValue).filter((k) => {
-      if(pkType === Primitives.STRING)
-        return !['updatedBy', 'createdAt','createdBy', 'updatedAt'].includes(k);
-      return ![pk, 'updatedBy', 'createdAt','createdBy', 'updatedAt'].includes(k)
-    });
-    const dataProps: Record<string, FunctionLike> = {};
-    for(const prop of props) {
-      const type = Reflect.getMetadata("design:type", this.model as KeyValue, prop);
-      switch((type?.name || "").toLowerCase()) {
-        case 'string':
-          dataProps[prop] = () => `${faker.lorem.word()} ${pk === prop  ? ' - ' + faker.number.int({min: 1, max: 200}) : ''}`;
-          break;
-        case 'step':
-          dataProps[prop] = () => faker.lorem.word();
-          break;
-        case 'email':
-          dataProps[prop] = () => faker.internet.email();
-          break;
-        case 'number':
-          dataProps[prop] = () => faker.number.int({ min: 1, max: 5 });
-          break;
-        case 'boolean':
-          dataProps[prop] = () => faker.datatype.boolean();
-          break;
-        case 'date':
-          dataProps[prop] = () => faker.date.past();
-          break;
-        case 'url':
-          dataProps[prop] = () => faker.internet.url();
-          break;
-        case 'array':
-          dataProps[prop] = () => faker.lorem.words({min: 2, max: 5}).split(' ');
-          break;
-        default:
-          dataProps[prop] = () => faker.lorem.word();
-          break;
-      }
-    }
-
-    const data = getFakerData<T>(limit, dataProps, typeof this.model === 'string' ? this.model : this.model?.constructor.name);
-
-    if(!pkValues)
-      return data;
-
-    const values = Object.values(pkValues as KeyValue);
-    const iterated: (string | number)[] = [];
-    function getPkValue(item: KeyValue): T {
-      if (values.length > 0) {
-        const randomIndex = Math.floor(Math.random() * values.length);
-        const selected = values.splice(randomIndex, 1)[0];
-        const value = pkType === Primitives.STRING ? selected : pkType === Primitives.NUMBER
-            ? parseToNumber(selected) : pkType === Array.name ? [selected] : selected;
-        iterated.push(value);
-        item[pk as string] =
-          pkType === Primitives.STRING ? selected : pkType === Primitives.NUMBER
-            ? parseToNumber(selected) : pkType === Array.name ? [selected] : selected;
-      }
-      if(!iterated.includes(item[pk as string]))
-        return item as T;
-      return undefined as unknown as T;
-    }
-    const uids = new Set();
-    return data
-      .map((d) => getPkValue(d))
-      .filter((item: KeyValue) => {
-        if (!item || uids.has(item[pk]) || !item[pk] || item[pk] === undefined) return false;
-        uids.add(item[pk]);
-        return true;
-      }).filter(Boolean) as T[];
-  }
-}
-
-
-export function getFakerData<T extends Model>(
-  limit = 100,
-  data: Record<string, FunctionLike>,
-  model?: string,
-): T[] {
-  let index = 1;
-  return Array.from({ length: limit }, () => {
-    const item = {} as T & { id: number; createdAt: Date };
-    for (const [key, value] of Object.entries(data)) {
-      const val = value();
-      item[key as keyof T] = val.constructor === Date ? formatDate(val) : val;
-    }
-    // if((item as any)?.['code'])
-    //   (item as any).code = `${index}`;
-    // item.id = index;
-    // item.createdAt = faker.date.past({ refDate: '2025-01-01' });
-    index  = index + 1;
-    return (!model ? item : Model.build(item, model)) as T;
-  });
 }

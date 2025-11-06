@@ -1,5 +1,5 @@
 
-@if(!indexes.length) {
+@if (!indexes.length) {
   <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
 }
 
@@ -8,13 +8,13 @@
     <div class="dcf-filter">
       <div class="dcf-input">
         @for(filter of filterValue; track trackItemFn($index, filter?.['index'])) {
-          @if(filter?.['index']) {
+          @if (filter?.['index']) {
             <ion-chip [outline]="true">{{ filter?.['index'] }}</ion-chip>
           }
-          @if(filter?.['condition']) {
+          @if (filter?.['condition']) {
             <ion-chip [outline]="true">{{ filter?.['condition'] }}</ion-chip>
           }
-          @if(filter?.['value']) {
+          @if (filter?.['value']) {
             <ion-chip [outline]="true" class="dcf-filter-value">
               {{ filter?.['value'] }}
               <ion-icon name="close-outline" (click)="removeFilter(filter?.['value'])" size="small"></ion-icon>
@@ -36,10 +36,10 @@
             placeholder="{{ locale + (step === 3 ? '.type' : '.select') | translate }}"
             #component
           />
-          @if(windowWidth >= 768) {
+          @if (windowWidth >= 768) {
             <div [class]="'dcf-dropdown ' + (options.length > 0 ? ' dcf-active' : '')" #optionsFilterElement>
               <div>
-                @if(filteredOptions.length > 0) {
+                @if (filteredOptions.length > 0) {
                   @for(key of filteredOptions; track key) {
                     <div
                       class="dcf-item"
@@ -63,7 +63,7 @@
           }
         </div>
       </div>
-      @if(filterValue.length > 0) {
+      @if (filterValue.length > 0) {
         <div class="dcf-icon-clear">
           <ion-button fill="clear" size="small" (click)="clear()">
             <ion-icon name="trash-outline" [color]="!isDarkMode ? 'dark' : 'medium'" slot="icon-only"></ion-icon>
@@ -76,10 +76,10 @@
         </ion-button>
       </div>
     </div>
-    @if(windowWidth < 768) {
+    @if (windowWidth < 768) {
       <div [class]="'dcf-dropdown ' + (options.length > 0 ? ' dcf-active' : '')" #optionsFilterElement>
         <div>
-          @if(filteredOptions.length > 0) {
+          @if (filteredOptions.length > 0) {
             @for(key of filteredOptions; track key) {
               <div
                 class="dcf-item"
@@ -102,7 +102,7 @@
       </div>
     }
   </div>
-  @if(!disableSort) {
+  @if (!disableSort) {
     <div class="dcf-width-1-5@m dcf-width-1-1 dcf-sort-container">
       <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-grid-match">
         <div class="dcf-width-expand">

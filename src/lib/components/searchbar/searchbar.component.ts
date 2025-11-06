@@ -15,8 +15,8 @@ import { addIcons } from 'ionicons';
 import { AutocompleteTypes, PredefinedColors} from '@ionic/core';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { StringOrBoolean } from '../../engine/types';
-import {windowEventEmitter} from '../../helpers/utils';
-import { stringToBoolean } from '../../helpers/utils';
+import {windowEventEmitter} from '../../utils/helpers';
+import { stringToBoolean } from '../../utils/helpers';
 
 
 /**
@@ -386,7 +386,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
   @HostListener("window:toggleSearchbarVisibility", ['$event'])
   handleToggleVisibility(): void {
     this.isVisible = !this.isVisible;
-    if(this.isVisible && !!this.component.nativeElement) {
+    if (this.isVisible && !!this.component.nativeElement) {
       setTimeout(() => {
         (this.component.nativeElement as HTMLIonSearchbarElement).setFocus();
       }, 125);
@@ -465,7 +465,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    */
   handleInput(event: CustomEvent): void {
     const value = event?.detail?.value;
-    if(!value || !value?.length)
+    if (!value || !value?.length)
       return this.handleClear();
     this.emitEvent(value);
   }
@@ -504,7 +504,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    */
   emitEvent(value: string | undefined): void {
     this.searchEvent.emit(value);
-    if(this.emitEventToWindow)
+    if (this.emitEventToWindow)
       windowEventEmitter('searchbarEvent', {value: value})
   }
 

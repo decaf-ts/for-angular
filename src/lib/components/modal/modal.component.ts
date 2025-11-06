@@ -66,19 +66,19 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
   }
 
   override async ngOnInit(): Promise<void> {
-    if(!this.modalController)
+    if (!this.modalController)
       this.modalController = modalController as unknown as ModalController;
   }
 
   override async initialize(options: KeyValue = {}): Promise<void> {
-    if(!this.modalController)
+    if (!this.modalController)
       this.modalController = modalController as unknown as ModalController;
     this.options = Object.assign({}, DefaultModalOptions, this.options, options);
     this.initialized = true;
   }
 
   async create(props: KeyValue = {}): Promise<ModalComponent> {
-   if(!this.initialized)
+   if (!this.initialized)
       await this.initialize(props);
     return this;
   }
@@ -90,7 +90,7 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
 
 
   override async handleEvent(event: CustomEvent<IBaseCustomEvent>) {
-    if(event instanceof Event)
+    if (event instanceof Event)
       event.stopImmediatePropagation();
     console.log(event);
   }
@@ -121,7 +121,7 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
 export async function getNgxModalComponent(props: Partial<ModalComponent> = {}, modalProps: Partial<ModalOptions> = {}, injector?: EnvironmentInjector): Promise<ModalComponent> {
 
   const {globals} = {... props};
-  if(!globals || !globals?.['operation'])
+  if (!globals || !globals?.['operation'])
     props.globals = {...(globals || {}), operation: OperationKeys.CREATE};
   const component = NgxRenderingEngine.createComponent(ModalComponent, props, injector || undefined) as ModalComponent;
   return component.create(modalProps);
@@ -166,7 +166,7 @@ export async function getNgxModalComponent(props: Partial<ModalComponent> = {}, 
 //   component: Type<T>,
 //   parentInjector?: Injector,
 // ): T {
-//   if(!parentInjector)
+//   if (!parentInjector)
 //       parentInjector = Injector.create({providers: [], parent: Injector.NULL});
 //   const envInjector: EnvironmentInjector = createEnvironmentInjector([], parentInjector as EnvironmentInjector);
 

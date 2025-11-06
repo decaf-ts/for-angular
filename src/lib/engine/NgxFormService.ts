@@ -11,7 +11,7 @@ import { IComponentConfig, IFormComponentProperties } from './interfaces';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { isValidDate, ModelKeys, parseDate, Primitives, Validation } from '@decaf-ts/decorator-validation';
 import { ValidatorFactory } from './ValidatorFactory';
-import { cleanSpaces } from '../helpers';
+import { cleanSpaces } from '../utils/helpers';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { BaseComponentProps } from './constants';
 

@@ -21,7 +21,7 @@ import { addIcons } from 'ionicons';
 import { StringOrBoolean } from '../../engine/types';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
-import { stringToBoolean } from '../../helpers/utils';
+import { stringToBoolean } from '../../utils/helpers';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FunctionLike } from '../../engine/types';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -325,9 +325,9 @@ export class EmptyStateComponent extends NgxComponentDirective implements OnInit
     this.titleColor = `dcf-title color-${this.titleColor}`;
     this.subtitleColor = `dcf-subtitle color-${this.titleColor}`;
 
-    if(this.searchValue)
+    if (this.searchValue)
       this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);
-    if(!this.buttonLink && this.model && this.route)
+    if (!this.buttonLink && this.model && this.route)
       this.enableCreationByModelRoute = true;
 
   }
@@ -367,9 +367,9 @@ export class EmptyStateComponent extends NgxComponentDirective implements OnInit
    */
   handleClick(): boolean | void | Promise<boolean> | FunctionLike {
     const fn = this.buttonLink;
-    if(!fn)
+    if (!fn)
       return false;
-    if(fn instanceof Function)
+    if (fn instanceof Function)
       return fn() as FunctionLike;
     return this.router.navigate([fn as string]);
   }

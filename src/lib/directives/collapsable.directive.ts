@@ -21,9 +21,9 @@ export class CollapsableDirective implements OnInit{
 
   ngOnInit() {
     const element = this.element?.nativeElement;
-    if(element) {
+    if (element) {
       const requiredFields = element.querySelectorAll('[required]') as NodeListOf<Element>;
-      if(requiredFields.length) {
+      if (requiredFields.length) {
         const accordion = element?.closest('ion-accordion-group') as HTMLElement;
         accordion.setAttribute('value', 'open');
       }
@@ -35,7 +35,7 @@ export class CollapsableDirective implements OnInit{
 
   // ngOnInit() {
   //   const element = this.element?.nativeElement;
-  //   if(element) {
+  //   if (element) {
   //     const requiredFields = element.querySelectorAll('[required]') as NodeListOf<Element>;
 
   //     // Find the parent fieldset component and set required attribute if there are required fields

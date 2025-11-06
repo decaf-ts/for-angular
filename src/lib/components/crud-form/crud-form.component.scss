@@ -1,14 +1,14 @@
 .dcf-buttons-grid {
-  margin-top: .5rem;
+  margin-top: 0.5rem;
   margin-bottom: 0px;
   &.read {
     margin-bottom: 1rem;
   }
   &.dcf-flex {
-    @media(min-width: 577px) {
+    @media (min-width: 577px) {
       flex-direction: row-reverse;
     }
-    @media(max-width: 576px) {
+    @media (max-width: 576px) {
       > div {
         width: 100%;
         + div {
@@ -21,7 +21,6 @@
     }
   }
 }
-
 
 .dcf-form-grid {
   padding: 1rem;
@@ -37,7 +36,7 @@
 }
 
 ::ng-deep {
- ngx-decaf-stepped-form  .dcf-input-item {
+  ngx-decaf-stepped-form .dcf-input-item {
     margin-bottom: 1.8rem;
     margin-top: 0px !important;
   }
@@ -46,5 +45,3 @@
     margin-top: 0px !important;
   }
 }
-
-

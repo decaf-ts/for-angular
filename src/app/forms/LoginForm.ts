@@ -7,7 +7,7 @@ import {
   required
 } from '@decaf-ts/decorator-validation';
 import { uielement, uimodel, uihandlers } from '@decaf-ts/ui-decorators';
-import { LoginHandler } from '../utils/handlers';
+import { LoginHandler } from '../handlers/LoginHandler';
 import { pk } from '@decaf-ts/core';
 
 

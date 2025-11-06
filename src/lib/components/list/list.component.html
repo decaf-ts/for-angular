@@ -1,13 +1,13 @@
 
-@if(showRefresher) {
+@if (showRefresher) {
   <ion-refresher slot="fixed" [pullFactor]="1" [pullMin]="100" [pullMax]="200" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content />
   </ion-refresher>
 }
 
-@if(showSearchbar) {
-  @if(model && enableFilter) {
-    @if(data?.length || searching) {
+@if (showSearchbar) {
+  @if (model && enableFilter) {
+    @if (data?.length || searching) {
       <ngx-decaf-filter
         [model]="model"
         [sortDirection]="sortDirection"
@@ -21,9 +21,9 @@
   }
 }
 
-@if(data?.length) {
+@if (data?.length) {
   <ion-list [id]="uid" [inset]="inset" [lines]="lines" #component>
-    @if(item?.tag) {
+    @if (item?.tag) {
       @for(child of items; track trackItemFn($index, child)) {
         <ngx-decaf-component-renderer
           [tag]="item.tag"
@@ -40,8 +40,8 @@
     }
   </ion-list>
 
-  @if(loadMoreData) {
-    @if(pages > 0 && type === 'paginated' && !searchValue?.length) {
+  @if (loadMoreData) {
+    @if (pages > 0 && type === 'paginated' && !searchValue?.length) {
       <ngx-decaf-pagination
         [totalPages]="pages"
         [current]="page"
@@ -60,7 +60,7 @@
     }
   }
 } @else {
-  @if(refreshing) {
+  @if (refreshing) {
     @for(skl of skeletonData; track $index) {
       <ion-item>
         <ion-thumbnail slot="start">
@@ -74,7 +74,7 @@
     }
 
   } @else {
-    @if(!searching) {
+    @if (!searching) {
       <ngx-decaf-empty-state
         [title]="(locale + '.'+ empty.title) | translate"
         [model]="model"

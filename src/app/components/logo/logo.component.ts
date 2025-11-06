@@ -1,6 +1,6 @@
 import { Component, Input, OnInit  } from '@angular/core';
 import { IonImg } from '@ionic/angular/standalone';
-import { getWindow } from 'src/lib/helpers';
+import { getWindow } from 'src/lib/utils';
 
 
 @Component({

@@ -19,7 +19,7 @@ import * as IonicIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 
 import { IMenuItem, NgxPageDirective } from '../lib/engine';
-import { isDevelopmentMode } from '../lib/helpers';
+import { isDevelopmentMode } from '../lib/utils';
 import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { LogoComponent } from './components/logo/logo.component';
 import { AppModels, AppName, DbAdapterFlavour } from './app.config';
@@ -75,7 +75,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    */
   override async initialize(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
-    const populate = ['CategoryModel', 'AIVendorModel'];
+    const populate = ['Product', 'CategoryModel', 'AIVendorModel'];
     const menu = [];
     const models = AppModels;
     for(let model of models) {
@@ -87,7 +87,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
         if(populate.includes(name)) {
           this.logger.info(`Populating repository for model: ${name}`);
           const repository = new FakerRepository(model, 36);
-          await repository.init();
+          await repository.initialize();
         }
       }
 

@@ -16,7 +16,7 @@ import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDire
 import { KeyValue } from '../../engine/types';
 import { IComponentProperties } from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
-import { filterString } from '../../helpers/utils';
+import { filterString } from '../../utils/helpers';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 
@@ -55,7 +55,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    * @memberOf LayoutComponent
    */
   @Input()
-  gap: 'small' | 'medium' | 'large' | 'collapse' = 'collapse';
+  gap: 'small' | 'medium' | 'large' | 'collapse' | '' = 'collapse';
 
   /**
    * @description Media breakpoint for responsive behavior.
@@ -166,7 +166,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    */
   get _cols(): string[] {
     let cols = this.cols;
-    if(typeof cols === Primitives.NUMBER)
+    if (typeof cols === Primitives.NUMBER)
       cols = Array.from({length: Number(cols)}, () =>  '');
     return cols as string[];
   }
@@ -182,17 +182,24 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    * @memberOf LayoutComponent
    */
   getRowColsLength(row: KeyValue | IComponentProperties): number {
-    const length = (row.cols as [])?.length ?? 1;
+    let length: number  = (row.cols as [])?.length ?? 1;
     const colsLength = (this.cols as [])?.length;
-
+    const rowsLength = (typeof this.rows === Primitives.NUMBER ? this.rows : (this.rows as [])?.length) as number;
     if (length > this.maxColsLength)
-      return this.maxColsLength;
+      length = this.maxColsLength;
 
     if (length !== colsLength) {
-      return this.flexMode ?
-      row.cols.reduce((acc: number, curr: KeyValue) => {
-        return acc + (typeof curr['col'] === Primitives.NUMBER ? curr['col']: 1);
-      }, 0) : colsLength;
+      length = colsLength;
+      if (this.flexMode) {
+        length = row.cols.reduce((acc: number, curr: KeyValue) => {
+          if (rowsLength > 1)
+            return acc + (typeof curr['col'] === Primitives.NUMBER ? curr['col']: 1);
+          return acc + (
+            typeof curr['col'] === Primitives.NUMBER ? curr['col']:
+            curr['col'] === 'full' ? 0 : curr['col']
+          );
+        }, 0);
+      }
     }
     return length;
   }
@@ -210,18 +217,31 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    */
   get _rows(): KeyValue[] {
     let rows = this.rows;
-    if(typeof rows === Primitives.NUMBER)
+    if (typeof rows === Primitives.NUMBER)
       rows = Array.from({length: Number(rows)}, () => ({title: ''}))  as Partial<IComponentProperties>[];
+
+    let rowsLength = (rows as string[]).length;
+    if (rowsLength === 1 && this.flexMode) {
+      this.children.forEach((child) => {
+        const row = child?.['props'].row || 1;
+        if (row > rowsLength) {
+          rowsLength += 1;
+          (rows as KeyValue[]).push({title: ''});
+        }
+      });
+
+      this.rows = rowsLength;
+    };
     return (rows as KeyValue[]).map((row, index) => {
       const rowsLength = this.rows;
       return {
         title: typeof row === Primitives.STRING ? row : row?.['title'] || "",
         cols: this.children.filter((child) => {
           let row = (child as UIElementMetadata).props?.['row'] ?? 1;
-          if(row > rowsLength)
+          if (row > rowsLength)
             row = rowsLength as number;
           child['col'] = (child as UIElementMetadata).props?.['col'] ?? (this.cols as string[])?.length ?? 1;
-          if(row === index + 1)
+          if (row === index + 1)
             return child;
         })
       };
@@ -229,35 +249,26 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
       const colsLength = this.getRowColsLength(row);
       row.cols = row.cols.map((c: KeyValue) => {
         let {col} = c;
-        switch(col) {
-          case typeof col === Primitives.NUMBER: {
-            col = (col === colsLength ?
-              `dcf-child dcf-width-1-1` : `dcf-child dcf-width-${col}-${colsLength}`);
-          }
-          break;
-          case 'half':
-            col = !this.flexMode ?
-              `dcf-child-half-${this.breakpoint} dcf-width-1-2` : `dcf-child-half-${this.breakpoint} dcf-width-1-${colsLength}` ;
-            break;
-          case 'auto':
-            col = `dcf-child-auto-${this.breakpoint} dcf-width-auto`;
-          break;
-          case 'expand':
-            col = `dcf-child-expand-${this.breakpoint} dcf-width-expand`;
-          break;
-          case 'full':
-          case colsLength: {
-            col = 'dcf-width-1-1';
-            break;
-          }
-          default:
-            col = `dcf-width-${col}-${colsLength}`;
-        }
-        const childClassName = c?.['props']?.className || '';
-        const colClass = `${col}@${this.breakpoint} ${filterString(childClassName ,'-width-')}`;
+        if (typeof col === Primitives.STRING)
+          col = col === 'half' ? '1-2' : col === 'full' ? '1-1': col;
 
+        if (!this.flexMode) {
+          if (typeof col === Primitives.NUMBER) {
+            col = (col === colsLength ?
+              `1-1` : `${col}-${colsLength}`);
+          }
+        } else {
+
+          if (typeof col === Primitives.NUMBER) {
+            col = `${col}-${colsLength}`;
+          }
+          col = ['2-4', '3-6'].includes(col) ? `1-2` : col;
+        }
+        col = `dcf-child-${col}-${this.breakpoint} dcf-width-${col}`;
+        const childClassName = c?.['props']?.className || '';
+        const colClass = `dcf-grid-child ${col}@${this.breakpoint} ${filterString(childClassName ,'-width-')}`;
         // to prevent layout glitches, before send class to child component remove width classes
-        if(c?.['props']?.className)
+        if (c?.['props']?.className)
           c['props'].className = filterString(c?.['props']?.className ,'-width-', false);
         return Object.assign(c, {colClass});
       })
@@ -278,13 +289,13 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    */
   override async ngOnInit(): Promise<void> {
     super.parseProps(this);
-    if(this.breakpoint)
+    if (this.breakpoint)
       this.breakpoint = `${this.breakpoint}`.toLowerCase();
     this.cols = this._cols;
     this.rows = this._rows;
-    // if(this._rows.length === 1)
+    // if (this._rows.length === 1)
     //   this.match = false;
-    // if(this._cols.length === 1)
+    // if (this._cols.length === 1)
     //   this.grid = false;
     this.initialized = true;
   }

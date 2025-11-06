@@ -1,4 +1,4 @@
-@if(operation !== 'read' && operation !== 'delete') {
+@if (operation !== 'read' && operation !== 'delete') {
   <form
     [class]="'dcf-form-grid ' + operation" #component
     [id]="rendererId"
@@ -6,13 +6,16 @@
     (ngSubmit)="handleSubmit($event)"
     novalidate
     [target]="target">
-    @if(!children?.length) {
+    @if (!children?.length) {
       <ng-content #formContent></ng-content>
     } @else {
         <ngx-decaf-layout
+          [className]="'dcf-crud-form-grid'"
           [children]="children || []"
           [parentForm]="formGroup || parentForm"
+          [match]="false"
           gap="small"
+          [flexMode]="props.flexMode || false"
           [rows]="rows"
           [cols]="cols" />
 
@@ -27,20 +30,20 @@
         />
       } -->
     }
-    @if(initialized) {
+    @if (initialized) {
       <div class="dcf-buttons-grid dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
         <div>
           <ion-button type="submit" [expand]="action ? 'block' : 'default'">
-            @if(options.buttons.submit.icon) {
+            @if (options.buttons.submit.icon) {
               <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
             }
             {{ action ? action : options.buttons.submit.text}}
           </ion-button>
         </div>
-        @if(!action) {
+        @if (!action) {
           <div>
             <ion-button fill="clear" (click)="handleReset()">
-              @if(options.buttons.clear?.icon) {
+              @if (options.buttons.clear?.icon) {
                 <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
               }
               Back
@@ -53,7 +56,7 @@
   </form>
 } @else {
   <section [class]="'dcf-grid dcf-grid-small dcf-child-width-1-1 dcf-form-grid ' + operation" #component [id]="uid">
-    @if(!children?.length) {
+    @if (!children?.length) {
       <ng-content #formContent></ng-content>
     } @else {
       @for (child of children; track $index) {
@@ -69,13 +72,13 @@
     }
   </section>
   <section [class]="'dcf-buttons-grid dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left ' + operation" [id]="uid">
-    @if(operation === OperationKeys.READ && modelId) {
+    @if (operation === OperationKeys.READ && modelId) {
       <div>
         <ion-button
           (click)="handleDelete()"
           color="danger"
           type="button">
-          @if(options.buttons.submit.icon) {
+          @if (options.buttons.submit.icon) {
             <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
           }
           Delete
@@ -83,12 +86,12 @@
       </div>
 
     }
-    @if(operation === OperationKeys.CREATE || operation === OperationKeys.UPDATE) {
+    @if (operation === OperationKeys.CREATE || operation === OperationKeys.UPDATE) {
 
       <div>
         <ion-button
           type="submit">
-          @if(options.buttons.submit.icon) {
+          @if (options.buttons.submit.icon) {
             <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
           }
           {{options.buttons.submit.text}}
@@ -96,10 +99,10 @@
       </div>
     }
 
-    @if(options.buttons.clear) {
+    @if (options.buttons.clear) {
       <div>
        <ion-button fill="clear" (click)="handleReset()">
-          @if(options.buttons.clear?.icon) {
+          @if (options.buttons.clear?.icon) {
             <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
           }
           {{ [OperationKeys.DELETE, OperationKeys.READ, OperationKeys.UPDATE].includes(operation) ? 'Back' : options.buttons.clear?.text}}

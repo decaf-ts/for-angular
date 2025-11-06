@@ -12,7 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 import { Logger, Logging } from '@decaf-ts/logging';
 import { FunctionLike, I18nResourceConfig } from './engine';
-import { getOnWindow, getWindow } from './helpers/utils';
+import { getOnWindow, getWindow } from './utils/helpers';
 import { DecafRepository, DecafRepositoryAdapter, KeyValue } from './engine/types';
 import { Constructor, Model, Primitives } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
@@ -119,7 +119,7 @@ export function getModelRepository(model: Model | string): DecafRepository<Model
         `Cannot find model for ${modelName}. was it registered with @model?`
       );
     const dbAdapterFlavour = getOnWindow(DB_ADAPTER_PROVIDER) || undefined;
-    if(dbAdapterFlavour)
+    if (dbAdapterFlavour)
       uses(dbAdapterFlavour as string)(constructor);
     const repo = Repository.forModel(constructor);
     model = new constructor() as Model;
@@ -158,7 +158,7 @@ export function provideDbAdapter<DbAdapter extends { flavour: string }>(
   flavour?: string
 ): Provider {
   const adapter = new adapterClass(options);
-  if(flavour)
+  if (flavour)
     flavour = adapter.flavour;
   // Log and expose adapter flavour globally
   getLogger(provideDbAdapter).info(`Using ${adapter.constructor.name} ${flavour} as Db Provider`);

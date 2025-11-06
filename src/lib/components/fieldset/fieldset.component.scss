@@ -2,14 +2,18 @@ ion-accordion-group {
   ion-item[slot="header"] {
     .dcf-delete {
       width: 30px;
-      ion-button { transform: translateY(-2px); }
-      ion-icon { font-size: 1.15rem; }
+      ion-button {
+        transform: translateY(-2px);
+      }
+      ion-icon {
+        font-size: 1.15rem;
+      }
     }
   }
 }
 
 .dcf-title legend {
-  font-size: .875rem;
+  font-size: 0.875rem;
   font-weight: 600;
   margin: 0;
   color: var(--dcf-color-gray-7);
@@ -21,27 +25,31 @@ ion-accordion-group {
   --border-width: 0px !important;
 }
 
-
 @media (prefers-color-scheme: light) {
   .dcf-fieldset {
     border: 1px solid var(--dcf-color-gray-3);
-    .dcf-button-add { color: var(--ion-color-dark) !important; }
+    .dcf-button-add {
+      color: var(--ion-color-dark) !important;
+    }
   }
-   ion-accordion {
-      ion-item[slot="header"] {
-        legend {
-          color: var(--dcf-color-gray-7);
-        }
+  ion-accordion {
+    ion-item[slot="header"] {
+      legend {
+        color: var(--dcf-color-gray-7);
       }
-   }
+    }
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   .dcf-fieldset {
     border: 1px solid var(--dcf-color-step-400);
-    .dcf-button-add { color: var(--ion-color-gray-2); }
+    .dcf-button-add {
+      color: var(--dcf-color-gray-2);
+    }
 
-     &.read, &.delete {
+    &.read,
+    &.delete {
       border: 1px solid var(--dcf-color-gray-6);
     }
   }
@@ -55,13 +63,13 @@ ion-accordion-group {
   }
   &.open {
     //  margin-bottom: 1.8rem;
-     ion-accordion {
+    ion-accordion {
       margin-bottom: 1rem;
       &.accordion-collapsing,
       &.accordion-collapsed {
         margin-bottom: 1rem;
       }
-     }
+    }
   }
   // margin-top: 1rem;
   padding-top: 1rem;
@@ -69,11 +77,16 @@ ion-accordion-group {
   background: var(--dcf-card-background);
   border-radius: 6px;
 
-  &.read, &.delete {
+  &.read,
+  &.delete {
     // margin-top: 1.25rem;
     // margin-bottom: -1.75rem !important;
-    [slot="content"] { padding-top: 0px !important;}
-    ion-accordion { margin-bottom: 0rem !important; }
+    [slot="content"] {
+      padding-top: 0px !important;
+    }
+    ion-accordion {
+      margin-bottom: 0rem !important;
+    }
   }
 
   ion-accordion {
@@ -91,36 +104,35 @@ ion-accordion-group {
       }
     }
     &:not(.not-collapsable) {
-     [slot="content"] {
+      [slot="content"] {
         padding-top: 1.5rem !important;
         padding-inline: 0.75rem;
       }
     }
 
     &.not-collapsable {
-     [slot="content"] {
+      [slot="content"] {
         padding-top: 1rem !important;
       }
     }
-
   }
 }
 
 .dcf-not-unique-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex: 1 1 auto;
+  > div {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 1rem;
-    flex: 1 1 auto;
-    > div {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    ion-icon {
-        transform: translatey(2px);
-        margin-right: 5px;
-    }
+  }
+  ion-icon {
+    transform: translatey(2px);
+    margin-right: 5px;
+  }
 }
 
 .dcf-fields-list {
@@ -132,10 +144,10 @@ ion-accordion-group {
     // margin-bottom: 5px;
     --min-height: 50px;
     //  --border-radius: 10px;
-    --padding-top: .25rem;
-    --padding-bottom: .25rem;
-    --padding-start: .75rem;
-    --padding-end: .75rem;
+    --padding-top: 0.25rem;
+    --padding-bottom: 0.25rem;
+    --padding-start: 0.75rem;
+    --padding-end: 0.75rem;
     --inner-padding-start: 0px !important;
     --inner-padding-end: 0px !important;
     --border-color: var(--dcf-color-gray-2) !important;
@@ -149,16 +161,30 @@ ion-accordion-group {
     }
 
     &.updating {
-    --background: rgba(var(--dcf-color-primary-rgb), 0.1) !important;
+      --background: rgba(var(--dcf-color-primary-rgb), 0.1) !important;
       // border-color:  var(--dcf-color-primary);
     }
     &.not-unique {
-    --background: rgba(var(--dcf-color-danger-rgb), 0.05) !important;
+      --background: rgba(var(--dcf-color-danger-rgb), 0.05) !important;
       // --border-color: var(--dcf-color-danger) !important;
     }
     .dcf-subtitle {
       font-size: 0.8rem;
       color: var(--dcf-color-gray-7);
+    }
+  }
+}
+
+.dcf-buttons-container {
+  margin-bottom: 0px !important;
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+    align-items: stretch;
+    ion-button {
+      width: 100%;
+      justify-content: center;
+      height: 40px;
     }
   }
 }
