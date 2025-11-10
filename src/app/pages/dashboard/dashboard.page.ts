@@ -30,7 +30,8 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
     });
   }
 
-  ngOnInit() {
+  override ngOnInit() {
+    super.ngOnInit();
     this.getData();
     this.model = new DashboardLayout;
   }

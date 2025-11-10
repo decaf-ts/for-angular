@@ -102,6 +102,12 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
   //   super("NgxModelPageDirective");
   // }
 
+  override get pageTitle(): string {
+    if(!this.operation)
+      return `Listing ${this.modelName}`;
+    const operation = this.operation.charAt(0).toUpperCase() + this.operation.slice(1).toLowerCase();
+    return `${operation} ${this.modelName}`;
+  }
   /**
    * @description Lazy-initialized repository getter with model resolution.
    * @summary Creates and returns a repository instance for the specified model name.
@@ -205,12 +211,13 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
   async handleSubmit(event: IBaseCustomEvent): Promise<IModelPageCustomEvent|void> {
     try {
       const repo = this._repository as IRepository<Model>;
-      const data = this.parseData(event.data as KeyValue);
+      const operation = this.operation === OperationKeys.READ ? 'delete' : this.operation.toLowerCase();
+      const data = this.parseData(event.data as KeyValue, operation as OperationKeys);
       const result = this.operation === OperationKeys.CREATE ?
         await repo.create(data as Model) : this.operation === OperationKeys.UPDATE ?
           await repo.update(data as Model) : repo.delete(data as string | number);
       const message = await this.translate(
-        `operations.${this.operation}.${result ? 'success' : 'error'}`, {
+        `operations.${operation}.${result ? 'success' : 'error'}`, {
           "0": this.pk,
           "1": this.modelId || (result as KeyValue)[this.pk],
         }
@@ -252,6 +259,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
       return undefined;
     }
     const type = Reflect.getMetadata("design:type", this.model as KeyValue, this.repository.pk as string).name;
+    if(!this.pk)
+      this.pk = this.repository.pk as string;
     const result = await (this._repository as IRepository<Model>).read(
       ([Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase()) ? Number(uid) : uid) as string | number,
     );
@@ -269,12 +278,12 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @return {Model | string | number} Processed data ready for repository operations
    * @private
    */
-  private parseData(data: Partial<Model>): Model | EventIds {
+  private parseData(data: Partial<Model>, operation: OperationKeys): Model | EventIds {
       const repo = this._repository as IRepository<Model>;
       let uid = this.modelId as EventIds;
       if (repo.pk === 'id' as keyof Model)
         uid = Number(uid);
-      if (this.operation !== OperationKeys.DELETE)
+      if (operation !== OperationKeys.DELETE)
         return Model.build(this.modelId ? Object.assign(data, {[repo.pk]: uid}) : data, this.modelName) as Model;
       return uid as EventIds;
   }

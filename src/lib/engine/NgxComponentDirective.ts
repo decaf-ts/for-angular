@@ -6,17 +6,15 @@
  * It centralizes shared behavior for child components and simplifies integration with the rendering engine.
  * @link {@link NgxComponentDirective}
  */
-import { Directive, ElementRef, EventEmitter, Inject, inject, Input, Output, SimpleChanges, ViewChild, OnChanges, ChangeDetectorRef, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, Inject, inject, Input, Output, SimpleChanges, ViewChild, OnChanges, ChangeDetectorRef, Renderer2, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { MenuController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import { LoggedClass, Logger } from '@decaf-ts/logging';
 import { Model, ModelConstructor, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
-import { EventIds } from '@decaf-ts/core';
-import { distinctUntilChanged, firstValueFrom, fromEvent, map, merge, Observable, of, shareReplay, Subject, takeUntil, tap } from 'rxjs';
-import { DecafRepository, FunctionLike, KeyValue, WindowColorScheme } from './types';
+import { DecafRepository, FunctionLike, KeyValue } from './types';
 import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
 import { NgxEventHandler } from './NgxEventHandler';
 import { getLocaleContext } from '../i18n/Loader';
@@ -24,6 +22,8 @@ import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { getModelRepository,  CPTKN } from '../for-angular-common.module';
 import { AngularEngineKeys, BaseComponentProps } from './constants';
 import { generateRandomValue, getWindow, setOnWindow } from '../utils';
+import { EventIds } from '@decaf-ts/core';
+import { NgxMediaService } from '../services/NgxMediaService';
 
 try {
   const win = getWindow();
@@ -48,7 +48,7 @@ try {
  * @memberOf module:lib/engine/NgxComponentDirective
  */
 @Directive({host: {'[attr.id]': 'uid'}})
-export abstract class NgxComponentDirective extends LoggedClass implements OnChanges {
+export abstract class NgxComponentDirective extends LoggedClass implements OnChanges, OnDestroy {
 
 
   /**
@@ -62,6 +62,34 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   @ViewChild('component', { read: ElementRef, static: true })
   component!: ElementRef;
+
+  /**
+   * @description Flag to enable or disable dark mode support for the component.
+   * @summary When enabled, the component will automatically detect the system's dark mode
+   * preference using the media service and apply appropriate styling classes. This flag
+   * controls whether the component should respond to dark mode changes and apply the
+   * dark palette class to its DOM element. By default, dark mode support is disabled.
+   * @protected
+   * @type {boolean}
+   * @default false
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
+  @Input()
+  protected enableDarkMode: boolean = true;
+
+  /**
+   * @description Flag to enable or disable dark mode support for the component.
+   * @summary When enabled, the component will automatically detect the system's dark mode
+   * preference using the media service and apply appropriate styling classes. This flag
+   * controls whether the component should respond to dark mode changes and apply the
+   * dark palette class to its DOM element. By default, dark mode support is disabled.
+   * @protected
+   * @type {boolean}
+   * @default false
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
+  @Input()
+  protected isDarkMode: boolean = false;
 
 
   /**
@@ -98,7 +126,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  uid: string | number = generateRandomValue(16);
+  uid?: string | number;
 
 
   /**
@@ -176,11 +204,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    *  @memberOf ModelPage
    */
   @Input()
-  operation:
-  | OperationKeys.CREATE
-  | OperationKeys.READ
-  | OperationKeys.UPDATE
-  | OperationKeys.DELETE = OperationKeys.READ;
+  operation: OperationKeys | undefined = OperationKeys.READ;
 
   /**
    * @description Row position in a grid-based layout system.
@@ -236,18 +260,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
 
 
   /**
-   * @description Ionic menu controller service for menu management.
-   * @summary Injected service that provides programmatic control over Ionic menu components.
-   * This service allows the component to open, close, toggle, and manage menu states within
-   * the application. It provides access to menu functionality for implementing navigation
-   * and layout features that require menu interaction.
-   * @protected
-   * @type {MenuController}
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  protected menuController: MenuController = inject(MenuController);
-
-  /**
    * @description Angular change detection service for manual change detection control.
    * @summary Injected service that provides manual control over change detection cycles.
    * This is essential for ensuring that programmatic DOM changes (like setting accordion
@@ -258,6 +270,22 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected changeDetectorRef: ChangeDetectorRef = inject(ChangeDetectorRef);
+
+
+  /**
+   * @description Media service instance for responsive design and media query management.
+   * @summary Provides access to media query functionality for detecting and responding to
+   * different screen sizes and device capabilities. This service enables components to adapt
+   * their behavior and presentation based on viewport dimensions, orientation, and other
+   * media features. It manages media query listeners and provides utilities for responsive
+   * component rendering. The service is instantiated per component and should be destroyed
+   * via ngOnDestroy to prevent memory leaks.
+   * @protected
+   * @type {NgxMediaService}
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
+  protected mediaService: NgxMediaService = new NgxMediaService();
+
 
   /**
    * @description Angular Renderer2 service for platform-agnostic DOM manipulation.
@@ -430,12 +458,19 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   protected location: Location = inject(Location);
 
-
+  /**
+   * @description Flag indicating if the component is rendered as a child of a modal dialog.
+   * @summary Determines whether this component instance is being displayed within a modal
+   * context. This flag affects component behavior such as navigation patterns, event handling,
+   * and lifecycle management. When true, the component may use different navigation strategies
+   * (e.g., closing the modal instead of browser navigation) and adjust its layout to fit modal
+   * constraints. This is typically set by parent modal containers when instantiating child components.
+   * @protected
+   * @type {boolean}
+   * @default false
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
   protected isModalChild: boolean = false;
-
-  colorScheme$: Observable<WindowColorScheme>;
-
-protected destroy$ = new Subject<void>();
 
 
   /**
@@ -458,23 +493,20 @@ protected destroy$ = new Subject<void>();
     if (this.localeRoot)
       this.getLocale(this.localeRoot);
     this.logger = this.log;
-
-     // listen for color scheme changes
-    this.colorScheme$ = merge(
-      of(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
-      fromEvent<MediaQueryListEvent>(
-        window.matchMedia('(prefers-color-scheme: dark)'),
-        'change'
-      ).pipe(map(event => (event.matches ? 'dark' : 'light')))
-    ).pipe(
-      distinctUntilChanged(),
-      tap(scheme => {
-        document.documentElement.classList.toggle('dcf-palette-dark', scheme === 'dark');
-      }),
-      takeUntil(this.destroy$),
-      shareReplay(1)
-    );
+    this.uid = `${this.componentName}-${generateRandomValue(8)}`;
 	}
+
+  /**
+   * @description Cleanup lifecycle hook invoked when the directive is destroyed.
+   * @summary Ensures any resources allocated by the directive's media service are
+   * released (DOM listeners, timers, subscriptions, etc.). Implementations should
+   * keep `mediaService.destroy()` idempotent; calling it here prevents leaks when
+   * components are torn down.
+   * @returns {void}
+   */
+  ngOnDestroy(): Promise<void> | void {
+    this.mediaService.destroy();
+  }
 
   /**
    * @description Getter for the current locale context identifier.
@@ -483,7 +515,7 @@ protected destroy$ = new Subject<void>();
    * @returns {string} The current locale identifier
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  get localeContext(){
+  get localeContext(): string{
 		return this.getLocale();
 	}
 
@@ -532,6 +564,8 @@ protected destroy$ = new Subject<void>();
     }
     if (changes[BaseComponentProps.LOCALE_ROOT] || changes[BaseComponentProps.COMPONENT_NAME])
       this.locale = this.localeContext;
+    if(this.enableDarkMode)
+      this.checkDarkMode();
   }
 
   /**
@@ -566,6 +600,17 @@ protected destroy$ = new Subject<void>();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async initialize(...args: unknown[]): Promise<void> {
     this.initialized = true;
+  }
+
+  protected checkDarkMode(): void {
+    this.mediaService.isDarkMode().subscribe(isDark => {
+      this.isDarkMode = isDark;
+      this.mediaService.toggleClass(
+        [this.component],
+        AngularEngineKeys.DARK_PALETTE_CLASS,
+        this.isDarkMode
+      );
+    });
   }
 
   /**
@@ -837,7 +882,7 @@ protected destroy$ = new Subject<void>();
     if (!id)
       id = this.modelId as string;
     if (this.modelId)
-        page = `${page}${this.modelId || id}`;
+      page = `${page}${this.modelId || id}`;
     return this.router.navigateByUrl(page);
   }
 }

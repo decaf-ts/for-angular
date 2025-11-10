@@ -1,12 +1,11 @@
-import { DecafRepository, KeyValue } from 'src/lib/engine/types';
-import { formatDate, getOnWindow } from 'src/lib/utils/helpers';
 import { faker } from '@faker-js/faker';
+import { parseToNumber } from '@decaf-ts/ui-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
 import { Repository, uses } from '@decaf-ts/core';
-import { FunctionLike } from 'src/lib/engine/types';
-import { DB_ADAPTER_PROVIDER } from 'src/lib/for-angular-common.module';
-import { parseToNumber } from '@decaf-ts/ui-decorators';
+import { DB_ADAPTER_PROVIDER } from '../for-angular-common.module';
+import { DecafRepository, KeyValue, FunctionLike } from '../engine/types';
+import { formatDate, getOnWindow } from './helpers';
 
 export class DecafFakerRepository<T extends Model> {
 

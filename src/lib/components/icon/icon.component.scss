@@ -1,0 +1,23 @@
+::ng-deep .dcf-icon {
+  &.dcf-palette-dark {
+    ion-icon {
+      color: var(--dcf-text-color) !important;
+    }
+
+    svg {
+      fill: var(--dcf-text-color);
+      fill-opacity: 0.25 !important;
+      stroke: var(--dcf-text-color) !important;
+      * {
+        fill: var(--dcf-color-primary) !important;
+        stroke: var(--dcf-color-gray-1) !important;
+      }
+    }
+  }
+}
+
+.dcf-icon {
+  ion-icon:not([size]) {
+    font-size: 1.35rem !important;
+  }
+}

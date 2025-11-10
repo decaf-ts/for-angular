@@ -118,7 +118,8 @@ export class NgxRenderableComponentDirective extends NgxComponentDirective
    * @return {Promise<void>} A promise that resolves when cleanup is complete
    * @memberOf NgxComponentDirective
    */
-  async ngOnDestroy(): Promise<void> {
+  override async ngOnDestroy(): Promise<void> {
+    super.ngOnDestroy();
     if (this.instance) {
       this.unsubscribeEvents();
       await NgxRenderingEngine.destroy();

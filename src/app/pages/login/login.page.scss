@@ -1,18 +1,21 @@
 main {
-  padding-top: 20vh;
-
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  padding-top: 15vh;
   #dcf-logo {
     display: flex;
     justify-content: center;
-    margin-bottom: 2rem;
+    margin-bottom: 4rem !important;
     ion-img {
       max-width: 310px;
       min-width: 220px;
     }
   }
-}
-
-ion-card {
-  padding-top: 2rem;
-  // padding: 2rem 1rem;
+  .dcf-card-container {
+    max-width: 95vw;
+    @media (min-width: 420px) {
+      max-width: 400px;
+    }
+  }
 }

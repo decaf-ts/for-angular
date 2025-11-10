@@ -33,6 +33,7 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
   styleUrls: ['modal.component.scss'],
   standalone: true,
   imports: [IonModal, ModelRendererComponent, TranslatePipe, IonSpinner, IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar],
+  host: {'[attr.id]': 'uid'},
 })
 export class ModalComponent extends NgxParentComponentDirective implements OnInit  {
 
@@ -117,88 +118,10 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
 
 }
 
-
 export async function getNgxModalComponent(props: Partial<ModalComponent> = {}, modalProps: Partial<ModalOptions> = {}, injector?: EnvironmentInjector): Promise<ModalComponent> {
-
   const {globals} = {... props};
   if (!globals || !globals?.['operation'])
     props.globals = {...(globals || {}), operation: OperationKeys.CREATE};
   const component = NgxRenderingEngine.createComponent(ModalComponent, props, injector || undefined) as ModalComponent;
   return component.create(modalProps);
-
 }
-
-
-
-// export function getInstanceFromContext<T>(injector: Injector, controller: Type<T>): T {
-//   let instance: T;
-
-//   runInInjectionContext(injector, () => {
-//     instance = inject(controller);
-//   });
-
-//   return instance!;
-// }
-
-
-// export async function getModal2(injector: Injector, props: ComponentProps<ModalOptions> = {}): Promise<ModalComponent> {
-//   // return ModalComponent;
-//   const cmp = NgxRenderingEngine.createDynamicComponent(ModalComponent);
-//   // cmp.init(mdCtrl as any);
-//   // cmp.changeDetectorRef.detectChanges();
-//   return cmp.create({});
-//   // return cmp.create();
-//   // return await modalController.create({
-//   //   component: ModalComponent,
-//   //   componentProps: {
-//   //     name: 'Decaf Modal'
-//   //   }
-//   // });
-// }
-
-// import {
-//   createEnvironmentInjector,
-//   createComponent,
-// } from '@angular/core';
-// import { NgxRenderingEngine } from 'src/lib/engine/NgxRenderingEngine';
-
-// export function createDynamicComponent<T>(
-//   component: Type<T>,
-//   parentInjector?: Injector,
-// ): T {
-//   if (!parentInjector)
-//       parentInjector = Injector.create({providers: [], parent: Injector.NULL});
-//   const envInjector: EnvironmentInjector = createEnvironmentInjector([], parentInjector as EnvironmentInjector);
-
-//   let instance: T;
-
-//   runInInjectionContext(envInjector, () => {
-//     const host = document.createElement('div');
-//     if (!host) throw new Error('ion-app not found in DOM');
-
-//     const compRef = createComponent(component, {
-//       environmentInjector: envInjector,
-//       hostElement: host
-//     });
-
-//     document.body.appendChild(host);
-//      // Passa o controller via input
-
-//     instance = compRef.instance;
-//   });
-
-//   return instance!;
-// }
-// export function openModal(props: any = {}) {
-//   return runInInjectionContext(injector, async () => {
-//     const modalCtrl = inject(ModalController);
-
-//     const modal = await modalCtrl.create({
-//       component: ModalComponent,
-//       componentProps: props
-//     });
-
-//     await modal.present();
-//     return modal;
-//   });
-// }

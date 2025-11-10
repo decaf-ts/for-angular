@@ -1,0 +1,63 @@
+<div class="dcf-icon" #component>
+  @if(initialized) {
+    @if(button) {
+      <ion-button
+        [fill]="buttonFill"
+        [shape]="buttonShape"
+        [color]="color">
+        @if(type === 'image') {
+          @if(isSvg) {
+            <span
+            aria-hidden="true"
+            [slot]="slot"
+            [class]="color ? 'dcf-color-' + color : ''"
+            [style.width]="width"
+            [ngx-decaf-svg]="name">
+            ></span>
+          } @else {
+            <img
+              aria-hidden="true" [alt]="name"  [title]="name" [slot]="slot" [src]="name" [style.width]="width" title="icon"  />
+          }
+
+        } @else {
+          <ion-icon
+            aria-hidden="true"
+            [slot]="slot"
+            [ios]="name"
+            [md]="name"
+            [size]="size"
+            [color]="color"
+            [name]="name"  />
+        }
+      </ion-button>
+    } @else {
+      @if(type === 'image') {
+        @if(isSvg) {
+          <span
+            aria-hidden="true"
+            [slot]="slot"
+            [class]="color ? 'dcf-color-' + color : ''"
+            [style.width]="width"
+            [ngx-decaf-svg]="name"
+
+            >
+          </span>
+        } @else {
+            <img aria-hidden="true" [alt]="name"  [title]="name" [slot]="slot" [src]="name" [style.width]="width" title="icon"  />
+        }
+      }
+      @if(type === 'ionic') {
+
+        <ion-icon
+          aria-hidden="true"
+          [slot]="slot"
+          [ios]="name"
+          [md]="name"
+          [size]="size"
+          [color]="color"
+          [name]="name"  />
+
+      }
+    }
+  }
+</div>

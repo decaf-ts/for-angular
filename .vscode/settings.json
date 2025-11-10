@@ -1,9 +1,6 @@
 {
   "cSpell.enabled": false,
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "always",
-    "source.fixAll.eslint": "always"
-  },
+
   "jest.jestCommandLine": "npm run test --",
   "jest.runMode": "on-demand",
   "jest.coverageColors": {
@@ -59,5 +56,9 @@
     "sass",
     "css"
   ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
+    "source.fixAll.eslint": "always"
+  },
   "prettier.requireConfig": true
 }

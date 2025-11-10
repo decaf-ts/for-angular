@@ -1,70 +1,106 @@
+// @use "@decaf-ts/styles/src/components/variables/decaf.scss";
+// $dcf-spacement: 1.25rem; // 20px
+// $dcf-spacement-xsmall: 0.3125rem; // 5px
+// $dcf-spacement-small: 0.625rem; // 10px
+// $dcf-spacement-medium: 1.875rem; // 30px
+// $dcf-spacement-large: 2.5rem; // 40px
+// $dcf-spacement-xlarge: 4.375rem; // 70px
+// $dcf-spacement-2xlarge: $dcf-spacement-xlarge * 2; // 140px
+
+// $dcf-width-s: 576px;
+// $dcf-width-m: 768px;
+// $dcf-width-l: 992px;
+// $dcf-width-xl: 1200px;
+// $dcf-width-2xl: 1400px;
+
+// $dcf-width-small: $dcf-width-s;
+// $dcf-width-medium: $dcf-width-m;
+// $dcf-width-large: $dcf-width-l;
+// $dcf-width-xlarge: $dcf-width-xl;
+// $dcf-width-2xlarge: $dcf-width-2xl;
+
+// $border-radius: 8px;
+// $border-radius-small: 6px;
+// $border-radius-large: 12px;
+
+// $text-color: #414651; // gray-7
+
+// Using decaf screen sizes
+$dcf-width-s: 576px;
+$dcf-width-m: 768px;
+$dcf-width-l: 992px;
+$dcf-width-xl: 1200px;
+$dcf-width-2xl: 1400px;
+
 .dcf-container {
-  // padding: 3rem 2rem;
-  padding: 2.5rem 2rem;
+  display: flow-root;
 
-  &.dcf-padding-top-small {
-    padding-top: 1.25rem !important;
-  }
-
-  @media (min-width: 681px) and (max-width: 768px) {
-    padding: 2.5rem 1.75rem;
-  }
-
-  @media (max-width: 680px) {
-    padding: 1.25rem .75rem;
-  }
-
-  .dcf-width-small {
-    div {  width: 150px; }
-  }
-  .dcf-width-medium {
-    div { width: 300px; }
-  }
-  .dcf-width-large {
-    div { width: 450px; }
-  }
-  .dcf-width-xlarge {
-    div { width: 600px;}
-  }
-  .dcf-width-2xlarge {
-    div { width: 750px;}
+  // width: auto;
+  min-width: 290px;
+  padding-left: var(--dcf-padding-xsmall, 1rem);
+  padding-right: var(--dcf-padding-xsmall, 1rem);
+  padding-bottom: var(--dcf-padding-small, 2rem);
+  padding-top: var(--dcf-padding-small, 2rem);
+  // box-sizing: content-box;
+  @media (min-width: $dcf-width-s) {
+    padding-left: var(--dcf-padding-medium);
+    padding-right: var(--dcf-padding-medium);
+    padding-bottom: var(--dcf-padding, 2rem);
+    padding-top: var(--dcf-padding, 2rem);
   }
 
-  .dcf-width-auto {
-    div {
-      width: auto;
-    }
+  @media (min-width: $dcf-width-l) {
+    padding-left: var(--dcf-padding-large);
+    padding-right: var(--dcf-padding-large);
+  }
+  > :last-child {
+    margin-bottom: 0;
+  }
+  .dcf-container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .dcf-width-xsmall > div {
+    width: 290px;
+  }
+
+  .dcf-width-small > div {
+    width: $dcf-width-s;
+  }
+
+  .dcf-width-medium > div {
+    width: $dcf-width-m;
+  }
+  .dcf-width-large > div {
+    width: $dcf-width-l;
+  }
+  .dcf-width-xlarge > div {
+    width: $dcf-width-xl;
+  }
+  .dcf-width-2xlarge > div {
+    width: $dcf-width-2xl;
+  }
+
+  .dcf-width-auto > div {
+    width: auto;
   }
 
   .dcf-width-block {
     width: 100%;
     div {
-     flex: 1;
-     min-width: 1px;
-    }
-  }
-
-  /* Expand */
-  .dcf-width-expand {
-    max-width: 75vw !important;
-    div {
       flex: 1;
       min-width: 1px;
     }
   }
-
-  @media (max-width: 768px) {
-    ion-col {
-      padding: 0px;
+  .dcf-width-expand {
+    max-width: 80vw !important;
+    @media (min-width: #{($dcf-width-2xl + 1px)}) {
+      max-width: 85vw !important;
     }
-  }
-
-  ion-card,
-  mat-card {
-    margin: .75rem;
-  }
-
-  .dcf-grid {
-    margin-top: .75rem;
+    div {
+      flex: 1;
+      min-width: 1px;
+    }
   }
 }

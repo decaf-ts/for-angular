@@ -96,7 +96,7 @@ export class ValidatorFactory {
         errs = validator.hasErrors(value, props, proxy);
       } catch (e: unknown) {
         errs = `${key} validator failed to validate: ${e}`;
-        console.warn(errs);
+        console.error(errs);
       }
       return errs ? { [validatorKey]: true } : null;
     };

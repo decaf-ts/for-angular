@@ -161,7 +161,12 @@ ion-button {
 //   margin-bottom: 100rem !important;
 // }
 
-::ng-deep {
+.dcf-steped-form ::ng-deep {
+  // .dcf-grid-small {
+  //   > div {
+  //     margin-bottom: 2rem !important;
+  //   }
+  // }
   ngx-decaf-component-renderer.ngx-decaf-fieldset,
   ngx-decaf-fieldset {
     padding-top: 0px !important;

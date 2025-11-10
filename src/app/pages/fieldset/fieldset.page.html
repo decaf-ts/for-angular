@@ -7,14 +7,14 @@
 
 <ion-content [fullscreen]="true">
    <main>
-    <app-container [hasSideMenu]="true" size="2xlarge">
-       <ion-card class="dcf-card-default dcf-padding-small">
-        <ngx-decaf-model-renderer
-          [model]="model"
-          (listenEvent)="handleSubmit($event)"
-          [globals]="globals">
-        </ngx-decaf-model-renderer>
-       </ion-card>
+    <app-container [hasSideMenu]="true">
+       <ngx-decaf-card>
+          <ngx-decaf-model-renderer
+            [model]="model"
+            (listenEvent)="handleSubmit($event)"
+            [globals]="globals">
+          </ngx-decaf-model-renderer>
+       </ngx-decaf-card>
     </app-container>
   </main>
 </ion-content>

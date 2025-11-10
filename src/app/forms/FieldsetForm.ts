@@ -1,7 +1,8 @@
 import { pk } from '@decaf-ts/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { list, max, Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
+import { list, Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
 import { hideOn, uichild, uielement, uilayoutprop, uilistmodel, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
+import { CategoryModel } from '../models/CategoryModel';
 
 @uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uimodel('ngx-decaf-crud-form')
@@ -47,9 +48,9 @@ export class FieldSetForm extends Model {
   id!: number;
 
 
-  @list(User, 'Array')
-  @uichild(User.name, 'ngx-decaf-fieldset', {max: 2, mergeInParent: true}, true)
-  user!: User;
+  @list(CategoryModel, 'Array')
+  @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {max: 2, mergeInParent: true}, true)
+  user!: CategoryModel;
 
   constructor(args: ModelArg<FieldSetForm> = {}) {
     super(args);

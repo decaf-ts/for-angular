@@ -19,7 +19,7 @@ import { UIElementMetadata, UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { EventConstants } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
-import { NgxFormService } from '../../engine/NgxFormService';
+import { NgxFormService } from '../../services/NgxFormService';
 import { getLocaleContext } from '../../i18n/Loader';
 import { LayoutComponent } from '../layout/layout.component';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
@@ -40,7 +40,7 @@ import { FormParent } from '../../engine/types';
     LayoutComponent
   ],
   standalone: true,
-  //  host: {'[attr.id]': 'uid'},
+   host: {'[attr.id]': 'uid'},
 })
 export class SteppedFormComponent extends NgxFormDirective implements OnInit, OnDestroy {
 
@@ -209,6 +209,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
   constructor() {
     super("SteppedFormComponent");
     addIcons({arrowForwardOutline, arrowBackOutline});
+    this.enableDarkMode = true;
   }
 
   /**

@@ -40,8 +40,8 @@ module.exports = tseslint.config(
         "error",
         {
           type: "attribute",
-          prefix: ["decaf", ""],
-          style: "camelCase",
+          prefix: ["ngx-decaf", ""],
+          style: "kebab-case",
         },
       ],
       "@angular-eslint/component-selector": [

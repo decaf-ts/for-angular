@@ -11,6 +11,7 @@
 
 import { Component, OnInit, EventEmitter, Output, Input, HostListener, OnDestroy  } from '@angular/core';
 import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonInfiniteScroll,
   IonInfiniteScrollContent,
@@ -23,24 +24,28 @@ import {
   IonText,
   IonThumbnail
 } from '@ionic/angular/standalone';
-import { debounceTime, Subject } from 'rxjs';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
+import { debounceTime, Subject } from 'rxjs';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
 import {
   StringOrBoolean,
-  KeyValue
+  KeyValue,
+  FunctionLike,
+  DecafRepository
 } from '../../engine/types';
 import {
   EventConstants,
   ComponentsTagNames,
-  DefaultListEmptyOptions
+  DefaultListEmptyOptions,
+  ListComponentsTypes
 } from '../../engine/constants';
 import {
   IBaseCustomEvent,
   ListItemCustomEvent,
+  IPaginationCustomEvent, IFilterQuery, IFilterQueryItem,  IListEmptyOptions
 } from '../../engine/interfaces';
 import {
   stringToBoolean,
@@ -51,10 +56,7 @@ import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { PaginationComponent } from '../pagination/pagination.component';
-import { IPaginationCustomEvent } from '../../engine/interfaces';
-import { FunctionLike, IFilterQuery, IFilterQueryItem, DecafRepository, IListEmptyOptions, ListComponentsTypes } from '../../engine';
 import { FilterComponent } from '../filter/filter.component';
-import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -151,7 +153,8 @@ import { TranslatePipe } from '@ngx-translate/core';
     EmptyStateComponent,
     FilterComponent,
     ComponentRendererComponent
-  ]
+  ],
+  host: {'[attr.id]': 'uid'},
 })
 export class ListComponent extends NgxComponentDirective implements OnInit, OnDestroy {
 
@@ -629,7 +632,6 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @memberOf ListComponent
    */
   async ngOnInit(): Promise<void> {
-
     this.observer = { refresh: async (... args: unknown[]): Promise<void> => this.observeRepository(...args)}
 
     this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event as ListItemCustomEvent | IBaseCustomEvent));
@@ -665,7 +667,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @returns {void}
    * @memberOf ListComponent
    */
-  ngOnDestroy(): void {
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
     if (this._repository)
       this._repository.unObserve(this.observer);
     this.data =  this.model = this._repository = this.paginator = undefined;

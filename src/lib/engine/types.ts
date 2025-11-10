@@ -13,7 +13,7 @@ import { FormServiceControl, I18nResourceConfig, InputOption } from './interface
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
 import { Constructor, Model } from '@decaf-ts/decorator-validation';
-import { ActionRoles } from './constants';
+import { ActionRoles, ElementSizes, LayoutGridGaps, WindowColorSchemes } from './constants';
 
 
 export type HandlerLike = Record<string, (...args: unknown[]) => unknown | Promise<unknown>>
@@ -67,18 +67,10 @@ export type FunctionLike = (...args: any[]) => any;
  * @description Element size options for UI components
  * @summary Defines the possible size values that can be applied to UI elements.
  * These sizes control the dimensions and layout behavior of components.
- * @typedef {('small'|'medium'|'large'|'xlarge'|'2xlarge'|'auto'|'expand'|'block')} ElementSizes
+ * @typedef {(''|'small'|'medium'|'large'|'xlarge'|'2xlarge'|'auto'|'expand'|'block')} ElementSize
  * @memberOf module:engine
  */
-export type ElementSizes =
-  | 'small'
-  | 'medium'
-  | 'large'
-  | 'xlarge'
-  | '2xlarge'
-  | 'auto'
-  | 'expand'
-  | 'block';
+export type ElementSize =  typeof ElementSizes[keyof typeof ElementSizes];
 
 /**
  * @description Basic position options for UI elements
@@ -256,8 +248,6 @@ export type FormServiceControls = Record<
   Record<string, FormServiceControl>
 >;
 
-
-
 export type FormParent = FormGroup | FormArray;
 
 /**
@@ -277,16 +267,25 @@ export type FormParentGroup = [FormParent,  string];
  */
 export type I18nResourceConfigType = I18nResourceConfig | I18nResourceConfig[];
 
+
 /**
- * @description Color scheme options for the application window
- * @summary Defines the possible color schemes that can be applied to the application window.
- * - 'dark': Dark mode
- * - 'light': Light mode
- * - unknown: Any other unspecified color scheme
- * @typedef {('dark' | 'light' | unknown)} WindowColorScheme
- * @memberOf module:lib/engine/types
+ * @description União de todos os valores definidos em `WindowColorSchemes`.
+ * @summary Representa o esquema de cores possível para a janela (por exemplo 'light' | 'dark').
+ * @see WindowColorSchemes
+ * @example
+ * // valor típico: 'light' ou 'dark'
+ * const scheme: WindowColorScheme = 'dark';
  */
-export type WindowColorScheme = 'dark' | 'light' | unknown;
+export type WindowColorScheme = typeof WindowColorSchemes[keyof typeof WindowColorSchemes];
 
-
+/**
+ * @description Tipo que representa as roles/ações possíveis definidas em `ActionRoles`.
+ * @summary Usado para tipar valores que correspondem a uma ação semântica (ex.: 'submit', 'cancel').
+ * @see ActionRoles
+ * @example
+ * const role: ActionRole = ActionRoles.cancel;
+ */
 export type ActionRole = typeof ActionRoles[keyof typeof ActionRoles];
+
+
+export type LayoutGridGap = typeof LayoutGridGaps[keyof typeof LayoutGridGaps];

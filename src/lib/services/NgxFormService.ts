@@ -6,14 +6,14 @@
  * validate and extract form data, and create controls with appropriate validators.
  */
 import { escapeHtml, FieldProperties, HTML5CheckTypes, HTML5InputTypes, IPagedComponentProperties, parseToNumber, UIModelMetadata } from '@decaf-ts/ui-decorators';
-import { FieldUpdateMode, FormParent, FormParentGroup, KeyValue } from './types';
-import { IComponentConfig, IFormComponentProperties } from './interfaces';
+import { FieldUpdateMode, FormParent, FormParentGroup, KeyValue } from '../engine/types';
+import { IComponentConfig, IFormComponentProperties } from '../engine/interfaces';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { isValidDate, ModelKeys, parseDate, Primitives, Validation } from '@decaf-ts/decorator-validation';
-import { ValidatorFactory } from './ValidatorFactory';
+import { ValidatorFactory } from '../engine/ValidatorFactory';
 import { cleanSpaces } from '../utils/helpers';
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { BaseComponentProps } from './constants';
+import { BaseComponentProps } from '../engine/constants';
 
 
 /**

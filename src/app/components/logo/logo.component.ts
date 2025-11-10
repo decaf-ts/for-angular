@@ -1,6 +1,6 @@
-import { Component, Input, OnInit  } from '@angular/core';
+import { Component, inject, Input, OnInit  } from '@angular/core';
 import { IonImg } from '@ionic/angular/standalone';
-import { getWindow } from 'src/lib/utils';
+import { NgxMediaService } from 'src/lib/services/NgxMediaService';
 
 
 @Component({
@@ -14,16 +14,18 @@ import { getWindow } from 'src/lib/utils';
 export class LogoComponent implements OnInit {
 
   @Input()
-  showAngularLogo = true;
+  showAngularLogo = false;
 
   @Input()
   logo = '/assets/images/decaf-logo.svg';
 
   @Input()
-  logoContrast = '/assets/images/decaf-logo-lw.svg';
+  logoContrast = '/assets/images/decaf-logo-contrast.svg';
 
   @Input()
   width: number | string = 180;
+
+  mediaService = inject(NgxMediaService);
 
   activeLogo!: string;
 
@@ -33,15 +35,10 @@ export class LogoComponent implements OnInit {
    *
    * @returns {void} This method does not return a value.
    */
-  ngOnInit(): void {
-    const win = getWindow() as Window;
-    const colorSchemePreference = win.matchMedia('(prefers-color-scheme: dark)');
-    this.activeLogo = colorSchemePreference.matches ? this.logoContrast : this.logo;
-      this.width = `${this.width}`.replace('px','');
-    colorSchemePreference.addEventListener('change', () => {
-      this.activeLogo = colorSchemePreference.matches ? this.logoContrast : this.logo;
+  async ngOnInit(): Promise<void> {
+    this.mediaService.isDarkMode().subscribe(isDark => {
+      this.activeLogo = (isDark ? this.logoContrast : this.logo ) as string;
     });
-
   }
 
 }

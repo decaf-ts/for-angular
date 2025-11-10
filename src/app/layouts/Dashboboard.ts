@@ -22,7 +22,7 @@ export class DashboardLayout extends Model {
   @uichild(EmployeeModel.name, 'ngx-decaf-crud-form')
   employee!: EmployeeModel;
 
-  @uielement('ngx-decaf-empty-state')
+  @uielement('ngx-decaf-empty-state', {match: true})
   @uilayoutprop(1, 2)
   employeeRight!: string;
 

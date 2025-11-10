@@ -108,7 +108,7 @@ import { getLocaleContextByKey } from '../../i18n/Loader';
   templateUrl: './crud-field.component.html',
   styleUrl: './crud-field.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  // host: {'[attr.id]': 'uid', '[attr.class]': 'className'},
+  host: {'[attr.id]': 'uid', '[attr.class]': 'className'},
 })
 export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit, OnDestroy, AfterViewInit {
 
@@ -651,6 +651,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   async ngOnInit(): Promise<void> {
+    console.log(this.enableDarkMode, this.operation, this.name);
     this.options = await this.getOptions();
     addIcons({chevronDownOutline, chevronUpOutline});
     if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation)) {
@@ -668,12 +669,19 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
           this.parentForm = this.formGroup.parent as FormArray;
         this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
       }
-      if (this.type === HTML5InputTypes.CHECKBOX && Array.isArray(this.value)) {
-        this.setValue(this.value);
+
+      if (!this.value && (this.options as []).length)
+        this.setValue((this.options as CrudFieldOption[])[0].value);
+
+      if (this.type === HTML5InputTypes.CHECKBOX) {
+        if(this.labelPlacement === 'floating')
+        this.labelPlacement = 'end';
+        if (Array.isArray(this.value))
+          this.setValue(this.value);
       }
+
     }
   }
-
 
    /**
    * Returns a list of options for select or radio inputs, with their `text` property
@@ -735,12 +743,9 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   ngAfterViewInit(): void {
-    if (![OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
-      super.afterViewInit();
-    } else {
-      if (this.type === HTML5InputTypes.RADIO && !this.value)
+   super.afterViewInit();
+    if (this.type === HTML5InputTypes.RADIO && !this.value)
         this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
-    }
   }
 
 
@@ -753,7 +758,8 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @returns {void}
    * @memberOf CrudFieldComponent
    */
-  ngOnDestroy(): void {
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
       this.onDestroy();
   }

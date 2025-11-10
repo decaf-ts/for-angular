@@ -10,28 +10,17 @@
       <ng-content #formContent></ng-content>
     } @else {
         <ngx-decaf-layout
-          [className]="'dcf-crud-form-grid'"
+          [className]="'dcf-crud-form-grid dcf-grid-nested '"
           [children]="children || []"
           [parentForm]="formGroup || parentForm"
           [match]="false"
-          gap="small"
+          [gap]="'small'"
           [flexMode]="props.flexMode || false"
           [rows]="rows"
           [cols]="cols" />
-
-      <!-- @for (child of children; track $index) {
-        <ngx-decaf-component-renderer
-          [class]="(child?.props?.className ? 'dcf-form-item ' + child.props.className : 'dcf-form-item')"
-          [tag]="child?.tag"
-          [projectable]="false"
-          [formRoot]="formGroup"
-          [children]="child?.children || []"
-          [globals]="{props: child.props}"
-        />
-      } -->
     }
     @if (initialized) {
-      <div class="dcf-buttons-grid dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
+      <div class="dcf-buttons-grid dcf-grid dcf-grid-small dcf-flex dcf-flex-left">
         <div>
           <ion-button type="submit" [expand]="action ? 'block' : 'default'">
             @if (options.buttons.submit.icon) {
@@ -60,7 +49,7 @@
       <ng-content #formContent></ng-content>
     } @else {
       @for (child of children; track $index) {
-        <div [class]="(child?.props?.className ? 'dcf-form-item ' + child.props.className : 'dcf-form-item')">
+        <div class="dcf-form-item">
             <ngx-decaf-component-renderer
               [tag]="child?.tag"
               [projectable]="false"
@@ -71,8 +60,8 @@
       }
     }
   </section>
-  <section [class]="'dcf-buttons-grid dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left ' + operation" [id]="uid">
-    @if (operation === OperationKeys.READ && modelId) {
+  <section [class]="'dcf-buttons-grid dcf-grid dcf-grid-small dcf-flex dcf-flex-left ' + operation" [id]="uid">
+    @if ([OperationKeys.READ, OperationKeys.DELETE].includes(operation) && modelId) {
       <div>
         <ion-button
           (click)="handleDelete()"

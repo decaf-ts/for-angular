@@ -7,8 +7,7 @@ import {
   OnInit,
   reflectComponentType,
   TemplateRef,
-  Type,
-  ViewEncapsulation,
+  Type
 } from '@angular/core';
 /**
  * @module module:lib/components/component-renderer/component-renderer.component
@@ -71,6 +70,7 @@ import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableCompo
   styleUrls: ['./component-renderer.component.scss'],
   imports: [NgComponentOutlet],
   standalone: true,
+  host: {'[attr.id]': 'uid'},
 })
 export class ComponentRendererComponent extends NgxRenderableComponentDirective implements OnInit, OnDestroy {
 
@@ -194,6 +194,9 @@ export class ComponentRendererComponent extends NgxRenderableComponentDirective 
     const hasRootForm = hasProperty(BaseComponentProps.PARENT_FORM);
     if (hasRootForm && this.parentForm)
       props[BaseComponentProps.PARENT_FORM] = this.parentForm;
+
+    props['className'] = (props['className'] ?
+      props['className'] + ' ' + this.className : this.className || "");
 
     this.vcr.clear();
     // const projectable = (this.children?.length && this.projectable);

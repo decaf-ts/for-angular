@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ModelRendererComponent } from './model-renderer.component';
 import { ForAngularModel } from '../../../app/models/DemoModel';
 import { Model } from '@decaf-ts/decorator-validation';
@@ -20,6 +20,8 @@ const imports = [
   })
 ];
 
+const providers = [ provideHttpClientTesting() ];
+
 describe('ModelRendererComponent', () => {
   let component: ModelRendererComponent<Model>;
   let fixture: ComponentFixture<ModelRendererComponent<Model>>;
@@ -29,7 +31,7 @@ describe('ModelRendererComponent', () => {
   //   Type 'AngularDynamicOutput' is missing the following properties from type 'FieldDefinition<AngularFieldDefinition>': tag, props
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports,
+      imports, providers
     }).compileComponents();
 
     fixture = TestBed.createComponent(ModelRendererComponent);

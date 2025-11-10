@@ -1,12 +1,11 @@
+ <ngx-decaf-card [className]="className">
 
-<ion-card [id]="uid" [class]="className ? className : 'dcf-card-default'">
-  <ion-card-content>
     @if (icon && showIcon) {
       <div class="dcf-icon-container">
         <ion-icon
           [name]="icon"
           [size]="iconSize"
-          [color]="iconColor"
+          [color]="!this.isDarkMode ? iconColor : ''"
           />
       </div>
     }
@@ -42,6 +41,4 @@
       </div>
 
     }
-
-  </ion-card-content>
-</ion-card>
+  </ngx-decaf-card>

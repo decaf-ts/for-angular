@@ -68,7 +68,7 @@ import { IPaginationCustomEvent } from '../../engine/interfaces';
     IonIcon
   ],
   standalone: true,
-
+  host: {'[attr.id]': 'uid'}
 })
 export class PaginationComponent extends NgxComponentDirective implements OnInit {
 

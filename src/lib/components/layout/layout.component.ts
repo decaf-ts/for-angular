@@ -19,6 +19,9 @@ import { Dynamic } from '../../engine/decorators';
 import { filterString } from '../../utils/helpers';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
+import { LayoutGridGap } from '../../engine/types';
+import { LayoutGridGaps } from '../../engine/constants';
+import { CardComponent } from  '../card/card.component';
 
 /**
  * @description Layout component for creating responsive grid layouts in Angular applications.
@@ -37,7 +40,7 @@ import { ModelRendererComponent } from '../model-renderer/model-renderer.compone
   selector: 'ngx-decaf-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
-  imports: [TranslatePipe, ModelRendererComponent, ComponentRendererComponent],
+  imports: [TranslatePipe, CardComponent, ModelRendererComponent, ComponentRendererComponent],
   standalone: true,
 
 })
@@ -55,7 +58,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    * @memberOf LayoutComponent
    */
   @Input()
-  gap: 'small' | 'medium' | 'large' | 'collapse' | '' = 'collapse';
+  gap: LayoutGridGap = LayoutGridGaps.collapse;
 
   /**
    * @description Media breakpoint for responsive behavior.
@@ -266,7 +269,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
         }
         col = `dcf-child-${col}-${this.breakpoint} dcf-width-${col}`;
         const childClassName = c?.['props']?.className || '';
-        const colClass = `dcf-grid-child ${col}@${this.breakpoint} ${filterString(childClassName ,'-width-')}`;
+        const colClass = `${col}@${this.breakpoint} ${filterString(childClassName ,'-width-')}`;
         // to prevent layout glitches, before send class to child component remove width classes
         if (c?.['props']?.className)
           c['props'].className = filterString(c?.['props']?.className ,'-width-', false);

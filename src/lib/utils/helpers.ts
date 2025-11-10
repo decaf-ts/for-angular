@@ -105,9 +105,9 @@ export function windowEventEmitter(
  * @memberOf module:for-angular
  */
 export function getOnWindowDocument(key: string): Document | undefined {
-  const doc = getWindowDocument()?.[key as keyof Document];
+  const doc = getWindowDocument() as Document;
   return doc instanceof Document ?
-    doc : undefined;
+    (doc as KeyValue)?.[key] || undefined : undefined;
 }
 
 /**

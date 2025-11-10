@@ -1,42 +1,46 @@
+<section class="dcf-layout-container">
+  @if (initialized) {
+    @for (row of rows; track trackItemFn($index, row); let rowIndex = $index) {
+      @if (row?.cols?.length) {
+        <div
+          [id]="uid"
+          [class]=" (!grid ? 'dcf-layout-row ' : 'dcf-layout-row dcf-grid ' + 'dcf-grid-' + gap ) + ' ' + (className || '') "
+           [class.dcf-grid-match]="match"
+          >
+          @if (row?.title?.length) {
+            <div class="dcf-width-1-1 dcf-grid-title">
+              <h3 class="">{{row.title | translate}}</h3>
+            </div>
+          }
+          @for (child of row.cols; track trackItemFn($index, child.col); let colIndex = $index) {
+            <div
+              [class]="child.colClass"
+              [class.dcf-first-column]=" $index === 0"
+            >
 
-@if (initialized) {
-  @for (row of rows; track trackItemFn($index, row); let rowIndex = $index) {
-     @if (row?.cols?.length) {
-      <div
-        [id]="uid"
-        [class]=" (!grid ? 'dcf-layout-row ' : 'dcf-layout-row dcf-grid ' + 'dcf-grid-' + gap ) + ' ' + (className || '') "
-        [class.dcf-grid-match]="match"
-        >
-        @if (row?.title?.length) {
-          <div class="dcf-width-1-1">
-            <ion-card class="dcf-card-title">
-              <h3 class="dcf-grid-title">{{row.title | translate}}</h3>
-            </ion-card>
-          </div>
-        }
-        @for (child of row.cols; track trackItemFn($index, child.col); let colIndex = $index) {
-          <div [class]="child.colClass + ' dcf-childs-' + child.col">
-              @if (child.tag === 'ngx-decaf-crud-form') {
-                <ion-card [class]="'dcf-height-1-1 ' + className">
-                  <ion-card-content>
+              <div>
+                @if (child.tag === 'ngx-decaf-crud-form') {
+                  <ngx-decaf-card [className]="(match ? 'dcf-height-1-1 dcf-card-layout' : '') + className">
                     <ngx-decaf-model-renderer
                       [model]="child.props.name"
                       (listenEvent)="handleEvent($event)"
                       />
-                    </ion-card-content>
-                  </ion-card>
-              } @else {
-                <ngx-decaf-component-renderer
-                  [tag]="child.tag"
-                  [parentForm]="parentForm || child.parentForm || child?.formGroup"
-                  [children]="child?.children || []"
-                  (listenEvent)="handleEvent($event)"
-                  [globals]="{props: child.props}"
-                />
-              }
-          </div>
-        }
-      </div>
+                  </ngx-decaf-card>
+                } @else {
+                  <ngx-decaf-component-renderer
+                    [tag]="child.tag"
+                    [className]="(match ? 'dcf-height-1-1 dcf-card-layout' : '') + className"
+                    [parentForm]="parentForm || child.parentForm || child?.formGroup"
+                    [children]="child?.children || []"
+                    (listenEvent)="handleEvent($event)"
+                    [globals]="{props: child.props}"
+                  />
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
     }
   }
-}
+</section>

@@ -5,6 +5,7 @@ import { LogoComponent } from 'src/app/components/logo/logo.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { NgxPageDirective } from 'src/lib/engine/NgxPageDirective';
+import { CardComponent } from 'src/lib/components';
 
 /**
  * @description Login page component for user authentication
@@ -40,7 +41,7 @@ import { NgxPageDirective } from 'src/lib/engine/NgxPageDirective';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonContent, IonCard, IonCardContent, LogoComponent, ContainerComponent, ModelRendererComponent],
+  imports: [IonContent, CardComponent, LogoComponent, ContainerComponent, ModelRendererComponent],
 
 })
 export class LoginPage extends NgxPageDirective implements OnInit {
@@ -50,7 +51,8 @@ export class LoginPage extends NgxPageDirective implements OnInit {
     super("LoginPage", false);
   }
 
-  ngOnInit(): void {
+  override async ngOnInit(): Promise<void> {
+   super.ngOnInit();
    this.model = new LoginForm({
     username: 'User',
     password: 'Passd-123'

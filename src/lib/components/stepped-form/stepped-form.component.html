@@ -43,7 +43,7 @@
 
     @if (initialized && activeContent?.length) {
         <ngx-decaf-layout
-          [className]="'dcf-stepped-form-grid'"
+          [className]="'dcf-stepped-form-grid paginated dcf-grid-nested'"
           [children]="activeContent || []"
           [parentForm]="formGroup || parentForm"
           [gap]="'small'"
@@ -100,7 +100,7 @@
                 @if (initialized && item.items?.length) {
                   <div>
                     <ngx-decaf-layout
-                      [className]="'dcf-stepped-form-grid'"
+                      [className]="'dcf-stepped-form-grid dcf-grid-nested'"
                       [children]="item.items || []"
                       [parentForm]="formGroup || parentForm"
                       [flexMode]="props.flexMode || false"

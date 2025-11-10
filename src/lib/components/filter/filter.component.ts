@@ -15,17 +15,13 @@ import { debounceTime, fromEvent, Subscription } from 'rxjs';
 import { IonButton, IonChip, IonIcon, IonSelect, IonSelectOption} from '@ionic/angular/standalone';
 import { chevronDownOutline, trashOutline, closeOutline, searchOutline, arrowDownOutline, arrowUpOutline, chevronUpOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-
+import { Model } from '@decaf-ts/decorator-validation';
 import { OrderDirection, Repository } from '@decaf-ts/core';
-
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
 import { IFilterQuery, IFilterQueryItem } from '../../engine/interfaces';
-
-import { getWindowWidth, isDarkMode } from '../../utils/helpers';
-import { Model } from '@decaf-ts/decorator-validation';
+import { getWindowWidth } from '../../utils/helpers';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
-
 
 
 /**
@@ -86,6 +82,7 @@ import { SearchbarComponent } from '../searchbar/searchbar.component';
     SearchbarComponent
   ],
   standalone: true,
+  host: {'[attr.id]': 'uid'},
 })
 export class FilterComponent extends NgxComponentDirective implements OnInit, OnDestroy {
 
@@ -278,16 +275,6 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
   windowResizeSubscription!: Subscription;
 
   /**
-   * @description Browsing mode (dark or light).
-   * @summary Indicates whether the dark mode theme is currently enabled.
-   * Defaults to `false`.
-   *
-   * @type {boolean}
-   * @memberOf FilterComponent
-   */
-  isDarkMode: boolean = false;
-
-  /**
    * @description Event emitter for filter changes.
    * @summary Emits filter events when the user creates, modifies, or clears filters.
    * The emitted value contains an array of complete filter objects or undefined when
@@ -349,7 +336,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   async ngOnInit(): Promise<void> {
-    this.isDarkMode = await isDarkMode();
+
     this.windowWidth = getWindowWidth() as number;
     this.windowResizeSubscription = fromEvent(window, 'resize')
     .pipe(debounceTime(300))
@@ -390,8 +377,10 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @returns {void}
    * @memberOf FilterComponent
    */
-  ngOnDestroy(): void {
-    this.windowResizeSubscription.unsubscribe();
+  override async ngOnDestroy(): Promise<void> {
+    super.ngOnDestroy();
+    if(this.windowResizeSubscription)
+      this.windowResizeSubscription.unsubscribe();
     this.clear();
   }
 
@@ -548,7 +537,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
         this.value = '';
         if (this.options.length)
           this.handleFocus(this.options);
-        this.component.nativeElement.focus();
+        this.component.nativeElement.querySelector('#dcf-filter-field').focus();
       }
     }
   }

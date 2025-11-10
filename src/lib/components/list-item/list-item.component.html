@@ -1,13 +1,14 @@
 
 @if (title || description) {
-  <ion-item-sliding #component>
+  <ion-item-sliding>
     <ion-item
       [id]="uid"
       [lines]="lines"
       [button]="button"
       [class]="className"
-      (click)="operations?.includes('read') ? handleAction('read', $event, component) : ''
-    ">
+      (click)="operations?.includes('read') ? handleAction('read', $event, component) : ''"
+      #component
+    >
       @if (icon && lines !== 'inset') {
         <div class="dcf-icon" [slot]="iconSlot">
           <ion-avatar>

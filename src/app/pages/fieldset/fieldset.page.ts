@@ -1,34 +1,31 @@
 import { Component, OnInit } from '@angular/core';
-import { IonCard, IonContent } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
 import { FieldSetForm } from 'src/app/forms/FieldsetForm';
-import { KeyValue } from 'src/lib/engine/types';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { IBaseCustomEvent, NgxPageDirective } from 'src/lib/engine';
 import { getLogger } from 'src/lib/for-angular-common.module';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
-import { ModelRendererComponent } from 'src/lib/components';
+import { CardComponent, ModelRendererComponent } from 'src/lib/components';
 
 @Component({
   standalone: true,
   selector: 'app-fieldset',
   templateUrl: './fieldset.page.html',
   styleUrls: ['./fieldset.page.scss'],
-  imports: [HeaderComponent, ContainerComponent, ModelRendererComponent, IonContent, IonCard]
+  imports: [HeaderComponent, IonContent, ContainerComponent, CardComponent, ModelRendererComponent]
 })
 export class FieldsetPage extends NgxPageDirective implements OnInit {
 
 
-  globals!: KeyValue;
-
   constructor() {
     super('FieldsetPage');
-    this.title = 'Fieldset';
   }
 
-  async ngOnInit(): Promise<void> {
+  override async ngOnInit(): Promise<void> {
+    super.ngOnInit();
+    this.globals = {operation: OperationKeys.CREATE, borders: false};
     this.model = new FieldSetForm();
-    this.globals = {operation: OperationKeys.CREATE};
   }
 
   handleSubmit(event: IBaseCustomEvent): void {

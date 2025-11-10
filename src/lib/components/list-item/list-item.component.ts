@@ -9,7 +9,7 @@
  * @link {@link ListItemComponent}
  */
 
-import { Component, EventEmitter, HostListener,Input, OnInit, Output, ViewChild  } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener,Input, OnInit, Output, ViewChild  } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import {
@@ -93,10 +93,13 @@ import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
     IonButton,
     IonContent,
     IonPopover
-  ]
-
+  ],
+  host: {'[attr.id]': 'uid'},
 })
-export class ListItemComponent extends NgxComponentDirective implements OnInit {
+export class ListItemComponent extends NgxComponentDirective implements OnInit, AfterViewInit {
+
+  @ViewChild('component', { read: ElementRef, static: false })
+  override component!: ElementRef;
 
   /**
    * @description Reference to the action menu popover component.
@@ -280,7 +283,8 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit {
    */
   constructor() {
     super("ListItemComponent");
-    addIcons(AllIcons)
+    addIcons(AllIcons);
+    this.enableDarkMode = true;
   }
 
   /**
@@ -313,11 +317,14 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit {
   async ngOnInit(): Promise<void> {
     this.showSlideItems = this.enableSlideItems();
     this.button = stringToBoolean(this.button);
-
     this.className = `${this.className}  dcf-flex dcf-flex-middle grid-item`;
     if (this.operations?.length)
       this.className += ` action`;
     this.windowWidth = getWindowWidth() as number;
+  }
+
+  ngAfterViewInit(): void {
+    this.checkDarkMode();
   }
 
   /**

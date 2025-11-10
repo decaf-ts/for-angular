@@ -8,7 +8,7 @@ import {
 import { uilistprop, uielement, uilistmodel, uimodel, hideOn, uilayoutprop } from '@decaf-ts/ui-decorators';
 import { OperationKeys, timestamp } from '@decaf-ts/db-decorators';
 import { index, pk } from '@decaf-ts/core';
-@uilistmodel('ngx-decaf-list-item', {icon: 'cafe-outline', className: 'testing'})
+@uilistmodel('ngx-decaf-list-item', {icon: 'cafe-outline'})
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class CategoryModel extends Model {

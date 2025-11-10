@@ -25,7 +25,7 @@ import {
   ViewContainerRef,
   createComponent
 } from '@angular/core';
-import { NgxFormService } from './NgxFormService';
+import { NgxFormService } from '../services/NgxFormService';
 import { isDevelopmentMode } from '../utils';
 import { FormParent } from './types';
 

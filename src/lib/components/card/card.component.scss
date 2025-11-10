@@ -1,0 +1,98 @@
+// removing borders and shadows for childs
+.dcf-card-default {
+}
+
+.dcf-card {
+  display: flow-root;
+  border-radius: var(--dcf-border-radius-small);
+  > * {
+    width: 100% !important;
+  }
+  ion-card-content {
+    padding: var(--dcf-padding);
+  }
+
+  ion-card-header + ion-card-content {
+    padding-top: 0px !important;
+    margin-top: var(--dcf-margin-small);
+  }
+  ion-card-header {
+    padding-left: 1.25rem;
+  }
+
+  // put smoe padding on mobile
+  @media (max-width: 575px) {
+    ion-card-header {
+      padding-left: 0.2rem !important;
+    }
+    ion-card-content {
+      padding: var(--dcf-margin-small);
+    }
+
+    &.dcf-card-small {
+      ion-content {
+        padding: var(--dcf-padding-xsmall);
+      }
+    }
+  }
+
+  &.dcf-card-default {
+    box-shadow: none !important;
+
+    // dont apply borders on childs
+    &.dcf-card-bordered .dcf-card-bordered {
+      border-color: transparent !important;
+    }
+  }
+
+  &.dcf-height-1-1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // fix height on layout nested items with grid match
+    &.dcf-card-layout {
+      height: calc(100% - 1.5rem);
+    }
+  }
+
+  &.dcf-card-shadow {
+    box-shadow: var(--dcf-card-box-shadow) !important;
+  }
+
+  &.dcf-card-bordered {
+    border: 1px solid var(--dcf-color-gray-2);
+  }
+
+  ion-card-title {
+    padding: var(--dcf-padding-small) var(--dcf-spacement) 0rem
+      var(--dcf-spacement) !important;
+    font-weight: 500;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  ion-card-subtitle {
+    padding: 0rem var(--dcf-spacement);
+    color: var(--ion-color-gray-4);
+    margin-top: 0px !important;
+  }
+}
+
+.dcf-palette-dark {
+  &.dcf-card-bordered {
+    border-color: transparent !important;
+  }
+}
+// fix grid small size
+// ::ng-deep {
+//   .dcf-grid-small {
+//     margin-right: var(--dcf-margin-small);
+//   }
+// }
+
+::ng-deep {
+  ngx-decaf-list ion-list {
+    padding: 0px !important;
+    margin: 0px !important;
+  }
+}

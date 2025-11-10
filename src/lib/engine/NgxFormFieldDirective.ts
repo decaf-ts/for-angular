@@ -10,7 +10,7 @@ import { FormParent, KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Directive, Inject, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { NgxFormService } from './NgxFormService';
+import { NgxFormService } from '../services/NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
 import { EventConstants } from './constants';
 import { FunctionLike } from './types';
@@ -402,6 +402,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @public
    */
   afterViewInit(): HTMLElement {
+    this.checkDarkMode();
     let parent: HTMLElement;
     if (this.component?.nativeElement)
       this.isModalChild = this.component.nativeElement.closest('ion-modal') ? true : false;

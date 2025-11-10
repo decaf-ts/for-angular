@@ -1,39 +1,43 @@
 <ion-app>
   <ion-split-pane contentId="main-content" >
-    @if(initialized) {
-      <ion-menu when="xl" contentId="main-content" type="overlay" [disabled]="!hasMenu">
+      <ion-menu when="xl" contentId="main-content" type="overlay" [disabled]="!hasMenu" #component>
         <section class="dcf-logo-container">
-          <app-logo></app-logo>
+          <app-logo width="150"></app-logo>
         </section>
-        <ion-content>
-          <ion-list class="dcf-menu">
-            @for (item of menu; track $index;) {
-              <ion-menu-toggle auto-hide="false">
-                <ion-item
-                  [class]="{'dcf-separator': !item.url}"
-                  button="true"
-                  detail="true"
-                  [routerDirection]="'forward'"
-                  [routerLink]="[item.url]"
-                  lines="none"
-                  detail="false"
-                  routerLinkActive="dcf-active"
-                >
+        @if(initialized) {
+          <ion-content class="dfc-animation dcf-animation-slide-right-small dcf-animation-fast">
+            <ion-list class="dcf-menu">
+              @for (item of menu; track $index;) {
+                <ion-menu-toggle auto-hide="false">
+                  <ion-item
+                    [class]="{'dcf-separator': !item.url}"
+                    [button]="true"
+                    [detail]="false"
+                    [routerDirection]="'forward'"
+                    [routerLink]="[item.url]"
+                    lines="none"
+                    routerLinkActive="dcf-active"
+                  >
                   @if(item.icon) {
-                    <ion-icon [color]="item.color || ''" aria-hidden="true" class="icon" [name]="item.icon"></ion-icon>
+                    @if(item.icon.includes('.svg')) {
+                      <ion-img [src]="'assets/images/icons/' + item.icon" class="icon"
+                        [style.fill]="item.color"
+                        [style.stroke]="item.color"
+                        [style.path]="item.color"
+                      />
+                    } @else {
+                      <ion-icon [color]="item.color || ''" aria-hidden="true" class="icon" [name]="item.icon"></ion-icon>
+                    }
                   }
-                  <ion-label>{{ item.label }}
-                  </ion-label>
-                  <!-- @if(item?.url && item.url !== '/login') {
-                    <ion-icon aria-hidden="true" slot="end" size="small" name="chevron-forward-outline"></ion-icon>
-                  } -->
-                </ion-item>
-              </ion-menu-toggle>
-            }
-          </ion-list>
-        </ion-content>
+                  <ion-label>{{ item.label | translate }}</ion-label>
+                  </ion-item>
+                </ion-menu-toggle>
+              }
+            </ion-list>
+          </ion-content>
+        }
       </ion-menu>
-    }
+
 
     <ion-router-outlet id="main-content"></ion-router-outlet>
   </ion-split-pane>

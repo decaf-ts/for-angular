@@ -1,103 +1,102 @@
-@media (prefers-color-scheme: light) {
-  ion-item {
-      --background-hover-opacity: .1;
-      --background-focused-opacity: .1;
-      --border-color: var(--dcf-color-gray-2);
+ion-item {
+  &:not(.dcf-palette-dark) {
+    --background-hover-opacity: 0.1;
+    --background-focused-opacity: 0.1;
+    --border-color: var(--dcf-color-gray-2);
     .dcf-info {
       color: var(--dcf-color-gray-6);
     }
     .dcf-item-title {
-      color:  var(--dcf-color-gray-8);
+      color: var(--dcf-color-gray-8);
     }
 
     .dcf-description {
       color: var(--dcf-color-gray-6);
     }
-  }
 
-  ion-button {
-    color: var(--dcf-color-gray-7);
-    --background: var(--dcf-color-gray-1) !important;
-  }
-
-  ion-avatar {
-    color: var(--dcf-color-gray-7);
-    background: var(--dcf-color-gray-1) !important;
-  }
-
-  ion-item-option {
-    &:not(.dcf-delete),
-    &:not(.dcf-update) {
-      background: rgba(var(--dcf-color-dark-rgb), .25) !important;
-      .dcf-ti,
-      ion-icon {
-        color: var(--dcf-color-gray-7) !important;
-      }
+    ion-button {
+      color: var(--dcf-color-gray-7);
+      --background: var(--dcf-color-gray-1) !important;
     }
 
-    &.dcf-delete {
-      background: rgba(var(--dcf-color-danger-rgb), .05) !important;
-      .dcf-ti,
+    ion-avatar {
+      color: var(--dcf-color-gray-7);
+      background: var(--dcf-color-gray-1) !important;
+    }
+
+    ion-item-option {
+      &:not(.dcf-delete),
+      &:not(.dcf-update) {
+        background: rgba(var(--dcf-color-dark-rgb), 0.25) !important;
+        .dcf-ti,
+        ion-icon {
+          color: var(--dcf-color-gray-7) !important;
+        }
+      }
+
+      &.dcf-delete {
+        background: rgba(var(--dcf-color-danger-rgb), 0.05) !important;
+        .dcf-ti,
         *,
-      ion-icon {
-        color: var(--dcf-color-danger) !important;
+        ion-icon {
+          color: var(--dcf-color-danger) !important;
+        }
       }
-    }
 
-    &.dcf-update {
-      background: rgba(var(--dcf-color-primary-rgb), .05) !important;
-      .dcf-ti,
-      ion-icon {
-        color: var(--dcf-color-primary) !important;
+      &.dcf-update {
+        background: rgba(var(--dcf-color-primary-rgb), 0.05) !important;
+        .dcf-ti,
+        ion-icon {
+          color: var(--dcf-color-primary) !important;
+        }
       }
     }
   }
-}
-
-@media (prefers-color-scheme: dark)  {
-  ion-item {
-    --background-hover-opacity: .25;
-    --background-focused-opacity: .25;
+  &.dcf-palette-dark {
+    --background-hover-opacity: 0.25;
+    --background-focused-opacity: 0.25;
     // --border-color: var(--dcf-color-step-200);
-    --border-color:  var(--dcf-color-gray-6);
+    --border-color: var(--dcf-color-gray-6);
     //  --border-color: var(--dcf-color-step-100);
-    .dcf-description { color: var(--dcf-color-gray-4); }
-  }
-
-  ion-button {
-    color: var(--dcf-color-gray-1) !important;
-    --background: var(--dcf-color-gray-7) !important;
-  }
-
-  ion-avatar {
-    color: var(--dcf-color-gray-1) !important;
-    background: var(--dcf-background-color) !important;
-  }
-
-  ion-item-option {
-    &:not(.dcf-delete),
-    &:not(.dcf-update) {
-      background: rgba(var(--dcf-color-dark-rgb), 1) !important;
-      .dcf-ti,
-      ion-icon {
-        color: var(--dcf-color-gray-2) !important;
-      }
+    .dcf-description {
+      color: var(--dcf-color-gray-4);
     }
 
-    &.dcf-delete {
-      background: rgba(var(--dcf-color-danger-rgb), .05) !important;
-      .dcf-ti,
+    ion-button {
+      color: var(--dcf-color-gray-1) !important;
+      --background: var(--dcf-color-gray-7) !important;
+    }
+
+    ion-avatar {
+      color: var(--dcf-color-gray-1) !important;
+      background: var(--dcf-background-color) !important;
+    }
+
+    ion-item-option {
+      &:not(.dcf-delete),
+      &:not(.dcf-update) {
+        background: rgba(var(--dcf-color-dark-rgb), 1) !important;
+        .dcf-ti,
+        ion-icon {
+          color: var(--dcf-color-gray-2) !important;
+        }
+      }
+
+      &.dcf-delete {
+        background: rgba(var(--dcf-color-danger-rgb), 0.05) !important;
+        .dcf-ti,
         *,
-      ion-icon {
-        color: var(--dcf-color-danger) !important;
+        ion-icon {
+          color: var(--dcf-color-danger) !important;
+        }
       }
-    }
 
-    &.dcf-update {
-      background: rgba(var(--dcf-color-primary-rgb), .05) !important;
-      .dcf-ti,
-      ion-icon {
-        color: var(--dcf-color-gray-2) !important;
+      &.dcf-update {
+        background: rgba(var(--dcf-color-primary-rgb), 0.05) !important;
+        .dcf-ti,
+        ion-icon {
+          color: var(--dcf-color-gray-2) !important;
+        }
       }
     }
   }
@@ -113,39 +112,35 @@ ion-item-sliding {
   }
   ion-item-option {
     color: var(--dcf-color-gray-5);
-    box-shadow: inset 0 0 5px rgba(var(--dcf-color-dark-rgb), .15) !important;
+    box-shadow: inset 0 0 5px rgba(var(--dcf-color-dark-rgb), 0.15) !important;
     background: var(--dcf-color-gray-3);
   }
 }
 
-
-
-
 ion-item {
   --min-height: 50px;
-  --padding-top: .25rem;
-  --padding-bottom: .25rem;
-  --padding-start: .75rem;
-  --padding-end: .75rem;
+  --padding-top: 0.25rem;
+  --padding-bottom: 0.25rem;
+  --padding-start: 0.75rem;
+  --padding-end: 0.75rem;
   --inner-padding-start: 0px !important;
   --inner-padding-end: 0px !important;
   --background-hover: var(--dcf-color-gray-8);
   --background-focused: var(--dcf-color-gray-8);
 
-
   &.item-lines-full {
-    --padding-top: .5rem;
-    --padding-bottom: .5rem;
-    --padding-start: .25rem;
-    -padding-end: .25rem;
-    padding: 0 .65rem;
+    --padding-top: 0.5rem;
+    --padding-bottom: 0.5rem;
+    --padding-start: 0.25rem;
+    -padding-end: 0.25rem;
+    padding: 0 0.65rem;
   }
 
-  &.item-lines-inset{
+  &.item-lines-inset {
     --padding-top: 0rem !important ;
     --padding-bottom: 0rem !important;
-    --inner-padding-top: .5rem !important;
-    --inner-padding-bottom: .65rem !important;
+    --inner-padding-top: 0.5rem !important;
+    --inner-padding-bottom: 0.65rem !important;
   }
 
   .dcf-info {
@@ -171,7 +166,7 @@ ion-item {
     white-space: nowrap;
     font-style: normal;
     font-weight: 400;
-    font-size: .925rem;
+    font-size: 0.925rem;
   }
 
   &::part(native) {
@@ -179,28 +174,28 @@ ion-item {
   }
 
   [slot="start"] {
-    margin-right: .5rem !important;
+    margin-right: 0.5rem !important;
   }
 
   [slot="end"] {
-    margin-left: .5rem !important;
+    margin-left: 0.5rem !important;
   }
   .dcf-info {
-    font-size: .9rem;
+    font-size: 0.9rem;
     // background: white;
     .dcf-subinfo {
       &.dcf-line {
-        margin-left: .5rem;
-          @media(min-width: var(--dcf-width-sm)) {
-              display: block;
-              margin-left: 0px;
-          }
+        margin-left: 0.5rem;
+        @media (min-width: var(--dcf-width-sm)) {
+          display: block;
+          margin-left: 0px;
         }
       }
+    }
   }
   #dcf-actions {
     padding: 5px;
-    @media(max-width: var(--dcf-width-m)) {
+    @media (max-width: var(--dcf-width-m)) {
       display: none;
       pointer-events: none !important;
       cursor: text !important;
@@ -213,11 +208,11 @@ ion-item {
     }
     ion-button {
       --padding-start: 1rem;
-      --padding-end: .75rem;
-      --padding-top: .85rem !important;
-      --padding-bottom: .85rem !important;
+      --padding-end: 0.75rem;
+      --padding-top: 0.85rem !important;
+      --padding-bottom: 0.85rem !important;
       color: #ccc;
-      margin-right: .5rem !important;
+      margin-right: 0.5rem !important;
       --background: var(--dcf-color-gray-2) !important;
 
       ion-icon {
@@ -229,7 +224,9 @@ ion-item {
 
   #dcf-end,
   [slot="end"] {
-    @media(max-width: var(--dcf-width-m)) {  display: none !important;}
+    @media (max-width: var(--dcf-width-m)) {
+      display: none !important;
+    }
   }
 
   #dcf-end {
@@ -243,7 +240,7 @@ ion-item {
     justify-content: center;
     align-items: center;
     text-align: center;
-    margin-right: .5rem !important;
+    margin-right: 0.5rem !important;
 
     &.dcf-grid-icon {
       min-width: 50px;
@@ -252,7 +249,9 @@ ion-item {
       justify-content: flex-start;
     }
 
-    @media(max-width: var(--dcf-width-s)) { align-items: flex-start !important; }
+    @media (max-width: var(--dcf-width-s)) {
+      align-items: flex-start !important;
+    }
 
     ion-button {
       // margin-right: .5rem !important;
@@ -260,11 +259,8 @@ ion-item {
         font-size: 20px;
       }
     }
-
-
   }
 }
-
 
 ion-avatar {
   ion-icon {
@@ -277,5 +273,7 @@ ion-avatar {
   align-items: center;
   text-align: center;
 
-  .dcf-icon-large { transform: translateY(5px);}
+  .dcf-icon-large {
+    transform: translateY(5px);
+  }
 }

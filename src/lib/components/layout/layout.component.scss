@@ -1,60 +1,78 @@
+.dcf-layout-container {
+  display: flow-root;
+}
+
 .dcf-grid {
-  + .dcf-layout-row {
-    // removing margin top of sequenced rows
-    &.dcf-grid-small {
-      margin-top: 0px !important;
-    }
-  }
-  > div:not(.dcf-grid-title) {
-    // ion-card {
-    //     margin-top: 0px;
-    //     height: 100%;
-    // }
+  // @media (max-width: 575px) {
+  //
+  // }
+  // row with title
+  .dcf-grid-title {
+    padding: unset;
+    margin: unset;
+    > * {
+      padding: unset;
+      margin: unset;
+      padding-left: var(--dcf-padding-small);
+      font-size: 1.05rem !important;
+      font-weight: 600;
+      background: none;
+      box-shadow: none;
 
-    //TODO: use ng deep or view encapsulation?
-    ::ng-deep ngx-decaf-component-renderer > * > * {
-      height: 100%;
+      // color: var(--dcf-color-dark);
       display: flex;
-      justify-content: center !important;
-      align-items: center !important;
-    }
-  }
-  ion-card.dcf-height-1-1 > ion-card-content {
-    margin-top: 2rem;
-  }
-
-  &.dcf-grid-small.dcf-crud-form-grid {
-    // keep margin bottom smaller for small grids
-    > .dcf-grid-child {
-      margin-bottom: 2rem !important;
+      align-items: center;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
   }
 
-  &.dcf-grid-collapse {
-    > .dcf-grid-child {
-      margin-bottom: 1.25rem;
-      ion-card {
-        margin-bottom: 1.25rem;
+  // &.dcf-grid-nested {
+  //   padding: 0rem 0.325rem;
+  // }
+
+  &:first-of-type:not(.dcf-grid-nested) {
+    // margin-top: -1rem !important;
+    // ::ng-deep ngx-decaf-fieldset {
+    //   margin-top: 110px !important;
+    // }
+  }
+
+  &.dcf-grid-small {
+    // fix padding for forms
+    &.dcf-grid-nested {
+      padding: 0 0.5rem !important;
+      // border: 1px solid red !important;
+      // margin: unset;
+      // padding: unset;
+
+      // @media (max-width: 575px) {
+      //   margin: unset;
+      //   padding: unset;
+      //   > div {
+      //     padding-left: -30px !important;
+      //     padding-right: 0px !important;
+      //     // > * {
+      //     //   width: calc(100% + 25px) !important;
+      //     // }
+      //   }
+      // }
+    }
+    > div {
+      margin-bottom: 1.75rem;
+
+      &:last-child {
+        margin-bottom: 0px;
       }
+    }
+    // removing margin top of sequenced small grids
+    + .dcf-grid-small {
+      margin-top: 1.75rem !important;
     }
   }
 }
 
-.dcf-card-title {
-  background: none;
-  box-shadow: none;
-  margin-bottom: 0px;
-  padding-bottom: 0px;
-
-  // color: var(--dcf-color-dark);
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-
-  > * {
-    font-size: 1.05rem !important;
-    font-weight: 600;
-  }
+::ng-deep ngx-decaf-component-renderer > * > div {
+  margin-bottom: 0px !important;
 }
