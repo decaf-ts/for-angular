@@ -1,23 +1,22 @@
+ <ngx-decaf-card [className]="className">
 
-<ion-card [id]="uid" [class]="className ? className : 'dcf-card-default'">
-  <ion-card-content>
-    @if(icon && showIcon) {
+    @if (icon && showIcon) {
       <div class="dcf-icon-container">
         <ion-icon
           [name]="icon"
           [size]="iconSize"
-          [color]="iconColor"
+          [color]="!this.isDarkMode ? iconColor : ''"
           />
       </div>
     }
-    @if(title) {
+    @if (title) {
       <h5 [class]="titleColor" [innerHTML]="title"></h5>
     }
-    @if(subtitle) {
+    @if (subtitle) {
       <p [class]="subtitleColor" [innerHTML]="searchValue ? searchSubtitle : subtitle"></p>
     }
-    @if(!enableCreationByModelRoute) {
-       @if(buttonLink && buttonText) {
+    @if (!enableCreationByModelRoute) {
+       @if (buttonLink && buttonText) {
         <div>
           <ion-button
             [size]="buttonSize"
@@ -42,6 +41,4 @@
       </div>
 
     }
-
-  </ion-card-content>
-</ion-card>
+  </ngx-decaf-card>

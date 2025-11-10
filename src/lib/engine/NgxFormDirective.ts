@@ -2,13 +2,14 @@ import { AfterViewInit, Directive, ElementRef, EventEmitter, Input, OnDestroy, O
 import { FormArray, FormGroup } from "@angular/forms";
 import { CrudOperations, OperationKeys } from "@decaf-ts/db-decorators";
 import { Model } from "@decaf-ts/decorator-validation";
-import { NgxFormService } from "./NgxFormService";
+import { NgxFormService } from "../services/NgxFormService";
 import { ICrudFormEvent, IFormElement } from "./interfaces";
 import { FieldUpdateMode, FormParent, HandlerLike, HTMLFormTarget } from "./types";
 import { ICrudFormOptions, IRenderedModel } from "./interfaces";
 import { ActionRoles, ComponentsTagNames, EventConstants } from "./constants";
 import { NgxParentComponentDirective } from "./NgxParentComponentDirective";
 import { NgxFormFieldDirective } from "./NgxFormFieldDirective";
+import { generateRandomValue } from "../utils";
 
 @Directive()
 export abstract class NgxFormDirective extends NgxParentComponentDirective implements OnInit, AfterViewInit, IFormElement, OnDestroy, IRenderedModel {
@@ -25,6 +26,20 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   @Input()
   parentFormId!: string;
 
+  /**
+   * @description Indicates whether this form is being used inside a modal dialog.
+   * @summary When true, the form may alter its submit/reset behavior to integrate
+   * with modal lifecycle (for example, emitting cancel events instead of
+   * navigating back). Useful for components rendered inside Ionic/Angular
+   * modal containers where navigation/back behavior differs from standard pages.
+   *
+   * Typical effects:
+   * - `handleReset` will emit a cancel event instead of performing a navigation
+   * - `ngAfterViewInit` checks for modal context to adjust change detection
+   *
+   * @type {boolean}
+   * @default false
+   */
   @Input()
   modalForm: boolean = false;
 
@@ -170,6 +185,8 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   @Input()
   allowClear: boolean = true;
 
+  // protected override enableDarkMode: boolean = true;
+
   //   /**
   //  * @description Angular change detection service.
   //  * @summary Injected service that provides manual control over change detection cycles.
@@ -224,6 +241,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override async ngOnInit(model?: Model | string): Promise<void> {
+    this.uid = generateRandomValue(12);
     // dont call super.ngOnInit to model conflicts
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)
       this.formGroup = undefined;
@@ -232,7 +250,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
 
   ngAfterViewInit(): void {
     this.isModalChild = this.component.nativeElement?.closest('ion-modal') ? true : false;
-    if(this.isModalChild)
+    if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
   }
 
@@ -244,17 +262,18 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    *
    * @returns {void}
    */
-  ngOnDestroy(): void {
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
     if (this.formGroup)
       NgxFormService.unregister(this.formGroup);
   }
 
   getFormArrayIndex(index: number): FormParent | undefined {
-    if(!(this.formGroup instanceof FormArray) && this.formGroup)
+    if (!(this.formGroup instanceof FormArray) && this.formGroup)
       return this.formGroup;
     const formGroup = (this.formGroup as FormArray).at(index) as FormGroup;
-    if(formGroup) {
-      if(this.children.length) {
+    if (formGroup) {
+      if (this.children.length) {
         const children = [... this.children];
         this.children = [];
         this.changeDetectorRef.detectChanges();
@@ -285,7 +304,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * @returns {void}
    */
   handleReset(): void {
-    if(this.isModalChild) {
+    if (this.isModalChild) {
       this.submitEvent.emit({
         data: null,
         component: this.componentName,
@@ -293,18 +312,18 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
       });
       return;
     }
-    if(![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation) && this.allowClear)
+    if (![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation) && this.allowClear)
       return NgxFormService.reset(this.formGroup as FormGroup);
     this.location.back();
   }
 
   async handleSubmit(event?: SubmitEvent, eventName?: string, componentName?: string): Promise<boolean | void> {
-    if(event) {
+    if (event) {
       event.preventDefault();
       event.stopImmediatePropagation();
     }
     const isValid = NgxFormService.validateFields(this.formGroup as FormGroup);
-    if(this.isModalChild)
+    if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
     if (!isValid)
       return false;

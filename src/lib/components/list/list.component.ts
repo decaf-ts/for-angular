@@ -11,6 +11,7 @@
 
 import { Component, OnInit, EventEmitter, Output, Input, HostListener, OnDestroy  } from '@angular/core';
 import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonInfiniteScroll,
   IonInfiniteScrollContent,
@@ -23,38 +24,39 @@ import {
   IonText,
   IonThumbnail
 } from '@ionic/angular/standalone';
-import { debounceTime, Subject } from 'rxjs';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
+import { debounceTime, Subject } from 'rxjs';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
 import {
   StringOrBoolean,
-  KeyValue
+  KeyValue,
+  FunctionLike,
+  DecafRepository
 } from '../../engine/types';
 import {
   EventConstants,
   ComponentsTagNames,
-  DefaultListEmptyOptions
+  DefaultListEmptyOptions,
+  ListComponentsTypes
 } from '../../engine/constants';
 import {
   IBaseCustomEvent,
   ListItemCustomEvent,
+  IPaginationCustomEvent, IFilterQuery, IFilterQueryItem,  IListEmptyOptions
 } from '../../engine/interfaces';
 import {
   stringToBoolean,
   formatDate,
   isValidDate
-} from '../../helpers/utils';
+} from '../../utils/helpers';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { PaginationComponent } from '../pagination/pagination.component';
-import { IPaginationCustomEvent } from '../../engine/interfaces';
-import { FunctionLike, IFilterQuery, IFilterQueryItem, DecafRepository, IListEmptyOptions, ListComponentsTypes } from '../../engine';
 import { FilterComponent } from '../filter/filter.component';
-import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -151,7 +153,8 @@ import { TranslatePipe } from '@ngx-translate/core';
     EmptyStateComponent,
     FilterComponent,
     ComponentRendererComponent
-  ]
+  ],
+  host: {'[attr.id]': 'uid'},
 })
 export class ListComponent extends NgxComponentDirective implements OnInit, OnDestroy {
 
@@ -629,7 +632,6 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @memberOf ListComponent
    */
   async ngOnInit(): Promise<void> {
-
     this.observer = { refresh: async (... args: unknown[]): Promise<void> => this.observeRepository(...args)}
 
     this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event as ListItemCustomEvent | IBaseCustomEvent));
@@ -642,16 +644,16 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     this.loadMoreData = stringToBoolean(this.loadMoreData);
     this.showSearchbar = stringToBoolean(this.showSearchbar);
     this.disableSort = stringToBoolean(this.disableSort);
-    if(typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)
+    if (typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
 
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     await this.refresh();
 
-    // if(this.operations.includes(OperationKeys.CREATE) && this.route)
+    // if (this.operations.includes(OperationKeys.CREATE) && this.route)
     //   this.empty.link = `${this.route}/${OperationKeys.CREATE}`;
 
-    if(!this.initialized)
+    if (!this.initialized)
       return this.parseProps(this);
 
     this.initialized = true;
@@ -665,8 +667,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @returns {void}
    * @memberOf ListComponent
    */
-  ngOnDestroy(): void {
-    if(this._repository)
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    if (this._repository)
       this._repository.unObserve(this.observer);
     this.data =  this.model = this._repository = this.paginator = undefined;
   }
@@ -683,7 +686,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   async observeRepository(...args: unknown[]): Promise<void> {
     const [table, event, uid] = args;
-    if(event === OperationKeys.CREATE && !!uid)
+    if (event === OperationKeys.CREATE && !!uid)
       return this.handleObserveEvent(table as string, event, uid as string | number);
     return this.observerSubjet.next(args);
   }
@@ -701,16 +704,16 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @memberOf ListComponent
    */
   async handleObserveEvent(table: string, event: OperationKeys, uid: string | number): Promise<void> {
-    if(event === OperationKeys.CREATE) {
-      if(uid) {
+    if (event === OperationKeys.CREATE) {
+      if (uid) {
         await this.handleCreate(uid);
       } else {
         await this.refresh(true);
       }
     } else {
-      if(event === OperationKeys.UPDATE)
+      if (event === OperationKeys.UPDATE)
         await this.handleUpdate(uid);
-      if(event === OperationKeys.DELETE)
+      if (event === OperationKeys.DELETE)
         this.handleDelete(uid);
       this.refreshEventEmit();
     }
@@ -765,7 +768,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     this.data = [];
     for(const key in this.items as KeyValue[]) {
         const child = this.items[key] as KeyValue;
-        if(child['uid'] === item['uid']) {
+        if (child['uid'] === item['uid']) {
           this.items[key] = Object.assign({}, child, item);
           break;
         }
@@ -787,7 +790,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @memberOf ListComponent
    */
   handleDelete(uid: string | number, pk?: string): void  {
-    if(!pk)
+    if (!pk)
       pk = this.pk;
     this.items = this.data?.filter((item: KeyValue) => item['uid'] !== uid) || [];
   }
@@ -837,9 +840,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
   async handleSearch(value: string | IFilterQuery | undefined): Promise<void> {
     this.searching = value !== undefined;
 
-    if(this.type === ListComponentsTypes.INFINITE) {
+    if (this.type === ListComponentsTypes.INFINITE) {
       this.loadMoreData = false;
-      if(value === undefined) {
+      if (value === undefined) {
         this.loadMoreData = true;
         this.page = 1;
       }
@@ -848,7 +851,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     } else {
       this.loadMoreData = true;
       this.searchValue = value;
-      if(value === undefined)
+      if (value === undefined)
         this.page = this.lastPage;
       await this.refresh(true);
     }
@@ -892,7 +895,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @memberOf ListComponent
    */
   refreshEventEmit(data?: KeyValue[]): void {
-    if(!data)
+    if (!data)
       data = this.items;
     this.skeletonData = new Array(data?.length || 2);
     this.refreshEvent.emit({
@@ -970,9 +973,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   @HostListener('window:BackButtonNavigationEndEvent', ['$event'])
   async refresh(event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false): Promise<void> {
-    //  if(typeof force !== 'boolean' && force.type === EventConstants.BACK_BUTTON_NAVIGATION) {
+    //  if (typeof force !== 'boolean' && force.type === EventConstants.BACK_BUTTON_NAVIGATION) {
     //    const {refresh} = (force as CustomEvent).detail;
-    //    if(!refresh)
+    //    if (!refresh)
     //      return false;
     //  }
 
@@ -986,16 +989,16 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
 
     this.refreshEventEmit();
 
-    if(this.type === ListComponentsTypes.INFINITE) {
-      if(this.page === this.pages) {
-        if((event as InfiniteScrollCustomEvent)?.target)
+    if (this.type === ListComponentsTypes.INFINITE) {
+      if (this.page === this.pages) {
+        if ((event as InfiniteScrollCustomEvent)?.target)
           (event as InfiniteScrollCustomEvent).target.complete();
         this.loadMoreData = false;
       } else {
         this.page += 1;
         this.refreshing = false;
         setTimeout(() => {
-            if((event as InfiniteScrollCustomEvent)?.target && (event as CustomEvent)?.type !== EventConstants.BACK_BUTTON_NAVIGATION)
+            if ((event as InfiniteScrollCustomEvent)?.target && (event as CustomEvent)?.type !== EventConstants.BACK_BUTTON_NAVIGATION)
               (event as InfiniteScrollCustomEvent).target.complete();
         }, 200);
       }
@@ -1036,7 +1039,7 @@ handlePaginate(event: IPaginationCustomEvent): void {
  */
 async handleRefresh(event?: InfiniteScrollCustomEvent | CustomEvent): Promise<void> {
   await this.refresh(event as InfiniteScrollCustomEvent || true);
-  if(event instanceof CustomEvent)
+  if (event instanceof CustomEvent)
     setTimeout(() => {
       // Any calls to load data go here
       (event.target as HTMLIonRefresherElement).complete();
@@ -1078,21 +1081,21 @@ async handleRefresh(event?: InfiniteScrollCustomEvent | CustomEvent): Promise<vo
  */
 async getFromRequest(force: boolean = false, start: number, limit: number): Promise<KeyValue[]> {
   let request: KeyValue[] = [];
-  if(!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
+  if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
     // (self.data as ListItem[]) = [];
-    if(!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
-      if(!this.source && !this.data?.length) {
+    if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
+      if (!this.source && !this.data?.length) {
         this.logger.info('No data and source passed to infinite list');
         return [];
       }
 
-      if(this.source instanceof Function)
+      if (this.source instanceof Function)
         request = await this.source();
 
-      if(!Array.isArray(request))
+      if (!Array.isArray(request))
         request = request?.['response']?.['data'] || request?.['results'] || [];
       this.data = [... await this.parseResult(request)];
-      if(this.data?.length)
+      if (this.data?.length)
         this.items = this.type === ListComponentsTypes.INFINITE ?
           (this.items || []).concat([...this.data.slice(start, limit)]) : [...request.slice(start, limit) as KeyValue[]];
     } else {
@@ -1101,7 +1104,7 @@ async getFromRequest(force: boolean = false, start: number, limit: number): Prom
     }
   }
 
-  if(this.loadMoreData && this.type === ListComponentsTypes.PAGINATED)
+  if (this.loadMoreData && this.type === ListComponentsTypes.PAGINATED)
     this.getMoreData(this.data?.length || 0);
   return this.data || [] as KeyValue[];
 }
@@ -1124,20 +1127,20 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
   let request: KeyValue[] = [];
 
   // getting model repository
-  if(!this._repository) {
+  if (!this._repository) {
     this._repository = this.repository;
-    if(this.model instanceof Model && this._repository)
+    if (this.model instanceof Model && this._repository)
       this._repository.observe(this.observer);
   }
 
   const repo = this._repository as DecafRepository<Model>;
-  if(!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
+  if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
     try {
-     if(!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
+     if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
         (this.data as KeyValue[]) = [];
         // const rawQuery = this.parseQuery(self.model as Repository<Model>, start, limit);
         // request = this.parseResult(await (this.model as any)?.paginate(start, limit));
-          if(!this.paginator) {
+          if (!this.paginator) {
             this.paginator = await repo
               .select()
               .orderBy([this.pk as keyof Model, this.sortDirection])
@@ -1146,7 +1149,7 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
           request = await this.parseResult(this.paginator);
       } else {
 
-        if(!this.indexes)
+        if (!this.indexes)
           this.indexes = (Object.values(this.mapper) || [this.pk]);
 
         const condition = this.parseConditions(this.searchValue as string | number | IFilterQuery);
@@ -1161,16 +1164,16 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
     }
   }
 
-  if(data?.length) {
-    if(this.searchValue) {
+  if (data?.length) {
+    if (this.searchValue) {
       this.items = [...data];
-      if(this.items?.length <= this.limit)
+      if (this.items?.length <= this.limit)
         this.loadMoreData = false;
     } else {
       this.items = [...data];
     }
   }
-  if(this.type === ListComponentsTypes.PAGINATED && this.paginator)
+  if (this.type === ListComponentsTypes.PAGINATED && this.paginator)
       this.getMoreData(this.paginator.total);
   return data || [] as KeyValue[];
 }
@@ -1198,13 +1201,13 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
  */
 parseConditions(value: string | number | IFilterQuery): Condition<Model> {
   let _condition: Condition<Model>;
-  if(typeof value === Primitives.STRING || typeof value === Primitives.NUMBER) {
+  if (typeof value === Primitives.STRING || typeof value === Primitives.NUMBER) {
     _condition = Condition.attribute<Model>(this.pk as keyof Model).eq(!isNaN(value as number) ? Number(value) : value);
     for (const index of this.indexes) {
-        if(index === this.pk)
+        if (index === this.pk)
           continue;
         let orCondition;
-        if(!isNaN(value as number)) {
+        if (!isNaN(value as number)) {
           orCondition = Condition.attribute<Model>(index as keyof Model).eq(Number(value));
         } else {
           orCondition = Condition.attribute<Model>(index as keyof Model).regexp(value as string);
@@ -1213,15 +1216,15 @@ parseConditions(value: string | number | IFilterQuery): Condition<Model> {
     }
   } else {
     const {query, sort} = value as IFilterQuery;
-    _condition = Condition.attribute<Model>(this.pk as keyof Model).dif('null');
+    _condition = Condition.attribute<Model>(this.pk as keyof Model).dif ('null');
 
-    if(query?.length)
+    if (query?.length)
       _condition = undefined as unknown as Condition<Model>;
 
     (query || []).forEach((item: IFilterQueryItem) => {
       const {value, condition, index} = item;
       let val = value as string | number;
-      if(index === this.pk || !isNaN(val as number))
+      if (index === this.pk || !isNaN(val as number))
         val = Number(val);
       let orCondition;
       switch (condition) {
@@ -1229,7 +1232,7 @@ parseConditions(value: string | number | IFilterQuery): Condition<Model> {
           orCondition = Condition.attribute<Model>(index as keyof Model).eq(val);
           break;
         case "Not Equal":
-          orCondition = Condition.attribute<Model>(index as keyof Model).dif(val);
+          orCondition = Condition.attribute<Model>(index as keyof Model).dif (val);
           break;
         case "Not Contains":
           orCondition = !Condition.attribute<Model>(index as keyof Model).regexp(new RegExp(`^(?!.*${val}).*$`));
@@ -1268,7 +1271,7 @@ parseConditions(value: string | number | IFilterQuery): Condition<Model> {
  * @memberOf ListComponent
  */
 protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyValue[]> {
-  if(!Array.isArray(result) && ('page' in result && 'total' in result)) {
+  if (!Array.isArray(result) && ('page' in result && 'total' in result)) {
     const paginator = result as Paginator<Model>;
     try {
       result = await paginator.page(this.page);
@@ -1298,21 +1301,21 @@ protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyV
  * @memberOf ListComponent
  */
 getMoreData(length: number): void {
-  if(this.type === ListComponentsTypes.INFINITE) {
-    if(this.paginator)
+  if (this.type === ListComponentsTypes.INFINITE) {
+    if (this.paginator)
       length = length * this.limit;
-    if(length <= this.limit) {
+    if (length <= this.limit) {
       this.loadMoreData = false;
     } else {
       this.pages = Math.floor(length / this.limit);
-      if((this.pages * this.limit) < length)
+      if ((this.pages * this.limit) < length)
         this.pages += 1;
-      if(this.pages === 1)
+      if (this.pages === 1)
         this.loadMoreData = false;
     }
   } else {
     this.pages = length;
-    if(this.pages === 1)
+    if (this.pages === 1)
       this.loadMoreData = false;
   }
 }
@@ -1340,7 +1343,7 @@ protected itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyVal
       if (arrayValue.length === 1) {
         value = item?.[value] ? item[value] : "";
         // value = item?.[value] ? item[value] : value !== key ? value : "";
-        if(isValidDate(value))
+        if (isValidDate(value))
           value = `${formatDate(value)}`;
         accum[key] = value;
       } else {
@@ -1374,7 +1377,7 @@ protected itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyVal
  * @memberOf ListComponent
  */
   mapResults(data: KeyValue[]): KeyValue[] {
-    if(!data || !data.length)
+    if (!data || !data.length)
       return [];
     // passing uid as prop to mapper
     this.mapper = {... this.mapper, ... {uid: this.pk}};
@@ -1398,7 +1401,7 @@ protected itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyVal
 
 
   parseSearchValue() {
-    if(typeof this.searchValue === Primitives.STRING)
+    if (typeof this.searchValue === Primitives.STRING)
       return this.searchValue || "";
     const searchValue = this.searchValue as IFilterQuery;
     return (searchValue?.query as IFilterQueryItem[]).map(item => `${item.index} ${item.condition} ${item.value}`).join(", ");

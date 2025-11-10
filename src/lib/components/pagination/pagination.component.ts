@@ -68,7 +68,7 @@ import { IPaginationCustomEvent } from '../../engine/interfaces';
     IonIcon
   ],
   standalone: true,
-
+  host: {'[attr.id]': 'uid'}
 })
 export class PaginationComponent extends NgxComponentDirective implements OnInit {
 
@@ -190,7 +190,7 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    * @memberOf PaginationComponent
    */
   handleClick(direction: 'next' | 'previous', page?: number): void {
-    if(page)
+    if (page)
       this.current = page;
     this.clickEvent.emit({
       name: EventConstants.CLICK,
@@ -295,7 +295,7 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    */
   next(): void {
     const page = this.current + 1;
-    if(page <= Object.keys(this.pages)?.length || 0) {
+    if (page <= Object.keys(this.pages)?.length || 0) {
       this.current = page;
       this.handleClick('next');
     }
@@ -325,7 +325,7 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    */
   previous(): void {
     const page = this.current - 1;
-    if(page > 0) {
+    if (page > 0) {
       this.current = page;
       this.handleClick('previous');
     }
@@ -355,7 +355,7 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    * @memberOf PaginationComponent
    */
   navigate(page: number | null): void {
-    if(page !== null && this.current !== page as number)
+    if (page !== null && this.current !== page as number)
       this.handleClick(page > this.current ? 'next' : 'previous', page);
   }
 }

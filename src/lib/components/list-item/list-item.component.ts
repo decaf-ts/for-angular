@@ -9,7 +9,7 @@
  * @link {@link ListItemComponent}
  */
 
-import { Component, EventEmitter, HostListener,Input, OnInit, Output, ViewChild  } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener,Input, OnInit, Output, ViewChild  } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import {
@@ -28,7 +28,7 @@ import {
 import * as AllIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { StringOrBoolean } from '../../engine/types';
-import { getWindowWidth, windowEventEmitter, removeFocusTrap, stringToBoolean } from '../../helpers/utils';
+import { getWindowWidth, windowEventEmitter, removeFocusTrap, stringToBoolean } from '../../utils/helpers';
 import { EventConstants } from '../../engine/constants';
 import {ListItemCustomEvent} from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
@@ -93,10 +93,13 @@ import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
     IonButton,
     IonContent,
     IonPopover
-  ]
-
+  ],
+  host: {'[attr.id]': 'uid'},
 })
-export class ListItemComponent extends NgxComponentDirective implements OnInit {
+export class ListItemComponent extends NgxComponentDirective implements OnInit, AfterViewInit {
+
+  @ViewChild('component', { read: ElementRef, static: false })
+  override component!: ElementRef;
 
   /**
    * @description Reference to the action menu popover component.
@@ -280,7 +283,8 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit {
    */
   constructor() {
     super("ListItemComponent");
-    addIcons(AllIcons)
+    addIcons(AllIcons);
+    this.enableDarkMode = true;
   }
 
   /**
@@ -313,11 +317,14 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit {
   async ngOnInit(): Promise<void> {
     this.showSlideItems = this.enableSlideItems();
     this.button = stringToBoolean(this.button);
-
     this.className = `${this.className}  dcf-flex dcf-flex-middle grid-item`;
-    if(this.operations?.length)
+    if (this.operations?.length)
       this.className += ` action`;
     this.windowWidth = getWindowWidth() as number;
+  }
+
+  ngAfterViewInit(): void {
+    this.checkDarkMode();
   }
 
   /**
@@ -358,11 +365,11 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit {
    */
   async handleAction(action: CrudOperations, event: Event, target?: HTMLElement): Promise<boolean|void> {
     event.stopImmediatePropagation();
-    if(this.actionMenuOpen)
+    if (this.actionMenuOpen)
       await this.actionMenuComponent.dismiss();
     // forcing trap focus
     removeFocusTrap();
-    if(!this.route) {
+    if (!this.route) {
       const event = {target: target, action, pk: this.pk, data: this.uid, name: EventConstants.CLICK, component: this.componentName } as ListItemCustomEvent;
       windowEventEmitter(`ListItem${EventConstants.CLICK}`, event);
       return this.clickEvent.emit(event);
@@ -401,7 +408,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit {
   @HostListener('window:resize', ['$event'])
   enableSlideItems(): boolean {
     this.windowWidth = getWindowWidth() as number;
-    if(!this.operations?.length || this.windowWidth > 639)
+    if (!this.operations?.length || this.windowWidth > 639)
       return this.showSlideItems = false;
     this.showSlideItems = this.operations.includes(OperationKeys.UPDATE) || this.operations.includes(OperationKeys.DELETE);
     return this.showSlideItems;

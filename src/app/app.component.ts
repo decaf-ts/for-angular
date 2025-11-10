@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { IonApp,
   IonSplitPane,
@@ -19,20 +19,21 @@ import * as IonicIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 
 import { IMenuItem, NgxPageDirective } from '../lib/engine';
-import { isDevelopmentMode } from '../lib/helpers';
+import { isDevelopmentMode } from '../lib/utils';
 import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { LogoComponent } from './components/logo/logo.component';
 import { AppModels, AppName, DbAdapterFlavour } from './app.config';
 import { Repository, uses } from '@decaf-ts/core';
 import { AppMenu, DashboardMenuItem, LogoutMenuItem } from './utils/contants';
+import { TranslatePipe } from '@ngx-translate/core';
 
 
 @Component({
   standalone: true,
   selector: 'app-root',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
-   IonApp,
+    TranslatePipe,
+    IonApp,
     IonSplitPane,
     IonMenu,
     RouterLink,
@@ -45,13 +46,12 @@ import { AppMenu, DashboardMenuItem, LogoutMenuItem } from './utils/contants';
     IonLabel,
     IonRouterLink,
     IonRouterOutlet,
-    LogoComponent
+    LogoComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent extends NgxPageDirective implements OnInit {
-
 
   constructor() {
     super("", true);
@@ -64,7 +64,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    * @summary Sets up router event subscriptions and initializes the application
    * @return {Promise<void>}
    */
-  async ngOnInit(): Promise<void> {
+  override async ngOnInit(): Promise<void> {
     await this.initialize();
   }
 
@@ -75,7 +75,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    */
   override async initialize(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
-    const populate = ['CategoryModel', 'AIVendorModel'];
+    const populate = ['Product', 'CategoryModel', 'AIVendorModel'];
     const menu = [];
     const models = AppModels;
     for(let model of models) {
@@ -87,7 +87,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
         if(populate.includes(name)) {
           this.logger.info(`Populating repository for model: ${name}`);
           const repository = new FakerRepository(model, 36);
-          await repository.init();
+          await repository.initialize();
         }
       }
 
@@ -100,7 +100,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       ...AppMenu,
       LogoutMenuItem
     ];
-    this.setPageTitle(this.router.url.replace('/', ''));
+    super.ngOnInit();
   }
 
 

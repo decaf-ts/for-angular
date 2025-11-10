@@ -2,21 +2,18 @@
 
 <fieldset
   (fieldsetAddGroupEvent)="handleCreateItem($event)"
-  [class]="'dcf-fieldset ' + operation"
-  [class.remove-border]="!borders"
+  [class]="'dcf-fieldset-component ' + operation"
+  [class.dcf-blank]="!borders"
   [class.open]="isOpen"
+  [class.not-collapsable]="!collapsable"
   #component>
   <div class="dcf-width-1-1">
-    @if(!collapsable) {
-      <div class="dcf-title">
-        <legend>{{ (title ? title : name) | translate }}</legend>
-      </div>
+    @if (!collapsable) {
+      <legend class="dcf-title">{{ (title ? title : name) | translate }}</legend>
     }
     <ion-accordion-group class="dcf-width-1-1" [class.open]="isOpen" [class.hasValidationErrors]="hasValidationErrors" [value]="(operation === 'read' || !collapsable) ? 'open' : ''" #accordionComponent>
-      <ion-accordion value="open"
-        [class.not-collapsable]="!collapsable"
-        >
-        @if(collapsable) {
+      <ion-accordion value="open">
+        @if (collapsable) {
           <ion-item [class.disable-collapse]="!collapsable" slot="header" [button]="collapsable" (click)="handleAccordionToggle($event)">
             <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1">
               <div class="dcf-width-expand">
@@ -70,15 +67,17 @@
             </ion-list>
           }
 
-          @if(children?.length) {
+          @if (children?.length) {
             <ngx-decaf-layout
-              gap="small"
+              [className]="'dcf-fieldset-grid dcf-grid-nested'"
+              [flexMode]="props.flexMode || false"
+              [match]="false"
+              [gap]="'small'"
               [children]="children || []"
               [parentForm]="formGroup || parentForm"
-              [match]="false"
-
               [rows]="rows"
               [cols]="cols"
+              [hidden]="items.length === max && !updatingItem"
             />
           }
 
@@ -95,17 +94,38 @@
                 </div>
               </div>
             }
-            <div class="dcf-margin-bottom dcf-grid dcf-grid-collapse dcf-flex">
-              @if (updatingItem) {
-                <ion-button size="small" fill="clear" color="danger" (click)="handleCancelUpdateItem()">
-                  {{ buttonCancelLabel }}
-                </ion-button>
+             @if(max) {
+                <div class="dcf-width-1-1 dcf-max-message-container">
+                  <ion-text class="dcf-text-small"
+                    [color]="items.length !== max ? (!isDarkMode ? 'medium' : '') : 'primary'"
+                  >
+                    {{ locale + (items.length !== max ?  '.max_items' : '.max_items_reached') | translate : { '0': max } }}
+                  </ion-text>
+                </div>
               }
-              @if (items.length < max || !max) {
-                <ion-button size="small" fill="clear" class="dcf-button-add" (click)="handleCreateItem()">
-                  <ion-icon name="add-outline" slot="start"></ion-icon>
-                  {{buttonLabel}}
-                </ion-button>
+            <div class="dcf-grid dcf-grid-small dcf-flex dcf-buttons-container">
+              @if (updatingItem) {
+                <div>
+                  <ion-button size="small" fill="clear" color="danger" (click)="handleCancelUpdateItem()">
+                    {{ buttonCancelLabel }}
+                  </ion-button>
+                </div>
+                <div>
+                  <ion-button size="small" fill="clear" (click)="handleCreateItem()">
+                    <ion-icon name="refresh-outline" slot="start"></ion-icon>
+                    {{ locale + '.update' | translate }}
+                  </ion-button>
+                </div>
+              } @else {
+                @if (items.length < max || !max) {
+                  <div>
+                    <ion-button size="small" fill="clear" class="dcf-button-add" [color]="isDarkMode ? 'light' : 'dark'" (click)="handleCreateItem()">
+                      <ion-icon name="add-outline" slot="start"></ion-icon>
+                      {{ locale + '.add' | translate }}
+                    </ion-button>
+                  </div>
+
+                }
               }
             </div>
           }

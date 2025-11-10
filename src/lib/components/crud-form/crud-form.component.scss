@@ -1,14 +1,12 @@
 .dcf-buttons-grid {
-  margin-top: .5rem;
-  margin-bottom: 0px;
-  &.read {
-    margin-bottom: 1rem;
-  }
+  margin-top: var(--dcf-margin-medium);
+  margin-bottom: var(--dcf-margin);
+
   &.dcf-flex {
-    @media(min-width: 577px) {
+    @media (min-width: 577px) {
       flex-direction: row-reverse;
     }
-    @media(max-width: 576px) {
+    @media (max-width: 576px) {
       > div {
         width: 100%;
         + div {
@@ -22,29 +20,32 @@
   }
 }
 
-
 .dcf-form-grid {
-  padding: 1rem;
+  &.create,
+  &.update {
+    margin-top: var(--dcf-margin-small);
+    // border: 1px solid purple;
+    // padding: 0rem 0rem 0.325rem;
+  }
+  // padding: 1rem;
   .dcf-form-item {
-    margin-bottom: 1.8rem;
+    // margin-bottom: 1.8rem;
     margin-top: 0px !important;
   }
   &.read {
     .dcf-form-item {
-      margin-bottom: 1rem;
+      margin-bottom: var(--dcf-margin-small);
     }
   }
 }
 
-::ng-deep {
- ngx-decaf-stepped-form  .dcf-input-item {
-    margin-bottom: 1.8rem;
-    margin-top: 0px !important;
-  }
-  ngx-decaf-fieldset .dcf-input-item {
-    margin-bottom: 1.8rem;
-    margin-top: 0px !important;
-  }
-}
-
-
+// ::ng-deep {
+//   ngx-decaf-stepped-form .dcf-input-item {
+//     margin-bottom: 1.8rem;
+//     margin-top: 0px !important;
+//   }
+//   ngx-decaf-fieldset .dcf-input-item {
+//     margin-bottom: 1.8rem;
+//     margin-top: 0px !important;
+//   }
+// }

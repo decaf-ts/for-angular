@@ -1,22 +1,22 @@
 <form class="dcf-steped-form" [class.paginated]="paginated" novalidate #component>
-  @if(paginated) {
+  @if (paginated) {
     <div class="dcf-page-steps">
       <div class="dcf-grid dcf-grid-collapse skip">
         @for(page of pageTitles; track $index;) {
           <div class="dcf-flex dcf-flex-middle">
             <div class="dcf-step" [class.dcf-active]="activeIndex === $index + 1" [class.dcf-passed]="($index + 1) < activeIndex">{{ $index + 1 }}</div>
-            @if((page?.title || page?.description)) {
+            @if ((page?.title || page?.description)) {
               <div class="dcf-information dcf-visible@s">
-                @if(page?.title) {
+                @if (page?.title) {
                   <div class="dcf-title">{{ page?.title | translate }}</div>
                 }
-                @if(page?.description) {
+                @if (page?.description) {
                   <div class="dcf-description">{{ page?.description | translate }}</div>
                 }
                 <div class="dcf-separator"></div>
               </div>
             }
-            @if($index < pageTitles.length - 1) {
+            @if ($index < pageTitles.length - 1) {
               <div class="dcf-arrow-container">
                 <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M1.5 1L6.5 6L1.5 11" />
@@ -28,41 +28,31 @@
       </div>
     </div>
 
-    @if(pageTitles[activeIndex - 1]?.title || pageTitles[activeIndex - 1]?.description) {
+    @if (pageTitles[activeIndex - 1]?.title || pageTitles[activeIndex - 1]?.description) {
       <div class="dcf-current-step">
         <div>
-          @if(pageTitles[activeIndex - 1]?.title) {
+          @if (pageTitles[activeIndex - 1]?.title) {
             <div class="dcf-title">{{  pageTitles[activeIndex - 1]?.title  | translate }}</div>
           }
-          @if(pageTitles[activeIndex - 1]?.description) {
+          @if (pageTitles[activeIndex - 1]?.description) {
             <div class="dcf-description">{{ pageTitles[activeIndex - 1]?.description | translate }}</div>
           }
         </div>
       </div>
     }
 
-    @if(initialized && activeContent?.length) {
+    @if (initialized && activeContent?.length) {
         <ngx-decaf-layout
+          [className]="'dcf-stepped-form-grid paginated dcf-grid-nested'"
           [children]="activeContent || []"
           [parentForm]="formGroup || parentForm"
-          gap="small"
+          [gap]="'small'"
+          [flexMode]="props.flexMode || false"
+          [match]="false"
           [rows]="rows"
           [cols]="cols"
           [match]="false"
-
         />
-      <!-- @for(child of activeContent;  track $index) {
-        <div class="dcf-step-form-container">
-           <ngx-decaf-component-renderer
-            [tag]="child?.tag"
-            (listenEvent)="handleEvent($event)"
-            [children]="child?.children || []"
-            [globals]="{props: child.props}"
-          />
-        </div>
-
-
-      } -->
     } @else {
       <ion-skeleton-text [animated]="true"></ion-skeleton-text>
       <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
@@ -80,7 +70,7 @@
 
       <div class="dcf-width-1-2@s">
         <ion-button fill="solid"  (click)="handleNext(activeIndex === pages ? true : false)">
-          @if(activeIndex === pages) {
+          @if (activeIndex === pages) {
             {{locale + '.submit' | translate}}
           } @else {
             {{locale + '.next' | translate}}
@@ -94,25 +84,27 @@
       @for (item of children; track $index) {
         <ion-card>
           <ion-card-content>
-            @if(item.title || item.description) {
+            @if (item.title || item.description) {
                 <div class="dcf-information">
                   <div>
-                    @if(item.title) {
+                    @if (item.title) {
                       <div class="dcf-title">{{  item.title | translate }}</div>
                     }
-                    @if(item.description) {
+                    @if (item.description) {
                       <div class="dcf-description">{{ item.description | translate }}</div>
                     }
                   </div>
                 </div>
               }
               <div>
-                @if(initialized && item.items?.length) {
+                @if (initialized && item.items?.length) {
                   <div>
                     <ngx-decaf-layout
+                      [className]="'dcf-stepped-form-grid dcf-grid-nested'"
                       [children]="item.items || []"
                       [parentForm]="formGroup || parentForm"
-                      gap="small"
+                      [flexMode]="props.flexMode || false"
+                      [gap]="'small'"
                       [rows]="rows"
                       [cols]="cols"
                       [match]="false"

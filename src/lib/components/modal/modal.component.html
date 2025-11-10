@@ -10,7 +10,7 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        @if(title) {
+        @if (title) {
           <ion-title>{{title | translate}}</ion-title>
         }
         <ion-buttons slot="end">
@@ -22,7 +22,7 @@
     </ion-header>
     <ion-content class="ion-padding">
       <section class="dcf-modal-body">
-        @if(model) {
+        @if (model) {
           <ngx-decaf-model-renderer (onIonChange)="handleEvent($event)" (listenEvent)="handleEvent($event)" [model]="model" [globals]="globals" />
 
         } @else {

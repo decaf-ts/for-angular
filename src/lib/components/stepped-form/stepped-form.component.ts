@@ -19,7 +19,7 @@ import { UIElementMetadata, UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { EventConstants } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
-import { NgxFormService } from '../../engine/NgxFormService';
+import { NgxFormService } from '../../services/NgxFormService';
 import { getLocaleContext } from '../../i18n/Loader';
 import { LayoutComponent } from '../layout/layout.component';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
@@ -40,7 +40,7 @@ import { FormParent } from '../../engine/types';
     LayoutComponent
   ],
   standalone: true,
-  //  host: {'[attr.id]': 'uid'},
+   host: {'[attr.id]': 'uid'},
 })
 export class SteppedFormComponent extends NgxFormDirective implements OnInit, OnDestroy {
 
@@ -209,6 +209,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
   constructor() {
     super("SteppedFormComponent");
     addIcons({arrowForwardOutline, arrowBackOutline});
+    this.enableDarkMode = true;
   }
 
   /**
@@ -234,23 +235,23 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    * @memberOf SteppedFormComponent
    */
   override async ngOnInit(): Promise<void>  {
-    if(!this.locale)
+    if (!this.locale)
       this.locale = getLocaleContext("SteppedFormComponent")
     this.activeIndex = this.startPage;
-    if(typeof this.pages === 'object') {
+    if (typeof this.pages === 'object') {
       this.pageTitles = this.pages;
     } else {
-       if(!this.pageTitles.length)
+       if (!this.pageTitles.length)
       this.pageTitles =  Array.from({ length: this.pages }, () => ({ title: '', description: ''}));
     }
 
     this.pages = this.pageTitles.length;
 
-    if(this.paginated) {
-      if(!this.parentForm)
+    if (this.paginated) {
+      if (!this.parentForm)
         this.parentForm = (this.formGroup?.root || this.formGroup) as FormParent;
       this.children = [... (this.children as UIModelMetadata[]).map((c) => {
-        if(!c.props)
+        if (!c.props)
           c.props = {};
         const page = c.props['page'] || 1;
         // prevent page overflow
@@ -282,7 +283,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    */
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    if(this.timerSubscription)
+    if (this.timerSubscription)
       this.timerSubscription.unsubscribe();
   }
 
@@ -360,7 +361,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    * @memberOf SteppedFormComponent
    */
   handleBack(): void {
-    if(this.paginated) {
+    if (this.paginated) {
       this.activeIndex = this.activeIndex - 1;
       this.getCurrentFormGroup(this.activeIndex);
     }
@@ -393,7 +394,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    * @memberOf SteppedFormComponent
    */
   private getCurrentFormGroup(page: number): void {
-    if(!(this.formGroup instanceof FormArray))
+    if (!(this.formGroup instanceof FormArray))
       this.formGroup = this.formGroup?.parent as FormArray;
     this.formGroup  = (this.formGroup as FormArray).at(page - 1) as FormGroup;
     this.activeContent = undefined;
@@ -404,7 +405,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
 
 
   // async handleSubmit(event?: SubmitEvent, eventName?: string, componentName?: string): Promise<boolean | void> {
-  //   if(event) {
+  //   if (event) {
   //     event.preventDefault();
   //     event.stopImmediatePropagation();
   //   }

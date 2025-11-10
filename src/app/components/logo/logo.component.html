@@ -1,6 +1,8 @@
  <div>
     <ion-img [src]="activeLogo" alt="Decaf - For angular components lib" [style]="{ width: width + 'px' }" />
-    <div class="dcf-flex dcf-flex-right">
-      <ion-img src="assets/images/angular-logo.svg" style="width: 60px" alt="Angular logo" />
-    </div>
+    @if(showAngularLogo) {
+      <div class="dcf-flex dcf-flex-right">
+        <ion-img src="assets/images/angular-logo.svg" style="width: 60px" alt="Angular logo" />
+      </div>
+    }
   </div>

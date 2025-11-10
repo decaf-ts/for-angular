@@ -21,7 +21,7 @@ import { IComponentProperties } from './interfaces';
  * and integrates with the model and component renderer systems.
  *
  * @class NgxParentComponentDirective
- * @extends {NgxParentComponentDirective}
+ * @extends {NgxComponentDirective}
  * @implements {OnInit}
  */
 @Directive()
@@ -33,7 +33,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
    * This is typically used in conjunction with the primary key for operations on specific records.
    *
    * @type {string | number}
-   * @memberOf FieldsetComponent
    */
   @Input()
   page: number = 1;
@@ -45,7 +44,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
    * This is typically used in conjunction with the primary key for operations on specific records.
    *
    * @type {string | number}
-   * @memberOf FieldsetComponent
    */
   @Input()
   pages: number | IPagedComponentProperties[] = 1;
@@ -58,7 +56,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
    * updated whenever the user navigates between pages.
    *
    * @type {UIModelMetadata | UIModelMetadata[] | undefined}
-   * @memberOf SteppedFormComponent
    */
   activeContent: UIModelMetadata | UIModelMetadata[] | FieldDefinition | FieldDefinition[] | undefined = undefined;
 
@@ -70,7 +67,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
    * the next/back buttons or programmatic navigation.
    *
    * @type {number}
-   * @memberOf SteppedFormComponent
    */
   activeIndex: number = 1;
 
@@ -80,7 +76,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
    * It allows the directive to interact with the parent form and manage child components effectively.
    *
    * @type {FormParent}
-   * @memberOf NgxParentComponentDirective
    */
   @Input()
   parentForm!: FormParent;
@@ -125,9 +120,9 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
   rows: number | KeyValue[] | string[] = 1;
 
   async ngOnInit(model?: Model | string): Promise<void> {
-    if(model)
+    if (model)
       this.model = model as unknown as string;
-    if(this.model && !this.repository)
+    if (this.model && !this.repository)
       this._repository = this.repository;
   }
 

@@ -24,6 +24,7 @@ export * from './pagination/pagination.component';
 export * from './searchbar/searchbar.component';
 export * from './stepped-form/stepped-form.component';
 export * from './modal/modal.component';
-
+export * from './icon/icon.component';
+export * from './card/card.component';
 // Module export
 export * from './for-angular-components.module';

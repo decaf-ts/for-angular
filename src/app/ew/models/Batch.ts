@@ -1,6 +1,5 @@
 import {
   date,
-  list,
   minlength,
   model,
   Model,
@@ -8,9 +7,9 @@ import {
   required,
 } from "@decaf-ts/decorator-validation";
 import { pk } from "@decaf-ts/core";
-import { hideOn, HTML5InputTypes, uielement, uilayout, uilayoutprop,  uilistprop, uimodel } from "@decaf-ts/ui-decorators";
+import {  HTML5InputTypes, uichild, uielement, uilayout, uilayoutprop,  uilistprop, uimodel } from "@decaf-ts/ui-decorators";
 import { Product } from "./Product";
-import { OperationKeys } from "@decaf-ts/db-decorators";
+import { EpiForm } from "../forms/EpiForm";
 
 @uimodel('ngx-decaf-fieldset')
 @model()
@@ -18,14 +17,13 @@ class ManufacturerAddress {
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.manufacturerAddress.label',
     placeholder: 'batch.manufacturerAddress.placeholder',
-    className: 'dcf-width-1-2@s dcf-width-1-1',
   })
   @minlength(2)
   address?: string;
 }
 
 
-@uilayout('ngx-decaf-crud-form', 2, 3)
+@uilayout('ngx-decaf-crud-form', true)
 @model()
 export class Batch extends Model {
 
@@ -38,7 +36,7 @@ export class Batch extends Model {
     options: () => Product
   })
   @uilistprop('title')
-  @uilayoutprop(2)
+  @uilayoutprop('half', 1)
   @required()
   productCode!: string;
 
@@ -48,31 +46,23 @@ export class Batch extends Model {
     placeholder: 'batch.batchNumber.placeholder',
   })
   @required()
-  @uilayoutprop(1, 1)
-  @hideOn(OperationKeys.CREATE)
+  @uilayoutprop('half', 1)
   batchNumber!: string;
+
 
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.packagingSiteName.label',
     placeholder: 'batch.packagingSiteName.placeholder',
   })
-  @uilayoutprop(1, 2)
+  @uilayoutprop('half', 2)
   @minlength(2)
-  @required()
   packagingSiteName?: string;
 
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.importLicenseNumber.label',
     placeholder: 'batch.importLicenseNumber.placeholder',
   })
-  @uilayoutprop(1, 2)
-  importLicenseNumber?: string;
-
-  @uielement('ngx-decaf-crud-field', {
-    label: 'batch.importLicenseNumber.label',
-    placeholder: 'batch.importLicenseNumber.placeholder',
-  })
-  @uilayoutprop('half', 3)
+  @uilayoutprop('half', 2)
   importLicenseNumber2?: string;
 
    @uielement('ngx-decaf-crud-field', {
@@ -81,7 +71,7 @@ export class Batch extends Model {
   })
   @required()
   @date('yyyy-MM-dd')
-  @uilayoutprop('auto', 3)
+  @uilayoutprop(2, 3)
   expiryDate!: string;
 
   @uielement('ngx-decaf-crud-field', {
@@ -90,95 +80,59 @@ export class Batch extends Model {
     page: 1,
     type: HTML5InputTypes.CHECKBOX
   })
-  @uilayoutprop('auto', 3)
+  @uilayoutprop(1, 3)
   enableDaySelection!: string;
 
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'batch.expiryDate.label',
-  //   placeholder: 'batch.expiryDate.placeholder',
-  // })
-  // @required()
-  // @date('yyyy-MM-dd')
-  // @uilayoutprop(1, 1)
-  // expiryDate!: string;
+  @uielement('ngx-decaf-crud-field', {
+    label: 'batch.manufacturerName.label',
+    placeholder: 'batch.manufacturerName.placeholder',
+    page: 1,
+  })
+  @uilayoutprop(2, 4)
+  manufacturerName?: string;
 
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'batch.importLicenseNumber.label',
-  //   placeholder: 'batch.importLicenseNumber.placeholder',
-  // })
-  // @uilayoutprop(1, 1)
-  // importLicenseNumber?: string;
+  @uielement('ngx-decaf-crud-field', {
+    label: 'batch.dateOfManufacturing.label',
+    placeholder: 'batch.dateOfManufacturing.placeholder',
+  })
+  @date('yyyy-MM-dd')
+  @uilayoutprop(1, 4)
+  dateOfManufacturing!: string;
 
-  //   @uielement('ngx-decaf-crud-field', {
-  //   label: 'batch.batchRecall.label',
-  //   placeholder: 'batch.batchRecall.placeholder',
-  //   page: 1,
-  //   type: HTML5InputTypes.CHECKBOX
-  // })
-  // @uilayoutprop(1, 1)
-  // batchRecall!: boolean;
+  @uilayoutprop('full', 5)
+  @uichild(ManufacturerAddress.name, 'ngx-decaf-fieldset', {title: "batch.manufacturerAddress.label", max: 6,  collapsable: false, borders: false}, true)
+  manufacturerAddress!: ManufacturerAddress;
 
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'batch.manufacturerName.label',
-  //   placeholder: 'batch.manufacturerName.placeholder',
-  //   page: 1,
-  // })
-  // @uilayoutprop(1, 2)
-  // manufacturerName?: string;
-
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'batch.dateOfManufacturing.label',
-  //   placeholder: 'batch.dateOfManufacturing.placeholder',
-  //   page: 1,
-  // })
-  // @required()
-  // @date('yyyy-MM-dd')
-  // @uilayoutprop(1, 2)
-  // dateOfManufacturing?: string;
-
-  // @uichild(ManufacturerAddress.name, 'ngx-decaf-fieldset', {title: "product.manufacturer.title",  collapsable: false, borders: false}, true)
-  // @uiorder(100)
-  // @uilayoutprop(2, 3)
-  // manufacturerAddress!: ManufacturerAddress;
-
-  // dateOfManufacturing?: string;
-
-  // manufacturerAddress1?: string;
-
-  // manufacturerAddress2?: string;
-
-  // manufacturerAddress3?: string;
-
-  // manufacturerAddress4?: string;
-
-  // manufacturerAddress5?: string;
+  @uilayoutprop('full', 6)
+  @uichild(EpiForm.name, 'app-switcher', {}, false)
+  epi!: EpiForm;
 
 
-  epiLeafletVersion?: number;
+  // epiLeafletVersion?: number;
 
-  flagEnableEXPVerification: boolean = false;
+  // flagEnableEXPVerification: boolean = false;
 
-  flagEnableExpiredEXPCheck: boolean = false;
+  // flagEnableExpiredEXPCheck: boolean = false;
 
-  batchMessage?: string;
+  // batchMessage?: string;
 
-  flagEnableBatchRecallMessage: boolean = false;
+  // flagEnableBatchRecallMessage: boolean = false;
 
-  recallMessage?: string;
+  // recallMessage?: string;
 
-  flagEnableACFBatchCheck: boolean = false;
+  // flagEnableACFBatchCheck: boolean = false;
 
-  acfBatchCheckURL?: string;
+  // acfBatchCheckURL?: string;
 
-  flagEnableSNVerification: boolean = false;
+  // flagEnableSNVerification: boolean = false;
 
-  /** ACDC PATCH */
-  acdcAuthFeatureSSI?: string;
+  // /** ACDC PATCH */
+  // acdcAuthFeatureSSI?: string;
 
-  snValidReset: boolean = false;
+  // snValidReset: boolean = false;
 
-  @list(String)
-  snValid?: string[];
+  // @list(String)
+  // snValid?: string[];
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(model?: ModelArg<Batch>) {

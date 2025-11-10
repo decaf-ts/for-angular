@@ -3,14 +3,7 @@ import {
   IonButton,
   IonCard,
   IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
   IonIcon,
-  IonLabel,
-  IonList,
-  IonItem,
-  IonRow,
-  IonCol,
   IonText
  } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -66,7 +59,7 @@ export class ImageUploadComponent extends NgxFormFieldDirective implements OnIni
   ngOnInit(): void {
     // convert maxFileSize from MB to bytes
     this.maxFileSize = this.maxFileSize * 1024 * 1024;
-    if(!this.className.length)
+    if(!this.className?.length)
       this.className = 'dcf-card-default';
   }
 

@@ -11,7 +11,7 @@
       }
 
       .cls-3 {
-        fill: #141414;
+        fill: var(--dcf-text-color, var(--dcf-color-dark, #2f3349))
       }
 
       .cls-4 {

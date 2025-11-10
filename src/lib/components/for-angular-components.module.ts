@@ -20,12 +20,12 @@ import { ComponentRendererComponent } from './component-renderer/component-rende
 import { PaginationComponent } from './pagination/pagination.component';
 import { ListComponent } from './list/list.component';
 import { FieldsetComponent } from './fieldset/fieldset.component';
-import { CollapsableDirective } from '../directives/collapsable.directive';
 import { LayoutComponent } from './layout/layout.component';
 import { FilterComponent } from './filter/filter.component';
 import { SteppedFormComponent } from './stepped-form/stepped-form.component';
+import { IconComponent } from './icon/icon.component';
+import { CardComponent } from './card/card.component';
 
-const Directives = [CollapsableDirective];
 const Components = [
   ModelRendererComponent,
   ComponentRendererComponent,
@@ -40,13 +40,15 @@ const Components = [
   FieldsetComponent,
   LayoutComponent,
   FilterComponent,
-  SteppedFormComponent
+  SteppedFormComponent,
+  IconComponent,
+  CardComponent
 ];
 
 @NgModule({
-  imports: [...Components, ...Directives],
+  imports: [...Components],
   declarations: [],
   schemas: [],
-  exports: [...Components, ...Directives],
+  exports: [...Components],
 })
 export class ForAngularComponentsModule {}

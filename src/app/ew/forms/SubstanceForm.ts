@@ -7,8 +7,8 @@ export class SubstanceForm extends Model {
 
   @required()
   @uielement('ngx-decaf-crud-field', {
-    label: 'product.substance.name.label',
-    placeholder: 'product.substance.name.placeholder',
+    label: 'substance.name.label',
+    placeholder: 'substance.name.placeholder',
   })
   @uilayoutprop(1)
   name!: string;
@@ -16,11 +16,13 @@ export class SubstanceForm extends Model {
 
   @uipageprop(1)
   @uielement('ngx-decaf-crud-field', {
-    label: 'product.substance.name.label',
-    placeholder: 'product.substance.name.placeholder',
+    label: 'substance.strength.label',
+    placeholder: 'substance.strength.placeholder',
   })
   @uilayoutprop(1)
   strength!: string;
+
+  legalEntityName?: string;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: ModelArg<SubstanceForm>) {

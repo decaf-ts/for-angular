@@ -1,14 +1,14 @@
-@if(operation === 'read' || operation === 'delete') {
-  <ng-container #component>
-    <div [class]="'dcf-input-item ' + operation">
-      <ion-item>
+@if (operation === 'read' || operation === 'delete') {
+  <ng-container>
+    <div>
+      <ion-item [class]="'dcf-input-item ' + operation" #component>
         <ion-label>
           {{ label | translate }}<br />
-          @if(value) {
+          @if (value) {
               <ion-text [innerHTML]="type === 'password' ? '********' : value"></ion-text>
           } @else {
-             @if(['checkbox', 'radio'].includes(type)) {
-               <ion-icon class="dcf-margin-small-top" color="primary" size="large" name="checkmark-circle-outline"></ion-icon>
+             @if (['checkbox'].includes(type)) {
+               <ion-icon class="dcf-margin-small-top" [color]="!isDarkMode  ? 'primary' : 'light'" size="large" name="checkmark-circle-outline"></ion-icon>
             } @else {
               <br />
             }
@@ -18,7 +18,7 @@
     </div>
   </ng-container>
 } @else {
-  @if(formControl) {
+  @if (formControl) {
     <ng-container [formGroup]="multiple ? activeFormGroup : formControl.parent">
       <div
 
@@ -27,12 +27,12 @@
           (createGroupEvent)="multiple ? handleFieldsetCreateGroupEvent($event) : ''"
           [class.dcf-field-required]="required"
         >
-          @if(type === 'textarea') {
+          @if (type === 'textarea') {
             <ion-textarea
               (ionInput)="handleModalChildChanges()"
               (ionChange)="handleModalChildChanges()"
               [id]="name"
-              [mode]="mode"
+              [mode]="'md'"
               [hidden]="hidden"
               [autoGrow]="true"
               [minlength]="minlength !== undefined ? minlength : null"
@@ -51,18 +51,18 @@
             #component>
             </ion-textarea>
           }
-          @else if(type === 'checkbox') {
-            @if(!options?.length) {
+          @else if (type === 'checkbox') {
+            @if (!options?.length) {
               <ion-item class="dcf-width-1-1" [hidden]="hidden">
                 <ion-checkbox
                   (ionInput)="handleModalChildChanges()"
                   (ionChange)="handleModalChildChanges()"
                   [id]="name"
-                  [mode]="mode"
+                  [mode]="'md'"
                   [errorText]="getErrors(container)"
                   [hidden]="hidden"
                   [labelPlacement]="labelPlacement"
-                  [justify]="left"
+                  [justify]="justify || 'start'"
                   [value]="value"
                   [checked]="checked"
                   [readonly]="readonly"
@@ -82,7 +82,7 @@
                       (ionInput)="handleModalChildChanges()"
                       (ionChange)="handleModalChildChanges()"
                       [id]="option.text"
-                      [mode]="mode"
+                      [mode]="'md'"
                       [labelPlacement]="labelPlacement"
                       [justify]="justify"
                       [value]="option.value"
@@ -99,7 +99,7 @@
             }
 
           }
-          @else if(type === 'radio' && options?.length) {
+          @else if (type === 'radio' && options?.length) {
             <ion-radio-group class="dcf-width-1-1" [formControlName]="name" [value]="value" #component>
               <label class="dcf-radio-group-label" [for]="path">{{label | translate}}</label>
               @for(option of options; track $index) {
@@ -109,7 +109,7 @@
                     (ionChange)="handleModalChildChanges()"
                     [id]="name"
                     [errorText]="getErrors(container)"
-                    [mode]="mode"
+                    [mode]="'md'"
                     [hidden]="hidden"
                     [labelPlacement]="labelPlacement"
                     [alignment]="alignment"
@@ -121,7 +121,7 @@
               }
             </ion-radio-group>
           }
-          @else if(type === 'select') {
+          @else if (type === 'select') {
             <div>
               <ion-select
                 (ionInput)="handleModalChildChanges()"
@@ -130,7 +130,7 @@
                 toggleIcon="chevron-down-outline"
                 expandedIcon="chevron-up-outline"
                 [interface]="interface"
-                [mode]="mode"
+                [mode]="'md'"
                 [hidden]="hidden || !options?.length"
                 [labelPlacement]="labelPlacement"
                 [label]="label | translate"
@@ -139,7 +139,7 @@
                 [placeholder]="placeholder | translate"
                 [formControlName]="name"
                 [interface]="interface" #component>
-                @if(options?.length) {
+                @if (options?.length) {
                   @for(option of options; track trackItemFn($index, option.text)) {
                     <ion-select-option [value]="option.value">
                       {{ option.text | translate }}
@@ -148,7 +148,7 @@
                 }
               </ion-select>
               <div class="dcf-error" [innerHTML]="getErrors(container)"></div>
-              @if(!options?.length) {
+              @if (!options?.length) {
                 <ion-text color="danger">
                   * {{ 'errors.empty_options' | translate:{'0': name} }}
                 </ion-text>
@@ -161,7 +161,7 @@
               (ionChange)="handleModalChildChanges()"
               [id]="name"
               [type]="type"
-              [mode]="mode"
+              [mode]="'md'"
               [hidden]="hidden"
               [inputmode]="inputmode"
               [labelPlacement]="labelPlacement"

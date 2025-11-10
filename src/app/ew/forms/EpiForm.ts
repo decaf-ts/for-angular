@@ -6,7 +6,7 @@ import {
 import { pk } from "@decaf-ts/core";
 import { uichild, uimodel, uiorder, uipageprop } from "@decaf-ts/ui-decorators";
 import { Leaflet } from "../models/Leaflet";
-import { ProductMarket } from "../models/ProductMarket";
+import { MarketForm } from "./MarketForm";
 import { SubstanceForm } from "./SubstanceForm";
 
 @uimodel('ngx-decaf-form', {})
@@ -36,13 +36,13 @@ export class EpiForm extends Model {
   strengths!: SubstanceForm;
 
   @uipageprop(1)
-  @uichild(ProductMarket.name, 'ngx-decaf-fieldset', {
+  @uichild(MarketForm.name, 'ngx-decaf-fieldset', {
     title: "Markets",
     borders: false,
     collapsable: false
   }, false)
   @uiorder(3)
-  markets!: ProductMarket;
+  markets!: MarketForm;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: ModelArg<EpiForm>) {

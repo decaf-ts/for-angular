@@ -11,8 +11,7 @@
 import {
   Component,
   Input,
-  SimpleChanges,
-  ViewEncapsulation,
+  SimpleChanges
 } from '@angular/core';
 import { Model, sf } from '@decaf-ts/decorator-validation';
 import { AngularEngineKeys, BaseComponentProps } from '../../engine/constants';
@@ -54,8 +53,8 @@ import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableCompo
   selector: 'ngx-decaf-model-renderer',
   templateUrl: './model-renderer.component.html',
   styleUrl: './model-renderer.component.scss',
-  host: {'[attr.id]': 'rendererId'},
-  encapsulation: ViewEncapsulation.None
+  host: {'[attr.id]': 'uid'}
+
 })
 export class ModelRendererComponent<M extends Model>
   extends NgxRenderableComponentDirective {

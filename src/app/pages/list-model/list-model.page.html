@@ -9,17 +9,18 @@
 
 <ion-content [fullscreen]="true">
     <main>
-    <app-container [hasSideMenu]="true" size="2xlarge">
-      <ion-card class="dcf-card-default">
-        <ion-card-content>
-            <ngx-decaf-list
-              [model]="model"
-              [type]="type"
-              [operations]="['read', 'create', 'update', 'delete']"
-              (listenEvent)="handleEvent($event)"
-            />
-        </ion-card-content>
-      </ion-card>
+    <app-container [hasSideMenu]="true">
+        <ngx-decaf-card
+          [title]="title"
+          [subtitle]="type + ' list component'"
+        >
+        <ngx-decaf-list
+          [model]="model"
+          [type]="type"
+          [operations]="['read', 'create', 'update', 'delete']"
+          (listenEvent)="handleEvent($event)"
+        />
+      </ngx-decaf-card>
     </app-container>
   </main>
 </ion-content>

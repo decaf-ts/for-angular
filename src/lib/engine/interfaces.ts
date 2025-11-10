@@ -154,6 +154,7 @@ export interface IFormComponentProperties extends IComponentProperties {
   formGroup?: FormGroup;
   operation?: CrudOperationKeys | undefined;
   formControl?: FormControl;
+  mergeInParent?: boolean;
 }
 
 
@@ -452,5 +453,20 @@ export interface IListEmptyOptions {
   icon: string;
 }
 
+/**
+ * @description Event emitted when the viewport/window size changes.
+ * @summary Provides the new width and height in pixels for responsive handlers.
+ *
+ * Typical usage: subscribed by UI layout services or components to react to
+ * window resizing and adjust layouts or trigger reflows.
+ *
+ * @example
+ * const e: IWindowResizeEvent = { width: window.innerWidth, height: window.innerHeight };
+ */
+export interface IWindowResizeEvent {
+  /** The new width of the window (innerWidth) in pixels */
+  width: number;
+  /** The new height of the window (innerHeight) in pixels */
+  height: number;
+}
 
-export interface IWindowResizeEvent { width: number; height: number }

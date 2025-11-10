@@ -10,7 +10,7 @@ import { FormParent, KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Directive, Inject, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { NgxFormService } from './NgxFormService';
+import { NgxFormService } from '../services/NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
 import { EventConstants } from './constants';
 import { FunctionLike } from './types';
@@ -301,11 +301,11 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @public
    */
   get activeFormGroup(): FormGroup {
-    if(!this.formGroup)
+    if (!this.formGroup)
       return this.formControl.parent as FormGroup;
 
-    if(this.multiple) {
-      if(this.formGroup instanceof FormArray)
+    if (this.multiple) {
+      if (this.formGroup instanceof FormArray)
         return this.formGroup.at(this.activeFormGroupIndex) as FormGroup;
       return this.formGroup;
     }
@@ -402,8 +402,9 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @public
    */
   afterViewInit(): HTMLElement {
+    this.checkDarkMode();
     let parent: HTMLElement;
-    if(this.component?.nativeElement)
+    if (this.component?.nativeElement)
       this.isModalChild = this.component.nativeElement.closest('ion-modal') ? true : false;
     switch (this.operation) {
       case OperationKeys.READ:
@@ -434,16 +435,16 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @public
    */
   override ngOnChanges(changes: SimpleChanges): void {
-    if(!this.initialized)
+    if (!this.initialized)
       super.ngOnChanges(changes);
-    if(changes['activeFormGroupIndex'] && this.multiple &&
+    if (changes['activeFormGroupIndex'] && this.multiple &&
         !changes['activeFormGroupIndex'].isFirstChange() && changes['activeFormGroupIndex'].currentValue !== this.activeFormGroupIndex) {
 
       this.activeFormGroupIndex = changes['activeFormGroupIndex'].currentValue;
       this.formGroup = this.activeFormGroup;
       this.formControl = this.formGroup.get(this.name) as FormControl;
     }
-    if(changes['value'] && !changes['value'].isFirstChange()
+    if (changes['value'] && !changes['value'].isFirstChange()
     && (changes['value'].currentValue !== undefined && changes['value'].currentValue !== this.value))
       this.setValue(changes['value'].currentValue);
   }
@@ -456,7 +457,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @public
    */
   onDestroy(): void {
-    if(this.formGroup)
+    if (this.formGroup)
       NgxFormService.unregister(this.formGroup);
   }
 
@@ -474,7 +475,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
   }
 
   handleModalChildChanges() {
-    if(this.isModalChild)
+    if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
   }
 
@@ -489,15 +490,15 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    */
   getErrors(parent: HTMLElement): string | void {
     const formControl = this.formControl;
-    if(formControl) {
+    if (formControl) {
       const accordionComponent = parent.closest('ngx-decaf-fieldset')?.querySelector('ion-accordion-group');
-      if((!formControl.pristine || formControl.touched) && !formControl.valid) {
+      if ((!formControl.pristine || formControl.touched) && !formControl.valid) {
         const errors: Record<string, string>[] = Object.keys(formControl.errors ?? {}).map(key => ({
           key: key,
           message: key,
         }));
-        if(errors.length) {
-          if(accordionComponent && !this.validationErrorEventDispatched) {
+        if (errors.length) {
+          if (accordionComponent && !this.validationErrorEventDispatched) {
             const validationErrorEvent = new CustomEvent(EventConstants.VALIDATION_ERROR, {
               detail: {fieldName: this.name, hasErrors: true},
               bubbles: true

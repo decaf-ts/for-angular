@@ -12,18 +12,15 @@
 
 <ion-content [fullscreen]="true">
   <main class="main">
-    <app-container [hasSideMenu]="true" size="expand">
-      <ion-card class="dcf-card-default">
-         <ion-card-header>
-          <ion-card-title>
-            <span style="text-transform: capitalize;">{{operation}}</span> {{ operation ? modelName : 'Listing'}}
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content class="dcf-margin-top">
-            @if(model) {
+    <app-container [hasSideMenu]="true">
+      <ngx-decaf-card
+        [title]="pageTitle"
+        >
+          @if(model) {
               @if(!operation) {
                 <ngx-decaf-list
                   [model]="model"
+                  [operation]="operation"
                   type="paginated"
                   [operations]="['read', 'create', 'update', 'delete']"
                   (listenEvent)="handleEvent($event)"
@@ -47,9 +44,7 @@
           } @else {
             <div>No Model</div>
           }
-        </ion-card-content>
-      </ion-card>
-
+      </ngx-decaf-card>
     </app-container>
   </main>
 </ion-content>

@@ -1,15 +1,14 @@
-import { Component,  inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { IonButton, IonButtons, IonHeader, IonIcon, IonMenuButton, IonTitle, IonToolbar } from '@ionic/angular/standalone';
-import { RouterService } from 'src/app/services/router.service';
-import { getWindow, stringToBoolean } from 'src/lib/helpers/utils';
+import { IonAvatar, IonButton, IonButtons, IonHeader, IonMenuButton, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
+import { getOnWindow, getOnWindowDocument, stringToBoolean } from 'src/lib/utils/helpers';
 import { BackButtonComponent } from '../back-button/back-button.component';
 import { NgxComponentDirective } from 'src/lib/engine/NgxComponentDirective';
 import { FunctionLike } from 'src/lib/engine/types';
-import { saveOutline, folderOpenOutline, createOutline } from "ionicons/icons";
-import { addIcons } from 'ionicons';
 import { TranslatePipe } from '@ngx-translate/core';
+import { AngularEngineKeys, WindowColorSchemes } from 'src/lib/engine/constants';
+import { IconComponent } from 'src/lib/components/icon/icon.component';
 
 /**
  * @description Header component for application pages.
@@ -27,12 +26,97 @@ import { TranslatePipe } from '@ngx-translate/core';
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
-  imports: [TranslatePipe, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonMenuButton, IonIcon,  BackButtonComponent],
+  imports: [TranslatePipe, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonMenuButton,IconComponent, IonAvatar,  BackButtonComponent],
   schemas: [],
   standalone: true,
 
 })
+/**
+ * @class HeaderComponent
+ * @extends {NgxComponentDirective}
+ * @implements {OnInit}
+ *
+ * @description A configurable header component for Angular applications.
+ * @summary Provides a flexible header component with support for menu buttons, back navigation,
+ * logo display, color scheme toggling, and responsive design. The component includes built-in
+ * support for dark mode, sticky/floating behavior, and customizable styling options.
+ *
+ * @example
+ * ```html
+ * <app-header
+ *   [title]="'My Application'"
+ *   [showMenuButton]="true"
+ *   [showBackButton]="false"
+ *   [backgroundColor]="'primary'"
+ *   [sticky]="true"
+ *   [showToggleoggleButton]="true">
+ * </app-header>
+ * ```
+ *
+ * @remarks
+ * This component automatically handles user authentication by checking for a logged-in user
+ * and redirecting to the login page if no user is found. It also provides responsive behavior
+ * with separate mobile-specific styling options.
+ *
+ * Key features:
+ * - Menu button with configurable position
+ * - Back button navigation
+ * - Logo display
+ * - Color scheme toggle (light/dark mode)
+ * - Sticky and floating header modes
+ * - Responsive design with mobile-specific options
+ * - Customizable colors and layout
+ *
+ * @memberOf app.components
+ */
+/**
+ * @description Header component for displaying page titles, navigation controls, and branding elements.
+ * @summary A versatile header component that provides a consistent navigation experience across the application.
+ * It supports features such as menu buttons, back navigation, logo display, color scheme toggling, and
+ * responsive behavior for mobile devices. The component can be customized through various input properties
+ * to match different page requirements and design patterns.
+ *
+ * @remarks
+ * This component extends NgxComponentDirective to inherit common functionality and implements OnInit
+ * for initialization logic. It integrates with Ionic components for native mobile appearance and behavior.
+ *
+ * Key Features:
+ * - Configurable menu and back button controls
+ * - Support for logo and title display
+ * - Responsive layout with mobile-specific properties
+ * - Color scheme toggling between light and dark modes
+ * - Sticky and floating header variants
+ * - Authentication-aware with automatic login redirect
+ * - Customizable colors, alignment, and border settings
+ *
+ * @example
+ * ```typescript
+ * <app-header
+ *   [title]="'Dashboard'"
+ *   [showMenuButton]="true"
+ *   [showBackButton]="false"
+ *   [backgroundColor]="'primary'"
+ *   [showToggleoggleButton]="true">
+ * </app-header>
+ * ```
+ *
+ * @export
+ * @class HeaderComponent
+ * @extends {NgxComponentDirective}
+ * @implements {OnInit}
+ */
 export class HeaderComponent extends NgxComponentDirective implements OnInit {
+
+  /**
+   * @description Overrides the current CRUD operation context for this header instance.
+   * @summary Optional input that allows pages to specify the active operation (CREATE, READ, UPDATE, DELETE)
+   * which can alter header controls (buttons, visibility) and routing behavior. When undefined the
+   * component will inherit or resolve the operation from the surrounding context or parent component.
+   * @type {OperationKeys | undefined}
+   * @default undefined
+   */
+  @Input()
+  override operation: OperationKeys | undefined = undefined;
 
   /**
    * @description Controls whether the menu button is displayed.
@@ -154,30 +238,6 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   @Input()
   backgroundColor: string = "white";
 
-  /**
-   * @description Background color of the header on mobile devices.
-   * @summary Sets a different background color for the header when viewed on mobile devices.
-   * This allows for responsive design adjustments based on screen size. Uses Ionic's predefined
-   * color palette to maintain consistency with the application's color scheme.
-   *
-   * @type {string}
-   * @default ""
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  mobileBackgroundColor: string = "";
-
-  /**
-   * @description Position of the menu button on mobile devices.
-   * @summary Determines whether the menu button appears at the start or end of the header
-   * when viewed on mobile devices. This allows for responsive layout adjustments.
-   *
-   * @type {'start' | 'end'}
-   * @default 'end'
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  mobileButtonMenuSlot: 'start' | 'end' = 'end';
 
   /**
    * @description Controls whether the header content is centered.
@@ -205,6 +265,57 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   translucent: StringOrBoolean = false;
 
   /**
+   * @description Enables or disables the color scheme toggle control in the header.
+   * @summary Accepts either a boolean value or a string representation of a boolean.
+   * When enabled, users can switch between light and dark color schemes.
+   *
+   * @type {boolean}
+   * @default true
+   */
+  @Input()
+  showToggleoggleButton: boolean = true;
+
+  /**
+   * @description Enable sticky header behavior.
+   * @summary When true the header will toggle a sticky state when the page is scrolled
+   * beyond a configurable offset. Useful for keeping the header visible while scrolling.
+   * @type {boolean}
+   * @default false
+   */
+  @Input()
+  sticky: boolean = false;
+
+  /**
+   * @description Vertical offset (in pixels) used to trigger the sticky state.
+   * @summary The header becomes sticky when the page scroll position passes this number of pixels.
+   * When `floating` is enabled the default offset is larger to account for different UI spacing.
+   * @type {number}
+   * @default 80
+   */
+  @Input()
+  stickyOffset: number = 80;
+
+  /**
+   * @description Runtime flag indicating whether the header is currently in the sticky state.
+   * @summary This is set by the component (not an input) and updated by the page scroll observer.
+   * Consumers can bind to it in templates if they need to react to the sticky transition.
+   * @type {boolean}
+   * @default false
+   */
+  stickyActive: boolean = false;
+
+  /**
+   * @description Enable floating header mode.
+   * @summary When true the header uses a floating style (different offset / appearance).
+   * Floating headers are typically used to overlay content and use a larger `stickyOffset`.
+   * @type {boolean}
+   * @default false
+   */
+  @Input()
+  floating: boolean = false;
+
+
+  /**
    * @description Service for handling routing operations.
    * @summary Injected service that provides methods for navigating between routes.
    * This service is used for navigation when changing operations or performing
@@ -214,7 +325,7 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    * @type {RouterService}
    * @memberOf HeaderComponent
    */
-  private routerService: RouterService  = inject(RouterService);
+  private menuController: MenuController = inject(MenuController);
 
   /**
    * @description Color of back button icon.
@@ -227,18 +338,9 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   backButtonColor: string = 'translucent';
 
 
-  /**
-   * @description Stores the original background color value before theme modifications.
-   * @summary Preserves the initial backgroundColor input value before any theme-based
-   * modifications are applied during component initialization. This allows the component
-   * to restore or reference the original color value when switching between themes
-   * or when resetting the header appearance to its default state.
-   *
-   * @type {string}
-   * @private
-   * @memberOf HeaderComponent
-   */
-  private initialBackgroundColor!: string;
+  user!: string;
+
+  colorSchema: 'dark' | 'light' = 'light';
 
 
   /**
@@ -250,8 +352,10 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    */
   constructor() {
     super("HeaderComponent");
-    addIcons({ saveOutline, folderOpenOutline, createOutline });
+    // enable dark mode support for this component
+    this.enableDarkMode = true;
   }
+
 
  /**
   * @description Initializes the component after Angular first displays the data-bound properties.
@@ -277,10 +381,18 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   * @memberOf HeaderComponent
   */
   async ngOnInit(): Promise<void> {
-    this.initialBackgroundColor = this.backgroundColor;
-    this.observeThemeChange();
+    // custom behavior on color scheme change, dont call super.ngOnInit()
+    // this.mediaService.colorSchemeObserver(this.component);
+    const isLoggedIn = await this.isLoggedIn() || 'User';
+    if(!isLoggedIn)
+      this.router.navigateByUrl('/login');
+    this.user = isLoggedIn as string;
     this.showBackButton = stringToBoolean(this.showBackButton);
-    this.showMenuButton = stringToBoolean(this.showMenuButton);
+
+    // remove back button case dont have any operation defined
+    if(!this.operation)
+      this.showBackButton = false;
+
     if(this.showMenuButton)
       this.menuController.enable(true);
     this.center = stringToBoolean(this.center);
@@ -291,33 +403,46 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
       this.className += ' dcf-flex';
     if(!this.border)
       this.className += ` ion-no-border`;
-    this.getRoute();
-    if(this.backgroundColor === 'white') {
+
+    if(this.backgroundColor === 'white')
       this.backButtonColor = 'medium';
+
+    if(this.sticky || this.floating) {
+      if(this.floating)
+        this.stickyOffset = 100;
+      this.mediaService.observePageScroll(this.stickyOffset).subscribe(isBeyondOffset => {
+        this.stickyActive = isBeyondOffset;
+      });
     }
+
+    this.getRoute();
+    this.initialized = true;
   }
 
-  /**
-   * @description Observes system theme changes and updates header appearance accordingly.
-   * @summary Sets up a media query listener to detect changes in the user's color scheme preference
-   * (light/dark mode). When the theme changes, automatically adjusts the header's background color
-   * by either restoring the original color for light mode or clearing it for dark mode. This ensures
-   * the header appearance remains consistent with the system theme preferences.
-   *
-   * @private
-   * @return {void}
-   * @memberOf HeaderComponent
-   */
-  private observeThemeChange(): void {
-    const win = getWindow() as Window;
-    const colorSchemePreference = win.matchMedia('(prefers-color-scheme: dark)');
-    this.backgroundColor =  colorSchemePreference.matches ? '' : this.initialBackgroundColor;
-    colorSchemePreference.addEventListener('change', () => {
-        this.backgroundColor =  colorSchemePreference.matches ? '' : this.initialBackgroundColor;
-    });
+  async isLoggedIn(): Promise<string|undefined> {
+    const isLoggedIn = getOnWindow('loggedUser') as string;
+    return isLoggedIn;
+  }
+
+  navigateToAccount(): void {
+    this.router.navigateByUrl('/account');
+  }
+
+  changeColorSchema(): void {
+    this.colorSchema = this.colorSchema === WindowColorSchemes.dark? WindowColorSchemes.light: WindowColorSchemes.dark;
+    this.mediaService.toggleClass(
+      [getOnWindowDocument('documentElement'), this.component],
+      AngularEngineKeys.DARK_PALETTE_CLASS,
+      this.colorSchema === WindowColorSchemes.dark? true : false
+    );
+
+    // this.colorSchema = schema;
+    //  this.mediaService.colorSchemeObserver(this.component);
+    // this.backgroundColor = schema === 'dark' ? '' : this.initialBackgroundColor;
   }
 
   getBackButtonSlot(): string {
     return this.modelId && ![OperationKeys.READ,  OperationKeys.UPDATE].includes(this.operation as OperationKeys) ? 'start' : 'end';
   }
 }
+

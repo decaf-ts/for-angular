@@ -1,11 +1,11 @@
 import { Component} from '@angular/core';
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { ListComponent } from 'src/lib/components/list/list.component';
 import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
-import { EmptyStateComponent } from 'src/lib/components';
+import { CardComponent, EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { IBaseCustomEvent, IModelPageCustomEvent } from 'src/lib/engine/interfaces';
@@ -104,7 +104,7 @@ import { IBaseCustomEvent, IModelPageCustomEvent } from 'src/lib/engine/interfac
   standalone: true,
   selector: 'app-model',
   templateUrl: './model.page.html',
-  imports: [ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent],
+  imports: [IonContent, ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent, CardComponent],
   styleUrls: ['./model.page.scss'],
 })
 export class ModelPage extends NgxModelPageDirective {
@@ -113,6 +113,7 @@ export class ModelPage extends NgxModelPageDirective {
   // }
 
   override async ionViewWillEnter(): Promise<void> {
+    console.warn(`current operation ${this.operation}`);
    await super.ionViewWillEnter();
   }
 

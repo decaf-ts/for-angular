@@ -1,6 +1,7 @@
-<section [class]="'dcf-container ' + className">
-
-  <div [class]="size">
-    <ng-content />
+<section [class]="className">
+  <div [class]="'dcf-container ' + size">
+    <ng-content slot="content"></ng-content>
   </div>
 </section>
+
+

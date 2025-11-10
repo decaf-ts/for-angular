@@ -5,13 +5,16 @@
  * offers page-focused utilities such as menu management, title handling and router event hooks.
  * @link {@link NgxPageDirective}
  */
-import { AfterViewInit, Directive, Inject, inject } from "@angular/core";
+import { AfterViewInit, Directive, Inject, inject, OnInit } from "@angular/core";
 import { NgxComponentDirective} from "./NgxComponentDirective";
 import { Title } from "@angular/platform-browser";
 import { IMenuItem } from "./interfaces";
 import { CPTKN } from "../for-angular-common.module";
 import { NavigationEnd, NavigationStart } from "@angular/router";
-import { removeFocusTrap } from "../helpers/utils";
+import { removeFocusTrap } from "../utils/helpers";
+import { KeyValue } from "./types";
+import { MenuController } from "@ionic/angular";
+
 
 /**
  * @description Base directive for page-level components in Decaf Angular applications.
@@ -24,7 +27,8 @@ import { removeFocusTrap } from "../helpers/utils";
  * @memberOf module:lib/engine/NgxPageDirective
  */
 @Directive()
-export abstract class NgxPageDirective extends NgxComponentDirective implements AfterViewInit {
+export abstract class NgxPageDirective extends NgxComponentDirective implements OnInit, AfterViewInit {
+
 
   /**
    * @description Page title text for the current view.
@@ -36,6 +40,31 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
    * @memberOf module:lib/engine/NgxPageDirective
    */
   title: string = '';
+
+
+  /**
+   * @description Global key-value pairs for application-wide settings.
+   * @summary This property stores global configuration values that can be accessed
+   * throughout the application. It is typically used to manage shared state or
+   * settings that are relevant across multiple components or services.
+   * @type {KeyValue}
+   * @memberOf module:lib/engine/NgxPageDirective
+   */
+  globals!: KeyValue;
+
+
+  /**
+   * @description Ionic menu controller service for menu management.
+   * @summary Injected service that provides programmatic control over Ionic menu components.
+   * This service allows the component to open, close, toggle, and manage menu states within
+   * the application. It provides access to menu functionality for implementing navigation
+   * and layout features that require menu interaction.
+   * @protected
+   * @type {MenuController}
+   * @memberOf module:lib/engine/NgxPageDirective
+   */
+  protected menuController: MenuController = inject(MenuController);
+
 
   /**
    * @description Menu items array for page navigation.
@@ -77,6 +106,19 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
 
 
   /**
+   * @description Currently active route path for the page (without leading slash).
+   * @summary This protected property stores the current route segment used by the
+   * page to determine the displayed title and menu state. It is updated on
+   * NavigationEnd events (see ngAfterViewInit) and consumed by the `pageTitle`
+   * getter and `setPageTitle()` method. When undefined the component will
+   * attempt to resolve the route from the router URL.
+   * @protected
+   * @type {string | undefined}
+   * @default undefined
+   */
+  protected currentRoute?: string;
+
+  /**
    * @description Constructor for NgxPageDirective.
    * @summary Initializes the page directive with optional locale root and menu visibility settings.
    * Calls the parent NgxComponentDirective constructor to set up base functionality including
@@ -89,6 +131,26 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
   constructor(@Inject(CPTKN) localeRoot: string = "NgxPageDirective", @Inject(CPTKN) hasMenu: boolean = true) {
     super(localeRoot);
     this.hasMenu = hasMenu;
+    // subscribe to media service color scheme changes
+    this.mediaService.colorScheme$.subscribe();
+  }
+
+  get pageTitle(): string {
+    if(this.title)
+      return this.title;
+    if(this.locale)
+      return `${this.locale}.title`;
+    if(this.currentRoute)
+      return this.currentRoute?.charAt(0).toUpperCase() + this.currentRoute?.slice(1) || 'Decaf For Angular';
+    return "";
+  }
+
+  ngOnInit(): Promise<void> | void{
+    // connect component to media service for color scheme toggling
+    this.mediaService.colorSchemeObserver(this.component);
+    this.currentRoute = this.router.url.replace('/', '');
+    this.setPageTitle(this.currentRoute);
+    this.initialized = true;
   }
 
   /**
@@ -101,11 +163,13 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
    * @memberOf module:lib/engine/NgxPageDirective
    */
 	async ngAfterViewInit(): Promise<void> {
-      this.router.events.subscribe(async event => {
+    this.router.events.subscribe(async event => {
       if(event instanceof NavigationEnd) {
         const url = (event?.url || "").replace('/', '');
         this.hasMenu = url !== "login" && url !== "";
-        this.setPageTitle(url);
+        this.currentRoute = url;
+        this.setPageTitle(this.currentRoute);
+        this.title = this.pageTitle;
       }
       if (event instanceof NavigationStart)
         removeFocusTrap();
@@ -131,11 +195,15 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
   protected setPageTitle(route?: string, menu?: IMenuItem[]): void {
     if(!route)
       route = this.router.url.replace('/', '');
-    if(menu)
+    if(!menu)
       menu = this.menu;
-    const activeMenu = this.menu.find(item => item?.url?.includes(route));
-    if(activeMenu)
-      this.titleService.setTitle(`${activeMenu?.title || activeMenu?.label}`);
+    const activeMenu = menu.find(item => item?.url?.includes(route));
+    if(activeMenu) {
+      const title = activeMenu?.title || activeMenu?.label;
+      this.titleService.setTitle(`${title}`);
+      if(!this.title)
+        this.title = title;
+    }
   }
 
 }

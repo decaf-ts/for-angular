@@ -44,6 +44,7 @@ export const AngularEngineKeys = {
   VALIDATION_PARENT_KEY: VALIDATION_PARENT_KEY,
   FLAVOUR: "angular",
   LOADED: 'engineLoaded',
+  DARK_PALETTE_CLASS: 'dcf-palette-dark'
 } as const;
 
 /**
@@ -89,6 +90,7 @@ export const EventConstants = {
   FIELDSET_ADD_GROUP: 'fieldsetAddGroupEvent',
   FIELDSET_UPDATE_GROUP: 'fieldsetUpdateGroupEvent',
   FIELDSET_REMOVE_GROUP: 'fieldsetRemoveGroupEvent',
+  THEME_CHANGE: 'themeChangeEvent',
   // FIELDSET_GROUP_VALIDATION: 'fieldsetGroupValidationEvent'
 } as const;
 
@@ -297,4 +299,31 @@ export const ActionRoles = {
   submit: 'submit',
   clear: 'clear',
   back: 'back'
+} as const;
+
+export const WindowColorSchemes = {
+  light: 'light',
+  dark: 'dark',
+  undefined: 'undefined'
+} as const;
+
+export const ElementSizes = {
+  xsmall: 'xsmall',
+  small: 'small',
+  medium: 'medium',
+  large: 'large',
+  xLarge: 'xlarge',
+  '2xLarge': '2xlarge',
+  auto: 'auto',
+  expand: 'expand',
+  block: 'block',
+} as const;
+
+
+export const LayoutGridGaps = {
+  small: 'small',
+  medium: 'medium',
+  large: 'large',
+  collapse: 'collapse',
+  none: ''
 } as const;

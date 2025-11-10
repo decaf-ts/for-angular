@@ -17,13 +17,12 @@ import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList,
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { ReservedModels } from '@decaf-ts/decorator-validation';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
-import { NgxFormService } from '../../engine/NgxFormService';
+import { NgxFormService } from '../../services/NgxFormService';
 import { LayoutComponent } from '../layout/layout.component';
 import { KeyValue } from '../../engine/types';
-import { EventConstants } from '../../engine/constants';
 import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
-import { itemMapper, windowEventEmitter } from '../../helpers/utils';
+import { itemMapper } from '../../utils/helpers';
 
 
 /**
@@ -213,6 +212,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   @Input()
   borders: boolean = true;
 
+
   /**
    * @description Array of formatted items for UI display.
    * @summary Contains the processed items ready for display in the component template.
@@ -316,6 +316,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @default Infinity
    * @memberOf FieldsetComponent
    */
+  @Input()
   max: number | undefined = undefined;
 
   /**
@@ -343,21 +344,22 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   override async ngOnInit(): Promise<void> {
     await super.ngOnInit(this.model);
-
+    if(this.max && this.max === 1)
+      this.multiple = false;
     this.buttonLabel = this.translateService.instant(this.locale + '.add');
     this.buttonCancelLabel = this.translateService.instant(this.locale + '.cancel');
-    if([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
-      if(!this.formGroup) {
-        if(this.parentForm instanceof FormGroup)
+    if ([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
+      if (!this.formGroup) {
+        if (this.parentForm instanceof FormGroup)
           this.formGroup = (this.parentForm as FormGroup).controls[this.childOf as string] as FormArray;
-        if(!this.formGroup && this.parentForm instanceof FormArray)
+        if (!this.formGroup && this.parentForm instanceof FormArray)
           this.formGroup = this.parentForm;
-        if(!this.formGroup && (this.children[0] as KeyValue)?.['formGroup'] instanceof FormGroup)
+        if (!this.formGroup && (this.children[0] as KeyValue)?.['formGroup'] instanceof FormGroup)
           this.formGroup = (this.children[0] as KeyValue)?.['formGroup'].parent as FormArray;
       }
 
       this.children = this.children.map(child => {
-        if(!child.props)
+        if (!child.props)
           child.props = {};
         child.props = Object.assign(child.props, { activeFormGroup: this.activeFormGroupIndex, multiple: this.multiple });
         return child;
@@ -399,23 +401,23 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   override ngAfterViewInit(): void {
     super.ngAfterViewInit();
-    if(!this.collapsable)
+    if (!this.collapsable)
       this.isOpen = true;
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
       this.isOpen = true;
       // hidden remove button
       const accordionElement = this.component?.nativeElement.querySelector('ion-accordion-group');
-      if(accordionElement)
+      if (accordionElement)
         this.renderer.setAttribute(accordionElement, 'value', 'open');
     } else {
       const inputs = this.component?.nativeElement.querySelectorAll('.dcf-field-required');
       this.isRequired = inputs?.length > 0;
-      if(this.isRequired) {
+      if (this.isRequired) {
         this.accordionComponent.value = 'open';
         this.handleAccordionToggle();
       }
     }
-    // if(!(this.formGroup instanceof FormArray))
+    // if (!(this.formGroup instanceof FormArray))
     //   this.formGroup = (this.formGroup as FormGroup)
     this.changeDetectorRef.detectChanges();
   }
@@ -464,21 +466,21 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * ```
    */
   async handleCreateItem(event?: CustomEvent<IFieldSetValidationEvent>): Promise<void|boolean> {
-    if(event && event instanceof CustomEvent)
+    if (event && event instanceof CustomEvent)
       event.stopImmediatePropagation();
     const formGroup = this.activeFormGroup as FormGroup;
     const value = formGroup.value;
     const hasSomeValue = this.hasValue(value);
 
-    if(hasSomeValue) {
+    if (hasSomeValue) {
       const action = this.updatingItem ? OperationKeys.UPDATE :  OperationKeys.CREATE;
       const isValid  = NgxFormService.validateFields(formGroup);
 
       // must pass correct pk here
       const isUnique = NgxFormService.isUniqueOnGroup(formGroup, action, action === OperationKeys.UPDATE ? this.updatingItem?.index : undefined);
-      if(isValid) {
+      if (isValid) {
         this.mapper = this.getMapper(value as KeyValue);
-        if(isUnique) {
+        if (isUnique) {
           this.isUniqueError = this.updatingItem =  undefined;
           this.setValue();
           NgxFormService.addGroupToParent(formGroup.parent as FormArray);
@@ -500,7 +502,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
 
   handleUpdateItem(index: number): void {
     const formGroup =  this.getFormArrayIndex(index);
-    if(formGroup) {
+    if (formGroup) {
       this.updatingItem = Object.assign({}, formGroup.value || {}, {index});
       this.activeFormGroupIndex = index;
     }
@@ -518,12 +520,8 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   handleCancelUpdateItem(): void {
     this.buttonLabel = this.translateService.instant(this.locale + '.add');
     this.updatingItem = undefined;
-    windowEventEmitter(EventConstants.FIELDSET_UPDATE_GROUP, {
-      parent: this.childOf,
-      component: this.component.nativeElement,
-      index: this.value?.length
-    });
-
+    this.activeFormGroupIndex = (this.formGroup as FormArray)?.length - 1;
+    this.getFormArrayIndex(this.activeFormGroupIndex);
   }
 
 
@@ -540,7 +538,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   handleRemoveItem(index: number): void {
     const formArray = this.formGroup as FormArray;
-    if(formArray.length === 1) {
+    if (formArray.length === 1) {
       const currentGroup = formArray.at(0) as FormGroup;
       Object.keys(currentGroup?.controls).forEach(controlName => {
         currentGroup.get(controlName)?.setValue(null);
@@ -549,7 +547,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       formArray.removeAt(index);
     }
     this.setValue();
-    if(this.activeFormGroupIndex > 0)
+    if (this.activeFormGroupIndex > 0)
       this.activeFormGroupIndex = this.activeFormGroupIndex - 1;
   }
 
@@ -634,13 +632,13 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   handleAccordionToggle(event?: CustomEvent): void {
-    if(event)
+    if (event)
       event.stopImmediatePropagation();
 
-    if(!this.collapsable) {
+    if (!this.collapsable) {
       this.isOpen = true;
     } else {
-       if(!this.hasValidationErrors) {
+       if (!this.hasValidationErrors) {
         this.accordionComponent.value = this.isOpen ? undefined : 'open';
         this.isOpen = !!this.accordionComponent.value;
       }
@@ -662,7 +660,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     event.stopImmediatePropagation();
     const {hasErrors} = event.detail;
     this.isOpen = this.hasValidationErrors = hasErrors;
-    if(hasErrors)
+    if (hasErrors)
       this.accordionComponent.value = 'open';
   }
 
@@ -704,15 +702,15 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   private getMapper(value: KeyValue): KeyValue {
-    if(!this.pk)
+    if (!this.pk)
       this.pk = Object.keys(value)[0];
-    if(!Object.keys(this.mapper).length)
+    if (!Object.keys(this.mapper).length)
       (this.mapper as KeyValue)['title'] = this.pk;
     (this.mapper as KeyValue)['index'] = "index";
     for(const key in value) {
-      if(Object.keys(this.mapper).length >= 2 || Object.keys(this.mapper).length === Object.keys(value).length)
+      if (Object.keys(this.mapper).length >= 2 || Object.keys(this.mapper).length === Object.keys(value).length)
         break;
-      if(!(this.mapper as KeyValue)['title']) {
+      if (!(this.mapper as KeyValue)['title']) {
         (this.mapper as KeyValue)['title'] = key;
       } else {
         (this.mapper as KeyValue)['description'] = key;

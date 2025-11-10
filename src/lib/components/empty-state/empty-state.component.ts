@@ -11,20 +11,18 @@
 import { Component, inject, Input, OnInit  } from '@angular/core';
 import {
   IonButton,
-  IonCard,
-  IonCardContent,
   IonIcon,
 }
 from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { StringOrBoolean } from '../../engine/types';
-import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
-import { stringToBoolean } from '../../helpers/utils';
+import { stringToBoolean } from '../../utils/helpers';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FunctionLike } from '../../engine/types';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CardComponent } from '../card/card.component';
 
 
 /**
@@ -69,16 +67,16 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrls: ['./empty-state.component.scss'],
   standalone: true,
   imports: [
-    IonCard,
-    IonCardContent,
     IonIcon,
     TranslatePipe,
-    IonButton
+    IonButton,
+    CardComponent
   ]
 })
-export class EmptyStateComponent extends NgxComponentDirective implements OnInit {
+export class EmptyStateComponent extends CardComponent implements OnInit {
 
-  /**
+
+    /**
    * @description The main title displayed in the empty state.
    * @summary Specifies the primary message to show in the empty state component.
    * This text is typically used to inform the user about why they're seeing an empty view.
@@ -89,7 +87,7 @@ export class EmptyStateComponent extends NgxComponentDirective implements OnInit
    * @memberOf EmptyStateComponent
    */
   @Input()
-  title: string = "title";
+  override title: string = "title";
 
   /**
    * @description The color of the title text.
@@ -114,7 +112,8 @@ export class EmptyStateComponent extends NgxComponentDirective implements OnInit
    * @memberOf EmptyStateComponent
    */
   @Input()
-  subtitle: string = "";
+  override subtitle: string = "";
+
 
   /**
    * @description The color of the subtitle text.
@@ -289,6 +288,9 @@ export class EmptyStateComponent extends NgxComponentDirective implements OnInit
   constructor() {
     super("EmptyStateComponent");
     addIcons(allIcons);
+    this.type = 'default';
+    this.componentName = "EmptyStateComponent";
+    this.enableDarkMode = true;
   }
 
   /**
@@ -318,16 +320,17 @@ export class EmptyStateComponent extends NgxComponentDirective implements OnInit
    * @return {Promise<void>}
    * @memberOf EmptyStateComponent
    */
-  async ngOnInit(): Promise<void> {
+  override async ngOnInit(): Promise<void> {
+    super.ngOnInit();
     this.initialize();
     this.showIcon = stringToBoolean(this.showIcon);
 
     this.titleColor = `dcf-title color-${this.titleColor}`;
     this.subtitleColor = `dcf-subtitle color-${this.titleColor}`;
 
-    if(this.searchValue)
+    if (this.searchValue)
       this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);
-    if(!this.buttonLink && this.model && this.route)
+    if (!this.buttonLink && this.model && this.route)
       this.enableCreationByModelRoute = true;
 
   }
@@ -367,9 +370,9 @@ export class EmptyStateComponent extends NgxComponentDirective implements OnInit
    */
   handleClick(): boolean | void | Promise<boolean> | FunctionLike {
     const fn = this.buttonLink;
-    if(!fn)
+    if (!fn)
       return false;
-    if(fn instanceof Function)
+    if (fn instanceof Function)
       return fn() as FunctionLike;
     return this.router.navigate([fn as string]);
   }

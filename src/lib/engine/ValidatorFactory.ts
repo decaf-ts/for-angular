@@ -51,7 +51,7 @@ const resolveValidatorKeyProps = (key: string, value: unknown, type: string): {
   };
   const isTypeBased = key === ValidationKeys.TYPE && Object.keys(patternValidators).includes(type);
   const validatorKey = isTypeBased ? type : key;
-  if(key === ValidationKeys.TYPE && HTML5InputTypes.CHECKBOX && value !== type )
+  if (key === ValidationKeys.TYPE && HTML5InputTypes.CHECKBOX && value !== type )
     value = type;
   const props: Record<string, unknown> = {
     // [validatorKey]: (!isTypeBased && key === 'type') ? parseType(type) : value,
@@ -72,7 +72,7 @@ export class ValidatorFactory {
     const validatorFn: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
       const { type, customTypes, options } = fieldProps;
       let fieldType = (customTypes || type) as string;
-      if((fieldType === HTML5InputTypes.CHECKBOX || fieldType === Array.name)  && Array.isArray(options))
+      if ((fieldType === HTML5InputTypes.CHECKBOX || fieldType === Array.name)  && Array.isArray(options))
         fieldType = Primitives.STRING;
 
       const { validatorKey, props } = resolveValidatorKeyProps(key, fieldProps[key as keyof FieldProperties], fieldType);
@@ -96,7 +96,7 @@ export class ValidatorFactory {
         errs = validator.hasErrors(value, props, proxy);
       } catch (e: unknown) {
         errs = `${key} validator failed to validate: ${e}`;
-        console.warn(errs);
+        console.error(errs);
       }
       return errs ? { [validatorKey]: true } : null;
     };

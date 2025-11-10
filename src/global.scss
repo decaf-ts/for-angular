@@ -9,7 +9,6 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
-
 /* Core CSS required for Ionic components to work properly */
 @use "@ionic/angular/css/core.css";
 
@@ -18,6 +17,10 @@
 @use "@ionic/angular/css/structure.css";
 @use "@ionic/angular/css/typography.css";
 @use "@ionic/angular/css/display.css";
+
+// @import "@ionic/angular/css/palettes/dark.always.css";
+// @import "@ionic/angular/css/palettes/dark.class.css";
+// @import '@ionic/angular/css/palettes/dark.system.css';
 
 /* Optional CSS utils that can be commented out */
 // @import "@ionic/angular/css/padding.css";
@@ -28,14 +31,15 @@
 
 // @import "@tabler/icons-webfont/dist/tabler-icons.min.css";
 
-
-/* Importing @decaf-ts/styles system styles */
+/**
+ * Importing @decaf-ts/styles system styles
+ */
 
 /* You can import all files */
 @use "@decaf-ts/styles/dist/main.css";
+// @use "../../styles/src/main.scss";
+// @use "../../styles/dist/main.css";
 @use "./theme/variables.scss";
-
-
 
 /* Or import only core and components you need */
 // @import "@decaf-ts/styles/dist/core.css";
@@ -44,7 +48,7 @@
 // @import "@decaf-ts/styles/dist/components/spacement.css";
 // @import "@decaf-ts/styles/dist/components/visibility.css";
 // @import "@decaf-ts/styles/dist/components/animations.css";
-
+// @import "@decaf-ts/styles/dist/components/ionic/variables.css";
 // import css custom global
 
 // input,
@@ -65,19 +69,5 @@
 //   }
 // }
 
-
-
-
 // @import "./theme/base.scss";
 // @import "./theme/overrides.scss";
-
-//
-/* @import "@ionic/angular/css/palettes/dark.always.css";
-// /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-//
-// @import "@ionic/angular/css/palettes/dark.always.css"
-// @import "@ionic/angular/css/palettes/dark.class.css";
-
-
-
-

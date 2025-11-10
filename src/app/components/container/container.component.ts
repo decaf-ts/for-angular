@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ElementSizes, FlexPositions, StringOrBoolean } from 'src/lib/engine/types';
-import { stringToBoolean } from 'src/lib/helpers/utils';
+import { ElementSize, FlexPositions, StringOrBoolean } from 'src/lib/engine/types';
+import { stringToBoolean } from 'src/lib/utils/helpers';
 import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
-import { NgxComponentDirective } from 'src/lib/engine';
+import { ElementSizes, NgxComponentDirective } from 'src/lib/engine';
 
 /**
  * @description A flexible container component for layout management.
@@ -17,7 +17,7 @@ import { NgxComponentDirective } from 'src/lib/engine';
  * @param {StringOrBoolean} flex - Whether to use flex layout
  * @param {StringOrBoolean} expand - Whether the container should expand to fill available space
  * @param {StringOrBoolean} fullscreen - Whether the container should take up full viewport height
- * @param {ElementSizes} size - Size preset for the container width
+ * @param {ElementSize} size - Size preset for the container width
  *
  * @class ContainerComponent
  * @memberOf module:DecafComponents
@@ -94,20 +94,20 @@ export class ContainerComponent extends NgxComponentDirective implements OnInit 
    * @memberOf ContainerComponent
    */
   @Input()
-  fullscreen: StringOrBoolean = true;
+  fullscreen: StringOrBoolean = false;
 
   /**
    * @description Size preset for the container width.
    * @summary Controls the width of the container using predefined size classes.
    * Options include 'block', 'small', 'medium', 'large', and others defined in
-   * the ElementSizes type. This property is ignored when expand is true.
+   * the ElementSize type. This property is ignored when expand is true.
    *
-   * @type {ElementSizes}
-   * @default 'block'
+   * @type {ElementSize}
+   * @default 'expand'
    * @memberOf ContainerComponent
    */
   @Input()
-  size: ElementSizes = 'block';
+  size: ElementSize = ElementSizes.expand;
 
   /**
    * @description Creates an instance of ContainerComponent.
@@ -150,8 +150,7 @@ export class ContainerComponent extends NgxComponentDirective implements OnInit 
     this.expand = stringToBoolean(this.expand);
     this.flex = stringToBoolean(this.flex);
 
-
-    if(this.flex && !this.className.includes('dcf-flex-'))
+    if(this.flex && !this.className?.includes('dcf-flex-'))
       this.className += ` dcf-flex dcf-flex-${this.position}`;
 
     this.fullscreen = stringToBoolean(this.fullscreen);

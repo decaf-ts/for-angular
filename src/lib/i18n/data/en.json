@@ -50,7 +50,9 @@
       "add": "Add another",
       "update": "Update item",
       "cancel": "Cancel",
-      "not_unique": "The value entered already exists. Value {0}"
+      "not_unique": "The value entered already exists. Value {0}",
+      "max_items": "You can create up to {0} items.",
+      "max_items_reached": "Maximum of {0} items reached."
     },
     "list": {
       "pagination": "Showing page <span class=\"text-bold\">{0} of {1}</span>",

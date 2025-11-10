@@ -1,0 +1,35 @@
+
+  <ion-card
+      [class]="'dcf-card ' + className"
+      [color]="color"
+      mode="md"
+      [class.dcf-card-separator]="separator"
+      [class.dcf-card-default]="type === 'default'"
+      [class.dcf-card-shadow]="type === 'shadow'"
+      [class.dcf-card-bordered]="borders"
+      [class.dcf-card-small]="body === 'small'"
+      #component
+    >
+    @if(title || subtitle) {
+      <ion-card-header>
+        @if(title) {
+          <ion-card-title>{{ locale ? (title |  translate) : title }}</ion-card-title>
+        }
+        @if(subtitle) {
+          <ion-card-subtitle>{{ locale ? (subtitle |  translate) : subtitle }}</ion-card-subtitle>
+        }
+      </ion-card-header>
+    }
+    <ion-card-content>
+      @if(inlineContent && inlineContentPosition === 'top') {
+        <div [innerHTML]="inlineContent"></div>
+      }
+
+      <ng-content slot="content"></ng-content>
+
+      @if(inlineContent && inlineContentPosition === 'bottom') {
+        <div [innerHTML]="inlineContent"></div>
+      }
+    </ion-card-content>
+  </ion-card>
+

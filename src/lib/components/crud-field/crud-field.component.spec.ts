@@ -8,7 +8,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
-import { NgxFormService } from '../../engine/NgxFormService';
+import { NgxFormService } from '../../services/NgxFormService';
 import { By } from '@angular/platform-browser';
 import { I18nFakeLoader } from '../../i18n';
 

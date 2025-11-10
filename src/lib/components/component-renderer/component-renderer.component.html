@@ -1,12 +1,11 @@
 <!-- Keep to avoid id conflicts -->
-<div class="dcf-hidden" [id]="uid"></div>
 
 <ng-template #componentOuter></ng-template>
 
 <ng-template #componentInner>
-  @if(parent?.children?.length) {
+  @if (parent?.children?.length) {
     @for(child of parent.children; track child) {
-        @if(!child.children?.length) {
+        @if (!child.children?.length) {
           <ng-container
                 *ngComponentOutlet="
                   child.component;
@@ -20,10 +19,10 @@
         }
     }
   }
-  @if(projectable) {
-    @if(children?.length) {
+  @if (projectable) {
+    @if (children?.length) {
       @for(child of children; track child) {
-        @if(child.children?.length) {
+        @if (child.children?.length) {
          <ng-container
                 *ngComponentOutlet="
                   child.component;

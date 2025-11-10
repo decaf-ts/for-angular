@@ -71,7 +71,8 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
    * This is part of Angular's component lifecycle and ensures proper resource cleanup.
    *
    */
-  ngOnDestroy(): void {
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
     if(this.timerSubscription)
       this.timerSubscription.unsubscribe();
   }

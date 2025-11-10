@@ -1,14 +1,15 @@
 
-@if(title || description) {
-  <ion-item-sliding #component>
+@if (title || description) {
+  <ion-item-sliding>
     <ion-item
       [id]="uid"
       [lines]="lines"
       [button]="button"
       [class]="className"
-      (click)="operations?.includes('read') ? handleAction('read', $event, component) : ''
-    ">
-      @if(icon && lines !== 'inset') {
+      (click)="operations?.includes('read') ? handleAction('read', $event, component) : ''"
+      #component
+    >
+      @if (icon && lines !== 'inset') {
         <div class="dcf-icon" [slot]="iconSlot">
           <ion-avatar>
             <ion-icon aria-hidden="true" name="reader-outline" size="default"></ion-icon>
@@ -17,7 +18,7 @@
       }
       <div class="dcf-width-expand">
         <div class="dcf-flex dcf-flex-middle dcf-grid-collapse" dcf-grid>
-          @if(icon && lines === 'inset') {
+          @if (icon && lines === 'inset') {
             <div class="dcf-icon dcf-grid-icon">
               <ion-avatar>
                 <ion-icon aria-hidden="true" name="reader-outline"  size="default"></ion-icon>
@@ -25,22 +26,22 @@
             </div>
           }
           <div class="dcf-width-expand@s dcf-width-1-1 dcf-label">
-            @if(title) {
+            @if (title) {
               <ion-label class="dcf-item-title">
                 {{ uid !== title ? (uid + ' - ' + title) : title }}
               </ion-label>
             }
-            @if(description) {
+            @if (description) {
               <div class="dcf-description" [innerHTML]="description"></div>
             }
           </div>
-          @if(info || subinfo) {
+          @if (info || subinfo) {
             <div class="dcf-width-auto@s dcf-width-expand dcf-info dcf-flex dcf-flex-right@s">
               <div>
-                @if(info) {
+                @if (info) {
                 <span  [innerHTML]="info"></span>
                 }
-                @if(subinfo) {
+                @if (subinfo) {
                   <div class="dcf-subinfo dcf-text-truncate" [innerHTML]="subinfo" ></div>
                 }
               </div>
@@ -48,7 +49,7 @@
           }
 
           <div class="dcf-width-auto dcf-flex dcf-flex-middle dcf-flex-right">
-            @if((operations.includes('delete') || operations.includes('update')) && uid) {
+            @if ((operations.includes('delete') || operations.includes('update')) && uid) {
 
               <div class="dcf-visible@s" id="dcf-actions">
                 <ion-button class="" shape="round" fill="clear" color="primary" (click)="presentActionsMenu($event)">
@@ -68,10 +69,10 @@
                           <h4 class="dcf-text-capitalize" [innerHTML]="'actions' | translate"></h4>
                         </ion-list-header>
                         @for (operation of ['update', 'delete']; track operation) {
-                          @if(operations.includes(operation)) {
+                          @if (operations.includes(operation)) {
                           <ion-item [button]="true" (click)="handleAction(operation, $event, component)">
                               <ion-avatar class="dcf-flex dcf-flex-middle" aria-hidden="true" slot="start">
-                                @if(operation === 'update') {
+                                @if (operation === 'update') {
                                   <ion-icon color="primary" aria-hidden="true" name="create-outline"></ion-icon>
                                 } @else {
                                   <ion-icon color="danger" aria-hidden="true" name="trash"></ion-icon>
@@ -87,21 +88,21 @@
                 </ion-popover>
               </div>
             }
-            <!-- @if(operations?.length && uid) {
+            <!-- @if (operations?.length && uid) {
               <div class="dcf-visible@m" id="dcf-actions">
-                @if(operations?.includes('update')) {
+                @if (operations?.includes('update')) {
                   <ion-button fill="clear" size="small" color="primary" (click)="handleAction('update',  component)">
                     <ion-icon aria-hidden="true" slot="icon-only" name="create-outline"></ion-icon>
                   </ion-button>
                 }
-                @if(operations?.includes('delete')) {
+                @if (operations?.includes('delete')) {
                   <ion-button fill="clear" size="small" color="danger" (click)="handleAction('delete',  component)">
                     <ion-icon aria-hidden="true" slot="icon-only" name="trash"></ion-icon>
                   </ion-button>
                 }
               </div>
             } -->
-            @if(windowWidth > 639) {
+            @if (windowWidth > 639) {
               <div id="end">
                 <ng-content select="[slot='end']"></ng-content>
               </div>
@@ -110,14 +111,14 @@
         </div>
       </div>
     </ion-item>
-    @if(showSlideItems && uid) {
+    @if (showSlideItems && uid) {
       <ion-item-options side="end" (ionSwipe)="operations.length === 1 ? handleAction(operations[0],  $event, component) : ''">
-        @if(operations?.includes('update')) {
+        @if (operations?.includes('update')) {
           <ion-item-option class="dcf-update" (click)="handleAction('update', $event, component)" [expandable]="operations.length === 1">
             <ion-icon aria-hidden="true" slot="icon-only" name="create-outline"></ion-icon>
           </ion-item-option>
         }
-        @if(operations?.includes('delete')) {
+        @if (operations?.includes('delete')) {
         <ion-item-option class="dcf-          delete" (click)="handleAction('delete',  $event, component)" [expandable]="operations.length === 1">
             <ion-icon aria-hidden="true" slot="icon-only" name="trash"></ion-icon>
           </ion-item-option>
