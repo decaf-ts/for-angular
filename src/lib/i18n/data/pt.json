@@ -26,7 +26,6 @@
     "form_control": "Controlador de formulário não localizado para {0}.",
     "not_found": "Não foram encontrados registos com <span class=\"text-bold\">{0}: {1} em {2}</span>.",
     "empty_options" : "Sem opções disponíveis para o campo {0}. Corrija a fonte de dados."
-
   },
    "operations": {
     "read": {
@@ -46,63 +45,75 @@
       "error": "Erro ao eliminar o item com {0} {1}."
     }
   },
-  "component": {
-    "fieldset": {
-      "add": "Adicionar outro",
-      "update": "Atualizar item",
-      "not_unique": "O valor introduzido já existe. Valor \"{{value}}\".",
-      "cancel": "Cancelar"
+ "component": {
+  "fieldset": {
+    "add": "Adicionar outro",
+    "update": "Atualizar item",
+    "cancel": "Cancelar",
+    "not_unique": "O valor inserido já existe. Valor {0}",
+    "max_items": "Pode criar até {0} itens.",
+    "max_items_reached": "Máximo de {0} itens atingido."
+  },
+  "list": {
+    "pagination": "A mostrar página <span class=\"text-bold\">{0} de {1}</span>",
+    "loading": "A carregar dados",
+    "search": {
+    "title": "Nenhum dado encontrado para a pesquisa",
+    "subtitle": "Pesquisou por: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{0}</ion-text>",
+    "button": "Limpar pesquisa"
     },
-    "list": {
-      "pagination": "A mostrar a página <span class=\"text-bold\">{0} de {1}</span>",
-      "loading": "A carregar dados",
-      "search": {
-        "title": "Não foram encontrados dados para a pesquisa",
-        "subtitle": "Pesquisou por: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{0}</ion-text>",
-        "button": "Limpar pesquisa"
-      },
-      "empty": {
-        "title": "Não foram encontrados dados",
-        "subtitle": "",
-        "button": "Criar"
+    "empty": {
+    "title": "Nenhum dado encontrado",
+    "subtitle": "",
+    "button": "Criar"
+    }
+  },
+  "list_item": {
+    "actions": "Ações",
+    "operations": {
+    "read": "Ler",
+    "create": "Criar",
+    "update": "Atualizar",
+    "delete": "Eliminar"
+    }
+  },
+  "empty_state": {
+    "title": "Nenhum dado encontrado",
+    "button_create": "Criar",
+    "search": {
+    "title": "Nenhum dado encontrado para a pesquisa",
+    "subtitle": "Pesquisou por: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{0}</ion-text>",
+    "button": "Limpar pesquisa"
+    }
+  },
+  "pagination": {
+    "resume": "A mostrar página <span class=\"text-bold\">{0} de {1}</span>"
+  },
+  "filter": {
+    "title": "Filtrar",
+    "type": "Introduzir valor",
+    "select": "Filtrar seleção",
+    "step1": "Selecionar um índice",
+    "step2": "Selecionar uma condição",
+    "step3": "Introduzir um valor",
+    "no_suggestions": "Sem sugestões",
+    "sort": "Ordenar por"
+  },
+  "stepped_form": {
+    "next": "Seguinte",
+    "previous": "Anterior",
+    "submit": "Submeter",
+    "cancel": "Cancelar"
+  },
+  "file_upload": {
+      "drag_file": "Arraste e solte a sua imagem aqui",
+      "button_select": "Selecionar ficheiro",
+      "button_clear": "Limpar",
+      "preview": "Pré-visualizar",
+      "errors": {
+        "not_allowed": "O arquivo {0} não é permitido.",
+      "max_size": "O tamanho máximo permitido do ficheiro é {0} MB"
       }
-    },
-    "list_item": {
-      "actions": "Ações",
-      "operations": {
-        "read": "Ler",
-        "create": "Criar",
-        "update": "Atualizar",
-        "delete": "Eliminar"
-      }
-    },
-    "empty_state": {
-      "title": "Não foram encontrados dados",
-      "button": "Criar",
-      "search": {
-        "title": "Não foram encontrados dados para a pesquisa",
-        "subtitle": "Pesquisou por: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{0}</ion-text>",
-        "button": "Limpar pesquisa"
-      }
-    },
-    "pagination": {
-      "resume": "A mostrar a página <span class=\"text-bold\">{0} de {1}</span>"
-    },
-    "filter": {
-      "title": "Filtro",
-      "type": "Introduza um valor",
-      "select": "Seleção de filtro",
-      "step1": "Selecione um índice",
-      "step2": "Selecione uma condição",
-      "step3": "Introduza um valor",
-      "no_suggestions": "Sem sugestões",
-      "sort": "Ordenar por"
-    },
-    "stepped_form": {
-      "next": "Seguinte",
-      "previous": "Anterior",
-      "submit": "Submeter",
-      "cancel": "Cancelar"
     }
   }
 }

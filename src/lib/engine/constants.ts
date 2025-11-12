@@ -69,7 +69,7 @@ export const FormConstants = {
  * @summary Contains constants for standardized event names used throughout the application.
  * These constants ensure consistent event naming across components and make it easier to
  * track and handle events. Each constant represents a specific application event type.
- * @typedef {Object} EventConstants
+ * @typedef {Object} ComponentEventNames
  * @property {string} BACK_BUTTON_NAVIGATION - Event fired when back button navigation ends
  * @property {string} REFRESH - Event fired when a refresh action occurs
  * @property {string} CLICK - Event fired when a click action occurs
@@ -78,13 +78,14 @@ export const FormConstants = {
  * @property {string} FIELDSET_ADD_GROUP - Event fired when adding a group to a fieldset
  * @property {string} FIELDSET_UPDATE_GROUP - Event fired when updating a fieldset group
  * @property {string} FIELDSET_REMOVE_GROUP - Event fired when removing a fieldset group
- * @const EventConstants
+ * @const ComponentEventNames
  * @memberOf module:lib/engine/constants
  */
-export const EventConstants = {
+export const ComponentEventNames = {
   BACK_BUTTON_NAVIGATION: 'backButtonNavigationEndEvent',
   REFRESH: 'RefreshEvent',
   CLICK: 'ClickEvent',
+  CHANGE: 'ChangeEvent',
   SUBMIT: 'SubmitEvent',
   VALIDATION_ERROR: 'validationErrorEvent',
   FIELDSET_ADD_GROUP: 'fieldsetAddGroupEvent',
@@ -311,12 +312,22 @@ export const ElementSizes = {
   xsmall: 'xsmall',
   small: 'small',
   medium: 'medium',
+  default: 'default',
   large: 'large',
   xLarge: 'xlarge',
   '2xLarge': '2xlarge',
   auto: 'auto',
   expand: 'expand',
   block: 'block',
+} as const;
+
+
+export const ElementPositions =  {
+  left: 'left',
+  center: 'center',
+  right: 'right',
+  top: 'top',
+  bottom: 'bottom',
 } as const;
 
 

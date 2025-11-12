@@ -1,7 +1,7 @@
-import { OnInit, CUSTOM_ELEMENTS_SCHEMA, Input, Component, inject, HostListener } from "@angular/core";
+import { OnInit, CUSTOM_ELEMENTS_SCHEMA, Input, Component, inject, HostListener, ViewChild, ElementRef } from "@angular/core";
 import { PredefinedColors } from "@ionic/core";
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
-import { EventConstants, RouteDirections } from "src/lib/engine/constants";
+import { AngularEngineKeys, ComponentEventNames, RouteDirections } from "src/lib/engine/constants";
 import { StringOrBoolean } from "src/lib/engine/types";
 import { stringToBoolean } from "src/lib/utils/helpers";
 import { Location } from '@angular/common';
@@ -9,6 +9,7 @@ import { windowEventEmitter } from "src/lib/utils/helpers";
 import { addIcons } from 'ionicons';
 import { chevronBackOutline } from 'ionicons/icons';
 import { FunctionLike } from "src/lib/engine/types";
+import { NgxMediaService } from "src/lib/services/NgxMediaService";
 
 /**
  * @description Back button component for navigation within Angular applications.
@@ -94,6 +95,33 @@ import { FunctionLike } from "src/lib/engine/types";
 
 })
 export class BackButtonComponent implements OnInit {
+
+    /**
+   * @description Reference to the component's native DOM element.
+   * @summary Provides direct access to the native DOM element of the component through Angular's
+   * ViewChild decorator. This reference can be used to manipulate the DOM element directly,
+   * apply custom styles, or access native element properties and methods. The element is
+   * identified by the 'component' template reference variable.
+   * @type {ElementRef}
+   */
+  @ViewChild('component', { read: ElementRef, static: true })
+  component!: ElementRef;
+
+
+  /**
+   * @description Flag to enable or disable dark mode support for the component.
+   * @summary When enabled, the component will automatically detect the system's dark mode
+   * preference using the media service and apply appropriate styling classes. This flag
+   * controls whether the component should respond to dark mode changes and apply the
+   * dark palette class to its DOM element. By default, dark mode support is disabled.
+   * @protected
+   * @type {boolean}
+   * @default false
+   */
+  @Input()
+  protected isDarkMode: boolean = false;
+
+
 
   /**
    * @description Controls whether default navigation behavior is prevented.
@@ -225,6 +253,19 @@ export class BackButtonComponent implements OnInit {
    */
   private location: Location = inject(Location);
 
+
+    /**
+   * @description Angular Location service.
+   * @summary Injected service that provides access to the browser's URL and history.
+   * This service is used for interacting with the browser's history API, allowing
+   * for back navigation and URL manipulation outside of Angular's router.
+   *
+   * @private
+   * @type {Location}
+   * @memberOf CrudFormComponent
+   */
+  private mediaService: NgxMediaService = inject(NgxMediaService);
+
   /**
    * @description Creates an instance of BackButtonComponent.
    * @summary Initializes a new BackButtonComponent
@@ -264,9 +305,11 @@ export class BackButtonComponent implements OnInit {
   ngOnInit(): void {
     this.preventDefault = stringToBoolean(this.preventDefault);
     this.emitEvent = stringToBoolean(this.emitEvent);
+    this.mediaService.isDarkMode().subscribe(isDark => {
+      this.isDarkMode = isDark;
+    });
     if(this.toolbarColor)
       this.color = this.toolbarColor as PredefinedColors;
-    // this.color = this.toolbarColor ? 'light' : 'primary';
     this.showText = stringToBoolean(this.showText);
 
     // if(this.showText)
@@ -309,7 +352,7 @@ export class BackButtonComponent implements OnInit {
    *
    * @memberOf BackButtonComponent
    */
-  async backToPage(forceRefresh = false): Promise<boolean|void> {
+  async backToPage(forceRefresh: boolean = false): Promise<boolean|void> {
     if(this.preventDefault)
       return this.handleEndNavigation(forceRefresh);
 
@@ -343,7 +386,7 @@ export class BackButtonComponent implements OnInit {
    */
   handleEndNavigation(forceRefresh: boolean): void {
     if(this.emitEvent)
-      windowEventEmitter(EventConstants.BACK_BUTTON_NAVIGATION, {refresh: forceRefresh});
+      windowEventEmitter(ComponentEventNames.BACK_BUTTON_NAVIGATION, {refresh: forceRefresh});
   }
 
   /**

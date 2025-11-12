@@ -1,11 +1,16 @@
 {
-  "component": {
-    "image_upload": {
-      "drag_file": "Drag and drop your image here",
-      "button_select": "Select file",
-      "button_clear": "Clear",
-      "preview": "Preview"
-    }
+  "menu": {
+
+    "product": "Products",
+    "batch": "Batches",
+    "logout": "Logout",
+    "account": "Account",
+    "user": "Users",
+    "category": "Categories",
+    "employee": "Employees",
+    "ai": "AI Models",
+    "aivendor": "Ai Vendors",
+    "product_management": "Product Management"
   },
   "login": {
      "username": {
@@ -18,6 +23,7 @@
     }
   },
   "demo": {
+    "title": "Demo Form",
     "id": {
       "label": "id",
       "placeholder": "Type a number"

@@ -4,36 +4,59 @@
       @if (row?.cols?.length) {
         <div
           [id]="uid"
-          [class]=" (!grid ? 'dcf-layout-row ' : 'dcf-layout-row dcf-grid ' + 'dcf-grid-' + gap ) + ' ' + (className || '') "
-           [class.dcf-grid-match]="match"
-          >
+          [class]="
+            (!grid
+              ? 'dcf-layout-row '
+              : 'dcf-layout-row dcf-grid ' + 'dcf-grid-' + gap) +
+            ' ' +
+            (className || '')
+          "
+          [class.dcf-grid-match]="match"
+        >
           @if (row?.title?.length) {
             <div class="dcf-width-1-1 dcf-grid-title">
-              <h3 class="">{{row.title | translate}}</h3>
+              <h3 class="">{{ row.title | translate }}</h3>
             </div>
           }
-          @for (child of row.cols; track trackItemFn($index, child.col); let colIndex = $index) {
+          @for (
+            child of row.cols;
+            track trackItemFn($index, child.col);
+            let colIndex = $index
+          ) {
             <div
               [class]="child.colClass"
-              [class.dcf-first-column]=" $index === 0"
+              [class.dcf-first-column]="$index === 0"
+              [class.dcf-layout-separator]="child.props?.separator"
+              [class.dcf-layout-bordered]="child.props?.borders"
             >
-
-              <div>
-                @if (child.tag === 'ngx-decaf-crud-form') {
-                  <ngx-decaf-card [className]="(match ? 'dcf-height-1-1 dcf-card-layout' : '') + className">
+              <div >
+                @if (child.tag === "ngx-decaf-crud-form") {
+                  <ngx-decaf-card
+                    [className]="
+                      (match ? 'dcf-height-1-1 dcf-card-layout' : '') +
+                      className
+                    "
+                    [body]="cardBody"
+                    [type]="cardType"
+                  >
                     <ngx-decaf-model-renderer
                       [model]="child.props.name"
                       (listenEvent)="handleEvent($event)"
-                      />
+                    />
                   </ngx-decaf-card>
                 } @else {
                   <ngx-decaf-component-renderer
                     [tag]="child.tag"
-                    [className]="(match ? 'dcf-height-1-1 dcf-card-layout' : '') + className"
-                    [parentForm]="parentForm || child.parentForm || child?.formGroup"
+                    [className]="
+                      (match ? 'dcf-height-1-1 dcf-card-layout' : '') +
+                      className
+                    "
+                    [parentForm]="
+                      parentForm || child.parentForm || child?.formGroup
+                    "
                     [children]="child?.children || []"
                     (listenEvent)="handleEvent($event)"
-                    [globals]="{props: child.props}"
+                    [globals]="{ props: child.props }"
                   />
                 }
               </div>

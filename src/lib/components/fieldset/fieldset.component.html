@@ -22,7 +22,7 @@
               @if (!isRequired && ['create', 'update'].includes(operation) && collapsable) {
                 <div class="dcf-width-auto dcf-delete">
                   <ion-button fill="clear" size="small" (click)="handleRemoveComponent($event)">
-                    <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
+                    <ion-icon aria-hidden="true" name="trash-outline" color="dark" slot="icon-only"></ion-icon>
                   </ion-button>
                 </div>
               }
@@ -37,11 +37,11 @@
                   <ion-item [class.not-unique]="item.title === isUniqueError"  [class.updating]="updatingItem?.[pk] === item.title" lines="full" [button]="false">
                     @if (items?.length > 1 && !updatingItem) {
                       <ion-reorder slot="start">
-                        <ion-icon name="swap-vertical-outline"></ion-icon>
+                        <ion-icon aria-hidden="true" name="swap-vertical-outline"></ion-icon>
                       </ion-reorder>
                     } @else {
                       <div slot="start">
-                        <ion-icon class="dcf-reorder-disabled" size="small" name="swap-vertical-outline" disabled></ion-icon>
+                        <ion-icon aria-hidden="true" class="dcf-reorder-disabled" size="small" name="swap-vertical-outline" disabled></ion-icon>
                       </div>
                     }
                     <ion-label [color]="(item.title === isUniqueError && !updatingItem?.[pk] === item.title) ? 'danger' : ''">{{ item.index }}. {{ item.title }}
@@ -52,13 +52,13 @@
                     </ion-label>
                     @if (!updatingItem || updatingItem?.[pk] !== item.title) {
                       <ion-button fill="clear" size="small" (click)="handleUpdateItem($index)">
-                        <ion-icon name="create-outline" color="dark" slot="icon-only"></ion-icon>
+                        <ion-icon aria-hidden="true" name="create-outline" color="dark" slot="icon-only"></ion-icon>
                       </ion-button>
                     }
 
                     @if (!updatingItem) {
                       <ion-button fill="clear" size="small" (click)="handleRemoveItem($index)">
-                        <ion-icon name="trash-outline" color="dark" slot="icon-only"></ion-icon>
+                        <ion-icon aria-hidden="true" name="trash-outline" color="dark" slot="icon-only"></ion-icon>
                       </ion-button>
                     }
                   </ion-item>
@@ -86,7 +86,7 @@
               <div class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast">
                 <div class=" dcf-grid dcf-grid-collapse dcf-width-1-1 ">
                   <div class="dcf-auto" [attr.style]="'max-width: 50px'">
-                    <ion-icon name="alert-circle-outline"></ion-icon>
+                    <ion-icon aria-hidden="true" name="alert-circle-outline"></ion-icon>
                   </div>
                   <div class="dcf-width-expand">
                     <ion-text color="danger" class="dcf-text-small">{{ locale + '.not_unique' | translate : { value: isUniqueError } }}</ion-text>
@@ -112,7 +112,7 @@
                 </div>
                 <div>
                   <ion-button size="small" fill="clear" (click)="handleCreateItem()">
-                    <ion-icon name="refresh-outline" slot="start"></ion-icon>
+                    <ion-icon  aria-hidden="true" name="refresh-outline" slot="start"></ion-icon>
                     {{ locale + '.update' | translate }}
                   </ion-button>
                 </div>
@@ -120,7 +120,7 @@
                 @if (items.length < max || !max) {
                   <div>
                     <ion-button size="small" fill="clear" class="dcf-button-add" [color]="isDarkMode ? 'light' : 'dark'" (click)="handleCreateItem()">
-                      <ion-icon name="add-outline" slot="start"></ion-icon>
+                      <ion-icon aria-hidden="true" name="add-outline" slot="start"></ion-icon>
                       {{ locale + '.add' | translate }}
                     </ion-button>
                   </div>

@@ -1,8 +1,70 @@
-.dcf-modal-body {
-   height: 100%;
-   padding: 1.5rem 1rem;
-}
-.dcf-loading-container {
+.dcf-modal-component {
+  &.dcf-fullscreen-modal {
+    --height: 100%;
+    --width: 100%;
+    --max-width: 100%;
+    --border-radius: 0;
+
+    &.dcf-lightbox-modal {
+      padding: var(--dcf-padding-small);
+    }
+  }
+  &.dcf-lightbox-modal {
+    --background: transparent;
+    --box-shadow: none !important;
+    @media (max-width: 767px) {
+      padding: var(--dcf-padding-xsmall);
+      ion-button {
+        transform: translate(2px, 2px) !important;
+      }
+    }
+    ion-header {
+      --background: transparent !important;
+      background-color: transparent;
+      box-shadow: none !important;
+      border-bottom: 1px solid var(--dcf-color-gray-2);
+      padding: unset !important;
+      margin: unset !important;
+      height: 30px;
+      ion-button {
+        margin: 0px !important;
+        width: 32px !important;
+        height: 25px !important;
+        --background: var(--dcf-color-light) !important;
+        transform: translate(2px, 0px);
+        --border-radius: var(--dcf-border-radius-small) !important;
+        * {
+          margin: -5px;
+        }
+      }
+      ion-toolbar {
+        --background: transparent !important;
+        padding: unset !important;
+        margin: unset !important;
+      }
+    }
+
+    ion-content {
+      --background: transparent !important;
+    }
+
+    .dcf-modal-body {
+      display: flex;
+      height: auto;
+      justify-content: center;
+      align-items: center;
+      background: transparent !important;
+    }
+  }
+
+  &:not(.dcf-lightbox-modal) {
+    .dcf-modal-body {
+      height: 100%;
+      padding: 1.5rem 1rem;
+    }
+  }
+
+  .dcf-loading-container {
     height: 50%;
     display: flex;
     justify-content: center;
@@ -12,14 +74,8 @@
       width: 60px;
       height: 60px;
     }
+  }
 }
 
-
 ion-modal {
-  &.dcf-fullscreen-modal {
-    --height: 100%;
-    --width: 100%;
-    --max-width: 100%;
-    --border-radius: 0;
-  }
 }

@@ -127,5 +127,9 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
+  },
+  "dependencies": {
+    "better-docs": "^2.7.3",
+    "taffydb": "^2.7.3"
   }
 }

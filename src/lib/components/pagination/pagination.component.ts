@@ -15,7 +15,7 @@ import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import {  NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { KeyValue } from '../../engine/types';
-import { EventConstants } from '../../engine/constants';
+import { ComponentEventNames } from '../../engine/constants';
 import { IPaginationCustomEvent } from '../../engine/interfaces';
 
 /**
@@ -193,7 +193,7 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
     if (page)
       this.current = page;
     this.clickEvent.emit({
-      name: EventConstants.CLICK,
+      name: ComponentEventNames.CLICK,
       data: {
         direction,
         page: this.current

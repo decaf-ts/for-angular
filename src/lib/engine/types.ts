@@ -13,7 +13,8 @@ import { FormServiceControl, I18nResourceConfig, InputOption } from './interface
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
 import { Constructor, Model } from '@decaf-ts/decorator-validation';
-import { ActionRoles, ElementSizes, LayoutGridGaps, WindowColorSchemes } from './constants';
+import { ActionRoles, ElementPositions, ElementSizes, LayoutGridGaps, WindowColorSchemes } from './constants';
+import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
 
 
 export type HandlerLike = Record<string, (...args: unknown[]) => unknown | Promise<unknown>>
@@ -67,29 +68,29 @@ export type FunctionLike = (...args: any[]) => any;
  * @description Element size options for UI components
  * @summary Defines the possible size values that can be applied to UI elements.
  * These sizes control the dimensions and layout behavior of components.
- * @typedef {(''|'small'|'medium'|'large'|'xlarge'|'2xlarge'|'auto'|'expand'|'block')} ElementSize
+ * @typedef ElementSize
  * @memberOf module:engine
  */
-export type ElementSize =  typeof ElementSizes[keyof typeof ElementSizes];
+export type ElementSize = typeof ElementSizes[keyof typeof ElementSizes];
 
 /**
  * @description Basic position options for UI elements
  * @summary Defines the possible position values that can be applied to UI elements.
  * These positions control the alignment and placement of components.
- * @typedef {('left'|'center'|'right'|'top'|'bottom')} ElementPositions
+ * @typedef {('left'|'center'|'right'|'top'|'bottom')} ElementPosition
  * @memberOf module:engine
  */
-export type ElementPositions = 'left' | 'center' | 'right' | 'top' | 'bottom';
+export type ElementPosition = typeof ElementPositions[keyof typeof ElementPositions];
 
 /**
  * @description Extended position options for flex layouts
- * @summary Extends the basic ElementPositions with additional flex-specific position values.
+ * @summary Extends the basic ElementPosition with additional flex-specific position values.
  * These positions are used for controlling alignment and distribution in flex containers.
- * @typedef {(ElementPositions|'stretch'|'middle'|'around'|'between')} FlexPositions
+ * @typedef {(ElementPosition |'stretch'|'middle'|'around'|'between')} FlexPosition
  * @memberOf module:engine
  */
-export type FlexPositions =
-  | ElementPositions
+export type FlexPosition =
+  | ElementPosition
   | 'stretch'
   | 'middle'
   | 'around'
@@ -117,12 +118,8 @@ export type FieldUpdateMode = 'change' | 'blur' | 'submit';
  * @memberOf module:engine
  */
 export type PossibleInputTypes =
-  | 'checkbox'
-  | 'radio'
-  | 'select'
   | TextFieldTypes
-  | 'file'
-  | 'textarea';
+  | typeof HTML5InputTypes[keyof typeof HTML5InputTypes];
 
 /**
  * @description Field definition for Angular components

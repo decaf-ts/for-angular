@@ -1,45 +1,50 @@
 <ion-app>
-  <ion-split-pane contentId="main-content" >
-      <ion-menu when="xl" contentId="main-content" type="overlay" [disabled]="!hasMenu" #component>
-        <section class="dcf-logo-container">
-          <app-logo width="150"></app-logo>
-        </section>
-        @if(initialized) {
-          <ion-content class="dfc-animation dcf-animation-slide-right-small dcf-animation-fast">
-            <ion-list class="dcf-menu">
-              @for (item of menu; track $index;) {
-                <ion-menu-toggle auto-hide="false">
-                  <ion-item
-                    [class]="{'dcf-separator': !item.url}"
-                    [button]="true"
-                    [detail]="false"
-                    [routerDirection]="'forward'"
-                    [routerLink]="[item.url]"
-                    lines="none"
-                    routerLinkActive="dcf-active"
-                  >
-                  @if(item.icon) {
-                    @if(item.icon.includes('.svg')) {
-                      <ion-img [src]="'assets/images/icons/' + item.icon" class="icon"
+  <ion-split-pane when="(min-width: 1200px)" contentId="main-content">
+    <ion-menu contentId="main-content" type="overlay" [disabled]="!hasMenu" #component>
+      <section class="dcf-logo-container">
+        <app-logo width="150"></app-logo>
+      </section>
+      @if (initialized) {
+        <ion-content class="dfc-animation dcf-animation-slide-right-small dcf-animation-fast">
+          <ion-list class="dcf-menu">
+            @for (item of menu; track $index) {
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  [class.dcf-separator]="!item.url"
+                  [button]="true"
+                  [detail]="false"
+                  [routerDirection]="'forward'"
+                  [routerLink]="[item.url]"
+                  lines="none"
+                  routerLinkActive="dcf-active"
+                >
+                  @if (item.icon) {
+                    @if (item.icon.includes(".svg")) {
+                      <ion-img
+                        [src]="'assets/images/icons/' + item.icon"
+                        class="icon"
                         [style.fill]="item.color"
                         [style.stroke]="item.color"
                         [style.path]="item.color"
                       />
                     } @else {
-                      <ion-icon [color]="item.color || ''" aria-hidden="true" class="icon" [name]="item.icon"></ion-icon>
+                      <ion-icon
+                        [color]="item.color || ''"
+                        aria-hidden="true"
+                        class="icon"
+                        [name]="item.icon"
+                      ></ion-icon>
                     }
                   }
                   <ion-label>{{ item.label | translate }}</ion-label>
-                  </ion-item>
-                </ion-menu-toggle>
-              }
-            </ion-list>
-          </ion-content>
-        }
-      </ion-menu>
-
+                </ion-item>
+              </ion-menu-toggle>
+            }
+          </ion-list>
+        </ion-content>
+      }
+    </ion-menu>
 
     <ion-router-outlet id="main-content"></ion-router-outlet>
   </ion-split-pane>
 </ion-app>
-

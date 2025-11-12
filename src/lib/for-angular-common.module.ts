@@ -77,8 +77,8 @@ export const I18N_CONFIG_TOKEN = new InjectionToken<{resources: I18nResourceConf
  * @summary Helper function to package component constructors for registration with the
  * rendering engine. This function accepts component classes and returns them as an array
  * suitable for use with the CPTKN injection token.
- * @param {...Constructor<unknown>[]} components - Component constructor classes to register
- * @return {Constructor<unknown>[]} Array of component constructors
+ * @param {...Constructor[]} components - Component constructor classes to register
+ * @return {Constructor} Array of component constructors
  * @memberOf module:lib/for-angular-common.module
  * @example
  * // Register multiple custom components

@@ -167,6 +167,7 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   @Input()
   logo: string = "";
 
+
   /**
    * @description Controls whether the header expands to fill available space.
    * @summary When set to true, the header will expand vertically to fill available space.
@@ -335,7 +336,7 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    * @type {string}
    * @memberOf HeaderComponent
    */
-  backButtonColor: string = 'translucent';
+  backButtonColor: string = 'dark';
 
 
   user!: string;
@@ -405,7 +406,7 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
       this.className += ` ion-no-border`;
 
     if(this.backgroundColor === 'white')
-      this.backButtonColor = 'medium';
+      this.backButtonColor = 'dark';
 
     if(this.sticky || this.floating) {
       if(this.floating)
@@ -429,11 +430,12 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   }
 
   changeColorSchema(): void {
-    this.colorSchema = this.colorSchema === WindowColorSchemes.dark? WindowColorSchemes.light: WindowColorSchemes.dark;
+    this.colorSchema = this.colorSchema === WindowColorSchemes.dark ? WindowColorSchemes.light: WindowColorSchemes.dark;
+    this.isDarkMode = this.colorSchema === WindowColorSchemes.dark ? true : false;
     this.mediaService.toggleClass(
       [getOnWindowDocument('documentElement'), this.component],
       AngularEngineKeys.DARK_PALETTE_CLASS,
-      this.colorSchema === WindowColorSchemes.dark? true : false
+      this.isDarkMode
     );
 
     // this.colorSchema = schema;

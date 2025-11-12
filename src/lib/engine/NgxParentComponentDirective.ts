@@ -119,6 +119,28 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
   @Input()
   rows: number | KeyValue[] | string[] = 1;
 
+  /**
+   * @description Defines the body style of the card.
+   * @summary Specifies the appearance of the card body, allowing customization
+   * between default, small, or blank styles. This input is used to control the
+   * visual presentation of the card content.
+   * @type {'default' | 'small' | 'blank'}
+   * @default 'default'
+   */
+  @Input()
+  cardBody: 'default' | 'small' | 'blank' = 'default';
+
+  /**
+   * @description Specifies the type of the card.
+   * @summary Determines the card's visual style, such as clear or shadowed.
+   * This input allows for flexible styling of the card component to match
+   * different design requirements.
+   * @type {'clear' | 'shadow'}
+   * @default 'clear'
+   */
+  @Input()
+  cardType: 'clear' | 'shadow' = 'clear';
+
   async ngOnInit(model?: Model | string): Promise<void> {
     if (model)
       this.model = model as unknown as string;

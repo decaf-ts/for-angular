@@ -1,6 +1,6 @@
-import { Component, EnvironmentInjector, inject, Input, OnInit} from '@angular/core';
+import { Component, EnvironmentInjector, EventEmitter, inject, Input, OnInit, Output, ViewChild} from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { modalController, OverlayEventDetail} from "@ionic/core";
+import { OverlayEventDetail} from "@ionic/core";
 
 import {
   IonButton,
@@ -11,7 +11,6 @@ import {
   IonSpinner,
   IonTitle,
   IonToolbar,
-  ModalController,
   ModalOptions
 } from '@ionic/angular/standalone';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
@@ -19,12 +18,38 @@ import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
 import { Dynamic } from '../../engine/decorators';
-import { KeyValue } from '../../engine/types';
+import { ActionRole, KeyValue, SelectOption } from '../../engine/types';
 import { IBaseCustomEvent } from '../../engine/interfaces';
 import {ActionRoles, DefaultModalOptions} from '../../engine/constants';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
-import { SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { OperationKeys } from '@decaf-ts/db-decorators';
+import { Primitives } from '@decaf-ts/decorator-validation';
+import { IconComponent } from '../icon/icon.component';
+import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
+
+/**
+ * @description Modal component for displaying dynamic content in a modal dialog.
+ * @summary This component provides a flexible and reusable modal dialog implementation
+ * for Angular applications. It supports dynamic content rendering, customizable options,
+ * and event handling for modal lifecycle events. The modal can be used for various purposes,
+ * such as displaying forms, lightboxes, or selection dialogs.
+ *
+ * @class ModalComponent
+ * @example
+ * ```typescript
+ * <ngx-decaf-modal [isOpen]="true" [title]="'Example Modal'"></ngx-decaf-modal>
+ * ```
+ * @mermaid
+ * sequenceDiagram
+ *   participant User
+ *   participant ModalComponent
+ *   User->>ModalComponent: Open modal
+ *   ModalComponent->>ModalController: Initialize modal
+ *   ModalController-->>ModalComponent: Modal options set
+ *   User->>ModalComponent: Interact with modal
+ *   ModalComponent->>ModalController: Handle dismiss event
+ */
 
 @Dynamic()
 @Component({
@@ -32,96 +57,287 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
   templateUrl: 'modal.component.html',
   styleUrls: ['modal.component.scss'],
   standalone: true,
-  imports: [IonModal, ModelRendererComponent, TranslatePipe, IonSpinner, IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar],
+  imports: [IonModal, ComponentRendererComponent, ModelRendererComponent, TranslatePipe,  IonSpinner, IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar],
   host: {'[attr.id]': 'uid'},
 })
+/**
+ * @description A reusable modal component that wraps Ionic's IonModal functionality.
+ * @summary Provides a flexible modal dialog implementation with support for custom content, positioning, fullscreen mode, and lightbox mode. Extends NgxParentComponentDirective to inherit common component functionality.
+ *
+ * @extends {NgxParentComponentDirective}
+ * @implements {OnInit}
+ *
+ * @example
+ * ```typescript
+ * // Basic usage in template
+ * <app-modal
+ *   [isOpen]="showModal"
+ *   [title]="'Confirmation'"
+ *   [inlineContent]="'Are you sure?'"
+ *   (willDismissEvent)="handleDismiss($event)">
+ * </app-modal>
+ *
+ * // Programmatic usage
+ * const modal = await modalComponent.create({ title: 'Settings' });
+ * ```
+ *
+ * @remarks
+ * - The modal supports inline content that can be positioned at the top or bottom
+ * - Fullscreen and lightbox modes are available for different display needs
+ * - The component automatically sanitizes HTML content for security
+ * - Modal dismissal can be handled through cancel or confirm actions
+ * - Global configuration can be passed through the globals input
+ *
+ * @public
+ */
 export class ModalComponent extends NgxParentComponentDirective implements OnInit  {
 
+  @ViewChild('component')
+  modal!: IonModal;
+
+  /**
+   * @description Title of the modal dialog.
+   * @summary Specifies the title text displayed in the modal header.
+   * @type {string | undefined}
+   */
   @Input()
   title?: string;
 
+  /**
+   * @description Determines whether the modal is open.
+   * @summary Controls the visibility of the modal dialog. When set to true, the modal is displayed.
+   * @type {boolean}
+   * @default false
+   */
   @Input()
   isOpen: boolean = false;
 
+  /**
+   * @description Tag identifier for the modal.
+   * @summary Provides a unique tag for identifying the modal instance.
+   * @type {string | undefined}
+   */
+  @Input()
+  tag?: string;
+
+  /**
+   * @description Options for configuring the modal.
+   * @summary Allows customization of modal behavior and appearance through the ModalOptions interface.
+   * @type {ModalOptions | undefined}
+   */
   @Input()
   options?: ModalOptions;
 
+  /**
+   * @description Global key-value pairs for modal configuration.
+   * @summary Stores global settings that can be accessed within the modal instance.
+   * @type {KeyValue | undefined}
+   */
   @Input()
   globals?: KeyValue;
 
+  /**
+   * @description Inline content to be displayed in the modal.
+   * @summary Specifies the HTML or SafeHtml content to be rendered inside the modal.
+   * @type {string | SafeHtml | undefined}
+   */
   @Input()
   inlineContent?: string | SafeHtml;
 
+  /**
+   * @description Position of the inline content within the modal.
+   * @summary Determines whether the inline content is displayed at the top or bottom of the modal.
+   * @type {'top' | 'bottom'}
+   * @default 'bottom'
+   */
   @Input()
-  InlineContentPosition: 'top' | 'bottom'  = 'bottom';
+  inlineContentPosition: 'top' | 'bottom'  = 'bottom';
 
+  /**
+   * @description Enables fullscreen mode for the modal.
+   * @summary When set to true, the modal occupies the entire screen.
+   * @type {boolean}
+   * @default false
+   */
   @Input()
   fullscreen: boolean = false;
 
-  modalController: ModalController = inject(ModalController);
+  /**
+   * @description Enables lightbox mode for the modal.
+   * @summary When set to true, the modal is displayed as a lightbox.
+   * @type {boolean}
+   * @default false
+   */
+  @Input()
+  lightBox: boolean = false;
 
+
+  /**
+   * @description Event emitted when the modal is about to be dismissed.
+   * @summary Emits an OverlayEventDetail object containing details about the dismiss event.
+   * @type {EventEmitter<OverlayEventDetail>}
+   */
+  @Output()
+  willDismissEvent: EventEmitter<OverlayEventDetail> = new EventEmitter<OverlayEventDetail>();
+
+  /**
+   * @description Sanitizer instance for bypassing security and sanitizing HTML content.
+   * @summary Used to sanitize dynamic HTML content, ensuring it is safe to render in the DOM.
+   * @type {DomSanitizer}
+   */
+  domSanitizer: DomSanitizer = inject(DomSanitizer);
 
   constructor() {
     super("ModalComponent");
     addIcons(allIcons);
   }
 
+  /**
+   * @description Lifecycle hook that initializes the modal component.
+   * @summary Sets up the modal controller and sanitizes inline content if provided.
+   *
+   * @returns {Promise<void>} - A promise that resolves when initialization is complete.
+   */
   override async ngOnInit(): Promise<void> {
-    if (!this.modalController)
-      this.modalController = modalController as unknown as ModalController;
+    if (this.inlineContent && typeof this.inlineContent === Primitives.STRING) {
+      this.inlineContent = this.domSanitizer.bypassSecurityTrustHtml(this.inlineContent as string);
+    }
   }
 
+  /**
+   * @description Initializes the modal with the provided options.
+   * @summary Merges default options with user-provided options and sets global configuration.
+   *
+   * @param {KeyValue} [options={}] - Additional options for modal initialization.
+   * @returns {Promise<void>} - A promise that resolves when initialization is complete.
+   */
   override async initialize(options: KeyValue = {}): Promise<void> {
-    if (!this.modalController)
-      this.modalController = modalController as unknown as ModalController;
     this.options = Object.assign({}, DefaultModalOptions, this.options, options);
+    this.globals = Object.assign({}, this.globals || {}, { isModalChild: true });
     this.initialized = true;
   }
 
+  /**
+   * @description Creates and presents the modal.
+   * @summary Initializes the modal with the provided properties and displays it.
+   *
+   * @param {KeyValue} [props={}] - Properties to initialize the modal.
+   * @returns {Promise<ModalComponent>} - A promise that resolves with the modal instance.
+   */
   async create(props: KeyValue = {}): Promise<ModalComponent> {
-   if (!this.initialized)
-      await this.initialize(props);
+    await this.initialize(props);
+    await this.present();
     return this;
   }
 
-  present() {
+  /**
+   * @description Presents the modal.
+   * @summary Sets the modal's visibility to true and triggers change detection.
+   *
+   * @returns {Promise<void>} - A promise that resolves when the modal is presented.
+   */
+  async present(): Promise<void> {
     this.isOpen = true;
     this.changeDetectorRef.detectChanges();
   }
 
-
-  override async handleEvent(event: CustomEvent<IBaseCustomEvent>) {
-    if (event instanceof Event)
+  /**
+   * @description Handles custom events for the modal.
+   * @summary Stops event propagation and triggers confirm or cancel actions based on event data.
+   *
+   * @param {IBaseCustomEvent} event - The custom event to handle.
+   * @returns {Promise<void>} - A promise that resolves when the event is handled.
+   */
+  override async handleEvent(event: IBaseCustomEvent): Promise<void> {
+    if (event instanceof Event) {
       event.stopImmediatePropagation();
-    console.log(event);
+    }
+    await (event?.data ? this.confirm(event) : this.cancel());
   }
 
-  handleWillDismiss(event: CustomEvent<OverlayEventDetail>) {
-    const { data, role } = event.detail;
-
-    this.listenEvent.emit({
-      name: role as string,
-      component: "ModalComponent",
-      data: data
-    });
+  /**
+   * @description Handles the modal dismiss event.
+   * @summary This method is triggered when the modal is about to be dismissed. It emits the `willDismissEvent` with the event details.
+   *
+   * @param {CustomEvent<OverlayEventDetail>} event - The dismiss event containing overlay details.
+   * @returns {Promise<OverlayEventDetail>} - A promise that resolves with the overlay event details.
+   */
+  async handleWillDismiss(event: CustomEvent<OverlayEventDetail>): Promise<OverlayEventDetail> {
+    const { detail } = event;
+    this.willDismissEvent.emit(event as OverlayEventDetail);
+    return detail;
   }
 
-  async cancel() {
-    this.modalController.dismiss(null, ActionRoles.cancel, this.uid as string);
-    this.isOpen = false;
+  /**
+   * @description Cancels the modal and dismisses it with a cancel action.
+   * @summary This method is used to programmatically close the modal with a cancel action.
+   *
+   * @returns {Promise<void>} - A promise that resolves when the modal is dismissed.
+   */
+  async cancel(): Promise<void> {
+    await (this.modal as IonModal).dismiss(undefined, ActionRoles.cancel);
   }
 
-  async confirm(event: CustomEvent<OverlayEventDetail>) {
-    await this.modalController.dismiss(this.name, ActionRoles.confirm, this.uid as string);
-    this.isOpen = false;
+  /**
+   * @description Confirms the modal and dismisses it with a confirm action.
+   * @summary This method is used to programmatically close the modal with a confirm action, passing optional event data.
+   *
+   * @param {IBaseCustomEvent} event - The custom event containing data to pass during confirmation.
+   * @returns {Promise<void>} - A promise that resolves when the modal is dismissed.
+   */
+  async confirm(event: IBaseCustomEvent): Promise<void> {
+    await (this.modal as IonModal).dismiss(event?.data || undefined, ActionRoles.confirm);
   }
-
 }
 
-export async function getNgxModalComponent(props: Partial<ModalComponent> = {}, modalProps: Partial<ModalOptions> = {}, injector?: EnvironmentInjector): Promise<ModalComponent> {
-  const {globals} = {... props};
-  if (!globals || !globals?.['operation'])
-    props.globals = {...(globals || {}), operation: OperationKeys.CREATE};
-  const component = NgxRenderingEngine.createComponent(ModalComponent, props, injector || undefined) as ModalComponent;
-  return component.create(modalProps);
+/**
+ * @description Retrieves a modal component instance.
+ * @summary Creates and initializes a modal component with the provided properties and options.
+ *
+ * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
+ * @param {Partial<ModalOptions>} [modalProps={}] - Additional modal options.
+ * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
+ * @returns {Promise<IonModal>} - A promise that resolves with the modal instance.
+ */
+export async function getNgxModalComponent(props: Partial<ModalComponent> = {}, modalProps: Partial<ModalOptions> = {}, injector?: EnvironmentInjector): Promise<IonModal> {
+  const { globals } = { ...props };
+  if (!globals || !globals?.['operation']) {
+    props.globals = { ...(globals || {}), operation: OperationKeys.CREATE };
+  }
+  const component = await (NgxRenderingEngine.createComponent(ModalComponent, props, injector || undefined) as ModalComponent).create(modalProps);
+  return component.modal;
+}
+
+/**
+ * @description Presents a lightbox modal with inline content.
+ * @summary Displays a modal in lightbox mode with the specified content and properties.
+ *
+ * @param {string | SafeHtml} inlineContent - The content to display in the lightbox modal.
+ * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
+ * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
+ * @returns {Promise<void>} - A promise that resolves when the modal is presented.
+ */
+export async function presentNgxLightBoxModal(inlineContent: string | SafeHtml, props: Partial<ModalComponent> = {}, injector?: EnvironmentInjector): Promise<void> {
+  return (await getNgxModalComponent({ props, ...{ inlineContent, lightBox: true } }, {}, injector || undefined)).present();
+}
+
+/**
+ * @description Retrieves a modal for selecting options.
+ * @summary Creates and initializes a modal component for displaying a list of selectable options.
+ *
+ * @param {SelectOption[]} options - The list of options to display in the modal.
+ * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
+ * @returns {Promise<IonModal>} - A promise that resolves with the modal instance.
+ */
+export async function getNgxSelectOptionsModal(options: SelectOption[], injector?: EnvironmentInjector): Promise<IonModal> {
+  const props = {
+    tag: 'ngx-decaf-list',
+    globals: {
+      data: options,
+      item: { tag: true },
+      pk: 'value',
+      mapper: { title: 'text', uid: 'value' },
+    },
+  };
+  return (await getNgxModalComponent(props, {}, injector || undefined));
 }

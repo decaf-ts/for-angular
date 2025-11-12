@@ -83,7 +83,7 @@ export class I18nLoader implements TranslateLoader {
     const libKeys: KeyValue = libLanguage[lang] || libLanguage["en"] || {};
     const httpRequests$ = forkJoin(
       this.resources.map(config =>
-        this.http.get<TranslationObject>(`${config.prefix}${lang}${this.getSuffix(config.suffix)}`)
+        this.http.get<TranslationObject>(`${config.prefix}${lang}${this.getSuffix(config.suffix || '.json')}`)
       )
     );
 

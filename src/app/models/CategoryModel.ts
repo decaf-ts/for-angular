@@ -17,12 +17,10 @@ export class CategoryModel extends Model {
   @uilistprop('uid')
   id!: number;
 
-  @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'category.name.label',
     placeholder: 'category.name.placeholder',
   })
-  @minlength(2)
   @uilistprop('title')
   @uilayoutprop(1,2)
   name!: string;

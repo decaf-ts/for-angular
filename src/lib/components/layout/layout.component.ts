@@ -169,6 +169,10 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    */
   get _cols(): string[] {
     let cols = this.cols;
+    if(typeof cols === Primitives.BOOLEAN) {
+      cols = 1;
+      this.flexMode = true;
+    }
     if (typeof cols === Primitives.NUMBER)
       cols = Array.from({length: Number(cols)}, () =>  '');
     return cols as string[];
@@ -248,7 +252,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
             return child;
         })
       };
-    }).map(row => {
+    }).map((row, index) => {
       const colsLength = this.getRowColsLength(row);
       row.cols = row.cols.map((c: KeyValue) => {
         let {col} = c;
@@ -262,9 +266,8 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
           }
         } else {
 
-          if (typeof col === Primitives.NUMBER) {
-            col = `${col}-${colsLength}`;
-          }
+          if (typeof col === Primitives.NUMBER)
+            col =  (colsLength <= this.maxColsLength) ? `${col}-${colsLength}` : `${index + 1}-${col}`;
           col = ['2-4', '3-6'].includes(col) ? `1-2` : col;
         }
         col = `dcf-child-${col}-${this.breakpoint} dcf-width-${col}`;

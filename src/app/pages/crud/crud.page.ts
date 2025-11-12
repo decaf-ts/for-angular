@@ -20,7 +20,7 @@ import { CardComponent } from 'src/lib/components';
 export class CrudPage extends NgxPageDirective implements OnInit {
 
   constructor() {
-    super('CrudPage');
+    super('Demo');
   }
 
   override async ngOnInit(): Promise<void> {

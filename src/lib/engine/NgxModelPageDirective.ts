@@ -8,7 +8,7 @@ import {
 import { EventIds, Repository } from '@decaf-ts/core';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { NgxPageDirective } from './NgxPageDirective';
-import { EventConstants } from './constants';
+import { ComponentEventNames } from './constants';
 import { IBaseCustomEvent, IModelPageCustomEvent } from './interfaces';
 import { KeyValue, DecafRepository } from './types';
 
@@ -103,10 +103,13 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
   // }
 
   override get pageTitle(): string {
+    if(!this.modelName && this.model instanceof Model)
+      this.modelName = this.model?.constructor?.name || "";
     if(!this.operation)
-      return `Listing ${this.modelName}`;
+      return this.title ?  this.title : `Listing ${this.modelName}`;
     const operation = this.operation.charAt(0).toUpperCase() + this.operation.slice(1).toLowerCase();
-    return `${operation} ${this.modelName}`;
+    return this.modelName ?
+      `${operation} ${this.modelName}` : this.title;
   }
   /**
    * @description Lazy-initialized repository getter with model resolution.
@@ -191,7 +194,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
   override async handleEvent(event: IBaseCustomEvent) {
     const { name } = event;
     switch (name) {
-      case EventConstants.SUBMIT:
+      case ComponentEventNames.SUBMIT:
         await this.handleSubmit(event);
       break;
     }
@@ -208,7 +211,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @param {IBaseCustomEvent} event - The submit event containing form data
    * @return {Promise<IModelPageCustomEvent|void>} Promise that resolves on success or throws on error
    */
-  async handleSubmit(event: IBaseCustomEvent): Promise<IModelPageCustomEvent|void> {
+  async handleSubmit(event: IBaseCustomEvent, redirect: boolean = false): Promise<IModelPageCustomEvent|void> {
     try {
       const repo = this._repository as IRepository<Model>;
       const operation = this.operation === OperationKeys.READ ? 'delete' : this.operation.toLowerCase();
@@ -225,7 +228,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
 
       if (result) {
         (repo as DecafRepository<Model>).refresh(this.modelName, this.operation, this.modelId as EventIds);
-        this.location.back();
+        if(redirect)
+          this.location.back();
       }
       return {
         ... event,

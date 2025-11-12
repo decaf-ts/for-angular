@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ElementSize, FlexPositions, StringOrBoolean } from 'src/lib/engine/types';
+import { ElementSize, FlexPosition, StringOrBoolean } from 'src/lib/engine/types';
 import { stringToBoolean } from 'src/lib/utils/helpers';
 import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
 import { ElementSizes, NgxComponentDirective } from 'src/lib/engine';
@@ -13,7 +13,7 @@ import { ElementSizes, NgxComponentDirective } from 'src/lib/engine';
  *
  * @param {StringOrBoolean} hasSideMenu - Controls whether the side menu is enabled
  * @param {string} className - Additional CSS classes to apply to the container
- * @param {FlexPositions} position - Flex positioning of container content
+ * @param {FlexPosition} position - Flex positioning of container content
  * @param {StringOrBoolean} flex - Whether to use flex layout
  * @param {StringOrBoolean} expand - Whether the container should expand to fill available space
  * @param {StringOrBoolean} fullscreen - Whether the container should take up full viewport height
@@ -50,12 +50,12 @@ export class ContainerComponent extends NgxComponentDirective implements OnInit 
    * is enabled. Options include 'center', 'top', 'bottom', 'left', 'right', and combinations
    * like 'top-left'. This property is only applied when the flex property is true.
    *
-   * @type {FlexPositions}
+   * @type {FlexPosition}
    * @default 'center'
    * @memberOf ContainerComponent
    */
   @Input()
-  position: FlexPositions = 'center';
+  position: FlexPosition = 'center';
 
   /**
    * @description Determines if the container should use flex layout.

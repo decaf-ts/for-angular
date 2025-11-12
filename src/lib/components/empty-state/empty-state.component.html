@@ -1,44 +1,46 @@
- <ngx-decaf-card [className]="className">
+<div class="decaf-empty-state-component" #component>
+  <ngx-decaf-card [className]="className">
+      @if (icon && showIcon) {
+        <div class="dcf-icon-container">
+          <ngx-decaf-icon
+            aria-hidden="true"
+            [name]="icon"
+            [size]="iconSize"
+            [color]="!this.isDarkMode ? iconColor : ''"
+            />
+        </div>
+      }
+      @if (title) {
+        <h4 class="dcf-ititle" [class]="isDarkMode ? 'light' : titleColor" [innerHTML]="title"></h4>
+      }
+      @if (subtitle) {
+        <p [class]="isDarkMode ? 'light' : subtitleColor" [innerHTML]="searchValue ? searchSubtitle : subtitle"></p>
+      }
+      @if (!enableCreationByModelRoute) {
+        @if (buttonLink && buttonText) {
+          <div>
+            <ion-button
+              [size]="buttonSize"
+              [fill]="buttonFill"
+              [color]="buttonColor"
+              (click)="handleClick()">
+              {{  buttonText }}
+            </ion-button>
+          </div>
+        }
+      } @else {
 
-    @if (icon && showIcon) {
-      <div class="dcf-icon-container">
-        <ion-icon
-          [name]="icon"
-          [size]="iconSize"
-          [color]="!this.isDarkMode ? iconColor : ''"
-          />
-      </div>
-    }
-    @if (title) {
-      <h5 [class]="titleColor" [innerHTML]="title"></h5>
-    }
-    @if (subtitle) {
-      <p [class]="subtitleColor" [innerHTML]="searchValue ? searchSubtitle : subtitle"></p>
-    }
-    @if (!enableCreationByModelRoute) {
-       @if (buttonLink && buttonText) {
         <div>
           <ion-button
+            class="dcf-margin-top"
             [size]="buttonSize"
             [fill]="buttonFill"
             [color]="buttonColor"
-            (click)="handleClick()">
-            {{  buttonText }}
+            (click)="changeOperation(OperationKeys.CREATE)" fill="clear">
+            {{  buttonText?.length ? buttonText : locale + '.button_create' | translate }}
           </ion-button>
         </div>
+
       }
-    } @else {
-
-      <div>
-        <ion-button
-          class="dcf-margin-top"
-          [size]="buttonSize"
-          [fill]="buttonFill"
-          [color]="buttonColor"
-          (click)="changeOperation(OperationKeys.CREATE)" fill="clear">
-          {{  buttonText?.length ? buttonText : locale + '.button_create' | translate }}
-        </ion-button>
-      </div>
-
-    }
-  </ngx-decaf-card>
+    </ngx-decaf-card>
+</div>

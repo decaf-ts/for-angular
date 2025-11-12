@@ -37,7 +37,7 @@ import {
   DecafRepository
 } from '../../engine/types';
 import {
-  EventConstants,
+  ComponentEventNames,
   ComponentsTagNames,
   DefaultListEmptyOptions,
   ListComponentsTypes
@@ -646,17 +646,14 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     this.disableSort = stringToBoolean(this.disableSort);
     if (typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
-
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     await this.refresh();
-
-    // if (this.operations.includes(OperationKeys.CREATE) && this.route)
-    //   this.empty.link = `${this.route}/${OperationKeys.CREATE}`;
-
     if (!this.initialized)
-      return this.parseProps(this);
-
+      this.parseProps(this);
     this.initialized = true;
+    if(this.isModalChild)
+      this.changeDetectorRef.detectChanges();
+
   }
 
   /**
@@ -847,7 +844,10 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         this.page = 1;
       }
       this.searchValue = value;
+      if(this.isModalChild)
+        this.changeDetectorRef.detectChanges();
       await this.refresh(true);
+
     } else {
       this.loadMoreData = true;
       this.searchValue = value;
@@ -882,6 +882,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   async clearSearch(): Promise<void> {
     await this.handleSearch(undefined);
+    if(this.isModalChild)
+      this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -899,7 +901,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       data = this.items;
     this.skeletonData = new Array(data?.length || 2);
     this.refreshEvent.emit({
-      name: EventConstants.REFRESH,
+      name: ComponentEventNames.REFRESH,
       data: data || [],
       component: this.componentName
     });
@@ -973,12 +975,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   @HostListener('window:BackButtonNavigationEndEvent', ['$event'])
   async refresh(event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false): Promise<void> {
-    //  if (typeof force !== 'boolean' && force.type === EventConstants.BACK_BUTTON_NAVIGATION) {
+    //  if (typeof force !== 'boolean' && force.type === ComponentEventNames.BACK_BUTTON_NAVIGATION) {
     //    const {refresh} = (force as CustomEvent).detail;
     //    if (!refresh)
     //      return false;
     //  }
-
     this.refreshing = true;
     const start: number = this.page > 1 ? (this.page - 1) * this.limit : this.start;
     const limit: number = (this.page * (this.limit > 12 ? 12 : this.limit));
@@ -987,7 +988,6 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       await this.getFromRequest(!!event, start, limit)
       : await this.getFromModel(!!event) as KeyValue[];
 
-    this.refreshEventEmit();
 
     if (this.type === ListComponentsTypes.INFINITE) {
       if (this.page === this.pages) {
@@ -998,7 +998,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         this.page += 1;
         this.refreshing = false;
         setTimeout(() => {
-            if ((event as InfiniteScrollCustomEvent)?.target && (event as CustomEvent)?.type !== EventConstants.BACK_BUTTON_NAVIGATION)
+            if ((event as InfiniteScrollCustomEvent)?.target && (event as CustomEvent)?.type !== ComponentEventNames.BACK_BUTTON_NAVIGATION)
               (event as InfiniteScrollCustomEvent).target.complete();
         }, 200);
       }
@@ -1059,11 +1059,13 @@ async handleRefresh(event?: InfiniteScrollCustomEvent | CustomEvent): Promise<vo
  * @memberOf ListComponent
  */
   parseSearchResults(results: KeyValue[], search: string): KeyValue[] {
-    return results.filter((item: KeyValue) =>
-      Object.values(item).some(value =>
-          value.toString().toLowerCase().includes((search as string)?.toLowerCase())
-        )
+    const filtered = results.filter((item: KeyValue) =>
+      Object.values(item).some(v => {
+        if(v.toString().toLowerCase().includes((search as string)?.toLowerCase()))
+          return v;
+      })
     );
+    return filtered;
   }
 
 /**
@@ -1080,7 +1082,8 @@ async handleRefresh(event?: InfiniteScrollCustomEvent | CustomEvent): Promise<vo
  * @memberOf ListComponent
  */
 async getFromRequest(force: boolean = false, start: number, limit: number): Promise<KeyValue[]> {
-  let request: KeyValue[] = [];
+  let data: KeyValue[] = [...this.data || []];
+
   if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
     // (self.data as ListItem[]) = [];
     if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
@@ -1088,20 +1091,29 @@ async getFromRequest(force: boolean = false, start: number, limit: number): Prom
         this.logger.info('No data and source passed to infinite list');
         return [];
       }
+      if (this.source instanceof Function) {
+         data = await this.source();
+        if (!Array.isArray(data))
+          data = data?.['response']?.['data'] || data?.['results'] || [];
+      }
 
-      if (this.source instanceof Function)
-        request = await this.source();
-
-      if (!Array.isArray(request))
-        request = request?.['response']?.['data'] || request?.['results'] || [];
-      this.data = [... await this.parseResult(request)];
+      if(!data?.length && this.data?.length)
+        data = this.data as KeyValue[];
+      this.data = [... await this.parseResult(data)];
       if (this.data?.length)
         this.items = this.type === ListComponentsTypes.INFINITE ?
-          (this.items || []).concat([...this.data.slice(start, limit)]) : [...request.slice(start, limit) as KeyValue[]];
+          (this.items || []).concat([...this.data.slice(start, limit)]) : [...data.slice(start, limit) as KeyValue[]];
     } else {
-      this.data = this.parseSearchResults(this.data as [], this.searchValue as string);
-      this.items = this.data;
+      const data = await this.parseResult(this.parseSearchResults(this.data as [], this.searchValue as string));
+      this.items = [...data];
+      if(this.isModalChild)
+        this.changeDetectorRef.detectChanges();
     }
+  } else {
+    const data = [... await this.parseResult(this.data as [])];
+    this.items = this.type === ListComponentsTypes.INFINITE ? [...(this.items || []), ...(data || [])] : [...(data || [])];
+    if(this.isModalChild)
+      this.changeDetectorRef.detectChanges();
   }
 
   if (this.loadMoreData && this.type === ListComponentsTypes.PAGINATED)

@@ -8,7 +8,7 @@
               <ion-text [innerHTML]="type === 'password' ? '********' : value"></ion-text>
           } @else {
              @if (['checkbox'].includes(type)) {
-               <ion-icon class="dcf-margin-small-top" [color]="!isDarkMode  ? 'primary' : 'light'" size="large" name="checkmark-circle-outline"></ion-icon>
+               <ion-icon aria-hidden="true" class="dcf-margin-small-top" [color]="!isDarkMode  ? 'primary' : 'light'" size="large" name="checkmark-circle-outline"></ion-icon>
             } @else {
               <br />
             }
@@ -24,7 +24,6 @@
 
           [id]="uid" #container
           [class]="'dcf-input-item ' + (operation || 'create')"
-          (createGroupEvent)="multiple ? handleFieldsetCreateGroupEvent($event) : ''"
           [class.dcf-field-required]="required"
         >
           @if (type === 'textarea') {
@@ -135,6 +134,7 @@
                 [labelPlacement]="labelPlacement"
                 [label]="label | translate"
                 [value]="value"
+                (click)="openSelectOptions($event, interface)"
                 [fill]="fill"
                 [placeholder]="placeholder | translate"
                 [formControlName]="name"

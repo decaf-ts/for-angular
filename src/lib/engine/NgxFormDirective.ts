@@ -6,7 +6,7 @@ import { NgxFormService } from "../services/NgxFormService";
 import { ICrudFormEvent, IFormElement } from "./interfaces";
 import { FieldUpdateMode, FormParent, HandlerLike, HTMLFormTarget } from "./types";
 import { ICrudFormOptions, IRenderedModel } from "./interfaces";
-import { ActionRoles, ComponentsTagNames, EventConstants } from "./constants";
+import { ActionRoles, ComponentsTagNames, ComponentEventNames } from "./constants";
 import { NgxParentComponentDirective } from "./NgxParentComponentDirective";
 import { NgxFormFieldDirective } from "./NgxFormFieldDirective";
 import { generateRandomValue } from "../utils";
@@ -249,7 +249,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   }
 
   ngAfterViewInit(): void {
-    this.isModalChild = this.component.nativeElement?.closest('ion-modal') ? true : false;
     if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
   }
@@ -331,7 +330,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     this.submitEvent.emit({
       data,
       component: componentName || this.componentName,
-      name: eventName || this.action || EventConstants.SUBMIT,
+      name: eventName || this.action || ComponentEventNames.SUBMIT,
       handlers: this.handlers,
     });
   }

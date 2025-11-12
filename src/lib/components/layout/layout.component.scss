@@ -60,7 +60,16 @@
       // }
     }
     > div {
-      margin-bottom: 1.75rem;
+      &.dcf-layout-separator {
+        margin-bottom: 1rem;
+        &:not(:first-of-type).dcf-layout-bordered {
+          > * {
+            border-bottom: 1px solid var(--dcf-color-gray-2);
+            padding-bottom: 0.25rem;
+          }
+        }
+      }
+      margin-bottom: 1.6rem;
 
       &:last-child {
         margin-bottom: 0px;
@@ -68,7 +77,10 @@
     }
     // removing margin top of sequenced small grids
     + .dcf-grid-small {
-      margin-top: 1.75rem !important;
+      &.dcf-layout-separator {
+        margin-bottom: 1rem;
+      }
+      margin-bottom: 1.6rem;
     }
   }
 }

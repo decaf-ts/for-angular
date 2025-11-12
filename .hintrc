@@ -6,14 +6,7 @@
     "no-inline-styles": "off",
     "typescript-config/consistent-casing": "off",
     "meta-viewport": "off",
-    "compat-api/css": [
-      "default",
-      {
-        "ignore": [
-          "scrollbar-width"
-        ]
-      }
-    ]
+    "compat-api/css": "off"
   },
   "browserslist": [
     "defaults",

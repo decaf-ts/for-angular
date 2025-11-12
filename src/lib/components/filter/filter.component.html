@@ -17,7 +17,7 @@
           @if (filter?.['value']) {
             <ion-chip [outline]="true" class="dcf-filter-value">
               {{ filter?.['value'] }}
-              <ion-icon name="close-outline" (click)="removeFilter(filter?.['value'])" size="small"></ion-icon>
+              <ion-icon tabindex="0" name="close-outline" (click)="removeFilter(filter?.['value'])" size="small"></ion-icon>
             </ion-chip>
           }
         }
@@ -66,13 +66,13 @@
       @if (filterValue.length > 0) {
         <div class="dcf-icon-clear">
           <ion-button fill="clear" size="small" (click)="clear()">
-            <ion-icon name="trash-outline" [color]="!isDarkMode ? 'dark' : 'light'" slot="icon-only"></ion-icon>
+            <ion-icon aria-hidden="true" name="trash-outline" [color]="!isDarkMode ? 'dark' : 'light'" slot="icon-only"></ion-icon>
           </ion-button>
         </div>
       }
       <div class="dcf-icon-search">
         <ion-button fill="clear" size="small" (click)="submit()">
-          <ion-icon name="search-outline" [color]="!isDarkMode ? 'dark' : 'light'" slot="icon-only"></ion-icon>
+          <ion-icon aria-hidden="true" name="search-outline" [color]="!isDarkMode ? 'dark' : 'light'" slot="icon-only"></ion-icon>
         </ion-button>
       </div>
     </div>
@@ -125,7 +125,7 @@
         </div>
         <div class="dcf-width-auto">
           <ion-button (click)="handleSortDirectionChange()" fill="clear">
-            <ion-icon slot="icon-only" [color]="!isDarkMode ? 'primary' : 'light'" [name]="sortDirection === 'desc' ? 'arrow-down-outline' : 'arrow-up-outline'"></ion-icon>
+            <ion-icon aria-hidden="true" slot="icon-only" [color]="!isDarkMode ? 'primary' : 'light'" [name]="sortDirection === 'desc' ? 'arrow-down-outline' : 'arrow-up-outline'"></ion-icon>
           </ion-button>
         </div>
       </div>

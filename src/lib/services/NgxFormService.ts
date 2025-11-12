@@ -783,7 +783,7 @@ export class NgxFormService {
 
     control.markAsTouched();
     control.markAsDirty();
-    control.updateValueAndValidity();
+    control.updateValueAndValidity({emitEvent: true });
 
     if (control instanceof FormGroup) {
       Object.values(control.controls).forEach(childControl => {

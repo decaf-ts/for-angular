@@ -14,7 +14,7 @@ import {
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Dynamic } from '../../engine/decorators';
-import { DefaultFormReactiveOptions, EventConstants } from '../../engine/constants';
+import { DefaultFormReactiveOptions, ComponentEventNames } from '../../engine/constants';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { ComponentRendererComponent } from '../../components/component-renderer/component-renderer.component';
 import { LayoutComponent } from '../layout/layout.component';
@@ -27,7 +27,7 @@ import { LayoutComponent } from '../layout/layout.component';
   templateUrl: './crud-form.component.html',
   styleUrls: ['./crud-form.component.scss'],
   imports: [ReactiveFormsModule, LayoutComponent, ComponentRendererComponent, IonButton, IonIcon],
- // host: {'[attr.id]': 'uid'},
+ host: {'[attr.id]': 'uid'},
 })
 
 export class CrudFormComponent extends NgxFormDirective {
@@ -69,7 +69,7 @@ export class CrudFormComponent extends NgxFormDirective {
     this.submitEvent.emit({
       data: this.modelId,
       component: 'CrudFormComponent',
-      name: EventConstants.SUBMIT,
+      name: ComponentEventNames.SUBMIT,
     });
   }
 }

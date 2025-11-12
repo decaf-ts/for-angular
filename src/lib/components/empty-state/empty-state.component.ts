@@ -9,20 +9,16 @@
  */
 
 import { Component, inject, Input, OnInit  } from '@angular/core';
-import {
-  IonButton,
-  IonIcon,
-}
-from '@ionic/angular/standalone';
-import * as allIcons from 'ionicons/icons';
-import { addIcons } from 'ionicons';
-import { StringOrBoolean } from '../../engine/types';
-import { Dynamic } from '../../engine/decorators';
-import { stringToBoolean } from '../../utils/helpers';
+import { IonButton } from '@ionic/angular/standalone';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { FunctionLike } from '../../engine/types';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Dynamic } from '../../engine/decorators';
+import { ElementSizes } from '../../engine/constants';
+import { ElementSize, StringOrBoolean } from '../../engine/types';
+import { stringToBoolean } from '../../utils/helpers';
+import { FunctionLike } from '../../engine/types';
 import { CardComponent } from '../card/card.component';
+import { IconComponent } from '../../components/icon/icon.component';
 
 
 /**
@@ -67,7 +63,7 @@ import { CardComponent } from '../card/card.component';
   styleUrls: ['./empty-state.component.scss'],
   standalone: true,
   imports: [
-    IonIcon,
+    IconComponent,
     TranslatePipe,
     IonButton,
     CardComponent
@@ -164,14 +160,14 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  iconSize?: 'large' | 'small' = 'large';
+  iconSize?: Extract<ElementSize, 'large' | 'small'> = ElementSizes.large;
 
   /**
    * @description The color of the displayed icon.
    * @summary Specifies the color for the icon using Ionic's predefined color system.
    * This allows the icon to match the application's color scheme.
    *
-   * @type {PredefinedColors | undefined}
+   * @type {string}
    * @default 'medium'
    * @memberOf EmptyStateComponent
    */
@@ -237,7 +233,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  buttonSize: 'large' | 'small' | 'default' =  'default';
+  buttonSize: Extract<ElementSize, 'large' | 'small' | 'default'> =  'default';
 
   /**
    * @description The search value that resulted in no results.
@@ -287,8 +283,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    */
   constructor() {
     super("EmptyStateComponent");
-    addIcons(allIcons);
-    this.type = 'default';
+    this.type = 'clear';
     this.componentName = "EmptyStateComponent";
     this.enableDarkMode = true;
   }
@@ -325,8 +320,8 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
     this.initialize();
     this.showIcon = stringToBoolean(this.showIcon);
 
-    this.titleColor = `dcf-title color-${this.titleColor}`;
-    this.subtitleColor = `dcf-subtitle color-${this.titleColor}`;
+    this.titleColor = `dcf-title dcf-color-${this.titleColor}`;
+    this.subtitleColor = `dcf-subtitle dcf-color-${this.subtitleColor}`;
 
     if (this.searchValue)
       this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);

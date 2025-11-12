@@ -29,6 +29,14 @@ import { MenuController } from "@ionic/angular";
 @Directive()
 export abstract class NgxPageDirective extends NgxComponentDirective implements OnInit, AfterViewInit {
 
+  /**
+   * @description Application name for display or identification purposes.
+   * @summary Stores the name of the application, which can be used for display in headers,
+   * titles, or for logging and identification throughout the app.
+   * @type {string}
+   * @memberOf module:lib/engine/NgxPageDirective
+   */
+  appName?: string;
 
   /**
    * @description Page title text for the current view.
@@ -192,7 +200,7 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
    * @return {void}
    * @memberOf module:lib/engine/NgxPageDirective
    */
-  protected setPageTitle(route?: string, menu?: IMenuItem[]): void {
+  protected async setPageTitle(route?: string, menu?: IMenuItem[]): Promise<void> {
     if(!route)
       route = this.router.url.replace('/', '');
     if(!menu)
@@ -200,7 +208,7 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
     const activeMenu = menu.find(item => item?.url?.includes(route));
     if(activeMenu) {
       const title = activeMenu?.title || activeMenu?.label;
-      this.titleService.setTitle(`${title}`);
+      this.titleService.setTitle(`${await this.translate(title)} ${this.appName ? `- ${this.appName}` : ''}`);
       if(!this.title)
         this.title = title;
     }

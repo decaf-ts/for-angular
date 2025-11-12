@@ -9,7 +9,7 @@
  */
 
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonSkeletonText, IonText } from '@ionic/angular/standalone';
 import { arrowForwardOutline, arrowBackOutline } from 'ionicons/icons';
@@ -17,7 +17,7 @@ import { addIcons } from 'ionicons';
 import { Subscription, timer } from 'rxjs';
 import { UIElementMetadata, UIModelMetadata} from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { EventConstants } from '../../engine/constants';
+import { ComponentEventNames } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { NgxFormService } from '../../services/NgxFormService';
 import { getLocaleContext } from '../../i18n/Loader';
@@ -270,6 +270,12 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
           items
         };
       });
+      // this.formGroup =  new FormGroup(
+      //   (this.formGroup as FormArray).controls.reduce((acc, control, index) => {
+      //     acc[index] = control as FormGroup;
+      //     return acc;
+      //   }, {} as Record<string, FormGroup>)
+      // );
     }
     this.initialized = true;
   }
@@ -318,9 +324,10 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    * @memberOf SteppedFormComponent
    */
   handleNext(lastPage: boolean = false): void {
-    const isValid = this.paginated ?
-      NgxFormService.validateFields(this.formGroup as FormGroup) :
-      (this.formGroup as FormArray)?.controls.every(control => NgxFormService.validateFields(control as FormGroup));
+    const isValid = NgxFormService.validateFields(this.formGroup as FormGroup);
+    // const isValid = this.paginated ?
+    //   NgxFormService.validateFields(this.formGroup as FormGroup) :
+    //   (this.formGroup as FormArray)?.controls.every(control => NgxFormService.validateFields(control as FormGroup));
     if (!lastPage) {
       if (isValid) {
         this.activeIndex = this.activeIndex + 1;
@@ -333,7 +340,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
       this.submitEvent.emit({
         data,
         component:  this.componentName,
-        name: this.action || EventConstants.SUBMIT,
+        name: this.action || ComponentEventNames.SUBMIT,
         handlers: this.handlers,
       });
      }
@@ -416,7 +423,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
   //   this.submitEvent.emit({
   //     data,
   //     component: componentName || this.componentName,
-  //     name: eventName || this.action || EventConstants.SUBMIT,
+  //     name: eventName || this.action || ComponentEventNames.SUBMIT,
   //     handlers: this.handlers,
   //   });
   // }
