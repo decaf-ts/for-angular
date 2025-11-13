@@ -33,6 +33,9 @@ export class User extends Model {
   username!: string;
 
 
+  @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {max: 2, borders: false}, true)
+  category!: CategoryModel;
+
   constructor(args: ModelArg<User> = {}) {
     super(args);
   }
@@ -48,9 +51,8 @@ export class FieldSetForm extends Model {
   id!: number;
 
 
-  @list(CategoryModel, 'Array')
-  @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {max: 2, mergeInParent: true}, true)
-  user!: CategoryModel;
+  @uichild(User.name, 'ngx-decaf-fieldset', {max: 2, borders: false, collapsable: false}, false)
+  user!: User;
 
   constructor(args: ModelArg<FieldSetForm> = {}) {
     super(args);

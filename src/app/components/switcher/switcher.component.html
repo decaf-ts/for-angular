@@ -35,7 +35,7 @@
           @if(activePage) {
             <ngx-decaf-component-renderer
               [tag]="activePage.tag"
-              [parentForm]="activePage.formGroup"
+              [parentForm]="parentForm"
               [children]="activePage?.children || []"
               (listenEvent)="handleEvent($event)"
               [globals]="{props: activePage.props}"

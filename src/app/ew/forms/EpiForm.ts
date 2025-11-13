@@ -1,4 +1,5 @@
 import {
+  list,
   model,
   Model,
   ModelArg
@@ -18,33 +19,34 @@ export class EpiForm extends Model {
   id!: number;
 
   @uipageprop(1)
+  @list(Leaflet, 'Array')
   @uichild(Leaflet.name, 'ngx-decaf-fieldset', {
     title: "Documents",
     borders: false,
     collapsable: false,
     rows: 1,
     cols: 2,
-  } as Partial<FieldsetComponent>, false)
+  } as Partial<FieldsetComponent>, true)
   @uiorder(1)
   document!: Leaflet;
 
-  @uipageprop(1)
-  @uichild(SubstanceForm.name, 'ngx-decaf-fieldset', {
-    title: "Strengths",
-    borders: false,
-    collapsable: false
-  } as Partial<FieldsetComponent>, false)
-  @uiorder(2)
-  strengths!: SubstanceForm;
+  // @uipageprop(1)
+  // @uichild(SubstanceForm.name, 'ngx-decaf-fieldset', {
+  //   title: "Strengths",
+  //   borders: false,
+  //   collapsable: false
+  // } as Partial<FieldsetComponent>, false)
+  // @uiorder(2)
+  // strengths!: SubstanceForm;
 
-  @uipageprop(1)
-  @uichild(MarketForm.name, 'ngx-decaf-fieldset', {
-    title: "Markets",
-    borders: false,
-    collapsable: false
-  } as Partial<FieldsetComponent>, false)
-  @uiorder(3)
-  markets!: MarketForm;
+  // @uipageprop(1)
+  // @uichild(MarketForm.name, 'ngx-decaf-fieldset', {
+  //   title: "Markets",
+  //   borders: false,
+  //   collapsable: false
+  // } as Partial<FieldsetComponent>, false)
+  // @uiorder(3)
+  // markets!: MarketForm;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: ModelArg<EpiForm>) {

@@ -198,6 +198,8 @@ export class NgxFormService {
     const isMultiple = parentProps?.multiple || parentProps?.type === Array.name || false;
     const parts = path.split('.');
     const controlName = parts.pop() as string;
+    const lastPart = parts[parts.length - 1];
+
     const {childOf} = componentProps
     let currentGroup = formGroup;
 
@@ -209,7 +211,7 @@ export class NgxFormService {
 
     for (const part of parts) {
       if (!currentGroup.get(part)) {
-        const partFormGroup = (isMultiple && part === childOf) ? new FormArray([new FormGroup({})]) : new FormGroup({});
+        const partFormGroup = (isMultiple && (part === childOf|| childOf?.endsWith(`${part}`))) ? new FormArray([new FormGroup({})]) : new FormGroup({});
         const pk = componentProps?.pk || parentProps?.pk || '';
         (partFormGroup as KeyValue)[BaseComponentProps.FORM_GROUP_COMPONENT_PROPS] = {
           childOf: childOf || '',
@@ -417,7 +419,7 @@ export class NgxFormService {
   private static addFormControl(formGroup: FormParent, componentProps: IFormComponentProperties, parentProps: Partial<IFormComponentProperties> = {}, index: number = 0): FormParent {
 
     const isMultiple = parentProps?.['multiple'] || parentProps?.['type'] === 'Array' || false;
-    const { name, childOf, } = componentProps;
+    const { name, childOf } = componentProps;
     if(isMultiple)
       componentProps['pk'] = componentProps['pk'] || parentProps?.['pk'] || '';
     const fullPath = childOf ? isMultiple ? `${childOf}.${index}.${name}` : `${childOf}.${name}` : name;
@@ -441,12 +443,18 @@ export class NgxFormService {
         }
       }
     }
-    const root = parentGroup instanceof FormArray ? parentGroup.controls[(componentProps as KeyValue)?.['page'] - 1] : parentGroup;
-    componentProps['formGroup'] = root as FormGroup;
+    let rootGroup = parentGroup;
+    if(rootGroup instanceof FormArray)
+      rootGroup = (parentGroup as FormArray).controls[(componentProps as KeyValue)?.['page'] - 1] as FormParent;
+    // if(childOf?.includes("."))
+    //   rootGroup = (rootGroup as FormGroup)?.parent as FormArray
+
+    // componentProps['formGroup'] = root as FormGroup;
+    componentProps['formGroup'] = rootGroup as FormGroup;
     componentProps['formControl'] = parentGroup.get(controlName) as FormControl;
     // componentProps['multiple'] = isMultiple;
 
-    return root as FormParent;
+    return parentGroup as FormParent;
   }
 
   /**

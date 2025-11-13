@@ -8,20 +8,24 @@
   [class.not-collapsable]="!collapsable"
   #component>
   <div class="dcf-width-1-1">
-    @if (!collapsable) {
+    @if (!collapsable ) {
       <legend class="dcf-title">{{ (title ? title : name) | translate }}</legend>
     }
     <ion-accordion-group class="dcf-width-1-1" [class.open]="isOpen" [class.hasValidationErrors]="hasValidationErrors" [value]="(operation === 'read' || !collapsable) ? 'open' : ''" #accordionComponent>
-      <ion-accordion value="open">
+      <ion-accordion
+        value="open"
+        [class.dcf-disabled]="!activePage"
+        [class.dcf-empty]="!items?.length"
+      >
         @if (collapsable) {
-          <ion-item [class.disable-collapse]="!collapsable" slot="header" [button]="collapsable" (click)="handleAccordionToggle($event)">
+          <ion-item slot="header" [button]="collapsable" (click)="handleAccordionToggle($event)">
             <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1">
               <div class="dcf-width-expand">
                 <legend>{{ (title ? title : name) | translate }}</legend>
               </div>
-              @if (!isRequired && ['create', 'update'].includes(operation) && collapsable) {
+              @if (!isRequired && ['create', 'update'].includes(operation) && collapsable && multiple) {
                 <div class="dcf-width-auto dcf-delete">
-                  <ion-button fill="clear" size="small" [disabled]="!this.value?.length" (click)="handleRemoveComponent($event)">
+                  <ion-button fill="clear" size="small" (click)="handleClear($event)">
                     <ion-icon aria-hidden="true" name="trash-outline" color="dark" slot="icon-only"></ion-icon>
                   </ion-button>
                 </div>
@@ -52,13 +56,13 @@
                     </ion-label>
                     @if (!updatingItem || updatingItem?.[pk] !== item.title) {
                       <ion-button fill="clear" size="small" (click)="handleUpdateItem($index)">
-                        <ion-icon aria-hidden="true" name="create-outline" color="dark" slot="icon-only"></ion-icon>
+                        <ion-icon aria-hidden="true" name="create-outline" color="dark" ></ion-icon>
                       </ion-button>
                     }
 
                     @if (!updatingItem) {
-                      <ion-button fill="clear" size="small" (click)="handleRemoveItem($index)">
-                        <ion-icon aria-hidden="true" name="trash-outline" color="dark" slot="icon-only"></ion-icon>
+                      <ion-button fill="clear" size="small" color="danger" (click)="handleRemoveItem($index)">
+                        <ion-icon aria-hidden="true" name="close-outline" color="dark"></ion-icon>
                       </ion-button>
                     }
                   </ion-item>
@@ -74,7 +78,7 @@
               [flexMode]="props.flexMode || false"
               [match]="false"
               [gap]="'small'"
-              [children]="activePage || []"
+              [children]="children || []"
               [parentForm]="formGroup || parentForm"
               [rows]="rows"
               [cols]="cols"
@@ -109,12 +113,12 @@
             </ion-text>
           </div>
         }
-      }
-       <div class="dcf-grid dcf-grid-small dcf-flex dcf-buttons-container">
+
+        <div class="dcf-grid dcf-grid-small dcf-flex dcf-buttons-container" [class.dcf-blank]="!borders">
           @if (updatingItem) {
             <div>
               <ion-button size="small" fill="clear" color="danger" (click)="handleCancelUpdateItem()">
-                {{ buttonCancelLabel }}
+                {{ locale + '.cancel' | translate }}
               </ion-button>
             </div>
             <div>
@@ -133,8 +137,9 @@
                 </ion-button>
               </div>
             }
-        }
-      </div>
+          }
+        </div>
+      }
   </div>
 </fieldset>
 

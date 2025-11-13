@@ -26,8 +26,8 @@
             <div
               [class]="child.colClass"
               [class.dcf-first-column]="$index === 0"
-              [class.dcf-layout-separator]="child.props?.separator"
-              [class.dcf-layout-bordered]="child.props?.borders"
+              [class.dcf-layout-separator]="child.props?.separator ?? false"
+              [class.dcf-layout-bordered]="child.props?.borders ?? false"
             >
               <div >
                 @if (child.tag === "ngx-decaf-crud-form") {

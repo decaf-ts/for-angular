@@ -47,8 +47,9 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
           description
         } as IPagedComponentProperties;
       });
-      this.getActivePage(this.activeIndex);
+      this.activePage = this.getActivePage(this.activeIndex);
     }
+    console.log(this.activePage);
     this.initialized = true;
   }
 

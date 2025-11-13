@@ -19,7 +19,7 @@ import { ReservedModels } from '@decaf-ts/decorator-validation';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxFormService } from '../../services/NgxFormService';
 import { LayoutComponent } from '../layout/layout.component';
-import { KeyValue } from '../../engine/types';
+import { FormParent, KeyValue } from '../../engine/types';
 import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { itemMapper } from '../../utils/helpers';
@@ -352,17 +352,36 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     this.buttonCancelLabel = this.translateService.instant(this.locale + '.cancel');
     if ([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
       if (!this.formGroup) {
-        if (this.parentForm instanceof FormGroup)
-          this.formGroup = (this.parentForm as FormGroup).controls[this.childOf as string] as FormArray;
+        if (this.parentForm instanceof FormGroup) {
+          // iterate on childOf path to get correct formGroup
+          const parts = (this.childOf as string).split('.');
+          let formGroup = this.parentForm as FormParent;
+          for (const part of parts)
+           formGroup = (formGroup as FormGroup).controls[part] as FormParent;
+          this.formGroup = formGroup;
+          if(this.formGroup instanceof FormGroup)
+            this.formGroup = this.formGroup.parent as FormArray;
+        }
         if (!this.formGroup && this.parentForm instanceof FormArray)
           this.formGroup = this.parentForm;
         if (!this.formGroup && (this.children[0] as KeyValue)?.['formGroup'] instanceof FormGroup)
           this.formGroup = (this.children[0] as KeyValue)?.['formGroup'].parent as FormArray;
-        (this.formGroup as KeyValue)['fieldsetComponent'] = true;
-        this.formGroup?.setErrors(null);
-        this.formGroup?.disable();
+        if (this.formGroup && !(this.formGroup instanceof FormArray))
+          this.formGroup = (this.formGroup as FormParent)?.parent as FormArray;
+
       }
     }
+     if(this.multiple) {
+      this.formGroup?.setErrors(null);
+      this.formGroup?.disable();
+      // this.activePage = this.getActivePage();
+    } else {
+      this.activePage = this.getActivePage();
+    }
+    console.log("FORM GROUP ===============================");
+    console.log(this.formGroup);
+     console.log("FORM PARENT ===============================");
+    console.log( this.parentForm);
     this.initialized = true;
   }
 
@@ -679,19 +698,19 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   // }
 
   protected override getActivePage(): UIModelMetadata[] | undefined {
-    this.getFormArrayIndex(this.activeFormGroupIndex);
+    if(this.multiple)
+      this.getFormArrayIndex(this.activeFormGroupIndex);
     this.activePage = undefined;
     this.isOpen = true;
-    this.changeDetectorRef.detectChanges();
     this.accordionComponent.value = 'open';
-    this.timerSubscription = timer(25).subscribe(() => {
+    this.changeDetectorRef.detectChanges();
+    this.timerSubscription = timer(10).subscribe(() => {
       this.children = this.children.map(child => {
         if (!child.props)
           child.props = {};
         child.props = Object.assign(child.props, { activeFormGroup: this.activeFormGroupIndex, multiple: this.multiple });
         return child;
       });
-
     });
     return this.children as UIModelMetadata[];
   }

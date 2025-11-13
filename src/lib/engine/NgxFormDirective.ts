@@ -243,7 +243,8 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override async ngOnInit(model?: Model | string): Promise<void> {
-    this.uid = generateRandomValue(12);
+    if(!this.uid)
+      this.uid = generateRandomValue(12);
     // dont call super.ngOnInit to model conflicts
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)
       this.formGroup = undefined;
@@ -270,8 +271,12 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   }
 
   getFormArrayIndex(index: number): FormParent | undefined {
-    if (!(this.formGroup instanceof FormArray) && this.formGroup)
+    if (!(this.formGroup instanceof FormArray) && this.formGroup) {
+      if (this.formGroup.disabled)
+        (this.formGroup as FormParent).enable();
       return this.formGroup;
+    }
+
     const formGroup = (this.formGroup as FormArray).at(index) as FormGroup;
     if(formGroup.disabled)
       (formGroup as FormParent).enable();
@@ -347,7 +352,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * proper Angular change detection when updating the activeContent.
    *
    * @param {number} page - The page number to activate
-   * @return {UIModelMetadata[] | undefined}
+   * @return {UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined}
    *
    * @private
    * @mermaid
@@ -365,7 +370,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    *
    * @memberOf SteppedFormComponent
    */
-   protected override getActivePage(page: number): UIModelMetadata | UIModelMetadata[] | undefined {
+   protected override getActivePage(page: number): UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined {
     if (!(this.formGroup instanceof FormArray))
       this.formGroup = this.formGroup?.parent as FormArray;
     this.formGroup  = (this.formGroup as FormArray).at(page - 1) as FormGroup;
