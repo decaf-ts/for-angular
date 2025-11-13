@@ -5,7 +5,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Subscription, timer } from 'rxjs';
 
 import { ComponentRendererComponent } from 'src/lib/components/component-renderer/component-renderer.component';
-import { NgxParentComponentDirective } from 'src/lib/engine';
+import { ElementPosition, ElementPositions, NgxParentComponentDirective } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
 
 
@@ -23,25 +23,12 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
   tabs: IPagedComponentProperties[] = [];
 
   @Input()
-  position: 'left' | 'top' = 'left';
+  position: Extract<ElementPosition, 'top' | 'left'> = ElementPositions.left;
 
   button: boolean = true;
 
   override activeIndex: number = 0;
 
-  skeletonData = new Array(1);
-
-
-  /**
-   * @description Subscription for timer-based operations.
-   * @summary Manages the timer subscription used for asynchronous operations
-   * like updating active children after page transitions. This subscription
-   * is cleaned up in ngOnDestroy to prevent memory leaks.
-   *
-   * @private
-   * @type {Subscription}
-   */
-  private timerSubscription!: Subscription;
 
   constructor() {
     super("SwitcherComponent");
@@ -60,7 +47,7 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
           description
         } as IPagedComponentProperties;
       });
-      this.handleChangeTab(this.activeIndex);
+      this.getActivePage(this.activeIndex);
     }
     this.initialized = true;
   }
@@ -78,14 +65,14 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
   }
 
 
-  handleChangeTab(index: number) {
-    const content = this.children[index] as FieldDefinition;
-    this.activeContent = undefined;
-    this.skeletonData = [... new Array(content ? content.children?.length : 1)];
-    this.timerSubscription = timer(1).subscribe(() =>
-      this.activeContent = {... this.children[index] as FieldDefinition }
-    );
-    this.activeIndex = index;
-  }
+  // handleChangeTab(index: number) {
+  //   const content = this.children[index] as FieldDefinition;
+  //   this.activeContent = undefined;
+  //   this.skeletonData = [... new Array(content ? content.children?.length : 1)];
+  //   this.timerSubscription = timer(1).subscribe(() =>
+  //     this.activeContent = {... this.children[index] as FieldDefinition }
+  //   );
+  //   this.activeIndex = index;
+  // }
 
 }

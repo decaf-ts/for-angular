@@ -689,16 +689,17 @@ export class NgxFormService {
       const control = formGroup.controls[key];
       const parentProps = NgxFormService.getPropsFromControl(formGroup as FormGroup | FormArray);
       if (!(control instanceof FormControl)) {
+        if(control.disabled)
+          continue;
         const value = NgxFormService.getFormData(control as FormGroup);
         const isValid = control.valid;
         if(parentProps.multiple) {
-            if(isValid) {
-               data[key] = value;
-            } else {
-              this.reset(control as FormControl);
-            }
-
-            continue;
+          if(isValid) {
+              data[key] = value;
+          } else {
+            this.reset(control as FormControl);
+          }
+          continue;
         }
         data[key] = value;
         continue;
@@ -820,7 +821,7 @@ export class NgxFormService {
     //   return Object.keys(group.controls).find(name => control === group.get(name)) || null;
     // }
 
-    return control.valid;
+    return control?.disabled ? true :  control.valid;
   }
 
   /**

@@ -9,11 +9,11 @@
           [class.dcf-switcher-button]="button"
         >
             <li
-              (keyup.enter)="handleChangeTab($index)"
+              (keyup.enter)="getActivePage($index)"
               tabindex="0"
               *ngFor="let tab of tabs; let $index = index"
               [class.dcf-active]="activeIndex === $index"
-              (click)="handleChangeTab($index)">
+              (click)="getActivePage($index)">
               <a>{{ tab.title | translate }}</a>
             </li>
 
@@ -21,7 +21,7 @@
       </div>
     }
     <div [class]="position === 'left' ? 'dcf-switcher-content dcf-width-expand@l' : 'dcf-switcher-content dcf-width-1-1'">
-      @if(!activeContent) {
+      @if(!activePage) {
         @for(skl of skeletonData; track $index) {
           <ion-item>
             <ion-label>
@@ -32,13 +32,13 @@
         }
       } @else {
         <div class="dcf-animation dcf-animation-slide-bottom-small dcf-animation-fast dcf-margin-top" #switcherContent>
-          @if(activeContent) {
+          @if(activePage) {
             <ngx-decaf-component-renderer
-              [tag]="activeContent.tag"
-              [parentForm]="activeContent.formGroup"
-              [children]="activeContent?.children || []"
+              [tag]="activePage.tag"
+              [parentForm]="activePage.formGroup"
+              [children]="activePage?.children || []"
               (listenEvent)="handleEvent($event)"
-              [globals]="{props: activeContent.props}"
+              [globals]="{props: activePage.props}"
             />
           }
         </div>

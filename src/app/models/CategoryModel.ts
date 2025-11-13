@@ -23,6 +23,7 @@ export class CategoryModel extends Model {
   })
   @uilistprop('title')
   @uilayoutprop(1,2)
+  @required()
   name!: string;
 
   @uielement('ngx-decaf-crud-field', {

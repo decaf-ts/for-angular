@@ -23,6 +23,8 @@ import { KeyValue } from '../../engine/types';
 import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { itemMapper } from '../../utils/helpers';
+import { UIElementMetadata, UIModelMetadata } from '@decaf-ts/ui-decorators';
+import { timer } from 'rxjs';
 
 
 /**
@@ -356,16 +358,11 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
           this.formGroup = this.parentForm;
         if (!this.formGroup && (this.children[0] as KeyValue)?.['formGroup'] instanceof FormGroup)
           this.formGroup = (this.children[0] as KeyValue)?.['formGroup'].parent as FormArray;
+        (this.formGroup as KeyValue)['fieldsetComponent'] = true;
+        this.formGroup?.setErrors(null);
+        this.formGroup?.disable();
       }
-
-      this.children = this.children.map(child => {
-        if (!child.props)
-          child.props = {};
-        child.props = Object.assign(child.props, { activeFormGroup: this.activeFormGroupIndex, multiple: this.multiple });
-        return child;
-      });
     }
-
     this.initialized = true;
   }
 
@@ -433,15 +430,24 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @returns {void}
    * @memberOf FieldsetComponent
    */
-  handleRemoveComponent(event: Event): void {
-    event.stopImmediatePropagation();
-    this.component.nativeElement.classList.add('dcf-animation', 'dcf-animation-slide-top-medium', 'dcf-animation-reverse', 'dcf-animation-fast');
-    setTimeout(() => {
-      // Use Renderer2 to safely remove the element
-      const parent = this.renderer.parentNode(this.component.nativeElement);
-      if (parent)
-        this.renderer.removeChild(parent, this.component.nativeElement);
-    }, 150);
+  handleRemoveComponent(event?: Event): void {
+    if(event)
+      event.stopImmediatePropagation();
+    this.formGroup?.disable();
+    this.items = [];
+    this.value = undefined as unknown as KeyValue[];
+    this.activePage = undefined;
+    this.activeFormGroupIndex = 0;
+    this.accordionComponent.value = '';
+    this.changeDetectorRef.detectChanges();
+
+    // this.component.nativeElement.classList.add('dcf-animation', 'dcf-animation-slide-top-medium', 'dcf-animation-reverse', 'dcf-animation-fast');
+    // setTimeout(() => {
+    //   // Use Renderer2 to safely remove the element
+    //   const parent = this.renderer.parentNode(this.component.nativeElement);
+    //   if (parent)
+    //     this.renderer.removeChild(parent, this.component.nativeElement);
+    // }, 150);
   }
 
 
@@ -468,6 +474,10 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   async handleCreateItem(event?: CustomEvent<IFieldSetValidationEvent>): Promise<void|boolean> {
     if (event && event instanceof CustomEvent)
       event.stopImmediatePropagation();
+    if(!this.activePage) {
+      this.activePage = this.getActivePage();
+      return;
+    }
     const formGroup = this.activeFormGroup as FormGroup;
     const value = formGroup.value;
     const hasSomeValue = this.hasValue(value);
@@ -485,7 +495,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
           this.setValue();
           NgxFormService.addGroupToParent(formGroup.parent as FormArray);
           this.activeFormGroupIndex = (formGroup.parent as FormArray).length - 1;
-          this.getFormArrayIndex(this.activeFormGroupIndex);
+          this.activePage = this.getActivePage();
         } else {
           this.isUniqueError = typeof value === ReservedModels.OBJECT ?
             (value as KeyValue)?.[this.pk] || undefined : value;
@@ -494,17 +504,16 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     }
   }
 
-
   hasValue(value: KeyValue = {}): boolean {
     return Object.keys(value).some((key) => value[key] !== null && value[key] !== undefined && value[key] !== '');
   }
-
 
   handleUpdateItem(index: number): void {
     const formGroup =  this.getFormArrayIndex(index);
     if (formGroup) {
       this.updatingItem = Object.assign({}, formGroup.value || {}, {index});
       this.activeFormGroupIndex = index;
+      this.activePage = this.getActivePage();
     }
   }
 
@@ -547,8 +556,13 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       formArray.removeAt(index);
     }
     this.setValue();
-    if (this.activeFormGroupIndex > 0)
-      this.activeFormGroupIndex = this.activeFormGroupIndex - 1;
+    if(this.items.length > 0) {
+      if (this.activeFormGroupIndex > 0)
+        this.activeFormGroupIndex = this.activeFormGroupIndex - 1;
+    } else {
+      this.handleRemoveComponent();
+    }
+
   }
 
 
@@ -653,15 +667,33 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * error state and accordion visibility accordingly.
    *
    * @param {CustomEvent} event - Custom event containing validation error details
-   * @returns {void}
+   * @returns {UIModelMetadata[] | undefined}
    * @memberOf FieldsetComponent
    */
-  handleValidationError(event: CustomEvent): void {
-    event.stopImmediatePropagation();
-    const {hasErrors} = event.detail;
-    this.isOpen = this.hasValidationErrors = hasErrors;
-    if (hasErrors)
-      this.accordionComponent.value = 'open';
+  // handleValidationError(event: CustomEvent): void {
+  //   event.stopImmediatePropagation();
+  //   const {hasErrors} = event.detail;
+  //   this.isOpen = this.hasValidationErrors = hasErrors;
+  //   if (hasErrors)
+  //     this.accordionComponent.value = 'open';
+  // }
+
+  protected override getActivePage(): UIModelMetadata[] | undefined {
+    this.getFormArrayIndex(this.activeFormGroupIndex);
+    this.activePage = undefined;
+    this.isOpen = true;
+    this.changeDetectorRef.detectChanges();
+    this.accordionComponent.value = 'open';
+    this.timerSubscription = timer(25).subscribe(() => {
+      this.children = this.children.map(child => {
+        if (!child.props)
+          child.props = {};
+        child.props = Object.assign(child.props, { activeFormGroup: this.activeFormGroupIndex, multiple: this.multiple });
+        return child;
+      });
+
+    });
+    return this.children as UIModelMetadata[];
   }
 
 
@@ -687,7 +719,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     });
 
     this.updatingItem = undefined;
-
   }
 
   /**

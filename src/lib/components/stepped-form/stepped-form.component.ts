@@ -162,17 +162,6 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    */
   pagesArray: UIModelMetadata[] = [];
 
-  /**
-   * @description Subscription for timer-based operations.
-   * @summary Manages the timer subscription used for asynchronous operations
-   * like updating active children after page transitions. This subscription
-   * is cleaned up in ngOnDestroy to prevent memory leaks.
-   *
-   * @private
-   * @type {Subscription}
-   * @memberOf SteppedFormComponent
-   */
-  private timerSubscription!: Subscription;
 
   // /**
   //  * @description Custom event handlers for form actions.
@@ -258,7 +247,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
         c.props['page'] = page > this.pages ? this.pages : page;
         return c;
       })];
-      this.getCurrentFormGroup(this.activeIndex);
+      this.getActivePage(this.activeIndex);
     } else {
       this.children =  this.pageTitles.map((page, index) => {
         const pageNumber = index + 1;
@@ -331,7 +320,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
     if (!lastPage) {
       if (isValid) {
         this.activeIndex = this.activeIndex + 1;
-        this.getCurrentFormGroup(this.activeIndex);
+        this.getActivePage(this.activeIndex);
       }
     } else {
      if (isValid) {
@@ -368,47 +357,12 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    * @memberOf SteppedFormComponent
    */
   handleBack(): void {
-    if (this.paginated) {
-      this.activeIndex = this.activeIndex - 1;
-      this.getCurrentFormGroup(this.activeIndex);
-    }
-    this.location.back();
+    if (!this.paginated)
+      return this.location.back();
+    this.activeIndex = this.activeIndex - 1;
+    this.getActivePage(this.activeIndex);
   }
 
-  /**
-   * @description Updates the active form group and children for the specified page.
-   * @summary Extracts the FormGroup for the given page from the FormArray and filters
-   * the children to show only fields belonging to that page. Uses a timer to ensure
-   * proper Angular change detection when updating the activeContent.
-   *
-   * @param {number} page - The page number to activate
-   * @return {void}
-   *
-   * @private
-   * @mermaid
-   * sequenceDiagram
-   *   participant S as SteppedFormComponent
-   *   participant F as FormArray
-   *   participant T as Timer
-   *
-   *   S->>F: Extract FormGroup at index (page - 1)
-   *   F-->>S: Return page FormGroup
-   *   S->>S: Set activeContent = undefined
-   *   S->>T: timer(10).subscribe()
-   *   T-->>S: Filter children for active page
-   *   S->>S: Set activeContent
-   *
-   * @memberOf SteppedFormComponent
-   */
-  private getCurrentFormGroup(page: number): void {
-    if (!(this.formGroup instanceof FormArray))
-      this.formGroup = this.formGroup?.parent as FormArray;
-    this.formGroup  = (this.formGroup as FormArray).at(page - 1) as FormGroup;
-    this.activeContent = undefined;
-    this.timerSubscription = timer(10).subscribe(() =>
-      this.activeContent = (this.children as UIModelMetadata[]).filter(c => c.props?.['page'] === page)
-    );
-  }
 
 
   // async handleSubmit(event?: SubmitEvent, eventName?: string, componentName?: string): Promise<boolean | void> {

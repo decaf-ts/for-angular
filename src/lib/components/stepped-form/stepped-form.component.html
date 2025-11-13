@@ -67,10 +67,10 @@
       </div>
     }
 
-    @if (initialized && activeContent?.length) {
+    @if (initialized && activePage?.length) {
       <ngx-decaf-layout
         [className]="'dcf-stepped-form-grid paginated dcf-grid-nested'"
-        [children]="activeContent || []"
+        [children]="activePage || []"
         [parentForm]="formGroup || parentForm"
         [gap]="'small'"
         [flexMode]="props.flexMode || false"

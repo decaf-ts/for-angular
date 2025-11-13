@@ -304,5 +304,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
     // if (this._cols.length === 1)
     //   this.grid = false;
     this.initialized = true;
+    this.changeDetectorRef.detectChanges();
   }
 }

@@ -12,6 +12,7 @@ import { FormParent, KeyValue } from './types';
 import { FieldDefinition, IPagedComponentProperties, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IComponentProperties } from './interfaces';
+import { Subscription, timer } from 'rxjs';
 
 /**
  * @description Layout component for creating responsive grid layouts in Angular applications.
@@ -55,9 +56,9 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
    * on the currently active page. This is a filtered subset of the children array,
    * updated whenever the user navigates between pages.
    *
-   * @type {UIModelMetadata | UIModelMetadata[] | undefined}
+   * @type { UIModelMetadata | UIModelMetadata[] | FieldDefinition | FieldDefinition[] | undefined }
    */
-  activeContent: UIModelMetadata | UIModelMetadata[] | FieldDefinition | FieldDefinition[] | undefined = undefined;
+  activePage: UIModelMetadata | UIModelMetadata[] | FieldDefinition | FieldDefinition[] | undefined = undefined;
 
 
   /**
@@ -141,6 +142,21 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
   @Input()
   cardType: 'clear' | 'shadow' = 'clear';
 
+  skeletonData = new Array(1);
+
+
+  /**
+   * @description Subscription for timer-based operations.
+   * @summary Manages the timer subscription used for asynchronous operations
+   * like updating active children after page transitions. This subscription
+   * is cleaned up in ngOnDestroy to prevent memory leaks.
+   *
+   * @private
+   * @type {Subscription}
+   * @memberOf SteppedFormComponent
+   */
+  protected timerSubscription!: Subscription;
+
   async ngOnInit(model?: Model | string): Promise<void> {
     if (model)
       this.model = model as unknown as string;
@@ -148,4 +164,22 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
       this._repository = this.repository;
   }
 
+  override ngOnDestroy(): Promise<void> | void {
+    super.ngOnDestroy();
+    if (this.timerSubscription)
+      this.timerSubscription.unsubscribe();
+  }
+
+  protected getActivePage(page: number): KeyValue | UIModelMetadata | FieldDefinition | undefined {
+    const content = this.children[page] as FieldDefinition;
+    this.activePage = undefined;
+    this.skeletonData = [... new Array(content ? content.children?.length : 1)];
+    this.timerSubscription = timer(1).subscribe(() =>
+      this.activePage = {... this.children[page] as FieldDefinition }
+    );
+    this.activeIndex = page;
+    if(this.activePage)
+      return this.activePage;
+    return undefined;
+  }
 }

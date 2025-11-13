@@ -21,7 +21,7 @@
               </div>
               @if (!isRequired && ['create', 'update'].includes(operation) && collapsable) {
                 <div class="dcf-width-auto dcf-delete">
-                  <ion-button fill="clear" size="small" (click)="handleRemoveComponent($event)">
+                  <ion-button fill="clear" size="small" [disabled]="!this.value?.length" (click)="handleRemoveComponent($event)">
                     <ion-icon aria-hidden="true" name="trash-outline" color="dark" slot="icon-only"></ion-icon>
                   </ion-button>
                 </div>
@@ -67,13 +67,14 @@
             </ion-list>
           }
 
-          @if (children?.length) {
+          @if (activePage) {
+
             <ngx-decaf-layout
               [className]="'dcf-fieldset-grid dcf-grid-nested'"
               [flexMode]="props.flexMode || false"
               [match]="false"
               [gap]="'small'"
-              [children]="children || []"
+              [children]="activePage || []"
               [parentForm]="formGroup || parentForm"
               [rows]="rows"
               [cols]="cols"
@@ -81,57 +82,59 @@
             />
           }
 
-          @if (multiple && ['create', 'update'].includes(operation)) {
-            @if (isUniqueError) {
-              <div class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast">
-                <div class=" dcf-grid dcf-grid-collapse dcf-width-1-1 ">
-                  <div class="dcf-auto" [attr.style]="'max-width: 50px'">
-                    <ion-icon aria-hidden="true" name="alert-circle-outline"></ion-icon>
-                  </div>
-                  <div class="dcf-width-expand">
-                    <ion-text color="danger" class="dcf-text-small">{{ locale + '.not_unique' | translate : { value: isUniqueError } }}</ion-text>
-                  </div>
-                </div>
-              </div>
-            }
-             @if(max) {
-                <div class="dcf-width-1-1 dcf-max-message-container">
-                  <ion-text class="dcf-text-small"
-                    [color]="items.length !== max ? (!isDarkMode ? 'medium' : '') : 'primary'"
-                  >
-                    {{ locale + (items.length !== max ?  '.max_items' : '.max_items_reached') | translate : { '0': max } }}
-                  </ion-text>
-                </div>
-              }
-            <div class="dcf-grid dcf-grid-small dcf-flex dcf-buttons-container">
-              @if (updatingItem) {
-                <div>
-                  <ion-button size="small" fill="clear" color="danger" (click)="handleCancelUpdateItem()">
-                    {{ buttonCancelLabel }}
-                  </ion-button>
-                </div>
-                <div>
-                  <ion-button size="small" fill="clear" (click)="handleCreateItem()">
-                    <ion-icon  aria-hidden="true" name="refresh-outline" slot="start"></ion-icon>
-                    {{ locale + '.update' | translate }}
-                  </ion-button>
-                </div>
-              } @else {
-                @if (items.length < max || !max) {
-                  <div>
-                    <ion-button size="small" fill="clear" class="dcf-button-add" [color]="isDarkMode ? 'light' : 'dark'" (click)="handleCreateItem()">
-                      <ion-icon aria-hidden="true" name="add-outline" slot="start"></ion-icon>
-                      {{ locale + '.add' | translate }}
-                    </ion-button>
-                  </div>
-
-                }
-              }
-            </div>
-          }
         </div>
       </ion-accordion>
     </ion-accordion-group>
+
+
+    @if (multiple && ['create', 'update'].includes(operation)) {
+      @if (isUniqueError) {
+        <div class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast">
+          <div class=" dcf-grid dcf-grid-collapse dcf-width-1-1 ">
+            <div class="dcf-auto" [attr.style]="'max-width: 50px'">
+              <ion-icon aria-hidden="true" name="alert-circle-outline"></ion-icon>
+            </div>
+            <div class="dcf-width-expand">
+              <ion-text color="danger" class="dcf-text-small">{{ locale + '.not_unique' | translate : { value: isUniqueError } }}</ion-text>
+            </div>
+          </div>
+        </div>
+      }
+        @if(max) {
+          <div class="dcf-width-1-1 dcf-max-message-container">
+            <ion-text class="dcf-text-small"
+              [color]="items.length !== max ? (!isDarkMode ? 'medium' : '') : 'primary'"
+            >
+              {{ locale + (items.length !== max ?  '.max_items' : '.max_items_reached') | translate : { '0': max } }}
+            </ion-text>
+          </div>
+        }
+      }
+       <div class="dcf-grid dcf-grid-small dcf-flex dcf-buttons-container">
+          @if (updatingItem) {
+            <div>
+              <ion-button size="small" fill="clear" color="danger" (click)="handleCancelUpdateItem()">
+                {{ buttonCancelLabel }}
+              </ion-button>
+            </div>
+            <div>
+              <ion-button size="small" fill="clear" (click)="handleCreateItem()">
+                <ion-icon  aria-hidden="true" name="refresh-outline" slot="start"></ion-icon>
+                {{ locale + '.update' | translate }}
+              </ion-button>
+            </div>
+          } @else {
+
+            @if (items.length < max || !max) {
+              <div>
+                <ion-button size="small" fill="clear" class="dcf-button-add" [color]="isDarkMode ? 'light' : 'dark'" (click)="handleCreateItem()">
+                  <ion-icon aria-hidden="true" name="add-outline" slot="start"></ion-icon>
+                  {{ locale + '.add' | translate }}
+                </ion-button>
+              </div>
+            }
+        }
+      </div>
   </div>
 </fieldset>
 

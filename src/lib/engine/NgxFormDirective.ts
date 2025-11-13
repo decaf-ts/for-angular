@@ -10,6 +10,8 @@ import { ActionRoles, ComponentsTagNames, ComponentEventNames } from "./constant
 import { NgxParentComponentDirective } from "./NgxParentComponentDirective";
 import { NgxFormFieldDirective } from "./NgxFormFieldDirective";
 import { generateRandomValue } from "../utils";
+import { timer } from "rxjs";
+import { FieldDefinition, UIModelMetadata } from "@decaf-ts/ui-decorators";
 
 @Directive()
 export abstract class NgxFormDirective extends NgxParentComponentDirective implements OnInit, AfterViewInit, IFormElement, OnDestroy, IRenderedModel {
@@ -271,6 +273,8 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     if (!(this.formGroup instanceof FormArray) && this.formGroup)
       return this.formGroup;
     const formGroup = (this.formGroup as FormArray).at(index) as FormGroup;
+    if(formGroup.disabled)
+      (formGroup as FormParent).enable();
     if (formGroup) {
       if (this.children.length) {
         const children = [... this.children];
@@ -324,8 +328,9 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     const isValid = NgxFormService.validateFields(this.formGroup as FormGroup);
     if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
-    if (!isValid)
+    if (!isValid) {
       return false;
+    }
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
     this.submitEvent.emit({
       data,
@@ -335,5 +340,42 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     });
   }
 
+   /**
+   * @description Updates the active form group and children for the specified page.
+   * @summary Extracts the FormGroup for the given page from the FormArray and filters
+   * the children to show only fields belonging to that page. Uses a timer to ensure
+   * proper Angular change detection when updating the activeContent.
+   *
+   * @param {number} page - The page number to activate
+   * @return {UIModelMetadata[] | undefined}
+   *
+   * @private
+   * @mermaid
+   * sequenceDiagram
+   *   participant S as SteppedFormComponent
+   *   participant F as FormArray
+   *   participant T as Timer
+   *
+   *   S->>F: Extract FormGroup at index (page - 1)
+   *   F-->>S: Return page FormGroup
+   *   S->>S: Set activeContent = undefined
+   *   S->>T: timer(10).subscribe()
+   *   T-->>S: Filter children for active page
+   *   S->>S: Set activeContent
+   *
+   * @memberOf SteppedFormComponent
+   */
+   protected override getActivePage(page: number): UIModelMetadata | UIModelMetadata[] | undefined {
+    if (!(this.formGroup instanceof FormArray))
+      this.formGroup = this.formGroup?.parent as FormArray;
+    this.formGroup  = (this.formGroup as FormArray).at(page - 1) as FormGroup;
+    this.activePage = undefined;
+    this.timerSubscription = timer(10).subscribe(() =>
+      this.activePage = (this.children as UIModelMetadata[]).filter(c => c.props?.['page'] === page)
+    );
+    if(this.activePage)
+      return this.activePage;
+    return undefined;
+  }
 
 }
