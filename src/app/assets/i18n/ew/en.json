@@ -13,17 +13,6 @@
         "title": "Epi Information"
       }
     },
-    "steps": {
-      "1": {
-        "title": "Product Details"
-      },
-      "2": {
-        "title": "Product Image"
-      },
-      "3": {
-        "title": "Epi Information"
-      }
-    },
     "productCode": {
       "label": "Product Code",
       "placeholder": "Enter the product code"
