@@ -198,7 +198,7 @@ export class NgxMediaService {
         this.toggleClass(
           component,
           AngularEngineKeys.DARK_PALETTE_CLASS,
-          schema === WindowColorSchemes.dark? true : false
+          schema === WindowColorSchemes.dark ? true : false
         );
       });
     }

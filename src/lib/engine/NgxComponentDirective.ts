@@ -470,7 +470,8 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @default false
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected isModalChild: boolean = false;
+  @Input()
+  isModalChild: boolean = false;
 
 
   /**

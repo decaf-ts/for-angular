@@ -16,6 +16,9 @@
   }
 }
 
+ion-button {
+  cursor: pointer !important;
+}
 .dcf-icon {
   ion-icon:not([size]) {
     font-size: 1.35rem !important;

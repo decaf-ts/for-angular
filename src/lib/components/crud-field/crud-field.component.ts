@@ -38,11 +38,13 @@ import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { getModelRepository } from '../../for-angular-common.module';
-import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, StringOrBoolean, FormParent } from '../../engine/types';
+import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, StringOrBoolean, FormParent, SelectOption } from '../../engine/types';
 import { dataMapper, generateRandomValue } from '../../utils';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { Dynamic } from '../../engine/decorators';
 import { getLocaleContextByKey } from '../../i18n/Loader';
+import { getNgxSelectOptionsModal } from '../modal/modal.component';
+import { ActionRoles } from '../../engine/constants';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -651,7 +653,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   async ngOnInit(): Promise<void> {
-    console.log(this.enableDarkMode, this.operation, this.name);
     this.options = await this.getOptions();
     addIcons({chevronDownOutline, chevronUpOutline});
     if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation)) {
@@ -730,6 +731,18 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     if (this.options.length > 10 && this.interface === 'popover')
       this.interface = 'modal';
     return this.options as CrudFieldOption[];
+  }
+
+
+  async openSelectOptions(event: Event, selectInterface: SelectInterface): Promise<void> {
+    if(selectInterface === 'modal') {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const modal = await getNgxSelectOptionsModal(this.options as SelectOption[]);
+      const {data, role} = await modal.onWillDismiss();
+      if(role === ActionRoles.confirm && data !== this.value)
+        this.setValue(data);
+    }
   }
 
 

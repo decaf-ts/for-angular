@@ -47,11 +47,21 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/model/model.page').then(m => m.ModelPage)
   },
   {
-    path: 'model/:modelName/:operation/:modelId',
-    loadComponent: () => import('./pages/model/model.page').then( m => m.ModelPage)
-  },
-  {
     path: 'steps-form',
     loadComponent: () => import('./pages/steps-form/steps-form.page').then( m => m.StepsFormPage)
+  },
+
+  // EW
+  {
+    path: 'products',
+    loadComponent: () => import('./pages/products/products.page').then( m => m.ProductsPage)
+  },
+  {
+    path: 'products/:operation',
+    loadComponent: () => import('./pages/products/products.page').then( m => m.ProductsPage)
+  },
+   {
+    path: 'products/:operation/:modelId',
+    loadComponent: () => import('./pages/products/products.page').then( m => m.ProductsPage)
   }
 ];

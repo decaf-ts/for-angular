@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { KeyValue } from 'src/lib/engine/types';
 import { IonContent } from '@ionic/angular/standalone';
-import { IBaseCustomEvent, EventConstants } from 'src/lib/engine';
+import { IBaseCustomEvent, ComponentEventNames } from 'src/lib/engine';
 import { Model } from '@decaf-ts/decorator-validation';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
@@ -38,7 +38,7 @@ export class ListModelPage extends NgxPageDirective implements OnInit {
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
     const {name, data } = event;
-    if(name === EventConstants.REFRESH)
+    if(name === ComponentEventNames.REFRESH)
       return this.handleListRefreshEvent(data as Model[]);
 
   }

@@ -53,6 +53,21 @@ export const AppMenu: IMenuItem[] = [
   },
 ];
 
+export const EwMenu: IMenuItem[] = [
+  {
+    label: 'menu.product_management',
+  },
+  {
+    label: 'Products',
+    url: '/products',
+  },
+  {
+    label: 'Batchs',
+    url: '/batchs',
+  },
+];
+
+
 
 
 /**

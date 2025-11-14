@@ -104,6 +104,20 @@
       "previous": "Previous",
       "submit": "Submit",
       "cancel": "Cancel"
+    },
+    "file_upload": {
+      "drag_file": "Drag and drop your image here",
+      "buttons": {
+        "select": "Select File",
+        "preview": "Preview",
+        "clear": "Clear"
+      },
+      "selection": "{0} file(s) selected with success",
+      "selection_error": "{0} file(s) failed validation and will not be uploaded.",
+      "errors": {
+        "not_allowed": "File {0} is not allowed.",
+        "max_size": "The maximum allowed file size is {0} MB"
+      }
     }
   }
 }

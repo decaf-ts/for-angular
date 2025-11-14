@@ -198,8 +198,9 @@ export class NgxFormService {
     const isMultiple = parentProps?.multiple || parentProps?.type === Array.name || false;
     const parts = path.split('.');
     const controlName = parts.pop() as string;
+
     const {childOf} = componentProps
-    let currentGroup = formGroup;
+    const currentGroup = formGroup;
 
     function setArrayComponentProps(formGroupArray: KeyValue) {
       const props = formGroupArray?.[BaseComponentProps.FORM_GROUP_COMPONENT_PROPS] || {};
@@ -209,7 +210,7 @@ export class NgxFormService {
 
     for (const part of parts) {
       if (!currentGroup.get(part)) {
-        const partFormGroup = (isMultiple && part === childOf) ? new FormArray([new FormGroup({})]) : new FormGroup({});
+        const partFormGroup = (isMultiple && (part === childOf|| childOf?.endsWith(`${part}`))) ? new FormArray([new FormGroup({})]) : new FormGroup({});
         const pk = componentProps?.pk || parentProps?.pk || '';
         (partFormGroup as KeyValue)[BaseComponentProps.FORM_GROUP_COMPONENT_PROPS] = {
           childOf: childOf || '',
@@ -222,7 +223,6 @@ export class NgxFormService {
         if(currentGroup instanceof FormArray) {
           (currentGroup as FormArray).push(partFormGroup);
         } else {
-
           for(const control of Object.values(partFormGroup.controls)) {
             if(control instanceof FormControl)
               this.register(control as AbstractControl, componentProps);
@@ -230,14 +230,12 @@ export class NgxFormService {
 
           if(partFormGroup instanceof AbstractControl)
             this.register(partFormGroup as AbstractControl, componentProps);
-
           currentGroup.addControl(part, partFormGroup);
         }
       }
       if(childOf && currentGroup instanceof FormArray)
         setArrayComponentProps(currentGroup);
-
-      currentGroup = currentGroup.get(part) as FormGroup;
+      return [currentGroup.get(part) as FormGroup, controlName];
     }
     return [currentGroup, controlName];
   }
@@ -417,7 +415,7 @@ export class NgxFormService {
   private static addFormControl(formGroup: FormParent, componentProps: IFormComponentProperties, parentProps: Partial<IFormComponentProperties> = {}, index: number = 0): FormParent {
 
     const isMultiple = parentProps?.['multiple'] || parentProps?.['type'] === 'Array' || false;
-    const { name, childOf, } = componentProps;
+    const { name, childOf } = componentProps;
     if(isMultiple)
       componentProps['pk'] = componentProps['pk'] || parentProps?.['pk'] || '';
     const fullPath = childOf ? isMultiple ? `${childOf}.${index}.${name}` : `${childOf}.${name}` : name;
@@ -441,12 +439,18 @@ export class NgxFormService {
         }
       }
     }
-    const root = parentGroup instanceof FormArray ? parentGroup.controls[(componentProps as KeyValue)?.['page'] - 1] : parentGroup;
-    componentProps['formGroup'] = root as FormGroup;
+    let rootGroup = parentGroup;
+    if(rootGroup instanceof FormArray)
+      rootGroup = (parentGroup as FormArray).controls[(componentProps as KeyValue)?.['page'] - 1] as FormParent;
+    // if(childOf?.includes("."))
+    //   rootGroup = (rootGroup as FormGroup)?.parent as FormArray
+
+    // componentProps['formGroup'] = root as FormGroup;
+    componentProps['formGroup'] = rootGroup as FormGroup;
     componentProps['formControl'] = parentGroup.get(controlName) as FormControl;
     // componentProps['multiple'] = isMultiple;
 
-    return root as FormParent;
+    return parentGroup as FormParent;
   }
 
   /**
@@ -689,16 +693,17 @@ export class NgxFormService {
       const control = formGroup.controls[key];
       const parentProps = NgxFormService.getPropsFromControl(formGroup as FormGroup | FormArray);
       if (!(control instanceof FormControl)) {
+        if(control.disabled)
+          continue;
         const value = NgxFormService.getFormData(control as FormGroup);
         const isValid = control.valid;
         if(parentProps.multiple) {
-            if(isValid) {
-               data[key] = value;
-            } else {
-              this.reset(control as FormControl);
-            }
-
-            continue;
+          if(isValid) {
+              data[key] = value;
+          } else {
+            this.reset(control as FormControl);
+          }
+          continue;
         }
         data[key] = value;
         continue;
@@ -783,7 +788,7 @@ export class NgxFormService {
 
     control.markAsTouched();
     control.markAsDirty();
-    control.updateValueAndValidity();
+    control.updateValueAndValidity({emitEvent: true });
 
     if (control instanceof FormGroup) {
       Object.values(control.controls).forEach(childControl => {
@@ -820,7 +825,7 @@ export class NgxFormService {
     //   return Object.keys(group.controls).find(name => control === group.get(name)) || null;
     // }
 
-    return control.valid;
+    return control?.disabled ? true :  control.valid;
   }
 
   /**

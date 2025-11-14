@@ -4,9 +4,6 @@
   ion-button {
     margin-top: 0.75rem;
   }
-  ion-icon {
-    font-size: 2.5rem;
-  }
 
   .dcf-icon-container {
     transform: scale(1.25);
@@ -16,10 +13,9 @@
   }
   .dcf-ititle {
     font-weight: 600 !important;
-    color: var(--dcf-color-gray-6) !important;
   }
 
-  .dcf-isubtitle {
+  .dcf-subtitle {
     font-weight: 500 !important;
   }
 }

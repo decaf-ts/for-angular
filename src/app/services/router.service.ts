@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular/standalone';
 import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
 import { KeyValue } from '../../lib/engine/types';
-import { EventConstants, RouteDirections } from '../../lib/engine/constants';
+import { ComponentEventNames, RouteDirections } from '../../lib/engine/constants';
 import { Primitives } from '@decaf-ts/decorator-validation';
 
 /**
@@ -335,7 +335,7 @@ export class RouterService {
    */
   backToLastPage(): void {
     globalThis.window.dispatchEvent(
-      new CustomEvent(EventConstants.BACK_BUTTON_NAVIGATION, {
+      new CustomEvent(ComponentEventNames.BACK_BUTTON_NAVIGATION, {
         bubbles: true,
         composed: true,
         cancelable: false,

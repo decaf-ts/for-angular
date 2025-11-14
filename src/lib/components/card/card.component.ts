@@ -6,6 +6,7 @@ import { NgxComponentDirective, } from '../../engine/NgxComponentDirective';
 import { } from '@ionic/angular';
 import { SafeHtml } from '@angular/platform-browser';
 import { TranslatePipe } from '@ngx-translate/core';
+import { AngularEngineKeys } from '../../engine/constants';
 
 @Dynamic()
 @Component({
@@ -18,13 +19,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 export class CardComponent extends NgxComponentDirective implements OnInit {
 
   @Input()
-  type: 'default' | 'shadow' = 'default';
+  type: 'clear' | 'shadow' = 'clear';
 
   @Input()
   title: string = '';
 
   @Input()
-  body: 'small'| 'default' = 'small';
+  body: 'small'| 'default' | 'blank' = 'default';
 
   @Input()
   subtitle: string = '';
@@ -48,8 +49,17 @@ export class CardComponent extends NgxComponentDirective implements OnInit {
   protected override componentName: string  = 'CardComponent';
 
   ngOnInit(): void {
-    console.log(this.componentName, this.type);
+
     this.initialized = true;
+     this.mediaService.isDarkMode().subscribe(isDark => {
+      this.isDarkMode = isDark;
+      this.mediaService.toggleClass(
+        [this.component],
+        AngularEngineKeys.DARK_PALETTE_CLASS,
+        this.isDarkMode
+      );
+    });
+
   }
 
   // ngAfterViewInit(): void {

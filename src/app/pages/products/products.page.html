@@ -1,0 +1,61 @@
+<app-header
+  [model]="model"
+  [route]="'products'"
+  [title]="title"
+  [operation]="operation"
+  [center]="true"
+  [modelId]="modelId"
+  showMenuButton="true"
+  showBackButton="true"
+  [operations]="allowedOperations"
+  color="primary"
+>
+</app-header>
+
+<ion-content [fullscreen]="true">
+  <main class="main">
+    <app-container [hasSideMenu]="true">
+      @if(['create', 'update'].includes(operation)) { @if(model) { @if(!operation) {
+      <ngx-decaf-list
+        [model]="model"
+        [operation]="operation"
+        type="paginated"
+        [operations]="['read', 'create', 'update', 'delete']"
+        (listenEvent)="handleEvent($event)"
+      />
+      } @else { @if(!errorMessage) {
+          <ngx-decaf-model-renderer
+              [model]="model"
+              (listenEvent)="handleEvent($event)"
+              [globals]="{operation: operation, modelId, allowClear: false}"
+            >
+            </ngx-decaf-model-renderer>
+      <!-- <section class="dcf-grid dcf-grid-collapse">
+        <div class="dcf-width-3-5@xl dcf-width-1-1@m">
+          <ngx-decaf-card>
+            <ngx-decaf-model-renderer
+              [model]="model"
+              (listenEvent)="handleEvent($event)"
+              [globals]="{operation: operation, modelId, allowClear: false}"
+            >
+            </ngx-decaf-model-renderer>
+          </ngx-decaf-card>
+        </div>
+        <div class="dcf-width-2-5@xl dcf-width-1-1@m">
+          <ngx-decaf-card> Model EPI </ngx-decaf-card>
+        </div>
+      </section> -->
+      } @else {
+      <ngx-decaf-empty-state
+        [model]="model"
+        title="404 - Not Found"
+        iconColor="danger"
+        icon="sad-outline"
+        [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}"
+      />
+      } } } @else {
+      <div>No Model</div>
+      } }
+    </app-container>
+  </main>
+</ion-content>

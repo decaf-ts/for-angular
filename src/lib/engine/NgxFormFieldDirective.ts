@@ -12,7 +12,7 @@ import { ControlValueAccessor, FormArray, FormControl, FormGroup } from '@angula
 import { Directive, Inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxFormService } from '../services/NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
-import { EventConstants } from './constants';
+import { ComponentEventNames } from './constants';
 import { FunctionLike } from './types';
 import { NgxComponentDirective } from './NgxComponentDirective';
 import { CPTKN } from '../for-angular-common.module';
@@ -499,7 +499,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
         }));
         if (errors.length) {
           if (accordionComponent && !this.validationErrorEventDispatched) {
-            const validationErrorEvent = new CustomEvent(EventConstants.VALIDATION_ERROR, {
+            const validationErrorEvent = new CustomEvent(ComponentEventNames.VALIDATION_ERROR, {
               detail: {fieldName: this.name, hasErrors: true},
               bubbles: true
             });

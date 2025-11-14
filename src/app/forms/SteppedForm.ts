@@ -15,13 +15,18 @@ import { CategoryModel } from '../models/CategoryModel';
   [
     {title: 'stepped-form.step1.title', description: 'stepped-form.step1.description'},
     {title: 'stepped-form.step2.title', description: 'stepped-form.step2.description'},
-    // {title: 'stepped-form.step3.title', description: 'stepped-form.step3.description'},
+    {title: 'stepped-form.step3.title', description: 'stepped-form.step3.description'},
   ],
   true,
   {cols: 2, rows: 2}
 )
 @model()
 export class SteppedForm extends Model {
+
+  @uilayoutprop(2, 1)
+  @uipageprop(1)
+  @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {borders: true})
+  category!: CategoryModel;
 
   @required()
   @uielement('ngx-decaf-crud-field', {
@@ -34,7 +39,7 @@ export class SteppedForm extends Model {
       { value: 'all', text: 'all' },
     ],
   })
-  @uipageprop(1)
+  @uipageprop(2)
   contact!: string;
 
   @required()
@@ -43,7 +48,7 @@ export class SteppedForm extends Model {
     label: 'demo.name.label',
     placeholder: 'demo.name.placeholder'
   })
-  @uipageprop(1)
+  @uipageprop(2)
   @uilayoutprop(1)
   name!: string;
 
@@ -53,14 +58,9 @@ export class SteppedForm extends Model {
     label: 'demo.email.label',
     placeholder: 'demo.email.placeholder'
   })
-  @uipageprop(1)
+  @uipageprop(2)
   @uilayoutprop(1)
   email!: string;
-
-  @uipageprop(2)
-  @uilayoutprop(2, 1)
-  @uichild(CategoryModel.name, 'ngx-decaf-fieldset')
-  category!: CategoryModel;
 
   @required()
   @uielement('ngx-decaf-crud-field', {

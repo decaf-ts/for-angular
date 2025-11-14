@@ -49,7 +49,7 @@ export class FieldSetForm extends Model {
 
 
   @list(CategoryModel, 'Array')
-  @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {max: 2, mergeInParent: true}, true)
+  @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {max: 2, borders: true}, true)
   user!: CategoryModel;
 
   constructor(args: ModelArg<FieldSetForm> = {}) {

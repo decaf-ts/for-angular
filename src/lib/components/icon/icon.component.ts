@@ -1,11 +1,12 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild  } from '@angular/core';
 import { Color } from '@ionic/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
-import { NgxSvgDirective } from '../../directives';
 import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { Dynamic } from '../../engine/decorators';
-import { NgxMediaService } from 'src/lib/engine';
+import { NgxMediaService } from '../../services/NgxMediaService';
+import { NgxSvgDirective } from '../../directives/NgxSvgDirective';
+
 
 @Dynamic()
 @Component({
@@ -14,7 +15,7 @@ import { NgxMediaService } from 'src/lib/engine';
   styleUrls: ['./icon.component.scss'],
   imports: [NgxSvgDirective, IonIcon, IonButton],
   standalone: true,
-  host: {'[attr.id]': 'uid'},
+  host: {'[attr.id]': 'uid', '[attr.aria-hidden]': '!button'},
 })
 export class IconComponent implements OnInit, AfterViewInit {
 
@@ -33,7 +34,7 @@ export class IconComponent implements OnInit, AfterViewInit {
   name?: string;
 
   @Input()
-  color: Color = "";
+  color: Color = "dark";
 
   @Input()
   slot?: 'start' | 'end' | 'icon-only' = 'icon-only';
@@ -62,6 +63,8 @@ export class IconComponent implements OnInit, AfterViewInit {
   @Input()
   inline: boolean = false;
 
+  isDarkMode: boolean = false;
+
   mediaService: NgxMediaService = new NgxMediaService();
 
   constructor() {
@@ -79,6 +82,8 @@ export class IconComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.mediaService.setDarkMode(this.component.nativeElement);
+    this.mediaService.isDarkMode().subscribe(isDark => {
+      this.isDarkMode = isDark;
+    });
   }
 }

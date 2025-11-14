@@ -6,15 +6,16 @@ import { NgxFormService } from "../services/NgxFormService";
 import { ICrudFormEvent, IFormElement } from "./interfaces";
 import { FieldUpdateMode, FormParent, HandlerLike, HTMLFormTarget } from "./types";
 import { ICrudFormOptions, IRenderedModel } from "./interfaces";
-import { ActionRoles, ComponentsTagNames, EventConstants } from "./constants";
+import { ActionRoles, ComponentEventNames } from "./constants";
 import { NgxParentComponentDirective } from "./NgxParentComponentDirective";
 import { NgxFormFieldDirective } from "./NgxFormFieldDirective";
 import { generateRandomValue } from "../utils";
+import { timer } from "rxjs";
+import { FieldDefinition, UIModelMetadata } from "@decaf-ts/ui-decorators";
 
 @Directive()
 export abstract class NgxFormDirective extends NgxParentComponentDirective implements OnInit, AfterViewInit, IFormElement, OnDestroy, IRenderedModel {
 
-  crudFieldComponent: string = ComponentsTagNames.CRUD_FIELD;
 
   /**
    * @description Reactive form group associated with this fieldset.
@@ -185,6 +186,9 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   @Input()
   allowClear: boolean = true;
 
+  @Input()
+  override match: boolean = false;
+
   // protected override enableDarkMode: boolean = true;
 
   //   /**
@@ -241,7 +245,8 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override async ngOnInit(model?: Model | string): Promise<void> {
-    this.uid = generateRandomValue(12);
+    if(!this.uid)
+      this.uid = generateRandomValue(12);
     // dont call super.ngOnInit to model conflicts
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)
       this.formGroup = undefined;
@@ -249,7 +254,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   }
 
   ngAfterViewInit(): void {
-    this.isModalChild = this.component.nativeElement?.closest('ion-modal') ? true : false;
     if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
   }
@@ -269,9 +273,15 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   }
 
   getFormArrayIndex(index: number): FormParent | undefined {
-    if (!(this.formGroup instanceof FormArray) && this.formGroup)
+    if (!(this.formGroup instanceof FormArray) && this.formGroup) {
+      if (this.formGroup.disabled)
+        (this.formGroup as FormParent).enable();
       return this.formGroup;
+    }
+
     const formGroup = (this.formGroup as FormArray).at(index) as FormGroup;
+    if(formGroup.disabled)
+      (formGroup as FormParent).enable();
     if (formGroup) {
       if (this.children.length) {
         const children = [... this.children];
@@ -325,16 +335,54 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     const isValid = NgxFormService.validateFields(this.formGroup as FormGroup);
     if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
-    if (!isValid)
+    if (!isValid) {
       return false;
+    }
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
     this.submitEvent.emit({
       data,
       component: componentName || this.componentName,
-      name: eventName || this.action || EventConstants.SUBMIT,
+      name: eventName || this.action || ComponentEventNames.SUBMIT,
       handlers: this.handlers,
     });
   }
 
+   /**
+   * @description Updates the active form group and children for the specified page.
+   * @summary Extracts the FormGroup for the given page from the FormArray and filters
+   * the children to show only fields belonging to that page. Uses a timer to ensure
+   * proper Angular change detection when updating the activeContent.
+   *
+   * @param {number} page - The page number to activate
+   * @return {UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined}
+   *
+   * @private
+   * @mermaid
+   * sequenceDiagram
+   *   participant S as SteppedFormComponent
+   *   participant F as FormArray
+   *   participant T as Timer
+   *
+   *   S->>F: Extract FormGroup at index (page - 1)
+   *   F-->>S: Return page FormGroup
+   *   S->>S: Set activeContent = undefined
+   *   S->>T: timer(10).subscribe()
+   *   T-->>S: Filter children for active page
+   *   S->>S: Set activeContent
+   *
+   * @memberOf SteppedFormComponent
+   */
+   protected override getActivePage(page: number): UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined {
+    if (!(this.formGroup instanceof FormArray))
+      this.formGroup = this.formGroup?.parent as FormArray;
+    this.formGroup  = (this.formGroup as FormArray).at(page - 1) as FormGroup;
+    this.activePage = undefined;
+    this.timerSubscription = timer(10).subscribe(() =>
+      this.activePage = (this.children as UIModelMetadata[]).filter(c => c.props?.['page'] === page)
+    );
+    if(this.activePage)
+      return this.activePage;
+    return undefined;
+  }
 
 }

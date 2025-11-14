@@ -1,24 +1,43 @@
-<form class="dcf-steped-form" [class.paginated]="paginated" novalidate #component>
+<form
+  class="dcf-steped-form"
+  [class.paginated]="paginated"
+  novalidate
+  #component
+>
   @if (paginated) {
     <div class="dcf-page-steps">
       <div class="dcf-grid dcf-grid-collapse skip">
-        @for(page of pageTitles; track $index;) {
+        @for (page of pageTitles; track $index) {
           <div class="dcf-flex dcf-flex-middle">
-            <div class="dcf-step" [class.dcf-active]="activeIndex === $index + 1" [class.dcf-passed]="($index + 1) < activeIndex">{{ $index + 1 }}</div>
-            @if ((page?.title || page?.description)) {
+            <div
+              class="dcf-step"
+              [class.dcf-active]="activeIndex === $index + 1"
+              [class.dcf-passed]="$index + 1 < activeIndex"
+            >
+              {{ $index + 1 }}
+            </div>
+            @if (page?.title || page?.description) {
               <div class="dcf-information dcf-visible@s">
                 @if (page?.title) {
                   <div class="dcf-title">{{ page?.title | translate }}</div>
                 }
                 @if (page?.description) {
-                  <div class="dcf-description">{{ page?.description | translate }}</div>
+                  <div class="dcf-description">
+                    {{ page?.description | translate }}
+                  </div>
                 }
                 <div class="dcf-separator"></div>
               </div>
             }
             @if ($index < pageTitles.length - 1) {
               <div class="dcf-arrow-container">
-                <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                  width="8"
+                  height="12"
+                  viewBox="0 0 8 12"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <path d="M1.5 1L6.5 6L1.5 11" />
                 </svg>
               </div>
@@ -28,53 +47,64 @@
       </div>
     </div>
 
-    @if (pageTitles[activeIndex - 1]?.title || pageTitles[activeIndex - 1]?.description) {
+    @if (
+      pageTitles[activeIndex - 1]?.title ||
+      pageTitles[activeIndex - 1]?.description
+    ) {
       <div class="dcf-current-step">
         <div>
           @if (pageTitles[activeIndex - 1]?.title) {
-            <div class="dcf-title">{{  pageTitles[activeIndex - 1]?.title  | translate }}</div>
+            <div class="dcf-title">
+              {{ pageTitles[activeIndex - 1]?.title | translate }}
+            </div>
           }
           @if (pageTitles[activeIndex - 1]?.description) {
-            <div class="dcf-description">{{ pageTitles[activeIndex - 1]?.description | translate }}</div>
+            <div class="dcf-description">
+              {{ pageTitles[activeIndex - 1]?.description | translate }}
+            </div>
           }
         </div>
       </div>
     }
 
-    @if (initialized && activeContent?.length) {
-        <ngx-decaf-layout
-          [className]="'dcf-stepped-form-grid paginated dcf-grid-nested'"
-          [children]="activeContent || []"
-          [parentForm]="formGroup || parentForm"
-          [gap]="'small'"
-          [flexMode]="props.flexMode || false"
-          [match]="false"
-          [rows]="rows"
-          [cols]="cols"
-          [match]="false"
-        />
+    @if (initialized && activePage?.length) {
+      <ngx-decaf-layout
+        [className]="'dcf-stepped-form-grid paginated dcf-grid-nested'"
+        [children]="activePage || []"
+        [parentForm]="formGroup || parentForm"
+        [gap]="'small'"
+        [flexMode]="props.flexMode || false"
+        [match]="false"
+        [cardBody]="cardBody"
+        [cardType]="cardType"
+        [rows]="rows"
+        [cols]="cols"
+        [match]="false"
+      />
     } @else {
       <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-      <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
+      <ion-text class="date" style="width: 20%"
+        ><ion-skeleton-text [animated]="true"></ion-skeleton-text
+      ></ion-text>
       <br />
       <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-      <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
+      <ion-text class="date" style="width: 20%"
+        ><ion-skeleton-text [animated]="true"></ion-skeleton-text
+      ></ion-text>
     }
-    <div class="dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left">
+    <div
+      class="dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left"
+    >
       <div class="dcf-width-1-2@s">
-        <ion-button  color="light" (click)="handleBack()" [disabled]="activeIndex <= 1">
-          <!-- <ion-icon aria-hidden="true" name="arrow-back-outline"></ion-icon> -->
-            {{locale + '.previous' | translate}}
-        </ion-button>
+        <ion-button color="light" (click)="handleBack()" [disabled]="activeIndex <= 1">{{ locale + ".previous" | translate }}</ion-button>
       </div>
 
       <div class="dcf-width-1-2@s">
-        <ion-button fill="solid"  (click)="handleNext(activeIndex === pages ? true : false)">
+        <ion-button fill="solid" (click)="handleNext(activeIndex === pages ? true : false)">
           @if (activeIndex === pages) {
-            {{locale + '.submit' | translate}}
+            {{ locale + ".submit" | translate }}
           } @else {
-            {{locale + '.next' | translate}}
-            <!-- <ion-icon aria-hidden="true" name="arrow-forward-outline"></ion-icon> -->
+            {{ locale + ".next" | translate }}
           }
         </ion-button>
       </div>
@@ -82,54 +112,60 @@
   } @else {
     <div class="dcf-single-step">
       @for (item of children; track $index) {
-        <ion-card>
-          <ion-card-content>
+        <ngx-decaf-card
+          [className]="className"
+          [body]="cardBody"
+          [type]="cardType"
+        >
+          <div>
             @if (item.title || item.description) {
-                <div class="dcf-information">
-                  <div>
-                    @if (item.title) {
-                      <div class="dcf-title">{{  item.title | translate }}</div>
-                    }
-                    @if (item.description) {
-                      <div class="dcf-description">{{ item.description | translate }}</div>
-                    }
-                  </div>
+              <div class="dcf-information">
+                <div>
+                  @if (item.title) {
+                    <div class="dcf-title">{{ item.title | translate }}</div>
+                  }
+                  @if (item.description) {
+                    <div class="dcf-description">
+                      {{ item.description | translate }}
+                    </div>
+                  }
                 </div>
-              }
-              <div>
-                @if (initialized && item.items?.length) {
-                  <div>
-                    <ngx-decaf-layout
-                      [className]="'dcf-stepped-form-grid dcf-grid-nested'"
-                      [children]="item.items || []"
-                      [parentForm]="formGroup || parentForm"
-                      [flexMode]="props.flexMode || false"
-                      [gap]="'small'"
-                      [rows]="rows"
-                      [cols]="cols"
-                      [match]="false"
-
-                    />
-                  </div>
-
-                }
               </div>
-          </ion-card-content>
-        </ion-card>
+            }
+            <div [class.dcf-margin-bottom]="cardType === 'blank'">
+              @if (initialized && item.items?.length) {
+                <ngx-decaf-layout
+                  [className]="'dcf-stepped-form-grid dcf-grid-nested'"
+                  [children]="item.items || []"
+                  [parentForm]="formGroup || parentForm"
+                  [flexMode]="props.flexMode || false"
+                  [gap]="'small'"
+                  [cardBody]="cardBody"
+                  [cardType]="cardType"
+                  [rows]="rows"
+                  [cols]="cols"
+                  [match]="false"
+                />
+              }
+            </div>
+          </div>
+        </ngx-decaf-card>
       }
-      <div class="dcf-buttons-container dcf-grid dcf-grid-small dcf-flex dcf-flex-right">
+      <div
+        class="dcf-buttons-container dcf-grid dcf-grid-small dcf-flex dcf-flex-right"
+      >
         <div class="dcf-width-auto@s dcf-width-1-1">
-          <ion-button  color="light" (click)="handleBack()">
-                {{locale + '.cancel' | translate}}
-            </ion-button>
-          </div>
+          <ion-button color="light" (click)="handleBack()">
+            {{ locale + ".cancel" | translate }}
+          </ion-button>
+        </div>
 
-          <div class="dcf-width-auto@s dcf-width-1-1">
-            <ion-button fill="solid"  (click)="handleNext(true)">
-              {{locale + '.submit' | translate}}
-            </ion-button>
-          </div>
+        <div class="dcf-width-auto@s dcf-width-1-1">
+          <ion-button fill="solid" (click)="handleNext(true)">
+            {{ locale + ".submit" | translate }}
+          </ion-button>
         </div>
       </div>
-    }
+    </div>
+  }
 </form>

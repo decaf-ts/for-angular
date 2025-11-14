@@ -1,6 +1,6 @@
 import { Component, EnvironmentInjector, inject, OnInit } from '@angular/core';
 import { LoginForm } from 'src/app/forms/LoginForm';
-import { IonCard, IonCardContent, IonContent } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
 import { LogoComponent } from 'src/app/components/logo/logo.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';

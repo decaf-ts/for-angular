@@ -332,7 +332,23 @@ export interface IModelPageCustomEvent extends IBaseCustomEvent {
  * @property {string} suffix - The suffix to be appended to the resource file path
  * @memberOf module:engine
  */
-export interface I18nResourceConfig { prefix: string, suffix: string }
+export interface I18nResourceConfig {
+  prefix: string,
+  suffix: string
+}
+
+/**
+ * @description Internationalization token configuration
+ * @summary Defines the structure for i18n tokens, including resource configurations and versioned suffix flag.
+ * @interface I18nToken
+ * @property {I18nResourceConfig[]} resources - Array of i18n resource configurations
+ * @property {boolean} versionedSuffix - Whether to use a versioned suffix for resources
+ * @memberOf module:engine
+ */
+export interface I18nToken {
+  resources: I18nResourceConfig[];
+  versionedSuffix: boolean;
+}
 
 
 /**
@@ -470,3 +486,10 @@ export interface IWindowResizeEvent {
   height: number;
 }
 
+
+
+export interface IFileUploadError {
+  name: string;
+  size?: number;
+  error: string
+}

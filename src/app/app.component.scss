@@ -12,21 +12,22 @@ ion-menu {
     border-right: 1px solid var(--dcf-card-background);
     > *,
     ion-content {
-      background: var(
-        --dcf-item-background,
-        var(--dcf-background-color, #fff)
-      ) !important;
+      background: var(--dcf-item-background, var(--dcf-background-color, #fff)) !important;
     }
 
+    ion-list-header,
     .dcf-separator {
-      color: var(--ion-color-gray-1) !important;
+      color: var(--ion-color-gray-3) !important;
       border-top: 1px solid var(--dcf-background-color) !important;
     }
 
     ion-item {
-      ion-label {
-        color: var(--dcf-color-light);
+      &:not(.dcf-separator) {
+        ion-label {
+          color: var(--dcf-color-light);
+        }
       }
+
       &.dcf-active {
         --background: rgba(var(--dcf-color-dark-rgb), 0.3) !important;
         color: var(--dcf-color-gray-9) !important;
@@ -53,10 +54,7 @@ ion-menu {
   border-right: 1px solid var(--dcf-color-gray-2);
 
   ion-content {
-    --background: var(
-      --ion-item-background,
-      var(--ion-background-color, #fff)
-    ) !important;
+    --background: var(--ion-item-background, var(--ion-background-color, #fff)) !important;
   }
 
   ion-list {
@@ -73,7 +71,7 @@ ion-menu {
 
       margin-top: 1rem;
       cursor: text;
-      color: var(--ion-color-gray-9) !important;
+      color: var(--ion-color-gray-5);
       border-top: 1px solid var(--dcf-color-gray-1);
       ion-label {
         font-size: 0.8125rem !important;

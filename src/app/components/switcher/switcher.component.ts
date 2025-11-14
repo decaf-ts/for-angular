@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-import { FieldDefinition, IPagedComponentProperties } from '@decaf-ts/ui-decorators';
+import { IPagedComponentProperties } from '@decaf-ts/ui-decorators';
+import { IonSpinner } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Subscription, timer } from 'rxjs';
+import { CardComponent } from 'src/lib/components';
 
 import { ComponentRendererComponent } from 'src/lib/components/component-renderer/component-renderer.component';
-import { NgxParentComponentDirective } from 'src/lib/engine';
+import { ElementPosition, ElementPositions, NgxParentComponentDirective } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
 
 
@@ -15,7 +16,7 @@ import { Dynamic } from 'src/lib/engine/decorators';
   templateUrl: './switcher.component.html',
   styleUrls: ['./switcher.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslatePipe, ComponentRendererComponent]
+  imports: [CommonModule, CardComponent, IonSpinner, TranslatePipe, ComponentRendererComponent]
 })
 export class SwitcherComponent extends NgxParentComponentDirective implements OnInit, OnDestroy {
 
@@ -23,25 +24,11 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
   tabs: IPagedComponentProperties[] = [];
 
   @Input()
-  position: 'left' | 'top' = 'left';
+  position: Extract<ElementPosition, 'top' | 'left'> = ElementPositions.top;
 
-  button: boolean = true;
+  button: boolean = false;
 
   override activeIndex: number = 0;
-
-  skeletonData = new Array(1);
-
-
-  /**
-   * @description Subscription for timer-based operations.
-   * @summary Manages the timer subscription used for asynchronous operations
-   * like updating active children after page transitions. This subscription
-   * is cleaned up in ngOnDestroy to prevent memory leaks.
-   *
-   * @private
-   * @type {Subscription}
-   */
-  private timerSubscription!: Subscription;
 
   constructor() {
     super("SwitcherComponent");
@@ -60,7 +47,7 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
           description
         } as IPagedComponentProperties;
       });
-      this.handleChangeTab(this.activeIndex);
+      this.activePage = this.getActivePage(this.activeIndex);
     }
     this.initialized = true;
   }
@@ -78,14 +65,14 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
   }
 
 
-  handleChangeTab(index: number) {
-    const content = this.children[index] as FieldDefinition;
-    this.activeContent = undefined;
-    this.skeletonData = [... new Array(content ? content.children?.length : 1)];
-    this.timerSubscription = timer(1).subscribe(() =>
-      this.activeContent = {... this.children[index] as FieldDefinition }
-    );
-    this.activeIndex = index;
-  }
+  // handleChangeTab(index: number) {
+  //   const content = this.children[index] as FieldDefinition;
+  //   this.activeContent = undefined;
+  //   this.skeletonData = [... new Array(content ? content.children?.length : 1)];
+  //   this.timerSubscription = timer(1).subscribe(() =>
+  //     this.activeContent = {... this.children[index] as FieldDefinition }
+  //   );
+  //   this.activeIndex = index;
+  // }
 
 }

@@ -209,7 +209,7 @@ export class ComponentRendererComponent extends NgxRenderableComponentDirective 
       this.vcr,
       [],
     );
-    this.subscribeEvents();
+    this.subscribeEvents(component);
   }
 
   private createParentComponent() {
@@ -224,6 +224,6 @@ export class ComponentRendererComponent extends NgxRenderableComponentDirective 
       this.vcr,
       template,
     );
-    this.subscribeEvents();
+    this.subscribeEvents(component);
   }
 }

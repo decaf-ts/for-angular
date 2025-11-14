@@ -1,4 +1,5 @@
-<ion-modal [id]="uid"
+<ion-modal
+  [id]="uid"
   [isOpen]="isOpen"
   (willDismiss)="handleWillDismiss($event)"
   [backdropDismiss]="options?.backdropDismiss"
@@ -6,33 +7,56 @@
   [animated]="options?.animated"
   [canDismiss]="options?.canDismiss"
   [class.dcf-fullscreen-modal]="fullscreen"
-  >
+  [class.dcf-lightbox-modal]="lightBox"
+  class="dcf-modal-component"
+  #component
+>
   <ng-template>
-    <ion-header>
+    <ion-header [transparent]="lightBox">
       <ion-toolbar>
         @if (title) {
-          <ion-title>{{title | translate}}</ion-title>
+          <ion-title>{{ title | translate }}</ion-title>
         }
         <ion-buttons slot="end">
-          <ion-button type="button" class="dcf-button-close" (click)="cancel()">
-            <ion-icon name="close-outline"></ion-icon>
+          <ion-button size="small" type="button" class="dcf-button-close" (click)="cancel()">
+            <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <ion-content class="ion-padding">
+
+    <ion-content>
       <section class="dcf-modal-body">
-        @if (model) {
-          <ngx-decaf-model-renderer (onIonChange)="handleEvent($event)" (listenEvent)="handleEvent($event)" [model]="model" [globals]="globals" />
-
-        } @else {
+        @if (!tag && !model && !inlineContent) {
           <div class="dcf-loading-container">
-            <ion-spinner name="crescent" color="primary" ></ion-spinner>
+            <ion-spinner name="crescent" color="primary"></ion-spinner>
           </div>
+        } @else {
+          @if (inlineContent && inlineContentPosition === "top") {
+            <div [innerHTML]="inlineContent"></div>
+          }
+          @if (model) {
+            <ngx-decaf-model-renderer
+              (onIonChange)="handleEvent($event)"
+              (listenEvent)="handleEvent($event)"
+              [model]="model"
+              [globals]="globals"
+            />
+          }
+          @if(tag && globals) {
+            <ngx-decaf-component-renderer
+              [tag]="tag"
+              (onIonChange)="handleEvent($event)"
+              (listenEvent)="handleEvent($event)"
+              [model]="model"
+              [globals]="{props: globals}"
+            />
+          }
+          @if (inlineContent && inlineContentPosition === "bottom") {
+            <div [innerHTML]="inlineContent"></div>
+          }
         }
-
       </section>
-
     </ion-content>
   </ng-template>
 </ion-modal>

@@ -26,5 +26,6 @@ export * from './stepped-form/stepped-form.component';
 export * from './modal/modal.component';
 export * from './icon/icon.component';
 export * from './card/card.component';
+export * from './file-upload/file-upload.component';
 // Module export
 export * from './for-angular-components.module';

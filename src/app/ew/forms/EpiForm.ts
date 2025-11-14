@@ -1,4 +1,5 @@
 import {
+  list,
   model,
   Model,
   ModelArg
@@ -8,21 +9,25 @@ import { uichild, uimodel, uiorder, uipageprop } from "@decaf-ts/ui-decorators";
 import { Leaflet } from "../models/Leaflet";
 import { MarketForm } from "./MarketForm";
 import { SubstanceForm } from "./SubstanceForm";
+import { FieldsetComponent } from "src/lib/components";
 
 @uimodel('ngx-decaf-form', {})
 @model()
 export class EpiForm extends Model {
-  @pk({type: 'Number' })
+
+  @pk({type: Number.name })
   id!: number;
 
   @uipageprop(1)
+  @list(Leaflet, 'Array')
   @uichild(Leaflet.name, 'ngx-decaf-fieldset', {
     title: "Documents",
     borders: false,
-    collapsable: false,
+    required: false,
     rows: 1,
-    cols: 2
-  }, false)
+    cols: 2,
+    ordenable: false,
+  } as Partial<FieldsetComponent>, true)
   @uiorder(1)
   document!: Leaflet;
 
@@ -30,8 +35,8 @@ export class EpiForm extends Model {
   @uichild(SubstanceForm.name, 'ngx-decaf-fieldset', {
     title: "Strengths",
     borders: false,
-    collapsable: false
-  }, false)
+    required: false,
+  } as Partial<FieldsetComponent>, true)
   @uiorder(2)
   strengths!: SubstanceForm;
 
@@ -39,8 +44,8 @@ export class EpiForm extends Model {
   @uichild(MarketForm.name, 'ngx-decaf-fieldset', {
     title: "Markets",
     borders: false,
-    collapsable: false
-  }, false)
+    required: false,
+  } as Partial<FieldsetComponent>, true)
   @uiorder(3)
   markets!: MarketForm;
 

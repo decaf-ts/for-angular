@@ -13,7 +13,7 @@ import { IonApp,
   IonRouterLink
 } from '@ionic/angular/standalone';
 
-import { ModelConstructor } from '@decaf-ts/decorator-validation';
+import { ModelConstructor, ModelKeys } from '@decaf-ts/decorator-validation';
 
 import * as IonicIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
@@ -24,7 +24,7 @@ import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { LogoComponent } from './components/logo/logo.component';
 import { AppModels, AppName, DbAdapterFlavour } from './app.config';
 import { Repository, uses } from '@decaf-ts/core';
-import { AppMenu, DashboardMenuItem, LogoutMenuItem } from './utils/contants';
+import { AppMenu, DashboardMenuItem, EwMenu, LogoutMenuItem } from './utils/contants';
 import { TranslatePipe } from '@ngx-translate/core';
 
 
@@ -56,6 +56,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
   constructor() {
     super("", true);
     this.title = "Decaf-ts for-angular demo";
+    this.appName = AppName;
     addIcons(IonicIcons);
   }
 
@@ -90,12 +91,15 @@ export class AppComponent extends NgxPageDirective implements OnInit {
           await repository.initialize();
         }
       }
-
-      menu.push({label: name,  name, url: `/model/${Repository.table(model)}`, icon: 'cube-outline'})
+      const label = name.toLowerCase().replace(ModelKeys.MODEL, '');
+      if(!menu.length)
+        menu.push({label:'menu.models'});
+      menu.push({label: `menu.${label}`,  url: `/model/${Repository.table(model)}`, icon: 'cube-outline'})
     }
     this.initialized = true;
     this.menu = [
       DashboardMenuItem,
+      ...EwMenu,
       ...menu as IMenuItem[],
       ...AppMenu,
       LogoutMenuItem
@@ -114,17 +118,17 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    * @protected
    * @param {string} route - The current route path to match against menu items
    * @param {IMenuItem[]} [menu] - Optional custom menu array to search (uses this.menu if not provided)
-   * @return {void}
+   * @return {Promise<void>}
    * @memberOf module:lib/engine/NgxPageDirective
    */
-  protected override setPageTitle(route?: string, menu?: IMenuItem[]): void {
-    if(!route)
-      route = this.router.url.replace('/', '');
-    if(menu)
-      menu = this.menu;
-    const activeMenu = this.menu.find(item => item?.url?.includes(route));
-    if(activeMenu)
-      this.titleService.setTitle(`${activeMenu?.title || activeMenu?.label} - ${AppName}`);
-  }
+  // protected override setPageTitle(route?: string, menu?: IMenuItem[]): Promise<void> {
+  //   if(!route)
+  //     route = this.router.url.replace('/', '');
+  //   if(menu)
+  //     menu = this.menu;
+  //   const activeMenu = this.menu.find(item => item?.url?.includes(route));
+  //   if(activeMenu)
+  //     this.titleService.setTitle(`${activeMenu?.title || activeMenu?.label} - ${AppName}`);
+  // }
 
 }

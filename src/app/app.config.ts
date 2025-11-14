@@ -22,20 +22,19 @@ import { I18nResourceConfigType } from 'src/lib/engine';
 import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
 import { User } from './forms/FieldsetForm';
-import { Product } from './ew/models/Product';
-import { ImageUploadComponent } from './components/image-upload/image-upload.component';
 import { SwitcherComponent } from './components/switcher/switcher.component';
-import { Batch } from './ew/models/Batch';
 
 export const DbAdapterFlavour = 'ram';
-export const AppName = 'Decaf For Angular';
+export const AppName = 'For Angular';
+
 // export const AppModels = [new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
-export const AppModels = [new Batch(), new Product(), new User(), new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
+
+export const AppModels = [new User(), new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
 
 export const AppConfig: ApplicationConfig = {
   providers: [
     // Providing Local components for dynamic rendering
-    provideDynamicComponents(ImageUploadComponent, SwitcherComponent),
+    provideDynamicComponents(SwitcherComponent),
     // Providing RamAdapter as the database adapter for Decaf
     provideDbAdapter(RamAdapter, {user: "user"}, DbAdapterFlavour),
     // provideZoneChangeDetection({ eventCoalescing: true }),
@@ -52,10 +51,15 @@ export const AppConfig: ApplicationConfig = {
         lang: "en",
       } as RootTranslateServiceConfig,
       // optionally provide I18nLoader configuration, otherwise it will use default (same as setted below)
-      {
-        prefix: './app/assets/i18n/',
-        suffix: '.json',
-      } as I18nResourceConfigType
+      [
+        {
+          prefix: './app/assets/i18n/',
+        },
+        {
+          prefix: './app/assets/i18n/ew/',
+          suffix: '.json',
+        }
+      ] as I18nResourceConfigType
     )
   ],
 };

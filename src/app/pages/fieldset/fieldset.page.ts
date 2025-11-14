@@ -24,7 +24,7 @@ export class FieldsetPage extends NgxPageDirective implements OnInit {
 
   override async ngOnInit(): Promise<void> {
     super.ngOnInit();
-    this.globals = {operation: OperationKeys.CREATE, borders: false};
+    this.globals = {operation: OperationKeys.CREATE};
     this.model = new FieldSetForm();
   }
 

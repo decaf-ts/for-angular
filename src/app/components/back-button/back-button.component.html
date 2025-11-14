@@ -3,7 +3,7 @@
   <ion-button shape="round" fill="clear" class="dcf-icon-only" [color]="color" (click)="backToPage()">
     <ion-icon
       name="chevron-back-outline"
-      [color]="color"
+      [color]="isDarkMode ? 'light' : color"
       aria-hidden="true"
       slot="icon-only">
     </ion-icon>
@@ -12,7 +12,7 @@
   <ion-button fill="clear" [color]="color" (click)="backToPage()">
     <ion-icon
       name="chevron-back-outline"
-      [color]="color"
+      [color]="isDarkMode ? 'light' : color"
       aria-hidden="true"
       slot="icon-only">
     </ion-icon>

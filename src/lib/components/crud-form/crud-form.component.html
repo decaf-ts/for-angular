@@ -13,10 +13,12 @@
           [className]="'dcf-crud-form-grid dcf-grid-nested '"
           [children]="children || []"
           [parentForm]="formGroup || parentForm"
-          [match]="false"
+          [match]="match ?? false"
           [gap]="'small'"
           [flexMode]="props.flexMode || false"
           [rows]="rows"
+          [borders]="borders ?? false"
+          [breakpoint]="breakpoint ?? 'large'"
           [cols]="cols" />
     }
     @if (initialized) {

@@ -11,7 +11,7 @@
 import { Component, Input, OnInit} from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Primitives } from '@decaf-ts/decorator-validation';
-import { UIElementMetadata, UIMediaBreakPoints, UIMediaBreakPointsType } from '@decaf-ts/ui-decorators';
+import { UIElementMetadata } from '@decaf-ts/ui-decorators';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { KeyValue } from '../../engine/types';
 import { IComponentProperties } from '../../engine/interfaces';
@@ -60,19 +60,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
   @Input()
   gap: LayoutGridGap = LayoutGridGaps.collapse;
 
-  /**
-   * @description Media breakpoint for responsive behavior.
-   * @summary Determines the responsive breakpoint at which the layout should adapt.
-   * This affects how the grid behaves on different screen sizes, allowing for
-   * mobile-first or desktop-first responsive design patterns. The breakpoint
-   * is automatically processed to ensure compatibility with the UI framework.
-   *
-   * @type {UIMediaBreakPointsType}
-   * @default 'medium'
-   * @memberOf LayoutComponent
-   */
-  @Input()
-  breakpoint: UIMediaBreakPointsType | string = UIMediaBreakPoints.MEDIUM;
 
   /**
    * @description Media breakpoint for responsive behavior.
@@ -87,21 +74,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    */
   @Input()
   grid: boolean = true;
-
-
-  /**
-   * @description Media breakpoint for responsive behavior.
-   * @summary Determines the responsive breakpoint at which the layout should adapt.
-   * This affects how the grid behaves on different screen sizes, allowing for
-   * mobile-first or desktop-first responsive design patterns. The breakpoint
-   * is automatically processed to ensure compatibility with the UI framework.
-   *
-   * @type {UIMediaBreakPointsType}
-   * @default 'medium'
-   * @memberOf LayoutComponent
-   */
-  @Input()
-  match: boolean = true;
 
   /**
    * @description Media breakpoint for responsive behavior.
@@ -169,6 +141,10 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    */
   get _cols(): string[] {
     let cols = this.cols;
+    if(typeof cols === Primitives.BOOLEAN) {
+      cols = 1;
+      this.flexMode = true;
+    }
     if (typeof cols === Primitives.NUMBER)
       cols = Array.from({length: Number(cols)}, () =>  '');
     return cols as string[];
@@ -248,7 +224,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
             return child;
         })
       };
-    }).map(row => {
+    }).map((row, index) => {
       const colsLength = this.getRowColsLength(row);
       row.cols = row.cols.map((c: KeyValue) => {
         let {col} = c;
@@ -262,9 +238,8 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
           }
         } else {
 
-          if (typeof col === Primitives.NUMBER) {
-            col = `${col}-${colsLength}`;
-          }
+          if (typeof col === Primitives.NUMBER)
+            col =  (colsLength <= this.maxColsLength) ? `${col}-${colsLength}` : `${index + 1}-${col}`;
           col = ['2-4', '3-6'].includes(col) ? `1-2` : col;
         }
         col = `dcf-child-${col}-${this.breakpoint} dcf-width-${col}`;
@@ -292,8 +267,9 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    */
   override async ngOnInit(): Promise<void> {
     super.parseProps(this);
+
     if (this.breakpoint)
-      this.breakpoint = `${this.breakpoint}`.toLowerCase();
+      this.breakpoint = `${this.breakpoint.startsWith('x') ? this.breakpoint.substring(0,2) : this.breakpoint.substring(0,1)}`.toLowerCase();
     this.cols = this._cols;
     this.rows = this._rows;
     // if (this._rows.length === 1)
@@ -301,5 +277,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
     // if (this._cols.length === 1)
     //   this.grid = false;
     this.initialized = true;
+    this.changeDetectorRef.detectChanges();
   }
 }

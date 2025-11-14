@@ -3,6 +3,14 @@
 }
 
 .dcf-grid {
+  // put borders on grid childs
+  &.dcf-grid-bordered {
+    > div > div {
+      padding: var(--dcf-padding);
+      border-radius: var(--dcf-border-radius-small);
+      border: 1px solid var(--dcf-color-gray-2);
+    }
+  }
   // @media (max-width: 575px) {
   //
   // }
@@ -25,6 +33,12 @@
       white-space: nowrap;
       text-overflow: ellipsis;
       overflow: hidden;
+    }
+  }
+
+  &.dcf-grid-match {
+    ::ng-deep ngx-decaf-component-renderer > * > * {
+      height: 100% !important;
     }
   }
 
@@ -60,15 +74,29 @@
       // }
     }
     > div {
-      margin-bottom: 1.75rem;
+      &.dcf-layout-separator {
+        margin-bottom: 1rem;
+        // &:not(:first-of-type).dcf-separator-bordered {
+        //   > * {
+        //     border-bottom: 1px solid var(--dcf-color-gray-2);
+        //     padding-bottom: 0.25rem;
+        //   }
+        // }
+      }
 
-      &:last-child {
-        margin-bottom: 0px;
+      margin-bottom: 1.75rem;
+      &.dcf-grid-bordered {
+        &:last-child {
+          margin-bottom: 0px;
+        }
       }
     }
     // removing margin top of sequenced small grids
     + .dcf-grid-small {
-      margin-top: 1.75rem !important;
+      &.dcf-layout-separator {
+        margin-bottom: 1rem;
+      }
+      margin-bottom: 1.75rem;
     }
   }
 }

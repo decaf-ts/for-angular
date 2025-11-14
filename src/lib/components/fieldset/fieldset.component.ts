@@ -19,10 +19,12 @@ import { ReservedModels } from '@decaf-ts/decorator-validation';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxFormService } from '../../services/NgxFormService';
 import { LayoutComponent } from '../layout/layout.component';
-import { KeyValue } from '../../engine/types';
+import { FormParent, KeyValue } from '../../engine/types';
 import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { itemMapper } from '../../utils/helpers';
+import { UIModelMetadata } from '@decaf-ts/ui-decorators';
+import { timer } from 'rxjs';
 
 
 /**
@@ -210,7 +212,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   @Input()
-  borders: boolean = true;
+  override borders: boolean = true;
 
 
   /**
@@ -320,6 +322,46 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   max: number | undefined = undefined;
 
   /**
+   * @description Maximum allowed items in the fieldset.
+   * @summary Numeric limit that controls how many items can be added when `multiple` is true.
+   * When set to Infinity there is no limit.
+   *
+   * @type {number}
+   * @default Infinity
+   * @memberOf FieldsetComponent
+   */
+  @Input()
+  required: boolean = false;
+
+
+  /**
+   * @description Determines if the fieldset items can be reordered.
+   * @summary Boolean flag that enables or disables the drag-and-drop reordering functionality
+   * for the items within the fieldset. When set to true, users can rearrange the order
+   * of items using drag-and-drop gestures. This is particularly useful for managing
+   * lists where the order of items is significant.
+   *
+   * @type {boolean}
+   * @default true
+   * @memberOf FieldsetComponent
+   */
+  @Input()
+  ordenable: boolean = true;
+
+  /**
+   * @description Determines if the fieldset items can be edited by the user.
+   * @summary Boolean flag that enables or disables the editing functionality
+   * for the items within the fieldset. When set to true, users can modify the items.
+   *
+   * @type {boolean}
+   * @default true
+   * @memberOf FieldsetComponent
+   * @default true
+   */
+  @Input()
+  editable: boolean = true;
+
+  /**
    * @description Component constructor that initializes the fieldset with icons and component name.
    * @summary Calls the parent NgxFormDirective constructor with the component name and
    * required Ionic icons (alertCircleOutline for validation errors and createOutline for add actions).
@@ -348,24 +390,42 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       this.multiple = false;
     this.buttonLabel = this.translateService.instant(this.locale + '.add');
     this.buttonCancelLabel = this.translateService.instant(this.locale + '.cancel');
+
+    if(!this.multiple)
+      this.ordenable = false;
+
     if ([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
       if (!this.formGroup) {
-        if (this.parentForm instanceof FormGroup)
-          this.formGroup = (this.parentForm as FormGroup).controls[this.childOf as string] as FormArray;
+        if (this.parentForm instanceof FormGroup) {
+          // iterate on childOf path to get correct formGroup
+          const parts = (this.childOf as string).split('.');
+          let formGroup = this.parentForm as FormParent;
+          for (const part of parts)
+           formGroup = (formGroup as FormGroup).controls[part] as FormParent;
+          this.formGroup = formGroup;
+          if(this.formGroup instanceof FormGroup)
+            this.formGroup = this.formGroup.parent as FormArray;
+        }
         if (!this.formGroup && this.parentForm instanceof FormArray)
           this.formGroup = this.parentForm;
         if (!this.formGroup && (this.children[0] as KeyValue)?.['formGroup'] instanceof FormGroup)
           this.formGroup = (this.children[0] as KeyValue)?.['formGroup'].parent as FormArray;
+        if (this.formGroup && !(this.formGroup instanceof FormArray))
+          this.formGroup = (this.formGroup as FormParent)?.parent as FormArray;
+
+      }
+    }
+     if(this.multiple) {
+      this.formGroup?.setErrors(null);
+      this.formGroup?.disable();
+      if(this.required) {
+        this.collapsable = false;
+        this.activePage = this.getActivePage();
       }
 
-      this.children = this.children.map(child => {
-        if (!child.props)
-          child.props = {};
-        child.props = Object.assign(child.props, { activeFormGroup: this.activeFormGroupIndex, multiple: this.multiple });
-        return child;
-      });
+    } else {
+      this.activePage = this.getActivePage();
     }
-
     this.initialized = true;
   }
 
@@ -401,25 +461,25 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   override ngAfterViewInit(): void {
     super.ngAfterViewInit();
-    if (!this.collapsable)
-      this.isOpen = true;
-    if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
-      this.isOpen = true;
-      // hidden remove button
-      const accordionElement = this.component?.nativeElement.querySelector('ion-accordion-group');
-      if (accordionElement)
-        this.renderer.setAttribute(accordionElement, 'value', 'open');
-    } else {
-      const inputs = this.component?.nativeElement.querySelectorAll('.dcf-field-required');
-      this.isRequired = inputs?.length > 0;
-      if (this.isRequired) {
-        this.accordionComponent.value = 'open';
-        this.handleAccordionToggle();
-      }
-    }
+    // if (!this.collapsable)
+    //   this.isOpen = true;
+    // if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
+    //   this.isOpen = true;
+    //   // hidden remove button
+    //   const accordionElement = this.component?.nativeElement.querySelector('ion-accordion-group');
+    //   if (accordionElement)
+    //     this.renderer.setAttribute(accordionElement, 'value', 'open');
+    // } else {
+    //   const inputs = this.component?.nativeElement.querySelectorAll('.dcf-field-required');
+    //   this.isRequired = inputs?.length > 0;
+    //   if (this.isRequired) {
+    //     this.accordionComponent.value = 'open';
+    //     this.handleAccordionToggle();
+    //   }
+    // }
     // if (!(this.formGroup instanceof FormArray))
     //   this.formGroup = (this.formGroup as FormGroup)
-    this.changeDetectorRef.detectChanges();
+    // this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -433,15 +493,24 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @returns {void}
    * @memberOf FieldsetComponent
    */
-  handleRemoveComponent(event: Event): void {
-    event.stopImmediatePropagation();
-    this.component.nativeElement.classList.add('dcf-animation', 'dcf-animation-slide-top-medium', 'dcf-animation-reverse', 'dcf-animation-fast');
-    setTimeout(() => {
-      // Use Renderer2 to safely remove the element
-      const parent = this.renderer.parentNode(this.component.nativeElement);
-      if (parent)
-        this.renderer.removeChild(parent, this.component.nativeElement);
-    }, 150);
+  handleClear(event?: Event): void {
+    if(event)
+      event.stopImmediatePropagation();
+    this.formGroup?.disable();
+    this.items = [];
+    this.value = undefined as unknown as KeyValue[];
+    this.activePage = undefined;
+    this.activeFormGroupIndex = 0;
+    this.accordionComponent.value = '';
+    this.changeDetectorRef.detectChanges();
+
+    // this.component.nativeElement.classList.add('dcf-animation', 'dcf-animation-slide-top-medium', 'dcf-animation-reverse', 'dcf-animation-fast');
+    // setTimeout(() => {
+    //   // Use Renderer2 to safely remove the element
+    //   const parent = this.renderer.parentNode(this.component.nativeElement);
+    //   if (parent)
+    //     this.renderer.removeChild(parent, this.component.nativeElement);
+    // }, 150);
   }
 
 
@@ -468,6 +537,10 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   async handleCreateItem(event?: CustomEvent<IFieldSetValidationEvent>): Promise<void|boolean> {
     if (event && event instanceof CustomEvent)
       event.stopImmediatePropagation();
+    if(!this.activePage) {
+      this.activePage = this.getActivePage();
+      return;
+    }
     const formGroup = this.activeFormGroup as FormGroup;
     const value = formGroup.value;
     const hasSomeValue = this.hasValue(value);
@@ -485,7 +558,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
           this.setValue();
           NgxFormService.addGroupToParent(formGroup.parent as FormArray);
           this.activeFormGroupIndex = (formGroup.parent as FormArray).length - 1;
-          this.getFormArrayIndex(this.activeFormGroupIndex);
+          this.activePage = this.getActivePage();
         } else {
           this.isUniqueError = typeof value === ReservedModels.OBJECT ?
             (value as KeyValue)?.[this.pk] || undefined : value;
@@ -494,17 +567,16 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     }
   }
 
-
   hasValue(value: KeyValue = {}): boolean {
     return Object.keys(value).some((key) => value[key] !== null && value[key] !== undefined && value[key] !== '');
   }
-
 
   handleUpdateItem(index: number): void {
     const formGroup =  this.getFormArrayIndex(index);
     if (formGroup) {
       this.updatingItem = Object.assign({}, formGroup.value || {}, {index});
       this.activeFormGroupIndex = index;
+      this.activePage = this.getActivePage();
     }
   }
 
@@ -547,8 +619,13 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       formArray.removeAt(index);
     }
     this.setValue();
-    if (this.activeFormGroupIndex > 0)
-      this.activeFormGroupIndex = this.activeFormGroupIndex - 1;
+    if(this.items.length > 0) {
+      if (this.activeFormGroupIndex > 0)
+        this.activeFormGroupIndex = this.activeFormGroupIndex - 1;
+    } else {
+      this.handleClear();
+    }
+
   }
 
 
@@ -635,7 +712,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     if (event)
       event.stopImmediatePropagation();
 
-    if (!this.collapsable) {
+    if (!this.collapsable || this.isRequired) {
       this.isOpen = true;
     } else {
        if (!this.hasValidationErrors) {
@@ -653,15 +730,34 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * error state and accordion visibility accordingly.
    *
    * @param {CustomEvent} event - Custom event containing validation error details
-   * @returns {void}
+   * @returns {UIModelMetadata[] | undefined}
    * @memberOf FieldsetComponent
    */
-  handleValidationError(event: CustomEvent): void {
-    event.stopImmediatePropagation();
-    const {hasErrors} = event.detail;
-    this.isOpen = this.hasValidationErrors = hasErrors;
-    if (hasErrors)
-      this.accordionComponent.value = 'open';
+  // handleValidationError(event: CustomEvent): void {
+  //   event.stopImmediatePropagation();
+  //   const {hasErrors} = event.detail;
+  //   this.isOpen = this.hasValidationErrors = hasErrors;
+  //   if (hasErrors)
+  //     this.accordionComponent.value = 'open';
+  // }
+
+  protected override getActivePage(): UIModelMetadata[] | undefined {
+
+    this.activePage = undefined;
+    this.isOpen = true;
+    this.accordionComponent.value = 'open';
+    this.changeDetectorRef.detectChanges();
+    this.timerSubscription = timer(10).subscribe(() => {
+      this.children = this.children.map(child => {
+        if (!child.props)
+          child.props = {};
+        child.props = Object.assign(child.props, { activeFormGroup: this.activeFormGroupIndex, multiple: this.multiple });
+        return child;
+      });
+    });
+    if(this.multiple)
+      this.getFormArrayIndex(this.activeFormGroupIndex);
+    return this.children as UIModelMetadata[];
   }
 
 
@@ -687,7 +783,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     });
 
     this.updatingItem = undefined;
-
   }
 
   /**

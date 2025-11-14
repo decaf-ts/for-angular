@@ -8,6 +8,7 @@ import {
   OnChanges,
   OnDestroy,
   TemplateRef,
+  Type,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
@@ -156,8 +157,11 @@ export class NgxRenderableComponentDirective extends NgxComponentDirective
    * @return {void}
    * @memberOf NgxComponentDirective
    */
-  protected async subscribeEvents(): Promise<void> {
-    const component = this?.output?.component;
+  protected async subscribeEvents(component?: Type<unknown>): Promise<void> {
+    if(!component)
+      component = this?.output?.component;
+    if(!this.instance && component)
+      this.instance = component;
     if (this.instance && component) {
       const componentKeys = Object.keys(this.instance);
       for (const key of componentKeys) {

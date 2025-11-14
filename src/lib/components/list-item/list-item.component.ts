@@ -29,7 +29,7 @@ import * as AllIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { StringOrBoolean } from '../../engine/types';
 import { getWindowWidth, windowEventEmitter, removeFocusTrap, stringToBoolean } from '../../utils/helpers';
-import { EventConstants } from '../../engine/constants';
+import { ComponentEventNames } from '../../engine/constants';
 import {ListItemCustomEvent} from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
@@ -370,8 +370,8 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
     // forcing trap focus
     removeFocusTrap();
     if (!this.route) {
-      const event = {target: target, action, pk: this.pk, data: this.uid, name: EventConstants.CLICK, component: this.componentName } as ListItemCustomEvent;
-      windowEventEmitter(`ListItem${EventConstants.CLICK}`, event);
+      const event = {target: target, action, pk: this.pk, data: this.uid, name: ComponentEventNames.CLICK, component: this.componentName } as ListItemCustomEvent;
+      windowEventEmitter(`ListItem${ComponentEventNames.CLICK}`, event);
       return this.clickEvent.emit(event);
     }
     return await this.redirect(action, (typeof this.uid === 'number' ? `${this.uid}`: this.uid));

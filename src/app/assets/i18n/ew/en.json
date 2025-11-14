@@ -1,0 +1,167 @@
+{
+  "product": {
+    "title":"Products Details",
+    "menu": "Products",
+    "section": {
+      "details": {
+        "title": "Product Details"
+      },
+      "image": {
+        "title": "Product Image"
+      },
+      "epi": {
+        "title": "Epi Information"
+      }
+    },
+    "steps": {
+      "1": {
+        "title": "Product Details"
+      },
+      "2": {
+        "title": "Product Image"
+      },
+      "3": {
+        "title": "Epi Information"
+      }
+    },
+    "productCode": {
+      "label": "Product Code",
+      "placeholder": "Enter the product code"
+    },
+   "inventedName": {
+      "label": "Internal Material Code",
+      "placeholder": "Enter the internal material code"
+    },
+    "namemedicinalproduct": {
+      "label": "Medicinal Product Name",
+      "placeholder": "Enter the name of the medicinal product"
+    },
+    "internalMaterialCode": {
+      "label": "Internal Material Code",
+      "placeholder": "Enter the internal material code"
+    },
+     "importLicenseNumber": {
+      "label": "Import License Number",
+      "placeholder": "Enter the import license number"
+    },
+    "nameMedicinalProduct": {
+      "label": "Medicinal Product Name",
+      "placeholder": "Enter the name of the medicinal product"
+    },
+    "productRecall": {
+      "label": "Mark Product as Recalled (Enabled only for Brazil)"
+    },
+    "productImage": {
+      "label": "Select product image"
+    },
+    "xmlFileContent": {
+      "label": "Click in button bellow or drop your epi files here",
+      "placeholder": "Select the Epi File"
+    }
+  },
+  "batch": {
+    "menu": "Batches",
+    "productcode": {
+      "label": "Product Code",
+      "placeholder": "Enter the product code",
+      "options": {
+        "aspirin": "Aspirin",
+        "paracetamol": "Paracetamol",
+        "ibuprofen": "Ibuprofen",
+        "amoxicillin": "Amoxicillin",
+        "azithromycin": "Azithromycin",
+        "metformin": "Metformin"
+      }
+    },
+    "batchNumber": {
+      "label": "Batch Number",
+      "placeholder": "Enter the batch number"
+    },
+    "dayselection": {
+      "label": "Enable Day Selection"
+    },
+    "expiryDate": {
+      "label": "Expiry Date",
+      "placeholder": "Enter the expiry date"
+    },
+     "packagingSiteName": {
+      "label": "Packaging Site Name",
+      "placeholder": "Enter the packaging site name"
+    },
+    "importLicenseNumber": {
+      "label": "Import License Number",
+      "placeholder": "Enter the import license number"
+    },
+    "manufacturerName": {
+      "label": "Manufacturer Name",
+      "placeholder": "Enter the manufacturer name"
+    },
+    "manufacturerAddress": {
+      "label": "Manufacturer Address",
+      "placeholder": "Enter the manufacturer address"
+    },
+    "dateOfManufacturing": {
+      "label": "Date of Manufacturing",
+      "placeholder": "Enter the date of manufacturing"
+    },
+    "batchRecall": {
+      "label": "Batch Recall",
+      "placeholder": "Indicates if the batch is subject to recall"
+    }
+  },
+  "leaflet": {
+    "language": {
+      "label": "Language",
+      "placeholder": "Select the language"
+    },
+    "type": {
+      "label": "Docment type",
+      "placeholder": "Select the document type",
+      "options": {
+        "leaflet": "Patient Information",
+        "prescribinginfo": "Prescribing Information",
+        "smcp": "SMCP"
+      }
+    },
+    "market": {
+      "label": "Market",
+      "placeholder": "Select the market"
+    },
+    "xmlFileContent": {
+      "label": "Epi File",
+      "placeholder": "Select the Epi File"
+    }
+  },
+   "substance": {
+    "name": {
+      "label": "Substance Name",
+      "placeholder": "Enter the substance name"
+    },
+    "strength": {
+      "label": "Substance Strength",
+      "placeholder": "Enter the substance strength"
+    }
+  },
+  "market": {
+    "id": {
+      "label": "Select Country",
+      "placeholder": "Select Country"
+    },
+    "nationalCode": {
+      "label": "National Code",
+      "placeholder": "Enter the national code"
+    },
+    "mahName": {
+      "label": "MAH Name",
+      "placeholder": "Enter the MAH Name"
+    },
+    "legalEntityName": {
+      "label": "Legal Entity Name",
+      "placeholder": "Enter the Legal Entity Name"
+    },
+    "mahAddress": {
+      "label": "MAH Address",
+      "placeholder": "Enter the MAH Address"
+    }
+  }
+}

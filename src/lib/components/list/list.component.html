@@ -1,4 +1,6 @@
+<div #component>
 
+</div>
 @if (showRefresher) {
   <ion-refresher slot="fixed" [pullFactor]="1" [pullMin]="100" [pullMax]="200" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content />
@@ -21,8 +23,8 @@
   }
 }
 
-@if (data?.length) {
-  <ion-list [id]="uid" [inset]="inset" [lines]="lines" #component>
+@if (initialized && data?.length) {
+  <ion-list [id]="uid" [inset]="inset" [lines]="lines">
     @if (item?.tag) {
       @for(child of items; track trackItemFn($index, child)) {
         <ngx-decaf-component-renderer

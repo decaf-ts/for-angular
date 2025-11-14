@@ -12,7 +12,7 @@
       @if (icon && lines !== 'inset') {
         <div class="dcf-icon" [slot]="iconSlot">
           <ion-avatar>
-            <ion-icon aria-hidden="true" name="reader-outline" size="default"></ion-icon>
+            <ion-icon aria-hidden="true" name="reader-outline" size="default" />
           </ion-avatar>
         </div>
       }
@@ -21,7 +21,7 @@
           @if (icon && lines === 'inset') {
             <div class="dcf-icon dcf-grid-icon">
               <ion-avatar>
-                <ion-icon aria-hidden="true" name="reader-outline"  size="default"></ion-icon>
+                <ion-icon aria-hidden="true" name="reader-outline" size="default" />
               </ion-avatar>
             </div>
           }
@@ -53,7 +53,7 @@
 
               <div class="dcf-visible@s" id="dcf-actions">
                 <ion-button class="" shape="round" fill="clear" color="primary" (click)="presentActionsMenu($event)">
-                  <ion-icon slot="icon-only" aria-hidden="true" name="ellipsis-vertical-outline"></ion-icon>
+                  <ion-icon slot="icon-only" aria-hidden="true" name="ellipsis-vertical-outline" />
                 </ion-button>
                 <ion-popover
                   #actionMenuComponent
@@ -73,9 +73,9 @@
                           <ion-item [button]="true" (click)="handleAction(operation, $event, component)">
                               <ion-avatar class="dcf-flex dcf-flex-middle" aria-hidden="true" slot="start">
                                 @if (operation === 'update') {
-                                  <ion-icon color="primary" aria-hidden="true" name="create-outline"></ion-icon>
+                                  <ion-icon color="primary" aria-hidden="true" name="create-outline" />
                                 } @else {
-                                  <ion-icon color="danger" aria-hidden="true" name="trash"></ion-icon>
+                                  <ion-icon color="danger" aria-hidden="true" name="trash" />
                                 }
                               </ion-avatar>
                               <ion-label class="dcf-text-capitalize">{{ operation | translate }}</ion-label>
@@ -88,20 +88,6 @@
                 </ion-popover>
               </div>
             }
-            <!-- @if (operations?.length && uid) {
-              <div class="dcf-visible@m" id="dcf-actions">
-                @if (operations?.includes('update')) {
-                  <ion-button fill="clear" size="small" color="primary" (click)="handleAction('update',  component)">
-                    <ion-icon aria-hidden="true" slot="icon-only" name="create-outline"></ion-icon>
-                  </ion-button>
-                }
-                @if (operations?.includes('delete')) {
-                  <ion-button fill="clear" size="small" color="danger" (click)="handleAction('delete',  component)">
-                    <ion-icon aria-hidden="true" slot="icon-only" name="trash"></ion-icon>
-                  </ion-button>
-                }
-              </div>
-            } -->
             @if (windowWidth > 639) {
               <div id="end">
                 <ng-content select="[slot='end']"></ng-content>
@@ -115,12 +101,12 @@
       <ion-item-options side="end" (ionSwipe)="operations.length === 1 ? handleAction(operations[0],  $event, component) : ''">
         @if (operations?.includes('update')) {
           <ion-item-option class="dcf-update" (click)="handleAction('update', $event, component)" [expandable]="operations.length === 1">
-            <ion-icon aria-hidden="true" slot="icon-only" name="create-outline"></ion-icon>
+            <ion-icon aria-hidden="true" slot="icon-only" name="create-outline" />
           </ion-item-option>
         }
         @if (operations?.includes('delete')) {
-        <ion-item-option class="dcf-          delete" (click)="handleAction('delete',  $event, component)" [expandable]="operations.length === 1">
-            <ion-icon aria-hidden="true" slot="icon-only" name="trash"></ion-icon>
+        <ion-item-option class="dcf-delete" (click)="handleAction('delete',  $event, component)" [expandable]="operations.length === 1">
+            <ion-icon aria-hidden="true" slot="icon-only" name="trash" />
           </ion-item-option>
         }
       </ion-item-options>

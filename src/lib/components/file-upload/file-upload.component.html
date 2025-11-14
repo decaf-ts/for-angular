@@ -1,0 +1,190 @@
+<div class="decaf-file-component"  #component>
+  <input
+      id="dcf-file-input"
+      type="file"
+      placeholder="Select files"
+      [attr.accept]="accept"
+      [attr.multiple]="multiple ? true : null"
+      (change)="handleSelection($event)"
+      [multiple]="multiple"
+      hidden
+      [attr.webkitdirectory]="enableDirectoryMode ? true : null"
+    />
+
+  <ngx-decaf-card [className]="className" [body]="'blank'">
+    <div>
+      <div
+        [class]="
+          'dcf-drop-area '
+          + ' dcf-' + size
+          + ' dcf-flex dcf-flex-' + position
+          + ' dcf-text-' + position
+          "
+
+        [class.dcf-dragging]="dragging"
+        [class.dcf-has-files]="files.length"
+        (drop)="!files?.length ? handleDrop($event) : dragging = false"
+        (dragover)="!files?.length ? handleDragOver($event) : dragging = false"
+        (dragleave)="!files?.length ? handleDragLeave($event) : dragging = false"
+      >
+        <div>
+          @if (!preview) {
+            @if(showIcon) {
+              <ngx-decaf-icon name="cloud-upload-outline" size="large" />
+            }
+            <p class="dcf-drag-description">{{ label ? (label | translate) : (locale + ".drag_file" | translate) }}</p>
+            <ion-button class="dcf-button-select" (click)="handleClickToSelect()" size="small">
+              {{ buttonLabel ? (buttonLabel | translate) : (locale + ".buttons.select" | translate) }}
+            </ion-button>
+            <div #container>
+              <span class="dcf-error" [innerHTML]="getErrors(container)"></span>
+            </div>
+          } @else {
+            @if ((!directoryMode && !multiple) ) {
+              <div class="dcf-preview dcf-grid dcf-grid-match dcf-grid-collapse">
+                <div class="dcf-width-1-4@m dcf-width-1-3@s  dcf-flex dcf-flex-center dcf-flex-middle">
+                  <div class="dcf-preview-image">
+                     <ion-img
+                      [src]="preview"
+                      [title]="locale + '.preview' | translate"
+                      [alt]="locale + '.preview' | translate"
+                    />
+                    <div class="dcf-overlay">
+                      <ion-button (click)="showFilePreview(preview)" fill="clear" color="light" size="small">
+                        {{ locale + ".buttons.preview" | translate }}
+                      </ion-button>
+                    </div>
+                  </div>
+                </div>
+                <div class="description dcf-flex dcf-flex-middle dcf-width-expand@s">
+                  <div>
+                    <p class="dcf-title">{{ locale + ".preview" | translate }}</p>
+                    <p class="subtitle">{{ files[0].name }}</p>
+                    <ion-button (click)="handleClear()" fill="clear" color="danger"  size="small">{{ locale + ".buttons.clear" | translate }} </ion-button>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div class="dcf-margin-bottom">
+                {{ locale + ".selection" | translate: { "0": files.length > 10 ? files.length : `0${files.length}` } }}
+                @if(errors.length > 0) {
+                  <br /><span class="dcf-error-message">{{ locale + ".selection_error" | translate: { "0": errors.length > 10 ? errors.length : `0${errors.length}` } }}</span>
+                }
+              </div>
+              <div class="dcf-preview-list-container">
+                <ion-list class="dcf-preview-list">
+                  @for (file of errors; track $index) {
+                    <ion-item lines="full" class="dcf-error-item">
+                      <ion-label slot="start">{{ file.name }}</ion-label>
+                      <div class="dcf-error-message" slot="end">
+                        {{ locale + ".errors." + file.error | translate: { "0":  file.error === 'max_size' ? maxFileSize / 1024 / 1024 : file.name.split(".") } }}
+                      </div>
+                      <ion-note slot="end">{{ file.size / 1024 / 1024 | number: "1.1-1" }} MB</ion-note>
+                    </ion-item>
+                  }
+
+                  @for (file of files; track $index) {
+                    <ion-item lines="full">
+                      <ion-label slot="start">{{ file.name }}</ion-label>
+                      <ion-note slot="end">{{ file.size / 1024 / 1024 | number: "1.1-1" }} MB</ion-note>
+                      <div class="dcf-flex dcf-flex-middle" slot="end">
+                          <ngx-decaf-icon
+                            [button]="true"
+                            [slot]="'icon-only'"
+                            (click)="showFilePreview(file, file.type)"
+                            [name]="'image-outline'"
+                          />
+                        <ngx-decaf-icon
+                          [button]="true"
+                          [slot]="'icon-only'"
+                          [name]="'trash-outline'"
+                          (click)="removeFile($index)"
+                          [color]="'danger'"
+                          [size]="'small'"
+                        />
+                      </div>
+                    </ion-item>
+                  }
+                </ion-list>
+              </div>
+            }
+          }
+        </div>
+
+
+      </div>
+    </div>
+  </ngx-decaf-card>
+</div>
+
+<!-- <ion-card-header>
+    <ion-card-title>Upload de Imagem</ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+    <div
+      class="dcf-drop-area"
+      [class.dragging]="dragging"
+      (drop)="onDrop($event)"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+    >
+      <div class="dcf-drop-content">
+        <ion-icon name="cloud-upload-outline" size="large"></ion-icon>
+        <p>Arraste e solte aqui ou</p>
+        <ion-button size="small" fill="outline" (click)="triggerFileSelect()">Selecionar arquivo</ion-button>
+      </div>
+    </div>
+
+    <input
+      #fileInput
+      type="file"
+      [attr.accept]="accept"
+      [attr.multiple]="multiple ? true : null"
+      (change)="onFileSelected($event)"
+      hidden
+    />
+
+    <div *ngIf="previewUrl" class="dcf-preview">
+      <ion-item>
+        <div slot="start">
+          <ion-img [src]="previewUrl"></ion-img>
+        </div>
+        <ion-label>
+          <h3>Pré-visualização</h3>
+          <p *ngIf="files.length">{{ files[0].name }}</p>
+        </ion-label>
+      </ion-item>
+    </div>
+
+    <ion-list *ngIf="files.length">
+      <ion-list-header>
+        <ion-label>Arquivos selecionados</ion-label>
+      </ion-list-header>
+      <ion-item *ngFor="let f of files; let i = index">
+        <ion-label>{{ f.name }}</ion-label>
+        <ion-note slot="end">{{ (f.size / 1024 / 1024) | number:'1.1-1' }} MB</ion-note>
+        <ion-button fill="clear" slot="end" (click)="removeFile(i)">
+          <ion-icon slot="icon-only" name="close-circle"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-list>
+
+    <div *ngIf="errors.length">
+      <ion-list>
+        <ion-item *ngFor="let err of errors">
+          <ion-icon name="alert-circle" slot="start" color="danger"></ion-icon>
+          <ion-label color="danger">{{ err }}</ion-label>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <ion-row class="dcf-actions">
+      <ion-col>
+        <ion-button expand="block" (click)="triggerFileSelect()">Selecionar</ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand="block" color="danger" fill="outline" (click)="clear()">Limpar</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-card-content> -->

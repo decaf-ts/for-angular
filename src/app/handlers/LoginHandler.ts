@@ -42,7 +42,6 @@ export class LoginHandler extends NgxEventHandler<ICrudFormEvent> {
       setTimeout(async () => {
         await this.router.navigate(['/dashboard']);
       }, 50);
-      console.log("handler by login Handler");
     }
 
     const toast = await this.toastComponent.show({

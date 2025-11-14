@@ -1,10 +1,61 @@
 // removing borders and shadows for childs
-.dcf-card-default {
+.dcf-card-clear {
 }
 
 .dcf-card {
   display: flow-root;
   border-radius: var(--dcf-border-radius-small);
+
+  .dcf-card {
+    border-radius: 0px !important;
+  }
+
+  &:not(.dcf-card-shadow) {
+    box-shadow: none !important;
+
+    // dont apply borders on childs
+    &.dcf-card-bordered .dcf-card-bordered {
+      border-color: transparent !important;
+    }
+  }
+
+  &.dcf-card-separator,
+  &.dcf-card-blank {
+    padding: 0px !important;
+    margin: 0px !important;
+    background: transparent !important;
+    > * {
+      padding: 0px !important;
+      margin: 0px !important;
+    }
+  }
+
+  &.dcf-card-separator {
+    ion-card-header {
+      padding: unset !important;
+      margin: unset !important;
+    }
+    ion-card-title {
+      padding: unset !important;
+      margin: unset !important;
+      font-weight: 500;
+      font-size: 1rem;
+      line-height: 1.5rem;
+    }
+    &.dcf-card-bordered {
+      border-color: transparent !important;
+    }
+  }
+
+  &.dcf-card-small {
+    ion-card-header {
+      padding: var(--dcf-padding-xsmall) 0 !important;
+    }
+    ion-card-content {
+      padding: var(--dcf-padding-xsmall) !important;
+    }
+  }
+
   > * {
     width: 100% !important;
   }
@@ -16,6 +67,7 @@
     padding-top: 0px !important;
     margin-top: var(--dcf-margin-small);
   }
+
   ion-card-header {
     padding-left: 1.25rem;
   }
@@ -24,24 +76,19 @@
   @media (max-width: 575px) {
     ion-card-header {
       padding-left: 0.2rem !important;
+      + ion-card-content {
+        margin-top: var(--dcf-margin-small);
+      }
     }
+
     ion-card-content {
-      padding: var(--dcf-margin-small);
+      padding: var(--dcf-margin) var(--dcf-margin-small);
     }
 
     &.dcf-card-small {
       ion-content {
         padding: var(--dcf-padding-xsmall);
       }
-    }
-  }
-
-  &.dcf-card-default {
-    box-shadow: none !important;
-
-    // dont apply borders on childs
-    &.dcf-card-bordered .dcf-card-bordered {
-      border-color: transparent !important;
     }
   }
 
