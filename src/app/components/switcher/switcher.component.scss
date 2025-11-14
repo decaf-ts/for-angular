@@ -1,7 +1,7 @@
 .dcf-switcher-grid {
   width: 100%;
-  @media(min-width: 992px) {
-  .left {
+  @media (min-width: 992px) {
+    .left {
       max-width: 320px !important;
     }
   }
@@ -14,24 +14,27 @@
   list-style: none;
   position: relative;
 
-
-
   &.dcf-switcher-button {
     > * {
-        a {
-          font-size: .950rem;
-          padding: 0.5rem 1.25rem;
-        }
+      a {
+        font-size: 0.95rem;
+        padding: 0.5rem 1.25rem;
+      }
     }
     &.dcf-switcher-left {
-       @media(min-width: 992px) {
+      @media (min-width: 1200px) {
         flex-direction: column;
         margin-left: 0;
         margin-right: 2rem;
 
-         > * {
+        > * {
           padding-left: 0;
-
+          &.dcf-active {
+            a {
+              background: var(--dcf-color-primary);
+              border-radius: var(--dcf-border-radius-small);
+            }
+          }
           > a {
             justify-content: left;
             border: transparent;
@@ -46,7 +49,7 @@
           height: 100%;
           border-right: 1px solid #e5e5e5;
         }
-       }
+      }
     }
   }
 
@@ -84,15 +87,15 @@
     }
 
     > * {
-        a {
-          border-bottom: 1px solid transparent;
-          text-transform: uppercase;
-        }
+      a {
+        border-bottom: 1px solid transparent;
+        text-transform: uppercase;
+      }
     }
 
     > .dcf-active {
       > a {
-        color: var(--dcf-color-gray-8);
+        color: var(--dcf-color-text);
         border-color: var(--dcf-color-primary);
 
         &:hover {
@@ -102,7 +105,6 @@
       }
     }
   }
-
 
   > * {
     flex: none;
@@ -129,18 +131,18 @@
 
   > .dcf-active {
     > a {
-      background: var(--dcf-color-primary);
       color: white;
-      border-radius: var(--dcf-border-radius-small);
 
-       &:active, &:hover, &:focus {
+      &:active,
+      &:hover,
+      &:focus {
         color: white;
         text-decoration: none;
-       }
+      }
     }
   }
 
-  >.dcf-disabled {
+  > .dcf-disabled {
     > a {
       color: var(--dcf-color-gray-4);
     }

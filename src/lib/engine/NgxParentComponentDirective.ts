@@ -9,7 +9,7 @@
 import { Directive, Input, OnInit } from '@angular/core';
 import { NgxComponentDirective } from './NgxComponentDirective';
 import { FormParent, KeyValue } from './types';
-import { FieldDefinition, IPagedComponentProperties, UIModelMetadata } from '@decaf-ts/ui-decorators';
+import { FieldDefinition, IPagedComponentProperties, UIMediaBreakPoints, UIMediaBreakPointsType, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IComponentProperties } from './interfaces';
 import { Subscription, timer } from 'rxjs';
@@ -142,7 +142,55 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
   @Input()
   cardType: 'clear' | 'shadow' = 'clear';
 
-  skeletonData = new Array(1);
+
+  /**
+   * @description Controls whether borders are displayed around the fieldset.
+   * @summary Boolean flag that determines if the fieldset should be visually outlined with borders.
+   * When true, borders are shown to visually separate the fieldset from surrounding content.
+   *
+   * @type {boolean}
+   * @default true
+   */
+  @Input()
+  borders: boolean = false;
+
+
+  /**
+   * @description Media breakpoint for responsive behavior.
+   * @summary Determines the responsive breakpoint at which the layout should adapt.
+   * This affects how the grid behaves on different screen sizes, allowing for
+   * mobile-first or desktop-first responsive design patterns. The breakpoint
+   * is automatically processed to ensure compatibility with the UI framework.
+   *
+   * @type {UIMediaBreakPointsType}
+   * @default 'medium'
+   */
+  @Input()
+  breakpoint?: UIMediaBreakPointsType | string = UIMediaBreakPoints.MEDIUM;
+
+
+
+  /**
+   * @description Determines if the layout should match the parent container's size or configuration.
+   * @summary Boolean flag that controls whether the component should adapt its layout to match its parent.
+   * When true, the component will attempt to align or size itself according to the parent container.
+   *
+   * @type {boolean}
+   * @default true
+   */
+  @Input()
+  match: boolean = true;
+
+
+  /**
+   * @description Preloads card placeholders for rendering.
+   * @summary Used to create an array of placeholder elements for card components,
+   * typically to reserve space or trigger rendering logic before actual data is loaded.
+   *
+   * @type {any[]}
+   * @default [undefined]
+   */
+  preloadCards: string[] = new Array(1);
 
 
   /**
@@ -173,8 +221,8 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
   protected getActivePage(page: number): UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined {
     const content = this.children[page] as FieldDefinition;
     this.activePage = undefined;
-    this.skeletonData = [... new Array(content ? content.children?.length : 1)];
-    this.timerSubscription = timer(10).subscribe(() =>
+    this.preloadCards = [... new Array(1)];
+    this.timerSubscription = timer(1).subscribe(() =>
       this.activePage = {... this.children[page] as FieldDefinition }
     );
     this.activeIndex = page;

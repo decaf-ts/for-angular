@@ -1,7 +1,7 @@
 import { OnInit, CUSTOM_ELEMENTS_SCHEMA, Input, Component, inject, HostListener, ViewChild, ElementRef } from "@angular/core";
 import { PredefinedColors } from "@ionic/core";
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
-import { AngularEngineKeys, ComponentEventNames, RouteDirections } from "src/lib/engine/constants";
+import { ComponentEventNames, RouteDirections } from "src/lib/engine/constants";
 import { StringOrBoolean } from "src/lib/engine/types";
 import { stringToBoolean } from "src/lib/utils/helpers";
 import { Location } from '@angular/common';

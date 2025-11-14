@@ -23,7 +23,7 @@ import { FormParent, KeyValue } from '../../engine/types';
 import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { itemMapper } from '../../utils/helpers';
-import { UIElementMetadata, UIModelMetadata } from '@decaf-ts/ui-decorators';
+import { UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { timer } from 'rxjs';
 
 
@@ -212,7 +212,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   @Input()
-  borders: boolean = true;
+  override borders: boolean = true;
 
 
   /**
@@ -322,6 +322,46 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   max: number | undefined = undefined;
 
   /**
+   * @description Maximum allowed items in the fieldset.
+   * @summary Numeric limit that controls how many items can be added when `multiple` is true.
+   * When set to Infinity there is no limit.
+   *
+   * @type {number}
+   * @default Infinity
+   * @memberOf FieldsetComponent
+   */
+  @Input()
+  required: boolean = false;
+
+
+  /**
+   * @description Determines if the fieldset items can be reordered.
+   * @summary Boolean flag that enables or disables the drag-and-drop reordering functionality
+   * for the items within the fieldset. When set to true, users can rearrange the order
+   * of items using drag-and-drop gestures. This is particularly useful for managing
+   * lists where the order of items is significant.
+   *
+   * @type {boolean}
+   * @default true
+   * @memberOf FieldsetComponent
+   */
+  @Input()
+  ordenable: boolean = true;
+
+  /**
+   * @description Determines if the fieldset items can be edited by the user.
+   * @summary Boolean flag that enables or disables the editing functionality
+   * for the items within the fieldset. When set to true, users can modify the items.
+   *
+   * @type {boolean}
+   * @default true
+   * @memberOf FieldsetComponent
+   * @default true
+   */
+  @Input()
+  editable: boolean = true;
+
+  /**
    * @description Component constructor that initializes the fieldset with icons and component name.
    * @summary Calls the parent NgxFormDirective constructor with the component name and
    * required Ionic icons (alertCircleOutline for validation errors and createOutline for add actions).
@@ -350,6 +390,10 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       this.multiple = false;
     this.buttonLabel = this.translateService.instant(this.locale + '.add');
     this.buttonCancelLabel = this.translateService.instant(this.locale + '.cancel');
+
+    if(!this.multiple)
+      this.ordenable = false;
+
     if ([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
       if (!this.formGroup) {
         if (this.parentForm instanceof FormGroup) {
@@ -374,14 +418,14 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
      if(this.multiple) {
       this.formGroup?.setErrors(null);
       this.formGroup?.disable();
-      // this.activePage = this.getActivePage();
+      if(this.required) {
+        this.collapsable = false;
+        this.activePage = this.getActivePage();
+      }
+
     } else {
       this.activePage = this.getActivePage();
     }
-    console.log("FORM GROUP ===============================");
-    console.log(this.formGroup);
-     console.log("FORM PARENT ===============================");
-    console.log( this.parentForm);
     this.initialized = true;
   }
 
@@ -417,25 +461,25 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   override ngAfterViewInit(): void {
     super.ngAfterViewInit();
-    if (!this.collapsable)
-      this.isOpen = true;
-    if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
-      this.isOpen = true;
-      // hidden remove button
-      const accordionElement = this.component?.nativeElement.querySelector('ion-accordion-group');
-      if (accordionElement)
-        this.renderer.setAttribute(accordionElement, 'value', 'open');
-    } else {
-      const inputs = this.component?.nativeElement.querySelectorAll('.dcf-field-required');
-      this.isRequired = inputs?.length > 0;
-      if (this.isRequired) {
-        this.accordionComponent.value = 'open';
-        this.handleAccordionToggle();
-      }
-    }
+    // if (!this.collapsable)
+    //   this.isOpen = true;
+    // if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
+    //   this.isOpen = true;
+    //   // hidden remove button
+    //   const accordionElement = this.component?.nativeElement.querySelector('ion-accordion-group');
+    //   if (accordionElement)
+    //     this.renderer.setAttribute(accordionElement, 'value', 'open');
+    // } else {
+    //   const inputs = this.component?.nativeElement.querySelectorAll('.dcf-field-required');
+    //   this.isRequired = inputs?.length > 0;
+    //   if (this.isRequired) {
+    //     this.accordionComponent.value = 'open';
+    //     this.handleAccordionToggle();
+    //   }
+    // }
     // if (!(this.formGroup instanceof FormArray))
     //   this.formGroup = (this.formGroup as FormGroup)
-    this.changeDetectorRef.detectChanges();
+    // this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -449,7 +493,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @returns {void}
    * @memberOf FieldsetComponent
    */
-  handleRemoveComponent(event?: Event): void {
+  handleClear(event?: Event): void {
     if(event)
       event.stopImmediatePropagation();
     this.formGroup?.disable();
@@ -579,7 +623,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       if (this.activeFormGroupIndex > 0)
         this.activeFormGroupIndex = this.activeFormGroupIndex - 1;
     } else {
-      this.handleRemoveComponent();
+      this.handleClear();
     }
 
   }
@@ -668,7 +712,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     if (event)
       event.stopImmediatePropagation();
 
-    if (!this.collapsable) {
+    if (!this.collapsable || this.isRequired) {
       this.isOpen = true;
     } else {
        if (!this.hasValidationErrors) {
@@ -698,8 +742,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   // }
 
   protected override getActivePage(): UIModelMetadata[] | undefined {
-    if(this.multiple)
-      this.getFormArrayIndex(this.activeFormGroupIndex);
+
     this.activePage = undefined;
     this.isOpen = true;
     this.accordionComponent.value = 'open';
@@ -712,6 +755,8 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
         return child;
       });
     });
+    if(this.multiple)
+      this.getFormArrayIndex(this.activeFormGroupIndex);
     return this.children as UIModelMetadata[];
   }
 

@@ -9,12 +9,11 @@ import {
  } from '@ionic/angular/standalone';
  import { TranslatePipe } from '@ngx-translate/core';
 import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
-import { Primitives } from '@decaf-ts/decorator-validation';
 import { Dynamic } from '../../engine/decorators';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { ElementSize, FlexPosition, PossibleInputTypes } from '../../engine/types';
 import { ElementSizes, ComponentEventNames } from '../../engine/constants';
-import { IBaseCustomEvent } from '../../engine/interfaces';
+import { IBaseCustomEvent, IFileUploadError } from '../../engine/interfaces';
 import { presentNgxLightBoxModal } from '../modal/modal.component';
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../icon/icon.component';
@@ -108,7 +107,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @default false
    */
   @Input()
-  override multiple = false;
+  override multiple: boolean = false;
 
   /**
    * @description Specifies the input type for the file upload field.
@@ -208,7 +207,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @type {EventEmitter<IBaseCustomEvent>}
    */
   @Output()
-  changeEvent = new EventEmitter<IBaseCustomEvent>();
+  changeEvent: EventEmitter<IBaseCustomEvent> = new EventEmitter<IBaseCustomEvent>();
 
   /**
    * @description Preview of the first file in the upload list.
@@ -233,9 +232,9 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @summary Stores validation errors for files that do not meet the specified criteria,
    * such as file type or size restrictions. Each error includes the file name, size, and error message.
    *
-   * @type {{name: string; size?: number; error: string}[]}
+   * @type {IFileUploadError[]}
    */
-  errors: {name: string; size?: number, error: string}[] = [];
+  errors: IFileUploadError[] = [];
 
   /**
    * @description Indicates whether a drag operation is in progress.
@@ -255,7 +254,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @type {number}
    * @default 0
    */
-  private dragCounter = 0;
+  private dragCounter: number = 0;
 
   constructor() {
     super("FileUploadComponent");
@@ -412,8 +411,11 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     } else {
       this.files = [validFiles[0]];
     }
-    if(this.files.length)
-      this.setValue(JSON.stringify(await this.getDataURLs(this.files)));
+    if(this.files.length) {
+      const dataValues = await this.getDataURLs(this.files)
+      this.setValue(JSON.stringify(dataValues));
+    }
+
     await this.getPreview();
     this.changeEventEmit();
   }
@@ -429,13 +431,14 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   private validateFile(file: File): true | string {
     if (this.accept && this.accept !== '*') {
       const acceptedExtensions = Array.isArray(this.accept) ?
-        this.accept : this.accept.split(',').map(a => a.trim());
-      const accept = acceptedExtensions.some(a => {
-        if (a === '*')
+        this.accept : this.accept.split(',').map(ext => ext.trim());
+      const accept = acceptedExtensions.some(ext => {
+        if (ext === '*')
           return true;
-        if (a.endsWith('/*'))
-          return file.type.startsWith(a.replace(/\/\*$/, ''));
-        return file.type === a || file.name.toLowerCase().endsWith(a.replace('.', ''));
+        if (ext.endsWith('/*'))
+          return file.type.startsWith(ext.replace(/\/\*$/, ''));
+        const fileExtension = file.type.split('/').pop() || '';
+        return file.type === ext || fileExtension === ext || file.name.toLowerCase().endsWith(ext.replace('.', ''));
       });
       if (!accept)
         return FileErrors.notAllowed;
@@ -453,15 +456,41 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @param {File | string} [file] - The file to be previewed. If not provided, the current preview file is used.
    * @returns {Promise<void>}
    */
-  async showFilePreview(file?: File | string): Promise<void> {
-    if(!file && this.preview)
-      file = this.preview;
+  async showFilePreview(file: File | string, fileExtension: string = 'image/'): Promise<void> {
+
+    let content:  string | undefined;
     if(file instanceof File) {
       const dataUrl = await this.getDataURLs(file) as string[];
       if(dataUrl && dataUrl.length)
         file = dataUrl[0];
     }
-    await presentNgxLightBoxModal('<img src="' + file + '" style="max-width: 100%; height: auto;" />');
+    if(fileExtension.includes('image/'))
+      content = '<img src="' + file + '" style="max-width: 100%; height: auto;" />';
+
+    if(fileExtension.includes('xml')) {
+      const parseXml = (xmlString: string): string | undefined => {
+        try {
+          xmlString = (xmlString as string).replace(/^data:[^;]+;base64,/, '').replace(/\s+/g, '')
+          const decodedString = atob(xmlString);
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(decodedString, "text/xml");
+
+          // const encoder = new TextEncoder(); // gera bytes UTF-8
+          // const utf8Bytes = encoder.encode(xmlDoc.documentElement.outerHTML);
+          // return new TextDecoder("utf-8").decode(utf8Bytes);
+
+          return xmlDoc.documentElement.innerHTML;
+
+        } catch (error: unknown) {
+          this.logger.error((error as Error)?.message);
+          return undefined;
+        }
+
+      }
+      content = parseXml(file as string);
+      content = `<div class="dfc-padding">${content}</div>`;
+    }
+    await presentNgxLightBoxModal(content || "");
   }
 
   /**
@@ -501,7 +530,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   private async getPreview(): Promise<void> {
     this.preview = undefined;
     const file = this.files && this.files.length ? this.files[0] : null;
-    if (file && file.type.startsWith('image/')) {
+    if (file) {
       const dataUrl = await this.getDataURLs(file) as string[];
       if(dataUrl && dataUrl.length)
         this.preview = dataUrl[0];
@@ -539,7 +568,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
       files = this.files;
     if(!Array.isArray(files))
       files = [files];
-    files = files.filter(f => f.type && f.type.startsWith('image/'));
+    // files = files.filter(f => f.type && f.type.startsWith('image/'));
     return this.readFile(files).then(urls => {
       // validate generated DataURLs
       const invalid = urls.some(u => !this.isValidDataURL(u));
@@ -562,15 +591,21 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @returns {boolean} - True if the data URL is valid, false otherwise.
    */
   private isValidDataURL(dataURL: string | undefined): boolean {
-    if (!dataURL || typeof dataURL !== Primitives.STRING)
+    if (!dataURL || typeof dataURL !== 'string') {
       return false;
-    const match = dataURL.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=\s]+)$/);
+    }
+
+    // Regex para qualquer MIME type seguido de ;base64
+    const match = dataURL.match(/^data:([a-zA-Z0-9.+-\\/]+);base64,([A-Za-z0-9+/=\s]+)$/);
     if (!match)
       return false;
+
     const payload = match[2];
     try {
-      if (typeof atob === 'function')
+      if (typeof atob === 'function') {
+        // remove espaços e tenta decodificar
         atob(payload.replace(/\s+/g, ''));
+      }
       return true;
     } catch {
       return false;

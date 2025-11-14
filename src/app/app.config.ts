@@ -22,7 +22,6 @@ import { I18nResourceConfigType } from 'src/lib/engine';
 import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
 import { User } from './forms/FieldsetForm';
-import { Product } from './ew/models/Product';
 import { SwitcherComponent } from './components/switcher/switcher.component';
 
 export const DbAdapterFlavour = 'ram';

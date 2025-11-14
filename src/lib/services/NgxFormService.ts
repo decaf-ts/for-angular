@@ -198,10 +198,9 @@ export class NgxFormService {
     const isMultiple = parentProps?.multiple || parentProps?.type === Array.name || false;
     const parts = path.split('.');
     const controlName = parts.pop() as string;
-    const lastPart = parts[parts.length - 1];
 
     const {childOf} = componentProps
-    let currentGroup = formGroup;
+    const currentGroup = formGroup;
 
     function setArrayComponentProps(formGroupArray: KeyValue) {
       const props = formGroupArray?.[BaseComponentProps.FORM_GROUP_COMPONENT_PROPS] || {};
@@ -224,7 +223,6 @@ export class NgxFormService {
         if(currentGroup instanceof FormArray) {
           (currentGroup as FormArray).push(partFormGroup);
         } else {
-
           for(const control of Object.values(partFormGroup.controls)) {
             if(control instanceof FormControl)
               this.register(control as AbstractControl, componentProps);
@@ -232,14 +230,12 @@ export class NgxFormService {
 
           if(partFormGroup instanceof AbstractControl)
             this.register(partFormGroup as AbstractControl, componentProps);
-
           currentGroup.addControl(part, partFormGroup);
         }
       }
       if(childOf && currentGroup instanceof FormArray)
         setArrayComponentProps(currentGroup);
-
-      currentGroup = currentGroup.get(part) as FormGroup;
+      return [currentGroup.get(part) as FormGroup, controlName];
     }
     return [currentGroup, controlName];
   }

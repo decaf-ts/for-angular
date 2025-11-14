@@ -24,7 +24,13 @@
         (listenEvent)="handleEvent($event)"
       />
       } @else { @if(!errorMessage) {
-      <section class="dcf-grid dcf-grid-collapse">
+          <ngx-decaf-model-renderer
+              [model]="model"
+              (listenEvent)="handleEvent($event)"
+              [globals]="{operation: operation, modelId, allowClear: false}"
+            >
+            </ngx-decaf-model-renderer>
+      <!-- <section class="dcf-grid dcf-grid-collapse">
         <div class="dcf-width-3-5@xl dcf-width-1-1@m">
           <ngx-decaf-card>
             <ngx-decaf-model-renderer
@@ -38,7 +44,7 @@
         <div class="dcf-width-2-5@xl dcf-width-1-1@m">
           <ngx-decaf-card> Model EPI </ngx-decaf-card>
         </div>
-      </section>
+      </section> -->
       } @else {
       <ngx-decaf-empty-state
         [model]="model"

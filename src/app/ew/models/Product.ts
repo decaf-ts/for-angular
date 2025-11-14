@@ -5,13 +5,8 @@ import {
   required,
 } from "@decaf-ts/decorator-validation";
 import { pk } from "@decaf-ts/core";
-import {  HTML5InputTypes, uichild, uielement,  uilayout,  uilayoutprop, uilistmodel, uilistprop, uiorder, uipageprop, uisteppedmodel } from "@decaf-ts/ui-decorators";
-import { EpiForm } from "../forms/EpiForm";
+import {  HTML5InputTypes, uielement,  uilayout,  uilayoutprop, uilistmodel, uilistprop, uipageprop } from "@decaf-ts/ui-decorators";
 import { CardComponent, CrudFieldComponent, FileUploadComponent } from "src/lib/components";
-
-// import { ProductStrength } from "./ProductStrength";
-// import { MarketForm } from "../forms/MarketForm";
-
 
 export enum ProductNames {
   aspirin = "Aspirin",
@@ -20,32 +15,28 @@ export enum ProductNames {
   amoxicillin = "Amoxicillin",
   azithromycin = "Azithromycin",
   metformin = "Metformin",
-  // atorvastatin = "Atorvastatin",
-  // omeprazole = "Omeprazole",
-  // simvastatin = "Simvastatin",
-  // levothyroxine = "Levothyroxine",
-  // lisinopril = "Lisinopril",
-  // losartan = "Losartan",
-  // hydrochlorothiazide = "Hydrochlorothiazide",
-  // prednisone = "Prednisone",
-  // sertraline = "Sertraline",
-  // fluoxetine = "Fluoxetine",
-  // alprazolam = "Alprazolam",
-  // diazepam = "Diazepam",
-  // tramadol = "Tramadol",
-  // codeine = "Codeine",
-  // sildenafil = "Sildenafil",
-  // insulin = "Insulin",
-  // clopidogrel = "Clopidogrel",
-  // furosemide = "Furosemide"
+  atorvastatin = "Atorvastatin",
+  omeprazole = "Omeprazole",
+  simvastatin = "Simvastatin",
+  levothyroxine = "Levothyroxine",
+  lisinopril = "Lisinopril",
+  losartan = "Losartan",
+  hydrochlorothiazide = "Hydrochlorothiazide",
+  prednisone = "Prednisone",
+  sertraline = "Sertraline",
+  fluoxetine = "Fluoxetine",
+  alprazolam = "Alprazolam",
+  diazepam = "Diazepam",
+  tramadol = "Tramadol",
+  codeine = "Codeine",
+  sildenafil = "Sildenafil",
+  insulin = "Insulin",
+  clopidogrel = "Clopidogrel",
+  furosemide = "Furosemide"
 };
 
 @uilistmodel('ngx-decaf-list-item', {icon: 'cafe-outline'})
 @uilayout('ngx-decaf-crud-form', true)
-// @uisteppedmodel('ngx-decaf-stepped-form', [
-//   {title: 'product.steps.1.title' },
-//   {title: 'product.steps.2.title'},
-// ], false, {cols: true, cardType: 'blank'}) // with flex mode
 @model()
 export class Product extends Model {
 
@@ -58,89 +49,83 @@ export class Product extends Model {
   // @uilayoutprop(1)
   // productDetailsTitle!: string;
 
-  // @pk({type: 'Number' })
-  // @uilistprop('uid')
-  // @required()
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'product.productCode.label',
-  //   placeholder: 'product.productCode.placeholder',
-  // } as Partial<CrudFieldComponent>)
-  // @uipageprop(1)
-  // @uilayoutprop(2)
-  // productCode!: number;
+  @pk({type: 'Number' })
+  @uilistprop('uid')
+  @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'product.productCode.label',
+    placeholder: 'product.productCode.placeholder',
+  } as Partial<CrudFieldComponent>)
+  @uilayoutprop(2)
+  productCode!: number;
+
+  @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'product.inventedName.label',
+    placeholder: 'product.inventedName.placeholder',
+  } as Partial<CrudFieldComponent>)
+  @uilistprop('title')
+  @uilayoutprop(2)
+  inventedName!: string;
+
+  @uielement('ngx-decaf-crud-field', {
+    label: 'product.internalMaterialCode.label',
+    placeholder: 'product.internalMaterialCode.placeholder',
+  } as Partial<CrudFieldComponent>)
+  @uilayoutprop(2)
+  internalMaterialCode?: string;
+
+  @uielement('ngx-decaf-crud-field', {
+    label: 'product.importLicenseNumber.label',
+    placeholder: 'product.importLicenseNumber.placeholder',
+  } as Partial<CrudFieldComponent>)
+  @uilayoutprop(2)
+  importLicenseNumber?: string;
+
+  @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'product.nameMedicinalProduct.label',
+    placeholder: 'product.nameMedicinalProduct.placeholder',
+    type: 'textarea',
+  } as Partial<CrudFieldComponent>)
+  @uilistprop('description')
+  @uilayoutprop(1)
+  nameMedicinalProduct!: string;
+
+
+  @uielement('ngx-decaf-crud-field', {
+    label: 'product.productRecall.label',
+    placeholder: 'product.productRecall.placeholder',
+    type: HTML5InputTypes.CHECKBOX,
+  } as Partial<CrudFieldComponent>)
+  @uilistprop('description')
+  @uilayoutprop(1)
+  productRecall?: boolean;
+
+  @uielement('ngx-decaf-card', {
+    title: 'product.section.image.title',
+    name: 'separator',
+    separator: true
+  } as Partial<CardComponent>)
+  @uipageprop(2)
+  @uilayoutprop(1)
+  productImageTitle!: string;
 
   // @required()
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'product.inventedName.label',
-  //   placeholder: 'product.inventedName.placeholder',
-  // } as Partial<CrudFieldComponent>)
-  // @uilistprop('title')
-  // @uipageprop(1)
-  // @uilayoutprop(2)
-  // inventedName!: string;
-
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'product.internalMaterialCode.label',
-  //   placeholder: 'product.internalMaterialCode.placeholder',
-  // } as Partial<CrudFieldComponent>)
-  // @uipageprop(1)
-  // @uilayoutprop(2)
-  // internalMaterialCode?: string;
-
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'product.importLicenseNumber.label',
-  //   placeholder: 'product.importLicenseNumber.placeholder',
-  // } as Partial<CrudFieldComponent>)
-  // @uipageprop(1)
-  // @uilayoutprop(2)
-  // importLicenseNumber?: string;
-
-  // @required()
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'product.nameMedicinalProduct.label',
-  //   placeholder: 'product.nameMedicinalProduct.placeholder',
-  //   type: 'textarea',
-  // } as Partial<CrudFieldComponent>)
-  // @uilistprop('description')
-  // @uipageprop(1)
-  // @uilayoutprop(1)
-  // nameMedicinalProduct!: string;
+  @uielement('ngx-decaf-file-upload', {
+    label: 'product.productImage.label',
+  } as Partial<FileUploadComponent>)
+  @uilistprop('description')
+  @uipageprop(2)
+  @uilayoutprop(1)
+  @required()
+  productImage!: string;
 
 
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'product.productRecall.label',
-  //   placeholder: 'product.productRecall.placeholder',
-  //   type: HTML5InputTypes.CHECKBOX,
-  // } as Partial<CrudFieldComponent>)
-  // @uilistprop('description')
-  // @uipageprop(1)
-  // @uilayoutprop(1)
-  // productRecall?: boolean;
-
-  // @uielement('ngx-decaf-card', {
-  //   title: 'product.section.image.title',
-  //   name: 'separator',
-  //   separator: true
-  // } as Partial<CardComponent>)
-  // @uipageprop(2)
-  // @uilayoutprop(1)
-  // productImageTitle!: string;
-
-  // // @required()
-  // @uielement('ngx-decaf-file-upload', {
-  //   label: 'product.productImage.label',
-  // } as Partial<FileUploadComponent>)
-  // @uilistprop('description')
-  // @uipageprop(2)
-  // @uilayoutprop(1)
-  // @required()
-  // productImage!: string;
-
-
-  @uipageprop(3)
-  @uilayoutprop('full')
-  @uichild(EpiForm.name, 'app-switcher', {}, false)
-  epi!: EpiForm;
+  // @uipageprop(3)
+  // @uilayoutprop('full')
+  // @uichild(EpiForm.name, 'app-switcher', {}, false)
+  // epi!: EpiForm;
 
 
 

@@ -7,9 +7,8 @@ import { ListComponent } from 'src/lib/components/list/list.component';
 import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
 import { CardComponent, EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
-import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { IBaseCustomEvent, IModelPageCustomEvent } from 'src/lib/engine/interfaces';
-import { Product } from 'src/app/ew/models/Product';
+import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -116,7 +115,7 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
   override ngOnInit(): Promise<void> | void {
     super.ngOnInit();
     this.title = "product.title";
-    this.model = new Product();
+    this.model = new ProductLayout();
  }
 
   override async ionViewWillEnter(): Promise<void> {

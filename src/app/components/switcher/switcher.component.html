@@ -1,9 +1,9 @@
-<section>
-  <div class="dcf-grid dcf-grid-small dcf-switcher-grid"
+<div class="dcf-switcher-component">
+  <div class="dcf-grid dcf-grid-small dcf-switcher-grid dcf-width-1-1"
     [class.dcf-grid-match]="button"
   >
     @if(tabs.length > 1) {
-      <div [class]="position === 'left' ? 'dcf-width-1-4@l left' : 'dcf-width-1-1 top'">
+      <div [class]="position === 'left' ? 'dcf-width-auto@xl uk-width-1-1 left' : 'dcf-width-1-1 top'">
         <ul
           [class]="'dcf-switcher dcf-switcher-' + position"
           [class.dcf-switcher-button]="button"
@@ -21,18 +21,10 @@
       </div>
     }
     <div [class]="position === 'left' ? 'dcf-switcher-content dcf-width-expand@l' : 'dcf-switcher-content dcf-width-1-1'">
-      @if(!activePage) {
-        @for(skl of skeletonData; track $index) {
-          <ion-item>
-            <ion-label>
-              <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-              <ion-text><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
-            </ion-label>
-          </ion-item>
-        }
-      } @else {
-        <div class="dcf-animation dcf-animation-slide-bottom-small dcf-animation-fast dcf-margin-top" #switcherContent>
-          @if(activePage) {
+      <div>
+        @if(activePage) {
+
+          <div class="dcf-animation dcf-animation-slide-left-small dcf-animation-medium dcf-margin-top" #switcherContent>
             <ngx-decaf-component-renderer
               [tag]="activePage.tag"
               [parentForm]="parentForm"
@@ -40,9 +32,10 @@
               (listenEvent)="handleEvent($event)"
               [globals]="{props: activePage.props}"
             />
-          }
-        </div>
-      }
+          </div>
+        }
+      </div>
+
     </div>
   </div>
-</section>
+</div>

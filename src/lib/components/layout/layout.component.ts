@@ -11,7 +11,7 @@
 import { Component, Input, OnInit} from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Primitives } from '@decaf-ts/decorator-validation';
-import { UIElementMetadata, UIMediaBreakPoints, UIMediaBreakPointsType } from '@decaf-ts/ui-decorators';
+import { UIElementMetadata } from '@decaf-ts/ui-decorators';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { KeyValue } from '../../engine/types';
 import { IComponentProperties } from '../../engine/interfaces';
@@ -60,19 +60,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
   @Input()
   gap: LayoutGridGap = LayoutGridGaps.collapse;
 
-  /**
-   * @description Media breakpoint for responsive behavior.
-   * @summary Determines the responsive breakpoint at which the layout should adapt.
-   * This affects how the grid behaves on different screen sizes, allowing for
-   * mobile-first or desktop-first responsive design patterns. The breakpoint
-   * is automatically processed to ensure compatibility with the UI framework.
-   *
-   * @type {UIMediaBreakPointsType}
-   * @default 'medium'
-   * @memberOf LayoutComponent
-   */
-  @Input()
-  breakpoint: UIMediaBreakPointsType | string = UIMediaBreakPoints.MEDIUM;
 
   /**
    * @description Media breakpoint for responsive behavior.
@@ -87,21 +74,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    */
   @Input()
   grid: boolean = true;
-
-
-  /**
-   * @description Media breakpoint for responsive behavior.
-   * @summary Determines the responsive breakpoint at which the layout should adapt.
-   * This affects how the grid behaves on different screen sizes, allowing for
-   * mobile-first or desktop-first responsive design patterns. The breakpoint
-   * is automatically processed to ensure compatibility with the UI framework.
-   *
-   * @type {UIMediaBreakPointsType}
-   * @default 'medium'
-   * @memberOf LayoutComponent
-   */
-  @Input()
-  match: boolean = true;
 
   /**
    * @description Media breakpoint for responsive behavior.
@@ -295,8 +267,9 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    */
   override async ngOnInit(): Promise<void> {
     super.parseProps(this);
+
     if (this.breakpoint)
-      this.breakpoint = `${this.breakpoint}`.toLowerCase();
+      this.breakpoint = `${this.breakpoint.startsWith('x') ? this.breakpoint.substring(0,2) : this.breakpoint.substring(0,1)}`.toLowerCase();
     this.cols = this._cols;
     this.rows = this._rows;
     // if (this._rows.length === 1)

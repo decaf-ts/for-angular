@@ -18,14 +18,13 @@ import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
 import { Dynamic } from '../../engine/decorators';
-import { ActionRole, KeyValue, SelectOption } from '../../engine/types';
+import { KeyValue, SelectOption } from '../../engine/types';
 import { IBaseCustomEvent } from '../../engine/interfaces';
 import {ActionRoles, DefaultModalOptions} from '../../engine/constants';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Primitives } from '@decaf-ts/decorator-validation';
-import { IconComponent } from '../icon/icon.component';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 
 /**

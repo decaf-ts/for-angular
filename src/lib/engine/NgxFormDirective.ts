@@ -6,7 +6,7 @@ import { NgxFormService } from "../services/NgxFormService";
 import { ICrudFormEvent, IFormElement } from "./interfaces";
 import { FieldUpdateMode, FormParent, HandlerLike, HTMLFormTarget } from "./types";
 import { ICrudFormOptions, IRenderedModel } from "./interfaces";
-import { ActionRoles, ComponentsTagNames, ComponentEventNames } from "./constants";
+import { ActionRoles, ComponentEventNames } from "./constants";
 import { NgxParentComponentDirective } from "./NgxParentComponentDirective";
 import { NgxFormFieldDirective } from "./NgxFormFieldDirective";
 import { generateRandomValue } from "../utils";
@@ -16,7 +16,6 @@ import { FieldDefinition, UIModelMetadata } from "@decaf-ts/ui-decorators";
 @Directive()
 export abstract class NgxFormDirective extends NgxParentComponentDirective implements OnInit, AfterViewInit, IFormElement, OnDestroy, IRenderedModel {
 
-  crudFieldComponent: string = ComponentsTagNames.CRUD_FIELD;
 
   /**
    * @description Reactive form group associated with this fieldset.
@@ -186,6 +185,9 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    */
   @Input()
   allowClear: boolean = true;
+
+  @Input()
+  override match: boolean = false;
 
   // protected override enableDarkMode: boolean = true;
 

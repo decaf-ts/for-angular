@@ -4,7 +4,7 @@ import { HTML5InputTypes, uielement, uilistprop, uimodel } from "@decaf-ts/ui-de
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../../utils/helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
-import { ElementPositions, ElementSizes } from "src/lib/engine";
+import { ElementPositions, ElementSizes, ListItemPositions } from "src/lib/engine";
 
 @uimodel('ngx-crud-form')
 @model()
@@ -23,6 +23,7 @@ export class Leaflet extends BaseModel {
   //     className: 'dcf-width-1-2@s dcf-width-1-1',
   // } as Partial<CrudFieldComponent>)
   // batchNumber?: string;
+
   @pk({ type: String.name, generated: false })
   @uielement('ngx-decaf-crud-field', {
     label: 'leaflet.language.label',
@@ -30,6 +31,7 @@ export class Leaflet extends BaseModel {
     type: HTML5InputTypes.SELECT,
     options: getLeafletLanguages()
   } as Partial<CrudFieldComponent>)
+  @uilistprop(ListItemPositions.info)
   language!: string;
 
   @required()
@@ -39,6 +41,7 @@ export class Leaflet extends BaseModel {
     type: HTML5InputTypes.SELECT,
     options: () => getDocumentTypes()
   } as Partial<CrudFieldComponent>)
+  @uilistprop(ListItemPositions.title)
   type!: string;
 
   @required()
@@ -48,6 +51,7 @@ export class Leaflet extends BaseModel {
     type: HTML5InputTypes.SELECT,
     options: () => getMarkets(false)
   } as Partial<CrudFieldComponent>)
+  @uilistprop(ListItemPositions.description)
   market!: string;
 
   @uielement('ngx-decaf-file-upload', {
@@ -56,9 +60,11 @@ export class Leaflet extends BaseModel {
     enableDirectoryMode: true,
     showIcon: false,
     size: ElementSizes.small,
-    position: ElementPositions.left
+    position: ElementPositions.left,
+    required: true,
+    maxFileSize: 10,
+    accept: ['image/*', '.xml'],
   } as Partial<FileUploadComponent>)
-  @uilistprop('description')
   xmlFileContent!: string;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor

@@ -11,9 +11,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 import { Logger, Logging } from '@decaf-ts/logging';
-import { FunctionLike, I18nResourceConfig } from './engine';
+import { I18nToken } from './engine/interfaces';
 import { getOnWindow, getWindow } from './utils/helpers';
-import { DecafRepository, DecafRepositoryAdapter, KeyValue } from './engine/types';
+import { DecafRepository, FunctionLike, DecafRepositoryAdapter, KeyValue } from './engine/types';
 import { Constructor, Model, Primitives } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
 import { Repository, uses } from '@decaf-ts/core';
@@ -66,10 +66,10 @@ export const CPTKN = new InjectionToken<unknown>('CPTKN', {providedIn: 'root', f
  * @summary Used to provide configuration for internationalization resources, including
  * translation file locations and supported languages. This token configures how the
  * application loads and manages translation resources.
- * @const {InjectionToken<{resources: I18nResourceConfig[]; versionedSuffix: boolean}>}
+ * @const {InjectionToken<I18nToken>}
  * @memberOf module:lib/for-angular-common.module
  */
-export const I18N_CONFIG_TOKEN = new InjectionToken<{resources: I18nResourceConfig[]; versionedSuffix: boolean}>('I18N_CONFIG_TOKEN');
+export const I18N_CONFIG_TOKEN = new InjectionToken<I18nToken>('I18N_CONFIG_TOKEN');
 
 
 /**

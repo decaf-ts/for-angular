@@ -4,6 +4,7 @@ ion-item {
   &:not(.dcf-input-item) {
     --inner-padding-start: 0rem;
     --padding-start: 0rem;
+    --background: transparent;
   }
   &.dcf-input-item {
     --padding-end: 0rem;

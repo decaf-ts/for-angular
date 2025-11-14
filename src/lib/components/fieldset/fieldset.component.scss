@@ -1,7 +1,3 @@
-* {
-  overflow-x: hidden !important;
-}
-
 ion-accordion {
   ion-item[slot="header"] {
     .dcf-delete {
@@ -14,10 +10,9 @@ ion-accordion {
       }
     }
   }
-
   &.dcf-disabled {
     [slot="content"] {
-      display: none !important;
+      padding-bottom: 0rem !important;
     }
   }
   &.dcf-empty,
@@ -39,12 +34,20 @@ ion-accordion {
 .dcf-fieldset-component {
   border-radius: var(--dcf-border-radius-small);
   border: 1px solid var(--dcf-color-gray-3);
+  &.dcf-blank {
+    border-color: transparent;
+    padding: 0rem !important;
+    margin: 0px !important;
+  }
 
-  .dcf-fieldset-component {
+  * {
+    overflow-x: hidden !important;
   }
 
   ion-accordion {
-    background: var(--dcf-card-background) !important;
+    &:not(.dcf-empty) {
+      background: var(--dcf-card-background) !important;
+    }
     ion-item {
       --background-hover: transparent !important;
     }
@@ -62,46 +65,35 @@ ion-accordion {
     --border-radius: 6px;
     --inner-border-width: 0;
     --padding-start: 0.65rem;
-    --color: var(--ion-color-text);
+    --color: var(--ion-color-text) !important;
 
     margin: unset;
   }
 
   legend,
   .dcf-title {
-    font-size: 0.875rem;
+    // font-size: 0.875rem;
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.5rem;
     font-weight: 600;
     margin: 0;
+    color: var(--ion-color-text) !important;
   }
 
   .dcf-title {
     padding: 0.8rem !important;
-    color: var(--ion-color-text);
-  }
-
-  &.not-collapsable {
-    // .dcf-title {
-    //   margin: var(--dcf-padding-xsmall) !important;
-    //   display: inline-block;
-    // }
   }
   [slot="content"] {
-    padding: var(--dcf-padding-small) 0.25rem;
+    padding: var(--dcf-padding-small) 0.25rem !important;
+    > div {
+      padding-top: 0.25rem !important;
+    }
   }
   &:not(.dcf-blank) ion-accordion {
     [slot="header"] {
       margin-top: 0.125rem;
     }
-
-    // [slot="content"] {
-    //   padding: var(--dcf-padding-small) 0.25rem;
-    // }
-  }
-
-  &.dcf-blank {
-    border-color: transparent;
-    padding: 0rem !important;
-    margin: 0px !important;
   }
 
   .dcf-max-message-container {
@@ -169,6 +161,10 @@ ion-accordion {
   padding: 0rem 0.125rem;
   &:not(.dcf-blank) {
     padding-bottom: var(--dcf-padding-small) !important;
+  }
+  &.dcf-not-collapsable.dcf-empty {
+    position: relative;
+    top: -1rem !important;
   }
   @media (max-width: 480px) {
     flex-direction: column-reverse;

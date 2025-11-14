@@ -86,6 +86,7 @@
     "jest-html-reporters": "^3.1.7",
     "jest-junit": "^16.0.0",
     "jest-preset-angular": "^14.6.0",
+    "jsdoc-mermaid": "^1.0.0",
     "ng-packagr": "^20.3.0",
     "storybook": "9.1.5",
     "ts-node": "^10.9.2",
@@ -127,9 +128,5 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
-  },
-  "dependencies": {
-    "better-docs": "^2.7.3",
-    "taffydb": "^2.7.3"
   }
 }

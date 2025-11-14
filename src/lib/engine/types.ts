@@ -13,7 +13,7 @@ import { FormServiceControl, I18nResourceConfig, InputOption } from './interface
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
 import { Constructor, Model } from '@decaf-ts/decorator-validation';
-import { ActionRoles, ElementPositions, ElementSizes, LayoutGridGaps, WindowColorSchemes } from './constants';
+import { ActionRoles, ElementPositions, ElementSizes, LayoutGridGaps, ListItemPositions,  WindowColorSchemes } from './constants';
 import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
 
 
@@ -108,18 +108,19 @@ export type FlexPosition =
 export type FieldUpdateMode = 'change' | 'blur' | 'submit';
 
 
+export type HTML5InputType = typeof HTML5InputTypes[keyof typeof HTML5InputTypes];
 
 /**
  * @description Possible input types for form fields
  * @summary Defines the possible input types that can be used in form fields.
  * Includes standard HTML input types like checkbox, radio, and select,
  * as well as Ionic's TextFieldTypes and textarea.
- * @typedef {('checkbox'|'radio'|'select'|TextFieldTypes|'textarea')} PossibleInputTypes
+ * @typedef {TextFieldTypes | HTML5InputType} PossibleInputTypes
  * @memberOf module:engine
  */
 export type PossibleInputTypes =
   | TextFieldTypes
-  | typeof HTML5InputTypes[keyof typeof HTML5InputTypes];
+  | HTML5InputType;
 
 /**
  * @description Field definition for Angular components
@@ -208,7 +209,6 @@ export type RadioOption = InputOption & { checked?: boolean };
 export type CheckboxOption = RadioOption;
 
 
-
 /**
  * @description Target options for HTML forms
  * @summary Defines the possible target values for HTML forms, including standard targets
@@ -217,20 +217,6 @@ export type CheckboxOption = RadioOption;
  * @memberOf module:engine
  */
 export type HTMLFormTarget = '_blank' | '_self' | '_parent' | '_top' | string;
-
-// export interface IListItemProp {
-//   render?: string | boolean;
-//   translateProps?: string | string[];
-//   button?: StringOrBoolean;
-//   icon?: string;
-//   iconSlot?: 'start' | 'end';
-//   title?: string;
-//   descritpion?: string;
-//   info?: string;
-//   subinfo?: string;
-// }
-
-
 
 /**
  * @description Type for form service controls
@@ -257,32 +243,43 @@ export type FormParent = FormGroup | FormArray;
 export type FormParentGroup = [FormParent,  string];
 
 /**
- * @description Configuration for internationalization resources
- * @summary Represents a single or an array of internationalization resource configurations.
+ * @description Represents the configuration for internationalization resources.
+ * @summary This type can either be a single `I18nResourceConfig` object or an array of such objects.
  * @typedef {I18nResourceConfig | I18nResourceConfig[]} I18nResourceConfigType
  * @memberOf module:lib/engine/types
  */
 export type I18nResourceConfigType = I18nResourceConfig | I18nResourceConfig[];
 
-
 /**
- * @description União de todos os valores definidos em `WindowColorSchemes`.
- * @summary Representa o esquema de cores possível para a janela (por exemplo 'light' | 'dark').
- * @see WindowColorSchemes
- * @example
- * // valor típico: 'light' ou 'dark'
- * const scheme: WindowColorScheme = 'dark';
+ * @description Represents the possible color schemes for a window.
+ * @summary This type is derived from the `WindowColorSchemes` constant, allowing only its defined keys as values.
+ * @typedef {typeof WindowColorSchemes[keyof typeof WindowColorSchemes]} WindowColorScheme
+ * @memberOf module:lib/engine/types
  */
 export type WindowColorScheme = typeof WindowColorSchemes[keyof typeof WindowColorSchemes];
 
 /**
- * @description Tipo que representa as roles/ações possíveis definidas em `ActionRoles`.
- * @summary Usado para tipar valores que correspondem a uma ação semântica (ex.: 'submit', 'cancel').
- * @see ActionRoles
- * @example
- * const role: ActionRole = ActionRoles.cancel;
+ * @description Represents the possible roles for an action.
+ * @summary This type is derived from the `ActionRoles` constant, allowing only its defined keys as values.
+ * @typedef {typeof ActionRoles[keyof typeof ActionRoles]} ActionRole
+ * @memberOf module:lib/engine/types
  */
 export type ActionRole = typeof ActionRoles[keyof typeof ActionRoles];
 
-
+/**
+ * @description Represents the possible grid gap values for a layout.
+ * @summary This type is derived from the `LayoutGridGaps` constant, allowing only its defined keys as values.
+ * @typedef {typeof LayoutGridGaps[keyof typeof LayoutGridGaps]} LayoutGridGap
+ * @memberOf module:lib/engine/types
+ */
 export type LayoutGridGap = typeof LayoutGridGaps[keyof typeof LayoutGridGaps];
+
+/**
+ * @description Represents the possible positions for a list item.
+ * @summary This type is derived from the `ListItemPositions` constant, allowing only its defined keys as values.
+ * @typedef {typeof ListItemPositions[keyof typeof ListItemPositions]} ListItemPosition
+ * @memberOf module:lib/engine/types
+ */
+export type ListItemPosition = typeof ListItemPositions[keyof typeof ListItemPositions];
+
+

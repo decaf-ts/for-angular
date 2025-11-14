@@ -43,8 +43,8 @@ import { dataMapper, generateRandomValue } from '../../utils';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { Dynamic } from '../../engine/decorators';
 import { getLocaleContextByKey } from '../../i18n/Loader';
-import { getNgxModalComponent, getNgxSelectOptionsModal } from '../modal/modal.component';
-import { ActionRoles } from 'src/lib/engine';
+import { getNgxSelectOptionsModal } from '../modal/modal.component';
+import { ActionRoles } from '../../engine/constants';
 
 /**
  * @description A dynamic form field component for CRUD operations.

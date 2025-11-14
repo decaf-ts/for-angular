@@ -338,3 +338,13 @@ export const LayoutGridGaps = {
   collapse: 'collapse',
   none: ''
 } as const;
+
+
+export const ListItemPositions = {
+  uid: 'uid',
+  title: 'title',
+  description: 'description',
+  info: 'info',
+  subinfo: 'subinfo',
+} as const;
+

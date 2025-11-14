@@ -23,30 +23,31 @@ export class EpiForm extends Model {
   @uichild(Leaflet.name, 'ngx-decaf-fieldset', {
     title: "Documents",
     borders: false,
-    collapsable: false,
+    required: false,
     rows: 1,
     cols: 2,
+    ordenable: false,
   } as Partial<FieldsetComponent>, true)
   @uiorder(1)
   document!: Leaflet;
 
-  // @uipageprop(1)
-  // @uichild(SubstanceForm.name, 'ngx-decaf-fieldset', {
-  //   title: "Strengths",
-  //   borders: false,
-  //   collapsable: false
-  // } as Partial<FieldsetComponent>, false)
-  // @uiorder(2)
-  // strengths!: SubstanceForm;
+  @uipageprop(1)
+  @uichild(SubstanceForm.name, 'ngx-decaf-fieldset', {
+    title: "Strengths",
+    borders: false,
+    required: false,
+  } as Partial<FieldsetComponent>, true)
+  @uiorder(2)
+  strengths!: SubstanceForm;
 
-  // @uipageprop(1)
-  // @uichild(MarketForm.name, 'ngx-decaf-fieldset', {
-  //   title: "Markets",
-  //   borders: false,
-  //   collapsable: false
-  // } as Partial<FieldsetComponent>, false)
-  // @uiorder(3)
-  // markets!: MarketForm;
+  @uipageprop(1)
+  @uichild(MarketForm.name, 'ngx-decaf-fieldset', {
+    title: "Markets",
+    borders: false,
+    required: false,
+  } as Partial<FieldsetComponent>, true)
+  @uiorder(3)
+  markets!: MarketForm;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: ModelArg<EpiForm>) {

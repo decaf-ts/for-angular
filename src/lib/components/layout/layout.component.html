@@ -12,6 +12,7 @@
             (className || '')
           "
           [class.dcf-grid-match]="match"
+          [class.dcf-grid-bordered]="borders"
         >
           @if (row?.title?.length) {
             <div class="dcf-width-1-1 dcf-grid-title">
@@ -23,14 +24,16 @@
             track trackItemFn($index, child.col);
             let colIndex = $index
           ) {
+
             <div
-              [class]="child.colClass"
+              [class]="'dcf-grid-col ' + child.colClass"
               [class.dcf-first-column]="$index === 0"
               [class.dcf-layout-separator]="child.props?.separator ?? false"
-              [class.dcf-layout-bordered]="child.props?.borders ?? false"
             >
-              <div >
+              <div>
+
                 @if (child.tag === "ngx-decaf-crud-form") {
+
                   <ngx-decaf-card
                     [className]="
                       (match ? 'dcf-height-1-1 dcf-card-layout' : '') +
@@ -45,15 +48,14 @@
                     />
                   </ngx-decaf-card>
                 } @else {
-                  <ngx-decaf-component-renderer
+
+                   <ngx-decaf-component-renderer
                     [tag]="child.tag"
                     [className]="
                       (match ? 'dcf-height-1-1 dcf-card-layout' : '') +
                       className
                     "
-                    [parentForm]="
-                      parentForm || child.parentForm || child?.formGroup
-                    "
+                    [parentForm]="parentForm || child.parentForm || child?.formGroup"
                     [children]="child?.children || []"
                     (listenEvent)="handleEvent($event)"
                     [globals]="{ props: child.props }"
