@@ -31,6 +31,17 @@ ion-accordion {
   }
 }
 
+.dcf-not-collapsable {
+  .dcf-max-message-container {
+    margin: 0.75rem;
+    margin-top: 0rem !important;
+
+    + .dcf-buttons-container {
+      margin-top: var(--dcf-margin-small) !important;
+    }
+  }
+}
+
 .dcf-fieldset-component {
   border-radius: var(--dcf-border-radius-small);
   border: 1px solid var(--dcf-color-gray-3);

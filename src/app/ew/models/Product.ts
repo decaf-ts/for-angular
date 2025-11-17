@@ -49,7 +49,7 @@ export class Product extends Model {
   // @uilayoutprop(1)
   // productDetailsTitle!: string;
 
-  @pk({type: 'Number' })
+  @pk({type: Number.name })
   @uilistprop('uid')
   @required()
   @uielement('ngx-decaf-crud-field', {

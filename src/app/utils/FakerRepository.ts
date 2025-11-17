@@ -3,6 +3,7 @@ import { DecafRepository } from 'src/lib/engine/types';
 import { AIModel } from '../models/AIVendorModel';
 import {  AIFeatures } from './contants';
 import { DecafFakerRepository } from 'src/lib/utils/DecafFakerRepository';
+import { Product, ProductNames } from '../ew/models/Product';
 export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
 
   public override async initialize(): Promise<void> {
@@ -15,9 +16,9 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
         case AIModel.name:
           data = await this.generateData<AIModel>(AIFeatures, 'features', "name");
           break;
-        // case AIFeature.name:
-        //   data = await this.generateData<AIFeature>(AIFeatures);
-        //   break;
+        case Product.name:
+          data = await this.generateData<Product>(ProductNames, 'inventedName', "string");
+          break;
         default:
           data = await this.generateData();
       }

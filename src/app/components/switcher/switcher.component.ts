@@ -1,10 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { IPagedComponentProperties } from '@decaf-ts/ui-decorators';
-import { IonSpinner } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CardComponent } from 'src/lib/components';
-
 import { ComponentRendererComponent } from 'src/lib/components/component-renderer/component-renderer.component';
 import { ElementPosition, ElementPositions, NgxParentComponentDirective } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
@@ -16,7 +13,7 @@ import { Dynamic } from 'src/lib/engine/decorators';
   templateUrl: './switcher.component.html',
   styleUrls: ['./switcher.component.scss'],
   standalone: true,
-  imports: [CommonModule, CardComponent, IonSpinner, TranslatePipe, ComponentRendererComponent]
+  imports: [CommonModule, TranslatePipe, ComponentRendererComponent]
 })
 export class SwitcherComponent extends NgxParentComponentDirective implements OnInit, OnDestroy {
 

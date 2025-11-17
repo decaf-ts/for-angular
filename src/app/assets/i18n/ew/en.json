@@ -1,4 +1,16 @@
 {
+  "menu": {
+    "product": "Products",
+    "batch": "Batches",
+    "logout": "Logout",
+    "account": "Account",
+    "user": "Users",
+    "category": "Categories",
+    "employee": "Employees",
+    "ai": "AI Models",
+    "aivendor": "Ai Vendors",
+    "product_management": "Product Management"
+  },
   "product": {
     "title":"Products Details",
     "menu": "Products",
@@ -94,8 +106,7 @@
       "placeholder": "Enter the date of manufacturing"
     },
     "batchRecall": {
-      "label": "Batch Recall",
-      "placeholder": "Indicates if the batch is subject to recall"
+      "label": "Mark Batch as Recalled (Enabled only for Brazil)"
     }
   },
   "leaflet": {
