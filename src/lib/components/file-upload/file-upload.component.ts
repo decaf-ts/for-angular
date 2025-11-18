@@ -3,9 +3,7 @@ import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, OnInit, 
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   IonItem, IonLabel, IonList,
-  IonButton,
-  IonIcon,
-  IonText
+  IonButton
  } from '@ionic/angular/standalone';
  import { TranslatePipe } from '@ngx-translate/core';
 import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
@@ -51,7 +49,7 @@ const FileErrors = {
   templateUrl: './file-upload.component.html',
   styleUrls: ['./file-upload.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardComponent, IconComponent, IonList, IonLabel, IonItem, IonText, TranslatePipe,  IonIcon, IonButton],
+  imports: [CommonModule, ReactiveFormsModule, CardComponent, IconComponent, IonList, IonLabel, IonItem, TranslatePipe,  IonButton],
 })
 export class FileUploadComponent extends NgxFormFieldDirective implements OnInit, OnDestroy {
 

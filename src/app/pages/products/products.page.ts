@@ -5,7 +5,7 @@ import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { ListComponent } from 'src/lib/components/list/list.component';
 import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
-import { CardComponent, EmptyStateComponent } from 'src/lib/components';
+import { EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IBaseCustomEvent, IModelPageCustomEvent } from 'src/lib/engine/interfaces';
 import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
@@ -104,7 +104,7 @@ import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
   standalone: true,
   selector: 'app-products',
   templateUrl: './products.page.html',
-  imports: [IonContent, ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent, CardComponent],
+  imports: [IonContent, ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent],
   styleUrls: ['./products.page.scss'],
 })
 export class ProductsPage extends NgxModelPageDirective implements OnInit {

@@ -9,7 +9,7 @@ import {
 import { pk } from "@decaf-ts/core";
 import {  HTML5InputTypes, uichild, uielement, uilayout, uilayoutprop,  uilistprop, uimodel } from "@decaf-ts/ui-decorators";
 import { Product } from "./Product";
-import { EpiForm } from "../forms/EpiForm";
+import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 
 @uimodel('ngx-decaf-fieldset')
 @model()
@@ -18,7 +18,6 @@ class ManufacturerAddress {
     label: 'batch.manufacturerAddress.label',
     placeholder: 'batch.manufacturerAddress.placeholder',
   })
-  @minlength(2)
   address?: string;
 }
 
@@ -32,11 +31,11 @@ export class Batch extends Model {
     label: "batch.productcode.label",
     placeholder: "batch.productcode.placeholder",
     type: HTML5InputTypes.SELECT,
-    optionsMapper: (item: Product) => ({text: item.inventedName, value: `${item.productCode}`}),
+    optionsMapper: (item: Product) => ({text:`${item.productCode} - ${ item.inventedName}`, value: `${item.productCode}`}),
     options: () => Product
   })
   @uilistprop('title')
-  @uilayoutprop('half', 1)
+  @uilayoutprop('half')
   @required()
   productCode!: string;
 
@@ -46,7 +45,7 @@ export class Batch extends Model {
     placeholder: 'batch.batchNumber.placeholder',
   })
   @required()
-  @uilayoutprop('half', 1)
+  @uilayoutprop('half')
   batchNumber!: string;
 
 
@@ -54,7 +53,7 @@ export class Batch extends Model {
     label: 'batch.packagingSiteName.label',
     placeholder: 'batch.packagingSiteName.placeholder',
   })
-  @uilayoutprop('half', 2)
+  @uilayoutprop('half')
   @minlength(2)
   packagingSiteName?: string;
 
@@ -62,7 +61,7 @@ export class Batch extends Model {
     label: 'batch.importLicenseNumber.label',
     placeholder: 'batch.importLicenseNumber.placeholder',
   })
-  @uilayoutprop('half', 2)
+  @uilayoutprop('half')
   importLicenseNumber2?: string;
 
    @uielement('ngx-decaf-crud-field', {
@@ -71,7 +70,7 @@ export class Batch extends Model {
   })
   @required()
   @date('yyyy-MM-dd')
-  @uilayoutprop(2, 3)
+  @uilayoutprop('half')
   expiryDate!: string;
 
   @uielement('ngx-decaf-crud-field', {
@@ -80,7 +79,7 @@ export class Batch extends Model {
     page: 1,
     type: HTML5InputTypes.CHECKBOX
   })
-  @uilayoutprop(1, 3)
+  @uilayoutprop('half')
   enableDaySelection!: string;
 
   @uielement('ngx-decaf-crud-field', {
@@ -88,7 +87,7 @@ export class Batch extends Model {
     placeholder: 'batch.manufacturerName.placeholder',
     page: 1,
   })
-  @uilayoutprop(2, 4)
+  @uilayoutprop('half')
   manufacturerName?: string;
 
   @uielement('ngx-decaf-crud-field', {
@@ -96,16 +95,21 @@ export class Batch extends Model {
     placeholder: 'batch.dateOfManufacturing.placeholder',
   })
   @date('yyyy-MM-dd')
-  @uilayoutprop(1, 4)
+  @uilayoutprop('half')
   dateOfManufacturing!: string;
 
-  @uilayoutprop('full', 5)
-  @uichild(ManufacturerAddress.name, 'ngx-decaf-fieldset', {title: "batch.manufacturerAddress.label", max: 6,  collapsable: false, borders: false}, true)
+  @uilayoutprop(1)
+  @uichild(ManufacturerAddress.name, 'ngx-decaf-fieldset', {title: "batch.manufacturerAddress.label", max: 5,  collapsable: false, borders: true}, true)
   manufacturerAddress!: ManufacturerAddress;
 
-  @uilayoutprop('full', 6)
-  @uichild(EpiForm.name, 'app-switcher', {}, false)
-  epi!: EpiForm;
+  @uielement('ngx-decaf-crud-field', {
+    label: 'batch.batchRecall.label',
+    placeholder: 'batch.batchRecall.placeholder',
+    type: HTML5InputTypes.CHECKBOX,
+  } as Partial<CrudFieldComponent>)
+  @uilistprop('description')
+  @uilayoutprop(1)
+  productRecall?: boolean;
 
 
   // epiLeafletVersion?: number;

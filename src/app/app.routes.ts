@@ -60,8 +60,20 @@ export const routes: Routes = [
     path: 'products/:operation',
     loadComponent: () => import('./pages/products/products.page').then( m => m.ProductsPage)
   },
-   {
+  {
     path: 'products/:operation/:modelId',
     loadComponent: () => import('./pages/products/products.page').then( m => m.ProductsPage)
-  }
+  },
+  {
+    path: 'batches',
+    loadComponent: () => import('./pages/batches/batches.page').then( m => m.BatchesPage)
+  },
+  {
+    path: 'batches/:operation',
+    loadComponent: () => import('./pages/batches/batches.page').then( m => m.BatchesPage)
+  },
+   {
+    path: 'batches/:operation/:modelId',
+    loadComponent: () => import('./pages/batches/batches.page').then( m => m.BatchesPage)
+  },
 ];

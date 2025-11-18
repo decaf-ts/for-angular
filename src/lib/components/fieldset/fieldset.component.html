@@ -33,6 +33,7 @@
             </div>
           </ion-item>
         }
+
         <div slot="content" [attr.aria-hidden]="!isOpen">
          @if (activePage) {
             <div>
@@ -45,7 +46,7 @@
                 [parentForm]="formGroup || parentForm"
                 [rows]="rows"
                 [cols]="cols"
-                [borders]="borders ?? false"
+                [borders]="activePage?.borders  ?? false"
                 [breakpoint]="breakpoint ?? 'large'"
                 [hidden]="items.length === max && !updatingItem"
               />

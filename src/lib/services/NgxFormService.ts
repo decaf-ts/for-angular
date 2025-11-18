@@ -200,8 +200,7 @@ export class NgxFormService {
     const controlName = parts.pop() as string;
 
     const {childOf} = componentProps
-    const currentGroup = formGroup;
-
+    let currentGroup = formGroup;
     function setArrayComponentProps(formGroupArray: KeyValue) {
       const props = formGroupArray?.[BaseComponentProps.FORM_GROUP_COMPONENT_PROPS] || {};
         if(!props[ModelKeys.MODEL][controlName])
@@ -235,7 +234,7 @@ export class NgxFormService {
       }
       if(childOf && currentGroup instanceof FormArray)
         setArrayComponentProps(currentGroup);
-      return [currentGroup.get(part) as FormGroup, controlName];
+      currentGroup = currentGroup.get(part) as FormGroup;
     }
     return [currentGroup, controlName];
   }
