@@ -7,7 +7,7 @@ import { Product, ProductNames } from '../ew/models/Product';
 export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
 
   public override async initialize(): Promise<void> {
-    super.initialize();
+    await super.initialize();
     const repo = this._repository as DecafRepository<Model>;
     let data = await repo.select().execute();
     if(!this.data?.length) {

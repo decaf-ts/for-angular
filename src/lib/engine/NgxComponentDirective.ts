@@ -413,6 +413,18 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
 
 
   /**
+   * @description Controls whether borders are displayed around the component.
+   * @summary Boolean flag that determines if the component should be visually outlined with borders.
+   * When true, borders are shown to visually separate the component from surrounding content.
+   *
+   * @type {boolean}
+   * @default false
+   */
+  @Input()
+  borders: boolean = false;
+
+
+  /**
    * @description Component name identifier for logging and localization contexts.
    * @summary Stores the component's name which is used as a key for logging contexts
    * and as a base for locale resolution. Can be injected via the CPTKN token or defaults

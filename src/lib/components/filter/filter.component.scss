@@ -1,3 +1,10 @@
+:host {
+  position: relative;
+  z-index: 1000 !important;
+  * {
+    z-index: 1000 !important;
+  }
+}
 .dcf-filter-component {
   padding: 0 0.5rem;
   margin-top: 0.75rem;

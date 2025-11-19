@@ -6,9 +6,10 @@
   // put borders on grid childs
   &.dcf-grid-bordered {
     > div > div {
-      padding: var(--dcf-padding);
+      padding: var(--dcf-padding-small) var(--dcf-padding);
       border-radius: var(--dcf-border-radius-small);
       border: 1px solid var(--dcf-color-gray-2);
+      background: var(--dcf-card-background) !important;
     }
   }
   // @media (max-width: 575px) {

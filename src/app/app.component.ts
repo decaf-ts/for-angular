@@ -86,7 +86,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       const name = model.constructor.name.replace(/[0-9]/g, '');
       if (isDevelopment) {
         if(populate.includes(name)) {
-          this.logger.info(`Populating repository for model: ${name}`);
+          this.logger.info(`Development mode - Populating repository for model: ${name}`);
           const repository = new FakerRepository(model, 36);
           await repository.initialize();
         }

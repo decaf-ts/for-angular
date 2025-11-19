@@ -1,5 +1,8 @@
-<div class="decaf-empty-state-component" #component>
-  <ngx-decaf-card [className]="className">
+<div class="decaf-empty-state-component"  #component>
+  <ngx-decaf-card [className]="className"
+    [borders]="borders"
+    [body]="body"
+  >
       @if (icon && showIcon) {
         <div class="dcf-icon-container">
           <ngx-decaf-icon

@@ -21,3 +21,22 @@ ion-infinite-scroll {
     display: none !important;
   }
 }
+
+.dcf-grid-actions {
+  padding: var(--dcf-padding-small);
+  padding-bottom: 0px;
+  @media (max-width: 768px) {
+    .dcf-button-container {
+      width: 100% !important;
+      * {
+        width: calc(100% - 5px) !important;
+        display: inline-block;
+        margin-top: 0 !important;
+        margin-bottom: var(--dcf-margin-xsmall) !important;
+      }
+    }
+  }
+  > div:only-child {
+    width: 100%;
+  }
+}

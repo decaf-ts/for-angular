@@ -5,7 +5,7 @@ import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { ListComponent } from 'src/lib/components/list/list.component';
 import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
-import { EmptyStateComponent } from 'src/lib/components';
+import { CardComponent, EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IBaseCustomEvent, IModelPageCustomEvent } from 'src/lib/engine/interfaces';
 import { BatchLayout } from 'src/app/ew/layouts/BatchLayout';
@@ -15,7 +15,7 @@ import { BatchLayout } from 'src/app/ew/layouts/BatchLayout';
   templateUrl: './batches.page.html',
   styleUrls: ['./batches.page.scss'],
   standalone: true,
-  imports: [IonContent, ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent],
+  imports: [IonContent, CardComponent, ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent],
 })
 export class BatchesPage  extends NgxModelPageDirective implements OnInit {
   // constructor() {

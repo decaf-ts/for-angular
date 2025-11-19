@@ -144,18 +144,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
 
 
   /**
-   * @description Controls whether borders are displayed around the fieldset.
-   * @summary Boolean flag that determines if the fieldset should be visually outlined with borders.
-   * When true, borders are shown to visually separate the fieldset from surrounding content.
-   *
-   * @type {boolean}
-   * @default true
-   */
-  @Input()
-  borders: boolean = false;
-
-
-  /**
    * @description Media breakpoint for responsive behavior.
    * @summary Determines the responsive breakpoint at which the layout should adapt.
    * This affects how the grid behaves on different screen sizes, allowing for
@@ -167,7 +155,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
    */
   @Input()
   breakpoint?: UIMediaBreakPointsType | string = UIMediaBreakPoints.MEDIUM;
-
 
 
   /**

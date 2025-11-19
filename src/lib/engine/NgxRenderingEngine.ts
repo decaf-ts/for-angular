@@ -28,6 +28,7 @@ import {
 import { NgxFormService } from '../services/NgxFormService';
 import { isDevelopmentMode } from '../utils';
 import { FormParent } from './types';
+import { getLogger } from '../for-angular-common.module';
 
 /**
  * @description Angular implementation of the RenderingEngine for Decaf components.
@@ -213,7 +214,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     });
 
     if (unmappedKeys.length > 0 && isDevelopmentMode())
-      console.warn(`Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`);
+      getLogger(this.fromFieldDefinition).warn(`Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`);
 
     const operation = NgxRenderingEngine._operation;
 
@@ -347,7 +348,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       });
 
       if (unmappedKeys.length > 0 && isDevelopmentMode())
-        console.warn(`Unmapped input properties for component ${component}: ${unmappedKeys.join(', ')}`);
+        getLogger(this.createHostComponent).warn(`Unmapped input properties for component ${component}: ${unmappedKeys.join(', ')}`);
 
       if (metadata)
         this.setInputs(cmp as ComponentRef<unknown>, inputs, metadata as ComponentMirror<unknown>);

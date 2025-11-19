@@ -12,7 +12,10 @@ ion-menu {
     border-right: 1px solid var(--dcf-card-background);
     > *,
     ion-content {
-      background: var(--dcf-item-background, var(--dcf-background-color, #fff)) !important;
+      background: var(
+        --dcf-item-background,
+        var(--dcf-background-color, #fff)
+      ) !important;
     }
 
     ion-list-header,
@@ -54,7 +57,10 @@ ion-menu {
   border-right: 1px solid var(--dcf-color-gray-2);
 
   ion-content {
-    --background: var(--ion-item-background, var(--ion-background-color, #fff)) !important;
+    --background: var(
+      --ion-item-background,
+      var(--ion-background-color, #fff)
+    ) !important;
   }
 
   ion-list {
@@ -72,7 +78,9 @@ ion-menu {
       margin-top: 1rem;
       cursor: text;
       color: var(--ion-color-gray-5);
-      border-top: 1px solid var(--dcf-color-gray-1);
+      &:not(:first-child) {
+        border-top: 1px solid var(--dcf-color-gray-1);
+      }
       ion-label {
         font-size: 0.8125rem !important;
       }
@@ -105,6 +113,10 @@ ion-menu {
           font-size: 1.375rem !important;
           margin-right: 0.5rem;
           transform: translateY(-1px);
+        }
+        ion-img {
+          margin-right: 0.5rem;
+          transform: translateY(-2px);
         }
       }
     }

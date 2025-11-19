@@ -111,6 +111,11 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
   @Input()
   indexes: string[] = [];
 
+
+  @Input()
+  multiple: boolean = false;
+
+
   /**
    * @description Available comparison conditions for filters.
    * @summary Defines the list of comparison operators that can be used when creating filters.
@@ -532,7 +537,10 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
           this.step = 0;
           this.filterValue[this.filterValue.length - 1] = filter;
           this.lastFilter = {};
+          if(!this.multiple)
+            return this.submit();
         }
+
         this.step++;
         this.value = '';
         if (this.options.length)
@@ -618,14 +626,16 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @returns {void}
    * @memberOf FilterComponent
    */
-  reset(): void {
+  reset(submit: boolean = true): void {
     this.options = this.filteredOptions = this.filterValue = [];
     this.step = 1;
     this.lastFilter = {};
     this.value = '';
-    setTimeout(() => {
-       this.submit();
-    }, 100);
+    if (submit) {
+      setTimeout(() => {
+        this.submit();
+      }, 100);
+    }
   }
 
   /**
@@ -728,6 +738,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    */
   filterOptions(value: string | null |  undefined): string[] {
     const optionsElement = this.optionsFilterElement.nativeElement;
+
     if (!value?.length || !value || value.length < 2) {
       const filteredOption = optionsElement.querySelector('.dcf-filtering-item');
       if (filteredOption)
