@@ -41,6 +41,10 @@
 // @use "../../styles/dist/main.css";
 @use "./theme/variables.scss";
 
+// ion-router-outlet ion-content {
+//   --background: var(--dcf-content-background);
+// }
+
 /* Or import only core and components you need */
 // @import "@decaf-ts/styles/dist/core.css";
 // @import "@decaf-ts/styles/dist/components/grid.css";

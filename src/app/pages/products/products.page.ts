@@ -9,6 +9,8 @@ import { EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IBaseCustomEvent, IModelPageCustomEvent } from 'src/lib/engine/interfaces';
 import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
+import { Product } from 'src/app/ew/models/Product';
+import { CardComponent } from 'src/lib/components/card/card.component';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -104,7 +106,7 @@ import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
   standalone: true,
   selector: 'app-products',
   templateUrl: './products.page.html',
-  imports: [IonContent, ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent],
+  imports: [IonContent, CardComponent, ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent],
   styleUrls: ['./products.page.scss'],
 })
 export class ProductsPage extends NgxModelPageDirective implements OnInit {
@@ -115,7 +117,7 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
   override ngOnInit(): Promise<void> | void {
     super.ngOnInit();
     this.title = "product.title";
-    this.model = new ProductLayout();
+    this.model = !this.operation ? new Product() : new ProductLayout();
  }
 
   override async ionViewWillEnter(): Promise<void> {

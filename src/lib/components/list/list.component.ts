@@ -13,6 +13,7 @@ import { Component, OnInit, EventEmitter, Output, Input, HostListener, OnDestroy
 import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
 import { TranslatePipe } from '@ngx-translate/core';
 import {
+  IonButton,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
   IonItem,
@@ -31,7 +32,6 @@ import { debounceTime, Subject } from 'rxjs';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
 import {
-  StringOrBoolean,
   KeyValue,
   FunctionLike,
   DecafRepository
@@ -137,6 +137,7 @@ import { FilterComponent } from '../filter/filter.component';
   imports: [
     TranslatePipe,
     IonRefresher,
+    IonButton,
     PaginationComponent,
     IonList,
     IonItem,
@@ -177,12 +178,12 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * users to filter the list items. The search functionality works by filtering the
    * existing data or by triggering a new data fetch with search parameters.
    *
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default true
    * @memberOf ListComponent
    */
   @Input()
-  showSearchbar: StringOrBoolean = true;
+  showSearchbar: boolean = true;
 
   /**
    * @description Direct data input for the list component.
@@ -241,12 +242,12 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * through infinite scrolling or pagination. When false, the component will not
    * attempt to load more data beyond what is initially displayed.
    *
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default true
    * @memberOf ListComponent
    */
   @Input()
-  loadMoreData: StringOrBoolean = true
+  loadMoreData: boolean = true
 
   /**
    * @description The style of dividing lines between list items.
@@ -267,12 +268,12 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @summary When set to true, the list will have inset styling with rounded corners
    * and margin around the edges. This creates a card-like appearance for the list.
    *
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default false
    * @memberOf ListComponent
    */
   @Input()
-  inset: StringOrBoolean = false;
+  inset: boolean = false;
 
   /**
    * @description The threshold for triggering infinite scroll loading.
@@ -315,12 +316,24 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @summary When set to true, enables the pull-to-refresh functionality that allows
    * users to refresh the list data by pulling down from the top of the list.
    *
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default true
    * @memberOf ListComponent
    */
   @Input()
-  showRefresher: StringOrBoolean = true;
+  showRefresher: boolean = true;
+
+
+  /**
+   * @description Controls the visibility of the create button.
+   * @summary When set to true, displays a button to create new items in the list.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf ListComponent
+   */
+  @Input()
+  createButton: boolean = false;
 
   /**
    * @description The type of spinner to display during loading operations.
@@ -351,12 +364,12 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * complex search criteria with multiple field filters, conditions, and values.
    * When false, disables the filter interface entirely.
    *
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default true
    * @memberOf ListComponent
    */
   @Input()
-  enableFilter: StringOrBoolean = true;
+  enableFilter: boolean = true;
 
   /**
    * @description Sorting parameters for data fetching.
@@ -388,18 +401,15 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * changing the sort order or field. The list will maintain its default or
    * programmatically set sort configuration without user interaction.
    *
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default false
    * @memberOf ListComponent
    */
   @Input()
-  disableSort: StringOrBoolean = false;
+  disableSort: boolean = false;
 
 
-
-
-
-    /**
+  /**
    * @description Configuration for the empty state display.
    * @summary Customizes how the empty state is displayed when no data is available.
    * This includes the title, subtitle, button text, icon, and navigation link.
@@ -636,14 +646,19 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
 
     this.clickItemSubject.pipe(debounceTime(100)).subscribe(event => this.clickEventEmit(event as ListItemCustomEvent | IBaseCustomEvent));
     this.observerSubjet.pipe(debounceTime(100)).subscribe(args => this.handleObserveEvent(args[0], args[1], args[2]));
-    this.enableFilter = stringToBoolean(this.enableFilter);
     this.limit = Number(this.limit);
     this.start = Number(this.start);
+
+    this.enableFilter = stringToBoolean(this.enableFilter);
     this.inset = stringToBoolean(this.inset);
     this.showRefresher = stringToBoolean(this.showRefresher);
     this.loadMoreData = stringToBoolean(this.loadMoreData);
     this.showSearchbar = stringToBoolean(this.showSearchbar);
     this.disableSort = stringToBoolean(this.disableSort);
+
+    if(!this.operations || !this.operations.includes(OperationKeys.CREATE))
+      this.createButton = false;
+
     if (typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
@@ -653,7 +668,6 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     this.initialized = true;
     if(this.isModalChild)
       this.changeDetectorRef.detectChanges();
-
   }
 
   /**
@@ -899,7 +913,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
   refreshEventEmit(data?: KeyValue[]): void {
     if (!data)
       data = this.items;
-    this.skeletonData = new Array(data?.length || 2);
+    this.skeletonData = new Array(1);
     this.refreshEvent.emit({
       name: ComponentEventNames.REFRESH,
       data: data || [],

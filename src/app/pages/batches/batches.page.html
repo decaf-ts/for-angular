@@ -15,38 +15,42 @@
 <ion-content [fullscreen]="true">
   <main class="main">
     <app-container [hasSideMenu]="true">
-      @if(model) {
-        @if(!operation) {
-          <ngx-decaf-list
-            [model]="model"
-            [operation]="operation"
-            [route]="'batches'"
-            type="paginated"
-            [operations]="['read', 'create', 'update', 'delete']"
-            (listenEvent)="handleEvent($event)"
-          />
-        } @else {
-          @if(!errorMessage) {
-            <ngx-decaf-model-renderer
-                [model]="model"
-                (listenEvent)="handleEvent($event)"
-                [globals]="{operation: operation, modelId, allowClear: false}"
+        @if(model) {
+          @if(!operation) {
+            <ngx-decaf-card
+              type="shadow"
+              [body]="'blank'"
               >
-            </ngx-decaf-model-renderer>
+              <ngx-decaf-list
+                [model]="model"
+                [createButton]="true"
+                [route]="'products'"
+                [operations]="['read', 'create', 'update', 'delete']"
+                (listenEvent)="handleEvent($event)"
+              />
+            </ngx-decaf-card>
           } @else {
-            <ngx-decaf-empty-state
-              [model]="model"
-              title="404 - Not Found"
-              [route]="'batches'"
-              iconColor="danger"
-              icon="sad-outline"
-              [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}"
-            />
+            @if(!errorMessage) {
+              <ngx-decaf-model-renderer
+                  [model]="model"
+                  (listenEvent)="handleEvent($event)"
+                  [globals]="{operation: operation, modelId, allowClear: false}"
+                >
+              </ngx-decaf-model-renderer>
+            } @else {
+              <ngx-decaf-empty-state
+                [model]="model"
+                title="404 - Not Found"
+                iconColor="danger"
+                icon="sad-outline"
+                [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}"
+              />
+            }
           }
+        } @else {
+          <div>No Model</div>
         }
-      } @else {
-        <div>No Model</div>
-      }
+
     </app-container>
   </main>
 </ion-content>

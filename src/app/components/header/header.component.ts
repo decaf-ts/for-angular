@@ -1,6 +1,6 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { StringOrBoolean } from 'src/lib/engine/types';
-import { OperationKeys } from '@decaf-ts/db-decorators';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { IonAvatar, IonButton, IonButtons, IonHeader, IonMenuButton, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
 import { getOnWindow, getOnWindowDocument, stringToBoolean } from 'src/lib/utils/helpers';
 import { BackButtonComponent } from '../back-button/back-button.component';
@@ -117,6 +117,19 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    */
   @Input()
   override operation: OperationKeys | undefined = undefined;
+
+  /**
+   * @description Available CRUD operations for this component instance.
+   * @summary Defines which CRUD operations (Create, Read, Update, Delete) are available
+   * for this component. This affects which operations can be performed on the data and
+   * which operation buttons are displayed in the UI. By default, only READ operations are enabled.
+   * @type {CrudOperations[]}
+   * @default [OperationKeys.READ]
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
+  @Input()
+  override operations: CrudOperations[] = [];
+
 
   /**
    * @description Controls whether the menu button is displayed.
@@ -338,7 +351,6 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    */
   backButtonColor: string = 'dark';
 
-
   user!: string;
 
   colorSchema: 'dark' | 'light' = 'light';
@@ -389,7 +401,6 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
       this.router.navigateByUrl('/login');
     this.user = isLoggedIn as string;
     this.showBackButton = stringToBoolean(this.showBackButton);
-
     // remove back button case dont have any operation defined
     if(!this.operation)
       this.showBackButton = false;
@@ -404,10 +415,8 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
       this.className += ' dcf-flex';
     if(!this.border)
       this.className += ` ion-no-border`;
-
     if(this.backgroundColor === 'white')
       this.backButtonColor = 'dark';
-
     if(this.sticky || this.floating) {
       if(this.floating)
         this.stickyOffset = 100;
@@ -416,7 +425,6 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
       });
     }
 
-    this.getRoute();
     this.initialized = true;
   }
 

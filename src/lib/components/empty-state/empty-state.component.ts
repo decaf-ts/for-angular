@@ -247,6 +247,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
   @Input()
   searchValue!: string;
 
+
   /**
    * @description Sanitizer instance for bypassing security and sanitizing HTML content.
    * @summary Used to sanitize dynamic HTML content, ensuring it is safe to render in the DOM.
@@ -317,19 +318,13 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    */
   override async ngOnInit(): Promise<void> {
     super.ngOnInit();
-    this.initialize();
     this.showIcon = stringToBoolean(this.showIcon);
-
     this.titleColor = `dcf-title dcf-color-${this.titleColor}`;
     this.subtitleColor = `dcf-subtitle dcf-color-${this.subtitleColor}`;
-
-    this.log.warn(this.route as string);
-
     if (this.searchValue)
       this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);
     if (!this.buttonLink && this.model && this.route)
       this.enableCreationByModelRoute = true;
-
   }
 
   /**

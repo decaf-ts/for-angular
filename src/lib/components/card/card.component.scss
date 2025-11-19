@@ -1,10 +1,12 @@
 // removing borders and shadows for childs
-.dcf-card-clear {
-}
 
 .dcf-card {
   display: flow-root;
   border-radius: var(--dcf-border-radius-small);
+
+  &.dcf-card-shadow {
+    --background: var(--dcf-card-background) !important;
+  }
 
   .dcf-card {
     border-radius: 0px !important;
@@ -12,7 +14,6 @@
 
   &:not(.dcf-card-shadow) {
     box-shadow: none !important;
-
     // dont apply borders on childs
     &.dcf-card-bordered .dcf-card-bordered {
       border-color: transparent !important;
@@ -23,14 +24,20 @@
   &.dcf-card-blank {
     padding: 0px !important;
     margin: 0px !important;
-    background: transparent !important;
     > * {
       padding: 0px !important;
       margin: 0px !important;
     }
   }
+  &.dcf-card-blank {
+    &:not(.dcf-card-shadow) {
+      background: transparent !important;
+    }
+  }
 
   &.dcf-card-separator {
+    background: transparent !important;
+
     ion-card-header {
       padding: unset !important;
       margin: unset !important;
@@ -103,7 +110,7 @@
   }
 
   &.dcf-card-shadow {
-    box-shadow: var(--dcf-card-box-shadow) !important;
+    box-shadow: var(--dcf-box-shadow) !important;
   }
 
   &.dcf-card-bordered {
@@ -128,6 +135,9 @@
 .dcf-palette-dark {
   &.dcf-card-bordered {
     border-color: transparent !important;
+  }
+  &.dcf-card-shadow {
+    box-shadow: var(--dcf-box-shadow-large) !important;
   }
 }
 // fix grid small size
