@@ -1,7 +1,9 @@
+import './setup';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { expect, userEvent, within } from 'storybook/test';
 
 import { PageComponent } from './page.component';
+import { isBrowser } from '@decaf-ts/logging';
 
 const meta: Meta<PageComponent> = {
   title: 'Example/Page',
@@ -11,6 +13,8 @@ const meta: Meta<PageComponent> = {
     layout: 'fullscreen',
   },
 };
+
+console.log(`browser: ${isBrowser()}`);
 
 export default meta;
 type Story = StoryObj<PageComponent>;

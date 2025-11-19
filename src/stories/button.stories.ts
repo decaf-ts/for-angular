@@ -1,3 +1,4 @@
+import './setup';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { fn } from 'storybook/test';
 

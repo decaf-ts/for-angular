@@ -1,3 +1,4 @@
+import './setup';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { getComponentMeta } from './utils';
@@ -7,42 +8,51 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { NgComponentOutlet } from '@angular/common';
 
 const model = new ForAngularModel({
-    id: 1,
-    name: 'John Doe',
-    birthdate: '1989-12-12',
-    email: 'john.doe@example.com',
-    website: 'https://johndoe.example.com',
-    password: 'password123',
+  id: 1,
+  name: 'John Doe',
+  birthdate: '1989-12-12',
+  email: 'john.doe@example.com',
+  website: 'https://johndoe.example.com',
+  password: 'password123',
 });
-const component = getComponentMeta<ModelRendererComponent<any>>([ForAngularCommonModule, NgComponentOutlet]);
+const component = getComponentMeta<ModelRendererComponent<any>>([
+  ForAngularCommonModule,
+  NgComponentOutlet,
+]);
 const meta: Meta<ModelRendererComponent<any>> = {
   title: 'Components/Model Renderer',
   component: ModelRendererComponent,
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   ...component,
   args: {
-      model: new ForAngularModel({
-       birthdate: '1989-12-12'
-      }),
-    globals: {operation: OperationKeys.CREATE}
-  }
+    model: new ForAngularModel({
+      birthdate: '1989-12-12',
+    }),
+    globals: { operation: OperationKeys.CREATE },
+  },
 };
 export default meta;
 type Story = StoryObj<ModelRendererComponent<any>>;
 
-export const Create: Story = {args: { }};
+export const Create: Story = { args: {} };
 
-export const Read: Story = {args: {
-  model,
-  globals: {operation: OperationKeys.READ}
-}};
+export const Read: Story = {
+  args: {
+    model,
+    globals: { operation: OperationKeys.READ },
+  },
+};
 
-export const Update: Story = {args: {
-  model,
-  globals: {operation: OperationKeys.UPDATE}
-}};
+export const Update: Story = {
+  args: {
+    model,
+    globals: { operation: OperationKeys.UPDATE },
+  },
+};
 
-export const Delete: Story = {args: {
-  model,
-  globals: {operation: OperationKeys.DELETE, uid: 1}
-}};
+export const Delete: Story = {
+  args: {
+    model,
+    globals: { operation: OperationKeys.DELETE, uid: 1 },
+  },
+};
