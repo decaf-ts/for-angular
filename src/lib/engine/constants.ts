@@ -29,7 +29,7 @@ import { ModalOptions } from '@ionic/angular/standalone';
  * @memberOf module:lib/engine/constants
  */
 export const AngularEngineKeys = {
-  REFLECT: `${UIKeys.REFLECT}.angular.`,
+  REFLECT: `angular`,
   DYNAMIC: 'dynamic-component',
   ANNOTATIONS: '__annotations__',
   ECMP: 'ecmp',
@@ -42,9 +42,9 @@ export const AngularEngineKeys = {
   RENDERED_ID: 'rendered-as-{0}',
   PARENT: '_parent',
   VALIDATION_PARENT_KEY: VALIDATION_PARENT_KEY,
-  FLAVOUR: "angular",
+  FLAVOUR: 'angular',
   LOADED: 'engineLoaded',
-  DARK_PALETTE_CLASS: 'dcf-palette-dark'
+  DARK_PALETTE_CLASS: 'dcf-palette-dark',
 } as const;
 
 /**
@@ -117,8 +117,8 @@ export enum LoggerLevels {
   INFO = 2,
   WARN = 3,
   ERROR = 4,
-  CRITICAL = 5
-};
+  CRITICAL = 5,
+}
 
 /**
  * @description Route direction constants.
@@ -137,7 +137,6 @@ export enum RouteDirections {
   FORWARD = 'forward',
   ROOT = 'root',
 }
-
 
 /**
  * @description Component tag name constants.
@@ -199,9 +198,8 @@ export enum BaseComponentProps {
   INITIALIZED = 'initialized',
   COMPONENT_NAME = 'componentName',
   PARENT_FORM = 'parentForm',
-  FORM_GROUP_COMPONENT_PROPS = 'componentProps'
+  FORM_GROUP_COMPONENT_PROPS = 'componentProps',
 }
-
 
 /**
  * @description List component type constants.
@@ -257,7 +255,6 @@ export const DefaultFormReactiveOptions: ICrudFormOptions = {
   },
 };
 
-
 /**
  * @description Default options for empty list state display.
  * @summary Provides default configuration for displaying empty state in list components
@@ -280,18 +277,17 @@ export const DefaultListEmptyOptions = {
   showButton: false,
   icon: 'folder-open-outline',
   buttonText: 'locale.empty.button',
-  link: ''
-} as IListEmptyOptions
-
+  link: '',
+} as IListEmptyOptions;
 
 export const DefaultModalOptions = {
-    component: "",
-    showBackdrop: true,
-    backdropDismiss: false,
-    animated: true,
-    canDismiss: true,
-    showBackdropTapClose: true,
-    focusTrap: true,
+  component: '',
+  showBackdrop: true,
+  backdropDismiss: false,
+  animated: true,
+  canDismiss: true,
+  showBackdropTapClose: true,
+  focusTrap: true,
 } as ModalOptions;
 
 export const ActionRoles = {
@@ -299,13 +295,13 @@ export const ActionRoles = {
   confirm: 'confirm',
   submit: 'submit',
   clear: 'clear',
-  back: 'back'
+  back: 'back',
 } as const;
 
 export const WindowColorSchemes = {
   light: 'light',
   dark: 'dark',
-  undefined: 'undefined'
+  undefined: 'undefined',
 } as const;
 
 export const ElementSizes = {
@@ -321,8 +317,7 @@ export const ElementSizes = {
   block: 'block',
 } as const;
 
-
-export const ElementPositions =  {
+export const ElementPositions = {
   left: 'left',
   center: 'center',
   right: 'right',
@@ -330,15 +325,13 @@ export const ElementPositions =  {
   bottom: 'bottom',
 } as const;
 
-
 export const LayoutGridGaps = {
   small: 'small',
   medium: 'medium',
   large: 'large',
   collapse: 'collapse',
-  none: ''
+  none: '',
 } as const;
-
 
 export const ListItemPositions = {
   uid: 'uid',
@@ -347,4 +340,3 @@ export const ListItemPositions = {
   info: 'info',
   subinfo: 'subinfo',
 } as const;
-

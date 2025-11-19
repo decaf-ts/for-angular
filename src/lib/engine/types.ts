@@ -9,15 +9,29 @@
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import { FormServiceControl, I18nResourceConfig, InputOption } from './interfaces';
+import {
+  FormServiceControl,
+  I18nResourceConfig,
+  InputOption,
+} from './interfaces';
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
-import { Constructor, Model } from '@decaf-ts/decorator-validation';
-import { ActionRoles, ElementPositions, ElementSizes, LayoutGridGaps, ListItemPositions,  WindowColorSchemes } from './constants';
+import { Model } from '@decaf-ts/decorator-validation';
+import {
+  ActionRoles,
+  ElementPositions,
+  ElementSizes,
+  LayoutGridGaps,
+  ListItemPositions,
+  WindowColorSchemes,
+} from './constants';
 import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
+import { Constructor } from '@decaf-ts/decoration';
 
-
-export type HandlerLike = Record<string, (...args: unknown[]) => unknown | Promise<unknown>>
+export type HandlerLike = Record<
+  string,
+  (...args: unknown[]) => unknown | Promise<unknown>
+>;
 
 export interface RawQuery<M extends Model> {
   select: undefined | (keyof M)[];
@@ -30,7 +44,7 @@ export interface RawQuery<M extends Model> {
 
 export type DecafRepositoryAdapter<
   F extends RepositoryFlags = RepositoryFlags,
-  C extends Context<F> = Context<F>
+  C extends Context<F> = Context<F>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 > = Adapter<any, any, RawQuery<any>, F, C>;
 
@@ -41,7 +55,6 @@ export type DecafRepository<M extends Model> = Repository<
   RepositoryFlags,
   Context<RepositoryFlags>
 >;
-
 
 /**
  * @description Generic key-value pair type
@@ -71,7 +84,7 @@ export type FunctionLike = (...args: any[]) => any;
  * @typedef ElementSize
  * @memberOf module:engine
  */
-export type ElementSize = typeof ElementSizes[keyof typeof ElementSizes];
+export type ElementSize = (typeof ElementSizes)[keyof typeof ElementSizes];
 
 /**
  * @description Basic position options for UI elements
@@ -80,7 +93,8 @@ export type ElementSize = typeof ElementSizes[keyof typeof ElementSizes];
  * @typedef {('left'|'center'|'right'|'top'|'bottom')} ElementPosition
  * @memberOf module:engine
  */
-export type ElementPosition = typeof ElementPositions[keyof typeof ElementPositions];
+export type ElementPosition =
+  (typeof ElementPositions)[keyof typeof ElementPositions];
 
 /**
  * @description Extended position options for flex layouts
@@ -107,8 +121,8 @@ export type FlexPosition =
  */
 export type FieldUpdateMode = 'change' | 'blur' | 'submit';
 
-
-export type HTML5InputType = typeof HTML5InputTypes[keyof typeof HTML5InputTypes];
+export type HTML5InputType =
+  (typeof HTML5InputTypes)[keyof typeof HTML5InputTypes];
 
 /**
  * @description Possible input types for form fields
@@ -118,9 +132,7 @@ export type HTML5InputType = typeof HTML5InputTypes[keyof typeof HTML5InputTypes
  * @typedef {TextFieldTypes | HTML5InputType} PossibleInputTypes
  * @memberOf module:engine
  */
-export type PossibleInputTypes =
-  | TextFieldTypes
-  | HTML5InputType;
+export type PossibleInputTypes = TextFieldTypes | HTML5InputType;
 
 /**
  * @description Field definition for Angular components
@@ -161,9 +173,9 @@ export type AngularFieldDefinition = Omit<
   > &
   Pick<IonTextarea, 'rows' | 'cols'> &
   Pick<IonCheckbox, 'alignment' | 'justify' | 'checked'> & {
-  type: PossibleInputTypes;
-  className: string | string[];
-} & Record<string, unknown>;
+    type: PossibleInputTypes;
+    className: string | string[];
+  } & Record<string, unknown>;
 
 /**
  * @description String or boolean representation of a boolean value
@@ -173,7 +185,6 @@ export type AngularFieldDefinition = Omit<
  * @memberOf module:engine
  */
 export type StringOrBoolean = 'true' | 'false' | boolean;
-
 
 /**
  * @description Option type for CRUD field inputs
@@ -208,7 +219,6 @@ export type RadioOption = InputOption & { checked?: boolean };
  */
 export type CheckboxOption = RadioOption;
 
-
 /**
  * @description Target options for HTML forms
  * @summary Defines the possible target values for HTML forms, including standard targets
@@ -240,7 +250,7 @@ export type FormParent = FormGroup | FormArray;
  * @typedef {[FormParent, string]} FormParentGroup
  * @memberOf module:engine
  */
-export type FormParentGroup = [FormParent,  string];
+export type FormParentGroup = [FormParent, string];
 
 /**
  * @description Represents the configuration for internationalization resources.
@@ -256,7 +266,8 @@ export type I18nResourceConfigType = I18nResourceConfig | I18nResourceConfig[];
  * @typedef {typeof WindowColorSchemes[keyof typeof WindowColorSchemes]} WindowColorScheme
  * @memberOf module:lib/engine/types
  */
-export type WindowColorScheme = typeof WindowColorSchemes[keyof typeof WindowColorSchemes];
+export type WindowColorScheme =
+  (typeof WindowColorSchemes)[keyof typeof WindowColorSchemes];
 
 /**
  * @description Represents the possible roles for an action.
@@ -264,7 +275,7 @@ export type WindowColorScheme = typeof WindowColorSchemes[keyof typeof WindowCol
  * @typedef {typeof ActionRoles[keyof typeof ActionRoles]} ActionRole
  * @memberOf module:lib/engine/types
  */
-export type ActionRole = typeof ActionRoles[keyof typeof ActionRoles];
+export type ActionRole = (typeof ActionRoles)[keyof typeof ActionRoles];
 
 /**
  * @description Represents the possible grid gap values for a layout.
@@ -272,7 +283,8 @@ export type ActionRole = typeof ActionRoles[keyof typeof ActionRoles];
  * @typedef {typeof LayoutGridGaps[keyof typeof LayoutGridGaps]} LayoutGridGap
  * @memberOf module:lib/engine/types
  */
-export type LayoutGridGap = typeof LayoutGridGaps[keyof typeof LayoutGridGaps];
+export type LayoutGridGap =
+  (typeof LayoutGridGaps)[keyof typeof LayoutGridGaps];
 
 /**
  * @description Represents the possible positions for a list item.
@@ -280,6 +292,5 @@ export type LayoutGridGap = typeof LayoutGridGaps[keyof typeof LayoutGridGaps];
  * @typedef {typeof ListItemPositions[keyof typeof ListItemPositions]} ListItemPosition
  * @memberOf module:lib/engine/types
  */
-export type ListItemPosition = typeof ListItemPositions[keyof typeof ListItemPositions];
-
-
+export type ListItemPosition =
+  (typeof ListItemPositions)[keyof typeof ListItemPositions];

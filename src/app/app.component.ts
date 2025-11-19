@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { IonApp,
+import {
+  IonApp,
   IonSplitPane,
   IonMenu,
   IonContent,
@@ -10,7 +11,7 @@ import { IonApp,
   IonIcon,
   IonLabel,
   IonRouterOutlet,
-  IonRouterLink
+  IonRouterLink,
 } from '@ionic/angular/standalone';
 
 import { ModelConstructor, ModelKeys } from '@decaf-ts/decorator-validation';
@@ -23,10 +24,15 @@ import { isDevelopmentMode } from '../lib/utils';
 import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { LogoComponent } from './components/logo/logo.component';
 import { AppModels, AppName, DbAdapterFlavour } from './app.config';
-import { Repository, uses } from '@decaf-ts/core';
-import { AppMenu, DashboardMenuItem, EwMenu, LogoutMenuItem } from './utils/contants';
+import { Repository } from '@decaf-ts/core';
+import { uses } from '@decaf-ts/decoration';
+import {
+  AppMenu,
+  DashboardMenuItem,
+  EwMenu,
+  LogoutMenuItem,
+} from './utils/contants';
 import { TranslatePipe } from '@ngx-translate/core';
-
 
 @Component({
   standalone: true,
@@ -52,10 +58,9 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrl: './app.component.scss',
 })
 export class AppComponent extends NgxPageDirective implements OnInit {
-
   constructor() {
-    super("", true);
-    this.title = "Decaf-ts for-angular demo";
+    super('', true);
+    this.title = 'Decaf-ts for-angular demo';
     this.appName = AppName;
     addIcons(IonicIcons);
   }
@@ -79,34 +84,38 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     const populate = ['Product', 'CategoryModel', 'AIVendorModel'];
     const menu = [];
     const models = AppModels;
-    for(let model of models) {
+    for (let model of models) {
       uses(DbAdapterFlavour)(model);
-      if(model instanceof Function)
+      if (model instanceof Function)
         model = new (model as unknown as ModelConstructor<typeof model>)();
       const name = model.constructor.name.replace(/[0-9]/g, '');
       if (isDevelopment) {
-        if(populate.includes(name)) {
-          this.logger.info(`Development mode - Populating repository for model: ${name}`);
+        if (populate.includes(name)) {
+          this.logger.info(
+            `Development mode - Populating repository for model: ${name}`
+          );
           const repository = new FakerRepository(model, 36);
           await repository.initialize();
         }
       }
       const label = name.toLowerCase().replace(ModelKeys.MODEL, '');
-      if(!menu.length)
-        menu.push({label:'menu.models'});
-      menu.push({label: `menu.${label}`,  url: `/model/${Repository.table(model)}`, icon: 'cube-outline'})
+      if (!menu.length) menu.push({ label: 'menu.models' });
+      menu.push({
+        label: `menu.${label}`,
+        url: `/model/${Repository.table(model)}`,
+        icon: 'cube-outline',
+      });
     }
     this.initialized = true;
     this.menu = [
       DashboardMenuItem,
       ...EwMenu,
-      ...menu as IMenuItem[],
+      ...(menu as IMenuItem[]),
       ...AppMenu,
-      LogoutMenuItem
+      LogoutMenuItem,
     ];
     super.ngOnInit();
   }
-
 
   /**
    * @description Sets the browser page title based on the current route.
@@ -130,5 +139,4 @@ export class AppComponent extends NgxPageDirective implements OnInit {
   //   if(activeMenu)
   //     this.titleService.setTitle(`${activeMenu?.title || activeMenu?.label} - ${AppName}`);
   // }
-
 }

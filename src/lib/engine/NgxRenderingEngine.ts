@@ -8,9 +8,10 @@
  */
 import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
 import { AngularFieldDefinition, KeyValue } from './types';
-import { AngularDynamicOutput,  IFormComponentProperties, } from './interfaces';
+import { AngularDynamicOutput, IFormComponentProperties } from './interfaces';
 import { AngularEngineKeys } from './constants';
-import { Constructor, Model, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
+import { Model, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
+import { Constructor } from '@decaf-ts/decoration';
 import { InternalError } from '@decaf-ts/db-decorators';
 import {
   ComponentMirror,
@@ -23,7 +24,7 @@ import {
   TemplateRef,
   Type,
   ViewContainerRef,
-  createComponent
+  createComponent,
 } from '@angular/core';
 import { NgxFormService } from '../services/NgxFormService';
 import { isDevelopmentMode } from '../utils';
@@ -63,8 +64,10 @@ import { getLogger } from '../for-angular-common.module';
  *   Engine-->>Client: return AngularDynamicOutput
  * @memberOf module:lib/engine/NgxRenderingEngine
  */
-export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, AngularDynamicOutput> {
-
+export class NgxRenderingEngine extends RenderingEngine<
+  AngularFieldDefinition,
+  AngularDynamicOutput
+> {
   private static _injector?: Injector;
 
   /**
@@ -78,7 +81,10 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @type {Record<string, { constructor: Constructor<unknown> }>}
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
-  private static _components: Record<string, { constructor: Constructor<unknown> }>;
+  private static _components: Record<
+    string,
+    { constructor: Constructor<unknown> }
+  >;
 
   /**
    * @description Currently active model being rendered by the engine.
@@ -135,7 +141,6 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
   private static _parentProps: KeyValue | undefined = undefined;
-
 
   /**
    * @description Constructs a new NgxRenderingEngine instance.
@@ -194,33 +199,41 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     tpl: TemplateRef<unknown>,
     registryFormId: string = Date.now().toString(36).toUpperCase(),
     createComponent: boolean = true,
-    formGroup?: FormParent,
+    formGroup?: FormParent
   ): AngularDynamicOutput {
-    const cmp = (fieldDef as KeyValue)?.['component'] || NgxRenderingEngine.components(fieldDef.tag);
+    const cmp =
+      (fieldDef as KeyValue)?.['component'] ||
+      NgxRenderingEngine.components(fieldDef.tag);
     const component = cmp.constructor as unknown as Type<unknown>;
 
     const componentMetadata = reflectComponentType(component);
     if (!componentMetadata) {
-      throw new InternalError(`Metadata for component ${fieldDef.tag} not found.`);
+      throw new InternalError(
+        `Metadata for component ${fieldDef.tag} not found.`
+      );
     }
 
     const { inputs: possibleInputs } = componentMetadata;
     const inputs = { ...fieldDef.props };
 
-    const unmappedKeys = Object.keys(inputs).filter(input => {
-      const isMapped = possibleInputs.find(({ propName }) => propName === input);
+    const unmappedKeys = Object.keys(inputs).filter((input) => {
+      const isMapped = possibleInputs.find(
+        ({ propName }) => propName === input
+      );
       if (!isMapped) delete inputs[input];
       return !isMapped;
     });
 
     if (unmappedKeys.length > 0 && isDevelopmentMode())
-      getLogger(this.fromFieldDefinition).warn(`Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`);
+      getLogger(this.fromFieldDefinition).warn(
+        `Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`
+      );
 
     const operation = NgxRenderingEngine._operation;
 
     const hiddenOn = inputs?.hidden || [];
     if ((hiddenOn as string[]).includes(operation as string))
-      return {inputs, injector};
+      return { inputs, injector };
 
     // const customTypes = (inputs as KeyValue)?.['customTypes'] || [];
     // const hasFormRoot = Object.values(possibleInputs).some(({propName}) => propName ===  AngularEngineKeys.PARENT_FORM);
@@ -233,17 +246,24 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     };
 
     if (fieldDef.rendererId)
-      (result.inputs as Record<string, unknown>)['rendererId'] = fieldDef.rendererId;
+      (result.inputs as Record<string, unknown>)['rendererId'] =
+        fieldDef.rendererId;
     // process children
     // generating DOM
     // const projectable = NgxRenderingEngine._projectable;
     // const template = !projectable ? [] : vcr.createEmbeddedView(tpl, injector).rootNodes;
     // const template = [];
-    const hasChildren = Object.values(possibleInputs).some(({propName}) => propName ===  AngularEngineKeys.CHILDREN);
-    const hasModel = Object.values(possibleInputs).some(({propName}) => propName === ModelKeys.MODEL);
-    const componentInputs =  Object.assign(inputs,
-        ( hasModel ? { model: this._model } : { }),
-        ( hasChildren ? { children: fieldDef?.['children'] || [] } : {}));
+    const hasChildren = Object.values(possibleInputs).some(
+      ({ propName }) => propName === AngularEngineKeys.CHILDREN
+    );
+    const hasModel = Object.values(possibleInputs).some(
+      ({ propName }) => propName === ModelKeys.MODEL
+    );
+    const componentInputs = Object.assign(
+      inputs,
+      hasModel ? { model: this._model } : {},
+      hasChildren ? { children: fieldDef?.['children'] || [] } : {}
+    );
     if (createComponent) {
       vcr.clear();
       const componentInstance = NgxRenderingEngine.createComponent(
@@ -254,12 +274,13 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
         vcr,
         []
       );
-      result.component = NgxRenderingEngine._instance = componentInstance as Type<unknown>;
+      result.component = NgxRenderingEngine._instance =
+        componentInstance as Type<unknown>;
     }
     if (fieldDef.children?.length) {
       if (!NgxRenderingEngine._parentProps && inputs?.['pages']) {
-          NgxRenderingEngine._parentProps = {pages: inputs?.['pages']};
-          //  NgxRenderingEngine._projectable = false;
+        NgxRenderingEngine._parentProps = { pages: inputs?.['pages'] };
+        //  NgxRenderingEngine._projectable = false;
       }
 
       result.children = fieldDef.children.map((child) => {
@@ -273,13 +294,23 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
         //   })
         // }
         // if (!hiddenOn?.length || !(hiddenOn as CrudOperations[]).includes(operation as CrudOperations))
-        NgxFormService.addControlFromProps(registryFormId, child.props, {...inputs, ...NgxRenderingEngine._parentProps || {}});
-        return this.fromFieldDefinition(child, vcr, injector, tpl, registryFormId, false, formGroup);
+        NgxFormService.addControlFromProps(registryFormId, child.props, {
+          ...inputs,
+          ...(NgxRenderingEngine._parentProps || {}),
+        });
+        return this.fromFieldDefinition(
+          child,
+          vcr,
+          injector,
+          tpl,
+          registryFormId,
+          false,
+          formGroup
+        );
       });
     }
     return result;
   }
-
 
   /**
    * @description Creates an Angular component instance with inputs and template projection.
@@ -296,14 +327,34 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @static
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
-  static createComponent<C>(component: Type<unknown>, inputs: KeyValue = {},  injector?: Injector, metadata?: ComponentMirror<unknown>, vcr?: ViewContainerRef, template?: Node[]): C {
+  static createComponent<C>(
+    component: Type<unknown>,
+    inputs: KeyValue = {},
+    injector?: Injector,
+    metadata?: ComponentMirror<unknown>,
+    vcr?: ViewContainerRef,
+    template?: Node[]
+  ): C {
     if (vcr && metadata && injector)
-      return NgxRenderingEngine.createViewComponent(component, inputs, metadata, vcr, injector, template || []);
+      return NgxRenderingEngine.createViewComponent(
+        component,
+        inputs,
+        metadata,
+        vcr,
+        injector,
+        template || []
+      );
     return NgxRenderingEngine.createHostComponent(component, inputs, injector);
   }
 
-  static createViewComponent<C>(component: Type<unknown>, inputs: KeyValue = {}, metadata: ComponentMirror<unknown>, vcr: ViewContainerRef, injector: Injector, template: Node[] = []): C {
-
+  static createViewComponent<C>(
+    component: Type<unknown>,
+    inputs: KeyValue = {},
+    metadata: ComponentMirror<unknown>,
+    vcr: ViewContainerRef,
+    injector: Injector,
+    template: Node[] = []
+  ): C {
     const cmp = vcr.createComponent(component as Type<unknown>, {
       environmentInjector: injector as EnvironmentInjector,
       projectableNodes: [template],
@@ -315,43 +366,62 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
   static createHostComponent<C>(
     component: Type<C | unknown> | string,
     props: KeyValue = {},
-    injector?: Injector,
+    injector?: Injector
   ): C {
     if (!injector)
-      injector = NgxRenderingEngine._injector || Injector.create({providers: [], parent: Injector.NULL});
-    const envInjector: EnvironmentInjector = createEnvironmentInjector([], injector as EnvironmentInjector);
+      injector =
+        NgxRenderingEngine._injector ||
+        Injector.create({ providers: [], parent: Injector.NULL });
+    const envInjector: EnvironmentInjector = createEnvironmentInjector(
+      [],
+      injector as EnvironmentInjector
+    );
 
     let cmp: ComponentRef<unknown> = {} as ComponentRef<C>;
 
     runInInjectionContext(envInjector, () => {
       const host = document.createElement('div');
-      component = typeof component === Primitives.STRING ? NgxRenderingEngine.components(component as string) as Type<unknown> : component ;
-      if (!host)
-        throw new Error('Cant create host element for component');
+      component =
+        typeof component === Primitives.STRING
+          ? (NgxRenderingEngine.components(
+              component as string
+            ) as Type<unknown>)
+          : component;
+      if (!host) throw new Error('Cant create host element for component');
 
       cmp = createComponent(component as Type<unknown>, {
         environmentInjector: envInjector,
-        hostElement: host
+        hostElement: host,
       });
 
       const metadata = reflectComponentType(component as Type<unknown>);
       if (!metadata)
-        throw new InternalError(`Metadata for component ${component} not found.`);
+        throw new InternalError(
+          `Metadata for component ${component} not found.`
+        );
 
       const { inputs: possibleInputs } = metadata;
       const inputs = { ...props };
 
-      const unmappedKeys = Object.keys(inputs).filter(input => {
-        const isMapped = possibleInputs.find(({ propName }) => propName === input);
+      const unmappedKeys = Object.keys(inputs).filter((input) => {
+        const isMapped = possibleInputs.find(
+          ({ propName }) => propName === input
+        );
         if (!isMapped) delete inputs[input];
         return !isMapped;
       });
 
       if (unmappedKeys.length > 0 && isDevelopmentMode())
-        getLogger(this.createHostComponent).warn(`Unmapped input properties for component ${component}: ${unmappedKeys.join(', ')}`);
+        getLogger(this.createHostComponent).warn(
+          `Unmapped input properties for component ${component}: ${unmappedKeys.join(', ')}`
+        );
 
       if (metadata)
-        this.setInputs(cmp as ComponentRef<unknown>, inputs, metadata as ComponentMirror<unknown>);
+        this.setInputs(
+          cmp as ComponentRef<unknown>,
+          inputs,
+          metadata as ComponentMirror<unknown>
+        );
       document.body.querySelector('ion-app')?.appendChild(host);
     });
 
@@ -369,7 +439,10 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @return {FieldDefinition<AngularFieldDefinition>} The field definition generated from the model
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
-  getDecorators(model: Model, globalProps: Record<string, unknown>): FieldDefinition<AngularFieldDefinition> {
+  getDecorators(
+    model: Model,
+    globalProps: Record<string, unknown>
+  ): FieldDefinition<AngularFieldDefinition> {
     return this.toFieldDefinition(model, globalProps);
   }
 
@@ -385,12 +458,10 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
   static async destroy(formId?: string): Promise<void> {
-    if (formId)
-      NgxFormService.removeRegistry(formId);
+    if (formId) NgxFormService.removeRegistry(formId);
     NgxRenderingEngine._instance = undefined;
     NgxRenderingEngine._parentProps = undefined;
   }
-
 
   /**
    * @description Renders a model into an Angular component output.
@@ -427,11 +498,10 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     globalProps: Record<string, unknown>,
     vcr: ViewContainerRef,
     injector: Injector,
-    tpl: TemplateRef<unknown>,
+    tpl: TemplateRef<unknown>
   ): AngularDynamicOutput {
     let result: AngularDynamicOutput;
-    if (!NgxRenderingEngine._injector)
-      NgxRenderingEngine._injector = injector;
+    if (!NgxRenderingEngine._injector) NgxRenderingEngine._injector = injector;
     try {
       this._model = model;
       const formId = Date.now().toString(36).toUpperCase();
@@ -439,15 +509,25 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       const props = fieldDef.props as Partial<IFormComponentProperties>;
       if (!NgxRenderingEngine._operation)
         NgxRenderingEngine._operation = props?.operation || undefined;
-      const isArray = (props?.pages && (props?.pages as number)  >= 1 || props?.multiple === true);
+      const isArray =
+        (props?.pages && (props?.pages as number) >= 1) ||
+        props?.multiple === true;
       const formGroup = NgxFormService.createForm(formId, isArray);
-      result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl, formId, true, formGroup);
+      result = this.fromFieldDefinition(
+        fieldDef,
+        vcr,
+        injector,
+        tpl,
+        formId,
+        true,
+        formGroup
+      );
       if (result.component)
         (result.component as KeyValue)['formGroup'] = formGroup;
       NgxRenderingEngine.destroy(formId);
     } catch (e: unknown) {
       throw new InternalError(
-        `Failed to render Model ${model.constructor.name}: ${e}`,
+        `Failed to render Model ${model.constructor.name}: ${e}`
       );
     }
 
@@ -464,8 +544,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
   override async initialize(): Promise<void> {
-    if (!this.initialized)
-      this.initialized = true;
+    if (!this.initialized) this.initialized = true;
   }
 
   /**
@@ -480,7 +559,10 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @static
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
-  static registerComponent(name: string, constructor: Constructor<unknown>): void {
+  static registerComponent(
+    name: string,
+    constructor: Constructor<unknown>
+  ): void {
     if (!this._components) this._components = {};
     if (name in this._components)
       throw new InternalError(`Component already registered under ${name}`);
@@ -505,21 +587,6 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     if (!(selector in this._components))
       throw new InternalError(`No Component registered under ${selector}`);
     return this._components[selector];
-  }
-
-  /**
-   * @description Generates a key for reflection metadata storage.
-   * @summary This static method generates a key for reflection metadata by prefixing the input key
-   * with the Angular engine's reflection prefix. This is used for storing and retrieving
-   * metadata in a namespaced way to avoid conflicts with other metadata.
-   * @param {string} key - The base key to prefix
-   * @return {string} The prefixed key for reflection metadata
-   * @static
-   * @override
-   * @memberOf module:lib/engine/NgxRenderingEngine
-   */
-  static override key(key: string): string {
-    return `${AngularEngineKeys.REFLECT}${key}`;
   }
 
   /**
@@ -555,9 +622,16 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @static
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
-  static setInputs(component: ComponentRef<unknown>, inputs: KeyValue, metadata: ComponentMirror<unknown>): void {
-    function parseInputValue(component: ComponentRef<unknown>, input: KeyValue) {
-      Object.keys(input).forEach(key => {
+  static setInputs(
+    component: ComponentRef<unknown>,
+    inputs: KeyValue,
+    metadata: ComponentMirror<unknown>
+  ): void {
+    function parseInputValue(
+      component: ComponentRef<unknown>,
+      input: KeyValue
+    ) {
+      Object.keys(input).forEach((key) => {
         const value = input[key];
         if (typeof value === 'object' && !!value)
           return parseInputValue(component, value);
@@ -566,7 +640,9 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     }
 
     Object.entries(inputs).forEach(([key, value]) => {
-      const prop = metadata.inputs.find((item: { propName: string }) => item.propName === key);
+      const prop = metadata.inputs.find(
+        (item: { propName: string }) => item.propName === key
+      );
       if (prop) {
         if (key === 'props') {
           component.setInput(key, value);

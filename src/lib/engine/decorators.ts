@@ -1,7 +1,7 @@
 import { apply, metadata } from '@decaf-ts/reflection';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { AngularEngineKeys } from './constants';
-import { Constructor } from '@decaf-ts/decorator-validation';
+import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { InternalError } from '@decaf-ts/db-decorators';
 import { reflectComponentType, Type } from '@angular/core';
 
@@ -44,6 +44,9 @@ export function Dynamic() {
         original as unknown as Constructor<unknown>
       );
     },
-    metadata(NgxRenderingEngine.key(AngularEngineKeys.DYNAMIC), true)
+    metadata(
+      Metadata.key(AngularEngineKeys.REFLECT, AngularEngineKeys.DYNAMIC),
+      true
+    )
   );
 }

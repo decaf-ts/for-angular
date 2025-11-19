@@ -8,24 +8,54 @@
  * @link {@link FieldsetComponent}
  */
 
-import { AfterViewInit, Component, Input, ViewChild, OnInit } from '@angular/core';
-import { FormArray,  FormControl,  FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  AfterViewInit,
+  Component,
+  Input,
+  ViewChild,
+  OnInit,
+} from '@angular/core';
+import {
+  FormArray,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import { alertCircleOutline, createOutline, addOutline, trashOutline } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  createOutline,
+  addOutline,
+  trashOutline,
+} from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { IonAccordion, IonAccordionGroup, IonButton, IonItem, IonLabel, IonList, ItemReorderEventDetail, IonReorderGroup, IonReorder, IonIcon, IonText } from '@ionic/angular/standalone';
+import {
+  IonAccordion,
+  IonAccordionGroup,
+  IonButton,
+  IonItem,
+  IonLabel,
+  IonList,
+  ItemReorderEventDetail,
+  IonReorderGroup,
+  IonReorder,
+  IonIcon,
+  IonText,
+} from '@ionic/angular/standalone';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { ReservedModels } from '@decaf-ts/decorator-validation';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxFormService } from '../../services/NgxFormService';
 import { LayoutComponent } from '../layout/layout.component';
 import { FormParent, KeyValue } from '../../engine/types';
-import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
+import {
+  IFieldSetItem,
+  IFieldSetValidationEvent,
+} from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { itemMapper } from '../../utils/helpers';
 import { UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { timer } from 'rxjs';
-
 
 /**
  * @description Dynamic fieldset component with collapsible accordion functionality.
@@ -97,11 +127,13 @@ import { timer } from 'rxjs';
     IonReorderGroup,
     IonButton,
     IonIcon,
-    LayoutComponent
+    LayoutComponent,
   ],
 })
-export class FieldsetComponent extends NgxFormDirective implements OnInit, AfterViewInit {
-
+export class FieldsetComponent
+  extends NgxFormDirective
+  implements OnInit, AfterViewInit
+{
   /**
    * @description Reference to the ion-accordion-group component for programmatic control.
    * @summary ViewChild reference that provides direct access to the Ionic accordion group component.
@@ -114,7 +146,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   @ViewChild('accordionComponent', { static: false })
   accordionComponent!: IonAccordionGroup;
-
 
   /**
    * @description The display name or title of the fieldset section.
@@ -142,7 +173,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   @Input()
   collapsable: boolean = true;
-
 
   /**
    * @description Custom type definitions for specialized fieldset behavior.
@@ -213,7 +243,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   @Input()
   override borders: boolean = true;
-
 
   /**
    * @description Array of formatted items for UI display.
@@ -287,7 +316,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   isUniqueError: string | undefined = undefined;
 
-
   /**
    * @description Localized label text for action buttons.
    * @summary Dynamic button label that changes based on the current operation mode.
@@ -297,7 +325,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   buttonLabel!: string;
-
 
   /**
    * @description Localized label text for action buttons.
@@ -332,7 +359,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   @Input()
   required: boolean = false;
-
 
   /**
    * @description Determines if the fieldset items can be reordered.
@@ -370,10 +396,9 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   constructor() {
-    super("FieldsetComponent");
+    super('FieldsetComponent');
     addIcons({ alertCircleOutline, addOutline, trashOutline, createOutline });
   }
-
 
   /**
    * @description Component initialization lifecycle method.
@@ -386,13 +411,13 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   override async ngOnInit(): Promise<void> {
     await super.ngOnInit(this.model);
-    if(this.max && this.max === 1)
-      this.multiple = false;
+    if (this.max && this.max === 1) this.multiple = false;
     this.buttonLabel = this.translateService.instant(this.locale + '.add');
-    this.buttonCancelLabel = this.translateService.instant(this.locale + '.cancel');
+    this.buttonCancelLabel = this.translateService.instant(
+      this.locale + '.cancel'
+    );
 
-    if(!this.multiple)
-      this.ordenable = false;
+    if (!this.multiple) this.ordenable = false;
 
     if ([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
       if (!this.formGroup) {
@@ -401,36 +426,37 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
           const parts = (this.childOf as string).split('.');
           let formGroup = this.parentForm as FormParent;
           for (const part of parts)
-           formGroup = (formGroup as FormGroup).controls[part] as FormParent;
+            formGroup = (formGroup as FormGroup).controls[part] as FormParent;
           this.formGroup = formGroup;
-          if(this.formGroup instanceof FormGroup)
+          if (this.formGroup instanceof FormGroup)
             this.formGroup = this.formGroup.parent as FormArray;
         }
         if (!this.formGroup && this.parentForm instanceof FormArray)
           this.formGroup = this.parentForm;
-        if (!this.formGroup && (this.children[0] as KeyValue)?.['formGroup'] instanceof FormGroup)
-          this.formGroup = (this.children[0] as KeyValue)?.['formGroup'].parent as FormArray;
+        if (
+          !this.formGroup &&
+          (this.children[0] as KeyValue)?.['formGroup'] instanceof FormGroup
+        )
+          this.formGroup = (this.children[0] as KeyValue)?.['formGroup']
+            .parent as FormArray;
         if (this.formGroup && !(this.formGroup instanceof FormArray))
           this.formGroup = (this.formGroup as FormParent)?.parent as FormArray;
-
       }
     }
-     if(this.multiple) {
+    if (this.multiple) {
       this.formGroup?.setErrors(null);
       this.formGroup?.disable();
-      if(this.required) {
+      if (this.required) {
         this.collapsable = false;
         this.activePage = this.getActivePage();
       }
-
     } else {
       this.activePage = this.getActivePage();
     }
     this.initialized = true;
   }
 
-
-   /**
+  /**
    * @description Initializes the component state after view and child components are rendered.
    * @summary This lifecycle hook implements intelligent auto-state management based on the current
    * CRUD operation. For READ and DELETE operations, the fieldset automatically opens to provide
@@ -494,8 +520,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   handleClear(event?: Event): void {
-    if(event)
-      event.stopImmediatePropagation();
+    if (event) event.stopImmediatePropagation();
     this.formGroup?.disable();
     this.items = [];
     this.value = undefined as unknown as KeyValue[];
@@ -512,7 +537,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     //     this.renderer.removeChild(parent, this.component.nativeElement);
     // }, 150);
   }
-
 
   /**
    * @description Handles creating new items or triggering group addition events.
@@ -534,10 +558,11 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * handleCreateItem();
    * ```
    */
-  async handleCreateItem(event?: CustomEvent<IFieldSetValidationEvent>): Promise<void|boolean> {
-    if (event && event instanceof CustomEvent)
-      event.stopImmediatePropagation();
-    if(!this.activePage) {
+  async handleCreateItem(
+    event?: CustomEvent<IFieldSetValidationEvent>
+  ): Promise<void | boolean> {
+    if (event && event instanceof CustomEvent) event.stopImmediatePropagation();
+    if (!this.activePage) {
       this.activePage = this.getActivePage();
       return;
     }
@@ -546,35 +571,47 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     const hasSomeValue = this.hasValue(value);
 
     if (hasSomeValue) {
-      const action = this.updatingItem ? OperationKeys.UPDATE :  OperationKeys.CREATE;
-      const isValid  = NgxFormService.validateFields(formGroup);
+      const action = this.updatingItem
+        ? OperationKeys.UPDATE
+        : OperationKeys.CREATE;
+      const isValid = NgxFormService.validateFields(formGroup);
 
       // must pass correct pk here
-      const isUnique = NgxFormService.isUniqueOnGroup(formGroup, action, action === OperationKeys.UPDATE ? this.updatingItem?.index : undefined);
+      const isUnique = NgxFormService.isUniqueOnGroup(
+        formGroup,
+        action,
+        action === OperationKeys.UPDATE ? this.updatingItem?.index : undefined
+      );
       if (isValid) {
         this.mapper = this.getMapper(value as KeyValue);
         if (isUnique) {
-          this.isUniqueError = this.updatingItem =  undefined;
+          this.isUniqueError = this.updatingItem = undefined;
           this.setValue();
           NgxFormService.addGroupToParent(formGroup.parent as FormArray);
-          this.activeFormGroupIndex = (formGroup.parent as FormArray).length - 1;
+          this.activeFormGroupIndex =
+            (formGroup.parent as FormArray).length - 1;
           this.activePage = this.getActivePage();
         } else {
-          this.isUniqueError = typeof value === ReservedModels.OBJECT ?
-            (value as KeyValue)?.[this.pk] || undefined : value;
+          this.isUniqueError =
+            typeof value === ReservedModels.OBJECT.name.toLowerCase()
+              ? (value as KeyValue)?.[this.pk] || undefined
+              : value;
         }
       }
     }
   }
 
   hasValue(value: KeyValue = {}): boolean {
-    return Object.keys(value).some((key) => value[key] !== null && value[key] !== undefined && value[key] !== '');
+    return Object.keys(value).some(
+      (key) =>
+        value[key] !== null && value[key] !== undefined && value[key] !== ''
+    );
   }
 
   handleUpdateItem(index: number): void {
-    const formGroup =  this.getFormArrayIndex(index);
+    const formGroup = this.getFormArrayIndex(index);
     if (formGroup) {
-      this.updatingItem = Object.assign({}, formGroup.value || {}, {index});
+      this.updatingItem = Object.assign({}, formGroup.value || {}, { index });
       this.activeFormGroupIndex = index;
       this.activePage = this.getActivePage();
     }
@@ -596,7 +633,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     this.getFormArrayIndex(this.activeFormGroupIndex);
   }
 
-
   /**
    * @description Handles item removal operations with form array management.
    * @summary Processes item removal by either handling validation events or removing specific
@@ -612,22 +648,20 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     const formArray = this.formGroup as FormArray;
     if (formArray.length === 1) {
       const currentGroup = formArray.at(0) as FormGroup;
-      Object.keys(currentGroup?.controls).forEach(controlName => {
+      Object.keys(currentGroup?.controls).forEach((controlName) => {
         currentGroup.get(controlName)?.setValue(null);
-      })
+      });
     } else {
       formArray.removeAt(index);
     }
     this.setValue();
-    if(this.items.length > 0) {
+    if (this.items.length > 0) {
       if (this.activeFormGroupIndex > 0)
         this.activeFormGroupIndex = this.activeFormGroupIndex - 1;
     } else {
       this.handleClear();
     }
-
   }
-
 
   /**
    * @description Handles reordering of items within the fieldset list.
@@ -658,7 +692,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       // reorder visual data
       const itemToMove = items.splice(fromIndex, 1)[0];
       items.splice(toIndex, 0, itemToMove);
-      items.forEach((item, index) => item['index'] = index + 1);
+      items.forEach((item, index) => (item['index'] = index + 1));
 
       // reorder FormArray controls
       const controlToMove = formArray.at(fromIndex);
@@ -709,13 +743,12 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   handleAccordionToggle(event?: CustomEvent): void {
-    if (event)
-      event.stopImmediatePropagation();
+    if (event) event.stopImmediatePropagation();
 
     if (!this.collapsable || this.isRequired) {
       this.isOpen = true;
     } else {
-       if (!this.hasValidationErrors) {
+      if (!this.hasValidationErrors) {
         this.accordionComponent.value = this.isOpen ? undefined : 'open';
         this.isOpen = !!this.accordionComponent.value;
       }
@@ -742,24 +775,23 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   // }
 
   protected override getActivePage(): UIModelMetadata[] | undefined {
-
     this.activePage = undefined;
     this.isOpen = true;
     this.accordionComponent.value = 'open';
     this.changeDetectorRef.detectChanges();
     this.timerSubscription = timer(10).subscribe(() => {
-      this.children = this.children.map(child => {
-        if (!child.props)
-          child.props = {};
-        child.props = Object.assign(child.props, { activeFormGroup: this.activeFormGroupIndex, multiple: this.multiple });
+      this.children = this.children.map((child) => {
+        if (!child.props) child.props = {};
+        child.props = Object.assign(child.props, {
+          activeFormGroup: this.activeFormGroupIndex,
+          multiple: this.multiple,
+        });
         return child;
       });
     });
-    if(this.multiple)
-      this.getFormArrayIndex(this.activeFormGroupIndex);
+    if (this.multiple) this.getFormArrayIndex(this.activeFormGroupIndex);
     return this.children as UIModelMetadata[];
   }
-
 
   /**
    * @description Processes and stores a new or updated value in the fieldset.
@@ -772,15 +804,17 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   private setValue(): void {
-    this.value = (this.formGroup as FormArray).controls.map(({value}) => value);
+    this.value = (this.formGroup as FormArray).controls.map(
+      ({ value }) => value
+    );
     this.items = this.value
-    .filter(v => (v[this.pk] || "").trim().length)
-    .map((v, index) => {
-      return {
-        ...itemMapper(Object.assign({}, v), this.mapper),
-        index: index + 1
-      } as IFieldSetItem;
-    });
+      .filter((v) => (v[this.pk] || '').trim().length)
+      .map((v, index) => {
+        return {
+          ...itemMapper(Object.assign({}, v), this.mapper),
+          index: index + 1,
+        } as IFieldSetItem;
+      });
 
     this.updatingItem = undefined;
   }
@@ -797,13 +831,15 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   private getMapper(value: KeyValue): KeyValue {
-    if (!this.pk)
-      this.pk = Object.keys(value)[0];
+    if (!this.pk) this.pk = Object.keys(value)[0];
     if (!Object.keys(this.mapper).length)
       (this.mapper as KeyValue)['title'] = this.pk;
-    (this.mapper as KeyValue)['index'] = "index";
-    for(const key in value) {
-      if (Object.keys(this.mapper).length >= 2 || Object.keys(this.mapper).length === Object.keys(value).length)
+    (this.mapper as KeyValue)['index'] = 'index';
+    for (const key in value) {
+      if (
+        Object.keys(this.mapper).length >= 2 ||
+        Object.keys(this.mapper).length === Object.keys(value).length
+      )
         break;
       if (!(this.mapper as KeyValue)['title']) {
         (this.mapper as KeyValue)['title'] = key;

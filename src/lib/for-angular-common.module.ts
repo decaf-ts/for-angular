@@ -6,17 +6,28 @@
  * and exposes helper providers such as DB adapter registration and logger utilities.
  * @link {@link ForAngularCommonModule}
  */
-import { NgModule, ModuleWithProviders, InjectionToken, Provider } from '@angular/core';
+import {
+  NgModule,
+  ModuleWithProviders,
+  InjectionToken,
+  Provider,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 import { Logger, Logging } from '@decaf-ts/logging';
 import { I18nToken } from './engine/interfaces';
 import { getOnWindow, getWindow } from './utils/helpers';
-import { DecafRepository, FunctionLike, DecafRepositoryAdapter, KeyValue } from './engine/types';
-import { Constructor, Model, Primitives } from '@decaf-ts/decorator-validation';
+import {
+  DecafRepository,
+  FunctionLike,
+  DecafRepositoryAdapter,
+  KeyValue,
+} from './engine/types';
+import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
-import { Repository, uses } from '@decaf-ts/core';
+import { Repository } from '@decaf-ts/core';
+import { Constructor, uses } from '@decaf-ts/decoration';
 
 export const DB_ADAPTER_PROVIDER = 'DB_ADAPTER_PROVIDER';
 /**
@@ -26,7 +37,8 @@ export const DB_ADAPTER_PROVIDER = 'DB_ADAPTER_PROVIDER';
  * @const {InjectionToken<DecafRepositoryAdapter>}
  * @memberOf module:lib/for-angular-common.module
  */
-export const DB_ADAPTER_PROVIDER_TOKEN = new InjectionToken<DecafRepositoryAdapter>('DB_ADAPTER_PROVIDER_TOKEN');
+export const DB_ADAPTER_PROVIDER_TOKEN =
+  new InjectionToken<DecafRepositoryAdapter>('DB_ADAPTER_PROVIDER_TOKEN');
 /**
  * @description Injection token for the root path of locale translation files.
  * @summary Used to configure the base path where i18n translation files are located.
@@ -37,7 +49,9 @@ export const DB_ADAPTER_PROVIDER_TOKEN = new InjectionToken<DecafRepositoryAdapt
  * // Typical usage when providing the token
  * { provide: LOCALE_ROOT_TOKEN, useValue: './assets/i18n/' }
  */
-export const LOCALE_ROOT_TOKEN = new InjectionToken<string>('LOCALE_ROOT_TOKEN');
+export const LOCALE_ROOT_TOKEN = new InjectionToken<string>(
+  'LOCALE_ROOT_TOKEN'
+);
 
 /* Generic token for injecting on class constructors */
 /**
@@ -58,8 +72,10 @@ export const LOCALE_ROOT_TOKEN = new InjectionToken<string>('LOCALE_ROOT_TOKEN')
  * // Inject any arbitrary value
  * { provide: CPTKN, useValue: { key: 'value', data: [1, 2, 3] } }
  */
-export const CPTKN = new InjectionToken<unknown>('CPTKN', {providedIn: 'root', factory: () => ''});
-
+export const CPTKN = new InjectionToken<unknown>('CPTKN', {
+  providedIn: 'root',
+  factory: () => '',
+});
 
 /**
  * @description Injection token for i18n resource configuration.
@@ -69,8 +85,9 @@ export const CPTKN = new InjectionToken<unknown>('CPTKN', {providedIn: 'root', f
  * @const {InjectionToken<I18nToken>}
  * @memberOf module:lib/for-angular-common.module
  */
-export const I18N_CONFIG_TOKEN = new InjectionToken<I18nToken>('I18N_CONFIG_TOKEN');
-
+export const I18N_CONFIG_TOKEN = new InjectionToken<I18nToken>(
+  'I18N_CONFIG_TOKEN'
+);
 
 /**
  * @description Provides an array of component types for dynamic rendering.
@@ -86,10 +103,11 @@ export const I18N_CONFIG_TOKEN = new InjectionToken<I18nToken>('I18N_CONFIG_TOKE
  *   { provide: CPTKN, useValue: provideDynamicComponents(MyComponent, AnotherComponent) }
  * ]
  */
-export function provideDynamicComponents(...components: Constructor<unknown>[]): Constructor<unknown>[] {
+export function provideDynamicComponents(
+  ...components: Constructor<unknown>[]
+): Constructor<unknown>[] {
   return components;
 }
-
 
 /**
  * @description Retrieves the repository instance for a given model.
@@ -110,17 +128,24 @@ export function provideDynamicComponents(...components: Constructor<unknown>[]):
  * // Use repository for queries
  * const users = await userRepo.findAll();
  */
-export function getModelRepository(model: Model | string): DecafRepository<Model> {
+export function getModelRepository(
+  model: Model | string
+): DecafRepository<Model> {
   try {
-    const modelName = (typeof model === Primitives.STRING ? model : (model as Model).constructor.name) as string;
-    const constructor = Model.get(modelName.charAt(0).toUpperCase() + modelName.slice(1) as string);
+    const modelName = (
+      typeof model === Primitives.STRING
+        ? model
+        : (model as Model).constructor.name
+    ) as string;
+    const constructor = Model.get(
+      (modelName.charAt(0).toUpperCase() + modelName.slice(1)) as string
+    );
     if (!constructor)
       throw new InternalError(
         `Cannot find model for ${modelName}. was it registered with @model?`
       );
     const dbAdapterFlavour = getOnWindow(DB_ADAPTER_PROVIDER) || undefined;
-    if (dbAdapterFlavour)
-      uses(dbAdapterFlavour as string)(constructor);
+    if (dbAdapterFlavour) uses(dbAdapterFlavour as string)(constructor);
     const repo = Repository.forModel(constructor);
     model = new constructor() as Model;
     return repo;
@@ -128,7 +153,6 @@ export function getModelRepository(model: Model | string): DecafRepository<Model
     throw new InternalError((error as Error)?.message || (error as string));
   }
 }
-
 
 /**
  * @description Provides a database adapter for dependency injection.
@@ -158,10 +182,11 @@ export function provideDbAdapter<DbAdapter extends { flavour: string }>(
   flavour?: string
 ): Provider {
   const adapter = new adapterClass(options);
-  if (flavour)
-    flavour = adapter.flavour;
+  if (flavour) flavour = adapter.flavour;
   // Log and expose adapter flavour globally
-  getLogger(provideDbAdapter).info(`Using ${adapter.constructor.name} ${flavour} as Db Provider`);
+  getLogger(provideDbAdapter).info(
+    `Using ${adapter.constructor.name} ${flavour} as Db Provider`
+  );
   getWindow()[DB_ADAPTER_PROVIDER] = flavour;
   return {
     provide: DB_ADAPTER_PROVIDER_TOKEN,
@@ -169,14 +194,13 @@ export function provideDbAdapter<DbAdapter extends { flavour: string }>(
   };
 }
 
-
 /**
  * @const {Logger}
  * @private
  * @description Base logger instance for the for-angular module.
  * @memberOf module:lib/for-angular-common.module
  */
-const log = Logging.for("for-angular");
+const log = Logging.for('for-angular');
 
 /**
  * @description Retrieves a logger instance for the given context.
@@ -199,16 +223,13 @@ export function getLogger(instance: string | FunctionLike | unknown): Logger {
   return log.for(instance as string | FunctionLike);
 }
 
-
-
 const CommonModules = [
   CommonModule,
   FormsModule,
   ReactiveFormsModule,
   TranslateModule,
-  TranslatePipe
+  TranslatePipe,
 ];
-
 
 /**
  * @description Main Angular module for the Decaf framework.
@@ -257,7 +278,6 @@ export class ForAngularCommonModule {
   static forRoot(): ModuleWithProviders<ForAngularCommonModule> {
     return {
       ngModule: ForAngularCommonModule,
-
     };
   }
 }
