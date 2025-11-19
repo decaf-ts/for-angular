@@ -80,6 +80,7 @@
       <ngx-decaf-empty-state
         [title]="(locale + '.'+ empty.title) | translate"
         [model]="model"
+        [route]="route"
         [icon]="empty.icon"
         className="dcf-empty-data"
         [subtitle]="(locale + '.'+ empty.subtitle) | translate" />
@@ -87,6 +88,7 @@
       <ngx-decaf-empty-state
         icon="search-outline"
         [model]="model"
+        [route]="route"
         className="empty-search"
         [translatable]="true"
         className="dcf-empty-data"

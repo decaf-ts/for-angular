@@ -397,7 +397,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  route!: string;
+  route?: string = "";
 
 
   /**
@@ -565,6 +565,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
     }
     if (changes[BaseComponentProps.LOCALE_ROOT] || changes[BaseComponentProps.COMPONENT_NAME])
       this.locale = this.localeContext;
+
     if(this.enableDarkMode)
       this.checkDarkMode();
   }

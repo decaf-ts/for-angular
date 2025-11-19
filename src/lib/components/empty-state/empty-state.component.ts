@@ -323,6 +323,8 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
     this.titleColor = `dcf-title dcf-color-${this.titleColor}`;
     this.subtitleColor = `dcf-subtitle dcf-color-${this.subtitleColor}`;
 
+    this.log.warn(this.route as string);
+
     if (this.searchValue)
       this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);
     if (!this.buttonLink && this.model && this.route)
