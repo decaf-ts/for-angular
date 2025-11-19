@@ -1300,7 +1300,7 @@ protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyV
   if (!Array.isArray(result) && ('page' in result && 'total' in result)) {
     const paginator = result as Paginator<Model>;
     try {
-      result =  paginator.page.length > 0 ? await paginator.page(this.page) : [];
+      result =  await paginator.page(this.page);
       this.getMoreData(paginator.total);
     } catch(error: unknown) {
       this.logger.info((error as Error)?.message || 'Unable to get page from paginator. Return empty array from component');
