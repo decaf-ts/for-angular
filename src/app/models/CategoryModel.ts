@@ -2,18 +2,28 @@ import {
   Model,
   model,
   ModelArg,
-  required
+  required,
 } from '@decaf-ts/decorator-validation';
-import { uilistprop, uielement, uilistmodel, uimodel, hideOn, uilayoutprop } from '@decaf-ts/ui-decorators';
+import {
+  uilistprop,
+  uielement,
+  uilistmodel,
+  uimodel,
+  hideOn,
+  uilayoutprop,
+} from '@decaf-ts/ui-decorators';
 import { OperationKeys, timestamp } from '@decaf-ts/db-decorators';
 import { index, pk } from '@decaf-ts/core';
-@uilistmodel('ngx-decaf-list-item', {icon: 'cafe-outline'})
+@uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class CategoryModel extends Model {
-
-  @pk({type: Number.name })
+  @pk({ type: Number.name })
   @uilistprop('uid')
+  @uielement('ngx-decaf-crud-field', {
+    label: 'category.id.label',
+    placeholder: 'category.id.placeholder',
+  })
   id!: number;
 
   @uielement('ngx-decaf-crud-field', {
@@ -21,7 +31,7 @@ export class CategoryModel extends Model {
     placeholder: 'category.name.placeholder',
   })
   @uilistprop('title')
-  @uilayoutprop(1,2)
+  @uilayoutprop(1, 2)
   @required()
   name!: string;
 
@@ -32,7 +42,7 @@ export class CategoryModel extends Model {
   })
   @uilistprop('description')
   @index()
-  @uilayoutprop(1,2)
+  @uilayoutprop(1, 2)
   description!: string;
 
   @uielement('ngx-decaf-crud-field', {
@@ -44,7 +54,6 @@ export class CategoryModel extends Model {
   @timestamp([OperationKeys.CREATE])
   @hideOn(OperationKeys.CREATE)
   createdAt!: Date;
-
 
   constructor(args: ModelArg<CategoryModel> = {}) {
     super(args);

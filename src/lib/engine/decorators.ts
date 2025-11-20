@@ -1,4 +1,4 @@
-import { apply, metadata } from '@decaf-ts/reflection';
+import { apply, metadata } from '@decaf-ts/decoration';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { AngularEngineKeys } from './constants';
 import { Constructor, Metadata } from '@decaf-ts/decoration';

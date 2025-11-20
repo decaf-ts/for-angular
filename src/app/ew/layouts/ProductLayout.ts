@@ -1,25 +1,26 @@
+import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
+import { pk } from '@decaf-ts/core';
 import {
-  model,
-  Model,
-  ModelArg
-} from "@decaf-ts/decorator-validation";
-import { pk } from "@decaf-ts/core";
-import { uichild, uilayout,  uilayoutprop, uilistmodel, uipageprop } from "@decaf-ts/ui-decorators";
-import { EpiForm } from "../forms/EpiForm";
-import { FieldsetComponent,  LayoutComponent } from "src/lib/components";
-import { Product } from "../models/Product";
+  uichild,
+  uilayout,
+  uilayoutprop,
+  uilistmodel,
+  uipageprop,
+} from '@decaf-ts/ui-decorators';
+import { EpiForm } from '../forms/EpiForm';
+import { FieldsetComponent, LayoutComponent } from 'src/lib/components';
+import { Product } from '../models/Product';
 
-
-@uilistmodel('ngx-decaf-list-item', {icon: 'cafe-outline'})
-@uilayout('ngx-decaf-crud-form', true, 1, {borders: true, breakpoint: 'xlarge'} as LayoutComponent)
+@uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
+@uilayout('ngx-decaf-crud-form', true, 1, {
+  borders: true,
+  breakpoint: 'xlarge',
+} as LayoutComponent)
 @model()
 export class ProductLayout extends Model {
-  @pk({type: Number.name })
-  id!: number;
-
   @uipageprop(1)
   @uichild(Product.name, 'ngx-decaf-fieldset', {
-    title: "product.section.details.title",
+    title: 'product.section.details.title',
     borders: false,
     required: true,
     rows: 1,
@@ -30,12 +31,11 @@ export class ProductLayout extends Model {
   @uilayoutprop(2)
   product!: Product;
 
-
   @uilayoutprop(1)
   @uichild(EpiForm.name, 'app-switcher', {})
   epi!: EpiForm;
 
-    // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: ModelArg<ProductLayout>) {
     super(args);
   }

@@ -4,27 +4,24 @@ import {
   Model,
   ModelArg,
   password,
-  required
+  required,
 } from '@decaf-ts/decorator-validation';
 import { uielement, uimodel, uihandlers } from '@decaf-ts/ui-decorators';
 import { LoginHandler } from '../handlers/LoginHandler';
 import { pk } from '@decaf-ts/core';
 
-
 @uimodel('ngx-decaf-crud-form')
 @uihandlers({
-  login: LoginHandler
+  login: LoginHandler,
 })
 @model()
 export class LoginForm extends Model {
-
   @required()
   @minlength(4)
   @uielement('ngx-decaf-crud-field', {
     label: 'login.username.label',
     placeholder: 'login.username.placeholder',
   })
-  @pk({type: String.name})
   username!: string;
 
   @uielement('ngx-decaf-crud-field', {
