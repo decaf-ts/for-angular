@@ -17,7 +17,7 @@ import { NgxSvgDirective } from '../../directives/NgxSvgDirective';
   standalone: true,
   host: {'[attr.id]': 'uid', '[attr.aria-hidden]': '!button'},
 })
-export class IconComponent implements OnInit, AfterViewInit {
+export class IconComponent implements OnInit {
 
   /** @description Reference to the component's native DOM element.
    * @summary Provides direct access to the native DOM element of the component through Angular's
@@ -78,12 +78,9 @@ export class IconComponent implements OnInit, AfterViewInit {
       this.type = 'image';
       this.isSvg = this.name.endsWith('.svg');
     }
-    this.initialized = true;
-  }
-
-  ngAfterViewInit(): void {
     this.mediaService.isDarkMode().subscribe(isDark => {
       this.isDarkMode = isDark;
     });
+    this.initialized = true;
   }
 }

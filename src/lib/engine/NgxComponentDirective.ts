@@ -19,7 +19,7 @@ import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
 import { NgxEventHandler } from './NgxEventHandler';
 import { getLocaleContext } from '../i18n/Loader';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
-import { getModelRepository,  CPTKN } from '../for-angular-common.module';
+import { getModelAndRepository,  CPTKN } from '../for-angular-common.module';
 import { AngularEngineKeys, BaseComponentProps } from './constants';
 import { generateRandomValue, getWindow, setOnWindow } from '../utils';
 import { EventIds } from '@decaf-ts/core';
@@ -542,10 +542,10 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @throws {InternalError} If repository initialization fails
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected get repository(): DecafRepository<Model> {
+  protected get repository(): DecafRepository<Model> | undefined {
     try {
       if (!this._repository) {
-        this._repository = getModelRepository(this.model as Model);
+        this._repository = getModelAndRepository(this.model as Model)?.repository;
         if (this.model && !this.pk)
           this.pk =
             (this._repository as unknown as DecafRepository<Model>).pk || 'id';

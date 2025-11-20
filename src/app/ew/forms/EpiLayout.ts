@@ -6,9 +6,9 @@ import { MarketForm } from './MarketForm';
 import { SubstanceForm } from './SubstanceForm';
 import { FieldsetComponent } from 'src/lib/components';
 
-@uimodel('ngx-decaf-form', {})
+@uimodel('ngx-decaf-crud-form', {})
 @model()
-export class EpiForm extends Model {
+export class EpiLayout extends Model {
   @uipageprop(1)
   @list(Leaflet, 'Array')
   @uichild(
@@ -56,7 +56,7 @@ export class EpiForm extends Model {
   markets!: MarketForm;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-  constructor(args?: ModelArg<EpiForm>) {
+  constructor(args?: ModelArg<EpiLayout>) {
     super(args);
   }
 }

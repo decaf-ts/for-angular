@@ -7,7 +7,7 @@ import {
   uilistmodel,
   uipageprop,
 } from '@decaf-ts/ui-decorators';
-import { EpiForm } from '../forms/EpiForm';
+import { EpiLayout } from '../layouts/EpiLayout';
 import { FieldsetComponent, LayoutComponent } from 'src/lib/components';
 import { Product } from '../models/Product';
 
@@ -32,8 +32,8 @@ export class ProductLayout extends Model {
   product!: Product;
 
   @uilayoutprop(1)
-  @uichild(EpiForm.name, 'app-switcher', {})
-  epi!: EpiForm;
+  @uichild(EpiLayout.name, 'app-switcher', {})
+  epi!: EpiLayout;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: ModelArg<ProductLayout>) {

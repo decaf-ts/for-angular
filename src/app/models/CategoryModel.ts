@@ -12,14 +12,18 @@ import {
   hideOn,
   uilayoutprop,
 } from '@decaf-ts/ui-decorators';
-import { OperationKeys, timestamp } from '@decaf-ts/db-decorators';
+import { OperationKeys, readonly, timestamp } from '@decaf-ts/db-decorators';
 import { index, pk } from '@decaf-ts/core';
+import { read } from 'fs';
 @uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class CategoryModel extends Model {
+
   @pk({ type: Number.name })
+  @hideOn(OperationKeys.CREATE)
   @uilistprop('uid')
+  @readonly()
   @uielement('ngx-decaf-crud-field', {
     label: 'category.id.label',
     placeholder: 'category.id.placeholder',
