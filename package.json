@@ -10,7 +10,7 @@
     "on-first-run": "npx update-scripts --boot",
     "set-git-auth": "git config url.\"https://api:$(cat .token)@github.com/\".insteadOf \"https://github.com/\" && git config url.\"https://ssh:$(cat .token)@github.com/\".insteadOf \"ssh://git@github.com/\" && git config url.\"https://git:$(cat .token)@github.com/\".insteadOf \"git@github.com:\"",
     "flash-forward": "npx npm-check-updates -u && npm run do-install",
-    "update-dependencies": "PREFIX=\"decaf-ts\"; npm ls | grep \"$PREFIX\" | awk -F/ '{print $NF}' | sed 's/@.*//' | xargs -I package npm update @\"$PREFIX\"/package && ng cache clean",
+    "update-dependencies": "PREFIX=\"decaf-ts\"; npm ls | grep \"$PREFIX\" | awk -F/ '{print $NF}' | sed 's/@.*//' | xargs -I package npm update --force @\"$PREFIX\"/package && ng cache clean",
     "reset": "rm -rf * && git checkout . && git pull && npm run do-install",
     "build:prod": "npm run lint && ng build for-angular && ng build  for-angular-app",
     "build": "npx rimraf .angular && npm run lint && ng build for-angular --configuration development && ng build for-angular-app --configuration development && npm run build:cli",

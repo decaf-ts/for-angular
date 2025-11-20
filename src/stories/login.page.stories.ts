@@ -10,23 +10,21 @@ import { LoginPage } from 'src/app/pages/login/login.page';
 import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
 import { IonCard, IonCardContent, IonImg } from '@ionic/angular/standalone';
 
-const component = getComponentMeta<LoginPage>([
-    ForAngularComponentsModule,
-    IonCard,
-    IonImg
-  ], "page");
+import './setup';
+const component = getComponentMeta<LoginPage>(
+  [ForAngularComponentsModule, IonCard, IonImg],
+  'page'
+);
 
-  const meta: Meta<LoginPage> = {
+const meta: Meta<LoginPage> = {
   title: 'Pages/Login',
   component: LoginPage,
   ...component,
   args: {
     model: new LoginForm({}),
-  }
+  },
 };
 export default meta;
 type Story = StoryObj<LoginPage>;
 
-export const init: Story = {args: { }};
-
-
+export const init: Story = { args: {} };

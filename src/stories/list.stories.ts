@@ -1,3 +1,5 @@
+import './setup';
+
 import type { Meta, StoryObj } from '@storybook/angular';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { getComponentMeta } from './utils';
@@ -12,7 +14,7 @@ import {
   IonSkeletonText,
   IonText,
   IonThumbnail,
-  IonLoading
+  IonLoading,
 } from '@ionic/angular/standalone';
 import { ListComponent } from 'src/lib/components/list/list.component';
 import { SearchbarComponent } from 'src/lib/components/searchbar/searchbar.component';
@@ -22,28 +24,27 @@ import { ComponentRendererComponent } from 'src/lib/components/component-rendere
 import { PaginationComponent } from 'src/lib/components/pagination/pagination.component';
 import { ListComponentsTypes } from 'src/lib/engine/constants';
 import { CategoryModel } from 'src/app/models/CategoryModel';
-import { RamAdapter } from '@decaf-ts/core/ram';
 
 const component = getComponentMeta<ListComponent>([
-    ForAngularCommonModule,
-    IonRefresher,
-    IonLoading,
-    PaginationComponent,
-    IonList,
-    IonItem,
-    IonThumbnail,
-    IonSkeletonText,
-    IonLabel,
-    IonText,
-    IonRefresherContent,
-    IonInfiniteScroll,
-    IonInfiniteScrollContent,
-    IonThumbnail,
-    IonSkeletonText,
-    SearchbarComponent,
-    EmptyStateComponent,
-    ListItemComponent,
-    ComponentRendererComponent
+  ForAngularCommonModule,
+  IonRefresher,
+  IonLoading,
+  PaginationComponent,
+  IonList,
+  IonItem,
+  IonThumbnail,
+  IonSkeletonText,
+  IonLabel,
+  IonText,
+  IonRefresherContent,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
+  IonThumbnail,
+  IonSkeletonText,
+  SearchbarComponent,
+  EmptyStateComponent,
+  ListItemComponent,
+  ComponentRendererComponent,
 ]);
 const meta: Meta<ListComponent> = {
   title: 'Components/List',
@@ -52,16 +53,16 @@ const meta: Meta<ListComponent> = {
   ...component,
   args: {
     type: ListComponentsTypes.INFINITE,
-    model: new CategoryModel({})
-  }
+    model: new CategoryModel({}),
+  },
 };
 export default meta;
 type Story = StoryObj<ListComponent>;
 
-export const infinite: Story = {args: { } };
+export const infinite: Story = { args: {} };
 
-export const paginated: Story = {args: {
-  type: ListComponentsTypes.PAGINATED,
- }};
-
-
+export const paginated: Story = {
+  args: {
+    type: ListComponentsTypes.PAGINATED,
+  },
+};
