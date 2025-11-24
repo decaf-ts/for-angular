@@ -2,7 +2,6 @@ import { Directive, Input } from '@angular/core';
 import {
   InternalError,
   IRepository,
-  NotFoundError,
   OperationKeys,
 } from '@decaf-ts/db-decorators';
 import { EventIds, Repository } from '@decaf-ts/core';
@@ -11,6 +10,8 @@ import { NgxPageDirective } from './NgxPageDirective';
 import { ComponentEventNames } from './constants';
 import { IBaseCustomEvent, IModelPageCustomEvent } from './interfaces';
 import { KeyValue, DecafRepository } from './types';
+import { Constructor, Metadata } from '@decaf-ts/decoration';
+import { getModelAndRepository } from '../for-angular-common.module';
 
 
 @Directive()
@@ -122,19 +123,25 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    *
    * @throws {InternalError} When the model is not found in the registry
    */
-  protected override get repository(): DecafRepository<Model> {
-    if (!this._repository) {
-      const constructor = Model.get(this.modelName);
-      if (!constructor)
-        throw new InternalError(
-          'Cannot find model. was it registered with @model?',
-        );
-      this._repository = Repository.forModel(constructor);
-      if (!this.pk)
-        this.pk = this._repository.pk as string;
-      this.model = new constructor() as Model;
+  protected override get repository(): DecafRepository<Model> | undefined{
+    try {
+      if (!this._repository) {
+        const constructor = Model.get(this.modelName);
+        if (!constructor)
+          throw new InternalError(
+            'Cannot find model. was it registered with @model?',
+          );
+        this._repository = Repository.forModel(constructor);
+        if (!this.pk)
+          this.pk = this._repository.pk as string;
+        this.model = new constructor() as Model;
+      }
+    }catch (error: unknown) {
+      this.log.warn(`Error getting repository for model: ${this.modelName}. ${(error as Error).message}`);
+      this._repository = undefined;
+      // throw new InternalError((error as Error)?.message || (error as string));
     }
-    return this._repository;
+    return this._repository as DecafRepository<Model>;
   }
 
   /**
@@ -165,20 +172,13 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
   async refresh(uid?: EventIds): Promise<void> {
     if (!uid)
       uid = this.modelId;
-    try {
-      this._repository = this.repository;
-      switch(this.operation){
-        case OperationKeys.READ:
-        case OperationKeys.UPDATE:
-        case OperationKeys.DELETE:
-          this.model = await this.handleGet(uid || this.modelId) as Model;
-        break;
-      }
-    } catch (error: unknown) {
-      if (error instanceof NotFoundError) {
-        this.errorMessage = error.message;
-      }
-      this.logger.error(error as Error | string);
+    this._repository = this.repository;
+    switch(this.operation){
+      case OperationKeys.READ:
+      case OperationKeys.UPDATE:
+      case OperationKeys.DELETE:
+        this.model = await this.handleGet(uid || this.modelId, this._repository, this.modelName as string) as Model;
+      break;
     }
   }
 
@@ -237,7 +237,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         message
       };
     } catch (error: unknown) {
-      this.logger.error(error as Error | string);
+      this.log.error(error as Error | string);
       return {
         ... event,
         success:  false,
@@ -256,19 +256,51 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @param {string} uid - The unique identifier of the model instance to retrieve
    * @return {Promise<Model | undefined>} Promise resolving to the model instance or undefined
    */
-  async handleGet(uid?: EventIds): Promise<Model | undefined> {
+  async handleGet(uid?: EventIds, repository?: IRepository<Model>, modelName?: string): Promise<Model | undefined> {
     if (!uid) {
-      this.logger.info('No key passed to model page read operation, backing to last page');
+      this.log.info('No key passed to model page read operation, backing to last page');
       this.location.back();
       return undefined;
     }
-    const type = Reflect.getMetadata("design:type", this.model as KeyValue, this.repository.pk as string).name;
-    if(!this.pk)
-      this.pk = this.repository.pk as string;
-    const result = await (this._repository as IRepository<Model>).read(
-      ([Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase()) ? Number(uid) : uid) as string | number,
-    );
-    return result ?? undefined;
+
+    const getRepository = async (modelName: string, parent?: string, model?: KeyValue): Promise<DecafRepository<Model> | undefined> => {
+      if(this._repository)
+        return this._repository as DecafRepository<Model>;
+      const constructor = Model.get(modelName);
+      if (constructor) {
+        const properties = Metadata.properties(constructor as Constructor<Model>) as string[];
+        if(!model)
+          model = {} as KeyValue;
+        for (const prop of properties) {
+          const type = Metadata.type(constructor as Constructor<Model>, prop).name;
+          const context = getModelAndRepository(type as string);
+          if(!context)
+            return getRepository(type, prop, model);
+          const {repository} = context;
+          if(modelName === this.modelName) {
+            const data = await this.handleGet(uid, repository, modelName);
+            this.model = Model.build({[prop]: data}, modelName);
+          } else {
+            model[prop as string] = Model.build({}, type);
+          }
+        }
+        (this.model as KeyValue)[parent as string] = Model.build(model, modelName);
+      }
+    }
+
+    repository = (repository || await getRepository(modelName as string)) as IRepository<Model>;
+    if(!repository)
+      return this.model as Model;
+    const type = Metadata.type(repository.class as Constructor<Model>, repository.pk as string).name;
+    try {
+      const result = await (repository as IRepository<Model>).read(
+        ([Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase()) ? Number(uid) : uid) as string | number,
+      );
+      return result;
+    } catch (error: unknown) {
+      this.log.for(this.handleGet).info(`Error getting model instance with id ${uid}: ${(error as Error).message}`);
+      return undefined;
+    }
   }
 
   /**

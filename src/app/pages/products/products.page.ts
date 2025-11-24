@@ -113,6 +113,12 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
   // constructor() {
   //   super(true, getNgxToastComponent() as unknown as ToastController);
   // }
+  // override mapper: Record<string, FunctionLike> = {
+  //   leafLet: (respository, key, value) => {
+  //     const condition = Condition.attribute<Model>(key as keyof Model).eq(!isNaN(value as number) ? Number(value) : value)
+  //     return respository.select(condition, key);
+  //   }
+  // }
 
   override ngOnInit(): Promise<void> | void {
     super.ngOnInit();
@@ -126,7 +132,6 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
     const {success, message} = await super.handleSubmit(event) as IModelPageCustomEvent;
-    console.log(event);
     // const toast = getNgxToastComponent({
     //   color: success ? 'dark' : 'danger',
     //   message,

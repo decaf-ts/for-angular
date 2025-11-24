@@ -681,7 +681,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
   override ngOnDestroy(): void {
     super.ngOnDestroy();
     if (this._repository)
-      this._repository.unObserve(this.observer);
+      (this._repository as DecafRepository<Model>).unObserve(this.observer);
     this.data =  this.model = this._repository = this.paginator = undefined;
   }
 
@@ -1102,11 +1102,11 @@ async getFromRequest(force: boolean = false, start: number, limit: number): Prom
     // (self.data as ListItem[]) = [];
     if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
       if (!this.source && !this.data?.length) {
-        this.logger.info('No data and source passed to infinite list');
+        this.log.info('No data and source passed to infinite list');
         return [];
       }
       if (this.source instanceof Function) {
-         data = await this.source();
+         data = await this.source() as KeyValue[];
         if (!Array.isArray(data))
           data = data?.['response']?.['data'] || data?.['results'] || [];
       }
@@ -1156,7 +1156,7 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
   if (!this._repository) {
     this._repository = this.repository;
     if (this.model instanceof Model && this._repository)
-      this._repository.observe(this.observer);
+      (this._repository as DecafRepository<Model>).observe(this.observer);
   }
 
   const repo = this._repository as DecafRepository<Model>;
@@ -1186,7 +1186,7 @@ async getFromModel(force: boolean = false): Promise<KeyValue[]> {
       }
       data = this.type === ListComponentsTypes.INFINITE ? [... (data).concat(request)] : [...request];
     } catch(error: unknown) {
-      this.logger.error((error as Error)?.message || `Unable to find ${this.model} on registry. Return empty array from component`);
+      this.log.error((error as Error)?.message || `Unable to find ${this.model} on registry. Return empty array from component`);
     }
   }
 
@@ -1303,7 +1303,7 @@ protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyV
       result =  await paginator.page(this.page);
       this.getMoreData(paginator.total);
     } catch(error: unknown) {
-      this.logger.info((error as Error)?.message || 'Unable to get page from paginator. Return empty array from component');
+      this.log.info((error as Error)?.message || 'Unable to get page from paginator. Return empty array from component');
       result = [];
     }
 

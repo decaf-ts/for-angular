@@ -5,7 +5,7 @@ import {
   required,
 } from "@decaf-ts/decorator-validation";
 import { pk } from "@decaf-ts/core";
-import {  HTML5InputTypes, uielement,  uilayout,  uilayoutprop, uilistmodel, uilistprop, uipageprop } from "@decaf-ts/ui-decorators";
+import { HTML5InputTypes, uielement,  uilayout,  uilayoutprop, uilistmodel, uilistprop } from "@decaf-ts/ui-decorators";
 import { CardComponent, CrudFieldComponent, FileUploadComponent } from "src/lib/components";
 
 export enum ProductNames {
@@ -107,7 +107,6 @@ export class Product extends Model {
     name: 'separator',
     separator: true
   } as Partial<CardComponent>)
-  @uipageprop(2)
   @uilayoutprop(1)
   productImageTitle!: string;
 
@@ -116,7 +115,6 @@ export class Product extends Model {
     label: 'product.productImage.label',
   } as Partial<FileUploadComponent>)
   @uilistprop('description')
-  @uipageprop(2)
   @uilayoutprop(1)
   @required()
   productImage!: string;

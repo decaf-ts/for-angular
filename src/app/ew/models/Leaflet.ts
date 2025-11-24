@@ -5,17 +5,20 @@ import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../../utils/h
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
 import { ElementPositions, ElementSizes, ListItemPositions } from "src/lib/engine";
+import { composed, readonly } from "@decaf-ts/db-decorators";
 
 @uimodel('ngx-crud-form')
 @model()
 export class Leaflet extends BaseModel {
 
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'leaflet.productCode.label',
-  //   placeholder: 'leaflet.productCode.placeholder',
-  //   className: 'dcf-width-1-2@s dcf-width-1-1',
-  // } as Partial<CrudFieldComponent>)
-  // productCode!: string;
+
+  @pk({type: "String", generated: false})
+  @composed(["productCode", "batchNumber", "lang"], ":", true)
+  id!: string;
+
+  @required()
+  @readonly()
+  productCode!: string;
 
   // @uielement('ngx-decaf-crud-field', {
   //     label: 'leaflet.batchNumber.label',
@@ -24,7 +27,6 @@ export class Leaflet extends BaseModel {
   // } as Partial<CrudFieldComponent>)
   // batchNumber?: string;
 
-  @pk({ type: String.name, generated: false })
   @uielement('ngx-decaf-crud-field', {
     label: 'leaflet.language.label',
     placeholder: 'leaflet.language.placeholder',

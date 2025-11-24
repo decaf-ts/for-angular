@@ -71,6 +71,10 @@
       "label": "Category name",
       "placeholder": "Type the category"
     },
+    "id": {
+      "label": "Category ID",
+      "placeholder": "Type the category id"
+    },
     "description": {
       "label": "Category Description",
       "placeholder": "Describe the category (optional)"

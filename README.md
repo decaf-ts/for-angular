@@ -31,7 +31,7 @@
 
 Documentation available [here](https://decaf-ts.github.io/for-angular/)
 
-Minimal size: ##PACKAGE_SIZE## kb gzipped
+Minimal size: unknown kb gzipped
 
 
 ### Description

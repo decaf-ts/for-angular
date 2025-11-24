@@ -6,7 +6,6 @@
   [modelId]="modelId"
   showMenuButton="true"
   showBackButton="true"
-  [operations]="allowedOperations"
   color="primary">
 </app-header>
 
@@ -21,6 +20,7 @@
                 <ngx-decaf-list
                   [model]="model"
                   [operation]="operation"
+                  [createButton]="true"
                   [operations]="['read', 'create', 'update', 'delete']"
                   (listenEvent)="handleEvent($event)"
                 />

@@ -28,10 +28,10 @@ import { AngularEngineKeys } from '../../engine/constants';
  * @param {string} title - Primary title text displayed in the card header.
  * @param {('small'|'default'|'blank')} body - Body size preset controlling padding/typography; defaults to 'default'.
  * @param {string} subtitle - Optional subtitle rendered under the title.
- * @param {import('@ionic/core').Color} color - Ionic color token applied to the card header/title.
+ * @param {Color} color - Ionic color token applied to the card header/title.
  * @param {boolean} separator - When true, renders a divider between header and body.
  * @param {boolean} borders - Controls whether borders are rendered; defaults to true.
- * @param {string|import('@angular/platform-browser').SafeHtml} inlineContent - Inline HTML/SafeHtml to render inside the body.
+ * @param {string|SafeHtml} inlineContent - Inline HTML/SafeHtml to render inside the body.
  * @param {('top'|'bottom')} inlineContentPosition - Where to render `inlineContent` relative to the body; defaults to 'bottom'.
  * @return {void}
  * @class CardComponent
@@ -109,7 +109,7 @@ export class CardComponent extends NgxComponentDirective implements OnInit {
   /**
    * @description Ionic color token applied to the card.
    * @summary When provided, the color token (for example 'primary' or 'tertiary') is applied to title/header elements where supported.
-   * @type {import('@ionic/core').Color}
+   * @type {Color}
    * @default ''
    */
   @Input()
@@ -136,7 +136,7 @@ export class CardComponent extends NgxComponentDirective implements OnInit {
   /**
    * @description Inline HTML or SafeHtml content to render inside the card body.
    * @summary Useful for short snippets of rich content provided by the consumer. When passing raw HTML prefer `SafeHtml` to avoid sanitization issues.
-   * @type {string|import('@angular/platform-browser').SafeHtml}
+   * @type {string|SafeHtml}
    */
   @Input()
   inlineContent?: string | SafeHtml;
@@ -167,7 +167,6 @@ export class CardComponent extends NgxComponentDirective implements OnInit {
   * @return {void}
   */
   ngOnInit(): void {
-    console.log(this.componentName, this.borders);
     this.mediaService.isDarkMode().subscribe(isDark => {
       this.isDarkMode = isDark;
       this.mediaService.toggleClass(

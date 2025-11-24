@@ -37,7 +37,7 @@ import {
 import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
-import { getModelRepository } from '../../for-angular-common.module';
+import { getModelAndRepository } from '../../for-angular-common.module';
 import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, StringOrBoolean, FormParent, SelectOption } from '../../engine/types';
 import { dataMapper, generateRandomValue } from '../../utils';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
@@ -317,7 +317,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   @Input()
-  override readonly?: boolean;
+  override readonly: boolean = false;
 
   /**
    * @description Whether the field is required.
@@ -663,14 +663,12 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     } else {
       if (!this.parentForm && this.formGroup instanceof FormGroup || this.formGroup instanceof FormArray)
         this.parentForm = (this.formGroup.root || this.formControl.root) as FormParent;
-
       if (this.multiple) {
         this.formGroup = this.activeFormGroup as FormGroup;
         if (!this.parentForm)
           this.parentForm = this.formGroup.parent as FormArray;
         this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
       }
-
       if (!this.value && (this.options as []).length)
         this.setValue((this.options as CrudFieldOption[])[0].value);
 
@@ -680,7 +678,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         if (Array.isArray(this.value))
           this.setValue(this.value);
       }
-
     }
   }
 
@@ -697,14 +694,18 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       return [];
     if (this.options instanceof Function) {
       if (this.options.name === 'options')
-        this.options = this.options();
+        this.options = this.options() as FunctionLike;
       const fnName = (this.options as FunctionLike)?.name;
       if (fnName) {
          if (fnName === 'function') {
-          this.options = (this.options as FunctionLike)();
+          this.options = (this.options as FunctionLike)() as KeyValue[];
         } else {
-          const repo = getModelRepository((this.options as KeyValue)?.['name']);
-          this.options = await repo?.select().execute();
+          const repo = getModelAndRepository((this.options as KeyValue)?.['name']);
+          if(repo) {
+            const {repository} = repo;
+            this.options = await repository.select().execute();
+          }
+
         }
       }
     }
@@ -752,11 +753,10 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * This ensures proper initialization of read-only fields that don't require
    * form functionality but still need view setup.
    *
-   * @returns {void}
+   * @returns {Promise<void>}
    * @memberOf CrudFieldComponent
    */
-  ngAfterViewInit(): void {
-   super.afterViewInit();
+  async ngAfterViewInit(): Promise<void> {
     if (this.type === HTML5InputTypes.RADIO && !this.value)
         this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
   }

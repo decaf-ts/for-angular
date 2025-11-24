@@ -1,9 +1,16 @@
+import { pk } from "@decaf-ts/core";
 import { Model, model, ModelArg, required } from "@decaf-ts/decorator-validation";
 import { uielement, uilayoutprop, uimodel, uipageprop } from "@decaf-ts/ui-decorators";
 
 @uimodel('ngx-decaf-fieldset', {multiple: true})
 @model()
 export class SubstanceForm extends Model {
+
+  @pk({type: Number.name})
+  id!: string;
+
+  //  @manyToOne(() => Product, {update: Cascade.NONE, delete: Cascade.NONE}, false)
+  productCode!: string
 
   @required()
   @uielement('ngx-decaf-crud-field', {

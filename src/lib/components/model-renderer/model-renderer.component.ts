@@ -99,7 +99,7 @@ export class ModelRendererComponent<M extends Model>
    * @description Lifecycle hook that is called when data-bound properties of a directive change
    * @param {SimpleChanges} changes - Object containing changes
    */
-  override ngOnChanges(changes: SimpleChanges): void {
+  override async ngOnChanges(changes: SimpleChanges): Promise<void>  {
     if (changes[BaseComponentProps.MODEL]) {
       const { currentValue } = changes[BaseComponentProps.MODEL];
       this.refresh(currentValue);

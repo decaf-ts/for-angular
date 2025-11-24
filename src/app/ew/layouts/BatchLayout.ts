@@ -1,5 +1,4 @@
 import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
-import { pk } from '@decaf-ts/core';
 import {
   uichild,
   uilayout,
@@ -8,7 +7,7 @@ import {
   UIMediaBreakPoints,
   uipageprop,
 } from '@decaf-ts/ui-decorators';
-import { EpiForm } from '../forms/EpiForm';
+import { EpiLayout } from '../layouts/EpiLayout';
 import { FieldsetComponent, LayoutComponent } from 'src/lib/components';
 import { Batch } from '../models/Batch';
 
@@ -30,8 +29,8 @@ export class BatchLayout extends Model {
   batch!: Batch;
 
   @uilayoutprop(1)
-  @uichild(EpiForm.name, 'app-switcher', {})
-  epi!: EpiForm;
+  @uichild(EpiLayout.name, 'app-switcher', {})
+  epi!: EpiLayout;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: ModelArg<BatchLayout>) {

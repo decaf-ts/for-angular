@@ -27,7 +27,7 @@ import { LayoutComponent } from '../layout/layout.component';
   templateUrl: './crud-form.component.html',
   styleUrls: ['./crud-form.component.scss'],
   imports: [ReactiveFormsModule, LayoutComponent, ComponentRendererComponent, IonButton, IonIcon],
- host: {'[attr.id]': 'uid'},
+  host: {'[attr.id]': 'uid'},
 })
 
 export class CrudFormComponent extends NgxFormDirective {

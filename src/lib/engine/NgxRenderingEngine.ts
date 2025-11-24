@@ -6,13 +6,13 @@
  * dynamic component creation and input mapping.
  * @link {@link NgxRenderingEngine}
  */
-import { FieldDefinition, RenderingEngine } from '@decaf-ts/ui-decorators';
+import { FieldDefinition, HTML5InputTypes, RenderingEngine } from '@decaf-ts/ui-decorators';
 import { AngularFieldDefinition, KeyValue } from './types';
 import { AngularDynamicOutput, IFormComponentProperties } from './interfaces';
 import { AngularEngineKeys } from './constants';
 import { Model, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
 import { Constructor } from '@decaf-ts/decoration';
-import { InternalError } from '@decaf-ts/db-decorators';
+import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import {
   ComponentMirror,
   ComponentRef,
@@ -239,6 +239,10 @@ export class NgxRenderingEngine extends RenderingEngine<
     // const hasFormRoot = Object.values(possibleInputs).some(({propName}) => propName ===  AngularEngineKeys.PARENT_FORM);
     // if (hasFormRoot && !inputs?.[AngularEngineKeys.PARENT_FORM] && formGroup)
     //   inputs[AngularEngineKeys.PARENT_FORM] = formGroup;
+    if(operation !== OperationKeys.CREATE && (hiddenOn as string[]).includes(OperationKeys.CREATE)) {
+       fieldDef.props = {...fieldDef.props, ... {readonly: true, type: HTML5InputTypes.TEXT} };
+    }
+
     const result: AngularDynamicOutput = {
       component,
       inputs,
@@ -284,8 +288,9 @@ export class NgxRenderingEngine extends RenderingEngine<
       }
 
       result.children = fieldDef.children.map((child) => {
-        // const hiddenOn = (child?.props?.hidden || []) as CrudOperations[];
-        // moved to ui decorators
+        const readonly = operation === OperationKeys.UPDATE && ((child?.props?.hidden || []) as string[]).includes(OperationKeys.CREATE);
+        // const hiddenOn = (child?.props?.hidden || []) as string[];
+        // // moved to ui decorators
         // if (child?.children?.length) {
         //   child.children = child.children.filter(c => {
         //     const hiddenOn = c?.props?.hidden || [];
@@ -294,10 +299,14 @@ export class NgxRenderingEngine extends RenderingEngine<
         //   })
         // }
         // if (!hiddenOn?.length || !(hiddenOn as CrudOperations[]).includes(operation as CrudOperations))
-        NgxFormService.addControlFromProps(registryFormId, child.props, {
-          ...inputs,
-          ...(NgxRenderingEngine._parentProps || {}),
-        });
+        if(!readonly) {
+          NgxFormService.addControlFromProps(registryFormId, child.props, {
+            ...inputs,
+            ...(NgxRenderingEngine._parentProps || {}),
+          });
+        } else {
+          child.props = {...child.props, ... {readonly: true} };
+        }
         return this.fromFieldDefinition(
           child,
           vcr,
