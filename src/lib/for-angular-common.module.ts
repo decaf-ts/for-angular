@@ -25,7 +25,6 @@ import {
   KeyValue,
 } from './engine/types';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
-import { InternalError } from '@decaf-ts/db-decorators';
 import { Repository } from '@decaf-ts/core';
 import { Constructor, uses } from '@decaf-ts/decoration';
 

@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { parseToNumber } from '@decaf-ts/ui-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
-import { uses } from '@decaf-ts/decoration';
+import { Metadata, uses } from '@decaf-ts/decoration';
 import { Repository } from '@decaf-ts/core';
 import { DB_ADAPTER_PROVIDER } from '../for-angular-common.module';
 import { DecafRepository, KeyValue, FunctionLike } from '../engine/types';
@@ -42,7 +42,8 @@ export class DecafFakerRepository<T extends Model> {
   }
 
   public async initialize(): Promise<void> {
-    if (!this._repository) this._repository = this.repository;
+    if (!this._repository)
+      this._repository = this.repository;
   }
 
   async generateData<T extends Model>(
@@ -53,13 +54,10 @@ export class DecafFakerRepository<T extends Model> {
     const limit = pkValues
       ? Object.values(pkValues || {}).length - 1
       : this.limit;
-    if (!pk) pk = this._repository?.pk as string;
+    if (!pk)
+      pk = this._repository?.pk as string;
     if (!pkType)
-      pkType = Reflect.getMetadata(
-        'design:type',
-        this.model as KeyValue,
-        pk
-      ).name.toLowerCase();
+      pkType = Metadata.type(this.repository.class, pk).name.toLowerCase();
 
     const props = Object.keys(this.model as KeyValue).filter((k) => {
       if (pkType === Primitives.STRING)
@@ -72,11 +70,7 @@ export class DecafFakerRepository<T extends Model> {
     });
     const dataProps: Record<string, FunctionLike> = {};
     for (const prop of props) {
-      const type = Reflect.getMetadata(
-        'design:type',
-        this.model as KeyValue,
-        prop
-      );
+      const type =  Metadata.type(this.repository.class, prop).name.toLowerCase();
       switch ((type?.name || '').toLowerCase()) {
         case 'string':
           dataProps[prop] = () =>
@@ -158,10 +152,10 @@ export function getFakerData<T extends Model>(
 ): T[] {
   let index = 1;
   return Array.from({ length: limit }, () => {
-    const item = {} as T & { id: number; createdAt: Date };
+    const item: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
       const val = value();
-      item[key as keyof T] = val.constructor === Date ? formatDate(val) : val;
+      item[key] = val?.constructor === Date ? formatDate(val) : val;
     }
     // if ((item as any)?.['code'])
     //   (item as any).code = `${index}`;

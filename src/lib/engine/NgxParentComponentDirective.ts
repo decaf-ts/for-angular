@@ -28,7 +28,7 @@ import { Subscription, timer } from 'rxjs';
 @Directive()
 export class NgxParentComponentDirective extends NgxComponentDirective implements OnInit {
 
-    /**
+  /**
    * @description Unique identifier for the current record.
    * @summary A unique identifier for the current record being displayed or manipulated.
    * This is typically used in conjunction with the primary key for operations on specific records.

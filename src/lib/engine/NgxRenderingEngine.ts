@@ -30,7 +30,6 @@ import { NgxFormService } from '../services/NgxFormService';
 import { isDevelopmentMode } from '../utils';
 import { FormParent } from './types';
 import { getLogger } from '../for-angular-common.module';
-import { read } from 'fs';
 
 /**
  * @description Angular implementation of the RenderingEngine for Decaf components.

@@ -32,7 +32,6 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
   }
 
   override async ngOnInit() {
-    console.log(this.button);
     // await super.ngOnInit();
     // Initialize tabs based on children and existing tabs input
     if(!this.tabs.length || this.tabs.length < this.children.length) {

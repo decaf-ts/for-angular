@@ -11,7 +11,6 @@ import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { LoggedClass, Logger } from '@decaf-ts/logging';
 import { Model, ModelConstructor, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { DecafRepository, FunctionLike, KeyValue } from './types';
@@ -24,6 +23,7 @@ import { AngularEngineKeys, BaseComponentProps } from './constants';
 import { generateRandomValue, getWindow, setOnWindow } from '../utils';
 import { EventIds } from '@decaf-ts/core';
 import { NgxMediaService } from '../services/NgxMediaService';
+import { DecafComponent, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
 
 try {
   const win = getWindow();
@@ -48,7 +48,7 @@ try {
  * @memberOf module:lib/engine/NgxComponentDirective
  */
 @Directive({host: {'[attr.id]': 'uid'}})
-export abstract class NgxComponentDirective extends LoggedClass implements OnChanges, OnDestroy {
+export abstract class NgxComponentDirective extends DecafComponent implements OnChanges, OnDestroy {
 
 
   /**
@@ -75,7 +75,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  protected enableDarkMode: boolean = true;
+  protected override enableDarkMode: boolean = true;
 
   /**
    * @description Flag to enable or disable dark mode support for the component.
@@ -89,7 +89,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  protected isDarkMode: boolean = false;
+  protected override isDarkMode: boolean = false;
 
 
   /**
@@ -102,7 +102,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  name!: string;
+  override name!: string;
 
   /**
    * @description Parent component identifier for hierarchical component relationships.
@@ -114,7 +114,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  childOf!: string | undefined;
+  override childOf!: string | undefined;
 
   /**
    * @description Unique identifier for the component instance.
@@ -126,7 +126,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  uid?: string | number;
+  override uid?: string | number;
 
 
   /**
@@ -139,7 +139,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  model!: Model | string | undefined;
+  override model!: Model | string | undefined;
 
 
   /**
@@ -152,7 +152,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  modelId?: EventIds;
+  override modelId?: EventIds;
 
 
   /**
@@ -165,19 +165,19 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  pk!: string;
+  override pk!: string;
 
   /**
    * @description Field mapping configuration object or function.
    * @summary Defines how fields from the data model should be mapped to properties used by the component.
    * This allows for flexible data binding between the model and the component's display logic. Can be
    * provided as a static object mapping or as a function for dynamic mapping transformations.
-   * @type {Record<string, string> | FunctionLike}
+   * @type {Record<string, string> | FunctionLike | Record<string, FunctionLike>}
    * @default {}
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  mapper: Record<string, string> | FunctionLike = {};
+  mapper: Record<string, string> | FunctionLike | Record<string, FunctionLike> = {};
 
   /**
    * @description Available CRUD operations for this component instance.
@@ -218,7 +218,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   @Input()
   row: number = 1;
 
-
   /**
    * @description Column position in a grid-based layout system.
    * @summary Specifies the column position of this component when rendered within a grid-based layout.
@@ -230,7 +229,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   @Input()
   col: number = 1;
-
 
   /**
    * @description Additional CSS class names for component styling.
@@ -244,19 +242,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   @Input()
   className: string = '';
-
-
-  /**
-   * @description Repository instance for data layer operations.
-   * @summary Provides a connection to the data layer for retrieving and manipulating data.
-   * This is an instance of the DecafRepository class, initialized lazily in the repository getter.
-   * The repository is used to perform CRUD (Create, Read, Update, Delete) operations on the
-   * data model and provides methods for querying and filtering data based on specific criteria.
-   * @type {DecafRepository<Model>}
-   * @private
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  protected _repository?: DecafRepository<Model>;
 
 
   /**
@@ -284,7 +269,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @type {NgxMediaService}
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected mediaService: NgxMediaService = new NgxMediaService();
+  protected mediaService: NgxMediaService = inject(NgxMediaService);
 
 
   /**
@@ -308,18 +293,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected translateService: TranslateService = inject(TranslateService);
-
-  /**
-   * @description Logger instance for structured component logging.
-   * @summary Provides logging capabilities for the component, allowing for consistent
-   * and structured logging of information, warnings, and errors. This logger is inherited
-   * from the LoggedClass and provides access to structured logging functionality.
-   * The logger is used throughout the component to record important events, debug information,
-   * and potential issues, facilitating easier debugging and maintenance.
-   * @type {Logger}
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  logger!: Logger;
 
   /**
    * @description Event emitter for custom component events.
@@ -355,7 +328,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  locale?: string;
+  override locale?: string;
 
 
   /**
@@ -365,12 +338,13 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * and other properties needed to render list items correctly. The tag property
    * identifies which component should be used to render each item in a list.
    * Additional properties can be included to customize the rendering behavior.
-   * @type {Record<string, unknown>}
+   * @type {Record<string, FieldDefinition>}
    * @default {tag: ""}
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  item: Record<string, unknown> = { tag: '' };
+  override item: Record<string, unknown> = { tag: '' };
+
 
   /**
    * @description Dynamic properties configuration for runtime customization.
@@ -384,7 +358,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  props: Record<string, unknown> = {};
+  override props: Record<string, unknown> = {};
 
 
   /**
@@ -397,20 +371,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  route?: string = "";
-
-
-  /**
-   * @description Initialization status flag for the component.
-   * @summary Tracks whether the component has completed its initialization process.
-   * This flag is used to prevent duplicate initialization and to determine if
-   * certain operations that require initialization can be performed.
-   * @type {boolean}
-   * @default false
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  initialized: boolean = false;
-
+  override route?: string = "";
 
   /**
    * @description Controls whether borders are displayed around the component.
@@ -421,54 +382,22 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @default false
    */
   @Input()
-  borders: boolean = false;
-
-
-  /**
-   * @description Component name identifier for logging and localization contexts.
-   * @summary Stores the component's name which is used as a key for logging contexts
-   * and as a base for locale resolution. Can be injected via the CPTKN token or defaults
-   * to "NgxComponentDirective" if not provided.
-   * @protected
-   * @type {string | undefined}
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  protected componentName?: string;
-
-  /**
-   * @description Root key for component locale context resolution.
-   * @summary Defines the base key used to resolve localization contexts for this component.
-   * If not explicitly provided, it defaults to the component's name. This key is used to
-   * load appropriate translation resources and locale-specific configurations.
-   * @protected
-   * @type {string | undefined}
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  protected localeRoot?: string;
-
-  /**
-   * @description Reference to CRUD operation constants for template usage.
-   * @summary Exposes the OperationKeys enum to the component template, enabling
-   * conditional rendering and behavior based on operation types. This protected
-   * readonly property ensures that template logic can access operation constants
-   * while maintaining encapsulation and preventing accidental modification.
-   * @protected
-   * @readonly
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  protected readonly OperationKeys = OperationKeys;
+  override borders: boolean = false;
 
 
   /**
    * @description Angular Location service.
-   * @summary Injected service that provides access to the browser's URL and history.
-   * This service is used for interacting with the browser's history API, allowing
-   * for back navigation and URL manipulation outside of Angular's router.
+   * @summary Injected service that provides direct access to the browser's URL and history.
+   * Unlike the Router, Location allows for low-level manipulation of the browser's history stack
+   * and URL path, such as programmatically navigating back or forward, or updating the URL without
+   * triggering a route change. This is useful for scenarios where you need to interact with the
+   * browser history or URL outside of Angular's routing system, such as closing modals, handling
+   * popstate events, or supporting custom navigation logic.
    *
    * @private
    * @type {Location}
    */
-  protected location: Location = inject(Location);
+  protected override location: Location = inject(Location);
 
   /**
    * @description Flag indicating if the component is rendered as a child of a modal dialog.
@@ -485,6 +414,11 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   @Input()
   isModalChild: boolean = false;
 
+  @Input()
+  protected override handlers: Record<string, UIFunctionLike> = {};
+
+  @Input()
+  protected override events: Record<string, UIFunctionLike> = {};
 
   /**
    * @description Constructor for NgxComponentDirective.
@@ -505,7 +439,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
       this.localeRoot = this.componentName;
     if (this.localeRoot)
       this.getLocale(this.localeRoot);
-    this.logger = this.log;
     this.uid = `${this.componentName}-${generateRandomValue(8)}`;
 	}
 
@@ -553,7 +486,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
     } catch (error: unknown) {
       throw new InternalError((error as Error)?.message || (error as string));
     }
-    return this._repository;
+    return this._repository as DecafRepository<Model>;
   }
 
   /**
@@ -566,7 +499,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @return {void}
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  ngOnChanges(changes: SimpleChanges): void {
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes[BaseComponentProps.MODEL]) {
       const { currentValue } = changes[BaseComponentProps.MODEL];
       if (currentValue)
@@ -574,6 +507,25 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
       this.locale = this.localeContext;
       if (!this.initialized)
         this.initialized = true;
+    }
+    if (changes[UIKeys.EVENTS]) {
+      const { currentValue, previousValue } = changes[UIKeys.EVENTS];
+      if (currentValue && typeof currentValue !== previousValue) {
+        if(!this._repository)
+          this._repository = this.repository;
+        for(const key in currentValue) {
+          const event = currentValue[key]();
+          if (event && typeof event === 'function') {
+            const clazz = new event();
+            this.events[key] = clazz[key].bind(this);
+            if (event[key] instanceof Promise) {
+              await clazz[key].bind(this)();
+            } else {
+              clazz[key].bind(this)();
+            }
+          }
+        }
+      }
     }
     if (changes[BaseComponentProps.LOCALE_ROOT] || changes[BaseComponentProps.COMPONENT_NAME])
       this.locale = this.localeContext;
@@ -600,21 +552,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
     return await firstValueFrom(this.translateService.get(phrase, (params || {}) as object));;
   }
 
-  /**
-   * @description Initializes the component asynchronously with custom logic.
-   * @summary Abstract initialization method that can be overridden by child components to perform
-   * custom initialization logic. By default, it simply sets the initialized flag to true.
-   * Child components can extend this method to load data, configure settings, or perform
-   * other setup operations required before the component is fully functional.
-   * @protected
-   * @param {...unknown[]} args - Variable number of arguments that can be used by child implementations
-   * @return {Promise<void>} A promise that resolves when initialization is complete
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async initialize(...args: unknown[]): Promise<void> {
-    this.initialized = true;
-  }
 
   protected checkDarkMode(): void {
     this.mediaService.isDarkMode().subscribe(isDark => {
@@ -694,7 +631,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
     if (model instanceof Model) {
       this.getRoute();
       this.model = model;
-      const  engine = NgxRenderingEngine.get() as unknown as NgxRenderingEngine
+      const engine = NgxRenderingEngine.get() as unknown as NgxRenderingEngine
       const field = engine.getDecorators(this.model as Model, {});
       const { props, item, children } = field;
       this.props = Object.assign(props || {}, { children: children || [] }, this.props);
@@ -705,7 +642,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
         ...item?.props,
         ...(this.mapper ? { mapper: this.mapper } : {}),
         ...{ route: item?.props?.['route'] || this.route },
-      };
+      } as KeyValue;
     }
   }
 

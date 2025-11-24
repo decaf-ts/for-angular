@@ -14,7 +14,6 @@ import {
 } from '@decaf-ts/ui-decorators';
 import { OperationKeys, readonly, timestamp } from '@decaf-ts/db-decorators';
 import { index, pk } from '@decaf-ts/core';
-import { read } from 'fs';
 @uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uimodel('ngx-decaf-crud-form')
 @model()

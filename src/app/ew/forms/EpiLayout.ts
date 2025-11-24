@@ -1,5 +1,4 @@
 import { list, model, Model, ModelArg } from '@decaf-ts/decorator-validation';
-import { pk } from '@decaf-ts/core';
 import { uichild, uimodel, uiorder, uipageprop } from '@decaf-ts/ui-decorators';
 import { Leaflet } from '../models/Leaflet';
 import { MarketForm } from './MarketForm';

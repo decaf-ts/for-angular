@@ -50,3 +50,41 @@ export function Dynamic() {
     )
   );
 }
+
+
+//  export interface UICustomEvents {
+//   render: () => HandlerLike;
+//   init: () => FunctionLike;
+//  }
+
+// export function uion(event: string, handler: FunctionLike) {
+//   return (target: any, propertyKey?: any) => {
+//     const metadata = {
+//       [event]: handler,
+//     };
+//     propMetadata(getUIAttributeKey(propertyKey, 'handlers'), metadata)(
+//       target,
+//       propertyKey
+//     );
+//   };
+//   // return (model: unknown, property: unknown) => {
+//   //   const meta: UIHandlerMetadata = {
+//   //     [event]: handler,
+//   //   };
+//   //   return metadata(
+//   //     getUIAttributeKey(property as string, 'on'),
+//   //     meta
+//   //   )(model, property);
+//   // };
+// }
+
+
+// export function uionrender(handler: FunctionLike) {
+//   return uion("render", handler);
+// }
+
+// @uion(op, handler)
+
+// @uionrender(handler){
+// return uion("redenr", handler)
+// }

@@ -482,11 +482,11 @@ export class FieldsetComponent
    *   F->>C: detectChanges()
    *   C->>F: Update view with new state
    *
-   * @returns {void}
+   * @returns {Promise<void>}
    * @memberOf FieldsetComponent
    */
-  override ngAfterViewInit(): void {
-    super.ngAfterViewInit();
+  override async ngAfterViewInit(): Promise<void> {
+    await super.ngAfterViewInit();
     // if (!this.collapsable)
     //   this.isOpen = true;
     // if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {

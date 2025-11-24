@@ -1,5 +1,4 @@
 import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
-import { pk } from '@decaf-ts/core';
 import {
   uichild,
   uilayout,

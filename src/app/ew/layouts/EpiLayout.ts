@@ -1,16 +1,19 @@
 import { list, model, Model, ModelArg } from '@decaf-ts/decorator-validation';
-import { pk } from '@decaf-ts/core';
-import { uichild, uimodel, uiorder, uipageprop } from '@decaf-ts/ui-decorators';
+import { uichild, uimodel, uiorder, uionrender, uipageprop } from '@decaf-ts/ui-decorators';
 import { Leaflet } from '../models/Leaflet';
 import { MarketForm } from '../forms/MarketForm';
 import { SubstanceForm } from '../forms/SubstanceForm';
 import { FieldsetComponent } from 'src/lib/components';
+import { LeafletHandler } from 'src/app/handlers/LeafletHandler';
 
 @uimodel('ngx-decaf-crud-form', {})
 @model()
 export class EpiLayout extends Model {
+
   @uipageprop(1)
   @list(Leaflet, 'Array')
+  @uiorder(1)
+  @uionrender(() => LeafletHandler)
   @uichild(
     Leaflet.name,
     'ngx-decaf-fieldset',
@@ -24,7 +27,6 @@ export class EpiLayout extends Model {
     } as Partial<FieldsetComponent>,
     true
   )
-  @uiorder(1)
   document!: Leaflet;
 
   @uipageprop(1)

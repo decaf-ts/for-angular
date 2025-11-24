@@ -2,7 +2,6 @@ import { Directive, Input } from '@angular/core';
 import {
   InternalError,
   IRepository,
-  NotFoundError,
   OperationKeys,
 } from '@decaf-ts/db-decorators';
 import { EventIds, Repository } from '@decaf-ts/core';
@@ -142,7 +141,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
       this._repository = undefined;
       // throw new InternalError((error as Error)?.message || (error as string));
     }
-    return this._repository;
+    return this._repository as DecafRepository<Model>;
   }
 
   /**
@@ -181,7 +180,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         this.model = await this.handleGet(uid || this.modelId, this._repository, this.modelName as string) as Model;
       break;
     }
-    console.log(this.model);
   }
 
   /**
@@ -239,7 +237,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         message
       };
     } catch (error: unknown) {
-      this.logger.error(error as Error | string);
+      this.log.error(error as Error | string);
       return {
         ... event,
         success:  false,
@@ -260,7 +258,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    */
   async handleGet(uid?: EventIds, repository?: IRepository<Model>, modelName?: string): Promise<Model | undefined> {
     if (!uid) {
-      this.logger.info('No key passed to model page read operation, backing to last page');
+      this.log.info('No key passed to model page read operation, backing to last page');
       this.location.back();
       return undefined;
     }
@@ -279,14 +277,14 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
           if(!context)
             return getRepository(type, prop, model);
           const {repository} = context;
-          const data = await this.handleGet(uid, repository as IRepository<Model>, modelName);
           if(modelName === this.modelName) {
-            this.model = Model.build({[prop]: data}, modelName as string);
+            const data = await this.handleGet(uid, repository, modelName);
+            this.model = Model.build({[prop]: data}, modelName);
           } else {
-            (model as KeyValue)[prop as string] = Model.build(data, modelName as string);
+            model[prop as string] = Model.build({}, type);
           }
         }
-        this.model = Model.fromModel(this.model as Model, {[parent as string]: model});
+        (this.model as KeyValue)[parent as string] = Model.build(model, modelName);
       }
     }
 
@@ -300,8 +298,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
       );
       return result;
     } catch (error: unknown) {
-      this.log.for(this.handleGet).warn(`Error getting model instance with id ${uid}: ${(error as Error).message}`);
-      return this.model as Model;
+      this.log.for(this.handleGet).info(`Error getting model instance with id ${uid}: ${(error as Error).message}`);
+      return undefined;
     }
   }
 

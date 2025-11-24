@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild  } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild  } from '@angular/core';
 import { Color } from '@ionic/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';

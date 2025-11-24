@@ -4,14 +4,14 @@ import { CrudOperations, OperationKeys } from "@decaf-ts/db-decorators";
 import { Model } from "@decaf-ts/decorator-validation";
 import { NgxFormService } from "../services/NgxFormService";
 import { ICrudFormEvent, IFormElement } from "./interfaces";
-import { FieldUpdateMode, FormParent, HandlerLike, HTMLFormTarget } from "./types";
+import { FieldUpdateMode, FormParent, HTMLFormTarget } from "./types";
 import { ICrudFormOptions, IRenderedModel } from "./interfaces";
 import { ActionRoles, ComponentEventNames } from "./constants";
 import { NgxParentComponentDirective } from "./NgxParentComponentDirective";
 import { NgxFormFieldDirective } from "./NgxFormFieldDirective";
 import { generateRandomValue } from "../utils";
 import { timer } from "rxjs";
-import { FieldDefinition, UIModelMetadata } from "@decaf-ts/ui-decorators";
+import { FieldDefinition, UIFunctionLike, UIModelMetadata } from "@decaf-ts/ui-decorators";
 
 @Directive()
 export abstract class NgxFormDirective extends NgxParentComponentDirective implements OnInit, AfterViewInit, IFormElement, OnDestroy, IRenderedModel {
@@ -134,10 +134,10 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * triggered during form operations. These handlers provide extensibility for
    * custom business logic and can be invoked for various form events and actions.
    *
-   * @type {HandlerLike}
+   * @type {Record<string, UIFunctionLike>}
    */
   @Input()
-  handlers!: HandlerLike;
+  override handlers!:  Record<string, UIFunctionLike>;
 
   /**
    * @description Angular reactive FormGroup for form state management.
@@ -253,7 +253,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     this.initialized = true;
   }
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit(): Promise<void> {
     if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
   }
