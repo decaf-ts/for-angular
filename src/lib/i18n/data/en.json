@@ -43,6 +43,10 @@
     "delete": {
       "success": "Successfully deleted item with {0} {1}.",
       "error": "Error deleting item with {0} {1}."
+    },
+    "multiple": {
+      "success": "Successfully processed all operations.",
+      "error": "Error processing operations."
     }
   },
   "component": {

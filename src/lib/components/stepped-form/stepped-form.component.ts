@@ -364,7 +364,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
 
 
 
-  // async handleSubmit(event?: SubmitEvent, eventName?: string, componentName?: string): Promise<boolean | void> {
+  // async submit(event?: SubmitEvent, eventName?: string, componentName?: string): Promise<boolean | void> {
   //   if (event) {
   //     event.preventDefault();
   //     event.stopImmediatePropagation();

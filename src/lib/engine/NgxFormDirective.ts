@@ -327,7 +327,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     this.location.back();
   }
 
-  async handleSubmit(event?: SubmitEvent, eventName?: string, componentName?: string): Promise<boolean | void> {
+  override async submit(event?: SubmitEvent, eventName?: string, componentName?: string): Promise<boolean | void> {
     if (event) {
       event.preventDefault();
       event.stopImmediatePropagation();

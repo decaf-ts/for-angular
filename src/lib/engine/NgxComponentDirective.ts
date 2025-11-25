@@ -14,7 +14,7 @@ import { firstValueFrom } from 'rxjs';
 import { Model, ModelConstructor, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { DecafRepository, FunctionLike, KeyValue } from './types';
-import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
+import { IBaseCustomEvent, ICrudFormEvent, IModelPageCustomEvent } from './interfaces';
 import { NgxEventHandler } from './NgxEventHandler';
 import { getLocaleContext } from '../i18n/Loader';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
@@ -199,12 +199,12 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    * The operation affects form validation, field availability, and the specific repository
    * method called during data submission.
    *
-   * @type {OperationKeys.CREATE | OperationKeys.READ | OperationKeys.UPDATE | OperationKeys.DELETE}
+   * @type {OperationKeys}
    * @default OperationKeys.READ
-   *  @memberOf ModelPage
+   * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  operation: OperationKeys | undefined = OperationKeys.READ;
+  override operation: OperationKeys | undefined = OperationKeys.READ;
 
   /**
    * @description Row position in a grid-based layout system.
@@ -315,7 +315,7 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    * @type {Router}
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected router: Router = inject(Router);
+  override router: Router = inject(Router);
 
 
   /**
@@ -475,7 +475,7 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    * @throws {InternalError} If repository initialization fails
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected get repository(): DecafRepository<Model> | undefined {
+  override get repository(): DecafRepository<Model> | undefined {
     try {
       if (!this._repository) {
         this._repository = getModelAndRepository(this.model as Model)?.repository;
@@ -487,6 +487,10 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
       throw new InternalError((error as Error)?.message || (error as string));
     }
     return this._repository as DecafRepository<Model>;
+  }
+
+  override set repository(repository: DecafRepository<Model> | undefined) {
+    this._repository = repository;
   }
 
   /**
@@ -508,6 +512,21 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
       if (!this.initialized)
         this.initialized = true;
     }
+
+    // if (changes[UIKeys.HANDLERS]) {
+    //   const { currentValue, previousValue } = changes[UIKeys.HANDLERS];
+    //   if (currentValue && typeof currentValue !== previousValue) {
+    //     for(const key in currentValue) {
+    //       const event = currentValue[key]();
+    //       if (event && typeof event === 'function') {
+    //         const clazz = new event();
+    //         this.handlers[key] = clazz[key].bind(this);
+    //         console.log(this.handlers);
+    //       }
+    //     }
+    //   }
+    // }
+
     if (changes[UIKeys.EVENTS]) {
       const { currentValue, previousValue } = changes[UIKeys.EVENTS];
       if (currentValue && typeof currentValue !== previousValue) {
@@ -546,7 +565,7 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    * @return {Promise<string>} A promise that resolves to the translated text
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected async translate(phrase: string | string[], params?: object | string): Promise<string> {
+  protected override async translate(phrase: string | string[], params?: object | string): Promise<string> {
     if (typeof params === Primitives.STRING)
       params = {"0": params};
     return await firstValueFrom(this.translateService.get(phrase, (params || {}) as object));;
@@ -746,7 +765,7 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    *   end
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-	async handleEvent(event: IBaseCustomEvent | ICrudFormEvent | CustomEvent): Promise<void> {
+	async handleEvent(event: IBaseCustomEvent | ICrudFormEvent | CustomEvent, repository?: DecafRepository<Model>): Promise<void> {
     let name = "";
     const log = this.log.for(this.handleEvent);
     if (event instanceof CustomEvent) {
@@ -761,16 +780,26 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
       if (!handlers[name])
         return log.debug(`No handler found for event ${name}`);
       try {
-        const clazz = new (handlers as KeyValue)[name](this.router);
-        const result = clazz.handle(event);
+        const clazz = new (handlers as KeyValue)[name]();
+        const handler = clazz.handle.bind(this);
+        //const clazz = new event();
+      // this.events[key] = clazz[key].bind(this);
+
+        const result = handler(event);
         return (result instanceof Promise) ?
-         await result : result;
+          await result : result;
       } catch (e: unknown) {
         log.error(`Failed to handle ${name} event`, e as Error)
       }
     }
     this.listenEvent.emit(event as IBaseCustomEvent | ICrudFormEvent);
 	}
+
+
+  // passed for ui decorators
+  // async submit(...args: unknown[]): Promise<any> {
+  //   this.log.for(this.submit).info(`submit for ${this.componentName} with ${JSON.stringify(args)}`);
+  // }
 
   /**
    * @description Determines if a specific operation is allowed in the current context.

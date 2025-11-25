@@ -158,7 +158,6 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
     this.mediaService.colorSchemeObserver(this.component);
     this.currentRoute = this.router.url.replace('/', '');
     this.setPageTitle(this.currentRoute);
-    this.initialized = true;
   }
 
   /**

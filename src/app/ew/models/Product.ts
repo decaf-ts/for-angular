@@ -49,7 +49,7 @@ export class Product extends Model {
   // @uilayoutprop(1)
   // productDetailsTitle!: string;
 
-  @pk({type: Number.name })
+  @pk({type: "String", generated: false })
   @uilistprop('uid')
   @required()
   @uielement('ngx-decaf-crud-field', {
@@ -57,7 +57,7 @@ export class Product extends Model {
     placeholder: 'product.productCode.placeholder',
   } as Partial<CrudFieldComponent>)
   @uilayoutprop(2)
-  productCode!: number;
+  productCode!: string;
 
   @required()
   @uielement('ngx-decaf-crud-field', {
@@ -68,56 +68,54 @@ export class Product extends Model {
   @uilayoutprop(2)
   inventedName!: string;
 
-  @uielement('ngx-decaf-crud-field', {
-    label: 'product.internalMaterialCode.label',
-    placeholder: 'product.internalMaterialCode.placeholder',
-  } as Partial<CrudFieldComponent>)
-  @uilayoutprop(2)
-  internalMaterialCode?: string;
+  // @uielement('ngx-decaf-crud-field', {
+  //   label: 'product.internalMaterialCode.label',
+  //   placeholder: 'product.internalMaterialCode.placeholder',
+  // } as Partial<CrudFieldComponent>)
+  // @uilayoutprop(2)
+  // internalMaterialCode?: string;
 
-  @uielement('ngx-decaf-crud-field', {
-    label: 'product.importLicenseNumber.label',
-    placeholder: 'product.importLicenseNumber.placeholder',
-  } as Partial<CrudFieldComponent>)
-  @uilayoutprop(2)
-  importLicenseNumber?: string;
-
-  @required()
-  @uielement('ngx-decaf-crud-field', {
-    label: 'product.nameMedicinalProduct.label',
-    placeholder: 'product.nameMedicinalProduct.placeholder',
-    type: 'textarea',
-  } as Partial<CrudFieldComponent>)
-  @uilistprop('description')
-  @uilayoutprop(1)
-  nameMedicinalProduct!: string;
-
-
-  @uielement('ngx-decaf-crud-field', {
-    label: 'product.productRecall.label',
-    placeholder: 'product.productRecall.placeholder',
-    type: HTML5InputTypes.CHECKBOX,
-  } as Partial<CrudFieldComponent>)
-  @uilistprop('description')
-  @uilayoutprop(1)
-  productRecall?: boolean;
-
-  @uielement('ngx-decaf-card', {
-    title: 'product.section.image.title',
-    name: 'separator',
-    separator: true
-  } as Partial<CardComponent>)
-  @uilayoutprop(1)
-  productImageTitle!: string;
+  // @uielement('ngx-decaf-crud-field', {
+  //   label: 'product.importLicenseNumber.label',
+  //   placeholder: 'product.importLicenseNumber.placeholder',
+  // } as Partial<CrudFieldComponent>)
+  // @uilayoutprop(2)
+  // importLicenseNumber?: string;
 
   // @required()
-  @uielement('ngx-decaf-file-upload', {
-    label: 'product.productImage.label',
-  } as Partial<FileUploadComponent>)
-  @uilistprop('description')
-  @uilayoutprop(1)
-  @required()
-  productImage!: string;
+  // @uielement('ngx-decaf-crud-field', {
+  //   label: 'product.nameMedicinalProduct.label',
+  //   placeholder: 'product.nameMedicinalProduct.placeholder',
+  //   type: 'textarea',
+  // } as Partial<CrudFieldComponent>)
+  // @uilistprop('description')
+  // @uilayoutprop(1)
+  // nameMedicinalProduct!: string;
+
+
+  // @uielement('ngx-decaf-crud-field', {
+  //   label: 'product.productRecall.label',
+  //   placeholder: 'product.productRecall.placeholder',
+  //   type: HTML5InputTypes.CHECKBOX,
+  // } as Partial<CrudFieldComponent>)
+  // @uilistprop('description')
+  // @uilayoutprop(1)
+  // productRecall?: boolean;
+
+  // @uielement('ngx-decaf-card', {
+  //   title: 'product.section.image.title',
+  //   name: 'separator',
+  //   separator: true
+  // } as Partial<CardComponent>)
+  // @uilayoutprop(1)
+  // productImageTitle!: string;
+
+  // @uielement('ngx-decaf-file-upload', {
+  //   label: 'product.productImage.label',
+  // } as Partial<FileUploadComponent>)
+  // @uilistprop('description')
+  // @uilayoutprop(1)
+  // productImage!: string;
 
 
   // @uipageprop(3)

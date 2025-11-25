@@ -46,14 +46,8 @@ export class DecafFakerRepository<T extends Model> {
       this._repository = this.repository;
   }
 
-  async generateData<T extends Model>(
-    pkValues?: KeyValue,
-    pk?: string,
-    pkType?: string
-  ): Promise<T[]> {
-    const limit = pkValues
-      ? Object.values(pkValues || {}).length - 1
-      : this.limit;
+  async generateData<T extends Model>(pkValues?: KeyValue, pk?: string, pkType?: string): Promise<T[]> {
+    const limit = pkValues ? Object.values(pkValues || {}).length - 1 : this.limit;
     if (!pk)
       pk = this._repository?.pk as string;
     if (!pkType)
@@ -61,43 +55,39 @@ export class DecafFakerRepository<T extends Model> {
 
     const props = Object.keys(this.model as KeyValue).filter((k) => {
       if (pkType === Primitives.STRING)
-        return !['updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(
-          k
-        );
-      return ![pk, 'updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(
-        k
-      );
+        return !['updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(k);
+      return ![pk, 'updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(k);
     });
     const dataProps: Record<string, FunctionLike> = {};
     for (const prop of props) {
-      const type =  Metadata.type(this.repository.class, prop).name.toLowerCase();
-      switch ((type?.name || '').toLowerCase()) {
-        case 'string':
-          dataProps[prop] = () =>
-            `${faker.lorem.word()} ${pk === prop ? ' - ' + faker.number.int({ min: 1, max: 200 }) : ''}`;
-          break;
-        case 'step':
-          dataProps[prop] = () => faker.lorem.word();
-          break;
-        case 'email':
-          dataProps[prop] = () => faker.internet.email();
-          break;
-        case 'number':
-          dataProps[prop] = () => faker.number.int({ min: 1, max: 5 });
-          break;
-        case 'boolean':
-          dataProps[prop] = () => faker.datatype.boolean();
-          break;
-        case 'date':
-          dataProps[prop] = () => faker.date.past();
-          break;
-        case 'url':
-          dataProps[prop] = () => faker.internet.url();
-          break;
-        case 'array':
-          dataProps[prop] = () =>
-            faker.lorem.words({ min: 2, max: 5 }).split(' ');
-          break;
+      const type =  Metadata.type(this.repository.class, prop);
+     switch (type.name.toLowerCase()) {
+      case 'string':
+        dataProps[prop] = () =>
+          `${faker.lorem.word()} ${pk === prop ? ' - ' + faker.number.int({ min: 1, max: 200 }) : ''}`;
+        break;
+      case 'step':
+        dataProps[prop] = () => faker.lorem.word();
+        break;
+      case 'email':
+        dataProps[prop] = () => faker.internet.email();
+        break;
+      case 'number':
+        dataProps[prop] = () => faker.number.int({ min: 1, max: 5 });
+        break;
+      case 'boolean':
+        dataProps[prop] = () => faker.datatype.boolean();
+        break;
+      case 'date':
+        dataProps[prop] = () => faker.date.past();
+        break;
+      case 'url':
+        dataProps[prop] = () => faker.internet.url();
+        break;
+      case 'array':
+        dataProps[prop] = () =>
+          faker.lorem.words({ min: 2, max: 5 }).split(' ');
+        break;
       }
     }
 
@@ -161,6 +151,8 @@ export function getFakerData<T extends Model>(
     //   (item as any).code = `${index}`;
     // item.id = index;
     // item.createdAt = faker.date.past({ refDate: '2025-01-01' });
+    if(item['productCode'])
+      item['productCode'] = `${index}`;
     index = index + 1;
     return (!model ? item : Model.build(item, model)) as T;
   });
