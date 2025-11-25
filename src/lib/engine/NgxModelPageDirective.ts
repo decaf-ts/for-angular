@@ -2,10 +2,10 @@ import { Directive, Input } from '@angular/core';
 import {
   InternalError,
   IRepository,
+  NotFoundError,
   OperationKeys,
 } from '@decaf-ts/db-decorators';
 import { EventIds, Repository } from '@decaf-ts/core';
-import { Metadata } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { NgxPageDirective } from './NgxPageDirective';
 import { ComponentEventNames } from './constants';
@@ -13,7 +13,6 @@ import { IBaseCustomEvent, IModelPageCustomEvent } from './interfaces';
 import { KeyValue, DecafRepository } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { getModelAndRepository } from '../for-angular-common.module';
-import { da } from '@faker-js/faker/.';
 
 @Directive()
 export abstract class NgxModelPageDirective extends NgxPageDirective {
@@ -124,21 +123,22 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    *
    * @throws {InternalError} When the model is not found in the registry
    */
-  override get repository(): DecafRepository<Model> | undefined{
+  override get repository(): DecafRepository<Model> | undefined {
     try {
       if (!this._repository) {
         const constructor = Model.get(this.modelName);
         if (!constructor)
           throw new InternalError(
-            'Cannot find model. was it registered with @model?',
+            'Cannot find model. was it registered with @model?'
           );
         this._repository = Repository.forModel(constructor);
-        if (!this.pk)
-          this.pk = Model.pk(constructor) as string;
+        if (!this.pk) this.pk = Model.pk(constructor) as string;
         this.model = new constructor() as Model;
       }
-    }catch (error: unknown) {
-      this.log.warn(`Error getting repository for model: ${this.modelName}. ${(error as Error).message}`);
+    } catch (error: unknown) {
+      this.log.warn(
+        `Error getting repository for model: ${this.modelName}. ${(error as Error).message}`
+      );
       this._repository = undefined;
       // throw new InternalError((error as Error)?.message || (error as string));
     }
@@ -200,17 +200,15 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    *
    * @param {IBaseCustomEvent} event - The event object containing event data and metadata
    */
-  override async handleEvent(event: IBaseCustomEvent, repository?: DecafRepository<Model>): Promise<void> {
+  override async handleEvent(
+    event: IBaseCustomEvent,
+    repository?: DecafRepository<Model>
+  ): Promise<void> {
     const { name } = event;
     switch (name) {
       case ComponentEventNames.SUBMIT:
-<<<<<<< HEAD
-        await this.handleSubmit(event);
-        break;
-=======
         await this.submit(event, repository);
-      break;
->>>>>>> refs/heads/DECAF-178
+        break;
     }
   }
 
@@ -225,72 +223,35 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @param {IBaseCustomEvent} event - The submit event containing form data
    * @return {Promise<IModelPageCustomEvent|void>} Promise that resolves on success or throws on error
    */
-<<<<<<< HEAD
-  async handleSubmit(
+  override async submit(
     event: IBaseCustomEvent,
+    repository?: DecafRepository<Model>,
     redirect: boolean = false
   ): Promise<IModelPageCustomEvent | void> {
     try {
-      const repo = this._repository as IRepository<any>;
-      const operation =
-        this.operation === OperationKeys.READ
-          ? 'delete'
-          : this.operation.toLowerCase();
-      const data = this.parseData(
-        event.data as KeyValue,
-        operation as OperationKeys
-      );
-      const result =
-        this.operation === OperationKeys.CREATE
-          ? await repo.create(data as Model)
-          : this.operation === OperationKeys.UPDATE
-            ? await repo.update(data as Model)
-            : repo.delete(data as string | number);
-      const message = await this.translate(
-        `operations.${operation}.${result ? 'success' : 'error'}`,
-        {
-          '0': this.pk,
-          '1': this.modelId || (result as KeyValue)[this.pk],
-        }
-      );
+      if (!repository) repository = this._repository as DecafRepository<Model>;
 
-      if (result) {
-        (repo as DecafRepository<Model>).refresh(
-          repo.class,
-          this.operation,
-          this.modelId as EventIds
-        );
-        if (redirect) this.location.back();
-      }
-      return {
-        ...event,
-        success: result ? true : false,
-        message,
-      };
-=======
-  override async submit(event: IBaseCustomEvent, repository?: DecafRepository<Model>, redirect: boolean = false): Promise<IModelPageCustomEvent|void> {
-    try {
-      if(!repository)
-        repository = this._repository as DecafRepository<Model>;
-
-      const pk = this.pk || repository.pk as string;
+      const pk = this.pk || (repository['pk'] as string);
       const operation = this.operation;
-      const {data} = event;
+      const { data } = event;
       if (data) {
         const model = this.parseData(data || {}, operation, repository);
         let result;
-        switch(operation) {
+        switch (operation) {
           case OperationKeys.CREATE:
-            result = await (!Array.isArray(model) ?
-              repository.create(model as unknown as Model) : repository.createAll(model as unknown as Model[]));
+            result = await (!Array.isArray(model)
+              ? repository.create(model as unknown as Model)
+              : repository.createAll(model as unknown as Model[]));
             break;
           case OperationKeys.UPDATE:
-            result = await (!Array.isArray(model) ?
-              repository.update(model as unknown as Model) : repository.updateAll(model as unknown as Model[]));
+            result = await (!Array.isArray(model)
+              ? repository.update(model as unknown as Model)
+              : repository.updateAll(model as unknown as Model[]));
             break;
           case OperationKeys.DELETE:
-            result = await (!Array.isArray(model) ?
-              repository.delete(model as string | number) : repository.deleteAll(model as string[] | number[]));
+            result = await (!Array.isArray(model)
+              ? repository.delete(model as string | number)
+              : repository.deleteAll(model as string[] | number[]));
             break;
         }
 
@@ -302,16 +263,14 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
 
         if (result) {
           // repository.refresh(this.modelName, this.operation, this.modelId as EventIds);
-          if(redirect)
-            this.location.back();
+          if (redirect) this.location.back();
         }
         return {
-          ... event,
+          ...event,
           success: result ? true : false,
-          message
+          message,
         };
       }
->>>>>>> refs/heads/DECAF-178
     } catch (error: unknown) {
       return {
         ...event,
@@ -321,7 +280,10 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     }
   }
 
-  async create(data: Partial<Model>, repository: DecafRepository<Model>): Promise<IModelPageCustomEvent|void> {
+  async create(
+    data: Partial<Model>,
+    repository: DecafRepository<Model>
+  ): Promise<IModelPageCustomEvent | void> {
     alert('create');
     console.log(repository);
     console.log(data);
@@ -337,49 +299,73 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @param {string} uid - The unique identifier of the model instance to retrieve
    * @return {Promise<Model | undefined>} Promise resolving to the model instance or undefined
    */
-  async handleGet(uid?: EventIds, repository?: IRepository<any>, modelName?: string): Promise<Model | undefined> {
+  async handleGet(
+    uid?: EventIds,
+    repository?: IRepository<any>,
+    modelName?: string
+  ): Promise<Model | undefined> {
     if (!uid) {
-      this.log.info('No key passed to model page read operation, backing to last page');
+      this.log.info(
+        'No key passed to model page read operation, backing to last page'
+      );
       this.location.back();
       return undefined;
     }
 
-    const getRepository = async (modelName: string, parent?: string, model?: KeyValue): Promise<DecafRepository<Model> | undefined> => {
-      if(this._repository)
-        return this._repository as DecafRepository<Model>;
+    const getRepository = async (
+      modelName: string,
+      parent?: string,
+      model?: KeyValue
+    ): Promise<DecafRepository<Model> | undefined> => {
+      if (this._repository) return this._repository as DecafRepository<Model>;
       const constructor = Model.get(modelName);
       if (constructor) {
-        const properties = Metadata.properties(constructor as Constructor<Model>) as string[];
-        if(!model)
-          model = {} as KeyValue;
+        const properties = Metadata.properties(
+          constructor as Constructor<Model>
+        ) as string[];
+        if (!model) model = {} as KeyValue;
         for (const prop of properties) {
-          const type = Metadata.type(constructor as Constructor<Model>, prop).name;
+          const type = Metadata.type(
+            constructor as Constructor<Model>,
+            prop
+          ).name;
           const context = getModelAndRepository(type as string);
-          if(!context)
-            return getRepository(type, prop, model);
-          const {repository} = context;
-          if(modelName === this.modelName) {
+          if (!context) return getRepository(type, prop, model);
+          const { repository } = context;
+          if (modelName === this.modelName) {
             const data = await this.handleGet(uid, repository, modelName);
-            this.model = Model.build({[prop]: data}, modelName);
+            this.model = Model.build({ [prop]: data }, modelName);
           } else {
             model[prop as string] = Model.build({}, type);
           }
         }
-        (this.model as KeyValue)[parent as string] = Model.build(model, modelName);
+        (this.model as KeyValue)[parent as string] = Model.build(
+          model,
+          modelName
+        );
       }
-    }
+    };
 
-    repository = (repository || await getRepository(modelName as string)) as IRepository<Model>;
-    if(!repository)
-      return this.model as Model;
-    const type = Metadata.type(repository.class as Constructor<Model>, repository.pk as string).name;
+    repository = (repository ||
+      (await getRepository(modelName as string))) as IRepository<Model>;
+    if (!repository) return this.model as Model;
+    const type = Metadata.type(
+      repository.class as Constructor<Model>,
+      Model.pk(repository.class as Constructor<Model>)
+    ).name;
     try {
       const result = await (repository as IRepository<any>).read(
-        ([Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase()) ? Number(uid) : uid) as string | number,
+        ([Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase())
+          ? Number(uid)
+          : uid) as string | number
       );
       return result;
     } catch (error: unknown) {
-      this.log.for(this.handleGet).info(`Error getting model instance with id ${uid}: ${(error as Error).message}`);
+      this.log
+        .for(this.handleGet)
+        .info(
+          `Error getting model instance with id ${uid}: ${(error as Error).message}`
+        );
       return undefined;
     }
   }
@@ -395,37 +381,35 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @return {Model | string | number} Processed data ready for repository operations
    * @private
    */
-<<<<<<< HEAD
   private parseData(
-    data: Partial<Model>,
-    operation: OperationKeys
-  ): Model | EventIds {
-    const repo = this._repository as IRepository<any>;
+    data: KeyValue | KeyValue[],
+    operation: OperationKeys,
+    repository: DecafRepository<Model>
+  ): Model | Model[] | EventIds {
+    operation = (
+      operation === OperationKeys.READ
+        ? OperationKeys.DELETE
+        : operation.toLowerCase()
+    ) as OperationKeys;
+
+    if (Array.isArray(data)) {
+      data = data.map((item) =>
+        this.parseData(item, operation, repository as DecafRepository<Model>)
+      );
+      return data as Model[];
+    }
+
     let uid = this.modelId as EventIds;
-    const pk = (repo as any).pk as string;
-    if ((repo as any)[pk as any] === ('id' as keyof Model)) uid = Number(uid);
+    const pk = repository['pk'] as string;
+    const type = Metadata.type(repository.class as Constructor<Model>, pk).name;
+    uid = [Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase())
+      ? Number(uid)
+      : uid;
     if (operation !== OperationKeys.DELETE)
       return Model.build(
         this.modelId ? Object.assign(data, { [pk]: uid }) : data,
-        this.modelName
+        repository.class.name
       ) as Model;
     return uid as EventIds;
-=======
-  private parseData(data: KeyValue | KeyValue[], operation: OperationKeys, repository: DecafRepository<Model>): Model | Model[] | EventIds {
-      operation = (operation === OperationKeys.READ ? OperationKeys.DELETE : operation.toLowerCase()) as OperationKeys;
-
-      if(Array.isArray(data)) {
-        data = data.map(item => this.parseData(item, operation, repository as DecafRepository<Model>));
-        return data as Model[];
-      }
-
-      let uid = this.modelId as EventIds;
-      const pk = repository.pk as string;
-      const type = Metadata.type(repository.class as Constructor<Model>, pk).name;
-      uid = [Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase()) ? Number(uid) : uid;
-      if (operation !== OperationKeys.DELETE)
-        return Model.build(this.modelId ? Object.assign(data, {[pk]: uid}) : data, repository.class.name) as Model;
-      return uid as EventIds;
->>>>>>> refs/heads/DECAF-178
   }
 }

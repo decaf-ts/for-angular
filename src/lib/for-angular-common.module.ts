@@ -129,7 +129,7 @@ export function provideDynamicComponents(
  */
 export function getModelAndRepository(
   model: Model | string
-): {repository: DecafRepository<Model>, model: Model} | undefined {
+): { repository: DecafRepository<Model>; model: Model } | undefined {
   try {
     const modelName = (
       typeof model === Primitives.STRING
@@ -139,18 +139,18 @@ export function getModelAndRepository(
     const constructor = Model.get(
       (modelName.charAt(0).toUpperCase() + modelName.slice(1)) as string
     );
-    if (!constructor)
-      return undefined;
+    if (!constructor) return undefined;
     const dbAdapterFlavour = getOnWindow(DB_ADAPTER_PROVIDER) || undefined;
     if (dbAdapterFlavour) uses(dbAdapterFlavour as string)(constructor);
     const repository = Repository.forModel(constructor);
     model = new constructor() as Model;
-    if(!repository.pk)
-      return undefined;
-    return {repository, model};
+    if (!repository['pk']) return undefined;
+    return { repository, model };
   } catch (error: unknown) {
-   getLogger(getModelAndRepository).warn((error as Error)?.message || (error as string));
-   return undefined;
+    getLogger(getModelAndRepository).warn(
+      (error as Error)?.message || (error as string)
+    );
+    return undefined;
   }
 }
 
