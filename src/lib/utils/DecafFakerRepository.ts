@@ -53,7 +53,7 @@ export class DecafFakerRepository<T extends Model> {
     const limit = pkValues
       ? Object.values(pkValues || {}).length - 1
       : this.limit;
-    if (!pk) pk = this._repository?.pk as string;
+    if (!pk) pk = (this._repository as any)['pk'] as string;
     if (!pkType)
       pkType = Reflect.getMetadata(
         'design:type',

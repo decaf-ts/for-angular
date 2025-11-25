@@ -8,12 +8,35 @@
  * @link {@link FilterComponent}
  */
 
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild  } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
-import { IonButton, IonChip, IonIcon, IonSelect, IonSelectOption} from '@ionic/angular/standalone';
-import { chevronDownOutline, trashOutline, closeOutline, searchOutline, arrowDownOutline, arrowUpOutline, chevronUpOutline } from 'ionicons/icons';
+import {
+  IonButton,
+  IonChip,
+  IonIcon,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
+import {
+  chevronDownOutline,
+  trashOutline,
+  closeOutline,
+  searchOutline,
+  arrowDownOutline,
+  arrowUpOutline,
+  chevronUpOutline,
+} from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { Model } from '@decaf-ts/decorator-validation';
 import { OrderDirection, Repository } from '@decaf-ts/core';
@@ -22,7 +45,6 @@ import { Dynamic } from '../../engine/decorators';
 import { IFilterQuery, IFilterQueryItem } from '../../engine/interfaces';
 import { getWindowWidth } from '../../utils/helpers';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
-
 
 /**
  * @description Advanced filter component for creating dynamic search filters with step-by-step construction.
@@ -79,13 +101,15 @@ import { SearchbarComponent } from '../searchbar/searchbar.component';
     IonSelect,
     IonSelectOption,
     IonIcon,
-    SearchbarComponent
+    SearchbarComponent,
   ],
   standalone: true,
-  host: {'[attr.id]': 'uid'},
+  host: { '[attr.id]': 'uid' },
 })
-export class FilterComponent extends NgxComponentDirective implements OnInit, OnDestroy {
-
+export class FilterComponent
+  extends NgxComponentDirective
+  implements OnInit, OnDestroy
+{
   /**
    * @description Reference to the dropdown options container element.
    * @summary ViewChild reference used to access and manipulate the dropdown options element
@@ -111,10 +135,8 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
   @Input()
   indexes: string[] = [];
 
-
   @Input()
   multiple: boolean = false;
-
 
   /**
    * @description Available comparison conditions for filters.
@@ -127,7 +149,14 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   @Input()
-  conditions: string[] = ['Equal', 'Contains', 'Not Contains', 'Greater Than', 'Less Than', 'Not Equal'];
+  conditions: string[] = [
+    'Equal',
+    'Contains',
+    'Not Contains',
+    'Greater Than',
+    'Less Than',
+    'Not Equal',
+  ];
 
   /**
    * @description Available sorting options for the filtered data.
@@ -289,7 +318,9 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   @Output()
-  filterEvent: EventEmitter<IFilterQuery | undefined> = new EventEmitter<IFilterQuery | undefined>();
+  filterEvent: EventEmitter<IFilterQuery | undefined> = new EventEmitter<
+    IFilterQuery | undefined
+  >();
 
   /**
    * @description Event emitter for search events.
@@ -300,7 +331,6 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
   @Output()
   searchEvent: EventEmitter<string> = new EventEmitter<string>();
 
-
   /**
    * @description Constructor for FilterComponent.
    * @summary Initializes a new instance of the FilterComponent.
@@ -310,8 +340,16 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   constructor() {
-    super("FilterComponent");
-    addIcons({chevronDownOutline, trashOutline, closeOutline, searchOutline, arrowDownOutline, arrowUpOutline, chevronUpOutline});
+    super('FilterComponent');
+    addIcons({
+      chevronDownOutline,
+      trashOutline,
+      closeOutline,
+      searchOutline,
+      arrowDownOutline,
+      arrowUpOutline,
+      chevronUpOutline,
+    });
   }
 
   /**
@@ -341,13 +379,12 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   async ngOnInit(): Promise<void> {
-
     this.windowWidth = getWindowWidth() as number;
     this.windowResizeSubscription = fromEvent(window, 'resize')
-    .pipe(debounceTime(300))
-    .subscribe(() => {
-     this.windowWidth = getWindowWidth() as number;
-    });
+      .pipe(debounceTime(300))
+      .subscribe(() => {
+        this.windowWidth = getWindowWidth() as number;
+      });
 
     this.getIndexes();
     this.initialize();
@@ -364,14 +401,13 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    */
   getIndexes(): void {
     if (this.model)
-      this.indexes = Object.keys(Repository.indexes(this.model as Model) || {});
+      this.indexes = Object.keys(Model.indexes(this.model as Model) || {});
     if (!this.disableSort) {
-      this.sortBy = [... this.sortBy, ...this.indexes];
+      this.sortBy = [...this.sortBy, ...this.indexes];
       if (this.repository)
-        this.sortValue = this.repository.pk || this.sortValue;
+        this.sortValue = this.repository['pk'] || this.sortValue;
     }
   }
-
 
   /**
    * @description Cleanup method called when the component is destroyed.
@@ -384,7 +420,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    */
   override async ngOnDestroy(): Promise<void> {
     super.ngOnDestroy();
-    if(this.windowResizeSubscription)
+    if (this.windowResizeSubscription)
       this.windowResizeSubscription.unsubscribe();
     this.clear();
   }
@@ -399,8 +435,8 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   handleInput(event: InputEvent): void {
-    const {value} = event.target as HTMLInputElement;
-      this.filteredOptions = this.filterOptions(value);
+    const { value } = event.target as HTMLInputElement;
+    this.filteredOptions = this.filterOptions(value);
   }
 
   /**
@@ -413,9 +449,8 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @returns {void}
    * @memberOf FilterComponent
    */
-  handleFocus(options: string[]  = []): void {
-    if (!options.length)
-     options = this.getOptions();
+  handleFocus(options: string[] = []): void {
+    if (!options.length) options = this.getOptions();
     this.filteredOptions = this.options = options;
     this.dropdownOpen = true;
   }
@@ -454,7 +489,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   getOptions(): string[] {
-   switch (this.step) {
+    switch (this.step) {
       case 1:
         this.options = this.indexes;
         break;
@@ -465,7 +500,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
         this.options = [];
         break;
     }
-    return this.options
+    return this.options;
   }
 
   /**
@@ -511,7 +546,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
     if (event instanceof KeyboardEvent && !value) {
       this.submit();
     } else {
-       if ((value && (!(event instanceof KeyboardEvent)) || this.step === 3)) {
+      if ((value && !(event instanceof KeyboardEvent)) || this.step === 3) {
         const filter = this.lastFilter;
         switch (this.step) {
           case 1:
@@ -530,21 +565,18 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
         if (!this.filterValue.length) {
           this.filterValue.push(filter);
         } else {
-          if (this.step === 1)
-            this.filterValue.push(filter);
+          if (this.step === 1) this.filterValue.push(filter);
         }
         if (this.step === 3) {
           this.step = 0;
           this.filterValue[this.filterValue.length - 1] = filter;
           this.lastFilter = {};
-          if(!this.multiple)
-            return this.submit();
+          if (!this.multiple) return this.submit();
         }
 
         this.step++;
         this.value = '';
-        if (this.options.length)
-          this.handleFocus(this.options);
+        if (this.options.length) this.handleFocus(this.options);
         this.component.nativeElement.querySelector('#dcf-filter-field').focus();
       }
     }
@@ -575,7 +607,10 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   allowClear(option: string): boolean {
-    return this.indexes.indexOf(option) === -1 && this.conditions.indexOf(option) === -1;
+    return (
+      this.indexes.indexOf(option) === -1 &&
+      this.conditions.indexOf(option) === -1
+    );
   }
 
   /**
@@ -604,13 +639,16 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
   removeFilter(filter: string): void {
     function cleanString(filter: string): string {
       return filter
-        .toLowerCase()                 // convert all characters to lowercase
-        .normalize("NFD")              // separate accent marks from characters
-        .replace(/[\u0300-\u036f]/g, "") // remove accent marks
-        .replace(/\s+/g, "");          // remove all whitespace
+        .toLowerCase() // convert all characters to lowercase
+        .normalize('NFD') // separate accent marks from characters
+        .replace(/[\u0300-\u036f]/g, '') // remove accent marks
+        .replace(/\s+/g, ''); // remove all whitespace
     }
-    this.value = "";
-    this.filterValue = this.filterValue.filter((item) => item?.['value'] && cleanString(item?.['value']) !== cleanString(filter));
+    this.value = '';
+    this.filterValue = this.filterValue.filter(
+      (item) =>
+        item?.['value'] && cleanString(item?.['value']) !== cleanString(filter)
+    );
     if (this.filterValue.length === 0) {
       this.step = 1;
       this.lastFilter = {};
@@ -648,8 +686,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   clear(value?: string): void {
-    if (!value)
-      this.reset();
+    if (!value) this.reset();
   }
 
   /**
@@ -665,11 +702,10 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
       query: this.filterValue.length > 0 ? this.filterValue : undefined,
       sort: {
         value: this.sortValue,
-        direction: this.sortDirection
-      }
+        direction: this.sortDirection,
+      },
     } as IFilterQuery);
-    if (this.filterValue.length === 0)
-      this.options = [];
+    if (this.filterValue.length === 0) this.options = [];
   }
 
   /**
@@ -681,8 +717,11 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @returns {void}
    * @memberOf FilterComponent
    */
-   handleSortDirectionChange(): void {
-    const direction = this.sortDirection ===  OrderDirection.ASC ? OrderDirection.DSC : OrderDirection.ASC;
+  handleSortDirectionChange(): void {
+    const direction =
+      this.sortDirection === OrderDirection.ASC
+        ? OrderDirection.DSC
+        : OrderDirection.ASC;
     if (direction !== this.sortDirection) {
       this.sortDirection = direction;
       this.submit();
@@ -736,24 +775,29 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    *
    * @memberOf FilterComponent
    */
-  filterOptions(value: string | null |  undefined): string[] {
+  filterOptions(value: string | null | undefined): string[] {
     const optionsElement = this.optionsFilterElement.nativeElement;
 
     if (!value?.length || !value || value.length < 2) {
-      const filteredOption = optionsElement.querySelector('.dcf-filtering-item');
-      if (filteredOption)
-        filteredOption.classList.remove('dcf-filtering-item');
+      const filteredOption = optionsElement.querySelector(
+        '.dcf-filtering-item'
+      );
+      if (filteredOption) filteredOption.classList.remove('dcf-filtering-item');
       return this.options;
     }
     const options = optionsElement.querySelectorAll('.dcf-item');
     for (const option of options) {
-      const isActive = option.textContent?.toLowerCase().includes(value.toLowerCase());
+      const isActive = option.textContent
+        ?.toLowerCase()
+        .includes(value.toLowerCase());
       if (isActive) {
         option.classList.add('dcf-filtering-item');
         break;
       }
     }
-    return this.options.filter((option: string) => option.toLowerCase().includes(value.toLowerCase() as string));
+    return this.options.filter((option: string) =>
+      option.toLowerCase().includes(value.toLowerCase() as string)
+    );
   }
 
   /**
@@ -769,5 +813,4 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
   handleSearch(value: string | undefined): void {
     this.searchEvent.emit(value);
   }
-
 }

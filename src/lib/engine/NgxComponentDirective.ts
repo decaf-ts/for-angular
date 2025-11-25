@@ -6,20 +6,42 @@
  * It centralizes shared behavior for child components and simplifies integration with the rendering engine.
  * @link {@link NgxComponentDirective}
  */
-import { Directive, ElementRef, EventEmitter, Inject, inject, Input, Output, SimpleChanges, ViewChild, OnChanges, ChangeDetectorRef, Renderer2, OnDestroy } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  EventEmitter,
+  Inject,
+  inject,
+  Input,
+  Output,
+  SimpleChanges,
+  ViewChild,
+  OnChanges,
+  ChangeDetectorRef,
+  Renderer2,
+  OnDestroy,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { LoggedClass, Logger } from '@decaf-ts/logging';
-import { Model, ModelConstructor, Primitives } from '@decaf-ts/decorator-validation';
-import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
+import {
+  Model,
+  ModelConstructor,
+  Primitives,
+} from '@decaf-ts/decorator-validation';
+import {
+  CrudOperations,
+  InternalError,
+  OperationKeys,
+} from '@decaf-ts/db-decorators';
 import { DecafRepository, FunctionLike, KeyValue } from './types';
 import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
 import { NgxEventHandler } from './NgxEventHandler';
 import { getLocaleContext } from '../i18n/Loader';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
-import { getModelRepository,  CPTKN } from '../for-angular-common.module';
+import { getModelRepository, CPTKN } from '../for-angular-common.module';
 import { AngularEngineKeys, BaseComponentProps } from './constants';
 import { generateRandomValue, getWindow, setOnWindow } from '../utils';
 import { EventIds } from '@decaf-ts/core';
@@ -27,8 +49,7 @@ import { NgxMediaService } from '../services/NgxMediaService';
 
 try {
   const win = getWindow();
-  if (!win?.[AngularEngineKeys.LOADED])
-    new NgxRenderingEngine();
+  if (!win?.[AngularEngineKeys.LOADED]) new NgxRenderingEngine();
   setOnWindow(AngularEngineKeys.LOADED, true);
 } catch (e: unknown) {
   throw new Error(`Failed to load rendering engine: ${e}`);
@@ -47,10 +68,11 @@ try {
  * @implements {OnChanges}
  * @memberOf module:lib/engine/NgxComponentDirective
  */
-@Directive({host: {'[attr.id]': 'uid'}})
-export abstract class NgxComponentDirective extends LoggedClass implements OnChanges, OnDestroy {
-
-
+@Directive({ host: { '[attr.id]': 'uid' } })
+export abstract class NgxComponentDirective
+  extends LoggedClass
+  implements OnChanges, OnDestroy
+{
   /**
    * @description Reference to the component's native DOM element.
    * @summary Provides direct access to the native DOM element of the component through Angular's
@@ -91,7 +113,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   @Input()
   protected isDarkMode: boolean = false;
 
-
   /**
    * @description Name identifier for the component instance.
    * @summary Provides a string identifier that can be used to name or label the component
@@ -128,7 +149,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   @Input()
   uid?: string | number;
 
-
   /**
    * @description Data model or model name for component operations.
    * @summary The data model that this component will use for CRUD operations. This can be provided
@@ -141,7 +161,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   @Input()
   model!: Model | string | undefined;
 
-
   /**
    * @description Primary key value of the current model instance.
    * @summary Specifies the primary key value for the current model record being displayed or
@@ -153,7 +172,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   @Input()
   modelId?: EventIds;
-
 
   /**
    * @description Primary key field name for the data model.
@@ -191,7 +209,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   @Input()
   operations: CrudOperations[] = [OperationKeys.READ];
 
-
   /**
    * @description The CRUD operation type to be performed on the model.
    * @summary Specifies which operation (Create, Read, Update, Delete) this component instance
@@ -218,7 +235,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   @Input()
   row: number = 1;
 
-
   /**
    * @description Column position in a grid-based layout system.
    * @summary Specifies the column position of this component when rendered within a grid-based layout.
@@ -230,7 +246,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   @Input()
   col: number = 1;
-
 
   /**
    * @description Additional CSS class names for component styling.
@@ -245,7 +260,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   @Input()
   className: string = '';
 
-
   /**
    * @description Repository instance for data layer operations.
    * @summary Provides a connection to the data layer for retrieving and manipulating data.
@@ -258,7 +272,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   protected _repository?: DecafRepository<Model>;
 
-
   /**
    * @description Angular change detection service for manual change detection control.
    * @summary Injected service that provides manual control over change detection cycles.
@@ -270,7 +283,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected changeDetectorRef: ChangeDetectorRef = inject(ChangeDetectorRef);
-
 
   /**
    * @description Media service instance for responsive design and media query management.
@@ -285,7 +297,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected mediaService: NgxMediaService = new NgxMediaService();
-
 
   /**
    * @description Angular Renderer2 service for platform-agnostic DOM manipulation.
@@ -331,7 +342,8 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Output()
-  listenEvent: EventEmitter<IBaseCustomEvent> = new EventEmitter<IBaseCustomEvent>();
+  listenEvent: EventEmitter<IBaseCustomEvent> =
+    new EventEmitter<IBaseCustomEvent>();
 
   /**
    * @description Angular Router instance for programmatic navigation.
@@ -344,7 +356,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   protected router: Router = inject(Router);
 
-
   /**
    * @description Current locale identifier for component internationalization.
    * @summary Specifies the locale code (e.g., 'en-US', 'pt-BR') used for translating UI text
@@ -356,7 +367,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   @Input()
   locale?: string;
-
 
   /**
    * @description Configuration for list item rendering behavior.
@@ -386,7 +396,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   @Input()
   props: Record<string, unknown> = {};
 
-
   /**
    * @description Base route path for component navigation.
    * @summary Defines the base route path used for navigation actions related to this component.
@@ -397,8 +406,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  route?: string = "";
-
+  route?: string = '';
 
   /**
    * @description Initialization status flag for the component.
@@ -411,7 +419,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   initialized: boolean = false;
 
-
   /**
    * @description Controls whether borders are displayed around the component.
    * @summary Boolean flag that determines if the component should be visually outlined with borders.
@@ -422,7 +429,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   @Input()
   borders: boolean = false;
-
 
   /**
    * @description Component name identifier for logging and localization contexts.
@@ -458,7 +464,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   protected readonly OperationKeys = OperationKeys;
 
-
   /**
    * @description Angular Location service.
    * @summary Injected service that provides access to the browser's URL and history.
@@ -485,7 +490,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   @Input()
   isModalChild: boolean = false;
 
-
   /**
    * @description Constructor for NgxComponentDirective.
    * @summary Initializes the directive by setting up the component name, locale root,
@@ -497,17 +501,19 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   // eslint-disable-next-line @angular-eslint/prefer-inject
-  constructor(@Inject(CPTKN) componentName?: string, @Inject(CPTKN) localeRoot?: string) {
-		super();
-    this.componentName = componentName || "NgxComponentDirective";
+  constructor(
+    @Inject(CPTKN) componentName?: string,
+    @Inject(CPTKN) localeRoot?: string
+  ) {
+    super();
+    this.componentName = componentName || 'NgxComponentDirective';
     this.localeRoot = localeRoot;
     if (!this.localeRoot && this.componentName)
       this.localeRoot = this.componentName;
-    if (this.localeRoot)
-      this.getLocale(this.localeRoot);
+    if (this.localeRoot) this.getLocale(this.localeRoot);
     this.logger = this.log;
     this.uid = `${this.componentName}-${generateRandomValue(8)}`;
-	}
+  }
 
   /**
    * @description Cleanup lifecycle hook invoked when the directive is destroyed.
@@ -528,9 +534,9 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @returns {string} The current locale identifier
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  get localeContext(): string{
-		return this.getLocale();
-	}
+  get localeContext(): string {
+    return this.getLocale();
+  }
 
   /**
    * @description Getter for the data repository instance.
@@ -547,8 +553,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
       if (!this._repository) {
         this._repository = getModelRepository(this.model as Model);
         if (this.model && !this.pk)
-          this.pk =
-            (this._repository as unknown as DecafRepository<Model>).pk || 'id';
+          this.pk = Model.pk((this.model as any).constructor) as string;
       }
     } catch (error: unknown) {
       throw new InternalError((error as Error)?.message || (error as string));
@@ -569,17 +574,17 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   ngOnChanges(changes: SimpleChanges): void {
     if (changes[BaseComponentProps.MODEL]) {
       const { currentValue } = changes[BaseComponentProps.MODEL];
-      if (currentValue)
-        this.getModel(currentValue);
+      if (currentValue) this.getModel(currentValue);
       this.locale = this.localeContext;
-      if (!this.initialized)
-        this.initialized = true;
+      if (!this.initialized) this.initialized = true;
     }
-    if (changes[BaseComponentProps.LOCALE_ROOT] || changes[BaseComponentProps.COMPONENT_NAME])
+    if (
+      changes[BaseComponentProps.LOCALE_ROOT] ||
+      changes[BaseComponentProps.COMPONENT_NAME]
+    )
       this.locale = this.localeContext;
 
-    if(this.enableDarkMode)
-      this.checkDarkMode();
+    if (this.enableDarkMode) this.checkDarkMode();
   }
 
   /**
@@ -594,10 +599,14 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @return {Promise<string>} A promise that resolves to the translated text
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected async translate(phrase: string | string[], params?: object | string): Promise<string> {
-    if (typeof params === Primitives.STRING)
-      params = {"0": params};
-    return await firstValueFrom(this.translateService.get(phrase, (params || {}) as object));;
+  protected async translate(
+    phrase: string | string[],
+    params?: object | string
+  ): Promise<string> {
+    if (typeof params === Primitives.STRING) params = { '0': params };
+    return await firstValueFrom(
+      this.translateService.get(phrase, (params || {}) as object)
+    );
   }
 
   /**
@@ -617,7 +626,7 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
   }
 
   protected checkDarkMode(): void {
-    this.mediaService.isDarkMode().subscribe(isDark => {
+    this.mediaService.isDarkMode().subscribe((isDark) => {
       this.isDarkMode = isDark;
       this.mediaService.toggleClass(
         [this.component],
@@ -639,10 +648,9 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   protected getLocale(locale?: string): string {
     if (locale || !this.locale) {
-      if (locale)
-        this.localeRoot = locale;
+      if (locale) this.localeRoot = locale;
       if (this.localeRoot)
-        this.locale = getLocaleContext(this.localeRoot as string)
+        this.locale = getLocaleContext(this.localeRoot as string);
     }
     return this.locale as string;
   }
@@ -694,12 +702,15 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
     if (model instanceof Model) {
       this.getRoute();
       this.model = model;
-      const  engine = NgxRenderingEngine.get() as unknown as NgxRenderingEngine
+      const engine = NgxRenderingEngine.get() as unknown as NgxRenderingEngine;
       const field = engine.getDecorators(this.model as Model, {});
       const { props, item, children } = field;
-      this.props = Object.assign(props || {}, { children: children || [] }, this.props);
-      if (item?.props?.['mapper'])
-        this.mapper = item?.props!['mapper'] || {};
+      this.props = Object.assign(
+        props || {},
+        { children: children || [] },
+        this.props
+      );
+      if (item?.props?.['mapper']) this.mapper = item?.props!['mapper'] || {};
       this.item = {
         tag: item?.tag || '',
         ...item?.props,
@@ -753,7 +764,6 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
       }
     });
   }
-
 
   /**
    * @description Tracks items in ngFor loops for optimal change detection performance.
@@ -809,16 +819,19 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    *   end
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-	async handleEvent(event: IBaseCustomEvent | ICrudFormEvent | CustomEvent): Promise<void> {
-    let name = "";
+  async handleEvent(
+    event: IBaseCustomEvent | ICrudFormEvent | CustomEvent
+  ): Promise<void> {
+    let name = '';
     const log = this.log.for(this.handleEvent);
     if (event instanceof CustomEvent) {
-       if (!event.detail)
-        return log.debug(`No handler for event ${name}`);
+      if (!event.detail) return log.debug(`No handler for event ${name}`);
       name = event.detail?.name;
       event = event.detail;
     }
-    const handlers = (event as ICrudFormEvent)?.['handlers'] as Record<string, NgxEventHandler<unknown>> | undefined;
+    const handlers = (event as ICrudFormEvent)?.['handlers'] as
+      | Record<string, NgxEventHandler<unknown>>
+      | undefined;
     name = name || (event as IBaseCustomEvent)?.['name'];
     if (handlers && Object.keys(handlers || {})?.length) {
       if (!handlers[name])
@@ -826,14 +839,13 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
       try {
         const clazz = new (handlers as KeyValue)[name](this.router);
         const result = clazz.handle(event);
-        return (result instanceof Promise) ?
-         await result : result;
+        return result instanceof Promise ? await result : result;
       } catch (e: unknown) {
-        log.error(`Failed to handle ${name} event`, e as Error)
+        log.error(`Failed to handle ${name} event`, e as Error);
       }
     }
     this.listenEvent.emit(event as IBaseCustomEvent | ICrudFormEvent);
-	}
+  }
 
   /**
    * @description Determines if a specific operation is allowed in the current context.
@@ -859,11 +871,13 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   isAllowed(operation: string): boolean {
-    if (!this.operations)
-      return false;
-    return this.operations.includes(operation as CrudOperations) && (this.operation !== OperationKeys.CREATE && ((this.operation || "").toLowerCase() !== operation || !this.operation));
+    if (!this.operations) return false;
+    return (
+      this.operations.includes(operation as CrudOperations) &&
+      this.operation !== OperationKeys.CREATE &&
+      ((this.operation || '').toLowerCase() !== operation || !this.operation)
+    );
   }
-
 
   /**
    * @description Navigates to a different operation for the current model.
@@ -893,10 +907,8 @@ export abstract class NgxComponentDirective extends LoggedClass implements OnCha
    */
   async changeOperation(operation: string, id?: string): Promise<boolean> {
     let page = `${this.route}/${operation}/`.replace('//', '/');
-    if (!id)
-      id = this.modelId as string;
-    if (this.modelId)
-      page = `${page}${this.modelId || id}`;
+    if (!id) id = this.modelId as string;
+    if (this.modelId) page = `${page}${this.modelId || id}`;
     return this.router.navigateByUrl(page);
   }
 }
