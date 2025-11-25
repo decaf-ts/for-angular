@@ -1,8 +1,9 @@
 
-import { NgxEventHandler, ICrudFormEvent, KeyValue } from "src/lib/engine";
+import { NgxEventHandler, ICrudFormEvent, KeyValue, NgxComponentDirective } from "src/lib/engine";
 import { getNgxToastComponent, NgxToastComponent } from "../utils/NgxToastComponent";
 import { Router } from "@angular/router";
 import { setOnWindow } from "src/lib/utils/helpers";
+import { DecafComponent } from "@decaf-ts/ui-decorators";
 
 
 /**
@@ -20,11 +21,7 @@ import { setOnWindow } from "src/lib/utils/helpers";
  */
 export class LoginHandler extends NgxEventHandler<ICrudFormEvent> {
 
-  private toastComponent: NgxToastComponent = getNgxToastComponent();
 
-  constructor(protected router: Router) {
-    super();
-  }
 
   /**
    * @description Handles the login event
@@ -40,11 +37,10 @@ export class LoginHandler extends NgxEventHandler<ICrudFormEvent> {
     if(success) {
       setOnWindow('loggedUser', username);
       setTimeout(async () => {
-        await this.router.navigate(['/dashboard']);
+        await (this.router as Router).navigate(['/dashboard']);
       }, 50);
     }
-
-    const toast = await this.toastComponent.show({
+    const toast = await getNgxToastComponent().show({
       message: success ? 'Login successful!' : 'Invalid username or password.',
       duration: 3000,
       color: success ? 'dark' : 'danger',

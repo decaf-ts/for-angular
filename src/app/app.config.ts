@@ -25,13 +25,14 @@ import { User } from './forms/FieldsetForm';
 import { SwitcherComponent } from './components/switcher/switcher.component';
 import { Product } from './ew/models/Product';
 import { Leaflet } from './ew/models/Leaflet';
+import { ProductStrength } from './ew/models/ProductStrength';
 
 export const DbAdapterFlavour = 'ram';
 export const AppName = 'For Angular';
 
 // export const AppModels = [new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
 
-export const AppModels = [new Leaflet(), new User(), new CategoryModel(), new Product(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
+export const AppModels = [new Leaflet(), new User(), new CategoryModel(), new Product(), new EmployeeModel(), new AIModel(), new AIVendorModel(), new ProductStrength()];
 
 export const AppConfig: ApplicationConfig = {
   providers: [

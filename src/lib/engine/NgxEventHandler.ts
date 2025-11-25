@@ -8,7 +8,8 @@
  */
 import { LoggedClass } from "@decaf-ts/logging";
 import { IBaseCustomEvent } from "./interfaces";
+import { DecafComponent } from "@decaf-ts/ui-decorators";
+import { Router } from "@angular/router";
 
-export abstract class NgxEventHandler<PAYLOAD> extends LoggedClass {
-	abstract handle(evt: IBaseCustomEvent | CustomEvent<PAYLOAD>): Promise<unknown>;
+export abstract class NgxEventHandler<PAYLOAD> extends DecafComponent {
 }

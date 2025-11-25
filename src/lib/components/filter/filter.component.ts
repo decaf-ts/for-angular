@@ -271,7 +271,7 @@ export class FilterComponent
    * @default ''
    * @memberOf FilterComponent
    */
-  value: string = '';
+  override value: string = '';
 
   /**
    * @description Current sorting field value.
@@ -541,7 +541,7 @@ export class FilterComponent
    *
    * @memberOf FilterComponent
    */
-  addFilter(value: string, event?: CustomEvent): void {
+  async addFilter(value: string, event?: CustomEvent): Promise<void> {
     value = value.trim();
     if (event instanceof KeyboardEvent && !value) {
       this.submit();
@@ -571,7 +571,8 @@ export class FilterComponent
           this.step = 0;
           this.filterValue[this.filterValue.length - 1] = filter;
           this.lastFilter = {};
-          if (!this.multiple) return this.submit();
+          if(!this.multiple)
+            return await this.submit();
         }
 
         this.step++;
@@ -694,10 +695,10 @@ export class FilterComponent
    * @summary Emits the current filter array to parent components when filters are ready
    * to be applied. Only emits if there are active filters. Clears options after submission.
    *
-   * @returns {void}
+   * @returns {Promise<void>}
    * @memberOf FilterComponent
    */
-  submit(): void {
+  override async submit(): Promise<void> {
     this.filterEvent.emit({
       query: this.filterValue.length > 0 ? this.filterValue : undefined,
       sort: {

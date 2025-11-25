@@ -1,15 +1,17 @@
 import { pk } from "@decaf-ts/core";
 import { Model, model, ModelArg, required } from "@decaf-ts/decorator-validation";
-import { uielement, uilayoutprop, uimodel, uipageprop } from "@decaf-ts/ui-decorators";
+import { uielement, uilayoutprop, uimodel, uipageprop, uiprop } from "@decaf-ts/ui-decorators";
 
 @uimodel('ngx-decaf-fieldset', {multiple: true})
 @model()
-export class SubstanceForm extends Model {
+export class ProductStrength extends Model {
 
-  @pk({type: Number.name})
-  id!: string;
+  @pk({type: "Number"})
+  id!: number;
 
   //  @manyToOne(() => Product, {update: Cascade.NONE, delete: Cascade.NONE}, false)
+  @uiprop()
+  @uilayoutprop(1)
   productCode!: string
 
   @required()
@@ -32,7 +34,7 @@ export class SubstanceForm extends Model {
   legalEntityName?: string;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-  constructor(args?: ModelArg<SubstanceForm>) {
+  constructor(args?: ModelArg<ProductStrength>) {
     super(args);
   }
 }

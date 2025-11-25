@@ -259,7 +259,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @type {string | number | Date | string[]}
    * @public
    */
-  value!: string | number | Date | string[];
+  override value!: string | number | Date | string[];
 
   /**
    * @description Whether the field supports multiple values.

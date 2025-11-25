@@ -3,7 +3,7 @@
     [class]="'dcf-form-grid ' + operation" #component
     [id]="rendererId"
     [formGroup]="formGroup"
-    (ngSubmit)="handleSubmit($event)"
+    (ngSubmit)="submit($event)"
     novalidate
     [target]="target">
     @if (!children?.length) {

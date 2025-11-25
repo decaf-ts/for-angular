@@ -13,6 +13,7 @@ import { IBaseCustomEvent, IModelPageCustomEvent } from './interfaces';
 import { KeyValue, DecafRepository } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { getModelAndRepository } from '../for-angular-common.module';
+import { da } from '@faker-js/faker/.';
 
 @Directive()
 export abstract class NgxModelPageDirective extends NgxPageDirective {
@@ -123,7 +124,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    *
    * @throws {InternalError} When the model is not found in the registry
    */
-  protected override get repository(): DecafRepository<Model> | undefined{
+  override get repository(): DecafRepository<Model> | undefined{
     try {
       if (!this._repository) {
         const constructor = Model.get(this.modelName);
@@ -194,17 +195,22 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @description Generic event handler for component events.
    * @summary Processes incoming events from child components and routes them to appropriate
    * handlers based on the event name. Currently handles SUBMIT events by delegating to
-   * the handleSubmit method. This centralized event handling approach allows for easy
+   * the submit method. This centralized event handling approach allows for easy
    * extension and consistent event processing.
    *
    * @param {IBaseCustomEvent} event - The event object containing event data and metadata
    */
-  override async handleEvent(event: IBaseCustomEvent) {
+  override async handleEvent(event: IBaseCustomEvent, repository?: DecafRepository<Model>): Promise<void> {
     const { name } = event;
     switch (name) {
       case ComponentEventNames.SUBMIT:
+<<<<<<< HEAD
         await this.handleSubmit(event);
         break;
+=======
+        await this.submit(event, repository);
+      break;
+>>>>>>> refs/heads/DECAF-178
     }
   }
 
@@ -219,6 +225,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @param {IBaseCustomEvent} event - The submit event containing form data
    * @return {Promise<IModelPageCustomEvent|void>} Promise that resolves on success or throws on error
    */
+<<<<<<< HEAD
   async handleSubmit(
     event: IBaseCustomEvent,
     redirect: boolean = false
@@ -260,14 +267,64 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         success: result ? true : false,
         message,
       };
+=======
+  override async submit(event: IBaseCustomEvent, repository?: DecafRepository<Model>, redirect: boolean = false): Promise<IModelPageCustomEvent|void> {
+    try {
+      if(!repository)
+        repository = this._repository as DecafRepository<Model>;
+
+      const pk = this.pk || repository.pk as string;
+      const operation = this.operation;
+      const {data} = event;
+      if (data) {
+        const model = this.parseData(data || {}, operation, repository);
+        let result;
+        switch(operation) {
+          case OperationKeys.CREATE:
+            result = await (!Array.isArray(model) ?
+              repository.create(model as unknown as Model) : repository.createAll(model as unknown as Model[]));
+            break;
+          case OperationKeys.UPDATE:
+            result = await (!Array.isArray(model) ?
+              repository.update(model as unknown as Model) : repository.updateAll(model as unknown as Model[]));
+            break;
+          case OperationKeys.DELETE:
+            result = await (!Array.isArray(model) ?
+              repository.delete(model as string | number) : repository.deleteAll(model as string[] | number[]));
+            break;
+        }
+
+        const message = await this.translate(
+          !Array.isArray(result)
+            ? `operations.${operation}.${result ? 'success' : 'error'}`
+            : `operations.multiple`
+        );
+
+        if (result) {
+          // repository.refresh(this.modelName, this.operation, this.modelId as EventIds);
+          if(redirect)
+            this.location.back();
+        }
+        return {
+          ... event,
+          success: result ? true : false,
+          message
+        };
+      }
+>>>>>>> refs/heads/DECAF-178
     } catch (error: unknown) {
-      this.log.error(error as Error | string);
       return {
         ...event,
         success: false,
         message: error instanceof Error ? error.message : (error as string),
       };
     }
+  }
+
+  async create(data: Partial<Model>, repository: DecafRepository<Model>): Promise<IModelPageCustomEvent|void> {
+    alert('create');
+    console.log(repository);
+    console.log(data);
   }
 
   /**
@@ -338,6 +395,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @return {Model | string | number} Processed data ready for repository operations
    * @private
    */
+<<<<<<< HEAD
   private parseData(
     data: Partial<Model>,
     operation: OperationKeys
@@ -352,5 +410,22 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         this.modelName
       ) as Model;
     return uid as EventIds;
+=======
+  private parseData(data: KeyValue | KeyValue[], operation: OperationKeys, repository: DecafRepository<Model>): Model | Model[] | EventIds {
+      operation = (operation === OperationKeys.READ ? OperationKeys.DELETE : operation.toLowerCase()) as OperationKeys;
+
+      if(Array.isArray(data)) {
+        data = data.map(item => this.parseData(item, operation, repository as DecafRepository<Model>));
+        return data as Model[];
+      }
+
+      let uid = this.modelId as EventIds;
+      const pk = repository.pk as string;
+      const type = Metadata.type(repository.class as Constructor<Model>, pk).name;
+      uid = [Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase()) ? Number(uid) : uid;
+      if (operation !== OperationKeys.DELETE)
+        return Model.build(this.modelId ? Object.assign(data, {[pk]: uid}) : data, repository.class.name) as Model;
+      return uid as EventIds;
+>>>>>>> refs/heads/DECAF-178
   }
 }

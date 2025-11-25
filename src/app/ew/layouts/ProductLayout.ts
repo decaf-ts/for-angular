@@ -1,6 +1,7 @@
 import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import {
   uichild,
+  uihandlers,
   uilayout,
   uilayoutprop,
   uilistmodel,
@@ -9,13 +10,16 @@ import {
 import { EpiLayout } from '../layouts/EpiLayout';
 import { FieldsetComponent, LayoutComponent } from 'src/lib/components';
 import { Product } from '../models/Product';
+import { ProductLayoutHandler } from '../handlers/ProductLayoutHandler';
+import { ComponentEventNames } from 'src/lib/engine';
 
 @uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uilayout('ngx-decaf-crud-form', true, 1, {
   borders: true,
   breakpoint: UIMediaBreakPoints.XLARGE,
-} as LayoutComponent)
+} as Partial<LayoutComponent>)
 @model()
+// @uihandlers({[ComponentEventNames.SUBMIT]: ProductLayoutHandler }) // overriding default submit handler
 export class ProductLayout extends Model {
 
   @uilayoutprop(2)
@@ -23,9 +27,7 @@ export class ProductLayout extends Model {
     title: 'product.section.details.title',
     borders: false,
     required: true,
-    // rows: 1,
-    // cols: 2,
-    // breakpoint: UIMediaBreakPoints.XLARGE,
+    breakpoint: UIMediaBreakPoints.XLARGE,
     ordenable: false,
   } as Partial<FieldsetComponent>)
   product!: Product;

@@ -22,7 +22,7 @@
     }
     <div [class]="position === 'left' ? 'dcf-switcher-content dcf-width-expand@l' : 'dcf-switcher-content dcf-width-1-1'">
       <div>
-        @if(activePage) {
+        <!-- @if(activePage) {
 
           <div class="dcf-animation dcf-animation-slide-left-small dcf-animation-medium dcf-margin-top" #switcherContent>
             <ngx-decaf-component-renderer
@@ -31,6 +31,19 @@
               [children]="activePage?.children || []"
               (listenEvent)="handleEvent($event)"
               [globals]="{props: activePage.props}"
+            />
+          </div>
+        } -->
+        @for(child of children; track child) {
+          <div class="dcf-animation dcf-animation-slide-left-small dcf-animation-medium dcf-margin-top" #switcherContent
+            [hidden]="$index !== activeIndex"
+          >
+            <ngx-decaf-component-renderer
+              [tag]="child.tag"
+              [parentForm]="parentForm"
+              [children]="child?.children || []"
+              (listenEvent)="handleEvent($event)"
+              [globals]="{props: child.props}"
             />
           </div>
         }

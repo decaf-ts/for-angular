@@ -230,7 +230,7 @@ export class FieldsetComponent
    * @memberOf FieldsetComponent
    */
   @Input()
-  value: KeyValue[] = [];
+  override value: KeyValue[] = [];
 
   /**
    * @description Controls whether borders are displayed around the fieldset.
@@ -443,6 +443,9 @@ export class FieldsetComponent
           this.formGroup = (this.formGroup as FormParent)?.parent as FormArray;
       }
     }
+
+    console.log(this.value);
+
     if (this.multiple) {
       this.formGroup?.setErrors(null);
       this.formGroup?.disable();
@@ -789,7 +792,8 @@ export class FieldsetComponent
         return child;
       });
     });
-    if (this.multiple) this.getFormArrayIndex(this.activeFormGroupIndex);
+    if (this.multiple && [OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation))
+      this.getFormArrayIndex(this.activeFormGroupIndex);
     return this.children as UIModelMetadata[];
   }
 

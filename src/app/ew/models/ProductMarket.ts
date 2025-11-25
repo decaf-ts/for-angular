@@ -11,7 +11,7 @@ import { HTML5InputTypes, uielement, uilayoutprop, uimodel } from "@decaf-ts/ui-
 import { getMarkets } from "src/app/utils/helpers";
 @uimodel('ngx-decaf-fieldset')
 @model()
-export class MarketForm extends Model {
+export class ProductMarket extends Model {
 
 
   @pk({type: "String", generated: false})
@@ -58,7 +58,7 @@ export class MarketForm extends Model {
   mahAddress?: string;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-  constructor(model?: ModelArg<MarketForm>) {
+  constructor(model?: ModelArg<ProductMarket>) {
     super(model);
   }
 }
