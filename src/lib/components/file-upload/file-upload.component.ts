@@ -480,7 +480,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
           return xmlDoc.documentElement.innerHTML;
 
         } catch (error: unknown) {
-          this.logger.error((error as Error)?.message);
+          this.log.error((error as Error)?.message);
           return undefined;
         }
 

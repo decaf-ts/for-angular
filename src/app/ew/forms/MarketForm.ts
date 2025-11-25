@@ -1,4 +1,5 @@
 import { pk } from "@decaf-ts/core";
+import { composed } from "@decaf-ts/db-decorators";
 import {
   min,
   model,
@@ -12,7 +13,11 @@ import { getMarkets } from "src/app/utils/helpers";
 @model()
 export class MarketForm extends Model {
 
-  @pk({ type: String.name, generated: false })
+
+  @pk({type: "String", generated: false})
+  @composed(["productCode", "marketId"], ":", true)
+  id!: string;
+
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'market.id.label',

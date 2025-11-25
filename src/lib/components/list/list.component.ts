@@ -1129,26 +1129,18 @@ export class ListComponent
   ): Promise<KeyValue[]> {
     let data: KeyValue[] = [...(this.data || [])];
 
-    if (
-      !this.data?.length ||
-      force ||
-      (this.searchValue as string)?.length ||
-      !!(this.searchValue as IFilterQuery)
-    ) {
-      // (self.data as ListItem[]) = [];
-      if (
-        !(this.searchValue as string)?.length &&
-        !(this.searchValue as IFilterQuery)
-      ) {
-        if (!this.source && !this.data?.length) {
-          this.logger.info('No data and source passed to infinite list');
-          return [];
-        }
-        if (this.source instanceof Function) {
-          data = await this.source();
-          if (!Array.isArray(data))
-            data = data?.['response']?.['data'] || data?.['results'] || [];
-        }
+  if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
+    // (self.data as ListItem[]) = [];
+    if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
+      if (!this.source && !this.data?.length) {
+        this.log.info('No data and source passed to infinite list');
+        return [];
+      }
+      if (this.source instanceof Function) {
+         data = await this.source() as KeyValue[];
+        if (!Array.isArray(data))
+          data = data?.['response']?.['data'] || data?.['results'] || [];
+      }
 
         if (!data?.length && this.data?.length) data = this.data as KeyValue[];
         this.data = [...(await this.parseResult(data))];
@@ -1232,27 +1224,15 @@ export class ListComponent
             this.searchValue as string | number | IFilterQuery
           );
           this.changeDetectorRef.detectChanges();
-          request = await this.parseResult(
-            await repo.query(
-              condition,
-              (this.sortBy || this.pk) as keyof Model,
-              this.sortDirection
-            )
-          );
-          data = [];
-          this.changeDetectorRef.detectChanges();
-        }
-        data =
-          this.type === ListComponentsTypes.INFINITE
-            ? [...data.concat(request)]
-            : [...request];
-      } catch (error: unknown) {
-        this.logger.error(
-          (error as Error)?.message ||
-            `Unable to find ${this.model} on registry. Return empty array from component`
-        );
+        request = await this.parseResult(await repo.query(condition, (this.sortBy || this.pk) as keyof Model, this.sortDirection));
+        data = [];
+        this.changeDetectorRef.detectChanges();
       }
+      data = this.type === ListComponentsTypes.INFINITE ? [... (data).concat(request)] : [...request];
+    } catch(error: unknown) {
+      this.log.error((error as Error)?.message || `Unable to find ${this.model} on registry. Return empty array from component`);
     }
+  }
 
     if (data?.length) {
       if (this.searchValue) {
@@ -1369,40 +1349,35 @@ export class ListComponent
     return _condition as Condition<Model>;
   }
 
-  /**
-   * @description Processes query results into a standardized format.
-   * @summary Handles different result formats from various data sources, extracting
-   * pagination information when available and applying any configured data mapping.
-   * This ensures consistent data structure regardless of the source.
-   *
-   * @protected
-   * @param {KeyValue[] | Paginator} result - The raw query result
-   * @returns {KeyValue[]} The processed array of items
-   *
-   * @memberOf ListComponent
-   */
-  protected async parseResult(
-    result: KeyValue[] | Paginator<any>
-  ): Promise<KeyValue[]> {
-    if (!Array.isArray(result) && 'page' in result && 'total' in result) {
-      const paginator = result as Paginator<Model>;
-      try {
-        result = await paginator.page(this.page);
-        this.getMoreData(paginator.total);
-      } catch (error: unknown) {
-        this.logger.info(
-          (error as Error)?.message ||
-            'Unable to get page from paginator. Return empty array from component'
-        );
-        result = [];
-      }
-    } else {
-      this.getMoreData((result as KeyValue[])?.length || 0);
+/**
+ * @description Processes query results into a standardized format.
+ * @summary Handles different result formats from various data sources, extracting
+ * pagination information when available and applying any configured data mapping.
+ * This ensures consistent data structure regardless of the source.
+ *
+ * @protected
+ * @param {KeyValue[] | Paginator} result - The raw query result
+ * @returns {KeyValue[]} The processed array of items
+ *
+ * @memberOf ListComponent
+ */
+protected async parseResult(result: KeyValue[] | Paginator<any>): Promise<KeyValue[]> {
+  if (!Array.isArray(result) && ('page' in result && 'total' in result)) {
+    const paginator = result as Paginator<Model>;
+    try {
+      result =  await paginator.page(this.page);
+      this.getMoreData(paginator.total);
+    } catch(error: unknown) {
+      this.log.info((error as Error)?.message || 'Unable to get page from paginator. Return empty array from component');
+      result = [];
     }
-    return Object.keys(this.mapper || {}).length
-      ? this.mapResults(result)
-      : result;
+
+  } else {
+    this.getMoreData((result as KeyValue[])?.length || 0);
   }
+  return (Object.keys(this.mapper || {}).length) ?
+    this.mapResults(result) : result;
+}
 
   /**
    * @description Updates pagination state based on data length.

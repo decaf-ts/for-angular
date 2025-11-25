@@ -25,13 +25,9 @@ import {
   ListItemPositions,
   WindowColorSchemes,
 } from './constants';
-import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
+import { HTML5InputTypes, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { Constructor } from '@decaf-ts/decoration';
 
-export type HandlerLike = Record<
-  string,
-  (...args: unknown[]) => unknown | Promise<unknown>
->;
 
 export interface RawQuery<M extends Model> {
   select: undefined | (keyof M)[];
@@ -71,8 +67,7 @@ export type KeyValue = Record<string, any>;
  * @typedef FunctionLike
  * @memberOf module:engine
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FunctionLike = (...args: any[]) => any;
+export type FunctionLike = UIFunctionLike;
 
 /**
  * @description Element size options for UI components
@@ -291,3 +286,4 @@ export type LayoutGridGap =
  */
 export type ListItemPosition =
   (typeof ListItemPositions)[keyof typeof ListItemPositions];
+

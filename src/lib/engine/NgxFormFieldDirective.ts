@@ -434,9 +434,9 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @return {void}
    * @public
    */
-  override ngOnChanges(changes: SimpleChanges): void {
+  override async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (!this.initialized)
-      super.ngOnChanges(changes);
+      await super.ngOnChanges(changes);
     if (changes['activeFormGroupIndex'] && this.multiple &&
         !changes['activeFormGroupIndex'].isFirstChange() && changes['activeFormGroupIndex'].currentValue !== this.activeFormGroupIndex) {
 

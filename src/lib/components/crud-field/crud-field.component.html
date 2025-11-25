@@ -21,10 +21,10 @@
   @if (formControl) {
     <ng-container [formGroup]="multiple ? activeFormGroup : formControl.parent">
       <div
-
           [id]="uid" #container
           [class]="'dcf-input-item ' + (operation || 'create')"
           [class.dcf-field-required]="required"
+           [class.dcf-field-readonly]="readonly"
         >
           @if (type === 'textarea') {
             <ion-textarea

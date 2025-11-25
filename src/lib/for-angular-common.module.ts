@@ -25,7 +25,6 @@ import {
   KeyValue,
 } from './engine/types';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
-import { InternalError } from '@decaf-ts/db-decorators';
 import { Repository } from '@decaf-ts/core';
 import { Constructor, uses } from '@decaf-ts/decoration';
 
@@ -120,17 +119,17 @@ export function provideDynamicComponents(
  * @memberOf module:lib/for-angular-common.module
  * @example
  * // Get repository by model class
- * const userRepo = getModelRepository(User);
+ * const userRepo = getModelAndRepository(User);
  *
  * // Get repository by model name
- * const productRepo = getModelRepository('Product');
+ * const productRepo = getModelAndRepository('Product');
  *
  * // Use repository for queries
  * const users = await userRepo.findAll();
  */
-export function getModelRepository(
+export function getModelAndRepository(
   model: Model | string
-): DecafRepository<Model> {
+): {repository: DecafRepository<Model>, model: Model} | undefined {
   try {
     const modelName = (
       typeof model === Primitives.STRING
@@ -141,16 +140,17 @@ export function getModelRepository(
       (modelName.charAt(0).toUpperCase() + modelName.slice(1)) as string
     );
     if (!constructor)
-      throw new InternalError(
-        `Cannot find model for ${modelName}. was it registered with @model?`
-      );
+      return undefined;
     const dbAdapterFlavour = getOnWindow(DB_ADAPTER_PROVIDER) || undefined;
     if (dbAdapterFlavour) uses(dbAdapterFlavour as string)(constructor);
-    const repo = Repository.forModel(constructor);
+    const repository = Repository.forModel(constructor);
     model = new constructor() as Model;
-    return repo;
+    if(!repository.pk)
+      return undefined;
+    return {repository, model};
   } catch (error: unknown) {
-    throw new InternalError((error as Error)?.message || (error as string));
+   getLogger(getModelAndRepository).warn((error as Error)?.message || (error as string));
+   return undefined;
   }
 }
 

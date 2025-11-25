@@ -323,7 +323,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
     this.windowWidth = getWindowWidth() as number;
   }
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit(): Promise<void> {
     this.checkDarkMode();
   }
 

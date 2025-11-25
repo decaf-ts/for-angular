@@ -360,7 +360,7 @@ export class BackButtonComponent implements OnInit {
     if(!this.link)
       return this.location.back();
     if(this.link instanceof Function)
-      return await this.link();
+      return await this.link() as void;
   }
 
   /**

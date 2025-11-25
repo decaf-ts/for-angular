@@ -1,6 +1,6 @@
 {
   "name": "@decaf-ts/for-angular",
-  "version": "0.0.46",
+  "version": "0.0.47",
   "scripts": {
     "ng": "ng",
     "decaf": "npx decaf angular generate",
@@ -96,6 +96,14 @@
     "typescript-eslint": "8.34.1"
   },
   "peerDependencies": {
+    "@angular/animations": "^20.2.4",
+    "@angular/common": "^20.2.4",
+    "@angular/compiler": "^20.2.4",
+    "@angular/core": "^20.2.4",
+    "@angular/forms": "^20.2.4",
+    "@angular/platform-browser": "^20.2.4",
+    "@angular/platform-browser-dynamic": "^20.2.4",
+    "@angular/router": "^20.2.4",
     "@decaf-ts/core": "latest",
     "@decaf-ts/db-decorators": "latest",
     "@decaf-ts/decoration": "latest",
@@ -106,14 +114,6 @@
     "@decaf-ts/styles": "latest",
     "@decaf-ts/transactional-decorators": "latest",
     "@decaf-ts/ui-decorators": "latest",
-    "@angular/animations": "^20.2.4",
-    "@angular/common": "^20.2.4",
-    "@angular/compiler": "^20.2.4",
-    "@angular/core": "^20.2.4",
-    "@angular/forms": "^20.2.4",
-    "@angular/platform-browser": "^20.2.4",
-    "@angular/platform-browser-dynamic": "^20.2.4",
-    "@angular/router": "^20.2.4",
     "@ionic/angular": "^8.7.4",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",

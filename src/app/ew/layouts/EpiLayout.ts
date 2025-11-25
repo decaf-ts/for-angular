@@ -1,16 +1,19 @@
 import { list, model, Model, ModelArg } from '@decaf-ts/decorator-validation';
-import { pk } from '@decaf-ts/core';
-import { uichild, uimodel, uiorder, uipageprop } from '@decaf-ts/ui-decorators';
+import { uichild, uimodel, uiorder, uionrender, uipageprop } from '@decaf-ts/ui-decorators';
 import { Leaflet } from '../models/Leaflet';
-import { MarketForm } from './MarketForm';
-import { SubstanceForm } from './SubstanceForm';
+import { MarketForm } from '../forms/MarketForm';
+import { SubstanceForm } from '../forms/SubstanceForm';
 import { FieldsetComponent } from 'src/lib/components';
+import { LeafletHandler } from 'src/app/handlers/LeafletHandler';
 
-@uimodel('ngx-decaf-form', {})
+@uimodel('ngx-decaf-crud-form', {})
 @model()
-export class EpiForm extends Model {
+export class EpiLayout extends Model {
+
   @uipageprop(1)
   @list(Leaflet, 'Array')
+  @uiorder(1)
+  @uionrender(() => LeafletHandler)
   @uichild(
     Leaflet.name,
     'ngx-decaf-fieldset',
@@ -24,7 +27,6 @@ export class EpiForm extends Model {
     } as Partial<FieldsetComponent>,
     true
   )
-  @uiorder(1)
   document!: Leaflet;
 
   @uipageprop(1)
@@ -56,7 +58,7 @@ export class EpiForm extends Model {
   markets!: MarketForm;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-  constructor(args?: ModelArg<EpiForm>) {
+  constructor(args?: ModelArg<EpiLayout>) {
     super(args);
   }
 }
