@@ -28,13 +28,13 @@ import { firstValueFrom } from 'rxjs';
 import { Model, ModelConstructor, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { LoggedClass, Logger } from '@decaf-ts/logging';
-import { DecafRepository, FunctionLike, KeyValue } from './types';
+import { DecafRepository, FunctionLike, KeyValue, WindowColorScheme } from './types';
 import { IBaseCustomEvent, ICrudFormEvent, IModelPageCustomEvent } from './interfaces';
 import { NgxEventHandler } from './NgxEventHandler';
 import { getLocaleContext } from '../i18n/Loader';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { getModelAndRepository,  CPTKN } from '../for-angular-common.module';
-import { AngularEngineKeys, BaseComponentProps } from './constants';
+import { AngularEngineKeys, BaseComponentProps, WindowColorSchemes } from './constants';
 import { generateRandomValue, getWindow, setOnWindow } from '../utils';
 import { EventIds } from '@decaf-ts/core';
 import { NgxMediaService } from '../services/NgxMediaService';
@@ -454,6 +454,16 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
   refreshing: boolean = false;
 
   /**
+   * @description Represents the color scheme used for application.
+   * @summary  This property determines the visual appearance of the application
+   * based on predefined color schemes (e.g., light or dark mode).
+   * @type {WindowColorScheme}
+   * @default WindowColorSchemes.light
+   */
+  protected colorSchema: WindowColorScheme = WindowColorSchemes.light;
+
+
+  /**
    * @description Constructor for NgxComponentDirective.
    * @summary Initializes the directive by setting up the component name, locale root,
    * and logger. Calls the parent LoggedClass constructor and configures localization
@@ -475,6 +485,12 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
     if (this.localeRoot)
       this.getLocale(this.localeRoot);
     this.uid = `${this.componentName}-${generateRandomValue(8)}`;
+     this.mediaService.isDarkMode().subscribe(isDark => {
+      if(isDark) {
+        this.isDarkMode = isDark;
+        this.colorSchema = WindowColorSchemes.dark;
+      }
+    });
   }
 
   /**
@@ -591,7 +607,8 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
     if (changes[BaseComponentProps.LOCALE_ROOT] || changes[BaseComponentProps.COMPONENT_NAME])
       this.locale = this.localeContext;
 
-    if (this.enableDarkMode) this.checkDarkMode();
+    if (this.enableDarkMode)
+      this.checkDarkMode();
   }
 
   /**

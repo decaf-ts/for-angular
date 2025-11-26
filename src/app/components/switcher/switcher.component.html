@@ -13,7 +13,7 @@
               tabindex="0"
               *ngFor="let tab of tabs; let $index = index"
               [class.dcf-active]="activeIndex === $index"
-              (click)="getActivePage($index)">
+              (click)="getActivePage($index, false)">
               <a>{{ tab.title | translate }}</a>
             </li>
 

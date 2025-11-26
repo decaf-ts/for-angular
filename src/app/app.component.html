@@ -1,11 +1,11 @@
 <ion-app>
   <ion-split-pane when="(min-width: 1280px)" contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay" [disabled]="!hasMenu" #component>
+    <ion-menu  contentId="main-content" type="overlay" [disabled]="!hasMenu" [hidden]="!initialized" #component>
       <section class="dcf-logo-container">
         <app-logo width="150"></app-logo>
       </section>
       @if (initialized) {
-        <ion-content class="dfc-animation dcf-animation-slide-right-small dcf-animation-fast">
+        <ion-content class="dfc-animation dcf-animation-slide-left-small dcf-animation-fast">
           <ion-list class="dcf-menu">
             @for (item of menu; track $index) {
               <ion-menu-toggle auto-hide="false">

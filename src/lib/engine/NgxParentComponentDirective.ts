@@ -205,16 +205,19 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
       this.timerSubscription.unsubscribe();
   }
 
-  protected getActivePage(page: number): UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined {
-    const content = this.children[page] as FieldDefinition;
-    this.activePage = undefined;
-    this.preloadCards = [... new Array(1)];
-    this.timerSubscription = timer(25).subscribe(() =>
-      this.activePage = {... this.children[page] as FieldDefinition }
-    );
-    this.activeIndex = page;
-    if(content)
-      return content;
-    return undefined;
+  protected getActivePage(page: number, firstClick: boolean = true): UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined {
+    if(firstClick || this.activeIndex !== page) {
+      const content = this.children[page] as FieldDefinition;
+      this.activePage = undefined;
+      this.preloadCards = [... new Array(1)];
+      this.timerSubscription = timer(25).subscribe(() =>
+        this.activePage = {... this.children[page] as FieldDefinition }
+      );
+      this.activeIndex = page;
+      if(content)
+        return content;
+      return undefined;
+    }
+
   }
 }

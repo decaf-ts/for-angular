@@ -353,7 +353,6 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
 
   user!: string;
 
-  colorSchema: 'dark' | 'light' = 'light';
 
 
   /**

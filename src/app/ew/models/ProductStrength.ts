@@ -1,12 +1,15 @@
 import { pk } from "@decaf-ts/core";
+import { OperationKeys, readonly } from "@decaf-ts/db-decorators";
 import { Model, model, ModelArg, required } from "@decaf-ts/decorator-validation";
-import { uielement, uilayoutprop, uimodel, uipageprop, uiprop } from "@decaf-ts/ui-decorators";
+import { hideOn, uielement, uilayoutprop, uilistprop, uimodel, uipageprop, uiprop } from "@decaf-ts/ui-decorators";
+import { read } from "fs";
 
 @uimodel('ngx-decaf-fieldset', {multiple: true})
 @model()
 export class ProductStrength extends Model {
 
   @pk({type: "Number"})
+  @uilistprop('uid')
   id!: number;
 
   //  @manyToOne(() => Product, {update: Cascade.NONE, delete: Cascade.NONE}, false)
@@ -20,6 +23,7 @@ export class ProductStrength extends Model {
     placeholder: 'substance.name.placeholder',
   })
   @uilayoutprop(1)
+  @uilistprop('title')
   name!: string;
 
 
@@ -29,6 +33,7 @@ export class ProductStrength extends Model {
     placeholder: 'substance.strength.placeholder',
   })
   @uilayoutprop(1)
+  @uilistprop('description')
   strength!: string;
 
   legalEntityName?: string;

@@ -94,13 +94,8 @@ export class AppComponent extends NgxPageDirective implements OnInit {
         model = new (model as unknown as ModelConstructor<typeof model>)();
       const name = model.constructor.name.replace(/[0-9]/g, '');
       if (isDevelopment) {
-        if (populate.includes(name)) {
-          this.log.info(
-            `Development mode - Populating repository for model: ${name}`
-          );
-          const repository = new FakerRepository(model, 36);
-          await repository.initialize();
-        }
+        if (populate.includes(name))
+          await new FakerRepository(model, 36).initialize();
       }
       const label = name.toLowerCase().replace(ModelKeys.MODEL, '');
       if (!menu.length) menu.push({ label: 'menu.models' });
