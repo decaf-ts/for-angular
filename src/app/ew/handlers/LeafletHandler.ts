@@ -4,7 +4,6 @@ import { DecafComponent } from "@decaf-ts/ui-decorators";
 import { DecafRepository } from "src/lib/engine";
 
 export class LeafletHandler extends DecafComponent {
-
   override async render(): Promise<void> {
     const value = !isNaN(this.modelId as number) ? Number(this.modelId) : this.modelId
     const condition = Condition.attribute<Model>('productCode' as keyof Model).eq(value);

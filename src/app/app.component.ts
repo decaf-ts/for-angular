@@ -14,7 +14,11 @@ import {
   IonRouterLink,
 } from '@ionic/angular/standalone';
 
-import { ModelConstructor, ModelKeys } from '@decaf-ts/decorator-validation';
+import {
+  Model,
+  ModelConstructor,
+  ModelKeys,
+} from '@decaf-ts/decorator-validation';
 
 import * as IonicIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
@@ -81,7 +85,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    */
   override async initialize(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
-    const populate = ['Product', 'CategoryModel', 'AIVendorModel'];
+    const populate = ['Product', 'CategoryModel', 'AIVendorModel', 'ProductStrength'];
     const menu = [];
     const models = AppModels;
     for (let model of models) {
@@ -102,7 +106,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       if (!menu.length) menu.push({ label: 'menu.models' });
       menu.push({
         label: `menu.${label}`,
-        url: `/model/${Repository.table(model)}`,
+        url: `/model/${Model.tableName(model)}`,
         icon: 'cube-outline',
       });
     }

@@ -209,7 +209,7 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
     const content = this.children[page] as FieldDefinition;
     this.activePage = undefined;
     this.preloadCards = [... new Array(1)];
-    this.timerSubscription = timer(1).subscribe(() =>
+    this.timerSubscription = timer(25).subscribe(() =>
       this.activePage = {... this.children[page] as FieldDefinition }
     );
     this.activeIndex = page;

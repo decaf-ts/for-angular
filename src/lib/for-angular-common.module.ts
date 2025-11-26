@@ -17,7 +17,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 import { Logger, Logging } from '@decaf-ts/logging';
 import { I18nToken } from './engine/interfaces';
-import { getOnWindow, getWindow } from './utils/helpers';
+import { getOnWindow, setOnWindow } from './utils/helpers';
 import {
   DecafRepository,
   FunctionLike,
@@ -29,6 +29,7 @@ import { Repository } from '@decaf-ts/core';
 import { Constructor, uses } from '@decaf-ts/decoration';
 
 export const DB_ADAPTER_PROVIDER = 'DB_ADAPTER_PROVIDER';
+
 /**
  * @description Injection token for registering the database adapter provider.
  * @summary Used to inject the database adapter instance that implements DecafRepositoryAdapter.
@@ -129,7 +130,7 @@ export function provideDynamicComponents(
  */
 export function getModelAndRepository(
   model: Model | string
-): {repository: DecafRepository<Model>, model: Model} | undefined {
+): { repository: DecafRepository<Model>, model: Model, pk: string } | undefined {
   try {
     const modelName = (
       typeof model === Primitives.STRING
@@ -139,18 +140,19 @@ export function getModelAndRepository(
     const constructor = Model.get(
       (modelName.charAt(0).toUpperCase() + modelName.slice(1)) as string
     );
-    if (!constructor)
-      return undefined;
+    if (!constructor) return undefined;
     const dbAdapterFlavour = getOnWindow(DB_ADAPTER_PROVIDER) || undefined;
-    if (dbAdapterFlavour) uses(dbAdapterFlavour as string)(constructor);
+    if (dbAdapterFlavour)
+      uses(dbAdapterFlavour as string)(constructor);
     const repository = Repository.forModel(constructor);
     model = new constructor() as Model;
-    if(!repository.pk)
+    const pk = Model.pk(repository.class as Constructor<Model>);
+    if (!pk)
       return undefined;
-    return {repository, model};
+    return { repository, model, pk };
   } catch (error: unknown) {
-   getLogger(getModelAndRepository).warn((error as Error)?.message || (error as string));
-   return undefined;
+    getLogger(getModelAndRepository).warn((error as Error)?.message || (error as string));
+    return undefined;
   }
 }
 
@@ -177,17 +179,14 @@ export function getModelAndRepository(
  * ]
  */
 export function provideDbAdapter<DbAdapter extends { flavour: string }>(
-  adapterClass: Constructor<DbAdapter>,
+  clazz: Constructor<DbAdapter>,
   options: KeyValue = {},
   flavour?: string
 ): Provider {
-  const adapter = new adapterClass(options);
+  const adapter = new clazz(options);
   if (flavour) flavour = adapter.flavour;
-  // Log and expose adapter flavour globally
-  getLogger(provideDbAdapter).info(
-    `Using ${adapter.constructor.name} ${flavour} as Db Provider`
-  );
-  getWindow()[DB_ADAPTER_PROVIDER] = flavour;
+  getLogger(provideDbAdapter).info(`Using ${adapter.constructor.name} ${flavour} as Db Provider`);
+  setOnWindow(DB_ADAPTER_PROVIDER, flavour);
   return {
     provide: DB_ADAPTER_PROVIDER_TOKEN,
     useValue: adapter,

@@ -232,7 +232,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  value: null | string | undefined = "";
+  override value: null | string | undefined = "";
 
   /**
    * @description The keys to use for querying.

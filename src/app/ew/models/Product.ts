@@ -14,25 +14,25 @@ export enum ProductNames {
   paracetamol = "Paracetamol",
   amoxicillin = "Amoxicillin",
   azithromycin = "Azithromycin",
-  metformin = "Metformin",
-  atorvastatin = "Atorvastatin",
-  omeprazole = "Omeprazole",
-  simvastatin = "Simvastatin",
-  levothyroxine = "Levothyroxine",
-  lisinopril = "Lisinopril",
-  losartan = "Losartan",
-  hydrochlorothiazide = "Hydrochlorothiazide",
-  prednisone = "Prednisone",
-  sertraline = "Sertraline",
-  fluoxetine = "Fluoxetine",
-  alprazolam = "Alprazolam",
-  diazepam = "Diazepam",
-  tramadol = "Tramadol",
-  codeine = "Codeine",
-  sildenafil = "Sildenafil",
-  insulin = "Insulin",
-  clopidogrel = "Clopidogrel",
-  furosemide = "Furosemide"
+  // metformin = "Metformin",
+  // atorvastatin = "Atorvastatin",
+  // omeprazole = "Omeprazole",
+  // simvastatin = "Simvastatin",
+  // levothyroxine = "Levothyroxine",
+  // lisinopril = "Lisinopril",
+  // losartan = "Losartan",
+  // hydrochlorothiazide = "Hydrochlorothiazide",
+  // prednisone = "Prednisone",
+  // sertraline = "Sertraline",
+  // fluoxetine = "Fluoxetine",
+  // alprazolam = "Alprazolam",
+  // diazepam = "Diazepam",
+  // tramadol = "Tramadol",
+  // codeine = "Codeine",
+  // sildenafil = "Sildenafil",
+  // insulin = "Insulin",
+  // clopidogrel = "Clopidogrel",
+  // furosemide = "Furosemide"
 };
 
 @uilistmodel('ngx-decaf-list-item', {icon: 'cafe-outline'})
@@ -49,7 +49,7 @@ export class Product extends Model {
   // @uilayoutprop(1)
   // productDetailsTitle!: string;
 
-  @pk({type: Number.name })
+  @pk({type: "String", generated: false })
   @uilistprop('uid')
   @required()
   @uielement('ngx-decaf-crud-field', {
@@ -57,7 +57,7 @@ export class Product extends Model {
     placeholder: 'product.productCode.placeholder',
   } as Partial<CrudFieldComponent>)
   @uilayoutprop(2)
-  productCode!: number;
+  productCode!: string;
 
   @required()
   @uielement('ngx-decaf-crud-field', {
@@ -110,13 +110,11 @@ export class Product extends Model {
   @uilayoutprop(1)
   productImageTitle!: string;
 
-  // @required()
   @uielement('ngx-decaf-file-upload', {
     label: 'product.productImage.label',
   } as Partial<FileUploadComponent>)
   @uilistprop('description')
   @uilayoutprop(1)
-  @required()
   productImage!: string;
 
 

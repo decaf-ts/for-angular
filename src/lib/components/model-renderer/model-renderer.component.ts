@@ -74,7 +74,7 @@ export class ModelRendererComponent<M extends Model>
    * @description Refreshes the rendered model
    * @param {string | M} model - The model to be rendered
    */
-  private refresh(model: string | M) {
+  override async refresh(model: string | M): Promise<void> {
     model =
       typeof model === 'string'
         ? (Model.build({}, model) as M)

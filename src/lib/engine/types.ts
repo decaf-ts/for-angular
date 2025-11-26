@@ -42,14 +42,11 @@ export type DecafRepositoryAdapter<
   F extends RepositoryFlags = RepositoryFlags,
   C extends Context<F> = Context<F>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-> = Adapter<any, any, RawQuery<any>, F, C>;
+> = Adapter<any, any, RawQuery<any>, C>;
 
 export type DecafRepository<M extends Model> = Repository<
   M,
-  RawQuery<M>,
-  DecafRepositoryAdapter<RepositoryFlags, Context<RepositoryFlags>>,
-  RepositoryFlags,
-  Context<RepositoryFlags>
+  DecafRepositoryAdapter<RepositoryFlags, Context>
 >;
 
 /**

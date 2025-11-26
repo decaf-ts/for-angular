@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 import { IPagedComponentProperties } from '@decaf-ts/ui-decorators';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ComponentRendererComponent } from 'src/lib/components/component-renderer/component-renderer.component';

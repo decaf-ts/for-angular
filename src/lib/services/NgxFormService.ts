@@ -214,6 +214,7 @@ export class NgxFormService {
         (partFormGroup as KeyValue)[BaseComponentProps.FORM_GROUP_COMPONENT_PROPS] = {
           childOf: childOf || '',
           isMultiple: isMultiple,
+          required: parentProps?.required ?? false,
           name: part,
           pk,
           [ModelKeys.MODEL]: {},
@@ -798,13 +799,26 @@ export class NgxFormService {
     if (control instanceof FormArray) {
       const totalGroups = control.length;
       const hasValid = control.controls.some(control => control.valid);
-      if(totalGroups > 1 && hasValid) {
+      const parentProps = (control as KeyValue)[BaseComponentProps.FORM_GROUP_COMPONENT_PROPS] || {};
+      const childControl = control.at(0);
+      if(totalGroups === 1) {
+        const parent = childControl.parent as FormGroup;
+        if(!parentProps.required) {
+          parent.setErrors(null);
+          parent.updateValueAndValidity({ emitEvent: true });
+          childControl.disable();
+        } else {
+          this.validateFields(childControl);
+        }
+      }
+      else if(totalGroups > 1 && hasValid) {
          for (let i = control.length - 1; i >= 0; i--) {
           const childControl = control.at(i);
           // disable no valid groups on array
           if (!childControl.valid) {
-            (childControl.parent as FormGroup).setErrors(null);
-             (childControl.parent as FormGroup).updateValueAndValidity({ emitEvent: true });
+            const parent = childControl.parent as FormGroup;
+            parent.setErrors(null);
+            parent.updateValueAndValidity({ emitEvent: true });
             childControl.disable();
           } else {
             this.validateFields(childControl);

@@ -11,6 +11,10 @@ import { IBaseCustomEvent, IModelPageCustomEvent } from 'src/lib/engine/interfac
 import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
 import { Product } from 'src/app/ew/models/Product';
 import { CardComponent } from 'src/lib/components/card/card.component';
+import { uihandlers } from '@decaf-ts/ui-decorators';
+import { ComponentEventNames } from 'src/lib/engine/constants';
+import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
+import { Dynamic } from 'src/lib/engine';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -124,14 +128,17 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
     super.ngOnInit();
     this.title = "product.title";
     this.model = !this.operation ? new Product() : new ProductLayout();
- }
+
+  }
 
   override async ionViewWillEnter(): Promise<void> {
    await super.ionViewWillEnter();
   }
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
-    const {success, message} = await super.handleSubmit(event) as IModelPageCustomEvent;
+    const handler = (new ProductLayoutHandler()).handle.bind(this);
+    const result = await handler(event);
+    console.log(result);
     // const toast = getNgxToastComponent({
     //   color: success ? 'dark' : 'danger',
     //   message,

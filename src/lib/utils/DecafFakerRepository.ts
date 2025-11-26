@@ -42,39 +42,28 @@ export class DecafFakerRepository<T extends Model> {
   }
 
   public async initialize(): Promise<void> {
-    if (!this._repository)
-      this._repository = this.repository;
+    if (!this._repository) this._repository = this.repository;
   }
 
-  async generateData<T extends Model>(
-    pkValues?: KeyValue,
-    pk?: string,
-    pkType?: string
-  ): Promise<T[]> {
-    const limit = pkValues
-      ? Object.values(pkValues || {}).length - 1
-      : this.limit;
-    if (!pk)
-      pk = this._repository?.pk as string;
-    if (!pkType)
-      pkType = Metadata.type(this.repository.class, pk).name.toLowerCase();
+  async generateData<T extends Model>(values?: KeyValue, key?: string, keyType?: string): Promise<T[]> {
+    const limit = values ? Object.values(values || {}).length : this.limit;
+    if (!key)
+      key = Model.pk(this.repository.class) as string;
+    if (!keyType)
+      keyType = Metadata.type(this.repository.class, key).name.toLowerCase();
 
     const props = Object.keys(this.model as KeyValue).filter((k) => {
-      if (pkType === Primitives.STRING)
-        return !['updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(
-          k
-        );
-      return ![pk, 'updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(
-        k
-      );
+      if (keyType === Primitives.STRING)
+        return !['updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(k);
+      return ![key, 'updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(k);
     });
     const dataProps: Record<string, FunctionLike> = {};
     for (const prop of props) {
-      const type =  Metadata.type(this.repository.class, prop).name.toLowerCase();
-      switch ((type?.name || '').toLowerCase()) {
+      const type = Metadata.type(this.repository.class, prop);
+      switch (type.name.toLowerCase()) {
         case 'string':
           dataProps[prop] = () =>
-            `${faker.lorem.word()} ${pk === prop ? ' - ' + faker.number.int({ min: 1, max: 200 }) : ''}`;
+            `${faker.lorem.word()} ${key === prop ? ' - ' + faker.number.int({ min: 1, max: 200 }) : ''}`;
           break;
         case 'step':
           dataProps[prop] = () => faker.lorem.word();
@@ -107,27 +96,27 @@ export class DecafFakerRepository<T extends Model> {
       typeof this.model === 'string' ? this.model : this.model?.constructor.name
     );
 
-    if (!pkValues) return data;
+    if (!values) return data;
 
-    const values = Object.values(pkValues as KeyValue);
+    const _values = Object.values(values as KeyValue);
     const iterated: (string | number)[] = [];
 
     function getPkValue(item: KeyValue): T {
-      if (values.length > 0) {
-        const randomIndex = Math.floor(Math.random() * values.length);
-        const selected = values.splice(randomIndex, 1)[0];
+      if (_values.length > 0) {
+        const randomIndex = Math.floor(Math.random() * _values.length);
+        const selected = _values.splice(randomIndex, 1)[0];
         const value =
-          pkType === Primitives.STRING
+          keyType === Primitives.STRING
             ? selected
-            : pkType === Primitives.NUMBER
+            : keyType === Primitives.NUMBER
               ? parseToNumber(selected)
-              : pkType === Array.name
+              : keyType === Array.name
                 ? [selected]
                 : selected;
-        item[pk as string] = value;
+        item[key as string] = value;
       }
-      if (!iterated.includes(item[pk as string])) {
-        iterated.push(item[pk as string]);
+      if (!iterated.includes(item[key as string])) {
+        iterated.push(item[key as string]);
         return item as T;
       }
       return undefined as unknown as T;
@@ -136,9 +125,9 @@ export class DecafFakerRepository<T extends Model> {
     return data
       .map((d) => getPkValue(d))
       .filter((item: KeyValue) => {
-        if (!item || uids.has(item[pk]) || !item[pk] || item[pk] === undefined)
+        if (!item || uids.has(item[key]) || !item[key] || item[key] === undefined)
           return false;
-        uids.add(item[pk]);
+        uids.add(item[key]);
         return true;
       })
       .filter(Boolean) as T[];
@@ -161,6 +150,7 @@ export function getFakerData<T extends Model>(
     //   (item as any).code = `${index}`;
     // item.id = index;
     // item.createdAt = faker.date.past({ refDate: '2025-01-01' });
+    if (item['productCode']) item['productCode'] = `${index}`;
     index = index + 1;
     return (!model ? item : Model.build(item, model)) as T;
   });
