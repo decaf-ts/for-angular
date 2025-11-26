@@ -41,6 +41,9 @@ import {
   IonReorder,
   IonIcon,
   IonText,
+  IonSkeletonText,
+  IonLoading,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { ReservedModels } from '@decaf-ts/decorator-validation';
@@ -54,7 +57,7 @@ import {
 } from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { itemMapper } from '../../utils/helpers';
-import { UIModelMetadata } from '@decaf-ts/ui-decorators';
+import { UIElementMetadata, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { timer } from 'rxjs';
 
 /**
@@ -128,6 +131,7 @@ import { timer } from 'rxjs';
     IonButton,
     IonIcon,
     LayoutComponent,
+    IonSpinner
   ],
 })
 export class FieldsetComponent
@@ -253,7 +257,7 @@ export class FieldsetComponent
    * @default []
    * @memberOf FieldsetComponent
    */
-  items: IFieldSetItem[] = [];
+  items: IFieldSetItem[] | UIElementMetadata[][] = [];
 
   /**
    * @description Currently selected item for update operations.
@@ -410,6 +414,7 @@ export class FieldsetComponent
    * @memberOf FieldsetComponent
    */
   override async ngOnInit(): Promise<void> {
+    console.log(this.title);
     await super.ngOnInit(this.model);
     if (this.max && this.max === 1) this.multiple = false;
     this.buttonLabel = this.translateService.instant(this.locale + '.add');
@@ -417,7 +422,8 @@ export class FieldsetComponent
       this.locale + '.cancel'
     );
 
-    if (!this.multiple) this.ordenable = false;
+    if (!this.multiple)
+      this.ordenable = false;
 
     if ([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
       if (!this.formGroup) {
@@ -443,9 +449,6 @@ export class FieldsetComponent
           this.formGroup = (this.formGroup as FormParent)?.parent as FormArray;
       }
     }
-
-    console.log(this.value);
-
     if (this.multiple) {
       this.formGroup?.setErrors(null);
       this.formGroup?.disable();
@@ -509,6 +512,30 @@ export class FieldsetComponent
     // if (!(this.formGroup instanceof FormArray))
     //   this.formGroup = (this.formGroup as FormGroup)
     // this.changeDetectorRef.detectChanges();
+  }
+
+  override async refresh(): Promise<void> {
+    this.refreshing = true;
+    this.changeDetectorRef.detectChanges();
+    if([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
+      // if(!this.multiple) {
+      //   this.required = this.collapsable = false;
+      // }
+      this.items = [... this.value.map((v) => {
+        return this.children.map((child) => {
+          const {props, tag} = child as KeyValue;
+          return {
+            tag,
+            props: {
+              ... props,
+              value: v[props.name]  || ""
+            }
+          };
+        })
+      })] as UIElementMetadata[][];
+    }
+    this.refreshing = false;
+    this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -695,14 +722,14 @@ export class FieldsetComponent
       // reorder visual data
       const itemToMove = items.splice(fromIndex, 1)[0];
       items.splice(toIndex, 0, itemToMove);
-      items.forEach((item, index) => (item['index'] = index + 1));
+      items.forEach((item, index) => ((item as IFieldSetItem)['index'] = index + 1));
 
       // reorder FormArray controls
       const controlToMove = formArray.at(fromIndex);
       formArray.removeAt(fromIndex);
       formArray.insert(toIndex, controlToMove);
     }
-    this.items = [...items];
+    this.items = [...items as IFieldSetItem[]];
     event.detail.complete();
   }
 

@@ -5,6 +5,7 @@ import { AIFeatures } from './contants';
 import { DecafFakerRepository } from 'src/lib/utils/DecafFakerRepository';
 import { Product, ProductNames } from '../ew/models/Product';
 import { ProductStrength } from '../ew/models/ProductStrength';
+import { faker } from '@faker-js/faker';
 export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
 
   public override async initialize(): Promise<void> {
@@ -22,6 +23,10 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           break;
         case ProductStrength.name: {
           data = await this.generateData<ProductStrength>();
+          data = data.map((item: Partial<ProductStrength>) => {
+            item['productCode'] = `${faker.number.int({ min: 1, max: 5 })}`;
+            return item as T;
+          }) as T[];
           break;
         }
         default:

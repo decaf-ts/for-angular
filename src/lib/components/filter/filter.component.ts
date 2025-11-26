@@ -45,6 +45,7 @@ import { Dynamic } from '../../engine/decorators';
 import { IFilterQuery, IFilterQueryItem } from '../../engine/interfaces';
 import { getWindowWidth } from '../../utils/helpers';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
+import { Constructor } from '@decaf-ts/decoration';
 
 /**
  * @description Advanced filter component for creating dynamic search filters with step-by-step construction.
@@ -404,8 +405,10 @@ export class FilterComponent
       this.indexes = Object.keys(Model.indexes(this.model as Model) || {});
     if (!this.disableSort) {
       this.sortBy = [...this.sortBy, ...this.indexes];
-      if (this.repository)
-        this.sortValue = this.repository['pk'] || this.sortValue;
+      if (this.repository) {
+        const pk = Model.pk(this.repository.class as Constructor<Model>);
+        this.sortValue = pk || this.sortValue;
+      }
     }
   }
 
@@ -565,7 +568,8 @@ export class FilterComponent
         if (!this.filterValue.length) {
           this.filterValue.push(filter);
         } else {
-          if (this.step === 1) this.filterValue.push(filter);
+          if (this.step === 1)
+            this.filterValue.push(filter);
         }
         if (this.step === 3) {
           this.step = 0;
@@ -574,10 +578,10 @@ export class FilterComponent
           if(!this.multiple)
             return await this.submit();
         }
-
         this.step++;
         this.value = '';
-        if (this.options.length) this.handleFocus(this.options);
+        if (this.options.length)
+          this.handleFocus(this.options);
         this.component.nativeElement.querySelector('#dcf-filter-field').focus();
       }
     }

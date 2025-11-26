@@ -3,6 +3,14 @@
 // }
 
 .dcf-grid {
+  &.dcf-grid-collapse {
+    &.read {
+      // remove margin for operation read mode
+      > div {
+        margin: var(--dcf-margin-small) 0 !important ;
+      }
+    }
+  }
   // put borders on grid childs
   &.dcf-grid-bordered {
     > div > div {
@@ -58,6 +66,13 @@
     // fix padding for forms
     &.dcf-grid-nested {
       padding: 0 0.5rem !important;
+      // &.read {
+      //   // remove margin for operation read mode
+      //   > div:last-child {
+      //     margin-bottom: 0px;
+      //   }
+      // }
+
       // border: 1px solid red !important;
       // margin: unset;
       // padding: unset;

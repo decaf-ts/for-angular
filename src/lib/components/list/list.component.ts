@@ -454,17 +454,6 @@ export class ListComponent
    */
   pages!: number;
 
-  /**
-   * @description Indicates whether a refresh operation is in progress.
-   * @summary When true, the component is currently fetching new data. This is used
-   * to control loading indicators and prevent duplicate refresh operations from
-   * being triggered simultaneously.
-   *
-   * @type {boolean}
-   * @default false
-   * @memberOf ListComponent
-   */
-  refreshing: boolean = false;
 
   /**
    * @description Array used for rendering skeleton loading placeholders.
@@ -526,17 +515,6 @@ export class ListComponent
    */
   lastPage: number = 1;
 
-  /**
-   * @description Event emitter for refresh operations.
-   * @summary Emits an event when the list data is refreshed, either through pull-to-refresh
-   * or programmatic refresh. The event includes the refreshed data and component information.
-   *
-   * @type {EventEmitter<IBaseCustomEvent>}
-   * @memberOf ListComponent
-   */
-  @Output()
-  refreshEvent: EventEmitter<IBaseCustomEvent> =
-    new EventEmitter<IBaseCustomEvent>();
 
   /**
    * @description Event emitter for item click interactions.
@@ -1002,7 +980,7 @@ export class ListComponent
    * @memberOf ListComponent
    */
   @HostListener('window:BackButtonNavigationEndEvent', ['$event'])
-  async refresh(
+  override async refresh(
     event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false
   ): Promise<void> {
     //  if (typeof force !== 'boolean' && force.type === ComponentEventNames.BACK_BUTTON_NAVIGATION) {

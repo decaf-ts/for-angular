@@ -8,8 +8,11 @@
  */
 import { LoggedClass } from "@decaf-ts/logging";
 import { IBaseCustomEvent } from "./interfaces";
-import { DecafComponent } from "@decaf-ts/ui-decorators";
+import { DecafComponent, DecafEventHandler } from "@decaf-ts/ui-decorators";
 import { Router } from "@angular/router";
 
-export abstract class NgxEventHandler<PAYLOAD> extends DecafComponent {
+export abstract class NgxEventHandler extends DecafEventHandler {
+  async refresh(args?: unknown[]): Promise<void> {
+    this.log.for(this.refresh).debug(`Refresh called with args: ${args}`);
+  }
 }

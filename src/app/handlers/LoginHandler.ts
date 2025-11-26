@@ -19,9 +19,7 @@ import { DecafComponent } from "@decaf-ts/ui-decorators";
  * const isValid = await loginHandler.handle(event);
  * console.log(isValid); // true
  */
-export class LoginHandler extends NgxEventHandler<ICrudFormEvent> {
-
-
+export class LoginHandler extends NgxEventHandler{
 
   /**
    * @description Handles the login event
@@ -31,7 +29,7 @@ export class LoginHandler extends NgxEventHandler<ICrudFormEvent> {
    * @param {ICrudFormEvent} event - The event object containing login data
    * @return {Promise<boolean>} A promise that resolves to true if login is valid, false otherwise
    */
-  async handle(event: ICrudFormEvent): Promise<void> {
+  override async handle(event: ICrudFormEvent): Promise<void> {
     const { username, password } = event.data as KeyValue;
     const success = !!username && !!password;
     if(success) {

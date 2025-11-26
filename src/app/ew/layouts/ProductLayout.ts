@@ -1,5 +1,6 @@
 import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import {
+  hideOn,
   uichild,
   uihandlers,
   uilayout,
@@ -12,6 +13,7 @@ import { FieldsetComponent, LayoutComponent } from 'src/lib/components';
 import { Product } from '../models/Product';
 import { ProductLayoutHandler } from '../handlers/ProductLayoutHandler';
 import { ComponentEventNames } from 'src/lib/engine';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 
 @uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uilayout('ngx-decaf-crud-form', true, 1, {
@@ -19,10 +21,8 @@ import { ComponentEventNames } from 'src/lib/engine';
   breakpoint: UIMediaBreakPoints.XLARGE,
 } as Partial<LayoutComponent>)
 @model()
-// @uihandlers({[ComponentEventNames.SUBMIT]: ProductLayoutHandler }) // overriding default submit handler
 export class ProductLayout extends Model {
 
-  @uilayoutprop(2)
   @uichild(Product.name, 'ngx-decaf-fieldset', {
     title: 'product.section.details.title',
     borders: false,
@@ -30,10 +30,11 @@ export class ProductLayout extends Model {
     breakpoint: UIMediaBreakPoints.XLARGE,
     ordenable: false,
   } as Partial<FieldsetComponent>)
+  @uilayoutprop(2)
   product!: Product;
 
-  @uilayoutprop(1)
   @uichild(EpiLayout.name, 'app-switcher', {})
+  @uilayoutprop(1)
   epi!: EpiLayout;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor

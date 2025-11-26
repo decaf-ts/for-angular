@@ -52,7 +52,8 @@
     "cancel": "Cancelar",
     "not_unique": "O valor inserido já existe. Valor {0}",
     "max_items": "Pode criar até {0} itens.",
-    "max_items_reached": "Máximo de {0} itens atingido."
+    "max_items_reached": "Máximo de {0} itens atingido.",
+    "empty": "Nenhum item encontrado."
   },
   "list": {
     "pagination": "A mostrar página <span class=\"text-bold\">{0} de {1}</span>",

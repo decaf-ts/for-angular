@@ -31,8 +31,6 @@ export class User extends Model {
   @uilistprop('title')
   @required()
   username!: string;
-
-
   constructor(args: ModelArg<User> = {}) {
     super(args);
   }
@@ -49,7 +47,7 @@ export class FieldSetForm extends Model {
 
 
   @list(CategoryModel, 'Array')
-  @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {max: 2, borders: false}, true)
+  @uichild(CategoryModel.name, 'ngx-decaf-fieldset', {max: 2, borders: false, required: true}, true)
   user!: CategoryModel;
 
   constructor(args: ModelArg<FieldSetForm> = {}) {

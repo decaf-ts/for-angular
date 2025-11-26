@@ -172,8 +172,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    *
    * @param {string} [uid] - The unique identifier of the model to load; defaults to modelId
    */
-  async refresh(uid?: EventIds): Promise<void> {
-    if (!uid) uid = this.modelId;
+  override async refresh(uid?: EventIds): Promise<void> {
+    if (!uid)
+      uid = this.modelId;
     try {
       this._repository = this.repository;
       switch (this.operation) {
@@ -231,7 +232,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     try {
       if (!repository) repository = this._repository as DecafRepository<Model>;
 
-      const pk = this.pk || (repository['pk'] as string);
+      // const pk = this.pk || Model.pk(repository.class as Constructor<Model>);
       const operation = this.operation;
       const { data } = event;
       if (data) {
@@ -312,6 +313,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
       return undefined;
     }
 
+    if(!modelName)
+      modelName = this.modelName;
+
     const getRepository = async (
       modelName: string,
       parent?: string,
@@ -323,7 +327,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         const properties = Metadata.properties(
           constructor as Constructor<Model>
         ) as string[];
-        if (!model) model = {} as KeyValue;
+        // if (!model) model = {} as KeyValue;
         for (const prop of properties) {
           const type = Metadata.type(
             constructor as Constructor<Model>,
@@ -335,29 +339,28 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
           if (modelName === this.modelName) {
             const data = await this.handleGet(uid, repository, modelName);
             this.model = Model.build({ [prop]: data }, modelName);
-          } else {
-            model[prop as string] = Model.build({}, type);
           }
+
+          // else {
+          //   model[prop as string] = Model.build({}, type);
+          // }
         }
-        (this.model as KeyValue)[parent as string] = Model.build(
-          model,
-          modelName
-        );
+        // (this.model as KeyValue)[parent as string] = Model.build(
+        //   model,
+        //   modelName
+        // );
       }
     };
 
     repository = (repository ||
       (await getRepository(modelName as string))) as IRepository<Model>;
     if (!repository) return this.model as Model;
-    const type = Metadata.type(
-      repository.class as Constructor<Model>,
-      Model.pk(repository.class as Constructor<Model>)
-    ).name;
+    const type = Metadata.type(repository.class, Model.pk(repository.class) as string).name;
     try {
-      const result = await (repository as IRepository<any>).read(
+      const result = await (repository).read(
         ([Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase())
           ? Number(uid)
-          : uid) as string | number
+          : uid) as string
       );
       return result;
     } catch (error: unknown) {
@@ -400,7 +403,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     }
 
     let uid = this.modelId as EventIds;
-    const pk = repository['pk'] as string;
+    const pk = Model.pk(repository.class as Constructor<Model>);
     const type = Metadata.type(repository.class as Constructor<Model>, pk).name;
     uid = [Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase())
       ? Number(uid)

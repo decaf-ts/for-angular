@@ -39,6 +39,7 @@ import { generateRandomValue, getWindow, setOnWindow } from '../utils';
 import { EventIds } from '@decaf-ts/core';
 import { NgxMediaService } from '../services/NgxMediaService';
 import { DecafComponent, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
+import { Constructor } from '@decaf-ts/decoration';
 
 try {
   const win = getWindow();
@@ -164,6 +165,9 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    */
   @Input()
   override modelId?: EventIds;
+
+  @Input()
+  override value: unknown;
 
   /**
    * @description Primary key field name for the data model.
@@ -315,6 +319,19 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
     new EventEmitter<IBaseCustomEvent>();
 
   /**
+   * @description Event emitter for custom component events.
+   * @summary Emits custom events that occur within child components or the component itself.
+   * This allows parent components to listen for and respond to user interactions or
+   * state changes. Events are passed up the component hierarchy to enable coordinated
+   * behavior across the application.
+   * @type {EventEmitter<IBaseCustomEvent>}
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
+  @Output()
+  refreshEvent: EventEmitter<IBaseCustomEvent|boolean> = new EventEmitter<IBaseCustomEvent|boolean>();
+
+
+  /**
    * @description Angular Router instance for programmatic navigation.
    * @summary Injected Router service used for programmatic navigation between routes
    * in the application. This service enables navigation to different views and operations,
@@ -424,6 +441,18 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
   @Input()
   protected override events: Record<string, UIFunctionLike> = {};
 
+
+  /**
+   * @description Indicates whether a refresh operation is in progress.
+   * @summary When true, the component is currently fetching new data. This is used
+   * to control loading indicators and prevent duplicate refresh operations from
+   * being triggered simultaneously.
+   *
+   * @type {boolean}
+   * @default false
+   */
+  refreshing: boolean = false;
+
   /**
    * @description Constructor for NgxComponentDirective.
    * @summary Initializes the directive by setting up the component name, locale root,
@@ -434,11 +463,10 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    * @param {string} [localeRoot] - Optional locale root key for internationalization
    * @memberOf module:lib/engine/NgxComponentDirective
    */
+
   // eslint-disable-next-line @angular-eslint/prefer-inject
-  constructor(
-    @Inject(CPTKN) componentName?: string,
-    @Inject(CPTKN) localeRoot?: string
-  ) {
+  constructor(@Inject(CPTKN) componentName?: string, @Inject(CPTKN) localeRoot?: string)
+  {
     super();
     this.componentName = componentName || 'NgxComponentDirective';
     this.localeRoot = localeRoot;
@@ -459,6 +487,12 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    */
   ngOnDestroy(): Promise<void> | void {
     this.mediaService.destroy();
+  }
+
+  //TODO: Pass to ui decoretators
+  async refresh(... args: unknown[]): Promise<void> {
+    this.log.for(this.refresh).debug(`Refresh called with args: ${args}`);
+    this.refreshEvent.emit(true);
   }
 
   /**
@@ -487,7 +521,7 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
       if (!this._repository) {
         this._repository = getModelAndRepository(this.model as Model)?.repository;
         if (this.model && !this.pk)
-          this.pk = Model.pk((this.model as any).constructor) as string;
+          this.pk = Model.pk(this._repository?.class as Constructor<Model>) as string;
       }
     } catch (error: unknown) {
       throw new InternalError((error as Error)?.message || (error as string));
@@ -533,18 +567,22 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
 
     if (changes[UIKeys.EVENTS]) {
       const { currentValue, previousValue } = changes[UIKeys.EVENTS];
-      if (currentValue && typeof currentValue !== previousValue) {
+      if (currentValue && currentValue !== previousValue) {
         if(!this._repository)
           this._repository = this.repository;
         for(const key in currentValue) {
           const event = currentValue[key]();
           if (event && typeof event === 'function') {
-            const clazz = new event();
-            this.events[key] = clazz[key].bind(this);
-            if (event[key] instanceof Promise) {
-              await clazz[key].bind(this)();
-            } else {
-              clazz[key].bind(this)();
+            try {
+              const clazz = new event();
+              this.events[key] = clazz[key].bind(this);
+              if (event[key] instanceof Promise) {
+                await clazz[key].bind(this)();
+              } else {
+                clazz[key].bind(this)();
+              }
+            } catch (error: unknown) {
+              this.log.for(this.ngOnChanges).warn(`Error occurred while processing event "${key}": ${(error as Error)?.message || error as string}`);
             }
           }
         }
@@ -778,7 +816,7 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
       event = event.detail;
     }
     const handlers = (event as ICrudFormEvent)?.['handlers'] as
-      | Record<string, NgxEventHandler<unknown>>
+      | Record<string, NgxEventHandler>
       | undefined;
     name = name || (event as IBaseCustomEvent)?.['name'];
     if (handlers && Object.keys(handlers || {})?.length) {

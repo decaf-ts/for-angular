@@ -9,14 +9,9 @@ import { getModelAndRepository } from "src/lib/for-angular-common.module";
 import { Product } from "../models/Product";
 import { ProductLayout } from "../layouts/ProductLayout";
 
-export class ProductLayoutHandler extends NgxEventHandler<ICrudFormEvent> {
+export class ProductLayoutHandler extends NgxEventHandler {
 
-
-  /**
-   * @description Handles generic form events by emitting them to the component
-   * @summary This method emits the event data to the component's listenEvent output.
-   */
-  async handle(event: ICrudFormEvent, model?: string | Model): Promise<void> {
+  override async handle(event: ICrudFormEvent, model?: string | Model): Promise<void> {
     const iterate = async (evt: ICrudFormEvent, model: string | Model, parent?: string) => {
       const result = [] as Partial<IModelPageCustomEvent>[];
       model = model || this.model as Model;
