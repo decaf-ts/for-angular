@@ -2,12 +2,9 @@
 import { OperationKeys } from "@decaf-ts/db-decorators";
 import { Constructor, Metadata } from "@decaf-ts/decoration";
 import { Model, Primitives } from "@decaf-ts/decorator-validation";
-import { DecafRepository } from "dist/lib";
 import { getNgxToastComponent } from "src/app/utils/NgxToastComponent";
-import { NgxEventHandler, ICrudFormEvent, NgxModelPageDirective, IBaseCustomEvent, KeyValue, IModelPageCustomEvent } from "src/lib/engine";
+import { NgxEventHandler, ICrudFormEvent, KeyValue, IModelPageCustomEvent } from "src/lib/engine";
 import { getModelAndRepository } from "src/lib/for-angular-common.module";
-import { Product } from "../models/Product";
-import { ProductLayout } from "../layouts/ProductLayout";
 
 export class ProductLayoutHandler extends NgxEventHandler {
 
