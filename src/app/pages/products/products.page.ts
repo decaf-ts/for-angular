@@ -15,6 +15,7 @@ import { uihandlers } from '@decaf-ts/ui-decorators';
 import { ComponentEventNames } from 'src/lib/engine/constants';
 import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
 import { Dynamic } from 'src/lib/engine';
+import { Model } from '@decaf-ts/decorator-validation';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.

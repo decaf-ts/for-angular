@@ -3,18 +3,22 @@ import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, OnInit, 
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   IonItem, IonLabel, IonList,
-  IonButton
+  IonButton,
+  IonText
  } from '@ionic/angular/standalone';
  import { TranslatePipe } from '@ngx-translate/core';
 import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { Dynamic } from '../../engine/decorators';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
-import { ElementSize, FlexPosition, PossibleInputTypes } from '../../engine/types';
+import { ElementSize, FlexPosition, KeyValue, PossibleInputTypes } from '../../engine/types';
 import { ElementSizes, ComponentEventNames } from '../../engine/constants';
 import { IBaseCustomEvent, IFileUploadError } from '../../engine/interfaces';
 import { presentNgxLightBoxModal } from '../modal/modal.component';
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../icon/icon.component';
+import { source } from '@angular-devkit/schematics';
+import { Primitives } from '@decaf-ts/decorator-validation';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 
 
 const FileErrors = {
@@ -49,7 +53,7 @@ const FileErrors = {
   templateUrl: './file-upload.component.html',
   styleUrls: ['./file-upload.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardComponent, IconComponent, IonList, IonLabel, IonItem, TranslatePipe,  IonButton],
+  imports: [CommonModule, ReactiveFormsModule, CardComponent, IonText, IconComponent, IonList, IonLabel, IonItem, TranslatePipe,  IonButton],
 })
 export class FileUploadComponent extends NgxFormFieldDirective implements OnInit, OnDestroy {
 
@@ -223,7 +227,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    *
    * @type {File[]}
    */
-  files: File[] = [];
+  files: File[] | KeyValue[] = [];
 
   /**
    * @description List of errors encountered during file validation.
@@ -274,6 +278,27 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     }
     // Convert maxFileSize from MB to bytes
     this.maxFileSize = this.maxFileSize * 1024 * 1024;
+    this.initialize();
+  }
+
+  override async initialize(): Promise<void> {
+    if(this.value && typeof this.value === Primitives.STRING) {
+      try {
+        const files = JSON.parse(this.value as string) as string[];
+        this.files = files.map(file => {
+          const mime = this.getFileMime(file)?.split('/') || [];
+          return {
+            name: mime?.[0] || 'file',
+            type: `${mime?.[0]}` || 'image/*',
+            source: file as string
+          } as KeyValue
+        })
+        this.getPreview();
+      } catch (error) {
+        console.error('Error parsing file list:', error);
+      }
+    }
+    this.initialized = true;
   }
 
   /**
@@ -410,7 +435,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
       this.files = [validFiles[0]];
     }
     if(this.files.length) {
-      const dataValues = await this.getDataURLs(this.files)
+      const dataValues = await this.getDataURLs(this.files as File[])
       this.setValue(JSON.stringify(dataValues));
     }
 
@@ -462,7 +487,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
       if(dataUrl && dataUrl.length)
         file = dataUrl[0];
     }
-    if(fileExtension.includes('image/'))
+    if(fileExtension.includes('image'))
       content = '<img src="' + file + '" style="max-width: 100%; height: auto;" />';
 
     if(fileExtension.includes('xml')) {
@@ -503,6 +528,11 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     return file && file.type.startsWith('image/');
   }
 
+  getFileMime(base64: string): string {
+    const match = base64.match(/^data:(.*?);base64,/);
+    return match ? match[1] : "";
+  }
+
   /**
    * @description Removes a file from the selection.
    * @summary Updates the file list to exclude the file at the specified index.
@@ -528,12 +558,13 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   private async getPreview(): Promise<void> {
     this.preview = undefined;
     const file = this.files && this.files.length ? this.files[0] : null;
-    if (file) {
-      const dataUrl = await this.getDataURLs(file) as string[];
+    if (file instanceof File) {
+      const dataUrl = await this.getDataURLs(file as File) as string[];
       if(dataUrl && dataUrl.length)
         this.preview = dataUrl[0];
+    } else {
+      this.preview = (file as KeyValue)?.['source'] as string;
     }
-
   }
 
   /**
@@ -563,7 +594,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    */
   private async getDataURLs(files?: File[] | File): Promise<string[] | undefined> {
     if(!files)
-      files = this.files;
+      files = this.files as File[];
     if(!Array.isArray(files))
       files = [files];
     // files = files.filter(f => f.type && f.type.startsWith('image/'));

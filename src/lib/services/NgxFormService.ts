@@ -570,10 +570,8 @@ export class NgxFormService {
     components.forEach(component => {
       this.addFormControl(form, component.inputs);
     });
-
     if (registry)
       this.addRegistry(id, form);
-
     return form;
   }
 
@@ -693,8 +691,21 @@ export class NgxFormService {
       const control = formGroup.controls[key];
       const parentProps = NgxFormService.getPropsFromControl(formGroup as FormGroup | FormArray);
       if (!(control instanceof FormControl)) {
-        if(control.disabled)
+        if(control.disabled) {
+          if(control instanceof FormGroup)
+            data[key] = NgxFormService.getFormData(control as FormGroup);
+          if(control instanceof FormArray) {
+            const value = (control as FormArray).controls.map(c => {
+              if(Object.values(c.value).some(p => p !== undefined))
+                return c.value;
+              return undefined;
+            });
+            data[key] = Array.isArray(value)
+              ? !value.filter(Boolean).length
+                ? undefined : value : value;
+          }
           continue;
+        }
         const value = NgxFormService.getFormData(control as FormGroup);
         const isValid = control.valid;
         if(parentProps.multiple) {

@@ -61,7 +61,7 @@
               } @else {
                 @if(!items.length) {
                   <div class="dcf-padding-xsmall">
-                    <ion-text class="dcf-text-small">{{ locale + '.empty' | translate }}</ion-text>
+                    <ion-text>{{ locale + '.empty' | translate }}</ion-text>
                   </div>
                 } @else {
                   @for(item of items; track trackItemFn($index, item)) {

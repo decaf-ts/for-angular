@@ -20,6 +20,10 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           break;
         case Product.name:
           data = await this.generateData<Product>(ProductNames, 'inventedName', "string");
+          data = data.map((item: Partial<Product>) => {
+            delete item['productImage'];
+            return item as T;
+          })
           break;
         case ProductStrength.name: {
           data = await this.generateData<ProductStrength>();
