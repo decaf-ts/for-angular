@@ -14,6 +14,7 @@ export class Leaflet extends BaseModel {
 
   @pk({type: "String", generated: false})
   @composed(["productCode", "batchNumber", "lang"], ":", true)
+  @uilistprop('uid')
   id!: string;
 
   @required()
@@ -53,7 +54,6 @@ export class Leaflet extends BaseModel {
     type: HTML5InputTypes.SELECT,
     options: () => getMarkets(false)
   } as Partial<CrudFieldComponent>)
-  @uilistprop(ListItemPositions.description)
   market!: string;
 
   @uielement('ngx-decaf-file-upload', {

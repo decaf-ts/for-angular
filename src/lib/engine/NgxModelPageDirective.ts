@@ -281,14 +281,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     }
   }
 
-  async create(
-    data: Partial<Model>,
-    repository: DecafRepository<Model>
-  ): Promise<IModelPageCustomEvent | void> {
-    alert('create');
-    console.log(repository);
-    console.log(data);
-  }
 
   /**
    * @description Retrieves a model instance from the repository by unique identifier.

@@ -1,6 +1,6 @@
-@if (operation === 'read' || operation === 'delete') {
+@if ((operation === 'read' || operation === 'delete') || readonly) {
   <ng-container>
-    <div>
+    <div >
       <ion-item [class]="'dcf-input-item ' + operation" #component>
         <ion-label>
           {{ label | translate }}<br />
@@ -24,7 +24,7 @@
           [id]="uid" #container
           [class]="'dcf-input-item ' + (operation || 'create')"
           [class.dcf-field-required]="required"
-           [class.dcf-field-readonly]="readonly"
+          [class.dcf-field-readonly]="readonly"
         >
           @if (type === 'textarea') {
             <ion-textarea

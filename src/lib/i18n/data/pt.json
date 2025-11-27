@@ -108,12 +108,18 @@
   },
   "file_upload": {
       "drag_file": "Arraste e solte a sua imagem aqui",
-      "button_select": "Selecionar ficheiro",
-      "button_clear": "Limpar",
-      "preview": "Pré-visualizar",
+      "empty": "Nenhum ficheiro encontrado.",
+      "preview": "Pré-visualização",
+      "buttons": {
+        "select": "Selecionar Ficheiro",
+        "preview": "Pré-visualizar",
+        "clear": "Limpar"
+      },
+      "selection": "{0} ficheiro(s) selecionado(s) com sucesso",
+      "selection_error": "{0} ficheiro(s) falharam a validação e não serão carregados.",
       "errors": {
-        "not_allowed": "O arquivo {0} não é permitido.",
-      "max_size": "O tamanho máximo permitido do ficheiro é {0} MB"
+        "not_allowed": "O ficheiro {0} não é permitido.",
+        "max_size": "O tamanho máximo permitido para o ficheiro é {0} MB"
       }
     }
   }

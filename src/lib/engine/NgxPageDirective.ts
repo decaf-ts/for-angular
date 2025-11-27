@@ -140,7 +140,7 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
     super(localeRoot);
     this.hasMenu = hasMenu;
     // subscribe to media service color scheme changes
-    this.mediaService.colorScheme$.subscribe();
+
   }
 
   get pageTitle(): string {

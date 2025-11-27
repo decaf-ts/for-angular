@@ -19,7 +19,6 @@ class EpiRenderHandler extends NgxEventHandler {
       const query = await (this._repository as DecafRepository<Model>).query(condition, 'productCode' as keyof Model);
       if(query?.length) {
         this.value = query;
-        console.log(this.value);
         await this.refresh();
       }
     }

@@ -7,6 +7,7 @@ import {
 import { pk } from "@decaf-ts/core";
 import { HTML5InputTypes, uielement,  uilayout,  uilayoutprop, uilistmodel, uilistprop } from "@decaf-ts/ui-decorators";
 import { CardComponent, CrudFieldComponent, FileUploadComponent } from "src/lib/components";
+import { ListItemPositions } from "src/lib/engine/constants";
 
 export enum ProductNames {
   aspirin = "Aspirin",
@@ -50,7 +51,7 @@ export class Product extends Model {
   // productDetailsTitle!: string;
 
   @pk({type: "String", generated: false })
-  @uilistprop('uid')
+  @uilistprop(ListItemPositions.title)
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'product.productCode.label',
@@ -64,7 +65,7 @@ export class Product extends Model {
     label: 'product.inventedName.label',
     placeholder: 'product.inventedName.placeholder',
   } as Partial<CrudFieldComponent>)
-  @uilistprop('title')
+  @uilistprop(ListItemPositions.title)
   @uilayoutprop(2)
   inventedName!: string;
 
@@ -88,8 +89,8 @@ export class Product extends Model {
     placeholder: 'product.nameMedicinalProduct.placeholder',
     type: 'textarea',
   } as Partial<CrudFieldComponent>)
-  @uilistprop('description')
   @uilayoutprop(1)
+  @uilistprop(ListItemPositions.description)
   nameMedicinalProduct!: string;
 
 
@@ -98,7 +99,6 @@ export class Product extends Model {
     placeholder: 'product.productRecall.placeholder',
     type: HTML5InputTypes.CHECKBOX,
   } as Partial<CrudFieldComponent>)
-  @uilistprop('description')
   @uilayoutprop(1)
   productRecall?: boolean;
 
@@ -113,7 +113,6 @@ export class Product extends Model {
   @uielement('ngx-decaf-file-upload', {
     label: 'product.productImage.label',
   } as Partial<FileUploadComponent>)
-  @uilistprop('description')
   @uilayoutprop(1)
   productImage!: string;
 

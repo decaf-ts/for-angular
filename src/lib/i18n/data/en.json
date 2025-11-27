@@ -112,6 +112,8 @@
     },
     "file_upload": {
       "drag_file": "Drag and drop your image here",
+      "empty": "No files found.",
+      "preview": "Preview",
       "buttons": {
         "select": "Select File",
         "preview": "Preview",

@@ -23,7 +23,7 @@
                 <div class="dcf-width-expand">
                   <legend>{{ (title ? title : name) | translate }}</legend>
                 </div>
-                @if (!isRequired && ['create', 'update'].includes(operation) && collapsable && multiple) {
+                @if (!isRequired && ['create'].includes(operation) && collapsable && multiple) {
                   <div class="dcf-width-auto dcf-delete">
                     <ion-button fill="clear" size="small" (click)="handleClear($event)">
                       <ion-icon aria-hidden="true" name="trash-outline" color="dark" slot="icon-only"></ion-icon>
@@ -61,7 +61,7 @@
               } @else {
                 @if(!items.length) {
                   <div class="dcf-padding-xsmall">
-                    <ion-text class="dcf-text-small">{{ locale + '.empty' | translate }}</ion-text>
+                    <ion-text>{{ locale + '.empty' | translate }}</ion-text>
                   </div>
                 } @else {
                   @for(item of items; track trackItemFn($index, item)) {
@@ -115,7 +115,7 @@
                   @if(editable) {
                     @if (!updatingItem || updatingItem?.[pk] !== item.title) {
                       <ion-button fill="clear" size="small" (click)="handleUpdateItem($index)">
-                        <ion-icon aria-hidden="true" name="create-outline" color="dark" ></ion-icon>
+                        <ion-icon aria-hidden="true" name="create-outline" [color]="!isDarkMode ? 'dark' : 'light'"></ion-icon>
                       </ion-button>
                     }
                   }
@@ -123,7 +123,7 @@
 
                   @if (!updatingItem) {
                     <ion-button fill="clear" size="small" color="danger" (click)="handleRemoveItem($index)">
-                      <ion-icon aria-hidden="true" name="close-outline" color="dark"></ion-icon>
+                      <ion-icon aria-hidden="true" name="close-outline" [color]="!isDarkMode ? 'dark' : 'light'"></ion-icon>
                     </ion-button>
                   }
                 </ion-item>

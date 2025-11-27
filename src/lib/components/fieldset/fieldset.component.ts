@@ -59,6 +59,7 @@ import { Dynamic } from '../../engine/decorators';
 import { itemMapper } from '../../utils/helpers';
 import { UIElementMetadata, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { timer } from 'rxjs';
+import { read } from 'fs';
 
 /**
  * @description Dynamic fieldset component with collapsible accordion functionality.
@@ -534,6 +535,31 @@ export class FieldsetComponent
         })
       })] as UIElementMetadata[][];
     }
+    if([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
+      const value = [... this.value];
+      this.value = [];
+      value.map(v => {
+        const formGroup = this.activeFormGroup as FormGroup;
+        if(value.length > (formGroup.parent as FormArray).length)
+          NgxFormService.addGroupToParent(formGroup.parent as FormArray);
+
+        if(!Object.keys(this.mapper).length)
+          this.mapper = this.getMapper(v as KeyValue);
+        Object.entries(v).forEach(([key, value]) => {
+          if(key === this.pk)
+            formGroup.addControl(key, new FormControl({value: value, disabled: false}));
+          const control = formGroup.get(key);
+          if (control instanceof FormControl) {
+            control.setValue(value);
+            control.updateValueAndValidity();
+            formGroup.updateValueAndValidity()
+          }
+        })
+        this.activeFormGroupIndex = (formGroup.parent as FormArray).length - 1;
+      })
+      this.setValue();
+      this.changeDetectorRef.detectChanges();
+    }
     this.refreshing = false;
     this.changeDetectorRef.detectChanges();
   }
@@ -558,14 +584,6 @@ export class FieldsetComponent
     this.activeFormGroupIndex = 0;
     this.accordionComponent.value = '';
     this.changeDetectorRef.detectChanges();
-
-    // this.component.nativeElement.classList.add('dcf-animation', 'dcf-animation-slide-top-medium', 'dcf-animation-reverse', 'dcf-animation-fast');
-    // setTimeout(() => {
-    //   // Use Renderer2 to safely remove the element
-    //   const parent = this.renderer.parentNode(this.component.nativeElement);
-    //   if (parent)
-    //     this.renderer.removeChild(parent, this.component.nativeElement);
-    // }, 150);
   }
 
   /**
@@ -835,11 +853,12 @@ export class FieldsetComponent
    * @memberOf FieldsetComponent
    */
   private setValue(): void {
-    this.value = (this.formGroup as FormArray).controls.map(
+    const formGroup = this.formGroup as FormArray;
+    this.value = formGroup.controls.map(
       ({ value }) => value
     );
     this.items = this.value
-      .filter((v) => (v[this.pk] || '').trim().length)
+      .filter((v) => `${v[this.pk] || ''}`.trim().length)
       .map((v, index) => {
         return {
           ...itemMapper(Object.assign({}, v), this.mapper),

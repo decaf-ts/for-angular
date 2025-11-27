@@ -157,7 +157,8 @@ ion-accordion {
 
 .dcf-fields-list {
   padding: 0.25rem var(--dcf-margin-small);
-  margin-bottom: var(--dcf-margin-small) !important;
+  // margin-bottom: var(--dcf-margin-small) !important;
+  padding-bottom: var(--dcf-padding) !important;
   // margin-top: -var(--dcf-spacement);
 
   ion-item {
