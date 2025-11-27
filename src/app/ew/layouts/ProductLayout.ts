@@ -42,13 +42,3 @@ export class ProductLayout extends Model {
     super(args);
   }
 }
-// {
-//   product: productCode, ...
-//   epi: {
-//     ...
-//   }
-// }
-// {
-//   productCode,
-//   ...
-// }

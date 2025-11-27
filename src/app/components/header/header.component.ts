@@ -49,7 +49,7 @@ import { IconComponent } from 'src/lib/components/icon/icon.component';
  *   [showBackButton]="false"
  *   [backgroundColor]="'primary'"
  *   [sticky]="true"
- *   [showToggleoggleButton]="true">
+ *   [showThemeToggleButton]="true">
  * </app-header>
  * ```
  *
@@ -96,7 +96,7 @@ import { IconComponent } from 'src/lib/components/icon/icon.component';
  *   [showMenuButton]="true"
  *   [showBackButton]="false"
  *   [backgroundColor]="'primary'"
- *   [showToggleoggleButton]="true">
+ *   [showThemeToggleButton]="true">
  * </app-header>
  * ```
  *
@@ -287,7 +287,7 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    * @default true
    */
   @Input()
-  showToggleoggleButton: boolean = false;
+  showThemeToggleButton: boolean = false;
 
   /**
    * @description Enable sticky header behavior.

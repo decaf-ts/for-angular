@@ -63,7 +63,7 @@
     }
   </section>
   <section [class]="'dcf-buttons-grid dcf-grid dcf-grid-small dcf-flex dcf-flex-left ' + operation" [id]="uid">
-    @if ([OperationKeys.READ, OperationKeys.DELETE].includes(operation) && modelId) {
+    @if ([operations].includes('delete') && [OperationKeys.READ, OperationKeys.DELETE].includes(operation) && modelId) {
       <div>
         <ion-button
           (click)="handleDelete()"

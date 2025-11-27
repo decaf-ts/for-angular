@@ -60,16 +60,4 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
     if(this.timerSubscription)
       this.timerSubscription.unsubscribe();
   }
-
-
-  // handleChangeTab(index: number) {
-  //   const content = this.children[index] as FieldDefinition;
-  //   this.activeContent = undefined;
-  //   this.skeletonData = [... new Array(content ? content.children?.length : 1)];
-  //   this.timerSubscription = timer(1).subscribe(() =>
-  //     this.activeContent = {... this.children[index] as FieldDefinition }
-  //   );
-  //   this.activeIndex = index;
-  // }
-
 }

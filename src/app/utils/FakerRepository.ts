@@ -28,7 +28,7 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
         case ProductStrength.name: {
           data = await this.generateData<ProductStrength>();
           data = data.map((item: Partial<ProductStrength>) => {
-            item['productCode'] = `${faker.number.int({ min: 1, max: 5 })}`;
+            item['productCode'] = `${Math.floor(Math.random() * 5) + 1}`;
             return item as T;
           }) as T[];
           break;
