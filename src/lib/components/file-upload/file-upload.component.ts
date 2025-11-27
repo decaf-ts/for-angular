@@ -7,7 +7,7 @@ import {
   IonText
  } from '@ionic/angular/standalone';
  import { TranslatePipe } from '@ngx-translate/core';
-import { HTML5InputTypes } from '@decaf-ts/ui-decorators';
+import { HTML5InputTypes, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { Dynamic } from '../../engine/decorators';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { ElementSize, FlexPosition, KeyValue, PossibleInputTypes } from '../../engine/types';
@@ -16,9 +16,9 @@ import { IBaseCustomEvent, IFileUploadError } from '../../engine/interfaces';
 import { presentNgxLightBoxModal } from '../modal/modal.component';
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../icon/icon.component';
-import { source } from '@angular-devkit/schematics';
 import { Primitives } from '@decaf-ts/decorator-validation';
-import { OperationKeys } from '@decaf-ts/db-decorators';
+import { NgxEventHandler } from 'src/lib/engine/NgxEventHandler';
+import { Constructor } from '@decaf-ts/decoration';
 
 
 const FileErrors = {
@@ -192,6 +192,9 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   @Input()
   enableDirectoryMode: boolean = false;
 
+  @Input()
+  previewHandler?: unknown;
+
   /**
    * @description Maximum file size allowed for upload.
    * @summary Specifies the maximum size (in MB) for files that can be uploaded.
@@ -218,7 +221,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    *
    * @type {string | undefined}
    */
-  preview: string | undefined = undefined;
+  previewFile: string | undefined = undefined;
 
   /**
    * @description List of files selected for upload.
@@ -287,15 +290,16 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
         const files = JSON.parse(this.value as string) as string[];
         this.files = files.map(file => {
           const mime = this.getFileMime(file)?.split('/') || [];
+          const type = mime?.[0] === 'text' ?  mime?.[1] : mime?.[0];
           return {
             name: mime?.[0] || 'file',
-            type: `${mime?.[0]}` || 'image/*',
+            type: `${type}` || 'image/*',
             source: file as string
           } as KeyValue
         })
         this.getPreview();
-      } catch (error) {
-        console.error('Error parsing file list:', error);
+      } catch (error: unknown) {
+       this.log.for(this.initialize).error(`Error parsing file list: ${(error as Error).message || error}`);
       }
     }
     this.initialized = true;
@@ -402,7 +406,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    */
   handleClear(): void {
     this.clearErrors();
-    this.preview = undefined;
+    this.previewFile = undefined;
     this.files = [];
   }
 
@@ -479,8 +483,8 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @param {File | string} [file] - The file to be previewed. If not provided, the current preview file is used.
    * @returns {Promise<void>}
    */
-  async showFilePreview(file: File | string, fileExtension: string = 'image/'): Promise<void> {
-
+  async preview(file: File | string, fileExtension: string = 'image/'): Promise<void|UIFunctionLike> {
+    this.log.for(this).info(`Previewing file of type: ${fileExtension}`);
     let content:  string | undefined;
     if(file instanceof File) {
       const dataUrl = await this.getDataURLs(file) as string[];
@@ -508,11 +512,18 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
           this.log.error((error as Error)?.message);
           return undefined;
         }
-
       }
-      content = parseXml(file as string);
-      content = `<div class="dfc-padding">${content}</div>`;
+
+      if(this.previewHandler && typeof this.previewHandler === 'function') {
+        const clazz = new (this.previewHandler as Constructor<NgxEventHandler>)();
+        const previewFn = clazz.handle.bind(this);
+        return previewFn(file);
+      } else {
+        content = parseXml(file as string);
+        content = `<div class="dfc-padding">${content}</div>`;
+      }
     }
+
     await presentNgxLightBoxModal(content || "");
   }
 
@@ -556,14 +567,14 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @returns {Promise<void>}
    */
   private async getPreview(): Promise<void> {
-    this.preview = undefined;
+    this.previewFile = undefined;
     const file = this.files && this.files.length ? this.files[0] : null;
     if (file instanceof File) {
       const dataUrl = await this.getDataURLs(file as File) as string[];
       if(dataUrl && dataUrl.length)
-        this.preview = dataUrl[0];
+        this.previewFile = dataUrl[0];
     } else {
-      this.preview = (file as KeyValue)?.['source'] as string;
+      this.previewFile = (file as KeyValue)?.['source'] as string;
     }
   }
 

@@ -155,17 +155,29 @@ ion-header {
     &.dcf-width-expand {
       flex: 1;
       min-width: 1px;
+      padding: 0rem !important;
       @media (min-width: 768px) {
         ion-toolbar {
-          padding: 0rem var(--dcf-padding-large) !important;
+          padding: 0rem var(--dcf-padding-medium) !important;
+          // padding: 0rem var(--dcf-padding-large) !important;
+          ion-title {
+            padding-left: 1.25rem !important;
+          }
         }
       }
+
+      // padding: 0rem 0.5rem !important;
+      // @media (min-width: 768px) {
+      //   ion-toolbar {
+      //     padding: 0rem 3rem !important;
+      //   }
+      // }
     }
   }
 
-  ion-title {
-    font-size: 1.025rem !important;
-  }
+  // ion-title {
+  //   font-size: 1.025rem !important;
+  // }
 
   &.dcf-flex {
     display: flex;

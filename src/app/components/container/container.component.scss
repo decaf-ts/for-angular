@@ -40,7 +40,7 @@ $dcf-width-2xl: 1400px;
   padding-left: var(--dcf-padding-xsmall, 1rem);
   padding-right: var(--dcf-padding-xsmall, 1rem);
   padding-bottom: var(--dcf-padding-small, 2rem);
-  padding-top: var(--dcf-padding-small, 2rem);
+  padding-top: var(--dcf-padding, 2rem);
   // box-sizing: content-box;
   @media (min-width: $dcf-width-s) {
     padding-left: var(--dcf-padding-medium);

@@ -225,7 +225,7 @@ export class NgxRenderingEngine extends RenderingEngine<
     });
 
     if (unmappedKeys.length > 0 && isDevelopmentMode())
-      getLogger(this.fromFieldDefinition).warn(
+      getLogger(this).warn(
         `Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`
       );
 

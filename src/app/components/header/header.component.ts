@@ -287,7 +287,7 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    * @default true
    */
   @Input()
-  showToggleoggleButton: boolean = true;
+  showToggleoggleButton: boolean = false;
 
   /**
    * @description Enable sticky header behavior.

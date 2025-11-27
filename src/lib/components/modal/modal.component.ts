@@ -170,6 +170,14 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
   @Input()
   lightBox: boolean = false;
 
+  /**
+   * @description Controls the visibility of the modal header.
+   * @summary When set to true, the modal header is displayed; when false, it is hidden.
+   * @type {boolean}
+   * @default true
+   */
+  @Input()
+  showHeader: boolean = true;
 
   /**
    * @description Event emitted when the modal is about to be dismissed.
@@ -318,6 +326,21 @@ export async function getNgxModalComponent(props: Partial<ModalComponent> = {}, 
  */
 export async function presentNgxLightBoxModal(inlineContent: string | SafeHtml, props: Partial<ModalComponent> = {}, injector?: EnvironmentInjector): Promise<void> {
   return (await getNgxModalComponent({ props, ...{ inlineContent, lightBox: true } }, {}, injector || undefined)).present();
+}
+
+
+/**
+ * @description Presents a lightbox modal with inline content.
+ * @summary Displays a modal in lightbox mode with the specified content and properties.
+ *
+ * @param {string | SafeHtml} inlineContent - The content to display in the lightbox modal.
+ * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
+ * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
+ * @returns {Promise<void>} - A promise that resolves when the modal is presented.
+ */
+export async function presentNgxInlineModal(inlineContent: string | SafeHtml, props: Partial<ModalComponent> = {}, injector?: EnvironmentInjector): Promise<void> {
+  const className = `${props?.className ?? ''} dcf-modal-expand`;
+  return (await getNgxModalComponent({ props, ...{ inlineContent, className } }, {}, injector || undefined)).present();
 }
 
 /**

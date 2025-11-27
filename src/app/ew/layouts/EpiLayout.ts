@@ -11,12 +11,13 @@ import { NgxEventHandler } from 'src/lib/engine/NgxEventHandler';
 
 class EpiRenderHandler extends NgxEventHandler {
   override async render(): Promise<void> {
-    console.log('EpiRenderHandler.render called');
-    if(this._repository) {
-      const type = Metadata.type(this._repository.class, 'productCode').name.toLowerCase();
+    const repo = this._repository as DecafRepository<Model>;
+    if(repo) {
+      const type = Metadata.type(repo.class, 'productCode').name.toLowerCase();
       const value = ([Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase()) ? Number(this.modelId) : this.modelId) as string | number;
       const condition = Condition.attribute<Model>('productCode' as keyof Model).eq(value);
-      const query = await (this._repository as DecafRepository<Model>).query(condition, 'productCode' as keyof Model);
+      const query = await repo.query(condition, 'productCode' as keyof Model);
+      const data = await repo.select().execute();
       if(query?.length) {
         this.value = query;
         await this.refresh();
@@ -72,7 +73,7 @@ export class EpiLayout extends Model {
       borders: false,
       required: false,
       ordenable: false,
-       multiple: true,
+      multiple: true,
     } as Partial<FieldsetComponent>,
     true
   )

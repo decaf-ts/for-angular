@@ -415,7 +415,6 @@ export class FieldsetComponent
    * @memberOf FieldsetComponent
    */
   override async ngOnInit(): Promise<void> {
-    console.log(this.title);
     await super.ngOnInit(this.model);
     if (this.max && this.max === 1) this.multiple = false;
     this.buttonLabel = this.translateService.instant(this.locale + '.add');
