@@ -30,8 +30,8 @@
       "placeholder": "Enter the product code"
     },
    "inventedName": {
-      "label": "Internal Material Code",
-      "placeholder": "Enter the internal material code"
+      "label": "Invented Name",
+      "placeholder": "Enter the Invented Name"
     },
     "namemedicinalproduct": {
       "label": "Medicinal Product Name",

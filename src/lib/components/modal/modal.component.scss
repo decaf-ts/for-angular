@@ -1,4 +1,15 @@
 .dcf-modal-component {
+  &.dcf-modal-expand {
+    --height: 90%;
+    --width: 90%;
+    --max-width: 100%;
+    --border-radius: 0;
+    ion-button {
+      --background: var(--dcf-color-light) !important;
+      --border-radius: var(--dcf-border-radius-small) !important;
+    }
+  }
+
   &.dcf-fullscreen-modal {
     --height: 100%;
     --width: 100%;

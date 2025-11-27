@@ -273,6 +273,11 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         };
       }
     } catch (error: unknown) {
+      this.log.for(this.submit).error(
+        `Error during ${this.operation} operation: ${
+          error instanceof Error ? error.message : (error as string)
+        }`
+      );
       return {
         ...event,
         success: false,

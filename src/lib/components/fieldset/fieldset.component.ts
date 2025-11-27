@@ -59,7 +59,6 @@ import { Dynamic } from '../../engine/decorators';
 import { itemMapper } from '../../utils/helpers';
 import { UIElementMetadata, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { timer } from 'rxjs';
-import { read } from 'fs';
 
 /**
  * @description Dynamic fieldset component with collapsible accordion functionality.
@@ -415,7 +414,6 @@ export class FieldsetComponent
    * @memberOf FieldsetComponent
    */
   override async ngOnInit(): Promise<void> {
-    console.log(this.title);
     await super.ngOnInit(this.model);
     if (this.max && this.max === 1) this.multiple = false;
     this.buttonLabel = this.translateService.instant(this.locale + '.add');

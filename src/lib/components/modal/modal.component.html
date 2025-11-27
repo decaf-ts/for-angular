@@ -8,7 +8,8 @@
   [canDismiss]="options?.canDismiss"
   [class.dcf-fullscreen-modal]="fullscreen"
   [class.dcf-lightbox-modal]="lightBox"
-  class="dcf-modal-component"
+  [class.dcf-modal-no-header]="!showHeader"
+  [class]="'dcf-modal-component ' + className"
   #component
 >
   <ng-template>
