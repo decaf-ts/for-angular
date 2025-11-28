@@ -13,7 +13,7 @@ import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { ElementSize, FlexPosition, KeyValue, PossibleInputTypes } from '../../engine/types';
 import { ElementSizes, ComponentEventNames } from '../../engine/constants';
 import { IBaseCustomEvent, IFileUploadError } from '../../engine/interfaces';
-import { presentNgxLightBoxModal } from '../modal/modal.component';
+import { presentNgxInlineModal, presentNgxLightBoxModal } from '../modal/modal.component';
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../icon/icon.component';
 import { Primitives } from '@decaf-ts/decorator-validation';
@@ -506,7 +506,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
           // const utf8Bytes = encoder.encode(xmlDoc.documentElement.outerHTML);
           // return new TextDecoder("utf-8").decode(utf8Bytes);
 
-          return xmlDoc.documentElement.innerHTML;
+          return xmlDoc.documentElement.outerHTML;
 
         } catch (error: unknown) {
           this.log.error((error as Error)?.message);
@@ -520,8 +520,8 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
         return previewFn(file);
       } else {
         content = parseXml(file as string);
-        content = `<div class="dfc-padding">${content}</div>`;
       }
+      return await presentNgxInlineModal(content as string);
     }
 
     await presentNgxLightBoxModal(content || "");
@@ -603,7 +603,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    *
    * @returns {Promise<string[] | undefined>} - A promise that resolves to an array of data URLs, or undefined if an error occurs.
    */
-  private async getDataURLs(files?: File[] | File): Promise<string[] | undefined> {
+  async getDataURLs(files?: File[] | File): Promise<string[] | undefined> {
     if(!files)
       files = this.files as File[];
     if(!Array.isArray(files))
