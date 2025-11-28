@@ -13,7 +13,7 @@
   #component
 >
   <ng-template>
-    <ion-header [transparent]="lightBox">
+    <ion-header [transparent]="lightBox || headerTransparent">
       <ion-toolbar>
         @if (title) {
           <ion-title>{{ title | translate }}</ion-title>
@@ -34,7 +34,7 @@
           </div>
         } @else {
           @if (inlineContent && inlineContentPosition === "top") {
-            <div [innerHTML]="inlineContent"></div>
+            <div id="dcf-modal-content" [innerHTML]="inlineContent"></div>
           }
           @if (model) {
             <ngx-decaf-model-renderer
@@ -54,7 +54,7 @@
             />
           }
           @if (inlineContent && inlineContentPosition === "bottom") {
-            <div [innerHTML]="inlineContent"></div>
+            <div id="dcf-modal-content" [innerHTML]="inlineContent"></div>
           }
         }
       </section>

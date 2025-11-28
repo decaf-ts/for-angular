@@ -28,7 +28,6 @@ import { isDevelopmentMode } from '../lib/utils';
 import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { LogoComponent } from './components/logo/logo.component';
 import { AppModels, AppName, DbAdapterFlavour } from './app.config';
-import { Repository } from '@decaf-ts/core';
 import { uses } from '@decaf-ts/decoration';
 import {
   AppMenu,

@@ -115,21 +115,10 @@ import { Model } from '@decaf-ts/decorator-validation';
   styleUrls: ['./products.page.scss'],
 })
 export class ProductsPage extends NgxModelPageDirective implements OnInit {
-  // constructor() {
-  //   super(true, getNgxToastComponent() as unknown as ToastController);
-  // }
-  // override mapper: Record<string, FunctionLike> = {
-  //   leafLet: (respository, key, value) => {
-  //     const condition = Condition.attribute<Model>(key as keyof Model).eq(!isNaN(value as number) ? Number(value) : value)
-  //     return respository.select(condition, key);
-  //   }
-  // }
-
   override ngOnInit(): Promise<void> | void {
     super.ngOnInit();
     this.title = "product.title";
     this.model = !this.operation ? new Product() : new ProductLayout();
-
   }
 
   override async ionViewWillEnter(): Promise<void> {
@@ -140,10 +129,5 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
     const handler = (new ProductLayoutHandler()).handle.bind(this);
     const result = await handler(event);
     console.log(result);
-    // const toast = getNgxToastComponent({
-    //   color: success ? 'dark' : 'danger',
-    //   message,
-    // });
-    // await toast.show();
   }
 }

@@ -170,6 +170,15 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
   @Input()
   lightBox: boolean = false;
 
+  @Input()
+  /**
+   * @description Controls the transparency of the modal header.
+   * @summary When set to true, the modal header is rendered with a transparent background.
+   * @type {boolean}
+   * @default false
+   */
+  headerTransparent: boolean = false;
+
   /**
    * @description Controls the visibility of the modal header.
    * @summary When set to true, the modal header is displayed; when false, it is hidden.
@@ -330,18 +339,31 @@ export async function presentNgxLightBoxModal(inlineContent: string | SafeHtml, 
 
 
 /**
- * @description Presents a lightbox modal with inline content.
- * @summary Displays a modal in lightbox mode with the specified content and properties.
+ * @description Presents modal with inline content.
+ * @summary Displays a modal with the specified content and properties.
+ *
+ * @param {string | SafeHtml} inlineContent - The content to display in the modal.
+ * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
+ * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
+ * @returns {Promise<void>} - A promise that resolves when the modal is presented.
+ */
+export async function presentNgxInlineModal(inlineContent: string | SafeHtml, props: Partial<ModalComponent> = {}, injector?: EnvironmentInjector): Promise<void> {
+  (await getNgxInlineModal(inlineContent, props, injector)).present();
+}
+
+/**
+ * @description get modal with inline content instance.
+ * @summary Get modal component instance for show inline content
  *
  * @param {string | SafeHtml} inlineContent - The content to display in the lightbox modal.
  * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
  * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
  * @returns {Promise<void>} - A promise that resolves when the modal is presented.
  */
-export async function presentNgxInlineModal(inlineContent: string | SafeHtml, props: Partial<ModalComponent> = {}, injector?: EnvironmentInjector): Promise<void> {
-  const className = `${props?.className ?? ''} dcf-modal-expand`;
-  return (await getNgxModalComponent({ props, ...{ inlineContent, className } }, {}, injector || undefined)).present();
+export async function getNgxInlineModal(inlineContent: string | SafeHtml, props: Partial<ModalComponent> = {}, injector?: EnvironmentInjector): Promise<IonModal> {
+  return (await getNgxModalComponent({ props, ...{ inlineContent: inlineContent ?? '<div></div>', className: `${props?.className ?? ''} dcf-modal-expand` } }, {}, injector || undefined));
 }
+
 
 /**
  * @description Retrieves a modal for selecting options.
