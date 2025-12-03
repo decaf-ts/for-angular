@@ -443,24 +443,25 @@ export function parseToValidDate(date: string | Date | number): Date | null {
  * @memberOf module:lib/helpers/utils
  */
 export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyValue {
-  return Object.entries(mapper).reduce((accum: KeyValue, [key, value]) => {
-    const arrayValue = (value as string).split('.');
-    if (!value) {
-      accum[key] = value;
+  return Object.entries(mapper).reduce((accum: KeyValue, [key, prop]) => {
+    const arrayValue = (prop as string).split('.');
+    let value = item?.[prop] || "";
+    if (!prop) {
+      accum[key] = prop;
     } else {
       if (arrayValue.length === 1) {
-        accum[key] = item?.[value as string] || (value !== key ? value : "");
+        accum[key] = value;
+        // accum[key] = item?.[value as string] || (value !== key ? value : "");
       } else {
-        let val;
 
-        for (const _value of arrayValue)
-          val = !val
-            ? item[_value]
-            : (typeof val === 'string' ? JSON.parse(val) : val)[_value];
+        for (const propValue of arrayValue)
+          value = !value
+            ? item[propValue]
+            : (typeof value === 'string' ? JSON.parse(value) : value)[propValue];
 
-        if (isValidDate(new Date(val))) val = `${formatDate(val)}`;
+        if (isValidDate(new Date(value))) value = `${formatDate(value)}`;
 
-        accum[key] = val === null || val === undefined ? value : val;
+        accum[key] = value === null || value === undefined ? prop : value;
       }
     }
     return Object.assign({}, props || {}, accum);

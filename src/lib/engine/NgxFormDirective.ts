@@ -336,15 +336,18 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
     if (!isValid) {
+      NgxFormService.enableAllGroupControls(this.formGroup as FormGroup);
       return false;
     }
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
-    this.submitEvent.emit({
-      data,
-      component: componentName || this.componentName,
-      name: eventName || this.action || ComponentEventNames.SUBMIT,
-      handlers: this.handlers,
-    });
+    if(Object.keys(data).length > 0) {
+      this.submitEvent.emit({
+        data,
+        component: componentName || this.componentName,
+        name: eventName || this.action || ComponentEventNames.SUBMIT,
+        handlers: this.handlers,
+      });
+    }
   }
 
    /**

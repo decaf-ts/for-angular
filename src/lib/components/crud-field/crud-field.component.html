@@ -141,7 +141,7 @@
                 [interface]="interface" #component>
                 @if (options?.length) {
                   @for(option of options; track trackItemFn($index, option.text)) {
-                    <ion-select-option [value]="option.value">
+                    <ion-select-option [value]="option.value" [class.dcf-disabled]="option.disabled">
                       {{ option.text | translate }}
                     </ion-select-option>
                   }

@@ -3,6 +3,9 @@
 // }
 
 .dcf-grid {
+  &:first-of-type {
+    padding-top: 0.25rem !important;
+  }
   &.dcf-grid-collapse {
     &.read {
       // remove margin for operation read mode

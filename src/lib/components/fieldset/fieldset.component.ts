@@ -176,7 +176,7 @@ export class FieldsetComponent
    * @memberOf FieldsetComponent
    */
   @Input()
-  collapsable: boolean = true;
+  // collapsable: boolean = true;
 
   /**
    * @description Custom type definitions for specialized fieldset behavior.
@@ -452,7 +452,7 @@ export class FieldsetComponent
       this.formGroup?.setErrors(null);
       this.formGroup?.disable();
       if (this.required) {
-        this.collapsable = false;
+        // this.collapsable = false;
         this.activePage = this.getActivePage();
       }
     } else {
@@ -633,10 +633,12 @@ export class FieldsetComponent
         if (isUnique) {
           this.isUniqueError = this.updatingItem = undefined;
           this.setValue();
-          NgxFormService.addGroupToParent(formGroup.parent as FormArray);
-          this.activeFormGroupIndex =
-            (formGroup.parent as FormArray).length - 1;
-          this.activePage = this.getActivePage();
+          if(!this.max || (formGroup.parent as FormArray)?.length < this.max) {
+            NgxFormService.addGroupToParent(formGroup.parent as FormArray);
+            this.activeFormGroupIndex =
+              (formGroup.parent as FormArray).length - 1;
+            this.activePage = this.getActivePage();
+          }
         } else {
           this.isUniqueError =
             typeof value === ReservedModels.OBJECT.name.toLowerCase()
@@ -789,16 +791,16 @@ export class FieldsetComponent
    * @memberOf FieldsetComponent
    */
   handleAccordionToggle(event?: CustomEvent): void {
-    if (event) event.stopImmediatePropagation();
+    // if (event) event.stopImmediatePropagation();
 
-    if (!this.collapsable || this.isRequired) {
-      this.isOpen = true;
-    } else {
-      if (!this.hasValidationErrors) {
-        this.accordionComponent.value = this.isOpen ? undefined : 'open';
-        this.isOpen = !!this.accordionComponent.value;
-      }
-    }
+    // if (this.isRequired) {
+    //   this.isOpen = true;
+    // } else {
+    //   if (!this.hasValidationErrors) {
+    //     this.accordionComponent.value = this.isOpen ? undefined : 'open';
+    //     this.isOpen = !!this.accordionComponent.value;
+    //   }
+    // }
   }
 
   /**

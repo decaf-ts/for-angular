@@ -395,6 +395,11 @@ export class NgxFormService {
           }
         });
       }
+
+      if(control instanceof FormGroup) {
+        control.enable({ emitEvent: false });
+        control.updateValueAndValidity({ emitEvent: true });
+      }
     });
   }
 
@@ -699,10 +704,17 @@ export class NgxFormService {
               if(Object.values(c.value).some(p => p !== undefined))
                 return c.value;
               return undefined;
-            });
-            data[key] = Array.isArray(value)
-              ? !value.filter(Boolean).length
-                ? undefined : value : value;
+            }).filter(v => v !== undefined);
+            if(Array.isArray(value)) {
+              if(value.length > 0) {
+                data[key] = value.reduce((acc, curr, i) => {
+                  acc[i] = curr;
+                  return acc;
+                }, {});
+              }
+              continue;
+            }
+            data[key] = value;
           }
           continue;
         }

@@ -642,6 +642,8 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   @Input()
   translatable: StringOrBoolean = true;
 
+  isVisible: boolean = true;
+
   /**
    * @description Component initialization lifecycle method.
    * @summary Initializes the field component based on the operation type and field configuration.
@@ -658,6 +660,9 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation)) {
       this.hidden = false;
     }
+    if(this.hidden && (this.hidden as OperationKeys[]).includes(this.operation))
+      this.isVisible = false;
+
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
     } else {
@@ -692,6 +697,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   async getOptions(): Promise<CrudFieldOption[]> {
     if (!this.options)
       return [];
+
     if (this.options instanceof Function) {
       if (this.options.name === 'options')
         this.options = this.options() as FunctionLike;
@@ -705,7 +711,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
             const {repository} = repo;
             this.options = await repository.select().execute();
           }
-
         }
       }
     }
@@ -731,7 +736,9 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     this.options = await Promise.all(options);
     if (this.options.length > 10 && this.interface === 'popover')
       this.interface = 'modal';
-    return this.options as CrudFieldOption[];
+    return (this.required ? this.options :
+      [{value: '', text: '', selected: true}, ...this.options]
+    ) as CrudFieldOption[];
   }
 
 
