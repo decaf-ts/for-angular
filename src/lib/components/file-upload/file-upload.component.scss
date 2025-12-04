@@ -114,6 +114,10 @@
   }
 
   .dcf-preview {
+    padding: var(--dcf-padding-xsmall) var(--dcf-spacement-small) !important;
+    &.read {
+      padding: var(--dcf-spacement) !important;
+    }
     .dcf-preview-image {
       border: 1px solid var(--dcf-color-gray-3);
       border-radius: var(--dcf-border-radius-xsmall);

@@ -16,7 +16,7 @@ import {
   provideI18n,
 } from 'src/lib/i18n/Loader';
 import { routes } from './app.routes';
-import { provideDbAdapter, provideDynamicComponents } from 'src/lib/for-angular-common.module';
+import { provideDbAdapter, provideDecafPageTransition, provideDynamicComponents } from 'src/lib/for-angular-common.module';
 import { AIModel, AIVendorModel } from './models/AIVendorModel';
 import { I18nResourceConfigType } from 'src/lib/engine';
 import { CategoryModel } from './models/CategoryModel';
@@ -30,19 +30,28 @@ import { ProductStrength } from './ew/models/ProductStrength';
 export const DbAdapterFlavour = 'ram';
 export const AppName = 'For Angular';
 
+
+
+
 // export const AppModels = [new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
 
 export const AppModels = [new Leaflet(), new User(), new CategoryModel(), new Product(), new EmployeeModel(), new AIModel(), new AIVendorModel(), new ProductStrength()];
 
 export const AppConfig: ApplicationConfig = {
   providers: [
+    // Providers from ionic angular
+    provideIonicAngular(),
+
+    // change the default page transition
+    provideDecafPageTransition(),
+
     // Providing Local components for dynamic rendering
     provideDynamicComponents(SwitcherComponent),
     // Providing RamAdapter as the database adapter for Decaf
     provideDbAdapter(RamAdapter, {user: "user"}, DbAdapterFlavour),
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular(),
+
     provideRouter(
       routes,
       withPreloading(PreloadAllModules),

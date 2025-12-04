@@ -5,7 +5,6 @@ import { AIFeatures } from './contants';
 import { DecafFakerRepository } from 'src/lib/utils/DecafFakerRepository';
 import { Product, ProductNames } from '../ew/models/Product';
 import { ProductStrength } from '../ew/models/ProductStrength';
-import { faker } from '@faker-js/faker';
 export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
 
   public override async initialize(): Promise<void> {

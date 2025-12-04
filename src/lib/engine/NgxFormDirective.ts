@@ -27,23 +27,9 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   @Input()
   parentFormId!: string;
 
-  /**
-   * @description Indicates whether this form is being used inside a modal dialog.
-   * @summary When true, the form may alter its submit/reset behavior to integrate
-   * with modal lifecycle (for example, emitting cancel events instead of
-   * navigating back). Useful for components rendered inside Ionic/Angular
-   * modal containers where navigation/back behavior differs from standard pages.
-   *
-   * Typical effects:
-   * - `handleReset` will emit a cancel event instead of performing a navigation
-   * - `ngAfterViewInit` checks for modal context to adjust change detection
-   *
-   * @type {boolean}
-   * @default false
-   */
-  @Input()
-  modalForm: boolean = false;
 
+  @Input()
+  deepMerge: boolean = false;
 
   /**
    * @description Reference to the reactive form DOM element.
@@ -336,15 +322,18 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
     if (!isValid) {
+      NgxFormService.enableAllGroupControls(this.formGroup as FormGroup);
       return false;
     }
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
-    this.submitEvent.emit({
-      data,
-      component: componentName || this.componentName,
-      name: eventName || this.action || ComponentEventNames.SUBMIT,
-      handlers: this.handlers,
-    });
+    if(Object.keys(data).length > 0) {
+      this.submitEvent.emit({
+        data,
+        component: componentName || this.componentName,
+        name: eventName || this.action || ComponentEventNames.SUBMIT,
+        handlers: this.handlers,
+      });
+    }
   }
 
    /**

@@ -22,7 +22,7 @@ const config: Config.InitialOptions = {
         filename: 'test-report.html',
         openReport: true,
         expand: true,
-        pageTitle: 'ui-decorators Test Report',
+        pageTitle: 'For Angular - Test Report',
         stripSkippedTest: true,
         darkTheme: true,
         enableMergeData: true,

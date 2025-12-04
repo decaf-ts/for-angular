@@ -1,8 +1,7 @@
 import { pk } from "@decaf-ts/core";
-import { OperationKeys, readonly } from "@decaf-ts/db-decorators";
 import { Model, model, ModelArg, required } from "@decaf-ts/decorator-validation";
-import { hideOn, uielement, uilayoutprop, uilistprop, uimodel, uipageprop, uiprop } from "@decaf-ts/ui-decorators";
-import { read } from "fs";
+import { uielement, uilayoutprop, uilistprop, uimodel, uipageprop, uiprop } from "@decaf-ts/ui-decorators";
+import { ListItemPositions } from "src/lib/engine/constants";
 
 @uimodel('ngx-decaf-fieldset', {multiple: true})
 @model()
@@ -14,8 +13,7 @@ export class ProductStrength extends Model {
 
   //  @manyToOne(() => Product, {update: Cascade.NONE, delete: Cascade.NONE}, false)
   @uiprop()
-  @uilayoutprop(1)
-  productCode!: string
+  productCode!: string;
 
   @required()
   @uielement('ngx-decaf-crud-field', {
@@ -23,7 +21,7 @@ export class ProductStrength extends Model {
     placeholder: 'substance.name.placeholder',
   })
   @uilayoutprop(1)
-  @uilistprop('title')
+  @uilistprop(ListItemPositions.title)
   name!: string;
 
 
@@ -33,7 +31,7 @@ export class ProductStrength extends Model {
     placeholder: 'substance.strength.placeholder',
   })
   @uilayoutprop(1)
-  @uilistprop('description')
+  @uilistprop(ListItemPositions.description)
   strength!: string;
 
   legalEntityName?: string;

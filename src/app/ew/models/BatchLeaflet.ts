@@ -1,13 +1,20 @@
-import { BaseModel, pk } from "@decaf-ts/core";
+import { FormGroup } from "@angular/forms";
+import { BaseModel, pk, table } from "@decaf-ts/core";
 import { model, ModelArg, required } from "@decaf-ts/decorator-validation";
 import { HTML5InputTypes, uielement,  uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
-import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../../utils/helpers";
+import {
+  ElementPositions,
+  ElementSizes,
+  ListItemPositions,
+  NgxEventHandler,
+  KeyValue
+} from "src/lib/engine";
+import { composed } from "@decaf-ts/db-decorators";
+import { presentNgxInlineModal } from "src/lib/components/modal/modal.component";
+import { getDocumentTypes, getLeafletLanguages } from "src/app/utils/helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
-import { ElementPositions, ElementSizes, KeyValue, ListItemPositions, NgxEventHandler } from "src/lib/engine";
-import { composed } from "@decaf-ts/db-decorators";
-import { FormGroup } from "@angular/forms";
-import { presentNgxInlineModal } from "src/lib/components";
+
 
 class XmlPreviewHandler extends NgxEventHandler {
 
@@ -44,10 +51,7 @@ class XmlPreviewHandler extends NgxEventHandler {
     }
 
     // const fragment = servico(xml , images, model);
-    await presentNgxInlineModal(xml as string, {
-      className: 'xml-preview-modal',
-      headerTransparent: true,
-    });
+    await presentNgxInlineModal(`<div>${xml}</div>`, {className: 'xml-preview-modal', title: 'product.leaflet.preview'});
     // chamar serviço do Diogo
     // alert("XML Preview:\n\n" + this.value);
   }
@@ -55,27 +59,28 @@ class XmlPreviewHandler extends NgxEventHandler {
 
 @uimodel('ngx-decaf-crud-form')
 @model()
-export class Leaflet extends BaseModel {
+@table('Leaflet')
+export class BatchLeaflet extends BaseModel {
+
 
   @pk({type: "String",  generated: false})
   @uilistprop('uid')
-  @composed(["productCode", "lang"], ":", true)
+  @composed(["productCode", "batchNumber", "lang"], ":", true)
   id!: string;
-
-  @uiprop()
-  productCode!: string;
 
   @uiprop()
   batchNumber!: string;
 
-  @required()
+  @uiprop()
+  productCode!: string;
+
   @uielement('ngx-decaf-crud-field', {
     label: 'leaflet.lang.label',
     placeholder: 'leaflet.lang.placeholder',
     type: HTML5InputTypes.SELECT,
-    options: getLeafletLanguages(),
+    options: getLeafletLanguages()
   } as Partial<CrudFieldComponent>)
-  @uilistprop(ListItemPositions.title)
+  @uilistprop(ListItemPositions.info)
   lang!: string;
 
   @required()
@@ -83,20 +88,10 @@ export class Leaflet extends BaseModel {
     label: 'leaflet.type.label',
     placeholder: 'leaflet.type.placeholder',
     type: HTML5InputTypes.SELECT,
-    options: getDocumentTypes()
+    options: () => getDocumentTypes('batch')
   } as Partial<CrudFieldComponent>)
-  @uilistprop(ListItemPositions.description)
+  @uilistprop(ListItemPositions.title)
   type!: string;
-
-
-  @uielement('ngx-decaf-crud-field', {
-    label: 'leaflet.market.label',
-    placeholder: 'leaflet.market.placeholder',
-    type: HTML5InputTypes.SELECT,
-    options: getMarkets()
-  } as Partial<CrudFieldComponent>)
-  @uilistprop(ListItemPositions.info)
-  market!: string;
 
   @uielement('ngx-decaf-file-upload', {
     label: 'product.xmlFileContent.label',
@@ -112,8 +107,10 @@ export class Leaflet extends BaseModel {
   } as Partial<FileUploadComponent>)
   xmlFileContent!: string;
 
+  market: string = '';
+
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-  constructor(model?: ModelArg<Leaflet>) {
+  constructor(model?: ModelArg<BatchLeaflet>) {
       super(model);
   }
 }

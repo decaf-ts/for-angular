@@ -395,6 +395,11 @@ export class NgxFormService {
           }
         });
       }
+
+      if(control instanceof FormGroup) {
+        control.enable({ emitEvent: false });
+        control.updateValueAndValidity({ emitEvent: true });
+      }
     });
   }
 
@@ -418,7 +423,7 @@ export class NgxFormService {
     const { name, childOf } = componentProps;
     if(isMultiple)
       componentProps['pk'] = componentProps['pk'] || parentProps?.['pk'] || '';
-    const fullPath = childOf ? isMultiple ? `${childOf}.${index}.${name}` : `${childOf}.${name}` : name;
+    const fullPath = childOf ? (isMultiple ? `${childOf}.${index}.${name}` : `${childOf}.${name}`) : name;
     const [parentGroup, controlName] = this.resolveParentGroup(formGroup as FormGroup, fullPath, componentProps, parentProps);
 
     if (!parentGroup.get(controlName)) {
@@ -449,7 +454,6 @@ export class NgxFormService {
     componentProps['formGroup'] = rootGroup as FormGroup;
     componentProps['formControl'] = parentGroup.get(controlName) as FormControl;
     // componentProps['multiple'] = isMultiple;
-
     return parentGroup as FormParent;
   }
 
@@ -699,10 +703,17 @@ export class NgxFormService {
               if(Object.values(c.value).some(p => p !== undefined))
                 return c.value;
               return undefined;
-            });
-            data[key] = Array.isArray(value)
-              ? !value.filter(Boolean).length
-                ? undefined : value : value;
+            }).filter(v => v !== undefined);
+            if(Array.isArray(value)) {
+              if(value.length > 0) {
+                data[key] = value.reduce((acc, curr, i) => {
+                  acc[i] = curr;
+                  return acc;
+                }, {});
+              }
+              continue;
+            }
+            data[key] = value;
           }
           continue;
         }

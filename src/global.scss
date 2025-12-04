@@ -41,6 +41,9 @@
 // @use "../../styles/dist/main.css";
 @use "./theme/variables.scss";
 
+ion-router-outlet ion-content {
+  --background: var(--dcf-content-background);
+}
 // ion-router-outlet ion-content {
 //   --background: var(--dcf-content-background);
 // }

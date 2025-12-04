@@ -114,31 +114,55 @@
         </div>
       </div>
     } @else {
-      <div class="dcf-preview-list-container">
-        <ion-list class="dcf-preview-list">
-          @if(files?.length) {
-            @for (file of files; track $index) {
-              <ion-item lines="full">
-                @if(file?.name) {
-                  <ion-label slot="start">{{ file.name }}</ion-label>
-                }
-                <div class="dcf-flex dcf-flex-middle" slot="end">
-                    <ngx-decaf-icon
-                      [button]="true"
-                      [slot]="'icon-only'"
-                      (click)="preview(file.source, file.type)"
-                      [name]="file.type.includes('image') ? 'image-outline' : 'document-text-outline'"
-                    />
+      <div [class]="(files?.length > 1 ? 'dcf-preview-list-container' : '')">
+        @if(!files?.length) {
+          <div class="dcf-padding-xsmall">
+            <ion-text>{{ locale + '.empty' | translate }}</ion-text>
+          </div>
+        } @else {
+          @if(files?.length === 1 && isImageFile(files[0])) {
+            <div class="dcf-preview dcf-grid dcf-grid-match dcf-grid-collapse read">
+              <div class="dcf-width-1-4@m dcf-width-1-3@s  dcf-flex dcf-flex-center dcf-flex-middle">
+                <div class="dcf-preview-image">
+                  <ion-img
+                  [src]="previewFile"
+                  [title]="locale + '.preview' | translate"
+                  [alt]="locale + '.preview' | translate"
+                  />
+                  <div class="dcf-overlay">
+                    <ion-button (click)="preview(previewFile)" fill="clear" color="light" size="small">
+                      {{ locale + ".buttons.preview" | translate }}
+                    </ion-button>
+                  </div>
                 </div>
-              </ion-item>
-            }
-          } @else {
-            <div class="dcf-padding-xsmall">
-              <ion-text>{{ locale + '.empty' | translate }}</ion-text>
+              </div>
+              <div class="description dcf-flex dcf-flex-middle dcf-width-expand@s">
+                <div>
+                  <p class="dcf-title">{{ locale + ".preview" | translate }}</p>
+                  <p class="subtitle">{{ files[0].name }}</p>
+                </div>
+              </div>
             </div>
+          } @else {
+            <ion-list class="dcf-preview-list">
+              @for (file of files; track $index) {
+                <ion-item lines="full">
+                  @if(file?.name) {
+                    <ion-label slot="start">{{ file.name }}</ion-label>
+                  }
+                  <div class="dcf-flex dcf-flex-middle" slot="end">
+                    <ngx-decaf-icon
+                    [button]="true"
+                    [slot]="'icon-only'"
+                    (click)="preview(file.source, file.type)"
+                    [name]="file.type.includes('image') ? 'image-outline' : 'document-text-outline'"
+                    />
+                  </div>
+                </ion-item>
+              }
+            </ion-list>
           }
-
-        </ion-list>
+        }
       </div>
     }
   </ngx-decaf-card>

@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { IPagedComponentProperties } from '@decaf-ts/ui-decorators';
+import { IPagedComponentProperties, UIElementMetadata } from '@decaf-ts/ui-decorators';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ComponentRendererComponent } from 'src/lib/components/component-renderer/component-renderer.component';
-import { ElementPosition, ElementPositions, NgxParentComponentDirective } from 'src/lib/engine';
+import { getNgxModalComponent } from 'src/lib/components/modal/modal.component';
+import { ElementPosition, ElementPositions, KeyValue, NgxParentComponentDirective } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
 
 
@@ -38,6 +38,7 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
     if(!this.tabs.length || this.tabs.length < this.children.length) {
       this.tabs = this.children.map(({props}, index) => {
         const tab = this.tabs[index];
+        // props['operation'] = 'read';
         const {title, description} = tab ? tab : props;
         return {
           title,
@@ -59,5 +60,22 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
     super.ngOnDestroy();
     if(this.timerSubscription)
       this.timerSubscription.unsubscribe();
+  }
+
+
+  async handleAddItem(): Promise<void> {
+    console.log(this.activePage);
+    const page = this.activePage as UIElementMetadata;
+    const { model, props} = page as KeyValue;
+    // // Logic to handle adding a new item
+    const modal = await getNgxModalComponent({
+      model: model,
+      globals: {
+       ... props,
+      }
+    });
+    await modal.present();
+    const { data, role } = await modal.onDidDismiss();
+    console.log(data, role);
   }
 }

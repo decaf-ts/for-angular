@@ -1,8 +1,6 @@
 import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import {
-  hideOn,
   uichild,
-  uihandlers,
   uilayout,
   uilayoutprop,
   uilistmodel,
@@ -11,9 +9,6 @@ import {
 import { EpiLayout } from '../layouts/EpiLayout';
 import { FieldsetComponent, LayoutComponent } from 'src/lib/components';
 import { Product } from '../models/Product';
-import { ProductLayoutHandler } from '../handlers/ProductLayoutHandler';
-import { ComponentEventNames } from 'src/lib/engine';
-import { OperationKeys } from '@decaf-ts/db-decorators';
 
 @uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uilayout('ngx-decaf-crud-form', true, 1, {

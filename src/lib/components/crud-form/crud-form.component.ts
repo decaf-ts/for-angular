@@ -9,7 +9,7 @@
  */
 
 import {
-  Component
+  Component,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
@@ -52,6 +52,7 @@ export class CrudFormComponent extends NgxFormDirective {
       DefaultFormReactiveOptions,
       this.options || {},
     );
+
     await super.ngOnInit();
   }
 

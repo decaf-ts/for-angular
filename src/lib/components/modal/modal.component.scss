@@ -1,4 +1,12 @@
 .dcf-modal-component {
+  ::ng-deep {
+    form .dcf-buttons-grid {
+      align-content: center !important;
+      justify-content: center;
+      padding-top: 1rem;
+    }
+  }
+
   &.dcf-modal-expand {
     --height: 90%;
     --width: 90%;
@@ -16,10 +24,68 @@
     --max-width: 100%;
     --border-radius: 0;
 
-    &.dcf-lightbox-modal {
+    &:not(.dcf-header-transparent) {
+      &.dcf-no-title {
+        ion-header {
+          box-shadow: none;
+          ion-button {
+            transform: translate(-5px, 5px);
+          }
+        }
+      }
+    }
+  }
+
+  &.dcf-lightbox-modal {
+    ion-content {
+      --background: transparent !important;
+    }
+    .dcf-modal-body {
+      display: flex;
+      height: auto;
+      justify-content: center;
+      align-items: center;
+    }
+    &.dcf-fullscreen-modal {
       padding: var(--dcf-padding-small);
     }
   }
+  // &.dcf-header-transparent {
+  //   box-shadow: none;
+  //   ion-title {
+  //     width: calc(100% + 10px);
+  //     position: relative;
+  //     top: 0.75rem;
+  //     padding-top: 1rem !important;
+  //   }
+  // }
+  &.dcf-header-transparent {
+    ion-header {
+      box-shadow: none !important;
+      border-bottom: none !important;
+    }
+
+    ion-title {
+      width: calc(100% + 10px);
+      position: relative;
+      top: 1.25rem;
+      background: white;
+      height: 50px !important;
+    }
+    ion-content {
+      &[part="background"],
+      &::part(background) {
+        border-radius: var(--dcf-border-radius) !important;
+      }
+    }
+
+    .dcf-modal-body {
+      &.dcf-has-title {
+        padding-top: 2rem !important;
+      }
+    }
+  }
+  &.dcf-header-transparent,
   &.dcf-lightbox-modal {
     --background: transparent;
     --box-shadow: none !important;
@@ -30,22 +96,27 @@
       }
     }
     ion-header {
-      --background: transparent !important;
-      background-color: transparent;
       box-shadow: none !important;
       // border-bottom: 1px solid var(--dcf-color-gray-2);
       padding: unset !important;
       margin: unset !important;
       height: 30px;
       ion-button {
+        box-shadow: var(--dcf-box-shadow) !important;
+        border-radius: 12px;
         margin: 0px !important;
         width: 32px !important;
         height: 25px !important;
-        --background: var(--dcf-color-light) !important;
-        transform: translate(2px, 0px);
+        --background: var(--dcf-color-gray-2) !important;
+        transform: translate(4px, 0px);
         --border-radius: var(--dcf-border-radius-small) !important;
         * {
           margin: -5px;
+        }
+
+        ion-icon {
+          font-size: 1.15rem !important;
+          color: var(--dcf-color-gray-5);
         }
       }
       ion-toolbar {
@@ -54,23 +125,23 @@
         margin: unset !important;
       }
     }
-
     ion-content {
-      --background: transparent !important;
+      max-width: calc(100% - 10px);
     }
-
     .dcf-modal-body {
-      display: flex;
-      height: auto;
-      justify-content: center;
-      align-items: center;
       background: white !important;
+      padding: 2px 0px 0px 0px;
+      border-radius: var(--dcf-border-radius);
+      > div {
+        border-radius: var(--dcf-border-radius) !important;
+        max-width: calc(100% - 5px);
+      }
     }
   }
 
   &:not(.dcf-lightbox-modal) {
     .dcf-modal-body {
-      height: 100%;
+      // height: 100%;
       padding: 1.5rem 1rem;
     }
   }

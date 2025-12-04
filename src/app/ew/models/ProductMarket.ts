@@ -7,25 +7,29 @@ import {
   ModelArg,
   required,
 } from "@decaf-ts/decorator-validation";
-import { HTML5InputTypes, uielement, uilayoutprop, uimodel } from "@decaf-ts/ui-decorators";
+import { HTML5InputTypes, uielement, uilayoutprop, uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
 import { getMarkets } from "src/app/utils/helpers";
+import { ListItemPositions } from "src/lib/engine/constants";
 @uimodel('ngx-decaf-fieldset')
 @model()
 export class ProductMarket extends Model {
 
-
   @pk({type: "String", generated: false})
   @composed(["productCode", "marketId"], ":", true)
   id!: string;
+
+  @uiprop()
+  productCode!: string;
 
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'market.id.label',
     placeholder: 'market.id.placeholder',
     type: HTML5InputTypes.SELECT,
-    options: getMarkets(true)
+    options: getMarkets()
   })
   @uilayoutprop(1)
+  @uilistprop(ListItemPositions.title)
   marketId!: string;
 
   @uielement('ngx-decaf-crud-field', {
@@ -34,6 +38,7 @@ export class ProductMarket extends Model {
   })
   @uilayoutprop(1)
   @min(2)
+  @uilistprop(ListItemPositions.description)
   nationalCode?: string;
 
   @uielement('ngx-decaf-crud-field', {
@@ -41,6 +46,7 @@ export class ProductMarket extends Model {
     placeholder: 'market.mahName.placeholder',
   })
   @uilayoutprop(1)
+  @uilistprop(ListItemPositions.info)
   mahName?: string;
 
   @uielement('ngx-decaf-crud-field', {

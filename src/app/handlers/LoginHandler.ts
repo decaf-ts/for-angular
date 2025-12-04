@@ -1,9 +1,8 @@
 
-import { NgxEventHandler, ICrudFormEvent, KeyValue, NgxComponentDirective } from "src/lib/engine";
-import { getNgxToastComponent, NgxToastComponent } from "../utils/NgxToastComponent";
+import { NgxEventHandler, ICrudFormEvent, KeyValue } from "src/lib/engine";
+import { getNgxToastComponent } from "../utils/NgxToastComponent";
 import { Router } from "@angular/router";
 import { setOnWindow } from "src/lib/utils/helpers";
-import { DecafComponent } from "@decaf-ts/ui-decorators";
 
 
 /**

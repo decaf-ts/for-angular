@@ -500,6 +500,19 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   @Input()
   spellcheck: boolean = false;
 
+
+  /**
+   * @description Spellcheck attribute for text inputs.
+   * @summary Enables or disables spellchecking for text inputs.
+   * When true, the browser will check the spelling of the input text.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf CrudFieldComponent
+   */
+  @Input()
+  startEmpty: boolean = true;
+
   /**
    * @description Input mode for text inputs.
    * @summary Hints at the type of data that might be entered by the user while editing the element.
@@ -642,6 +655,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   @Input()
   translatable: StringOrBoolean = true;
 
+
   /**
    * @description Component initialization lifecycle method.
    * @summary Initializes the field component based on the operation type and field configuration.
@@ -658,6 +672,9 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation)) {
       this.hidden = false;
     }
+    if(this.hidden && (this.hidden as OperationKeys[]).includes(this.operation))
+      this.hidden = true;
+
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
     } else {
@@ -692,6 +709,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   async getOptions(): Promise<CrudFieldOption[]> {
     if (!this.options)
       return [];
+
     if (this.options instanceof Function) {
       if (this.options.name === 'options')
         this.options = this.options() as FunctionLike;
@@ -705,10 +723,10 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
             const {repository} = repo;
             this.options = await repository.select().execute();
           }
-
         }
       }
     }
+
     if (this.optionsMapper) {
       if (this.optionsMapper instanceof Function || typeof this.optionsMapper === 'function') {
         const mapper = this.optionsMapper as (option: KeyValue) => CrudFieldOption;
@@ -719,22 +737,39 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         this.options = dataMapper(this.options as KeyValue[], this.optionsMapper as Record<string, string>);
       }
     }
-    const options = (this.options as CrudFieldOption[]).map(async(option) => {
+
+    const options = (this.options as SelectOption[]).map(async(option) => {
       const text = await this.translate((!option.text.includes('options') ?
           getLocaleContextByKey(`${this.label.toLowerCase().replace('label', 'options')}`, option.text)
           : option.text));
       return {
         value: option.value,
-        text: text.includes('.options') ? option.text : text
+        text: text.toLowerCase().includes('.options') ? option.text : text,
+        selected: option?.selected ?? false,
+        disabled: option?.disabled ?? false,
       };
     });
     this.options = await Promise.all(options);
     if (this.options.length > 10 && this.interface === 'popover')
       this.interface = 'modal';
-    return this.options as CrudFieldOption[];
+    return (!this.required || (this.options?.length > 1 && this.startEmpty) ?
+      [{value: '', text: '', selected: true, disabled: this.required}, ...this.options] :  this.options
+    ) as CrudFieldOption[];
   }
 
 
+  /**
+   * Handles the opening of select options based on the specified interface type.
+   * If the `selectInterface` is 'modal', it prevents the default event behavior,
+   * stops propagation, and opens a modal to display the select options.
+   * Once the modal is dismissed, it sets the selected value if the action role
+   * is confirmed and the selected value differs from the current value.
+   *
+   * @param {Event} event - The event triggered by the user interaction.
+   * @param {SelectInterface} selectInterface - The interface type for displaying select options.
+   * Currently supports 'modal'.
+   * @returns {Promise<void>} A promise that resolves when the operation is complete.
+   */
   async openSelectOptions(event: Event, selectInterface: SelectInterface): Promise<void> {
     if(selectInterface === 'modal') {
       event.preventDefault();

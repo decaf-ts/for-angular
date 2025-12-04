@@ -39,7 +39,7 @@ import {
 } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { Model } from '@decaf-ts/decorator-validation';
-import { OrderDirection, Repository } from '@decaf-ts/core';
+import { OrderDirection } from '@decaf-ts/core';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
 import { IFilterQuery, IFilterQueryItem } from '../../engine/interfaces';
@@ -136,8 +136,16 @@ export class FilterComponent
   @Input()
   indexes: string[] = [];
 
+  /**
+   * @description Allows multiple filters to be added.
+   * @summary When true, users can add multiple filters; when false, only one filter is allowed.
+   *
+   * @type {boolean}
+   * @default true
+   * @memberOf FilterComponent
+   */
   @Input()
-  multiple: boolean = false;
+  multiple: boolean = true;
 
   /**
    * @description Available comparison conditions for filters.
@@ -331,6 +339,9 @@ export class FilterComponent
    */
   @Output()
   searchEvent: EventEmitter<string> = new EventEmitter<string>();
+
+
+  inputElement!: HTMLInputElement;
 
   /**
    * @description Constructor for FilterComponent.
@@ -546,8 +557,11 @@ export class FilterComponent
    */
   async addFilter(value: string, event?: CustomEvent): Promise<void> {
     value = value.trim();
+    if(!this.inputElement)
+      this.inputElement = this.component.nativeElement.querySelector('input');
     if (event instanceof KeyboardEvent && !value) {
-      this.submit();
+      this.inputElement.blur();
+      await this.submit();
     } else {
       if ((value && !(event instanceof KeyboardEvent)) || this.step === 3) {
         const filter = this.lastFilter;
@@ -575,8 +589,13 @@ export class FilterComponent
           this.step = 0;
           this.filterValue[this.filterValue.length - 1] = filter;
           this.lastFilter = {};
-          if(!this.multiple)
+          this.inputElement.value = "";
+          if(!this.multiple) {
+            this.inputElement.disabled = true;
+            this.inputElement.blur();
             return await this.submit();
+          }
+
         }
         this.step++;
         this.value = '';
@@ -658,6 +677,7 @@ export class FilterComponent
       this.step = 1;
       this.lastFilter = {};
     }
+    this.inputElement.disabled = false;
     this.handleFocus(this.indexes);
   }
 
@@ -674,6 +694,7 @@ export class FilterComponent
     this.step = 1;
     this.lastFilter = {};
     this.value = '';
+    this.inputElement.disabled = false;
     if (submit) {
       setTimeout(() => {
         this.submit();
