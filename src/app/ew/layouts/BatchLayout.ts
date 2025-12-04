@@ -3,12 +3,9 @@ import {
   uichild,
   uilayout,
   uilayoutprop,
-  uilistmodel,
   UIMediaBreakPoints,
   uionrender,
-  uipageprop,
 } from '@decaf-ts/ui-decorators';
-import { EpiLayout } from '../layouts/EpiLayout';
 import { FieldsetComponent, LayoutComponent } from 'src/lib/components';
 import { Batch } from '../models/Batch';
 import { ProductEpiHandler } from '../handlers/ProductEpiHandler';
@@ -54,4 +51,3 @@ export class BatchLayout extends Model {
     super(args);
   }
 }
-

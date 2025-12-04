@@ -1,13 +1,10 @@
 <app-header
-  [model]="model"
-  [route]="'batches'"
   [title]="title"
   [operation]="operation"
   [center]="true"
   [modelId]="modelId"
   showMenuButton="true"
   showBackButton="true"
-  [operations]="allowedOperations"
   color="primary"
 >
 </app-header>
@@ -24,8 +21,9 @@
               <ngx-decaf-list
                 [model]="model"
                 [createButton]="true"
-                [route]="'products'"
-                [operations]="['read', 'create', 'update', 'delete']"
+                [type]="'paginated'"
+                [route]="route"
+                [operations]="operations"
                 (listenEvent)="handleEvent($event)"
               />
             </ngx-decaf-card>
@@ -34,15 +32,15 @@
               <ngx-decaf-model-renderer
                   [model]="model"
                   (listenEvent)="handleEvent($event)"
-                  [globals]="{operation: operation, modelId, allowClear: false}"
+                  [globals]="{operation, operations, modelId, allowClear: false}"
                 >
               </ngx-decaf-model-renderer>
             } @else {
               <ngx-decaf-empty-state
                 [model]="model"
-                title="404 - Not Found"
-                iconColor="danger"
-                icon="sad-outline"
+                [title]="not_found"
+                [iconColor]="danger"
+                [icon]="sad-outline"
                 [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}"
               />
             }

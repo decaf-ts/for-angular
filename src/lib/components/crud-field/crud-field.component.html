@@ -1,22 +1,24 @@
 @if ((operation === 'read' || operation === 'delete') || readonly) {
-  <ng-container>
-    <div >
-      <ion-item [class]="'dcf-input-item ' + operation" #component>
-        <ion-label>
-          {{ label | translate }}<br />
-          @if (value) {
-              <ion-text [innerHTML]="type === 'password' ? '********' : value"></ion-text>
-          } @else {
-             @if (['checkbox'].includes(type)) {
-               <ion-icon aria-hidden="true" class="dcf-margin-small-top" [color]="!isDarkMode  ? 'primary' : 'light'" size="large" name="checkmark-circle-outline"></ion-icon>
+  @if(!hidden) {
+    <ng-container>
+      <div >
+        <ion-item [class]="'dcf-input-item ' + operation" #component>
+          <ion-label>
+            {{ label | translate }}<br />
+            @if (value) {
+                <ion-text [innerHTML]="type === 'password' ? '********' : value"></ion-text>
             } @else {
-              <br />
+              @if (['checkbox'].includes(type) && value === 'true') {
+                <ion-icon aria-hidden="true" class="dcf-margin-small-top" [color]="!isDarkMode  ? 'primary' : 'light'" size="small" name="checkmark-circle-outline"></ion-icon>
+              } @else {
+                <br />
+              }
             }
-          }
-        </ion-label>
-      </ion-item>
-    </div>
-  </ng-container>
+          </ion-label>
+        </ion-item>
+      </div>
+    </ng-container>
+  }
 } @else {
   @if (formControl) {
     <ng-container [formGroup]="multiple ? activeFormGroup : formControl.parent">
@@ -142,7 +144,7 @@
                 @if (options?.length) {
                   @for(option of options; track trackItemFn($index, option.text)) {
                     <ion-select-option [value]="option.value" [class.dcf-disabled]="option.disabled">
-                      {{ option.text | translate }}
+                      {{ option.text }}
                     </ion-select-option>
                   }
                 }

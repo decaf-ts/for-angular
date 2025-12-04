@@ -7,8 +7,11 @@ import { ListComponent } from 'src/lib/components/list/list.component';
 import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
 import { CardComponent, EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IBaseCustomEvent, IModelPageCustomEvent } from 'src/lib/engine/interfaces';
+import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
 import { BatchLayout } from 'src/app/ew/layouts/BatchLayout';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { Batch } from 'src/app/ew/models/Batch';
+import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
 
 @Component({
   selector: 'app-batches',
@@ -24,8 +27,10 @@ export class BatchesPage  extends NgxModelPageDirective implements OnInit {
 
   override ngOnInit(): Promise<void> | void {
     super.ngOnInit();
-    this.title = "product.title";
-    this.model = new BatchLayout();
+    this.title = "batch.title";
+    this.route = 'batches';
+    this.model = !this.operation ? new Batch() : new BatchLayout();
+    this.operations = [OperationKeys.READ, OperationKeys.CREATE, OperationKeys.UPDATE];
  }
 
   override async ionViewWillEnter(): Promise<void> {
@@ -33,11 +38,8 @@ export class BatchesPage  extends NgxModelPageDirective implements OnInit {
   }
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
-    const {success, message} = await super.submit(event) as IModelPageCustomEvent;
-    // const toast = getNgxToastComponent({
-    //   color: success ? 'dark' : 'danger',
-    //   message,
-    // });
-    // await toast.show();
+    const handler = (new ProductLayoutHandler()).handle.bind(this);
+    const result = await handler(event, 'batch', 'batchNumber');
+    console.log(result);
   }
 }

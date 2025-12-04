@@ -6,6 +6,7 @@
   &:first-of-type {
     padding-top: 0.25rem !important;
   }
+
   &.dcf-grid-collapse {
     &.read {
       // remove margin for operation read mode
@@ -93,6 +94,9 @@
       // }
     }
     > div {
+      &:last-child {
+        margin-bottom: 0px;
+      }
       &.dcf-layout-separator {
         margin-bottom: 1rem;
         // &:not(:first-of-type).dcf-separator-bordered {

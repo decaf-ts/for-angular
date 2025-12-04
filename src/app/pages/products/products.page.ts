@@ -7,15 +7,11 @@ import { ListComponent } from 'src/lib/components/list/list.component';
 import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
 import { EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IBaseCustomEvent, IModelPageCustomEvent } from 'src/lib/engine/interfaces';
+import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
 import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
 import { Product } from 'src/app/ew/models/Product';
 import { CardComponent } from 'src/lib/components/card/card.component';
-import { uihandlers } from '@decaf-ts/ui-decorators';
-import { ComponentEventNames } from 'src/lib/engine/constants';
 import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
-import { Dynamic } from 'src/lib/engine';
-import { Model } from '@decaf-ts/decorator-validation';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.

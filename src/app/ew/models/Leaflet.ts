@@ -1,13 +1,13 @@
 import { BaseModel, pk } from "@decaf-ts/core";
 import { model, ModelArg, required } from "@decaf-ts/decorator-validation";
-import { HTML5InputTypes, uielement, uilayoutprop, uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
+import { HTML5InputTypes, uielement,  uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../../utils/helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
-import { ElementPositions, ElementSizes, FormParent, KeyValue, ListItemPositions, NgxEventHandler } from "src/lib/engine";
-import { composed, readonly } from "@decaf-ts/db-decorators";
+import { ElementPositions, ElementSizes, KeyValue, ListItemPositions, NgxEventHandler } from "src/lib/engine";
+import { composed } from "@decaf-ts/db-decorators";
 import { FormGroup } from "@angular/forms";
-import { getNgxModalComponent, presentNgxInlineModal } from "src/lib/components";
+import { presentNgxInlineModal } from "src/lib/components";
 
 class XmlPreviewHandler extends NgxEventHandler {
 
@@ -36,7 +36,6 @@ class XmlPreviewHandler extends NgxEventHandler {
       }
     }
     const xml = parseXml(file);
-    const images = this.files?.filter(f => f.type?.includes('image'));
     const product = (this.formGroup as FormGroup).root.get('product');
     const model = {} as KeyValue;
     if(product instanceof FormGroup) {
@@ -45,13 +44,16 @@ class XmlPreviewHandler extends NgxEventHandler {
     }
 
     // const fragment = servico(xml , images, model);
-    await presentNgxInlineModal(`<div>${xml}</div>`, {className: 'xml-preview-modal', title: 'product.leaflet.preview'});
+    await presentNgxInlineModal(xml as string, {
+      className: 'xml-preview-modal',
+      headerTransparent: true,
+    });
     // chamar serviço do Diogo
     // alert("XML Preview:\n\n" + this.value);
   }
 }
 
-@uimodel('ngx-crud-form')
+@uimodel('ngx-decaf-crud-form')
 @model()
 export class Leaflet extends BaseModel {
 
@@ -71,7 +73,7 @@ export class Leaflet extends BaseModel {
     label: 'leaflet.lang.label',
     placeholder: 'leaflet.lang.placeholder',
     type: HTML5InputTypes.SELECT,
-    options: getLeafletLanguages()
+    options: getLeafletLanguages(),
   } as Partial<CrudFieldComponent>)
   @uilistprop(ListItemPositions.title)
   lang!: string;
@@ -81,7 +83,7 @@ export class Leaflet extends BaseModel {
     label: 'leaflet.type.label',
     placeholder: 'leaflet.type.placeholder',
     type: HTML5InputTypes.SELECT,
-    options: () => getDocumentTypes()
+    options: getDocumentTypes()
   } as Partial<CrudFieldComponent>)
   @uilistprop(ListItemPositions.description)
   type!: string;
@@ -91,7 +93,7 @@ export class Leaflet extends BaseModel {
     label: 'leaflet.market.label',
     placeholder: 'leaflet.market.placeholder',
     type: HTML5InputTypes.SELECT,
-    options: () => getMarkets()
+    options: getMarkets()
   } as Partial<CrudFieldComponent>)
   @uilistprop(ListItemPositions.info)
   market!: string;

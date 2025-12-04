@@ -5,6 +5,11 @@
     z-index: 1000 !important;
   }
 }
+
+input:disabled::placeholder {
+  color: transparent; /* hides the placeholder text */
+}
+
 .dcf-filter-component {
   padding: 0 0.5rem;
   margin-top: 0.75rem;

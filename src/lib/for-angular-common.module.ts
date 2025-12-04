@@ -11,6 +11,7 @@ import {
   ModuleWithProviders,
   InjectionToken,
   Provider,
+  EnvironmentProviders,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -27,6 +28,7 @@ import {
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { Repository } from '@decaf-ts/core';
 import { Constructor, uses } from '@decaf-ts/decoration';
+import { AnimationController, provideIonicAngular } from '@ionic/angular/standalone';
 
 export const DB_ADAPTER_PROVIDER = 'DB_ADAPTER_PROVIDER';
 
@@ -192,6 +194,50 @@ export function provideDbAdapter<DbAdapter extends { flavour: string }>(
     useValue: adapter,
   };
 }
+
+/**
+ * Creates a custom page transition animation using the Ionic `AnimationController`.
+ *
+ * @param baseEl - The base HTML element for the animation.
+ * @param opts - Optional parameters for the animation, including:
+ *   - `enteringEl`: The HTML element that is entering the view.
+ *   - `leavingEl`: The HTML element that is leaving the view.
+ *
+ * @returns An object containing the `navAnimation`, which is a composed animation
+ *          of the entering and leaving animations.
+ *
+ * The entering animation fades in and slides the element upwards, while the leaving
+ * animation fades out and slides the element downwards. Both animations use a cubic-bezier
+ * easing function for smooth transitions.
+ */
+export const decafPageTransition = (baseEl: HTMLElement, opts?: KeyValue) => {
+  const animationCtrl = new AnimationController();
+
+  const enteringAnimation = animationCtrl
+    .create()
+    .addElement(opts?.['enteringEl'])
+    .duration(280)
+    .easing('cubic-bezier(0.36,0.66,0.04,1)')
+    .fromTo('opacity', '0.01', '1')
+    .fromTo('transform', 'translateY(40px)', 'translateY(0)');
+
+  const leavingAnimation = animationCtrl
+    .create()
+    .addElement(opts?.['leavingEl'])
+    .duration(200)
+    .easing('cubic-bezier(0.36,0.66,0.04,1)')
+    .fromTo('opacity', '1', '0')
+    .fromTo('transform', 'translateY(0)', 'translateY(20px)');
+
+  return animationCtrl.create().addAnimation([enteringAnimation, leavingAnimation]);
+};
+
+
+export function provideDecafPageTransition(): EnvironmentProviders {
+  return provideIonicAngular({
+    navAnimation: decafPageTransition
+  });
+};
 
 /**
  * @const {Logger}

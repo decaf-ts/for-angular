@@ -25,18 +25,20 @@
     >
       <div>
           @for(child of children; track child) {
-              <div class="dcf-animation dcf-animation-slide-left-small dcf-animation-medium dcf-margin-top read" #switcherContent
-                [hidden]="$index !== activeIndex"
-              >
-                <ngx-decaf-component-renderer
-                  [tag]="child.tag"
-                  [parentForm]="parentForm"
-                  [children]="child?.children || []"
-                  (listenEvent)="handleEvent($event)"
-                  [globals]="{props: child.props}"
-                />
-              </div>
-            }
+            <div class="dcf-animation dcf-animation-slide-left-small dcf-animation-medium dcf-margin-top read" #switcherContent
+              [hidden]="$index !== activeIndex"
+            >
+              <!-- <ngx-decaf-component-renderer
+                [tag]="child.tag"
+                [parentForm]="parentForm"
+                [children]="child?.children || []"
+                (listenEvent)="handleEvent($event)"
+                [globals]="{props: child.props}"
+              /> -->
+
+              <ion-button (click)="handleAddItem()">Add Item</ion-button>
+            </div>
+          }
         <!-- @if (['create', 'update'].includes(operation)) {
            @if(activePage) {
             <div class="dcf-animation dcf-animation-slide-left-small dcf-animation-medium dcf-margin-top" #switcherContent>

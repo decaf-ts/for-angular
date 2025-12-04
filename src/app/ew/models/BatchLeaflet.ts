@@ -1,7 +1,7 @@
 import { FormGroup } from "@angular/forms";
 import { BaseModel, pk, table } from "@decaf-ts/core";
 import { model, ModelArg, required } from "@decaf-ts/decorator-validation";
-import { HTML5InputTypes, uielement, uilayoutprop, uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
+import { HTML5InputTypes, uielement,  uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
 import {
   ElementPositions,
   ElementSizes,
@@ -43,7 +43,6 @@ class XmlPreviewHandler extends NgxEventHandler {
       }
     }
     const xml = parseXml(file);
-    const images = this.files?.filter(f => f.type?.includes('image'));
     const product = (this.formGroup as FormGroup).root.get('product');
     const model = {} as KeyValue;
     if(product instanceof FormGroup) {
@@ -58,7 +57,7 @@ class XmlPreviewHandler extends NgxEventHandler {
   }
 }
 
-@uimodel('ngx-crud-form')
+@uimodel('ngx-decaf-crud-form')
 @model()
 @table('Leaflet')
 export class BatchLeaflet extends BaseModel {

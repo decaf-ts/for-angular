@@ -270,9 +270,9 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @summary Sets up the component by enabling directory mode if specified, formatting the accepted file types,
    * and converting the maximum file size from megabytes to bytes.
    *
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (this.enableDirectoryMode) {
       this.multiple = true;
     }
@@ -281,7 +281,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     }
     // Convert maxFileSize from MB to bytes
     this.maxFileSize = this.maxFileSize * 1024 * 1024;
-    this.initialize();
+    await this.initialize();
   }
 
   override async initialize(): Promise<void> {
@@ -290,7 +290,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
         const files = JSON.parse(this.value as string) as string[];
         this.files = files.map(file => {
           const mime = this.getFileMime(file)?.split('/') || [];
-          const type = mime?.[0] === 'text' ?  mime?.[1] : mime?.[0];
+          const type = mime?.[0] === 'text' ?  mime?.[1] : `${mime?.[0]}/${mime?.[1]}`;
           return {
             name: mime?.[0] || 'file',
             type: `${type}` || 'image/*',
@@ -335,9 +335,9 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * This method is triggered when the user selects files using the file input element.
    *
    * @param {Event} event - The file selection event.
-   * @returns {void}
+   * @returns {Promise<void> }
    */
-  handleSelection(event: Event): void {
+ async handleSelection(event: Event): Promise<void> {
     this.clearErrors();
     const input = event.target as HTMLInputElement;
     if (input.files) {
@@ -445,6 +445,8 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
 
     await this.getPreview();
     this.changeEventEmit();
+    this.changeDetectorRef.detectChanges();
+
   }
 
   /**

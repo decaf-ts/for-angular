@@ -423,7 +423,7 @@ export class NgxFormService {
     const { name, childOf } = componentProps;
     if(isMultiple)
       componentProps['pk'] = componentProps['pk'] || parentProps?.['pk'] || '';
-    const fullPath = childOf ? isMultiple ? `${childOf}.${index}.${name}` : `${childOf}.${name}` : name;
+    const fullPath = childOf ? (isMultiple ? `${childOf}.${index}.${name}` : `${childOf}.${name}`) : name;
     const [parentGroup, controlName] = this.resolveParentGroup(formGroup as FormGroup, fullPath, componentProps, parentProps);
 
     if (!parentGroup.get(controlName)) {
@@ -454,7 +454,6 @@ export class NgxFormService {
     componentProps['formGroup'] = rootGroup as FormGroup;
     componentProps['formControl'] = parentGroup.get(controlName) as FormControl;
     // componentProps['multiple'] = isMultiple;
-
     return parentGroup as FormParent;
   }
 

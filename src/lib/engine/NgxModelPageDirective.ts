@@ -299,7 +299,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    */
   async handleGet(
     uid?: EventIds,
-    repository?: IRepository<any>,
+    repository?: IRepository<Model>,
     modelName?: string
   ): Promise<Model | undefined> {
     if (!uid) {

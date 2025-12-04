@@ -230,6 +230,11 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
   override async initialize(options: KeyValue = {}): Promise<void> {
     this.options = Object.assign({}, DefaultModalOptions, this.options, options);
     this.globals = Object.assign({}, this.globals || {}, { isModalChild: true });
+    if(this.globals?.['props']) {
+      this.globals['props'] = Object.assign({}, this.globals['props'], { isModalChild: true });
+    }
+    if(!this.model && this.globals?.['model'])
+      this.model = this.globals?.['model'];
     this.initialized = true;
   }
 
@@ -323,6 +328,7 @@ export async function getNgxModalComponent(props: Partial<ModalComponent> = {}, 
   const component = await (NgxRenderingEngine.createComponent(ModalComponent, props, injector || undefined) as ModalComponent).create(modalProps);
   return component.modal;
 }
+
 
 /**
  * @description Presents a lightbox modal with inline content.

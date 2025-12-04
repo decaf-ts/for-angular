@@ -3,6 +3,94 @@ import { ICrudFormOptions, IListEmptyOptions } from './interfaces';
 
 import { ModalOptions } from '@ionic/angular/standalone';
 
+
+/**
+ * @description Default options for empty list state display.
+ * @summary Provides default configuration for displaying empty state in list components
+ * when no data is available. Includes default text for title and subtitle, icon name,
+ * button text and visibility settings. These defaults can be overridden by individual
+ * list component implementations to customize the empty state presentation.
+ * @type {IListEmptyOptions}
+ * @property {string} title - Default translation key for empty list title
+ * @property {string} subtitle - Default translation key for empty list subtitle
+ * @property {boolean} showButton - Whether to show action button in empty state
+ * @property {string} icon - Default Ionic icon name for empty state
+ * @property {string} buttonText - Default translation key for button text
+ * @property {string} link - Default navigation link (empty string)
+ * @const DefaultListEmptyOptions
+ * @memberOf module:lib/engine/constants
+ */
+export const DefaultListEmptyOptions = {
+  title: 'empty.title',
+  subtitle: 'empty.subtitle',
+  showButton: false,
+  icon: 'folder-open-outline',
+  buttonText: 'locale.empty.button',
+  link: '',
+} as IListEmptyOptions;
+
+export const DefaultModalOptions = {
+  component: '',
+  showBackdrop: true,
+  backdropDismiss: false,
+  animated: true,
+  canDismiss: true,
+  showBackdropTapClose: true,
+  focusTrap: true,
+} as ModalOptions;
+
+export const ActionRoles = {
+  cancel: 'cancel',
+  confirm: 'confirm',
+  submit: 'submit',
+  clear: 'clear',
+  back: 'back',
+} as const;
+
+export const WindowColorSchemes = {
+  light: 'light',
+  dark: 'dark',
+  undefined: 'undefined',
+} as const;
+
+export const ElementSizes = {
+  xsmall: 'xsmall',
+  small: 'small',
+  medium: 'medium',
+  default: 'default',
+  large: 'large',
+  xLarge: 'xlarge',
+  '2xLarge': '2xlarge',
+  auto: 'auto',
+  expand: 'expand',
+  block: 'block',
+} as const;
+
+export const ElementPositions = {
+  left: 'left',
+  center: 'center',
+  right: 'right',
+  top: 'top',
+  bottom: 'bottom',
+} as const;
+
+export const LayoutGridGaps = {
+  small: 'small',
+  medium: 'medium',
+  large: 'large',
+  collapse: 'collapse',
+  none: '',
+} as const;
+
+export const ListItemPositions = {
+  uid: 'uid',
+  title: 'title',
+  description: 'description',
+  info: 'info',
+  subinfo: 'subinfo',
+} as const;
+
+
 /**
  * @description Angular engine key constants.
  * @summary Contains key strings used by the Angular rendering engine for reflection,
@@ -253,89 +341,3 @@ export const DefaultFormReactiveOptions: ICrudFormOptions = {
     },
   },
 };
-
-/**
- * @description Default options for empty list state display.
- * @summary Provides default configuration for displaying empty state in list components
- * when no data is available. Includes default text for title and subtitle, icon name,
- * button text and visibility settings. These defaults can be overridden by individual
- * list component implementations to customize the empty state presentation.
- * @type {IListEmptyOptions}
- * @property {string} title - Default translation key for empty list title
- * @property {string} subtitle - Default translation key for empty list subtitle
- * @property {boolean} showButton - Whether to show action button in empty state
- * @property {string} icon - Default Ionic icon name for empty state
- * @property {string} buttonText - Default translation key for button text
- * @property {string} link - Default navigation link (empty string)
- * @const DefaultListEmptyOptions
- * @memberOf module:lib/engine/constants
- */
-export const DefaultListEmptyOptions = {
-  title: 'empty.title',
-  subtitle: 'empty.subtitle',
-  showButton: false,
-  icon: 'folder-open-outline',
-  buttonText: 'locale.empty.button',
-  link: '',
-} as IListEmptyOptions;
-
-export const DefaultModalOptions = {
-  component: '',
-  showBackdrop: true,
-  backdropDismiss: false,
-  animated: true,
-  canDismiss: true,
-  showBackdropTapClose: true,
-  focusTrap: true,
-} as ModalOptions;
-
-export const ActionRoles = {
-  cancel: 'cancel',
-  confirm: 'confirm',
-  submit: 'submit',
-  clear: 'clear',
-  back: 'back',
-} as const;
-
-export const WindowColorSchemes = {
-  light: 'light',
-  dark: 'dark',
-  undefined: 'undefined',
-} as const;
-
-export const ElementSizes = {
-  xsmall: 'xsmall',
-  small: 'small',
-  medium: 'medium',
-  default: 'default',
-  large: 'large',
-  xLarge: 'xlarge',
-  '2xLarge': '2xlarge',
-  auto: 'auto',
-  expand: 'expand',
-  block: 'block',
-} as const;
-
-export const ElementPositions = {
-  left: 'left',
-  center: 'center',
-  right: 'right',
-  top: 'top',
-  bottom: 'bottom',
-} as const;
-
-export const LayoutGridGaps = {
-  small: 'small',
-  medium: 'medium',
-  large: 'large',
-  collapse: 'collapse',
-  none: '',
-} as const;
-
-export const ListItemPositions = {
-  uid: 'uid',
-  title: 'title',
-  description: 'description',
-  info: 'info',
-  subinfo: 'subinfo',
-} as const;

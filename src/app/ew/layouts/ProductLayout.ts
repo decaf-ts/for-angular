@@ -1,8 +1,6 @@
 import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import {
-  hideOn,
   uichild,
-  uihandlers,
   uilayout,
   uilayoutprop,
   uilistmodel,

@@ -6,10 +6,7 @@
  *
  * @link {@link NgxEventHandler}
  */
-import { LoggedClass } from "@decaf-ts/logging";
-import { IBaseCustomEvent } from "./interfaces";
-import { DecafComponent, DecafEventHandler } from "@decaf-ts/ui-decorators";
-import { Router } from "@angular/router";
+import { DecafEventHandler } from "@decaf-ts/ui-decorators";
 
 export abstract class NgxEventHandler extends DecafEventHandler {
 

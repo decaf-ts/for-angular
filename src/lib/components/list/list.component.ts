@@ -671,7 +671,7 @@ export class ListComponent
    */
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    if (this._repository) (this._repository as any).unObserve(this.observer);
+    if (this._repository) (this._repository as DecafRepository<Model>).unObserve(this.observer);
     this.data = this.model = this._repository = this.paginator = undefined;
   }
 
@@ -1177,7 +1177,7 @@ export class ListComponent
     if (!this._repository) {
       this._repository = this.repository;
       if (this.model instanceof Model && this._repository)
-        (this._repository as any).observe(this.observer);
+        (this._repository as DecafRepository<Model>).observe(this.observer);
     }
 
     const repo = this._repository as DecafRepository<Model>;
@@ -1201,7 +1201,7 @@ export class ListComponent
               .orderBy([this.pk as keyof Model, this.sortDirection])
               .paginate(this.limit);
           }
-          request = await this.parseResult(this.paginator as Paginator<any>);
+          request = await this.parseResult(this.paginator as Paginator<Model>);
         } else {
           if (!this.indexes)
             this.indexes = Object.values(this.mapper) || [this.pk];
@@ -1360,7 +1360,7 @@ export class ListComponent
    * @memberOf ListComponent
    */
   protected async parseResult(
-    result: KeyValue[] | Paginator<any>
+    result: KeyValue[] | Paginator<Model>
   ): Promise<KeyValue[]> {
     if (!Array.isArray(result) && 'page' in result && 'total' in result) {
       const paginator = result as Paginator<Model>;

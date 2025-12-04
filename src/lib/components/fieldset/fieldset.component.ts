@@ -12,7 +12,6 @@ import {
   AfterViewInit,
   Component,
   Input,
-  ViewChild,
   OnInit,
 } from '@angular/core';
 import {
@@ -41,8 +40,6 @@ import {
   IonReorder,
   IonIcon,
   IonText,
-  IonSkeletonText,
-  IonLoading,
   IonSpinner,
 } from '@ionic/angular/standalone';
 import { OperationKeys } from '@decaf-ts/db-decorators';
@@ -134,22 +131,8 @@ import { timer } from 'rxjs';
     IonSpinner
   ],
 })
-export class FieldsetComponent
-  extends NgxFormDirective
-  implements OnInit, AfterViewInit
+export class FieldsetComponent extends NgxFormDirective implements OnInit, AfterViewInit
 {
-  /**
-   * @description Reference to the ion-accordion-group component for programmatic control.
-   * @summary ViewChild reference that provides direct access to the Ionic accordion group component.
-   * This enables programmatic control over the accordion's expand/collapse state, allowing
-   * the component to open/close the accordion based on validation errors, CRUD operations,
-   * or other business logic requirements.
-   *
-   * @type {IonAccordionGroup}
-   * @memberOf FieldsetComponent
-   */
-  @ViewChild('accordionComponent', { static: false })
-  accordionComponent!: IonAccordionGroup;
 
   /**
    * @description The display name or title of the fieldset section.
@@ -580,7 +563,6 @@ export class FieldsetComponent
     this.value = undefined as unknown as KeyValue[];
     this.activePage = undefined;
     this.activeFormGroupIndex = 0;
-    this.accordionComponent.value = '';
     this.changeDetectorRef.detectChanges();
   }
 
@@ -779,29 +761,7 @@ export class FieldsetComponent
    * @memberOf FieldsetComponent
    */
 
-  /**
-   * @description Handles accordion toggle functionality with validation error consideration.
-   * @summary Manages the expand/collapse state of the accordion while respecting validation error states.
-   * When validation errors are present, the accordion cannot be collapsed to ensure users can see
-   * and address the errors. When no errors exist, users can freely toggle the accordion state.
-   * This method also stops event propagation to prevent unwanted side effects.
-   *
-   * @param {CustomEvent} [event] - Optional event object from user interaction
-   * @returns {void}
-   * @memberOf FieldsetComponent
-   */
-  handleAccordionToggle(event?: CustomEvent): void {
-    // if (event) event.stopImmediatePropagation();
 
-    // if (this.isRequired) {
-    //   this.isOpen = true;
-    // } else {
-    //   if (!this.hasValidationErrors) {
-    //     this.accordionComponent.value = this.isOpen ? undefined : 'open';
-    //     this.isOpen = !!this.accordionComponent.value;
-    //   }
-    // }
-  }
 
   /**
    * @description Handles validation error events from child form fields.
@@ -825,7 +785,6 @@ export class FieldsetComponent
   protected override getActivePage(): UIModelMetadata[] | undefined {
     this.activePage = undefined;
     this.isOpen = true;
-    this.accordionComponent.value = 'open';
     this.changeDetectorRef.detectChanges();
     this.timerSubscription = timer(10).subscribe(() => {
       this.children = this.children.map((child) => {

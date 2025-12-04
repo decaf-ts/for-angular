@@ -5,8 +5,7 @@ import { Model, Primitives } from "@decaf-ts/decorator-validation";
 import {
   NgxEventHandler,
   ICrudFormEvent,
-  KeyValue,
-  IModelPageCustomEvent,
+  KeyValue
 } from "src/lib/engine";
 import { getNgxToastComponent } from "src/app/utils/NgxToastComponent";
 import { getModelAndRepository } from "src/lib/for-angular-common.module";

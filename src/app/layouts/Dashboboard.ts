@@ -6,6 +6,7 @@ import {
 import { uichild, uilayoutprop, uielement, uilayout } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from '../models/CategoryModel';
 import { EmployeeModel } from '../models/EmployeeModel';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 
 @uilayout('ngx-decaf-layout', true, ['Title of first Line', 'Title of second Line', 'Title of third Line'])
 @model()
@@ -28,7 +29,7 @@ export class DashboardLayout extends Model {
 
 
   @uilayoutprop(1, 3)
-  @uichild(CategoryModel.name, 'ngx-decaf-crud-form')
+  @uichild(CategoryModel.name, 'ngx-decaf-crud-form', {operation: OperationKeys.CREATE})
   category!: CategoryModel;
 
   @uielement('ngx-decaf-empty-state', {

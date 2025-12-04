@@ -4,9 +4,10 @@
 
   &.dcf-flex {
     @media (min-width: 577px) {
-      flex-direction: row-reverse;
+      // flex-direction: row-reverse;
     }
     @media (max-width: 576px) {
+      flex-direction: column-reverse;
       > div {
         width: 100%;
         + div {

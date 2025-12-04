@@ -1,5 +1,6 @@
 <ion-modal
   [id]="uid"
+  [class]="'dcf-modal-component ' + className"
   [isOpen]="isOpen"
   (willDismiss)="handleWillDismiss($event)"
   [backdropDismiss]="options?.backdropDismiss"
@@ -9,13 +10,14 @@
   [class.dcf-fullscreen-modal]="fullscreen"
   [class.dcf-lightbox-modal]="lightBox"
   [class.dcf-modal-no-header]="!showHeader"
-  [class]="'dcf-modal-component ' + className"
+  [class.dcf-header-transparent]="headerTransparent"
+  [class.dcf-no-title]="!title?.length"
   #component
 >
   <ng-template>
-    <ion-header [transparent]="lightBox || headerTransparent">
+    <ion-header>
       <ion-toolbar>
-        @if (title) {
+        @if (title?.length) {
           <ion-title>{{ title | translate }}</ion-title>
         }
         <ion-buttons slot="end">
@@ -27,14 +29,14 @@
     </ion-header>
 
     <ion-content>
-      <section class="dcf-modal-body">
+      <section class="dcf-modal-body" [class.dcf-has-title]="title?.length">
         @if (!tag && !model && !inlineContent) {
           <div class="dcf-loading-container">
             <ion-spinner name="crescent" color="primary"></ion-spinner>
           </div>
         } @else {
           @if (inlineContent && inlineContentPosition === "top") {
-            <div id="dcf-modal-content" [innerHTML]="inlineContent"></div>
+            <div class="dcf-modal-content" id="dcf-modal-content" [innerHTML]="inlineContent"></div>
           }
           @if (model) {
             <ngx-decaf-model-renderer
@@ -54,7 +56,7 @@
             />
           }
           @if (inlineContent && inlineContentPosition === "bottom") {
-            <div id="dcf-modal-content" [innerHTML]="inlineContent"></div>
+            <div class="dcf-modal-content" id="dcf-modal-content" [innerHTML]="inlineContent"></div>
           }
         }
       </section>

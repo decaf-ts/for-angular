@@ -1,3 +1,8 @@
+fieldset {
+  margin: 0;
+  padding: 0;
+  min-inline-size: auto; /* avoid weird width behavior in some browsers */
+}
 .dcf-loading-container {
   height: 50%;
   display: flex;
@@ -8,6 +13,14 @@
     width: 30px;
     height: 30px;
   }
+}
+
+.dcf-fieldset-read-item {
+  border: 1px solid var(--dcf-color-gray-3);
+  border-radius: var(--dcf-border-radius-small);
+  padding: var(--dcf-padding-small) var(--dcf-padding-xsmall);
+  padding-bottom: 0px;
+  margin-bottom: var(--dcf-margin-small) !important;
 }
 
 .dcf-fieldset-component {

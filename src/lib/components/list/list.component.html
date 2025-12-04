@@ -7,7 +7,7 @@
 
 
 @if (showSearchbar) {
-    <div [hidden]="!data?.length">
+    <div [hidden]="!data?.length && !searching">
       <div class="dcf-grid dcf-grid-collapse dcf-grid-actions">
         <div class="dcf-width-expand@m  dcf-width-1-1">
           @if (model && enableFilter) {
@@ -98,18 +98,20 @@
         className="dcf-empty-data"
         [subtitle]="(locale + '.'+ empty.subtitle) | translate" />
     } @else {
+
       <ngx-decaf-empty-state
         icon="search-outline"
         [model]="model"
         [route]="route"
         [borders]="borders"
-        className="empty-search"
+        [body]="'small'"
         [translatable]="true"
-        className="dcf-empty-data"
         [title]="locale + '.search.title' | translate"
         [subtitle]="locale + '.search.subtitle' | translate: {'0': parseSearchValue()}"
         [searchValue]="searchValue"
       />
+
+
     }
   }
 }

@@ -27,9 +27,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { Model, ModelConstructor, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
-import { LoggedClass, Logger } from '@decaf-ts/logging';
 import { DecafRepository, FunctionLike, KeyValue, WindowColorScheme } from './types';
-import { IBaseCustomEvent, ICrudFormEvent, IModelPageCustomEvent } from './interfaces';
+import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
 import { NgxEventHandler } from './NgxEventHandler';
 import { getLocaleContext } from '../i18n/Loader';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
@@ -824,7 +823,7 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    *   end
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-	async handleEvent(event: IBaseCustomEvent | ICrudFormEvent | CustomEvent, repository?: DecafRepository<Model>): Promise<void> {
+	async handleEvent(event: IBaseCustomEvent | ICrudFormEvent | CustomEvent): Promise<void> {
     let name = "";
     const log = this.log.for(this.handleEvent);
     if (event instanceof CustomEvent) {

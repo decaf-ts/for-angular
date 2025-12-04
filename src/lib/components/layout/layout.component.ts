@@ -234,10 +234,9 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
         if (!this.flexMode) {
           if (typeof col === Primitives.NUMBER) {
             col = (col === colsLength ?
-              `1-1` : `${col}-${colsLength}`);
+              `1-1` : col > colsLength ? `${colsLength}-${col}` :  `${col}-${colsLength}`);
           }
         } else {
-
           if (typeof col === Primitives.NUMBER)
             col =  (colsLength <= this.maxColsLength) ? `${col}-${colsLength}` : `${index + 1}-${col}`;
           col = ['2-4', '3-6'].includes(col) ? `1-2` : col;
@@ -272,11 +271,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
       this.breakpoint = `${this.breakpoint.startsWith('x') ? this.breakpoint.substring(0,2) : this.breakpoint.substring(0,1)}`.toLowerCase();
     this.cols = this._cols;
     this.rows = this._rows;
-    // if (this._rows.length === 1)
-    //   this.match = false;
-    // if (this._cols.length === 1)
-    //   this.grid = false;
     this.initialized = true;
-    this.changeDetectorRef.detectChanges();
   }
 }
