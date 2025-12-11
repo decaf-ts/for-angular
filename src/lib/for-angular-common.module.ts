@@ -23,7 +23,7 @@ import {
   DecafRepository,
   FunctionLike,
   DecafRepositoryAdapter,
-  KeyValue,
+  KeyValue
 } from './engine/types';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { Repository } from '@decaf-ts/core';
