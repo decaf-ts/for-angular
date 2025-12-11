@@ -114,7 +114,9 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
   override ngOnInit(): Promise<void> | void {
     super.ngOnInit();
     this.title = "product.title";
+    this.route = 'products';
     this.model = !this.operation ? new Product() : new ProductLayout();
+    this.enableCrudOperations();
   }
 
   override async ionViewWillEnter(): Promise<void> {

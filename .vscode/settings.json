@@ -7,6 +7,11 @@
     "uncovered": "rgba(255,99,71, 0.6)",
     "partially-covered": "rgba(255,215,0, 0.6)"
   },
+  "jest.outputConfig": {
+    "revealOn": "run",
+    "revealWithFocus": "none",
+  },
+  "testing.automaticallyOpenTestResults": "neverOpen",
   "jest.coverageFormatter": "GutterFormatter",
   "editor.renderWhitespace": "none",
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",

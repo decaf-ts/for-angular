@@ -1,13 +1,8 @@
-<app-header
-  title="Dashboard"
-  center="true"
-  showMenuButton="true"
-  color="primary">
-</app-header>
+<app-header title="Dashboard" [showBackButton]="false" />
 
 <ion-content [fullscreen]="true">
   <main>
-    <app-container [hasSideMenu]="true">
+    <app-container>
       <ngx-decaf-layout
       [model]="model"
       (listenEvent)="handleEvent($event)"

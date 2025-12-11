@@ -26,6 +26,7 @@ import { SwitcherComponent } from './components/switcher/switcher.component';
 import { Product } from './ew/models/Product';
 import { Leaflet } from './ew/models/Leaflet';
 import { ProductStrength } from './ew/models/ProductStrength';
+import { BatchSelectFieldComponent } from './pages/leaflet/components/batch-select-field/batch-select-field.component';
 
 export const DbAdapterFlavour = 'ram';
 export const AppName = 'For Angular';
@@ -46,7 +47,7 @@ export const AppConfig: ApplicationConfig = {
     provideDecafPageTransition(),
 
     // Providing Local components for dynamic rendering
-    provideDynamicComponents(SwitcherComponent),
+    provideDynamicComponents(SwitcherComponent, BatchSelectFieldComponent),
     // Providing RamAdapter as the database adapter for Decaf
     provideDbAdapter(RamAdapter, {user: "user"}, DbAdapterFlavour),
     // provideZoneChangeDetection({ eventCoalescing: true }),
@@ -65,10 +66,10 @@ export const AppConfig: ApplicationConfig = {
       // optionally provide I18nLoader configuration, otherwise it will use default (same as setted below)
       [
         {
-          prefix: './app/assets/i18n/',
+          prefix: './assets/i18n/',
         },
         {
-          prefix: './app/assets/i18n/ew/',
+          prefix: './assets/i18n/ew/',
           suffix: '.json',
         }
       ] as I18nResourceConfigType

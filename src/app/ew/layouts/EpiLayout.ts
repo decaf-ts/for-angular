@@ -12,16 +12,16 @@ import { ProductEpiHandler } from '../handlers/ProductEpiHandler';
 @model()
 export class EpiLayout extends Model {
 
-  @list(Leaflet, 'Array')
-  @uichild(
-    Leaflet.name,
-    'ngx-decaf-crud-form',
-    {
-      title: 'Documents',
-    } as Partial<FieldsetComponent>,
-  )
-  @uionrender(() => ProductEpiHandler)
-  document!: Leaflet;
+  // @list(Leaflet, 'Array')
+  // @uichild(
+  //   Leaflet.name,
+  //   'ngx-decaf-crud-form',
+  //   {
+  //     title: 'Documents',
+  //   } as Partial<FieldsetComponent>,
+  // )
+  // @uionrender(() => ProductEpiHandler)
+  // document!: Leaflet;
 
   @list(ProductStrength, 'Array')
   @uichild(

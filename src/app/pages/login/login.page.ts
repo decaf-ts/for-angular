@@ -52,7 +52,7 @@ export class LoginPage extends NgxPageDirective implements OnInit {
   }
 
   override async ngOnInit(): Promise<void> {
-   super.ngOnInit();
+   await super.ngOnInit();
    this.model = new LoginForm({
     username: 'User',
     password: 'Passd-123'

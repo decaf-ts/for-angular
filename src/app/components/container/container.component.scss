@@ -1,58 +1,43 @@
-// @use "@decaf-ts/styles/src/components/variables/decaf.scss";
-// $dcf-spacement: 1.25rem; // 20px
-// $dcf-spacement-xsmall: 0.3125rem; // 5px
-// $dcf-spacement-small: 0.625rem; // 10px
-// $dcf-spacement-medium: 1.875rem; // 30px
-// $dcf-spacement-large: 2.5rem; // 40px
-// $dcf-spacement-xlarge: 4.375rem; // 70px
-// $dcf-spacement-2xlarge: $dcf-spacement-xlarge * 2; // 140px
-
-// $dcf-width-s: 576px;
-// $dcf-width-m: 768px;
-// $dcf-width-l: 992px;
-// $dcf-width-xl: 1200px;
-// $dcf-width-2xl: 1400px;
-
-// $dcf-width-small: $dcf-width-s;
-// $dcf-width-medium: $dcf-width-m;
-// $dcf-width-large: $dcf-width-l;
-// $dcf-width-xlarge: $dcf-width-xl;
-// $dcf-width-2xlarge: $dcf-width-2xl;
-
-// $border-radius: 8px;
-// $border-radius-small: 6px;
-// $border-radius-large: 12px;
-
-// $text-color: #414651; // gray-7
-
 // Using decaf screen sizes
 $dcf-width-s: 576px;
 $dcf-width-m: 768px;
 $dcf-width-l: 992px;
 $dcf-width-xl: 1200px;
 $dcf-width-2xl: 1400px;
+.dcf-nav-container {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
 
+  .dcf-container {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+  }
+}
 .dcf-container {
   display: flow-root;
 
   // width: auto;
   min-width: 290px;
-  padding-left: var(--dcf-padding-xsmall, 1rem);
-  padding-right: var(--dcf-padding-xsmall, 1rem);
+  flex: 1;
+  max-width: 100vw;
+
   padding-bottom: var(--dcf-padding-small, 2rem);
   padding-top: var(--dcf-padding, 2rem);
+  padding-left: var(--dcf-padding-xsmall) !important;
+  padding-right: var(--dcf-padding-xsmall);
   // box-sizing: content-box;
-  @media (min-width: $dcf-width-s) {
-    padding-left: var(--dcf-padding-medium);
-    padding-right: var(--dcf-padding-medium);
-    padding-bottom: var(--dcf-padding, 2rem);
-    padding-top: var(--dcf-padding, 2rem);
+  // @media (min-width: $dcf-width-s) {
+  //   padding-left: var(--dcf-padding-medium);
+  //   padding-right: var(--dcf-padding-medium);
+  //   padding-bottom: var(--dcf-padding, 2rem);
+  //   padding-top: var(--dcf-padding, 2rem);
+  // }
+
+  @media (min-width: $dcf-width-xl) {
+    padding-left: var(--dcf-padding-xlarge) !important;
+    padding-right: var(--dcf-padding-xlarge);
   }
 
-  @media (min-width: $dcf-width-l) {
-    padding-left: var(--dcf-padding-large);
-    padding-right: var(--dcf-padding-large);
-  }
   > :last-child {
     margin-bottom: 0;
   }
@@ -61,43 +46,40 @@ $dcf-width-2xl: 1400px;
     padding-right: 0;
   }
 
-  .dcf-width-xsmall > div {
-    width: 290px;
+  &.dcf-width-xsmall {
+    max-width: 480px;
   }
 
-  .dcf-width-small > div {
-    width: $dcf-width-s;
+  &.dcf-width-small {
+    max-width: $dcf-width-s;
   }
 
-  .dcf-width-medium > div {
-    width: $dcf-width-m;
+  &.dcf-width-medium {
+    max-width: $dcf-width-m;
   }
-  .dcf-width-large > div {
-    width: $dcf-width-l;
+  &.dcf-width-large {
+    max-width: $dcf-width-l;
   }
-  .dcf-width-xlarge > div {
-    width: $dcf-width-xl;
+  &.dcf-width-xlarge {
+    max-width: $dcf-width-xl;
   }
-  .dcf-width-2xlarge > div {
-    width: $dcf-width-2xl;
+  &.dcf-width-2xlarge {
+    max-width: $dcf-width-2xl;
   }
 
-  .dcf-width-auto > div {
+  &.dcf-width-auto {
     width: auto;
   }
 
-  .dcf-width-block {
+  &.dcf-width-block {
     width: 100%;
     div {
       flex: 1;
       min-width: 1px;
     }
   }
-  .dcf-width-expand {
-    max-width: 80vw !important;
-    @media (min-width: #{($dcf-width-2xl + 1px)}) {
-      max-width: 85vw !important;
-    }
+  &.dcf-width-expand {
+    max-width: 95vw !important;
     div {
       flex: 1;
       min-width: 1px;

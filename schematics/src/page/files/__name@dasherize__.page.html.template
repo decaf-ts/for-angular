@@ -1,13 +1,10 @@
 <app-header
-  title="<%= dasherize(name) %>"
-  center="true"
-  showMenuButton="true"
-  color="primary">
+  [title]="title"
 </app-header>
 
 <ion-content [fullscreen]="true">
   <main>
-    <app-container [hasSideMenu]="true">
+    <app-container>
       <ion-card>
         <ion-card-content>
           Page content goes here!

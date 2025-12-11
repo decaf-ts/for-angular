@@ -18,6 +18,8 @@ export class NgxSvgDirective implements OnInit {
 
   ngOnInit(): void {
     this.path = this.path?.trim() || this.element?.nativeElement?.getAttribute('src')?.trim() || '';
+    console.log(this.path);
+
     if (this.path)
       this.mediaService.loadSvgObserver(this.http, this.path, this.element.nativeElement);
   }

@@ -70,18 +70,18 @@ export class ContainerComponent extends NgxComponentDirective implements OnInit 
   @Input()
   flex: StringOrBoolean = true;
 
-  /**
-   * @description Determines if the container should expand to fill available space.
-   * @summary When true, applies expansion classes for width, making the container
-   * take up all available horizontal space. When false, the container's width is
-   * determined by the size property.
-   *
-   * @type {StringOrBoolean}
-   * @default false
-   * @memberOf ContainerComponent
-   */
-  @Input()
-  expand: StringOrBoolean = false;
+  // /**
+  //  * @description Determines if the container should expand to fill available space.
+  //  * @summary When true, applies expansion classes for width, making the container
+  //  * take up all available horizontal space. When false, the container's width is
+  //  * determined by the size property.
+  //  *
+  //  * @type {StringOrBoolean}
+  //  * @default false
+  //  * @memberOf ContainerComponent
+  //  */
+  // @Input()
+  // expand: StringOrBoolean = false;
 
   /**
    * @description Determines if the container should take up the full viewport height.
@@ -147,7 +147,7 @@ export class ContainerComponent extends NgxComponentDirective implements OnInit 
    * @memberOf ContainerComponent
    */
   ngOnInit() {
-    this.expand = stringToBoolean(this.expand);
+    // this.expand = stringToBoolean(this.expand);
     this.flex = stringToBoolean(this.flex);
 
     if(this.flex && !this.className?.includes('dcf-flex-'))
@@ -157,7 +157,8 @@ export class ContainerComponent extends NgxComponentDirective implements OnInit 
     if(this.fullscreen)
       this.className += ' dcf-height-viewport';
 
-    this.size += ` dcf-width-${this.expand ? 'expand' : this.size}`;
+    // this.size += ` dcf-width-${this.expand ? 'expand' : this.size}`;
+    // this.size = `dcf-width-${this.size}`;
     // this.className += `${this.size}`
   }
 }

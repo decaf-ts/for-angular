@@ -1,15 +1,9 @@
-<app-header
-  [model]="model"
-  [title]="'List ' + type"
-  center="true"
-  showMenuButton="true"
-  operations="['read', 'create']"
-  color="primary">
-</app-header>
+<app-header [model]="model" [title]="'List ' + type" [operations]="['read', 'create']" />
+
 
 <ion-content [fullscreen]="true">
     <main>
-    <app-container [hasSideMenu]="true">
+    <app-container>
         <ngx-decaf-card
           [title]="title"
           [subtitle]="type + ' list component'"

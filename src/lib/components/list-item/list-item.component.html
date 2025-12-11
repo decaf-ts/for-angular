@@ -4,7 +4,7 @@
     <ion-item
       [id]="uid"
       [lines]="lines"
-      [button]="button"
+      [button]="!operations?.length ? false : button"
       [class]="className"
       (click)="operations?.includes('read') ? handleAction('read', $event, component) : ''"
       #component
@@ -49,43 +49,60 @@
           }
 
           <div class="dcf-width-auto dcf-flex dcf-flex-middle dcf-flex-right">
-            @if ((operations.includes('delete') || operations.includes('update')) && uid) {
-
+            @if ((operations?.includes(OperationKeys.DELETE) || operations?.includes(OperationKeys.UPDATE)) && uid) {
               <div class="dcf-visible@s" id="dcf-actions">
-                <ion-button class="" shape="round" fill="clear" color="primary" (click)="presentActionsMenu($event)">
-                  <ion-icon slot="icon-only" aria-hidden="true" name="ellipsis-vertical-outline" />
-                </ion-button>
-                <ion-popover
-                  #actionMenuComponent
-                  side="bottom"
-                  alignment="left"
-
-                  [isOpen]="actionMenuOpen"
-                  (didDismiss)="actionMenuOpen = false">
-                  <ng-template>
-                    <ion-content class="ion-padding">
-                      <ion-list lines="none">
-                        <ion-list-header>
-                          <h4 class="dcf-text-capitalize" [innerHTML]="'actions' | translate"></h4>
-                        </ion-list-header>
-                        @for (operation of ['update', 'delete']; track operation) {
-                          @if (operations.includes(operation)) {
-                          <ion-item [button]="true" (click)="handleAction(operation, $event, component)">
-                              <ion-avatar class="dcf-flex dcf-flex-middle" aria-hidden="true" slot="start">
-                                @if (operation === 'update') {
-                                  <ion-icon color="primary" aria-hidden="true" name="create-outline" />
+                @if(actionsType === 'popover') {
+                  <ion-button class="" shape="round" fill="clear" color="primary" (click)="presentActionsMenu($event)">
+                    <ion-icon slot="icon-only" aria-hidden="true" name="ellipsis-vertical-outline" />
+                  </ion-button>
+                  <ion-popover
+                    #actionMenuComponent
+                    side="bottom"
+                    alignment="left"
+                    [isOpen]="actionMenuOpen"
+                    (didDismiss)="actionMenuOpen = false">
+                    <ng-template>
+                      <ion-content class="ion-padding">
+                        <ion-list lines="none">
+                          <ion-list-header>
+                            <h4 class="dcf-text-capitalize" [innerHTML]="'actions' | translate"></h4>
+                          </ion-list-header>
+                          @for (operation of [OperationKeys.UPDATE, OperationKeys.DELETE]; track operation) {
+                            @if (operations?.includes(operation)) {
+                            <ion-item button="true" (click)="handleAction(operation, $event, component)">
+                              <div slot="start">
+                              @if (operation === OperationKeys.UPDATE) {
+                                  <ngx-decaf-icon name="assets/images/icons/edit.svg" />
                                 } @else {
-                                  <ion-icon color="danger" aria-hidden="true" name="trash" />
+                                  <ngx-decaf-icon color="danger" name="assets/images/icons/trash.svg" />
                                 }
-                              </ion-avatar>
+                              </div>
                               <ion-label class="dcf-text-capitalize">{{ operation | translate }}</ion-label>
                             </ion-item>
+                            }
                           }
+                        </ion-list>
+                      </ion-content>
+                    </ng-template>
+                  </ion-popover>
+                } @else {
+                  <div class="dcf-grid-actions dcf-grid dcf-grid-small dcf-flex  dcf-flex-space-between">
+                    @for (operation of [OperationKeys.UPDATE, OperationKeys.DELETE]; track operation) {
+                      <div tabindex="0" (keydown.enter)="handleAction(operation, $event, component)" (click)="handleAction(operation, $event, component)">
+                        @if (operations?.includes(operation)) {
+                          <ion-button fill="clear" shape="round">
+                            @if (operation === OperationKeys.UPDATE) {
+                              <ngx-decaf-icon name="assets/images/icons/edit.svg" />
+                            } @else {
+                              <ngx-decaf-icon color="danger" name="assets/images/icons/trash.svg" />
+                            }
+                          </ion-button>
                         }
-                      </ion-list>
-                    </ion-content>
-                  </ng-template>
-                </ion-popover>
+                      </div>
+                    }
+                  </div>
+                }
+
               </div>
             }
             @if (windowWidth > 639) {
@@ -99,13 +116,13 @@
     </ion-item>
     @if (showSlideItems && uid) {
       <ion-item-options side="end" (ionSwipe)="operations.length === 1 ? handleAction(operations[0],  $event, component) : ''">
-        @if (operations?.includes('update')) {
-          <ion-item-option class="dcf-update" (click)="handleAction('update', $event, component)" [expandable]="operations.length === 1">
+        @if (operations?.includes(OperationKeys.UPDATE)) {
+          <ion-item-option class="dcf-update" (click)="handleAction(OperationKeys.UPDATE, $event, component)" [expandable]="operations.length === 1">
             <ion-icon aria-hidden="true" slot="icon-only" name="create-outline" />
           </ion-item-option>
         }
-        @if (operations?.includes('delete')) {
-        <ion-item-option class="dcf-delete" (click)="handleAction('delete',  $event, component)" [expandable]="operations.length === 1">
+        @if (operations?.includes(OperationKeys.DELETE)) {
+        <ion-item-option class="dcf-delete" (click)="handleAction(OperationKeys.DELETE,  $event, component)" [expandable]="operations.length === 1">
             <ion-icon aria-hidden="true" slot="icon-only" name="trash" />
           </ion-item-option>
         }

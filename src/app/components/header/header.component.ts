@@ -1,5 +1,5 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { StringOrBoolean } from 'src/lib/engine/types';
+import { ElementSize, StringOrBoolean } from 'src/lib/engine/types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { IonAvatar, IonButton, IonButtons, IonHeader, IonMenuButton, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
 import { getOnWindow, getOnWindowDocument, stringToBoolean } from 'src/lib/utils/helpers';
@@ -7,8 +7,9 @@ import { BackButtonComponent } from '../back-button/back-button.component';
 import { NgxComponentDirective } from 'src/lib/engine/NgxComponentDirective';
 import { FunctionLike } from 'src/lib/engine/types';
 import { TranslatePipe } from '@ngx-translate/core';
-import { AngularEngineKeys, WindowColorSchemes } from 'src/lib/engine/constants';
+import { AngularEngineKeys, ElementSizes, WindowColorSchemes } from 'src/lib/engine/constants';
 import { IconComponent } from 'src/lib/components/icon/icon.component';
+import { ContainerComponent } from '../container/container.component';
 
 /**
  * @description Header component for application pages.
@@ -26,8 +27,7 @@ import { IconComponent } from 'src/lib/components/icon/icon.component';
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
-  imports: [TranslatePipe, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonMenuButton,IconComponent, IonAvatar,  BackButtonComponent],
-  schemas: [],
+  imports: [TranslatePipe, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonMenuButton, IconComponent, IonAvatar, ContainerComponent,  BackButtonComponent],
   standalone: true,
 
 })
@@ -138,12 +138,12 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    * applications or any interface that uses a slide-in menu for navigation.
    * The menu controller is automatically enabled/disabled based on this property.
    *
-   * @type {StringOrBoolean}
-   * @default false
+   * @type {boolean}
+   * @default true
    * @memberOf HeaderComponent
    */
   @Input()
-  showMenuButton: StringOrBoolean = false;
+  showMenuButton: boolean = true;
 
   /**
    * @description Position of the menu button in the header.
@@ -159,7 +159,7 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
 
   /**
    * @description The title text displayed in the header.
-   * @summary Sets the main title text that appears in the center of the header.
+   * @summary Sets the main title text
    * This typically represents the name of the current page or section.
    *
    * @type {string}
@@ -167,6 +167,19 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    */
   @Input()
   title?: string;
+
+
+  /**
+   * @description Background color of the header.
+   * @summary Sets the background color of the header using Ionic's predefined color palette.
+   * This allows the header to match the application's color scheme.
+   *
+   * @type {string}
+   * @default "primary"
+   * @memberOf HeaderComponent
+   */
+  @Input()
+  color:  "white" | "danger" | "dark" | "light" | "medium" | "primary" | "secondary" | "success" | "tertiary" | "warning" | string | undefined = "white";
 
   /**
    * @description URL or path to the logo image.
@@ -180,41 +193,17 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   @Input()
   logo: string = "";
 
-
   /**
-   * @description Controls whether the header expands to fill available space.
-   * @summary When set to true, the header will expand vertically to fill available space.
-   * This can be useful for creating larger headers with more content.
+   * @description Size preset for the container width.
+   * @summary Controls the width of the container using predefined size classes.
+   * Options include 'block', 'small', 'medium', 'large', and others defined in
+   * the ElementSize type. This property is ignored when expand is true.
    *
-   * @type {StringOrBoolean}
-   * @default false
-   * @memberOf HeaderComponent
+   * @type {ElementSize}
+   * @default 'expand'
    */
   @Input()
-  expand: StringOrBoolean = true;
-
-  /**
-   * @description Controls the alignment of the title text.
-   * @summary Specifies how the title text should be aligned within the header.
-   * Common values include 'start', 'center', and 'end'.
-   *
-   * @type {string}
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  titleAligment?: string;
-
-  /**
-   * @description Controls whether the header has a border.
-   * @summary When set to true, the header will display a border at the bottom.
-   * Setting to false removes the border for a more seamless design.
-   *
-   * @type {StringOrBoolean}
-   * @default true
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  border: StringOrBoolean = true;
+  size: ElementSize = ElementSizes.expand;
 
   /**
    * @description Controls whether the back button is displayed.
@@ -222,12 +211,12 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    * users to navigate to the previous page. This is particularly useful for
    * multi-level navigation flows.
    *
-   * @type {StringOrBoolean}
-   * @default false
+   * @type {boolean}
+   * @default true
    * @memberOf HeaderComponent
    */
   @Input()
-  showBackButton: StringOrBoolean = false;
+  showBackButton: boolean = true;
 
   /**
    * @description Custom navigation target for the back button.
@@ -240,30 +229,6 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   @Input()
   backButtonLink?: string | FunctionLike;
 
-  /**
-   * @description Background color of the header.
-   * @summary Sets the background color of the header using Ionic's predefined color palette.
-   * This allows the header to match the application's color scheme.
-   *
-   * @type {string}
-   * @default "primary"
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  backgroundColor: string = "white";
-
-
-  /**
-   * @description Controls whether the header content is centered.
-   * @summary When set to true, the header content (title, buttons) will be centered
-   * horizontally. This affects the overall layout and appearance of the header.
-   *
-   * @type {StringOrBoolean}
-   * @default false
-   * @memberOf HeaderComponent
-   */
-  @Input()
-  center: StringOrBoolean = false;
 
   /**
    * @description Controls whether the header has a translucent effect.
@@ -271,12 +236,12 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    * allowing content behind it to be partially visible. This creates a modern,
    * layered UI effect.
    *
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default false
    * @memberOf HeaderComponent
    */
   @Input()
-  translucent: StringOrBoolean = false;
+  translucent: boolean = true;
 
   /**
    * @description Enables or disables the color scheme toggle control in the header.
@@ -287,7 +252,7 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    * @default true
    */
   @Input()
-  showThemeToggleButton: boolean = true;
+  showThemeToggleButton: boolean = false;
 
   /**
    * @description Enable sticky header behavior.
@@ -328,6 +293,26 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   @Input()
   floating: boolean = false;
 
+  /**
+   * @description Color of back button icon.
+   * @summary Sets the color of the back button icon using Ionic's predefined color palette.
+   * This allows the back button icon to match the application's color scheme.
+   *
+   * @type {string}
+   * @memberOf HeaderComponent
+   */
+  backButtonColor: string = 'dark';
+
+  /**
+   * @description Color of back button icon.
+   * @summary Sets the color of the back button icon using Ionic's predefined color palette.
+   * This allows the back button icon to match the application's color scheme.
+   *
+   * @type {string}
+   * @memberOf HeaderComponent
+   */
+  user!: string;
+
 
   /**
    * @description Service for handling routing operations.
@@ -340,20 +325,6 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    * @memberOf HeaderComponent
    */
   private menuController: MenuController = inject(MenuController);
-
-  /**
-   * @description Color of back button icon.
-   * @summary Sets the color of the back button icon using Ionic's predefined color palette.
-   * This allows the back button icon to match the application's color scheme.
-   *
-   * @type {string}
-   * @memberOf HeaderComponent
-   */
-  backButtonColor: string = 'dark';
-
-  user!: string;
-
-
 
   /**
    * @description Creates an instance of HeaderComponent.
@@ -383,10 +354,8 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   *   A->>H: ngOnInit()
   *   H->>M: enable(showMenuButton)
   *   H->>H: Process showBackButton
-  *   H->>H: Process center
   *   H->>H: Process translucent
   *   H->>H: Process expand
-  *   H->>H: Process border
   *   H->>H: Build CSS class string
   *
   * @returns {Promise<void> }
@@ -395,35 +364,33 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   async ngOnInit(): Promise<void> {
     // custom behavior on color scheme change, dont call super.ngOnInit()
     // this.mediaService.colorSchemeObserver(this.component);
-    const isLoggedIn = await this.isLoggedIn() || 'User';
-    if(!isLoggedIn)
-      this.router.navigateByUrl('/login');
-    this.user = isLoggedIn as string;
-    this.showBackButton = stringToBoolean(this.showBackButton);
+    const user = await this.isLoggedIn();
+    if(user?.length)
+      this.user = user as string;
+
+    if(!this.borders)
+      this.className += ` ion-no-border`;
+
     // remove back button case dont have any operation defined
     if(!this.operation)
       this.showBackButton = false;
 
     if(this.showMenuButton)
       this.menuController.enable(true);
-    this.center = stringToBoolean(this.center);
-    this.translucent = stringToBoolean(this.translucent);
-    this.expand = stringToBoolean(this.expand);
-    this.border = stringToBoolean(this.border);
-    if(this.center)
-      this.className += ' dcf-flex';
-    if(!this.border)
-      this.className += ` ion-no-border`;
-    if(this.backgroundColor === 'white')
+
+    if(this.color === 'white')
       this.backButtonColor = 'dark';
-    if(this.sticky || this.floating) {
+
+    if(this.sticky) {
       if(this.floating)
         this.stickyOffset = 100;
       this.mediaService.observePageScroll(this.stickyOffset).subscribe(isBeyondOffset => {
+        console.log('isBeyondOffset', isBeyondOffset);
         this.stickyActive = isBeyondOffset;
+        // if(isBeyondOffset)
+        //   this.sticky = true;
       });
     }
-
     this.initialized = true;
   }
 
@@ -454,4 +421,3 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
     return this.modelId && ![OperationKeys.READ,  OperationKeys.UPDATE].includes(this.operation as OperationKeys) ? 'start' : 'end';
   }
 }
-

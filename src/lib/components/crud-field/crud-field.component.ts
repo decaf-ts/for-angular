@@ -655,6 +655,10 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   @Input()
   translatable: StringOrBoolean = true;
 
+  constructor() {
+    super();
+    addIcons({chevronDownOutline, chevronUpOutline});
+  }
 
   /**
    * @description Component initialization lifecycle method.
@@ -667,11 +671,12 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   async ngOnInit(): Promise<void> {
+
     this.options = await this.getOptions();
-    addIcons({chevronDownOutline, chevronUpOutline});
-    if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation)) {
+
+    if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation))
       this.hidden = false;
-    }
+
     if(this.hidden && (this.hidden as OperationKeys[]).includes(this.operation))
       this.hidden = true;
 
@@ -750,8 +755,13 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       };
     });
     this.options = await Promise.all(options);
+    if(this.type !== HTML5InputTypes.SELECT)
+      return this.options as CrudFieldOption[];
+
     if (this.options.length > 10 && this.interface === 'popover')
       this.interface = 'modal';
+    if(this.options.length === 0 && !this.required)
+      this.value = "";
     return (!this.required || (this.options?.length > 1 && this.startEmpty) ?
       [{value: '', text: '', selected: true, disabled: this.required}, ...this.options] :  this.options
     ) as CrudFieldOption[];

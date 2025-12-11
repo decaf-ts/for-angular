@@ -1,5 +1,6 @@
 import { Directive, Input } from '@angular/core';
 import {
+  CrudOperations,
   InternalError,
   IRepository,
   NotFoundError,
@@ -189,6 +190,21 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         this.errorMessage = error.message;
       }
       this.log.error(error as Error | string);
+    }
+  }
+
+  /**
+   * @description Enables CRUD operations except those specified.
+   * @summary Sets the allowed CRUD operations for the component, excluding any operations provided in the 'except' array.
+   *
+   * @param {OperationKeys[]} except - Array of operations to exclude from the allowed operations.
+   */
+  protected enableCrudOperations(except: OperationKeys[] = []): void {
+    const operations = [OperationKeys.CREATE, OperationKeys.READ, OperationKeys.UPDATE, OperationKeys.DELETE] as CrudOperations[];
+    if(!except?.length) {
+      this.operations = operations;
+    } else {
+      this.operations = operations.filter(op => !except.includes(op));
     }
   }
 

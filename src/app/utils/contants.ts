@@ -59,11 +59,18 @@ export const EwMenu: IMenuItem[] = [
   },
   {
     label: 'Products',
-    url: '/products',
+    url: 'products',
+     icon: 'document.svg',
   },
   {
     label: 'Batches',
-    url: '/batches',
+    url: 'batches',
+     icon: 'document.svg',
+  },
+  {
+    label: 'Leaflets',
+    url: 'leaflets',
+    icon: 'document.svg',
   },
 ];
 

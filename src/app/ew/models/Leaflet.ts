@@ -1,5 +1,5 @@
 import { BaseModel, pk } from "@decaf-ts/core";
-import { model, ModelArg, required } from "@decaf-ts/decorator-validation";
+import { list, model, ModelArg, required } from "@decaf-ts/decorator-validation";
 import { HTML5InputTypes, uielement,  uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../../utils/helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
@@ -8,6 +8,7 @@ import { ElementPositions, ElementSizes, KeyValue, ListItemPositions, NgxEventHa
 import { composed } from "@decaf-ts/db-decorators";
 import { FormGroup } from "@angular/forms";
 import { presentNgxInlineModal } from "src/lib/components";
+import { Batch } from "./Batch";
 
 class XmlPreviewHandler extends NgxEventHandler {
 
@@ -53,7 +54,7 @@ class XmlPreviewHandler extends NgxEventHandler {
   }
 }
 
-@uimodel('ngx-decaf-crud-form')
+@uimodel('ngx-decaf-crud-form', {cardType: 'shadow'})
 @model()
 export class Leaflet extends BaseModel {
 
@@ -65,7 +66,25 @@ export class Leaflet extends BaseModel {
   @uiprop()
   productCode!: string;
 
-  @uiprop()
+    @list(String)
+  @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'organizationEnroll.services.label',
+    placeholder: 'organizationEnroll.services.placeholder',
+    options: () => {
+      return ['Epi', 'Traceability'].map(s => ({ text: `organizationEnroll.services.options.${s.toLowerCase()}`, value: s }));
+    },
+    multiple: true,
+    type: HTML5InputTypes.CHECKBOX
+  })
+  services!: string[];
+
+  @uielement('app-batch-select-field', {
+    label: 'leaflet.batchNumber.label',
+    placeholder: 'leaflet.batchNumber.placeholder',
+    type: HTML5InputTypes.SELECT,
+    options: () => Batch
+  } as Partial<CrudFieldComponent>)
   batchNumber!: string;
 
   @required()

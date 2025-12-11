@@ -1,4 +1,7 @@
 {
+  "menu": {
+    "collapse": "Collapse sidebar"
+  },
   "errors": {
     "required": "This field is required.",
     "pattern": "The provided value does not match the pattern.",

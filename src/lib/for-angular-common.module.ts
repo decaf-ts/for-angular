@@ -106,9 +106,9 @@ export const I18N_CONFIG_TOKEN = new InjectionToken<I18nToken>(
  * ]
  */
 export function provideDynamicComponents(
-  ...components: Constructor<unknown>[]
+  ...components: unknown[]
 ): Constructor<unknown>[] {
-  return components;
+  return components as Constructor<unknown>[];
 }
 
 /**
