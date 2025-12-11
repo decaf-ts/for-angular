@@ -9,19 +9,19 @@
     @if (!children?.length) {
       <ng-content #formContent></ng-content>
     } @else {
-        <ngx-decaf-layout
-          [className]="'dcf-crud-form-grid dcf-grid-nested '"
-          [children]="children || []"
-          [parentForm]="formGroup || parentForm"
-          [operation]="operation"
-          [cardType]="cardType ?? 'blank'"
-          [match]="match ?? false"
-          [gap]="'small'"
-          [flexMode]="props.flexMode || false"
-          [rows]="rows"
-          [borders]="borders ?? false"
-          [breakpoint]="breakpoint ?? 'large'"
-          [cols]="cols" />
+      <ngx-decaf-layout
+        [className]="'dcf-crud-form-grid dcf-grid-nested '"
+        [children]="children || []"
+        [parentForm]="formGroup || parentForm"
+        [operation]="operation"
+        [cardType]="cardType ?? 'blank'"
+        [match]="match ?? false"
+        [gap]="'small'"
+        [flexMode]="props.flexMode || false"
+        [rows]="rows"
+        [borders]="borders ?? false"
+        [breakpoint]="breakpoint ?? 'large'"
+        [cols]="cols" />
     }
     @if (initialized) {
       <div class="dcf-buttons-grid dcf-grid dcf-grid-small dcf-flex dcf-flex-right">

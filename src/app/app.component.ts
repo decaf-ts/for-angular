@@ -36,6 +36,7 @@ import {
   LogoutMenuItem,
 } from './utils/contants';
 import { TranslatePipe } from '@ngx-translate/core';
+import { IconComponent } from 'src/lib/components';
 
 @Component({
   standalone: true,
@@ -55,12 +56,18 @@ import { TranslatePipe } from '@ngx-translate/core';
     IonLabel,
     IonRouterLink,
     IonRouterOutlet,
+    IconComponent,
     LogoComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent extends NgxPageDirective implements OnInit {
+
+  menuCollapsed: boolean = false;
+
+  showCollapseButton: boolean = true;
+
   constructor() {
     super('', true);
     this.title = 'Decaf-ts for-angular demo';
@@ -112,29 +119,11 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       ...AppMenu,
       LogoutMenuItem,
     ];
-    super.ngOnInit();
+    await super.ngOnInit();
   }
 
-  /**
-   * @description Sets the browser page title based on the current route.
-   * @summary Updates the browser's document title by finding the active menu item that matches
-   * the provided route. If a matching menu item is found, it sets the title using the format
-   * "Decaf For Angular - {menu title or label}". This improves SEO and provides clear context
-   * to users about the current page. If a custom menu array is provided, it uses that instead
-   * of the component's default menu.
-   * @protected
-   * @param {string} route - The current route path to match against menu items
-   * @param {IMenuItem[]} [menu] - Optional custom menu array to search (uses this.menu if not provided)
-   * @return {Promise<void>}
-   * @memberOf module:lib/engine/NgxPageDirective
-   */
-  // protected override setPageTitle(route?: string, menu?: IMenuItem[]): Promise<void> {
-  //   if(!route)
-  //     route = this.router.url.replace('/', '');
-  //   if(menu)
-  //     menu = this.menu;
-  //   const activeMenu = this.menu.find(item => item?.url?.includes(route));
-  //   if(activeMenu)
-  //     this.titleService.setTitle(`${activeMenu?.title || activeMenu?.label} - ${AppName}`);
-  // }
+  handleCollapseMenu() {
+    this.menuCollapsed = !this.menuCollapsed;
+    this.changeDetectorRef.detectChanges();
+  }
 }

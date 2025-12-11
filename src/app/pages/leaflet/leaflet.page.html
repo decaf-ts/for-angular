@@ -1,34 +1,31 @@
 <app-header [title]="title" [operation]="operation" [modelId]="modelId" />
-
-
 <ion-content [fullscreen]="true">
-  <main class="main">
-    <app-container>
+  <main>
+    <app-container [hasSideMenu]="true">
+      <ngx-decaf-card type="shadow" [body]="operation || !model ? '' : 'blank'">
         @if(model) {
           @if(!operation) {
-            <ngx-decaf-card type="shadow" [body]="'blank'">
-              <ngx-decaf-list
+            <ngx-decaf-list
                 [model]="model"
                 [createButton]="true"
-                [route]="'products'"
+                [type]="'paginated'"
+                [route]="route"
                 [operations]="operations"
                 (listenEvent)="handleEvent($event)"
               />
-            </ngx-decaf-card>
           } @else {
             @if(!errorMessage) {
-              <ngx-decaf-model-renderer
-                  [model]="model"
-                  (listenEvent)="handleEvent($event)"
-                  [globals]="{operation: operation, modelId, allowClear: false}"
-                >
-              </ngx-decaf-model-renderer>
+            <ngx-decaf-model-renderer
+              [model]="model"
+              (listenEvent)="handleEvent($event)"
+              [globals]="{operation, operations, modelId, allowClear: false}" />
+
             } @else {
               <ngx-decaf-empty-state
                 [model]="model"
-                title="404 - Not Found"
-                iconColor="danger"
-                icon="sad-outline"
+                [title]="not_found"
+                [iconColor]="danger"
+                [icon]="sad-outline"
                 [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}"
               />
             }
@@ -36,7 +33,7 @@
         } @else {
           <div>No Model</div>
         }
-
+      </ngx-decaf-card>
     </app-container>
   </main>
 </ion-content>

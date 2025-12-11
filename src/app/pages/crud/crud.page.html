@@ -1,13 +1,8 @@
-<app-header
-  [title]="'Crud '+ operation"
-  center="true"
-  showMenuButton="true"
-  color="primary">
-</app-header>
+<app-header [title]="'Crud '+ operation" />
 
 <ion-content [fullscreen]="true">
   <main>
-    <app-container [hasSideMenu]="true">
+    <app-container>
       <ngx-decaf-card [title]="title">
         <ngx-decaf-model-renderer
             [model]="model"

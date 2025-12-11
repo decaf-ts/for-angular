@@ -1,5 +1,7 @@
 import { Component, inject, Input, OnInit  } from '@angular/core';
 import { IonImg } from '@ionic/angular/standalone';
+import { AppName } from 'src/app/app.config';
+import { ElementPosition } from 'src/lib/engine/types';
 import { NgxMediaService } from 'src/lib/services/NgxMediaService';
 
 
@@ -12,6 +14,9 @@ import { NgxMediaService } from 'src/lib/services/NgxMediaService';
 
 })
 export class LogoComponent implements OnInit {
+
+  @Input()
+  className: string = '';
 
   @Input()
   showAngularLogo = false;
@@ -27,6 +32,12 @@ export class LogoComponent implements OnInit {
 
   mediaService = inject(NgxMediaService);
 
+  @Input()
+  alt?: string;
+
+  @Input()
+  position?: Extract<ElementPosition, 'left' | 'right' | 'center'> = 'center';
+
   activeLogo!: string;
 
   /**
@@ -39,6 +50,8 @@ export class LogoComponent implements OnInit {
     this.mediaService.isDarkMode().subscribe(isDark => {
       this.activeLogo = (isDark ? this.logoContrast : this.logo ) as string;
     });
+    if(!this.alt)
+      this.alt = AppName;
   }
 
 }

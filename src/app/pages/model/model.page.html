@@ -1,17 +1,9 @@
-<app-header
-  [model]="model"
-  [title]="modelName + ' ' + (operation ? operation : ' List')"
-  [operation]="operation"
-  [center]="true"
-  [modelId]="modelId"
-  showMenuButton="true"
-  showBackButton="true"
-  color="primary">
-</app-header>
+
+<app-header [model]="model" [title]="modelName + ' ' + (operation ? operation : ' List')" [operation]="operation" [modelId]="modelId" />
 
 <ion-content [fullscreen]="true">
   <main class="main">
-    <app-container [hasSideMenu]="true">
+    <app-container>
       <ngx-decaf-card
         [title]="pageTitle"
         >

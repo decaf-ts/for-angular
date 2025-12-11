@@ -1,54 +1,41 @@
-<app-header
-  [title]="title"
-  [operation]="operation"
-  [center]="true"
-  [modelId]="modelId"
-  showMenuButton="true"
-  showBackButton="true"
-  color="primary"
->
-</app-header>
+<app-header [title]="title" [operation]="operation" [modelId]="modelId" />
+
 
 <ion-content [fullscreen]="true">
   <main class="main">
-    <app-container [hasSideMenu]="true">
-        @if(model) {
-          @if(!operation) {
-            <ngx-decaf-card
-              type="shadow"
-              [body]="'blank'"
-              >
-              <ngx-decaf-list
-                [model]="model"
-                [createButton]="true"
-                [type]="'paginated'"
-                [route]="route"
-                [operations]="operations"
-                (listenEvent)="handleEvent($event)"
-              />
-            </ngx-decaf-card>
-          } @else {
-            @if(!errorMessage) {
-              <ngx-decaf-model-renderer
-                  [model]="model"
-                  (listenEvent)="handleEvent($event)"
-                  [globals]="{operation, operations, modelId, allowClear: false}"
-                >
-              </ngx-decaf-model-renderer>
-            } @else {
-              <ngx-decaf-empty-state
-                [model]="model"
-                [title]="not_found"
-                [iconColor]="danger"
-                [icon]="sad-outline"
-                [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}"
-              />
-            }
-          }
+    <app-container>
+      @if(model) {
+        @if(!operation) {
+          <ngx-decaf-card type="shadow" [body]="'blank'">
+            <ngx-decaf-list
+              [model]="model"
+              [createButton]="true"
+              [route]="'products'"
+              [operations]="operations"
+              (listenEvent)="handleEvent($event)"
+            />
+          </ngx-decaf-card>
         } @else {
-          <div>No Model</div>
+          @if(!errorMessage) {
+            <ngx-decaf-model-renderer
+                [model]="model"
+                (listenEvent)="handleEvent($event)"
+                [globals]="{operation: operation, modelId, allowClear: false}"
+              >
+            </ngx-decaf-model-renderer>
+          } @else {
+            <ngx-decaf-empty-state
+              [model]="model"
+              title="404 - Not Found"
+              iconColor="danger"
+              icon="sad-outline"
+              [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}"
+            />
+          }
         }
-
+      } @else {
+        <div>No Model</div>
+      }
     </app-container>
   </main>
 </ion-content>

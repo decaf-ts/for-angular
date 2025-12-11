@@ -4,7 +4,6 @@
 
 .dcf-grid {
   &:first-of-type {
-    padding-top: 0.25rem !important;
   }
 
   &.dcf-grid-collapse {
@@ -69,7 +68,6 @@
   &.dcf-grid-small {
     // fix padding for forms
     &.dcf-grid-nested {
-      padding: 0 0.5rem !important;
       // &.read {
       //   // remove margin for operation read mode
       //   > div:last-child {

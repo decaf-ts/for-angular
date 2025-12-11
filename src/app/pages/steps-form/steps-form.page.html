@@ -1,13 +1,8 @@
-<app-header
-  [title]="title"
-  center="true"
-  showMenuButton="true"
-  color="primary">
-</app-header>
+<app-header [title]="title" />
 
 <ion-content [fullscreen]="true">
    <main>
-    <app-container [hasSideMenu]="true">
+    <app-container>
        <ion-card class="dcf-card-default dcf-padding-small">
        <ngx-decaf-model-renderer
           [model]="model"

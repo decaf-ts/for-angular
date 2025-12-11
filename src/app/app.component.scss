@@ -1,15 +1,122 @@
 ion-split-pane {
   --side-max-width: 240px;
+  transition: all 0.3s ease;
+  @media (max-width: 1199px) {
+    .dcf-default-icon {
+      display: none !important;
+    }
+  }
+  @media (min-width: 1200px) {
+    &.dcf-collapsed {
+      .dcf-logo-container {
+        transition: all 0.3s ease;
+        padding-left: unset !important;
+      }
+      ion-list {
+        transition: padding-top 0.2s ease;
+        padding-top: 1rem !important;
+        padding-left: 0.24rem !important;
+        width: max-content;
+      }
+      --side-min-width: 75px;
+      --side-max-width: 75px !important;
+      transition: all 0.3s ease;
+      ion-label {
+        display: none !important;
+      }
+
+      .dcf-separator {
+        display: none;
+      }
+
+      .dcf-menu-expand-button {
+        justify-content: center;
+        padding: 0.5rem !important;
+        padding-bottom: 1.5rem !important;
+        transform: scale(1.2);
+        span {
+          display: none !important;
+        }
+        ngx-decaf-icon {
+          transition: all 0.3s ease;
+          transform: rotate(180deg) !important;
+        }
+      }
+      ion-item {
+        max-width: 65px;
+        // --background: transparent !important;
+        // --background-activated: transparent !important;
+        // --background-hover: transparent !important;
+        // --background-focused: transparent !important;
+        // --ripple-color: transparent !important;
+        --inner-padding-end: 0.5rem !important;
+        --padding-end: 0rem !important;
+        --inner-padding-start: 0.85rem !important;
+        --padding-start: 0rem !important;
+        margin-left: 0.5rem;
+        ngx-decaf-icon {
+          transform: translatey(2.5px) !important;
+        }
+        &:hover {
+          ::ng-deep {
+            .ti,
+            ngx-decaf-icon,
+            ion-icon,
+            ion-image {
+              color: var(--dcf-color-primary) !important;
+              stroke: var(--dcf-color-primary) !important;
+
+              * {
+                color: var(--ion-color-primary) !important;
+                stroke: var(--dcf-color-primary) !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
+.dcf-menu-expand-button {
+  margin: 0px !important;
+  display: flex;
+  padding: 1.5rem 1.75rem !important;
+  cursor: pointer;
+  color: var(--dcf-color-text);
+  ngx-decaf-icon {
+    transition: all 0.3s ease;
+    transform: translateY(2px);
+    margin-right: var(--dcf-margin-xsmall);
+  }
+
+  @media (max-width: 1199px) {
+    display: none !important;
+  }
+}
 ion-menu {
+  border-right: 1px solid var(--dcf-color-gray-2);
+
   &.dcf-palette-dark {
-    .ti,
-    ion-icon,
-    aeon-icon {
-      color: var(--ion-color-gray-4) !important;
+    // border-right: 1px solid var(--dcf-card-background);
+    & {
+      border-right: 1px solid var(--dcf-card-background);
     }
-    border-right: 1px solid var(--dcf-card-background);
+    @media (min-width: 1200px) {
+      &.dcf-collapsable {
+        ion-content {
+          border-top: 1px solid var(--dcf-background-color) !important;
+        }
+      }
+    }
+    ::ng-deep {
+      .ti,
+      ion-icon,
+      aeon-icon {
+        color: var(--ion-color-gray-4) !important;
+      }
+    }
+
     > *,
     ion-content {
       background: var(
@@ -21,7 +128,7 @@ ion-menu {
     ion-list-header,
     .dcf-separator {
       color: var(--ion-color-gray-3) !important;
-      border-top: 1px solid var(--dcf-background-color) !important;
+      // border-top: 1px solid var(--dcf-background-color) !important;
     }
 
     ion-item {
@@ -30,7 +137,7 @@ ion-menu {
           color: var(--dcf-color-light);
         }
       }
-
+      &.dcf-active-item,
       &.dcf-active {
         --background: rgba(var(--dcf-color-dark-rgb), 0.3) !important;
         color: var(--dcf-color-gray-9) !important;
@@ -43,18 +150,37 @@ ion-menu {
       &:hover {
         --background: rgba(var(--dcf-color-dark-rgb), 0);
         --color: rgba(var(--dcf-color-light-rgb), 1);
-        .ti,
-        ion-icon,
-        aeon-icon {
-          color: var(--ion-color-gray-2) !important;
+
+        ::ng-deep {
+          .ti,
+          ngx-decaf-icon,
+          ion-icon,
+          ion-image {
+            color: var(--ion-color-gray-2) !important;
+            stroke: var(--ion-color-gray-2) !important;
+
+            * {
+              color: var(--ion-color-gray-2) !important;
+              stroke: var(--ion-color-gray-2) !important;
+            }
+          }
         }
       }
     }
   }
-}
+  &.dcf-collapsable {
+    @media (min-width: 1200px) {
+      ion-content {
+        border-top: 1px solid var(--dcf-color-gray-2);
+      }
+    }
 
-ion-menu {
-  border-right: 1px solid var(--dcf-color-gray-2);
+    ion-item {
+      &:first-of-type:not(.dcf-separator) {
+        margin-top: 0.5rem;
+      }
+    }
+  }
 
   ion-content {
     --background: var(
@@ -64,6 +190,7 @@ ion-menu {
   }
 
   ion-list {
+    transition: padding-top 0.1s ease;
     pointer-events: none;
     touch-action: none;
     padding: 0rem 0.75rem;
@@ -74,7 +201,8 @@ ion-menu {
       text-transform: uppercase;
       pointer-events: none !important;
       touch-action: none !important;
-
+      --padding-start: var(--dcf-padding-small) !important;
+      --min-height: 40px;
       margin-top: 1rem;
       cursor: text;
       color: var(--ion-color-gray-5);
@@ -95,7 +223,27 @@ ion-menu {
       --background: transparent;
       pointer-events: auto !important;
       touch-action: auto !important;
+      ngx-decaf-icon {
+        margin-right: var(--dcf-margin-xsmall);
+        transform: translateY(1px);
+      }
+      &:hover {
+        ::ng-deep {
+          .ti,
+          ngx-decaf-icon,
+          ion-icon,
+          ion-image {
+            color: var(--dcf-color-gray-9) !important;
+            stroke: var(--dcf-color-gray-9) !important;
 
+            * {
+              color: var(--ion-color-gray-9) !important;
+              stroke: var(--dcf-color-gray-9) !important;
+            }
+          }
+        }
+      }
+      &.dcf-active-item,
       &.dcf-active {
         --background: var(--ion-color-gray-2);
         color: var(--dcf-color-gray-9) !important;
@@ -107,29 +255,15 @@ ion-menu {
         cursor: pointer;
         margin-bottom: 0.1rem;
 
-        color: #2f2b3de5 !important;
-
-        ion-icon {
-          font-size: 1.375rem !important;
-          margin-right: 0.5rem;
-          transform: translateY(-1px);
-        }
-        ion-img {
-          margin-right: 0.5rem;
-          transform: translateY(-2px);
-        }
+        // color: #2f2b32 !important;
       }
     }
   }
 }
 
 .dcf-logo-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 1.15rem;
-  padding-bottom: var(--dcf-padding);
-}
-
-.dcf-menu {
+  transition: all 0.3s ease;
+  padding-top: 1.2rem;
+  padding-left: 1.5rem;
+  height: 64px !important;
 }

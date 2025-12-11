@@ -33,6 +33,7 @@ import { ComponentEventNames } from '../../engine/constants';
 import {ListItemCustomEvent} from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
+import { IconComponent } from '../icon/icon.component';
 
 
 
@@ -92,6 +93,7 @@ import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
     IonLabel,
     IonButton,
     IonContent,
+    IconComponent,
     IonPopover
   ],
   host: {'[attr.id]': 'uid'},
@@ -112,6 +114,9 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    */
   @ViewChild('actionMenuComponent')
   actionMenuComponent!: HTMLIonPopoverElement;
+
+  @Input()
+  actionsType: 'popover' | 'inline' = 'inline';
 
   /**
    * @description Controls the display of lines around the list item.

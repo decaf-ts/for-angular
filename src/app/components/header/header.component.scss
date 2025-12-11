@@ -1,205 +1,211 @@
 $transition-duration: 0.15s;
 
+$dcf-width-s: 576px;
+$dcf-width-m: 768px;
+$dcf-width-l: 992px;
+$dcf-width-xl: 1200px;
+$dcf-width-2xl: 1400px;
+
 .dcf-hidden {
   display: none;
 }
 
-ion-header {
-  ion-title {
-    font-weight: 600;
-    color: var(--dcf-text-color) !important;
-    padding-left: 1rem !important;
-    font-size: 1.15rem !important;
-    font-weight: 600;
-  }
+// ion-header {
+//   ion-title {
+//     font-weight: 600;
+//     color: var(--dcf-text-color) !important;
+//     padding-left: 1rem !important;
+//     font-size: 1.15rem !important;
+//     font-weight: 600;
+//   }
 
-  ion-buttons + ion-title {
-    padding-left: 0px !important;
-    margin-left: 0px !important;
-  }
+//   ion-buttons + ion-title {
+//     padding-left: 0px !important;
+//     margin-left: 0px !important;
+//   }
 
-  &.dcf-header-floating {
-    max-width: 75vw !important;
-    display: block !important;
-    margin: 1rem auto !important;
+//   &.dcf-header-floating {
+//     max-width: 75vw !important;
+//     display: block !important;
+//     margin: 1rem auto !important;
 
-    ion-toolbar {
-      padding-left: 0rem !important;
-      margin-left: 0px !important;
-    }
+//     ion-toolbar {
+//       padding-left: 0rem !important;
+//       margin-left: 0px !important;
+//     }
 
-    &:not(.dcf-sticky-floating) {
-      transition: all $transition-duration ease;
-    }
-    &.dcf-sticky-floating {
-      transition: all 0.25s ease;
-      box-shadow: none !important;
-    }
+//     &:not(.dcf-sticky-floating) {
+//       transition: all $transition-duration ease;
+//     }
+//     &.dcf-sticky-floating {
+//       transition: all 0.25s ease;
+//       box-shadow: none !important;
+//     }
 
-    &.white:not(.dcf-sticky-active) {
-      border: 1px solid var(--dcf-color-gray-2);
-    }
-  }
+//     &.white:not(.dcf-sticky-active) {
+//       border: 1px solid var(--dcf-color-gray-2);
+//     }
+//   }
 
-  &.dcf-sticky-floating {
-    &:not(.dcf-sticky-active) {
-      transform: translateY(-200%);
-      transition: all 0.3s ease;
-    }
-  }
+//   &.dcf-sticky-floating {
+//     &:not(.dcf-sticky-active) {
+//       transform: translateY(-200%);
+//       transition: all 0.3s ease;
+//     }
+//   }
 
-  &.dcf-sticky-active {
-    &.dcf-header-floating {
-      top: 0px;
-      left: 0px;
-      max-width: 100%;
-      transition: all $transition-duration ease;
-    }
+//   &.dcf-sticky-active {
+//     &.dcf-header-floating {
+//       top: 0px;
+//       left: 0px;
+//       max-width: 100%;
+//       transition: all $transition-duration ease;
+//     }
 
-    &:not(.dcf-header-floating) {
-      transform: translateY(-100%);
-      transition: all 0.3s ease;
-    }
-  }
+//     &:not(.dcf-header-floating) {
+//       transform: translateY(-100%);
+//       transition: all 0.3s ease;
+//     }
+//   }
 
-  &.dcf-sticky {
-    transform: translateY(0);
-    transition: all 0.3s ease;
-  }
+//   &.dcf-sticky {
+//     transform: translateY(0);
+//     transition: all 0.3s ease;
+//   }
 
-  &.dcf-mobile-header {
-    box-shadow: none !important;
-    border-bottom: 1px solid var(--dcf-color-gray-2) !important;
-    .dcf-mobile-logo {
-      padding: 0.5rem 0.75rem;
-    }
-  }
+//   &.dcf-mobile-header {
+//     box-shadow: none !important;
+//     border-bottom: 1px solid var(--dcf-color-gray-2) !important;
+//     .dcf-mobile-logo {
+//       padding: 0.5rem 0.75rem;
+//     }
+//   }
 
-  &:not(.dcf-palette-dark) {
-    &.white {
-      background-color: white !important;
-      box-shadow: none !important;
-      border-bottom: 1px solid var(--dcf-color-gray-2);
+//   &:not(.dcf-palette-dark) {
+//     &.white {
+//       background-color: white !important;
+//       box-shadow: none !important;
+//       border-bottom: 1px solid var(--dcf-color-gray-2);
 
-      @media (max-width: 680px) {
-        padding-right: 0.25rem;
-        padding-left: 0.25rem;
-      }
+//       @media (max-width: 680px) {
+//         padding-right: 0.25rem;
+//         padding-left: 0.25rem;
+//       }
 
-      svg {
-        stroke: var(--dcf-color-gray-7) !important;
-      }
+//       svg {
+//         stroke: var(--dcf-color-gray-7) !important;
+//       }
 
-      &.ion-color-primary,
-      &.ion-color-secondary,
-      &.ion-color-tertiary,
-      &.ion-color-danger,
-      &.ion-color-warning,
-      &.ion-color-success,
-      &.ion-color-dark {
-        svg {
-          stroke: var(--dcf-color-gray-1) !important;
-        }
-        ion-icon {
-          color: var(--dcf-color-gray-7) !important;
-        }
-      }
-    }
-  }
+//       &.ion-color-primary,
+//       &.ion-color-secondary,
+//       &.ion-color-tertiary,
+//       &.ion-color-danger,
+//       &.ion-color-warning,
+//       &.ion-color-success,
+//       &.ion-color-dark {
+//         svg {
+//           stroke: var(--dcf-color-gray-1) !important;
+//         }
+//         ion-icon {
+//           color: var(--dcf-color-gray-7) !important;
+//         }
+//       }
+//     }
+//   }
 
-  &.dcf-palette-dark {
-    background-color: var(--dcf-card-background) !important;
-    ion-toolbar {
-      background-color: var(--dcf-card-background) !important;
-    }
-    &.white:not(.dcf-sticky-active) {
-      border-color: transparent !important;
-    }
-    svg {
-      stroke: var(--dcf-color-gray-1) !important;
-    }
-    .ion-color-primary,
-    .ion-color-secondary,
-    .ion-color-tertiary,
-    .ion-color-danger,
-    .ion-color-warning,
-    .ion-color-success,
-    .ion-color-dark {
-      svg {
-        stroke: var(--dcf-color-gray-1);
-      }
-      ion-icon {
-        color: var(--dcf-color-gray-1);
-      }
-    }
+//   &.dcf-palette-dark {
+//     background-color: var(--dcf-card-background) !important;
+//     ion-toolbar {
+//       background-color: var(--dcf-card-background) !important;
+//     }
+//     &.white:not(.dcf-sticky-active) {
+//       border-color: transparent !important;
+//     }
+//     svg {
+//       stroke: var(--dcf-color-gray-1) !important;
+//     }
+//     .ion-color-primary,
+//     .ion-color-secondary,
+//     .ion-color-tertiary,
+//     .ion-color-danger,
+//     .ion-color-warning,
+//     .ion-color-success,
+//     .ion-color-dark {
+//       svg {
+//         stroke: var(--dcf-color-gray-1);
+//       }
+//       ion-icon {
+//         color: var(--dcf-color-gray-1);
+//       }
+//     }
 
-    ion-avatar {
-      > div {
-        background: var(--dcf-color-dark);
-        color: var(--dcf-text-color);
-      }
-    }
-  }
+//     ion-avatar {
+//       > div {
+//         background: var(--dcf-color-dark);
+//         color: var(--dcf-text-color);
+//       }
+//     }
+//   }
 
-  .dcf-header-container {
-    padding: 0px;
-    margin: 0px;
-    width: 100%;
+//   .dcf-header-container {
+//     padding: 0px;
+//     margin: 0px;
+//     width: 100%;
 
-    &:not(.dcf-width-expand) {
-      max-width: 1280px;
-      ion-toolbar {
-        padding: 0rem 1rem !important;
-      }
-    }
-    &.dcf-width-expand {
-      flex: 1;
-      min-width: 1px;
-      padding: 0rem !important;
-      @media (min-width: 768px) {
-        ion-toolbar {
-          padding: 0rem var(--dcf-padding-medium) !important;
-          // padding: 0rem var(--dcf-padding-large) !important;
-          ion-title {
-            padding-left: 1.25rem !important;
-          }
-        }
-      }
+//     &:not(.dcf-width-expand) {
+//       max-width: 1280px;
+//       ion-toolbar {
+//         padding: 0rem 1rem !important;
+//       }
+//     }
+//     &.dcf-width-expand {
+//       flex: 1;
+//       min-width: 1px;
+//       padding: 0rem !important;
+//       @media (min-width: 768px) {
+//         ion-toolbar {
+//           padding: 0rem var(--dcf-padding-medium) !important;
+//           // padding: 0rem var(--dcf-padding-large) !important;
+//           ion-title {
+//             padding-left: 1.25rem !important;
+//           }
+//         }
+//       }
 
-      // padding: 0rem 0.5rem !important;
-      // @media (min-width: 768px) {
-      //   ion-toolbar {
-      //     padding: 0rem 3rem !important;
-      //   }
-      // }
-    }
-  }
+//       // padding: 0rem 0.5rem !important;
+//       // @media (min-width: 768px) {
+//       //   ion-toolbar {
+//       //     padding: 0rem 3rem !important;
+//       //   }
+//       // }
+//     }
+//   }
 
-  // ion-title {
-  //   font-size: 1.025rem !important;
-  // }
+//   // ion-title {
+//   //   font-size: 1.025rem !important;
+//   // }
 
-  &.dcf-flex {
-    display: flex;
-    justify-content: center;
+//   &.dcf-flex {
+//     display: flex;
+//     justify-content: center;
 
-    &.primary {
-      background: var(--ion-color-primary);
-    }
-    &.secondary {
-      background: var(--ion-color-secondary);
-    }
-    &.tertiary {
-      background: var(--ion-color-tertiary);
-    }
+//     &.primary {
+//       background: var(--ion-color-primary);
+//     }
+//     &.secondary {
+//       background: var(--ion-color-secondary);
+//     }
+//     &.tertiary {
+//       background: var(--ion-color-tertiary);
+//     }
 
-    &.transparent {
-      background-color: transparent;
-      box-shadow: none !important;
-      border-bottom: 1px solid var(--dcf-color-gray-2);
-    }
-  }
-}
+//     &.transparent {
+//       background-color: transparent;
+//       box-shadow: none !important;
+//       border-bottom: 1px solid var(--dcf-color-gray-2);
+//     }
+//   }
+// }
 
 ion-avatar {
   display: flex;
@@ -219,5 +225,167 @@ ion-avatar {
     font-size: 0.875rem;
     border-radius: 50%;
     background: var(--dcf-color-gray-2);
+  }
+}
+
+.dcf-palette-dark {
+  ion-avatar {
+    > div {
+      background: var(--dcf-color-dark);
+      color: var(--dcf-text-color);
+    }
+  }
+}
+
+ion-header {
+  display: flex;
+  justify-content: center;
+  padding: 0px !important;
+  margin: 0px !important;
+  width: 100%;
+  &:not(.dcf-palette-dark) {
+    box-shadow: none !important;
+  }
+
+  &.dcf-palette-dark {
+    background: var(--dcf-card-background) !important;
+    > div {
+      background: var(--dcf-card-background) !important;
+    }
+  }
+  ion-menu-button {
+    ::ng-deep svg {
+      transform: translateY(2.5px);
+    }
+  }
+  > * {
+    width: 100%;
+    box-shadow: var(--dcf-box-shadow);
+    transition: all 0.25s ease;
+  }
+
+  &.dcf-sticky {
+    transition: all 0.3s ease;
+  }
+
+  &.dcf-sticky-active {
+    transition: all $transition-duration ease;
+    &:not(.dcf-header-floating) {
+      transform: translateY(-100%);
+      transition: all 0.3s ease;
+    }
+  }
+
+  &.dcf-header-floating {
+    background: transparent !important;
+
+    &:not(.dcf-sticky-floating) {
+      > * {
+        transition: all $transition-duration ease;
+
+        @media (min-width: $dcf-width-xl) {
+          position: relative;
+          top: 1.25rem;
+          left: -0.5rem;
+          width: calc(100% - (var(--dcf-padding-xlarge) * 2.25)) !important;
+          border-radius: var(--dcf-border-radius-small) !important;
+          box-shadow: var(--dcf-box-shadow-small) !important;
+
+          ::ng-deep .dcf-container {
+            padding-left: var(--dcf-padding-small) !important;
+            padding-right: 0px !important;
+          }
+        }
+      }
+    }
+  }
+
+  &:not(.dcf-palette-dark) {
+    &.dcf-background-white {
+      > * {
+        box-shadow: none;
+        border-bottom: 1px solid var(--dcf-color-gray-2);
+        background-color: white !important;
+      }
+
+      &.ion-color-primary,
+      &.ion-color-secondary,
+      &.ion-color-tertiary,
+      &.ion-color-danger,
+      &.ion-color-warning,
+      &.ion-color-success,
+      &.ion-color-dark {
+        svg {
+          stroke: var(--dcf-color-gray-1) !important;
+        }
+        ion-icon {
+          color: var(--dcf-color-gray-7) !important;
+        }
+      }
+    }
+  }
+
+  &.dcf-background-light > * {
+    background: var(--dcf-color-light) !important;
+  }
+
+  &.dcf-background-medium > * {
+    background: var(--dcf-color-medium) !important;
+    ::ng-deep svg {
+      stroke: var(--dcf-color-light) !important;
+    }
+  }
+
+  &.dcf-background-dark > * {
+    background: var(--dcf-color-dark) !important;
+    ::ng-deep svg {
+      stroke: var(--dcf-color-light) !important;
+    }
+  }
+
+  &.dcf-background-primary > * {
+    background: var(--dcf-color-primary) !important;
+    ::ng-deep svg {
+      stroke: var(--dcf-color-light) !important;
+    }
+  }
+
+  &.dcf-background-secondary > * {
+    background: var(--dcf-color-secondary) !important;
+    ::ng-deep svg {
+      stroke: var(--dcf-color-light) !important;
+    }
+  }
+
+  &.dcf-background-tertiary > * {
+    background: var(--dcf-color-tertiary) !important;
+    ::ng-deep svg {
+      stroke: var(--dcf-color-light) !important;
+    }
+  }
+
+  &.dcf-background-danger > * {
+    background: var(--dcf-color-danger) !important;
+    ::ng-deep svg {
+      stroke: var(--dcf-color-light) !important;
+    }
+  }
+
+  &.dcf-background-warning > * {
+    background: var(--dcf-color-warning) !important;
+  }
+
+  &.dcf-background-success > * {
+    background: var(--dcf-color-success) !important;
+  }
+
+  ion-title {
+    font-weight: 600;
+    font-size: 1.15rem !important;
+  }
+
+  ion-buttons + ion-title {
+    padding-left: 0px !important;
+    margin-left: 0px !important;
   }
 }

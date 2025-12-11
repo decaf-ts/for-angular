@@ -41,7 +41,7 @@ export function getComponentMeta<C>(imports: unknown[] = [], type: "component" |
           `<ion-app>
             <ion-content [fullscreen]="true">
                <main>
-                <app-container [hasSideMenu]="true" size="expand">
+                <app-container size="expand">
                   ${story}
                 </app-container>
               </main>
