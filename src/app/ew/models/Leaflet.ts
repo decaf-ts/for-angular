@@ -1,5 +1,5 @@
 import { BaseModel, pk } from "@decaf-ts/core";
-import { list, model, ModelArg, required } from "@decaf-ts/decorator-validation";
+import { model, ModelArg, required } from "@decaf-ts/decorator-validation";
 import { HTML5InputTypes, uielement,  uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../../utils/helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
@@ -66,7 +66,6 @@ export class Leaflet extends BaseModel {
   @uiprop()
   productCode!: string;
 
-    @list(String)
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'organizationEnroll.services.label',
