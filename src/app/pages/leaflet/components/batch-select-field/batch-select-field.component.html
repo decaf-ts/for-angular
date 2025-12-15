@@ -5,15 +5,7 @@
         <ion-item [class]="'dcf-input-item ' + operation" #component>
           <ion-label>
             {{ label | translate }}<br />
-            @if (value) {
-                <ion-text [innerHTML]="type === 'password' ? '********' : value"></ion-text>
-            } @else {
-              @if (['checkbox'].includes(type) && value === 'true') {
-                <ion-icon aria-hidden="true" class="dcf-margin-small-top" [color]="!isDarkMode  ? 'primary' : 'light'" size="small" name="checkmark-circle-outline"></ion-icon>
-              } @else {
-                <br />
-              }
-            }
+            <ion-text>{{value}}</ion-text>
           </ion-label>
         </ion-item>
       </div>
@@ -29,38 +21,43 @@
           [class.dcf-field-readonly]="readonly"
         >
 
-            <div>
-              <ion-select
-                (ionInput)="handleModalChildChanges()"
-                (ionChange)="handleModalChildChanges()"
-                [id]="name"
-                toggleIcon="chevron-down-outline"
-                expandedIcon="chevron-up-outline"
-                [interface]="interface"
-                [mode]="'md'"
-                [hidden]="hidden || !options?.length"
-                [labelPlacement]="labelPlacement"
-                [label]="label | translate"
-                [value]="value"
-                (click)="openSelectOptions($event, interface)"
-                [fill]="fill"
-                [placeholder]="placeholder | translate"
-                [formControlName]="name"
-                [interface]="interface" #component>
-                @if (options?.length) {
-                  @for(option of options; track trackItemFn($index, option.text)) {
-                    <ion-select-option [value]="option.value" [class.dcf-disabled]="option.disabled">
-                      {{ option.text }}
-                    </ion-select-option>
-                  }
+          <div>
+            <ion-select
+              (ionInput)="handleModalChildChanges()"
+              (ionChange)="handleModalChildChanges()"
+              [id]="name"
+              toggleIcon="chevron-down-outline"
+              expandedIcon="chevron-up-outline"
+              [interface]="interface"
+              [mode]="'md'"
+              [hidden]="hidden || !options?.length"
+              [labelPlacement]="labelPlacement"
+              [label]="label | translate"
+              [value]="value ?? null"
+              (click)="openSelectOptions($event, interface)"
+              [fill]="fill"
+              [placeholder]="placeholder | translate"
+              [formControlName]="name"
+              [interface]="interface" #component>
+              @if (options?.length) {
+                @for(option of options; track trackItemFn($index, option.text)) {
+                  <ion-select-option
+                    [value]="option.value"
+                    [class.dcf-disabled]="option.disabled"
+                    [class.dcf-hidden]="option.disabled"
+                    [hidden]="option.hidden">
+                    {{ option.text }}
+                  </ion-select-option>
                 }
-              </ion-select>
-              <div class="dcf-error" [innerHTML]="getErrors(container)"></div>
+              }
+            </ion-select>
+            <div class="dcf-error" [innerHTML]="getErrors(container)">
               @if (!options?.length) {
                 <ion-text color="danger">
                   * {{ 'errors.empty_options' | translate:{'0': name} }}
                 </ion-text>
               }
+            </div>
           </div>
 
       </div>

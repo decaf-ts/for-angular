@@ -9,7 +9,6 @@ import { CardComponent, EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
 import { BatchLayout } from 'src/app/ew/layouts/BatchLayout';
-import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Batch } from 'src/app/ew/models/Batch';
 import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
 

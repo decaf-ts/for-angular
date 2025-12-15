@@ -1,6 +1,5 @@
 import { list, model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import { uichild, uimodel, uionrender } from '@decaf-ts/ui-decorators';
-import { Leaflet } from '../models/Leaflet';
 import { ProductMarket } from '../models/ProductMarket';
 import { ProductStrength } from '../models/ProductStrength';
 import { FieldsetComponent } from 'src/lib/components';

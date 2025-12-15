@@ -27,6 +27,7 @@ import {
 } from './constants';
 import { HTML5InputTypes, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { Constructor } from '@decaf-ts/decoration';
+import { EnvironmentProviders, Provider } from '@angular/core';
 
 
 export interface RawQuery<M extends Model> {
@@ -286,4 +287,13 @@ export type LayoutGridGap =
  */
 export type ListItemPosition =
   (typeof ListItemPositions)[keyof typeof ListItemPositions];
+
+
+/**
+ * @description Represents an Angular dependency injection provider.
+ * @summary This type is a union of Angular's `EnvironmentProviders` and `Provider` types, allowing for flexible DI configuration.
+ * @typedef {EnvironmentProviders | Provider} AngularProvider
+ * @memberOf module:lib/engine/types
+ */
+export type AngularProvider = EnvironmentProviders | Provider;
 

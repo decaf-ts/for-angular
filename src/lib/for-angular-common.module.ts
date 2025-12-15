@@ -242,7 +242,7 @@ export function provideDecafPageTransition(): EnvironmentProviders {
 /**
  * @const {Logger}
  * @private
- * @description Base logger instance for the for-angular module.
+ * @description Base logger instance for the for-angular module.ẑ
  * @memberOf module:lib/for-angular-common.module
  */
 const log = Logging.for('for-angular');

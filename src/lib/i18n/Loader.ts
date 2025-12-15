@@ -14,7 +14,7 @@ import { Primitives, sf } from '@decaf-ts/decorator-validation';
 import { forkJoin,  Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {I18nResourceConfig} from '../engine/interfaces';
-import { FunctionLike, I18nResourceConfigType, KeyValue } from '../engine/types';
+import { FunctionLike, I18nResourceConfigType, KeyValue, AngularProvider } from '../engine/types';
 import { cleanSpaces, getLocaleFromClassName } from '../utils';
 import en from './data/en.json';
 import { I18N_CONFIG_TOKEN } from '../for-angular-common.module';
@@ -201,13 +201,13 @@ export class I18nParser extends TranslateParser {
  * @param {RootTranslateServiceConfig} [config={fallbackLang: 'en', lang: 'en'}] - The configuration for the translation service, including fallback and default languages.
  * @param {I18nResourceConfigType} [resources=[]] - The translation resources to be used by the loader.
  * @param {boolean} [versionedSuffix=false] - Whether to append a versioned suffix to resource URLs.
- * @returns {(EnvironmentProviders | Provider)[]} - An array of providers for the translation service and loader.
+ * @returns {AngularProvider[]} - An array of providers for the translation service and loader.
  */
 export function provideDecafI18nConfig(
   config: RootTranslateServiceConfig = { fallbackLang: 'en', lang: 'en' },
   resources: I18nResourceConfigType = [],
   versionedSuffix: boolean = false
-): (EnvironmentProviders | Provider)[] {
+): AngularProvider[] {
   return [
     provideHttpClient(),
     provideTranslateService({
