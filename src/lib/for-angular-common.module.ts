@@ -105,7 +105,7 @@ export const I18N_CONFIG_TOKEN = new InjectionToken<I18nToken>(
  *   { provide: CPTKN, useValue: provideDynamicComponents(MyComponent, AnotherComponent) }
  * ]
  */
-export function provideDynamicComponents(
+export function provideDecafDynamicComponents(
   ...components: unknown[]
 ): Constructor<unknown>[] {
   return components as Constructor<unknown>[];
@@ -180,14 +180,14 @@ export function getModelAndRepository(
  *   provideDbAdapter(PostgresAdapter, { host: 'localhost', port: 5432 })
  * ]
  */
-export function provideDbAdapter<DbAdapter extends { flavour: string }>(
+export function provideDecafDbAdapter<DbAdapter extends { flavour: string }>(
   clazz: Constructor<DbAdapter>,
   options: KeyValue = {},
   flavour?: string
 ): Provider {
   const adapter = new clazz(options);
   if (flavour) flavour = adapter.flavour;
-  getLogger(provideDbAdapter).info(`Using ${adapter.constructor.name} ${flavour} as Db Provider`);
+  getLogger(provideDecafDbAdapter).info(`Using ${adapter.constructor.name} ${flavour} as Db Provider`);
   setOnWindow(DB_ADAPTER_PROVIDER, flavour);
   return {
     provide: DB_ADAPTER_PROVIDER_TOKEN,

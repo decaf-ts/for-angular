@@ -30,7 +30,7 @@ export class BatchesPage  extends NgxModelPageDirective implements OnInit {
     this.title = "batch.title";
     this.route = 'batches';
     this.model = !this.operation ? new Batch() : new BatchLayout();
-     this.enableCrudOperations();
+    this.enableCrudOperations();
  }
 
   override async ionViewWillEnter(): Promise<void> {
