@@ -38,7 +38,7 @@ import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { getModelAndRepository } from '../../for-angular-common.module';
-import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, StringOrBoolean, FormParent, SelectOption } from '../../engine/types';
+import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, FormParent, SelectOption } from '../../engine/types';
 import { dataMapper, generateRandomValue } from '../../utils';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { Dynamic } from '../../engine/decorators';
@@ -648,12 +648,12 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @summary Indicates whether the field labels should be translated based on the current language settings.
    * This is useful for applications supporting multiple languages.
    *
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default true
    * @memberOf CrudFieldComponent
    */
   @Input()
-  translatable: StringOrBoolean = true;
+  translatable: boolean = true;
 
   constructor() {
     super();
@@ -744,13 +744,14 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     }
 
     const options = (this.options as SelectOption[]).map(async(option) => {
-      const text = await this.translate((!option.text.includes('options') ?
+      const text = !this.translatable ? option.text : await this.translate((!option.text.includes('options') ?
           getLocaleContextByKey(`${this.label.toLowerCase().replace('label', 'options')}`, option.text)
           : option.text));
       return {
         value: option.value,
         text: text.toLowerCase().includes('.options') ? option.text : text,
         selected: option?.selected ?? false,
+        hidden: option?.hidden ?? false,
         disabled: option?.disabled ?? false,
       };
     });

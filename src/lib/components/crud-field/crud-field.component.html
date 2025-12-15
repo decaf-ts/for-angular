@@ -121,6 +121,7 @@
                 </ion-item>
               }
             </ion-radio-group>
+            <span class="dcf-error" [innerHTML]="getErrors(container)"></span>
           }
           @else if (type === 'select') {
             <div>
@@ -135,7 +136,7 @@
                 [hidden]="hidden || !options?.length"
                 [labelPlacement]="labelPlacement"
                 [label]="label | translate"
-                [value]="value"
+                [value]="value ?? null"
                 (click)="openSelectOptions($event, interface)"
                 [fill]="fill"
                 [placeholder]="placeholder | translate"
@@ -143,19 +144,24 @@
                 [interface]="interface" #component>
                 @if (options?.length) {
                   @for(option of options; track trackItemFn($index, option.text)) {
-                    <ion-select-option [value]="option.value" [class.dcf-disabled]="option.disabled">
+                    <ion-select-option
+                      [value]="option.value"
+                      [class.dcf-disabled]="option.disabled"
+                      [class.dcf-hidden]="option.disabled"
+                      [hidden]="option.hidden">
                       {{ option.text }}
                     </ion-select-option>
                   }
                 }
               </ion-select>
-              <div class="dcf-error" [innerHTML]="getErrors(container)"></div>
-              @if (!options?.length) {
-                <ion-text color="danger">
-                  * {{ 'errors.empty_options' | translate:{'0': name} }}
-                </ion-text>
-              }
-          </div>
+              <div class="dcf-error" [innerHTML]="getErrors(container)">
+                @if (!options?.length) {
+                  <ion-text color="danger">
+                    * {{ 'errors.empty_options' | translate:{'0': name} }}
+                  </ion-text>
+                }
+              </div>
+            </div>
           }
           @else {
             <ion-input

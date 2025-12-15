@@ -2,39 +2,36 @@
 <app-header [model]="model" [title]="modelName + ' ' + (operation ? operation : ' List')" [operation]="operation" [modelId]="modelId" />
 
 <ion-content [fullscreen]="true">
-  <main class="main">
+  <main>
     <app-container>
-      <ngx-decaf-card
-        [title]="pageTitle"
-        >
-          @if(model) {
-              @if(!operation) {
-                <ngx-decaf-list
-                  [model]="model"
-                  [operation]="operation"
-                  [createButton]="true"
-                  [operations]="['read', 'create', 'update', 'delete']"
-                  (listenEvent)="handleEvent($event)"
-                />
-            } @else {
-              @if(!errorMessage) {
-                <ngx-decaf-model-renderer
-                  [model]="model"
-                  (listenEvent)="handleEvent($event)"
-                  [globals]='{operation: operation, modelId, allowClear: false}'>
-                </ngx-decaf-model-renderer>
-              } @else {
-                <ngx-decaf-empty-state
-                  [model]="model"
-                  title="404 - Not Found"
-                  iconColor="danger"
-                  icon="sad-outline"
-                  [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}" />
-              }
-            }
+      <ngx-decaf-card [title]="pageTitle">
+        @if(model) {
+          @if(!operation) {
+            <ngx-decaf-list
+              [model]="model"
+              [operation]="operation"
+              [createButton]="true"
+              [operations]="['read', 'create', 'update', 'delete']"
+              (listenEvent)="handleEvent($event)"
+            />
           } @else {
-            <div>No Model</div>
+            @if(!errorMessage) {
+              <ngx-decaf-model-renderer
+                [model]="model"
+                (listenEvent)="handleEvent($event)"
+                [globals]='{operation: operation, modelId, allowClear: false}' />
+            } @else {
+              <ngx-decaf-empty-state
+                [model]="model"
+                title="404 - Not Found"
+                iconColor="danger"
+                icon="sad-outline"
+                [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}" />
+            }
           }
+        } @else {
+          <div>No Model</div>
+        }
       </ngx-decaf-card>
     </app-container>
   </main>

@@ -13,10 +13,10 @@ import {
   provideIonicAngular,
 } from '@ionic/angular/standalone';
 import {
-  provideI18n,
+  provideDecafI18nConfig,
 } from 'src/lib/i18n/Loader';
 import { routes } from './app.routes';
-import { provideDbAdapter, provideDecafPageTransition, provideDynamicComponents } from 'src/lib/for-angular-common.module';
+import { provideDecafDbAdapter, provideDecafPageTransition, provideDecafDynamicComponents } from 'src/lib/for-angular-common.module';
 import { AIModel, AIVendorModel } from './models/AIVendorModel';
 import { I18nResourceConfigType } from 'src/lib/engine';
 import { CategoryModel } from './models/CategoryModel';
@@ -47,9 +47,9 @@ export const AppConfig: ApplicationConfig = {
     provideDecafPageTransition(),
 
     // Providing Local components for dynamic rendering
-    provideDynamicComponents(SwitcherComponent, BatchSelectFieldComponent),
+    provideDecafDynamicComponents(SwitcherComponent, BatchSelectFieldComponent),
     // Providing RamAdapter as the database adapter for Decaf
-    provideDbAdapter(RamAdapter, {user: "user"}, DbAdapterFlavour),
+    provideDecafDbAdapter(RamAdapter, {user: "user"}, DbAdapterFlavour),
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
 
@@ -58,7 +58,7 @@ export const AppConfig: ApplicationConfig = {
       withPreloading(PreloadAllModules),
       withComponentInputBinding()
     ),
-    provideI18n(
+    provideDecafI18nConfig(
       {
         fallbackLang: 'en',
         lang: "en",

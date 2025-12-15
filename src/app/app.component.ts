@@ -124,6 +124,6 @@ export class AppComponent extends NgxPageDirective implements OnInit {
 
   handleCollapseMenu() {
     this.menuCollapsed = !this.menuCollapsed;
-    this.changeDetectorRef.detectChanges();
+    this.changeDetectorRef.detectChanges()
   }
 }

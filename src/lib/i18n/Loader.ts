@@ -7,14 +7,14 @@
  *
  * @link {@link I18nLoader}
  */
-import { inject } from '@angular/core';
+import { EnvironmentProviders, inject, Provider } from '@angular/core';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { provideTranslateParser, provideTranslateService, RootTranslateServiceConfig, TranslateLoader, TranslateParser, TranslationObject } from '@ngx-translate/core';
 import { Primitives, sf } from '@decaf-ts/decorator-validation';
 import { forkJoin,  Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {I18nResourceConfig} from '../engine/interfaces';
-import { FunctionLike, I18nResourceConfigType, KeyValue } from '../engine/types';
+import { FunctionLike, I18nResourceConfigType, KeyValue, AngularProvider } from '../engine/types';
 import { cleanSpaces, getLocaleFromClassName } from '../utils';
 import en from './data/en.json';
 import { I18N_CONFIG_TOKEN } from '../for-angular-common.module';
@@ -68,7 +68,7 @@ export function getLocaleContextByKey(
  * @returns {TranslateLoader} - An instance of I18nLoader configured with the provided HTTP client and resources.
  */
 export function I18nLoaderFactory(http: HttpClient): TranslateLoader {
-  const { resources, versionedSuffix } = inject(I18N_CONFIG_TOKEN, { optional: true }) ?? provideI18nLoader().useValue;
+  const { resources, versionedSuffix } = inject(I18N_CONFIG_TOKEN, { optional: true }) ?? provideDecafI18nLoader().useValue;
   return new I18nLoader(http, resources?.length ? resources : [{ prefix: './app/assets/i18n/', suffix: '.json' }], versionedSuffix);
 }
 
@@ -80,7 +80,7 @@ export function I18nLoaderFactory(http: HttpClient): TranslateLoader {
  * @param {boolean} [versionedSuffix=false] - Whether to append a versioned suffix to resource URLs.
  * @returns {object} - The configuration object for the I18nLoader.
  */
-export function provideI18nLoader(resources: I18nResourceConfigType = [], versionedSuffix: boolean = false) {
+export function provideDecafI18nLoader(resources: I18nResourceConfigType = [], versionedSuffix: boolean = false): { provide: typeof I18N_CONFIG_TOKEN; useValue: { resources: I18nResourceConfig[]; versionedSuffix: boolean } } {
   if (!Array.isArray(resources)) {
     resources = [resources];
   }
@@ -201,13 +201,13 @@ export class I18nParser extends TranslateParser {
  * @param {RootTranslateServiceConfig} [config={fallbackLang: 'en', lang: 'en'}] - The configuration for the translation service, including fallback and default languages.
  * @param {I18nResourceConfigType} [resources=[]] - The translation resources to be used by the loader.
  * @param {boolean} [versionedSuffix=false] - Whether to append a versioned suffix to resource URLs.
- * @returns {Array} - An array of providers for the translation service and loader.
+ * @returns {AngularProvider[]} - An array of providers for the translation service and loader.
  */
-export function provideI18n(
+export function provideDecafI18nConfig(
   config: RootTranslateServiceConfig = { fallbackLang: 'en', lang: 'en' },
   resources: I18nResourceConfigType = [],
   versionedSuffix: boolean = false
-) {
+): AngularProvider[] {
   return [
     provideHttpClient(),
     provideTranslateService({
@@ -220,6 +220,6 @@ export function provideI18n(
         deps: [HttpClient],
       },
     }),
-    provideI18nLoader(resources, versionedSuffix),
+    provideDecafI18nLoader(resources, versionedSuffix),
   ];
 }

@@ -1,6 +1,6 @@
 import { BaseModel, pk } from "@decaf-ts/core";
 import { model, ModelArg, required } from "@decaf-ts/decorator-validation";
-import { HTML5InputTypes, uielement,  uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
+import { HTML5InputTypes, uielement,  uilistprop, uimodel } from "@decaf-ts/ui-decorators";
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../../utils/helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
@@ -9,6 +9,7 @@ import { composed } from "@decaf-ts/db-decorators";
 import { FormGroup } from "@angular/forms";
 import { presentNgxInlineModal } from "src/lib/components";
 import { Batch } from "./Batch";
+import { Product } from "./Product";
 
 class XmlPreviewHandler extends NgxEventHandler {
 
@@ -60,23 +61,22 @@ export class Leaflet extends BaseModel {
 
   @pk({type: "String",  generated: false})
   @uilistprop('uid')
-  @composed(["productCode", "lang"], ":", true)
+  @composed(["productCode"], ":", true)
   id!: string;
 
-  @uiprop()
-  productCode!: string;
+  // @uiprop()
+  // productCode!: string;
 
   @required()
-  @uielement('ngx-decaf-crud-field', {
-    label: 'organizationEnroll.services.label',
-    placeholder: 'organizationEnroll.services.placeholder',
-    options: () => {
-      return ['Epi', 'Traceability'].map(s => ({ text: `organizationEnroll.services.options.${s.toLowerCase()}`, value: s }));
-    },
-    multiple: true,
-    type: HTML5InputTypes.CHECKBOX
-  })
-  services!: string[];
+  @uielement('app-batch-select-field', {
+    label: 'leaflet.productCode.label',
+    placeholder: 'leaflet.productCode.placeholder',
+    type: HTML5InputTypes.SELECT,
+    options: () => Product,
+    optionsMapper: (item: Product) => ({ value: item.productCode, text: item.productCode + ' - ' + item.inventedName }),
+    translatable: false,
+  } as Partial<CrudFieldComponent>)
+  productCode!: string;
 
   @uielement('app-batch-select-field', {
     label: 'leaflet.batchNumber.label',
@@ -91,7 +91,7 @@ export class Leaflet extends BaseModel {
     label: 'leaflet.lang.label',
     placeholder: 'leaflet.lang.placeholder',
     type: HTML5InputTypes.SELECT,
-    options: getLeafletLanguages(),
+    options: getLeafletLanguages()
   } as Partial<CrudFieldComponent>)
   @uilistprop(ListItemPositions.title)
   lang!: string;
@@ -101,17 +101,16 @@ export class Leaflet extends BaseModel {
     label: 'leaflet.type.label',
     placeholder: 'leaflet.type.placeholder',
     type: HTML5InputTypes.SELECT,
-    options: getDocumentTypes()
+    options: () => getDocumentTypes()
   } as Partial<CrudFieldComponent>)
   @uilistprop(ListItemPositions.description)
   type!: string;
-
 
   @uielement('ngx-decaf-crud-field', {
     label: 'leaflet.market.label',
     placeholder: 'leaflet.market.placeholder',
     type: HTML5InputTypes.SELECT,
-    options: getMarkets()
+    options: () => getMarkets()
   } as Partial<CrudFieldComponent>)
   @uilistprop(ListItemPositions.info)
   market!: string;
@@ -135,3 +134,4 @@ export class Leaflet extends BaseModel {
       super(model);
   }
 }
+

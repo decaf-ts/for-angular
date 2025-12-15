@@ -227,7 +227,9 @@ ion-menu {
         margin-right: var(--dcf-margin-xsmall);
         transform: translateY(1px);
       }
-      &:hover {
+      &.dcf-active,
+      &.dcf-active-item,
+      &:hover &:hover {
         ::ng-deep {
           .ti,
           ngx-decaf-icon,

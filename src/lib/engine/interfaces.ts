@@ -247,6 +247,7 @@ export interface InputOption {
   text: string;
   value: string | number;
   disabled?: StringOrBoolean;
+  hidden?: StringOrBoolean;
   className?: string;
   icon?: string;
 }

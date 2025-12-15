@@ -111,6 +111,7 @@ import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
   styleUrls: ['./products.page.scss'],
 })
 export class ProductsPage extends NgxModelPageDirective implements OnInit {
+
   override ngOnInit(): Promise<void> | void {
     super.ngOnInit();
     this.title = "product.title";
