@@ -29,6 +29,7 @@ import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { Repository } from '@decaf-ts/core';
 import { Constructor, uses } from '@decaf-ts/decoration';
 import { AnimationController, provideIonicAngular } from '@ionic/angular/standalone';
+import { NgxComponentDirective } from './engine';
 
 export const DB_ADAPTER_PROVIDER = 'DB_ADAPTER_PROVIDER';
 
@@ -131,7 +132,8 @@ export function provideDecafDynamicComponents(
  * const users = await userRepo.findAll();
  */
 export function getModelAndRepository(
-  model: Model | string
+  model: Model | string,
+  clazz?: NgxComponentDirective,
 ): { repository: DecafRepository<Model>, model: Model, pk: string } | undefined {
   try {
     const modelName = (
@@ -151,6 +153,11 @@ export function getModelAndRepository(
     const pk = Model.pk(repository.class as Constructor<Model>);
     if (!pk)
       return undefined;
+    if(clazz) {
+      clazz.repository = repository as DecafRepository<Model>;
+      clazz.model = model;
+      clazz.pk = pk;
+    }
     return { repository, model, pk };
   } catch (error: unknown) {
     getLogger(getModelAndRepository).warn((error as Error)?.message || (error as string));

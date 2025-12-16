@@ -19,7 +19,7 @@ import { index, pk } from '@decaf-ts/core';
 @model()
 export class CategoryModel extends Model {
 
-  @pk({ type: Number.name })
+  @pk({ type: Number })
   @hideOn(OperationKeys.CREATE)
   @uilistprop('uid')
   @readonly()

@@ -1,5 +1,6 @@
 import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
 import { ICrudFormOptions, IListEmptyOptions } from './interfaces';
+import { SelectInterface } from '@ionic/core';
 
 import { ModalOptions } from '@ionic/angular/standalone';
 
@@ -341,3 +342,25 @@ export const DefaultFormReactiveOptions: ICrudFormOptions = {
     },
   },
 };
+
+
+
+/**
+ * @description Mapping of select field interface types used in Ionic components.
+ * @summary Provides a set of supported select interface types for Ionic select fields,
+ * mapping human-readable keys to their corresponding `SelectInterface` string values.
+ * This allows for consistent usage and reference of select interface types throughout the application.
+ * @type {Record<string, SelectInterface>}
+ * @property {string} PopOver - Represents the 'popover' select interface.
+ * @property {string} Alert - Represents the 'alert' select interface.
+ * @property {string} ActionSheet - Represents the 'action-sheet' select interface.
+ * @property {string} modal - Represents the 'modal' select interface.
+ * @const SelectFieldInterfaces
+ * @memberOf module:lib/engine/constants
+ */
+export const SelectFieldInterfaces = {
+  POPOVER: 'popover',
+  ALERT: 'alert',
+  ACTION_SHEET: 'action-sheet',
+  MODAL: 'modal',
+} as const;

@@ -15,15 +15,15 @@ export enum ProductNames {
   paracetamol = "Paracetamol",
   amoxicillin = "Amoxicillin",
   azithromycin = "Azithromycin",
-  // metformin = "Metformin",
-  // atorvastatin = "Atorvastatin",
-  // omeprazole = "Omeprazole",
-  // simvastatin = "Simvastatin",
-  // levothyroxine = "Levothyroxine",
-  // lisinopril = "Lisinopril",
-  // losartan = "Losartan",
-  // hydrochlorothiazide = "Hydrochlorothiazide",
-  // prednisone = "Prednisone",
+  metformin = "Metformin",
+  atorvastatin = "Atorvastatin",
+  omeprazole = "Omeprazole",
+  simvastatin = "Simvastatin",
+  levothyroxine = "Levothyroxine",
+  lisinopril = "Lisinopril",
+  losartan = "Losartan",
+  hydrochlorothiazide = "Hydrochlorothiazide",
+  prednisone = "Prednisone",
   // sertraline = "Sertraline",
   // fluoxetine = "Fluoxetine",
   // alprazolam = "Alprazolam",
@@ -50,7 +50,7 @@ export class Product extends Model {
   // @uilayoutprop(1)
   // productDetailsTitle!: string;
 
-  @pk({type: "String", generated: false })
+  @pk({type: String, generated: false })
   @uilistprop(ListItemPositions.title)
   @required()
   @uielement('ngx-decaf-crud-field', {

@@ -28,7 +28,7 @@
     "greaterThanOrEqual": "This field must be greater than or equal to field {0}",
     "form_control": "Controlador do formulário não encontrado para {0}.",
     "not_found": "No records found with <span class=\"text-bold\">{0}: {1} in {2}</span>.",
-    "empty_options" : "No options available for field {0}. Fix the data source."
+    "empty_options" : "No options available for required field {0}. Fix the data source."
   },
   "operations": {
     "read": {
@@ -36,8 +36,8 @@
       "error": "Error reading item with {0} {1}."
     },
     "create": {
-      "success": "Successfully created item with {0} {1}.",
-      "error": "Error creating item with {0} {1}."
+      "success": "Successfully created item.",
+      "error": "Error creating item."
     },
     "update": {
       "success": "Successfully updated item with {0} {1}.",
@@ -119,6 +119,7 @@
       "preview": "Preview",
       "buttons": {
         "select": "Select File",
+        "select_directory": "Select Directory",
         "preview": "Preview",
         "clear": "Clear"
       },

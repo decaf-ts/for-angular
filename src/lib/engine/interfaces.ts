@@ -318,7 +318,7 @@ export interface IBaseCustomEvent {
 }
 
 
-export interface IModelPageCustomEvent extends IBaseCustomEvent {
+export interface IModelComponentSubmitEvent extends IBaseCustomEvent {
   success: boolean;
   message?: string;
 }

@@ -56,7 +56,7 @@
       "label": "Select product image"
     },
     "xmlFileContent": {
-      "label": "Click in button bellow or drop your epi files here",
+      "label": "Select directory or drop your epi files here",
       "placeholder": "Select the Epi File"
     }
   },
@@ -110,7 +110,15 @@
     }
   },
   "leaflet": {
-    "language": {
+    "productCode": {
+      "label": "Select Product",
+      "placeholder": "Select the product"
+    },
+    "batchNumber": {
+      "label": "Select Batch",
+      "placeholder": "Select the product"
+    },
+    "lang": {
       "label": "Language",
       "placeholder": "Select the language"
     },

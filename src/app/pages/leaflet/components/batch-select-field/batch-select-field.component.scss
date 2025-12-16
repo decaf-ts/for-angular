@@ -170,6 +170,11 @@ ion-radio-group {
   line-height: 1.1rem;
   z-index: 9999;
 
+  &.dcf-options-error {
+    position: relative;
+    margin-bottom: 0.25rem !important;
+  }
+
   .ti,
   ion-icon {
     position: relative;

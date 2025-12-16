@@ -2,7 +2,7 @@
   @if(!hidden) {
     <ng-container>
       <div >
-        <ion-item [class]="'dcf-input-item ' + operation" #component>
+        <ion-item [class.dcf-item-readonly]="readonly" [class]="'dcf-input-item ' + operation" #component>
           <ion-label>
             {{ label | translate }}<br />
             @if (value) {
@@ -147,20 +147,20 @@
                     <ion-select-option
                       [value]="option.value"
                       [class.dcf-disabled]="option.disabled"
-                      [class.dcf-hidden]="option.disabled"
+                      [class.dcf-hidden]="option.hidden"
                       [hidden]="option.hidden">
                       {{ option.text }}
                     </ion-select-option>
                   }
                 }
               </ion-select>
-              <div class="dcf-error" [innerHTML]="getErrors(container)">
-                @if (!options?.length) {
-                  <ion-text color="danger">
-                    * {{ 'errors.empty_options' | translate:{'0': name} }}
-                  </ion-text>
-                }
+              <div
+                class="dcf-error"
+                [class.dcf-options-error]="!options?.length"
+                [innerHTML]="options?.length ?
+                  getErrors(container) : 'errors.empty_options' | translate:{'0': name}">
               </div>
+
             </div>
           }
           @else {

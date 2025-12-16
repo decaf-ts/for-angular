@@ -9,9 +9,9 @@ import { CategoryModel } from '../models/CategoryModel';
 @model()
 export class User extends Model {
 
-  // @pk({type: 'Number' })
+  // @pk({type: Number })
   // id!: number;
-  @pk({type: 'Number' })
+  @pk({type: Number })
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'user.id.label',
@@ -42,7 +42,7 @@ export class User extends Model {
 @model()
 export class FieldSetForm extends Model {
 
-  @pk({type: 'Number' })
+  @pk({type: Number })
   id!: number;
 
 

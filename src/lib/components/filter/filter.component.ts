@@ -591,7 +591,8 @@ export class FilterComponent
           this.lastFilter = {};
           this.inputElement.value = "";
           if(!this.multiple) {
-            this.inputElement.disabled = true;
+            if(this.inputElement)
+              this.inputElement.disabled = true;
             this.inputElement.blur();
             return await this.submit();
           }
@@ -677,8 +678,11 @@ export class FilterComponent
       this.step = 1;
       this.lastFilter = {};
     }
+    if(this.inputElement) {
     this.inputElement.disabled = false;
     this.handleFocus(this.indexes);
+    }
+
   }
 
   /**
@@ -694,7 +698,8 @@ export class FilterComponent
     this.step = 1;
     this.lastFilter = {};
     this.value = '';
-    this.inputElement.disabled = false;
+    if(this.inputElement)
+      this.inputElement.disabled = false;
     if (submit) {
       setTimeout(() => {
         this.submit();

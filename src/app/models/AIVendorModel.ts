@@ -12,14 +12,14 @@ import { OperationKeys } from "@decaf-ts/db-decorators";
 @model()
 export class AIVendorModel extends Model {
 
-  // @pk({ type: Number.name })
+  // @pk({ type: Number })
   // id!: number;
 
   /**
    * @description Unique identifier for the AI provider
    * @summary The provider's unique identifier string
    */
-  @pk({ type: "String", generated: false })
+  @pk({ type: String, generated: false })
   @uielement('ngx-decaf-crud-field', {
     label: "aivendors.name.label",
     placeholder: "aivendors.name.placeholder",
@@ -59,7 +59,7 @@ export class AIModel extends Model {
    * @description Unique identifier for the AI model
    * @summary The model's unique identifier string
    */
-  @pk({ type: "String", generated: false })
+  @pk({ type: String, generated: false })
   @uielement('ngx-decaf-crud-field', {
     label: "aimodel.name.label",
     placeholder: "aimodel.name.placeholder",

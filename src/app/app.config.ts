@@ -27,6 +27,7 @@ import { Product } from './ew/models/Product';
 import { Leaflet } from './ew/models/Leaflet';
 import { ProductStrength } from './ew/models/ProductStrength';
 import { BatchSelectFieldComponent } from './pages/leaflet/components/batch-select-field/batch-select-field.component';
+import { Batch } from './ew/models/Batch';
 
 export const DbAdapterFlavour = 'ram';
 export const AppName = 'For Angular';
@@ -36,7 +37,7 @@ export const AppName = 'For Angular';
 
 // export const AppModels = [new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
 
-export const AppModels = [new Leaflet(), new User(), new CategoryModel(), new Product(), new EmployeeModel(), new AIModel(), new AIVendorModel(), new ProductStrength()];
+export const AppModels = [new User(), new CategoryModel(), new Product(), new Batch(), new EmployeeModel(), new AIModel(), new AIVendorModel(), new ProductStrength()];
 
 export const AppConfig: ApplicationConfig = {
   providers: [

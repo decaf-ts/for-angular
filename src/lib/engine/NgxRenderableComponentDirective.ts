@@ -23,8 +23,7 @@ import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { NgxComponentDirective } from './NgxComponentDirective';
 
 @Directive()
-export class NgxRenderableComponentDirective extends NgxComponentDirective
-  implements OnChanges, OnDestroy, IRenderedModel {
+export class NgxRenderableComponentDirective extends NgxComponentDirective implements OnChanges, OnDestroy, IRenderedModel {
 
   /**
    * @description Injector used for dependency injection in the dynamic component.

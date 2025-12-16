@@ -14,7 +14,7 @@ import { ListItemPositions } from "src/lib/engine/constants";
 @model()
 export class ProductMarket extends Model {
 
-  @pk({type: "String", generated: false})
+  @pk({type: String, generated: false})
   @composed(["productCode", "marketId"], ":", true)
   id!: string;
 

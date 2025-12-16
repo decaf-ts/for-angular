@@ -9,7 +9,7 @@
             <ngx-decaf-list
               [model]="model"
               [createButton]="true"
-              [route]="'products'"
+              [route]="route"
               [operations]="operations"
               (listenEvent)="handleEvent($event)"
             />
@@ -19,7 +19,7 @@
             <ngx-decaf-model-renderer
                 [model]="model"
                 (listenEvent)="handleEvent($event)"
-                [globals]="{operation: operation, modelId, allowClear: false}"
+                [globals]="{operation: operation, operations,  modelId, allowClear: false}"
               >
             </ngx-decaf-model-renderer>
           } @else {

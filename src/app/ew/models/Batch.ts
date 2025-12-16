@@ -11,6 +11,7 @@ import {  HTML5InputTypes, uichild, uielement, uilayout, uilayoutprop,  uilistmo
 import { Product } from "./Product";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { ListItemPositions } from "src/lib/engine/constants";
+import { composed } from "@decaf-ts/db-decorators";
 
 @uimodel('ngx-decaf-fieldset')
 @model()
@@ -28,6 +29,10 @@ class ManufacturerAddress {
 @model()
 export class Batch extends Model {
 
+  @pk({ type: String, generated: false })
+  @composed(["productCode", "batchNumber"], ":", true)
+  id!: string;
+
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: "batch.productcode.label",
@@ -41,7 +46,6 @@ export class Batch extends Model {
   @required()
   productCode!: string;
 
-  @pk({type: String.name,  generated: false  })
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.batchNumber.label',

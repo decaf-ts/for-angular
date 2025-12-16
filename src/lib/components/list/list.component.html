@@ -7,32 +7,32 @@
 
 
 @if (showSearchbar) {
-    <div [hidden]="!data?.length && !searching">
-      <div class="dcf-grid dcf-grid-collapse dcf-grid-actions">
-        <div class="dcf-width-expand@m  dcf-width-1-1">
-          @if (model && enableFilter) {
-            @if (data?.length || searching) {
-              <ngx-decaf-filter
-                [model]="model"
-                [sortDirection]="sortDirection"
-                [disableSort]="disableSort"
-                (filterEvent)="handleFilter($event)"
-                (searchEvent)="handleSearch($event)"
-              />
-            }
-          } @else {
-            <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
+  <div [hidden]="!data?.length && !searching">
+    <div class="dcf-grid dcf-grid-collapse dcf-grid-actions">
+      <div class="dcf-width-expand@m  dcf-width-1-1">
+        @if (model && enableFilter) {
+          @if (data?.length || searching) {
+            <ngx-decaf-filter
+              [model]="model"
+              [sortDirection]="sortDirection"
+              [disableSort]="disableSort"
+              (filterEvent)="handleFilter($event)"
+              (searchEvent)="handleSearch($event)"
+            />
           }
-        </div>
-        @if(createButton) {
-          <div class="dcf-width-auto@m dcf-button-container dcf-width-1-1 dcf-flex-middle dcf-flex dcf-flex-center dcf-flex-right@m">
-            <div>
-              <ion-button expand="block" (click)="changeOperation(OperationKeys.CREATE)">Create</ion-button>
-            </div>
-          </div>
+        } @else {
+          <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
         }
       </div>
+      @if(createButton) {
+        <div class="dcf-width-auto@m dcf-button-container dcf-width-1-1 dcf-flex-middle dcf-flex dcf-flex-center dcf-flex-right@m">
+          <div>
+            <ion-button expand="block" (click)="changeOperation(OperationKeys.CREATE)">Create</ion-button>
+          </div>
+        </div>
+      }
     </div>
+  </div>
 }
 
 @if (initialized && data?.length) {

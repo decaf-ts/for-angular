@@ -5,6 +5,8 @@ import { AIFeatures } from './contants';
 import { DecafFakerRepository } from 'src/lib/utils/DecafFakerRepository';
 import { Product, ProductNames } from '../ew/models/Product';
 import { ProductStrength } from '../ew/models/ProductStrength';
+import { Batch } from '../ew/models/Batch';
+import { faker } from '@faker-js/faker';
 export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
 
   public override async initialize(): Promise<void> {
@@ -23,6 +25,16 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
             delete item['productImage'];
             return item as T;
           })
+          break;
+        case Batch.name:
+          this.limit = 20;
+          data = await this.generateData<Batch>();
+          data = [... data.map((item: Partial<Batch>) => {
+            const productCode = `0${Math.floor(Math.random() * 5) + 1}`;
+            item['productCode'] = productCode;
+            item['batchNumber'] = `batch${productCode}_${faker.lorem.word(24)}`.trim();
+            return item as T;
+          })]
           break;
         case ProductStrength.name: {
           data = await this.generateData<ProductStrength>();

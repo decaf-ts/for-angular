@@ -91,7 +91,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    */
   override async initialize(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
-    const populate = ['Product', 'CategoryModel', 'AIVendorModel', 'ProductStrength'];
+    const populate = ['Product', 'Batch', 'CategoryModel', 'AIVendorModel', 'ProductStrength'];
     const menu = [];
     const models = AppModels;
     for (let model of models) {

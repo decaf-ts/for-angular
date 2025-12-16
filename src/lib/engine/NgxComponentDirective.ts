@@ -474,8 +474,7 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    */
 
   // eslint-disable-next-line @angular-eslint/prefer-inject
-  constructor(@Inject(CPTKN) componentName?: string, @Inject(CPTKN) localeRoot?: string)
-  {
+  constructor(@Inject(CPTKN) componentName?: string, @Inject(CPTKN) localeRoot?: string) {
     super();
     this.componentName = componentName || 'NgxComponentDirective';
     this.localeRoot = localeRoot;
