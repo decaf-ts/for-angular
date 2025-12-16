@@ -46,9 +46,9 @@ export class BatchSelectFieldComponent extends CrudFieldComponent {
     const relation = 'productCode'  as keyof Model;
     const condition = Condition.attribute<Model>(relation).eq(uid);
     if(this.repository) {
-       const query = await this.repository.query(condition, relation);
-       this.options = query;
-       await this.getOptions();
+      const query = await this.repository.query(condition, relation);
+      this.options = query;
+      await this.getOptions();
     }
   }
 

@@ -2,7 +2,7 @@
   @if(!hidden) {
     <ng-container>
       <div >
-        <ion-item [class]="'dcf-input-item ' + operation" #component>
+        <ion-item [class.dcf-item-readonly]="readonly" [class]="'dcf-input-item ' + operation" #component>
           <ion-label>
             {{ label | translate }}<br />
             @if (value) {

@@ -6,12 +6,9 @@ import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-transla
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { NgxRenderingEngine } from '../../engine';
-import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { NgxFormService } from '../../services/NgxFormService';
 import { By } from '@angular/platform-browser';
-import { I18nFakeLoader } from '../../i18n';
-
+import { I18nFakeLoader, MockedEnTranslations } from '../../i18n/FakeLoader';
 
 const imports = [
   ForAngularCommonModule,
@@ -62,6 +59,8 @@ describe('CrudFieldComponent', () => {
     translateService = TestBed.inject(TranslateService);
     fixture = TestBed.createComponent(CrudFieldComponent);
     component = fixture.componentInstance;
+    translateService = component['translateService'];
+    translateService.setFallbackLang('en');
     component.name = 'test_field';
     component.type = 'text';
     component.operation = OperationKeys.CREATE;
@@ -99,6 +98,7 @@ describe('CrudFieldComponent', () => {
           { value: 'option1', text: 'Option 1' },
           { value: 'option2', text: 'Option 2' },
         ];
+        fixture.detectChanges();
       }
 
       component.formControl = new FormControl(value);
@@ -208,39 +208,45 @@ describe('CrudFieldComponent', () => {
     expect(component.formControl.errors).toBeNull();
   });
 
-  xit('should translate labels and placeholders', () => {
+  it('should translate labels and placeholders', () => {
     // Mock translate service
-    spyOn(translateService, 'instant').and.callFake((key: string) => {
-      if (key === 'FIELD.LABEL') return 'Translated Label';
-      if (key === 'FIELD.PLACEHOLDER') return 'Translated Placeholder';
-      return key;
-    });
+    // spyOn(translateService, 'instant').mockImplementation((key) => {
+    //   if (key === 'FIELD_LABEL') return 'Translated Label';
+    //   if (key === 'FIELD_PLACEHOLDER') return 'Translated Placeholder';
+    //   return key;
+    // });
+
 
     fixture.detectChanges();
-    component.label = 'FIELD.LABEL';
-    component.placeholder = 'FIELD.PLACEHOLDER';
+    component.label = MockedEnTranslations.FIELD_LABEL;
+    component.placeholder = MockedEnTranslations.FIELD_PLACEHOLDER;
     component.value = '';
     component.translatable = true;
     fixture.detectChanges();
 
-    spyOn(component, 'ngOnInit');
+    jest.spyOn(component, 'ngOnInit');
     component.ngOnInit(); // Aciona manualmente o método
     expect(component.ngOnInit).toHaveBeenCalled(); // Testa se foi chamado
+    fixture.detectChanges();
 
     const input = fixture.nativeElement.querySelector('ion-input');
     expect(input.label).toBe('Translated Label');
     expect(input.placeholder).toBe('Translated Placeholder');
   });
 
-  xit('should handle readonly attribute correctly', () => {
+  it('should handle readonly attribute correctly', () => {
     component.label = 'Readonly Field';
     component.value = '';
     component.readonly = true;
 
     updateFieldValidators(fixture, component);
 
-    const input = fixture.nativeElement.querySelector('ion-input');
-    expect(input.readonly).toBeTruthy();
+    const input = fixture.nativeElement.querySelector('ion-input') || fixture.nativeElement.querySelector('ion-item');
+    if(input.tagName.toLowerCase() === 'ion-input') {
+      expect(input.readonly).toBeTruthy();
+    } else {
+      expect(input.classList.contains('dcf-item-readonly')).toBeTruthy();
+    }
   });
 
   it('should handle disabled attribute correctly', () => {
