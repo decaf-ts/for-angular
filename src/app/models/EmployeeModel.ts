@@ -23,7 +23,7 @@ export class EmployeeModel extends Model {
     label: 'employee.id.label',
     placeholder: 'employee.id.placeholder',
   })
-  @pk({ type: 'Number' })
+ @pk({ type: Number })
   id!: number;
 
   @required()

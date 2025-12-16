@@ -28,7 +28,7 @@
           <div class="dcf-width-expand@s dcf-width-1-1 dcf-label">
             @if (title) {
               <ion-label class="dcf-item-title">
-                {{ uid !== title ? (uid + ' - ' + title) : title }}
+                {{ title | translate }}
               </ion-label>
             }
             @if (description) {

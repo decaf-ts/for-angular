@@ -179,7 +179,7 @@ export class ListComponent
    * @memberOf ListComponent
    */
   @Input()
-  type: ListComponentsTypes = ListComponentsTypes.INFINITE;
+  type: ListComponentsTypes = ListComponentsTypes.PAGINATED;
 
   /**
    * @description Controls the visibility of the search bar.
@@ -854,14 +854,18 @@ export class ListComponent
       if (value === undefined) {
         this.loadMoreData = true;
         this.page = 1;
+        this.items = [];
       }
+      if (this.isModalChild)
+        this.changeDetectorRef.detectChanges();
       this.searchValue = value;
-      if (this.isModalChild) this.changeDetectorRef.detectChanges();
+
       await this.refresh(true);
     } else {
       this.loadMoreData = true;
       this.searchValue = value;
-      if (value === undefined) this.page = this.lastPage;
+      if (value === undefined)
+        this.page = this.lastPage;
       await this.refresh(true);
     }
   }
@@ -1107,12 +1111,7 @@ export class ListComponent
   ): Promise<KeyValue[]> {
     let data: KeyValue[] = [...(this.data || [])];
 
-    if (
-      !this.data?.length ||
-      force ||
-      (this.searchValue as string)?.length ||
-      !!(this.searchValue as IFilterQuery)
-    ) {
+    if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
       // (self.data as ListItem[]) = [];
       if (
         !(this.searchValue as string)?.length &&
@@ -1128,20 +1127,23 @@ export class ListComponent
             data = data?.['response']?.['data'] || data?.['results'] || [];
         }
 
-        if (!data?.length && this.data?.length) data = this.data as KeyValue[];
-        this.data = [...(await this.parseResult(data))];
+        if (!data?.length && this.data?.length)
+          data = this.data as KeyValue[];
+        data = [...(await this.parseResult(data))];
         if (this.data?.length)
-          this.items =
+          data =
             this.type === ListComponentsTypes.INFINITE
-              ? (this.items || []).concat([...this.data.slice(start, limit)])
+              ? [...(this.items || []).concat([...data.slice(start, limit)])]
               : [...(data.slice(start, limit) as KeyValue[])];
+
       } else {
-        const data = await this.parseResult(
+        data = await this.parseResult(
           this.parseSearchResults(this.data as [], this.searchValue as string)
         );
-        this.items = [...data];
-        if (this.isModalChild) this.changeDetectorRef.detectChanges();
       }
+      this.items = [...data];
+      if (this.isModalChild)
+        this.changeDetectorRef.detectChanges();
     } else {
       const data = [...(await this.parseResult(this.data as []))];
       this.items =

@@ -222,7 +222,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  type: "number" | "text" | "search" | "email" | "password" | "tel" | "url" | undefined = "search";
+  type: 'number' | "text" | "search" | "email" | "password" | "tel" | "url" | undefined = "search";
 
   /**
    * @description The value of the searchbar input.
@@ -418,7 +418,11 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   handleChange(event: CustomEvent): void {
-    this.emitEvent(event?.detail?.value ?? undefined);
+    const value = event?.detail?.value;
+    if(value === this.currentValue)
+      return;
+    this.currentValue = value ?? undefined;
+    this.emitEvent(this.currentValue);
   }
 
   /**
@@ -431,7 +435,8 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   handleClear(): void {
-    this.emitEvent(undefined);
+    this.currentValue = undefined;
+    this.emitEvent(this.currentValue);
   }
 
   /**
@@ -464,10 +469,12 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   handleInput(event: CustomEvent): void {
-    const value = event?.detail?.value;
-    if (!value || !value?.length)
-      return this.handleClear();
-    this.emitEvent(value);
+    const value = event?.detail?.value?.length ? event.detail.value : undefined;
+
+    if(value === this.currentValue)
+      return;
+    this.currentValue = value ?? undefined;
+    this.emitEvent(this.currentValue);
   }
 
   /**

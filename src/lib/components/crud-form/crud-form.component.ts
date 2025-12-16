@@ -52,8 +52,9 @@ export class CrudFormComponent extends NgxFormDirective {
       DefaultFormReactiveOptions,
       this.options || {},
     );
-
     await super.ngOnInit();
+    console.log(this.operation);
+    console.log(this.operations);
   }
 
   /**

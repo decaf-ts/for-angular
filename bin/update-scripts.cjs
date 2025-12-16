@@ -687,13 +687,13 @@ const colors = [
  */
 function printBanner(logger) {
     const message = getSlogan();
-    const banner = `#                 ░▒▓███████▓▒░  ░▒▓████████▓▒░  ░▒▓██████▓▒░   ░▒▓██████▓▒░  ░▒▓████████▓▒░       ░▒▓████████▓▒░  ░▒▓███████▓▒░ 
-#      ( (        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░     ░▒▓█▓▒░        
-#       ) )       ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░     ░▒▓█▓▒░        
-#    [=======]    ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓██████▓▒░   ░▒▓█▓▒░        ░▒▓████████▓▒░ ░▒▓██████▓▒░            ░▒▓█▓▒░      ░▒▓██████▓▒░  
-#     \`-----´     ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░            ░▒▓█▓▒░ 
-#                 ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░            ░▒▓█▓▒░ 
-#                 ░▒▓███████▓▒░  ░▒▓████████▓▒░  ░▒▓██████▓▒░  ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░     ░▒▓███████▓▒░  
+    const banner = `#                 ░▒▓███████▓▒░  ░▒▓████████▓▒░  ░▒▓██████▓▒░   ░▒▓██████▓▒░  ░▒▓████████▓▒░       ░▒▓████████▓▒░  ░▒▓███████▓▒░
+#      ( (        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░     ░▒▓█▓▒░
+#       ) )       ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░     ░▒▓█▓▒░
+#    [=======]    ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓██████▓▒░   ░▒▓█▓▒░        ░▒▓████████▓▒░ ░▒▓██████▓▒░            ░▒▓█▓▒░      ░▒▓██████▓▒░
+#     \`-----´     ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░            ░▒▓█▓▒░
+#                 ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░            ░▒▓█▓▒░
+#                 ░▒▓███████▓▒░  ░▒▓████████▓▒░  ░▒▓██████▓▒░  ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░     ░▒▓███████▓▒░
 #`.split("\n");
     const maxLength = banner.reduce((max, line) => Math.max(max, line.length), 0);
     banner.push(`#  ${message.padStart(maxLength - 3)}`);
@@ -1938,11 +1938,11 @@ const options = {
         default: true,
     },
     message: {
-        type: "string",
+        type: String,
         short: "m",
     },
     tag: {
-        type: "string",
+        type: String,
         short: "t",
         default: undefined,
     },
@@ -2755,7 +2755,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__2947__;
 
 module.exports = (key, isSelect) => {
   if (key.meta && key.name !== 'escape') return;
-  
+
   if (key.ctrl) {
     if (key.name === 'a') return 'first';
     if (key.name === 'c') return 'abort';
@@ -2763,7 +2763,7 @@ module.exports = (key, isSelect) => {
     if (key.name === 'e') return 'last';
     if (key.name === 'g') return 'reset';
   }
-  
+
   if (isSelect) {
     if (key.name === 'j') return 'down';
     if (key.name === 'k') return 'up';
@@ -3938,7 +3938,7 @@ class AutocompletePrompt extends Prompt {
     if (this.clearFirst && this.input.length > 0) {
       this.reset();
     } else {
-      this.done = this.exited = true; 
+      this.done = this.exited = true;
       this.aborted = false;
       this.fire();
       this.render();
@@ -4530,16 +4530,16 @@ const argzz = {
         type: "boolean",
     },
     org: {
-        type: "string",
+        type: String,
         short: "o",
     },
     name: {
-        type: "string",
+        type: String,
         short: "n",
         default: undefined,
     },
     author: {
-        type: "string",
+        type: String,
         short: "a",
         default: undefined,
     },
@@ -4548,7 +4548,7 @@ const argzz = {
         type: "boolean",
     },
     license: {
-        type: "string",
+        type: String,
         message: "Pick the license",
     },
     scripts: {
@@ -6142,7 +6142,7 @@ module.exports = str => {
 /***/ ((module) => {
 
 "use strict";
-	
+
 
  const main = {
   arrowUp: '↑',
@@ -6151,28 +6151,28 @@ module.exports = str => {
   arrowRight: '→',
   radioOn: '◉',
   radioOff: '◯',
-  tick: '✔',	
-  cross: '✖',	
-  ellipsis: '…',	
-  pointerSmall: '›',	
-  line: '─',	
-  pointer: '❯'	
-};	
+  tick: '✔',
+  cross: '✖',
+  ellipsis: '…',
+  pointerSmall: '›',
+  line: '─',
+  pointer: '❯'
+};
 const win = {
   arrowUp: main.arrowUp,
   arrowDown: main.arrowDown,
   arrowLeft: main.arrowLeft,
   arrowRight: main.arrowRight,
   radioOn: '(*)',
-  radioOff: '( )',	
-  tick: '√',	
-  cross: '×',	
-  ellipsis: '...',	
-  pointerSmall: '»',	
-  line: '─',	
-  pointer: '>'	
-};	
-const figures = process.platform === 'win32' ? win : main;	
+  radioOff: '( )',
+  tick: '√',
+  cross: '×',
+  ellipsis: '...',
+  pointerSmall: '»',
+  line: '─',
+  pointer: '>'
+};
+const figures = process.platform === 'win32' ? win : main;
 
  module.exports = figures;
 
@@ -7037,7 +7037,7 @@ exports.DefaultCommandOptions = {
         default: false,
     },
     logLevel: {
-        type: "string",
+        type: String,
         default: "info",
     },
     logStyle: {
@@ -9570,7 +9570,7 @@ class StandardOutputWriter {
      * @param lock - A PromiseExecutor to control the asynchronous flow.
      * @param args - Additional arguments (currently unused).
      */
-    constructor(cmd, lock, 
+    constructor(cmd, lock,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ...args) {
         this.cmd = cmd;
@@ -10303,7 +10303,7 @@ module.exports = {
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/ 	
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -10317,14 +10317,14 @@ module.exports = {
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
-/******/ 	
+/******/
 /******/ 		// Execute the module function
 /******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/ 	
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/ 	
+/******/
 /************************************************************************/
 var __webpack_exports__ = {};
 // This entry needs to be wrapped in an IIFE because it needs to be in strict mode.

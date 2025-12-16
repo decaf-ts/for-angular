@@ -25,7 +25,7 @@ import { pk } from '@decaf-ts/core';
 @model()
 export class ForAngularModel extends Model {
 
-  @pk({type: Number.name})
+  @pk({type: Number})
   @min(1)
   @max(100)
   @uielement('ngx-decaf-crud-field', {

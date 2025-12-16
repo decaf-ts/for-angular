@@ -35,7 +35,7 @@
               }
               <p class="dcf-drag-description">{{ label ? (label | translate) : (locale + ".drag_file" | translate) }}</p>
               <ion-button class="dcf-button-select" (click)="handleClickToSelect()" size="small">
-                {{ buttonLabel ? (buttonLabel | translate) : (locale + ".buttons.select" | translate) }}
+                {{ buttonLabel ? (buttonLabel | translate) : (locale + (enableDirectoryMode ? ".buttons.select_directory" : ".buttons.select") | translate) }}
               </ion-button>
               <div #container>
                 <span class="dcf-error" [innerHTML]="getErrors(container)"></span>

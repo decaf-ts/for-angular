@@ -261,7 +261,7 @@ const languages = [
 ];
 
 export function getLeafletLanguages(): SelectOption[] {
-  return languages.map(language =>
+  return languages.sort((a, b) => a.code === 'en' ? -1 : 1).map(language =>
     ({text: language.name, value: language.code, disabled: false, selected: language.code === "en"})
   );
 }

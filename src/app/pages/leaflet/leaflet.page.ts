@@ -10,6 +10,8 @@ import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-
 import { ListComponent } from 'src/lib/components/list/list.component';
 import { EmptyStateComponent } from 'src/lib/components/empty-state/empty-state.component';
 import { Leaflet } from 'src/app/ew/models/Leaflet';
+import { IBaseCustomEvent, IModelComponentSubmitEvent } from 'src/lib/engine/interfaces';
+import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 
 @Component({
   selector: 'app-leaflet',
@@ -40,5 +42,16 @@ export class LeafletPage extends NgxModelPageDirective implements OnInit {
 
     override async ionViewWillEnter(): Promise<void> {
      await super.ionViewWillEnter();
+    }
+
+    override async handleEvent(event: IBaseCustomEvent): Promise<void> {
+      const {success, message} = await super.submit(event, true) as IModelComponentSubmitEvent;
+      const toast = await getNgxToastComponent().show({
+        message,
+        duration: 3000,
+        color: success ? 'dark' : 'danger',
+        position: 'top',
+      });
+      await toast.present();
     }
 }

@@ -64,7 +64,6 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
 
 
   async handleAddItem(): Promise<void> {
-    console.log(this.activePage);
     const page = this.activePage as UIElementMetadata;
     const { model, props} = page as KeyValue;
     // // Logic to handle adding a new item
@@ -76,6 +75,5 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
     });
     await modal.present();
     const { data, role } = await modal.onDidDismiss();
-    console.log(data, role);
   }
 }

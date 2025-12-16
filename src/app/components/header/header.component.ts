@@ -1,5 +1,5 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { ElementSize, StringOrBoolean } from 'src/lib/engine/types';
+import { ElementSize } from 'src/lib/engine/types';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { IonAvatar, IonButton, IonButtons, IonHeader, IonMenuButton, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
 import { getOnWindow, getOnWindowDocument } from 'src/lib/utils/helpers';

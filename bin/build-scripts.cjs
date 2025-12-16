@@ -3970,7 +3970,7 @@ function requirePrompts$2 () {
 		  args.suggest = args.suggest || byTitle;
 		  args.choices = [].concat(args.choices || []);
 		  return toPrompt('AutocompletePrompt', args);
-		}; 
+		};
 	} (prompts$3));
 	return prompts$3;
 }
@@ -4148,7 +4148,7 @@ function requireAction () {
 
 	action = (key, isSelect) => {
 	  if (key.meta && key.name !== 'escape') return;
-	  
+
 	  if (key.ctrl) {
 	    if (key.name === 'a') return 'first';
 	    if (key.name === 'c') return 'abort';
@@ -4156,7 +4156,7 @@ function requireAction () {
 	    if (key.name === 'e') return 'last';
 	    if (key.name === 'g') return 'reset';
 	  }
-	  
+
 	  if (isSelect) {
 	    if (key.name === 'j') return 'down';
 	    if (key.name === 'k') return 'up';
@@ -4249,28 +4249,28 @@ function requireFigures () {
 	  arrowRight: '→',
 	  radioOn: '◉',
 	  radioOff: '◯',
-	  tick: '✔',	
-	  cross: '✖',	
-	  ellipsis: '…',	
-	  pointerSmall: '›',	
-	  line: '─',	
-	  pointer: '❯'	
-	};	
+	  tick: '✔',
+	  cross: '✖',
+	  ellipsis: '…',
+	  pointerSmall: '›',
+	  line: '─',
+	  pointer: '❯'
+	};
 	const win = {
 	  arrowUp: main.arrowUp,
 	  arrowDown: main.arrowDown,
 	  arrowLeft: main.arrowLeft,
 	  arrowRight: main.arrowRight,
 	  radioOn: '(*)',
-	  radioOff: '( )',	
-	  tick: '√',	
-	  cross: '×',	
-	  ellipsis: '...',	
-	  pointerSmall: '»',	
-	  line: '─',	
-	  pointer: '>'	
-	};	
-	const figures = process.platform === 'win32' ? win : main;	
+	  radioOff: '( )',
+	  tick: '√',
+	  cross: '×',
+	  ellipsis: '...',
+	  pointerSmall: '»',
+	  line: '─',
+	  pointer: '>'
+	};
+	const figures = process.platform === 'win32' ? win : main;
 
 	 figures_1 = figures;
 	return figures_1;
@@ -6228,7 +6228,7 @@ function requireAutocomplete () {
 	    if (this.clearFirst && this.input.length > 0) {
 	      this.reset();
 	    } else {
-	      this.done = this.exited = true; 
+	      this.done = this.exited = true;
 	      this.aborted = false;
 	      this.fire();
 	      this.render();
@@ -6922,7 +6922,7 @@ function requirePrompts$1 () {
 		  args.suggest = args.suggest || byTitle;
 		  args.choices = [].concat(args.choices || []);
 		  return toPrompt('AutocompletePrompt', args);
-		}; 
+		};
 	} (prompts$2));
 	return prompts$2;
 }
@@ -7672,7 +7672,7 @@ const DefaultCommandOptions = {
         default: false,
     },
     logLevel: {
-        type: "string",
+        type: String,
         default: "info",
     },
     logStyle: {
@@ -7782,7 +7782,7 @@ class StandardOutputWriter {
      * @param lock - A PromiseExecutor to control the asynchronous flow.
      * @param args - Additional arguments (currently unused).
      */
-    constructor(cmd, lock, 
+    constructor(cmd, lock,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ...args) {
         this.cmd = cmd;
@@ -9202,13 +9202,13 @@ const colors = [
  */
 function printBanner(logger) {
     const message = getSlogan();
-    const banner = `#                 ░▒▓███████▓▒░  ░▒▓████████▓▒░  ░▒▓██████▓▒░   ░▒▓██████▓▒░  ░▒▓████████▓▒░       ░▒▓████████▓▒░  ░▒▓███████▓▒░ 
-#      ( (        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░     ░▒▓█▓▒░        
-#       ) )       ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░     ░▒▓█▓▒░        
-#    [=======]    ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓██████▓▒░   ░▒▓█▓▒░        ░▒▓████████▓▒░ ░▒▓██████▓▒░            ░▒▓█▓▒░      ░▒▓██████▓▒░  
-#     \`-----´     ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░            ░▒▓█▓▒░ 
-#                 ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░            ░▒▓█▓▒░ 
-#                 ░▒▓███████▓▒░  ░▒▓████████▓▒░  ░▒▓██████▓▒░  ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░     ░▒▓███████▓▒░  
+    const banner = `#                 ░▒▓███████▓▒░  ░▒▓████████▓▒░  ░▒▓██████▓▒░   ░▒▓██████▓▒░  ░▒▓████████▓▒░       ░▒▓████████▓▒░  ░▒▓███████▓▒░
+#      ( (        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░     ░▒▓█▓▒░
+#       ) )       ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░     ░▒▓█▓▒░
+#    [=======]    ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓██████▓▒░   ░▒▓█▓▒░        ░▒▓████████▓▒░ ░▒▓██████▓▒░            ░▒▓█▓▒░      ░▒▓██████▓▒░
+#     \`-----´     ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░            ░▒▓█▓▒░
+#                 ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░        ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░            ░▒▓█▓▒░
+#                 ░▒▓███████▓▒░  ░▒▓████████▓▒░  ░▒▓██████▓▒░  ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░                 ░▒▓█▓▒░     ░▒▓███████▓▒░
 #`.split("\n");
     const maxLength = banner.reduce((max, line) => Math.max(max, line.length), 0);
     banner.push(`#  ${message.padStart(maxLength - 3)}`);

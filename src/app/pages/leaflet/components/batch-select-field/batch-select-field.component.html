@@ -28,35 +28,36 @@
               [id]="name"
               toggleIcon="chevron-down-outline"
               expandedIcon="chevron-up-outline"
-              [interface]="interface"
               [mode]="'md'"
+              (click)="openSelectOptions($event, interface)"
               [hidden]="hidden || !options?.length"
               [labelPlacement]="labelPlacement"
               [label]="label | translate"
               [value]="value ?? null"
-              (click)="openSelectOptions($event, interface)"
+              (ionChange)="handleChange($event)"
               [fill]="fill"
               [placeholder]="placeholder | translate"
               [formControlName]="name"
-              [interface]="interface" #component>
+              [interface]="interface"
+              #component>
               @if (options?.length) {
                 @for(option of options; track trackItemFn($index, option.text)) {
                   <ion-select-option
                     [value]="option.value"
                     [class.dcf-disabled]="option.disabled"
-                    [class.dcf-hidden]="option.disabled"
+                    [class.dcf-hidden]="option.hidden"
                     [hidden]="option.hidden">
                     {{ option.text }}
                   </ion-select-option>
                 }
               }
             </ion-select>
-            <div class="dcf-error" [innerHTML]="getErrors(container)">
-              @if (!options?.length) {
-                <ion-text color="danger">
-                  * {{ 'errors.empty_options' | translate:{'0': name} }}
-                </ion-text>
-              }
+
+           <div
+              class="dcf-error"
+              [class.dcf-options-error]="!options?.length"
+              [innerHTML]="options?.length ?
+                getErrors(container) : 'errors.empty_options' | translate:{'0': name}">
             </div>
           </div>
 

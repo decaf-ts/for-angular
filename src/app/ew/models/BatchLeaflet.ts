@@ -63,7 +63,7 @@ class XmlPreviewHandler extends NgxEventHandler {
 export class BatchLeaflet extends BaseModel {
 
 
-  @pk({type: "String",  generated: false})
+  @pk({type: String,  generated: false})
   @uilistprop('uid')
   @composed(["productCode", "batchNumber", "lang"], ":", true)
   id!: string;

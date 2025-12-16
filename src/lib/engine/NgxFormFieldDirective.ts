@@ -5,7 +5,7 @@
  * and FieldProperties to enable form field integration with Angular's reactive forms system.
  * This directive handles form control lifecycle, validation, multi-entry forms, and CRUD operations.
  */
-import { CrudOperationKeys, FieldProperties, RenderingError } from '@decaf-ts/ui-decorators';
+import { CrudOperationKeys, FieldProperties, HTML5InputTypes, RenderingError } from '@decaf-ts/ui-decorators';
 import { FormParent, KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormArray, FormControl, FormGroup } from '@angular/forms';
@@ -16,6 +16,7 @@ import { ComponentEventNames } from './constants';
 import { FunctionLike } from './types';
 import { NgxComponentDirective } from './NgxComponentDirective';
 import { CPTKN } from '../for-angular-common.module';
+import { IonSelect } from '@ionic/angular/standalone';
 
 /**
  * @description Abstract base directive for CRUD form fields in Angular applications.
@@ -472,6 +473,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
   setValue(value: unknown): void {
     this.formControl.setValue(value);
     this.formControl.updateValueAndValidity();
+    this.value = value as string | number | Date | string[];
   }
 
   handleModalChildChanges() {

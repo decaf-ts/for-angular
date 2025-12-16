@@ -20,7 +20,7 @@ import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
 import { Dynamic } from '../../engine/decorators';
 import { KeyValue, SelectOption } from '../../engine/types';
 import { IBaseCustomEvent } from '../../engine/interfaces';
-import {ActionRoles, DefaultModalOptions} from '../../engine/constants';
+import {ActionRoles, DefaultModalOptions, ListComponentsTypes} from '../../engine/constants';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { OperationKeys } from '@decaf-ts/db-decorators';
@@ -367,7 +367,7 @@ export async function presentNgxInlineModal(inlineContent: string | SafeHtml, pr
  * @returns {Promise<void>} - A promise that resolves when the modal is presented.
  */
 export async function getNgxInlineModal(inlineContent: string | SafeHtml, props: Partial<ModalComponent> = {}, injector?: EnvironmentInjector): Promise<IonModal> {
-  return (await getNgxModalComponent({ props, ...{ inlineContent: inlineContent ?? '<div></div>', className: `${props?.className ?? ''} dcf-modal-expand` } }, {}, injector || undefined));
+  return (await getNgxModalComponent({ props, ...{ inlineContent: inlineContent ?? '<div></div>', className: `${props?.className ?? ''} dcf-modal dcf-modal-expand` } }, {}, injector || undefined));
 }
 
 
@@ -379,15 +379,19 @@ export async function getNgxInlineModal(inlineContent: string | SafeHtml, props:
  * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
  * @returns {Promise<IonModal>} - A promise that resolves with the modal instance.
  */
-export async function getNgxSelectOptionsModal(options: SelectOption[], injector?: EnvironmentInjector): Promise<IonModal> {
+export async function getNgxSelectOptionsModal(title: string, options: SelectOption[], injector?: EnvironmentInjector): Promise<IonModal> {
   const props = {
     tag: 'ngx-decaf-list',
+    title,
     globals: {
       data: options,
+      showSearchbar: options?.length > 10,
       item: { tag: true },
       pk: 'value',
       mapper: { title: 'text', uid: 'value' },
+      type: ListComponentsTypes.INFINITE
     },
+    className: `dcf-modal dcf-modal-select-interface`,
   };
   return (await getNgxModalComponent(props, {}, injector || undefined));
 }

@@ -7,11 +7,40 @@
     }
   }
 
+  &.dcf-modal {
+    --border-radius: var(--dcf-border-radius);
+    ion-button {
+      --background: var(--dcf-color-light) !important;
+      --border-radius: var(--dcf-border-radius-small) !important;
+    }
+  }
+
+  &.dcf-modal-select-interface {
+    --min-width: 300px;
+    --max-width: 500px;
+
+    --border-radius: var(--dcf-border-radius);
+    .dcf-modal-body {
+      --max-height: 60%;
+      max-height: 60%;
+
+      padding: 0px var(--dcf-padding-small) !important;
+    }
+    ion-button {
+      --background: var(--dcf-color-light) !important;
+      --border-radius: var(--dcf-border-radius) !important;
+    }
+
+    ion-header {
+      box-shadow: none !important;
+      border-bottom: 1px solid var(--dcf-color-gray-2) !important;
+    }
+  }
+
   &.dcf-modal-expand {
     --height: 90%;
     --width: 90%;
     --max-width: 100%;
-    --border-radius: 0;
     ion-button {
       --background: var(--dcf-color-light) !important;
       --border-radius: var(--dcf-border-radius-small) !important;

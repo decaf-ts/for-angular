@@ -10,7 +10,7 @@ import { EventIds, Repository } from '@decaf-ts/core';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { NgxPageDirective } from './NgxPageDirective';
 import { ComponentEventNames } from './constants';
-import { IBaseCustomEvent, IModelPageCustomEvent } from './interfaces';
+import { IBaseCustomEvent, IModelComponentSubmitEvent } from './interfaces';
 import { KeyValue, DecafRepository } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { getModelAndRepository } from '../for-angular-common.module';
@@ -224,7 +224,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     const { name } = event;
     switch (name) {
       case ComponentEventNames.SUBMIT:
-        await this.submit(event, repository);
+        await this.submit(event, false, repository);
         break;
     }
   }
@@ -238,13 +238,15 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * operation with detailed logging.
    *
    * @param {IBaseCustomEvent} event - The submit event containing form data
-   * @return {Promise<IModelPageCustomEvent|void>} Promise that resolves on success or throws on error
+   * @return {Promise<IModelComponentSubmitEvent|void>} Promise that resolves on success or throws on error
    */
   override async submit(
     event: IBaseCustomEvent,
+    redirect: boolean = false,
     repository?: DecafRepository<Model>,
-    redirect: boolean = false
-  ): Promise<IModelPageCustomEvent | void> {
+  ): Promise<IModelComponentSubmitEvent> {
+    let success = false;
+    let message = '';
     try {
       if (!repository) repository = this._repository as DecafRepository<Model>;
 
@@ -272,21 +274,15 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
             break;
         }
 
-        const message = await this.translate(
+        message = await this.translate(
           !Array.isArray(result)
             ? `operations.${operation}.${result ? 'success' : 'error'}`
             : `operations.multiple`
-        );
-
-        if (result) {
-          // repository.refresh(this.modelName, this.operation, this.modelId as EventIds);
-          if (redirect) this.location.back();
+        , {"0": this.pk, "1": (model as KeyValue)[this.pk as string] || ''});
+        success = result ? true : false;
+        if (success && redirect) {
+          this.location.back();
         }
-        return {
-          ...event,
-          success: result ? true : false,
-          message,
-        };
       }
     } catch (error: unknown) {
       this.log.for(this.submit).error(
@@ -294,12 +290,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
           error instanceof Error ? error.message : (error as string)
         }`
       );
-      return {
-        ...event,
-        success: false,
-        message: error instanceof Error ? error.message : (error as string),
-      };
+      message = error instanceof Error ? error.message : (error as string);
     }
+    return {...event, success, message};
   }
 
 

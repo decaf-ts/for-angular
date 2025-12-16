@@ -19,7 +19,7 @@ import { CategoryModel } from './CategoryModel';
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class UserModel extends Model {
-  @pk({ type: 'Number' })
+ @pk({ type: Number })
   @uielement('ngx-decaf-crud-field', {
     label: 'user.id.label',
     placeholder: 'user.id.placeholder',

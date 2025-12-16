@@ -127,6 +127,5 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
     const handler = (new ProductLayoutHandler()).handle.bind(this);
     const result = await handler(event);
-    console.log(result);
   }
 }
