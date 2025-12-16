@@ -1938,11 +1938,11 @@ const options = {
         default: true,
     },
     message: {
-        type: String,
+        type: "string",
         short: "m",
     },
     tag: {
-        type: String,
+        type: "string",
         short: "t",
         default: undefined,
     },
@@ -4530,16 +4530,16 @@ const argzz = {
         type: "boolean",
     },
     org: {
-        type: String,
+        type: "string",
         short: "o",
     },
     name: {
-        type: String,
+        type: "string",
         short: "n",
         default: undefined,
     },
     author: {
-        type: String,
+        type: "string",
         short: "a",
         default: undefined,
     },
@@ -4548,7 +4548,7 @@ const argzz = {
         type: "boolean",
     },
     license: {
-        type: String,
+        type: "string",
         message: "Pick the license",
     },
     scripts: {
@@ -7037,7 +7037,7 @@ exports.DefaultCommandOptions = {
         default: false,
     },
     logLevel: {
-        type: String,
+        type: "string",
         default: "info",
     },
     logStyle: {
@@ -9073,7 +9073,7 @@ function applyStyle(text, n) {
  */
 function clear(text) {
     // Regular expression to match ANSI escape codes
-    // eslint-disable-next-line no-control-regex
+     
     const ansiRegex = /\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g;
     return text.replace(ansiRegex, '');
 }
