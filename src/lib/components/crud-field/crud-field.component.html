@@ -126,8 +126,8 @@
           @else if (type === 'select') {
             <div>
               <ion-select
-                (ionInput)="handleModalChildChanges()"
-                (ionChange)="handleModalChildChanges()"
+                (ionInput)="handleModalChildChanges($event)"
+                (ionChange)="handleModalChildChanges($event)"
                 [id]="name"
                 toggleIcon="chevron-down-outline"
                 expandedIcon="chevron-up-outline"
@@ -152,6 +152,11 @@
                       {{ option.text }}
                     </ion-select-option>
                   }
+                }
+                @if((value && !required) || (!required && (value !== undefined && value !== ''))) {
+                  <ion-button fill="clear" (click)="handleClearValue($event)" slot="end" aria-label="Show/hide password">
+                    <ngx-decaf-icon size="small" slot="icon-only" [name]="'ti-input-x'" />
+                  </ion-button>
                 }
               </ion-select>
               <div

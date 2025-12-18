@@ -16,7 +16,6 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Dynamic } from '../../engine/decorators';
 import { DefaultFormReactiveOptions, ComponentEventNames } from '../../engine/constants';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
-import { ComponentRendererComponent } from '../../components/component-renderer/component-renderer.component';
 import { LayoutComponent } from '../layout/layout.component';
 
 
@@ -26,7 +25,7 @@ import { LayoutComponent } from '../layout/layout.component';
   selector: 'ngx-decaf-crud-form',
   templateUrl: './crud-form.component.html',
   styleUrls: ['./crud-form.component.scss'],
-  imports: [ReactiveFormsModule, LayoutComponent, ComponentRendererComponent, IonButton, IonIcon],
+  imports: [ReactiveFormsModule, LayoutComponent, IonButton, IonIcon],
   host: {'[attr.id]': 'uid'},
 })
 

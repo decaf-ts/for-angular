@@ -28,6 +28,13 @@ fieldset {
   border: 1px solid var(--dcf-color-gray-3);
   padding: var(--dcf-padding-small);
 
+  &.dcf-open.dcf-empty {
+    .dcf-button-add {
+      margin-top: 1rem !important;
+      margin-bottom: 0.15rem !important;
+    }
+  }
+
   &.dcf-blank {
     border-color: transparent;
     padding: var(--dcf-padding-xsmall) 0.25rem;
@@ -67,21 +74,24 @@ legend,
 }
 
 .dcf-fields-list {
-  padding: 0.25rem var(--dcf-margin-small);
+  margin-top: var(--dcf-margin-small);
   // margin-bottom: var(--dcf-margin-small) !important;
   padding-bottom: var(--dcf-padding) !important;
   // margin-top: -var(--dcf-spacement);
 
   ion-item {
-    --min-height: 50px;
-    --padding-top: 0.25rem;
-    --padding-bottom: 0.25rem;
+    --min-height: 30px;
+    --padding-top: 0rem;
+    --padding-bottom: 0rem;
     --padding-start: 0.75rem;
-    --padding-end: 0.75rem;
+    --padding-end: 0.5rem;
     --inner-padding-start: 0px !important;
     --inner-padding-end: 0px !important;
-    --border-color: var(--dcf-color-gray-2) !important;
-
+    --border-color: transparent;
+    --background: rgba(var(--dcf-color-primary-rgb), 0.025) !important;
+    border: 1px solid var(--dcf-color-gray-3);
+    border-radius: var(--dcf-border-radius-small);
+    box-sizing: border-box;
     ion-icon.dcf-reorder-disabled {
       width: var(--dcf-spacement);
       transform: translatey(2px);
@@ -98,7 +108,7 @@ legend,
     }
     .dcf-subtitle {
       font-size: 0.925rem;
-      color: var(--ion-color-gray-4);
+      color: var(--ion-color-gray-6);
       // color: var(--dcf-color-gray-7);
     }
   }

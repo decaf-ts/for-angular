@@ -7,7 +7,9 @@ import { Product, ProductNames } from '../ew/models/Product';
 import { ProductStrength } from '../ew/models/ProductStrength';
 import { Batch } from '../ew/models/Batch';
 import { faker } from '@faker-js/faker';
+import { Leaflet } from '../ew/models/Leaflet';
 export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
+
 
   public override async initialize(): Promise<void> {
     await super.initialize();
@@ -22,24 +24,61 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
         case Product.name:
           data = await this.generateData<Product>(ProductNames, 'inventedName', "string");
           data = data.map((item: Partial<Product>) => {
-            delete item['productImage'];
+            delete item.productImage;
             return item as T;
           })
           break;
         case Batch.name:
-          this.limit = 20;
+          this.limit = 40;
           data = await this.generateData<Batch>();
           data = [... data.map((item: Partial<Batch>) => {
             const productCode = `0${Math.floor(Math.random() * 5) + 1}`;
-            item['productCode'] = productCode;
-            item['batchNumber'] = `batch${productCode}_${faker.lorem.word(24)}`.trim();
+            item.productCode = productCode;
+            item.batchNumber = `batch${productCode}_${faker.lorem.word(24)}`.trim();
             return item as T;
           })]
           break;
+        case Leaflet.name: {
+          this.limit = 10;
+          this.propFnMapper = {
+            lang: () => {
+              const languages = ['en', 'fr', 'de', 'it', 'es', 'pt', 'pt-br'] as string[];
+              return languages[Math.floor(Math.random() * languages.length)]
+            },
+            // id: () => {
+            //   const languages = ['en', 'fr', 'de', 'it', 'es', 'pt', 'pt-br'] as string[];
+            //   const lang = languages[Math.floor(Math.random() * languages.length)]
+            //   const productCode = `0${Math.floor(Math.random() * 5) + 1}`;
+            //   return `${productCode}:${lang}:${Math.floor(Math.random() * 10000) + 1}`;
+            // },
+            type: () => {
+              const types = ['prescribingInfo', 'leaflet'];
+              return types[Math.floor(Math.random() * types.length)];
+            },
+            productCode: () => {
+              return `0${Math.floor(Math.random() * 5) + 1}`;
+            }
+          };
+          data = await this.generateData<Leaflet>();
+          // data = [... data.map((item: Partial<Leaflet>) => {
+          //   const productCode = `0${Math.floor(Math.random() * 5) + 1}`;
+          //   delete item.id;
+          //   return {
+          //     ...item,
+          //     productCode,
+          //     lang: languages[Math.floor(Math.random() * languages.length)],
+          //     xmlFileContent: "<div>Leaflet content for product " + productCode + "</div>",
+          //     type: types[Math.floor(Math.random() * types.length)],
+          //     market: ""
+          //   } as Leaflet;
+
+          // })]
+          break;
+        }
         case ProductStrength.name: {
           data = await this.generateData<ProductStrength>();
           data = data.map((item: Partial<ProductStrength>) => {
-            item['productCode'] = `${Math.floor(Math.random() * 5) + 1}`;
+            item.productCode = `${Math.floor(Math.random() * 5) + 1}`;
             return item as T;
           }) as T[];
           break;
@@ -48,9 +87,16 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           data = await this.generateData();
       }
       try {
-         data = await this.repository?.createAll(data);
+        //   data = await Promise.all(data.map(async (item: Partial<Model>) => {
+        //   const pk = item[this.pk as keyof Model];
+        //   const check = await this.repository.read([Primitives.NUMBER, Primitives.BIGINT].includes(this.pkType as Primitives) ? Number(pk) : String(pk));
+        //   if (!check)
+        //     return await this.repository.create(item as Model);
+        //   return check;
+        // })) as T[];
+        data = await this.repository?.createAll(data);
       } catch (error: unknown) {
-        console.error(error);
+        this.log.for(this.initialize).error(`Error on populate ${this.model?.constructor.name}: ${(error as Error)?.message || error  as string}`);
       }
     }
     this.data = data as T[];

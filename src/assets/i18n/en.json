@@ -1,4 +1,9 @@
 {
+  "component": {
+    "switcher": {
+      "leaflet": "Create new document"
+    }
+  },
   "menu": {
     "product": "Products",
     "batch": "Batches",

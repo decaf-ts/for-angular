@@ -3,7 +3,7 @@ import { Model, model, ModelArg, required } from "@decaf-ts/decorator-validation
 import { uielement, uilayoutprop, uilistprop, uimodel, uipageprop, uiprop } from "@decaf-ts/ui-decorators";
 import { ListItemPositions } from "src/lib/engine/constants";
 
-@uimodel('ngx-decaf-fieldset', {multiple: true})
+@uimodel('ngx-decaf-crud-form', {multiple: true})
 @model()
 export class ProductStrength extends Model {
 

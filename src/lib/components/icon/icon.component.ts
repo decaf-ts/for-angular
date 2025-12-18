@@ -54,7 +54,7 @@ export class IconComponent implements OnInit {
   @Input()
   size?: 'large' | 'small' | 'default' = 'default';
 
-  type: 'image' | 'ionic' = 'ionic';
+  type: 'image' | 'ionic' | 'icon' = 'ionic';
 
   isSvg: boolean = false;
 
@@ -77,6 +77,11 @@ export class IconComponent implements OnInit {
     if(this.name?.includes('.')) {
       this.type = 'image';
       this.isSvg = this.name.endsWith('.svg');
+    }
+
+    if(this.name?.includes('ti')) {
+      this.type = 'icon';
+      this.name = `ti-${this.name.replace(/ti-/g, '')}`;
     }
     this.mediaService.isDarkMode().subscribe(isDark => {
       this.isDarkMode = isDark;

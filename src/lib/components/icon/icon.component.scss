@@ -1,3 +1,11 @@
+:host {
+  overflow: hidden !important;
+}
+
+.dcf-icon-component {
+  overflow: hidden !important;
+}
+
 ::ng-deep .dcf-icon {
   &.dcf-palette-dark {
     ion-icon {
@@ -19,8 +27,64 @@
 ion-button {
   cursor: pointer !important;
 }
-.dcf-icon {
+.dcf-icon-component {
   ion-icon:not([size]) {
     font-size: 1.35rem !important;
+  }
+}
+
+[class*="ti ti-"] {
+  font-size: 1.4rem;
+  line-height: 1.4rem;
+  margin-right: 0.125rem;
+  position: relative;
+  // position: relative;
+  // top: -1px;
+  &.large,
+  &[size="large"] {
+    font-size: 2.2rem !important;
+    top: 2.5px !important;
+  }
+  &.small,
+  &[size="small"] {
+    font-size: 1rem;
+    top: 1px !important;
+  }
+
+  &[color="primary"],
+  &[class*="color-primary"] {
+    color: var(--dcf-color-primary);
+  }
+  &[color="danger"],
+  &[class*="color-danger"] {
+    color: var(--dcf-color-danger);
+  }
+  &[color="warning"],
+  &[class*="color-warning"] {
+    color: var(--dcf-color-warning);
+  }
+  &[color="success"],
+  &[class*="color-success"] {
+    color: var(--dcf-color-success);
+  }
+  &[color="secondary"],
+  &[class*="color-secondary"] {
+    color: var(--dcf-color-secondary);
+  }
+  &[color="tertiary"],
+  &[class*="color-tertiary"] {
+    color: var(--dcf-color-tertiary);
+  }
+  &[color="light"],
+  &[class*="color-light"] {
+    color: var(--dcf-color-light);
+  }
+  &[color="medium"],
+  &[class*="color-medium"] {
+    color: var(--dcf-color-medium-tint);
+  }
+  &[color="dark"],
+  &[class*="color-dark"] {
+    color: var(--dcf-color-dark);
   }
 }

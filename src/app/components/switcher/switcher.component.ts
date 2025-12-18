@@ -1,30 +1,48 @@
-import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-import { IPagedComponentProperties, UIElementMetadata } from '@decaf-ts/ui-decorators';
+import { RouterModule } from '@angular/router';
+import { Model } from '@decaf-ts/decorator-validation';
+import { IPagedComponentProperties } from '@decaf-ts/ui-decorators';
+import { IonButton } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
+import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
 import { ComponentRendererComponent } from 'src/lib/components/component-renderer/component-renderer.component';
-import { getNgxModalComponent } from 'src/lib/components/modal/modal.component';
-import { ElementPosition, ElementPositions, KeyValue, NgxParentComponentDirective } from 'src/lib/engine';
+import { ComponentEventNames, ElementPosition, ElementPositions, NgxParentComponentDirective } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
+import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 
-
+export interface ITabItem {
+  title?: string;
+  description?: string;
+  url?: string;
+  value?: string
+  icon?: string;
+  showTitle?: boolean;
+}
 @Dynamic()
 @Component({
   selector: 'app-switcher',
   templateUrl: './switcher.component.html',
   styleUrls: ['./switcher.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslatePipe, ComponentRendererComponent]
+  imports: [ForAngularCommonModule, RouterModule, TranslatePipe, ComponentRendererComponent, IonButton]
 })
 export class SwitcherComponent extends NgxParentComponentDirective implements OnInit, OnDestroy {
 
   @Input()
-  tabs: IPagedComponentProperties[] = [];
+  items: ITabItem[] = [];
 
   @Input()
   position: Extract<ElementPosition, 'top' | 'left'> = ElementPositions.top;
 
-  button: boolean = false;
+  @Input()
+  mode: 'button' | 'toggle' | 'default' = 'default';
+
+  @Input()
+  type: 'tabs' | 'switcher' | 'column' = 'switcher';
+
+  data: Partial<Model>[] | undefined;
+
+  override value: string | undefined;
 
   override activeIndex: number = 0;
 
@@ -34,28 +52,38 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
 
   override async ngOnInit() {
     // await super.ngOnInit();
-    // Initialize tabs based on children and existing tabs input
-    if(!this.tabs.length || this.tabs.length < this.children.length) {
-      this.tabs = this.children.map(({props}, index) => {
-        const tab = this.tabs[index];
-        // props['operation'] = 'read';
-        const {title, description} = tab ? tab : props;
+    // Initialize items based on children and existing items input
+    if(!this.items.length || this.items.length < this.children.length) {
+      this.items = this.children.map(({props}, index) => {
+        const tab = this.items[index];
+        const {title, description, url, value, showTitle} = tab ? tab : props;
         return {
           title,
-          description
+          description,
+          value,
+          url,
+          index,
+          showTitle: showTitle ?? true,
         } as IPagedComponentProperties;
       });
-      this.activePage = this.getActivePage(this.activeIndex);
+      if(this.type === 'switcher')
+        this.activePage = this.getActivePage(this.activeIndex);
+    }
+    if(this.type === 'tabs') {
+      this.items.forEach((item, index) => {
+       const {url} = item;
+       if(url && this.router.url.includes(url) )
+         this.activeIndex = index;
+      });
     }
     this.initialized = true;
   }
 
-  /**
-   * @description Cleanup method called when the component is destroyed.
-   * @summary Unsubscribes from any active timer subscriptions to prevent memory leaks.
-   * This is part of Angular's component lifecycle and ensures proper resource cleanup.
-   *
-   */
+
+  override async handleEvent(event: IBaseCustomEvent): Promise<void> {
+    this.data = event.data as Partial<Model>[];
+  }
+
   override ngOnDestroy(): void {
     super.ngOnDestroy();
     if(this.timerSubscription)
@@ -63,17 +91,23 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
   }
 
 
-  async handleAddItem(): Promise<void> {
-    const page = this.activePage as UIElementMetadata;
-    const { model, props} = page as KeyValue;
-    // // Logic to handle adding a new item
-    const modal = await getNgxModalComponent({
-      model: model,
-      globals: {
-       ... props,
-      }
-    });
-    await modal.present();
-    const { data, role } = await modal.onDidDismiss();
+  async handleNavigateToLeaflet() {
+    await this.router.navigateByUrl('/leaflets/create?productCode=' + this.modelId);
+  }
+
+
+  async navigate(page: number): Promise<void|boolean> {
+    const {url, value} = this.items[page];
+    if(url)
+      return await this.router.navigateByUrl(url || '/');
+    if(value !== this.value) {
+      this.value = value;
+      this.activeIndex = page;
+      this.listenEvent.emit({
+        name: ComponentEventNames.CHANGE,
+        data: value,
+        component: this.constructor.name
+      });
+    }
   }
 }

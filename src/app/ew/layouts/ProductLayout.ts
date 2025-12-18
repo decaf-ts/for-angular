@@ -9,6 +9,7 @@ import {
 import { EpiLayout } from '../layouts/EpiLayout';
 import { FieldsetComponent, LayoutComponent } from 'src/lib/components';
 import { Product } from '../models/Product';
+import { SwitcherComponent } from 'src/app/components/switcher/switcher.component';
 
 @uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uilayout('ngx-decaf-crud-form', true, 1, {
@@ -28,7 +29,7 @@ export class ProductLayout extends Model {
   @uilayoutprop(2)
   product!: Product;
 
-  @uichild(EpiLayout.name, 'app-switcher', {})
+  @uichild(EpiLayout.name, 'app-switcher', {type: 'column'} as Partial<SwitcherComponent>)
   @uilayoutprop(1)
   epi!: EpiLayout;
 

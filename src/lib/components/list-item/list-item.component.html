@@ -6,20 +6,18 @@
       [lines]="lines"
       [button]="!operations?.length ? false : button"
       [class]="className"
-      (click)="operations?.includes('read') ? handleAction('read', $event, component) : ''"
+      (click)="operations?.includes(OperationKeys.READ) ? handleAction(OperationKeys.READ, $event, component) : ''"
       #component
     >
       @if (icon && lines !== 'inset') {
-        <div class="dcf-icon" [slot]="iconSlot">
-          <ion-avatar>
-            <ion-icon aria-hidden="true" name="reader-outline" size="default" />
-          </ion-avatar>
+        <div class="dcf-icon-container dcf-width-auto" [slot]="iconSlot">
+          <ngx-decaf-icon slot="icon-only" [name]="icon"  />
         </div>
       }
       <div class="dcf-width-expand">
         <div class="dcf-flex dcf-flex-middle dcf-grid-collapse" dcf-grid>
           @if (icon && lines === 'inset') {
-            <div class="dcf-icon dcf-grid-icon">
+            <div class="dcf-icon" [slot]="iconSlot">
               <ion-avatar>
                 <ion-icon aria-hidden="true" name="reader-outline" size="default" />
               </ion-avatar>
@@ -52,7 +50,7 @@
             @if ((operations?.includes(OperationKeys.DELETE) || operations?.includes(OperationKeys.UPDATE)) && uid) {
               <div class="dcf-visible@s" id="dcf-actions">
                 @if(actionsType === 'popover') {
-                  <ion-button class="" shape="round" fill="clear" color="primary" (click)="presentActionsMenu($event)">
+                  <ion-button shape="round" fill="clear" color="primary" (click)="presentActionsMenu($event)" [attr.aria-label]="locale+'.actions' | translate">
                     <ion-icon slot="icon-only" aria-hidden="true" name="ellipsis-vertical-outline" />
                   </ion-button>
                   <ion-popover
@@ -71,10 +69,10 @@
                             @if (operations?.includes(operation)) {
                             <ion-item button="true" (click)="handleAction(operation, $event, component)">
                               <div slot="start">
-                              @if (operation === OperationKeys.UPDATE) {
-                                  <ngx-decaf-icon name="assets/images/icons/edit.svg" />
+                                @if (operation === OperationKeys.UPDATE) {
+                                  <ngx-decaf-icon slot="icon-only" name="ti-edit" />
                                 } @else {
-                                  <ngx-decaf-icon color="danger" name="assets/images/icons/trash.svg" />
+                                  <ngx-decaf-icon slot="icon-only" color="danger" name="ti-trash" />
                                 }
                               </div>
                               <ion-label class="dcf-text-capitalize">{{ operation | translate }}</ion-label>
@@ -90,11 +88,11 @@
                     @for (operation of [OperationKeys.UPDATE, OperationKeys.DELETE]; track operation) {
                       <div tabindex="0" (keydown.enter)="handleAction(operation, $event, component)" (click)="handleAction(operation, $event, component)">
                         @if (operations?.includes(operation)) {
-                          <ion-button fill="clear" shape="round">
+                          <ion-button fill="clear" shape="round" [attr.aria-label]="(locale +'.operations.' + operation) | translate">
                             @if (operation === OperationKeys.UPDATE) {
-                              <ngx-decaf-icon name="assets/images/icons/edit.svg" />
+                              <ngx-decaf-icon slot="icon-only" name="ti-edit" />
                             } @else {
-                              <ngx-decaf-icon color="danger" name="assets/images/icons/trash.svg" />
+                              <ngx-decaf-icon slot="icon-only" color="danger" name="ti-trash" />
                             }
                           </ion-button>
                         }

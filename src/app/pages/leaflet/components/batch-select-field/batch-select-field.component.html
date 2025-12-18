@@ -51,6 +51,11 @@
                   </ion-select-option>
                 }
               }
+                @if(value && !required) {
+                  <ion-button fill="clear" (click)="handleClearValue($event)" slot="end" aria-label="Show/hide password">
+                    <ngx-decaf-icon size="small" slot="icon-only" [name]="'ti-input-x'" />
+                  </ion-button>
+                }
             </ion-select>
 
            <div

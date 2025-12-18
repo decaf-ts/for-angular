@@ -8,7 +8,6 @@ import {
   IonList,
   IonMenuToggle,
   IonItem,
-  IonIcon,
   IonLabel,
   IonRouterOutlet,
   IonRouterLink,
@@ -52,7 +51,6 @@ import { IconComponent } from 'src/lib/components';
     IonList,
     IonMenuToggle,
     IonItem,
-    IonIcon,
     IonLabel,
     IonRouterLink,
     IonRouterOutlet,
@@ -91,7 +89,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    */
   override async initialize(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
-    const populate = ['Product', 'Batch', 'CategoryModel', 'AIVendorModel', 'ProductStrength'];
+    const populate = ['Product', 'Batch', 'Leaflet', 'CategoryModel', 'AIVendorModel', 'ProductStrength'];
     const menu = [];
     const models = AppModels;
     for (let model of models) {
@@ -104,7 +102,8 @@ export class AppComponent extends NgxPageDirective implements OnInit {
           await new FakerRepository(model, 36).initialize();
       }
       const label = name.toLowerCase().replace(ModelKeys.MODEL, '');
-      if (!menu.length) menu.push({ label: 'menu.models' });
+      if (!menu.length)
+        menu.push({ label: 'menu.models' });
       menu.push({
         label: `menu.${label}`,
         url: `/model/${Model.tableName(model)}`,

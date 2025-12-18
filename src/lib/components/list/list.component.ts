@@ -388,7 +388,8 @@ export class ListComponent
    * @memberOf ListComponent
    */
   @Input()
-  sortDirection: OrderDirection = OrderDirection.DSC;
+  sortBy!: string;
+
 
   /**
    * @description Sorting parameters for data fetching.
@@ -399,7 +400,7 @@ export class ListComponent
    * @memberOf ListComponent
    */
   @Input()
-  sortBy!: string;
+  sortDirection: OrderDirection = OrderDirection.DSC;
 
   /**
    * @description Controls whether sorting functionality is disabled.
@@ -656,9 +657,11 @@ export class ListComponent
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     await this.refresh();
-    if (!this.initialized) this.parseProps(this);
+    if (!this.initialized)
+      this.parseProps(this);
     this.initialized = true;
-    if (this.isModalChild) this.changeDetectorRef.detectChanges();
+    if (this.isModalChild)
+      this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -671,7 +674,12 @@ export class ListComponent
    */
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    if (this._repository) (this._repository as DecafRepository<Model>).unObserve(this.observer);
+    if (this._repository && this.observer) {
+      //TODO: fix check observerHandler
+      const observeHandler = (this._repository as  DecafRepository<Model>)['observerHandler'];
+      if (observeHandler)
+        (this._repository as DecafRepository<Model>).unObserve(this.observer);
+    }
     this.data = this.model = this._repository = this.paginator = undefined;
   }
 
@@ -1000,7 +1008,8 @@ export class ListComponent
     this.data = !this.model
       ? await this.getFromRequest(!!event, start, limit)
       : ((await this.getFromModel(!!event)) as KeyValue[]);
-
+    if(!this.isModalChild)
+      this.refreshEventEmit(this.data);
     if (this.type === ListComponentsTypes.INFINITE) {
       if (this.page === this.pages) {
         if ((event as InfiniteScrollCustomEvent)?.target)

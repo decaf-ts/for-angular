@@ -12,6 +12,8 @@ import { Product } from "./Product";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { ListItemPositions } from "src/lib/engine/constants";
 import { composed } from "@decaf-ts/db-decorators";
+import { EwMenu } from "src/app/utils/contants";
+import { getMenuIcon } from "src/lib/utils/helpers";
 
 @uimodel('ngx-decaf-fieldset')
 @model()
@@ -24,7 +26,7 @@ class ManufacturerAddress {
   address?: string;
 }
 
-@uilistmodel('ngx-decaf-list-item', {icon: 'cafe-outline'})
+@uilistmodel('ngx-decaf-list-item', {icon: getMenuIcon('Batches', EwMenu)})
 @uilayout('ngx-decaf-crud-form', true)
 @model()
 export class Batch extends Model {

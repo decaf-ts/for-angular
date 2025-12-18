@@ -75,24 +75,25 @@ export class ModelRendererComponent<M extends Model>
    * @param {string | M} model - The model to be rendered
    */
   override async refresh(model: string | M): Promise<void> {
-    model =
-      typeof model === 'string'
-        ? (Model.build({}, model) as M)
-        : model;
-    this.output = (model as unknown as Renderable).render<AngularDynamicOutput>(
-      this.globals || {},
-      this.vcr,
-      this.injector,
-      this.inner,
-      this.projectable
-    );
-    if (this.output?.inputs)
-      this.rendererId = sf(
-        AngularEngineKeys.RENDERED_ID,
-        (this.output.inputs as Record<string, unknown>)['rendererId'] as string,
+    model = typeof model === 'string' ?
+      (Model.build({}, model) as M) : model;
+
+    if(model) {
+        this.output = (model as unknown as Renderable).render<AngularDynamicOutput>(
+        this.globals || {},
+        this.vcr,
+        this.injector,
+        this.inner,
+        this.projectable
       );
-    this.instance = this.output?.component;
-    this.subscribeEvents();
+      if (this.output?.inputs)
+        this.rendererId = sf(
+          AngularEngineKeys.RENDERED_ID,
+          (this.output.inputs as Record<string, unknown>)['rendererId'] as string,
+        );
+      this.instance = this.output?.component;
+      this.subscribeEvents();
+    }
   }
 
   /**

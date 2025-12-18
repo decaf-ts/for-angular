@@ -54,9 +54,17 @@
   },
   "component": {
     "fieldset": {
+      "add_first": "Add first item",
+      "show_form": "Show form",
+      "hidden_form": "Hide form",
+      "clear_items": "Clear items",
       "add": "Add another",
-      "update": "Update item",
       "cancel": "Cancel",
+      "edit_item": "Edit item",
+      "remove_item": "Remove item",
+      "cancel_update": "Cancel update",
+      "create_item": "Create item",
+      "update_item": "Update item",
       "not_unique": "The value entered already exists. Value {0}",
       "max_items": "You can create up to {0} items.",
       "max_items_reached": "Maximum of {0} items reached.",

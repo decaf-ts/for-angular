@@ -16,7 +16,7 @@ import { ComponentEventNames } from './constants';
 import { FunctionLike } from './types';
 import { NgxComponentDirective } from './NgxComponentDirective';
 import { CPTKN } from '../for-angular-common.module';
-import { IonSelect } from '@ionic/angular/standalone';
+import { SelectCustomEvent } from '@ionic/angular/standalone';
 
 /**
  * @description Abstract base directive for CRUD form fields in Angular applications.
@@ -462,6 +462,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
       NgxFormService.unregister(this.formGroup);
   }
 
+
   /**
    * @description Sets the value of the form control.
    * @summary Updates the form control's value and triggers validation. This is used
@@ -476,9 +477,36 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
     this.value = value as string | number | Date | string[];
   }
 
-  handleModalChildChanges() {
+
+
+  /**
+   * @description Clears the current form control value as a response to a UI interact
+   * @summary Set field value as undefined and prevents event propagation.
+   * @param {Event} event - The value to set
+   * @return {void}
+   * @public
+   */
+  handleClearValue(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setValue(undefined);
+  }
+
+  /**
+   * @description Handles IonSelect change events emitted from modal child components.
+   * @summary Forces change detection when rendered inside a modal and synchronizes the select value with the directive state.
+   * @param {SelectCustomEvent<SelectChangeEventDetail>} event - IonSelect change event containing the selected value.
+   * @return {void}
+   * @public
+   */
+  handleModalChildChanges(event?: SelectCustomEvent): void {
+     if(this.type === HTML5InputTypes.SELECT && event) {
+      const {value} = event.detail;
+      this.value = value;
+    }
     if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
+
   }
 
   /**

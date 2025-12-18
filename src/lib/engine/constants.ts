@@ -1,6 +1,5 @@
 import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
 import { ICrudFormOptions, IListEmptyOptions } from './interfaces';
-import { SelectInterface } from '@ionic/core';
 
 import { ModalOptions } from '@ionic/angular/standalone';
 
