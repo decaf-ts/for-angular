@@ -38,7 +38,7 @@
           @if (inlineContent && inlineContentPosition === "top") {
             <div class="dcf-modal-content" id="dcf-modal-content" [innerHTML]="inlineContent"></div>
           }
-          @if (model) {
+          @if (!tag && model) {
             <ngx-decaf-model-renderer
               (onIonChange)="handleEvent($event)"
               (listenEvent)="handleEvent($event)"
@@ -46,7 +46,7 @@
               [globals]="globals"
             />
           }
-          @if(tag && globals) {
+          @else if(tag && globals) {
             <ngx-decaf-component-renderer
               [tag]="tag"
               (onIonChange)="handleEvent($event)"

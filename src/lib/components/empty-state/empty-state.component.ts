@@ -360,13 +360,18 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    *   - A Promise resolving to the navigation result if buttonLink is a URL
    * @memberOf EmptyStateComponent
    */
-  handleClick(): boolean | void | Promise<boolean> | FunctionLike {
-    const fn = this.buttonLink;
-    if (!fn)
-      return false;
-    if (fn instanceof Function)
-      return fn() as FunctionLike;
-    return this.router.navigate([fn as string]);
+  async handleClick(): Promise<void> {
+    const link = this.buttonLink;
+    if (link) {
+       if (link instanceof Function) {
+        const fn = link.bind(this);
+        if(fn instanceof Promise)
+          return await fn;
+        fn();
+      } else {
+        await this.router.navigate([link as string]);
+      }
+    }
   }
 
 

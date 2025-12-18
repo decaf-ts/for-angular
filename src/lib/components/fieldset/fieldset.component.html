@@ -1,9 +1,12 @@
+
   @if (['create', 'update'].includes(operation) || !multiple) {
     <div
       [role]="['create', 'update'].includes(operation) ? 'group' : 'region'"
 
       [class]="'dcf-fieldset-component ' + operation"
       [class.dcf-blank]="!borders"
+      [class.dcf-empty]="!items?.length"
+      [class.dcf-open]="isOpen"
       #component>
       <div class="dcf-width-1-1">
         <div>
@@ -12,9 +15,9 @@
               <legend>{{ (title ? title : name) | translate }}</legend>
             </div>
             @if (!isRequired && ['create'].includes(operation) && multiple) {
-              <div class="dcf-width-auto dcf-delete" [class.dcf-hidden]="!items?.length">
-                <ion-button fill="clear" size="small" (click)="handleClear($event)">
-                  <ion-icon aria-hidden="true" name="trash-outline" color="dark" slot="icon-only"></ion-icon>
+              <div class="dcf-width-auto dcf-delete">
+                <ion-button fill="clear" size="small" (click)="handleClear($event)" [class.dcf-invisible]="!isOpen" [attr.aria-label]="(items?.length ? (locale+'.clear_items') : (locale+'.hidden_form')) | translate">
+                  <ngx-decaf-icon slot="icon-only" [name]="'ti-'+(items?.length ? 'trash' : 'eye-off')" />
                 </ion-button>
               </div>
             }
@@ -23,7 +26,7 @@
 
           <div class="dcf-fieldset-content" [class.dcf-empty]="!items?.length && !isOpen"  slot="content">
             @if(activePage) {
-              <div [class.dcf-disabled]="!activePage" >
+              <div class="dcf-animation dcf-animation-slide-top-small dcf-animation-fast" [class.dcf-disabled]="!activePage" >
                 <ngx-decaf-layout
                   [className]="''"
                   [flexMode]="props.flexMode ?? false"
@@ -73,14 +76,14 @@
                     <div slot="end">
                       @if(editable) {
                         @if (!updatingItem || updatingItem?.[pk] !== item.title) {
-                          <ion-button fill="clear" size="small" (click)="handleUpdateItem($index)">
-                            <ion-icon aria-hidden="true" name="create-outline" [color]="!isDarkMode ? 'dark' : 'light'"></ion-icon>
+                          <ion-button fill="clear" size="small" (click)="handleUpdateItem($index)" [attr.aria-label]="locale +'.edit_item' | translate">
+                            <ngx-decaf-icon slot="icon-only" size="small" name="ti-cash-edit" [color]="!isDarkMode ? 'dark' : 'light'"></ngx-decaf-icon>
                           </ion-button>
                         }
                       }
                       @if (!updatingItem) {
-                        <ion-button fill="clear" size="small" color="danger" (click)="handleRemoveItem($index)">
-                          <ion-icon aria-hidden="true" name="close-outline" [color]="!isDarkMode ? 'dark' : 'light'"></ion-icon>
+                        <ion-button fill="clear" size="small" color="danger" (click)="handleRemoveItem($index)" [attr.aria-label]="locale +'.remove_item' | translate">
+                          <ngx-decaf-icon slot="icon-only" size="small" name="ti-row-remove" [color]="!isDarkMode ? 'dark' : 'light'" />
                         </ion-button>
                       }
                     </div>
@@ -116,12 +119,12 @@
           <div class="dcf-grid dcf-grid-small dcf-flex dcf-buttons-container">
             @if (updatingItem) {
               <div>
-                <ion-button size="small" fill="clear" color="danger" (click)="handleCancelUpdateItem()">
+                <ion-button size="small" fill="clear" color="danger" (click)="handleCancelUpdateItem()"  [attr.aria-label]="locale +'.cancel_update' | translate">
                   {{ locale + '.cancel' | translate }}
                 </ion-button>
               </div>
               <div>
-                <ion-button size="small" fill="clear" (click)="handleCreateItem()">
+                <ion-button size="small" fill="clear" (click)="handleCreateItem()"  [attr.aria-label]="locale +'.update_item' | translate">
                   <ion-icon  aria-hidden="true" name="refresh-outline" slot="start"></ion-icon>
                   {{ locale + '.update' | translate }}
                 </ion-button>
@@ -129,9 +132,13 @@
             } @else {
               @if (items.length < max || !max) {
                 <div>
-                  <ion-button size="small" fill="clear" class="dcf-button-add" [color]="isDarkMode ? 'light' : 'dark'" (click)="handleCreateItem()">
-                    <ion-icon aria-hidden="true" name="add-outline" slot="start"></ion-icon>
-                    {{ locale + '.add' | translate }}
+                  <ion-button size="small" fill="clear" class="dcf-button-add" [color]="isDarkMode ? 'light' : 'dark'" (click)="handleCreateItem()"  [attr.aria-label]="locale +'.create_item' | translate">
+                    <!-- <ion-icon aria-hidden="true" name="add-outline" slot="start"></ion-icon> -->
+                     <ngx-decaf-icon slot="icon-only" name="ti-code-plus" slot="start" />
+                    {{ locale + (
+                        required ?
+                          (items.length ? '.add' : '.add_first') : (items.length ? '.add' : isOpen ? '.add_first' : '.show_form')
+                      ) | translate }}
                   </ion-button>
                 </div>
               }
@@ -147,6 +154,7 @@
         <ion-spinner name="crescent" color="primary"></ion-spinner>
       </div>
     } @else {
+      <legend>{{ (title ? title : name) | translate }}</legend>
       @if(!items.length) {
         <div class="dcf-padding-xsmall">
           <ion-text>{{ locale + '.empty' | translate }}</ion-text>

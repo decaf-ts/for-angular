@@ -5,7 +5,6 @@
   </ion-refresher>
 }
 
-
 @if (showSearchbar) {
   <div [hidden]="!data?.length && !searching">
     <div class="dcf-grid dcf-grid-collapse dcf-grid-actions">
@@ -34,7 +33,6 @@
     </div>
   </div>
 }
-
 @if (initialized && data?.length) {
   <ion-list [id]="uid" [inset]="inset" [lines]="lines">
     @if (item?.tag) {
@@ -93,8 +91,10 @@
         [title]="(locale + '.'+ empty.title) | translate"
         [model]="model"
         [route]="route"
+        [modelId]="modelId"
+        [buttonLink]="empty?.link ?? undefined"
         [borders]="borders"
-        [icon]="empty.icon"
+        [icon]="(item?.icon ?? 'folder-open-outline') || empty.icon"
         className="dcf-empty-data"
         [subtitle]="(locale + '.'+ empty.subtitle) | translate" />
     } @else {
@@ -103,15 +103,15 @@
         icon="search-outline"
         [model]="model"
         [route]="route"
+        [modelId]="modelId"
         [borders]="borders"
+        [operations]="operations"
         [body]="'small'"
         [translatable]="true"
         [title]="locale + '.search.title' | translate"
         [subtitle]="locale + '.search.subtitle' | translate: {'0': parseSearchValue()}"
         [searchValue]="searchValue"
       />
-
-
     }
   }
 }

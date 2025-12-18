@@ -16,6 +16,7 @@ import { Primitives } from '@decaf-ts/decorator-validation';
 import { KeyValue, StringOrBoolean, } from '../engine/types';
 import { FunctionLike } from '../engine/types';
 import { getLogger } from '../for-angular-common.module';
+import { IMenuItem } from '../engine/interfaces';
 
 let injectableRegistry: InjectablesRegistry;
 
@@ -575,4 +576,18 @@ export function filterString(original: string | string[], value: string, contain
     contain ?
       str.includes(value) : !str.includes(value)
   ) || []).join(' ');
+}
+
+
+
+/**
+ * @summary Retrieves the icon associated with a menu item based on its label.
+ *
+ * @param {string} label - The label of the menu item to search for. The search is case-insensitive.
+ * @param {IMenuItem[]} menu - An array of menu items to search within.
+ * @returns {string} The icon associated with the menu item if found, otherwise an empty string.
+ */
+export function getMenuIcon(label: string, menu: IMenuItem[]): string {
+  const item = menu.find(m => m.label?.toLowerCase() === label.toLowerCase());
+  return item?.icon || '';
 }

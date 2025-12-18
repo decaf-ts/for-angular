@@ -20,14 +20,14 @@
         <p [class]="isDarkMode ? 'light' : subtitleColor" [innerHTML]="searchValue ? searchSubtitle : subtitle"></p>
       }
       @if (!enableCreationByModelRoute) {
-        @if (buttonLink && buttonText) {
+        @if (buttonLink) {
           <div>
             <ion-button
               [size]="buttonSize"
               [fill]="buttonFill"
               [color]="buttonColor"
               (click)="handleClick()">
-              {{  buttonText }}
+              {{  buttonText || (locale + '.button_create' | translate)  }}
             </ion-button>
           </div>
         }

@@ -29,8 +29,6 @@ import {
 } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import {
-  IonAccordion,
-  IonAccordionGroup,
   IonButton,
   IonItem,
   IonLabel,
@@ -54,8 +52,9 @@ import {
 } from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { itemMapper } from '../../utils/helpers';
-import { UIElementMetadata, UIModelMetadata } from '@decaf-ts/ui-decorators';
+import { CrudOperationKeys, UIElementMetadata, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { timer } from 'rxjs';
+import { IconComponent } from '../icon/icon.component';
 
 /**
  * @description Dynamic fieldset component with collapsible accordion functionality.
@@ -117,8 +116,6 @@ import { timer } from 'rxjs';
   imports: [
     TranslatePipe,
     ReactiveFormsModule,
-    IonAccordionGroup,
-    IonAccordion,
     IonList,
     IonItem,
     IonLabel,
@@ -128,7 +125,8 @@ import { timer } from 'rxjs';
     IonButton,
     IonIcon,
     LayoutComponent,
-    IonSpinner
+    IonSpinner,
+    IconComponent
   ],
 })
 export class FieldsetComponent extends NgxFormDirective implements OnInit, AfterViewInit
@@ -496,7 +494,12 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     // this.changeDetectorRef.detectChanges();
   }
 
-  override async refresh(): Promise<void> {
+  override async refresh(operation: CrudOperationKeys): Promise<void> {
+    if(operation) {
+      this.operation = operation;
+      this.changeDetectorRef.detectChanges();
+    }
+
     this.refreshing = true;
     this.changeDetectorRef.detectChanges();
     if([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
@@ -559,6 +562,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   handleClear(event?: Event): void {
     if (event) event.stopImmediatePropagation();
     this.formGroup?.disable();
+    this.isOpen = false;
     this.items = [];
     this.value = undefined as unknown as KeyValue[];
     this.activePage = undefined;
@@ -597,7 +601,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     const formGroup = this.activeFormGroup as FormGroup;
     const value = formGroup.value;
     const hasSomeValue = this.hasValue(value);
-
     if (hasSomeValue) {
       const action = this.updatingItem
         ? OperationKeys.UPDATE

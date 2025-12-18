@@ -10,9 +10,7 @@
 import {
   AfterViewInit,
   Component,
-  CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
-  HostListener,
   Input,
   OnDestroy,
   OnInit,
@@ -45,7 +43,7 @@ import { Dynamic } from '../../engine/decorators';
 import { getLocaleContextByKey } from '../../i18n/Loader';
 import { getNgxSelectOptionsModal } from '../modal/modal.component';
 import { ActionRoles, SelectFieldInterfaces } from '../../engine/constants';
-import { Primitives } from '@decaf-ts/decorator-validation';
+import { IconComponent } from '../icon/icon.component';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -105,12 +103,13 @@ import { Primitives } from '@decaf-ts/decorator-validation';
     IonSelectOption,
     IonLabel,
     IonText,
-    IonTextarea
+    IonTextarea,
+    IconComponent
   ],
   selector: 'ngx-decaf-crud-field',
   templateUrl: './crud-field.component.html',
   styleUrl: './crud-field.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  // schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: {'[attr.id]': 'uid', '[attr.class]': 'className'},
 })
 export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit, OnDestroy, AfterViewInit {
@@ -785,7 +784,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @returns {Promise<void>} A promise that resolves when the operation is complete.
    */
   async openSelectOptions(event: Event, selectInterface: SelectInterface): Promise<void> {
-    if(selectInterface === 'modal') {
+    if(selectInterface === SelectFieldInterfaces.MODAL) {
       event.preventDefault();
       event.stopImmediatePropagation();
       const modal = await getNgxSelectOptionsModal(this.label, this.options as SelectOption[]);
@@ -794,7 +793,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         this.setValue(data);
         this.component.nativeElement.ionChange.emit({value: data});
       }
-
     }
   }
 
@@ -810,7 +808,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    */
   async ngAfterViewInit(): Promise<void> {
     if (this.type === HTML5InputTypes.RADIO && !this.value)
-        this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
+      this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
   }
 
 

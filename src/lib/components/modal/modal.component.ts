@@ -24,7 +24,7 @@ import {ActionRoles, DefaultModalOptions, ListComponentsTypes} from '../../engin
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { Primitives } from '@decaf-ts/decorator-validation';
+import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 
 /**
@@ -322,10 +322,28 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
  */
 export async function getNgxModalComponent(props: Partial<ModalComponent> = {}, modalProps: Partial<ModalOptions> = {}, injector?: EnvironmentInjector): Promise<IonModal> {
   const { globals } = { ...props };
-  if (!globals || !globals?.['operation']) {
+  if (!globals || !globals?.['operation'])
     props.globals = { ...(globals || {}), operation: OperationKeys.CREATE };
-  }
   const component = await (NgxRenderingEngine.createComponent(ModalComponent, props, injector || undefined) as ModalComponent).create(modalProps);
+  return component.modal;
+}
+
+/**
+ * @description Retrieves a modal component instance.
+ * @summary Creates and initializes a modal component with the provided properties and options.
+ *
+ * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
+ * @param {Partial<ModalOptions>} [modalProps={}] - Additional modal options.
+ * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
+ * @returns {Promise<IonModal>} - A promise that resolves with the modal instance.
+ */
+export async function getNgxModalCrudComponent(model: Partial<Model>, props: Partial<ModalComponent> = {}, modalProps: Partial<ModalOptions> = {}, injector?: EnvironmentInjector): Promise<IonModal> {
+  if (!props || !props?.['operation'])
+    props.operation =  OperationKeys.CREATE;
+  const component = await (NgxRenderingEngine.createComponent(ModalComponent, {
+    model,
+    globals: props
+  }, injector || undefined) as ModalComponent).create(modalProps);
   return component.modal;
 }
 

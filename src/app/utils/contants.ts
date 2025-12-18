@@ -60,17 +60,17 @@ export const EwMenu: IMenuItem[] = [
   {
     label: 'Products',
     url: 'products',
-     icon: 'document.svg',
+    icon: 'ti-medicine-syrup',
   },
   {
     label: 'Batches',
     url: 'batches',
-     icon: 'document.svg',
+    icon: 'ti-package',
   },
   {
     label: 'Leaflets',
     url: 'leaflets',
-    icon: 'document.svg',
+    icon: 'ti-file-barcode',
   },
 ];
 

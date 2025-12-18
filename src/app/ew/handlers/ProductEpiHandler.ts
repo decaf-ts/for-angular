@@ -9,6 +9,7 @@ export class ProductEpiHandler extends NgxEventHandler {
     let relation = 'productCode';
     const repository = this._repository as DecafRepository<Model>;
     const modelName = this.model ? (this.model.constructor as Constructor<Model>).name : '';
+
     if(this.model && modelName.toLowerCase().includes('batch')) {
       relation = 'batchNumber';
       // const context = getModelAndRepository('Leaflet');
@@ -20,8 +21,10 @@ export class ProductEpiHandler extends NgxEventHandler {
       const condition = Condition.attribute<Model>(relation as keyof Model).eq(value);
       const query = await repository.query(condition, relation as keyof Model);
       if(query?.length) {
+        // if(this.name === 'Leaflet')
+        //   (this as unknown as ListComponent).data = query;
         this.value = query;
-        await this.refresh();
+        await this.refresh(this.operation as string);
       }
     }
   }

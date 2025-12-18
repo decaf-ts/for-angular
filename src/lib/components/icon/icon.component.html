@@ -1,4 +1,4 @@
-<div class="dcf-icon" #component>
+<div class="dcf-icon-component" #component>
   @if (initialized) {
     @if (button) {
       <ion-button [fill]="buttonFill" [shape]="buttonShape" [color]="isDarkMode ? 'light' : color" [size]="size">
@@ -24,7 +24,8 @@
               title="icon"
             />
           }
-        } @else {
+        }
+        @if(type === 'ionic') {
           <ion-icon
             aria-hidden="true"
             [slot]="slot"
@@ -33,6 +34,13 @@
             [color]="isDarkMode ? 'light' : color"
             [name]="name"
           />
+        }
+        @if(type === 'icon') {
+          <span
+            aria-hidden="true"
+            [slot]="slot"
+            [class]="'ti ' +name + ' ' + size + ' dcf-color-' + color">
+          </span>
         }
       </ion-button>
     } @else {
@@ -68,6 +76,13 @@
           [color]="isDarkMode ? 'light' : color"
           [name]="name"
         />
+      }
+      @if(type === 'icon') {
+        <span
+          aria-hidden="true"
+          [slot]="slot"
+          [class]="'ti ' + name + ' ' + size + ' dcf-color-' + color">
+        </span>
       }
     }
   }

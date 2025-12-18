@@ -6,20 +6,23 @@
  *
  * @link {@link NgxEventHandler}
  */
+import { ChangeDetectorRef } from "@angular/core";
 import { DecafEventHandler } from "@decaf-ts/ui-decorators";
 
 export abstract class NgxEventHandler extends DecafEventHandler {
+
+  changeDetectorRef!: ChangeDetectorRef;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor() {
     super();
   }
 
-  async refresh(args?: unknown[]): Promise<void> {
+  async refresh(...args: unknown[]): Promise<void> {
     this.log.for(this.refresh).debug(`Refresh called with args: ${args}`);
   }
 
-  async preview(args?: unknown[]): Promise<void> {
+  async preview(...args: unknown[]): Promise<void> {
     this.log.for(this.refresh).debug(`Refresh called with args: ${args}`);
   }
 }

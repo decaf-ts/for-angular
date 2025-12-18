@@ -37,7 +37,7 @@ export const AppName = 'For Angular';
 
 // export const AppModels = [new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
 
-export const AppModels = [new User(), new CategoryModel(), new Product(), new Batch(), new EmployeeModel(), new AIModel(), new AIVendorModel(), new ProductStrength()];
+export const AppModels = [new User(), new CategoryModel(), new Product(), new Batch(), new Leaflet(), new EmployeeModel(), new AIModel(), new AIVendorModel(), new ProductStrength()];
 
 export const AppConfig: ApplicationConfig = {
   providers: [

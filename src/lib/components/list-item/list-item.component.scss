@@ -156,7 +156,8 @@ ion-item {
 
   .dcf-item-title {
     font-style: normal;
-    font-weight: 700;
+    font-weight: 600;
+    width: max-content !important;
   }
 
   .dcf-description {
@@ -265,18 +266,22 @@ ion-item {
   }
 }
 
-ion-avatar {
-  ion-icon {
-    font-size: 20px;
-  }
-  width: 48px;
-  height: 48px;
+.dcf-icon-container {
+  background: var(--dcf-color-gray-1);
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: center;
-
-  .dcf-icon-large {
-    transform: translateY(5px);
+  ::ng-deep {
+    ion-icon {
+      font-size: 20px;
+      transform: translateY(3px) !important;
+    }
+    .ti {
+      top: 1px;
+      left: 1px;
+    }
   }
 }

@@ -8,6 +8,8 @@ import { pk } from "@decaf-ts/core";
 import { HTML5InputTypes, uielement,  uilayout,  uilayoutprop, uilistmodel, uilistprop } from "@decaf-ts/ui-decorators";
 import { CardComponent, CrudFieldComponent, FileUploadComponent } from "src/lib/components";
 import { ListItemPositions } from "src/lib/engine/constants";
+import { EwMenu } from "src/app/utils/contants";
+import { getMenuIcon } from "src/lib/utils/helpers";
 
 export enum ProductNames {
   aspirin = "Aspirin",
@@ -15,15 +17,15 @@ export enum ProductNames {
   paracetamol = "Paracetamol",
   amoxicillin = "Amoxicillin",
   azithromycin = "Azithromycin",
-  metformin = "Metformin",
-  atorvastatin = "Atorvastatin",
-  omeprazole = "Omeprazole",
-  simvastatin = "Simvastatin",
-  levothyroxine = "Levothyroxine",
-  lisinopril = "Lisinopril",
-  losartan = "Losartan",
-  hydrochlorothiazide = "Hydrochlorothiazide",
-  prednisone = "Prednisone",
+  // metformin = "Metformin",
+  // atorvastatin = "Atorvastatin",
+  // omeprazole = "Omeprazole",
+  // simvastatin = "Simvastatin",
+  // levothyroxine = "Levothyroxine",
+  // lisinopril = "Lisinopril",
+  // losartan = "Losartan",
+  // hydrochlorothiazide = "Hydrochlorothiazide",
+  // prednisone = "Prednisone",
   // sertraline = "Sertraline",
   // fluoxetine = "Fluoxetine",
   // alprazolam = "Alprazolam",
@@ -36,7 +38,7 @@ export enum ProductNames {
   // furosemide = "Furosemide"
 };
 
-@uilistmodel('ngx-decaf-list-item', {icon: 'cafe-outline'})
+@uilistmodel('ngx-decaf-list-item', {icon: getMenuIcon('Products', EwMenu)})
 @uilayout('ngx-decaf-crud-form', true)
 @model()
 export class Product extends Model {

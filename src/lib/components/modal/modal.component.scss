@@ -18,7 +18,7 @@
   &.dcf-modal-select-interface {
     --min-width: 300px;
     --max-width: 500px;
-
+    --max-height: 50%;
     --border-radius: var(--dcf-border-radius);
     .dcf-modal-body {
       --max-height: 60%;

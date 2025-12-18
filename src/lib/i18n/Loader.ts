@@ -7,7 +7,7 @@
  *
  * @link {@link I18nLoader}
  */
-import { EnvironmentProviders, inject, Provider } from '@angular/core';
+import { inject } from '@angular/core';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { provideTranslateParser, provideTranslateService, RootTranslateServiceConfig, TranslateLoader, TranslateParser, TranslationObject } from '@ngx-translate/core';
 import { Primitives, sf } from '@decaf-ts/decorator-validation';

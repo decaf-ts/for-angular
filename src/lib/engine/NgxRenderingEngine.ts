@@ -654,6 +654,7 @@ export class NgxRenderingEngine extends RenderingEngine<
       );
       if (prop) {
         if (key === 'props') {
+
           component.setInput(key, value);
           parseInputValue(component, value);
         }
