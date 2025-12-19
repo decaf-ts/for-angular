@@ -130,6 +130,11 @@ export class NgxMediaService {
     return getWindowDocument() as Document;
   }
 
+
+  darkModeEnabled(): boolean {
+    return this._document.documentElement.classList.contains('has-dark-mode');;
+  }
+
   /**
    * @description Observes window resize events and emits the updated dimensions.
    * @summary
@@ -188,6 +193,8 @@ export class NgxMediaService {
    * mediaService.colorSchemeObserver(component).subscribe();
    */
   colorSchemeObserver(component?: ElementRef | HTMLElement): Observable<WindowColorScheme> {
+    if(!this.darkModeEnabled())
+      return of(WindowColorSchemes.light);
     const win = this._window;
     const doc = this._document;
     const documentElement = doc.documentElement;
@@ -342,6 +349,8 @@ export class NgxMediaService {
    * });
    */
   isDarkMode(): Observable<boolean> {
+    if(!this.darkModeEnabled())
+      return of(false);
     const documentElement = this._document.documentElement;
     return this.colorScheme$.pipe(
       map(scheme => documentElement.classList.contains(AngularEngineKeys.DARK_PALETTE_CLASS) || scheme === WindowColorSchemes.dark),

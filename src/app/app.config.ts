@@ -16,7 +16,7 @@ import {
   provideDecafI18nConfig,
 } from 'src/lib/i18n/Loader';
 import { routes } from './app.routes';
-import { provideDecafDbAdapter, provideDecafPageTransition, provideDecafDynamicComponents } from 'src/lib/for-angular-common.module';
+import { provideDecafDbAdapter, provideDecafPageTransition, provideDecafDynamicComponents, provideDecafDarkMode } from 'src/lib/for-angular-common.module';
 import { AIModel, AIVendorModel } from './models/AIVendorModel';
 import { I18nResourceConfigType } from 'src/lib/engine';
 import { CategoryModel } from './models/CategoryModel';
@@ -43,7 +43,8 @@ export const AppConfig: ApplicationConfig = {
   providers: [
     // Providers from ionic angular
     provideIonicAngular(),
-
+    // provide dark theme
+    // provideDecafDarkMode(),
     // change the default page transition
     provideDecafPageTransition(),
 

@@ -12,13 +12,14 @@ import {
   InjectionToken,
   Provider,
   EnvironmentProviders,
+  provideEnvironmentInitializer,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 import { Logger, Logging } from '@decaf-ts/logging';
 import { I18nToken } from './engine/interfaces';
-import { getOnWindow, setOnWindow } from './utils/helpers';
+import { getOnWindow, getWindowDocument, setOnWindow } from './utils/helpers';
 import {
   DecafRepository,
   FunctionLike,
@@ -30,6 +31,9 @@ import { Repository } from '@decaf-ts/core';
 import { Constructor, uses } from '@decaf-ts/decoration';
 import { AnimationController, provideIonicAngular } from '@ionic/angular/standalone';
 import { NgxComponentDirective } from './engine';
+import { inject } from '@decaf-ts/injectable-decorators';
+import { NgxMediaService } from 'dist/lib';
+
 
 export const DB_ADAPTER_PROVIDER = 'DB_ADAPTER_PROVIDER';
 
@@ -245,6 +249,15 @@ export function provideDecafPageTransition(): EnvironmentProviders {
     navAnimation: decafPageTransition
   });
 };
+
+export function provideDecafDarkMode(): EnvironmentProviders {
+  return provideEnvironmentInitializer(
+    () => {
+      const doc = getWindowDocument();
+      doc?.documentElement.classList.add('has-dark-mode');
+    }
+  )
+}
 
 /**
  * @const {Logger}

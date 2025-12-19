@@ -36,11 +36,10 @@
  */
 
 /* You can import all files */
-@use "@decaf-ts/styles/dist/main.css";
-// @use "../../styles/src/main.scss";
+// @use "@decaf-ts/styles/dist/main.css";
+@use "../../styles/src/main.scss";
 // @use "../../styles/dist/main.css";
 @use "./theme/variables.scss";
-@use "@tabler/icons-webfont/dist/tabler-icons.min.css";
 
 // ion-router-outlet ion-content {
 //   --background: var(--dcf-content-background);
