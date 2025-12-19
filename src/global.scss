@@ -53,6 +53,7 @@
 // @import "@decaf-ts/styles/dist/components/variables/decaf-dark.css";
 
 @use "./theme/variables.scss";
+@forward "@tabler/icons-webfont/dist/tabler-icons.scss";
 
 // ion-router-outlet ion-content {
 //   --background: var(--dcf-content-background);
