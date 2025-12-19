@@ -170,13 +170,13 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
   @Input()
   lightBox: boolean = false;
 
-  @Input()
   /**
    * @description Controls the transparency of the modal header.
    * @summary When set to true, the modal header is rendered with a transparent background.
    * @type {boolean}
    * @default false
    */
+  @Input()
   headerTransparent: boolean = false;
 
   /**

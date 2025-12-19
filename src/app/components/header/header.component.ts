@@ -391,7 +391,8 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
         //   this.sticky = true;
       });
     }
-    this.initialized = true;
+    this.showThemeToggleButton = false;
+    this.initialized = this.mediaService.darkModeEnabled();
   }
 
   async isLoggedIn(): Promise<string|undefined> {
@@ -404,13 +405,17 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   }
 
   changeColorSchema(): void {
-    this.colorSchema = this.colorSchema === WindowColorSchemes.dark ? WindowColorSchemes.light: WindowColorSchemes.dark;
-    this.isDarkMode = this.colorSchema === WindowColorSchemes.dark ? true : false;
-    this.mediaService.toggleClass(
-      [getOnWindowDocument('documentElement'), this.component],
-      AngularEngineKeys.DARK_PALETTE_CLASS,
-      this.isDarkMode
-    );
+    if(this.mediaService.darkModeEnabled()) {
+      this.colorSchema = this.colorSchema === WindowColorSchemes.dark ? WindowColorSchemes.light: WindowColorSchemes.dark;
+      this.isDarkMode = this.colorSchema === WindowColorSchemes.dark ? true : false;
+      this.mediaService.toggleClass(
+        [getOnWindowDocument('documentElement'), this.component],
+        AngularEngineKeys.DARK_PALETTE_CLASS,
+        this.isDarkMode
+      );
+    } else {
+      this.showThemeToggleButton = false;
+    }
 
     // this.colorSchema = schema;
     //  this.mediaService.colorSchemeObserver(this.component);

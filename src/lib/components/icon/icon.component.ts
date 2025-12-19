@@ -79,7 +79,7 @@ export class IconComponent implements OnInit {
       this.isSvg = this.name.endsWith('.svg');
     }
 
-    if(this.name?.includes('ti')) {
+    if(this.name?.includes('ti-')) {
       this.type = 'icon';
       this.name = `ti-${this.name.replace(/ti-/g, '')}`;
     }

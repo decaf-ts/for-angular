@@ -6,6 +6,7 @@ ion-split-pane {
       display: none !important;
     }
   }
+
   @media (min-width: 1200px) {
     &.dcf-collapsed {
       .dcf-logo-container {
@@ -15,7 +16,7 @@ ion-split-pane {
       ion-list {
         transition: padding-top 0.2s ease;
         padding-top: 1rem !important;
-        padding-left: 0.24rem !important;
+        padding-left: 0.3rem !important;
         width: max-content;
       }
       --side-min-width: 75px;
@@ -49,10 +50,10 @@ ion-split-pane {
         // --background-hover: transparent !important;
         // --background-focused: transparent !important;
         // --ripple-color: transparent !important;
-        --inner-padding-end: 0.5rem !important;
-        --padding-end: 0rem !important;
-        --inner-padding-start: 0.85rem !important;
-        --padding-start: 0rem !important;
+        --inner-padding-end: 0.2rem !important;
+        --padding-end: 0.1rem !important;
+        --inner-padding-start: 0.7rem !important;
+        --padding-start: 0.1rem !important;
         margin-left: 0.5rem;
         ngx-decaf-icon {
           transform: translatey(2.5px) !important;
@@ -84,6 +85,7 @@ ion-split-pane {
   padding: 1.5rem 1.75rem !important;
   cursor: pointer;
   color: var(--dcf-color-text);
+
   ngx-decaf-icon {
     transition: all 0.3s ease;
     transform: translateY(2px);

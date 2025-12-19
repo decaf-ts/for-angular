@@ -7,6 +7,7 @@
  *
  * @link {@link ForAngularCommonModule}
  */
+import '@tabler/icons-webfont/dist/tabler-icons.min.css';
 import '@decaf-ts/ui-decorators';
 export * from './components';
 export * from './engine';

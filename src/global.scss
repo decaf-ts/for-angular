@@ -29,9 +29,9 @@
 // @import "@ionic/angular/css/text-transformation.css";
 // @import "@ionic/angular/css/flex-utils.css";
 
-// @import "@tabler/icons-webfont/dist/tabler-icons.min.css";
-
+// @import "@ionic/angular/css/flex-utils.css";
 /**
+
  * Importing @decaf-ts/styles system styles
  */
 
@@ -39,16 +39,6 @@
 @use "@decaf-ts/styles/dist/main.css";
 // @use "../../styles/src/main.scss";
 // @use "../../styles/dist/main.css";
-@use "./theme/variables.scss";
-@use "@tabler/icons-webfont/dist/tabler-icons.min.css";
-
-// ion-router-outlet ion-content {
-//   --background: var(--dcf-content-background);
-// }
-
-// ion-router-outlet ion-content {
-//   --background: var(--dcf-content-background);
-// }
 
 /* Or import only core and components you need */
 // @import "@decaf-ts/styles/dist/core.css";
@@ -57,7 +47,21 @@
 // @import "@decaf-ts/styles/dist/components/spacement.css";
 // @import "@decaf-ts/styles/dist/components/visibility.css";
 // @import "@decaf-ts/styles/dist/components/animations.css";
-// @import "@decaf-ts/styles/dist/components/ionic/variables.css";
+// @import "@decaf-ts/styles/dist/components/variables/ionic.css";
+
+// import do dark mode
+// @import "@decaf-ts/styles/dist/components/variables/decaf-dark.css";
+
+@use "./theme/variables.scss";
+
+// ion-router-outlet ion-content {
+//   --background: var(--dcf-content-background);
+// }
+
+// ion-router-outlet ion-content {
+//   --background: var(--dcf-content-background);
+// }
+
 // import css custom global
 
 // input,

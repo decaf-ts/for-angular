@@ -243,6 +243,8 @@ ion-header {
   padding: 0px !important;
   margin: 0px !important;
   width: 100%;
+  color: var(--dcf-text-color);
+
   &:not(.dcf-palette-dark) {
     box-shadow: none !important;
   }
