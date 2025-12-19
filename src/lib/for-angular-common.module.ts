@@ -31,8 +31,6 @@ import { Repository } from '@decaf-ts/core';
 import { Constructor, uses } from '@decaf-ts/decoration';
 import { AnimationController, provideIonicAngular } from '@ionic/angular/standalone';
 import { NgxComponentDirective } from './engine';
-import { inject } from '@decaf-ts/injectable-decorators';
-import { NgxMediaService } from 'dist/lib';
 
 
 export const DB_ADAPTER_PROVIDER = 'DB_ADAPTER_PROVIDER';
