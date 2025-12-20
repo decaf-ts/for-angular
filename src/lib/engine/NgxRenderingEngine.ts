@@ -288,7 +288,8 @@ export class NgxRenderingEngine extends RenderingEngine<
       }
 
       result.children = fieldDef.children.map((child) => {
-        const readonly = operation === OperationKeys.UPDATE && ((child?.props?.hidden || []) as string[]).includes(OperationKeys.CREATE);
+        const childOperation = (child?.props?.['operation'] || operation) as OperationKeys;
+        const readonly = fieldDef.props?.['readonly'] || (operation === OperationKeys.UPDATE && ((child?.props?.hidden || []) as string[]).includes(OperationKeys.CREATE)) || [OperationKeys.READ, OperationKeys.DELETE].includes(childOperation);
         // const hiddenOn = (child?.props?.hidden || []) as string[];
         // // moved to ui decorators
         // if (child?.children?.length) {

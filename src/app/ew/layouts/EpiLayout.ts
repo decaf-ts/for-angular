@@ -25,6 +25,7 @@ export class EpiLayout extends Model {
     {
       showSearchbar: false,
       title: 'Documents',
+      operation: OperationKeys.READ,
       operations: [OperationKeys.READ],
       route: 'leaflets',
       icon: 'ti-file-barcode',
@@ -38,33 +39,33 @@ export class EpiLayout extends Model {
   @uionrender(() => ProductEpiHandler)
   document!: Leaflet;
 
-  @list(ProductStrength, 'Array')
-  @uichild(
-    ProductStrength.name,
-    'ngx-decaf-fieldset',
-    {
-      title: 'Strengths',
-      pk: 'name',
-      showTitle: false,
-      ...commonProps
-    } as Partial<FieldsetComponent>,
-    true
-  )
-  @uionrender(() => ProductEpiHandler)
-  strengths!: ProductStrength;
+  // @list(ProductStrength, 'Array')
+  // @uichild(
+  //   ProductStrength.name,
+  //   'ngx-decaf-fieldset',
+  //   {
+  //     title: 'Strengths',
+  //     pk: 'name',
+  //     showTitle: false,
+  //     ...commonProps
+  //   } as Partial<FieldsetComponent>,
+  //   true
+  // )
+  // @uionrender(() => ProductEpiHandler)
+  // strengths!: ProductStrength;
 
-  @list(ProductMarket, 'Array')
-  @uichild(
-    ProductMarket.name,
-    'ngx-decaf-fieldset',
-    {
-      // title: 'Markets',
-      ...commonProps
-    } as Partial<FieldsetComponent>,
-    true
-  )
-  @uionrender(() => ProductEpiHandler)
-  markets!: ProductMarket;
+  // @list(ProductMarket, 'Array')
+  // @uichild(
+  //   ProductMarket.name,
+  //   'ngx-decaf-fieldset',
+  //   {
+  //     // title: 'Markets',
+  //     ...commonProps
+  //   } as Partial<FieldsetComponent>,
+  //   true
+  // )
+  // @uionrender(() => ProductEpiHandler)
+  // markets!: ProductMarket;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: ModelArg<EpiLayout>) {

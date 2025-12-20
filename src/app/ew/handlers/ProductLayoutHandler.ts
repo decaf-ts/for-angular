@@ -39,7 +39,7 @@ export class ProductLayoutHandler extends NgxEventHandler {
               await iterate(evt, type as string, prop);
             } else {
               const { repository } = context;
-              const {success} = await this.submit(evt, repository);
+              const {success} = await this.submit(evt, false, repository);
               result.push(success);
             }
           }

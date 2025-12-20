@@ -4,7 +4,7 @@ import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
 import { Metadata, uses } from '@decaf-ts/decoration';
 import { Repository } from '@decaf-ts/core';
-import { DB_ADAPTER_PROVIDER } from '../for-angular-common.module';
+import { DB_ADAPTER_FLAVOUR_TOKEN } from '../for-angular-common.module';
 import { DecafRepository, KeyValue, FunctionLike } from '../engine/types';
 import { formatDate, getOnWindow } from './helpers';
 import { LoggedClass } from '@decaf-ts/logging';
@@ -41,7 +41,7 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
         );
       try {
         this.model = new constructor();
-        const dbAdapterFlavour = getOnWindow(DB_ADAPTER_PROVIDER) || undefined;
+        const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || undefined;
         if (dbAdapterFlavour) uses(dbAdapterFlavour as string)(constructor);
         this._repository = Repository.forModel(constructor);
         this.pk = Model.pk(constructor) as string;

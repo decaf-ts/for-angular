@@ -18,7 +18,7 @@ import {
 import { routes } from './app.routes';
 import { provideDecafDbAdapter, provideDecafPageTransition, provideDecafDynamicComponents, provideDecafDarkMode } from 'src/lib/for-angular-common.module';
 import { AIModel, AIVendorModel } from './models/AIVendorModel';
-import { I18nResourceConfigType } from 'src/lib/engine';
+import { I18nResourceConfigType, KeyValue } from 'src/lib/engine';
 import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
 import { User } from './forms/FieldsetForm';
@@ -28,14 +28,17 @@ import { Leaflet } from './ew/models/Leaflet';
 import { ProductStrength } from './ew/models/ProductStrength';
 import { BatchSelectFieldComponent } from './pages/leaflet/components/batch-select-field/batch-select-field.component';
 import { Batch } from './ew/models/Batch';
+import { AxiosHttpAdapter, HttpAdapter, HttpStatement, NestJSResponseParser } from '@decaf-ts/for-http';
 
-export const DbAdapterFlavour = 'ram';
 export const AppName = 'For Angular';
-
-
-
+// Removed unused Adapter variable and fixed HttpAdapter instantiation issues
+// const adapter = new HttpAdapter({
+//     protocol: "http",
+//     host: 'localhost:3000',
+//   });
 
 // export const AppModels = [new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
+
 
 export const AppModels = [new User(), new CategoryModel(), new Product(), new Batch(), new Leaflet(), new EmployeeModel(), new AIModel(), new AIVendorModel(), new ProductStrength()];
 
@@ -51,7 +54,12 @@ export const AppConfig: ApplicationConfig = {
     // Providing Local components for dynamic rendering
     provideDecafDynamicComponents(SwitcherComponent, BatchSelectFieldComponent),
     // Providing RamAdapter as the database adapter for Decaf
-    provideDecafDbAdapter(RamAdapter, {user: "user"}, DbAdapterFlavour),
+    provideDecafDbAdapter(AxiosHttpAdapter, {
+      protocol: "http",
+      host: 'localhost:3000',
+      responseParser: new NestJSResponseParser()
+    }),
+
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
 
