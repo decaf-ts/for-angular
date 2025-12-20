@@ -26,7 +26,7 @@ import { IMenuItem, NgxPageDirective } from '../lib/engine';
 import { isDevelopmentMode } from '../lib/utils';
 import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { LogoComponent } from './components/logo/logo.component';
-import { AppModels, AppName, DbAdapterFlavour } from './app.config';
+import { AppModels, AppName } from './app.config';
 import { uses } from '@decaf-ts/decoration';
 import {
   AppMenu,
@@ -36,6 +36,7 @@ import {
 } from './utils/contants';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IconComponent } from 'src/lib/components';
+import { getDbAdapterFlavour } from 'src/lib/for-angular-common.module';
 
 @Component({
   standalone: true,
@@ -92,12 +93,13 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     const populate = ['Product', 'Batch', 'Leaflet', 'CategoryModel', 'AIVendorModel', 'ProductStrength'];
     const menu = [];
     const models = AppModels;
+    const dbAdapterFlavour = getDbAdapterFlavour();
     for (let model of models) {
-      uses(DbAdapterFlavour)(model);
+      uses(dbAdapterFlavour)(model);
       if (model instanceof Function)
         model = new (model as unknown as ModelConstructor<typeof model>)();
       const name = model.constructor.name.replace(/[0-9]/g, '');
-      if (isDevelopment) {
+      if (isDevelopment && dbAdapterFlavour.includes("ram")) {
         if (populate.includes(name))
           await new FakerRepository(model, 36).initialize();
       }

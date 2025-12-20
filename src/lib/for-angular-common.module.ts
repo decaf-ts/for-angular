@@ -33,7 +33,12 @@ import { AnimationController, provideIonicAngular } from '@ionic/angular/standal
 import { NgxComponentDirective } from './engine';
 
 
-export const DB_ADAPTER_PROVIDER = 'DB_ADAPTER_PROVIDER';
+export const DB_ADAPTER_FLAVOUR_TOKEN = 'DbAdapterFlavour';
+
+export function getDbAdapterFlavour(): string {
+  return (getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || '') as string;
+};
+
 
 /**
  * @description Injection token for registering the database adapter provider.
@@ -147,7 +152,7 @@ export function getModelAndRepository(
       (modelName.charAt(0).toUpperCase() + modelName.slice(1)) as string
     );
     if (!constructor) return undefined;
-    const dbAdapterFlavour = getOnWindow(DB_ADAPTER_PROVIDER) || undefined;
+    const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || undefined;
     if (dbAdapterFlavour)
       uses(dbAdapterFlavour as string)(constructor);
     const repository = Repository.forModel(constructor);
@@ -195,9 +200,10 @@ export function provideDecafDbAdapter<DbAdapter extends { flavour: string }>(
   flavour?: string
 ): Provider {
   const adapter = new clazz(options);
-  if (flavour) flavour = adapter.flavour;
+  if (!flavour)
+    flavour = adapter.flavour;
   getLogger(provideDecafDbAdapter).info(`Using ${adapter.constructor.name} ${flavour} as Db Provider`);
-  setOnWindow(DB_ADAPTER_PROVIDER, flavour);
+  setOnWindow(DB_ADAPTER_FLAVOUR_TOKEN, flavour);
   return {
     provide: DB_ADAPTER_PROVIDER_TOKEN,
     useValue: adapter,
