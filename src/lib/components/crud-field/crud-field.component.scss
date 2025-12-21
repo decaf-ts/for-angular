@@ -1,3 +1,17 @@
+// read only field
+
+.dcf-item-readonly {
+  ion-label {
+    font-weight: 600;
+    transform: translatey(-0.8rem);
+    ion-text {
+      font-weight: initial;
+      position: relative;
+      top: 0.8rem;
+    }
+  }
+}
+
 ion-item {
   --border-color: transparent;
   // --inner-padding-start: 0.75rem;

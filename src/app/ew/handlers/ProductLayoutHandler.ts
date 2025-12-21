@@ -22,24 +22,26 @@ export class ProductLayoutHandler extends NgxEventHandler {
         const properties = Metadata.properties(constructor as Constructor<Model>) as string[];
         const promises = properties.map(async (prop) => {
           const type = Metadata.type(constructor as Constructor<Model>, prop).name;
-          let data = (evt.data as KeyValue)[prop] || (event.data as KeyValue)[prop];
+          let data = (evt.data as KeyValue)[prop] || (parent ? (event.data as KeyValue)[parent as string][prop] : (event.data as KeyValue)[prop])
 
           if (data) {
             if (parent || Array.isArray(data)) {
               data = [...Object.values(data)];
-              data = data.map((item: Partial<Model>) => Object.assign(item || {}, {
-                [pk]: this.modelId },
-                pk === 'batchNumber' ? {
-                  productCode: (event?.data as KeyValue)[key]['productCode']
-                } : {}));
+              // data = data.map((item: Partial<Model>) => Object.assign(item || {}, {
+              //   [pk]: this.modelId },
+              //   pk === 'batchNumber' ? {
+              //     productCode: (event?.data as KeyValue)[key]['productCode']
+              //   } : {}));
             }
-            evt = { ...evt, data };
             const context = getModelAndRepository(type as string);
+            evt = { ...evt,  data };
             if (!context) {
               await iterate(evt, type as string, prop);
             } else {
               const { repository } = context;
               const {success} = await this.submit(evt, false, repository);
+              delete (evt.data as KeyValue)?.[prop];
+              evt = { ...evt,  data: evt.data };
               result.push(success);
             }
           }

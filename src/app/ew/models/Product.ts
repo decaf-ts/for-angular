@@ -10,6 +10,7 @@ import { CardComponent, CrudFieldComponent, FileUploadComponent } from "src/lib/
 import { ListItemPositions } from "src/lib/engine/constants";
 import { EwMenu } from "src/app/utils/contants";
 import { getMenuIcon } from "src/lib/utils/helpers";
+import { OperationKeys } from "@decaf-ts/db-decorators";
 
 export enum ProductNames {
   aspirin = "Aspirin",
@@ -58,7 +59,10 @@ export class Product extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'product.productCode.label',
     placeholder: 'product.productCode.placeholder',
-  } as Partial<CrudFieldComponent>)
+    readonly: () => {
+      return (this as unknown as CrudFieldComponent).operation !== OperationKeys.CREATE;
+    },
+  })
   @uilayoutprop(2)
   productCode!: string;
 

@@ -26,6 +26,7 @@ export class ProductMarket extends Model {
     label: 'market.id.label',
     placeholder: 'market.id.placeholder',
     type: HTML5InputTypes.SELECT,
+    translatable: false,
     options: getMarkets()
   })
   @uilayoutprop(1)

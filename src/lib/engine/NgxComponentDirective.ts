@@ -35,7 +35,7 @@ import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { getModelAndRepository,  CPTKN } from '../for-angular-common.module';
 import { AngularEngineKeys, BaseComponentProps, WindowColorSchemes } from './constants';
 import { generateRandomValue, getWindow, setOnWindow } from '../utils';
-import { EventIds } from '@decaf-ts/core';
+import { AttributeOption, Condition, EventIds } from '@decaf-ts/core';
 import { NgxMediaService } from '../services/NgxMediaService';
 import { DecafComponent, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
 import { Constructor } from '@decaf-ts/decoration';
@@ -165,6 +165,33 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
   @Input()
   override modelId?: EventIds;
 
+
+  /**
+   * @description Query predicate applied when resolving model data.
+   * @summary Provides an optional set of conditions used to filter the repository query that
+   * supplies data to this component. When present, the condition constrains the model lookup
+   * (e.g., WHERE clauses) so only records matching the specified criteria are fetched, enabling
+   * contextualized reads such as filtering by status, tenant, or foreign keys. This is especially
+   * useful when the component should render or operate on a subset of records rather than a single
+   * primary-key match.
+   * @type {AttributeOption<Model> | undefined}
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
+  @Input()
+  condition: AttributeOption<Model> | undefined;
+
+
+  /**
+   * @description Backing value supplied to the component instance.
+   * @summary Holds the data payload bound to the component (for example, the field value in a
+   * form control or the record currently being edited). The directive treats this input as an
+   * opaque value and passes it through to child components or handlers, allowing each component
+   * implementation to interpret the value according to its own semantics (e.g., scalar, object,
+   * or collection). This is not tied to any primary key; it simply mirrors whatever data the
+   * host template provides.
+   * @type {unknown}
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
   @Input()
   override value: unknown;
 
@@ -179,6 +206,8 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    */
   @Input()
   override pk!: string;
+
+  pkType!: string;
 
   /**
    * @description Field mapping configuration object or function.
@@ -533,9 +562,15 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
   override get repository(): DecafRepository<Model> | undefined {
     try {
       if (!this._repository) {
-        this._repository = getModelAndRepository(this.model as Model)?.repository;
-        if (this.model && !this.pk)
-          this.pk = Model.pk(this._repository?.class as Constructor<Model>) as string;
+        const context =  getModelAndRepository(this.model as Model);
+        if(context) {
+          const {repository, pk, pkType} = context
+          this._repository = repository
+          if (this.model && !this.pk)
+            this.pk = pk;
+          this.pkType = pkType;
+        }
+
       }
     } catch (error: unknown) {
       throw new InternalError((error as Error)?.message || (error as string));

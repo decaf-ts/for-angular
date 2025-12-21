@@ -673,7 +673,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   async ngOnInit(): Promise<void> {
 
     this.options = await this.getOptions();
-
     if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation))
       this.hidden = false;
 

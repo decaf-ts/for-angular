@@ -54,11 +54,14 @@ export const AppConfig: ApplicationConfig = {
     // Providing Local components for dynamic rendering
     provideDecafDynamicComponents(SwitcherComponent, BatchSelectFieldComponent),
     // Providing RamAdapter as the database adapter for Decaf
-    provideDecafDbAdapter(AxiosHttpAdapter, {
-      protocol: "http",
-      host: 'localhost:3000',
-      responseParser: new NestJSResponseParser()
-    }),
+    // provideDecafDbAdapter(AxiosHttpAdapter, {
+    //   protocol: "http",
+    //   host: 'localhost:3000',
+    //   responseParser: new NestJSResponseParser()
+    // }),
+
+
+    provideDecafDbAdapter(RamAdapter, {user: "user"}),
 
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },

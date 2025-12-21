@@ -161,10 +161,12 @@
         </div>
       } @else {
         @for(item of items; track trackItemFn($index, item)) {
+
           <div class="dcf-fieldset-read-item">
             <div>
               <ngx-decaf-layout
                 [className]="operation"
+                [operation]="operation"
                 [flexMode]="item?.props?.flexMode ?? false"
                 [match]="false"
                 [gap]="'collapse'"

@@ -182,7 +182,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         case OperationKeys.READ:
         case OperationKeys.UPDATE:
         case OperationKeys.DELETE:
-          this.model = (await this.handleGet(uid || this.modelId)) as Model;
+          this.model = (await this.handleRead(uid || this.modelId)) as Model;
           break;
       }
     } catch (error: unknown) {
@@ -262,11 +262,13 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
               ? repository.create(model as unknown as Model)
               : repository.createAll(model as unknown as Model[]));
             break;
-          case OperationKeys.UPDATE:
+          case OperationKeys.UPDATE: {
             result = await (!Array.isArray(model)
               ? repository.update(model as unknown as Model)
               : repository.updateAll(model as unknown as Model[]));
             break;
+          }
+
           case OperationKeys.DELETE:
             result = await (!Array.isArray(model)
               ? repository.delete(model as string | number)
@@ -306,7 +308,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @param {string} uid - The unique identifier of the model instance to retrieve
    * @return {Promise<Model | undefined>} Promise resolving to the model instance or undefined
    */
-  async handleGet(
+  async handleRead(
     uid?: EventIds,
     repository?: IRepository<Model>,
     modelName?: string
@@ -343,8 +345,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
           if (!context) return getRepository(type, prop, model);
           const { repository } = context;
           if (modelName === this.modelName) {
-            const data = await this.handleGet(uid, repository, modelName);
-            this.model = Model.build({ [prop]: data }, modelName);
+            const data = await this.handleRead(uid, repository, modelName);
+            if(data)
+              this.model = Model.build({ [prop]: data }, modelName);
           }
 
           // else {
@@ -371,7 +374,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
       return result;
     } catch (error: unknown) {
       this.log
-        .for(this.handleGet)
+        .for(this.handleRead)
         .info(
           `Error getting model instance with id ${uid}: ${(error as Error).message}`
         );
@@ -394,7 +397,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     data: KeyValue | KeyValue[],
     operation: OperationKeys,
     repository: DecafRepository<Model>
-  ): Model | Model[] | EventIds {
+  ): Partial<Model | Model[]> | EventIds {
     operation = (
       operation === OperationKeys.READ
         ? OperationKeys.DELETE
@@ -414,11 +417,15 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     uid = [Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase())
       ? Number(uid)
       : uid;
-    if (operation !== OperationKeys.DELETE)
-      return Model.build(
-        this.modelId ? Object.assign(data, { [pk]: uid }) : data,
-        repository.class.name
-      ) as Model;
+    if (operation !== OperationKeys.DELETE) {
+      const properties = Metadata.properties(repository.class as Constructor<Model>) as string[];
+      const relation = pk === this.pk ? {} : (properties.includes(this.pk as string) && !data[this.pk as string]) ? { [this.pk as string]: this.modelId } : {};
+      return Model.build(Object.assign(
+          data || {},
+          relation,
+          this.modelId && !data[pk] ? { [pk]: uid } : {}
+      ), repository.class.name);
+    }
     return uid as EventIds;
   }
 }

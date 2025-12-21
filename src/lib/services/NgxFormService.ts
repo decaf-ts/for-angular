@@ -691,9 +691,9 @@ export class NgxFormService {
    */
   static getFormData(formGroup: FormGroup): Record<string, unknown> {
     const data: Record<string, unknown> = {};
+    const parentProps = NgxFormService.getPropsFromControl(formGroup as FormGroup | FormArray);
     for (const key in formGroup.controls) {
       const control = formGroup.controls[key];
-      const parentProps = NgxFormService.getPropsFromControl(formGroup as FormGroup | FormArray);
       if (!(control instanceof FormControl)) {
         if(control.disabled) {
           if(control instanceof FormGroup)
@@ -717,7 +717,7 @@ export class NgxFormService {
           }
           continue;
         }
-        const value = NgxFormService.getFormData(control as FormGroup);
+        const value = control.value;
         const isValid = control.valid;
         if(parentProps.multiple) {
           if(isValid) {

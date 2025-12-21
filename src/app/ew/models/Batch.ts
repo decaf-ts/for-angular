@@ -40,7 +40,8 @@ export class Batch extends Model {
     label: "batch.productcode.label",
     placeholder: "batch.productcode.placeholder",
     type: HTML5InputTypes.SELECT,
-    optionsMapper: (item: Product) => ({text:`${item.productCode} - ${ item.inventedName}`, value: `${item.productCode}`}),
+    translatable: false,
+    optionsMapper: (item: Product) => ({text:`${ item.inventedName}`, value: `${item.productCode}`}),
     options: () => Product
   })
   @uilistprop(ListItemPositions.description)
