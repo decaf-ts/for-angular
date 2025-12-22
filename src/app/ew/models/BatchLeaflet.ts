@@ -1,7 +1,7 @@
 import { FormGroup } from "@angular/forms";
 import { BaseModel, pk, table } from "@decaf-ts/core";
 import { model, ModelArg, required } from "@decaf-ts/decorator-validation";
-import { HTML5InputTypes, uielement,  uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
+import { HTML5InputTypes, uielement,  uilistmodel,  uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
 import {
   ElementPositions,
   ElementSizes,
@@ -9,11 +9,13 @@ import {
   NgxEventHandler,
   KeyValue
 } from "src/lib/engine";
-import { composed } from "@decaf-ts/db-decorators";
+import { composed, OperationKeys } from "@decaf-ts/db-decorators";
 import { presentNgxInlineModal } from "src/lib/components/modal/modal.component";
 import { getDocumentTypes, getLeafletLanguages } from "src/app/utils/helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
+import { getMenuIcon } from "src/lib/utils";
+import { EwMenu } from "src/app/utils/contants";
 
 
 class XmlPreviewHandler extends NgxEventHandler {
@@ -57,9 +59,9 @@ class XmlPreviewHandler extends NgxEventHandler {
   }
 }
 
-@uimodel('ngx-decaf-crud-form')
+@uilistmodel('ngx-decaf-list-item', {icon: getMenuIcon('Leaflets', EwMenu)})
+@uimodel('ngx-decaf-crud-form', { locale: 'leaflet', cardType: 'shadow', operation: OperationKeys.READ})
 @model()
-@table('Leaflet')
 export class BatchLeaflet extends BaseModel {
 
 

@@ -11,7 +11,7 @@ import {  HTML5InputTypes, uichild, uielement, uilayout, uilayoutprop,  uilistmo
 import { Product } from "./Product";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { ListItemPositions } from "src/lib/engine/constants";
-import { composed } from "@decaf-ts/db-decorators";
+import { composed, readonly } from "@decaf-ts/db-decorators";
 import { EwMenu } from "src/app/utils/contants";
 import { getMenuIcon } from "src/lib/utils/helpers";
 
@@ -35,8 +35,24 @@ export class Batch extends Model {
   @composed(["productCode", "batchNumber"], ":", true)
   id!: string;
 
+  @uielement('app-batch-select-field', {
+    label: 'batch.nameMedicinalProduct.label',
+    placeholder: 'batch.nameMedicinalProduct.placeholder',
+    readonly: true
+  })
+  @uilayoutprop('half')
+  nameMedicinalProduct?: string;
+
+  @uielement('app-batch-select-field', {
+    label: 'batch.inventedName.label',
+    placeholder: 'batch.inventedName.placeholder',
+    readonly: true,
+  })
+  @uilayoutprop('half')
+  inventedName?: string;
+
   @required()
-  @uielement('ngx-decaf-crud-field', {
+  @uielement('app-batch-select-field', {
     label: "batch.productcode.label",
     placeholder: "batch.productcode.placeholder",
     type: HTML5InputTypes.SELECT,
@@ -70,7 +86,8 @@ export class Batch extends Model {
     placeholder: 'batch.importLicenseNumber.placeholder',
   })
   @uilayoutprop('half')
-  importLicenseNumber2?: string;
+  importLicenseNumber?: string;
+
 
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.expiryDate.label',

@@ -52,11 +52,11 @@ ion-split-pane {
         // --ripple-color: transparent !important;
         --inner-padding-end: 0.2rem !important;
         --padding-end: 0.1rem !important;
-        --inner-padding-start: 0.7rem !important;
+        --inner-padding-start: 0.675rem !important;
         --padding-start: 0.1rem !important;
         margin-left: 0.5rem;
         ngx-decaf-icon {
-          transform: translatey(2.5px) !important;
+          transform: translateY(1px) !important;
         }
         &:hover {
           ::ng-deep {

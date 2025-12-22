@@ -286,6 +286,19 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    */
   protected parent?: HTMLElement;
 
+
+  /**
+   * @description Reference to HTML5 input type constants for template usage.
+   * @summary Exposes the HTML5InputTypes enum to the component template, enabling
+   * conditional rendering and behavior based on input field types. This protected
+   * readonly property ensures that template logic can access input type constants
+   * while maintaining encapsulation and preventing accidental modification.
+   * @type {typeof HTML5InputTypes}
+   * @protected
+   * @readonly
+   */
+  readonly HTML5InputTypes: typeof HTML5InputTypes = HTML5InputTypes;
+
   // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(@Inject(CPTKN) componentName: string = "ComponentCrudField") {
     super(componentName);
