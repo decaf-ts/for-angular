@@ -5,10 +5,10 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonItem, IonLabel, IonSelect, IonSelectOption, IonText, SelectChangeEventDetail, SelectCustomEvent } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
+import { getDocumentTypes } from 'src/app/ew/helpers';
 import { Batch } from 'src/app/ew/models/Batch';
 import { Product } from 'src/app/ew/models/Product';
 import { RouterService } from 'src/app/services/router.service';
-import { getDocumentTypes } from 'src/app/utils/helpers';
 import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.component';
 import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { ComponentEventNames } from 'src/lib/engine/constants';
@@ -96,7 +96,6 @@ export class BatchSelectFieldComponent extends CrudFieldComponent implements Aft
         this.value = '';
         product = await repository.read(uid) as Product;
         if(product) {
-           console.log('product', product);
           setOnWindow('_batchLastProduct', {
             inventedName: product.inventedName, nameMedicinalProduct: product.nameMedicinalProduct, productCode: product.productCode
           } as Product);

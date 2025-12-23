@@ -65,7 +65,6 @@
     "leaflet": {
         "empty": {
         "title": "No epi documents found",
-        "description": "You have not added any batches yet. Click the button below to add your first batch.",
         "button": "Add Batch"
       }
     },
@@ -86,7 +85,7 @@
       "placeholder": "Enter the batch number"
     },
     "dayselection": {
-      "label": "Enable Day Selection"
+      "label": "Enable Day Selection<span class=\"dcf-expiry-date-helper\">GS1 Format {0}</span>"
     },
     "expiryDate": {
       "label": "Expiry Date",

@@ -84,15 +84,15 @@
                     </ng-template>
                   </ion-popover>
                 } @else {
-                  <div class="dcf-grid-actions dcf-grid dcf-grid-small dcf-flex  dcf-flex-space-between">
+                  <div class="dcf-grid-actions dcf-grid dcf-grid-small dcf-flex ">
                     @for (operation of [OperationKeys.UPDATE, OperationKeys.DELETE]; track operation) {
-                      <div tabindex="0" (keydown.enter)="handleAction(operation, $event, component)" (click)="handleAction(operation, $event, component)">
+                      <div>
                         @if (operations?.includes(operation)) {
-                          <ion-button fill="clear" shape="round" [attr.aria-label]="(locale +'.operations.' + operation) | translate">
+                          <ion-button (click)="handleAction(operation, $event, component)" fill="clear" shape="round" [attr.aria-label]="(locale +'.operations.' + operation) | translate">
                             @if (operation === OperationKeys.UPDATE) {
-                              <ngx-decaf-icon slot="icon-only" name="ti-edit" />
+                              <ngx-decaf-icon name="ti-edit" />
                             } @else {
-                              <ngx-decaf-icon slot="icon-only" color="danger" name="ti-trash" />
+                              <ngx-decaf-icon  color="danger" name="ti-trash" />
                             }
                           </ion-button>
                         }

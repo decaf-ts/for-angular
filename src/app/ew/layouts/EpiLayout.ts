@@ -27,6 +27,7 @@ export class EpiLayout extends Model {
       title: 'Documents',
       operation: OperationKeys.READ,
       operations: [OperationKeys.READ],
+      showRefresher: false,
       condition: Condition.attribute<Leaflet>('productCode'),
       route: 'leaflets',
       icon: 'ti-file-barcode',

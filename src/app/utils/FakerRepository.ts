@@ -35,6 +35,8 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
             const productCode = `0${Math.floor(Math.random() * 5) + 1}`;
             item.productCode = productCode;
             item.batchNumber = `batch${productCode}_${faker.lorem.word(24)}`.trim();
+            item.expiryDate = '251200';
+            item.enableDaySelection = true;
             return item as T;
           })]
           break;

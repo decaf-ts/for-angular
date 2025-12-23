@@ -1,7 +1,7 @@
 import { BaseModel, pk } from "@decaf-ts/core";
 import { model, ModelArg, required } from "@decaf-ts/decorator-validation";
 import { HTML5InputTypes, uielement,  uilistmodel,  uilistprop, uimodel } from "@decaf-ts/ui-decorators";
-import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../../utils/helpers";
+import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
 import {  ElementPositions, ElementSizes, KeyValue, ListItemPositions, NgxEventHandler } from "src/lib/engine";

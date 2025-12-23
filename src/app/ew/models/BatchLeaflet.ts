@@ -11,7 +11,7 @@ import {
 } from "src/lib/engine";
 import { composed, OperationKeys } from "@decaf-ts/db-decorators";
 import { presentNgxInlineModal } from "src/lib/components/modal/modal.component";
-import { getDocumentTypes, getLeafletLanguages } from "src/app/utils/helpers";
+import { getDocumentTypes, getLeafletLanguages } from "src/app/ew/helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
 import { getMenuIcon } from "src/lib/utils";

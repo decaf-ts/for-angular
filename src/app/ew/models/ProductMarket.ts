@@ -8,7 +8,7 @@ import {
   required,
 } from "@decaf-ts/decorator-validation";
 import { HTML5InputTypes, uielement, uilayoutprop, uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
-import { getMarkets } from "src/app/utils/helpers";
+import { getMarkets } from "src/app/ew/helpers";
 import { ListItemPositions } from "src/lib/engine/constants";
 @uimodel('ngx-decaf-fieldset')
 @model()

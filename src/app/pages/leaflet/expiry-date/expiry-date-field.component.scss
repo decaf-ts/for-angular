@@ -1,0 +1,244 @@
+::ng-deep .dcf-expiry-date-helper {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--dcf-color-gray-6);
+}
+
+#dcf-input-calendar {
+  height: 0px;
+  opacity: 0;
+  position: absolute;
+  margin-top: 1rem;
+}
+
+.dcf-input-placeholder {
+  width: max-content;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-x: auto;
+  font-weight: 400;
+  color: var(--dcf-color-gray-6);
+  overflow-y: hidden;
+  white-space: nowrap;
+  padding-left: 0.5rem;
+  position: absolute;
+  transform: translate(10px, -45px);
+  z-index: 10;
+  pointer-events: none;
+  user-select: none;
+  float: right;
+  height: 35px;
+  background: var(--dcf-card-background);
+}
+
+ion-item {
+  --border-color: transparent;
+  // --inner-padding-start: 0.75rem;
+  &:not(.dcf-input-item) {
+    --inner-padding-start: 0rem;
+    --padding-start: 0rem;
+    --background: transparent;
+  }
+  &.dcf-input-item {
+    --padding-end: 0rem;
+    --padding-start: 0px !important;
+    --padding-top: 0px !important;
+    --inner-padding-start: 0.75rem;
+
+    --background: transparent;
+    --background-hover-opacity: 0.1;
+    --background-activated-opacity: 0.15;
+    --background-focused-opacity: 0.15;
+    --background-hover: var(--dcf-color-primary);
+    --background-focused: var(--dcf-color-primary);
+    --border-color: var(--dcf-color-gray-2);
+
+    &.dcf-palette-dark {
+      --border-color: var(--dcf-color-gray-6) !important;
+    }
+
+    &.read,
+    &.delete {
+      --min-height: 30px;
+      padding: unset;
+      margin: unset !important;
+      margin-bottom: var(--dcf-margin-xsmall) !important;
+
+      ion-label {
+        font-weight: 600;
+        margin-top: 0px !important;
+        margin-bottom: 0.25rem !important;
+        font-size: 0.925rem;
+
+        &:not(:first-of-type) {
+          margin: 100rem;
+        }
+      }
+      span,
+      ion-text {
+        font-weight: 400 !important;
+        font-size: 0.825rem;
+        min-height: 0.5rem !important;
+
+        &:not(.dcf-display-block) {
+          display: inline-block;
+        }
+
+        &.dcf-display-block {
+          display: block !important;
+        }
+      }
+    }
+
+    // force expand (prevent layout glitches)
+    > *,
+    ion-select {
+      width: 100% !important;
+    }
+
+    &.create,
+    &.update {
+      &.checkbox + .checkbox {
+        margin-top: -0.25rem !important;
+      }
+
+      ion-item {
+        --border-color: transparent;
+
+        &.dcf-text-wrap {
+          ion-label > * {
+            white-space: wrap !important;
+            word-break: break-all !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+// customizando o scroolbar da textarea
+ion-textarea {
+  // --background: #373737 !important;
+  // --color: #fff;
+  // --padding-end: 10px;
+  // --padding-start: 10px;
+  // --placeholder-color: #ddd;
+  // --placeholder-opacity: 0.8;
+
+  textarea {
+    scrollbar-width: thin !important;
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+// fix do label com floating para selects
+ion-select.dcf-select-label-placement-floating::part(label) {
+  line-height: 1.2rem !important;
+}
+
+// classe quando o form está sendo submetido
+.dcf-proccessing {
+  pointer-events: none;
+  touch-action: none;
+  cursor: text;
+
+  * {
+    pointer-events: none;
+    touch-action: none;
+    cursor: text;
+  }
+}
+
+// Customizando o checkbox
+ion-checkbox::part(container) {
+  border: 2px solid var(--dcf-color-primary);
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  border-radius: var(--dcf-border-radius-small);
+  padding: 3px;
+}
+
+ion-checkbox {
+  --size: 1.5rem;
+  --checkbox-background-checked: var(--dcf-color-primary);
+  --checkmark-width: 2px;
+}
+
+ion-radio-group {
+  .dcf-radio-group-label {
+    // margin-left: .5rem;
+    font-weight: 600;
+    ~ ion-item {
+      margin-top: 0.5rem;
+      --inner-padding-start: 0.75rem;
+    }
+  }
+  + .dcf-helper {
+    padding-left: 0.75rem;
+    position: relative;
+  }
+}
+
+.dcf-checkbox-group {
+  width: 100%;
+  .dcf-label {
+    // margin-left: .5rem;
+    font-weight: 600;
+    ~ ion-item {
+      margin-top: 0.5rem;
+      --inner-padding-start: 0.75rem;
+    }
+  }
+  + .dcf-helper {
+    padding-left: 0.75rem;
+    position: relative;
+  }
+}
+
+.dcf-error {
+  position: absolute;
+  color: var(--dcf-color-danger) !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  line-height: 1.1rem;
+  z-index: 9999;
+
+  &.dcf-options-error {
+    position: relative;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .ti,
+  ion-icon {
+    position: relative;
+    top: 2px !important;
+    min-width: 20px;
+    font-size: 1rem !important;
+    text-align: left;
+  }
+}
+
+.dcf-helper {
+  font-size: 0.875rem !important;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  margin-bottom: -0.75rem;
+  &.dcf-has-action {
+    cursor: pointer;
+    // color: var(--dcf-color-gray-7) !important;
+    // color: var(--dcf-color-primary) !important;
+    text-decoration: underline;
+  }
+}
+
+.dcf-error + .dcf-helper {
+  padding-top: 1rem;
+}
+
+::ng-deep ion-textarea {
+  min-height: 80px !important;
+  scrollbar-color: #888 #f0f0f0;
+  scrollbar-width: thin;
+}

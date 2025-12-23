@@ -88,24 +88,23 @@ export class Batch extends Model {
   @uilayoutprop('half')
   importLicenseNumber?: string;
 
-
-  @uielement('ngx-decaf-crud-field', {
+  @required()
+  @uielement('app-expiry-date-field', {
     label: 'batch.expiryDate.label',
     placeholder: 'batch.expiryDate.placeholder',
+    type: HTML5InputTypes.TEXT
   })
-  // @required()
-  // @date('yyyy-MM-dd')
   @uilayoutprop('half')
   @uilistprop(ListItemPositions.info)
   expiryDate!: string;
 
-  @uielement('ngx-decaf-crud-field', {
+  @uielement('app-expiry-date-field', {
     label: 'batch.dayselection.label',
     placeholder: 'batch.dayselection.placeholder',
     type: HTML5InputTypes.CHECKBOX
   })
   @uilayoutprop('half')
-  enableDaySelection!: string;
+  enableDaySelection: boolean = true;
 
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.manufacturerName.label',

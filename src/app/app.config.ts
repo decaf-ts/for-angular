@@ -29,6 +29,7 @@ import { ProductStrength } from './ew/models/ProductStrength';
 import { BatchSelectFieldComponent } from './pages/leaflet/components/batch-select-field/batch-select-field.component';
 import { Batch } from './ew/models/Batch';
 import { AxiosHttpAdapter, HttpAdapter, HttpStatement, NestJSResponseParser } from '@decaf-ts/for-http';
+import { ExpiryDateFieldComponent } from './pages/leaflet/expiry-date/expiry-date-field.component';
 
 export const AppName = 'For Angular';
 // Removed unused Adapter variable and fixed HttpAdapter instantiation issues
@@ -52,7 +53,7 @@ export const AppConfig: ApplicationConfig = {
     provideDecafPageTransition(),
 
     // Providing Local components for dynamic rendering
-    provideDecafDynamicComponents(SwitcherComponent, BatchSelectFieldComponent),
+    provideDecafDynamicComponents(SwitcherComponent, ExpiryDateFieldComponent, BatchSelectFieldComponent),
     // Providing RamAdapter as the database adapter for Decaf
     // provideDecafDbAdapter(AxiosHttpAdapter, {
     //   protocol: "http",

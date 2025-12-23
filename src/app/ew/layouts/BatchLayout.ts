@@ -28,6 +28,7 @@ export class BatchLayout extends Model {
     ordenable: false,
   } as Partial<FieldsetComponent>)
   @uilayoutprop(2)
+  @uionrender(() => ProductEpiHandler)
   batch!: Batch;
 
   // @list(BatchLeaflet, 'Array')
@@ -55,6 +56,7 @@ export class BatchLayout extends Model {
       title: 'Documents',
       operation: OperationKeys.READ,
       operations: [OperationKeys.READ],
+      showRefresher: false,
       condition: Condition.attribute<BatchLeaflet>('batchNumber'),
       route: 'leaflets',
       icon: 'ti-file-barcode',
