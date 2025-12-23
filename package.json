@@ -128,5 +128,8 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
-  }
+  },
+  "files": [
+    "workdocs/assets/slogans.json"
+  ]
 }
