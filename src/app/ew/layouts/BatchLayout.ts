@@ -1,4 +1,4 @@
-import { list, model, Model, ModelArg } from '@decaf-ts/decorator-validation';
+import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import {
   uichild,
   uilayout,
@@ -6,10 +6,12 @@ import {
   UIMediaBreakPoints,
   uionrender,
 } from '@decaf-ts/ui-decorators';
-import { FieldsetComponent, LayoutComponent } from 'src/lib/components';
+import { FieldsetComponent, LayoutComponent, ListComponent } from 'src/lib/components';
 import { Batch } from '../models/Batch';
 import { ProductEpiHandler } from '../handlers/ProductEpiHandler';
 import { BatchLeaflet } from '../models/BatchLeaflet';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { Condition } from '@decaf-ts/core';
 
 @uilayout('ngx-decaf-crud-form', true, 1, {
   borders: true,
@@ -29,22 +31,50 @@ export class BatchLayout extends Model {
   @uionrender(() => ProductEpiHandler)
   batch!: Batch;
 
-  @list(BatchLeaflet, 'Array')
-  @uionrender(() => ProductEpiHandler)
+  // @list(BatchLeaflet, 'Array')
+  // @uionrender(() => ProductEpiHandler)
+  // @uichild(
+  //   BatchLeaflet.name,
+  //   'ngx-decaf-fieldset',
+  //   {
+  //     title: 'Documents',
+  //     borders: false,
+  //     required: false,
+  //     ordenable: false,
+  //     multiple: true,
+  //   } as Partial<FieldsetComponent>,
+  //   true
+  // )
+  // @uilayoutprop(1)
+  // document!: BatchLeaflet;
+
   @uichild(
     BatchLeaflet.name,
-    'ngx-decaf-fieldset',
+    'ngx-decaf-list',
     {
+      showSearchbar: false,
       title: 'Documents',
-      borders: false,
-      required: false,
-      ordenable: false,
-      multiple: true,
-    } as Partial<FieldsetComponent>,
-    true
+      operation: OperationKeys.READ,
+      operations: [OperationKeys.READ],
+      showRefresher: false,
+      condition: Condition.attribute<BatchLeaflet>('batchNumber'),
+      route: 'leaflets',
+      icon: 'ti-file-barcode',
+      locale: "batch.leaflet",
+      empty: {
+          title: 'empty.title',
+          subtitle: '',
+          link: async function ()  {
+          const component = this as ListComponent;
+          const param = `${component.modelId ? `?batchNumber=${component.modelId}` : ''}`;
+          await component.router.navigateByUrl(`/leaflets/create${param}`);
+        }
+      }
+    },
   )
-  @uilayoutprop(1)
+  @uionrender(() => ProductEpiHandler)
   document!: BatchLeaflet;
+
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: ModelArg<BatchLayout>) {

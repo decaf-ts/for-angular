@@ -18,7 +18,7 @@ import {
 import { routes } from './app.routes';
 import { provideDecafDbAdapter, provideDecafPageTransition, provideDecafDynamicComponents, provideDecafDarkMode } from 'src/lib/for-angular-common.module';
 import { AIModel, AIVendorModel } from './models/AIVendorModel';
-import { I18nResourceConfigType, KeyValue } from 'src/lib/engine';
+import { I18nResourceConfigType } from 'src/lib/engine';
 import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
 import { User } from './forms/FieldsetForm';
@@ -28,7 +28,8 @@ import { Leaflet } from './ew/models/Leaflet';
 import { ProductStrength } from './ew/models/ProductStrength';
 import { BatchSelectFieldComponent } from './pages/leaflet/components/batch-select-field/batch-select-field.component';
 import { Batch } from './ew/models/Batch';
-import { AxiosHttpAdapter, HttpAdapter, HttpStatement, NestJSResponseParser } from '@decaf-ts/for-http';
+import { AxiosHttpAdapter, HttpAdapter, HttpStatement } from '@decaf-ts/for-http';
+import { ExpiryDateFieldComponent } from './pages/leaflet/expiry-date/expiry-date-field.component';
 
 export const AppName = 'For Angular';
 // Removed unused Adapter variable and fixed HttpAdapter instantiation issues
@@ -52,13 +53,16 @@ export const AppConfig: ApplicationConfig = {
     provideDecafPageTransition(),
 
     // Providing Local components for dynamic rendering
-    provideDecafDynamicComponents(SwitcherComponent, BatchSelectFieldComponent),
+    provideDecafDynamicComponents(SwitcherComponent, ExpiryDateFieldComponent, BatchSelectFieldComponent),
     // Providing RamAdapter as the database adapter for Decaf
-    provideDecafDbAdapter(AxiosHttpAdapter, {
-      protocol: "http",
-      host: 'localhost:3000',
-      responseParser: new NestJSResponseParser()
-    }),
+    // provideDecafDbAdapter(AxiosHttpAdapter, {
+    //   protocol: "http",
+    //   host: 'localhost:3000',
+    //   responseParser: new NestJSResponseParser()
+    // }),
+
+
+    provideDecafDbAdapter(RamAdapter, {user: "user"}),
 
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },

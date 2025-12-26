@@ -1,9 +1,11 @@
 import {
+  date,
   list,
   minlength,
   model,
   Model,
   ModelArg,
+  pattern,
   required,
 } from "@decaf-ts/decorator-validation";
 import { pk } from "@decaf-ts/core";
@@ -11,7 +13,7 @@ import {  HTML5InputTypes, uichild, uielement, uilayout, uilayoutprop,  uilistmo
 import { Product } from "./Product";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { ListItemPositions } from "src/lib/engine/constants";
-import { composed } from "@decaf-ts/db-decorators";
+import { composed, readonly } from "@decaf-ts/db-decorators";
 import { EwMenu } from "src/app/utils/contants";
 import { getMenuIcon } from "src/lib/utils/helpers";
 
@@ -35,12 +37,29 @@ export class Batch extends Model {
   @composed(["productCode", "batchNumber"], ":", true)
   id!: string;
 
+  @uielement('app-batch-select-field', {
+    label: 'batch.nameMedicinalProduct.label',
+    placeholder: 'batch.nameMedicinalProduct.placeholder',
+    readonly: true
+  })
+  @uilayoutprop('half')
+  nameMedicinalProduct?: string;
+
+  @uielement('app-batch-select-field', {
+    label: 'batch.inventedName.label',
+    placeholder: 'batch.inventedName.placeholder',
+    readonly: true,
+  })
+  @uilayoutprop('half')
+  inventedName?: string;
+
   @required()
-  @uielement('ngx-decaf-crud-field', {
+  @uielement('app-batch-select-field', {
     label: "batch.productcode.label",
     placeholder: "batch.productcode.placeholder",
     type: HTML5InputTypes.SELECT,
-    optionsMapper: (item: Product) => ({text:`${item.productCode} - ${ item.inventedName}`, value: `${item.productCode}`}),
+    translatable: false,
+    optionsMapper: (item: Product) => ({text:`${ item.inventedName}`, value: `${item.productCode}`}),
     options: () => Product
   })
   @uilistprop(ListItemPositions.description)
@@ -69,25 +88,26 @@ export class Batch extends Model {
     placeholder: 'batch.importLicenseNumber.placeholder',
   })
   @uilayoutprop('half')
-  importLicenseNumber2?: string;
+  importLicenseNumber?: string;
 
-  @uielement('ngx-decaf-crud-field', {
+  @required()
+  @pattern("^\\d{6}$")
+  @uielement('app-expiry-date-field', {
     label: 'batch.expiryDate.label',
     placeholder: 'batch.expiryDate.placeholder',
+    type: HTML5InputTypes.TEXT,
   })
-  // @required()
-  // @date('yyyy-MM-dd')
   @uilayoutprop('half')
   @uilistprop(ListItemPositions.info)
   expiryDate!: string;
 
-  @uielement('ngx-decaf-crud-field', {
+  @uielement('app-expiry-date-field', {
     label: 'batch.dayselection.label',
     placeholder: 'batch.dayselection.placeholder',
     type: HTML5InputTypes.CHECKBOX
   })
   @uilayoutprop('half')
-  enableDaySelection!: string;
+  enableDaySelection: boolean = true;
 
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.manufacturerName.label',
@@ -99,10 +119,11 @@ export class Batch extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.dateOfManufacturing.label',
     placeholder: 'batch.dateOfManufacturing.placeholder',
+    type: HTML5InputTypes.DATE
   })
-  // @date('yyyy-MM-dd')
+  @date('yyyy-MM-dd')
   @uilayoutprop('half')
-  dateOfManufacturing!: string;
+  dateOfManufacturing!: Date;
 
   @list(ManufacturerAddress, 'Array')
   @uilayoutprop(1)

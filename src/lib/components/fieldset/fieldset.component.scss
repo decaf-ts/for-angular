@@ -92,6 +92,9 @@ legend,
     border: 1px solid var(--dcf-color-gray-3);
     border-radius: var(--dcf-border-radius-small);
     box-sizing: border-box;
+    &:not(:last-child) {
+      margin-bottom: var(--dcf-margin-small);
+    }
     ion-icon.dcf-reorder-disabled {
       width: var(--dcf-spacement);
       transform: translatey(2px);

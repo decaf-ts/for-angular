@@ -11,6 +11,7 @@ import { AngularFieldDefinition, FieldUpdateMode, KeyValue, StringOrBoolean } fr
 import { CrudOperationKeys, FieldProperties, IPagedComponentProperties } from '@decaf-ts/ui-decorators';
 import { FormParent } from './types';
 import { Model } from '@decaf-ts/decorator-validation';
+import { ActionRoles } from './constants';
 
 
 /**
@@ -314,14 +315,17 @@ export interface IBaseCustomEvent {
   name: string;
   component?: string;
   data?: unknown;
+  role?:  (typeof ActionRoles)[keyof typeof ActionRoles];
   target?: HTMLElement;
 }
 
 
-export interface IModelComponentSubmitEvent extends IBaseCustomEvent {
+export interface IModelComponentSubmitEvent
+  extends Omit<IBaseCustomEvent, 'name'> {
   success: boolean;
   message?: string;
 }
+
 
 
 /**

@@ -1,8 +1,8 @@
 @if ((operation === 'read' || operation === 'delete') || readonly) {
   @if(!hidden) {
     <ng-container>
-      <div >
-        <ion-item [class]="'dcf-input-item ' + operation" #component>
+      <div [class.dcf-hidden]="['inventedName', 'nameMedicinalProduct'].includes(name) && !value">
+        <ion-item [class]="'dcf-input-item ' + operation + ' ' +className" #component>
           <ion-label>
             {{ label | translate }}<br />
             <ion-text>{{value}}</ion-text>
@@ -16,11 +16,11 @@
     <div [formGroup]="multiple ? activeFormGroup : formControl.parent">
       <div
           [id]="uid" #container
-          [class]="'dcf-input-item ' + (operation || 'create')"
+          [class]="'dcf-input-item ' + operation + ' ' +className"
           [class.dcf-field-required]="required"
           [class.dcf-field-readonly]="readonly"
         >
-
+        @if(type === HTML5InputTypes.SELECT) {
           <div>
             <ion-select
               (ionInput)="handleModalChildChanges()"
@@ -65,6 +65,29 @@
                 getErrors(container) : 'errors.empty_options' | translate:{'0': name}">
             </div>
           </div>
+        } @else {
+           <ion-input
+              (ionInput)="handleModalChildChanges()"
+              (ionChange)="handleModalChildChanges()"
+              [id]="name"
+              [type]="type"
+              [mode]="'md'"
+              [hidden]="hidden"
+              [inputmode]="inputmode"
+              [labelPlacement]="labelPlacement"
+              [minlength]="minlength !== undefined ? minlength : null"
+              [maxlength]="maxlength !== undefined ? maxlength : null"
+              [readonly]="readonly !== undefined ? readonly : null"
+              [max]="max !== undefined ? max : null"
+              [min]="min !== undefined ? min : null"
+              [pattern]="pattern !== undefined ? pattern : null"
+              [step]="step !== undefined ? step : null"
+              [fill]="fill"
+              [placeholder]="placeholder | translate"
+              [formControlName]="name"
+              [errorText]="getErrors(container)"
+              [label]="label | translate" #component />
+        }
 
       </div>
     </div>

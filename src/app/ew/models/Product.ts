@@ -58,7 +58,10 @@ export class Product extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'product.productCode.label',
     placeholder: 'product.productCode.placeholder',
-  } as Partial<CrudFieldComponent>)
+    // readonly: () => {
+    //   return (this as unknown as CrudFieldComponent).operation !== OperationKeys.CREATE;
+    // },
+  })
   @uilayoutprop(2)
   productCode!: string;
 

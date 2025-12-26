@@ -1,8 +1,8 @@
-@if ((operation === 'read' || operation === 'delete') || readonly) {
+@if ((operation === OperationKeys.READ || operation === OperationKeys.DELETE) || readonly) {
   @if(!hidden) {
     <ng-container>
-      <div >
-        <ion-item [class.dcf-item-readonly]="readonly" [class]="'dcf-input-item ' + operation" #component>
+      <div>
+        <ion-item [class.dcf-item-readonly]="readonly && operation !== OperationKeys.READ" [class]="'dcf-input-item ' + operation" #component>
           <ion-label>
             {{ label | translate }}<br />
             @if (value) {
@@ -28,7 +28,7 @@
           [class.dcf-field-required]="required"
           [class.dcf-field-readonly]="readonly"
         >
-          @if (type === 'textarea') {
+          @if (type === HTML5InputTypes.TEXTAREA) {
             <ion-textarea
               (ionInput)="handleModalChildChanges()"
               (ionChange)="handleModalChildChanges()"
@@ -52,7 +52,7 @@
             #component>
             </ion-textarea>
           }
-          @else if (type === 'checkbox') {
+          @else if (type ===  HTML5InputTypes.CHECKBOX) {
             @if (!options?.length) {
               <ion-item class="dcf-width-1-1" [hidden]="hidden">
                 <ion-checkbox
@@ -67,7 +67,6 @@
                   [value]="value"
                   [checked]="checked"
                   [readonly]="readonly"
-                  (ionChange)="checked = !checked"
                   [formControlName]="name"
                   #component>
                   <span>{{label | translate}}</span>
@@ -100,7 +99,7 @@
             }
 
           }
-          @else if (type === 'radio' && options?.length) {
+          @else if (type === HTML5InputTypes.RADIO && options?.length) {
             <ion-radio-group class="dcf-width-1-1" [formControlName]="name" [value]="value" #component>
               <label class="dcf-radio-group-label" [for]="path">{{label | translate}}</label>
               @for(option of options; track $index) {
@@ -123,7 +122,7 @@
             </ion-radio-group>
             <span class="dcf-error" [innerHTML]="getErrors(container)"></span>
           }
-          @else if (type === 'select') {
+          @else if (type === HTML5InputTypes.SELECT) {
             <div>
               <ion-select
                 (ionInput)="handleModalChildChanges($event)"

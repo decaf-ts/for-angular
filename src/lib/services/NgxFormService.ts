@@ -691,9 +691,9 @@ export class NgxFormService {
    */
   static getFormData(formGroup: FormGroup): Record<string, unknown> {
     const data: Record<string, unknown> = {};
+    const parentProps = NgxFormService.getPropsFromControl(formGroup as FormGroup | FormArray);
     for (const key in formGroup.controls) {
       const control = formGroup.controls[key];
-      const parentProps = NgxFormService.getPropsFromControl(formGroup as FormGroup | FormArray);
       if (!(control instanceof FormControl)) {
         if(control.disabled) {
           if(control instanceof FormGroup)
@@ -717,7 +717,7 @@ export class NgxFormService {
           }
           continue;
         }
-        const value = NgxFormService.getFormData(control as FormGroup);
+        const value = control.value;
         const isValid = control.valid;
         if(parentProps.multiple) {
           if(isValid) {
@@ -740,14 +740,15 @@ export class NgxFormService {
             break;
           case HTML5InputTypes.DATE:
           case HTML5InputTypes.DATETIME_LOCAL:
-            value = new Date(value);
+            value = typeof value === Primitives.STRING ? new Date(value) : value;
             break;
           default:
-            value = escapeHtml(value);
+            value = escapeHtml(value)?.trim();
         }
       } else {
-        if(props['type'] === HTML5InputTypes.CHECKBOX && Array.isArray(value))
-          value = control.value;
+        if(props['type'] === HTML5InputTypes.CHECKBOX)
+          value = (Array.isArray(value) || typeof value === Primitives.STRING) ?
+            value : (value ?? false);
       }
       data[key] = value;
     }

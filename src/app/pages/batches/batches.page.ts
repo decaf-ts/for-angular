@@ -38,7 +38,6 @@ export class BatchesPage  extends NgxModelPageDirective implements OnInit {
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
     const handler = (new ProductLayoutHandler()).handle.bind(this);
-    const result = await handler(event, 'batch', 'batchNumber');
-    console.log(result);
+    await handler(event);
   }
 }

@@ -179,6 +179,7 @@ export const ComponentEventNames = {
   FIELDSET_UPDATE_GROUP: 'fieldsetUpdateGroupEvent',
   FIELDSET_REMOVE_GROUP: 'fieldsetRemoveGroupEvent',
   THEME_CHANGE: 'themeChangeEvent',
+  FORM_GROUP_LOADED: 'formGroupLoadedEvent',
   // FIELDSET_GROUP_VALIDATION: 'fieldsetGroupValidationEvent'
 } as const;
 

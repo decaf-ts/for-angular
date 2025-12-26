@@ -517,6 +517,8 @@ export class ListComponent
   lastPage: number = 1;
 
 
+
+
   /**
    * @description Event emitter for item click interactions.
    * @summary Emits an event when a list item is clicked. The event includes the data
@@ -1209,10 +1211,15 @@ export class ListComponent
           if (!this.paginator) {
             this.paginator = await repo
               .select()
+              .where(this.condition ? this.condition.eq(
+                !this.modelId ?
+                  undefined : ([Primitives.NUMBER, Primitives.BIGINT].includes(this.pkType as Primitives) ?
+                    Number(this.modelId) : this.modelId)) : Condition.attribute<Model>(this.pk as keyof Model).dif(null))
               .orderBy([this.pk as keyof Model, this.sortDirection])
               .paginate(this.limit);
           }
           request = await this.parseResult(this.paginator as Paginator<Model>);
+
         } else {
           if (!this.indexes)
             this.indexes = Object.values(this.mapper) || [this.pk];

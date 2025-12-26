@@ -379,7 +379,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
       windowEventEmitter(`ListItem${ComponentEventNames.CLICK}`, event);
       return this.clickEvent.emit(event);
     }
-    return await this.redirect(action, (typeof this.uid === 'number' ? `${this.uid}`: this.uid));
+    return await this.redirect(action,  `${this.uid}`);
   }
 
   /**

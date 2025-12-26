@@ -23,6 +23,16 @@ export abstract class NgxEventHandler extends DecafEventHandler {
   }
 
   async preview(...args: unknown[]): Promise<void> {
-    this.log.for(this.refresh).debug(`Refresh called with args: ${args}`);
+    this.log.for(this.preview).debug(`Preview called with args: ${args}`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async process(...args: unknown[]): Promise<any> {
+    this.log.for(this.process).debug(`Process called with args: ${args}`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async batchOperation(...args: unknown[]): Promise<any> {
+    this.log.for(this.batchOperation).debug(`BatchOperation called with args: ${args}`);
   }
 }

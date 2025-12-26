@@ -10,10 +10,12 @@ import { EventIds, Repository } from '@decaf-ts/core';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { NgxPageDirective } from './NgxPageDirective';
 import { ComponentEventNames } from './constants';
-import { IBaseCustomEvent, IModelComponentSubmitEvent } from './interfaces';
-import { KeyValue, DecafRepository } from './types';
+import { IBaseCustomEvent, ICrudFormEvent, IModelComponentSubmitEvent } from './interfaces';
+import { DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { getModelAndRepository } from '../for-angular-common.module';
+
+type LayoutModelContext = Record<string, {model: Model | Model[], repository: IRepository<Model>, pk: string}>;
 
 @Directive()
 export abstract class NgxModelPageDirective extends NgxPageDirective {
@@ -99,6 +101,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    */
   errorMessage: string | undefined = undefined;
 
+
+
   // constructor(@Inject(CPTKN) hm: boolean = true, @Inject(CPTKN) protected toastController?: ToastController) {
   //   super("NgxModelPageDirective");
   // }
@@ -182,7 +186,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         case OperationKeys.READ:
         case OperationKeys.UPDATE:
         case OperationKeys.DELETE:
-          this.model = (await this.handleGet(uid || this.modelId)) as Model;
+          this.model = (await this.handleRead(uid || this.modelId)) as Model;
           break;
       }
     } catch (error: unknown) {
@@ -191,6 +195,70 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
       }
       this.log.error(error as Error | string);
     }
+  }
+
+
+  /**
+   * @description Parses and transforms form data for repository operations.
+   * @summary Converts raw form data into the appropriate format for repository operations.
+   * For DELETE operations, returns the primary key value (string or number). For CREATE
+   * and UPDATE operations, builds a complete model instance using the Model.build method
+   * with proper primary key assignment for updates.
+   *
+   * @param {Partial<Model>} data - The raw form data to be processed
+   * @return {Model | string | number} Processed data ready for repository operations
+   * @private
+   */
+  private parseData(
+    data: KeyValue | KeyValue[],
+    operation: OperationKeys,
+    repository: DecafRepository<Model>
+  ): Partial<Model | Model[]> | EventIds {
+
+    operation = (operation === OperationKeys.READ ? OperationKeys.DELETE : operation.toLowerCase()) as OperationKeys;
+
+    if (Array.isArray(data))
+      return data.map((item) => this.parseData(item, operation, repository as DecafRepository<Model>));
+
+    const pk = Model.pk(repository.class as Constructor<Model>);
+    const pkType = Metadata.type(repository.class as Constructor<Model>, pk).name;
+    const modelId = this.modelId as Primitives;
+    const uid = this.parsePkValue(modelId, pkType);
+    if (operation !== OperationKeys.DELETE) {
+      const properties = Metadata.properties(repository.class as Constructor<Model>) as string[];
+      const relation = pk === this.pk ?
+        {} : (properties.includes(this.pk as string) && !data[this.pk as string]) ?
+        {[this.pk as string]: modelId } : {};
+      return Model.build(Object.assign(
+          data || {},
+          relation,
+          (
+            modelId && !data[pk] ?
+              {[pk]: uid} : {}
+          )
+      ), repository.class.name);
+    }
+    return uid as EventIds;
+  }
+
+  private parsePkValue(uid: Primitives, type: string): string | number {
+    return [Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase() as Primitives) ? Number(uid): uid;
+  }
+
+  private getModelConstrutor(model: string | Model): Constructor<Model> | undefined {
+    return Model.get(typeof model === Primitives.STRING ? String(model) : model?.constructor.name);
+  }
+
+  private getModelProperties(constructor: Constructor<Model>): (keyof Model)[] {
+    return Metadata.properties(constructor) as  (keyof Model)[];
+  }
+
+  private getModelPropertyType(constructor: Constructor<Model>, prop: keyof Model): string {
+    return Metadata.type(constructor as Constructor<Model>, prop).name;
+  }
+
+  private getModelPkType(constructor: Constructor<Model>): string {
+    return this.getModelPropertyType(constructor, Model.pk(constructor) as keyof Model);
   }
 
   /**
@@ -217,15 +285,12 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    *
    * @param {IBaseCustomEvent} event - The event object containing event data and metadata
    */
-  override async handleEvent(
-    event: IBaseCustomEvent,
-    repository?: DecafRepository<Model>
-  ): Promise<void> {
+  override async handleEvent(event: IBaseCustomEvent, repository?: DecafRepository<Model>): Promise<void> {
     const { name } = event;
     switch (name) {
       case ComponentEventNames.SUBMIT:
         await this.submit(event, false, repository);
-        break;
+      break;
     }
   }
 
@@ -241,20 +306,25 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @return {Promise<IModelComponentSubmitEvent|void>} Promise that resolves on success or throws on error
    */
   override async submit(
-    event: IBaseCustomEvent,
+    event: Partial<IBaseCustomEvent>,
     redirect: boolean = false,
-    repository?: DecafRepository<Model>,
+    repository?: DecafRepository<Model>
   ): Promise<IModelComponentSubmitEvent> {
+
     let success = false;
     let message = '';
+
     try {
-      if (!repository) repository = this._repository as DecafRepository<Model>;
+      if (!repository)
+        repository = this._repository as DecafRepository<Model>;
 
       // const pk = this.pk || Model.pk(repository.class as Constructor<Model>);
       const operation = this.operation;
       const { data } = event;
       if (data) {
         const model = this.parseData(data || {}, operation, repository);
+        if(!this.modelId && (model as KeyValue)?.[this.pk])
+          this.modelId = (model as KeyValue)[this.pk] as EventIds;
         let result;
         switch (operation) {
           case OperationKeys.CREATE:
@@ -262,11 +332,12 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
               ? repository.create(model as unknown as Model)
               : repository.createAll(model as unknown as Model[]));
             break;
-          case OperationKeys.UPDATE:
+          case OperationKeys.UPDATE: {
             result = await (!Array.isArray(model)
               ? repository.update(model as unknown as Model)
               : repository.updateAll(model as unknown as Model[]));
             break;
+          }
           case OperationKeys.DELETE:
             result = await (!Array.isArray(model)
               ? repository.delete(model as string | number)
@@ -274,14 +345,19 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
             break;
         }
 
+        const pk = Model.pk(repository.class as Constructor<Model>) as string;
+        const pkValue = (model as KeyValue)[pk] || (model as KeyValue)[this.pk] || "";
         message = await this.translate(
           !Array.isArray(result)
             ? `operations.${operation}.${result ? 'success' : 'error'}`
             : `operations.multiple`
-        , {"0": this.pk, "1": (model as KeyValue)[this.pk as string] || ''});
+        , {"0": pk, "1": pkValue});
         success = result ? true : false;
-        if (success && redirect) {
-          this.location.back();
+        if (success) {
+          if((result as KeyValue)?.[this.pk])
+            this.modelId = (result as KeyValue)[this.pk] as EventIds;
+          if(redirect)
+            this.location.back();
         }
       }
     } catch (error: unknown) {
@@ -306,15 +382,14 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @param {string} uid - The unique identifier of the model instance to retrieve
    * @return {Promise<Model | undefined>} Promise resolving to the model instance or undefined
    */
-  async handleGet(
+  async handleRead(
     uid?: EventIds,
     repository?: IRepository<Model>,
     modelName?: string
   ): Promise<Model | undefined> {
+
     if (!uid) {
-      this.log.info(
-        'No key passed to model page read operation, backing to last page'
-      );
+      this.log.info('No key passed to model page read operation, backing to last page');
       this.location.back();
       return undefined;
     }
@@ -322,29 +397,23 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     if(!modelName)
       modelName = this.modelName;
 
-    const getRepository = async (
-      modelName: string,
-      parent?: string,
-      model?: KeyValue
-    ): Promise<DecafRepository<Model> | undefined> => {
-      if (this._repository) return this._repository as DecafRepository<Model>;
+    const getRepository = async (modelName: string, parent?: string, model?: KeyValue): Promise<DecafRepository<Model> | undefined> => {
+      if (this._repository)
+        return this._repository as DecafRepository<Model>;
       const constructor = Model.get(modelName);
       if (constructor) {
-        const properties = Metadata.properties(
-          constructor as Constructor<Model>
-        ) as string[];
+        const properties = this.getModelProperties(constructor);
         // if (!model) model = {} as KeyValue;
         for (const prop of properties) {
-          const type = Metadata.type(
-            constructor as Constructor<Model>,
-            prop
-          ).name;
-          const context = getModelAndRepository(type as string);
-          if (!context) return getRepository(type, prop, model);
+          const propType = this.getModelPropertyType(constructor as Constructor<Model>, prop);
+          const context = getModelAndRepository(propType as string);
+          if (!context)
+            return getRepository(propType, prop, model);
           const { repository } = context;
           if (modelName === this.modelName) {
-            const data = await this.handleGet(uid, repository, modelName);
-            this.model = Model.build({ [prop]: data }, modelName);
+            const data = await this.handleRead(uid, repository, modelName);
+            if(data)
+              this.model = Model.build({ [prop]: data }, modelName);
           }
 
           // else {
@@ -358,67 +427,81 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
       }
     };
 
-    repository = (repository ||
-      (await getRepository(modelName as string))) as IRepository<Model>;
-    if (!repository) return this.model as Model;
-    const type = Metadata.type(repository.class, Model.pk(repository.class) as string).name;
+    repository = (repository || (await getRepository(modelName as string))) as IRepository<Model>;
+    if (!repository)
+      return this.model as Model;
     try {
-      const result = await (repository).read(
-        ([Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase())
-          ? Number(uid)
-          : uid) as string
+      return await repository.read(
+        this.parsePkValue(uid as Primitives,
+        this.getModelPkType(repository.class))
       );
-      return result;
     } catch (error: unknown) {
-      this.log
-        .for(this.handleGet)
-        .info(
-          `Error getting model instance with id ${uid}: ${(error as Error).message}`
-        );
+      this.log.for(this.handleRead).info(`Error getting model instance with id ${uid}: ${(error as Error).message}`);
       return undefined;
     }
   }
 
-  /**
-   * @description Parses and transforms form data for repository operations.
-   * @summary Converts raw form data into the appropriate format for repository operations.
-   * For DELETE operations, returns the primary key value (string or number). For CREATE
-   * and UPDATE operations, builds a complete model instance using the Model.build method
-   * with proper primary key assignment for updates.
-   *
-   * @param {Partial<Model>} data - The raw form data to be processed
-   * @return {Model | string | number} Processed data ready for repository operations
-   * @private
-   */
-  private parseData(
-    data: KeyValue | KeyValue[],
-    operation: OperationKeys,
-    repository: DecafRepository<Model>
-  ): Model | Model[] | EventIds {
-    operation = (
-      operation === OperationKeys.READ
-        ? OperationKeys.DELETE
-        : operation.toLowerCase()
-    ) as OperationKeys;
-
-    if (Array.isArray(data)) {
-      data = data.map((item) =>
-        this.parseData(item, operation, repository as DecafRepository<Model>)
-      );
-      return data as Model[];
-    }
-
-    let uid = this.modelId as EventIds;
-    const pk = Model.pk(repository.class as Constructor<Model>);
-    const type = Metadata.type(repository.class as Constructor<Model>, pk).name;
-    uid = [Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase())
-      ? Number(uid)
-      : uid;
-    if (operation !== OperationKeys.DELETE)
-      return Model.build(
-        this.modelId ? Object.assign(data, { [pk]: uid }) : data,
-        repository.class.name
-      ) as Model;
-    return uid as EventIds;
+  protected async process(event: ICrudFormEvent, model?: Model, submit: boolean = false): Promise<LayoutModelContext | IModelComponentSubmitEvent> {
+    const models = {} as LayoutModelContext;
+    const iterate = async (evt: ICrudFormEvent, model: string | Model, parent?: string) => {
+      const constructor = this.getModelConstrutor(model);
+      if (constructor) {
+        const properties = Metadata.properties(constructor as Constructor<Model>) as string[];
+        const promises = properties.map(async (prop) => {
+          const type = Metadata.type(constructor as Constructor<Model>, prop).name;
+          let data = (evt.data as KeyValue)[prop] || (parent ? (event.data as KeyValue)[parent as string][prop] : (event.data as KeyValue)[prop])
+          if (data) {
+            if (parent || Array.isArray(data))
+              data = [...Object.values(data)];
+            const context = getModelAndRepository(type as string);
+            evt = { ...evt,  data };
+            if (!context) {
+              await iterate(evt, type as string, prop);
+            } else {
+              const { repository, model, pk } = context;
+              if(!this.pk)
+                this.pk = pk;
+              const modelName = model?.constructor.name as string;
+              Object.assign(models,  {
+                [prop]: {
+                  model: Array.isArray(data) ? data.map((item: Partial<Model>) => Model.build(item, modelName)) : Model.build(data, modelName),
+                  repository: repository as IRepository<Model>,
+                  pk
+                }
+              });
+              delete (evt.data as KeyValue)?.[prop];
+              evt = { ...evt,  data: evt.data };
+            }
+          }
+        });
+        await Promise.all(promises);
+      }
+    };
+    if(!model)
+      model = this.model as Model;
+    await iterate(event, model as Model);
+    if (!submit)
+      return models;
+    return await this.batchOperation(models) as IModelComponentSubmitEvent;
   }
+
+  protected async batchOperation(models: LayoutModelContext = {}, redirect: boolean = false): Promise<IModelComponentSubmitEvent|void> {
+    const result: boolean[] = [];
+    const promises = Object.keys(models).map(async(m) => {
+      const {model, repository} = models[m];
+      const {success} = await this.submit({data: model}, false, repository as DecafRepository<Model>);
+      result.push(success);
+    })
+    await Promise.all(promises);
+    const success = result.every((res: boolean) => res);
+    if (success && redirect)
+      this.location.back();
+    const message = await this.translate(
+      `operations.${this.operation}.${success ? 'success' : 'error'}`,
+      {"0": this.modelId || "", "1": this.pk || ""}
+    );
+    return {...{data: models}, success, message};
+  }
+
+
 }

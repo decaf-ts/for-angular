@@ -288,8 +288,7 @@ export class NgxRenderingEngine extends RenderingEngine<
       }
 
       result.children = fieldDef.children.map((child) => {
-        const childOperation = (child?.props?.['operation'] || operation) as OperationKeys;
-        const readonly = fieldDef.props?.['readonly'] || (operation === OperationKeys.UPDATE && ((child?.props?.hidden || []) as string[]).includes(OperationKeys.CREATE)) || [OperationKeys.READ, OperationKeys.DELETE].includes(childOperation);
+        const readonly = [OperationKeys.READ, OperationKeys.DELETE].includes(fieldDef.props?.['operation'] as OperationKeys) || fieldDef.props?.['readonly'] || (operation === OperationKeys.UPDATE && ((child?.props?.hidden || []) as string[]).includes(OperationKeys.CREATE));
         // const hiddenOn = (child?.props?.hidden || []) as string[];
         // // moved to ui decorators
         // if (child?.children?.length) {
@@ -306,7 +305,7 @@ export class NgxRenderingEngine extends RenderingEngine<
             ...(NgxRenderingEngine._parentProps || {}),
           });
         } else {
-          child.props = {...child.props, ... {readonly: true} };
+          child.props = {...child.props, ... {readonly: true, operation: fieldDef.props['operation'] || child.props?.['operation']} };
         }
         return this.fromFieldDefinition(
           child,

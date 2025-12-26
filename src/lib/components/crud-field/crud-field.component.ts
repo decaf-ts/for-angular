@@ -431,7 +431,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   @Input()
-  checked?: boolean;
+  override checked: boolean = false;
 
   /**
    * @description Justification of items within the field.
@@ -673,7 +673,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   async ngOnInit(): Promise<void> {
 
     this.options = await this.getOptions();
-
     if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation))
       this.hidden = false;
 
@@ -696,9 +695,8 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
 
       if (this.type === HTML5InputTypes.CHECKBOX) {
         if(this.labelPlacement === 'floating')
-        this.labelPlacement = 'end';
-        if (Array.isArray(this.value))
-          this.setValue(this.value);
+          this.labelPlacement = 'end';
+        this.setValue(this.value);
       }
     }
   }

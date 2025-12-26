@@ -385,7 +385,6 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
       if(this.floating)
         this.stickyOffset = 100;
       this.mediaService.observePageScroll(this.stickyOffset).subscribe(isBeyondOffset => {
-        console.log('isBeyondOffset', isBeyondOffset);
         this.stickyActive = isBeyondOffset;
         // if(isBeyondOffset)
         //   this.sticky = true;

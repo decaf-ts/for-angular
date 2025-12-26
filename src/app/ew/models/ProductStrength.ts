@@ -1,5 +1,5 @@
 import { pk } from "@decaf-ts/core";
-import { Model, model, ModelArg, required } from "@decaf-ts/decorator-validation";
+import { min, Model, model, ModelArg, required } from "@decaf-ts/decorator-validation";
 import { uielement, uilayoutprop, uilistprop, uimodel, uipageprop, uiprop } from "@decaf-ts/ui-decorators";
 import { ListItemPositions } from "src/lib/engine/constants";
 
@@ -7,7 +7,7 @@ import { ListItemPositions } from "src/lib/engine/constants";
 @model()
 export class ProductStrength extends Model {
 
-  @pk({ type: Number})
+  @pk({ type: Number })
   @uilistprop('uid')
   id!: number;
 
@@ -18,9 +18,10 @@ export class ProductStrength extends Model {
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'substance.name.label',
-    placeholder: 'substance.name.placeholder',
+    placeholder: 'substance.name.placeholder'
   })
   @uilayoutprop(1)
+  @min(2)
   @uilistprop(ListItemPositions.title)
   name!: string;
 

@@ -88,7 +88,7 @@
   } @else {
     @if (!searching) {
       <ngx-decaf-empty-state
-        [title]="(locale + '.'+ empty.title) | translate"
+        [title]="empty.title ? ((locale + '.'+ empty.title) | translate) : ''"
         [model]="model"
         [route]="route"
         [modelId]="modelId"
@@ -96,7 +96,7 @@
         [borders]="borders"
         [icon]="(item?.icon ?? 'folder-open-outline') || empty.icon"
         className="dcf-empty-data"
-        [subtitle]="(locale + '.'+ empty.subtitle) | translate" />
+        [subtitle]="empty.subtitle ? ((locale + '.'+ empty.subtitle) | translate) : ''" />
     } @else {
 
       <ngx-decaf-empty-state

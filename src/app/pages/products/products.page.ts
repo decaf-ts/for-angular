@@ -12,6 +12,7 @@ import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
 import { Product } from 'src/app/ew/models/Product';
 import { CardComponent } from 'src/lib/components/card/card.component';
 import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
+import { ModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -107,17 +108,23 @@ import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
   standalone: true,
   selector: 'app-products',
   templateUrl: './products.page.html',
+  providers: [ModalDiffsComponent],
   imports: [IonContent, CardComponent, ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent],
   styleUrls: ['./products.page.scss'],
 })
 export class ProductsPage extends NgxModelPageDirective implements OnInit {
 
+  constructor() {
+    super("product");
+  }
   override ngOnInit(): Promise<void> | void {
-    super.ngOnInit();
     this.title = "product.title";
     this.route = 'products';
     this.model = !this.operation ? new Product() : new ProductLayout();
     this.enableCrudOperations();
+
+        super.ngOnInit();
+
   }
 
   override async ionViewWillEnter(): Promise<void> {
@@ -126,6 +133,6 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
     const handler = (new ProductLayoutHandler()).handle.bind(this);
-    const result = await handler(event);
+    await handler(event);
   }
 }
