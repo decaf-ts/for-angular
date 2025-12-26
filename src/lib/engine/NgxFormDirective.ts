@@ -3,7 +3,7 @@ import { FormArray, FormGroup } from "@angular/forms";
 import { CrudOperations, OperationKeys } from "@decaf-ts/db-decorators";
 import { Model } from "@decaf-ts/decorator-validation";
 import { NgxFormService } from "../services/NgxFormService";
-import { ICrudFormEvent, IFormElement } from "./interfaces";
+import { IBaseCustomEvent, ICrudFormEvent, IFormElement } from "./interfaces";
 import { FieldUpdateMode, FormParent, HTMLFormTarget } from "./types";
 import { ICrudFormOptions, IRenderedModel } from "./interfaces";
 import { ActionRoles, ComponentEventNames } from "./constants";
@@ -126,17 +126,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   override handlers!:  Record<string, UIFunctionLike>;
 
   /**
-   * @description Angular reactive FormGroup for form state management.
-   * @summary The FormGroup instance that manages all form controls, validation,
-   * and form state. This is the main interface for accessing form values and
-   * controlling form behavior. May be undefined for read-only operations.
-   *
-   * @type {FormGroup | undefined}
-   */
-  @Input()
-  formGroup: FormParent | undefined = undefined;
-
-  /**
    * @description Unique identifier for the form renderer.
    * @summary A unique string identifier used to register and manage this form
    * instance within the NgxFormService. This ID is also used as the HTML id
@@ -174,6 +163,9 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
 
   @Input()
   override match: boolean = false;
+
+  @Output()
+  private formGroupLoadedEvent: EventEmitter<IBaseCustomEvent> = new EventEmitter<IBaseCustomEvent>();
 
   // protected override enableDarkMode: boolean = true;
 
@@ -240,6 +232,11 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   }
 
   async ngAfterViewInit(): Promise<void> {
+    if(this.formGroup)
+      this.formGroupLoadedEvent.emit({
+        name: ComponentEventNames.FORM_GROUP_LOADED,
+        data: this.formGroup as FormParent
+      });
     if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
   }

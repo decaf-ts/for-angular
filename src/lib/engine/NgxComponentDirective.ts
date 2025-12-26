@@ -27,7 +27,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { Model, ModelConstructor, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
-import { DecafRepository, FunctionLike, KeyValue, WindowColorScheme } from './types';
+import { DecafRepository, FormParent, FunctionLike, KeyValue, WindowColorScheme } from './types';
 import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
 import { NgxEventHandler } from './NgxEventHandler';
 import { getLocaleContext } from '../i18n/Loader';
@@ -35,10 +35,9 @@ import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { getModelAndRepository,  CPTKN } from '../for-angular-common.module';
 import { AngularEngineKeys, BaseComponentProps, WindowColorSchemes } from './constants';
 import { generateRandomValue, getWindow, setOnWindow } from '../utils';
-import { AttributeOption, Condition, EventIds } from '@decaf-ts/core';
+import { AttributeOption, EventIds } from '@decaf-ts/core';
 import { NgxMediaService } from '../services/NgxMediaService';
 import { DecafComponent, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
-import { Constructor } from '@decaf-ts/decoration';
 
 try {
   const win = getWindow();
@@ -179,6 +178,19 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    */
   @Input()
   condition: AttributeOption<Model> | undefined;
+
+
+  /**
+   * @description Angular reactive FormGroup for form state management.
+   * @summary The FormGroup instance that manages all form controls, validation,
+   * and form state. This is the main interface for accessing form values and
+   * controlling form behavior. May be undefined for read-only operations.
+   *
+   * @type {FormGroup | undefined}
+   */
+  @Input()
+  formGroup: FormParent | undefined = undefined;
+
 
 
   /**
@@ -446,7 +458,7 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    * @private
    * @type {Location}
    */
-  protected override location: Location = inject(Location);
+  override location: Location = inject(Location);
 
   /**
    * @description Flag indicating if the component is rendered as a child of a modal dialog.
@@ -595,7 +607,8 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes[BaseComponentProps.MODEL]) {
       const { currentValue } = changes[BaseComponentProps.MODEL];
-      if (currentValue) this.getModel(currentValue);
+      if (currentValue)
+        this.getModel(currentValue);
       this.locale = this.localeContext;
       if (!this.initialized) this.initialized = true;
     }
@@ -650,16 +663,15 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
    * UI text based on the current locale. Supports both single phrases and arrays of phrases,
    * and accepts optional parameters for template interpolation. When a string parameter is
    * provided, it's automatically converted to an object format for the translation service.
-   * @protected
    * @param {string | string[]} phrase - The translation key or array of keys to translate
    * @param {object | string} [params] - Optional parameters for interpolation in translated text
    * @return {Promise<string>} A promise that resolves to the translated text
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected override async translate(phrase: string | string[], params?: object | string): Promise<string> {
+  override async translate(phrase: string | string[], params?: object | string): Promise<string> {
     if (typeof params === Primitives.STRING)
       params = {"0": params};
-    return await firstValueFrom(this.translateService.get(phrase, (params || {}) as object));;
+    return await firstValueFrom(this.translateService.get(phrase, (params || {}) as object));
   }
 
 
@@ -865,6 +877,7 @@ export abstract class NgxComponentDirective extends DecafComponent implements On
       name = event.detail?.name;
       event = event.detail;
     }
+
     const handlers = (event as ICrudFormEvent)?.['handlers'] as
       | Record<string, NgxEventHandler>
       | undefined;

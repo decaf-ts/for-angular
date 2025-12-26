@@ -10,7 +10,6 @@ import { CardComponent, CrudFieldComponent, FileUploadComponent } from "src/lib/
 import { ListItemPositions } from "src/lib/engine/constants";
 import { EwMenu } from "src/app/utils/contants";
 import { getMenuIcon } from "src/lib/utils/helpers";
-import { OperationKeys } from "@decaf-ts/db-decorators";
 
 export enum ProductNames {
   aspirin = "Aspirin",

@@ -1,22 +1,15 @@
-import { AfterViewInit, Component, ElementRef, HostListener, inject, OnInit, SimpleChanges, ViewChild, viewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { Condition } from '@decaf-ts/core';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { Model } from '@decaf-ts/decorator-validation';
-import { IonItem, IonCheckbox, IonLabel, IonSelect, IonSelectOption, IonText, SelectChangeEventDetail, SelectCustomEvent, IonInput } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Batch } from 'src/app/ew/models/Batch';
-import { Product } from 'src/app/ew/models/Product';
-import { RouterService } from 'src/app/services/router.service';
-import { getDocumentTypes } from 'src/app/ew/helpers';
+import { IonItem, IonCheckbox, IonLabel, IonText,  IonInput } from '@ionic/angular/standalone';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { timer } from 'rxjs';
 import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.component';
-import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { ComponentEventNames } from 'src/lib/engine/constants';
 import { Dynamic } from 'src/lib/engine/decorators';
-import { ForAngularCommonModule, getModelAndRepository } from 'src/lib/for-angular-common.module';
-import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/helpers';
-import { DatePipe } from '@angular/common';
-import { timer } from 'rxjs';
+import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
+import { windowEventEmitter } from 'src/lib/utils/helpers';
+
 
 @Dynamic()
 @Component({
@@ -26,7 +19,6 @@ import { timer } from 'rxjs';
   imports: [
      TranslatePipe,
      ForAngularCommonModule,
-     IconComponent,
      IonInput,
      IonCheckbox,
      IonItem,
@@ -35,56 +27,16 @@ import { timer } from 'rxjs';
     ],
   standalone: true,
 })
-export class ExpiryDateFieldComponent extends CrudFieldComponent implements AfterViewInit, OnInit {
+export class ExpiryDateFieldComponent extends CrudFieldComponent implements OnInit {
 
   @ViewChild('calendarInputElement', { read: ElementRef, static: false })
   calendarInputElement!: ElementRef<HTMLInputElement>;
 
-  routerService: RouterService = inject(RouterService);
-
   expiryDate?: string;
-  enableDaySelection: boolean = true;
+
+  enableDaySelection!: boolean;
+
   calendarInputValue?: string;
-
-  override async ngOnInit(): Promise<void> {
-    await super.ngOnInit();
-    if(this.operation === OperationKeys.CREATE) {
-      if(this.name === 'enableDaySelection')
-        this.enableDaySelection = this.checked = true;
-    } else {
-      // this.model = await this.handleBatchQuery(this.modelId as string);
-      // console.log(this.model);
-
-    }
-
-    // if(this.name === 'expiryDate') {
-    //   if(this.value) {
-    //     const value = this.value as string;
-    //     if(value.includes('00')) {
-    //       this.enableDaySelection = false;
-    //     }
-    //   }
-    // }
-  }
-
-  override async ngAfterViewInit(): Promise<void> {
-    await super.ngAfterViewInit();
-    // if(this.name === 'batchNumber') {
-    //   if(this.operation === OperationKeys.CREATE) {
-    //     const batchNumber = this.routerService.getQueryParamValue('batchNumber');
-    //     if(batchNumber) {
-    //       this.value = batchNumber as string;
-    //       this.disabled = false;
-    //       if(this.formGroup instanceof FormGroup)
-    //         this.formGroup?.enable();
-    //     }
-    //   }
-    //   if(this.value)
-    //     windowEventEmitter(ComponentEventNames.CHANGE, {source: this.name, value: this.value});
-    // }
-
-  }
-
 
   override async ngOnChanges(changes: SimpleChanges): Promise<void> {
     await super.ngOnChanges(changes);
@@ -96,11 +48,12 @@ export class ExpiryDateFieldComponent extends CrudFieldComponent implements Afte
           this.enableDaySelection = !expiryDate.includes('00');
           if(this.name === 'enableDaySelection') {
             this.checked = this.enableDaySelection;
+            this.expiryDate = expiryDate;
           }
           if(this.name === 'expiryDate') {
             this.value = expiryDate;
+            this.calendarInputValue = this.revertGS1ToDateValue(expiryDate);
             this.changeDetectorRef.detectChanges();
-             this.calendarInputValue = this.revertGS1ToDateValue(expiryDate);
           }
         }
       }
@@ -144,7 +97,7 @@ export class ExpiryDateFieldComponent extends CrudFieldComponent implements Afte
     }
   }
 
-  showCalendar(event: Event, element: HTMLInputElement, placeholder: boolean = false) {
+  showCalendar(event: Event, element: HTMLInputElement) {
     event.preventDefault();
     event.stopImmediatePropagation();
     // if(placeholder)
@@ -159,9 +112,9 @@ export class ExpiryDateFieldComponent extends CrudFieldComponent implements Afte
       this.value = this.parseCalendarInputValue(value);
       this.changeDetectorRef.detectChanges();
       this.setValue(this.value);
-      const nativeElement = this.component.nativeElement;
       const subscription = timer(50).subscribe(() => {
        this.calendarInputElement.nativeElement.blur();
+       subscription.unsubscribe();
         // nativeElement.parentNode?.dispatchEvent(new CustomEvent('ionBlur'));
       });
       windowEventEmitter(ComponentEventNames.CHANGE, {
@@ -179,11 +132,11 @@ export class ExpiryDateFieldComponent extends CrudFieldComponent implements Afte
 
   parseCalendarInputValue(date: string, revert: boolean = false): string {
     if(revert) {
-        const separator = '-';
-        const dateParts = date.split(separator);
-        return this.enableDaySelection
-            ? dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0]
-            : dateParts[1] + "/" + dateParts[0];
+      const separator = '-';
+      const dateParts = date.split(separator);
+      return this.enableDaySelection
+          ? dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0]
+          : dateParts[1] + "/" + dateParts[0];
     }
     const result = date.split('-').map((part, index) => index === 0 ? part.slice(2) : part) as string[];
     if(result.length === 2)
@@ -193,62 +146,11 @@ export class ExpiryDateFieldComponent extends CrudFieldComponent implements Afte
 
   revertGS1ToDateValue(date: string): string {
     const year = 2000 + Number(date.slice(0, 2));
-    const month = Number(date.slice(2, 4)) - 1;
+    const month = Number(date.slice(2, 4));
     if(!this.enableDaySelection)
-      return `${year}-${month + 1}`;
+      return `${year}-${month}`;
     let day = Number(date.slice(4, 6));
-    day = day === 0 ? Number(this.getLastDayOfMonth(`${year}-${(month + 1)}`)) : day;
+    day = day === 0 ? Number(this.getLastDayOfMonth(`${year}-${month}`)) : day;
     return `${year}-${month}-${day < 10 ? '0' + day : day}`;
-  }
-
-
-  async handleBatchQuery(uid: string): Promise<Batch | undefined> {
-    const context = getModelAndRepository('Batch');
-    let batch = getOnWindow('_lastBatch') as Batch | undefined;
-    console.log('handleBatchQuery', uid);
-    if(context) {
-      const {repository} = context;
-      if(!batch || batch.productCode !== uid) {
-        this.value = '';
-        batch = await repository.read(uid) as Batch;
-        if(batch) {
-          console.log('batch', batch);
-          setOnWindow('_lastBatch', {
-           expiryDate: batch.expiryDate as string,
-          } as Batch);
-        }
-      }
-    }
-    return batch;
-  }
-
-  async handleBatchProductQuery(uid: string) {
-    const relation = 'productCode'  as keyof Model;
-    const condition = Condition.attribute<Model>(relation).eq(uid);
-    this.disabled = false;
-    if(this.formGroup instanceof FormGroup)
-      this.formGroup?.enable();
-    if(this.repository) {
-      const query = await this.repository.query(condition, relation);
-      this.options = query;
-      await this.getOptions();
-    }
-  }
-
-  async setProductValue(batchId: string) {
-    const repo = getModelAndRepository('Batch');
-    if(repo) {
-      const {repository} = repo;
-      const {productCode} = await repository.read(batchId) as Batch;
-      if(productCode)
-        this.value = productCode;
-    }
-  }
-
-  async filterTypeOptions(type: 'product' | 'batch' = 'product') {
-    const value = this.value;
-    this.options = getDocumentTypes(type);
-    await this.getOptions();
-    this.value = value;
   }
 }

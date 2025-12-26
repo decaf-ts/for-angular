@@ -1,5 +1,5 @@
 import { FormGroup } from "@angular/forms";
-import { BaseModel, pk, table } from "@decaf-ts/core";
+import { BaseModel, pk } from "@decaf-ts/core";
 import { model, ModelArg, required } from "@decaf-ts/decorator-validation";
 import { HTML5InputTypes, uielement,  uilistmodel,  uilistprop, uimodel, uiprop } from "@decaf-ts/ui-decorators";
 import {

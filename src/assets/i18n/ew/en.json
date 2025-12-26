@@ -11,6 +11,13 @@
     "aivendor": "Ai Vendors",
     "product_management": "Product Management"
   },
+  "component": {
+    "modal_diffs": {
+      "property": "Property",
+      "oldValue": "Old Value",
+      "newValue": "New Value"
+    }
+  },
   "product": {
     "title":"Products Details",
     "menu": "Products",
@@ -24,6 +31,21 @@
       "epi": {
         "title": "Epi Information"
       }
+    },
+    "diffs": {
+      "title": "Update Data Summary",
+      "property": "Property",
+      "oldValue": "Old Value",
+      "newValue": "New Value"
+    },
+    "documents": {
+      "label": "Documents"
+    },
+     "strengths": {
+      "label": "Strengths"
+    },
+    "markets": {
+      "label": "Markets"
     },
     "productCode": {
       "label": "Product Code",
@@ -67,6 +89,11 @@
         "title": "No epi documents found",
         "button": "Add Batch"
       }
+    },
+    "diffs": {
+      "property": "Property",
+      "oldValue": "Old Value",
+      "newValue": "New Value"
     },
     "productcode": {
       "label": "Product Code",

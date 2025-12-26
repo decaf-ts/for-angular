@@ -1,4 +1,3 @@
-import {SelectInterface} from '@ionic/core';
 import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
 import { ICrudFormOptions, IListEmptyOptions } from './interfaces';
 
@@ -180,6 +179,7 @@ export const ComponentEventNames = {
   FIELDSET_UPDATE_GROUP: 'fieldsetUpdateGroupEvent',
   FIELDSET_REMOVE_GROUP: 'fieldsetRemoveGroupEvent',
   THEME_CHANGE: 'themeChangeEvent',
+  FORM_GROUP_LOADED: 'formGroupLoadedEvent',
   // FIELDSET_GROUP_VALIDATION: 'fieldsetGroupValidationEvent'
 } as const;
 

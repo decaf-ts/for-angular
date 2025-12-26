@@ -4,8 +4,8 @@ import { HTML5InputTypes, uielement,  uilistmodel,  uilistprop, uimodel } from "
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
-import {  ElementPositions, ElementSizes, KeyValue, ListItemPositions, NgxEventHandler } from "src/lib/engine";
-import { composed, OperationKeys } from "@decaf-ts/db-decorators";
+import { ElementPositions, ElementSizes, KeyValue, ListItemPositions, NgxEventHandler } from "src/lib/engine";
+import { OperationKeys } from "@decaf-ts/db-decorators";
 import { FormGroup } from "@angular/forms";
 import { presentNgxInlineModal } from "src/lib/components";
 import { Batch } from "./Batch";

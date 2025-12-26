@@ -1,4 +1,6 @@
 .dcf-modal-component {
+  --border-radius: var(--dcf-border-radius);
+
   ::ng-deep {
     form .dcf-buttons-grid {
       align-content: center !important;
@@ -7,14 +9,29 @@
     }
   }
 
-  &.dcf-modal {
-    --border-radius: var(--dcf-border-radius);
-    ion-button {
+  ion-header {
+    box-shadow: none !important;
+    border-bottom: 1px solid var(--dcf-color-gray-2);
+  }
+  ion-button {
+    &.dcf-button-close {
       --background: var(--dcf-color-light) !important;
       --border-radius: var(--dcf-border-radius-small) !important;
     }
   }
+  &.dcf-modal-no-header,
+  &.dcf-no-title {
+    ion-header {
+      box-shadow: none;
+      border-color: transparent !important;
+    }
+  }
 
+  @media (max-width: 768px) {
+    .dcf-button-expand {
+      display: none !important;
+    }
+  }
   &.dcf-modal-select-interface {
     --min-width: 300px;
     --max-width: 500px;
@@ -23,40 +40,32 @@
     .dcf-modal-body {
       --max-height: 60%;
       max-height: 60%;
-
       padding: 0px var(--dcf-padding-small) !important;
-    }
-    ion-button {
-      --background: var(--dcf-color-light) !important;
-      --border-radius: var(--dcf-border-radius) !important;
-    }
-
-    ion-header {
-      box-shadow: none !important;
-      border-bottom: 1px solid var(--dcf-color-gray-2) !important;
     }
   }
 
   &.dcf-modal-expand {
-    --height: 90%;
-    --width: 90%;
+    --min-height: 50%;
+    --min-width: 75%;
     --max-width: 100%;
-    ion-button {
-      --background: var(--dcf-color-light) !important;
-      --border-radius: var(--dcf-border-radius-small) !important;
-    }
   }
 
+  &.dcf-fullscreen-expanded,
   &.dcf-fullscreen-modal {
     --height: 100%;
     --width: 100%;
     --max-width: 100%;
     --border-radius: 0;
 
+    &.dcf-header-transparent {
+      padding-left: 2rem;
+      padding-bottom: 2rem;
+      padding-right: 1rem;
+    }
+
     &:not(.dcf-header-transparent) {
       &.dcf-no-title {
         ion-header {
-          box-shadow: none;
           ion-button {
             transform: translate(-5px, 5px);
           }
@@ -101,6 +110,12 @@
       background: white;
       height: 50px !important;
     }
+    ion-buttons {
+      ion-button:not(:last-of-type) {
+        position: relative;
+        right: 1px;
+      }
+    }
     ion-content {
       &[part="background"],
       &::part(background) {
@@ -120,29 +135,35 @@
     --box-shadow: none !important;
     @media (max-width: 767px) {
       padding: var(--dcf-padding-xsmall);
-      ion-button {
-        transform: translate(2px, 2px) !important;
-      }
+      // ion-button {
+      //   transform: translate(2px, 2px) !important;
+      // }
     }
     ion-header {
       box-shadow: none !important;
+      border-color: transparent !important;
       // border-bottom: 1px solid var(--dcf-color-gray-2);
       padding: unset !important;
       margin: unset !important;
       height: 30px;
-      ion-button {
+      ion-buttons {
+        background: var(--dcf-color-gray-2) !important;
+        border-radius: var(--dcf-border-radius) !important;
         box-shadow: var(--dcf-box-shadow) !important;
-        border-radius: 12px;
+      }
+      ion-button {
+        --background: transparent !important;
+        // border-radius: 12px;
         margin: 0px !important;
-        width: 32px !important;
+        width: 35px !important;
         height: 25px !important;
-        --background: var(--dcf-color-gray-2) !important;
-        transform: translate(4px, 0px);
-        --border-radius: var(--dcf-border-radius-small) !important;
+        // transform: translate(4px, 0px);
         * {
           margin: -5px;
         }
-
+        ngx-decaf-icon {
+          transform: translateX(-1px) !important;
+        }
         ion-icon {
           font-size: 1.15rem !important;
           color: var(--dcf-color-gray-5);

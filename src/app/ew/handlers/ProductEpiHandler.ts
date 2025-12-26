@@ -20,6 +20,7 @@ export class ProductEpiHandler extends NgxEventHandler {
       const value = ([Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase()) ? Number(this.modelId) : this.modelId) as string | number;
       const condition = Condition.attribute<Model>(relation as keyof Model).eq(value);
       const query = await repository.query(condition, relation as keyof Model);
+      // const data = await repository.select().execute();
       if(query?.length) {
         // if(this.name === 'Leaflet')
         //   (this as unknown as ListComponent).data = query;

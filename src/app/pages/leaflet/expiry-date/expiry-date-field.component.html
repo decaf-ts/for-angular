@@ -38,7 +38,7 @@
               [value]="value"
               [readonly]="readonly"
               [formControlName]="name"
-              [checked]="checked"
+              [checked]="checked || enableDaySelection"
               (ionChange)="checked = !checked"
               #component>
               <span [innerHTML]="(expiryDate ?
@@ -59,11 +59,12 @@
             />
             <ion-input
               readonly
-              (click)="showCalendar($event, calendarInputElement)"
+              (click)="showCalendar($event)"
               (ionInput)="handleChange($event)"
               (ionChange)="handleChange($event)"
               [id]="name"
               type="text"
+              [regex]="regex"
               [formControlName]="name"
               [mode]="'md'"
               [labelPlacement]="labelPlacement"

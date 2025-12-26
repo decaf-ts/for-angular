@@ -1,4 +1,4 @@
-import { list, model, Model, ModelArg } from '@decaf-ts/decorator-validation';
+import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import {
   uichild,
   uilayout,

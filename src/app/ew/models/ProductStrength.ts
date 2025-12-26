@@ -7,7 +7,7 @@ import { ListItemPositions } from "src/lib/engine/constants";
 @model()
 export class ProductStrength extends Model {
 
-  @pk({ type: Number})
+  @pk({ type: Number })
   @uilistprop('uid')
   id!: number;
 

@@ -83,21 +83,6 @@ ion-item {
   }
 }
 
-// customizando o scroolbar da textarea
-ion-textarea {
-  // --background: #373737 !important;
-  // --color: #fff;
-  // --padding-end: 10px;
-  // --padding-start: 10px;
-  // --placeholder-color: #ddd;
-  // --placeholder-opacity: 0.8;
-
-  textarea {
-    scrollbar-width: thin !important;
-    margin-bottom: 0.5rem !important;
-  }
-}
-
 // fix do label com floating para selects
 ion-select.dcf-select-label-placement-floating::part(label) {
   line-height: 1.2rem !important;
@@ -129,21 +114,6 @@ ion-checkbox {
   --size: 1.5rem;
   --checkbox-background-checked: var(--dcf-color-primary);
   --checkmark-width: 2px;
-}
-
-ion-radio-group {
-  .dcf-radio-group-label {
-    // margin-left: .5rem;
-    font-weight: 600;
-    ~ ion-item {
-      margin-top: 0.5rem;
-      --inner-padding-start: 0.75rem;
-    }
-  }
-  + .dcf-helper {
-    padding-left: 0.75rem;
-    position: relative;
-  }
 }
 
 .dcf-checkbox-group {
@@ -200,10 +170,4 @@ ion-radio-group {
 
 .dcf-error + .dcf-helper {
   padding-top: 1rem;
-}
-
-::ng-deep ion-textarea {
-  min-height: 80px !important;
-  scrollbar-color: #888 #f0f0f0;
-  scrollbar-width: thin;
 }

@@ -1,6 +1,6 @@
 import { Component, EnvironmentInjector, EventEmitter, inject, Input, OnInit, Output, ViewChild} from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { OverlayEventDetail} from "@ionic/core";
+import { Color, modalController, OverlayEventDetail} from "@ionic/core";
 
 import {
   IonButton,
@@ -14,8 +14,6 @@ import {
   ModalOptions
 } from '@ionic/angular/standalone';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
-import * as allIcons from 'ionicons/icons';
-import { addIcons } from 'ionicons';
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
 import { Dynamic } from '../../engine/decorators';
 import { KeyValue, SelectOption } from '../../engine/types';
@@ -26,6 +24,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
+import { IconComponent } from '../icon/icon.component';
 
 /**
  * @description Modal component for displaying dynamic content in a modal dialog.
@@ -56,7 +55,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
   templateUrl: 'modal.component.html',
   styleUrls: ['modal.component.scss'],
   standalone: true,
-  imports: [IonModal, ComponentRendererComponent, ModelRendererComponent, TranslatePipe,  IonSpinner, IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar],
+  imports: [IonModal, ComponentRendererComponent, ModelRendererComponent, TranslatePipe, IconComponent,  IonSpinner, IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar],
   host: {'[attr.id]': 'uid'},
 })
 /**
@@ -162,6 +161,15 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
   fullscreen: boolean = false;
 
   /**
+   * @description Enables expandable mode for the modal.
+   * @summary When set to true, the modal can be expanded.
+   * @type {boolean}
+   * @default false
+   */
+  @Input()
+  expandable: boolean = false;
+
+  /**
    * @description Enables lightbox mode for the modal.
    * @summary When set to true, the modal is displayed as a lightbox.
    * @type {boolean}
@@ -178,6 +186,16 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    */
   @Input()
   headerTransparent: boolean = false;
+
+
+  /**
+   * @description Sets the background color of the modal header.
+   * @summary Controls the Ionic color used for the modal header background.
+   * @type {Color}
+   * @default 'transparent'
+   */
+  @Input()
+  headerBackground: Color = 'transparent';
 
   /**
    * @description Controls the visibility of the modal header.
@@ -203,10 +221,20 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    */
   domSanitizer: DomSanitizer = inject(DomSanitizer);
 
-  constructor() {
-    super("ModalComponent");
-    addIcons(allIcons);
-  }
+  /**
+   * @description Indicates whether the modal content is expanded.
+   * @summary When set to true, the modal displays in an expanded state; when false, it is collapsed or in its default size.
+   * @type {boolean}
+   */
+  expanded: boolean = false;
+
+
+  /**
+   * @description Defines the color used for icons within the modal.
+   * @summary Controls the Ionic color of icons rendered in the modal (for example, in the header or action buttons).
+   * @type {Color}
+   */
+  iconColor: Color = 'dark';
 
   /**
    * @description Lifecycle hook that initializes the modal component.
@@ -235,6 +263,11 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
     }
     if(!this.model && this.globals?.['model'])
       this.model = this.globals?.['model'];
+
+    if(this.expandable && !this.className.includes('dcf-modal-expand'))
+      this.className = `${this.className} dcf-modal-expand`;
+    if(['primary', 'secondary', 'tertiary', 'danger', 'medium', 'dark'].includes(this.headerBackground))
+      this.iconColor = 'light';
     this.initialized = true;
   }
 
@@ -290,13 +323,25 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
   }
 
   /**
+   * @description Toggles the expanded state of the modal content.
+   * @summary This method switches the modal between expanded and collapsed views and triggers change detection.
+   *
+   * @returns {void} - Does not return a value.
+   */
+  handleExpandToggle(): void {
+    this.expanded = !this.expanded;
+    this.changeDetectorRef.detectChanges();
+  }
+
+  /**
    * @description Cancels the modal and dismisses it with a cancel action.
    * @summary This method is used to programmatically close the modal with a cancel action.
    *
    * @returns {Promise<void>} - A promise that resolves when the modal is dismissed.
    */
   async cancel(): Promise<void> {
-    await (this.modal as IonModal).dismiss(undefined, ActionRoles.cancel);
+    const modal = this.modal || modalController;
+    await modal.dismiss(undefined, ActionRoles.cancel);
   }
 
   /**
@@ -306,8 +351,9 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    * @param {IBaseCustomEvent} event - The custom event containing data to pass during confirmation.
    * @returns {Promise<void>} - A promise that resolves when the modal is dismissed.
    */
-  async confirm(event: IBaseCustomEvent): Promise<void> {
-    await (this.modal as IonModal).dismiss(event?.data || undefined, ActionRoles.confirm);
+  async confirm(event?: IBaseCustomEvent): Promise<void> {
+    const modal = this.modal || modalController;
+    await modal.dismiss(event?.data || undefined, ActionRoles.confirm);
   }
 }
 

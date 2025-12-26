@@ -8,6 +8,7 @@
   [animated]="options?.animated"
   [canDismiss]="options?.canDismiss"
   [class.dcf-fullscreen-modal]="fullscreen"
+  [class.dcf-fullscreen-expanded]="expanded"
   [class.dcf-lightbox-modal]="lightBox"
   [class.dcf-modal-no-header]="!showHeader"
   [class.dcf-header-transparent]="headerTransparent"
@@ -16,13 +17,18 @@
 >
   <ng-template>
     <ion-header>
-      <ion-toolbar>
+      <ion-toolbar [color]="headerBackground">
         @if (title?.length) {
           <ion-title>{{ title | translate }}</ion-title>
         }
         <ion-buttons slot="end">
+          @if(expandable && !fullscreen) {
+            <ion-button fill="clear" size="small" type="button" class="dcf-button-expand" (click)="handleExpandToggle()">
+              <ngx-decaf-icon [color]="iconColor" [name]="expanded ? 'ti-maximize-off' : 'ti-maximize'" />
+            </ion-button>
+          }
           <ion-button size="small" type="button" class="dcf-button-close" (click)="cancel()">
-            <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+            <ngx-decaf-icon [color]="iconColor" name="ti-x" />
           </ion-button>
         </ion-buttons>
       </ion-toolbar>

@@ -1,9 +1,11 @@
 import {
+  date,
   list,
   minlength,
   model,
   Model,
   ModelArg,
+  pattern,
   required,
 } from "@decaf-ts/decorator-validation";
 import { pk } from "@decaf-ts/core";
@@ -89,10 +91,11 @@ export class Batch extends Model {
   importLicenseNumber?: string;
 
   @required()
+  @pattern("^\\d{6}$")
   @uielement('app-expiry-date-field', {
     label: 'batch.expiryDate.label',
     placeholder: 'batch.expiryDate.placeholder',
-    type: HTML5InputTypes.TEXT
+    type: HTML5InputTypes.TEXT,
   })
   @uilayoutprop('half')
   @uilistprop(ListItemPositions.info)
@@ -116,10 +119,11 @@ export class Batch extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.dateOfManufacturing.label',
     placeholder: 'batch.dateOfManufacturing.placeholder',
+    type: HTML5InputTypes.DATE
   })
-  // @date('yyyy-MM-dd')
+  @date('yyyy-MM-dd')
   @uilayoutprop('half')
-  dateOfManufacturing!: string;
+  dateOfManufacturing!: Date;
 
   @list(ManufacturerAddress, 'Array')
   @uilayoutprop(1)

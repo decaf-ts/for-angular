@@ -79,6 +79,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
   @Input()
   parentForm!: FormParent;
 
+
   /**
    * @description Field mapping configuration for options.
    * @summary Defines how fields from the data model should be mapped to properties used by the component.
@@ -90,14 +91,6 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
   @Input()
   optionsMapper: KeyValue | FunctionLike = {};
 
-  /**
-   * @description Angular FormGroup instance for the field.
-   * @summary The FormGroup that contains this field's FormControl. Used for managing
-   * the field's validation state and value within the reactive forms structure.
-   * @type {FormGroup | undefined}
-   * @public
-   */
-  formGroup!: FormGroup | undefined;
 
   /**
    * @description Angular FormControl instance for this field.
@@ -270,6 +263,9 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    */
   multiple!: boolean;
 
+
+  checked: boolean = false;
+
   /**
    * @description Flag tracking if validation error event has been dispatched.
    * @summary Prevents duplicate validation error events from being dispatched.
@@ -293,11 +289,11 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * conditional rendering and behavior based on input field types. This protected
    * readonly property ensures that template logic can access input type constants
    * while maintaining encapsulation and preventing accidental modification.
-   * @type {typeof HTML5InputTypes}
+   * @type {HTML5InputTypes}
    * @protected
    * @readonly
    */
-  readonly HTML5InputTypes: typeof HTML5InputTypes = HTML5InputTypes;
+  readonly HTML5InputTypes = HTML5InputTypes;
 
   // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(@Inject(CPTKN) componentName: string = "ComponentCrudField") {

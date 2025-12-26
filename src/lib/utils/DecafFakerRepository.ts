@@ -162,7 +162,8 @@ export function getFakerData<T extends Model>(
     const item: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
       const val = value();
-      item[key] = val?.constructor === Date ? formatDate(val) : val;
+      item[key] = val?.constructor === Date ?
+        formatDate(val) : typeof val === Primitives.STRING ? String(val)?.trim() : val;
     }
     index = index + 1;
     return (!model ? item : Model.build(item, model)) as T;

@@ -67,12 +67,11 @@ export class BatchSelectFieldComponent extends CrudFieldComponent implements Aft
     if(source !== this.name) {
       if(source === 'productCode') {
         if(this.name === 'batchNumber')
-          await this.handleBatchProductQuery(value);
+          await this.readBatchByProductCode(value);
         if(['inventedName', 'nameMedicinalProduct'].includes(this.name)) {
-          const product = await this.handleProductQuery(value);
+          const product = await this.readProduct(value);
           if(product) {
             this.value = product[this.name as keyof Product] as string;
-            console.log(`setted value for ${this.name}: ${this.value}`);
           }
         }
       }
@@ -86,10 +85,9 @@ export class BatchSelectFieldComponent extends CrudFieldComponent implements Aft
   }
 
 
-  async handleProductQuery(uid: string): Promise<Product | undefined> {
+  async readProduct(uid: string): Promise<Product | undefined> {
     const context = getModelAndRepository('Product');
     let product = getOnWindow('_batchLastProduct') as Product | undefined;
-    console.log('handleProductQuery', uid);
     if(context) {
       const {repository} = context;
       if(!product || product.productCode !== uid) {
@@ -105,7 +103,7 @@ export class BatchSelectFieldComponent extends CrudFieldComponent implements Aft
     return product;
   }
 
-  async handleBatchProductQuery(uid: string) {
+  async readBatchByProductCode(uid: string) {
     const relation = 'productCode'  as keyof Model;
     const condition = Condition.attribute<Model>(relation).eq(uid);
     this.disabled = false;

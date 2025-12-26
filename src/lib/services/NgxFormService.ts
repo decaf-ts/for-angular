@@ -740,14 +740,15 @@ export class NgxFormService {
             break;
           case HTML5InputTypes.DATE:
           case HTML5InputTypes.DATETIME_LOCAL:
-            value = new Date(value);
+            value = typeof value === Primitives.STRING ? new Date(value) : value;
             break;
           default:
-            value = escapeHtml(value);
+            value = escapeHtml(value)?.trim();
         }
       } else {
-        if(props['type'] === HTML5InputTypes.CHECKBOX && Array.isArray(value))
-          value = control.value;
+        if(props['type'] === HTML5InputTypes.CHECKBOX)
+          value = (Array.isArray(value) || typeof value === Primitives.STRING) ?
+            value : (value ?? false);
       }
       data[key] = value;
     }
