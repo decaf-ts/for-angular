@@ -14,3 +14,4 @@ mdCompile.json
 nodemon.json
 tsconfig.json
 .codex
+!/workdocs/assets/slogans.json
