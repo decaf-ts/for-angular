@@ -267,8 +267,6 @@ export function getLeafletLanguages(): SelectOption[] {
   );
 }
 
-
-
 type DocumentType = 'leaflet' | 'prescribingInfo' | 'SMPC';
 
 const DocumentsTypes: {[key in DocumentType]: key} = {
