@@ -173,7 +173,7 @@
       "placeholder": "Select the Epi File"
     }
   },
-   "substance": {
+  "substance": {
     "name": {
       "label": "Substance Name",
       "placeholder": "Enter the substance name"

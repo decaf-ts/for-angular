@@ -3,7 +3,7 @@ import { IonContent } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
-import { NgxModelPageDirective } from 'src/lib/engine';
+import { ComponentEventNames, NgxModelPageDirective } from 'src/lib/engine';
 
 import { CardComponent } from 'src/lib/components/card/card.component';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
@@ -32,19 +32,21 @@ import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 export class LeafletPage extends NgxModelPageDirective implements OnInit {
 
 
-   override ngOnInit(): Promise<void> | void {
-      super.ngOnInit();
-      this.title = "leaflet.title";
-      this.route = 'leaflets';
-      this.model = new Leaflet();
-      this.enableCrudOperations();
-    }
+  override ngOnInit(): Promise<void> | void {
+    super.ngOnInit();
+    this.title = "leaflet.title";
+    this.route = 'leaflets';
+    this.model = new Leaflet();
+    this.enableCrudOperations();
+  }
 
-    override async ionViewWillEnter(): Promise<void> {
-     await super.ionViewWillEnter();
-    }
+  override async ionViewWillEnter(): Promise<void> {
+    await super.ionViewWillEnter();
+  }
 
-    override async handleEvent(event: IBaseCustomEvent): Promise<void> {
+  override async handleEvent(event: IBaseCustomEvent): Promise<void> {
+    const {name} = event;
+    if (name === ComponentEventNames.SUBMIT) {
       const {success, message} = await super.submit(event, true) as IModelComponentSubmitEvent;
       const toast = await getNgxToastComponent().show({
         message,
@@ -54,4 +56,5 @@ export class LeafletPage extends NgxModelPageDirective implements OnInit {
       });
       await toast.present();
     }
+  }
 }

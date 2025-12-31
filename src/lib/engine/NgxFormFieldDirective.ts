@@ -515,7 +515,6 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
     }
     if (this.isModalChild)
       this.changeDetectorRef.detectChanges();
-
   }
 
   /**

@@ -62,19 +62,6 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
             }
           };
           data = await this.generateData<Leaflet>();
-          // data = [... data.map((item: Partial<Leaflet>) => {
-          //   const productCode = `0${Math.floor(Math.random() * 5) + 1}`;
-          //   delete item.id;
-          //   return {
-          //     ...item,
-          //     productCode,
-          //     lang: languages[Math.floor(Math.random() * languages.length)],
-          //     xmlFileContent: "<div>Leaflet content for product " + productCode + "</div>",
-          //     type: types[Math.floor(Math.random() * types.length)],
-          //     market: ""
-          //   } as Leaflet;
-
-          // })]
           break;
         }
         case ProductStrength.name: {

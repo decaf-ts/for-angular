@@ -1494,16 +1494,13 @@ export class ListComponent
       ...Object.keys(this.item).reduce((acc: KeyValue, key: string) => {
         acc[key] = this.item[key];
         return acc;
-      }, {}),
-      // ... (!this.item.render ? {} :  Object.keys(this.item).reduce((acc: KeyValue, key: string) => {
-      //   acc[key] = this.item[key as keyof IListItemProp];
-      //   return acc;
-      // }, {}))
+      }, {})
     });
     return data.reduce((accum: KeyValue[], curr) => {
       accum.push({
         ...this.itemMapper(curr, this.mapper as KeyValue, props),
-        ...{ pk: this.pk },
+        ... { pk: this.pk },
+        ... { model: curr }
       });
       return accum;
     }, []);
