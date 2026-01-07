@@ -8,16 +8,23 @@
  * @link {@link SearchbarComponent}
  */
 
-import { Component,  EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { IonSearchbar } from '@ionic/angular/standalone';
 import * as allIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { AutocompleteTypes, PredefinedColors} from '@ionic/core';
+import { AutocompleteTypes, PredefinedColors } from '@ionic/core';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { StringOrBoolean } from '../../engine/types';
-import {windowEventEmitter} from '../../utils/helpers';
+import { windowEventEmitter } from '../../utils/helpers';
 import { stringToBoolean } from '../../utils/helpers';
-
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * @description Searchbar component for Angular applications.
@@ -37,10 +44,12 @@ import { stringToBoolean } from '../../utils/helpers';
   templateUrl: './searchbar.component.html',
   styleUrls: ['./searchbar.component.scss'],
   standalone: true,
-  imports: [IonSearchbar],
+  imports: [TranslatePipe, IonSearchbar],
 })
-export class SearchbarComponent extends NgxComponentDirective implements OnInit {
-
+export class SearchbarComponent
+  extends NgxComponentDirective
+  implements OnInit
+{
   /**
    * @description The mode of the searchbar.
    * @summary Determines the visual style of the searchbar, either iOS or Material Design.
@@ -62,7 +71,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  autocomplete: AutocompleteTypes | undefined = "off";
+  autocomplete: AutocompleteTypes | undefined = 'off';
 
   /**
    * @description The autocorrect attribute for the searchbar input.
@@ -75,7 +84,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  autocorrect: "on" | "off" = "off";
+  autocorrect: 'on' | 'off' = 'off';
 
   /**
    * @description Whether the searchbar should animate.
@@ -102,7 +111,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  buttonCancelText: string = "Cancel";
+  buttonCancelText: string = 'Cancel';
 
   /**
    * @description The icon to use for the clear button.
@@ -152,7 +161,15 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  enterkeyhint: "search" | "enter" | "done" | "go" | "next" | "previous" | "send" | undefined = "enter";
+  enterkeyhint:
+    | 'search'
+    | 'enter'
+    | 'done'
+    | 'go'
+    | 'next'
+    | 'previous'
+    | 'send'
+    | undefined = 'enter';
 
   /**
    * @description The input mode for the searchbar.
@@ -162,7 +179,16 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  inputmode: "text" | "search" | "none" | "email" | "tel" | "url" | "numeric" | "decimal" | undefined = 'search';
+  inputmode:
+    | 'text'
+    | 'search'
+    | 'none'
+    | 'email'
+    | 'tel'
+    | 'url'
+    | 'numeric'
+    | 'decimal'
+    | undefined = 'search';
 
   /**
    * @description The placeholder for the searchbar input.
@@ -172,7 +198,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  placeholder = "Search";
+  placeholder: string = 'Search';
 
   /**
    * @description The icon to use for the search button.
@@ -182,7 +208,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  searchIcon: string | undefined = "search-outline";
+  searchIcon: string | undefined = 'search-outline';
 
   /**
    * @description When to show the cancel button.
@@ -192,7 +218,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  showCancelButton: "always" | "focus" | "never" = "never";
+  showCancelButton: 'always' | 'focus' | 'never' = 'never';
 
   /**
    * @description When to show the clear button.
@@ -202,7 +228,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  showClearButton: "always" | "focus" | "never" = "focus";
+  showClearButton: 'always' | 'focus' | 'never' = 'focus';
 
   /**
    * @description Whether to enable spellcheck on the searchbar input.
@@ -222,7 +248,15 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  type: 'number' | "text" | "search" | "email" | "password" | "tel" | "url" | undefined = "search";
+  type:
+    | 'number'
+    | 'text'
+    | 'search'
+    | 'email'
+    | 'password'
+    | 'tel'
+    | 'url'
+    | undefined = 'search';
 
   /**
    * @description The value of the searchbar input.
@@ -232,7 +266,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  override value: null | string | undefined = "";
+  override value: null | string | undefined = '';
 
   /**
    * @description The keys to use for querying.
@@ -242,7 +276,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  queryKeys: string | string[] = "name";
+  queryKeys: string | string[] = 'name';
 
   /**
    * @description Whether the searchbar is visible.
@@ -272,7 +306,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   @Input()
-  wrapperColor: PredefinedColors = "primary";
+  wrapperColor: PredefinedColors = 'primary';
 
   /**
    * @description Whether to emit events to the window.
@@ -317,7 +351,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    */
   constructor() {
     super('SearchbarComponent');
-    addIcons(allIcons)
+    addIcons(allIcons);
   }
 
   /**
@@ -383,7 +417,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    *
    * @memberOf SearchbarComponent
    */
-  @HostListener("window:toggleSearchbarVisibility", ['$event'])
+  @HostListener('window:toggleSearchbarVisibility', ['$event'])
   handleToggleVisibility(): void {
     this.isVisible = !this.isVisible;
     if (this.isVisible && !!this.component.nativeElement) {
@@ -419,8 +453,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    */
   handleChange(event: CustomEvent): void {
     const value = event?.detail?.value;
-    if(value === this.currentValue)
-      return;
+    if (value === this.currentValue) return;
     this.currentValue = value ?? undefined;
     this.emitEvent(this.currentValue);
   }
@@ -471,8 +504,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
   handleInput(event: CustomEvent): void {
     const value = event?.detail?.value?.length ? event.detail.value : undefined;
 
-    if(value === this.currentValue)
-      return;
+    if (value === this.currentValue) return;
     this.currentValue = value ?? undefined;
     this.emitEvent(this.currentValue);
   }
@@ -512,7 +544,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
   emitEvent(value: string | undefined): void {
     this.searchEvent.emit(value);
     if (this.emitEventToWindow)
-      windowEventEmitter('searchbarEvent', {value: value})
+      windowEventEmitter('searchbarEvent', { value: value });
   }
 
   /**
@@ -526,6 +558,6 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * @memberOf SearchbarComponent
    */
   preventChange(event: Event): void {
-     event.preventDefault();
+    event.preventDefault();
   }
 }

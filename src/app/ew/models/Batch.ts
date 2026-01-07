@@ -1,21 +1,21 @@
+import { date, list, minlength, model, Model, ModelArg, pattern, required } from '@decaf-ts/decorator-validation';
+import { index, pk } from '@decaf-ts/core';
 import {
-  date,
-  list,
-  minlength,
-  model,
-  Model,
-  ModelArg,
-  pattern,
-  required,
-} from "@decaf-ts/decorator-validation";
-import { pk } from "@decaf-ts/core";
-import {  HTML5InputTypes, uichild, uielement, uilayout, uilayoutprop,  uilistmodel,  uilistprop, uimodel } from "@decaf-ts/ui-decorators";
-import { Product } from "./Product";
-import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
-import { ListItemPositions } from "src/lib/engine/constants";
-import { composed, readonly } from "@decaf-ts/db-decorators";
-import { EwMenu } from "src/app/utils/contants";
-import { getMenuIcon } from "src/lib/utils/helpers";
+  HTML5InputTypes,
+  uichild,
+  uielement,
+  uilayout,
+  uilayoutprop,
+  uilistmodel,
+  uilistprop,
+  uimodel,
+} from '@decaf-ts/ui-decorators';
+import { Product } from './Product';
+import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.component';
+import { ListItemPositions } from 'src/lib/engine/constants';
+import { composed } from '@decaf-ts/db-decorators';
+import { EwMenu } from 'src/app/utils/contants';
+import { getMenuIcon } from 'src/lib/utils/helpers';
 
 @uimodel('ngx-decaf-fieldset')
 @model()
@@ -28,19 +28,18 @@ class ManufacturerAddress {
   address?: string;
 }
 
-@uilistmodel('ngx-decaf-list-item', {icon: getMenuIcon('Batches', EwMenu)})
+@uilistmodel('ngx-decaf-list-item', { icon: getMenuIcon('Batches', EwMenu) })
 @uilayout('ngx-decaf-crud-form', true)
 @model()
 export class Batch extends Model {
-
   @pk({ type: String, generated: false })
-  @composed(["productCode", "batchNumber"], ":", true)
+  @composed(['productCode', 'batchNumber'], ':', true)
   id!: string;
 
   @uielement('app-batch-select-field', {
     label: 'batch.nameMedicinalProduct.label',
     placeholder: 'batch.nameMedicinalProduct.placeholder',
-    readonly: true
+    readonly: true,
   })
   @uilayoutprop('half')
   nameMedicinalProduct?: string;
@@ -55,12 +54,12 @@ export class Batch extends Model {
 
   @required()
   @uielement('app-batch-select-field', {
-    label: "batch.productcode.label",
-    placeholder: "batch.productcode.placeholder",
+    label: 'batch.productcode.label',
+    placeholder: 'batch.productcode.placeholder',
     type: HTML5InputTypes.SELECT,
     translatable: false,
-    optionsMapper: (item: Product) => ({text:`${ item.inventedName}`, value: `${item.productCode}`}),
-    options: () => Product
+    optionsMapper: (item: Product) => ({ text: `${item.inventedName}`, value: `${item.productCode}` }),
+    options: () => Product,
   })
   @uilistprop(ListItemPositions.description)
   @uilayoutprop('half')
@@ -91,7 +90,7 @@ export class Batch extends Model {
   importLicenseNumber?: string;
 
   @required()
-  @pattern("^\\d{6}$")
+  @pattern('^\\d{6}$')
   @uielement('app-expiry-date-field', {
     label: 'batch.expiryDate.label',
     placeholder: 'batch.expiryDate.placeholder',
@@ -104,7 +103,7 @@ export class Batch extends Model {
   @uielement('app-expiry-date-field', {
     label: 'batch.dayselection.label',
     placeholder: 'batch.dayselection.placeholder',
-    type: HTML5InputTypes.CHECKBOX
+    type: HTML5InputTypes.CHECKBOX,
   })
   @uilayoutprop('half')
   enableDaySelection: boolean = true;
@@ -119,20 +118,26 @@ export class Batch extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.dateOfManufacturing.label',
     placeholder: 'batch.dateOfManufacturing.placeholder',
-    type: HTML5InputTypes.DATE
+    type: HTML5InputTypes.DATE,
   })
   @date('yyyy-MM-dd')
   @uilayoutprop('half')
+  @index()
   dateOfManufacturing!: Date;
 
   @list(ManufacturerAddress, 'Array')
   @uilayoutprop(1)
-  @uichild(ManufacturerAddress.name, 'ngx-decaf-fieldset', {
-    title: "batch.manufacturerAddress.label",
-    max: 5,
-    collapsable: false,
-    borders: true
-  }, true)
+  @uichild(
+    ManufacturerAddress.name,
+    'ngx-decaf-fieldset',
+    {
+      title: 'batch.manufacturerAddress.label',
+      max: 5,
+      collapsable: false,
+      borders: true,
+    },
+    true
+  )
   manufacturerAddress!: ManufacturerAddress;
 
   @uielement('ngx-decaf-crud-field', {
@@ -142,7 +147,6 @@ export class Batch extends Model {
   } as Partial<CrudFieldComponent>)
   @uilayoutprop(1)
   batchRecall: boolean = false;
-
 
   // epiLeafletVersion?: number;
 
