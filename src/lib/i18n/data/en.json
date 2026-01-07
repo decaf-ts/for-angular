@@ -76,7 +76,8 @@
       "search": {
         "title": "Not data found for search",
         "subtitle": "You searched for: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{0}</ion-text>",
-        "button": "Clear search"
+        "button": "Clear search",
+        "placeholder": "Search..."
       },
       "empty": {
         "title": "No data found",

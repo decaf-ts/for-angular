@@ -64,6 +64,7 @@ import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { PaginationComponent } from '../pagination/pagination.component';
 import { FilterComponent } from '../filter/filter.component';
+import { Constructor, Metadata } from '@decaf-ts/decoration';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -193,6 +194,19 @@ export class ListComponent
    */
   @Input()
   showSearchbar: boolean = true;
+
+  /**
+   * @description Controls the visibility of the search bar.
+   * @summary When set to true, displays a search bar at the top of the list that allows
+   * users to filter the list items. The search functionality works by filtering the
+   * existing data or by triggering a new data fetch with search parameters.
+   *
+   * @type {boolean}
+   * @default true
+   * @memberOf ListComponent
+   */
+  @Input()
+  searchbarPlaceholder!: string;
 
   /**
    * @description Direct data input for the list component.
@@ -390,7 +404,6 @@ export class ListComponent
   @Input()
   sortBy!: string;
 
-
   /**
    * @description Sorting parameters for data fetching.
    * @summary Specifies how the fetched data should be sorted. This can be provided
@@ -455,7 +468,6 @@ export class ListComponent
    */
   pages!: number;
 
-
   /**
    * @description Array used for rendering skeleton loading placeholders.
    * @summary Contains placeholder items that are displayed during data loading.
@@ -515,9 +527,6 @@ export class ListComponent
    * @memberOf ListComponent
    */
   lastPage: number = 1;
-
-
-
 
   /**
    * @description Event emitter for item click interactions.
@@ -634,6 +643,8 @@ export class ListComponent
         this.observeRepository(...args),
     };
 
+    if (!this.searchbarPlaceholder)
+      this.searchbarPlaceholder = `${this.locale}.search.placeholder`;
     this.clickItemSubject
       .pipe(debounceTime(100))
       .subscribe((event) =>
@@ -659,11 +670,9 @@ export class ListComponent
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     await this.refresh();
-    if (!this.initialized)
-      this.parseProps(this);
+    if (!this.initialized) this.parseProps(this);
     this.initialized = true;
-    if (this.isModalChild)
-      this.changeDetectorRef.detectChanges();
+    if (this.isModalChild) this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -678,7 +687,9 @@ export class ListComponent
     super.ngOnDestroy();
     if (this._repository && this.observer) {
       //TODO: fix check observerHandler
-      const observeHandler = (this._repository as  DecafRepository<Model>)['observerHandler'];
+      const observeHandler = (this._repository as DecafRepository<Model>)[
+        'observerHandler'
+      ];
       if (observeHandler)
         (this._repository as DecafRepository<Model>).unObserve(this.observer);
     }
@@ -866,16 +877,14 @@ export class ListComponent
         this.page = 1;
         this.items = [];
       }
-      if (this.isModalChild)
-        this.changeDetectorRef.detectChanges();
+      if (this.isModalChild) this.changeDetectorRef.detectChanges();
       this.searchValue = value;
 
       await this.refresh(true);
     } else {
       this.loadMoreData = true;
       this.searchValue = value;
-      if (value === undefined)
-        this.page = this.lastPage;
+      if (value === undefined) this.page = this.lastPage;
       await this.refresh(true);
     }
   }
@@ -1010,8 +1019,7 @@ export class ListComponent
     this.data = !this.model
       ? await this.getFromRequest(!!event, start, limit)
       : ((await this.getFromModel(!!event)) as KeyValue[]);
-    if(!this.isModalChild)
-      this.refreshEventEmit(this.data);
+    if (!this.isModalChild) this.refreshEventEmit(this.data);
     if (this.type === ListComponentsTypes.INFINITE) {
       if (this.page === this.pages) {
         if ((event as InfiniteScrollCustomEvent)?.target)
@@ -1122,7 +1130,12 @@ export class ListComponent
   ): Promise<KeyValue[]> {
     let data: KeyValue[] = [...(this.data || [])];
 
-    if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
+    if (
+      !this.data?.length ||
+      force ||
+      (this.searchValue as string)?.length ||
+      !!(this.searchValue as IFilterQuery)
+    ) {
       // (self.data as ListItem[]) = [];
       if (
         !(this.searchValue as string)?.length &&
@@ -1138,23 +1151,20 @@ export class ListComponent
             data = data?.['response']?.['data'] || data?.['results'] || [];
         }
 
-        if (!data?.length && this.data?.length)
-          data = this.data as KeyValue[];
+        if (!data?.length && this.data?.length) data = this.data as KeyValue[];
         data = [...(await this.parseResult(data))];
         if (this.data?.length)
           data =
             this.type === ListComponentsTypes.INFINITE
               ? [...(this.items || []).concat([...data.slice(start, limit)])]
               : [...(data.slice(start, limit) as KeyValue[])];
-
       } else {
         data = await this.parseResult(
           this.parseSearchResults(this.data as [], this.searchValue as string)
         );
       }
       this.items = [...data];
-      if (this.isModalChild)
-        this.changeDetectorRef.detectChanges();
+      if (this.isModalChild) this.changeDetectorRef.detectChanges();
     } else {
       const data = [...(await this.parseResult(this.data as []))];
       this.items =
@@ -1194,6 +1204,10 @@ export class ListComponent
     }
 
     const repo = this._repository as DecafRepository<Model>;
+
+    if (!this.indexes) {
+      this.indexes = Object.keys(Model.indexes(this.model as Model) || {});
+    }
     if (
       !this.data?.length ||
       force ||
@@ -1211,26 +1225,30 @@ export class ListComponent
           if (!this.paginator) {
             this.paginator = await repo
               .select()
-              .where(this.condition ? this.condition.eq(
-                !this.modelId ?
-                  undefined : ([Primitives.NUMBER, Primitives.BIGINT].includes(this.pkType as Primitives) ?
-                    Number(this.modelId) : this.modelId)) : Condition.attribute<Model>(this.pk as keyof Model).dif(null))
+              .where(
+                this.condition
+                  ? this.condition.eq(
+                      !this.modelId
+                        ? undefined
+                        : [Primitives.NUMBER, Primitives.BIGINT].includes(
+                              this.pkType as Primitives
+                            )
+                          ? Number(this.modelId)
+                          : this.modelId
+                    )
+                  : Condition.attribute<Model>(this.pk as keyof Model).dif(null)
+              )
               .orderBy([this.pk as keyof Model, this.sortDirection])
               .paginate(this.limit);
           }
           request = await this.parseResult(this.paginator as Paginator<Model>);
-
         } else {
-          if (!this.indexes)
-            this.indexes = Object.values(this.mapper) || [this.pk];
-
-          const condition = this.parseConditions(
-            this.searchValue as string | number | IFilterQuery
-          );
           this.changeDetectorRef.detectChanges();
           request = await this.parseResult(
             await repo.query(
-              condition,
+              this.parseConditions(
+                this.searchValue as string | number | IFilterQuery
+              ),
               (this.sortBy || this.pk) as keyof Model,
               this.sortDirection
             )
@@ -1286,39 +1304,48 @@ export class ListComponent
    */
   parseConditions(value: string | number | IFilterQuery): Condition<Model> {
     let _condition: Condition<Model>;
-    if (
-      typeof value === Primitives.STRING ||
-      typeof value === Primitives.NUMBER
-    ) {
+    const model = this.model as Model;
+    if (typeof value === Primitives.STRING || !isNaN(value as number)) {
       _condition = Condition.attribute<Model>(this.pk as keyof Model).eq(
         !isNaN(value as number) ? Number(value) : value
       );
-      for (const index of this.indexes) {
+      for (const index of this.indexes as (keyof Model)[]) {
         if (index === this.pk) continue;
         let orCondition;
         if (!isNaN(value as number)) {
-          orCondition = Condition.attribute<Model>(index as keyof Model).eq(
-            Number(value)
-          );
+          orCondition = Condition.attribute<Model>(index).eq(Number(value));
         } else {
-          orCondition = Condition.attribute<Model>(index as keyof Model).regexp(
-            value as string
-          );
+          const type = Metadata.type(
+            model.constructor as Constructor<Model>,
+            index
+          ).name;
+          orCondition =
+            type === Date
+              ? Condition.attribute<Model>(index).eq(new Date(value as string))
+              : Condition.attribute<Model>(index).regexp(value as string);
         }
         _condition = _condition.or(orCondition);
       }
     } else {
       const { query, sort } = value as IFilterQuery;
-      _condition = Condition.attribute<Model>(this.pk as keyof Model).dif(
-        'null'
-      );
+      const pk = this.pk as keyof Model;
+      _condition = Condition.attribute<Model>(pk).dif('null');
 
       if (query?.length) _condition = undefined as unknown as Condition<Model>;
 
       (query || []).forEach((item: IFilterQueryItem) => {
         const { value, condition, index } = item;
-        let val = value as string | number;
-        if (index === this.pk || !isNaN(val as number)) val = Number(val);
+        let val = value as string | number | Date;
+        if (index === this.pk || !isNaN(val as number)) {
+          val = Number(val);
+        }
+        const type = Metadata.type(
+          model.constructor as Constructor<Model>,
+          index as keyof Model
+        ).name;
+        if (type === Date.name) {
+          val = new Date(val as string);
+        }
         let orCondition;
         switch (condition) {
           case 'Equal':
@@ -1494,13 +1521,13 @@ export class ListComponent
       ...Object.keys(this.item).reduce((acc: KeyValue, key: string) => {
         acc[key] = this.item[key];
         return acc;
-      }, {})
+      }, {}),
     });
     return data.reduce((accum: KeyValue[], curr) => {
       accum.push({
         ...this.itemMapper(curr, this.mapper as KeyValue, props),
-        ... { pk: this.pk },
-        ... { model: curr }
+        ...{ pk: this.pk },
+        ...{ model: curr },
       });
       return accum;
     }, []);

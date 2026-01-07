@@ -9,25 +9,25 @@
   },
   "jest.outputConfig": {
     "revealOn": "run",
-    "revealWithFocus": "none",
+    "revealWithFocus": "none"
   },
   "testing.automaticallyOpenTestResults": "neverOpen",
   "jest.coverageFormatter": "GutterFormatter",
   "editor.renderWhitespace": "none",
-  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": false,
   "[javascript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll.stylelint": "always"
     }
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[scss]": {
     "editor.tabSize": 2,
@@ -56,15 +56,13 @@
       "source.fixAll.stylelint": "always"
     }
   },
-  // "[html]": {
-  //   "editor.tabSize": 2,
-  //   "editor.insertSpaces": true,
-  //   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  //   "editor.formatOnSave": true,
-  //   "editor.codeActionsOnSave": {
-  //     "source.fixAll.stylelint": "always"
-  //   }
-  // },
+  "[html]": {
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": false,
+
+  },
   "eslint.validate": [
     "javascript",
     "javascriptreact",
@@ -72,11 +70,17 @@
     "typescriptreact",
     "scss",
     "sass",
-    "css"
+    "css",
+    "html"
   ],
+  "prettier.htmlWhitespaceSensitivity": "ignore",
+  "prettier.proseWrap": "preserve",
+  "prettier.bracketSameLine": false,
+  // "angular.experimental-ivy": true,
+  // "angular.format.enable": false,
   "editor.codeActionsOnSave": {
-    "source.fixAll": "always",
-    "source.fixAll.eslint": "always"
+    "source.fixAll": "explicit",
+    "source.fixAll.eslint": "explicit"
   },
   "prettier.requireConfig": true
 }

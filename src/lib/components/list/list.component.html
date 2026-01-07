@@ -13,6 +13,7 @@
           @if (data?.length || searching) {
             <ngx-decaf-filter
               [model]="model"
+              [indexes]="indexes ?? []"
               [sortDirection]="sortDirection"
               [disableSort]="disableSort"
               (filterEvent)="handleFilter($event)"
@@ -20,7 +21,7 @@
             />
           }
         } @else {
-          <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
+          <ngx-decaf-searchbar [placeholder]="searchbarPlaceholder" [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
         }
       </div>
       @if(createButton) {
