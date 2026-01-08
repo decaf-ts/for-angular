@@ -664,12 +664,10 @@ export class ListComponent
     if (typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
-    await this.refresh();
     if (!this.initialized)
       this.parseProps(this);
-    if (this.isModalChild)
-      this.changeDetectorRef.detectChanges();
     this.initialized = true;
+    await this.refresh();
   }
 
   /**
@@ -768,7 +766,8 @@ export class ListComponent
     this.data = !this.model
       ? await this.getFromRequest(!!event, start, limit)
       : ((await this.getFromModel(!!event)) as KeyValue[]);
-    if (!this.isModalChild) this.refreshEventEmit(this.data);
+    if (!this.isModalChild)
+      this.refreshEventEmit(this.data);
     if (this.type === ListComponentsTypes.INFINITE) {
       if (this.page === this.pages) {
         if ((event as InfiniteScrollCustomEvent)?.target)
