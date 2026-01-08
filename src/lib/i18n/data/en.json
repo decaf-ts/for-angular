@@ -53,6 +53,15 @@
     }
   },
   "component": {
+    "crud_form": {
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "back": "Back",
+      "delete": "Delete",
+      "login": "Login",
+      "create": "Create",
+      "update": "Update"
+    },
     "fieldset": {
       "add_first": "Add first item",
       "show_form": "Show form",

@@ -199,8 +199,8 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
       this._repository = this.repository;
   }
 
-  override ngOnDestroy(): Promise<void> | void {
-    super.ngOnDestroy();
+  override async ngOnDestroy(): Promise<void> {
+    await super.ngOnDestroy();
     if (this.timerSubscription)
       this.timerSubscription.unsubscribe();
   }

@@ -819,8 +819,8 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @returns {void}
    * @memberOf CrudFieldComponent
    */
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
+  override async ngOnDestroy(): Promise<void> {
+    await super.ngOnDestroy();
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
       this.onDestroy();
   }

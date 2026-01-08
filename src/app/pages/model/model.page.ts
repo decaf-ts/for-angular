@@ -1,4 +1,4 @@
-import { Component} from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
@@ -107,22 +107,27 @@ import { IBaseCustomEvent, IModelComponentSubmitEvent } from 'src/lib/engine/int
   imports: [IonContent, ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent, CardComponent],
   styleUrls: ['./model.page.scss'],
 })
-export class ModelPage extends NgxModelPageDirective {
+export class ModelPage extends NgxModelPageDirective implements OnInit {
   // constructor() {
   //   super(true, getNgxToastComponent() as unknown as ToastController);
   // }
 
+  override async ngOnInit(): Promise<void> {
+    this.enableCrudOperations();
+    await super.ngOnInit();
+  }
+
   override async ionViewWillEnter(): Promise<void> {
     console.warn(`current operation ${this.operation}`);
-   await super.ionViewWillEnter();
+    await super.ionViewWillEnter();
   }
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
-    const {success, message} = await super.submit(event) as IModelComponentSubmitEvent;
-    const toast = getNgxToastComponent({
+    const {success, message} = await super.submit(event, true) as IModelComponentSubmitEvent;
+    const toast = getNgxToastComponent();
+    await toast.show({
       color: success ? 'dark' : 'danger',
       message,
     });
-    await toast.show();
   }
 }

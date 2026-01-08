@@ -1,0 +1,18 @@
+.dcf-searchbar-component {
+  margin-top: var(--dcf-margin-small) !important;
+
+  ::ng-deep ion-searchbar {
+    --background: var(--dcf-card-background) !important;
+    --box-shadow: none !important;
+    padding: 0px !important;
+    margin: 0px !important;
+    .searchbar-input-container {
+      border: 1px solid var(--dcf-color-gray-3);
+      box-shadow: 0px 1px 2px rgba(10, 13, 18, 0.05);
+      border-radius: var(--dcf-border-radius);
+      &:focus-within {
+        border-color: var(--dcf-color-primary);
+      }
+    }
+  }
+}

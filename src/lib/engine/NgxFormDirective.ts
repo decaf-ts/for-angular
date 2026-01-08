@@ -159,7 +159,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * @default Randomly generated 12-character string
    */
   @Input()
-  allowClear: boolean = true;
+  allowClear: boolean = false;
 
   @Input()
   override match: boolean = false;
@@ -237,8 +237,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
         name: ComponentEventNames.FORM_GROUP_LOADED,
         data: this.formGroup as FormParent
       });
-    if (this.isModalChild)
-      this.changeDetectorRef.detectChanges();
+    this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -249,8 +248,8 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    *
    * @returns {void}
    */
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
+  override async ngOnDestroy(): Promise<void> {
+    await super.ngOnDestroy();
     if (this.formGroup)
       NgxFormService.unregister(this.formGroup);
   }

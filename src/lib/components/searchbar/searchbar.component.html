@@ -1,24 +1,27 @@
-<ion-searchbar
-  [id]="uid"
-  ngClass="dcf-searchbar"
-  name="search"
-  mode="ios"
-  (keyup.enter)="preventChange($event)"
-  (ionInput)="handleInput($event)"
-  (ionClear)="handleClear()"
-  [autocomplete]="autocomplete"
-  [showCancelButton]="showCancelButton"
-  [cancelButtonText]="buttonCancelText"
-  [clearIcon]="clearIcon"
-  [color]="color"
-  [debounce]="debounce"
-  [disabled]="disabled"
-  [enterkeyhint]="enterkeyhint"
-  [inputmode]="inputmode"
-  [placeholder]="placeholder | translate"
-  [searchIcon]="searchIcon"
-  [showClearButton]="showClearButton"
-  [spellcheck]="spellcheck"
-  [type]="type"
-  #component
- />
+<div class="dcf-searchbar-component">
+  <ion-searchbar
+    [id]="uid"
+    ngClass="dcf-searchbar"
+    name="search"
+    mode="ios"
+    (keyup.enter)="preventChange($event)"
+    (ionInput)="handleInput($event)"
+    (ionClear)="handleClear()"
+    [autocomplete]="autocomplete"
+    [showCancelButton]="showCancelButton"
+    [cancelButtonText]="buttonCancelText"
+    [clearIcon]="clearIcon"
+    [color]="color"
+    [debounce]="debounce"
+    [disabled]="disabled"
+    [enterkeyhint]="enterkeyhint"
+    [inputmode]="inputmode"
+    [placeholder]="placeholder | translate"
+    [searchIcon]="searchIcon"
+    [showClearButton]="showClearButton"
+    [spellcheck]="spellcheck"
+    [type]="type"
+    #component
+  />
+
+</div>

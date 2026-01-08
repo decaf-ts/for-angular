@@ -309,10 +309,10 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @description Lifecycle hook that is called when a directive, pipe, or service is destroyed.
    * @summary Cleans up the component by calling the parent ngOnDestroy method and clearing the file upload state.
    *
-   * @returns {Promise<void> | void}
+   * @returns {Promise<void>}
    */
-  override ngOnDestroy(): Promise<void> | void {
-    super.ngOnDestroy();
+  override async ngOnDestroy(): Promise<void>  {
+    await super.ngOnDestroy();
     this.handleClear();
   }
 

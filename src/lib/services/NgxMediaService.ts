@@ -355,7 +355,7 @@ export class NgxMediaService {
     return this.colorScheme$.pipe(
       map(scheme => documentElement.classList.contains(AngularEngineKeys.DARK_PALETTE_CLASS) || scheme === WindowColorSchemes.dark),
       distinctUntilChanged(),
-       shareReplay(1),
+      shareReplay(1),
       takeUntil(this.destroy$)
     );
   }

@@ -125,9 +125,8 @@
           </ion-select>
         </div>
         <div class="dcf-width-auto">
-          <ion-button (click)="handleSortDirectionChange()" fill="clear">
-            <ion-icon aria-hidden="true" slot="icon-only" [color]="!isDarkMode ? 'primary' : 'light'" [name]="sortDirection === 'desc' ? 'arrow-down-outline' : 'arrow-up-outline'"></ion-icon>
-          </ion-button>
+          <ngx-decaf-icon (click)="handleSortDirectionChange()" [button]="true" fill="clear" slot="icon-only" [color]="!isDarkMode ? 'primary' : 'light'" [name]="sortDirection === 'desc' ? 'arrow-down-outline' : 'arrow-up-outline'" />
+
         </div>
       </div>
     </div>

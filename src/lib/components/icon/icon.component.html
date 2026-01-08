@@ -10,9 +10,7 @@
               [class]="color ? 'dcf-color-' + color : ''"
               [style.width]="width"
               [ngx-decaf-svg]="name"
-            >
-              ></span
-            >
+            ></span>
           } @else {
             <img
               aria-hidden="true"
@@ -39,7 +37,7 @@
           <span
             aria-hidden="true"
             [slot]="slot"
-            [class]="'ti ' +name + ' ' + size + ' dcf-color-' + color">
+            [class]="'dcf-icon-button ti ' +name + ' ' + size + ' dcf-color-' + color">
           </span>
         }
       </ion-button>

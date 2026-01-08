@@ -36,10 +36,12 @@ ion-button {
 [class*="ti ti-"] {
   font-size: 1.4rem;
   line-height: 1.4rem;
-  margin-right: 0.125rem;
   position: relative;
   // position: relative;
   // top: -1px;
+  &:not(.dcf-icon-button) {
+    margin-right: 0.125rem;
+  }
   &.large,
   &[size="large"] {
     font-size: 2.2rem !important;

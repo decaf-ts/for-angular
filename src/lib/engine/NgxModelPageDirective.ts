@@ -346,12 +346,12 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         }
 
         const pk = Model.pk(repository.class as Constructor<Model>) as string;
-        const pkValue = (model as KeyValue)[pk] || (model as KeyValue)[this.pk] || "";
+        const pkValue = (model as KeyValue)[pk] || (model as KeyValue)[this.pk] || model || "";
         message = await this.translate(
           !Array.isArray(result)
             ? `operations.${operation}.${result ? 'success' : 'error'}`
             : `operations.multiple`
-        , {"0": pk, "1": pkValue});
+        , {"0": repository.class.name || pk, "1": pkValue});
         success = result ? true : false;
         if (success) {
           if((result as KeyValue)?.[this.pk])
@@ -487,20 +487,19 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
 
   protected async batchOperation(models: LayoutModelContext = {}, redirect: boolean = false): Promise<IModelComponentSubmitEvent|void> {
     const result: boolean[] = [];
+    let resultMessage = '';
     const promises = Object.keys(models).map(async(m) => {
       const {model, repository} = models[m];
-      const {success} = await this.submit({data: model}, false, repository as DecafRepository<Model>);
+      const {success, message} = await this.submit({data: model}, false, repository as DecafRepository<Model>);
+      if(success)
+        resultMessage = message as string;
       result.push(success);
     })
     await Promise.all(promises);
     const success = result.every((res: boolean) => res);
     if (success && redirect)
       this.location.back();
-    const message = await this.translate(
-      `operations.${this.operation}.${success ? 'success' : 'error'}`,
-      {"0": this.modelId || "", "1": this.pk || ""}
-    );
-    return {...{data: models}, success, message};
+    return {...{data: models}, success, message: resultMessage};
   }
 
 

@@ -23,10 +23,12 @@ ion-infinite-scroll {
 }
 
 .dcf-grid-actions {
-  padding: var(--dcf-padding-small);
+  padding: 0px var(--dcf-padding-small);
   padding-bottom: 0px;
-  @media (max-width: 768px) {
-    .dcf-button-container {
+
+  .dcf-button-container {
+    margin-top: var(--dcf-margin-small);
+    @media (max-width: 768px) {
       width: 100% !important;
       * {
         width: calc(100% - 5px) !important;

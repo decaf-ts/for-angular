@@ -11,10 +11,7 @@ input:disabled::placeholder {
 }
 
 .dcf-filter-component {
-  padding: 0 0.5rem;
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
-
+  margin-top: 1rem !important;
   &:not(.dcf-palette-dark) {
     .dcf-filter {
       border: 1px solid var(--dcf-color-gray-3);
@@ -133,7 +130,7 @@ input:disabled::placeholder {
 }
 
 ion-select {
-  min-height: 44px !important;
+  min-height: 40px !important;
 }
 
 .dcf-hidden {
@@ -143,7 +140,8 @@ ion-select {
 .dcf-filter {
   display: flex;
   width: 100%;
-  min-height: 40px;
+  height: 40px;
+  margin-top: 0.25rem;
   box-shadow: 0px 1px 2px rgba(10, 13, 18, 0.05);
   border-radius: var(--dcf-border-radius);
   box-sizing: border-box;

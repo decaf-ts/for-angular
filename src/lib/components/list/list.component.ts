@@ -39,8 +39,8 @@ import {
 } from '@ionic/angular/standalone';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
-import { Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
-import { debounceTime, Subject } from 'rxjs';
+import { Condition, OrderDirection, Paginator } from '@decaf-ts/core';
+import { debounceTime, shareReplay, Subject, takeUntil, timer } from 'rxjs';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
 import { KeyValue, FunctionLike, DecafRepository } from '../../engine/types';
@@ -65,6 +65,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
 import { PaginationComponent } from '../pagination/pagination.component';
 import { FilterComponent } from '../filter/filter.component';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
+import { NavigationStart } from '@angular/router';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -553,30 +554,6 @@ export class ListComponent
     CustomEvent | ListItemCustomEvent | IBaseCustomEvent
   > = new Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent>();
 
-  /**
-   * @description Subject for debouncing repository observation events.
-   * @summary RxJS Subject that collects repository change events and emits them after
-   * a debounce period. This prevents multiple rapid repository changes from triggering
-   * multiple list refresh operations, improving performance and user experience.
-   *
-   * @private
-   * @type {Subject<any>}
-   * @memberOf ListComponent
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private observerSubjet: Subject<any> = new Subject<any>();
-
-  /**
-   * @description Observer object for repository change notifications.
-   * @summary Implements the Observer interface to receive notifications when the
-   * underlying data repository changes. This enables automatic list updates when
-   * data is created, updated, or deleted through the repository.
-   *
-   * @private
-   * @type {Observer}
-   * @memberOf ListComponent
-   */
-  private observer!: Observer;
 
   /**
    * @description List of available indexes for data querying and filtering.
@@ -638,21 +615,39 @@ export class ListComponent
    * @memberOf ListComponent
    */
   async ngOnInit(): Promise<void> {
-    this.observer = {
+    this.repositoryObserver = {
       refresh: async (...args: unknown[]): Promise<void> =>
-        this.observeRepository(...args),
+        this.handleRepositoryRefresh(...args),
     };
+
+    // this.router.events.subscribe(async event => {
+    //   if (event instanceof NavigationStart)
+    //     await super.ngOnDestroy();
+    // });
 
     if (!this.searchbarPlaceholder)
       this.searchbarPlaceholder = `${this.locale}.search.placeholder`;
+
     this.clickItemSubject
-      .pipe(debounceTime(100))
+      .pipe(
+        debounceTime(100),
+        shareReplay(1),
+        takeUntil(this.destroySubscriptions$)
+      )
       .subscribe((event) =>
         this.clickEventEmit(event as ListItemCustomEvent | IBaseCustomEvent)
       );
-    this.observerSubjet
-      .pipe(debounceTime(100))
-      .subscribe((args) => this.handleObserveEvent(args[0], args[1], args[2]));
+
+    this.repositoryObserverSubject
+      .pipe(
+        debounceTime(100),
+        shareReplay(1),
+        takeUntil(this.destroySubscriptions$)
+      )
+      .subscribe(([table, event, uid]) =>
+        this.handleObserveEvent(table, event, uid)
+      );
+
     this.limit = Number(this.limit);
     this.start = Number(this.start);
 
@@ -670,9 +665,11 @@ export class ListComponent
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     await this.refresh();
-    if (!this.initialized) this.parseProps(this);
+    if (!this.initialized)
+      this.parseProps(this);
+    if (this.isModalChild)
+      this.changeDetectorRef.detectChanges();
     this.initialized = true;
-    if (this.isModalChild) this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -680,42 +677,123 @@ export class ListComponent
    * @summary Performs cleanup operations when the component is being removed from the DOM.
    * This includes clearing references to models and data to prevent memory leaks.
    *
-   * @returns {void}
+   * @returns {Promise<void>}
    * @memberOf ListComponent
    */
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
-    if (this._repository && this.observer) {
+  override async ngOnDestroy(): Promise<void> {
+    await this.destroy();
+  }
+
+  async destroy(): Promise<void> {
+    await super.ngOnDestroy();
+    if (this._repository && this.repositoryObserver) {
+      const repo = this._repository as DecafRepository<Model>;
       //TODO: fix check observerHandler
-      const observeHandler = (this._repository as DecafRepository<Model>)[
-        'observerHandler'
-      ];
-      if (observeHandler)
-        (this._repository as DecafRepository<Model>).unObserve(this.observer);
+      const observeHandler = repo['observerHandler'];
+      if (observeHandler) {
+        try {
+          repo.unObserve(this.repositoryObserver);
+        } catch (error: unknown) {
+          this.log.info((error as Error)?.message);
+        }
+      }
     }
     this.data = this.model = this._repository = this.paginator = undefined;
   }
 
   /**
-   * @description Handles repository observation events with debouncing.
-   * @summary Processes repository change notifications and routes them appropriately.
-   * For CREATE events with a UID, handles them immediately. For other events,
-   * passes them to the debounced observer subject to prevent excessive updates.
+   * @description Refreshes the list data from the configured source.
+   * @summary This method handles both initial data loading and subsequent refresh operations,
+   * including pull-to-refresh and infinite scrolling. It manages the data fetching process,
+   * updates the component's state, and handles pagination or infinite scrolling logic based
+   * on the component's configuration.
    *
-   * @param {...unknown[]} args - The repository event arguments including table, event type, and UID
-   * @returns {Promise<void>}
+   * The method performs the following steps:
+   * 1. Sets the refreshing flag to indicate a data fetch is in progress
+   * 2. Calculates the appropriate start and limit values based on pagination settings
+   * 3. Fetches data from the appropriate source (model or request)
+   * 4. Updates the component's data and emits a refresh event
+   * 5. Handles pagination or infinite scrolling state updates
+   * 6. Completes any provided event (like InfiniteScrollCustomEvent)
+   *
+   * @param {InfiniteScrollCustomEvent | RefresherCustomEvent | boolean} event - The event that triggered the refresh,
+   * or a boolean flag indicating if this is a forced refresh
+   * @returns {Promise<void>} A promise that resolves when the refresh operation is complete
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant L as ListComponent
+   *   participant D as Data Source
+   *   participant E as Event System
+   *
+   *   L->>L: refresh(event)
+   *   L->>L: Set refreshing flag
+   *   L->>L: Calculate start and limit
+   *   alt Using model
+   *     L->>D: getFromModel(force, start, limit)
+   *     D-->>L: Return data
+   *   else Using request
+   *     L->>D: getFromRequest(force, start, limit)
+   *     D-->>L: Return data
+   *   end
+   *   L->>E: refreshEventEmit()
+   *   alt Infinite scrolling mode
+   *     L->>L: Check if reached last page
+   *     alt Last page reached
+   *       L->>L: Complete scroll event
+   *       L->>L: Disable loadMoreData
+   *     else More pages available
+   *       L->>L: Increment page number
+   *       L->>L: Complete scroll event after delay
+   *     end
+   *   else Paginated mode
+   *     L->>L: Clear refreshing flag after delay
+   *   end
+   *
    * @memberOf ListComponent
    */
-  async observeRepository(...args: unknown[]): Promise<void> {
-    const [table, event, uid] = args;
-    if (event === OperationKeys.CREATE && !!uid)
-      return this.handleObserveEvent(
-        table as string,
-        event,
-        uid as string | number
-      );
-    return this.observerSubjet.next(args);
+  override async refresh(
+    event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false
+  ): Promise<void> {
+    //  if (typeof force !== 'boolean' && force.type === ComponentEventNames.BACK_BUTTON_NAVIGATION) {
+    //    const {refresh} = (force as CustomEvent).detail;
+    //    if (!refresh)
+    //      return false;
+    //  }
+    this.refreshing = true;
+    const start: number =
+      this.page > 1 ? (this.page - 1) * this.limit : this.start;
+    const limit: number = this.page * (this.limit > 12 ? 12 : this.limit);
+
+    this.data = !this.model
+      ? await this.getFromRequest(!!event, start, limit)
+      : ((await this.getFromModel(!!event)) as KeyValue[]);
+    if (!this.isModalChild) this.refreshEventEmit(this.data);
+    if (this.type === ListComponentsTypes.INFINITE) {
+      if (this.page === this.pages) {
+        if ((event as InfiniteScrollCustomEvent)?.target)
+          (event as InfiniteScrollCustomEvent).target.complete();
+        this.loadMoreData = false;
+      } else {
+        this.page += 1;
+        this.refreshing = false;
+        setTimeout(() => {
+          if (
+            (event as InfiniteScrollCustomEvent)?.target &&
+            (event as CustomEvent)?.type !==
+              ComponentEventNames.BACK_BUTTON_NAVIGATION
+          )
+            (event as InfiniteScrollCustomEvent).target.complete();
+        }, 200);
+      }
+    } else {
+      setTimeout(() => {
+        this.refreshing = false;
+      }, 200);
+    }
   }
+
+
 
   /**
    * @description Handles specific repository events and updates the list accordingly.
@@ -729,7 +807,7 @@ export class ListComponent
    * @returns {Promise<void>}
    * @memberOf ListComponent
    */
-  async handleObserveEvent(
+  override async handleObserveEvent(
     table: string,
     event: OperationKeys,
     uid: string | number
@@ -741,8 +819,10 @@ export class ListComponent
         await this.refresh(true);
       }
     } else {
-      if (event === OperationKeys.UPDATE) await this.handleUpdate(uid);
-      if (event === OperationKeys.DELETE) this.handleDelete(uid);
+      if (event === OperationKeys.UPDATE)
+        await this.handleUpdate(uid);
+      if (event === OperationKeys.DELETE)
+        this.handleDelete(uid);
       this.refreshEventEmit();
     }
   }
@@ -797,16 +877,20 @@ export class ListComponent
       this.mapper
     );
     this.data = [];
+    this.changeDetectorRef.detectChanges();
     for (const key in this.items as KeyValue[]) {
       const child = this.items[key] as KeyValue;
-      if (child['uid'] === item['uid']) {
+      if (`${child['uid']}`.trim() === `${uid}`.trim()) {
         this.items[key] = Object.assign({}, child, item);
         break;
       }
     }
-    setTimeout(() => {
+    const updateSubsriber$ = timer(0)
+    .subscribe(() => {
       this.data = [...this.items];
-    }, 0);
+      this.changeDetectorRef.detectChanges();
+      updateSubsriber$.unsubscribe();
+    });
   }
 
   /**
@@ -821,9 +905,11 @@ export class ListComponent
    * @memberOf ListComponent
    */
   handleDelete(uid: string | number, pk?: string): void {
-    if (!pk) pk = this.pk;
-    this.items =
-      this.data?.filter((item: KeyValue) => item['uid'] !== uid) || [];
+    if (!pk)
+      pk = this.pk;
+    this.items = [...this.data?.filter((item: KeyValue) => item['uid'] !== uid) || []];
+    this.data = [...this.items];
+    this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -949,99 +1035,6 @@ export class ListComponent
    */
   private clickEventEmit(event: ListItemCustomEvent | IBaseCustomEvent): void {
     this.clickEvent.emit(event);
-  }
-
-  /**
-   * @description Refreshes the list data from the configured source.
-   * @summary This method handles both initial data loading and subsequent refresh operations,
-   * including pull-to-refresh and infinite scrolling. It manages the data fetching process,
-   * updates the component's state, and handles pagination or infinite scrolling logic based
-   * on the component's configuration.
-   *
-   * The method performs the following steps:
-   * 1. Sets the refreshing flag to indicate a data fetch is in progress
-   * 2. Calculates the appropriate start and limit values based on pagination settings
-   * 3. Fetches data from the appropriate source (model or request)
-   * 4. Updates the component's data and emits a refresh event
-   * 5. Handles pagination or infinite scrolling state updates
-   * 6. Completes any provided event (like InfiniteScrollCustomEvent)
-   *
-   * @param {InfiniteScrollCustomEvent | RefresherCustomEvent | boolean} event - The event that triggered the refresh,
-   * or a boolean flag indicating if this is a forced refresh
-   * @returns {Promise<void>} A promise that resolves when the refresh operation is complete
-   *
-   * @mermaid
-   * sequenceDiagram
-   *   participant L as ListComponent
-   *   participant D as Data Source
-   *   participant E as Event System
-   *
-   *   L->>L: refresh(event)
-   *   L->>L: Set refreshing flag
-   *   L->>L: Calculate start and limit
-   *   alt Using model
-   *     L->>D: getFromModel(force, start, limit)
-   *     D-->>L: Return data
-   *   else Using request
-   *     L->>D: getFromRequest(force, start, limit)
-   *     D-->>L: Return data
-   *   end
-   *   L->>E: refreshEventEmit()
-   *   alt Infinite scrolling mode
-   *     L->>L: Check if reached last page
-   *     alt Last page reached
-   *       L->>L: Complete scroll event
-   *       L->>L: Disable loadMoreData
-   *     else More pages available
-   *       L->>L: Increment page number
-   *       L->>L: Complete scroll event after delay
-   *     end
-   *   else Paginated mode
-   *     L->>L: Clear refreshing flag after delay
-   *   end
-   *
-   * @memberOf ListComponent
-   */
-  @HostListener('window:BackButtonNavigationEndEvent', ['$event'])
-  override async refresh(
-    event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false
-  ): Promise<void> {
-    //  if (typeof force !== 'boolean' && force.type === ComponentEventNames.BACK_BUTTON_NAVIGATION) {
-    //    const {refresh} = (force as CustomEvent).detail;
-    //    if (!refresh)
-    //      return false;
-    //  }
-    this.refreshing = true;
-    const start: number =
-      this.page > 1 ? (this.page - 1) * this.limit : this.start;
-    const limit: number = this.page * (this.limit > 12 ? 12 : this.limit);
-
-    this.data = !this.model
-      ? await this.getFromRequest(!!event, start, limit)
-      : ((await this.getFromModel(!!event)) as KeyValue[]);
-    if (!this.isModalChild) this.refreshEventEmit(this.data);
-    if (this.type === ListComponentsTypes.INFINITE) {
-      if (this.page === this.pages) {
-        if ((event as InfiniteScrollCustomEvent)?.target)
-          (event as InfiniteScrollCustomEvent).target.complete();
-        this.loadMoreData = false;
-      } else {
-        this.page += 1;
-        this.refreshing = false;
-        setTimeout(() => {
-          if (
-            (event as InfiniteScrollCustomEvent)?.target &&
-            (event as CustomEvent)?.type !==
-              ComponentEventNames.BACK_BUTTON_NAVIGATION
-          )
-            (event as InfiniteScrollCustomEvent).target.complete();
-        }, 200);
-      }
-    } else {
-      setTimeout(() => {
-        this.refreshing = false;
-      }, 200);
-    }
   }
 
   /**
@@ -1199,12 +1192,13 @@ export class ListComponent
     // getting model repository
     if (!this._repository) {
       this._repository = this.repository;
-      if (this.model instanceof Model && this._repository)
-        (this._repository as DecafRepository<Model>).observe(this.observer);
+      try {
+        (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
+      } catch (error: unknown) {
+        this.log.info((error as Error)?.message);
+      }
     }
-
     const repo = this._repository as DecafRepository<Model>;
-
     if (!this.indexes) {
       this.indexes = Object.keys(Model.indexes(this.model as Model) || {});
     }

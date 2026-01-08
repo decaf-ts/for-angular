@@ -67,12 +67,12 @@
                           </ion-list-header>
                           @for (operation of [OperationKeys.UPDATE, OperationKeys.DELETE]; track operation) {
                             @if (operations?.includes(operation)) {
-                            <ion-item button="true" (click)="handleAction(operation, $event, component)">
+                            <ion-item [button]="true" (click)="handleAction(operation, $event, component)">
                               <div slot="start">
                                 @if (operation === OperationKeys.UPDATE) {
-                                  <ngx-decaf-icon slot="icon-only" name="ti-edit" />
+                                  <ngx-decaf-icon [button]="true" slot="icon-only" name="ti-edit" />
                                 } @else {
-                                  <ngx-decaf-icon slot="icon-only" color="danger" name="ti-trash" />
+                                  <ngx-decaf-icon [button]="true" slot="icon-only" color="danger" name="ti-trash" />
                                 }
                               </div>
                               <ion-label class="dcf-text-capitalize">{{ operation | translate }}</ion-label>
@@ -88,13 +88,16 @@
                     @for (operation of [OperationKeys.UPDATE, OperationKeys.DELETE]; track operation) {
                       <div>
                         @if (operations?.includes(operation)) {
-                          <ion-button (click)="handleAction(operation, $event, component)" fill="clear" shape="round" [attr.aria-label]="(locale +'.operations.' + operation) | translate">
-                            @if (operation === OperationKeys.UPDATE) {
-                              <ngx-decaf-icon name="ti-edit" />
-                            } @else {
-                              <ngx-decaf-icon  color="danger" name="ti-trash" />
-                            }
-                          </ion-button>
+                          <ngx-decaf-icon
+                            (click)="handleAction(operation, $event, component)"
+                            fill="clear" shape="round"
+                            [attr.aria-label]="(locale +'.operations.' + operation) | translate"
+                            [button]="true"
+                            slot="icon-only"
+                            [color]="operation === OperationKeys.UPDATE ? 'dark' : 'danger'"
+                            [name]="operation === OperationKeys.UPDATE ? 'ti-edit' : 'ti-trash'"
+                          />
+
                         }
                       </div>
                     }

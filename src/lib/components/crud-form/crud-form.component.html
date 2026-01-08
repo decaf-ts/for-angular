@@ -31,7 +31,7 @@
               @if (options.buttons.clear?.icon) {
                 <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
               }
-              Back
+              {{ locale + '.' + (allowClear ? options.buttons.clear?.text : 'back') | translate }}
             </ion-button>
           </div>
         }
@@ -40,7 +40,7 @@
             @if (options.buttons.submit.icon) {
               <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
             }
-            {{ action ? action : options.buttons.submit.text}}
+            {{ action ? action : (locale + '.' + options.buttons.submit.text) | translate }}
           </ion-button>
         </div>
 
@@ -65,9 +65,6 @@
   </section>
 
   <section [class]="'dcf-buttons-grid dcf-grid dcf-grid-small dcf-flex dcf-flex-left ' + operation" [id]="uid">
-
-
-
     @if (operations.includes(OperationKeys.DELETE) && [OperationKeys.READ, OperationKeys.DELETE].includes(operation) && modelId) {
       <div>
         <ion-button
@@ -77,35 +74,29 @@
           @if (options.buttons.submit.icon) {
             <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
           }
-          Delete
+          {{locale + '.delete' | translate}}
         </ion-button>
       </div>
-
     }
-
-     @if (operation === OperationKeys.CREATE || operation === OperationKeys.UPDATE) {
+    @if (operation === OperationKeys.CREATE || operation === OperationKeys.UPDATE) {
       <div>
         <ion-button
           type="submit">
           @if (options.buttons.submit.icon) {
             <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
           }
-          {{options.buttons.submit.text}}
+           {{ action ? action : (locale + '.' + options.buttons.submit.text) | translate }}
         </ion-button>
       </div>
     }
-
-    @if (options.buttons.clear) {
-      <div>
-       <ion-button fill="clear" (click)="handleReset()">
-          @if (options.buttons.clear?.icon) {
-            <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
-          }
-          {{ [OperationKeys.DELETE, OperationKeys.READ, OperationKeys.UPDATE].includes(operation) ? 'Back' : options.buttons.clear?.text}}
-        </ion-button>
-      </div>
-
-    }
+    <div>
+      <ion-button fill="clear" (click)="handleReset()">
+        @if (options.buttons.clear?.icon) {
+          <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
+        }
+        {{ [OperationKeys.DELETE, OperationKeys.READ, OperationKeys.UPDATE].includes(operation) ? (locale + '.back' | translate) : options.buttons.clear?.text}}
+      </ion-button>
+    </div>
   </section>
 }
 
