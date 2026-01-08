@@ -22,7 +22,7 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
   lastUsage!: string;
 
   constructor() {
-    super("DashboardPage", true);
+    super("DashboardPage", false);
     addIcons({
       cardOutline,
       peopleOutline,
@@ -30,10 +30,10 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
     });
   }
 
-  override ngOnInit() {
-    super.ngOnInit();
+  override async ngOnInit(): Promise<void> {
     this.getData();
-    this.model = new DashboardLayout;
+    this.model = new DashboardLayout();
+    await super.ngOnInit();
   }
 
   getData() {

@@ -20,7 +20,7 @@
         </ion-buttons>
       }
       @if(showBackButton && operation) {
-        <ion-buttons [slot]="(!showMenuButton || (modelId && ![OperationKeys.READ, OperationKeys.DELETE, OperationKeys.UPDATE].includes(operation))) ?  'end' : 'start'">
+        <ion-buttons slot="start">
           <app-back-button [link]="backButtonLink" [toolbarColor]="isDarkMode ? 'light' : backButtonColor"></app-back-button>
         </ion-buttons>
       }

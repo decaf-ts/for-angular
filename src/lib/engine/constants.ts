@@ -180,6 +180,7 @@ export const ComponentEventNames = {
   FIELDSET_REMOVE_GROUP: 'fieldsetRemoveGroupEvent',
   THEME_CHANGE: 'themeChangeEvent',
   FORM_GROUP_LOADED: 'formGroupLoadedEvent',
+  DISABLE_MENU: 'disableMenuEvent',
   // FIELDSET_GROUP_VALIDATION: 'fieldsetGroupValidationEvent'
 } as const;
 
