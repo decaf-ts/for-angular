@@ -256,13 +256,6 @@ ion-item {
     @media (max-width: var(--dcf-width-s)) {
       align-items: flex-start !important;
     }
-
-    ion-button {
-      // margin-right: .5rem !important;
-      ion-icon {
-        font-size: 20px;
-      }
-    }
   }
 }
 
