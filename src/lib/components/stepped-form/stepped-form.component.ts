@@ -275,8 +275,8 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    *
    * @memberOf SteppedFormComponent
    */
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
+  override async ngOnDestroy(): Promise<void> {
+    await super.ngOnDestroy();
     if (this.timerSubscription)
       this.timerSubscription.unsubscribe();
   }

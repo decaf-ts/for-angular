@@ -17,6 +17,7 @@ import { Dynamic } from '../../engine/decorators';
 import { DefaultFormReactiveOptions, ComponentEventNames } from '../../engine/constants';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { LayoutComponent } from '../layout/layout.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 
 @Dynamic()
@@ -25,7 +26,7 @@ import { LayoutComponent } from '../layout/layout.component';
   selector: 'ngx-decaf-crud-form',
   templateUrl: './crud-form.component.html',
   styleUrls: ['./crud-form.component.scss'],
-  imports: [ReactiveFormsModule, LayoutComponent, IonButton, IonIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, LayoutComponent, IonButton, IonIcon],
   host: {'[attr.id]': 'uid'},
 })
 
@@ -49,6 +50,7 @@ export class CrudFormComponent extends NgxFormDirective {
     this.options = Object.assign(
       {},
       DefaultFormReactiveOptions,
+      {buttons: {submit: {text: this.operation.toLowerCase()}}},
       this.options || {},
     );
     await super.ngOnInit();
@@ -66,7 +68,7 @@ export class CrudFormComponent extends NgxFormDirective {
    */
   handleDelete(): void {
     this.submitEvent.emit({
-      data: this.modelId,
+      data: this.model,
       component: 'CrudFormComponent',
       name: ComponentEventNames.SUBMIT,
     });

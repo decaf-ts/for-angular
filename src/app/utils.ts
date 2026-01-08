@@ -8,8 +8,7 @@
  * @module AppUtils
  */
 
-import { KeyValue, FunctionLike } from 'src/lib/engine/types';
-import { formatDate } from 'src/lib/utils/helpers';
+import { KeyValue } from 'src/lib/engine/types';
 
 /**
  * @description Common properties for input fields.
@@ -114,20 +113,20 @@ export function getFormFieldProps(
  *
  * @memberOf AppUtils
  */
-export function generateFakerData(
-  limit: number = 100,
-  props: KeyValue
-): Promise<KeyValue[]> {
-  return new Promise((resolve) => {
-    return resolve(
-      Array.from({ length: limit }, () => {
-        const item: KeyValue = {};
-        for (const [key, value] of Object.entries(props)) {
-          const val = (value as FunctionLike)();
-          item[key] = val.constructor === Date ? formatDate(val) : val;
-        }
-        return item;
-      })
-    );
-  });
-}
+// export function generateFakerData(
+//   limit: number = 100,
+//   props: KeyValue
+// ): Promise<KeyValue[]> {
+//   return new Promise((resolve) => {
+//     return resolve(
+//       Array.from({ length: limit }, () => {
+//         const item: KeyValue = {};
+//         for (const [key, value] of Object.entries(props)) {
+//           const val = (value as FunctionLike)();
+//           item[key] = (val as FunctionLike).constructor === Date ? formatDate(val) : val;
+//         }
+//         return item;
+//       })
+//     );
+//   });
+// }

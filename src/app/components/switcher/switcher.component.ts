@@ -84,8 +84,8 @@ export class SwitcherComponent extends NgxParentComponentDirective implements On
     this.data = event.data as Partial<Model>[];
   }
 
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
+  override async ngOnDestroy(): Promise<void> {
+    await super.ngOnDestroy();
     if(this.timerSubscription)
       this.timerSubscription.unsubscribe();
   }

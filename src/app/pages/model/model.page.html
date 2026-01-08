@@ -11,7 +11,7 @@
               [model]="model"
               [operation]="operation"
               [createButton]="true"
-              [operations]="['read', 'create', 'update', 'delete']"
+              [operations]="operations"
               (listenEvent)="handleEvent($event)"
             />
           } @else {
@@ -19,7 +19,7 @@
               <ngx-decaf-model-renderer
                 [model]="model"
                 (listenEvent)="handleEvent($event)"
-                [globals]='{operation: operation, modelId, allowClear: false}' />
+                [globals]='{operation: operation, operations, modelId, allowClear: false}' />
             } @else {
               <ngx-decaf-empty-state
                 [model]="model"

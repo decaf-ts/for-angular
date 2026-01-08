@@ -104,13 +104,15 @@ export class NgxToastComponent {
    */
   async show(options: ToastOptions = {}): Promise<HTMLIonToastElement>{
     options = Object.assign(this.options, {duration: 5000}, options);
-    let timeout = 0;
     if(component) {
-      await component.dismiss();
-      timeout = 200;
+      return await component.dismiss().then(async () => {
+        component = null;
+        return await this.show(options)
+      });
     }
+
     component = await toastController.create(options);
-    setTimeout(async() => await (component as HTMLIonToastElement).present(), timeout);
+    await (component as HTMLIonToastElement).present()
     return component;
   }
 

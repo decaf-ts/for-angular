@@ -20,7 +20,7 @@ import {
 } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import { debounceTime, fromEvent, Subscription } from 'rxjs';
+import { debounceTime, fromEvent, shareReplay, Subscription, takeUntil } from 'rxjs';
 import {
   IonButton,
   IonChip,
@@ -46,6 +46,8 @@ import { IFilterQuery, IFilterQueryItem } from '../../engine/interfaces';
 import { getWindowWidth } from '../../utils/helpers';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { Constructor } from '@decaf-ts/decoration';
+import { IconComponent } from '../icon/icon.component';
+import { NavigationStart } from '@angular/router';
 
 /**
  * @description Advanced filter component for creating dynamic search filters with step-by-step construction.
@@ -103,6 +105,7 @@ import { Constructor } from '@decaf-ts/decoration';
     IonSelectOption,
     IonIcon,
     SearchbarComponent,
+    IconComponent,
   ],
   standalone: true,
   host: { '[attr.id]': 'uid' },
@@ -393,11 +396,14 @@ export class FilterComponent
   async ngOnInit(): Promise<void> {
     this.windowWidth = getWindowWidth() as number;
     this.windowResizeSubscription = fromEvent(window, 'resize')
-      .pipe(debounceTime(300))
+      .pipe(debounceTime(300), takeUntil(this.destroySubscriptions$), shareReplay(1))
       .subscribe(() => {
         this.windowWidth = getWindowWidth() as number;
       });
-
+    this.router.events.pipe(takeUntil(this.destroySubscriptions$)).subscribe(async event => {
+      if (event instanceof NavigationStart)
+       await this.ngOnDestroy();
+    });
     this.getIndexes();
     this.initialize();
   }
@@ -414,6 +420,7 @@ export class FilterComponent
   getIndexes(): void {
     if (this.model)
       this.indexes = Object.keys(Model.indexes(this.model as Model) || {});
+    console.log(this);
     if (!this.disableSort) {
       this.sortBy = [...this.sortBy, ...this.indexes];
       if (this.repository) {
@@ -433,7 +440,7 @@ export class FilterComponent
    * @memberOf FilterComponent
    */
   override async ngOnDestroy(): Promise<void> {
-    super.ngOnDestroy();
+    await super.ngOnDestroy();
     if (this.windowResizeSubscription)
       this.windowResizeSubscription.unsubscribe();
     this.clear();
@@ -717,7 +724,9 @@ export class FilterComponent
    * @memberOf FilterComponent
    */
   clear(value?: string): void {
-    if (!value) this.reset();
+    this.filterValue = []
+    if (!value)
+      this.reset();
   }
 
   /**
