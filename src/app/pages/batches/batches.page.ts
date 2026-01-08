@@ -24,12 +24,13 @@ export class BatchesPage  extends NgxModelPageDirective implements OnInit {
   //   super(true, getNgxToastComponent() as unknown as ToastController);
   // }
 
-  override ngOnInit(): Promise<void> | void {
-    super.ngOnInit();
+  override async ngOnInit(): Promise<void>   {
     this.title = "batch.title";
     this.route = 'batches';
     this.model = !this.operation ? new Batch() : new BatchLayout();
     this.enableCrudOperations();
+    await super.ngOnInit();
+
  }
 
   override async ionViewWillEnter(): Promise<void> {

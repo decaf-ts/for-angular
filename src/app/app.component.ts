@@ -22,7 +22,7 @@ import {
 import * as IonicIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 
-import { IMenuItem, NgxPageDirective } from '../lib/engine';
+import { IBaseCustomEvent, ICrudFormEvent, IMenuItem, NgxPageDirective } from '../lib/engine';
 import { isDevelopmentMode } from '../lib/utils';
 import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { LogoComponent } from './components/logo/logo.component';
@@ -67,19 +67,15 @@ export class AppComponent extends NgxPageDirective implements OnInit {
 
   showCollapseButton: boolean = true;
 
-  constructor() {
-    super('', true);
-    this.title = 'Decaf-ts for-angular demo';
-    this.appName = AppName;
-    addIcons(IonicIcons);
-  }
-
   /**
    * @description Lifecycle hook that is called after data-bound properties of a directive are initialized
    * @summary Sets up router event subscriptions and initializes the application
    * @return {Promise<void>}
    */
   override async ngOnInit(): Promise<void> {
+    this.hasMenu = true;
+    this.title = 'Decaf-ts for-angular demo';
+    this.appName = AppName;
     await this.initialize();
   }
 
@@ -127,4 +123,5 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     this.menuCollapsed = !this.menuCollapsed;
     this.changeDetectorRef.detectChanges()
   }
+
 }

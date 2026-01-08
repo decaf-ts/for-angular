@@ -11,9 +11,11 @@ import { Title } from "@angular/platform-browser";
 import { IMenuItem } from "./interfaces";
 import { CPTKN } from "../for-angular-common.module";
 import { NavigationEnd, NavigationStart } from "@angular/router";
-import { removeFocusTrap } from "../utils/helpers";
+import { removeFocusTrap, windowEventEmitter } from "../utils/helpers";
 import { KeyValue } from "./types";
 import { MenuController } from "@ionic/angular";
+import { shareReplay, take, takeUntil } from "rxjs";
+import { ComponentEventNames } from "./constants";
 
 
 /**
@@ -153,7 +155,7 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
     return "";
   }
 
-  ngOnInit(): Promise<void> | void{
+  async ngOnInit(): Promise<void> {
     // connect component to media service for color scheme toggling
     this.mediaService.colorSchemeObserver(this.component);
     this.currentRoute = this.router.url.replace('/', '');
@@ -170,21 +172,24 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
    * @memberOf module:lib/engine/NgxPageDirective
    */
 	async ngAfterViewInit(): Promise<void> {
-    this.router.events.subscribe(async event => {
+    this.router.events.pipe(takeUntil(this.destroySubscriptions$), shareReplay(1)).subscribe(async event => {
       if(event instanceof NavigationEnd) {
         const url = (event?.url || "").replace('/', '');
-        this.hasMenu = url !== "login" && url !== "";
         this.currentRoute = url;
+        if(this.hasMenu)
+          this.hasMenu = url !== "login" && url !== "";
         this.setPageTitle(this.currentRoute);
         this.title = this.pageTitle;
       }
-      if (event instanceof NavigationStart)
+      if (event instanceof NavigationStart) {
+        const url = (event?.url || "").replace('/', '');
+        if(this.hasMenu)
+          this.hasMenu = url !== "login" && url !== "";
         removeFocusTrap();
+      }
     });
     await this.menuController.enable(this.hasMenu);
 	}
-
-
 
   /**
    * @description Sets the browser page title based on the current route.

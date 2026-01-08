@@ -32,8 +32,8 @@ import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 export class LeafletPage extends NgxModelPageDirective implements OnInit {
 
 
-  override ngOnInit(): Promise<void> | void {
-    super.ngOnInit();
+  override async ngOnInit(): Promise<void>   {
+    await super.ngOnInit();
     this.title = "leaflet.title";
     this.route = 'leaflets';
     this.model = new Leaflet();
