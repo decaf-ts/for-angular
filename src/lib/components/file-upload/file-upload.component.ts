@@ -8,6 +8,8 @@ import {
  } from '@ionic/angular/standalone';
  import { TranslatePipe } from '@ngx-translate/core';
 import { HTML5InputTypes, UIFunctionLike } from '@decaf-ts/ui-decorators';
+import { Constructor } from '@decaf-ts/decoration';
+import { Primitives } from '@decaf-ts/decorator-validation';
 import { Dynamic } from '../../engine/decorators';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { ElementSize, FlexPosition, KeyValue, PossibleInputTypes } from '../../engine/types';
@@ -16,9 +18,7 @@ import { IBaseCustomEvent, IFileUploadError } from '../../engine/interfaces';
 import { presentNgxInlineModal, presentNgxLightBoxModal } from '../modal/modal.component';
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../icon/icon.component';
-import { Primitives } from '@decaf-ts/decorator-validation';
-import { NgxEventHandler } from 'src/lib/engine/NgxEventHandler';
-import { Constructor } from '@decaf-ts/decoration';
+import { NgxEventHandler } from '../../engine/NgxEventHandler';
 
 
 const FileErrors = {

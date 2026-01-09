@@ -1,7 +1,6 @@
 import { Component, EnvironmentInjector, inject, Input, OnInit } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { ActionRoles, Dynamic,  IFilterQuery, KeyValue, ListComponentsTypes, SelectFieldInterfaces, SelectOption } from 'src/lib/engine';
 import { CommonModule } from '@angular/common';
 import { OrderDirection } from '@decaf-ts/core';
 import { IonSelect, IonSelectOption } from '@ionic/angular/standalone';
@@ -12,8 +11,12 @@ import { ListComponent } from '../list/list.component';
 import { getNgxSelectOptionsModal } from '../modal/modal.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { NgxRouterService } from '../../services/NgxRouterService';
-import { UIFunctionLike } from '@decaf-ts/ui-decorators';
-import { formatDate, isValidDate } from 'src/lib/utils/helpers';
+import { formatDate, isValidDate } from '../../utils/helpers';
+import { KeyValue, SelectOption } from '../../engine/types';
+import { ActionRoles, ListComponentsTypes, SelectFieldInterfaces } from '../../engine/constants';
+import { Dynamic } from '../../engine/decorators';
+import { IFilterQuery } from '../../engine/interfaces';
+
 
 @Dynamic()
 @Component({
