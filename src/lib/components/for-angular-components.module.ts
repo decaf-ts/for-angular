@@ -26,6 +26,7 @@ import { SteppedFormComponent } from './stepped-form/stepped-form.component';
 import { IconComponent } from './icon/icon.component';
 import { CardComponent } from './card/card.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
+import { TableComponent } from './table/table.component';
 
 const Components = [
   ModelRendererComponent,
@@ -44,7 +45,8 @@ const Components = [
   SteppedFormComponent,
   IconComponent,
   CardComponent,
-  FileUploadComponent
+  FileUploadComponent,
+  TableComponent
 ];
 
 @NgModule({

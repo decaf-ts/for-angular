@@ -18,7 +18,7 @@ import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/help
 
 @Dynamic()
 @Component({
-  selector: 'app-batch-select-field',
+  selector: 'app-select-field',
   templateUrl: './batch-select-field.component.html',
   styleUrls: ['./batch-select-field.component.scss'],
   imports: [TranslatePipe, ForAngularCommonModule, IconComponent, IonItem, IonLabel, IonText, IonSelect, IonSelectOption],

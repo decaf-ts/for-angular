@@ -5,17 +5,17 @@
     <app-container>
       @if(model) {
         @if(!operation) {
-          <ngx-decaf-card type="shadow" [body]="'blank'">
-            <ngx-decaf-list
+           <ngx-decaf-table
+              [filter]="products"
+              [filterIndex]="'productCode'"
+              [filterLabel]="'batches.filter.all' | translate"
               [model]="model"
-              [createButton]="true"
               [route]="route"
-              [enableFilter]="false"
+              [locale]="locale"
               [operation]="operation"
               [operations]="operations"
               (listenEvent)="handleEvent($event)"
             />
-          </ngx-decaf-card>
         } @else {
           @if(!errorMessage) {
             <ngx-decaf-model-renderer

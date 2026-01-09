@@ -7,12 +7,13 @@ import { ListComponent } from 'src/lib/components/list/list.component';
 import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
 import { EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
+import { IBaseCustomEvent, ITabItem } from 'src/lib/engine/interfaces';
 import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
 import { Product } from 'src/app/ew/models/Product';
 import { CardComponent } from 'src/lib/components/card/card.component';
 import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
 import { ModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
+import { EpiTabs } from 'src/app/ew/constants';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -114,15 +115,21 @@ import { ModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.
 })
 export class ProductsPage extends NgxModelPageDirective implements OnInit {
 
+  tabs: ITabItem[] = EpiTabs;
+
   constructor() {
     super("product");
   }
-  override async ngOnInit(): Promise<void>   {
-    this.title = "product.title";
-    this.route = 'products';
+
+  override async ngOnInit(): Promise<void> {
     this.model = !this.operation ? new Product() : new ProductLayout();
     this.enableCrudOperations();
+    // keep init after model selection
+    this.locale = "product";
+    this.title = `${this.locale}.title`;
+    this.route = 'products';
     await super.ngOnInit();
+
   }
 
   override async ionViewWillEnter(): Promise<void> {

@@ -11,11 +11,10 @@ import { Title } from "@angular/platform-browser";
 import { IMenuItem } from "./interfaces";
 import { CPTKN } from "../for-angular-common.module";
 import { NavigationEnd, NavigationStart } from "@angular/router";
-import { removeFocusTrap, windowEventEmitter } from "../utils/helpers";
+import { removeFocusTrap } from "../utils/helpers";
 import { KeyValue } from "./types";
 import { MenuController } from "@ionic/angular";
-import { shareReplay, take, takeUntil } from "rxjs";
-import { ComponentEventNames } from "./constants";
+import { shareReplay, takeUntil } from "rxjs";
 
 
 /**

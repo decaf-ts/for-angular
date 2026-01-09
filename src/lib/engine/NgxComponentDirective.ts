@@ -500,6 +500,9 @@ export abstract class NgxComponentDirective
   @Input()
   protected override events: Record<string, UIFunctionLike> = {};
 
+  @Input()
+  valueParserFn!: UIFunctionLike;
+
   /**
    * @description Indicates whether a refresh operation is in progress.
    * @summary When true, the component is currently fetching new data. This is used

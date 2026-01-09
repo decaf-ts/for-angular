@@ -491,10 +491,16 @@ export interface IWindowResizeEvent {
   height: number;
 }
 
-
-
 export interface IFileUploadError {
   name: string;
   size?: number;
   error: string
+}
+
+export interface ITabItem {
+  title?: string;
+  description?: string;
+  url?: string;
+  value?: string
+  icon?: string;
 }

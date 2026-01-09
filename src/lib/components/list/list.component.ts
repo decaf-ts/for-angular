@@ -65,7 +65,6 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
 import { PaginationComponent } from '../pagination/pagination.component';
 import { FilterComponent } from '../filter/filter.component';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
-import { NavigationStart } from '@angular/router';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -1043,14 +1042,13 @@ export class ListComponent
    * when a user interacts with the pagination controls to navigate between pages.
    *
    * @param {IPaginationCustomEvent} event - The pagination event containing page information
-   * @returns {void}
+   * @returns {Promise<void>}
    *
    * @memberOf ListComponent
    */
-  handlePaginate(event: IPaginationCustomEvent): void {
-    const { page } = event.data;
-    this.page = page;
-    this.refresh(true);
+  async handlePaginate(event: IPaginationCustomEvent | number): Promise<void> {
+    this.page = typeof event === 'number' ? event : event.data?.page;
+    await this.refresh(true);
   }
 
   /**
@@ -1443,7 +1441,8 @@ export class ListComponent
       }
     } else {
       this.pages = length;
-      if (this.pages === 1) this.loadMoreData = false;
+      if (this.pages === 1)
+        this.loadMoreData = false;
     }
   }
 

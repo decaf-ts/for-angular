@@ -72,7 +72,7 @@ export class Leaflet extends BaseModel {
   // productCode!: string;
 
   @required()
-  @uielement('app-batch-select-field', {
+  @uielement('app-select-field', {
     label: 'leaflet.productCode.label',
     placeholder: 'leaflet.productCode.placeholder',
     type: HTML5InputTypes.SELECT,
@@ -83,7 +83,7 @@ export class Leaflet extends BaseModel {
   @uilistprop(ListItemPositions.description)
   productCode!: string;
 
-  @uielement('app-batch-select-field', {
+  @uielement('app-select-field', {
     label: 'leaflet.batchNumber.label',
     placeholder: 'leaflet.batchNumber.placeholder',
     type: HTML5InputTypes.SELECT,
@@ -109,7 +109,7 @@ export class Leaflet extends BaseModel {
   lang!: string;
 
   @required()
-  @uielement('app-batch-select-field', {
+  @uielement('app-select-field', {
     label: 'leaflet.type.label',
     placeholder: 'leaflet.type.placeholder',
     type: HTML5InputTypes.SELECT,
