@@ -21,10 +21,7 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
 
   protected pkType?: string;
 
-  constructor(
-    protected model: string | Model,
-    protected limit: number = 36
-  ) {
+  constructor(protected model: string | Model, protected limit: number = 36) {
     super();
   }
 
@@ -61,57 +58,25 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
     const limit = values ? Object.values(values || {}).length : this.limit;
     if (!key)
       key = Model.pk(this.repository.class) as string;
-    if (!keyType)
-      keyType = Metadata.type(this.repository.class, key).name.toLowerCase();
 
-    const props = Object.keys(this.model as KeyValue).filter((k) => {
-      if (keyType === Primitives.STRING)
-        return !['updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(k);
-      return ![key, 'updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(k);
-    });
-    const dataProps: Record<string, FunctionLike> = {};
-    for (const prop of props) {
-      const type = Metadata.type(this.repository.class, prop);
+    if (!keyType)
+      keyType = Metadata.type(this.repository.class, key).name.toLowerCase() as string;
+
+    const modelProperties = this.getModelProperties(key, keyType);
+    const dataFunctions: Record<string, FunctionLike> = {};
+    for (const prop of modelProperties) {
       const fn = this.propFnMapper?.[prop] as FunctionLike || undefined;
-      if(fn && typeof fn === 'function') {
-        // dataProps[prop] = (fn as FunctionLike)() as unknown as FunctionLike;
-        dataProps[prop] =  () => fn() as unknown as FunctionLike;
-      } else {
-        switch (type.name.toLowerCase()) {
-          case 'string':
-            dataProps[prop] = () =>
-              `${faker.lorem.word()} ${key === prop ? ' - ' + faker.number.int({ min: 1, max: 200 }) : ''}`;
-            break;
-          case 'step':
-            dataProps[prop] = () => faker.lorem.word();
-            break;
-          case 'email':
-            dataProps[prop] = () => faker.internet.email();
-            break;
-          case 'number':
-            dataProps[prop] = () => faker.number.int({ min: 1, max: 5 });
-            break;
-          case 'boolean':
-            dataProps[prop] = () => faker.datatype.boolean();
-            break;
-          case 'date':
-            dataProps[prop] = () => faker.date.past();
-            break;
-          case 'url':
-            dataProps[prop] = () => faker.internet.url();
-            break;
-          case 'array':
-            dataProps[prop] = () =>
-              faker.lorem.words({ min: 2, max: 5 }).split(' ');
-            break;
-          }
+      if(fn && typeof fn === Function.name.toLowerCase()) {
+        dataFunctions[prop] =  () => fn() as FunctionLike;
+        continue;
       }
+      dataFunctions[prop] = this.getPropValueFn(prop, key);
     }
 
     const data = getFakerData<T>(
       limit,
-      dataProps,
-      typeof this.model === 'string' ? this.model : this.model?.constructor.name
+      dataFunctions,
+      (typeof this.model === 'string') ? this.model : this.model?.constructor.name
     );
 
     if (!values) return data;
@@ -149,6 +114,47 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
         return true;
       })
       .filter(Boolean) as T[];
+  }
+
+
+  protected pickRandomValue(source: string[] | KeyValue): string  {
+    const values: string[] = Array.isArray(source) ? source : Object.values(source);
+    return !values?.length ?
+      "" : `${values[Math.floor(Math.random() * values.length)]}`;
+  }
+
+  protected getModelProperties(pk: string, pkType: string): string[] {
+     return Object.keys(this.model as KeyValue).filter((k) => {
+      if (pkType === Primitives.STRING)
+        return !['updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(k);
+      return ![pk, 'updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(k);
+    })
+  }
+
+  protected getPropValueFn(propName: string, pkName: string): FunctionLike {
+    const type = Metadata.type(this.repository.class, propName);
+     switch (type.name.toLowerCase()) {
+        case 'string':
+          return () =>
+            `${faker.lorem.word()} ${pkName === propName ? ' - ' + faker.number.int({ min: 1, max: 200 }) : ''}`;
+        case 'step':
+          return () => faker.lorem.word();
+        case 'email':
+          return () => faker.internet.email();
+        case 'number':
+          return () => faker.number.int({ min: 1, max: 5 });
+        case 'boolean':
+          return () => faker.datatype.boolean();
+        case 'date':
+          return () => faker.date.past();
+        case 'url':
+          return () => faker.internet.url();
+        case 'array':
+          return () => faker.lorem.words({ min: 2, max: 5 }).split(' ');
+        default:
+          return () => undefined;
+      }
+
   }
 }
 

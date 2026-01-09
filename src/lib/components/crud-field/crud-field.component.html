@@ -38,7 +38,7 @@
               [autoGrow]="true"
               [minlength]="minlength !== undefined ? minlength : null"
               [maxlength]="maxlength !== undefined ? maxlength : null"
-              [readonly]="readonly !== undefined ? readonly : null"
+              [attr.readonly]="readonly !== undefined ? readonly : null"
               [inputmode]="inputmode"
               [spellcheck]="spellcheck"
               [rows]="rows"
@@ -66,7 +66,7 @@
                   [justify]="justify || 'start'"
                   [value]="value"
                   [checked]="checked"
-                  [readonly]="readonly"
+                  [attr.readonly]="readonly"
                   [formControlName]="name"
                   #component>
                   <span>{{label | translate}}</span>
@@ -86,7 +86,7 @@
                       [labelPlacement]="labelPlacement"
                       [justify]="justify"
                       [value]="option.value"
-                      [readonly]="readonly"
+                      [attr.readonly]="readonly"
                       [checked]="isOptionChecked(option.value)"
                       (ionChange)="toggleOptionSelection(option.value, $event)"
                       #component>
@@ -114,7 +114,7 @@
                     [labelPlacement]="labelPlacement"
                     [alignment]="alignment"
                     [justify]="justify"
-                    [readonly]="readonly"
+                    [attr.readonly]="readonly"
                     [value]="option.value"
                   >{{ option?.text | translate }}</ion-radio>
                 </ion-item>
@@ -179,7 +179,7 @@
               [labelPlacement]="labelPlacement"
               [minlength]="minlength !== undefined ? minlength : null"
               [maxlength]="maxlength !== undefined ? maxlength : null"
-              [readonly]="readonly !== undefined ? readonly : null"
+              [attr.readonly]="readonly !== undefined ? readonly : null"
               [max]="max !== undefined ? max : null"
               [min]="min !== undefined ? min : null"
               [pattern]="pattern !== undefined ? pattern : null"

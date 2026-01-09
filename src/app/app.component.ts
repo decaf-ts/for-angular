@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { uses } from '@decaf-ts/decoration';
 import {
   IonApp,
   IonSplitPane,
@@ -12,31 +14,15 @@ import {
   IonRouterOutlet,
   IonRouterLink,
 } from '@ionic/angular/standalone';
-
-import {
-  Model,
-  ModelConstructor,
-  ModelKeys,
-} from '@decaf-ts/decorator-validation';
-
-import * as IonicIcons from 'ionicons/icons';
-import { addIcons } from 'ionicons';
-
-import { IBaseCustomEvent, ICrudFormEvent, IMenuItem, NgxPageDirective } from '../lib/engine';
+import { Model, ModelConstructor, ModelKeys } from '@decaf-ts/decorator-validation';
+import { IMenuItem, NgxPageDirective } from '../lib/engine';
 import { isDevelopmentMode } from '../lib/utils';
 import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { LogoComponent } from './components/logo/logo.component';
 import { AppModels, AppName } from './app.config';
-import { uses } from '@decaf-ts/decoration';
-import {
-  AppMenu,
-  DashboardMenuItem,
-  EwMenu,
-  LogoutMenuItem,
-} from './utils/contants';
-import { TranslatePipe } from '@ngx-translate/core';
 import { IconComponent } from 'src/lib/components';
 import { getDbAdapterFlavour } from 'src/lib/for-angular-common.module';
+import { AppMenu, DashboardMenuItem, EwMenu, LogoutMenuItem } from './utils/contants';
 
 @Component({
   standalone: true,

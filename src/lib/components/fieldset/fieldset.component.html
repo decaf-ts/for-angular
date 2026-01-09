@@ -1,7 +1,7 @@
 
   @if (['create', 'update'].includes(operation) || !multiple) {
     <div
-      [role]="['create', 'update'].includes(operation) ? 'group' : 'region'"
+      [attr.role]="['create', 'update'].includes(operation) ? 'group' : 'region'"
 
       [class]="'dcf-fieldset-component ' + operation"
       [class.dcf-blank]="!borders"

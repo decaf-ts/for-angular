@@ -27,5 +27,6 @@ export * from './modal/modal.component';
 export * from './icon/icon.component';
 export * from './card/card.component';
 export * from './file-upload/file-upload.component';
+export * from './table/table.component';
 // Module export
 export * from './for-angular-components.module';

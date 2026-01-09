@@ -1,0 +1,129 @@
+
+@if (showSearchbar && (data?.length || searching)) {
+  <div class="dcf-grid-actions">
+    <div class="dcf-grid dcf-grid-small">
+      <div class="dcf-width-expand@s">
+        <ngx-decaf-searchbar
+          [emitEventToWindow]="false"
+          [debounce]="500"
+          (searchEvent)="handleSearch($event)"
+        />
+      </div>
+      @if(filter?.length && filterIndex) {
+        <div class="dcf-width-auto@s dcf-select-filter-container  dcf-flex dcf-flex-middle">
+          <ion-select
+            [id]="name"
+            toggleIcon="chevron-down-outline"
+            expandedIcon="chevron-up-outline"
+            [mode]="'md'"
+            fill="outline"
+            [value]="filterValue ?? '' "
+            [labelPlacement]="'floating'"
+            [label]=" locale + '.filter.label' | translate"
+            (click)="openFilterSelectOptions($event)"
+            [placeholder]=" locale + '.filter.label' | translate"
+            interface="popover"
+          >
+            <ion-select-option value="">{{ locale + '.filter.all' | translate }}</ion-select-option>
+            @for(filterOption of filter; track $index) {
+              <ion-select-option value="{{ filterOption.value }}">{{ filterOption.text }}</ion-select-option>
+            }
+            <ion-button fill="clear" (click)="handleFilterSelectClear($event)" slot="end" size="small" [disabled]="!filterValue">
+              <ngx-decaf-icon fill="clear" slot="icon-only" [name]="'ti-input-x'" />
+            </ion-button>
+          </ion-select>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<div class="dcf-table-container">
+  @if(initialized && data?.length) {
+    <table class="dcf-table">
+      <thead>
+        <tr>
+          @for(col of cols; track $index) {
+            <th>{{ locale + '.' + col + '.label' | translate}}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for(item of items; track trackItemFn($index, item)) {
+          <tr (click)="handleAction($event, OperationKeys.READ, item.uid)">
+            @for(col of item  | keyvalue; track $index) {
+              @if(!['actions', 'uid'].includes(col.key)) {
+                <td>{{ col.value }}</td>
+              } @else {
+                @if(allowOperations) {
+                  <td class="dcf-col-actions">
+                    <div class="dcf-flex dcf-flex-center">
+                      <ngx-decaf-icon
+                        [button]="true"
+                        (click)="handleAction($event, OperationKeys.UPDATE, item.uid)"
+                        fill="clear"
+                        slot="icon-only"
+                        color="primary"
+                        name="ti-pencil"
+                      />
+                      <ngx-decaf-icon
+                        [button]="true"
+                        (click)="handleAction($event,OperationKeys.DELETE, item.uid)"
+                        fill="clear"
+                        slot="icon-only"
+                        color="danger"
+                        name="ti-trash"
+                      />
+                    </div>
+                  </td>
+                }
+              }
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+    } @else {
+      @if (!searching) {
+        <ngx-decaf-empty-state
+          [title]="'component.list.empty.title' | translate"
+          [subtitle]="'component.list.empty.subtitle' | translate"
+          [model]="model"
+          [route]="route"
+          [modelId]="modelId"
+          [buttonLink]="empty?.link ?? undefined"
+          [borders]="borders"
+          [icon]="(item?.icon ?? 'folder-open-outline') || empty.icon"
+          className="dcf-empty-data"
+          />
+      } @else {
+
+        <ngx-decaf-empty-state
+          icon="search-outline"
+          [model]="model"
+          [route]="route"
+          [modelId]="modelId"
+          [borders]="borders"
+          [operations]="operations"
+          [body]="'small'"
+          [translatable]="true"
+          [title]="'component.list.search.title' | translate"
+          [subtitle]="'component.list.search.subtitle' | translate: {'0': parseSearchValue()}"
+          [searchValue]="searchValue"
+        />
+      }
+    }
+</div>
+  @if (loadMoreData) {
+    <div class="dcf-table-pagination">
+      @if (pages > 0 && !searchValue?.length) {
+        <ngx-decaf-pagination
+          [totalPages]="pages"
+          [current]="page"
+          (clickEvent)="handlePaginate($event)"
+        />
+
+      }
+  </div>
+}
+
