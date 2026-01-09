@@ -1,9 +1,10 @@
 import { Component, EnvironmentInjector, inject, Input, OnInit } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
-import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { CommonModule } from '@angular/common';
-import { OrderDirection } from '@decaf-ts/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { Model } from '@decaf-ts/decorator-validation';
+import { OrderDirection } from '@decaf-ts/core';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { IconComponent } from '../icon/icon.component';
 import { PaginationComponent } from '../pagination/pagination.component';
@@ -11,11 +12,12 @@ import { ListComponent } from '../list/list.component';
 import { getNgxSelectOptionsModal } from '../modal/modal.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { NgxRouterService } from '../../services/NgxRouterService';
-import { formatDate, isValidDate } from '../../utils/helpers';
-import { KeyValue, SelectOption } from '../../engine/types';
+import { FunctionLike, KeyValue, SelectOption } from '../../engine/types';
 import { ActionRoles, ListComponentsTypes, SelectFieldInterfaces } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { IFilterQuery } from '../../engine/interfaces';
+import { getModelAndRepository } from '../../for-angular-common.module';
+
 
 
 @Dynamic()
@@ -38,13 +40,19 @@ import { IFilterQuery } from '../../engine/interfaces';
 export class TableComponent extends ListComponent  implements OnInit {
 
   @Input()
-  filter!: SelectOption[];
+  filterModel!: Model | string;
 
   @Input()
-  filterIndex!: string;
+  filterOptions!: SelectOption[];
+
+  @Input()
+  filterBy!: keyof Model;
 
   @Input()
   filterLabel!: string;
+
+  @Input()
+  filterOptionsMapper!: FunctionLike;
 
   filterValue?: string;
 
@@ -86,36 +94,45 @@ export class TableComponent extends ListComponent  implements OnInit {
         }
       };
     }
+    if(this.filterModel)
+      await this.getFilterOptions();
     await this.refresh();
   }
 
+  protected async getFilterOptions(): Promise<void> {
+    const repo = getModelAndRepository(this.filterModel);
+    if(repo) {
+      const {repository, pk} = repo;
+      if(!this.filterBy)
+        this.filterBy = pk as keyof Model;
+      const optionsMapperFn = this.filterOptionsMapper || ((item: KeyValue) => ({
+        text: `${item[pk]}`,
+        value: `${item[pk]}`,
+      }));
+      const query = await repository.select().execute();
+      if(query?.length)
+        this.filterOptions = query.map((item: KeyValue) => optionsMapperFn(item));
+    }
+  }
+
   protected override itemMapper(item: KeyValue, mapper: KeyValue, props: KeyValue = {}): KeyValue {
-    const mapped = Object.keys(item).reduce<KeyValue>((acc, curr: string) => {
-      if(this.cols.includes(curr)) {
-        let value = item[curr];
-        const parserFn = mapper?.[curr]?.valueParserFn || undefined;
-        if(typeof parserFn === Function.name.toLowerCase()) {
-          value = parserFn(value, this);
-        } else {
-          if (isValidDate(new Date(value)))
-            value = `${formatDate(value)}`;
-        }
-        acc[curr] = value;
-      }
-      return acc;
-     }, { ...(props ?? {}) });
-    return mapped;
+    item = super.itemMapper(item, this.cols.filter(c => c !== 'actions'), props);
+    return Object.keys(item).reduce((accum: KeyValue, curr: string, index: number) => {
+      const parserFn = mapper[this.cols[index]]?.valueParserFn || undefined;
+      let value = item[curr];
+      if(parserFn)
+        value = parserFn(value, this);
+      return {...accum, [curr]: value};
+    }, {});
   }
 
   override mapResults(data: KeyValue[]): KeyValue[] {
     if (!data || !data.length)
       return [];
-    return data.reduce((accum: KeyValue[], curr) => {
-      accum.push({
-        ...this.itemMapper(curr, this.mapper, { uid: curr[this.pk] })
-      });
-      return accum;
-    }, []);
+    return data.reduce((accum: KeyValue[], curr) => [
+      ...accum,
+      this.itemMapper(curr, this.mapper, { uid: curr[this.pk] })
+    ], []);
   }
 
   async handleAction(event: Event, action: CrudOperations, uid: string): Promise<void> {
@@ -124,12 +141,12 @@ export class TableComponent extends ListComponent  implements OnInit {
   }
 
   async openFilterSelectOptions(event: Event): Promise<void> {
-    const type = (this.filter.length > 10 ? SelectFieldInterfaces.MODAL : SelectFieldInterfaces.POPOVER);
+    const type = (this.filterOptions.length > 10 ? SelectFieldInterfaces.MODAL : SelectFieldInterfaces.POPOVER);
     if(type === SelectFieldInterfaces.MODAL) {
       event.preventDefault();
       event.stopImmediatePropagation();
       const title = await this.translate(`${this.locale}.filter_by`);
-      const modal = await getNgxSelectOptionsModal(title, this.filter as SelectOption[], this.injector);
+      const modal = await getNgxSelectOptionsModal(title, this.filterOptions as SelectOption[], this.injector);
       this.changeDetectorRef.detectChanges();
       const {data, role} = await modal.onWillDismiss();
       if(role === ActionRoles.confirm && data !== this.filterValue) {
