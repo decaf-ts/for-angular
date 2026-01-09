@@ -1,11 +1,11 @@
+import { RouterModule } from '@angular/router';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { IonicModule } from '@ionic/angular';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { TableComponent } from './table.component';
-import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { I18nFakeLoader } from '../../i18n';
-import { RouterModule } from '@angular/router';
-import { NgxRouterService } from 'src/lib/services/NgxRouterService';
-import { IonicModule } from '@ionic/angular';
+import { NgxRouterService } from '../../services/NgxRouterService';
 
 const imports = [
   ForAngularCommonModule,
