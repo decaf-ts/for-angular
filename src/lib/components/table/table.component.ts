@@ -39,7 +39,7 @@ import { getModelAndRepository } from '../../for-angular-common.module';
 })
 export class TableComponent extends ListComponent  implements OnInit {
 
-  @Input()
+   @Input()
   filterModel!: Model | string;
 
   @Input()
@@ -105,13 +105,15 @@ export class TableComponent extends ListComponent  implements OnInit {
       const {repository, pk} = repo;
       if(!this.filterBy)
         this.filterBy = pk as keyof Model;
-      const optionsMapperFn = this.filterOptionsMapper || ((item: KeyValue) => ({
-        text: `${item[pk]}`,
-        value: `${item[pk]}`,
-      }));
+      if(!this.filterOptionsMapper) {
+        this.filterOptionsMapper = this.filterOptionsMapper || ((item) => ({
+          text: `${item[pk]}`,
+          value: `${item[pk]}`,
+        }));
+      }
       const query = await repository.select().execute();
       if(query?.length)
-        this.filterOptions = query.map((item: KeyValue) => optionsMapperFn(item));
+        this.filterOptions = query.map((item) => this.filterOptionsMapper(item));
     }
   }
 
@@ -119,11 +121,8 @@ export class TableComponent extends ListComponent  implements OnInit {
     item = super.itemMapper(item, this.cols.filter(c => c !== 'actions'), props);
     return Object.keys(item).reduce((accum: KeyValue, curr: string, index: number) => {
       const parserFn = mapper[this.cols[index]]?.valueParserFn || undefined;
-      let value = item[curr];
-      if(parserFn)
-        value = parserFn(value, this);
-      return {...accum, [curr]: value};
-    }, {});
+      return {...accum, [curr]: parserFn ? parserFn(item[curr], this) : item[curr]};
+    }, {... props});
   }
 
   override mapResults(data: KeyValue[]): KeyValue[] {
@@ -152,7 +151,7 @@ export class TableComponent extends ListComponent  implements OnInit {
       if(role === ActionRoles.confirm && data !== this.filterValue) {
         this.filterValue = data;
         await this.handleSearch({query: [
-          {index: 'productCode', value: this.filterValue, condition: 'Contains'}
+          {index: this.filterBy, value: this.filterValue, condition: 'Contains'}
         ]} as IFilterQuery);
       }
     }
@@ -163,7 +162,7 @@ export class TableComponent extends ListComponent  implements OnInit {
     event.stopImmediatePropagation();
     if(this.filterValue !== undefined) {
       this.filterValue = undefined;
-        await this.clearSearch();
+      await this.clearSearch();
     }
   }
 }

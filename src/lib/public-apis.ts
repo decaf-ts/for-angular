@@ -12,6 +12,7 @@ export * from './components';
 export * from './engine';
 export * from './directives';
 export * from './utils';
+export * from './services';
 export * from './i18n/Loader';
 export * from './for-angular-common.module';
 /**
