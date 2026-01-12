@@ -55,15 +55,15 @@ export const AppMenu: IMenuItem[] = [
 
 export const EwMenu: IMenuItem[] = [
   {
-    label: 'menu.product_management',
+    label: 'product_management',
   },
   {
-    label: 'Products',
+    label: 'product',
     url: 'products',
     icon: 'ti-medicine-syrup',
   },
   {
-    label: 'Batches',
+    label: 'batch',
     url: 'batches',
     icon: 'ti-package',
   },

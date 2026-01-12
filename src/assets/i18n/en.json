@@ -5,10 +5,12 @@
     }
   },
   "menu": {
+    "dashboard": "Dashboard",
     "product": "Products",
     "batch": "Batches",
     "logout": "Logout",
     "account": "Account",
+    "leaflets": "Leaflets",
     "user": "Users",
     "category": "Categories",
     "employee": "Employees",

@@ -27,7 +27,12 @@
       <ng-content select="[slot='start']"></ng-content>
 
       @if(title) {
-        <ion-title class="ion-text-{{titleAligment}}">{{ locale ? (title | translate) : title }}</ion-title>
+        <ion-title class="ion-text-{{titleAligment}}">
+          @if(operation?.length) {
+            {{'operations.' + operation +'.title' | translate}}
+          }
+          {{ locale ? (title | translate) : title }}
+        </ion-title>
       }
 
       <ng-content select="[slot='end']"></ng-content>

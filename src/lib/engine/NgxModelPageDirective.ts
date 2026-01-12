@@ -107,16 +107,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
   //   super("NgxModelPageDirective");
   // }
 
-  override get pageTitle(): string {
-    if (!this.modelName && this.model instanceof Model)
-      this.modelName = this.model?.constructor?.name || '';
-    if (!this.operation)
-      return this.title ? this.title : `Listing ${this.modelName}`;
-    const operation =
-      this.operation.charAt(0).toUpperCase() +
-      this.operation.slice(1).toLowerCase();
-    return this.modelName ? `${operation} ${this.modelName}` : this.title;
-  }
   /**
    * @description Lazy-initialized repository getter with model resolution.
    * @summary Creates and returns a repository instance for the specified model name.

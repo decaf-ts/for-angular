@@ -87,9 +87,9 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       }
       const label = name.toLowerCase().replace(ModelKeys.MODEL, '');
       if (!menu.length)
-        menu.push({ label: 'menu.models' });
+        menu.push({ label: 'models' });
       menu.push({
-        label: `menu.${label}`,
+        label: `${label}`,
         url: `/model/${Model.tableName(model)}`,
         icon: 'cube-outline',
       });

@@ -45,7 +45,7 @@
                    [hidden]="!menuCollapsed"
                   />
                 }
-                <ion-label>{{ item.label | translate }}</ion-label>
+                <ion-label>{{ 'menu.' + item.label.toLowerCase() | translate }}</ion-label>
                 </ion-item>
               </ion-menu-toggle>
             }
