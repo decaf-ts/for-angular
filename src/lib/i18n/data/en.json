@@ -32,18 +32,22 @@
   },
   "operations": {
     "read": {
+      "title": "Read",
       "success": "Successfully read item with {0} {1}.",
       "error": "Error reading item with {0} {1}."
     },
     "create": {
+      "title": "Create",
       "success": "Successfully created item.",
       "error": "Error creating item."
     },
     "update": {
+       "title": "Update",
       "success": "Successfully updated item with {0} {1}.",
       "error": "Error updating item with {0} {1}."
     },
     "delete": {
+      "title": "Delete",
       "success": "Successfully deleted item with {0} {1}.",
       "error": "Error deleting item with {0} {1}."
     },

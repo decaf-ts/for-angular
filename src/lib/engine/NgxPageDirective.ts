@@ -15,6 +15,7 @@ import { removeFocusTrap } from "../utils/helpers";
 import { KeyValue } from "./types";
 import { MenuController } from "@ionic/angular";
 import { shareReplay, takeUntil } from "rxjs";
+import { Model } from "@decaf-ts/decorator-validation";
 
 
 /**
@@ -150,9 +151,10 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
     if(this.locale)
       return `${this.locale}.title`;
     if(this.currentRoute)
-      return this.currentRoute?.charAt(0).toUpperCase() + this.currentRoute?.slice(1) || 'Decaf For Angular';
-    return "";
+      return `${this.currentRoute}.title`;
+    return `${(this.model as Model).constructor.name}.title`;
   }
+
 
   async ngOnInit(): Promise<void> {
     // connect component to media service for color scheme toggling
@@ -177,8 +179,8 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
         this.currentRoute = url;
         if(this.hasMenu)
           this.hasMenu = url !== "login" && url !== "";
-        this.setPageTitle(this.currentRoute);
         this.title = this.pageTitle;
+        await this.setPageTitle(url);
       }
       if (event instanceof NavigationStart) {
         const url = (event?.url || "").replace('/', '');
@@ -210,8 +212,9 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
       menu = this.menu;
     const activeMenu = menu.find(item => item?.url?.includes(route));
     if(activeMenu) {
-      const title = activeMenu?.title || activeMenu?.label;
-      this.titleService.setTitle(`${await this.translate(title)} ${this.appName ? `- ${this.appName}` : ''}`);
+      const label = `${(activeMenu?.title || activeMenu?.label || "").toLowerCase()}`;
+      const title = `${await this.translate(label ? "menu."+label : label)} ${this.appName ? `- ${this.appName}` : ''}`;
+      this.titleService.setTitle(title);
       if(!this.title)
         this.title = title;
     }

@@ -190,7 +190,7 @@ export class I18nParser extends TranslateParser {
     if (typeof params === Primitives.STRING) {
       params = { '0': params };
     }
-    return sf(value, ...Object.values(params));
+    return sf(value, ...Object.values(params)).replace(/undefined/g, "");
   }
 }
 
