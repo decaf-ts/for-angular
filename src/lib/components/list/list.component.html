@@ -82,7 +82,9 @@
         </ion-thumbnail>
         <ion-label>
           <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-          <ion-text class="date" style="width: 20%;"><ion-skeleton-text [animated]="true"></ion-skeleton-text></ion-text>
+          <ion-text class="date" style="width: 20%;">
+            <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+          </ion-text>
         </ion-label>
       </ion-item>
     }]
@@ -103,7 +105,7 @@
 
       <ngx-decaf-empty-state
         icon="search-outline"
-        [model]="empty.model"
+        [model]="empty?.showButton ? model : undefined"
         [route]="route"
         [modelId]="modelId"
         [borders]="borders"

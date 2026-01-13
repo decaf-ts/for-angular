@@ -391,7 +391,8 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
       });
     }
     this.showThemeToggleButton = false;
-    this.initialized = this.mediaService.darkModeEnabled();
+    this.mediaService.darkModeEnabled();
+    this.initialized = true;
   }
 
   async isLoggedIn(): Promise<string|undefined> {

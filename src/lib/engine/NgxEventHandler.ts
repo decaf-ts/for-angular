@@ -15,9 +15,15 @@ export abstract class NgxEventHandler extends DecafEventHandler {
   //TODO: pass to ui decorator decaf componnet
   changeDetectorRef!: ChangeDetectorRef;
 
+  //TODO: pass to ui decorator decaf componnet
   readonly: boolean | FunctionLike = false;
 
+  //TODO: pass to ui decorator decaf componnet
   hidden?: boolean | CrudOperationKeys[] | FunctionLike;
+
+  //TODO: pass to ui decorator decaf componnet
+  label?: string;
+
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor() {

@@ -119,9 +119,10 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @throws {InternalError} When the model is not found in the registry
    */
   override get repository(): DecafRepository<Model> | undefined {
+    const modelName = this.modelName || this.model?.constructor?.name;
     try {
-      if (!this._repository ) {
-        const constructor = Model.get(this.modelName);
+      if (!this._repository && modelName) {
+        const constructor = Model.get(modelName);
         if (!constructor)
           throw new InternalError(
             'Cannot find model. was it registered with @model?'
@@ -132,7 +133,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
       }
     } catch (error: unknown) {
       this.log.warn(
-        `Error getting repository for model: ${this.modelName || this.model?.constructor?.name}. ${(error as Error).message}`
+        `Error getting repository for model: ${modelName}. ${(error as Error).message}`
       );
       this._repository = undefined;
       // throw new InternalError((error as Error)?.message || (error as string));

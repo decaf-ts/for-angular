@@ -13,7 +13,7 @@ import { getNgxSelectOptionsModal } from '../modal/modal.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { NgxRouterService } from '../../services/NgxRouterService';
 import { FunctionLike, KeyValue, SelectOption } from '../../engine/types';
-import { ActionRoles, ListComponentsTypes, SelectFieldInterfaces } from '../../engine/constants';
+import { ActionRoles, DefaultListEmptyOptions, ListComponentsTypes, SelectFieldInterfaces } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { IFilterQuery } from '../../engine/interfaces';
 import { getModelAndRepository } from '../../for-angular-common.module';
@@ -39,7 +39,7 @@ import { getModelAndRepository } from '../../for-angular-common.module';
 })
 export class TableComponent extends ListComponent  implements OnInit {
 
-   @Input()
+  @Input()
   filterModel!: Model | string;
 
   @Input()
@@ -58,6 +58,8 @@ export class TableComponent extends ListComponent  implements OnInit {
 
   cols!: string[];
 
+  headers: string[] = [];
+
   allowOperations: boolean = true;
 
   routerService: NgxRouterService = inject(NgxRouterService);
@@ -65,18 +67,37 @@ export class TableComponent extends ListComponent  implements OnInit {
   injector: EnvironmentInjector = inject(EnvironmentInjector);
 
   private get _cols(): string[] {
+    this.mapper = this._mapper;
     return Object.entries(this.mapper)
       .sort(([, a], [, b]) => Number(a?.['sequence'] ?? 0) - Number(b?.['sequence'] ?? 0))
       .map(([key]) => key);
   }
 
+  private get _headers(): string[] {
+    return this.cols.map(col => col);
+  }
+
+  override get _mapper(): KeyValue {
+     return Object.keys(this.mapper).reduce((accum: KeyValue, curr: string) => {
+      const mapper = (this.mapper as KeyValue)[curr];
+      if(typeof mapper === 'object' && 'sequence' in mapper)
+        accum[curr] = mapper;
+      return accum;
+    }, {} as KeyValue);
+  }
+
   override async ngOnInit(): Promise<void> {
+    this.initialized = false;
     this.type = ListComponentsTypes.PAGINATED;
+    this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
+    if (!this.initialized)
+      this.parseProps(this);
     this.cols = this._cols as string[];
     this.allowOperations = this.isAllowed(OperationKeys.UPDATE) || this.isAllowed(OperationKeys.DELETE);
     this.searchValue = undefined;
     if(this.allowOperations)
       this.cols.push('actions');
+    this.headers = this._headers;
     const filter = this.routerService.getQueryParamValue('filter') as string;
     if(filter) {
      const value = this.routerService.getQueryParamValue('value') as string;
@@ -96,6 +117,8 @@ export class TableComponent extends ListComponent  implements OnInit {
     }
     if(this.filterModel)
       await this.getFilterOptions();
+
+    this.initialized = true;
     await this.refresh();
   }
 
@@ -117,11 +140,31 @@ export class TableComponent extends ListComponent  implements OnInit {
     }
   }
 
+
   protected override itemMapper(item: KeyValue, mapper: KeyValue, props: KeyValue = {}): KeyValue {
-    item = super.itemMapper(item, this.cols.filter(c => c !== 'actions'), props);
-    return Object.keys(item).reduce((accum: KeyValue, curr: string, index: number) => {
+    this.model = item as Model;
+    const mapped = super.itemMapper(item, this.cols.filter(c => c !== 'actions'), props);
+    const {children} = this.props || [];
+    return Object.keys(mapped).reduce((accum: KeyValue, curr: string, index: number) => {
+      const child = (children as KeyValue[])?.[index];
+      if(child) {
+        const {events} = child?.['props'] || {};
+        if(events) {
+          const {render} = events || undefined;
+          if(render) {
+            const clazz = new(events.render())();
+            const renderFn = clazz.render.bind(this);
+            if(renderFn instanceof Promise)  {
+              ( async () => await renderFn)();
+            }
+            else {
+              renderFn();
+            }
+          }
+        }
+      }
       const parserFn = mapper[this.cols[index]]?.valueParserFn || undefined;
-      return {...accum, [curr]: parserFn ? parserFn(item[curr], this) : item[curr]};
+      return {...accum, [curr]: parserFn ? parserFn(mapped[curr], item, this) : mapped[curr]};
     }, {... props});
   }
 

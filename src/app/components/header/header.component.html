@@ -8,7 +8,7 @@
   #component>
   <app-container [size]="size" className="dcf-nav-container">
     <ion-toolbar [color]="color">
-      @if(showMenuButton && (!operation || operation === OperationKeys.READ && !modelId)) {
+      @if(initialized && showMenuButton && (!operation || operation === OperationKeys.READ && !modelId)) {
         <ion-buttons [slot]="showBackButton ? 'end' : buttonMenuSlot">
           <ion-menu-button>
             <ngx-decaf-icon

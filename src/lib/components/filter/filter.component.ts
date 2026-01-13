@@ -420,7 +420,6 @@ export class FilterComponent
   getIndexes(): void {
     if (this.model)
       this.indexes = Object.keys(Model.indexes(this.model as Model) || {});
-    console.log(this);
     if (!this.disableSort) {
       this.sortBy = [...this.sortBy, ...this.indexes];
       if (this.repository) {

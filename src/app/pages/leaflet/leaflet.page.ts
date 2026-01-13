@@ -12,6 +12,7 @@ import { EmptyStateComponent } from 'src/lib/components/empty-state/empty-state.
 import { Leaflet } from 'src/app/ew/models/Leaflet';
 import { IBaseCustomEvent, IModelComponentSubmitEvent } from 'src/lib/engine/interfaces';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
+import { TableComponent } from 'src/lib/components';
 
 @Component({
   selector: 'app-leaflet',
@@ -25,9 +26,11 @@ import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
     CardComponent,
     TranslatePipe,
     ListComponent,
+    TableComponent,
     HeaderComponent,
     ContainerComponent,
-    EmptyStateComponent]
+    EmptyStateComponent
+  ]
 })
 export class LeafletPage extends NgxModelPageDirective implements OnInit {
 
