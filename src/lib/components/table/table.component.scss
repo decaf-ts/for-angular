@@ -4,9 +4,12 @@
   box-sizing: border-box;
   overflow-y: hidden;
   scrollbar-width: thin;
-  box-shadow: var(--dcf-box-shadow-small);
-  border: 1px solid var(--dcf-color-gray-2);
   border-radius: var(--dcf-border-radius-small);
+  box-shadow: var(--dcf-box-shadow-small) !important;
+  background-color: var(--dcf-card-background);
+  border: 1px solid var(--dcf-color-gray-2);
+  &:not(.dcf-empty) {
+  }
 
   &::-webkit-scrollbar {
     width: 5px;

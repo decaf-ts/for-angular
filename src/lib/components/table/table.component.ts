@@ -13,10 +13,11 @@ import { getNgxSelectOptionsModal } from '../modal/modal.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { NgxRouterService } from '../../services/NgxRouterService';
 import { FunctionLike, KeyValue, SelectOption } from '../../engine/types';
-import { ActionRoles, DefaultListEmptyOptions, ListComponentsTypes, SelectFieldInterfaces } from '../../engine/constants';
+import { ActionRoles, ComponentEventNames, DefaultListEmptyOptions, ListComponentsTypes, SelectFieldInterfaces } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { IFilterQuery } from '../../engine/interfaces';
 import { getModelAndRepository } from '../../for-angular-common.module';
+import { UIKeys } from '@decaf-ts/ui-decorators';
 
 
 
@@ -164,7 +165,7 @@ export class TableComponent extends ListComponent  implements OnInit {
         }
       }
       const parserFn = mapper[this.cols[index]]?.valueParserFn || undefined;
-      return {...accum, [curr]: parserFn ? parserFn(mapped[curr], item, this) : mapped[curr]};
+      return {...accum, [curr]: parserFn ? parserFn(mapped[curr], this) : mapped[curr]};
     }, {... props});
   }
 
@@ -179,7 +180,11 @@ export class TableComponent extends ListComponent  implements OnInit {
 
   async handleAction(event: Event, action: CrudOperations, uid: string): Promise<void> {
     event.stopImmediatePropagation();
-    await this.router.navigate([`/${this.route}/${action}/${uid}`]);
+    if(this.isAllowed(action))
+      await this.router.navigate([`/${this.route}/${action}/${uid}`]);
+    const data = this.items.find(item => item['uid'] === uid);
+    if(data)
+      this.listenEvent.emit({name: ComponentEventNames.CLICK, data});
   }
 
   async openFilterSelectOptions(event: Event): Promise<void> {

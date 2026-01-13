@@ -1,13 +1,13 @@
 import { BaseModel, pk, Repository } from "@decaf-ts/core";
-import { construct, Model, model, ModelArg, required } from "@decaf-ts/decorator-validation";
-import { DecafComponent, DecafEventHandler, hideOn, HTML5InputTypes, uielement,  uilistmodel,  uilistprop, uimodel, uionrender, uiprop, uitablecol } from "@decaf-ts/ui-decorators";
+import {  Model, model, ModelArg, required } from "@decaf-ts/decorator-validation";
+import {  DecafEventHandler, hideOn, HTML5InputTypes, uielement,  uilistmodel,  uilistprop, uimodel, uionrender, uiprop, uitablecol } from "@decaf-ts/ui-decorators";
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
-import { ElementPositions, ElementSizes, KeyValue, ListItemPositions, NgxComponentDirective, NgxEventHandler } from "src/lib/engine";
+import { ElementPositions, ElementSizes, KeyValue, ListItemPositions, NgxEventHandler } from "src/lib/engine";
 import { OperationKeys, timestamp } from "@decaf-ts/db-decorators";
 import { FormGroup } from "@angular/forms";
-import { presentNgxInlineModal, TableComponent } from "src/lib/components";
+import { presentNgxInlineModal } from "src/lib/components";
 import { Batch } from "./Batch";
 import { Product } from "./Product";
 import { EwMenu } from "src/app/utils/contants";
