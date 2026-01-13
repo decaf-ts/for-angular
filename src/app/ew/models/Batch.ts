@@ -99,7 +99,6 @@ export class Batch extends Model {
   })
   @uilayoutprop('half')
   @uitablecol(3, (value: string, instance?: ExpiryDateFieldComponent) => {
-    value = "=D";
     if(instance)
       instance.setValue(value);
     return value;

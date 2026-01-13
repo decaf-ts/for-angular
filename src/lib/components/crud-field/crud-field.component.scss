@@ -15,6 +15,17 @@
   }
 }
 
+ion-badge {
+  font-weight: 600 !important;
+  margin-top: 0.25rem;
+  font-weight: 600;
+
+  ion-text {
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+}
+
 ion-item {
   --border-color: transparent;
   // --inner-padding-start: 0.75rem;

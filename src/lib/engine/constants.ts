@@ -20,14 +20,14 @@ import { ModalOptions } from '@ionic/angular/standalone';
  * @const DefaultListEmptyOptions
  * @memberOf module:lib/engine/constants
  */
-export const DefaultListEmptyOptions = {
+export const DefaultListEmptyOptions: IListEmptyOptions = {
   title: 'empty.title',
   subtitle: 'empty.subtitle',
-  showButton: false,
+  showButton: true,
   icon: 'folder-open-outline',
-  buttonText: 'locale.empty.button',
+  buttonText: 'create',
   link: '',
-} as IListEmptyOptions;
+} as const;
 
 export const DefaultModalOptions = {
   component: '',

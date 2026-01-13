@@ -23,6 +23,7 @@ import { AppModels, AppName } from './app.config';
 import { IconComponent } from 'src/lib/components';
 import { getDbAdapterFlavour } from 'src/lib/for-angular-common.module';
 import { AppMenu, DashboardMenuItem, EwMenu, LogoutMenuItem } from './utils/contants';
+import { RamFlavour } from '@decaf-ts/core/ram';
 
 @Component({
   standalone: true,
@@ -81,7 +82,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       if (model instanceof Function)
         model = new (model as unknown as ModelConstructor<typeof model>)();
       const name = model.constructor.name.replace(/[0-9]/g, '');
-      if (isDevelopment && dbAdapterFlavour.includes("ram")) {
+      if (isDevelopment && dbAdapterFlavour.includes(RamFlavour)) {
         if (populate.includes(name))
           await new FakerRepository(model, 36).initialize();
       }

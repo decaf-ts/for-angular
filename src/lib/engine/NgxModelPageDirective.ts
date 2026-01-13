@@ -120,7 +120,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    */
   override get repository(): DecafRepository<Model> | undefined {
     try {
-      if (!this._repository) {
+      if (!this._repository ) {
         const constructor = Model.get(this.modelName);
         if (!constructor)
           throw new InternalError(
@@ -132,7 +132,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
       }
     } catch (error: unknown) {
       this.log.warn(
-        `Error getting repository for model: ${this.modelName}. ${(error as Error).message}`
+        `Error getting repository for model: ${this.modelName || this.model?.constructor?.name}. ${(error as Error).message}`
       );
       this._repository = undefined;
       // throw new InternalError((error as Error)?.message || (error as string));
@@ -319,13 +319,13 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         switch (operation) {
           case OperationKeys.CREATE:
             result = await (!Array.isArray(model)
-              ? repository.create(model as unknown as Model)
-              : repository.createAll(model as unknown as Model[]));
+              ? repository.create(model as Model)
+              : repository.createAll(model as Model[]));
             break;
           case OperationKeys.UPDATE: {
             result = await (!Array.isArray(model)
-              ? repository.update(model as unknown as Model)
-              : repository.updateAll(model as unknown as Model[]));
+              ? repository.update(model as Model)
+              : repository.updateAll(model as Model[]));
             break;
           }
           case OperationKeys.DELETE:
@@ -384,8 +384,11 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
       return undefined;
     }
 
-    if(!modelName)
+    if(!modelName) {
       modelName = this.modelName;
+      if(!modelName && this.model?.constructor)
+        this.modelName = modelName = this.model.constructor.name;
+    }
 
     const getRepository = async (modelName: string, parent?: string, model?: KeyValue): Promise<DecafRepository<Model> | undefined> => {
       if (this._repository)

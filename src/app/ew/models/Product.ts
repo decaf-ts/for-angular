@@ -5,11 +5,12 @@ import {
   required,
 } from "@decaf-ts/decorator-validation";
 import { pk } from "@decaf-ts/core";
-import { HTML5InputTypes, uielement,  uilayout,  uilayoutprop, uilistmodel, uilistprop } from "@decaf-ts/ui-decorators";
+import { HTML5InputTypes, uielement,  uilayout,  uilayoutprop, uilistmodel, uilistprop, uionrender } from "@decaf-ts/ui-decorators";
 import { CardComponent, CrudFieldComponent, FileUploadComponent } from "src/lib/components";
 import { ListItemPositions } from "src/lib/engine/constants";
 import { EwMenu } from "src/app/utils/contants";
 import { getMenuIcon } from "src/lib/utils/helpers";
+import { ProductEpiHandler } from "../handlers/ProductEpiHandler";
 
 export enum ProductNames {
   aspirin = "Aspirin",
@@ -39,7 +40,7 @@ export enum ProductNames {
 };
 
 @uilistmodel('ngx-decaf-list-item', {icon: getMenuIcon('Products', EwMenu)})
-@uilayout('ngx-decaf-crud-form', true)
+@uilayout('ngx-decaf-crud-form', true, 1, {empty: {showButton: false}})
 @model()
 export class Product extends Model {
 

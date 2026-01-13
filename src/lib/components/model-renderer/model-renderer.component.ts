@@ -79,7 +79,7 @@ export class ModelRendererComponent<M extends Model>
       (Model.build({}, model) as M) : model;
 
     if(model) {
-        this.output = (model as unknown as Renderable).render<AngularDynamicOutput>(
+        this.output = (model as Renderable).render<AngularDynamicOutput>(
         this.globals || {},
         this.vcr,
         this.injector,

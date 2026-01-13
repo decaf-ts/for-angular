@@ -194,7 +194,7 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
 
   async ngOnInit(model?: Model | string): Promise<void> {
     if (model)
-      this.model = model as unknown as string;
+      this.model = model;
     if (this.model && !this.repository)
       this._repository = this.repository;
   }
