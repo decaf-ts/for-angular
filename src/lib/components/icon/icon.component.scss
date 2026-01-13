@@ -87,6 +87,6 @@ ion-button {
   }
   &[color="dark"],
   &[class*="color-dark"] {
-    color: var(--dcf-color-dark);
+    color: var(--dcf-color-dark) !important;
   }
 }

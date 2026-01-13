@@ -5,14 +5,17 @@
       <ngx-decaf-card type="shadow" [body]="operation || !model ? '' : 'blank'">
         @if(model) {
           @if(!operation) {
-            <ngx-decaf-list
-                [model]="model"
-                [createButton]="true"
-                [type]="'paginated'"
-                [route]="route"
-                [operations]="operations"
-                (listenEvent)="handleEvent($event)"
-              />
+            <ngx-decaf-table
+              [filter]="products"
+              [filterIndex]="'productCode'"
+              [filterLabel]="'leaflet.filter.all' | translate"
+              [model]="model"
+              [route]="route"
+              [locale]="locale"
+              [operation]="operation"
+              [operations]="operations"
+              (listenEvent)="handleEvent($event)"
+            />
           } @else {
             @if(!errorMessage) {
             <ngx-decaf-model-renderer

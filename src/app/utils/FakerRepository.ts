@@ -38,7 +38,7 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           const repo = getModelAndRepository('Product');
           this.limit = 40;
           data = [
-            ...await Promise.all((await this.generateData<Batch>()).map(async(item: Partial<Batch>) => {
+              ...await Promise.all((await this.generateData<Batch>()).map(async(item: Partial<Batch>) => {
               const productCode = `0${Math.floor(Math.random() * 5) + 1}`.padStart(14, '0');
               item.productCode = productCode;
               item.batchNumber = `batch${productCode}_${item.nameMedicinalProduct}`.trim();
@@ -71,7 +71,11 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           this.propFnMapper = {
             lang: () => this.pickRandomValue(['en', 'fr', 'de', 'it', 'es', 'pt', 'pt-br']),
             type: () => this.pickRandomValue(['leaflet', 'prescribingInfo']),
-            productCode: () => `0${Math.floor(Math.random() * 5) + 1}`
+            productCode: () => {
+              const productCode = `013`;
+              return productCode.padStart(14, '0');
+            }
+            // productCode: () => `0${Math.floor(Math.random() * 5) + 1}`
           };
           data = await this.generateData<Leaflet>();
           break;

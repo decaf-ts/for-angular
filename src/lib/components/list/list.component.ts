@@ -681,6 +681,20 @@ export class ListComponent
     await this.destroy();
   }
 
+  /**
+   * @description Releases component resources and unregisters repository observers.
+   * @summary Invoked by Angular teardown logic to ensure the base directive and any
+   * attached repositories stop emitting events, preventing memory leaks when the
+   * list component leaves the DOM.
+   *
+   * The method performs the following actions:
+   * - Delegates to the parent directive's `ngOnDestroy` for shared cleanup
+   * - Detaches the repository observer when one is registered
+   * - Catches and logs repository errors to avoid bubbling failures
+   * - Clears internal references to large objects so they can be garbage collected
+   *
+   * @returns {Promise<void>} Resolves when every teardown step completes.
+   */
   async destroy(): Promise<void> {
     await super.ngOnDestroy();
     if (this._repository && this.repositoryObserver) {
@@ -696,6 +710,25 @@ export class ListComponent
       }
     }
     this.data = this.model = this._repository = this.paginator = undefined;
+  }
+
+  /**
+   * @description Produces the sanitized mapper configuration.
+   * @summary Merges the component mapper with the primary key metadata and filters
+   * non-string entries so downstream rendering logic only receives valid bindings.
+   *
+   * @protected
+   * @returns {KeyValue} A mapper object that contains string values mapped to the
+   * component's public keys.
+   */
+  protected get _mapper(): KeyValue {
+    this.mapper = { ...this.mapper, ...{ uid: this.pk } };
+    return Object.keys(this.mapper).reduce((accum: KeyValue, curr: string) => {
+      const mapper = (this.mapper as KeyValue)[curr];
+      if(typeof mapper === 'string')
+        accum[curr] = mapper;
+      return accum;
+    }, {} as KeyValue);
   }
 
   /**
@@ -1506,7 +1539,7 @@ export class ListComponent
   mapResults(data: KeyValue[]): KeyValue[] {
     if (!data || !data.length) return [];
     // passing uid as prop to mapper
-    this.mapper = { ...this.mapper, ...{ uid: this.pk } };
+    this.mapper = this._mapper;
     const props = Object.assign({
       operations: this.operations,
       route: this.route,

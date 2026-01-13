@@ -1,13 +1,13 @@
-import { BaseModel, pk } from "@decaf-ts/core";
-import { model, ModelArg, required } from "@decaf-ts/decorator-validation";
-import { HTML5InputTypes, uielement,  uilistmodel,  uilistprop, uimodel } from "@decaf-ts/ui-decorators";
+import { BaseModel, pk, Repository } from "@decaf-ts/core";
+import { construct, Model, model, ModelArg, required } from "@decaf-ts/decorator-validation";
+import { DecafComponent, DecafEventHandler, hideOn, HTML5InputTypes, uielement,  uilistmodel,  uilistprop, uimodel, uionrender, uiprop, uitablecol } from "@decaf-ts/ui-decorators";
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
-import { ElementPositions, ElementSizes, KeyValue, ListItemPositions, NgxEventHandler } from "src/lib/engine";
-import { OperationKeys } from "@decaf-ts/db-decorators";
+import { ElementPositions, ElementSizes, KeyValue, ListItemPositions, NgxComponentDirective, NgxEventHandler } from "src/lib/engine";
+import { OperationKeys, timestamp } from "@decaf-ts/db-decorators";
 import { FormGroup } from "@angular/forms";
-import { presentNgxInlineModal } from "src/lib/components";
+import { presentNgxInlineModal, TableComponent } from "src/lib/components";
 import { Batch } from "./Batch";
 import { Product } from "./Product";
 import { EwMenu } from "src/app/utils/contants";
@@ -58,7 +58,7 @@ class XmlPreviewHandler extends NgxEventHandler {
 }
 
 @uilistmodel('ngx-decaf-list-item', {icon: getMenuIcon('Leaflets', EwMenu)})
-@uimodel('ngx-decaf-crud-form', { locale: 'leaflet', cardType: 'shadow', operation: OperationKeys.READ})
+@uimodel('ngx-decaf-crud-form', { locale: 'leaflet', cardType: 'shadow'})
 @model()
 export class Leaflet extends BaseModel {
 
@@ -80,7 +80,23 @@ export class Leaflet extends BaseModel {
     optionsMapper: (item: Product) => ({ value: item.productCode, text: item.productCode + ' - ' + item.inventedName }),
     translatable: false,
   } as Partial<CrudFieldComponent>)
-  @uilistprop(ListItemPositions.description)
+  @uionrender(() => class _ extends DecafEventHandler {
+    override async render(): Promise<void> {
+      const instance = this as unknown as {headers: string[], operation: OperationKeys[]};
+      if(!this.operation)
+        instance.headers = instance.headers.map(header => header === 'productCode' ? 'documentName': header);
+    }
+  })
+  @uitablecol(0, async (value: string, model: Leaflet) => {
+    const constructor = Model.get('Product');
+    if(constructor) {
+      const repository = Repository.forModel(constructor);
+      const product = await repository.read(model.productCode) as Product;
+      if(product)
+        value = `${product.inventedName} - ${value}`;
+    }
+    return value;
+  })
   productCode!: string;
 
   @uielement('app-select-field', {
@@ -142,6 +158,20 @@ export class Leaflet extends BaseModel {
     accept: ['image/*', '.xml'],
   } as Partial<FileUploadComponent>)
   xmlFileContent!: string;
+
+  @uielement('ngx-decaf-crud-field', {
+    label: 'category.created.label',
+    placeholder: 'category.created.placeholder',
+    type: 'textarea',
+  })
+  @timestamp([OperationKeys.CREATE])
+  @hideOn(OperationKeys.CREATE)
+   @uitablecol(3)
+  override createdAt!: Date;
+
+  @uiprop()
+  @uitablecol(4)
+  version?: string;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(model?: ModelArg<Leaflet>) {

@@ -43,8 +43,8 @@
     <table class="dcf-table">
       <thead>
         <tr>
-          @for(col of cols; track $index) {
-            <th>{{ locale + '.' + col + '.label' | translate}}</th>
+          @for(header of headers; track $index) {
+            <th>{{ locale + '.' + header + '.label' | translate}}</th>
           }
         </tr>
       </thead>
@@ -53,7 +53,7 @@
           <tr (click)="handleAction($event, OperationKeys.READ, item.uid)">
             @for(col of item  | keyvalue; track $index) {
               @if(!['actions', 'uid'].includes(col.key)) {
-                <td>{{ col.value }}</td>
+                <td>{{ typeof col.value === 'string' ? col.value : (col.value | async) }}</td>
               } @else {
                 @if(allowOperations) {
                   <td class="dcf-col-actions">
@@ -88,7 +88,7 @@
         <ngx-decaf-empty-state
           [title]="'component.list.empty.title' | translate"
           [subtitle]="'component.list.empty.subtitle' | translate"
-          [model]="model"
+          [model]="empty?.showButton ? model : undefined"
           [route]="route"
           [modelId]="modelId"
           [buttonLink]="empty?.link ?? undefined"
@@ -100,7 +100,7 @@
 
         <ngx-decaf-empty-state
           icon="search-outline"
-          [model]="model"
+          [model]="empty?.showButton ? model : undefined"
           [route]="route"
           [modelId]="modelId"
           [borders]="borders"

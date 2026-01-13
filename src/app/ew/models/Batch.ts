@@ -98,9 +98,7 @@ export class Batch extends Model {
     type: HTML5InputTypes.TEXT,
   })
   @uilayoutprop('half')
-  @uitablecol(3, (value: string, instance?: ExpiryDateFieldComponent) => {
-    if(instance)
-      instance.setValue(value);
+  @uitablecol(3, (value: string) => {
     return value;
   })
   expiryDate!: string;

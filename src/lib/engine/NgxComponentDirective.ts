@@ -163,6 +163,7 @@ export abstract class NgxComponentDirective
   @Input()
   override uid?: string | number;
 
+
   /**
    * @description Data model or model name for component operations.
    * @summary The data model that this component will use for CRUD operations. This can be provided
