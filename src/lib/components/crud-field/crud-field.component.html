@@ -5,14 +5,12 @@
         <ion-item [class.dcf-item-readonly]="readonly && operation !== OperationKeys.READ" [class]="'dcf-input-item ' + operation" #component>
           <ion-label>
             {{ label | translate }}<br />
-            @if (value) {
+            @if (type !== 'checkbox' && value) {
                 <ion-text [innerHTML]="type === 'password' ? '********' : value"></ion-text>
             } @else {
-              @if (['checkbox'].includes(type) && value === 'true') {
-                <ion-icon aria-hidden="true" class="dcf-margin-small-top" [color]="!isDarkMode  ? 'primary' : 'light'" size="small" name="checkmark-circle-outline"></ion-icon>
-              } @else {
-                <br />
-              }
+              <ion-badge mode="md" color="light">
+                <ion-text [color]="!value ? 'danger' : 'primary'">{{value}}</ion-text>
+              </ion-badge>
             }
           </ion-label>
         </ion-item>

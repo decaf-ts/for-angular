@@ -204,7 +204,7 @@ export class NgxRenderingEngine extends RenderingEngine<
     const cmp =
       (fieldDef as KeyValue)?.['component'] ||
       NgxRenderingEngine.components(fieldDef.tag);
-    const component = cmp.constructor as unknown as Type<unknown>;
+    const component = cmp.constructor as Type<unknown>;
 
     const componentMetadata = reflectComponentType(component);
     if (!componentMetadata) {
@@ -654,7 +654,6 @@ export class NgxRenderingEngine extends RenderingEngine<
       );
       if (prop) {
         if (key === 'props') {
-
           component.setInput(key, value);
           parseInputValue(component, value);
         }

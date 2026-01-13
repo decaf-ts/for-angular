@@ -1,7 +1,8 @@
 import { pk } from "@decaf-ts/core";
 import { composed } from "@decaf-ts/db-decorators";
 import {
-  min,
+  maxlength,
+  minlength,
   model,
   Model,
   ModelArg,
@@ -33,12 +34,14 @@ export class ProductMarket extends Model {
   @uilistprop(ListItemPositions.title)
   marketId!: string;
 
+
+  @minlength(2)
+  @maxlength(2)
   @uielement('ngx-decaf-crud-field', {
     label: 'market.nationalCode.label',
     placeholder: 'market.nationalCode.placeholder',
   })
   @uilayoutprop(1)
-  @min(2)
   @uilistprop(ListItemPositions.description)
   nationalCode?: string;
 

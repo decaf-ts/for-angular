@@ -5,11 +5,13 @@ import {
   required,
 } from "@decaf-ts/decorator-validation";
 import { pk } from "@decaf-ts/core";
-import { HTML5InputTypes, uielement,  uilayout,  uilayoutprop, uilistmodel, uilistprop } from "@decaf-ts/ui-decorators";
+import { HTML5InputTypes, uielement,  uilayout,  uilayoutprop, uilistmodel, uilistprop, uionrender } from "@decaf-ts/ui-decorators";
 import { CardComponent, CrudFieldComponent, FileUploadComponent } from "src/lib/components";
 import { ListItemPositions } from "src/lib/engine/constants";
 import { EwMenu } from "src/app/utils/contants";
 import { getMenuIcon } from "src/lib/utils/helpers";
+import { OperationKeys } from "@decaf-ts/db-decorators";
+import { NgxEventHandler } from "src/lib/engine";
 
 export enum ProductNames {
   aspirin = "Aspirin",
@@ -39,7 +41,7 @@ export enum ProductNames {
 };
 
 @uilistmodel('ngx-decaf-list-item', {icon: getMenuIcon('Products', EwMenu)})
-@uilayout('ngx-decaf-crud-form', true)
+@uilayout('ngx-decaf-crud-form', true, 1, {empty: {showButton: false}})
 @model()
 export class Product extends Model {
 
@@ -57,12 +59,14 @@ export class Product extends Model {
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'product.productCode.label',
-    placeholder: 'product.productCode.placeholder',
-    // readonly: () => {
-    //   return (this as unknown as CrudFieldComponent).operation !== OperationKeys.CREATE;
-    // },
+    placeholder: 'product.productCode.placeholder'
   })
   @uilayoutprop(2)
+  @uionrender(() => class _ extends NgxEventHandler {
+    override async render(): Promise<void> {
+      this.readonly = this.operation !== OperationKeys.CREATE;
+    }
+  })
   productCode!: string;
 
   @required()

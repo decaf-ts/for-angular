@@ -614,6 +614,7 @@ export class ListComponent
    * @memberOf ListComponent
    */
   async ngOnInit(): Promise<void> {
+    this.initialized = false;
     this.repositoryObserver = {
       refresh: async (...args: unknown[]): Promise<void> =>
         this.handleRepositoryRefresh(...args),
@@ -659,12 +660,11 @@ export class ListComponent
 
     if (!this.operations || !this.operations.includes(OperationKeys.CREATE))
       this.createButton = false;
-
     if (typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
-    this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     if (!this.initialized)
       this.parseProps(this);
+    this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     this.initialized = true;
     await this.refresh();
   }
@@ -1529,6 +1529,8 @@ export class ListComponent
     if (typeof this.searchValue === Primitives.STRING)
       return this.searchValue || '';
     const searchValue = this.searchValue as IFilterQuery;
+    if(searchValue?.query === undefined)
+      return this.searchValue || '';
     return (searchValue?.query as IFilterQueryItem[])
       .map((item) => `${item.index} ${item.condition} ${item.value}`)
       .join(', ');

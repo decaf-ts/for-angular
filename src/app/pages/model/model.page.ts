@@ -9,6 +9,7 @@ import { CardComponent, EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { IBaseCustomEvent, IModelComponentSubmitEvent } from 'src/lib/engine/interfaces';
+import { ComponentEventNames } from 'src/lib/engine/constants';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -123,11 +124,14 @@ export class ModelPage extends NgxModelPageDirective implements OnInit {
   }
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
-    const {success, message} = await super.submit(event, true) as IModelComponentSubmitEvent;
-    const toast = getNgxToastComponent();
-    await toast.show({
-      color: success ? 'dark' : 'danger',
-      message,
-    });
+    const {name} = event;
+    if(name === ComponentEventNames.SUBMIT) {
+      const {success, message} = await super.submit(event, true) as IModelComponentSubmitEvent;
+      const toast = getNgxToastComponent();
+      await toast.show({
+        color: success ? 'dark' : 'danger',
+        message,
+      });
+    }
   }
 }

@@ -3,7 +3,7 @@
 // }
 
 .dcf-grid {
-  &:first-of-type .dcf-first-column {
+  &:first-of-type .dcf-grid .dcf-first-column {
     // fix top padding when first grid
     padding-top: 0.25rem !important;
     + div {

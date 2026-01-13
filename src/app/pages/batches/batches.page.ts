@@ -15,6 +15,7 @@ import { Product } from 'src/app/ew/models/Product';
 import { getModelAndRepository } from 'src/lib/for-angular-common.module';
 import { SelectOption } from 'src/lib/engine/types';
 import { EpiTabs } from 'src/app/ew/constants';
+import { ComponentEventNames } from 'src/lib/engine/constants';
 
 @Component({
   selector: 'app-batches',
@@ -61,8 +62,11 @@ export class BatchesPage  extends NgxModelPageDirective implements OnInit {
   }
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
-    const handler = (new ProductLayoutHandler()).handle.bind(this);
-    await handler(event);
+    const {name} = event;
+    if(name === ComponentEventNames.SUBMIT) {
+      const handler = (new ProductLayoutHandler()).handle.bind(this);
+      await handler(event);
+    }
   }
 
 }

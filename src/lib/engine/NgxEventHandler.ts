@@ -7,11 +7,17 @@
  * @link {@link NgxEventHandler}
  */
 import { ChangeDetectorRef } from "@angular/core";
-import { DecafEventHandler } from "@decaf-ts/ui-decorators";
+import { CrudOperationKeys, DecafEventHandler } from "@decaf-ts/ui-decorators";
+import { FunctionLike } from "src/lib/engine";
 
 export abstract class NgxEventHandler extends DecafEventHandler {
 
+  //TODO: pass to ui decorator decaf componnet
   changeDetectorRef!: ChangeDetectorRef;
+
+  readonly: boolean | FunctionLike = false;
+
+  hidden?: boolean | CrudOperationKeys[] | FunctionLike;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor() {

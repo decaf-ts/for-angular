@@ -14,13 +14,15 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  ViewChild
+  ViewChild,
+  inject
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe} from '@ngx-translate/core';
-import { AutocompleteTypes, CheckboxCustomEvent, SelectInterface } from '@ionic/core';
+import { AutocompleteTypes, CheckboxCustomEvent, LoadingOptions, SelectInterface } from '@ionic/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import {
+  IonBadge,
   IonCheckbox,
   IonInput,
   IonItem,
@@ -31,6 +33,7 @@ import {
   IonSelectOption,
   IonText,
   IonTextarea,
+  LoadingController,
 } from '@ionic/angular/standalone';
 import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { addIcons } from 'ionicons';
@@ -102,6 +105,7 @@ import { IconComponent } from '../icon/icon.component';
     IonSelect,
     IonSelectOption,
     IonLabel,
+    IonBadge,
     IonText,
     IonTextarea,
     IconComponent
@@ -655,6 +659,8 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   @Input()
   translatable: boolean = true;
 
+  private loadingController = inject(LoadingController);
+
   constructor() {
     super();
     addIcons({chevronDownOutline, chevronUpOutline});
@@ -675,6 +681,8 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     this.options = await this.getOptions();
     if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation))
       this.hidden = false;
+
+    if(this.readonly && typeof this.readonly === Function.name.toLocaleLowerCase())
 
     if(this.hidden && (this.hidden as OperationKeys[]).includes(this.operation))
       this.hidden = true;
@@ -788,7 +796,10 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     if(selectInterface === SelectFieldInterfaces.MODAL) {
       event.preventDefault();
       event.stopImmediatePropagation();
+      const loading = await this.loadingController.create({} as LoadingOptions);
+      await loading.present();
       const modal = await getNgxSelectOptionsModal(this.label, this.options as SelectOption[]);
+      loading.remove();
       const {data, role} = await modal.onWillDismiss();
       if(role === ActionRoles.confirm && data !== this.value) {
         this.setValue(data);

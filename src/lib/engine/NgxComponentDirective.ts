@@ -687,11 +687,7 @@ export abstract class NgxComponentDirective
                 clazz[key].bind(this)();
               }
             } catch (error: unknown) {
-              this.log
-                .for(this.ngOnChanges)
-                .warn(
-                  `Error occurred while processing event "${key}": ${(error as Error)?.message || (error as string)}`
-                );
+              this.log.for(this.ngOnChanges).error(`Error occurred while processing event "${key}": ${(error as Error)?.message || (error as string)}`);
             }
           }
         }

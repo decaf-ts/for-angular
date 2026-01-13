@@ -925,7 +925,7 @@ export class NgxFormService {
             : props.type === HTML5InputTypes.DATE
               ? !isValidDate(parseDate(props.format as string, props.value as string))
                 ? undefined : props.value :
-              (props.value as unknown) : undefined,
+              (props.value as KeyValue) : undefined,
         disabled: props.disabled,
       },
       {

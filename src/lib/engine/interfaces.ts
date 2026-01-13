@@ -130,7 +130,7 @@ export interface ISortObject {
  */
 export interface IFilterQuery {
   query: IFilterQueryItem[] | undefined,
-  sort: ISortObject
+  sort?: ISortObject
 }
 
 
