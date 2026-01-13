@@ -9,7 +9,7 @@ import { CardComponent, EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { IBaseCustomEvent, IModelComponentSubmitEvent } from 'src/lib/engine/interfaces';
-import { ComponentEventNames } from 'dist/lib';
+import { ComponentEventNames } from 'src/lib/engine/constants';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
