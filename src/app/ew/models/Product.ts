@@ -10,7 +10,8 @@ import { CardComponent, CrudFieldComponent, FileUploadComponent } from "src/lib/
 import { ListItemPositions } from "src/lib/engine/constants";
 import { EwMenu } from "src/app/utils/contants";
 import { getMenuIcon } from "src/lib/utils/helpers";
-import { ProductEpiHandler } from "../handlers/ProductEpiHandler";
+import { OperationKeys } from "@decaf-ts/db-decorators";
+import { NgxEventHandler } from "src/lib/engine";
 
 export enum ProductNames {
   aspirin = "Aspirin",
@@ -58,12 +59,14 @@ export class Product extends Model {
   @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'product.productCode.label',
-    placeholder: 'product.productCode.placeholder',
-    // readonly: () => {
-    //   return (this as unknown as CrudFieldComponent).operation !== OperationKeys.CREATE;
-    // },
+    placeholder: 'product.productCode.placeholder'
   })
   @uilayoutprop(2)
+  @uionrender(() => class _ extends NgxEventHandler {
+    override async render(): Promise<void> {
+      this.readonly = this.operation !== OperationKeys.CREATE;
+    }
+  })
   productCode!: string;
 
   @required()

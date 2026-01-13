@@ -682,6 +682,8 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation))
       this.hidden = false;
 
+    if(this.readonly && typeof this.readonly === Function.name.toLocaleLowerCase())
+
     if(this.hidden && (this.hidden as OperationKeys[]).includes(this.operation))
       this.hidden = true;
 
