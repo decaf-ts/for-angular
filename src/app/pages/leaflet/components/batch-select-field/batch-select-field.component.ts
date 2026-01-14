@@ -36,7 +36,7 @@ export class BatchSelectFieldComponent extends CrudFieldComponent implements Aft
           this.value = producCode as string;
         }
       }
-      if(this.value)
+      if(this.value && [OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation as OperationKeys))
         windowEventEmitter(ComponentEventNames.CHANGE, {source: this.name, value: this.value});
     }
 
@@ -50,7 +50,7 @@ export class BatchSelectFieldComponent extends CrudFieldComponent implements Aft
             this.formGroup?.enable();
         }
       }
-      if(this.value)
+      if(this.value && [OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation as OperationKeys))
         windowEventEmitter(ComponentEventNames.CHANGE, {source: this.name, value: this.value});
     }
 

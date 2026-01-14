@@ -27,9 +27,10 @@ fieldset {
   border-radius: var(--dcf-border-radius-small);
   border: 1px solid var(--dcf-color-gray-3);
   padding: var(--dcf-padding-small);
-
-  ::ng-deep .dcf-item-readonly {
-    display: none !important;
+  &.create {
+    ::ng-deep .dcf-item-readonly {
+      display: none !important;
+    }
   }
 
   &.dcf-open.dcf-empty {
