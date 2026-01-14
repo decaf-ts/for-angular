@@ -15,7 +15,6 @@ import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.com
 import { composed } from '@decaf-ts/db-decorators';
 import { EwMenu } from 'src/app/utils/contants';
 import { getMenuIcon } from 'src/lib/utils/helpers';
-import { ExpiryDateFieldComponent } from 'src/app/pages/leaflet/expiry-date/expiry-date-field.component';
 
 @uimodel('ngx-decaf-fieldset')
 @model()

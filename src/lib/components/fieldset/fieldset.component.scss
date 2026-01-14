@@ -28,6 +28,10 @@ fieldset {
   border: 1px solid var(--dcf-color-gray-3);
   padding: var(--dcf-padding-small);
 
+  ::ng-deep .dcf-item-readonly {
+    display: none !important;
+  }
+
   &.dcf-open.dcf-empty {
     .dcf-button-add {
       margin-top: 1rem !important;
@@ -77,6 +81,7 @@ legend,
   margin-top: var(--dcf-margin-small);
   // margin-bottom: var(--dcf-margin-small) !important;
   padding-bottom: var(--dcf-padding) !important;
+  max-height: 200px;
   // margin-top: -var(--dcf-spacement);
 
   ion-item {

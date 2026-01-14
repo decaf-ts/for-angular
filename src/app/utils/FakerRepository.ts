@@ -80,14 +80,15 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           data = await this.generateData<Leaflet>();
           break;
         }
-        case ProductStrength.name: {
-          data = await this.generateData<ProductStrength>();
-          data = data.map((item: Partial<ProductStrength>) => {
-            item.productCode = `${Math.floor(Math.random() * 5) + 1}`;
-            return item as T;
-          }) as T[];
-          break;
-        }
+        // case ProductStrength.name: {
+        //   data = await this.generateData<ProductStrength>();
+        //   data = data.map((item: Partial<ProductStrength>) => {
+        //     const productCode = `013`;
+        //     item.productCode = productCode.padStart(14, '0');
+        //     return item as T;
+        //   }) as T[];
+        //   break;
+        // }
         default:
           data = await this.generateData();
       }

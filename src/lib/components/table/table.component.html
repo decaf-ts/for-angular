@@ -38,7 +38,7 @@
   </div>
 }
 
-<div class="dcf-table-container">
+<div class="dcf-table-container" [class.dcf-empty]="!data?.length">
   @if(initialized && data?.length) {
     <table class="dcf-table">
       <thead>
@@ -53,7 +53,7 @@
           <tr (click)="handleAction($event, OperationKeys.READ, item.uid)">
             @for(col of item  | keyvalue; track $index) {
               @if(!['actions', 'uid'].includes(col.key)) {
-                <td>{{ typeof col.value === 'string' ? col.value : (col.value | async) }}</td>
+                <td [innerHTML]="typeof col.value === 'string' ? col.value : (col.value | async) "></td>
               } @else {
                 @if(allowOperations) {
                   <td class="dcf-col-actions">

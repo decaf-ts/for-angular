@@ -596,6 +596,8 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     if (event && event instanceof CustomEvent) event.stopImmediatePropagation();
     if (!this.activePage) {
       this.activePage = this.getActivePage();
+      if(this.operation === OperationKeys.UPDATE)
+        return this.handleCreateItem(event);
       return;
     }
     const formGroup = this.activeFormGroup as FormGroup;
