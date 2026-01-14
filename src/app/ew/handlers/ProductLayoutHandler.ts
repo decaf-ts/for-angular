@@ -13,6 +13,7 @@ import {
 } from "src/lib/engine";
 import { getNgxToastComponent } from "src/app/utils/NgxToastComponent";
 import { getNgxModalComponent } from "src/lib/components";
+import { createdAt } from "@decaf-ts/core";
 
 type LayoutModelContext = Record<string, {model: Model | Model[], repository: IRepository<Model>, pk: string}>;
 export class ProductLayoutHandler extends NgxEventHandler {
@@ -53,15 +54,14 @@ export class ProductLayoutHandler extends NgxEventHandler {
 
     if(allowSubmit) {
       const {success, message}  = await this.batchOperation(models, false);
+      if(success)
+        this.location.back();
       const options = {
         color: success ? 'dark' : 'danger',
         message
       };
       const toast = getNgxToastComponent(options);
-      await toast.show(options).then(() => {
-        if(success)
-          this.location.back();
-      });
+      await toast.show(options).then();
     }
   }
 
@@ -91,14 +91,18 @@ export class ProductLayoutHandler extends NgxEventHandler {
           data as Model,
           model as unknown as keyof Model
         ) as KeyValue;
-        if (diffs && diffs?.[pk])
-          delete diffs[pk];
+        if (diffs) {
+          delete diffs?.[pk];
+          delete diffs?.['createdAt'];
+          delete diffs?.['updatedAt'];
+        }
+
         if(diffs && Object.keys(diffs).length)
           return {...acc, ...diffs};
         return acc;
       }
       const data = findModelProp(name) as KeyValue[] || "";
-      if(data?.length !== model.length) {
+      if(data?.length > model.length) {
         return {...acc, [name]: {
           other: data,
           current: [...data, ...model.map((item) => {

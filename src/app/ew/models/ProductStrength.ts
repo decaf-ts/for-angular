@@ -1,6 +1,8 @@
 import { pk } from "@decaf-ts/core";
+import { OperationKeys, readonly } from "@decaf-ts/db-decorators";
 import { min, Model, model, ModelArg, required } from "@decaf-ts/decorator-validation";
-import { uielement, uilayoutprop, uilistprop, uimodel, uipageprop, uiprop } from "@decaf-ts/ui-decorators";
+import { hideOn, uielement, uilayoutprop, uilistprop, uimodel, uipageprop, uiprop } from "@decaf-ts/ui-decorators";
+import { read } from "fs";
 import { ListItemPositions } from "src/lib/engine/constants";
 
 @uimodel('ngx-decaf-crud-form', {multiple: true})
@@ -9,6 +11,11 @@ export class ProductStrength extends Model {
 
   @pk({ type: Number })
   @uilistprop('uid')
+  @uielement('ngx-decaf-crud-field', {
+    label: 'substance.id.label',
+    placeholder: 'substance.id.placeholder'
+  })
+  @hideOn(OperationKeys.CREATE)
   id!: number;
 
   //  @manyToOne(() => Product, {update: Cascade.NONE, delete: Cascade.NONE}, false)

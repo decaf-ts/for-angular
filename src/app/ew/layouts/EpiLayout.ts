@@ -49,7 +49,6 @@ export class EpiLayout extends Model {
     'ngx-decaf-fieldset',
     {
       title: 'Strengths',
-      pk: 'name',
       showTitle: false,
       ...commonProps
     } as Partial<FieldsetComponent>,

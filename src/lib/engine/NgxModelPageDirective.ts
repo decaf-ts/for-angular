@@ -224,8 +224,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
           data || {},
           relation,
           (
-            modelId && !data[pk] ?
-              {[pk]: uid} : {}
+            modelId && !data[this.pk] ?
+              {[this.pk]: modelId} : {}
           )
       ), repository.class.name);
     }
@@ -299,24 +299,25 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
   override async submit(
     event: Partial<IBaseCustomEvent>,
     redirect: boolean = false,
-    repository?: DecafRepository<Model>
+    repo?: IRepository<Model>
   ): Promise<IModelComponentSubmitEvent> {
 
     let success = false;
     let message = '';
 
     try {
-      if (!repository)
-        repository = this._repository as DecafRepository<Model>;
+      if (!repo)
+        repo = this._repository as DecafRepository<Model>;
 
-      // const pk = this.pk || Model.pk(repository.class as Constructor<Model>);
       const operation = this.operation;
       const { data } = event;
       if (data) {
+        const repository = repo as DecafRepository<Model>;
         const model = this.parseData(data || {}, operation, repository);
         if(!this.modelId && (model as KeyValue)?.[this.pk])
           this.modelId = (model as KeyValue)[this.pk] as EventIds;
         let result;
+        const pk = Model.pk(repository.class as Constructor<Model>) as string;
         switch (operation) {
           case OperationKeys.CREATE:
             result = await (!Array.isArray(model)
@@ -324,9 +325,11 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
               : repository.createAll(model as Model[]));
             break;
           case OperationKeys.UPDATE: {
-            result = await (!Array.isArray(model)
-              ? repository.update(model as Model)
-              : repository.updateAll(model as Model[]));
+            const models = (!Array.isArray(model) ? [model] : model) as (Model & KeyValue)[];
+            for(const m of models) {
+              const check = m[pk] ? await repository.read((m)[pk]) : false;
+              result = await (!check ?repository.create(m) : repository.update(m));
+            }
             break;
           }
           case OperationKeys.DELETE:
@@ -336,13 +339,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
             break;
         }
 
-        const pk = Model.pk(repository.class as Constructor<Model>) as string;
         const pkValue = (model as KeyValue)[pk] || (model as KeyValue)[this.pk] || model || "";
-        message = await this.translate(
-          !Array.isArray(result)
-            ? `operations.${operation}.${result ? 'success' : 'error'}`
-            : `operations.multiple`
-        , {"0": repository.class.name || pk, "1": pkValue});
+        message = await this.translate(`operations.${operation}.${result ? 'success' : 'error'}`, {"0": repository.class.name || pk, "1": pkValue});
         success = result ? true : false;
         if (success) {
           if((result as KeyValue)?.[this.pk])
@@ -397,30 +395,20 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
       const constructor = Model.get(modelName);
       if (constructor) {
         const properties = this.getModelProperties(constructor);
-        // if (!model) model = {} as KeyValue;
         for (const prop of properties) {
-          const propType = this.getModelPropertyType(constructor as Constructor<Model>, prop);
-          const context = getModelAndRepository(propType as string);
+          const type = this.getModelPropertyType(constructor as Constructor<Model>, prop);
+          const context = getModelAndRepository(type as string);
           if (!context)
-            return getRepository(propType, prop, model);
+            return getRepository(type, prop, model);
           const { repository } = context;
           if (modelName === this.modelName) {
             const data = await this.handleRead(uid, repository, modelName);
             if(data)
               this.model = Model.build({ [prop]: data }, modelName);
           }
-
-          // else {
-          //   model[prop as string] = Model.build({}, type);
-          // }
         }
-        // (this.model as KeyValue)[parent as string] = Model.build(
-        //   model,
-        //   modelName
-        // );
       }
     };
-
     repository = (repository || (await getRepository(modelName as string))) as IRepository<Model>;
     if (!repository)
       return this.model as Model;
@@ -443,19 +431,20 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
         const properties = Metadata.properties(constructor as Constructor<Model>) as string[];
         const promises = properties.map(async (prop) => {
           const type = Metadata.type(constructor as Constructor<Model>, prop).name;
-          let data = (evt.data as KeyValue)[prop] || (parent ? (event.data as KeyValue)[parent as string][prop] : (event.data as KeyValue)[prop])
+          let data = (evt.data as KeyValue)[prop] || (parent ?
+            (event.data as KeyValue)[parent as string][prop] : (event.data as KeyValue)[prop])
           if (data) {
             if (parent || Array.isArray(data))
               data = [...Object.values(data)];
-            const context = getModelAndRepository(type as string);
+            const context = getModelAndRepository(type);
             evt = { ...evt,  data };
             if (!context) {
-              await iterate(evt, type as string, prop);
+              await iterate(evt, type, prop);
             } else {
               const { repository, model, pk } = context;
               if(!this.pk)
                 this.pk = pk;
-              const modelName = model?.constructor.name as string;
+              const modelName = model?.constructor.name;
               Object.assign(models,  {
                 [prop]: {
                   model: Array.isArray(data) ? data.map((item: Partial<Model>) => Model.build(item, modelName)) : Model.build(data, modelName),
@@ -484,13 +473,13 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     let resultMessage = '';
     const promises = Object.keys(models).map(async(m) => {
       const {model, repository} = models[m];
-      const {success, message} = await this.submit({data: model}, false, repository as DecafRepository<Model>);
+      const {success} = await this.submit({data: model}, false, repository as IRepository<Model>);
       if(success)
-        resultMessage = message as string;
+        resultMessage = await this.translate('operations.multiple.success');
       result.push(success);
     })
     await Promise.all(promises);
-    const success = result.every((res: boolean) => res);
+    const success = result.every((r: boolean) => r);
     if (success && redirect)
       this.location.back();
     return {...{data: models}, success, message: resultMessage};

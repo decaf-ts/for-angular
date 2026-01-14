@@ -26,6 +26,7 @@
           ) {
 
             <div
+              [class.dcf-item-readonly]="child.props?.readonly ?? false"
               [class]="'dcf-grid-col ' + child.colClass"
               [class.dcf-first-column]="$index === 0"
               [class.dcf-layout-separator]="child.props?.separator ?? false"
