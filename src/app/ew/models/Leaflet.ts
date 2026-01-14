@@ -1,6 +1,6 @@
 import { BaseModel, pk, Repository } from "@decaf-ts/core";
 import {  Model, model, ModelArg, required } from "@decaf-ts/decorator-validation";
-import {  DecafEventHandler, hideOn, HTML5InputTypes, uielement,  uilistmodel,  uilistprop, uimodel, uionrender, uiprop, uitablecol } from "@decaf-ts/ui-decorators";
+import {  DecafComponent, DecafEventHandler, hideOn, HTML5InputTypes, uielement,  uilistmodel,  uilistprop, uimodel, uionrender, uiprop, uitablecol } from "@decaf-ts/ui-decorators";
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
@@ -57,7 +57,7 @@ class XmlPreviewHandler extends NgxEventHandler {
   }
 }
 
-@uilistmodel('ngx-decaf-list-item', {icon: getMenuIcon('Leaflets', EwMenu)})
+@uilistmodel('ngx-decaf-list-item', {icon: 'ti-package'})
 @uimodel('ngx-decaf-crud-form', { locale: 'leaflet', cardType: 'shadow'})
 @model()
 export class Leaflet extends BaseModel {
@@ -87,16 +87,21 @@ export class Leaflet extends BaseModel {
         instance.headers = instance.headers.map(header => header === 'productCode' ? 'documentName': header);
     }
   })
-  @uitablecol(0, async (value: string, model: Leaflet) => {
-    const constructor = Model.get('Product');
-    if(constructor) {
-      const repository = Repository.forModel(constructor);
-      const product = await repository.read(model.productCode) as Product;
-      if(product)
-        value = `${product.inventedName} - ${value}`;
+  @uitablecol(0, async (value: string, instance: DecafComponent & {model: Product}) => {
+    if(!instance.operation) {
+      let model = instance.model;
+      if(!model?.inventedName) {
+        const constructor = Model.get('Product');
+        if(constructor) {
+          const repository = Repository.forModel(constructor);
+          model = await repository.read(model.productCode) as Product;
+        }
+      }
+      return `${model.inventedName || ""} ${value}`;;
     }
     return value;
   })
+  @uilistprop("description")
   productCode!: string;
 
   @uielement('app-select-field', {
@@ -166,7 +171,7 @@ export class Leaflet extends BaseModel {
   })
   @timestamp([OperationKeys.CREATE])
   @hideOn(OperationKeys.CREATE)
-   @uitablecol(3)
+  @uitablecol(3)
   override createdAt!: Date;
 
   @uiprop()

@@ -74,6 +74,9 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
             productCode: () => {
               const productCode = `013`;
               return productCode.padStart(14, '0');
+            },
+            xmlFileContent(): string {
+              return "";
             }
             // productCode: () => `0${Math.floor(Math.random() * 5) + 1}`
           };
