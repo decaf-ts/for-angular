@@ -247,6 +247,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
         // to prevent layout glitches, before send class to child component remove width classes
         if (c?.['props']?.className)
           c['props'].className = filterString(c?.['props']?.className ,'-width-', false);
+
         return Object.assign(c, {colClass});
       })
       return row;
@@ -266,7 +267,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    */
   override async ngOnInit(): Promise<void> {
     super.parseProps(this);
-
     if (this.breakpoint)
       this.breakpoint = `${this.breakpoint.startsWith('x') ? this.breakpoint.substring(0,2) : this.breakpoint.substring(0,1)}`.toLowerCase();
     this.cols = this._cols;
