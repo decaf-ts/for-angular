@@ -67,6 +67,6 @@ export class CrudFormComponent extends NgxFormDirective {
    * @memberOf CrudFormComponent
    */
   handleDelete(): void {
-    this.submitEventEmit(this.model, this.action || ComponentEventNames.SUBMIT, 'CrudFormComponent');
+    super.submitEventEmit(this.model, this.action || ComponentEventNames.SUBMIT, 'CrudFormComponent');
   }
 }

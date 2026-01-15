@@ -322,14 +322,18 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
       return false;
     }
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
-    if(Object.keys(data).length > 0) {
-      this.submitEvent.emit({
-        data,
-        component: componentName || this.componentName,
-        name: eventName || this.action || ComponentEventNames.SUBMIT,
-        handlers: this.handlers,
-      });
-    }
+    if(Object.keys(data).length > 0)
+      this.submitEventEmit(data, eventName, componentName);
+
+  }
+
+  protected submitEventEmit(data: unknown, eventName?: string, componentName?: string): void {
+    this.submitEvent.emit({
+      data,
+      component: componentName || this.componentName,
+      name: eventName || this.action || ComponentEventNames.SUBMIT,
+      handlers: this.handlers,
+    });
   }
 
    /**

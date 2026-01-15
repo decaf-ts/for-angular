@@ -4,10 +4,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { ComponentEventNames, NgxModelPageDirective } from 'src/lib/engine';
-
 import { CardComponent } from 'src/lib/components/card/card.component';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
-import { ListComponent } from 'src/lib/components/list/list.component';
 import { EmptyStateComponent } from 'src/lib/components/empty-state/empty-state.component';
 import { Leaflet } from 'src/app/ew/models/Leaflet';
 import { IBaseCustomEvent, IModelComponentSubmitEvent } from 'src/lib/engine/interfaces';
@@ -25,7 +23,6 @@ import { TableComponent } from 'src/lib/components';
     ModelRendererComponent,
     CardComponent,
     TranslatePipe,
-    ListComponent,
     TableComponent,
     HeaderComponent,
     ContainerComponent,
