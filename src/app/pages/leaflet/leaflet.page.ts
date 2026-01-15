@@ -44,17 +44,17 @@ export class LeafletPage extends NgxModelPageDirective implements OnInit {
     await super.ionViewWillEnter();
   }
 
-  override async handleEvent(event: IBaseCustomEvent): Promise<void> {
-    const {name} = event;
-    if (name === ComponentEventNames.SUBMIT) {
-      const {success, message} = await super.submit(event, true) as IModelComponentSubmitEvent;
-      const toast = await getNgxToastComponent().show({
-        message,
-        duration: 3000,
-        color: success ? 'dark' : 'danger',
-        position: 'top',
-      });
-      await toast.present();
-    }
-  }
+  // override async handleEvent(event: IBaseCustomEvent): Promise<void> {
+  //   const {name} = event;
+  //   if (name === ComponentEventNames.SUBMIT) {
+  //     const {success, message} = await super.submit(event, true) as IModelComponentSubmitEvent;
+  //     const toast = await getNgxToastComponent().show({
+  //       message,
+  //       duration: 3000,
+  //       color: success ? 'dark' : 'danger',
+  //       position: 'top',
+  //     });
+  //     await toast.present();
+  //   }
+  // }
 }

@@ -1,10 +1,10 @@
 import { BaseModel, pk, Repository } from "@decaf-ts/core";
 import {  Model, model, ModelArg, required } from "@decaf-ts/decorator-validation";
-import {  DecafComponent, DecafEventHandler, hideOn, HTML5InputTypes, uielement,  uilistmodel,  uilistprop, uimodel, uionrender, uiprop, uitablecol } from "@decaf-ts/ui-decorators";
+import {  DecafComponent, DecafEventHandler, hideOn, HTML5InputTypes, uielement,  uihandlers,  uilistmodel,  uilistprop, uimodel, uionrender, uiprop, uitablecol } from "@decaf-ts/ui-decorators";
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from "../helpers";
 import { CrudFieldComponent } from "src/lib/components/crud-field/crud-field.component";
 import { FileUploadComponent } from "src/lib/components/file-upload/file-upload.component";
-import { ElementPositions, ElementSizes, KeyValue, ListItemPositions, NgxEventHandler } from "src/lib/engine";
+import { ComponentEventNames, ElementPositions, ElementSizes, KeyValue, ListItemPositions, NgxEventHandler } from "src/lib/engine";
 import { OperationKeys, timestamp } from "@decaf-ts/db-decorators";
 import { FormGroup } from "@angular/forms";
 import { presentNgxInlineModal } from "src/lib/components";
@@ -12,6 +12,7 @@ import { Batch } from "./Batch";
 import { Product } from "./Product";
 import { EwMenu } from "src/app/utils/contants";
 import { getMenuIcon } from "src/lib/utils/helpers";
+import { LeafletHandler } from "../handlers/LeafletHandler";
 
 class XmlPreviewHandler extends NgxEventHandler {
 
@@ -59,6 +60,7 @@ class XmlPreviewHandler extends NgxEventHandler {
 
 @uilistmodel('ngx-decaf-list-item', {icon: 'ti-package'})
 @uimodel('ngx-decaf-crud-form', { locale: 'leaflet', cardType: 'shadow'})
+@uihandlers({[ComponentEventNames.SUBMIT]: LeafletHandler})
 @model()
 export class Leaflet extends BaseModel {
 
@@ -117,7 +119,7 @@ export class Leaflet extends BaseModel {
   @uilistprop(ListItemPositions.title)
   batchNumber!: string;
 
-  @required()
+  // @required()
   @uielement('ngx-decaf-crud-field', {
     label: 'leaflet.lang.label',
     placeholder: 'leaflet.lang.placeholder',
@@ -158,7 +160,7 @@ export class Leaflet extends BaseModel {
     showIcon: false,
     size: ElementSizes.small,
     position: ElementPositions.left,
-    required: true,
+    // required: true,
     maxFileSize: 10,
     previewHandler: XmlPreviewHandler,
     accept: ['image/*', '.xml'],

@@ -325,12 +325,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
      if (isValid) {
       const rootForm = this.formGroup?.root || this.formGroup;
       const data = Object.assign({}, ...Object.values(NgxFormService.getFormData(rootForm as FormGroup)));
-      this.submitEvent.emit({
-        data,
-        component:  this.componentName,
-        name: this.action || ComponentEventNames.SUBMIT,
-        handlers: this.handlers,
-      });
+      super.submitEventEmit(data, this.action || ComponentEventNames.SUBMIT, 'SteppedFormComponent', this.handlers);
      }
     }
   }

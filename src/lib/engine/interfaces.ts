@@ -370,6 +370,7 @@ export interface I18nToken {
  */
 export interface ICrudFormEvent extends IBaseCustomEvent {
   handlers?: Record<string, unknown>;
+  role:  (typeof ActionRoles)[keyof typeof ActionRoles] & CrudOperationKeys;
 };
 
 /**
