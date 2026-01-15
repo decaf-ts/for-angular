@@ -2,6 +2,7 @@ import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
 import { ICrudFormOptions, IListEmptyOptions } from './interfaces';
 
 import { ModalOptions } from '@ionic/angular/standalone';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 
 
 /**
@@ -45,6 +46,10 @@ export const ActionRoles = {
   submit: 'submit',
   clear: 'clear',
   back: 'back',
+  [OperationKeys.CREATE]: OperationKeys.CREATE,
+  [OperationKeys.READ]: OperationKeys.READ,
+  [OperationKeys.UPDATE]: OperationKeys.UPDATE,
+  [OperationKeys.DELETE]: OperationKeys.DELETE,
 } as const;
 
 export const WindowColorSchemes = {

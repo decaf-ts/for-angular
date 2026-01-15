@@ -16,7 +16,7 @@ import {
 import { Model, sf } from '@decaf-ts/decorator-validation';
 import { AngularEngineKeys, BaseComponentProps } from '../../engine/constants';
 import { AngularDynamicOutput } from '../../engine/interfaces';
-import { Renderable } from '@decaf-ts/ui-decorators';
+import { Renderable, CrudOperationKeys } from '@decaf-ts/ui-decorators';
 import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableComponentDirective';
 
 /**
@@ -92,6 +92,9 @@ export class ModelRendererComponent<M extends Model>
           (this.output.inputs as Record<string, unknown>)['rendererId'] as string,
         );
       this.instance = this.output?.component;
+      const {operation} = this.globals || {};
+      if(operation)
+        this.operation = operation as CrudOperationKeys;
       this.subscribeEvents();
     }
   }

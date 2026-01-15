@@ -7,7 +7,7 @@ import { ListComponent } from 'src/lib/components/list/list.component';
 import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
 import { EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IBaseCustomEvent, ITabItem } from 'src/lib/engine/interfaces';
+import { IBaseCustomEvent, ICrudFormEvent, ITabItem } from 'src/lib/engine/interfaces';
 import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
 import { Product } from 'src/app/ew/models/Product';
 import { CardComponent } from 'src/lib/components/card/card.component';
@@ -137,7 +137,7 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
    await super.ionViewWillEnter();
   }
 
-  override async handleEvent(event: IBaseCustomEvent): Promise<void> {
+  override async handleEvent(event: ICrudFormEvent): Promise<void> {
     const {name} = event;
     if(name === ComponentEventNames.SUBMIT) {
       const handler = (new ProductLayoutHandler()).handle.bind(this);
