@@ -78,8 +78,8 @@ export class TableComponent extends ListComponent  implements OnInit {
     return this.cols.map(col => col);
   }
 
-  override get _mapper(): KeyValue {
-     return Object.keys(this.mapper).reduce((accum: KeyValue, curr: string) => {
+  get _mapper(): KeyValue {
+    return Object.keys(this.mapper).reduce((accum: KeyValue, curr: string) => {
       const mapper = (this.mapper as KeyValue)[curr];
       if(typeof mapper === 'object' && 'sequence' in mapper)
         accum[curr] = mapper;
@@ -89,6 +89,10 @@ export class TableComponent extends ListComponent  implements OnInit {
 
   override async ngOnInit(): Promise<void> {
     this.initialized = false;
+    this.repositoryObserver = {
+      refresh: async (...args: unknown[]): Promise<void> =>
+        this.handleRepositoryRefresh(...args),
+    };
     this.type = ListComponentsTypes.PAGINATED;
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     if (!this.initialized)
@@ -169,7 +173,7 @@ export class TableComponent extends ListComponent  implements OnInit {
     }, {... props});
   }
 
-  override mapResults(data: KeyValue[]): KeyValue[] {
+  override async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
     if (!data || !data.length)
       return [];
     return data.reduce((accum: KeyValue[], curr) => [

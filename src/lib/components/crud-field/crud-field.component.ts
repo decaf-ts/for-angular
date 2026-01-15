@@ -678,7 +678,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    */
   async ngOnInit(): Promise<void> {
 
-    this.options = await this.getOptions();
     if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation))
       this.hidden = false;
 
@@ -693,6 +692,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
     } else {
+      this.options = await this.getOptions();
       if (!this.parentForm && this.formGroup instanceof FormGroup || this.formGroup instanceof FormArray)
         this.parentForm = (this.formGroup.root || this.formControl.root) as FormParent;
       if (this.multiple) {
@@ -726,11 +726,11 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
 
     if (this.options instanceof Function) {
       if (this.options.name === 'options')
-        this.options = this.options() as FunctionLike;
+        this.options = await this.options() as FunctionLike;
       const fnName = (this.options as FunctionLike)?.name;
       if (fnName) {
          if (fnName === 'function') {
-          this.options = (this.options as FunctionLike)() as KeyValue[];
+          this.options = await (this.options as FunctionLike)() as KeyValue[];
         } else {
           const repo = getModelAndRepository((this.options as KeyValue)?.['name'], this);
           if(repo) {

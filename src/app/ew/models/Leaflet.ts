@@ -98,10 +98,11 @@ export class Leaflet extends BaseModel {
         }
       }
       return `${model.inventedName || ""} ${value}`;;
+    } else {
+      value = 'description'; // fallback for list item position
     }
     return value;
   })
-  @uilistprop("description")
   productCode!: string;
 
   @uielement('app-select-field', {
@@ -146,7 +147,7 @@ export class Leaflet extends BaseModel {
     placeholder: 'leaflet.market.placeholder',
     translatable: false,
     type: HTML5InputTypes.SELECT,
-    options: () => getMarkets()
+    options: getMarkets()
   } as Partial<CrudFieldComponent>)
   market!: string;
 
