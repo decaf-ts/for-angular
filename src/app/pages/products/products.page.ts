@@ -9,12 +9,14 @@ import { EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ICrudFormEvent, ITabItem } from 'src/lib/engine/interfaces';
 import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
-import { Product } from 'src/app/ew/models/Product';
+import { Product } from 'src/app/ew/fabric/Product';
 import { CardComponent } from 'src/lib/components/card/card.component';
 import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
-import { ModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
-import { EpiTabs } from 'src/app/ew/constants';
-import { ComponentEventNames } from 'src/lib/engine';
+import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
+import { EpiTabs } from 'src/app/ew/utils/constants';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { Model } from '@decaf-ts/decorator-validation';
+import { AppProductItemComponent } from 'src/app/components/product-item/product-item.component';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -110,7 +112,7 @@ import { ComponentEventNames } from 'src/lib/engine';
   standalone: true,
   selector: 'app-products',
   templateUrl: './products.page.html',
-  providers: [ModalDiffsComponent],
+  providers: [AppModalDiffsComponent, AppProductItemComponent],
   imports: [IonContent, CardComponent, ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent],
   styleUrls: ['./products.page.scss'],
 })
@@ -123,8 +125,8 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
   }
 
   override async ngOnInit(): Promise<void> {
-    this.model = !this.operation ? new Product() : new ProductLayout();
-    this.enableCrudOperations();
+    this.model = !this.operation ? new Product() as Model : new ProductLayout();
+    this.enableCrudOperations([OperationKeys.DELETE]);
     // keep init after model selection
     this.locale = "product";
     this.title = `${this.locale}.title`;
@@ -138,10 +140,8 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
   }
 
   override async handleEvent(event: ICrudFormEvent): Promise<void> {
-    const {name} = event;
-    if(name === ComponentEventNames.SUBMIT) {
-      const handler = (new ProductLayoutHandler()).handle.bind(this);
-      await handler(event);
-    }
+    const handler = (new ProductLayoutHandler()).handle.bind(this);
+    await handler(event);
   }
 }
+

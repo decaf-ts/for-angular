@@ -76,7 +76,7 @@
               [globals]="{props: child.props}"
             />
           </div>
-          @if(child.props.name === 'Leaflet' && data?.length) {
+          @if(child.props.name === 'Leaflet') {
             <div class="dcf-text-center dcf-margin">
               <ion-button size="small" fill="clear" (click)="handleNavigateToLeaflet()">{{locale+'.leaflet' | translate}}</ion-button>
             </div>

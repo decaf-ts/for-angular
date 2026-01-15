@@ -15,9 +15,9 @@ import { NgxRouterService } from '../../services/NgxRouterService';
 import { FunctionLike, KeyValue, SelectOption } from '../../engine/types';
 import { ActionRoles, ComponentEventNames, DefaultListEmptyOptions, ListComponentsTypes, SelectFieldInterfaces } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
-import { IFilterQuery } from '../../engine/interfaces';
-import { getModelAndRepository } from '../../for-angular-common.module';
+import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
 import { UIKeys } from '@decaf-ts/ui-decorators';
+import { getModelAndRepository } from 'src/lib/engine/helpers';
 
 
 
@@ -61,6 +61,7 @@ export class TableComponent extends ListComponent  implements OnInit {
 
   headers: string[] = [];
 
+  @Input()
   allowOperations: boolean = true;
 
   routerService: NgxRouterService = inject(NgxRouterService);
@@ -88,19 +89,18 @@ export class TableComponent extends ListComponent  implements OnInit {
   }
 
   override async ngOnInit(): Promise<void> {
+
     this.initialized = false;
-    this.repositoryObserver = {
-      refresh: async (...args: unknown[]): Promise<void> =>
-        this.handleRepositoryRefresh(...args),
-    };
     this.type = ListComponentsTypes.PAGINATED;
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     if (!this.initialized)
       this.parseProps(this);
+
     this.cols = this._cols as string[];
-    this.allowOperations = this.isAllowed(OperationKeys.UPDATE) || this.isAllowed(OperationKeys.DELETE);
-    this.searchValue = undefined;
     if(this.allowOperations)
+      this.allowOperations = this.isAllowed(OperationKeys.UPDATE) || this.isAllowed(OperationKeys.DELETE);
+    this.searchValue = undefined;
+    if(this.operations)
       this.cols.push('actions');
     this.headers = this._headers;
     const filter = this.routerService.getQueryParamValue('filter') as string;

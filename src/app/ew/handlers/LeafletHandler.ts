@@ -1,10 +1,10 @@
 import { composedFromCreateUpdate, ComposedFromMetadata, IRepository, OperationKeys, PrimaryKeyType } from "@decaf-ts/db-decorators";
 import { Model } from "@decaf-ts/decorator-validation";
-import {   NgxEventHandler } from "src/lib/engine";
-import { Condition } from "@decaf-ts/core";
-import { getModelAndRepository } from "src/lib/for-angular-common.module";
-import { Leaflet } from "../models/Leaflet";
+import { NgxEventHandler } from "src/lib/engine";
 import { getNgxToastComponent } from "src/app/utils/NgxToastComponent";
+import { Leaflet } from "../fabric";
+import { Condition } from "@decaf-ts/core";
+import { getModelAndRepository } from "src/lib/engine/helpers";
 
 export class LeafletHandler extends NgxEventHandler {
 
@@ -29,7 +29,7 @@ export class LeafletHandler extends NgxEventHandler {
         switch(operation) {
           case OperationKeys.CREATE: {
             const exists = await repository.select().where(Condition.attr(pk as keyof Model).eq(uid)).execute();
-            if(exists) {
+            if(exists?.length) {
               operation = OperationKeys.UPDATE;
               result = await repository.update(data as Model);
             } else {
@@ -39,7 +39,6 @@ export class LeafletHandler extends NgxEventHandler {
           break;
           case OperationKeys.READ:
           case OperationKeys.DELETE: {
-            const exists = await repository.read(uid as typeof pkType);
             result = await repository.delete(uid as typeof pkType, data);
           }
           break;

@@ -3,7 +3,6 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { NgxPageDirective } from 'src/lib/engine/NgxPageDirective';
 import { ForAngularModel } from 'src/app/models/DemoModel';
 import { ComponentEventNames, IBaseCustomEvent } from 'src/lib/engine';
-import { getLogger } from 'src/lib/for-angular-common.module';
 import { IonContent } from '@ionic/angular/standalone';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
@@ -55,7 +54,7 @@ export class CrudPage extends NgxPageDirective implements OnInit {
   async handleSubmit(event: IBaseCustomEvent): Promise<void> {
     const {name} = event;
     if (name === ComponentEventNames.SUBMIT) {
-      getLogger(this).info(`Submit event: ${JSON.stringify(event)}`);
+      this.log.for(this.handleSubmit).info(`Submit event: ${JSON.stringify(event)}`);
     }
   }
 

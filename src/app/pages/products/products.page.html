@@ -3,17 +3,28 @@
 <ion-content [fullscreen]="true">
   <main>
     <app-container>
+      @if(!operation) {
+        <app-card-title
+          [locale]="locale"
+          [tabs]="tabs"
+          [route]="route"
+          [title]="locale +'.title' | translate"
+          [allowCreate]="true"
+          [subtitle]="locale +'.description' | translate"
+        />
+      }
       @if(model) {
         @if(!operation) {
-          <ngx-decaf-card type="shadow" [body]="'blank'">
+          <div class="dcf-list-container">
             <ngx-decaf-list
               [model]="model"
               [route]="route"
-              [createButton]="true"
+              [enableFilters]="false"
+              type="infinite"
               [operations]="operations"
               (listenEvent)="handleEvent($event)"
             />
-          </ngx-decaf-card>
+          </div>
         } @else {
           @if(!errorMessage) {
             <ngx-decaf-model-renderer

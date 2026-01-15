@@ -1,17 +1,47 @@
-import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import {
-  uichild,
-  uilayout,
-  uilayoutprop,
-  UIMediaBreakPoints,
-  uionrender,
-} from '@decaf-ts/ui-decorators';
-import { FieldsetComponent, LayoutComponent, ListComponent } from 'src/lib/components';
-import { Batch } from '../models/Batch';
-import { ProductEpiHandler } from '../handlers/ProductEpiHandler';
-import { BatchLeaflet } from '../models/BatchLeaflet';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { Condition } from '@decaf-ts/core';
+  model,
+  Model,
+  ModelArg
+} from "@decaf-ts/decorator-validation";
+import { uichild, uilayout,  uilayoutprop, UIMediaBreakPoints, uimodel, uionrender } from "@decaf-ts/ui-decorators";
+import { FieldsetComponent,  LayoutComponent, ListComponent } from "src/lib/components";
+import { Batch } from "../fabric/Batch";
+import { ProductEpiHandler } from "../handlers/ProductEpiHandler";
+import { OperationKeys } from "@decaf-ts/db-decorators";
+import { Condition } from "@decaf-ts/core";
+import { Leaflet } from "../fabric";
+import { BatchEpiLayoutHandler } from "../handlers/BatchEpiLayoutHandler";
+import { AppSwitcherComponent } from "../../components/switcher/switcher.component";
+
+@uimodel('ngx-decaf-crud-form', {})
+@model()
+class BatchEpiLayout {
+
+    @uichild(
+    Leaflet.name,
+    'ngx-decaf-list',
+    {
+      showSearchbar: false,
+      title: 'Documents',
+      operation: OperationKeys.READ,
+      operations: [OperationKeys.READ],
+      showRefresher: false,
+      condition: Condition.attribute<Leaflet>('batchNumber'),
+      route: 'leaflets',
+      icon: 'ti-file-barcode',
+      empty: {
+          link: async function ()  {
+          const component = this as ListComponent;
+          const param = `${component.modelId ? `?batchNumber=${component.modelId}` : ''}`;
+          await component.router.navigateByUrl(`/leaflets/create${param}`);
+        }
+      }
+    },
+  )
+  @uionrender(() => BatchEpiLayoutHandler)
+  document!: Leaflet;
+
+}
 
 @uilayout('ngx-decaf-crud-form', true, 1, {
   borders: true,
@@ -21,59 +51,20 @@ import { Condition } from '@decaf-ts/core';
 export class BatchLayout extends Model {
 
   @uichild(Batch.name, 'ngx-decaf-fieldset', {
-    title: 'product.section.details.title',
     borders: false,
     required: true,
     breakpoint: UIMediaBreakPoints.XLARGE,
     ordenable: false,
   } as Partial<FieldsetComponent>)
   @uilayoutprop(2)
-  @uionrender(() => ProductEpiHandler)
+  @uionrender(() => BatchEpiLayoutHandler)
   batch!: Batch;
 
-  // @list(BatchLeaflet, 'Array')
-  // @uionrender(() => ProductEpiHandler)
-  // @uichild(
-  //   BatchLeaflet.name,
-  //   'ngx-decaf-fieldset',
-  //   {
-  //     title: 'Documents',
-  //     borders: false,
-  //     required: false,
-  //     ordenable: false,
-  //     multiple: true,
-  //   } as Partial<FieldsetComponent>,
-  //   true
-  // )
-  // @uilayoutprop(1)
-  // document!: BatchLeaflet;
 
-  @uichild(
-    BatchLeaflet.name,
-    'ngx-decaf-list',
-    {
-      showSearchbar: false,
-      title: 'Documents',
-      operation: OperationKeys.READ,
-      operations: [OperationKeys.READ],
-      showRefresher: false,
-      condition: Condition.attribute<BatchLeaflet>('batchNumber'),
-      route: 'leaflets',
-      icon: 'ti-file-barcode',
-      locale: "batch.leaflet",
-      empty: {
-          title: 'empty.title',
-          subtitle: '',
-          link: async function ()  {
-          const component = this as ListComponent;
-          const param = `${component.modelId ? `?batchNumber=${component.modelId}` : ''}`;
-          await component.router.navigateByUrl(`/leaflets/create${param}`);
-        }
-      }
-    },
-  )
-  @uionrender(() => ProductEpiHandler)
-  document!: BatchLeaflet;
+
+  @uichild(BatchEpiLayout.name, 'app-switcher', {type: 'column', leafletParam: 'batchNumber'} as Partial<AppSwitcherComponent>)
+  @uilayoutprop(1)
+  epi!: BatchEpiLayout;
 
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
@@ -81,3 +72,4 @@ export class BatchLayout extends Model {
     super(args);
   }
 }
+

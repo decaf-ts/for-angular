@@ -8,27 +8,39 @@ import { EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ICrudFormEvent, ITabItem } from 'src/lib/engine/interfaces';
 import { BatchLayout } from 'src/app/ew/layouts/BatchLayout';
-import { Batch } from 'src/app/ew/models/Batch';
+import { Batch } from 'src/app/ew/fabric/Batch';
 import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
 import { TableComponent } from 'src/lib/components/table/table.component';
-import { Product } from 'src/app/ew/models/Product';
-import { getModelAndRepository } from 'src/lib/for-angular-common.module';
+import { Product } from 'src/app/ew/fabric/Product';
 import { SelectOption } from 'src/lib/engine/types';
-import { EpiTabs } from 'src/app/ew/constants';
+import { EpiTabs } from 'src/app/ew/utils/constants';
 import { ComponentEventNames } from 'src/lib/engine/constants';
+import { getModelAndRepository } from 'src/lib/engine/helpers';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.component';
+import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
+
 
 @Component({
   selector: 'app-batches',
   templateUrl: './batches.page.html',
   styleUrls: ['./batches.page.scss'],
   standalone: true,
-  imports: [IonContent, TableComponent, ModelRendererComponent, TranslatePipe, HeaderComponent, ContainerComponent, EmptyStateComponent],
+  providers: [AppModalDiffsComponent],
+  imports: [
+    IonContent,
+    ModelRendererComponent,
+    TranslatePipe,
+    HeaderComponent,
+    ContainerComponent,
+    AppCardTitleComponent,
+    TableComponent,
+    EmptyStateComponent
+  ],
 })
 export class BatchesPage  extends NgxModelPageDirective implements OnInit {
 
   tabs: ITabItem[] = EpiTabs;
-
-  products: SelectOption[] = [];
 
   constructor() {
     super("batch");
@@ -36,25 +48,15 @@ export class BatchesPage  extends NgxModelPageDirective implements OnInit {
 
   override async ngOnInit(): Promise<void> {
     this.model = !this.operation ? new Batch() : new BatchLayout();
-    this.enableCrudOperations();
-    await super.ngOnInit();
-    this.title = "batch.title";
+    // keep init after model selection
+    this.locale = "batch";
+    this.title = `${this.locale}.title`;
     this.route = 'batches';
-    await this.getProducts();
-  }
+    this.enableCrudOperations([OperationKeys.DELETE]);
 
-  async getProducts(): Promise<void> {
-    const repo = getModelAndRepository("product");
-    if(repo) {
-      const {repository} = repo;
-      const query = await repository.select().execute() as Product[];
-      if(query?.length) {
-        this.products = query.map((item: Product) => ({
-          text: `${item.inventedName}`,
-          value: item.productCode
-        }));
-      }
-    }
+    await super.ngOnInit();
+    this.changeDetectorRef.detectChanges();
+
   }
 
   override async ionViewWillEnter(): Promise<void> {
@@ -62,10 +64,7 @@ export class BatchesPage  extends NgxModelPageDirective implements OnInit {
   }
 
   override async handleEvent(event: ICrudFormEvent): Promise<void> {
-    const {name} = event;
-    if(name === ComponentEventNames.SUBMIT) {
-      const handler = (new ProductLayoutHandler()).handle.bind(this);
-      await handler(event);
-    }
+    const handler = (new ProductLayoutHandler()).handle.bind(this);
+    await handler(event, 'Batch');
   }
 }

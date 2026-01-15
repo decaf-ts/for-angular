@@ -1,8 +1,74 @@
 import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
-import { ICrudFormOptions, IListEmptyOptions } from './interfaces';
+import { I18nToken, ICrudFormOptions, IListEmptyOptions } from './interfaces';
 
 import { ModalOptions } from '@ionic/angular/standalone';
 import { OperationKeys } from '@decaf-ts/db-decorators';
+import { InjectionToken } from '@angular/core';
+import { DecafRepositoryAdapter } from './types';
+
+
+export const DB_ADAPTER_FLAVOUR_TOKEN = 'DbAdapterFlavour';
+
+
+
+/**
+ * @description Injection token for registering the database adapter provider.
+ * @summary Used to inject the database adapter instance that implements DecafRepositoryAdapter.
+ * This token allows the framework to locate and use the application's specific database implementation.
+ * @const {InjectionToken<DecafRepositoryAdapter>}
+ * @memberOf module:lib/for-angular-common.module
+ */
+export const DB_ADAPTER_PROVIDER_TOKEN =
+  new InjectionToken<DecafRepositoryAdapter>('DB_ADAPTER_PROVIDER_TOKEN');
+/**
+ * @description Injection token for the root path of locale translation files.
+ * @summary Used to configure the base path where i18n translation files are located.
+ * This allows the translation loader to locate JSON files for different languages.
+ * @const {InjectionToken<string>}
+ * @memberOf module:lib/for-angular-common.module
+ * @example
+ * // Typical usage when providing the token
+ * { provide: LOCALE_ROOT_TOKEN, useValue: './assets/i18n/' }
+ */
+export const LOCALE_ROOT_TOKEN = new InjectionToken<string>(
+  'LOCALE_ROOT_TOKEN'
+);
+
+/* Generic token for injecting on class constructors */
+/**
+ * @description Generic injection token for providing arbitrary values to constructors.
+ * @summary Used to inject classes, strings, or any other value into component or service constructors.
+ * This is a flexible token that can be used to provide any type of dependency when more specific
+ * tokens are not appropriate. The actual type and purpose of the injected value is determined by
+ * the provider configuration.
+ * @const {InjectionToken<unknown>}
+ * @memberOf module:lib/for-angular-common.module
+ * @example
+ * // Inject a string value
+ * { provide: CPTKN, useValue: 'some-config-value' }
+ *
+ * // Inject a class
+ * { provide: CPTKN, useClass: MyService }
+ *
+ * // Inject any arbitrary value
+ * { provide: CPTKN, useValue: { key: 'value', data: [1, 2, 3] } }
+ */
+export const CPTKN = new InjectionToken<unknown>('CPTKN', {
+  providedIn: 'root',
+  factory: () => '',
+});
+
+/**
+ * @description Injection token for i18n resource configuration.
+ * @summary Used to provide configuration for internationalization resources, including
+ * translation file locations and supported languages. This token configures how the
+ * application loads and manages translation resources.
+ * @const {InjectionToken<I18nToken>}
+ * @memberOf module:lib/for-angular-common.module
+ */
+export const I18N_CONFIG_TOKEN = new InjectionToken<I18nToken>(
+  'I18N_CONFIG_TOKEN'
+);
 
 
 /**

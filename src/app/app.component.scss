@@ -1,3 +1,5 @@
+$active-color: white;
+
 ion-split-pane {
   --side-max-width: 240px;
   transition: all 0.3s ease;
@@ -6,7 +8,6 @@ ion-split-pane {
       display: none !important;
     }
   }
-
   @media (min-width: 1200px) {
     &.dcf-collapsed {
       .dcf-logo-container {
@@ -16,7 +17,7 @@ ion-split-pane {
       ion-list {
         transition: padding-top 0.2s ease;
         padding-top: 1rem !important;
-        padding-left: 0.3rem !important;
+        padding-left: 0.24rem !important;
         width: max-content;
       }
       --side-min-width: 75px;
@@ -34,7 +35,8 @@ ion-split-pane {
         justify-content: center;
         padding: 0.5rem !important;
         padding-bottom: 1.5rem !important;
-        transform: scale(1.2);
+        transform: scale(0.675);
+
         span {
           display: none !important;
         }
@@ -50,14 +52,12 @@ ion-split-pane {
         // --background-hover: transparent !important;
         // --background-focused: transparent !important;
         // --ripple-color: transparent !important;
-        --inner-padding-end: 0.2rem !important;
-        --padding-end: 0.1rem !important;
-        --inner-padding-start: 0.675rem !important;
-        --padding-start: 0.1rem !important;
+        --inner-padding-end: 0.5rem !important;
+        --padding-end: 0rem !important;
+        --inner-padding-start: 0.85rem !important;
+        --padding-start: 0rem !important;
         margin-left: 0.5rem;
-        ngx-decaf-icon {
-          transform: translateY(1px) !important;
-        }
+
         &:hover {
           ::ng-deep {
             .ti,
@@ -85,10 +85,9 @@ ion-split-pane {
   padding: 1.5rem 1.75rem !important;
   cursor: pointer;
   color: var(--dcf-color-text);
-
   ngx-decaf-icon {
     transition: all 0.3s ease;
-    transform: translateY(2px);
+    transform: translateY(-3px);
     margin-right: var(--dcf-margin-xsmall);
   }
 
@@ -98,7 +97,11 @@ ion-split-pane {
 }
 ion-menu {
   border-right: 1px solid var(--dcf-color-gray-2);
-
+  ion-item {
+    ngx-decaf-icon {
+      transform: translateY(0px) !important;
+    }
+  }
   &.dcf-palette-dark {
     // border-right: 1px solid var(--dcf-card-background);
     & {
@@ -178,7 +181,7 @@ ion-menu {
     }
 
     ion-item {
-      &:first-of-type:not(.dcf-separator) {
+      &:first-of-type:not(.dcf-separator:not(:first-of-type)) {
         margin-top: 0.5rem;
       }
     }
@@ -229,28 +232,34 @@ ion-menu {
         margin-right: var(--dcf-margin-xsmall);
         transform: translateY(1px);
       }
-      &.dcf-active,
-      &.dcf-active-item,
-      &:hover &:hover {
-        ::ng-deep {
-          .ti,
-          ngx-decaf-icon,
-          ion-icon,
-          ion-image {
-            color: var(--dcf-color-gray-9) !important;
-            stroke: var(--dcf-color-gray-9) !important;
 
-            * {
-              color: var(--ion-color-gray-9) !important;
-              stroke: var(--dcf-color-gray-9) !important;
+      &:hover {
+        &:not(.dcf-menu-logout) {
+          --background: rgba(var(--dcf-color-primary-rgb), 0.75) !important;
+          color: $active-color !important;
+          * {
+            color: $active-color !important;
+          }
+          ::ng-deep {
+            .ti,
+            ngx-decaf-icon,
+            ion-icon,
+            ion-image {
+              color: $active-color !important;
+              stroke: $active-color !important;
+
+              * {
+                color: $active-color !important;
+                stroke: $active-color !important;
+              }
             }
           }
         }
       }
       &.dcf-active-item,
       &.dcf-active {
-        --background: var(--ion-color-gray-2);
-        color: var(--dcf-color-gray-9) !important;
+        --background: rgba(var(--dcf-color-primary-rgb), 1) !important;
+        color: $active-color !important;
       }
 
       &:not(.dcf-separator) {
@@ -270,4 +279,37 @@ ion-menu {
   padding-top: 1.2rem;
   padding-left: 1.5rem;
   height: 64px !important;
+
+  .dcf-logo-full {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .dcf-logo {
+      background: linear-gradient(
+        180deg,
+        var(--dcf-color-primary) 0%,
+        var(--dcf-color-primary-tint) 100%
+      );
+      padding: var(--dcf-padding-xsmall);
+      box-sizing: border-box;
+      border-radius: var(--dcf-border-radius-large);
+      box-shadow: var(--dcf-box-shadow);
+    }
+
+    .dcf-logo-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .dcf-logo-subtitle {
+      margin: 0;
+      font-size: 0.875rem;
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--dcf-color-gray-5);
+    }
+  }
 }

@@ -3,25 +3,38 @@
 <ion-content [fullscreen]="true">
   <main>
     <app-container>
+      @if(!operation) {
+        <app-card-title
+          [locale]="locale"
+          [tabs]="tabs"
+          [route]="route"
+          [title]="locale +'.title' | translate"
+          [allowCreate]="true"
+          [subtitle]="locale +'.description' | translate"
+        />
+      }
       @if(model) {
         @if(!operation) {
-           <ngx-decaf-table
-              [filter]="products"
-              [filterIndex]="'productCode'"
+          <div class="dcf-list-container">
+            <ngx-decaf-table
+              [filterModel]="'product'"
               [filterLabel]="'batches.filter.all' | translate"
               [model]="model"
+              [ppk]="'batchNumber'"
               [route]="route"
               [locale]="locale"
               [operation]="operation"
               [operations]="operations"
               (listenEvent)="handleEvent($event)"
             />
+          </div>
         } @else {
           @if(!errorMessage) {
             <ngx-decaf-model-renderer
                 [model]="model"
                 (listenEvent)="handleEvent($event)"
-                [globals]="{operation: operation, modelId, allowClear: false}"
+                (clickEvent)="handleEvent($event)"
+                [globals]="{operation: operation,  modelId, allowClear: false}"
               >
             </ngx-decaf-model-renderer>
           } @else {

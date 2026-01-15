@@ -8,6 +8,7 @@
  * for component configuration.
  */
 export * from './constants';
+export * from './helpers';
 export * from './decorators';
 export * from './types';
 export * from './interfaces';

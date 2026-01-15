@@ -53,26 +53,6 @@ export const AppMenu: IMenuItem[] = [
   },
 ];
 
-export const EwMenu: IMenuItem[] = [
-  {
-    label: 'product_management',
-  },
-  {
-    label: 'product',
-    url: 'products',
-    icon: 'ti-medicine-syrup',
-  },
-  {
-    label: 'batch',
-    url: 'batches',
-    icon: 'ti-package',
-  },
-  {
-    label: 'Leaflets',
-    url: 'leaflets',
-    icon: 'ti-file-barcode',
-  },
-];
 
 
 

@@ -1,0 +1,104 @@
+@if ((operation === 'read' || operation === 'delete') || readonly) {
+  @if(!hidden) {
+    <ng-container>
+      <div [class.dcf-hidden]="['inventedName', 'nameMedicinalProduct'].includes(name) && !value">
+        <ion-item [class]="'dcf-input-item ' + operation + ' ' +className" #component>
+          <ion-label>
+            {{ label | translate }}<br />
+            <ion-text>{{value}}</ion-text>
+          </ion-label>
+        </ion-item>
+      </div>
+    </ng-container>
+  }
+} @else {
+  @if (formControl) {
+    <div [formGroup]="multiple ? activeFormGroup : formControl.parent">
+      <div
+          [id]="uid" #container
+          [class]="'dcf-input-item ' + operation + ' ' +className"
+          [class.dcf-field-required]="required"
+          [class.dcf-field-readonly]="readonly"
+        >
+        @if(type === HTML5InputTypes.SELECT) {
+          <div [class.dcf-disabled]="disabled">
+            <ion-select
+              (ionInput)="handleModalChildChanges()"
+              (ionChange)="handleModalChildChanges()"
+              [id]="name"
+              toggleIcon="chevron-down-outline"
+              expandedIcon="chevron-up-outline"
+              [mode]="'md'"
+              (click)="openSelectOptions($event, interface)"
+              [hidden]="hidden || !options?.length"
+              [labelPlacement]="labelPlacement"
+              [label]="label | translate"
+              [value]="value ?? null"
+              (ionChange)="handleChange($event)"
+              [fill]="fill"
+              [placeholder]="placeholder | translate"
+              [formControlName]="name"
+              [interface]="interface"
+              #component>
+              @if (options?.length) {
+                @for(option of options; track trackItemFn($index, option.text)) {
+                  <ion-select-option
+                    [value]="option.value"
+                    [class.dcf-disabled]="option.disabled"
+                    [class.dcf-hidden]="option.hidden"
+                    [hidden]="option.hidden">
+                    {{ option.text }}
+                  </ion-select-option>
+                }
+              }
+              @if(value?.length && required !== true) {
+                <ion-button fill="clear" (click)="handleClearValue($event)" slot="end" aria-label="Show/hide password">
+                  <ngx-decaf-icon size="small" slot="icon-only" [name]="'ti-input-x'" />
+                </ion-button>
+              }
+            </ion-select>
+
+           <div
+              class="dcf-error"
+              [class.dcf-options-error]="!options?.length"
+              [innerHTML]="options?.length ?
+                getErrors(container) : 'errors.empty_options' | translate:{'0': name}">
+            </div>
+
+          </div>
+        } @else {
+           <ion-input
+              (ionInput)="handleModalChildChanges()"
+              (ionChange)="handleModalChildChanges()"
+              [id]="name"
+              [type]="type"
+              [mode]="'md'"
+              [hidden]="hidden"
+              [inputmode]="inputmode"
+              [labelPlacement]="labelPlacement"
+              [minlength]="minlength !== undefined ? minlength : null"
+              [maxlength]="maxlength !== undefined ? maxlength : null"
+              [readonly]="readonly !== undefined ? readonly : null"
+              [max]="max !== undefined ? max : null"
+              [min]="min !== undefined ? min : null"
+              [pattern]="pattern !== undefined ? pattern : null"
+              [step]="step !== undefined ? step : null"
+              [fill]="fill"
+              [placeholder]="placeholder | translate"
+              [formControlName]="name"
+              [errorText]="getErrors(container)"
+              [label]="label | translate" #component />
+        }
+
+      </div>
+    </div>
+  } @else {
+    <div>
+      <p class="dcf-error">
+        {{ 'errors.form.control' | translate:{'0': name} }}
+      </p>
+    </div>
+  }
+
+}
+

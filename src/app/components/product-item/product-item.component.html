@@ -1,0 +1,83 @@
+@if(item) {
+  <div class="dcf-product-list-item">
+    <div class="dcf-product-item" [attr.tabindex]="0" (keyup.enter)="handleClick(OperationKeys.READ, item.productCode, $event)" (click)="handleClick(OperationKeys.READ, item.productCode, $event)" type="clear" [body]="'small'">
+      <div class="dcf-grid dcf-grid-small">
+        <div class="dcf-width-auto dcf-icon-container dcf-flex dcf-flex-middle">
+          <div class="">
+            <ngx-decaf-icon color="tertiary" name="ti-package" />
+          </div>
+        </div>
+        <div class="dcf-width-expand dcf-flex dcf-flex-middle">
+          <div>
+            <p class="dcf-name">{{item.inventedName}}</p>
+            <span class="dcf-gtin">{{locale+'.gtin' | translate }}: {{item.productCode}}</span>
+          </div>
+        </div>
+        <div class="dcf-width-auto dcf-flex dcf-flex-right dcf-actions-container">
+          <div class="dcf-flex">
+            <ngx-decaf-icon
+              (click)="handleClick(OperationKeys.UPDATE, item.productCode, $event)"
+              fill="clear"
+              [button]="true"
+              slot="icon-only"
+              color="primary"
+              name="ti-pencil"
+            />
+            <ngx-decaf-icon
+              (click)="handleClick(OperationKeys.DELETE, item.productCode, $event)"
+              fill="clear"
+              [button]="true"
+              slot="icon-only"
+              color="danger"
+              name="ti-trash"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="dcf-grid dcf-grid-small">
+        <div class="dcf-width-1-3@m">
+          <p class="dcf-info">
+            {{ locale+'.internalMaterialCode.label' | translate }}
+            <span>{{item.internalMaterialCode}}</span>
+          </p>
+        </div>
+
+        <div class="dcf-width-1-3@m">
+          <p class="dcf-info">
+            {{ locale+'.nameMedicinalProduct.label' | translate }}
+            <span>{{item.nameMedicinalProduct}}</span>
+          </p>
+        </div>
+
+        <div class="dcf-width-1-3@m">
+          <p class="dcf-info">
+            {{ locale+'.importLicenseNumber.label' | translate }}
+            <span>{{item.importLicenseNumber}}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="dcf-grid dcf-grid-small">
+        <div class="dcf-width-1-3@s dcf-width-auto">
+          <p class="dcf-info">
+            {{ locale+'.recalled.label' | translate }}
+            <br class="dcf-margin-small-top"  />
+            <ion-badge mode="md" color="light">
+              <ion-text  [color]="item.productRecall ? 'danger' : 'primary'">
+                {{ item.productRecall ? (locale+'.recalled.yes' | translate) : (locale+'.recalled.no' | translate) }}
+              </ion-text>
+            </ion-badge>
+          </p>
+        </div>
+
+        <div class="dcf-width-1-3@s dcf-width-auto">
+          <p class="dcf-info" [attr.tabindex]="0" (keyup.enter)="filterBatches($event, item.productCode)" (click)="filterBatches($event, item.productCode)">
+            {{ locale+'.batches' | translate }}
+            <span>{{item.batches}}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+}

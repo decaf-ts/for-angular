@@ -21,9 +21,10 @@ import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { LogoComponent } from './components/logo/logo.component';
 import { AppModels, AppName } from './app.config';
 import { IconComponent } from 'src/lib/components';
-import { getDbAdapterFlavour } from 'src/lib/for-angular-common.module';
-import { AppMenu, DashboardMenuItem, EwMenu, LogoutMenuItem } from './utils/contants';
+import { getDbAdapterFlavour } from 'src/lib/engine/helpers';
 import { RamFlavour } from '@decaf-ts/core/ram';
+import { AppMenu } from './ew/utils/constants';
+import { IAppMenuItem } from './ew/utils/interfaces';
 
 @Component({
   standalone: true,
@@ -97,13 +98,18 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     }
     this.initialized = true;
     this.menu = [
-      DashboardMenuItem,
-      ...EwMenu,
-      ...(menu as IMenuItem[]),
+      // DashboardMenuItem,
+      // ...EwMenu,
+      // ...(menu as IMenuItem[]),
       ...AppMenu,
-      LogoutMenuItem,
+      // LogoutMenuItem,
     ];
     await super.ngOnInit();
+  }
+
+  isMenuActive(item: IAppMenuItem & {activeWhen: string[]}): boolean {
+    const {url, activeWhen} = item;
+    return (url?.length && (url === this.currentRoute || (activeWhen || []).includes(this.currentRoute  as string))) || false;
   }
 
   handleCollapseMenu() {

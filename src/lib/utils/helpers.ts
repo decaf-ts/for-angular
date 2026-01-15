@@ -15,8 +15,8 @@ import { InjectableRegistryImp, InjectablesRegistry } from '@decaf-ts/injectable
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { KeyValue, StringOrBoolean, } from '../engine/types';
 import { FunctionLike } from '../engine/types';
-import { getLogger } from '../for-angular-common.module';
 import { IMenuItem } from '../engine/interfaces';
+import { getLogger } from '../engine/helpers';
 
 let injectableRegistry: InjectablesRegistry;
 

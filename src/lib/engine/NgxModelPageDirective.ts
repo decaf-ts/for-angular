@@ -13,7 +13,7 @@ import { ComponentEventNames } from './constants';
 import { IBaseCustomEvent, ICrudFormEvent, IModelComponentSubmitEvent } from './interfaces';
 import { DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
-import { getModelAndRepository } from '../for-angular-common.module';
+import { getModelAndRepository } from './helpers';
 
 type LayoutModelContext = Record<string, {model: Model | Model[], repository: IRepository<Model>, pk: string}>;
 

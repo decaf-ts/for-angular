@@ -46,10 +46,10 @@ import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
 import { NgxEventHandler } from './NgxEventHandler';
 import { getLocaleContext } from '../i18n/Loader';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
-import { getModelAndRepository, CPTKN } from '../for-angular-common.module';
 import {
   AngularEngineKeys,
   BaseComponentProps,
+  CPTKN,
   WindowColorSchemes,
 } from './constants';
 import { generateRandomValue, getWindow, setOnWindow } from '../utils';
@@ -62,6 +62,7 @@ import {
 } from '@decaf-ts/ui-decorators';
 import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
 import { OverlayBaseController } from '@ionic/angular/common';
+import { getModelAndRepository } from './helpers';
 
 try {
   const win = getWindow();

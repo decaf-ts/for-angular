@@ -33,12 +33,10 @@ import {
   IonSelectOption,
   IonText,
   IonTextarea,
-  LoadingController,
 } from '@ionic/angular/standalone';
 import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
-import { getModelAndRepository } from '../../for-angular-common.module';
 import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, FormParent, SelectOption } from '../../engine/types';
 import { dataMapper, generateRandomValue } from '../../utils';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
@@ -47,6 +45,7 @@ import { getLocaleContextByKey } from '../../i18n/Loader';
 import { getNgxSelectOptionsModal } from '../modal/modal.component';
 import { ActionRoles, SelectFieldInterfaces } from '../../engine/constants';
 import { IconComponent } from '../icon/icon.component';
+import { getModelAndRepository } from 'src/lib/engine/helpers';
 
 /**
  * @description A dynamic form field component for CRUD operations.

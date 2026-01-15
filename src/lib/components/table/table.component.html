@@ -58,22 +58,26 @@
                 @if(allowOperations) {
                   <td class="dcf-col-actions">
                     <div class="dcf-flex dcf-flex-center">
-                      <ngx-decaf-icon
-                        [button]="true"
-                        (click)="handleAction($event, OperationKeys.UPDATE, item.uid)"
-                        fill="clear"
-                        slot="icon-only"
-                        color="primary"
-                        name="ti-pencil"
-                      />
-                      <ngx-decaf-icon
-                        [button]="true"
-                        (click)="handleAction($event,OperationKeys.DELETE, item.uid)"
-                        fill="clear"
-                        slot="icon-only"
-                        color="danger"
-                        name="ti-trash"
-                      />
+                      @if(operations?.includes(OperationKeys.UPDATE)) {
+                        <ngx-decaf-icon
+                          [button]="true"
+                          (click)="handleAction($event,OperationKeys.UPDATE, item.uid)"
+                          fill="clear"
+                          slot="icon-only"
+                          color="primary"
+                          name="ti-edit"
+                        />
+                      }
+                      @if(operations?.includes(OperationKeys.DELETE)) {
+                        <ngx-decaf-icon
+                          [button]="true"
+                          (click)="handleAction($event,OperationKeys.DELETE, item.uid)"
+                          fill="clear"
+                          slot="icon-only"
+                          color="danger"
+                          name="ti-trash"
+                        />
+                      }
                     </div>
                   </td>
                 }

@@ -4,7 +4,7 @@ import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { InternalError } from '@decaf-ts/db-decorators';
 import { Metadata, uses } from '@decaf-ts/decoration';
 import { Repository } from '@decaf-ts/core';
-import { DB_ADAPTER_FLAVOUR_TOKEN } from '../for-angular-common.module';
+import { DB_ADAPTER_FLAVOUR_TOKEN } from '../engine/constants';
 import { DecafRepository, KeyValue, FunctionLike } from '../engine/types';
 import { formatDate, getOnWindow } from './helpers';
 import { LoggedClass } from '@decaf-ts/logging';

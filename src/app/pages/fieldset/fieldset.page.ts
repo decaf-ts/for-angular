@@ -3,7 +3,6 @@ import { IonContent } from '@ionic/angular/standalone';
 import { FieldSetForm } from 'src/app/forms/FieldsetForm';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { IBaseCustomEvent, NgxPageDirective } from 'src/lib/engine';
-import { getLogger } from 'src/lib/for-angular-common.module';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { CardComponent, ModelRendererComponent } from 'src/lib/components';
@@ -29,6 +28,6 @@ export class FieldsetPage extends NgxPageDirective implements OnInit {
   }
 
   handleSubmit(event: IBaseCustomEvent): void {
-    getLogger(this).info(`Submit event: ${JSON.stringify(event)}`);
+    this.log.for(this.handleSubmit).info(`Submit event: ${JSON.stringify(event)}`);
   }
 }

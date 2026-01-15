@@ -9,7 +9,7 @@ import { AfterViewInit, Directive, Inject, inject, OnInit } from "@angular/core"
 import { NgxComponentDirective} from "./NgxComponentDirective";
 import { Title } from "@angular/platform-browser";
 import { IMenuItem } from "./interfaces";
-import { CPTKN } from "../for-angular-common.module";
+import { CPTKN } from "./constants";
 import { NavigationEnd, NavigationStart } from "@angular/router";
 import { removeFocusTrap } from "../utils/helpers";
 import { KeyValue } from "./types";

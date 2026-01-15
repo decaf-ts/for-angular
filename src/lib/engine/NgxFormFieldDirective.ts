@@ -15,7 +15,7 @@ import { sf } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames } from './constants';
 import { FunctionLike } from './types';
 import { NgxComponentDirective } from './NgxComponentDirective';
-import { CPTKN } from '../for-angular-common.module';
+import { CPTKN } from './constants';
 import { SelectCustomEvent } from '@ionic/angular/standalone';
 
 /**

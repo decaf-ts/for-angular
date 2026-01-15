@@ -15,20 +15,20 @@ import {
   provideDecafDbAdapter,
   provideDecafPageTransition,
   provideDecafDynamicComponents,
-} from 'src/lib/for-angular-common.module';
+} from 'src/lib/engine/helpers';
 import { AIModel, AIVendorModel } from './models/AIVendorModel';
 import { I18nResourceConfigType } from 'src/lib/engine';
 import { CategoryModel } from './models/CategoryModel';
 import { EmployeeModel } from './models/EmployeeModel';
 import { User } from './forms/FieldsetForm';
-import { SwitcherComponent } from './components/switcher/switcher.component';
-import { Product } from './ew/models/Product';
-import { Leaflet } from './ew/models/Leaflet';
-import { ProductStrength } from './ew/models/ProductStrength';
-import { BatchSelectFieldComponent } from './pages/leaflet/components/batch-select-field/batch-select-field.component';
-import { Batch } from './ew/models/Batch';
+import { Product } from './ew/fabric/Product';
+import { Leaflet } from './ew/fabric/Leaflet';
+import { ProductStrength } from './ew/fabric/ProductStrength';
+import { Batch } from './ew/fabric/Batch';
+import { AppSelectFieldComponent } from './components/select-field/select-field.component';
+import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
+import { AppSwitcherComponent } from './components/switcher/switcher.component';
 // import { AxiosHttpAdapter, HttpAdapter, HttpStatement } from '@decaf-ts/for-http';
-import { ExpiryDateFieldComponent } from './pages/leaflet/expiry-date/expiry-date-field.component';
 
 export const AppName = 'For Angular';
 // Removed unused Adapter variable and fixed HttpAdapter instantiation issues
@@ -61,7 +61,7 @@ export const AppConfig: ApplicationConfig = {
     provideDecafPageTransition(),
 
     // Providing Local components for dynamic rendering
-    provideDecafDynamicComponents(SwitcherComponent, ExpiryDateFieldComponent, BatchSelectFieldComponent),
+    provideDecafDynamicComponents(AppExpiryDateFieldComponent, AppSwitcherComponent, AppSelectFieldComponent),
     // Providing RamAdapter as the database adapter for Decaf
     // provideDecafDbAdapter(AxiosHttpAdapter, {
     //   protocol: "http",

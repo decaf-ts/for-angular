@@ -1,19 +1,28 @@
-import { list, model, Model, ModelArg } from '@decaf-ts/decorator-validation';
-import { uichild, uimodel, uionrender } from '@decaf-ts/ui-decorators';
-import { ProductMarket } from '../models/ProductMarket';
-import { ProductStrength } from '../models/ProductStrength';
-import { FieldsetComponent, ListComponent } from 'src/lib/components';
-import { ProductEpiHandler } from '../handlers/ProductEpiHandler';
-import { Leaflet } from '../models/Leaflet';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { Condition } from '@decaf-ts/core';
+import {
+  list,
+  model,
+  Model,
+  ModelArg
+} from "@decaf-ts/decorator-validation";
+import { Condition } from "@decaf-ts/core";
+import { uichild, uimodel, uionrender } from "@decaf-ts/ui-decorators";
+import { FieldsetComponent, ListComponent } from "src/lib/components";
+import { ProductEpiHandler } from "../handlers/ProductEpiHandler";
+import { OperationKeys } from "@decaf-ts/db-decorators";
+
+
+import { ProductStrength } from "../fabric/ProductStrength";
+import { Leaflet } from "../fabric/Leaflet";
+import { ProductMarket } from "../fabric/ProductMarket";
+
+// import { ProductStrength, Leaflet, ProductMarket } from "@pharmaledgerassoc/ptp-toolkit/shared";
 
 const commonProps = {
   borders: false,
   required: false,
   ordenable: false,
   multiple: true,
-} as Partial<FieldsetComponent>;
+};
 
 @uimodel('ngx-decaf-crud-form', {})
 @model()
@@ -48,7 +57,8 @@ export class EpiLayout extends Model {
     ProductStrength.name,
     'ngx-decaf-fieldset',
     {
-      title: 'Strengths',
+      title: 'product.strengths.label',
+      pk: 'substance',
       showTitle: false,
       ...commonProps
     } as Partial<FieldsetComponent>,

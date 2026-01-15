@@ -6,15 +6,8 @@ import { DecafRepository, NgxEventHandler } from "src/lib/engine";
 export class ProductEpiHandler extends NgxEventHandler {
 
   override async render(): Promise<void> {
-    let relation = 'productCode';
+    const relation = 'productCode';
     const repository = this._repository as DecafRepository<Model>;
-    const modelName = this.model ? (this.model.constructor as Constructor<Model>).name : '';
-
-    if(this.model && modelName.toLowerCase().includes('batch')) {
-      relation = 'batchNumber';
-      // const context = getModelAndRepository('Leaflet');
-      // repository = context?.repository as DecafRepository<Model>;
-    }
     if(repository) {
       const type = Metadata.type(repository.class, relation).name.toLowerCase();
       const value = ([Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase()) ? Number(this.modelId) : this.modelId) as string | number;

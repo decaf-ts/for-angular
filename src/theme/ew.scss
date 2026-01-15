@@ -1,0 +1,260 @@
+ion-app {
+  --dcf-box-shadow-small:
+    0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+// EW Figma customizations
+ion-router-outlet ion-content {
+  --background: var(--dcf-content-background);
+}
+
+ion-button:not([shape="round"]) {
+  --border-radius: var(--dcf-border-radius) !important;
+}
+
+// fix fieldset margin issue
+form .dcf-layout-container {
+  margin-top: 0.25rem;
+}
+//TODO: Provisory, remove on next for angular release
+.dcf-grid {
+  &:first-of-type .dcf-grid .dcf-first-column {
+    + div {
+      margin-top: -0.25rem !important;
+    }
+  }
+}
+
+main {
+  .dcf-page-title-container {
+    margin-bottom: 1rem !important;
+    margin-top: 0.5rem !important;
+    .dcf-page-title {
+      margin-bottom: 0px;
+    }
+    .dcf-page-subtitle {
+      margin-top: 0px;
+    }
+  }
+
+  .dcf-form-container {
+    background-color: var(--dcf-card-background) !important;
+    padding: var(--dcf-padding);
+    border-radius: var(--dcf-border-radius) !important;
+    box-shadow: var(--dcf-box-shadow-compact) !important;
+    border: 1px solid var(--dcf-color-gray-3) !important;
+  }
+
+  .dcf-filters-container {
+    margin: 0rem !important;
+    margin-bottom: 1rem !important;
+
+    &.dcf-border-top {
+      border-top: 1px solid var(--dcf-color-gray-3);
+      padding-top: 1rem;
+      margin-top: 1.5rem !important;
+    }
+
+    app-switcher {
+      position: relative;
+      top: -5px;
+    }
+  }
+
+  // customize actions inside list component
+  .dcf-grid-actions {
+    margin-top: -1rem !important;
+    margin-bottom: 1rem !important;
+    ion-select {
+      --background: var(--dcf-card-background) !important;
+      min-height: 40px;
+    }
+    .dcf-filter-component {
+      @media (max-width: 680px) {
+        > div:last-child {
+          padding-left: 0px !important;
+          margin-bottom: 0px !important;
+        }
+      }
+      > div:first-child {
+        padding-left: 0px !important;
+      }
+
+      > div:last-child {
+        padding-right: 0px !important;
+      }
+    }
+  }
+
+  @media (max-width: 400px) {
+    .dcf-switcher-container {
+      min-width: 100%;
+      margin-bottom: 1rem !important;
+      + div {
+        width: 100%;
+
+        ion-button {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .dcf-list-container {
+    ion-list {
+      background: none !important;
+    }
+
+    .dcf-filter-component {
+      > div:first-child {
+        padding-left: 0px !important;
+      }
+      ion-select {
+        --background: var(--dcf-card-background) !important;
+      }
+    }
+
+    // ngx-decaf-empty-state .dcf-card {
+    //   border: 1px solid red !important;
+    //   padding: 0px !important;
+    //   margin: 0px;
+    //   margin-top: 1rem;
+    //   border-radius: var(--dcf-border-radius) !important;
+    //   box-shadow: var(--dcf-box-shadow) !important;
+    //   border: 1px solid var(--dcf-color-gray-3) !important;
+    // }
+  }
+}
+.dcf-page-title {
+  color: var(--dcf-color-gray-8) !important;
+  font-weight: 500 !important;
+  font-size: 1.5rem !important;
+  line-height: 2rem !important;
+}
+
+.dcf-page-subtitle {
+  color: var(--dcf-color-gray-6) !important;
+  font-weight: 400 !important;
+  font-size: 0.975rem !important;
+  line-height: 1.5rem !important;
+}
+
+.dcf-page-content {
+  padding: var(--dcf-padding-small) 0rem;
+  padding-bottom: 0rem;
+}
+
+ngx-decaf-list ngx-decaf-empty-state > * {
+  padding: 0px !important;
+  background: var(--dcf-card-background) !important;
+  margin: 0px !important;
+  border-radius: var(--dcf-border-radius) !important;
+  box-shadow: var(--dcf-box-shadow-small) !important;
+  border: 1px solid var(--dcf-color-gray-2) !important;
+}
+
+// .dcf-form-grid.read > div {
+//   background: white !important;
+//   border-radius: var(--dcf-border-radius-small);
+//   border: 1px solid var(--dcf-color-gray-2);
+//   box-shadow: var(--dcf-box-shadow);
+// }
+// ngx-decaf-crud-form {
+//   ion-button[color="danger"] {
+//     display: none;
+//   }
+// }
+
+// .dcf-icon {
+//   &.dcf-palette-dark {
+//     ion-icon {
+//       color: var(--dcf-text-color) !important;
+//     }
+
+//     svg {
+//       fill: var(--dcf-text-color);
+//       fill-opacity: 0.25 !important;
+//       stroke: var(--dcf-text-color) !important;
+//       * {
+//         fill: var(--dcf-color-primary) !important;
+//         stroke: var(--dcf-color-gray-1) !important;
+//       }
+//     }
+//   }
+// }
+
+// .xml-preview-modal {
+//   ion-toolbar {
+//     --background: var(--dcf-color-dark) !important;
+//     background: var(--dcf-color-dark) !important;
+//     box-shadow: none !important;
+//     padding: unset !important;
+//     margin: unset !important;
+//   }
+
+//   ion-title {
+//     color: var(--dcf-color-gray-1) !important;
+//   }
+
+//   ion-button {
+//     margin: 0px !important;
+//     width: 32px !important;
+//     height: 25px !important;
+//     --background: var(--dcf-color-light) !important;
+//     transform: translate(-20px, 0px);
+//     --border-radius: var(--dcf-border-radius-small) !important;
+//     * {
+//       margin: -5px;
+//     }
+//   }
+
+//   .dcf-modal-body {
+//     background: var(--dcf-color-gray-9);
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+//     > div {
+//       background: white;
+//       max-width: 360px;
+//       border-radius: var(--dcf-border-radius) var(--dcf-border-radius) 0px 0px;
+//       position: absolute;
+//       overflow-y: auto !important;
+//       max-height: 70vh;
+//       scrollbar-width: thin !important;
+//       scrollbar-color: var(--dcf-color-gray-4) transparent;
+//       -webkit-scrollbar-width: thin !important;
+//       -webkit-scrollbar-color: var(--dcf-color-gray-4) transparent;
+//       &:not(:hover) {
+//         overflow-y: hidden !important;
+//       }
+
+//       // &::-webkit-scrollbar {
+//       //   width: 8px;
+//       //   height: 8px;
+//       // }
+
+//       // &::-webkit-scrollbar-track {
+//       //   background: transparent;
+//       // }
+
+//       // &::-webkit-scrollbar-thumb {
+//       //   background-color: rgba(0, 0, 0, 0.35);
+//       //   border-radius: 8px;
+//       //   // 1 - creates visual space (padding)
+//       //   border: 2px solid transparent;
+//       //   // 2 makes the transparent border create a "gap"
+//       //   background-clip: content-box;
+//       // }
+
+//       // &::-webkit-scrollbar-thumb:hover {
+//       //   background-color: rgba(0, 0, 0, 0.5);
+//       // }
+//       .modal-header {
+//         border-radius: var(--dcf-border-radius) var(--dcf-border-radius) 0px 0px;
+//       }
+//       #leaflet-service-parsed-content {
+//         height: calc(75vh + 1rem);
+//       }
+//     }
+//   }
+// }
