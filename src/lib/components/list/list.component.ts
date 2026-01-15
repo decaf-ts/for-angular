@@ -721,14 +721,23 @@ export class ListComponent
    * @returns {KeyValue} A mapper object that contains string values mapped to the
    * component's public keys.
    */
-  protected get _mapper(): KeyValue {
+  protected async getMapper(): Promise<KeyValue> {
     this.mapper = { ...this.mapper, ...{ uid: this.pk } };
-    return Object.keys(this.mapper).reduce((accum: KeyValue, curr: string) => {
-      const mapper = (this.mapper as KeyValue)[curr];
-      if(typeof mapper === 'string')
-        accum[curr] = mapper;
-      return accum;
-    }, {} as KeyValue);
+    const mapper = {} as KeyValue
+    for(const [key, value] of Object.entries(this.mapper as Record<string, unknown>)) {
+      if(typeof value === Primitives.STRING) {
+        mapper[key] = value;
+        continue
+      }
+      const mapperFn = (value as KeyValue)?.['valueParserFn'] || undefined;
+      if(typeof mapperFn === 'function') {
+        const value = await mapperFn(key, this);
+        if(typeof value === Primitives.STRING) {
+          mapper[value] = key;
+        }
+      }
+    }
+    return mapper;
   }
 
   /**
@@ -889,7 +898,7 @@ export class ListComponent
    */
   async handleCreate(uid: string | number): Promise<void> {
     const result = await this._repository?.read(uid);
-    const item = this.mapResults([result as KeyValue])[0];
+    const item = (await this.mapResults([result as KeyValue]))[0];
     this.items = this.data = [item, ...(this.items || [])];
   }
 
@@ -1122,8 +1131,7 @@ export class ListComponent
     const filtered = results.filter((item: KeyValue) =>
       Object.values(item).some((v) => {
         if (
-          v
-            .toString()
+          `${v}`
             .toLowerCase()
             .includes((search as string)?.toLowerCase())
         )
@@ -1219,7 +1227,11 @@ export class ListComponent
     let data = [...(this.data || [])];
     let request: KeyValue[] = [];
 
-    // getting model repository
+    if(!this.repositoryObserver) {
+      this.repositoryObserver = {
+        refresh: async (...args) => this.handleRepositoryRefresh(...args),
+      };
+    }
     if (!this._repository) {
       this._repository = this.repository;
       try {
@@ -1447,7 +1459,7 @@ export class ListComponent
       this.getMoreData((result as KeyValue[])?.length || 0);
     }
     return Object.keys(this.mapper || {}).length
-      ? this.mapResults(result)
+      ? await this.mapResults(result)
       : result;
   }
 
@@ -1536,10 +1548,10 @@ export class ListComponent
    *
    * @memberOf ListComponent
    */
-  mapResults(data: KeyValue[]): KeyValue[] {
+  async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
     if (!data || !data.length) return [];
     // passing uid as prop to mapper
-    this.mapper = this._mapper;
+    this.mapper = await this.getMapper();
     const props = Object.assign({
       operations: this.operations,
       route: this.route,
