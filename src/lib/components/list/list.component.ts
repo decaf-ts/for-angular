@@ -1550,7 +1550,6 @@ export class ListComponent
    */
   async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
     if (!data || !data.length) return [];
-    // passing uid as prop to mapper
     this.mapper = await this.getMapper();
     const props = Object.assign({
       operations: this.operations,
