@@ -297,7 +297,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    */
   handleReset(): void {
     if (this.isModalChild)
-      return this.submitEventEmit(null, ActionRoles.cancel, this.componentName);
+      return this.submitEventEmit(null, this.componentName, ActionRoles.cancel);
     if (![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation) && this.allowClear)
       return NgxFormService.reset(this.formGroup as FormGroup);
     this.location.back();
@@ -324,7 +324,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     this.submitEvent.emit({
       data,
       component: componentName || this.componentName,
-      name: eventName || ComponentEventNames.SUBMIT,
+      name: eventName || this.action || ComponentEventNames.SUBMIT,
       role: this.operation,
       handlers: {...(this.handlers || {}), ...(handlers || {})},
     });

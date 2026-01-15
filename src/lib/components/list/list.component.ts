@@ -950,6 +950,11 @@ export class ListComponent
       pk = this.pk;
     this.items = [...this.data?.filter((item: KeyValue) => item['uid'] !== uid) || []];
     this.data = [...this.items];
+    if(!this.data.length) {
+      this.searchValue = undefined;
+      this.page = 1;
+      this.searching = false;
+    }
     this.changeDetectorRef.detectChanges();
   }
 
@@ -1575,7 +1580,7 @@ export class ListComponent
       return this.searchValue || '';
     const searchValue = this.searchValue as IFilterQuery;
     if(searchValue?.query === undefined)
-      return this.searchValue || '';
+      return this.searchValue = "";
     return (searchValue?.query as IFilterQueryItem[])
       .map((item) => `${item.index} ${item.condition} ${item.value}`)
       .join(', ');

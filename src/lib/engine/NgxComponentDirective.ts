@@ -772,7 +772,7 @@ export abstract class NgxComponentDirective
    */
   async handleRepositoryRefresh(...args: unknown[]): Promise<void> {
     const [modelInstance, event, uid] = args;
-    if ([OperationKeys.CREATE ].includes(event as OperationKeys))
+    if ([OperationKeys.CREATE, OperationKeys.DELETE].includes(event as OperationKeys))
       return this.handleObserveEvent(
         modelInstance,
         event,
