@@ -65,6 +65,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
 import { PaginationComponent } from '../pagination/pagination.component';
 import { FilterComponent } from '../filter/filter.component';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
+import { UIFunctionLike } from '@decaf-ts/ui-decorators';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -644,8 +645,8 @@ export class ListComponent
         shareReplay(1),
         takeUntil(this.destroySubscriptions$)
       )
-      .subscribe(([table, event, uid]) =>
-        this.handleObserveEvent(table, event, uid)
+      .subscribe(([modelInstance, event, uid]) =>
+        this.handleObserveEvent(modelInstance, event, uid)
       );
 
     this.limit = Number(this.limit);
@@ -841,14 +842,14 @@ export class ListComponent
    * the appropriate list operations. This includes adding new items, updating existing
    * ones, or removing deleted items from the list display.
    *
-   * @param {string} table - The table/model name that changed
+   * @param {UIFunctionLike} clazz - The model instance that changed
    * @param {OperationKeys} event - The type of operation (CREATE, UPDATE, DELETE)
    * @param {string | number} uid - The unique identifier of the affected item
    * @returns {Promise<void>}
    * @memberOf ListComponent
    */
   override async handleObserveEvent(
-    table: string,
+    clazz: UIFunctionLike,
     event: OperationKeys,
     uid: string | number
   ): Promise<void> {

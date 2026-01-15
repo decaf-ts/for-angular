@@ -771,10 +771,10 @@ export abstract class NgxComponentDirective
    * @memberOf ListComponent
    */
   async handleRepositoryRefresh(...args: unknown[]): Promise<void> {
-    const [table, event, uid] = args;
-    if (event === OperationKeys.CREATE && !!uid)
+    const [modelInstance, event, uid] = args;
+    if ([OperationKeys.CREATE ].includes(event as OperationKeys))
       return this.handleObserveEvent(
-        table as string,
+        modelInstance,
         event,
         uid as string | number
       );
