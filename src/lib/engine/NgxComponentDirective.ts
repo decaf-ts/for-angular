@@ -60,6 +60,8 @@ import {
   UIFunctionLike,
   UIKeys,
 } from '@decaf-ts/ui-decorators';
+import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
+import { OverlayBaseController } from '@ionic/angular/common';
 
 try {
   const win = getWindow();
@@ -480,6 +482,19 @@ export abstract class NgxComponentDirective
    */
   override location: Location = inject(Location);
 
+
+  /**
+   * @description Ionic loading overlay manager available to derived components.
+   * @summary Provides convenient access to Ionic's LoadingController, enabling directive
+   * subclasses to create, present, and dismiss loading overlays without wiring the
+   * service themselves. Use this helper to surface async progress indicators tied to
+   * CRUD operations, navigation, or any long-running UI task.
+   * @type {LoadingController}
+   * @returns {OverlayBaseController<LoadingOptions, HTMLIonLoadingElement>}
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
+  protected loadingController: OverlayBaseController<LoadingOptions, HTMLIonLoadingElement> = inject(LoadingController);
+
   /**
    * @description Flag indicating if the component is rendered as a child of a modal dialog.
    * @summary Determines whether this component instance is being displayed within a modal
@@ -501,6 +516,15 @@ export abstract class NgxComponentDirective
   @Input()
   protected override events: Record<string, UIFunctionLike> = {};
 
+  /**
+   * @description Custom parser invoked whenever the directive receives raw values.
+   * @summary Allows callers to inject a reusable parsing function that normalizes or
+   * coerces inbound component data (form inputs, handler payloads, etc.) before the
+   * directive consumes it. Use this hook to apply business rules or format conversions
+   * without modifying internal directive logic.
+   * @type {UIFunctionLike}
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
   @Input()
   valueParserFn!: UIFunctionLike;
 
@@ -747,10 +771,10 @@ export abstract class NgxComponentDirective
    * @memberOf ListComponent
    */
   async handleRepositoryRefresh(...args: unknown[]): Promise<void> {
-    const [table, event, uid] = args;
-    if (event === OperationKeys.CREATE && !!uid)
+    const [modelInstance, event, uid] = args;
+    if ([OperationKeys.CREATE ].includes(event as OperationKeys))
       return this.handleObserveEvent(
-        table as string,
+        modelInstance,
         event,
         uid as string | number
       );

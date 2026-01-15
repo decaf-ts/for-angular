@@ -15,7 +15,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
-  inject
+  inject,
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe} from '@ngx-translate/core';
@@ -658,8 +658,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    */
   @Input()
   translatable: boolean = true;
-
-  private loadingController = inject(LoadingController);
 
   constructor() {
     super();

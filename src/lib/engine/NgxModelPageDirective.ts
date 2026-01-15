@@ -63,22 +63,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
   modelName!: string;
 
   /**
-   * @description Array of operations allowed for the current model instance.
-   * @summary Dynamically determined list of operations that are permitted based on
-   * the current context and model state. Initially contains CREATE and READ operations,
-   * with UPDATE and DELETE added when a modelId is present. This controls which
-   * action buttons are displayed and which operations are accessible to the user.
-   *
-   * @type {OperationKeys[]}
-   * @default [OperationKeys.CREATE, OperationKeys.READ]
-   * @memberOf ModelPage
-   */
-  allowedOperations: OperationKeys[] = [
-    OperationKeys.CREATE,
-    OperationKeys.READ,
-  ];
-
-  /**
    * @description Current model data loaded from the repository.
    * @summary Stores the raw data object representing the current model instance retrieved
    * from the repository. This property holds the actual data values for the model being
@@ -150,7 +134,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
   async ionViewWillEnter(): Promise<void> {
     // await super.ionViewWillEnter();
     if (this.modelId)
-      this.allowedOperations = this.allowedOperations.concat([
+      this.operations = this.operations.concat([
         OperationKeys.UPDATE,
         OperationKeys.DELETE,
       ]);
