@@ -6,7 +6,7 @@ import { ContainerComponent } from 'src/app/components/container/container.compo
 import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
 import { EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IBaseCustomEvent, ICrudFormEvent, ITabItem } from 'src/lib/engine/interfaces';
+import { ICrudFormEvent, ITabItem } from 'src/lib/engine/interfaces';
 import { BatchLayout } from 'src/app/ew/layouts/BatchLayout';
 import { Batch } from 'src/app/ew/models/Batch';
 import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';

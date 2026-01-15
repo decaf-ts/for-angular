@@ -317,16 +317,16 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     }
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
     if(Object.keys(data).length > 0)
-      this.submitEventEmit(data, eventName || this.action || this.operation, componentName);
+      return this.submitEventEmit(data, eventName, componentName, this.handlers);
 
   }
-  protected submitEventEmit(data: unknown, eventName: string, componentName?: string, handlers?: Record<string, UIFunctionLike>): void {
+  protected submitEventEmit(data: unknown, componentName?: string, eventName?: string, handlers?: Record<string, UIFunctionLike>): void {
     this.submitEvent.emit({
       data,
       component: componentName || this.componentName,
       name: eventName || ComponentEventNames.SUBMIT,
       role: this.operation,
-      handlers: handlers || this.handlers,
+      handlers: {...(this.handlers || {}), ...(handlers || {})},
     });
   }
 
