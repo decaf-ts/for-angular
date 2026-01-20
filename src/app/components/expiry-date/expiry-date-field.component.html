@@ -1,16 +1,12 @@
-@if ((operation === 'read' || operation === 'delete') || readonly) {
-  @if(!hidden) {
+@if (operation === 'read' || operation === 'delete' || readonly) {
+  @if (!hidden) {
     <ng-container>
       <div [class.dcf-hidden]="['inventedName', 'nameMedicinalProduct'].includes(name) && !value">
-        <ion-item [class]="'dcf-input-item ' + operation + ' ' +className" #component>
-
-          <ion-label [innerHTML]="
-            name === 'expiryDate'
-            ? (label ? (label | translate) : '')
-            : (label ? (label | translate:{'0': (expiryDate ? '(' + expiryDate + ')' : '')}) : '')
-            ">
+        <ion-item [class]="'dcf-input-item ' + operation + ' ' + className" #component>
+          <ion-label>
+            {{ label | translate }}
             <br />
-            <ion-text>{{value}}</ion-text>
+            <ion-text [innerHTML]="value"></ion-text>
           </ion-label>
         </ion-item>
       </div>
@@ -20,13 +16,13 @@
   @if (formControl) {
     <div [formGroup]="multiple ? activeFormGroup : formControl.parent">
       <div
-          [id]="uid"
-          [class]="'dcf-input-item ' + operation + ' ' +className"
-          [class.dcf-field-required]="required"
-          [class.dcf-field-readonly]="readonly"
-          #container
-        >
-        @if(type === HTML5InputTypes.CHECKBOX) {
+        [id]="uid"
+        [class]="'dcf-input-item ' + operation + ' ' + className"
+        [class.dcf-field-required]="required"
+        [class.dcf-field-readonly]="readonly"
+        #container
+      >
+        @if (type === HTML5InputTypes.CHECKBOX) {
           <ion-item class="dcf-width-1-1">
             <ion-checkbox
               (ionChange)="handleChange($event)"
@@ -34,23 +30,28 @@
               [mode]="'md'"
               [errorText]="getErrors(container)"
               [labelPlacement]="'end'"
-              [justify]=" 'start'"
+              [justify]="'start'"
               [value]="value"
               [readonly]="readonly"
               [formControlName]="name"
               [checked]="checked || enableDaySelection"
               (ionChange)="checked = !checked"
-              #component>
-              <span [innerHTML]="(expiryDate ?
-                (label | translate:{'0': '(' + expiryDate + ')' }) : (label | translate:{'0': ''}))
-              "></span>
+              #component
+            >
+              <span
+                [innerHTML]="
+                  expiryDate
+                    ? (label | translate: { '0': '(' + expiryDate + ')' })
+                    : (label | translate: { '0': '' })
+                "
+              ></span>
             </ion-checkbox>
           </ion-item>
         } @else {
           <div class="dcf-expiry-date-input">
             <input
               id="dcf-input-calendar"
-              title="{{name}}"
+              title="{{ name }}"
               min="2000-01-01"
               [type]="this.enableDaySelection ? HTML5InputTypes.DATE : HTML5InputTypes.MONTH"
               [value]="calendarInputValue"
@@ -76,23 +77,20 @@
               [label]="label | translate"
               #component
             />
-            @if(initialized && calendarInputValue) {
+            @if (initialized && calendarInputValue) {
               <div class="dcf-input-placeholder">
                 {{ parseCalendarInputValue(calendarInputValue, true) | translate }}
               </div>
             }
           </div>
         }
-
       </div>
     </div>
   } @else {
     <div>
       <p class="dcf-error">
-        {{ 'errors.form.control' | translate:{'0': name} }}
+        {{ 'errors.form.control' | translate: { '0': name } }}
       </p>
     </div>
   }
-
 }
-

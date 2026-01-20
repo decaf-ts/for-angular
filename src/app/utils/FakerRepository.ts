@@ -13,18 +13,18 @@ import { ProductStrength } from '../ew/fabric/ProductStrength';
 import { getModelAndRepository } from 'src/lib/engine/helpers';
 enum ProductNames {
   aspirin = 'Aspirin',
-  ibuprofen = 'Ibuprofen',
-  paracetamol = 'Paracetamol',
-  amoxicillin = 'Amoxicillin',
-  azithromycin = 'Azithromycin',
-  metformin = 'Metformin',
-  atorvastatin = 'Atorvastatin',
-  omeprazole = 'Omeprazole',
-  simvastatin = 'Simvastatin',
-  levothyroxine = 'Levothyroxine',
-  lisinopril = 'Lisinopril',
-  losartan = 'Losartan',
-  hydrochlorothiazide = 'Hydrochlorothiazide',
+  // ibuprofen = 'Ibuprofen',
+  // paracetamol = 'Paracetamol',
+  // amoxicillin = 'Amoxicillin',
+  // azithromycin = 'Azithromycin',
+  // metformin = 'Metformin',
+  // atorvastatin = 'Atorvastatin',
+  // omeprazole = 'Omeprazole',
+  // simvastatin = 'Simvastatin',
+  // levothyroxine = 'Levothyroxine',
+  // lisinopril = 'Lisinopril',
+  // losartan = 'Losartan',
+  // hydrochlorothiazide = 'Hydrochlorothiazide',
   // prednisone = "Prednisone",
   // sertraline = "Sertraline",
   // fluoxetine = "Fluoxetine",
@@ -67,7 +67,8 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           this.limit = 1;
           data = (await this.generateData<T & Product>(ProductNames, 'inventedName', 'string')).map(
             (item: Partial<Product>, index: number) => {
-              item.productCode = `0${index + 1}`.padStart(14, '0');
+              item.productCode =
+                this.limit === 1 ? '00000000000013' : `0${index + 1}`.padStart(14, '0');
               delete item?.['imageData'];
               item.markets = [];
               item.strengths = [];
@@ -78,12 +79,15 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
         }
         case Batch.name: {
           const repo = getModelAndRepository('Product');
-          this.limit = 2;
+          this.limit = 1;
           data = await this.generateData<Batch>();
           data = [
             ...(await Promise.all(
               data.map(async (item: Partial<Batch>) => {
-                const productCode = `0${Math.floor(Math.random() * 5) + 1}`.padStart(14, '0');
+                const productCode =
+                  this.limit === 1
+                    ? '00000000000013'
+                    : `0${Math.floor(Math.random() * 5) + 1}`.padStart(14, '0');
                 const repo = getModelAndRepository('Product');
                 item.productCode = productCode;
                 item.enableDaySelection = true;

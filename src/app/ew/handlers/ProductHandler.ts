@@ -111,8 +111,11 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
       // )) as ILayoutModelContext;
       // const { data, repository } = context;
       const { epi } = event.data as KeyValue;
-      const { markets, strengths } = epi;
+      const { markets, strengths } = epi || {};
       success = (await this.submit(event, false)).success;
+      console.log('========> strengths', strengths);
+      console.log('========> markets', markets);
+
       // if ('imageData' in data) {
       //   data['imageData'] = Model.build(
       //     {

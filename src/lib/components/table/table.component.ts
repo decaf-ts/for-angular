@@ -23,7 +23,7 @@ import {
 import { Dynamic } from '../../engine/decorators';
 import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
 import { UIKeys } from '@decaf-ts/ui-decorators';
-import { getModelAndRepository } from 'src/lib/engine/helpers';
+import { getModelAndRepository } from '../../engine/helpers';
 import { th } from '@faker-js/faker/.';
 import { debounceTime, shareReplay, takeUntil } from 'rxjs';
 
@@ -203,6 +203,9 @@ export class TableComponent extends ListComponent implements OnInit {
     uid: string,
     redirect?: boolean,
   ): Promise<void> {
+    if (action === OperationKeys.READ && !this.isAllowed(OperationKeys.UPDATE)) {
+      redirect = false;
+    }
     if (redirect) {
       await this.router.navigate([`/${this.route}/${action}/${uid}`]);
     }

@@ -8,13 +8,7 @@ import {
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import {
-  IonItem,
-  IonCheckbox,
-  IonLabel,
-  IonText,
-  IonInput,
-} from '@ionic/angular/standalone';
+import { IonItem, IonCheckbox, IonLabel, IonText, IonInput } from '@ionic/angular/standalone';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { timer } from 'rxjs';
 import { Dynamic, ComponentEventNames } from 'src/lib/engine';
@@ -38,10 +32,7 @@ import { windowEventEmitter } from 'src/lib/utils/helpers';
   ],
   standalone: true,
 })
-export class AppExpiryDateFieldComponent
-  extends CrudFieldComponent
-  implements OnInit
-{
+export class AppExpiryDateFieldComponent extends CrudFieldComponent implements OnInit {
   @ViewChild('calendarInputElement', { read: ElementRef, static: false })
   calendarInputElement!: ElementRef<HTMLInputElement>;
 
@@ -58,7 +49,7 @@ export class AppExpiryDateFieldComponent
 
   override async ngOnChanges(changes: SimpleChanges): Promise<void> {
     await super.ngOnChanges(changes);
-    if (this.operation !== OperationKeys.CREATE) {
+    if (this.operation === OperationKeys.UPDATE) {
       if (changes['formGroup']) {
         const formGroup = (this.formGroup as FormGroup).value;
         const expiryDate = formGroup?.expiryDate as string;
@@ -158,11 +149,9 @@ export class AppExpiryDateFieldComponent
       .split('-')
       .map((part, index) => (index === 0 ? part.slice(2) : part)) as string[];
     if (result.length === 2)
-      result.push(
-        !this.enableDaySelection
-          ? '00'
-          : this.getLastDayOfMonth(result.join('-'))
-      );
+      result.push(!this.enableDaySelection ? '00' : this.getLastDayOfMonth(result.join('-')));
+    //TODO: change day selection to last day of month only when enableDaySelection is false
+    // if (result.length === 2) result.push(this.getLastDayOfMonth(result.join('-')));
     return result.join('');
   }
 

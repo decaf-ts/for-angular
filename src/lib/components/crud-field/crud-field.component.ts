@@ -58,7 +58,7 @@ import { getLocaleContextByKey } from '../../i18n/Loader';
 import { getNgxSelectOptionsModal } from '../modal/modal.component';
 import { ActionRoles, SelectFieldInterfaces } from '../../engine/constants';
 import { IconComponent } from '../icon/icon.component';
-import { getModelAndRepository } from 'src/lib/engine/helpers';
+import { getModelAndRepository } from '../../engine/helpers';
 
 /**
  * @description A dynamic form field component for CRUD operations.

@@ -76,7 +76,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     const populate = [
       'Product',
       // 'ProductStrength',
-      // 'Batch',
+      'Batch',
       // 'Leaflet',
       //
       // 'ProductImage',
@@ -105,10 +105,15 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     }
     this.initialized = true;
     this.menu = [
+      {
+        label: 'Categories',
+        url: `/model/CategoryModel`,
+      },
       // DashboardMenuItem,
       // ...EwMenu,
       // ...(menu as IMenuItem[]),
       ...AppMenu,
+
       // LogoutMenuItem,
     ];
     await super.initialize();
