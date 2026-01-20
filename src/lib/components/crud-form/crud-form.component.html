@@ -12,6 +12,7 @@
       <ngx-decaf-layout
         [className]="'dcf-crud-form-grid dcf-grid-nested '"
         [children]="children || []"
+        (listenEvent)="handleEvent($event)"
         [parentForm]="formGroup || parentForm"
         [operation]="operation"
         [cardType]="cardType ?? 'blank'"
@@ -57,6 +58,7 @@
       [cardType]="cardType ?? 'blank'"
       [match]="match ?? false"
       [gap]="'small'"
+      (listenEvent)="handleEvent($event)"
       [flexMode]="props.flexMode || false"
       [rows]="rows"
       [borders]="borders ?? false"

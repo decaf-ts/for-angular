@@ -14,7 +14,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonSkeletonText, IonText } from '@ionic/angular/standalone';
 import { arrowForwardOutline, arrowBackOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { UIElementMetadata, UIModelMetadata} from '@decaf-ts/ui-decorators';
+import { UIElementMetadata, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ComponentEventNames } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
@@ -23,7 +23,6 @@ import { getLocaleContext } from '../../i18n/Loader';
 import { LayoutComponent } from '../layout/layout.component';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { FormParent } from '../../engine/types';
-
 
 @Dynamic()
 @Component({
@@ -36,13 +35,15 @@ import { FormParent } from '../../engine/types';
     IonSkeletonText,
     IonText,
     IonButton,
-    LayoutComponent
+    LayoutComponent,
   ],
   standalone: true,
-   host: {'[attr.id]': 'uid'},
+  host: { '[attr.id]': 'uid' },
 })
-export class SteppedFormComponent extends NgxFormDirective implements OnInit, OnDestroy {
-
+export class SteppedFormComponent
+  extends NgxFormDirective
+  implements OnInit, OnDestroy
+{
   /**
    * @description Array of UI model metadata for all form fields.
    * @summary Contains the complete collection of UI model metadata that defines
@@ -54,8 +55,9 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    * @memberOf SteppedFormComponent
    */
   @Input()
-  override children!: UIModelMetadata[] | { title: string; description: string; items?:  UIModelMetadata[]  }[];
-
+  override children!:
+    | UIModelMetadata[]
+    | { title: string; description: string; items?: UIModelMetadata[] }[];
 
   /**
    * @description The locale to be used for translations.
@@ -71,7 +73,6 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
   @Input()
   paginated: boolean = true;
 
-
   // /**
   //  * @description Optional action identifier for form submission context.
   //  * @summary Specifies a custom action name that will be included in the submit event.
@@ -82,8 +83,6 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
   //  */
   // @Input()
   // action?: string;
-
-
 
   /**
    * @description Number of pages in the stepped form.
@@ -96,7 +95,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    * @memberOf SteppedFormComponent
    */
   @Input()
-  override pages: number | {title: string; description: string}[] = 1;
+  override pages: number | { title: string; description: string }[] = 1;
 
   /**
    * List of titles and descriptions for each page of the stepped form.
@@ -109,8 +108,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    * ];
    */
   @Input()
-  pageTitles: { title: string; description: string}[] = [];
-
+  pageTitles: { title: string; description: string }[] = [];
 
   /**
    * @description The CRUD operation type for this form.
@@ -161,7 +159,6 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    */
   pagesArray: UIModelMetadata[] = [];
 
-
   // /**
   //  * @description Custom event handlers for form actions.
   //  * @summary A record of event handler functions keyed by event names that can be
@@ -172,8 +169,6 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
   //  */
   // @Input()
   // handlers!: HandlerLike;
-
-
 
   /**
    * @description Event emitter for form submission.
@@ -195,8 +190,8 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    * @memberOf SteppedFormComponent
    */
   constructor() {
-    super("SteppedFormComponent");
-    addIcons({arrowForwardOutline, arrowBackOutline});
+    super('SteppedFormComponent');
+    addIcons({ arrowForwardOutline, arrowBackOutline });
     this.enableDarkMode = true;
   }
 
@@ -222,40 +217,46 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    *
    * @memberOf SteppedFormComponent
    */
-  override async ngOnInit(): Promise<void>  {
-    if (!this.locale)
-      this.locale = getLocaleContext("SteppedFormComponent")
+  override async ngOnInit(): Promise<void> {
+    if (!this.locale) this.locale = getLocaleContext('SteppedFormComponent');
     this.activeIndex = this.startPage;
     if (typeof this.pages === 'object') {
       this.pageTitles = this.pages;
     } else {
-       if (!this.pageTitles.length)
-      this.pageTitles =  Array.from({ length: this.pages }, () => ({ title: '', description: ''}));
+      if (!this.pageTitles.length)
+        this.pageTitles = Array.from({ length: this.pages }, () => ({
+          title: '',
+          description: '',
+        }));
     }
 
     this.pages = this.pageTitles.length;
 
     if (this.paginated) {
       if (!this.parentForm)
-        this.parentForm = (this.formGroup?.root || this.formGroup) as FormParent;
-      this.children = [... (this.children as UIModelMetadata[]).map((c) => {
-        if (!c.props)
-          c.props = {};
-        const page = c.props['page'] || 1;
-        // prevent page overflow
-        c.props['page'] = page > this.pages ? this.pages : page;
-        return c;
-      })];
+        this.parentForm = (this.formGroup?.root ||
+          this.formGroup) as FormParent;
+      this.children = [
+        ...(this.children as UIModelMetadata[]).map((c) => {
+          if (!c.props) c.props = {};
+          const page = c.props['page'] || 1;
+          // prevent page overflow
+          c.props['page'] = page > this.pages ? this.pages : page;
+          return c;
+        }),
+      ];
       this.getActivePage(this.activeIndex);
     } else {
-      this.children =  this.pageTitles.map((page, index) => {
+      this.children = this.pageTitles.map((page, index) => {
         const pageNumber = index + 1;
-        const items = (this.children as UIModelMetadata[]).filter(({ props }: UIElementMetadata) => props?.['page'] === pageNumber);
+        const items = (this.children as UIModelMetadata[]).filter(
+          ({ props }: UIElementMetadata) => props?.['page'] === pageNumber
+        );
         return {
           page: pageNumber,
           title: page.title,
           description: page.description,
-          items
+          items,
         };
       });
       // this.formGroup =  new FormGroup(
@@ -265,7 +266,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
       //   }, {} as Record<string, FormGroup>)
       // );
     }
-    this.initialized = true;
+    await super.initialize();
   }
 
   /**
@@ -277,8 +278,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    */
   override async ngOnDestroy(): Promise<void> {
     await super.ngOnDestroy();
-    if (this.timerSubscription)
-      this.timerSubscription.unsubscribe();
+    if (this.timerSubscription) this.timerSubscription.unsubscribe();
   }
 
   /**
@@ -322,11 +322,19 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
         this.getActivePage(this.activeIndex);
       }
     } else {
-     if (isValid) {
-      const rootForm = this.formGroup?.root || this.formGroup;
-      const data = Object.assign({}, ...Object.values(NgxFormService.getFormData(rootForm as FormGroup)));
-      super.submitEventEmit(data, 'SteppedFormComponent', this.action || ComponentEventNames.SUBMIT, this.handlers);
-     }
+      if (isValid) {
+        const rootForm = this.formGroup?.root || this.formGroup;
+        const data = Object.assign(
+          {},
+          ...Object.values(NgxFormService.getFormData(rootForm as FormGroup))
+        );
+        super.submitEventEmit(
+          data,
+          'SteppedFormComponent',
+          this.action || ComponentEventNames.Submit,
+          this.handlers
+        );
+      }
     }
   }
 
@@ -351,13 +359,10 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    * @memberOf SteppedFormComponent
    */
   handleBack(): void {
-    if (!this.paginated)
-      return this.location.back();
+    if (!this.paginated) return this.location.back();
     this.activeIndex = this.activeIndex - 1;
     this.getActivePage(this.activeIndex);
   }
-
-
 
   // async submit(event?: SubmitEvent, eventName?: string, componentName?: string): Promise<boolean | void> {
   //   if (event) {
@@ -371,7 +376,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
   //   this.submitEvent.emit({
   //     data,
   //     component: componentName || this.componentName,
-  //     name: eventName || this.action || ComponentEventNames.SUBMIT,
+  //     name: eventName || this.action || ComponentEventNames.Submit,
   //     handlers: this.handlers,
   //   });
   // }

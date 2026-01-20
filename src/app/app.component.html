@@ -3,15 +3,23 @@
     <ion-menu [class.dcf-collapsable]="showCollapseButton" [class.dcf-collapsed]="menuCollapsed" contentId="main-content" type="overlay" [disabled]="!hasMenu" #component>
       <section class="dcf-logo-container">
         @if(!menuCollapsed) {
-          <app-logo width="130" position="left" />
+          <div class="dcf-logo-full">
+            <div class="dcf-logo">
+              <app-logo width="25" position="center" logo="assets/images/favicon-contrast.svg" logoContrast="assets/images/favicon-contrast.svg" />
+            </div>
+            <div>
+              <h1 class="dcf-logo-title">{{ appName }}</h1>
+              <p class="dcf-logo-subtitle">{{ appDescription }}</p>
+            </div>
+          </div>
         } @else {
-          <app-logo width="30" position="center" logo="assets/images/favicon.svg" logoContrast="assets/images/favicon.svg" />
+          <app-logo width="30" position="center" logo="assets/images/favicon.svg" logoContrast="assets/images/favicon-contrast.svg" />
         }
       </section>
 
       @if(showCollapseButton) {
         <a class="dcf-menu-expand-button" tabindex="0" (keydown.enter)="handleCollapseMenu()"  (click)="handleCollapseMenu()">
-          <ngx-decaf-icon name="assets/images/icons/menu-collapse.svg" [size]="menuCollapsed ? 'large' : 'default'" />
+          <ngx-decaf-icon name="ti-layout-sidebar-left-collapse" [size]="menuCollapsed ? 'large' : 'default'" />
           <span>{{ 'menu.collapse' | translate }}</span>
         </a>
       }
@@ -22,7 +30,8 @@
             @for (item of menu; track $index) {
               <ion-menu-toggle auto-hide="false">
                 <ion-item
-                title="{{ item.label | translate }}"
+                  [class]="'dcf-menu-'+item.label.toLowerCase()"
+                  title="{{ item.label | translate }}"
                   [class.dcf-separator]="!item.url"
                   [class.dcf-active-item]="item?.activeWhen ? isMenuActive(item) : false"
                   [button]="true"
@@ -45,7 +54,7 @@
                    [hidden]="!menuCollapsed"
                   />
                 }
-                <ion-label>{{ 'menu.' + item.label.toLowerCase() | translate }}</ion-label>
+                <ion-label>{{ 'menu.' + item.label | translate }}</ion-label>
                 </ion-item>
               </ion-menu-toggle>
             }

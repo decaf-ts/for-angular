@@ -13,7 +13,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import {  NgxComponentDirective } from '../../engine/NgxComponentDirective';
+import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { KeyValue } from '../../engine/types';
 import { ComponentEventNames } from '../../engine/constants';
 import { IPaginationCustomEvent } from '../../engine/interfaces';
@@ -63,15 +63,14 @@ import { IPaginationCustomEvent } from '../../engine/interfaces';
   selector: 'ngx-decaf-pagination',
   templateUrl: './pagination.component.html',
   styleUrls: ['./pagination.component.scss'],
-  imports: [
-    TranslatePipe,
-    IonIcon
-  ],
+  imports: [TranslatePipe, IonIcon],
   standalone: true,
-  host: {'[attr.id]': 'uid'}
+  host: { '[attr.id]': 'uid' },
 })
-export class PaginationComponent extends NgxComponentDirective implements OnInit {
-
+export class PaginationComponent
+  extends NgxComponentDirective
+  implements OnInit
+{
   /**
    * @description The total number of pages to display in the pagination component.
    * @summary Specifies the total number of pages available for navigation. This is a required
@@ -125,7 +124,8 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    * @memberOf PaginationComponent
    */
   @Output()
-  clickEvent: EventEmitter<IPaginationCustomEvent> = new EventEmitter<IPaginationCustomEvent>();
+  clickEvent: EventEmitter<IPaginationCustomEvent> =
+    new EventEmitter<IPaginationCustomEvent>();
 
   /**
    * @constructor
@@ -133,8 +133,8 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    * Calls the parent constructor with the component name for generate base locale string.
    */
   constructor() {
-    super("PaginationComponent");
-    addIcons({chevronBackOutline, chevronForwardOutline});
+    super('PaginationComponent');
+    addIcons({ chevronBackOutline, chevronForwardOutline });
   }
 
   /**
@@ -190,15 +190,14 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    * @memberOf PaginationComponent
    */
   handleClick(direction: 'next' | 'previous', page?: number): void {
-    if (page)
-      this.current = page;
+    if (page) this.current = page;
     this.clickEvent.emit({
-      name: ComponentEventNames.CLICK,
+      name: ComponentEventNames.Click,
       data: {
         direction,
-        page: this.current
+        page: this.current,
       },
-      component: this.componentName
+      component: this.componentName,
     } as IPaginationCustomEvent);
   }
 
@@ -231,12 +230,16 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
     const pages: KeyValue[] = [];
 
     function getPage(index: number | null, text = '', clazz = 'button'): void {
-        if (pages.some(item => item['index'] === index)) return;
-        pages.push({ index, text: index != null ? index.toString().padStart(2, '0') : text, class: clazz });
+      if (pages.some((item) => item['index'] === index)) return;
+      pages.push({
+        index,
+        text: index != null ? index.toString().padStart(2, '0') : text,
+        class: clazz,
+      });
     }
 
     if (total <= 5) {
-        for (let i = 1; i <= total; i++) getPage(i);
+      for (let i = 1; i <= total; i++) getPage(i);
     } else {
       // Adiciona os dois primeiros
       getPage(1);
@@ -249,7 +252,7 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
       if (current && current > 2 && current < total - 1) getPage(current);
 
       // Adiciona "..." entre os blocos
-      if (current && current < total - 2) getPage(null, '...' , 'separator');
+      if (current && current < total - 2) getPage(null, '...', 'separator');
 
       // Adiciona os dois últimos
       getPage(total - 1);
@@ -355,7 +358,7 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    * @memberOf PaginationComponent
    */
   navigate(page: number | null): void {
-    if (page !== null && this.current !== page as number)
+    if (page !== null && this.current !== (page as number))
       this.handleClick(page > this.current ? 'next' : 'previous', page);
   }
 }

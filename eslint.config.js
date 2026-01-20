@@ -6,13 +6,13 @@ module.exports = tseslint.config(
   {
     files: ["**/*.ts"],
     ignores: [
-      'tests/**',
-      '**/*.spec.*',
-      '**/cli-module.*',
-      'src/tests/**',
-      'src/stories/**/*.ts',
-      'src/polyfills.ts',
-      'src/zone-flags.ts'
+      "tests/**",
+      "**/*.spec.*",
+      "**/cli-module.*",
+      "src/tests/**",
+      "src/stories/**/*.ts",
+      "src/polyfills.ts",
+      "src/zone-flags.ts",
     ],
     extends: [
       eslint.configs.recommended,
@@ -33,8 +33,8 @@ module.exports = tseslint.config(
       "@angular-eslint/component-class-suffix": [
         "error",
         {
-          "suffixes": ["Page", "Component"]
-        }
+          suffixes: ["Page", "Component"],
+        },
       ],
       "@angular-eslint/directive-selector": [
         "error",

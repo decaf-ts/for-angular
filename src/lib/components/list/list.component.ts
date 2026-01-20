@@ -18,11 +18,7 @@ import {
   HostListener,
   OnDestroy,
 } from '@angular/core';
-import {
-  InfiniteScrollCustomEvent,
-  RefresherCustomEvent,
-  SpinnerTypes,
-} from '@ionic/angular';
+import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
 import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonButton,
@@ -166,10 +162,7 @@ import { UIFunctionLike } from '@decaf-ts/ui-decorators';
   ],
   host: { '[attr.id]': 'uid' },
 })
-export class ListComponent
-  extends NgxComponentDirective
-  implements OnInit, OnDestroy
-{
+export class ListComponent extends NgxComponentDirective implements OnInit, OnDestroy {
   /**
    * @description The display mode for the list component.
    * @summary Determines how the list data is loaded and displayed. Options include:
@@ -235,30 +228,6 @@ export class ListComponent
    */
   @Input()
   source!: string | FunctionLike;
-
-  /**
-   * @description The starting index for data fetching.
-   * @summary Specifies the index from which to start fetching data. This is used
-   * for pagination and infinite scrolling to determine which subset of data to load.
-   *
-   * @type {number}
-   * @default 0
-   * @memberOf ListComponent
-   */
-  @Input()
-  start: number = 0;
-
-  /**
-   * @description The number of items to fetch per page or load operation.
-   * @summary Determines how many items are loaded at once during pagination or
-   * infinite scrolling. This affects the size of data chunks requested from the source.
-   *
-   * @type {number}
-   * @default 10
-   * @memberOf ListComponent
-   */
-  @Input()
-  limit: number = 10;
 
   /**
    * @description Controls whether more data can be loaded.
@@ -395,28 +364,6 @@ export class ListComponent
   enableFilter: boolean = true;
 
   /**
-   * @description Sorting parameters for data fetching.
-   * @summary Specifies how the fetched data should be sorted. This can be provided
-   * as a string (field name with optional direction) or a direct object.
-   *
-   * @type {string | KeyValue | undefined}
-   * @memberOf ListComponent
-   */
-  @Input()
-  sortBy!: string;
-
-  /**
-   * @description Sorting parameters for data fetching.
-   * @summary Specifies how the fetched data should be sorted. This can be provided
-   * as a string (field name with optional direction) or a direct object.
-   *
-   * @type {string | KeyValue | undefined}
-   * @memberOf ListComponent
-   */
-  @Input()
-  sortDirection: OrderDirection = OrderDirection.DSC;
-
-  /**
    * @description Controls whether sorting functionality is disabled.
    * @summary When set to true, disables the sort controls and prevents users from
    * changing the sort order or field. The list will maintain its default or
@@ -491,16 +438,6 @@ export class ListComponent
    */
   items!: KeyValue[];
 
-  /**
-   * @description The current search query value.
-   * @summary Stores the text entered in the search bar. This is used to filter
-   * the list data or to send as a search parameter when fetching new data.
-   *
-   * @type {string | undefined}
-   * @memberOf ListComponent
-   */
-  searchValue?: string | IFilterQuery | undefined;
-
   searching: boolean = false;
 
   /**
@@ -538,8 +475,9 @@ export class ListComponent
    * @memberOf ListComponent
    */
   @Output()
-  clickEvent: EventEmitter<ListItemCustomEvent | IBaseCustomEvent> =
-    new EventEmitter<ListItemCustomEvent | IBaseCustomEvent>();
+  clickEvent: EventEmitter<ListItemCustomEvent | IBaseCustomEvent> = new EventEmitter<
+    ListItemCustomEvent | IBaseCustomEvent
+  >();
 
   /**
    * @description Subject for debouncing click events.
@@ -550,24 +488,8 @@ export class ListComponent
    * @type {Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent>}
    * @memberOf ListComponent
    */
-  private clickItemSubject: Subject<
-    CustomEvent | ListItemCustomEvent | IBaseCustomEvent
-  > = new Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent>();
-
-
-  /**
-   * @description List of available indexes for data querying and filtering.
-   * @summary Provides a list of index names that can be used to optimize data querying and filtering
-   * operations, especially in scenarios with large datasets.
-   *
-   * Indexes can significantly improve the performance of data retrieval by allowing the database
-   * to quickly locate and retrieve relevant data based on indexed fields.
-   *
-   * @type {string[]}
-   * @default []
-   * @memberOf ListComponent
-   */
-  indexes!: string[];
+  private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent> =
+    new Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent>();
 
   /**
    * @description Initializes a new instance of the ListComponent.
@@ -617,8 +539,7 @@ export class ListComponent
   async ngOnInit(): Promise<void> {
     this.initialized = false;
     this.repositoryObserver = {
-      refresh: async (...args: unknown[]): Promise<void> =>
-        this.handleRepositoryRefresh(...args),
+      refresh: async (...args: unknown[]): Promise<void> => this.handleRepositoryRefresh(...args),
     };
 
     // this.router.events.subscribe(async event => {
@@ -626,27 +547,16 @@ export class ListComponent
     //     await super.ngOnDestroy();
     // });
 
-    if (!this.searchbarPlaceholder)
-      this.searchbarPlaceholder = `${this.locale}.search.placeholder`;
+    if (!this.searchbarPlaceholder) this.searchbarPlaceholder = `${this.locale}.search.placeholder`;
 
     this.clickItemSubject
-      .pipe(
-        debounceTime(100),
-        shareReplay(1),
-        takeUntil(this.destroySubscriptions$)
-      )
-      .subscribe((event) =>
-        this.clickEventEmit(event as ListItemCustomEvent | IBaseCustomEvent)
-      );
+      .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
+      .subscribe((event) => this.clickEventEmit(event as ListItemCustomEvent | IBaseCustomEvent));
 
     this.repositoryObserverSubject
-      .pipe(
-        debounceTime(100),
-        shareReplay(1),
-        takeUntil(this.destroySubscriptions$)
-      )
+      .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
       .subscribe(([modelInstance, event, uid]) =>
-        this.handleObserveEvent(modelInstance, event, uid)
+        this.handleObserveEvent(modelInstance, event, uid),
       );
 
     this.limit = Number(this.limit);
@@ -663,10 +573,10 @@ export class ListComponent
       this.createButton = false;
     if (typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
-    if (!this.initialized)
-      this.parseProps(this);
+    if (!this.initialized) this.parseProps(this);
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
-    this.initialized = true;
+    // await this.initialize();
+    await this.initialize();
     await this.refresh();
   }
 
@@ -724,16 +634,16 @@ export class ListComponent
    */
   protected async getMapper(): Promise<KeyValue> {
     this.mapper = { ...this.mapper, ...{ uid: this.pk } };
-    const mapper = {} as KeyValue
-    for(const [key, value] of Object.entries(this.mapper as Record<string, unknown>)) {
-      if(typeof value === Primitives.STRING) {
+    const mapper = {} as KeyValue;
+    for (const [key, value] of Object.entries(this.mapper as Record<string, unknown>)) {
+      if (typeof value === Primitives.STRING) {
         mapper[key] = value;
-        continue
+        continue;
       }
       const mapperFn = (value as KeyValue)?.['valueParserFn'] || undefined;
-      if(typeof mapperFn === 'function') {
+      if (typeof mapperFn === 'function') {
         const value = await mapperFn(key, this);
-        if(typeof value === Primitives.STRING) {
+        if (typeof value === Primitives.STRING) {
           mapper[value] = key;
         }
       }
@@ -793,23 +703,21 @@ export class ListComponent
    * @memberOf ListComponent
    */
   override async refresh(
-    event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false
+    event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false,
   ): Promise<void> {
-    //  if (typeof force !== 'boolean' && force.type === ComponentEventNames.BACK_BUTTON_NAVIGATION) {
+    //  if (typeof force !== 'boolean' && force.type === ComponentEventNames.BackButtonClickEvent) {
     //    const {refresh} = (force as CustomEvent).detail;
     //    if (!refresh)
     //      return false;
     //  }
     this.refreshing = true;
-    const start: number =
-      this.page > 1 ? (this.page - 1) * this.limit : this.start;
+    const start: number = this.page > 1 ? (this.page - 1) * this.limit : this.start;
     const limit: number = this.page * (this.limit > 12 ? 12 : this.limit);
 
     this.data = !this.model
       ? await this.getFromRequest(!!event, start, limit)
       : ((await this.getFromModel(!!event)) as KeyValue[]);
-    if (!this.isModalChild)
-      this.refreshEventEmit(this.data);
+    if (!this.isModalChild) this.refreshEventEmit(this.data);
     if (this.type === ListComponentsTypes.INFINITE) {
       if (this.page === this.pages) {
         if ((event as InfiniteScrollCustomEvent)?.target)
@@ -821,8 +729,7 @@ export class ListComponent
         setTimeout(() => {
           if (
             (event as InfiniteScrollCustomEvent)?.target &&
-            (event as CustomEvent)?.type !==
-              ComponentEventNames.BACK_BUTTON_NAVIGATION
+            (event as CustomEvent)?.type !== ComponentEventNames.BackButtonClickEvent
           )
             (event as InfiniteScrollCustomEvent).target.complete();
         }, 200);
@@ -833,8 +740,6 @@ export class ListComponent
       }, 200);
     }
   }
-
-
 
   /**
    * @description Handles specific repository events and updates the list accordingly.
@@ -851,7 +756,7 @@ export class ListComponent
   override async handleObserveEvent(
     clazz: UIFunctionLike,
     event: OperationKeys,
-    uid: string | number
+    uid: string | number,
   ): Promise<void> {
     if (event === OperationKeys.CREATE) {
       if (uid) {
@@ -860,10 +765,8 @@ export class ListComponent
         await this.refresh(true);
       }
     } else {
-      if (event === OperationKeys.UPDATE)
-        await this.handleUpdate(uid);
-      if (event === OperationKeys.DELETE)
-        this.handleDelete(uid);
+      if (event === OperationKeys.UPDATE) await this.handleUpdate(uid);
+      if (event === OperationKeys.DELETE) this.handleDelete(uid);
       this.refreshEventEmit();
     }
   }
@@ -884,10 +787,7 @@ export class ListComponent
    * @returns {string | number} The tracking key for the item.
    * @memberOf ListComponent
    */
-  override trackItemFn(
-    index: number,
-    item: KeyValue | string | number
-  ): string | number {
+  override trackItemFn(index: number, item: KeyValue | string | number): string | number {
     return `${(item as KeyValue)?.['uid'] || (item as KeyValue)?.[this.pk]}-${index}`;
   }
 
@@ -913,10 +813,7 @@ export class ListComponent
    * @memberOf ListComponent
    */
   async handleUpdate(uid: string | number): Promise<void> {
-    const item: KeyValue = this.itemMapper(
-      (await this._repository?.read(uid)) || {},
-      this.mapper
-    );
+    const item: KeyValue = this.itemMapper((await this._repository?.read(uid)) || {}, this.mapper);
     this.data = [];
     this.changeDetectorRef.detectChanges();
     for (const key in this.items as KeyValue[]) {
@@ -926,8 +823,7 @@ export class ListComponent
         break;
       }
     }
-    const updateSubsriber$ = timer(0)
-    .subscribe(() => {
+    const updateSubsriber$ = timer(0).subscribe(() => {
       this.data = [...this.items];
       this.changeDetectorRef.detectChanges();
       updateSubsriber$.unsubscribe();
@@ -946,11 +842,10 @@ export class ListComponent
    * @memberOf ListComponent
    */
   handleDelete(uid: string | number, pk?: string): void {
-    if (!pk)
-      pk = this.pk;
-    this.items = [...this.data?.filter((item: KeyValue) => item['uid'] !== uid) || []];
+    if (!pk) pk = this.pk;
+    this.items = [...(this.data?.filter((item: KeyValue) => item['uid'] !== uid) || [])];
     this.data = [...this.items];
-    if(!this.data.length) {
+    if (!this.data.length) {
       this.searchValue = undefined;
       this.page = 1;
       this.searching = false;
@@ -1062,7 +957,7 @@ export class ListComponent
     if (!data) data = this.items;
     this.skeletonData = new Array(1);
     this.refreshEvent.emit({
-      name: ComponentEventNames.REFRESH,
+      name: ComponentEventNames.Refresh,
       data: data || [],
       component: this.componentName,
     });
@@ -1110,9 +1005,7 @@ export class ListComponent
    *
    * @memberOf ListComponent
    */
-  async handleRefresh(
-    event?: InfiniteScrollCustomEvent | CustomEvent
-  ): Promise<void> {
+  async handleRefresh(event?: InfiniteScrollCustomEvent | CustomEvent): Promise<void> {
     await this.refresh((event as InfiniteScrollCustomEvent) || true);
     if (event instanceof CustomEvent)
       setTimeout(() => {
@@ -1136,13 +1029,8 @@ export class ListComponent
   parseSearchResults(results: KeyValue[], search: string): KeyValue[] {
     const filtered = results.filter((item: KeyValue) =>
       Object.values(item).some((v) => {
-        if (
-          `${v}`
-            .toLowerCase()
-            .includes((search as string)?.toLowerCase())
-        )
-          return v;
-      })
+        if (`${v}`.toLowerCase().includes((search as string)?.toLowerCase())) return v;
+      }),
     );
     return filtered;
   }
@@ -1160,11 +1048,7 @@ export class ListComponent
    *
    * @memberOf ListComponent
    */
-  async getFromRequest(
-    force: boolean = false,
-    start: number,
-    limit: number
-  ): Promise<KeyValue[]> {
+  async getFromRequest(force: boolean = false, start: number, limit: number): Promise<KeyValue[]> {
     let data: KeyValue[] = [...(this.data || [])];
 
     if (
@@ -1174,18 +1058,14 @@ export class ListComponent
       !!(this.searchValue as IFilterQuery)
     ) {
       // (self.data as ListItem[]) = [];
-      if (
-        !(this.searchValue as string)?.length &&
-        !(this.searchValue as IFilterQuery)
-      ) {
+      if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
         if (!this.source && !this.data?.length) {
           this.log.info('No data and source passed to infinite list');
           return [];
         }
         if (this.source instanceof Function) {
           data = (await this.source()) as KeyValue[];
-          if (!Array.isArray(data))
-            data = data?.['response']?.['data'] || data?.['results'] || [];
+          if (!Array.isArray(data)) data = data?.['response']?.['data'] || data?.['results'] || [];
         }
 
         if (!data?.length && this.data?.length) data = this.data as KeyValue[];
@@ -1197,7 +1077,7 @@ export class ListComponent
               : [...(data.slice(start, limit) as KeyValue[])];
       } else {
         data = await this.parseResult(
-          this.parseSearchResults(this.data as [], this.searchValue as string)
+          this.parseSearchResults(this.data as [], this.searchValue as string),
         );
       }
       this.items = [...data];
@@ -1233,18 +1113,19 @@ export class ListComponent
     let data = [...(this.data || [])];
     let request: KeyValue[] = [];
 
-    if(!this.repositoryObserver) {
+    if (!this._repository) {
+      this._repository = this.repository;
+    }
+    if (!this.repositoryObserver) {
       this.repositoryObserver = {
         refresh: async (...args) => this.handleRepositoryRefresh(...args),
       };
     }
-    if (!this._repository) {
-      this._repository = this.repository;
-      try {
-        (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
-      } catch (error: unknown) {
-        this.log.info((error as Error)?.message);
-      }
+
+    try {
+      (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
+    } catch (error: unknown) {
+      this.log.info((error as Error)?.message);
     }
     const repo = this._repository as DecafRepository<Model>;
     if (!this.indexes) {
@@ -1257,55 +1138,32 @@ export class ListComponent
       !!(this.searchValue as IFilterQuery)
     ) {
       try {
-        if (
-          !(this.searchValue as string)?.length &&
-          !(this.searchValue as IFilterQuery)
-        ) {
+        if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
           (this.data as KeyValue[]) = [];
           // const rawQuery = this.parseQuery(self.model as Repository<Model>, start, limit);
           // request = this.parseResult(await (this.model as any)?.paginate(start, limit));
           if (!this.paginator) {
-            this.paginator = await repo
-              .select()
-              .where(
-                this.condition
-                  ? this.condition.eq(
-                      !this.modelId
-                        ? undefined
-                        : [Primitives.NUMBER, Primitives.BIGINT].includes(
-                              this.pkType as Primitives
-                            )
-                          ? Number(this.modelId)
-                          : this.modelId
-                    )
-                  : Condition.attribute<Model>(this.pk as keyof Model).dif(null)
-              )
-              .orderBy([this.pk as keyof Model, this.sortDirection])
-              .paginate(this.limit);
+            this.paginator = await this.paginate();
           }
           request = await this.parseResult(this.paginator as Paginator<Model>);
         } else {
           this.changeDetectorRef.detectChanges();
           request = await this.parseResult(
             await repo.query(
-              this.parseConditions(
-                this.searchValue as string | number | IFilterQuery
-              ),
+              this.parseConditions(this.searchValue as string | number | IFilterQuery),
               (this.sortBy || this.pk) as keyof Model,
-              this.sortDirection
-            )
+              this.sortDirection,
+            ),
           );
           data = [];
           this.changeDetectorRef.detectChanges();
         }
         data =
-          this.type === ListComponentsTypes.INFINITE
-            ? [...data.concat(request)]
-            : [...request];
+          this.type === ListComponentsTypes.INFINITE ? [...data.concat(request)] : [...request];
       } catch (error: unknown) {
         this.log.error(
           (error as Error)?.message ||
-            `Unable to find ${this.model} on registry. Return empty array from component`
+            `Unable to find ${this.model} on registry. Return empty array from component`,
         );
       }
     }
@@ -1349,7 +1207,7 @@ export class ListComponent
     const model = this.model as Model;
     if (typeof value === Primitives.STRING || !isNaN(value as number)) {
       _condition = Condition.attribute<Model>(this.pk as keyof Model).eq(
-        !isNaN(value as number) ? Number(value) : value
+        !isNaN(value as number) ? Number(value) : value,
       );
       for (const index of this.indexes as (keyof Model)[]) {
         if (index === this.pk) continue;
@@ -1357,10 +1215,7 @@ export class ListComponent
         if (!isNaN(value as number)) {
           orCondition = Condition.attribute<Model>(index).eq(Number(value));
         } else {
-          const type = Metadata.type(
-            model.constructor as Constructor<Model>,
-            index
-          ).name;
+          const type = Metadata.type(model.constructor as Constructor<Model>, index).name;
           orCondition =
             type === Date
               ? Condition.attribute<Model>(index).eq(new Date(value as string))
@@ -1383,7 +1238,7 @@ export class ListComponent
         }
         const type = Metadata.type(
           model.constructor as Constructor<Model>,
-          index as keyof Model
+          index as keyof Model,
         ).name;
         if (type === Date.name) {
           val = new Date(val as string);
@@ -1391,40 +1246,28 @@ export class ListComponent
         let orCondition;
         switch (condition) {
           case 'Equal':
-            orCondition = Condition.attribute<Model>(index as keyof Model).eq(
-              val
-            );
+            orCondition = Condition.attribute<Model>(index as keyof Model).eq(val);
             break;
           case 'Not Equal':
-            orCondition = Condition.attribute<Model>(index as keyof Model).dif(
-              val
-            );
+            orCondition = Condition.attribute<Model>(index as keyof Model).dif(val);
             break;
           case 'Not Contains':
-            orCondition = !Condition.attribute<Model>(
-              index as keyof Model
-            ).regexp(new RegExp(`^(?!.*${val}).*$`));
+            orCondition = !Condition.attribute<Model>(index as keyof Model).regexp(
+              new RegExp(`^(?!.*${val}).*$`),
+            );
             break;
           case 'Contains':
-            orCondition = Condition.attribute<Model>(
-              index as keyof Model
-            ).regexp(val as string);
+            orCondition = Condition.attribute<Model>(index as keyof Model).regexp(val as string);
             break;
           case 'Greater Than':
-            orCondition = Condition.attribute<Model>(index as keyof Model).gte(
-              val
-            );
+            orCondition = Condition.attribute<Model>(index as keyof Model).gte(val);
             break;
           case 'Less Than':
-            orCondition = Condition.attribute<Model>(index as keyof Model).lte(
-              val
-            );
+            orCondition = Condition.attribute<Model>(index as keyof Model).lte(val);
             break;
         }
         _condition = (
-          !_condition
-            ? orCondition
-            : _condition.and(orCondition as unknown as Condition<Model>)
+          !_condition ? orCondition : _condition.and(orCondition as unknown as Condition<Model>)
         ) as Condition<Model>;
       });
 
@@ -1446,9 +1289,7 @@ export class ListComponent
    *
    * @memberOf ListComponent
    */
-  protected async parseResult(
-    result: KeyValue[] | Paginator<Model>
-  ): Promise<KeyValue[]> {
+  protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyValue[]> {
     if (!Array.isArray(result) && 'page' in result && 'total' in result) {
       const paginator = result as Paginator<Model>;
       try {
@@ -1457,16 +1298,14 @@ export class ListComponent
       } catch (error: unknown) {
         this.log.info(
           (error as Error)?.message ||
-            'Unable to get page from paginator. Return empty array from component'
+            'Unable to get page from paginator. Return empty array from component',
         );
         result = [];
       }
     } else {
       this.getMoreData((result as KeyValue[])?.length || 0);
     }
-    return Object.keys(this.mapper || {}).length
-      ? await this.mapResults(result)
-      : result;
+    return Object.keys(this.mapper || {}).length ? await this.mapResults(result) : result;
   }
 
   /**
@@ -1492,8 +1331,7 @@ export class ListComponent
       }
     } else {
       this.pages = length;
-      if (this.pages === 1)
-        this.loadMoreData = false;
+      if (this.pages === 1) this.loadMoreData = false;
     }
   }
 
@@ -1511,11 +1349,7 @@ export class ListComponent
    *
    * @memberOf ListComponent
    */
-  protected itemMapper(
-    item: KeyValue,
-    mapper: KeyValue,
-    props?: KeyValue
-  ): KeyValue {
+  protected itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyValue {
     return Object.entries(mapper).reduce((accum: KeyValue, [key, value]) => {
       const arrayValue = value.split('.');
       if (!value) {
@@ -1530,9 +1364,7 @@ export class ListComponent
           let val;
 
           for (const _value of arrayValue)
-            val = !val
-              ? item[_value]
-              : (typeof val === 'string' ? JSON.parse(val) : val)[_value];
+            val = !val ? item[_value] : (typeof val === 'string' ? JSON.parse(val) : val)[_value];
 
           if (isValidDate(new Date(val))) val = `${formatDate(val)}`;
 
@@ -1568,19 +1400,21 @@ export class ListComponent
     return data.reduce((accum: KeyValue[], curr) => {
       accum.push({
         ...this.itemMapper(curr, this.mapper as KeyValue, props),
-        ...{ pk: this.pk },
-        ...{ model: curr },
+        ...{
+          pk: this.pk,
+          model: curr,
+          isModalChild: this.isModalChild,
+          emitEvent: props.emitEvent,
+        },
       });
       return accum;
     }, []);
   }
 
   parseSearchValue() {
-    if (typeof this.searchValue === Primitives.STRING)
-      return this.searchValue || '';
+    if (typeof this.searchValue === Primitives.STRING) return this.searchValue || '';
     const searchValue = this.searchValue as IFilterQuery;
-    if(searchValue?.query === undefined)
-      return this.searchValue = "";
+    if (searchValue?.query === undefined) return (this.searchValue = '');
     return (searchValue?.query as IFilterQueryItem[])
       .map((item) => `${item.index} ${item.condition} ${item.value}`)
       .join(', ');

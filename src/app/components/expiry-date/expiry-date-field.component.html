@@ -1,0 +1,98 @@
+@if ((operation === 'read' || operation === 'delete') || readonly) {
+  @if(!hidden) {
+    <ng-container>
+      <div [class.dcf-hidden]="['inventedName', 'nameMedicinalProduct'].includes(name) && !value">
+        <ion-item [class]="'dcf-input-item ' + operation + ' ' +className" #component>
+
+          <ion-label [innerHTML]="
+            name === 'expiryDate'
+            ? (label ? (label | translate) : '')
+            : (label ? (label | translate:{'0': (expiryDate ? '(' + expiryDate + ')' : '')}) : '')
+            ">
+            <br />
+            <ion-text>{{value}}</ion-text>
+          </ion-label>
+        </ion-item>
+      </div>
+    </ng-container>
+  }
+} @else {
+  @if (formControl) {
+    <div [formGroup]="multiple ? activeFormGroup : formControl.parent">
+      <div
+          [id]="uid"
+          [class]="'dcf-input-item ' + operation + ' ' +className"
+          [class.dcf-field-required]="required"
+          [class.dcf-field-readonly]="readonly"
+          #container
+        >
+        @if(type === HTML5InputTypes.CHECKBOX) {
+          <ion-item class="dcf-width-1-1">
+            <ion-checkbox
+              (ionChange)="handleChange($event)"
+              [id]="name"
+              [mode]="'md'"
+              [errorText]="getErrors(container)"
+              [labelPlacement]="'end'"
+              [justify]=" 'start'"
+              [value]="value"
+              [readonly]="readonly"
+              [formControlName]="name"
+              [checked]="checked || enableDaySelection"
+              (ionChange)="checked = !checked"
+              #component>
+              <span [innerHTML]="(expiryDate ?
+                (label | translate:{'0': '(' + expiryDate + ')' }) : (label | translate:{'0': ''}))
+              "></span>
+            </ion-checkbox>
+          </ion-item>
+        } @else {
+          <div class="dcf-expiry-date-input">
+            <input
+              id="dcf-input-calendar"
+              title="{{name}}"
+              min="2000-01-01"
+              [type]="this.enableDaySelection ? HTML5InputTypes.DATE : HTML5InputTypes.MONTH"
+              [value]="calendarInputValue"
+              (change)="handleCalendarPick(calendarInputElement.value)"
+              #calendarInputElement
+            />
+            <ion-input
+              readonly
+              (click)="showCalendar($event, calendarInputElement)"
+              (ionInput)="handleChange($event)"
+              (ionChange)="handleChange($event)"
+              [id]="name"
+              type="text"
+              [regex]="regex"
+              [formControlName]="name"
+              [mode]="'md'"
+              [labelPlacement]="labelPlacement"
+              [pattern]=""
+              [value]="value"
+              [fill]="fill"
+              [placeholder]="placeholder | translate"
+              [errorText]="getErrors(container)"
+              [label]="label | translate"
+              #component
+            />
+            @if(initialized && calendarInputValue) {
+              <div class="dcf-input-placeholder">
+                {{ parseCalendarInputValue(calendarInputValue, true) | translate }}
+              </div>
+            }
+          </div>
+        }
+
+      </div>
+    </div>
+  } @else {
+    <div>
+      <p class="dcf-error">
+        {{ 'errors.form.control' | translate:{'0': name} }}
+      </p>
+    </div>
+  }
+
+}
+

@@ -1,6 +1,39 @@
 .dcf-modal-component {
   --border-radius: var(--dcf-border-radius);
 
+  &.dcf-modal-confirm {
+    top: -100px;
+    --max-width: 320px;
+    --max-height: 35vh;
+    ::ng-deep {
+      .dcf-title {
+        font-weight: 500;
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+        color: var(--dcf-color-gray-8);
+      }
+
+      &.dcf-delete {
+        .dcf-title {
+          color: var(--dcf-color-danger);
+        }
+      }
+
+      .dcf-content {
+        font-weight: 400;
+        font-size: 0.935rem;
+        line-height: 1.375rem;
+        color: var(--dcf-color-gray-6);
+        margin-top: 1rem;
+      }
+
+      .dcf-buttons-grid {
+        position: absolute;
+        bottom: 2rem;
+        right: 1rem;
+      }
+    }
+  }
   ::ng-deep {
     form .dcf-buttons-grid {
       align-content: center !important;
@@ -117,7 +150,7 @@
       }
     }
     ion-content {
-      &[part="background"],
+      &[part='background'],
       &::part(background) {
         border-radius: var(--dcf-border-radius) !important;
       }

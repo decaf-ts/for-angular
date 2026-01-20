@@ -21,9 +21,10 @@ import { FakerRepository } from 'src/app/utils/FakerRepository';
 import { LogoComponent } from './components/logo/logo.component';
 import { AppModels, AppName } from './app.config';
 import { IconComponent } from 'src/lib/components';
-import { getDbAdapterFlavour } from 'src/lib/for-angular-common.module';
-import { AppMenu, DashboardMenuItem, EwMenu, LogoutMenuItem } from './utils/contants';
+import { getDbAdapterFlavour } from 'src/lib/engine/helpers';
 import { RamFlavour } from '@decaf-ts/core/ram';
+import { AppMenu } from './ew/utils/constants';
+import { IAppMenuItem } from './ew/utils/interfaces';
 
 @Component({
   standalone: true,
@@ -49,7 +50,6 @@ import { RamFlavour } from '@decaf-ts/core/ram';
   styleUrl: './app.component.scss',
 })
 export class AppComponent extends NgxPageDirective implements OnInit {
-
   menuCollapsed: boolean = false;
 
   showCollapseButton: boolean = true;
@@ -59,7 +59,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    * @summary Sets up router event subscriptions and initializes the application
    * @return {Promise<void>}
    */
-  override async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     this.hasMenu = true;
     this.title = 'Decaf-ts for-angular demo';
     this.appName = AppName;
@@ -73,7 +73,17 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    */
   override async initialize(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
-    const populate = ['Product', 'Batch', 'Leaflet', 'CategoryModel', 'AIVendorModel', 'ProductStrength'];
+    const populate = [
+      'Product',
+      // 'ProductStrength',
+      // 'Batch',
+      // 'Leaflet',
+      //
+      // 'ProductImage',
+
+      'CategoryModel',
+      'AIVendorModel',
+    ];
     const menu = [];
     const models = AppModels;
     const dbAdapterFlavour = getDbAdapterFlavour();
@@ -83,12 +93,10 @@ export class AppComponent extends NgxPageDirective implements OnInit {
         model = new (model as unknown as ModelConstructor<typeof model>)();
       const name = model.constructor.name.replace(/[0-9]/g, '');
       if (isDevelopment && dbAdapterFlavour.includes(RamFlavour)) {
-        if (populate.includes(name))
-          await new FakerRepository(model, 36).initialize();
+        if (populate.includes(name)) await new FakerRepository(model, 36).initialize();
       }
       const label = name.toLowerCase().replace(ModelKeys.MODEL, '');
-      if (!menu.length)
-        menu.push({ label: 'models' });
+      if (!menu.length) menu.push({ label: 'models' });
       menu.push({
         label: `${label}`,
         url: `/model/${Model.tableName(model)}`,
@@ -97,18 +105,26 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     }
     this.initialized = true;
     this.menu = [
-      DashboardMenuItem,
-      ...EwMenu,
-      ...(menu as IMenuItem[]),
+      // DashboardMenuItem,
+      // ...EwMenu,
+      // ...(menu as IMenuItem[]),
       ...AppMenu,
-      LogoutMenuItem,
+      // LogoutMenuItem,
     ];
-    await super.ngOnInit();
+    await super.initialize();
+  }
+
+  isMenuActive(item: IAppMenuItem & { activeWhen: string[] }): boolean {
+    const { url, activeWhen } = item;
+    return (
+      (url?.length &&
+        (url === this.currentRoute || (activeWhen || []).includes(this.currentRoute as string))) ||
+      false
+    );
   }
 
   handleCollapseMenu() {
     this.menuCollapsed = !this.menuCollapsed;
-    this.changeDetectorRef.detectChanges()
+    this.changeDetectorRef.detectChanges();
   }
-
 }

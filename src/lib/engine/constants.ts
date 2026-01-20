@@ -1,9 +1,71 @@
 import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
-import { ICrudFormOptions, IListEmptyOptions } from './interfaces';
+import { I18nToken, ICrudFormOptions, IListEmptyOptions } from './interfaces';
 
 import { ModalOptions } from '@ionic/angular/standalone';
 import { OperationKeys } from '@decaf-ts/db-decorators';
+import { InjectionToken } from '@angular/core';
+import { DecafRepositoryAdapter } from './types';
 
+export const DB_ADAPTER_FLAVOUR_TOKEN = 'DbAdapterFlavour';
+
+/**
+ * @description Injection token for registering the database adapter provider.
+ * @summary Used to inject the database adapter instance that implements DecafRepositoryAdapter.
+ * This token allows the framework to locate and use the application's specific database implementation.
+ * @const {InjectionToken<DecafRepositoryAdapter>}
+ * @memberOf module:lib/for-angular-common.module
+ */
+export const DB_ADAPTER_PROVIDER_TOKEN =
+  new InjectionToken<DecafRepositoryAdapter>('DB_ADAPTER_PROVIDER_TOKEN');
+/**
+ * @description Injection token for the root path of locale translation files.
+ * @summary Used to configure the base path where i18n translation files are located.
+ * This allows the translation loader to locate JSON files for different languages.
+ * @const {InjectionToken<string>}
+ * @memberOf module:lib/for-angular-common.module
+ * @example
+ * // Typical usage when providing the token
+ * { provide: LOCALE_ROOT_TOKEN, useValue: './assets/i18n/' }
+ */
+export const LOCALE_ROOT_TOKEN = new InjectionToken<string>(
+  'LOCALE_ROOT_TOKEN'
+);
+
+/* Generic token for injecting on class constructors */
+/**
+ * @description Generic injection token for providing arbitrary values to constructors.
+ * @summary Used to inject classes, strings, or any other value into component or service constructors.
+ * This is a flexible token that can be used to provide any type of dependency when more specific
+ * tokens are not appropriate. The actual type and purpose of the injected value is determined by
+ * the provider configuration.
+ * @const {InjectionToken<unknown>}
+ * @memberOf module:lib/for-angular-common.module
+ * @example
+ * // Inject a string value
+ * { provide: CPTKN, useValue: 'some-config-value' }
+ *
+ * // Inject a class
+ * { provide: CPTKN, useClass: MyService }
+ *
+ * // Inject any arbitrary value
+ * { provide: CPTKN, useValue: { key: 'value', data: [1, 2, 3] } }
+ */
+export const CPTKN = new InjectionToken<unknown>('CPTKN', {
+  providedIn: 'root',
+  factory: () => '',
+});
+
+/**
+ * @description Injection token for i18n resource configuration.
+ * @summary Used to provide configuration for internationalization resources, including
+ * translation file locations and supported languages. This token configures how the
+ * application loads and manages translation resources.
+ * @const {InjectionToken<I18nToken>}
+ * @memberOf module:lib/for-angular-common.module
+ */
+export const I18N_CONFIG_TOKEN = new InjectionToken<I18nToken>(
+  'I18N_CONFIG_TOKEN'
+);
 
 /**
  * @description Default options for empty list state display.
@@ -95,7 +157,6 @@ export const ListItemPositions = {
   subinfo: 'subinfo',
 } as const;
 
-
 /**
  * @description Angular engine key constants.
  * @summary Contains key strings used by the Angular rendering engine for reflection,
@@ -162,31 +223,37 @@ export const FormConstants = {
  * These constants ensure consistent event naming across components and make it easier to
  * track and handle events. Each constant represents a specific application event type.
  * @typedef {Object} ComponentEventNames
- * @property {string} BACK_BUTTON_NAVIGATION - Event fired when back button navigation ends
- * @property {string} REFRESH - Event fired when a refresh action occurs
- * @property {string} CLICK - Event fired when a click action occurs
- * @property {string} SUBMIT - Event fired when a form submission occurs
- * @property {string} VALIDATION_ERROR - Event fired when a validation error occurs
- * @property {string} FIELDSET_ADD_GROUP - Event fired when adding a group to a fieldset
- * @property {string} FIELDSET_UPDATE_GROUP - Event fired when updating a fieldset group
- * @property {string} FIELDSET_REMOVE_GROUP - Event fired when removing a fieldset group
+ * @property {string} BackButtonClickEvent - Event fired when back button navigation ends
+ * @property {string} Render - Event after component initialize action occurs
+ * @property {string} Refresh - Event fired when a refresh action occurs
+ * @property {string} Click - Event fired when a click action occurs
+ * @property {string} Change - Event fired when a change action occurs
+ * @property {string} Submit - Event fired when a form submission occurs
+ * @property {string} ValidationError - Event fired when a validation error occurs
+ * @property {string} ThemeChange - Event fired when a theme change occurs
+ * @property {string} FormGroupLoaded - Event fired when a reactve form group is loaded
  * @const ComponentEventNames
  * @memberOf module:lib/engine/constants
  */
 export const ComponentEventNames = {
-  BACK_BUTTON_NAVIGATION: 'backButtonNavigationEndEvent',
-  REFRESH: 'RefreshEvent',
-  CLICK: 'ClickEvent',
-  CHANGE: 'ChangeEvent',
-  SUBMIT: 'SubmitEvent',
-  VALIDATION_ERROR: 'validationErrorEvent',
-  FIELDSET_ADD_GROUP: 'fieldsetAddGroupEvent',
-  FIELDSET_UPDATE_GROUP: 'fieldsetUpdateGroupEvent',
-  FIELDSET_REMOVE_GROUP: 'fieldsetRemoveGroupEvent',
-  THEME_CHANGE: 'themeChangeEvent',
-  FORM_GROUP_LOADED: 'formGroupLoadedEvent',
-  DISABLE_MENU: 'disableMenuEvent',
-  // FIELDSET_GROUP_VALIDATION: 'fieldsetGroupValidationEvent'
+  Render: 'render',
+  BackButtonClickEvent: 'backButtonNavigationEndEvent',
+  Refresh: 'RefreshEvent',
+  Click: 'ClickEvent',
+  Change: 'ChangeEvent',
+  Submit: 'SubmitEvent',
+  ValidationError: 'validationErrorEvent',
+  ThemeChange: 'themeChangeEvent',
+  FormGroupLoaded: 'formGroupLoadedEvent',
+} as const;
+
+export const TransactionHooks = {
+  BeforeCreate: 'beforeCreate',
+  AfterCreate: 'afterCreate',
+  BeforeUpdate: 'beforeUpdate',
+  AfterUpdate: 'afterUpdate',
+  BeforeDelete: 'beforeDelete',
+  AfterDelete: 'afterDelete',
 } as const;
 
 /**
@@ -279,12 +346,13 @@ export enum ComponentsTagNames {
  * @memberOf module:lib/engine/constants
  */
 export enum BaseComponentProps {
-  MODEL = 'model',
+  HANDLERS = 'handlers',
   LOCALE = 'locale',
   LOCALE_ROOT = 'locale_root',
   PK = 'pk',
   ITEMS = 'items',
   ROUTE = 'route',
+  OPERATION = 'operation',
   OPERATIONS = 'operations',
   UID = 'uid',
   TRANSLATABLE = 'translatable',
@@ -348,8 +416,6 @@ export const DefaultFormReactiveOptions: ICrudFormOptions = {
     },
   },
 };
-
-
 
 /**
  * @description Mapping of select field interface types used in Ionic components.

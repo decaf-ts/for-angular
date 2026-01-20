@@ -8,7 +8,7 @@
  * @link {@link EmptyStateComponent}
  */
 
-import { Component, inject, Input, OnInit  } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { IonButton } from '@ionic/angular/standalone';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -19,7 +19,6 @@ import { stringToBoolean } from '../../utils/helpers';
 import { FunctionLike } from '../../engine/types';
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../../components/icon/icon.component';
-
 
 /**
  * @description Component for displaying empty state messages with optional actions.
@@ -62,17 +61,10 @@ import { IconComponent } from '../../components/icon/icon.component';
   templateUrl: './empty-state.component.html',
   styleUrls: ['./empty-state.component.scss'],
   standalone: true,
-  imports: [
-    IconComponent,
-    TranslatePipe,
-    IonButton,
-    CardComponent
-  ]
+  imports: [IconComponent, TranslatePipe, IonButton, CardComponent],
 })
 export class EmptyStateComponent extends CardComponent implements OnInit {
-
-
-    /**
+  /**
    * @description The main title displayed in the empty state.
    * @summary Specifies the primary message to show in the empty state component.
    * This text is typically used to inform the user about why they're seeing an empty view.
@@ -83,7 +75,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  override title: string = "title";
+  override title: string = 'title';
 
   /**
    * @description The color of the title text.
@@ -108,8 +100,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  override subtitle: string = "";
-
+  override subtitle: string = '';
 
   /**
    * @description The color of the subtitle text.
@@ -148,7 +139,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  icon: string = "folder-open-outline";
+  icon: string = 'folder-open-outline';
 
   /**
    * @description The size of the displayed icon.
@@ -209,7 +200,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  buttonFill: 'clear' | 'solid' | 'outline' =  'solid';
+  buttonFill: 'clear' | 'solid' | 'outline' = 'solid';
 
   /**
    * @description The color of the action button.
@@ -221,7 +212,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  buttonColor: string =  'primary';
+  buttonColor: string = 'primary';
 
   /**
    * @description The size of the action button.
@@ -233,7 +224,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  buttonSize: Extract<ElementSize, 'large' | 'small' | 'default'> =  'default';
+  buttonSize: Extract<ElementSize, 'large' | 'small' | 'default'> = 'default';
 
   /**
    * @description The search value that resulted in no results.
@@ -245,8 +236,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   @Input()
-  searchValue!: string;
-
+  override searchValue!: string;
 
   /**
    * @description Sanitizer instance for bypassing security and sanitizing HTML content.
@@ -273,7 +263,6 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    */
   enableCreationByModelRoute: boolean = false;
 
-
   /**
    * @description Creates an instance of EmptyStateComponent.
    * @summary Initializes a new EmptyStateComponent by calling the parent class constructor
@@ -283,9 +272,9 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   constructor() {
-    super("EmptyStateComponent");
+    super('EmptyStateComponent');
     this.type = 'clear';
-    this.componentName = "EmptyStateComponent";
+    this.componentName = 'EmptyStateComponent';
     this.enableDarkMode = true;
   }
 
@@ -323,8 +312,8 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
     this.subtitleColor = `dcf-subtitle dcf-color-${this.subtitleColor}`;
     if (this.searchValue)
       this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);
-    if (!this.buttonLink && this.model && this.route)
-      this.enableCreationByModelRoute = true;
+    if (!this.buttonLink && this.model && this.route) this.enableCreationByModelRoute = true;
+    await super.initialize();
   }
 
   /**
@@ -363,10 +352,9 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
   async handleClick(): Promise<void> {
     const link = this.buttonLink;
     if (link) {
-       if (link instanceof Function) {
+      if (link instanceof Function) {
         const fn = link.bind(this);
-        if(fn instanceof Promise)
-          return await fn;
+        if (fn instanceof Promise) return await fn;
         fn();
       } else {
         await this.router.navigate([link as string]);
@@ -374,8 +362,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
     }
   }
 
-
- /**
+  /**
    * @description Generates a localized and sanitized subtitle for search results.
    * @summary This method takes a content string, typically the subtitle, and processes it
    * through the translation service. It replaces a placeholder ('0') with the actual
@@ -400,7 +387,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   async getSearchSubtitle(content: string): Promise<SafeHtml> {
-    const result = await this.translate(content, {'0': this.searchValue});
+    const result = await this.translate(content, { '0': this.searchValue });
     return this.sanitizer.bypassSecurityTrustHtml(result);
   }
 }

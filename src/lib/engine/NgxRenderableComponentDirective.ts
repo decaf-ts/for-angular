@@ -7,6 +7,7 @@ import {
   Input,
   OnChanges,
   OnDestroy,
+  SimpleChanges,
   TemplateRef,
   Type,
   ViewChild,
@@ -15,29 +16,22 @@ import {
 import {
   IRenderedModel,
   AngularDynamicOutput,
-  IBaseCustomEvent
+  IBaseCustomEvent,
+  ICrudFormEvent,
 } from './interfaces';
 import { FormParent, KeyValue } from './types';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 
 import { NgxComponentDirective } from './NgxComponentDirective';
+import { shareReplay, takeUntil } from 'rxjs';
+import { NgxModelPageDirective } from './NgxModelPageDirective';
+import { ModelKeys } from '@decaf-ts/decorator-validation';
 
 @Directive()
-export class NgxRenderableComponentDirective extends NgxComponentDirective implements OnChanges, OnDestroy, IRenderedModel {
-
-  /**
-   * @description Injector used for dependency injection in the dynamic component.
-   * @summary This injector is used when creating the dynamic component to provide it with
-   * access to the application's dependency injection system. It ensures that the dynamically
-   * created component can access the same services and dependencies as statically created
-   * components.
-   *
-   * @type {EnvironmentInjector}
-   * @memberOf NgxRenderableComponentDirective
-   */
-  protected injector: EnvironmentInjector = inject(EnvironmentInjector);
-
-
+export class NgxRenderableComponentDirective
+  extends NgxModelPageDirective
+  implements OnChanges, OnDestroy, IRenderedModel
+{
   /**
    * @description Reference to the container where the dynamic component will be rendered.
    * @summary This ViewContainerRef provides the container where the dynamically created
@@ -66,7 +60,7 @@ export class NgxRenderableComponentDirective extends NgxComponentDirective imple
    * @memberOf NgxComponentDirective
    */
   @Input()
-  globals: Record<string, unknown> = {};
+  override globals: Record<string, unknown> = {};
 
   /**
    * @description Repository model for data operations.
@@ -77,12 +71,10 @@ export class NgxRenderableComponentDirective extends NgxComponentDirective imple
    * @memberOf NgxComponentDirective
    */
   @Input()
-  parentForm!:  FormParent | ElementRef<unknown> | undefined;
-
+  parentForm!: FormParent | ElementRef<unknown> | undefined;
 
   @Input()
   projectable: boolean = true;
-
 
   @Input()
   rendererId?: string;
@@ -127,6 +119,18 @@ export class NgxRenderableComponentDirective extends NgxComponentDirective imple
     this.output = undefined;
   }
 
+  /**
+   * @description Lifecycle hook that is called when data-bound properties of a directive change
+   * @param {SimpleChanges} changes - Object containing changes
+   */
+  override async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    if (changes[ModelKeys.MODEL]) {
+      const { currentValue } = changes[ModelKeys.MODEL];
+      if (currentValue) {
+        this.render(currentValue);
+      }
+    }
+  }
 
   /**
    * @description Subscribes to events emitted by the dynamic component.
@@ -157,26 +161,25 @@ export class NgxRenderableComponentDirective extends NgxComponentDirective imple
    * @memberOf NgxComponentDirective
    */
   protected async subscribeEvents(component?: Type<unknown>): Promise<void> {
-    if(!component)
-      component = this?.output?.component;
-    if(!this.instance && component)
-      this.instance = component;
+    if (!component) component = this?.output?.component;
+    if (!this.instance && component) this.instance = component;
     if (this.instance && component) {
       const componentKeys = Object.keys(this.instance);
       for (const key of componentKeys) {
         const value = this.instance[key];
         if (value instanceof EventEmitter)
-          (this.instance as KeyValue)[key].subscribe(async (event: Partial<IBaseCustomEvent>) => {
-            await this.handleEvent({
-              component: component.name || '',
-              name: key,
-              ...event,
-            } as IBaseCustomEvent);
-          });
+          (this.instance as KeyValue)[key]
+            .pipe(shareReplay(1), takeUntil(this.destroySubscriptions$))
+            .subscribe(async (event: Event) => {
+              await this.handleEvent({
+                component: component.name || '',
+                name: key,
+                ...event,
+              } as IBaseCustomEvent & ICrudFormEvent & CustomEvent);
+            });
       }
     }
   }
-
 
   /**
    * @description Unsubscribes from all events of the dynamic component.
@@ -208,8 +211,7 @@ export class NgxRenderableComponentDirective extends NgxComponentDirective imple
       const componentKeys = Object.keys(this.instance);
       for (const key of componentKeys) {
         const value = this.instance[key];
-        if (value instanceof EventEmitter)
-          this.instance[key].unsubscribe();
+        if (value instanceof EventEmitter) this.instance[key].unsubscribe();
       }
     }
   }

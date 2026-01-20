@@ -8,16 +8,17 @@
  * @link {@link ModelRendererComponent}
  */
 
+import { Component, Input, SimpleChanges } from "@angular/core";
+import { Model, ModelKeys, sf } from "@decaf-ts/decorator-validation";
+import { AngularEngineKeys, BaseComponentProps } from "../../engine/constants";
+import { AngularDynamicOutput } from "../../engine/interfaces";
 import {
-  Component,
-  Input,
-  SimpleChanges
-} from '@angular/core';
-import { Model, sf } from '@decaf-ts/decorator-validation';
-import { AngularEngineKeys, BaseComponentProps } from '../../engine/constants';
-import { AngularDynamicOutput } from '../../engine/interfaces';
-import { Renderable, CrudOperationKeys } from '@decaf-ts/ui-decorators';
-import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableComponentDirective';
+  Renderable,
+  CrudOperationKeys,
+  UIFunctionLike,
+  UIKeys,
+} from "@decaf-ts/ui-decorators";
+import { NgxRenderableComponentDirective } from "../../engine/NgxRenderableComponentDirective";
 
 /**
  * @description Component for rendering dynamic models
@@ -50,15 +51,14 @@ import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableCompo
 @Component({
   standalone: true,
   imports: [],
-  selector: 'ngx-decaf-model-renderer',
-  templateUrl: './model-renderer.component.html',
-  styleUrl: './model-renderer.component.scss',
-  host: {'[attr.id]': 'uid'}
-
+  selector: "ngx-decaf-model-renderer",
+  templateUrl: "./model-renderer.component.html",
+  styleUrl: "./model-renderer.component.scss",
+  host: { "[attr.id]": "uid" },
 })
-export class ModelRendererComponent<M extends Model>
-  extends NgxRenderableComponentDirective {
-
+export class ModelRendererComponent<
+  M extends Model,
+> extends NgxRenderableComponentDirective {
   /**
    * @description Set if render content projection is allowed
    * @default true
@@ -74,12 +74,11 @@ export class ModelRendererComponent<M extends Model>
    * @description Refreshes the rendered model
    * @param {string | M} model - The model to be rendered
    */
-  override async refresh(model: string | M): Promise<void> {
-    model = typeof model === 'string' ?
-      (Model.build({}, model) as M) : model;
+  override async render(model: string | M): Promise<void> {
+    model = typeof model === "string" ? (Model.build({}, model) as M) : model;
 
-    if(model) {
-        this.output = (model as Renderable).render<AngularDynamicOutput>(
+    if (model) {
+      this.output = (model as Renderable).render<AngularDynamicOutput>(
         this.globals || {},
         this.vcr,
         this.injector,
@@ -89,26 +88,16 @@ export class ModelRendererComponent<M extends Model>
       if (this.output?.inputs)
         this.rendererId = sf(
           AngularEngineKeys.RENDERED_ID,
-          (this.output.inputs as Record<string, unknown>)['rendererId'] as string,
+          (this.output.inputs as Record<string, unknown>)[
+            "rendererId"
+          ] as string
         );
       this.instance = this.output?.component;
-      const {operation} = this.globals || {};
-      if(operation)
-        this.operation = operation as CrudOperationKeys;
+      const { operation, handlers } = this.globals || {};
+      // const {inputs} = this.output;
+      // await this.initProps(inputs || {});
+      if (operation) this.operation = operation as CrudOperationKeys;
       this.subscribeEvents();
     }
   }
-
-  /**
-   * @description Lifecycle hook that is called when data-bound properties of a directive change
-   * @param {SimpleChanges} changes - Object containing changes
-   */
-  override async ngOnChanges(changes: SimpleChanges): Promise<void>  {
-    if (changes[BaseComponentProps.MODEL]) {
-      const { currentValue } = changes[BaseComponentProps.MODEL];
-      this.refresh(currentValue);
-    }
-  }
-
-
 }

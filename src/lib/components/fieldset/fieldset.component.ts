@@ -8,25 +8,10 @@
  * @link {@link FieldsetComponent}
  */
 
-import {
-  AfterViewInit,
-  Component,
-  Input,
-  OnInit,
-} from '@angular/core';
-import {
-  FormArray,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import {
-  alertCircleOutline,
-  createOutline,
-  addOutline,
-  trashOutline,
-} from 'ionicons/icons';
+import { alertCircleOutline, createOutline, addOutline, trashOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import {
   IonButton,
@@ -40,21 +25,22 @@ import {
   IonText,
   IonSpinner,
 } from '@ionic/angular/standalone';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { ReservedModels } from '@decaf-ts/decorator-validation';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { Model, ReservedModels } from '@decaf-ts/decorator-validation';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxFormService } from '../../services/NgxFormService';
 import { LayoutComponent } from '../layout/layout.component';
 import { FormParent, KeyValue } from '../../engine/types';
-import {
-  IFieldSetItem,
-  IFieldSetValidationEvent,
-} from '../../engine/interfaces';
+import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { itemMapper } from '../../utils/helpers';
 import { CrudOperationKeys, UIElementMetadata, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { timer } from 'rxjs';
 import { IconComponent } from '../icon/icon.component';
+import { repository } from '@decaf-ts/core';
+import { ActionRoles, ComponentEventNames, DecafRepository } from 'src/lib/engine';
+import { presentModalConfirm } from '../modal/modal.component';
+import { Action } from 'rxjs/internal/scheduler/Action';
 
 /**
  * @description Dynamic fieldset component with collapsible accordion functionality.
@@ -126,12 +112,10 @@ import { IconComponent } from '../icon/icon.component';
     IonIcon,
     LayoutComponent,
     IonSpinner,
-    IconComponent
+    IconComponent,
   ],
 })
-export class FieldsetComponent extends NgxFormDirective implements OnInit, AfterViewInit
-{
-
+export class FieldsetComponent extends NgxFormDirective implements OnInit, AfterViewInit {
   /**
    * @description The display name or title of the fieldset section.
    * @summary Sets the legend or header text that appears in the accordion header. This text
@@ -238,7 +222,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @default []
    * @memberOf FieldsetComponent
    */
-  items: IFieldSetItem[] | UIElementMetadata[][] = [];
+  items: IFieldSetItem[] = [];
 
   /**
    * @description Currently selected item for update operations.
@@ -395,15 +379,11 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   override async ngOnInit(): Promise<void> {
-    await super.ngOnInit(this.model);
     if (this.max && this.max === 1) this.multiple = false;
     this.buttonLabel = this.translateService.instant(this.locale + '.add');
-    this.buttonCancelLabel = this.translateService.instant(
-      this.locale + '.cancel'
-    );
+    this.buttonCancelLabel = this.translateService.instant(this.locale + '.cancel');
 
-    if (!this.multiple)
-      this.ordenable = false;
+    if (!this.multiple) this.ordenable = false;
 
     if ([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
       if (!this.formGroup) {
@@ -419,12 +399,8 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
         }
         if (!this.formGroup && this.parentForm instanceof FormArray)
           this.formGroup = this.parentForm;
-        if (
-          !this.formGroup &&
-          (this.children[0] as KeyValue)?.['formGroup'] instanceof FormGroup
-        )
-          this.formGroup = (this.children[0] as KeyValue)?.['formGroup']
-            .parent as FormArray;
+        if (!this.formGroup && (this.children[0] as KeyValue)?.['formGroup'] instanceof FormGroup)
+          this.formGroup = (this.children[0] as KeyValue)?.['formGroup'].parent as FormArray;
         if (this.formGroup && !(this.formGroup instanceof FormArray))
           this.formGroup = (this.formGroup as FormParent)?.parent as FormArray;
       }
@@ -439,7 +415,9 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     } else {
       this.activePage = this.getActivePage();
     }
-    this.initialized = true;
+    this.mapper = Object.assign(this.mapper, { [this.pk]: this.pk });
+    await super.initialize();
+    await this.refresh();
   }
 
   /**
@@ -473,6 +451,8 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   override async ngAfterViewInit(): Promise<void> {
     await super.ngAfterViewInit();
+
+    // console.log(this);
     // if (!this.collapsable)
     //   this.isOpen = true;
     // if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
@@ -494,58 +474,95 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     // this.changeDetectorRef.detectChanges();
   }
 
-  override async refresh(operation: CrudOperationKeys): Promise<void> {
-    if(operation) {
+  override async refresh(operation?: CrudOperationKeys): Promise<void> {
+    if (operation) {
       this.operation = operation;
       this.changeDetectorRef.detectChanges();
     }
-
-    this.refreshing = true;
-    this.changeDetectorRef.detectChanges();
-    if([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
-      // if(!this.multiple) {
-      //   this.required = this.collapsable = false;
-      // }
-      this.items = [... this.value.map((v) => {
-        return this.children.map((child) => {
-          const {props, tag} = child as KeyValue;
-          return {
-            tag,
-            props: {
-              ... props,
-              value: v[props.name]  || ""
-            }
-          };
-        })
-      })] as UIElementMetadata[][];
-    }
-    if([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
-      const value = [... this.value];
-      this.value = [];
-      value.map(v => {
-        const formGroup = this.activeFormGroup as FormGroup;
-        if(value.length > (formGroup.parent as FormArray).length)
-          NgxFormService.addGroupToParent(formGroup.parent as FormArray);
-
-        if(!Object.keys(this.mapper).length)
-          this.mapper = this.getMapper(v as KeyValue);
-        Object.entries(v).forEach(([key, value]) => {
-          if(key === this.pk)
-            formGroup.addControl(key, new FormControl({value: value, disabled: false}));
-          const control = formGroup.get(key);
-          if (control instanceof FormControl) {
-            control.setValue(value);
-            control.updateValueAndValidity();
-            formGroup.updateValueAndValidity()
+    if (this._data && !this.value?.length) {
+      function resolvePath(obj: KeyValue, path: string) {
+        return path.split('.').reduce((acc, key) => {
+          if (acc && key in acc) {
+            return acc[key];
           }
-        })
-        this.activeFormGroupIndex = (formGroup.parent as FormArray).length - 1;
-      })
-      this.setValue();
-      this.changeDetectorRef.detectChanges();
+          return false;
+        }, obj);
+      }
+      if (!Array.isArray(this._data)) this._data = resolvePath(this._data, this.childOf as string);
+      if (this._data) {
+        const data = this._data || [];
+        if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
+          if (!Array.isArray(data)) this._data = [data];
+          this.items = [
+            ...this._data.map((v: KeyValue) => {
+              return this.children.map((child) => {
+                const { props, tag } = child as KeyValue;
+                return {
+                  tag,
+                  props: {
+                    ...props,
+                    value: v[props.name] || '',
+                  },
+                };
+              });
+            }),
+          ];
+        } else {
+          this.getItems(data as []);
+        }
+      }
     }
-    this.refreshing = false;
-    this.changeDetectorRef.detectChanges();
+    // this.refreshing = true;
+    // this.changeDetectorRef.detectChanges();
+    // if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
+    //   // if(!this.multiple) {
+    //   //   this.required = this.collapsable = false;
+    //   // }
+    //   this.items = [
+    //     ...this.value.map((v) => {
+    //       return this.children.map((child) => {
+    //         const { props, tag } = child as KeyValue;
+    //         return {
+    //           tag,
+    //           props: {
+    //             ...props,
+    //             value: v[props.name] || "",
+    //           },
+    //         };
+    //       });
+    //     }),
+    //   ] as UIElementMetadata[][];
+    // }
+    // if ([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
+    //   const value = [...this.value];
+    //   this.value = [];
+    //   value.map((v) => {
+    //     const formGroup = this.activeFormGroup as FormGroup;
+    //     if (value.length > (formGroup.parent as FormArray).length)
+    //       NgxFormService.addGroupToParent(formGroup.parent as FormArray);
+
+    //     if (!Object.keys(this.mapper).length)
+    //       this.mapper = this.getMapper(v as KeyValue);
+    //     Object.entries(v).forEach(([key, value]) => {
+    //       if (key === this.pk)
+    //         formGroup.addControl(
+    //           key,
+    //           new FormControl({ value: value, disabled: false })
+    //         );
+    //       const control = formGroup.get(key);
+    //       if (control instanceof FormControl) {
+    //         control.setValue(value);
+    //         control.updateValueAndValidity();
+    //         formGroup.updateValueAndValidity();
+    //       }
+    //     });
+    //     this.activeFormGroupIndex = (formGroup.parent as FormArray).length - 1;
+    //   });
+    //   this.setValue();
+    //   this.changeDetectorRef.detectChanges();
+    // }
+    // this.refreshing = false;
+    // this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -590,40 +607,34 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * handleCreateItem();
    * ```
    */
-  async handleCreateItem(
-    event?: CustomEvent<IFieldSetValidationEvent>
-  ): Promise<void | boolean> {
+  async handleCreateItem(event?: CustomEvent<IFieldSetValidationEvent>): Promise<void | boolean> {
     if (event && event instanceof CustomEvent) event.stopImmediatePropagation();
     if (!this.activePage) {
       this.activePage = this.getActivePage();
-      if(this.operation === OperationKeys.UPDATE)
-        return this.handleCreateItem(event);
+      if (this.operation === OperationKeys.UPDATE) return this.handleCreateItem(event);
       return;
     }
     const formGroup = this.activeFormGroup as FormGroup;
     const value = formGroup.value;
     const hasSomeValue = this.hasValue(value);
     if (hasSomeValue) {
-      const action = this.updatingItem
-        ? OperationKeys.UPDATE
-        : OperationKeys.CREATE;
+      const action = this.updatingItem ? OperationKeys.UPDATE : OperationKeys.CREATE;
       const isValid = NgxFormService.validateFields(formGroup);
 
       // must pass correct pk here
       const isUnique = NgxFormService.isUniqueOnGroup(
         formGroup,
         action,
-        action === OperationKeys.UPDATE ? this.updatingItem?.index : undefined
+        action === OperationKeys.UPDATE ? this.updatingItem?.index : undefined,
       );
       if (isValid) {
         this.mapper = this.getMapper(value as KeyValue);
         if (isUnique) {
           this.isUniqueError = this.updatingItem = undefined;
           this.setValue();
-          if(!this.max || (formGroup.parent as FormArray)?.length < this.max) {
+          if (!this.max || (formGroup.parent as FormArray)?.length < this.max) {
             NgxFormService.addGroupToParent(formGroup.parent as FormArray);
-            this.activeFormGroupIndex =
-              (formGroup.parent as FormArray).length - 1;
+            this.activeFormGroupIndex = (formGroup.parent as FormArray).length - 1;
             this.activePage = this.getActivePage();
           }
         } else {
@@ -638,8 +649,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
 
   hasValue(value: KeyValue = {}): boolean {
     return Object.keys(value).some(
-      (key) =>
-        value[key] !== null && value[key] !== undefined && value[key] !== ''
+      (key) => value[key] !== null && value[key] !== undefined && value[key] !== '',
     );
   }
 
@@ -674,25 +684,57 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * items from the form array. When called with a validation event, it triggers value updates.
    * When called with an identifier, it locates and removes the matching item from the form array.
    *
-   * @param {string | undefined} value - The identifier of the item to remove
-   * @param {CustomEvent} [event] - Optional validation event for form updates
+   * @param {number} index - The identifier of the item to remove
    * @returns {void}
    * @memberOf FieldsetComponent
    */
-  handleRemoveItem(index: number): void {
+  async handleRemoveItem(
+    index: number,
+    confirmed: boolean = false,
+    value: KeyValue | undefined = undefined,
+  ): Promise<void> {
+    const repository = this._repository;
     const formArray = this.formGroup as FormArray;
-    if (formArray.length === 1) {
-      const currentGroup = formArray.at(0) as FormGroup;
-      Object.keys(currentGroup?.controls).forEach((controlName) => {
-        currentGroup.get(controlName)?.setValue(null);
-      });
-    } else {
-      formArray.removeAt(index);
+    if (!value) {
+      value = this.value?.length ? formArray?.at(index)?.value || {} : this.items[index];
     }
-    this.setValue();
+    // only ask for confirmation for items already saved in the repository
+    if (repository && !confirmed && value?.[this.pk] !== undefined) {
+      const item = await this.translate(this.title);
+      const modal = await presentModalConfirm(
+        {
+          data: {
+            item,
+            pk: this.pk,
+            uid: value[this.pk],
+          },
+        },
+        ActionRoles.delete,
+        this.injector,
+      );
+      await modal.present();
+      const { role } = await modal.onDidDismiss();
+      if (role === ActionRoles.confirm) return this.handleRemoveItem(index, true, value);
+      return;
+    }
+    this.items = this.items.filter((_, i) => i !== index);
+
+    if (this.value.length) {
+      if (formArray.length === 1) {
+        const currentGroup = formArray.at(0) as FormGroup;
+        Object.keys(currentGroup?.controls).forEach((controlName) => {
+          currentGroup.get(controlName)?.setValue(null);
+        });
+      } else {
+        formArray.removeAt(index);
+      }
+      this.setValue();
+    }
+    if (repository && value?.[this.pk] !== undefined) {
+      this.handleEmitEvent(value || {}, OperationKeys.DELETE);
+    }
     if (this.items.length > 0) {
-      if (this.activeFormGroupIndex > 0)
-        this.activeFormGroupIndex = this.activeFormGroupIndex - 1;
+      if (this.activeFormGroupIndex > 0) this.activeFormGroupIndex = this.activeFormGroupIndex - 1;
     } else {
       this.handleClear();
     }
@@ -734,7 +776,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       formArray.removeAt(fromIndex);
       formArray.insert(toIndex, controlToMove);
     }
-    this.items = [...items as IFieldSetItem[]];
+    this.items = [...(items as IFieldSetItem[])];
     event.detail.complete();
   }
 
@@ -766,7 +808,25 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
 
-
+  handleEmitEvent(value: KeyValue, operation: CrudOperations): void {
+    if (
+      this._repository &&
+      this.operation === OperationKeys.UPDATE &&
+      value[this.pk] !== undefined
+    ) {
+      this.listenEvent.emit({
+        name: ComponentEventNames.Submit,
+        role: operation,
+        component: this.componentName,
+        handler: this.handlers[ComponentEventNames.Submit] || undefined,
+        data: value,
+        context: {
+          repository: this._repository as DecafRepository<Model>,
+          modelName: this.name as string,
+        },
+      });
+    }
+  }
 
   /**
    * @description Handles validation error events from child form fields.
@@ -816,21 +876,44 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @private
    * @memberOf FieldsetComponent
    */
-  private setValue(): void {
+  protected setValue(): void {
     const formGroup = this.formGroup as FormArray;
-    this.value = formGroup.controls.map(
-      ({ value }) => value
-    );
-    this.items = this.value
-      .filter((v) => `${v[this.pk] || ''}`.trim().length)
-      .map((v, index) => {
-        return {
-          ...itemMapper(Object.assign({}, v), this.mapper),
-          index: index + 1,
-        } as IFieldSetItem;
-      });
-
+    const value = formGroup.controls.map(({ value }) => value).filter((v) => this.hasValue(v));
+    this.value = value;
+    this.getItems(value, this.items);
     this.updatingItem = undefined;
+  }
+
+  private getItems(value: KeyValue[], items: IFieldSetItem[] = []): void {
+    if (value) {
+      if (!Array.isArray(value)) {
+        value = [value];
+      }
+      this.items = [
+        ...value
+          .map((v) => {
+            return {
+              ...v,
+              index: this.items?.length ? this.items.length + 1 : 1,
+            };
+          })
+          .filter((v) => {
+            // return `${v[this.pk] || ""}`.trim().length;
+            return Object.entries(v).some(
+              ([k, v]) => k !== 'index' && v !== undefined && String(v).trim().length,
+            );
+          })
+          .map((v, index) => {
+            return {
+              ...itemMapper(Object.assign({}, v), this.mapper, {
+                [this.pk]: this.pk || undefined,
+              }),
+              index: v.index > 1 ? v.index : index + 1,
+            } as IFieldSetItem;
+          }),
+        ...(this.operation === OperationKeys.UPDATE ? items : []),
+      ];
+    }
   }
 
   /**
@@ -846,8 +929,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   private getMapper(value: KeyValue): KeyValue {
     if (!this.pk) this.pk = Object.keys(value)[0];
-    if (!Object.keys(this.mapper).length)
-      (this.mapper as KeyValue)['title'] = this.pk;
+    if (!Object.keys(this.mapper).length) (this.mapper as KeyValue)['title'] = this.pk;
     (this.mapper as KeyValue)['index'] = 'index';
     for (const key in value) {
       if (

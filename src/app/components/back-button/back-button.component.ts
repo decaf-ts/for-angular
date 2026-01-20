@@ -1,15 +1,24 @@
-import { OnInit, CUSTOM_ELEMENTS_SCHEMA, Input, Component, inject, HostListener, ViewChild, ElementRef } from "@angular/core";
-import { PredefinedColors } from "@ionic/core";
+import {
+  OnInit,
+  CUSTOM_ELEMENTS_SCHEMA,
+  Input,
+  Component,
+  inject,
+  HostListener,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
+import { PredefinedColors } from '@ionic/core';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
-import { ComponentEventNames, RouteDirections } from "src/lib/engine/constants";
-import { StringOrBoolean } from "src/lib/engine/types";
-import { stringToBoolean } from "src/lib/utils/helpers";
+import { ComponentEventNames, RouteDirections } from 'src/lib/engine/constants';
+import { StringOrBoolean } from 'src/lib/engine/types';
+import { stringToBoolean } from 'src/lib/utils/helpers';
 import { Location } from '@angular/common';
-import { windowEventEmitter } from "src/lib/utils/helpers";
+import { windowEventEmitter } from 'src/lib/utils/helpers';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline } from 'ionicons/icons';
-import { FunctionLike } from "src/lib/engine/types";
-import { NgxMediaService } from "src/lib/services/NgxMediaService";
+import { FunctionLike } from 'src/lib/engine/types';
+import { NgxMediaService } from 'src/lib/services/NgxMediaService';
 
 /**
  * @description Back button component for navigation within Angular applications.
@@ -92,11 +101,9 @@ import { NgxMediaService } from "src/lib/services/NgxMediaService";
   styleUrls: ['./back-button.component.scss'],
   imports: [ForAngularCommonModule],
   standalone: true,
-
 })
 export class BackButtonComponent implements OnInit {
-
-    /**
+  /**
    * @description Reference to the component's native DOM element.
    * @summary Provides direct access to the native DOM element of the component through Angular's
    * ViewChild decorator. This reference can be used to manipulate the DOM element directly,
@@ -106,7 +113,6 @@ export class BackButtonComponent implements OnInit {
    */
   @ViewChild('component', { read: ElementRef, static: true })
   component!: ElementRef;
-
 
   /**
    * @description Flag to enable or disable dark mode support for the component.
@@ -120,8 +126,6 @@ export class BackButtonComponent implements OnInit {
    */
   @Input()
   protected isDarkMode: boolean = false;
-
-
 
   /**
    * @description Controls whether default navigation behavior is prevented.
@@ -215,7 +219,7 @@ export class BackButtonComponent implements OnInit {
    * @memberOf BackButtonComponent
    */
   @Input()
-  color: PredefinedColors = "primary";
+  color: PredefinedColors = 'primary';
 
   /**
    * @description Color of the toolbar containing the back button.
@@ -253,8 +257,7 @@ export class BackButtonComponent implements OnInit {
    */
   private location: Location = inject(Location);
 
-
-    /**
+  /**
    * @description Angular Location service.
    * @summary Injected service that provides access to the browser's URL and history.
    * This service is used for interacting with the browser's history API, allowing
@@ -273,7 +276,7 @@ export class BackButtonComponent implements OnInit {
    * @memberOf BackButtonComponent
    */
   constructor() {
-    addIcons({chevronBackOutline})
+    addIcons({ chevronBackOutline });
   }
 
   /**
@@ -305,11 +308,10 @@ export class BackButtonComponent implements OnInit {
   ngOnInit(): void {
     this.preventDefault = stringToBoolean(this.preventDefault);
     this.emitEvent = stringToBoolean(this.emitEvent);
-    this.mediaService.isDarkMode().subscribe(isDark => {
+    this.mediaService.isDarkMode().subscribe((isDark) => {
       this.isDarkMode = isDark;
     });
-    if(this.toolbarColor)
-      this.color = this.toolbarColor as PredefinedColors;
+    if (this.toolbarColor) this.color = this.toolbarColor as PredefinedColors;
     this.showText = stringToBoolean(this.showText);
 
     // if(this.showText)
@@ -352,15 +354,12 @@ export class BackButtonComponent implements OnInit {
    *
    * @memberOf BackButtonComponent
    */
-  async backToPage(forceRefresh: boolean = false): Promise<boolean|void> {
-    if(this.preventDefault)
-      return this.handleEndNavigation(forceRefresh);
+  async backToPage(forceRefresh: boolean = false): Promise<boolean | void> {
+    if (this.preventDefault) return this.handleEndNavigation(forceRefresh);
 
     this.handleEndNavigation(forceRefresh);
-    if(!this.link)
-      return this.location.back();
-    if(this.link instanceof Function)
-      return await this.link() as void;
+    if (!this.link) return this.location.back();
+    if (this.link instanceof Function) return (await this.link()) as void;
   }
 
   /**
@@ -379,14 +378,16 @@ export class BackButtonComponent implements OnInit {
    *
    *   B->>B: handleEndNavigation(forceRefresh)
    *   alt emitEvent is true
-   *     B->>E: windowEventEmitter(BACK_BUTTON_NAVIGATION, {refresh: forceRefresh})
+   *     B->>E: windowEventEmitter(BackButtonClickEvent, {refresh: forceRefresh})
    *   end
    *
    * @memberOf BackButtonComponent
    */
   handleEndNavigation(forceRefresh: boolean): void {
-    if(this.emitEvent)
-      windowEventEmitter(ComponentEventNames.BACK_BUTTON_NAVIGATION, {refresh: forceRefresh});
+    if (this.emitEvent)
+      windowEventEmitter(ComponentEventNames.BackButtonClickEvent, {
+        refresh: forceRefresh,
+      });
   }
 
   /**
@@ -413,7 +414,7 @@ export class BackButtonComponent implements OnInit {
    * @memberOf BackButtonComponent
    */
   @HostListener('window:BackButtonForceNavigationEvent', ['$event'])
-  handleModelPageEvent(): Promise<boolean|void> {
+  handleModelPageEvent(): Promise<boolean | void> {
     return this.backToPage();
   }
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Decaf ícone branco">
+  <style>
+    .outline { fill: #fff; }
+  </style>
+  <path class="outline" d="M53.26,16.59l-18.34,18.33-18.33,18.34v110.15h110.23l36.58-36.58V16.59H53.26ZM108.35,126.7h-36.71s-18.35.01-18.35.01h0s-.03-.01-.03-.01v-18.23h.03v-55.15h18.35v55.15h36.71v18.23ZM145.02,71.7h-18.35v18.44h-18.32v-36.87h36.67v18.44Z"/>
+</svg>

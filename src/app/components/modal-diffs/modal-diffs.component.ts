@@ -15,7 +15,7 @@ import { ActionRoles } from 'src/lib/engine/constants';
   standalone: true,
 
 })
-export class ModalDiffsComponent extends ModalComponent implements OnInit {
+export class AppModalDiffsComponent extends ModalComponent implements OnInit {
 
   @Input()
   diffs: Record<string, KeyValue> = {};

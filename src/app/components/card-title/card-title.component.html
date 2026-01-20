@@ -1,0 +1,36 @@
+<div class="dcf-page-title-container">
+  <div class="dcf-grid dcf-grid-collapse">
+    <div class="dcf-width-1-1">
+      <h1 class="dcf-page-title">{{ title | translate }}</h1>
+      @if (subtitle?.length) {
+        <p class="dcf-page-subtitle">{{ subtitle | translate }}</p>
+      }
+    </div>
+  </div>
+</div>
+
+@if (tabs || allowCreate) {
+  <div class="dcf-filters-container" [class.dcf-border-top]="borders">
+    <div class="dcf-grid dcf-grid-collapse">
+      @if (tabs) {
+        <div class="dcf-width-expand dcf-switcher-container">
+          <app-switcher [mode]="'toggle'" [type]="'tabs'" [items]="tabs" />
+        </div>
+      }
+      @if (allowCreate && operation !== OperationKeys.CREATE) {
+        <div
+          class="dcf-flex dcf-flex-middle dcf-flex-right@m dcf-flex-center"
+          [class.dcf-width-1-1]="!tabs"
+        >
+          <ion-button
+            [routerDirection]="'forward'"
+            [routerLink]="['/' + route + '/create']"
+            color="primary"
+          >
+            {{ locale + '.create' | translate }}
+          </ion-button>
+        </div>
+      }
+    </div>
+  </div>
+}

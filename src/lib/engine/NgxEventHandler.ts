@@ -6,45 +6,70 @@
  *
  * @link {@link NgxEventHandler}
  */
-import { ChangeDetectorRef } from "@angular/core";
-import { CrudOperationKeys, DecafEventHandler } from "@decaf-ts/ui-decorators";
-import { FunctionLike } from "src/lib/engine";
+import { ChangeDetectorRef } from '@angular/core';
+import { Model } from '@decaf-ts/decorator-validation';
+import { CrudOperationKeys, DecafEventHandler } from '@decaf-ts/ui-decorators';
+import { FunctionLike, ICrudFormEvent, KeyValue, NgxComponentDirective } from 'src/lib/engine';
 
 export abstract class NgxEventHandler extends DecafEventHandler {
-
   //TODO: pass to ui decorator decaf componnet
   changeDetectorRef!: ChangeDetectorRef;
 
   //TODO: pass to ui decorator decaf componnet
-  readonly: boolean | FunctionLike = false;
+  readonly?: boolean = false;
 
   //TODO: pass to ui decorator decaf componnet
-  hidden?: boolean | CrudOperationKeys[] | FunctionLike;
+  hidden?: boolean | CrudOperationKeys[];
 
   //TODO: pass to ui decorator decaf componnet
   label?: string;
 
+  //TODO: pass to ui decorator decaf componnet
+  filterBy?: string;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor() {
     super();
   }
 
-  async refresh(...args: unknown[]): Promise<void> {
-    this.log.for(this.refresh).debug(`Refresh called with args: ${args}`);
+  override async handle<T extends NgxComponentDirective>(
+    event: Partial<ICrudFormEvent>,
+    data?: KeyValue,
+    instance?: T,
+    ...args: unknown[]
+  ): Promise<void> {
+    this.log.for(this.handle).info(`Handle called with args: ${event}, ${data}, ${instance}`);
   }
 
-  async preview(...args: unknown[]): Promise<void> {
-    this.log.for(this.preview).debug(`Preview called with args: ${args}`);
+  from(...args: unknown[]): NgxEventHandler {
+    return this as NgxEventHandler;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async process(...args: unknown[]): Promise<any> {
-    this.log.for(this.process).debug(`Process called with args: ${args}`);
+    this.log.for(this.process).info(`Process called with args: ${args}`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async delete(...args: unknown[]): Promise<any> {
+    this.log.for(this.delete).info(`Delete called with args: ${args}`);
+  }
+
   async batchOperation(...args: unknown[]): Promise<any> {
-    this.log.for(this.batchOperation).debug(`BatchOperation called with args: ${args}`);
+    this.log.for(this.batchOperation).info(`batchOperation called with args: ${args}`);
+  }
+
+  async beforeCreate(...args: unknown[]): Promise<any> {
+    this.log.for(this.beforeCreate).info(`beforeCreate called with args: ${args}`);
+  }
+
+  async beforeUpdate(...args: unknown[]): Promise<any> {
+    this.log.for(this.beforeUpdate).info(`beforeUpdate called with args: ${args}`);
+  }
+
+  async afterCreate(...args: unknown[]): Promise<any> {
+    this.log.for(this.afterCreate).info(`afterCreate called with args: ${args}`);
+  }
+
+  async afterUpdate(...args: unknown[]): Promise<any> {
+    this.log.for(this.afterUpdate).info(`afterUpdate called with args: ${args}`);
   }
 }

@@ -1,26 +1,72 @@
 {
-  "menu": {
-    "product": "Products",
-    "batch": "Batches",
-    "logout": "Logout",
-    "account": "Account",
-    "user": "Users",
-    "category": "Categories",
-    "employee": "Employees",
-    "ai": "AI Models",
-    "aivendor": "Ai Vendors",
-    "product_management": "Product Management"
-  },
   "component": {
     "modal_diffs": {
       "property": "Property",
       "oldValue": "Old Value",
       "newValue": "New Value"
+    },
+    "switcher": {
+      "leaflet": "Create ePI Document"
     }
+  },
+  "menu": {
+    "login": "Login",
+    "dashboard": "Dashboard",
+    "products": "Products & Batches",
+    "batches": "Batches",
+    "logout": "Logout",
+    "audit": "Audit",
+    "account": "Account",
+    "core": "Core",
+    "collapse": "Collapse sidebar",
+    "leaflet": "Leaflet"
+  },
+  "epiTabs": {
+   "products": "Products",
+   "batches": "Batches"
+  },
+  "logTabs": {
+   "access": "Access Logs",
+   "actions": "Action Logs"
+  },
+  "dashboard": {
+    "title": "Control Panel",
+    "description": "Your ew overview",
+    "cards": {
+      "product": {
+        "title": "Products",
+        "description": "Manage and view pharmaceutical products"
+      },
+      "batch": {
+        "title": "Batches",
+        "description": "Manage and view product batches"
+      },
+      "account": {
+        "title": "Account",
+        "description": "Manage your account settings"
+      }
+    }
+  },
+  "login": {
+     "username": {
+      "label": "Username",
+      "placeholder": "Type your username"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "Type your password"
+    }
+  },
+  "error": {
+    "title": "Error",
+    "message": "An unexpected error has occurred.",
+    "back": "Back"
   },
   "product": {
     "title":"Products",
-    "menu": "Products",
+    "description": "Manage your pharmaceutical products information",
+    "gtin": "GTIN",
+    "create": "Add Product",
     "section": {
       "details": {
         "title": "Product Details"
@@ -37,6 +83,12 @@
       "property": "Property",
       "oldValue": "Old Value",
       "newValue": "New Value"
+    },
+    "batches": "Active Batches",
+    "recalled": {
+      "label": "Recalled",
+      "yes": "Yes",
+      "no": "No"
     },
     "documents": {
       "label": "Documents"
@@ -72,7 +124,7 @@
       "placeholder": "Enter the name of the medicinal product"
     },
     "productRecall": {
-      "label": "Mark Product as Recalled (Enabled only for Brazil)"
+      "label": "Mark Product as Recalled"
     },
     "productImage": {
       "label": "Select product image"
@@ -83,7 +135,14 @@
     }
   },
   "batch": {
-    "menu": "Batches",
+    "title": "Batches",
+    "create": "Add Batch",
+    "update": "Update Batch",
+    "description": "Manage batches information",
+    "filter": {
+      "label": "Filter by",
+      "all": "All Products"
+    },
     "leaflet": {
         "empty": {
         "title": "No epi documents found",
@@ -106,6 +165,21 @@
         "azithromycin": "Azithromycin",
         "metformin": "Metformin"
       }
+    },
+    "actions": {
+      "label": "Actions"
+    },
+    "inventedName": {
+      "label": "Invented Name",
+      "placeholder": "Enter the Invented Name"
+    },
+    "namemedicinalproduct": {
+      "label": "Medicinal Product Name",
+      "placeholder": "Enter the name of the medicinal product"
+    },
+    "nameMedicinalProduct": {
+      "label": "Medicinal Product Name",
+      "placeholder": "Enter the name of the medicinal product"
     },
     "batchNumber": {
       "label": "Batch Number",
@@ -139,17 +213,40 @@
       "placeholder": "Enter the date of manufacturing"
     },
     "batchRecall": {
-      "label": "Mark Batch as Recalled (Enabled only for Brazil)"
+      "label": "Mark Batch as Recalled"
     }
   },
   "leaflet": {
+    "title": "ePI Document",
+    "description": "Submit and track your electronic Product Information",
+    "create": "Add ePI Document",
+    "filter_by": "Select Product",
+    "filter": {
+      "label": "Filter by",
+      "all": "All Products"
+    },
+    "documentCol": {
+      "label": "Document Name"
+    },
+    "batchCol": {
+      "label": "Batch Number"
+    },
+    "epiMarket": {
+      "label": "Market"
+    },
+    "actions": {
+      "label": "Actions"
+    },
+    "leafletType": {
+      "label": "Document Type"
+    },
     "productCode": {
-      "label": "Select Product",
+      "label": "Product",
       "placeholder": "Select the product"
     },
     "batchNumber": {
-      "label": "Select Batch",
-      "placeholder": "Select the product"
+      "label": "Batch",
+      "placeholder": "Select the batch"
     },
     "lang": {
       "label": "Language",
@@ -204,5 +301,33 @@
       "label": "MAH Address",
       "placeholder": "Enter the MAH Address"
     }
+  },
+  "audit": {
+    "title": "Audit Logs",
+    "description": "Review the history of user actions within the system.",
+    "empty": "No audit logs available.",
+    "userId": {
+      "label": "User ID"
+    },
+    "userDID": {
+      "label": "User DID"
+    },
+    "userGroup": {
+      "label": "User Group"
+    },
+    "action": {
+      "label": "Action"
+    },
+    "transaction": {
+      "label": "Transaction"
+    },
+    "diffs": {
+      "label": "Changes"
+    },
+    "view_diffs": "<a>View</a>"
+  },
+  "account": {
+    "title": "Account Information",
+    "description": "Wallet and Identity Configuration."
   }
 }

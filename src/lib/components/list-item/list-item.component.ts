@@ -9,7 +9,17 @@
  * @link {@link ListItemComponent}
  */
 
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener,Input, OnInit, Output, ViewChild  } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import {
@@ -23,19 +33,22 @@ import {
   IonPopover,
   IonItemSliding,
   IonItemOptions,
-  IonItemOption
+  IonItemOption,
 } from '@ionic/angular/standalone';
 import * as AllIcons from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { StringOrBoolean } from '../../engine/types';
-import { getWindowWidth, windowEventEmitter, removeFocusTrap, stringToBoolean } from '../../utils/helpers';
+import {
+  getWindowWidth,
+  windowEventEmitter,
+  removeFocusTrap,
+  stringToBoolean,
+} from '../../utils/helpers';
 import { ComponentEventNames } from '../../engine/constants';
-import {ListItemCustomEvent} from '../../engine/interfaces';
+import { ListItemCustomEvent } from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { IconComponent } from '../icon/icon.component';
-
-
 
 /**
  * @description A component for displaying a list item with various customization options.
@@ -94,12 +107,11 @@ import { IconComponent } from '../icon/icon.component';
     IonButton,
     IonContent,
     IconComponent,
-    IonPopover
+    IonPopover,
   ],
-  host: {'[attr.id]': 'uid'},
+  host: { '[attr.id]': 'uid' },
 })
 export class ListItemComponent extends NgxComponentDirective implements OnInit, AfterViewInit {
-
   @ViewChild('component', { read: ElementRef, static: false })
   override component!: ElementRef;
 
@@ -166,7 +178,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    * @memberOf ListItemComponent
    */
   @Input()
-  iconSlot: 'start' | 'end' ='start';
+  iconSlot: 'start' | 'end' = 'start';
 
   /**
    * @description Controls whether the list item behaves as a clickable button.
@@ -239,7 +251,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    * @memberOf ListItemComponent
    */
   @Output()
-  clickEvent:  EventEmitter<ListItemCustomEvent> = new EventEmitter<ListItemCustomEvent>();
+  clickEvent: EventEmitter<ListItemCustomEvent> = new EventEmitter<ListItemCustomEvent>();
 
   /**
    * @description Flag indicating whether slide items are currently enabled.
@@ -276,7 +288,18 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    */
   actionMenuOpen: boolean = false;
 
-
+  /**
+   * @description Flag controlling whether the component should emit click events.
+   * @summary When true, interaction handlers emit payloads via `clickEvent` instead of relying
+   * solely on navigation. Useful for parent components that listen for custom events to drive
+   * their own logic.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf ListItemComponent
+   */
+  @Input()
+  emitEvent: boolean = false;
 
   /**
    * @description Creates an instance of ListItemComponent.
@@ -287,7 +310,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    * @memberOf ListItemComponent
    */
   constructor() {
-    super("ListItemComponent");
+    super('ListItemComponent');
     addIcons(AllIcons);
     this.enableDarkMode = true;
   }
@@ -323,8 +346,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
     this.showSlideItems = this.enableSlideItems();
     this.button = stringToBoolean(this.button);
     this.className = `${this.className}  dcf-flex dcf-flex-middle grid-item`;
-    if (this.operations?.length)
-      this.className += ` action`;
+    if (this.operations?.length) this.className += ` action`;
     this.windowWidth = getWindowWidth() as number;
   }
 
@@ -368,18 +390,27 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    *
    * @memberOf ListItemComponent
    */
-  async handleAction(action: CrudOperations, event: Event, target?: HTMLElement): Promise<boolean|void> {
+  async handleAction(action: CrudOperations, event: Event, target?: HTMLElement): Promise<void> {
     event.stopImmediatePropagation();
-    if (this.actionMenuOpen)
+    if (this.actionMenuOpen) {
       await this.actionMenuComponent.dismiss();
+    }
     // forcing trap focus
     removeFocusTrap();
-    if (!this.route) {
-      const event = {target: target, action, pk: this.pk, data: this.uid, name: ComponentEventNames.CLICK, component: this.componentName } as ListItemCustomEvent;
-      windowEventEmitter(`ListItem${ComponentEventNames.CLICK}`, event);
+    if (!this.route || this.emitEvent) {
+      const event = {
+        target: target,
+        action,
+        pk: this.pk,
+        data: this.uid,
+        name: ComponentEventNames.Click,
+        component: this.componentName,
+      } as ListItemCustomEvent;
+      windowEventEmitter(`ListItem${ComponentEventNames.Click}`, event);
       return this.clickEvent.emit(event);
     }
-    return await this.redirect(action,  `${this.uid}`);
+
+    await this.redirect(action, `${this.uid}`);
   }
 
   /**
@@ -413,9 +444,10 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
   @HostListener('window:resize', ['$event'])
   enableSlideItems(): boolean {
     this.windowWidth = getWindowWidth() as number;
-    if (!this.operations?.length || this.windowWidth > 639)
-      return this.showSlideItems = false;
-    this.showSlideItems = this.operations.includes(OperationKeys.UPDATE) || this.operations.includes(OperationKeys.DELETE);
+    if (!this.operations?.length || this.windowWidth > 639) return (this.showSlideItems = false);
+    this.showSlideItems =
+      this.operations.includes(OperationKeys.UPDATE) ||
+      this.operations.includes(OperationKeys.DELETE);
     return this.showSlideItems;
   }
 
@@ -448,7 +480,9 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    */
   removeElement(element: HTMLElement): void {
     element.classList.add('uk-animation-fade', 'uk-animation-medium', 'uk-animation-reverse');
-    setTimeout(() => {element.remove()}, 600)
+    setTimeout(() => {
+      element.remove();
+    }, 600);
   }
 
   /**

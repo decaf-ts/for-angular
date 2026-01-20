@@ -1,12 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, OnInit,  OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
-  IonItem, IonLabel, IonList,
-  IonButton,
-  IonText
- } from '@ionic/angular/standalone';
- import { TranslatePipe } from '@ngx-translate/core';
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output,
+  ViewChild,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { IonItem, IonLabel, IonList, IonButton, IonText } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 import { HTML5InputTypes, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { Constructor } from '@decaf-ts/decoration';
 import { Primitives } from '@decaf-ts/decorator-validation';
@@ -19,7 +24,6 @@ import { presentNgxInlineModal, presentNgxLightBoxModal } from '../modal/modal.c
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../icon/icon.component';
 import { NgxEventHandler } from '../../engine/NgxEventHandler';
-
 
 const FileErrors = {
   notAllowed: 'not_allowed',
@@ -53,10 +57,20 @@ const FileErrors = {
   templateUrl: './file-upload.component.html',
   styleUrls: ['./file-upload.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardComponent, IonText, IconComponent, IonList, IonLabel, IonItem, TranslatePipe,  IonButton],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    CardComponent,
+    IonText,
+    IconComponent,
+    IonList,
+    IonLabel,
+    IonItem,
+    TranslatePipe,
+    IonButton,
+  ],
 })
 export class FileUploadComponent extends NgxFormFieldDirective implements OnInit, OnDestroy {
-
   @ViewChild('component', { static: true })
   override component!: ElementRef<HTMLInputElement>;
 
@@ -161,7 +175,6 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   @Input()
   position: FlexPosition = 'center';
 
-
   /**
    * @description Accepted file types for upload.
    * @summary Specifies the file types that are allowed for upload, such as images or documents.
@@ -262,7 +275,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   private dragCounter: number = 0;
 
   constructor() {
-    super("FileUploadComponent");
+    super('FileUploadComponent');
   }
 
   /**
@@ -285,24 +298,28 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   }
 
   override async initialize(): Promise<void> {
-    if(this.value && typeof this.value === Primitives.STRING) {
+    this.handleClear();
+    await super.initialize();
+
+    if (this.value && typeof this.value === Primitives.STRING) {
       try {
         const files = JSON.parse(this.value as string) as string[];
-        this.files = files.map(file => {
+        this.files = files.map((file) => {
           const mime = this.getFileMime(file)?.split('/') || [];
-          const type = mime?.[0] === 'text' ?  mime?.[1] : `${mime?.[0]}/${mime?.[1]}`;
+          const type = mime?.[0] === 'text' ? mime?.[1] : `${mime?.[0]}/${mime?.[1]}`;
           return {
             name: mime?.[0] || 'file',
             type: `${type}` || 'image/*',
-            source: file as string
-          } as KeyValue
-        })
+            source: file as string,
+          } as KeyValue;
+        });
         this.getPreview();
       } catch (error: unknown) {
-       this.log.for(this.initialize).error(`Error parsing file list: ${(error as Error).message || error}`);
+        this.log
+          .for(this.initialize)
+          .error(`Error parsing file list: ${(error as Error).message || error}`);
       }
     }
-    this.initialized = true;
   }
 
   /**
@@ -311,7 +328,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    *
    * @returns {Promise<void>}
    */
-  override async ngOnDestroy(): Promise<void>  {
+  override async ngOnDestroy(): Promise<void> {
     await super.ngOnDestroy();
     this.handleClear();
   }
@@ -325,8 +342,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    */
   handleClickToSelect(): void {
     const element = this.component.nativeElement;
-    if (element)
-      (element.querySelector('#dcf-file-input') as HTMLButtonElement)?.click();
+    if (element) (element.querySelector('#dcf-file-input') as HTMLButtonElement)?.click();
   }
 
   /**
@@ -337,7 +353,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @param {Event} event - The file selection event.
    * @returns {Promise<void> }
    */
- async handleSelection(event: Event): Promise<void> {
+  async handleSelection(event: Event): Promise<void> {
     this.clearErrors();
     const input = event.target as HTMLInputElement;
     if (input.files) {
@@ -429,7 +445,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
         this.errors.push({
           name: file.name,
           error: isValid,
-          size: file.size
+          size: file.size,
         });
       }
     }
@@ -438,15 +454,14 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     } else {
       this.files = [validFiles[0]];
     }
-    if(this.files.length) {
-      const dataValues = await this.getDataURLs(this.files as File[])
+    if (this.files.length) {
+      const dataValues = await this.getDataURLs(this.files as File[]);
       this.setValue(JSON.stringify(dataValues));
     }
 
     await this.getPreview();
     this.changeEventEmit();
     this.changeDetectorRef.detectChanges();
-
   }
 
   /**
@@ -459,21 +474,22 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    */
   private validateFile(file: File): true | string {
     if (this.accept && this.accept !== '*') {
-      const acceptedExtensions = Array.isArray(this.accept) ?
-        this.accept : this.accept.split(',').map(ext => ext.trim());
-      const accept = acceptedExtensions.some(ext => {
-        if (ext === '*')
-          return true;
-        if (ext.endsWith('/*'))
-          return file.type.startsWith(ext.replace(/\/\*$/, ''));
+      const acceptedExtensions = Array.isArray(this.accept)
+        ? this.accept
+        : this.accept.split(',').map((ext) => ext.trim());
+      const accept = acceptedExtensions.some((ext) => {
+        if (ext === '*') return true;
+        if (ext.endsWith('/*')) return file.type.startsWith(ext.replace(/\/\*$/, ''));
         const fileExtension = file.type.split('/').pop() || '';
-        return file.type === ext || fileExtension === ext || file.name.toLowerCase().endsWith(ext.replace('.', ''));
+        return (
+          file.type === ext ||
+          fileExtension === ext ||
+          file.name.toLowerCase().endsWith(ext.replace('.', ''))
+        );
       });
-      if (!accept)
-        return FileErrors.notAllowed;
+      if (!accept) return FileErrors.notAllowed;
     }
-    if (this.maxFileSize && file.size > this.maxFileSize)
-      return FileErrors.maxSize;
+    if (this.maxFileSize && file.size > this.maxFileSize) return FileErrors.maxSize;
     return true;
   }
 
@@ -485,48 +501,46 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @param {File | string} [file] - The file to be previewed. If not provided, the current preview file is used.
    * @returns {Promise<void>}
    */
-  async preview(file: File | string, fileExtension: string = 'image/'): Promise<void|UIFunctionLike> {
+  override async preview(file: File | string, fileExtension: string = 'image/'): Promise<void> {
     this.log.for(this).info(`Previewing file of type: ${fileExtension}`);
-    let content:  string | undefined;
-    if(file instanceof File) {
-      const dataUrl = await this.getDataURLs(file) as string[];
-      if(dataUrl && dataUrl.length)
-        file = dataUrl[0];
+    let content: string | undefined;
+    if (file instanceof File) {
+      const dataUrl = (await this.getDataURLs(file)) as string[];
+      if (dataUrl && dataUrl.length) file = dataUrl[0];
     }
-    if(fileExtension.includes('image'))
+    if (fileExtension.includes('image'))
       content = '<img src="' + file + '" style="max-width: 100%; height: auto;" />';
 
-    if(fileExtension.includes('xml')) {
+    if (fileExtension.includes('xml')) {
       const parseXml = (xmlString: string): string | undefined => {
         try {
-          xmlString = (xmlString as string).replace(/^data:[^;]+;base64,/, '').replace(/\s+/g, '')
+          xmlString = (xmlString as string).replace(/^data:[^;]+;base64,/, '').replace(/\s+/g, '');
           const decodedString = atob(xmlString);
           const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(decodedString, "text/xml");
+          const xmlDoc = parser.parseFromString(decodedString, 'text/xml');
 
           // const encoder = new TextEncoder(); // gera bytes UTF-8
           // const utf8Bytes = encoder.encode(xmlDoc.documentElement.outerHTML);
           // return new TextDecoder("utf-8").decode(utf8Bytes);
 
           return xmlDoc.documentElement.outerHTML;
-
         } catch (error: unknown) {
           this.log.error((error as Error)?.message);
           return undefined;
         }
-      }
+      };
 
-      if(this.previewHandler && typeof this.previewHandler === 'function') {
+      if (this.previewHandler && typeof this.previewHandler === 'function') {
         const clazz = new (this.previewHandler as Constructor<NgxEventHandler>)();
         const previewFn = clazz.handle.bind(this);
-        return previewFn(file);
+        return previewFn({ data: file });
       } else {
         content = parseXml(file as string);
       }
       return await presentNgxInlineModal(content as string);
     }
 
-    await presentNgxLightBoxModal(content || "");
+    await presentNgxLightBoxModal(content || '');
   }
 
   /**
@@ -543,7 +557,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
 
   getFileMime(base64: string): string {
     const match = base64.match(/^data:(.*?);base64,/);
-    return match ? match[1] : "";
+    return match ? match[1] : '';
   }
 
   /**
@@ -555,8 +569,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @returns {Promise<void>}
    */
   async removeFile(index: number): Promise<void> {
-    if (index <= this.files.length)
-      this.files = [...this.files.filter((_, i) => i !== index)];
+    if (index <= this.files.length) this.files = [...this.files.filter((_, i) => i !== index)];
     await this.getPreview();
     this.changeEventEmit();
   }
@@ -572,9 +585,8 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     this.previewFile = undefined;
     const file = this.files && this.files.length ? this.files[0] : null;
     if (file instanceof File) {
-      const dataUrl = await this.getDataURLs(file as File) as string[];
-      if(dataUrl && dataUrl.length)
-        this.previewFile = dataUrl[0];
+      const dataUrl = (await this.getDataURLs(file as File)) as string[];
+      if (dataUrl && dataUrl.length) this.previewFile = dataUrl[0];
     } else {
       this.previewFile = (file as KeyValue)?.['source'] as string;
     }
@@ -588,11 +600,11 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @returns {void}
    */
   private changeEventEmit(): void {
-   this.changeEvent.emit({
+    this.changeEvent.emit({
       data: this.value,
       component: this.componentName,
-      name: ComponentEventNames.CHANGE,
-   });
+      name: ComponentEventNames.Change,
+    });
   }
 
   /**
@@ -606,22 +618,20 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @returns {Promise<string[] | undefined>} - A promise that resolves to an array of data URLs, or undefined if an error occurs.
    */
   async getDataURLs(files?: File[] | File): Promise<string[] | undefined> {
-    if(!files)
-      files = this.files as File[];
-    if(!Array.isArray(files))
-      files = [files];
+    if (!files) files = this.files as File[];
+    if (!Array.isArray(files)) files = [files];
     // files = files.filter(f => f.type && f.type.startsWith('image/'));
-    return this.readFile(files).then(urls => {
-      // validate generated DataURLs
-      const invalid = urls.some(u => !this.isValidDataURL(u));
-      if (invalid)
+    return this.readFile(files)
+      .then((urls) => {
+        // validate generated DataURLs
+        const invalid = urls.some((u) => !this.isValidDataURL(u));
+        if (invalid) return undefined;
+        if (this.multiple || this.enableDirectoryMode) return urls;
+        return urls.length ? [urls[0]] : undefined;
+      })
+      .catch(() => {
         return undefined;
-      if (this.multiple || this.enableDirectoryMode)
-        return urls;
-      return urls.length ? [urls[0]] : undefined;
-    }).catch(() => {
-      return undefined;
-    });
+      });
   }
 
   /**
@@ -639,8 +649,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
 
     // Regex para qualquer MIME type seguido de ;base64
     const match = dataURL.match(/^data:([a-zA-Z0-9.+-\\/]+);base64,([A-Za-z0-9+/=\s]+)$/);
-    if (!match)
-      return false;
+    if (!match) return false;
 
     const payload = match[2];
     try {
@@ -673,12 +682,16 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @returns {Promise<string[]>} - A promise that resolves to an array of data URLs.
    */
   private readFile(files: File[]): Promise<string[]> {
-    return Promise.all(files.map(file => new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = () => reject(reader.error);
-      reader.onload = ()  => resolve(String(reader.result || ''));
-      reader.readAsDataURL(file);
-    })));
+    return Promise.all(
+      files.map(
+        (file) =>
+          new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onerror = () => reject(reader.error);
+            reader.onload = () => resolve(String(reader.result || ''));
+            reader.readAsDataURL(file);
+          }),
+      ),
+    );
   }
-
 }

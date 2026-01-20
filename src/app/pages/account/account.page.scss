@@ -1,0 +1,13 @@
+.dcf-props-container {
+  padding: 1rem;
+  background: rgba(var(--dcf-color-primary-rgb), 0.075);
+  border-radius: var(--dcf-border-radius-small);
+  span {
+    display: block;
+  }
+
+  .dcf-prop {
+    margin-left: 2rem;
+    font-weight: 500;
+  }
+}

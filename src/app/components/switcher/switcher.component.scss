@@ -66,6 +66,7 @@ ngx-decaf-icon {
     max-width: max-content;
     margin-left: 0px !important;
     border-radius: 18px;
+    height: 2.25rem !important;
 
     > * {
       border-radius: 14px;
@@ -81,6 +82,7 @@ ngx-decaf-icon {
         }
       }
       a {
+        padding-top: 0.4rem !important;
         opacity: 0.7;
         color: var(--dcf-color-dark) !important;
       }
@@ -109,17 +111,18 @@ ngx-decaf-icon {
         margin-right: 0px !important;
       }
       &:hover {
-        color: var(--dcf-color-primary-shade);
-
         a {
           opacity: 0.8;
-          color: var(--dcf-color-text) !important;
         }
       }
       a {
-        padding: 0.5rem 1.25rem;
+        padding: 0.65rem 1.25rem;
         opacity: 0.7;
-        color: var(--dcf-color-dark) !important;
+      }
+      &:not(.dcf-active) {
+        a {
+          color: var(--dcf-color-dark) !important;
+        }
       }
       &.dcf-active {
         opacity: 1;
@@ -127,7 +130,6 @@ ngx-decaf-icon {
         color: white !important;
         a {
           opacity: 1;
-          color: var(--dcf-color-text) !important;
           text-align: center;
         }
       }

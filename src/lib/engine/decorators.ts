@@ -50,3 +50,48 @@ export function Dynamic() {
     )
   );
 }
+
+
+//TODO: Create dynamic decorator to store props on parents and load on childs
+// import { Input, signal } from '@angular/core';
+
+// export function dynamic() {
+//   return function (target: any, propertyKey: string) {
+
+//     // Marca como Input automaticamente
+
+//     // Armazena a lista de propriedades decoradas
+//     if (!target.__initPropsList)
+//       target.__initPropsList = [];
+
+//     target.__initPropsList.push(propertyKey);
+
+//     // Patch no ngOnInit apenas uma vez
+//     if (!target.__initPropsPatched) {
+//       target.__initPropsPatched = true;
+
+//       const originalOnInit = target.ngOnInit;
+
+//       target.ngOnInit = function () {
+
+//         // Cria o signal __props no componente
+//         this._props = signal({});
+
+//         const collected: any = {};
+
+//         // Coleta todas as propriedades decoradas
+//         for (const key of this.__initPropsList) {
+//           collected[key] = this[key];
+//         }
+
+//         // Atualiza o signal
+//         this._props.set(collected);
+
+//         // Chama o ngOnInit original, se existir
+//         if (originalOnInit) {
+//           originalOnInit.apply(this);
+//         }
+//       };
+//     }
+//   };
+// }

@@ -8,9 +8,7 @@
  * @link {@link CrudFormComponent}
  */
 
-import {
-  Component,
-} from '@angular/core';
+import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Dynamic } from '../../engine/decorators';
@@ -18,7 +16,8 @@ import { DefaultFormReactiveOptions, ComponentEventNames } from '../../engine/co
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { LayoutComponent } from '../layout/layout.component';
 import { TranslatePipe } from '@ngx-translate/core';
-
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { getModelAndRepository } from 'src/lib/engine';
 
 @Dynamic()
 @Component({
@@ -27,11 +26,9 @@ import { TranslatePipe } from '@ngx-translate/core';
   templateUrl: './crud-form.component.html',
   styleUrls: ['./crud-form.component.scss'],
   imports: [TranslatePipe, ReactiveFormsModule, LayoutComponent, IonButton, IonIcon],
-  host: {'[attr.id]': 'uid'},
+  host: { '[attr.id]': 'uid' },
 })
-
 export class CrudFormComponent extends NgxFormDirective {
-
   constructor() {
     super('CrudFormComponent');
   }
@@ -50,10 +47,16 @@ export class CrudFormComponent extends NgxFormDirective {
     this.options = Object.assign(
       {},
       DefaultFormReactiveOptions,
-      {buttons: {submit: {text: this.operation.toLowerCase()}}},
+      { buttons: { submit: { text: this.operation.toLowerCase() } } },
       this.options || {},
     );
-    await super.ngOnInit();
+    await super.initialize();
+    if (!this.pk && this.modelName) {
+      const repo = getModelAndRepository(this.modelName);
+      if (repo) {
+        this.pk = repo.pk;
+      }
+    }
   }
 
   /**
@@ -67,6 +70,12 @@ export class CrudFormComponent extends NgxFormDirective {
    * @memberOf CrudFormComponent
    */
   handleDelete(): void {
-    super.submitEventEmit(this.model, 'CrudFormComponent', ComponentEventNames.SUBMIT, this.handlers);
+    super.submitEventEmit(
+      this.model,
+      'CrudFormComponent',
+      ComponentEventNames.Submit,
+      this.handlers,
+      OperationKeys.DELETE,
+    );
   }
 }

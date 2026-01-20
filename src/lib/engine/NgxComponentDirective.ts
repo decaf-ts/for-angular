@@ -20,48 +20,47 @@ import {
   ChangeDetectorRef,
   Renderer2,
   OnDestroy,
+  input,
+  signal,
+  WritableSignal,
+  EnvironmentInjector,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, Subject } from 'rxjs';
+import { Model, ModelConstructor, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
+import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import {
-  Model,
-  ModelConstructor,
-  Primitives,
-} from '@decaf-ts/decorator-validation';
-import {
-  CrudOperations,
-  InternalError,
-  OperationKeys,
-} from '@decaf-ts/db-decorators';
-import {
+  DecafComponentConstructor,
   DecafRepository,
   FormParent,
   FunctionLike,
   KeyValue,
+  PropsMapperFn,
   WindowColorScheme,
 } from './types';
 import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
 import { NgxEventHandler } from './NgxEventHandler';
 import { getLocaleContext } from '../i18n/Loader';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
-import { getModelAndRepository, CPTKN } from '../for-angular-common.module';
 import {
   AngularEngineKeys,
   BaseComponentProps,
+  ComponentEventNames,
+  CPTKN,
+  TransactionHooks,
   WindowColorSchemes,
 } from './constants';
-import { generateRandomValue, getWindow, setOnWindow } from '../utils';
+import { generateRandomValue, getWindow, isClassConstructor, setOnWindow } from '../utils';
 import { AttributeOption, EventIds, Observer } from '@decaf-ts/core';
 import { NgxMediaService } from '../services/NgxMediaService';
-import {
-  DecafComponent,
-  UIFunctionLike,
-  UIKeys,
-} from '@decaf-ts/ui-decorators';
+import { DecafComponent, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
 import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
 import { OverlayBaseController } from '@ionic/angular/common';
+import { getModelAndRepository } from './helpers';
+import { Constructor } from '@decaf-ts/decoration';
+import { NgxRepositoryDirective } from './NgxRepositoryDirective';
 
 try {
   const win = getWindow();
@@ -86,7 +85,7 @@ try {
  */
 @Directive({ host: { '[attr.id]': 'uid' } })
 export abstract class NgxComponentDirective
-  extends DecafComponent
+  extends NgxRepositoryDirective<Model>
   implements OnChanges, OnDestroy
 {
   /**
@@ -100,6 +99,17 @@ export abstract class NgxComponentDirective
    */
   @ViewChild('component', { read: ElementRef, static: true })
   component!: ElementRef;
+
+  /**
+   * @description Writable signal used for prop synchronization.
+   * @summary Stores a reactive snapshot of component props so derived classes
+   * can observe assignments performed by `initProps` without directly mutating
+   * the instance. Signals ensure Angular change detection reacts to prop updates.
+   * @type {WritableSignal<NgxComponentDirective>}
+   */
+  _props: WritableSignal<NgxComponentDirective> = signal<NgxComponentDirective>(
+    {} as NgxComponentDirective,
+  );
 
   /**
    * @description Flag to enable or disable dark mode support for the component.
@@ -147,11 +157,11 @@ export abstract class NgxComponentDirective
    * This property establishes a parent-child relationship between components, allowing for
    * proper nesting and organization of components within a layout. It can be used to track
    * component dependencies and establish component hierarchies for rendering and event propagation.
-   * @type {string | undefined}
+   * @type {string}
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  override childOf!: string | undefined;
+  override childOf: string = '';
 
   /**
    * @description Unique identifier for the component instance.
@@ -165,7 +175,6 @@ export abstract class NgxComponentDirective
   @Input()
   override uid?: string | number;
 
-
   /**
    * @description Data model or model name for component operations.
    * @summary The data model that this component will use for CRUD operations. This can be provided
@@ -177,6 +186,19 @@ export abstract class NgxComponentDirective
    */
   @Input()
   override model!: Model | string | undefined;
+
+  /**
+   * @description The name of the model class to operate on.
+   * @summary Identifies which registered model class this component should work with.
+   * This name is used to resolve the model constructor from the global model registry
+   * and instantiate the appropriate repository for data operations. The model must
+   * be properly registered using the @Model decorator for resolution to work.
+   *
+   * @type {string}
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
+  @Input()
+  modelName!: string;
 
   /**
    * @description Primary key value of the current model instance.
@@ -201,8 +223,8 @@ export abstract class NgxComponentDirective
    * @type {AttributeOption<Model> | undefined}
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  @Input()
-  condition: AttributeOption<Model> | undefined;
+  // @Input()
+  // condition: AttributeOption<Model> | undefined;
 
   /**
    * @description Angular reactive FormGroup for form state management.
@@ -230,20 +252,6 @@ export abstract class NgxComponentDirective
   override value: unknown;
 
   /**
-   * @description Primary key field name for the data model.
-   * @summary Specifies which field in the model should be used as the primary key.
-   * This is typically used for identifying unique records in operations like update and delete.
-   * If not explicitly set, it defaults to the repository's configured primary key or 'id'.
-   * @type {string}
-   * @default 'id'
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  @Input()
-  override pk!: string;
-
-  pkType!: string;
-
-  /**
    * @description Field mapping configuration object or function.
    * @summary Defines how fields from the data model should be mapped to properties used by the component.
    * This allows for flexible data binding between the model and the component's display logic. Can be
@@ -253,8 +261,7 @@ export abstract class NgxComponentDirective
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  mapper: Record<string, string> | FunctionLike | Record<string, FunctionLike> =
-    {};
+  mapper: Record<string, string> | FunctionLike | Record<string, FunctionLike> = {};
 
   /**
    * @description Available CRUD operations for this component instance.
@@ -320,6 +327,18 @@ export abstract class NgxComponentDirective
   className: string = '';
 
   /**
+   * @description Translatability of field labels.
+   * @summary Indicates whether the field labels should be translated based on the current language settings.
+   * This is useful for applications supporting multiple languages.
+   *
+   * @type {boolean}
+   * @default true
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
+  @Input()
+  translatable: boolean = true;
+
+  /**
    * @description Angular change detection service for manual change detection control.
    * @summary Injected service that provides manual control over change detection cycles.
    * This is essential for ensuring that programmatic DOM changes (like setting accordion
@@ -330,6 +349,17 @@ export abstract class NgxComponentDirective
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected changeDetectorRef: ChangeDetectorRef = inject(ChangeDetectorRef);
+
+  /**
+   * @description Injector used for dependency injection in the dynamic component.
+   * @summary This injector is used when creating the dynamic component to provide it with
+   * access to the application's dependency injection system. It ensures that the dynamically
+   * created component can access the same services and dependencies as statically created
+   * components.
+   *
+   * @type {EnvironmentInjector}
+   */
+  protected injector: EnvironmentInjector = inject(EnvironmentInjector);
 
   /**
    * @description Media service instance for responsive design and media query management.
@@ -377,8 +407,9 @@ export abstract class NgxComponentDirective
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Output()
-  listenEvent: EventEmitter<IBaseCustomEvent> =
-    new EventEmitter<IBaseCustomEvent>();
+  listenEvent: EventEmitter<IBaseCustomEvent | ICrudFormEvent> = new EventEmitter<
+    IBaseCustomEvent | ICrudFormEvent
+  >();
 
   /**
    * @description Event emitter for custom component events.
@@ -443,7 +474,7 @@ export abstract class NgxComponentDirective
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  override props: Record<string, unknown> = {};
+  override props: Record<string, unknown> | Partial<NgxComponentDirective> = {};
 
   /**
    * @description Base route path for component navigation.
@@ -482,7 +513,6 @@ export abstract class NgxComponentDirective
    */
   override location: Location = inject(Location);
 
-
   /**
    * @description Ionic loading overlay manager available to derived components.
    * @summary Provides convenient access to Ionic's LoadingController, enabling directive
@@ -493,7 +523,8 @@ export abstract class NgxComponentDirective
    * @returns {OverlayBaseController<LoadingOptions, HTMLIonLoadingElement>}
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected loadingController: OverlayBaseController<LoadingOptions, HTMLIonLoadingElement> = inject(LoadingController);
+  protected loadingController: OverlayBaseController<LoadingOptions, HTMLIonLoadingElement> =
+    inject(LoadingController);
 
   /**
    * @description Flag indicating if the component is rendered as a child of a modal dialog.
@@ -516,17 +547,8 @@ export abstract class NgxComponentDirective
   @Input()
   protected override events: Record<string, UIFunctionLike> = {};
 
-  /**
-   * @description Custom parser invoked whenever the directive receives raw values.
-   * @summary Allows callers to inject a reusable parsing function that normalizes or
-   * coerces inbound component data (form inputs, handler payloads, etc.) before the
-   * directive consumes it. Use this hook to apply business rules or format conversions
-   * without modifying internal directive logic.
-   * @type {UIFunctionLike}
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
   @Input()
-  valueParserFn!: UIFunctionLike;
+  propsMapperFn!: PropsMapperFn<NgxComponentDirective>;
 
   /**
    * @description Indicates whether a refresh operation is in progress.
@@ -559,9 +581,7 @@ export abstract class NgxComponentDirective
    */
   protected repositoryObserver!: Observer;
 
-
   protected destroySubscriptions$ = new Subject<void>();
-
 
   /**
    * @description Subject for debouncing repository observation events.
@@ -585,13 +605,13 @@ export abstract class NgxComponentDirective
    * @param {string} [localeRoot] - Optional locale root key for internationalization
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  // eslint-disable-next-line @angular-eslint/prefer-inject
+
   constructor(@Inject(CPTKN) componentName?: string, @Inject(CPTKN) localeRoot?: string) {
     super();
+    this.value = undefined;
     this.componentName = componentName || 'NgxComponentDirective';
     this.localeRoot = localeRoot;
-    if (!this.localeRoot && this.componentName)
-      this.localeRoot = this.componentName;
+    if (!this.localeRoot && this.componentName) this.localeRoot = this.componentName;
     if (this.localeRoot) this.getLocale(this.localeRoot);
     this.uid = `${this.componentName}-${generateRandomValue(8)}`;
     this.mediaService.isDarkMode().subscribe((isDark) => {
@@ -610,16 +630,42 @@ export abstract class NgxComponentDirective
    * components are torn down.
    * @returns {Promise<void>}
    */
-  async ngOnDestroy(): Promise<void>  {
+  async ngOnDestroy(): Promise<void> {
     this.mediaService.destroy();
     this.destroySubscriptions$.next();
     this.destroySubscriptions$.complete();
   }
 
-  //TODO: Pass to ui decoretators
-  async refresh(...args: unknown[]): Promise<void> {
-    this.log.for(this.refresh).debug(`Refresh called with args: ${args}`);
-    this.refreshEvent.emit(true);
+  override async initialize<T extends NgxComponentDirective>(): Promise<void> {
+    this.mediaService.darkModeEnabled();
+    // connect component to media service for color scheme toggling
+    this.mediaService.colorSchemeObserver(this.component);
+    this.route = this.router.url.replace('/', '');
+
+    const instance = this as KeyValue;
+    if (this.propsMapperFn) {
+      for (const [key, fn] of Object.entries(this.propsMapperFn)) {
+        if (key in instance) instance[key] = await fn(instance as T);
+      }
+    }
+    // search for handler to render event
+    if (!this.initialized) {
+      const handler = this.handlers?.[ComponentEventNames.Render] || undefined;
+      if (handler && typeof handler === 'function') {
+        await handler.bind(this)(instance as T);
+      }
+      // search for event to render event
+      const event = this.events?.[ComponentEventNames.Render] || undefined;
+      if (event && typeof event === 'function') {
+        await event.bind(this)(instance as T);
+      }
+    }
+    await super.initialize();
+
+    this.initialized = true;
+    if (this.isModalChild) {
+      this.changeDetectorRef.detectChanges();
+    }
   }
 
   /**
@@ -643,7 +689,7 @@ export abstract class NgxComponentDirective
    * @throws {InternalError} If repository initialization fails
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  override get repository(): DecafRepository<Model> | undefined {
+  override get repository(): DecafRepository<Model> {
     try {
       if (!this._repository) {
         const context = getModelAndRepository(this.model as Model);
@@ -651,7 +697,8 @@ export abstract class NgxComponentDirective
           const { repository, pk, pkType } = context;
           this._repository = repository;
           if (this.model && !this.pk) this.pk = pk;
-          this.pkType = pkType;
+          this.pkType = pkType || Model.pk(repository.class);
+          if (!this.modelName) this.modelName = repository.class.name;
         }
       }
     } catch (error: unknown) {
@@ -675,11 +722,10 @@ export abstract class NgxComponentDirective
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    if (changes[BaseComponentProps.MODEL]) {
-      const { currentValue } = changes[BaseComponentProps.MODEL];
+    if (changes[ModelKeys.MODEL]) {
+      const { currentValue } = changes[ModelKeys.MODEL];
       if (currentValue) this.getModel(currentValue);
       this.locale = this.localeContext;
-      if (!this.initialized) this.initialized = true;
     }
 
     // if (changes[UIKeys.HANDLERS]) {
@@ -696,32 +742,42 @@ export abstract class NgxComponentDirective
     //   }
     // }
 
+    if (changes[BaseComponentProps.HANDLERS]) {
+      const { currentValue, previousValue } = changes[BaseComponentProps.HANDLERS];
+      if (currentValue && currentValue !== previousValue) this.parseHandlers(currentValue);
+    }
+
     if (changes[UIKeys.EVENTS]) {
       const { currentValue, previousValue } = changes[UIKeys.EVENTS];
       if (currentValue && currentValue !== previousValue) {
-        if (!this._repository) this._repository = this.repository;
-        for (const key in currentValue) {
-          const event = currentValue[key]();
-          if (event && typeof event === 'function') {
-            try {
-              const clazz = new event();
-              this.events[key] = clazz[key].bind(this);
-              if (event[key] instanceof Promise) {
-                await clazz[key].bind(this)();
-              } else {
-                clazz[key].bind(this)();
-              }
-            } catch (error: unknown) {
-              this.log.for(this.ngOnChanges).error(`Error occurred while processing event "${key}": ${(error as Error)?.message || (error as string)}`);
-            }
-          }
+        if (!this._repository) {
+          this._repository = this.repository;
         }
+        this.parseEvents(currentValue);
+
+        // for (const key in currentValue) {
+        //   const event = currentValue[key]();
+        //   if (event && typeof event === 'function') {
+        //     try {
+        //       const clazz = new event();
+        //       this.events[key] = clazz[key].bind(this);
+        //       if (event[key] instanceof Promise) {
+        //         await clazz[key].bind(this)();
+        //       } else {
+        //         clazz[key].bind(this)();
+        //       }
+        //     } catch (error: unknown) {
+        //       this.log
+        //         .for(this.ngOnChanges)
+        //         .error(
+        //           `Error occurred while processing event "${key}": ${(error as Error)?.message || (error as string)}`
+        //         );
+        //     }
+        //   }
+        // }
       }
     }
-    if (
-      changes[BaseComponentProps.LOCALE_ROOT] ||
-      changes[BaseComponentProps.COMPONENT_NAME]
-    )
+    if (changes[BaseComponentProps.LOCALE_ROOT] || changes[BaseComponentProps.COMPONENT_NAME])
       this.locale = this.localeContext;
 
     if (this.enableDarkMode) this.checkDarkMode();
@@ -738,14 +794,10 @@ export abstract class NgxComponentDirective
    * @return {Promise<string>} A promise that resolves to the translated text
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  override async translate(
-    phrase: string | string[],
-    params?: object | string
-  ): Promise<string> {
+  override async translate(phrase: string | string[], params?: object | string): Promise<string> {
+    if (!phrase) return '';
     if (typeof params === Primitives.STRING) params = { '0': params };
-    return await firstValueFrom(
-      this.translateService.get(phrase, (params || {}) as object)
-    );
+    return await firstValueFrom(this.translateService.get(phrase, (params || {}) as object));
   }
 
   protected checkDarkMode(): void {
@@ -754,11 +806,10 @@ export abstract class NgxComponentDirective
       this.mediaService.toggleClass(
         [this.component],
         AngularEngineKeys.DARK_PALETTE_CLASS,
-        this.isDarkMode
+        this.isDarkMode,
       );
     });
   }
-
 
   /**
    * @description Handles repository observation events with debouncing.
@@ -773,16 +824,63 @@ export abstract class NgxComponentDirective
   async handleRepositoryRefresh(...args: unknown[]): Promise<void> {
     const [modelInstance, event, uid] = args;
     if ([OperationKeys.CREATE, OperationKeys.DELETE].includes(event as OperationKeys))
-      return this.handleObserveEvent(
-        modelInstance,
-        event,
-        uid as string | number
-      );
+      return this.handleObserveEvent(modelInstance, event, uid as string | number);
     return this.repositoryObserverSubject.next(args);
   }
 
   async handleObserveEvent(...args: unknown[]): Promise<void> {
     this.log.for(this.handleObserveEvent).info(`Repository change observed with args: ${args}`);
+  }
+
+  parseHandlers(handlers: Record<string, UIFunctionLike | Constructor<NgxEventHandler>>): void {
+    // function isClass(value: UIFunctionLike | Constructor<NgxEventHandler>): boolean {
+    //   return typeof value === 'function' && /^class\s/.test(String(value));
+    // }
+    Object.entries(handlers).forEach(([key, fn]) => {
+      if (isClassConstructor<NgxEventHandler>(fn)) {
+        const clazz = new fn() as NgxEventHandler;
+        this.handlers[key] = key in clazz ? clazz[key as keyof NgxEventHandler] : clazz.handle;
+        // !(Object.values(TransactionHooks).includes(key as keyof typeof TransactionHooks))
+        //   ? clazz.handle
+        //   : clazz[key as keyof NgxEventHandler];
+      } else {
+        this.handlers[key] = fn as UIFunctionLike;
+      }
+    });
+  }
+
+  // for (const key in currentValue) {
+  //   const event = currentValue[key]();
+  //   if (event && typeof event === 'function') {
+  //     try {
+  //       const clazz = new event();
+  //       this.events[key] = clazz[key].bind(this);
+  //       if (event[key] instanceof Promise) {
+  //         await clazz[key].bind(this)();
+  //       } else {
+  //         clazz[key].bind(this)();
+  //       }
+  //     } catch (error: unknown) {
+  //       this.log
+  //         .for(this.ngOnChanges)
+  //         .error(
+  //           `Error occurred while processing event "${key}": ${(error as Error)?.message || (error as string)}`
+  //         );
+  //     }
+  //   }
+  // }
+
+  parseEvents(
+    events: Record<string, UIFunctionLike | Constructor<DecafComponentConstructor>>,
+  ): void {
+    Object.entries(events).forEach(([key, fn]) => {
+      const event = (fn as UIFunctionLike)();
+      if (isClassConstructor<DecafComponentConstructor>(event)) {
+        this.events[key] = new event()[key as keyof DecafComponentConstructor] || undefined;
+      } else {
+        this.events[key] = fn as UIFunctionLike;
+      }
+    });
   }
 
   /**
@@ -798,8 +896,7 @@ export abstract class NgxComponentDirective
   protected getLocale(locale?: string): string {
     if (locale || !this.locale) {
       if (locale) this.localeRoot = locale;
-      if (this.localeRoot)
-        this.locale = getLocaleContext(this.localeRoot as string);
+      if (this.localeRoot) this.locale = getLocaleContext(this.localeRoot as string);
     }
     return this.locale as string;
   }
@@ -854,11 +951,9 @@ export abstract class NgxComponentDirective
       const engine = NgxRenderingEngine.get() as unknown as NgxRenderingEngine;
       const field = engine.getDecorators(this.model as Model, {});
       const { props, item, children } = field;
-      this.props = Object.assign(
-        props || {},
-        { children: children || [] },
-        this.props
-      );
+      this.props = Object.assign(props || {}, { children: children || [] }, this.props, {
+        handlers: props?.['handlers'] || {},
+      });
       if (item?.props?.['mapper']) this.mapper = item?.props!['mapper'] || {};
       this.item = {
         tag: item?.tag || '',
@@ -906,10 +1001,11 @@ export abstract class NgxComponentDirective
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   protected parseProps(instance: KeyValue, skip: string[] = []): void {
+    const props = this.props as KeyValue;
     Object.keys(instance).forEach((key) => {
       if (Object.keys(this.props).includes(key) && !skip.includes(key)) {
-        (this as KeyValue)[key] = this.props[key];
-        delete this.props[key];
+        (this as KeyValue)[key] = props[key];
+        delete props[key];
       }
     });
   }
@@ -927,10 +1023,7 @@ export abstract class NgxComponentDirective
    * @return {string | number} A unique identifier for the item
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected trackItemFn(
-    index: number,
-    item: KeyValue | string | number
-  ): string | number {
+  protected trackItemFn(index: number, item: KeyValue | string | number): string | number {
     return `${index}-${item}`;
   }
 
@@ -968,43 +1061,31 @@ export abstract class NgxComponentDirective
    *   end
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  async handleEvent(
-    event: IBaseCustomEvent | ICrudFormEvent | CustomEvent
-  ): Promise<void> {
+  async handleEvent(event: IBaseCustomEvent & ICrudFormEvent & CustomEvent): Promise<void> {
     let name = '';
-    const log = this.log.for(this.handleEvent);
     if (event instanceof CustomEvent) {
-      if (!event.detail) return log.debug(`No handler for event ${name}`);
+      if (!event.detail)
+        return this.log.for(this.handleEvent).debug(`No details for custom event ${name}`);
       name = event.detail?.name;
       event = event.detail;
     }
-
-    const handlers = (event as ICrudFormEvent)?.['handlers'] as
-      | Record<string, NgxEventHandler>
-      | undefined;
     name = name || (event as IBaseCustomEvent)?.['name'];
-    if (handlers && Object.keys(handlers || {})?.length) {
-      if (!handlers[name])
-        return log.debug(`No handler found for event ${name}`);
+    const handler = event?.handler || this.handlers[name];
+    if (handler) {
       try {
-        const clazz = new (handlers as KeyValue)[name]();
-        const handler = clazz.handle.bind(this);
-        //const clazz = new event();
-        // this.events[key] = clazz[key].bind(this);
-
-        const result = handler(event);
-        return result instanceof Promise ? await result : result;
+        const { data, role } = event as ICrudFormEvent;
+        return await handler.bind(this)(event, data || {}, role);
       } catch (e: unknown) {
-        log.error(`Failed to handle ${name} event`, e as Error);
+        this.log.for(this.handleEvent).error(`Failed to handle ${name} event`, e as Error);
       }
     }
     this.listenEvent.emit(event as IBaseCustomEvent | ICrudFormEvent);
   }
 
   // passed for ui decorators
-  // async submit(...args: unknown[]): Promise<any> {
-  //   this.log.for(this.submit).info(`submit for ${this.componentName} with ${JSON.stringify(args)}`);
-  // }
+  override async submit(...args: unknown[]): Promise<any> {
+    this.log.for(this.submit).info(`submit for ${this.componentName} with ${JSON.stringify(args)}`);
+  }
 
   /**
    * @description Determines if a specific operation is allowed in the current context.
@@ -1029,13 +1110,18 @@ export abstract class NgxComponentDirective
    *   end
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  isAllowed(operation: string): boolean {
-    if (!this.operations) return false;
-    return (
-      this.operations.includes(operation as CrudOperations) &&
-      this.operation !== OperationKeys.CREATE &&
-      ((this.operation || '').toLowerCase() !== operation || !this.operation)
-    );
+  isAllowed(operation: string, operations?: CrudOperations[]): boolean {
+    if (!operations) {
+      operations = this.operations;
+    }
+    if (operations) {
+      return (
+        this.operations.includes(operation as CrudOperations) &&
+        this.operation !== OperationKeys.CREATE &&
+        ((this.operation || '').toLowerCase() !== operation || !this.operation)
+      );
+    }
+    return false;
   }
 
   /**
@@ -1069,5 +1155,24 @@ export abstract class NgxComponentDirective
     if (!id) id = this.modelId as string;
     if (this.modelId) page = `${page}${this.modelId || id}`;
     return this.router.navigateByUrl(page);
+  }
+
+  async initProps<T extends NgxComponentDirective>(
+    props: T | KeyValue,
+    map: (keyof T)[] | KeyValue = [],
+    instance?: NgxComponentDirective & T,
+  ): Promise<void> {
+    this._props = signal<T>(props as T);
+    if (!instance) instance = this as KeyValue as T;
+    if (Array.isArray(map)) {
+      map.forEach((key: keyof T) => {
+        if (key in instance && instance[key]) (props as T)[key as keyof T] = instance[key];
+      });
+    }
+    Object.entries(props).filter(([key, value]) => {
+      if (key in instance || map.includes(key as keyof T)) instance[key as keyof T] = value;
+    });
+
+    await this.initialize();
   }
 }

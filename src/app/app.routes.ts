@@ -87,5 +87,13 @@ export const routes: Routes = [
   {
     path: 'leaflets/:operation/:modelId',
     loadComponent: () => import('./pages/leaflet/leaflet.page').then( m => m.LeafletPage)
-  }
+  },
+  {
+    path: 'audit',
+    loadComponent: () => import('./pages/audit/audit.page').then( m => m.AuditPage)
+  },
+  {
+    path: 'account',
+    loadComponent: () => import('./pages/account/account.page').then( m => m.AccountPage)
+  },
 ];

@@ -1,24 +1,29 @@
-import { Directive, Input } from '@angular/core';
+import { AfterViewInit, Directive, Input } from '@angular/core';
 import {
   CrudOperations,
   InternalError,
   IRepository,
   NotFoundError,
   OperationKeys,
+  PrimaryKeyType,
 } from '@decaf-ts/db-decorators';
-import { EventIds, Repository } from '@decaf-ts/core';
+import { Condition, EventIds, Repository } from '@decaf-ts/core';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { NgxPageDirective } from './NgxPageDirective';
-import { ComponentEventNames } from './constants';
-import { IBaseCustomEvent, ICrudFormEvent, IModelComponentSubmitEvent } from './interfaces';
+import { ComponentEventNames, TransactionHooks } from './constants';
+import {
+  IBaseCustomEvent,
+  ICrudFormEvent,
+  ILayoutModelContext,
+  IModelComponentSubmitEvent,
+  IRepositoryModelProps,
+} from './interfaces';
 import { DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
-import { getModelAndRepository } from '../for-angular-common.module';
-
-type LayoutModelContext = Record<string, {model: Model | Model[], repository: IRepository<Model>, pk: string}>;
+import { getModelAndRepository } from './helpers';
 
 @Directive()
-export abstract class NgxModelPageDirective extends NgxPageDirective {
+export abstract class NgxModelPageDirective extends NgxPageDirective implements AfterViewInit {
   /**
    * @description Primary key value of the current model instance.
    * @summary Specifies the primary key value for the current model record being displayed or
@@ -50,31 +55,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     | OperationKeys.DELETE = OperationKeys.READ;
 
   /**
-   * @description The name of the model class to operate on.
-   * @summary Identifies which registered model class this component should work with.
-   * This name is used to resolve the model constructor from the global model registry
-   * and instantiate the appropriate repository for data operations. The model must
-   * be properly registered using the @Model decorator for resolution to work.
-   *
-   * @type {string}
-   *  @memberOf ModelPage
-   */
-  @Input()
-  modelName!: string;
-
-  /**
-   * @description Current model data loaded from the repository.
-   * @summary Stores the raw data object representing the current model instance retrieved
-   * from the repository. This property holds the actual data values for the model being
-   * displayed or edited, and is set to undefined when no data is available or when an
-   * error occurs during data loading.
-   * @type {KeyValue | undefined}
-   * @default undefined
-   * @memberOf NgxModelPageDirective
-   */
-  modelData: KeyValue | undefined = undefined;
-
-  /**
    * @description Error message from failed operations.
    * @summary Stores error messages that occur during repository operations such as
    * data loading, creation, update, or deletion. When set, this indicates an error
@@ -84,8 +64,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @memberOf NgxModelPageDirective
    */
   errorMessage: string | undefined = undefined;
-
-
 
   // constructor(@Inject(CPTKN) hm: boolean = true, @Inject(CPTKN) protected toastController?: ToastController) {
   //   super("NgxModelPageDirective");
@@ -102,22 +80,20 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    *
    * @throws {InternalError} When the model is not found in the registry
    */
-  override get repository(): DecafRepository<Model> | undefined {
+  override get repository(): DecafRepository<Model> {
     const modelName = this.modelName || this.model?.constructor?.name;
     try {
       if (!this._repository && modelName) {
         const constructor = Model.get(modelName);
         if (!constructor)
-          throw new InternalError(
-            'Cannot find model. was it registered with @model?'
-          );
+          throw new InternalError('Cannot find model. was it registered with @model?');
         this._repository = Repository.forModel(constructor);
         if (!this.pk) this.pk = Model.pk(constructor) as string;
         this.model = new constructor() as Model;
       }
     } catch (error: unknown) {
       this.log.warn(
-        `Error getting repository for model: ${modelName}. ${(error as Error).message}`
+        `Error getting repository for model: ${modelName}. ${(error as Error).message}`,
       );
       this._repository = undefined;
       // throw new InternalError((error as Error)?.message || (error as string));
@@ -125,23 +101,25 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     return this._repository as DecafRepository<Model>;
   }
 
-  /**
-   * @description Angular lifecycle hook for component initialization.
-   * @summary Initializes the component by setting up the logger instance using the getLogger
-   * utility. This ensures that logging is available throughout the component's lifecycle
-   * for error tracking and debugging purposes.
-   */
-  async ionViewWillEnter(): Promise<void> {
-    // await super.ionViewWillEnter();
-    if (this.modelId)
-      this.operations = this.operations.concat([
-        OperationKeys.UPDATE,
-        OperationKeys.DELETE,
-      ]);
-    this.getLocale(this.modelName as string);
+  override async initialize(): Promise<void> {
+    await super.initialize();
     await this.refresh(this.modelId);
-    this.initialized = true;
+    if (!this.modelId && this.operations?.length)
+      this.operations = this.operations.filter((o) =>
+        [OperationKeys.UPDATE, OperationKeys.DELETE].includes(o),
+      );
+    this.getLocale(this.modelName as string);
   }
+
+  // /**
+  //  * @description Angular lifecycle hook for component initialization.
+  //  * @summary Initializes the component by setting up the logger instance using the getLogger
+  //  * utility. This ensures that logging is available throughout the component's lifecycle
+  //  * for error tracking and debugging purposes.
+  //  */
+  // async ionViewWillEnter(): Promise<void> {
+  //   // await super.ionViewWillEnter();
+  // }
 
   /**
    * @description Refreshes the component data by loading the specified model instance.
@@ -153,15 +131,17 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @param {string} [uid] - The unique identifier of the model to load; defaults to modelId
    */
   override async refresh(uid?: EventIds): Promise<void> {
-    if (!uid)
-      uid = this.modelId;
+    if (!uid) uid = this.modelId;
     try {
       this._repository = this.repository;
       switch (this.operation) {
         case OperationKeys.READ:
         case OperationKeys.UPDATE:
         case OperationKeys.DELETE:
-          this.model = (await this.handleRead(uid || this.modelId)) as Model;
+          {
+            this.model = await this.handleRead(uid);
+            this.changeDetectorRef.detectChanges();
+          }
           break;
       }
     } catch (error: unknown) {
@@ -172,6 +152,53 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
     }
   }
 
+  /**
+   * @description Enables CRUD operations except those specified.
+   * @summary Sets the allowed CRUD operations for the component, excluding any operations provided in the 'except' array.
+   *
+   * @param {OperationKeys[]} except - Array of operations to exclude from the allowed operations.
+   */
+  protected enableCrudOperations(except: OperationKeys[] = []): CrudOperations[] {
+    const operations = [
+      OperationKeys.CREATE,
+      OperationKeys.READ,
+      OperationKeys.UPDATE,
+      OperationKeys.DELETE,
+    ] as CrudOperations[];
+    if (!except?.length) {
+      this.operations = [...operations];
+    } else {
+      this.operations = operations.filter((op) => !except.includes(op));
+    }
+    return this.operations;
+  }
+
+  /**
+   * @description Generic event handler for component events.
+   * @summary Processes incoming events from child components and routes them to appropriate
+   * handlers based on the event name. Currently handles SUBMIT events by delegating to
+   * the submit method. This centralized event handling approach allows for easy
+   * extension and consistent event processing.
+   *
+   * @param {IBaseCustomEvent} event - The event object containing event data and metadata
+   */
+  override async handleEvent(
+    event: IBaseCustomEvent & ICrudFormEvent & CustomEvent,
+    repository?: DecafRepository<Model>,
+  ): Promise<void> {
+    const { name, role, handler, data, handlers } = event;
+    if (handler && role) {
+      this.handlers = handlers || {};
+      return await handler.bind(this)(event, data || {}, role);
+    }
+    switch (name) {
+      case ComponentEventNames.Submit:
+        await this.submit(event, true, repository);
+        break;
+      default:
+        this.listenEvent.emit(event as IBaseCustomEvent | ICrudFormEvent);
+    }
+  }
 
   /**
    * @description Parses and transforms form data for repository operations.
@@ -184,166 +211,88 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
    * @return {Model | string | number} Processed data ready for repository operations
    * @private
    */
-  private parseData(
-    data: KeyValue | KeyValue[],
-    operation: OperationKeys,
-    repository: DecafRepository<Model>
-  ): Partial<Model | Model[]> | EventIds {
+  // private buildModel<M extends Model>(
+  //   data: KeyValue | KeyValue[],
+  //   repository: DecafRepository<M>,
+  //   operation?: OperationKeys,
+  // ): M | M[] | EventIds {
+  //   if (!operation) operation = this.operation;
+  //   operation = (
+  //     [OperationKeys.READ, OperationKeys.DELETE].includes(operation)
+  //       ? OperationKeys.DELETE
+  //       : operation.toLowerCase()
+  //   ) as OperationKeys;
 
-    operation = (operation === OperationKeys.READ ? OperationKeys.DELETE : operation.toLowerCase()) as OperationKeys;
+  //   if (Array.isArray(data))
+  //     return data.map((item) => this.buildModel(item, repository, operation)) as M[];
 
-    if (Array.isArray(data))
-      return data.map((item) => this.parseData(item, operation, repository as DecafRepository<Model>));
+  //   const pk = Model.pk(repository.class as Constructor<M>);
+  //   const pkType = Metadata.type(repository.class as Constructor<M>, pk as string).name;
+  //   const modelId = (this.modelId || data[pk as string]) as Primitives;
+  //   if (!this.modelId) this.modelId = modelId;
+  //   const uid = this.parsePkValue(
+  //     operation === OperationKeys.DELETE ? data[pk as string] : modelId,
+  //     pkType,
+  //   );
+  //   if (operation !== OperationKeys.DELETE) {
+  //     const properties = Metadata.properties(repository.class as Constructor<M>) as string[];
+  //     const relation =
+  //       pk === this.pk
+  //         ? {}
+  //         : properties.includes(this.pk as string) && !data[this.pk as string]
+  //           ? { [this.pk as string]: modelId }
+  //           : {};
+  //     return Model.build(
+  //       Object.assign(
+  //         data || {},
+  //         relation,
+  //         modelId && !data[this.pk] ? { [this.pk]: modelId } : {},
+  //       ),
+  //       repository.class.name,
+  //     ) as M;
+  //   }
+  //   return uid as EventIds;
+  // }
 
-    const pk = Model.pk(repository.class as Constructor<Model>);
-    const pkType = Metadata.type(repository.class as Constructor<Model>, pk).name;
-    const modelId = this.modelId as Primitives;
-    const uid = this.parsePkValue(modelId, pkType);
-    if (operation !== OperationKeys.DELETE) {
-      const properties = Metadata.properties(repository.class as Constructor<Model>) as string[];
-      const relation = pk === this.pk ?
-        {} : (properties.includes(this.pk as string) && !data[this.pk as string]) ?
-        {[this.pk as string]: modelId } : {};
-      return Model.build(Object.assign(
-          data || {},
-          relation,
-          (
-            modelId && !data[this.pk] ?
-              {[this.pk]: modelId} : {}
-          )
-      ), repository.class.name);
+  async getTransactionRepository<M extends Model>(
+    event: ICrudFormEvent,
+    repo: DecafRepository<M>,
+  ): Promise<DecafRepository<M>> {
+    if (!repo) {
+      repo = this._repository as DecafRepository<M>;
     }
-    return uid as EventIds;
-  }
 
-  private parsePkValue(uid: Primitives, type: string): string | number {
-    return [Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase() as Primitives) ? Number(uid): uid;
-  }
-
-  private getModelConstrutor(model: string | Model): Constructor<Model> | undefined {
-    return Model.get(typeof model === Primitives.STRING ? String(model) : model?.constructor.name);
-  }
-
-  private getModelProperties(constructor: Constructor<Model>): (keyof Model)[] {
-    return Metadata.properties(constructor) as  (keyof Model)[];
-  }
-
-  private getModelPropertyType(constructor: Constructor<Model>, prop: keyof Model): string {
-    return Metadata.type(constructor as Constructor<Model>, prop).name;
-  }
-
-  private getModelPkType(constructor: Constructor<Model>): string {
-    return this.getModelPropertyType(constructor, Model.pk(constructor) as keyof Model);
-  }
-
-  /**
-   * @description Enables CRUD operations except those specified.
-   * @summary Sets the allowed CRUD operations for the component, excluding any operations provided in the 'except' array.
-   *
-   * @param {OperationKeys[]} except - Array of operations to exclude from the allowed operations.
-   */
-  protected enableCrudOperations(except: OperationKeys[] = []): void {
-    const operations = [OperationKeys.CREATE, OperationKeys.READ, OperationKeys.UPDATE, OperationKeys.DELETE] as CrudOperations[];
-    if(!except?.length) {
-      this.operations = operations;
-    } else {
-      this.operations = operations.filter(op => !except.includes(op));
-    }
-  }
-
-  /**
-   * @description Generic event handler for component events.
-   * @summary Processes incoming events from child components and routes them to appropriate
-   * handlers based on the event name. Currently handles SUBMIT events by delegating to
-   * the submit method. This centralized event handling approach allows for easy
-   * extension and consistent event processing.
-   *
-   * @param {IBaseCustomEvent} event - The event object containing event data and metadata
-   */
-  override async handleEvent(event: IBaseCustomEvent, repository?: DecafRepository<Model>): Promise<void> {
-    const { name } = event;
-    switch (name) {
-      case ComponentEventNames.SUBMIT:
-        await this.submit(event, false, repository);
-      break;
-    }
-  }
-
-  /**
-   * @description Handles form submission events for CRUD operations.
-   * @summary Processes form submission by executing the appropriate repository operation
-   * based on the current operation type. Handles CREATE, UPDATE, and DELETE operations,
-   * processes the form data, refreshes the repository cache, navigates back to the previous
-   * page, and displays success notifications. Comprehensive error handling ensures robust
-   * operation with detailed logging.
-   *
-   * @param {IBaseCustomEvent} event - The submit event containing form data
-   * @return {Promise<IModelComponentSubmitEvent|void>} Promise that resolves on success or throws on error
-   */
-  override async submit(
-    event: Partial<IBaseCustomEvent>,
-    redirect: boolean = false,
-    repo?: IRepository<Model>
-  ): Promise<IModelComponentSubmitEvent> {
-
-    let success = false;
-    let message = '';
-
-    try {
-      if (!repo)
-        repo = this._repository as DecafRepository<Model>;
-
-      const operation = this.operation;
-      const { data } = event;
-      if (data) {
-        const repository = repo as DecafRepository<Model>;
-        const model = this.parseData(data || {}, operation, repository);
-        if(!this.modelId && (model as KeyValue)?.[this.pk])
-          this.modelId = (model as KeyValue)[this.pk] as EventIds;
-        let result;
-        const pk = Model.pk(repository.class as Constructor<Model>) as string;
-        switch (operation) {
-          case OperationKeys.CREATE:
-            result = await (!Array.isArray(model)
-              ? repository.create(model as Model)
-              : repository.createAll(model as Model[]));
-            break;
-          case OperationKeys.UPDATE: {
-            const models = (!Array.isArray(model) ? [model] : model) as (Model & KeyValue)[];
-            for(const m of models) {
-              const check = m[pk] ? await repository.read((m)[pk]) : false;
-              result = await (!check ?repository.create(m) : repository.update(m));
-            }
-            break;
-          }
-          case OperationKeys.DELETE:
-            result = await (!Array.isArray(model)
-              ? repository.delete(model as string | number)
-              : repository.deleteAll(model as string[] | number[]));
-            break;
-        }
-
-        const pkValue = (model as KeyValue)[pk] || (model as KeyValue)[this.pk] || model || "";
-        message = await this.translate(`operations.${operation}.${result ? 'success' : 'error'}`, {"0": repository.class.name || pk, "1": pkValue});
-        success = result ? true : false;
-        if (success) {
-          if((result as KeyValue)?.[this.pk])
-            this.modelId = (result as KeyValue)[this.pk] as EventIds;
-          if(redirect)
-            this.location.back();
-        }
+    if (!repo || repo.class.name !== this.model?.constructor.name) {
+      const { context } = (await this.process(
+        event,
+        this.model as Model,
+        false,
+      )) as ILayoutModelContext;
+      if (context) {
+        // parse data from main model to event
+        event.data = context.data;
+        return context.repository as DecafRepository<M>;
       }
-    } catch (error: unknown) {
-      this.log.for(this.submit).error(
-        `Error during ${this.operation} operation: ${
-          error instanceof Error ? error.message : (error as string)
-        }`
-      );
-      message = error instanceof Error ? error.message : (error as string);
     }
-    return {...event, success, message};
+    if (!repo) {
+      repo = this.repository as DecafRepository<M>;
+    }
+    return repo;
   }
 
+  // async beginTransaction<M extends Model>(
+  //   data: M,
+  //   repository: DecafRepository<M>,
+  //   operation: CrudOperations,
+  // ): Promise<M | M[] | EventIds> {
+  //   const hook = `before${operation.charAt(0).toUpperCase() + operation.slice(1)}`;
+  //   const handler = this.handlers?.[hook] || undefined;
+  //   const model = this.buildModel(data || {}, repository, operation);
+  //   if (handler && typeof handler === 'function') {
+  //     (await handler.bind(this)(model, repository, this.modelId)) as M;
+  //   }
+  //   return model as M;
+  // }
 
   /**
    * @description Retrieves a model instance from the repository by unique identifier.
@@ -358,116 +307,264 @@ export abstract class NgxModelPageDirective extends NgxPageDirective {
   async handleRead(
     uid?: EventIds,
     repository?: IRepository<Model>,
-    modelName?: string
+    modelName?: string,
+    pk?: string,
   ): Promise<Model | undefined> {
-
     if (!uid) {
       this.log.info('No key passed to model page read operation, backing to last page');
-      this.location.back();
       return undefined;
     }
 
-    if(!modelName) {
+    if (!modelName) {
       modelName = this.modelName;
-      if(!modelName && this.model?.constructor)
+      if (!modelName && this.model?.constructor)
         this.modelName = modelName = this.model.constructor.name;
     }
-
-    const getRepository = async (modelName: string, parent?: string, model?: KeyValue): Promise<DecafRepository<Model> | undefined> => {
-      if (this._repository)
-        return this._repository as DecafRepository<Model>;
+    const getRepository = async (
+      modelName: string,
+      model: KeyValue = {},
+      parent: string = '',
+    ): Promise<DecafRepository<Model> | void> => {
+      if (this._repository) return this._repository as DecafRepository<Model>;
       const constructor = Model.get(modelName);
       if (constructor) {
         const properties = this.getModelProperties(constructor);
         for (const prop of properties) {
           const type = this.getModelPropertyType(constructor as Constructor<Model>, prop);
           const context = getModelAndRepository(type as string);
-          if (!context)
-            return getRepository(type, prop, model);
-          const { repository } = context;
-          if (modelName === this.modelName) {
-            const data = await this.handleRead(uid, repository, modelName);
-            if(data)
-              this.model = Model.build({ [prop]: data }, modelName);
+          if (!context) {
+            model[prop] = {};
+            return getRepository(type, model, prop);
           }
+          const { repository, pk, pkType } = context;
+          if (!this.pk) {
+            this.pk = pk;
+            this.pkType = pkType;
+          }
+          uid = this.parsePkValue(uid as PrimaryKeyType, this.pkType);
+          if (!this.modelId) this.modelId = uid as PrimaryKeyType;
+          const query = await repository
+            .select()
+            .where(Condition.attribute<Model>(this.pk as keyof Model).eq(uid))
+            .execute();
+
+          const data = query?.length ? (query?.length === 1 ? query[0] : query) : undefined;
+
+          if (modelName === this.modelName) {
+            const data = query?.length ? (query?.length === 1 ? query[0] : query) : undefined;
+            model[prop] = data;
+            this.model = Model.build({ [prop]: data }, modelName);
+          } else {
+            model[parent] = {
+              ...model[parent],
+              [prop]: data,
+            };
+          }
+          // if (data) {
+          //   if (modelName === this.modelName) {
+          //     model[prop] = data;
+          //     this.model = Model.build({ [prop]: data }, modelName);
+          //   } else {
+          //     model[parent] = {
+          //       ...model[parent],
+          //       [prop]: data,
+          //     };
+          //   }
+          // }
+          // const data = query?.length ? (query?.length === 1 ? query[0] : query) : undefined;
+
+          // if (data) {
+          //   if (modelName === this.modelName) {
+          //     model[prop] = data;
+          //     this.model = Model.build({ [prop]: data }, modelName);
+          //   } else {
+          //     model[parent] = {
+          //       ...model[parent],
+          //       [prop]: data,
+          //     };
+          //   }
+          // }
         }
+        this._data = model;
+        // this.changeDetectorRef.detectChanges();
+        // this.model = Model.build(model, this.modelName as string);
+        // this.changeDetectorRef.detectChanges();
       }
     };
     repository = (repository || (await getRepository(modelName as string))) as IRepository<Model>;
-    if (!repository)
-      return this.model as Model;
+    if (!repository) return this.model as Model;
     try {
+      if (!this.pk) this.pk = Model.pk(repository.class) as string;
       return await repository.read(
-        this.parsePkValue(uid as Primitives,
-        this.getModelPkType(repository.class))
+        this.parsePkValue(uid as Primitives, this.getModelPkType(repository.class)),
       );
     } catch (error: unknown) {
-      this.log.for(this.handleRead).info(`Error getting model instance with id ${uid}: ${(error as Error).message}`);
+      this.log
+        .for(this.handleRead)
+        .info(`Error getting model instance with id ${uid}: ${(error as Error).message}`);
       return undefined;
     }
   }
 
-  protected async process(event: ICrudFormEvent, model?: Model, submit: boolean = false): Promise<LayoutModelContext | IModelComponentSubmitEvent> {
-    const models = {} as LayoutModelContext;
-    const iterate = async (evt: ICrudFormEvent, model: string | Model, parent?: string) => {
+  async process<M extends Model>(
+    event: ICrudFormEvent,
+    model?: M,
+    submit: boolean = false,
+  ): Promise<ILayoutModelContext | IModelComponentSubmitEvent<M>> {
+    const result = { models: {} } as ILayoutModelContext;
+    const iterate = async (evt: ICrudFormEvent, model: string | M, parent?: string) => {
       const constructor = this.getModelConstrutor(model);
       if (constructor) {
-        const properties = Metadata.properties(constructor as Constructor<Model>) as string[];
+        const properties = Metadata.properties(constructor) as string[];
         const promises = properties.map(async (prop) => {
           const type = Metadata.type(constructor as Constructor<Model>, prop).name;
-          let data = (evt.data as KeyValue)[prop] || (parent ?
-            (event.data as KeyValue)[parent as string][prop] : (event.data as KeyValue)[prop])
+          let data =
+            (evt.data as KeyValue)[prop] ||
+            (parent
+              ? (event.data as KeyValue)[parent as string][prop]
+              : (event.data as KeyValue)[prop]);
           if (data) {
-            if (parent || Array.isArray(data))
-              data = [...Object.values(data)];
+            if (parent || Array.isArray(data)) data = [...Object.values(data)];
             const context = getModelAndRepository(type);
-            evt = { ...evt,  data };
+            evt = { ...evt, data };
             if (!context) {
               await iterate(evt, type, prop);
             } else {
-              const { repository, model, pk } = context;
-              if(!this.pk)
-                this.pk = pk;
-              const modelName = model?.constructor.name;
-              Object.assign(models,  {
+              const { repository, model, pk, pkType } = context;
+              if (!this.pk) this.pk = pk;
+              if (!result.context) {
+                result.context = {
+                  repository,
+                  model,
+                  pk: pk,
+                  pkType: pkType,
+                  data,
+                };
+                if (!this.modelId) this.modelId = (data as KeyValue)[pk] as EventIds;
+              } else {
+                Object.assign(result.context.data, {
+                  [prop]: Array.isArray(data) ? this.buildTransactionModel(data, repository) : data,
+                });
+              }
+              Object.assign(result.models, {
                 [prop]: {
-                  model: Array.isArray(data) ? data.map((item: Partial<Model>) => Model.build(item, modelName)) : Model.build(data, modelName),
+                  model,
+                  data,
                   repository: repository as IRepository<Model>,
-                  pk
-                }
+                  pk,
+                },
               });
               delete (evt.data as KeyValue)?.[prop];
-              evt = { ...evt,  data: evt.data };
+              evt = { ...evt, data: evt.data };
             }
           }
         });
         await Promise.all(promises);
       }
     };
-    if(!model)
-      model = this.model as Model;
-    await iterate(event, model as Model);
-    if (!submit)
-      return models;
-    return await this.batchOperation(models) as IModelComponentSubmitEvent;
+    if (!model) {
+      model = this.model as M;
+    }
+    await iterate(event, model);
+    if (!submit) {
+      return result;
+    }
+    return (await this.batchOperation(result)) as IModelComponentSubmitEvent<M>;
   }
 
-  protected async batchOperation(models: LayoutModelContext = {}, redirect: boolean = false): Promise<IModelComponentSubmitEvent|void> {
-    const result: boolean[] = [];
-    let resultMessage = '';
-    const promises = Object.keys(models).map(async(m) => {
-      const {model, repository} = models[m];
-      const {success} = await this.submit({data: model}, false, repository as IRepository<Model>);
-      if(success)
-        resultMessage = await this.translate('operations.multiple.success');
-      result.push(success);
-    })
-    await Promise.all(promises);
-    const success = result.every((r: boolean) => r);
-    if (success && redirect)
-      this.location.back();
-    return {...{data: models}, success, message: resultMessage};
+  /**
+   * @description Handles form submission events for CRUD operations.
+   * @summary Processes form submission by executing the appropriate repository operation
+   * based on the current operation type. Handles CREATE, UPDATE, and DELETE operations,
+   * processes the form data, refreshes the repository cache, navigates back to the previous
+   * page, and displays success notifications. Comprehensive error handling ensures robust
+   * operation with detailed logging.
+   *
+   * @param {IBaseCustomEvent} event - The submit event containing form data
+   * @return {Promise<IModelComponentSubmitEvent|void>} Promise that resolves on success or throws on error
+   */
+  override async submit<M extends Model>(
+    event: ICrudFormEvent,
+    redirect: boolean = false,
+    repo?: DecafRepository<M>,
+    pk?: string,
+  ): Promise<IModelComponentSubmitEvent<M>> {
+    let success = false;
+    let message = '';
+    let result = null;
+    try {
+      const repository = await this.getTransactionRepository(event, repo as DecafRepository<M>);
+      const { data, role } = event;
+      const operation = (role || this.operation) as CrudOperations;
+      if (data) {
+        if (!pk) pk = Model.pk(repository.class) as string;
+        if (!this.modelId) this.modelId = (data as M)[pk as keyof M] as PrimaryKeyType;
+        const model = await this.transactionBegin(data as M, repository, operation);
+
+        switch (operation) {
+          case OperationKeys.CREATE:
+            result = await (!Array.isArray(model)
+              ? repository.create(model as M)
+              : repository.createAll(model as M[]));
+            break;
+          case OperationKeys.UPDATE: {
+            const models = (!Array.isArray(model) ? [model] : model) as M[];
+            for (const m of models) {
+              const uid = m[pk as keyof M] as PrimaryKeyType;
+              const check = uid ? await repository.read(uid) : false;
+              result = await (!check ? repository.create(m as M) : repository.update(m as M));
+            }
+            break;
+          }
+          case OperationKeys.DELETE:
+            result = await (!Array.isArray(model)
+              ? repository.delete(model as PrimaryKeyType)
+              : repository.deleteAll(model as PrimaryKeyType[]));
+            break;
+        }
+
+        const pkValue = (model as KeyValue)[pk] || (model as KeyValue)[this.pk] || model || '';
+        message = await this.translate(`operations.${operation}.${result ? 'success' : 'error'}`, {
+          '0': repository.class.name || pk,
+          '1': pkValue,
+        });
+        success = result ? true : false;
+        if (success) {
+          if ((result as KeyValue)?.[this.pk])
+            this.modelId = (result as KeyValue)[this.pk] as EventIds;
+          if (redirect) this.location.back();
+        }
+      }
+    } catch (error: unknown) {
+      this.log
+        .for(this.submit)
+        .error(
+          `Error during ${this.operation} operation: ${
+            error instanceof Error ? error.message : (error as string)
+          }`,
+        );
+      message = error instanceof Error ? error.message : (error as string);
+    }
+    return { ...event, success, message, model: result };
   }
 
-
+  async batchOperation(context: ILayoutModelContext, redirect: boolean = false): Promise<any> {
+    const { data, repository, pk } = context.context;
+    return data;
+    // return await this.submit({data}, false, repository, pk);
+    // const result: boolean[] = [];
+    // let resultMessage = '';
+    // const promises = Object.keys(models).map(async(m) => {
+    //   const {model, repository} = models[m];
+    //   const {success} = await this.submit({data: model}, false, repository as IRepository<Model>);
+    //   if(success)
+    //     resultMessage = await this.translate('operations.multiple.success');
+    //   result.push(success);
+    // })
+    // await Promise.all(promises);
+    // const success = result.every((r: boolean) => r);
+    // if (success && redirect)
+    //   this.location.back();
+    // return {...{data: models}, success, message: resultMessage};
+  }
 }

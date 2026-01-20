@@ -1,0 +1,29 @@
+<app-header [title]="locale+'.title'" />
+
+<ion-content fullscreen="true">
+   <main>
+    <app-container>
+      <app-card-title
+        [locale]="locale"
+        [route]="route"
+        [operations]="operation"
+        [operations]="operations"
+        [title]="locale +'.title' | translate"
+        [allowCreate]="false"
+        [subtitle]="locale +'.description' | translate"
+      />
+      <!-- <ngx-decaf-card type="clear" [borders]="false" [body]="'blank'" [title]="title" [subtitle]="subtitle" />
+      <app-switcher className="dcf-padding-small" [mode]="'button'" [type]="'tabs'" [items]="tabs" (listenEvent)="handleTabChangeEvent($event)" /> -->
+     <div class="dcf-list-container">
+        <ngx-decaf-table
+          [model]="model"
+          [route]="route"
+          [operations]="operations"
+          [locale]="locale"
+          (listEvent)="handleEvent($event)"
+          (listenEvent)="handleEvent($event)"
+        />
+      </div>
+    </app-container>
+  </main>
+</ion-content>

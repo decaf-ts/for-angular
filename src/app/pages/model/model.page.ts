@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
@@ -8,8 +8,13 @@ import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
 import { CardComponent, EmptyStateComponent } from 'src/lib/components';
 import { TranslatePipe } from '@ngx-translate/core';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
-import { IBaseCustomEvent, IModelComponentSubmitEvent } from 'src/lib/engine/interfaces';
+import {
+  IBaseCustomEvent,
+  ICrudFormEvent,
+  IModelComponentSubmitEvent,
+} from 'src/lib/engine/interfaces';
 import { ComponentEventNames } from 'src/lib/engine/constants';
+import { Model } from '@decaf-ts/decorator-validation';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -105,7 +110,16 @@ import { ComponentEventNames } from 'src/lib/engine/constants';
   standalone: true,
   selector: 'app-model',
   templateUrl: './model.page.html',
-  imports: [IonContent, ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent, CardComponent],
+  imports: [
+    IonContent,
+    ModelRendererComponent,
+    TranslatePipe,
+    ListComponent,
+    HeaderComponent,
+    ContainerComponent,
+    EmptyStateComponent,
+    CardComponent,
+  ],
   styleUrls: ['./model.page.scss'],
 })
 export class ModelPage extends NgxModelPageDirective implements OnInit {
@@ -113,20 +127,24 @@ export class ModelPage extends NgxModelPageDirective implements OnInit {
   //   super(true, getNgxToastComponent() as unknown as ToastController);
   // }
 
-  override async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     this.enableCrudOperations();
-    await super.ngOnInit();
+    await super.initialize();
+    console.log(this.modelId);
   }
 
-  override async ionViewWillEnter(): Promise<void> {
-    console.warn(`current operation ${this.operation}`);
-    await super.ionViewWillEnter();
-  }
+  // override async ionViewWillEnter(): Promise<void> {
+  //   console.warn(`current operation ${this.operation}`);
+  //   await super.ionViewWillEnter();
+  // }
 
-  override async handleEvent(event: IBaseCustomEvent): Promise<void> {
-    const {name} = event;
-    if(name === ComponentEventNames.SUBMIT) {
-      const {success, message} = await super.submit(event, true) as IModelComponentSubmitEvent;
+  override async handleEvent(event: ICrudFormEvent): Promise<void> {
+    const { name } = event;
+    if (name === ComponentEventNames.Submit) {
+      const { success, message } = (await super.submit(
+        event,
+        true,
+      )) as IModelComponentSubmitEvent<Model>;
       const toast = getNgxToastComponent();
       await toast.show({
         color: success ? 'dark' : 'danger',

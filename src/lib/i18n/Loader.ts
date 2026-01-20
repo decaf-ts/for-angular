@@ -17,7 +17,7 @@ import {I18nResourceConfig} from '../engine/interfaces';
 import { FunctionLike, I18nResourceConfigType, KeyValue, AngularProvider } from '../engine/types';
 import { cleanSpaces, getLocaleFromClassName } from '../utils';
 import en from './data/en.json';
-import { I18N_CONFIG_TOKEN } from '../for-angular-common.module';
+import { I18N_CONFIG_TOKEN } from '../engine/constants';
 
 const libLanguage: Record<string, TranslationObject> = {en};
 

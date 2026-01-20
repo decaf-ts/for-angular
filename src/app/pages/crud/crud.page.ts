@@ -1,35 +1,39 @@
-import { Component, OnInit } from '@angular/core';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { NgxPageDirective } from 'src/lib/engine/NgxPageDirective';
-import { ForAngularModel } from 'src/app/models/DemoModel';
-import { ComponentEventNames, IBaseCustomEvent } from 'src/lib/engine';
-import { getLogger } from 'src/lib/for-angular-common.module';
-import { IonContent } from '@ionic/angular/standalone';
-import { ContainerComponent } from 'src/app/components/container/container.component';
-import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
-import { HeaderComponent } from 'src/app/components/header/header.component';
-import { CardComponent } from 'src/lib/components';
+import { Component, OnInit } from "@angular/core";
+import { OperationKeys } from "@decaf-ts/db-decorators";
+import { NgxPageDirective } from "src/lib/engine/NgxPageDirective";
+import { ForAngularModel } from "src/app/models/DemoModel";
+import { ComponentEventNames, IBaseCustomEvent } from "src/lib/engine";
+import { IonContent } from "@ionic/angular/standalone";
+import { ContainerComponent } from "src/app/components/container/container.component";
+import { ModelRendererComponent } from "src/lib/components/model-renderer/model-renderer.component";
+import { HeaderComponent } from "src/app/components/header/header.component";
+import { CardComponent } from "src/lib/components";
 
 @Component({
-  selector: 'app-crud',
-  templateUrl: './crud.page.html',
-  styleUrls: ['./crud.page.css'],
+  selector: "app-crud",
+  templateUrl: "./crud.page.html",
+  styleUrls: ["./crud.page.css"],
   standalone: true,
-  imports: [HeaderComponent, IonContent, ContainerComponent, CardComponent, ModelRendererComponent]
+  imports: [
+    HeaderComponent,
+    IonContent,
+    ContainerComponent,
+    CardComponent,
+    ModelRendererComponent,
+  ],
 })
 export class CrudPage extends NgxPageDirective implements OnInit {
-
   constructor() {
-    super('Demo');
+    super("Demo");
   }
 
-  override async ngOnInit(): Promise<void> {
-    if (!this.operation)
-      this.operation = OperationKeys.CREATE;
+  async ngOnInit(): Promise<void> {
+    await super.initialize();
+    if (!this.operation) this.operation = OperationKeys.CREATE;
 
     this.model = new ForAngularModel({
       id: 1,
-      name: 'John Doe',
+      name: "John Doe",
       gender: "male",
       // // birthdate: '1989-12-12',
       // email: 'john.doe@example.com',
@@ -48,15 +52,19 @@ export class CrudPage extends NgxPageDirective implements OnInit {
 
     this.globals = {
       operation: this.operation,
-      uid: (this.operation === OperationKeys.DELETE ? (this.model as ForAngularModel).id : undefined),
+      uid:
+        this.operation === OperationKeys.DELETE
+          ? (this.model as ForAngularModel).id
+          : undefined,
     };
   }
 
   async handleSubmit(event: IBaseCustomEvent): Promise<void> {
-    const {name} = event;
-    if (name === ComponentEventNames.SUBMIT) {
-      getLogger(this).info(`Submit event: ${JSON.stringify(event)}`);
+    const { name } = event;
+    if (name === ComponentEventNames.Submit) {
+      this.log
+        .for(this.handleSubmit)
+        .info(`Submit event: ${JSON.stringify(event)}`);
     }
   }
-
 }

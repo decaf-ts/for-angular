@@ -22,14 +22,25 @@
           <ion-title>{{ title | translate }}</ion-title>
         }
         <ion-buttons slot="end">
-          @if(expandable && !fullscreen) {
-            <ion-button fill="clear" size="small" type="button" class="dcf-button-expand" (click)="handleExpandToggle()">
-              <ngx-decaf-icon [color]="iconColor" [name]="expanded ? 'ti-maximize-off' : 'ti-maximize'" />
+          @if (expandable && !fullscreen) {
+            <ion-button
+              fill="clear"
+              size="small"
+              type="button"
+              class="dcf-button-expand"
+              (click)="handleExpandToggle()"
+            >
+              <ngx-decaf-icon
+                [color]="iconColor"
+                [name]="expanded ? 'ti-maximize-off' : 'ti-maximize'"
+              />
             </ion-button>
           }
-          <ion-button size="small" type="button" class="dcf-button-close" (click)="cancel()">
-            <ngx-decaf-icon [color]="iconColor" name="ti-x" />
-          </ion-button>
+          @if (showCloseButton) {
+            <ion-button size="small" type="button" class="dcf-button-close" (click)="cancel()">
+              <ngx-decaf-icon [color]="iconColor" name="ti-x" />
+            </ion-button>
+          }
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -41,7 +52,7 @@
             <ion-spinner name="crescent" color="primary"></ion-spinner>
           </div>
         } @else {
-          @if (inlineContent && inlineContentPosition === "top") {
+          @if (inlineContent && inlineContentPosition === 'top') {
             <div class="dcf-modal-content" id="dcf-modal-content" [innerHTML]="inlineContent"></div>
           }
           @if (!tag && model) {
@@ -51,17 +62,16 @@
               [model]="model"
               [globals]="globals"
             />
-          }
-          @else if(tag && globals) {
+          } @else if (tag && globals) {
             <ngx-decaf-component-renderer
               [tag]="tag"
               (onIonChange)="handleEvent($event)"
               (listenEvent)="handleEvent($event)"
               [model]="model"
-              [globals]="{props: globals}"
+              [globals]="{ props: globals }"
             />
           }
-          @if (inlineContent && inlineContentPosition === "bottom") {
+          @if (inlineContent && inlineContentPosition === 'bottom') {
             <div class="dcf-modal-content" id="dcf-modal-content" [innerHTML]="inlineContent"></div>
           }
         }

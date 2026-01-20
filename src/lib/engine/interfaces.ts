@@ -7,12 +7,23 @@
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ElementRef, EnvironmentInjector, Injector, Type } from '@angular/core';
 import { OrderDirection } from '@decaf-ts/core';
-import { AngularFieldDefinition, FieldUpdateMode, KeyValue, StringOrBoolean } from './types';
-import { CrudOperationKeys, FieldProperties, IPagedComponentProperties } from '@decaf-ts/ui-decorators';
+import {
+  AngularFieldDefinition,
+  DecafRepository,
+  FieldUpdateMode,
+  KeyValue,
+  StringOrBoolean,
+} from './types';
+import {
+  CrudOperationKeys,
+  FieldProperties,
+  IPagedComponentProperties,
+  UIFunctionLike,
+} from '@decaf-ts/ui-decorators';
 import { FormParent } from './types';
 import { Model } from '@decaf-ts/decorator-validation';
 import { ActionRoles } from './constants';
-
+import { IRepository, PrimaryKeyType } from '@decaf-ts/db-decorators';
 
 /**
  * @description Interface for models that can be rendered
@@ -25,7 +36,6 @@ import { ActionRoles } from './constants';
 export interface IRenderedModel {
   rendererId?: string;
 }
-
 
 /**
  * @description Interface for components that hold an ElementRef
@@ -55,7 +65,6 @@ export interface IFormElement extends IComponentHolder {
   formGroup: FormParent | undefined;
 }
 
-
 /**
  * @description Interface for fieldset item representation in the UI.
  * @summary Defines the structure for items displayed in the reorderable list within the fieldset.
@@ -79,13 +88,12 @@ export interface IFieldSetItem {
  */
 export interface IFieldSetValidationEvent {
   /** @description The FormGroup containing the validated form controls */
-  formGroup:  FormArray | FormGroup;
+  formGroup: FormArray | FormGroup;
   /** @description The current form value being validated */
   value: unknown;
   /** @description Whether the form validation passed or failed */
   isValid: boolean;
 }
-
 
 /**
  * @description Interface for individual filter query items
@@ -99,10 +107,10 @@ export interface IFieldSetValidationEvent {
  * @memberOf module:engine
  */
 export interface IFilterQueryItem {
-  index?: string,
-  condition?: string,
-  value?: string
-};
+  index?: string;
+  condition?: string;
+  value?: string | null | undefined;
+}
 
 /**
  * @description Interface for sorting configuration objects
@@ -114,9 +122,9 @@ export interface IFilterQueryItem {
  * @memberOf module:engine
  */
 export interface ISortObject {
-  value: string,
-  direction: OrderDirection
-};
+  value: string;
+  direction: OrderDirection;
+}
 
 /**
  * @description Interface for complete filter query configuration
@@ -129,10 +137,9 @@ export interface ISortObject {
  * @memberOf module:engine
  */
 export interface IFilterQuery {
-  query: IFilterQueryItem[] | undefined,
-  sort?: ISortObject
+  query: IFilterQueryItem[] | undefined;
+  sort?: ISortObject;
 }
-
 
 /**
  * @description Component input properties
@@ -149,7 +156,6 @@ export interface IComponentProperties extends FieldProperties, IPagedComponentPr
   props?: FieldProperties;
 }
 
-
 export interface IFormComponentProperties extends IComponentProperties {
   updateMode?: FieldUpdateMode;
   formGroup?: FormGroup;
@@ -157,7 +163,6 @@ export interface IFormComponentProperties extends IComponentProperties {
   formControl?: FormControl;
   mergeInParent?: boolean;
 }
-
 
 /**
  * @description Component configuration structure
@@ -200,7 +205,6 @@ export interface ComponentMetadata {
   styles: string[];
 }
 
-
 /**
  * @description Output structure from the Angular rendering engine
  * @summary Defines the structure of the output produced by the NgxRenderingEngine
@@ -230,7 +234,6 @@ export interface AngularDynamicOutput {
   formControl?: FormControl;
   projectable?: boolean;
 }
-
 
 /**
  * @description Base option type for input components
@@ -265,7 +268,6 @@ export interface IListComponentRefreshEvent {
   data: KeyValue[];
 }
 
-
 /**
  * @description Form service control structure
  * @summary Defines the structure for a form control managed by the form service.
@@ -279,7 +281,6 @@ export interface FormServiceControl {
   control: FormGroup;
   props: AngularFieldDefinition;
 }
-
 
 /**
  * @description Interface for list item custom events
@@ -299,7 +300,6 @@ export interface ListItemCustomEvent extends IBaseCustomEvent {
   pk?: string;
 }
 
-
 /**
  * @description Base interface for custom events
  * @summary Defines the base structure for custom events in the application.
@@ -315,18 +315,17 @@ export interface IBaseCustomEvent {
   name: string;
   component?: string;
   data?: unknown;
-  role?:  (typeof ActionRoles)[keyof typeof ActionRoles];
+  role?: (typeof ActionRoles)[keyof typeof ActionRoles];
   target?: HTMLElement;
+  context?: Partial<IRepositoryModelProps<Model>>;
 }
 
-
-export interface IModelComponentSubmitEvent
+export interface IModelComponentSubmitEvent<M extends Model>
   extends Omit<IBaseCustomEvent, 'name'> {
   success: boolean;
   message?: string;
+  model: M | M[] | null;
 }
-
-
 
 /**
  * @description Configuration for internationalization (i18n) resource file paths
@@ -338,8 +337,8 @@ export interface IModelComponentSubmitEvent
  * @memberOf module:engine
  */
 export interface I18nResourceConfig {
-  prefix: string,
-  suffix: string
+  prefix: string;
+  suffix: string;
 }
 
 /**
@@ -355,7 +354,6 @@ export interface I18nToken {
   versionedSuffix: boolean;
 }
 
-
 /**
  * @description CRUD form event type
  * @summary Extends IBaseCustomEvent to include optional handlers for CRUD form operations.
@@ -369,9 +367,10 @@ export interface I18nToken {
  * @memberOf module:engine
  */
 export interface ICrudFormEvent extends IBaseCustomEvent {
-  handlers?: Record<string, unknown>;
-  role:  (typeof ActionRoles)[keyof typeof ActionRoles] & CrudOperationKeys;
-};
+  handler?: UIFunctionLike;
+  handlers?: Record<string, UIFunctionLike>;
+  role: (typeof ActionRoles)[keyof typeof ActionRoles] & CrudOperationKeys;
+}
 
 /**
  * @description Pagination custom event
@@ -408,18 +407,6 @@ export interface IMenuItem {
   url?: string;
   icon?: string;
   color?: string;
-}
-
-/**
- * @description Form reactive submit event data
- * @summary Defines the structure of data emitted when a reactive form is submitted.
- * Contains the processed form data as key-value pairs.
- * @interface IFormReactiveSubmitEvent
- * @property {Record<string, unknown>} data - The form data as key-value pairs
- * @memberOf module:engine
- */
-export interface IFormReactiveSubmitEvent {
-  data: Record<string, unknown>;
 }
 
 /**
@@ -495,13 +482,26 @@ export interface IWindowResizeEvent {
 export interface IFileUploadError {
   name: string;
   size?: number;
-  error: string
+  error: string;
 }
 
 export interface ITabItem {
   title?: string;
   description?: string;
   url?: string;
-  value?: string
+  value?: string;
   icon?: string;
+}
+
+export interface IRepositoryModelProps<M extends Model> {
+  repository: DecafRepository<M>;
+  model: M;
+  modelName?: string;
+  pk: string;
+  pkType: string;
+}
+
+export interface ILayoutModelContext {
+  context: IRepositoryModelProps<Model> & { data: KeyValue };
+  models: IRepositoryModelProps<Model>[];
 }

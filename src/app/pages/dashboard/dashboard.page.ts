@@ -1,21 +1,24 @@
-import { Component, OnInit } from '@angular/core';
-import { IonContent } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { cardOutline, peopleOutline, documentAttachOutline  } from 'ionicons/icons';
-import { DashboardLayout } from 'src/app/layouts/Dashboboard';
-import { HeaderComponent } from 'src/app/components/header/header.component';
-import { ContainerComponent } from 'src/app/components/container/container.component';
-import { LayoutComponent } from 'src/lib/components';
-import { NgxPageDirective } from 'src/lib/engine';
+import { Component, OnInit } from "@angular/core";
+import { IonContent } from "@ionic/angular/standalone";
+import { addIcons } from "ionicons";
+import {
+  cardOutline,
+  peopleOutline,
+  documentAttachOutline,
+} from "ionicons/icons";
+import { DashboardLayout } from "src/app/layouts/Dashboboard";
+import { HeaderComponent } from "src/app/components/header/header.component";
+import { ContainerComponent } from "src/app/components/container/container.component";
+import { LayoutComponent } from "src/lib/components";
+import { NgxPageDirective } from "src/lib/engine";
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.page.html',
-  styleUrls: ['./dashboard.page.scss'],
+  selector: "app-dashboard",
+  templateUrl: "./dashboard.page.html",
+  styleUrls: ["./dashboard.page.scss"],
   standalone: true,
-   imports: [HeaderComponent, ContainerComponent, IonContent, LayoutComponent],
+  imports: [HeaderComponent, ContainerComponent, IonContent, LayoutComponent],
 })
 export class DashboardPage extends NgxPageDirective implements OnInit {
-
   users!: number;
   incoming!: number;
   tasks!: number;
@@ -30,10 +33,10 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
     });
   }
 
-  override async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     this.getData();
     this.model = new DashboardLayout();
-    await super.ngOnInit();
+    await super.initialize();
   }
 
   getData() {
@@ -46,5 +49,4 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
   private random(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
 }
