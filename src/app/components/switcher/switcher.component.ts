@@ -6,7 +6,12 @@ import { IonButton } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
 import { ComponentRendererComponent } from 'src/lib/components/component-renderer/component-renderer.component';
-import { ComponentEventNames, ElementPosition, ElementPositions, NgxParentComponentDirective } from 'src/lib/engine';
+import {
+  ComponentEventNames,
+  ElementPosition,
+  ElementPositions,
+  NgxParentComponentDirective,
+} from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 
@@ -14,7 +19,7 @@ export interface ITabItem {
   title?: string;
   description?: string;
   url?: string;
-  value?: string
+  value?: string;
   icon?: string;
   showTitle?: boolean;
 }
@@ -24,12 +29,15 @@ export interface ITabItem {
   templateUrl: './switcher.component.html',
   styleUrls: ['./switcher.component.scss'],
   standalone: true,
-  imports: [ForAngularCommonModule, RouterModule, TranslatePipe, ComponentRendererComponent, IonButton]
+  imports: [
+    ForAngularCommonModule,
+    RouterModule,
+    TranslatePipe,
+    ComponentRendererComponent,
+    IonButton,
+  ],
 })
-export class AppSwitcherComponent
-  extends NgxParentComponentDirective
-  implements OnInit, OnDestroy
-{
+export class AppSwitcherComponent extends NgxParentComponentDirective implements OnInit, OnDestroy {
   @Input()
   items: ITabItem[] = [];
 
@@ -43,7 +51,7 @@ export class AppSwitcherComponent
   type: 'tabs' | 'switcher' | 'column' = 'switcher';
 
   @Input()
-  leafletParam: 'productCode' | 'batchNumber' = 'productCode'
+  leafletParam: 'productCode' | 'batchNumber' = 'productCode';
 
   data: Partial<Model>[] | undefined;
 
@@ -71,8 +79,7 @@ export class AppSwitcherComponent
           showTitle: showTitle ?? true,
         } as IPagedComponentProperties;
       });
-      if (this.type === 'switcher')
-        this.activePage = this.getActivePage(this.activeIndex);
+      if (this.type === 'switcher') this.activePage = this.getActivePage(this.activeIndex);
     }
     if (this.type === 'tabs') {
       this.items.forEach((item, index) => {
@@ -80,23 +87,22 @@ export class AppSwitcherComponent
         if (url && this.router.url.includes(url)) this.activeIndex = index;
       });
     }
-    this.initialized = true;
+    await super.initialize();
+    console.log(this.name, this.operation);
   }
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
     this.data = event.data as Partial<Model>[];
+    this.listenEvent.emit(event);
   }
 
   override async ngOnDestroy(): Promise<void> {
     await super.ngOnDestroy();
-    if (this.timerSubscription)
-      this.timerSubscription.unsubscribe();
+    if (this.timerSubscription) this.timerSubscription.unsubscribe();
   }
 
   async handleNavigateToLeaflet() {
-    await this.router.navigateByUrl(
-      `/leaflets/create?${this.leafletParam}=` + this.modelId
-    );
+    await this.router.navigateByUrl(`/leaflets/create?${this.leafletParam}=` + this.modelId);
   }
 
   async navigate(page: number): Promise<void | boolean> {
@@ -106,7 +112,7 @@ export class AppSwitcherComponent
       this.value = value;
       this.activeIndex = page;
       this.listenEvent.emit({
-        name: ComponentEventNames.CHANGE,
+        name: ComponentEventNames.Change,
         data: value,
         component: this.constructor.name,
       });

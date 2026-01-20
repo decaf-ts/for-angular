@@ -21,13 +21,7 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, fromEvent, shareReplay, Subscription, takeUntil } from 'rxjs';
-import {
-  IonButton,
-  IonChip,
-  IonIcon,
-  IonSelect,
-  IonSelectOption,
-} from '@ionic/angular/standalone';
+import { IonButton, IonChip, IonIcon, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import {
   chevronDownOutline,
   trashOutline,
@@ -110,10 +104,7 @@ import { NavigationStart } from '@angular/router';
   standalone: true,
   host: { '[attr.id]': 'uid' },
 })
-export class FilterComponent
-  extends NgxComponentDirective
-  implements OnInit, OnDestroy
-{
+export class FilterComponent extends NgxComponentDirective implements OnInit, OnDestroy {
   /**
    * @description Reference to the dropdown options container element.
    * @summary ViewChild reference used to access and manipulate the dropdown options element
@@ -125,19 +116,6 @@ export class FilterComponent
    */
   @ViewChild('optionsFilterElement', { read: ElementRef, static: false })
   optionsFilterElement!: ElementRef;
-
-  /**
-   * @description Available field indexes for filtering operations.
-   * @summary Defines the list of field names that users can filter by. These represent
-   * the data properties available for filtering operations. Each index corresponds to
-   * a field in the data model that supports comparison operations.
-   *
-   * @type {string[]}
-   * @default []
-   * @memberOf FilterComponent
-   */
-  @Input()
-  indexes: string[] = [];
 
   /**
    * @description Allows multiple filters to be added.
@@ -181,7 +159,7 @@ export class FilterComponent
    * @memberOf FilterComponent
    */
   @Input()
-  sortBy: string[] = [];
+  sortOptions: string[] = [];
 
   /**
    * @description Controls whether sorting functionality is disabled.
@@ -298,18 +276,6 @@ export class FilterComponent
   sortValue: string = 'id';
 
   /**
-   * @description Current sorting direction.
-   * @summary Defines the direction of the sort operation - ascending or descending.
-   * This value works in conjunction with sortValue to determine the complete
-   * sorting configuration for filtered results.
-   *
-   * @type {OrderDirection}
-   * @default OrderDirection.DSC
-   * @memberOf FilterComponent
-   */
-  sortDirection: OrderDirection = OrderDirection.DSC;
-
-  /**
    * @description Subscription for window resize events.
    * @summary RxJS subscription that listens for window resize events with debouncing
    * to update the windowWidth property. This enables responsive behavior and prevents
@@ -342,7 +308,6 @@ export class FilterComponent
    */
   @Output()
   searchEvent: EventEmitter<string> = new EventEmitter<string>();
-
 
   inputElement!: HTMLInputElement;
 
@@ -400,9 +365,8 @@ export class FilterComponent
       .subscribe(() => {
         this.windowWidth = getWindowWidth() as number;
       });
-    this.router.events.pipe(takeUntil(this.destroySubscriptions$)).subscribe(async event => {
-      if (event instanceof NavigationStart)
-       await this.ngOnDestroy();
+    this.router.events.pipe(takeUntil(this.destroySubscriptions$)).subscribe(async (event) => {
+      if (event instanceof NavigationStart) await this.ngOnDestroy();
     });
     this.getIndexes();
     this.initialize();
@@ -417,16 +381,16 @@ export class FilterComponent
    * @returns {void}
    * @memberOf FilterComponent
    */
-  getIndexes(): void {
-    if (this.model)
-      this.indexes = Object.keys(Model.indexes(this.model as Model) || {});
+  override getIndexes(): string[] {
+    const indexes = super.getIndexes(this.model as Model);
     if (!this.disableSort) {
-      this.sortBy = [...this.sortBy, ...this.indexes];
+      this.sortOptions = [...this.sortOptions, ...indexes];
       if (this.repository) {
         const pk = Model.pk(this.repository.class as Constructor<Model>);
         this.sortValue = pk || this.sortValue;
       }
     }
+    return indexes;
   }
 
   /**
@@ -440,8 +404,7 @@ export class FilterComponent
    */
   override async ngOnDestroy(): Promise<void> {
     await super.ngOnDestroy();
-    if (this.windowResizeSubscription)
-      this.windowResizeSubscription.unsubscribe();
+    if (this.windowResizeSubscription) this.windowResizeSubscription.unsubscribe();
     this.clear();
   }
 
@@ -563,8 +526,7 @@ export class FilterComponent
    */
   async addFilter(value: string, event?: CustomEvent): Promise<void> {
     value = value.trim();
-    if(!this.inputElement)
-      this.inputElement = this.component.nativeElement.querySelector('input');
+    if (!this.inputElement) this.inputElement = this.component.nativeElement.querySelector('input');
     if (event instanceof KeyboardEvent && !value) {
       this.inputElement.blur();
       await this.submit();
@@ -588,26 +550,22 @@ export class FilterComponent
         if (!this.filterValue.length) {
           this.filterValue.push(filter);
         } else {
-          if (this.step === 1)
-            this.filterValue.push(filter);
+          if (this.step === 1) this.filterValue.push(filter);
         }
         if (this.step === 3) {
           this.step = 0;
           this.filterValue[this.filterValue.length - 1] = filter;
           this.lastFilter = {};
-          this.inputElement.value = "";
-          if(!this.multiple) {
-            if(this.inputElement)
-              this.inputElement.disabled = true;
+          this.inputElement.value = '';
+          if (!this.multiple) {
+            if (this.inputElement) this.inputElement.disabled = true;
             this.inputElement.blur();
             return await this.submit();
           }
-
         }
         this.step++;
         this.value = '';
-        if (this.options.length)
-          this.handleFocus(this.options);
+        if (this.options.length) this.handleFocus(this.options);
         this.component.nativeElement.querySelector('#dcf-filter-field').focus();
       }
     }
@@ -638,10 +596,7 @@ export class FilterComponent
    * @memberOf FilterComponent
    */
   allowClear(option: string): boolean {
-    return (
-      this.indexes.indexOf(option) === -1 &&
-      this.conditions.indexOf(option) === -1
-    );
+    return this.indexes.indexOf(option) === -1 && this.conditions.indexOf(option) === -1;
   }
 
   /**
@@ -677,18 +632,16 @@ export class FilterComponent
     }
     this.value = '';
     this.filterValue = this.filterValue.filter(
-      (item) =>
-        item?.['value'] && cleanString(item?.['value']) !== cleanString(filter)
+      (item) => item?.['value'] && cleanString(item?.['value']) !== cleanString(filter),
     );
     if (this.filterValue.length === 0) {
       this.step = 1;
       this.lastFilter = {};
     }
-    if(this.inputElement) {
-    this.inputElement.disabled = false;
-    this.handleFocus(this.indexes);
+    if (this.inputElement) {
+      this.inputElement.disabled = false;
+      this.handleFocus(this.indexes);
     }
-
   }
 
   /**
@@ -704,8 +657,7 @@ export class FilterComponent
     this.step = 1;
     this.lastFilter = {};
     this.value = '';
-    if(this.inputElement)
-      this.inputElement.disabled = false;
+    if (this.inputElement) this.inputElement.disabled = false;
     if (submit) {
       setTimeout(() => {
         this.submit();
@@ -723,9 +675,8 @@ export class FilterComponent
    * @memberOf FilterComponent
    */
   clear(value?: string): void {
-    this.filterValue = []
-    if (!value)
-      this.reset();
+    this.filterValue = [];
+    if (!value) this.reset();
   }
 
   /**
@@ -758,9 +709,7 @@ export class FilterComponent
    */
   handleSortDirectionChange(): void {
     const direction =
-      this.sortDirection === OrderDirection.ASC
-        ? OrderDirection.DSC
-        : OrderDirection.ASC;
+      this.sortDirection === OrderDirection.ASC ? OrderDirection.DSC : OrderDirection.ASC;
     if (direction !== this.sortDirection) {
       this.sortDirection = direction;
       this.submit();
@@ -818,24 +767,20 @@ export class FilterComponent
     const optionsElement = this.optionsFilterElement.nativeElement;
 
     if (!value?.length || !value || value.length < 2) {
-      const filteredOption = optionsElement.querySelector(
-        '.dcf-filtering-item'
-      );
+      const filteredOption = optionsElement.querySelector('.dcf-filtering-item');
       if (filteredOption) filteredOption.classList.remove('dcf-filtering-item');
       return this.options;
     }
     const options = optionsElement.querySelectorAll('.dcf-item');
     for (const option of options) {
-      const isActive = option.textContent
-        ?.toLowerCase()
-        .includes(value.toLowerCase());
+      const isActive = option.textContent?.toLowerCase().includes(value.toLowerCase());
       if (isActive) {
         option.classList.add('dcf-filtering-item');
         break;
       }
     }
     return this.options.filter((option: string) =>
-      option.toLowerCase().includes(value.toLowerCase() as string)
+      option.toLowerCase().includes(value.toLowerCase() as string),
     );
   }
 

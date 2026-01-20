@@ -9,11 +9,7 @@
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import {
-  FormServiceControl,
-  I18nResourceConfig,
-  InputOption,
-} from './interfaces';
+import { FormServiceControl, I18nResourceConfig, InputOption } from './interfaces';
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
@@ -25,10 +21,10 @@ import {
   ListItemPositions,
   WindowColorSchemes,
 } from './constants';
-import { HTML5InputTypes, UIFunctionLike } from '@decaf-ts/ui-decorators';
+import { DecafComponent, HTML5InputTypes, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { Constructor } from '@decaf-ts/decoration';
 import { EnvironmentProviders, Provider } from '@angular/core';
-
+import { NgxComponentDirective } from './NgxComponentDirective';
 
 export interface RawQuery<M extends Model> {
   select: undefined | (keyof M)[];
@@ -43,7 +39,7 @@ export type DecafRepositoryAdapter<
   F extends RepositoryFlags = RepositoryFlags,
   C extends Context<F> = Context<F>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-> = Adapter<any, any, RawQuery<any>, C>;
+> = Adapter<any, any, RawQuery<any>, any>;
 
 export type DecafRepository<M extends Model> = Repository<
   M,
@@ -86,8 +82,7 @@ export type ElementSize = (typeof ElementSizes)[keyof typeof ElementSizes];
  * @typedef {('left'|'center'|'right'|'top'|'bottom')} ElementPosition
  * @memberOf module:engine
  */
-export type ElementPosition =
-  (typeof ElementPositions)[keyof typeof ElementPositions];
+export type ElementPosition = (typeof ElementPositions)[keyof typeof ElementPositions];
 
 /**
  * @description Extended position options for flex layouts
@@ -96,12 +91,7 @@ export type ElementPosition =
  * @typedef {(ElementPosition |'stretch'|'middle'|'around'|'between')} FlexPosition
  * @memberOf module:engine
  */
-export type FlexPosition =
-  | ElementPosition
-  | 'stretch'
-  | 'middle'
-  | 'around'
-  | 'between';
+export type FlexPosition = ElementPosition | 'stretch' | 'middle' | 'around' | 'between';
 
 /**
  * @description Update mode options for form fields
@@ -114,8 +104,7 @@ export type FlexPosition =
  */
 export type FieldUpdateMode = 'change' | 'blur' | 'submit';
 
-export type HTML5InputType =
-  (typeof HTML5InputTypes)[keyof typeof HTML5InputTypes];
+export type HTML5InputType = (typeof HTML5InputTypes)[keyof typeof HTML5InputTypes];
 
 /**
  * @description Possible input types for form fields
@@ -160,10 +149,7 @@ export type AngularFieldDefinition = Omit<
   | 'z'
   | 'type'
 > &
-  Pick<
-    IonSelect,
-    'cancelText' | 'interface' | 'selectedText' | 'interfaceOptions'
-  > &
+  Pick<IonSelect, 'cancelText' | 'interface' | 'selectedText' | 'interfaceOptions'> &
   Pick<IonTextarea, 'rows' | 'cols'> &
   Pick<IonCheckbox, 'alignment' | 'justify' | 'checked'> & {
     type: PossibleInputTypes;
@@ -229,10 +215,7 @@ export type HTMLFormTarget = '_blank' | '_self' | '_parent' | '_top' | string;
  * @typedef {Record<string, Record<string, { control: FormGroup; props: AngularFieldDefinition }>>} FormServiceControls
  * @memberOf module:engine
  */
-export type FormServiceControls = Record<
-  string,
-  Record<string, FormServiceControl>
->;
+export type FormServiceControls = Record<string, Record<string, FormServiceControl>>;
 
 export type FormParent = FormGroup | FormArray;
 
@@ -259,8 +242,7 @@ export type I18nResourceConfigType = I18nResourceConfig | I18nResourceConfig[];
  * @typedef {typeof WindowColorSchemes[keyof typeof WindowColorSchemes]} WindowColorScheme
  * @memberOf module:lib/engine/types
  */
-export type WindowColorScheme =
-  (typeof WindowColorSchemes)[keyof typeof WindowColorSchemes];
+export type WindowColorScheme = (typeof WindowColorSchemes)[keyof typeof WindowColorSchemes];
 
 /**
  * @description Represents the possible roles for an action.
@@ -276,8 +258,7 @@ export type ActionRole = (typeof ActionRoles)[keyof typeof ActionRoles];
  * @typedef {typeof LayoutGridGaps[keyof typeof LayoutGridGaps]} LayoutGridGap
  * @memberOf module:lib/engine/types
  */
-export type LayoutGridGap =
-  (typeof LayoutGridGaps)[keyof typeof LayoutGridGaps];
+export type LayoutGridGap = (typeof LayoutGridGaps)[keyof typeof LayoutGridGaps];
 
 /**
  * @description Represents the possible positions for a list item.
@@ -285,9 +266,7 @@ export type LayoutGridGap =
  * @typedef {typeof ListItemPositions[keyof typeof ListItemPositions]} ListItemPosition
  * @memberOf module:lib/engine/types
  */
-export type ListItemPosition =
-  (typeof ListItemPositions)[keyof typeof ListItemPositions];
-
+export type ListItemPosition = (typeof ListItemPositions)[keyof typeof ListItemPositions];
 
 /**
  * @description Represents an Angular dependency injection provider.
@@ -297,3 +276,9 @@ export type ListItemPosition =
  */
 export type AngularProvider = EnvironmentProviders | Provider;
 
+export type PropsMapperFn<T extends NgxComponentDirective> = Record<
+  keyof T,
+  (instance: T, ...args: unknown[]) => Promise<UIFunctionLike>
+>;
+
+export type DecafComponentConstructor = DecafComponent<Model>;

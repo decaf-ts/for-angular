@@ -39,7 +39,7 @@ export class LeafletHandler extends NgxEventHandler {
           break;
           case OperationKeys.READ:
           case OperationKeys.DELETE: {
-            result = await repository.delete(uid as typeof pkType, data);
+            result = await repository.delete(uid, data);
           }
           break;
         }

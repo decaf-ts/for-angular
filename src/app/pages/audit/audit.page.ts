@@ -1,20 +1,19 @@
-import { Component, OnInit} from '@angular/core';
-import { IonContent } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
-import { HeaderComponent } from 'src/app/components/header/header.component';
-import { ContainerComponent } from 'src/app/components/container/container.component';
-import { NgxModelPageDirective } from 'src/lib/engine';
-import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
-import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.component';
-import { TableComponent } from 'src/lib/components/table/table.component';
-import { Subscription } from 'rxjs';
-import { Audit } from 'src/app/ew/fabric/Audit';
-
+import { Component, OnInit } from "@angular/core";
+import { IonContent } from "@ionic/angular/standalone";
+import { TranslatePipe } from "@ngx-translate/core";
+import { HeaderComponent } from "src/app/components/header/header.component";
+import { ContainerComponent } from "src/app/components/container/container.component";
+import { NgxModelPageDirective } from "src/lib/engine";
+import { IBaseCustomEvent } from "src/lib/engine/interfaces";
+import { AppCardTitleComponent } from "src/app/components/card-title/card-title.component";
+import { TableComponent } from "src/lib/components/table/table.component";
+import { Subscription } from "rxjs";
+import { Audit } from "src/app/ew/fabric/Audit";
 
 @Component({
-  selector: 'app-audit',
-  templateUrl: './audit.page.html',
-  styleUrls: ['./audit.page.scss'],
+  selector: "app-audit",
+  templateUrl: "./audit.page.html",
+  styleUrls: ["./audit.page.scss"],
   standalone: true,
   imports: [
     TranslatePipe,
@@ -26,8 +25,6 @@ import { Audit } from 'src/app/ew/fabric/Audit';
   ],
 })
 export class AuditPage extends NgxModelPageDirective implements OnInit {
-
-
   /**
    * @description Subscription for timer-based operations.
    * @summary Manages the timer subscription used for asynchronous operations
@@ -40,14 +37,13 @@ export class AuditPage extends NgxModelPageDirective implements OnInit {
   protected changeSubscription!: Subscription;
 
   constructor() {
-    super('Audit', false);
+    super("Audit", false);
     this.title = `${this.locale}.title`;
   }
 
-  override async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
+    await super.initialize();
     this.model = new Audit();
-    // keep init after model selection
-    await super.ngOnInit();
     this.operations = [];
     this.title = `${this.locale}.title`;
   }
@@ -67,11 +63,8 @@ export class AuditPage extends NgxModelPageDirective implements OnInit {
 
   override async ngOnDestroy(): Promise<void> {
     await super.ngOnDestroy();
-    if (this.changeSubscription)
-      this.changeSubscription.unsubscribe();
+    if (this.changeSubscription) this.changeSubscription.unsubscribe();
   }
 
-  override async handleEvent(event: IBaseCustomEvent): Promise<void> {
-    console.log(event);
-  }
+  override async handleEvent(event: IBaseCustomEvent): Promise<void> {}
 }

@@ -12,19 +12,19 @@ import { AuditOperations, UserGroup } from '../ew/fabric/constants';
 import { ProductStrength } from '../ew/fabric/ProductStrength';
 import { getModelAndRepository } from 'src/lib/engine/helpers';
 enum ProductNames {
-  aspirin = "Aspirin",
-  ibuprofen = "Ibuprofen",
-  paracetamol = "Paracetamol",
-  amoxicillin = "Amoxicillin",
-  azithromycin = "Azithromycin",
-  metformin = "Metformin",
-  atorvastatin = "Atorvastatin",
-  omeprazole = "Omeprazole",
-  simvastatin = "Simvastatin",
-  levothyroxine = "Levothyroxine",
-  lisinopril = "Lisinopril",
-  losartan = "Losartan",
-  hydrochlorothiazide = "Hydrochlorothiazide",
+  aspirin = 'Aspirin',
+  ibuprofen = 'Ibuprofen',
+  paracetamol = 'Paracetamol',
+  amoxicillin = 'Amoxicillin',
+  azithromycin = 'Azithromycin',
+  metformin = 'Metformin',
+  atorvastatin = 'Atorvastatin',
+  omeprazole = 'Omeprazole',
+  simvastatin = 'Simvastatin',
+  levothyroxine = 'Levothyroxine',
+  lisinopril = 'Lisinopril',
+  losartan = 'Losartan',
+  hydrochlorothiazide = 'Hydrochlorothiazide',
   // prednisone = "Prednisone",
   // sertraline = "Sertraline",
   // fluoxetine = "Fluoxetine",
@@ -36,45 +36,43 @@ enum ProductNames {
   // insulin = "Insulin",
   // clopidogrel = "Clopidogrel",
   // furosemide = "Furosemide"
-};
+}
 
 export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
-
-
   public override async initialize(): Promise<void> {
     await super.initialize();
     const repo = this._repository as DecafRepository<Model>;
     const model = this.model as Model;
     let data = await repo.select().execute();
-    if(!this.data?.length) {
+    if (!this.data?.length) {
       const name = model.constructor.name;
-      switch(name) {
+      switch (name) {
         case AIModel.name:
-          data = await this.generateData<AIModel>(AIFeatures, 'features', "name");
+          data = await this.generateData<AIModel>(AIFeatures, 'features', 'name');
           break;
         case Audit.name: {
-          data = (await this.generateData<Audit>()).map((item :Audit, index: number) => {
+          data = (await this.generateData<Audit>()).map((item: Audit, index: number) => {
             const user = faker.internet.email().toLowerCase();
             item.userId = user;
             item.userGroup = this.pickRandomValue(UserGroup) as UserGroup;
             item.action = this.pickRandomValue(AuditOperations) as AuditOperations;
             item.transaction = this.pickRandomValue(['create', 'read', 'update', 'delete']);
             item.diffs = {};
-            if(index % 2 === 0)
-              item.diffs = {'a': 'b'};
+            if (index % 2 === 0) item.diffs = { a: 'b' };
             return item;
-          })
+          });
           break;
-         }
+        }
         case Product.name: {
-           data = (await this.generateData<T & Product>(ProductNames, 'inventedName', "string"))
-          .map((item: Partial<Product>, index: number) => {
-            item.productCode = `0${index + 1}`.padStart(14, '0');
-            delete item?.['imageData'];
-            item.markets = [];
-            item.strengths = [];
-            return item as T;
-          })
+          data = (await this.generateData<T & Product>(ProductNames, 'inventedName', 'string')).map(
+            (item: Partial<Product>, index: number) => {
+              item.productCode = `0${index + 1}`.padStart(14, '0');
+              delete item?.['imageData'];
+              item.markets = [];
+              item.strengths = [];
+              return item as T;
+            },
+          );
           break;
         }
         case Batch.name: {
@@ -82,20 +80,27 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           this.limit = 2;
           data = await this.generateData<Batch>();
           data = [
-            ... await Promise.all(  data.map(async(item: Partial<Batch>) => {
-              const productCode = `0${Math.floor(Math.random() * 5) + 1}`.padStart(14, '0');
-              const repo = getModelAndRepository('Product');
-              item.productCode = productCode;
-              item.batchNumber = `bt_${productCode}_${item.nameMedicinalProduct}`.trim();
-              item.expiryDate = '251200';
-              item.enableDaySelection = true;
-              if(repo) {
-                const {repository} = repo;
-                item['inventedName'] = (await repository.read(productCode) as T & {inventedName: string})?.['inventedName'] || item['inventedName'];
-              }
-              return item as T;
-            }))
-          ]
+            ...(await Promise.all(
+              data.map(async (item: Partial<Batch>) => {
+                const productCode = `0${Math.floor(Math.random() * 5) + 1}`.padStart(14, '0');
+                const repo = getModelAndRepository('Product');
+                item.productCode = productCode;
+                item.batchNumber = `bt_${productCode}_${item.nameMedicinalProduct}`.trim();
+                item.expiryDate = '251200';
+                item.enableDaySelection = true;
+                if (repo) {
+                  const { repository } = repo;
+                  item['inventedName'] =
+                    (
+                      (await repository.read(productCode)) as T & {
+                        inventedName: string;
+                      }
+                    )?.['inventedName'] || item['inventedName'];
+                }
+                return item as T;
+              }),
+            )),
+          ];
           break;
         }
         case Leaflet.name: {
@@ -106,34 +111,39 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
               const productCode = `013`;
               return productCode.padStart(14, '0');
             },
-            epiMarket: () => this.pickRandomValue(['al', 'br'])
+            epiMarket: () => this.pickRandomValue(['al', 'br']),
           };
           const repo = getModelAndRepository('Batch');
-          let batches = [] as {batchNumber: string, productCode: string}[];
-          if(repo) {
-            const {repository} = repo;
+          let batches = [] as { batchNumber: string; productCode: string }[];
+          if (repo) {
+            const { repository } = repo;
             const query = (await repository.select().execute()) as Batch[];
-            if(query.length)
-              batches = query.map(item => {
-                return {batchNumber: item.batchNumber, productCode: item.productCode};
+            if (query.length)
+              batches = query.map((item) => {
+                return {
+                  batchNumber: item.batchNumber,
+                  productCode: item.productCode,
+                };
               });
           }
-          const products = batches.map(b => b.productCode);
-          data = (await this.generateData<Leaflet>()).map(item => {
+          const products = batches.map((b) => b.productCode);
+          data = (await this.generateData<Leaflet>()).map((item) => {
             // item.epiMarket = this.pickRandomValue([... getMarkets().map(({value}) => value)]);
             item.leafletType = this.pickRandomValue(LeafletType) as LeafletType;
             item.otherFilesContent = [];
             // item.productCode = this.pickRandomValue(products);
-            item.batchNumber = batches.find(b => b.productCode === item.productCode)?.batchNumber;
-            item.createdAt = item.updatedAt = faker.date.past({years: 10});
+            item.batchNumber = batches.find((b) => b.productCode === item.productCode)?.batchNumber;
+            item.createdAt = item.updatedAt = faker.date.past({ years: 10 });
             return item;
           });
           break;
         }
         case ProductStrength.name: {
+          this.limit = 6;
           data = await this.generateData<ProductStrength>();
-          data = data.map((item: Partial<ProductStrength>) => {
-            item['productCode'] = `${Math.floor(Math.random() * 5) + 1}`;
+          data = data.map((item: Partial<ProductStrength>, index: number) => {
+            item['productCode'] = index % 2 === 0 ? '00000000000012' : '00000000000013';
+            item.substance = this.pickRandomValue(ProductNames);
             return item as T;
           }) as T[];
           break;
@@ -151,7 +161,11 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
         // })) as T[];
         data = await this.repository?.createAll(data);
       } catch (error: unknown) {
-        this.log.for(this.initialize).error(`Error on populate ${this.model?.constructor.name}: ${(error as Error)?.message || error  as string}`);
+        this.log
+          .for(this.initialize)
+          .error(
+            `Error on populate ${this.model?.constructor.name}: ${(error as Error)?.message || (error as string)}`,
+          );
       }
     }
     this.data = data as T[];

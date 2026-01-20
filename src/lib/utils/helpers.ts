@@ -10,13 +10,18 @@
  * @link {@link getWindow}
  */
 
-import { isDevMode } from '@angular/core';
-import { InjectableRegistryImp, InjectablesRegistry } from '@decaf-ts/injectable-decorators';
-import { Primitives } from '@decaf-ts/decorator-validation';
-import { KeyValue, StringOrBoolean, } from '../engine/types';
-import { FunctionLike } from '../engine/types';
-import { IMenuItem } from '../engine/interfaces';
-import { getLogger } from '../engine/helpers';
+import { isDevMode } from "@angular/core";
+import {
+  InjectableRegistryImp,
+  InjectablesRegistry,
+} from "@decaf-ts/injectable-decorators";
+import { Primitives } from "@decaf-ts/decorator-validation";
+import { KeyValue, StringOrBoolean } from "../engine/types";
+import { FunctionLike } from "../engine/types";
+import { IMenuItem } from "../engine/interfaces";
+import { getLogger } from "../engine/helpers";
+import { UIFunctionLike } from "@decaf-ts/ui-decorators";
+import { Constructor } from "@decaf-ts/decoration";
 
 let injectableRegistry: InjectablesRegistry;
 
@@ -33,8 +38,7 @@ let injectableRegistry: InjectablesRegistry;
  * @memberOf module:for-angular
  */
 export function getInjectablesRegistry(): InjectablesRegistry {
-  if (!injectableRegistry)
-    injectableRegistry = new InjectableRegistryImp();
+  if (!injectableRegistry) injectableRegistry = new InjectableRegistryImp();
   return injectableRegistry;
 }
 
@@ -51,14 +55,13 @@ export function getInjectablesRegistry(): InjectablesRegistry {
  * @function isDevelopmentMode
  * @memberOf module:for-angular
  */
-export function isDevelopmentMode(context: string = 'localhost'): boolean {
-  if (!context)
-    return isDevMode();
+export function isDevelopmentMode(context: string = "localhost"): boolean {
+  if (!context) return isDevMode();
   const win = getWindow();
   return (
     isDevMode() ||
-    win?.['env']?.['CONTEXT'].toLowerCase() !== context.toLowerCase() ||
-    win?.['location']?.hostname?.includes(context)
+    win?.["env"]?.["CONTEXT"].toLowerCase() !== context.toLowerCase() ||
+    win?.["location"]?.hostname?.includes(context)
   );
 }
 
@@ -107,8 +110,9 @@ export function windowEventEmitter(
  */
 export function getOnWindowDocument(key: string): Document | undefined {
   const doc = getWindowDocument() as Document;
-  return doc instanceof Document ?
-    (doc as KeyValue)?.[key] || undefined : undefined;
+  return doc instanceof Document
+    ? (doc as KeyValue)?.[key] || undefined
+    : undefined;
 }
 
 /**
@@ -123,7 +127,7 @@ export function getOnWindowDocument(key: string): Document | undefined {
  * @memberOf module:for-angular
  */
 export function getWindowDocument(): Document | undefined {
-  return getOnWindow('document') as Document;
+  return getOnWindow("document") as Document;
 }
 
 /**
@@ -174,7 +178,7 @@ export function setOnWindow(key: string, value: unknown): void {
  * @memberOf module:for-angular
  */
 export function getWindow(): Window & KeyValue {
-  return (globalThis as KeyValue)?.['window'] as Window & KeyValue;
+  return (globalThis as KeyValue)?.["window"] as Window & KeyValue;
 }
 
 /**
@@ -189,7 +193,7 @@ export function getWindow(): Window & KeyValue {
  * @memberOf module:for-angular
  */
 export function getWindowWidth(): number {
-  return getOnWindow('innerWidth') as number || 0;
+  return (getOnWindow("innerWidth") as number) || 0;
 }
 
 /**
@@ -229,28 +233,30 @@ export function getLocaleFromClassName(
   suffix?: string
 ): string {
   if (typeof instance !== Primitives.STRING)
-    instance = (instance as FunctionLike).name || (instance as object)?.constructor?.name;
+    instance =
+      (instance as FunctionLike).name ||
+      (instance as object)?.constructor?.name;
 
   let name: string | string[] = instance as string;
 
   if (suffix)
     name = `${instance}${suffix.charAt(0).toUpperCase() + suffix.slice(1)}`;
 
-  name = name.replace(/_|-/g, '').replace(/(?:^\w|[A-Z]|\b\w)/g, (word: string, index: number) => {
-      if (index > 1) word = '.' + word;
+  name = name
+    .replace(/_|-/g, "")
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word: string, index: number) => {
+      if (index > 1) word = "." + word;
       return word.toLowerCase();
-    }).split('.');
+    })
+    .split(".");
 
-  if (name.length < 3)
-    return name.reverse().join('.');
+  if (name.length < 3) return name.reverse().join(".");
 
   const preffix = name[name.length - 1];
   name.pop();
-  name = name.join('_');
+  name = name.join("_");
   return `${preffix}.${name}`;
 }
-
-
 
 /**
  * @description Retrieves the current locale language
@@ -269,8 +275,6 @@ export function getLocaleLanguage(): string {
   // return win?.[WINDOW_KEYS.LANGUAGE_SELECTED] || (win.navigator.language || '').split('-')[0] || "en";
 }
 
-
-
 /**
  * @description Generates a random string or number of specified length
  * @summary This utility function creates a random string of a specified length.
@@ -285,17 +289,19 @@ export function getLocaleLanguage(): string {
  * @function generateRandomValue
  * @memberOf module:for-angular
  */
-export function generateRandomValue(length: number = 8, onlyNumbers: boolean = false): string {
+export function generateRandomValue(
+  length: number = 8,
+  onlyNumbers: boolean = false
+): string {
   const chars = onlyNumbers
-    ? '0123456789'
-    : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
+    ? "0123456789"
+    : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
   for (let i = 0; i < length; i++)
     result += chars.charAt(Math.floor(Math.random() * chars.length));
 
   return result;
 }
-
 
 /**
  * @description Converts a string representation of a boolean or a boolean value to a boolean type.
@@ -310,12 +316,11 @@ export function generateRandomValue(length: number = 8, onlyNumbers: boolean = f
  * @function stringToBoolean
  * @memberOf module:lib/helpers/utils
  */
-export function stringToBoolean(prop: 'true' | 'false' | boolean): boolean {
-  if (typeof prop === 'string')
-    prop = prop.toLowerCase() === 'true' ? true : false;
+export function stringToBoolean(prop: "true" | "false" | boolean): boolean {
+  if (typeof prop === "string")
+    prop = prop.toLowerCase() === "true" ? true : false;
   return prop;
 }
-
 
 /**
  * @description Checks if a value is a valid Date object.
@@ -333,18 +338,25 @@ export function stringToBoolean(prop: 'true' | 'false' | boolean): boolean {
  */
 export function isValidDate(date: string | Date | number): boolean {
   try {
-    return (date instanceof Date && !isNaN(date as unknown as number)) || (() => {
-      const testRegex = new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date as string)
-      if (typeof date !== Primitives.STRING || !(date as string)?.includes('T') && !testRegex)
-         return false;
+    return (
+      (date instanceof Date && !isNaN(date as unknown as number)) ||
+      (() => {
+        const testRegex = new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(
+          date as string
+        );
+        if (
+          typeof date !== Primitives.STRING ||
+          (!(date as string)?.includes("T") && !testRegex)
+        )
+          return false;
 
-     date = (date as string).split('T')[0];
-    if (!new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date))
-      return false;
+        date = (date as string).split("T")[0];
+        if (!new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date)) return false;
 
-    return !!(new Date(date));
-   })();
-  } catch(error: unknown) {
+        return !!new Date(date);
+      })()
+    );
+  } catch (error: unknown) {
     getLogger(isValidDate).error(error as Error | string);
     return false;
   }
@@ -367,22 +379,21 @@ export function isValidDate(date: string | Date | number): boolean {
  * @function formatDate
  * @memberOf module:lib/helpers/utils
  */
-export function formatDate(date: string | Date | number, locale?: string | undefined): Date | string {
+export function formatDate(
+  date: string | Date | number,
+  locale?: string | undefined
+): Date | string {
+  if (!locale) locale = getLocaleLanguage();
 
-  if (!locale)
-    locale = getLocaleLanguage();
+  if (typeof date === "string" || typeof date === "number")
+    date = new Date(typeof date === "string" ? date.replace(/\//g, "-") : date);
 
-  if (typeof date === 'string' || typeof date === 'number')
-    date = new Date(typeof date === 'string' ? date.replace(/\//g, '-') : date);
-
-  if (!isValidDate(date))
-    return `${date}` as string;
+  if (!isValidDate(date)) return `${date}` as string;
   const r = date.toLocaleString(locale, {
-      year: "numeric",
-      day: "2-digit",
-      month: '2-digit'
+    year: "numeric",
+    day: "2-digit",
+    month: "2-digit",
   });
-
 
   return r;
 }
@@ -405,25 +416,24 @@ export function formatDate(date: string | Date | number, locale?: string | undef
  * @memberOf module:lib/helpers/utils
  */
 export function parseToValidDate(date: string | Date | number): Date | null {
-  if (isValidDate(date))
-    return date as Date;
+  if (isValidDate(date)) return date as Date;
 
-  if (!`${date}`.includes('/'))
-    return null;
+  if (!`${date}`.includes("/")) return null;
 
-  const [dateString, timeString] = (date as string).split(' ');
-  const [day, month, year] = dateString.split('/').map(Number);
-  const [hours, minutes, seconds, milliseconds] = timeString.split(':').map(Number);
+  const [dateString, timeString] = (date as string).split(" ");
+  const [day, month, year] = dateString.split("/").map(Number);
+  const [hours, minutes, seconds, milliseconds] = timeString
+    .split(":")
+    .map(Number);
   date = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
 
   if (!isValidDate(date)) {
-    console.warn('parseToValidDate - Invalid date format', date);
+    console.warn("parseToValidDate - Invalid date format", date);
     return null;
   }
 
   return date;
 }
-
 
 /**
  * @description Maps an item object using a provided mapper object and optional additional properties.
@@ -443,9 +453,13 @@ export function parseToValidDate(date: string | Date | number): Date | null {
  * @function itemMapper
  * @memberOf module:lib/helpers/utils
  */
-export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyValue {
+export function itemMapper(
+  item: KeyValue,
+  mapper: KeyValue,
+  props?: KeyValue
+): KeyValue {
   return Object.entries(mapper).reduce((accum: KeyValue, [key, prop]) => {
-    const arrayValue = (prop as string).split('.');
+    const arrayValue = (prop || "").split(".");
     let value = item?.[prop] || "";
     if (!prop) {
       accum[key] = prop;
@@ -454,11 +468,12 @@ export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): 
         accum[key] = value;
         // accum[key] = item?.[value as string] || (value !== key ? value : "");
       } else {
-
         for (const propValue of arrayValue)
           value = !value
             ? item[propValue]
-            : (typeof value === 'string' ? JSON.parse(value) : value)[propValue];
+            : (typeof value === "string" ? JSON.parse(value) : value)[
+                propValue
+              ];
 
         if (isValidDate(new Date(value))) value = `${formatDate(value)}`;
 
@@ -488,7 +503,11 @@ export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): 
  * @function dataMapper
  * @memberOf module:lib/helpers/utils
  */
-export function dataMapper<T>(data: T[], mapper: KeyValue, props?: KeyValue): T[] {
+export function dataMapper<T>(
+  data: T[],
+  mapper: KeyValue,
+  props?: KeyValue
+): T[] {
   if (!data || !data.length) return [];
   return data.reduce((accum: T[], curr) => {
     const item = itemMapper(curr as KeyValue, mapper, props) as T;
@@ -515,8 +534,7 @@ export function dataMapper<T>(data: T[], mapper: KeyValue, props?: KeyValue): T[
  */
 export function removeFocusTrap(): void {
   const doc = getWindowDocument();
-  if (doc?.activeElement)
-    (doc.activeElement as HTMLElement)?.blur();
+  if (doc?.activeElement) (doc.activeElement as HTMLElement)?.blur();
 }
 
 /**
@@ -533,11 +551,13 @@ export function removeFocusTrap(): void {
  * @function cleanSpaces
  * @memberOf module:for-angular
  */
-export function cleanSpaces(value: string = "", lowercase: boolean = false): string {
-  value = `${value}`.trim().replace(/\s+/g, ' ');
+export function cleanSpaces(
+  value: string = "",
+  lowercase: boolean = false
+): string {
+  value = `${value}`.trim().replace(/\s+/g, " ");
   return lowercase ? value.toLowerCase() : value;
 }
-
 
 /**
  * @description Determines if the user's system is currently in dark mode
@@ -552,7 +572,7 @@ export function cleanSpaces(value: string = "", lowercase: boolean = false): str
  * @memberOf module:for-angular
  */
 export async function isDarkMode(): Promise<boolean> {
-  const {matches} = getWindow().matchMedia('(prefers-color-scheme: dark)');
+  const { matches } = getWindow().matchMedia("(prefers-color-scheme: dark)");
   return matches;
 }
 
@@ -569,16 +589,19 @@ export async function isDarkMode(): Promise<boolean> {
  * @function filterString
  * @memberOf module:lib/helpers/utils
  */
-export function filterString(original: string | string[], value: string, contain: boolean = true): string {
+export function filterString(
+  original: string | string[],
+  value: string,
+  contain: boolean = true
+): string {
   if (typeof original === Primitives.STRING)
-    original = (original as string).split(' ');
-   return ((original as string[]).filter(str =>
-    contain ?
-      str.includes(value) : !str.includes(value)
-  ) || []).join(' ');
+    original = (original as string).split(" ");
+  return (
+    (original as string[]).filter((str) =>
+      contain ? str.includes(value) : !str.includes(value)
+    ) || []
+  ).join(" ");
 }
-
-
 
 /**
  * @summary Retrieves the icon associated with a menu item based on its label.
@@ -588,6 +611,12 @@ export function filterString(original: string | string[], value: string, contain
  * @returns {string} The icon associated with the menu item if found, otherwise an empty string.
  */
 export function getMenuIcon(label: string, menu: IMenuItem[]): string {
-  const item = menu.find(m => m.label?.toLowerCase() === label.toLowerCase());
-  return item?.icon || '';
+  const item = menu.find((m) => m.label?.toLowerCase() === label.toLowerCase());
+  return item?.icon || "";
 }
+
+export const isClassConstructor = <C>(
+  value: UIFunctionLike | Constructor<C>
+): value is Constructor<C> => {
+  return typeof value === "function" && /^class\s/.test(String(value));
+};

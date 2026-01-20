@@ -1,26 +1,27 @@
-import type { Model, ModelArg } from "@decaf-ts/decorator-validation";
-import { model, required } from "@decaf-ts/decorator-validation";
+import type { Model, ModelArg } from '@decaf-ts/decorator-validation';
+import { model, required, type } from '@decaf-ts/decorator-validation';
 // import { gtin, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
-import { propMetadata, Constructor } from "@decaf-ts/decoration";
+import { propMetadata, Constructor } from '@decaf-ts/decoration';
 
 import {
   Cascade,
   column,
+  Condition,
   index,
   oneToMany,
   oneToOne,
   OrderDirection,
   pk,
   table,
-} from "@decaf-ts/core";
+} from '@decaf-ts/core';
 // import {BlockOperations, OperationKeys, readonly} from "@decaf-ts/db-decorators";
- import { description, uses } from "@decaf-ts/decoration";
-import { ProductStrength } from "./ProductStrength";
-import { ProductMarket } from "./ProductMarket";
+import { description, uses } from '@decaf-ts/decoration';
+import { ProductStrength } from './ProductStrength';
+import { ProductMarket } from './ProductMarket';
 // import { assignProductOwner, audit } from "@pharmaledgerassoc/ptp-toolkit/shared";
-import { ProductImage } from "./ProductImage";
+import { ProductImage } from './ProductImage';
 // import { cache } from "@pharmaledgerassoc/ptp-toolkit/shared";
-import { Cacheable } from "./Cacheable";
+import { Cacheable } from './Cacheable';
 import {
   uielement,
   uilistprop,
@@ -29,19 +30,19 @@ import {
   uilayoutprop,
   HTML5InputTypes,
   uionrender,
-} from "@decaf-ts/ui-decorators";
-import { NgxComponentDirective, NgxEventHandler } from "src/lib/engine";
-import { OperationKeys } from "@decaf-ts/db-decorators";
-import { audit } from "./utils";
-
-
-
+  DecafComponent,
+} from '@decaf-ts/ui-decorators';
+import { getModelAndRepository, NgxComponentDirective, NgxEventHandler } from 'src/lib/engine';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { audit } from './utils';
+import { FileUploadComponent } from 'src/lib/components';
+import { ProductImageHandler } from './handlers/ProductImageHandler';
 
 // @BlockOperations([OperationKeys.DELETE])
 //@uses(FabricFlavour)
 
-@uilistmodel("app-product-item", { icon: "ti-package" })
-@uilayout("ngx-decaf-crud-form", true, 1, {empty: {showButton: false}})
+@uilistmodel('app-product-item', { icon: 'ti-package' })
+@uilayout('ngx-decaf-crud-form', true, 1, { empty: { showButton: false } })
 @model()
 export class Product extends Cacheable {
   //@gtin()
@@ -49,31 +50,34 @@ export class Product extends Cacheable {
   // @assignProductOwner()
   //@audit()
   @pk({ type: String, generated: false })
-  @uilistprop("title")
-  @uielement("ngx-decaf-crud-field", {
-    label: "product.productCode.label",
-    placeholder: "product.productCode.placeholder",
+  @uilistprop('title')
+  @uielement('ngx-decaf-crud-field', {
+    label: 'product.productCode.label',
+    placeholder: 'product.productCode.placeholder',
     // readonly: () => {
     //   return (this as unknown as CrudFieldComponent).operation !== OperationKeys.CREATE;
     // },
   })
   @uilayoutprop(1)
-  @uionrender(() => class _ extends NgxEventHandler {
-    override async render(): Promise<void> {
-      this.readonly = this.operation !== OperationKeys.CREATE;
-    }
-  })
+  @uionrender(
+    () =>
+      class _ extends NgxEventHandler {
+        override async render(): Promise<void> {
+          this.readonly = this.operation !== OperationKeys.CREATE;
+        }
+      },
+  )
   productCode!: string;
 
   //@cache()
   @column()
   @required()
   @index([OrderDirection.ASC, OrderDirection.DSC])
-   @uielement('ngx-decaf-crud-field', {
+  @uielement('ngx-decaf-crud-field', {
     label: 'product.inventedName.label',
     placeholder: 'product.inventedName.placeholder',
   })
-  @uilistprop("title")
+  @uilistprop('title')
   @uilayoutprop(2)
   inventedName!: string;
 
@@ -96,7 +100,7 @@ export class Product extends Cacheable {
     type: 'textarea',
   })
   @uilayoutprop(1)
-  @uilistprop("description")
+  @uilistprop('description')
   internalMaterialCode?: string;
 
   //@cache()
@@ -113,7 +117,7 @@ export class Product extends Cacheable {
   @uielement('ngx-decaf-card', {
     title: 'product.section.image.title',
     name: 'separator',
-    separator: true
+    separator: true,
   })
   @uilayoutprop(1)
   productImageTitle!: string;
@@ -125,14 +129,15 @@ export class Product extends Cacheable {
       update: Cascade.CASCADE,
       delete: Cascade.CASCADE,
     },
-    false
+    false,
   )
   @uielement('ngx-decaf-file-upload', {
     label: 'product.productImage.label',
+    type: 'text',
   })
   @uilayoutprop(1)
+  @uionrender(() => ProductImageHandler)
   imageData?: ProductImage;
-
 
   //
   // @column()
@@ -158,20 +163,12 @@ export class Product extends Cacheable {
   // counter?: number;
 
   //@cache()
-  @oneToMany(
-    () => ProductStrength,
-    { update: Cascade.CASCADE, delete: Cascade.CASCADE },
-    false
-  )
+  @oneToMany(() => ProductStrength, { update: Cascade.CASCADE, delete: Cascade.CASCADE }, false)
   strengths!: ProductStrength[];
 
   //@cache()
-  @oneToMany(
-    () => ProductMarket,
-    { update: Cascade.CASCADE, delete: Cascade.CASCADE },
-    true
-  )
-  @description("GTIN code of the product")
+  @oneToMany(() => ProductMarket, { update: Cascade.CASCADE, delete: Cascade.CASCADE }, true)
+  @description('GTIN code of the product')
   markets!: ProductMarket[];
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor

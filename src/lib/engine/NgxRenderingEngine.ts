@@ -9,7 +9,7 @@
 import { FieldDefinition, HTML5InputTypes, RenderingEngine } from '@decaf-ts/ui-decorators';
 import { AngularFieldDefinition, KeyValue } from './types';
 import { AngularDynamicOutput, IFormComponentProperties } from './interfaces';
-import { AngularEngineKeys } from './constants';
+import { AngularEngineKeys, BaseComponentProps } from './constants';
 import { Model, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
 import { Constructor } from '@decaf-ts/decoration';
 import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
@@ -81,10 +81,7 @@ export class NgxRenderingEngine extends RenderingEngine<
    * @type {Record<string, { constructor: Constructor<unknown> }>}
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
-  private static _components: Record<
-    string,
-    { constructor: Constructor<unknown> }
-  >;
+  private static _components: Record<string, { constructor: Constructor<unknown> }>;
 
   /**
    * @description Currently active model being rendered by the engine.
@@ -199,48 +196,45 @@ export class NgxRenderingEngine extends RenderingEngine<
     tpl: TemplateRef<unknown>,
     registryFormId: string = Date.now().toString(36).toUpperCase(),
     createComponent: boolean = true,
-    formGroup?: FormParent
+    formGroup?: FormParent,
   ): AngularDynamicOutput {
     const cmp =
-      (fieldDef as KeyValue)?.['component'] ||
-      NgxRenderingEngine.components(fieldDef.tag);
+      (fieldDef as KeyValue)?.['component'] || NgxRenderingEngine.components(fieldDef.tag);
     const component = cmp.constructor as Type<unknown>;
 
     const componentMetadata = reflectComponentType(component);
     if (!componentMetadata) {
-      throw new InternalError(
-        `Metadata for component ${fieldDef.tag} not found.`
-      );
+      throw new InternalError(`Metadata for component ${fieldDef.tag} not found.`);
     }
 
     const { inputs: possibleInputs } = componentMetadata;
     const inputs = { ...fieldDef.props };
 
     const unmappedKeys = Object.keys(inputs).filter((input) => {
-      const isMapped = possibleInputs.find(
-        ({ propName }) => propName === input
-      );
+      const isMapped = possibleInputs.find(({ propName }) => propName === input);
       if (!isMapped) delete inputs[input];
       return !isMapped;
     });
 
     if (unmappedKeys.length > 0 && isDevelopmentMode())
       getLogger(this).warn(
-        `Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`
+        `Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`,
       );
 
     const operation = NgxRenderingEngine._operation;
 
     const hiddenOn = inputs?.hidden || [];
-    if ((hiddenOn as string[]).includes(operation as string))
-      return { inputs, injector };
+    if ((hiddenOn as string[]).includes(operation as string)) return { inputs, injector };
 
     // const customTypes = (inputs as KeyValue)?.['customTypes'] || [];
     // const hasFormRoot = Object.values(possibleInputs).some(({propName}) => propName ===  AngularEngineKeys.PARENT_FORM);
     // if (hasFormRoot && !inputs?.[AngularEngineKeys.PARENT_FORM] && formGroup)
     //   inputs[AngularEngineKeys.PARENT_FORM] = formGroup;
-    if(operation !== OperationKeys.CREATE && (hiddenOn as string[]).includes(OperationKeys.CREATE)) {
-       fieldDef.props = {...fieldDef.props, ... {readonly: true, type: HTML5InputTypes.TEXT} };
+    if (
+      operation !== OperationKeys.CREATE &&
+      (hiddenOn as string[]).includes(OperationKeys.CREATE)
+    ) {
+      fieldDef.props = { ...fieldDef.props, ...{ readonly: true, type: HTML5InputTypes.TEXT } };
     }
 
     const result: AngularDynamicOutput = {
@@ -250,23 +244,22 @@ export class NgxRenderingEngine extends RenderingEngine<
     };
 
     if (fieldDef.rendererId)
-      (result.inputs as Record<string, unknown>)['rendererId'] =
-        fieldDef.rendererId;
+      (result.inputs as Record<string, unknown>)['rendererId'] = fieldDef.rendererId;
     // process children
     // generating DOM
     // const projectable = NgxRenderingEngine._projectable;
     // const template = !projectable ? [] : vcr.createEmbeddedView(tpl, injector).rootNodes;
     // const template = [];
     const hasChildren = Object.values(possibleInputs).some(
-      ({ propName }) => propName === AngularEngineKeys.CHILDREN
+      ({ propName }) => propName === AngularEngineKeys.CHILDREN,
     );
     const hasModel = Object.values(possibleInputs).some(
-      ({ propName }) => propName === ModelKeys.MODEL
+      ({ propName }) => propName === ModelKeys.MODEL,
     );
     const componentInputs = Object.assign(
       inputs,
       hasModel ? { model: this._model } : {},
-      hasChildren ? { children: fieldDef?.['children'] || [] } : {}
+      hasChildren ? { children: fieldDef?.['children'] || [] } : {},
     );
     if (createComponent) {
       vcr.clear();
@@ -276,19 +269,24 @@ export class NgxRenderingEngine extends RenderingEngine<
         injector,
         componentMetadata,
         vcr,
-        []
+        [],
       );
-      result.component = NgxRenderingEngine._instance =
-        componentInstance as Type<unknown>;
+      result.component = NgxRenderingEngine._instance = componentInstance as Type<unknown>;
     }
     if (fieldDef.children?.length) {
       if (!NgxRenderingEngine._parentProps && inputs?.['pages']) {
         NgxRenderingEngine._parentProps = { pages: inputs?.['pages'] };
         //  NgxRenderingEngine._projectable = false;
       }
-
+      const { handlers } = fieldDef.props;
       result.children = fieldDef.children.map((child) => {
-        const readonly = [OperationKeys.READ, OperationKeys.DELETE].includes(fieldDef.props?.['operation'] as OperationKeys) || fieldDef.props?.['readonly'] || (operation === OperationKeys.UPDATE && ((child?.props?.hidden || []) as string[]).includes(OperationKeys.CREATE));
+        const readonly =
+          [OperationKeys.READ, OperationKeys.DELETE].includes(
+            fieldDef.props?.['operation'] as OperationKeys,
+          ) ||
+          fieldDef.props?.['readonly'] ||
+          (operation === OperationKeys.UPDATE &&
+            ((child?.props?.hidden || []) as string[]).includes(OperationKeys.CREATE));
         // const hiddenOn = (child?.props?.hidden || []) as string[];
         // // moved to ui decorators
         // if (child?.children?.length) {
@@ -299,13 +297,24 @@ export class NgxRenderingEngine extends RenderingEngine<
         //   })
         // }
         // if (!hiddenOn?.length || !(hiddenOn as CrudOperations[]).includes(operation as CrudOperations))
-        if(!readonly) {
+        child.props['handlers'] = Object.keys(child.props?.['handlers'] || {}).length
+          ? child.props?.['handlers']
+          : handlers;
+        if (!readonly) {
           NgxFormService.addControlFromProps(registryFormId, child.props, {
             ...inputs,
             ...(NgxRenderingEngine._parentProps || {}),
           });
         } else {
-          child.props = {...child.props, ... {readonly: true, operation: fieldDef.props['operation'] || child.props?.['operation']} };
+          child.props = {
+            ...child.props,
+            ...{
+              readonly: true,
+              operation:
+                fieldDef.props[BaseComponentProps.OPERATION] ||
+                child.props?.[BaseComponentProps.OPERATION],
+            },
+          };
         }
         return this.fromFieldDefinition(
           child,
@@ -314,7 +323,7 @@ export class NgxRenderingEngine extends RenderingEngine<
           tpl,
           registryFormId,
           false,
-          formGroup
+          formGroup,
         );
       });
     }
@@ -342,7 +351,7 @@ export class NgxRenderingEngine extends RenderingEngine<
     injector?: Injector,
     metadata?: ComponentMirror<unknown>,
     vcr?: ViewContainerRef,
-    template?: Node[]
+    template?: Node[],
   ): C {
     if (vcr && metadata && injector)
       return NgxRenderingEngine.createViewComponent(
@@ -351,7 +360,7 @@ export class NgxRenderingEngine extends RenderingEngine<
         metadata,
         vcr,
         injector,
-        template || []
+        template || [],
       );
     return NgxRenderingEngine.createHostComponent(component, inputs, injector);
   }
@@ -362,7 +371,7 @@ export class NgxRenderingEngine extends RenderingEngine<
     metadata: ComponentMirror<unknown>,
     vcr: ViewContainerRef,
     injector: Injector,
-    template: Node[] = []
+    template: Node[] = [],
   ): C {
     const cmp = vcr.createComponent(component as Type<unknown>, {
       environmentInjector: injector as EnvironmentInjector,
@@ -375,15 +384,14 @@ export class NgxRenderingEngine extends RenderingEngine<
   static createHostComponent<C>(
     component: Type<C | unknown> | string,
     props: KeyValue = {},
-    injector?: Injector
+    injector?: Injector,
   ): C {
     if (!injector)
       injector =
-        NgxRenderingEngine._injector ||
-        Injector.create({ providers: [], parent: Injector.NULL });
+        NgxRenderingEngine._injector || Injector.create({ providers: [], parent: Injector.NULL });
     const envInjector: EnvironmentInjector = createEnvironmentInjector(
       [],
-      injector as EnvironmentInjector
+      injector as EnvironmentInjector,
     );
 
     let cmp: ComponentRef<unknown> = {} as ComponentRef<C>;
@@ -392,9 +400,7 @@ export class NgxRenderingEngine extends RenderingEngine<
       const host = document.createElement('div');
       component =
         typeof component === Primitives.STRING
-          ? (NgxRenderingEngine.components(
-              component as string
-            ) as Type<unknown>)
+          ? (NgxRenderingEngine.components(component as string) as Type<unknown>)
           : component;
       if (!host) throw new Error('Cant create host element for component');
 
@@ -404,33 +410,24 @@ export class NgxRenderingEngine extends RenderingEngine<
       });
 
       const metadata = reflectComponentType(component as Type<unknown>);
-      if (!metadata)
-        throw new InternalError(
-          `Metadata for component ${component} not found.`
-        );
+      if (!metadata) throw new InternalError(`Metadata for component ${component} not found.`);
 
       const { inputs: possibleInputs } = metadata;
       const inputs = { ...props };
 
       const unmappedKeys = Object.keys(inputs).filter((input) => {
-        const isMapped = possibleInputs.find(
-          ({ propName }) => propName === input
-        );
+        const isMapped = possibleInputs.find(({ propName }) => propName === input);
         if (!isMapped) delete inputs[input];
         return !isMapped;
       });
 
       if (unmappedKeys.length > 0 && isDevelopmentMode())
         getLogger(this.createHostComponent).warn(
-          `Unmapped input properties for component ${component}: ${unmappedKeys.join(', ')}`
+          `Unmapped input properties for component ${component}: ${unmappedKeys.join(', ')}`,
         );
 
       if (metadata)
-        this.setInputs(
-          cmp as ComponentRef<unknown>,
-          inputs,
-          metadata as ComponentMirror<unknown>
-        );
+        this.setInputs(cmp as ComponentRef<unknown>, inputs, metadata as ComponentMirror<unknown>);
       document.body.querySelector('ion-app')?.appendChild(host);
     });
 
@@ -450,7 +447,7 @@ export class NgxRenderingEngine extends RenderingEngine<
    */
   getDecorators(
     model: Model,
-    globalProps: Record<string, unknown>
+    globalProps: Record<string, unknown>,
   ): FieldDefinition<AngularFieldDefinition> {
     return this.toFieldDefinition(model, globalProps);
   }
@@ -507,7 +504,7 @@ export class NgxRenderingEngine extends RenderingEngine<
     globalProps: Record<string, unknown>,
     vcr: ViewContainerRef,
     injector: Injector,
-    tpl: TemplateRef<unknown>
+    tpl: TemplateRef<unknown>,
   ): AngularDynamicOutput {
     let result: AngularDynamicOutput;
     if (!NgxRenderingEngine._injector) NgxRenderingEngine._injector = injector;
@@ -518,26 +515,13 @@ export class NgxRenderingEngine extends RenderingEngine<
       const props = fieldDef.props as Partial<IFormComponentProperties>;
       if (!NgxRenderingEngine._operation)
         NgxRenderingEngine._operation = props?.operation || undefined;
-      const isArray =
-        (props?.pages && (props?.pages as number) >= 1) ||
-        props?.multiple === true;
+      const isArray = (props?.pages && (props?.pages as number) >= 1) || props?.multiple === true;
       const formGroup = NgxFormService.createForm(formId, isArray);
-      result = this.fromFieldDefinition(
-        fieldDef,
-        vcr,
-        injector,
-        tpl,
-        formId,
-        true,
-        formGroup
-      );
-      if (result.component)
-        (result.component as KeyValue)['formGroup'] = formGroup;
+      result = this.fromFieldDefinition(fieldDef, vcr, injector, tpl, formId, true, formGroup);
+      if (result.component) (result.component as KeyValue)['formGroup'] = formGroup;
       NgxRenderingEngine.destroy(formId);
     } catch (e: unknown) {
-      throw new InternalError(
-        `Failed to render Model ${model.constructor.name}: ${e}`
-      );
+      throw new InternalError(`Failed to render Model ${model.constructor.name}: ${e}`);
     }
 
     return result;
@@ -568,10 +552,7 @@ export class NgxRenderingEngine extends RenderingEngine<
    * @static
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
-  static registerComponent(
-    name: string,
-    constructor: Constructor<unknown>
-  ): void {
+  static registerComponent(name: string, constructor: Constructor<unknown>): void {
     if (!this._components) this._components = {};
     if (name in this._components)
       throw new InternalError(`Component already registered under ${name}`);
@@ -634,24 +615,18 @@ export class NgxRenderingEngine extends RenderingEngine<
   static setInputs(
     component: ComponentRef<unknown>,
     inputs: KeyValue,
-    metadata: ComponentMirror<unknown>
+    metadata: ComponentMirror<unknown>,
   ): void {
-    function parseInputValue(
-      component: ComponentRef<unknown>,
-      input: KeyValue
-    ) {
+    function parseInputValue(component: ComponentRef<unknown>, input: KeyValue) {
       Object.keys(input).forEach((key) => {
         const value = input[key];
-        if (typeof value === 'object' && !!value)
-          return parseInputValue(component, value);
+        if (typeof value === 'object' && !!value) return parseInputValue(component, value);
         component.setInput(key, value);
       });
     }
 
     Object.entries(inputs).forEach(([key, value]) => {
-      const prop = metadata.inputs.find(
-        (item: { propName: string }) => item.propName === key
-      );
+      const prop = metadata.inputs.find((item: { propName: string }) => item.propName === key);
       if (prop) {
         if (key === 'props') {
           component.setInput(key, value);

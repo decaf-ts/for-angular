@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
@@ -9,7 +9,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ICrudFormEvent, ITabItem } from 'src/lib/engine/interfaces';
 import { BatchLayout } from 'src/app/ew/layouts/BatchLayout';
 import { Batch } from 'src/app/ew/fabric/Batch';
-import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
+import { ProductHandler } from 'src/app/ew/handlers/ProductHandler';
 import { TableComponent } from 'src/lib/components/table/table.component';
 import { Product } from 'src/app/ew/fabric/Product';
 import { SelectOption } from 'src/lib/engine/types';
@@ -19,7 +19,6 @@ import { getModelAndRepository } from 'src/lib/engine/helpers';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.component';
 import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
-
 
 @Component({
   selector: 'app-batches',
@@ -35,36 +34,32 @@ import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-dif
     ContainerComponent,
     AppCardTitleComponent,
     TableComponent,
-    EmptyStateComponent
+    EmptyStateComponent,
   ],
 })
-export class BatchesPage  extends NgxModelPageDirective implements OnInit {
-
+export class BatchesPage extends NgxModelPageDirective implements OnInit {
   tabs: ITabItem[] = EpiTabs;
 
   constructor() {
-    super("batch");
+    super('batch');
   }
 
-  override async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     this.model = !this.operation ? new Batch() : new BatchLayout();
+    this.enableCrudOperations([OperationKeys.DELETE]);
     // keep init after model selection
-    this.locale = "batch";
+    this.locale = 'batch';
     this.title = `${this.locale}.title`;
     this.route = 'batches';
-    this.enableCrudOperations([OperationKeys.DELETE]);
-
-    await super.ngOnInit();
-    this.changeDetectorRef.detectChanges();
-
+    await this.initialize();
   }
 
-  override async ionViewWillEnter(): Promise<void> {
-   await super.ionViewWillEnter();
-  }
+  // override async ionViewWillEnter(): Promise<void> {
+  //   await super.ionViewWillEnter();
+  // }
 
-  override async handleEvent(event: ICrudFormEvent): Promise<void> {
-    const handler = (new ProductLayoutHandler()).handle.bind(this);
-    await handler(event, 'Batch');
-  }
+  // override async handleEvent(event: ICrudFormEvent): Promise<void> {
+  //   const handler = (new ProductHandler()).handle.bind(this);
+  //   await handler(event, 'Batch');
+  // }
 }

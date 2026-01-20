@@ -1,22 +1,34 @@
-import { AfterViewInit, Directive, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
-import { FormArray, FormGroup } from "@angular/forms";
-import { CrudOperations, OperationKeys } from "@decaf-ts/db-decorators";
-import { Model } from "@decaf-ts/decorator-validation";
-import { NgxFormService } from "../services/NgxFormService";
-import { IBaseCustomEvent, ICrudFormEvent, IFormElement } from "./interfaces";
-import { FieldUpdateMode, FormParent, HTMLFormTarget } from "./types";
-import { ICrudFormOptions, IRenderedModel } from "./interfaces";
-import { ActionRoles, ComponentEventNames } from "./constants";
-import { NgxParentComponentDirective } from "./NgxParentComponentDirective";
-import { NgxFormFieldDirective } from "./NgxFormFieldDirective";
-import { generateRandomValue } from "../utils";
-import { timer } from "rxjs";
-import { FieldDefinition, UIFunctionLike, UIModelMetadata } from "@decaf-ts/ui-decorators";
+import {
+  AfterViewInit,
+  Directive,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
+import { FormArray, FormGroup } from '@angular/forms';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { Model } from '@decaf-ts/decorator-validation';
+import { NgxFormService } from '../services/NgxFormService';
+import { IBaseCustomEvent, ICrudFormEvent, IFormElement } from './interfaces';
+import { FieldUpdateMode, FormParent, HTMLFormTarget } from './types';
+import { ICrudFormOptions, IRenderedModel } from './interfaces';
+import { ActionRoles, ComponentEventNames } from './constants';
+import { NgxParentComponentDirective } from './NgxParentComponentDirective';
+import { NgxFormFieldDirective } from './NgxFormFieldDirective';
+import { generateRandomValue } from '../utils';
+import { timer } from 'rxjs';
+import { FieldDefinition, UIFunctionLike, UIModelMetadata } from '@decaf-ts/ui-decorators';
+import { Action } from '@angular-devkit/schematics';
 
 @Directive()
-export abstract class NgxFormDirective extends NgxParentComponentDirective implements OnInit, AfterViewInit, IFormElement, OnDestroy, IRenderedModel {
-
-
+export abstract class NgxFormDirective
+  extends NgxParentComponentDirective
+  implements OnInit, AfterViewInit, IFormElement, OnDestroy, IRenderedModel
+{
   /**
    * @description Reactive form group associated with this fieldset.
    * @summary The FormGroup instance that contains all form controls within this fieldset.
@@ -26,7 +38,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    */
   @Input()
   parentFormId!: string;
-
 
   @Input()
   deepMerge: boolean = false;
@@ -41,7 +52,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    */
   @ViewChild('component', { static: false, read: ElementRef })
   override component!: ElementRef;
-
 
   /**
    * @description Field update trigger mode for form validation.
@@ -90,7 +100,6 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   @Input()
   options!: ICrudFormOptions;
 
-
   /**
    * @description Optional action identifier for form submission context.
    * @summary Specifies a custom action name that will be included in the submit event.
@@ -123,7 +132,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    * @type {Record<string, UIFunctionLike>}
    */
   @Input()
-  override handlers!:  Record<string, UIFunctionLike>;
+  override handlers!: Record<string, UIFunctionLike>;
 
   /**
    * @description Unique identifier for the form renderer.
@@ -136,8 +145,7 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   @Input()
   rendererId!: string;
 
-
-    /**
+  /**
    * @description Event emitter for form submission events.
    * @summary Emits ICrudFormEvent objects when the form is submitted, providing
    * form data, component information, and any associated handlers to parent
@@ -165,7 +173,8 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   override match: boolean = false;
 
   @Output()
-  private formGroupLoadedEvent: EventEmitter<IBaseCustomEvent> = new EventEmitter<IBaseCustomEvent>();
+  private formGroupLoadedEvent: EventEmitter<IBaseCustomEvent> =
+    new EventEmitter<IBaseCustomEvent>();
 
   // protected override enableDarkMode: boolean = true;
 
@@ -205,14 +214,13 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
   //  */
   // protected translateService: TranslateService = inject(TranslateService);
 
-
   protected activeFormGroupIndex: number = 0;
 
   get activeFormGroup(): FormParent {
     return this.getFormArrayIndex(this.activeFormGroupIndex) as FormParent;
   }
 
-   /**
+  /**
    * @description Component initialization lifecycle method.
    * @summary Initializes the component by setting up the logger, configuring form state
    * based on the operation type, and merging configuration options. For READ and DELETE
@@ -221,22 +229,26 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    *
    * @returns {Promise<void>}
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  override async ngOnInit(model?: Model | string): Promise<void> {
-    if(!this.uid)
+
+  override async initialize(): Promise<void> {
+    await super.initialize();
+
+    if (!this.uid) {
       this.uid = generateRandomValue(12);
+    }
     // dont call super.ngOnInit to model conflicts
-    if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE)
+    if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
       this.formGroup = undefined;
-    this.initialized = true;
+    }
   }
 
   async ngAfterViewInit(): Promise<void> {
-    if(this.formGroup)
-      this.formGroupLoadedEvent.emit({
-        name: ComponentEventNames.FORM_GROUP_LOADED,
-        data: this.formGroup as FormParent
-      });
+    //TODO: ver se isso é necessário
+    // if (this.formGroup)
+    //   this.formGroupLoadedEvent.emit({
+    //     name: ComponentEventNames.FormGroupLoaded,
+    //     data: this.formGroup as FormParent,
+    //   });
     this.changeDetectorRef.detectChanges();
   }
 
@@ -250,41 +262,43 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    */
   override async ngOnDestroy(): Promise<void> {
     await super.ngOnDestroy();
-    if (this.formGroup)
-      NgxFormService.unregister(this.formGroup);
+    if (this.formGroup) NgxFormService.unregister(this.formGroup);
   }
 
   getFormArrayIndex(index: number): FormParent | undefined {
     if (!(this.formGroup instanceof FormArray) && this.formGroup) {
-      if (this.formGroup.disabled)
-        (this.formGroup as FormParent).enable();
+      if (this.formGroup.disabled) (this.formGroup as FormParent).enable();
       return this.formGroup;
     }
 
     const formGroup = (this.formGroup as FormArray).at(index) as FormGroup;
-    if(formGroup.disabled)
-      (formGroup as FormParent).enable();
+    if (formGroup.disabled) (formGroup as FormParent).enable();
     if (formGroup) {
       if (this.children.length) {
-        const children = [... this.children];
+        const children = [...this.children];
         this.children = [];
         this.changeDetectorRef.detectChanges();
-        this.children = [... children.map(child => {
-          const props = (child.props || {}) as NgxFormFieldDirective;
-          const name = props.name;
-          const control = formGroup.get(name);
-          child.props.value = control?.value;
-          child.props.formGroup = formGroup;
-          child.props.activeFormGroupIndex = index;
-          child.props.formControl = control;
-          return child;
-        })];
+        this.children = [
+          ...children.map((child) => {
+            const props = (child.props || {}) as NgxFormFieldDirective;
+            const name = props.name;
+            const control = formGroup.get(name);
+            child.props.value = control?.value;
+            child.props.formGroup = formGroup;
+            child.props.activeFormGroupIndex = index;
+            child.props.formControl = control;
+            return child;
+          }),
+        ];
         this.changeDetectorRef.detectChanges();
       }
     }
     return formGroup || undefined;
   }
 
+  // override async handleEvent(event: IBaseCustomEvent): Promise<void> {
+  //   await super.handleEvent(event);
+  // }
 
   /**
    * @description Handles form reset or navigation back functionality.
@@ -303,34 +317,45 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
     this.location.back();
   }
 
-  override async submit(event?: SubmitEvent, eventName?: string, componentName?: string): Promise<boolean | void> {
+  override async submit(
+    event?: SubmitEvent,
+    eventName?: string,
+    componentName?: string,
+  ): Promise<boolean | void> {
     if (event) {
       event.preventDefault();
       event.stopImmediatePropagation();
     }
     const isValid = NgxFormService.validateFields(this.formGroup as FormGroup);
-    if (this.isModalChild)
-      this.changeDetectorRef.detectChanges();
+    if (this.isModalChild) this.changeDetectorRef.detectChanges();
     if (!isValid) {
       NgxFormService.enableAllGroupControls(this.formGroup as FormGroup);
       return false;
     }
     const data = NgxFormService.getFormData(this.formGroup as FormGroup);
-    if(Object.keys(data).length > 0)
+    if (Object.keys(data).length > 0)
       return this.submitEventEmit(data, eventName, componentName, this.handlers);
-
   }
-  protected submitEventEmit(data: unknown, componentName?: string, eventName?: string, handlers?: Record<string, UIFunctionLike>): void {
+  protected submitEventEmit(
+    data: unknown,
+    componentName?: string,
+    eventName?: string,
+    handlers?: Record<string, UIFunctionLike>,
+    role?: CrudOperations,
+  ): void {
+    const name = eventName || this.action || ComponentEventNames.Submit;
+    const handler = handlers?.[name] || this.handlers?.[name] || undefined;
     this.submitEvent.emit({
       data,
       component: componentName || this.componentName,
-      name: eventName || this.action || ComponentEventNames.SUBMIT,
-      role: this.operation,
-      handlers: {...(this.handlers || {}), ...(handlers || {})},
+      name: eventName || this.action || ComponentEventNames.Submit,
+      role: role || this.operation,
+      handler: handler,
+      handlers: this.handlers || {},
     });
   }
 
-   /**
+  /**
    * @description Updates the active form group and children for the specified page.
    * @summary Extracts the FormGroup for the given page from the FormArray and filters
    * the children to show only fields belonging to that page. Uses a timer to ensure
@@ -355,17 +380,20 @@ export abstract class NgxFormDirective extends NgxParentComponentDirective imple
    *
    * @memberOf SteppedFormComponent
    */
-   protected override getActivePage(page: number): UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined {
+  protected override getActivePage(
+    page: number,
+  ): UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined {
     if (!(this.formGroup instanceof FormArray))
       this.formGroup = this.formGroup?.parent as FormArray;
-    this.formGroup  = (this.formGroup as FormArray).at(page - 1) as FormGroup;
+    this.formGroup = (this.formGroup as FormArray).at(page - 1) as FormGroup;
     this.activePage = undefined;
-    this.timerSubscription = timer(10).subscribe(() =>
-      this.activePage = (this.children as UIModelMetadata[]).filter(c => c.props?.['page'] === page)
+    this.timerSubscription = timer(10).subscribe(
+      () =>
+        (this.activePage = (this.children as UIModelMetadata[]).filter(
+          (c) => c.props?.['page'] === page,
+        )),
     );
-    if(this.activePage)
-      return this.activePage;
+    if (this.activePage) return this.activePage;
     return undefined;
   }
-
 }

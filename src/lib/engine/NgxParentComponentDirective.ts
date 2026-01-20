@@ -9,7 +9,13 @@
 import { Directive, Input, OnInit } from '@angular/core';
 import { NgxComponentDirective } from './NgxComponentDirective';
 import { FormParent, KeyValue } from './types';
-import { FieldDefinition, IPagedComponentProperties, UIMediaBreakPoints, UIMediaBreakPointsType, UIModelMetadata } from '@decaf-ts/ui-decorators';
+import {
+  FieldDefinition,
+  IPagedComponentProperties,
+  UIMediaBreakPoints,
+  UIMediaBreakPointsType,
+  UIModelMetadata,
+} from '@decaf-ts/ui-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IComponentProperties } from './interfaces';
 import { Subscription, timer } from 'rxjs';
@@ -27,6 +33,9 @@ import { Subscription, timer } from 'rxjs';
  */
 @Directive()
 export class NgxParentComponentDirective extends NgxComponentDirective implements OnInit {
+  ngOnInit(): void {
+    throw new Error('Method not implemented.');
+  }
 
   /**
    * @description Unique identifier for the current record.
@@ -38,7 +47,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
   @Input()
   page: number = 1;
 
-
   /**
    * @description Unique identifier for the current record.
    * @summary A unique identifier for the current record being displayed or manipulated.
@@ -49,7 +57,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
   @Input()
   pages: number | IPagedComponentProperties[] = 1;
 
-
   /**
    * @description Array of UI model metadata for the currently active page.
    * @summary Contains only the UI model metadata for fields that should be displayed
@@ -58,8 +65,12 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
    *
    * @type { UIModelMetadata | UIModelMetadata[] | FieldDefinition | FieldDefinition[] | undefined }
    */
-  activePage: UIModelMetadata | UIModelMetadata[] | FieldDefinition | FieldDefinition[] | undefined = undefined;
-
+  activePage:
+    | UIModelMetadata
+    | UIModelMetadata[]
+    | FieldDefinition
+    | FieldDefinition[]
+    | undefined = undefined;
 
   /**
    * @description The currently active page number.
@@ -81,7 +92,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
   @Input()
   parentForm!: FormParent;
 
-
   /**
    * @description Array of UI model metadata for all form fields.
    * @summary Contains the complete collection of UI model metadata that defines
@@ -93,7 +103,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
    */
   @Input()
   children: UIModelMetadata[] | IComponentProperties[] | FieldDefinition[] | KeyValue[] = [];
-
 
   /**
    * @description Number of columns or array of column definitions for the grid layout.
@@ -142,7 +151,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
   @Input()
   cardType: 'clear' | 'shadow' = 'clear';
 
-
   /**
    * @description Media breakpoint for responsive behavior.
    * @summary Determines the responsive breakpoint at which the layout should adapt.
@@ -156,7 +164,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
   @Input()
   breakpoint?: UIMediaBreakPointsType | string = UIMediaBreakPoints.MEDIUM;
 
-
   /**
    * @description Determines if the layout should match the parent container's size or configuration.
    * @summary Boolean flag that controls whether the component should adapt its layout to match its parent.
@@ -168,7 +175,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
   @Input()
   match: boolean = true;
 
-
   /**
    * @description Preloads card placeholders for rendering.
    * @summary Used to create an array of placeholder elements for card components,
@@ -178,7 +184,6 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
    * @default [undefined]
    */
   preloadCards: string[] = new Array(1);
-
 
   /**
    * @description Subscription for timer-based operations.
@@ -192,32 +197,31 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
    */
   protected timerSubscription!: Subscription;
 
-  async ngOnInit(model?: Model | string): Promise<void> {
-    if (model)
-      this.model = model;
-    if (this.model && !this.repository)
-      this._repository = this.repository;
+  override async initialize(model?: Model | string): Promise<void> {
+    await super.initialize();
+    if (model) this.model = model;
+    if (this.model && !this.repository) this._repository = this.repository;
   }
 
   override async ngOnDestroy(): Promise<void> {
     await super.ngOnDestroy();
-    if (this.timerSubscription)
-      this.timerSubscription.unsubscribe();
+    if (this.timerSubscription) this.timerSubscription.unsubscribe();
   }
 
-  protected getActivePage(page: number, firstClick: boolean = true): UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined {
-    if(firstClick || this.activeIndex !== page) {
+  protected getActivePage(
+    page: number,
+    firstClick: boolean = true,
+  ): UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined {
+    if (firstClick || this.activeIndex !== page) {
       const content = this.children[page] as FieldDefinition;
       this.activePage = undefined;
-      this.preloadCards = [... new Array(1)];
-      this.timerSubscription = timer(25).subscribe(() =>
-        this.activePage = {... this.children[page] as FieldDefinition }
+      this.preloadCards = [...new Array(1)];
+      this.timerSubscription = timer(25).subscribe(
+        () => (this.activePage = { ...(this.children[page] as FieldDefinition) }),
       );
       this.activeIndex = page;
-      if(content)
-        return content;
+      if (content) return content;
       return undefined;
     }
-
   }
 }

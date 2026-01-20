@@ -7,7 +7,6 @@ import { Primitives } from '@decaf-ts/decorator-validation';
 import { KeyValue } from '../engine/types';
 import { ComponentEventNames, RouteDirections } from '../engine/constants';
 
-
 /**
  * @description Service for handling routing operations in the application.
  * @summary The RouterService provides a unified interface for navigation and route management,
@@ -329,14 +328,14 @@ export class NgxRouterService {
    *   participant L as Location
    *
    *   C->>R: backToLastPage()
-   *   R->>L: Dispatch BACK_BUTTON_NAVIGATION event
+   *   R->>L: Dispatch BackButtonClickEvent event
    *   R->>L: Navigate back
    *
    * @memberOf RouterService
    */
   backToLastPage(): void {
     globalThis.window.dispatchEvent(
-      new CustomEvent(ComponentEventNames.BACK_BUTTON_NAVIGATION, {
+      new CustomEvent(ComponentEventNames.BackButtonClickEvent, {
         bubbles: true,
         composed: true,
         cancelable: false,

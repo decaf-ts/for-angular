@@ -5,7 +5,12 @@
  * and FieldProperties to enable form field integration with Angular's reactive forms system.
  * This directive handles form control lifecycle, validation, multi-entry forms, and CRUD operations.
  */
-import { CrudOperationKeys, FieldProperties, HTML5InputTypes, RenderingError } from '@decaf-ts/ui-decorators';
+import {
+  CrudOperationKeys,
+  FieldProperties,
+  HTML5InputTypes,
+  RenderingError,
+} from '@decaf-ts/ui-decorators';
 import { FormParent, KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ControlValueAccessor, FormArray, FormControl, FormGroup } from '@angular/forms';
@@ -49,8 +54,10 @@ import { SelectCustomEvent } from '@ionic/angular/standalone';
  * ```
  */
 @Directive()
-export abstract class NgxFormFieldDirective extends NgxComponentDirective implements OnChanges, ControlValueAccessor, FieldProperties {
-
+export abstract class NgxFormFieldDirective
+  extends NgxComponentDirective
+  implements OnChanges, ControlValueAccessor, FieldProperties
+{
   /**
    * @description Index of the currently active form group in a form array.
    * @summary When working with multiple form groups (form arrays), this indicates
@@ -62,7 +69,6 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    */
   @Input()
   activeFormGroupIndex: number = 0;
-
 
   @Input({ required: true })
   override operation: CrudOperations = OperationKeys.CREATE;
@@ -79,7 +85,6 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
   @Input()
   parentForm!: FormParent;
 
-
   /**
    * @description Field mapping configuration for options.
    * @summary Defines how fields from the data model should be mapped to properties used by the component.
@@ -90,7 +95,6 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    */
   @Input()
   optionsMapper: KeyValue | FunctionLike = {};
-
 
   /**
    * @description Angular FormControl instance for this field.
@@ -114,7 +118,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @type {PossibleInputTypes}
    * @public
    */
-  type!: PossibleInputTypes ;
+  type!: PossibleInputTypes;
 
   /**
    * @description Whether the field is disabled.
@@ -263,7 +267,6 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    */
   multiple!: boolean;
 
-
   checked: boolean = false;
 
   /**
@@ -282,7 +285,6 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    */
   protected parent?: HTMLElement;
 
-
   /**
    * @description Reference to HTML5 input type constants for template usage.
    * @summary Exposes the HTML5InputTypes enum to the component template, enabling
@@ -296,10 +298,9 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
   readonly HTML5InputTypes = HTML5InputTypes;
 
   // eslint-disable-next-line @angular-eslint/prefer-inject
-  constructor(@Inject(CPTKN) componentName: string = "ComponentCrudField") {
+  constructor(@Inject(CPTKN) componentName: string = 'ComponentCrudField') {
     super(componentName);
   }
-
 
   /**
    * @description Gets the currently active form group based on context.
@@ -311,8 +312,7 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @public
    */
   get activeFormGroup(): FormGroup {
-    if (!this.formGroup)
-      return this.formControl.parent as FormGroup;
+    if (!this.formGroup) return this.formControl.parent as FormGroup;
 
     if (this.multiple) {
       if (this.formGroup instanceof FormArray)
@@ -425,7 +425,9 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
         try {
           parent = NgxFormService.getParentEl(this.component.nativeElement, 'div');
         } catch (e: unknown) {
-          throw new RenderingError(`Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`);
+          throw new RenderingError(
+            `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`,
+          );
         }
         // NgxFormService.register(parent.id, this.formGroup, this as AngularFieldDefinition);
         return parent;
@@ -445,17 +447,23 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @public
    */
   override async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    if (!this.initialized)
-      await super.ngOnChanges(changes);
-    if (changes['activeFormGroupIndex'] && this.multiple &&
-        !changes['activeFormGroupIndex'].isFirstChange() && changes['activeFormGroupIndex'].currentValue !== this.activeFormGroupIndex) {
-
+    if (!this.initialized) await super.ngOnChanges(changes);
+    if (
+      changes['activeFormGroupIndex'] &&
+      this.multiple &&
+      !changes['activeFormGroupIndex'].isFirstChange() &&
+      changes['activeFormGroupIndex'].currentValue !== this.activeFormGroupIndex
+    ) {
       this.activeFormGroupIndex = changes['activeFormGroupIndex'].currentValue;
       this.formGroup = this.activeFormGroup;
       this.formControl = this.formGroup.get(this.name) as FormControl;
     }
-    if (changes['value'] && !changes['value'].isFirstChange()
-    && (changes['value'].currentValue !== undefined && changes['value'].currentValue !== this.value))
+    if (
+      changes['value'] &&
+      !changes['value'].isFirstChange() &&
+      changes['value'].currentValue !== undefined &&
+      changes['value'].currentValue !== this.value
+    )
       this.setValue(changes['value'].currentValue);
   }
 
@@ -467,10 +475,8 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @public
    */
   onDestroy(): void {
-    if (this.formGroup)
-      NgxFormService.unregister(this.formGroup);
+    if (this.formGroup) NgxFormService.unregister(this.formGroup);
   }
-
 
   /**
    * @description Sets the value of the form control.
@@ -485,8 +491,6 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
     this.formControl.updateValueAndValidity();
     this.value = value as string | number | Date | string[];
   }
-
-
 
   /**
    * @description Clears the current form control value as a response to a UI interact
@@ -509,12 +513,11 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
    * @public
    */
   handleModalChildChanges(event?: SelectCustomEvent): void {
-     if(this.type === HTML5InputTypes.SELECT && event) {
-      const {value} = event.detail;
+    if (this.type === HTML5InputTypes.SELECT && event) {
+      const { value } = event.detail;
       this.value = value;
     }
-    if (this.isModalChild)
-      this.changeDetectorRef.detectChanges();
+    if (this.isModalChild) this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -529,27 +532,30 @@ export abstract class NgxFormFieldDirective extends NgxComponentDirective implem
   getErrors(parent: HTMLElement): string | void {
     const formControl = this.formControl;
     if (formControl) {
-      const accordionComponent = parent.closest('ngx-decaf-fieldset')?.querySelector('ion-accordion-group');
+      const accordionComponent = parent
+        .closest('ngx-decaf-fieldset')
+        ?.querySelector('ion-accordion-group');
       if ((!formControl.pristine || formControl.touched) && !formControl.valid) {
-        const errors: Record<string, string>[] = Object.keys(formControl.errors ?? {}).map(key => ({
-          key: key,
-          message: key,
-        }));
+        const errors: Record<string, string>[] = Object.keys(formControl.errors ?? {}).map(
+          (key) => ({
+            key: key,
+            message: key,
+          }),
+        );
         if (errors.length) {
           if (accordionComponent && !this.validationErrorEventDispatched) {
-            const validationErrorEvent = new CustomEvent(ComponentEventNames.VALIDATION_ERROR, {
-              detail: {fieldName: this.name, hasErrors: true},
-              bubbles: true
+            const validationErrorEvent = new CustomEvent(ComponentEventNames.ValidationError, {
+              detail: { fieldName: this.name, hasErrors: true },
+              bubbles: true,
             });
             accordionComponent.dispatchEvent(validationErrorEvent);
             this.validationErrorEventDispatched = true;
           }
         }
-        for(const error of errors) {
+        for (const error of errors) {
           const instance = this as KeyValue;
-          return `* ${ this.translateService.instant(`errors.${error?.['message']}`, {"0": `${instance[error?.['key']] ?? ""}`})}`;
+          return `* ${this.translateService.instant(`errors.${error?.['message']}`, { '0': `${instance[error?.['key']] ?? ''}` })}`;
         }
-
       }
     }
   }

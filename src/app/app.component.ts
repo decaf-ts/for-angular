@@ -50,7 +50,6 @@ import { IAppMenuItem } from './ew/utils/interfaces';
   styleUrl: './app.component.scss',
 })
 export class AppComponent extends NgxPageDirective implements OnInit {
-
   menuCollapsed: boolean = false;
 
   showCollapseButton: boolean = true;
@@ -60,7 +59,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    * @summary Sets up router event subscriptions and initializes the application
    * @return {Promise<void>}
    */
-  override async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     this.hasMenu = true;
     this.title = 'Decaf-ts for-angular demo';
     this.appName = AppName;
@@ -74,7 +73,15 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    */
   override async initialize(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
-    const populate = ['Product', 'Batch', 'Leaflet', 'CategoryModel', 'AIVendorModel', 'ProductStrength'];
+    const populate = [
+      'Product',
+      'Batch',
+      'Leaflet',
+      'CategoryModel',
+      'AIVendorModel',
+      'ProductStrength',
+      'ProductImage',
+    ];
     const menu = [];
     const models = AppModels;
     const dbAdapterFlavour = getDbAdapterFlavour();
@@ -84,12 +91,10 @@ export class AppComponent extends NgxPageDirective implements OnInit {
         model = new (model as unknown as ModelConstructor<typeof model>)();
       const name = model.constructor.name.replace(/[0-9]/g, '');
       if (isDevelopment && dbAdapterFlavour.includes(RamFlavour)) {
-        if (populate.includes(name))
-          await new FakerRepository(model, 36).initialize();
+        if (populate.includes(name)) await new FakerRepository(model, 36).initialize();
       }
       const label = name.toLowerCase().replace(ModelKeys.MODEL, '');
-      if (!menu.length)
-        menu.push({ label: 'models' });
+      if (!menu.length) menu.push({ label: 'models' });
       menu.push({
         label: `${label}`,
         url: `/model/${Model.tableName(model)}`,
@@ -104,17 +109,20 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       ...AppMenu,
       // LogoutMenuItem,
     ];
-    await super.ngOnInit();
+    await super.initialize();
   }
 
-  isMenuActive(item: IAppMenuItem & {activeWhen: string[]}): boolean {
-    const {url, activeWhen} = item;
-    return (url?.length && (url === this.currentRoute || (activeWhen || []).includes(this.currentRoute  as string))) || false;
+  isMenuActive(item: IAppMenuItem & { activeWhen: string[] }): boolean {
+    const { url, activeWhen } = item;
+    return (
+      (url?.length &&
+        (url === this.currentRoute || (activeWhen || []).includes(this.currentRoute as string))) ||
+      false
+    );
   }
 
   handleCollapseMenu() {
     this.menuCollapsed = !this.menuCollapsed;
-    this.changeDetectorRef.detectChanges()
+    this.changeDetectorRef.detectChanges();
   }
-
 }

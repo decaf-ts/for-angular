@@ -1,17 +1,31 @@
-# Editor configuration, see https://editorconfig.org
+# EditorConfig ajuda a manter estilos de código consistentes entre diferentes editores
+
 root = true
 
 [*]
 charset = utf-8
 indent_style = space
 indent_size = 2
+end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.ts]
-quote_type = single
-ij_typescript_use_double_quotes = false
-
+# Arquivos Markdown não devem remover espaços no final
 [*.md]
-max_line_length = off
 trim_trailing_whitespace = false
+
+# HTML segue o mesmo padrão do Prettier
+[*.html]
+indent_size = 2
+
+# SCSS, SASS e CSS com indentação consistente
+[*.{scss,sass,css}]
+indent_size = 2
+
+# TypeScript e JavaScript
+[*.{ts,tsx,js,jsx}]
+indent_size = 2
+
+# JSON e YAML
+[*.{json,yml,yaml}]
+indent_size = 2

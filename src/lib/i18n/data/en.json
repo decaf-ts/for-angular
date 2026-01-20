@@ -119,6 +119,20 @@
     "pagination": {
       "resume": "Showing page <span class=\"text-bold\">{0} of {1}</span>"
     },
+    "modal": {
+      "confirm": {
+        "operations": {
+          "delete": {
+            "title": "Confirm Deletion of {0}",
+            "message": "Are you sure you want to delete the item {0} from {1}? <p class=\"text-bold dcf-color-danger\">This action cannot be undone.</p>"
+          }
+        },
+        "buttons": {
+          "confirm": "Confirm",
+          "cancel": "Cancel"
+        }
+      }
+    },
     "filter": {
       "title": "Filter",
       "type": "Type value",

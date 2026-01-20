@@ -1,89 +1,162 @@
-
-  @if (['create', 'update'].includes(operation) || !multiple) {
-    <div
-      [attr.role]="['create', 'update'].includes(operation) ? 'group' : 'region'"
-
-      [class]="'dcf-fieldset-component ' + operation"
-      [class.dcf-blank]="!borders"
-      [class.dcf-empty]="!items?.length"
-      [class.dcf-open]="isOpen"
-      #component>
-      <div class="dcf-width-1-1">
-        <div>
-          <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1">
-            <div class="dcf-width-expand">
-              <legend>{{ (title ? title : name) | translate }}</legend>
-            </div>
-            @if (!isRequired && ['create'].includes(operation) && multiple) {
-              <div class="dcf-width-auto dcf-delete">
-                <ion-button fill="clear" size="small" (click)="handleClear($event)" [class.dcf-invisible]="!isOpen" [attr.aria-label]="(items?.length ? (locale+'.clear_items') : (locale+'.hidden_form')) | translate">
-                  <ngx-decaf-icon slot="icon-only" [name]="'ti-'+(items?.length ? 'trash' : 'eye-off')" />
-                </ion-button>
-              </div>
-            }
+@if (['create', 'update'].includes(operation) || !multiple) {
+  <div
+    [attr.role]="['create', 'update'].includes(operation) ? 'group' : 'region'"
+    [class]="'dcf-fieldset-component ' + operation"
+    [class.dcf-blank]="!borders"
+    [class.dcf-empty]="!items?.length"
+    [class.dcf-open]="isOpen"
+    #component
+  >
+    <div class="dcf-width-1-1">
+      <div>
+        <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1">
+          <div class="dcf-width-expand">
+            <legend>{{ (title ? title : name) | translate }}</legend>
           </div>
-        </div>
-
-          <div class="dcf-fieldset-content" [class.dcf-empty]="!items?.length && !isOpen"  slot="content">
-            @if(activePage) {
-              <div class="dcf-animation dcf-animation-slide-top-small dcf-animation-fast" [class.dcf-disabled]="!activePage" >
-                <ngx-decaf-layout
-                  [className]="''"
-                  [flexMode]="props.flexMode ?? false"
-                  [match]="false"
-                  [gap]="'small'"
-                  [children]="activePage || []"
-                  [parentForm]="formGroup || parentForm"
-                  [rows]="rows"
-                  [cols]="cols"
-                  [borders]="activePage?.borders  ?? false"
-                  [breakpoint]="breakpoint ?? 'large'"
-                  [hidden]="items.length === max && !updatingItem"
+          @if (!isRequired && ['create'].includes(operation) && multiple) {
+            <div class="dcf-width-auto dcf-delete">
+              <ion-button
+                fill="clear"
+                size="small"
+                (click)="handleClear($event)"
+                [class.dcf-invisible]="!isOpen"
+                [attr.aria-label]="
+                  (items?.length ? locale + '.clear_items' : locale + '.hidden_form') | translate
+                "
+              >
+                <ngx-decaf-icon
+                  slot="icon-only"
+                  [name]="'ti-' + (items?.length ? 'trash' : 'eye-off')"
                 />
-              </div>
-            }
+              </ion-button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div
+        class="dcf-fieldset-content"
+        [class.dcf-empty]="!items?.length && !isOpen"
+        slot="content"
+      >
+        @if (activePage) {
+          <div
+            class="dcf-animation dcf-animation-slide-top-small dcf-animation-fast"
+            [class.dcf-disabled]="!activePage"
+          >
+            <ngx-decaf-layout
+              [className]="''"
+              [flexMode]="props.flexMode ?? false"
+              [match]="false"
+              [gap]="'small'"
+              [children]="activePage || []"
+              [parentForm]="formGroup || parentForm"
+              [rows]="rows"
+              [cols]="cols"
+              [borders]="activePage?.borders ?? false"
+              [breakpoint]="breakpoint ?? 'large'"
+              [hidden]="items.length === max && !updatingItem"
+            />
+          </div>
+        }
 
         @if (multiple && ['create', 'update'].includes(operation)) {
           @if (multiple && items.length) {
             <ion-list class="dcf-fields-list">
-              <ion-reorder-group [formGroup]="formGroup.parent" [disabled]="updatingItem" (ionItemReorder)="handleReorderItems($any($event))" #accordionComponent>
-                @for(item of items; track item.index) {
-                  <ion-item [class.not-unique]="item.title === isUniqueError" [class.updating]="updatingItem?.['index'] === item.index - 1" lines="full" [button]="false">
-                    @if(ordenable) {
+              <ion-reorder-group
+                [formGroup]="formGroup.parent"
+                [disabled]="updatingItem"
+                (ionItemReorder)="handleReorderItems($any($event))"
+                #accordionComponent
+              >
+                @for (item of items; track item.index) {
+                  <ion-item
+                    [class.not-unique]="item.title === isUniqueError"
+                    [class.updating]="updatingItem?.['index'] === item.index - 1"
+                    lines="full"
+                    [button]="false"
+                  >
+                    @if (ordenable) {
                       @if (items?.length > 1 && !updatingItem) {
                         <ion-reorder slot="start">
                           <ion-icon aria-hidden="true" name="swap-vertical-outline"></ion-icon>
                         </ion-reorder>
                       } @else {
                         <div slot="start">
-                          <ion-icon aria-hidden="true" class="dcf-reorder-disabled" size="small" name="swap-vertical-outline" disabled></ion-icon>
+                          <ion-icon
+                            aria-hidden="true"
+                            class="dcf-reorder-disabled"
+                            size="small"
+                            name="swap-vertical-outline"
+                            disabled
+                          ></ion-icon>
                         </div>
                       }
                     }
 
-                    <ion-label [color]="(item.title === isUniqueError && !updatingItem?.[pk] === item.title) ? 'danger' : ''">{{ item.index }}. {{ item.title }}
+                    <ion-label
+                      [color]="
+                        item.title === isUniqueError && !updatingItem?.[pk] === item.title
+                          ? 'danger'
+                          : ''
+                      "
+                    >
+                      @if (ordenable) {
+                        {{ item.index }}.{{ item.title }}
+                      } @else {
+                        @if (item[pk]) {
+                          {{ pk }}: {{ item[pk] }} -
+                        }
+                        {{ item.title }}
+                      }
                       @if (item.description?.length > 0) {
                         <br />
-                        <ion-text class="dcf-subtitle">{{item.description}}</ion-text>
+                        <ion-text class="dcf-subtitle">{{ item.description }}</ion-text>
                       }
                     </ion-label>
                     @if (item.info?.length || item.subinfo?.length) {
                       <ion-note slot="end">
-                        @if (item.info?.length) { {{item.info}}<br /> }
-                        @if (item.subinfo) { {{item.subinfo}} }
+                        @if (item.info?.length) {
+                          {{ item.info }}
+                          <br />
+                        }
+                        @if (item.subinfo) {
+                          {{ item.subinfo }}
+                        }
                       </ion-note>
                     }
                     <div slot="end">
-                      @if(editable) {
+                      @if (editable) {
                         @if (!updatingItem || updatingItem?.[pk] !== item.title) {
-                          <ion-button fill="clear" size="small" (click)="handleUpdateItem($index)" [attr.aria-label]="locale +'.edit_item' | translate">
-                            <ngx-decaf-icon slot="icon-only" size="small" name="ti-cash-edit" [color]="!isDarkMode ? 'dark' : 'light'"></ngx-decaf-icon>
+                          <ion-button
+                            fill="clear"
+                            size="small"
+                            (click)="handleUpdateItem($index)"
+                            [attr.aria-label]="locale + '.edit_item' | translate"
+                          >
+                            <ngx-decaf-icon
+                              slot="icon-only"
+                              size="small"
+                              name="ti-cash-edit"
+                              [color]="!isDarkMode ? 'dark' : 'light'"
+                            ></ngx-decaf-icon>
                           </ion-button>
                         }
                       }
                       @if (!updatingItem) {
-                        <ion-button fill="clear" size="small" color="danger" (click)="handleRemoveItem($index)" [attr.aria-label]="locale +'.remove_item' | translate">
-                          <ngx-decaf-icon slot="icon-only" size="small" name="ti-row-remove" [color]="!isDarkMode ? 'dark' : 'light'" />
+                        <ion-button
+                          fill="clear"
+                          size="small"
+                          color="danger"
+                          (click)="handleRemoveItem($index)"
+                          [attr.aria-label]="locale + '.remove_item' | translate"
+                        >
+                          <ngx-decaf-icon
+                            slot="icon-only"
+                            size="small"
+                            name="ti-row-remove"
+                            [color]="!isDarkMode ? 'dark' : 'light'"
+                          />
                         </ion-button>
                       }
                     </div>
@@ -94,24 +167,32 @@
           }
 
           @if (isUniqueError) {
-            <div class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast">
-              <div class=" dcf-grid dcf-grid-collapse dcf-width-1-1 ">
+            <div
+              class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast"
+            >
+              <div class="dcf-grid dcf-grid-collapse dcf-width-1-1">
                 <div class="dcf-auto" [attr.style]="'max-width: 50px'">
                   <ion-icon aria-hidden="true" name="alert-circle-outline"></ion-icon>
                 </div>
                 <div class="dcf-width-expand">
-                  <ion-text color="danger" class="dcf-text-small">{{ locale + '.not_unique' | translate : { value: isUniqueError } }}</ion-text>
+                  <ion-text color="danger" class="dcf-text-small">
+                    {{ locale + '.not_unique' | translate: { value: isUniqueError } }}
+                  </ion-text>
                 </div>
               </div>
             </div>
           }
 
-          @if(max) {
+          @if (max) {
             <div class="dcf-width-1-1 dcf-max-message-container">
-              <ion-text class="dcf-text-small"
+              <ion-text
+                class="dcf-text-small"
                 [color]="items.length !== max ? (!isDarkMode ? 'medium' : '') : 'primary'"
               >
-                {{ locale + (items.length !== max ?  '.max_items' : '.max_items_reached') | translate : { '0': max } }}
+                {{
+                  locale + (items.length !== max ? '.max_items' : '.max_items_reached')
+                    | translate: { '0': max }
+                }}
               </ion-text>
             </div>
           }
@@ -119,66 +200,91 @@
           <div class="dcf-grid dcf-grid-small dcf-flex dcf-buttons-container">
             @if (updatingItem) {
               <div>
-                <ion-button size="small" fill="clear" color="danger" (click)="handleCancelUpdateItem()"  [attr.aria-label]="locale +'.cancel_update' | translate">
+                <ion-button
+                  size="small"
+                  fill="clear"
+                  color="danger"
+                  (click)="handleCancelUpdateItem()"
+                  [attr.aria-label]="locale + '.cancel_update' | translate"
+                >
                   {{ locale + '.cancel' | translate }}
                 </ion-button>
               </div>
               <div>
-                <ion-button size="small" fill="clear" (click)="handleCreateItem()"  [attr.aria-label]="locale +'.update_item' | translate">
-                  <ion-icon  aria-hidden="true" name="refresh-outline" slot="start"></ion-icon>
+                <ion-button
+                  size="small"
+                  fill="clear"
+                  (click)="handleCreateItem()"
+                  [attr.aria-label]="locale + '.update_item' | translate"
+                >
+                  <ion-icon aria-hidden="true" name="refresh-outline" slot="start"></ion-icon>
                   {{ locale + '.update_item' | translate }}
                 </ion-button>
               </div>
             } @else {
               @if (items.length < max || !max) {
                 <div>
-                  <ion-button size="small" fill="clear" class="dcf-button-add" [color]="isDarkMode ? 'light' : 'dark'" (click)="handleCreateItem()"  [attr.aria-label]="locale +'.create_item' | translate">
+                  <ion-button
+                    size="small"
+                    fill="clear"
+                    class="dcf-button-add"
+                    [color]="isDarkMode ? 'light' : 'dark'"
+                    (click)="handleCreateItem()"
+                    [attr.aria-label]="locale + '.create_item' | translate"
+                  >
                     <!-- <ion-icon aria-hidden="true" name="add-outline" slot="start"></ion-icon> -->
-                     <ngx-decaf-icon slot="icon-only" name="ti-code-plus" slot="start" />
-                    {{ locale + (
-                        required ?
-                          (items.length ? '.add' : '.add_first') : (items.length ? '.add' : isOpen ? '.add_first' : '.show_form')
-                      ) | translate }}
+                    <ngx-decaf-icon slot="icon-only" name="ti-code-plus" slot="start" />
+                    {{
+                      locale +
+                        (required
+                          ? items.length
+                            ? '.add'
+                            : '.add_first'
+                          : items.length
+                            ? '.add'
+                            : isOpen
+                              ? '.add_first'
+                              : '.show_form') | translate
+                    }}
                   </ion-button>
                 </div>
               }
             }
           </div>
         }
-        </div>
       </div>
     </div>
+  </div>
+} @else {
+  @if (refreshing) {
+    <div class="dcf-loading-container">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+    </div>
   } @else {
-    @if(refreshing) {
-      <div class="dcf-loading-container">
-        <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <legend>{{ (title ? title : name) | translate }}</legend>
+    @if (!items.length) {
+      <div class="dcf-padding-xsmall">
+        <ion-text>{{ locale + '.empty' | translate }}</ion-text>
       </div>
     } @else {
-      <legend>{{ (title ? title : name) | translate }}</legend>
-      @if(!items.length) {
-        <div class="dcf-padding-xsmall">
-          <ion-text>{{ locale + '.empty' | translate }}</ion-text>
-        </div>
-      } @else {
-        @for(item of items; track trackItemFn($index, item)) {
-
-          <div class="dcf-fieldset-read-item">
-            <div>
-              <ngx-decaf-layout
-                [className]="operation"
-                [operation]="operation"
-                [flexMode]="item?.props?.flexMode ?? false"
-                [match]="false"
-                [gap]="'collapse'"
-                [children]="item || []"
-                [rows]="rows"
-                [cols]="cols"
-                [borders]="item?.props?.borders  ?? false"
-                [breakpoint]="breakpoint ?? 'large'"
-              />
-            </div>
+      @for (item of items; track trackItemFn($index, item)) {
+        <div class="dcf-fieldset-read-item">
+          <div>
+            <ngx-decaf-layout
+              [className]="operation"
+              [operation]="operation"
+              [flexMode]="item?.props?.flexMode ?? false"
+              [match]="false"
+              [gap]="'collapse'"
+              [children]="item || []"
+              [rows]="rows"
+              [cols]="cols"
+              [borders]="item?.props?.borders ?? false"
+              [breakpoint]="breakpoint ?? 'large'"
+            />
           </div>
-        }
+        </div>
       }
     }
   }
+}

@@ -18,8 +18,13 @@ import {
   inject,
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TranslatePipe} from '@ngx-translate/core';
-import { AutocompleteTypes, CheckboxCustomEvent, LoadingOptions, SelectInterface } from '@ionic/core';
+import { TranslatePipe } from '@ngx-translate/core';
+import {
+  AutocompleteTypes,
+  CheckboxCustomEvent,
+  LoadingOptions,
+  SelectInterface,
+} from '@ionic/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import {
   IonBadge,
@@ -37,7 +42,15 @@ import {
 import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
-import { CrudFieldOption, FieldUpdateMode, KeyValue, FunctionLike, PossibleInputTypes, FormParent, SelectOption } from '../../engine/types';
+import {
+  CrudFieldOption,
+  FieldUpdateMode,
+  KeyValue,
+  FunctionLike,
+  PossibleInputTypes,
+  FormParent,
+  SelectOption,
+} from '../../engine/types';
 import { dataMapper, generateRandomValue } from '../../utils';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { Dynamic } from '../../engine/decorators';
@@ -107,16 +120,18 @@ import { getModelAndRepository } from 'src/lib/engine/helpers';
     IonBadge,
     IonText,
     IonTextarea,
-    IconComponent
+    IconComponent,
   ],
   selector: 'ngx-decaf-crud-field',
   templateUrl: './crud-field.component.html',
   styleUrl: './crud-field.component.scss',
   // schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  host: {'[attr.id]': 'uid', '[attr.class]': 'className'},
+  host: { '[attr.id]': 'uid', '[attr.class]': 'className' },
 })
-export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit, OnDestroy, AfterViewInit {
-
+export class CrudFieldComponent
+  extends NgxFormFieldDirective
+  implements OnInit, OnDestroy, AfterViewInit
+{
   /**
    * @description The CRUD operation being performed.
    * @summary Specifies which CRUD operation (Create, Read, Update, Delete) the field is being used for.
@@ -140,7 +155,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    */
   @Input({ required: true })
   override name!: string;
-
 
   @Input()
   override className: string = 'dcf-width-1-1';
@@ -503,7 +517,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   @Input()
   spellcheck: boolean = false;
 
-
   /**
    * @description Spellcheck attribute for text inputs.
    * @summary Enables or disables spellchecking for text inputs.
@@ -526,15 +539,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   @Input()
-  inputmode:
-    | 'none'
-    | 'text'
-    | 'tel'
-    | 'url'
-    | 'email'
-    | 'numeric'
-    | 'decimal'
-    | 'search' = 'none';
+  inputmode: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search' = 'none';
 
   /**
    * @description Autocomplete behavior for the field.
@@ -570,8 +575,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   @Input()
-  labelPlacement: 'start' | 'end' | 'floating' | 'stacked' | 'fixed' =
-    'floating';
+  labelPlacement: 'start' | 'end' | 'floating' | 'stacked' | 'fixed' = 'floating';
 
   /**
    * @description Update mode for the field.
@@ -605,7 +609,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    */
   @Input()
   override formGroup: FormGroup | undefined;
-
 
   /**
    * @description Angular FormControl instance for this field.
@@ -642,25 +645,12 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   @Input()
   override uid: string = generateRandomValue(12);
 
-
   @Input()
   override page!: number;
 
-  /**
-   * @description Translatability of field labels.
-   * @summary Indicates whether the field labels should be translated based on the current language settings.
-   * This is useful for applications supporting multiple languages.
-   *
-   * @type {boolean}
-   * @default true
-   * @memberOf CrudFieldComponent
-   */
-  @Input()
-  translatable: boolean = true;
-
   constructor() {
     super();
-    addIcons({chevronDownOutline, chevronUpOutline});
+    addIcons({ chevronDownOutline, chevronUpOutline });
   }
 
   /**
@@ -674,42 +664,40 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   async ngOnInit(): Promise<void> {
-
     if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation))
       this.hidden = false;
 
-    if(this.readonly && typeof this.readonly === Function.name.toLocaleLowerCase())
-
-    if(this.hidden && (this.hidden as OperationKeys[]).includes(this.operation))
-      this.hidden = true;
-
-    if(this.valueParserFn && typeof this.valueParserFn === Function.name.toLowerCase())
-      this.value = await this.valueParserFn(this.value, this);
+    if (this.readonly && typeof this.readonly === Function.name.toLocaleLowerCase())
+      if (this.hidden && (this.hidden as OperationKeys[]).includes(this.operation))
+        this.hidden = true;
 
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
     } else {
       this.options = await this.getOptions();
-      if (!this.parentForm && this.formGroup instanceof FormGroup || this.formGroup instanceof FormArray)
+      if (
+        (!this.parentForm && this.formGroup instanceof FormGroup) ||
+        this.formGroup instanceof FormArray
+      )
         this.parentForm = (this.formGroup.root || this.formControl.root) as FormParent;
       if (this.multiple) {
         this.formGroup = this.activeFormGroup as FormGroup;
-        if (!this.parentForm)
-          this.parentForm = this.formGroup.parent as FormArray;
+        if (!this.parentForm) this.parentForm = this.formGroup.parent as FormArray;
         this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
       }
       if (!this.value && (this.options as []).length)
         this.setValue((this.options as CrudFieldOption[])[0].value);
 
       if (this.type === HTML5InputTypes.CHECKBOX) {
-        if(this.labelPlacement === 'floating')
-          this.labelPlacement = 'end';
+        if (this.labelPlacement === 'floating') this.labelPlacement = 'end';
         this.setValue(this.value);
       }
     }
+
+    await super.initialize();
   }
 
-   /**
+  /**
    * Returns a list of options for select or radio inputs, with their `text` property
    * localized if it does not already include the word 'options'. The localization key
    * is generated from the component's label, replacing 'label' with 'options'.
@@ -718,22 +706,20 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   async getOptions(): Promise<CrudFieldOption[]> {
-    if (!this.options)
-      return [];
+    if (!this.options) return [];
 
     if (this.options instanceof Function) {
-      if (this.options.name === 'options')
-        this.options = await this.options() as FunctionLike;
+      if (this.options.name === 'options') this.options = (await this.options()) as FunctionLike;
       const fnName = (this.options as FunctionLike)?.name;
       if (fnName) {
-         if (fnName === 'function') {
-          this.options = await (this.options as FunctionLike)() as KeyValue[];
+        if (fnName === 'function') {
+          this.options = (await (this.options as FunctionLike)()) as KeyValue[];
         } else {
           const repo = getModelAndRepository((this.options as KeyValue)?.['name'], this);
-          if(repo) {
-            const {repository} = repo;
-            if(typeof this.optionsMapper === 'object' && !Object.keys(this.optionsMapper).length)
-              this.optionsMapper = { value: this.pk, text: this.pk}
+          if (repo) {
+            const { repository } = repo;
+            if (typeof this.optionsMapper === 'object' && !Object.keys(this.optionsMapper).length)
+              this.optionsMapper = { value: this.pk, text: this.pk };
             this.options = await repository.select().execute();
           }
         }
@@ -747,14 +733,24 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
           return mapper(option);
         });
       } else if (Object.keys(this.optionsMapper).length > 0) {
-        this.options = dataMapper(this.options as KeyValue[], this.optionsMapper as Record<string, string>);
+        this.options = dataMapper(
+          this.options as KeyValue[],
+          this.optionsMapper as Record<string, string>,
+        );
       }
     }
 
-    const translateOptions = (this.options as SelectOption[]).map(async(option) => {
-      const text = !this.translatable ? option.text : await this.translate((!option.text?.includes('options') ?
-          getLocaleContextByKey(`${this.label.toLowerCase().replace('label', 'options')}`, option.text)
-          : option.text));
+    const translateOptions = (this.options as SelectOption[]).map(async (option) => {
+      const text = !this.translatable
+        ? option.text
+        : await this.translate(
+            !option.text?.includes('options')
+              ? getLocaleContextByKey(
+                  `${this.label.toLowerCase().replace('label', 'options')}`,
+                  option.text,
+                )
+              : option.text,
+          );
       return {
         value: option.value,
         text,
@@ -764,18 +760,17 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       };
     });
     this.options = await Promise.all(translateOptions);
-    if(this.type !== HTML5InputTypes.SELECT)
-      return this.options as CrudFieldOption[];
+    if (this.type !== HTML5InputTypes.SELECT) return this.options as CrudFieldOption[];
     if (this.options.length > 10 && this.interface === SelectFieldInterfaces.POPOVER)
       this.interface = SelectFieldInterfaces.MODAL;
-    if(this.options.length === 0 && !this.required)
-      this.value = "";
-    const options = (!this.required || (this.options?.length > 1 && this.startEmpty) ?
-      [{value: '', text: '', selected: true, disabled: this.required}, ...this.options] :  this.options
+    if (this.options.length === 0 && !this.required) this.value = '';
+    const options = (
+      !this.required || (this.options?.length > 1 && this.startEmpty)
+        ? [{ value: '', text: '', selected: true, disabled: this.required }, ...this.options]
+        : this.options
     ) as CrudFieldOption[];
-    return this.options = [... options];
+    return (this.options = [...options]);
   }
-
 
   /**
    * Handles the opening of select options based on the specified interface type.
@@ -790,21 +785,21 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @returns {Promise<void>} A promise that resolves when the operation is complete.
    */
   async openSelectOptions(event: Event, selectInterface: SelectInterface): Promise<void> {
-    if(selectInterface === SelectFieldInterfaces.MODAL) {
+    if (selectInterface === SelectFieldInterfaces.MODAL) {
       event.preventDefault();
       event.stopImmediatePropagation();
       const loading = await this.loadingController.create({} as LoadingOptions);
       await loading.present();
       const modal = await getNgxSelectOptionsModal(this.label, this.options as SelectOption[]);
+      // this.changeDetectorRef.detectChanges();
       loading.remove();
-      const {data, role} = await modal.onWillDismiss();
-      if(role === ActionRoles.confirm && data !== this.value) {
+      const { data, role } = await modal.onWillDismiss();
+      if (role === ActionRoles.confirm && data !== this.value) {
         this.setValue(data);
-        this.component.nativeElement.ionChange.emit({value: data});
+        this.component.nativeElement.ionChange.emit({ value: data });
       }
     }
   }
-
 
   /**
    * @description Component after view initialization lifecycle method.
@@ -820,7 +815,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
   }
 
-
   /**
    * @description Component cleanup lifecycle method.
    * @summary Performs cleanup operations for READ and DELETE operations by calling
@@ -832,30 +826,25 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    */
   override async ngOnDestroy(): Promise<void> {
     await super.ngOnDestroy();
-    if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation))
-      this.onDestroy();
+    if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) this.onDestroy();
   }
 
   toggleOptionSelection(val: string, event: CheckboxCustomEvent) {
     const { checked } = event.detail;
     let value = Array.isArray(this.formControl.value) ? this.formControl.value : [];
-     if (checked) {
-      if (!value.includes(val))
-        value = [...value, val];
+    if (checked) {
+      if (!value.includes(val)) value = [...value, val];
     } else {
-      value = value.filter(v => v !== val);
+      value = value.filter((v) => v !== val);
     }
     this.setValue(value);
     this.formControl.updateValueAndValidity();
   }
 
-
   isOptionChecked(value: string): boolean {
-    if (!this.formControl.value || !Array.isArray(this.formControl.value))
-      return false;
+    if (!this.formControl.value || !Array.isArray(this.formControl.value)) return false;
     return this.formControl.value.includes(value);
   }
-
 
   // /**
   //  * @description Handles fieldset group update events from parent fieldsets.

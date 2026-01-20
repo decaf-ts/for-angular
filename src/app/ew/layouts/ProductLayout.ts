@@ -1,33 +1,43 @@
+import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import {
-  model,
-  Model,
-  ModelArg
-} from "@decaf-ts/decorator-validation";
-import {  uichild, uilayout,  uilayoutprop, UIMediaBreakPoints } from "@decaf-ts/ui-decorators";
-import { FieldsetComponent,  LayoutComponent } from "src/lib/components";
-import { EpiLayout } from "./EpiLayout";
-import { AppSwitcherComponent } from "../../components/switcher/switcher.component";
-import { Product } from "../fabric";
-
+  uichild,
+  uihandlers,
+  uilayout,
+  uilayoutprop,
+  UIMediaBreakPoints,
+} from '@decaf-ts/ui-decorators';
+import { FieldsetComponent, LayoutComponent } from 'src/lib/components';
+import { EpiLayout } from './EpiLayout';
+import { AppSwitcherComponent } from '../../components/switcher/switcher.component';
+import { Product } from '../fabric';
+import { Component } from '@angular/core';
+import { ComponentEventNames, TransactionHooks } from 'src/lib/engine';
+import { ProductHandler } from '../handlers/ProductHandler';
 
 @uilayout('ngx-decaf-crud-form', true, 1, {
   borders: true,
   breakpoint: UIMediaBreakPoints.XLARGE,
 } as Partial<LayoutComponent>)
+@uihandlers({
+  [ComponentEventNames.Submit]: ProductHandler,
+  [TransactionHooks.BeforeUpdate]: ProductHandler,
+  [TransactionHooks.BeforeCreate]: ProductHandler,
+})
 @model()
 export class ProductLayout extends Model {
-
   @uichild(Product.name, 'ngx-decaf-fieldset', {
     title: 'product.section.details.title',
     borders: false,
     required: true,
     breakpoint: UIMediaBreakPoints.XLARGE,
     ordenable: false,
-  } as Partial<FieldsetComponent>)
+  })
   @uilayoutprop(2)
   product!: Product;
 
-  @uichild(EpiLayout.name, 'app-switcher', {type: 'column'} as Partial<AppSwitcherComponent>)
+  @uichild(EpiLayout.name, 'app-switcher', {
+    type: 'column',
+  })
   @uilayoutprop(1)
   epi!: EpiLayout;
 

@@ -1,13 +1,21 @@
-
 @if (!indexes.length) {
-  <ngx-decaf-searchbar [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
+  <ngx-decaf-searchbar
+    [emitEventToWindow]="false"
+    [debounce]="500"
+    (searchEvent)="handleSearch($event)"
+  />
 }
 
-<div [id]="uid" class="dcf-grid dcf-grid-small dcf-grid-match dcf-filter-component" [class.dcf-hidden]="!indexes.length" #component>
+<div
+  [id]="uid"
+  class="dcf-grid dcf-grid-small dcf-grid-match dcf-filter-component"
+  [class.dcf-hidden]="!indexes.length"
+  #component
+>
   <div class="dcf-width-expand">
     <div class="dcf-filter">
       <div class="dcf-input">
-        @for(filter of filterValue; track trackItemFn($index, filter?.['index'])) {
+        @for (filter of filterValue; track trackItemFn($index, filter?.['index'])) {
           @if (filter?.['index']) {
             <ion-chip [outline]="true">{{ filter?.['index'] }}</ion-chip>
           }
@@ -17,12 +25,17 @@
           @if (filter?.['value']) {
             <ion-chip [outline]="true" class="dcf-filter-value">
               {{ filter?.['value'] }}
-              <ion-icon tabindex="0" name="close-outline" (click)="removeFilter(filter?.['value'])" size="small"></ion-icon>
+              <ion-icon
+                tabindex="0"
+                name="close-outline"
+                (click)="removeFilter(filter?.['value'])"
+                size="small"
+              ></ion-icon>
             </ion-chip>
           }
         }
         <div class="dcf-width-1-1">
-             <!-- [readonly]="step !== 3" -->
+          <!-- [readonly]="step !== 3" -->
           <input
             fill="none"
             [(ngModel)]="value"
@@ -35,23 +48,27 @@
             id="dcf-filter-field"
             autocomplete="off"
             placeholder="{{ locale + (step === 3 ? '.type' : '.select') | translate }}"
-
           />
           @if (windowWidth >= 768) {
-            <div [class]="'dcf-dropdown ' + (options.length > 0 ? ' dcf-active' : '')" #optionsFilterElement>
+            <div
+              [class]="'dcf-dropdown ' + (options.length > 0 ? ' dcf-active' : '')"
+              #optionsFilterElement
+            >
               <div>
                 @if (filteredOptions.length > 0) {
-                  @for(key of filteredOptions; track key) {
+                  @for (key of filteredOptions; track key) {
                     <div
                       class="dcf-item"
                       tabindex="0"
                       (keydown.enter)="selectOption(key)"
-                      (click)="selectOption(key)">
+                      (click)="selectOption(key)"
+                    >
                       {{ key }}
                     </div>
                   }
                 } @else {
-                  <div class="dcf-empty"
+                  <div
+                    class="dcf-empty"
                     (click)="filteredOptions = options; value = ''"
                     tabindex="0"
                     (keydown.enter)="filteredOptions = options; value = ''"
@@ -67,34 +84,49 @@
       @if (filterValue.length > 0) {
         <div class="dcf-icon-clear">
           <ion-button fill="clear" size="small" (click)="clear()">
-            <ion-icon aria-hidden="true" name="trash-outline" [color]="!isDarkMode ? 'dark' : 'light'" slot="icon-only"></ion-icon>
+            <ion-icon
+              aria-hidden="true"
+              name="trash-outline"
+              [color]="!isDarkMode ? 'dark' : 'light'"
+              slot="icon-only"
+            ></ion-icon>
           </ion-button>
         </div>
       }
       <div class="dcf-icon-search">
         <ion-button fill="clear" size="small" (click)="submit()">
-          <ion-icon aria-hidden="true" name="search-outline" [color]="!isDarkMode ? 'dark' : 'light'" slot="icon-only"></ion-icon>
+          <ion-icon
+            aria-hidden="true"
+            name="search-outline"
+            [color]="!isDarkMode ? 'dark' : 'light'"
+            slot="icon-only"
+          ></ion-icon>
         </ion-button>
       </div>
     </div>
     @if (windowWidth < 768) {
-      <div [class]="'dcf-dropdown ' + (options.length > 0 ? ' dcf-active' : '')" #optionsFilterElement>
+      <div
+        [class]="'dcf-dropdown ' + (options.length > 0 ? ' dcf-active' : '')"
+        #optionsFilterElement
+      >
         <div>
           @if (filteredOptions.length > 0) {
-            @for(key of filteredOptions; track key) {
+            @for (key of filteredOptions; track key) {
               <div
                 class="dcf-item"
                 tabindex="0"
                 (keydown.enter)="selectOption(key)"
-                (click)="selectOption(key)">
+                (click)="selectOption(key)"
+              >
                 {{ key }}
               </div>
             }
           } @else {
-            <div class="dcf-empty"
-            (click)="filteredOptions = options; value = ''"
-            tabindex="0"
-            (keydown.enter)="filteredOptions = options; value = ''"
+            <div
+              class="dcf-empty"
+              (click)="filteredOptions = options; value = ''"
+              tabindex="0"
+              (keydown.enter)="filteredOptions = options; value = ''"
             >
               {{ locale + '.no_suggestions' | translate }}
             </div>
@@ -108,29 +140,32 @@
       <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-grid-match">
         <div class="dcf-width-expand">
           <ion-select
-              toggleIcon="chevron-down-outline"
-              expandedIcon="chevron-up-outline"
-              class="dcf-sort-select"
-              (ionChange)="handleSortChange($event)"
-              interface="popover"
-              [value]="sortValue"
-              label-placement="floating"
-              fill="outline"
-              [label]="locale + '.sort' | translate"
-            >
-            @for(sort of sortBy; track sort) {
-
+            toggleIcon="chevron-down-outline"
+            expandedIcon="chevron-up-outline"
+            class="dcf-sort-select"
+            (ionChange)="handleSortChange($event)"
+            interface="popover"
+            [value]="sortValue"
+            label-placement="floating"
+            fill="outline"
+            [label]="locale + '.sort' | translate"
+          >
+            @for (sort of sortOptions; track sort) {
               <ion-select-option [value]="sort">{{ sort | translate }}</ion-select-option>
             }
           </ion-select>
         </div>
         <div class="dcf-width-auto">
-          <ngx-decaf-icon (click)="handleSortDirectionChange()" [button]="true" fill="clear" slot="icon-only" [color]="!isDarkMode ? 'primary' : 'light'" [name]="sortDirection === 'desc' ? 'arrow-down-outline' : 'arrow-up-outline'" />
-
+          <ngx-decaf-icon
+            (click)="handleSortDirectionChange()"
+            [button]="true"
+            fill="clear"
+            slot="icon-only"
+            [color]="!isDarkMode ? 'primary' : 'light'"
+            [name]="sortDirection === 'desc' ? 'arrow-down-outline' : 'arrow-up-outline'"
+          />
         </div>
       </div>
     </div>
   }
 </div>
-
-

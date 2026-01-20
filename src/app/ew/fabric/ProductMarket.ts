@@ -1,25 +1,35 @@
-import { type ModelArg, required } from "@decaf-ts/decorator-validation";
-import { maxlength, minlength, model } from "@decaf-ts/decorator-validation";
+import { type ModelArg, required } from '@decaf-ts/decorator-validation';
+import { maxlength, minlength, model } from '@decaf-ts/decorator-validation';
 // import { TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
-import { column, index, OrderDirection, pk, table } from "@decaf-ts/core";
-import { description, uses } from "@decaf-ts/decoration";
+import { column, index, OrderDirection, pk, table } from '@decaf-ts/core';
+import { description, uses } from '@decaf-ts/decoration';
 //  import { gtin } from "@pharmaledgerassoc/ptp-toolkit/shared";
-import { composed } from "@decaf-ts/db-decorators";
-import { Cacheable } from "./Cacheable";
+import { composed } from '@decaf-ts/db-decorators';
+import { Cacheable } from './Cacheable';
 // import { cache } from "@pharmaledgerassoc/ptp-toolkit/shared";
-import { HTML5InputTypes, uielement, uilayoutprop, uilistprop, uimodel } from "@decaf-ts/ui-decorators";
-import { getMarkets } from "src/app/ew/utils/helpers";
-import { TableNames } from "./constants";
+import {
+  DecafComponent,
+  HTML5InputTypes,
+  uielement,
+  uilayoutprop,
+  uilistprop,
+  uimodel,
+  uionrender,
+} from '@decaf-ts/ui-decorators';
+import { getMarkets } from 'src/app/ew/utils/helpers';
+import { TableNames } from './constants';
+import { ProductEpiHandler, renderMakets } from '../handlers/ProductEpiHandler';
+import { CrudFieldComponent, FieldsetComponent } from 'src/lib/components';
 
-@description("Links a product to a specific market.")
+@description('Links a product to a specific market.')
 //@uses(FabricFlavour)
 @table(TableNames.Market)
-@uimodel('ngx-decaf-crud-form', {multiple: true})
+@uimodel('ngx-decaf-crud-form', { multiple: true })
 @model()
 export class ProductMarket extends Cacheable {
   @pk({ type: String, generated: false })
-  @composed(["productCode", "marketId"], ":", true)
-  @description("Unique identifier composed of product code and market ID.")
+  @composed(['productCode', 'marketId'], ':', true)
+  @description('Unique identifier composed of product code and market ID.')
   id!: string;
 
   //@cache()
@@ -27,20 +37,21 @@ export class ProductMarket extends Cacheable {
   @required()
   // @pattern(LocaleHelper.getMarketRegex())
   @index([OrderDirection.ASC, OrderDirection.DSC])
-  @description("Identifier of the market where the product is registered or sold.")
+  @description('Identifier of the market where the product is registered or sold.')
   @uielement('ngx-decaf-crud-field', {
     label: 'market.id.label',
     placeholder: 'market.id.placeholder',
     type: HTML5InputTypes.SELECT,
     translatable: false,
-    options: getMarkets()
+    options: getMarkets(),
   })
   @uilayoutprop(1)
-  @uilistprop("title")
+  @uilistprop('title')
+  @uionrender(async (instance: unknown) => await renderMakets<any>(instance))
   marketId!: string;
 
   @column()
- //@gtin()
+  //@gtin()
   @required()
   productCode!: string;
 
@@ -54,23 +65,23 @@ export class ProductMarket extends Cacheable {
     placeholder: 'market.nationalCode.placeholder',
   })
   @uilayoutprop(1)
-  @uilistprop("description")
+  @uilistprop('description')
   nationalCode?: string;
 
   //@cache()
   @column()
-  @description("Name of the Marketing Authorization Holder (MAH).")
+  @description('Name of the Marketing Authorization Holder (MAH).')
   @uielement('ngx-decaf-crud-field', {
     label: 'market.mahName.label',
     placeholder: 'market.mahName.placeholder',
   })
   @uilayoutprop(1)
-  @uilistprop("info")
+  @uilistprop('info')
   mahName?: string;
 
   //@cache()
   @column()
-  @description("Name of the legal entity responsible for the product in this market.")
+  @description('Name of the legal entity responsible for the product in this market.')
   @uielement('ngx-decaf-crud-field', {
     label: 'market.legalEntityName.label',
     placeholder: 'market.legalEntityName.placeholder',
@@ -80,9 +91,7 @@ export class ProductMarket extends Cacheable {
 
   //@cache()
   @column()
-  @description(
-    "Address of the Marketing Authorization Holder or responsible legal entity."
-  )
+  @description('Address of the Marketing Authorization Holder or responsible legal entity.')
   @uielement('ngx-decaf-crud-field', {
     label: 'market.mahAddress.label',
     placeholder: 'market.mahAddress.placeholder',

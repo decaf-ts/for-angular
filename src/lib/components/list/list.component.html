@@ -1,6 +1,11 @@
-
 @if (showRefresher) {
-  <ion-refresher slot="fixed" [pullFactor]="1" [pullMin]="100" [pullMax]="200" (ionRefresh)="handleRefresh($event)">
+  <ion-refresher
+    slot="fixed"
+    [pullFactor]="1"
+    [pullMin]="100"
+    [pullMax]="200"
+    (ionRefresh)="handleRefresh($event)"
+  >
     <ion-refresher-content />
   </ion-refresher>
 }
@@ -8,7 +13,7 @@
 @if (showSearchbar) {
   <div [hidden]="!data?.length && !searching">
     <div class="dcf-grid dcf-grid-small dcf-grid-actions">
-      <div class="dcf-width-expand@m  dcf-width-1-1">
+      <div class="dcf-width-expand@m dcf-width-1-1">
         @if (model && enableFilter) {
           @if (data?.length || searching) {
             <ngx-decaf-filter
@@ -21,13 +26,24 @@
             />
           }
         } @else {
-          <ngx-decaf-searchbar [placeholder]="searchbarPlaceholder" [emitEventToWindow]="false" [debounce]="500" (searchEvent)="handleSearch($event)" />
+          <ngx-decaf-searchbar
+            [placeholder]="searchbarPlaceholder"
+            [emitEventToWindow]="false"
+            [debounce]="500"
+            (searchEvent)="handleSearch($event)"
+          />
         }
       </div>
-      @if(createButton) {
-        <div class="dcf-width-auto@m dcf-button-container dcf-width-1-1 dcf-flex-middle dcf-flex dcf-flex-center dcf-flex-right@m">
+      @if (createButton) {
+        <div
+          class="dcf-width-auto@m dcf-button-container dcf-width-1-1 dcf-flex-middle dcf-flex dcf-flex-center dcf-flex-right@m"
+        >
           <div>
-            <ion-button expand="block" (click)="changeOperation(OperationKeys.CREATE)">Create</ion-button>
+            <ion-button
+              expand="block"
+              (click)="changeOperation(OperationKeys.CREATE)"
+              >Create</ion-button
+            >
           </div>
         </div>
       }
@@ -37,62 +53,64 @@
 @if (initialized && data?.length) {
   <ion-list [id]="uid" [inset]="inset" [lines]="lines">
     @if (item?.tag) {
-      @for(child of items; track trackItemFn($index, child)) {
+      @for (child of items; track trackItemFn($index, child)) {
         <ngx-decaf-component-renderer
           [tag]="item.tag"
           (listenEvent)="handleEvent($event)"
-          [globals]='{
+          [globals]="{
             item: child,
             mapper: mapper,
             route: route,
-            model: child
-          }'>
-          </ngx-decaf-component-renderer>
-        }
+            model: child,
+          }"
+        >
+        </ngx-decaf-component-renderer>
+      }
     } @else {
       <ng-content></ng-content>
     }
   </ion-list>
 
   @if (loadMoreData) {
-    @if (pages > 0 && type === 'paginated' && !searchValue?.length) {
+    @if (pages > 0 && type === "paginated" && !searchValue?.length) {
       <ngx-decaf-pagination
         [totalPages]="pages"
         [current]="page"
         (clickEvent)="handlePaginate($event)"
       />
-
     } @else {
       <ion-infinite-scroll
         [class]="searchValue?.length ? 'dcf-hidden' : ''"
-
         [position]="scrollPosition"
         [threshold]="scrollThreshold"
-        (ionInfinite)="handleRefresh($event)">
-        <ion-infinite-scroll-content [loadingSpinner]="loadingSpinner" [loadingText]="loadingText" />
+        (ionInfinite)="handleRefresh($event)"
+      >
+        <ion-infinite-scroll-content
+          [loadingSpinner]="loadingSpinner"
+          [loadingText]="loadingText"
+        />
       </ion-infinite-scroll>
     }
   }
 } @else {
   @if (refreshing) {
-    @for(skl of skeletonData; track $index) {
+    @for (skl of skeletonData; track $index) {
       <ion-item>
         <ion-thumbnail slot="start">
           <ion-skeleton-text [animated]="true"></ion-skeleton-text>
         </ion-thumbnail>
         <ion-label>
           <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-          <ion-text class="date" style="width: 20%;">
+          <ion-text class="date" style="width: 20%">
             <ion-skeleton-text [animated]="true"></ion-skeleton-text>
           </ion-text>
         </ion-label>
       </ion-item>
     }
-
   } @else {
     @if (!searching) {
       <ngx-decaf-empty-state
-        [title]="empty.title ? ((locale + '.'+ empty.title) | translate) : ''"
+        [title]="empty.title ? (locale + '.' + empty.title | translate) : ''"
         [model]="empty?.showButton ? model : undefined"
         [route]="route"
         [modelId]="modelId"
@@ -100,9 +118,11 @@
         [borders]="borders"
         [icon]="(item?.icon ?? 'folder-open-outline') || empty.icon"
         className="dcf-empty-data"
-        [subtitle]="empty.subtitle ? ((locale + '.'+ empty.subtitle) | translate) : ''" />
+        [subtitle]="
+          empty.subtitle ? (locale + '.' + empty.subtitle | translate) : ''
+        "
+      />
     } @else {
-
       <ngx-decaf-empty-state
         icon="search-outline"
         [model]="empty?.showButton ? model : undefined"
@@ -113,10 +133,11 @@
         [body]="'small'"
         [translatable]="true"
         [title]="locale + '.search.title' | translate"
-        [subtitle]="locale + '.search.subtitle' | translate: {'0': parseSearchValue()}"
+        [subtitle]="
+          locale + '.search.subtitle' | translate: { '0': parseSearchValue() }
+        "
         [searchValue]="searchValue"
       />
     }
   }
 }
-

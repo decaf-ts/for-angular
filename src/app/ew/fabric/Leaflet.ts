@@ -1,10 +1,6 @@
-import {
-  Comparison,
-  Model,
-  type ModelArg,
-} from "@decaf-ts/decorator-validation";
-import { model, pattern, required } from "@decaf-ts/decorator-validation";
-import { LeafletFile } from "./LeafletFile";
+import { Comparison, Model, type ModelArg } from '@decaf-ts/decorator-validation';
+import { model, pattern, required } from '@decaf-ts/decorator-validation';
+import { LeafletFile } from './LeafletFile';
 // import { gtin } from "@pharmaledgerassoc/ptp-toolkit/shared";
 // import { BatchPattern, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import {
@@ -16,50 +12,56 @@ import {
   pk,
   Repository,
   table,
-} from "@decaf-ts/core";
-import { composed, InternalError, OperationKeys, readonly } from "@decaf-ts/db-decorators";
-import { description } from "@decaf-ts/decoration";
-import { Cacheable } from "./Cacheable";
-import { DecafComponent, DecafEventHandler, HTML5InputTypes, uielement, uihandlers, uilayout, uilistmodel, uilistprop, uimodel, uionrender, uiprop, uitablecol } from "@decaf-ts/ui-decorators";
-import { Product } from "./Product";
-import { getDocumentTypes, getLeafletLanguages, getMarkets } from "src/app/ew/utils/helpers";
-import { ComponentEventNames, ElementPositions, ElementSizes } from "src/lib/engine";
-import { Batch } from "./Batch";
-import { TableNames } from "./constants";
-import { LeafletHandler } from "../handlers/LeafletHandler";
-import { audit } from "./utils";
+} from '@decaf-ts/core';
+import { composed, InternalError, OperationKeys, readonly } from '@decaf-ts/db-decorators';
+import { description } from '@decaf-ts/decoration';
+import { Cacheable } from './Cacheable';
+import {
+  DecafComponent,
+  DecafEventHandler,
+  HTML5InputTypes,
+  uielement,
+  uihandlers,
+  uilayout,
+  uilistmodel,
+  uilistprop,
+  uimodel,
+  uionrender,
+  uiprop,
+  uitablecol,
+} from '@decaf-ts/ui-decorators';
+import { Product } from './Product';
+import { getDocumentTypes, getLeafletLanguages, getMarkets } from 'src/app/ew/utils/helpers';
+import { ComponentEventNames, ElementPositions, ElementSizes } from 'src/lib/engine';
+import { Batch } from './Batch';
+import { TableNames } from './constants';
+import { LeafletHandler } from '../handlers/LeafletHandler';
+import { audit } from './utils';
 
 export enum LeafletType {
   // 'Patient Information'
-  leaflet = "leaflet",
+  leaflet = 'leaflet',
   // 'Prescribing Information',
-  prescribingInfo = "prescribingInfo",
+  prescribingInfo = 'prescribingInfo',
   // @deprecated
-  smpc = "smpc",
+  smpc = 'smpc',
 }
 
-
-
-@description(
-  "Represents the ePI leaflet linked to a specific product, batch, and language."
-)
+@description('Represents the ePI leaflet linked to a specific product, batch, and language.')
 //@uses(FabricFlavour)
 @table(TableNames.Leaflet)
-@uilistmodel('ngx-decaf-list-item', {icon: 'ti-file-barcode'})
-@uimodel('ngx-decaf-crud-form', {empty: {showButton: false}})
-@uihandlers({[ComponentEventNames.SUBMIT]: LeafletHandler})
+@uilistmodel('ngx-decaf-list-item', { icon: 'ti-file-barcode' })
+@uimodel('ngx-decaf-crud-form', { empty: { showButton: false } })
+@uihandlers({ [ComponentEventNames.Submit]: LeafletHandler })
 @model()
 export class Leaflet extends Cacheable {
   @pk()
   //@audit()
-  @composed(
-    ["productCode", "batchNumber", "leafletType", "lang", "epiMarket"],
-    ":",
-    ["batchNumber", "epiMarket"]
-  )
-  @description(
-    "Unique identifier composed of product code, batch number, and language."
-  )
+  @composed(['productCode', 'batchNumber', 'leafletType', 'lang', 'epiMarket'], ':', [
+    'batchNumber',
+    'epiMarket',
+  ])
+  @description('Unique identifier composed of product code, batch number, and language.')
   id!: string;
 
   //@gtin()
@@ -67,39 +69,52 @@ export class Leaflet extends Cacheable {
   @required()
   @readonly()
   @index([OrderDirection.ASC, OrderDirection.DSC])
-  @description("GTIN code of the product associated with this leaflet.")
+  @description('GTIN code of the product associated with this leaflet.')
   @uielement('app-select-field', {
     label: 'leaflet.productCode.label',
     placeholder: 'leaflet.productCode.placeholder',
     type: HTML5InputTypes.SELECT,
     options: () => Product,
-    optionsMapper: (item: Product) => ({ value: item.productCode, text: item.productCode + ' - ' + item.inventedName }),
+    optionsMapper: (item: Product) => ({
+      value: item.productCode,
+      text: item.productCode + ' - ' + item.inventedName,
+    }),
     translatable: false,
   })
-  @uionrender(() => class _ extends DecafEventHandler {
-    override async render(): Promise<void> {
-      const instance = this as unknown as {headers: string[], operation: OperationKeys[]};
-      if(instance.headers)
-        instance.headers = instance.headers.map(header => header === 'productCode' ? 'documentCol': header);
-    }
-  })
-  @uitablecol(0, async (value: string, instance: DecafComponent & {model: Product, type: string}) => {
-    if(!instance.operation) {
-      let model = instance.model;
-      if(!model?.inventedName) {
-        const constructor = Model.get('Product');
-        if(constructor) {
-          const repository = Repository.forModel(constructor);
-          model = await repository.read(model.productCode) as Product;
+  @uionrender(
+    () =>
+      class _ extends DecafEventHandler {
+        override async render(): Promise<void> {
+          const instance = this as unknown as {
+            headers: string[];
+            operation: OperationKeys[];
+          };
+          if (instance.headers)
+            instance.headers = instance.headers.map((header) =>
+              header === 'productCode' ? 'documentCol' : header,
+            );
         }
+      },
+  )
+  @uitablecol(
+    0,
+    async (value: string, instance: DecafComponent<Model> & { model: Product; type: string }) => {
+      if (!instance.operation) {
+        let model = instance.model;
+        if (!model?.inventedName) {
+          const constructor = Model.get('Product');
+          if (constructor) {
+            const repository = Repository.forModel(constructor);
+            model = (await repository.read(model.productCode)) as Product;
+          }
+        }
+        return `${model.inventedName || ''} ${value}`;
+      } else {
+        if (['paginated', 'infinite'].includes(instance.type)) value = 'title'; // fallback mapper to list item position
       }
-      return `${model.inventedName || ""} ${value}`;;
-    } else {
-      if(['paginated', 'infinite'].includes(instance.type))
-        value = 'title'; // fallback mapper to list item position
-    }
-    return value;
-  })
+      return value;
+    },
+  )
   productCode!: string;
 
   //@cache()
@@ -107,26 +122,35 @@ export class Leaflet extends Cacheable {
   @readonly()
   // @pattern(BatchPattern)
   @index([OrderDirection.ASC, OrderDirection.DSC])
-  @description("Batch number linked to the product, if applicable.")
-
+  @description('Batch number linked to the product, if applicable.')
   @uielement('app-select-field', {
     label: 'leaflet.batchNumber.label',
     placeholder: 'leaflet.batchNumber.placeholder',
     type: HTML5InputTypes.SELECT,
     translatable: false,
-    optionsMapper: (item: Batch) => ({ value: item.batchNumber, text: item.batchNumber}),
+    optionsMapper: (item: Batch) => ({
+      value: item.batchNumber,
+      text: item.batchNumber,
+    }),
     options: () => Batch,
   })
-  @uionrender(() => class _ extends DecafEventHandler {
-    override async render(): Promise<void> {
-      const instance = this as unknown as {headers: string[], operation: OperationKeys[]};
-      if(instance.headers)
-        instance.headers = instance.headers.map(header => header === 'batchNumber' ? 'batchCol': header);
-    }
-  })
-  @uitablecol(1, async (value: string, instance: DecafComponent & {type: string}) => {
-    if(instance.operation && ['paginated', 'infinite'].includes(instance.type))
-      value = 'subinfo'; // fallback mapper to list item position
+  @uionrender(
+    () =>
+      class _ extends DecafEventHandler {
+        override async render(): Promise<void> {
+          const instance = this as unknown as {
+            headers: string[];
+            operation: OperationKeys[];
+          };
+          if (instance.headers)
+            instance.headers = instance.headers.map((header) =>
+              header === 'batchNumber' ? 'batchCol' : header,
+            );
+        }
+      },
+  )
+  @uitablecol(1, async (value: string, instance: DecafComponent<Model> & { type: string }) => {
+    if (instance.operation && ['paginated', 'infinite'].includes(instance.type)) value = 'subinfo'; // fallback mapper to list item position
     return value;
   })
   batchNumber?: string;
@@ -135,17 +159,17 @@ export class Leaflet extends Cacheable {
   @required()
   @readonly()
   @index([OrderDirection.ASC, OrderDirection.DSC])
-  @description("Type category the leaflet belongs to.") @uielement('app-select-field', {
+  @description('Type category the leaflet belongs to.')
+  @uielement('app-select-field', {
     label: 'leaflet.type.label',
     placeholder: 'leaflet.type.placeholder',
     type: HTML5InputTypes.SELECT,
     translatable: false,
     startEmpty: false,
-    options: getDocumentTypes()
+    options: getDocumentTypes(),
   })
-  @uitablecol(2, async (value: string, instance: DecafComponent & {type: string}) => {
-    if(instance.operation && ['paginated', 'infinite'].includes(instance.type))
-      value = 'info'; // fallback mapper to list item position
+  @uitablecol(2, async (value: string, instance: DecafComponent<Model> & { type: string }) => {
+    if (instance.operation && ['paginated', 'infinite'].includes(instance.type)) value = 'info'; // fallback mapper to list item position
     return value;
   })
   leafletType: LeafletType = LeafletType.leaflet;
@@ -157,20 +181,18 @@ export class Leaflet extends Cacheable {
   // @pattern(LocaleHelper.getLanguagesRegex())
   @index([OrderDirection.ASC, OrderDirection.DSC])
   @description("Language code of the leaflet (e.g., 'en', 'pt', 'es').")
-    @uielement('ngx-decaf-crud-field', {
+  @uielement('ngx-decaf-crud-field', {
     label: 'leaflet.lang.label',
     placeholder: 'leaflet.lang.placeholder',
     type: HTML5InputTypes.SELECT,
-    value: "en",
+    value: 'en',
     options: getLeafletLanguages(),
     startEmpty: false,
     translatable: false,
   })
-  @uitablecol(3, async (v: string, instance: DecafComponent & {type: string}) => {
-    if(instance.operation && ['paginated', 'infinite'].includes(instance.type))
-      return "subinfo";
-    if(!instance.operation)
-      return getLeafletLanguages().find(({value}) => value === v)?.text;
+  @uitablecol(3, async (v: string, instance: DecafComponent<Model> & { type: string }) => {
+    if (instance.operation && ['paginated', 'infinite'].includes(instance.type)) return 'subinfo';
+    if (!instance.operation) return getLeafletLanguages().find(({ value }) => value === v)?.text;
     return v;
   })
   lang!: string; // TODO -> rollback to language property
@@ -185,11 +207,10 @@ export class Leaflet extends Cacheable {
     placeholder: 'leaflet.market.placeholder',
     translatable: false,
     type: HTML5InputTypes.SELECT,
-    options: getMarkets()
+    options: getMarkets(),
   })
-  @uitablecol(4, async (v: string, instance: DecafComponent) => {
-    if(!instance.operation)
-      return getMarkets().find(({value}) => value === v)?.text;
+  @uitablecol(4, async (v: string, instance: DecafComponent<Model>) => {
+    if (!instance.operation) return getMarkets().find(({ value }) => value === v)?.text;
     return v;
   })
   epiMarket!: string; // TODO -> Create validation decorator. CountryMarket is a CONDITIONAL property. can only exist for product only. no batch
@@ -197,7 +218,7 @@ export class Leaflet extends Cacheable {
   //@cache()
   @column()
   @required()
-  @description("Main XML content of the electronic leaflet.")
+  @description('Main XML content of the electronic leaflet.')
   @uielement('ngx-decaf-file-upload', {
     label: 'product.xmlFileContent.label',
     placeholder: 'product.xmlFileContent.placeholder',
@@ -212,17 +233,9 @@ export class Leaflet extends Cacheable {
   })
   xmlFileContent!: string;
 
-
-
   //@cache()
-  @oneToMany(
-    () => LeafletFile,
-    { update: Cascade.CASCADE, delete: Cascade.CASCADE },
-    false
-  )
-  @description(
-    "List of additional files linked to the leaflet, such as PDFs or images."
-  )
+  @oneToMany(() => LeafletFile, { update: Cascade.CASCADE, delete: Cascade.CASCADE }, false)
+  @description('List of additional files linked to the leaflet, such as PDFs or images.')
   otherFilesContent!: string[] | LeafletFile[];
 
   constructor(model?: ModelArg<Leaflet>) {
@@ -238,25 +251,18 @@ export class Leaflet extends Cacheable {
       ...([
         ...new Set([
           exceptions,
-          "updatedAt",
-          "updatedBy",
-          "otherFilesContent",
-          "xmlFileContent",
+          'updatedAt',
+          'updatedBy',
+          'otherFilesContent',
+          'xmlFileContent',
         ]).values(),
-      ] as any[])
+      ] as any[]),
     );
   }
 
-  override toCache<S extends boolean>(
-    stringify?: S
-  ): S extends false ? Record<any, any> : string {
-    if (
-      this.otherFilesContent &&
-      !this.otherFilesContent.every((f) => f instanceof LeafletFile)
-    )
-      throw new InternalError(
-        "otherFilesContent must be resolved before caching"
-      );
+  override toCache<S extends boolean>(stringify?: S): S extends false ? Record<any, any> : string {
+    if (this.otherFilesContent && !this.otherFilesContent.every((f) => f instanceof LeafletFile))
+      throw new InternalError('otherFilesContent must be resolved before caching');
     const original = super.toCache(false);
     return (stringify ? JSON.stringify(original) : original) as any;
   }

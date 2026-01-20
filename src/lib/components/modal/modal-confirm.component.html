@@ -1,0 +1,16 @@
+ <div>
+
+  <h2 class="dcf-title" [innerHTML]="translatable ? (title | translate) : title"></h2>
+  <div class="dcf-content">
+    <div [innerHTML]="translatable ? (message | translate) : message"></div>
+  </div>
+  <div class="dcf-buttons-grid dcf-grid dcf-grid-collapse dcf-flex dcf-flex-right">
+    <div>
+      <ion-button fill="clear" (click)="handleAction('cancel')" color="primary">{{ locale +'.confirm.buttons.cancel' | translate }}</ion-button>
+    </div>
+
+      <div>
+      <ion-button (click)="handleAction()" [color]="role === OperationKeys.DELETE ? 'danger' : 'primary'">{{ locale +'.confirm.buttons.confirm' | translate }}</ion-button>
+    </div>
+  </div>
+</div>

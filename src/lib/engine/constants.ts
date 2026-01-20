@@ -6,10 +6,7 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { InjectionToken } from '@angular/core';
 import { DecafRepositoryAdapter } from './types';
 
-
 export const DB_ADAPTER_FLAVOUR_TOKEN = 'DbAdapterFlavour';
-
-
 
 /**
  * @description Injection token for registering the database adapter provider.
@@ -69,7 +66,6 @@ export const CPTKN = new InjectionToken<unknown>('CPTKN', {
 export const I18N_CONFIG_TOKEN = new InjectionToken<I18nToken>(
   'I18N_CONFIG_TOKEN'
 );
-
 
 /**
  * @description Default options for empty list state display.
@@ -161,7 +157,6 @@ export const ListItemPositions = {
   subinfo: 'subinfo',
 } as const;
 
-
 /**
  * @description Angular engine key constants.
  * @summary Contains key strings used by the Angular rendering engine for reflection,
@@ -228,31 +223,37 @@ export const FormConstants = {
  * These constants ensure consistent event naming across components and make it easier to
  * track and handle events. Each constant represents a specific application event type.
  * @typedef {Object} ComponentEventNames
- * @property {string} BACK_BUTTON_NAVIGATION - Event fired when back button navigation ends
- * @property {string} REFRESH - Event fired when a refresh action occurs
- * @property {string} CLICK - Event fired when a click action occurs
- * @property {string} SUBMIT - Event fired when a form submission occurs
- * @property {string} VALIDATION_ERROR - Event fired when a validation error occurs
- * @property {string} FIELDSET_ADD_GROUP - Event fired when adding a group to a fieldset
- * @property {string} FIELDSET_UPDATE_GROUP - Event fired when updating a fieldset group
- * @property {string} FIELDSET_REMOVE_GROUP - Event fired when removing a fieldset group
+ * @property {string} BackButtonClickEvent - Event fired when back button navigation ends
+ * @property {string} Render - Event after component initialize action occurs
+ * @property {string} Refresh - Event fired when a refresh action occurs
+ * @property {string} Click - Event fired when a click action occurs
+ * @property {string} Change - Event fired when a change action occurs
+ * @property {string} Submit - Event fired when a form submission occurs
+ * @property {string} ValidationError - Event fired when a validation error occurs
+ * @property {string} ThemeChange - Event fired when a theme change occurs
+ * @property {string} FormGroupLoaded - Event fired when a reactve form group is loaded
  * @const ComponentEventNames
  * @memberOf module:lib/engine/constants
  */
 export const ComponentEventNames = {
-  BACK_BUTTON_NAVIGATION: 'backButtonNavigationEndEvent',
-  REFRESH: 'RefreshEvent',
-  CLICK: 'ClickEvent',
-  CHANGE: 'ChangeEvent',
-  SUBMIT: 'SubmitEvent',
-  VALIDATION_ERROR: 'validationErrorEvent',
-  FIELDSET_ADD_GROUP: 'fieldsetAddGroupEvent',
-  FIELDSET_UPDATE_GROUP: 'fieldsetUpdateGroupEvent',
-  FIELDSET_REMOVE_GROUP: 'fieldsetRemoveGroupEvent',
-  THEME_CHANGE: 'themeChangeEvent',
-  FORM_GROUP_LOADED: 'formGroupLoadedEvent',
-  DISABLE_MENU: 'disableMenuEvent',
-  // FIELDSET_GROUP_VALIDATION: 'fieldsetGroupValidationEvent'
+  Render: 'render',
+  BackButtonClickEvent: 'backButtonNavigationEndEvent',
+  Refresh: 'RefreshEvent',
+  Click: 'ClickEvent',
+  Change: 'ChangeEvent',
+  Submit: 'SubmitEvent',
+  ValidationError: 'validationErrorEvent',
+  ThemeChange: 'themeChangeEvent',
+  FormGroupLoaded: 'formGroupLoadedEvent',
+} as const;
+
+export const TransactionHooks = {
+  BeforeCreate: 'beforeCreate',
+  AfterCreate: 'afterCreate',
+  BeforeUpdate: 'beforeUpdate',
+  AfterUpdate: 'afterUpdate',
+  BeforeDelete: 'beforeDelete',
+  AfterDelete: 'afterDelete',
 } as const;
 
 /**
@@ -345,12 +346,13 @@ export enum ComponentsTagNames {
  * @memberOf module:lib/engine/constants
  */
 export enum BaseComponentProps {
-  MODEL = 'model',
+  HANDLERS = 'handlers',
   LOCALE = 'locale',
   LOCALE_ROOT = 'locale_root',
   PK = 'pk',
   ITEMS = 'items',
   ROUTE = 'route',
+  OPERATION = 'operation',
   OPERATIONS = 'operations',
   UID = 'uid',
   TRANSLATABLE = 'translatable',
@@ -414,8 +416,6 @@ export const DefaultFormReactiveOptions: ICrudFormOptions = {
     },
   },
 };
-
-
 
 /**
  * @description Mapping of select field interface types used in Ionic components.

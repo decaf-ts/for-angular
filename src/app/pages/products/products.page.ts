@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
@@ -11,12 +11,17 @@ import { ICrudFormEvent, ITabItem } from 'src/lib/engine/interfaces';
 import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
 import { Product } from 'src/app/ew/fabric/Product';
 import { CardComponent } from 'src/lib/components/card/card.component';
-import { ProductLayoutHandler } from 'src/app/ew/handlers/ProductLayoutHandler';
+import { ProductHandler } from 'src/app/ew/handlers/ProductHandler';
 import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
 import { EpiTabs } from 'src/app/ew/utils/constants';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
 import { AppProductItemComponent } from 'src/app/components/product-item/product-item.component';
+import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.component';
+import { KeyValue } from 'src/lib/engine/types';
+import { ProductStrength } from 'src/app/ew/fabric';
+import { getModelAndRepository } from 'src/lib/engine';
+import { Condition } from '@decaf-ts/core';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -113,35 +118,75 @@ import { AppProductItemComponent } from 'src/app/components/product-item/product
   selector: 'app-products',
   templateUrl: './products.page.html',
   providers: [AppModalDiffsComponent, AppProductItemComponent],
-  imports: [IonContent, CardComponent, ModelRendererComponent, TranslatePipe, ListComponent, HeaderComponent, ContainerComponent, EmptyStateComponent],
+  imports: [
+    IonContent,
+    AppCardTitleComponent,
+    ModelRendererComponent,
+    TranslatePipe,
+    ListComponent,
+    HeaderComponent,
+    ContainerComponent,
+    EmptyStateComponent,
+  ],
   styleUrls: ['./products.page.scss'],
 })
 export class ProductsPage extends NgxModelPageDirective implements OnInit {
-
   tabs: ITabItem[] = EpiTabs;
 
   constructor() {
-    super("product");
+    super('product');
   }
 
-  override async ngOnInit(): Promise<void> {
-    this.model = !this.operation ? new Product() as Model : new ProductLayout();
+  async ngOnInit(): Promise<void> {
+    this.model = !this.operation ? new Product() : new ProductLayout();
     this.enableCrudOperations([OperationKeys.DELETE]);
     // keep init after model selection
-    this.locale = "product";
+    this.locale = 'product';
     this.title = `${this.locale}.title`;
     this.route = 'products';
-    await super.ngOnInit();
 
+    await this.initialize();
+    if (this.operation === OperationKeys.CREATE) {
+      // const model = (await this.handleRead('00000000000011')) as ProductLayout;
+      // (this.model as KeyValue)['product'].productCode = `${Date.now()}`;
+      // Object.assign(, {productCode: `${Date.now()}`});
+      // Object.assign((this.model as any).epi, {strengths: [{strengths: '500mg', substance: 'tablet'}]});
+      // ;
+    }
+
+    // if (this.modelId) {
+    //   const strengths = getModelAndRepository('ProductStrength');
+    //   if (strengths) {
+    //     const { repository } = strengths;
+    //     const query = await repository
+    //       .select()
+    //       .where(Condition.attr('productCode' as keyof Model).eq(this.modelId))
+    //       .execute();
+
+    //     console.log(query);
+    //   }
+    // }
+
+    // console.log(this.model);
+
+    // const images = getModelAndRepository('ProductImage');
+    // if (images) {
+    //   const { repository } = images;
+    //   const query = await repository
+    //     .select()
+    //     .where(Condition.attr('productCode' as keyof Model).eq('00000000000013'))
+    //     .execute();
+    //   console.log('images', query);
+    // }
+    // console.log(this.model);
   }
 
-  override async ionViewWillEnter(): Promise<void> {
-   await super.ionViewWillEnter();
-  }
+  // override async ionViewWillEnter(): Promise<void> {
+  //   await super.ionViewWillEnter();
+  // }
 
-  override async handleEvent(event: ICrudFormEvent): Promise<void> {
-    const handler = (new ProductLayoutHandler()).handle.bind(this);
-    await handler(event);
-  }
+  // override async handleSubmit(event: ICrudFormEvent): Promise<void> {
+  //   const handler = (new ProductHandler()).handle.bind(this);
+  //   await handler(event);
+  // }
 }
-

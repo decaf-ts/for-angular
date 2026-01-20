@@ -16,6 +16,7 @@ import { Constructor, Metadata, uses } from '@decaf-ts/decoration';
 import { AnimationController, provideIonicAngular } from '@ionic/angular/standalone';
 import { NgxComponentDirective } from './NgxComponentDirective';
 import { DB_ADAPTER_FLAVOUR_TOKEN, DB_ADAPTER_PROVIDER_TOKEN } from './constants';
+import { IRepositoryModelProps } from './interfaces';
 
 
 export function getDbAdapterFlavour(): string {
@@ -65,7 +66,7 @@ export function provideDecafDynamicComponents(
 export function getModelAndRepository(
   model: Model | string,
   clazz?: NgxComponentDirective,
-): { repository: DecafRepository<Model>, model: Model, pk: string, pkType: string } | undefined {
+): IRepositoryModelProps<Model> | undefined {
   try {
     const modelName = (
       typeof model === Primitives.STRING

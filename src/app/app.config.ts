@@ -28,6 +28,7 @@ import { Batch } from './ew/fabric/Batch';
 import { AppSelectFieldComponent } from './components/select-field/select-field.component';
 import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
 import { AppSwitcherComponent } from './components/switcher/switcher.component';
+import { ProductImage } from './ew/fabric/ProductImage';
 // import { AxiosHttpAdapter, HttpAdapter, HttpStatement } from '@decaf-ts/for-http';
 
 export const AppName = 'For Angular';
@@ -44,6 +45,7 @@ export const AppModels = [
   new CategoryModel(),
   new Product(),
   new Batch(),
+  new ProductImage(),
   new Leaflet(),
   new EmployeeModel(),
   new AIModel(),
@@ -61,7 +63,11 @@ export const AppConfig: ApplicationConfig = {
     provideDecafPageTransition(),
 
     // Providing Local components for dynamic rendering
-    provideDecafDynamicComponents(AppExpiryDateFieldComponent, AppSwitcherComponent, AppSelectFieldComponent),
+    provideDecafDynamicComponents(
+      AppExpiryDateFieldComponent,
+      AppSwitcherComponent,
+      AppSelectFieldComponent,
+    ),
     // Providing RamAdapter as the database adapter for Decaf
     // provideDecafDbAdapter(AxiosHttpAdapter, {
     //   protocol: "http",
@@ -89,7 +95,7 @@ export const AppConfig: ApplicationConfig = {
           prefix: './assets/i18n/ew/',
           suffix: '.json',
         },
-      ] as I18nResourceConfigType
+      ] as I18nResourceConfigType,
     ),
   ],
 };

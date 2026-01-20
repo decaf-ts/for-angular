@@ -58,9 +58,9 @@ export class ProductStrength extends Cacheable {
   substance?: string;
 
   //@cache()
-  @column()
-  @description("Legal entity name responsible for the product.")
-  legalEntityName?: string; //TODO: Check with tiago
+  // @column()
+  // @description("Legal entity name responsible for the product.")
+  // legalEntityName?: string; //TODO: Check with tiago
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(model?: ModelArg<ProductStrength>) {

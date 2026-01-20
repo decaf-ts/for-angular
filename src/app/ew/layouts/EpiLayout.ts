@@ -1,54 +1,31 @@
-import {
-  list,
-  model,
-  Model,
-  ModelArg
-} from "@decaf-ts/decorator-validation";
-import { Condition } from "@decaf-ts/core";
-import { uichild, uimodel, uionrender } from "@decaf-ts/ui-decorators";
-import { FieldsetComponent, ListComponent } from "src/lib/components";
-import { ProductEpiHandler } from "../handlers/ProductEpiHandler";
-import { OperationKeys } from "@decaf-ts/db-decorators";
+import { list, model, Model, ModelArg } from '@decaf-ts/decorator-validation';
+import { Condition } from '@decaf-ts/core';
+import { uichild, uihandlers, uimodel, uionrender } from '@decaf-ts/ui-decorators';
+import { FieldsetComponent, ListComponent } from 'src/lib/components';
+import { getDocumentProperties, ProductEpiHandler } from '../handlers/ProductEpiHandler';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 
-
-import { ProductStrength } from "../fabric/ProductStrength";
-import { Leaflet } from "../fabric/Leaflet";
-import { ProductMarket } from "../fabric/ProductMarket";
+import { ProductStrength } from '../fabric/ProductStrength';
+import { Leaflet } from '../fabric/Leaflet';
+import { ProductMarket } from '../fabric/ProductMarket';
+import { ComponentEventNames, NgxComponentDirective } from 'src/lib/engine';
+import { ProductHandler } from '../handlers/ProductHandler';
 
 // import { ProductStrength, Leaflet, ProductMarket } from "@pharmaledgerassoc/ptp-toolkit/shared";
 
+const filter = Condition.attribute<Leaflet>('productCode');
 const commonProps = {
   borders: false,
   required: false,
   ordenable: false,
+  editable: false,
   multiple: true,
+  filter,
 };
-
 @uimodel('ngx-decaf-crud-form', {})
 @model()
 export class EpiLayout extends Model {
-
-  @uichild(
-    Leaflet.name,
-    'ngx-decaf-list',
-    {
-      showSearchbar: false,
-      title: 'Documents',
-      operation: OperationKeys.READ,
-      operations: [OperationKeys.READ],
-      showRefresher: false,
-      condition: Condition.attribute<Leaflet>('productCode'),
-      route: 'leaflets',
-      icon: 'ti-file-barcode',
-      empty: {
-          link: async function ()  {
-          const component = this as ListComponent;
-          const param = `${component.modelId ? `?productCode=${component.modelId}` : ''}`;
-          await component.router.navigateByUrl(`/leaflets/create${param}`);
-        }
-      }
-    },
-  )
+  @uichild(Leaflet.name, 'ngx-decaf-list', getDocumentProperties('productCode'))
   @uionrender(() => ProductEpiHandler)
   document!: Leaflet;
 
@@ -58,11 +35,10 @@ export class EpiLayout extends Model {
     'ngx-decaf-fieldset',
     {
       title: 'product.strengths.label',
-      pk: 'substance',
       showTitle: false,
-      ...commonProps
-    } as Partial<FieldsetComponent>,
-    true
+      ...commonProps,
+    },
+    true,
   )
   @uionrender(() => ProductEpiHandler)
   strengths!: ProductStrength;
@@ -72,11 +48,11 @@ export class EpiLayout extends Model {
     ProductMarket.name,
     'ngx-decaf-fieldset',
     {
-      // title: 'Markets',
-      pk: 'marketId',
-      ...commonProps
+      title: 'product.markets.label',
+      showTitle: false,
+      ...commonProps,
     } as Partial<FieldsetComponent>,
-    true
+    true,
   )
   @uionrender(() => ProductEpiHandler)
   markets!: ProductMarket;
