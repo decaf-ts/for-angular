@@ -1,6 +1,7 @@
 import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import {
   uichild,
+  uihandlers,
   uilayout,
   uilayoutprop,
   UIMediaBreakPoints,
@@ -10,6 +11,8 @@ import {
 import { Batch } from '../fabric/Batch';
 import { getDocumentProperties, ProductEpiHandler } from '../handlers/ProductEpiHandler';
 import { Leaflet } from '../fabric';
+import { ComponentEventNames, TransactionHooks } from 'src/lib/engine/constants';
+import { ProductHandler } from '../handlers/ProductHandler';
 
 @uimodel('', {})
 @model()
@@ -23,6 +26,11 @@ class BatchEpiLayout {
   borders: true,
   breakpoint: UIMediaBreakPoints.XLARGE,
 })
+@uihandlers({
+  [ComponentEventNames.Submit]: ProductHandler,
+  [TransactionHooks.BeforeUpdate]: ProductHandler,
+  [TransactionHooks.BeforeCreate]: ProductHandler,
+})
 @model()
 export class BatchLayout extends Model {
   @uichild(Batch.name, 'ngx-decaf-fieldset', {
@@ -32,7 +40,6 @@ export class BatchLayout extends Model {
     ordenable: false,
   })
   @uilayoutprop(2)
-  // @uionrender(() => BatchEpiLayoutHandler)
   batch!: Batch;
 
   @uichild(BatchEpiLayout.name, 'app-switcher', {

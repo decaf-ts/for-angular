@@ -39,11 +39,9 @@
           class="dcf-width-auto@m dcf-button-container dcf-width-1-1 dcf-flex-middle dcf-flex dcf-flex-center dcf-flex-right@m"
         >
           <div>
-            <ion-button
-              expand="block"
-              (click)="changeOperation(OperationKeys.CREATE)"
-              >Create</ion-button
-            >
+            <ion-button expand="block" (click)="changeOperation(OperationKeys.CREATE)">
+              Create
+            </ion-button>
           </div>
         </div>
       }
@@ -60,11 +58,12 @@
           [globals]="{
             item: child,
             mapper: mapper,
-            route: route,
+            route: isModalChild ? route : undefined,
             model: child,
+            isModalChild: child.isModalChild,
+            emitEvent: child.emitEvent,
           }"
-        >
-        </ngx-decaf-component-renderer>
+        ></ngx-decaf-component-renderer>
       }
     } @else {
       <ng-content></ng-content>
@@ -72,7 +71,7 @@
   </ion-list>
 
   @if (loadMoreData) {
-    @if (pages > 0 && type === "paginated" && !searchValue?.length) {
+    @if (pages > 0 && type === 'paginated' && !searchValue?.length) {
       <ngx-decaf-pagination
         [totalPages]="pages"
         [current]="page"
@@ -118,9 +117,7 @@
         [borders]="borders"
         [icon]="(item?.icon ?? 'folder-open-outline') || empty.icon"
         className="dcf-empty-data"
-        [subtitle]="
-          empty.subtitle ? (locale + '.' + empty.subtitle | translate) : ''
-        "
+        [subtitle]="empty.subtitle ? (locale + '.' + empty.subtitle | translate) : ''"
       />
     } @else {
       <ngx-decaf-empty-state
@@ -133,9 +130,7 @@
         [body]="'small'"
         [translatable]="true"
         [title]="locale + '.search.title' | translate"
-        [subtitle]="
-          locale + '.search.subtitle' | translate: { '0': parseSearchValue() }
-        "
+        [subtitle]="locale + '.search.subtitle' | translate: { '0': parseSearchValue() }"
         [searchValue]="searchValue"
       />
     }

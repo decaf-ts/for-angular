@@ -110,6 +110,8 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
       //   false,
       // )) as ILayoutModelContext;
       // const { data, repository } = context;
+      const { epi } = event.data as KeyValue;
+      const { markets, strengths } = epi;
       success = (await this.submit(event, false)).success;
       // if ('imageData' in data) {
       //   data['imageData'] = Model.build(
@@ -182,7 +184,9 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
       // }
     }
 
-    if (success && redirect) this.location.back();
+    if (success) {
+      this.location.back();
+    }
     const options = {
       color: success ? 'dark' : 'danger',
       message: await this.translate(`operations.multiple.${success ? 'success' : 'error'}`),

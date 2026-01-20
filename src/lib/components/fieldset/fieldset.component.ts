@@ -479,25 +479,39 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       this.operation = operation;
       this.changeDetectorRef.detectChanges();
     }
-    if ([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
-      console.log(this._data);
-      if (this._data && !this.value?.length) {
-        function resolvePath(obj: KeyValue, path: string) {
-          return path.split('.').reduce((acc, key) => {
-            if (acc && key in acc) {
-              return acc[key];
-            }
-            return false;
-          }, obj);
-        }
-        if (!Array.isArray(this._data))
-          this._data = resolvePath(this._data, this.childOf as string);
-        if (this._data) {
-          this.getItems(this._data as []);
+    if (this._data && !this.value?.length) {
+      function resolvePath(obj: KeyValue, path: string) {
+        return path.split('.').reduce((acc, key) => {
+          if (acc && key in acc) {
+            return acc[key];
+          }
+          return false;
+        }, obj);
+      }
+      if (!Array.isArray(this._data)) this._data = resolvePath(this._data, this.childOf as string);
+      if (this._data) {
+        const data = this._data || [];
+        if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
+          if (!Array.isArray(data)) this._data = [data];
+          this.items = [
+            ...this._data.map((v: KeyValue) => {
+              return this.children.map((child) => {
+                const { props, tag } = child as KeyValue;
+                return {
+                  tag,
+                  props: {
+                    ...props,
+                    value: v[props.name] || '',
+                  },
+                };
+              });
+            }),
+          ];
+        } else {
+          this.getItems(data as []);
         }
       }
     }
-
     // this.refreshing = true;
     // this.changeDetectorRef.detectChanges();
     // if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {

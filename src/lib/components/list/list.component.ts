@@ -1113,18 +1113,19 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     let data = [...(this.data || [])];
     let request: KeyValue[] = [];
 
+    if (!this._repository) {
+      this._repository = this.repository;
+    }
     if (!this.repositoryObserver) {
       this.repositoryObserver = {
         refresh: async (...args) => this.handleRepositoryRefresh(...args),
       };
     }
-    if (!this._repository) {
-      this._repository = this.repository;
-      try {
-        (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
-      } catch (error: unknown) {
-        this.log.info((error as Error)?.message);
-      }
+
+    try {
+      (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
+    } catch (error: unknown) {
+      this.log.info((error as Error)?.message);
     }
     const repo = this._repository as DecafRepository<Model>;
     if (!this.indexes) {
@@ -1399,8 +1400,12 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     return data.reduce((accum: KeyValue[], curr) => {
       accum.push({
         ...this.itemMapper(curr, this.mapper as KeyValue, props),
-        ...{ pk: this.pk },
-        ...{ model: curr },
+        ...{
+          pk: this.pk,
+          model: curr,
+          isModalChild: this.isModalChild,
+          emitEvent: props.emitEvent,
+        },
       });
       return accum;
     }, []);

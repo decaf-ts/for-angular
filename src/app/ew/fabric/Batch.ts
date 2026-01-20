@@ -190,6 +190,7 @@ export class Batch extends Cacheable {
     {
       title: 'batch.manufacturerAddress.label',
       max: 5,
+      required: false,
       collapsable: false,
       borders: true,
     },

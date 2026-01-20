@@ -75,12 +75,14 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     const isDevelopment = isDevelopmentMode();
     const populate = [
       'Product',
-      'Batch',
-      'Leaflet',
+      // 'ProductStrength',
+      // 'Batch',
+      // 'Leaflet',
+      //
+      // 'ProductImage',
+
       'CategoryModel',
       'AIVendorModel',
-      'ProductStrength',
-      'ProductImage',
     ];
     const menu = [];
     const models = AppModels;

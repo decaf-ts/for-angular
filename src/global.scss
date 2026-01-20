@@ -10,13 +10,13 @@
  */
 
 /* Core CSS required for Ionic components to work properly */
-@use "@ionic/angular/css/core.css";
+@use '@ionic/angular/css/core.css';
 
 /* Basic CSS for apps built with Ionic */
-@use "@ionic/angular/css/normalize.css";
-@use "@ionic/angular/css/structure.css";
-@use "@ionic/angular/css/typography.css";
-@use "@ionic/angular/css/display.css";
+@use '@ionic/angular/css/normalize.css';
+@use '@ionic/angular/css/structure.css';
+@use '@ionic/angular/css/typography.css';
+@use '@ionic/angular/css/display.css';
 
 // @import "@ionic/angular/css/palettes/dark.always.css";
 // @import "@ionic/angular/css/palettes/dark.class.css";
@@ -36,7 +36,7 @@
  */
 
 /* You can import all files */
-@use "@decaf-ts/styles/dist/main.min.css";
+@use '@decaf-ts/styles/dist/main.min.css';
 // @use "../../styles/src/main.scss";
 // @use "../../styles/dist/main.css";
 
@@ -52,9 +52,9 @@
 // import do dark mode
 // @import "@decaf-ts/styles/dist/components/variables/decaf-dark.css";
 
-@use "./theme/variables.scss";
-@use "./theme/ew.scss";
-@forward "@tabler/icons-webfont/dist/tabler-icons.scss";
+@use './theme/variables.scss';
+@use './theme/ew.scss';
+@forward '@tabler/icons-webfont/dist/tabler-icons.scss';
 
 // ion-router-outlet ion-content {
 //   --background: var(--dcf-content-background);

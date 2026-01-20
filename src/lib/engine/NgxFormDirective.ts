@@ -326,13 +326,15 @@ export abstract class NgxFormDirective
       event.preventDefault();
       event.stopImmediatePropagation();
     }
-    const isValid = NgxFormService.validateFields(this.formGroup as FormGroup);
-    if (this.isModalChild) this.changeDetectorRef.detectChanges();
+    this.changeDetectorRef.detectChanges();
+    const formGroup = this.formGroup as FormGroup;
+    const isValid = NgxFormService.validateFields(formGroup);
+
     if (!isValid) {
-      NgxFormService.enableAllGroupControls(this.formGroup as FormGroup);
+      NgxFormService.enableAllGroupControls(formGroup);
       return false;
     }
-    const data = NgxFormService.getFormData(this.formGroup as FormGroup);
+    const data = NgxFormService.getFormData(formGroup);
     if (Object.keys(data).length > 0)
       return this.submitEventEmit(data, eventName, componentName, this.handlers);
   }

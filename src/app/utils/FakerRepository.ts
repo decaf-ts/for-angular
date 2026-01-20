@@ -64,6 +64,7 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           break;
         }
         case Product.name: {
+          this.limit = 1;
           data = (await this.generateData<T & Product>(ProductNames, 'inventedName', 'string')).map(
             (item: Partial<Product>, index: number) => {
               item.productCode = `0${index + 1}`.padStart(14, '0');
@@ -85,18 +86,17 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
                 const productCode = `0${Math.floor(Math.random() * 5) + 1}`.padStart(14, '0');
                 const repo = getModelAndRepository('Product');
                 item.productCode = productCode;
-                item.batchNumber = `bt_${productCode}_${item.nameMedicinalProduct}`.trim();
-                item.expiryDate = '251200';
                 item.enableDaySelection = true;
                 if (repo) {
                   const { repository } = repo;
-                  item['inventedName'] =
-                    (
-                      (await repository.read(productCode)) as T & {
-                        inventedName: string;
-                      }
-                    )?.['inventedName'] || item['inventedName'];
+                  const product = (await repository.read(productCode)) as Product;
+                  item['inventedName'] = item['nameMedicinalProduct'] = product.inventedName;
                 }
+                item.batchNumber = `bt_${productCode}_aspirin`.trim();
+                // item.batchNumber = `bt_${productCode}_${item['nameMedicinalProduct']}`.trim();
+
+                item.expiryDate = '251200';
+
                 return item as T;
               }),
             )),

@@ -1,3 +1,13 @@
+ion-label {
+  font-weight: 600;
+  margin-top: 0px !important;
+  margin-bottom: 0.25rem !important;
+  font-size: 0.925rem;
+
+  ion-text {
+    font-weight: initial;
+  }
+}
 ion-item {
   --border-color: transparent;
 
@@ -32,16 +42,6 @@ ion-item {
       margin: unset !important;
       margin-bottom: var(--dcf-margin-xsmall) !important;
 
-      ion-label {
-        font-weight: 600;
-        margin-top: 0px !important;
-        margin-bottom: 0.25rem !important;
-        font-size: 0.925rem;
-
-        &:not(:first-of-type) {
-          margin: 100rem;
-        }
-      }
       span,
       ion-text {
         font-weight: 400 !important;

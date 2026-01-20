@@ -761,7 +761,7 @@ export class CrudFieldComponent
     });
     this.options = await Promise.all(translateOptions);
     if (this.type !== HTML5InputTypes.SELECT) return this.options as CrudFieldOption[];
-    if (this.options.length > 10 && this.interface === SelectFieldInterfaces.POPOVER)
+    if (this.options.length > 1110 && this.interface === SelectFieldInterfaces.POPOVER)
       this.interface = SelectFieldInterfaces.MODAL;
     if (this.options.length === 0 && !this.required) this.value = '';
     const options = (

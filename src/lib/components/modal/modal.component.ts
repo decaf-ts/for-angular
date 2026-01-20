@@ -590,10 +590,11 @@ export async function getNgxSelectOptionsModal(
     globals: {
       data: options,
       showSearchbar: options?.length > 10,
-      item: { tag: true },
+      item: { tag: true, emitEvent: true },
       pk: 'value',
       mapper: { title: 'text', uid: 'value' },
       type: ListComponentsTypes.INFINITE,
+      isModalChild: true,
     },
     className: `dcf-modal dcf-modal-select-interface`,
   };

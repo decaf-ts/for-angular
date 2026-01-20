@@ -289,6 +289,19 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
   actionMenuOpen: boolean = false;
 
   /**
+   * @description Flag controlling whether the component should emit click events.
+   * @summary When true, interaction handlers emit payloads via `clickEvent` instead of relying
+   * solely on navigation. Useful for parent components that listen for custom events to drive
+   * their own logic.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf ListItemComponent
+   */
+  @Input()
+  emitEvent: boolean = false;
+
+  /**
    * @description Creates an instance of ListItemComponent.
    * @summary Initializes a new ListItemComponent by calling the parent class constructor
    * with the component name for logging and identification purposes. Also registers
@@ -384,7 +397,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
     }
     // forcing trap focus
     removeFocusTrap();
-    if (!this.route) {
+    if (!this.route || this.emitEvent) {
       const event = {
         target: target,
         action,
@@ -394,10 +407,10 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
         component: this.componentName,
       } as ListItemCustomEvent;
       windowEventEmitter(`ListItem${ComponentEventNames.Click}`, event);
-      this.clickEvent.emit(event);
-    } else {
-      await this.redirect(action, `${this.uid}`);
+      return this.clickEvent.emit(event);
     }
+
+    await this.redirect(action, `${this.uid}`);
   }
 
   /**

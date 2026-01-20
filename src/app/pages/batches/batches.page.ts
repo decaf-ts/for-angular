@@ -47,6 +47,7 @@ export class BatchesPage extends NgxModelPageDirective implements OnInit {
   async ngOnInit(): Promise<void> {
     this.model = !this.operation ? new Batch() : new BatchLayout();
     this.enableCrudOperations([OperationKeys.DELETE]);
+    console.log(this.componentName, this.operations);
     // keep init after model selection
     this.locale = 'batch';
     this.title = `${this.locale}.title`;
@@ -56,7 +57,7 @@ export class BatchesPage extends NgxModelPageDirective implements OnInit {
 
   // override async ionViewWillEnter(): Promise<void> {
   //   await super.ionViewWillEnter();
-  // }
+  // }ź
 
   // override async handleEvent(event: ICrudFormEvent): Promise<void> {
   //   const handler = (new ProductHandler()).handle.bind(this);

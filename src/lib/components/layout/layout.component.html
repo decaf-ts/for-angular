@@ -21,7 +21,6 @@
             <div
               [class]="'dcf-grid-col ' + child.colClass"
               [class.dcf-first-column]="$index === 0"
-              [class.dcf-layout-separator]="child.props?.separator ?? false"
               [class.dcf-hidden]="child.props?.hidden?.includes(operation)"
             >
               <div>

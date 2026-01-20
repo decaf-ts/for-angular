@@ -24,6 +24,8 @@ import { Dynamic } from '../../engine/decorators';
 import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
 import { UIKeys } from '@decaf-ts/ui-decorators';
 import { getModelAndRepository } from 'src/lib/engine/helpers';
+import { th } from '@faker-js/faker/.';
+import { debounceTime, shareReplay, takeUntil } from 'rxjs';
 
 @Dynamic()
 @Component({
@@ -89,14 +91,22 @@ export class TableComponent extends ListComponent implements OnInit {
     this.initialized = false;
     this.type = ListComponentsTypes.PAGINATED;
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
-    if (!this.initialized) this.parseProps(this);
-
+    if (!this.initialized) {
+      this.parseProps(this);
+    }
+    this.repositoryObserverSubject
+      .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
+      .subscribe(([modelInstance, event, uid]) =>
+        this.handleObserveEvent(modelInstance, event, uid),
+      );
     this.cols = this._cols as string[];
     if (this.allowOperations)
       this.allowOperations =
         this.isAllowed(OperationKeys.UPDATE) || this.isAllowed(OperationKeys.DELETE);
     this.searchValue = undefined;
-    if (this.operations) this.cols.push('actions');
+    if (this.operations) {
+      this.cols.push('actions');
+    }
     this.headers = this._headers;
     const filter = this.routerService.getQueryParamValue('filter') as string;
     if (filter) {
@@ -115,8 +125,9 @@ export class TableComponent extends ListComponent implements OnInit {
         },
       };
     }
-    if (this.filterModel) await this.getFilterOptions();
-
+    if (this.filterModel) {
+      await this.getFilterOptions();
+    }
     await super.initialize();
     await this.refresh();
   }
@@ -186,9 +197,17 @@ export class TableComponent extends ListComponent implements OnInit {
     );
   }
 
-  async handleAction(event: Event, action: CrudOperations, uid: string): Promise<void> {
+  async handleAction(
+    event: Event,
+    action: CrudOperations,
+    uid: string,
+    redirect?: boolean,
+  ): Promise<void> {
+    if (redirect) {
+      await this.router.navigate([`/${this.route}/${action}/${uid}`]);
+    }
     event.stopImmediatePropagation();
-    if (this.isAllowed(action)) await this.router.navigate([`/${this.route}/${action}/${uid}`]);
+
     const data = this.items.find((item) => item['uid'] === uid);
     if (data) this.listenEvent.emit({ name: ComponentEventNames.Click, data });
   }

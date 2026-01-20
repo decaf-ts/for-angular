@@ -88,7 +88,6 @@ export class AppSwitcherComponent extends NgxParentComponentDirective implements
       });
     }
     await super.initialize();
-    console.log(this.name, this.operation);
   }
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
@@ -102,7 +101,8 @@ export class AppSwitcherComponent extends NgxParentComponentDirective implements
   }
 
   async handleNavigateToLeaflet() {
-    await this.router.navigateByUrl(`/leaflets/create?${this.leafletParam}=` + this.modelId);
+    const param = `${this.modelId ? `?${this.leafletParam}=${this.modelId}` : ''}`;
+    await this.router.navigateByUrl(`/leaflets/create${param}`);
   }
 
   async navigate(page: number): Promise<void | boolean> {

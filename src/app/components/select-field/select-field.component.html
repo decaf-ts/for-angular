@@ -1,4 +1,4 @@
-@if (operation === 'read' || operation === 'delete' || readonly) {
+@if (initialized && (operation === 'read' || operation === 'delete' || readonly)) {
   @if (!hidden) {
     <ng-container>
       <div [class.dcf-hidden]="['inventedName', 'nameMedicinalProduct'].includes(name) && !value">
@@ -20,7 +20,7 @@
         #container
         [class]="'dcf-input-item ' + operation + ' ' + className"
         [class.dcf-field-required]="required"
-        [class.dcf-field-readonly]="readonly"
+        [class.dcf-field-readonly]="readonly || disabled"
       >
         @if (type === HTML5InputTypes.SELECT) {
           <div [class.dcf-disabled]="disabled">
@@ -35,7 +35,7 @@
               [hidden]="hidden || !options?.length"
               [labelPlacement]="labelPlacement"
               [label]="label | translate"
-              [value]="value ?? null"
+              [value]="value"
               (ionChange)="handleChange($event)"
               [fill]="fill"
               [placeholder]="placeholder | translate"
@@ -96,8 +96,6 @@
             [step]="step !== undefined ? step : null"
             [fill]="fill"
             [placeholder]="placeholder | translate"
-            [formControlName]="name"
-            [errorText]="getErrors(container)"
             [label]="label | translate"
             #component
           />

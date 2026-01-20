@@ -163,7 +163,7 @@ export class Product extends Cacheable {
   // counter?: number;
 
   //@cache()
-  @oneToMany(() => ProductStrength, { update: Cascade.CASCADE, delete: Cascade.CASCADE }, false)
+  @oneToMany(() => ProductStrength, { update: Cascade.CASCADE, delete: Cascade.CASCADE }, true)
   strengths!: ProductStrength[];
 
   //@cache()

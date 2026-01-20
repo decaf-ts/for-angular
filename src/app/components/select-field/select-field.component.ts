@@ -1,4 +1,4 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener, inject, OnDestroy } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonButton,
@@ -22,11 +22,7 @@ import { Product } from 'src/app/ew/fabric/Product';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.component';
-import {
-  getOnWindow,
-  setOnWindow,
-  windowEventEmitter,
-} from 'src/lib/utils/helpers';
+import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/helpers';
 import { Dynamic } from 'src/lib/engine/decorators';
 import { ComponentEventNames } from 'src/lib/engine/constants';
 import { getModelAndRepository } from 'src/lib/engine/helpers';
@@ -50,71 +46,96 @@ import { getModelAndRepository } from 'src/lib/engine/helpers';
 
   standalone: true,
 })
-export class AppSelectFieldComponent extends CrudFieldComponent {
+export class AppSelectFieldComponent extends CrudFieldComponent implements OnDestroy {
   routerService: RouterService = inject(RouterService);
 
+  override async onDestroy(): Promise<void> {
+    super.onDestroy();
+    this.setValue(undefined);
+  }
+
   override async ngAfterViewInit(): Promise<void> {
+    if (this.operation === OperationKeys.CREATE) {
+      this.setValue(undefined);
+    }
+
     await super.ngAfterViewInit();
+    const batchNumber = this.routerService.getQueryParamValue('batchNumber');
+    const producCode = this.routerService.getQueryParamValue('productCode');
 
     if (this.name === 'productCode') {
       if (this.operation === OperationKeys.CREATE) {
-        const producCode = this.routerService.getQueryParamValue('productCode');
         if (producCode) {
-          this.value = producCode as string;
-          this.readonly = true;
+          this.setValue(producCode as string);
+        }
+
+        if (batchNumber || this.value) {
+          this.disabled = true;
+          this.changeDetectorRef.detectChanges();
         }
       }
-      if (this.value)
+      if (this.value) {
         windowEventEmitter(ComponentEventNames.Change, {
           source: this.name,
           value: this.value,
         });
+      }
     }
 
     if (this.name === 'batchNumber') {
       if (this.operation === OperationKeys.CREATE) {
-        this.disabled = true;
-        const batchNumber =
-          this.routerService.getQueryParamValue('batchNumber');
         if (batchNumber) {
-          this.value = batchNumber as string;
-          if (this.formGroup instanceof FormGroup) this.formGroup?.enable();
-          this.disabled = this.options?.length === 0;
+          await this.readBatchById(batchNumber);
+        }
+
+        if (batchNumber || this.value) {
+          this.disabled = true;
+          this.changeDetectorRef.detectChanges();
         }
       }
       if ((this.value as string)?.length) {
-        windowEventEmitter(ComponentEventNames.Change, {
-          source: this.name,
-          value: this.value,
+        if (this.formGroup instanceof FormGroup) {
+          this.formGroup?.enable();
+        }
+        // windowEventEmitter(ComponentEventNames.Change, {
+        //   source: this.name,
+        //   value: this.value,
+        // });
+        this.component.nativeElement.ionChange.emit({
+          value: {
+            source: this.name,
+            value: this.value,
+            bubbles: batchNumber ? false : true,
+          },
         });
-        this.disabled = false;
-        if (this.formGroup instanceof FormGroup) this.formGroup?.enable();
       }
     }
 
     if (this.name === 'epiMarket' && !this.value) {
       if (this.formGroup instanceof FormGroup) {
         this.value = this.formGroup.get(this.name)?.value;
-        this.changeDetectorRef.detectChanges();
       }
     }
+
+    this.initialized = true;
   }
 
   handleChange(event: SelectCustomEvent) {
     const { value } = event.detail as SelectChangeEventDetail;
     windowEventEmitter(ComponentEventNames.Change, {
       source: this.name,
-      value,
+      ...(value?.value ? { ...value } : { value: value }),
     });
   }
 
   @HostListener('window:ChangeEvent', ['$event'])
   override async handleEvent(event: CustomEvent): Promise<void> {
-    const { source, value } = event.detail;
+    const { source, value, bubbles } = event.detail;
     if (source !== this.name) {
       if (source === 'productCode') {
-        if (this.name === 'batchNumber')
+        if (this.name === 'batchNumber') {
           await this.readBatchByProductCode(value);
+        }
         if (['inventedName', 'nameMedicinalProduct'].includes(this.name)) {
           const product = await this.readProduct(value);
           if (product) {
@@ -128,10 +149,12 @@ export class AppSelectFieldComponent extends CrudFieldComponent {
           this.hidden = value !== '';
           this.changeDetectorRef.detectChanges();
         }
-        if (this.name === 'productCode' && value !== '')
-          await this.setProductValue(value);
-        if (this.name === 'type')
+        if (this.name === 'productCode' && value !== '') {
+          await this.setProductValue(value, bubbles);
+        }
+        if (this.name === 'type') {
           await this.filterTypeOptions(value !== '' ? 'batch' : 'product');
+        }
       }
     }
   }
@@ -156,6 +179,18 @@ export class AppSelectFieldComponent extends CrudFieldComponent {
     return product;
   }
 
+  async readBatchById(uid: string) {
+    const repo = getModelAndRepository('Batch');
+    if (repo) {
+      const { repository, pk } = repo;
+      const batch = (await repository.read(uid)) as Batch;
+      if (batch) {
+        this.value = batch.batchNumber as string;
+        this.setValue(this.value);
+      }
+    }
+  }
+
   async readBatchByProductCode(uid: string) {
     const relation = 'productCode' as keyof Model;
     const condition = Condition.attribute<Model>(relation).eq(uid);
@@ -170,20 +205,16 @@ export class AppSelectFieldComponent extends CrudFieldComponent {
     }
   }
 
-  async setProductValue(batchId: string) {
+  async setProductValue(uid: string, bubbles: boolean = true) {
     const repo = getModelAndRepository('Batch');
-    if (repo && this.value) {
+    if (repo) {
       const { repository, pk } = repo;
       const condition = Condition.attribute<Model>(pk as keyof Model)
         .eq(this.value)
-        .or(
-          Condition.attribute<Model>('batchNumber' as keyof Model).eq(batchId)
-        );
+        .or(Condition.attribute<Model>('batchNumber' as keyof Model).eq(uid));
       const query = await repository.select().where(condition).execute();
       const productCode = query?.length ? (query[0] as Batch).productCode : '';
-      if (productCode !== this.value) {
-        this.value = productCode as string;
-      }
+      this.setValue(productCode);
     }
   }
 

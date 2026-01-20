@@ -43,7 +43,7 @@ export class ProductMarket extends Cacheable {
     placeholder: 'market.id.placeholder',
     type: HTML5InputTypes.SELECT,
     translatable: false,
-    options: getMarkets(),
+    options: getMarkets().slice(0, 3), //TODO: DELETAR
   })
   @uilayoutprop(1)
   @uilistprop('title')

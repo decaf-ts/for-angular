@@ -11,7 +11,7 @@ import {
 } from 'src/lib/engine';
 import { Leaflet, ProductMarket, ProductStrength } from '../fabric';
 import { CrudFieldComponent, FieldsetComponent, ListComponent } from 'src/lib/components';
-import { OperationKeys } from '@decaf-ts/db-decorators';
+import { OperationKeys, readonly } from '@decaf-ts/db-decorators';
 import { DecafComponent } from '@decaf-ts/ui-decorators';
 
 export async function renderMakets<C extends CrudFieldComponent>(instance: C): Promise<void> {
@@ -22,18 +22,24 @@ export function getDocumentProperties(filterBy: 'productCode' | 'batchNumber' = 
   return {
     showSearchbar: false,
     title: 'Documents',
+    operation: OperationKeys.READ,
     operations: [OperationKeys.READ],
     showRefresher: false,
+    readonly: true,
     route: 'leaflets',
     icon: 'ti-file-barcode',
     filterBy,
-    empty: {
-      link: async function <T extends DecafComponent<Model>>() {
-        const component = this as unknown as T;
-        const param = `${component.modelId ? `?${filterBy}=${component.modelId}` : ''}`;
-        await component.router.navigateByUrl(`/leaflets/create${param}`);
-      },
-    },
+    // empty: {
+    //   link: async function <T extends DecafComponent<Model>>() {
+    //     const component = this as unknown as T;
+    //     const operation = component.operation as OperationKeys;
+    //     const param = `${component.modelId ? `?${filterBy}=${component.modelId}` : ''}`;
+    //     alert(param);
+    //     await component.router.navigateByUrl(
+    //       !param ? `/leaflets` : `/leaflets/${operation}${param}`,
+    //     );
+    //   },
+    // },
   };
 }
 
@@ -49,8 +55,6 @@ export class ProductEpiHandler extends NgxEventHandler {
         );
       }
     }
-    console.log(instance.filterBy);
-    console.log(instance.modelName, this.name, this.operation);
     // const relation = component.filterBy;
     // if (component?.operation === OperationKeys.CREATE) {
     //   console.log(component.filterBy);

@@ -298,6 +298,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   }
 
   override async initialize(): Promise<void> {
+    this.handleClear();
     await super.initialize();
 
     if (this.value && typeof this.value === Primitives.STRING) {

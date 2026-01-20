@@ -608,6 +608,7 @@ export abstract class NgxComponentDirective
 
   constructor(@Inject(CPTKN) componentName?: string, @Inject(CPTKN) localeRoot?: string) {
     super();
+    this.value = undefined;
     this.componentName = componentName || 'NgxComponentDirective';
     this.localeRoot = localeRoot;
     if (!this.localeRoot && this.componentName) this.localeRoot = this.componentName;
@@ -1110,13 +1111,17 @@ export abstract class NgxComponentDirective
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   isAllowed(operation: string, operations?: CrudOperations[]): boolean {
-    if (!operations) operations = this.operations;
-    if (!operations) return false;
-    return (
-      this.operations.includes(operation as CrudOperations) &&
-      this.operation !== OperationKeys.CREATE &&
-      ((this.operation || '').toLowerCase() !== operation || !this.operation)
-    );
+    if (!operations) {
+      operations = this.operations;
+    }
+    if (operations) {
+      return (
+        this.operations.includes(operation as CrudOperations) &&
+        this.operation !== OperationKeys.CREATE &&
+        ((this.operation || '').toLowerCase() !== operation || !this.operation)
+      );
+    }
+    return false;
   }
 
   /**

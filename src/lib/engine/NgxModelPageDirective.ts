@@ -21,9 +21,6 @@ import {
 import { DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { getModelAndRepository } from './helpers';
-import { NgxEventHandler } from './NgxEventHandler';
-import { ReturnStatement } from '@angular/compiler';
-import { NgxComponentDirective } from '.';
 
 @Directive()
 export abstract class NgxModelPageDirective extends NgxPageDirective implements AfterViewInit {
@@ -142,7 +139,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
         case OperationKeys.UPDATE:
         case OperationKeys.DELETE:
           {
-            await this.handleRead(uid);
+            this.model = await this.handleRead(uid);
+            this.changeDetectorRef.detectChanges();
           }
           break;
       }
@@ -195,7 +193,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     }
     switch (name) {
       case ComponentEventNames.Submit:
-        await this.submit(event, false, repository);
+        await this.submit(event, true, repository);
         break;
       default:
         this.listenEvent.emit(event as IBaseCustomEvent | ICrudFormEvent);
@@ -276,6 +274,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
         return context.repository as DecafRepository<M>;
       }
     }
+    if (!repo) {
+      repo = this.repository as DecafRepository<M>;
+    }
     return repo;
   }
 
@@ -347,10 +348,17 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
             .where(Condition.attribute<Model>(this.pk as keyof Model).eq(uid))
             .execute();
 
+          const data = query?.length ? (query?.length === 1 ? query[0] : query) : undefined;
+
           if (modelName === this.modelName) {
             const data = query?.length ? (query?.length === 1 ? query[0] : query) : undefined;
-            // model[prop] = data;
+            model[prop] = data;
             this.model = Model.build({ [prop]: data }, modelName);
+          } else {
+            model[parent] = {
+              ...model[parent],
+              [prop]: data,
+            };
           }
           // if (data) {
           //   if (modelName === this.modelName) {

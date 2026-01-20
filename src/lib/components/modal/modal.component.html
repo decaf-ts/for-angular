@@ -57,8 +57,7 @@
           }
           @if (!tag && model) {
             <ngx-decaf-model-renderer
-              (clickEvent)="handleEvent($event)"
-              (ionChange)="handleEvent($event)"
+              (onIonChange)="handleEvent($event)"
               (listenEvent)="handleEvent($event)"
               [model]="model"
               [globals]="globals"
@@ -66,8 +65,7 @@
           } @else if (tag && globals) {
             <ngx-decaf-component-renderer
               [tag]="tag"
-              (clickEvent)="handleEvent($event)"
-              (ionChange)="handleEvent($event)"
+              (onIonChange)="handleEvent($event)"
               (listenEvent)="handleEvent($event)"
               [model]="model"
               [globals]="{ props: globals }"
