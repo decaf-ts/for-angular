@@ -188,19 +188,6 @@ export abstract class NgxComponentDirective
   override model!: Model | string | undefined;
 
   /**
-   * @description The name of the model class to operate on.
-   * @summary Identifies which registered model class this component should work with.
-   * This name is used to resolve the model constructor from the global model registry
-   * and instantiate the appropriate repository for data operations. The model must
-   * be properly registered using the @Model decorator for resolution to work.
-   *
-   * @type {string}
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  @Input()
-  modelName!: string;
-
-  /**
    * @description Primary key value of the current model instance.
    * @summary Specifies the primary key value for the current model record being displayed or
    * manipulated by the component. This identifier is used for CRUD operations that target

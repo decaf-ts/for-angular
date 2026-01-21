@@ -324,6 +324,7 @@ export interface IModelComponentSubmitEvent<M extends Model>
   extends Omit<IBaseCustomEvent, 'name'> {
   success: boolean;
   message?: string;
+  aborted?: boolean;
   model: M | M[] | null;
 }
 

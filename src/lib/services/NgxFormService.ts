@@ -898,7 +898,17 @@ export class NgxFormService {
         if (!parentProps.required) {
           parent.setErrors(null);
           parent.updateValueAndValidity({ emitEvent: true });
-          childControl.disable();
+          const hasValue =
+            parentProps.isMultiple &&
+            Object.keys(childControl.value).some(
+              (key) =>
+                childControl.value[key] !== null &&
+                childControl.value[key] !== undefined &&
+                childControl.value[key] !== '',
+            );
+          if (!hasValue) {
+            childControl.disable();
+          }
         } else {
           this.validateFields(childControl);
         }

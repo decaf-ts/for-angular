@@ -347,43 +347,16 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
             .select()
             .where(Condition.attribute<Model>(this.pk as keyof Model).eq(uid))
             .execute();
-
-          const data = query?.length ? (query?.length === 1 ? query[0] : query) : undefined;
-
           if (modelName === this.modelName) {
             const data = query?.length ? (query?.length === 1 ? query[0] : query) : undefined;
             model[prop] = data;
             this.model = Model.build({ [prop]: data }, modelName);
           } else {
-            model[parent] = {
-              ...model[parent],
-              [prop]: data,
-            };
+            // model[parent] = {
+            //   ...model[parent],
+            //   [prop]: data,
+            // };
           }
-          // if (data) {
-          //   if (modelName === this.modelName) {
-          //     model[prop] = data;
-          //     this.model = Model.build({ [prop]: data }, modelName);
-          //   } else {
-          //     model[parent] = {
-          //       ...model[parent],
-          //       [prop]: data,
-          //     };
-          //   }
-          // }
-          // const data = query?.length ? (query?.length === 1 ? query[0] : query) : undefined;
-
-          // if (data) {
-          //   if (modelName === this.modelName) {
-          //     model[prop] = data;
-          //     this.model = Model.build({ [prop]: data }, modelName);
-          //   } else {
-          //     model[parent] = {
-          //       ...model[parent],
-          //       [prop]: data,
-          //     };
-          //   }
-          // }
         }
         // this._data = model;
         // this.changeDetectorRef.detectChanges();
@@ -503,7 +476,14 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
         if (!pk) pk = Model.pk(repository.class) as string;
         if (!this.modelId) this.modelId = (data as M)[pk as keyof M] as PrimaryKeyType;
         const model = await this.transactionBegin(data as M, repository, operation);
-
+        if (!model) {
+          return {
+            success: false,
+            aborted: true,
+            model: null,
+            message: 'Operation aborted by before hook',
+          };
+        }
         switch (operation) {
           case OperationKeys.CREATE:
             result = await (!Array.isArray(model)
@@ -548,7 +528,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
         );
       message = error instanceof Error ? error.message : (error as string);
     }
-    return { ...event, success, message, model: result };
+    return { ...event, success, message, model: result, aborted: false };
   }
 
   async batchOperation(context: ILayoutModelContext, redirect: boolean = false): Promise<any> {
