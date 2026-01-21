@@ -304,9 +304,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
    * @param {string} uid - The unique identifier of the model instance to retrieve
    * @return {Promise<Model | undefined>} Promise resolving to the model instance or undefined
    */
-  async handleRead(
+  async handleRead<M extends Model>(
     uid?: EventIds,
-    repository?: IRepository<Model>,
+    repository?: IRepository<M>,
     modelName?: string,
     pk?: string,
   ): Promise<Model | undefined> {
@@ -385,19 +385,22 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
           //   }
           // }
         }
-        this._data = model;
+        // this._data = model;
         // this.changeDetectorRef.detectChanges();
         // this.model = Model.build(model, this.modelName as string);
         // this.changeDetectorRef.detectChanges();
       }
     };
-    repository = (repository || (await getRepository(modelName as string))) as IRepository<Model>;
-    if (!repository) return this.model as Model;
+    repository = (repository || (await getRepository(modelName as string))) as IRepository<M>;
+    if (!repository) {
+      return this.model as M;
+    }
     try {
       if (!this.pk) this.pk = Model.pk(repository.class) as string;
-      return await repository.read(
+      const res = await repository.read(
         this.parsePkValue(uid as Primitives, this.getModelPkType(repository.class)),
       );
+      return res;
     } catch (error: unknown) {
       this.log
         .for(this.handleRead)

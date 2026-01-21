@@ -125,7 +125,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
    * @type {M | M[] | KeyValue | KeyValue[] | undefined}
    */
   @Input()
-  protected _data?: M | M[] | KeyValue | KeyValue[];
+  protected _data?: M | M[] | KeyValue | KeyValue[] = {};
 
   override async initialize(): Promise<void> {
     if (this.repository && this.filter) {
