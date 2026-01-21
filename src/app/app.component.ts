@@ -75,7 +75,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     const isDevelopment = isDevelopmentMode();
     const populate = [
       'Product',
-      // 'ProductStrength',
+      'ProductStrength',
       'Batch',
       // 'Leaflet',
       //

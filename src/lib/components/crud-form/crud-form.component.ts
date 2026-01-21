@@ -17,7 +17,7 @@ import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { LayoutComponent } from '../layout/layout.component';
 import { TranslatePipe } from '@ngx-translate/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { getModelAndRepository } from 'src/lib/engine';
+import { getModelAndRepository } from '../../engine/helpers';
 
 @Dynamic()
 @Component({

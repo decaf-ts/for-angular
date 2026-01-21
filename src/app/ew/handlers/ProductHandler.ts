@@ -13,6 +13,7 @@ import {
   ComponentEventNames,
   FormParent,
   IRepositoryModelProps,
+  ActionRoles,
 } from 'src/lib/engine';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { getNgxModalComponent } from 'src/lib/components/modal/modal.component';
@@ -69,7 +70,8 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
   override async handle(event: ICrudFormEvent): Promise<void> {
     const { name, role } = event;
     const allowSubmit = true;
-    let success = false;
+    let result = false;
+    let submited = false;
     const redirect = true;
 
     if (name === ComponentEventNames.FormGroupLoaded) {
@@ -82,7 +84,9 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
 
       // search for context, handle strengths and markets deletion
       if (!context) {
-        success = (await this.submit({ ...event, data }, false)).success;
+        const { success, aborted } = await this.submit({ ...event, data }, false);
+        submited = !aborted;
+        result = success;
       } else {
         const { repository } = context as IRepositoryModelProps<Model>;
         ProductHandler.store(role, repository, data as M);
@@ -112,7 +116,9 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
       // const { data, repository } = context;
       const { epi } = event.data as KeyValue;
       const { markets, strengths } = epi || {};
-      success = (await this.submit(event, false)).success;
+      const { success, aborted } = await this.submit(event, false);
+      submited = !aborted;
+      result = success;
       console.log('========> strengths', strengths);
       console.log('========> markets', markets);
 
@@ -186,16 +192,17 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
       //   }
       // }
     }
-
-    if (success) {
-      this.location.back();
+    if (submited) {
+      if (result && redirect) {
+        this.location.back();
+      }
+      const options = {
+        color: result ? 'dark' : 'danger',
+        message: await this.translate(`operations.multiple.${result ? 'success' : 'error'}`),
+      };
+      const toast = getNgxToastComponent(options);
+      await toast.show(options);
     }
-    const options = {
-      color: success ? 'dark' : 'danger',
-      message: await this.translate(`operations.multiple.${success ? 'success' : 'error'}`),
-    };
-    const toast = getNgxToastComponent(options);
-    await toast.show(options);
   }
 
   override async beforeCreate<M extends Model>(
@@ -249,18 +256,47 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     repository: IRepository<M>,
     modelId: PrimaryKeyType,
   ): Promise<any> {
+    const skip = [
+      Model.pk(repository.class) as keyof M,
+      // 'strengths',
+      // 'markets',
+      'id',
+      'updatedAt',
+      'updatedBy',
+      'version',
+      'createdBy',
+      'createdAt',
+    ] as (keyof M)[];
     // console.log(this);
+    const filterDiffs = {} as KeyValue;
     const oldData = (await repository.read(modelId)) as M;
-    console.log(repository);
+    const modelDiffs = data.compare(oldData, ...skip);
 
-    return null;
+    // console.log(modelDiffs);
+    // for (const [key, value] of Object.entries(modelDiffs || {})) {
+    //   const { other, current } = Array.isArray(value) ? value[0] : value;
+    //   if (Array.isArray(other)) {
+    //     if (!other.length && current === undefined) continue;
+    //   } else {
+    //     if (Array.isArray(current)) {
+    //       if (current.length === Number(other)) continue;
+    //     }
+    //   }
+    //   if (Array.isArray(current) && Array.isArray(other) && other.length) {
+    //     filterDiffs[key] = { other: '', current: current.slice(other.length) };
+    //     continue;
+    //   }
+    //   filterDiffs[key] = value;
+    // }
+    // // console.log(filterDiffs);
+    // return Object.keys(filterDiffs as KeyValue).length ? filterDiffs : undefined;
   }
 
   override async beforeUpdate<M extends Model>(
     data: M,
     repository: DecafRepository<M>,
     modelId: PrimaryKeyType,
-  ): Promise<void> {
+  ): Promise<void | boolean> {
     data = ProductHandler.getProductImage<M>(data, repository);
     const modelName = repository.class.name;
     const diffs = await ProductHandler.checkDiffs<M>(
@@ -282,6 +318,9 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
       });
       await modal.present();
       const { role } = await modal.onDidDismiss();
+      if (role === ActionRoles.cancel) {
+        return false;
+      }
     }
     const toDelete = ProductHandler.getStored(OperationKeys.DELETE);
     for (const [name, value] of Object.entries(toDelete)) {

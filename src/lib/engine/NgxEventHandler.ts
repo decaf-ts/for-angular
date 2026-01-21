@@ -9,7 +9,9 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { Model } from '@decaf-ts/decorator-validation';
 import { CrudOperationKeys, DecafEventHandler } from '@decaf-ts/ui-decorators';
-import { FunctionLike, ICrudFormEvent, KeyValue, NgxComponentDirective } from 'src/lib/engine';
+import { FunctionLike, KeyValue } from './types';
+import { ICrudFormEvent } from './interfaces';
+import { NgxComponentDirective } from './NgxComponentDirective';
 
 export abstract class NgxEventHandler extends DecafEventHandler {
   //TODO: pass to ui decorator decaf componnet

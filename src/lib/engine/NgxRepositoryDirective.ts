@@ -17,6 +17,18 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   private _context?: DecafRepository<M>;
 
   /**
+   * @description The name of the model class to operate on.
+   * @summary Identifies which registered model class this component should work with.
+   * This name is used to resolve the model constructor from the global model registry
+   * and instantiate the appropriate repository for data operations. The model must
+   * be properly registered using the @Model decorator for resolution to work.
+   *
+   * @type {string}
+   */
+  @Input()
+  modelName!: string;
+
+  /**
    * @description Primary key field name for the data model.
    * @summary Specifies which field in the model should be used as the primary key.
    * This is typically used for identifying unique records in operations like update and delete.
@@ -128,8 +140,20 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   protected _data?: M | M[] | KeyValue | KeyValue[] = {};
 
   override async initialize(): Promise<void> {
-    if (this.repository && this.filter) {
-      this._data = await this.query(this.filter.eq(this.modelId as PrimaryKeyType));
+    if (this.repository && this.modelId) {
+      if (this.filter) {
+        this._data = await this.query(this.filter.eq(this.modelId as PrimaryKeyType));
+        if (this._data) {
+          await this.refresh();
+        }
+      } else {
+        // if (String(this.modelName) === this.model?.constructor.name) {
+        //   const model = await this.repository.read(this.modelId as PrimaryKeyType);
+        //   if (model) {
+        //     await this.refresh(model);
+        //   }
+        // }
+      }
     }
   }
 
@@ -147,6 +171,13 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
       return super.repository as DecafRepository<M>;
     }
     return this._context;
+  }
+
+  override async refresh(model?: unknown): Promise<void> {
+    if (model) {
+      this.model = Model.build(model as M, this.modelName);
+      this._data = model;
+    }
   }
 
   protected buildCondition(attr?: keyof M): Condition<M> {
@@ -213,12 +244,15 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     data: M,
     repository: DecafRepository<M>,
     operation: CrudOperations,
-  ): Promise<M | M[] | EventIds> {
+  ): Promise<M | M[] | EventIds | undefined> {
     const hook = `before${operation.charAt(0).toUpperCase() + operation.slice(1)}`;
     const handler = this.handlers?.[hook] || undefined;
     const model = this.buildTransactionModel(data || {}, repository, operation);
     if (handler && typeof handler === 'function') {
-      (await handler.bind(this)(model, repository, this.modelId)) as M;
+      const result = (await handler.bind(this)(model, repository, this.modelId)) as M | boolean;
+      if (result === false) {
+        return undefined;
+      }
     }
     return model as M;
   }

@@ -49,13 +49,12 @@ import {
   BaseComponentProps,
   ComponentEventNames,
   CPTKN,
-  TransactionHooks,
   WindowColorSchemes,
 } from './constants';
 import { generateRandomValue, getWindow, isClassConstructor, setOnWindow } from '../utils';
-import { AttributeOption, EventIds, Observer } from '@decaf-ts/core';
+import { EventIds, Observer } from '@decaf-ts/core';
 import { NgxMediaService } from '../services/NgxMediaService';
-import { DecafComponent, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
+import { UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
 import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
 import { OverlayBaseController } from '@ionic/angular/common';
 import { getModelAndRepository } from './helpers';
@@ -186,19 +185,6 @@ export abstract class NgxComponentDirective
    */
   @Input()
   override model!: Model | string | undefined;
-
-  /**
-   * @description The name of the model class to operate on.
-   * @summary Identifies which registered model class this component should work with.
-   * This name is used to resolve the model constructor from the global model registry
-   * and instantiate the appropriate repository for data operations. The model must
-   * be properly registered using the @Model decorator for resolution to work.
-   *
-   * @type {string}
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  @Input()
-  modelName!: string;
 
   /**
    * @description Primary key value of the current model instance.

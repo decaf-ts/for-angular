@@ -326,8 +326,9 @@ export abstract class NgxFormDirective
       event.preventDefault();
       event.stopImmediatePropagation();
     }
-    this.changeDetectorRef.detectChanges();
     const formGroup = this.formGroup as FormGroup;
+    this.changeDetectorRef.detectChanges();
+
     const isValid = NgxFormService.validateFields(formGroup);
 
     if (!isValid) {

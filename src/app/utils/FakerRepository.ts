@@ -143,7 +143,7 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           break;
         }
         case ProductStrength.name: {
-          this.limit = 6;
+          this.limit = 2;
           data = await this.generateData<ProductStrength>();
           data = data.map((item: Partial<ProductStrength>, index: number) => {
             item['productCode'] = index % 2 === 0 ? '00000000000012' : '00000000000013';

@@ -6,34 +6,10 @@
  * and exposes helper providers such as DB adapter registration and logger utilities.
  * @link {@link ForAngularCommonModule}
  */
-import {
-  NgModule,
-  ModuleWithProviders,
-  InjectionToken,
-  Provider,
-  EnvironmentProviders,
-  provideEnvironmentInitializer,
-} from '@angular/core';
+import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
-import { Logger, Logging } from '@decaf-ts/logging';
-import { I18nToken } from './engine/interfaces';
-import { getOnWindow, getWindowDocument, setOnWindow } from './utils/helpers';
-import {
-  DecafRepository,
-  FunctionLike,
-  DecafRepositoryAdapter,
-  KeyValue
-} from './engine/types';
-import { Model, Primitives } from '@decaf-ts/decorator-validation';
-import { Repository } from '@decaf-ts/core';
-import { Constructor, Metadata, uses } from '@decaf-ts/decoration';
-import { AnimationController, provideIonicAngular } from '@ionic/angular/standalone';
-import { NgxComponentDirective } from './engine';
-
-
-
 
 const CommonModules = [
   CommonModule,

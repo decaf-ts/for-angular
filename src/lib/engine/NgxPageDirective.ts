@@ -5,23 +5,17 @@
  * offers page-focused utilities such as menu management, title handling and router event hooks.
  * @link {@link NgxPageDirective}
  */
-import {
-  AfterViewInit,
-  Directive,
-  Inject,
-  inject,
-  OnInit,
-} from "@angular/core";
-import { NgxComponentDirective } from "./NgxComponentDirective";
-import { Title } from "@angular/platform-browser";
-import { IMenuItem } from "./interfaces";
-import { CPTKN } from "./constants";
-import { NavigationEnd, NavigationStart } from "@angular/router";
-import { removeFocusTrap } from "../utils/helpers";
-import { KeyValue } from "./types";
-import { MenuController } from "@ionic/angular";
-import { shareReplay, takeUntil } from "rxjs";
-import { Model } from "@decaf-ts/decorator-validation";
+import { AfterViewInit, Directive, Inject, inject, OnInit } from '@angular/core';
+import { NgxComponentDirective } from './NgxComponentDirective';
+import { Title } from '@angular/platform-browser';
+import { IMenuItem } from './interfaces';
+import { CPTKN } from './constants';
+import { NavigationEnd, NavigationStart } from '@angular/router';
+import { removeFocusTrap } from '../utils/helpers';
+import { KeyValue } from './types';
+import { MenuController } from '@ionic/angular';
+import { shareReplay, takeUntil } from 'rxjs';
+import { Model } from '@decaf-ts/decorator-validation';
 
 /**
  * @description Base directive for page-level components in Decaf Angular applications.
@@ -34,10 +28,7 @@ import { Model } from "@decaf-ts/decorator-validation";
  * @memberOf module:lib/engine/NgxPageDirective
  */
 @Directive()
-export abstract class NgxPageDirective
-  extends NgxComponentDirective
-  implements AfterViewInit
-{
+export abstract class NgxPageDirective extends NgxComponentDirective implements AfterViewInit {
   /**
    * @description Application name for display or identification purposes.
    * @summary Stores the name of the application, which can be used for display in headers,
@@ -56,7 +47,7 @@ export abstract class NgxPageDirective
    * @default ''
    * @memberOf module:lib/engine/NgxPageDirective
    */
-  title: string = "";
+  title: string = '';
 
   /**
    * @description Global key-value pairs for application-wide settings.
@@ -141,8 +132,8 @@ export abstract class NgxPageDirective
    */
 
   constructor(
-    @Inject(CPTKN) localeRoot: string = "NgxPageDirective",
-    @Inject(CPTKN) hasMenu: boolean = true
+    @Inject(CPTKN) localeRoot: string = 'NgxPageDirective',
+    @Inject(CPTKN) hasMenu: boolean = true,
   ) {
     super(localeRoot);
     this.hasMenu = hasMenu;
@@ -161,7 +152,7 @@ export abstract class NgxPageDirective
   override async initialize(): Promise<void> {
     await super.initialize();
     // connect component to media service for color scheme toggling
-    this.currentRoute = this.router.url.replace("/", "");
+    this.currentRoute = this.router.url.replace('/', '');
     if (!this.route) this.route = this.currentRoute;
     this.setPageTitle(this.currentRoute);
   }
@@ -180,20 +171,20 @@ export abstract class NgxPageDirective
       .pipe(takeUntil(this.destroySubscriptions$), shareReplay(1))
       .subscribe(async (event) => {
         if (event instanceof NavigationEnd) {
-          const url = (event?.url || "").replace("/", "");
+          const url = (event?.url || '').replace('/', '');
           this.currentRoute = url;
-          if (this.hasMenu) this.hasMenu = url !== "login" && url !== "";
+          if (this.hasMenu) this.hasMenu = url !== 'login' && url !== '';
           this.title = this.pageTitle;
           await this.setPageTitle(url);
           this.changeDetectorRef.detectChanges();
         }
         if (event instanceof NavigationStart) {
-          const url = (event?.url || "").replace("/", "");
-          if (this.hasMenu) this.hasMenu = url !== "login" && url !== "";
+          const url = (event?.url || '').replace('/', '');
+          if (this.hasMenu) this.hasMenu = url !== 'login' && url !== '';
           removeFocusTrap();
         }
       });
-    if (!this.route) this.route = this.router.url.replace("/", "");
+    if (!this.route) this.route = this.router.url.replace('/', '');
     await this.menuController.enable(this.hasMenu);
   }
 
@@ -210,16 +201,13 @@ export abstract class NgxPageDirective
    * @return {void}
    * @memberOf module:lib/engine/NgxPageDirective
    */
-  protected async setPageTitle(
-    route?: string,
-    menu?: IMenuItem[]
-  ): Promise<void> {
-    if (!route) route = this.router.url.replace("/", "");
+  protected async setPageTitle(route?: string, menu?: IMenuItem[]): Promise<void> {
+    if (!route) route = this.router.url.replace('/', '');
     if (!menu) menu = this.menu;
     const activeMenu = menu.find((item) => item?.url?.includes(route));
     if (activeMenu) {
-      const label = `${(activeMenu?.title || activeMenu?.label || "").toLowerCase()}`;
-      const title = `${await this.translate(label ? "menu." + label : label)} ${this.appName ? `- ${this.appName}` : ""}`;
+      const label = `${(activeMenu?.title || activeMenu?.label || '').toLowerCase()}`;
+      const title = `${await this.translate(label ? 'menu.' + label : label)} ${this.appName ? `- ${this.appName}` : ''}`;
       this.titleService.setTitle(title);
       if (!this.title) this.title = title;
     }
