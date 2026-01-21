@@ -49,13 +49,12 @@ import {
   BaseComponentProps,
   ComponentEventNames,
   CPTKN,
-  TransactionHooks,
   WindowColorSchemes,
 } from './constants';
 import { generateRandomValue, getWindow, isClassConstructor, setOnWindow } from '../utils';
-import { AttributeOption, EventIds, Observer } from '@decaf-ts/core';
+import { EventIds, Observer } from '@decaf-ts/core';
 import { NgxMediaService } from '../services/NgxMediaService';
-import { DecafComponent, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
+import { UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
 import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
 import { OverlayBaseController } from '@ionic/angular/common';
 import { getModelAndRepository } from './helpers';

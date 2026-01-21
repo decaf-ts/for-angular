@@ -34,7 +34,6 @@ import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { IconComponent } from '../icon/icon.component';
-import { getLocaleContext } from 'src/lib/public-apis';
 
 /**
  * @description Modal component for displaying dynamic content in a modal dialog.
