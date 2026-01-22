@@ -56,7 +56,6 @@ export class AuditEventHandler extends NgxEventHandler {
         container,
         {
           title: 'audit.diffs.preview',
-          // uid: 'leaflet-service-parsed-content',
           headerTransparent: true,
         },
         this.injector,

@@ -2,7 +2,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,        /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */
+    "allowSyntheticDefaultImports": true /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */,
     "strictPropertyInitialization": true, // default true
     "skipLibCheck": true,
     "noImplicitReturns": false, // default true
@@ -24,10 +24,7 @@
     "typeRoots": ["node_modules/@types"],
     "target": "es2022",
     "module": "es2020",
-    "lib": [
-      "es2018",
-      "DOM"
-    ],
+    "lib": ["es2018", "DOM"],
     "useDefineForClassFields": false,
     "paths": { "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"] }
   },
@@ -37,6 +34,5 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": false, // default true
     "paths": { "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"] }
-
   }
 }

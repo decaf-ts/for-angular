@@ -124,6 +124,7 @@ export class TableComponent extends ListComponent implements OnInit {
       await this.getFilterOptions();
     }
     await this.refresh();
+    console.log(this.mapper);
     console.log(this.items);
   }
 
@@ -176,7 +177,7 @@ export class TableComponent extends ListComponent implements OnInit {
             if (events) {
               const sequence =
                 (mapper[name]?.sequence || index) + (!this.cols.includes('actions') ? 1 : 0);
-              const eventsObject = this.parseEvents(events);
+              const eventsObject = this.parseEvents(events, this);
               Object.entries(eventsObject).forEach(([key, evt]) => {
                 const handler = evt.bind(this);
                 if (key === ComponentEventNames.Render) {

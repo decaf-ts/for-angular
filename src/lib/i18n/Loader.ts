@@ -9,17 +9,25 @@
  */
 import { inject } from '@angular/core';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
-import { provideTranslateParser, provideTranslateService, RootTranslateServiceConfig, TranslateLoader, TranslateParser, TranslationObject } from '@ngx-translate/core';
-import { Primitives, sf } from '@decaf-ts/decorator-validation';
-import { forkJoin,  Observable } from 'rxjs';
+import {
+  provideTranslateParser,
+  provideTranslateService,
+  RootTranslateServiceConfig,
+  TranslateLoader,
+  TranslateParser,
+  TranslationObject,
+} from '@ngx-translate/core';
+import { sf } from '@decaf-ts/logging';
+import { Primitives } from '@decaf-ts/decorator-validation';
+import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import {I18nResourceConfig} from '../engine/interfaces';
+import { I18nResourceConfig } from '../engine/interfaces';
 import { FunctionLike, I18nResourceConfigType, KeyValue, AngularProvider } from '../engine/types';
 import { cleanSpaces, getLocaleFromClassName } from '../utils';
 import en from './data/en.json';
 import { I18N_CONFIG_TOKEN } from '../engine/constants';
 
-const libLanguage: Record<string, TranslationObject> = {en};
+const libLanguage: Record<string, TranslationObject> = { en };
 
 /**
  * @description Retrieves the locale context for a given class, object, or string.
@@ -32,7 +40,6 @@ const libLanguage: Record<string, TranslationObject> = {en};
 export function getLocaleContext(clazz: FunctionLike | object | string, suffix?: string): string {
   return getLocaleFromClassName(clazz, suffix);
 }
-
 
 /**
  * @description Generates a localized string by combining locale and phrase
@@ -48,14 +55,9 @@ export function getLocaleContext(clazz: FunctionLike | object | string, suffix?:
  * @function generateLocaleFromString
  * @memberOf module:for-angular
  */
-export function getLocaleContextByKey(
-  locale: string,
-  phrase: string | undefined
-): string {
-  if (!phrase)
-    return locale;
-  if (!locale || phrase.includes(`${locale}.`))
-    return phrase;
+export function getLocaleContextByKey(locale: string, phrase: string | undefined): string {
+  if (!phrase) return locale;
+  if (!locale || phrase.includes(`${locale}.`)) return phrase;
   const parts = phrase.split(' ');
   return `${locale}.${cleanSpaces(parts.join('.'), true)}`;
 }
@@ -68,8 +70,13 @@ export function getLocaleContextByKey(
  * @returns {TranslateLoader} - An instance of I18nLoader configured with the provided HTTP client and resources.
  */
 export function I18nLoaderFactory(http: HttpClient): TranslateLoader {
-  const { resources, versionedSuffix } = inject(I18N_CONFIG_TOKEN, { optional: true }) ?? provideDecafI18nLoader().useValue;
-  return new I18nLoader(http, resources?.length ? resources : [{ prefix: './app/assets/i18n/', suffix: '.json' }], versionedSuffix);
+  const { resources, versionedSuffix } =
+    inject(I18N_CONFIG_TOKEN, { optional: true }) ?? provideDecafI18nLoader().useValue;
+  return new I18nLoader(
+    http,
+    resources?.length ? resources : [{ prefix: './app/assets/i18n/', suffix: '.json' }],
+    versionedSuffix,
+  );
 }
 
 /**
@@ -80,7 +87,13 @@ export function I18nLoaderFactory(http: HttpClient): TranslateLoader {
  * @param {boolean} [versionedSuffix=false] - Whether to append a versioned suffix to resource URLs.
  * @returns {object} - The configuration object for the I18nLoader.
  */
-export function provideDecafI18nLoader(resources: I18nResourceConfigType = [], versionedSuffix: boolean = false): { provide: typeof I18N_CONFIG_TOKEN; useValue: { resources: I18nResourceConfig[]; versionedSuffix: boolean } } {
+export function provideDecafI18nLoader(
+  resources: I18nResourceConfigType = [],
+  versionedSuffix: boolean = false,
+): {
+  provide: typeof I18N_CONFIG_TOKEN;
+  useValue: { resources: I18nResourceConfig[]; versionedSuffix: boolean };
+} {
   if (!Array.isArray(resources)) {
     resources = [resources];
   }
@@ -100,7 +113,11 @@ export class I18nLoader implements TranslateLoader {
    * @param {I18nResourceConfig[]} [resources=[]] - The translation resources to be loaded.
    * @param {boolean} [versionedSuffix=false] - Whether to append a versioned suffix to resource URLs.
    */
-  constructor(private http: HttpClient, private resources: I18nResourceConfig[] = [], private versionedSuffix: boolean = false) {}
+  constructor(
+    private http: HttpClient,
+    private resources: I18nResourceConfig[] = [],
+    private versionedSuffix: boolean = false,
+  ) {}
 
   /**
    * @description Appends a versioned suffix to the resource URL if enabled.
@@ -127,9 +144,11 @@ export class I18nLoader implements TranslateLoader {
   getTranslation(lang: string): Observable<TranslationObject> {
     const libKeys: KeyValue = libLanguage[lang] || libLanguage['en'] || {};
     const httpRequests$ = forkJoin(
-      this.resources.map(config =>
-        this.http.get<TranslationObject>(`${config.prefix}${lang}${this.getSuffix(config.suffix || '.json')}`)
-      )
+      this.resources.map((config) =>
+        this.http.get<TranslationObject>(
+          `${config.prefix}${lang}${this.getSuffix(config.suffix || '.json')}`,
+        ),
+      ),
     );
 
     /**
@@ -153,14 +172,17 @@ export class I18nLoader implements TranslateLoader {
     }
 
     return httpRequests$.pipe(
-      map(res => {
+      map((res) => {
         const merged = {
           ...libKeys,
           ...res.reduce((acc: KeyValue, current: KeyValue) => {
             for (const key in current) {
               let value = current[key] || {};
               if (libKeys[key]) {
-                value = { ...libKeys[key], ...recursiveMerge(libKeys[key] as KeyValue, current[key] as KeyValue) };
+                value = {
+                  ...libKeys[key],
+                  ...recursiveMerge(libKeys[key] as KeyValue, current[key] as KeyValue),
+                };
               }
               acc[key] = value;
             }
@@ -168,7 +190,7 @@ export class I18nLoader implements TranslateLoader {
           }, {}),
         };
         return merged;
-      })
+      }),
     );
   }
 }
@@ -187,10 +209,10 @@ export class I18nParser extends TranslateParser {
    * @returns {string} - The interpolated translation string.
    */
   interpolate(value: string, params: object | string = {}): string {
-    if (typeof params === Primitives.STRING) {
-      params = { '0': params };
-    }
-    return sf(value, ...Object.values(params)).replace(/undefined/g, "");
+    return sf(value, params === Primitives.STRING ? { '0': params } : params).replace(
+      /undefined/g,
+      '',
+    );
   }
 }
 
@@ -206,7 +228,7 @@ export class I18nParser extends TranslateParser {
 export function provideDecafI18nConfig(
   config: RootTranslateServiceConfig = { fallbackLang: 'en', lang: 'en' },
   resources: I18nResourceConfigType = [],
-  versionedSuffix: boolean = false
+  versionedSuffix: boolean = false,
 ): AngularProvider[] {
   return [
     provideHttpClient(),
