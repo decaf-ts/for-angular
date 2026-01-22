@@ -4,7 +4,7 @@ import { column, index, OrderDirection, pk, table } from '@decaf-ts/core';
 // import { gtin } from "@pharmaledgerassoc/ptp-toolkit/shared";
 // import { BatchPattern, DatePattern, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import { BlockOperations, composed, OperationKeys, readonly } from '@decaf-ts/db-decorators';
-import { description, uses } from '@decaf-ts/decoration';
+import { description } from '@decaf-ts/decoration';
 //  import { audit } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import { Cacheable } from './Cacheable';
 // import { cache } from "@pharmaledgerassoc/ptp-toolkit/shared";
@@ -18,11 +18,13 @@ import {
   uilistmodel,
   uilistprop,
   uimodel,
+  uionclick,
   uitablecol,
 } from '@decaf-ts/ui-decorators';
 import { Product } from './Product';
 import { DatePattern, TableNames } from './constants';
 import { audit } from './utils';
+import { DatamatrixModalHandler } from './handlers/DatamatrixModalHandler';
 
 @uimodel('ngx-decaf-fieldset')
 @model()
@@ -44,7 +46,7 @@ class ManufacturerAddress {
 @model()
 export class Batch extends Cacheable {
   @pk()
-  //@audit()
+  @audit()
   @composed(['productCode', 'batchNumber'], ':')
   @description('Unique identifier composed of product code and batch number.')
   id!: string;
@@ -56,7 +58,7 @@ export class Batch extends Cacheable {
     readonly: true,
   })
   @uilayoutprop('half')
-  @uitablecol(2)
+  @uitablecol(1)
   nameMedicinalProduct?: string;
 
   // Only for ui
@@ -90,6 +92,7 @@ export class Batch extends Cacheable {
   })
   @uilayoutprop('half')
   @required()
+  @uitablecol(0)
   productCode!: string;
 
   //@cache()
@@ -104,7 +107,7 @@ export class Batch extends Cacheable {
     placeholder: 'batch.batchNumber.placeholder',
   })
   @uilayoutprop('half')
-  @uitablecol(1)
+  @uitablecol(2)
   @uilistprop('uid')
   batchNumber!: string;
 
@@ -148,6 +151,14 @@ export class Batch extends Cacheable {
   })
   expiryDate!: string;
 
+  //only for ui (table view)
+  @uielement('ngx-decaf-crud-field', { label: 'batch.dataMatrix.label' })
+  @uitablecol(4, (value: string, instance?: DecafComponent<Model>) => {
+    return 'QRCODE';
+  })
+  @uionclick(() => DatamatrixModalHandler)
+  dataMatrix!: string;
+
   // Only for ui
   @uielement('app-expiry-date-field', {
     label: 'batch.dayselection.label',
@@ -178,7 +189,7 @@ export class Batch extends Cacheable {
     type: HTML5InputTypes.DATE,
   })
   @uilayoutprop('half')
-  @uitablecol(4)
+  @uitablecol(5)
   dateOfManufacturing?: Date;
 
   // Only for ui
@@ -196,7 +207,7 @@ export class Batch extends Cacheable {
     },
     true,
   )
-  @uitablecol(5)
+  @uitablecol(6)
   manufacturerAddress!: ManufacturerAddress;
 
   //@cache()

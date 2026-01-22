@@ -10,12 +10,12 @@ import {
   SelectChangeEventDetail,
   SelectCustomEvent,
 } from '@ionic/angular/standalone';
-
 import { FormGroup } from '@angular/forms';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { RouterService } from 'src/app/services/router.service';
 import { Condition } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
+import { RouterService } from 'src/app/services/router.service';
 import { Batch } from 'src/app/ew/fabric/Batch';
 import { getDocumentTypes } from 'src/app/ew/utils/helpers';
 import { Product } from 'src/app/ew/fabric/Product';
@@ -24,7 +24,6 @@ import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.component';
 import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/helpers';
 import { Dynamic } from 'src/lib/engine/decorators';
-import { ComponentEventNames } from 'src/lib/engine/constants';
 import { getModelAndRepository } from 'src/lib/engine/helpers';
 
 @Dynamic()

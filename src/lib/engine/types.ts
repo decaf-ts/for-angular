@@ -13,15 +13,15 @@ import { FormServiceControl, I18nResourceConfig, InputOption } from './interface
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
+import { ActionRoles, ListItemPositions, WindowColorSchemes } from './constants';
 import {
-  ActionRoles,
+  DecafComponent,
+  HTML5InputTypes,
+  UIFunctionLike,
   ElementPositions,
   ElementSizes,
   LayoutGridGaps,
-  ListItemPositions,
-  WindowColorSchemes,
-} from './constants';
-import { DecafComponent, HTML5InputTypes, UIFunctionLike } from '@decaf-ts/ui-decorators';
+} from '@decaf-ts/ui-decorators';
 import { Constructor } from '@decaf-ts/decoration';
 import { EnvironmentProviders, Provider } from '@angular/core';
 import { NgxComponentDirective } from './NgxComponentDirective';

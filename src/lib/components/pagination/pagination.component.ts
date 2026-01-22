@@ -15,8 +15,8 @@ import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { KeyValue } from '../../engine/types';
-import { ComponentEventNames } from '../../engine/constants';
 import { IPaginationCustomEvent } from '../../engine/interfaces';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 
 /**
  * @description A pagination component for navigating through multiple pages of content.
@@ -67,10 +67,7 @@ import { IPaginationCustomEvent } from '../../engine/interfaces';
   standalone: true,
   host: { '[attr.id]': 'uid' },
 })
-export class PaginationComponent
-  extends NgxComponentDirective
-  implements OnInit
-{
+export class PaginationComponent extends NgxComponentDirective implements OnInit {
   /**
    * @description The total number of pages to display in the pagination component.
    * @summary Specifies the total number of pages available for navigation. This is a required
@@ -124,8 +121,7 @@ export class PaginationComponent
    * @memberOf PaginationComponent
    */
   @Output()
-  clickEvent: EventEmitter<IPaginationCustomEvent> =
-    new EventEmitter<IPaginationCustomEvent>();
+  clickEvent: EventEmitter<IPaginationCustomEvent> = new EventEmitter<IPaginationCustomEvent>();
 
   /**
    * @constructor

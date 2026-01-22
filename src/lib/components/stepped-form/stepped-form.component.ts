@@ -14,9 +14,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonSkeletonText, IonText } from '@ionic/angular/standalone';
 import { arrowForwardOutline, arrowBackOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { UIElementMetadata, UIModelMetadata } from '@decaf-ts/ui-decorators';
+import { UIElementMetadata, ComponentEventNames, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { ComponentEventNames } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { NgxFormService } from '../../services/NgxFormService';
 import { getLocaleContext } from '../../i18n/Loader';
@@ -40,10 +39,7 @@ import { FormParent } from '../../engine/types';
   standalone: true,
   host: { '[attr.id]': 'uid' },
 })
-export class SteppedFormComponent
-  extends NgxFormDirective
-  implements OnInit, OnDestroy
-{
+export class SteppedFormComponent extends NgxFormDirective implements OnInit, OnDestroy {
   /**
    * @description Array of UI model metadata for all form fields.
    * @summary Contains the complete collection of UI model metadata that defines
@@ -234,8 +230,7 @@ export class SteppedFormComponent
 
     if (this.paginated) {
       if (!this.parentForm)
-        this.parentForm = (this.formGroup?.root ||
-          this.formGroup) as FormParent;
+        this.parentForm = (this.formGroup?.root || this.formGroup) as FormParent;
       this.children = [
         ...(this.children as UIModelMetadata[]).map((c) => {
           if (!c.props) c.props = {};
@@ -250,7 +245,7 @@ export class SteppedFormComponent
       this.children = this.pageTitles.map((page, index) => {
         const pageNumber = index + 1;
         const items = (this.children as UIModelMetadata[]).filter(
-          ({ props }: UIElementMetadata) => props?.['page'] === pageNumber
+          ({ props }: UIElementMetadata) => props?.['page'] === pageNumber,
         );
         return {
           page: pageNumber,
@@ -326,13 +321,13 @@ export class SteppedFormComponent
         const rootForm = this.formGroup?.root || this.formGroup;
         const data = Object.assign(
           {},
-          ...Object.values(NgxFormService.getFormData(rootForm as FormGroup))
+          ...Object.values(NgxFormService.getFormData(rootForm as FormGroup)),
         );
         super.submitEventEmit(
           data,
           'SteppedFormComponent',
           this.action || ComponentEventNames.Submit,
-          this.handlers
+          this.handlers,
         );
       }
     }

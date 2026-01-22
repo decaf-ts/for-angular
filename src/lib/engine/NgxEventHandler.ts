@@ -6,28 +6,22 @@
  *
  * @link {@link NgxEventHandler}
  */
-import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, EnvironmentInjector, Renderer2 } from '@angular/core';
 import { Model } from '@decaf-ts/decorator-validation';
 import { CrudOperationKeys, DecafEventHandler } from '@decaf-ts/ui-decorators';
 import { FunctionLike, KeyValue } from './types';
 import { ICrudFormEvent } from './interfaces';
 import { NgxComponentDirective } from './NgxComponentDirective';
+import { Environment } from '@decaf-ts/logging';
 
 export abstract class NgxEventHandler extends DecafEventHandler {
+  _data: Model | KeyValue | KeyValue[] | null = null;
   //TODO: pass to ui decorator decaf componnet
-  changeDetectorRef!: ChangeDetectorRef;
+  override changeDetectorRef!: ChangeDetectorRef;
 
-  //TODO: pass to ui decorator decaf componnet
-  readonly?: boolean = false;
+  renderer!: Renderer2;
 
-  //TODO: pass to ui decorator decaf componnet
-  hidden?: boolean | CrudOperationKeys[];
-
-  //TODO: pass to ui decorator decaf componnet
-  label?: string;
-
-  //TODO: pass to ui decorator decaf componnet
-  filterBy?: string;
+  injector!: EnvironmentInjector;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor() {

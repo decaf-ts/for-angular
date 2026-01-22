@@ -29,6 +29,7 @@ import { AppSelectFieldComponent } from './components/select-field/select-field.
 import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
 import { AppSwitcherComponent } from './components/switcher/switcher.component';
 import { ProductImage } from './ew/fabric/ProductImage';
+import { Audit } from './ew/fabric/Audit';
 // import { AxiosHttpAdapter, HttpAdapter, HttpStatement } from '@decaf-ts/for-http';
 
 export const AppName = 'For Angular';
@@ -47,6 +48,7 @@ export const AppModels = [
   new Batch(),
   new ProductImage(),
   new Leaflet(),
+  new Audit(),
   // new EmployeeModel(),
   // new AIModel(),
   // new AIVendorModel(),

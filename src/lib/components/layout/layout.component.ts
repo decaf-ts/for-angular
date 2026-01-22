@@ -11,7 +11,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Primitives } from '@decaf-ts/decorator-validation';
-import { UIElementMetadata } from '@decaf-ts/ui-decorators';
+import { LayoutGridGaps, UIElementMetadata } from '@decaf-ts/ui-decorators';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { KeyValue } from '../../engine/types';
 import { IBaseCustomEvent, IComponentProperties, ICrudFormEvent } from '../../engine/interfaces';
@@ -20,7 +20,6 @@ import { filterString } from '../../utils/helpers';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 import { LayoutGridGap } from '../../engine/types';
-import { LayoutGridGaps } from '../../engine/constants';
 import { CardComponent } from '../card/card.component';
 
 /**

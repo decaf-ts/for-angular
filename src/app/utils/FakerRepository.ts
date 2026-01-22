@@ -13,7 +13,7 @@ import { ProductStrength } from '../ew/fabric/ProductStrength';
 import { getModelAndRepository } from 'src/lib/engine/helpers';
 enum ProductNames {
   aspirin = 'Aspirin',
-  // ibuprofen = 'Ibuprofen',
+  ibuprofen = 'Ibuprofen',
   // paracetamol = 'Paracetamol',
   // amoxicillin = 'Amoxicillin',
   // azithromycin = 'Azithromycin',
@@ -51,24 +51,23 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           data = await this.generateData<AIModel>(AIFeatures, 'features', 'name');
           break;
         case Audit.name: {
-          data = (await this.generateData<Audit>()).map((item: Audit, index: number) => {
-            const user = faker.internet.email().toLowerCase();
-            item.userId = user;
-            item.userGroup = this.pickRandomValue(UserGroup) as UserGroup;
-            item.action = this.pickRandomValue(AuditOperations) as AuditOperations;
-            item.transaction = this.pickRandomValue(['create', 'read', 'update', 'delete']);
-            item.diffs = {};
-            if (index % 2 === 0) item.diffs = { a: 'b' };
-            return item;
-          });
+          // data = (await this.generateData<Audit>()).map((item: Audit, index: number) => {
+          //   const user = faker.internet.email().toLowerCase();
+          //   item.userId = user;
+          //   item.userGroup = this.pickRandomValue(UserGroup) as UserGroup;
+          //   item.action = this.pickRandomValue(AuditOperations) as AuditOperations;
+          //   item.transaction = this.pickRandomValue(['create', 'read', 'update', 'delete']);
+          //   item.diffs = {};
+          //   if (index % 2 === 0) item.diffs = { a: 'b' };
+          //   return item;
+          // });
           break;
         }
         case Product.name: {
-          this.limit = 1;
+          this.limit = 2;
           data = (await this.generateData<T & Product>(ProductNames, 'inventedName', 'string')).map(
             (item: Partial<Product>, index: number) => {
-              item.productCode =
-                this.limit === 1 ? '00000000000013' : `0${index + 1}`.padStart(14, '0');
+              item.productCode = index === 1 ? '00000000000013' : `0${index + 1}`.padStart(14, '0');
               delete item?.['imageData'];
               item.markets = [];
               item.strengths = [];

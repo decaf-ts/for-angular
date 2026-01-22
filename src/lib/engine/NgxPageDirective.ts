@@ -5,17 +5,18 @@
  * offers page-focused utilities such as menu management, title handling and router event hooks.
  * @link {@link NgxPageDirective}
  */
-import { AfterViewInit, Directive, Inject, inject, OnInit } from '@angular/core';
-import { NgxComponentDirective } from './NgxComponentDirective';
+import { AfterViewInit, Directive, Inject, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { NavigationEnd, NavigationStart } from '@angular/router';
+import { MenuController } from '@ionic/angular';
+import { Model } from '@decaf-ts/decorator-validation';
 import { IMenuItem } from './interfaces';
 import { CPTKN } from './constants';
-import { NavigationEnd, NavigationStart } from '@angular/router';
 import { removeFocusTrap } from '../utils/helpers';
 import { KeyValue } from './types';
-import { MenuController } from '@ionic/angular';
+import { NgxComponentDirective } from './NgxComponentDirective';
+
 import { shareReplay, takeUntil } from 'rxjs';
-import { Model } from '@decaf-ts/decorator-validation';
 
 /**
  * @description Base directive for page-level components in Decaf Angular applications.
@@ -132,7 +133,9 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
    */
 
   constructor(
+    // eslint-disable-next-line @angular-eslint/prefer-inject
     @Inject(CPTKN) localeRoot: string = 'NgxPageDirective',
+    // eslint-disable-next-line @angular-eslint/prefer-inject
     @Inject(CPTKN) hasMenu: boolean = true,
   ) {
     super(localeRoot);

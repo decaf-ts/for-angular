@@ -1,15 +1,12 @@
 import { list, model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import { Condition } from '@decaf-ts/core';
-import { uichild, uihandlers, uimodel, uionrender } from '@decaf-ts/ui-decorators';
-import { FieldsetComponent, ListComponent } from 'src/lib/components';
+import { uichild, uimodel, uionrender } from '@decaf-ts/ui-decorators';
+import { FieldsetComponent } from 'src/lib/components';
 import { getDocumentProperties, ProductEpiHandler } from '../handlers/ProductEpiHandler';
-import { OperationKeys } from '@decaf-ts/db-decorators';
 
 import { ProductStrength } from '../fabric/ProductStrength';
 import { Leaflet } from '../fabric/Leaflet';
 import { ProductMarket } from '../fabric/ProductMarket';
-import { ComponentEventNames, NgxComponentDirective } from 'src/lib/engine';
-import { ProductHandler } from '../handlers/ProductHandler';
 
 // import { ProductStrength, Leaflet, ProductMarket } from "@pharmaledgerassoc/ptp-toolkit/shared";
 

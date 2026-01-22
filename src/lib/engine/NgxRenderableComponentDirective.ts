@@ -1,9 +1,7 @@
 import {
   Directive,
   ElementRef,
-  EnvironmentInjector,
   EventEmitter,
-  inject,
   Input,
   OnChanges,
   OnDestroy,
@@ -21,8 +19,6 @@ import {
 } from './interfaces';
 import { FormParent, KeyValue } from './types';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
-
-import { NgxComponentDirective } from './NgxComponentDirective';
 import { shareReplay, takeUntil } from 'rxjs';
 import { NgxModelPageDirective } from './NgxModelPageDirective';
 import { ModelKeys } from '@decaf-ts/decorator-validation';

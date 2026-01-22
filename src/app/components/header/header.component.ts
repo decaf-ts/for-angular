@@ -1,13 +1,25 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { ElementSize } from 'src/lib/engine/types';
+import {
+  IonAvatar,
+  IonButton,
+  IonButtons,
+  IonHeader,
+  IonMenuButton,
+  IonTitle,
+  IonToolbar,
+  MenuController,
+} from '@ionic/angular/standalone';
+
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { IonAvatar, IonButton, IonButtons, IonHeader, IonMenuButton, IonTitle, IonToolbar, MenuController } from '@ionic/angular/standalone';
+import { ElementSizes } from '@decaf-ts/ui-decorators';
+
 import { getOnWindow, getOnWindowDocument } from 'src/lib/utils/helpers';
 import { BackButtonComponent } from '../back-button/back-button.component';
 import { NgxComponentDirective } from 'src/lib/engine/NgxComponentDirective';
-import { FunctionLike } from 'src/lib/engine/types';
+import { FunctionLike, ElementSize } from 'src/lib/engine/types';
+
 import { TranslatePipe } from '@ngx-translate/core';
-import { AngularEngineKeys, ElementSizes, WindowColorSchemes } from 'src/lib/engine/constants';
+import { AngularEngineKeys, WindowColorSchemes } from 'src/lib/engine/constants';
 import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { ContainerComponent } from '../container/container.component';
 
@@ -27,9 +39,20 @@ import { ContainerComponent } from '../container/container.component';
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
-  imports: [TranslatePipe, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonMenuButton, IconComponent, IonAvatar, ContainerComponent,  BackButtonComponent],
+  imports: [
+    TranslatePipe,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonMenuButton,
+    IconComponent,
+    IonAvatar,
+    ContainerComponent,
+    BackButtonComponent,
+  ],
   standalone: true,
-
 })
 /**
  * @class HeaderComponent
@@ -106,7 +129,6 @@ import { ContainerComponent } from '../container/container.component';
  * @implements {OnInit}
  */
 export class HeaderComponent extends NgxComponentDirective implements OnInit {
-
   /**
    * @description Overrides the current CRUD operation context for this header instance.
    * @summary Optional input that allows pages to specify the active operation (CREATE, READ, UPDATE, DELETE)
@@ -129,7 +151,6 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    */
   @Input()
   override operations: CrudOperations[] = [];
-
 
   /**
    * @description Controls whether the menu button is displayed.
@@ -168,7 +189,6 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   @Input()
   title?: string;
 
-
   /**
    * @description Background color of the header.
    * @summary Sets the background color of the header using Ionic's predefined color palette.
@@ -179,7 +199,19 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    * @memberOf HeaderComponent
    */
   @Input()
-  color:  "white" | "danger" | "dark" | "light" | "medium" | "primary" | "secondary" | "success" | "tertiary" | "warning" | string | undefined = "white";
+  color:
+    | 'white'
+    | 'danger'
+    | 'dark'
+    | 'light'
+    | 'medium'
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'tertiary'
+    | 'warning'
+    | string
+    | undefined = 'white';
 
   /**
    * @description URL or path to the logo image.
@@ -191,7 +223,7 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    * @memberOf HeaderComponent
    */
   @Input()
-  logo: string = "";
+  logo: string = '';
 
   /**
    * @description Size preset for the container width.
@@ -228,7 +260,6 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    */
   @Input()
   backButtonLink?: string | FunctionLike;
-
 
   /**
    * @description Controls whether the header has a translucent effect.
@@ -313,7 +344,6 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    */
   user!: string;
 
-
   /**
    * @description Service for handling routing operations.
    * @summary Injected service that provides methods for navigating between routes.
@@ -334,57 +364,50 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
    * @memberOf HeaderComponent
    */
   constructor() {
-    super("HeaderComponent");
+    super('HeaderComponent');
     // enable dark mode support for this component
     this.enableDarkMode = true;
   }
 
-
- /**
-  * @description Initializes the component after Angular first displays the data-bound properties.
-  * @summary Sets up the component by processing boolean inputs, enabling/disabling the menu controller,
-  * and building the CSS class string based on the component's properties. This method prepares
-  * the component for user interaction by ensuring all properties are properly initialized.
-  *
-  * @mermaid
-  * sequenceDiagram
-  *   participant A as Angular Lifecycle
-  *   participant H as HeaderComponent
-  *
-  *   A->>H: ngOnInit()
-  *   H->>M: enable(showMenuButton)
-  *   H->>H: Process showBackButton
-  *   H->>H: Process translucent
-  *   H->>H: Process expand
-  *   H->>H: Build CSS class string
-  *
-  * @returns {Promise<void> }
-  * @memberOf HeaderComponent
-  */
+  /**
+   * @description Initializes the component after Angular first displays the data-bound properties.
+   * @summary Sets up the component by processing boolean inputs, enabling/disabling the menu controller,
+   * and building the CSS class string based on the component's properties. This method prepares
+   * the component for user interaction by ensuring all properties are properly initialized.
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant A as Angular Lifecycle
+   *   participant H as HeaderComponent
+   *
+   *   A->>H: ngOnInit()
+   *   H->>M: enable(showMenuButton)
+   *   H->>H: Process showBackButton
+   *   H->>H: Process translucent
+   *   H->>H: Process expand
+   *   H->>H: Build CSS class string
+   *
+   * @returns {Promise<void> }
+   * @memberOf HeaderComponent
+   */
   async ngOnInit(): Promise<void> {
     // custom behavior on color scheme change, dont call super.ngOnInit()
     // this.mediaService.colorSchemeObserver(this.component);
     const user = await this.isLoggedIn();
-    if(user?.length)
-      this.user = user as string;
+    if (user?.length) this.user = user as string;
 
-    if(!this.borders)
-      this.className += ` ion-no-border`;
+    if (!this.borders) this.className += ` ion-no-border`;
 
     // remove back button case dont have any operation defined
-    if(!this.operation)
-      this.showBackButton = false;
+    if (!this.operation) this.showBackButton = false;
 
-    if(this.showMenuButton)
-      this.menuController.enable(true);
+    if (this.showMenuButton) this.menuController.enable(true);
 
-    if(this.color === 'white')
-      this.backButtonColor = 'dark';
+    if (this.color === 'white') this.backButtonColor = 'dark';
 
-    if(this.sticky) {
-      if(this.floating)
-        this.stickyOffset = 100;
-      this.mediaService.observePageScroll(this.stickyOffset).subscribe(isBeyondOffset => {
+    if (this.sticky) {
+      if (this.floating) this.stickyOffset = 100;
+      this.mediaService.observePageScroll(this.stickyOffset).subscribe((isBeyondOffset) => {
         this.stickyActive = isBeyondOffset;
         // if(isBeyondOffset)
         //   this.sticky = true;
@@ -394,7 +417,7 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
     await this.initialize();
   }
 
-  async isLoggedIn(): Promise<string|undefined> {
+  async isLoggedIn(): Promise<string | undefined> {
     const isLoggedIn = getOnWindow('loggedUser') as string;
     return isLoggedIn;
   }
@@ -404,13 +427,16 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   }
 
   changeColorSchema(): void {
-    if(this.mediaService.darkModeEnabled()) {
-      this.colorSchema = this.colorSchema === WindowColorSchemes.dark ? WindowColorSchemes.light: WindowColorSchemes.dark;
+    if (this.mediaService.darkModeEnabled()) {
+      this.colorSchema =
+        this.colorSchema === WindowColorSchemes.dark
+          ? WindowColorSchemes.light
+          : WindowColorSchemes.dark;
       this.isDarkMode = this.colorSchema === WindowColorSchemes.dark ? true : false;
       this.mediaService.toggleClass(
         [getOnWindowDocument('documentElement'), this.component],
         AngularEngineKeys.DARK_PALETTE_CLASS,
-        this.isDarkMode
+        this.isDarkMode,
       );
     } else {
       this.showThemeToggleButton = false;
@@ -422,6 +448,9 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   }
 
   getBackButtonSlot(): string {
-    return this.modelId && ![OperationKeys.READ,  OperationKeys.UPDATE].includes(this.operation as OperationKeys) ? 'start' : 'end';
+    return this.modelId &&
+      ![OperationKeys.READ, OperationKeys.UPDATE].includes(this.operation as OperationKeys)
+      ? 'start'
+      : 'end';
   }
 }

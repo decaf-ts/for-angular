@@ -28,7 +28,6 @@ export class LeafletHandler extends NgxEventHandler {
         const { repository, pk, pkType } = repo;
         const model = Model.build(data as Partial<Leaflet>, this.model.constructor.name) as Leaflet;
         const composedMetadata = Model.composed(model as Model, pk as any);
-        const { args, filterEmpty, separator } = composedMetadata as ComposedFromMetadata;
         composedFromCreateUpdate.call(
           this as any,
           new Leaflet(),

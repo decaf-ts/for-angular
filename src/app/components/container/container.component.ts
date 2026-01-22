@@ -1,8 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { ElementSizes } from '@decaf-ts/ui-decorators';
 import { ElementSize, FlexPosition, StringOrBoolean } from 'src/lib/engine/types';
 import { stringToBoolean } from 'src/lib/utils/helpers';
 import { ForAngularComponentsModule } from 'src/lib/components/for-angular-components.module';
-import { ElementSizes, NgxComponentDirective } from 'src/lib/engine';
+import { NgxComponentDirective } from 'src/lib/engine';
 
 /**
  * @description A flexible container component for layout management.
@@ -27,10 +28,9 @@ import { ElementSizes, NgxComponentDirective } from 'src/lib/engine';
   templateUrl: './container.component.html',
   styleUrls: ['./container.component.scss'],
   standalone: true,
-  imports: [ForAngularComponentsModule]
+  imports: [ForAngularComponentsModule],
 })
 export class ContainerComponent extends NgxComponentDirective implements OnInit {
-
   /**
    * @description Controls whether the side menu is enabled for this container.
    * @summary When set to true, this property enables the Ionic menu controller, allowing
@@ -150,12 +150,11 @@ export class ContainerComponent extends NgxComponentDirective implements OnInit 
     // this.expand = stringToBoolean(this.expand);
     this.flex = stringToBoolean(this.flex);
 
-    if(this.flex && !this.className?.includes('dcf-flex-'))
+    if (this.flex && !this.className?.includes('dcf-flex-'))
       this.className += ` dcf-flex dcf-flex-${this.position}`;
 
     this.fullscreen = stringToBoolean(this.fullscreen);
-    if(this.fullscreen)
-      this.className += ' dcf-height-viewport';
+    if (this.fullscreen) this.className += ' dcf-height-viewport';
 
     // this.size += ` dcf-width-${this.expand ? 'expand' : this.size}`;
     // this.size = `dcf-width-${this.size}`;

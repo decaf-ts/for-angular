@@ -3,12 +3,10 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular/standalone';
 import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
-import { KeyValue } from '../../lib/engine/types';
-import {
-  ComponentEventNames,
-  RouteDirections,
-} from '../../lib/engine/constants';
 import { Primitives } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
+import { KeyValue } from '../../lib/engine/types';
+import { RouteDirections } from '../../lib/engine/constants';
 
 /**
  * @description Service for handling routing operations in the application.
@@ -129,8 +127,7 @@ export class RouterService {
     if (typeof params === Primitives.STRING) params = [params as string];
     return (params as string[]).reduce((acc: KeyValue[], param: string) => {
       const item = {
-        [param]:
-          (this.route.snapshot.queryParamMap.get(param) as string) || null,
+        [param]: (this.route.snapshot.queryParamMap.get(param) as string) || null,
       };
       return [...acc, item];
     }, []);
@@ -209,9 +206,7 @@ export class RouterService {
    * @memberOf RouterService
    */
   getQueryParamValue(param: string): string | undefined {
-    return (
-      (this.parseAllQueryParams(param)?.[0]?.[param] as string) || undefined
-    );
+    return (this.parseAllQueryParams(param)?.[0]?.[param] as string) || undefined;
   }
 
   /**
@@ -241,9 +236,7 @@ export class RouterService {
    * @memberOf RouterService
    */
   getLastUrlSegment(): string {
-    return (this.router.url || globalThis.window.location.href)
-      .split('/')
-      .pop() as string;
+    return (this.router.url || globalThis.window.location.href).split('/').pop() as string;
   }
 
   /**
@@ -276,8 +269,7 @@ export class RouterService {
   getCurrentUrl(): string {
     const routerUrl = this.router.url;
     const pathName = globalThis.window?.location?.pathname;
-    const result =
-      routerUrl === '/' && routerUrl !== pathName ? pathName : routerUrl;
+    const result = routerUrl === '/' && routerUrl !== pathName ? pathName : routerUrl;
     return result.replace('/', '');
   }
 
@@ -311,8 +303,7 @@ export class RouterService {
       !!currentNavigation &&
       currentNavigation.previousNavigation?.finalUrl?.toString() !== undefined
     )
-      this.previousUrl =
-        currentNavigation.previousNavigation?.finalUrl?.toString();
+      this.previousUrl = currentNavigation.previousNavigation?.finalUrl?.toString();
     return this.previousUrl as string;
   }
 
@@ -343,7 +334,7 @@ export class RouterService {
         composed: true,
         cancelable: false,
         detail: { refres: true },
-      })
+      }),
     );
     this.location.back();
   }
@@ -380,10 +371,9 @@ export class RouterService {
   async navigateTo(
     page: string,
     direction: RouteDirections = RouteDirections.FORWARD,
-    options?: NavigationOptions
+    options?: NavigationOptions,
   ): Promise<boolean> {
-    if (direction === RouteDirections.ROOT)
-      return this.navController.navigateRoot(page, options);
+    if (direction === RouteDirections.ROOT) return this.navController.navigateRoot(page, options);
     if (direction === RouteDirections.FORWARD)
       return await this.navController.navigateForward(page, options);
     return await this.navController.navigateBack(page, options);

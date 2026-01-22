@@ -23,7 +23,6 @@ import {
 import { FormParent } from './types';
 import { Model } from '@decaf-ts/decorator-validation';
 import { ActionRoles } from './constants';
-import { IRepository, PrimaryKeyType } from '@decaf-ts/db-decorators';
 
 /**
  * @description Interface for models that can be rendered
@@ -286,7 +285,7 @@ export interface FormServiceControl {
  * @description Interface for list item custom events
  * @summary Defines the structure of custom events triggered by list items.
  * Extends IBaseCustomEvent with additional properties for the action and primary key.
- * @interface ListItemCustomEvent
+ * @interface IListItemCustomEvent
  * @property {string} action - The action performed on the list item
  * @property {string} [pk] - Optional primary key of the affected item
  * @property {any} data - The data associated with the event (inherited from IBaseCustomEvent)
@@ -295,7 +294,7 @@ export interface FormServiceControl {
  * @property {string} component - The component that triggered the event (inherited from IBaseCustomEvent)
  * @memberOf module:engine
  */
-export interface ListItemCustomEvent extends IBaseCustomEvent {
+export interface IListItemCustomEvent extends IBaseCustomEvent {
   action: string;
   pk?: string;
 }

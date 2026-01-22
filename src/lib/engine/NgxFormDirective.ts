@@ -11,12 +11,12 @@ import {
 } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { Model } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { NgxFormService } from '../services/NgxFormService';
 import { IBaseCustomEvent, ICrudFormEvent, IFormElement } from './interfaces';
 import { FieldUpdateMode, FormParent, HTMLFormTarget } from './types';
 import { ICrudFormOptions, IRenderedModel } from './interfaces';
-import { ActionRoles, ComponentEventNames } from './constants';
+import { ActionRoles } from './constants';
 import { NgxParentComponentDirective } from './NgxParentComponentDirective';
 import { NgxFormFieldDirective } from './NgxFormFieldDirective';
 import { generateRandomValue } from '../utils';

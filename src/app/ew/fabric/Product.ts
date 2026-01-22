@@ -48,7 +48,7 @@ export class Product extends Cacheable {
   //@gtin()
   // //@cache()
   // @assignProductOwner()
-  //@audit()
+  @audit()
   @pk({ type: String, generated: false })
   @uilistprop('title')
   @uielement('ngx-decaf-crud-field', {
@@ -59,14 +59,9 @@ export class Product extends Cacheable {
     // },
   })
   @uilayoutprop(1)
-  @uionrender(
-    () =>
-      class _ extends NgxEventHandler {
-        override async render(): Promise<void> {
-          this.readonly = this.operation !== OperationKeys.CREATE;
-        }
-      },
-  )
+  @uionrender((instance: DecafComponent<Model>) => {
+    instance.readonly = instance.operation !== OperationKeys.CREATE;
+  })
   productCode!: string;
 
   //@cache()

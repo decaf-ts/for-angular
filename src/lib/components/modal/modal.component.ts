@@ -275,9 +275,8 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    * @returns {Promise<void>} - A promise that resolves when initialization is complete.
    */
   override async ngOnInit(): Promise<void> {
-    if (this.inlineContent && typeof this.inlineContent === Primitives.STRING)
-      this.inlineContent = this.domSanitizer.bypassSecurityTrustHtml(this.inlineContent as string);
     await super.initialize();
+    this.parseInlineContent();
   }
 
   /**
@@ -305,6 +304,15 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
       this.iconColor = 'light';
   }
 
+  parseInlineContent(): void {
+    if (this.inlineContent) {
+      if (this.inlineContent instanceof HTMLElement) {
+        this.inlineContent = this.inlineContent.outerHTML;
+      }
+      this.inlineContent = this.domSanitizer.bypassSecurityTrustHtml(this.inlineContent as string);
+    }
+  }
+
   /**
    * @description Creates and presents the modal.
    * @summary Initializes the modal with the provided properties and displays it.
@@ -325,6 +333,7 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    * @returns {Promise<void>} - A promise that resolves when the modal is presented.
    */
   async present(): Promise<void> {
+    this.parseInlineContent();
     this.isOpen = true;
     this.changeDetectorRef.detectChanges();
   }

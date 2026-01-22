@@ -74,10 +74,11 @@ export class AppComponent extends NgxPageDirective implements OnInit {
   override async initialize(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
     const populate = [
+      'Audit',
       'Product',
       'ProductStrength',
       'Batch',
-      // 'Leaflet',
+      'Leaflet',
       //
       // 'ProductImage',
 

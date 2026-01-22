@@ -235,7 +235,7 @@ export class CrudFieldComponent
    * @memberOf CrudFieldComponent
    */
   @Input({ required: true })
-  label!: string;
+  override label!: string;
 
   /**
    * @description Placeholder text when field is empty.

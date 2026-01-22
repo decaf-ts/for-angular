@@ -56,20 +56,27 @@
       </thead>
       <tbody>
         @for (item of items; track trackItemFn($index, item)) {
-          <tr (click)="handleAction($event, OperationKeys.READ, item.uid, true)">
+          <tr>
             @for (col of item | keyvalue; track $index) {
-              @if (!['actions', 'uid'].includes(col.key)) {
+              @if (!['handler', 'actions', 'uid'].includes(col.key)) {
                 <td
+                  (click)="
+                    item?.handler && item?.handler.col === col.key
+                      ? item.handler.handle($event, item.uid, OperationKeys.READ, true)
+                      : operations.includes(OperationKeys.READ)
+                        ? handleAction($event, OperationKeys.READ, item.uid, true)
+                        : null
+                  "
                   [innerHTML]="typeof col.value === 'string' ? col.value : (col.value | async)"
                 ></td>
               } @else {
-                @if (allowOperations) {
+                @if (allowOperations && col.key !== 'handler') {
                   <td class="dcf-col-actions">
-                    <div class="dcf-flex dcf-flex-center">
+                    <div class="">
                       @if (operations?.includes(OperationKeys.UPDATE)) {
                         <ngx-decaf-icon
                           [button]="true"
-                          (click)="handleAction($event, OperationKeys.UPDATE, item.uid, true)"
+                          (click)="handleAction($event, item.uid, OperationKeys.UPDATE, true)"
                           fill="clear"
                           slot="icon-only"
                           color="primary"
@@ -79,7 +86,7 @@
                       @if (operations?.includes(OperationKeys.DELETE)) {
                         <ngx-decaf-icon
                           [button]="true"
-                          (click)="handleAction($event, OperationKeys.DELETE, item.uid, true)"
+                          (click)="handleAction($event, item.uid, OperationKeys.DELETE, true)"
                           fill="clear"
                           slot="icon-only"
                           color="danger"

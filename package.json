@@ -24,7 +24,7 @@
     "test:components": "jest --runInBand --passWithNoTests src/lib/components",
     "test:services": "jest --runInBand --passWithNoTests src/lib/services",
     "lint": "ng lint for-angular",
-    "lint-fix": "ng lint --fix for-angular",
+    "lint-fix": "ng lint --fix",
     "coverage": "npx rimraf ./workdocs/reports/data/*.json && npm run test:all -- --coverage --config=./workdocs/reports/jest.coverage.config.ts",
     "prepare-pr": "npm run lint-fix && npm run build:prod && npm run coverage && npm run docs",
     "prepare-release": "npm run lint-fix && npm run build:prod && npm run coverage && npm run docs",
@@ -77,6 +77,7 @@
     "@storybook/addon-docs": "9.1.5",
     "@storybook/addon-onboarding": "9.1.5",
     "@storybook/angular": "9.1.5",
+    "@types/bwip-js": "^3.2.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.15.24",
     "angular-eslint": "^20.2.0",
@@ -123,10 +124,16 @@
     "rxjs": "~7.8.0",
     "zone.js": "^0.15.1"
   },
+  "allowedNonPeerDependencies": [
+    "bwip-js"
+  ],
   "schematics": "./schematics/collection.json",
   "eslintConfig": {
     "extends": [
       "plugin:storybook/recommended"
     ]
+  },
+  "dependencies": {
+    "bwip-js": "^4.8.0"
   }
 }

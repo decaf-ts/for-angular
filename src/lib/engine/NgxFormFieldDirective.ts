@@ -10,6 +10,7 @@ import {
   FieldProperties,
   HTML5InputTypes,
   RenderingError,
+  UIEventProperty,
 } from '@decaf-ts/ui-decorators';
 import { FormParent, KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
@@ -17,7 +18,8 @@ import { ControlValueAccessor, FormArray, FormControl, FormGroup } from '@angula
 import { Directive, Inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxFormService } from '../services/NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
-import { ComponentEventNames } from './constants';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
+
 import { FunctionLike } from './types';
 import { NgxComponentDirective } from './NgxComponentDirective';
 import { CPTKN } from './constants';
@@ -136,6 +138,8 @@ export abstract class NgxFormFieldDirective
    */
   page!: number;
 
+  override events!: UIEventProperty;
+
   // Validation properties
 
   /**
@@ -144,14 +148,6 @@ export abstract class NgxFormFieldDirective
    * @public
    */
   format?: string;
-
-  /**
-   * @description Controls field visibility based on CRUD operations.
-   * @summary Can be a boolean or an array of operation keys where the field should be hidden.
-   * @type {boolean | CrudOperationKeys[]}
-   * @public
-   */
-  hidden?: boolean | CrudOperationKeys[];
 
   /**
    * @description Maximum value or date allowed.
@@ -187,13 +183,6 @@ export abstract class NgxFormFieldDirective
    * @public
    */
   pattern?: string | undefined;
-
-  /**
-   * @description Whether the field is read-only.
-   * @type {boolean}
-   * @public
-   */
-  readonly?: boolean;
 
   /**
    * @description Whether the field is required.
@@ -271,7 +260,7 @@ export abstract class NgxFormFieldDirective
 
   /**
    * @description Flag tracking if validation error event has been dispatched.
-   * @summary Prevents duplicate validation error events from being dispatched.
+   * @summary Proverride  duplicate validation error override  from being dispatched.
    * @type {boolean}
    * @private
    */
@@ -301,6 +290,9 @@ export abstract class NgxFormFieldDirective
   constructor(@Inject(CPTKN) componentName: string = 'ComponentCrudField') {
     super(componentName);
   }
+  maxLength?: number | undefined;
+  minLength?: number | undefined;
+  customTypes?: string | string[] | undefined;
 
   /**
    * @description Gets the currently active form group based on context.
@@ -496,7 +488,7 @@ export abstract class NgxFormFieldDirective
 
   /**
    * @description Clears the current form control value as a response to a UI interact
-   * @summary Set field value as undefined and prevents event propagation.
+   * @summary Set field value as undefined and proverride  event propagation.
    * @param {Event} event - The value to set
    * @return {void}
    * @public
@@ -508,7 +500,7 @@ export abstract class NgxFormFieldDirective
   }
 
   /**
-   * @description Handles IonSelect change events emitted from modal child components.
+   * @description Handles IonSelect change override  emitted from modal child components.
    * @summary Forces change detection when rendered inside a modal and synchronizes the select value with the directive state.
    * @param {SelectCustomEvent<SelectChangeEventDetail>} event - IonSelect change event containing the selected value.
    * @return {void}

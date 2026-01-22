@@ -1,7 +1,7 @@
 <app-header [title]="locale+'.title'" />
 
 <ion-content fullscreen="true">
-   <main>
+  <main>
     <app-container>
       <app-card-title
         [locale]="locale"
@@ -14,11 +14,11 @@
       />
       <!-- <ngx-decaf-card type="clear" [borders]="false" [body]="'blank'" [title]="title" [subtitle]="subtitle" />
       <app-switcher className="dcf-padding-small" [mode]="'button'" [type]="'tabs'" [items]="tabs" (listenEvent)="handleTabChangeEvent($event)" /> -->
-     <div class="dcf-list-container">
+      <div class="dcf-list-container">
         <ngx-decaf-table
           [model]="model"
           [route]="route"
-          [operations]="operations"
+          [allowOperations]="false"
           [locale]="locale"
           (listEvent)="handleEvent($event)"
           (listenEvent)="handleEvent($event)"

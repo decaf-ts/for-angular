@@ -10,18 +10,15 @@
  * @link {@link getWindow}
  */
 
-import { isDevMode } from "@angular/core";
-import {
-  InjectableRegistryImp,
-  InjectablesRegistry,
-} from "@decaf-ts/injectable-decorators";
-import { Primitives } from "@decaf-ts/decorator-validation";
-import { KeyValue, StringOrBoolean } from "../engine/types";
-import { FunctionLike } from "../engine/types";
-import { IMenuItem } from "../engine/interfaces";
-import { getLogger } from "../engine/helpers";
-import { UIFunctionLike } from "@decaf-ts/ui-decorators";
-import { Constructor } from "@decaf-ts/decoration";
+import { isDevMode } from '@angular/core';
+import { InjectableRegistryImp, InjectablesRegistry } from '@decaf-ts/injectable-decorators';
+import { Primitives } from '@decaf-ts/decorator-validation';
+import { KeyValue, StringOrBoolean } from '../engine/types';
+import { FunctionLike } from '../engine/types';
+import { IMenuItem } from '../engine/interfaces';
+import { getLogger } from '../engine/helpers';
+import { UIFunctionLike } from '@decaf-ts/ui-decorators';
+import { Constructor } from '@decaf-ts/decoration';
 
 let injectableRegistry: InjectablesRegistry;
 
@@ -55,13 +52,13 @@ export function getInjectablesRegistry(): InjectablesRegistry {
  * @function isDevelopmentMode
  * @memberOf module:for-angular
  */
-export function isDevelopmentMode(context: string = "localhost"): boolean {
+export function isDevelopmentMode(context: string = 'localhost'): boolean {
   if (!context) return isDevMode();
   const win = getWindow();
   return (
     isDevMode() ||
-    win?.["env"]?.["CONTEXT"].toLowerCase() !== context.toLowerCase() ||
-    win?.["location"]?.hostname?.includes(context)
+    win?.['env']?.['CONTEXT'].toLowerCase() !== context.toLowerCase() ||
+    win?.['location']?.hostname?.includes(context)
   );
 }
 
@@ -79,11 +76,7 @@ export function isDevelopmentMode(context: string = "localhost"): boolean {
  * @function windowEventEmitter
  * @memberOf module:for-angular
  */
-export function windowEventEmitter(
-  name: string,
-  detail: unknown,
-  props?: object
-): void {
+export function windowEventEmitter(name: string, detail: unknown, props?: object): void {
   const data = Object.assign(
     {
       bubbles: true,
@@ -91,7 +84,7 @@ export function windowEventEmitter(
       cancelable: false,
       detail: detail,
     },
-    props || {}
+    props || {},
   );
   (getWindow() as Window).dispatchEvent(new CustomEvent(name, data));
 }
@@ -110,9 +103,7 @@ export function windowEventEmitter(
  */
 export function getOnWindowDocument(key: string): Document | undefined {
   const doc = getWindowDocument() as Document;
-  return doc instanceof Document
-    ? (doc as KeyValue)?.[key] || undefined
-    : undefined;
+  return doc instanceof Document ? (doc as KeyValue)?.[key] || undefined : undefined;
 }
 
 /**
@@ -127,7 +118,7 @@ export function getOnWindowDocument(key: string): Document | undefined {
  * @memberOf module:for-angular
  */
 export function getWindowDocument(): Document | undefined {
-  return getOnWindow("document") as Document;
+  return getOnWindow('document') as Document;
 }
 
 /**
@@ -178,7 +169,7 @@ export function setOnWindow(key: string, value: unknown): void {
  * @memberOf module:for-angular
  */
 export function getWindow(): Window & KeyValue {
-  return (globalThis as KeyValue)?.["window"] as Window & KeyValue;
+  return (globalThis as KeyValue)?.['window'] as Window & KeyValue;
 }
 
 /**
@@ -193,7 +184,7 @@ export function getWindow(): Window & KeyValue {
  * @memberOf module:for-angular
  */
 export function getWindowWidth(): number {
-  return (getOnWindow("innerWidth") as number) || 0;
+  return (getOnWindow('innerWidth') as number) || 0;
 }
 
 /**
@@ -230,31 +221,28 @@ export function isNotUndefined(prop: StringOrBoolean | undefined): boolean {
  */
 export function getLocaleFromClassName(
   instance: string | FunctionLike | KeyValue,
-  suffix?: string
+  suffix?: string,
 ): string {
   if (typeof instance !== Primitives.STRING)
-    instance =
-      (instance as FunctionLike).name ||
-      (instance as object)?.constructor?.name;
+    instance = (instance as FunctionLike).name || (instance as object)?.constructor?.name;
 
   let name: string | string[] = instance as string;
 
-  if (suffix)
-    name = `${instance}${suffix.charAt(0).toUpperCase() + suffix.slice(1)}`;
+  if (suffix) name = `${instance}${suffix.charAt(0).toUpperCase() + suffix.slice(1)}`;
 
   name = name
-    .replace(/_|-/g, "")
+    .replace(/_|-/g, '')
     .replace(/(?:^\w|[A-Z]|\b\w)/g, (word: string, index: number) => {
-      if (index > 1) word = "." + word;
+      if (index > 1) word = '.' + word;
       return word.toLowerCase();
     })
-    .split(".");
+    .split('.');
 
-  if (name.length < 3) return name.reverse().join(".");
+  if (name.length < 3) return name.reverse().join('.');
 
   const preffix = name[name.length - 1];
   name.pop();
-  name = name.join("_");
+  name = name.join('_');
   return `${preffix}.${name}`;
 }
 
@@ -271,7 +259,7 @@ export function getLocaleFromClassName(
  */
 export function getLocaleLanguage(): string {
   const win = getWindow();
-  return (win as Window).navigator.language || "en";
+  return (win as Window).navigator.language || 'en';
   // return win?.[WINDOW_KEYS.LANGUAGE_SELECTED] || (win.navigator.language || '').split('-')[0] || "en";
 }
 
@@ -289,16 +277,12 @@ export function getLocaleLanguage(): string {
  * @function generateRandomValue
  * @memberOf module:for-angular
  */
-export function generateRandomValue(
-  length: number = 8,
-  onlyNumbers: boolean = false
-): string {
+export function generateRandomValue(length: number = 8, onlyNumbers: boolean = false): string {
   const chars = onlyNumbers
-    ? "0123456789"
-    : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < length; i++)
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    ? '0123456789'
+    : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
 
   return result;
 }
@@ -316,9 +300,8 @@ export function generateRandomValue(
  * @function stringToBoolean
  * @memberOf module:lib/helpers/utils
  */
-export function stringToBoolean(prop: "true" | "false" | boolean): boolean {
-  if (typeof prop === "string")
-    prop = prop.toLowerCase() === "true" ? true : false;
+export function stringToBoolean(prop: 'true' | 'false' | boolean): boolean {
+  if (typeof prop === 'string') prop = prop.toLowerCase() === 'true' ? true : false;
   return prop;
 }
 
@@ -341,16 +324,11 @@ export function isValidDate(date: string | Date | number): boolean {
     return (
       (date instanceof Date && !isNaN(date as unknown as number)) ||
       (() => {
-        const testRegex = new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(
-          date as string
-        );
-        if (
-          typeof date !== Primitives.STRING ||
-          (!(date as string)?.includes("T") && !testRegex)
-        )
+        const testRegex = new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date as string);
+        if (typeof date !== Primitives.STRING || (!(date as string)?.includes('T') && !testRegex))
           return false;
 
-        date = (date as string).split("T")[0];
+        date = (date as string).split('T')[0];
         if (!new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date)) return false;
 
         return !!new Date(date);
@@ -381,18 +359,18 @@ export function isValidDate(date: string | Date | number): boolean {
  */
 export function formatDate(
   date: string | Date | number,
-  locale?: string | undefined
+  locale?: string | undefined,
 ): Date | string {
   if (!locale) locale = getLocaleLanguage();
 
-  if (typeof date === "string" || typeof date === "number")
-    date = new Date(typeof date === "string" ? date.replace(/\//g, "-") : date);
+  if (typeof date === 'string' || typeof date === 'number')
+    date = new Date(typeof date === 'string' ? date.replace(/\//g, '-') : date);
 
   if (!isValidDate(date)) return `${date}` as string;
   const r = date.toLocaleString(locale, {
-    year: "numeric",
-    day: "2-digit",
-    month: "2-digit",
+    year: 'numeric',
+    day: '2-digit',
+    month: '2-digit',
   });
 
   return r;
@@ -418,17 +396,15 @@ export function formatDate(
 export function parseToValidDate(date: string | Date | number): Date | null {
   if (isValidDate(date)) return date as Date;
 
-  if (!`${date}`.includes("/")) return null;
+  if (!`${date}`.includes('/')) return null;
 
-  const [dateString, timeString] = (date as string).split(" ");
-  const [day, month, year] = dateString.split("/").map(Number);
-  const [hours, minutes, seconds, milliseconds] = timeString
-    .split(":")
-    .map(Number);
+  const [dateString, timeString] = (date as string).split(' ');
+  const [day, month, year] = dateString.split('/').map(Number);
+  const [hours, minutes, seconds, milliseconds] = timeString.split(':').map(Number);
   date = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
 
   if (!isValidDate(date)) {
-    console.warn("parseToValidDate - Invalid date format", date);
+    console.warn('parseToValidDate - Invalid date format', date);
     return null;
   }
 
@@ -453,14 +429,10 @@ export function parseToValidDate(date: string | Date | number): Date | null {
  * @function itemMapper
  * @memberOf module:lib/helpers/utils
  */
-export function itemMapper(
-  item: KeyValue,
-  mapper: KeyValue,
-  props?: KeyValue
-): KeyValue {
+export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): KeyValue {
   return Object.entries(mapper).reduce((accum: KeyValue, [key, prop]) => {
-    const arrayValue = (prop || "").split(".");
-    let value = item?.[prop] || "";
+    const arrayValue = (prop || '').split('.');
+    let value = item?.[prop] || '';
     if (!prop) {
       accum[key] = prop;
     } else {
@@ -471,9 +443,7 @@ export function itemMapper(
         for (const propValue of arrayValue)
           value = !value
             ? item[propValue]
-            : (typeof value === "string" ? JSON.parse(value) : value)[
-                propValue
-              ];
+            : (typeof value === 'string' ? JSON.parse(value) : value)[propValue];
 
         if (isValidDate(new Date(value))) value = `${formatDate(value)}`;
 
@@ -503,17 +473,11 @@ export function itemMapper(
  * @function dataMapper
  * @memberOf module:lib/helpers/utils
  */
-export function dataMapper<T>(
-  data: T[],
-  mapper: KeyValue,
-  props?: KeyValue
-): T[] {
+export function dataMapper<T>(data: T[], mapper: KeyValue, props?: KeyValue): T[] {
   if (!data || !data.length) return [];
   return data.reduce((accum: T[], curr) => {
     const item = itemMapper(curr as KeyValue, mapper, props) as T;
-    const hasValues =
-      [...new Set(Object.values(item as T[]))].filter((value) => value).length >
-      0;
+    const hasValues = [...new Set(Object.values(item as T[]))].filter((value) => value).length > 0;
     accum.push(hasValues ? item : curr);
     return accum;
   }, []);
@@ -551,11 +515,8 @@ export function removeFocusTrap(): void {
  * @function cleanSpaces
  * @memberOf module:for-angular
  */
-export function cleanSpaces(
-  value: string = "",
-  lowercase: boolean = false
-): string {
-  value = `${value}`.trim().replace(/\s+/g, " ");
+export function cleanSpaces(value: string = '', lowercase: boolean = false): string {
+  value = `${value}`.trim().replace(/\s+/g, ' ');
   return lowercase ? value.toLowerCase() : value;
 }
 
@@ -572,7 +533,7 @@ export function cleanSpaces(
  * @memberOf module:for-angular
  */
 export async function isDarkMode(): Promise<boolean> {
-  const { matches } = getWindow().matchMedia("(prefers-color-scheme: dark)");
+  const { matches } = getWindow().matchMedia('(prefers-color-scheme: dark)');
   return matches;
 }
 
@@ -592,15 +553,14 @@ export async function isDarkMode(): Promise<boolean> {
 export function filterString(
   original: string | string[],
   value: string,
-  contain: boolean = true
+  contain: boolean = true,
 ): string {
-  if (typeof original === Primitives.STRING)
-    original = (original as string).split(" ");
+  if (typeof original === Primitives.STRING) original = (original as string).split(' ');
   return (
     (original as string[]).filter((str) =>
-      contain ? str.includes(value) : !str.includes(value)
+      contain ? str.includes(value) : !str.includes(value),
     ) || []
-  ).join(" ");
+  ).join(' ');
 }
 
 /**
@@ -612,11 +572,11 @@ export function filterString(
  */
 export function getMenuIcon(label: string, menu: IMenuItem[]): string {
   const item = menu.find((m) => m.label?.toLowerCase() === label.toLowerCase());
-  return item?.icon || "";
+  return item?.icon || '';
 }
 
 export const isClassConstructor = <C>(
-  value: UIFunctionLike | Constructor<C>
+  value: UIFunctionLike | Constructor<C>,
 ): value is Constructor<C> => {
-  return typeof value === "function" && /^class\s/.test(String(value));
+  return typeof value === 'function' && /^class\s/.test(String(value));
 };

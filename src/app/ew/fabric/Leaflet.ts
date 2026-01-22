@@ -1,5 +1,5 @@
 import { Comparison, Model, type ModelArg } from '@decaf-ts/decorator-validation';
-import { model, pattern, required } from '@decaf-ts/decorator-validation';
+import { model, required } from '@decaf-ts/decorator-validation';
 import { LeafletFile } from './LeafletFile';
 // import { gtin } from "@pharmaledgerassoc/ptp-toolkit/shared";
 // import { BatchPattern, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
@@ -22,17 +22,16 @@ import {
   HTML5InputTypes,
   uielement,
   uihandlers,
-  uilayout,
   uilistmodel,
-  uilistprop,
   uimodel,
   uionrender,
-  uiprop,
   uitablecol,
+  ComponentEventNames,
+  ElementPositions,
+  ElementSizes,
 } from '@decaf-ts/ui-decorators';
 import { Product } from './Product';
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from 'src/app/ew/utils/helpers';
-import { ComponentEventNames, ElementPositions, ElementSizes } from 'src/lib/engine';
 import { Batch } from './Batch';
 import { TableNames } from './constants';
 import { LeafletHandler } from '../handlers/LeafletHandler';
@@ -56,7 +55,7 @@ export enum LeafletType {
 @model()
 export class Leaflet extends Cacheable {
   @pk()
-  //@audit()
+  @audit()
   @composed(['productCode', 'batchNumber', 'leafletType', 'lang', 'epiMarket'], ':', [
     'batchNumber',
     'epiMarket',

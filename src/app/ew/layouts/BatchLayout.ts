@@ -7,11 +7,12 @@ import {
   UIMediaBreakPoints,
   uimodel,
   uionrender,
+  ComponentEventNames,
+  TransactionHooks,
 } from '@decaf-ts/ui-decorators';
 import { Batch } from '../fabric/Batch';
 import { getDocumentProperties, ProductEpiHandler } from '../handlers/ProductEpiHandler';
 import { Leaflet } from '../fabric';
-import { ComponentEventNames, TransactionHooks } from 'src/lib/engine/constants';
 import { ProductHandler } from '../handlers/ProductHandler';
 
 @uimodel('', {})

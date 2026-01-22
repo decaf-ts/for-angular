@@ -9,14 +9,13 @@ import {
 } from '@decaf-ts/db-decorators';
 import { Condition, EventIds, Repository } from '@decaf-ts/core';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { NgxPageDirective } from './NgxPageDirective';
-import { ComponentEventNames, TransactionHooks } from './constants';
 import {
   IBaseCustomEvent,
   ICrudFormEvent,
   ILayoutModelContext,
   IModelComponentSubmitEvent,
-  IRepositoryModelProps,
 } from './interfaces';
 import { DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
@@ -493,8 +492,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
           case OperationKeys.UPDATE: {
             const models = (!Array.isArray(model) ? [model] : model) as M[];
             for (const m of models) {
-              const uid = m[pk as keyof M] as PrimaryKeyType;
-              const check = uid ? await repository.read(uid) : false;
+              const uid = m[pk as keyof M];
+              const check = uid ? await repository.read(uid as PrimaryKeyType) : false;
               result = await (!check ? repository.create(m as M) : repository.update(m as M));
             }
             break;
@@ -502,7 +501,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
           case OperationKeys.DELETE:
             result = await (!Array.isArray(model)
               ? repository.delete(model as PrimaryKeyType)
-              : repository.deleteAll(model as PrimaryKeyType[]));
+              : repository.deleteAll(model as []));
             break;
         }
 

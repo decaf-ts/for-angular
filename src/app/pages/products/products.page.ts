@@ -146,15 +146,15 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
     this.route = 'products';
 
     await this.initialize();
-    if (this.operation === OperationKeys.CREATE) {
-      const model = (await this.handleRead('00000000000013')) as ProductLayout;
-      if ((this.model as KeyValue)['product']) {
-        (this.model as KeyValue)['product'].productCode = `${Date.now()}`;
-      }
-      // Object.assign((this.model as any).epi, {
-      //   strengths: [{ strengths: '500mg', substance: 'tablet' }],
-      // });
-    }
+    // if (this.operation === OperationKeys.CREATE) {
+    //   const model = (await this.handleRead('00000000000013')) as ProductLayout;
+    //   if ((this.model as KeyValue)['product']) {
+    //     (this.model as KeyValue)['product'].productCode = `${Date.now()}`;
+    //   }
+    //   // Object.assign((this.model as any).epi, {
+    //   //   strengths: [{ strengths: '500mg', substance: 'tablet' }],
+    //   // });
+    // }
 
     // if (this.modelId) {
     //   const strengths = getModelAndRepository('ProductStrength');

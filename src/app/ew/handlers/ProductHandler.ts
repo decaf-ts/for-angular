@@ -5,12 +5,12 @@ import {
   PrimaryKeyType,
 } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import {
   NgxEventHandler,
   ICrudFormEvent,
   KeyValue,
   DecafRepository,
-  ComponentEventNames,
   FormParent,
   IRepositoryModelProps,
   ActionRoles,
@@ -18,7 +18,7 @@ import {
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { getNgxModalComponent } from 'src/lib/components/modal/modal.component';
 import { ProductImage } from '../fabric/ProductImage';
-import { Product } from '../fabric';
+import { Batch, Product } from '../fabric';
 
 export class ProductHandler<M extends Model> extends NgxEventHandler {
   formGroup!: FormParent;
