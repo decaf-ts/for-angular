@@ -1,11 +1,11 @@
-import { Component, EnvironmentInjector, inject, OnInit } from "@angular/core";
-import { LoginForm } from "src/app/forms/LoginForm";
-import { IonContent } from "@ionic/angular/standalone";
-import { LogoComponent } from "src/app/components/logo/logo.component";
-import { ContainerComponent } from "src/app/components/container/container.component";
-import { ModelRendererComponent } from "src/lib/components/model-renderer/model-renderer.component";
-import { NgxPageDirective } from "src/lib/engine/NgxPageDirective";
-import { CardComponent } from "src/lib/components";
+import { Component, OnInit } from '@angular/core';
+import { LoginForm } from 'src/app/forms/LoginForm';
+import { IonContent } from '@ionic/angular/standalone';
+import { LogoComponent } from 'src/app/components/logo/logo.component';
+import { ContainerComponent } from 'src/app/components/container/container.component';
+import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
+import { NgxPageDirective } from 'src/lib/engine/NgxPageDirective';
+import { CardComponent } from 'src/lib/components';
 
 /**
  * @description Login page component for user authentication
@@ -37,28 +37,22 @@ import { CardComponent } from "src/lib/components";
  *   LoginPage->>ToastController: Present toast
  */
 @Component({
-  selector: "app-login",
-  templateUrl: "./login.page.html",
-  styleUrls: ["./login.page.scss"],
+  selector: 'app-login',
+  templateUrl: './login.page.html',
+  styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [
-    IonContent,
-    CardComponent,
-    LogoComponent,
-    ContainerComponent,
-    ModelRendererComponent,
-  ],
+  imports: [IonContent, CardComponent, LogoComponent, ContainerComponent, ModelRendererComponent],
 })
 export class LoginPage extends NgxPageDirective implements OnInit {
   constructor() {
-    super("LoginPage", false);
+    super('LoginPage', false);
   }
 
   async ngOnInit(): Promise<void> {
     await super.initialize();
     this.model = new LoginForm({
-      username: "User",
-      password: "Passd-123",
+      username: 'User',
+      password: 'Passd-123',
     });
   }
 }

@@ -60,6 +60,20 @@
     }
   }
 
+  .dcf-modal-content {
+    ::ng-deep pre {
+      border: 1px solid var(--dcf-color-gray-2);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: rgba(var(--dcf-color-warning-rgb), 0.175) !important;
+      padding: var(--dcf-padding);
+      border-radius: var(--dcf-border-radius-small);
+      font-size: 0.9rem !important;
+      font-weight: 500;
+      margin-top: 2rem;
+    }
+  }
+
   @media (max-width: 768px) {
     .dcf-button-expand {
       display: none !important;

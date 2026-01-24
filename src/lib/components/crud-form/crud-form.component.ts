@@ -11,12 +11,14 @@
 import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
-import { Dynamic } from '../../engine/decorators';
-import { DefaultFormReactiveOptions, ComponentEventNames } from '../../engine/constants';
-import { NgxFormDirective } from '../../engine/NgxFormDirective';
-import { LayoutComponent } from '../layout/layout.component';
 import { TranslatePipe } from '@ngx-translate/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
+import { Dynamic } from '../../engine/decorators';
+import { DefaultFormReactiveOptions } from '../../engine/constants';
+import { NgxFormDirective } from '../../engine/NgxFormDirective';
+import { LayoutComponent } from '../layout/layout.component';
+
 import { getModelAndRepository } from '../../engine/helpers';
 
 @Dynamic()
@@ -50,13 +52,14 @@ export class CrudFormComponent extends NgxFormDirective {
       { buttons: { submit: { text: this.operation.toLowerCase() } } },
       this.options || {},
     );
-    await super.initialize();
     if (!this.pk && this.modelName) {
       const repo = getModelAndRepository(this.modelName);
       if (repo) {
         this.pk = repo.pk;
       }
     }
+
+    await super.initialize();
   }
 
   /**

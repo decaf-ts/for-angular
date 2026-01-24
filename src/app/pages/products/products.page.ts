@@ -11,7 +11,7 @@ import { ICrudFormEvent, ITabItem } from 'src/lib/engine/interfaces';
 import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
 import { Product } from 'src/app/ew/fabric/Product';
 import { CardComponent } from 'src/lib/components/card/card.component';
-import { ProductHandler } from 'src/app/ew/handlers/ProductHandler';
+import { ProductHandler } from 'src/app/ew/fabric/handlers/ProductHandler';
 import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
 import { EpiTabs } from 'src/app/ew/utils/constants';
 import { OperationKeys } from '@decaf-ts/db-decorators';
@@ -144,17 +144,16 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
     this.locale = 'product';
     this.title = `${this.locale}.title`;
     this.route = 'products';
-
     await this.initialize();
-    if (this.operation === OperationKeys.CREATE) {
-      const model = (await this.handleRead('00000000000013')) as ProductLayout;
-      if ((this.model as KeyValue)['product']) {
-        (this.model as KeyValue)['product'].productCode = `${Date.now()}`;
-      }
-      // Object.assign((this.model as any).epi, {
-      //   strengths: [{ strengths: '500mg', substance: 'tablet' }],
-      // });
-    }
+    // if (this.operation === OperationKeys.CREATE) {
+    //   const model = (await this.handleRead('00000000000013')) as ProductLayout;
+    //   if ((this.model as KeyValue)['product']) {
+    //     (this.model as KeyValue)['product'].productCode = `${Date.now()}`;
+    //   }
+    //   // Object.assign((this.model as any).epi, {
+    //   //   strengths: [{ strengths: '500mg', substance: 'tablet' }],
+    //   // });
+    // }
 
     // if (this.modelId) {
     //   const strengths = getModelAndRepository('ProductStrength');
@@ -182,13 +181,4 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
     // }
     // console.log(this.model);
   }
-
-  // override async ionViewWillEnter(): Promise<void> {
-  //   await super.ionViewWillEnter();
-  // }
-
-  // override async handleSubmit(event: ICrudFormEvent): Promise<void> {
-  //   const handler = (new ProductHandler()).handle.bind(this);
-  //   await handler(event);
-  // }
 }

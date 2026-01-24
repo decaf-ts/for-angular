@@ -20,19 +20,18 @@ import {
   ChangeDetectorRef,
   Renderer2,
   OnDestroy,
-  input,
   signal,
   WritableSignal,
   EnvironmentInjector,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationStart, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { firstValueFrom, Subject } from 'rxjs';
+import { firstValueFrom, shareReplay, Subject, takeUntil } from 'rxjs';
 import { Model, ModelConstructor, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
+import { ComponentEventNames, DecafEventHandler } from '@decaf-ts/ui-decorators';
 import {
-  DecafComponentConstructor,
   DecafRepository,
   FormParent,
   FunctionLike,
@@ -41,24 +40,16 @@ import {
   WindowColorScheme,
 } from './types';
 import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
-import { NgxEventHandler } from './NgxEventHandler';
+import {} from './NgxEventHandler';
 import { getLocaleContext } from '../i18n/Loader';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
-import {
-  AngularEngineKeys,
-  BaseComponentProps,
-  ComponentEventNames,
-  CPTKN,
-  WindowColorSchemes,
-} from './constants';
-import { generateRandomValue, getWindow, isClassConstructor, setOnWindow } from '../utils';
-import { EventIds, Observer } from '@decaf-ts/core';
+import { AngularEngineKeys, BaseComponentProps, CPTKN, WindowColorSchemes } from './constants';
+import { generateRandomValue, getWindow, setOnWindow } from '../utils';
 import { NgxMediaService } from '../services/NgxMediaService';
 import { UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
 import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
 import { OverlayBaseController } from '@ionic/angular/common';
 import { getModelAndRepository } from './helpers';
-import { Constructor } from '@decaf-ts/decoration';
 import { NgxRepositoryDirective } from './NgxRepositoryDirective';
 
 try {
@@ -175,28 +166,13 @@ export abstract class NgxComponentDirective
   override uid?: string | number;
 
   /**
-   * @description Data model or model name for component operations.
-   * @summary The data model that this component will use for CRUD operations. This can be provided
-   * as a Model instance, a model constructor, or a string representing the model's registered name.
-   * When set, this property provides the component with access to the model's schema, validation rules,
-   * and metadata needed for rendering and data operations.
-   * @type {Model | string | undefined}
-   * @memberOf module:lib/engine/NgxComponentDirective
+   * @description Label for the file upload field.
+   * @summary Provides a user-friendly label for the file upload input.
+   *
+   * @type {string | undefined}
    */
   @Input()
-  override model!: Model | string | undefined;
-
-  /**
-   * @description Primary key value of the current model instance.
-   * @summary Specifies the primary key value for the current model record being displayed or
-   * manipulated by the component. This identifier is used for CRUD operations that target
-   * specific records, such as read, update, and delete operations. The value corresponds to
-   * the field designated as the primary key in the model definition.
-   * @type {EventIds}
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  @Input()
-  override modelId?: EventIds;
+  override label?: string;
 
   /**
    * @description Query predicate applied when resolving model data.
@@ -334,7 +310,7 @@ export abstract class NgxComponentDirective
    * @type {ChangeDetectorRef}
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected changeDetectorRef: ChangeDetectorRef = inject(ChangeDetectorRef);
+  protected override changeDetectorRef: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   /**
    * @description Injector used for dependency injection in the dynamic component.
@@ -556,30 +532,7 @@ export abstract class NgxComponentDirective
    */
   protected colorSchema: WindowColorScheme = WindowColorSchemes.light;
 
-  /**
-   * @description Observer object for repository change notifications.
-   * @summary Implements the Observer interface to receive notifications when the
-   * underlying data repository changes. This enables automatic list updates when
-   * data is created, updated, or deleted through the repository.
-   *
-   * @private
-   * @type {Observer}
-   */
-  protected repositoryObserver!: Observer;
-
   protected destroySubscriptions$ = new Subject<void>();
-
-  /**
-   * @description Subject for debouncing repository observation events.
-   * @summary RxJS Subject that collects repository change events and emits them after
-   * a debounce period. This prevents multiple rapid repository changes from triggering
-   * multiple list refresh operations, improving performance and user experience.
-   *
-   * @private
-   * @type {Subject<any>}
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected repositoryObserverSubject: Subject<any> = new Subject<any>();
 
   /**
    * @description Constructor for NgxComponentDirective.
@@ -595,7 +548,7 @@ export abstract class NgxComponentDirective
   constructor(@Inject(CPTKN) componentName?: string, @Inject(CPTKN) localeRoot?: string) {
     super();
     this.value = undefined;
-    this.componentName = componentName || 'NgxComponentDirective';
+    this.componentName = componentName || this.constructor.name || 'NgxComponentDirective';
     this.localeRoot = localeRoot;
     if (!this.localeRoot && this.componentName) this.localeRoot = this.componentName;
     if (this.localeRoot) this.getLocale(this.localeRoot);
@@ -608,24 +561,25 @@ export abstract class NgxComponentDirective
     });
   }
 
-  /**
-   * @description Cleanup lifecycle hook invoked when the directive is destroyed.
-   * @summary Ensures any resources allocated by the directive's media service are
-   * released (DOM listeners, timers, subscriptions, etc.). Implementations should
-   * keep `mediaService.destroy()` idempotent; calling it here prevents leaks when
-   * components are torn down.
-   * @returns {Promise<void>}
-   */
-  async ngOnDestroy(): Promise<void> {
-    this.mediaService.destroy();
-    this.destroySubscriptions$.next();
-    this.destroySubscriptions$.complete();
-  }
-
   override async initialize<T extends NgxComponentDirective>(): Promise<void> {
     this.mediaService.darkModeEnabled();
     // connect component to media service for color scheme toggling
     this.mediaService.colorSchemeObserver(this.component);
+
+    if (!this.initialized && Object.keys(this.props || {}).length) {
+      this.parseProps(this);
+    }
+
+    this.router.events
+      .pipe(shareReplay(1), takeUntil(this.destroySubscriptions$))
+      .subscribe(async (event) => {
+        if (event instanceof NavigationStart) {
+          if (this.value) {
+            await this.ngOnDestroy();
+          }
+        }
+      });
+
     this.route = this.router.url.replace('/', '');
 
     const instance = this as KeyValue;
@@ -638,12 +592,12 @@ export abstract class NgxComponentDirective
     if (!this.initialized) {
       const handler = this.handlers?.[ComponentEventNames.Render] || undefined;
       if (handler && typeof handler === 'function') {
-        await handler.bind(this)(instance as T);
+        await handler.bind(instance)(instance as T, this.name, this.value);
       }
       // search for event to render event
       const event = this.events?.[ComponentEventNames.Render] || undefined;
       if (event && typeof event === 'function') {
-        await event.bind(this)(instance as T);
+        await event.bind(instance)(instance as T, this.name, this.value);
       }
     }
     await super.initialize();
@@ -651,6 +605,23 @@ export abstract class NgxComponentDirective
     this.initialized = true;
     if (this.isModalChild) {
       this.changeDetectorRef.detectChanges();
+    }
+  }
+
+  /**
+   * @description Cleanup lifecycle hook invoked when the directive is destroyed.
+   * @summary Ensures any resources allocated by the directive's media service are
+   * released (DOM listeners, timers, subscriptions, etc.). Implementations should
+   * keep `mediaService.destroy()` idempotent; calling it here prevents leaks when
+   * components are torn down.
+   * @returns {Promise<void>}
+   */
+  async ngOnDestroy(): Promise<void> {
+    this.value = undefined;
+    this.mediaService.destroy();
+    if (this.destroySubscriptions$) {
+      this.destroySubscriptions$.next();
+      this.destroySubscriptions$.complete();
     }
   }
 
@@ -710,7 +681,9 @@ export abstract class NgxComponentDirective
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes[ModelKeys.MODEL]) {
       const { currentValue } = changes[ModelKeys.MODEL];
-      if (currentValue) this.getModel(currentValue);
+      if (currentValue) {
+        this.getModel(currentValue);
+      }
       this.locale = this.localeContext;
     }
 
@@ -730,7 +703,8 @@ export abstract class NgxComponentDirective
 
     if (changes[BaseComponentProps.HANDLERS]) {
       const { currentValue, previousValue } = changes[BaseComponentProps.HANDLERS];
-      if (currentValue && currentValue !== previousValue) this.parseHandlers(currentValue);
+      if (currentValue && currentValue !== previousValue)
+        this.parseHandlers(currentValue, this as unknown as DecafEventHandler);
     }
 
     if (changes[UIKeys.EVENTS]) {
@@ -739,7 +713,7 @@ export abstract class NgxComponentDirective
         if (!this._repository) {
           this._repository = this.repository;
         }
-        this.parseEvents(currentValue);
+        this.parseEvents(currentValue, this);
 
         // for (const key in currentValue) {
         //   const event = currentValue[key]();
@@ -797,43 +771,19 @@ export abstract class NgxComponentDirective
     });
   }
 
-  /**
-   * @description Handles repository observation events with debouncing.
-   * @summary Processes repository change notifications and routes them appropriately.
-   * For CREATE events with a UID, handles them immediately. For other events,
-   * passes them to the debounced observer subject to prevent excessive updates.
-   *
-   * @param {...unknown[]} args - The repository event arguments including table, event type, and UID
-   * @returns {Promise<void>}
-   * @memberOf ListComponent
-   */
-  async handleRepositoryRefresh(...args: unknown[]): Promise<void> {
-    const [modelInstance, event, uid] = args;
-    if ([OperationKeys.CREATE, OperationKeys.DELETE].includes(event as OperationKeys))
-      return this.handleObserveEvent(modelInstance, event, uid as string | number);
-    return this.repositoryObserverSubject.next(args);
-  }
-
-  async handleObserveEvent(...args: unknown[]): Promise<void> {
-    this.log.for(this.handleObserveEvent).info(`Repository change observed with args: ${args}`);
-  }
-
-  parseHandlers(handlers: Record<string, UIFunctionLike | Constructor<NgxEventHandler>>): void {
-    // function isClass(value: UIFunctionLike | Constructor<NgxEventHandler>): boolean {
-    //   return typeof value === 'function' && /^class\s/.test(String(value));
-    // }
-    Object.entries(handlers).forEach(([key, fn]) => {
-      if (isClassConstructor<NgxEventHandler>(fn)) {
-        const clazz = new fn() as NgxEventHandler;
-        this.handlers[key] = key in clazz ? clazz[key as keyof NgxEventHandler] : clazz.handle;
-        // !(Object.values(TransactionHooks).includes(key as keyof typeof TransactionHooks))
-        //   ? clazz.handle
-        //   : clazz[key as keyof NgxEventHandler];
-      } else {
-        this.handlers[key] = fn as UIFunctionLike;
-      }
-    });
-  }
+  // parseHandlers(handlers: Record<string, UIFunctionLike>): void {
+  //   // function isClass(value: UIFunctionLike | Constructor<NgxEventHandler>): boolean {
+  //   //   return typeof value === 'function' && /^class\s/.test(String(value));
+  //   // }
+  //   Object.entries(handlers).forEach(([key, fn]) => {
+  //     if (isClassConstructor<NgxEventHandler>(fn)) {
+  //       const clazz = new fn() as NgxEventHandler;
+  //       this.handlers[key] = key in clazz ? clazz[key as keyof NgxEventHandler] : clazz.handle;
+  //     } else {
+  //       this.handlers[key] = fn as UIFunctionLike;
+  //     }
+  //   });
+  // }
 
   // for (const key in currentValue) {
   //   const event = currentValue[key]();
@@ -856,18 +806,25 @@ export abstract class NgxComponentDirective
   //   }
   // }
 
-  parseEvents(
-    events: Record<string, UIFunctionLike | Constructor<DecafComponentConstructor>>,
-  ): void {
-    Object.entries(events).forEach(([key, fn]) => {
-      const event = (fn as UIFunctionLike)();
-      if (isClassConstructor<DecafComponentConstructor>(event)) {
-        this.events[key] = new event()[key as keyof DecafComponentConstructor] || undefined;
-      } else {
-        this.events[key] = fn as UIFunctionLike;
-      }
-    });
-  }
+  // parseEvents<T extends DecafComponent<Model>>(
+  //   events: Record<string, UIFunctionLike>,
+  // ): UIEventProperty {
+  //   const result: UIEventProperty = {};
+  //   Object.entries(events).forEach(([key, fn]) => {
+  //     const event = (fn as UIFunctionLike)();
+  //     if (isClassConstructor<DecafComponent<Model>>(event)) {
+  //       const fn = new event()[key as keyof DecafComponent<Model>] || undefined;
+  //       if (fn) {
+  //         this.events[key] = fn;
+  //         result[key] = fn;
+  //       }
+  //     } else {
+  //       this.events[key] = fn as UIFunctionLike;
+  //       result[key] = fn;
+  //     }
+  //   });
+  //   return result;
+  // }
 
   /**
    * @description Retrieves or sets the locale context for the component.
@@ -986,11 +943,17 @@ export abstract class NgxComponentDirective
    * @protected
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected parseProps(instance: KeyValue, skip: string[] = []): void {
+  protected parseProps(instance: KeyValue, skip: string[] = [AngularEngineKeys.CHILDREN]): void {
     const props = this.props as KeyValue;
     Object.keys(instance).forEach((key) => {
       if (Object.keys(this.props).includes(key) && !skip.includes(key)) {
         (this as KeyValue)[key] = props[key];
+        if (key === BaseComponentProps.HANDLERS) {
+          this.parseHandlers(props[key], this as unknown as DecafEventHandler);
+        }
+        if (key === UIKeys.EVENTS) {
+          this.parseEvents(props[key], this);
+        }
         delete props[key];
       }
     });

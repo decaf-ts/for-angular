@@ -1,6 +1,5 @@
 import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
 import { I18nToken, ICrudFormOptions, IListEmptyOptions } from './interfaces';
-
 import { ModalOptions } from '@ionic/angular/standalone';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { InjectionToken } from '@angular/core';
@@ -15,8 +14,9 @@ export const DB_ADAPTER_FLAVOUR_TOKEN = 'DbAdapterFlavour';
  * @const {InjectionToken<DecafRepositoryAdapter>}
  * @memberOf module:lib/for-angular-common.module
  */
-export const DB_ADAPTER_PROVIDER_TOKEN =
-  new InjectionToken<DecafRepositoryAdapter>('DB_ADAPTER_PROVIDER_TOKEN');
+export const DB_ADAPTER_PROVIDER_TOKEN = new InjectionToken<DecafRepositoryAdapter>(
+  'DB_ADAPTER_PROVIDER_TOKEN',
+);
 /**
  * @description Injection token for the root path of locale translation files.
  * @summary Used to configure the base path where i18n translation files are located.
@@ -27,9 +27,7 @@ export const DB_ADAPTER_PROVIDER_TOKEN =
  * // Typical usage when providing the token
  * { provide: LOCALE_ROOT_TOKEN, useValue: './assets/i18n/' }
  */
-export const LOCALE_ROOT_TOKEN = new InjectionToken<string>(
-  'LOCALE_ROOT_TOKEN'
-);
+export const LOCALE_ROOT_TOKEN = new InjectionToken<string>('LOCALE_ROOT_TOKEN');
 
 /* Generic token for injecting on class constructors */
 /**
@@ -63,9 +61,7 @@ export const CPTKN = new InjectionToken<unknown>('CPTKN', {
  * @const {InjectionToken<I18nToken>}
  * @memberOf module:lib/for-angular-common.module
  */
-export const I18N_CONFIG_TOKEN = new InjectionToken<I18nToken>(
-  'I18N_CONFIG_TOKEN'
-);
+export const I18N_CONFIG_TOKEN = new InjectionToken<I18nToken>('I18N_CONFIG_TOKEN');
 
 /**
  * @description Default options for empty list state display.
@@ -120,35 +116,6 @@ export const WindowColorSchemes = {
   undefined: 'undefined',
 } as const;
 
-export const ElementSizes = {
-  xsmall: 'xsmall',
-  small: 'small',
-  medium: 'medium',
-  default: 'default',
-  large: 'large',
-  xLarge: 'xlarge',
-  '2xLarge': '2xlarge',
-  auto: 'auto',
-  expand: 'expand',
-  block: 'block',
-} as const;
-
-export const ElementPositions = {
-  left: 'left',
-  center: 'center',
-  right: 'right',
-  top: 'top',
-  bottom: 'bottom',
-} as const;
-
-export const LayoutGridGaps = {
-  small: 'small',
-  medium: 'medium',
-  large: 'large',
-  collapse: 'collapse',
-  none: '',
-} as const;
-
 export const ListItemPositions = {
   uid: 'uid',
   title: 'title',
@@ -199,87 +166,6 @@ export const AngularEngineKeys = {
   LOADED: 'engineLoaded',
   DARK_PALETTE_CLASS: 'dcf-palette-dark',
 } as const;
-
-/**
- * @description Form validation state constants.
- * @summary Contains constants representing the possible validation states of a form.
- * These are used to check and handle form validation throughout the application.
- * The VALID state indicates all form controls pass validation, while INVALID
- * indicates one or more validation errors exist.
- * @typedef {Object} FormConstants
- * @property {string} VALID - Constant representing a valid form state
- * @property {string} INVALID - Constant representing an invalid form state
- * @const FormConstants
- * @memberOf module:lib/engine/constants
- */
-export const FormConstants = {
-  VALID: 'VALID',
-  INVALID: 'INVALID',
-} as const;
-
-/**
- * @description Event name constants.
- * @summary Contains constants for standardized event names used throughout the application.
- * These constants ensure consistent event naming across components and make it easier to
- * track and handle events. Each constant represents a specific application event type.
- * @typedef {Object} ComponentEventNames
- * @property {string} BackButtonClickEvent - Event fired when back button navigation ends
- * @property {string} Render - Event after component initialize action occurs
- * @property {string} Refresh - Event fired when a refresh action occurs
- * @property {string} Click - Event fired when a click action occurs
- * @property {string} Change - Event fired when a change action occurs
- * @property {string} Submit - Event fired when a form submission occurs
- * @property {string} ValidationError - Event fired when a validation error occurs
- * @property {string} ThemeChange - Event fired when a theme change occurs
- * @property {string} FormGroupLoaded - Event fired when a reactve form group is loaded
- * @const ComponentEventNames
- * @memberOf module:lib/engine/constants
- */
-export const ComponentEventNames = {
-  Render: 'render',
-  BackButtonClickEvent: 'backButtonNavigationEndEvent',
-  Refresh: 'RefreshEvent',
-  Click: 'ClickEvent',
-  Change: 'ChangeEvent',
-  Submit: 'SubmitEvent',
-  ValidationError: 'validationErrorEvent',
-  ThemeChange: 'themeChangeEvent',
-  FormGroupLoaded: 'formGroupLoadedEvent',
-} as const;
-
-export const TransactionHooks = {
-  BeforeCreate: 'beforeCreate',
-  AfterCreate: 'afterCreate',
-  BeforeUpdate: 'beforeUpdate',
-  AfterUpdate: 'afterUpdate',
-  BeforeDelete: 'beforeDelete',
-  AfterDelete: 'afterDelete',
-} as const;
-
-/**
- * @description Logger level constants.
- * @summary Defines the logging levels used in the application's logging system.
- * Lower numeric values represent more verbose logging, while higher values represent
- * more critical logs. These levels control which log messages are output based on
- * the configured logging threshold.
- * @enum {number}
- * @readonly
- * @property {number} ALL - Log everything (most verbose)
- * @property {number} DEBUG - Log debug information
- * @property {number} INFO - Log informational messages
- * @property {number} WARN - Log warnings
- * @property {number} ERROR - Log errors
- * @property {number} CRITICAL - Log critical errors (least verbose)
- * @memberOf module:lib/engine/constants
- */
-export enum LoggerLevels {
-  ALL = 0,
-  DEBUG = 1,
-  INFO = 2,
-  WARN = 3,
-  ERROR = 4,
-  CRITICAL = 5,
-}
 
 /**
  * @description Route direction constants.
@@ -346,6 +232,8 @@ export enum ComponentsTagNames {
  * @memberOf module:lib/engine/constants
  */
 export enum BaseComponentProps {
+  MODEL_ID = 'modelId',
+  MODEL = 'model',
   HANDLERS = 'handlers',
   LOCALE = 'locale',
   LOCALE_ROOT = 'locale_root',

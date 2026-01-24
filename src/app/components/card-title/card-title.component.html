@@ -22,12 +22,8 @@
           class="dcf-flex dcf-flex-middle dcf-flex-right@m dcf-flex-center"
           [class.dcf-width-1-1]="!tabs"
         >
-          <ion-button
-            [routerDirection]="'forward'"
-            [routerLink]="['/' + route + '/create']"
-            color="primary"
-          >
-            {{ locale + '.create' | translate }}
+          <ion-button (click)="createButton.handle()" color="primary">
+            {{ locale + '.' + createButton.text | translate }}
           </ion-button>
         </div>
       }

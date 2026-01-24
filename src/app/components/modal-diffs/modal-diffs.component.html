@@ -1,33 +1,37 @@
 <div class="dcf-modal-diffs-component">
   <div class="dcf-table-container">
     <table class="dcf-table">
-        <thead>
+      <thead>
+        <tr>
+          <th>{{ locale + '.diffs.property' | translate }}</th>
+          <th>{{ locale + '.diffs.oldValue' | translate }}</th>
+          <th>{{ locale + '.diffs.newValue' | translate }}</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (diff of diffs | keyvalue; track diff.key) {
           <tr>
-            <th>{{locale + '.diffs.property' | translate}}</th>
-            <th>{{locale + '.diffs.oldValue' | translate}}</th>
-            <th>{{locale + '.diffs.newValue' | translate}}</th>
-          </tr>
-        <tbody>
-          @for (diff of diffs | keyvalue; track diff.key) {
-            <tr>
-              <td width="20%">{{locale + '.' + diff.key +'.label' | translate }}</td>
-              <td width="40%">{{diff.value.other}}</td>
-              <td width="40%">
-
-                @if(typeof diff.value.current === 'object') {
-                  @for(item of diff.value.current; track item) {
-                    <div>{{item | json}}</div>
-                  }
-                } @else {
-                  <span>
-                    {{diff.value.current?.length > 100 ? (diff.value.current | slice:0:100) + '...' : diff.value.current}}
-                  </span>
+            <td width="20%">{{ locale + '.' + diff.key + '.label' | translate }}</td>
+            <td width="40%">{{ diff.value?.other || diff.value?.old }}</td>
+            <td width="40%">
+              @if (typeof diff.value.current === 'object') {
+                @for (item of diff.value.current; track item) {
+                  <div>{{ item | json }}</div>
                 }
-
-              </td>
-            </tr>
-          }
-       </tbody>
+              } @else {
+                <span>
+                  {{
+                    diff.value.current?.length > 100
+                      ? (diff.value.current | slice: 0 : 100) + '...'
+                      : diff.value.current
+                  }}
+                </span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
     </table>
   </div>
 
@@ -35,8 +39,12 @@
     <div>
       <ion-button fill="clear" (click)="handleAction('cancel')" color="primary">Cancel</ion-button>
     </div>
+    @if (operation === OperationKeys.CREATE || operation === OperationKeys.UPDATE) {
       <div>
-      <ion-button (click)="handleAction()" color="primary">Confirm</ion-button>
-    </div>
+        <ion-button (click)="confirmButton.handle()" color="primary">
+          {{ confirmButton.text }}
+        </ion-button>
+      </div>
+    }
   </div>
 </div>

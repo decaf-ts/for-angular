@@ -1,31 +1,43 @@
 import type { Model, ModelArg } from '@decaf-ts/decorator-validation';
 import { date, list, minlength, model, pattern, required } from '@decaf-ts/decorator-validation';
 import { column, index, OrderDirection, pk, table } from '@decaf-ts/core';
-// import { gtin } from "@pharmaledgerassoc/ptp-toolkit/shared";
-// import { BatchPattern, DatePattern, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import { BlockOperations, composed, OperationKeys, readonly } from '@decaf-ts/db-decorators';
 import { description } from '@decaf-ts/decoration';
-//  import { audit } from "@pharmaledgerassoc/ptp-toolkit/shared";
-import { Cacheable } from './Cacheable';
-// import { cache } from "@pharmaledgerassoc/ptp-toolkit/shared";
+import { Cacheable } from '../Cacheable';
 import {
+  ComponentEventNames,
   DecafComponent,
   hidden,
   HTML5InputTypes,
   uichild,
   uielement,
+  uihandlers,
   uilayout,
   uilayoutprop,
   uilistmodel,
   uilistprop,
   uimodel,
   uionclick,
+  uionrender,
   uitablecol,
 } from '@decaf-ts/ui-decorators';
-import { Product } from './Product';
-import { DatePattern, TableNames } from './constants';
-import { audit } from './utils';
-import { DatamatrixModalHandler } from './handlers/DatamatrixModalHandler';
+import { DatePattern, TableNames } from '../constants';
+import { audit } from '../utils';
+import { Product } from '../Product';
+import { DatamatrixModalHandler } from '../handlers/DatamatrixModalHandler';
+import { BatchHandler } from '../handlers/BatchHandler';
+
+@uimodel('ngx-decaf-fieldset')
+@model()
+class ManufacturerAddress {
+  @uielement('ngx-decaf-crud-field', {
+    label: 'batch.manufacturerAddress.label',
+    placeholder: 'batch.manufacturerAddress.placeholder',
+  })
+  @uilistprop('title')
+  @minlength(2)
+  address?: string;
+}
 
 //@uses(FabricFlavour)
 @description('Represents a product batch')
@@ -33,13 +45,49 @@ import { DatamatrixModalHandler } from './handlers/DatamatrixModalHandler';
 @table(TableNames.Batch)
 @uilistmodel('ngx-decaf-list-item', { icon: 'ti-package' })
 @uilayout('ngx-decaf-crud-form', true, 1, { empty: { showButton: false } })
+@uihandlers({
+  [ComponentEventNames.Render]: BatchHandler,
+})
 @model()
-export class Batch extends Cacheable {
+export class BatchForm extends Cacheable {
   @pk()
   @audit()
   @composed(['productCode', 'batchNumber'], ':')
   @description('Unique identifier composed of product code and batch number.')
   id!: string;
+
+  // Only for ui
+  @uielement('app-select-field', {
+    label: 'batch.nameMedicinalProduct.label',
+    placeholder: 'batch.nameMedicinalProduct.placeholder',
+    readonly: true,
+  })
+  @uilayoutprop('half')
+  // @uitablecol(1, (instance: NgxRepositoryDirective<Model>): string => {
+  //   if (instance._query) {
+  //     const { inventedName } =
+  //       (instance._query as Product[]).find(
+  //         (item) => item['productCode'] === (instance.model as Batch).productCode,
+  //       ) || {};
+  //     if (inventedName) {
+  //       return inventedName;
+  //     }
+  //   }
+  //   return '';
+  // })
+  @uitablecol(1)
+  @uionrender(() => BatchHandler)
+  nameMedicinalProduct?: string;
+
+  // Only for ui
+  @uielement('app-select-field', {
+    label: 'batch.inventedName.label',
+    placeholder: 'batch.inventedName.placeholder',
+    readonly: true,
+  })
+  @uilayoutprop('half')
+  @uitablecol(0)
+  inventedName?: string;
 
   //@gtin()
   @readonly()
@@ -72,7 +120,6 @@ export class Batch extends Cacheable {
   @required()
   // @pattern(BatchPattern)
   @index([OrderDirection.ASC, OrderDirection.DSC])
-  @description('Batch number assigned to the product.')
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.batchNumber.label',
     placeholder: 'batch.batchNumber.placeholder',
@@ -83,7 +130,6 @@ export class Batch extends Cacheable {
 
   //@cache()
   @column()
-  @description('Name of the site where the product was packaged.')
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.packagingSiteName.label',
     placeholder: 'batch.packagingSiteName.placeholder',
@@ -93,7 +139,6 @@ export class Batch extends Cacheable {
 
   //@cache()
   @column()
-  @description('Import license number for this batch.')
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.importLicenseNumber.label',
     placeholder: 'batch.importLicenseNumber.placeholder',
@@ -103,10 +148,7 @@ export class Batch extends Cacheable {
 
   //@cache()
   @required()
-  // @date(DatePattern) // ver com tiago, não é uma data
-  @column()
   @index([OrderDirection.ASC, OrderDirection.DSC])
-  @description('Date when the batch expires.')
   @pattern('^\\d{6}$')
   @uielement('app-expiry-date-field', {
     label: 'batch.expiryDate.label',
@@ -114,12 +156,21 @@ export class Batch extends Cacheable {
     type: HTML5InputTypes.TEXT,
   })
   @uilayoutprop('half')
-  @uitablecol(4, (value: string, instance?: DecafComponent<Model>) => {
+  @uitablecol(4, (instance: DecafComponent<Model>, prop: 'expiryDate', value: string) => {
     // if(instance)
     //   instance.setValue(value);
     return value;
   })
   expiryDate!: string;
+
+  //only for ui (table view)
+  @uielement('')
+  @hidden()
+  @uitablecol(5, async (instance: DecafComponent<Model>, value: string) => {
+    return `<span class="ti ti-qrcode"></span> ${await instance.translate('batch.datamatrix.view')} `;
+  })
+  @uionclick(() => DatamatrixModalHandler)
+  dataMatrix!: string;
 
   // Only for ui
   @uielement('app-expiry-date-field', {
@@ -133,7 +184,6 @@ export class Batch extends Cacheable {
   //@cache()
   @column()
   @index([OrderDirection.ASC, OrderDirection.DSC])
-  @description('Name of the product manufacturer.')
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.manufacturerName.label',
     placeholder: 'batch.manufacturerName.placeholder',
@@ -142,9 +192,7 @@ export class Batch extends Cacheable {
   manufacturerName?: string;
 
   //@cache()
-  @column()
   @date(DatePattern)
-  @description('Date when the batch was manufactured.')
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.dateOfManufacturing.label',
     placeholder: 'batch.dateOfManufacturing.placeholder',
@@ -153,6 +201,23 @@ export class Batch extends Cacheable {
   @uilayoutprop('half')
   @uitablecol(6)
   dateOfManufacturing?: Date;
+
+  // Only for ui
+  @list(ManufacturerAddress, 'Array')
+  @uilayoutprop(1)
+  @uichild(
+    ManufacturerAddress.name,
+    'ngx-decaf-fieldset',
+    {
+      title: 'batch.manufacturerAddress.label',
+      max: 5,
+      required: false,
+      collapsable: false,
+      borders: true,
+    },
+    true,
+  )
+  manufacturerAddress!: ManufacturerAddress;
 
   //@cache()
   @column()
@@ -170,17 +235,13 @@ export class Batch extends Cacheable {
   manufacturerAddress3?: string;
 
   //@cache()
-  @column()
   @description('Manufacturer address line 4.')
   manufacturerAddress4?: string;
 
-  //@cache()
-  @column()
   @description('Manufacturer address line 5.')
   manufacturerAddress5?: string;
 
   //@cache()
-  @column()
   @index([OrderDirection.ASC, OrderDirection.DSC])
   @description('Indicates whether this batch has been recalled.')
   @uielement('ngx-decaf-crud-field', {
@@ -192,7 +253,7 @@ export class Batch extends Cacheable {
   batchRecall: boolean = false;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-  constructor(model?: ModelArg<Batch>) {
+  constructor(model?: ModelArg<BatchForm>) {
     super(model);
   }
 }

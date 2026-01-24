@@ -1,20 +1,25 @@
 @if (operation !== 'read' && operation !== 'delete') {
   <form
-    [class]="'dcf-form-grid ' + operation" #component
+    [class]="'dcf-form-grid ' + operation"
+    #component
     [id]="rendererId"
     [formGroup]="formGroup"
     (ngSubmit)="submit($event)"
     novalidate
-    [target]="target">
+    [target]="target"
+  >
     @if (!children?.length) {
       <ng-content #formContent></ng-content>
     } @else {
       <ngx-decaf-layout
         [className]="'dcf-crud-form-grid dcf-grid-nested '"
         [children]="children || []"
+        [pk]="pk"
+        [modelId]="modelId"
         (listenEvent)="handleEvent($event)"
         [parentForm]="formGroup || parentForm"
         [operation]="operation"
+        [modelId]="modelId"
         [cardType]="cardType ?? 'blank'"
         [match]="match ?? false"
         [gap]="'small'"
@@ -22,15 +27,20 @@
         [rows]="rows"
         [borders]="borders ?? false"
         [breakpoint]="breakpoint ?? 'large'"
-        [cols]="cols" />
+        [cols]="cols"
+      />
     }
     @if (initialized) {
       <div class="dcf-buttons-grid dcf-grid dcf-grid-small dcf-flex dcf-flex-right">
-         @if (!action) {
+        @if (!action) {
           <div>
             <ion-button fill="clear" (click)="handleReset()">
               @if (options.buttons.clear?.icon) {
-                <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
+                <ion-icon
+                  aria-hidden="true"
+                  [slot]="options.buttons.clear?.iconSlot"
+                  [name]="options.buttons.clear?.icon"
+                ></ion-icon>
               }
               {{ locale + '.' + (allowClear ? options.buttons.clear?.text : 'back') | translate }}
             </ion-button>
@@ -39,23 +49,28 @@
         <div>
           <ion-button type="submit" [expand]="action ? 'block' : 'default'">
             @if (options.buttons.submit.icon) {
-              <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
+              <ion-icon
+                aria-hidden="true"
+                [slot]="options.buttons.submit.iconSlot"
+                [name]="options.buttons.submit.icon"
+              ></ion-icon>
             }
-            {{ action ? action : (locale + '.' + options.buttons.submit.text) | translate }}
+            {{ action ? action : (locale + '.' + options.buttons.submit.text | translate) }}
           </ion-button>
         </div>
-
       </div>
     }
-
   </form>
 } @else {
   <section #component [id]="uid">
     <ngx-decaf-layout
       [className]="''"
+      [pk]="pk"
+      [modelId]="modelId"
       [children]="children || []"
       [operation]="operation"
       [cardType]="cardType ?? 'blank'"
+      [modelId]="modelId"
       [match]="match ?? false"
       [gap]="'small'"
       (listenEvent)="handleEvent($event)"
@@ -63,42 +78,57 @@
       [rows]="rows"
       [borders]="borders ?? false"
       [breakpoint]="breakpoint ?? 'large'"
-      [cols]="cols" />
+      [cols]="cols"
+    />
   </section>
 
-  <section [class]="'dcf-buttons-grid dcf-grid dcf-grid-small dcf-flex dcf-flex-left ' + operation" [id]="uid">
+  <section
+    [class]="'dcf-buttons-grid dcf-grid dcf-grid-small dcf-flex dcf-flex-left ' + operation"
+    [id]="uid"
+  >
     @if ([OperationKeys.READ, OperationKeys.DELETE].includes(operation) && modelId) {
       <div>
-        <ion-button
-          (click)="handleDelete()"
-          color="danger"
-          type="button">
+        <ion-button (click)="handleDelete()" color="danger" type="button">
           @if (options.buttons.submit.icon) {
-            <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
+            <ion-icon
+              aria-hidden="true"
+              [slot]="options.buttons.submit.iconSlot"
+              [name]="options.buttons.submit.icon"
+            ></ion-icon>
           }
-          {{locale + '.delete' | translate}}
+          {{ locale + '.delete' | translate }}
         </ion-button>
       </div>
     }
     @if (operation === OperationKeys.CREATE || operation === OperationKeys.UPDATE) {
       <div>
-        <ion-button
-          type="submit">
+        <ion-button type="submit">
           @if (options.buttons.submit.icon) {
-            <ion-icon aria-hidden="true" [slot]="options.buttons.submit.iconSlot" [name]="options.buttons.submit.icon"></ion-icon>
+            <ion-icon
+              aria-hidden="true"
+              [slot]="options.buttons.submit.iconSlot"
+              [name]="options.buttons.submit.icon"
+            ></ion-icon>
           }
-           {{ action ? action : (locale + '.' + options.buttons.submit.text) | translate }}
+          {{ action ? action : (locale + '.' + options.buttons.submit.text | translate) }}
         </ion-button>
       </div>
     }
     <div>
       <ion-button fill="clear" (click)="handleReset()">
         @if (options.buttons.clear?.icon) {
-          <ion-icon  aria-hidden="true" [slot]="options.buttons.clear?.iconSlot" [name]="options.buttons.clear?.icon"></ion-icon>
+          <ion-icon
+            aria-hidden="true"
+            [slot]="options.buttons.clear?.iconSlot"
+            [name]="options.buttons.clear?.icon"
+          ></ion-icon>
         }
-        {{ [OperationKeys.DELETE, OperationKeys.READ, OperationKeys.UPDATE].includes(operation) ? (locale + '.back' | translate) : options.buttons.clear?.text}}
+        {{
+          [OperationKeys.DELETE, OperationKeys.READ, OperationKeys.UPDATE].includes(operation)
+            ? (locale + '.back' | translate)
+            : options.buttons.clear?.text
+        }}
       </ion-button>
     </div>
   </section>
 }
-

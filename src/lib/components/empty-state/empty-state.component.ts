@@ -13,7 +13,7 @@ import { IonButton } from '@ionic/angular/standalone';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Dynamic } from '../../engine/decorators';
-import { ElementSizes } from '../../engine/constants';
+import { ElementSizes } from '@decaf-ts/ui-decorators';
 import { ElementSize, StringOrBoolean } from '../../engine/types';
 import { stringToBoolean } from '../../utils/helpers';
 import { FunctionLike } from '../../engine/types';

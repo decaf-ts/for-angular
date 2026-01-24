@@ -12,13 +12,12 @@ import {
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { IonItem, IonLabel, IonList, IonButton, IonText } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { HTML5InputTypes, UIFunctionLike } from '@decaf-ts/ui-decorators';
+import { ComponentEventNames, ElementSizes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { Constructor } from '@decaf-ts/decoration';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { Dynamic } from '../../engine/decorators';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { ElementSize, FlexPosition, KeyValue, PossibleInputTypes } from '../../engine/types';
-import { ElementSizes, ComponentEventNames } from '../../engine/constants';
 import { IBaseCustomEvent, IFileUploadError } from '../../engine/interfaces';
 import { presentNgxInlineModal, presentNgxLightBoxModal } from '../modal/modal.component';
 import { CardComponent } from '../card/card.component';
@@ -134,15 +133,6 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    */
   @Input()
   override type: PossibleInputTypes = HTML5InputTypes.FILE;
-
-  /**
-   * @description Label for the file upload field.
-   * @summary Provides a user-friendly label for the file upload input.
-   *
-   * @type {string | undefined}
-   */
-  @Input()
-  label?: string;
 
   /**
    * @description Label for the upload button.

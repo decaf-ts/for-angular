@@ -6,15 +6,59 @@ import {
   OperationKeys,
   PrimaryKeyType,
 } from '@decaf-ts/db-decorators';
-import { AttributeOption, Condition, EventIds, OrderDirection, Paginator } from '@decaf-ts/core';
+import { AttributeOption, Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
 import { DecafComponent } from '@decaf-ts/ui-decorators';
 import { DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { IFilterQuery } from './interfaces';
+import { Subject } from 'rxjs';
 
 @Directive()
 export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   private _context?: DecafRepository<M>;
+
+  /**
+   * @description Store query results for the component.
+   * @summary Holds an array of `Model` instances returned from repository queries.
+   * This is used internally to cache query results that child components may bind to.
+   * @type {M[]}
+   */
+  @Input()
+  _query: M[] = [];
+
+  /**
+   * @description Backing model data supplied to the component.
+   * @summary Holds the raw `Model` instance or a generic key-value payload that child
+   * components may bind to. When provided, it represents the contextual data the
+   * component should render or mutate.
+   * @type {M | M[] | KeyValue | KeyValue[] | undefined}
+   */
+  @Input()
+  _data?: M | M[] | KeyValue | KeyValue[] = {};
+
+  /**
+   * @description Data model or model name for component operations.
+   * @summary The data model that this component will use for CRUD operations. This can be provided
+   * as a Model instance, a model constructor, or a string representing the model's registered name.
+   * When set, this property provides the component with access to the model's schema, validation rules,
+   * and metadata needed for rendering and data operations.
+   * @type {Model | string | undefined}
+   * @memberOf module:lib/engine/NgxRepositoryDirective
+   */
+  @Input()
+  override model!: Model | string | undefined;
+
+  /**
+   * @description Primary key value of the current model instance.
+   * @summary Specifies the primary key value for the current model record being displayed or
+   * manipulated by the component. This identifier is used for CRUD operations that target
+   * specific records, such as read, update, and delete operations. The value corresponds to
+   * the field designated as the primary key in the model definition.
+   * @type {PrimaryKeyType}
+   * @memberOf module:lib/engine/NgxRepositoryDirective
+   */
+  @Input()
+  override modelId: PrimaryKeyType = '';
 
   /**
    * @description The name of the model class to operate on.
@@ -45,16 +89,16 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
    * @type {AttributeOption<M>}
    */
   @Input()
-  filter!: AttributeOption<M>;
+  override filter!: AttributeOption<M>;
 
   /**
    * @description Model field used when generating the default condition.
    * @summary Indicates which key should be compared to `modelId` when `filter` is not provided.
    * Defaults to the configured primary key so overrides are only needed for custom lookups.
-   * @type {keyof M}
+   * @type {string}
    */
   @Input()
-  filterBy!: keyof M;
+  override filterBy!: string;
 
   /**
    * @description Primitive type descriptor for the primary key.
@@ -130,17 +174,30 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   indexes: string[] = [];
 
   /**
-   * @description Backing model data supplied to the component.
-   * @summary Holds the raw `Model` instance or a generic key-value payload that child
-   * components may bind to. When provided, it represents the contextual data the
-   * component should render or mutate.
-   * @type {M | M[] | KeyValue | KeyValue[] | undefined}
+   * @description Subject for debouncing repository observation events.
+   * @summary RxJS Subject that collects repository change events and emits them after
+   * a debounce period. This prevents multiple rapid repository changes from triggering
+   * multiple list refresh operations, improving performance and user experience.
+   *
+   * @private
+   * @type {Subject<any>}
    */
-  @Input()
-  protected _data?: M | M[] | KeyValue | KeyValue[] = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected repositoryObserverSubject: Subject<any> = new Subject<any>();
+
+  /**
+   * @description Observer object for repository change notifications.
+   * @summary Implements the Observer interface to receive notifications when the
+   * underlying data repository changes. This enables automatic list updates when
+   * data is created, updated, or deleted through the repository.
+   *
+   * @private
+   * @type {Observer}
+   */
+  protected repositoryObserver!: Observer;
 
   override async initialize(): Promise<void> {
-    if (this.repository && this.modelId) {
+    if (this.repository) {
       if (this.filter) {
         this._data = await this.query(this.filter.eq(this.modelId as PrimaryKeyType));
         if (this._data) {
@@ -174,7 +231,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   }
 
   override async refresh(model?: unknown): Promise<void> {
-    if (model) {
+    if (model && Model.isModel(model)) {
       this.model = Model.build(model as M, this.modelName);
       this._data = model;
     }
@@ -188,7 +245,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     const type = this.getModelPropertyType(this.repository.class, attr as keyof M);
     if (this.modelId) {
       return condtion.eq(
-        [Primitives.NUMBER, Primitives.BIGINT].includes(this.pkType as Primitives)
+        [Primitives.NUMBER, Primitives.BIGINT].includes(type as Primitives)
           ? Number(this.modelId)
           : (this.modelId as PrimaryKeyType),
       );
@@ -244,17 +301,44 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     data: M,
     repository: DecafRepository<M>,
     operation: CrudOperations,
-  ): Promise<M | M[] | EventIds | undefined> {
-    const hook = `before${operation.charAt(0).toUpperCase() + operation.slice(1)}`;
-    const handler = this.handlers?.[hook] || undefined;
-    const model = this.buildTransactionModel(data || {}, repository, operation);
-    if (handler && typeof handler === 'function') {
-      const result = (await handler.bind(this)(model, repository, this.modelId)) as M | boolean;
-      if (result === false) {
-        return undefined;
+  ): Promise<M | M[] | PrimaryKeyType | undefined> {
+    try {
+      const hook = `before${operation.charAt(0).toUpperCase() + operation.slice(1)}`;
+      const handler = this.handlers?.[hook] || undefined;
+      const model = this.buildTransactionModel(data || {}, repository, operation);
+      if (handler && typeof handler === 'function') {
+        const result = (await handler.bind(this)(model, repository, this.modelId)) as M | boolean;
+        if (result === false) {
+          return undefined;
+        }
       }
+      return model as M;
+    } catch (error: unknown) {
+      this.log.for(this).error((error as Error)?.message || String(error));
+      return undefined;
     }
-    return model as M;
+  }
+
+  protected async transactionEnd<M extends Model>(
+    model: M,
+    repository: DecafRepository<M>,
+    operation: CrudOperations,
+  ): Promise<M | M[] | PrimaryKeyType | undefined> {
+    try {
+      const hook = `after${operation.charAt(0).toUpperCase() + operation.slice(1)}`;
+      const handler = this.handlers?.[hook] || undefined;
+      if (handler && typeof handler === 'function') {
+        const result = (await handler.bind(this)(model, repository, this.modelId)) as M | boolean;
+        if (result === false) {
+          return undefined;
+        }
+        return result as M;
+      }
+      return model;
+    } catch (error: unknown) {
+      this.log.for(this).error((error as Error)?.message || String(error));
+      return undefined;
+    }
   }
 
   /**
@@ -272,7 +356,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     data: KeyValue | KeyValue[],
     repository: DecafRepository<M>,
     operation?: CrudOperations,
-  ): M | M[] | EventIds {
+  ): M | M[] | PrimaryKeyType | PrimaryKeyType[] {
     if (!operation) {
       operation = this.operation as CrudOperations;
     }
@@ -285,22 +369,24 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     if (Array.isArray(data))
       return data.map((item) => this.buildTransactionModel(item, repository, operation)) as M[];
 
-    const pk = Model.pk(repository.class as Constructor<M>);
+    const pk = Model.pk(repository.class as Constructor<M>) as string;
     const pkType = Metadata.type(repository.class as Constructor<M>, pk as string).name;
-    const modelId = (this.modelId || data[pk as string]) as Primitives;
-    if (!this.modelId) this.modelId = modelId;
-    const uid = this.parsePkValue(
-      operation === OperationKeys.DELETE ? data[pk as string] : modelId,
-      pkType,
-    );
+    const modelId = (this.modelId || data[pk]) as Primitives;
+    if (!this.modelId) {
+      this.modelId = modelId;
+    }
+    const uid = this.parsePkValue(operation === OperationKeys.DELETE ? data[pk] : modelId, pkType);
     if (operation !== OperationKeys.DELETE) {
       const properties = Metadata.properties(repository.class as Constructor<M>) as string[];
       const relation =
         pk === this.pk
           ? {}
-          : properties.includes(this.pk as string) && !data[this.pk as string]
-            ? { [this.pk as string]: modelId }
+          : properties.includes(this.pk) && !data[this.pk]
+            ? { [this.pk]: modelId }
             : {};
+      if (!String(data?.[pk] || '').trim().length) {
+        data[pk] = undefined;
+      }
       return Model.build(
         Object.assign(
           data || {},
@@ -310,7 +396,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
         repository.class.name,
       ) as M;
     }
-    return uid as EventIds;
+    return uid as PrimaryKeyType;
   }
 
   protected getIndexes(model: M): string[] {
@@ -338,5 +424,25 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
 
   protected getModelPkType(clazz: Constructor<M>): string {
     return this.getModelPropertyType(clazz, Model.pk(clazz) as keyof M);
+  }
+
+  /**
+   * @description Handles repository observation events with debouncing.
+   * @summary Processes repository change notifications and routes them appropriately.
+   * For CREATE events with a UID, handles them immediately. For other events,
+   * passes them to the debounced observer subject to prevent excessive updates.
+   *
+   * @param {...unknown[]} args - The repository event arguments including table, event type, and UID
+   * @returns {Promise<void>}
+   */
+  async handleRepositoryRefresh(...args: unknown[]): Promise<void> {
+    const [modelInstance, event, uid] = args;
+    if ([OperationKeys.CREATE, OperationKeys.DELETE].includes(event as OperationKeys))
+      return this.handleObserveEvent(modelInstance, event, uid as string | number);
+    return this.repositoryObserverSubject.next(args);
+  }
+
+  async handleObserveEvent(...args: unknown[]): Promise<void> {
+    this.log.for(this.handleObserveEvent).info(`Repository change observed with args: ${args}`);
   }
 }

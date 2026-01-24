@@ -4,53 +4,46 @@
   <main>
     <app-container>
       @if(!operation) {
-        <app-card-title
-          [locale]="locale"
-          [tabs]="tabs"
+      <app-card-title
+        [locale]="locale"
+        [tabs]="tabs"
+        [route]="route"
+        [operation]="operation"
+        [operations]="operations"
+        [title]="locale +'.title' | translate"
+        [allowCreate]="true"
+        [subtitle]="locale +'.description' | translate"
+      />
+      } @if(model) { @if(!operation) {
+      <div class="dcf-list-container">
+        <ngx-decaf-table
+          [filterModel]="'product'"
+          [filterLabel]="'batches.filter.all' | translate"
+          [model]="model"
           [route]="route"
-          [operations]="operation"
+          [locale]="locale"
+          [operation]="operation"
           [operations]="operations"
-          [title]="locale +'.title' | translate"
-          [allowCreate]="true"
-          [subtitle]="locale +'.description' | translate"
+          (listenEvent)="handleEvent($event)"
         />
-      }
-      @if(model) {
-        @if(!operation) {
-          <div class="dcf-list-container">
-            <ngx-decaf-table
-              [filterModel]="'product'"
-              [filterLabel]="'batches.filter.all' | translate"
-              [model]="model"
-              [ppk]="'batchNumber'"
-              [route]="route"
-              [locale]="locale"
-              [operation]="operation"
-              [operations]="operations"
-              (listenEvent)="handleEvent($event)"
-            />
-          </div>
-        } @else {
-          @if(!errorMessage) {
-            <ngx-decaf-model-renderer
-                [model]="model"
-                (listenEvent)="handleEvent($event)"
-                (clickEvent)="handleEvent($event)"
-                [globals]="{operation: operation,  modelId, allowClear: false}"
-              >
-            </ngx-decaf-model-renderer>
-          } @else {
-            <ngx-decaf-empty-state
-              [model]="model"
-              title="404 - Not Found"
-              iconColor="danger"
-              icon="sad-outline"
-              [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}"
-            />
-          }
-        }
+      </div>
+      } @else { @if(!errorMessage) {
+      <ngx-decaf-model-renderer
+        [model]="model"
+        (listenEvent)="handleEvent($event)"
+        (clickEvent)="handleEvent($event)"
+        [globals]="{operation: operation,  modelId, allowClear: false}"
+      ></ngx-decaf-model-renderer>
       } @else {
-        <div>No Model</div>
+      <ngx-decaf-empty-state
+        [model]="model"
+        title="404 - Not Found"
+        iconColor="danger"
+        icon="sad-outline"
+        [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}"
+      />
+      } } } @else {
+      <div>No Model</div>
       }
     </app-container>
   </main>

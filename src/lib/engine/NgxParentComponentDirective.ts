@@ -199,8 +199,12 @@ export class NgxParentComponentDirective extends NgxComponentDirective implement
 
   override async initialize(model?: Model | string): Promise<void> {
     await super.initialize();
-    if (model) this.model = model;
-    if (this.model && !this.repository) this._repository = this.repository;
+    if (model) {
+      this.model = model;
+    }
+    if (this.model && !this.repository) {
+      this._repository = this.repository;
+    }
   }
 
   override async ngOnDestroy(): Promise<void> {

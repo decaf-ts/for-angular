@@ -33,7 +33,6 @@
           }
         </div>
       </div>
-
       <div
         class="dcf-fieldset-content"
         [class.dcf-empty]="!items?.length && !isOpen"
@@ -49,6 +48,9 @@
               [flexMode]="props.flexMode ?? false"
               [match]="false"
               [gap]="'small'"
+              [pk]="pk"
+              [modelId]="modelId"
+              [operation]="operation"
               [children]="activePage || []"
               [parentForm]="formGroup || parentForm"
               [rows]="rows"
@@ -71,7 +73,7 @@
               >
                 @for (item of items; track item.index) {
                   <ion-item
-                    [class.not-unique]="item.title === isUniqueError"
+                    [class.not-unique]="isUniqueError && item.title === isUniqueError"
                     [class.updating]="updatingItem?.['index'] === item.index - 1"
                     lines="full"
                     [button]="false"
@@ -273,6 +275,9 @@
             <ngx-decaf-layout
               [className]="operation"
               [operation]="operation"
+              [pk]="pk"
+              [model]="model"
+              [modelId]="modelId"
               [flexMode]="item?.props?.flexMode ?? false"
               [match]="false"
               [gap]="'collapse'"

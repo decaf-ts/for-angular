@@ -41,14 +41,13 @@ import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
 import { KeyValue, FunctionLike, DecafRepository } from '../../engine/types';
 import {
-  ComponentEventNames,
   ComponentsTagNames,
   DefaultListEmptyOptions,
   ListComponentsTypes,
 } from '../../engine/constants';
 import {
   IBaseCustomEvent,
-  ListItemCustomEvent,
+  IListItemCustomEvent,
   IPaginationCustomEvent,
   IFilterQuery,
   IFilterQueryItem,
@@ -61,7 +60,7 @@ import { ComponentRendererComponent } from '../component-renderer/component-rend
 import { PaginationComponent } from '../pagination/pagination.component';
 import { FilterComponent } from '../filter/filter.component';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
-import { UIFunctionLike } from '@decaf-ts/ui-decorators';
+import { ComponentEventNames, UIFunctionLike } from '@decaf-ts/ui-decorators';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -475,8 +474,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @memberOf ListComponent
    */
   @Output()
-  clickEvent: EventEmitter<ListItemCustomEvent | IBaseCustomEvent> = new EventEmitter<
-    ListItemCustomEvent | IBaseCustomEvent
+  clickEvent: EventEmitter<IListItemCustomEvent | IBaseCustomEvent> = new EventEmitter<
+    IListItemCustomEvent | IBaseCustomEvent
   >();
 
   /**
@@ -485,11 +484,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * period. This prevents multiple rapid clicks from triggering multiple events.
    *
    * @private
-   * @type {Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent>}
+   * @type {Subject<CustomEvent | IListItemCustomEvent | IBaseCustomEvent>}
    * @memberOf ListComponent
    */
-  private clickItemSubject: Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent> =
-    new Subject<CustomEvent | ListItemCustomEvent | IBaseCustomEvent>();
+  private clickItemSubject: Subject<CustomEvent | IListItemCustomEvent | IBaseCustomEvent> =
+    new Subject<CustomEvent | IListItemCustomEvent | IBaseCustomEvent>();
 
   /**
    * @description Initializes a new instance of the ListComponent.
@@ -551,7 +550,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
 
     this.clickItemSubject
       .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
-      .subscribe((event) => this.clickEventEmit(event as ListItemCustomEvent | IBaseCustomEvent));
+      .subscribe((event) => this.clickEventEmit(event as IListItemCustomEvent | IBaseCustomEvent));
 
     this.repositoryObserverSubject
       .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
@@ -642,7 +641,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       }
       const mapperFn = (value as KeyValue)?.['valueParserFn'] || undefined;
       if (typeof mapperFn === 'function') {
-        const value = await mapperFn(key, this);
+        const value = await mapperFn(this, key);
         if (typeof value === Primitives.STRING) {
           mapper[value] = key;
         }
@@ -717,7 +716,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     this.data = !this.model
       ? await this.getFromRequest(!!event, start, limit)
       : ((await this.getFromModel(!!event)) as KeyValue[]);
-    if (!this.isModalChild) this.refreshEventEmit(this.data);
+    this.refreshEventEmit(this.data);
     if (this.type === ListComponentsTypes.INFINITE) {
       if (this.page === this.pages) {
         if ((event as InfiniteScrollCustomEvent)?.target)
@@ -859,13 +858,13 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * debounced click subject. This allows the component to respond to clicks on
    * list items regardless of where they originate from.
    *
-   * @param {ListItemCustomEvent | IBaseCustomEvent} event - The click event
-   * @returns {void}
+   * @param {IListItemCustomEvent | IBaseCustomEvent} event - The click event
+   * @returns {Promise<void>}
    *
    * @memberOf ListComponent
    */
   @HostListener('window:ListItemClickEvent', ['$event'])
-  handleClick(event: ListItemCustomEvent | IBaseCustomEvent): void {
+  async handleClick(event: IListItemCustomEvent | IBaseCustomEvent): Promise<void> {
     this.clickItemSubject.next(event);
   }
 
@@ -969,12 +968,12 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * This extracts the relevant data from the event and passes it to parent components.
    *
    * @private
-   * @param {ListItemCustomEvent | IBaseCustomEvent} event - The click event
+   * @param {IListItemCustomEvent | IBaseCustomEvent} event - The click event
    * @returns {void}
    *
    * @memberOf ListComponent
    */
-  private clickEventEmit(event: ListItemCustomEvent | IBaseCustomEvent): void {
+  private clickEventEmit(event: IListItemCustomEvent | IBaseCustomEvent): void {
     this.clickEvent.emit(event);
   }
 
@@ -1364,7 +1363,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
           let val;
 
           for (const _value of arrayValue)
-            val = !val ? item[_value] : (typeof val === 'string' ? JSON.parse(val) : val)[_value];
+            val = !val
+              ? item[_value]
+              : (typeof val === Primitives.STRING ? JSON.parse(val) : val)[_value];
 
           if (isValidDate(new Date(val))) val = `${formatDate(val)}`;
 

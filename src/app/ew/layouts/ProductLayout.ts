@@ -5,14 +5,13 @@ import {
   uilayout,
   uilayoutprop,
   UIMediaBreakPoints,
+  ComponentEventNames,
+  TransactionHooks,
 } from '@decaf-ts/ui-decorators';
-import { FieldsetComponent, LayoutComponent } from 'src/lib/components';
+import { LayoutComponent } from 'src/lib/components';
 import { EpiLayout } from './EpiLayout';
-import { AppSwitcherComponent } from '../../components/switcher/switcher.component';
 import { Product } from '../fabric';
-import { Component } from '@angular/core';
-import { ComponentEventNames, TransactionHooks } from 'src/lib/engine';
-import { ProductHandler } from '../handlers/ProductHandler';
+import { ProductHandler } from '../fabric/handlers/ProductHandler';
 
 @uilayout('ngx-decaf-crud-form', true, 1, {
   borders: true,
@@ -31,6 +30,7 @@ export class ProductLayout extends Model {
     required: true,
     breakpoint: UIMediaBreakPoints.XLARGE,
     ordenable: false,
+    pk: 'productCode',
   })
   @uilayoutprop(2)
   product!: Product;

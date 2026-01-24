@@ -22,12 +22,12 @@
     "leaflet": "Leaflet"
   },
   "epiTabs": {
-   "products": "Products",
-   "batches": "Batches"
+    "products": "Products",
+    "batches": "Batches"
   },
   "logTabs": {
-   "access": "Access Logs",
-   "actions": "Action Logs"
+    "access": "Access Logs",
+    "actions": "Action Logs"
   },
   "dashboard": {
     "title": "Control Panel",
@@ -48,7 +48,7 @@
     }
   },
   "login": {
-     "username": {
+    "username": {
       "label": "Username",
       "placeholder": "Type your username"
     },
@@ -63,7 +63,7 @@
     "back": "Back"
   },
   "product": {
-    "title":"Products",
+    "title": "Products",
     "description": "Manage your pharmaceutical products information",
     "gtin": "GTIN",
     "create": "Add Product",
@@ -93,7 +93,7 @@
     "documents": {
       "label": "Documents"
     },
-     "strengths": {
+    "strengths": {
       "label": "Strengths"
     },
     "markets": {
@@ -103,7 +103,7 @@
       "label": "Product Code",
       "placeholder": "Enter the product code"
     },
-   "inventedName": {
+    "inventedName": {
       "label": "Invented Name",
       "placeholder": "Enter the Invented Name"
     },
@@ -115,7 +115,7 @@
       "label": "Internal Material Code",
       "placeholder": "Enter the internal material code"
     },
-     "importLicenseNumber": {
+    "importLicenseNumber": {
       "label": "Import License Number",
       "placeholder": "Enter the import license number"
     },
@@ -139,12 +139,18 @@
     "create": "Add Batch",
     "update": "Update Batch",
     "description": "Manage batches information",
+    "datamatrix": {
+      "title": "2D Barcode",
+      "preview": "Preview 2D Barcode",
+      "view": "<a>View</a>",
+      "description": "Batch Data Matrix Code"
+    },
     "filter": {
       "label": "Filter by",
       "all": "All Products"
     },
     "leaflet": {
-        "empty": {
+      "empty": {
         "title": "No epi documents found",
         "button": "Add Batch"
       }
@@ -192,7 +198,7 @@
       "label": "Expiry Date",
       "placeholder": "Enter the expiry date"
     },
-     "packagingSiteName": {
+    "packagingSiteName": {
       "label": "Packaging Site Name",
       "placeholder": "Enter the packaging site name"
     },

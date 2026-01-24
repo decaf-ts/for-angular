@@ -44,11 +44,11 @@ import {
   removeFocusTrap,
   stringToBoolean,
 } from '../../utils/helpers';
-import { ComponentEventNames } from '../../engine/constants';
-import { ListItemCustomEvent } from '../../engine/interfaces';
+import { IListItemCustomEvent } from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { IconComponent } from '../icon/icon.component';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 
 /**
  * @description A component for displaying a list item with various customization options.
@@ -247,11 +247,11 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    * are performed on it. The emitted event contains information about the action,
    * the item data, and other relevant context for parent components to handle.
    *
-   * @type {EventEmitter<ListItemCustomEvent>}
+   * @type {EventEmitter<IListItemCustomEvent>}
    * @memberOf ListItemComponent
    */
   @Output()
-  clickEvent: EventEmitter<ListItemCustomEvent> = new EventEmitter<ListItemCustomEvent>();
+  clickEvent: EventEmitter<IListItemCustomEvent> = new EventEmitter<IListItemCustomEvent>();
 
   /**
    * @description Flag indicating whether slide items are currently enabled.
@@ -390,7 +390,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    *
    * @memberOf ListItemComponent
    */
-  async handleAction(action: CrudOperations, event: Event, target?: HTMLElement): Promise<void> {
+  async handleAction(event: Event, action: CrudOperations, target?: HTMLElement): Promise<void> {
     event.stopImmediatePropagation();
     if (this.actionMenuOpen) {
       await this.actionMenuComponent.dismiss();
@@ -405,7 +405,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
         data: this.uid,
         name: ComponentEventNames.Click,
         component: this.componentName,
-      } as ListItemCustomEvent;
+      } as IListItemCustomEvent;
       windowEventEmitter(`ListItem${ComponentEventNames.Click}`, event);
       return this.clickEvent.emit(event);
     }

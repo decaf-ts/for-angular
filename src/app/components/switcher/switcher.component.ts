@@ -1,17 +1,16 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Model } from '@decaf-ts/decorator-validation';
-import { IPagedComponentProperties } from '@decaf-ts/ui-decorators';
+import {
+  ComponentEventNames,
+  ElementPositions,
+  IPagedComponentProperties,
+} from '@decaf-ts/ui-decorators';
 import { IonButton } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
 import { ComponentRendererComponent } from 'src/lib/components/component-renderer/component-renderer.component';
-import {
-  ComponentEventNames,
-  ElementPosition,
-  ElementPositions,
-  NgxParentComponentDirective,
-} from 'src/lib/engine';
+import { ElementPosition, NgxParentComponentDirective } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 

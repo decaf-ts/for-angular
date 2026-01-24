@@ -25,13 +25,13 @@ import {
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
 import { Dynamic } from '../../engine/decorators';
-import { ActionRole, KeyValue, SelectOption } from '../../engine/types';
+import { KeyValue, SelectOption } from '../../engine/types';
 import { IBaseCustomEvent } from '../../engine/interfaces';
 import { ActionRoles, DefaultModalOptions, ListComponentsTypes } from '../../engine/constants';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { Model, Primitives } from '@decaf-ts/decorator-validation';
+import { Model } from '@decaf-ts/decorator-validation';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { IconComponent } from '../icon/icon.component';
 
@@ -275,9 +275,8 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    * @returns {Promise<void>} - A promise that resolves when initialization is complete.
    */
   override async ngOnInit(): Promise<void> {
-    if (this.inlineContent && typeof this.inlineContent === Primitives.STRING)
-      this.inlineContent = this.domSanitizer.bypassSecurityTrustHtml(this.inlineContent as string);
     await super.initialize();
+    this.parseInlineContent();
   }
 
   /**
@@ -305,6 +304,15 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
       this.iconColor = 'light';
   }
 
+  parseInlineContent(): void {
+    if (this.inlineContent) {
+      if (this.inlineContent instanceof HTMLElement) {
+        this.inlineContent = this.inlineContent.outerHTML;
+      }
+      this.inlineContent = this.domSanitizer.bypassSecurityTrustHtml(this.inlineContent as string);
+    }
+  }
+
   /**
    * @description Creates and presents the modal.
    * @summary Initializes the modal with the provided properties and displays it.
@@ -325,6 +333,7 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    * @returns {Promise<void>} - A promise that resolves when the modal is presented.
    */
   async present(): Promise<void> {
+    this.parseInlineContent();
     this.isOpen = true;
     this.changeDetectorRef.detectChanges();
   }
@@ -421,7 +430,6 @@ export class ModalConfirmComponent extends ModalComponent implements OnInit {
       });
       this.translatable = false;
     }
-    console.log(this.title);
     if (!this.message) {
       this.message = await this.translate(`${this.locale}.confirm.operations.${role}.message`, {
         '0': uid,
@@ -562,7 +570,7 @@ export async function getNgxInlineModal(
       props,
       ...{
         inlineContent: inlineContent ?? '<div></div>',
-        className: `${props?.className ?? ''} dcf-modal dcf-modal-expand`,
+        className: `${props?.className ?? ''} dcf-modal`,
       },
     },
     {},

@@ -1,4 +1,11 @@
-import { model, type ModelArg, Primitives, required, type } from '@decaf-ts/decorator-validation';
+import {
+  Model,
+  model,
+  type ModelArg,
+  Primitives,
+  required,
+  type,
+} from '@decaf-ts/decorator-validation';
 import { column, createdBy, index, OrderDirection, pk, table } from '@decaf-ts/core';
 import {
   BlockOperations,
@@ -7,19 +14,40 @@ import {
   readonly,
   serialize,
 } from '@decaf-ts/db-decorators';
-import { description, uses } from '@decaf-ts/decoration';
+import { description } from '@decaf-ts/decoration';
 import { FabricBaseModel } from './FabricBaseModel';
 import {
-  DecafComponent,
   uielement,
-  UIFunctionLike,
+  uihandlers,
   uilayout,
   uilistmodel,
-  uiprop,
+  uionclick,
   uitablecol,
 } from '@decaf-ts/ui-decorators';
-import { DecafComponentConstructor, NgxComponentDirective } from 'src/lib/engine';
+import { DecafComponentConstructor, NgxComponentDirective, NgxEventHandler } from 'src/lib/engine';
 import { AuditOperations, TableNames, UserGroup } from './constants';
+import { getNgxModalComponent, presentNgxInlineModal } from 'src/lib/components';
+import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
+import { AuditHandler } from './handlers/AuditHandler';
+
+// async function showDiffModal(instance: NgxEventHandler, event: CustomEvent, uid: string) {
+//   const item = (instance._data as Audit[]).find((item) => item[Model.pk(Audit)] === uid) || {};
+//   const diffs = (item as Audit)?.diffs || undefined;
+//   if (diffs) {
+//     const container = document.createElement('div');
+//     let content = JSON.parse(diffs as unknown as string);
+//     while (typeof content === Primitives.STRING) {
+//       content = JSON.parse(content);
+//     }
+//     container.innerHTML = `<pre>${JSON.stringify(content, null, 2)}</pre>`;
+
+//     await presentNgxInlineModal(container, {
+//       title: 'audit.diffs.preview',
+//       // uid: 'leaflet-service-parsed-content',
+//       headerTransparent: true,
+//     });
+//   }
+// }
 
 @description('Logs user activity for auditing purposes.')
 @BlockOperations([OperationKeys.CREATE, OperationKeys.UPDATE, OperationKeys.DELETE])
@@ -37,7 +65,7 @@ export class Audit extends FabricBaseModel {
   @createdBy()
   @index([OrderDirection.ASC, OrderDirection.DSC])
   @description('Identifier of the user who performed the action.')
-  @uielement('', { label: 'audit.userId' })
+  @uielement({ label: 'audit.userId' })
   @uitablecol(0)
   userId!: string;
 
@@ -47,7 +75,7 @@ export class Audit extends FabricBaseModel {
   @index([OrderDirection.ASC, OrderDirection.DSC])
   @type(String)
   @description('Group or role of the user who performed the action.')
-  @uielement('', { label: 'audit.userGroup' })
+  @uielement({ label: 'audit.userGroup' })
   @uitablecol(1)
   userGroup!: UserGroup;
 
@@ -55,7 +83,15 @@ export class Audit extends FabricBaseModel {
   @required()
   @readonly()
   @description('the transaction the audit record was created in')
-  @uielement('', { label: 'audit.transaction' })
+  @uielement({ label: 'audit.transaction' })
+  @uitablecol(1)
+  table!: string;
+
+  @column()
+  @required()
+  @readonly()
+  @description('the transaction the audit record was created in')
+  @uielement({ label: 'audit.transaction' })
   @uitablecol(2)
   transaction!: string;
 
@@ -65,7 +101,7 @@ export class Audit extends FabricBaseModel {
   @type(String)
   @index([OrderDirection.ASC, OrderDirection.DSC])
   @description('Type of action performed by the user.')
-  @uielement('', { label: 'audit.action' })
+  @uielement({ label: 'audit.action' })
   @uitablecol(3)
   action!: AuditOperations;
 
@@ -73,17 +109,12 @@ export class Audit extends FabricBaseModel {
   @readonly()
   @serialize()
   @description('the diffs for the action.')
-  @uielement('', { label: 'audit.diffs' })
-  @uitablecol(
-    4,
-    async (
-      value: string | object,
-      instance: DecafComponentConstructor & { translate: UIFunctionLike },
-    ) => {
-      if (typeof value === 'object') value = JSON.stringify(value);
-      return value.length ? await instance.translate('audit.view_diffs') : '';
-    },
-  )
+  @uielement({ label: 'audit.diffs' })
+  @uitablecol(4, async (instance: DecafComponentConstructor, value: string) => {
+    const phrase = await instance.translate('audit.view_diffs');
+    return (value as string).length ? await instance.translate('audit.view_diffs') : '';
+  })
+  @uionclick(() => AuditHandler)
   diffs?: Record<string, any>;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor

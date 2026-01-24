@@ -37,6 +37,7 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { audit } from './utils';
 import { FileUploadComponent } from 'src/lib/components';
 import { ProductImageHandler } from './handlers/ProductImageHandler';
+import { ProductHandler } from './handlers/ProductHandler';
 
 // @BlockOperations([OperationKeys.DELETE])
 //@uses(FabricFlavour)
@@ -48,7 +49,7 @@ export class Product extends Cacheable {
   //@gtin()
   // //@cache()
   // @assignProductOwner()
-  //@audit()
+  @audit()
   @pk({ type: String, generated: false })
   @uilistprop('title')
   @uielement('ngx-decaf-crud-field', {
@@ -59,14 +60,7 @@ export class Product extends Cacheable {
     // },
   })
   @uilayoutprop(1)
-  @uionrender(
-    () =>
-      class _ extends NgxEventHandler {
-        override async render(): Promise<void> {
-          this.readonly = this.operation !== OperationKeys.CREATE;
-        }
-      },
-  )
+  @uionrender(() => ProductHandler)
   productCode!: string;
 
   //@cache()

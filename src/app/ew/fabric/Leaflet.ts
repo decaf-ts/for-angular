@@ -1,5 +1,5 @@
 import { Comparison, Model, type ModelArg } from '@decaf-ts/decorator-validation';
-import { model, pattern, required } from '@decaf-ts/decorator-validation';
+import { model, required } from '@decaf-ts/decorator-validation';
 import { LeafletFile } from './LeafletFile';
 // import { gtin } from "@pharmaledgerassoc/ptp-toolkit/shared";
 // import { BatchPattern, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
@@ -22,20 +22,19 @@ import {
   HTML5InputTypes,
   uielement,
   uihandlers,
-  uilayout,
   uilistmodel,
-  uilistprop,
   uimodel,
   uionrender,
-  uiprop,
   uitablecol,
+  ComponentEventNames,
+  ElementPositions,
+  ElementSizes,
 } from '@decaf-ts/ui-decorators';
 import { Product } from './Product';
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from 'src/app/ew/utils/helpers';
-import { ComponentEventNames, ElementPositions, ElementSizes } from 'src/lib/engine';
 import { Batch } from './Batch';
 import { TableNames } from './constants';
-import { LeafletHandler } from '../handlers/LeafletHandler';
+import { LeafletHandler } from './handlers/LeafletHandler';
 import { audit } from './utils';
 
 export enum LeafletType {
@@ -52,11 +51,13 @@ export enum LeafletType {
 @table(TableNames.Leaflet)
 @uilistmodel('ngx-decaf-list-item', { icon: 'ti-file-barcode' })
 @uimodel('ngx-decaf-crud-form', { empty: { showButton: false } })
-@uihandlers({ [ComponentEventNames.Submit]: LeafletHandler })
+@uihandlers({
+  [ComponentEventNames.Submit]: LeafletHandler,
+})
 @model()
 export class Leaflet extends Cacheable {
   @pk()
-  //@audit()
+  @audit()
   @composed(['productCode', 'batchNumber', 'leafletType', 'lang', 'epiMarket'], ':', [
     'batchNumber',
     'epiMarket',
@@ -81,40 +82,38 @@ export class Leaflet extends Cacheable {
     }),
     translatable: false,
   })
-  @uionrender(
-    () =>
-      class _ extends DecafEventHandler {
-        override async render(): Promise<void> {
-          const instance = this as unknown as {
-            headers: string[];
-            operation: OperationKeys[];
-          };
-          if (instance.headers)
-            instance.headers = instance.headers.map((header) =>
-              header === 'productCode' ? 'documentCol' : header,
-            );
-        }
-      },
-  )
-  @uitablecol(
-    0,
-    async (value: string, instance: DecafComponent<Model> & { model: Product; type: string }) => {
-      if (!instance.operation) {
-        let model = instance.model;
-        if (!model?.inventedName) {
-          const constructor = Model.get('Product');
-          if (constructor) {
-            const repository = Repository.forModel(constructor);
-            model = (await repository.read(model.productCode)) as Product;
-          }
-        }
-        return `${model.inventedName || ''} ${value}`;
-      } else {
-        if (['paginated', 'infinite'].includes(instance.type)) value = 'title'; // fallback mapper to list item position
-      }
-      return value;
-    },
-  )
+  // @uionrender(
+  //   () =>
+  //     class _ extends DecafEventHandler {
+  //       override async render(): Promise<void> {
+  //         const instance = this as unknown as {
+  //           headers: string[];
+  //           operation: OperationKeys[];
+  //         };
+  //         if (instance.headers)
+  //           instance.headers = instance.headers.map((header) =>
+  //             header === 'productCode' ? 'documentCol' : header,
+  //           );
+  //       }
+  //     },
+  // )
+  @uitablecol(0)
+  // @uitablecol(0, async (instance: DecafComponent<Product> & { type: string }, value: string) => {
+  //   if (!instance.operation) {
+  //     let model = instance.model as Product;
+  //     if (!model?.inventedName) {
+  //       const constructor = Model.get('Product');
+  //       if (constructor) {
+  //         const repository = Repository.forModel(constructor);
+  //         model = (await repository.read(model.productCode)) as Product;
+  //       }
+  //     }
+  //     return `${model.inventedName || ''} ${value}`;
+  //   } else {
+  //     if (['paginated', 'infinite'].includes(instance.type)) value = 'title'; // fallback mapper to list item position
+  //   }
+  //   return value;
+  // })
   productCode!: string;
 
   //@cache()
@@ -149,7 +148,7 @@ export class Leaflet extends Cacheable {
         }
       },
   )
-  @uitablecol(1, async (value: string, instance: DecafComponent<Model> & { type: string }) => {
+  @uitablecol(1, async (instance: DecafComponent<Model> & { type: string }, value: string) => {
     if (instance.operation && ['paginated', 'infinite'].includes(instance.type)) value = 'subinfo'; // fallback mapper to list item position
     return value;
   })
@@ -168,8 +167,10 @@ export class Leaflet extends Cacheable {
     startEmpty: false,
     options: getDocumentTypes(),
   })
-  @uitablecol(2, async (value: string, instance: DecafComponent<Model> & { type: string }) => {
-    if (instance.operation && ['paginated', 'infinite'].includes(instance.type)) value = 'info'; // fallback mapper to list item position
+  @uitablecol(2, async (instance: DecafComponent<Model> & { type: string }, value: string) => {
+    if (instance.operation && ['paginated', 'infinite'].includes(instance.type)) {
+      value = 'info'; // fallback mapper to list item position
+    }
     return value;
   })
   leafletType: LeafletType = LeafletType.leaflet;
@@ -190,9 +191,11 @@ export class Leaflet extends Cacheable {
     startEmpty: false,
     translatable: false,
   })
-  @uitablecol(3, async (v: string, instance: DecafComponent<Model> & { type: string }) => {
+  @uitablecol(3, async (instance: DecafComponent<Model> & { type: string }, v: string) => {
     if (instance.operation && ['paginated', 'infinite'].includes(instance.type)) return 'subinfo';
-    if (!instance.operation) return getLeafletLanguages().find(({ value }) => value === v)?.text;
+    if (!instance.operation) {
+      return getLeafletLanguages().find(({ value }) => value === v)?.text;
+    }
     return v;
   })
   lang!: string; // TODO -> rollback to language property
@@ -209,8 +212,10 @@ export class Leaflet extends Cacheable {
     type: HTML5InputTypes.SELECT,
     options: getMarkets(),
   })
-  @uitablecol(4, async (v: string, instance: DecafComponent<Model>) => {
-    if (!instance.operation) return getMarkets().find(({ value }) => value === v)?.text;
+  @uitablecol(4, async (instance: DecafComponent<Model>, v: string) => {
+    if (!instance.operation) {
+      return getMarkets().find(({ value }) => value === v)?.text;
+    }
     return v;
   })
   epiMarket!: string; // TODO -> Create validation decorator. CountryMarket is a CONDITIONAL property. can only exist for product only. no batch

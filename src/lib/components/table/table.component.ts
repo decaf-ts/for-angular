@@ -1,10 +1,11 @@
-import { Component, EnvironmentInjector, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IonSelect, IonSelectOption } from '@ionic/angular/standalone';
-import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { Model } from '@decaf-ts/decorator-validation';
 import { OrderDirection } from '@decaf-ts/core';
+import { Model } from '@decaf-ts/decorator-validation';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { ComponentEventNames, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { IconComponent } from '../icon/icon.component';
 import { PaginationComponent } from '../pagination/pagination.component';
@@ -15,16 +16,13 @@ import { NgxRouterService } from '../../services/NgxRouterService';
 import { FunctionLike, KeyValue, SelectOption } from '../../engine/types';
 import {
   ActionRoles,
-  ComponentEventNames,
   DefaultListEmptyOptions,
   ListComponentsTypes,
   SelectFieldInterfaces,
 } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
-import { UIKeys } from '@decaf-ts/ui-decorators';
 import { getModelAndRepository } from '../../engine/helpers';
-import { th } from '@faker-js/faker/.';
 import { debounceTime, shareReplay, takeUntil } from 'rxjs';
 
 @Dynamic()
@@ -88,26 +86,22 @@ export class TableComponent extends ListComponent implements OnInit {
   }
 
   override async ngOnInit(): Promise<void> {
-    this.initialized = false;
+    // this.parseProps(this);
+
+    await super.initialize();
+
     this.type = ListComponentsTypes.PAGINATED;
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
-    if (!this.initialized) {
-      this.parseProps(this);
-    }
     this.repositoryObserverSubject
       .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
       .subscribe(([modelInstance, event, uid]) =>
         this.handleObserveEvent(modelInstance, event, uid),
       );
     this.cols = this._cols as string[];
-    if (this.allowOperations)
-      this.allowOperations =
-        this.isAllowed(OperationKeys.UPDATE) || this.isAllowed(OperationKeys.DELETE);
+
+    this.getOperations();
     this.searchValue = undefined;
-    if (this.operations) {
-      this.cols.push('actions');
-    }
-    this.headers = this._headers;
+
     const filter = this.routerService.getQueryParamValue('filter') as string;
     if (filter) {
       const value = this.routerService.getQueryParamValue('value') as string;
@@ -128,8 +122,20 @@ export class TableComponent extends ListComponent implements OnInit {
     if (this.filterModel) {
       await this.getFilterOptions();
     }
-    await super.initialize();
     await this.refresh();
+  }
+
+  getOperations() {
+    if (this.allowOperations) {
+      this.allowOperations =
+        this.isAllowed(OperationKeys.UPDATE) || this.isAllowed(OperationKeys.DELETE);
+    } else {
+      this.operations = [];
+    }
+    if (this.operations?.length) {
+      this.cols.push('actions');
+    }
+    this.headers = this._headers;
   }
 
   protected async getFilterOptions(): Promise<void> {
@@ -150,69 +156,106 @@ export class TableComponent extends ListComponent implements OnInit {
     }
   }
 
-  protected override itemMapper(item: KeyValue, mapper: KeyValue, props: KeyValue = {}): KeyValue {
+  protected override async itemMapper(
+    item: KeyValue,
+    mapper: KeyValue,
+    props: KeyValue = {},
+  ): Promise<KeyValue> {
     this.model = item as Model;
-    const mapped = super.itemMapper(
+    const mapped = await super.itemMapper(
       item,
       this.cols.filter((c) => c !== 'actions'),
       props,
     );
     const { children } = (this.props as KeyValue) || [];
-    return Object.keys(mapped).reduce(
-      (accum: KeyValue, curr: string, index: number) => {
-        const child = (children as KeyValue[])?.[index];
-        if (child) {
-          const { events } = child?.['props'] || {};
-          if (events) {
-            const { render } = events || undefined;
-            if (render) {
-              const clazz = new (events.render())();
-              const renderFn = clazz.render.bind(this);
-              if (renderFn instanceof Promise) {
-                (async () => await renderFn)();
-              } else {
-                renderFn();
+    const entries = Object.entries(mapped);
+
+    const resultEntries = await Promise.all(
+      entries.map(async ([curr, value], index) => {
+        try {
+          const child = children[index];
+          if (child) {
+            const { events, name } = child?.['props'] || {};
+            if (events) {
+              const sequence =
+                (mapper[name]?.sequence || index) + (!this.cols.includes('actions') ? 1 : 0);
+              const evts = this.parseEvents(events, this);
+              for (const [key, evt] of Object.entries(evts)) {
+                const handler = evt;
+                if (key === ComponentEventNames.Render) {
+                  if (handler?.name === ComponentEventNames.Render) {
+                    value = await handler.bind(this)(this, name, value);
+                  } else {
+                    const handlerFn = await handler(this, name, value);
+                    value =
+                      typeof handlerFn === 'function' || handlerFn instanceof Promise
+                        ? await handlerFn.bind(this)(this, name, value)
+                        : handlerFn;
+                  }
+                }
+                if (key === 'handleClick' || key === 'handleAction') {
+                  props = {
+                    ...props,
+                    handler: {
+                      col: String(sequence),
+                      handle: handler.bind(this),
+                    },
+                  };
+                }
               }
             }
           }
+        } catch (error) {
+          this.log
+            .for(this.itemMapper)
+            .error(`Error mapping child events. ${(error as Error)?.message || error}`);
         }
-        const parserFn = mapper[this.cols[index]]?.valueParserFn || undefined;
-        return {
-          ...accum,
-          [curr]: parserFn ? parserFn(mapped[curr], this) : mapped[curr],
-        };
-      },
-      { ...props },
+
+        const propName = this.cols[index];
+        const parserFn = mapper[propName]?.valueParserFn || undefined;
+        const resolvedValue = parserFn ? await parserFn(this, propName, value) : value;
+        return [curr, resolvedValue];
+      }),
     );
+
+    return resultEntries.reduce((accum, [key, value]) => ({ ...accum, [key]: value }), {
+      ...props,
+    });
   }
 
   override async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
+    this._data = [...data];
     if (!data || !data.length) return [];
-    return data.reduce(
-      (accum: KeyValue[], curr) => [
-        ...accum,
-        this.itemMapper(curr, this.mapper, { uid: curr[this.pk] }),
-      ],
-      [],
+
+    return await Promise.all(
+      data.map((curr) => this.itemMapper(curr, this.mapper, { uid: curr[this.pk] })),
     );
   }
 
   async handleAction(
-    event: Event,
-    action: CrudOperations,
+    event: IBaseCustomEvent,
+    handler: UIFunctionLike | undefined,
     uid: string,
-    redirect?: boolean,
+    action: CrudOperations,
   ): Promise<void> {
-    if (action === OperationKeys.READ && !this.isAllowed(OperationKeys.UPDATE)) {
-      redirect = false;
+    if (handler) {
+      const handlerFn = await handler(this, event, uid);
+      return typeof handlerFn === 'function' ? handlerFn() : handlerFn;
     }
-    if (redirect) {
+    await this.handleRedirect(event, uid, action);
+  }
+  async handleRedirect(
+    event: Event | IBaseCustomEvent,
+    uid: string,
+    action: CrudOperations,
+  ): Promise<void> {
+    if (event instanceof Event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+    if (this.operations.includes(action)) {
       await this.router.navigate([`/${this.route}/${action}/${uid}`]);
     }
-    event.stopImmediatePropagation();
-
-    const data = this.items.find((item) => item['uid'] === uid);
-    if (data) this.listenEvent.emit({ name: ComponentEventNames.Click, data });
   }
 
   async openFilterSelectOptions(event: Event): Promise<void> {

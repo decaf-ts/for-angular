@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @module module:lib/engine/NgxEventHandler
  * @description Event handler base class used by Decaf components.
@@ -6,28 +7,21 @@
  *
  * @link {@link NgxEventHandler}
  */
-import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, EnvironmentInjector, Renderer2 } from '@angular/core';
 import { Model } from '@decaf-ts/decorator-validation';
-import { CrudOperationKeys, DecafEventHandler } from '@decaf-ts/ui-decorators';
-import { FunctionLike, KeyValue } from './types';
+import { DecafEventHandler } from '@decaf-ts/ui-decorators';
+import { KeyValue } from './types';
 import { ICrudFormEvent } from './interfaces';
 import { NgxComponentDirective } from './NgxComponentDirective';
 
 export abstract class NgxEventHandler extends DecafEventHandler {
+  _data: Model | KeyValue | KeyValue[] | null = null;
   //TODO: pass to ui decorator decaf componnet
-  changeDetectorRef!: ChangeDetectorRef;
+  override changeDetectorRef!: ChangeDetectorRef;
 
-  //TODO: pass to ui decorator decaf componnet
-  readonly?: boolean = false;
+  renderer!: Renderer2;
 
-  //TODO: pass to ui decorator decaf componnet
-  hidden?: boolean | CrudOperationKeys[];
-
-  //TODO: pass to ui decorator decaf componnet
-  label?: string;
-
-  //TODO: pass to ui decorator decaf componnet
-  filterBy?: string;
+  injector!: EnvironmentInjector;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor() {
@@ -44,6 +38,7 @@ export abstract class NgxEventHandler extends DecafEventHandler {
   }
 
   from(...args: unknown[]): NgxEventHandler {
+    this.log.for(this.process).info(`Process called with args: ${args}`);
     return this as NgxEventHandler;
   }
 

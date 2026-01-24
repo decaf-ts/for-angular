@@ -8,17 +8,12 @@
  * @link {@link ModelRendererComponent}
  */
 
-import { Component, Input, SimpleChanges } from "@angular/core";
-import { Model, ModelKeys, sf } from "@decaf-ts/decorator-validation";
-import { AngularEngineKeys, BaseComponentProps } from "../../engine/constants";
-import { AngularDynamicOutput } from "../../engine/interfaces";
-import {
-  Renderable,
-  CrudOperationKeys,
-  UIFunctionLike,
-  UIKeys,
-} from "@decaf-ts/ui-decorators";
-import { NgxRenderableComponentDirective } from "../../engine/NgxRenderableComponentDirective";
+import { Component, Input } from '@angular/core';
+import { Model, Primitives, sf } from '@decaf-ts/decorator-validation';
+import { AngularEngineKeys } from '../../engine/constants';
+import { AngularDynamicOutput } from '../../engine/interfaces';
+import { Renderable, CrudOperationKeys } from '@decaf-ts/ui-decorators';
+import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableComponentDirective';
 
 /**
  * @description Component for rendering dynamic models
@@ -51,14 +46,12 @@ import { NgxRenderableComponentDirective } from "../../engine/NgxRenderableCompo
 @Component({
   standalone: true,
   imports: [],
-  selector: "ngx-decaf-model-renderer",
-  templateUrl: "./model-renderer.component.html",
-  styleUrl: "./model-renderer.component.scss",
-  host: { "[attr.id]": "uid" },
+  selector: 'ngx-decaf-model-renderer',
+  templateUrl: './model-renderer.component.html',
+  styleUrl: './model-renderer.component.scss',
+  host: { '[attr.id]': 'uid' },
 })
-export class ModelRendererComponent<
-  M extends Model,
-> extends NgxRenderableComponentDirective {
+export class ModelRendererComponent<M extends Model> extends NgxRenderableComponentDirective {
   /**
    * @description Set if render content projection is allowed
    * @default true
@@ -75,7 +68,7 @@ export class ModelRendererComponent<
    * @param {string | M} model - The model to be rendered
    */
   override async render(model: string | M): Promise<void> {
-    model = typeof model === "string" ? (Model.build({}, model) as M) : model;
+    model = typeof model === Primitives.STRING ? (Model.build({}, String(model)) as M) : model;
 
     if (model) {
       this.output = (model as Renderable).render<AngularDynamicOutput>(
@@ -83,20 +76,20 @@ export class ModelRendererComponent<
         this.vcr,
         this.injector,
         this.inner,
-        this.projectable
+        this.projectable,
       );
       if (this.output?.inputs)
         this.rendererId = sf(
           AngularEngineKeys.RENDERED_ID,
-          (this.output.inputs as Record<string, unknown>)[
-            "rendererId"
-          ] as string
+          (this.output.inputs as Record<string, unknown>)['rendererId'] as string,
         );
       this.instance = this.output?.component;
-      const { operation, handlers } = this.globals || {};
+      const { operation } = this.globals || {};
       // const {inputs} = this.output;
       // await this.initProps(inputs || {});
-      if (operation) this.operation = operation as CrudOperationKeys;
+      if (operation) {
+        this.operation = operation as CrudOperationKeys;
+      }
       this.subscribeEvents();
     }
   }

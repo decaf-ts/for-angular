@@ -1,0 +1,12 @@
+::ng-deep {
+  #dcf-datamatrix-modal {
+    --width: 350px !important;
+    --height: 400px !important;
+    .dcf-modal-body {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}

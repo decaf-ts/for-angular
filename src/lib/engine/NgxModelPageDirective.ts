@@ -9,14 +9,13 @@ import {
 } from '@decaf-ts/db-decorators';
 import { Condition, EventIds, Repository } from '@decaf-ts/core';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { NgxPageDirective } from './NgxPageDirective';
-import { ComponentEventNames, TransactionHooks } from './constants';
 import {
   IBaseCustomEvent,
   ICrudFormEvent,
   ILayoutModelContext,
   IModelComponentSubmitEvent,
-  IRepositoryModelProps,
 } from './interfaces';
 import { DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
@@ -24,18 +23,6 @@ import { getModelAndRepository } from './helpers';
 
 @Directive()
 export abstract class NgxModelPageDirective extends NgxPageDirective implements AfterViewInit {
-  /**
-   * @description Primary key value of the current model instance.
-   * @summary Specifies the primary key value for the current model record being displayed or
-   * manipulated by the component. This identifier is used for CRUD operations that target
-   * specific records, such as read, update, and delete operations. The value corresponds to
-   * the field designated as the primary key in the model definition.
-   * @type {EventIds}
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  @Input()
-  override modelId!: EventIds;
-
   /**
    * @description The CRUD operation type to be performed on the model.
    * @summary Specifies which operation (Create, Read, Update, Delete) this component instance
@@ -104,10 +91,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
   override async initialize(): Promise<void> {
     await super.initialize();
     await this.refresh(this.modelId);
-    if (!this.modelId && this.operations?.length)
-      this.operations = this.operations.filter((o) =>
-        [OperationKeys.UPDATE, OperationKeys.DELETE].includes(o),
-      );
+    this.changeDetectorRef.detectChanges();
     this.getLocale(this.modelName as string);
   }
 
@@ -131,7 +115,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
    * @param {string} [uid] - The unique identifier of the model to load; defaults to modelId
    */
   override async refresh(uid?: EventIds): Promise<void> {
-    if (!uid) uid = this.modelId;
+    if (!uid) {
+      uid = this.modelId;
+    }
     try {
       this._repository = this.repository;
       switch (this.operation) {
@@ -308,7 +294,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     uid?: EventIds,
     repository?: IRepository<M>,
     modelName?: string,
-    pk?: string,
   ): Promise<Model | undefined> {
     if (!uid) {
       this.log.info('No key passed to model page read operation, backing to last page');
@@ -322,7 +307,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     }
     const getRepository = async (
       modelName: string,
-      model: KeyValue = {},
+      acc: KeyValue = {},
       parent: string = '',
     ): Promise<DecafRepository<Model> | void> => {
       if (this._repository) return this._repository as DecafRepository<Model>;
@@ -333,10 +318,10 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
           const type = this.getModelPropertyType(constructor as Constructor<Model>, prop);
           const context = getModelAndRepository(type as string);
           if (!context) {
-            model[prop] = {};
-            return getRepository(type, model, prop);
+            acc[prop] = {};
+            return getRepository(type, acc, prop);
           }
-          const { repository, pk, pkType } = context;
+          const { repository, model, pk, pkType } = context;
           if (!this.pk) {
             this.pk = pk;
             this.pkType = pkType;
@@ -349,8 +334,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
             .execute();
           if (modelName === this.modelName) {
             const data = query?.length ? (query?.length === 1 ? query[0] : query) : undefined;
-            model[prop] = data;
-            this.model = Model.build({ [prop]: data }, modelName);
+            acc[prop] = data;
+            const model = await this.transactionEnd(data as Model, repository, OperationKeys.READ);
+            this.model = Model.build({ [prop]: model ? model : data }, modelName);
           } else {
             // model[parent] = {
             //   ...model[parent],
@@ -416,7 +402,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
                   pkType: pkType,
                   data,
                 };
-                if (!this.modelId) this.modelId = (data as KeyValue)[pk] as EventIds;
+                if (!this.modelId) this.modelId = (data as KeyValue)[pk];
               } else {
                 Object.assign(result.context.data, {
                   [prop]: Array.isArray(data) ? this.buildTransactionModel(data, repository) : data,
@@ -493,8 +479,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
           case OperationKeys.UPDATE: {
             const models = (!Array.isArray(model) ? [model] : model) as M[];
             for (const m of models) {
-              const uid = m[pk as keyof M] as PrimaryKeyType;
-              const check = uid ? await repository.read(uid) : false;
+              const uid = m[pk as keyof M];
+              const check = uid ? await repository.read(uid as PrimaryKeyType) : false;
               result = await (!check ? repository.create(m as M) : repository.update(m as M));
             }
             break;
@@ -502,7 +488,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
           case OperationKeys.DELETE:
             result = await (!Array.isArray(model)
               ? repository.delete(model as PrimaryKeyType)
-              : repository.deleteAll(model as PrimaryKeyType[]));
+              : repository.deleteAll(model as []));
             break;
         }
 
@@ -513,8 +499,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
         });
         success = result ? true : false;
         if (success) {
-          if ((result as KeyValue)?.[this.pk])
-            this.modelId = (result as KeyValue)[this.pk] as EventIds;
+          if ((result as KeyValue)?.[this.pk]) this.modelId = (result as KeyValue)[this.pk];
           if (redirect) this.location.back();
         }
       }
@@ -532,8 +517,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
   }
 
   async batchOperation(context: ILayoutModelContext, redirect: boolean = false): Promise<any> {
-    const { data, repository, pk } = context.context;
-    return data;
+    // const { data, repository, pk } = context.context;
+    // return data;
     // return await this.submit({data}, false, repository, pk);
     // const result: boolean[] = [];
     // let resultMessage = '';

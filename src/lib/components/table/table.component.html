@@ -56,20 +56,30 @@
       </thead>
       <tbody>
         @for (item of items; track trackItemFn($index, item)) {
-          <tr (click)="handleAction($event, OperationKeys.READ, item.uid, true)">
+          <tr>
             @for (col of item | keyvalue; track $index) {
-              @if (!['actions', 'uid'].includes(col.key)) {
+              @if (!['handler', 'actions', 'uid'].includes(col.key)) {
                 <td
-                  [innerHTML]="typeof col.value === 'string' ? col.value : (col.value | async)"
+                  (click)="
+                    handleAction(
+                      $event,
+                      item?.handler && item?.handler.col === col.key
+                        ? item.handler.handle
+                        : undefined,
+                      item.uid,
+                      OperationKeys.READ
+                    )
+                  "
+                  [innerHTML]="col.value"
                 ></td>
               } @else {
-                @if (allowOperations) {
+                @if (allowOperations && col.key !== 'handler') {
                   <td class="dcf-col-actions">
-                    <div class="dcf-flex dcf-flex-center">
+                    <div class="">
                       @if (operations?.includes(OperationKeys.UPDATE)) {
                         <ngx-decaf-icon
                           [button]="true"
-                          (click)="handleAction($event, OperationKeys.UPDATE, item.uid, true)"
+                          (click)="handleRedirect($event, item.uid, OperationKeys.UPDATE, true)"
                           fill="clear"
                           slot="icon-only"
                           color="primary"
@@ -79,7 +89,7 @@
                       @if (operations?.includes(OperationKeys.DELETE)) {
                         <ngx-decaf-icon
                           [button]="true"
-                          (click)="handleAction($event, OperationKeys.DELETE, item.uid, true)"
+                          (click)="handleRedirect($event, item.uid, OperationKeys.DELETE, true)"
                           fill="clear"
                           slot="icon-only"
                           color="danger"

@@ -5,23 +5,27 @@ import {
   PrimaryKeyType,
 } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import {
   NgxEventHandler,
   ICrudFormEvent,
   KeyValue,
   DecafRepository,
-  ComponentEventNames,
   FormParent,
   IRepositoryModelProps,
   ActionRoles,
+  NgxComponentDirective,
 } from 'src/lib/engine';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { getNgxModalComponent } from 'src/lib/components/modal/modal.component';
-import { ProductImage } from '../fabric/ProductImage';
-import { Product } from '../fabric';
+import { ProductImage } from '../ProductImage';
+import { Batch, Product } from '..';
+import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.component';
 
 export class ProductHandler<M extends Model> extends NgxEventHandler {
   formGroup!: FormParent;
+
+  static pk: string;
 
   // static deleteEvents: > = {};
 
@@ -30,43 +34,18 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     | undefined;
 
   static readonly modelId: string;
-
-  static store(operation: CrudOperations, repository: DecafRepository<Model>, model: Model): void {
-    const data = ProductHandler.data || {};
-    if (!(operation in data)) {
-      data[operation] = {};
+  override async render(instance: any, prop: string): Promise<string | void> {
+    if (instance.pk) {
+      ProductHandler.pk = instance.pk;
     }
-    if (!(repository.class.name in data[operation])) {
-      data[operation][repository.class.name] = { repository, data: [] };
+    if (prop) {
+      if (prop === ProductHandler.pk && instance.operation !== OperationKeys.CREATE) {
+        instance.readonly = true;
+        // instance.hidden = true;
+        // instance.component.nativeElement.style.display = 'none';
+      }
     }
-    data[operation][repository.class.name].data?.push(model);
-    ProductHandler.data = data;
   }
-
-  static getStored(operation: CrudOperations) {
-    return ProductHandler.data?.[operation] || {};
-  }
-
-  static getProductImage<M extends Model>(data: M, repository: DecafRepository<M>): M {
-    if (repository.class.name === Product.name) {
-      const model = data as Product & M;
-      if (!model.imageData) return data as M;
-      model.imageData = Model.build(
-        {
-          productCode: model['productCode'],
-          content: model['imageData'],
-        },
-        ProductImage.name,
-      ) as ProductImage;
-      return model;
-    }
-    return data;
-  }
-
-  static endTransaction(): void {
-    ProductHandler.data = undefined;
-  }
-
   override async handle(event: ICrudFormEvent): Promise<void> {
     const { name, role } = event;
     const allowSubmit = true;
@@ -74,10 +53,10 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     let submited = false;
     const redirect = true;
 
-    if (name === ComponentEventNames.FormGroupLoaded) {
-      this.formGroup = event.data as FormParent;
-      return;
-    }
+    // if (name === ComponentEventNames.FormGroupLoaded) {
+    //   this.formGroup = event.data as FormParent;
+    //   return;
+    // }
 
     if (role === OperationKeys.DELETE) {
       const { context, data } = event;
@@ -119,8 +98,6 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
       const { success, aborted } = await this.submit(event, false);
       submited = !aborted;
       result = success;
-      console.log('========> strengths', strengths);
-      console.log('========> markets', markets);
 
       // if ('imageData' in data) {
       //   data['imageData'] = Model.build(
@@ -205,6 +182,42 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     }
   }
 
+  static store(operation: CrudOperations, repository: DecafRepository<Model>, model: Model): void {
+    const data = ProductHandler.data || {};
+    if (!(operation in data)) {
+      data[operation] = {};
+    }
+    if (!(repository.class.name in data[operation])) {
+      data[operation][repository.class.name] = { repository, data: [] };
+    }
+    data[operation][repository.class.name].data?.push(model);
+    ProductHandler.data = data;
+  }
+
+  static getStored(operation: CrudOperations) {
+    return ProductHandler.data?.[operation] || {};
+  }
+
+  static getProductImage<M extends Model>(data: M, repository: DecafRepository<M>): M {
+    if (repository.class.name === Product.name) {
+      const model = data as Product & M;
+      if (!model.imageData) return data as M;
+      model.imageData = Model.build(
+        {
+          productCode: model['productCode'],
+          content: model['imageData'],
+        },
+        ProductImage.name,
+      ) as ProductImage;
+      return model;
+    }
+    return data;
+  }
+
+  static endTransaction(): void {
+    ProductHandler.data = undefined;
+  }
+
   override async beforeCreate<M extends Model>(
     data: M,
     repository: DecafRepository<M>,
@@ -273,23 +286,23 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     const modelDiffs = data.compare(oldData, ...skip);
 
     // console.log(modelDiffs);
-    // for (const [key, value] of Object.entries(modelDiffs || {})) {
-    //   const { other, current } = Array.isArray(value) ? value[0] : value;
-    //   if (Array.isArray(other)) {
-    //     if (!other.length && current === undefined) continue;
-    //   } else {
-    //     if (Array.isArray(current)) {
-    //       if (current.length === Number(other)) continue;
-    //     }
-    //   }
-    //   if (Array.isArray(current) && Array.isArray(other) && other.length) {
-    //     filterDiffs[key] = { other: '', current: current.slice(other.length) };
-    //     continue;
-    //   }
-    //   filterDiffs[key] = value;
-    // }
-    // // console.log(filterDiffs);
-    // return Object.keys(filterDiffs as KeyValue).length ? filterDiffs : undefined;
+    for (const [key, value] of Object.entries(modelDiffs || {})) {
+      const { other, current } = Array.isArray(value) ? value[0] : value;
+      if (Array.isArray(other)) {
+        if (!other.length && current === undefined) continue;
+      } else {
+        if (Array.isArray(current)) {
+          if (current.length === Number(other)) continue;
+        }
+      }
+      if (Array.isArray(current) && Array.isArray(other) && other.length) {
+        filterDiffs[key] = { other: '', current: current.slice(other.length) };
+        continue;
+      }
+      filterDiffs[key] = value;
+    }
+    // console.log(filterDiffs);
+    return Object.keys(filterDiffs as KeyValue).length ? filterDiffs : undefined;
   }
 
   override async beforeUpdate<M extends Model>(
