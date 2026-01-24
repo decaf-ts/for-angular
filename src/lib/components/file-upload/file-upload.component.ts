@@ -12,12 +12,7 @@ import {
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { IonItem, IonLabel, IonList, IonButton, IonText } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import {
-  ComponentEventNames,
-  ElementSizes,
-  HTML5InputTypes,
-  UIFunctionLike,
-} from '@decaf-ts/ui-decorators';
+import { ComponentEventNames, ElementSizes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { Constructor } from '@decaf-ts/decoration';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { Dynamic } from '../../engine/decorators';

@@ -14,6 +14,8 @@ import { TableComponent } from 'src/lib/components/table/table.component';
 import { EpiTabs } from 'src/app/ew/utils/constants';
 import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.component';
 import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
+import { getModelAndRepository } from 'src/lib/engine';
+import { BatchForm } from 'src/app/ew/fabric/forms/BatchForm';
 
 @Component({
   selector: 'app-batches',
@@ -40,18 +42,24 @@ export class BatchesPage extends NgxModelPageDirective implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.model = !this.operation ? new Batch() : new BatchLayout();
+    this.model = !this.operation ? new BatchForm() : new BatchLayout();
     this.enableCrudOperations([OperationKeys.DELETE]);
     // keep init after model selection
     this.locale = 'batch';
     this.title = `${this.locale}.title`;
     this.route = 'batches';
     await this.initialize();
+
+    const repo = getModelAndRepository('Batch');
+    if (repo) {
+      const { repository } = repo;
+      const query = await repository.select().execute();
+    }
   }
 
   // override async ionViewWillEnter(): Promise<void> {
   //   await super.ionViewWillEnter();
-  // }ź
+  // }
 
   // override async handleEvent(event: ICrudFormEvent): Promise<void> {
   //   const handler = (new ProductHandler()).handle.bind(this);

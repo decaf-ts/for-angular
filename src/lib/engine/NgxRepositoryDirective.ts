@@ -6,15 +6,59 @@ import {
   OperationKeys,
   PrimaryKeyType,
 } from '@decaf-ts/db-decorators';
-import { AttributeOption, Condition, OrderDirection, Paginator } from '@decaf-ts/core';
+import { AttributeOption, Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
 import { DecafComponent } from '@decaf-ts/ui-decorators';
 import { DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { IFilterQuery } from './interfaces';
+import { Subject } from 'rxjs';
 
 @Directive()
 export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   private _context?: DecafRepository<M>;
+
+  /**
+   * @description Store query results for the component.
+   * @summary Holds an array of `Model` instances returned from repository queries.
+   * This is used internally to cache query results that child components may bind to.
+   * @type {M[]}
+   */
+  @Input()
+  _query: M[] = [];
+
+  /**
+   * @description Backing model data supplied to the component.
+   * @summary Holds the raw `Model` instance or a generic key-value payload that child
+   * components may bind to. When provided, it represents the contextual data the
+   * component should render or mutate.
+   * @type {M | M[] | KeyValue | KeyValue[] | undefined}
+   */
+  @Input()
+  _data?: M | M[] | KeyValue | KeyValue[] = {};
+
+  /**
+   * @description Data model or model name for component operations.
+   * @summary The data model that this component will use for CRUD operations. This can be provided
+   * as a Model instance, a model constructor, or a string representing the model's registered name.
+   * When set, this property provides the component with access to the model's schema, validation rules,
+   * and metadata needed for rendering and data operations.
+   * @type {Model | string | undefined}
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
+  @Input()
+  override model!: Model | string | undefined;
+
+  /**
+   * @description Primary key value of the current model instance.
+   * @summary Specifies the primary key value for the current model record being displayed or
+   * manipulated by the component. This identifier is used for CRUD operations that target
+   * specific records, such as read, update, and delete operations. The value corresponds to
+   * the field designated as the primary key in the model definition.
+   * @type {PrimaryKeyType}
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
+  @Input()
+  override modelId: PrimaryKeyType = '';
 
   /**
    * @description The name of the model class to operate on.
@@ -130,14 +174,27 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   indexes: string[] = [];
 
   /**
-   * @description Backing model data supplied to the component.
-   * @summary Holds the raw `Model` instance or a generic key-value payload that child
-   * components may bind to. When provided, it represents the contextual data the
-   * component should render or mutate.
-   * @type {M | M[] | KeyValue | KeyValue[] | undefined}
+   * @description Subject for debouncing repository observation events.
+   * @summary RxJS Subject that collects repository change events and emits them after
+   * a debounce period. This prevents multiple rapid repository changes from triggering
+   * multiple list refresh operations, improving performance and user experience.
+   *
+   * @private
+   * @type {Subject<any>}
    */
-  @Input()
-  protected _data?: M | M[] | KeyValue | KeyValue[] = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected repositoryObserverSubject: Subject<any> = new Subject<any>();
+
+  /**
+   * @description Observer object for repository change notifications.
+   * @summary Implements the Observer interface to receive notifications when the
+   * underlying data repository changes. This enables automatic list updates when
+   * data is created, updated, or deleted through the repository.
+   *
+   * @private
+   * @type {Observer}
+   */
+  protected repositoryObserver!: Observer;
 
   override async initialize(): Promise<void> {
     if (this.repository) {
@@ -174,7 +231,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   }
 
   override async refresh(model?: unknown): Promise<void> {
-    if (model) {
+    if (model && Model.isModel(model)) {
       this.model = Model.build(model as M, this.modelName);
       this._data = model;
     }
@@ -293,7 +350,9 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     const pk = Model.pk(repository.class as Constructor<M>) as string;
     const pkType = Metadata.type(repository.class as Constructor<M>, pk as string).name;
     const modelId = (this.modelId || data[pk]) as Primitives;
-    if (!this.modelId) this.modelId = modelId;
+    if (!this.modelId) {
+      this.modelId = modelId;
+    }
     const uid = this.parsePkValue(operation === OperationKeys.DELETE ? data[pk] : modelId, pkType);
     if (operation !== OperationKeys.DELETE) {
       const properties = Metadata.properties(repository.class as Constructor<M>) as string[];
@@ -343,5 +402,26 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
 
   protected getModelPkType(clazz: Constructor<M>): string {
     return this.getModelPropertyType(clazz, Model.pk(clazz) as keyof M);
+  }
+
+  /**
+   * @description Handles repository observation events with debouncing.
+   * @summary Processes repository change notifications and routes them appropriately.
+   * For CREATE events with a UID, handles them immediately. For other events,
+   * passes them to the debounced observer subject to prevent excessive updates.
+   *
+   * @param {...unknown[]} args - The repository event arguments including table, event type, and UID
+   * @returns {Promise<void>}
+   * @memberOf ListComponent
+   */
+  async handleRepositoryRefresh(...args: unknown[]): Promise<void> {
+    const [modelInstance, event, uid] = args;
+    if ([OperationKeys.CREATE, OperationKeys.DELETE].includes(event as OperationKeys))
+      return this.handleObserveEvent(modelInstance, event, uid as string | number);
+    return this.repositoryObserverSubject.next(args);
+  }
+
+  async handleObserveEvent(...args: unknown[]): Promise<void> {
+    this.log.for(this.handleObserveEvent).info(`Repository change observed with args: ${args}`);
   }
 }

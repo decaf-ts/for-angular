@@ -7,6 +7,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
@@ -22,7 +23,6 @@ import { NgxFormFieldDirective } from './NgxFormFieldDirective';
 import { generateRandomValue } from '../utils';
 import { timer } from 'rxjs';
 import { FieldDefinition, UIFunctionLike, UIModelMetadata } from '@decaf-ts/ui-decorators';
-import { Action } from '@angular-devkit/schematics';
 
 @Directive()
 export abstract class NgxFormDirective
@@ -41,6 +41,20 @@ export abstract class NgxFormDirective
 
   @Input()
   deepMerge: boolean = false;
+
+  @Input()
+  path: string = '';
+
+  /**
+   * @description Enables multiple item management within the fieldset.
+   * @summary Boolean flag that determines if the fieldset supports adding multiple values.
+   * When true, displays a reorderable list of items with add/remove functionality.
+   *
+   * @type {boolean}
+   * @default false
+   */
+  @Input()
+  multiple: boolean = false;
 
   /**
    * @description Reference to the reactive form DOM element.
@@ -240,6 +254,17 @@ export abstract class NgxFormDirective
     if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
       this.formGroup = undefined;
     }
+  }
+
+  override async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    await super.ngOnChanges(changes);
+
+    // if (changes[BaseComponentProps.MODEL_ID]) {
+    //   const { previousValue, currentValue } = changes[BaseComponentProps.MODEL_ID];
+    //   if (!previousValue && currentValue) {
+    //     await this.refresh(this.operation);
+    //   }
+    // }
   }
 
   async ngAfterViewInit(): Promise<void> {

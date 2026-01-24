@@ -9,13 +9,14 @@ import {
   NgxEventHandler,
   SelectOption,
 } from 'src/lib/engine';
-import { Leaflet, ProductMarket, ProductStrength } from '../fabric';
+import { Batch, Leaflet, Product, ProductMarket, ProductStrength } from '..';
 import { CrudFieldComponent, FieldsetComponent, ListComponent } from 'src/lib/components';
 import { OperationKeys, readonly } from '@decaf-ts/db-decorators';
 import { DecafComponent } from '@decaf-ts/ui-decorators';
+import { el } from '@faker-js/faker/.';
 
 export async function renderMakets<C extends CrudFieldComponent>(instance: C): Promise<void> {
-  return await new ProductEpiHandler().renderMakets(instance);
+  return await new EpiHandler().renderMakets(instance);
 }
 
 export function getDocumentProperties(filterBy: 'productCode' | 'batchNumber' = 'productCode') {
@@ -43,27 +44,38 @@ export function getDocumentProperties(filterBy: 'productCode' | 'batchNumber' = 
   };
 }
 
-export class ProductEpiHandler extends NgxEventHandler {
-  override async render(): Promise<void> {
-    const instance = this as unknown as NgxComponentDirective;
-    if (instance.modelName === Leaflet.name) {
-      if (instance.operation === OperationKeys.CREATE) {
-        instance.searchValue = ProductEpiHandler.getSearchOptions<Leaflet>(
-          'productCode',
-          null,
-          'Equal',
-        );
+export class EpiHandler extends NgxEventHandler {
+  override async render(instance: NgxComponentDirective, prop: string = ''): Promise<void> {
+    const [modelName, operation] = (instance.route || '').split('/');
+    instance.filterBy = 'productCode';
+    if (['products', 'batches'].includes(modelName)) {
+      if (operation === OperationKeys.CREATE) {
+        instance.searchValue = EpiHandler.getSearchOptions(Model.pk(Leaflet), null, 'Equal');
+      } else if (operation && operation !== OperationKeys.CREATE) {
       }
+    } else {
+      // if (instance.modelName === Leaflet.name) {
+      //   if (!(instance._query as [])?.length) {
+      //     const context = getModelAndRepository(
+      //       modelName === 'products' ? Product.name : Batch.name,
+      //     );
+      //     if (context) {
+      //       const { repository } = context;
+      //       const query = await repository.select().execute();
+      //       if (query.length) {
+      //         instance._query = query;
+      //       }
+      //     }
+      //   }
+      //   if (instance.operation === OperationKeys.CREATE) {
+      //     instance.searchValue = EpiHandler.getSearchOptions('productCode', null, 'Equal');
+      //   }
+      // }
     }
-    // const relation = component.filterBy;
-    // if (component?.operation === OperationKeys.CREATE) {
-    //   console.log(component.filterBy);
-    // }
   }
 
   async renderMakets<C extends CrudFieldComponent>(component: C): Promise<void> {
     if (component?.modelId) {
-      console.log(component.model);
       const query = await this.query<ProductMarket>(
         ProductMarket.name,
         'productCode',
@@ -77,7 +89,6 @@ export class ProductEpiHandler extends NgxEventHandler {
           }
         });
       }
-      console.log(component.options);
     }
   }
 
@@ -97,11 +108,7 @@ export class ProductEpiHandler extends NgxEventHandler {
     return [];
   }
 
-  static getSearchOptions<M extends Model>(
-    filter: string,
-    value: string | null,
-    condition: string,
-  ): IFilterQuery {
+  static getSearchOptions(filter: string, value: string | null, condition: string): IFilterQuery {
     return {
       query: [
         {

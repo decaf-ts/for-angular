@@ -30,8 +30,10 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
   protected get repository(): DecafRepository<Model> {
     if (!this._repository) {
       const modelName =
-        typeof this.model === 'string' ? this.model : (this.model as Model).constructor.name;
-      const constructor = Model.get(modelName);
+        typeof this.model === Primitives.STRING
+          ? this.model
+          : (this.model as Model).constructor.name;
+      const constructor = Model.get(String(modelName));
       if (!constructor)
         throw new InternalError(`Cannot find model ${modelName}. was it registered with @model?`);
       try {
@@ -76,7 +78,7 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
     const data = getFakerData<T>(
       limit,
       dataFunctions,
-      typeof this.model === 'string' ? this.model : this.model?.constructor.name,
+      typeof this.model === Primitives.STRING ? String(this.model) : this.model?.constructor.name,
     );
 
     if (!values) return data;

@@ -24,18 +24,6 @@ import { getModelAndRepository } from './helpers';
 @Directive()
 export abstract class NgxModelPageDirective extends NgxPageDirective implements AfterViewInit {
   /**
-   * @description Primary key value of the current model instance.
-   * @summary Specifies the primary key value for the current model record being displayed or
-   * manipulated by the component. This identifier is used for CRUD operations that target
-   * specific records, such as read, update, and delete operations. The value corresponds to
-   * the field designated as the primary key in the model definition.
-   * @type {EventIds}
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
-  @Input()
-  override modelId!: EventIds;
-
-  /**
    * @description The CRUD operation type to be performed on the model.
    * @summary Specifies which operation (Create, Read, Update, Delete) this component instance
    * should perform. This determines the UI behavior, form configuration, and available actions.
@@ -103,10 +91,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
   override async initialize(): Promise<void> {
     await super.initialize();
     await this.refresh(this.modelId);
-    if (!this.modelId && this.operations?.length)
-      this.operations = this.operations.filter((o) =>
-        [OperationKeys.UPDATE, OperationKeys.DELETE].includes(o),
-      );
+    this.changeDetectorRef.detectChanges();
     this.getLocale(this.modelName as string);
   }
 
@@ -130,7 +115,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
    * @param {string} [uid] - The unique identifier of the model to load; defaults to modelId
    */
   override async refresh(uid?: EventIds): Promise<void> {
-    if (!uid) uid = this.modelId;
+    if (!uid) {
+      uid = this.modelId;
+    }
     try {
       this._repository = this.repository;
       switch (this.operation) {
@@ -307,7 +294,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     uid?: EventIds,
     repository?: IRepository<M>,
     modelName?: string,
-    pk?: string,
   ): Promise<Model | undefined> {
     if (!uid) {
       this.log.info('No key passed to model page read operation, backing to last page');
@@ -415,7 +401,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
                   pkType: pkType,
                   data,
                 };
-                if (!this.modelId) this.modelId = (data as KeyValue)[pk] as EventIds;
+                if (!this.modelId) this.modelId = (data as KeyValue)[pk];
               } else {
                 Object.assign(result.context.data, {
                   [prop]: Array.isArray(data) ? this.buildTransactionModel(data, repository) : data,
@@ -512,8 +498,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
         });
         success = result ? true : false;
         if (success) {
-          if ((result as KeyValue)?.[this.pk])
-            this.modelId = (result as KeyValue)[this.pk] as EventIds;
+          if ((result as KeyValue)?.[this.pk]) this.modelId = (result as KeyValue)[this.pk];
           if (redirect) this.location.back();
         }
       }
@@ -531,8 +516,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
   }
 
   async batchOperation(context: ILayoutModelContext, redirect: boolean = false): Promise<any> {
-    const { data, repository, pk } = context.context;
-    return data;
+    // const { data, repository, pk } = context.context;
+    // return data;
     // return await this.submit({data}, false, repository, pk);
     // const result: boolean[] = [];
     // let resultMessage = '';

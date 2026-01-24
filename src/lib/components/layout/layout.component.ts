@@ -14,7 +14,7 @@ import { Primitives } from '@decaf-ts/decorator-validation';
 import { LayoutGridGaps, UIElementMetadata } from '@decaf-ts/ui-decorators';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { KeyValue } from '../../engine/types';
-import { IBaseCustomEvent, IComponentProperties, ICrudFormEvent } from '../../engine/interfaces';
+import { IBaseCustomEvent, IComponentProperties } from '../../engine/interfaces';
 import { Dynamic } from '../../engine/decorators';
 import { filterString } from '../../utils/helpers';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
@@ -254,7 +254,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
           // to prevent layout glitches, before send class to child component remove width classes
           if (c?.['props']?.className)
             c['props'].className = filterString(c?.['props']?.className, '-width-', false);
-
           return Object.assign(c, { colClass });
         });
         return row;
@@ -274,7 +273,8 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    * @memberOf LayoutComponent
    */
   override async ngOnInit(): Promise<void> {
-    super.parseProps(this);
+    // must always parse props first, parse children case of layout depends on it
+    super.parseProps(this, !this.children.length ? [] : ['children']);
     if (this.breakpoint)
       this.breakpoint =
         `${this.breakpoint.startsWith('x') ? this.breakpoint.substring(0, 2) : this.breakpoint.substring(0, 1)}`.toLowerCase();

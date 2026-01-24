@@ -9,6 +9,7 @@ import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
 import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.component';
 import { TableComponent } from 'src/lib/components/table/table.component';
 import { Audit } from 'src/app/ew/fabric/Audit';
+import { downloadAsCsv } from 'src/app/ew/fabric/handlers/AuditHandler';
 
 @Component({
   selector: 'app-audit',
@@ -25,6 +26,8 @@ import { Audit } from 'src/app/ew/fabric/Audit';
   ],
 })
 export class AuditPage extends NgxModelPageDirective implements OnInit {
+  override _data: Audit[] = [];
+
   constructor() {
     super('Audit', false);
     this.title = `${this.locale}.title`;
@@ -35,15 +38,23 @@ export class AuditPage extends NgxModelPageDirective implements OnInit {
     this.operations = [];
     this.title = `${this.locale}.title`;
     await super.initialize();
-    const query = this.repository.select().execute();
-    console.log(await query);
   }
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
     const { name, data } = event;
-    if (name === ComponentEventNames.Click) {
-      console.log('Click event data:', data);
+    if (name === ComponentEventNames.Refresh) {
+      this._data = data as Audit[];
     }
+  }
+
+  async exportCsvFile(): Promise<void> {
+    downloadAsCsv(this._data as Audit[], `${Date.now()}`, [
+      'User',
+      'Group',
+      'Table',
+      'Transaction',
+      'Action',
+    ]);
   }
 
   // async handleTabChangeEvent(event: IBaseCustomEvent): Promise<void> {

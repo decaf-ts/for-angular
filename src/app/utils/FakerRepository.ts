@@ -93,7 +93,6 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
                 if (repo) {
                   const { repository } = repo;
                   const product = (await repository.read(productCode)) as Product;
-                  item['inventedName'] = item['nameMedicinalProduct'] = product.inventedName;
                 }
                 item.batchNumber = `bt_${productCode}_aspirin`.trim();
                 // item.batchNumber = `bt_${productCode}_${item['nameMedicinalProduct']}`.trim();

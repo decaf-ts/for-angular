@@ -52,13 +52,14 @@ export class CrudFormComponent extends NgxFormDirective {
       { buttons: { submit: { text: this.operation.toLowerCase() } } },
       this.options || {},
     );
-    await super.initialize();
     if (!this.pk && this.modelName) {
       const repo = getModelAndRepository(this.modelName);
       if (repo) {
         this.pk = repo.pk;
       }
     }
+
+    await super.initialize();
   }
 
   /**

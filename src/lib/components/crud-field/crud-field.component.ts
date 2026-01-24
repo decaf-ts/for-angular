@@ -15,7 +15,6 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
-  inject,
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -693,8 +692,21 @@ export class CrudFieldComponent
         this.setValue(this.value);
       }
     }
-
     await super.initialize();
+  }
+
+  /**
+   * @description Component after view initialization lifecycle method.
+   * @summary Calls the parent afterViewInit method for READ and DELETE operations.
+   * This ensures proper initialization of read-only fields that don't require
+   * form functionality but still need view setup.
+   *
+   * @returns {Promise<void>}
+   * @memberOf CrudFieldComponent
+   */
+  async ngAfterViewInit(): Promise<void> {
+    if (this.type === HTML5InputTypes.RADIO && !this.value)
+      this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
   }
 
   /**
@@ -799,20 +811,6 @@ export class CrudFieldComponent
         this.component.nativeElement.ionChange.emit({ value: data });
       }
     }
-  }
-
-  /**
-   * @description Component after view initialization lifecycle method.
-   * @summary Calls the parent afterViewInit method for READ and DELETE operations.
-   * This ensures proper initialization of read-only fields that don't require
-   * form functionality but still need view setup.
-   *
-   * @returns {Promise<void>}
-   * @memberOf CrudFieldComponent
-   */
-  async ngAfterViewInit(): Promise<void> {
-    if (this.type === HTML5InputTypes.RADIO && !this.value)
-      this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
   }
 
   /**

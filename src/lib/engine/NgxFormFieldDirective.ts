@@ -6,7 +6,6 @@
  * This directive handles form control lifecycle, validation, multi-entry forms, and CRUD operations.
  */
 import {
-  CrudOperationKeys,
   FieldProperties,
   HTML5InputTypes,
   RenderingError,
@@ -439,7 +438,9 @@ export abstract class NgxFormFieldDirective
    * @public
    */
   override async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    if (!this.initialized) await super.ngOnChanges(changes);
+    if (!this.initialized) {
+      await super.ngOnChanges(changes);
+    }
     if (
       changes['activeFormGroupIndex'] &&
       this.multiple &&

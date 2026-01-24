@@ -1,7 +1,7 @@
 import { Batch } from '../Batch';
 import { NgxEventHandler } from 'src/lib/engine/NgxEventHandler';
 import { BarcodeTypes } from '../constants';
-import BwipJs, { BwippOptions, RenderOptions } from '@bwip-js/browser';
+import BwipJs, { BwippOptions } from '@bwip-js/browser';
 import { presentNgxInlineModal } from 'src/lib/components/modal/modal.component';
 
 export class DatamatrixModalHandler extends NgxEventHandler {
@@ -47,19 +47,22 @@ export class DatamatrixModalHandler extends NgxEventHandler {
     textxalign: 'center',
     textyalign: 'center',
     backgroundcolor: 'ffffff',
+    paddingwidth: 4,
+    paddingheight: 4,
   } as BwippOptions;
 
   override async handleClick(instance: NgxEventHandler, event: CustomEvent, uid: string) {
-    console.log('DatamatrixModalHandler clicked', instance, event, uid);
-    const item = (instance._data as Batch[]).find((item) => item['batchNumber'] === uid);
+    const item = (instance._data as Batch[]).find(
+      (item) => item[instance.pk as keyof Batch] === uid,
+    );
     if (item) {
       const datamatrixElement = DatamatrixModalHandler.getDatamatrixCanvasElement(item);
       if (datamatrixElement) {
         await presentNgxInlineModal(
           datamatrixElement,
           {
-            title: 'audit.diffs.preview',
-            // uid: 'leaflet-service-parsed-content',
+            title: 'batch.datamatrix.preview',
+            uid: 'dcf-datamatrix-modal',
             headerTransparent: true,
           },
           this.injector,
@@ -107,16 +110,16 @@ export class DatamatrixModalHandler extends NgxEventHandler {
 
   static getDatamatrixCanvasElement(
     batch: Batch,
-    type: keyof typeof BarcodeTypes = BarcodeTypes.datamatrix,
+    bcid: keyof typeof BarcodeTypes = BarcodeTypes.datamatrix,
   ): HTMLElement | undefined {
     const barcodeData = this.getBarcodeData(batch);
     const container = document.createElement('div');
-    container.style.width = '320px';
-    container.style.height = '320px';
+    container.setAttribute('style', 'width: 280px; height: 280px;');
+
     const options = {
       ...this.barcodeOptions,
       text: barcodeData,
-      bcid: BarcodeTypes.datamatrix,
+      bcid,
     };
 
     try {

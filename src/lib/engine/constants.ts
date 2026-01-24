@@ -232,6 +232,8 @@ export enum ComponentsTagNames {
  * @memberOf module:lib/engine/constants
  */
 export enum BaseComponentProps {
+  MODEL_ID = 'modelId',
+  MODEL = 'model',
   HANDLERS = 'handlers',
   LOCALE = 'locale',
   LOCALE_ROOT = 'locale_root',

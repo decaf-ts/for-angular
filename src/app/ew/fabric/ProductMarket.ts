@@ -18,7 +18,7 @@ import {
 } from '@decaf-ts/ui-decorators';
 import { getMarkets } from 'src/app/ew/utils/helpers';
 import { TableNames } from './constants';
-import { ProductEpiHandler, renderMakets } from '../handlers/ProductEpiHandler';
+import { EpiHandler, renderMakets } from './handlers/EpiHandler';
 import { CrudFieldComponent, FieldsetComponent } from 'src/lib/components';
 
 @description('Links a product to a specific market.')

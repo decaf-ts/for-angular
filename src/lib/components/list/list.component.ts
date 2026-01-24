@@ -641,7 +641,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       }
       const mapperFn = (value as KeyValue)?.['valueParserFn'] || undefined;
       if (typeof mapperFn === 'function') {
-        const value = await mapperFn(key, this);
+        const value = await mapperFn(this, key);
         if (typeof value === Primitives.STRING) {
           mapper[value] = key;
         }
@@ -716,7 +716,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     this.data = !this.model
       ? await this.getFromRequest(!!event, start, limit)
       : ((await this.getFromModel(!!event)) as KeyValue[]);
-    if (!this.isModalChild) this.refreshEventEmit(this.data);
+    this.refreshEventEmit(this.data);
     if (this.type === ListComponentsTypes.INFINITE) {
       if (this.page === this.pages) {
         if ((event as InfiniteScrollCustomEvent)?.target)
@@ -1363,7 +1363,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
           let val;
 
           for (const _value of arrayValue)
-            val = !val ? item[_value] : (typeof val === 'string' ? JSON.parse(val) : val)[_value];
+            val = !val
+              ? item[_value]
+              : (typeof val === Primitives.STRING ? JSON.parse(val) : val)[_value];
 
           if (isValidDate(new Date(val))) val = `${formatDate(val)}`;
 

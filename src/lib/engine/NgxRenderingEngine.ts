@@ -510,7 +510,7 @@ export class NgxRenderingEngine extends RenderingEngine<
     if (!NgxRenderingEngine._injector) NgxRenderingEngine._injector = injector;
     try {
       this._model = model;
-      const formId = Date.now().toString(36).toUpperCase();
+      const formId = `${Date.now()}`.toUpperCase();
       const fieldDef = this.toFieldDefinition(model, globalProps);
       const props = fieldDef.props as Partial<IFormComponentProperties>;
       if (!NgxRenderingEngine._operation)

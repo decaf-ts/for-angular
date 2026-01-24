@@ -17,8 +17,6 @@ import { KeyValue, StringOrBoolean } from '../engine/types';
 import { FunctionLike } from '../engine/types';
 import { IMenuItem } from '../engine/interfaces';
 import { getLogger } from '../engine/helpers';
-import { UIFunctionLike } from '@decaf-ts/ui-decorators';
-import { Constructor } from '@decaf-ts/decoration';
 
 let injectableRegistry: InjectablesRegistry;
 
@@ -301,8 +299,10 @@ export function generateRandomValue(length: number = 8, onlyNumbers: boolean = f
  * @memberOf module:lib/helpers/utils
  */
 export function stringToBoolean(prop: 'true' | 'false' | boolean): boolean {
-  if (typeof prop === 'string') prop = prop.toLowerCase() === 'true' ? true : false;
-  return prop;
+  if (typeof prop === Primitives.STRING) {
+    prop = String(prop).toLowerCase() === 'true' ? true : false;
+  }
+  return prop as boolean;
 }
 
 /**
@@ -363,54 +363,20 @@ export function formatDate(
 ): Date | string {
   if (!locale) locale = getLocaleLanguage();
 
-  if (typeof date === 'string' || typeof date === 'number')
-    date = new Date(typeof date === 'string' ? date.replace(/\//g, '-') : date);
+  if (typeof date === Primitives.STRING || typeof date === 'number') {
+    date = new Date(typeof date === Primitives.STRING ? `${date}`.replace(/\//g, '-') : date);
+  }
 
-  if (!isValidDate(date)) return `${date}` as string;
-  const r = date.toLocaleString(locale, {
-    year: 'numeric',
-    day: '2-digit',
-    month: '2-digit',
-  });
-
-  return r;
+  return !isValidDate(date)
+    ? `${date}`
+    : date.toLocaleString(locale, {
+        year: 'numeric',
+        day: '2-digit',
+        month: '2-digit',
+      });
 }
 
 /**
- * @description Attempts to parse a date string, Date object, or number into a valid Date object.
- * @summary This function provides robust date parsing functionality that handles the specific
- * format "DD/MM/YYYY HH:MM:SS:MS". It first validates the input date, and if already valid,
- * returns it as-is. For string inputs, it parses the date and time components separately,
- * extracts numeric values, and constructs a new Date object. The function includes validation
- * to ensure the resulting Date object is valid and logs a warning if parsing fails.
- * Returns null for invalid or unsupported date formats.
- *
- * @param {string | Date | number} date - The date to parse. Can be a Date object, a timestamp number,
- *                                        or a date string in the format "DD/MM/YYYY HH:MM:SS:MS"
- * @returns {Date | null} A valid Date object if parsing is successful, or null if the date is invalid
- *                        or doesn't match the expected format
- *
- * @function parseToValidDate
- * @memberOf module:lib/helpers/utils
- */
-export function parseToValidDate(date: string | Date | number): Date | null {
-  if (isValidDate(date)) return date as Date;
-
-  if (!`${date}`.includes('/')) return null;
-
-  const [dateString, timeString] = (date as string).split(' ');
-  const [day, month, year] = dateString.split('/').map(Number);
-  const [hours, minutes, seconds, milliseconds] = timeString.split(':').map(Number);
-  date = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
-
-  if (!isValidDate(date)) {
-    console.warn('parseToValidDate - Invalid date format', date);
-    return null;
-  }
-
-  return date;
-}
-
 /**
  * @description Maps an item object using a provided mapper object and optional additional properties.
  * @summary This function transforms a source object into a new object based on mapping rules defined
@@ -574,9 +540,3 @@ export function getMenuIcon(label: string, menu: IMenuItem[]): string {
   const item = menu.find((m) => m.label?.toLowerCase() === label.toLowerCase());
   return item?.icon || '';
 }
-
-export const isClassConstructor = <C>(
-  value: UIFunctionLike | Constructor<C>,
-): value is Constructor<C> => {
-  return typeof value === 'function' && /^class\s/.test(String(value));
-};

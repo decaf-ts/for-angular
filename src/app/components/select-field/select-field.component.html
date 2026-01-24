@@ -1,7 +1,7 @@
 @if (initialized && (operation === 'read' || operation === 'delete' || readonly)) {
   @if (!hidden) {
     <ng-container>
-      <div [class.dcf-hidden]="['inventedName', 'nameMedicinalProduct'].includes(name) && !value">
+      <div [class.dcf-disabled]="['inventedName', 'nameMedicinalProduct'].includes(name) && !value">
         <ion-item [class]="'dcf-input-item ' + operation + ' ' + className" #component>
           <ion-label>
             {{ label | translate }}

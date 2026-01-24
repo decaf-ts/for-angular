@@ -16,10 +16,19 @@ import {
 } from '@decaf-ts/db-decorators';
 import { description } from '@decaf-ts/decoration';
 import { FabricBaseModel } from './FabricBaseModel';
-import { uielement, uilayout, uilistmodel, uionclick, uitablecol } from '@decaf-ts/ui-decorators';
+import {
+  uielement,
+  uihandlers,
+  uilayout,
+  uilistmodel,
+  uionclick,
+  uitablecol,
+} from '@decaf-ts/ui-decorators';
 import { DecafComponentConstructor, NgxComponentDirective, NgxEventHandler } from 'src/lib/engine';
 import { AuditOperations, TableNames, UserGroup } from './constants';
-import { presentNgxInlineModal } from 'src/lib/components';
+import { getNgxModalComponent, presentNgxInlineModal } from 'src/lib/components';
+import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
+import { AuditHandler } from './handlers/AuditHandler';
 
 // async function showDiffModal(instance: NgxEventHandler, event: CustomEvent, uid: string) {
 //   const item = (instance._data as Audit[]).find((item) => item[Model.pk(Audit)] === uid) || {};
@@ -39,30 +48,6 @@ import { presentNgxInlineModal } from 'src/lib/components';
 //     });
 //   }
 // }
-
-export class AuditEventHandler extends NgxEventHandler {
-  override async handleClick(instance: NgxEventHandler, event: CustomEvent, uid: string) {
-    const item = (instance._data as Audit[]).find((item) => item[Model.pk(Audit)] === uid) || {};
-    const diffs = (item as Audit)?.diffs || undefined;
-    if (diffs) {
-      const container = document.createElement('div');
-      let content = JSON.parse(diffs as unknown as string);
-      while (typeof content === Primitives.STRING) {
-        content = JSON.parse(content);
-      }
-      container.innerHTML = `<pre>${JSON.stringify(content, null, 2)}</pre>`;
-
-      await presentNgxInlineModal(
-        container,
-        {
-          title: 'audit.diffs.preview',
-          headerTransparent: true,
-        },
-        this.injector,
-      );
-    }
-  }
-}
 
 @description('Logs user activity for auditing purposes.')
 @BlockOperations([OperationKeys.CREATE, OperationKeys.UPDATE, OperationKeys.DELETE])
@@ -125,10 +110,11 @@ export class Audit extends FabricBaseModel {
   @serialize()
   @description('the diffs for the action.')
   @uielement({ label: 'audit.diffs' })
-  @uitablecol(4, async (value: string | object, instance: DecafComponentConstructor) => {
+  @uitablecol(4, async (instance: DecafComponentConstructor, value: string) => {
+    const phrase = await instance.translate('audit.view_diffs');
     return (value as string).length ? await instance.translate('audit.view_diffs') : '';
   })
-  @uionclick(() => AuditEventHandler)
+  @uionclick(() => AuditHandler)
   diffs?: Record<string, any>;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor

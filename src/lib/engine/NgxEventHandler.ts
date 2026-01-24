@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @module module:lib/engine/NgxEventHandler
  * @description Event handler base class used by Decaf components.
@@ -8,11 +9,10 @@
  */
 import { ChangeDetectorRef, EnvironmentInjector, Renderer2 } from '@angular/core';
 import { Model } from '@decaf-ts/decorator-validation';
-import { CrudOperationKeys, DecafEventHandler } from '@decaf-ts/ui-decorators';
-import { FunctionLike, KeyValue } from './types';
+import { DecafEventHandler } from '@decaf-ts/ui-decorators';
+import { KeyValue } from './types';
 import { ICrudFormEvent } from './interfaces';
 import { NgxComponentDirective } from './NgxComponentDirective';
-import { Environment } from '@decaf-ts/logging';
 
 export abstract class NgxEventHandler extends DecafEventHandler {
   _data: Model | KeyValue | KeyValue[] | null = null;
@@ -38,6 +38,7 @@ export abstract class NgxEventHandler extends DecafEventHandler {
   }
 
   from(...args: unknown[]): NgxEventHandler {
+    this.log.for(this.process).info(`Process called with args: ${args}`);
     return this as NgxEventHandler;
   }
 

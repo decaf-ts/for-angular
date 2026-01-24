@@ -1,11 +1,11 @@
-import { Component, EnvironmentInjector, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { OrderDirection } from '@decaf-ts/core';
 import { Model } from '@decaf-ts/decorator-validation';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { ComponentEventNames } from '@decaf-ts/ui-decorators';
+import { ComponentEventNames, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { IconComponent } from '../icon/icon.component';
 import { PaginationComponent } from '../pagination/pagination.component';
@@ -21,7 +21,7 @@ import {
   SelectFieldInterfaces,
 } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
-import { IFilterQuery } from '../../engine/interfaces';
+import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
 import { getModelAndRepository } from '../../engine/helpers';
 import { debounceTime, shareReplay, takeUntil } from 'rxjs';
 
@@ -86,13 +86,12 @@ export class TableComponent extends ListComponent implements OnInit {
   }
 
   override async ngOnInit(): Promise<void> {
+    // this.parseProps(this);
+
     await super.initialize();
 
     this.type = ListComponentsTypes.PAGINATED;
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
-    if (!this.initialized) {
-      this.parseProps(this);
-    }
     this.repositoryObserverSubject
       .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
       .subscribe(([modelInstance, event, uid]) =>
@@ -124,8 +123,6 @@ export class TableComponent extends ListComponent implements OnInit {
       await this.getFilterOptions();
     }
     await this.refresh();
-    console.log(this.mapper);
-    console.log(this.items);
   }
 
   getOperations() {
@@ -159,17 +156,22 @@ export class TableComponent extends ListComponent implements OnInit {
     }
   }
 
-  protected override itemMapper(item: KeyValue, mapper: KeyValue, props: KeyValue = {}): KeyValue {
+  protected override async itemMapper(
+    item: KeyValue,
+    mapper: KeyValue,
+    props: KeyValue = {},
+  ): Promise<KeyValue> {
     this.model = item as Model;
-    const mapped = super.itemMapper(
+    const mapped = await super.itemMapper(
       item,
       this.cols.filter((c) => c !== 'actions'),
       props,
     );
     const { children } = (this.props as KeyValue) || [];
+    const entries = Object.entries(mapped);
 
-    return Object.keys(mapped).reduce(
-      (accum: KeyValue, curr: string, index: number) => {
+    const resultEntries = await Promise.all(
+      entries.map(async ([curr, value], index) => {
         try {
           const child = children[index];
           if (child) {
@@ -177,29 +179,30 @@ export class TableComponent extends ListComponent implements OnInit {
             if (events) {
               const sequence =
                 (mapper[name]?.sequence || index) + (!this.cols.includes('actions') ? 1 : 0);
-              const eventsObject = this.parseEvents(events, this);
-              Object.entries(eventsObject).forEach(([key, evt]) => {
-                const handler = evt.bind(this);
+              const evts = this.parseEvents(events, this);
+              for (const [key, evt] of Object.entries(evts)) {
+                const handler = evt;
                 if (key === ComponentEventNames.Render) {
-                  if (handler instanceof Promise) {
-                    (async () => await handler)();
+                  if (handler?.name === ComponentEventNames.Render) {
+                    value = await handler.bind(this)(this, name, value);
                   } else {
-                    handler();
+                    const handlerFn = await handler(this, name, value);
+                    value =
+                      typeof handlerFn === 'function' || handlerFn instanceof Promise
+                        ? await handlerFn.bind(this)(this, name, value)
+                        : handlerFn;
                   }
                 }
                 if (key === 'handleClick' || key === 'handleAction') {
-                  accum = {
-                    ...accum,
+                  props = {
+                    ...props,
                     handler: {
                       col: String(sequence),
-                      handle: (this.handleAction = (...args: unknown[]) => {
-                        const handlerFn = handler(this, ...args);
-                        return typeof handlerFn === 'function' ? handlerFn() : handlerFn;
-                      }),
+                      handle: handler.bind(this),
                     },
                   };
                 }
-              });
+              }
             }
           }
         } catch (error) {
@@ -207,45 +210,51 @@ export class TableComponent extends ListComponent implements OnInit {
             .for(this.itemMapper)
             .error(`Error mapping child events. ${(error as Error)?.message || error}`);
         }
-        const parserFn = mapper[this.cols[index]]?.valueParserFn || undefined;
-        return {
-          ...accum,
-          [curr]: parserFn ? parserFn(mapped[curr], this) : mapped[curr],
-        };
-      },
-      { ...props },
+
+        const propName = this.cols[index];
+        const parserFn = mapper[propName]?.valueParserFn || undefined;
+        const resolvedValue = parserFn ? await parserFn(this, propName, value) : value;
+        return [curr, resolvedValue];
+      }),
     );
+
+    return resultEntries.reduce((accum, [key, value]) => ({ ...accum, [key]: value }), {
+      ...props,
+    });
   }
 
   override async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
     this._data = [...data];
     if (!data || !data.length) return [];
-    return data.reduce(
-      (accum: KeyValue[], curr) => [
-        ...accum,
-        this.itemMapper(curr, this.mapper, { uid: curr[this.pk] }),
-      ],
-      [],
+
+    return await Promise.all(
+      data.map((curr) => this.itemMapper(curr, this.mapper, { uid: curr[this.pk] })),
     );
   }
 
   async handleAction(
-    event: Event,
+    event: IBaseCustomEvent,
+    handler: UIFunctionLike | undefined,
     uid: string,
     action: CrudOperations,
-    redirect?: boolean,
   ): Promise<void> {
-    // if (action === OperationKeys.READ && !this.isAllowed(OperationKeys.UPDATE)) {
-    //   redirect = false;
-    // }
-    if (redirect) {
-      await this.router.navigate([`/${this.route}/${action}/${uid}`]);
+    if (handler) {
+      const handlerFn = await handler(this, event, uid);
+      return typeof handlerFn === 'function' ? handlerFn() : handlerFn;
     }
-    event.stopImmediatePropagation();
-    const data = this._data as [];
-    if (data) {
-      const item = data.find((item) => item[this.pk] === uid) || {};
-      this.listenEvent.emit({ name: ComponentEventNames.Click, data: item });
+    await this.handleRedirect(event, uid, action);
+  }
+  async handleRedirect(
+    event: Event | IBaseCustomEvent,
+    uid: string,
+    action: CrudOperations,
+  ): Promise<void> {
+    if (event instanceof Event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+    if (this.operations.includes(action)) {
+      await this.router.navigate([`/${this.route}/${action}/${uid}`]);
     }
   }
 

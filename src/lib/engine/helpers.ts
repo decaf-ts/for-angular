@@ -1,15 +1,7 @@
-import {
-  Provider,
-  EnvironmentProviders,
-  provideEnvironmentInitializer,
-} from '@angular/core';
+import { Provider, EnvironmentProviders, provideEnvironmentInitializer } from '@angular/core';
 import { Logger, Logging } from '@decaf-ts/logging';
 import { getOnWindow, getWindowDocument, setOnWindow } from '../utils/helpers';
-import {
-  DecafRepository,
-  FunctionLike,
-  KeyValue
-} from './types';
+import { DecafRepository, FunctionLike, KeyValue } from './types';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { Repository } from '@decaf-ts/core';
 import { Constructor, Metadata, uses } from '@decaf-ts/decoration';
@@ -18,11 +10,9 @@ import { NgxComponentDirective } from './NgxComponentDirective';
 import { DB_ADAPTER_FLAVOUR_TOKEN, DB_ADAPTER_PROVIDER_TOKEN } from './constants';
 import { IRepositoryModelProps } from './interfaces';
 
-
 export function getDbAdapterFlavour(): string {
   return (getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || '') as string;
-};
-
+}
 
 /**
  * @description Provides an array of component types for dynamic rendering.
@@ -38,9 +28,7 @@ export function getDbAdapterFlavour(): string {
  *   { provide: CPTKN, useValue: provideDynamicComponents(MyComponent, AnotherComponent) }
  * ]
  */
-export function provideDecafDynamicComponents(
-  ...components: unknown[]
-): Constructor<unknown>[] {
+export function provideDecafDynamicComponents(...components: unknown[]): Constructor<unknown>[] {
   return components as Constructor<unknown>[];
 }
 
@@ -63,30 +51,26 @@ export function provideDecafDynamicComponents(
  * // Use repository for queries
  * const users = await userRepo.findAll();
  */
-export function getModelAndRepository(
-  model: Model | string,
+export function getModelAndRepository<M extends Model>(
+  model: M | string,
   clazz?: NgxComponentDirective,
 ): IRepositoryModelProps<Model> | undefined {
   try {
     const modelName = (
-      typeof model === Primitives.STRING
-        ? model
-        : (model as Model).constructor.name
+      typeof model === Primitives.STRING ? model : (model as Model).constructor.name
     ) as string;
     const constructor = Model.get(
-      (modelName.charAt(0).toUpperCase() + modelName.slice(1)) as string
+      (modelName.charAt(0).toUpperCase() + modelName.slice(1)) as string,
     );
     if (!constructor) return undefined;
     const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || undefined;
-    if (dbAdapterFlavour)
-      uses(dbAdapterFlavour as string)(constructor);
+    if (dbAdapterFlavour) uses(dbAdapterFlavour as string)(constructor);
     const repository = Repository.forModel(constructor);
-    model = new constructor() as Model;
+    model = new constructor() as M;
     const pk = Model.pk(repository.class as Constructor<Model>);
-    if (!pk)
-      return undefined;
+    if (!pk) return undefined;
     const pkType = Metadata.type(repository.class, pk).name;
-    if(clazz) {
+    if (clazz) {
       clazz.repository = repository as DecafRepository<Model>;
       clazz.model = model;
       clazz.pk = pk;
@@ -124,12 +108,13 @@ export function getModelAndRepository(
 export function provideDecafDbAdapter<DbAdapter extends { flavour: string }>(
   clazz: Constructor<DbAdapter>,
   options: KeyValue = {},
-  flavour?: string
+  flavour?: string,
 ): Provider {
   const adapter = new clazz(options);
-  if (!flavour)
-    flavour = adapter.flavour;
-  getLogger(provideDecafDbAdapter).info(`Using ${adapter.constructor.name} ${flavour} as Db Provider`);
+  if (!flavour) flavour = adapter.flavour;
+  getLogger(provideDecafDbAdapter).info(
+    `Using ${adapter.constructor.name} ${flavour} as Db Provider`,
+  );
   setOnWindow(DB_ADAPTER_FLAVOUR_TOKEN, flavour);
   return {
     provide: DB_ADAPTER_PROVIDER_TOKEN,
@@ -174,20 +159,17 @@ export const decafPageTransition = (baseEl: HTMLElement, opts?: KeyValue) => {
   return animationCtrl.create().addAnimation([enteringAnimation, leavingAnimation]);
 };
 
-
 export function provideDecafPageTransition(): EnvironmentProviders {
   return provideIonicAngular({
-    navAnimation: decafPageTransition
+    navAnimation: decafPageTransition,
   });
-};
+}
 
 export function provideDecafDarkMode(): EnvironmentProviders {
-  return provideEnvironmentInitializer(
-    () => {
-      const doc = getWindowDocument();
-      doc?.documentElement.classList.add('has-dark-mode');
-    }
-  )
+  return provideEnvironmentInitializer(() => {
+    const doc = getWindowDocument();
+    doc?.documentElement.classList.add('has-dark-mode');
+  });
 }
 
 /**

@@ -37,9 +37,9 @@ export async function createAuditHandler<M extends Model, R extends Repository<M
   });
 
   const audit = await repo.create(toCreate, context);
-  context.logger.info(
-    `Audit log for ${OperationKeys.CREATE} of ${Model.tableName(this.class)} created: ${audit.id}: ${JSON.stringify(audit, undefined, 2)}`,
-  );
+  // context.logger.info(
+  //   `Audit log for ${OperationKeys.CREATE} of ${Model.tableName(this.class)} created: ${audit.id}: ${JSON.stringify(audit, undefined, 2)}`,
+  // );
 }
 
 export async function updateAuditHandler<M extends Model, R extends IRepository<M, any>, V>(
@@ -63,9 +63,9 @@ export async function updateAuditHandler<M extends Model, R extends IRepository<
 
   const repo = Repository.forModel(Audit);
   const audit = await repo.create(toCreate, context);
-  context.logger.info(
-    `Audit log for ${OperationKeys.UPDATE} of ${Model.tableName(this.class)} created: ${JSON.stringify(audit, undefined, 2)}`,
-  );
+  // context.logger.info(
+  //   `Audit log for ${OperationKeys.UPDATE} of ${Model.tableName(this.class)} created: ${JSON.stringify(audit, undefined, 2)}`,
+  // );
 }
 
 export async function deleteAuditHandler<M extends Model, R extends IRepository<M, any>, V>(
@@ -88,9 +88,9 @@ export async function deleteAuditHandler<M extends Model, R extends IRepository<
 
   const repo = Repository.forModel(Audit);
   const audit = await repo.create(toCreate, context);
-  context.logger.info(
-    `Audit log for ${OperationKeys.DELETE} of ${Model.tableName(this.class)} created: ${JSON.stringify(audit, undefined, 2)}`,
-  );
+  // context.logger.info(
+  //   `Audit log for ${OperationKeys.DELETE} of ${Model.tableName(this.class)} created: ${JSON.stringify(audit, undefined, 2)}`,
+  // );
 }
 
 export function audit() {

@@ -2,11 +2,12 @@ import { list, model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import { Condition } from '@decaf-ts/core';
 import { uichild, uimodel, uionrender } from '@decaf-ts/ui-decorators';
 import { FieldsetComponent } from 'src/lib/components';
-import { getDocumentProperties, ProductEpiHandler } from '../handlers/ProductEpiHandler';
+import { getDocumentProperties, EpiHandler } from '../fabric/handlers/EpiHandler';
 
 import { ProductStrength } from '../fabric/ProductStrength';
 import { Leaflet } from '../fabric/Leaflet';
 import { ProductMarket } from '../fabric/ProductMarket';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 
 // import { ProductStrength, Leaflet, ProductMarket } from "@pharmaledgerassoc/ptp-toolkit/shared";
 
@@ -23,7 +24,7 @@ const commonProps = {
 @model()
 export class EpiLayout extends Model {
   @uichild(Leaflet.name, 'ngx-decaf-list', getDocumentProperties('productCode'))
-  @uionrender(() => ProductEpiHandler)
+  @uionrender(() => EpiHandler)
   document!: Leaflet;
 
   @list(ProductStrength, 'Array')
@@ -37,7 +38,7 @@ export class EpiLayout extends Model {
     },
     true,
   )
-  @uionrender(() => ProductEpiHandler)
+  @uionrender(() => EpiHandler)
   strengths!: ProductStrength;
 
   @list(ProductMarket, 'Array')
@@ -51,7 +52,7 @@ export class EpiLayout extends Model {
     } as Partial<FieldsetComponent>,
     true,
   )
-  @uionrender(() => ProductEpiHandler)
+  @uionrender(() => EpiHandler)
   markets!: ProductMarket;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor

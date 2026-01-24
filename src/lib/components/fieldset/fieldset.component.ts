@@ -187,7 +187,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @memberOf FieldsetComponent
    */
   @Input()
-  multiple: boolean = true;
+  override multiple: boolean = true;
 
   /**
    * @description Array of raw values stored in the fieldset.
@@ -415,7 +415,14 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     } else {
       this.activePage = this.getActivePage();
     }
-    this.mapper = Object.assign(this.mapper, { [this.pk]: this.pk });
+
+    if (this.pk) {
+      this.mapper = Object.assign(this.mapper || {}, { [this.pk]: this.pk });
+    }
+    await this.initialize();
+  }
+
+  override async initialize(): Promise<void> {
     await super.initialize();
     await this.refresh();
   }
@@ -451,27 +458,6 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
   override async ngAfterViewInit(): Promise<void> {
     await super.ngAfterViewInit();
-
-    // console.log(this);
-    // if (!this.collapsable)
-    //   this.isOpen = true;
-    // if (this.operation === OperationKeys.READ || this.operation === OperationKeys.DELETE) {
-    //   this.isOpen = true;
-    //   // hidden remove button
-    //   const accordionElement = this.component?.nativeElement.querySelector('ion-accordion-group');
-    //   if (accordionElement)
-    //     this.renderer.setAttribute(accordionElement, 'value', 'open');
-    // } else {
-    //   const inputs = this.component?.nativeElement.querySelectorAll('.dcf-field-required');
-    //   this.isRequired = inputs?.length > 0;
-    //   if (this.isRequired) {
-    //     this.accordionComponent.value = 'open';
-    //     this.handleAccordionToggle();
-    //   }
-    // }
-    // if (!(this.formGroup instanceof FormArray))
-    //   this.formGroup = (this.formGroup as FormGroup)
-    // this.changeDetectorRef.detectChanges();
   }
 
   override async refresh(operation?: CrudOperationKeys): Promise<void> {
@@ -512,7 +498,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
         } else {
           if (Array.isArray(data)) {
             this.value = [];
-            const value = data.map((v) => {
+            data.map((v) => {
               const formGroup = this.activeFormGroup as FormGroup;
               if (data.length > (formGroup.parent as FormArray).length)
                 NgxFormService.addGroupToParent(formGroup.parent as FormArray);

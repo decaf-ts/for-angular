@@ -61,13 +61,16 @@
               @if (!['handler', 'actions', 'uid'].includes(col.key)) {
                 <td
                   (click)="
-                    item?.handler && item?.handler.col === col.key
-                      ? item.handler.handle($event, item.uid, OperationKeys.READ, true)
-                      : operations.includes(OperationKeys.READ)
-                        ? handleAction($event, OperationKeys.READ, item.uid, true)
-                        : null
+                    handleAction(
+                      $event,
+                      item?.handler && item?.handler.col === col.key
+                        ? item.handler.handle
+                        : undefined,
+                      item.uid,
+                      OperationKeys.READ
+                    )
                   "
-                  [innerHTML]="typeof col.value === 'string' ? col.value : (col.value | async)"
+                  [innerHTML]="col.value"
                 ></td>
               } @else {
                 @if (allowOperations && col.key !== 'handler') {
@@ -76,7 +79,7 @@
                       @if (operations?.includes(OperationKeys.UPDATE)) {
                         <ngx-decaf-icon
                           [button]="true"
-                          (click)="handleAction($event, item.uid, OperationKeys.UPDATE, true)"
+                          (click)="handleRedirect($event, item.uid, OperationKeys.UPDATE, true)"
                           fill="clear"
                           slot="icon-only"
                           color="primary"
@@ -86,7 +89,7 @@
                       @if (operations?.includes(OperationKeys.DELETE)) {
                         <ngx-decaf-icon
                           [button]="true"
-                          (click)="handleAction($event, item.uid, OperationKeys.DELETE, true)"
+                          (click)="handleRedirect($event, item.uid, OperationKeys.DELETE, true)"
                           fill="clear"
                           slot="icon-only"
                           color="danger"

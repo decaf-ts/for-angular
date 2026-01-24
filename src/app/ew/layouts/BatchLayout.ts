@@ -10,16 +10,16 @@ import {
   ComponentEventNames,
   TransactionHooks,
 } from '@decaf-ts/ui-decorators';
-import { Batch } from '../fabric/Batch';
-import { getDocumentProperties, ProductEpiHandler } from '../handlers/ProductEpiHandler';
+import { getDocumentProperties, EpiHandler } from '../fabric/handlers/EpiHandler';
 import { Leaflet } from '../fabric';
-import { ProductHandler } from '../handlers/ProductHandler';
+import { ProductHandler } from '../fabric/handlers/ProductHandler';
+import { BatchForm } from '../fabric/forms/BatchForm';
 
 @uimodel('', {})
 @model()
 class BatchEpiLayout {
   @uichild(Leaflet.name, 'ngx-decaf-list', getDocumentProperties('batchNumber'))
-  @uionrender(() => ProductEpiHandler)
+  @uionrender(() => EpiHandler)
   document!: Leaflet;
 }
 
@@ -34,14 +34,14 @@ class BatchEpiLayout {
 })
 @model()
 export class BatchLayout extends Model {
-  @uichild(Batch.name, 'ngx-decaf-fieldset', {
+  @uichild(BatchForm.name, 'ngx-decaf-fieldset', {
     borders: false,
     required: true,
     breakpoint: UIMediaBreakPoints.XLARGE,
     ordenable: false,
   })
   @uilayoutprop(2)
-  batch!: Batch;
+  batch!: BatchForm;
 
   @uichild(BatchEpiLayout.name, 'app-switcher', {
     type: 'column',
