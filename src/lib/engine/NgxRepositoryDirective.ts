@@ -43,7 +43,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
    * When set, this property provides the component with access to the model's schema, validation rules,
    * and metadata needed for rendering and data operations.
    * @type {Model | string | undefined}
-   * @memberOf module:lib/engine/NgxComponentDirective
+   * @memberOf module:lib/engine/NgxRepositoryDirective
    */
   @Input()
   override model!: Model | string | undefined;
@@ -55,7 +55,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
    * specific records, such as read, update, and delete operations. The value corresponds to
    * the field designated as the primary key in the model definition.
    * @type {PrimaryKeyType}
-   * @memberOf module:lib/engine/NgxComponentDirective
+   * @memberOf module:lib/engine/NgxRepositoryDirective
    */
   @Input()
   override modelId: PrimaryKeyType = '';
@@ -434,7 +434,6 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
    *
    * @param {...unknown[]} args - The repository event arguments including table, event type, and UID
    * @returns {Promise<void>}
-   * @memberOf ListComponent
    */
   async handleRepositoryRefresh(...args: unknown[]): Promise<void> {
     const [modelInstance, event, uid] = args;
