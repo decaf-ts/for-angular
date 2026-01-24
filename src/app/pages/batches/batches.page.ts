@@ -49,12 +49,12 @@ export class BatchesPage extends NgxModelPageDirective implements OnInit {
     this.title = `${this.locale}.title`;
     this.route = 'batches';
     await this.initialize();
-
-    const repo = getModelAndRepository('Batch');
-    if (repo) {
-      const { repository } = repo;
-      const query = await repository.select().execute();
-    }
+    console.log(this.model);
+    // const repo = getModelAndRepository('Batch');
+    // if (repo) {
+    //   const { repository } = repo;
+    //   const query = await repository.select().execute();
+    // }
   }
 
   // override async ionViewWillEnter(): Promise<void> {

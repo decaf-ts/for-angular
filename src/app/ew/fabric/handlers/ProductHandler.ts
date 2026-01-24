@@ -34,10 +34,7 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     | undefined;
 
   static readonly modelId: string;
-  override async render<T extends NgxComponentDirective>(
-    instance: any,
-    prop: string,
-  ): Promise<string | void> {
+  override async render(instance: any, prop: string): Promise<string | void> {
     if (instance.pk) {
       ProductHandler.pk = instance.pk;
     }

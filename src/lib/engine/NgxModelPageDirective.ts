@@ -307,7 +307,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     }
     const getRepository = async (
       modelName: string,
-      model: KeyValue = {},
+      acc: KeyValue = {},
       parent: string = '',
     ): Promise<DecafRepository<Model> | void> => {
       if (this._repository) return this._repository as DecafRepository<Model>;
@@ -318,10 +318,10 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
           const type = this.getModelPropertyType(constructor as Constructor<Model>, prop);
           const context = getModelAndRepository(type as string);
           if (!context) {
-            model[prop] = {};
-            return getRepository(type, model, prop);
+            acc[prop] = {};
+            return getRepository(type, acc, prop);
           }
-          const { repository, pk, pkType } = context;
+          const { repository, model, pk, pkType } = context;
           if (!this.pk) {
             this.pk = pk;
             this.pkType = pkType;
@@ -334,8 +334,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
             .execute();
           if (modelName === this.modelName) {
             const data = query?.length ? (query?.length === 1 ? query[0] : query) : undefined;
-            model[prop] = data;
-            this.model = Model.build({ [prop]: data }, modelName);
+            acc[prop] = data;
+            const model = await this.transactionEnd(data as Model, repository, OperationKeys.READ);
+            this.model = Model.build({ [prop]: model ? model : data }, modelName);
           } else {
             // model[parent] = {
             //   ...model[parent],

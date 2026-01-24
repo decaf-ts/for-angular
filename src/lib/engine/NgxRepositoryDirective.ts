@@ -319,6 +319,28 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     }
   }
 
+  protected async transactionEnd<M extends Model>(
+    model: M,
+    repository: DecafRepository<M>,
+    operation: CrudOperations,
+  ): Promise<M | M[] | PrimaryKeyType | undefined> {
+    try {
+      const hook = `after${operation.charAt(0).toUpperCase() + operation.slice(1)}`;
+      const handler = this.handlers?.[hook] || undefined;
+      if (handler && typeof handler === 'function') {
+        const result = (await handler.bind(this)(model, repository, this.modelId)) as M | boolean;
+        if (result === false) {
+          return undefined;
+        }
+        return result as M;
+      }
+      return model;
+    } catch (error: unknown) {
+      this.log.for(this).error((error as Error)?.message || String(error));
+      return undefined;
+    }
+  }
+
   /**
    * @description Parses and transforms form data for repository operations.
    * @summary Converts raw form data into the appropriate format for repository operations.
