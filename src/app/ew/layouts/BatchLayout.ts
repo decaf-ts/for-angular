@@ -14,6 +14,7 @@ import { getDocumentProperties, EpiHandler } from '../fabric/handlers/EpiHandler
 import { Leaflet } from '../fabric';
 import { ProductHandler } from '../fabric/handlers/ProductHandler';
 import { BatchForm } from '../fabric/forms/BatchForm';
+import { BatchHandler } from '../fabric/handlers/BatchHandler';
 
 @uimodel('', {})
 @model()
@@ -28,9 +29,9 @@ class BatchEpiLayout {
   breakpoint: UIMediaBreakPoints.XLARGE,
 })
 @uihandlers({
-  [ComponentEventNames.Submit]: ProductHandler,
-  [TransactionHooks.BeforeUpdate]: ProductHandler,
-  [TransactionHooks.BeforeCreate]: ProductHandler,
+  [ComponentEventNames.Submit]: BatchHandler,
+  [TransactionHooks.BeforeUpdate]: BatchHandler,
+  [TransactionHooks.BeforeCreate]: BatchHandler,
 })
 @model()
 export class BatchLayout extends Model {

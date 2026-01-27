@@ -55,16 +55,16 @@ export class AppExpiryDateFieldComponent extends CrudFieldComponent implements O
         const formGroup = (this.formGroup as FormGroup).value;
         const expiryDate = formGroup?.expiryDate as string;
         if (expiryDate) {
-          this.enableDaySelection = !expiryDate.includes('00');
-          if (this.name === 'enableDaySelection') {
-            this.checked = this.enableDaySelection;
-            this.expiryDate = expiryDate;
-          }
-          if (this.name === 'expiryDate') {
-            this.value = expiryDate;
-            this.calendarInputValue = this.revertGS1ToDateValue(expiryDate);
-            this.changeDetectorRef.detectChanges();
-          }
+          // this.enableDaySelection = !expiryDate.includes('00');
+          // if (this.name === 'enableDaySelection') {
+          //   this.checked = this.enableDaySelection;
+          //   this.expiryDate = expiryDate;
+          // }
+          // if (this.name === 'expiryDate') {
+          //   this.value = expiryDate;
+          //   this.calendarInputValue = this.revertGS1ToDateValue(expiryDate);
+          //   this.changeDetectorRef.detectChanges();
+          // }
         }
       }
     }
@@ -83,7 +83,9 @@ export class AppExpiryDateFieldComponent extends CrudFieldComponent implements O
     const { source, value } = event.detail;
     if (source !== this.name) {
       if (source === 'calendarInput') {
-        if (this.name === 'enableDaySelection') this.expiryDate = value;
+        if (this.name === 'enableDaySelection') {
+          this.expiryDate = this.parseCalendarInputValue(value);
+        }
       }
 
       if (source === 'enableDaySelection') {
@@ -118,7 +120,8 @@ export class AppExpiryDateFieldComponent extends CrudFieldComponent implements O
   handleCalendarPick(value: string) {
     if (value) {
       this.calendarInputValue = value;
-      this.value = this.parseCalendarInputValue(value);
+      this.value = value;
+      // this.value = this.parseCalendarInputValue(value);
       this.changeDetectorRef.detectChanges();
       this.setValue(this.value);
       const subscription = timer(50).subscribe(() => {

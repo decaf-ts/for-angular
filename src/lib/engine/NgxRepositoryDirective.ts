@@ -204,6 +204,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
           await this.refresh();
         }
       } else {
+        // this._data = await this.read(this.modelId as PrimaryKeyType);
         // if (String(this.modelName) === this.model?.constructor.name) {
         //   const model = await this.repository.read(this.modelId as PrimaryKeyType);
         //   if (model) {

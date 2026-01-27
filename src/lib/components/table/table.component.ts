@@ -162,42 +162,46 @@ export class TableComponent extends ListComponent implements OnInit {
     props: KeyValue = {},
   ): Promise<KeyValue> {
     this.model = item as Model;
-    const mapped = await super.itemMapper(
+    const mapped = super.itemMapper(
       item,
       this.cols.filter((c) => c !== 'actions'),
       props,
     );
     const { children } = (this.props as KeyValue) || [];
     const entries = Object.entries(mapped);
-
-    const resultEntries = await Promise.all(
-      entries.map(async ([curr, value], index) => {
+    for (const [curr, value] of entries) {
+      const getEvents = async (index: number, name: string) => {
         try {
-          const child = children[index];
+          const child = children.find((c: KeyValue) => c?.['props']?.name === name);
           if (child) {
             const { events, name } = child?.['props'] || {};
             if (events) {
-              const sequence =
-                (mapper[name]?.sequence || index) + (!this.cols.includes('actions') ? 1 : 0);
+              const sequence = String(index);
               const evts = this.parseEvents(events, this);
               for (const [key, evt] of Object.entries(evts)) {
                 const handler = evt;
                 if (key === ComponentEventNames.Render) {
                   if (handler?.name === ComponentEventNames.Render) {
-                    value = await handler.bind(this)(this, name, value);
+                    mapped[sequence] = {
+                      ...mapped[sequence],
+                      value: await handler.bind(this)(this, name, value),
+                    };
                   } else {
                     const handlerFn = await handler(this, name, value);
-                    value =
-                      typeof handlerFn === 'function' || handlerFn instanceof Promise
-                        ? await handlerFn.bind(this)(this, name, value)
-                        : handlerFn;
+                    mapped[sequence] = {
+                      ...mapped[sequence],
+                      value:
+                        name + ' ' + typeof handlerFn === 'function' || handlerFn instanceof Promise
+                          ? await handlerFn.bind(this)(this, name, value)
+                          : handlerFn,
+                    };
                   }
                 }
                 if (key === 'handleClick' || key === 'handleAction') {
-                  props = {
-                    ...props,
+                  mapped[sequence] = {
+                    ...mapped[sequence],
                     handler: {
-                      col: String(sequence),
+                      index: Number(sequence),
                       handle: handler.bind(this),
                     },
                   };
@@ -205,22 +209,25 @@ export class TableComponent extends ListComponent implements OnInit {
               }
             }
           }
+          return value;
         } catch (error) {
           this.log
             .for(this.itemMapper)
             .error(`Error mapping child events. ${(error as Error)?.message || error}`);
         }
-
-        const propName = this.cols[index];
-        const parserFn = mapper[propName]?.valueParserFn || undefined;
-        const resolvedValue = parserFn ? await parserFn(this, propName, value) : value;
-        return [curr, resolvedValue];
-      }),
-    );
-
-    return resultEntries.reduce((accum, [key, value]) => ({ ...accum, [key]: value }), {
-      ...props,
-    });
+      };
+      const name = this.cols[Number(curr)];
+      const index = Number(curr);
+      const parserFn = mapper[name]?.valueParserFn || undefined;
+      const resolvedValue = parserFn ? await parserFn(this, name, value) : value;
+      mapped[curr] = {
+        prop: name ?? this.pk,
+        value: resolvedValue,
+        index: index || 0,
+      };
+      await getEvents(index, name);
+    }
+    return mapped;
   }
 
   override async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
@@ -228,7 +235,7 @@ export class TableComponent extends ListComponent implements OnInit {
     if (!data || !data.length) return [];
 
     return await Promise.all(
-      data.map((curr) => this.itemMapper(curr, this.mapper, { uid: curr[this.pk] })),
+      data.map(async (curr) => await this.itemMapper(curr, this.mapper, { uid: curr[this.pk] })),
     );
   }
 

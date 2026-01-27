@@ -797,11 +797,12 @@ export class NgxFormService {
           }
           continue;
         }
-        data[key] = value;
+        data[key] = NgxFormService.getFormData(control as FormGroup);
         continue;
       }
 
       const props = NgxFormService.getPropsFromControl(control as FormControl | FormArray);
+      // const { readonly } = (props as IFormComponentProperties) || false; TODO: dont send readonly fields?
       let value = control.value;
       if (!HTML5CheckTypes.includes(props['type'])) {
         switch (props['type']) {
@@ -810,7 +811,7 @@ export class NgxFormService {
             break;
           case HTML5InputTypes.DATE:
           case HTML5InputTypes.DATETIME_LOCAL:
-            value = typeof value === Primitives.STRING ? new Date(value) : value;
+            value = typeof value === Primitives.STRING ? new Date(`${value}T00:00:00`) : value;
             break;
           default:
             value = escapeHtml(value)?.trim();

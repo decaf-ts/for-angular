@@ -1,4 +1,6 @@
 export const DatePattern = 'yyyy-MM-dd';
+
+export const BatchPattern = /^[a-zA-Z0-9/-]{1,20}$/;
 // export const BatchPattern: RegExp;
 export enum TableNames {
   Audit = 'audit',
