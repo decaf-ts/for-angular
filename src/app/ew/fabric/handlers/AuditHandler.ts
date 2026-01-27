@@ -6,7 +6,6 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
 import { KeyValue } from 'src/lib/engine/types';
 import { getLogger } from 'src/lib/engine';
-import { he } from '@faker-js/faker/.';
 
 async function downLoadFile(
   content: string,

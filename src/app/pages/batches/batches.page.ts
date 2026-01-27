@@ -16,6 +16,8 @@ import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.
 import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
 import { getModelAndRepository } from 'src/lib/engine';
 import { BatchForm } from 'src/app/ew/fabric/forms/BatchForm';
+import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
+import { Model } from '@decaf-ts/decorator-validation';
 
 @Component({
   selector: 'app-batches',
@@ -49,12 +51,9 @@ export class BatchesPage extends NgxModelPageDirective implements OnInit {
     this.title = `${this.locale}.title`;
     this.route = 'batches';
     await this.initialize();
-    console.log(this.model);
-    // const repo = getModelAndRepository('Batch');
-    // if (repo) {
-    //   const { repository } = repo;
-    //   const query = await repository.select().execute();
-    // }
+    if (this.operation === OperationKeys.UPDATE) {
+      console.log(this.model);
+    }
   }
 
   // override async ionViewWillEnter(): Promise<void> {

@@ -336,6 +336,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
             const data = query?.length ? (query?.length === 1 ? query[0] : query) : undefined;
             acc[prop] = data;
             const model = await this.transactionEnd(data as Model, repository, OperationKeys.READ);
+            this.name = prop;
             this.model = Model.build({ [prop]: model ? model : data }, modelName);
           } else {
             // model[parent] = {

@@ -63,14 +63,12 @@
                   (click)="
                     handleAction(
                       $event,
-                      item?.handler && item?.handler.col === col.key
-                        ? item.handler.handle
-                        : undefined,
-                      item.uid,
+                      col?.value.handler ? col.value.handler.handle : undefined,
+                      item.uid.value,
                       OperationKeys.READ
                     )
                   "
-                  [innerHTML]="col.value"
+                  [innerHTML]="col.value.value"
                 ></td>
               } @else {
                 @if (allowOperations && col.key !== 'handler') {
@@ -79,7 +77,9 @@
                       @if (operations?.includes(OperationKeys.UPDATE)) {
                         <ngx-decaf-icon
                           [button]="true"
-                          (click)="handleRedirect($event, item.uid, OperationKeys.UPDATE, true)"
+                          (click)="
+                            handleRedirect($event, item.uid.value, OperationKeys.UPDATE, true)
+                          "
                           fill="clear"
                           slot="icon-only"
                           color="primary"
@@ -89,7 +89,9 @@
                       @if (operations?.includes(OperationKeys.DELETE)) {
                         <ngx-decaf-icon
                           [button]="true"
-                          (click)="handleRedirect($event, item.uid, OperationKeys.DELETE, true)"
+                          (click)="
+                            handleRedirect($event, item.uid.value, OperationKeys.DELETE, true)
+                          "
                           fill="clear"
                           slot="icon-only"
                           color="danger"
