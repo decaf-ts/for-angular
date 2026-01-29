@@ -123,8 +123,13 @@ export class NgxRouterService {
    *
    * @memberOf RouterService
    */
-  parseAllQueryParams(params: string | string[]): KeyValue[] {
-    if (typeof params === Primitives.STRING) params = [params as string];
+  parseAllQueryParams(params?: string | string[]): KeyValue[] {
+    if (!params) {
+      params = Object.keys(this.route.snapshot.queryParams);
+    }
+    if (typeof params === Primitives.STRING) {
+      params = [params as string];
+    }
     return (params as string[]).reduce((acc: KeyValue[], param: string) => {
       const item = {
         [param]: (this.route.snapshot.queryParamMap.get(param) as string) || null,
