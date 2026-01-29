@@ -471,6 +471,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
             message: 'Operation aborted by before hook',
           };
         }
+
         switch (operation) {
           case OperationKeys.CREATE:
             result = await (!Array.isArray(model)

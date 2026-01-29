@@ -6,7 +6,6 @@ import { Product } from '../Product';
 import { DecafRepository, KeyValue } from 'src/lib/engine/types';
 import { formatDate, Model } from '@decaf-ts/decorator-validation';
 import { BatchForm } from '../forms/BatchForm';
-import { M } from '@faker-js/faker/dist/airline-CLphikKp';
 
 export class BatchHandler extends ProductHandler<Model> {
   static parseExpiryDate<M extends Model>(model: M): M {
