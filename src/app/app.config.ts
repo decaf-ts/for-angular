@@ -30,6 +30,7 @@ import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-dat
 import { AppSwitcherComponent } from './components/switcher/switcher.component';
 import { ProductImage } from './ew/fabric/ProductImage';
 import { Audit } from './ew/fabric/Audit';
+import { DecafAxiosHttpAdapter } from 'src/lib/engine/overrides';
 // import { AxiosHttpAdapter, HttpAdapter, HttpStatement } from '@decaf-ts/for-http';
 
 export const AppName = 'For Angular';
@@ -78,7 +79,10 @@ export const AppConfig: ApplicationConfig = {
     // }),
 
     provideDecafDbAdapter(RamAdapter, { user: 'user' }),
-
+    // provideDecafDbAdapter(DecafAxiosHttpAdapter, {
+    //   protocol: 'https',
+    //   host: 'ew-backend.ptp.internal',
+    // }),
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
 

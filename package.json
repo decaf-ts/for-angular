@@ -3,6 +3,7 @@
   "version": "0.0.82",
   "scripts": {
     "ng": "ng",
+    "start": "npx rimraf .angular && ng run for-angular-app:serve --host=localhost --port=8110",
     "decaf": "npx decaf angular generate",
     "schematics": "schematics",
     "do-install": "NPM_TOKEN=$(cat .npmtoken) npm install",
@@ -16,7 +17,6 @@
     "build": "npx rimraf .angular && npm run lint && ng build for-angular --configuration development && ng build for-angular-app --configuration development && npm run build:cli",
     "build:cli": "tsc --project tsconfig.cli.json --outDir dist/for-angular/cli",
     "build:schematics": "node ./bin/build-schematics.js",
-    "start": "npx rimraf .angular && ng run for-angular-app:serve --host=localhost --port=8110",
     "server": "npm run start",
     "watch": "ng build for-angular --watch --configuration development",
     "test": "npm run test:all",

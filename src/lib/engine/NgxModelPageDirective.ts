@@ -20,9 +20,11 @@ import {
 import { DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { getModelAndRepository } from './helpers';
+import { fa } from '@faker-js/faker/.';
 
 @Directive()
 export abstract class NgxModelPageDirective extends NgxPageDirective implements AfterViewInit {
+  override refreshing: boolean = true;
   /**
    * @description The CRUD operation type to be performed on the model.
    * @summary Specifies which operation (Create, Read, Update, Delete) this component instance
@@ -90,9 +92,11 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
 
   override async initialize(): Promise<void> {
     await super.initialize();
-    await this.refresh(this.modelId);
-    this.changeDetectorRef.detectChanges();
     this.getLocale(this.modelName as string);
+  }
+
+  async ionViewWillEnter(): Promise<void> {
+    await this.refresh(this.modelId);
   }
 
   // /**
@@ -115,6 +119,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
    * @param {string} [uid] - The unique identifier of the model to load; defaults to modelId
    */
   override async refresh(uid?: EventIds): Promise<void> {
+    this.refreshing = true;
     if (!uid) {
       uid = this.modelId;
     }
@@ -125,8 +130,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
         case OperationKeys.UPDATE:
         case OperationKeys.DELETE:
           {
-            this.model = await this.handleRead(uid);
-            this.changeDetectorRef.detectChanges();
+            await this.handleRead(uid);
           }
           break;
       }
@@ -136,6 +140,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
       }
       this.log.error(error as Error | string);
     }
+
+    this.refreshing = false;
   }
 
   /**
@@ -327,17 +333,17 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
             this.pkType = pkType;
           }
           uid = this.parsePkValue(uid as PrimaryKeyType, this.pkType);
-          if (!this.modelId) this.modelId = uid as PrimaryKeyType;
-          const query = await repository
-            .select()
-            .where(Condition.attribute<Model>(this.pk as keyof Model).eq(uid))
-            .execute();
+          if (!this.modelId) {
+            this.modelId = uid as PrimaryKeyType;
+          }
           if (modelName === this.modelName) {
-            const data = query?.length ? (query?.length === 1 ? query[0] : query) : undefined;
+            const data = await repository.read(uid as PrimaryKeyType);
             acc[prop] = data;
-            const model = await this.transactionEnd(data as Model, repository, OperationKeys.READ);
+            const _model =
+              (await this.transactionEnd(data as Model, repository, OperationKeys.READ)) ||
+              Model.build(data, model.constructor.name as string);
             this.name = prop;
-            this.model = Model.build({ [prop]: model ? model : data }, modelName);
+            this.model = Model.build({ [prop]: _model }, modelName);
           } else {
             // model[parent] = {
             //   ...model[parent],
@@ -357,10 +363,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     }
     try {
       if (!this.pk) this.pk = Model.pk(repository.class) as string;
-      const res = await repository.read(
+      return await repository.read(
         this.parsePkValue(uid as Primitives, this.getModelPkType(repository.class)),
       );
-      return res;
     } catch (error: unknown) {
       this.log
         .for(this.handleRead)

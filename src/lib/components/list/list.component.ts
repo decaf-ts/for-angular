@@ -35,7 +35,7 @@ import {
 } from '@ionic/angular/standalone';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
-import { Condition, OrderDirection, Paginator } from '@decaf-ts/core';
+import { Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
 import { debounceTime, shareReplay, Subject, takeUntil, timer } from 'rxjs';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
@@ -610,8 +610,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     if (this._repository && this.repositoryObserver) {
       const repo = this._repository as DecafRepository<Model>;
       //TODO: fix check observerHandler
-      const observeHandler = repo['observerHandler'];
-      if (observeHandler) {
+      const observeHandler = repo['observerHandler'] as { observers: Observer[] } | undefined;
+      if (observeHandler && observeHandler?.observers?.length) {
         try {
           repo.unObserve(this.repositoryObserver);
         } catch (error: unknown) {
@@ -812,21 +812,21 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @memberOf ListComponent
    */
   async handleUpdate(uid: string | number): Promise<void> {
-    const item: KeyValue = this.itemMapper((await this._repository?.read(uid)) || {}, this.mapper);
+    const item = await this._repository?.read(uid);
+    // const item: KeyValue = this.itemMapper((await this._repository?.read(uid)) || {}, this.mapper);
     this.data = [];
     this.changeDetectorRef.detectChanges();
     for (const key in this.items as KeyValue[]) {
       const child = this.items[key] as KeyValue;
       if (`${child['uid']}`.trim() === `${uid}`.trim()) {
-        this.items[key] = Object.assign({}, child, item);
+        this.items[key] = Object.assign({}, child, this.itemMapper(item || {}, this.mapper), {
+          model: item || {},
+        });
         break;
       }
     }
-    const updateSubsriber$ = timer(0).subscribe(() => {
-      this.data = [...this.items];
-      this.changeDetectorRef.detectChanges();
-      updateSubsriber$.unsubscribe();
-    });
+    this.data = [...this.items];
+    this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -1115,14 +1115,16 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     if (!this._repository) {
       this._repository = this.repository;
     }
-    if (!this.repositoryObserver) {
-      this.repositoryObserver = {
-        refresh: async (...args) => this.handleRepositoryRefresh(...args),
-      };
-    }
+    // if (!this.repositoryObserver) {
+    //   this.repositoryObserver = {
+    //     refresh: async (...args) => this.handleRepositoryRefresh(...args),
+    //   };
+    // }
 
     try {
-      (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
+      const observerHandler = (this._repository as DecafRepository<Model>)['observerHandler'];
+      if (!observerHandler)
+        (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
     } catch (error: unknown) {
       this.log.info((error as Error)?.message);
     }

@@ -8,7 +8,7 @@
  * @link {@link CrudFormComponent}
  */
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -30,7 +30,7 @@ import { getModelAndRepository } from '../../engine/helpers';
   imports: [TranslatePipe, ReactiveFormsModule, LayoutComponent, IonButton, IonIcon],
   host: { '[attr.id]': 'uid' },
 })
-export class CrudFormComponent extends NgxFormDirective {
+export class CrudFormComponent extends NgxFormDirective implements OnInit {
   constructor() {
     super('CrudFormComponent');
   }
@@ -45,7 +45,7 @@ export class CrudFormComponent extends NgxFormDirective {
    * @returns {Promise<void>}
    * @memberOf CrudFormComponent
    */
-  override async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     this.options = Object.assign(
       {},
       DefaultFormReactiveOptions,

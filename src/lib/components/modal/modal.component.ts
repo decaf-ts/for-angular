@@ -274,7 +274,7 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    *
    * @returns {Promise<void>} - A promise that resolves when initialization is complete.
    */
-  override async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     await super.initialize();
     this.parseInlineContent();
   }

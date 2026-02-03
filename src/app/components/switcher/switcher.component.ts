@@ -62,7 +62,7 @@ export class AppSwitcherComponent extends NgxParentComponentDirective implements
     super('SwitcherComponent');
   }
 
-  override async ngOnInit() {
+  async ngOnInit() {
     // await super.ngOnInit();
     // Initialize items based on children and existing items input
     if (!this.items.length || this.items.length < this.children.length) {

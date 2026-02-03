@@ -569,6 +569,9 @@ export abstract class NgxComponentDirective
     if (!this.initialized && Object.keys(this.props || {}).length) {
       this.parseProps(this);
     }
+    if (this.operation === OperationKeys.CREATE) {
+      this.refreshing = false;
+    }
 
     this.router.events
       .pipe(shareReplay(1), takeUntil(this.destroySubscriptions$))
