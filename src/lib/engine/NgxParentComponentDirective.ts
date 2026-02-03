@@ -32,10 +32,9 @@ import { Subscription, timer } from 'rxjs';
  * @implements {OnInit}
  */
 @Directive()
-export class NgxParentComponentDirective extends NgxComponentDirective implements OnInit {
-  ngOnInit(): void {
-    throw new Error('Method not implemented.');
-  }
+export class NgxParentComponentDirective extends NgxComponentDirective {
+  @Input()
+  override refreshing: boolean = false;
 
   /**
    * @description Unique identifier for the current record.

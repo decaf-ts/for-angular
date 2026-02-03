@@ -137,7 +137,7 @@
     }
   }
 </div>
-@if (loadMoreData) {
+@if (loadMoreData && !refreshing) {
   <div class="dcf-table-pagination">
     @if (pages > 0 && !searchValue?.length) {
       <ngx-decaf-pagination

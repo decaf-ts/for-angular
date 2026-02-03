@@ -272,7 +272,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    *
    * @memberOf LayoutComponent
    */
-  override async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     // must always parse props first, parse children case of layout depends on it
     super.parseProps(this, !this.children.length ? [] : ['children']);
     if (this.breakpoint)

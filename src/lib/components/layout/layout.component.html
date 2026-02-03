@@ -37,15 +37,26 @@
                     />
                   </ngx-decaf-card>
                 } @else {
-                  <ngx-decaf-component-renderer
-                    [tag]="child.tag"
-                    [pk]="pk"
-                    [className]="(match ? 'dcf-height-1-1 dcf-card-layout' : '') + className"
-                    [parentForm]="parentForm || child.parentForm || child?.formGroup"
-                    [children]="child?.children || []"
-                    (listenEvent)="handleEvent($event)"
-                    [globals]="{ props: child.props }"
-                  />
+                  @if (refreshing) {
+                    <ion-item>
+                      <ion-label>
+                        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+                        <ion-text style="width: 100%">
+                          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+                        </ion-text>
+                      </ion-label>
+                    </ion-item>
+                  } @else {
+                    <ngx-decaf-component-renderer
+                      [tag]="child.tag"
+                      [pk]="pk"
+                      [className]="(match ? 'dcf-height-1-1 dcf-card-layout' : '') + className"
+                      [parentForm]="parentForm || child.parentForm || child?.formGroup"
+                      [children]="child?.children || []"
+                      (listenEvent)="handleEvent($event)"
+                      [globals]="{ props: child.props }"
+                    />
+                  }
                 }
               </div>
             </div>

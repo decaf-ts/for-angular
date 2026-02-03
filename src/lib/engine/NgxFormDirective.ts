@@ -27,7 +27,7 @@ import { FieldDefinition, UIFunctionLike, UIModelMetadata } from '@decaf-ts/ui-d
 @Directive()
 export abstract class NgxFormDirective
   extends NgxParentComponentDirective
-  implements OnInit, AfterViewInit, IFormElement, OnDestroy, IRenderedModel
+  implements AfterViewInit, IFormElement, OnDestroy, IRenderedModel
 {
   /**
    * @description Reactive form group associated with this fieldset.

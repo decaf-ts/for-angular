@@ -213,7 +213,7 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    *
    * @memberOf SteppedFormComponent
    */
-  override async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     if (!this.locale) this.locale = getLocaleContext('SteppedFormComponent');
     this.activeIndex = this.startPage;
     if (typeof this.pages === 'object') {

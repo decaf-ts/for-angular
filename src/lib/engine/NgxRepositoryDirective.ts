@@ -199,7 +199,12 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   override async initialize(): Promise<void> {
     if (this.repository) {
       if (this.filter) {
-        this._data = await this.query(this.filter.eq(this.modelId as PrimaryKeyType));
+        const value = !this.modelId || !`${this.modelId}`.trim().length ? null : this.modelId;
+        if (value === null) {
+          this._data = [];
+          return;
+        }
+        this._data = await this.query(this.filter.eq(value as PrimaryKeyType));
         if (this._data) {
           await this.refresh();
         }
@@ -242,16 +247,16 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     if (!attr) {
       attr = (this.filterBy || this.pk) as keyof M;
     }
-    const condtion = this.filter || Condition.attribute<M>(attr);
+    const condition = this.filter || Condition.attribute<M>(attr);
     const type = this.getModelPropertyType(this.repository.class, attr as keyof M);
     if (this.modelId) {
-      return condtion.eq(
+      return condition.eq(
         [Primitives.NUMBER, Primitives.BIGINT].includes(type as Primitives)
           ? Number(this.modelId)
           : (this.modelId as PrimaryKeyType),
       );
     }
-    return condtion.dif(null);
+    return condition.dif(null);
   }
 
   async read(uid: PrimaryKeyType): Promise<M> {
@@ -273,14 +278,28 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   }
 
   async query(
-    condtion?: Condition<M>,
+    condition?: Condition<M>,
     sortBy: keyof M = (this.sortBy || this.pk) as keyof M,
     sortDirection: OrderDirection = this.sortDirection,
   ): Promise<M[]> {
-    if (!condtion) {
-      condtion = this.buildCondition();
+    if (!condition) {
+      condition = this.buildCondition();
     }
-    return (await this.repository.query(condtion as Condition<M>, sortBy, sortDirection)) as M[];
+    try {
+      return (await this.repository.query(condition as Condition<M>, sortBy, sortDirection)) as M[];
+    } catch (error: unknown) {
+      this.log.for(this).error((error as Error)?.message || String(error));
+      return [];
+    }
+    // const paginator = await this.repository
+    //   .select()
+    //   .where(condition)
+    //   .orderBy([(this.sortBy || this.pk) as keyof M, sortDirection])
+    //   .paginate(250);
+    // if (paginator.total === 0) {
+    //   return [];
+    // }
+    // return await paginator.page(1);
   }
 
   async paginate(

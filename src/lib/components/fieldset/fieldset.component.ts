@@ -378,7 +378,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    * @returns {void}
    * @memberOf FieldsetComponent
    */
-  override async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     if (this.max && this.max === 1) this.multiple = false;
     this.buttonLabel = this.translateService.instant(this.locale + '.add');
     this.buttonCancelLabel = this.translateService.instant(this.locale + '.cancel');
