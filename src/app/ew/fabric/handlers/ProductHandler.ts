@@ -287,7 +287,9 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
 
     // console.log(modelDiffs);
     for (const [key, value] of Object.entries(modelDiffs || {})) {
-      const { other, current } = Array.isArray(value) ? value[0] : value;
+      const diff = Array.isArray(value) ? value[0] : value;
+      const other = diff?.other || undefined;
+      const current = diff?.current || undefined;
       if (Array.isArray(other)) {
         if (!other.length && current === undefined) continue;
       } else {

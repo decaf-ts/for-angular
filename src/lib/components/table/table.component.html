@@ -114,6 +114,7 @@
         [subtitle]="'component.list.empty.subtitle' | translate"
         [model]="empty?.showButton ? model : undefined"
         [route]="route"
+        [refreshing]="refreshing"
         [modelId]="modelId"
         [buttonLink]="empty?.link ?? undefined"
         [borders]="borders"
@@ -137,6 +138,7 @@
     }
   }
 </div>
+
 @if (loadMoreData && !refreshing) {
   <div class="dcf-table-pagination">
     @if (pages > 0 && !searchValue?.length) {

@@ -1,9 +1,15 @@
 import { AxiosFlags, AxiosFlavour, AxiosHttpAdapter, HttpConfig } from '@decaf-ts/for-http';
-import { Axios, AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { ContextualArgs, Context, PersistenceKeys, PreparedStatementKeys } from '@decaf-ts/core';
-import { BulkCrudOperationKeys, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
+import {
+  BaseError,
+  BulkCrudOperationKeys,
+  InternalError,
+  OperationKeys,
+  PrimaryKeyType,
+} from '@decaf-ts/db-decorators';
 import { Constructor } from '@decaf-ts/decoration';
-import { Model } from '@decaf-ts/decorator-validation';
+import { Model, ModelKeys } from '@decaf-ts/decorator-validation';
 
 export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
   constructor(
@@ -12,6 +18,17 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     protected enableCredentials: boolean = true,
   ) {
     super(config, alias);
+  }
+
+  parseStatementURL(url: string): string {
+    const urlArray = url.split('/');
+    if (
+      urlArray.includes(PersistenceKeys.STATEMENT) &&
+      !urlArray.includes(PreparedStatementKeys.PAGE_BY)
+    ) {
+      return urlArray.filter((part) => part !== PersistenceKeys.STATEMENT).join('/');
+    }
+    return url;
   }
 
   token?: string;
@@ -24,8 +41,8 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     try {
       const { ctx } = this.logCtx(args, this.request);
       overrides = this.toRequest(ctx);
-      // eslint-s
-    } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err: unknown) {
       // do nothing
     }
     if (this.token) {
@@ -37,9 +54,58 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
         },
       };
     }
+    const { method } = details || undefined;
+    switch (method) {
+      case 'PUT':
+      case 'POST':
+      case 'PATCH': {
+        const headers = (overrides as AxiosRequestConfig)?.headers || {};
+        overrides = {
+          ...overrides,
+          headers: {
+            ...headers,
+            'Content-Type': 'application/json; charset=utf-8',
+          },
+        };
+        break;
+      }
+    }
 
-    const result = await this.client.request(Object.assign({}, details, overrides));
-    return result as V;
+    return await this.client.request(
+      Object.assign({}, details, { url: this.parseStatementURL(details.url || '') }, overrides),
+    );
+  }
+
+  override async create<M extends Model>(
+    tableName: Constructor<M>,
+    id: PrimaryKeyType,
+    model: M,
+    ...args: ContextualArgs<Context<AxiosFlags>>
+  ): Promise<Record<string, unknown>> {
+    const { log, ctx } = this.logCtx(args, this.create);
+    try {
+      const url = this.url(tableName);
+      const cfg = this.toRequest(ctx);
+      log.debug(
+        `POSTing to ${url} with ${JSON.stringify(model)} and cfg ${JSON.stringify(cfg)} and primary key ${id}`,
+      );
+      const result = await this.request<Record<string, unknown>>(
+        {
+          url,
+          method: 'POST',
+          data: JSON.stringify(
+            Object.assign({}, model, {
+              [ModelKeys.ANCHOR]: tableName.name,
+            }),
+          ),
+          ...cfg,
+        },
+        ctx,
+      );
+      return result;
+    } catch (error: unknown) {
+      throw this.parseError(error as BaseError);
+    }
   }
 
   override async parseResponse<M extends Model>(

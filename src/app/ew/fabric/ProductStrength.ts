@@ -16,7 +16,7 @@ import { TableNames } from './constants';
 @description('Represents the product’s strength and composition details.')
 export class ProductStrength extends Cacheable {
   @description('Represents the product’s strength and composition details.')
-  @pk({ type: Number, generated: true })
+  @pk()
   @description('Unique identifier of the product strength.')
   id!: number;
 

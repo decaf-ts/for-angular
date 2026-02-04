@@ -814,7 +814,7 @@ export class NgxFormService {
             value = typeof value === Primitives.STRING ? new Date(`${value}T00:00:00`) : value;
             break;
           default:
-            value = escapeHtml(value)?.trim();
+            value = !isNaN(value) ? value : escapeHtml(value)?.trim();
         }
       } else {
         if (props['type'] === HTML5InputTypes.CHECKBOX)

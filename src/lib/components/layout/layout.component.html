@@ -39,12 +39,7 @@
                 } @else {
                   @if (refreshing) {
                     <ion-item>
-                      <ion-label>
-                        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-                        <ion-text style="width: 100%">
-                          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-                        </ion-text>
-                      </ion-label>
+                      <ion-skeleton-text [animated]="true"></ion-skeleton-text>
                     </ion-item>
                   } @else {
                     <ngx-decaf-component-renderer

@@ -78,11 +78,11 @@ export const AppConfig: ApplicationConfig = {
     //   responseParser: new NestJSResponseParser()
     // }),
 
-    provideDecafDbAdapter(RamAdapter, { user: 'user' }),
-    // provideDecafDbAdapter(DecafAxiosHttpAdapter, {
-    //   protocol: 'https',
-    //   host: 'ew-backend.ptp.internal',
-    // }),
+    // provideDecafDbAdapter(RamAdapter, { user: 'user' }),
+    provideDecafDbAdapter(DecafAxiosHttpAdapter, {
+      protocol: 'https',
+      host: 'ew-backend.ptp.internal',
+    }),
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
 

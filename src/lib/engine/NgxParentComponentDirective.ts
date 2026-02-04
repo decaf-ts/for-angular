@@ -6,7 +6,7 @@
  *
  * @link {@link NgxParentComponentDirective}
  */
-import { Directive, Input, OnInit } from '@angular/core';
+import { Directive, Input } from '@angular/core';
 import { NgxComponentDirective } from './NgxComponentDirective';
 import { FormParent, KeyValue } from './types';
 import {
