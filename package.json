@@ -1,6 +1,6 @@
 {
   "name": "@decaf-ts/for-angular",
-  "version": "0.0.84",
+  "version": "0.0.85",
   "scripts": {
     "ng": "ng",
     "start": "npx rimraf .angular && ng run for-angular-app:serve --host=localhost --port=8110",
