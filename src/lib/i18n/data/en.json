@@ -28,7 +28,7 @@
     "greaterThanOrEqual": "This field must be greater than or equal to field {0}",
     "form_control": "Controlador do formulário não encontrado para {0}.",
     "not_found": "No records found with <span class=\"text-bold\">{0}: {1} in {2}</span>.",
-    "empty_options" : "No options available for required field {0}. Fix the data source."
+    "empty_options": "No options available for required field {0}. Fix the data source."
   },
   "operations": {
     "read": {
@@ -42,7 +42,7 @@
       "error": "Error creating item."
     },
     "update": {
-       "title": "Update",
+      "title": "Update",
       "success": "Successfully updated item with {0} {1}.",
       "error": "Error updating item with {0} {1}."
     },
@@ -54,7 +54,8 @@
     "multiple": {
       "success": "Successfully processed all operations.",
       "error": "Error processing operations."
-    }
+    },
+    "processing": "Processing {0}..."
   },
   "component": {
     "crud_form": {
