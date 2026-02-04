@@ -521,6 +521,7 @@ export abstract class NgxComponentDirective
    * @type {boolean}
    * @default false
    */
+  @Input()
   refreshing: boolean = false;
 
   /**
@@ -545,6 +546,7 @@ export abstract class NgxComponentDirective
    * @memberOf module:lib/engine/NgxComponentDirective
    */
 
+  // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(@Inject(CPTKN) componentName?: string, @Inject(CPTKN) localeRoot?: string) {
     super();
     this.value = undefined;

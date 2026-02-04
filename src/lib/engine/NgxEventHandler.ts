@@ -34,7 +34,9 @@ export abstract class NgxEventHandler extends DecafEventHandler {
     instance?: T,
     ...args: unknown[]
   ): Promise<void> {
-    this.log.for(this.handle).info(`Handle called with args: ${event}, ${data}, ${instance}`);
+    this.log
+      .for(this.handle)
+      .info(`Handle called with args: ${event}, ${data}, ${instance}, ${args}`);
   }
 
   from(...args: unknown[]): NgxEventHandler {

@@ -8,17 +8,22 @@
           #component
         >
           <ion-label>
-            {{ label | translate }}
-            <br />
-            @if (type !== 'checkbox' && value) {
-              <ion-text [innerHTML]="type === 'password' ? '********' : value"></ion-text>
+            @if (refreshing) {
+              <br />
+              <ion-skeleton-text [animated]="true"></ion-skeleton-text>
             } @else {
-              @if (type === 'checkbox') {
-                <ion-badge mode="md" color="light">
-                  <ion-text [color]="!value ? 'danger' : 'primary'">{{ value }}</ion-text>
-                </ion-badge>
+              {{ label | translate }}
+              <br />
+              @if (type !== 'checkbox' && value) {
+                <ion-text [innerHTML]="type === 'password' ? '********' : value"></ion-text>
               } @else {
-                <ion-text [innerHTML]="value"></ion-text>
+                @if (type === 'checkbox') {
+                  <ion-badge mode="md" color="light">
+                    <ion-text [color]="!value ? 'danger' : 'primary'">{{ value }}</ion-text>
+                  </ion-badge>
+                } @else {
+                  <ion-text [innerHTML]="value"></ion-text>
+                }
               }
             }
           </ion-label>

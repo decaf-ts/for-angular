@@ -254,7 +254,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
           // to prevent layout glitches, before send class to child component remove width classes
           if (c?.['props']?.className)
             c['props'].className = filterString(c?.['props']?.className, '-width-', false);
-          return Object.assign(c, { colClass });
+          return Object.assign(c, { colClass }, { refreshing: this.refreshing });
         });
         return row;
       });

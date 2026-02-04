@@ -144,15 +144,42 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
     this.locale = 'product';
     this.title = `${this.locale}.title`;
     this.route = 'products';
+
     await this.initialize();
-    // if (this.operation === OperationKeys.CREATE) {
-    //   const model = (await this.handleRead('00000000000013')) as ProductLayout;
-    //   if ((this.model as KeyValue)['product']) {
-    //     (this.model as KeyValue)['product'].productCode = `${Date.now()}`;
+
+    function calculateGtinCheckSum(digits: string): string {
+      digits = '' + digits;
+      if (digits.length !== 13) throw new Error('needs to received 13 digits');
+      const multiplier = [3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3];
+      let sum = 0;
+      try {
+        // multiply each digit for its multiplier according to the table
+        for (let i = 0; i < 13; i++) sum += parseInt(digits.charAt(i)) * multiplier[i];
+
+        // Find the nearest equal or higher multiple of ten
+        const remainder = sum % 10;
+        let nearest;
+        if (remainder === 0) nearest = sum;
+        else nearest = sum - remainder + 10;
+
+        return nearest - sum + '';
+      } catch (e) {
+        throw new Error(`Did this received numbers? ${e}`);
+      }
+    }
+
+    // function generateGtin(): string {
+    //   function pad(num: number, width: number, padding: string = '0') {
+    //     const n = num + '';
+    //     return n.length >= width ? n : new Array(width - n.length + 1).join(padding) + n;
     //   }
-    //   // Object.assign((this.model as any).epi, {
-    //   //   strengths: [{ strengths: '500mg', substance: 'tablet' }],
-    //   // });
+
+    //   const beforeChecksum = pad(Math.floor(Math.random() * 9999999999999), 13); // has to be 13. the checksum is the 4th digit
+    //   const checksum = calculateGtinCheckSum(beforeChecksum);
+    //   return `${beforeChecksum}${checksum}`;
+    // }
+    // if (this.operation === OperationKeys.CREATE) {
+    //   console.log(generateGtin());
     // }
 
     // if (this.modelId) {

@@ -7,7 +7,7 @@ import {
   OperationKeys,
   PrimaryKeyType,
 } from '@decaf-ts/db-decorators';
-import { Condition, EventIds, Repository } from '@decaf-ts/core';
+import { EventIds, Repository } from '@decaf-ts/core';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { NgxPageDirective } from './NgxPageDirective';
@@ -20,11 +20,9 @@ import {
 import { DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { getModelAndRepository } from './helpers';
-import { fa } from '@faker-js/faker/.';
 
 @Directive()
 export abstract class NgxModelPageDirective extends NgxPageDirective implements AfterViewInit {
-  override refreshing: boolean = true;
   /**
    * @description The CRUD operation type to be performed on the model.
    * @summary Specifies which operation (Create, Read, Update, Delete) this component instance
@@ -91,6 +89,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
   }
 
   override async initialize(): Promise<void> {
+    this.refreshing = true;
     await super.initialize();
     this.getLocale(this.modelName as string);
   }
@@ -434,10 +433,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
       model = this.model as M;
     }
     await iterate(event, model);
-    if (!submit) {
-      return result;
-    }
-    return (await this.batchOperation(result)) as IModelComponentSubmitEvent<M>;
+    return result;
+    // return (await this.batchOperation(result)) as IModelComponentSubmitEvent<M>;
   }
 
   /**
@@ -523,23 +520,23 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     return { ...event, success, message, model: result, aborted: false };
   }
 
-  async batchOperation(context: ILayoutModelContext, redirect: boolean = false): Promise<any> {
-    // const { data, repository, pk } = context.context;
-    // return data;
-    // return await this.submit({data}, false, repository, pk);
-    // const result: boolean[] = [];
-    // let resultMessage = '';
-    // const promises = Object.keys(models).map(async(m) => {
-    //   const {model, repository} = models[m];
-    //   const {success} = await this.submit({data: model}, false, repository as IRepository<Model>);
-    //   if(success)
-    //     resultMessage = await this.translate('operations.multiple.success');
-    //   result.push(success);
-    // })
-    // await Promise.all(promises);
-    // const success = result.every((r: boolean) => r);
-    // if (success && redirect)
-    //   this.location.back();
-    // return {...{data: models}, success, message: resultMessage};
-  }
+  // async batchOperation(context: ILayoutModelContext, redirect: boolean = false): Promise<any> {
+  // const { data, repository, pk } = context.context;
+  // return data;
+  // return await this.submit({data}, false, repository, pk);
+  // const result: boolean[] = [];
+  // let resultMessage = '';
+  // const promises = Object.keys(models).map(async(m) => {
+  //   const {model, repository} = models[m];
+  //   const {success} = await this.submit({data: model}, false, repository as IRepository<Model>);
+  //   if(success)
+  //     resultMessage = await this.translate('operations.multiple.success');
+  //   result.push(success);
+  // })
+  // await Promise.all(promises);
+  // const success = result.every((r: boolean) => r);
+  // if (success && redirect)
+  //   this.location.back();
+  // return {...{data: models}, success, message: resultMessage};
+  // }
 }

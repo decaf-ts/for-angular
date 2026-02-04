@@ -12,12 +12,15 @@
 
 @if (showSearchbar) {
   <div [hidden]="!data?.length && !searching">
-    <div class="dcf-grid dcf-grid-small dcf-grid-actions">
+    <div
+      [class]="'dcf-grid dcf-grid-actions ' + enableFilter ? 'dcf-grid-small' : 'dcf-grid-collapse'"
+    >
       <div class="dcf-width-expand@m dcf-width-1-1">
         @if (model && enableFilter) {
           @if (data?.length || searching) {
             <ngx-decaf-filter
               [model]="model"
+              [multiple]="multipleFilter"
               [indexes]="indexes ?? []"
               [sortDirection]="sortDirection"
               [disableSort]="disableSort"

@@ -9,7 +9,7 @@
  */
 
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { IonButton } from '@ionic/angular/standalone';
+import { IonButton, IonSpinner } from '@ionic/angular/standalone';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Dynamic } from '../../engine/decorators';
@@ -61,7 +61,7 @@ import { IconComponent } from '../../components/icon/icon.component';
   templateUrl: './empty-state.component.html',
   styleUrls: ['./empty-state.component.scss'],
   standalone: true,
-  imports: [IconComponent, TranslatePipe, IonButton, CardComponent],
+  imports: [IconComponent, TranslatePipe, IonSpinner, IonButton, CardComponent],
 })
 export class EmptyStateComponent extends CardComponent implements OnInit {
   /**

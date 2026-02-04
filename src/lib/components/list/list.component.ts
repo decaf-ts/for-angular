@@ -35,8 +35,8 @@ import {
 } from '@ionic/angular/standalone';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
-import { Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
-import { debounceTime, shareReplay, Subject, takeUntil, timer } from 'rxjs';
+import { Condition, Observer, Paginator } from '@decaf-ts/core';
+import { debounceTime, shareReplay, Subject, takeUntil } from 'rxjs';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
 import { KeyValue, FunctionLike, DecafRepository } from '../../engine/types';
@@ -361,6 +361,18 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   @Input()
   enableFilter: boolean = true;
+
+  /**
+   * @description Controls whether multiple filter groups can be applied simultaneously.
+   * @summary When true, the filter component allows users to build compound queries with
+   * several filter rows. When false, only a single filter row is available.
+   *
+   * @type {boolean}
+   * @default true
+   * @memberOf ListComponent
+   */
+  @Input()
+  multipleFilter: boolean = true;
 
   /**
    * @description Controls whether sorting functionality is disabled.
@@ -1115,15 +1127,20 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     if (!this._repository) {
       this._repository = this.repository;
     }
-    // if (!this.repositoryObserver) {
-    //   this.repositoryObserver = {
-    //     refresh: async (...args) => this.handleRepositoryRefresh(...args),
-    //   };
-    // }
+    if (!this.repositoryObserver) {
+      this.repositoryObserver = {
+        refresh: async (...args) => this.handleRepositoryRefresh(...args),
+      };
+    }
 
     try {
-      const observerHandler = (this._repository as DecafRepository<Model>)['observerHandler'];
-      if (!observerHandler)
+      // const observerHandler = (this._repository as DecafRepository<Model>)['observerHandler'];
+      // if (!observerHandler)
+      //   (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
+      const observerHandler = (this._repository as DecafRepository<Model>)['observerHandler'] as
+        | { observers: Observer[] }
+        | undefined;
+      if (!observerHandler?.observers?.length)
         (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
     } catch (error: unknown) {
       this.log.info((error as Error)?.message);
@@ -1150,11 +1167,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         } else {
           this.changeDetectorRef.detectChanges();
           request = await this.parseResult(
-            await repo.query(
-              this.parseConditions(this.searchValue as string | number | IFilterQuery),
-              (this.sortBy || this.pk) as keyof Model,
-              this.sortDirection,
-            ),
+            await repo
+              .select()
+              .where(this.parseConditions(this.searchValue as string | number | IFilterQuery))
+              .orderBy((this.sortBy || this.pk) as keyof Model, this.sortDirection)
+              .execute(),
           );
           data = [];
           this.changeDetectorRef.detectChanges();
@@ -1177,7 +1194,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         this.items = [...data];
       }
     }
-    if (this.type === ListComponentsTypes.PAGINATED && this.paginator)
+    if (this.type === ListComponentsTypes.PAGINATED && this.paginator && !this.pages)
       this.getMoreData(this.paginator.total);
     return data || ([] as KeyValue[]);
   }
@@ -1295,7 +1312,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       const paginator = result as Paginator<Model>;
       try {
         result = await paginator.page(this.page);
-        this.getMoreData(paginator.total);
+        this.getMoreData(paginator.total || this.pages);
       } catch (error: unknown) {
         this.log.info(
           (error as Error)?.message ||
