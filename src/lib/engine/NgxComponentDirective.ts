@@ -659,7 +659,7 @@ export abstract class NgxComponentDirective
           const { repository, pk, pkType } = context;
           this._repository = repository;
           if (this.model && !this.pk) this.pk = pk;
-          this.pkType = pkType || Model.pk(repository.class);
+          this.pkType = pkType;
           if (!this.modelName) this.modelName = repository.class.name;
         }
       }

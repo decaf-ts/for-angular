@@ -1223,9 +1223,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
   parseConditions(value: string | number | IFilterQuery): Condition<Model> {
     let _condition: Condition<Model>;
     const model = this.model as Model;
-    if (typeof value === Primitives.STRING || !isNaN(value as number)) {
+    if (typeof value === Primitives.STRING) {
       _condition = Condition.attribute<Model>(this.pk as keyof Model).eq(
-        !isNaN(value as number) ? Number(value) : value,
+        this.pkType.toLocaleLowerCase() === Primitives.STRING ? value : Number(value),
       );
       for (const index of this.indexes as (keyof Model)[]) {
         if (index === this.pk) continue;
