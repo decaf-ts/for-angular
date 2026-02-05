@@ -43,8 +43,8 @@
       >
         @if (type === HTML5InputTypes.TEXTAREA) {
           <ion-textarea
-            (ionInput)="handleModalChildChanges()"
-            (ionChange)="handleModalChildChanges()"
+            (ionInput)="handleModalChildChanges($event, formControl)"
+            (ionChange)="handleModalChildChanges($event, formControl)"
             [id]="name"
             [mode]="'md'"
             [hidden]="hidden"
@@ -68,8 +68,8 @@
           @if (!options?.length) {
             <ion-item class="dcf-width-1-1" [hidden]="hidden">
               <ion-checkbox
-                (ionInput)="handleModalChildChanges()"
-                (ionChange)="handleModalChildChanges()"
+                (ionInput)="handleModalChildChanges($event, formControl)"
+                (ionChange)="handleModalChildChanges($event, formControl)"
                 [id]="name"
                 [mode]="'md'"
                 [errorText]="getErrors(container)"
@@ -91,8 +91,8 @@
               @for (option of options; track trackItemFn($index, option.text)) {
                 <ion-item class="dcf-width-1-1" [button]="true">
                   <ion-checkbox
-                    (ionInput)="handleModalChildChanges()"
-                    (ionChange)="handleModalChildChanges()"
+                    (ionInput)="handleModalChildChanges($event, formControl)"
+                    (ionChange)="handleModalChildChanges($event, formControl)"
                     [id]="option.text"
                     [mode]="'md'"
                     [labelPlacement]="labelPlacement"
@@ -121,8 +121,8 @@
             @for (option of options; track $index) {
               <ion-item>
                 <ion-radio
-                  (ionInput)="handleModalChildChanges()"
-                  (ionChange)="handleModalChildChanges()"
+                  (ionInput)="handleModalChildChanges($event, formControl)"
+                  (ionChange)="handleModalChildChanges($event, formControl)"
                   [id]="name"
                   [errorText]="getErrors(container)"
                   [mode]="'md'"
@@ -144,7 +144,7 @@
             <ion-select
               (ionInput)="handleModalChildChanges($event)"
               (ionChange)="handleModalChildChanges($event)"
-              (click)="handleModalChildChanges()"
+              (click)="handleModalChildChanges($event, formControl)"
               [id]="name"
               toggleIcon="chevron-down-outline"
               expandedIcon="chevron-up-outline"
@@ -196,8 +196,8 @@
           </div>
         } @else {
           <ion-input
-            (ionInput)="handleModalChildChanges()"
-            (ionChange)="handleModalChildChanges()"
+            (ionInput)="handleModalChildChanges($event, formControl)"
+            (ionChange)="handleModalChildChanges($event, formControl)"
             [id]="name"
             [type]="type"
             [mode]="'md'"
@@ -218,6 +218,8 @@
             [label]="label | translate"
             #component
           />
+
+          <!-- <span class="dcf-error" [innerHTML]="getErrors(container)"></span> -->
         }
       </div>
     </ng-container>

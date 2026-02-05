@@ -7,7 +7,13 @@
  *
  * @link {@link ValidatorFactory}
  */
-import { AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+} from '@angular/forms';
 import {
   ComparisonValidationKeys,
   DEFAULT_PATTERNS,
@@ -23,8 +29,8 @@ import { AngularEngineKeys } from './constants';
 import { KeyValue } from './types';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 
-
-type ComparisonValidationKey = typeof ComparisonValidationKeys[keyof typeof ComparisonValidationKeys];
+type ComparisonValidationKey =
+  (typeof ComparisonValidationKeys)[keyof typeof ComparisonValidationKeys];
 
 /**
  *
@@ -40,7 +46,13 @@ type ComparisonValidationKey = typeof ComparisonValidationKeys[keyof typeof Comp
  * @param type - The field's declared type.
  * @returns An object containing the resolved validator key and its corresponding props.
  */
-const resolveValidatorKeyProps = (key: string, value: unknown, type: string): {
+const resolveValidatorKeyProps = (
+  key: string,
+  value: unknown,
+  type: string,
+  fieldProps: FieldProperties,
+  customTypes: string | undefined = undefined,
+): {
   validatorKey: string;
   props: Record<string, unknown>;
 } => {
@@ -49,56 +61,74 @@ const resolveValidatorKeyProps = (key: string, value: unknown, type: string): {
     [ValidationKeys.EMAIL]: DEFAULT_PATTERNS.EMAIL,
     [ValidationKeys.URL]: DEFAULT_PATTERNS.URL,
   };
-  const isTypeBased = key === ValidationKeys.TYPE && Object.keys(patternValidators).includes(type);
+  const isTypeBased =
+    key === ValidationKeys.TYPE && (customTypes || Object.keys(patternValidators).includes(type));
+  // const validatorKey = isTypeBased ? type : key;
+
   const validatorKey = isTypeBased ? type : key;
-  if (key === ValidationKeys.TYPE && HTML5InputTypes.CHECKBOX && value !== type )
-    value = type;
+  if (key === ValidationKeys.TYPE && HTML5InputTypes.CHECKBOX && value !== type) value = type;
   const props: Record<string, unknown> = {
     // [validatorKey]: (!isTypeBased && key === 'type') ? parseType(type) : value,
-    [validatorKey]: (!isTypeBased && validatorKey === ValidationKeys.TYPE) ? NgxRenderingEngine.get().translate(value as string, false) : value,
+    [validatorKey]:
+      !isTypeBased && validatorKey === ValidationKeys.TYPE
+        ? NgxRenderingEngine.get().translate(value as string, false)
+        : value,
     // Email, Password, and URL are validated using the "pattern" key
-    ...(isTypeBased && { [ValidationKeys.PATTERN] : patternValidators[type] }),
+    ...(isTypeBased && { [ValidationKeys.PATTERN]: patternValidators[type] }),
   };
 
   return { validatorKey, props };
 };
 
-
 export class ValidatorFactory {
   static spawn(fieldProps: FieldProperties, key: string): ValidatorFn {
-    if (!Validation.keys().includes(key))
-      throw new Error('Unsupported custom validation');
+    if (!Validation.keys().includes(key)) throw new Error('Unsupported custom validation');
 
     const validatorFn: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-      const { type, customTypes, options } = fieldProps;
-      let fieldType = (customTypes || type) as string;
-      if ((fieldType === HTML5InputTypes.CHECKBOX || fieldType === Array.name)  && Array.isArray(options))
+      const { type, customTypes, options, subType } = fieldProps || {};
+      let fieldType = (customTypes || subType || type) as string;
+      if (
+        (fieldType === HTML5InputTypes.CHECKBOX || fieldType === Array.name) &&
+        Array.isArray(options)
+      ) {
         fieldType = Primitives.STRING;
-
-      const { validatorKey, props } = resolveValidatorKeyProps(key, fieldProps[key as keyof FieldProperties], fieldType);
+      }
+      const customValidator = key === 'type' && subType;
+      const { validatorKey, props } = resolveValidatorKeyProps(
+        key,
+        fieldProps[key as keyof FieldProperties],
+        fieldType,
+        fieldProps,
+        customValidator ? (subType as string) : undefined,
+      );
       const validator = Validation.get(validatorKey) as Validator;
 
       // parseValueByType does not support undefined values
-      const value = typeof control.value !== 'undefined'
-        ? parseValueByType(fieldType, control.value, fieldProps)
-        : undefined;
+      const value =
+        typeof control.value !== 'undefined'
+          ? parseValueByType(fieldType, control.value, fieldProps)
+          : undefined;
 
       // Create a proxy to enable access to parent and child values
       let proxy: PathProxy<unknown> = ValidatorFactory.createProxy({} as AbstractControl);
       if (Object.values(ComparisonValidationKeys).includes(key as ComparisonValidationKey)) {
-        const parent: FormGroup = control instanceof FormGroup ? control : (control as KeyValue)[AngularEngineKeys.PARENT];
+        const parent: FormGroup =
+          control instanceof FormGroup ? control : (control as KeyValue)[AngularEngineKeys.PARENT];
         proxy = ValidatorFactory.createProxy(parent) as PathProxy<unknown>;
       }
 
       let errs: string | undefined;
       try {
-
+        if (fieldProps?.validationMessage && customValidator) {
+          props['message'] = fieldProps.validationMessage;
+          props['customMessage'] = true;
+        }
         errs = validator.hasErrors(value, props, proxy);
       } catch (e: unknown) {
         errs = `${key} validator failed to validate: ${e}`;
         console.error(errs);
       }
-      return errs ? { [validatorKey]: true } : null;
+      return errs ? { [validatorKey]: props?.['message'] ? errs : true } : null;
     };
 
     Object.defineProperty(validatorFn, 'name', {
@@ -119,8 +149,7 @@ export class ValidatorFactory {
   static createProxy(control: AbstractControl): PathProxy<unknown> {
     return PathProxyEngine.create(control, {
       getValue(target: AbstractControl, prop: string): unknown {
-        if (target instanceof FormControl)
-          return target.value;
+        if (target instanceof FormControl) return target.value;
 
         if (target instanceof FormGroup) {
           const control = target.controls[prop];
@@ -138,7 +167,7 @@ export class ValidatorFactory {
 
         return (target as KeyValue)?.[prop];
       },
-      getParent: function(target: AbstractControl)  {
+      getParent: function (target: AbstractControl) {
         return target?.['_parent'];
       },
       ignoreUndefined: true,

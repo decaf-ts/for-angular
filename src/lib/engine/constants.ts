@@ -157,6 +157,7 @@ export const AngularEngineKeys = {
   RENDERED: 'rendered-as-',
   MAPPER: 'mapper',
   CHILDREN: 'children',
+  ERRORS: 'errors',
   LISTABLE: 'listable',
   RENDER: 'render',
   RENDERED_ID: 'rendered-as-{0}',

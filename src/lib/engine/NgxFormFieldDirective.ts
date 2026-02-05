@@ -13,7 +13,13 @@ import {
 } from '@decaf-ts/ui-decorators';
 import { FormParent, KeyValue, PossibleInputTypes } from './types';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
-import { ControlValueAccessor, FormArray, FormControl, FormGroup } from '@angular/forms';
+import {
+  AbstractControl,
+  ControlValueAccessor,
+  FormArray,
+  FormControl,
+  FormGroup,
+} from '@angular/forms';
 import { Directive, Inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxFormService } from '../services/NgxFormService';
 import { sf } from '@decaf-ts/decorator-validation';
@@ -21,7 +27,7 @@ import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 
 import { FunctionLike } from './types';
 import { NgxComponentDirective } from './NgxComponentDirective';
-import { CPTKN } from './constants';
+import { CPTKN, AngularEngineKeys } from './constants';
 import { SelectCustomEvent } from '@ionic/angular/standalone';
 
 /**
@@ -507,12 +513,53 @@ export abstract class NgxFormFieldDirective
    * @return {void}
    * @public
    */
-  handleModalChildChanges(event?: SelectCustomEvent): void {
+  handleModalChildChanges(event?: SelectCustomEvent, formControl?: AbstractControl): void {
+    const element = this.component?.nativeElement;
     if (this.type === HTML5InputTypes.SELECT && event) {
       const { value } = event.detail;
       this.value = value;
     }
-    if (this.isModalChild) this.changeDetectorRef.detectChanges();
+    if (element && formControl && !formControl.valid && formControl.updateOn === 'change') {
+      element.dispatchEvent(new Event('ionBlur'));
+    }
+    if (this.isModalChild) {
+      this.changeDetectorRef.detectChanges();
+    }
+  }
+
+  private validateControl(formControl: AbstractControl): boolean {
+    return (
+      (!formControl.valid && (formControl.touched || !formControl.pristine)) ||
+      (!formControl.valid && formControl.dirty && formControl.updateOn === 'change')
+    );
+  }
+
+  private getErrorMessage(error: Record<string, string>): {
+    message: string;
+    args: string[];
+  } {
+    const instance = this as KeyValue;
+    let { message, key } = error;
+    let args = [] as string[];
+    if (message.includes('|')) {
+      const parts = message.split('|');
+      message = parts[0];
+      parts.shift();
+      parts.map((part, index) => {
+        args = [...args, part];
+      });
+    } else {
+      const prop = instance[key];
+      if (prop) {
+        args = [prop];
+      }
+    }
+    return {
+      message: !message.includes(AngularEngineKeys.ERRORS)
+        ? `${AngularEngineKeys.ERRORS}.${message}`
+        : message,
+      args,
+    };
   }
 
   /**
@@ -530,12 +577,16 @@ export abstract class NgxFormFieldDirective
       const accordionComponent = parent
         .closest('ngx-decaf-fieldset')
         ?.querySelector('ion-accordion-group');
-      if ((!formControl.pristine || formControl.touched) && !formControl.valid) {
-        const errors: Record<string, string>[] = Object.keys(formControl.errors ?? {}).map(
-          (key) => ({
-            key: key,
-            message: key,
-          }),
+      const invalid = this.validateControl(formControl);
+      if (invalid) {
+        const errors: Record<string, string>[] = Object.entries(formControl.errors ?? {}).map(
+          ([key, value]) => {
+            const message = typeof value === 'boolean' ? key : value;
+            return {
+              key: key,
+              message,
+            };
+          },
         );
         if (errors.length) {
           if (accordionComponent && !this.validationErrorEventDispatched) {
@@ -548,8 +599,8 @@ export abstract class NgxFormFieldDirective
           }
         }
         for (const error of errors) {
-          const instance = this as KeyValue;
-          return `* ${this.translateService.instant(`errors.${error?.['message']}`, { '0': `${instance[error?.['key']] ?? ''}` })}`;
+          const { message, args } = this.getErrorMessage(error);
+          return `* ${this.translateService.instant(message, args)}`;
         }
       }
     }

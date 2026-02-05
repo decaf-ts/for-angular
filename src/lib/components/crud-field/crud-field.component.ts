@@ -202,6 +202,12 @@ export class CrudFieldComponent
   @Input({ required: true })
   override type!: PossibleInputTypes;
 
+  @Input()
+  subType!: PossibleInputTypes;
+
+  @Input()
+  validationMessage?: string | string[];
+
   /**
    * @description The initial value of the field.
    * @summary Sets the initial value of the form field. This can be a string, number, or Date
@@ -557,7 +563,6 @@ export class CrudFieldComponent
    * @summary Determines the fill style of the field, such as 'outline' or 'solid'.
    * This affects the border and background of the field.
    *
-   * @type {'outline' | 'solid'}
    * @default 'outline'
    * @memberOf CrudFieldComponent
    */
