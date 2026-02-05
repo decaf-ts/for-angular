@@ -58,6 +58,7 @@ import { getNgxSelectOptionsModal } from '../modal/modal.component';
 import { ActionRoles, SelectFieldInterfaces } from '../../engine/constants';
 import { IconComponent } from '../icon/icon.component';
 import { getModelAndRepository } from '../../engine/helpers';
+import { Validator } from '@decaf-ts/decorator-validation';
 
 /**
  * @description A dynamic form field component for CRUD operations.

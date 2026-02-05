@@ -26,8 +26,7 @@ import {
 } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { TranslateService } from '@ngx-translate/core';
-import { firstValueFrom, shareReplay, Subject, takeUntil } from 'rxjs';
+import { shareReplay, Subject, takeUntil } from 'rxjs';
 import { Model, ModelConstructor, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { ComponentEventNames, DecafEventHandler } from '@decaf-ts/ui-decorators';
@@ -51,6 +50,7 @@ import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
 import { OverlayBaseController } from '@ionic/angular/common';
 import { getModelAndRepository } from './helpers';
 import { NgxRepositoryDirective } from './NgxRepositoryDirective';
+import { NgxTranslateService } from '../services/NgxTranslateService';
 
 try {
   const win = getWindow();
@@ -354,10 +354,10 @@ export abstract class NgxComponentDirective
    * Used to translate button labels, validation messages, and other text content based
    * on the current locale setting, enabling multilingual support throughout the application.
    * @protected
-   * @type {TranslateService}
+   * @type {NgxTranslateService}
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected translateService: TranslateService = inject(TranslateService);
+  translateService: NgxTranslateService = inject(NgxTranslateService);
 
   /**
    * @description Event emitter for custom component events.
@@ -760,9 +760,7 @@ export abstract class NgxComponentDirective
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   override async translate(phrase: string | string[], params?: object | string): Promise<string> {
-    if (!phrase) return '';
-    if (typeof params === Primitives.STRING) params = { '0': params };
-    return await firstValueFrom(this.translateService.get(phrase, (params || {}) as object));
+    return await this.translateService.get(phrase, params || {});
   }
 
   protected checkDarkMode(): void {
@@ -1037,9 +1035,9 @@ export abstract class NgxComponentDirective
   }
 
   // passed for ui decorators
-  override async submit(...args: unknown[]): Promise<any> {
-    this.log.for(this.submit).info(`submit for ${this.componentName} with ${JSON.stringify(args)}`);
-  }
+  // override async submit(...args: unknown[]): Promise<any> {
+  //   this.log.for(this.submit).info(`submit for ${this.componentName} with ${JSON.stringify(args)}`);
+  // }
 
   /**
    * @description Determines if a specific operation is allowed in the current context.
