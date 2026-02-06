@@ -33,6 +33,10 @@ export class NgxTranslateService extends DecafTranslateService implements DecafT
     return key;
   }
 
+  use(lang: string): void {
+    this.translateService.use(lang);
+  }
+
   setFallbackLang(lang: string): Observable<InterpolatableTranslationObject> {
     return this.translateService.setFallbackLang(lang);
   }

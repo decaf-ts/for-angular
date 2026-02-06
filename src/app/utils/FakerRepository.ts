@@ -13,6 +13,8 @@ import { ProductStrength } from '../ew/fabric/ProductStrength';
 import { getModelAndRepository } from 'src/lib/engine/helpers';
 import { generate } from 'rxjs';
 import { generateGtin } from '../ew/fabric/gtin';
+import axios from 'axios';
+import { ProductImage } from '../ew/fabric/ProductImage';
 enum ProductNames {
   aspirin = 'Aspirin',
   ibuprofen = 'Ibuprofen',
@@ -64,6 +66,17 @@ async function getBatchs(): Promise<Batch[]> {
   return [];
 }
 
+async function readProductFile(): Promise<string> {
+  const filePath = '/assets/images/ew/product.txt';
+  try {
+    const response = await axios.get(filePath);
+    return response.data || '';
+  } catch (error: unknown) {
+    console.error(`Error reading product.txt: ${(error as Error)?.message || (error as string)}`);
+    throw error;
+  }
+}
+
 export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
   public override async initialize(): Promise<void> {
     await super.initialize();
@@ -90,16 +103,23 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           break;
         }
         case Product.name: {
+          const image = await readProductFile();
           this.limit = 2;
           this.propFnMapper = {
             productCode: () => generateGtin(),
           };
-          data = (await this.generateData<T & Product>(ProductNames, 'inventedName', 'string')).map(
-            (item: Partial<Product>, index: number) => {
-              delete item?.['imageData'];
+          data = (await this.generateData(ProductNames, 'inventedName', 'string')).map(
+            (item: Partial<Product>) => {
+              const productCode = item.productCode;
+              // const imageData = {
+              //   productCode,
+              //   content: image,
+              // } as ProductImage;
+              // item.imageData = imageData;
+              delete item.imageData;
               item.markets = [];
               item.strengths = [];
-              return item as T;
+              return Model.build(item, Product.name) as T;
             },
           );
           break;
@@ -131,37 +151,37 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           break;
         }
         case Leaflet.name: {
-          const products = await getProducts();
-          this.limit = 2;
-          this.propFnMapper = {
-            productCode: () => this.pickRandomValue(products.map((p) => p.productCode)),
-            lang: () => this.pickRandomValue(['en', 'pt-br']),
-            epiMarket: () => this.pickRandomValue(['al', 'br']),
-          };
-          let batches = await getBatchs();
-          data = (await this.generateData<Leaflet>()).map((item) => {
-            // item.epiMarket = this.pickRandomValue([... getMarkets().map(({value}) => value)]);
-            item.leafletType = this.pickRandomValue(LeafletType) as LeafletType;
-            item.otherFilesContent = [];
-            // item.productCode = this.pickRandomValue(products);
-            item.batchNumber = batches.find((b) => b.productCode === item.productCode)?.batchNumber;
-            item.createdAt = item.updatedAt = faker.date.past({ years: 10 });
-            return item;
-          });
+          // const products = await getProducts();
+          // this.limit = 2;
+          // this.propFnMapper = {
+          //   productCode: () => this.pickRandomValue(products.map((p) => p.productCode)),
+          //   lang: () => this.pickRandomValue(['en', 'pt-br']),
+          //   epiMarket: () => this.pickRandomValue(['al', 'br']),
+          // };
+          // let batches = await getBatchs();
+          // data = (await this.generateData<Leaflet>()).map((item) => {
+          //   // item.epiMarket = this.pickRandomValue([... getMarkets().map(({value}) => value)]);
+          //   item.leafletType = this.pickRandomValue(LeafletType) as LeafletType;
+          //   item.otherFilesContent = [];
+          //   // item.productCode = this.pickRandomValue(products);
+          //   item.batchNumber = batches.find((b) => b.productCode === item.productCode)?.batchNumber;
+          //   item.createdAt = item.updatedAt = faker.date.past({ years: 10 });
+          //   return item;
+          // });
           break;
         }
-        case ProductStrength.name: {
-          const products = await getProducts();
-          this.limit = 2;
-          data = await this.generateData<ProductStrength>();
-          data = data.map((item: Partial<ProductStrength>, index: number) => {
-            item['productCode'] =
-              index % 2 === 0 ? products[0].productCode : products[1].productCode;
-            item.substance = this.pickRandomValue(ProductNames);
-            return item as T;
-          }) as T[];
-          break;
-        }
+        // case ProductStrength.name: {
+        //   const products = await getProducts();
+        //   this.limit = 2;
+        //   data = await this.generateData<ProductStrength>();
+        //   data = data.map((item: Partial<ProductStrength>, index: number) => {
+        //     item['productCode'] =
+        //       index % 2 === 0 ? products[0].productCode : products[1].productCode;
+        //     item.substance = this.pickRandomValue(ProductNames);
+        //     return item as T;
+        //   }) as T[];
+        //   break;
+        // }
         default:
           data = [];
       }
