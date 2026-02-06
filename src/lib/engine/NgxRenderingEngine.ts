@@ -210,17 +210,15 @@ export class NgxRenderingEngine extends RenderingEngine<
     const { inputs: possibleInputs } = componentMetadata;
     const inputs = { ...fieldDef.props };
 
-    const unmappedKeys = Object.keys(inputs).filter((input) => {
-      const isMapped = possibleInputs.find(({ propName }) => propName === input);
-      if (!isMapped) delete inputs[input];
-      return !isMapped;
-    });
-
+    // const unmappedKeys = Object.keys(inputs).filter((input) => {
+    //   const isMapped = possibleInputs.find(({ propName }) => propName === input);
+    //   if (!isMapped) delete inputs[input];
+    //   return !isMapped;
+    // });
     // if (unmappedKeys.length > 0 && isDevelopmentMode())
     //   getLogger(this).warn(
     //     `Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`,
     //   );
-
     const operation = NgxRenderingEngine._operation;
 
     const hiddenOn = inputs?.hidden || [];

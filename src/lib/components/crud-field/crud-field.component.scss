@@ -201,6 +201,7 @@ ion-radio-group {
   &.dcf-options-error {
     position: relative;
     margin-bottom: 0.25rem !important;
+    max-width: 200px !important;
   }
   .ti,
   ngx-decaf-icon,

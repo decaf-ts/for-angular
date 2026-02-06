@@ -995,19 +995,20 @@ export class NgxFormService {
   static fromProps(props: FieldProperties, updateMode: FieldUpdateMode = 'change'): FormControl {
     const validators = this.validatorsFromProps(props);
     const composed = validators.length ? Validators.compose(validators) : null;
+    const value = props.value
+      ? props.type === HTML5InputTypes.CHECKBOX
+        ? Array.isArray(props.value)
+          ? props.value
+          : undefined
+        : props.type === HTML5InputTypes.DATE
+          ? !isValidDate(parseDate(props.format as string, props.value as string))
+            ? undefined
+            : props.value
+          : (props.value as KeyValue)
+      : undefined;
     return new FormControl(
       {
-        value: props.value
-          ? props.type === HTML5InputTypes.CHECKBOX
-            ? Array.isArray(props.value)
-              ? props.value
-              : undefined
-            : props.type === HTML5InputTypes.DATE
-              ? !isValidDate(parseDate(props.format as string, props.value as string))
-                ? undefined
-                : props.value
-              : (props.value as KeyValue)
-          : undefined,
+        value,
         disabled: props.disabled,
       },
       {

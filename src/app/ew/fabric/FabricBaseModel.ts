@@ -9,7 +9,7 @@ import {
   updatedBy,
 } from '@decaf-ts/core';
 import { description, uses } from '@decaf-ts/decoration';
-import { hideOn, uielement } from '@decaf-ts/ui-decorators';
+import { hideOn, uielement, uiorder } from '@decaf-ts/ui-decorators';
 import { OperationKeys, version } from '@decaf-ts/db-decorators';
 
 //@uses(FabricFlavour)
@@ -23,6 +23,7 @@ export class FabricBaseModel extends Model {
     readonly: true,
   })
   @hideOn(OperationKeys.CREATE, OperationKeys.UPDATE)
+  @uiorder('last')
   createdAt!: Date;
 
   @column()
@@ -34,6 +35,7 @@ export class FabricBaseModel extends Model {
     readonly: true,
   })
   @hideOn(OperationKeys.CREATE, OperationKeys.UPDATE)
+  @uiorder('last')
   updatedAt!: Date;
 
   @column()
@@ -44,6 +46,7 @@ export class FabricBaseModel extends Model {
     readonly: true,
   })
   @hideOn(OperationKeys.CREATE, OperationKeys.UPDATE)
+  @uiorder('last')
   version!: number;
 
   constructor(arg?: ModelArg<FabricBaseModel>) {

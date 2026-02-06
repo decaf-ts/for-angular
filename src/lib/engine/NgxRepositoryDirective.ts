@@ -12,6 +12,7 @@ import { DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { IFilterQuery } from './interfaces';
 import { Subject } from 'rxjs';
+import { getModelAndRepository } from './helpers';
 
 @Directive()
 export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
@@ -248,6 +249,12 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
       attr = (this.filterBy || this.pk) as keyof M;
     }
     const condition = this.filter || Condition.attribute<M>(attr);
+    if (!this.repository) {
+      const repo = getModelAndRepository(Model.tableName(this.model as Model));
+      if (repo) {
+        this._repository = repo.repository as DecafRepository<M>;
+      }
+    }
     const type = this.getModelPropertyType(this.repository.class, attr as keyof M);
     if (this.modelId) {
       return condition.eq(
@@ -438,8 +445,18 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     return Metadata.properties(clazz) as (keyof M)[];
   }
 
-  protected getModelPropertyType(constructor: Constructor<M>, prop: keyof M): string {
-    return Metadata.type(constructor as Constructor<M>, prop as string).name;
+  protected getModelPropertyType(constructor: Constructor<M> | string, prop: keyof M): string {
+    try {
+      return Metadata.type(constructor as Constructor<M>, prop as string)?.name;
+    } catch (error: unknown) {
+      this.log
+        .for(this)
+        .info(`${(error as Error)?.message || String(error)}. Tryng get with table Name`);
+      constructor = Model.get(
+        Model.tableName(this.repository.class as Constructor<M>) as string,
+      ) as Constructor<M>;
+      return Metadata.type(constructor, prop as string)?.name;
+    }
   }
 
   protected getModelPkType(clazz: Constructor<M>): string {

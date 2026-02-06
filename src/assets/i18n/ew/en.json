@@ -1,4 +1,11 @@
 {
+  "errors": {
+    "gtin": {
+      "digits": "Gtin length is 14. you are missing {0} more digits.",
+      "checksum": "To be a valid gtin your next digit must be {0}",
+      "fallback": "Not a valid Gtin."
+    }
+  },
   "component": {
     "modal_diffs": {
       "property": "Property",

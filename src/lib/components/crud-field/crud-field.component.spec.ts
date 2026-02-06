@@ -1,13 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CrudFieldComponent } from './crud-field.component';
-import { FormControl, FormGroup } from '@angular/forms';
-import { AngularFieldDefinition } from '../../engine';
-import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { NgxFormService } from '../../services/NgxFormService';
 import { By } from '@angular/platform-browser';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormControl, FormGroup } from '@angular/forms';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { CrudFieldComponent } from './crud-field.component';
+import { AngularFieldDefinition } from '../../engine/types';
+import { NgxTranslateService } from '../../services/NgxTranslateService';
+import { ForAngularCommonModule } from '../../for-angular-common.module';
+import { NgxFormService } from '../../services/NgxFormService';
 import { I18nFakeLoader, MockedEnTranslations } from '../../i18n/FakeLoader';
 
 const imports = [
@@ -21,7 +22,10 @@ const imports = [
   }),
 ];
 
-async function getErrorMessage(fixture: ComponentFixture<CrudFieldComponent>, selector: string = 'ion-input'): Promise<HTMLElement> {
+async function getErrorMessage(
+  fixture: ComponentFixture<CrudFieldComponent>,
+  selector: string = 'ion-input',
+): Promise<HTMLElement> {
   const ionInput = fixture.debugElement.query(By.css(selector)).componentInstance;
   await ionInput.getInputElement();
   const errorText = ionInput.errorText;
@@ -30,25 +34,27 @@ async function getErrorMessage(fixture: ComponentFixture<CrudFieldComponent>, se
   return errorElement?.textContent || errorText;
 }
 
-function updateFieldValidators(fixture: ComponentFixture<CrudFieldComponent>, component: CrudFieldComponent): void {
-    fixture.detectChanges();
-    const validators = NgxFormService['validatorsFromProps'](component);
-    component.formControl = new FormControl(component.value, validators);
-    component.formGroup = new FormGroup({
-      [component.name]: component.formControl,
-    });
-    component.formGroup.get(component.name)?.markAsTouched();
-    component.formGroup.get(component.name)?.markAsDirty();
+function updateFieldValidators(
+  fixture: ComponentFixture<CrudFieldComponent>,
+  component: CrudFieldComponent,
+): void {
+  fixture.detectChanges();
+  const validators = NgxFormService['validatorsFromProps'](component);
+  component.formControl = new FormControl(component.value, validators);
+  component.formGroup = new FormGroup({
+    [component.name]: component.formControl,
+  });
+  component.formGroup.get(component.name)?.markAsTouched();
+  component.formGroup.get(component.name)?.markAsDirty();
 
-    fixture.detectChanges();
-
+  fixture.detectChanges();
 }
 
 describe('CrudFieldComponent', () => {
   let component: CrudFieldComponent;
   let fixture: ComponentFixture<CrudFieldComponent>;
   // let formBuilder: FormBuilder;
-  let translateService: TranslateService;
+  let translateService: NgxTranslateService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -56,7 +62,7 @@ describe('CrudFieldComponent', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
-    translateService = TestBed.inject(TranslateService);
+    translateService = TestBed.inject(NgxTranslateService);
     fixture = TestBed.createComponent(CrudFieldComponent);
     component = fixture.componentInstance;
     translateService = component['translateService'];
@@ -74,7 +80,7 @@ describe('CrudFieldComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  const testCases: { type: string; selector: string, value: any }[] = [
+  const testCases: { type: string; selector: string; value: any }[] = [
     { type: 'textarea', selector: 'ion-textarea', value: 'textarea value' },
     { type: 'checkbox', selector: 'ion-checkbox', value: 'checkbox value' },
     { type: 'radio', selector: 'ion-radio-group', value: 'checkbox value' },
@@ -107,19 +113,17 @@ describe('CrudFieldComponent', () => {
       });
       component.translatable = false;
 
-      Object.entries(props).forEach(([key, value]) => (component as any)[key] = value);
+      Object.entries(props).forEach(([key, value]) => ((component as any)[key] = value));
       // component.props = props;
       fixture.detectChanges();
 
       const element = fixture.nativeElement.querySelector(selector);
       expect(element).toBeTruthy();
       if (type === 'radio') {
-        const radioButtons =
-          fixture.nativeElement.querySelectorAll('ion-radio');
+        const radioButtons = fixture.nativeElement.querySelectorAll('ion-radio');
         expect(radioButtons.length).toBe(2);
       } else if (type === 'select') {
-        const options =
-          fixture.nativeElement.querySelectorAll('ion-select-option');
+        const options = fixture.nativeElement.querySelectorAll('ion-select-option');
         expect(options.length).toBe(2);
       }
     });
@@ -162,7 +166,6 @@ describe('CrudFieldComponent', () => {
   });
 
   it('should show error message when pattern is not matched', async () => {
-
     component.label = 'Pattern Field';
     component.pattern = '^[A-Za-z]+$';
     component.value = '123';
@@ -174,7 +177,7 @@ describe('CrudFieldComponent', () => {
     expect(errorMessage).toContain('pattern');
   });
 
-  it('should show error message when min value is not met', async() => {
+  it('should show error message when min value is not met', async () => {
     component.type = 'number';
     component.label = 'Min Field';
     component.min = 5;
@@ -195,7 +198,6 @@ describe('CrudFieldComponent', () => {
     const errorMessage = await getErrorMessage(fixture);
     expect(component.formControl.errors?.['max']).toBeTruthy();
     expect(errorMessage).toContain('max');
-
   });
 
   it('should not show error message when field is valid', async () => {
@@ -215,7 +217,6 @@ describe('CrudFieldComponent', () => {
     //   if (key === 'FIELD_PLACEHOLDER') return 'Translated Placeholder';
     //   return key;
     // });
-
 
     fixture.detectChanges();
     component.label = MockedEnTranslations.FIELD_LABEL;
@@ -241,8 +242,10 @@ describe('CrudFieldComponent', () => {
 
     updateFieldValidators(fixture, component);
 
-    const input = fixture.nativeElement.querySelector('ion-input') || fixture.nativeElement.querySelector('ion-item');
-    if(input.tagName.toLowerCase() === 'ion-input') {
+    const input =
+      fixture.nativeElement.querySelector('ion-input') ||
+      fixture.nativeElement.querySelector('ion-item');
+    if (input.tagName.toLowerCase() === 'ion-input') {
       expect(input.readonly).toBeTruthy();
     } else {
       expect(input.classList.contains('dcf-item-readonly')).toBeTruthy();
@@ -254,8 +257,7 @@ describe('CrudFieldComponent', () => {
     component.value = '';
     fixture.detectChanges();
 
-    if (!component.formGroup)
-      component.formGroup = new FormGroup({});
+    if (!component.formGroup) component.formGroup = new FormGroup({});
 
     component.formGroup.disable();
     const input = fixture.nativeElement.querySelector('ion-input');

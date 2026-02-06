@@ -55,6 +55,7 @@ export function getModelAndRepository<M extends Model>(
   model: M | string,
   clazz?: NgxComponentDirective,
 ): IRepositoryModelProps<Model> | undefined {
+  if (!model) return undefined;
   try {
     const modelName = (
       typeof model === Primitives.STRING ? model : (model as Model).constructor.name

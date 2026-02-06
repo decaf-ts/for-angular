@@ -1,5 +1,5 @@
 import type { Model, ModelArg } from '@decaf-ts/decorator-validation';
-import { model, required, type } from '@decaf-ts/decorator-validation';
+import { maxlength, min, minlength, model, required, type } from '@decaf-ts/decorator-validation';
 // import { gtin, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import { propMetadata, Constructor } from '@decaf-ts/decoration';
 
@@ -38,6 +38,7 @@ import { audit } from './utils';
 import { FileUploadComponent } from 'src/lib/components';
 import { ProductImageHandler } from './handlers/ProductImageHandler';
 import { ProductHandler } from './handlers/ProductHandler';
+import { gtin } from './gtin';
 
 // @BlockOperations([OperationKeys.DELETE])
 //@uses(FabricFlavour)
@@ -46,14 +47,15 @@ import { ProductHandler } from './handlers/ProductHandler';
 @uilayout('ngx-decaf-crud-form', true, 1, { empty: { showButton: false } })
 @model()
 export class Product extends Cacheable {
-  //@gtin()
   // //@cache()
   // @assignProductOwner()
   @audit()
   @pk({ type: String, generated: false })
+  @gtin(['errors.gtin.digits', 'errors.gtin.checksum', 'errors.gtin.fallback'])
   @uilistprop('title')
   @uielement('ngx-decaf-crud-field', {
     label: 'product.productCode.label',
+    updateOn: 'change',
     placeholder: 'product.productCode.placeholder',
     // readonly: () => {
     //   return (this as unknown as CrudFieldComponent).operation !== OperationKeys.CREATE;
@@ -73,6 +75,7 @@ export class Product extends Cacheable {
   })
   @uilistprop('title')
   @uilayoutprop(2)
+  @minlength(2)
   inventedName!: string;
 
   //@cache()

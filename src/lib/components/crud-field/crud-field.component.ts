@@ -58,6 +58,7 @@ import { getNgxSelectOptionsModal } from '../modal/modal.component';
 import { ActionRoles, SelectFieldInterfaces } from '../../engine/constants';
 import { IconComponent } from '../icon/icon.component';
 import { getModelAndRepository } from '../../engine/helpers';
+import { Validator } from '@decaf-ts/decorator-validation';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -201,6 +202,12 @@ export class CrudFieldComponent
    */
   @Input({ required: true })
   override type!: PossibleInputTypes;
+
+  @Input()
+  subType!: PossibleInputTypes;
+
+  @Input()
+  validationMessage?: string | string[];
 
   /**
    * @description The initial value of the field.
@@ -557,7 +564,6 @@ export class CrudFieldComponent
    * @summary Determines the fill style of the field, such as 'outline' or 'solid'.
    * This affects the border and background of the field.
    *
-   * @type {'outline' | 'solid'}
    * @default 'outline'
    * @memberOf CrudFieldComponent
    */

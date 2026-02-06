@@ -1,4 +1,8 @@
-import { VALIDATION_PARENT_KEY } from '@decaf-ts/decorator-validation';
+import {
+  DEFAULT_PATTERNS,
+  VALIDATION_PARENT_KEY,
+  ValidationKeys,
+} from '@decaf-ts/decorator-validation';
 import { I18nToken, ICrudFormOptions, IListEmptyOptions } from './interfaces';
 import { ModalOptions } from '@ionic/angular/standalone';
 import { OperationKeys } from '@decaf-ts/db-decorators';
@@ -6,6 +10,20 @@ import { InjectionToken } from '@angular/core';
 import { DecafRepositoryAdapter } from './types';
 
 export const DB_ADAPTER_FLAVOUR_TOKEN = 'DbAdapterFlavour';
+
+/**
+ * Maps validation keys for password, email, and URL to their corresponding regex patterns.
+ * These patterns are used to validate field values against standard format requirements.
+ */
+/**
+ * Maps validation keys for password, email, and URL to their corresponding regex patterns.
+ * These patterns are used to validate field values against standard format requirements.
+ */
+export const patternValidators: Record<string, RegExp> = {
+  [ValidationKeys.PASSWORD]: DEFAULT_PATTERNS.PASSWORD.CHAR8_ONE_OF_EACH,
+  [ValidationKeys.EMAIL]: DEFAULT_PATTERNS.EMAIL,
+  [ValidationKeys.URL]: DEFAULT_PATTERNS.URL,
+};
 
 /**
  * @description Injection token for registering the database adapter provider.
@@ -157,6 +175,7 @@ export const AngularEngineKeys = {
   RENDERED: 'rendered-as-',
   MAPPER: 'mapper',
   CHILDREN: 'children',
+  ERRORS: 'errors',
   LISTABLE: 'listable',
   RENDER: 'render',
   RENDERED_ID: 'rendered-as-{0}',
