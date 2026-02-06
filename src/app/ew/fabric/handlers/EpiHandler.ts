@@ -13,7 +13,6 @@ import { Batch, Leaflet, Product, ProductMarket, ProductStrength } from '..';
 import { CrudFieldComponent, FieldsetComponent, ListComponent } from 'src/lib/components';
 import { OperationKeys, readonly } from '@decaf-ts/db-decorators';
 import { DecafComponent } from '@decaf-ts/ui-decorators';
-import { el } from '@faker-js/faker/.';
 
 export async function renderMakets<C extends CrudFieldComponent>(instance: C): Promise<void> {
   return await new EpiHandler().renderMakets(instance);

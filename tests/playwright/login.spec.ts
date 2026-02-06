@@ -5,12 +5,13 @@ const baseUrl = 'http://localhost:8110/login';
 
 testWithVideo('Simulate Login', async ({ page, browser }) => {
   await page.goto(baseUrl);
-  const username = "decaf";
-  const password = "Passd123-";
+  const username = 'decaf';
+  const password = 'Passd123-';
   await page.locator('.native-wrapper').first().click();
 
   // const usernameInput = page.getByRole('textbox', { name: 'Username' });
-  const usernameInput = page.locator('[id="username"] input') || page.getByRole('textbox', { name: 'Username' });
+  const usernameInput =
+    page.locator('[id="username"] input') || page.getByRole('textbox', { name: 'Username' });
   await usernameInput.fill(username);
 
   const usernameValue = await usernameInput.inputValue();
@@ -18,14 +19,14 @@ testWithVideo('Simulate Login', async ({ page, browser }) => {
 
   await page.waitForTimeout(500);
 
-  const passwordInput = page.locator('[id="password"] input') ||  page.getByRole('textbox', { name: 'Password' });
+  const passwordInput =
+    page.locator('[id="password"] input') || page.getByRole('textbox', { name: 'Password' });
   await passwordInput.fill(password);
   const passwordValue = await passwordInput.inputValue();
 
   expect(passwordValue).toBe(password);
 
   await page.waitForTimeout(500);
-
 
   const button = page.getByRole('button', { name: 'login' });
   await button.click();
@@ -35,8 +36,4 @@ testWithVideo('Simulate Login', async ({ page, browser }) => {
   await expect(page).toHaveTitle(/Dashboard/i);
 
   await page.waitForTimeout(1000);
-
-})
-
-
-
+});
