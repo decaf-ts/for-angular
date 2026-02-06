@@ -1,15 +1,15 @@
+import { apply } from '@decaf-ts/decoration';
 import {
   innerValidationDecorator,
-  Validator,
   validator,
   ValidatorOptions,
 } from '@decaf-ts/decorator-validation';
-import { apply } from '@decaf-ts/decoration';
+import { UIValidator } from '@decaf-ts/ui-decorators';
 
 const GTIN_VALIDATION_KEY = 'gtin';
 export const GTIN_MISSING_DIGITS_ERROR_MESSAGE =
-  'Gtin length is 14. you are missing {1} more digits';
-export const GTIN_NEXT_DIGIT_ERROR_MESSAGE = 'to be a valid gtin your next digit must be {1}';
+  'Gtin length is 14. you are missing {0} more digits';
+export const GTIN_NEXT_DIGIT_ERROR_MESSAGE = 'to be a valid gtin your next digit must be {0}';
 export const GTIN_VALIDATION_ERROR_MESSAGE = 'Not a valid Gtin';
 
 export function generateGtin(): string {
@@ -45,48 +45,90 @@ function calculateGtinCheckSum(digits: string): string {
   }
 }
 
+type MessageSource = string | string[] | undefined;
+
 @validator(GTIN_VALIDATION_KEY)
-export class GtinValidator extends Validator {
+export class GtinValidator extends UIValidator {
   constructor(message: string = GTIN_VALIDATION_ERROR_MESSAGE) {
     super(message, 'string', 'number');
   }
 
-  protected parseMessage(
-    message: string,
-    options: ValidatorOptions & { customMessage?: boolean },
-    ...args: any[]
-  ): string | undefined {
-    const { customMessage } = options || false;
-    if (!customMessage) return this.getMessage(message, ...args);
-    return message + `${args ? '|' + args.join('|') : ''}`;
+  private resolveMessages(message?: MessageSource): [string, string, string] {
+    if (Array.isArray(message)) {
+      const [missingDigits, nextDigit, fallback] = message;
+      return [
+        missingDigits ?? GTIN_MISSING_DIGITS_ERROR_MESSAGE,
+        nextDigit ?? missingDigits ?? GTIN_NEXT_DIGIT_ERROR_MESSAGE,
+        fallback ?? nextDigit ?? missingDigits ?? this.message,
+      ];
+    }
+    if (typeof message === 'string' && message.length > 0) {
+      return [message, message, message];
+    }
+    return [GTIN_MISSING_DIGITS_ERROR_MESSAGE, GTIN_NEXT_DIGIT_ERROR_MESSAGE, this.message];
   }
 
-  hasErrors(value: number | string, options: ValidatorOptions = {}): string | undefined {
-    if (value === undefined) return;
-
-    const { message } = options;
-    const [digitsError, checkSumError, fallbackError] = message as unknown as string[];
-    const gtin = value + '';
-
-    let checksum: string;
-
-    const length = gtin.length;
-    if (length > 13) return this.parseMessage(fallbackError, options);
-    if (length < 13) return this.parseMessage(digitsError, options, 14 - length);
-    if (length === 13) {
-      checksum = calculateGtinCheckSum(gtin);
-      return this.parseMessage(checkSumError, options, checksum);
+  hasErrors(value: number | string, options: ValidatorOptions): string | undefined {
+    if (value === undefined || value === null) return;
+    if (typeof value !== 'string' && typeof value !== 'number') {
+      return this.getMessage(this.message);
     }
 
-    if (!gtin.match(/\d{14}/g)) return this.parseMessage(fallbackError || this.message, options);
+    const [missingDigitsMessage, checksumMessage, fallbackMessage] = this.resolveMessages(
+      options?.message || this.message,
+    );
 
+    const gtin = `${value}`.trim();
+    if (!gtin) return this.getMessage(fallbackMessage);
+
+    if (!/^\d+$/.test(gtin)) {
+      return this.getMessage(fallbackMessage);
+    }
+
+    const length = gtin.length;
+
+    if (length < 13) {
+      return this.getMessage(missingDigitsMessage, 14 - length);
+    }
+
+    if (length === 13) {
+      const checksum = calculateGtinCheckSum(gtin);
+      return this.getMessage(checksumMessage, checksum);
+    }
+
+    if (length > 14) {
+      return this.getMessage(fallbackMessage);
+    }
     const digits = gtin.slice(0, 13);
-    checksum = calculateGtinCheckSum(digits);
-    return parseInt(checksum) === parseInt(gtin.charAt(13))
-      ? undefined
-      : this.parseMessage(message || this.message, options);
+    const checksum = calculateGtinCheckSum(digits);
+    return checksum === gtin.charAt(13) ? undefined : this.getMessage(fallbackMessage);
   }
 }
+
+// hasErrors(value: number | string, options?: ValidatorOptions): string | undefined {
+//   if (value === undefined) return;
+
+//   const { message } = options || {};
+//   const [digitsError, checkSumError, fallbackError] = message as unknown as string[];
+//   const gtin = value + '';
+
+//   let checksum: string;
+
+//   const length = gtin.length;
+//   if (length > 14) return this.getMessage(fallbackError);
+//   if (length < 13) return this.getMessage(digitsError, length);
+//   if (length === 13) {
+//     checksum = calculateGtinCheckSum(gtin);
+//     return this.getMessage(checkSumError, checksum);
+//   }
+
+//   if (!gtin.match(/\d{14}/g)) return this.getMessage(fallbackError || this.message);
+//   const digits = gtin.slice(0, 13);
+//   checksum = calculateGtinCheckSum(digits);
+//   return parseInt(checksum) === parseInt(gtin.charAt(13))
+//     ? undefined
+//     : this.getMessage(message || this.message);
+// }
 
 export const gtin = (
   messages: string[] = [

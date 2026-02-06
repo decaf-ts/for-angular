@@ -16,7 +16,6 @@ import {
 } from '@angular/forms';
 import {
   ComparisonValidationKeys,
-  DEFAULT_PATTERNS,
   PathProxy,
   PathProxyEngine,
   Primitives,
@@ -31,119 +30,9 @@ import {
   UIKeys,
 } from '@decaf-ts/ui-decorators';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
-import { KeyValue } from './types';
+import { ComparisonValidationKey, KeyValue } from './types';
 import { getLogger } from './helpers';
-
-/**
- * Represents a validation key used for comparison-based validations.
- * Extracted from the ComparisonValidationKeys object to ensure type safety.
- */
-type ComparisonValidationKey =
-  (typeof ComparisonValidationKeys)[keyof typeof ComparisonValidationKeys];
-
-/**
- * Maps validation keys for password, email, and URL to their corresponding regex patterns.
- * These patterns are used to validate field values against standard format requirements.
- */
-/**
- * Maps validation keys for password, email, and URL to their corresponding regex patterns.
- * These patterns are used to validate field values against standard format requirements.
- */
-const patternValidators: Record<string, unknown> = {
-  [ValidationKeys.PASSWORD]: DEFAULT_PATTERNS.PASSWORD.CHAR8_ONE_OF_EACH,
-  [ValidationKeys.EMAIL]: DEFAULT_PATTERNS.EMAIL,
-  [ValidationKeys.URL]: DEFAULT_PATTERNS.URL,
-};
-
-/**
- * Determines whether a validation should be resolved based on the field's type.
- * Returns true for TYPE validations with custom types or pattern-based validators.
- *
- * @param key - The validation key to evaluate.
- * @param type - The field's declared type.
- * @param customTypes - Optional custom type definition.
- * @returns True if validation should use type-based resolution.
- */
-function isTypeBasedValidation(
-  key: string,
-  type: string,
-  customTypes: string | undefined,
-): boolean {
-  return (
-    key === ValidationKeys.TYPE &&
-    (typeof customTypes === Primitives.STRING || Object.keys(patternValidators).includes(type))
-  );
-}
-
-/**
- * Constructs the properties object to be passed to a validator.
- * Handles translation of string values and applies pattern validators for type-based validations.
- *
- * @param validatorKey - The resolved validator key.
- * @param type - The field's type.
- * @param isTypeBased - Whether this is a type-based validation.
- * @param value - The value to validate.
- * @returns An object containing validator properties.
- */
-function getValidatorProps(
-  validatorKey: string,
-  type: string,
-  isTypeBased: boolean,
-  value: unknown,
-): KeyValue {
-  return {
-    [validatorKey]:
-      !isTypeBased && validatorKey === ValidationKeys.TYPE
-        ? NgxRenderingEngine.get().translate(value as string, false)
-        : value,
-    // Email, Password, and URL are validated using the "pattern" key
-    ...(isTypeBased && { [ValidationKeys.PATTERN]: patternValidators[type] }),
-  };
-}
-
-/**
- * Retrieves the validator value from field properties, with special handling for checkbox types.
- * Returns the field property value, or the type if the field is a checkbox and the types differ.
- *
- * @param key - The validation key.
- * @param type - The field's type.
- * @param fieldProps - The field properties object.
- * @returns The validator value to use.
- */
-function getValidatorValue(key: string, type: string, fieldProps: FieldProperties): unknown {
-  return key === ValidationKeys.TYPE &&
-    HTML5InputTypes.CHECKBOX &&
-    fieldProps[key as keyof FieldProperties] !== type
-    ? type
-    : fieldProps[key as keyof FieldProperties];
-}
-
-/**
- *
- * Resolves the correct validator key and its associated properties based on the input key and type.
- *
- * When the validation key is TYPE, it's necessary to resolve the actual validator based on the
- * field's type (e.g., 'password', 'email', 'url') instead of using the generic getValidator("type") logic.
- * This allows directly invoking specific validators like getValidator('password'), ensuring the correct
- * behavior for type-based validation.
- *
- * @param key - The validation key (e.g., 'type', 'required', etc.).
- * @param value - The value that needs be provided to the validator.
- * @param type - The field's declared type.
- * @returns An object containing the resolved validator key and its corresponding props.
- */
-const resolveValidatorKeyProps = (
-  key: string,
-  type: string,
-  fieldProps: FieldProperties,
-  customTypes: string | undefined = undefined,
-): { validatorKey: string; props: KeyValue } => {
-  const isTypeBased = isTypeBasedValidation(key, type, customTypes);
-  const validatorKey = isTypeBased ? type : key;
-  const value = getValidatorValue(key, type, fieldProps);
-  const props = getValidatorProps(validatorKey, type, isTypeBased, value);
-  return { validatorKey, props };
-};
+import { patternValidators } from './constants';
 
 export class ValidatorFactory {
   /**
@@ -181,7 +70,7 @@ export class ValidatorFactory {
     customTypes?: string | string[],
     options?: unknown[],
     subType?: string,
-  ) {
+  ): string {
     const fieldType = (customTypes || subType || type) as string;
     if (
       (fieldType === HTML5InputTypes.CHECKBOX || fieldType === Array.name) &&
@@ -211,7 +100,7 @@ export class ValidatorFactory {
       const { type, customTypes, options, subType } = fieldProps || {};
       const fieldType = ValidatorFactory.getFieldType(type, customTypes, options, subType);
       const customValidator = key === UIKeys.TYPE && subType;
-      const { validatorKey, props } = resolveValidatorKeyProps(
+      const { validatorKey, props } = this.resolveValidatorKeyProps(
         key,
         fieldType,
         fieldProps,
@@ -241,6 +130,43 @@ export class ValidatorFactory {
     });
 
     return validatorFn;
+  }
+
+  /**
+   * Retrieves the validator value from field properties, with special handling for checkbox types.
+   * Returns the field property value, or the type if the field is a checkbox and the types differ.
+   *
+   * @param key - The validation key.
+   * @param type - The field's type.
+   * @param fieldProps - The field properties object.
+   * @returns The validator value to use.
+   */
+  static getValidatorValue(key: string, type: string, fieldProps: FieldProperties): unknown {
+    return key === ValidationKeys.TYPE &&
+      HTML5InputTypes.CHECKBOX &&
+      fieldProps[key as keyof FieldProperties] !== type
+      ? type
+      : fieldProps[key as keyof FieldProperties];
+  }
+
+  /**
+   * Determines whether a validation should be resolved based on the field's type.
+   * Returns true for TYPE validations with custom types or pattern-based validators.
+   *
+   * @param key - The validation key to evaluate.
+   * @param type - The field's declared type.
+   * @param customTypes - Optional custom type definition.
+   * @returns True if validation should use type-based resolution.
+   */
+  static isTypeBasedValidation(
+    key: string,
+    type: string,
+    customTypes: string | undefined,
+  ): boolean {
+    return (
+      key === ValidationKeys.TYPE &&
+      (typeof customTypes === Primitives.STRING || Object.keys(patternValidators).includes(type))
+    );
   }
 
   /**
@@ -301,5 +227,58 @@ export class ValidatorFactory {
       ignoreUndefined: true,
       ignoreNull: true,
     });
+  }
+
+  /**
+   *
+   * Resolves the correct validator key and its associated properties based on the input key and type.
+   *
+   * When the validation key is TYPE, it's necessary to resolve the actual validator based on the
+   * field's type (e.g., 'password', 'email', 'url') instead of using the generic getValidator("type") logic.
+   * This allows directly invoking specific validators like getValidator('password'), ensuring the correct
+   * behavior for type-based validation.
+   *
+   * @param key - The validation key (e.g., 'type', 'required', etc.).
+   * @param value - The value that needs be provided to the validator.
+   * @param type - The field's declared type.
+   * @returns An object containing the resolved validator key and its corresponding props.
+   */
+  static resolveValidatorKeyProps = (
+    key: string,
+    type: string,
+    fieldProps: FieldProperties,
+    customTypes: string | undefined = undefined,
+  ): { validatorKey: string; props: KeyValue } => {
+    const isTypeBased = this.isTypeBasedValidation(key, type, customTypes);
+    const validatorKey = isTypeBased ? type : key;
+    const value = this.getValidatorValue(key, type, fieldProps);
+    const props = this.getValidatorProps(validatorKey, type, isTypeBased, value);
+    return { validatorKey, props };
+  };
+
+  /**
+   * Constructs the properties object to be passed to a validator.
+   * Handles translation of string values and applies pattern validators for type-based validations.
+   *
+   * @param validatorKey - The resolved validator key.
+   * @param type - The field's type.
+   * @param isTypeBased - Whether this is a type-based validation.
+   * @param value - The value to validate.
+   * @returns An object containing validator properties.
+   */
+  static getValidatorProps(
+    validatorKey: string,
+    type: string,
+    isTypeBased: boolean,
+    value: unknown,
+  ): KeyValue {
+    return {
+      [validatorKey]:
+        !isTypeBased && validatorKey === ValidationKeys.TYPE
+          ? NgxRenderingEngine.get().translate(value as string, false)
+          : value,
+      // Email, Password, and URL are validated using the "pattern" key
+      ...(isTypeBased && { [ValidationKeys.PATTERN]: patternValidators[type] }),
+    };
   }
 }

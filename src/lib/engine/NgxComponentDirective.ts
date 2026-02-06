@@ -357,7 +357,7 @@ export abstract class NgxComponentDirective
    * @type {NgxTranslateService}
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  translateService: NgxTranslateService = inject(NgxTranslateService);
+  override translateService: NgxTranslateService = inject(NgxTranslateService);
 
   /**
    * @description Event emitter for custom component events.

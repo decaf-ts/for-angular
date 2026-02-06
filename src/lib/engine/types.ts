@@ -12,7 +12,7 @@ import { FormArray, FormGroup } from '@angular/forms';
 import { FormServiceControl, I18nResourceConfig, InputOption } from './interfaces';
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
-import { Model } from '@decaf-ts/decorator-validation';
+import { ComparisonValidationKeys, Model } from '@decaf-ts/decorator-validation';
 import { ActionRoles, ListItemPositions, WindowColorSchemes } from './constants';
 import {
   DecafComponent,
@@ -25,6 +25,13 @@ import {
 import { Constructor } from '@decaf-ts/decoration';
 import { EnvironmentProviders, Provider } from '@angular/core';
 import { NgxComponentDirective } from './NgxComponentDirective';
+
+/**
+ * Represents a validation key used for comparison-based validations.
+ * Extracted from the ComparisonValidationKeys object to ensure type safety.
+ */
+export type ComparisonValidationKey =
+  (typeof ComparisonValidationKeys)[keyof typeof ComparisonValidationKeys];
 
 export interface RawQuery<M extends Model> {
   select: undefined | (keyof M)[];

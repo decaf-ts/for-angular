@@ -1,5 +1,5 @@
 import type { Model, ModelArg } from '@decaf-ts/decorator-validation';
-import { min, minlength, model, required, type } from '@decaf-ts/decorator-validation';
+import { maxlength, min, minlength, model, required, type } from '@decaf-ts/decorator-validation';
 // import { gtin, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import { propMetadata, Constructor } from '@decaf-ts/decoration';
 
@@ -75,6 +75,7 @@ export class Product extends Cacheable {
   })
   @uilistprop('title')
   @uilayoutprop(2)
+  @minlength(2)
   inventedName!: string;
 
   //@cache()

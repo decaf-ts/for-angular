@@ -54,7 +54,6 @@ export function provideDecafDynamicComponents(...components: unknown[]): Constru
 export function getModelAndRepository<M extends Model>(
   model: M | string,
   clazz?: NgxComponentDirective,
-  retry: boolean = false,
 ): IRepositoryModelProps<Model> | undefined {
   if (!model) return undefined;
   try {

@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { OrderDirection } from '@decaf-ts/core';
-import { Model } from '@decaf-ts/decorator-validation';
+import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { ComponentEventNames, UIFunctionLike } from '@decaf-ts/ui-decorators';
+import { ComponentEventNames, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { IconComponent } from '../icon/icon.component';
 import { PaginationComponent } from '../pagination/pagination.component';
@@ -69,7 +69,25 @@ export class TableComponent extends ListComponent implements OnInit {
   private get _cols(): string[] {
     this.mapper = this._mapper;
     return Object.entries(this.mapper)
-      .sort(([, a], [, b]) => Number(a?.['sequence'] ?? 0) - Number(b?.['sequence'] ?? 0))
+      .sort(([, a], [, b]) => {
+        const aSequence = a?.sequence ?? 0;
+        const bSequence = b?.sequence ?? 0;
+        const weight = (v: string | number) =>
+          v === UIKeys.FIRST ? 0 : typeof v === Primitives.NUMBER ? 1 : v === UIKeys.LAST ? 100 : 1;
+        const aWeight = weight(aSequence);
+        const bWeight = weight(bSequence);
+        if (aWeight !== bWeight) {
+          return aWeight - bWeight;
+        }
+        if (
+          aWeight === 1 &&
+          typeof aSequence === Primitives.NUMBER &&
+          typeof bSequence === Primitives.NUMBER
+        ) {
+          return aSequence - bSequence;
+        }
+        return 0;
+      })
       .map(([key]) => key);
   }
 

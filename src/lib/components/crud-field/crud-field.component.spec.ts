@@ -1,14 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CrudFieldComponent } from './crud-field.component';
-import { FormControl, FormGroup } from '@angular/forms';
-import { AngularFieldDefinition } from '../../engine';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { NgxTranslateService } from 'src/lib/services/NgxTranslateService';
-import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { NgxFormService } from '../../services/NgxFormService';
 import { By } from '@angular/platform-browser';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormControl, FormGroup } from '@angular/forms';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { CrudFieldComponent } from './crud-field.component';
+import { AngularFieldDefinition } from '../../engine/types';
+import { NgxTranslateService } from '../../services/NgxTranslateService';
+import { ForAngularCommonModule } from '../../for-angular-common.module';
+import { NgxFormService } from '../../services/NgxFormService';
 import { I18nFakeLoader, MockedEnTranslations } from '../../i18n/FakeLoader';
 
 const imports = [

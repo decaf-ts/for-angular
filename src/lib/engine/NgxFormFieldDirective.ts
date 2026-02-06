@@ -5,14 +5,7 @@
  * and FieldProperties to enable form field integration with Angular's reactive forms system.
  * This directive handles form control lifecycle, validation, multi-entry forms, and CRUD operations.
  */
-import {
-  FieldProperties,
-  HTML5InputTypes,
-  RenderingError,
-  UIEventProperty,
-} from '@decaf-ts/ui-decorators';
-import { FormParent, KeyValue, PossibleInputTypes } from './types';
-import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
+import { Directive, Inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -20,13 +13,19 @@ import {
   FormControl,
   FormGroup,
 } from '@angular/forms';
-import { Directive, Inject, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { NgxFormService } from '../services/NgxFormService';
-import { sf } from '@decaf-ts/decorator-validation';
-import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-
-import { FunctionLike } from './types';
+import { sf } from '@decaf-ts/logging';
+import { Primitives } from '@decaf-ts/decorator-validation';
+import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
+import { ComponentEventNames, UIValidator } from '@decaf-ts/ui-decorators';
+import {
+  FieldProperties,
+  HTML5InputTypes,
+  RenderingError,
+  UIEventProperty,
+} from '@decaf-ts/ui-decorators';
 import { NgxComponentDirective } from './NgxComponentDirective';
+import { NgxFormService } from '../services/NgxFormService';
+import { FormParent, FunctionLike, KeyValue, PossibleInputTypes } from './types';
 import { CPTKN, AngularEngineKeys } from './constants';
 import { SelectCustomEvent } from '@ionic/angular/standalone';
 
@@ -261,6 +260,22 @@ export abstract class NgxFormFieldDirective
    */
   multiple!: boolean;
 
+  /**
+   * @description Custom type definitions for field validation.
+   * @summary Allows specifying custom types beyond HTML5 input types to support specialized validation logic.
+   * Can be a single type string or an array of type strings for multi-type validation scenarios.
+   * @type {string | string[] | undefined}
+   * @public
+   */
+  customTypes?: string | string[] | undefined;
+
+  /**
+   * @description Whether the field is currently checked.
+   * @summary Used for checkbox and radio button fields to track the checked state independently from the value.
+   * @type {boolean}
+   * @default false
+   * @public
+   */
   checked: boolean = false;
 
   /**
@@ -294,10 +309,10 @@ export abstract class NgxFormFieldDirective
   // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(@Inject(CPTKN) componentName: string = 'ComponentCrudField') {
     super(componentName);
+    if (!UIValidator.translateService) {
+      UIValidator.translateService = this.translateService;
+    }
   }
-  maxLength?: number | undefined;
-  minLength?: number | undefined;
-  customTypes?: string | string[] | undefined;
 
   /**
    * @description Gets the currently active form group based on context.
@@ -534,32 +549,38 @@ export abstract class NgxFormFieldDirective
     );
   }
 
-  private getErrorMessage(error: Record<string, string>): {
-    message: string;
-    args: string[];
-  } {
+  private getErrorMessage(error: Record<string, string>): string {
     const instance = this as KeyValue;
     let { message, key } = error;
+    const prop = instance[key];
     let args = [] as string[];
-    if (message.includes('|')) {
-      const parts = message.split('|');
-      message = parts[0];
-      parts.shift();
-      parts.map((part, index) => {
-        args = [...args, part];
-      });
-    } else {
-      const prop = instance[key];
-      if (prop) {
-        args = [prop];
+    if (typeof message === Primitives.STRING) {
+      if (message.includes('|')) {
+        const parts = message.split('|');
+        message = parts[0];
+        parts.shift();
+        parts.forEach((part) => {
+          args = [...args, part];
+        });
+      } else {
+        if (prop) {
+          args = [prop];
+        }
       }
+    } else {
+      args = Object.values(message).map((v) => `${v || prop}`) as string[];
+      message = key;
     }
-    return {
-      message: !message.includes(AngularEngineKeys.ERRORS)
-        ? `${AngularEngineKeys.ERRORS}.${message}`
-        : message,
-      args,
+    // Check if string already be translated by validator
+    const translate = (message: string, args: string[]): string => {
+      return this.translateService.instant(
+        !message.includes(AngularEngineKeys.ERRORS)
+          ? `${AngularEngineKeys.ERRORS}.${message}`
+          : message,
+        args,
+      );
     };
+    return /\s/.test(message) && message !== key ? message : translate(message, args);
   }
 
   /**
@@ -599,8 +620,7 @@ export abstract class NgxFormFieldDirective
           }
         }
         for (const error of errors) {
-          const { message, args } = this.getErrorMessage(error);
-          return `* ${this.translateService.instant(message, args)}`;
+          return `* ${this.getErrorMessage(error)}`;
         }
       }
     }
