@@ -346,6 +346,12 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    * @returns {Promise<void>} - A promise that resolves when the event is handled.
    */
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
+    // if (event instanceof Event || event.name === ComponentEventNames.Refresh) {
+    //   if (event instanceof Event) {
+    //     event.stopImmediatePropagation();
+    //   }
+    //   return;
+    // }
     if (event instanceof Event) {
       event.stopImmediatePropagation();
     }
