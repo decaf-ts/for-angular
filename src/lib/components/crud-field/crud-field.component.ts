@@ -58,7 +58,6 @@ import { getNgxSelectOptionsModal } from '../modal/modal.component';
 import { ActionRoles, SelectFieldInterfaces } from '../../engine/constants';
 import { IconComponent } from '../icon/icon.component';
 import { getModelAndRepository } from '../../engine/helpers';
-import { Validator } from '@decaf-ts/decorator-validation';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -804,6 +803,7 @@ export class CrudFieldComponent
    */
   async openSelectOptions(event: Event, selectInterface: SelectInterface): Promise<void> {
     if (selectInterface === SelectFieldInterfaces.MODAL) {
+      this.updateOn = 'blur';
       event.preventDefault();
       event.stopImmediatePropagation();
       const loading = await this.loadingController.create({} as LoadingOptions);
