@@ -209,8 +209,11 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
     if (!menu) menu = this.menu;
     const activeMenu = menu.find((item) => item?.url?.includes(route));
     if (activeMenu) {
-      const label = `${(activeMenu?.title || activeMenu?.label || '').toLowerCase()}`;
-      const title = `${await this.translate(label ? 'menu.' + label : label)} ${this.appName ? `- ${this.appName}` : ''}`;
+      let label = `${(activeMenu?.title || activeMenu?.label || '').toLowerCase()}`;
+      if (!label.startsWith('menu.')) {
+        label = `menu.${label}`;
+      }
+      const title = `${await this.translate(label)} ${this.appName ? `- ${this.appName}` : ''}`;
       this.titleService.setTitle(title);
       if (!this.title) this.title = title;
     }
