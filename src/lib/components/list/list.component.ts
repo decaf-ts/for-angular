@@ -967,11 +967,14 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
   refreshEventEmit(data?: KeyValue[]): void {
     if (!data) data = this.items;
     this.skeletonData = new Array(1);
-    this.refreshEvent.emit({
-      name: ComponentEventNames.Refresh,
-      data: data || [],
-      component: this.componentName,
-    });
+    // Avoid emitting refresh events when the component is a child of a modal to prevent
+    if (!this.isModalChild) {
+      this.refreshEvent.emit({
+        name: ComponentEventNames.Refresh,
+        data: data || [],
+        component: this.componentName,
+      });
+    }
   }
 
   /**
