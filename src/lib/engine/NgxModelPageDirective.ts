@@ -320,8 +320,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
       if (constructor) {
         const properties = this.getModelProperties(constructor);
         for (const prop of properties) {
-          const type = this.getModelPropertyType(constructor as Constructor<Model>, prop);
-          const context = getModelAndRepository(type as string);
+          const type = this.getModelPropertyType(constructor, prop);
+          const context = getModelAndRepository(type) || getModelAndRepository(prop);
           if (!context) {
             acc[prop] = {};
             return getRepository(type, acc, prop);
