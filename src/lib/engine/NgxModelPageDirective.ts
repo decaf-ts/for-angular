@@ -253,7 +253,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
       repo = this._repository as DecafRepository<M>;
     }
 
-    if (!repo || repo.class.name !== this.model?.constructor.name) {
+    if (!repo || repo?.class?.name !== this.model?.constructor?.name) {
       const { context } = (await this.process(
         event,
         this.model as Model,
@@ -392,7 +392,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
               : (event.data as KeyValue)[prop]);
           if (data) {
             if (parent || Array.isArray(data)) data = [...Object.values(data)];
-            const context = getModelAndRepository(type);
+            const context = getModelAndRepository(type) || getModelAndRepository(prop);
             evt = { ...evt, data };
             if (!context) {
               await iterate(evt, type, prop);
@@ -407,7 +407,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
                   pkType: pkType,
                   data,
                 };
-                if (!this.modelId) this.modelId = (data as KeyValue)[pk];
+                if (!this.modelId) {
+                  this.modelId = (data as KeyValue)[pk];
+                }
               } else {
                 Object.assign(result.context.data, {
                   [prop]: Array.isArray(data) ? this.buildTransactionModel(data, repository) : data,
@@ -417,7 +419,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
                 [prop]: {
                   model,
                   data,
-                  repository: repository as IRepository<Model>,
+                  repository: repository,
                   pk,
                 },
               });
