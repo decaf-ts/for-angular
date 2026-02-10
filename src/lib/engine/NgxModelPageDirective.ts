@@ -7,7 +7,7 @@ import {
   OperationKeys,
   PrimaryKeyType,
 } from '@decaf-ts/db-decorators';
-import { EventIds, Repository } from '@decaf-ts/core';
+import { Repository } from '@decaf-ts/core';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { NgxPageDirective } from './NgxPageDirective';
@@ -117,7 +117,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
    *
    * @param {string} [uid] - The unique identifier of the model to load; defaults to modelId
    */
-  override async refresh(uid?: EventIds): Promise<void> {
+  override async refresh(uid?: PrimaryKeyType): Promise<void> {
     this.refreshing = true;
     if (!uid) {
       uid = this.modelId;
@@ -177,7 +177,10 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     event: IBaseCustomEvent & ICrudFormEvent & CustomEvent,
     repository?: DecafRepository<Model>,
   ): Promise<void> {
-    const { name, role, handler, data, handlers } = event;
+    const { name, role, handler, data, modelId, handlers } = event;
+    if (!this.modelId && modelId) {
+      this.modelId = modelId;
+    }
     if (handler && role) {
       this.handlers = handlers || {};
       return await handler.bind(this)(event, data || {}, role);
@@ -252,11 +255,10 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     if (!repo) {
       repo = this._repository as DecafRepository<M>;
     }
-
     if (!repo || repo?.class?.name !== this.model?.constructor?.name) {
       const { context } = (await this.process(
         event,
-        this.model as Model,
+        this.model as M,
         false,
       )) as ILayoutModelContext;
       if (context) {
@@ -296,7 +298,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
    * @return {Promise<Model | undefined>} Promise resolving to the model instance or undefined
    */
   async handleRead<M extends Model>(
-    uid?: EventIds,
+    uid?: PrimaryKeyType,
     repository?: IRepository<M>,
     modelName?: string,
   ): Promise<Model | undefined> {
@@ -315,7 +317,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
       acc: KeyValue = {},
       parent: string = '',
     ): Promise<DecafRepository<Model> | void> => {
-      if (this._repository) return this._repository as DecafRepository<Model>;
+      if (this._repository) {
+        return this._repository as DecafRepository<Model>;
+      }
       const constructor = Model.get(modelName);
       if (constructor) {
         const properties = this.getModelProperties(constructor);
@@ -465,7 +469,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
       const operation = (role || this.operation) as CrudOperations;
       if (data) {
         if (!pk) pk = Model.pk(repository.class) as string;
-        if (!this.modelId) this.modelId = (data as M)[pk as keyof M] as PrimaryKeyType;
+        if (!this.modelId) {
+          this.modelId = (data as M)[pk as keyof M] as PrimaryKeyType;
+        }
         const model = await this.transactionBegin(data as M, repository, operation);
         if (!model) {
           return {

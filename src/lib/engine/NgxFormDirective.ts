@@ -379,6 +379,7 @@ export abstract class NgxFormDirective
       role: role || this.operation,
       handler: handler,
       handlers: this.handlers || {},
+      ...(this.operation !== OperationKeys.CREATE ? { modelId: this.modelId } : {}),
     });
   }
 

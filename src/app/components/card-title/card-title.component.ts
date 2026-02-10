@@ -1,6 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { IonRouterLink } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AppSwitcherComponent } from '../switcher/switcher.component';
 import { ITabItem } from 'src/app/ew/utils/interfaces';
@@ -12,7 +10,7 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
   templateUrl: './card-title.component.html',
   styleUrls: ['./card-title.component.scss'],
   standalone: true,
-  imports: [AppCardTitleComponent, TranslatePipe, AppSwitcherComponent, IonRouterLink, RouterLink],
+  imports: [TranslatePipe, AppSwitcherComponent],
 })
 export class AppCardTitleComponent extends NgxComponentDirective implements OnInit {
   @Input({ required: true })

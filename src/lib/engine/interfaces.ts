@@ -23,6 +23,7 @@ import {
 import { FormParent } from './types';
 import { Model } from '@decaf-ts/decorator-validation';
 import { ActionRoles } from './constants';
+import { PrimaryKeyType } from '@decaf-ts/db-decorators';
 
 /**
  * @description Interface for models that can be rendered
@@ -369,6 +370,7 @@ export interface I18nToken {
 export interface ICrudFormEvent extends IBaseCustomEvent {
   handler?: UIFunctionLike;
   handlers?: Record<string, UIFunctionLike>;
+  modelId?: PrimaryKeyType;
   role: (typeof ActionRoles)[keyof typeof ActionRoles] & CrudOperationKeys;
 }
 
