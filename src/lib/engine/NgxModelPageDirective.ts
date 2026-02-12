@@ -11,19 +11,10 @@ import { Repository } from '@decaf-ts/core';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { NgxPageDirective } from './NgxPageDirective';
-import {
-  IBaseCustomEvent,
-  ICrudFormEvent,
-  ILayoutModelContext,
-  IModelComponentSubmitEvent,
-} from './interfaces';
-import { DecafRepository, KeyValue } from './types';
+import { ICrudFormEvent, ILayoutModelContext, IModelComponentSubmitEvent } from './interfaces';
+import { CrudEvent, DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { getModelAndRepository } from './helpers';
-
-type CrudEvent<M extends Model> = IBaseCustomEvent &
-  ICrudFormEvent &
-  CustomEvent & { data: M; role?: CrudOperations };
 
 @Directive()
 export abstract class NgxModelPageDirective extends NgxPageDirective implements AfterViewInit {

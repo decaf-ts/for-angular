@@ -11,6 +11,7 @@ import { CardComponent, EmptyStateComponent } from 'src/lib/components';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { ICrudFormEvent, IModelComponentSubmitEvent } from 'src/lib/engine/interfaces';
 import { Model } from '@decaf-ts/decorator-validation';
+import { CrudEvent } from 'src/lib/engine/types';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -134,11 +135,11 @@ export class ModelPage extends NgxModelPageDirective implements OnInit {
   //   await super.ionViewWillEnter();
   // }
 
-  override async handleEvent(event: ICrudFormEvent): Promise<void> {
+  override async handleEvent<M extends Model>(event: ICrudFormEvent): Promise<void> {
     const { name } = event;
     if (name === ComponentEventNames.Submit) {
       const { success, message } = (await super.submit(
-        event,
+        event as CrudEvent<M>,
         true,
       )) as IModelComponentSubmitEvent<Model>;
       const toast = getNgxToastComponent();
