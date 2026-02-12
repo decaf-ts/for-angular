@@ -21,6 +21,10 @@ import { DecafRepository, KeyValue } from './types';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { getModelAndRepository } from './helpers';
 
+type CrudEvent<M extends Model> = IBaseCustomEvent &
+  ICrudFormEvent &
+  CustomEvent & { data: M; role?: CrudOperations };
+
 @Directive()
 export abstract class NgxModelPageDirective extends NgxPageDirective implements AfterViewInit {
   /**
@@ -173,9 +177,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
    *
    * @param {IBaseCustomEvent} event - The event object containing event data and metadata
    */
-  override async handleEvent(
-    event: IBaseCustomEvent & ICrudFormEvent & CustomEvent,
-    repository?: DecafRepository<Model>,
+  override async handleEvent<M extends Model>(
+    event: CrudEvent<M>,
+    repository?: DecafRepository<M>,
   ): Promise<void> {
     const { name, role, handler, data, modelId, handlers } = event;
     if (!this.modelId && modelId) {
@@ -190,7 +194,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
         await this.submit(event, true, repository);
         break;
       default:
-        this.listenEvent.emit(event as IBaseCustomEvent | ICrudFormEvent);
+        this.listenEvent.emit(event);
     }
   }
 
@@ -249,7 +253,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
   // }
 
   async getTransactionRepository<M extends Model>(
-    event: ICrudFormEvent,
+    event: CrudEvent<M>,
     repo: DecafRepository<M>,
   ): Promise<DecafRepository<M>> {
     if (!repo) {
@@ -263,7 +267,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
       )) as ILayoutModelContext;
       if (context) {
         // parse data from main model to event
-        event.data = context.data;
+        event.data = context.data as M;
         return context.repository as DecafRepository<M>;
       }
     }
@@ -378,22 +382,24 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
   }
 
   async process<M extends Model>(
-    event: ICrudFormEvent,
+    event: CrudEvent<M>,
     model?: M,
     submit: boolean = false,
   ): Promise<ILayoutModelContext | IModelComponentSubmitEvent<M>> {
     const result = { models: {} } as ILayoutModelContext;
-    const iterate = async (evt: ICrudFormEvent, model: string | M, parent?: string) => {
+    const eventData = event.data as KeyValue;
+    const iterate = async (
+      evt: ICrudFormEvent & { data: KeyValue },
+      model: string | M,
+      parent?: string,
+    ) => {
       const constructor = this.getModelConstrutor(model);
       if (constructor) {
         const properties = Metadata.properties(constructor) as string[];
         const promises = properties.map(async (prop) => {
           const type = Metadata.type(constructor as Constructor<Model>, prop).name;
           let data =
-            (evt.data as KeyValue)[prop] ||
-            (parent
-              ? (event.data as KeyValue)[parent as string][prop]
-              : (event.data as KeyValue)[prop]);
+            evt.data?.[prop] || (parent ? eventData?.[parent as string][prop] : eventData?.[prop]);
           if (data) {
             if (parent || Array.isArray(data)) data = [...Object.values(data)];
             const context = getModelAndRepository(type) || getModelAndRepository(prop);
@@ -402,7 +408,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
               await iterate(evt, type, prop);
             } else {
               const { repository, model, pk, pkType } = context;
-              if (!this.pk) this.pk = pk;
+              if (!this.pk) {
+                this.pk = pk;
+              }
               if (!result.context) {
                 result.context = {
                   repository,
@@ -451,28 +459,30 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
    * page, and displays success notifications. Comprehensive error handling ensures robust
    * operation with detailed logging.
    *
-   * @param {IBaseCustomEvent} event - The submit event containing form data
+   * @param {CrudEvent<M>} event - The submit event containing form data
    * @return {Promise<IModelComponentSubmitEvent|void>} Promise that resolves on success or throws on error
    */
   override async submit<M extends Model>(
-    event: ICrudFormEvent,
+    event: CrudEvent<M>,
     redirect: boolean = false,
     repo?: DecafRepository<M>,
-    pk?: string,
+    pk?: keyof M,
   ): Promise<IModelComponentSubmitEvent<M>> {
     let success = false;
     let message = '';
     let result = null;
     try {
-      const repository = await this.getTransactionRepository(event, repo as DecafRepository<M>);
+      const repository = await this.getTransactionRepository<M>(event, repo!);
       const { data, role } = event;
       const operation = (role || this.operation) as CrudOperations;
       if (data) {
-        if (!pk) pk = Model.pk(repository.class) as string;
-        if (!this.modelId) {
-          this.modelId = (data as M)[pk as keyof M] as PrimaryKeyType;
+        if (!pk) {
+          pk = Model.pk(repository.class) as keyof M;
         }
-        const model = await this.transactionBegin(data as M, repository, operation);
+        if (!this.modelId) {
+          this.modelId = data?.[pk] as PrimaryKeyType;
+        }
+        const model = await this.transactionBegin(data, repository, operation);
         if (!model) {
           return {
             success: false,
@@ -491,7 +501,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
           case OperationKeys.UPDATE: {
             const models = (!Array.isArray(model) ? [model] : model) as M[];
             for (const m of models) {
-              const uid = m[pk as keyof M];
+              const uid = m[pk as keyof M] as PrimaryKeyType;
               const check = uid ? await repository.read(uid as PrimaryKeyType) : false;
               result = await (!check ? repository.create(m as M) : repository.update(m as M));
             }
@@ -503,17 +513,19 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
               : repository.deleteAll(model as []));
             break;
         }
-
-        const pkValue = (model as KeyValue)[pk] || (model as KeyValue)[this.pk] || model || '';
-        message = await this.translate(`operations.${operation}.${result ? 'success' : 'error'}`, {
-          '0': repository.class.name || pk,
-          '1': pkValue,
-        });
         success = result ? true : false;
         if (success) {
-          if ((result as KeyValue)?.[this.pk]) this.modelId = (result as KeyValue)[this.pk];
-          if (redirect) this.location.back();
+          if ((result as KeyValue)?.[this.pk]) {
+            this.modelId = (result as KeyValue)[this.pk];
+          }
+          if (redirect) {
+            this.location.back();
+          }
         }
+        message = await this.translate(`operations.${operation}.${result ? 'success' : 'error'}`, {
+          '0': repository.class.name || pk,
+          '1': this.modelId || '',
+        });
       }
     } catch (error: unknown) {
       this.log

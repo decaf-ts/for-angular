@@ -8,7 +8,7 @@
  * @link {@link CrudFormComponent}
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -31,6 +31,9 @@ import { getModelAndRepository } from '../../engine/helpers';
   host: { '[attr.id]': 'uid' },
 })
 export class CrudFormComponent extends NgxFormDirective implements OnInit {
+  @Input()
+  showCancelButton = true;
+
   constructor() {
     super('CrudFormComponent');
   }

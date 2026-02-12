@@ -14,6 +14,8 @@ import { IFilterQuery } from './interfaces';
 import { Subject } from 'rxjs';
 import { getModelAndRepository } from './helpers';
 
+type TransactionResponse<M extends Model> = M | M[] | PrimaryKeyType | PrimaryKeyType[] | undefined;
+
 @Directive()
 export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   private _context?: DecafRepository<M>;
@@ -350,7 +352,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     model: M,
     repository: DecafRepository<M>,
     operation: CrudOperations,
-  ): Promise<M | M[] | PrimaryKeyType | undefined> {
+  ): Promise<TransactionResponse<M>> {
     try {
       const hook = `after${operation.charAt(0).toUpperCase() + operation.slice(1)}`;
       const handler = this.handlers?.[hook] || undefined;
@@ -382,16 +384,16 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   protected buildTransactionModel<M extends Model>(
     data: KeyValue | KeyValue[],
     repository: DecafRepository<M>,
-    operation?: CrudOperations,
-  ): M | M[] | PrimaryKeyType | PrimaryKeyType[] {
+    operation?: OperationKeys,
+  ): TransactionResponse<M> {
     if (!operation) {
-      operation = this.operation as CrudOperations;
+      operation = this.operation as OperationKeys;
     }
     operation = (
       [OperationKeys.READ, OperationKeys.DELETE].includes(operation)
         ? OperationKeys.DELETE
         : operation.toLowerCase()
-    ) as CrudOperations;
+    ) as OperationKeys;
 
     if (Array.isArray(data))
       return data.map((item) => this.buildTransactionModel(item, repository, operation)) as M[];
