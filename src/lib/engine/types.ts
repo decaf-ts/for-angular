@@ -9,9 +9,15 @@
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import { FormServiceControl, I18nResourceConfig, InputOption } from './interfaces';
+import {
+  FormServiceControl,
+  I18nResourceConfig,
+  IBaseCustomEvent,
+  ICrudFormEvent,
+  InputOption,
+} from './interfaces';
 import { Adapter, Repository } from '@decaf-ts/core';
-import { Context, RepositoryFlags } from '@decaf-ts/db-decorators';
+import { Context, CrudOperations, RepositoryFlags } from '@decaf-ts/db-decorators';
 import { ComparisonValidationKeys, Model } from '@decaf-ts/decorator-validation';
 import { ActionRoles, ListItemPositions, WindowColorSchemes } from './constants';
 import {
@@ -289,3 +295,7 @@ export type PropsMapperFn<T extends NgxComponentDirective> = Record<
 >;
 
 export type DecafComponentConstructor = DecafComponent<Model>;
+
+export type CrudEvent<M extends Model> = IBaseCustomEvent &
+  ICrudFormEvent &
+  CustomEvent & { data: M; role?: CrudOperations };

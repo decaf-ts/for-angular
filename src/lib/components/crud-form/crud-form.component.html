@@ -33,7 +33,7 @@
     @if (initialized) {
       <div class="dcf-buttons-grid dcf-grid dcf-grid-small dcf-flex dcf-flex-right">
         @if (!action) {
-          <div>
+          <div [class.dcf-hidden]="!showCancelButton">
             <ion-button fill="clear" (click)="handleReset()">
               @if (options.buttons.clear?.icon) {
                 <ion-icon

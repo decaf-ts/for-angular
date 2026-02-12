@@ -17,11 +17,11 @@ import {
   IBaseCustomEvent,
   ICrudFormEvent,
 } from './interfaces';
-import { FormParent, KeyValue } from './types';
+import { CrudEvent, FormParent, KeyValue } from './types';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { shareReplay, takeUntil } from 'rxjs';
 import { NgxModelPageDirective } from './NgxModelPageDirective';
-import { ModelKeys } from '@decaf-ts/decorator-validation';
+import { Model, ModelKeys } from '@decaf-ts/decorator-validation';
 
 @Directive()
 export class NgxRenderableComponentDirective
@@ -156,7 +156,7 @@ export class NgxRenderableComponentDirective
    * @return {void}
    * @memberOf NgxComponentDirective
    */
-  protected async subscribeEvents(component?: Type<unknown>): Promise<void> {
+  protected async subscribeEvents<M extends Model>(component?: Type<unknown>): Promise<void> {
     if (!component) component = this?.output?.component;
     if (!this.instance && component) this.instance = component;
     if (this.instance && component) {
@@ -171,7 +171,7 @@ export class NgxRenderableComponentDirective
                 component: component.name || '',
                 name: key,
                 ...event,
-              } as IBaseCustomEvent & ICrudFormEvent & CustomEvent);
+              } as CrudEvent<M>);
             });
       }
     }
