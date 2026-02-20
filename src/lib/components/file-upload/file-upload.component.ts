@@ -126,7 +126,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   override type: PossibleInputTypes = HTML5InputTypes.FILE;
 
   @Input()
-  subType: 'string' | 'file' = 'string';
+  subType: 'text' | 'file' = 'text';
 
   /**
    * @description Label for the upload button.
@@ -438,7 +438,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     }
     if (this.files.length) {
       const dataValues = await this.getDataURLs(this.files as File[]);
-      this.setValue(this.subType === 'string' ? JSON.stringify(dataValues) : this.files);
+      this.setValue(this.subType === 'text' ? JSON.stringify(dataValues) : this.files);
     }
 
     await this.getPreview();
