@@ -6,51 +6,43 @@
  * It centralizes shared behavior for child components and simplifies integration with the rendering engine.
  * @link {@link NgxComponentDirective}
  */
+import { Location } from '@angular/common';
 import {
+  ChangeDetectorRef,
   Directive,
   ElementRef,
+  EnvironmentInjector,
   EventEmitter,
   Inject,
   inject,
   Input,
+  OnChanges,
+  OnDestroy,
   Output,
+  Renderer2,
+  signal,
   SimpleChanges,
   ViewChild,
-  OnChanges,
-  ChangeDetectorRef,
-  Renderer2,
-  OnDestroy,
-  signal,
   WritableSignal,
-  EnvironmentInjector,
 } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
-import { Location } from '@angular/common';
-import { shareReplay, Subject, takeUntil } from 'rxjs';
-import { Model, ModelConstructor, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
-import { ComponentEventNames, DecafEventHandler } from '@decaf-ts/ui-decorators';
-import {
-  DecafRepository,
-  FormParent,
-  FunctionLike,
-  KeyValue,
-  PropsMapperFn,
-  WindowColorScheme,
-} from './types';
-import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
-import {} from './NgxEventHandler';
-import { getLocaleContext } from '../i18n/Loader';
-import { NgxRenderingEngine } from './NgxRenderingEngine';
-import { AngularEngineKeys, BaseComponentProps, CPTKN, WindowColorSchemes } from './constants';
-import { generateRandomValue, getWindow, setOnWindow } from '../utils';
-import { NgxMediaService } from '../services/NgxMediaService';
-import { UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
-import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
+import { Model, ModelConstructor, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames, DecafEventHandler, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
 import { OverlayBaseController } from '@ionic/angular/common';
-import { getModelAndRepository } from './helpers';
-import { NgxRepositoryDirective } from './NgxRepositoryDirective';
+import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
+import { shareReplay, Subject, takeUntil } from 'rxjs';
+import { getLocaleContext } from '../i18n/Loader';
+import { NgxMediaService } from '../services/NgxMediaService';
 import { NgxTranslateService } from '../services/NgxTranslateService';
+import { generateRandomValue, getWindow, setOnWindow } from '../utils';
+import { AngularEngineKeys, BaseComponentProps, CPTKN, WindowColorSchemes } from './constants';
+import { getModelAndRepository } from './helpers';
+import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
+import { } from './NgxEventHandler';
+import { NgxRenderingEngine } from './NgxRenderingEngine';
+import { NgxRepositoryDirective } from './NgxRepositoryDirective';
+import { DecafRepository, FormParent, FunctionLike, KeyValue, PropsMapperFn, WindowColorScheme } from './types';
 
 try {
   const win = getWindow();
@@ -74,10 +66,7 @@ try {
  * @memberOf module:lib/engine/NgxComponentDirective
  */
 @Directive({ host: { '[attr.id]': 'uid' } })
-export abstract class NgxComponentDirective
-  extends NgxRepositoryDirective<Model>
-  implements OnChanges, OnDestroy
-{
+export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model> implements OnChanges, OnDestroy {
   /**
    * @description Reference to the component's native DOM element.
    * @summary Provides direct access to the native DOM element of the component through Angular's
@@ -97,9 +86,7 @@ export abstract class NgxComponentDirective
    * the instance. Signals ensure Angular change detection reacts to prop updates.
    * @type {WritableSignal<NgxComponentDirective>}
    */
-  _props: WritableSignal<NgxComponentDirective> = signal<NgxComponentDirective>(
-    {} as NgxComponentDirective,
-  );
+  _props: WritableSignal<NgxComponentDirective> = signal<NgxComponentDirective>({} as NgxComponentDirective);
 
   /**
    * @description Flag to enable or disable dark mode support for the component.
@@ -369,9 +356,7 @@ export abstract class NgxComponentDirective
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Output()
-  listenEvent: EventEmitter<IBaseCustomEvent | ICrudFormEvent> = new EventEmitter<
-    IBaseCustomEvent | ICrudFormEvent
-  >();
+  listenEvent: EventEmitter<IBaseCustomEvent | ICrudFormEvent> = new EventEmitter<IBaseCustomEvent | ICrudFormEvent>();
 
   /**
    * @description Event emitter for custom component events.
@@ -383,9 +368,7 @@ export abstract class NgxComponentDirective
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Output()
-  refreshEvent: EventEmitter<IBaseCustomEvent | boolean> = new EventEmitter<
-    IBaseCustomEvent | boolean
-  >();
+  refreshEvent: EventEmitter<IBaseCustomEvent | boolean> = new EventEmitter<IBaseCustomEvent | boolean>();
 
   /**
    * @description Angular Router instance for programmatic navigation.
@@ -485,8 +468,7 @@ export abstract class NgxComponentDirective
    * @returns {OverlayBaseController<LoadingOptions, HTMLIonLoadingElement>}
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  protected loadingController: OverlayBaseController<LoadingOptions, HTMLIonLoadingElement> =
-    inject(LoadingController);
+  protected loadingController: OverlayBaseController<LoadingOptions, HTMLIonLoadingElement> = inject(LoadingController);
 
   /**
    * @description Flag indicating if the component is rendered as a child of a modal dialog.
@@ -567,7 +549,6 @@ export abstract class NgxComponentDirective
     this.mediaService.darkModeEnabled();
     // connect component to media service for color scheme toggling
     this.mediaService.colorSchemeObserver(this.component);
-
     if (!this.initialized && Object.keys(this.props || {}).length) {
       this.parseProps(this);
     }
@@ -575,15 +556,13 @@ export abstract class NgxComponentDirective
       this.refreshing = false;
     }
 
-    this.router.events
-      .pipe(shareReplay(1), takeUntil(this.destroySubscriptions$))
-      .subscribe(async (event) => {
-        if (event instanceof NavigationStart) {
-          if (this.value) {
-            await this.ngOnDestroy();
-          }
+    this.router.events.pipe(shareReplay(1), takeUntil(this.destroySubscriptions$)).subscribe(async (event) => {
+      if (event instanceof NavigationStart) {
+        if (this.value) {
+          await this.ngOnDestroy();
         }
-      });
+      }
+    });
 
     this.route = this.router.url.replace('/', '');
 
@@ -766,11 +745,7 @@ export abstract class NgxComponentDirective
   protected checkDarkMode(): void {
     this.mediaService.isDarkMode().subscribe((isDark) => {
       this.isDarkMode = isDark;
-      this.mediaService.toggleClass(
-        [this.component],
-        AngularEngineKeys.DARK_PALETTE_CLASS,
-        this.isDarkMode,
-      );
+      this.mediaService.toggleClass([this.component], AngularEngineKeys.DARK_PALETTE_CLASS, this.isDarkMode);
     });
   }
 
@@ -857,8 +832,7 @@ export abstract class NgxComponentDirective
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   getRoute(): string {
-    if (!this.route && this.model instanceof Model)
-      this.route = `/model/${this.model?.constructor.name}`;
+    if (!this.route && this.model instanceof Model) this.route = `/model/${this.model?.constructor.name}`;
     return this.route || '';
   }
 
@@ -1016,8 +990,7 @@ export abstract class NgxComponentDirective
   async handleEvent(event: IBaseCustomEvent & ICrudFormEvent & CustomEvent): Promise<void> {
     let name = '';
     if (event instanceof CustomEvent) {
-      if (!event.detail)
-        return this.log.for(this.handleEvent).debug(`No details for custom event ${name}`);
+      if (!event.detail) return this.log.for(this.handleEvent).debug(`No details for custom event ${name}`);
       name = event.detail?.name;
       event = event.detail;
     }
@@ -1110,21 +1083,31 @@ export abstract class NgxComponentDirective
   }
 
   async initProps<T extends NgxComponentDirective>(
-    props: T | KeyValue,
-    map: (keyof T)[] | KeyValue = [],
-    instance?: NgxComponentDirective & T,
+    props: T & KeyValue,
+    map: (keyof T)[] | Record<keyof T, unknown> = [],
+    instance?: NgxComponentDirective & T
   ): Promise<void> {
-    this._props = signal<T>(props as T);
-    if (!instance) instance = this as KeyValue as T;
+    if (!instance) {
+      instance = this as T & KeyValue;
+    }
     if (Array.isArray(map)) {
       map.forEach((key: keyof T) => {
-        if (key in instance && instance[key]) (props as T)[key as keyof T] = instance[key];
+        if (key in instance && instance[key]) {
+          props[key] = instance[key];
+        }
       });
+    } else {
+      props = { ...props, ...map };
+      map = Object.keys(map) as (keyof T)[];
     }
-    Object.entries(props).filter(([key, value]) => {
-      if (key in instance || map.includes(key as keyof T)) instance[key as keyof T] = value;
-    });
+    this._props = signal<T>(props as T);
 
+    Object.entries(props).filter(([key, value]) => {
+      const prop = key as keyof T;
+      if (prop in instance || map.includes(prop)) {
+        instance[prop] = value;
+      }
+    });
     await this.initialize();
   }
 }

@@ -1,28 +1,19 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  Output,
-  ViewChild,
-  OnInit,
-  OnDestroy,
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { IonItem, IonLabel, IonList, IonButton, IonText } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
-import { ComponentEventNames, ElementSizes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { Constructor } from '@decaf-ts/decoration';
 import { Primitives } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames, ElementSizes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
+import { IonButton, IonItem, IonLabel, IonList, IonText } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Dynamic } from '../../engine/decorators';
+import { IBaseCustomEvent, IFileUploadError } from '../../engine/interfaces';
+import { NgxEventHandler } from '../../engine/NgxEventHandler';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { ElementSize, FlexPosition, KeyValue, PossibleInputTypes } from '../../engine/types';
-import { IBaseCustomEvent, IFileUploadError } from '../../engine/interfaces';
-import { presentNgxInlineModal, presentNgxLightBoxModal } from '../modal/modal.component';
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../icon/icon.component';
-import { NgxEventHandler } from '../../engine/NgxEventHandler';
+import { presentNgxInlineModal, presentNgxLightBoxModal } from '../modal/modal.component';
 
 const FileErrors = {
   notAllowed: 'not_allowed',
@@ -133,6 +124,9 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    */
   @Input()
   override type: PossibleInputTypes = HTML5InputTypes.FILE;
+
+  @Input()
+  subType: 'string' | 'file' = 'string';
 
   /**
    * @description Label for the upload button.
@@ -305,9 +299,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
         });
         this.getPreview();
       } catch (error: unknown) {
-        this.log
-          .for(this.initialize)
-          .error(`Error parsing file list: ${(error as Error).message || error}`);
+        this.log.for(this.initialize).error(`Error parsing file list: ${(error as Error).message || error}`);
       }
     }
   }
@@ -446,7 +438,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     }
     if (this.files.length) {
       const dataValues = await this.getDataURLs(this.files as File[]);
-      this.setValue(JSON.stringify(dataValues));
+      this.setValue(this.subType === 'string' ? JSON.stringify(dataValues) : this.files);
     }
 
     await this.getPreview();
@@ -471,11 +463,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
         if (ext === '*') return true;
         if (ext.endsWith('/*')) return file.type.startsWith(ext.replace(/\/\*$/, ''));
         const fileExtension = file.type.split('/').pop() || '';
-        return (
-          file.type === ext ||
-          fileExtension === ext ||
-          file.name.toLowerCase().endsWith(ext.replace('.', ''))
-        );
+        return file.type === ext || fileExtension === ext || file.name.toLowerCase().endsWith(ext.replace('.', ''));
       });
       if (!accept) return FileErrors.notAllowed;
     }
@@ -498,8 +486,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
       const dataUrl = (await this.getDataURLs(file)) as string[];
       if (dataUrl && dataUrl.length) file = dataUrl[0];
     }
-    if (fileExtension.includes('image'))
-      content = '<img src="' + file + '" style="max-width: 100%; height: auto;" />';
+    if (fileExtension.includes('image')) content = '<img src="' + file + '" style="max-width: 100%; height: auto;" />';
 
     if (fileExtension.includes('xml')) {
       const parseXml = (xmlString: string): string | undefined => {
@@ -680,8 +667,8 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
             reader.onerror = () => reject(reader.error);
             reader.onload = () => resolve(String(reader.result || ''));
             reader.readAsDataURL(file);
-          }),
-      ),
+          })
+      )
     );
   }
 }

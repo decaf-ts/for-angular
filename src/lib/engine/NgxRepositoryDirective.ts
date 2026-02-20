@@ -30,7 +30,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   _query: M[] = [];
 
   /**
-   * @description Backing model data supplied to the component.
+   * @description Backing main model data supplied to the component.
    * @summary Holds the raw `Model` instance or a generic key-value payload that child
    * components may bind to. When provided, it represents the contextual data the
    * component should render or mutate.

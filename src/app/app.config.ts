@@ -1,92 +1,73 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, provideAppInitializer } from '@angular/core';
 import {
-  provideRouter,
-  withComponentInputBinding,
-  RouteReuseStrategy,
-  withPreloading,
   PreloadAllModules,
+  provideRouter,
+  RouteReuseStrategy,
+  withComponentInputBinding,
+  withPreloading,
 } from '@angular/router';
-import { RamAdapter } from '@decaf-ts/core/ram';
-import { RootTranslateServiceConfig } from '@ngx-translate/core';
+import { RamAdapter, RamFlavour } from '@decaf-ts/core/ram';
+import { Model } from '@decaf-ts/decorator-validation';
+import { AxiosFlavour } from '@decaf-ts/for-http';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
-import { provideDecafI18nConfig } from 'src/lib/i18n/Loader';
-import { routes } from './app.routes';
-import {
-  provideDecafDbAdapter,
-  provideDecafPageTransition,
-  provideDecafDynamicComponents,
-} from 'src/lib/engine/helpers';
-import { AIModel, AIVendorModel } from './models/AIVendorModel';
+import { RootTranslateServiceConfig } from '@ngx-translate/core';
 import { I18nResourceConfigType } from 'src/lib/engine';
-import { CategoryModel } from './models/CategoryModel';
-import { EmployeeModel } from './models/EmployeeModel';
-import { User } from './forms/FieldsetForm';
-import { Product } from './ew/fabric/Product';
-import { Leaflet } from './ew/fabric/Leaflet';
-import { ProductStrength } from './ew/fabric/ProductStrength';
-import { Batch } from './ew/fabric/Batch';
-import { AppSelectFieldComponent } from './components/select-field/select-field.component';
-import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
-import { AppSwitcherComponent } from './components/switcher/switcher.component';
-import { ProductImage } from './ew/fabric/ProductImage';
-import { Audit } from './ew/fabric/Audit';
+import {
+  getLogger,
+  provideDecafDbAdapter,
+  provideDecafDynamicComponents,
+  provideDecafPageTransition,
+} from 'src/lib/engine/helpers';
 import { DecafAxiosHttpAdapter } from 'src/lib/engine/overrides';
-// import { AxiosHttpAdapter, HttpAdapter, HttpStatement } from '@decaf-ts/for-http';
+import { provideDecafI18nConfig } from 'src/lib/i18n/Loader';
+import { isDevelopmentMode } from 'src/lib/utils/helpers';
+import { routes } from './app.routes';
+import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
+import { AppSelectFieldComponent } from './components/select-field/select-field.component';
+import { AppSwitcherComponent } from './components/switcher/switcher.component';
+import { Batch } from './ew/fabric/Batch';
+import { Leaflet } from './ew/fabric/Leaflet';
+import { Product } from './ew/fabric/Product';
+import { ProductStrength } from './ew/fabric/ProductStrength';
+import { populateSampleData } from './utils/FakerRepository';
 
+export const isLocalDevelopmentMode = isDevelopmentMode('local');
 export const AppName = 'For Angular';
-// Removed unused Adapter variable and fixed HttpAdapter instantiation issues
-// const adapter = new HttpAdapter({
-//     protocol: "http",
-//     host: 'localhost:3000',
-//   });
-
-// export const AppModels = [new CategoryModel(), new EmployeeModel(), new AIModel(), new AIVendorModel()];
-
-export const AppModels = [
-  // new User(),
-  new CategoryModel(),
-  new Product(),
-  new Batch(),
-  new ProductImage(),
-  new Leaflet(),
-  new Audit(),
-  // new EmployeeModel(),
-  // new AIModel(),
-  // new AIVendorModel(),
-  new ProductStrength(),
-];
+export const DbAdapterFlavour = !isLocalDevelopmentMode ? AxiosFlavour : RamFlavour;
+export const AppModels = [] as Model[];
 
 export const AppConfig: ApplicationConfig = {
   providers: [
+    provideAppInitializer(async () => {
+      const logger = getLogger(provideAppInitializer);
+      const isDevMode = isLocalDevelopmentMode && DbAdapterFlavour.includes(RamFlavour);
+      if (isDevMode) {
+        try {
+          AppModels.push(new Product(), new ProductStrength(), new Batch(), new Leaflet());
+          logger.debug(`AppConfig: Loaded ${AppModels.length} models. Initializing sample data...`);
+          await populateSampleData(AppModels, ['Product', 'Batch', 'Leaflet'], 6);
+        } catch (error: unknown) {
+          logger.error((error as Error)?.message);
+        }
+      }
+    }),
+    isLocalDevelopmentMode
+      ? provideDecafDbAdapter(RamAdapter, { user: 'user' }, DbAdapterFlavour)
+      : provideDecafDbAdapter(DecafAxiosHttpAdapter, {
+          protocol: 'https',
+          host: 'ew-backend.ptp.internal',
+        }),
     // Providers from ionic angular
     provideIonicAngular(),
+    // provideZoneChangeDetection({ eventCoalescing: true }),
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
     // provide dark theme
     // provideDecafDarkMode(),
     // change the default page transition
     provideDecafPageTransition(),
-
     // Providing Local components for dynamic rendering
-    provideDecafDynamicComponents(
-      AppExpiryDateFieldComponent,
-      AppSwitcherComponent,
-      AppSelectFieldComponent,
-    ),
-    // Providing RamAdapter as the database adapter for Decaf
-    // provideDecafDbAdapter(AxiosHttpAdapter, {
-    //   protocol: "http",
-    //   host: 'localhost:3000',
-    //   responseParser: new NestJSResponseParser()
-    // }),
-
-    provideDecafDbAdapter(RamAdapter, { user: 'user' }),
-    // provideDecafDbAdapter(DecafAxiosHttpAdapter, {
-    //   protocol: 'https',
-    //   host: 'ew-backend.ptp.internal',
-    // }),
-    // provideZoneChangeDetection({ eventCoalescing: true }),
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-
-    provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
+    provideDecafDynamicComponents(AppExpiryDateFieldComponent, AppSwitcherComponent, AppSelectFieldComponent),
     provideDecafI18nConfig(
       {
         fallbackLang: 'en',
@@ -101,7 +82,7 @@ export const AppConfig: ApplicationConfig = {
           prefix: './assets/i18n/ew/',
           suffix: '.json',
         },
-      ] as I18nResourceConfigType,
+      ] as I18nResourceConfigType
     ),
   ],
 };

@@ -6,28 +6,16 @@
  * This directive handles form control lifecycle, validation, multi-entry forms, and CRUD operations.
  */
 import { Directive, Inject, Input, OnChanges, SimpleChanges } from '@angular/core';
-import {
-  AbstractControl,
-  ControlValueAccessor,
-  FormArray,
-  FormControl,
-  FormGroup,
-} from '@angular/forms';
-import { sf } from '@decaf-ts/logging';
-import { Primitives } from '@decaf-ts/decorator-validation';
+import { AbstractControl, ControlValueAccessor, FormArray, FormControl, FormGroup } from '@angular/forms';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
-import { ComponentEventNames, UIValidator } from '@decaf-ts/ui-decorators';
-import {
-  FieldProperties,
-  HTML5InputTypes,
-  RenderingError,
-  UIEventProperty,
-} from '@decaf-ts/ui-decorators';
-import { NgxComponentDirective } from './NgxComponentDirective';
-import { NgxFormService } from '../services/NgxFormService';
-import { FormParent, FunctionLike, KeyValue, PossibleInputTypes } from './types';
-import { CPTKN, AngularEngineKeys } from './constants';
+import { Primitives } from '@decaf-ts/decorator-validation';
+import { sf } from '@decaf-ts/logging';
+import { ComponentEventNames, FieldProperties, HTML5InputTypes, RenderingError, UIEventProperty, UIValidator } from '@decaf-ts/ui-decorators';
 import { SelectCustomEvent } from '@ionic/angular/standalone';
+import { NgxFormService } from '../services/NgxFormService';
+import { AngularEngineKeys, CPTKN } from './constants';
+import { NgxComponentDirective } from './NgxComponentDirective';
+import { FormParent, FunctionLike, KeyValue, PossibleInputTypes } from './types';
 
 /**
  * @description Abstract base directive for CRUD form fields in Angular applications.
@@ -327,8 +315,7 @@ export abstract class NgxFormFieldDirective
     if (!this.formGroup) return this.formControl.parent as FormGroup;
 
     if (this.multiple) {
-      if (this.formGroup instanceof FormArray)
-        return this.formGroup.at(this.activeFormGroupIndex) as FormGroup;
+      if (this.formGroup instanceof FormArray) return this.formGroup.at(this.activeFormGroupIndex) as FormGroup;
       return this.formGroup;
     }
 
@@ -438,7 +425,7 @@ export abstract class NgxFormFieldDirective
           parent = NgxFormService.getParentEl(this.component.nativeElement, 'div');
         } catch (e: unknown) {
           throw new RenderingError(
-            `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`,
+            `Unable to retrieve parent form element for the ${this.operation}: ${e instanceof Error ? e.message : e}`
           );
         }
         // NgxFormService.register(parent.id, this.formGroup, this as AngularFieldDefinition);
@@ -490,6 +477,14 @@ export abstract class NgxFormFieldDirective
    */
   onDestroy(): void {
     if (this.formGroup) NgxFormService.unregister(this.formGroup);
+  }
+
+  getValue(): unknown {
+    const value = this.formControl?.value || this.formGroup?.get(this.name)?.value;
+    if (value) {
+      this.value = value;
+    }
+    return value;
   }
 
   /**
@@ -574,10 +569,8 @@ export abstract class NgxFormFieldDirective
     // Check if string already be translated by validator
     const translate = (message: string, args: string[]): string => {
       return this.translateService.instant(
-        !message.includes(AngularEngineKeys.ERRORS)
-          ? `${AngularEngineKeys.ERRORS}.${message}`
-          : message,
-        args,
+        !message.includes(AngularEngineKeys.ERRORS) ? `${AngularEngineKeys.ERRORS}.${message}` : message,
+        args
       );
     };
     return /\s/.test(message) && message !== key ? message : translate(message, args);
@@ -595,20 +588,16 @@ export abstract class NgxFormFieldDirective
   getErrors(parent: HTMLElement): string | void {
     const formControl = this.formControl;
     if (formControl) {
-      const accordionComponent = parent
-        .closest('ngx-decaf-fieldset')
-        ?.querySelector('ion-accordion-group');
+      const accordionComponent = parent.closest('ngx-decaf-fieldset')?.querySelector('ion-accordion-group');
       const invalid = this.validateControl(formControl);
       if (invalid) {
-        const errors: Record<string, string>[] = Object.entries(formControl.errors ?? {}).map(
-          ([key, value]) => {
-            const message = typeof value === 'boolean' ? key : value;
-            return {
-              key: key,
-              message,
-            };
-          },
-        );
+        const errors: Record<string, string>[] = Object.entries(formControl.errors ?? {}).map(([key, value]) => {
+          const message = typeof value === 'boolean' ? key : value;
+          return {
+            key: key,
+            message,
+          };
+        });
         if (errors.length) {
           if (accordionComponent && !this.validationErrorEventDispatched) {
             const validationErrorEvent = new CustomEvent(ComponentEventNames.ValidationError, {

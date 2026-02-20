@@ -88,22 +88,22 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     const menu = [];
     const models = AppModels;
     const dbAdapterFlavour = getDbAdapterFlavour();
-    for (let model of models) {
-      uses(dbAdapterFlavour)(model);
-      if (model instanceof Function)
-        model = new (model as unknown as ModelConstructor<typeof model>)();
-      const name = model.constructor.name.replace(/[0-9]/g, '');
-      if (isDevelopment && dbAdapterFlavour.includes(RamFlavour)) {
-        if (populate.includes(name)) await new FakerRepository(model, 36).initialize();
-      }
-      const label = name.toLowerCase().replace(ModelKeys.MODEL, '');
-      if (!menu.length) menu.push({ label: 'models' });
-      menu.push({
-        label: `${label}`,
-        url: `/model/${Model.tableName(model)}`,
-        icon: 'cube-outline',
-      });
-    }
+    // for (let model of models) {
+    //   uses(dbAdapterFlavour)(model);
+    //   if (model instanceof Function)
+    //     model = new (model as unknown as ModelConstructor<typeof model>)();
+    //   const name = model.constructor.name.replace(/[0-9]/g, '');
+    //   if (isDevelopment && dbAdapterFlavour.includes(RamFlavour)) {
+    //     if (populate.includes(name)) await new FakerRepository(model, 36).initialize();
+    //   }
+    //   const label = name.toLowerCase().replace(ModelKeys.MODEL, '');
+    //   if (!menu.length) menu.push({ label: 'models' });
+    //   menu.push({
+    //     label: `${label}`,
+    //     url: `/model/${Model.tableName(model)}`,
+    //     icon: 'cube-outline',
+    //   });
+    // }
     this.initialized = true;
     this.menu = [
       {

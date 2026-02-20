@@ -1,13 +1,49 @@
 {
-  "semi": true,
-  "singleQuote": true,
-  "trailingComma": "all",
-  "printWidth": 100,
+  "$schema": "https://json.schemastore.org/prettierrc",
   "tabWidth": 2,
-  "useTabs": false,
+  "printWidth": 100,
+  "singleQuote": true,
+  "semi": true,
+  "trailingComma": "es5",
   "bracketSpacing": true,
-  "bracketSameLine": false,
   "arrowParens": "always",
-  "htmlWhitespaceSensitivity": "ignore",
-  "proseWrap": "preserve"
+  "endOfLine": "lf",
+
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "options": {
+        "printWidth": 120
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "options": {
+        "printWidth": 100
+      }
+    },
+    {
+      "files": ["*.html", "*.htm"],
+      "options": {
+        "printWidth": 80,
+        "tabWidth": 2,
+        "htmlWhitespaceSensitivity": "ignore",
+        "singleAttributePerLine": true
+      }
+    },
+    {
+      "files": ["*.json"],
+      "options": {
+        "printWidth": 100
+      }
+    },
+    {
+      "files": ["*.css", "*.scss", "*.less"],
+      "options": {
+        "printWidth": 100,
+        "tabWidth": 2,
+        "singleQuote": false
+      }
+    }
+  ]
 }

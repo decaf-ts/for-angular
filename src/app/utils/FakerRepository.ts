@@ -1,20 +1,19 @@
-import { Model } from '@decaf-ts/decorator-validation';
+import { RamFlavour } from '@decaf-ts/core/ram';
+import { uses } from '@decaf-ts/decoration';
+import { Model, ModelConstructor } from '@decaf-ts/decorator-validation';
+import axios from 'axios';
+import { getModelAndRepository } from 'src/lib/engine/helpers';
 import { DecafRepository } from 'src/lib/engine/types';
+import { DecafFakerRepository } from 'src/lib/utils/DecafFakerRepository';
+import { DbAdapterFlavour } from '../app.config';
+import { Audit } from '../ew/fabric/Audit';
+import { Batch } from '../ew/fabric/Batch';
+import { generateGtin } from '../ew/fabric/gtin';
+import { Leaflet } from '../ew/fabric/Leaflet';
+import { Product } from '../ew/fabric/Product';
 import { AIModel } from '../models/AIVendorModel';
 import { AIFeatures } from './contants';
-import { DecafFakerRepository } from 'src/lib/utils/DecafFakerRepository';
-import { Product } from '../ew/fabric/Product';
-import { Batch } from '../ew/fabric/Batch';
-import { faker } from '@faker-js/faker';
-import { Leaflet, LeafletType } from '../ew/fabric/Leaflet';
-import { Audit } from '../ew/fabric/Audit';
-import { AuditOperations, UserGroup } from '../ew/fabric/constants';
-import { ProductStrength } from '../ew/fabric/ProductStrength';
-import { getModelAndRepository } from 'src/lib/engine/helpers';
-import { generate } from 'rxjs';
-import { generateGtin } from '../ew/fabric/gtin';
-import axios from 'axios';
-import { ProductImage } from '../ew/fabric/ProductImage';
+
 enum ProductNames {
   aspirin = 'Aspirin',
   ibuprofen = 'Ibuprofen',
@@ -42,25 +41,29 @@ enum ProductNames {
   // furosemide = "Furosemide"
 }
 
-async function getProducts(): Promise<Product[]> {
-  const repo = getModelAndRepository('Product');
-  if (repo) {
-    const { repository } = repo;
-    const query = await repository.select().execute();
-    if (query.length) {
-      return query as Product[];
+export async function populateSampleData(models: Model[], populate: string[], limit: number = 12): Promise<void> {
+  if (DbAdapterFlavour === RamFlavour) {
+    for (let model of models) {
+      if (model instanceof Function) {
+        model = new (model as unknown as ModelConstructor<Model>)();
+      }
+      const name = model.constructor.name.replace(/[0-9]/g, '');
+      if (populate.includes(name)) {
+        uses(RamFlavour)(model);
+        const repository = new FakerRepository(model, limit);
+        await repository.initialize();
+      }
     }
   }
-  return [];
 }
 
-async function getBatchs(): Promise<Batch[]> {
-  const repo = getModelAndRepository('Batch');
+async function getQueryResults<M extends Model>(modelName: string): Promise<M[]> {
+  const repo = getModelAndRepository(modelName);
   if (repo) {
     const { repository } = repo;
     const query = await repository.select().execute();
     if (query.length) {
-      return query as Batch[];
+      return query as M[];
     }
   }
   return [];
@@ -108,24 +111,22 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           this.propFnMapper = {
             productCode: () => generateGtin(),
           };
-          data = (await this.generateData(ProductNames, 'inventedName', 'string')).map(
-            (item: Partial<Product>) => {
-              const productCode = item.productCode;
-              // const imageData = {
-              //   productCode,
-              //   content: image,
-              // } as ProductImage;
-              // item.imageData = imageData;
-              delete item.imageData;
-              item.markets = [];
-              item.strengths = [];
-              return Model.build(item, Product.name) as T;
-            },
-          );
+          data = (await this.generateData(ProductNames, 'inventedName', 'string')).map((item: Partial<Product>) => {
+            const productCode = item.productCode;
+            // const imageData = {
+            //   productCode,
+            //   content: image,
+            // } as ProductImage;
+            // item.imageData = imageData;
+            delete item.imageData;
+            item.markets = [];
+            item.strengths = [];
+            return Model.build(item, Product.name) as T;
+          });
           break;
         }
         case Batch.name: {
-          const products = await getProducts();
+          const products = await getQueryResults<Product>('Product');
           this.limit = 2;
           data = await this.generateData<Batch>();
           data = [
@@ -139,13 +140,10 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
                   `bt_${productCode}_${index % 2 === 0 ? 'aspirin' : this.pickRandomValue(Object.values(ProductNames))}`.trim();
                 // item.batchNumber = `bt_${productCode}_${item['nameMedicinalProduct']}`.trim();
 
-                item.expiryDate =
-                  index % 2 === 0
-                    ? new Date('2026-12-30T00:00:00')
-                    : new Date('2020-12-30T23:59:59');
+                item.expiryDate = index % 2 === 0 ? new Date('2026-12-30T00:00:00') : new Date('2020-12-30T23:59:59');
 
                 return item as T;
-              }),
+              })
             )),
           ];
           break;
@@ -198,7 +196,7 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
         this.log
           .for(this.initialize)
           .error(
-            `Error on populate ${this.model?.constructor.name}: ${(error as Error)?.message || (error as string)}`,
+            `Error on populate ${this.model?.constructor.name}: ${(error as Error)?.message || (error as string)}`
           );
       }
     }

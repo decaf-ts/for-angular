@@ -342,6 +342,9 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
               Model.build(data, model.constructor.name as string);
             this.name = prop;
             this.model = Model.build({ [prop]: _model }, modelName);
+            if (!Object.keys(this._data || {}).length) {
+              this._data = _model as Model;
+            }
           } else {
             // model[parent] = {
             //   ...model[parent],
