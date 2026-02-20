@@ -51,7 +51,7 @@ export default tseslint.config(
         {
           type: 'attribute',
           prefix: ['ngx-decaf', ''],
-          style: 'camelCase',
+          style: 'kebab-case',
         },
       ],
       '@angular-eslint/component-selector': [

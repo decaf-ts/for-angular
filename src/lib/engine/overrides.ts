@@ -1,6 +1,4 @@
-import { AxiosFlags, AxiosFlavour, AxiosHttpAdapter, HttpConfig } from '@decaf-ts/for-http';
-import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { ContextualArgs, Context, PersistenceKeys, PreparedStatementKeys } from '@decaf-ts/core';
+import { Context, ContextualArgs, PersistenceKeys, PreparedStatementKeys } from '@decaf-ts/core';
 import {
   BaseError,
   BulkCrudOperationKeys,
@@ -10,22 +8,21 @@ import {
 } from '@decaf-ts/db-decorators';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelKeys } from '@decaf-ts/decorator-validation';
+import { AxiosFlags, AxiosFlavour, AxiosHttpAdapter, HttpConfig } from '@decaf-ts/for-http';
+import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
   constructor(
     config: HttpConfig,
     alias: string = AxiosFlavour,
-    protected enableCredentials: boolean = true,
+    protected enableCredentials: boolean = true
   ) {
     super(config, alias);
   }
 
   parseStatementURL(url: string): string {
     const urlArray = url.split('/');
-    if (
-      urlArray.includes(PersistenceKeys.STATEMENT) &&
-      !urlArray.includes(PreparedStatementKeys.PAGE_BY)
-    ) {
+    if (urlArray.includes(PersistenceKeys.STATEMENT) && !urlArray.includes(PreparedStatementKeys.PAGE_BY)) {
       return urlArray.filter((part) => part !== PersistenceKeys.STATEMENT).join('/');
     }
     return url;
@@ -33,17 +30,13 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
 
   token?: string;
 
-  override async request<V>(
-    details: AxiosRequestConfig,
-    ...args: ContextualArgs<Context<AxiosFlags>>
-  ): Promise<V> {
+  override async request<V>(details: AxiosRequestConfig, ...args: ContextualArgs<Context<AxiosFlags>>): Promise<V> {
     let overrides = {};
     try {
       const { ctx } = this.logCtx(args, this.request);
       overrides = this.toRequest(ctx);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err: unknown) {
-      // do nothing
+      this.log.debug(`Error generating request overrides: ${(err as Error).message}.`);
     }
     if (this.token) {
       overrides = {
@@ -72,7 +65,7 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     }
 
     return await this.client.request(
-      Object.assign({}, details, { url: this.parseStatementURL(details.url || '') }, overrides),
+      Object.assign({}, details, { url: this.parseStatementURL(details.url || '') }, overrides)
     );
   }
 
@@ -86,9 +79,7 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     try {
       const url = this.url(tableName);
       const cfg = this.toRequest(ctx);
-      log.debug(
-        `POSTing to ${url} with ${JSON.stringify(model)} and cfg ${JSON.stringify(cfg)} and primary key ${id}`,
-      );
+      log.debug(`POSTing to ${url} with ${JSON.stringify(model)} and cfg ${JSON.stringify(cfg)} and primary key ${id}`);
       const result = await this.request<Record<string, unknown>>(
         {
           url,
@@ -96,11 +87,11 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
           data: JSON.stringify(
             Object.assign({}, model, {
               [ModelKeys.ANCHOR]: tableName.name,
-            }),
+            })
           ),
           ...cfg,
         },
-        ctx,
+        ctx
       );
       return result;
     } catch (error: unknown) {
@@ -111,16 +102,13 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
   override async parseResponse<M extends Model>(
     clazz: Constructor<M>,
     method: OperationKeys | string,
-    res: AxiosResponse & { body: unknown; error: Error | AxiosError },
+    res: AxiosResponse & { body: unknown; error: Error | AxiosError }
   ) {
-    if (!res.status && method !== PersistenceKeys.STATEMENT)
-      throw new InternalError('this should be impossible');
+    if (!res.status && method !== PersistenceKeys.STATEMENT) throw new InternalError('this should be impossible');
     if (res.status >= 400) {
       console.log(res instanceof AxiosError);
       throw this.parseError(
-        res?.request?.response
-          ? JSON.parse(res.request.response)?.error
-          : res.error || `${res.status}`,
+        res?.request?.response ? JSON.parse(res.request.response)?.error : res.error || `${res.status}`
       );
     }
     if (!res.body && res.data) {

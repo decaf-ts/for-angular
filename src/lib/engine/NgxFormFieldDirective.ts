@@ -10,7 +10,14 @@ import { AbstractControl, ControlValueAccessor, FormArray, FormControl, FormGrou
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { sf } from '@decaf-ts/logging';
-import { ComponentEventNames, FieldProperties, HTML5InputTypes, RenderingError, UIEventProperty, UIValidator } from '@decaf-ts/ui-decorators';
+import {
+  ComponentEventNames,
+  FieldProperties,
+  HTML5InputTypes,
+  RenderingError,
+  UIEventProperty,
+  UIValidator,
+} from '@decaf-ts/ui-decorators';
 import { SelectCustomEvent } from '@ionic/angular/standalone';
 import { NgxFormService } from '../services/NgxFormService';
 import { AngularEngineKeys, CPTKN } from './constants';
@@ -546,7 +553,8 @@ export abstract class NgxFormFieldDirective
 
   private getErrorMessage(error: Record<string, string>): string {
     const instance = this as KeyValue;
-    let { message, key } = error;
+    let { message } = error;
+    const { key } = error;
     const prop = instance[key];
     let args = [] as string[];
     if (typeof message === Primitives.STRING) {
