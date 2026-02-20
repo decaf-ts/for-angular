@@ -1,7 +1,6 @@
 import { RamFlavour } from '@decaf-ts/core/ram';
 import { uses } from '@decaf-ts/decoration';
 import { Model, ModelConstructor } from '@decaf-ts/decorator-validation';
-import axios from 'axios';
 import { getModelAndRepository } from 'src/lib/engine/helpers';
 import { DecafRepository } from 'src/lib/engine/types';
 import { DecafFakerRepository } from 'src/lib/utils/DecafFakerRepository';
@@ -72,8 +71,9 @@ async function getQueryResults<M extends Model>(modelName: string): Promise<M[]>
 async function readProductFile(): Promise<string> {
   const filePath = '/assets/images/ew/product.txt';
   try {
-    const response = await axios.get(filePath);
-    return response.data || '';
+    const response = await fetch(filePath);
+    const data = await response.text(); // Assuming the response is a text file
+    return data;
   } catch (error: unknown) {
     console.error(`Error reading product.txt: ${(error as Error)?.message || (error as string)}`);
     throw error;
