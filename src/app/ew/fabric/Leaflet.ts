@@ -1,24 +1,16 @@
-import { Comparison, Model, type ModelArg } from '@decaf-ts/decorator-validation';
-import { model, required } from '@decaf-ts/decorator-validation';
+import { Comparison, Model, model, required, type ModelArg } from '@decaf-ts/decorator-validation';
 import { LeafletFile } from './LeafletFile';
 // import { gtin } from "@pharmaledgerassoc/ptp-toolkit/shared";
 // import { BatchPattern, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
-import {
-  Cascade,
-  column,
-  index,
-  oneToMany,
-  OrderDirection,
-  pk,
-  Repository,
-  table,
-} from '@decaf-ts/core';
+import { Cascade, column, index, oneToMany, OrderDirection, pk, table } from '@decaf-ts/core';
 import { composed, InternalError, OperationKeys, readonly } from '@decaf-ts/db-decorators';
 import { description } from '@decaf-ts/decoration';
-import { Cacheable } from './Cacheable';
 import {
+  ComponentEventNames,
   DecafComponent,
   DecafEventHandler,
+  ElementPositions,
+  ElementSizes,
   HTML5InputTypes,
   uielement,
   uihandlers,
@@ -26,15 +18,13 @@ import {
   uimodel,
   uionrender,
   uitablecol,
-  ComponentEventNames,
-  ElementPositions,
-  ElementSizes,
 } from '@decaf-ts/ui-decorators';
-import { Product } from './Product';
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from 'src/app/ew/utils/helpers';
 import { Batch } from './Batch';
+import { Cacheable } from './Cacheable';
 import { TableNames } from './constants';
 import { LeafletHandler } from './handlers/LeafletHandler';
+import { Product } from './Product';
 import { audit } from './utils';
 
 export enum LeafletType {
@@ -58,10 +48,7 @@ export enum LeafletType {
 export class Leaflet extends Cacheable {
   @pk()
   @audit()
-  @composed(['productCode', 'batchNumber', 'leafletType', 'lang', 'epiMarket'], ':', [
-    'batchNumber',
-    'epiMarket',
-  ])
+  @composed(['productCode', 'batchNumber', 'leafletType', 'lang', 'epiMarket'], ':', ['batchNumber', 'epiMarket'])
   @description('Unique identifier composed of product code, batch number, and language.')
   id!: string;
 
@@ -142,11 +129,9 @@ export class Leaflet extends Cacheable {
             operation: OperationKeys[];
           };
           if (instance.headers)
-            instance.headers = instance.headers.map((header) =>
-              header === 'batchNumber' ? 'batchCol' : header,
-            );
+            instance.headers = instance.headers.map((header) => (header === 'batchNumber' ? 'batchCol' : header));
         }
-      },
+      }
   )
   @uitablecol(1, async (instance: DecafComponent<Model> & { type: string }, value: string) => {
     if (instance.operation && ['paginated', 'infinite'].includes(instance.type)) value = 'subinfo'; // fallback mapper to list item position
@@ -232,11 +217,12 @@ export class Leaflet extends Cacheable {
     size: ElementSizes.small,
     position: ElementPositions.left,
     required: true,
+    subType: 'text',
     maxFileSize: 10,
     // previewHandler: XmlPreviewHandler,
     accept: ['image/*', '.xml'],
   })
-  xmlFileContent!: string;
+  xmlFileContent!: string | LeafletFile;
 
   //@cache()
   @oneToMany(() => LeafletFile, { update: Cascade.CASCADE, delete: Cascade.CASCADE }, false)
@@ -247,21 +233,10 @@ export class Leaflet extends Cacheable {
     super(model);
   }
 
-  override compare<M extends Model>(
-    other: M,
-    ...exceptions: (keyof M)[]
-  ): Comparison<M> | undefined {
+  override compare<M extends Model>(other: M, ...exceptions: (keyof M)[]): Comparison<M> | undefined {
     return super.compare<M>(
       other as any,
-      ...([
-        ...new Set([
-          exceptions,
-          'updatedAt',
-          'updatedBy',
-          'otherFilesContent',
-          'xmlFileContent',
-        ]).values(),
-      ] as any[]),
+      ...([...new Set([exceptions, 'updatedAt', 'updatedBy', 'otherFilesContent', 'xmlFileContent']).values()] as any[])
     );
   }
 

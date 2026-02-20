@@ -7,13 +7,7 @@
  *
  * @link {@link ValidatorFactory}
  */
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ValidationErrors,
-  ValidatorFn,
-} from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
 import {
   ComparisonValidationKeys,
   PathProxy,
@@ -23,16 +17,11 @@ import {
   ValidationKeys,
   Validator,
 } from '@decaf-ts/decorator-validation';
-import {
-  FieldProperties,
-  HTML5InputTypes,
-  parseValueByType,
-  UIKeys,
-} from '@decaf-ts/ui-decorators';
+import { FieldProperties, HTML5InputTypes, parseValueByType, UIKeys } from '@decaf-ts/ui-decorators';
+import { patternValidators } from './constants';
+import { getLogger } from './helpers';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { ComparisonValidationKey, KeyValue } from './types';
-import { getLogger } from './helpers';
-import { patternValidators } from './constants';
 
 export class ValidatorFactory {
   /**
@@ -45,14 +34,8 @@ export class ValidatorFactory {
    * @param {FieldProperties} fieldProps - The field properties containing type conversion metadata.
    * @returns {unknown} The parsed value or undefined if the control value is undefined.
    */
-  static getFieldValue(
-    control: AbstractControl,
-    fieldType: string,
-    fieldProps: FieldProperties,
-  ): unknown {
-    return typeof control.value !== 'undefined'
-      ? parseValueByType(fieldType, control.value, fieldProps)
-      : undefined;
+  static getFieldValue(control: AbstractControl, fieldType: string, fieldProps: FieldProperties): unknown {
+    return typeof control.value !== 'undefined' ? parseValueByType(fieldType, control.value, fieldProps) : undefined;
   }
   /**
    * @summary Resolves the effective field type from multiple possible type sources.
@@ -65,17 +48,9 @@ export class ValidatorFactory {
    * @param {string} [subType] - Secondary type definition.
    * @returns {string} The resolved field type.
    */
-  static getFieldType(
-    type?: string,
-    customTypes?: string | string[],
-    options?: unknown[],
-    subType?: string,
-  ): string {
+  static getFieldType(type?: string, customTypes?: string | string[], options?: unknown[], subType?: string): string {
     const fieldType = (customTypes || subType || type) as string;
-    if (
-      (fieldType === HTML5InputTypes.CHECKBOX || fieldType === Array.name) &&
-      Array.isArray(options)
-    ) {
+    if ((fieldType === HTML5InputTypes.CHECKBOX || fieldType === Array.name) && Array.isArray(options)) {
       return Primitives.STRING;
     }
     return fieldType;
@@ -104,7 +79,7 @@ export class ValidatorFactory {
         key,
         fieldType,
         fieldProps,
-        customValidator ? (subType as string) : undefined,
+        customValidator ? (subType as string) : undefined
       );
       const validator = Validation.get(validatorKey) as Validator;
       // parseValueByType does not support undefined values
@@ -142,9 +117,7 @@ export class ValidatorFactory {
    * @returns The validator value to use.
    */
   static getValidatorValue(key: string, type: string, fieldProps: FieldProperties): unknown {
-    return key === ValidationKeys.TYPE &&
-      HTML5InputTypes.CHECKBOX &&
-      fieldProps[key as keyof FieldProperties] !== type
+    return key === ValidationKeys.TYPE && HTML5InputTypes.CHECKBOX && fieldProps[key as keyof FieldProperties] !== type
       ? type
       : fieldProps[key as keyof FieldProperties];
   }
@@ -158,14 +131,11 @@ export class ValidatorFactory {
    * @param customTypes - Optional custom type definition.
    * @returns True if validation should use type-based resolution.
    */
-  static isTypeBasedValidation(
-    key: string,
-    type: string,
-    customTypes: string | undefined,
-  ): boolean {
+  static isTypeBasedValidation(key: string, type: string, customTypes: string | undefined): boolean {
     return (
       key === ValidationKeys.TYPE &&
-      (typeof customTypes === Primitives.STRING || Object.keys(patternValidators).includes(type))
+      ((typeof customTypes === Primitives.STRING && HTML5InputTypes.TEXT !== customTypes) ||
+        Object.keys(patternValidators).includes(type))
     );
   }
 
@@ -179,15 +149,10 @@ export class ValidatorFactory {
    * @param {ComparisonValidationKey} key - The validation key determining proxy scope.
    * @returns {PathProxy<unknown>} A proxy object for form value access.
    */
-  static getValidatorProxy(
-    control: AbstractControl | FormGroup,
-    key: ComparisonValidationKey,
-  ): PathProxy<unknown> {
+  static getValidatorProxy(control: AbstractControl | FormGroup, key: ComparisonValidationKey): PathProxy<unknown> {
     const proxy = ValidatorFactory.createProxy({} as AbstractControl);
     if (Object.values(ComparisonValidationKeys).includes(key)) {
-      return ValidatorFactory.createProxy(
-        (control instanceof FormGroup ? control : control.parent) as FormGroup,
-      );
+      return ValidatorFactory.createProxy((control instanceof FormGroup ? control : control.parent) as FormGroup);
     }
     return proxy;
   }
@@ -247,7 +212,7 @@ export class ValidatorFactory {
     key: string,
     type: string,
     fieldProps: FieldProperties,
-    customTypes: string | undefined = undefined,
+    customTypes: string | undefined = undefined
   ): { validatorKey: string; props: KeyValue } => {
     const isTypeBased = this.isTypeBasedValidation(key, type, customTypes);
     const validatorKey = isTypeBased ? type : key;
@@ -266,12 +231,7 @@ export class ValidatorFactory {
    * @param value - The value to validate.
    * @returns An object containing validator properties.
    */
-  static getValidatorProps(
-    validatorKey: string,
-    type: string,
-    isTypeBased: boolean,
-    value: unknown,
-  ): KeyValue {
+  static getValidatorProps(validatorKey: string, type: string, isTypeBased: boolean, value: unknown): KeyValue {
     return {
       [validatorKey]:
         !isTypeBased && validatorKey === ValidationKeys.TYPE
