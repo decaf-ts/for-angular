@@ -34,7 +34,7 @@
     "uml": "cd workdocs/uml && for FILE in ./*.puml; do docker run --rm -v $(pwd):/work -w /work miy4/plantuml -DPLANTUML_LIMIT_SIZE=8192 -tpng $FILE; done && cd ../.. && cp -fr workdocs/uml/*.png workdocs/resources/",
     "docs": "npx rimraf ./docs && mkdir docs && npx build-scripts --docs",
     "publish-docs": "docker run -it --rm --user $(id -u):$(id -g) -v \"$(pwd)/workdocs/confluence:/content\" -e ATLASSIAN_API_TOKEN=$(cat .confluence-token) ghcr.io/markdown-confluence/publish:latest",
-    "storybook": "ng run for-angular:storybook",
+    "storybook": "ng run for-angular:storybook --debug-webpack",
     "storybook:build": "ng run for-angular:build-storybook",
     "playwright": "npx playwright test --config=./playwright.config.ts",
     "playwright-ui": "npx playwright test --config=./playwright.config.ts --ui",
@@ -106,6 +106,7 @@
     "@angular/platform-browser": "^20.3.16",
     "@angular/platform-browser-dynamic": "^20.3.16",
     "@angular/router": "^20.3.16",
+    "@bwip-js/browser": "^4.8.0",
     "@decaf-ts/core": "latest",
     "@decaf-ts/db-decorators": "latest",
     "@decaf-ts/decoration": "latest",
@@ -123,7 +124,6 @@
     "ionicons": "^7.4.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "~7.8.0",
-    "@bwip-js/browser": "^4.8.0",
     "zone.js": "^0.15.1"
   },
   "schematics": "./schematics/collection.json",
@@ -131,5 +131,8 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
+  },
+  "optionalDependencies": {
+    "xtermjs": "npm:null@*"
   }
 }
