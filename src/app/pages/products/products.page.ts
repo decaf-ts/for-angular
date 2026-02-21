@@ -1,27 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { IonContent } from '@ionic/angular/standalone';
-import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
-import { HeaderComponent } from 'src/app/components/header/header.component';
-import { ContainerComponent } from 'src/app/components/container/container.component';
-import { ListComponent } from 'src/lib/components/list/list.component';
-import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
-import { EmptyStateComponent } from 'src/lib/components';
-import { TranslatePipe } from '@ngx-translate/core';
-import { ICrudFormEvent, ITabItem } from 'src/lib/engine/interfaces';
-import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
-import { Product } from 'src/app/ew/fabric/Product';
-import { CardComponent } from 'src/lib/components/card/card.component';
-import { ProductHandler } from 'src/app/ew/fabric/handlers/ProductHandler';
-import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
-import { EpiTabs } from 'src/app/ew/utils/constants';
 import { OperationKeys } from '@decaf-ts/db-decorators';
-import { Model } from '@decaf-ts/decorator-validation';
-import { AppProductItemComponent } from 'src/app/components/product-item/product-item.component';
+import { IonContent } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.component';
-import { KeyValue } from 'src/lib/engine/types';
-import { ProductStrength } from 'src/app/ew/fabric';
-import { getModelAndRepository } from 'src/lib/engine';
-import { Condition } from '@decaf-ts/core';
+import { ContainerComponent } from 'src/app/components/container/container.component';
+import { HeaderComponent } from 'src/app/components/header/header.component';
+import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
+import { AppProductItemComponent } from 'src/app/components/product-item/product-item.component';
+import { Product } from 'src/app/ew/fabric/Product';
+import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
+import { EpiTabs } from 'src/app/ew/utils/constants';
+import { EmptyStateComponent } from 'src/lib/components';
+import { ListComponent } from 'src/lib/components/list/list.component';
+import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
+import { ITabItem } from 'src/lib/engine/interfaces';
+import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -146,6 +139,7 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
     this.route = 'products';
 
     await this.initialize();
+    console.log(this.model);
     // function generateGtin(): string {
     //   function pad(num: number, width: number, padding: string = '0') {
     //     const n = num + '';
@@ -188,7 +182,7 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
   }
 
   override async ionViewWillEnter(): Promise<void> {
-    await this.refresh(this.modelId);
+    await super.ionViewWillEnter();
     console.log(this.model);
   }
 }

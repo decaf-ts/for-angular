@@ -8,7 +8,8 @@ import { DbAdapterFlavour } from '../app.config';
 import { Audit } from '../ew/fabric/Audit';
 import { Batch } from '../ew/fabric/Batch';
 import { generateGtin } from '../ew/fabric/gtin';
-import { Leaflet } from '../ew/fabric/Leaflet';
+import { Leaflet, LeafletType } from '../ew/fabric/Leaflet';
+import { LeafletFile } from '../ew/fabric/LeafletFile';
 import { Product } from '../ew/fabric/Product';
 import { AIModel } from '../models/AIVendorModel';
 import { AIFeatures } from './contants';
@@ -149,23 +150,42 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
           break;
         }
         case Leaflet.name: {
-          // const products = await getProducts();
-          // this.limit = 2;
-          // this.propFnMapper = {
-          //   productCode: () => this.pickRandomValue(products.map((p) => p.productCode)),
-          //   lang: () => this.pickRandomValue(['en', 'pt-br']),
-          //   epiMarket: () => this.pickRandomValue(['al', 'br']),
-          // };
-          // let batches = await getBatchs();
-          // data = (await this.generateData<Leaflet>()).map((item) => {
-          //   // item.epiMarket = this.pickRandomValue([... getMarkets().map(({value}) => value)]);
-          //   item.leafletType = this.pickRandomValue(LeafletType) as LeafletType;
-          //   item.otherFilesContent = [];
-          //   // item.productCode = this.pickRandomValue(products);
-          //   item.batchNumber = batches.find((b) => b.productCode === item.productCode)?.batchNumber;
-          //   item.createdAt = item.updatedAt = faker.date.past({ years: 10 });
-          //   return item;
-          // });
+          const products = await getQueryResults<Product>('Product');
+          const batches = await getQueryResults<Batch>('Batch');
+          const now = new Date();
+          function buildFileContent(leafletId: string, fileName: string, fileContent: string): LeafletFile {
+            const file = Model.build(
+              {
+                leafletId,
+                fileName,
+                fileContent,
+
+                id: `${leafletId}:${fileName}`,
+                createdAt: now,
+                updatedAt: now,
+              },
+              LeafletFile.name
+            ) as LeafletFile;
+
+            return file;
+          }
+          this.limit = 2;
+          this.propFnMapper = {
+            productCode: () => this.pickRandomValue(products.map((p) => p.productCode)),
+            lang: () => this.pickRandomValue(['en', 'pt-br']),
+            epiMarket: () => this.pickRandomValue(['al', 'br']),
+          };
+          data = (await this.generateData<Leaflet>()).map((item) => {
+            // item.epiMarket = this.pickRandomValue([... getMarkets().map(({value}) => value)]);
+            item.leafletType = this.pickRandomValue(LeafletType) as LeafletType;
+            item.otherFilesContent = [buildFileContent(item.id, 'a.png', 'base64encodedstring')];
+            item.xmlFileContent = buildFileContent(item.id, 'leaflet.xml', '<xml>base64encodedstring</xml>');
+            // item.productCode = this.pickRandomValue(products);
+            item.batchNumber = batches.find((b) => b.productCode === item.productCode)?.batchNumber;
+            item.createdAt = now;
+            item.updatedAt = now;
+            return item;
+          });
           break;
         }
         // case ProductStrength.name: {

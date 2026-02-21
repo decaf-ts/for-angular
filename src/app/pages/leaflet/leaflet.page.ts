@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 import { IonContent } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { HeaderComponent } from 'src/app/components/header/header.component';
+import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
-import { NgxModelPageDirective } from 'src/lib/engine';
-import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
-import { EmptyStateComponent } from 'src/lib/components/empty-state/empty-state.component';
+import { HeaderComponent } from 'src/app/components/header/header.component';
 import { Leaflet } from 'src/app/ew/fabric/Leaflet';
 import { TableComponent } from 'src/lib/components';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.component';
+import { EmptyStateComponent } from 'src/lib/components/empty-state/empty-state.component';
+import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
+import { NgxModelPageDirective } from 'src/lib/engine';
 
 @Component({
   selector: 'app-leaflet',
@@ -40,7 +40,9 @@ export class LeafletPage extends NgxModelPageDirective implements OnInit {
     await super.initialize();
   }
 
-  // override async ionViewWillEnter(): Promise<void> {
-  //   await super.ionViewWillEnter();
-  // }
+  override async ionViewWillEnter(): Promise<void> {
+    await super.ionViewWillEnter();
+    console.log(this._data);
+    console.log(this.model);
+  }
 }

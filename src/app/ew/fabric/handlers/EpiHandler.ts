@@ -1,6 +1,7 @@
 import { Condition, OrderDirection } from '@decaf-ts/core';
-import { Metadata, Constructor } from '@decaf-ts/decoration';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
+import { CrudFieldComponent } from 'src/lib/components';
 import {
   DecafRepository,
   getModelAndRepository,
@@ -9,10 +10,7 @@ import {
   NgxEventHandler,
   SelectOption,
 } from 'src/lib/engine';
-import { Batch, Leaflet, Product, ProductMarket, ProductStrength } from '..';
-import { CrudFieldComponent, FieldsetComponent, ListComponent } from 'src/lib/components';
-import { OperationKeys, readonly } from '@decaf-ts/db-decorators';
-import { DecafComponent } from '@decaf-ts/ui-decorators';
+import { Leaflet, ProductMarket } from '..';
 
 export async function renderMakets<C extends CrudFieldComponent>(instance: C): Promise<void> {
   return await new EpiHandler().renderMakets(instance);
@@ -75,11 +73,7 @@ export class EpiHandler extends NgxEventHandler {
 
   async renderMakets<C extends CrudFieldComponent>(component: C): Promise<void> {
     if (component?.modelId) {
-      const query = await this.query<ProductMarket>(
-        ProductMarket.name,
-        'productCode',
-        component.modelId as Primitives,
-      );
+      const query = await this.query<ProductMarket>(ProductMarket.name, 'productCode', component.modelId as Primitives);
       if (query?.length) {
         const filterMarkets = query.map((item) => item.marketId);
         component.options = (component.options as SelectOption[])?.filter((option) => {
@@ -91,17 +85,13 @@ export class EpiHandler extends NgxEventHandler {
     }
   }
 
-  async query<M extends Model>(
-    modelName: string,
-    relation: string,
-    modelId: Primitives,
-  ): Promise<M[]> {
+  async query<M extends Model>(modelName: string, relation: string, modelId: Primitives): Promise<M[]> {
     const repo = getModelAndRepository(modelName);
     if (repo) {
       const { repository } = repo;
       return await (repository as DecafRepository<M>).query(
         Condition.attribute<M>(relation as keyof M).eq(modelId),
-        relation as keyof M,
+        relation as keyof M
       );
     }
     return [];
