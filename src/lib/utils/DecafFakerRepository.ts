@@ -1,13 +1,13 @@
-import { faker } from '@faker-js/faker';
-import { parseToNumber } from '@decaf-ts/ui-decorators';
-import { Model, Primitives } from '@decaf-ts/decorator-validation';
+import { Repository } from '@decaf-ts/core';
 import { InternalError } from '@decaf-ts/db-decorators';
 import { Metadata, uses } from '@decaf-ts/decoration';
-import { Repository } from '@decaf-ts/core';
-import { DB_ADAPTER_FLAVOUR_TOKEN } from '../engine/constants';
-import { DecafRepository, KeyValue, FunctionLike } from '../engine/types';
-import { formatDate, getOnWindow } from './helpers';
+import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { LoggedClass } from '@decaf-ts/logging';
+import { parseToNumber } from '@decaf-ts/ui-decorators';
+import { faker } from '@faker-js/faker';
+import { DB_ADAPTER_FLAVOUR_TOKEN } from '../engine/constants';
+import { DecafRepository, FunctionLike, KeyValue } from '../engine/types';
+import { formatDate, getOnWindow } from './helpers';
 
 export class DecafFakerRepository<T extends Model> extends LoggedClass {
   protected propFnMapper?: KeyValue;
@@ -22,20 +22,16 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
 
   constructor(
     protected model: string | Model,
-    protected limit: number = 36,
+    protected limit: number = 36
   ) {
     super();
   }
 
   protected get repository(): DecafRepository<Model> {
     if (!this._repository) {
-      const modelName =
-        typeof this.model === Primitives.STRING
-          ? this.model
-          : (this.model as Model).constructor.name;
+      const modelName = typeof this.model === Primitives.STRING ? this.model : (this.model as Model).constructor.name;
       const constructor = Model.get(String(modelName));
-      if (!constructor)
-        throw new InternalError(`Cannot find model ${modelName}. was it registered with @model?`);
+      if (!constructor) throw new InternalError(`Cannot find model ${modelName}. was it registered with @model?`);
       try {
         this.model = new constructor();
         const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || undefined;
@@ -54,11 +50,7 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
     if (!this._repository) this._repository = this.repository;
   }
 
-  async generateData<T extends Model>(
-    values?: KeyValue,
-    key?: string,
-    keyType?: string,
-  ): Promise<T[]> {
+  async generateData<T extends Model>(values?: KeyValue, key?: string, keyType?: string): Promise<T[]> {
     const limit = values ? Object.values(values || {}).length : this.limit;
     if (!key) key = Model.pk(this.repository.class) as string;
 
@@ -78,7 +70,7 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
     const data = getFakerData<T>(
       limit,
       dataFunctions,
-      typeof this.model === Primitives.STRING ? String(this.model) : this.model?.constructor.name,
+      typeof this.model === Primitives.STRING ? String(this.model) : this.model?.constructor.name
     );
 
     if (!values) return data;
@@ -124,8 +116,7 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
 
   protected getModelProperties(pk: string, pkType: string): string[] {
     return Object.keys(this.model as KeyValue).filter((k) => {
-      if (pkType === Primitives.STRING)
-        return !['updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(k);
+      if (pkType === Primitives.STRING) return !['updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(k);
       return ![pk, 'updatedBy', 'createdAt', 'createdBy', 'updatedAt'].includes(k);
     });
   }
@@ -156,22 +147,14 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
   }
 }
 
-export function getFakerData<T extends Model>(
-  limit = 100,
-  data: Record<string, FunctionLike>,
-  model?: string,
-): T[] {
+export function getFakerData<T extends Model>(limit = 100, data: Record<string, FunctionLike>, model?: string): T[] {
   let index = 1;
   return Array.from({ length: limit }, () => {
     const item: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
       const val = value();
       item[key] =
-        val?.constructor === Date
-          ? formatDate(val)
-          : typeof val === Primitives.STRING
-            ? String(val)?.trim()
-            : val;
+        val?.constructor === Date ? formatDate(val) : typeof val === Primitives.STRING ? String(val)?.trim() : val;
     }
     index = index + 1;
     return (!model ? item : Model.build(item, model)) as T;

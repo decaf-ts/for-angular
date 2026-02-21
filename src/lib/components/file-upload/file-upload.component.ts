@@ -125,8 +125,16 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   @Input()
   override type: PossibleInputTypes = HTML5InputTypes.FILE;
 
+  /**
+   * @description Specifies the value type for the file upload.
+   * @summary Determines the format in which the uploaded file's value is returned.
+   * Options include 'base64' for base64-encoded strings or 'files' for File objects.
+   *
+   * @type {'base64' | 'files'}
+   * @default 'base64'
+   */
   @Input()
-  subType: 'text' | 'file' = 'text';
+  valueType: 'base64' | 'files' = 'base64';
 
   /**
    * @description Label for the upload button.
@@ -258,6 +266,17 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    */
   private dragCounter: number = 0;
 
+  /**
+   * @description Specifies the subtype of the file upload.
+   * @summary Lock subtype to 'text' to ensure that the value is processed as a JSON string containing data URLs or Files.
+   * This property will be used to avoid validation errors and to determine how the value is processed and emitted.
+   *
+   * @type {string}
+   * @default 'text'
+   */
+  @Input()
+  subType: string = 'text';
+
   constructor() {
     super('FileUploadComponent');
     this.handleClear();
@@ -284,24 +303,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
 
   override async initialize(): Promise<void> {
     await super.initialize();
-
-    if (this.value && typeof this.value === Primitives.STRING) {
-      try {
-        const files = JSON.parse(this.value as string) as string[];
-        this.files = files.map((file) => {
-          const mime = this.getFileMime(file)?.split('/') || [];
-          const type = mime?.[0] === 'text' ? mime?.[1] : `${mime?.[0]}/${mime?.[1]}`;
-          return {
-            name: mime?.[0] || 'file',
-            type: `${type}` || 'image/*',
-            source: file as string,
-          } as KeyValue;
-        });
-        this.getPreview();
-      } catch (error: unknown) {
-        this.log.for(this.initialize).error(`Error parsing file list: ${(error as Error).message || error}`);
-      }
-    }
+    await this.parseValue(true);
   }
 
   /**
@@ -437,13 +439,50 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
       this.files = [validFiles[0]];
     }
     if (this.files.length) {
-      const dataValues = await this.getDataURLs(this.files as File[]);
-      this.setValue(this.subType === 'text' ? JSON.stringify(dataValues) : this.files);
+      this.setValue(await this.parseValue());
     }
-
     await this.getPreview();
     this.changeEventEmit();
     this.changeDetectorRef.detectChanges();
+  }
+
+  async parseValue(revert: boolean = false): Promise<string | void> {
+    if (!revert) {
+      const files = this.files as File[];
+      if (this.valueType === 'base64') {
+        return JSON.stringify(await this.getDataURLs(files));
+      } else {
+        const data = [];
+        for (const file of files) {
+          const source = await this.getDataURLs(file);
+          data.push({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            source,
+          });
+        }
+        return JSON.stringify(data);
+      }
+    }
+    if (this.value && typeof this.value === Primitives.STRING) {
+      try {
+        const value = JSON.parse(this.value as string);
+        const files = Array.isArray(value) ? value : [value];
+        this.files = files.map((file) => {
+          const mime = this.getFileMime(file)?.split('/') || [];
+          const type = mime?.[0] === 'text' ? mime?.[1] : `${mime?.[0]}/${mime?.[1]}`;
+          return {
+            name: mime?.[0] || 'file',
+            type: `${type}` || 'image/*',
+            source: file as string,
+          } as KeyValue;
+        });
+        this.getPreview();
+      } catch (error: unknown) {
+        this.log.for(this.initialize).error(`Error parsing file list: ${(error as Error).message || error}`);
+      }
+    }
   }
 
   /**
@@ -484,7 +523,9 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     let content: string | undefined;
     if (file instanceof File) {
       const dataUrl = (await this.getDataURLs(file)) as string[];
-      if (dataUrl && dataUrl.length) file = dataUrl[0];
+      if (dataUrl) {
+        file = Array.isArray(dataUrl) ? dataUrl[0] : dataUrl;
+      }
     }
     if (fileExtension.includes('image')) content = '<img src="' + file + '" style="max-width: 100%; height: auto;" />';
 
@@ -532,6 +573,12 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     return file && file.type.startsWith('image/');
   }
 
+  isBase64String(value: string): boolean {
+    const pure = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+    const dataUrl = /^data:([a-zA-Z0-9.+-]+\/[a-zA-Z0-9.+-]+);base64,[A-Za-z0-9+/]+={0,2}$/;
+    return pure.test(value) || dataUrl.test(value);
+  }
+
   getFileMime(base64: string): string {
     const match = base64.match(/^data:(.*?);base64,/);
     return match ? match[1] : '';
@@ -563,7 +610,9 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     const file = this.files && this.files.length ? this.files[0] : null;
     if (file instanceof File) {
       const dataUrl = (await this.getDataURLs(file as File)) as string[];
-      if (dataUrl && dataUrl.length) this.previewFile = dataUrl[0];
+      if (dataUrl) {
+        this.previewFile = Array.isArray(dataUrl) ? dataUrl[0] : dataUrl;
+      }
     } else {
       this.previewFile = (file as KeyValue)?.['source'] as string;
     }
@@ -594,16 +643,19 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    *
    * @returns {Promise<string[] | undefined>} - A promise that resolves to an array of data URLs, or undefined if an error occurs.
    */
-  async getDataURLs(files?: File[] | File): Promise<string[] | undefined> {
-    if (!files) files = this.files as File[];
-    if (!Array.isArray(files)) files = [files];
-    // files = files.filter(f => f.type && f.type.startsWith('image/'));
+  async getDataURLs(files?: File[] | File): Promise<string | string[] | undefined> {
+    if (!files) {
+      files = this.files as File[];
+    }
+    files = !Array.isArray(files) ? [files] : files;
     return this.readFile(files)
       .then((urls) => {
         // validate generated DataURLs
         const invalid = urls.some((u) => !this.isValidDataURL(u));
         if (invalid) return undefined;
-        if (this.multiple || this.enableDirectoryMode) return urls;
+        if (this.multiple || this.enableDirectoryMode) {
+          return urls.length === 1 ? urls[0] : urls;
+        }
         return urls.length ? [urls[0]] : undefined;
       })
       .catch(() => {

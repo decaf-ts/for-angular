@@ -1,44 +1,28 @@
-import type { Model, ModelArg } from '@decaf-ts/decorator-validation';
-import { maxlength, min, minlength, model, required, type } from '@decaf-ts/decorator-validation';
+import type { ModelArg } from '@decaf-ts/decorator-validation';
+import { minlength, model, required } from '@decaf-ts/decorator-validation';
 // import { gtin, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
-import { propMetadata, Constructor } from '@decaf-ts/decoration';
 
-import {
-  Cascade,
-  column,
-  Condition,
-  index,
-  oneToMany,
-  oneToOne,
-  OrderDirection,
-  pk,
-  table,
-} from '@decaf-ts/core';
+import { Cascade, column, index, oneToMany, oneToOne, OrderDirection, pk } from '@decaf-ts/core';
 // import {BlockOperations, OperationKeys, readonly} from "@decaf-ts/db-decorators";
-import { description, uses } from '@decaf-ts/decoration';
-import { ProductStrength } from './ProductStrength';
+import { description } from '@decaf-ts/decoration';
 import { ProductMarket } from './ProductMarket';
+import { ProductStrength } from './ProductStrength';
 // import { assignProductOwner, audit } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import { ProductImage } from './ProductImage';
 // import { cache } from "@pharmaledgerassoc/ptp-toolkit/shared";
-import { Cacheable } from './Cacheable';
 import {
+  HTML5InputTypes,
   uielement,
-  uilistprop,
-  uilistmodel,
   uilayout,
   uilayoutprop,
-  HTML5InputTypes,
+  uilistmodel,
+  uilistprop,
   uionrender,
-  DecafComponent,
 } from '@decaf-ts/ui-decorators';
-import { getModelAndRepository, NgxComponentDirective, NgxEventHandler } from 'src/lib/engine';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { audit } from './utils';
-import { FileUploadComponent } from 'src/lib/components';
-import { ProductImageHandler } from './handlers/ProductImageHandler';
-import { ProductHandler } from './handlers/ProductHandler';
+import { Cacheable } from './Cacheable';
 import { gtin } from './gtin';
+import { ProductHandler } from './handlers/ProductHandler';
+import { audit } from './utils';
 
 // @BlockOperations([OperationKeys.DELETE])
 //@uses(FabricFlavour)
@@ -126,14 +110,16 @@ export class Product extends Cacheable {
       update: Cascade.CASCADE,
       delete: Cascade.CASCADE,
     },
-    false,
+    false
   )
   @uielement('ngx-decaf-file-upload', {
     label: 'product.productImage.label',
     type: 'text',
   })
   @uilayoutprop(1)
-  @uionrender(() => ProductImageHandler)
+  @uionrender(() => ProductHandler)
+
+  // @uionrender(() => ProductImageHandler)
   imageData?: ProductImage;
 
   //

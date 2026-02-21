@@ -1,26 +1,21 @@
-import {
-  CrudOperations,
-  IRepository,
-  OperationKeys,
-  PrimaryKeyType,
-} from '@decaf-ts/db-decorators';
+import { Condition } from '@decaf-ts/core';
+import { CrudOperations, IRepository, OperationKeys, PrimaryKeyType } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
-import { ComponentEventNames } from '@decaf-ts/ui-decorators';
+import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
+import { FileUploadComponent } from 'src/lib/components';
+import { getNgxModalComponent } from 'src/lib/components/modal/modal.component';
 import {
-  NgxEventHandler,
-  ICrudFormEvent,
-  KeyValue,
+  ActionRoles,
   DecafRepository,
   FormParent,
+  getModelAndRepository,
+  ICrudFormEvent,
   IRepositoryModelProps,
-  ActionRoles,
-  NgxComponentDirective,
+  KeyValue,
+  NgxEventHandler,
 } from 'src/lib/engine';
-import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
-import { getNgxModalComponent } from 'src/lib/components/modal/modal.component';
+import { Product } from '..';
 import { ProductImage } from '../ProductImage';
-import { Batch, Product } from '..';
-import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.component';
 
 export class ProductHandler<M extends Model> extends NgxEventHandler {
   formGroup!: FormParent;
@@ -29,12 +24,10 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
 
   // static deleteEvents: > = {};
 
-  static data:
-    | Record<string, Record<string, { repository: DecafRepository<Model>; data?: Model[] }>>
-    | undefined;
+  static data: Record<string, Record<string, { repository: DecafRepository<Model>; data?: Model[] }>> | undefined;
 
   static readonly modelId: string;
-  override async render(instance: any, prop: string): Promise<string | void> {
+  override async render(instance: any, prop: string, value: string): Promise<string | void> {
     if (instance.pk) {
       ProductHandler.pk = instance.pk;
     }
@@ -44,8 +37,13 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
         // instance.hidden = true;
         // instance.component.nativeElement.style.display = 'none';
       }
+
+      if (prop === 'imageData') {
+        await ProductHandler.getProductImageData(instance as FileUploadComponent, value);
+      }
     }
   }
+
   override async handle(event: ICrudFormEvent): Promise<void> {
     const { name, role } = event;
     const allowSubmit = true;
@@ -182,6 +180,16 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     }
   }
 
+  static async query() {
+    const context = getModelAndRepository(Product.name);
+    if (context) {
+      const { repository } = context;
+      const query = await repository.select().execute();
+      return query || [];
+    }
+    return [];
+  }
+
   static store(operation: CrudOperations, repository: DecafRepository<Model>, model: Model): void {
     const data = ProductHandler.data || {};
     if (!(operation in data)) {
@@ -197,8 +205,22 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
   static getStored(operation: CrudOperations) {
     return ProductHandler.data?.[operation] || {};
   }
+  static async getProductImageData(instance: FileUploadComponent, value: string) {
+    const repo = getModelAndRepository('ProductImage');
+    if (repo && value) {
+      const { repository } = repo;
+      const data = (await repository
+        .select()
+        .where(Condition.attr('productCode' as keyof ProductImage).eq(instance.value))
+        .execute()) as ProductImage[];
+      if (data?.length) {
+        instance.setValue(data[0].content);
+        // instance.value = JSON.parse(data[0].content[0]) as string;
+      }
+    }
+  }
 
-  static getProductImage<M extends Model>(data: M, repository: DecafRepository<M>): M {
+  static buildImageDataModel<M extends Model>(data: M, repository: DecafRepository<M>): M {
     if (repository.class.name === Product.name) {
       const model = data as Product & M;
       if (!model.imageData) return data as M;
@@ -207,7 +229,7 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
           productCode: model['productCode'],
           content: model['imageData'],
         },
-        ProductImage.name,
+        ProductImage.name
       ) as ProductImage;
       return model;
     }
@@ -218,11 +240,8 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     ProductHandler.data = undefined;
   }
 
-  override async beforeCreate<M extends Model>(
-    data: M,
-    repository: DecafRepository<M>,
-  ): Promise<M> {
-    return ProductHandler.getProductImage<M>(data, repository);
+  override async beforeCreate<M extends Model>(data: M, repository: DecafRepository<M>): Promise<M> {
+    return ProductHandler.buildImageDataModel<M>(data, repository);
   }
 
   // static async beforeSave<M extends Model>(
@@ -264,11 +283,7 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
   //     ? filterDiffs
   //     : undefined;
   // }
-  static async checkDiffs<M extends Model>(
-    data: M,
-    repository: IRepository<M>,
-    modelId: PrimaryKeyType,
-  ): Promise<any> {
+  static async checkDiffs<M extends Model>(data: M, repository: IRepository<M>, modelId: PrimaryKeyType): Promise<any> {
     const skip = [
       Model.pk(repository.class) as keyof M,
       // 'strengths',
@@ -310,15 +325,11 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
   override async beforeUpdate<M extends Model>(
     data: M,
     repository: DecafRepository<M>,
-    modelId: PrimaryKeyType,
+    modelId: PrimaryKeyType
   ): Promise<void | boolean> {
-    data = ProductHandler.getProductImage<M>(data, repository);
+    data = ProductHandler.buildImageDataModel<M>(data, repository);
     const modelName = repository.class.name;
-    const diffs = await ProductHandler.checkDiffs<M>(
-      Model.build(data, modelName),
-      repository,
-      modelId,
-    );
+    const diffs = await ProductHandler.checkDiffs<M>(Model.build(data, modelName), repository, modelId);
     if (diffs) {
       const locale = modelName.toLowerCase();
       const modal = await getNgxModalComponent({
