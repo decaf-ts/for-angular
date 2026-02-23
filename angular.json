@@ -27,16 +27,11 @@
       },
       "architect": {
         "build": {
-          "builder": "@angular-builders/custom-webpack:ng-packagr",
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "ng-package.json",
-            "customWebpackConfig": {
-              "path": "./webpack.config.js"
-            }
+            "project": "ng-package.json"
           },
           "configurations": {
-            "allowedNonPeerDependencies": {},
-
             "production": {
               "tsConfig": "tsconfig.lib.prod.json"
             },
