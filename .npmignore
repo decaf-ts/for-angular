@@ -16,3 +16,8 @@ tsconfig.json
 .codex
 !/workdocs/assets/slogans.json
 /schematics/node_modules
+/.angular
+/.storybook
+/.vscode
+/dist/storybook
+/Dockerfile
