@@ -9,7 +9,9 @@
   >
     <div class="dcf-width-1-1">
       <div>
-        <div class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1">
+        <div
+          class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1"
+        >
           <div class="dcf-width-expand">
             <legend>{{ (title ? title : name) | translate }}</legend>
           </div>
@@ -21,7 +23,10 @@
                 (click)="handleClear($event)"
                 [class.dcf-invisible]="!isOpen"
                 [attr.aria-label]="
-                  (items?.length ? locale + '.clear_items' : locale + '.hidden_form') | translate
+                  (items?.length
+                    ? locale + '.clear_items'
+                    : locale + '.hidden_form'
+                  ) | translate
                 "
               >
                 <ngx-decaf-icon
@@ -73,15 +78,23 @@
               >
                 @for (item of items; track item.index) {
                   <ion-item
-                    [class.not-unique]="isUniqueError && item.title === isUniqueError"
-                    [class.updating]="updatingItem?.['index'] === item.index - 1"
+                    [class.not-unique]="
+                      isUniqueError && item.title === isUniqueError
+                    "
+                    [class.updating]="
+                      updatingItem?.['index'] === item.index - 1
+                    "
                     lines="full"
                     [button]="false"
+                    [title]="item?.[pk] ?? pk + ': ' + item[pk]"
                   >
                     @if (ordenable) {
                       @if (items?.length > 1 && !updatingItem) {
                         <ion-reorder slot="start">
-                          <ion-icon aria-hidden="true" name="swap-vertical-outline"></ion-icon>
+                          <ion-icon
+                            aria-hidden="true"
+                            name="swap-vertical-outline"
+                          ></ion-icon>
                         </ion-reorder>
                       } @else {
                         <div slot="start">
@@ -98,22 +111,26 @@
 
                     <ion-label
                       [color]="
-                        item.title === isUniqueError && !updatingItem?.[pk] === item.title
+                        item.title === isUniqueError &&
+                        !updatingItem?.[pk] === item.title
                           ? 'danger'
                           : ''
                       "
                     >
-                      @if (ordenable) {
+                      {{ item.index }}.{{ item.title }}
+                      <!-- @if (ordenable) {
                         {{ item.index }}.{{ item.title }}
                       } @else {
                         @if (item[pk]) {
                           {{ pk }}: {{ item[pk] }} -
                         }
                         {{ item.title }}
-                      }
+                      } -->
                       @if (item.description?.length > 0) {
                         <br />
-                        <ion-text class="dcf-subtitle">{{ item.description }}</ion-text>
+                        <ion-text class="dcf-subtitle">
+                          {{ item.description }}
+                        </ion-text>
                       }
                     </ion-label>
                     @if (item.info?.length || item.subinfo?.length) {
@@ -129,12 +146,16 @@
                     }
                     <div slot="end">
                       @if (editable) {
-                        @if (!updatingItem || updatingItem?.[pk] !== item.title) {
+                        @if (
+                          !updatingItem || updatingItem?.[pk] !== item.title
+                        ) {
                           <ion-button
                             fill="clear"
                             size="small"
                             (click)="handleUpdateItem($index)"
-                            [attr.aria-label]="locale + '.edit_item' | translate"
+                            [attr.aria-label]="
+                              locale + '.edit_item' | translate
+                            "
                           >
                             <ngx-decaf-icon
                               slot="icon-only"
@@ -151,7 +172,9 @@
                           size="small"
                           color="danger"
                           (click)="handleRemoveItem($index)"
-                          [attr.aria-label]="locale + '.remove_item' | translate"
+                          [attr.aria-label]="
+                            locale + '.remove_item' | translate
+                          "
                         >
                           <ngx-decaf-icon
                             slot="icon-only"
@@ -173,12 +196,24 @@
               class="dcf-not-unique-container dcf-animation dcf-animation-bottom-small dcf-animation-fast"
             >
               <div class="dcf-grid dcf-grid-collapse dcf-width-1-1">
-                <div class="dcf-auto" [attr.style]="'max-width: 50px'">
-                  <ion-icon aria-hidden="true" name="alert-circle-outline"></ion-icon>
+                <div
+                  class="dcf-auto"
+                  [attr.style]="'max-width: 50px'"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    name="alert-circle-outline"
+                  ></ion-icon>
                 </div>
                 <div class="dcf-width-expand">
-                  <ion-text color="danger" class="dcf-text-small">
-                    {{ locale + '.not_unique' | translate: { value: isUniqueError } }}
+                  <ion-text
+                    color="danger"
+                    class="dcf-text-small"
+                  >
+                    {{
+                      locale + '.not_unique'
+                        | translate: { value: isUniqueError }
+                    }}
                   </ion-text>
                 </div>
               </div>
@@ -189,10 +224,17 @@
             <div class="dcf-width-1-1 dcf-max-message-container">
               <ion-text
                 class="dcf-text-small"
-                [color]="items.length !== max ? (!isDarkMode ? 'medium' : '') : 'primary'"
+                [color]="
+                  items.length !== max
+                    ? !isDarkMode
+                      ? 'medium'
+                      : ''
+                    : 'primary'
+                "
               >
                 {{
-                  locale + (items.length !== max ? '.max_items' : '.max_items_reached')
+                  locale +
+                    (items.length !== max ? '.max_items' : '.max_items_reached')
                     | translate: { '0': max }
                 }}
               </ion-text>
@@ -219,7 +261,11 @@
                   (click)="handleCreateItem()"
                   [attr.aria-label]="locale + '.update_item' | translate"
                 >
-                  <ion-icon aria-hidden="true" name="refresh-outline" slot="start"></ion-icon>
+                  <ion-icon
+                    aria-hidden="true"
+                    name="refresh-outline"
+                    slot="start"
+                  ></ion-icon>
                   {{ locale + '.update_item' | translate }}
                 </ion-button>
               </div>
@@ -235,7 +281,11 @@
                     [attr.aria-label]="locale + '.create_item' | translate"
                   >
                     <!-- <ion-icon aria-hidden="true" name="add-outline" slot="start"></ion-icon> -->
-                    <ngx-decaf-icon slot="icon-only" name="ti-code-plus" slot="start" />
+                    <ngx-decaf-icon
+                      slot="icon-only"
+                      name="ti-code-plus"
+                      slot="start"
+                    />
                     {{
                       locale +
                         (required
@@ -260,7 +310,10 @@
 } @else {
   @if (refreshing) {
     <div class="dcf-loading-container">
-      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <ion-spinner
+        name="crescent"
+        color="primary"
+      ></ion-spinner>
     </div>
   } @else {
     <legend>{{ (title ? title : name) | translate }}</legend>
