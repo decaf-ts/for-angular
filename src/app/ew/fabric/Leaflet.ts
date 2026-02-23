@@ -16,7 +16,7 @@ import {
   uilistmodel,
   uimodel,
   uionrender,
-  uitablecol
+  uitablecol,
 } from '@decaf-ts/ui-decorators';
 import { getDocumentTypes, getLeafletLanguages, getMarkets } from 'src/app/ew/utils/helpers';
 import { Batch } from './Batch';
@@ -121,19 +121,6 @@ export class Leaflet extends Cacheable {
     options: () => Batch,
   })
   @uionrender(() => LeafletHandler)
-  // @uionrender(
-  //   () =>
-  //     class _ extends DecafEventHandler {
-  //       override async render(): Promise<void> {
-  //         const instance = this as unknown as {
-  //           headers: string[];
-  //           operation: OperationKeys[];
-  //         };
-  //         if (instance.headers)
-  //           instance.headers = instance.headers.map((header) => (header === 'batchNumber' ? 'batchCol' : header));
-  //       }
-  //     }
-  // )
   @uitablecol(1, async (instance: DecafComponent<Model> & { type: string }, prop: string, value: string) => {
     if (instance.operation && ['paginated', 'infinite'].includes(instance.type)) value = 'subinfo'; // fallback mapper to list item position
     return value;

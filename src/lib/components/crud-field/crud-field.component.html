@@ -1,9 +1,15 @@
-@if (operation === OperationKeys.READ || operation === OperationKeys.DELETE || readonly) {
+@if (
+  operation === OperationKeys.READ ||
+  operation === OperationKeys.DELETE ||
+  readonly
+) {
   @if (!hidden) {
     <ng-container>
       <div>
         <ion-item
-          [class.dcf-item-readonly]="readonly && operation !== OperationKeys.READ"
+          [class.dcf-item-readonly]="
+            readonly && operation !== OperationKeys.READ
+          "
           [class]="'dcf-input-item ' + operation"
           #component
         >
@@ -15,11 +21,18 @@
               {{ label | translate }}
               <br />
               @if (type !== 'checkbox' && value) {
-                <ion-text [innerHTML]="type === 'password' ? '********' : value"></ion-text>
+                <ion-text
+                  [innerHTML]="type === 'password' ? '********' : value"
+                ></ion-text>
               } @else {
                 @if (type === 'checkbox') {
-                  <ion-badge mode="md" color="light">
-                    <ion-text [color]="!value ? 'danger' : 'primary'">{{ value }}</ion-text>
+                  <ion-badge
+                    mode="md"
+                    color="light"
+                  >
+                    <ion-text [color]="!value ? 'danger' : 'primary'">
+                      {{ value }}
+                    </ion-text>
                   </ion-badge>
                 } @else {
                   <ion-text [innerHTML]="value"></ion-text>
@@ -66,7 +79,10 @@
           ></ion-textarea>
         } @else if (type === HTML5InputTypes.CHECKBOX) {
           @if (!options?.length) {
-            <ion-item class="dcf-width-1-1" [hidden]="hidden">
+            <ion-item
+              class="dcf-width-1-1"
+              [hidden]="hidden"
+            >
               <ion-checkbox
                 (ionInput)="handleModalChildChanges($event, formControl)"
                 (ionChange)="handleModalChildChanges($event, formControl)"
@@ -87,9 +103,17 @@
             </ion-item>
           } @else {
             <div class="dcf-checkbox-group">
-              <label class="dcf-label" [for]="path">{{ label | translate }}</label>
+              <label
+                class="dcf-label"
+                [for]="path"
+              >
+                {{ label | translate }}
+              </label>
               @for (option of options; track trackItemFn($index, option.text)) {
-                <ion-item class="dcf-width-1-1" [button]="true">
+                <ion-item
+                  class="dcf-width-1-1"
+                  [button]="true"
+                >
                   <ion-checkbox
                     (ionInput)="handleModalChildChanges($event, formControl)"
                     (ionChange)="handleModalChildChanges($event, formControl)"
@@ -103,11 +127,16 @@
                     (ionChange)="toggleOptionSelection(option.value, $event)"
                     #component
                   >
-                    <span>{{ $index + 1 }}. {{ option?.text | translate }}</span>
+                    <span>
+                      {{ $index + 1 }}. {{ option?.text | translate }}
+                    </span>
                   </ion-checkbox>
                 </ion-item>
               }
-              <span class="dcf-error" [innerHTML]="getErrors(container)"></span>
+              <span
+                class="dcf-error"
+                [innerHTML]="getErrors(container)"
+              ></span>
             </div>
           }
         } @else if (type === HTML5InputTypes.RADIO && options?.length) {
@@ -117,14 +146,18 @@
             [value]="value"
             #component
           >
-            <label class="dcf-radio-group-label" [for]="path">{{ label | translate }}</label>
+            <label
+              class="dcf-radio-group-label"
+              [for]="path"
+            >
+              {{ label | translate }}
+            </label>
             @for (option of options; track $index) {
               <ion-item>
                 <ion-radio
                   (ionInput)="handleModalChildChanges($event, formControl)"
                   (ionChange)="handleModalChildChanges($event, formControl)"
                   [id]="name"
-                  [errorText]="getErrors(container)"
                   [mode]="'md'"
                   [hidden]="hidden"
                   [labelPlacement]="labelPlacement"
@@ -135,10 +168,17 @@
                 >
                   {{ option?.text | translate }}
                 </ion-radio>
+                <span
+                  class="dcf-error"
+                  [innerHTML]="getErrors(container)"
+                ></span>
               </ion-item>
             }
           </ion-radio-group>
-          <span class="dcf-error" [innerHTML]="getErrors(container)"></span>
+          <span
+            class="dcf-error"
+            [innerHTML]="getErrors(container)"
+          ></span>
         } @else if (type === HTML5InputTypes.SELECT) {
           <div>
             <ion-select
@@ -162,7 +202,10 @@
               #component
             >
               @if (options?.length) {
-                @for (option of options; track trackItemFn($index, option.text)) {
+                @for (
+                  option of options;
+                  track trackItemFn($index, option.text)
+                ) {
                   <ion-select-option
                     [value]="option.value"
                     [class.dcf-disabled]="option.disabled"
@@ -173,14 +216,21 @@
                   </ion-select-option>
                 }
               }
-              @if ((value && !required) || (!required && value !== undefined && value !== '')) {
+              @if (
+                (value && !required) ||
+                (!required && value !== undefined && value !== '')
+              ) {
                 <ion-button
                   fill="clear"
                   (click)="handleClearValue($event)"
                   slot="end"
                   aria-label="Show/hide password"
                 >
-                  <ngx-decaf-icon size="small" slot="icon-only" [name]="'ti-input-x'" />
+                  <ngx-decaf-icon
+                    size="small"
+                    slot="icon-only"
+                    [name]="'ti-input-x'"
+                  />
                 </ion-button>
               }
             </ion-select>

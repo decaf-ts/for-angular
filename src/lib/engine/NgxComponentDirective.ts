@@ -926,10 +926,12 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
       if (Object.keys(this.props).includes(key) && !skip.includes(key)) {
         (this as KeyValue)[key] = props[key];
         if (key === BaseComponentProps.HANDLERS) {
-          this.parseHandlers(props[key], this as unknown as DecafEventHandler);
+          const handlers = Object.assign({}, props[key] || {}, instance?.[key] || {});
+          this.parseHandlers(handlers, this as unknown as DecafEventHandler);
         }
         if (key === UIKeys.EVENTS) {
-          this.parseEvents(props[key], this);
+          const events = Object.assign({}, props[key] || {}, instance?.[key] || {});
+          this.parseEvents(events, this);
         }
         delete props[key];
       }

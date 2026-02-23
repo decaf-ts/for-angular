@@ -11,7 +11,8 @@
     "on-first-run": "npx update-scripts --boot",
     "set-git-auth": "git config url.\"https://api:$(cat .token)@github.com/\".insteadOf \"https://github.com/\" && git config url.\"https://ssh:$(cat .token)@github.com/\".insteadOf \"ssh://git@github.com/\" && git config url.\"https://git:$(cat .token)@github.com/\".insteadOf \"git@github.com:\"",
     "flash-forward": "npx npm-check-updates -u && npm run do-install",
-    "update-dependencies": "PREFIX=\"decaf-ts\"; npm ls | grep \"$PREFIX\" | awk -F/ '{print $NF}' | sed 's/@.*//' | xargs -I package npm update --force @\"$PREFIX\"/package && ng cache clean",
+    "update-dependencies": "NPM_TOKEN=$(cat .npmtoken) PREFIX=\"decaf-ts\"; npm ls | grep \"$PREFIX\" | awk -F/ '{print $NF}' | sed 's/@.*//' | xargs -I package npm update --force @\"$PREFIX\"/package && ng cache clean",
+    "update-decaf": "NPM_TOKEN=$(cat .npmtoken) PREFIX=\"decaf-ts\"; npm ls | grep \"$PREFIX\" | awk -F/ '{print $NF}' | sed 's/@.*//' | xargs -I package npm update @\"$PREFIX\"/package",
     "reset": "rm -rf * && git checkout . && git pull && npm run do-install",
     "build:prod": "npm run lint && ng build for-angular && ng build  for-angular-app",
     "build": "npx rimraf .angular && npm run lint && ng build for-angular --configuration development && ng build for-angular-app --configuration development && npm run build:cli",
@@ -81,6 +82,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^22.15.24",
     "angular-eslint": "^20.2.0",
+    "eslint": "^9.29.0",
     "eslint-plugin-storybook": "9.1.5",
     "eslint-plugin-unused-imports": "^4.4.1",
     "ffmpeg-static": "5.2.0",
@@ -93,6 +95,7 @@
     "typescript-eslint": "8.34.1"
   },
   "peerDependencies": {
+    "@angular-builders/custom-webpack": "^20.0.0",
     "@angular/animations": "^20.3.16",
     "@angular/common": "^20.3.16",
     "@angular/compiler": "^20.3.16",
@@ -131,5 +134,9 @@
     "minimatch": "^10.2.2",
     "test-exclude": "7.0.1",
     "ajv": "^8.17.2"
+  },
+  "browser": {
+    "worker_threads": false,
+    "node:worker_threads": false
   }
 }

@@ -27,9 +27,12 @@
       },
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "builder": "@angular-builders/custom-webpack:ng-packagr",
           "options": {
-            "project": "ng-package.json"
+            "project": "ng-package.json",
+            "customWebpackConfig": {
+              "path": "./webpack.config.js"
+            }
           },
           "configurations": {
             "allowedNonPeerDependencies": {},
@@ -89,13 +92,16 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
             "preserveSymlinks": true,
             "outputPath": "www",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": ["src/polyfills.ts", "zone.js", "zone.js/testing"],
+            "customWebpackConfig": {
+              "path": "./webpack.config.js"
+            },
 
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",

@@ -75,7 +75,7 @@ export class LeafletHandler extends NgxEventHandler {
               if (query?.length) {
                 operation = OperationKeys.UPDATE;
                 result = await LeafletHandler.parseFileContent(Object.assign(query[0], data), repository);
-                result = await repository.update(Object.assign(query[0], data));
+                result = await repository.update(result);
               } else {
                 result = await LeafletHandler.parseFileContent(model as Model, repository);
                 result = await repository.create(model as Model);

@@ -33,6 +33,8 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": false, // default true
-    "paths": { "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"] }
+    "paths": {
+      "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"]
+    }
   }
 }
