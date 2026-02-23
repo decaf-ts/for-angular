@@ -15,3 +15,4 @@ nodemon.json
 tsconfig.json
 .codex
 !/workdocs/assets/slogans.json
+/schematics/node_modules
