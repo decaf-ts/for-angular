@@ -106,7 +106,6 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
   ) {
     if (!res.status && method !== PersistenceKeys.STATEMENT) throw new InternalError('this should be impossible');
     if (res.status >= 400) {
-      console.log(res instanceof AxiosError);
       throw this.parseError(
         res?.request?.response ? JSON.parse(res.request.response)?.error : res.error || `${res.status}`
       );
