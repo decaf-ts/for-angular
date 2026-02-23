@@ -12,6 +12,5 @@
       "input": "src/assets",
       "output": "assets"
     }
-  ],
-  "allowedNonPeerDependencies": ["ajv"]
+  ]
 }

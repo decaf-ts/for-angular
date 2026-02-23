@@ -2,9 +2,9 @@ import eslint from '@eslint/js';
 import angular from 'angular-eslint';
 import unusedImports from 'eslint-plugin-unused-imports';
 import tseslint from 'typescript-eslint';
-import Ajv from 'ajv/dist/ajv.bundle.js';
+// import Ajv from 'ajv/dist/ajv.bundle.js';
 
-new Ajv({ missingRefs: 'ignore' });
+// new Ajv({ missingRefs: 'ignore' });
 export default tseslint.config(
   {
     ignores: [

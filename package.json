@@ -92,7 +92,8 @@
     "ts-node": "^10.9.2",
     "tslib": "^2.3.0",
     "typescript": "~5.8.3",
-    "typescript-eslint": "8.34.1"
+    "typescript-eslint": "8.34.1",
+    "ajv": "^6.14.0"
   },
   "peerDependencies": {
     "@angular-builders/custom-webpack": "^20.0.0",
@@ -137,8 +138,5 @@
   "browser": {
     "worker_threads": false,
     "node:worker_threads": false
-  },
-  "dependencies": {
-    "ajv": "^6.14.0"
   }
 }
