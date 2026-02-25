@@ -1,12 +1,12 @@
-import { inject, Injectable } from '@angular/core';
 import { Location } from '@angular/common';
+import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController } from '@ionic/angular/standalone';
-import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
 import { Primitives } from '@decaf-ts/decorator-validation';
-import { KeyValue } from '../engine/types';
-import { RouteDirections } from '../engine/constants';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
+import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
+import { NavController } from '@ionic/angular/standalone';
+import { RouteDirections } from '../engine/constants';
+import { KeyValue } from '../engine/types';
 
 /**
  * @description Service for handling routing operations in the application.
@@ -303,11 +303,8 @@ export class NgxRouterService {
    * @memberOf RouterService
    */
   getPreviousUrl(): string {
-    const currentNavigation = this.router.getCurrentNavigation();
-    if (
-      !!currentNavigation &&
-      currentNavigation.previousNavigation?.finalUrl?.toString() !== undefined
-    )
+    const currentNavigation = this.router.currentNavigation() || this.router.getCurrentNavigation();
+    if (!!currentNavigation && currentNavigation.previousNavigation?.finalUrl?.toString() !== undefined)
       this.previousUrl = currentNavigation.previousNavigation?.finalUrl?.toString();
     return this.previousUrl as string;
   }
@@ -339,7 +336,7 @@ export class NgxRouterService {
         composed: true,
         cancelable: false,
         detail: { refres: true },
-      }),
+      })
     );
     this.location.back();
   }
@@ -376,11 +373,10 @@ export class NgxRouterService {
   async navigateTo(
     page: string,
     direction: RouteDirections = RouteDirections.FORWARD,
-    options?: NavigationOptions,
+    options?: NavigationOptions
   ): Promise<boolean> {
     if (direction === RouteDirections.ROOT) return this.navController.navigateRoot(page, options);
-    if (direction === RouteDirections.FORWARD)
-      return await this.navController.navigateForward(page, options);
+    if (direction === RouteDirections.FORWARD) return await this.navController.navigateForward(page, options);
     return await this.navController.navigateBack(page, options);
   }
 }

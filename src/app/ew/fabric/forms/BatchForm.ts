@@ -1,43 +1,31 @@
-import { Model, ModelArg } from '@decaf-ts/decorator-validation';
-import { date, list, minlength, model, pattern, required } from '@decaf-ts/decorator-validation';
-import { column, index, OrderDirection, pk, table } from '@decaf-ts/core';
-import { BlockOperations, composed, OperationKeys, readonly } from '@decaf-ts/db-decorators';
+import { column, index, OrderDirection, table } from '@decaf-ts/core';
+import { readonly } from '@decaf-ts/db-decorators';
 import { description } from '@decaf-ts/decoration';
-import { Cacheable } from '../Cacheable';
+import { date, Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
 import {
-  ComponentEventNames,
   DecafComponent,
   hidden,
   HTML5InputTypes,
-  TransactionHooks,
-  uichild,
   uielement,
-  uihandlers,
   uilayout,
   uilayoutprop,
   uilistmodel,
-  uilistprop,
-  uimodel,
   uionclick,
   uionrender,
   uiorder,
   uitablecol,
 } from '@decaf-ts/ui-decorators';
-import { DatePattern, TableNames } from '../constants';
-import { audit } from '../utils';
-import { Product } from '../Product';
-import { DatamatrixModalHandler } from '../handlers/DatamatrixModalHandler';
-import { BatchHandler } from '../handlers/BatchHandler';
 import { Batch } from '../Batch';
+import { Product } from '../Product';
+import { DatePattern, TableNames } from '../constants';
+import { BatchHandler } from '../handlers/BatchHandler';
+import { DatamatrixModalHandler } from '../handlers/DatamatrixModalHandler';
 
 //@uses(FabricFlavour)
 
 @table(TableNames.Batch)
 @uilistmodel('ngx-decaf-list-item', { icon: 'ti-package' })
 @uilayout('ngx-decaf-crud-form', true, 1, { empty: { showButton: false } })
-@uihandlers({
-  [ComponentEventNames.Render]: BatchHandler,
-})
 @model()
 export class BatchForm extends Batch {
   //only for ui (table view)
@@ -162,7 +150,6 @@ export class BatchForm extends Batch {
     type: HTML5InputTypes.TEXT,
   })
   @uilayoutprop('half')
-  @uionrender(() => BatchHandler)
   @uitablecol(4, (instance: DecafComponent<Model>, prop: 'expiryDate', value: string) => {
     return value;
   })

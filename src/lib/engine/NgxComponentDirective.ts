@@ -31,8 +31,9 @@ import { Model, ModelConstructor, ModelKeys, Primitives } from '@decaf-ts/decora
 import { ComponentEventNames, DecafEventHandler, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
 import { OverlayBaseController } from '@ionic/angular/common';
 import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
-import { shareReplay, Subject, takeUntil } from 'rxjs';
+import { shareReplay, takeUntil } from 'rxjs';
 import { getLocaleContext } from '../i18n/Loader';
+import { NgxRouterService } from '../services';
 import { NgxMediaService } from '../services/NgxMediaService';
 import { NgxTranslateService } from '../services/NgxTranslateService';
 import { generateRandomValue, getWindow, setOnWindow } from '../utils';
@@ -381,6 +382,8 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
    */
   override router: Router = inject(Router);
 
+  routerService: NgxRouterService = inject(NgxRouterService);
+
   /**
    * @description Current locale identifier for component internationalization.
    * @summary Specifies the locale code (e.g., 'en-US', 'pt-BR') used for translating UI text
@@ -515,8 +518,6 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
    */
   protected colorSchema: WindowColorScheme = WindowColorSchemes.light;
 
-  protected destroySubscriptions$ = new Subject<void>();
-
   /**
    * @description Constructor for NgxComponentDirective.
    * @summary Initializes the directive by setting up the component name, locale root,
@@ -639,7 +640,9 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
           this._repository = repository;
           if (this.model && !this.pk) this.pk = pk;
           this.pkType = pkType;
-          if (!this.modelName) this.modelName = repository.class.name;
+          if (!this.modelName) {
+            this.modelName = repository.class.name;
+          }
         }
       }
     } catch (error: unknown) {

@@ -1,5 +1,9 @@
 import { Component, HostListener, inject, OnDestroy } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { FormGroup } from '@angular/forms';
+import { Condition } from '@decaf-ts/core';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { Model } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import {
   IonButton,
   IonItem,
@@ -10,21 +14,17 @@ import {
   SelectChangeEventDetail,
   SelectCustomEvent,
 } from '@ionic/angular/standalone';
-import { FormGroup } from '@angular/forms';
-import { Condition } from '@decaf-ts/core';
-import { Model } from '@decaf-ts/decorator-validation';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { RouterService } from 'src/app/services/router.service';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Batch } from 'src/app/ew/fabric/Batch';
-import { getDocumentTypes } from 'src/app/ew/utils/helpers';
 import { Product } from 'src/app/ew/fabric/Product';
-import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
-import { IconComponent } from 'src/lib/components/icon/icon.component';
+import { getDocumentTypes } from 'src/app/ew/utils/helpers';
 import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.component';
-import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/helpers';
+import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { Dynamic } from 'src/lib/engine/decorators';
 import { getModelAndRepository } from 'src/lib/engine/helpers';
+import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
+import { NgxRouterService } from 'src/lib/services';
+import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/helpers';
 
 @Dynamic()
 @Component({
@@ -46,7 +46,7 @@ import { getModelAndRepository } from 'src/lib/engine/helpers';
   standalone: true,
 })
 export class AppSelectFieldComponent extends CrudFieldComponent implements OnDestroy {
-  routerService: RouterService = inject(RouterService);
+  override routerService: NgxRouterService = inject(NgxRouterService);
 
   override async onDestroy(): Promise<void> {
     super.onDestroy();

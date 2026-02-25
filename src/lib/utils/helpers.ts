@@ -11,12 +11,11 @@
  */
 
 import { isDevMode } from '@angular/core';
-import { InjectableRegistryImp, InjectablesRegistry } from '@decaf-ts/injectable-decorators';
 import { Primitives } from '@decaf-ts/decorator-validation';
-import { KeyValue, StringOrBoolean } from '../engine/types';
-import { FunctionLike } from '../engine/types';
-import { IMenuItem } from '../engine/interfaces';
+import { InjectableRegistryImp, InjectablesRegistry } from '@decaf-ts/injectable-decorators';
 import { getLogger } from '../engine/helpers';
+import { IMenuItem } from '../engine/interfaces';
+import { FunctionLike, KeyValue, StringOrBoolean } from '../engine/types';
 
 let injectableRegistry: InjectablesRegistry;
 
@@ -51,13 +50,15 @@ export function getInjectablesRegistry(): InjectablesRegistry {
  * @memberOf module:for-angular
  */
 export function isDevelopmentMode(context: string = 'localhost'): boolean {
-  if (!context) return isDevMode();
+  const devMode = isDevMode();
   const win = getWindow();
-  return (
-    isDevMode() ||
-    win?.['env']?.['CONTEXT'].toLowerCase() !== context.toLowerCase() ||
-    win?.['location']?.hostname?.includes(context)
-  );
+  const env = win?.['env'] || win?.['ENV'];
+  const { protocol } = win.location || ({} as Location);
+  if (!env || !context) {
+    if (protocol.includes('https')) return false;
+    return devMode;
+  }
+  return env?.['CONTEXT'].toLowerCase() !== context.toLowerCase() || win?.['location']?.hostname?.includes(context);
 }
 
 /**
@@ -82,7 +83,7 @@ export function windowEventEmitter(name: string, detail: unknown, props?: object
       cancelable: false,
       detail: detail,
     },
-    props || {},
+    props || {}
   );
   (getWindow() as Window).dispatchEvent(new CustomEvent(name, data));
 }
@@ -217,10 +218,7 @@ export function isNotUndefined(prop: StringOrBoolean | undefined): boolean {
  * @function getLocaleFromClassName
  * @memberOf module:for-angular
  */
-export function getLocaleFromClassName(
-  instance: string | FunctionLike | KeyValue,
-  suffix?: string,
-): string {
+export function getLocaleFromClassName(instance: string | FunctionLike | KeyValue, suffix?: string): string {
   if (typeof instance !== Primitives.STRING)
     instance = (instance as FunctionLike).name || (instance as object)?.constructor?.name;
 
@@ -276,9 +274,7 @@ export function getLocaleLanguage(): string {
  * @memberOf module:for-angular
  */
 export function generateRandomValue(length: number = 8, onlyNumbers: boolean = false): string {
-  const chars = onlyNumbers
-    ? '0123456789'
-    : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const chars = onlyNumbers ? '0123456789' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
 
@@ -325,8 +321,7 @@ export function isValidDate(date: string | Date | number): boolean {
       (date instanceof Date && !isNaN(date as unknown as number)) ||
       (() => {
         const testRegex = new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date as string);
-        if (typeof date !== Primitives.STRING || (!(date as string)?.includes('T') && !testRegex))
-          return false;
+        if (typeof date !== Primitives.STRING || (!(date as string)?.includes('T') && !testRegex)) return false;
 
         date = (date as string).split('T')[0];
         if (!new RegExp(/^\d{4}-\d{2}-\d{2}$/).test(date)) return false;
@@ -357,10 +352,7 @@ export function isValidDate(date: string | Date | number): boolean {
  * @function formatDate
  * @memberOf module:lib/helpers/utils
  */
-export function formatDate(
-  date: string | Date | number,
-  locale?: string | undefined,
-): Date | string {
+export function formatDate(date: string | Date | number, locale?: string | undefined): Date | string {
   if (!locale) locale = getLocaleLanguage();
 
   if (typeof date === Primitives.STRING || typeof date === 'number') {
@@ -407,9 +399,7 @@ export function itemMapper(item: KeyValue, mapper: KeyValue, props?: KeyValue): 
         // accum[key] = item?.[value as string] || (value !== key ? value : "");
       } else {
         for (const propValue of arrayValue)
-          value = !value
-            ? item[propValue]
-            : (typeof value === 'string' ? JSON.parse(value) : value)[propValue];
+          value = !value ? item[propValue] : (typeof value === 'string' ? JSON.parse(value) : value)[propValue];
 
         if (isValidDate(new Date(value))) value = `${formatDate(value)}`;
 
@@ -516,17 +506,11 @@ export async function isDarkMode(): Promise<boolean> {
  * @function filterString
  * @memberOf module:lib/helpers/utils
  */
-export function filterString(
-  original: string | string[],
-  value: string,
-  contain: boolean = true,
-): string {
+export function filterString(original: string | string[], value: string, contain: boolean = true): string {
   if (typeof original === Primitives.STRING) original = (original as string).split(' ');
-  return (
-    (original as string[]).filter((str) =>
-      contain ? str.includes(value) : !str.includes(value),
-    ) || []
-  ).join(' ');
+  return ((original as string[]).filter((str) => (contain ? str.includes(value) : !str.includes(value))) || []).join(
+    ' '
+  );
 }
 
 /**
