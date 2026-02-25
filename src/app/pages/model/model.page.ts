@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
+import { Model } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { IonContent } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
-import { HeaderComponent } from 'src/app/components/header/header.component';
 import { ContainerComponent } from 'src/app/components/container/container.component';
-import { ListComponent } from 'src/lib/components/list/list.component';
-import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
-import { CardComponent, EmptyStateComponent } from 'src/lib/components';
+import { HeaderComponent } from 'src/app/components/header/header.component';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
+import { CardComponent, EmptyStateComponent } from 'src/lib/components';
+import { ListComponent } from 'src/lib/components/list/list.component';
+import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { ICrudFormEvent, IModelComponentSubmitEvent } from 'src/lib/engine/interfaces';
-import { Model } from '@decaf-ts/decorator-validation';
+import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
 import { CrudEvent } from 'src/lib/engine/types';
 
 /**
@@ -125,8 +125,9 @@ export class ModelPage extends NgxModelPageDirective implements OnInit {
   // }
 
   async ngOnInit(): Promise<void> {
-    this.enableCrudOperations();
     await super.initialize();
+    this.enableCrudOperations();
+
     console.log(this.modelId);
   }
 
@@ -140,7 +141,7 @@ export class ModelPage extends NgxModelPageDirective implements OnInit {
     if (name === ComponentEventNames.Submit) {
       const { success, message } = (await super.submit(
         event as CrudEvent<M>,
-        true,
+        true
       )) as IModelComponentSubmitEvent<Model>;
       const toast = getNgxToastComponent();
       await toast.show({

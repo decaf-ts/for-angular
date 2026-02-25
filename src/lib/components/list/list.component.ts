@@ -9,17 +9,13 @@
  * @link {@link ListComponent}
  */
 
-import {
-  Component,
-  OnInit,
-  EventEmitter,
-  Output,
-  Input,
-  HostListener,
-  OnDestroy,
-} from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Condition, Observer, Paginator } from '@decaf-ts/core';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { Constructor, Metadata } from '@decaf-ts/decoration';
+import { Model, Primitives } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
-import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonButton,
   IonInfiniteScroll,
@@ -33,34 +29,26 @@ import {
   IonText,
   IonThumbnail,
 } from '@ionic/angular/standalone';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { Model, Primitives } from '@decaf-ts/decorator-validation';
-import { Condition, Observer, Paginator } from '@decaf-ts/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { debounceTime, shareReplay, Subject, takeUntil } from 'rxjs';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
+import { ComponentsTagNames, DefaultListEmptyOptions, ListComponentsTypes } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
-import { KeyValue, FunctionLike, DecafRepository } from '../../engine/types';
-import {
-  ComponentsTagNames,
-  DefaultListEmptyOptions,
-  ListComponentsTypes,
-} from '../../engine/constants';
 import {
   IBaseCustomEvent,
-  IListItemCustomEvent,
-  IPaginationCustomEvent,
   IFilterQuery,
   IFilterQueryItem,
   IListEmptyOptions,
+  IListItemCustomEvent,
+  IPaginationCustomEvent,
 } from '../../engine/interfaces';
-import { stringToBoolean, formatDate, isValidDate } from '../../utils/helpers';
-import { SearchbarComponent } from '../searchbar/searchbar.component';
-import { EmptyStateComponent } from '../empty-state/empty-state.component';
+import { DecafRepository, FunctionLike, KeyValue } from '../../engine/types';
+import { formatDate, isValidDate, stringToBoolean } from '../../utils/helpers';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
-import { PaginationComponent } from '../pagination/pagination.component';
+import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { FilterComponent } from '../filter/filter.component';
-import { Constructor, Metadata } from '@decaf-ts/decoration';
-import { ComponentEventNames, UIFunctionLike } from '@decaf-ts/ui-decorators';
+import { PaginationComponent } from '../pagination/pagination.component';
+import { SearchbarComponent } from '../searchbar/searchbar.component';
 
 /**
  * @description A versatile list component that supports various data display modes.
@@ -499,8 +487,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @type {Subject<CustomEvent | IListItemCustomEvent | IBaseCustomEvent>}
    * @memberOf ListComponent
    */
-  private clickItemSubject: Subject<CustomEvent | IListItemCustomEvent | IBaseCustomEvent> =
-    new Subject<CustomEvent | IListItemCustomEvent | IBaseCustomEvent>();
+  private clickItemSubject: Subject<CustomEvent | IListItemCustomEvent | IBaseCustomEvent> = new Subject<
+    CustomEvent | IListItemCustomEvent | IBaseCustomEvent
+  >();
 
   /**
    * @description Initializes a new instance of the ListComponent.
@@ -548,11 +537,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @memberOf ListComponent
    */
   async ngOnInit(): Promise<void> {
-    this.initialized = false;
-    this.repositoryObserver = {
-      refresh: async (...args: unknown[]): Promise<void> => this.handleRepositoryRefresh(...args),
-    };
-
+    // this.initialized = false;
     // this.router.events.subscribe(async event => {
     //   if (event instanceof NavigationStart)
     //     await super.ngOnDestroy();
@@ -564,12 +549,6 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
       .subscribe((event) => this.clickEventEmit(event as IListItemCustomEvent | IBaseCustomEvent));
 
-    this.repositoryObserverSubject
-      .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
-      .subscribe(([modelInstance, event, uid]) =>
-        this.handleObserveEvent(modelInstance, event, uid),
-      );
-
     this.limit = Number(this.limit);
     this.start = Number(this.start);
 
@@ -580,8 +559,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     this.showSearchbar = stringToBoolean(this.showSearchbar);
     this.disableSort = stringToBoolean(this.disableSort);
 
-    if (!this.operations || !this.operations.includes(OperationKeys.CREATE))
-      this.createButton = false;
+    if (!this.operations || !this.operations.includes(OperationKeys.CREATE)) this.createButton = false;
     if (typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)
       this.item['tag'] = ComponentsTagNames.LIST_ITEM as string;
     if (!this.initialized) this.parseProps(this);
@@ -622,12 +600,15 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     if (this._repository && this.repositoryObserver) {
       const repo = this._repository as DecafRepository<Model>;
       //TODO: fix check observerHandler
-      const observeHandler = repo['observerHandler'] as { observers: Observer[] } | undefined;
-      if (observeHandler && observeHandler?.observers?.length) {
-        try {
-          repo.unObserve(this.repositoryObserver);
-        } catch (error: unknown) {
-          this.log.info((error as Error)?.message);
+      if (repo) {
+        const observeHandler = repo['observerHandler'] as { observers: Observer[] } | undefined;
+        if (observeHandler && observeHandler?.observers?.length) {
+          try {
+            repo.unObserve(this.repositoryObserver);
+            this.log.info(`Repository observer detached successfully for repository ${repo.class.name}`);
+          } catch (error: unknown) {
+            this.log.info((error as Error)?.message);
+          }
         }
       }
     }
@@ -713,9 +694,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    *
    * @memberOf ListComponent
    */
-  override async refresh(
-    event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false,
-  ): Promise<void> {
+  override async refresh(event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false): Promise<void> {
+    await super.refresh();
     //  if (typeof force !== 'boolean' && force.type === ComponentEventNames.BackButtonClickEvent) {
     //    const {refresh} = (force as CustomEvent).detail;
     //    if (!refresh)
@@ -731,8 +711,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     this.refreshEventEmit(this.data);
     if (this.type === ListComponentsTypes.INFINITE) {
       if (this.page === this.pages) {
-        if ((event as InfiniteScrollCustomEvent)?.target)
-          (event as InfiniteScrollCustomEvent).target.complete();
+        if ((event as InfiniteScrollCustomEvent)?.target) (event as InfiniteScrollCustomEvent).target.complete();
         this.loadMoreData = false;
       } else {
         this.page += 1;
@@ -764,19 +743,22 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @returns {Promise<void>}
    * @memberOf ListComponent
    */
-  override async handleObserveEvent(
-    clazz: UIFunctionLike,
+  override async handleObserveEvent<M extends Model>(
+    data: M,
+    constructor: UIFunctionLike,
     event: OperationKeys,
-    uid: string | number,
+    uid: string | number
   ): Promise<void> {
     if (event === OperationKeys.CREATE) {
       if (uid) {
-        await this.handleCreate(uid);
+        await this.handleCreate(data, uid);
       } else {
         await this.refresh(true);
       }
     } else {
-      if (event === OperationKeys.UPDATE) await this.handleUpdate(uid);
+      if (event === OperationKeys.UPDATE) {
+        await this.handleUpdate(data, uid);
+      }
       if (event === OperationKeys.DELETE) this.handleDelete(uid);
       this.refreshEventEmit();
     }
@@ -808,9 +790,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @param {string | number} uid - The ID of the item to create.
    * @returns {Promise<void>} A promise that resolves when the item is created and added to the list.
    */
-  async handleCreate(uid: string | number): Promise<void> {
-    const result = await this._repository?.read(uid);
-    const item = (await this.mapResults([result as KeyValue]))[0];
+  async handleCreate(data: Model, uid: string | number): Promise<void> {
+    if (!data || !Object.keys(data).length) {
+      data = (await this._repository?.read(uid)) as Model;
+    }
+    const item = (await this.mapResults([data]))[0];
     this.items = this.data = [item, ...(this.items || [])];
   }
 
@@ -823,8 +807,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @private
    * @memberOf ListComponent
    */
-  async handleUpdate(uid: string | number): Promise<void> {
-    const item = await this._repository?.read(uid);
+  async handleUpdate(item: Model, uid: string | number): Promise<void> {
+    if (!item || !Object.keys(item).length) {
+      item = (await this._repository?.read(uid)) as Model;
+    }
+
     // const item: KeyValue = this.itemMapper((await this._repository?.read(uid)) || {}, this.mapper);
     this.data = [];
     this.changeDetectorRef.detectChanges();
@@ -1044,7 +1031,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     const filtered = results.filter((item: KeyValue) =>
       Object.values(item).some((v) => {
         if (`${v}`.toLowerCase().includes((search as string)?.toLowerCase())) return v;
-      }),
+      })
     );
     return filtered;
   }
@@ -1065,12 +1052,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
   async getFromRequest(force: boolean = false, start: number, limit: number): Promise<KeyValue[]> {
     let data: KeyValue[] = [...(this.data || [])];
 
-    if (
-      !this.data?.length ||
-      force ||
-      (this.searchValue as string)?.length ||
-      !!(this.searchValue as IFilterQuery)
-    ) {
+    if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
       // (self.data as ListItem[]) = [];
       if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
         if (!this.source && !this.data?.length) {
@@ -1090,23 +1072,18 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
               ? [...(this.items || []).concat([...data.slice(start, limit)])]
               : [...(data.slice(start, limit) as KeyValue[])];
       } else {
-        data = await this.parseResult(
-          this.parseSearchResults(this.data as [], this.searchValue as string),
-        );
+        data = await this.parseResult(this.parseSearchResults(this.data as [], this.searchValue as string));
       }
       this.items = [...data];
       if (this.isModalChild) this.changeDetectorRef.detectChanges();
     } else {
       const data = [...(await this.parseResult(this.data as []))];
       this.items =
-        this.type === ListComponentsTypes.INFINITE
-          ? [...(this.items || []), ...(data || [])]
-          : [...(data || [])];
+        this.type === ListComponentsTypes.INFINITE ? [...(this.items || []), ...(data || [])] : [...(data || [])];
       if (this.isModalChild) this.changeDetectorRef.detectChanges();
     }
 
-    if (this.loadMoreData && this.type === ListComponentsTypes.PAGINATED)
-      this.getMoreData(this.data?.length || 0);
+    if (this.loadMoreData && this.type === ListComponentsTypes.PAGINATED) this.getMoreData(this.data?.length || 0);
     return this.data || ([] as KeyValue[]);
   }
 
@@ -1130,34 +1107,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     if (!this._repository) {
       this._repository = this.repository;
     }
-    if (!this.repositoryObserver) {
-      this.repositoryObserver = {
-        refresh: async (...args) => this.handleRepositoryRefresh(...args),
-      };
-    }
-
-    try {
-      // const observerHandler = (this._repository as DecafRepository<Model>)['observerHandler'];
-      // if (!observerHandler)
-      //   (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
-      const observerHandler = (this._repository as DecafRepository<Model>)['observerHandler'] as
-        | { observers: Observer[] }
-        | undefined;
-      if (!observerHandler?.observers?.length)
-        (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
-    } catch (error: unknown) {
-      this.log.info((error as Error)?.message);
-    }
     const repo = this._repository as DecafRepository<Model>;
     if (!this.indexes) {
       this.indexes = Object.keys(Model.indexes(this.model as Model) || {});
     }
-    if (
-      !this.data?.length ||
-      force ||
-      (this.searchValue as string)?.length ||
-      !!(this.searchValue as IFilterQuery)
-    ) {
+    if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
       try {
         if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
           (this.data as KeyValue[]) = [];
@@ -1174,17 +1128,15 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
               .select()
               .where(this.parseConditions(this.searchValue as string | number | IFilterQuery))
               .orderBy((this.sortBy || this.pk) as keyof Model, this.sortDirection)
-              .execute(),
+              .execute()
           );
           data = [];
           this.changeDetectorRef.detectChanges();
         }
-        data =
-          this.type === ListComponentsTypes.INFINITE ? [...data.concat(request)] : [...request];
+        data = this.type === ListComponentsTypes.INFINITE ? [...data.concat(request)] : [...request];
       } catch (error: unknown) {
         this.log.error(
-          (error as Error)?.message ||
-            `Unable to find ${this.model} on registry. Return empty array from component`,
+          (error as Error)?.message || `Unable to find ${this.model} on registry. Return empty array from component`
         );
       }
     }
@@ -1228,7 +1180,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     const model = this.model as Model;
     if (typeof value === Primitives.STRING) {
       _condition = Condition.attribute<Model>(this.pk as keyof Model).eq(
-        this.pkType.toLocaleLowerCase() === Primitives.STRING ? value : Number(value),
+        this.pkType.toLocaleLowerCase() === Primitives.STRING ? value : Number(value)
       );
       for (const index of this.indexes as (keyof Model)[]) {
         if (index === this.pk) continue;
@@ -1257,10 +1209,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         if (index === this.pk || !isNaN(val as number)) {
           val = Number(val);
         }
-        const type = Metadata.type(
-          model.constructor as Constructor<Model>,
-          index as keyof Model,
-        ).name;
+        const type = Metadata.type(model.constructor as Constructor<Model>, index as keyof Model).name;
         if (type === Date.name) {
           val = new Date(val as string);
         }
@@ -1273,9 +1222,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
             orCondition = Condition.attribute<Model>(index as keyof Model).dif(val);
             break;
           case 'Not Contains':
-            orCondition = !Condition.attribute<Model>(index as keyof Model).regexp(
-              new RegExp(`^(?!.*${val}).*$`),
-            );
+            orCondition = !Condition.attribute<Model>(index as keyof Model).regexp(new RegExp(`^(?!.*${val}).*$`));
             break;
           case 'Contains':
             orCondition = Condition.attribute<Model>(index as keyof Model).regexp(val as string);
@@ -1313,13 +1260,13 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
   protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyValue[]> {
     if (!Array.isArray(result) && 'page' in result && 'total' in result) {
       const paginator = result as Paginator<Model>;
+
       try {
         result = await paginator.page(this.page);
         this.getMoreData(paginator.total || this.pages);
       } catch (error: unknown) {
         this.log.info(
-          (error as Error)?.message ||
-            'Unable to get page from paginator. Return empty array from component',
+          (error as Error)?.message || 'Unable to get page from paginator. Return empty array from component'
         );
         result = [];
       }
@@ -1342,7 +1289,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   getMoreData(length: number): void {
     if (this.type === ListComponentsTypes.INFINITE) {
-      if (this.paginator) length = length * this.limit;
+      if (this.paginator) {
+        length = length * this.limit;
+      }
       if (length <= this.limit) {
         this.loadMoreData = false;
       } else {
@@ -1385,9 +1334,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
           let val;
 
           for (const _value of arrayValue)
-            val = !val
-              ? item[_value]
-              : (typeof val === Primitives.STRING ? JSON.parse(val) : val)[_value];
+            val = !val ? item[_value] : (typeof val === Primitives.STRING ? JSON.parse(val) : val)[_value];
 
           if (isValidDate(new Date(val))) val = `${formatDate(val)}`;
 

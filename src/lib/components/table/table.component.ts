@@ -1,19 +1,12 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
-import { IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { OrderDirection } from '@decaf-ts/core';
-import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
-import { SearchbarComponent } from '../searchbar/searchbar.component';
-import { IconComponent } from '../icon/icon.component';
-import { PaginationComponent } from '../pagination/pagination.component';
-import { ListComponent } from '../list/list.component';
-import { getNgxSelectOptionsModal } from '../modal/modal.component';
-import { EmptyStateComponent } from '../empty-state/empty-state.component';
-import { NgxRouterService } from '../../services/NgxRouterService';
-import { FunctionLike, KeyValue, SelectOption } from '../../engine/types';
+import { IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
+import { debounceTime, shareReplay, takeUntil } from 'rxjs';
 import {
   ActionRoles,
   DefaultListEmptyOptions,
@@ -21,9 +14,16 @@ import {
   SelectFieldInterfaces,
 } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
-import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
 import { getModelAndRepository } from '../../engine/helpers';
-import { debounceTime, shareReplay, takeUntil } from 'rxjs';
+import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
+import { FunctionLike, KeyValue, SelectOption } from '../../engine/types';
+import { NgxRouterService } from '../../services/NgxRouterService';
+import { EmptyStateComponent } from '../empty-state/empty-state.component';
+import { IconComponent } from '../icon/icon.component';
+import { ListComponent } from '../list/list.component';
+import { getNgxSelectOptionsModal } from '../modal/modal.component';
+import { PaginationComponent } from '../pagination/pagination.component';
+import { SearchbarComponent } from '../searchbar/searchbar.component';
 
 @Dynamic()
 @Component({
@@ -64,7 +64,7 @@ export class TableComponent extends ListComponent implements OnInit {
   @Input()
   allowOperations: boolean = true;
 
-  routerService: NgxRouterService = inject(NgxRouterService);
+  override routerService: NgxRouterService = inject(NgxRouterService);
 
   private get _cols(): string[] {
     this.mapper = this._mapper;
@@ -79,11 +79,7 @@ export class TableComponent extends ListComponent implements OnInit {
         if (aWeight !== bWeight) {
           return aWeight - bWeight;
         }
-        if (
-          aWeight === 1 &&
-          typeof aSequence === Primitives.NUMBER &&
-          typeof bSequence === Primitives.NUMBER
-        ) {
+        if (aWeight === 1 && typeof aSequence === Primitives.NUMBER && typeof bSequence === Primitives.NUMBER) {
           return aSequence - bSequence;
         }
         return 0;
@@ -112,9 +108,7 @@ export class TableComponent extends ListComponent implements OnInit {
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     this.repositoryObserverSubject
       .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
-      .subscribe(([modelInstance, event, uid]) =>
-        this.handleObserveEvent(modelInstance, event, uid),
-      );
+      .subscribe(([model, action, uid, data]) => this.handleObserveEvent(model, action, uid, data));
     this.cols = this._cols as string[];
 
     this.getOperations();
@@ -145,8 +139,7 @@ export class TableComponent extends ListComponent implements OnInit {
 
   getOperations() {
     if (this.allowOperations) {
-      this.allowOperations =
-        this.isAllowed(OperationKeys.UPDATE) || this.isAllowed(OperationKeys.DELETE);
+      this.allowOperations = this.isAllowed(OperationKeys.UPDATE) || this.isAllowed(OperationKeys.DELETE);
     } else {
       this.operations = [];
     }
@@ -174,16 +167,12 @@ export class TableComponent extends ListComponent implements OnInit {
     }
   }
 
-  protected override async itemMapper(
-    item: KeyValue,
-    mapper: KeyValue,
-    props: KeyValue = {},
-  ): Promise<KeyValue> {
+  protected override async itemMapper(item: KeyValue, mapper: KeyValue, props: KeyValue = {}): Promise<KeyValue> {
     this.model = item as Model;
     const mapped = super.itemMapper(
       item,
       this.cols.filter((c) => c !== 'actions'),
-      props,
+      props
     );
     const { children } = (this.props as KeyValue) || [];
     const entries = Object.entries(mapped);
@@ -229,9 +218,7 @@ export class TableComponent extends ListComponent implements OnInit {
           }
           return value;
         } catch (error) {
-          this.log
-            .for(this.itemMapper)
-            .error(`Error mapping child events. ${(error as Error)?.message || error}`);
+          this.log.for(this.itemMapper).error(`Error mapping child events. ${(error as Error)?.message || error}`);
         }
       };
       const name = this.cols[Number(curr)];
@@ -253,7 +240,7 @@ export class TableComponent extends ListComponent implements OnInit {
     if (!data || !data.length) return [];
 
     return await Promise.all(
-      data.map(async (curr) => await this.itemMapper(curr, this.mapper, { uid: curr[this.pk] })),
+      data.map(async (curr) => await this.itemMapper(curr, this.mapper, { uid: curr[this.pk] }))
     );
   }
 
@@ -261,7 +248,7 @@ export class TableComponent extends ListComponent implements OnInit {
     event: IBaseCustomEvent,
     handler: UIFunctionLike | undefined,
     uid: string,
-    action: CrudOperations,
+    action: CrudOperations
   ): Promise<void> {
     if (handler) {
       const handlerFn = await handler(this, event, uid);
@@ -269,11 +256,7 @@ export class TableComponent extends ListComponent implements OnInit {
     }
     await this.handleRedirect(event, uid, action);
   }
-  async handleRedirect(
-    event: Event | IBaseCustomEvent,
-    uid: string,
-    action: CrudOperations,
-  ): Promise<void> {
+  async handleRedirect(event: Event | IBaseCustomEvent, uid: string, action: CrudOperations): Promise<void> {
     if (event instanceof Event) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -284,17 +267,12 @@ export class TableComponent extends ListComponent implements OnInit {
   }
 
   async openFilterSelectOptions(event: Event): Promise<void> {
-    const type =
-      this.filterOptions.length > 10 ? SelectFieldInterfaces.MODAL : SelectFieldInterfaces.POPOVER;
+    const type = this.filterOptions.length > 10 ? SelectFieldInterfaces.MODAL : SelectFieldInterfaces.POPOVER;
     if (type === SelectFieldInterfaces.MODAL) {
       event.preventDefault();
       event.stopImmediatePropagation();
       const title = await this.translate(`${this.locale}.filter_by`);
-      const modal = await getNgxSelectOptionsModal(
-        title,
-        this.filterOptions as SelectOption[],
-        this.injector,
-      );
+      const modal = await getNgxSelectOptionsModal(title, this.filterOptions as SelectOption[], this.injector);
       this.changeDetectorRef.detectChanges();
       const { data, role } = await modal.onWillDismiss();
       if (role === ActionRoles.confirm && data !== this.filterValue) {

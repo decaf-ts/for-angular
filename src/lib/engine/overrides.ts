@@ -17,7 +17,7 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     alias: string = AxiosFlavour,
     protected enableCredentials: boolean = true
   ) {
-    super(config, alias);
+    super({ eventsListenerPath: '/events', ...config }, alias);
   }
 
   parseStatementURL(url: string): string {

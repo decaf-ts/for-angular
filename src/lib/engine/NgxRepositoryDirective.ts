@@ -1,18 +1,13 @@
 import { Directive, Input } from '@angular/core';
-import { Model, Primitives } from '@decaf-ts/decorator-validation';
-import {
-  CrudOperations,
-  IRepository,
-  OperationKeys,
-  PrimaryKeyType,
-} from '@decaf-ts/db-decorators';
 import { AttributeOption, Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
-import { DecafComponent } from '@decaf-ts/ui-decorators';
-import { DecafRepository, KeyValue } from './types';
+import { CrudOperations, IRepository, OperationKeys, PrimaryKeyType } from '@decaf-ts/db-decorators';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
-import { IFilterQuery } from './interfaces';
-import { Subject } from 'rxjs';
+import { Model, Primitives } from '@decaf-ts/decorator-validation';
+import { DecafComponent } from '@decaf-ts/ui-decorators';
+import { debounceTime, shareReplay, Subject, takeUntil } from 'rxjs';
 import { getModelAndRepository } from './helpers';
+import { IFilterQuery } from './interfaces';
+import { DecafRepository, KeyValue } from './types';
 
 type TransactionResponse<M extends Model> = M | M[] | PrimaryKeyType | PrimaryKeyType[] | undefined;
 
@@ -199,6 +194,8 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
    */
   protected repositoryObserver!: Observer;
 
+  protected destroySubscriptions$ = new Subject<void>();
+
   override async initialize(): Promise<void> {
     if (this.repository) {
       if (this.filter) {
@@ -240,9 +237,36 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   }
 
   override async refresh(model?: unknown): Promise<void> {
+    if (this.repository) {
+      this.observe();
+    }
     if (model && Model.isModel(model)) {
       this.model = Model.build(model as M, this.modelName);
       this._data = model;
+    }
+  }
+
+  observe() {
+    if (!this.repositoryObserver) {
+      this.repositoryObserver = {
+        refresh: async (...args) => this.handleRepositoryRefresh(...args),
+      };
+      try {
+        // const observerHandler = (this._repository as DecafRepository<Model>)['observerHandler'];
+        // if (!observerHandler)
+        //   (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
+        const observerHandler = this.repository?.['observerHandler'] as { observers: Observer[] } | undefined;
+        if (!observerHandler?.observers?.length) {
+          this.repository?.observe(this.repositoryObserver);
+          this.log.for(this.observe).info(`Registered repository observer for model ${this.modelName}`);
+
+          this.repositoryObserverSubject
+            .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
+            .subscribe(([model, action, uid, data]) => this.handleObserveEvent(data, model, action, uid));
+        }
+      } catch (error: unknown) {
+        this.log.info((error as Error)?.message);
+      }
     }
   }
 
@@ -262,7 +286,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
       return condition.eq(
         [Primitives.NUMBER, Primitives.BIGINT].includes(type as Primitives)
           ? Number(this.modelId)
-          : (this.modelId as PrimaryKeyType),
+          : (this.modelId as PrimaryKeyType)
       );
     }
     return condition.dif(null);
@@ -277,9 +301,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
       if (pk && this._context) {
         pk = Model.pk(this._context.class) as PrimaryKeyType;
       }
-      data = data
-        .map((item) => (item as KeyValue)[pk as string | number])
-        .filter(Boolean) as PrimaryKeyType[];
+      data = data.map((item) => (item as KeyValue)[pk as string | number]).filter(Boolean) as PrimaryKeyType[];
     } else {
       data = [data] as PrimaryKeyType[];
     }
@@ -289,7 +311,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   async query(
     condition?: Condition<M>,
     sortBy: keyof M = (this.sortBy || this.pk) as keyof M,
-    sortDirection: OrderDirection = this.sortDirection,
+    sortDirection: OrderDirection = this.sortDirection
   ): Promise<M[]> {
     if (!condition) {
       condition = this.buildCondition();
@@ -314,7 +336,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   async paginate(
     limit: number = this.limit,
     sortDirection: OrderDirection = this.sortDirection,
-    condition?: Condition<M>,
+    condition?: Condition<M>
   ): Promise<Paginator<M>> {
     if (!condition) {
       condition = this.buildCondition();
@@ -329,7 +351,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   protected async transactionBegin<M extends Model>(
     data: M,
     repository: DecafRepository<M>,
-    operation: CrudOperations,
+    operation: CrudOperations
   ): Promise<M | M[] | PrimaryKeyType | undefined> {
     try {
       const hook = `before${operation.charAt(0).toUpperCase() + operation.slice(1)}`;
@@ -351,7 +373,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   protected async transactionEnd<M extends Model>(
     model: M,
     repository: DecafRepository<M>,
-    operation: CrudOperations,
+    operation: CrudOperations
   ): Promise<TransactionResponse<M>> {
     try {
       const hook = `after${operation.charAt(0).toUpperCase() + operation.slice(1)}`;
@@ -384,19 +406,16 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   protected buildTransactionModel<M extends Model>(
     data: KeyValue | KeyValue[],
     repository: DecafRepository<M>,
-    operation?: OperationKeys,
+    operation?: OperationKeys
   ): TransactionResponse<M> {
     if (!operation) {
       operation = this.operation as OperationKeys;
     }
     operation = (
-      [OperationKeys.READ, OperationKeys.DELETE].includes(operation)
-        ? OperationKeys.DELETE
-        : operation.toLowerCase()
+      [OperationKeys.READ, OperationKeys.DELETE].includes(operation) ? OperationKeys.DELETE : operation.toLowerCase()
     ) as OperationKeys;
 
-    if (Array.isArray(data))
-      return data.map((item) => this.buildTransactionModel(item, repository, operation)) as M[];
+    if (Array.isArray(data)) return data.map((item) => this.buildTransactionModel(item, repository, operation)) as M[];
 
     const pk = Model.pk(repository.class as Constructor<M>) as string;
     const pkType = Metadata.type(repository.class as Constructor<M>, pk as string).name;
@@ -408,21 +427,13 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     if (operation !== OperationKeys.DELETE) {
       const properties = Metadata.properties(repository.class as Constructor<M>) as string[];
       const relation =
-        pk === this.pk
-          ? {}
-          : properties.includes(this.pk) && !data[this.pk]
-            ? { [this.pk]: modelId }
-            : {};
+        pk === this.pk ? {} : properties.includes(this.pk) && !data[this.pk] ? { [this.pk]: modelId } : {};
       if (!String(data?.[pk] || '').trim().length) {
         data[pk] = undefined;
       }
       return Model.build(
-        Object.assign(
-          data || {},
-          relation,
-          modelId && !data[this.pk] ? { [this.pk]: modelId } : {},
-        ),
-        repository.class.name,
+        Object.assign(data || {}, relation, modelId && !data[this.pk] ? { [this.pk]: modelId } : {}),
+        repository.class.name
       ) as M;
     }
     return uid as PrimaryKeyType;
@@ -434,9 +445,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   }
 
   protected parsePkValue(value: PrimaryKeyType, type: string): PrimaryKeyType {
-    return [Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase() as Primitives)
-      ? Number(value)
-      : value;
+    return [Primitives.NUMBER, Primitives.BIGINT].includes(type.toLowerCase() as Primitives) ? Number(value) : value;
   }
 
   protected getModelConstrutor(model: string | Model): Constructor<Model> | undefined {
@@ -451,12 +460,8 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     try {
       return Metadata.type(constructor as Constructor<M>, prop as string)?.name;
     } catch (error: unknown) {
-      this.log
-        .for(this)
-        .info(`${(error as Error)?.message || String(error)}. Tryng get with table Name`);
-      constructor = Model.get(
-        Model.tableName(this.repository.class as Constructor<M>) as string,
-      ) as Constructor<M>;
+      this.log.for(this).info(`${(error as Error)?.message || String(error)}. Tryng get with table Name`);
+      constructor = Model.get(Model.tableName(this.repository.class as Constructor<M>) as string) as Constructor<M>;
       return Metadata.type(constructor, prop as string)?.name;
     }
   }
@@ -475,9 +480,9 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
    * @returns {Promise<void>}
    */
   async handleRepositoryRefresh(...args: unknown[]): Promise<void> {
-    const [modelInstance, event, uid] = args;
-    if ([OperationKeys.CREATE, OperationKeys.DELETE].includes(event as OperationKeys))
-      return this.handleObserveEvent(modelInstance, event, uid as string | number);
+    const [model, action, uid, data] = args;
+    if ([OperationKeys.CREATE, OperationKeys.DELETE].includes(action as OperationKeys))
+      return this.handleObserveEvent(data, model, action, uid as string | number, data);
     return this.repositoryObserverSubject.next(args);
   }
 
