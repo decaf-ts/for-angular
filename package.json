@@ -133,9 +133,5 @@
   "overrides": {
     "minimatch": "^10.2.2",
     "test-exclude": "7.0.1"
-  },
-  "browser": {
-    "worker_threads": false,
-    "node:worker_threads": false
   }
 }

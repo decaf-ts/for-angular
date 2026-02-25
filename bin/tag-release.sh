@@ -137,5 +137,5 @@ fi
 
 if [[ "$MESSAGE" =~ -no-ci$ ]]; then
   # Use .npmtoken for publishing; respect chosen access level
-  NPM_TOKEN=$(cat .npmtoken) npm publish --access "$NPM_ACCESS_VALUE"
+  NPM_TOKEN=$(cat .npmtoken) npm publish ./dist/lib --access "$NPM_ACCESS_VALUE"
 fi
