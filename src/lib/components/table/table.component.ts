@@ -64,7 +64,7 @@ export class TableComponent extends ListComponent implements OnInit {
   @Input()
   allowOperations: boolean = true;
 
-  override routerService: NgxRouterService = inject(NgxRouterService);
+  routerService: NgxRouterService = inject(NgxRouterService);
 
   private get _cols(): string[] {
     this.mapper = this._mapper;

@@ -33,7 +33,6 @@ import { OverlayBaseController } from '@ionic/angular/common';
 import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
 import { shareReplay, takeUntil } from 'rxjs';
 import { getLocaleContext } from '../i18n/Loader';
-import { NgxRouterService } from '../services';
 import { NgxMediaService } from '../services/NgxMediaService';
 import { NgxTranslateService } from '../services/NgxTranslateService';
 import { generateRandomValue, getWindow, setOnWindow } from '../utils';
@@ -381,8 +380,6 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   override router: Router = inject(Router);
-
-  routerService: NgxRouterService = inject(NgxRouterService);
 
   /**
    * @description Current locale identifier for component internationalization.

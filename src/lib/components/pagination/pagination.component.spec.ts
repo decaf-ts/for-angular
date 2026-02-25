@@ -1,10 +1,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { ForAngularCommonModule } from '../../for-angular-common.module';
-import { PaginationComponent } from './pagination.component';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { IonIcon } from '@ionic/angular/standalone';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { I18nFakeLoader } from '../../i18n';
-
+import { PaginationComponent } from './pagination.component';
 
 const imports = [
   ForAngularCommonModule,
@@ -13,9 +12,9 @@ const imports = [
   TranslateModule.forRoot({
     loader: {
       provide: TranslateLoader,
-      useClass: I18nFakeLoader
-    }
-  })
+      useClass: I18nFakeLoader,
+    },
+  }),
 ];
 
 describe('PaginationComponent', () => {

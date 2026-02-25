@@ -46,7 +46,7 @@ import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/help
   standalone: true,
 })
 export class AppSelectFieldComponent extends CrudFieldComponent implements OnDestroy {
-  override routerService: NgxRouterService = inject(NgxRouterService);
+  routerService: NgxRouterService = inject(NgxRouterService);
 
   override async onDestroy(): Promise<void> {
     super.onDestroy();

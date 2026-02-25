@@ -1,15 +1,8 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { ForAngularCommonModule } from '../../for-angular-common.module';
-import { ListComponent } from './list.component';
-import { NgxRenderingEngine } from '../../engine';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { I18nFakeLoader } from '../../i18n';
-
-try {
-  new NgxRenderingEngine();
-} catch (e) {
-  // Component already registered
-}
+import { ListComponent } from './list.component';
 
 const imports = [
   ForAngularCommonModule,
@@ -17,9 +10,9 @@ const imports = [
   TranslateModule.forRoot({
     loader: {
       provide: TranslateLoader,
-      useClass: I18nFakeLoader
-    }
-  })
+      useClass: I18nFakeLoader,
+    },
+  }),
 ];
 
 describe('ListComponent', () => {
@@ -29,9 +22,10 @@ describe('ListComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports,
-    }).overrideComponent(ListComponent, {
-      add: {
-         template: `
+    })
+      .overrideComponent(ListComponent, {
+        add: {
+          template: `
           <ion-content>
             <ion-list [inset]="inset" [lines]="lines" #component>
               <ng-content></ng-content>
@@ -44,10 +38,10 @@ describe('ListComponent', () => {
               <ion-infinite-scroll-content [loadingSpinner]="loadingSpinner" [loadingText]="loadingText" />
             </ion-infinite-scroll>
           </ion-content>
-         `
-      }
-   }).compileComponents();
-
+         `,
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ListComponent);
     component = fixture.componentInstance;
