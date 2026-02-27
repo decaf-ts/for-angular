@@ -95,14 +95,6 @@ export class Product extends Cacheable {
   @uilayoutprop(1)
   productRecall: boolean = false;
 
-  @uielement('ngx-decaf-card', {
-    title: 'product.section.image.title',
-    name: 'separator',
-    separator: true,
-  })
-  @uilayoutprop(1)
-  productImageTitle!: string;
-
   //@cache()
   @oneToOne(
     () => ProductImage,

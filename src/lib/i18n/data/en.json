@@ -151,6 +151,7 @@
       "cancel": "Cancel"
     },
     "file_upload": {
+      "label": "Files",
       "drag_file": "Drag and drop your image here",
       "empty": "No files found.",
       "preview": "Preview",

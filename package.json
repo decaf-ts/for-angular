@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "npx rimraf .angular && ng run for-angular-app:serve --host=localhost --port=8110",
     "decaf": "npx decaf angular generate",
+    "start:ptp": "npx rimraf .angular && ng serve --host 0.0.0.0 --allowed-hosts all --port=8130 --configuration development",
     "schematics": "schematics",
     "do-install": "NPM_TOKEN=$(cat .npmtoken) npm install",
     "update-scripts": "npx update-scripts",

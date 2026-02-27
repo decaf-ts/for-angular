@@ -1,4 +1,18 @@
 .decaf-file-component {
+  ion-label {
+    font-weight: bold;
+    display: block;
+    margin: 0.75rem;
+    margin-bottom: 0px !important;
+    font-size: 0.925rem;
+    font-weight: 1rem !important;
+    color: var(--dcf-color-gray-8) !important;
+    ion-text {
+      font-weight: initial;
+      position: relative;
+      top: 0.8rem;
+    }
+  }
   &.dcf-palette-dark {
     .dcf-button-select {
       --background: rgb(var(--dcf-color-light-rgb), 0.1) !important;
