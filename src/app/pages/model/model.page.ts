@@ -127,8 +127,6 @@ export class ModelPage extends NgxModelPageDirective implements OnInit {
   async ngOnInit(): Promise<void> {
     await super.initialize();
     this.enableCrudOperations();
-
-    console.log(this.modelId);
   }
 
   // override async ionViewWillEnter(): Promise<void> {

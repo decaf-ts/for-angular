@@ -9,14 +9,14 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { IonIcon } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
+import { IPaginationCustomEvent } from '../../engine/interfaces';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { KeyValue } from '../../engine/types';
-import { IPaginationCustomEvent } from '../../engine/interfaces';
-import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 
 /**
  * @description A pagination component for navigating through multiple pages of content.
@@ -90,7 +90,7 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    * @memberOf PaginationComponent
    */
   @Input()
-  current = 1;
+  current: number = 1;
 
   /**
    * @description Array of page objects for rendering in the template.
@@ -110,6 +110,16 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    * @memberOf PaginationComponent
    */
   last!: number;
+
+  /**
+   * @description Determines whether to truncate the displayed pages in the pagination.
+   * @summary If true, the pagination component will display a subset of pages with ellipses to indicate skipped pages. If false, all pages will be displayed.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf PaginationComponent
+   */
+  truncatePages: boolean = false;
 
   /**
    * @description Event emitter for pagination navigation events.
@@ -233,26 +243,29 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
         class: clazz,
       });
     }
-
-    if (total <= 5) {
+    if (!this.truncatePages) {
       for (let i = 1; i <= total; i++) getPage(i);
     } else {
-      // Adiciona os dois primeiros
-      getPage(1);
-      getPage(2);
+      if (total <= 5) {
+        for (let i = 1; i <= total; i++) getPage(i);
+      } else {
+        // Adiciona os dois primeiros
+        getPage(1);
+        getPage(2);
 
-      // Adiciona "..." entre os blocos
-      if (current && current > 3) getPage(null, '...');
+        // Adiciona "..." entre os blocos
+        if (current && current > 3) getPage(null, '...');
 
-      // Adiciona a página atual (se estiver no meio)
-      if (current && current > 2 && current < total - 1) getPage(current);
+        // Adiciona a página atual (se estiver no meio)
+        if (current && current > 2 && current < total - 1) getPage(current);
 
-      // Adiciona "..." entre os blocos
-      if (current && current < total - 2) getPage(null, '...', 'separator');
+        // Adiciona "..." entre os blocos
+        if (current && current < total - 2) getPage(null, '...', 'separator');
 
-      // Adiciona os dois últimos
-      getPage(total - 1);
-      getPage(total);
+        // Adiciona os dois últimos
+        getPage(total - 1);
+        getPage(total);
+      }
     }
 
     return pages;

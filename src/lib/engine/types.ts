@@ -6,38 +6,31 @@
  *
  * @link {@link KeyValue}
  */
-import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
-import { TextFieldTypes } from '@ionic/core';
+import { EnvironmentProviders, Provider } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import {
-  FormServiceControl,
-  I18nResourceConfig,
-  IBaseCustomEvent,
-  ICrudFormEvent,
-  InputOption,
-} from './interfaces';
 import { Adapter, Repository } from '@decaf-ts/core';
 import { Context, CrudOperations, RepositoryFlags } from '@decaf-ts/db-decorators';
+import { Constructor } from '@decaf-ts/decoration';
 import { ComparisonValidationKeys, Model } from '@decaf-ts/decorator-validation';
-import { ActionRoles, ListItemPositions, WindowColorSchemes } from './constants';
 import {
   DecafComponent,
-  HTML5InputTypes,
-  UIFunctionLike,
   ElementPositions,
   ElementSizes,
+  HTML5InputTypes,
   LayoutGridGaps,
+  UIFunctionLike,
 } from '@decaf-ts/ui-decorators';
-import { Constructor } from '@decaf-ts/decoration';
-import { EnvironmentProviders, Provider } from '@angular/core';
+import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
+import { TextFieldTypes } from '@ionic/core';
+import { ActionRoles, ListItemPositions, WindowColorSchemes } from './constants';
+import { FormServiceControl, I18nResourceConfig, IBaseCustomEvent, ICrudFormEvent, InputOption } from './interfaces';
 import { NgxComponentDirective } from './NgxComponentDirective';
 
 /**
  * Represents a validation key used for comparison-based validations.
  * Extracted from the ComparisonValidationKeys object to ensure type safety.
  */
-export type ComparisonValidationKey =
-  (typeof ComparisonValidationKeys)[keyof typeof ComparisonValidationKeys];
+export type ComparisonValidationKey = (typeof ComparisonValidationKeys)[keyof typeof ComparisonValidationKeys];
 
 export interface RawQuery<M extends Model> {
   select: undefined | (keyof M)[];
@@ -54,10 +47,7 @@ export type DecafRepositoryAdapter<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 > = Adapter<any, C, RawQuery<any>, any>;
 
-export type DecafRepository<M extends Model> = Repository<
-  M,
-  DecafRepositoryAdapter<RepositoryFlags, Context>
->;
+export type DecafRepository<M extends Model> = Repository<M, DecafRepositoryAdapter<RepositoryFlags, Context>>;
 
 /**
  * @description Generic key-value pair type
@@ -151,16 +141,7 @@ export type PossibleInputTypes = TextFieldTypes | HTML5InputType;
  */
 export type AngularFieldDefinition = Omit<
   IonInput,
-  | 'ionInput'
-  | 'ionFocus'
-  | 'ionChange'
-  | 'ionBlur'
-  | 'getInputElement'
-  | 'setFocus'
-  | 'label'
-  | 'el'
-  | 'z'
-  | 'type'
+  'ionInput' | 'ionFocus' | 'ionChange' | 'ionBlur' | 'getInputElement' | 'setFocus' | 'label' | 'el' | 'z' | 'type'
 > &
   Pick<IonSelect, 'cancelText' | 'interface' | 'selectedText' | 'interfaceOptions'> &
   Pick<IonTextarea, 'rows' | 'cols'> &
@@ -299,3 +280,5 @@ export type DecafComponentConstructor = DecafComponent<Model>;
 export type CrudEvent<M extends Model> = IBaseCustomEvent &
   ICrudFormEvent &
   CustomEvent & { data: M; role?: CrudOperations };
+
+export type FilterCondition = 'Equal' | 'Contains' | 'Not Contains' | 'Greater Than' | 'Less Than' | 'Not Equal';

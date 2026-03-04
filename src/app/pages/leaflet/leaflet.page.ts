@@ -42,7 +42,5 @@ export class LeafletPage extends NgxModelPageDirective implements OnInit {
 
   override async ionViewWillEnter(): Promise<void> {
     await super.ionViewWillEnter();
-    console.log(this._data);
-    console.log(this.model);
   }
 }

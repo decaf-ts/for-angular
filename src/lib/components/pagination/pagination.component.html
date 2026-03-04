@@ -1,27 +1,56 @@
- <div [id]="uid" class="dcf-paginator-container dcf-flex dcf-flex-center" #component>
+<div
+  [id]="uid"
+  class="dcf-paginator-container dcf-flex dcf-flex-center"
+  #component
+>
   <div class="dcf-width-1-1">
-    <div class="dcf-pagination-resume" [innerHTML]="locale + '.resume' | translate:{'0': current, '1': last}"></div>
-    <div #paginationComponent class="dcf-pagination dcf-flex-center">
-      <div
-        aria-label="previous"
-        tabindex="0"
-        (click)="previous()"
-        (keydown.enter)="previous()" [class.dcf-disabled]="current === 1">
-        <ion-icon name="chevron-back-outline" aria-hidden="true"></ion-icon>
-      </div>
-      @for(page of pages; track page) {
-        <div tabindex="0" [class]="page['class']" (click)="navigate(page['index'])"
+    <div
+      class="dcf-pagination-resume"
+      [innerHTML]="locale + '.resume' | translate: { '0': current, '1': last }"
+    ></div>
+
+    <div
+      #paginationComponent
+      class="dcf-pagination dcf-flex-center"
+    >
+      @if (pages?.length > 1) {
+        <div
+          aria-label="previous"
+          tabindex="0"
+          (click)="previous()"
+          (keydown.enter)="previous()"
+          [class.dcf-disabled]="current === 1"
+        >
+          <ion-icon
+            name="chevron-back-outline"
+            aria-hidden="true"
+          ></ion-icon>
+        </div>
+      }
+      @for (page of pages; track page) {
+        <div
+          tabindex="0"
+          [class]="page['class']"
+          (click)="navigate(page['index'])"
           (keydown.enter)="navigate(page['index'])"
-          [class.dcf-active]="current === page['index']">
+          [class.dcf-active]="current === page['index']"
+        >
           <span class="page-item">{{ page['text'] }}</span>
         </div>
       }
-      <div
-        tabindex="0" (click)="next()"
-        (keydown.enter)="next()"
-        [class.dcf-disabled]="current === last">
-        <ion-icon name="chevron-forward-outline" aria-hidden="true"></ion-icon>
-      </div>
+      @if (pages?.length > 1) {
+        <div
+          tabindex="0"
+          (click)="next()"
+          (keydown.enter)="next()"
+          [class.dcf-disabled]="current === last"
+        >
+          <ion-icon
+            name="chevron-forward-outline"
+            aria-hidden="true"
+          ></ion-icon>
+        </div>
+      }
     </div>
   </div>
 </div>

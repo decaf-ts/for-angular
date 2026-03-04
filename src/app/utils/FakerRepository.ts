@@ -201,7 +201,7 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
         //   break;
         // }
         default:
-          data = [];
+          data = await this.generateData();
       }
       try {
         //   data = await Promise.all(data.map(async (item: Partial<Model>) => {

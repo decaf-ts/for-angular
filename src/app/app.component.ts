@@ -1,30 +1,31 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { RamFlavour } from '@decaf-ts/core/ram';
 import { uses } from '@decaf-ts/decoration';
+import { Model, ModelConstructor, ModelKeys } from '@decaf-ts/decorator-validation';
 import {
   IonApp,
-  IonSplitPane,
-  IonMenu,
   IonContent,
-  IonList,
-  IonMenuToggle,
   IonItem,
   IonLabel,
-  IonRouterOutlet,
+  IonList,
+  IonMenu,
+  IonMenuToggle,
   IonRouterLink,
+  IonRouterOutlet,
+  IonSplitPane,
 } from '@ionic/angular/standalone';
-import { Model, ModelConstructor, ModelKeys } from '@decaf-ts/decorator-validation';
-import { IMenuItem, NgxPageDirective } from '../lib/engine';
-import { isDevelopmentMode } from '../lib/utils';
-import { FakerRepository } from 'src/app/utils/FakerRepository';
-import { LogoComponent } from './components/logo/logo.component';
-import { AppModels, AppName } from './app.config';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IconComponent } from 'src/lib/components';
 import { getDbAdapterFlavour } from 'src/lib/engine/helpers';
-import { RamFlavour } from '@decaf-ts/core/ram';
+import { NgxPageDirective } from '../lib/engine';
+import { isDevelopmentMode } from '../lib/utils';
+import { AppName } from './app.config';
+import { LogoComponent } from './components/logo/logo.component';
 import { AppMenu } from './ew/utils/constants';
 import { IAppMenuItem } from './ew/utils/interfaces';
+import { CategoryModel } from './models/CategoryModel';
+import { FakerRepository } from './utils/FakerRepository';
 
 @Component({
   standalone: true,
@@ -74,42 +75,41 @@ export class AppComponent extends NgxPageDirective implements OnInit {
   override async initialize(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
     const populate = [
-      'Audit',
-      'Product',
-      'ProductStrength',
-      'Batch',
-      'Leaflet',
-      //
-      // 'ProductImage',
+      // 'Audit',
+      // 'Product',
+      // 'ProductStrength',
+      // 'Batch',
+      // 'Leaflet',
+      // //
+      // // 'ProductImage',
 
+      // 'CategoryModel',
+      // 'AIVendorModel',
       'CategoryModel',
-      'AIVendorModel',
     ];
     const menu = [];
-    const models = AppModels;
+    // const models = AppModels;
+    const models = [new CategoryModel()];
     const dbAdapterFlavour = getDbAdapterFlavour();
-    // for (let model of models) {
-    //   uses(dbAdapterFlavour)(model);
-    //   if (model instanceof Function)
-    //     model = new (model as unknown as ModelConstructor<typeof model>)();
-    //   const name = model.constructor.name.replace(/[0-9]/g, '');
-    //   if (isDevelopment && dbAdapterFlavour.includes(RamFlavour)) {
-    //     if (populate.includes(name)) await new FakerRepository(model, 36).initialize();
-    //   }
-    //   const label = name.toLowerCase().replace(ModelKeys.MODEL, '');
-    //   if (!menu.length) menu.push({ label: 'models' });
-    //   menu.push({
-    //     label: `${label}`,
-    //     url: `/model/${Model.tableName(model)}`,
-    //     icon: 'cube-outline',
-    //   });
-    // }
+    for (let model of models) {
+      uses(dbAdapterFlavour)(model);
+      if (model instanceof Function) {
+        model = new (model as unknown as ModelConstructor<typeof model>)();
+      }
+      const name = model.constructor.name.replace(/[0-9]/g, '');
+      if (dbAdapterFlavour.includes(RamFlavour)) {
+        if (populate.includes(name)) await new FakerRepository(model, 11).initialize();
+      }
+      const label = name.toLowerCase().replace(ModelKeys.MODEL, '');
+      if (!menu.length) menu.push({ label: 'models' });
+      menu.push({
+        label: `${label}`,
+        url: `/model/${Model.tableName(model)}`,
+        icon: 'cube-outline',
+      });
+    }
     this.initialized = true;
     this.menu = [
-      {
-        label: 'Categories',
-        url: `/model/CategoryModel`,
-      },
       // DashboardMenuItem,
       // ...EwMenu,
       // ...(menu as IMenuItem[]),
@@ -123,9 +123,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
   isMenuActive(item: IAppMenuItem & { activeWhen: string[] }): boolean {
     const { url, activeWhen } = item;
     return (
-      (url?.length &&
-        (url === this.currentRoute || (activeWhen || []).includes(this.currentRoute as string))) ||
-      false
+      (url?.length && (url === this.currentRoute || (activeWhen || []).includes(this.currentRoute as string))) || false
     );
   }
 

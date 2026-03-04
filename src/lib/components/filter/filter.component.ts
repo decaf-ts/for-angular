@@ -8,40 +8,32 @@
  * @link {@link FilterComponent}
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild,
-} from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { debounceTime, fromEvent, shareReplay, Subscription, takeUntil } from 'rxjs';
+import { NavigationStart } from '@angular/router';
+import { OrderDirection } from '@decaf-ts/core';
+import { Constructor } from '@decaf-ts/decoration';
+import { Model } from '@decaf-ts/decorator-validation';
 import { IonButton, IonChip, IonIcon, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
+import { addIcons } from 'ionicons';
 import {
-  chevronDownOutline,
-  trashOutline,
-  closeOutline,
-  searchOutline,
   arrowDownOutline,
   arrowUpOutline,
+  chevronDownOutline,
   chevronUpOutline,
+  closeOutline,
+  searchOutline,
+  trashOutline,
 } from 'ionicons/icons';
-import { addIcons } from 'ionicons';
-import { Model } from '@decaf-ts/decorator-validation';
-import { OrderDirection } from '@decaf-ts/core';
+import { debounceTime, fromEvent, shareReplay, Subscription, takeUntil } from 'rxjs';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
 import { IFilterQuery, IFilterQueryItem } from '../../engine/interfaces';
+import { FilterCondition } from '../../engine/types';
 import { getWindowWidth } from '../../utils/helpers';
-import { SearchbarComponent } from '../searchbar/searchbar.component';
-import { Constructor } from '@decaf-ts/decoration';
 import { IconComponent } from '../icon/icon.component';
-import { NavigationStart } from '@angular/router';
+import { SearchbarComponent } from '../searchbar/searchbar.component';
 
 /**
  * @description Advanced filter component for creating dynamic search filters with step-by-step construction.
@@ -139,14 +131,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   @Input()
-  conditions: string[] = [
-    'Equal',
-    'Contains',
-    'Not Contains',
-    'Greater Than',
-    'Less Than',
-    'Not Equal',
-  ];
+  conditions: FilterCondition[] = ['Equal', 'Contains', 'Not Contains', 'Greater Than', 'Less Than', 'Not Equal'];
 
   /**
    * @description Available sorting options for the filtered data.
@@ -159,7 +144,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   @Input()
-  sortOptions: string[] = [];
+  sortOptions: { label: string; value: string }[] = [];
 
   /**
    * @description Controls whether sorting functionality is disabled.
@@ -296,9 +281,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   @Output()
-  filterEvent: EventEmitter<IFilterQuery | undefined> = new EventEmitter<
-    IFilterQuery | undefined
-  >();
+  filterEvent: EventEmitter<IFilterQuery | undefined> = new EventEmitter<IFilterQuery | undefined>();
 
   /**
    * @description Event emitter for search events.
@@ -368,7 +351,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
     this.router.events.pipe(takeUntil(this.destroySubscriptions$)).subscribe(async (event) => {
       if (event instanceof NavigationStart) await this.ngOnDestroy();
     });
-    this.getIndexes();
+    await this.getSortOptions();
     this.initialize();
   }
 
@@ -381,10 +364,22 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @returns {void}
    * @memberOf FilterComponent
    */
-  override getIndexes(): string[] {
+  async getSortOptions(): Promise<string[]> {
     const indexes = super.getIndexes(this.model as Model);
+    const modelName = this.model?.constructor?.name || '';
+    const translate = async (value: string): Promise<string> => {
+      return (await this.translate(`${modelName ? modelName + '.' : ''}${value}`)).replace(`${modelName}.`, '');
+    };
     if (!this.disableSort) {
-      this.sortOptions = [...this.sortOptions, ...indexes];
+      const options = this.sortOptions.map(async (option) => ({
+        label: await translate(option.value),
+        value: option.value,
+      }));
+      const indexOptions = indexes.map(async (value) => ({
+        label: await translate(value),
+        value,
+      }));
+      this.sortOptions = [...(await Promise.all(options)), ...(await Promise.all(indexOptions))];
       if (this.repository) {
         const pk = Model.pk(this.repository.class as Constructor<Model>);
         this.sortValue = pk || this.sortValue;
@@ -591,11 +586,11 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * Only value options can be removed individually; index and condition options are part
    * of the complete filter structure and cannot be removed separately.
    *
-   * @param {string} option - The filter option text to check
+   * @param {FilterCondition} option - The filter option to check
    * @returns {boolean} True if the option can be cleared individually, false otherwise
    * @memberOf FilterComponent
    */
-  allowClear(option: string): boolean {
+  allowClear(option: FilterCondition): boolean {
     return this.indexes.indexOf(option) === -1 && this.conditions.indexOf(option) === -1;
   }
 
@@ -632,7 +627,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
     }
     this.value = '';
     this.filterValue = this.filterValue.filter(
-      (item) => item?.['value'] && cleanString(item?.['value']) !== cleanString(filter),
+      (item) => item?.['value'] && cleanString(item?.['value']) !== cleanString(filter)
     );
     if (this.filterValue.length === 0) {
       this.step = 1;
@@ -708,8 +703,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   handleSortDirectionChange(): void {
-    const direction =
-      this.sortDirection === OrderDirection.ASC ? OrderDirection.DSC : OrderDirection.ASC;
+    const direction = this.sortDirection === OrderDirection.ASC ? OrderDirection.DSC : OrderDirection.ASC;
     if (direction !== this.sortDirection) {
       this.sortDirection = direction;
       this.submit();
@@ -779,9 +773,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
         break;
       }
     }
-    return this.options.filter((option: string) =>
-      option.toLowerCase().includes(value.toLowerCase() as string),
-    );
+    return this.options.filter((option: string) => option.toLowerCase().includes(value.toLowerCase() as string));
   }
 
   /**

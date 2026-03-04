@@ -142,7 +142,17 @@
       "step2": "Select a condition",
       "step3": "Type a value",
       "no_suggestions": "No suggestions",
-      "sort": "Sort by"
+      "sort": "Sort by",
+      "operators": {
+        "equal": "Equal",
+        "contains": "Contains",
+        "not_contains": "Not Contains",
+        "greater_than": "Greater Than",
+        "less_than": "Less Than",
+        "not_equal": "Not Equal",
+        "starts_with": "Starts With",
+        "ends_with": "Ends With"
+      }
     },
     "stepped_form": {
       "next": "Next",

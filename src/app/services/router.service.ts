@@ -1,12 +1,12 @@
-import { inject, Injectable } from '@angular/core';
 import { Location } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NavController } from '@ionic/angular/standalone';
-import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
+import { inject, Injectable } from '@angular/core';
+import { ActivatedRoute, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { KeyValue } from '../../lib/engine/types';
+import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
+import { NavController } from '@ionic/angular/standalone';
 import { RouteDirections } from '../../lib/engine/constants';
+import { KeyValue } from '../../lib/engine/types';
 
 /**
  * @description Service for handling routing operations in the application.
@@ -92,6 +92,37 @@ export class RouterService {
    * @memberOf RouterService
    */
   // constructor() {}
+  /**
+   * @description Retrieves the route configuration for the currently active route.
+   * @summary Navigates through the route tree to find the most deeply nested (leaf) route
+   * and returns its configuration. This is useful for accessing route-specific metadata,
+   * guards, and component information.
+   *
+   * @return {Route | undefined} The route configuration object of the active route, or undefined if not found
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant C as Component
+   *   participant R as RouterService
+   *   participant RS as RouterState
+   *
+   *   C->>R: currentRouteConfig
+   *   R->>RS: Get routerState.snapshot.root
+   *   loop While route has firstChild
+   *     R->>R: Navigate to firstChild
+   *   end
+   *   R->>R: Extract routeConfig from leaf route
+   *   R-->>C: Return route configuration
+   *
+   * @memberOf RouterService
+   */
+  get currentRouteConfig(): ActivatedRouteSnapshot {
+    let route = this.router.routerState.snapshot.root;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+    return route;
+  }
 
   /**
    * @description Parses query parameters from the current route.
@@ -299,10 +330,7 @@ export class RouterService {
    */
   getPreviousUrl(): string {
     const currentNavigation = this.router.getCurrentNavigation();
-    if (
-      !!currentNavigation &&
-      currentNavigation.previousNavigation?.finalUrl?.toString() !== undefined
-    )
+    if (!!currentNavigation && currentNavigation.previousNavigation?.finalUrl?.toString() !== undefined)
       this.previousUrl = currentNavigation.previousNavigation?.finalUrl?.toString();
     return this.previousUrl as string;
   }
@@ -334,7 +362,7 @@ export class RouterService {
         composed: true,
         cancelable: false,
         detail: { refres: true },
-      }),
+      })
     );
     this.location.back();
   }
@@ -371,11 +399,10 @@ export class RouterService {
   async navigateTo(
     page: string,
     direction: RouteDirections = RouteDirections.FORWARD,
-    options?: NavigationOptions,
+    options?: NavigationOptions
   ): Promise<boolean> {
     if (direction === RouteDirections.ROOT) return this.navController.navigateRoot(page, options);
-    if (direction === RouteDirections.FORWARD)
-      return await this.navController.navigateForward(page, options);
+    if (direction === RouteDirections.FORWARD) return await this.navController.navigateForward(page, options);
     return await this.navController.navigateBack(page, options);
   }
 }

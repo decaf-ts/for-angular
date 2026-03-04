@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { IonContent, IonHeader } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { LogoComponent } from 'src/app/components/logo/logo.component';
 import { LoginForm } from 'src/app/forms/LoginForm';
@@ -41,7 +41,7 @@ import { NgxPageDirective } from 'src/lib/engine/NgxPageDirective';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, CardComponent, LogoComponent, ContainerComponent, ModelRendererComponent],
+  imports: [IonContent, CardComponent, LogoComponent, ContainerComponent, ModelRendererComponent],
 })
 export class LoginPage extends NgxPageDirective implements OnInit {
   constructor() {
