@@ -257,7 +257,7 @@ export class DecafTranslatePipe implements PipeTransform {
   translate: TranslateService = inject(TranslateService);
 
   transform(value: string, ...args: []): unknown {
-    if (I18nLoader.enabled) {
+    if (I18nLoader.enabled && value) {
       return this.translate.instant(value, ...args);
     }
     return `<div class="dcf-translation-key">${sf(value, args)}</div>`;

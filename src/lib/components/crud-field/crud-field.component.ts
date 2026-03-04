@@ -25,6 +25,7 @@ import {
   IonTextarea,
 } from '@ionic/angular/standalone';
 import { AutocompleteTypes, CheckboxCustomEvent, LoadingOptions, SelectInterface } from '@ionic/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
@@ -40,7 +41,7 @@ import {
   PossibleInputTypes,
   SelectOption,
 } from '../../engine/types';
-import { DecafTranslatePipe, getLocaleContextByKey } from '../../i18n/Loader';
+import { getLocaleContextByKey } from '../../i18n/Loader';
 import { dataMapper, generateRandomValue } from '../../utils';
 import { IconComponent } from '../icon/icon.component';
 import { getNgxSelectOptionsModal } from '../modal/modal.component';
@@ -93,7 +94,7 @@ import { getNgxSelectOptionsModal } from '../modal/modal.component';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    DecafTranslatePipe,
+    TranslatePipe,
     IonInput,
     IonItem,
     IonCheckbox,
