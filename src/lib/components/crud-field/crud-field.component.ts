@@ -7,24 +7,10 @@
  * @link {@link CrudFieldComponent}
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
-import {
-  AutocompleteTypes,
-  CheckboxCustomEvent,
-  LoadingOptions,
-  SelectInterface,
-} from '@ionic/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import {
   IonBadge,
   IonCheckbox,
@@ -38,26 +24,26 @@ import {
   IonText,
   IonTextarea,
 } from '@ionic/angular/standalone';
-import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
+import { AutocompleteTypes, CheckboxCustomEvent, LoadingOptions, SelectInterface } from '@ionic/core';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
+import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
+import { ActionRoles, SelectFieldInterfaces } from '../../engine/constants';
+import { Dynamic } from '../../engine/decorators';
+import { getModelAndRepository } from '../../engine/helpers';
 import {
   CrudFieldOption,
   FieldUpdateMode,
-  KeyValue,
-  FunctionLike,
-  PossibleInputTypes,
   FormParent,
+  FunctionLike,
+  KeyValue,
+  PossibleInputTypes,
   SelectOption,
 } from '../../engine/types';
+import { DecafTranslatePipe, getLocaleContextByKey } from '../../i18n/Loader';
 import { dataMapper, generateRandomValue } from '../../utils';
-import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
-import { Dynamic } from '../../engine/decorators';
-import { getLocaleContextByKey } from '../../i18n/Loader';
-import { getNgxSelectOptionsModal } from '../modal/modal.component';
-import { ActionRoles, SelectFieldInterfaces } from '../../engine/constants';
 import { IconComponent } from '../icon/icon.component';
-import { getModelAndRepository } from '../../engine/helpers';
+import { getNgxSelectOptionsModal } from '../modal/modal.component';
 
 /**
  * @description A dynamic form field component for CRUD operations.
@@ -107,7 +93,7 @@ import { getModelAndRepository } from '../../engine/helpers';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    TranslatePipe,
+    DecafTranslatePipe,
     IonInput,
     IonItem,
     IonCheckbox,
@@ -127,10 +113,7 @@ import { getModelAndRepository } from '../../engine/helpers';
   // schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { '[attr.id]': 'uid', '[attr.class]': 'className' },
 })
-export class CrudFieldComponent
-  extends NgxFormFieldDirective
-  implements OnInit, OnDestroy, AfterViewInit
-{
+export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit, OnDestroy, AfterViewInit {
   /**
    * @description The CRUD operation being performed.
    * @summary Specifies which CRUD operation (Create, Read, Update, Delete) the field is being used for.
@@ -668,29 +651,23 @@ export class CrudFieldComponent
    * @memberOf CrudFieldComponent
    */
   async ngOnInit(): Promise<void> {
-    if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation))
-      this.hidden = false;
+    if (Array.isArray(this.hidden) && !(this.hidden as string[]).includes(this.operation)) this.hidden = false;
 
     if (this.readonly && typeof this.readonly === Function.name.toLocaleLowerCase())
-      if (this.hidden && (this.hidden as OperationKeys[]).includes(this.operation))
-        this.hidden = true;
+      if (this.hidden && (this.hidden as OperationKeys[]).includes(this.operation)) this.hidden = true;
 
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
     } else {
       this.options = await this.getOptions();
-      if (
-        (!this.parentForm && this.formGroup instanceof FormGroup) ||
-        this.formGroup instanceof FormArray
-      )
+      if ((!this.parentForm && this.formGroup instanceof FormGroup) || this.formGroup instanceof FormArray)
         this.parentForm = (this.formGroup.root || this.formControl.root) as FormParent;
       if (this.multiple) {
         this.formGroup = this.activeFormGroup as FormGroup;
         if (!this.parentForm) this.parentForm = this.formGroup.parent as FormArray;
         this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
       }
-      if (!this.value && (this.options as []).length)
-        this.setValue((this.options as CrudFieldOption[])[0].value);
+      if (!this.value && (this.options as []).length) this.setValue((this.options as CrudFieldOption[])[0].value);
 
       if (this.type === HTML5InputTypes.CHECKBOX) {
         if (this.labelPlacement === 'floating') this.labelPlacement = 'end';
@@ -710,8 +687,7 @@ export class CrudFieldComponent
    * @memberOf CrudFieldComponent
    */
   async ngAfterViewInit(): Promise<void> {
-    if (this.type === HTML5InputTypes.RADIO && !this.value)
-      this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
+    if (this.type === HTML5InputTypes.RADIO && !this.value) this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
   }
 
   /**
@@ -750,10 +726,7 @@ export class CrudFieldComponent
           return mapper(option);
         });
       } else if (Object.keys(this.optionsMapper).length > 0) {
-        this.options = dataMapper(
-          this.options as KeyValue[],
-          this.optionsMapper as Record<string, string>,
-        );
+        this.options = dataMapper(this.options as KeyValue[], this.optionsMapper as Record<string, string>);
       }
     }
 
@@ -762,11 +735,8 @@ export class CrudFieldComponent
         ? option.text
         : await this.translate(
             !option.text?.includes('options')
-              ? getLocaleContextByKey(
-                  `${this.label.toLowerCase().replace('label', 'options')}`,
-                  option.text,
-                )
-              : option.text,
+              ? getLocaleContextByKey(`${this.label.toLowerCase().replace('label', 'options')}`, option.text)
+              : option.text
           );
       return {
         value: option.value,

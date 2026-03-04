@@ -7,25 +7,26 @@
  *
  * @link {@link I18nLoader}
  */
-import { inject } from '@angular/core';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
+import { inject, Pipe, PipeTransform } from '@angular/core';
+import { Primitives } from '@decaf-ts/decorator-validation';
+import { sf } from '@decaf-ts/logging';
 import {
   provideTranslateParser,
   provideTranslateService,
   RootTranslateServiceConfig,
   TranslateLoader,
   TranslateParser,
+  TranslateService,
   TranslationObject,
 } from '@ngx-translate/core';
-import { sf } from '@decaf-ts/logging';
-import { Primitives } from '@decaf-ts/decorator-validation';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { I18N_CONFIG_TOKEN } from '../engine/constants';
 import { I18nResourceConfig } from '../engine/interfaces';
-import { FunctionLike, I18nResourceConfigType, KeyValue, AngularProvider } from '../engine/types';
+import { AngularProvider, FunctionLike, I18nResourceConfigType, KeyValue } from '../engine/types';
 import { cleanSpaces, getLocaleFromClassName } from '../utils';
 import en from './data/en.json';
-import { I18N_CONFIG_TOKEN } from '../engine/constants';
 
 const libLanguage: Record<string, TranslationObject> = { en };
 
@@ -75,7 +76,7 @@ export function I18nLoaderFactory(http: HttpClient): TranslateLoader {
   return new I18nLoader(
     http,
     resources?.length ? resources : [{ prefix: './app/assets/i18n/', suffix: '.json' }],
-    versionedSuffix,
+    versionedSuffix
   );
 }
 
@@ -89,7 +90,7 @@ export function I18nLoaderFactory(http: HttpClient): TranslateLoader {
  */
 export function provideDecafI18nLoader(
   resources: I18nResourceConfigType = [],
-  versionedSuffix: boolean = false,
+  versionedSuffix: boolean = false
 ): {
   provide: typeof I18N_CONFIG_TOKEN;
   useValue: { resources: I18nResourceConfig[]; versionedSuffix: boolean };
@@ -108,6 +109,10 @@ export function provideDecafI18nLoader(
  * @summary Fetches and merges translation resources, supporting versioned suffixes and recursive merging.
  */
 export class I18nLoader implements TranslateLoader {
+  static enabled: boolean = true;
+
+  static cache: Record<string, TranslationObject> = {};
+
   /**
    * @param {HttpClient} http - The HTTP client used to fetch translation resources.
    * @param {I18nResourceConfig[]} [resources=[]] - The translation resources to be loaded.
@@ -116,7 +121,7 @@ export class I18nLoader implements TranslateLoader {
   constructor(
     private http: HttpClient,
     private resources: I18nResourceConfig[] = [],
-    private versionedSuffix: boolean = false,
+    private versionedSuffix: boolean = false
   ) {}
 
   /**
@@ -142,13 +147,11 @@ export class I18nLoader implements TranslateLoader {
    * @returns {Observable<TranslationObject>} - An observable that emits the merged translation object.
    */
   getTranslation(lang: string): Observable<TranslationObject> {
-    const libKeys: KeyValue = libLanguage[lang] || libLanguage['en'] || {};
+    const libKeys: KeyValue = !I18nLoader.enabled ? {} : libLanguage[lang] || libLanguage['en'] || {};
     const httpRequests$ = forkJoin(
       this.resources.map((config) =>
-        this.http.get<TranslationObject>(
-          `${config.prefix}${lang}${this.getSuffix(config.suffix || '.json')}`,
-        ),
-      ),
+        this.http.get<TranslationObject>(`${config.prefix}${lang}${this.getSuffix(config.suffix || '.json')}`)
+      )
     );
 
     /**
@@ -189,8 +192,9 @@ export class I18nLoader implements TranslateLoader {
             return acc;
           }, {}),
         };
+        I18nLoader.cache[lang] = merged;
         return merged;
-      }),
+      })
     );
   }
 }
@@ -209,10 +213,7 @@ export class I18nParser extends TranslateParser {
    * @returns {string} - The interpolated translation string.
    */
   interpolate(value: string, params: object | string = {}): string {
-    return sf(value, params === Primitives.STRING ? { '0': params } : params).replace(
-      /undefined/g,
-      '',
-    );
+    return sf(value, params === Primitives.STRING ? { '0': params } : params).replace(/undefined/g, '');
   }
 }
 
@@ -229,7 +230,9 @@ export function provideDecafI18nConfig(
   config: RootTranslateServiceConfig = { fallbackLang: 'en', lang: 'en' },
   resources: I18nResourceConfigType = [],
   versionedSuffix: boolean = false,
+  enabled: boolean = true
 ): AngularProvider[] {
+  I18nLoader.enabled = enabled;
   return [
     provideHttpClient(),
     provideTranslateService({
@@ -244,4 +247,19 @@ export function provideDecafI18nConfig(
     }),
     provideDecafI18nLoader(resources, versionedSuffix),
   ];
+}
+
+@Pipe({
+  name: 'translate',
+  pure: false,
+})
+export class DecafTranslatePipe implements PipeTransform {
+  translate: TranslateService = inject(TranslateService);
+
+  transform(value: string, ...args: []): unknown {
+    if (I18nLoader.enabled) {
+      return this.translate.instant(value, ...args);
+    }
+    return `<div class="dcf-translation-key">${sf(value, args)}</div>`;
+  }
 }

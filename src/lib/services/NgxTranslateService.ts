@@ -1,13 +1,15 @@
 import { inject, Injectable } from '@angular/core';
+import { Primitives } from '@decaf-ts/decorator-validation';
+import { DecafTranslateService } from '@decaf-ts/ui-decorators';
 import {
   InterpolatableTranslationObject,
   InterpolationParameters,
+  Language,
   TranslateService,
   Translation,
 } from '@ngx-translate/core';
-import { DecafTranslateService } from '@decaf-ts/ui-decorators';
 import { firstValueFrom, Observable } from 'rxjs';
-import { Primitives } from '@decaf-ts/decorator-validation';
+import { I18nLoader } from '../i18n';
 
 @Injectable({
   providedIn: 'root',
@@ -39,5 +41,16 @@ export class NgxTranslateService extends DecafTranslateService implements DecafT
 
   setFallbackLang(lang: string): Observable<InterpolatableTranslationObject> {
     return this.translateService.setFallbackLang(lang);
+  }
+
+  getCurrentLang(): Language {
+    return this.translateService.getCurrentLang();
+  }
+
+  getOnCache(lang?: string): Translation {
+    if (!lang) {
+      lang = this.getCurrentLang();
+    }
+    return I18nLoader.cache[lang] || {};
   }
 }

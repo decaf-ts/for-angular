@@ -5,6 +5,9 @@ $dcf-width-l: 992px;
 $dcf-width-xl: 1200px;
 $dcf-width-2xl: 1400px;
 .dcf-nav-container {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+
   @media (max-width: 480px) {
     padding: 0px !important;
     .dcf-container {
@@ -12,8 +15,6 @@ $dcf-width-2xl: 1400px;
       max-width: 100vw !important;
     }
   }
-  padding-top: 0px !important;
-  padding-bottom: 0px !important;
 
   .dcf-container {
     padding-top: 0px !important;
