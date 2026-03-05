@@ -376,6 +376,30 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
   disableSort: boolean = false;
 
   /**
+   * @description Controls whether pagination pages are disabled.
+   * @summary When set to true, disables the pagination controls, preventing users from navigating between pages.
+   * This is useful for scenarios where pagination is not required or should be hidden.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf ListComponent
+   */
+  @Input()
+  disablePaginationPages: boolean = false;
+
+  /**
+   * @description Controls whether pagination pages are truncated.
+   * @summary When set to true, truncates the pagination controls to show fewer pages, improving the user interface
+   * for lists with a large number of pages.
+   *
+   * @type {boolean}
+   * @default true
+   * @memberOf ListComponent
+   */
+  @Input()
+  truncatePaginationPages: boolean = true;
+
+  /**
    * @description Configuration for the empty state display.
    * @summary Customizes how the empty state is displayed when no data is available.
    * This includes the title, subtitle, button text, icon, and navigation link.
@@ -696,6 +720,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   override async refresh(event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false): Promise<void> {
     await super.refresh();
+    console.log(this.component);
     //  if (typeof force !== 'boolean' && force.type === ComponentEventNames.BackButtonClickEvent) {
     //    const {refresh} = (force as CustomEvent).detail;
     //    if (!refresh)
@@ -1124,11 +1149,13 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         } else {
           this.changeDetectorRef.detectChanges();
           request = await this.parseResult(
-            await repo
-              .select()
-              .where(this.parseConditions(this.searchValue as string | number | IFilterQuery))
-              .orderBy((this.sortBy || this.pk) as keyof Model, this.sortDirection)
-              .execute()
+            typeof this.searchValue === 'string'
+              ? await repo.find(this.searchValue, this.sortDirection)
+              : await repo
+                  .select()
+                  .where(this.parseConditions(this.searchValue as IFilterQuery))
+                  .orderBy((this.sortBy || this.pk) as keyof Model, this.sortDirection)
+                  .execute()
           );
           data = [];
           this.changeDetectorRef.detectChanges();
@@ -1290,9 +1317,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
   getMoreData(length: number): void {
     if (this.type === ListComponentsTypes.INFINITE) {
       if (this.paginator) {
-        length = length * this.limit;
+        length = this.paginator['_recordCount'] || length * this.limit;
       }
-      if (length <= this.limit) {
+      if (length >= this.limit) {
         this.loadMoreData = false;
       } else {
         this.pages = Math.floor(length / this.limit);
@@ -1300,8 +1327,10 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         if (this.pages === 1) this.loadMoreData = false;
       }
     } else {
-      this.pages = length;
-      if (this.pages === 1) this.loadMoreData = false;
+      this.pages = length * this.limit;
+      if (this.pages === 1) {
+        this.loadMoreData = false;
+      }
     }
   }
 

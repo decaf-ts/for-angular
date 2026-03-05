@@ -33,12 +33,12 @@ enum ProductNames {
   fluoxetine = 'Fluoxetine',
   alprazolam = 'Alprazolam',
   diazepam = 'Diazepam',
-  tramadol = 'Tramadol',
-  codeine = 'Codeine',
-  sildenafil = 'Sildenafil',
-  insulin = 'Insulin',
-  clopidogrel = 'Clopidogrel',
-  furosemide = 'Furosemide',
+  // tramadol = 'Tramadol',
+  // codeine = 'Codeine',
+  // sildenafil = 'Sildenafil',
+  // insulin = 'Insulin',
+  // clopidogrel = 'Clopidogrel',
+  // furosemide = 'Furosemide',
 }
 
 export async function populateSampleData(models: Model[], populate: string[], limit: number = 12): Promise<void> {

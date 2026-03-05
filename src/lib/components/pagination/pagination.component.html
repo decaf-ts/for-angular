@@ -17,6 +17,7 @@
         <div
           aria-label="previous"
           tabindex="0"
+          [class]="disablePages ? 'dcf-nav dcf-nav-prev' : ''"
           (click)="previous()"
           (keydown.enter)="previous()"
           [class.dcf-disabled]="current === 1"
@@ -25,26 +26,37 @@
             name="chevron-back-outline"
             aria-hidden="true"
           ></ion-icon>
+
+          @if (disablePages) {
+            {{ locale + '.previous' | translate }}
+          }
         </div>
       }
-      @for (page of pages; track page) {
-        <div
-          tabindex="0"
-          [class]="page['class']"
-          (click)="navigate(page['index'])"
-          (keydown.enter)="navigate(page['index'])"
-          [class.dcf-active]="current === page['index']"
-        >
-          <span class="page-item">{{ page['text'] }}</span>
-        </div>
+      @if (!disablePages) {
+        @for (page of pages; track page) {
+          <div
+            tabindex="0"
+            class="dcf-nav"
+            [class]="page['class']"
+            (click)="navigate(page['index'])"
+            (keydown.enter)="navigate(page['index'])"
+            [class.dcf-active]="current === page['index']"
+          >
+            <span class="page-item">{{ page['text'] }}</span>
+          </div>
+        }
       }
       @if (pages?.length > 1) {
         <div
           tabindex="0"
+          [class]="disablePages ? 'dcf-nav dcf-nav-next' : ''"
           (click)="next()"
           (keydown.enter)="next()"
           [class.dcf-disabled]="current === last"
         >
+          @if (disablePages) {
+            {{ locale + '.next' | translate }}
+          }
           <ion-icon
             name="chevron-forward-outline"
             aria-hidden="true"

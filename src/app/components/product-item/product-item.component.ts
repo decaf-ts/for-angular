@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
-import { Dynamic, getModelAndRepository, KeyValue } from 'src/lib/engine';
-import { IonBadge } from '@ionic/angular/standalone';
-import { CrudOperations } from '@decaf-ts/db-decorators';
 import { Condition } from '@decaf-ts/core';
+import { CrudOperations } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
+import { IonBadge } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IconComponent, ListItemComponent } from 'src/lib/components';
+import { Dynamic, getModelAndRepository, KeyValue } from 'src/lib/engine';
 
 @Dynamic()
 @Component({

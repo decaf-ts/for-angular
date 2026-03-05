@@ -25,9 +25,13 @@
             [placeholder]="locale + '.filter.label' | translate"
             interface="popover"
           >
-            <ion-select-option value="">{{ locale + '.filter.all' | translate }}</ion-select-option>
+            <ion-select-option value="">
+              {{ locale + '.filter.all' | translate }}
+            </ion-select-option>
             @for (option of filterOptions; track $index) {
-              <ion-select-option value="{{ option.value }}">{{ option.text }}</ion-select-option>
+              <ion-select-option value="{{ option.value }}">
+                {{ option.text }}
+              </ion-select-option>
             }
             <ion-button
               fill="clear"
@@ -36,7 +40,11 @@
               size="small"
               [disabled]="!filterValue"
             >
-              <ngx-decaf-icon fill="clear" slot="icon-only" [name]="'ti-input-x'" />
+              <ngx-decaf-icon
+                fill="clear"
+                slot="icon-only"
+                [name]="'ti-input-x'"
+              />
             </ion-button>
           </ion-select>
         </div>
@@ -44,7 +52,11 @@
     </div>
   </div>
 }
-<div class="dcf-table-container" [class.dcf-empty]="!data?.length">
+<div
+  class="dcf-table-container"
+  [class.dcf-empty]="!data?.length"
+  #component
+>
   @if (initialized && data?.length) {
     <table class="dcf-table">
       <thead>
@@ -78,7 +90,12 @@
                         <ngx-decaf-icon
                           [button]="true"
                           (click)="
-                            handleRedirect($event, item.uid.value, OperationKeys.UPDATE, true)
+                            handleRedirect(
+                              $event,
+                              item.uid.value,
+                              OperationKeys.UPDATE,
+                              true
+                            )
                           "
                           fill="clear"
                           slot="icon-only"
@@ -90,7 +107,12 @@
                         <ngx-decaf-icon
                           [button]="true"
                           (click)="
-                            handleRedirect($event, item.uid.value, OperationKeys.DELETE, true)
+                            handleRedirect(
+                              $event,
+                              item.uid.value,
+                              OperationKeys.DELETE,
+                              true
+                            )
                           "
                           fill="clear"
                           slot="icon-only"
@@ -132,21 +154,25 @@
         [body]="'small'"
         [translatable]="true"
         [title]="'component.list.search.title' | translate"
-        [subtitle]="'component.list.search.subtitle' | translate: { '0': parseSearchValue() }"
+        [subtitle]="
+          'component.list.search.subtitle'
+            | translate: { '0': parseSearchValue() }
+        "
         [searchValue]="searchValue"
       />
     }
   }
 </div>
 
-@if (loadMoreData && !refreshing) {
-  <div class="dcf-table-pagination">
-    @if (pages > 0 && !searchValue?.length) {
-      <ngx-decaf-pagination
-        [totalPages]="pages"
-        [current]="page"
-        (clickEvent)="handlePaginate($event)"
-      />
-    }
-  </div>
-}
+<div class="dcf-table-pagination">
+  @if (pages > 0 && !searchValue) {
+    <ngx-decaf-pagination
+      [table]="component"
+      [totalPages]="pages"
+      [disablePages]="disablePaginationPages"
+      [truncatePages]="truncatePaginationPages"
+      [current]="page"
+      (clickEvent)="handlePaginate($event)"
+    />
+  }
+</div>

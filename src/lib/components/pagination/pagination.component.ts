@@ -8,7 +8,7 @@
  * @link {@link PaginationComponent}
  */
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { IonIcon } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -68,6 +68,9 @@ import { KeyValue } from '../../engine/types';
   host: { '[attr.id]': 'uid' },
 })
 export class PaginationComponent extends NgxComponentDirective implements OnInit {
+  @Input()
+  table!: ElementRef<HTMLElement>;
+
   /**
    * @description The total number of pages to display in the pagination component.
    * @summary Specifies the total number of pages available for navigation. This is a required
@@ -116,11 +119,23 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    * @summary If true, the pagination component will display a subset of pages with ellipses to indicate skipped pages. If false, all pages will be displayed.
    *
    * @type {boolean}
-   * @default false
+   * @default true
    * @memberOf PaginationComponent
    */
-  truncatePages: boolean = false;
+  @Input()
+  truncatePages: boolean = true;
 
+  /**
+   * @description Controls whether all pages are disabled.
+   * @summary When set to true, disables the display and functionality of all pages, effectively hiding pagination
+   * and preventing navigation between pages.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf ListComponent
+   */
+  @Input()
+  disablePages: boolean = false;
   /**
    * @description Event emitter for pagination navigation events.
    * @summary Emits a custom event when users navigate between pages, either by clicking
@@ -205,6 +220,9 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
       },
       component: this.componentName,
     } as IPaginationCustomEvent);
+    if (this.table && this.table?.nativeElement) {
+      this.table.nativeElement.focus();
+    }
   }
 
   /**
@@ -243,6 +261,7 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
         class: clazz,
       });
     }
+
     if (!this.truncatePages) {
       for (let i = 1; i <= total; i++) getPage(i);
     } else {

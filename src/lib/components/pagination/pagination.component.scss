@@ -64,3 +64,29 @@
   margin: 1rem 0px;
   text-align: center;
 }
+
+.dcf-nav {
+  background: var(--dcf-color-gray-2);
+  padding: 0.5rem;
+  border-radius: var(--dcf-border-radius-small) !important;
+  .ti,
+  ion-icon {
+    position: relative;
+    top: 2px;
+  }
+
+  &.dcf-nav-next {
+    padding-left: 1rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  &.dcf-nav-prev {
+    padding-right: 1rem !important;
+    padding-left: 0.5rem !important;
+  }
+
+  &:hover,
+  &:active {
+    color: var(--dcf-color-primary) !important;
+  }
+}

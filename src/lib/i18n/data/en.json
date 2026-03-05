@@ -118,7 +118,9 @@
       }
     },
     "pagination": {
-      "resume": "Showing page <span class=\"text-bold\">{0} of {1}</span>"
+      "resume": "Showing page <span class=\"text-bold\">{0} of {1}</span>",
+      "next": "Next",
+      "previous": "Previous"
     },
     "modal": {
       "confirm": {
