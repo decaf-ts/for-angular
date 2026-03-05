@@ -49,6 +49,7 @@
             [class.dcf-disabled]="!activePage"
           >
             <ngx-decaf-layout
+              [isModalChild]="isModalChild"
               [className]="''"
               [flexMode]="props.flexMode ?? false"
               [match]="false"
@@ -326,6 +327,7 @@
         <div class="dcf-fieldset-read-item">
           <div>
             <ngx-decaf-layout
+              [isModalChild]="isModalChild"
               [className]="operation"
               [operation]="operation"
               [pk]="pk"

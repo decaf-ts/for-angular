@@ -128,7 +128,10 @@
                     #component
                   >
                     <span>
-                      {{ $index + 1 }}. {{ option?.text | translate }}
+                      {{ $index + 1 }}.
+                      {{
+                        translatable ? (option?.text | translate) : option?.text
+                      }}
                     </span>
                   </ion-checkbox>
                 </ion-item>
@@ -166,7 +169,7 @@
                   [attr.readonly]="readonly"
                   [value]="option.value"
                 >
-                  {{ option?.text | translate }}
+                  {{ translatable ? (option?.text | translate) : option?.text }}
                 </ion-radio>
                 <span
                   class="dcf-error"

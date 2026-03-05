@@ -5,7 +5,9 @@
         <div
           [id]="uid"
           [class]="
-            (!grid ? 'dcf-layout-row ' : 'dcf-layout-row dcf-grid ' + 'dcf-grid-' + gap) +
+            (!grid
+              ? 'dcf-layout-row '
+              : 'dcf-layout-row dcf-grid ' + 'dcf-grid-' + gap) +
             ' ' +
             (className || '')
           "
@@ -17,7 +19,11 @@
               <h3 class="">{{ row.title | translate }}</h3>
             </div>
           }
-          @for (child of row.cols; track trackItemFn($index, child.col); let colIndex = $index) {
+          @for (
+            child of row.cols;
+            track trackItemFn($index, child.col);
+            let colIndex = $index
+          ) {
             <div
               [class]="'dcf-grid-col ' + child.colClass"
               [class.dcf-first-column]="$index === 0"
@@ -26,7 +32,10 @@
               <div>
                 @if (child.tag === 'ngx-decaf-crud-form') {
                   <ngx-decaf-card
-                    [className]="(match ? 'dcf-height-1-1 dcf-card-layout' : '') + className"
+                    [className]="
+                      (match ? 'dcf-height-1-1 dcf-card-layout' : '') +
+                      className
+                    "
                     [body]="cardBody"
                     [type]="cardType"
                   >
@@ -45,8 +54,13 @@
                     <ngx-decaf-component-renderer
                       [tag]="child.tag"
                       [pk]="pk"
-                      [className]="(match ? 'dcf-height-1-1 dcf-card-layout' : '') + className"
-                      [parentForm]="parentForm || child.parentForm || child?.formGroup"
+                      [className]="
+                        (match ? 'dcf-height-1-1 dcf-card-layout' : '') +
+                        className
+                      "
+                      [parentForm]="
+                        parentForm || child.parentForm || child?.formGroup
+                      "
                       [children]="child?.children || []"
                       (listenEvent)="handleEvent($event)"
                       [globals]="{ props: child.props }"

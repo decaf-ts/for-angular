@@ -69,6 +69,7 @@
 
     @if (initialized && activePage?.length) {
       <ngx-decaf-layout
+        [isModalChild]="isModalChild"
         [className]="'dcf-stepped-form-grid paginated dcf-grid-nested'"
         [children]="activePage || []"
         [parentForm]="formGroup || parentForm"
@@ -84,28 +85,43 @@
       />
     } @else {
       <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-      <ion-text class="date" style="width: 20%"
-        ><ion-skeleton-text [animated]="true"></ion-skeleton-text
-      ></ion-text>
+      <ion-text
+        class="date"
+        style="width: 20%"
+      >
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </ion-text>
       <br />
       <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-      <ion-text class="date" style="width: 20%"
-        ><ion-skeleton-text [animated]="true"></ion-skeleton-text
-      ></ion-text>
+      <ion-text
+        class="date"
+        style="width: 20%"
+      >
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </ion-text>
     }
     <div
       class="dcf-buttons-container dcf-grid dcf-grid-collapse dcf-flex dcf-flex-left"
     >
       <div class="dcf-width-1-2@s">
-        <ion-button color="light" (click)="handleBack()" [disabled]="activeIndex <= 1">{{ locale + ".previous" | translate }}</ion-button>
+        <ion-button
+          color="light"
+          (click)="handleBack()"
+          [disabled]="activeIndex <= 1"
+        >
+          {{ locale + '.previous' | translate }}
+        </ion-button>
       </div>
 
       <div class="dcf-width-1-2@s">
-        <ion-button fill="solid" (click)="handleNext(activeIndex === pages ? true : false)">
+        <ion-button
+          fill="solid"
+          (click)="handleNext(activeIndex === pages ? true : false)"
+        >
           @if (activeIndex === pages) {
-            {{ locale + ".submit" | translate }}
+            {{ locale + '.submit' | translate }}
           } @else {
-            {{ locale + ".next" | translate }}
+            {{ locale + '.next' | translate }}
           }
         </ion-button>
       </div>
@@ -136,6 +152,7 @@
             <div [class.dcf-margin-bottom]="cardType === 'blank'">
               @if (initialized && item.items?.length) {
                 <ngx-decaf-layout
+                  [isModalChild]="isModalChild"
                   [className]="'dcf-stepped-form-grid dcf-grid-nested'"
                   [children]="item.items || []"
                   [parentForm]="formGroup || parentForm"
@@ -156,14 +173,20 @@
         class="dcf-buttons-container dcf-grid dcf-grid-small dcf-flex dcf-flex-right"
       >
         <div class="dcf-width-auto@s dcf-width-1-1">
-          <ion-button color="light" (click)="handleBack()">
-            {{ locale + ".cancel" | translate }}
+          <ion-button
+            color="light"
+            (click)="handleBack()"
+          >
+            {{ locale + '.cancel' | translate }}
           </ion-button>
         </div>
 
         <div class="dcf-width-auto@s dcf-width-1-1">
-          <ion-button fill="solid" (click)="handleNext(true)">
-            {{ locale + ".submit" | translate }}
+          <ion-button
+            fill="solid"
+            (click)="handleNext(true)"
+          >
+            {{ locale + '.submit' | translate }}
           </ion-button>
         </div>
       </div>

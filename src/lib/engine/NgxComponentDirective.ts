@@ -1085,7 +1085,7 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
   }
 
   async initProps<T extends NgxComponentDirective>(
-    props: T & KeyValue,
+    props: KeyValue,
     map: (keyof T)[] | Record<keyof T, unknown> = [],
     instance?: NgxComponentDirective & T
   ): Promise<void> {
@@ -1095,7 +1095,7 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
     if (Array.isArray(map)) {
       map.forEach((key: keyof T) => {
         if (key in instance && instance[key]) {
-          props[key] = instance[key];
+          props[key as string] = instance[key];
         }
       });
     } else {

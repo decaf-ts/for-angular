@@ -14,6 +14,7 @@
       <ngx-decaf-layout
         [className]="'dcf-crud-form-grid dcf-grid-nested '"
         [children]="children || []"
+        [isModalChild]="isModalChild"
         [pk]="pk"
         (listenEvent)="handleEvent($event)"
         [parentForm]="formGroup || parentForm"
@@ -86,6 +87,7 @@
     <ngx-decaf-layout
       [className]="''"
       [pk]="pk"
+      [isModalChild]="isModalChild"
       [modelId]="modelId"
       [children]="children || []"
       [operation]="operation"
@@ -93,6 +95,7 @@
       [modelId]="modelId"
       [match]="match ?? false"
       [gap]="'small'"
+      [isModalChild]="isModalChild"
       (listenEvent)="handleEvent($event)"
       [flexMode]="props.flexMode || false"
       [rows]="rows"
