@@ -82,10 +82,9 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       // 'Leaflet',
       // //
       // // 'ProductImage',
-
       // 'CategoryModel',
-      // 'AIVendorModel',
-      'CategoryModel',
+      'AIVendorModel',
+      // 'CategoryModel',
     ];
     const menu = [];
     // const models = AppModels;

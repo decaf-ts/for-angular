@@ -1,7 +1,7 @@
-import { LoadingOptions } from "@ionic/angular";
-import { HTMLIonOverlayElement, loadingController } from "@ionic/core";
-import { KeyValue } from "src/lib/engine/types";
-import { LoggedClass } from "@decaf-ts/logging";
+import { LoggedClass } from '@decaf-ts/logging';
+import { LoadingOptions } from '@ionic/angular';
+import { HTMLIonOverlayElement, loadingController } from '@ionic/core';
+import { KeyValue } from 'src/lib/engine';
 
 /**
  * @fileoverview CMX Loading Utility for Ionic Angular Applications
@@ -35,7 +35,6 @@ let instance: NgxLoadingComponent;
  * @class NgxLoadingComponent
  */
 export class NgxLoadingComponent extends LoggedClass {
-
   /**
    * @description Current active loading element instance.
    * @summary Reference to the Ionic loading element that is currently displayed.
@@ -84,15 +83,14 @@ export class NgxLoadingComponent extends LoggedClass {
    * @memberOf NgxLoadingComponent
    */
   private options: KeyValue = {
-    cssClass: "aeon-loading",
+    cssClass: 'aeon-loading',
     duration: undefined,
     message: 'Carregando...',
-    spinner: "crescent",
+    spinner: 'crescent',
     backdropDismiss: false,
     showBackdrop: true,
-    animated: true
+    animated: true,
   };
-
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor() {
@@ -156,15 +154,16 @@ export class NgxLoadingComponent extends LoggedClass {
    * });
    * ```
    */
-  async show(message: string, options?: LoadingOptions): Promise<void> {
+  async show(message: string = '', options?: LoadingOptions): Promise<void> {
     try {
       this.message = message;
-      if (this.isVisible())
-        return this.update(message);
-      this.instance = await loadingController.create(await this.getOptions(options, message)) as HTMLIonLoadingElement;
+      if (this.isVisible()) return this.update(message);
+      this.instance = (await loadingController.create(
+        await this.getOptions(options, message)
+      )) as HTMLIonLoadingElement;
       await this.instance.present();
     } catch (error: unknown) {
-      this.log.for(this.show).error((error as Error)?.message || error as string);
+      this.log.for(this.show).error((error as Error)?.message || (error as string));
     }
   }
 
@@ -197,16 +196,13 @@ export class NgxLoadingComponent extends LoggedClass {
    * ```
    */
   async update(message: string, isProgressUpdate: boolean | number = false): Promise<void> {
-    if (!this.instance)
-      return await this.show(message, { duration: 5000 });
+    if (!this.instance) return await this.show(message, { duration: 5000 });
 
     if (isProgressUpdate) {
-      if (typeof isProgressUpdate === "number" && Number(isProgressUpdate)) {
-        if (isProgressUpdate <= this.progress)
-          isProgressUpdate = this.progress + 10;
+      if (typeof isProgressUpdate === 'number' && Number(isProgressUpdate)) {
+        if (isProgressUpdate <= this.progress) isProgressUpdate = this.progress + 10;
         this.progress = isProgressUpdate;
-        if (this.progress > 100)
-          this.progress = 99;
+        if (this.progress > 100) this.progress = 99;
         this.instance.message = `${message} (${this.progress}%)`;
       } else {
         this.instance.message = `${this.message} (${message}%)`;
@@ -243,8 +239,10 @@ export class NgxLoadingComponent extends LoggedClass {
   async remove(): Promise<void> {
     const loading: HTMLIonOverlayElement = this.instance as unknown as HTMLIonOverlayElement;
     if (!loading)
-      return this.log.for(this.remove).info("Try Remove loading but no loading is present. Promise resolve will be called anyway");
-    this.instance = undefined
+      return this.log
+        .for(this.remove)
+        .info('Try Remove loading but no loading is present. Promise resolve will be called anyway');
+    this.instance = undefined;
     this.progress = 0;
     await loading.dismiss();
   }
@@ -272,7 +270,9 @@ export class NgxLoadingComponent extends LoggedClass {
    * ```
    */
   async getOptions(options: LoadingOptions = {}, message?: string): Promise<LoadingOptions> {
-    return Object.assign({}, this.options, options, { message: message || this.options['message'] });
+    return Object.assign({}, this.options, options, {
+      message: message || this.options['message'],
+    });
   }
 
   /**
@@ -329,7 +329,6 @@ export class NgxLoadingComponent extends LoggedClass {
  * ```
  */
 export function getNgxLoadingComponent(): NgxLoadingComponent {
-  if (!instance)
-    instance = new NgxLoadingComponent();
+  if (!instance) instance = new NgxLoadingComponent();
   return instance;
 }

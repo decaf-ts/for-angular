@@ -11,17 +11,15 @@ import {
 } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { NgxFormService } from '../services/NgxFormService';
-import { IBaseCustomEvent, ICrudFormEvent, IFormElement } from './interfaces';
-import { FieldUpdateMode, FormParent, HTMLFormTarget } from './types';
-import { ICrudFormOptions, IRenderedModel } from './interfaces';
-import { ActionRoles } from './constants';
-import { NgxParentComponentDirective } from './NgxParentComponentDirective';
-import { NgxFormFieldDirective } from './NgxFormFieldDirective';
-import { generateRandomValue } from '../utils';
+import { ComponentEventNames, FieldDefinition, UIFunctionLike, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { timer } from 'rxjs';
-import { FieldDefinition, UIFunctionLike, UIModelMetadata } from '@decaf-ts/ui-decorators';
+import { NgxFormService } from '../services/NgxFormService';
+import { generateRandomValue } from '../utils';
+import { ActionRoles } from './constants';
+import { IBaseCustomEvent, ICrudFormEvent, ICrudFormOptions, IFormElement, IRenderedModel } from './interfaces';
+import { NgxFormFieldDirective } from './NgxFormFieldDirective';
+import { NgxParentComponentDirective } from './NgxParentComponentDirective';
+import { FieldUpdateMode, FormParent, HTMLFormTarget } from './types';
 
 @Directive()
 export abstract class NgxFormDirective
@@ -186,8 +184,7 @@ export abstract class NgxFormDirective
   override match: boolean = false;
 
   @Output()
-  private formGroupLoadedEvent: EventEmitter<IBaseCustomEvent> =
-    new EventEmitter<IBaseCustomEvent>();
+  private formGroupLoadedEvent: EventEmitter<IBaseCustomEvent> = new EventEmitter<IBaseCustomEvent>();
 
   // protected override enableDarkMode: boolean = true;
 
@@ -334,41 +331,36 @@ export abstract class NgxFormDirective
    * @returns {void}
    */
   handleReset(): void {
-    if (this.isModalChild)
-      return this.submitEventEmit(null, this.componentName, ActionRoles.cancel);
+    if (this.isModalChild) return this.submitEventEmit(null, this.componentName, ActionRoles.cancel);
     if (![OperationKeys.DELETE, OperationKeys.READ].includes(this.operation) && this.allowClear)
       return NgxFormService.reset(this.formGroup as FormGroup);
     this.location.back();
   }
 
-  override async submit(
-    event?: SubmitEvent,
-    eventName?: string,
-    componentName?: string,
-  ): Promise<boolean | void> {
+  override async submit(event?: SubmitEvent, eventName?: string, componentName?: string): Promise<boolean | void> {
     if (event) {
       event.preventDefault();
       event.stopImmediatePropagation();
     }
     const formGroup = this.formGroup as FormGroup;
-    this.changeDetectorRef.detectChanges();
-
     const isValid = NgxFormService.validateFields(formGroup);
 
     if (!isValid) {
+      this.changeDetectorRef.detectChanges();
       NgxFormService.enableAllGroupControls(formGroup);
       return false;
     }
+
+    this.changeDetectorRef.detectChanges();
     const data = NgxFormService.getFormData(formGroup);
-    if (Object.keys(data).length > 0)
-      return this.submitEventEmit(data, eventName, componentName, this.handlers);
+    if (Object.keys(data).length > 0) return this.submitEventEmit(data, eventName, componentName, this.handlers);
   }
   protected submitEventEmit(
     data: unknown,
     componentName?: string,
     eventName?: string,
     handlers?: Record<string, UIFunctionLike>,
-    role?: CrudOperations,
+    role?: CrudOperations
   ): void {
     const name = eventName || this.action || ComponentEventNames.Submit;
     const handler = handlers?.[name] || this.handlers?.[name] || undefined;
@@ -408,18 +400,12 @@ export abstract class NgxFormDirective
    *
    * @memberOf SteppedFormComponent
    */
-  protected override getActivePage(
-    page: number,
-  ): UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined {
-    if (!(this.formGroup instanceof FormArray))
-      this.formGroup = this.formGroup?.parent as FormArray;
+  protected override getActivePage(page: number): UIModelMetadata | UIModelMetadata[] | FieldDefinition | undefined {
+    if (!(this.formGroup instanceof FormArray)) this.formGroup = this.formGroup?.parent as FormArray;
     this.formGroup = (this.formGroup as FormArray).at(page - 1) as FormGroup;
     this.activePage = undefined;
     this.timerSubscription = timer(10).subscribe(
-      () =>
-        (this.activePage = (this.children as UIModelMetadata[]).filter(
-          (c) => c.props?.['page'] === page,
-        )),
+      () => (this.activePage = (this.children as UIModelMetadata[]).filter((c) => c.props?.['page'] === page))
     );
     if (this.activePage) return this.activePage;
     return undefined;

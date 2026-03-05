@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
+import { Model } from '@decaf-ts/decorator-validation';
 import { IonContent } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.component';
@@ -7,6 +8,7 @@ import { ContainerComponent } from 'src/app/components/container/container.compo
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { AppModalDiffsComponent } from 'src/app/components/modal-diffs/modal-diffs.component';
 import { AppProductItemComponent } from 'src/app/components/product-item/product-item.component';
+import { generateGtin } from 'src/app/ew/fabric/gtin';
 import { Product } from 'src/app/ew/fabric/Product';
 import { ProductLayout } from 'src/app/ew/layouts/ProductLayout';
 import { EpiTabs } from 'src/app/ew/utils/constants';
@@ -139,7 +141,21 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
     this.route = 'products';
 
     await this.initialize();
-    console.log(this.model);
+
+    try {
+      const product = Model.build(
+        {
+          productCode: generateGtin(),
+          name: 'Test Product',
+          description: 'This is a test product',
+        },
+        Product.name
+      );
+      console.log(product);
+    } catch (error) {
+      console.error('Error building product model:', error);
+    }
+
     // function generateGtin(): string {
     //   function pad(num: number, width: number, padding: string = '0') {
     //     const n = num + '';

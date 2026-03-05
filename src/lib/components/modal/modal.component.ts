@@ -1,16 +1,10 @@
-import {
-  Component,
-  EnvironmentInjector,
-  EventEmitter,
-  inject,
-  Input,
-  OnInit,
-  Output,
-  ViewChild,
-} from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { Component, EnvironmentInjector, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { Color, modalController, OverlayEventDetail } from '@ionic/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { Model } from '@decaf-ts/decorator-validation';
 import {
   IonButton,
   IonButtons,
@@ -22,18 +16,15 @@ import {
   IonToolbar,
   ModalOptions,
 } from '@ionic/angular/standalone';
-import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
-import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
-import { Dynamic } from '../../engine/decorators';
-import { KeyValue, SelectOption } from '../../engine/types';
-import { IBaseCustomEvent } from '../../engine/interfaces';
 import { ActionRoles, DefaultModalOptions, ListComponentsTypes } from '../../engine/constants';
+import { Dynamic } from '../../engine/decorators';
+import { IBaseCustomEvent } from '../../engine/interfaces';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { Model } from '@decaf-ts/decorator-validation';
+import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
+import { KeyValue, SelectOption } from '../../engine/types';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { IconComponent } from '../icon/icon.component';
+import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 
 /**
  * @description Modal component for displaying dynamic content in a modal dialog.
@@ -296,11 +287,7 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
 
     if (this.expandable && !this.className.includes('dcf-modal-expand'))
       this.className = `${this.className} dcf-modal-expand`;
-    if (
-      ['primary', 'secondary', 'tertiary', 'danger', 'medium', 'dark'].includes(
-        this.headerBackground,
-      )
-    )
+    if (['primary', 'secondary', 'tertiary', 'danger', 'medium', 'dark'].includes(this.headerBackground))
       this.iconColor = 'light';
   }
 
@@ -473,17 +460,12 @@ export class ModalConfirmComponent extends ModalComponent implements OnInit {
 export async function getNgxModalComponent(
   props: Partial<ModalComponent> = {},
   modalProps: Partial<ModalOptions> = {},
-  injector?: EnvironmentInjector,
+  injector?: EnvironmentInjector
 ): Promise<IonModal> {
   const { globals } = { ...props };
-  if (!globals || !globals?.['operation'])
-    props.globals = { ...(globals || {}), operation: OperationKeys.CREATE };
+  if (!globals || !globals?.['operation']) props.globals = { ...(globals || {}), operation: OperationKeys.CREATE };
   const component = await (
-    NgxRenderingEngine.createComponent(
-      ModalComponent,
-      props,
-      injector || undefined,
-    ) as ModalComponent
+    NgxRenderingEngine.createComponent(ModalComponent, props, injector || undefined) as ModalComponent
   ).create(modalProps);
   return component.modal;
 }
@@ -501,7 +483,7 @@ export async function getNgxModalCrudComponent(
   model: Partial<Model>,
   props: Partial<ModalComponent> = {},
   modalProps: Partial<ModalOptions> = {},
-  injector?: EnvironmentInjector,
+  injector?: EnvironmentInjector
 ): Promise<IonModal> {
   if (!props || !props?.['operation']) props.operation = OperationKeys.CREATE;
   const component = await (
@@ -511,7 +493,7 @@ export async function getNgxModalCrudComponent(
         model,
         globals: props,
       },
-      injector || undefined,
+      injector || undefined
     ) as ModalComponent
   ).create(modalProps);
   return component.modal;
@@ -529,14 +511,10 @@ export async function getNgxModalCrudComponent(
 export async function presentNgxLightBoxModal(
   inlineContent: string | SafeHtml,
   props: Partial<ModalComponent> = {},
-  injector?: EnvironmentInjector,
+  injector?: EnvironmentInjector
 ): Promise<void> {
   return (
-    await getNgxModalComponent(
-      { props, ...{ inlineContent, lightBox: true } },
-      {},
-      injector || undefined,
-    )
+    await getNgxModalComponent({ props, ...{ inlineContent, lightBox: true } }, {}, injector || undefined)
   ).present();
 }
 
@@ -552,7 +530,7 @@ export async function presentNgxLightBoxModal(
 export async function presentNgxInlineModal(
   inlineContent: string | SafeHtml,
   props: Partial<ModalComponent> = {},
-  injector?: EnvironmentInjector,
+  injector?: EnvironmentInjector
 ): Promise<void> {
   (await getNgxInlineModal(inlineContent, props, injector)).present();
 }
@@ -569,7 +547,7 @@ export async function presentNgxInlineModal(
 export async function getNgxInlineModal(
   inlineContent: string | SafeHtml,
   props: Partial<ModalComponent> = {},
-  injector?: EnvironmentInjector,
+  injector?: EnvironmentInjector
 ): Promise<IonModal> {
   return await getNgxModalComponent(
     {
@@ -580,7 +558,7 @@ export async function getNgxInlineModal(
       },
     },
     {},
-    injector || undefined,
+    injector || undefined
   );
 }
 
@@ -595,7 +573,7 @@ export async function getNgxInlineModal(
 export async function getNgxSelectOptionsModal(
   title: string,
   options: SelectOption[],
-  injector?: EnvironmentInjector,
+  injector?: EnvironmentInjector
 ): Promise<IonModal> {
   const props = {
     tag: 'ngx-decaf-list',
@@ -617,7 +595,7 @@ export async function getNgxSelectOptionsModal(
 export async function presentModalConfirm(
   props: Pick<ModalConfirmComponent, 'title' | 'role' | 'data' | 'locale'> = {},
   role: CrudOperations,
-  injector?: EnvironmentInjector,
+  injector?: EnvironmentInjector
 ): Promise<IonModal> {
   return await getNgxModalComponent(
     {
@@ -628,6 +606,6 @@ export async function presentModalConfirm(
       globals: Object.assign({}, { role }, props),
     },
     {},
-    injector,
+    injector
   );
 }

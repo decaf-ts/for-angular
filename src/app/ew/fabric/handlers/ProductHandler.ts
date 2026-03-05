@@ -1,6 +1,7 @@
 import { Condition } from '@decaf-ts/core';
 import { CrudOperations, IRepository, OperationKeys, PrimaryKeyType } from '@decaf-ts/db-decorators';
-import { Model } from '@decaf-ts/decorator-validation';
+import { Comparison, Model } from '@decaf-ts/decorator-validation';
+import { getNgxLoadingComponent, NgxLoadingComponent } from 'src/app/utils/NgxLoadingController';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { FileUploadComponent } from 'src/lib/components';
 import { getNgxModalComponent } from 'src/lib/components/modal/modal.component';
@@ -12,21 +13,90 @@ import {
   ICrudFormEvent,
   IRepositoryModelProps,
   KeyValue,
+  NgxComponentDirective,
   NgxEventHandler,
 } from 'src/lib/engine';
+import { NgxRouterService } from 'src/lib/services/NgxRouterService';
 import { Product } from '..';
 import { ProductImage } from '../ProductImage';
+
+function calculateGtinCheckSum(digits: string): string {
+  digits = '' + digits;
+  if (digits.length !== 13) throw new Error('needs to received 13 digits');
+  const multiplier = [3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3];
+  let sum = 0;
+  try {
+    // multiply each digit for its multiplier according to the table
+    for (let i = 0; i < 13; i++) sum += parseInt(digits.charAt(i)) * multiplier[i];
+
+    // Find the nearest equal or higher multiple of ten
+    const remainder = sum % 10;
+    let nearest;
+    if (remainder === 0) nearest = sum;
+    else nearest = sum - remainder + 10;
+
+    return nearest - sum + '';
+  } catch (e) {
+    throw new Error(`Did this received numbers? ${e}`);
+  }
+}
+
+export function generateGtin(): string {
+  function pad(num: number, width: number, padding: string = '0') {
+    const n = num + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(padding) + n;
+  }
+
+  const beforeChecksum = pad(Math.floor(Math.random() * 9999999999999), 13); // has to be 13. the checksum is the 4th digit
+  const checksum = calculateGtinCheckSum(beforeChecksum);
+  return `${beforeChecksum}${checksum}`;
+}
+
+// export function getBatch() {
+//   return Math.random().toString(36).replace('.', '').toUpperCase().slice(5);
+// }
 
 export class ProductHandler<M extends Model> extends NgxEventHandler {
   formGroup!: FormParent;
 
+  routerService!: NgxRouterService;
+
   static pk: string;
+
+  static loading: NgxLoadingComponent = getNgxLoadingComponent();
+
+  static instance?: NgxComponentDirective;
+
+  static skip = [
+    // 'strengths',
+    // 'markets',
+    'owner',
+    'id',
+    'uuid',
+    'updatedAt',
+    'updatedBy',
+    'createdBy',
+    'createdAt',
+  ] as string[];
 
   // static deleteEvents: > = {};
 
   static data: Record<string, Record<string, { repository: DecafRepository<Model>; data?: Model[] }>> | undefined;
 
   static readonly modelId: string;
+  // override async render(instance: any, prop: string): Promise<string | void> {
+  //   if (instance.pk) {
+  //     ProductHandler.pk = instance.pk;
+  //   }
+  //   if (prop) {
+  //     if (prop === ProductHandler.pk && instance.operation !== OperationKeys.CREATE) {
+  //       instance.readonly = true;
+  //       // instance.hidden = true;
+  //       // instance.component.nativeElement.style.display = 'none';
+  //     }
+  //   }
+  // }
+
   override async render(instance: any, prop: string, value: string): Promise<string | void> {
     if (instance.pk) {
       ProductHandler.pk = instance.pk;
@@ -51,6 +121,10 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     let submited = false;
     const redirect = true;
 
+    // const {log, ctx} = (await repository["logCtx"]([], operation, true)).for(repository.create);
+    // ctx.headers = {
+    //   Authorization: 'Bearer aaaaaaaaaaaaaaaa',
+    // }
     // if (name === ComponentEventNames.FormGroupLoaded) {
     //   this.formGroup = event.data as FormParent;
     //   return;
@@ -85,14 +159,15 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     }
 
     if (role === OperationKeys.CREATE || role === OperationKeys.UPDATE) {
+      ProductHandler.instance = this as unknown as NgxComponentDirective;
+
+      await ProductHandler.loading.show();
       // const { context } = (await this.process(
       //   event,
       //   this.model as M,
       //   false,
       // )) as ILayoutModelContext;
       // const { data, repository } = context;
-      const { epi } = event.data as KeyValue;
-      const { markets, strengths } = epi || {};
       const { success, aborted } = await this.submit(event, false);
       submited = !aborted;
       result = success;
@@ -169,25 +244,20 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     }
     if (submited) {
       if (result && redirect) {
-        this.location.back();
+        const routerService = this.injector.get(NgxRouterService);
+        routerService.navigateTo(`/products`);
       }
       const options = {
         color: result ? 'dark' : 'danger',
         message: await this.translate(`operations.multiple.${result ? 'success' : 'error'}`),
       };
+
       const toast = getNgxToastComponent(options);
       await toast.show(options);
+      if (ProductHandler.loading.isVisible()) {
+        await ProductHandler.loading.remove();
+      }
     }
-  }
-
-  static async query() {
-    const context = getModelAndRepository(Product.name);
-    if (context) {
-      const { repository } = context;
-      const query = await repository.select().execute();
-      return query || [];
-    }
-    return [];
   }
 
   static store(operation: CrudOperations, repository: DecafRepository<Model>, model: Model): void {
@@ -205,6 +275,7 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
   static getStored(operation: CrudOperations) {
     return ProductHandler.data?.[operation] || {};
   }
+
   static async getProductImageData(instance: FileUploadComponent, value: string) {
     const repo = getModelAndRepository('ProductImage');
     if (repo && value) {
@@ -220,28 +291,69 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     }
   }
 
-  static buildImageDataModel<M extends Model>(data: M, repository: DecafRepository<M>): M {
-    if (repository.class.name === Product.name) {
-      const model = data as Product & M;
-      if (!model.imageData) return data as M;
-      model.imageData = Model.build(
-        {
-          productCode: model['productCode'],
-          content: model['imageData'],
-        },
-        ProductImage.name
-      ) as ProductImage;
-      return model;
+  static getProductImage(data: Partial<Product>): Product {
+    const model = data as Product;
+    if (!model.imageData) {
+      return data as Product;
     }
-    return data;
+    const { productCode, imageData } = model;
+    model.imageData = Model.build(
+      {
+        productCode,
+        content: imageData,
+      },
+      ProductImage.name
+    ) as ProductImage;
+    return model;
   }
 
-  static endTransaction(): void {
+  static async endTransaction<M extends Model>(
+    data: M,
+    repository: IRepository<M>,
+    modelId: PrimaryKeyType
+  ): Promise<boolean | void> {
+    const modelName = repository.class.name;
+    const loading = this.loading;
+    const diffs = await this.getDiffs<M>(Model.build(data, modelName), repository, modelId);
+
+    if (diffs) {
+      if (loading.isVisible()) {
+        await loading.remove();
+      }
+      const locale = modelName.toLowerCase();
+      const modal = await getNgxModalComponent({
+        tag: 'app-modal-diffs',
+        expandable: true,
+        title: `${locale}.diffs.title`,
+
+        //  headerTransparent: true,
+        globals: {
+          diffs,
+          locale,
+        },
+      });
+      await modal.present();
+      const { role } = await modal.onDidDismiss();
+      if (role === ActionRoles.cancel) {
+        return false;
+      }
+      await loading.show();
+    }
+    // TODO: check if necessary
+    // const toDelete = ProductHandler.getStored(OperationKeys.DELETE);
+    // for (const [name, value] of Object.entries(toDelete)) {
+    //   const { repository, data } = value;
+    //   if (data?.length) {
+    //     const pk = Model.pk(repository.class);
+    //     const items = data.map((item) => (item as KeyValue)[pk]);
+    //     await repository.deleteAll(items);
+    //   }
+    // }
     ProductHandler.data = undefined;
   }
 
-  override async beforeCreate<M extends Model>(data: M, repository: DecafRepository<M>): Promise<M> {
-    return ProductHandler.buildImageDataModel<M>(data, repository);
+  override async beforeCreate(data: Product, repository: DecafRepository<Product>): Promise<Product> {
+    return ProductHandler.getProductImage(data);
   }
 
   // static async beforeSave<M extends Model>(
@@ -283,43 +395,95 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
   //     ? filterDiffs
   //     : undefined;
   // }
-  static async checkDiffs<M extends Model>(data: M, repository: IRepository<M>, modelId: PrimaryKeyType): Promise<any> {
-    const skip = [
-      Model.pk(repository.class) as keyof M,
-      // 'strengths',
-      // 'markets',
-      'id',
-      'updatedAt',
-      'updatedBy',
-      'version',
-      'createdBy',
-      'createdAt',
-    ] as (keyof M)[];
+
+  static async getDiffs<M extends Model>(data: M, repository: IRepository<M>, modelId: PrimaryKeyType): Promise<any> {
     // console.log(this);
-    const filterDiffs = {} as KeyValue;
+    const result = {} as KeyValue;
     const oldData = (await repository.read(modelId)) as M;
-    const modelDiffs = data.compare(oldData, ...skip);
+    const modelDiffs = data.compare(
+      oldData,
+      ...([Model.pk(repository.class) as keyof M, ProductHandler.skip] as (keyof M)[])
+    ) as KeyValue;
+
+    ProductHandler.skip.forEach((prop) => delete modelDiffs?.[prop]);
+
+    function filterSkippedProps(item: Comparison<M>) {
+      return Object.entries(item).reduce(
+        (acc, [k, v]) => {
+          if (!ProductHandler.skip.includes(k as string)) {
+            acc[k] = v;
+          }
+          return acc;
+        },
+        {} as Record<string, unknown>
+      );
+    }
+
+    function getDiff(data: Record<keyof M, { current: unknown; other: unknown }>):
+      | {
+          other: Record<string, unknown>;
+          current: Record<string, unknown>;
+        }
+      | undefined {
+      const diff = { other: {}, current: {} };
+      for (const key in data) {
+        if (ProductHandler.skip.includes(key)) continue;
+        if (key in data) {
+          const item = data[key];
+          if (item.other !== undefined) {
+            (diff.other as Record<string, unknown>)[key] = filterSkippedProps(item.other as Comparison<M>);
+          }
+          if (item.current !== undefined) {
+            (diff.current as Record<string, unknown>)[key] = filterSkippedProps(item.current as Comparison<M>);
+          }
+        }
+      }
+      const { other, current } = diff;
+      if (!Object.keys(other).length && !Object.keys(current).length) {
+        return undefined;
+      }
+      return diff;
+    }
 
     // console.log(modelDiffs);
     for (const [key, value] of Object.entries(modelDiffs || {})) {
-      const diff = Array.isArray(value) ? value[0] : value;
-      const other = diff?.other || undefined;
-      const current = diff?.current || undefined;
-      if (Array.isArray(other)) {
-        if (!other.length && current === undefined) continue;
-      } else {
-        if (Array.isArray(current)) {
-          if (current.length === Number(other)) continue;
+      if (Array.isArray(value)) {
+        if (value.length) {
+          value.map((d, index) => {
+            const diffs = getDiff(d);
+            if (diffs) {
+              result[`${key}_${index + 1}`] = diffs;
+            }
+          });
         }
-      }
-      if (Array.isArray(current) && Array.isArray(other) && other.length) {
-        filterDiffs[key] = { other: '', current: current.slice(other.length) };
         continue;
       }
-      filterDiffs[key] = value;
+      const diff = value;
+      let other = diff?.other || diff?.old || undefined;
+      let current = diff?.current || diff?.new || undefined;
+      if (Array.isArray(other)) {
+        other = other.map((item) => filterSkippedProps(item as Comparison<M>));
+      }
+      if (Array.isArray(current)) {
+        current = current.map((item) => filterSkippedProps(item as Comparison<M>));
+      }
+      //   if (!other.length && current === undefined) continue;
+      // } else {
+      //   if (Array.isArray(current)) {
+      //     if (current.length === Number(other)) continue;
+      //   }
+      // }
+      // if (Array.isArray(current) && Array.isArray(other) && other.length) {
+      //   result[key] = { other: '', current: current.slice(other.length) };
+      //   continue;
+      // }
+      if (current !== undefined && current !== other) {
+        result[key] = { other, current };
+      }
     }
-    // console.log(filterDiffs);
-    return Object.keys(filterDiffs as KeyValue).length ? filterDiffs : undefined;
+    console.log(result);
+    // console.log(result);
+    return Object.keys(result as KeyValue).length ? result : undefined;
   }
 
   override async beforeUpdate<M extends Model>(
@@ -327,38 +491,7 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     repository: DecafRepository<M>,
     modelId: PrimaryKeyType
   ): Promise<void | boolean> {
-    data = ProductHandler.buildImageDataModel<M>(data, repository);
-    const modelName = repository.class.name;
-    const diffs = await ProductHandler.checkDiffs<M>(Model.build(data, modelName), repository, modelId);
-    if (diffs) {
-      const locale = modelName.toLowerCase();
-      const modal = await getNgxModalComponent({
-        tag: 'app-modal-diffs',
-        expandable: true,
-        title: `${modelName.toLowerCase()}.diffs.title`,
-        //  headerTransparent: true,
-        globals: {
-          diffs,
-          locale,
-        },
-      });
-      await modal.present();
-      const { role } = await modal.onDidDismiss();
-      if (role === ActionRoles.cancel) {
-        return false;
-      }
-    }
-    const toDelete = ProductHandler.getStored(OperationKeys.DELETE);
-    for (const [name, value] of Object.entries(toDelete)) {
-      const { repository, data } = value;
-      if (data?.length) {
-        const pk = Model.pk(repository.class);
-        const items = data.map((item) => (item as KeyValue)[pk]);
-        await repository.deleteAll(items);
-      }
-    }
-
-    ProductHandler.endTransaction();
+    return ProductHandler.endTransaction(ProductHandler.getProductImage(data as Partial<Product>), repository, modelId);
 
     // if (ProductHandler.deleteEvents?.length) {
     //   for (const event of ProductHandler.deleteEvents) {

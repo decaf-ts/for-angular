@@ -17,28 +17,28 @@ import { AIFeatures } from './contants';
 enum ProductNames {
   aspirin = 'Aspirin',
   ibuprofen = 'Ibuprofen',
-  // paracetamol = 'Paracetamol',
-  // amoxicillin = 'Amoxicillin',
-  // azithromycin = 'Azithromycin',
-  // metformin = 'Metformin',
-  // atorvastatin = 'Atorvastatin',
-  // omeprazole = 'Omeprazole',
-  // simvastatin = 'Simvastatin',
-  // levothyroxine = 'Levothyroxine',
-  // lisinopril = 'Lisinopril',
-  // losartan = 'Losartan',
-  // hydrochlorothiazide = 'Hydrochlorothiazide',
-  // prednisone = "Prednisone",
-  // sertraline = "Sertraline",
-  // fluoxetine = "Fluoxetine",
-  // alprazolam = "Alprazolam",
-  // diazepam = "Diazepam",
-  // tramadol = "Tramadol",
-  // codeine = "Codeine",
-  // sildenafil = "Sildenafil",
-  // insulin = "Insulin",
-  // clopidogrel = "Clopidogrel",
-  // furosemide = "Furosemide"
+  paracetamol = 'Paracetamol',
+  amoxicillin = 'Amoxicillin',
+  azithromycin = 'Azithromycin',
+  metformin = 'Metformin',
+  atorvastatin = 'Atorvastatin',
+  omeprazole = 'Omeprazole',
+  simvastatin = 'Simvastatin',
+  levothyroxine = 'Levothyroxine',
+  lisinopril = 'Lisinopril',
+  losartan = 'Losartan',
+  hydrochlorothiazide = 'Hydrochlorothiazide',
+  prednisone = 'Prednisone',
+  sertraline = 'Sertraline',
+  fluoxetine = 'Fluoxetine',
+  alprazolam = 'Alprazolam',
+  diazepam = 'Diazepam',
+  tramadol = 'Tramadol',
+  codeine = 'Codeine',
+  sildenafil = 'Sildenafil',
+  insulin = 'Insulin',
+  clopidogrel = 'Clopidogrel',
+  furosemide = 'Furosemide',
 }
 
 export async function populateSampleData(models: Model[], populate: string[], limit: number = 12): Promise<void> {
@@ -108,7 +108,7 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
         }
         case Product.name: {
           const image = await readProductFile();
-          this.limit = 2;
+          this.limit = 22;
           this.propFnMapper = {
             productCode: () => generateGtin(),
           };

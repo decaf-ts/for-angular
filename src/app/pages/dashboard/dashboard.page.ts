@@ -1,20 +1,16 @@
-import { Component, OnInit } from "@angular/core";
-import { IonContent } from "@ionic/angular/standalone";
-import { addIcons } from "ionicons";
-import {
-  cardOutline,
-  peopleOutline,
-  documentAttachOutline,
-} from "ionicons/icons";
-import { DashboardLayout } from "src/app/layouts/Dashboboard";
-import { HeaderComponent } from "src/app/components/header/header.component";
-import { ContainerComponent } from "src/app/components/container/container.component";
-import { LayoutComponent } from "src/lib/components";
-import { NgxPageDirective } from "src/lib/engine";
+import { Component, OnInit } from '@angular/core';
+import { IonContent } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { cardOutline, documentAttachOutline, peopleOutline } from 'ionicons/icons';
+import { ContainerComponent } from 'src/app/components/container/container.component';
+import { HeaderComponent } from 'src/app/components/header/header.component';
+import { DashboardLayout } from 'src/app/layouts/Dashboboard';
+import { LayoutComponent } from 'src/lib/components';
+import { NgxPageDirective } from 'src/lib/engine';
 @Component({
-  selector: "app-dashboard",
-  templateUrl: "./dashboard.page.html",
-  styleUrls: ["./dashboard.page.scss"],
+  selector: 'app-dashboard',
+  templateUrl: './dashboard.page.html',
+  styleUrls: ['./dashboard.page.scss'],
   standalone: true,
   imports: [HeaderComponent, ContainerComponent, IonContent, LayoutComponent],
 })
@@ -25,7 +21,7 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
   lastUsage!: string;
 
   constructor() {
-    super("DashboardPage", false);
+    super('DashboardPage', false);
     addIcons({
       cardOutline,
       peopleOutline,
@@ -49,4 +45,15 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
   private random(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
+
+  // async showFilterModal(): Promise<void> {
+  //   const modal = await getNgxModalCrudComponent(new CategoryModel(), {
+  //     title: 'dashboard.filter.title',
+  //   });
+  //   await modal.present();
+  //   const { data, role } = await modal.onDidDismiss();
+  //   if (role === 'confirm') {
+  //     console.log(data);
+  //   }
+  // }
 }

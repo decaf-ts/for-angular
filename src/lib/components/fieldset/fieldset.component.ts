@@ -10,36 +10,34 @@
 
 import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
-import { alertCircleOutline, createOutline, addOutline, trashOutline } from 'ionicons/icons';
-import { addIcons } from 'ionicons';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { Model, ReservedModels } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames, CrudOperationKeys, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import {
   IonButton,
+  IonIcon,
   IonItem,
   IonLabel,
   IonList,
-  ItemReorderEventDetail,
-  IonReorderGroup,
   IonReorder,
-  IonIcon,
-  IonText,
+  IonReorderGroup,
   IonSpinner,
+  IonText,
+  ItemReorderEventDetail,
 } from '@ionic/angular/standalone';
-import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { Model, ReservedModels } from '@decaf-ts/decorator-validation';
-import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { NgxFormDirective } from '../../engine/NgxFormDirective';
-import { NgxFormService } from '../../services/NgxFormService';
-import { LayoutComponent } from '../layout/layout.component';
-import { FormParent, KeyValue } from '../../engine/types';
-import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
-import { Dynamic } from '../../engine/decorators';
-import { itemMapper } from '../../utils/helpers';
-import { CrudOperationKeys, UIModelMetadata } from '@decaf-ts/ui-decorators';
+import { TranslatePipe } from '@ngx-translate/core';
+import { addIcons } from 'ionicons';
+import { addOutline, alertCircleOutline, createOutline, trashOutline } from 'ionicons/icons';
 import { timer } from 'rxjs';
-import { IconComponent } from '../icon/icon.component';
 import { ActionRoles } from '../../engine/constants';
-import { DecafRepository } from '../../engine/types';
+import { Dynamic } from '../../engine/decorators';
+import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces';
+import { NgxFormDirective } from '../../engine/NgxFormDirective';
+import { DecafRepository, FormParent, KeyValue } from '../../engine/types';
+import { NgxFormService } from '../../services/NgxFormService';
+import { itemMapper } from '../../utils/helpers';
+import { IconComponent } from '../icon/icon.component';
+import { LayoutComponent } from '../layout/layout.component';
 import { presentModalConfirm } from '../modal/modal.component';
 
 /**
@@ -391,14 +389,11 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
           // iterate on childOf path to get correct formGroup
           const parts = (this.childOf as string).split('.');
           let formGroup = this.parentForm as FormParent;
-          for (const part of parts)
-            formGroup = (formGroup as FormGroup).controls[part] as FormParent;
+          for (const part of parts) formGroup = (formGroup as FormGroup).controls[part] as FormParent;
           this.formGroup = formGroup;
-          if (this.formGroup instanceof FormGroup)
-            this.formGroup = this.formGroup.parent as FormArray;
+          if (this.formGroup instanceof FormGroup) this.formGroup = this.formGroup.parent as FormArray;
         }
-        if (!this.formGroup && this.parentForm instanceof FormArray)
-          this.formGroup = this.parentForm;
+        if (!this.formGroup && this.parentForm instanceof FormArray) this.formGroup = this.parentForm;
         if (!this.formGroup && (this.children[0] as KeyValue)?.['formGroup'] instanceof FormGroup)
           this.formGroup = (this.children[0] as KeyValue)?.['formGroup'].parent as FormArray;
         if (this.formGroup && !(this.formGroup instanceof FormArray))
@@ -505,8 +500,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
 
               if (!Object.keys(this.mapper).length) this.mapper = this.getMapper(v as KeyValue);
               Object.entries(v).forEach(([key, value]) => {
-                if (key === this.pk)
-                  formGroup.addControl(key, new FormControl({ value: value, disabled: false }));
+                if (key === this.pk) formGroup.addControl(key, new FormControl({ value: value, disabled: false }));
                 const control = formGroup.get(key);
                 if (control instanceof FormControl) {
                   control.setValue(value);
@@ -636,7 +630,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       const isUnique = NgxFormService.isUniqueOnGroup(
         formGroup,
         action,
-        action === OperationKeys.UPDATE ? this.updatingItem?.index : undefined,
+        action === OperationKeys.UPDATE ? this.updatingItem?.index : undefined
       );
       if (isValid) {
         this.mapper = this.getMapper(value as KeyValue);
@@ -659,9 +653,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   }
 
   hasValue(value: KeyValue = {}): boolean {
-    return Object.keys(value).some(
-      (key) => value[key] !== null && value[key] !== undefined && value[key] !== '',
-    );
+    return Object.keys(value).some((key) => value[key] !== null && value[key] !== undefined && value[key] !== '');
   }
 
   handleUpdateItem(index: number): void {
@@ -702,7 +694,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
   async handleRemoveItem(
     index: number,
     confirmed: boolean = false,
-    value: KeyValue | undefined = undefined,
+    value: KeyValue | undefined = undefined
   ): Promise<void> {
     const repository = this._repository;
     const formArray = this.formGroup as FormArray;
@@ -721,7 +713,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
           },
         },
         ActionRoles.delete,
-        this.injector,
+        this.injector
       );
       await modal.present();
       const { role } = await modal.onDidDismiss();
@@ -820,11 +812,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
    */
 
   handleEmitEvent(value: KeyValue, operation: CrudOperations): void {
-    if (
-      this._repository &&
-      this.operation === OperationKeys.UPDATE &&
-      value[this.pk] !== undefined
-    ) {
+    if (this._repository && this.operation === OperationKeys.UPDATE && value[this.pk] !== undefined) {
       this.listenEvent.emit({
         name: ComponentEventNames.Submit,
         role: operation,
@@ -912,16 +900,18 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
           })
           .filter((v) => {
             // return `${v[this.pk] || ""}`.trim().length;
-            return Object.entries(v).some(
-              ([k, v]) => k !== 'index' && v !== undefined && String(v).trim().length,
-            );
+            return Object.entries(v).some(([k, v]) => k !== 'index' && v !== undefined && String(v).trim().length);
           })
           .map((v, index) => {
-            return {
+            const item = {
               ...itemMapper(Object.assign({}, v), this.mapper, {
                 [this.pk]: this.pk || undefined,
               }),
-              index: v.index > 1 ? v.index : index + 1,
+            };
+            index = v.index > 1 ? v.index : index + 1;
+            return {
+              ...item,
+              index,
             } as IFieldSetItem;
           }),
       ];
@@ -944,11 +934,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
     if (!Object.keys(this.mapper).length) (this.mapper as KeyValue)['title'] = this.pk;
     (this.mapper as KeyValue)['index'] = 'index';
     for (const key in value) {
-      if (
-        Object.keys(this.mapper).length >= 2 ||
-        Object.keys(this.mapper).length === Object.keys(value).length
-      )
-        break;
+      if (Object.keys(this.mapper).length >= 2 || Object.keys(this.mapper).length === Object.keys(value).length) break;
       if (!(this.mapper as KeyValue)['title']) {
         (this.mapper as KeyValue)['title'] = key;
       } else {

@@ -37,8 +37,16 @@
             </ion-button>
           }
           @if (showCloseButton) {
-            <ion-button size="small" type="button" class="dcf-button-close" (click)="cancel()">
-              <ngx-decaf-icon [color]="iconColor" name="ti-x" />
+            <ion-button
+              size="small"
+              type="button"
+              class="dcf-button-close"
+              (click)="cancel()"
+            >
+              <ngx-decaf-icon
+                [color]="iconColor"
+                name="ti-x"
+              />
             </ion-button>
           }
         </ion-buttons>
@@ -46,18 +54,27 @@
     </ion-header>
 
     <ion-content>
-      <section class="dcf-modal-body" [class.dcf-has-title]="title?.length">
+      <section
+        class="dcf-modal-body"
+        [class.dcf-has-title]="title?.length"
+      >
         @if (!tag && !model && !inlineContent) {
           <div class="dcf-loading-container">
-            <ion-spinner name="crescent" color="primary"></ion-spinner>
+            <ion-spinner
+              name="crescent"
+              color="primary"
+            ></ion-spinner>
           </div>
         } @else {
           @if (inlineContent && inlineContentPosition === 'top') {
-            <div class="dcf-modal-content" id="dcf-modal-content" [innerHTML]="inlineContent"></div>
+            <div
+              class="dcf-modal-content"
+              id="dcf-modal-content"
+              [innerHTML]="inlineContent"
+            ></div>
           }
           @if (!tag && model) {
             <ngx-decaf-model-renderer
-              (onIonChange)="handleEvent($event)"
               (listenEvent)="handleEvent($event)"
               [model]="model"
               [globals]="globals"
@@ -65,14 +82,17 @@
           } @else if (tag && globals) {
             <ngx-decaf-component-renderer
               [tag]="tag"
-              (onIonChange)="handleEvent($event)"
               (listenEvent)="handleEvent($event)"
               [model]="model"
               [globals]="{ props: globals }"
             />
           }
           @if (inlineContent && inlineContentPosition === 'bottom') {
-            <div class="dcf-modal-content" id="dcf-modal-content" [innerHTML]="inlineContent"></div>
+            <div
+              class="dcf-modal-content"
+              id="dcf-modal-content"
+              [innerHTML]="inlineContent"
+            ></div>
           }
         }
       </section>

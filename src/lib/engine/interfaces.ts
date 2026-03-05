@@ -4,26 +4,14 @@
  * @summary Exposes interfaces for component input metadata, rendering outputs, form events,
  * and supporting types used across the engine and components.
  */
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ElementRef, EnvironmentInjector, Injector, Type } from '@angular/core';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { OrderDirection } from '@decaf-ts/core';
-import {
-  AngularFieldDefinition,
-  DecafRepository,
-  FieldUpdateMode,
-  KeyValue,
-  StringOrBoolean,
-} from './types';
-import {
-  CrudOperationKeys,
-  FieldProperties,
-  IPagedComponentProperties,
-  UIFunctionLike,
-} from '@decaf-ts/ui-decorators';
-import { FormParent } from './types';
-import { Model } from '@decaf-ts/decorator-validation';
-import { ActionRoles } from './constants';
 import { PrimaryKeyType } from '@decaf-ts/db-decorators';
+import { Model } from '@decaf-ts/decorator-validation';
+import { CrudOperationKeys, FieldProperties, IPagedComponentProperties, UIFunctionLike } from '@decaf-ts/ui-decorators';
+import { ActionRoles } from './constants';
+import { AngularFieldDefinition, DecafRepository, FieldUpdateMode, FormParent, KeyValue, StringOrBoolean } from './types';
 
 /**
  * @description Interface for models that can be rendered
@@ -320,8 +308,7 @@ export interface IBaseCustomEvent {
   context?: Partial<IRepositoryModelProps<Model>>;
 }
 
-export interface IModelComponentSubmitEvent<M extends Model>
-  extends Omit<IBaseCustomEvent, 'name'> {
+export interface IModelComponentSubmitEvent<M extends Model> extends Omit<IBaseCustomEvent, 'name'> {
   success: boolean;
   message?: string;
   aborted?: boolean;
@@ -369,6 +356,7 @@ export interface I18nToken {
  */
 export interface ICrudFormEvent extends IBaseCustomEvent {
   handler?: UIFunctionLike;
+  isModalChild?: boolean;
   handlers?: Record<string, UIFunctionLike>;
   modelId?: PrimaryKeyType;
   role: (typeof ActionRoles)[keyof typeof ActionRoles] & CrudOperationKeys;

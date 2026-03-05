@@ -444,7 +444,10 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     let result = null;
     try {
       const repository = await this.getTransactionRepository<M>(event, repo!);
-      const { data, role } = event;
+      const { data, role, isModalChild } = event;
+      if (isModalChild) {
+        this.isModalChild = true;
+      }
       const operation = (role || this.operation) as CrudOperations;
       if (data) {
         if (!pk) {
@@ -503,6 +506,12 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
           `Error during ${this.operation} operation: ${error instanceof Error ? error.message : (error as string)}`
         );
       message = error instanceof Error ? error.message : (error as string);
+    }
+    if (this.isModalChild) {
+      this.listenEvent.emit({
+        ...event,
+        data: result,
+      });
     }
     return { ...event, success, message, model: result, aborted: false };
   }

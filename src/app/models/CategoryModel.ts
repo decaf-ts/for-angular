@@ -1,24 +1,19 @@
-import {
-  Model,
-  model,
-  ModelArg,
-  required,
-} from '@decaf-ts/decorator-validation';
-import {
-  uilistprop,
-  uielement,
-  uilistmodel,
-  uimodel,
-  hideOn,
-  uilayoutprop,
-} from '@decaf-ts/ui-decorators';
-import { OperationKeys, readonly, timestamp } from '@decaf-ts/db-decorators';
 import { index, pk } from '@decaf-ts/core';
+import { OperationKeys, readonly, timestamp } from '@decaf-ts/db-decorators';
+import { Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
+import {
+  hideOn,
+  HTML5InputTypes,
+  uielement,
+  uilayoutprop,
+  uilistmodel,
+  uilistprop,
+  uimodel,
+} from '@decaf-ts/ui-decorators';
 @uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class CategoryModel extends Model {
-
   @pk({ type: Number })
   @hideOn(OperationKeys.CREATE)
   @uilistprop('uid')
@@ -37,6 +32,21 @@ export class CategoryModel extends Model {
   @uilayoutprop(1, 2)
   @required()
   name!: string;
+
+  @uielement('ngx-decaf-crud-field', {
+    label: 'Período',
+    type: HTML5InputTypes.RADIO,
+    translatable: false,
+    justify: 'start',
+    labelPlacement: 'end',
+    options: [
+      { text: 'Tudo', value: 'all' },
+      { text: '15 Dias', value: 'fifteen' },
+      { text: '30 Dias', value: 'month' },
+      { text: 'Ano', value: 'year' },
+    ],
+  })
+  sets?: string;
 
   @uielement('ngx-decaf-crud-field', {
     label: 'category.description.label',
