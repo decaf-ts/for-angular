@@ -15,6 +15,12 @@
       "url": "https://ew-frontend.ptp.internal/"
     },
     {
+      "name": "PDM - Chrome Debug",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://ew-frontend-pdm.ptp.internal/"
+    },
+    {
       "name": "ng serve",
       "type": "chrome",
       "request": "launch",
@@ -65,9 +71,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Jest watch all tests",
-      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
-      "args": ["--verbose", "-i", "--no-cache", "--watchAll"],
+      "name": "Jest watch current file",
+      "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+      "args": ["${relativeFile}", "--verbose", "-i", "--no-cache", "--watchAll"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "windows": {
@@ -77,9 +83,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Jest watch current file",
-      "program": "${workspaceFolder}/node_modules/jest/bin/jest",
-      "args": ["${relativeFile}", "--verbose", "-i", "--no-cache", "--watchAll"],
+      "name": "Jest run all tests",
+      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+      "args": ["--verbose", "-i", "--no-cache"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "windows": {

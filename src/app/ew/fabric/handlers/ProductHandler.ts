@@ -1,6 +1,6 @@
 import { Condition } from '@decaf-ts/core';
 import { CrudOperations, IRepository, OperationKeys, PrimaryKeyType } from '@decaf-ts/db-decorators';
-import { Comparison, Model } from '@decaf-ts/decorator-validation';
+import { Model } from '@decaf-ts/decorator-validation';
 import { getNgxLoadingComponent, NgxLoadingComponent } from 'src/app/utils/NgxLoadingController';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { FileUploadComponent } from 'src/lib/components';
@@ -19,6 +19,13 @@ import {
 import { NgxRouterService } from 'src/lib/services/NgxRouterService';
 import { Product } from '..';
 import { ProductImage } from '../ProductImage';
+
+interface IComparisonLike<T> {
+  other: keyof T | undefined;
+  current: keyof T | undefined;
+}
+
+type ParsedDiff<M> = Record<string, IComparisonLike<M>>;
 
 function calculateGtinCheckSum(digits: string): string {
   digits = '' + digits;
@@ -67,19 +74,7 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
 
   static instance?: NgxComponentDirective;
 
-  static skip = [
-    // 'strengths',
-    // 'markets',
-    'owner',
-    'id',
-    'uuid',
-    'updatedAt',
-    'updatedBy',
-    'createdBy',
-    'createdAt',
-  ] as string[];
-
-  // static deleteEvents: > = {};
+  static skip = ['owner', 'id', 'uuid', 'updatedAt', 'updatedBy', 'createdBy', 'createdAt'] as string[];
 
   static data: Record<string, Record<string, { repository: DecafRepository<Model>; data?: Model[] }>> | undefined;
 
@@ -97,7 +92,8 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
   //   }
   // }
 
-  override async render(instance: any, prop: string, value: string): Promise<string | void> {
+  override async render(instance: NgxComponentDirective, prop: string, value: string): Promise<string | void> {
+    ProductHandler.instance = instance;
     if (instance.pk) {
       ProductHandler.pk = instance.pk;
     }
@@ -115,145 +111,42 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
   }
 
   override async handle(event: ICrudFormEvent): Promise<void> {
-    const { name, role } = event;
-    const allowSubmit = true;
+    const { role } = event;
     let result = false;
     let submited = false;
-    const redirect = true;
-
-    // const {log, ctx} = (await repository["logCtx"]([], operation, true)).for(repository.create);
-    // ctx.headers = {
-    //   Authorization: 'Bearer aaaaaaaaaaaaaaaa',
-    // }
-    // if (name === ComponentEventNames.FormGroupLoaded) {
-    //   this.formGroup = event.data as FormParent;
-    //   return;
-    // }
-
-    if (role === OperationKeys.DELETE) {
-      const { context, data } = event;
-
-      // search for context, handle strengths and markets deletion
-      if (!context) {
-        const { success, aborted } = await this.submit({ ...event, data }, false);
+    switch (role) {
+      case OperationKeys.CREATE:
+      case OperationKeys.UPDATE: {
+        ProductHandler.instance = this as unknown as NgxComponentDirective;
+        await ProductHandler.loading.show();
+        const { success, aborted } = await this.submit(event, false);
         submited = !aborted;
         result = success;
-      } else {
-        const { repository } = context as IRepositoryModelProps<Model>;
-        ProductHandler.store(role, repository, data as M);
-
-        // const deleteObject = ProductHandler.deleteEvents;
-        // if(!ProductHandler.deleteEvents[repository.class.name]) {
-        // }
-        // if (!ProductHandler.deleteEvents[modelName as string] && repository) {
-        //   ProductHandler.deleteEvents[modelName as string] = { repository };
-        // }
-        // const propData = ProductHandler.deleteEvents[modelName as string].data
-        // ProductHandler.deleteEvents[modelName as string].data = [
-        //     ProductHandler.deleteEvents[modelName as string]?.data || [],
-        // ]
-        // // ProductHandler.deleteEvents.push(event);
-        // console.log(ProductHandler.deleteEvents);
-        return;
+        break;
+      }
+      case OperationKeys.DELETE: {
+        const { context, data } = event;
+        if (!context) {
+          const { success, aborted } = await this.submit({ ...event, data }, false);
+          submited = !aborted;
+          result = success;
+        } else {
+          const { repository } = context as IRepositoryModelProps<Model>;
+          ProductHandler.store(role, repository, data as M);
+          return;
+        }
       }
     }
 
-    if (role === OperationKeys.CREATE || role === OperationKeys.UPDATE) {
-      ProductHandler.instance = this as unknown as NgxComponentDirective;
-
-      await ProductHandler.loading.show();
-      // const { context } = (await this.process(
-      //   event,
-      //   this.model as M,
-      //   false,
-      // )) as ILayoutModelContext;
-      // const { data, repository } = context;
-      const { success, aborted } = await this.submit(event, false);
-      submited = !aborted;
-      result = success;
-
-      // if ('imageData' in data) {
-      //   data['imageData'] = Model.build(
-      //     {
-      //       productCode: data['productCode'],
-      //       content: data['imageData'],
-      //     },
-      //     ProductImage.name
-      //   ) as ProductImage;
-      // }
-      // const result = await this.submit({...event, data: model}, true);
-      // success = result.success;
-    } else {
-      // const models = await this.process(event, this.model as Model, false) as IRepositoryModelProps<Model>[];
-      // const repo = getModelAndRepository(modelName);
-      // if(repo) {
-      //   const {repository, model, pk} = repo;
-      //   const data = {} as KeyValue;
-      //   for(const key of Object.keys(models)) {
-      //     if(key === model.constructor.name.toLowerCase()) {
-      //       Object.assign(data, models[key].model);
-      //     } else {
-      //       data[key] = models[key].model;
-      //     }
-      //   }
-      //   if(this.operation === OperationKeys.UPDATE) {
-      //     const diffs = await ProductLayoutHandler.beforeSave(
-      //       repository,
-      //       Model.build(data, model.constructor.name),
-      //       models,
-      //       pk,
-      //     );
-      //     if(diffs) {
-      //       const locale = modelName.toLowerCase();
-      //       const modal = await getNgxModalComponent({
-      //         tag: 'app-modal-diffs',
-      //         expandable: true,
-      //         title: `${modelName.toLowerCase()}.diffs.title`,
-      //         //  headerTransparent: true,
-      //         globals: {
-      //           diffs,
-      //           locale
-      //         }
-      //       });
-      //       await modal.present();
-      //       const {role} = await modal.onDidDismiss();
-      //       allowSubmit = role === ActionRoles.confirm;
-      //     }
-      //   }
-      //   if(allowSubmit) {
-      //     const data = {} as KeyValue;
-      //     for(const key of Object.keys(models)) {
-      //       if(key === model.constructor.name.toLowerCase()) {
-      //         Object.assign(data, models[key].model);
-      //       } else {
-      //         const childPk = models[key].pk;
-      //         data[key] = ((models[key].model || []) as KeyValue[]).map((m: KeyValue) => {
-      //           if(m[childPk] === undefined || !m[childPk])
-      //             delete m[childPk];
-      //           return {...m, ...{[pk]: data[pk]}};
-      //         });
-      //       }
-      //     }
-      //     success = await ProductLayoutHandler.submit(
-      //       repository,
-      //       Model.build(data, model.constructor.name),
-      //       this.operation as OperationKeys
-      //     );
-      //   }
-      // }
-    }
     if (submited) {
-      if (result && redirect) {
-        const routerService = this.injector.get(NgxRouterService);
-        routerService.navigateTo(`/products`);
+      if (result) {
+        this.injector.get(NgxRouterService).navigateTo(`/products`);
       }
-      const options = {
+      const toast = getNgxToastComponent();
+      await toast.show({
         color: result ? 'dark' : 'danger',
         message: await this.translate(`operations.multiple.${result ? 'success' : 'error'}`),
-      };
-
-      const toast = getNgxToastComponent(options);
-      await toast.show(options);
+      });
       if (ProductHandler.loading.isVisible()) {
         await ProductHandler.loading.remove();
       }
@@ -286,7 +179,6 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
         .execute()) as ProductImage[];
       if (data?.length) {
         instance.setValue(data[0].content);
-        // instance.value = JSON.parse(data[0].content[0]) as string;
       }
     }
   }
@@ -297,10 +189,15 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
       return data as Product;
     }
     const { productCode, imageData } = model;
+    // const now = new Date();
+
     model.imageData = Model.build(
       {
         productCode,
         content: imageData,
+        // updatedAt: now,
+        // createdAt: now,
+        // owner: owner,
       },
       ProductImage.name
     ) as ProductImage;
@@ -314,6 +211,7 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
   ): Promise<boolean | void> {
     const modelName = repository.class.name;
     const loading = this.loading;
+    ProductHandler.skip = [ProductHandler.pk, ...ProductHandler.skip] as string[];
     const diffs = await this.getDiffs<M>(Model.build(data, modelName), repository, modelId);
 
     if (diffs) {
@@ -356,85 +254,52 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     return ProductHandler.getProductImage(data);
   }
 
-  // static async beforeSave<M extends Model>(
-  //   repository: IRepository<M>,
-  //   data: M,
-  //   models: IRepositoryModelProps<M>,
-  //   pk: string
-  // ): Promise<KeyValue | undefined> {
-  //   const skip = [
-  //     pk,
-  //     'strengths',
-  //     'markets',
-  //     'id',
-  //     'updatedAt',
-  //     'updatedBy',
-  //     'version',
-  //     'createdBy',
-  //     'createdAt',
-  //   ] as (keyof M)[];
-  //   const oldData = (await repository.read((data as KeyValue)[pk])) as M;
-  //   const modelDiffs = data.compare(oldData, ...skip);
-  //   const filterDiffs = {} as KeyValue;
-  //   for (const [key, value] of Object.entries(modelDiffs || {})) {
-  //     const { other, current } = Array.isArray(value) ? value[0] : value;
-  //     if (Array.isArray(other)) {
-  //       if (!other.length && current === undefined) continue;
-  //     } else {
-  //       if (Array.isArray(current)) {
-  //         if (current.length === Number(other)) continue;
-  //       }
-  //     }
-  //     if (Array.isArray(current) && Array.isArray(other) && other.length) {
-  //       filterDiffs[key] = { other: '', current: current.slice(other.length) };
-  //       continue;
-  //     }
-  //     filterDiffs[key] = value;
-  //   }
-  //   return Object.keys(filterDiffs as KeyValue).length
-  //     ? filterDiffs
-  //     : undefined;
-  // }
-
-  static async getDiffs<M extends Model>(data: M, repository: IRepository<M>, modelId: PrimaryKeyType): Promise<any> {
-    // console.log(this);
-    const result = {} as KeyValue;
+  static async getDiffs<M extends Model>(
+    data: M,
+    repository: IRepository<M>,
+    modelId: PrimaryKeyType
+  ): Promise<ParsedDiff<M> | undefined> {
+    const model = Model.build(Object.assign({}, data), repository.class.name) as M;
+    const result: ParsedDiff<M> = {};
     const oldData = (await repository.read(modelId)) as M;
-    const modelDiffs = data.compare(
-      oldData,
-      ...([Model.pk(repository.class) as keyof M, ProductHandler.skip] as (keyof M)[])
-    ) as KeyValue;
+    const modelDiffs = model.compare(oldData, ...(this.skip as (keyof M)[])) as KeyValue;
 
-    ProductHandler.skip.forEach((prop) => delete modelDiffs?.[prop]);
+    this.skip.forEach((prop) => {
+      if (prop in modelDiffs) {
+        delete modelDiffs[prop];
+      }
+    });
 
-    function filterSkippedProps(item: Comparison<M>) {
+    // filter skipped props on nested props
+    const filterSkippedProps = (item: keyof M) => {
+      if (!item || typeof item !== 'object') {
+        return item;
+      }
       return Object.entries(item).reduce(
         (acc, [k, v]) => {
-          if (!ProductHandler.skip.includes(k as string)) {
+          if (k === 'version' && !v) {
+            v = '0';
+          }
+          if (!this.skip.includes(k as string) && v !== undefined) {
             acc[k] = v;
           }
           return acc;
         },
         {} as Record<string, unknown>
       );
-    }
+    };
 
-    function getDiff(data: Record<keyof M, { current: unknown; other: unknown }>):
-      | {
-          other: Record<string, unknown>;
-          current: Record<string, unknown>;
-        }
-      | undefined {
-      const diff = { other: {}, current: {} };
+    const parseArrayDiff = (data: Record<keyof M, IComparisonLike<M>>): IComparisonLike<M> | undefined => {
+      const diff = { other: {} as Record<keyof M, unknown>, current: {} as Record<keyof M, unknown> };
       for (const key in data) {
-        if (ProductHandler.skip.includes(key)) continue;
+        if (this.skip.includes(key)) continue;
         if (key in data) {
           const item = data[key];
           if (item.other !== undefined) {
-            (diff.other as Record<string, unknown>)[key] = filterSkippedProps(item.other as Comparison<M>);
+            diff.other[key] = filterSkippedProps(item.other);
           }
           if (item.current !== undefined) {
-            (diff.current as Record<string, unknown>)[key] = filterSkippedProps(item.current as Comparison<M>);
+            diff.current[key] = filterSkippedProps(item.current);
           }
         }
       }
@@ -442,15 +307,15 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
       if (!Object.keys(other).length && !Object.keys(current).length) {
         return undefined;
       }
-      return diff;
-    }
+      return diff as IComparisonLike<M>;
+    };
 
     // console.log(modelDiffs);
     for (const [key, value] of Object.entries(modelDiffs || {})) {
       if (Array.isArray(value)) {
         if (value.length) {
-          value.map((d, index) => {
-            const diffs = getDiff(d);
+          value.map((item, index) => {
+            const diffs = parseArrayDiff(item);
             if (diffs) {
               result[`${key}_${index + 1}`] = diffs;
             }
@@ -462,28 +327,38 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
       let other = diff?.other || diff?.old || undefined;
       let current = diff?.current || diff?.new || undefined;
       if (Array.isArray(other)) {
-        other = other.map((item) => filterSkippedProps(item as Comparison<M>));
+        // other = other.map((item) => filterSkippedProps(item));
+        other = other.map((item, index) => {
+          const diffs = filterSkippedProps(item);
+          const diffKey = `${key}_${String(index + 1)}`;
+          if (!result[diffKey]) {
+            result[diffKey] = { other, current };
+          }
+          if (diffs) {
+            result[diffKey].other = diffs as keyof M;
+          }
+        });
+        continue;
       }
       if (Array.isArray(current)) {
-        current = current.map((item) => filterSkippedProps(item as Comparison<M>));
+        // current = current.map((item) => filterSkippedProps(item));
+        current = current.map((item, index) => {
+          const diffs = filterSkippedProps(item);
+          const resultKey = `${key}_${String(index + 1)}`;
+          if (!result[resultKey]) {
+            result[resultKey] = { other, current };
+          }
+          if (diffs) {
+            result[resultKey].current = diffs as keyof M;
+          }
+        });
+        continue;
       }
-      //   if (!other.length && current === undefined) continue;
-      // } else {
-      //   if (Array.isArray(current)) {
-      //     if (current.length === Number(other)) continue;
-      //   }
-      // }
-      // if (Array.isArray(current) && Array.isArray(other) && other.length) {
-      //   result[key] = { other: '', current: current.slice(other.length) };
-      //   continue;
-      // }
       if (current !== undefined && current !== other) {
         result[key] = { other, current };
       }
     }
-    console.log(result);
-    // console.log(result);
-    return Object.keys(result as KeyValue).length ? result : undefined;
+    return Object.keys(result)?.length ? result : undefined;
   }
 
   override async beforeUpdate<M extends Model>(
@@ -492,51 +367,5 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     modelId: PrimaryKeyType
   ): Promise<void | boolean> {
     return ProductHandler.endTransaction(ProductHandler.getProductImage(data as Partial<Product>), repository, modelId);
-
-    // if (ProductHandler.deleteEvents?.length) {
-    //   for (const event of ProductHandler.deleteEvents) {
-    //     const { context } = event;
-    //     if (context) {
-    //       const { repository, pk } = context;
-    //       await this.submit(event as ICrudFormEvent, false, context.repository);
-    //       ProductHandler.deleteEvents = [];
-    //     }
-    //   }
-    // }
   }
-
-  // static async submit(
-  //   repository: IRepository<Model>,
-  //   model: Model,
-  //   operation: OperationKeys
-  // ): Promise<boolean> {
-  //   let success = false;
-  //   try {
-  //     if (model) {
-  //       let result;
-  //       switch (operation) {
-  //         case OperationKeys.CREATE:
-  //           result = await repository.create(model);
-  //           break;
-  //         case OperationKeys.UPDATE: {
-  //           result = await repository.update(model);
-  //           break;
-  //         }
-  //         // case OperationKeys.DELETE:
-  //         // result = await (!Array.isArray(model)
-  //         //   ? repository.delete(model as string | number)
-  //         //   : repository.deleteAll(model as string[] | number[]));
-  //         // break;
-  //       }
-  //       success = result ? true : false;
-  //     }
-  //   } catch (error: unknown) {
-  //     console.error(
-  //       `Error during ${operation} operation: ${
-  //         error instanceof Error ? error.message : (error as string)
-  //       }`
-  //     );
-  //   }
-  //   return success;
-  // }
 }

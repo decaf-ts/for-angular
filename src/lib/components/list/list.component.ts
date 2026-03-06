@@ -720,7 +720,6 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   override async refresh(event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false): Promise<void> {
     await super.refresh();
-    console.log(this.component);
     //  if (typeof force !== 'boolean' && force.type === ComponentEventNames.BackButtonClickEvent) {
     //    const {refresh} = (force as CustomEvent).detail;
     //    if (!refresh)

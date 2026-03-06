@@ -77,7 +77,10 @@
                 (ionItemReorder)="handleReorderItems($any($event))"
                 #accordionComponent
               >
-                @for (item of items; track item.index) {
+                @for (
+                  item of items;
+                  track trackItemFn(item.index, item.title)
+                ) {
                   <ion-item
                     [class.not-unique]="
                       isUniqueError && item.title === isUniqueError
@@ -118,7 +121,7 @@
                           : ''
                       "
                     >
-                      {{ $index + 1 }}.{{ item.title }}
+                      {{ item.index }}.{{ item.title }}
                       <!-- @if (ordenable) {
                         {{ item.index }}.{{ item.title }}
                       } @else {

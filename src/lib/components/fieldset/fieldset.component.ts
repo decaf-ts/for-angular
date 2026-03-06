@@ -726,7 +726,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       if (formArray.length === 1) {
         const currentGroup = formArray.at(0) as FormGroup;
         Object.keys(currentGroup?.controls).forEach((controlName) => {
-          currentGroup.get(controlName)?.setValue(null);
+          currentGroup.get(controlName)?.setValue(undefined);
         });
       } else {
         formArray.removeAt(index);
@@ -892,12 +892,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       }
       this.items = [
         ...value
-          .map((v) => {
-            return {
-              ...v,
-              index: this.items?.length ? this.items.length + 1 : 1,
-            };
-          })
+
           .filter((v) => {
             // return `${v[this.pk] || ""}`.trim().length;
             return Object.entries(v).some(([k, v]) => k !== 'index' && v !== undefined && String(v).trim().length);
@@ -908,7 +903,7 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
                 [this.pk]: this.pk || undefined,
               }),
             };
-            index = v.index > 1 ? v.index : index + 1;
+            index = v?.['index'] > 1 ? v?.['index'] : index + 1;
             return {
               ...item,
               index,

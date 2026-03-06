@@ -20,15 +20,21 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     super({ eventsListenerPath: '/events', ...config }, alias);
   }
 
+  token?: string;
+
   parseStatementURL(url: string): string {
     const urlArray = url.split('/');
     if (urlArray.includes(PersistenceKeys.STATEMENT) && !urlArray.includes(PreparedStatementKeys.PAGE_BY)) {
-      return urlArray.filter((part) => part !== PersistenceKeys.STATEMENT).join('/');
+      if (urlArray.includes(PreparedStatementKeys.FIND)) {
+        const direction = urlArray.pop();
+        url = urlArray.filter((part) => part !== PersistenceKeys.STATEMENT).join('/');
+        url = `${url}?direction=${direction}`;
+      } else {
+        return urlArray.filter((part) => part !== PersistenceKeys.STATEMENT).join('/');
+      }
     }
     return url;
   }
-
-  token?: string;
 
   override async request<V>(details: AxiosRequestConfig, ...args: ContextualArgs<Context<AxiosFlags>>): Promise<V> {
     let overrides = {};
@@ -36,11 +42,11 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
       const { ctx } = this.logCtx(args, this.request);
       overrides = this.toRequest(ctx);
     } catch (err: unknown) {
-      this.log.debug(`Error generating request overrides: ${(err as Error).message}.`);
+      // do nothing
     }
     if (this.token) {
       overrides = {
-        ...(this.enableCredentials ? { withCredentials: this.enableCredentials } : {}),
+        withCredentials: true,
         headers: {
           authorization: `Bearer ${this.token}`,
           // 'access-control-allow-origin': '*',
@@ -53,6 +59,7 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
       case 'POST':
       case 'PATCH': {
         const headers = (overrides as AxiosRequestConfig)?.headers || {};
+
         overrides = {
           ...overrides,
           headers: {
@@ -63,7 +70,6 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
         break;
       }
     }
-
     return await this.client.request(
       Object.assign({}, details, { url: this.parseStatementURL(details.url || '') }, overrides)
     );
