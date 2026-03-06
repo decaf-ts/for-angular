@@ -180,6 +180,9 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    * @memberOf PaginationComponent
    */
   ngOnInit(): void {
+    if (this.disablePages) {
+      this.truncatePages = false;
+    }
     // this.locale = this.getLocale(this.translatable);
     this.pages = this.getPages(this.totalPages, this.current) as KeyValue[];
     this.last = this.totalPages;

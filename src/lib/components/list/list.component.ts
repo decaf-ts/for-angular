@@ -1326,9 +1326,16 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         if (this.pages === 1) this.loadMoreData = false;
       }
     } else {
-      this.pages = length * this.limit;
-      if (this.pages === 1) {
-        this.loadMoreData = false;
+      if (!this.paginator) {
+        this.pages = length * this.limit;
+        if (this.pages === 1) {
+          this.loadMoreData = false;
+        }
+      } else {
+        this.pages = this.paginator?.total || this.paginator['_totalPages'];
+        if (this.pages === 1) {
+          this.loadMoreData = false;
+        }
       }
     }
   }

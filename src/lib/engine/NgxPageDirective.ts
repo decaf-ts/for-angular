@@ -8,13 +8,13 @@
 import { AfterViewInit, Directive, Inject, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { NavigationEnd, NavigationStart } from '@angular/router';
-import { MenuController } from '@ionic/angular';
 import { Model } from '@decaf-ts/decorator-validation';
-import { IMenuItem } from './interfaces';
-import { CPTKN } from './constants';
+import { MenuController } from '@ionic/angular';
 import { removeFocusTrap } from '../utils/helpers';
-import { KeyValue } from './types';
+import { CPTKN } from './constants';
+import { IMenuItem } from './interfaces';
 import { NgxComponentDirective } from './NgxComponentDirective';
+import { KeyValue } from './types';
 
 import { shareReplay, takeUntil } from 'rxjs';
 
@@ -136,9 +136,9 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
     // eslint-disable-next-line @angular-eslint/prefer-inject
     @Inject(CPTKN) localeRoot: string = 'NgxPageDirective',
     // eslint-disable-next-line @angular-eslint/prefer-inject
-    @Inject(CPTKN) hasMenu: boolean = true,
+    @Inject(CPTKN) hasMenu: boolean = true
   ) {
-    super(localeRoot);
+    super('NgxPageDirective', localeRoot);
     this.hasMenu = hasMenu;
     // subscribe to media service color scheme changes
   }
@@ -170,23 +170,21 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
    * @memberOf module:lib/engine/NgxPageDirective
    */
   async ngAfterViewInit(): Promise<void> {
-    this.router.events
-      .pipe(takeUntil(this.destroySubscriptions$), shareReplay(1))
-      .subscribe(async (event) => {
-        if (event instanceof NavigationEnd) {
-          const url = (event?.url || '').replace('/', '');
-          this.currentRoute = url;
-          if (this.hasMenu) this.hasMenu = url !== 'login' && url !== '';
-          this.title = this.pageTitle;
-          await this.setPageTitle(url);
-          this.changeDetectorRef.detectChanges();
-        }
-        if (event instanceof NavigationStart) {
-          const url = (event?.url || '').replace('/', '');
-          if (this.hasMenu) this.hasMenu = url !== 'login' && url !== '';
-          removeFocusTrap();
-        }
-      });
+    this.router.events.pipe(takeUntil(this.destroySubscriptions$), shareReplay(1)).subscribe(async (event) => {
+      if (event instanceof NavigationEnd) {
+        const url = (event?.url || '').replace('/', '');
+        this.currentRoute = url;
+        if (this.hasMenu) this.hasMenu = url !== 'login' && url !== '';
+        this.title = this.pageTitle;
+        await this.setPageTitle(url);
+        this.changeDetectorRef.detectChanges();
+      }
+      if (event instanceof NavigationStart) {
+        const url = (event?.url || '').replace('/', '');
+        if (this.hasMenu) this.hasMenu = url !== 'login' && url !== '';
+        removeFocusTrap();
+      }
+    });
     if (!this.route) this.route = this.router.url.replace('/', '');
     await this.menuController.enable(this.hasMenu);
   }

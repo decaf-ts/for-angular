@@ -222,6 +222,10 @@ export function getLocaleFromClassName(instance: string | FunctionLike | KeyValu
   if (typeof instance !== Primitives.STRING)
     instance = (instance as FunctionLike).name || (instance as object)?.constructor?.name;
 
+  if (typeof instance === 'string' && instance.includes('.')) {
+    return instance;
+  }
+
   let name: string | string[] = instance as string;
 
   if (suffix) name = `${instance}${suffix.charAt(0).toUpperCase() + suffix.slice(1)}`;
