@@ -409,7 +409,6 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     this.previewFile = undefined;
     if (this.formControl instanceof FormControl) {
       this.formControl.setValue(null);
-      console.log(this.formControl.value);
     }
     this.files = [];
   }

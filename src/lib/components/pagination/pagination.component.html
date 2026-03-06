@@ -36,7 +36,6 @@
         @for (page of pages; track page) {
           <div
             tabindex="0"
-            class="dcf-nav"
             [class]="page['class']"
             (click)="navigate(page['index'])"
             (keydown.enter)="navigate(page['index'])"
