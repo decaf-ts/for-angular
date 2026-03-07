@@ -327,11 +327,15 @@
       </div>
     } @else {
       @for (item of items; track trackItemFn($index, item)) {
-        <div class="dcf-fieldset-read-item">
+        <div
+          class="dcf-fieldset-read-item"
+          [class.dcf-accordion]="multiple"
+        >
           <div>
             <ngx-decaf-layout
               [isModalChild]="isModalChild"
               [className]="operation"
+              [accordion]="multiple"
               [operation]="operation"
               [pk]="pk"
               [model]="model"

@@ -12,6 +12,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { LayoutGridGaps, UIElementMetadata } from '@decaf-ts/ui-decorators';
 import { TranslatePipe } from '@ngx-translate/core';
+import { IconComponent } from 'dist/lib';
 import { Dynamic } from '../../engine/decorators';
 import { IBaseCustomEvent, IComponentProperties } from '../../engine/interfaces';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
@@ -38,7 +39,7 @@ import { ModelRendererComponent } from '../model-renderer/model-renderer.compone
   selector: 'ngx-decaf-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
-  imports: [TranslatePipe, CardComponent, ModelRendererComponent, ComponentRendererComponent],
+  imports: [TranslatePipe, CardComponent, IconComponent, ModelRendererComponent, ComponentRendererComponent],
   standalone: true,
 })
 export class LayoutComponent extends NgxParentComponentDirective implements OnInit {
@@ -110,6 +111,11 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    */
   @Input()
   private maxColsLength: number = 6;
+
+  @Input()
+  accordion: boolean = false;
+
+  collapsed: boolean = true;
 
   /**
    * @description Creates an instance of LayoutComponent.
@@ -242,10 +248,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
       });
   }
 
-  override async handleEvent(event: IBaseCustomEvent): Promise<void> {
-    this.listenEvent.emit(event);
-  }
-
   /**
    * @description Angular lifecycle hook that runs after component initialization.
    * @summary Called once, after the first ngOnChanges(). This method triggers the
@@ -262,6 +264,17 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
         `${this.breakpoint.startsWith('x') ? this.breakpoint.substring(0, 2) : this.breakpoint.substring(0, 1)}`.toLowerCase();
     this.cols = this._cols;
     this.rows = this._rows;
+
     await super.initialize();
+  }
+
+  override async handleEvent(event: IBaseCustomEvent): Promise<void> {
+    this.listenEvent.emit(event);
+  }
+
+  toggleCollapse(container: HTMLElement): void {
+    console.log('toggleCollapse', container);
+    this.collapsed = !this.collapsed;
+    this.changeDetectorRef.detectChanges();
   }
 }

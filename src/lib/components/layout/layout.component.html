@@ -13,6 +13,8 @@
           "
           [class.dcf-grid-match]="match"
           [class.dcf-grid-bordered]="borders"
+          [class.dcf-accordion]="accordion"
+          [class.open]="accordion && !collapsed"
         >
           @if (row?.title?.length) {
             <div class="dcf-width-1-1 dcf-grid-title">
@@ -25,11 +27,28 @@
             let colIndex = $index
           ) {
             <div
+              [class.dcf-collapsed]="accordion && collapsed && $index !== 0"
               [class]="'dcf-grid-col ' + child.colClass"
               [class.dcf-first-column]="$index === 0"
               [class.dcf-hidden]="child.props?.hidden?.includes(operation)"
+              #collapsableElement
             >
-              <div>
+              <div
+                [class]="
+                  accordion && !collapsed && $index !== 0
+                    ? 'dcf-animation dcf-animation-slide-top-small dcf-animation-fast'
+                    : ''
+                "
+              >
+                @if (accordion && $index === 0) {
+                  <div class="dcf-button-toggle">
+                    <ngx-decaf-icon
+                      (click)="toggleCollapse(collapsableElement)"
+                      [button]="true"
+                      [name]="collapsed ? 'ti-eye' : 'ti-eye-off'"
+                    />
+                  </div>
+                }
                 @if (child.tag === 'ngx-decaf-crud-form') {
                   <ngx-decaf-card
                     [className]="

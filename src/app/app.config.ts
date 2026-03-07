@@ -20,7 +20,6 @@ import {
 } from 'src/lib/engine/helpers';
 import { DecafAxiosHttpAdapter } from 'src/lib/engine/overrides';
 import { provideDecafI18nConfig } from 'src/lib/i18n/Loader';
-import { isDevelopmentMode } from 'src/lib/utils/helpers';
 import { routes } from './app.routes';
 import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
 import { AppSelectFieldComponent } from './components/select-field/select-field.component';
@@ -31,13 +30,17 @@ import { Product } from './ew/fabric/Product';
 import { ProductStrength } from './ew/fabric/ProductStrength';
 import { populateSampleData } from './utils/FakerRepository';
 
-export const isLocalDevelopmentMode = isDevelopmentMode('local');
+export const isLocalDevelopmentMode = false;
 export const AppName = 'For Angular';
 export const DbAdapterFlavour = !isLocalDevelopmentMode ? AxiosFlavour : RamFlavour;
 export const AppModels = [] as Model[];
 
 export const AppConfig: ApplicationConfig = {
   providers: [
+    // Providers from ionic angular
+    provideIonicAngular({
+      mode: 'md',
+    }),
     provideAppInitializer(async () => {
       const logger = getLogger(provideAppInitializer);
       const isDevMode = isLocalDevelopmentMode && DbAdapterFlavour.includes(RamFlavour);
@@ -55,10 +58,9 @@ export const AppConfig: ApplicationConfig = {
       ? provideDecafDbAdapter(RamAdapter, { user: 'user' }, DbAdapterFlavour)
       : provideDecafDbAdapter(DecafAxiosHttpAdapter, {
           protocol: 'https',
-          host: 'ew-backend.ptp.internal',
+          host: 'ew-backend-pdm.ptp.internal',
         }),
-    // Providers from ionic angular
-    provideIonicAngular(),
+
     // provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),

@@ -16,9 +16,17 @@
 
   &.dcf-grid-collapse {
     &.read {
-      // remove margin for operation read mode
-      > div {
-        margin: var(--dcf-margin-small) 0 !important ;
+      &:not(.dcf-accordion) {
+        // remove margin for operation read mode
+        > div {
+          margin: var(--dcf-margin-small) 0 !important ;
+        }
+      }
+      &.dcf-accordion {
+        // remove margin for operation read mode
+        > div {
+          margin: var(--dcf-margin-xsmall) 0 !important ;
+        }
       }
     }
   }
@@ -133,4 +141,52 @@
 
 ::ng-deep ngx-decaf-component-renderer > * > div {
   margin-bottom: 0px !important;
+}
+
+// collapsable grid
+.dcf-accordion {
+  > div {
+    &:first-of-type {
+      position: relative;
+      top: -0.375rem;
+    }
+  }
+
+  &.open {
+    > div {
+      &:first-of-type {
+        + div {
+          margin-top: -0.25rem !important;
+        }
+      }
+    }
+  }
+
+  .dcf-button-toggle {
+    position: relative;
+    z-index: 2 !important;
+    > * {
+      position: absolute; /* o filho pode ser posicionado livremente */
+      margin-top: -1rem;
+      right: 0;
+      cursor: pointer;
+    }
+  }
+
+  > div > div:first-of-type {
+    ::ng-deep ion-item {
+      --border-color: transparent !important;
+    }
+  }
+
+  &:not(.open) {
+    .dcf-collapsed {
+      display: none !important;
+    }
+    // > div > div:first-of-type {
+    //   ::ng-deep ion-item {
+    //     --border-color: transparent !important;
+    //   }
+    // }
+  }
 }
