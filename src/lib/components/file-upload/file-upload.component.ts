@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Constructor } from '@decaf-ts/decoration';
-import { Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames, ElementSizes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { IonButton, IonItem, IonLabel, IonList, IonText } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -452,36 +451,51 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   async parseValue(revert: boolean = false): Promise<string | void> {
     if (!revert) {
       const files = this.files as File[];
-      if (this.valueType === 'base64') {
-        return JSON.stringify(await this.getDataURLs(files));
-      } else {
-        const data = [];
-        for (const file of files) {
-          const source = await this.getDataURLs(file);
-          data.push({
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            source,
-          });
+      if (files?.length) {
+        if (this.valueType === 'base64') {
+          return JSON.stringify(await this.getDataURLs(files));
+        } else {
+          const data = [];
+          for (const file of files) {
+            const source = await this.getDataURLs(file);
+            data.push({
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              source,
+            });
+          }
+          return JSON.stringify(data);
         }
-        return JSON.stringify(data);
       }
     }
-    if (this.value && typeof this.value === Primitives.STRING) {
+    if (this.value) {
       try {
-        const value = JSON.parse(this.value as string);
+        let value;
+        try {
+          value = JSON.parse(this.value as string);
+        } catch (error: unknown) {
+          value = this.value;
+        }
         const files = Array.isArray(value) ? value : [value];
-        this.files = files.map((file) => {
-          const mime = this.getFileMime(file)?.split('/') || [];
-          const type = mime?.[0] === 'text' ? mime?.[1] : `${mime?.[0]}/${mime?.[1]}`;
-          return {
-            name: mime?.[0] || 'file',
-            type: `${type}` || 'image/*',
-            source: file as string,
-          } as KeyValue;
-        });
-        this.getPreview();
+        if (files?.length) {
+          this.files = files
+            .map((file) => {
+              if (this.isBase64String(file)) {
+                const mime = this.getFileMime(file)?.split('/') || [];
+                const type = mime?.[0] === 'text' ? mime?.[1] : `${mime?.[0]}/${mime?.[1]}`;
+                return {
+                  name: mime?.[0] || 'file',
+                  type: `${type}` || 'image/*',
+                  source: file as string,
+                } as KeyValue;
+              }
+              return false;
+            })
+            .filter(Boolean) as KeyValue[];
+
+          this.getPreview();
+        }
       } catch (error: unknown) {
         this.log.for(this.initialize).error(`Error parsing file list: ${(error as Error).message || error}`);
       }
