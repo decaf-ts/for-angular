@@ -12,7 +12,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { LayoutGridGaps, UIElementMetadata } from '@decaf-ts/ui-decorators';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IconComponent } from 'dist/lib';
+import { IconComponent } from '../../components/icon/icon.component';
 import { Dynamic } from '../../engine/decorators';
 import { IBaseCustomEvent, IComponentProperties } from '../../engine/interfaces';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
