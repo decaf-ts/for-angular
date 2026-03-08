@@ -490,7 +490,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
           if ((result as KeyValue)?.[this.pk]) {
             this.modelId = (result as KeyValue)[this.pk];
           }
-          if (redirect) {
+          if (redirect && !isModalChild) {
             this.location.back();
           }
         }

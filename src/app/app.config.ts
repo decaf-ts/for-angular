@@ -20,6 +20,7 @@ import {
 } from 'src/lib/engine/helpers';
 import { DecafAxiosHttpAdapter } from 'src/lib/engine/overrides';
 import { provideDecafI18nConfig } from 'src/lib/i18n/Loader';
+import { isDevelopmentMode } from 'src/lib/utils';
 import { routes } from './app.routes';
 import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
 import { AppSelectFieldComponent } from './components/select-field/select-field.component';
@@ -30,7 +31,7 @@ import { Product } from './ew/fabric/Product';
 import { ProductStrength } from './ew/fabric/ProductStrength';
 import { populateSampleData } from './utils/FakerRepository';
 
-export const isLocalDevelopmentMode = false;
+export const isLocalDevelopmentMode = isDevelopmentMode('localhost');
 export const AppName = 'For Angular';
 export const DbAdapterFlavour = !isLocalDevelopmentMode ? AxiosFlavour : RamFlavour;
 export const AppModels = [] as Model[];

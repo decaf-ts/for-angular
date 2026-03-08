@@ -11,17 +11,12 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-import {
-  IRenderedModel,
-  AngularDynamicOutput,
-  IBaseCustomEvent,
-  ICrudFormEvent,
-} from './interfaces';
-import { CrudEvent, FormParent, KeyValue } from './types';
-import { NgxRenderingEngine } from './NgxRenderingEngine';
-import { shareReplay, takeUntil } from 'rxjs';
-import { NgxModelPageDirective } from './NgxModelPageDirective';
 import { Model, ModelKeys } from '@decaf-ts/decorator-validation';
+import { shareReplay, takeUntil } from 'rxjs';
+import { AngularDynamicOutput, IRenderedModel } from './interfaces';
+import { NgxModelPageDirective } from './NgxModelPageDirective';
+import { NgxRenderingEngine } from './NgxRenderingEngine';
+import { CrudEvent, FormParent, KeyValue } from './types';
 
 @Directive()
 export class NgxRenderableComponentDirective
@@ -159,6 +154,8 @@ export class NgxRenderableComponentDirective
   protected async subscribeEvents<M extends Model>(component?: Type<unknown>): Promise<void> {
     if (!component) component = this?.output?.component;
     if (!this.instance && component) this.instance = component;
+    const isModalChild = this.instance?.['isModalChild'] ?? false;
+
     if (this.instance && component) {
       const componentKeys = Object.keys(this.instance);
       for (const key of componentKeys) {
@@ -170,6 +167,7 @@ export class NgxRenderableComponentDirective
               await this.handleEvent({
                 component: component.name || '',
                 name: key,
+                isModalChild,
                 ...event,
               } as CrudEvent<M>);
             });

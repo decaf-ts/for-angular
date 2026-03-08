@@ -341,11 +341,15 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
     if (!condition) {
       condition = this.buildCondition();
     }
+    // !! use where condition will make paginator ignores sortBy and col name
     return await this.repository
       .select()
-      .where(condition)
-      .orderBy([(this.sortBy || this.pk) as keyof M, sortDirection])
+      .orderBy((this.sortBy || this.pk) as keyof M, sortDirection)
       .paginate(limit);
+    // .select()
+    // .where(condition)
+    // .orderBy([(this.sortBy || this.pk) as keyof M, sortDirection])
+    // .paginate(limit);
   }
 
   protected async transactionBegin<M extends Model>(
