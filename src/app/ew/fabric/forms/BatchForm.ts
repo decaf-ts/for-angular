@@ -1,11 +1,12 @@
 import { column, index, OrderDirection, table } from '@decaf-ts/core';
 import { readonly } from '@decaf-ts/db-decorators';
 import { description } from '@decaf-ts/decoration';
-import { date, Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
+import { date, list, Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
 import {
   DecafComponent,
   hidden,
   HTML5InputTypes,
+  uichild,
   uielement,
   uilayout,
   uilayoutprop,
@@ -15,7 +16,7 @@ import {
   uiorder,
   uitablecol,
 } from '@decaf-ts/ui-decorators';
-import { Batch } from '../Batch';
+import { Batch, ManufacturerAddress } from '../Batch';
 import { Product } from '../Product';
 import { DatePattern, TableNames } from '../constants';
 import { BatchHandler } from '../handlers/BatchHandler';
@@ -190,21 +191,31 @@ export class BatchForm extends Batch {
   override dateOfManufacturing?: Date;
 
   // Only for ui
-  // @uilayoutprop(1)
-  // @uichild(
-  //   ManufacturerAddress.name,
-  //   'ngx-decaf-fieldset',
-  //   {
-  //     title: 'batch.manufacturerAddress.label',
-  //     max: 5,
-  //     required: false,
-  //     collapsable: false,
-  //     borders: true,
-  //     order: 11,
-  //   },
-  //   true,
-  // )
-  // override manufacturerAddress!: ManufacturerAddress;
+  @list(ManufacturerAddress)
+  @column()
+  @description('Manufacturer address')
+  @uilayoutprop(1)
+  @uichild(
+    'ManufacturerAddress',
+    'ngx-decaf-fieldset',
+    {
+      title: 'batch.manufacturerAddress.label',
+
+      name: 'ManufacturerAddress',
+      showTitle: false,
+      borders: false,
+      required: false,
+      ordenable: false,
+      editable: false,
+      multiple: true,
+      order: 11,
+      pk: 'address',
+    },
+    true
+  )
+  @uitablecol(5)
+  @uiorder(14)
+  addresses!: ManufacturerAddress;
 
   //@cache()
   @index([OrderDirection.ASC, OrderDirection.DSC])

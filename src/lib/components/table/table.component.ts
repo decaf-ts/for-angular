@@ -44,7 +44,7 @@ import { SearchbarComponent } from '../searchbar/searchbar.component';
 })
 export class TableComponent extends ListComponent implements OnInit {
   @Input()
-  filterModel!: Model | string;
+  filterModel!: Model | FunctionLike | string;
 
   @Input()
   filterOptions!: SelectOption[];
@@ -150,10 +150,10 @@ export class TableComponent extends ListComponent implements OnInit {
   }
 
   protected async getFilterOptions(): Promise<void> {
-    const repo = getModelAndRepository(this.filterModel);
-    if (repo) {
-      const { repository, pk } = repo;
-      if (!this.filterBy) this.filterBy = pk as keyof Model;
+    const getFilterOptionsMapper = (pk: string) => {
+      if (!this.filterBy) {
+        this.filterBy = pk as keyof Model;
+      }
       if (!this.filterOptionsMapper) {
         this.filterOptionsMapper =
           this.filterOptionsMapper ||
@@ -162,8 +162,17 @@ export class TableComponent extends ListComponent implements OnInit {
             value: `${item[pk]}`,
           }));
       }
-      const query = await repository.select().execute();
-      if (query?.length) this.filterOptions = query.map((item) => this.filterOptionsMapper(item));
+    };
+    if (typeof this.filterModel === 'function') {
+      this.filterOptions = await this.filterModel();
+    } else {
+      const repo = getModelAndRepository(this.filterModel);
+      if (repo) {
+        const { repository, pk } = repo;
+        getFilterOptionsMapper(pk);
+        const query = await repository.select().execute();
+        this.filterOptions = query.map((item) => this.filterOptionsMapper(item));
+      }
     }
   }
 

@@ -1,42 +1,30 @@
-import type { Model, ModelArg } from '@decaf-ts/decorator-validation';
-import { date, list, minlength, model, pattern, required } from '@decaf-ts/decorator-validation';
 import { column, index, OrderDirection, pk, table } from '@decaf-ts/core';
+import type { ModelArg } from '@decaf-ts/decorator-validation';
+import { date, list, minlength, Model, model, required } from '@decaf-ts/decorator-validation';
 // import { gtin } from "@pharmaledgerassoc/ptp-toolkit/shared";
 // import { BatchPattern, DatePattern, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
-import {
-  BlockOperations,
-  composed,
-  OperationKeys,
-  readonly,
-  serialize,
-} from '@decaf-ts/db-decorators';
+import { BlockOperations, composed, OperationKeys, readonly } from '@decaf-ts/db-decorators';
 import { description } from '@decaf-ts/decoration';
 //  import { audit } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import { Cacheable } from './Cacheable';
 // import { cache } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import {
   DecafComponent,
-  hidden,
   HTML5InputTypes,
-  uichild,
   uielement,
   uilayout,
   uilayoutprop,
   uilistmodel,
   uilistprop,
   uimodel,
-  uionclick,
-  uiorder,
-  uitablecol,
+  uitablecol
 } from '@decaf-ts/ui-decorators';
-import { Product } from './Product';
-import { DatePattern, BatchPattern, TableNames } from './constants';
+import { DatePattern, TableNames } from './constants';
 import { audit } from './utils';
-import { DatamatrixModalHandler } from './handlers/DatamatrixModalHandler';
 
-@uimodel('ngx-decaf-fieldset')
+@uimodel('ngx-decaf-crud-form', { multiple: true })
 @model()
-class ManufacturerAddress {
+export class ManufacturerAddress extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.manufacturerAddress.label',
     placeholder: 'batch.manufacturerAddress.placeholder',
@@ -44,6 +32,10 @@ class ManufacturerAddress {
   @uilistprop('title')
   @minlength(2)
   address?: string;
+
+  constructor(args?: ModelArg<ManufacturerAddress>) {
+    super(args);
+  }
 }
 
 //@uses(FabricFlavour)
@@ -134,26 +126,10 @@ export class Batch extends Cacheable {
   manufacturerName?: string;
 
   // @cache()
+  @list(ManufacturerAddress)
   @column()
   @description('Manufacturer address')
-  @uilayoutprop(1)
-  @uichild(
-    'ManufacturerAddress',
-    'ngx-decaf-fieldset',
-    {
-      title: 'batch.manufacturerAddress.label',
-      max: 5,
-      name: 'ManufacturerAddress',
-      collapsable: false,
-      borders: true,
-      order: 11,
-    },
-    true,
-  )
-  @uitablecol(5)
-  @serialize()
-  @uiorder(14)
-  manufacturerAddress?: ManufacturerAddress;
+  manufacturerAddress?: ManufacturerAddress[];
 
   // @cache()
   @column()

@@ -79,6 +79,12 @@ legend,
   &:not(.dcf-empty) {
     padding: var(--dcf-padding-small) 0.25rem !important;
     margin-top: var(--dcf-margin-xsmall);
+
+    ::ng-deep {
+      .dcf-layout-container {
+        min-height: 80px;
+      }
+    }
   }
 }
 
