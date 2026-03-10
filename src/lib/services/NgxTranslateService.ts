@@ -17,15 +17,15 @@ import { I18nLoader } from '../i18n';
 export class NgxTranslateService extends DecafTranslateService implements DecafTranslateService {
   private translateService = inject(TranslateService);
 
-  override async instant(key: string, interpolateParams?: InterpolationParameters): Promise<Translation> {
-    return firstValueFrom(this.translateService.instant(key, interpolateParams));
+  override instant(key: string, interpolateParams?: InterpolationParameters): Translation {
+    return this.translateService.instant(key, interpolateParams);
   }
 
   override async translate(key: string, params?: InterpolationParameters | string): Promise<string> {
     if (typeof params === Primitives.STRING) {
       params = { '0': params };
     }
-    return this.instant(key, params as InterpolationParameters);
+    return firstValueFrom(this.translateService.instant(key, params as InterpolationParameters));
   }
 
   async get(key: string | string[], params?: InterpolationParameters | string): Promise<string> {
