@@ -10,9 +10,9 @@
 import { ChangeDetectorRef, EnvironmentInjector, Renderer2 } from '@angular/core';
 import { Model } from '@decaf-ts/decorator-validation';
 import { DecafEventHandler } from '@decaf-ts/ui-decorators';
-import { KeyValue } from './types';
 import { ICrudFormEvent } from './interfaces';
 import { NgxComponentDirective } from './NgxComponentDirective';
+import { KeyValue } from './types';
 
 export abstract class NgxEventHandler extends DecafEventHandler {
   _data: Model | KeyValue | KeyValue[] | null = null;
@@ -34,9 +34,7 @@ export abstract class NgxEventHandler extends DecafEventHandler {
     instance?: T,
     ...args: unknown[]
   ): Promise<void> {
-    this.log
-      .for(this.handle)
-      .info(`Handle called with args: ${event}, ${data}, ${instance}, ${args}`);
+    this.log.for(this.handle).info(`Handle called with args: ${event}, ${data}, ${instance}, ${args}`);
   }
 
   from(...args: unknown[]): NgxEventHandler {

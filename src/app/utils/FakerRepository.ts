@@ -129,9 +129,9 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
         case Batch.name: {
           const products = await getQueryResults<Product>('Product');
           this.limit = 2;
-          // this.propFnMapper = {
-          //   manufacturerAddress: () => undefined,
-          // };
+          this.propFnMapper = {
+            manufacturerAddress: () => [],
+          };
           data = await this.generateData<Batch>();
           data = [
             ...(await Promise.all(

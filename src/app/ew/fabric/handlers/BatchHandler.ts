@@ -158,7 +158,7 @@ export class BatchHandler extends ProductHandler<Batch> {
     data: M,
     repository: DecafRepository<M>,
     modelId: PrimaryKeyType
-  ): Promise<void | boolean> {
+  ): Promise<M | boolean> {
     data = BatchHandler.parseBatchData(data);
     return ProductHandler.endTransaction(data, repository, modelId);
     // if (ProductHandler.deleteEvents?.length) {

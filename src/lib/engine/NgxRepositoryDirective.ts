@@ -362,10 +362,11 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
       const handler = this.handlers?.[hook] || undefined;
       const model = this.buildTransactionModel(data || {}, repository, operation);
       if (handler && typeof handler === 'function') {
-        const result = (await handler.bind(this)(model, repository, this.modelId)) as M | boolean;
+        const result = await handler.bind(this)(model, repository, this.modelId);
         if (result === false) {
           return undefined;
         }
+        return result as M;
       }
       return model as M;
     } catch (error: unknown) {
@@ -383,7 +384,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
       const hook = `after${operation.charAt(0).toUpperCase() + operation.slice(1)}`;
       const handler = this.handlers?.[hook] || undefined;
       if (handler && typeof handler === 'function') {
-        const result = (await handler.bind(this)(model, repository, this.modelId)) as M | boolean;
+        const result = await handler.bind(this)(model, repository, this.modelId);
         if (result === false) {
           return undefined;
         }

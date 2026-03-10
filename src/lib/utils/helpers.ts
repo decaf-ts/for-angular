@@ -528,3 +528,8 @@ export function getMenuIcon(label: string, menu: IMenuItem[]): string {
   const item = menu.find((m) => m.label?.toLowerCase() === label.toLowerCase());
   return item?.icon || '';
 }
+
+export function dateFromString(value: string): Date {
+  const dateArray = value.includes('T') ? value.split('T') : value.split(' ');
+  return new Date(dateArray.length === 1 ? `${value}T00:00:00` : value);
+}

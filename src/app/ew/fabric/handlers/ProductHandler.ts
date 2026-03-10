@@ -208,7 +208,7 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     data: M,
     repository: IRepository<M>,
     modelId: PrimaryKeyType
-  ): Promise<boolean | void> {
+  ): Promise<boolean | M> {
     const modelName = repository.class.name;
     const loading = this.loading;
     ProductHandler.skip = [ProductHandler.pk, ...ProductHandler.skip] as string[];
@@ -248,6 +248,7 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     //   }
     // }
     ProductHandler.data = undefined;
+    return data as M;
   }
 
   override async beforeCreate(data: Product, repository: DecafRepository<Product>): Promise<Product> {
@@ -365,7 +366,7 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     data: M,
     repository: DecafRepository<M>,
     modelId: PrimaryKeyType
-  ): Promise<void | boolean> {
+  ): Promise<M | boolean> {
     return ProductHandler.endTransaction(ProductHandler.getProductImage(data as Partial<Product>), repository, modelId);
   }
 }

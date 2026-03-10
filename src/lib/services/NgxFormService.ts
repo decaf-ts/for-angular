@@ -21,7 +21,7 @@ import { BaseComponentProps } from '../engine/constants';
 import { IComponentConfig, IFormComponentProperties } from '../engine/interfaces';
 import { FieldUpdateMode, FormParent, FormParentGroup, KeyValue } from '../engine/types';
 import { ValidatorFactory } from '../engine/ValidatorFactory';
-import { cleanSpaces } from '../utils/helpers';
+import { cleanSpaces, dateFromString } from '../utils/helpers';
 
 /**
  * @description Service for managing Angular forms and form controls.
@@ -709,6 +709,7 @@ export class NgxFormService {
     const parentProps = NgxFormService.getPropsFromControl(formGroup as FormGroup | FormArray);
     for (const key in formGroup.controls) {
       const control = formGroup.controls[key];
+      const props = NgxFormService.getPropsFromControl(control as FormControl | FormArray);
       if (!(control instanceof FormControl)) {
         if (control.disabled) {
           if (control instanceof FormGroup) {
@@ -717,6 +718,7 @@ export class NgxFormService {
               continue;
             }
             data[key] = NgxFormService.getFormData(control as FormGroup);
+            continue;
           }
           if (control instanceof FormArray) {
             const value = this.getFormArrayControlsValue(control as FormArray);
@@ -735,7 +737,7 @@ export class NgxFormService {
         }
         const value = control.value;
         const isValid = control.valid;
-        if (parentProps.multiple) {
+        if (parentProps?.multiple) {
           if (isValid) {
             data[key] = Array.isArray(value) ? value : [value];
           } else {
@@ -747,7 +749,6 @@ export class NgxFormService {
         continue;
       }
 
-      const props = NgxFormService.getPropsFromControl(control as FormControl | FormArray);
       // const { readonly } = (props as IFormComponentProperties) || false; TODO: dont send readonly fields?
       let value = control.value;
       if (!HTML5CheckTypes.includes(props['type'])) {
@@ -757,7 +758,7 @@ export class NgxFormService {
             break;
           case HTML5InputTypes.DATE:
           case HTML5InputTypes.DATETIME_LOCAL:
-            value = typeof value === Primitives.STRING ? new Date(`${value}T00:00:00`) : value;
+            value = typeof value === Primitives.STRING ? dateFromString(value) : value;
             break;
           default:
             value = !isNaN(value) ? value : escapeHtml(value)?.trim();

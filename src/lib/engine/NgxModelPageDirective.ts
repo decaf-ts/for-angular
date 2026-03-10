@@ -169,7 +169,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     }
     if (handler && role) {
       this.handlers = handlers || {};
-      return await handler.bind(this)(event, data || {}, role);
+      return await handler.bind(this)(event, data || {}, this, role);
     }
     switch (name) {
       case ComponentEventNames.Submit:
