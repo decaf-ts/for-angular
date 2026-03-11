@@ -9,12 +9,13 @@
  */
 import '@decaf-ts/ui-decorators';
 export * from './components';
-export * from './engine';
 export * from './directives';
-export * from './utils';
-export * from './services';
-export * from './i18n/Loader';
+export * from './engine';
 export * from './for-angular-common.module';
+export * from './i18n/Loader';
+export * from './pipes';
+export * from './services';
+export * from './utils';
 /**
  * @description Angular integration for the Decaf framework
  * @summary This module provides Angular components and services for integrating with the Decaf framework.

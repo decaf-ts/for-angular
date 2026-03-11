@@ -1,3 +1,14 @@
+/**
+ * @module TableComponent
+ * @description Provides a feature-rich, paginated data table component for Angular applications.
+ * @summary The `TableComponent` extends the {@link ListComponent} and serves as a dynamic, configurable table
+ * component. It supports server-side filtering, dynamic column resolution, row-level CRUD actions, and cell
+ * truncation with tooltips via {@link DecafTooltipDirective}. The component integrates seamlessly with the
+ * Decaf rendering engine and provides advanced customization options for filtering, sorting, and data mapping.
+ * @class TableComponent
+ * @extends {ListComponent}
+ * @implements {OnInit}
+ */
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { OrderDirection } from '@decaf-ts/core';
@@ -7,13 +18,14 @@ import { ComponentEventNames, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decora
 import { IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { debounceTime, shareReplay, takeUntil } from 'rxjs';
+import { DecafTooltipDirective } from '../../directives';
+import { Dynamic } from '../../engine';
 import {
   ActionRoles,
   DefaultListEmptyOptions,
   ListComponentsTypes,
   SelectFieldInterfaces,
 } from '../../engine/constants';
-import { Dynamic } from '../../engine/decorators';
 import { getModelAndRepository } from '../../engine/helpers';
 import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
 import { FunctionLike, KeyValue, SelectOption } from '../../engine/types';
@@ -40,32 +52,102 @@ import { SearchbarComponent } from '../searchbar/searchbar.component';
     EmptyStateComponent,
     IconComponent,
     PaginationComponent,
+    DecafTooltipDirective,
   ],
 })
 export class TableComponent extends ListComponent implements OnInit {
+  /**
+   * @description Maximum character count before cell content is truncated. `-1` disables truncation.
+   * @type {number}
+   * @default -1
+   */
+  @Input()
+  maxContentLength: number = -1;
+
+  /**
+   * @description Column keys whose values are never truncated regardless of `maxContentLength`.
+   * @type {string[]}
+   * @default ['userId']
+   */
+  @Input()
+  preserve: string[] = ['userId'];
+
+  /**
+   * @description Source used to populate filter select options: a model class, async function, or string key.
+   * @type {Model | FunctionLike | string}
+   */
   @Input()
   filterModel!: Model | FunctionLike | string;
 
+  /**
+   * @description Array of {@link SelectOption} objects displayed in the filter select control.
+   * @type {SelectOption[]}
+   */
   @Input()
   filterOptions!: SelectOption[];
 
+  /**
+   * @description Translatable label rendered on the filter select input.
+   * @type {string}
+   */
   @Input()
   filterLabel!: string;
 
+  /**
+   * @description Custom function that maps a repository item to a {@link SelectOption} shape.
+   * @type {FunctionLike}
+   */
   @Input()
   filterOptionsMapper!: FunctionLike;
 
+  /**
+   * @description Currently selected filter value; `undefined` when no filter is active.
+   * @type {string | undefined}
+   */
   filterValue?: string;
 
+  /**
+   * @description Ordered array of column keys rendered as table columns. Includes `'actions'` when operations are permitted.
+   * @type {string[]}
+   */
   cols!: string[];
 
+  /**
+   * @description Column header label array, mirrors `cols` after `getOperations()` resolves.
+   * @type {string[]}
+   */
   headers: string[] = [];
 
+  /**
+   * @description When `true`, row-level action buttons are rendered if the user has the required permissions.
+   * @type {boolean}
+   * @default true
+   */
   @Input()
   allowOperations: boolean = true;
 
+  /**
+   * @description Injected {@link NgxRouterService} used to read URL query parameters for pre-populating the search state.
+   * @type {NgxRouterService}
+   */
   routerService: NgxRouterService = inject(NgxRouterService);
 
+  /**
+   * @description Resolves and sorts the visible column keys from the current mapper metadata.
+   * @summary Reads `this._mapper` to obtain all columns that carry a `sequence` property,
+   * then sorts them so that columns anchored to `UIKeys.FIRST` appear first, numerically
+   * sequenced columns are ordered by their value, and `UIKeys.LAST` anchored columns appear
+   * last. Returns the final sorted array of column key strings.
+   * @return {string[]} Sorted array of column keys derived from the mapper.
+   * @mermaid
+   * sequenceDiagram
+   *   participant TC as TableComponent
+   *   participant M as _mapper
+   *   TC->>M: Object.entries(_mapper)
+   *   M-->>TC: [key, value][] entries
+   *   TC->>TC: sort by sequence weight (FIRST=0, number=1, LAST=100)
+   *   TC-->>TC: return sorted keys[]
+   */
   private get _cols(): string[] {
     this.mapper = this._mapper;
     return Object.entries(this.mapper)
@@ -87,10 +169,21 @@ export class TableComponent extends ListComponent implements OnInit {
       .map(([key]) => key);
   }
 
+  /**
+   * @description Returns the column header labels derived directly from the resolved `cols` array.
+   * @return {string[]} Shallow copy of `cols` used as table header labels.
+   */
   private get _headers(): string[] {
     return this.cols.map((col) => col);
   }
 
+  /**
+   * @description Filters the raw mapper to only the entries that declare a `sequence` property.
+   * @summary Iterates over `this.mapper`, retains only keys whose value is a plain object
+   * containing a `sequence` field, and returns the resulting subset as a {@link KeyValue} map
+   * used by `_cols` for ordered column resolution.
+   * @return {KeyValue} Filtered mapper containing only sequenced column definitions.
+   */
   get _mapper(): KeyValue {
     return Object.keys(this.mapper).reduce((accum: KeyValue, curr: string) => {
       const mapper = (this.mapper as KeyValue)[curr];
@@ -99,21 +192,21 @@ export class TableComponent extends ListComponent implements OnInit {
     }, {} as KeyValue);
   }
 
+  /**
+   * @description Angular lifecycle hook that initializes the table and loads its first page of data.
+   * @summary Sets up the table by resolving columns, headers, and filter options. It also reads URL query parameters
+   * to pre-populate the search state and triggers the initial data refresh.
+   * @return {Promise<void>}
+   */
   override async ngOnInit(): Promise<void> {
-    // this.parseProps(this);
-
     await super.initialize();
-
     this.type = ListComponentsTypes.PAGINATED;
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     this.repositoryObserverSubject
       .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
       .subscribe(([model, action, uid, data]) => this.handleObserveEvent(model, action, uid, data));
     this.cols = this._cols as string[];
-
     this.getOperations();
-    this.searchValue = undefined;
-
     const filter = this.routerService.getQueryParamValue('filter') as string;
     if (filter) {
       const value = this.routerService.getQueryParamValue('value') as string;
@@ -137,6 +230,11 @@ export class TableComponent extends ListComponent implements OnInit {
     await this.refresh();
   }
 
+  /**
+   * @description Determines which row-level CRUD operations are permitted and finalizes the column list.
+   * @summary Checks user permissions for `UPDATE` and `DELETE` operations. Updates the `cols` and `headers` arrays accordingly.
+   * @return {void}
+   */
   getOperations() {
     if (this.allowOperations) {
       this.allowOperations = this.isAllowed(OperationKeys.UPDATE) || this.isAllowed(OperationKeys.DELETE);
@@ -149,18 +247,22 @@ export class TableComponent extends ListComponent implements OnInit {
     this.headers = this._headers;
   }
 
+  /**
+   * @description Populates `filterOptions` from a function call or a decorator-bound repository.
+   * @summary Resolves filter options dynamically based on the provided `filterModel`. Supports both
+   * async functions and repository-based data sources.
+   * @return {Promise<void>}
+   */
   protected async getFilterOptions(): Promise<void> {
     const getFilterOptionsMapper = (pk: string) => {
       if (!this.filterBy) {
         this.filterBy = pk as keyof Model;
       }
       if (!this.filterOptionsMapper) {
-        this.filterOptionsMapper =
-          this.filterOptionsMapper ||
-          ((item) => ({
-            text: `${item[pk]}`,
-            value: `${item[pk]}`,
-          }));
+        this.filterOptionsMapper = (item) => ({
+          text: `${item[pk]}`,
+          value: `${item[pk]}`,
+        });
       }
     };
     if (typeof this.filterModel === 'function') {
@@ -176,6 +278,14 @@ export class TableComponent extends ListComponent implements OnInit {
     }
   }
 
+  /**
+   * @description Maps a single raw data row to the cell-structured format expected by the table template.
+   * @summary Applies transformations and event bindings to each row of data, preparing it for rendering.
+   * @param {KeyValue} item - Raw data object representing a single table row.
+   * @param {KeyValue} mapper - Column mapper definitions.
+   * @param {KeyValue} [props={}] - Additional rendering props.
+   * @return {Promise<KeyValue>} Mapped row object.
+   */
   protected override async itemMapper(item: KeyValue, mapper: KeyValue, props: KeyValue = {}): Promise<KeyValue> {
     this.model = item as Model;
     const mapped = super.itemMapper(
@@ -244,15 +354,29 @@ export class TableComponent extends ListComponent implements OnInit {
     return mapped;
   }
 
+  /**
+   * @description Maps an array of raw data objects to the cell-structured rows used by the template.
+   * @summary Resolves all rows concurrently via `Promise.all`, delegating each item to `itemMapper`.
+   * @param {KeyValue[]} data - Raw row objects returned by the data source.
+   * @return {Promise<KeyValue[]>} Array of structured row objects.
+   */
   override async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
     this._data = [...data];
     if (!data || !data.length) return [];
-
     return await Promise.all(
       data.map(async (curr) => await this.itemMapper(curr, this.mapper, { uid: curr[this.pk] }))
     );
   }
 
+  /**
+   * @description Handles a CRUD action triggered by a row action button.
+   * @summary Invokes a custom handler or navigates to the appropriate route for the given action.
+   * @param {IBaseCustomEvent} event - The originating event.
+   * @param {UIFunctionLike | undefined} handler - Optional custom handler.
+   * @param {string} uid - Primary key value of the target row.
+   * @param {CrudOperations} action - The CRUD operation type.
+   * @return {Promise<void>}
+   */
   async handleAction(
     event: IBaseCustomEvent,
     handler: UIFunctionLike | undefined,
@@ -265,6 +389,15 @@ export class TableComponent extends ListComponent implements OnInit {
     }
     await this.handleRedirect(event, uid, action);
   }
+
+  /**
+   * @description Navigates to the CRUD action route for the specified row.
+   * @summary Verifies the requested `action` and navigates to the appropriate route.
+   * @param {Event | IBaseCustomEvent} event - The originating event.
+   * @param {string} uid - Primary key value of the target row.
+   * @param {CrudOperations} action - The CRUD operation to navigate to.
+   * @return {Promise<void>}
+   */
   async handleRedirect(event: Event | IBaseCustomEvent, uid: string, action: CrudOperations): Promise<void> {
     if (event instanceof Event) {
       event.preventDefault();
@@ -275,6 +408,12 @@ export class TableComponent extends ListComponent implements OnInit {
     }
   }
 
+  /**
+   * @description Opens the filter select UI, allowing the user to narrow table results by a field value.
+   * @summary Determines the presentation mode and handles user selection.
+   * @param {Event} event - The click event that triggered the filter open action.
+   * @return {Promise<void>}
+   */
   async openFilterSelectOptions(event: Event): Promise<void> {
     const type = this.filterOptions.length > 10 ? SelectFieldInterfaces.MODAL : SelectFieldInterfaces.POPOVER;
     if (type === SelectFieldInterfaces.MODAL) {
@@ -299,6 +438,12 @@ export class TableComponent extends ListComponent implements OnInit {
     }
   }
 
+  /**
+   * @description Clears the active filter selection and resets the table to an unfiltered state.
+   * @summary Resets `filterValue` and reloads the full data set.
+   * @param {CustomEvent} event - The clear event emitted by the filter select control.
+   * @return {Promise<void>}
+   */
   async handleFilterSelectClear(event: CustomEvent) {
     event.preventDefault();
     event.stopImmediatePropagation();

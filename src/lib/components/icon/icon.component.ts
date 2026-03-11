@@ -1,12 +1,11 @@
-import { Component, ElementRef, Input, OnInit, ViewChild  } from '@angular/core';
-import { Color } from '@ionic/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
-import * as allIcons from 'ionicons/icons';
+import { Color } from '@ionic/core';
 import { addIcons } from 'ionicons';
+import * as allIcons from 'ionicons/icons';
+import { NgxSvgDirective } from '../../directives/svg.directive';
 import { Dynamic } from '../../engine/decorators';
 import { NgxMediaService } from '../../services/NgxMediaService';
-import { NgxSvgDirective } from '../../directives/NgxSvgDirective';
-
 
 @Dynamic()
 @Component({
@@ -15,10 +14,9 @@ import { NgxSvgDirective } from '../../directives/NgxSvgDirective';
   styleUrls: ['./icon.component.scss'],
   imports: [NgxSvgDirective, IonIcon, IonButton],
   standalone: true,
-  host: {'[attr.id]': 'uid', '[attr.aria-hidden]': '!button'},
+  host: { '[attr.id]': 'uid', '[attr.aria-hidden]': '!button' },
 })
 export class IconComponent implements OnInit {
-
   /** @description Reference to the component's native DOM element.
    * @summary Provides direct access to the native DOM element of the component through Angular's
    * ViewChild decorator. This reference can be used to manipulate the DOM element directly,
@@ -34,13 +32,13 @@ export class IconComponent implements OnInit {
   name?: string;
 
   @Input()
-  color: Color = "dark";
+  color: Color = 'dark';
 
   @Input()
   slot?: 'start' | 'end' | 'icon-only' = 'icon-only';
 
   @Input()
-  button: boolean = false
+  button: boolean = false;
 
   @Input()
   buttonFill: 'clear' | 'outline' | 'solid' | 'default' = 'clear';
@@ -72,18 +70,17 @@ export class IconComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if(this.button)
-      this.slot = 'icon-only';
-    if(this.name?.includes('.')) {
+    if (this.button) this.slot = 'icon-only';
+    if (this.name?.includes('.')) {
       this.type = 'image';
       this.isSvg = this.name.endsWith('.svg');
     }
 
-    if(this.name?.includes('ti-')) {
+    if (this.name?.includes('ti-')) {
       this.type = 'icon';
       this.name = `ti-${this.name.replace(/ti-/g, '')}`;
     }
-    this.mediaService.isDarkMode().subscribe(isDark => {
+    this.mediaService.isDarkMode().subscribe((isDark) => {
       this.isDarkMode = isDark;
     });
     this.initialized = true;

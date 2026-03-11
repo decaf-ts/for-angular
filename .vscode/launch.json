@@ -8,17 +8,18 @@
       "request": "launch",
       "url": "http://localhost:8110"
     },
-    {
-      "name": "PTP - Chrome Debug",
-      "type": "chrome",
-      "request": "launch",
-      "url": "https://ew-frontend.ptp.internal/"
-    },
+
     {
       "name": "PDM - Chrome Debug",
       "type": "chrome",
       "request": "launch",
       "url": "https://ew-frontend-pdm.ptp.internal/"
+    },
+    {
+      "name": "PTP - Chrome Debug",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://ew-frontend.ptp.internal/"
     },
     {
       "name": "ng serve",

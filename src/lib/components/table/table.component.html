@@ -81,6 +81,11 @@
                     )
                   "
                   [innerHTML]="col.value.value"
+                  [ngx-decaf-tooltip]="
+                    maxContentLength > 0 && !preserve.includes(col.value.prop)
+                      ? { text: col.value.value, truncate: maxContentLength }
+                      : {}
+                  "
                 ></td>
               } @else {
                 @if (allowOperations && col.key !== 'handler') {

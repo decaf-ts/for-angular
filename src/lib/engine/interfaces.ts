@@ -11,7 +11,14 @@ import { PrimaryKeyType } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
 import { CrudOperationKeys, FieldProperties, IPagedComponentProperties, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { ActionRoles } from './constants';
-import { AngularFieldDefinition, DecafRepository, FieldUpdateMode, FormParent, KeyValue, StringOrBoolean } from './types';
+import {
+  AngularFieldDefinition,
+  DecafRepository,
+  FieldUpdateMode,
+  FormParent,
+  KeyValue,
+  StringOrBoolean,
+} from './types';
 
 /**
  * @description Interface for models that can be rendered
@@ -494,4 +501,27 @@ export interface IRepositoryModelProps<M extends Model> {
 export interface ILayoutModelContext {
   context: IRepositoryModelProps<Model> & { data: KeyValue };
   models: IRepositoryModelProps<Model>[];
+}
+
+/**
+ * @description Configuration object for the {@link DecafTooltipDirective} directive.
+ * @summary Defines the shape of the options accepted by the `[ngx-decaf-tooltip]` attribute
+ * selector. Controls the tooltip text content, whether visible text should be truncated,
+ * the character limit for truncation, and the trailing string appended after a cut.
+ * @property {string} text - The full text to display inside the tooltip and, when truncated,
+ * the source for the truncated visible content.
+ * @property {boolean} [truncate] - When `true`, the host element's inner text is replaced with
+ * a truncated version. Defaults to `false`.
+ * @property {number} [limit] - Maximum number of characters before truncation occurs.
+ * Defaults to `30`.
+ * @property {string} [trail] - String appended at the end of the truncated text.
+ * Defaults to `'...'`.
+ * @interface TooltipConfig
+ * @memberOf module:DecafTooltipDirective
+ */
+export interface ITooltipConfig {
+  text: string;
+  truncate?: boolean;
+  limit?: number;
+  trail?: string;
 }

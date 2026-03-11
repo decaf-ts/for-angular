@@ -8,7 +8,7 @@
  * @link {@link I18nLoader}
  */
 import { HttpClient, provideHttpClient } from '@angular/common/http';
-import { inject, Pipe, PipeTransform } from '@angular/core';
+import { inject } from '@angular/core';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { sf } from '@decaf-ts/logging';
 import {
@@ -17,8 +17,7 @@ import {
   RootTranslateServiceConfig,
   TranslateLoader,
   TranslateParser,
-  TranslateService,
-  TranslationObject,
+  TranslationObject
 } from '@ngx-translate/core';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -247,19 +246,4 @@ export function provideDecafI18nConfig(
     }),
     provideDecafI18nLoader(resources, versionedSuffix),
   ];
-}
-
-@Pipe({
-  name: 'translate',
-  pure: false,
-})
-export class DecafTranslatePipe implements PipeTransform {
-  translate: TranslateService = inject(TranslateService);
-
-  transform(value: string, ...args: []): unknown {
-    if (I18nLoader.enabled && value) {
-      return this.translate.instant(value, ...args);
-    }
-    return `<div class="dcf-translation-key">${sf(value, args)}</div>`;
-  }
 }
