@@ -264,6 +264,25 @@ export abstract class NgxFormDirective
   }
 
   async ngAfterViewInit(): Promise<void> {
+    const formElement = this.component?.nativeElement;
+    // if (this.isModalChild && formElement) {
+    //   const ionContent = await formElement.closest('ion-content');
+    //   const formHeigth = interval(50)
+    //     .pipe(
+    //       map(() => Math.ceil(formElement.getBoundingClientRect().height)),
+
+    //       filter((h) => h > 0), // só passa quando tiver altura real
+    //       take(1)
+    //     )
+    //     .subscribe(async (height) => {
+    //       const scrollElement = await ionContent.getScrollElement();
+    //       const extraSpace = 24; // margem para evitar corte no final
+    //       const targetHeight = height + extraSpace * 10000;
+    //       this.renderer.setStyle(scrollElement, 'height', `auto !important`);
+    //       this.renderer.setStyle(ionContent, 'min-height', `${targetHeight}px`);
+    //       this.renderer.setStyle(scrollElement, 'overflow-y', 'auto');
+    //     });
+    // }
     //TODO: ver se isso é necessário
     // if (this.formGroup)
     //   this.formGroupLoadedEvent.emit({

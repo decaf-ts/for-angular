@@ -5,6 +5,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames, UIFunctionLike, uihandlers } from '@decaf-ts/ui-decorators';
 import {
   IonButton,
   IonButtons,
@@ -19,9 +20,10 @@ import {
 import { ActionRoles, DefaultModalOptions, ListComponentsTypes } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { IBaseCustomEvent } from '../../engine/interfaces';
+import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
-import { KeyValue, SelectOption } from '../../engine/types';
+import { CrudEvent, KeyValue, SelectOption } from '../../engine/types';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { IconComponent } from '../icon/icon.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
@@ -255,6 +257,9 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    */
   iconColor: Color = 'dark';
 
+  @Input()
+  override handlers: Record<string, UIFunctionLike> = {};
+
   constructor() {
     super('ModalComponent');
   }
@@ -280,6 +285,13 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
   async prepare(options: KeyValue = {}): Promise<void> {
     this.options = Object.assign({}, DefaultModalOptions, this.options, options);
     this.globals = Object.assign({}, this.globals || {}, { isModalChild: true });
+    let handlers = this.globals?.['handlers'] || this.handlers;
+
+    // binding custom handlers to the model
+    if (Object.keys(handlers).length) {
+      handlers = typeof this.handlers === 'function' ? { confirm: handlers } : handlers;
+      uihandlers(handlers)((this.model as Model).constructor);
+    }
     if (this.globals?.['props']) {
       this.globals['props'] = Object.assign({}, this.globals['props'], { isModalChild: true });
     }
@@ -479,13 +491,24 @@ export async function getNgxModalComponent(
  * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
  * @returns {Promise<IonModal>} - A promise that resolves with the modal instance.
  */
-export async function getNgxModalCrudComponent(
-  model: Partial<Model>,
+export async function getNgxModalCrudComponent<M extends Model>(
+  model: Partial<M>,
   props: Partial<ModalComponent> = {},
   modalProps: Partial<ModalOptions> = {},
   injector?: EnvironmentInjector
 ): Promise<IonModal> {
-  if (!props || !props?.['operation']) props.operation = OperationKeys.CREATE;
+  if (!props || !props?.['operation']) {
+    props.operation = OperationKeys.CREATE;
+  }
+  const { handlers } = props;
+  // if has not custom handlers passed, create a generic confirm handler for crud operations and bind it to the model using uihandlers decorator
+  if (Model.isModel(model) && !handlers) {
+    uihandlers({
+      [ComponentEventNames.Submit]: (event: CrudEvent<M>, data: M, instance: NgxFormDirective) => {
+        instance.listenEvent.emit(event);
+      },
+    })(model.constructor);
+  }
   const component = await (
     NgxRenderingEngine.createComponent(
       ModalComponent,

@@ -510,7 +510,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     if (this.isModalChild) {
       this.listenEvent.emit({
         ...event,
-        data: result,
+        data: result || event.data,
       });
     }
     return { ...event, success, message, model: result, aborted: false };

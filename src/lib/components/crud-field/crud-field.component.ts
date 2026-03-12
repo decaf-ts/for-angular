@@ -33,6 +33,7 @@ import { ActionRoles, SelectFieldInterfaces } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { getModelAndRepository } from '../../engine/helpers';
 import {
+  CheckboxOption,
   CrudFieldOption,
   FieldUpdateMode,
   FormParent,
@@ -668,12 +669,14 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         if (!this.parentForm) this.parentForm = this.formGroup.parent as FormArray;
         this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
       }
-      if (!this.value && (this.options as []).length) this.setValue((this.options as CrudFieldOption[])[0].value);
-
-      if (this.type === HTML5InputTypes.CHECKBOX) {
-        if (this.labelPlacement === 'floating') this.labelPlacement = 'end';
-        this.setValue(this.value);
+      if (HTML5InputTypes.SELECT === this.type && !this.value) {
+        this.setValue((this.options as CrudFieldOption[])[0].value);
+        this.changeDetectorRef.detectChanges();
       }
+      // if (this.type === HTML5InputTypes.CHECKBOX) {
+      //   if (this.labelPlacement === 'floating') this.labelPlacement = 'end';
+      //   this.setValue(this.value);
+      // }
     }
     await super.initialize();
   }
@@ -688,7 +691,17 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   async ngAfterViewInit(): Promise<void> {
-    if (this.type === HTML5InputTypes.RADIO && !this.value) this.setValue((this.options as CrudFieldOption[])[0].value); // TODO: migrate to RenderingEngine
+    if ([HTML5InputTypes.RADIO, HTML5InputTypes.CHECKBOX].includes(this.type) && !this.value) {
+      const options = this.options as CheckboxOption[];
+      let checked = options.find((o) => o.checked);
+      if (!checked) {
+        checked = options.find((o) => o.value !== undefined);
+      }
+      if (checked) {
+        this.setValue(checked.value);
+        this.changeDetectorRef.detectChanges();
+      }
+    }
   }
 
   /**
@@ -817,7 +830,9 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   }
 
   isOptionChecked(value: string): boolean {
-    if (!this.formControl.value || !Array.isArray(this.formControl.value)) return false;
+    if (!this.formControl.value || !Array.isArray(this.formControl.value)) {
+      return false;
+    }
     return this.formControl.value.includes(value);
   }
 
