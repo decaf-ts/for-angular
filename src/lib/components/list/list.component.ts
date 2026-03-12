@@ -17,17 +17,17 @@ import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
 import {
-  IonButton,
-  IonInfiniteScroll,
-  IonInfiniteScrollContent,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonRefresher,
-  IonRefresherContent,
-  IonSkeletonText,
-  IonText,
-  IonThumbnail,
+    IonButton,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonRefresher,
+    IonRefresherContent,
+    IonSkeletonText,
+    IonText,
+    IonThumbnail,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { debounceTime, shareReplay, Subject, takeUntil } from 'rxjs';
@@ -35,12 +35,12 @@ import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { ComponentsTagNames, DefaultListEmptyOptions, ListComponentsTypes } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import {
-  IBaseCustomEvent,
-  IFilterQuery,
-  IFilterQueryItem,
-  IListEmptyOptions,
-  IListItemCustomEvent,
-  IPaginationCustomEvent,
+    IBaseCustomEvent,
+    IFilterQuery,
+    IFilterQueryItem,
+    IListEmptyOptions,
+    IListItemCustomEvent,
+    IPaginationCustomEvent,
 } from '../../engine/interfaces';
 import { DecafRepository, FunctionLike, KeyValue } from '../../engine/types';
 import { formatDate, isValidDate, stringToBoolean } from '../../utils/helpers';
@@ -570,7 +570,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     if (!this.searchbarPlaceholder) this.searchbarPlaceholder = `${this.locale}.search.placeholder`;
 
     this.clickItemSubject
-      .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
+      .pipe(debounceTime(100), shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this.destroySubscriptions$))
       .subscribe((event) => this.clickEventEmit(event as IListItemCustomEvent | IBaseCustomEvent));
 
     this.limit = Number(this.limit);

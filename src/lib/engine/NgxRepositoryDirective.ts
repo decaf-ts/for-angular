@@ -261,7 +261,11 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
           this.log.for(this.observe).info(`Registered repository observer for model ${this.modelName}`);
 
           this.repositoryObserverSubject
-            .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
+            .pipe(
+              debounceTime(100),
+              shareReplay({ bufferSize: 1, refCount: true }),
+              takeUntil(this.destroySubscriptions$)
+            )
             .subscribe(([model, action, uid, data]) => this.handleObserveEvent(data, model, action, uid));
         }
       } catch (error: unknown) {

@@ -344,7 +344,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
   async ngOnInit(): Promise<void> {
     this.windowWidth = getWindowWidth() as number;
     this.windowResizeSubscription = fromEvent(window, 'resize')
-      .pipe(debounceTime(300), takeUntil(this.destroySubscriptions$), shareReplay(1))
+      .pipe(debounceTime(300), takeUntil(this.destroySubscriptions$), shareReplay({ bufferSize: 1, refCount: true }))
       .subscribe(() => {
         this.windowWidth = getWindowWidth() as number;
       });

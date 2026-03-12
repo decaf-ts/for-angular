@@ -1,15 +1,15 @@
 import {
-  Directive,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  SimpleChanges,
-  TemplateRef,
-  Type,
-  ViewChild,
-  ViewContainerRef,
+    Directive,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnDestroy,
+    SimpleChanges,
+    TemplateRef,
+    Type,
+    ViewChild,
+    ViewContainerRef,
 } from '@angular/core';
 import { Model, ModelKeys } from '@decaf-ts/decorator-validation';
 import { shareReplay, takeUntil } from 'rxjs';
@@ -162,7 +162,7 @@ export class NgxRenderableComponentDirective
         const value = this.instance[key];
         if (value instanceof EventEmitter)
           (this.instance as KeyValue)[key]
-            .pipe(shareReplay(1), takeUntil(this.destroySubscriptions$))
+            .pipe(shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this.destroySubscriptions$))
             .subscribe(async (event: Event) => {
               await this.handleEvent({
                 component: component.name || '',

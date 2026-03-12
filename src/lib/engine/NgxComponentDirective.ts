@@ -10,6 +10,7 @@ import { Location } from '@angular/common';
 import {
   ChangeDetectorRef,
   Directive,
+  effect,
   ElementRef,
   EnvironmentInjector,
   EventEmitter,
@@ -25,13 +26,15 @@ import {
   ViewChild,
   WritableSignal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+
 import { NavigationStart, Router } from '@angular/router';
 import { CrudOperations, InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, ModelConstructor, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames, DecafEventHandler, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
 import { OverlayBaseController } from '@ionic/angular/common';
 import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
-import { shareReplay, takeUntil } from 'rxjs';
+import { fromEvent, shareReplay, takeUntil } from 'rxjs';
 import { getLocaleContext } from '../i18n/Loader';
 import { NgxMediaService } from '../services/NgxMediaService';
 import { NgxTranslateService } from '../services/NgxTranslateService';
@@ -43,7 +46,6 @@ import { } from './NgxEventHandler';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { NgxRepositoryDirective } from './NgxRepositoryDirective';
 import { DecafRepository, FormParent, FunctionLike, KeyValue, PropsMapperFn, WindowColorScheme } from './types';
-
 try {
   const win = getWindow();
   if (!win?.[AngularEngineKeys.LOADED]) new NgxRenderingEngine();
@@ -515,6 +517,13 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
    */
   protected colorSchema: WindowColorScheme = WindowColorSchemes.light;
 
+  private popState$ = fromEvent<PopStateEvent>(window, 'popstate').pipe(shareReplay({ bufferSize: 1, refCount: true }));
+
+  // Convertendo o Observable em Signal
+  readonly popStateSignal = toSignal(this.popState$, {
+    initialValue: null,
+  });
+
   /**
    * @description Constructor for NgxComponentDirective.
    * @summary Initializes the directive by setting up the component name, locale root,
@@ -541,9 +550,39 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
         this.colorSchema = WindowColorSchemes.dark;
       }
     });
+    effect(async () => {
+      const event = this.popStateSignal();
+      if (event) {
+        console.log(`Back detectado!' no component ${this.componentName}`);
+        await this.beforeInitialize(this);
+      }
+    });
   }
 
-  override async initialize<T extends NgxComponentDirective>(): Promise<void> {
+  async beforeInitialize<T extends NgxComponentDirective>(component?: unknown): Promise<void> {
+    console.log(`calling render for component ${this.componentName}`);
+    if (!component) {
+      component = this as unknown;
+    }
+    const instance = component as KeyValue;
+    if (this.propsMapperFn) {
+      for (const [key, fn] of Object.entries(this.propsMapperFn)) {
+        if (key in instance) instance[key] = await fn(instance as T);
+      }
+    }
+    // search for handler render
+    const handler = this.handlers?.[ComponentEventNames.Render] || undefined;
+    if (handler && typeof handler === 'function') {
+      await handler.bind(instance)(instance as T, this.name, this.value);
+    }
+    // search for event render
+    const event = this.events?.[ComponentEventNames.Render] || undefined;
+    if (event && typeof event === 'function') {
+      await event.bind(instance)(instance as T, this.name, this.value);
+    }
+  }
+
+  override async initialize(): Promise<void> {
     this.mediaService.darkModeEnabled();
     // connect component to media service for color scheme toggling
     this.mediaService.colorSchemeObserver(this.component);
@@ -554,33 +593,21 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
       this.refreshing = false;
     }
 
-    this.router.events.pipe(shareReplay(1), takeUntil(this.destroySubscriptions$)).subscribe(async (event) => {
-      if (event instanceof NavigationStart) {
-        if (this.value) {
-          await this.ngOnDestroy();
+    this.router.events
+      .pipe(shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this.destroySubscriptions$))
+      .subscribe(async (event) => {
+        if (event instanceof NavigationStart) {
+          if (this.value) {
+            await this.ngOnDestroy();
+          }
         }
-      }
-    });
+      });
 
     this.route = this.router.url.replace('/', '');
 
-    const instance = this as KeyValue;
-    if (this.propsMapperFn) {
-      for (const [key, fn] of Object.entries(this.propsMapperFn)) {
-        if (key in instance) instance[key] = await fn(instance as T);
-      }
-    }
     // search for handler to render event
     if (!this.initialized) {
-      const handler = this.handlers?.[ComponentEventNames.Render] || undefined;
-      if (handler && typeof handler === 'function') {
-        await handler.bind(instance)(instance as T, this.name, this.value);
-      }
-      // search for event to render event
-      const event = this.events?.[ComponentEventNames.Render] || undefined;
-      if (event && typeof event === 'function') {
-        await event.bind(instance)(instance as T, this.name, this.value);
-      }
+      await this.beforeInitialize(this);
     }
     await super.initialize();
 

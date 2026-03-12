@@ -21,10 +21,10 @@ import { debounceTime, shareReplay, takeUntil } from 'rxjs';
 import { DecafTooltipDirective } from '../../directives';
 import { Dynamic } from '../../engine';
 import {
-  ActionRoles,
-  DefaultListEmptyOptions,
-  ListComponentsTypes,
-  SelectFieldInterfaces,
+    ActionRoles,
+    DefaultListEmptyOptions,
+    ListComponentsTypes,
+    SelectFieldInterfaces,
 } from '../../engine/constants';
 import { getModelAndRepository } from '../../engine/helpers';
 import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
@@ -203,7 +203,7 @@ export class TableComponent extends ListComponent implements OnInit {
     this.type = ListComponentsTypes.PAGINATED;
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     this.repositoryObserverSubject
-      .pipe(debounceTime(100), shareReplay(1), takeUntil(this.destroySubscriptions$))
+      .pipe(debounceTime(100), shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this.destroySubscriptions$))
       .subscribe(([model, action, uid, data]) => this.handleObserveEvent(model, action, uid, data));
     this.cols = this._cols as string[];
     this.getOperations();

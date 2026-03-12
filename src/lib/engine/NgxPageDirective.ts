@@ -170,21 +170,23 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
    * @memberOf module:lib/engine/NgxPageDirective
    */
   async ngAfterViewInit(): Promise<void> {
-    this.router.events.pipe(takeUntil(this.destroySubscriptions$), shareReplay(1)).subscribe(async (event) => {
-      if (event instanceof NavigationEnd) {
-        const url = (event?.url || '').replace('/', '');
-        this.currentRoute = url;
-        if (this.hasMenu) this.hasMenu = url !== 'login' && url !== '';
-        this.title = this.pageTitle;
-        await this.setPageTitle(url);
-        this.changeDetectorRef.detectChanges();
-      }
-      if (event instanceof NavigationStart) {
-        const url = (event?.url || '').replace('/', '');
-        if (this.hasMenu) this.hasMenu = url !== 'login' && url !== '';
-        removeFocusTrap();
-      }
-    });
+    this.router.events
+      .pipe(takeUntil(this.destroySubscriptions$), shareReplay({ bufferSize: 1, refCount: true }))
+      .subscribe(async (event) => {
+        if (event instanceof NavigationEnd) {
+          const url = (event?.url || '').replace('/', '');
+          this.currentRoute = url;
+          if (this.hasMenu) this.hasMenu = url !== 'login' && url !== '';
+          this.title = this.pageTitle;
+          await this.setPageTitle(url);
+          this.changeDetectorRef.detectChanges();
+        }
+        if (event instanceof NavigationStart) {
+          const url = (event?.url || '').replace('/', '');
+          if (this.hasMenu) this.hasMenu = url !== 'login' && url !== '';
+          removeFocusTrap();
+        }
+      });
     if (!this.route) this.route = this.router.url.replace('/', '');
     await this.menuController.enable(this.hasMenu);
   }

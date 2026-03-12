@@ -11,14 +11,14 @@
  * - {@link NgxMediaService}: The main service class providing media-related utilities.
  */
 
-import { ElementRef, Injectable, NgZone, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { fromEvent, Subject, Observable, BehaviorSubject, merge, of, timer } from 'rxjs';
-import { distinctUntilChanged, map, shareReplay, takeUntil, tap, switchMap } from 'rxjs/operators';
+import { ElementRef, inject, Injectable, NgZone } from '@angular/core';
+import { BehaviorSubject, fromEvent, merge, Observable, of, Subject, timer } from 'rxjs';
+import { distinctUntilChanged, map, shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { AngularEngineKeys, WindowColorSchemes } from '../engine/constants';
 import { IWindowResizeEvent } from '../engine/interfaces';
 import { WindowColorScheme } from '../engine/types';
 import { getWindow, getWindowDocument } from '../utils/helpers';
-import { AngularEngineKeys, WindowColorSchemes } from '../engine/constants';
 
 /**
  * @description Service for managing media-related features in an Angular application.
@@ -149,7 +149,7 @@ export class NgxMediaService {
     const win = this._window;
     this.angularZone.runOutsideAngular(() => {
       fromEvent(win, 'resize')
-        .pipe(distinctUntilChanged(), takeUntil(this.destroy$), shareReplay(1))
+        .pipe(distinctUntilChanged(), takeUntil(this.destroy$), shareReplay({ bufferSize: 1, refCount: true }))
         .subscribe(() => {
           const dimensions: IWindowResizeEvent = {
             width: win.innerWidth,
@@ -195,7 +195,7 @@ export class NgxMediaService {
         this.toggleClass(
           component,
           AngularEngineKeys.DARK_PALETTE_CLASS,
-          schema === WindowColorSchemes.dark ? true : false,
+          schema === WindowColorSchemes.dark ? true : false
         );
       });
     }
@@ -207,9 +207,7 @@ export class NgxMediaService {
         this.angularZone.runOutsideAngular(() => {
           const mediaQuery = mediaFn;
           const subscription = fromEvent<MediaQueryListEvent>(mediaQuery, 'change')
-            .pipe(
-              map((event) => (event.matches ? WindowColorSchemes.dark : WindowColorSchemes.light)),
-            )
+            .pipe(map((event) => (event.matches ? WindowColorSchemes.dark : WindowColorSchemes.light)))
             .subscribe((value) => {
               this.angularZone.run(() => observer.next(value));
             });
@@ -232,7 +230,7 @@ export class NgxMediaService {
           // this.angularZone.run(() => observer.next(theme));
           return () => mutationObserver.disconnect();
         });
-      }),
+      })
     ).pipe(
       distinctUntilChanged(),
       tap((scheme) => {
@@ -250,7 +248,7 @@ export class NgxMediaService {
         this.currentSchema = scheme;
       }),
       takeUntil(this.destroy$),
-      shareReplay(1),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
   }
 
@@ -277,32 +275,25 @@ export class NgxMediaService {
         () =>
           new Observable<boolean>((observer) => {
             const activeContent = this._document.querySelector(
-              'ion-router-outlet .ion-page:not(.ion-page-hidden) ion-content',
+              'ion-router-outlet .ion-page:not(.ion-page-hidden) ion-content'
             ) as HTMLIonContentElement;
-            if (
-              !(
-                activeContent &&
-                typeof (activeContent as HTMLIonContentElement).getScrollElement === 'function'
-              )
-            )
+            if (!(activeContent && typeof (activeContent as HTMLIonContentElement).getScrollElement === 'function'))
               return this.angularZone.run(() => observer.next(false));
 
-            (activeContent as HTMLIonContentElement)
-              .getScrollElement()
-              .then((element: HTMLElement) => {
-                const emitScrollState = () => {
-                  const scrollTop = element.scrollTop || 0;
-                  this.angularZone.run(() => observer.next(scrollTop > offset));
-                };
-                element.addEventListener('scroll', emitScrollState);
-                emitScrollState();
-                return () => element.removeEventListener('scroll', emitScrollState);
-              });
-          }),
+            (activeContent as HTMLIonContentElement).getScrollElement().then((element: HTMLElement) => {
+              const emitScrollState = () => {
+                const scrollTop = element.scrollTop || 0;
+                this.angularZone.run(() => observer.next(scrollTop > offset));
+              };
+              element.addEventListener('scroll', emitScrollState);
+              emitScrollState();
+              return () => element.removeEventListener('scroll', emitScrollState);
+            });
+          })
       ),
       distinctUntilChanged(),
       takeUntil(this.destroy$),
-      shareReplay(1),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
   }
 
@@ -326,7 +317,7 @@ export class NgxMediaService {
     this.angularZone.runOutsideAngular(() => {
       const svg$ = http
         .get(path, { responseType: 'text' })
-        .pipe(takeUntil(this.destroy$), shareReplay(1));
+        .pipe(takeUntil(this.destroy$), shareReplay({ bufferSize: 1, refCount: true }));
       svg$.subscribe((svg) => {
         this.angularZone.run(() => {
           target.innerHTML = svg;
@@ -354,12 +345,11 @@ export class NgxMediaService {
     return this.colorScheme$.pipe(
       map(
         (scheme) =>
-          documentElement.classList.contains(AngularEngineKeys.DARK_PALETTE_CLASS) ||
-          scheme === WindowColorSchemes.dark,
+          documentElement.classList.contains(AngularEngineKeys.DARK_PALETTE_CLASS) || scheme === WindowColorSchemes.dark
       ),
       distinctUntilChanged(),
-      shareReplay(1),
-      takeUntil(this.destroy$),
+      shareReplay({ bufferSize: 1, refCount: true }),
+      takeUntil(this.destroy$)
     );
   }
 
@@ -381,7 +371,7 @@ export class NgxMediaService {
       this.toggleClass(
         component,
         AngularEngineKeys.DARK_PALETTE_CLASS,
-        scheme === WindowColorSchemes.dark ? true : false,
+        scheme === WindowColorSchemes.dark ? true : false
       );
     });
   }
@@ -407,11 +397,7 @@ export class NgxMediaService {
    * // Remove a class from multiple elements
    * mediaService.toggleClass([element1, element2], 'hidden', false);
    */
-  toggleClass(
-    component: ElementRef | HTMLElement | unknown[],
-    className: string,
-    add: boolean = true,
-  ): void {
+  toggleClass(component: ElementRef | HTMLElement | unknown[], className: string, add: boolean = true): void {
     const components = Array.isArray(component) ? component : [component];
     components.forEach((element) => {
       if ((element as ElementRef)?.nativeElement) element = (element as ElementRef).nativeElement;
