@@ -553,14 +553,12 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
     effect(async () => {
       const event = this.popStateSignal();
       if (event) {
-        console.log(`Back detectado!' no component ${this.componentName}`);
         await this.beforeInitialize(this);
       }
     });
   }
 
   async beforeInitialize<T extends NgxComponentDirective>(component?: unknown): Promise<void> {
-    console.log(`calling render for component ${this.componentName}`);
     if (!component) {
       component = this as unknown;
     }

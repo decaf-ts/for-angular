@@ -670,13 +670,17 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
       }
       if (HTML5InputTypes.SELECT === this.type && !this.value) {
-        this.setValue((this.options as CrudFieldOption[])[0].value);
-        this.changeDetectorRef.detectChanges();
+        if (this.options?.length) {
+          this.setValue((this.options as CrudFieldOption[])[0].value);
+          this.changeDetectorRef.detectChanges();
+        }
       }
-      // if (this.type === HTML5InputTypes.CHECKBOX) {
-      //   if (this.labelPlacement === 'floating') this.labelPlacement = 'end';
-      //   this.setValue(this.value);
-      // }
+      if (this.type === HTML5InputTypes.CHECKBOX) {
+        if (this.labelPlacement === 'floating') {
+          this.labelPlacement = 'end';
+        }
+        this.setValue(this.value);
+      }
     }
     await super.initialize();
   }
@@ -691,7 +695,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   async ngAfterViewInit(): Promise<void> {
-    if ([HTML5InputTypes.RADIO, HTML5InputTypes.CHECKBOX].includes(this.type) && !this.value) {
+    if (this.type === HTML5InputTypes.RADIO && this.formGroup && !this.value) {
       const options = this.options as CheckboxOption[];
       let checked = options.find((o) => o.checked);
       if (!checked) {
@@ -701,6 +705,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         this.setValue(checked.value);
         this.changeDetectorRef.detectChanges();
       }
+      this.setValue(this.value);
     }
   }
 
@@ -770,7 +775,8 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         ? [{ value: '', text: '', selected: true, disabled: this.required }, ...this.options]
         : this.options
     ) as CrudFieldOption[];
-    return (this.options = [...options]);
+    this.options = [...options];
+    return this.options as CrudFieldOption[];
   }
 
   /**

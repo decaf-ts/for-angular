@@ -273,7 +273,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
   }
 
   toggleCollapse(container: HTMLElement): void {
-    console.log('toggleCollapse', container);
     this.collapsed = !this.collapsed;
     this.changeDetectorRef.detectChanges();
   }
