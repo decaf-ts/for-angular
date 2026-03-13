@@ -739,7 +739,7 @@ export class NgxFormService {
         const isValid = control.valid;
         if (parentProps?.multiple) {
           if (isValid) {
-            data[key] = Array.isArray(value) ? value : [value];
+            data[key] = value;
           } else {
             this.reset(control as FormControl);
           }
