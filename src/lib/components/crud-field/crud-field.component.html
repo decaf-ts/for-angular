@@ -13,7 +13,7 @@
           [class]="'dcf-input-item ' + operation"
           #component
         >
-          <ion-label>
+          <ion-label [id]="name">
             @if (refreshing) {
               <br />
               <ion-skeleton-text [animated]="true"></ion-skeleton-text>
