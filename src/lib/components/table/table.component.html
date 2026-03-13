@@ -83,7 +83,11 @@
                   [innerHTML]="col.value.value"
                   [ngx-decaf-tooltip]="
                     maxContentLength > 0 && !preserve.includes(col.value.prop)
-                      ? { text: col.value.value, truncate: maxContentLength }
+                      ? {
+                          text: col.value.value,
+                          truncate: true,
+                          limit: maxContentLength,
+                        }
                       : {}
                   "
                 ></td>

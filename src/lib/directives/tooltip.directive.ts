@@ -75,24 +75,25 @@ export class DecafTooltipDirective implements OnChanges {
     };
     if (options?.text && options?.text.trim().length) {
       const value = options.text.replace(/<[^>]+>/g, '').trim();
+      if (value.length > options.limit) {
+        const text = !options.truncate
+          ? value
+          : this.truncatePipe.transform(value, options.limit, options.trail || '...');
 
-      const text = !options.truncate
-        ? value
-        : this.truncatePipe.transform(value, options.limit, options.trail || '...');
+        const element = this.element?.nativeElement ? this.element?.nativeElement : this.element;
+        if (options.truncate) {
+          this.renderer.setProperty(element, 'innerHTML', '');
+          const textNode = this.renderer.createText(text);
+          this.renderer.appendChild(element, textNode);
+        }
 
-      const element = this.element?.nativeElement ? this.element?.nativeElement : this.element;
-      if (options.truncate) {
-        this.renderer.setProperty(element, 'innerHTML', '');
-        const textNode = this.renderer.createText(text);
-        this.renderer.appendChild(element, textNode);
+        // creating tooltip element
+        const tooltip = this.renderer.createElement('span');
+        this.renderer.addClass(tooltip, 'dcf-tooltip');
+        this.renderer.appendChild(tooltip, this.renderer.createText(this.truncatePipe.sanitize(value)));
+        this.renderer.appendChild(element, tooltip);
+        this.renderer.addClass(element, 'dcf-tooltip-parent');
       }
-
-      // creating tooltip element
-      const tooltip = this.renderer.createElement('span');
-      this.renderer.addClass(tooltip, 'dcf-tooltip');
-      this.renderer.appendChild(tooltip, this.renderer.createText(this.truncatePipe.sanitize(value)));
-      this.renderer.appendChild(element, tooltip);
-      this.renderer.addClass(element, 'dcf-tooltip-parent');
     }
   }
 }
