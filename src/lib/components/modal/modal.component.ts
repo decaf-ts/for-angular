@@ -596,6 +596,7 @@ export async function getNgxInlineModal(
 export async function getNgxSelectOptionsModal(
   title: string,
   options: SelectOption[],
+  uid?: string,
   injector?: EnvironmentInjector
 ): Promise<IonModal> {
   const props = {
@@ -610,7 +611,7 @@ export async function getNgxSelectOptionsModal(
       type: ListComponentsTypes.INFINITE,
       isModalChild: true,
     },
-    className: `dcf-modal dcf-modal-select-interface`,
+    className: `dcf-modal dcf-modal-select-interface ${uid ? `dcf-modal-${uid.toLowerCase()}` : ''}`,
   };
   return await getNgxModalComponent(props, {}, injector || undefined);
 }

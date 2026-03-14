@@ -21,10 +21,10 @@ import { debounceTime, shareReplay, takeUntil } from 'rxjs';
 import { DecafTooltipDirective } from '../../directives';
 import { Dynamic } from '../../engine';
 import {
-    ActionRoles,
-    DefaultListEmptyOptions,
-    ListComponentsTypes,
-    SelectFieldInterfaces,
+  ActionRoles,
+  DefaultListEmptyOptions,
+  ListComponentsTypes,
+  SelectFieldInterfaces,
 } from '../../engine/constants';
 import { getModelAndRepository } from '../../engine/helpers';
 import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
@@ -420,7 +420,12 @@ export class TableComponent extends ListComponent implements OnInit {
       event.preventDefault();
       event.stopImmediatePropagation();
       const title = await this.translate(`${this.locale}.filter_by`);
-      const modal = await getNgxSelectOptionsModal(title, this.filterOptions as SelectOption[], this.injector);
+      const modal = await getNgxSelectOptionsModal(
+        title,
+        this.filterOptions as SelectOption[],
+        this.filterBy || 'tableComponentFilter',
+        this.injector
+      );
       this.changeDetectorRef.detectChanges();
       const { data, role } = await modal.onWillDismiss();
       if (role === ActionRoles.confirm && data !== this.filterValue) {
