@@ -5,6 +5,7 @@
     [class.dcf-blank]="!borders"
     [class.dcf-empty]="!items?.length"
     [class.dcf-open]="isOpen"
+    [id]="name?.toLowerCase() + '-fieldset'"
     #component
   >
     <div class="dcf-width-1-1">
