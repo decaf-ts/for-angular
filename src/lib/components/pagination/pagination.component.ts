@@ -345,8 +345,8 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
       }
     } else {
       if (this.nextBookmark) {
-        const page = this.current + 1;
-        if (page <= Object.keys(this.pages)?.length || 0) {
+        if (this.nextBookmark) {
+          const page = this.current + 1;
           this.current = page;
           this.handleClick('next');
         }

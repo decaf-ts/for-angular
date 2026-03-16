@@ -26,6 +26,7 @@
           (click)="previous()"
           (keydown.enter)="previous()"
           [class.dcf-disabled]="current === 1"
+          [class.dcf-hidden]="bookMarkPagination && nextBookmark === 'nil'"
         >
           <ion-icon
             name="chevron-back-outline"
@@ -50,7 +51,9 @@
             </div>
           }
         }
-        @if (pages?.length > 1) {
+        @if (
+          pages?.length > 1 || (bookMarkPagination && nextBookmark !== 'nil')
+        ) {
           <div
             tabindex="0"
             [class]="disablePages ? 'dcf-nav dcf-nav-next' : ''"
