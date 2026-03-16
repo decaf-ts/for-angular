@@ -17,7 +17,7 @@ import {
   uilistmodel,
   uilistprop,
   uimodel,
-  uitablecol
+  uitablecol,
 } from '@decaf-ts/ui-decorators';
 import { DatePattern, TableNames } from './constants';
 import { audit } from './utils';
@@ -104,11 +104,6 @@ export class Batch extends Cacheable {
   // @cache()
   @column()
   @date(DatePattern)
-  @uielement('ngx-decaf-crud-field', {
-    label: 'batch.dateOfManufacturing.label',
-    placeholder: 'batch.dateOfManufacturing.placeholder',
-    type: HTML5InputTypes.DATE,
-  })
   @uilayoutprop('half')
   @uitablecol(4)
   @description('Date when the batch was manufactured.')

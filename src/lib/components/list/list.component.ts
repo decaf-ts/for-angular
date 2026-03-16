@@ -17,17 +17,17 @@ import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
 import {
-    IonButton,
-    IonInfiniteScroll,
-    IonInfiniteScrollContent,
-    IonItem,
-    IonLabel,
-    IonList,
-    IonRefresher,
-    IonRefresherContent,
-    IonSkeletonText,
-    IonText,
-    IonThumbnail,
+  IonButton,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonRefresher,
+  IonRefresherContent,
+  IonSkeletonText,
+  IonText,
+  IonThumbnail,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { debounceTime, shareReplay, Subject, takeUntil } from 'rxjs';
@@ -35,15 +35,15 @@ import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { ComponentsTagNames, DefaultListEmptyOptions, ListComponentsTypes } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import {
-    IBaseCustomEvent,
-    IFilterQuery,
-    IFilterQueryItem,
-    IListEmptyOptions,
-    IListItemCustomEvent,
-    IPaginationCustomEvent,
+  IBaseCustomEvent,
+  IFilterQuery,
+  IFilterQueryItem,
+  IListEmptyOptions,
+  IListItemCustomEvent,
+  IPaginationCustomEvent,
 } from '../../engine/interfaces';
 import { DecafRepository, FunctionLike, KeyValue } from '../../engine/types';
-import { formatDate, isValidDate, stringToBoolean } from '../../utils/helpers';
+import { dateFromString, formatDate, isValidDate, stringToBoolean } from '../../utils/helpers';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { FilterComponent } from '../filter/filter.component';
@@ -488,6 +488,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @memberOf ListComponent
    */
   lastPage: number = 1;
+
+  bookMarkPagination: boolean = false;
 
   /**
    * @description Event emitter for item click interactions.
@@ -1138,7 +1140,10 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
       try {
         if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
-          (this.data as KeyValue[]) = [];
+          if (this.type !== ListComponentsTypes.INFINITE) {
+            (this.data as KeyValue[]) = [];
+          }
+
           // const rawQuery = this.parseQuery(self.model as Repository<Model>, start, limit);
           // request = this.parseResult(await (this.model as any)?.paginate(start, limit));
           if (!this.paginator) {
@@ -1148,8 +1153,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         } else {
           this.changeDetectorRef.detectChanges();
           request = await this.parseResult(
-            typeof this.searchValue === 'string'
-              ? await repo.find(this.searchValue, this.sortDirection)
+            typeof this.searchValue === Primitives.STRING
+              ? await repo.find(String(this.searchValue), this.sortDirection)
               : await repo
                   .select()
                   .where(this.parseConditions(this.searchValue as IFilterQuery))
@@ -1315,15 +1320,19 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   getMoreData(length: number): void {
     if (this.type === ListComponentsTypes.INFINITE) {
-      if (this.paginator) {
-        length = this.paginator['_recordCount'] || length * this.limit;
-      }
-      if (length >= this.limit) {
-        this.loadMoreData = false;
+      if (length === undefined) {
+        this.loadMoreData = `${this.paginator?.['_bookmark']}`?.length ? true : false;
       } else {
-        this.pages = Math.floor(length / this.limit);
-        if (this.pages * this.limit < length) this.pages += 1;
-        if (this.pages === 1) this.loadMoreData = false;
+        if (this.paginator) {
+          length = this.paginator['_recordCount'] || length * this.limit;
+        }
+        if (length >= this.limit) {
+          this.loadMoreData = false;
+        } else {
+          this.pages = Math.floor(length / this.limit);
+          if (this.pages * this.limit < length) this.pages += 1;
+          if (this.pages === 1) this.loadMoreData = false;
+        }
       }
     } else {
       if (!this.paginator) {
@@ -1333,8 +1342,12 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         }
       } else {
         this.pages = this.paginator?.total || this.paginator['_totalPages'];
-        if (this.pages === 1) {
-          this.loadMoreData = false;
+        if (this.pages === undefined) {
+          this.bookMarkPagination = this.paginator?.['_bookmark'] !== undefined ? true : false;
+        } else {
+          if (this.pages === 1) {
+            this.loadMoreData = false;
+          }
         }
       }
     }
@@ -1363,7 +1376,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         if (arrayValue.length === 1) {
           value = item?.[value] ? item[value] : '';
           // value = item?.[value] ? item[value] : value !== key ? value : "";
-          if (isValidDate(value)) value = `${formatDate(value)}`;
+          if (isValidDate(value)) value = `${formatDate(dateFromString(value))}`;
           accum[key] = value;
         } else {
           let val;
@@ -1371,7 +1384,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
           for (const _value of arrayValue)
             val = !val ? item[_value] : (typeof val === Primitives.STRING ? JSON.parse(val) : val)[_value];
 
-          if (isValidDate(new Date(val))) val = `${formatDate(val)}`;
+          if (isValidDate(new Date(val))) val = `${formatDate(dateFromString(val))}`;
 
           accum[key] = val === null || val === undefined ? value : val;
         }

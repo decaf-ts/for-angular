@@ -23,6 +23,11 @@
   padding: 0;
   list-style: none;
 
+  &.dcf-bookmark-pagination {
+    justify-content: flex-end;
+    margin: 1.5rem 0px;
+  }
+
   .page-item {
     display: flex;
     justify-content: center;

@@ -89,13 +89,18 @@
       }
     </ion-list>
   </div>
-
   @if (loadMoreData) {
-    @if (pages > 0 && type === 'paginated' && !searchValue?.length) {
+    @if (
+      (pages > 0 || bookMarkPagination) &&
+      type === 'paginated' &&
+      !searchValue?.length
+    ) {
       <ngx-decaf-pagination
         [disablePages]="disablePaginationPages"
         [truncatePages]="truncatePaginationPages"
         [totalPages]="pages"
+        [bookMarkPagination]="bookMarkPagination"
+        [nextBookmark]="paginator?._bookmark"
         [table]="component"
         [current]="page"
         (clickEvent)="handlePaginate($event)"

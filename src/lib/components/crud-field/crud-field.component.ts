@@ -671,7 +671,8 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       }
       if (HTML5InputTypes.SELECT === this.type && !this.value) {
         if (this.options?.length) {
-          this.setValue((this.options as CrudFieldOption[])[0].value);
+          const selected = this.options.find((o) => o['selected']);
+          this.setValue(selected ? selected.value : (this.options as CrudFieldOption[])[0].value);
           this.changeDetectorRef.detectChanges();
         }
       }

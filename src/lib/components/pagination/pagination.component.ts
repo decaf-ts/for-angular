@@ -148,6 +148,12 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
   @Output()
   clickEvent: EventEmitter<IPaginationCustomEvent> = new EventEmitter<IPaginationCustomEvent>();
 
+  @Input()
+  bookMarkPagination: boolean = false;
+
+  @Input()
+  nextBookmark: string = '';
+
   /**
    * @constructor
    * @description Initializes a new instance of the PaginationComponent.
@@ -186,6 +192,9 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
     // this.locale = this.getLocale(this.translatable);
     this.pages = this.getPages(this.totalPages, this.current) as KeyValue[];
     this.last = this.totalPages;
+    if (this.bookMarkPagination) {
+      this.disablePages = true;
+    }
   }
 
   /**
@@ -328,10 +337,20 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    * @memberOf PaginationComponent
    */
   next(): void {
-    const page = this.current + 1;
-    if (page <= Object.keys(this.pages)?.length || 0) {
-      this.current = page;
-      this.handleClick('next');
+    if (!this.bookMarkPagination) {
+      const page = this.current + 1;
+      if (page <= Object.keys(this.pages)?.length || 0) {
+        this.current = page;
+        this.handleClick('next');
+      }
+    } else {
+      if (this.nextBookmark) {
+        const page = this.current + 1;
+        if (page <= Object.keys(this.pages)?.length || 0) {
+          this.current = page;
+          this.handleClick('next');
+        }
+      }
     }
   }
 

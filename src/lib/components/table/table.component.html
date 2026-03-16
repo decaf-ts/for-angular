@@ -174,9 +174,11 @@
 </div>
 
 <div class="dcf-table-pagination">
-  @if (pages > 0 && !searchValue) {
+  @if ((pages > 0 || bookMarkPagination) && !searchValue) {
     <ngx-decaf-pagination
       [table]="component"
+      [bookMarkPagination]="bookMarkPagination"
+      [nextBookmark]="paginator?._bookmark"
       [totalPages]="pages"
       [disablePages]="disablePaginationPages"
       [truncatePages]="truncatePaginationPages"

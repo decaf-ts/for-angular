@@ -1,7 +1,7 @@
 import { column, index, OrderDirection, table } from '@decaf-ts/core';
 import { readonly } from '@decaf-ts/db-decorators';
 import { description } from '@decaf-ts/decoration';
-import { date, Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
+import { Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
 import {
   DecafComponent,
   hidden,
@@ -18,7 +18,7 @@ import {
 } from '@decaf-ts/ui-decorators';
 import { Batch, ManufacturerAddress } from '../Batch';
 import { Product } from '../Product';
-import { DatePattern, TableNames } from '../constants';
+import { TableNames } from '../constants';
 import { BatchHandler } from '../handlers/BatchHandler';
 import { DatamatrixModalHandler } from '../handlers/DatamatrixModalHandler';
 
@@ -179,12 +179,24 @@ export class BatchForm extends Batch {
   override manufacturerName?: string;
 
   //@cache()
-  @date(DatePattern)
+  // @date(DatePattern)
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.dateOfManufacturing.label',
     placeholder: 'batch.dateOfManufacturing.placeholder',
     type: HTML5InputTypes.DATE,
+    // propsMapperFn: {
+    //   value: (instance: CrudFieldComponent) => {
+    //     if (instance.value) {
+    //       const value = `${instance.value}`.includes('T')
+    //         ? `${instance.value}`.split('T')
+    //         : `${instance.value}`.split(' ');
+    //       // instance.setValue(value);
+    //       console.log('Mapped value for dateOfManufacturing:', value);
+    //     }
+    //   },
+    // },
   })
+  // @type(String)
   @uilayoutprop('half')
   @uitablecol(6)
   @uiorder(10)

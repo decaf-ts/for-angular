@@ -1,4 +1,8 @@
-<app-header [title]="title" [operation]="operation" [modelId]="modelId" />
+<app-header
+  [title]="title"
+  [operation]="operation"
+  [modelId]="modelId"
+/>
 
 <ion-content [fullscreen]="true">
   <main>
@@ -20,8 +24,11 @@
           [model]="model"
           [route]="route"
           [enableFilter]="false"
+          [disablePages]="true"
+          [sortBy]="'updatedAt'"
           type="infinite"
           [operations]="operations"
+          [limit]="5"
           (listenEvent)="handleEvent($event)"
         />
       </div>

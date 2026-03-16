@@ -151,7 +151,6 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
         },
         Product.name
       );
-      console.log(product);
     } catch (error) {
       console.error('Error building product model:', error);
     }
@@ -199,6 +198,5 @@ export class ProductsPage extends NgxModelPageDirective implements OnInit {
 
   override async ionViewWillEnter(): Promise<void> {
     await super.ionViewWillEnter();
-    console.log(this.model);
   }
 }
