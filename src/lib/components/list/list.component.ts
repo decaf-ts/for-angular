@@ -816,11 +816,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @param {string | number} uid - The ID of the item to create.
    * @returns {Promise<void>} A promise that resolves when the item is created and added to the list.
    */
-  async handleCreate(data: Model, uid: string | number): Promise<void> {
-    if (!data || !Object.keys(data).length) {
-      data = (await this._repository?.read(uid)) as Model;
+  async handleCreate(model: Model, uid: string | number): Promise<void> {
+    if (!model || !Object.keys(model).length) {
+      model = (await this._repository?.read(uid)) as Model;
     }
-    const item = (await this.mapResults([data]))[0];
+    const item = (await this.mapResults([model]))[0];
     this.items = this.data = [item, ...(this.items || [])];
   }
 
@@ -833,9 +833,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @private
    * @memberOf ListComponent
    */
-  async handleUpdate(item: Model, uid: string | number): Promise<void> {
-    if (!item || !Object.keys(item).length) {
-      item = (await this._repository?.read(uid)) as Model;
+  async handleUpdate(model: Model, uid: string | number): Promise<void> {
+    if (!model || !Object.keys(model).length) {
+      model = (await this._repository?.read(uid)) as Model;
     }
 
     // const item: KeyValue = this.itemMapper((await this._repository?.read(uid)) || {}, this.mapper);
@@ -844,8 +844,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     for (const key in this.items as KeyValue[]) {
       const child = this.items[key] as KeyValue;
       if (`${child['uid']}`.trim() === `${uid}`.trim()) {
-        this.items[key] = Object.assign({}, child, this.itemMapper(item || {}, this.mapper), {
-          model: item || {},
+        this.items[key] = Object.assign({}, child, this.itemMapper(model || {}, this.mapper), {
+          model: model || {},
         });
         break;
       }
@@ -1376,7 +1376,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         if (arrayValue.length === 1) {
           value = item?.[value] ? item[value] : '';
           // value = item?.[value] ? item[value] : value !== key ? value : "";
-          if (isValidDate(value)) value = `${formatDate(dateFromString(value))}`;
+          if (isValidDate(value)) {
+            value = `${formatDate(dateFromString(value))}`;
+          }
           accum[key] = value;
         } else {
           let val;

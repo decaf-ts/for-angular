@@ -15,13 +15,15 @@ import {
   SelectCustomEvent,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
+import { take, timer } from 'rxjs';
+import { LeafletType } from 'src/app/ew/fabric';
 import { Batch } from 'src/app/ew/fabric/Batch';
 import { Product } from 'src/app/ew/fabric/Product';
-import { getDocumentTypes } from 'src/app/ew/utils/helpers';
+import { getDoucumentOptions } from 'src/app/ew/utils/helpers';
 import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.component';
 import { IconComponent } from 'src/lib/components/icon/icon.component';
+import { getModelAndRepository, SelectOption } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
-import { getModelAndRepository } from 'src/lib/engine/helpers';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { NgxRouterService } from 'src/lib/services';
 import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/helpers';
@@ -47,6 +49,18 @@ import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/help
 })
 export class AppSelectFieldComponent extends CrudFieldComponent implements OnDestroy {
   routerService: NgxRouterService = inject(NgxRouterService);
+
+  set lastProduct(product: Product) {
+    setOnWindow('_lastProduct', {
+      inventedName: product.inventedName,
+      nameMedicinalProduct: product.nameMedicinalProduct,
+      productCode: product.productCode,
+    } as Product);
+  }
+
+  get lastProduct(): Product | undefined {
+    return getOnWindow('_lastProduct') as Product | undefined;
+  }
 
   override async onDestroy(): Promise<void> {
     super.onDestroy();
@@ -82,13 +96,15 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
     }
 
     if (this.name === 'batchNumber') {
+      this.required = false;
       if (this.operation === OperationKeys.CREATE) {
+        this.disabled = true;
         if (batchNumber) {
           await this.readBatchById(batchNumber);
         }
 
         if (batchNumber || this.value) {
-          this.disabled = true;
+          this.disabled = false;
           this.changeDetectorRef.detectChanges();
         }
       }
@@ -100,13 +116,20 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
         //   source: this.name,
         //   value: this.value,
         // });
-        this.component.nativeElement.ionChange.emit({
-          value: {
-            source: this.name,
-            value: this.value,
-            bubbles: batchNumber ? false : true,
-          },
-        });
+
+        if (this.component?.nativeElement) {
+          const timerSubscription = timer(200)
+            .pipe(take(1))
+            .subscribe(() => {
+              this.component.nativeElement.ionChange.emit({
+                source: this.name,
+                value: this.value,
+                bubbles: batchNumber ? false : true,
+              });
+
+              timerSubscription.unsubscribe();
+            });
+        }
       }
     }
 
@@ -119,10 +142,13 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
     this.initialized = true;
   }
 
-  handleChange(event: SelectCustomEvent) {
+  handleChange(event: SelectCustomEvent): void {
     const { value } = event.detail as SelectChangeEventDetail;
+    this.value = value;
+    const { bubbles } = (event.detail as { bubbles?: boolean }) || false;
     windowEventEmitter(ComponentEventNames.Change, {
       source: this.name,
+      bubbles,
       ...(value?.value ? { ...value } : { value: value }),
     });
   }
@@ -143,13 +169,27 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
         }
       }
       if (source === 'batchNumber') {
+        if (this.name === 'leafletType') {
+          this.options = (this.options as SelectOption[]).map((option) => {
+            if (option.value === LeafletType.prescribingInfo) {
+              option.disabled = value !== '';
+            }
+            return option;
+          });
+        }
         if (this.name === 'epiMarket') {
           if (value !== '') this.value = '';
           this.hidden = value !== '';
           this.changeDetectorRef.detectChanges();
         }
         if (this.name === 'productCode' && value !== '') {
-          await this.setProductValue(value, bubbles);
+          const currentValue = this.getValue() as string;
+          const { productCode } = this.lastProduct || {};
+          if (currentValue && currentValue !== productCode) {
+            await this.setProductValue(value, bubbles);
+          } else if (productCode && !bubbles) {
+            this.setValue(productCode);
+          }
         }
         if (this.name === 'type') {
           await this.filterTypeOptions(value !== '' ? 'batch' : 'product');
@@ -160,18 +200,14 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
 
   async readProduct(uid: string): Promise<Product | undefined> {
     const context = getModelAndRepository('Product');
-    let product = getOnWindow('_batchLastProduct') as Product | undefined;
+    let product = this.lastProduct;
     if (context) {
       const { repository } = context;
       if (!product || product.productCode !== uid) {
         this.value = '';
         product = (await repository.read(uid)) as Product & Model;
         if (product) {
-          setOnWindow('_batchLastProduct', {
-            inventedName: product.inventedName,
-            nameMedicinalProduct: product.nameMedicinalProduct,
-            productCode: product.productCode,
-          } as Product);
+          this.lastProduct = product;
         }
       }
     }
@@ -186,6 +222,7 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
       if (batch) {
         this.value = batch.batchNumber as string;
         this.setValue(this.value);
+        this.lastProduct = { productCode: batch.productCode } as Product;
       }
     }
   }
@@ -200,7 +237,11 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
       const query = await repository.query(condition, relation);
       this.options = query;
       this.disabled = query?.length === 0;
+      // if (query?.length === 1) {
+      //   this.formGroup?.get('batchNumber')?.setValue((query[0] as Batch).batchNumber);
+      // }
       await this.getOptions();
+      this.lastProduct = { productCode: uid } as Product;
     }
   }
 
@@ -219,7 +260,7 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
 
   async filterTypeOptions(type: 'product' | 'batch' = 'product') {
     const value = this.value;
-    this.options = getDocumentTypes(type);
+    this.options = getDoucumentOptions(type);
     await this.getOptions();
     this.value = value;
   }

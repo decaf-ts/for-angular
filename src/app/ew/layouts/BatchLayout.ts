@@ -1,5 +1,7 @@
 import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import {
+  ComponentEventNames,
+  TransactionHooks,
   uichild,
   uihandlers,
   uilayout,
@@ -7,20 +9,16 @@ import {
   UIMediaBreakPoints,
   uimodel,
   uionrender,
-  ComponentEventNames,
-  TransactionHooks,
 } from '@decaf-ts/ui-decorators';
-import { getDocumentProperties, EpiHandler } from '../fabric/handlers/EpiHandler';
 import { Leaflet } from '../fabric';
-import { ProductHandler } from '../fabric/handlers/ProductHandler';
 import { BatchForm } from '../fabric/forms/BatchForm';
 import { BatchHandler } from '../fabric/handlers/BatchHandler';
+import { getLeafletEpiProps } from '../fabric/handlers/LeafletHandler';
 
 @uimodel('', {})
 @model()
 class BatchEpiLayout {
-  @uichild(Leaflet.name, 'ngx-decaf-list', getDocumentProperties('batchNumber'))
-  @uionrender(() => EpiHandler)
+  @uichild(Leaflet.name, 'ngx-decaf-list', getLeafletEpiProps('batchNumber'))
   document!: Leaflet;
 }
 
@@ -29,9 +27,10 @@ class BatchEpiLayout {
   breakpoint: UIMediaBreakPoints.XLARGE,
 })
 @uihandlers({
-  [ComponentEventNames.Submit]: BatchHandler,
   [TransactionHooks.BeforeUpdate]: BatchHandler,
   [TransactionHooks.BeforeCreate]: BatchHandler,
+  [ComponentEventNames.Submit]: BatchHandler,
+  [ComponentEventNames.Render]: BatchHandler,
 })
 @model()
 export class BatchLayout extends Model {
@@ -41,6 +40,7 @@ export class BatchLayout extends Model {
     breakpoint: UIMediaBreakPoints.XLARGE,
     ordenable: false,
   })
+  @uionrender(async () => BatchHandler)
   @uilayoutprop(2)
   batch!: BatchForm;
 

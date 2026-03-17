@@ -35,6 +35,11 @@
     }
   }
 
+  ion-skeleton-text {
+    width: 100% !important;
+    height: 1rem !important;
+  }
+
   ion-button {
     &.dcf-button-select {
       --background: rgb(var(--dcf-color-primary-rgb), 0.1);

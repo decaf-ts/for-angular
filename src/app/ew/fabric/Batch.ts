@@ -1,15 +1,14 @@
 import { column, index, OrderDirection, pk, table } from '@decaf-ts/core';
 import type { ModelArg } from '@decaf-ts/decorator-validation';
-import { date, list, minlength, Model, model, required } from '@decaf-ts/decorator-validation';
+import { date, minlength, Model, model, required } from '@decaf-ts/decorator-validation';
 // import { gtin } from "@pharmaledgerassoc/ptp-toolkit/shared";
 // import { BatchPattern, DatePattern, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
-import { BlockOperations, composed, OperationKeys, readonly } from '@decaf-ts/db-decorators';
+import { BlockOperations, composed, OperationKeys, readonly, serialize } from '@decaf-ts/db-decorators';
 import { description } from '@decaf-ts/decoration';
 //  import { audit } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import { Cacheable } from './Cacheable';
 // import { cache } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import {
-  DecafComponent,
   HTML5InputTypes,
   uielement,
   uilayout,
@@ -17,6 +16,7 @@ import {
   uilistmodel,
   uilistprop,
   uimodel,
+  uiorder,
   uitablecol,
 } from '@decaf-ts/ui-decorators';
 import { DatePattern, TableNames } from './constants';
@@ -73,20 +73,7 @@ export class Batch extends Cacheable {
 
   // @cache()
   @required()
-  @date(DatePattern)
-  @column()
-  @uielement('app-expiry-date-field', {
-    label: 'batch.expiryDate.label',
-    placeholder: 'batch.expiryDate.placeholder',
-    type: HTML5InputTypes.TEXT,
-  })
-  @uilayoutprop('half')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  @uitablecol(3, (value: string, instance?: DecafComponent<any>) => {
-    // if(instance)
-    //   instance.setValue(value);
-    return value;
-  })
+  @date('yyyy-MM-dd HH:mm:ss')
   @index([OrderDirection.ASC, OrderDirection.DSC])
   @description('Date when the batch expires.')
   expiryDate!: Date;
@@ -98,33 +85,47 @@ export class Batch extends Cacheable {
     placeholder: 'batch.importLicenseNumber.placeholder',
   })
   @uilayoutprop('half')
-  @description('Import license number for this batch.')
+  @uiorder(5)
   importLicenseNumber?: string;
 
   // @cache()
   @column()
   @date(DatePattern)
+  @uielement('ngx-decaf-crud-field', {
+    label: 'batch.dateOfManufacturing.label',
+    placeholder: 'batch.dateOfManufacturing.placeholder',
+    type: HTML5InputTypes.DATE,
+  })
   @uilayoutprop('half')
-  @uitablecol(4)
-  @description('Date when the batch was manufactured.')
+  @uiorder(10)
+  @uitablecol(7)
   dateOfManufacturing?: Date;
 
   // @cache()
   @column()
+  @description('Name of the product manufacturer.')
   @uielement('ngx-decaf-crud-field', {
     label: 'batch.manufacturerName.label',
     placeholder: 'batch.manufacturerName.placeholder',
   })
   @uilayoutprop('half')
-  @index([OrderDirection.ASC, OrderDirection.DSC])
-  @description('Name of the product manufacturer.')
+  @uiorder(9)
   manufacturerName?: string;
 
   // @cache()
-  @list(ManufacturerAddress)
   @column()
   @description('Manufacturer address')
+  @serialize()
   manufacturerAddress?: ManufacturerAddress[];
+
+  @column()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'batch.packagingSiteName.label',
+    placeholder: 'batch.packagingSiteName.placeholder',
+  })
+  @uilayoutprop('half')
+  @uiorder(5)
+  packagingSiteName?: string;
 
   // @cache()
   @column()
@@ -139,14 +140,6 @@ export class Batch extends Cacheable {
   batchRecall: boolean = false;
 
   // @cache()
-  @column()
-  @uielement('ngx-decaf-crud-field', {
-    label: 'batch.packagingSiteName.label',
-    placeholder: 'batch.packagingSiteName.placeholder',
-  })
-  @uilayoutprop('half')
-  @description('Name of the site where the product was packaged.')
-  packagingSiteName?: string;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(model?: ModelArg<Batch>) {

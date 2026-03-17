@@ -1,17 +1,17 @@
 import { model, Model, ModelArg } from '@decaf-ts/decorator-validation';
 import {
+  ComponentEventNames,
+  TransactionHooks,
   uichild,
   uihandlers,
   uilayout,
   uilayoutprop,
-  UIMediaBreakPoints,
-  ComponentEventNames,
-  TransactionHooks,
+  UIMediaBreakPoints
 } from '@decaf-ts/ui-decorators';
 import { LayoutComponent } from 'src/lib/components';
-import { EpiLayout } from './EpiLayout';
 import { Product } from '../fabric';
 import { ProductHandler } from '../fabric/handlers/ProductHandler';
+import { EpiLayout } from './EpiLayout';
 
 @uilayout('ngx-decaf-crud-form', true, 1, {
   borders: true,
@@ -25,7 +25,6 @@ import { ProductHandler } from '../fabric/handlers/ProductHandler';
 @model()
 export class ProductLayout extends Model {
   @uichild(Product.name, 'ngx-decaf-fieldset', {
-    title: 'product.section.details.title',
     borders: false,
     required: true,
     breakpoint: UIMediaBreakPoints.XLARGE,
@@ -40,18 +39,6 @@ export class ProductLayout extends Model {
   })
   @uilayoutprop(1)
   epi!: EpiLayout;
-
-  // @uichild(Batch.name, 'ngx-decaf-fieldset', {
-  //   title: 'product.section.batch.title',
-  //   borders: false,
-  //   required: false,
-  //   breakpoint: UIMediaBreakPoints.XLARGE,
-  //   ordenable: false,
-  //   multiple: true,
-  // } as Partial<FieldsetComponent>)
-  // @uilayoutprop(3)
-  // @hideOn(OperationKeys.CREATE, OperationKeys.UPDATE)
-  // batch!: Product;
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: ModelArg<ProductLayout>) {

@@ -352,7 +352,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
       if (event instanceof NavigationStart) await this.ngOnDestroy();
     });
     await this.getSortOptions();
-    this.initialize();
+    await super.initialize();
   }
 
   /**

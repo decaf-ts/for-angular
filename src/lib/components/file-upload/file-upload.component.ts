@@ -1,15 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Constructor } from '@decaf-ts/decoration';
 import { ComponentEventNames, ElementSizes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { IonButton, IonItem, IonLabel, IonList, IonText } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Dynamic } from '../../engine/decorators';
 import { IBaseCustomEvent, IFileUploadError } from '../../engine/interfaces';
-import { NgxEventHandler } from '../../engine/NgxEventHandler';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
-import { ElementSize, FlexPosition, KeyValue, PossibleInputTypes } from '../../engine/types';
+import { ElementSize, FlexPosition, FunctionLike, KeyValue, PossibleInputTypes } from '../../engine/types';
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../icon/icon.component';
 import { presentNgxInlineModal, presentNgxLightBoxModal } from '../modal/modal.component';
@@ -197,7 +195,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   enableDirectoryMode: boolean = false;
 
   @Input()
-  previewHandler?: unknown;
+  previewHandler?: FunctionLike;
 
   /**
    * @description Maximum file size allowed for upload.
@@ -566,9 +564,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
       };
 
       if (this.previewHandler && typeof this.previewHandler === 'function') {
-        const clazz = new (this.previewHandler as Constructor<NgxEventHandler>)();
-        const previewFn = clazz.handle.bind(this);
-        return previewFn({ data: file });
+        return await this.previewHandler(this, { data: file });
       } else {
         content = parseXml(file as string);
       }

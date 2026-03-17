@@ -47,9 +47,22 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
   }
 
   // async showFilterModal(): Promise<void> {
-  //   const modal = await getNgxModalCrudComponent(new CategoryModel(), {
-  //     title: 'dashboard.filter.title',
-  //   });
+  //   const modal = await getNgxModalCrudComponent(
+  //     new CategoryModel(),
+  //     {
+  //       title: 'dashboard.filter.title',
+  //       fullscreen: true,
+  //     },
+  //     {
+  //       locale: 'dashboard',
+
+  //       options: {
+  //         buttons: {
+  //           submit: { text: 'filter.apply' },
+  //         },
+  //       },
+  //     }
+  //   );
   //   await modal.present();
   //   const { data, role } = await modal.onDidDismiss();
   //   if (role === 'confirm') {

@@ -1,8 +1,33 @@
-import { Batch } from '../Batch';
-import { NgxEventHandler } from 'src/lib/engine/NgxEventHandler';
-import { BarcodeTypes } from '../constants';
+import { EnvironmentInjector } from '@angular/core';
 import BwipJs, { BwippOptions } from '@bwip-js/browser';
+import { CrudFieldComponent, getModelAndRepository } from 'dist/lib';
 import { presentNgxInlineModal } from 'src/lib/components/modal/modal.component';
+import { NgxEventHandler } from 'src/lib/engine/NgxEventHandler';
+import { Batch } from '../Batch';
+import { convertDateToGS1Format } from './BatchHandler';
+
+export async function createOnClickShowBarcodeModal(instance: CrudFieldComponent) {
+  if (!instance.value) {
+    instance.value = `<span class="ti ti-qrcode"></span> ${await instance.translate('batch.dataMatrix.view')}`;
+  }
+  const element = instance.component?.nativeElement as HTMLIonItemElement;
+  if (element) {
+    if (!Object.keys(instance._data as Batch).length) {
+      const repository = getModelAndRepository(Batch.name)?.repository;
+      instance._data = (await repository?.read(instance.modelId)) as Batch;
+    }
+    element.classList.add('dcf-has-action');
+    element.onclick = () => {
+      DatamatrixModalHandler.showBarcodeModal(instance._data as Batch);
+    };
+  }
+}
+
+export const BarcodeTypes = {
+  gs1datamatrix: 'gs1datamatrix',
+  datamatrix: 'datamatrix',
+  qrcode: 'qrcode',
+} as const;
 
 export class DatamatrixModalHandler extends NgxEventHandler {
   private static readonly charsMap: Record<string, string> = {
@@ -52,65 +77,57 @@ export class DatamatrixModalHandler extends NgxEventHandler {
   } as BwippOptions;
 
   override async handleClick(instance: NgxEventHandler, event: CustomEvent, uid: string) {
-    const item = (instance._data as Batch[]).find(
-      (item) => item[instance.pk as keyof Batch] === uid,
-    );
+    const item = (instance._data as Batch[]).find((item) => item[instance.pk as keyof Batch] === uid);
     if (item) {
-      const datamatrixElement = DatamatrixModalHandler.getDatamatrixCanvasElement(item);
-      if (datamatrixElement) {
-        await presentNgxInlineModal(
-          datamatrixElement,
-          {
-            title: 'batch.datamatrix.preview',
-            uid: 'dcf-datamatrix-modal',
-            headerTransparent: true,
-          },
-          this.injector,
-        );
-      }
+      DatamatrixModalHandler.showBarcodeModal(item, this.injector);
     }
-
-    // const diffs = (item as Audit)?.diffs || undefined;
-    // if (diffs) {
-    //   const container = document.createElement('div');
-    //   let content = JSON.parse(diffs as unknown as string);
-    //   while (typeof content === Primitives.STRING) {
-    //     content = JSON.parse(content);
-    //   }
-    //   container.innerHTML = `<pre>${JSON.stringify(content, null, 2)}</pre>`;
   }
 
-  static getBarcodeData(batch: Batch): string {
-    let { batchNumber, productCode, expiryDate } = batch;
-    const serialNumber = '';
+  static async showBarcodeModal(item: Batch, injector?: EnvironmentInjector): Promise<void> {
+    const datamatrixElement = DatamatrixModalHandler.getDatamatrixCanvasElement(item);
+    //TODO: Create logic to make button copy value with correct lwa url to clipboard
+    if (datamatrixElement) {
+      await presentNgxInlineModal(
+        datamatrixElement,
+        {
+          title: 'batch.dataMatrix.preview',
+          uid: 'dcf-datamatrix-modal',
+          headerTransparent: true,
+        },
+        injector
+        // this.injector
+      );
+    }
+  }
+
+  static getBarcodeData(batch: Batch & { serialNumber?: string }): string {
+    const { batchNumber, productCode, expiryDate, serialNumber } = batch || {};
+    // TODO: Add serial number to batch and use it in datamatrix if exists (when added to model)
     const emptySerialNumber = serialNumber === '' || typeof serialNumber === 'undefined';
     const sanitizeBatchNumber = (value: string): string => {
       return value
         .split('')
         .map((char) => {
           if (this.charsMap[char.charCodeAt(0)]) {
-            return Number(char.charCodeAt(0)) >= 100
-              ? `^${char.charCodeAt(0)}`
-              : `^0${char.charCodeAt(0)}`;
+            return Number(char.charCodeAt(0)) >= 100 ? `^${char.charCodeAt(0)}` : `^0${char.charCodeAt(0)}`;
           }
           return char;
         })
         .join('');
     };
-    //TODO: Remover
-    productCode = '00000000000017';
-    batchNumber = `bt_${productCode}`;
 
-    return (
+    const gs1ExpiryDate = convertDateToGS1Format(`${expiryDate}`);
+    const res = (
       emptySerialNumber
-        ? `(01)${productCode}(10)${batchNumber}(17)${expiryDate}`
-        : `(01)${productCode}(21)${sanitizeBatchNumber(serialNumber)}(10)${sanitizeBatchNumber(batchNumber)}(17)${expiryDate}`
+        ? `(01)${productCode}(10)${batchNumber}(17)${gs1ExpiryDate}`
+        : `(01)${productCode}(21)${sanitizeBatchNumber(serialNumber)}(10)${sanitizeBatchNumber(batchNumber)}(17)${gs1ExpiryDate}`
     ).replace(/"/g, '\\"');
+    return res;
   }
 
   static getDatamatrixCanvasElement(
     batch: Batch,
-    bcid: keyof typeof BarcodeTypes = BarcodeTypes.datamatrix,
+    bcid: keyof typeof BarcodeTypes = BarcodeTypes.datamatrix
   ): HTMLElement | undefined {
     const barcodeData = this.getBarcodeData(batch);
     const container = document.createElement('div');

@@ -1,12 +1,8 @@
-import {
-  DEFAULT_PATTERNS,
-  VALIDATION_PARENT_KEY,
-  ValidationKeys,
-} from '@decaf-ts/decorator-validation';
-import { I18nToken, ICrudFormOptions, IListEmptyOptions } from './interfaces';
-import { ModalOptions } from '@ionic/angular/standalone';
-import { OperationKeys } from '@decaf-ts/db-decorators';
 import { InjectionToken } from '@angular/core';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { DEFAULT_PATTERNS, VALIDATION_PARENT_KEY, ValidationKeys } from '@decaf-ts/decorator-validation';
+import { ModalOptions } from '@ionic/angular/standalone';
+import { I18nToken, ICrudFormOptions, IListEmptyOptions } from './interfaces';
 import { DecafRepositoryAdapter } from './types';
 
 export const DB_ADAPTER_FLAVOUR_TOKEN = 'DbAdapterFlavour';
@@ -32,9 +28,7 @@ export const patternValidators: Record<string, RegExp> = {
  * @const {InjectionToken<DecafRepositoryAdapter>}
  * @memberOf module:lib/for-angular-common.module
  */
-export const DB_ADAPTER_PROVIDER_TOKEN = new InjectionToken<DecafRepositoryAdapter>(
-  'DB_ADAPTER_PROVIDER_TOKEN',
-);
+export const DB_ADAPTER_PROVIDER_TOKEN = new InjectionToken<DecafRepositoryAdapter>('DB_ADAPTER_PROVIDER_TOKEN');
 /**
  * @description Injection token for the root path of locale translation files.
  * @summary Used to configure the base path where i18n translation files are located.
