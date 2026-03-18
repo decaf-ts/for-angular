@@ -31,15 +31,14 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
 
   getAllRawQueryParams(url: string): Record<string, string> {
     const query = new URL(url).search.slice(1); // remove o '?'
-    if (!query) return {};
-
+    if (!query) {
+      return {};
+    }
     const params: Record<string, string> = {};
-
     for (const pair of query.split('&')) {
       const [key, value = ''] = pair.split('=');
       params[key] = value;
     }
-
     return params;
   }
 
@@ -214,6 +213,7 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     table: Constructor<M> | string,
     event: AllOperationKeys,
     id: EventIds,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...args: ContextualArgs<ContextOf<any>>
   ) {
     const [model] = args;
