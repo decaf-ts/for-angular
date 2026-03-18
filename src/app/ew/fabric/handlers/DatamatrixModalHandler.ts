@@ -1,7 +1,8 @@
 import { EnvironmentInjector } from '@angular/core';
 import BwipJs, { BwippOptions } from '@bwip-js/browser';
-import { CrudFieldComponent, getModelAndRepository } from 'dist/lib';
+import { CrudFieldComponent } from 'src/lib/components';
 import { presentNgxInlineModal } from 'src/lib/components/modal/modal.component';
+import { getModelAndRepository } from 'src/lib/engine';
 import { NgxEventHandler } from 'src/lib/engine/NgxEventHandler';
 import { Batch } from '../Batch';
 import { convertDateToGS1Format } from './BatchHandler';

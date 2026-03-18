@@ -513,7 +513,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * When true, the browser will check the spelling of the input text.
    *
    * @type {boolean}
-   * @default false
+   * @default true
    * @memberOf CrudFieldComponent
    */
   @Input()

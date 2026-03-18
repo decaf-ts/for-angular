@@ -19,7 +19,7 @@ import {
   uiorder,
   uitablecol,
 } from '@decaf-ts/ui-decorators';
-import { CrudFieldComponent, TableComponent } from 'dist/lib';
+import { CrudFieldComponent, TableComponent } from 'src/lib/components';
 import { Batch, ManufacturerAddress } from '../Batch';
 import { Product } from '../Product';
 import { TableNames } from '../constants';

@@ -55,11 +55,8 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
   //     },
   //     {
   //       locale: 'dashboard',
-
-  //       options: {
-  //         buttons: {
-  //           submit: { text: 'filter.apply' },
-  //         },
+  //       buttons: {
+  //         submit: { text: 'filter.apply' },
   //       },
   //     }
   //   );

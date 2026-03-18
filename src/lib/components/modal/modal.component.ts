@@ -511,7 +511,6 @@ export async function getNgxModalCrudComponent<M extends Model>(
       },
     })(model.constructor);
   }
-
   const component = await (
     NgxRenderingEngine.createComponent(
       ModalComponent,

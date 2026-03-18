@@ -2,7 +2,7 @@ import { InjectionToken } from '@angular/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { DEFAULT_PATTERNS, VALIDATION_PARENT_KEY, ValidationKeys } from '@decaf-ts/decorator-validation';
 import { ModalOptions } from '@ionic/angular/standalone';
-import { I18nToken, ICrudFormOptions, IListEmptyOptions } from './interfaces';
+import { I18nToken, ICrudFormButtons, IListEmptyOptions } from './interfaces';
 import { DecafRepositoryAdapter } from './types';
 
 export const DB_ADAPTER_FLAVOUR_TOKEN = 'DbAdapterFlavour';
@@ -298,23 +298,21 @@ export const CssClasses = {
  * @summary Provides default configuration for form buttons in CRUD operations.
  * Includes default text labels for submit and clear buttons, which can be
  * overridden by individual form implementations.
- * @type {ICrudFormOptions}
+ * @type {ICrudFormButtons}
  * @property {Object} buttons - Configuration for form action buttons
  * @property {Object} buttons.submit - Submit button configuration
  * @property {string} buttons.submit.text - Default text for submit button
  * @property {Object} buttons.clear - Clear button configuration
  * @property {string} buttons.clear.text - Default text for clear button
- * @const DefaultFormReactiveOptions
+ * @const DefaultFormButtonsOptions
  * @memberOf module:lib/engine/constants
  */
-export const DefaultFormReactiveOptions: ICrudFormOptions = {
-  buttons: {
-    submit: {
-      text: 'Submit',
-    },
-    clear: {
-      text: 'Clear',
-    },
+export const DefaultFormButtonsOptions: ICrudFormButtons = {
+  submit: {
+    text: 'Submit',
+  },
+  clear: {
+    text: 'Clear',
   },
 };
 

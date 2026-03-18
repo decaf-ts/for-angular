@@ -10,12 +10,12 @@
 
 import { Component, Input, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
+import { DefaultFormButtonsOptions } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
-import { DefaultFormReactiveOptions } from '../../engine/constants';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { LayoutComponent } from '../layout/layout.component';
 
@@ -49,11 +49,11 @@ export class CrudFormComponent extends NgxFormDirective implements OnInit {
    * @memberOf CrudFormComponent
    */
   async ngOnInit(): Promise<void> {
-    this.options = Object.assign(
+    this.buttons = Object.assign(
       {},
-      DefaultFormReactiveOptions,
-      { buttons: { submit: { text: this.operation.toLowerCase() } } },
-      this.options || {},
+      DefaultFormButtonsOptions,
+      { submit: { text: this.operation.toLowerCase() } },
+      this.buttons || {}
     );
     if (!this.pk && this.modelName) {
       const repo = getModelAndRepository(this.modelName);
@@ -81,7 +81,7 @@ export class CrudFormComponent extends NgxFormDirective implements OnInit {
       'CrudFormComponent',
       ComponentEventNames.Submit,
       this.handlers,
-      OperationKeys.DELETE,
+      OperationKeys.DELETE
     );
   }
 }

@@ -410,7 +410,7 @@ export interface IMenuItem {
  * @description CRUD form options configuration
  * @summary Defines the configuration options for CRUD form buttons including submit and clear buttons.
  * Each button can be customized with text, icon, and icon position.
- * @interface ICrudFormOptions
+ * @interface ICrudFormButtons
  * @property {Object} buttons - Configuration for form action buttons
  * @property {Object} buttons.submit - Submit button configuration
  * @property {string} [buttons.submit.icon] - Optional icon for the submit button
@@ -422,18 +422,16 @@ export interface IMenuItem {
  * @property {string} [buttons.clear.text] - Text label for the clear button
  * @memberOf module:engine
  */
-export interface ICrudFormOptions {
-  buttons: {
-    submit: {
-      icon?: string;
-      iconSlot?: 'start' | 'end';
-      text?: string;
-    };
-    clear?: {
-      icon?: string;
-      iconSlot?: 'start' | 'end';
-      text?: string;
-    };
+export interface ICrudFormButtons {
+  submit: {
+    icon?: string;
+    iconSlot?: 'start' | 'end';
+    text?: string;
+  };
+  clear?: {
+    icon?: string;
+    iconSlot?: 'start' | 'end';
+    text?: string;
   };
 }
 
