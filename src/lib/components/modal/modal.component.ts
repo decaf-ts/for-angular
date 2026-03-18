@@ -185,6 +185,16 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
   expandable: boolean = false;
 
   /**
+   * @description Controls whether modal content renders with visual borders.
+   * @summary When set to true, border styles are applied according to inherited
+   * component styling rules; when false, border rendering is disabled.
+   * @type {boolean}
+   * @default true
+   */
+  @Input()
+  override borders: boolean = true;
+
+  /**
    * @description Enables lightbox mode for the modal.
    * @summary When set to true, the modal is displayed as a lightbox.
    * @type {boolean}

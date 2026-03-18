@@ -439,6 +439,17 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
       this.files = [validFiles[0]];
     }
     if (this.files.length) {
+      this.files = this.files.sort((a, b) => {
+        const aIsImage = a?.['type'].includes('image');
+        const bIsImage = b?.['type'].includes('image');
+        if (aIsImage && !bIsImage) {
+          return 1;
+        }
+        if (!aIsImage && bIsImage) {
+          return -1;
+        }
+        return 0;
+      });
       this.setValue(await this.parseValue());
     }
     await this.getPreview();
