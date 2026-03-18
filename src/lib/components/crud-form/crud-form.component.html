@@ -139,7 +139,11 @@
             ></ion-icon>
           }
           {{
-            action ? action : (locale + '.' + buttons.submit.text | translate)
+            action
+              ? action
+              : !translatable
+                ? buttons.submit.text
+                : (locale + '.' + buttons.submit.text | translate)
           }}
         </ion-button>
       </div>
@@ -157,13 +161,15 @@
           ></ion-icon>
         }
         {{
-          [
-            OperationKeys.DELETE,
-            OperationKeys.READ,
-            OperationKeys.UPDATE,
-          ].includes(operation)
-            ? (locale + '.back' | translate)
-            : buttons.clear?.text
+          !translatable
+            ? buttons.clear?.text
+            : [
+                  OperationKeys.DELETE,
+                  OperationKeys.READ,
+                  OperationKeys.UPDATE,
+                ].includes(operation)
+              ? (locale + '.back' | translate)
+              : (locale + '.' + buttons.clear.text | translate)
         }}
       </ion-button>
     </div>
