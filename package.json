@@ -131,10 +131,5 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
-  },
-  "overrides": {
-    "minimatch": "^10.2.3",
-    "test-exclude": "^7.0.1",
-    "serialize-javascript": "^7.0.3"
   }
 }
