@@ -59,7 +59,9 @@
     td {
       padding: 1rem 1.125rem;
       font-size: 0.875rem;
-
+      ::ng-deep img {
+        max-height: 50px;
+      }
       &:first-child {
         font-weight: 600;
       }
@@ -133,5 +135,25 @@
     ion-button {
       width: 100%;
     }
+  }
+}
+
+::ng-deep .dcf-diffs-expiry-date {
+  display: block;
+  font-size: 0.725rem;
+  color: var(--dcf-color-medium);
+}
+
+.dcf-diff-object {
+  padding: 0.5rem;
+  border-radius: var(--dcf-border-radius-small);
+  border: 1px solid var(--dcf-color-gray-2);
+  background: var(--dcf-color-gray-1);
+  > div {
+    margin-bottom: 0.15rem;
+  }
+  .key {
+    font-weight: bold;
+    margin-right: 0.25rem;
   }
 }

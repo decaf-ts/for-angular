@@ -16,7 +16,13 @@ import { timer } from 'rxjs';
 import { NgxFormService } from '../services/NgxFormService';
 import { generateRandomValue } from '../utils';
 import { ActionRoles } from './constants';
-import { IBaseCustomEvent, ICrudFormEvent, ICrudFormOptions, IFormElement, IRenderedModel } from './interfaces';
+import {
+  IBaseCustomEvent,
+  ICrudFormButtons,
+  ICrudFormEvent,
+  IFormElement,
+  IRenderedModel
+} from './interfaces';
 import { NgxFormFieldDirective } from './NgxFormFieldDirective';
 import { NgxParentComponentDirective } from './NgxParentComponentDirective';
 import { FieldUpdateMode, FormParent, HTMLFormTarget } from './types';
@@ -106,10 +112,10 @@ export abstract class NgxFormDirective
    * validation, and behavior. These options are merged with default settings
    * during component initialization to customize the form's functionality.
    *
-   * @type {ICrudFormOptions}
+   * @type {ICrudFormButtons}
    */
   @Input()
-  options!: ICrudFormOptions;
+  buttons!: ICrudFormButtons;
 
   /**
    * @description Optional action identifier for form submission context.

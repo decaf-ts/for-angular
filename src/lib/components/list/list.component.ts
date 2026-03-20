@@ -816,11 +816,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @param {string | number} uid - The ID of the item to create.
    * @returns {Promise<void>} A promise that resolves when the item is created and added to the list.
    */
-  async handleCreate(data: Model, uid: string | number): Promise<void> {
-    if (!data || !Object.keys(data).length) {
-      data = (await this._repository?.read(uid)) as Model;
+  async handleCreate(model: Model, uid: string | number): Promise<void> {
+    if (!model || !Object.keys(model).length) {
+      model = (await this._repository?.read(uid)) as Model;
     }
-    const item = (await this.mapResults([data]))[0];
+    const item = (await this.mapResults([model]))[0];
     this.items = this.data = [item, ...(this.items || [])];
   }
 
@@ -833,9 +833,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @private
    * @memberOf ListComponent
    */
-  async handleUpdate(item: Model, uid: string | number): Promise<void> {
-    if (!item || !Object.keys(item).length) {
-      item = (await this._repository?.read(uid)) as Model;
+  async handleUpdate(model: Model, uid: string | number): Promise<void> {
+    if (!model || !Object.keys(model).length) {
+      model = (await this._repository?.read(uid)) as Model;
     }
 
     // const item: KeyValue = this.itemMapper((await this._repository?.read(uid)) || {}, this.mapper);
@@ -844,8 +844,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     for (const key in this.items as KeyValue[]) {
       const child = this.items[key] as KeyValue;
       if (`${child['uid']}`.trim() === `${uid}`.trim()) {
-        this.items[key] = Object.assign({}, child, this.itemMapper(item || {}, this.mapper), {
-          model: item || {},
+        this.items[key] = Object.assign({}, child, this.itemMapper(model || {}, this.mapper), {
+          model: model || {},
         });
         break;
       }
@@ -1152,12 +1152,13 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
           request = await this.parseResult(this.paginator as Paginator<Model>);
         } else {
           this.changeDetectorRef.detectChanges();
+          const condition = this.parseConditions(this.searchValue as IFilterQuery);
           request = await this.parseResult(
             typeof this.searchValue === Primitives.STRING
               ? await repo.find(String(this.searchValue), this.sortDirection)
               : await repo
                   .select()
-                  .where(this.parseConditions(this.searchValue as IFilterQuery))
+                  .where(condition)
                   .orderBy((this.sortBy || this.pk) as keyof Model, this.sortDirection)
                   .execute()
           );
@@ -1208,61 +1209,65 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   parseConditions(value: string | number | IFilterQuery): Condition<Model> {
     let _condition: Condition<Model>;
-    const model = this.model as Model;
+    const constructor = this.repository.class as Constructor<Model>;
     if (typeof value === Primitives.STRING) {
       _condition = Condition.attribute<Model>(this.pk as keyof Model).eq(
         this.pkType.toLocaleLowerCase() === Primitives.STRING ? value : Number(value)
       );
       for (const index of this.indexes as (keyof Model)[]) {
-        if (index === this.pk) continue;
-        let orCondition;
-        if (!isNaN(value as number)) {
-          orCondition = Condition.attribute<Model>(index).eq(Number(value));
-        } else {
-          const type = Metadata.type(model.constructor as Constructor<Model>, index).name;
-          orCondition =
-            type === Date
-              ? Condition.attribute<Model>(index).eq(new Date(value as string))
-              : Condition.attribute<Model>(index).regexp(value as string);
+        if (index !== this.pk) {
+          const type = Metadata.type(constructor, index).name;
+          let orCondition;
+          if ([Primitives.NUMBER, Primitives.BIGINT].includes(type.toLocaleLowerCase() as Primitives)) {
+            orCondition = Condition.attribute<Model>(index).eq(Number(value));
+          } else {
+            orCondition =
+              type === Date
+                ? Condition.attribute<Model>(index).eq(new Date(value as string))
+                : Condition.attribute<Model>(index).regexp(value as string);
+          }
+          _condition = _condition.or(orCondition);
         }
-        _condition = _condition.or(orCondition);
       }
     } else {
       const { query, sort } = value as IFilterQuery;
       const pk = this.pk as keyof Model;
       _condition = Condition.attribute<Model>(pk).dif('null');
 
-      if (query?.length) _condition = undefined as unknown as Condition<Model>;
-
+      if (query?.length) {
+        _condition = undefined as unknown as Condition<Model>;
+      }
       (query || []).forEach((item: IFilterQueryItem) => {
         const { value, condition, index } = item;
+        const idx = index as keyof Model;
+        const type = Metadata.type(constructor, idx).name;
+
         let val = value as string | number | Date;
-        if (index === this.pk || !isNaN(val as number)) {
+        if ([Primitives.NUMBER, Primitives.BIGINT].includes(type.toLocaleLowerCase() as Primitives)) {
           val = Number(val);
         }
-        const type = Metadata.type(model.constructor as Constructor<Model>, index as keyof Model).name;
         if (type === Date.name) {
           val = new Date(val as string);
         }
         let orCondition;
         switch (condition) {
           case 'Equal':
-            orCondition = Condition.attribute<Model>(index as keyof Model).eq(val);
+            orCondition = Condition.attribute<Model>(idx).eq(val);
             break;
           case 'Not Equal':
-            orCondition = Condition.attribute<Model>(index as keyof Model).dif(val);
+            orCondition = Condition.attribute<Model>(idx).dif(val);
             break;
           case 'Not Contains':
-            orCondition = !Condition.attribute<Model>(index as keyof Model).regexp(new RegExp(`^(?!.*${val}).*$`));
+            orCondition = !Condition.attribute<Model>(idx).regexp(new RegExp(`^(?!.*${val}).*$`));
             break;
           case 'Contains':
-            orCondition = Condition.attribute<Model>(index as keyof Model).regexp(val as string);
+            orCondition = Condition.attribute<Model>(idx).regexp(val as string);
             break;
           case 'Greater Than':
-            orCondition = Condition.attribute<Model>(index as keyof Model).gte(val);
+            orCondition = Condition.attribute<Model>(idx).gte(val);
             break;
           case 'Less Than':
-            orCondition = Condition.attribute<Model>(index as keyof Model).lte(val);
+            orCondition = Condition.attribute<Model>(idx).lte(val);
             break;
         }
         _condition = (
@@ -1376,7 +1381,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         if (arrayValue.length === 1) {
           value = item?.[value] ? item[value] : '';
           // value = item?.[value] ? item[value] : value !== key ? value : "";
-          if (isValidDate(value)) value = `${formatDate(dateFromString(value))}`;
+          if (isValidDate(value)) {
+            value = `${formatDate(dateFromString(value))}`;
+          }
           accum[key] = value;
         } else {
           let val;

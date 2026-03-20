@@ -1,4 +1,8 @@
-<app-header [title]="title" [operation]="operation" [modelId]="modelId" />
+<app-header
+  [title]="title"
+  [operation]="operation"
+  [modelId]="modelId"
+/>
 
 <ion-content [fullscreen]="true">
   <main>
@@ -18,6 +22,7 @@
       <div class="dcf-list-container">
         <ngx-decaf-table
           [filterModel]="'product'"
+          [sortBy]="'updatedAt'"
           [filterLabel]="'batches.filter.all' | translate"
           [model]="model"
           [route]="route"

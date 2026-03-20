@@ -18,7 +18,7 @@ import {
   uionrender,
   uitablecol,
 } from '@decaf-ts/ui-decorators';
-import { getDocumentTypes, getLeafletLanguages, getMarkets } from 'src/app/ew/utils/helpers';
+import { getDoucumentOptions, getLanguageOptions, getMarketOptions } from 'src/app/ew/utils/helpers';
 import { Batch } from './Batch';
 import { Cacheable } from './Cacheable';
 import { TableNames } from './constants';
@@ -138,7 +138,7 @@ export class Leaflet extends Cacheable {
     type: HTML5InputTypes.SELECT,
     translatable: false,
     startEmpty: false,
-    options: getDocumentTypes(),
+    options: getDoucumentOptions(),
   })
   @uitablecol(2, async (instance: DecafComponent<Model> & { type: string }, value: string) => {
     if (instance.operation && ['paginated', 'infinite'].includes(instance.type)) {
@@ -160,20 +160,10 @@ export class Leaflet extends Cacheable {
     placeholder: 'leaflet.lang.placeholder',
     type: HTML5InputTypes.SELECT,
     value: 'en',
-    options: getLeafletLanguages(),
+    options: getLanguageOptions(),
     startEmpty: false,
     translatable: false,
   })
-  @uitablecol(
-    3,
-    async (
-      instance: DecafComponent<Model> & { type: 'infinite' | 'paginated' },
-      prop: keyof Leaflet,
-      value: string
-    ) => {
-      return LeafletHandler.getLanguage(instance, value);
-    }
-  )
   lang!: string; // TODO -> rollback to language property
 
   //@cache()
@@ -186,10 +176,7 @@ export class Leaflet extends Cacheable {
     placeholder: 'leaflet.market.placeholder',
     translatable: false,
     type: HTML5InputTypes.SELECT,
-    options: getMarkets(),
-  })
-  @uitablecol(4, async (instance: DecafComponent<Model>, prop: keyof Leaflet, value: string) => {
-    return LeafletHandler.getMarket(instance, value);
+    options: getMarketOptions(),
   })
   epiMarket!: string; // TODO -> Create validation decorator. CountryMarket is a CONDITIONAL property. can only exist for product only. no batch
 

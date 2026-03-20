@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { OrderDirection } from '@decaf-ts/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { Model, Primitives } from '@decaf-ts/decorator-validation';
+import { isValidDate, Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
 import { IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -30,6 +30,7 @@ import { getModelAndRepository } from '../../engine/helpers';
 import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
 import { FunctionLike, KeyValue, SelectOption } from '../../engine/types';
 import { NgxRouterService } from '../../services/NgxRouterService';
+import { dateFromString, formatDate } from '../../utils/helpers';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { IconComponent } from '../icon/icon.component';
 import { ListComponent } from '../list/list.component';
@@ -235,7 +236,7 @@ export class TableComponent extends ListComponent implements OnInit {
    * @summary Checks user permissions for `UPDATE` and `DELETE` operations. Updates the `cols` and `headers` arrays accordingly.
    * @return {void}
    */
-  getOperations() {
+  getOperations(): void {
     if (this.allowOperations) {
       this.allowOperations = this.isAllowed(OperationKeys.UPDATE) || this.isAllowed(OperationKeys.DELETE);
     } else {
@@ -449,7 +450,7 @@ export class TableComponent extends ListComponent implements OnInit {
    * @param {CustomEvent} event - The clear event emitted by the filter select control.
    * @return {Promise<void>}
    */
-  async handleFilterSelectClear(event: CustomEvent) {
+  async handleFilterSelectClear(event: CustomEvent): Promise<void> {
     event.preventDefault();
     event.stopImmediatePropagation();
     if (this.filterValue !== undefined) {
@@ -457,4 +458,48 @@ export class TableComponent extends ListComponent implements OnInit {
       await this.clearSearch();
     }
   }
+
+  /**
+   * @description Updates the matching rendered table row after an edit operation.
+   * @summary Executes the default update flow inherited from `ListComponent` and then
+   * finds the already-mapped row in `this.items` by `uid`. When found, it synchronizes
+   * each displayed cell value (except the `uid` field) with the latest values from
+   * `model`, preserving the mapped row structure used by the table.
+   * @param {Model} model - Model instance containing updated values.
+   * @param {string | number} uid - Unique identifier of the row to update.
+   * @return {Promise<void>}
+   */
+  override async handleUpdate(model: Model, uid: string | number): Promise<void> {
+    await super.handleUpdate(model, uid);
+    const item = this.items.find((item) => `${item['uid']?.value}`.trim() === `${uid}`.trim());
+    if (item) {
+      for (const [key, entry] of Object.entries(item)) {
+        const { prop } = entry;
+        if (key !== 'uid' && prop in model) {
+          const value = model[prop as keyof Model];
+          if (value !== undefined) {
+            if (isValidDate(value)) {
+              entry.value = `${formatDate(dateFromString(value as unknown as string))}`;
+            } else {
+              entry.value = value;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // /**
+  //  * Handles the create event from the repository.
+  //  *
+  //  * @param {string | number} uid - The ID of the item to create.
+  //  * @returns {Promise<void>} A promise that resolves when the item is created and added to the list.
+  //  */
+  // override async handleCreate(model: Model, uid: string | number): Promise<void> {
+  //   if (!model || !Object.keys(model).length) {
+  //     model = (await this._repository?.read(uid)) as Model;
+  //   }
+  //   const item = await this.itemMapper(model, this.mapper, { uid: model[this.pk as keyof Model] });
+  //   this.items = this.data = [item, ...(this.items || [])];
+  // }
 }

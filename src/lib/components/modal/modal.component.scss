@@ -44,7 +44,13 @@
 
   ion-header {
     box-shadow: none !important;
-    border-bottom: 1px solid var(--dcf-color-gray-2);
+    &:not(.dcf-no-borders) {
+      border-bottom: 1px solid var(--dcf-color-gray-2);
+    }
+
+    &.dcf-no-borders {
+      border-bottom: 1px solid transparent !important;
+    }
   }
   ion-button {
     &.dcf-button-close {
@@ -164,7 +170,7 @@
       }
     }
     ion-content {
-      &[part='background'],
+      &[part="background"],
       &::part(background) {
         border-radius: var(--dcf-border-radius) !important;
       }

@@ -179,7 +179,7 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
             epiMarket: () => this.pickRandomValue(['al', 'br']),
           };
           data = (await this.generateData<Leaflet>()).map((item) => {
-            // item.epiMarket = this.pickRandomValue([... getMarkets().map(({value}) => value)]);
+            // item.epiMarket = this.pickRandomValue([... getMarketOptions().map(({value}) => value)]);
             item.leafletType = this.pickRandomValue(LeafletType) as LeafletType;
             item.otherFilesContent = [buildFileContent(item.id, 'a.png', 'base64encodedstring')];
             item.xmlFileContent = buildFileContent(item.id, 'leaflet.xml', '<xml>base64encodedstring</xml>');

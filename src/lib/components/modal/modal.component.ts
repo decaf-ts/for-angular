@@ -25,6 +25,7 @@ import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDire
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
 import { CrudEvent, KeyValue, SelectOption } from '../../engine/types';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
+import { CrudFormComponent } from '../crud-form/crud-form.component';
 import { IconComponent } from '../icon/icon.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 
@@ -182,6 +183,16 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    */
   @Input()
   expandable: boolean = false;
+
+  /**
+   * @description Controls whether modal content renders with visual borders.
+   * @summary When set to true, border styles are applied according to inherited
+   * component styling rules; when false, border rendering is disabled.
+   * @type {boolean}
+   * @default true
+   */
+  @Input()
+  override borders: boolean = true;
 
   /**
    * @description Enables lightbox mode for the modal.
@@ -494,6 +505,7 @@ export async function getNgxModalComponent(
 export async function getNgxModalCrudComponent<M extends Model>(
   model: Partial<M>,
   props: Partial<ModalComponent> = {},
+  formProps: Partial<CrudFormComponent> = {},
   modalProps: Partial<ModalOptions> = {},
   injector?: EnvironmentInjector
 ): Promise<IonModal> {
@@ -514,7 +526,8 @@ export async function getNgxModalCrudComponent<M extends Model>(
       ModalComponent,
       {
         model,
-        globals: props,
+        globals: formProps,
+        props: props,
       },
       injector || undefined
     ) as ModalComponent

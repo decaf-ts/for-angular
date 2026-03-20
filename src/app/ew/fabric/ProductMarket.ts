@@ -1,25 +1,22 @@
-import { type ModelArg, required } from '@decaf-ts/decorator-validation';
-import { maxlength, minlength, model } from '@decaf-ts/decorator-validation';
+import { maxlength, minlength, model, type ModelArg, required } from '@decaf-ts/decorator-validation';
 // import { TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import { column, index, OrderDirection, pk, table } from '@decaf-ts/core';
-import { description, uses } from '@decaf-ts/decoration';
+import { description } from '@decaf-ts/decoration';
 //  import { gtin } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import { composed } from '@decaf-ts/db-decorators';
 import { Cacheable } from './Cacheable';
 // import { cache } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import {
-  DecafComponent,
   HTML5InputTypes,
   uielement,
   uilayoutprop,
   uilistprop,
   uimodel,
-  uionrender,
+  uionrender
 } from '@decaf-ts/ui-decorators';
-import { getMarkets } from 'src/app/ew/utils/helpers';
+import { getMarketOptions } from 'src/app/ew/utils/helpers';
 import { TableNames } from './constants';
-import { EpiHandler, renderMakets } from './handlers/EpiHandler';
-import { CrudFieldComponent, FieldsetComponent } from 'src/lib/components';
+import { renderMakets } from './handlers/EpiHandler';
 
 @description('Links a product to a specific market.')
 //@uses(FabricFlavour)
@@ -43,7 +40,7 @@ export class ProductMarket extends Cacheable {
     placeholder: 'market.id.placeholder',
     type: HTML5InputTypes.SELECT,
     translatable: false,
-    options: getMarkets().slice(0, 3), //TODO: DELETAR
+    options: getMarketOptions().slice(0, 3), //TODO: DELETAR
   })
   @uilayoutprop(1)
   @uilistprop('title')

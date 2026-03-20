@@ -9,4 +9,12 @@
       align-items: center;
     }
   }
+
+  table {
+    .dcf-diffs-expiry-date {
+      font-size: 0.725rem !important;
+      color: var(--dcf-color-gray-5) !important;
+      display: block;
+    }
+  }
 }

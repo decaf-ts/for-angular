@@ -31,9 +31,3 @@ export enum UserGroup {
   READ = 'read',
   WRITE = 'write',
 }
-
-export const BarcodeTypes = {
-  gs1datamatrix: 'gs1datamatrix',
-  datamatrix: 'datamatrix',
-  qrcode: 'qrcode',
-} as const;

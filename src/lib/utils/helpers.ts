@@ -529,7 +529,19 @@ export function getMenuIcon(label: string, menu: IMenuItem[]): string {
   return item?.icon || '';
 }
 
-export function dateFromString(value: string): Date {
+export function dateFromString(value: string | Date): Date {
+  if (value instanceof Date) {
+    return value;
+  }
   const dateArray = value.includes('T') ? value.split('T') : value.split(' ');
   return new Date(dateArray.length === 1 ? `${value}T00:00:00` : value);
+}
+
+export function isValidBase64(value: string): boolean {
+  if (!value?.trim()?.length) {
+    return false;
+  }
+  const pure = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+  const dataUrl = /^data:([a-zA-Z0-9.+-]+\/[a-zA-Z0-9.+-]+);base64,[A-Za-z0-9+/]+={0,2}$/;
+  return pure.test(value) || dataUrl.test(value);
 }

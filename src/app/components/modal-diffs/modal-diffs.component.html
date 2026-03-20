@@ -10,23 +10,52 @@
       </thead>
 
       <tbody>
-        @for (diff of diffs | keyvalue; track diff.key) {
+        @for (diff of filteredDiffs | keyvalue; track diff.key) {
           <tr>
-            <td width="20%">{{ locale + '.' + diff.key + '.label' | translate }}</td>
-            <td width="40%">{{ diff.value?.other || diff.value?.old }}</td>
+            <td width="20%">
+              {{ parseLabel(diff.key) }}
+            </td>
             <td width="40%">
-              @if (typeof diff.value.current === 'object') {
-                @for (item of diff.value.current; track item) {
-                  <div>{{ item | json }}</div>
-                }
+              @if (typeof diff.value.old === 'object') {
+                <div>{{ diff.value.old | json }}</div>
+                <!-- <div class="dcf-diff-object">
+                  @for (item of diff.value.old | keyvalue; track item) {
+                    <div>
+                      <span class="key">
+                        {{ locale + '.' + item.key + '.label' | translate }}:
+                      </span>
+                      <span
+                        class="value"
+                        [innerHTML]="item.value"
+                      ></span>
+                    </div>
+                  }
+                </div> -->
               } @else {
-                <span>
-                  {{
-                    diff.value.current?.length > 100
-                      ? (diff.value.current | slice: 0 : 100) + '...'
-                      : diff.value.current
-                  }}
-                </span>
+                <div [innerHTML]="diff.value?.old"></div>
+              }
+            </td>
+            <td width="40%">
+              @if (typeof diff.value.new === 'object') {
+                <!-- <div>{{ diff.value.new | json }}</div> -->
+                <div class="dcf-diff-object">
+                  @for (item of diff.value.new | keyvalue; track item) {
+                    <div>
+                      <span class="key">
+                        {{ locale + '.' + item.key + '.label' | translate }}:
+                      </span>
+                      <span
+                        class="value"
+                        [innerHTML]="item.value"
+                      ></span>
+                    </div>
+                  }
+                </div>
+                <!-- @for (item of diff.value.new; track item) {
+                  <div>{{ item | json }}</div>
+                } -->
+              } @else {
+                <div [innerHTML]="diff.value?.new"></div>
               }
             </td>
           </tr>
@@ -37,12 +66,23 @@
 
   <div class="dcf-buttons-grid dcf-grid dcf-grid-small dcf-flex dcf-flex-right">
     <div>
-      <ion-button fill="clear" (click)="handleAction('cancel')" color="primary">Cancel</ion-button>
+      <ion-button
+        fill="clear"
+        (click)="handleAction('cancel')"
+        color="primary"
+      >
+        {{ 'diffs.cancel' | translate }}
+      </ion-button>
     </div>
-    @if (operation === OperationKeys.CREATE || operation === OperationKeys.UPDATE) {
+    @if (
+      operation === OperationKeys.CREATE || operation === OperationKeys.UPDATE
+    ) {
       <div>
-        <ion-button (click)="confirmButton.handle()" color="primary">
-          {{ confirmButton.text }}
+        <ion-button
+          (click)="confirmButton.handle()"
+          color="primary"
+        >
+          {{ confirmButton.text | translate }}
         </ion-button>
       </div>
     }

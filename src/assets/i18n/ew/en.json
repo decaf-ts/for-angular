@@ -69,11 +69,18 @@
     "message": "An unexpected error has occurred.",
     "back": "Back"
   },
+  "diffs": {
+    "continue": "Continue",
+    "cancel": "Cancel"
+  },
   "product": {
     "title": "Products",
+    "create": "Create Product",
+    "update": "Update Product",
+    "read": "Product Details",
+    "delete": "Product Details",
     "description": "Manage your pharmaceutical products information",
     "gtin": "GTIN",
-    "create": "Add Product",
     "section": {
       "details": {
         "title": "Product Details"
@@ -86,7 +93,7 @@
       }
     },
     "diffs": {
-      "title": "Update Data Summary",
+      "title": "Product Update Data Summary",
       "property": "Property",
       "oldValue": "Old Value",
       "newValue": "New Value"
@@ -133,28 +140,73 @@
     "productRecall": {
       "label": "Mark Product as Recalled"
     },
+    "imageData": {
+      "label": "Product image"
+    },
     "productImage": {
       "label": "Select product image"
     },
     "xmlFileContent": {
       "label": "Select directory or drop your epi files here",
       "placeholder": "Select the Epi File"
+    },
+    "createdBy": {
+      "label": "Created By"
+    },
+    "createdAt": {
+      "label": "Created At"
+    },
+    "updatedBy": {
+      "label": "Updated By"
+    },
+    "updatedAt": {
+      "label": "Updated At"
+    },
+    "version": {
+      "label": "Version"
+    },
+    "marketId": {
+      "label": "Market ID"
+    },
+    "nationalCode": {
+      "label": "National Code"
+    },
+    "mahName": {
+      "label": "MAH Name"
+    },
+    "legalEntityName": {
+      "label": "Legal Entity Name"
+    },
+    "mahAddress": {
+      "label": "MAH Address"
+    },
+    "substance": {
+      "label": "Substance Name"
+    },
+    "strength": {
+      "label": "Substance Strength"
     }
   },
   "batch": {
     "title": "Batches",
     "create": "Add Batch",
     "update": "Update Batch",
+    "read": "Batch Details",
+    "delete": "Batch Details",
     "description": "Manage batches information",
-    "datamatrix": {
-      "title": "2D Barcode",
-      "preview": "Preview 2D Barcode",
-      "view": "<a>View</a>",
-      "description": "Batch Data Matrix Code"
-    },
     "filter": {
       "label": "Filter by",
       "all": "All Products"
+    },
+    "id": {
+      "label": "ID"
+    },
+    "dataMatrix": {
+      "title": "2D Barcode",
+      "label": "2D Barcode View",
+      "preview": "Preview 2D Barcode",
+      "view": "<a>View</a>",
+      "description": "Batch Data Matrix Code"
     },
     "leaflet": {
       "empty": {
@@ -163,11 +215,13 @@
       }
     },
     "diffs": {
+      "title": "Update Data Summary",
       "property": "Property",
       "oldValue": "Old Value",
-      "newValue": "New Value"
+      "newValue": "New Value",
+      "expiryDate": "{0} <span class=\"dcf-diffs-expiry-date\">GS1 Format ({1})</span>"
     },
-    "productcode": {
+    "productCode": {
       "label": "Product Code",
       "placeholder": "Enter the product code",
       "options": {
@@ -227,16 +281,43 @@
     },
     "batchRecall": {
       "label": "Mark Batch as Recalled"
+    },
+    "createdBy": {
+      "label": "Created By"
+    },
+    "createdAt": {
+      "label": "Created At"
+    },
+    "updatedBy": {
+      "label": "Updated By"
+    },
+    "updatedAt": {
+      "label": "Updated At"
+    },
+    "version": {
+      "label": "Version"
     }
   },
   "leaflet": {
     "title": "ePI Document",
     "description": "Submit and track your electronic Product Information",
     "create": "Add ePI Document",
+    "update": "Update ePI Document",
+    "read": "ePI Document Details",
+    "delete": "ePI Document Details",
     "filter_by": "Select Product",
+    "diffs": {
+      "title": "Data Summary",
+      "property": "Property",
+      "oldValue": "Old Value",
+      "newValue": "New Value"
+    },
     "filter": {
       "label": "Filter by",
       "all": "All Products"
+    },
+    "id": {
+      "label": "ID"
     },
     "documentCol": {
       "label": "Document Name"
@@ -281,6 +362,21 @@
     "xmlFileContent": {
       "label": "Epi File",
       "placeholder": "Select the Epi File"
+    },
+    "createdBy": {
+      "label": "Created By"
+    },
+    "createdAt": {
+      "label": "Created At"
+    },
+    "updatedBy": {
+      "label": "Updated By"
+    },
+    "updatedAt": {
+      "label": "Updated At"
+    },
+    "version": {
+      "label": "Version"
     }
   },
   "substance": {
@@ -319,14 +415,25 @@
     "title": "Audit Logs",
     "description": "Review the history of user actions within the system.",
     "empty": "No audit logs available.",
+    "dowload": "Download CSV",
+
     "userId": {
       "label": "User ID"
     },
     "userDID": {
       "label": "User DID"
     },
+    "createdAt": {
+      "label": "Created At"
+    },
     "userGroup": {
       "label": "User Group"
+    },
+    "model": {
+      "label": "Model"
+    },
+    "recordId": {
+      "label": "Record ID"
     },
     "action": {
       "label": "Action"
@@ -335,12 +442,73 @@
       "label": "Transaction"
     },
     "diffs": {
-      "label": "Changes"
+      "title": "Change Summary",
+      "label": "Changes",
+      "button": {
+        "download": "Download JSON"
+      }
     },
     "view_diffs": "<a>View</a>"
   },
   "account": {
     "title": "Account Information",
     "description": "Wallet and Identity Configuration."
+  },
+  "tasks": {
+    "title": "Tasks",
+    "description": "Manage and track your tasks.",
+    "empty": "No tasks available.",
+    "create": "Create Task",
+    "atomicity": {
+      "label": "Atomicity",
+      "placeholder": "Enter the task atomicity"
+    },
+    "name": {
+      "label": "Name",
+      "placeholder": "Enter the task name"
+    },
+
+    "status": {
+      "label": "Status",
+      "placeholder": "Select the task status",
+      "options": {
+        "pending": "Pending",
+        "scheduled": "Scheduled",
+        "running": "Running",
+        "failed": "Failed",
+        "succeeded": "Succeeded",
+        "canceled": "Canceled",
+        "waiting_retry": "Waiting Retry"
+      }
+    },
+    "attempt": {
+      "label": "Attempt Status",
+      "placeholder": "Type number of attempts"
+    },
+    "maxAttempt": {
+      "label": "Max Attempts",
+      "placeholder": "Type max number of attempts"
+    },
+    "scheduledTo": {
+      "label": "Scheduled To",
+      "placeholder": "Type the scheduled date"
+    }
+  },
+  "crud": {
+    "createdBy": {
+      "label": "Created By"
+    },
+    "createdAt": {
+      "label": "Created At"
+    },
+    "updatedBy": {
+      "label": "Updated By"
+    },
+    "updatedAt": {
+      "label": "Updated At"
+    },
+    "version": {
+      "label": "Version"
+    }
   }
 }

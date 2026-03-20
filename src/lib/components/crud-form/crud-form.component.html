@@ -41,17 +41,15 @@
               fill="clear"
               (click)="handleReset()"
             >
-              @if (options.buttons.clear?.icon) {
+              @if (buttons.clear?.icon) {
                 <ion-icon
                   aria-hidden="true"
-                  [slot]="options.buttons.clear?.iconSlot"
-                  [name]="options.buttons.clear?.icon"
+                  [slot]="buttons.clear?.iconSlot"
+                  [name]="buttons.clear?.icon"
                 ></ion-icon>
               }
               {{
-                locale +
-                  '.' +
-                  (allowClear ? options.buttons.clear?.text : 'back')
+                locale + '.' + (allowClear ? buttons.clear?.text : 'back')
                   | translate
               }}
             </ion-button>
@@ -62,17 +60,15 @@
             type="submit"
             [expand]="action ? 'block' : 'default'"
           >
-            @if (options.buttons.submit.icon) {
+            @if (buttons.submit.icon) {
               <ion-icon
                 aria-hidden="true"
-                [slot]="options.buttons.submit.iconSlot"
-                [name]="options.buttons.submit.icon"
+                [slot]="buttons.submit.iconSlot"
+                [name]="buttons.submit.icon"
               ></ion-icon>
             }
             {{
-              action
-                ? action
-                : (locale + '.' + options.buttons.submit.text | translate)
+              action ? action : (locale + '.' + buttons.submit.text | translate)
             }}
           </ion-button>
         </div>
@@ -119,11 +115,11 @@
           color="danger"
           type="button"
         >
-          @if (options.buttons.submit.icon) {
+          @if (buttons.submit.icon) {
             <ion-icon
               aria-hidden="true"
-              [slot]="options.buttons.submit.iconSlot"
-              [name]="options.buttons.submit.icon"
+              [slot]="buttons.submit.iconSlot"
+              [name]="buttons.submit.icon"
             ></ion-icon>
           }
           {{ locale + '.delete' | translate }}
@@ -135,17 +131,19 @@
     ) {
       <div>
         <ion-button type="submit">
-          @if (options.buttons.submit.icon) {
+          @if (buttons.submit.icon) {
             <ion-icon
               aria-hidden="true"
-              [slot]="options.buttons.submit.iconSlot"
-              [name]="options.buttons.submit.icon"
+              [slot]="buttons.submit.iconSlot"
+              [name]="buttons.submit.icon"
             ></ion-icon>
           }
           {{
             action
               ? action
-              : (locale + '.' + options.buttons.submit.text | translate)
+              : !translatable
+                ? buttons.submit.text
+                : (locale + '.' + buttons.submit.text | translate)
           }}
         </ion-button>
       </div>
@@ -155,21 +153,23 @@
         fill="clear"
         (click)="handleReset()"
       >
-        @if (options.buttons.clear?.icon) {
+        @if (buttons.clear?.icon) {
           <ion-icon
             aria-hidden="true"
-            [slot]="options.buttons.clear?.iconSlot"
-            [name]="options.buttons.clear?.icon"
+            [slot]="buttons.clear?.iconSlot"
+            [name]="buttons.clear?.icon"
           ></ion-icon>
         }
         {{
-          [
-            OperationKeys.DELETE,
-            OperationKeys.READ,
-            OperationKeys.UPDATE,
-          ].includes(operation)
-            ? (locale + '.back' | translate)
-            : options.buttons.clear?.text
+          !translatable
+            ? buttons.clear?.text
+            : [
+                  OperationKeys.DELETE,
+                  OperationKeys.READ,
+                  OperationKeys.UPDATE,
+                ].includes(operation)
+              ? (locale + '.back' | translate)
+              : (locale + '.' + buttons.clear.text | translate)
         }}
       </ion-button>
     </div>

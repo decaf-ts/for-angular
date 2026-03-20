@@ -1,4 +1,13 @@
-import { Context, ContextualArgs, PersistenceKeys, PreparedStatementKeys } from '@decaf-ts/core';
+import {
+  AllOperationKeys,
+  Context,
+  ContextOf,
+  ContextualArgs,
+  DirectionLimitOffset,
+  EventIds,
+  PersistenceKeys,
+  PreparedStatementKeys,
+} from '@decaf-ts/core';
 import {
   BaseError,
   BulkCrudOperationKeys,
@@ -12,26 +21,103 @@ import { AxiosFlags, AxiosFlavour, AxiosHttpAdapter, HttpConfig } from '@decaf-t
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
-  constructor(
-    config: HttpConfig,
-    alias: string = AxiosFlavour,
-    protected enableCredentials: boolean = true
-  ) {
-    super({ eventsListenerPath: '/events', ...config }, alias);
+  constructor(config: HttpConfig, alias: string = AxiosFlavour) {
+    super({ eventsListenerPath: '/events', ...config }, AxiosFlavour);
   }
 
-  token: string =
-    'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJyOTJQVHlER0lteXN2aWhJTnc5bGJ0MS1WbHNmRWxtdUwzREMyWjNtOXVZIn0.eyJleHAiOjE3NzI4NTEwMjEsImlhdCI6MTc3Mjg1MDcyMSwiYXV0aF90aW1lIjoxNzcyODQ1OTQzLCJqdGkiOiJkNTljOGJmNS1lOTMyLTM5NjQtYzg0OC1lZGU1NmVmNjk2ODMiLCJpc3MiOiJodHRwczovL2tleWNsb2FrLnB0cC5pbnRlcm5hbC9yZWFsbXMvcGRtIiwiYXVkIjoicGRtLW9hdXRoIiwic3ViIjoiNjZjZDA3MmUtNzljNi00Y2Q4LWI3NzUtNDVmMWRkYzc5MjdjIiwidHlwIjoiSUQiLCJhenAiOiJwZG0tb2F1dGgiLCJzaWQiOiI2YTY3Yjg2MC0wNTQ1LTg3ZTktYzYzZC0xYTZjMzdjODU4MWIiLCJhdF9oYXNoIjoidk9oMkROZVYzUFh0d0toTTRFbGZkZyIsImFjciI6IjEiLCJyZXNvdXJjZV9hY2Nlc3MiOnsicGRtLW9hdXRoIjp7InJvbGVzIjpbImVwaS1hZG1pbiIsImVwaS1yZWFkZXIiLCJlcGktd3JpdGVyIiwicGxhLXdyaXRlciIsInBsYS1yZWFkZXIiLCJwbGEtYWRtaW4iXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6IkRlbWVyc29uIE3DoXhpbW8gZGUgQ2FydmFsaG8iLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJkZW1lcnNvbi5jYXJ2YWxob0BwZG1mYy5jb20iLCJnaXZlbl9uYW1lIjoiRGVtZXJzb24iLCJmYW1pbHlfbmFtZSI6Ik3DoXhpbW8gZGUgQ2FydmFsaG8iLCJlbWFpbCI6ImRlbWVyc29uLmNhcnZhbGhvQHBkbWZjLmNvbSJ9.Kmrf0oUQh2RE-cu8oFcNr-d4HKVAutzchLUVWtXOEPnNIl4p7A0x6WiTJIBgfhRCGmj7ALDdJTdbTqWNQxHU_YcwW7tEpwKQXKfVPKzxuWnPAWFxGNnXWiMk--PgMXLpNNt5VCQm37OwBA8f7qOIKscPTBVu0Z1z1NJpqvJSYjFtgzs4CMda-5stGC-_DzyAcBp6Ja6o5_jTTGu4W5YZWrkTgncU7fhDI2d-AsYs0by4StNEDq1UjJi26h9_HAkqDKO5OmgNefTc9kDVA_63mIKx9wJ8LfiWN3kYN4c55BLHA4LD0Sx9COKSzFrJJhq-ylNid8G9pA9QReQJQ_0mlQ';
+  token: string = ' ';
+
+  bookmark: Record<string, DirectionLimitOffset[]> = {};
+
+  getAllRawQueryParams(url: string): Record<string, string> {
+    const query = new URL(url).search.slice(1); // remove o '?'
+    if (!query) {
+      return {};
+    }
+    const params: Record<string, string> = {};
+    for (const pair of query.split('&')) {
+      const [key, value = ''] = pair.split('=');
+      params[key] = value;
+    }
+    return params;
+  }
+
+  getBookmarkEntryKey(url: string): string | undefined {
+    const parts = url.split('/'); // transforma em array
+    const index = parts.indexOf(PersistenceKeys.STATEMENT);
+    if (index > 0) {
+      return parts[index - 1];
+    }
+    return undefined;
+  }
+
+  setOnBookmark(url: string): void {
+    const key = this.getBookmarkEntryKey(url);
+    if (key) {
+      if (!this.bookmark[key]) {
+        this.bookmark[key] = [];
+      }
+      this.bookmark[key].push(this.getAllRawQueryParams(url));
+    }
+  }
+
+  parseBookmarkURL(url: string): string {
+    let bookmark = this.getOnQueryParams(url, 'bookmark');
+    const cached = this.getFromBookmark(url);
+    if (!bookmark) {
+      if (cached) {
+        bookmark = cached.bookmark as string;
+        url = url.replace(/bookmark=[^&]*/, `bookmark=${bookmark}`);
+      }
+    } else {
+      if (cached?.bookmark && bookmark !== cached.bookmark) {
+        url = url.replace(/bookmark=[^&]*/, `bookmark=${cached.bookmark}`);
+      } else {
+        this.setOnBookmark(url);
+      }
+    }
+    return url;
+  }
+
+  getFromBookmark(url: string): DirectionLimitOffset | undefined {
+    const key = this.getBookmarkEntryKey(url);
+    const offset = this.getOnQueryParams(url, 'offset');
+    if (key) {
+      const cached = this.bookmark?.[key];
+      if (Number(offset) <= 2) {
+        this.bookmark[key] = [];
+      }
+      if (cached) {
+        return cached.find((item) => Number(item.offset) === Number(offset));
+      }
+    }
+    return undefined;
+  }
+
+  getOnQueryParams(url: string, param: string): string {
+    return new URL(url).searchParams.get(param) || '';
+  }
+
+  hasQueryParam(url: string, param: string): boolean {
+    return new URLSearchParams(url).has(param);
+  }
 
   parseStatementURL(url: string): string {
     const urlArray = url.split('/');
-    if (urlArray.includes(PersistenceKeys.STATEMENT) && !urlArray.includes(PreparedStatementKeys.PAGE_BY)) {
-      if (urlArray.includes(PreparedStatementKeys.FIND)) {
-        const direction = urlArray.pop();
-        url = urlArray.filter((part) => part !== PersistenceKeys.STATEMENT).join('/');
-        url = `${url}?direction=${direction}`;
+    if (urlArray.includes(PersistenceKeys.STATEMENT)) {
+      if (!urlArray.includes(PreparedStatementKeys.PAGE_BY)) {
+        if (urlArray.includes(PreparedStatementKeys.FIND)) {
+          const direction = urlArray.pop();
+          url = urlArray.filter((part) => part !== PersistenceKeys.STATEMENT).join('/');
+          url = `${url}?direction=${direction}`;
+        } else {
+          return urlArray.filter((part) => part !== PersistenceKeys.STATEMENT).join('/');
+        }
       } else {
-        return urlArray.filter((part) => part !== PersistenceKeys.STATEMENT).join('/');
+        const hasBookmark = this.hasQueryParam(url, 'bookmark');
+        if (hasBookmark) {
+          url = this.parseBookmarkURL(url);
+        }
       }
     }
     return url;
@@ -68,9 +154,26 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
             'Content-Type': 'application/json; charset=utf-8',
           },
         };
+        // if (details?.url?.includes('leaflet')) {
+        //   const form = new FormData();
+        //   const data = JSON.parse(details.data as string);
+        //   for (const key in data) {
+        //     const value = typeof data[key] === 'object' ? JSON.stringify(data[key]) : data[key];
+        //     form.append(key, value);
+        //   }
+        //   details.data = form;
+        //   overrides = {
+        //     ...overrides,
+        //     headers: {
+        //       ...headers,
+        //       'Content-Type': 'multipart/form-data',
+        //     },
+        //   };
+        // }
         break;
       }
     }
+
     return await this.client.request(
       Object.assign({}, details, { url: this.parseStatementURL(details.url || '') }, overrides)
     );
@@ -104,6 +207,23 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     } catch (error: unknown) {
       throw this.parseError(error as BaseError);
     }
+  }
+
+  override async updateObservers<M extends Model>(
+    table: Constructor<M> | string,
+    event: AllOperationKeys,
+    id: EventIds,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...args: ContextualArgs<ContextOf<any>>
+  ) {
+    const [model] = args;
+    if (!id) {
+      const pk = Model.pk(Model.get(table as string));
+      if (pk && pk in model) {
+        id = model[pk] as EventIds;
+      }
+    }
+    return await super.updateObservers(table, event, id, ...args);
   }
 
   override async parseResponse<M extends Model>(
