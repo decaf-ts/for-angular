@@ -141,7 +141,7 @@
                     ? (locale +
                         '.operators.' +
                         key.toLowerCase().replace(' ', '_') | translate)
-                    : key
+                    : getKeyTranslation(key)
                 }}
               </div>
             }

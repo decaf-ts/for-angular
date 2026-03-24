@@ -1,8 +1,9 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Color } from '@ionic/core';
 import { addIcons } from 'ionicons';
 import * as allIcons from 'ionicons/icons';
+import { shareReplay, Subject, takeUntil } from 'rxjs';
 import { NgxSvgDirective } from '../../directives/svg.directive';
 import { Dynamic } from '../../engine/decorators';
 import { NgxMediaService } from '../../services/NgxMediaService';
@@ -16,7 +17,7 @@ import { NgxMediaService } from '../../services/NgxMediaService';
   standalone: true,
   host: { '[attr.id]': 'uid', '[attr.aria-hidden]': '!button' },
 })
-export class IconComponent implements OnInit {
+export class IconComponent implements OnInit, OnDestroy {
   /** @description Reference to the component's native DOM element.
    * @summary Provides direct access to the native DOM element of the component through Angular's
    * ViewChild decorator. This reference can be used to manipulate the DOM element directly,
@@ -65,6 +66,8 @@ export class IconComponent implements OnInit {
 
   mediaService: NgxMediaService = new NgxMediaService();
 
+  protected destroySubscriptions$ = new Subject<void>();
+
   constructor() {
     addIcons(allIcons);
   }
@@ -80,9 +83,28 @@ export class IconComponent implements OnInit {
       this.type = 'icon';
       this.name = `ti-${this.name.replace(/ti-/g, '')}`;
     }
-    this.mediaService.isDarkMode().subscribe((isDark) => {
-      this.isDarkMode = isDark;
-    });
+    this.mediaService
+      .isDarkMode()
+      .pipe(shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this.destroySubscriptions$))
+      .subscribe((isDark) => {
+        this.isDarkMode = isDark;
+      });
     this.initialized = true;
+  }
+
+  /**
+   * @description Cleanup lifecycle hook invoked when the directive is destroyed.
+   * @summary Ensures any resources allocated by the directive's media service are
+   * released (DOM listeners, timers, subscriptions, etc.). Implementations should
+   * keep `mediaService.destroy()` idempotent; calling it here prevents leaks when
+   * components are torn down.
+   * @returns {Promise<void>}
+   */
+  async ngOnDestroy(): Promise<void> {
+    this.mediaService.destroy();
+    if (this.destroySubscriptions$) {
+      this.destroySubscriptions$.next();
+      this.destroySubscriptions$.complete();
+    }
   }
 }

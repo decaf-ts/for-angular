@@ -7,13 +7,14 @@
  * the application's media service to react to dark-mode changes. See {@link CardComponent}.
  */
 import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
-import { Color } from '@ionic/core';
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle , IonCardSubtitle } from '@ionic/angular/standalone';
-import { Dynamic } from '../../engine/decorators';
-import { NgxComponentDirective, } from '../../engine/NgxComponentDirective';
 import { SafeHtml } from '@angular/platform-browser';
+import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from '@ionic/angular/standalone';
+import { Color } from '@ionic/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { shareReplay, takeUntil } from 'rxjs';
 import { AngularEngineKeys } from '../../engine/constants';
+import { Dynamic } from '../../engine/decorators';
+import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 
 /**
  * @description Reusable, presentational card UI component for use across the application.
@@ -69,7 +70,6 @@ import { AngularEngineKeys } from '../../engine/constants';
   encapsulation: ViewEncapsulation.None,
 })
 export class CardComponent extends NgxComponentDirective implements OnInit {
-
   /**
    * @description Visual rendering style for the card.
    * @summary Controls the card's surface treatment. Use 'clear' for a flat look or 'shadow' to add elevation.
@@ -89,13 +89,22 @@ export class CardComponent extends NgxComponentDirective implements OnInit {
   title: string = '';
 
   /**
+   * @description Primary title text for the card header.
+   * @summary Rendered prominently at the top of the card; consumers should pass a short, human-friendly string.
+   * @type {string}
+   * @default ''
+   */
+  @Input()
+  margins: boolean = true;
+
+  /**
    * @description Body size preset for the card.
    * @summary Adjusts padding and typographic scale inside the card body. 'small' reduces spacing, 'blank' hides the body area.
    * @type {'small'|'default'|'blank'}
    * @default 'default'
    */
   @Input()
-  body: 'small'| 'default' | 'blank' = 'default';
+  body: 'small' | 'default' | 'blank' = 'default';
 
   /**
    * @description Optional subtitle shown below the title in the header area.
@@ -147,34 +156,33 @@ export class CardComponent extends NgxComponentDirective implements OnInit {
    * @type {'top'|'bottom'}
    */
   @Input()
-  inlineContentPosition: 'top' | 'bottom'  = 'bottom';
+  inlineContentPosition: 'top' | 'bottom' = 'bottom';
 
   /**
    * @description Internal component identifier used by the base `NgxComponentDirective`.
    * @summary Read-only-ish string identifying the concrete component class for instrumentation, styling helpers and debug logs.
    * @type {string}
    */
-  protected override componentName: string  = 'CardComponent';
+  protected override componentName: string = 'CardComponent';
 
- /**
-  * @description Angular lifecycle hook: component initialization.
-  * @summary
-  * ngOnInit sets the component as initialized and subscribes to the application's media service
-  * dark-mode observable. On each emission it updates the local isDarkMode flag and calls the
-  * media service helper to toggle the dark-palette CSS class on the component host element.
-  * The subscription uses the provided mediaService observable and performs side effects only.
-  *
-  * @return {void}
-  */
+  /**
+   * @description Angular lifecycle hook: component initialization.
+   * @summary
+   * ngOnInit sets the component as initialized and subscribes to the application's media service
+   * dark-mode observable. On each emission it updates the local isDarkMode flag and calls the
+   * media service helper to toggle the dark-palette CSS class on the component host element.
+   * The subscription uses the provided mediaService observable and performs side effects only.
+   *
+   * @return {void}
+   */
   ngOnInit(): void {
-    this.mediaService.isDarkMode().subscribe(isDark => {
-      this.isDarkMode = isDark;
-      this.mediaService.toggleClass(
-        [this.component],
-        AngularEngineKeys.DARK_PALETTE_CLASS,
-        this.isDarkMode
-      );
-    });
+    this.mediaService
+      .isDarkMode()
+      .pipe(shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this.destroySubscriptions$))
+      .subscribe((isDark) => {
+        this.isDarkMode = isDark;
+        this.mediaService.toggleClass([this.component], AngularEngineKeys.DARK_PALETTE_CLASS, this.isDarkMode);
+      });
     this.initialize();
   }
 }

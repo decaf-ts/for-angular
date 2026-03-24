@@ -234,5 +234,6 @@ ion-radio-group {
 ::ng-deep ion-textarea {
   min-height: 80px !important;
   scrollbar-color: #888 #f0f0f0;
-  scrollbar-width: thin;
+  scrollbar-width: thin !important;
+  margin-bottom: 0.5rem !important;
 }

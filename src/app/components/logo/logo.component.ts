@@ -1,9 +1,9 @@
-import { Component, inject, Input, OnInit  } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { IonImg } from '@ionic/angular/standalone';
+import { shareReplay } from 'rxjs';
 import { AppName } from 'src/app/app.config';
 import { ElementPosition } from 'src/lib/engine/types';
 import { NgxMediaService } from 'src/lib/services/NgxMediaService';
-
 
 @Component({
   selector: 'app-logo',
@@ -11,10 +11,8 @@ import { NgxMediaService } from 'src/lib/services/NgxMediaService';
   styleUrls: ['./logo.component.scss'],
   imports: [IonImg],
   standalone: true,
-
 })
 export class LogoComponent implements OnInit {
-
   @Input()
   className: string = '';
 
@@ -41,11 +39,12 @@ export class LogoComponent implements OnInit {
   activeLogo!: string;
 
   async ngOnInit(): Promise<void> {
-    this.mediaService.isDarkMode().subscribe(isDark => {
-      this.activeLogo = (isDark ? this.logoContrast : this.logo ) as string;
-    });
-    if(!this.alt)
-      this.alt = AppName;
+    this.mediaService
+      .isDarkMode()
+      .pipe(shareReplay({ bufferSize: 1, refCount: true }))
+      .subscribe((isDark) => {
+        this.activeLogo = (isDark ? this.logoContrast : this.logo) as string;
+      });
+    if (!this.alt) this.alt = AppName;
   }
-
 }

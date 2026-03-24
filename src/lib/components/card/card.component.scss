@@ -1,8 +1,10 @@
-// removing borders and shadows for childs
-
 .dcf-card-component {
   display: flow-root;
   border-radius: var(--dcf-border-radius-small);
+
+  &.dcf-remove-margins {
+    margin: 0px !important;
+  }
 
   &.dcf-card-shadow {
     --background: var(--dcf-card-background) !important;
@@ -118,8 +120,7 @@
   }
 
   ion-card-title {
-    padding: var(--dcf-padding-small) var(--dcf-spacement) 0rem
-      var(--dcf-spacement) !important;
+    padding: var(--dcf-padding-small) var(--dcf-spacement) 0rem var(--dcf-spacement) !important;
     font-weight: 500;
     font-size: 1.125rem;
     line-height: 1.75rem;

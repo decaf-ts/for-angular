@@ -7,7 +7,6 @@ import { ContainerComponent } from 'src/app/components/container/container.compo
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { Leaflet } from 'src/app/ew/fabric/Leaflet';
 import { TableComponent } from 'src/lib/components';
-import { EmptyStateComponent } from 'src/lib/components/empty-state/empty-state.component';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { NgxModelPageDirective } from 'src/lib/engine';
 
@@ -24,7 +23,6 @@ import { NgxModelPageDirective } from 'src/lib/engine';
     TableComponent,
     HeaderComponent,
     ContainerComponent,
-    EmptyStateComponent,
   ],
 })
 export class LeafletPage extends NgxModelPageDirective implements OnInit {

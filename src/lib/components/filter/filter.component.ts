@@ -459,6 +459,24 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
   }
 
   /**
+   * @description Resolves the translated label for a given sort key.
+   * @summary Looks up the provided key in the available sort options and returns
+   * its translated label when found. Falls back to returning the original key
+   * when no matching option exists.
+   *
+   * @param {string} key - Sort field key to translate
+   * @returns {string} Translated label when available, otherwise the original key
+   * @memberOf FilterComponent
+   */
+  getKeyTranslation(key: string): string {
+    const option = this.sortOptions.find((option) => option.value === key);
+    if (option) {
+      return option.label;
+    }
+    return key;
+  }
+
+  /**
    * @description Determines the appropriate options based on the current filter step.
    * @summary Returns the contextually relevant options for the current step in the filter creation process.
    * Step 1 shows indexes, Step 2 shows conditions, Step 3 shows no options (value input).

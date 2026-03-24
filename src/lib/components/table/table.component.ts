@@ -238,7 +238,10 @@ export class TableComponent extends ListComponent implements OnInit {
    */
   getOperations(): void {
     if (this.allowOperations) {
-      this.allowOperations = this.isAllowed(OperationKeys.UPDATE) || this.isAllowed(OperationKeys.DELETE);
+      this.allowOperations =
+        this.isAllowed(OperationKeys.READ) ||
+        this.isAllowed(OperationKeys.UPDATE) ||
+        this.isAllowed(OperationKeys.DELETE);
     } else {
       this.operations = [];
     }

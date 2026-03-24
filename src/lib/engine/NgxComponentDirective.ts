@@ -544,12 +544,15 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
     if (!this.localeRoot && this.componentName) this.localeRoot = this.componentName;
     if (this.localeRoot) this.getLocale(this.localeRoot);
     this.uid = `${this.componentName}-${generateRandomValue(8)}`;
-    this.mediaService.isDarkMode().subscribe((isDark) => {
-      if (isDark) {
-        this.isDarkMode = isDark;
-        this.colorSchema = WindowColorSchemes.dark;
-      }
-    });
+    this.mediaService
+      .isDarkMode()
+      .pipe(shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this.destroySubscriptions$))
+      .subscribe((isDark) => {
+        if (isDark) {
+          this.isDarkMode = isDark;
+          this.colorSchema = WindowColorSchemes.dark;
+        }
+      });
     effect(async () => {
       const event = this.popStateSignal();
       if (event) {
@@ -768,10 +771,13 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
   }
 
   protected checkDarkMode(): void {
-    this.mediaService.isDarkMode().subscribe((isDark) => {
-      this.isDarkMode = isDark;
-      this.mediaService.toggleClass([this.component], AngularEngineKeys.DARK_PALETTE_CLASS, this.isDarkMode);
-    });
+    this.mediaService
+      .isDarkMode()
+      .pipe(shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this.destroySubscriptions$))
+      .subscribe((isDark) => {
+        this.isDarkMode = isDark;
+        this.mediaService.toggleClass([this.component], AngularEngineKeys.DARK_PALETTE_CLASS, this.isDarkMode);
+      });
   }
 
   // parseHandlers(handlers: Record<string, UIFunctionLike>): void {

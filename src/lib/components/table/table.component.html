@@ -111,6 +111,27 @@
                           color="primary"
                           name="ti-edit"
                         />
+                      } @else {
+                        @if (
+                          operations?.includes(OperationKeys.READ) &&
+                          !operations?.includes(OperationKeys.DELETE)
+                        ) {
+                          <ngx-decaf-icon
+                            [button]="true"
+                            (click)="
+                              handleRedirect(
+                                $event,
+                                item.uid.value,
+                                OperationKeys.READ,
+                                true
+                              )
+                            "
+                            fill="clear"
+                            slot="icon-only"
+                            color="primary"
+                            name="ti-eye"
+                          />
+                        }
                       }
                       @if (operations?.includes(OperationKeys.DELETE)) {
                         <ngx-decaf-icon

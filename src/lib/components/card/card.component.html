@@ -6,30 +6,31 @@
   [class.dcf-card-shadow]="type === 'shadow'"
   [class.dcf-card-bordered]="borders"
   [class.dcf-card-separator]="separator"
+  [class.dcf-remove-margins]="!margins"
   #component
 >
   @if (title || subtitle) {
     <ion-card-header>
       @if (title) {
-        <ion-card-title>{{
-          locale ? (title | translate) : title
-        }}</ion-card-title>
+        <ion-card-title>
+          {{ locale ? (title | translate) : title }}
+        </ion-card-title>
       }
       @if (subtitle) {
-        <ion-card-subtitle>{{
-          locale ? (subtitle | translate) : subtitle
-        }}</ion-card-subtitle>
+        <ion-card-subtitle>
+          {{ locale ? (subtitle | translate) : subtitle }}
+        </ion-card-subtitle>
       }
     </ion-card-header>
   }
   <ion-card-content>
-    @if (inlineContent && inlineContentPosition === "top") {
+    @if (inlineContent && inlineContentPosition === 'top') {
       <div [innerHTML]="inlineContent"></div>
     }
 
     <ng-content slot="content"></ng-content>
 
-    @if (inlineContent && inlineContentPosition === "bottom") {
+    @if (inlineContent && inlineContentPosition === 'bottom') {
       <div [innerHTML]="inlineContent"></div>
     }
   </ion-card-content>

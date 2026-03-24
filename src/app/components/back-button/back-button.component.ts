@@ -1,25 +1,24 @@
-import {
-  OnInit,
-  CUSTOM_ELEMENTS_SCHEMA,
-  Input,
-  Component,
-  inject,
-  HostListener,
-  ViewChild,
-  ElementRef,
-} from '@angular/core';
 import { Location } from '@angular/common';
-import { PredefinedColors } from '@ionic/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  HostListener,
+  inject,
+  Input,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
-import { RouteDirections } from 'src/lib/engine/constants';
-import { StringOrBoolean } from 'src/lib/engine/types';
-import { stringToBoolean } from 'src/lib/utils/helpers';
-import { windowEventEmitter } from 'src/lib/utils/helpers';
+import { PredefinedColors } from '@ionic/core';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline } from 'ionicons/icons';
-import { FunctionLike } from 'src/lib/engine/types';
+import { shareReplay } from 'rxjs';
+import { RouteDirections } from 'src/lib/engine/constants';
+import { FunctionLike, StringOrBoolean } from 'src/lib/engine/types';
+import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { NgxMediaService } from 'src/lib/services/NgxMediaService';
+import { stringToBoolean, windowEventEmitter } from 'src/lib/utils/helpers';
 
 /**
  * @description Back button component for navigation within Angular applications.
@@ -309,9 +308,12 @@ export class BackButtonComponent implements OnInit {
   ngOnInit(): void {
     this.preventDefault = stringToBoolean(this.preventDefault);
     this.emitEvent = stringToBoolean(this.emitEvent);
-    this.mediaService.isDarkMode().subscribe((isDark) => {
-      this.isDarkMode = isDark;
-    });
+    this.mediaService
+      .isDarkMode()
+      .pipe(shareReplay({ bufferSize: 1, refCount: true }))
+      .subscribe((isDark) => {
+        this.isDarkMode = isDark;
+      });
     if (this.toolbarColor) this.color = this.toolbarColor as PredefinedColors;
     this.showText = stringToBoolean(this.showText);
 
