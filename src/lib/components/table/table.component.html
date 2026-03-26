@@ -14,6 +14,11 @@
         >
           <ion-select
             [id]="name"
+            [class]="
+              filterOptions?.length > 10
+                ? ' dcf-modal-interface'
+                : ' dcf-popover-interface'
+            "
             toggleIcon="chevron-down-outline"
             expandedIcon="chevron-up-outline"
             [mode]="'md'"
@@ -23,6 +28,7 @@
             [label]="locale + '.filter.label' | translate"
             (click)="openFilterSelectOptions($event)"
             [placeholder]="locale + '.filter.label' | translate"
+            (ionChange)="handleFilterSelection($event)"
             interface="popover"
           >
             <ion-select-option value="">

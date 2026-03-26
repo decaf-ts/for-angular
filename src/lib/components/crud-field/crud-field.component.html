@@ -117,7 +117,7 @@
                   <ion-checkbox
                     (ionInput)="handleModalChildChanges($event, formControl)"
                     (ionChange)="handleModalChildChanges($event, formControl)"
-                    [id]="option.text"
+                    [id]="path"
                     [mode]="'md'"
                     [labelPlacement]="labelPlacement"
                     [justify]="justify"
@@ -160,7 +160,7 @@
                 <ion-radio
                   (ionInput)="handleModalChildChanges($event, formControl)"
                   (ionChange)="handleModalChildChanges($event, formControl)"
-                  [id]="name"
+                  [id]="path"
                   [mode]="'md'"
                   [hidden]="hidden"
                   [labelPlacement]="labelPlacement"

@@ -15,7 +15,7 @@ import { OrderDirection } from '@decaf-ts/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { isValidDate, Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
-import { IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+import { IonSelect, IonSelectOption, SelectCustomEvent } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { debounceTime, shareReplay, takeUntil } from 'rxjs';
 import { DecafTooltipDirective } from '../../directives';
@@ -409,6 +409,23 @@ export class TableComponent extends ListComponent implements OnInit {
     }
     if (this.operations.includes(action)) {
       await this.router.navigate([`/${this.route}/${action}/${uid}`]);
+    }
+  }
+
+  async handleFilterSelection(event: SelectCustomEvent): Promise<void> {
+    console.log(event);
+    const { detail } = event;
+    if (detail) {
+      this.filterValue = detail?.value;
+      await this.handleSearch({
+        query: [
+          {
+            index: this.filterBy,
+            value: this.filterValue,
+            condition: 'Contains',
+          },
+        ],
+      } as IFilterQuery);
     }
   }
 

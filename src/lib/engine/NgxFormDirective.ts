@@ -16,16 +16,10 @@ import { timer } from 'rxjs';
 import { NgxFormService } from '../services/NgxFormService';
 import { generateRandomValue } from '../utils';
 import { ActionRoles } from './constants';
-import {
-  IBaseCustomEvent,
-  ICrudFormButtons,
-  ICrudFormEvent,
-  IFormElement,
-  IRenderedModel
-} from './interfaces';
+import { IBaseCustomEvent, ICrudFormButtons, ICrudFormEvent, IFormElement, IRenderedModel } from './interfaces';
 import { NgxFormFieldDirective } from './NgxFormFieldDirective';
 import { NgxParentComponentDirective } from './NgxParentComponentDirective';
-import { FieldUpdateMode, FormParent, HTMLFormTarget } from './types';
+import { FieldUpdateMode, FormParent, HTMLFormTarget, KeyValue } from './types';
 
 @Directive()
 export abstract class NgxFormDirective
@@ -370,7 +364,21 @@ export abstract class NgxFormDirective
     const formGroup = this.formGroup as FormGroup;
     const isValid = NgxFormService.validateFields(formGroup);
 
+    function getFormErrors(): KeyValue {
+      const errors = {} as KeyValue;
+      Object.keys(formGroup.controls).forEach((key) => {
+        const control = formGroup.get(key);
+        if (control && control.errors) {
+          errors[key] = control.errors;
+        }
+      });
+      return errors;
+    }
+
     if (!isValid) {
+      this.log
+        .for(this.submit)
+        .warn(`Form is invalid. Please correct the errors and try again. ${JSON.stringify(getFormErrors())}`);
       this.changeDetectorRef.detectChanges();
       NgxFormService.enableAllGroupControls(formGroup);
       return false;
