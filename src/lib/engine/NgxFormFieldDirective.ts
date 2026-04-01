@@ -507,6 +507,7 @@ export abstract class NgxFormFieldDirective
       this.formControl.setValue(value);
       this.formControl.updateValueAndValidity();
     }
+
     this.value = value as string | number | Date | string[];
   }
 

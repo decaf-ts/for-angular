@@ -1,4 +1,15 @@
-import { Component, EnvironmentInjector, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  Component,
+  effect,
+  EnvironmentInjector,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  runInInjectionContext,
+  ViewChild,
+} from '@angular/core';
 import { Color, modalController, OverlayEventDetail } from '@ionic/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -333,7 +344,17 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
   async create(props: KeyValue = {}): Promise<ModalComponent> {
     await this.prepare(props);
     await this.present();
-    return this;
+    const modal = this as ModalComponent;
+    runInInjectionContext(this.injector, () => {
+      effect(async () => {
+        const event = this.popStateSignal();
+        if (event) {
+          await modal.cancel();
+        }
+      });
+    });
+
+    return modal;
   }
 
   /**

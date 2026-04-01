@@ -21,7 +21,7 @@ import { FieldProperties, HTML5InputTypes, parseValueByType, UIKeys } from '@dec
 import { patternValidators } from './constants';
 import { getLogger } from './helpers';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
-import { ComparisonValidationKey, KeyValue } from './types';
+import { ComparisonValidationKey, FunctionLike, KeyValue } from './types';
 
 export class ValidatorFactory {
   /**
@@ -48,9 +48,18 @@ export class ValidatorFactory {
    * @param {string} [subType] - Secondary type definition.
    * @returns {string} The resolved field type.
    */
-  static getFieldType(type?: string, customTypes?: string | string[], options?: unknown[], subType?: string): string {
+  static getFieldType(
+    type?: string,
+    customTypes?: string | string[],
+    options?: unknown[] | FunctionLike,
+    subType?: string
+  ): string {
     const fieldType = (customTypes || subType || type) as string;
-    if ((fieldType === HTML5InputTypes.CHECKBOX || fieldType === Array.name) && Array.isArray(options)) {
+
+    if (
+      ((fieldType === HTML5InputTypes.CHECKBOX || fieldType === Array.name) && Array.isArray(options)) ||
+      typeof options === 'function'
+    ) {
       return Primitives.STRING;
     }
     return fieldType;
