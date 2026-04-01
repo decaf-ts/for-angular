@@ -30,7 +30,7 @@ import { getModelAndRepository } from '../../engine/helpers';
 import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
 import { FunctionLike, KeyValue, SelectOption } from '../../engine/types';
 import { NgxRouterService } from '../../services/NgxRouterService';
-import { dateFromString, formatDate } from '../../utils/helpers';
+import { dateFromString, formatDate, getWindow } from '../../utils/helpers';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { IconComponent } from '../icon/icon.component';
 import { ListComponent } from '../list/list.component';
@@ -391,7 +391,11 @@ export class TableComponent extends ListComponent implements OnInit {
       const handlerFn = await handler(this, event, uid);
       return typeof handlerFn === 'function' ? handlerFn() : handlerFn;
     }
-    await this.handleRedirect(event, uid, action);
+    const win = getWindow() as Window;
+    const selection = (win as unknown as Window).getSelection();
+    if (!selection || selection.toString().length === 0) {
+      return await this.handleRedirect(event, uid, action);
+    }
   }
 
   /**
