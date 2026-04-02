@@ -1,16 +1,8 @@
-import { Model, type ModelArg } from '@decaf-ts/decorator-validation';
-import {
-  column,
-  createdAt,
-  createdBy,
-  index,
-  OrderDirection,
-  updatedAt,
-  updatedBy,
-} from '@decaf-ts/core';
-import { description, uses } from '@decaf-ts/decoration';
-import { hideOn, uielement, uiorder } from '@decaf-ts/ui-decorators';
+import { column, createdAt, index, OrderDirection, updatedAt } from '@decaf-ts/core';
 import { OperationKeys, version } from '@decaf-ts/db-decorators';
+import { description } from '@decaf-ts/decoration';
+import { Model, type ModelArg } from '@decaf-ts/decorator-validation';
+import { hideOn, uielement, uiorder } from '@decaf-ts/ui-decorators';
 
 //@uses(FabricFlavour)
 export class FabricBaseModel extends Model {
@@ -21,6 +13,7 @@ export class FabricBaseModel extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'fabric.createdAt.label',
     readonly: true,
+    maxContentLength: 10,
   })
   @hideOn(OperationKeys.CREATE, OperationKeys.UPDATE)
   @uiorder('last')
@@ -33,6 +26,7 @@ export class FabricBaseModel extends Model {
   @uielement('ngx-decaf-crud-field', {
     label: 'fabric.updatedAt.label',
     readonly: true,
+    maxContentLength: 10,
   })
   @hideOn(OperationKeys.CREATE, OperationKeys.UPDATE)
   @uiorder('last')

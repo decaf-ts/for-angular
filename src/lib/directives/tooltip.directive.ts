@@ -71,6 +71,7 @@ export class DecafTooltipDirective implements OnChanges {
     const options = {
       truncate: false,
       limit: 30,
+      ...{ position: 'top' },
       ...this.options,
     };
     if (options?.text && options?.text.trim().length) {
@@ -89,7 +90,8 @@ export class DecafTooltipDirective implements OnChanges {
 
         // creating tooltip element
         const tooltip = this.renderer.createElement('span');
-        this.renderer.addClass(tooltip, 'dcf-tooltip');
+        this.renderer.addClass(tooltip, `dcf-tooltip`);
+        this.renderer.addClass(tooltip, `dcf-tooltip-${options.position}`);
         this.renderer.appendChild(tooltip, this.renderer.createText(this.truncatePipe.sanitize(value)));
         this.renderer.appendChild(element, tooltip);
         this.renderer.addClass(element, 'dcf-tooltip-parent');

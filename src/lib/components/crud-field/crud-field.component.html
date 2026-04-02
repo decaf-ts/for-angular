@@ -16,27 +16,41 @@
           <ion-label [id]="name">
             @if (refreshing) {
               <br />
-              <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" />
             } @else {
               {{ label | translate }}
               <br />
-              @if (type !== 'checkbox' && value) {
+              @if (type !== 'checkbox') {
                 <ion-text
-                  [innerHTML]="type === 'password' ? '********' : value"
-                ></ion-text>
+                  [class.dcf-empty]="!value?.length"
+                  [ngx-decaf-tooltip]="
+                    maxContentLength > 0 && value?.length
+                      ? {
+                          text: value,
+                          truncate: true,
+                          limit: maxContentLength,
+                          position: 'over',
+                        }
+                      : {}
+                  "
+                  [innerHTML]="
+                    type === 'password'
+                      ? '********'
+                      : value?.length
+                        ? value
+                        : '-'
+                  "
+                />
               } @else {
-                @if (type === 'checkbox') {
-                  <ion-badge
-                    mode="md"
-                    color="light"
-                  >
-                    <ion-text [color]="!value ? 'danger' : 'primary'">
-                      {{ value }}
-                    </ion-text>
-                  </ion-badge>
-                } @else {
-                  <ion-text [innerHTML]="value"></ion-text>
-                }
+                <ion-badge
+                  mode="md"
+                  color="light"
+                >
+                  <ion-text
+                    [color]="!value ? 'danger' : 'primary'"
+                    [innerHTML]="value"
+                  />
+                </ion-badge>
               }
             }
           </ion-label>

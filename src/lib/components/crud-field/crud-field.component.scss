@@ -52,6 +52,12 @@ ion-item {
       --border-color: var(--dcf-color-gray-6) !important;
     }
 
+    .dcf-empty {
+      padding-left: 0.05rem;
+    }
+    ::ng-deep a {
+      cursor: pointer;
+    }
     &.read,
     &.delete {
       --min-height: 30px;

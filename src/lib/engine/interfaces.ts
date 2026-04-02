@@ -522,4 +522,5 @@ export interface ITooltipConfig {
   truncate?: boolean;
   limit?: number;
   trail?: string;
+  position?: 'top' | 'bottom' | 'over';
 }

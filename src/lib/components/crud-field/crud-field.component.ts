@@ -28,6 +28,7 @@ import { AutocompleteTypes, CheckboxCustomEvent, LoadingOptions, SelectInterface
 import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
+import { DecafTooltipDirective } from '../../directives';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { ActionRoles, SelectFieldInterfaces } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
@@ -108,6 +109,7 @@ import { getNgxSelectOptionsModal } from '../modal/modal.component';
     IonText,
     IonTextarea,
     IconComponent,
+    DecafTooltipDirective,
   ],
   selector: 'ngx-decaf-crud-field',
   templateUrl: './crud-field.component.html',
@@ -187,11 +189,34 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   @Input({ required: true })
   override type!: PossibleInputTypes;
 
+  /**
+   * @description Secondary input type used to refine component behavior for specific field variants.
+   * @summary Provides an optional subtype hint when the primary `type` needs additional context
+   * for rendering or handling values.
+   *
+   * @type {PossibleInputTypes}
+   * @memberOf CrudFieldComponent
+   */
   @Input()
   subType!: PossibleInputTypes;
 
+  /**
+   * @description Validation message(s) displayed when the field is invalid.
+   * @summary Supports a single message or multiple messages for complex validation scenarios.
+   *
+   * @type {string | string[]}
+   * @memberOf CrudFieldComponent
+   */
   @Input()
   validationMessage?: string | string[];
+
+  /**
+   * @description Maximum character count before text content is truncated. `-1` disables truncation.
+   * @type {number}
+   * @default -1
+   */
+  @Input()
+  maxContentLength: number = -1;
 
   /**
    * @description The initial value of the field.
@@ -660,6 +685,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
 
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
+      this.value = `${this.value ?? ''}`;
     } else {
       this.options = await this.getOptions();
       if ((!this.parentForm && this.formGroup instanceof FormGroup) || this.formGroup instanceof FormArray)
