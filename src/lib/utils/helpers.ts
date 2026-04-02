@@ -545,3 +545,7 @@ export function isValidBase64(value: string): boolean {
   const dataUrl = /^data:([a-zA-Z0-9.+-]+\/[a-zA-Z0-9.+-]+);base64,[A-Za-z0-9+/]+={0,2}$/;
   return pure.test(value) || dataUrl.test(value);
 }
+
+export function stripHTML(html: string): string {
+  return html.replace(/<[^>]*>/g, '');
+}

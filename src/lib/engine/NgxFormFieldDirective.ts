@@ -20,6 +20,7 @@ import {
 } from '@decaf-ts/ui-decorators';
 import { SelectCustomEvent } from '@ionic/angular/standalone';
 import { NgxFormService } from '../services/NgxFormService';
+import { stripHTML } from '../utils/helpers';
 import { AngularEngineKeys, CPTKN } from './constants';
 import { NgxComponentDirective } from './NgxComponentDirective';
 import { FormParent, FunctionLike, KeyValue, PossibleInputTypes } from './types';
@@ -542,6 +543,13 @@ export abstract class NgxFormFieldDirective
     }
     if (this.isModalChild) {
       this.changeDetectorRef.detectChanges();
+    }
+    if (this.type === HTML5InputTypes.SELECT) {
+      const label = element.shadowRoot.querySelector('.select-text');
+      //strip html from element text content to prevent html tags from being rendered in the label
+      if (label) {
+        label.textContent = stripHTML(element.textContent);
+      }
     }
   }
 

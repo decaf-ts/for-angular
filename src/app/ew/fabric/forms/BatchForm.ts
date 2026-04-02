@@ -52,7 +52,7 @@ export class BatchForm extends Batch {
       },
     },
     optionsMapper: (item: Product) => ({
-      text: `${item.nameMedicinalProduct} (${item.inventedName})`,
+      text: `${item.productCode} <span class="dcf-option-description">${item.nameMedicinalProduct} (${item.inventedName})</span>`,
       value: `${item.productCode}`,
     }),
     options: () => Product,

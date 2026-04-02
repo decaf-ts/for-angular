@@ -115,6 +115,16 @@
       --max-height: 60%;
       max-height: 60%;
       padding: 0px var(--dcf-padding-small) !important;
+
+      ::ng-deep .dcf-modal-child {
+        .dcf-item-title {
+          .dcf-option-description {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--dcf-color-medium);
+          }
+        }
+      }
     }
   }
 

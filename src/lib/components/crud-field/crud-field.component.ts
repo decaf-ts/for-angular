@@ -44,7 +44,7 @@ import {
   SelectOption,
 } from '../../engine/types';
 import { getLocaleContextByKey } from '../../i18n/Loader';
-import { dataMapper, generateRandomValue } from '../../utils';
+import { dataMapper, generateRandomValue, stripHTML } from '../../utils';
 import { IconComponent } from '../icon/icon.component';
 import { getNgxSelectOptionsModal } from '../modal/modal.component';
 
@@ -775,7 +775,8 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         this.options = dataMapper(this.options as KeyValue[], this.optionsMapper as Record<string, string>);
       }
     }
-
+    if (this.options.length > 10 && this.interface === SelectFieldInterfaces.POPOVER)
+      this.interface = SelectFieldInterfaces.MODAL;
     const translateOptions = (this.options as SelectOption[]).map(async (option) => {
       const text = !this.translatable
         ? option.text
@@ -786,16 +787,16 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
           );
       return {
         value: option.value,
-        text,
+        text: this.interface === SelectFieldInterfaces.MODAL ? text : stripHTML(text),
         selected: option?.selected ?? false,
         hidden: option?.hidden ?? false,
         disabled: option?.disabled ?? false,
       };
     });
+
     this.options = await Promise.all(translateOptions);
     if (this.type !== HTML5InputTypes.SELECT) return this.options as CrudFieldOption[];
-    if (this.options.length > 10 && this.interface === SelectFieldInterfaces.POPOVER)
-      this.interface = SelectFieldInterfaces.MODAL;
+
     if (this.options.length === 0 && !this.required) this.value = '';
     const options = (
       !this.required || (this.options?.length > 1 && this.startEmpty)

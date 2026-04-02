@@ -10,40 +10,67 @@
           ? handleAction($event, OperationKeys.READ, component)
           : ''
       "
+      [class.dcf-modal-child]="isModalChild"
       #component
     >
       @if (icon && lines !== 'inset') {
-        <div class="dcf-icon-container dcf-width-auto" [slot]="iconSlot">
-          <ngx-decaf-icon slot="icon-only" [name]="icon" />
+        <div
+          class="dcf-icon-container dcf-width-auto"
+          [slot]="iconSlot"
+        >
+          <ngx-decaf-icon
+            slot="icon-only"
+            [name]="icon"
+          />
         </div>
       }
       <div class="dcf-width-expand">
-        <div class="dcf-flex dcf-flex-middle dcf-grid-collapse" dcf-grid>
+        <div
+          class="dcf-flex dcf-flex-middle dcf-grid-collapse"
+          dcf-grid
+        >
           @if (icon && lines === 'inset') {
-            <div class="dcf-icon" [slot]="iconSlot">
+            <div
+              class="dcf-icon"
+              [slot]="iconSlot"
+            >
               <ion-avatar>
-                <ion-icon aria-hidden="true" name="reader-outline" size="default" />
+                <ion-icon
+                  aria-hidden="true"
+                  name="reader-outline"
+                  size="default"
+                />
               </ion-avatar>
             </div>
           }
           <div class="dcf-width-expand@s dcf-width-1-1 dcf-label">
             @if (title) {
               <ion-label class="dcf-item-title">
-                {{ title | translate }}
+                <ion-text
+                  [innerHTML]="translatable ? (title | translate) : title"
+                ></ion-text>
               </ion-label>
             }
             @if (description) {
-              <div class="dcf-description" [innerHTML]="description"></div>
+              <div
+                class="dcf-description"
+                [innerHTML]="description"
+              ></div>
             }
           </div>
           @if (info || subinfo) {
-            <div class="dcf-width-auto@s dcf-width-expand dcf-info dcf-flex dcf-flex-right@s">
+            <div
+              class="dcf-width-auto@s dcf-width-expand dcf-info dcf-flex dcf-flex-right@s"
+            >
               <div>
                 @if (info) {
                   <span [innerHTML]="info"></span>
                 }
                 @if (subinfo) {
-                  <div class="dcf-subinfo dcf-text-truncate" [innerHTML]="subinfo"></div>
+                  <div
+                    class="dcf-subinfo dcf-text-truncate"
+                    [innerHTML]="subinfo"
+                  ></div>
                 }
               </div>
             </div>
@@ -55,7 +82,10 @@
                 operations?.includes(OperationKeys.UPDATE)) &&
               uid
             ) {
-              <div class="dcf-visible@s" id="dcf-actions">
+              <div
+                class="dcf-visible@s"
+                id="dcf-actions"
+              >
                 @if (actionsType === 'popover') {
                   <ion-button
                     shape="round"
@@ -87,13 +117,18 @@
                             ></h4>
                           </ion-list-header>
                           @for (
-                            operation of [OperationKeys.UPDATE, OperationKeys.DELETE];
+                            operation of [
+                              OperationKeys.UPDATE,
+                              OperationKeys.DELETE,
+                            ];
                             track operation
                           ) {
                             @if (operations?.includes(operation)) {
                               <ion-item
                                 [button]="true"
-                                (click)="handleAction($event, operation, component)"
+                                (click)="
+                                  handleAction($event, operation, component)
+                                "
                               >
                                 <div slot="start">
                                   @if (operation === OperationKeys.UPDATE) {
@@ -122,7 +157,9 @@
                     </ng-template>
                   </ion-popover>
                 } @else {
-                  <div class="dcf-grid-actions dcf-grid dcf-grid-small dcf-flex">
+                  <div
+                    class="dcf-grid-actions dcf-grid dcf-grid-small dcf-flex"
+                  >
                     @for (
                       operation of [OperationKeys.UPDATE, OperationKeys.DELETE];
                       track operation
@@ -133,11 +170,21 @@
                             (click)="handleAction($event, operation, component)"
                             fill="clear"
                             shape="round"
-                            [attr.aria-label]="locale + '.operations.' + operation | translate"
+                            [attr.aria-label]="
+                              locale + '.operations.' + operation | translate
+                            "
                             [button]="true"
                             slot="icon-only"
-                            [color]="operation === OperationKeys.UPDATE ? 'dark' : 'danger'"
-                            [name]="operation === OperationKeys.UPDATE ? 'ti-edit' : 'ti-trash'"
+                            [color]="
+                              operation === OperationKeys.UPDATE
+                                ? 'dark'
+                                : 'danger'
+                            "
+                            [name]="
+                              operation === OperationKeys.UPDATE
+                                ? 'ti-edit'
+                                : 'ti-trash'
+                            "
                           />
                         }
                       </div>
@@ -158,7 +205,11 @@
     @if (showSlideItems && uid) {
       <ion-item-options
         side="end"
-        (ionSwipe)="operations.length === 1 ? handleAction($event, operations[0], component) : ''"
+        (ionSwipe)="
+          operations.length === 1
+            ? handleAction($event, operations[0], component)
+            : ''
+        "
       >
         @if (operations?.includes(OperationKeys.UPDATE)) {
           <ion-item-option
@@ -166,7 +217,11 @@
             (click)="handleAction($event, OperationKeys.UPDATE, component)"
             [expandable]="operations.length === 1"
           >
-            <ion-icon aria-hidden="true" slot="icon-only" name="create-outline" />
+            <ion-icon
+              aria-hidden="true"
+              slot="icon-only"
+              name="create-outline"
+            />
           </ion-item-option>
         }
         @if (operations?.includes(OperationKeys.DELETE)) {
@@ -175,7 +230,11 @@
             (click)="handleAction($event, OperationKeys.DELETE, component)"
             [expandable]="operations.length === 1"
           >
-            <ion-icon aria-hidden="true" slot="icon-only" name="trash" />
+            <ion-icon
+              aria-hidden="true"
+              slot="icon-only"
+              name="trash"
+            />
           </ion-item-option>
         }
       </ion-item-options>
