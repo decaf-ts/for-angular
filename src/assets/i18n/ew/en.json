@@ -510,5 +510,10 @@
     "version": {
       "label": "Version"
     }
+  },
+  "fabric": {
+    "version": {
+      "label": "Version"
+    }
   }
 }
