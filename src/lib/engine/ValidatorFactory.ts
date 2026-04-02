@@ -56,11 +56,10 @@ export class ValidatorFactory {
   ): string {
     const fieldType = (customTypes || subType || type) as string;
 
-    if (
-      ((fieldType === HTML5InputTypes.CHECKBOX || fieldType === Array.name) && Array.isArray(options)) ||
-      typeof options === 'function'
-    ) {
-      return Primitives.STRING;
+    if (fieldType === HTML5InputTypes.CHECKBOX || fieldType === Array.name) {
+      if (Array.isArray(options) || typeof options === 'function') {
+        return Primitives.STRING;
+      }
     }
     return fieldType;
   }
