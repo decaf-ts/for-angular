@@ -4,7 +4,9 @@
   &.dcf-modal-confirm {
     top: -100px;
     --max-width: 320px;
-    --max-height: 35vh;
+    &:not(.dcf-modal-alert) {
+      --max-height: 35vh;
+    }
     ::ng-deep {
       .dcf-title {
         font-weight: 500;
@@ -31,6 +33,25 @@
         position: absolute;
         bottom: 2rem;
         right: 1rem;
+      }
+    }
+
+    &.dcf-modal-alert {
+      // --max-height: 50vh;
+      ::ng-deep {
+        .dcf-title-container {
+          display: flex;
+          align-items: center;
+
+          border: 1px;
+          .dcf-title {
+            margin: 0px !important;
+            color: var(--dcf-color-danger) !important;
+          }
+          .ti {
+            margin-right: 10px !important;
+          }
+        }
       }
     }
   }

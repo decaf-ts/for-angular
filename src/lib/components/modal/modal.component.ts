@@ -442,7 +442,7 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
   selector: 'ngx-decaf-modal-confirm',
   templateUrl: 'modal-confirm.component.html',
   standalone: true,
-  imports: [TranslatePipe, IonButton],
+  imports: [TranslatePipe, IonButton, IconComponent],
   host: { '[attr.id]': 'uid' },
 })
 export class ModalConfirmComponent extends ModalComponent implements OnInit {
@@ -454,6 +454,9 @@ export class ModalConfirmComponent extends ModalComponent implements OnInit {
 
   @Input()
   message?: string;
+
+  @Input()
+  alert: boolean = false;
 
   @Input()
   override title?: string;
@@ -650,9 +653,14 @@ export async function getNgxSelectOptionsModal(
   return await getNgxModalComponent(props, {}, injector || undefined);
 }
 
+type ModalConfirmProps = Pick<
+  ModalConfirmComponent,
+  'title' | 'role' | 'data' | 'locale' | 'message' | 'inlineContent'
+>;
+
 export async function presentModalConfirm(
-  props: Pick<ModalConfirmComponent, 'title' | 'role' | 'data' | 'locale'> = {},
-  role: CrudOperations,
+  props: ModalConfirmProps = {},
+  role: keyof typeof ActionRoles = ActionRoles.confirm,
   injector?: EnvironmentInjector
 ): Promise<IonModal> {
   return await getNgxModalComponent(
@@ -662,6 +670,24 @@ export async function presentModalConfirm(
       className: `dcf-modal-confirm dcf-${role}`,
       showCloseButton: false,
       globals: Object.assign({}, { role }, props),
+    },
+    {},
+    injector
+  );
+}
+
+export async function presentModalAlert(
+  props: ModalConfirmProps = {},
+  role: keyof typeof ActionRoles = ActionRoles.close,
+  injector?: EnvironmentInjector
+): Promise<IonModal> {
+  return await getNgxModalComponent(
+    {
+      tag: 'ngx-decaf-modal-confirm',
+      headerTransparent: true,
+      className: `dcf-modal-confirm dcf-modal-alert dcf-${role}`,
+      showCloseButton: true,
+      globals: Object.assign({}, { role }, props, { alert: true }),
     },
     {},
     injector

@@ -115,6 +115,7 @@ export const ActionRoles = {
   confirm: 'confirm',
   submit: 'submit',
   clear: 'clear',
+  close: 'close',
   back: 'back',
   [OperationKeys.CREATE]: OperationKeys.CREATE,
   [OperationKeys.READ]: OperationKeys.READ,

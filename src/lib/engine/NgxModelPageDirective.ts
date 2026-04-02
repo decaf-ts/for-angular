@@ -506,6 +506,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
           `Error during ${this.operation} operation: ${error instanceof Error ? error.message : (error as string)}`
         );
       message = error instanceof Error ? error.message : (error as string);
+      console.log(message);
     }
     if (this.isModalChild) {
       this.listenEvent.emit({

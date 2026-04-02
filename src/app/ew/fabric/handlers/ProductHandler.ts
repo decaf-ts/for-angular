@@ -4,7 +4,7 @@ import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { getNgxLoadingComponent, NgxLoadingComponent } from 'src/app/utils/NgxLoadingController';
 import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { CrudFieldComponent, FileUploadComponent } from 'src/lib/components';
-import { getNgxModalComponent } from 'src/lib/components/modal/modal.component';
+import { getNgxModalComponent, presentModalAlert } from 'src/lib/components/modal/modal.component';
 import {
   ActionRoles,
   DecafRepository,
@@ -134,6 +134,7 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
     const { role } = event;
     let result = false;
     let submited = false;
+    let errorMessage = '';
     ProductHandler.loadingMessage = await this.translate(ProductHandler.loadingMessage, { '0': '' });
     switch (role) {
       case OperationKeys.CREATE:
@@ -147,17 +148,19 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
 
         //   // }
         // }
-        const { success, aborted } = await this.submit(event, false);
+        const { success, aborted, message } = await this.submit(event, false);
         submited = !aborted;
         result = success;
+        errorMessage = message;
         break;
       }
       case OperationKeys.DELETE: {
         const { context, data } = event;
         if (!context) {
-          const { success, aborted } = await this.submit({ ...event, data }, false);
+          const { success, aborted, message } = await this.submit({ ...event, data }, false);
           submited = !aborted;
           result = success;
+          errorMessage = message;
         } else {
           // const { repository } = context as IRepositoryModelProps<Model>;
           // ProductHandler.store(role, repository, data as M);
@@ -191,10 +194,20 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
         });
       }
       const toast = getNgxToastComponent();
-      await toast.show({
-        color: result ? 'dark' : 'danger',
-        message: await this.translate(`operations.multiple.${result ? 'success' : 'error'}`),
-      });
+      if (result) {
+        await toast.show({
+          color: 'dark',
+          message: await this.translate(`operations.multiple.success`),
+        });
+      } else {
+        const message = await this.translate(`operations.multiple.error`);
+        const title = await this.translate(`error.title`);
+        await presentModalAlert({
+          title,
+          message: `${message}<br />${errorMessage}`,
+        });
+      }
+
       if (ProductHandler.loading.isVisible()) {
         await ProductHandler.loading.remove();
       }
