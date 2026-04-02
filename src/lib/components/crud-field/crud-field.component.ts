@@ -775,7 +775,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         this.options = dataMapper(this.options as KeyValue[], this.optionsMapper as Record<string, string>);
       }
     }
-    if (this.options.length > 100 && this.interface === SelectFieldInterfaces.POPOVER)
+    if (this.options.length > 10 && this.interface === SelectFieldInterfaces.POPOVER)
       this.interface = SelectFieldInterfaces.MODAL;
     const translateOptions = (this.options as SelectOption[]).map(async (option) => {
       const text = !this.translatable
