@@ -27,8 +27,24 @@
     "greaterThan": "This field must be greater than field {0}",
     "greaterThanOrEqual": "This field must be greater than or equal to field {0}",
     "form_control": "Controlador do formulário não encontrado para {0}.",
+    "empty_options": "No options available for required field {0}. Fix the data source.",
+    "bad_request": "Invalid request. Please review the submitted data.",
+    "unauthorized": "You are not authorized. Please log in and try again.",
+    "forbidden": "You do not have permission to perform this action.",
     "not_found": "No records found with <span class=\"text-bold\">{0}: {1} in {2}</span>.",
-    "empty_options": "No options available for required field {0}. Fix the data source."
+    "method_not_allowed": "This action is not allowed for the requested resource.",
+    "request_timeout": "The request took too long to complete. Please try again.",
+    "conflict": "Resource with {0} {1} already exists.",
+    "gone": "The requested resource is no longer available.",
+    "payload_too_large": "The submitted data is too large. Please reduce its size and try again.",
+    "too_many_requests": "Too many requests were sent. Please wait a moment and try again.",
+    "internal_server_error": "An unexpected server error occurred. Please try again later.",
+    "not_implemented": "This feature is not available yet.",
+    "bad_gateway": "The server received an invalid response from an upstream service.",
+    "service_unavailable": "The service is temporarily unavailable. Please try again later.",
+    "gateway_timeout": "The upstream service took too long to respond. Please try again.",
+    "http_version_not_supported": "The HTTP version used in this request is not supported.",
+    "generic": "An error occurred while processing your request. Please try again."
   },
   "operations": {
     "read": {

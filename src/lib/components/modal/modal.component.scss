@@ -37,7 +37,7 @@
     }
 
     &.dcf-modal-alert {
-      // --max-height: 50vh;
+      --max-height: calc(100vh - 200px);
       ::ng-deep {
         .dcf-title-container {
           display: flex;

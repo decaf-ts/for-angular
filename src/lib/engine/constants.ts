@@ -322,7 +322,6 @@ export const DefaultFormButtonsOptions: ICrudFormButtons = {
  * @summary Provides a set of supported select interface types for Ionic select fields,
  * mapping human-readable keys to their corresponding `SelectInterface` string values.
  * This allows for consistent usage and reference of select interface types throughout the application.
- * @type {Record<string, SelectInterface>}
  * @property {string} PopOver - Represents the 'popover' select interface.
  * @property {string} Alert - Represents the 'alert' select interface.
  * @property {string} ActionSheet - Represents the 'action-sheet' select interface.
@@ -335,4 +334,23 @@ export const SelectFieldInterfaces = {
   ALERT: 'alert',
   ACTION_SHEET: 'action-sheet',
   MODAL: 'modal',
+} as const;
+
+export const ErrorCodesTranslationKeys: Record<string, string> = {
+  '400': 'errors.bad_request',
+  '401': 'errors.unauthorized',
+  '403': 'errors.forbidden',
+  '404': 'errors.not_found',
+  '405': 'errors.method_not_allowed',
+  '408': 'errors.request_timeout',
+  '409': 'errors.conflict',
+  '410': 'errors.gone',
+  '413': 'errors.payload_too_large',
+  '429': 'errors.too_many_requests',
+  '500': 'errors.internal_server_error',
+  '501': 'errors.not_implemented',
+  '502': 'errors.bad_gateway',
+  '503': 'errors.service_unavailable',
+  '504': 'errors.gateway_timeout',
+  '505': 'errors.http_version_not_supported',
 } as const;

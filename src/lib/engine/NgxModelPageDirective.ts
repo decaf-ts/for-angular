@@ -12,6 +12,7 @@ import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { NgxPageDirective } from './NgxPageDirective';
+import { ErrorCodesTranslationKeys } from './constants';
 import { getModelAndRepository } from './helpers';
 import { ICrudFormEvent, ILayoutModelContext, IModelComponentSubmitEvent } from './interfaces';
 import { CrudEvent, DecafRepository, KeyValue } from './types';
@@ -505,8 +506,15 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
         .error(
           `Error during ${this.operation} operation: ${error instanceof Error ? error.message : (error as string)}`
         );
-      message = error instanceof Error ? error.message : (error as string);
-      console.log(message);
+      if ((error as KeyValue)?.['code']) {
+        const { code } = error as KeyValue;
+        message = 'errors.generic';
+        if (Object.keys(ErrorCodesTranslationKeys).includes(`${code}`)) {
+          message = ErrorCodesTranslationKeys[`${code}`];
+        }
+      } else {
+        message = error instanceof Error ? error.message : (error as string);
+      }
     }
     if (this.isModalChild) {
       this.listenEvent.emit({
