@@ -563,7 +563,7 @@ export abstract class NgxFormFieldDirective
             const button = element.shadowRoot.querySelector('button');
             if (button) {
               const textContent = stripHTML(button.getAttribute('aria-label').split(',')?.[1] || '');
-              if (textContent.length) {
+              if (typeof textContent === Primitives.STRING && String(textContent).length) {
                 label.textContent = textContent;
               }
             }

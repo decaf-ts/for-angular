@@ -546,6 +546,9 @@ export function isValidBase64(value: string): boolean {
   return pure.test(value) || dataUrl.test(value);
 }
 
-export function stripHTML(html: string): string {
-  return html.replace(/<[^>]*>/g, '');
+export function stripHTML(content: string): unknown {
+  if (typeof content === Primitives.STRING) {
+    return content.replace(/<[^>]*>/g, '');
+  }
+  return content;
 }
