@@ -546,6 +546,13 @@ export abstract class NgxFormFieldDirective
     if (this.isModalChild) {
       this.changeDetectorRef.detectChanges();
     }
+
+    this.parseSelectLabel();
+  }
+
+  parseSelectLabel() {
+    const element = this.component?.nativeElement;
+
     if (this.type === HTML5InputTypes.SELECT && !this.translatable) {
       const label = element.shadowRoot.querySelector('.select-text');
       //strip html from element text content to prevent html tags from being rendered in the label

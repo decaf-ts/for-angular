@@ -40,7 +40,7 @@
                     : ''
                 "
               >
-                @if (accordion && $index === 0) {
+                @if (accordion && $index === 0 && row.cols.length > 1) {
                   <div class="dcf-button-toggle">
                     <ngx-decaf-icon
                       (click)="toggleCollapse(collapsableElement)"
