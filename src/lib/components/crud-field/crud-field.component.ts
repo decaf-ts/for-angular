@@ -28,6 +28,7 @@ import { AutocompleteTypes, CheckboxCustomEvent, LoadingOptions, SelectInterface
 import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
+import { take, timer } from 'rxjs';
 import { DecafTooltipDirective } from '../../directives';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
 import { ActionRoles, SelectFieldInterfaces } from '../../engine/constants';
@@ -698,8 +699,15 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       if (HTML5InputTypes.SELECT === this.type && !this.value) {
         if (this.options?.length) {
           const selected = this.options.find((o) => o['selected']);
+          // if (this.interface === SelectFieldInterfaces.MODAL) {
+          //   if (selected && selected?.value.length) {
+          //     this.setValue(selected.value);
+          //   }
+          // } else {
+          //   this.setValue(selected ? selected.value : (this.options as CrudFieldOption[])[0].value);
+          //   this.changeDetectorRef.detectChanges();
+          // }
           this.setValue(selected ? selected.value : (this.options as CrudFieldOption[])[0].value);
-          this.changeDetectorRef.detectChanges();
         }
       }
       if (this.type === HTML5InputTypes.CHECKBOX) {
@@ -826,14 +834,18 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       event.stopImmediatePropagation();
       const loading = await this.loadingController.create({} as LoadingOptions);
       await loading.present();
-      const modal = await getNgxSelectOptionsModal(this.label, this.options as SelectOption[], this.name);
-      // this.changeDetectorRef.detectChanges();
-      await loading.dismiss();
-      const { data, role } = await modal.onWillDismiss();
-      if (role === ActionRoles.confirm && data !== this.value) {
-        this.setValue(data);
-        this.component.nativeElement.ionChange.emit({ value: data });
-      }
+      timer(50)
+        .pipe(take(1))
+        .subscribe(async () => {
+          const modal = await getNgxSelectOptionsModal(this.label, this.options as SelectOption[], this.name);
+          // this.changeDetectorRef.detectChanges();
+          await loading.dismiss();
+          const { data, role } = await modal.onWillDismiss();
+          if (role === ActionRoles.confirm && data !== this.value) {
+            this.setValue(data);
+            this.component.nativeElement.ionChange.emit({ value: data });
+          }
+        });
     }
   }
 

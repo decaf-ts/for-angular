@@ -64,8 +64,8 @@ export class Leaflet extends Cacheable {
     type: HTML5InputTypes.SELECT,
     options: () => Product,
     optionsMapper: (item: Product) => ({
-      value: item.productCode,
-      text: item.productCode + ' - ' + item.inventedName,
+      text: `${item.productCode} <span class="dcf-option-description">${item.nameMedicinalProduct} (${item.inventedName})</span>`,
+      value: `${item.productCode}`,
     }),
     translatable: false,
   })
@@ -176,6 +176,7 @@ export class Leaflet extends Cacheable {
     placeholder: 'leaflet.market.placeholder',
     translatable: false,
     type: HTML5InputTypes.SELECT,
+
     options: getMarketOptions(),
   })
   epiMarket!: string; // TODO -> Create validation decorator. CountryMarket is a CONDITIONAL property. can only exist for product only. no batch

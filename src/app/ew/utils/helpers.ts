@@ -267,7 +267,7 @@ export function getLanguageOptions(): SelectOption[] {
       text: language.name,
       value: language.code.toLowerCase(),
       disabled: false,
-      selected: language.code === 'en',
+      selected: language.code.toLowerCase() === 'en',
     }));
 }
 

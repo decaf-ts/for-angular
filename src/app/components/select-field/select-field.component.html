@@ -1,8 +1,17 @@
-@if (initialized && (operation === 'read' || operation === 'delete' || readonly)) {
+@if (
+  initialized && (operation === 'read' || operation === 'delete' || readonly)
+) {
   @if (!hidden) {
     <ng-container>
-      <div [class.dcf-disabled]="['inventedName', 'nameMedicinalProduct'].includes(name) && !value">
-        <ion-item [class]="'dcf-input-item ' + operation + ' ' + className" #component>
+      <div
+        [class.dcf-disabled]="
+          ['inventedName', 'nameMedicinalProduct'].includes(name) && !value
+        "
+      >
+        <ion-item
+          [class]="'dcf-input-item ' + operation + ' ' + className"
+          #component
+        >
           <ion-label>
             {{ label | translate }}
             <br />
@@ -44,7 +53,10 @@
               #component
             >
               @if (options?.length) {
-                @for (option of options; track trackItemFn($index, option.text)) {
+                @for (
+                  option of options;
+                  track trackItemFn($index, option.text)
+                ) {
                   <ion-select-option
                     [value]="option.value"
                     [class.dcf-disabled]="option.disabled"
@@ -62,7 +74,11 @@
                   slot="end"
                   aria-label="Show/hide password"
                 >
-                  <ngx-decaf-icon size="small" slot="icon-only" [name]="'ti-input-x'" />
+                  <ngx-decaf-icon
+                    size="small"
+                    slot="icon-only"
+                    [name]="'ti-input-x'"
+                  />
                 </ion-button>
               }
             </ion-select>

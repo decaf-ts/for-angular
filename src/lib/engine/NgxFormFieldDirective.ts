@@ -19,6 +19,7 @@ import {
   UIValidator,
 } from '@decaf-ts/ui-decorators';
 import { SelectCustomEvent } from '@ionic/angular/standalone';
+import { take, timer } from 'rxjs';
 import { NgxFormService } from '../services/NgxFormService';
 import { stripHTML } from '../utils/helpers';
 import { AngularEngineKeys, CPTKN } from './constants';
@@ -508,7 +509,6 @@ export abstract class NgxFormFieldDirective
       this.formControl.setValue(value);
       this.formControl.updateValueAndValidity();
     }
-
     this.value = value as string | number | Date | string[];
   }
 
@@ -536,7 +536,9 @@ export abstract class NgxFormFieldDirective
     const element = this.component?.nativeElement;
     if (this.type === HTML5InputTypes.SELECT && event) {
       const { value } = event.detail;
-      this.value = value;
+      if (value?.length) {
+        this.value = value;
+      }
     }
     if (element && formControl && !formControl.valid && formControl.updateOn === 'change') {
       element.dispatchEvent(new Event('ionBlur'));
@@ -544,12 +546,22 @@ export abstract class NgxFormFieldDirective
     if (this.isModalChild) {
       this.changeDetectorRef.detectChanges();
     }
-    if (this.type === HTML5InputTypes.SELECT) {
+    if (this.type === HTML5InputTypes.SELECT && !this.translatable) {
       const label = element.shadowRoot.querySelector('.select-text');
       //strip html from element text content to prevent html tags from being rendered in the label
-      if (label) {
-        label.textContent = stripHTML(element.textContent);
-      }
+      timer(25)
+        .pipe(take(1))
+        .subscribe(() => {
+          if (label) {
+            const button = element.shadowRoot.querySelector('button');
+            if (button) {
+              const textContent = stripHTML(button.getAttribute('aria-label').split(',')?.[1] || '');
+              if (textContent.length) {
+                label.textContent = textContent;
+              }
+            }
+          }
+        });
     }
   }
 
