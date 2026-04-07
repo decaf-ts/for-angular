@@ -859,15 +859,26 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @summary Filters out an item with the specified ID from the data array and
    * refreshes the list display. This is typically used after a delete operation.
    *
-   * @param {string} uid - The ID of the item to delete
+   * @param {string} modelId - The ID of the item to delete
    * @param {string} pk - The primary key field name
    * @returns {Promise<void>}
    *
    * @memberOf ListComponent
    */
-  handleDelete(uid: string | number, pk?: string): void {
-    if (!pk) pk = this.pk;
-    this.items = [...(this.data?.filter((item: KeyValue) => item['uid'] !== uid) || [])];
+  handleDelete(modelId: string | number, pk?: string): void {
+    if (!pk) {
+      pk = this.pk;
+    }
+    this.items = [
+      ...(this.data?.filter(({ uid }: KeyValue) => {
+        if (typeof uid === Primitives.STRING) {
+          return uid !== modelId;
+        } else {
+          const { value } = uid;
+          return value !== modelId;
+        }
+      }) || []),
+    ];
     this.data = [...this.items];
     if (!this.data.length) {
       this.searchValue = undefined;
