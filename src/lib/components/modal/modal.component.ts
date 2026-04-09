@@ -35,6 +35,7 @@ import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
 import { CrudEvent, KeyValue, SelectOption } from '../../engine/types';
+import { removeFocusTrap } from '../../utils/helpers';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { CrudFormComponent } from '../crud-form/crud-form.component';
 import { IconComponent } from '../icon/icon.component';
@@ -353,7 +354,6 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
         }
       });
     });
-
     return modal;
   }
 
@@ -364,6 +364,7 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    * @returns {Promise<void>} - A promise that resolves when the modal is presented.
    */
   async present(): Promise<void> {
+    removeFocusTrap();
     this.parseInlineContent();
     this.isOpen = true;
     this.changeDetectorRef.detectChanges();

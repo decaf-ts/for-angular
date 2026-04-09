@@ -148,8 +148,16 @@
         },
         "buttons": {
           "confirm": "Confirm",
-          "cancel": "Cancel"
+          "cancel": "Cancel",
+          "close": "Close",
+          "expand": "Toggle Fullscreen"
         }
+      },
+      "buttons": {
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "close": "Close",
+        "expand": "Toggle Fullscreen"
       }
     },
     "filter": {

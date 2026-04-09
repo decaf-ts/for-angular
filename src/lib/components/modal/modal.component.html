@@ -29,9 +29,11 @@
               size="small"
               type="button"
               class="dcf-button-expand"
+              [attr.aria-label]="locale + '.buttons.expand' | translate"
               (click)="handleExpandToggle()"
             >
               <ngx-decaf-icon
+                [attr.aria-hidden]="true"
                 [color]="iconColor"
                 [name]="expanded ? 'ti-maximize-off' : 'ti-maximize'"
               />
@@ -42,9 +44,11 @@
               size="small"
               type="button"
               class="dcf-button-close"
+              [attr.aria-label]="locale + '.buttons.close' | translate"
               (click)="cancel()"
             >
               <ngx-decaf-icon
+                [attr.aria-hidden]="true"
                 [color]="iconColor"
                 name="ti-x"
               />

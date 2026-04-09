@@ -110,6 +110,9 @@
                 [checked]="checked"
                 [attr.readonly]="readonly"
                 [formControlName]="name"
+                [attr.aria-label]="
+                  translatable ? (option?.text | translate) : option?.text
+                "
                 #component
               >
                 <span>{{ label | translate }}</span>
@@ -182,6 +185,9 @@
                   [justify]="justify"
                   [attr.readonly]="readonly"
                   [value]="option.value"
+                  [attr.aria-label]="
+                    translatable ? (option?.text | translate) : option?.text
+                  "
                 >
                   {{ translatable ? (option?.text | translate) : option?.text }}
                 </ion-radio>
