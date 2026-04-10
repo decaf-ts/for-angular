@@ -496,16 +496,22 @@ export class TableComponent extends ListComponent implements OnInit {
   override async handleUpdate(model: Model, uid: string | number): Promise<void> {
     await super.handleUpdate(model, uid);
     const item = this.items.find((item) => `${item['uid']?.value}`.trim() === `${uid}`.trim());
+    const mapper: KeyValue = this.mapper || {};
     if (item) {
       for (const [key, entry] of Object.entries(item)) {
         const { prop } = entry;
         if (key !== 'uid' && prop in model) {
           const value = model[prop as keyof Model];
           if (value !== undefined) {
-            if (isValidDate(value)) {
-              entry.value = `${formatDate(dateFromString(value as unknown as string))}`;
+            const valueFn = mapper?.[prop]?.valueParserFn || value;
+            if (typeof valueFn === 'function') {
+              entry.value = await valueFn(this, prop, value);
             } else {
-              entry.value = value;
+              if (isValidDate(value)) {
+                entry.value = `${formatDate(dateFromString(value as unknown as string))}`;
+              } else {
+                entry.value = value;
+              }
             }
           }
         }
