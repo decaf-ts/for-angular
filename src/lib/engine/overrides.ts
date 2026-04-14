@@ -19,26 +19,45 @@ import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelKeys } from '@decaf-ts/decorator-validation';
 import { AxiosFlags, AxiosFlavour, AxiosHttpAdapter, HttpConfig } from '@decaf-ts/for-http';
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { KeyValue } from './types';
 
 export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
-  constructor(config: HttpConfig, alias: string = AxiosFlavour) {
-    super({ eventsListenerPath: '/events', ...config }, AxiosFlavour);
+  static disableEvents = false;
+  static token: string = ' ';
+  bookmark: Record<string, DirectionLimitOffset[]> = {};
+
+  constructor(config: HttpConfig & { events?: boolean }, alias: string = AxiosFlavour) {
+    super(
+      { eventHeaderResolver: DecafAxiosHttpAdapter.getEventHeaders, eventsListenerPath: '/events', ...config },
+      AxiosFlavour
+    );
+
+    if (!config?.events) {
+      DecafAxiosHttpAdapter.disableEvents = true;
+    }
   }
 
-  token: string = ' ';
-
-  bookmark: Record<string, DirectionLimitOffset[]> = {};
+  static getEventHeaders(): KeyValue {
+    return !this.token || DecafAxiosHttpAdapter.disableEvents
+      ? {}
+      : {
+          headers: {
+            authorization: `Bearer ${this.token}`,
+          },
+        };
+  }
 
   getAllRawQueryParams(url: string): Record<string, string> {
     const query = new URL(url).search.slice(1); // remove o '?'
-    if (!query) {
-      return {};
-    }
+    if (!query) return {};
+
     const params: Record<string, string> = {};
+
     for (const pair of query.split('&')) {
       const [key, value = ''] = pair.split('=');
       params[key] = value;
     }
+
     return params;
   }
 
@@ -131,11 +150,12 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     } catch (err: unknown) {
       // do nothing
     }
-    if (this.token) {
+
+    if (DecafAxiosHttpAdapter.token) {
       overrides = {
         withCredentials: true,
         headers: {
-          authorization: `Bearer ${this.token}`,
+          authorization: `Bearer ${DecafAxiosHttpAdapter.token}`,
           // 'access-control-allow-origin': '*',
         },
       };
@@ -216,14 +236,16 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...args: ContextualArgs<ContextOf<any>>
   ) {
-    const [model] = args;
-    if (!id) {
-      const pk = Model.pk(Model.get(table as string));
-      if (pk && pk in model) {
-        id = model[pk] as EventIds;
+    if (!DecafAxiosHttpAdapter.disableEvents) {
+      const [model] = args;
+      if (!id) {
+        const pk = Model.pk(Model.get(table as string));
+        if (pk && pk in model) {
+          id = model[pk] as EventIds;
+        }
       }
+      return await super.updateObservers(table, event, id, ...args);
     }
-    return await super.updateObservers(table, event, id, ...args);
   }
 
   override async parseResponse<M extends Model>(
@@ -257,7 +279,7 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
       case PreparedStatementKeys.PAGE_BY:
       case PreparedStatementKeys.FIND_ONE_BY:
       case PersistenceKeys.STATEMENT:
-        return !res ? [] : res?.data || res;
+        return !res || typeof res === 'string' ? [] : res?.data || res;
       default:
         return res?.data || res?.body || undefined;
     }

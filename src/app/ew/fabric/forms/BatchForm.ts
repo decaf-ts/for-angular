@@ -46,6 +46,7 @@ export class BatchForm extends Batch {
     placeholder: 'batch.productCode.placeholder',
     type: HTML5InputTypes.SELECT,
     translatable: false,
+    interface: 'modal',
     propsMapperFn: {
       readonly: (instance: CrudFieldComponent) => {
         return instance.operation !== OperationKeys.CREATE;

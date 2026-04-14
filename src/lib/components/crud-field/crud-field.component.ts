@@ -699,6 +699,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       if (HTML5InputTypes.SELECT === this.type && !this.value) {
         if (this.options?.length) {
           const selected = this.options.find((o) => o['selected']);
+          this.parseSelectLabel();
           // if (this.interface === SelectFieldInterfaces.MODAL) {
           //   if (selected && selected?.value.length) {
           //     this.setValue(selected.value);
@@ -785,6 +786,9 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     }
     if (this.options.length > 10 && this.interface === SelectFieldInterfaces.POPOVER)
       this.interface = SelectFieldInterfaces.MODAL;
+    if (this.options.length <= 1) {
+      this.interface = SelectFieldInterfaces.POPOVER;
+    }
     const translateOptions = (this.options as SelectOption[]).map(async (option) => {
       const text = !this.translatable
         ? option.text
@@ -834,7 +838,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       event.stopImmediatePropagation();
       const loading = await this.loadingController.create({} as LoadingOptions);
       await loading.present();
-      timer(50)
+      timer(100)
         .pipe(take(1))
         .subscribe(async () => {
           const modal = await getNgxSelectOptionsModal(this.label, this.options as SelectOption[], this.name);

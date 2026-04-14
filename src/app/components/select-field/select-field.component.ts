@@ -74,12 +74,12 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
 
     await super.ngAfterViewInit();
     const batchNumber = this.routerService.getQueryParamValue('batchNumber');
-    const producCode = this.routerService.getQueryParamValue('productCode');
+    const productCode = this.routerService.getQueryParamValue('productCode');
 
     if (this.name === 'productCode') {
       if (this.operation === OperationKeys.CREATE) {
-        if (producCode) {
-          this.setValue(producCode as string);
+        if (productCode) {
+          this.setValue(productCode as string);
         }
 
         if (batchNumber || this.value) {
@@ -116,20 +116,31 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
         //   source: this.name,
         //   value: this.value,
         // });
+      }
 
-        if (this.component?.nativeElement) {
-          const timerSubscription = timer(200)
-            .pipe(take(1))
-            .subscribe(() => {
+      if (this.component?.nativeElement) {
+        const timerSubscription = timer(200)
+          .pipe(take(1))
+          .subscribe(() => {
+            if (this.value) {
               this.component.nativeElement.ionChange.emit({
                 source: this.name,
                 value: this.value,
                 bubbles: batchNumber ? false : true,
               });
+            }
 
-              timerSubscription.unsubscribe();
-            });
-        }
+            if (!productCode && [OperationKeys.CREATE].includes(this.operation)) {
+              const productCode = this.formGroup?.get('productCode')?.value;
+              if (productCode) {
+                this.lastProduct = { productCode } as Product;
+                this.readonly = this.disabled = false;
+                this.formGroup?.enable();
+              }
+            }
+
+            timerSubscription.unsubscribe();
+          });
       }
     }
 
@@ -187,7 +198,7 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
           const { productCode } = this.lastProduct || {};
           if (currentValue && currentValue !== productCode) {
             await this.setProductValue(value, bubbles);
-          } else if (productCode && !bubbles) {
+          } else if (productCode && !bubbles && this.value !== productCode) {
             this.setValue(productCode);
           }
         }

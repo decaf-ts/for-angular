@@ -270,15 +270,12 @@
                 </ion-button>
               }
             </ion-select>
-            <div
-              class="dcf-error"
-              [class.dcf-options-error]="!options?.length"
-              [innerHTML]="
-                options?.length
-                  ? getErrors(container)
-                  : ('errors.empty_options' | translate: { '0': name })
-              "
-            ></div>
+            @if (initialized) {
+              <div
+                class="dcf-error"
+                [innerHTML]="getErrors(container)"
+              ></div>
+            }
           </div>
         } @else {
           <ion-input
