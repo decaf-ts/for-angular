@@ -260,7 +260,7 @@
                   fill="clear"
                   (click)="handleClearValue($event)"
                   slot="end"
-                  aria-label="Show/hide password"
+                  [attr.aria-label]="'Clear field'"
                 >
                   <ngx-decaf-icon
                     size="small"
@@ -288,11 +288,10 @@
             [type]="type"
             [mode]="'md'"
             [hidden]="hidden"
-            [inputmode]="inputmode"
+            [inputmode]="inputmode ?? undefined"
             [labelPlacement]="labelPlacement"
             [minlength]="minlength !== undefined ? minlength : null"
             [maxlength]="maxlength !== undefined ? maxlength : null"
-            [attr.readonly]="readonly !== undefined ? readonly : null"
             [max]="max !== undefined ? max : null"
             [min]="min !== undefined ? min : null"
             [step]="step !== undefined ? step : null"
