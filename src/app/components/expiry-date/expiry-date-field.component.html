@@ -1,8 +1,15 @@
 @if (operation === 'read' || operation === 'delete' || readonly) {
   @if (!hidden) {
     <ng-container>
-      <div [class.dcf-hidden]="['inventedName', 'nameMedicinalProduct'].includes(name) && !value">
-        <ion-item [class]="'dcf-input-item ' + operation + ' ' + className" #component>
+      <div
+        [class.dcf-hidden]="
+          ['inventedName', 'nameMedicinalProduct'].includes(name) && !value
+        "
+      >
+        <ion-item
+          [class]="'dcf-input-item ' + operation + ' ' + className"
+          #component
+        >
           <ion-label>
             {{ label | translate }}
             <br />
@@ -53,7 +60,11 @@
               id="dcf-input-calendar"
               title="{{ name }}"
               min="2000-01-01"
-              [type]="this.enableDaySelection ? HTML5InputTypes.DATE : HTML5InputTypes.MONTH"
+              [type]="
+                this.enableDaySelection
+                  ? HTML5InputTypes.DATE
+                  : HTML5InputTypes.MONTH
+              "
               [value]="calendarInputValue"
               (change)="handleCalendarPick(calendarInputElement.value)"
               #calendarInputElement
@@ -79,7 +90,9 @@
             />
             @if (initialized && calendarInputValue) {
               <div class="dcf-input-placeholder">
-                {{ parseCalendarInputValue(calendarInputValue, true) | translate }}
+                {{
+                  parseCalendarInputValue(calendarInputValue, true) | translate
+                }}
               </div>
             }
           </div>
@@ -88,7 +101,7 @@
     </div>
   } @else {
     <div>
-      <p class="dcf-error">
+      <p class="dcf-input-error">
         {{ 'errors.form.control' | translate: { '0': name } }}
       </p>
     </div>

@@ -102,7 +102,7 @@ ion-select.dcf-select-label-placement-floating::part(label) {
   }
 }
 
-.dcf-error {
+.dcf-input-error {
   position: absolute;
   color: var(--dcf-color-danger) !important;
   font-size: 0.8rem !important;
@@ -133,6 +133,6 @@ ion-select.dcf-select-label-placement-floating::part(label) {
   }
 }
 
-.dcf-error + .dcf-helper {
+.dcf-input-error + .dcf-helper {
   padding-top: 1rem;
 }

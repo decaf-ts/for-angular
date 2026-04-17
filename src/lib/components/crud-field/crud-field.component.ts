@@ -732,6 +732,9 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    */
   async ngAfterViewInit(): Promise<void> {
     if (this.type === HTML5InputTypes.RADIO && this.formGroup && !this.value) {
+      if (typeof this.options === 'function') {
+        this.options = await (this.options as FunctionLike)();
+      }
       const options = this.options as CheckboxOption[];
       let checked = options.find((o) => o.checked);
       if (!checked) {

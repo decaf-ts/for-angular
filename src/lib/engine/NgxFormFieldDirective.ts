@@ -303,6 +303,8 @@ export abstract class NgxFormFieldDirective
    */
   readonly HTML5InputTypes = HTML5InputTypes;
 
+  errorMessage?: string;
+
   // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(@Inject(CPTKN) componentName: string = 'ComponentCrudField') {
     super(componentName);
@@ -634,6 +636,7 @@ export abstract class NgxFormFieldDirective
             message,
           };
         });
+
         if (errors.length) {
           if (accordionComponent && !this.validationErrorEventDispatched) {
             const validationErrorEvent = new CustomEvent(ComponentEventNames.ValidationError, {
@@ -643,9 +646,12 @@ export abstract class NgxFormFieldDirective
             accordionComponent.dispatchEvent(validationErrorEvent);
             this.validationErrorEventDispatched = true;
           }
-        }
-        for (const error of errors) {
-          return `* ${this.getErrorMessage(error)}`;
+          for (const error of errors) {
+            this.errorMessage = `* ${this.getErrorMessage(error)}`;
+            return this.errorMessage;
+          }
+        } else {
+          this.errorMessage = '';
         }
       }
     }

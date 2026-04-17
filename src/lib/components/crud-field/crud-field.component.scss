@@ -174,7 +174,7 @@ ion-radio-group {
       --inner-padding-start: 0.75rem;
     }
   }
-  + .dcf-helper {
+  + .dcf-input-helper {
     padding-left: 0.75rem;
     position: relative;
   }
@@ -190,51 +190,10 @@ ion-radio-group {
       --inner-padding-start: 0.75rem;
     }
   }
-  + .dcf-helper {
+  + .dcf-input-helper {
     padding-left: 0.75rem;
     position: relative;
   }
-}
-
-.dcf-error {
-  position: absolute;
-  color: var(--dcf-color-danger) !important;
-  font-size: 0.8rem !important;
-  font-weight: 500 !important;
-  line-height: 1.1rem;
-  z-index: 9999;
-
-  &.dcf-options-error {
-    position: relative;
-    margin-bottom: 0.25rem !important;
-    max-width: 200px !important;
-  }
-  .ti,
-  ngx-decaf-icon,
-  ion-icon {
-    position: relative;
-    top: 2px !important;
-    min-width: 20px;
-    font-size: 1rem !important;
-    text-align: left;
-  }
-}
-
-.dcf-helper {
-  font-size: 0.875rem !important;
-  font-weight: 500;
-  margin-top: 0.25rem;
-  margin-bottom: -0.75rem;
-  &.dcf-has-action {
-    cursor: pointer;
-    // color: var(--dcf-color-gray-7) !important;
-    // color: var(--dcf-color-primary) !important;
-    text-decoration: underline;
-  }
-}
-
-.dcf-error + .dcf-helper {
-  padding-top: 1rem;
 }
 
 ::ng-deep ion-textarea {

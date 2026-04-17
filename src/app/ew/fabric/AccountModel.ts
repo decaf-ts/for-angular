@@ -133,32 +133,32 @@ export class AccountModel extends Model {
   // @uitablecol(1)
   // orgName!: string;
 
-  // @required()
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'admin.accounts.mspid.label',
-  //   placeholder: 'admin.accounts.mspid.placeholder',
-  //   type: HTML5InputTypes.TEXTAREA,
-  //   readonly: true,
-  // })
-  // @uitablecol(2)
-  // @hideOn(OperationKeys.CREATE)
-  // mspId!: string;
+  @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'admin.accounts.mspid.label',
+    placeholder: 'admin.accounts.mspid.placeholder',
+    type: HTML5InputTypes.TEXTAREA,
+    readonly: true,
+  })
+  @uitablecol(2)
+  @hideOn(OperationKeys.CREATE)
+  mspId!: string;
 
-  // @required()
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'admin.accounts.endpoint.label',
-  //   placeholder: 'admin.accounts.endpoint.placeholder',
-  // })
-  // @uitablecol(4)
-  // endpoint!: string;
+  @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'admin.accounts.endpoint.label',
+    placeholder: 'admin.accounts.endpoint.placeholder',
+  })
+  @uitablecol(4)
+  endpoint!: string;
 
-  // @required()
-  // @uielement('ngx-decaf-crud-field', {
-  //   label: 'admin.accounts.backendEndpoint.label',
-  //   placeholder: 'admin.accounts.backendEndpoint.placeholder',
-  // })
-  // @uitablecol(5)
-  // backendEndpoint!: string;
+  @required()
+  @uielement('ngx-decaf-crud-field', {
+    label: 'admin.accounts.backendEndpoint.label',
+    placeholder: 'admin.accounts.backendEndpoint.placeholder',
+  })
+  @uitablecol(5)
+  backendEndpoint!: string;
 
   // portBase: number = 82;
 
@@ -177,6 +177,7 @@ export class AccountModel extends Model {
     // multiple: true,
     type: HTML5InputTypes.CHECKBOX,
   })
+  @uilayoutprop('full')
   modules!: string[]; // epi
 
   @list(String)
@@ -191,8 +192,9 @@ export class AccountModel extends Model {
       }));
     },
     multiple: true,
-    type: HTML5InputTypes.CHECKBOX,
+    type: HTML5InputTypes.RADIO,
   })
+  @uilayoutprop('full')
   features!: string[]; // epi
 
   // @uichild(
