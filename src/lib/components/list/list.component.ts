@@ -1304,7 +1304,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    *
    * @memberOf ListComponent
    */
-  protected async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyValue[]> {
+  async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyValue[]> {
     if (!Array.isArray(result) && 'page' in result && 'total' in result) {
       const paginator = result as Paginator<Model>;
 

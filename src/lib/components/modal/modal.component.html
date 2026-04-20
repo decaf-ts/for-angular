@@ -20,7 +20,7 @@
     <ion-header>
       <ion-toolbar [color]="headerBackground">
         @if (title?.length) {
-          <ion-title>{{ title | translate }}</ion-title>
+          <ion-title [innerHTML]="title | translate"></ion-title>
         }
         <ion-buttons slot="end">
           @if (expandable && !fullscreen) {
