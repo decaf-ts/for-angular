@@ -353,24 +353,26 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
 
   parseItem(item: Pick<ListItemComponent, 'title' | 'description' | 'info' | 'subinfo'>): void {
     const model = this.model as Model;
-    function getPropValue(prop: string): string | undefined {
-      if (prop in model) {
-        const value = model[prop as keyof Model];
-        return `${value}`?.length ? String(value) : undefined;
+    if (typeof model === 'object') {
+      function getPropValue(prop: string): string | undefined {
+        if (prop in model) {
+          const value = model[prop as keyof Model];
+          return `${value}`?.length ? String(value) : undefined;
+        }
+        return prop?.length ? (prop !== 'undefined' ? prop : undefined) : undefined;
       }
-      return prop?.length ? (prop !== 'undefined' ? prop : undefined) : undefined;
-    }
-    if (!this.title) {
-      this.title = getPropValue(`${item.title}`);
-    }
-    if (!this.description) {
-      this.description = getPropValue(`${item.description}`);
-    }
-    if (!this.info) {
-      this.info = getPropValue(`${item.info}`);
-    }
-    if (!this.subinfo) {
-      this.subinfo = getPropValue(`${item.subinfo}`);
+      if (!this.title) {
+        this.title = getPropValue(`${item.title}`);
+      }
+      if (!this.description) {
+        this.description = getPropValue(`${item.description}`);
+      }
+      if (!this.info) {
+        this.info = getPropValue(`${item.info}`);
+      }
+      if (!this.subinfo) {
+        this.subinfo = getPropValue(`${item.subinfo}`);
+      }
     }
   }
 
