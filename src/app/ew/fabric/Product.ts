@@ -2,7 +2,7 @@ import type { ModelArg } from '@decaf-ts/decorator-validation';
 import { minlength, model, required } from '@decaf-ts/decorator-validation';
 // import { gtin, TableNames } from "@pharmaledgerassoc/ptp-toolkit/shared";
 
-import { Cascade, column, index, oneToMany, oneToOne, OrderDirection, pk } from '@decaf-ts/core';
+import { Cascade, column, defaultQueryAttr, index, oneToMany, oneToOne, OrderDirection, pk } from '@decaf-ts/core';
 // import {BlockOperations, OperationKeys, readonly} from "@decaf-ts/db-decorators";
 import { description } from '@decaf-ts/decoration';
 import { ProductMarket } from './ProductMarket';
@@ -34,6 +34,7 @@ export class Product extends Cacheable {
   // //@cache()
   // @assignProductOwner()
   @audit()
+  @defaultQueryAttr()
   @pk({ type: String, generated: false })
   @gtin(['errors.gtin.digits', 'errors.gtin.checksum', 'errors.gtin.fallback'])
   @uilistprop('title')

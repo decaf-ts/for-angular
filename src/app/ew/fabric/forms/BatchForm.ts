@@ -1,4 +1,4 @@
-import { index, OrderDirection, table } from '@decaf-ts/core';
+import { defaultQueryAttr, index, OrderDirection, table } from '@decaf-ts/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { description } from '@decaf-ts/decoration';
 import { formatDate, Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
@@ -62,6 +62,7 @@ export class BatchForm extends Batch {
   @required()
   @uitablecol(2)
   @uiorder(2)
+  @defaultQueryAttr()
   override productCode!: string;
 
   @index([OrderDirection.ASC, OrderDirection.DSC])
@@ -78,6 +79,7 @@ export class BatchForm extends Batch {
   @uitablecol(3)
   @uiorder(3)
   @required()
+  @defaultQueryAttr()
   override batchNumber!: string;
 
   @required()

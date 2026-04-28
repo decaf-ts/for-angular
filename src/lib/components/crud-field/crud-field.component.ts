@@ -844,7 +844,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       timer(100)
         .pipe(take(1))
         .subscribe(async () => {
-          const modal = await getNgxSelectOptionsModal(this.label, this.options as SelectOption[], this.name);
+          const modal = await getNgxSelectOptionsModal(this.label, this.options as SelectOption[], {}, this.name);
           // this.changeDetectorRef.detectChanges();
           await loading.dismiss();
           const { data, role } = await modal.onWillDismiss();

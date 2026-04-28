@@ -20,35 +20,31 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { Model } from '@decaf-ts/decorator-validation';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import {
   IonButton,
-  IonItem,
-  IonLabel,
-  IonList,
   IonContent,
   IonIcon,
+  IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
+  IonLabel,
+  IonList,
   IonListHeader,
   IonPopover,
-  IonItemSliding,
-  IonItemOptions,
-  IonItemOption,
 } from '@ionic/angular/standalone';
-import * as AllIcons from 'ionicons/icons';
+import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { StringOrBoolean } from '../../engine/types';
-import {
-  getWindowWidth,
-  windowEventEmitter,
-  removeFocusTrap,
-  stringToBoolean,
-} from '../../utils/helpers';
-import { IListItemCustomEvent } from '../../engine/interfaces';
+import * as AllIcons from 'ionicons/icons';
 import { Dynamic } from '../../engine/decorators';
+import { IListItemCustomEvent } from '../../engine/interfaces';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
+import { KeyValue, StringOrBoolean } from '../../engine/types';
+import { getWindowWidth, removeFocusTrap, stringToBoolean, windowEventEmitter } from '../../utils/helpers';
 import { IconComponent } from '../icon/icon.component';
-import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 
 /**
  * @description A component for displaying a list item with various customization options.
@@ -343,6 +339,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    * @memberOf ListItemComponent
    */
   async ngOnInit(): Promise<void> {
+    this.parseItem(this.item);
     this.showSlideItems = this.enableSlideItems();
     this.button = stringToBoolean(this.button);
     this.className = `${this.className}  dcf-flex dcf-flex-middle grid-item`;
@@ -352,6 +349,29 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
 
   async ngAfterViewInit(): Promise<void> {
     this.checkDarkMode();
+  }
+
+  parseItem(item: Pick<ListItemComponent, 'title' | 'description' | 'info' | 'subinfo'>): void {
+    const model = this.model as Model;
+    function getPropValue(prop: string): string | undefined {
+      if (prop in model) {
+        const value = model[prop as keyof Model];
+        return `${value}`?.length ? String(value) : undefined;
+      }
+      return prop?.length ? (prop !== 'undefined' ? prop : undefined) : undefined;
+    }
+    if (!this.title) {
+      this.title = getPropValue(`${item.title}`);
+    }
+    if (!this.description) {
+      this.description = getPropValue(`${item.description}`);
+    }
+    if (!this.info) {
+      this.info = getPropValue(`${item.info}`);
+    }
+    if (!this.subinfo) {
+      this.subinfo = getPropValue(`${item.subinfo}`);
+    }
   }
 
   /**
@@ -395,6 +415,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
     if (this.actionMenuOpen) {
       await this.actionMenuComponent.dismiss();
     }
+    const uid = this.model ? (this.model as KeyValue)[this.pk] : this.uid;
     // forcing trap focus
     removeFocusTrap();
     if (!this.route || this.emitEvent) {
@@ -402,7 +423,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
         target: target,
         action,
         pk: this.pk,
-        data: this.uid,
+        data: uid,
         name: ComponentEventNames.Click,
         component: this.componentName,
       } as IListItemCustomEvent;
@@ -446,8 +467,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
     this.windowWidth = getWindowWidth() as number;
     if (!this.operations?.length || this.windowWidth > 639) return (this.showSlideItems = false);
     this.showSlideItems =
-      this.operations.includes(OperationKeys.UPDATE) ||
-      this.operations.includes(OperationKeys.DELETE);
+      this.operations.includes(OperationKeys.UPDATE) || this.operations.includes(OperationKeys.DELETE);
     return this.showSlideItems;
   }
 

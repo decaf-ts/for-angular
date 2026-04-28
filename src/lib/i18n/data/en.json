@@ -138,6 +138,11 @@
       "next": "Next",
       "previous": "Previous"
     },
+    "searchbar": {
+      "search": "Search",
+      "search_by": "Search by: {0}"
+    },
+
     "modal": {
       "confirm": {
         "operations": {

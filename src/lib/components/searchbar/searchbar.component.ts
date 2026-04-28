@@ -8,23 +8,16 @@
  * @link {@link SearchbarComponent}
  */
 
-import {
-  Component,
-  EventEmitter,
-  HostListener,
-  Input,
-  OnInit,
-  Output,
-} from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import { Model } from '@decaf-ts/decorator-validation';
 import { IonSearchbar } from '@ionic/angular/standalone';
-import * as allIcons from 'ionicons/icons';
-import { addIcons } from 'ionicons';
 import { AutocompleteTypes, PredefinedColors } from '@ionic/core';
+import { addIcons } from 'ionicons';
+import * as allIcons from 'ionicons/icons';
+import { getModelAndRepository } from '../../engine';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { StringOrBoolean } from '../../engine/types';
-import { windowEventEmitter } from '../../utils/helpers';
-import { stringToBoolean } from '../../utils/helpers';
-import { TranslatePipe } from '@ngx-translate/core';
+import { stringToBoolean, windowEventEmitter } from '../../utils/helpers';
 
 /**
  * @description Searchbar component for Angular applications.
@@ -44,12 +37,9 @@ import { TranslatePipe } from '@ngx-translate/core';
   templateUrl: './searchbar.component.html',
   styleUrls: ['./searchbar.component.scss'],
   standalone: true,
-  imports: [TranslatePipe, IonSearchbar],
+  imports: [IonSearchbar],
 })
-export class SearchbarComponent
-  extends NgxComponentDirective
-  implements OnInit
-{
+export class SearchbarComponent extends NgxComponentDirective implements OnInit {
   /**
    * @description The mode of the searchbar.
    * @summary Determines the visual style of the searchbar, either iOS or Material Design.
@@ -161,15 +151,7 @@ export class SearchbarComponent
    * @memberOf SearchbarComponent
    */
   @Input()
-  enterkeyhint:
-    | 'search'
-    | 'enter'
-    | 'done'
-    | 'go'
-    | 'next'
-    | 'previous'
-    | 'send'
-    | undefined = 'enter';
+  enterkeyhint: 'search' | 'enter' | 'done' | 'go' | 'next' | 'previous' | 'send' | undefined = 'enter';
 
   /**
    * @description The input mode for the searchbar.
@@ -179,16 +161,7 @@ export class SearchbarComponent
    * @memberOf SearchbarComponent
    */
   @Input()
-  inputmode:
-    | 'text'
-    | 'search'
-    | 'none'
-    | 'email'
-    | 'tel'
-    | 'url'
-    | 'numeric'
-    | 'decimal'
-    | undefined = 'search';
+  inputmode: 'text' | 'search' | 'none' | 'email' | 'tel' | 'url' | 'numeric' | 'decimal' | undefined = 'search';
 
   /**
    * @description The placeholder for the searchbar input.
@@ -248,15 +221,7 @@ export class SearchbarComponent
    * @memberOf SearchbarComponent
    */
   @Input()
-  type:
-    | 'number'
-    | 'text'
-    | 'search'
-    | 'email'
-    | 'password'
-    | 'tel'
-    | 'url'
-    | undefined = 'search';
+  type: 'number' | 'text' | 'search' | 'email' | 'password' | 'tel' | 'url' | undefined = 'search';
 
   /**
    * @description The value of the searchbar input.
@@ -383,12 +348,35 @@ export class SearchbarComponent
    *
    * @memberOf SearchbarComponent
    */
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.emitEventToWindow = stringToBoolean(this.emitEventToWindow);
     this.wrapper = stringToBoolean(this.wrapper);
     this.isVisible = stringToBoolean(this.isVisible);
     this.disabled = stringToBoolean(this.disabled);
     this.animated = stringToBoolean(this.animated);
+    this.placeholder = await this.translate(`component.searchbar.search`);
+    if (this.modelName) {
+      const repo = getModelAndRepository(this.modelName || this.constructor.name);
+      if (repo) {
+        this.indexes = Model.defaultQueryAttributes(repo.model) || [];
+      }
+    }
+
+    if (!this.indexes?.length && this.model) {
+      this.indexes = Model.defaultQueryAttributes(this.model as Model) || [];
+    }
+    if (this.indexes.length) {
+      this.placeholder = `component.searchbar.search_by`;
+      let fields = '';
+      for (const index of this.indexes) {
+        const phrase = (await this.translate(`${this.locale}.${index}.label`)) || index;
+        fields = fields ? `${fields}, ${phrase}` : `${phrase}`;
+      }
+      this.placeholder = await this.translate(`${this.placeholder}`, { '0': fields });
+      if (this.isModalChild) {
+        this.changeDetectorRef.detectChanges();
+      }
+    }
   }
 
   /**
@@ -543,8 +531,7 @@ export class SearchbarComponent
    */
   emitEvent(value: string | undefined): void {
     this.searchEvent.emit(value);
-    if (this.emitEventToWindow)
-      windowEventEmitter('searchbarEvent', { value: value });
+    if (this.emitEventToWindow) windowEventEmitter('searchbarEvent', { value: value });
   }
 
   /**

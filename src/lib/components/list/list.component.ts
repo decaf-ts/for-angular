@@ -734,6 +734,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     this.data = !this.model
       ? await this.getFromRequest(!!event, start, limit)
       : ((await this.getFromModel(!!event)) as KeyValue[]);
+    if (this.isModalChild) {
+      this.changeDetectorRef.detectChanges();
+    }
     this.refreshEventEmit(this.data);
     if (this.type === ListComponentsTypes.INFINITE) {
       if (this.page === this.pages) {
@@ -937,10 +940,14 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       if (value === undefined) {
         this.loadMoreData = true;
         this.page = 1;
-        this.items = [];
+        this.items = this.data = [];
+        this.changeDetectorRef.detectChanges();
       }
-      if (this.isModalChild) this.changeDetectorRef.detectChanges();
+
       this.searchValue = value;
+      if (this.isModalChild) {
+        this.changeDetectorRef.detectChanges();
+      }
 
       await this.refresh(true);
     } else {
@@ -1162,7 +1169,10 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
           }
           request = await this.parseResult(this.paginator as Paginator<Model>);
         } else {
-          this.changeDetectorRef.detectChanges();
+          if (this.type === ListComponentsTypes.INFINITE) {
+            this.items = this.data = [];
+            this.changeDetectorRef.detectChanges();
+          }
           const condition = this.parseConditions(this.searchValue as IFilterQuery);
           request = await this.parseResult(
             typeof this.searchValue === Primitives.STRING
@@ -1176,7 +1186,13 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
           data = [];
           this.changeDetectorRef.detectChanges();
         }
-        data = this.type === ListComponentsTypes.INFINITE ? [...data.concat(request)] : [...request];
+        if (!request?.length) {
+          this.refreshing = false;
+          this.items = this.data = [];
+          this.changeDetectorRef.detectChanges();
+        } else {
+          data = this.type === ListComponentsTypes.INFINITE ? [...data.concat(request)] : [...request];
+        }
       } catch (error: unknown) {
         this.log.error(
           (error as Error)?.message || `Unable to find ${this.model} on registry. Return empty array from component`
@@ -1187,13 +1203,16 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     if (data?.length) {
       if (this.searchValue) {
         this.items = [...data];
-        if (this.items?.length <= this.limit) this.loadMoreData = false;
+        if (this.items?.length <= this.limit) {
+          this.loadMoreData = false;
+        }
       } else {
         this.items = [...data];
       }
     }
-    if (this.type === ListComponentsTypes.PAGINATED && this.paginator && !this.pages)
+    if (this.type === ListComponentsTypes.PAGINATED && this.paginator && !this.pages) {
       this.getMoreData(this.paginator.total);
+    }
     return data || ([] as KeyValue[]);
   }
 
@@ -1305,9 +1324,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @memberOf ListComponent
    */
   async parseResult(result: KeyValue[] | Paginator<Model>): Promise<KeyValue[]> {
+    if (!result || result === undefined) {
+      return [];
+    }
     if (!Array.isArray(result) && 'page' in result && 'total' in result) {
       const paginator = result as Paginator<Model>;
-
       try {
         result = await paginator.page(this.page);
         this.getMoreData(paginator.total || this.pages);
@@ -1320,7 +1341,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     } else {
       this.getMoreData((result as KeyValue[])?.length || 0);
     }
-    return Object.keys(this.mapper || {}).length ? await this.mapResults(result) : result;
+    return Object.keys(this.mapper || {}).length || typeof this.mapper === 'function'
+      ? await this.mapResults(result)
+      : result;
   }
 
   /**
@@ -1424,7 +1447,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
     if (!data || !data.length) return [];
-    this.mapper = await this.getMapper();
+
     const props = Object.assign({
       operations: this.operations,
       route: this.route,
@@ -1433,18 +1456,34 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         return acc;
       }, {}),
     });
-    return data.reduce((accum: KeyValue[], curr) => {
-      accum.push({
-        ...this.itemMapper(curr, this.mapper as KeyValue, props),
-        ...{
-          pk: this.pk,
-          model: curr,
-          isModalChild: this.isModalChild,
-          emitEvent: props.emitEvent,
-        },
-      });
-      return accum;
-    }, []);
+    if (typeof this.mapper !== 'function') {
+      this.mapper = await this.getMapper();
+      return data.reduce((accum: KeyValue[], curr) => {
+        accum.push({
+          ...this.itemMapper(curr, this.mapper as KeyValue, props),
+          ...{
+            pk: this.pk,
+            model: curr,
+            isModalChild: this.isModalChild,
+            emitEvent: props.emitEvent,
+          },
+        });
+        return accum;
+      }, []);
+    } else {
+      return await Promise.all(
+        data.map(async (item) => {
+          const mapped = await (this.mapper as UIFunctionLike)(item);
+          return {
+            item: mapped as KeyValue,
+            model: item,
+            pk: this.pk,
+            isModalChild: this.isModalChild,
+            emitEvent: props.emitEvent,
+          };
+        })
+      );
+    }
   }
 
   parseSearchValue() {

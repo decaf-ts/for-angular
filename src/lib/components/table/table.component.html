@@ -1,21 +1,25 @@
-@if (showSearchbar && (data?.length || searching)) {
+@if (showSearchbar) {
   <div class="dcf-grid-actions">
     <div class="dcf-grid dcf-grid-small">
       <div class="dcf-width-expand@s">
         <ngx-decaf-searchbar
           [emitEventToWindow]="false"
-          [debounce]="500"
+          [debounce]="isModalChild ? 800 : 500"
+          [isModalChild]="isModalChild"
+          [model]="model"
+          [modelName]="modelName"
+          [locale]="locale ?? undefined"
           (searchEvent)="handleSearch($event)"
         />
       </div>
-      @if (filterOptions?.length) {
+      @if (filterModel) {
         <div
           class="dcf-width-1-3@s dcf-width-1-4@m dcf-select-filter-container dcf-flex dcf-flex-middle"
         >
           <ion-select
             [id]="name"
             [class]="
-              filterOptions?.length > 10
+              filterOptions?.length > 10 || !filterOptions?.length
                 ? ' dcf-modal-interface'
                 : ' dcf-popover-interface'
             "
@@ -29,16 +33,12 @@
             (click)="openFilterSelectOptions($event)"
             [placeholder]="locale + '.filter.label' | translate"
             (ionChange)="handleFilterSelection($event)"
-            interface="popover"
+            interface="modal"
           >
-            <ion-select-option value="">
-              {{ locale + '.filter.all' | translate }}
+            <ion-select-option [value]="filterValue ?? ''">
+              {{ filterValue ?? locale + '.filter.all' | translate }}
             </ion-select-option>
-            @for (option of filterOptions; track $index) {
-              <ion-select-option value="{{ option.value }}">
-                {{ option.text }}
-              </ion-select-option>
-            }
+
             <ion-button
               fill="clear"
               (click)="handleFilterSelectClear($event)"
@@ -168,7 +168,7 @@
       </tbody>
     </table>
   } @else {
-    @if (!searching) {
+    @if (!searching && !refreshing) {
       <ngx-decaf-empty-state
         [title]="'component.list.empty.title' | translate"
         [subtitle]="'component.list.empty.subtitle' | translate"
@@ -204,12 +204,12 @@
 
 <div class="dcf-table-pagination">
   @if (
-    (pages > 0 || bookMarkPagination) && !searchValue && data?.length > limit
+    (pages > 0 || bookMarkPagination) && !searchValue && data?.length >= limit
   ) {
     <ngx-decaf-pagination
       [table]="component"
       [bookMarkPagination]="bookMarkPagination"
-      [nextBookmark]="paginator?._bookmark"
+      [nextBookmark]="paginator?.['_bookmark']"
       [totalPages]="pages"
       [disablePages]="disablePaginationPages"
       [truncatePages]="truncatePaginationPages"

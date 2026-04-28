@@ -28,6 +28,7 @@ import {
   IonToolbar,
   ModalOptions,
 } from '@ionic/angular/standalone';
+import { take, timer } from 'rxjs';
 import { ActionRoles, DefaultModalOptions, ListComponentsTypes } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { IBaseCustomEvent } from '../../engine/interfaces';
@@ -39,6 +40,7 @@ import { removeFocusTrap } from '../../utils/helpers';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { CrudFormComponent } from '../crud-form/crud-form.component';
 import { IconComponent } from '../icon/icon.component';
+import { ListComponent } from '../list/list.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 
 /**
@@ -633,26 +635,49 @@ export async function getNgxInlineModal(
  */
 export async function getNgxSelectOptionsModal(
   title: string,
-  options: SelectOption[],
+  options: SelectOption[] | Model | string,
+  globals: Partial<ListComponent> = {},
   uid?: string,
   injector?: EnvironmentInjector
 ): Promise<IonModal> {
+  if (Array.isArray(options)) {
+    globals.data = options;
+  } else {
+    globals.model = options;
+  }
   const props = {
     tag: 'ngx-decaf-list',
     title,
     globals: {
-      data: options,
+      data: [],
       showSearchbar: true,
       // showSearchbar: options?.length > 10,
       item: { tag: true, emitEvent: true },
       pk: 'value',
       mapper: { title: 'text', uid: 'value' },
+      ...globals,
+      empty: { showButton: false },
+      limit: 25,
       type: ListComponentsTypes.INFINITE,
       isModalChild: true,
-    },
+    } as Partial<ListComponent>,
     className: `dcf-modal dcf-modal-select-interface ${uid ? `dcf-modal-${uid.toLowerCase()}` : ''}`,
   };
-  return await getNgxModalComponent(props, {}, injector || undefined);
+  const modal = await getNgxModalComponent(props, {}, injector || undefined);
+  await modal.present().then(() => {
+    const component = modal['el'] as HTMLElement;
+    if (component.tagName) {
+      timer(200)
+        .pipe(take(1))
+        .subscribe(() => {
+          const searchbar = component.querySelector('ion-searchbar input') as HTMLInputElement;
+          if (searchbar) {
+            searchbar.dispatchEvent(new Event('focus', { bubbles: true }));
+          }
+        });
+    }
+  });
+  return modal;
 }
 
 type ModalConfirmProps = Pick<

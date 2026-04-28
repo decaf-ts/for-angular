@@ -24,8 +24,11 @@
           @if (data?.length || searching) {
             <ngx-decaf-filter
               [model]="model"
+              [modelName]="modelName"
               [multiple]="multipleFilter"
               [indexes]="indexes ?? []"
+              [locale]="locale ?? undefined"
+              [isModalChild]="isModalChild"
               [sortDirection]="sortDirection"
               [disableSort]="disableSort"
               (filterEvent)="handleFilter($event)"
@@ -34,9 +37,12 @@
           }
         } @else {
           <ngx-decaf-searchbar
-            [placeholder]="searchbarPlaceholder"
             [emitEventToWindow]="false"
-            [debounce]="500"
+            [debounce]="isModalChild ? 800 : 500"
+            [model]="model"
+            [modelName]="modelName"
+            [locale]="locale ?? undefined"
+            [isModalChild]="isModalChild"
             (searchEvent)="handleSearch($event)"
           />
         }
@@ -100,7 +106,7 @@
         [truncatePages]="truncatePaginationPages"
         [totalPages]="pages"
         [bookMarkPagination]="bookMarkPagination"
-        [nextBookmark]="paginator?._bookmark"
+        [nextBookmark]="paginator?.['_bookmark']"
         [table]="component"
         [current]="page"
         (clickEvent)="handlePaginate($event)"

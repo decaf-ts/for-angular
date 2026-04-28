@@ -105,7 +105,7 @@ export class TableComponent extends ListComponent implements OnInit {
    * @description Currently selected filter value; `undefined` when no filter is active.
    * @type {string | undefined}
    */
-  filterValue?: string;
+  filterValue: string | undefined = undefined;
 
   /**
    * @description Ordered array of column keys rendered as table columns. Includes `'actions'` when operations are permitted.
@@ -264,8 +264,9 @@ export class TableComponent extends ListComponent implements OnInit {
       }
       if (!this.filterOptionsMapper) {
         this.filterOptionsMapper = (item) => ({
-          text: `${item[pk]}`,
-          value: `${item[pk]}`,
+          title: `${item[pk]}`,
+          description: `${item[pk]}`,
+          uid: `${item[this.filterBy]}`,
         });
       }
     };
@@ -274,10 +275,10 @@ export class TableComponent extends ListComponent implements OnInit {
     } else {
       const repo = getModelAndRepository(this.filterModel);
       if (repo) {
-        const { repository, pk } = repo;
+        const { pk } = repo;
         getFilterOptionsMapper(pk);
-        const query = await repository.select().execute();
-        this.filterOptions = query.map((item) => this.filterOptionsMapper(item));
+        // const query = await repository.select().execute();
+        // this.filterOptions = query.map((item) => this.filterOptionsMapper(item));
       }
     }
   }
@@ -416,45 +417,11 @@ export class TableComponent extends ListComponent implements OnInit {
     }
   }
 
-  async handleFilterSelection(event: SelectCustomEvent): Promise<void> {
-    console.log(event);
+  async handleFilterSelection(event: SelectCustomEvent, search: boolean = true): Promise<void> {
     const { detail } = event;
     if (detail) {
       this.filterValue = detail?.value;
-      await this.handleSearch({
-        query: [
-          {
-            index: this.filterBy,
-            value: this.filterValue,
-            condition: 'Contains',
-          },
-        ],
-      } as IFilterQuery);
-    }
-  }
-
-  /**
-   * @description Opens the filter select UI, allowing the user to narrow table results by a field value.
-   * @summary Determines the presentation mode and handles user selection.
-   * @param {Event} event - The click event that triggered the filter open action.
-   * @return {Promise<void>}
-   */
-  async openFilterSelectOptions(event: Event): Promise<void> {
-    const type = this.filterOptions.length > 10 ? SelectFieldInterfaces.MODAL : SelectFieldInterfaces.POPOVER;
-    if (type === SelectFieldInterfaces.MODAL) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      const title = await this.translate(`${this.locale}.filter_by`);
-      const modal = await getNgxSelectOptionsModal(
-        title,
-        this.filterOptions as SelectOption[],
-        this.filterBy || 'tableComponentFilter',
-        this.injector
-      );
-      this.changeDetectorRef.detectChanges();
-      const { data, role } = await modal.onWillDismiss();
-      if (role === ActionRoles.confirm && data !== this.filterValue) {
-        this.filterValue = data;
+      if (search) {
         await this.handleSearch({
           query: [
             {
@@ -465,6 +432,42 @@ export class TableComponent extends ListComponent implements OnInit {
           ],
         } as IFilterQuery);
       }
+    }
+  }
+
+  /**
+   * @description Opens the filter select UI, allowing the user to narrow table results by a field value.
+   * @summary Determines the presentation mode and handles user selection.
+   * @param {Event} event - The click event that triggered the filter open action.
+   * @return {Promise<void>}
+   */
+  async openFilterSelectOptions(event: Event): Promise<void> {
+    const type = SelectFieldInterfaces.MODAL;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const title = await this.translate(`${this.locale}.filter_by`);
+    const modal = await getNgxSelectOptionsModal(
+      title,
+      this.filterModel as string | Model,
+      { mapper: this.filterOptionsMapper, pk: this.filterBy, locale: this.locale ?? undefined },
+      this.filterBy || 'tableComponentFilter',
+      this.injector
+    );
+    this.changeDetectorRef.detectChanges();
+    const { data, role } = await modal.onWillDismiss();
+    if (role === ActionRoles.confirm && data !== this.filterValue) {
+      this.filterValue = data;
+      this.handleFilterSelection({ detail: { value: data } } as SelectCustomEvent, false);
+      await this.handleSearch({
+        query: [
+          {
+            index: this.filterBy,
+            value: this.filterValue,
+            condition: 'Contains',
+          },
+        ],
+      } as IFilterQuery);
     }
   }
 

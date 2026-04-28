@@ -2,6 +2,10 @@
   <ngx-decaf-searchbar
     [emitEventToWindow]="false"
     [debounce]="500"
+    [model]="model"
+    [modelName]="modelName"
+    [locale]="locale ?? undefined"
+    [isModalChild]="isModalChild"
     (searchEvent)="handleSearch($event)"
   />
 }
