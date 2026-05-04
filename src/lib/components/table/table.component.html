@@ -168,7 +168,7 @@
       </tbody>
     </table>
   } @else {
-    @if (!searching && !refreshing) {
+    @if (!searching) {
       <ngx-decaf-empty-state
         [title]="'component.list.empty.title' | translate"
         [subtitle]="'component.list.empty.subtitle' | translate"
@@ -190,6 +190,7 @@
         [borders]="borders"
         [operations]="operations"
         [body]="'small'"
+        [refreshing]="refreshing"
         [translatable]="true"
         [title]="'component.list.search.title' | translate"
         [subtitle]="
@@ -204,7 +205,7 @@
 
 <div class="dcf-table-pagination">
   @if (
-    (pages > 0 || bookMarkPagination) && !searchValue && data?.length >= limit
+    (pages > 0 || bookMarkPagination) && (data?.length >= limit || page > 1)
   ) {
     <ngx-decaf-pagination
       [table]="component"
