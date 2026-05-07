@@ -4,7 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ComponentEventNames, ElementSizes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { IonButton, IonItem, IonLabel, IonList, IonText } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { InputComponentErrors } from 'src/lib/engine/constants';
+import { InputComponentErrors } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { IBaseCustomEvent, IFileUploadError } from '../../engine/interfaces';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
