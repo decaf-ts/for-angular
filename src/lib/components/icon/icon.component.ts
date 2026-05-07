@@ -7,6 +7,7 @@ import { shareReplay, Subject, takeUntil } from 'rxjs';
 import { NgxSvgDirective } from '../../directives/svg.directive';
 import { Dynamic } from '../../engine/decorators';
 import { NgxMediaService } from '../../services/NgxMediaService';
+import { generateRandomValue } from '../../utils';
 
 @Dynamic()
 @Component({
@@ -18,19 +19,14 @@ import { NgxMediaService } from '../../services/NgxMediaService';
   host: { '[attr.id]': 'uid', '[attr.aria-hidden]': '!button' },
 })
 export class IconComponent implements OnInit, OnDestroy {
-  /** @description Reference to the component's native DOM element.
-   * @summary Provides direct access to the native DOM element of the component through Angular's
-   * ViewChild decorator. This reference can be used to manipulate the DOM element directly,
-   * apply custom styles, or access native element properties and methods. The element is
-   * identified by the 'component' template reference variable.
-   * @type {ElementRef}
-   * @memberOf module:lib/engine/NgxComponentDirective
-   */
   @ViewChild('component', { read: ElementRef, static: false })
   component!: ElementRef;
 
   @Input()
   name?: string;
+
+  @Input()
+  uid: string = generateRandomValue(8);
 
   @Input()
   color: Color = 'dark';
