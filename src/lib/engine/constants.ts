@@ -336,6 +336,13 @@ export const SelectFieldInterfaces = {
   MODAL: 'modal',
 } as const;
 
+/**
+ * @description Maps HTTP status codes to translation keys.
+ * @summary Provides the i18n lookup key for each supported error code so the UI can render localized
+ * error messages consistently across the application.
+ * @const ErrorCodesTranslationKeys
+ * @memberOf module:lib/engine/constants
+ */
 export const ErrorCodesTranslationKeys: Record<string, string> = {
   '400': 'errors.bad_request',
   '401': 'errors.unauthorized',
@@ -353,4 +360,15 @@ export const ErrorCodesTranslationKeys: Record<string, string> = {
   '503': 'errors.service_unavailable',
   '504': 'errors.gateway_timeout',
   '505': 'errors.http_version_not_supported',
+} as const;
+
+/**
+ * @description Standardized validation error identifiers for input components.
+ * @summary Defines the internal error keys used by input controls when reporting validation failures.
+ * @const InputComponentErrors
+ * @memberOf module:lib/engine/constants
+ */
+export const InputComponentErrors = {
+  notAllowed: 'not_allowed',
+  maxSize: 'max_size',
 } as const;

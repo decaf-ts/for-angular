@@ -61,7 +61,6 @@ export const AppConfig: ApplicationConfig = {
       : provideDecafDbAdapter(DecafAxiosHttpAdapter, {
           protocol: 'https',
           host: 'ew-backend-pdm.ptp.internal',
-          events: false,
         }),
 
     // provideZoneChangeDetection({ eventCoalescing: true }),

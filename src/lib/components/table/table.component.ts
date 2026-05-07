@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { OrderDirection } from '@decaf-ts/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { isValidDate, Model, Primitives } from '@decaf-ts/decorator-validation';
+import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames, UIFunctionLike, UIKeys } from '@decaf-ts/ui-decorators';
 import { IonSelect, IonSelectOption, SelectCustomEvent } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -30,7 +30,7 @@ import { getModelAndRepository } from '../../engine/helpers';
 import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
 import { FunctionLike, KeyValue, SelectOption } from '../../engine/types';
 import { NgxRouterService } from '../../services/NgxRouterService';
-import { dateFromString, formatDate, getWindow } from '../../utils/helpers';
+import { getWindow } from '../../utils/helpers';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { IconComponent } from '../icon/icon.component';
 import { ListComponent } from '../list/list.component';
@@ -497,29 +497,30 @@ export class TableComponent extends ListComponent implements OnInit {
    * @return {Promise<void>}
    */
   override async handleUpdate(model: Model, uid: string | number): Promise<void> {
-    await super.handleUpdate(model, uid);
-    const item = this.items.find((item) => `${item['uid']?.value}`.trim() === `${uid}`.trim());
-    const mapper: KeyValue = this.mapper || {};
-    if (item) {
-      for (const [key, entry] of Object.entries(item)) {
-        const { prop } = entry;
-        if (key !== 'uid' && prop in model) {
-          const value = model[prop as keyof Model];
-          if (value !== undefined) {
-            const valueFn = mapper?.[prop]?.valueParserFn || value;
-            if (typeof valueFn === 'function') {
-              entry.value = await valueFn(this, prop, value);
-            } else {
-              if (isValidDate(value)) {
-                entry.value = `${formatDate(dateFromString(value as unknown as string))}`;
-              } else {
-                entry.value = value;
-              }
-            }
-          }
-        }
-      }
-    }
+    await super.refresh();
+    // await super.handleUpdate(model, uid);
+    // const item = this.items.find((item) => `${item['uid']?.value}`.trim() === `${uid}`.trim());
+    // const mapper: KeyValue = this.mapper || {};
+    // if (item) {
+    //   for (const [key, entry] of Object.entries(item)) {
+    //     const { prop } = entry;
+    //     if (key !== 'uid' && prop in model) {
+    //       const value = model[prop as keyof Model];
+    //       if (value !== undefined) {
+    //         const valueFn = mapper?.[prop]?.valueParserFn || value;
+    //         if (typeof valueFn === 'function') {
+    //           entry.value = await valueFn(this, prop, value);
+    //         } else {
+    //           if (isValidDate(value)) {
+    //             entry.value = `${formatDate(dateFromString(value as unknown as string))}`;
+    //           } else {
+    //             entry.value = value;
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   // /**

@@ -6,8 +6,9 @@
  */
 import { ElementRef, EnvironmentInjector, Injector, Type } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { OrderDirection } from '@decaf-ts/core';
+import { AllOperationKeys, ContextOf, ContextualArgs, EventIds, OrderDirection, Repo } from '@decaf-ts/core';
 import { PrimaryKeyType } from '@decaf-ts/db-decorators';
+import { Constructor } from '@decaf-ts/decoration';
 import { Model } from '@decaf-ts/decorator-validation';
 import { CrudOperationKeys, FieldProperties, IPagedComponentProperties, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { ActionRoles } from './constants';
@@ -523,4 +524,22 @@ export interface ITooltipConfig {
   limit?: number;
   trail?: string;
   position?: 'top' | 'bottom' | 'over';
+}
+
+/**
+ * @description Payload emitted for repository observable notifications.
+ * @summary Describes the model source, operation type, identifier values, and context arguments
+ * associated with a repository event.
+ * @property {Constructor<Model> | string} table - Model constructor or table name tied to the event.
+ * @property {AllOperationKeys} event - Operation that triggered the notification.
+ * @property {EventIds} id - Identifier values for the affected record(s).
+ * @property {ContextualArgs<ContextOf<Repo<Model>>>} args - Repository context arguments captured
+ * when the event was raised.
+ * @interface ObservableEvent
+ */
+export interface IObservableEvent {
+  table: Constructor<Model> | string;
+  event: AllOperationKeys;
+  id: EventIds;
+  args: ContextualArgs<ContextOf<Repo<Model>>>;
 }

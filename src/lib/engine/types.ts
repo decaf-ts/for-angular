@@ -22,6 +22,7 @@ import {
 } from '@decaf-ts/ui-decorators';
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
+import { ModalConfirmComponent } from '../components/modal/modal.component';
 import { ActionRoles, ListItemPositions, WindowColorSchemes } from './constants';
 import { FormServiceControl, I18nResourceConfig, IBaseCustomEvent, ICrudFormEvent, InputOption } from './interfaces';
 import { NgxComponentDirective } from './NgxComponentDirective';
@@ -270,15 +271,53 @@ export type ListItemPosition = (typeof ListItemPositions)[keyof typeof ListItemP
  */
 export type AngularProvider = EnvironmentProviders | Provider;
 
+/**
+ * @description Maps component property names to async mapper functions.
+ * @summary Each key in the component directive is mapped to a function that receives the component instance
+ * and returns a UI function-like value.
+ * @template T - Component directive type used as the mapper source.
+ * @typedef {Record<keyof T, (instance: T, ...args: unknown[]) => Promise<UIFunctionLike>>} PropsMapperFn
+ * @memberOf module:lib/engine/types
+ */
 export type PropsMapperFn<T extends NgxComponentDirective> = Record<
   keyof T,
   (instance: T, ...args: unknown[]) => Promise<UIFunctionLike>
 >;
 
+/**
+ * @description Constructor signature for Decaf Angular components.
+ * @summary Represents a component class that conforms to the Decaf component contract for model-backed views.
+ * @typedef {DecafComponent<Model>} DecafComponentConstructor
+ * @memberOf module:lib/engine/types
+ */
 export type DecafComponentConstructor = DecafComponent<Model>;
 
+/**
+ * @description Custom CRUD event emitted by Decaf form components.
+ * @summary Extends the base custom and CRUD form events with the selected model data and optional operation role.
+ * @template M - Model payload carried by the event.
+ * @typedef {IBaseCustomEvent & ICrudFormEvent & CustomEvent & { data: M; role?: CrudOperations }} CrudEvent
+ * @memberOf module:lib/engine/types
+ */
 export type CrudEvent<M extends Model> = IBaseCustomEvent &
   ICrudFormEvent &
   CustomEvent & { data: M; role?: CrudOperations };
 
+/**
+ * @description Supported filter comparison operators.
+ * @summary Defines the built-in filter conditions accepted by the engine when building query predicates.
+ * @typedef {'Equal' | 'Contains' | 'Not Contains' | 'Greater Than' | 'Less Than' | 'Not Equal'} FilterCondition
+ * @memberOf module:lib/engine/types
+ */
 export type FilterCondition = 'Equal' | 'Contains' | 'Not Contains' | 'Greater Than' | 'Less Than' | 'Not Equal';
+
+/**
+ * @description Private subset of modal confirmation properties used by the engine.
+ * @summary Narrows the modal confirm component props to the fields required for confirmation dialogs.
+ * @private
+ * @typedef {Pick<ModalConfirmComponent, 'title' | 'role' | 'data' | 'locale' | 'message' | 'inlineContent'>} ModalConfirmProps
+ */
+export type ModalConfirmProps = Pick<
+  ModalConfirmComponent,
+  'title' | 'role' | 'data' | 'locale' | 'message' | 'inlineContent'
+>;

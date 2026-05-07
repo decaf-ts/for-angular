@@ -55,13 +55,6 @@
       }
     }
   }
-  ::ng-deep {
-    form .dcf-buttons-grid {
-      align-content: center !important;
-      justify-content: center;
-      padding-top: 1rem;
-    }
-  }
 
   ion-header {
     box-shadow: none !important;
@@ -115,6 +108,7 @@
       --max-height: 60%;
       max-height: 60%;
       padding: 0px var(--dcf-padding-small) !important;
+      margin-top: 1.5rem !important;
 
       ::ng-deep .dcf-modal-child {
         .dcf-item-title {
@@ -289,6 +283,19 @@
     ion-spinner {
       width: 60px;
       height: 60px;
+    }
+  }
+
+  // other component customizations
+  ::ng-deep {
+    form .dcf-buttons-grid {
+      align-content: center !important;
+      justify-content: center;
+      padding-top: 1rem;
+    }
+
+    ngx-decaf-list decaf-empty-state-component {
+      margin-top: 2rem;
     }
   }
 }

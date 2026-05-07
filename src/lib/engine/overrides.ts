@@ -16,24 +16,37 @@ import {
   PrimaryKeyType,
 } from '@decaf-ts/db-decorators';
 import { Constructor } from '@decaf-ts/decoration';
-import { Model, ModelKeys } from '@decaf-ts/decorator-validation';
+import { Hashing, Model, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
 import { AxiosFlags, AxiosFlavour, AxiosHttpAdapter, HttpConfig } from '@decaf-ts/for-http';
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { auditTime, shareReplay, Subject } from 'rxjs';
+import { IObservableEvent } from './interfaces';
 import { KeyValue } from './types';
 
 export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
-  static disableEvents = false;
-  static token: string = ' ';
   bookmark: Record<string, DirectionLimitOffset[]> = {};
+
+  static disableEvents = false;
+  static token: string =
+    'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJKQl9xUWRibTdBamFFZXh3THdFWjVMODlDUF9sVlRPTHFIbVZVX0hla3lNIn0.eyJleHAiOjE3NzgxNDM0MjIsImlhdCI6MTc3ODE0MzEyMiwiYXV0aF90aW1lIjoxNzc4MTQzMTIyLCJqdGkiOiJiODhkZGRiZS1kZGJjLTc2N2MtNTFmOC1lODM4YzU4MTljMmQiLCJpc3MiOiJodHRwczovL2tleWNsb2FrLnB0cC5pbnRlcm5hbC9yZWFsbXMvcGRtIiwiYXVkIjoicGRtLW9hdXRoIiwic3ViIjoiZGM1OGE1MTgtNzljMS00ZjRkLWFmNGEtNWM2MThlN2NjMDQ0IiwidHlwIjoiSUQiLCJhenAiOiJwZG0tb2F1dGgiLCJzaWQiOiJkNmFlNzZjZC0xNGI2LTczOTgtNDRlNS0yODkwMDQ4N2ZlZGIiLCJhdF9oYXNoIjoiTWo3ZEVtaWQ3VmNyN1I1V19qbWZVQSIsImFjciI6IjEiLCJyZXNvdXJjZV9hY2Nlc3MiOnsicGRtLW9hdXRoIjp7InJvbGVzIjpbImVwaS1yZWFkZXIiLCJlcGktYWRtaW4iLCJlcGktd3JpdGVyIiwicGxhLXdyaXRlciIsInBsYS1yZWFkZXIiLCJwbGEtYWRtaW4iXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6IkRlbWVyc29uIE3DoXhpbW8gZGUgQ2FydmFsaG8iLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJkZW1lcnNvbi5jYXJ2YWxob0BwZG1mYy5jb20iLCJnaXZlbl9uYW1lIjoiRGVtZXJzb24iLCJmYW1pbHlfbmFtZSI6Ik3DoXhpbW8gZGUgQ2FydmFsaG8iLCJlbWFpbCI6ImRlbWVyc29uLmNhcnZhbGhvQHBkbWZjLmNvbSJ9.VCDvqq5g7Tc9IJtwGeHoQ-3BZZSyA_EeJBnr659TMtNnNQ8pO17mZvE-aNG02BrwgKcoVFI9pLp_nkOfPfymqgk6BuUsRC4HuSIfVI3nc8p9mIQcU2uzofjp-8ES3LqIC_Ae6vwZmjowLJ6C_RZEeTYKFEfkGPrV7yT1a7SN31HRJNmRvIGfxm6R5Kjl0mOCyuN95vPru72DFzSIydd9LasZMQ_02GrTUG88TKt8HPvDPxdts1Y9F_7SqCR-PyK1E8Si9icdASrOefkILpC7ckDKUS5A8e8nc_nXzgFjuAUqMJWf-f1iZTMO1N1w0mt8mg2azzoZxKdD4n-Oj6I_Sg';
+
+  private updateObservers$ = new Subject<IObservableEvent>();
+
+  static lastEventId?: string;
 
   constructor(config: HttpConfig & { events?: boolean }, alias: string = AxiosFlavour) {
     super(
       { eventHeaderResolver: DecafAxiosHttpAdapter.getEventHeaders, eventsListenerPath: '/events', ...config },
       AxiosFlavour
     );
-
-    if (!config?.events) {
+    if (config?.events === false) {
       DecafAxiosHttpAdapter.disableEvents = true;
+    } else {
+      this.updateObservers$
+        .pipe(auditTime(0), shareReplay({ bufferSize: 1, refCount: true }))
+        .subscribe(async ({ table, event, id, args }) => {
+          await super.updateObservers(table, event, id, ...args);
+        });
     }
   }
 
@@ -41,6 +54,7 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     return !this.token || DecafAxiosHttpAdapter.disableEvents
       ? {}
       : {
+          withCredentials: true,
           headers: {
             authorization: `Bearer ${this.token}`,
           },
@@ -150,13 +164,11 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     } catch (err: unknown) {
       // do nothing
     }
-
     if (DecafAxiosHttpAdapter.token) {
       overrides = {
         withCredentials: true,
         headers: {
           authorization: `Bearer ${DecafAxiosHttpAdapter.token}`,
-          // 'access-control-allow-origin': '*',
         },
       };
     }
@@ -174,26 +186,9 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
             'Content-Type': 'application/json; charset=utf-8',
           },
         };
-        // if (details?.url?.includes('leaflet')) {
-        //   const form = new FormData();
-        //   const data = JSON.parse(details.data as string);
-        //   for (const key in data) {
-        //     const value = typeof data[key] === 'object' ? JSON.stringify(data[key]) : data[key];
-        //     form.append(key, value);
-        //   }
-        //   details.data = form;
-        //   overrides = {
-        //     ...overrides,
-        //     headers: {
-        //       ...headers,
-        //       'Content-Type': 'multipart/form-data',
-        //     },
-        //   };
-        // }
         break;
       }
     }
-
     return await this.client.request(
       Object.assign({}, details, { url: this.parseStatementURL(details.url || '') }, overrides)
     );
@@ -244,7 +239,12 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
           id = model[pk] as EventIds;
         }
       }
-      return await super.updateObservers(table, event, id, ...args);
+      // await super.updateObservers(table, event, id, ...args);
+      const eventId = await Hashing.hash(`${table}, ${event}, ${id}, ${JSON.stringify(args)}`);
+      if (eventId !== DecafAxiosHttpAdapter.lastEventId) {
+        DecafAxiosHttpAdapter.lastEventId = eventId;
+        this.updateObservers$.next({ table, event, id, args });
+      }
     }
   }
 
@@ -279,7 +279,7 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
       case PreparedStatementKeys.PAGE_BY:
       case PreparedStatementKeys.FIND_ONE_BY:
       case PersistenceKeys.STATEMENT:
-        return !res || typeof res === 'string' ? [] : res?.data || res;
+        return !res || typeof res === Primitives.STRING ? [] : res?.data || res;
       default:
         return res?.data || res?.body || undefined;
     }

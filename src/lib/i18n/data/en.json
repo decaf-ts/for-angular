@@ -205,7 +205,7 @@
       "selection": "{0} file(s) selected with success",
       "selection_error": "{0} file(s) failed validation and will not be uploaded.",
       "errors": {
-        "not_allowed": "File {0} is not allowed.",
+        "not_allowed": "Extension {0} is not allowed.",
         "max_size": "The maximum allowed file size is {0} MB"
       }
     }

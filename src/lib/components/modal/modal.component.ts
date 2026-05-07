@@ -28,14 +28,13 @@ import {
   IonToolbar,
   ModalOptions,
 } from '@ionic/angular/standalone';
-import { take, timer } from 'rxjs';
 import { ActionRoles, DefaultModalOptions, ListComponentsTypes } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { IBaseCustomEvent } from '../../engine/interfaces';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
-import { CrudEvent, KeyValue, SelectOption } from '../../engine/types';
+import { CrudEvent, KeyValue, ModalConfirmProps, SelectOption } from '../../engine/types';
 import { removeFocusTrap } from '../../utils/helpers';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { CrudFormComponent } from '../crud-form/crud-form.component';
@@ -119,6 +118,12 @@ import { ModelRendererComponent } from '../model-renderer/model-renderer.compone
  * @public
  */
 export class ModalComponent extends NgxParentComponentDirective implements OnInit {
+  /**
+   * @description Reference to the rendered Ionic modal instance.
+   * @summary Captures the underlying `IonModal` so the component can control presentation and dismissal.
+   * @type {IonModal}
+   * @private
+   */
   @ViewChild('component')
   modal!: IonModal;
 
@@ -282,9 +287,18 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    */
   iconColor: Color = 'dark';
 
+  /**
+   * @description Event handlers registered on the modal instance.
+   * @summary Allows consumers to attach custom UI handler functions to the modal lifecycle and actions.
+   * @type {Record<string, UIFunctionLike>}
+   */
   @Input()
   override handlers: Record<string, UIFunctionLike> = {};
 
+  /**
+   * @description Creates a new modal component instance.
+   * @summary Initializes the base parent directive with the component name used by the rendering engine.
+   */
   constructor() {
     super('ModalComponent');
   }
@@ -328,6 +342,12 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
       this.iconColor = 'light';
   }
 
+  /**
+   * @description Normalizes and sanitizes inline modal content.
+   * @summary Converts DOM elements to HTML strings when needed and safely trusts the result for rendering.
+   *
+   * @returns {void} - Does not return a value.
+   */
   parseInlineContent(): void {
     if (this.inlineContent) {
       if (this.inlineContent instanceof HTMLElement) {
@@ -380,12 +400,6 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    * @returns {Promise<void>} - A promise that resolves when the event is handled.
    */
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {
-    // if (event instanceof Event || event.name === ComponentEventNames.Refresh) {
-    //   if (event instanceof Event) {
-    //     event.stopImmediatePropagation();
-    //   }
-    //   return;
-    // }
     if (event instanceof Event) {
       event.stopImmediatePropagation();
     }
@@ -449,21 +463,53 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
   host: { '[attr.id]': 'uid' },
 })
 export class ModalConfirmComponent extends ModalComponent implements OnInit {
+  /**
+   * @description Data used to generate the confirmation message.
+   * @summary Carries the item label, primary key, and unique identifier for the entity being confirmed.
+   * @type {{ item?: string; pk?: string; uid?: string } | undefined}
+   */
   @Input()
   data?: { item?: string; pk?: string; uid?: string };
 
+  /**
+   * @description CRUD operation represented by the confirmation modal.
+   * @summary Defines which operation the modal is confirming, such as create, update, or delete.
+   * @type {CrudOperations | undefined}
+   */
   @Input()
   role?: CrudOperations;
 
+  /**
+   * @description Custom confirmation message.
+   * @summary Overrides the localized default message when provided.
+   * @type {string | undefined}
+   */
   @Input()
   message?: string;
 
+  /**
+   * @description Enables alert-style confirmation behavior.
+   * @summary When true, the modal is styled and configured as an alert confirmation.
+   * @type {boolean}
+   * @default false
+   */
   @Input()
   alert: boolean = false;
 
+  /**
+   * @description Title displayed in the confirmation modal header.
+   * @summary Overrides the localized default title when provided.
+   * @type {string | undefined}
+   */
   @Input()
   override title?: string;
 
+  /**
+   * @description Initializes the confirmation modal content.
+   * @summary Resolves localized title and message text from the current role and injected data, then prepares the base modal.
+   *
+   * @returns {Promise<void>} - A promise that resolves when initialization is complete.
+   */
   override async ngOnInit(): Promise<void> {
     const { uid, item, pk } = this.data || {};
     const role = this.role || OperationKeys.DELETE;
@@ -485,6 +531,13 @@ export class ModalConfirmComponent extends ModalComponent implements OnInit {
     await this.initialize();
   }
 
+  /**
+   * @description Handles the confirmation modal action.
+   * @summary Confirms the modal when requested and passes the selected payload, otherwise cancels the modal.
+   *
+   * @param {'confirm' | 'cancel'} [role='confirm'] - The action to perform.
+   * @returns {Promise<void>} - A promise that resolves when the action completes.
+   */
   async handleAction(role: 'confirm' | 'cancel' = 'confirm'): Promise<void> {
     if (role === ActionRoles.confirm)
       return await this.confirm({
@@ -663,28 +716,30 @@ export async function getNgxSelectOptionsModal(
     } as Partial<ListComponent>,
     className: `dcf-modal dcf-modal-select-interface ${uid ? `dcf-modal-${uid.toLowerCase()}` : ''}`,
   };
-  const modal = await getNgxModalComponent(props, {}, injector || undefined);
-  await modal.present().then(() => {
-    const component = modal['el'] as HTMLElement;
-    if (component.tagName) {
-      timer(200)
-        .pipe(take(1))
-        .subscribe(() => {
-          const searchbar = component.querySelector('ion-searchbar input') as HTMLInputElement;
-          if (searchbar) {
-            searchbar.dispatchEvent(new Event('focus', { bubbles: true }));
-          }
-        });
+  const component = await (
+    NgxRenderingEngine.createComponent(ModalComponent, props, injector || undefined) as ModalComponent
+  ).create(props);
+  const modal = component.modal;
+  await modal.present();
+  const childComponent = component.component?.nativeElement;
+  if (childComponent) {
+    const searchbar = childComponent.querySelector('ion-searchbar input') as HTMLInputElement;
+    if (searchbar) {
+      searchbar.focus();
     }
-  });
+  }
   return modal;
 }
 
-type ModalConfirmProps = Pick<
-  ModalConfirmComponent,
-  'title' | 'role' | 'data' | 'locale' | 'message' | 'inlineContent'
->;
-
+/**
+ * @description Presents a standard confirmation modal.
+ * @summary Opens the confirmation modal with transparent header styling and a hidden close button.
+ *
+ * @param {ModalConfirmProps} [props={}] - Properties used to initialize the confirmation modal.
+ * @param {keyof typeof ActionRoles} [role=ActionRoles.confirm] - The dismiss role applied to the modal.
+ * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
+ * @returns {Promise<IonModal>} - A promise that resolves with the presented modal instance.
+ */
 export async function presentModalConfirm(
   props: ModalConfirmProps = {},
   role: keyof typeof ActionRoles = ActionRoles.confirm,
@@ -703,6 +758,15 @@ export async function presentModalConfirm(
   );
 }
 
+/**
+ * @description Presents an alert-style confirmation modal.
+ * @summary Opens the confirmation modal with alert styling and a visible close button.
+ *
+ * @param {ModalConfirmProps} [props={}] - Properties used to initialize the alert modal.
+ * @param {keyof typeof ActionRoles} [role=ActionRoles.close] - The dismiss role applied to the modal.
+ * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
+ * @returns {Promise<IonModal>} - A promise that resolves with the presented modal instance.
+ */
 export async function presentModalAlert(
   props: ModalConfirmProps = {},
   role: keyof typeof ActionRoles = ActionRoles.close,

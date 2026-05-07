@@ -4,6 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ComponentEventNames, ElementSizes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { IonButton, IonItem, IonLabel, IonList, IonText } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
+import { InputComponentErrors } from 'src/lib/engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { IBaseCustomEvent, IFileUploadError } from '../../engine/interfaces';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
@@ -11,11 +12,6 @@ import { ElementSize, FlexPosition, FunctionLike, KeyValue, PossibleInputTypes }
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../icon/icon.component';
 import { presentNgxInlineModal, presentNgxLightBoxModal } from '../modal/modal.component';
-
-const FileErrors = {
-  notAllowed: 'not_allowed',
-  maxSize: 'max_size',
-} as const;
 
 /**
  * @description File upload component for Angular applications.
@@ -194,6 +190,12 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   @Input()
   enableDirectoryMode: boolean = false;
 
+  /**
+   * @description Custom handler used to preview the selected file.
+   * @summary Allows callers to override the default preview behavior with a function-like callback.
+   *
+   * @type {FunctionLike | undefined}
+   */
   @Input()
   previewHandler?: FunctionLike;
 
@@ -274,6 +276,10 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   @Input()
   subType: string = 'text';
 
+  /**
+   * @description Creates a new file upload component instance.
+   * @summary Initializes the parent field directive and clears any previous selection state.
+   */
   constructor() {
     super('FileUploadComponent');
     this.handleClear();
@@ -298,6 +304,12 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     await this.initialize();
   }
 
+  /**
+   * @description Initializes the component value state after the base directive is ready.
+   * @summary Restores any serialized value back into files and preview data after the parent initialization completes.
+   *
+   * @returns {Promise<void>} - A promise that resolves when initialization is complete.
+   */
   override async initialize(): Promise<void> {
     await super.initialize();
     await this.parseValue(true);
@@ -321,9 +333,11 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    *
    * @returns {void}
    */
-  handleClickToSelect(): void {
+  async handleClickToSelect(): Promise<void> {
     const element = this.component.nativeElement;
-    if (element) (element.querySelector('#dcf-file-input') as HTMLButtonElement)?.click();
+    if (element) {
+      (element.querySelector('#dcf-file-input') as HTMLButtonElement)?.click();
+    }
   }
 
   /**
@@ -457,6 +471,14 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     this.changeDetectorRef.detectChanges();
   }
 
+  /**
+   * @description Converts between the component's internal file state and its serialized value.
+   * @summary When `revert` is false, serializes the selected files into the form value. When true, parses
+   * the current value back into the component file list and restores the preview state.
+   *
+   * @param {boolean} [revert=false] - Whether to restore files from the current value instead of serializing them.
+   * @returns {Promise<string | void>} - A serialized value when converting files to a form value, otherwise void.
+   */
   async parseValue(revert: boolean = false): Promise<string | void> {
     if (!revert) {
       const files = this.files as File[];
@@ -530,9 +552,9 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
         const fileExtension = file.type.split('/').pop() || '';
         return file.type === ext || fileExtension === ext || file.name.toLowerCase().endsWith(ext.replace('.', ''));
       });
-      if (!accept) return FileErrors.notAllowed;
+      if (!accept) return InputComponentErrors.notAllowed;
     }
-    if (this.maxFileSize && file.size > this.maxFileSize) return FileErrors.maxSize;
+    if (this.maxFileSize && file.size > this.maxFileSize) return InputComponentErrors.maxSize;
     return true;
   }
 
@@ -582,7 +604,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
       return await presentNgxInlineModal(content as string);
     }
 
-    await presentNgxLightBoxModal(content || '');
+    await presentNgxLightBoxModal(content || '', { className: 'dcf-file-preview' });
   }
 
   /**
@@ -597,12 +619,27 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     return file && file.type.startsWith('image/');
   }
 
+  /**
+   * @description Checks whether a string is a valid base64 payload or data URL.
+   * @summary Supports both raw base64 strings and `data:*;base64` URLs for file reconstruction and preview handling.
+   *
+   * @param {string} value - The string to validate.
+   * @returns {boolean} - True when the string matches a base64 or base64 data URL pattern.
+   */
   isBase64String(value: string): boolean {
     const pure = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
     const dataUrl = /^data:([a-zA-Z0-9.+-]+\/[a-zA-Z0-9.+-]+);base64,[A-Za-z0-9+/]+={0,2}$/;
     return pure.test(value) || dataUrl.test(value);
   }
 
+  /**
+   * @description Extracts the MIME type from a base64 data URL.
+   * @summary Parses the `data:` prefix and returns the embedded MIME type so files can be reconstructed
+   * with the correct content type.
+   *
+   * @param {string} base64 - The base64 data URL to inspect.
+   * @returns {string} - The extracted MIME type or an empty string when none is present.
+   */
   getFileMime(base64: string): string {
     const match = base64.match(/^data:(.*?);base64,/);
     return match ? match[1] : '';
@@ -616,9 +653,14 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    * @param {number} index - The index of the file to be removed.
    * @returns {Promise<void>}
    */
-  async removeFile(index: number): Promise<void> {
-    if (index <= this.files.length) this.files = [...this.files.filter((_, i) => i !== index)];
-    await this.getPreview();
+  async handleRemove(index: number): Promise<void> {
+    const totalFiles = this.files.length;
+    if (index <= this.files.length) {
+      this.files = [...this.files.filter((_, i) => i !== index)];
+    }
+    if (totalFiles <= 2) {
+      await this.getPreview();
+    }
     this.changeEventEmit();
   }
 

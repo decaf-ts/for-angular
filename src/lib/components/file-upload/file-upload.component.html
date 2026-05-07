@@ -121,15 +121,28 @@
                   </div>
                 </div>
               } @else {
-                <div class="dcf-margin-bottom">
-                  {{ locale + ".selection" | translate: { "0": files.length > 10 ? files.length : `0${files.length}` } }}
-                  @if (errors.length > 0) {
-                    <br />
-                    <span class="dcf-error-message">
-                      {{ locale + ".selection_error" | translate: { "0": errors.length > 10 ? errors.length : `0${errors.length}` } }}
-                    </span>
+                <div
+                  class="dcf-flex dcf-flex-middle"
+                  [class.dcf-multiple-files]="files.length > 1"
+                >
+                  @if (files.length > 1) {
+                    <ngx-decaf-icon
+                      name="ti-files-off"
+                      [button]="true"
+                      color="danger"
+                      (click)="handleClear()"
+                      [title]="locale + '.buttons.clear' | translate"
+                    />
                   }
+                  {{ locale + ".selection" | translate: { "0": files.length > 10 ? files.length : `0${files.length}` } }}
                 </div>
+
+                @if (errors.length > 0) {
+                  <div class="dcf-error-message">
+                    {{ locale + ".selection_error" | translate: { "0": errors.length > 10 ? errors.length : `0${errors.length}` } }}
+                  </div>
+                }
+
                 <div class="dcf-preview-list-container">
                   <ion-list class="dcf-preview-list">
                     @for (file of errors; track $index) {
@@ -149,7 +162,7 @@
                                     '0':
                                       file.error === 'max_size'
                                         ? maxFileSize / 1024 / 1024
-                                        : file.name.split('.'),
+                                        : file.name.split('.')?.[1],
                                   }
                           }}
                         </div>
@@ -182,8 +195,8 @@
                           <ngx-decaf-icon
                             [button]="true"
                             [slot]="'icon-only'"
-                            [name]="'trash-outline'"
-                            (click)="removeFile($index)"
+                            [name]="'ti-trash'"
+                            (click)="handleRemove($index)"
                             [color]="'danger'"
                             [size]="'small'"
                           />
