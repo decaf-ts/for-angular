@@ -405,7 +405,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    *
    * @memberOf SearchbarComponent
    */
-  @HostListener('window:toggleSearchbarVisibility', ['$event'])
+  @HostListener('window:toggleSearchbarVisibility')
   handleToggleVisibility(): void {
     this.isVisible = !this.isVisible;
     if (this.isVisible && !!this.component.nativeElement) {

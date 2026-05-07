@@ -3,7 +3,6 @@ import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
 import { NavController } from '@ionic/angular/standalone';
 import { RouteDirections } from '../engine/constants';
 import { KeyValue } from '../engine/types';
@@ -348,8 +347,8 @@ export class NgxRouterService {
    *
    * @param {string} page - The page to navigate to
    * @param {RouteDirections} [direction=RouteDirections.FORWARD] - The direction of navigation
-   * @param {NavigationOptions} [options] - Additional navigation options
-   * @return {Promise<boolean>} A promise that resolves to true if navigation is successful, otherwise false
+   * @param {KeyValue} [options] - Additional navigation options
+   * @return {Promise<boolean}} A promise that resolves to true if navigation is successful, otherwise false
    *
    * @mermaid
    * sequenceDiagram
@@ -373,7 +372,7 @@ export class NgxRouterService {
   async navigateTo(
     page: string,
     direction: RouteDirections = RouteDirections.FORWARD,
-    options?: NavigationOptions
+    options?: KeyValue
   ): Promise<boolean> {
     if (direction === RouteDirections.ROOT) return this.navController.navigateRoot(page, options);
     if (direction === RouteDirections.FORWARD) return await this.navController.navigateForward(page, options);

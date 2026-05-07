@@ -464,7 +464,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    *
    * @memberOf ListItemComponent
    */
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   enableSlideItems(): boolean {
     this.windowWidth = getWindowWidth() as number;
     if (!this.operations?.length || this.windowWidth > 639) return (this.showSlideItems = false);

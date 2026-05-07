@@ -318,7 +318,7 @@ export class NgxMediaService {
       const svg$ = http
         .get(path, { responseType: 'text' })
         .pipe(takeUntil(this.destroy$), shareReplay({ bufferSize: 1, refCount: true }));
-      svg$.subscribe((svg) => {
+      svg$.subscribe((svg: string) => {
         this.angularZone.run(() => {
           target.innerHTML = svg;
         });

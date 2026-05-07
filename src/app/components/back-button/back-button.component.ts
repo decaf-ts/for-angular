@@ -416,7 +416,7 @@ export class BackButtonComponent implements OnInit {
    *
    * @memberOf BackButtonComponent
    */
-  @HostListener('window:BackButtonForceNavigationEvent', ['$event'])
+  @HostListener('window:BackButtonForceNavigationEvent')
   handleModelPageEvent(): Promise<boolean | void> {
     return this.backToPage();
   }
