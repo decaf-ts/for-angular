@@ -1,27 +1,39 @@
 import {
+  PersistenceKeys,
+  PreparedStatementKeys,
+} from '@decaf-ts/core';
+import type {
   AllOperationKeys,
   Context,
   ContextOf,
   ContextualArgs,
   DirectionLimitOffset,
   EventIds,
-  PersistenceKeys,
-  PreparedStatementKeys,
 } from '@decaf-ts/core';
 import {
   BaseError,
-  BulkCrudOperationKeys,
   InternalError,
-  OperationKeys,
-  PrimaryKeyType,
 } from '@decaf-ts/db-decorators';
-import { Constructor } from '@decaf-ts/decoration';
+import type { OperationKeys, PrimaryKeyType } from '@decaf-ts/db-decorators';
+import type { Constructor } from '@decaf-ts/decoration';
 import { Hashing, Model, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
-import { AxiosFlags, AxiosFlavour, AxiosHttpAdapter, HttpConfig } from '@decaf-ts/for-http';
+import { AxiosFlavour, AxiosHttpAdapter } from '@decaf-ts/for-http';
+import type { AxiosFlags, HttpConfig } from '@decaf-ts/for-http';
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { auditTime, shareReplay, Subject } from 'rxjs';
 import { IObservableEvent } from './interfaces';
 import { KeyValue } from './types';
+
+const CRUD_METHODS = new Set([
+  'createAll',
+  'readAll',
+  'updateAll',
+  'deleteAll',
+  'create',
+  'read',
+  'update',
+  'delete',
+]);
 
 export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
   bookmark: Record<string, DirectionLimitOffset[]> = {};
@@ -264,16 +276,8 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     }
 
     res = await super.parseResponse(clazz, method, res);
+    if (CRUD_METHODS.has(String(method))) return res?.data || res?.body || undefined;
     switch (method) {
-      case BulkCrudOperationKeys.CREATE_ALL:
-      case BulkCrudOperationKeys.READ_ALL:
-      case BulkCrudOperationKeys.UPDATE_ALL:
-      case BulkCrudOperationKeys.DELETE_ALL:
-      case OperationKeys.CREATE:
-      case OperationKeys.READ:
-      case OperationKeys.UPDATE:
-      case OperationKeys.DELETE:
-        return res?.data || res?.body || undefined;
       case PreparedStatementKeys.FIND_BY:
       case PreparedStatementKeys.LIST_BY:
       case PreparedStatementKeys.PAGE_BY:
