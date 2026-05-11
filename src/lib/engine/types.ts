@@ -296,7 +296,6 @@ export type DecafComponentConstructor = DecafComponent<Model>;
  * @description Custom CRUD event emitted by Decaf form components.
  * @summary Extends the base custom and CRUD form events with the selected model data and optional operation role.
  * @template M - Model payload carried by the event.
- * @typedef {IBaseCustomEvent & ICrudFormEvent & CustomEvent & { data: M; role?: CrudOperations }} CrudEvent
  * @memberOf module:lib/engine/types
  */
 export type CrudEvent<M extends Model> = IBaseCustomEvent &
@@ -315,7 +314,6 @@ export type FilterCondition = 'Equal' | 'Contains' | 'Not Contains' | 'Greater T
  * @description Private subset of modal confirmation properties used by the engine.
  * @summary Narrows the modal confirm component props to the fields required for confirmation dialogs.
  * @private
- * @typedef {Pick<ModalConfirmComponent, 'title' | 'role' | 'data' | 'locale' | 'message' | 'inlineContent'>} ModalConfirmProps
  */
 export type ModalConfirmProps = Pick<
   ModalConfirmComponent,

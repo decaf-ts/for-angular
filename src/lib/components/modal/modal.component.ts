@@ -34,7 +34,7 @@ import { IBaseCustomEvent } from '../../engine/interfaces';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
-import { CrudEvent, KeyValue, ModalConfirmProps, SelectOption } from '../../engine/types';
+import { ActionRole, CrudEvent, KeyValue, ModalConfirmProps, SelectOption } from '../../engine/types';
 import { removeFocusTrap } from '../../utils/helpers';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { CrudFormComponent } from '../crud-form/crud-form.component';
@@ -466,10 +466,10 @@ export class ModalConfirmComponent extends ModalComponent implements OnInit {
   /**
    * @description Data used to generate the confirmation message.
    * @summary Carries the item label, primary key, and unique identifier for the entity being confirmed.
-   * @type {{ item?: string; pk?: string; uid?: string } | undefined}
+   * @type {KeyValue | undefined}
    */
   @Input()
-  data?: { item?: string; pk?: string; uid?: string };
+  data?: KeyValue;
 
   /**
    * @description CRUD operation represented by the confirmation modal.
@@ -535,7 +535,7 @@ export class ModalConfirmComponent extends ModalComponent implements OnInit {
    * @description Handles the confirmation modal action.
    * @summary Confirms the modal when requested and passes the selected payload, otherwise cancels the modal.
    *
-   * @param {'confirm' | 'cancel'} [role='confirm'] - The action to perform.
+   * @param {string} - The action to perform.
    * @returns {Promise<void>} - A promise that resolves when the action completes.
    */
   async handleAction(role: 'confirm' | 'cancel' = 'confirm'): Promise<void> {
@@ -555,7 +555,7 @@ export class ModalConfirmComponent extends ModalComponent implements OnInit {
  * @description Retrieves a modal component instance.
  * @summary Creates and initializes a modal component with the provided properties and options.
  *
- * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
+ * @param {Partial<ModalComponent>}- Properties to initialize the modal component.
  * @param {Partial<ModalOptions>} [modalProps={}] - Additional modal options.
  * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
  * @returns {Promise<IonModal>} - A promise that resolves with the modal instance.
@@ -683,7 +683,7 @@ export async function getNgxInlineModal(
  * @summary Creates and initializes a modal component for displaying a list of selectable options.
  *
  * @param {SelectOption[]} options - The list of options to display in the modal.
- * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
+ * @param {EnvironmentInjector} injector - Optional environment injector for dependency injection.
  * @returns {Promise<IonModal>} - A promise that resolves with the modal instance.
  */
 export async function getNgxSelectOptionsModal(
@@ -735,14 +735,14 @@ export async function getNgxSelectOptionsModal(
  * @description Presents a standard confirmation modal.
  * @summary Opens the confirmation modal with transparent header styling and a hidden close button.
  *
- * @param {ModalConfirmProps} [props={}] - Properties used to initialize the confirmation modal.
- * @param {keyof typeof ActionRoles} [role=ActionRoles.confirm] - The dismiss role applied to the modal.
- * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
+ * @param {ModalConfirmProps} props - Properties used to initialize the confirmation modal.
+ * @param {ActionRole} role - The dismiss role applied to the modal.
+ * @param {EnvironmentInjector} injector - Optional environment injector for dependency injection.
  * @returns {Promise<IonModal>} - A promise that resolves with the presented modal instance.
  */
 export async function presentModalConfirm(
   props: ModalConfirmProps = {},
-  role: keyof typeof ActionRoles = ActionRoles.confirm,
+  role: ActionRole = ActionRoles.confirm,
   injector?: EnvironmentInjector
 ): Promise<IonModal> {
   return await getNgxModalComponent(
@@ -762,14 +762,14 @@ export async function presentModalConfirm(
  * @description Presents an alert-style confirmation modal.
  * @summary Opens the confirmation modal with alert styling and a visible close button.
  *
- * @param {ModalConfirmProps} [props={}] - Properties used to initialize the alert modal.
- * @param {keyof typeof ActionRoles} [role=ActionRoles.close] - The dismiss role applied to the modal.
- * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
+ * @param {ModalConfirmProps} props - Properties used to initialize the alert modal.
+ * @param {ActionRole} role - The dismiss role applied to the modal.
+ * @param {EnvironmentInjector} injector - Optional environment injector for dependency injection.
  * @returns {Promise<IonModal>} - A promise that resolves with the presented modal instance.
  */
 export async function presentModalAlert(
   props: ModalConfirmProps = {},
-  role: keyof typeof ActionRoles = ActionRoles.close,
+  role: ActionRole = ActionRoles.close,
   injector?: EnvironmentInjector
 ): Promise<IonModal> {
   return await getNgxModalComponent(

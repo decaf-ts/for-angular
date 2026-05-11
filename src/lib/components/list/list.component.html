@@ -146,7 +146,6 @@
   } @else {
     @if (!searching) {
       <ngx-decaf-empty-state
-        [title]="empty.title ? (locale + '.' + empty.title | translate) : ''"
         [model]="empty?.showButton ? model : undefined"
         [route]="route"
         [modelId]="modelId"
@@ -155,6 +154,7 @@
         [refreshing]="refreshing"
         [icon]="(item?.icon ?? 'folder-open-outline') || empty.icon"
         className="dcf-empty-data"
+        [title]="empty.title ? (locale + '.' + empty.title | translate) : ''"
         [subtitle]="
           empty.subtitle ? (locale + '.' + empty.subtitle | translate) : ''
         "
@@ -170,9 +170,10 @@
         [refreshing]="refreshing"
         [body]="'small'"
         [translatable]="true"
-        [title]="locale + '.search.title' | translate"
+        [title]="'component.list.search.title' | translate"
         [subtitle]="
-          locale + '.search.subtitle' | translate: { '0': parseSearchValue() }
+          'component.list.search.subtitle'
+            | translate: { '0': parseSearchValue() }
         "
         [searchValue]="searchValue"
       />
