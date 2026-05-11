@@ -113,6 +113,10 @@ GIT_USER=$(git config user.name)
 
 REMOTE_URL=$(git remote get-url origin)
 
+if [[ "$MESSAGE" =~ -no-ci$ ]]; then
+  npm run build:prod
+fi
+
 if [[ -s .token ]]; then
   # Save current branch and upstream before pushing
   CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -137,5 +141,5 @@ fi
 
 if [[ "$MESSAGE" =~ -no-ci$ ]]; then
   # Use .npmtoken for publishing; respect chosen access level
-  npm run build:prod && NPM_TOKEN=$(cat .npmtoken) && npm publish ./dist/lib --access "$NPM_ACCESS_VALUE"
+  npm publish ./dist/lib --access "$NPM_ACCESS_VALUE"
 fi
