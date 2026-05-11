@@ -71,17 +71,17 @@ export class ModelRendererComponent<M extends Model> extends NgxRenderableCompon
     model = typeof model === Primitives.STRING ? (Model.build({}, String(model)) as M) : model;
 
     if (model) {
-      this.output = (model as Renderable).render<AngularDynamicOutput>(
+      this.output = (model as unknown as Renderable).render<AngularDynamicOutput>(
         this.globals || {},
         this.vcr,
         this.injector,
         this.inner,
-        this.projectable,
+        this.projectable
       );
       if (this.output?.inputs)
         this.rendererId = sf(
           AngularEngineKeys.RENDERED_ID,
-          (this.output.inputs as Record<string, unknown>)['rendererId'] as string,
+          (this.output.inputs as Record<string, unknown>)['rendererId'] as string
         );
       this.instance = this.output?.component;
       const { operation } = this.globals || {};
