@@ -3,12 +3,9 @@ import type { Config } from 'jest';
 const config: Config = {
   preset: 'jest-preset-angular',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  testEnvironment: 'jest-preset-angular/build/environments/jest-jsdom-env',
-
+  testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['/tests/playwright'],
   modulePathIgnorePatterns: ['/dist', 'src/app'],
-
-  // Transform settings
   transform: {
     '^.+\\.(ts|js|mjs|html|svg)$': [
       'jest-preset-angular',
@@ -20,7 +17,6 @@ const config: Config = {
       },
     ],
   },
-
   // Module handling
   moduleNameMapper: {
     '^src/lib/engine/(.*)$': '<rootDir>/src/lib/engine/$1',
@@ -40,7 +36,6 @@ const config: Config = {
   collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!src/bin/**/*'],
   reporters: ['default'],
   moduleFileExtensions: ['ts', 'tsx', 'mjs', 'js', 'jsx', 'json', 'node', 'html'],
-  // resolver: 'jest-preset-angular/build/resolvers/ng-jest-resolver.js',
   snapshotSerializers: [
     'jest-preset-angular/build/serializers/no-ng-attributes',
     'jest-preset-angular/build/serializers/ng-snapshot',

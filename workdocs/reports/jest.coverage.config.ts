@@ -1,6 +1,9 @@
-import { Config } from '@jest/types';
-import conf from '../../jest.config';
+import type { Config } from '@jest/types';
+import { createRequire } from 'module';
+import path from 'path';
 
+const requireConfig = createRequire(path.join(process.cwd(), 'jest.config.ts'));
+const conf = requireConfig(requireConfig.resolve('./jest.config.ts')).default as Config.InitialOptions;
 const config: Config.InitialOptions = {
   ...conf,
   rootDir: '../..',
