@@ -3,7 +3,8 @@ import type { Config } from 'jest';
 const config: Config = {
   preset: 'jest-preset-angular',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  testEnvironment: 'jsdom',
+  testEnvironment: 'jest-preset-angular/build/environments/jest-jsdom-env',
+
   testPathIgnorePatterns: ['/tests/playwright'],
   modulePathIgnorePatterns: ['/dist', 'src/app'],
 
@@ -26,13 +27,11 @@ const config: Config = {
     '^src/lib/helpers/(.*)$': '<rootDir>/src/lib/helpers/$1',
     '^src/lib/(.*)$': '<rootDir>/src/lib/$1',
     '^lodash-es$': 'lodash',
-    '^ionicons/components/ion-icon.js$': '@ionic/core/components/ion-icon.js'
+    '^ionicons/components/ion-icon.js$': '@ionic/core/components/ion-icon.js',
   },
 
   // Critical for Ionic/Stencil modules
-  transformIgnorePatterns: [
-    'node_modules/(?!.*\\.mjs$|@ionic/core|@stencil|@ionic/angular|ionicons)',
-  ],
+  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|@ionic/core|@stencil|@ionic/angular|ionicons)'],
 
   // Other settings
   verbose: true,
@@ -41,7 +40,7 @@ const config: Config = {
   collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!src/bin/**/*'],
   reporters: ['default'],
   moduleFileExtensions: ['ts', 'tsx', 'mjs', 'js', 'jsx', 'json', 'node', 'html'],
-  resolver: 'jest-preset-angular/build/resolvers/ng-jest-resolver.js',
+  // resolver: 'jest-preset-angular/build/resolvers/ng-jest-resolver.js',
   snapshotSerializers: [
     'jest-preset-angular/build/serializers/no-ng-attributes',
     'jest-preset-angular/build/serializers/ng-snapshot',

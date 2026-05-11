@@ -4,7 +4,7 @@ import { Color } from '@ionic/core';
 import { addIcons } from 'ionicons';
 import * as allIcons from 'ionicons/icons';
 import { shareReplay, Subject, takeUntil } from 'rxjs';
-import { generateRandomValue } from 'src/lib/utils';
+
 import { NgxSvgDirective } from '../../directives/svg.directive';
 import { Dynamic } from '../../engine/decorators';
 import { NgxMediaService } from '../../services/NgxMediaService';

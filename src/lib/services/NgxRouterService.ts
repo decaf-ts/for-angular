@@ -346,9 +346,9 @@ export class NgxRouterService {
    * Supports different navigation directions and additional options.
    *
    * @param {string} page - The page to navigate to
-   * @param {RouteDirections} [direction=RouteDirections.FORWARD] - The direction of navigation
+   * @param {RouteDirections} direction - The direction of navigation
    * @param {KeyValue} [options] - Additional navigation options
-   * @return {Promise<boolean}} A promise that resolves to true if navigation is successful, otherwise false
+   * @return {Promise<boolean>} A promise that resolves to true if navigation is successful, otherwise false
    *
    * @mermaid
    * sequenceDiagram

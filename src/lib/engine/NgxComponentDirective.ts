@@ -613,9 +613,8 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
     await super.initialize();
 
     this.initialized = true;
-    if (this.isModalChild) {
-      this.changeDetectorRef.detectChanges();
-    }
+
+    this.changeDetectorRef.detectChanges();
   }
 
   /**
