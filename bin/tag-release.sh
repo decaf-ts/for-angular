@@ -122,10 +122,10 @@ if [[ -s .token ]]; then
   git push "https://${GIT_USER}:$(cat .token)@${REMOTE_URL#https://}" --follow-tags
   # Restore upstream tracking if it existed
   if [[ -n "$UPSTREAM" ]]; then
-    NPM_TOKEN=$(cat .npmtoken) git branch --set-upstream-to="$UPSTREAM" "$CURRENT_BRANCH" 2>/dev/null || true
+    NPM_TOKEN=$(cat .token) git branch --set-upstream-to="$UPSTREAM" "$CURRENT_BRANCH" 2>/dev/null || true
   fi
 else
-  NPM_TOKEN=$(cat .npmtoken) git push --follow-tags
+  NPM_TOKEN=$(cat .token) git push --follow-tags
 fi
 
 # Map user-friendly flag to npm --access value. npm expects "public" or "restricted"
@@ -137,5 +137,5 @@ fi
 
 if [[ "$MESSAGE" =~ -no-ci$ ]]; then
   # Use .npmtoken for publishing; respect chosen access level
-  NPM_TOKEN=$(cat .npmtoken) npm publish ./dist/lib --access "$NPM_ACCESS_VALUE"
+  npm run build:prod && NPM_TOKEN=$(cat .npmtoken) && npm publish ./dist/lib --access "$NPM_ACCESS_VALUE"
 fi
