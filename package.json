@@ -65,6 +65,9 @@
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
   "devDependencies": {
     "@angular-devkit/schematics": "^21.2.9",
     "@angular-devkit/schematics-cli": "^21.2.9",
