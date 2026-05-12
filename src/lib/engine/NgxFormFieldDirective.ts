@@ -426,6 +426,7 @@ export abstract class NgxFormFieldDirective
     let parent: HTMLElement;
     if (this.component?.nativeElement)
       this.isModalChild = this.component.nativeElement.closest('ion-modal') ? true : false;
+
     switch (this.operation) {
       case OperationKeys.READ:
       case OperationKeys.DELETE:

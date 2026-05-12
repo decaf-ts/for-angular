@@ -26,7 +26,12 @@
     "module": "es2020",
     "lib": ["es2018", "DOM"],
     "useDefineForClassFields": false,
-    "paths": { "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"] }
+    "paths": {
+      "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"],
+      "@decaf-ts/overrides/ui-decorators": [
+        "./node_modules/@decaf-ts/ui-decorators/lib/esm/model/overrides.js"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
@@ -34,7 +39,10 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": false, // default true
     "paths": {
-      "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"]
+      "@decaf-ts/core/ram": ["./node_modules/@decaf-ts/core/lib/ram"],
+      "@decaf-ts/overrides/ui-decorators": [
+        "./node_modules/@decaf-ts/ui-decorators/lib/esm/model/overrides.js"
+      ]
     }
   }
 }

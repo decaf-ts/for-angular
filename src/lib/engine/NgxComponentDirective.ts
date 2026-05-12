@@ -6,6 +6,7 @@
  * It centralizes shared behavior for child components and simplifies integration with the rendering engine.
  * @link {@link NgxComponentDirective}
  */
+
 import { Location } from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -605,15 +606,14 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
       });
 
     this.route = this.router.url.replace('/', '');
+    this.changeDetectorRef.detectChanges();
 
     // search for handler to render event
     if (!this.initialized) {
       await this.beforeInitialize(this);
     }
     await super.initialize();
-
     this.initialized = true;
-
     this.changeDetectorRef.detectChanges();
   }
 
