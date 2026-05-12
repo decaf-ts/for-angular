@@ -1,3 +1,6 @@
+// alias to path on ui-decorators overrides to ensure correct resolution in Angular projects
+import '@decaf-ts/overrides/ui-decorators';
+
 /**
  * @module lib/for-angular-common.module
  * @description Core Angular module and providers for Decaf's for-angular package.
@@ -6,18 +9,12 @@
  * and exposes helper providers such as DB adapter registration and logger utilities.
  * @link {@link ForAngularCommonModule}
  */
-import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ModuleWithProviders, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 
-const CommonModules = [
-  CommonModule,
-  FormsModule,
-  ReactiveFormsModule,
-  TranslateModule,
-  TranslatePipe,
-];
+const CommonModules = [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, TranslatePipe];
 
 /**
  * @description Main Angular module for the Decaf framework.

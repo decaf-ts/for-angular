@@ -4,10 +4,7 @@
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
     "module": "CommonJs",
-    "types": [
-      "jest",
-      "node"
-    ],
+    "types": ["jest", "node"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
   },
@@ -15,8 +12,5 @@
     // "src/karmaTest.ts", // Uncomment if using Karma. Commented out to avoid conflict with Jest.
     "src/polyfills.ts"
   ],
-  "include": [
-    "src/**/*.spec.ts",
-    "src/**/*.d.ts"
-  ]
+  "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
 }

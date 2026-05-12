@@ -24,10 +24,11 @@ const config: Config = {
     '^src/lib/(.*)$': '<rootDir>/src/lib/$1',
     '^lodash-es$': 'lodash',
     '^ionicons/components/ion-icon.js$': '@ionic/core/components/ion-icon.js',
+    '@decaf-ts/overrides/ui-decorators': '<rootDir>/node_modules/@decaf-ts/ui-decorators/lib/esm/model/overrides.js',
   },
 
   // Critical for Ionic/Stencil modules
-  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|@ionic/core|@stencil|@ionic/angular|ionicons)'],
+  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|@ionic/core|@stencil|@ionic/angular|ionicons|@decaf-ts)'],
 
   // Other settings
   verbose: true,
