@@ -8,6 +8,8 @@
  * @link {@link ForAngularCommonModule}
  */
 
+// import '@decaf-ts/overrides/ui-decorators';
+
 export * from './components';
 export * from './directives';
 export * from './engine';

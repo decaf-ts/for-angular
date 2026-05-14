@@ -2,8 +2,8 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 import { LoggedEnvironment, LogLevel } from '@decaf-ts/logging';
-import { EnvConfig } from './types';
 import { getOnWindow } from 'src/lib/utils';
+import { EnvConfig } from './types';
 const env = (getOnWindow('ENV') || {}) as EnvConfig;
 const config: EnvConfig = {
   app: env.app || 'EW Frontend',

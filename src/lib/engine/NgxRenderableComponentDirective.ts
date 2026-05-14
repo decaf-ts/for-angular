@@ -1,15 +1,15 @@
 import {
-    Directive,
-    ElementRef,
-    EventEmitter,
-    Input,
-    OnChanges,
-    OnDestroy,
-    SimpleChanges,
-    TemplateRef,
-    Type,
-    ViewChild,
-    ViewContainerRef,
+  Directive,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+  TemplateRef,
+  Type,
+  ViewChild,
+  ViewContainerRef,
 } from '@angular/core';
 import { Model, ModelKeys } from '@decaf-ts/decorator-validation';
 import { shareReplay, takeUntil } from 'rxjs';

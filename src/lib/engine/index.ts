@@ -7,19 +7,21 @@
  * Key exports include {@link NgxRenderingEngine}, {@link DynamicModule}, and various decorators
  * for component configuration.
  */
-export * from './constants';
-export * from './helpers';
-export * from './decorators';
-export * from './types';
-export * from './interfaces';
-export * from './DynamicModule';
-export * from './NgxRenderingEngine';
-export * from './NgxFormFieldDirective';
 export * from '../services/NgxFormService';
+export * from '../services/NgxMediaService';
+export * from './constants';
+export * from './decorators';
+export * from './DynamicModule';
+export * from './helpers';
+export * from './interfaces';
+export * from './NgxComponentDirective';
 export * from './NgxEventHandler';
+export * from './NgxFormDirective';
+export * from './NgxFormFieldDirective';
 export * from './NgxModelPageDirective';
 export * from './NgxPageDirective';
-export * from './NgxFormDirective';
 export * from './NgxParentComponentDirective';
-export * from './NgxComponentDirective';
-export * from '../services/NgxMediaService';
+export * from './NgxRenderingEngine';
+export * from './overrides';
+export * from './types';
+

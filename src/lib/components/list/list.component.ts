@@ -758,6 +758,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         this.refreshing = false;
       }, 200);
     }
+    this.changeDetectorRef.markForCheck();
   }
 
   /**

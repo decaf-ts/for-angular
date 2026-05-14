@@ -7,6 +7,8 @@
  * @link {@link NgxComponentDirective}
  */
 
+import '@decaf-ts/overrides/ui-decorators';
+
 import { Location } from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -43,7 +45,6 @@ import { generateRandomValue, getWindow, setOnWindow } from '../utils';
 import { AngularEngineKeys, BaseComponentProps, CPTKN, WindowColorSchemes } from './constants';
 import { getModelAndRepository } from './helpers';
 import { IBaseCustomEvent, ICrudFormEvent } from './interfaces';
-import { } from './NgxEventHandler';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { NgxRepositoryDirective } from './NgxRepositoryDirective';
 import { DecafRepository, FormParent, FunctionLike, KeyValue, PropsMapperFn, WindowColorScheme } from './types';
@@ -606,7 +607,7 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
       });
 
     this.route = this.router.url.replace('/', '');
-    this.changeDetectorRef.detectChanges();
+    this.changeDetectorRef.markForCheck();
 
     // search for handler to render event
     if (!this.initialized) {
@@ -614,7 +615,7 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
     }
     await super.initialize();
     this.initialized = true;
-    this.changeDetectorRef.detectChanges();
+    this.changeDetectorRef.markForCheck();
   }
 
   /**

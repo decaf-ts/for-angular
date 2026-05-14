@@ -4,9 +4,10 @@ import { Constructor, Metadata, uses } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { Logger, Logging } from '@decaf-ts/logging';
 import { AnimationController, provideIonicAngular } from '@ionic/angular/standalone';
-import { getOnWindow, getWindowDocument, setOnWindow } from '../utils/helpers';
+import { NgxRenderingEngine } from '../engine/NgxRenderingEngine';
+import { getOnWindow, getWindow, getWindowDocument, setOnWindow } from '../utils/helpers';
 import { NgxComponentDirective } from './NgxComponentDirective';
-import { DB_ADAPTER_FLAVOUR_TOKEN, DB_ADAPTER_PROVIDER_TOKEN } from './constants';
+import { AngularEngineKeys, DB_ADAPTER_FLAVOUR_TOKEN, DB_ADAPTER_PROVIDER_TOKEN } from './constants';
 import { IRepositoryModelProps } from './interfaces';
 import { DecafRepository, FunctionLike, KeyValue } from './types';
 
@@ -29,6 +30,13 @@ export function getDbAdapterFlavour(): string {
  * ]
  */
 export function provideDecafDynamicComponents(...components: unknown[]): Constructor<unknown>[] {
+  try {
+    const win = getWindow();
+    if (!win?.[AngularEngineKeys.LOADED]) new NgxRenderingEngine();
+    setOnWindow(AngularEngineKeys.LOADED, true);
+  } catch (e: unknown) {
+    throw new Error(`Failed to load rendering engine: ${e}`);
+  }
   return components as Constructor<unknown>[];
 }
 

@@ -17,7 +17,7 @@ import {
   RootTranslateServiceConfig,
   TranslateLoader,
   TranslateParser,
-  TranslationObject
+  TranslationObject,
 } from '@ngx-translate/core';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';

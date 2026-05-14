@@ -372,3 +372,11 @@ export const InputComponentErrors = {
   notAllowed: 'not_allowed',
   maxSize: 'max_size',
 } as const;
+
+export const HTTPMethods = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  PATCH: 'PATCH',
+  DELETE: 'DELETE',
+} as const;
