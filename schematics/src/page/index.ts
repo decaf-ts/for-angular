@@ -1,13 +1,8 @@
 import { strings } from '@angular-devkit/core';
 import type { Rule, Tree } from '@angular-devkit/schematics';
-import {
-  apply,
-  applyTemplates,
-  chain,
-  mergeWith,
-  move,
-  url,
-} from '@angular-devkit/schematics';
+import { apply, applyTemplates, chain, mergeWith, move, url } from '@angular-devkit/schematics';
+import { getWorkspace } from '@schematics/angular/utility/workspace';
+import { mergeSchemaOptions } from '../util';
 
 interface Schema {
   name: string;
@@ -59,15 +54,13 @@ function addRouteToAppRoutes(options: Schema): Rule {
     if (lastRouteMatch) {
       // Add comma after the last route and insert new route
       const insertPosition = routesContent.lastIndexOf('}', routesContent.lastIndexOf('];'));
-      updatedContent = routesContent.slice(0, insertPosition + 1) +
-                     ',\n' + newRoute +
-                     routesContent.slice(insertPosition + 1);
+      updatedContent =
+        routesContent.slice(0, insertPosition + 1) + ',\n' + newRoute + routesContent.slice(insertPosition + 1);
     } else {
       // Empty routes array, just add the route
       const insertPosition = routesContent.indexOf('[') + 1;
-      updatedContent = routesContent.slice(0, insertPosition) +
-                     '\n' + newRoute + '\n' +
-                     routesContent.slice(insertPosition);
+      updatedContent =
+        routesContent.slice(0, insertPosition) + '\n' + newRoute + '\n' + routesContent.slice(insertPosition);
     }
 
     tree.overwrite(routesPath, updatedContent);
@@ -78,10 +71,17 @@ function addRouteToAppRoutes(options: Schema): Rule {
 }
 
 export function page(options: Schema): Rule {
-  return () => {
+  return async (host: Tree) => {
     const name = strings.dasherize(options.name);
-    const path = options.path || 'src/app/pages';
+    const workspace = await getWorkspace(host);
+    const project = workspace.projects.get(options.project as string);
+    options = { ...options, ...{ type: 'Page' } };
 
+    options = mergeSchemaOptions<Schema>(options, project || {});
+
+    console.log(`Generating Decaf custom page schematic...`, JSON.stringify(options, null, 2));
+
+    const path = options.path || 'src/app/pages';
     const templateSource = apply(url('./files'), [
       applyTemplates({
         ...strings,
@@ -91,9 +91,6 @@ export function page(options: Schema): Rule {
       move(`${path}/${name}`),
     ]);
 
-    return chain([
-      mergeWith(templateSource),
-      addRouteToAppRoutes(options)
-    ]);
+    return chain([mergeWith(templateSource), addRouteToAppRoutes(options)]);
   };
 }

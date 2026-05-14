@@ -19,7 +19,7 @@ import { validateHtmlSelector } from '@schematics/angular/utility/validation';
 import { buildDefaultPath, getWorkspace } from '@schematics/angular/utility/workspace';
 import * as ts from 'typescript';
 
-import { buildSelector } from '../util';
+import { buildSelector, mergeSchemaOptions } from '../util';
 import {
   addDeclarationToModule,
   addEntryComponentToModule,
@@ -32,7 +32,7 @@ import type { Schema as ComponentOptions } from './schema';
 
 export function test(_options: any): Rule {
   return (tree: Tree, _context: SchematicContext) => {
-    console.log("Testing Decaf component schematics...");
+    console.log('Testing Decaf component schematics...');
     return tree;
   };
 }
@@ -159,14 +159,14 @@ function addImportToImports(host: Tree, options: ComponentOptions): void {
 
 export default function (options: ComponentOptions): Rule {
   return async (host: Tree) => {
-    console.log(`Generating Decaf custom component schematic...`)
+    console.log(`Generating Decaf custom component schematic...`);
     const workspace = await getWorkspace(host);
     const project = workspace.projects.get(options.project as string);
 
     if (!project) {
       throw new SchematicsException(`Project "${options.project}" does not exist.`);
     }
-
+    options = mergeSchemaOptions<ComponentOptions>(options, project);
     if (project && options.path === undefined) {
       options.path = buildDefaultPath(project);
     }
