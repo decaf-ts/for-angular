@@ -6,7 +6,7 @@
     "for-angular": {
       "projectType": "library",
       "root": ".",
-      "sourceRoot": "src/lib",
+      "sourceRoot": "src",
       "prefix": "ngx-decaf",
       "cli": {
         "schematicCollections": ["./schematics"]
