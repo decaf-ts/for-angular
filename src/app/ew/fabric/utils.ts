@@ -1,5 +1,4 @@
-import { Model, type } from '@decaf-ts/decorator-validation';
-import { apply, metadata } from '@decaf-ts/decoration';
+import { ContextOf, Repository, UUID } from '@decaf-ts/core';
 import {
   afterCreate,
   afterDelete,
@@ -10,12 +9,13 @@ import {
   onUpdate,
   OperationKeys,
 } from '@decaf-ts/db-decorators';
-import { ContextOf, Repository, UnsupportedError, UUID } from '@decaf-ts/core';
+import { apply, metadata, uses } from '@decaf-ts/decoration';
+import { Model, Primitives, type } from '@decaf-ts/decorator-validation';
 import { Audit } from './Audit';
 import { TableNames } from './constants';
-import { Entity } from './Entity';
-import { GtinOwner } from './GtinOwner';
 
+import { DB_ADAPTER_FLAVOUR_TOKEN } from 'src/lib/engine/constants';
+import { getOnWindow } from 'src/lib/utils/helpers';
 import { toDiffs } from './helpers/comparison';
 
 export async function createAuditHandler<M extends Model, R extends Repository<M, any>, V>(
@@ -23,9 +23,16 @@ export async function createAuditHandler<M extends Model, R extends Repository<M
   context: ContextOf<R>,
   data: V,
   key: keyof M,
-  model: M,
+  model: M
 ): Promise<void> {
-  const repo = Repository.forModel(Audit);
+  const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || undefined;
+  if (dbAdapterFlavour) {
+    uses(dbAdapterFlavour as string)(Audit);
+  }
+  const repo = Repository.forModel(
+    Audit,
+    typeof dbAdapterFlavour === Primitives.STRING ? String(dbAdapterFlavour) : undefined
+  );
   const id = UUID.instance.generate();
   const toCreate = new Audit({
     userGroup: id,
@@ -48,7 +55,7 @@ export async function updateAuditHandler<M extends Model, R extends IRepository<
   data: V,
   key: keyof M,
   model: M,
-  oldModel: M,
+  oldModel: M
 ): Promise<void> {
   const id = UUID.instance.generate();
 
@@ -73,7 +80,7 @@ export async function deleteAuditHandler<M extends Model, R extends IRepository<
   context: any,
   data: V,
   key: keyof M,
-  model: M,
+  model: M
 ): Promise<void> {
   const id = UUID.instance.generate();
 
@@ -98,7 +105,7 @@ export function audit() {
     afterCreate(createAuditHandler as any, {}),
     afterUpdate(updateAuditHandler as any, {}),
     afterDelete(deleteAuditHandler as any, {}),
-    metadata(TableNames.Audit, true),
+    metadata(TableNames.Audit, true)
   );
 }
 
@@ -107,7 +114,7 @@ export async function createUuidHandler<M extends Model, R extends Repository<M,
   context: any,
   data: V,
   key: keyof M,
-  model: M,
+  model: M
 ): Promise<void> {
   model[key] = UUID.instance.generate() as any;
 }

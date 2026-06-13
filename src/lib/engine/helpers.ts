@@ -69,8 +69,13 @@ export function getModelAndRepository<M extends Model>(
     const constructor = Model.get((modelName.charAt(0).toUpperCase() + modelName.slice(1)) as string);
     if (!constructor) return undefined;
     const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || undefined;
-    if (dbAdapterFlavour) uses(dbAdapterFlavour as string)(constructor);
-    const repository = Repository.forModel(constructor);
+    if (dbAdapterFlavour) {
+      uses(dbAdapterFlavour as string)(constructor);
+    }
+    const repository = Repository.forModel(
+      constructor,
+      typeof dbAdapterFlavour === Primitives.STRING ? String(dbAdapterFlavour) : undefined
+    );
     model = new constructor() as M;
     const pk = Model.pk(repository.class as Constructor<Model>);
     if (!pk) return undefined;

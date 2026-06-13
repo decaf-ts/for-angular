@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { ForAngularCommonModule } from '../../for-angular-common.module';
-import { CrudFormComponent } from './crud-form.component';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { OperationKeys } from '@decaf-ts/db-decorators';
 import { FormGroup } from '@angular/forms';
-import { I18nFakeLoader } from '../../i18n';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { ForAngularCommonModule } from '../../for-angular-common.module';
+import { I18nFakeLoader } from '../../i18n/FakeLoader';
+import { CrudFormComponent } from './crud-form.component';
 
 const imports = [
   ForAngularCommonModule,
@@ -12,9 +12,9 @@ const imports = [
   TranslateModule.forRoot({
     loader: {
       provide: TranslateLoader,
-      useClass: I18nFakeLoader
-    }
-  })
+      useClass: I18nFakeLoader,
+    },
+  }),
 ];
 
 describe('CrudFormComponent', () => {
@@ -34,9 +34,8 @@ describe('CrudFormComponent', () => {
   }));
 
   it('should create', () => {
-     // If ngOnInit returns a promise, await it
-    if (component.ngOnInit instanceof Function)
-      component.ngOnInit();
+    // If ngOnInit returns a promise, await it
+    if (component.ngOnInit instanceof Function) component.ngOnInit();
 
     // If ngAfterViewInit returns a promise, await it
     // if (component.ngAfterViewInit instanceof Function)

@@ -35,8 +35,13 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
       try {
         this.model = new constructor();
         const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || undefined;
-        if (dbAdapterFlavour) uses(dbAdapterFlavour as string)(constructor);
-        this._repository = Repository.forModel(constructor);
+        if (dbAdapterFlavour) {
+          uses(String(dbAdapterFlavour))(constructor);
+        }
+        this._repository = Repository.forModel(
+          constructor,
+          typeof dbAdapterFlavour === Primitives.STRING ? String(dbAdapterFlavour) : undefined
+        ) as DecafRepository<Model>;
         this.pk = Model.pk(constructor) as string;
         this.pkType = Metadata.type(this._repository.class, this.pk).name.toLowerCase();
       } catch (error: unknown) {

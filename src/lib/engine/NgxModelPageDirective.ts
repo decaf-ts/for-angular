@@ -8,11 +8,12 @@ import {
   OperationKeys,
   PrimaryKeyType,
 } from '@decaf-ts/db-decorators';
-import { Constructor, Metadata } from '@decaf-ts/decoration';
+import { Constructor, Metadata, uses } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
+import { getOnWindow } from '../public-apis';
 import { NgxPageDirective } from './NgxPageDirective';
-import { ErrorCodesTranslationKeys } from './constants';
+import { DB_ADAPTER_FLAVOUR_TOKEN, ErrorCodesTranslationKeys } from './constants';
 import { getModelAndRepository } from './helpers';
 import { ICrudFormEvent, ILayoutModelContext, IModelComponentSubmitEvent } from './interfaces';
 import { CrudEvent, DecafRepository, KeyValue } from './types';
@@ -67,7 +68,14 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
       if (!this._repository && modelName) {
         const constructor = Model.get(String(modelName));
         if (!constructor) throw new InternalError('Cannot find model. was it registered with @model?');
-        this._repository = Repository.forModel(constructor);
+        const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || undefined;
+        if (dbAdapterFlavour) {
+          uses(String(dbAdapterFlavour))(constructor);
+        }
+        this._repository = Repository.forModel(
+          constructor,
+          typeof dbAdapterFlavour === Primitives.STRING ? String(dbAdapterFlavour) : undefined
+        ) as DecafRepository<Model>;
         if (!this.pk) this.pk = Model.pk(constructor) as string;
         this.model = new constructor() as Model;
       }

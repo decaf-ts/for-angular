@@ -10,9 +10,9 @@
 
 import { Component, Input } from '@angular/core';
 import { Model, Primitives, sf } from '@decaf-ts/decorator-validation';
+import { CrudOperationKeys, Renderable } from '@decaf-ts/ui-decorators';
 import { AngularEngineKeys } from '../../engine/constants';
 import { AngularDynamicOutput } from '../../engine/interfaces';
-import { Renderable, CrudOperationKeys } from '@decaf-ts/ui-decorators';
 import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableComponentDirective';
 
 /**

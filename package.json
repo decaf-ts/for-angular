@@ -101,7 +101,7 @@
     "typescript-eslint": "8.59.2"
   },
   "peerDependencies": {
-    "@angular-builders/custom-webpack": "^21.0.3",
+    "@angular-builders/custom-webpack": "^21.1.0",
     "@angular/animations": "^21.2.11",
     "@angular/common": "^21.2.11",
     "@angular/compiler": "^21.2.11",
