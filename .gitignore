@@ -71,3 +71,5 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /tests/playwright/videos
+CLAUDE.md
+/workdocs/ai

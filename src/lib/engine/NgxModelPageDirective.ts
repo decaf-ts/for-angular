@@ -11,7 +11,7 @@ import {
 import { Constructor, Metadata, uses } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { getOnWindow } from '../public-apis';
+import { getOnWindow } from '../utils/helpers';
 import { NgxPageDirective } from './NgxPageDirective';
 import { DB_ADAPTER_FLAVOUR_TOKEN, ErrorCodesTranslationKeys } from './constants';
 import { getModelAndRepository } from './helpers';

@@ -53,7 +53,8 @@
     "repo:tests": "codex exec \"$(cat ./.codex/prompts/bulk-tests.md)\nbase_path is ./ and coverage is 95%\" -s workspace-write",
     "repo:readme": "codex exec \"$(cat ./.codex/prompts/update-readme.md)\nbase_path is ./\"",
     "repo:pr": "npm run repo:doc && npm run repo:tests && npm run repo:readme",
-    "sync-codex": "./bin/sync-codex.sh"
+    "sync-codex": "./bin/sync-codex.sh",
+    "test:single": "jest --runInBand --passWithNoTests src/lib/components/searchbar/searchbar.component.spec.ts"
   },
   "author": "Tiago Venceslau and Contributors",
   "license": "MPL-2.0 OR AGPL-3.0",
