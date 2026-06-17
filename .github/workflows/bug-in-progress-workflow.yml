@@ -1,0 +1,56 @@
+name: Run bug in progress
+
+on:
+  repository_dispatch:
+    types:
+      - decaf_bug_in_progress
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    concurrency:
+      group: create-branch-${{ github.event.client_payload.branch }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Validate payload
+        run: |
+          if [ -z "${{ github.event.client_payload.branch }}" ]; then
+            echo "Branch name is missing in client_payload.branch"
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Create branch if not exists
+        env:
+          BRANCH_NAME: ${{ github.event.client_payload.branch }}
+        run: |
+          set -e
+
+          echo "Branch requested: $BRANCH_NAME"
+
+          if ! [[ "$BRANCH_NAME" =~ ^[a-zA-Z0-9._/-]+$ ]]; then
+            echo "Invalid branch name: $BRANCH_NAME"
+            exit 1
+          fi
+
+          git fetch origin
+
+          if git ls-remote --exit-code --heads origin "$BRANCH_NAME" > /dev/null; then
+            echo "Branch already exists. Skipping creation."
+            exit 0
+          fi
+
+          git checkout -b "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
+
+          echo "Branch created successfully: $BRANCH_NAME"

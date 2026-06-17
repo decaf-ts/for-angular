@@ -1,0 +1,51 @@
+name: Trivy Security Scan
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * *'
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  trivy-scan:
+    name: Trivy Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate Trivy Vulnerability Report
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: "fs"
+          output: trivy-report.json
+          format: json
+          scan-ref: .
+          exit-code: 0
+
+      - name: Upload Vulnerability Scan Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.json
+          retention-days: 30
+
+      - name: Check vulnerabilities
+        id: check
+        run: |
+          COUNT=$(jq '[.Results[]?.Vulnerabilities[]?] | length' trivy-report.json)
+          if [ "$COUNT" -gt 0 ]; then
+            echo "vulnerabilities=true" >> $GITHUB_OUTPUT
+          else
+            echo "vulnerabilities=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger Renovate
+        if: steps.check.outputs.vulnerabilities == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          gh api repos/${{ github.repository }}/dispatches \
+            -f event_type=renovate-trigger
