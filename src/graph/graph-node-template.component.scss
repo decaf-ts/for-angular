@@ -1,0 +1,137 @@
+:host {
+  display: block;
+}
+
+.graph-node {
+  --node-border: color-mix(in srgb, var(--graph-accent) 88%, white);
+
+  position: relative;
+  min-width: 260px;
+  min-height: 180px;
+  padding: 1rem;
+  color: #f8fafc;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--graph-accent) 26%, transparent), transparent 48%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.96));
+  border: 1px solid var(--node-border);
+  border-radius: 18px;
+  box-shadow:
+    0 20px 50px rgba(2, 6, 23, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+}
+
+.graph-node__header h3,
+.graph-node__header p,
+.graph-node__column h4,
+.graph-node__port-copy strong,
+.graph-node__port-copy span {
+  margin: 0;
+}
+
+.graph-node__header h3 {
+  margin-top: 0.45rem;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.graph-node__header p {
+  margin-top: 0.45rem;
+  color: rgba(226, 232, 240, 0.8);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.graph-node__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.graph-node__badge,
+.graph-node__category {
+  border-radius: 999px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.graph-node__badge {
+  background: color-mix(in srgb, var(--graph-accent) 80%, black);
+  color: white;
+}
+
+.graph-node__category {
+  color: rgba(226, 232, 240, 0.8);
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.graph-node__category--empty {
+  color: rgba(226, 232, 240, 0.45);
+}
+
+.graph-node__labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.9rem 0 0.7rem;
+}
+
+.graph-node__labels span {
+  border-radius: 999px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.7rem;
+  color: color-mix(in srgb, var(--graph-accent) 72%, white);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.graph-node__ports {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+}
+
+.graph-node__column h4 {
+  margin-bottom: 0.55rem;
+  color: rgba(241, 245, 249, 0.78);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.graph-node__port-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2rem;
+}
+
+.graph-node__port-row--output {
+  justify-content: flex-end;
+}
+
+.graph-node__port-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.graph-node__port-copy--right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.graph-node__port-copy strong {
+  font-size: 0.8rem;
+  color: #f8fafc;
+}
+
+.graph-node__port-copy span {
+  font-size: 0.72rem;
+  color: rgba(226, 232, 240, 0.65);
+}
+

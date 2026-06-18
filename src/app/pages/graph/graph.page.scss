@@ -1,0 +1,259 @@
+:host {
+  display: block;
+}
+
+.graph-page {
+  min-height: 100%;
+  padding: 1rem 0 2rem;
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.14), transparent 30%),
+    radial-gradient(circle at top right, rgba(249, 115, 22, 0.16), transparent 28%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.02), rgba(15, 23, 42, 0.12));
+}
+
+.graph-hero,
+.graph-workspace {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 24px;
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+  backdrop-filter: blur(18px);
+}
+
+.graph-hero {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.graph-hero__eyebrow {
+  margin: 0 0 0.5rem;
+  color: #7dd3fc;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.graph-hero h1 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: clamp(1.75rem, 3vw, 2.6rem);
+  line-height: 1.05;
+}
+
+.graph-hero p {
+  margin: 0.75rem 0 0;
+  max-width: 62ch;
+  color: rgba(226, 232, 240, 0.82);
+  line-height: 1.6;
+}
+
+.graph-hero__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.graph-stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.graph-stat__value {
+  color: #f8fafc;
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.graph-stat__label {
+  color: rgba(226, 232, 240, 0.72);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.graph-workspace {
+  margin-top: 1rem;
+}
+
+.graph-workspace__flow,
+.graph-workspace__edges {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(2, 6, 23, 0.56);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.graph-workspace__flow h2,
+.graph-workspace__edges h2 {
+  margin: 0 0 0.8rem;
+  color: #e2e8f0;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.graph-workspace__flow ol {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.graph-workspace__flow li {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.graph-workspace__flow-kind {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5rem;
+  height: fit-content;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(148, 163, 184, 0.14);
+  color: #e2e8f0;
+}
+
+.graph-workspace__flow strong,
+.graph-workspace__flow p {
+  margin: 0;
+}
+
+.graph-workspace__flow strong {
+  display: block;
+  color: #f8fafc;
+  font-size: 0.9rem;
+}
+
+.graph-workspace__flow p {
+  margin-top: 0.35rem;
+  color: rgba(226, 232, 240, 0.68);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.graph-workspace__edges-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.graph-workspace__edges-list span {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.32rem 0.7rem;
+  color: #dbeafe;
+  background: rgba(14, 165, 233, 0.18);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.graph-workspace__legend {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.graph-workspace__legend > div {
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(2, 6, 23, 0.64), rgba(2, 6, 23, 0.5)),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--legend-accent) 24%, transparent), transparent 55%);
+  border: 1px solid color-mix(in srgb, var(--legend-accent) 18%, rgba(148, 163, 184, 0.12));
+}
+
+.graph-workspace__legend p {
+  margin: 0.55rem 0 0;
+  color: rgba(226, 232, 240, 0.7);
+  line-height: 1.45;
+}
+
+.graph-workspace__legend small {
+  display: block;
+  margin-top: 0.3rem;
+  color: rgba(226, 232, 240, 0.52);
+  line-height: 1.4;
+}
+
+.graph-workspace__legend-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.graph-workspace__legend-tag--workflow {
+  color: #ffedd5;
+  background: rgba(249, 115, 22, 0.24);
+}
+
+.graph-workspace__legend-tag--pipeline {
+  color: #dbeafe;
+  background: rgba(14, 165, 233, 0.24);
+}
+
+.graph-workspace__legend-tag--node {
+  color: #ede9fe;
+  background: rgba(139, 92, 246, 0.24);
+}
+
+.graph-canvas {
+  height: 760px;
+  overflow: hidden;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(2, 6, 23, 0.9), rgba(15, 23, 42, 0.88)),
+    radial-gradient(circle at center, rgba(34, 197, 94, 0.08), transparent 50%);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.graph-canvas ng-diagram {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 1024px) {
+  .graph-hero,
+  .graph-workspace__legend {
+    grid-template-columns: 1fr;
+  }
+
+  .graph-canvas {
+    height: 640px;
+  }
+}

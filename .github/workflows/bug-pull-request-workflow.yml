@@ -1,0 +1,121 @@
+name: Create bug pull request test
+
+on:
+  repository_dispatch:
+    types:
+      - decaf_bug_pull_request
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Create pull request
+        id: create_pr
+        env:
+          BRANCH_NAME: ${{ github.event.client_payload.branch }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_URL=$(gh pr create \
+            --base master \
+            --head "$BRANCH_NAME" \
+            --title "Decaf bug fix: $BRANCH_NAME" \
+            --body "Automated pull request for branch \`$BRANCH_NAME\`.")
+
+          echo "url=$PR_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Determine required teams from CODEOWNERS
+        id: reviewers
+        env:
+          GH_TOKEN: ${{ secrets.JIRA_AUTOMATION }}
+          BRANCH_NAME: ${{ github.event.client_payload.branch }}
+        run: |
+          git fetch origin "$BRANCH_NAME"
+
+          CHANGED_FILES=$(git diff --name-only origin/master...origin/"$BRANCH_NAME")
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          REQUIRED_TEAMS="quality techlead"
+
+          while IFS= read -r file; do
+            if [[ "$file" == ".github/CODEOWNERS" || "$file" == "LICENCE.md" ]]; then
+              REQUIRED_TEAMS="$REQUIRED_TEAMS administration"
+            elif [[ "$file" == .github/* ]]; then
+              REQUIRED_TEAMS="$REQUIRED_TEAMS CI-CD quality"
+            fi
+          done <<< "$CHANGED_FILES"
+
+          UNIQUE_TEAMS=$(echo "$REQUIRED_TEAMS" | tr ' ' '\n' | sort -u | grep -v '^$')
+
+          echo "Teams required:"
+          echo "$UNIQUE_TEAMS"
+
+          REVIEWERS=""
+
+          for TEAM in $UNIQUE_TEAMS; do
+            echo "Selecting reviewer from team: $TEAM"
+
+            MEMBERS=$(gh api \
+              "/orgs/decaf-ts/teams/$TEAM/members" \
+              --jq '.[].login')
+
+            REVIEWER=$(echo "$MEMBERS" | shuf -n 1)
+
+            echo "Selected reviewer: $REVIEWER"
+
+            REVIEWERS="$REVIEWERS,$REVIEWER"
+          done
+
+          REVIEWERS="${REVIEWERS#,}"
+
+          echo "Final reviewers: $REVIEWERS"
+          echo "reviewers=$REVIEWERS" >> "$GITHUB_OUTPUT"
+
+      - name: Assign reviewers
+        env:
+          GH_TOKEN: ${{ secrets.JIRA_AUTOMATION }}
+          PR_URL: ${{ steps.create_pr.outputs.url }}
+          REVIEWERS: ${{ steps.reviewers.outputs.reviewers }}
+        run: |
+          PR_NUMBER="${PR_URL##*/}"
+
+          REVIEWERS_JSON=$(printf '%s\n' "$REVIEWERS" \
+            | tr ',' '\n' \
+            | jq -R . \
+            | jq -s .)
+
+          REQUEST_BODY=$(jq -n \
+            --argjson reviewers "$REVIEWERS_JSON" \
+            '{reviewers: $reviewers}')
+
+          echo "Request body:"
+          echo "$REQUEST_BODY"
+
+          for attempt in 1 2 3 4 5; do
+            echo "Requesting reviewers, attempt $attempt..."
+
+            if echo "$REQUEST_BODY" | gh api \
+              --method POST \
+              "/repos/${{ github.repository }}/pulls/$PR_NUMBER/requested_reviewers" \
+              --input -; then
+              echo "Reviewers requested successfully."
+              exit 0
+            fi
+
+            sleep $((attempt * 10))
+          done
+
+          echo "Failed to request reviewers after retries."
+          exit 1

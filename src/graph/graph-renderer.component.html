@@ -1,0 +1,126 @@
+<app-container>
+  <section class="graph-renderer">
+    <aside class="graph-renderer__side graph-renderer__side--inputs">
+      <div class="graph-renderer__side-header">
+        <p>Workflow inputs</p>
+        <h2>{{ rootTitle() }}</h2>
+        <small>Editable controls are built from the workflow input metadata and validated by a generated model class.</small>
+      </div>
+
+      <form class="graph-renderer__form" [formGroup]="workflowInputForm()">
+        @for (field of workflowInputFields(); track field.property) {
+          <article class="graph-renderer__field">
+            <label class="graph-renderer__field-label" [attr.for]="'graph-input-' + field.property">
+              {{ field.label }}
+            </label>
+            <span class="graph-renderer__field-meta">{{ field.property }} · {{ field.controlType }}</span>
+
+            @switch (field.controlType) {
+              @case ('textarea') {
+                <textarea
+                  [id]="'graph-input-' + field.property"
+                  [formControlName]="field.property"
+                  [placeholder]="field.placeholder || field.label"
+                  rows="5"
+                ></textarea>
+              }
+              @case ('number') {
+                <input
+                  [id]="'graph-input-' + field.property"
+                  [formControlName]="field.property"
+                  type="number"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+              @case ('checkbox') {
+                <label class="graph-renderer__checkbox" [attr.for]="'graph-input-' + field.property">
+                  <input [id]="'graph-input-' + field.property" [formControlName]="field.property" type="checkbox" />
+                  <span>{{ field.placeholder || field.label }}</span>
+                </label>
+              }
+              @case ('date') {
+                <input
+                  [id]="'graph-input-' + field.property"
+                  [formControlName]="field.property"
+                  type="date"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+              @case ('email') {
+                <input
+                  [id]="'graph-input-' + field.property"
+                  [formControlName]="field.property"
+                  type="email"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+              @case ('url') {
+                <input
+                  [id]="'graph-input-' + field.property"
+                  [formControlName]="field.property"
+                  type="url"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+              @default {
+                <input
+                  [id]="'graph-input-' + field.property"
+                  [formControlName]="field.property"
+                  type="text"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+            }
+
+            @if (fieldErrors(field).length) {
+              <ul class="graph-renderer__errors">
+                @for (message of fieldErrors(field); track message) {
+                  <li>{{ message }}</li>
+                }
+              </ul>
+            }
+
+            <button type="button" class="graph-renderer__duplicate" (click)="duplicateInput(field.property)">
+              Duplicate value node
+            </button>
+          </article>
+        }
+      </form>
+
+      <div class="graph-renderer__validation">
+        <p>Model validation</p>
+        <strong>{{ hasFormErrors() ? 'Invalid' : 'Valid' }}</strong>
+        <small>{{ workflowInputErrors() ? displayValue(workflowInputErrors()) : 'No model errors' }}</small>
+      </div>
+    </aside>
+
+    <div class="graph-renderer__canvas">
+      @if (model(); as graphModel) {
+        <ng-diagram [model]="graphModel" [nodeTemplateMap]="nodeTemplateMap">
+          <ng-diagram-background type="dots" />
+          <ng-diagram-minimap position="bottom-right" [showZoomControls]="true" />
+        </ng-diagram>
+      }
+    </div>
+
+    <aside class="graph-renderer__side graph-renderer__side--outputs">
+      <div class="graph-renderer__side-header">
+        <p>Workflow outputs</p>
+        <h2>Run result</h2>
+        <small>Outputs are returned by the workflow engine and are not rendered as canvas nodes.</small>
+      </div>
+
+      <div class="graph-renderer__ports">
+        @for (port of viewModel().workflowOutputs; track port.property) {
+          <article class="graph-renderer__port-card graph-renderer__port-card--output">
+            <div>
+              <strong>{{ port.label }}</strong>
+              <small>{{ port.property }} · {{ port.type || 'unknown' }}</small>
+            </div>
+            <span>{{ workflowOutputValue() }}</span>
+          </article>
+        }
+      </div>
+    </aside>
+  </section>
+</app-container>

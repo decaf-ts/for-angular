@@ -19,6 +19,7 @@
   "menu": {
     "login": "Login",
     "dashboard": "Dashboard",
+    "graph": "Graph",
     "products": "Products & Batches",
     "batches": "Batches",
     "logout": "Logout",

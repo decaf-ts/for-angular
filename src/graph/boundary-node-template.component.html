@@ -1,0 +1,16 @@
+<ng-diagram-base-node-template [node]="node()">
+  <article
+    class="graph-boundary"
+    [style.--graph-boundary-accent]="'#0f766e'"
+  >
+    <span class="graph-boundary__badge">input</span>
+    <div class="graph-boundary__copy">
+      <h3>{{ node().data.title }}</h3>
+      <p>{{ displayValue(node().data.value) }}</p>
+    </div>
+
+    @for (port of outputPorts(); track port.property) {
+      <ng-diagram-port [id]="port.property" type="source" side="right" />
+    }
+  </article>
+</ng-diagram-base-node-template>

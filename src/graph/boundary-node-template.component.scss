@@ -1,0 +1,44 @@
+.graph-boundary {
+  --node-border: color-mix(in srgb, var(--graph-boundary-accent) 84%, white);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 210px;
+  min-height: 110px;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--node-border);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--graph-boundary-accent) 24%, transparent), transparent 48%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.98));
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+}
+
+.graph-boundary__badge {
+  align-self: flex-start;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--graph-boundary-accent) 80%, black);
+  color: white;
+}
+
+.graph-boundary__copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.graph-boundary__copy h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.graph-boundary__copy p,
+.graph-boundary__copy small {
+  margin: 0;
+  color: #475569;
+}

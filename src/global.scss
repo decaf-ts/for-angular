@@ -55,6 +55,7 @@
 @use "./theme/variables.scss";
 @use "./theme/ew.scss";
 @forward "@tabler/icons-webfont/dist/tabler-icons.scss";
+@import "ng-diagram/styles.css";
 
 // ion-router-outlet ion-content {
 //   --background: var(--dcf-content-background);
