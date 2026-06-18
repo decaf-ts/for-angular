@@ -1,8 +1,18 @@
 <ng-diagram-base-node-template [node]="node()">
   <article
     class="graph-boundary"
+    [class.graph-boundary--expanded]="isExpanded()"
     [style.--graph-boundary-accent]="'#0f766e'"
   >
+    <div class="graph-boundary__actions">
+      <button type="button" class="graph-boundary__action" title="Delete node" (click)="deleteNode($event)" (mousedown)="$event.stopPropagation()">x</button>
+      <button type="button" class="graph-boundary__action" title="Edit node" (click)="openEditor($event)" (mousedown)="$event.stopPropagation()">⚙</button>
+      <button type="button" class="graph-boundary__action" title="Pin node" (click)="pinNode($event)" (mousedown)="$event.stopPropagation()">📌</button>
+      <button type="button" class="graph-boundary__action" title="Expand ports" (click)="toggleExpanded($event)" (mousedown)="$event.stopPropagation()">
+        {{ isExpanded() ? '▾' : '▸' }}
+      </button>
+    </div>
+
     <span class="graph-boundary__badge">input</span>
     <div class="graph-boundary__copy">
       <h3>{{ node().data.title }}</h3>
@@ -10,7 +20,7 @@
     </div>
 
     @for (port of outputPorts(); track port.property) {
-      <ng-diagram-port [id]="port.property" type="source" side="right" />
+      <ng-diagram-port [id]="port.path || port.property" type="source" side="right" />
     }
   </article>
 </ng-diagram-base-node-template>

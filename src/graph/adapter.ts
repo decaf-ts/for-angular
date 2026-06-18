@@ -1,11 +1,17 @@
 import { Constructor } from '@decaf-ts/decoration';
 import { Model } from '@decaf-ts/decorator-validation';
 import { Injector } from '@angular/core';
-import { initializeModel } from 'ng-diagram';
+import { initializeModel, type ModelAdapter } from 'ng-diagram';
 import {
   graphDefinitionOf,
+  graphLeafPortsOf,
   graphWorkflowDefinitionOf,
+  graphWorkflowSnapshotFromJSON,
+  graphWorkflowSnapshotInputValuesOf,
+  graphWorkflowSnapshotOf,
+  graphWorkflowSnapshotToJSON,
   PortDirection,
+  type GraphWorkflowSnapshot,
 } from '@decaf-ts/ui-decorators/graph';
 import {
   GRAPH_DEMO_EDGES,
@@ -59,11 +65,77 @@ export interface GraphDemoSummary {
   edgeLabels: GraphDemoEdgeSummaryItem[];
 }
 
+export interface GraphRendererSnapshotState {
+  duplicateCounts: Record<string, number>;
+  diagramMetadata: Record<string, unknown>;
+}
+
 function titleFromDefinition(definitionName: string): string {
   return definitionName
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .replace(/[-_]/g, ' ')
     .replace(/\b\w/g, (match) => match.toUpperCase());
+}
+
+function resolvePortPath(port: { path?: string; property: string }): string {
+  return port.path || port.property;
+}
+
+function readNestedValue(values: Record<string, unknown>, path: string): unknown {
+  return path.split('.').reduce<unknown>((current, segment) => {
+    if (current && typeof current === 'object' && segment in (current as Record<string, unknown>)) {
+      return (current as Record<string, unknown>)[segment];
+    }
+    return undefined;
+  }, values);
+}
+
+function cloneJson<T>(value: T): T {
+  if (value === undefined) return value;
+  if (typeof globalThis.structuredClone === 'function') {
+    return globalThis.structuredClone(value);
+  }
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function toRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {};
+  }
+  return value as Record<string, unknown>;
+}
+
+function readModelState(model: ModelAdapter) {
+  const parsed = JSON.parse(model.toJSON()) as {
+    nodes?: unknown[];
+    edges?: unknown[];
+    metadata?: Record<string, unknown>;
+  };
+
+  return {
+    nodes: Array.isArray(parsed.nodes) ? parsed.nodes : [],
+    edges: Array.isArray(parsed.edges) ? parsed.edges : [],
+    metadata: toRecord(parsed.metadata),
+  };
+}
+
+function readDuplicateCountsFromNodes(nodes: unknown[]) {
+  const counts = new Map<string, number>();
+
+  for (const node of nodes) {
+    if (!node || typeof node !== 'object') continue;
+    const data = toRecord((node as Record<string, unknown>)['data']);
+    if (data['role'] !== 'input') continue;
+
+    const property = String(data['property'] || '');
+    if (!property) continue;
+    counts.set(property, (counts.get(property) || 0) + 1);
+  }
+
+  return Array.from(counts.entries()).reduce<Record<string, number>>((acc, [property, count]) => {
+    acc[property] = Math.max(0, count - 1);
+    return acc;
+  }, {});
 }
 
 function buildNode(ctor: GraphDemoNodeConstructor, index: number) {
@@ -94,6 +166,8 @@ function buildNode(ctor: GraphDemoNodeConstructor, index: number) {
       labels: definition.labels,
       ports: definition.ports,
       sourceClass: definition.name,
+      modelClass: ctor,
+      expanded: false,
     } satisfies GraphDemoNodeData,
   };
 }
@@ -182,8 +256,16 @@ export function getGraphDemoSummary(): GraphDemoSummary {
   return {
     totalNodes: definitions.length,
     totalEdges: GRAPH_DEMO_EDGES.length,
-    totalInputs: definitions.reduce((total, item) => total + countPortsByDirection(PortDirection.INPUT, item.definition.ports), 0),
-    totalOutputs: definitions.reduce((total, item) => total + countPortsByDirection(PortDirection.OUTPUT, item.definition.ports), 0),
+    totalInputs: definitions.reduce(
+      (total, item) =>
+        total + countPortsByDirection(PortDirection.INPUT, graphLeafPortsOf(item.definition.ports)),
+      0
+    ),
+    totalOutputs: definitions.reduce(
+      (total, item) =>
+        total + countPortsByDirection(PortDirection.OUTPUT, graphLeafPortsOf(item.definition.ports)),
+      0
+    ),
     items: Array.from(itemsByKind.values()),
     orderedNodes: orderedDefinitions.map(({ definition, metadata }) => ({
       name: definition.name,
@@ -285,6 +367,8 @@ function buildBoundaryNode(
       isPrimary: duplicateIndex === 0,
       value,
       ports: graphInputBoundaryDefinition.ports,
+      modelClass: GraphInputValueNode as never,
+      expanded: false,
     },
   };
 }
@@ -324,6 +408,44 @@ function buildMemberNode(
       labels: definition.labels,
       ports: definition.ports,
       sourceClass: definition.name,
+      modelClass: ctor as never,
+      expanded: false,
+    },
+  };
+}
+
+function mergeNodeRuntimeState<T extends { [key: string]: unknown; id: string; data?: Record<string, unknown>; position?: Record<string, unknown>; size?: Record<string, unknown> }>(
+  next: T,
+  previous?: T
+): T {
+  if (!previous) return next;
+
+  return {
+    ...previous,
+    ...next,
+    position: (previous.position as Record<string, unknown> | undefined) ?? next.position,
+    size: (previous.size as Record<string, unknown> | undefined) ?? next.size,
+    data: {
+      ...(previous.data || {}),
+      ...(next.data || {}),
+      expanded: (previous.data?.['expanded'] ?? next.data?.['expanded']) as unknown,
+      pinned: (previous.data?.['pinned'] ?? next.data?.['pinned']) as unknown,
+    },
+  };
+}
+
+function mergeEdgeRuntimeState<T extends { [key: string]: unknown; id: string; data?: Record<string, unknown> }>(
+  next: T,
+  previous?: T
+): T {
+  if (!previous) return next;
+
+  return {
+    ...previous,
+    ...next,
+    data: {
+      ...(previous.data || {}),
+      ...(next.data || {}),
     },
   };
 }
@@ -460,11 +582,14 @@ export function getGraphWorkflowSummary<M extends Model>(
     String(inputBoundaryDefinition.graph?.metadata?.['description'] ?? '')
   );
 
+  const workflowInputs = graphLeafPortsOf(workflow.inputs);
+  const workflowOutputs = graphLeafPortsOf(workflow.outputs);
+
   return {
-    totalNodes: 1 + nodeDefinitions.length + workflow.inputs.length,
+    totalNodes: 1 + nodeDefinitions.length + workflowInputs.length,
     totalEdges: workflow.relations?.length || 0,
-    totalInputs: workflow.inputs.length,
-    totalOutputs: workflow.outputs.length,
+    totalInputs: workflowInputs.length,
+    totalOutputs: workflowOutputs.length,
     items: Array.from(itemsByKind.values()),
     orderedNodes: [
       {
@@ -509,22 +634,24 @@ export function buildGraphRendererViewModel<M extends Model>(
   duplicateInputs: Record<string, number> = {}
 ): GraphRendererViewModel {
   const workflow = graphWorkflowDefinitionOf(model);
+  const workflowInputs: ReturnType<typeof graphLeafPortsOf> = graphLeafPortsOf(workflow.inputs);
   const inputLookup = new Map<string, GraphCanvasNodeBlueprint<GraphBoundaryNodeData>>();
   const memberNodes = new Map<string, GraphCanvasNodeBlueprint<GraphRendererNodeData>>();
 
-  const inputs = workflow.inputs.flatMap((port, index) => {
-    const copies = 1 + (duplicateInputs[port.property] || 0);
+  const inputs = workflowInputs.flatMap((port, index) => {
+    const portPath = resolvePortPath(port);
+    const copies = 1 + (duplicateInputs[portPath] || 0);
     return Array.from({ length: copies }, (_, duplicateIndex) => {
       const node = buildBoundaryNode(
-        port.property,
+        portPath,
         port,
         index,
         duplicateIndex,
         workflow.name,
-        inputValues[port.property]
+        readNestedValue(inputValues, portPath)
       );
       if (duplicateIndex === 0) {
-        inputLookup.set(port.property, node);
+        inputLookup.set(portPath, node);
       }
       return node;
     });
@@ -597,10 +724,11 @@ export function buildGraphRendererModel<M extends Model>(
   model: GraphModelLike<M>,
   injector?: Injector,
   inputValues: Record<string, unknown> = {},
-  duplicateInputs: Record<string, number> = {}
+  duplicateInputs: Record<string, number> = {},
+  previousModel?: ModelAdapter | null
 ) {
   const viewModel = buildGraphRendererViewModel(model, inputValues, duplicateInputs);
-  return initializeModel(
+  const nextModel = initializeModel(
     {
       nodes: [...viewModel.inputs, ...viewModel.nodes],
       edges: viewModel.edges,
@@ -614,5 +742,100 @@ export function buildGraphRendererModel<M extends Model>(
     },
     injector
   );
+
+  if (!previousModel) {
+    return nextModel;
+  }
+
+  const previousNodes = new Map(previousModel.getNodes().map((node) => [node.id, node] as const));
+  const previousEdges = new Map(previousModel.getEdges().map((edge) => [edge.id, edge] as const));
+
+  nextModel.updateNodes((currentNodes) =>
+    currentNodes.map(
+      (node) => mergeNodeRuntimeState(node as never, previousNodes.get(node.id) as never) as never
+    )
+  );
+  nextModel.updateEdges((currentEdges) =>
+    currentEdges.map(
+      (edge) => mergeEdgeRuntimeState(edge as never, previousEdges.get(edge.id) as never) as never
+    )
+  );
+  nextModel.updateMetadata((currentMetadata) => ({
+    ...cloneJson(previousModel.getMetadata()),
+    ...currentMetadata,
+    viewport: {
+      ...(previousModel.getMetadata()?.viewport || {}),
+      ...(currentMetadata.viewport || {}),
+    },
+  }));
+
+  return nextModel;
+}
+
+export function buildGraphRendererSnapshot<M extends Model>(
+  model: GraphModelLike<M>,
+  diagram: ModelAdapter,
+  inputValues: Record<string, unknown> = {},
+  duplicateInputs: Record<string, number> = {}
+): GraphWorkflowSnapshot {
+  const state = readModelState(diagram);
+  return graphWorkflowSnapshotOf(model as never, {
+    inputs: inputValues,
+    nodes: state.nodes as never[],
+    edges: state.edges as never[],
+    ui: {
+      duplicateCounts: cloneJson(duplicateInputs),
+      diagramMetadata: cloneJson(state.metadata),
+    },
+    metadata: {
+      serializedAt: new Date().toISOString(),
+    },
+  });
+}
+
+export function buildGraphRendererStateFromSnapshot<M extends Model>(
+  model: GraphModelLike<M>,
+  snapshot: GraphWorkflowSnapshot,
+  injector?: Injector
+) {
+  const snapshotUi = toRecord(snapshot.state.ui);
+  const duplicateCounts = toRecord(snapshotUi['duplicateCounts']);
+  const diagramMetadata = toRecord(snapshotUi['diagramMetadata']);
+  const inputValues = graphWorkflowSnapshotInputValuesOf(snapshot);
+  const diagram = initializeModel(
+    {
+      nodes: cloneJson(snapshot.state.nodes) as never[],
+      edges: cloneJson(snapshot.state.edges) as never[],
+      metadata: {
+        ...diagramMetadata,
+        viewport: {
+          x: 0,
+          y: 0,
+          scale: 1,
+          ...((diagramMetadata['viewport'] as Record<string, unknown>) || {}),
+        },
+      },
+    },
+    injector
+  );
+
+  return {
+    diagram,
+    inputValues,
+    duplicateCounts: Object.keys(duplicateCounts).length
+      ? (duplicateCounts as Record<string, number>)
+      : readDuplicateCountsFromNodes(snapshot.state.nodes as never[]),
+  };
+}
+
+export function parseGraphRendererSnapshot(
+  json: string | GraphWorkflowSnapshot,
+  model: GraphModelLike
+): GraphWorkflowSnapshot {
+  return graphWorkflowSnapshotFromJSON(json, model as never);
+}
+
+export function stringifyGraphRendererSnapshot(snapshot: GraphWorkflowSnapshot, space = 2) {
+  return graphWorkflowSnapshotToJSON(snapshot, space);
 }
 type GraphModelLike<M extends Model = Model> = Constructor<M> | M;

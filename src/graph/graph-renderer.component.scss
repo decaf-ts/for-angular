@@ -152,6 +152,67 @@
   gap: 0.8rem;
 }
 
+.graph-renderer__snapshot {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 0.92));
+}
+
+.graph-renderer__snapshot-header {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.graph-renderer__snapshot-header p {
+  margin: 0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #64748b;
+}
+
+.graph-renderer__snapshot-header small {
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.graph-renderer__snapshot-text {
+  width: 100%;
+  min-height: 220px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  padding: 0.8rem 0.9rem;
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #0f172a;
+  background: white;
+  resize: vertical;
+}
+
+.graph-renderer__snapshot-text:focus {
+  outline: 2px solid rgba(15, 118, 110, 0.24);
+  border-color: rgba(15, 118, 110, 0.48);
+}
+
+.graph-renderer__snapshot-actions {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.graph-renderer__snapshot-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.5rem 0.85rem;
+  background: #0f172a;
+  color: white;
+  font-weight: 700;
+}
+
 .graph-renderer__port-card {
   display: flex;
   align-items: center;

@@ -11,6 +11,8 @@ export interface GraphDemoNodeData {
   labels: string[];
   ports: GraphPortDefinition[];
   sourceClass: string;
+  modelClass?: unknown;
+  expanded?: boolean;
 }
 
 export interface GraphDemoEdgeData {
@@ -43,6 +45,8 @@ export interface GraphRendererNodeData {
   labels: string[];
   ports: GraphPortDefinition[];
   sourceClass: string;
+  modelClass?: unknown;
+  expanded?: boolean;
 }
 
 export interface GraphBoundaryNodeData {
@@ -56,6 +60,8 @@ export interface GraphBoundaryNodeData {
   isPrimary: boolean;
   value: unknown;
   ports: GraphPortDefinition[];
+  modelClass?: unknown;
+  expanded?: boolean;
 }
 
 export interface GraphCanvasNodeBlueprint<Data extends object = GraphRendererNodeData | GraphBoundaryNodeData> {

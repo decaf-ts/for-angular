@@ -1,4 +1,4 @@
-import { Component, Injector, computed, effect, inject, input, runInInjectionContext, signal } from '@angular/core';
+import { Component, Injector, computed, effect, inject, input, runInInjectionContext, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, type AbstractControl, type FormGroup } from '@angular/forms';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
@@ -11,16 +11,25 @@ import {
 } from 'ng-diagram';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { GraphBoundaryNodeTemplateComponent } from './boundary-node-template.component';
-import { buildGraphRendererModel, buildGraphRendererViewModel } from './adapter';
+import {
+  buildGraphRendererModel,
+  buildGraphRendererSnapshot,
+  buildGraphRendererStateFromSnapshot,
+  buildGraphRendererViewModel,
+  parseGraphRendererSnapshot,
+  stringifyGraphRendererSnapshot,
+} from './adapter';
 import { GraphNodeTemplateComponent } from './graph-node-template.component';
 import {
   buildWorkflowInputFields,
   buildWorkflowInputForm,
   buildWorkflowInputModelClass,
+  normalizeWorkflowInputValues,
   type WorkflowInputFieldDefinition,
 } from './workflow-inputs';
 import type { GraphRendererViewModel } from './types';
 import { graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 
 @Component({
   selector: 'app-graph-renderer',
@@ -41,8 +50,10 @@ export class GraphRendererComponent {
   private readonly injector = inject(Injector);
   private readonly duplicateCounts = signal<Record<string, number>>({});
   private readonly workflowInputValues = signal<Record<string, unknown>>({});
+  private readonly snapshotJson = signal('');
   readonly workflowInputForm = signal<FormGroup>(this.formBuilder.group({}));
   readonly model = signal<ReturnType<typeof buildGraphRendererModel> | null>(null);
+  private skipNextModelSync = false;
 
   readonly graphRoot = input.required<unknown>();
 
@@ -92,16 +103,26 @@ export class GraphRendererComponent {
   );
 
   readonly hasFormErrors = computed(() => this.workflowInputForm().invalid);
+  readonly snapshotPreview = computed(() => this.snapshotJson());
 
   constructor() {
     effect((onCleanup) => {
+      if (this.skipNextModelSync) {
+        this.skipNextModelSync = false;
+        return;
+      }
+
       const workflow = this.workflowDefinition();
       const form = buildWorkflowInputForm(workflow);
+      const fields = buildWorkflowInputFields(workflow, form.getRawValue() as Record<string, unknown>);
       this.workflowInputForm.set(form);
-      this.workflowInputValues.set(form.getRawValue() as Record<string, unknown>);
+      this.workflowInputValues.set(
+        normalizeWorkflowInputValues(fields, form.getRawValue() as Record<string, unknown>)
+      );
 
       const subscription = form.valueChanges.subscribe((value) => {
-        this.workflowInputValues.set((value ?? {}) as Record<string, unknown>);
+        const currentValues = (value ?? {}) as Record<string, unknown>;
+        this.workflowInputValues.set(normalizeWorkflowInputValues(fields, currentValues));
       });
 
       onCleanup(() => subscription.unsubscribe());
@@ -111,9 +132,16 @@ export class GraphRendererComponent {
       const root = this.workflowRootClass() as never;
       const inputValues = this.workflowInputValues();
       const duplicateCounts = this.duplicateCounts();
+      const previousModel = untracked(() => this.model());
       runInInjectionContext(this.injector, () => {
         this.model.set(
-          buildGraphRendererModel(root, this.injector, inputValues, duplicateCounts)
+          buildGraphRendererModel(
+            root,
+            this.injector,
+            inputValues,
+            duplicateCounts,
+            previousModel
+          )
         );
       });
     });
@@ -126,12 +154,12 @@ export class GraphRendererComponent {
     }));
   }
 
-  controlFor(property: string): AbstractControl | null {
-    return this.workflowInputForm().get(property);
+  controlFor(controlName: string): AbstractControl | null {
+    return this.workflowInputForm().get(controlName);
   }
 
   fieldErrors(field: WorkflowInputFieldDefinition): string[] {
-    const control = this.controlFor(field.property);
+    const control = this.controlFor(field.controlName);
     if (!control || !control.errors || (!control.dirty && !control.touched)) return [];
 
     return Object.entries(control.errors).map(([key, value]) => {
@@ -161,7 +189,7 @@ export class GraphRendererComponent {
   }
 
   inputLabel(property: string) {
-    return this.workflowInputFields().find((field) => field.property === property)?.label || property;
+    return this.workflowInputFields().find((field) => field.path === property)?.label || property;
   }
 
   displayValue(value: unknown) {
@@ -178,6 +206,47 @@ export class GraphRendererComponent {
 
   workflowOutputValue() {
     return 'pending run result';
+  }
+
+  saveSnapshot() {
+    const diagram = this.model();
+    if (!diagram) return;
+
+    const snapshot = buildGraphRendererSnapshot(
+      this.workflowRootClass() as never,
+      diagram,
+      this.workflowInputValues(),
+      this.duplicateCounts()
+    );
+    this.snapshotJson.set(stringifyGraphRendererSnapshot(snapshot));
+  }
+
+  loadSnapshot() {
+    const raw = this.snapshotJson().trim();
+    if (!raw) return;
+
+    const snapshot = parseGraphRendererSnapshot(
+      raw,
+      this.workflowRootClass() as never
+    ) as GraphWorkflowSnapshot;
+    const restored = buildGraphRendererStateFromSnapshot(
+      this.workflowRootClass() as never,
+      snapshot,
+      this.injector
+    );
+
+    this.skipNextModelSync = true;
+    this.workflowInputValues.set(restored.inputValues);
+    this.duplicateCounts.set(restored.duplicateCounts);
+    this.model.set(restored.diagram as never);
+  }
+
+  snapshotValue() {
+    return this.snapshotJson();
+  }
+
+  updateSnapshotValue(value: string) {
+    this.snapshotJson.set(value);
   }
 
   private resolveGraphRoot(root: unknown): Constructor<Model> {

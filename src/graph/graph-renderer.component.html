@@ -8,64 +8,64 @@
       </div>
 
       <form class="graph-renderer__form" [formGroup]="workflowInputForm()">
-        @for (field of workflowInputFields(); track field.property) {
+        @for (field of workflowInputFields(); track field.path) {
           <article class="graph-renderer__field">
-            <label class="graph-renderer__field-label" [attr.for]="'graph-input-' + field.property">
+            <label class="graph-renderer__field-label" [attr.for]="'graph-input-' + field.controlName">
               {{ field.label }}
             </label>
-            <span class="graph-renderer__field-meta">{{ field.property }} · {{ field.controlType }}</span>
+            <span class="graph-renderer__field-meta">{{ field.path }} · {{ field.controlType }}</span>
 
             @switch (field.controlType) {
               @case ('textarea') {
                 <textarea
-                  [id]="'graph-input-' + field.property"
-                  [formControlName]="field.property"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
                   [placeholder]="field.placeholder || field.label"
                   rows="5"
                 ></textarea>
               }
               @case ('number') {
                 <input
-                  [id]="'graph-input-' + field.property"
-                  [formControlName]="field.property"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
                   type="number"
                   [placeholder]="field.placeholder || field.label"
                 />
               }
               @case ('checkbox') {
-                <label class="graph-renderer__checkbox" [attr.for]="'graph-input-' + field.property">
-                  <input [id]="'graph-input-' + field.property" [formControlName]="field.property" type="checkbox" />
+                <label class="graph-renderer__checkbox" [attr.for]="'graph-input-' + field.controlName">
+                  <input [id]="'graph-input-' + field.controlName" [formControlName]="field.controlName" type="checkbox" />
                   <span>{{ field.placeholder || field.label }}</span>
                 </label>
               }
               @case ('date') {
                 <input
-                  [id]="'graph-input-' + field.property"
-                  [formControlName]="field.property"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
                   type="date"
                   [placeholder]="field.placeholder || field.label"
                 />
               }
               @case ('email') {
                 <input
-                  [id]="'graph-input-' + field.property"
-                  [formControlName]="field.property"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
                   type="email"
                   [placeholder]="field.placeholder || field.label"
                 />
               }
               @case ('url') {
                 <input
-                  [id]="'graph-input-' + field.property"
-                  [formControlName]="field.property"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
                   type="url"
                   [placeholder]="field.placeholder || field.label"
                 />
               }
               @default {
                 <input
-                  [id]="'graph-input-' + field.property"
-                  [formControlName]="field.property"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
                   type="text"
                   [placeholder]="field.placeholder || field.label"
                 />
@@ -80,7 +80,7 @@
               </ul>
             }
 
-            <button type="button" class="graph-renderer__duplicate" (click)="duplicateInput(field.property)">
+            <button type="button" class="graph-renderer__duplicate" (click)="duplicateInput(field.path)">
               Duplicate value node
             </button>
           </article>
@@ -120,6 +120,31 @@
             <span>{{ workflowOutputValue() }}</span>
           </article>
         }
+      </div>
+
+      <div class="graph-renderer__snapshot">
+        <div class="graph-renderer__snapshot-header">
+          <p>Snapshot</p>
+          <small>Save the live graph state or restore a previously serialized snapshot.</small>
+        </div>
+
+        <textarea
+          #snapshotArea
+          class="graph-renderer__snapshot-text"
+          [value]="snapshotValue()"
+          (input)="updateSnapshotValue(snapshotArea.value)"
+          rows="12"
+          spellcheck="false"
+        ></textarea>
+
+        <div class="graph-renderer__snapshot-actions">
+          <button type="button" class="graph-renderer__snapshot-button" (click)="saveSnapshot()">
+            Save snapshot
+          </button>
+          <button type="button" class="graph-renderer__snapshot-button" (click)="loadSnapshot()">
+            Load snapshot
+          </button>
+        </div>
       </div>
     </aside>
   </section>
