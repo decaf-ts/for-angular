@@ -6,6 +6,7 @@
   },
   "menu": {
     "dashboard": "Dashboard",
+    "graph": "Graph",
     "product": "Products",
     "batch": "Batches",
     "logout": "Logout",

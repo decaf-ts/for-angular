@@ -15,6 +15,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/dashboard/dashboard.page').then( m => m.DashboardPage)
   },
   {
+    path: 'graph',
+    loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage)
+  },
+  {
     path: 'fieldset',
     loadComponent: () => import('./pages/fieldset/fieldset.page').then( m => m.FieldsetPage)
   },

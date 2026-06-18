@@ -30,6 +30,11 @@ export const AppMenu: IAppMenuItem[] = [
     icon: 'ti-layout-dashboard',
     url: '/dashboard',
   },
+  {
+    label: 'graph',
+    icon: 'ti-graph',
+    url: 'graph',
+  },
   // {
   //   label: 'sytem',
   //   url: undefined,
