@@ -4,8 +4,18 @@
     [class.graph-node--workflow]="node().data.kind === 'workflow'"
     [class.graph-node--pipeline]="node().data.kind === 'pipeline'"
     [class.graph-node--task]="node().data.kind === 'node'"
+    [class.graph-node--expanded]="isExpanded()"
     [style.--graph-accent]="node().data.color || '#5b21b6'"
   >
+    <div class="graph-node__actions">
+      <button type="button" class="graph-node__action" title="Delete node" (click)="deleteNode($event)" (mousedown)="$event.stopPropagation()">x</button>
+      <button type="button" class="graph-node__action" title="Edit node" (click)="openEditor($event)" (mousedown)="$event.stopPropagation()">⚙</button>
+      <button type="button" class="graph-node__action" title="Pin node" (click)="pinNode($event)" (mousedown)="$event.stopPropagation()">📌</button>
+      <button type="button" class="graph-node__action" [class.graph-node__action--active]="isExpanded()" title="Expand ports" (click)="toggleExpanded($event)" (mousedown)="$event.stopPropagation()">
+        {{ isExpanded() ? '▾' : '▸' }}
+      </button>
+    </div>
+
     <header class="graph-node__header">
       <div class="graph-node__title-row">
         <span class="graph-node__badge">{{ node().data.kind }}</span>
@@ -28,9 +38,9 @@
     <section class="graph-node__ports">
       <div class="graph-node__column">
         <h4>Inputs</h4>
-        @for (port of inputPorts(); track port.property) {
+        @for (port of inputPorts(); track port.path || port.property) {
           <div class="graph-node__port-row">
-            <ng-diagram-port [id]="port.property" type="target" side="left" />
+            <ng-diagram-port [id]="port.path || port.property" type="target" side="left" />
             <div class="graph-node__port-copy">
               <strong>{{ port.label }}</strong>
               <span>{{ port.type || 'unknown' }}</span>
@@ -41,17 +51,16 @@
 
       <div class="graph-node__column graph-node__column--outputs">
         <h4>Outputs</h4>
-        @for (port of outputPorts(); track port.property) {
+        @for (port of outputPorts(); track port.path || port.property) {
           <div class="graph-node__port-row graph-node__port-row--output">
             <div class="graph-node__port-copy graph-node__port-copy--right">
               <strong>{{ port.label }}</strong>
               <span>{{ port.type || 'unknown' }}</span>
             </div>
-            <ng-diagram-port [id]="port.property" type="source" side="right" />
+            <ng-diagram-port [id]="port.path || port.property" type="source" side="right" />
           </div>
         }
       </div>
     </section>
   </article>
 </ng-diagram-base-node-template>
-

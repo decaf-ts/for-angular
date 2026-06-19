@@ -5,6 +5,8 @@ import { PortDirection } from '@decaf-ts/ui-decorators/graph';
 import {
   buildGraphDemoModel,
   buildGraphRendererModel,
+  buildGraphRendererSnapshot,
+  buildGraphRendererStateFromSnapshot,
   buildGraphRendererViewModel,
   countPortsByDirection,
   getGraphDemoOrderedDefinitions,
@@ -146,6 +148,109 @@ describe('graph adapter', () => {
     expect(model.getNodes()[5]).toMatchObject({
       id: 'GraphPublishWorkflow',
       type: 'workflow',
+    });
+  });
+
+  it('serializes and restores the workflow renderer state', () => {
+    const injector = TestBed.inject(Injector);
+    const model = buildGraphRendererModel(
+      GraphPublishingWorkflow as never,
+      injector,
+      {
+        request: 'Draft a publishing workflow for the next product release.',
+      },
+      {
+        request: 1,
+      }
+    );
+
+    model.updateNodes((nodes) =>
+      nodes.map((node) =>
+        node.id === 'input-request'
+          ? {
+              ...node,
+              position: {
+                x: 48,
+                y: 96,
+              },
+              data: {
+                ...node.data,
+                expanded: true,
+              },
+            }
+          : node
+      )
+    );
+    model.updateMetadata((metadata) => ({
+      ...metadata,
+      viewport: {
+        x: 12,
+        y: 18,
+        scale: 1.25,
+      },
+    }));
+
+    const snapshot = buildGraphRendererSnapshot(
+      GraphPublishingWorkflow as never,
+      model,
+      {
+        request: 'Draft a publishing workflow for the next product release.',
+      },
+      {
+        request: 1,
+      }
+    );
+    const restored = buildGraphRendererStateFromSnapshot(
+      GraphPublishingWorkflow as never,
+      snapshot,
+      injector
+    );
+
+    expect(snapshot.state.ui).toMatchObject({
+      duplicateCounts: {
+        request: 1,
+      },
+    });
+    expect(snapshot.state.nodes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'input-request',
+          position: {
+            x: 48,
+            y: 96,
+          },
+          data: expect.objectContaining({
+            expanded: true,
+          }),
+        }),
+      ])
+    );
+    expect(restored.duplicateCounts).toEqual({
+      request: 1,
+    });
+    expect(restored.inputValues).toEqual({
+      request: 'Draft a publishing workflow for the next product release.',
+    });
+    expect(restored.diagram.getNodes()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'input-request',
+          position: {
+            x: 48,
+            y: 96,
+          },
+          data: expect.objectContaining({
+            expanded: true,
+          }),
+        }),
+      ])
+    );
+    expect(restored.diagram.getMetadata()).toMatchObject({
+      viewport: {
+        x: 12,
+        y: 18,
+        scale: 1.25,
+      },
     });
   });
 

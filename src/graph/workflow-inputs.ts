@@ -7,7 +7,11 @@ import {
 } from '@decaf-ts/decorator-validation';
 import { uielement } from '@decaf-ts/ui-decorators';
 import { input as graphInput } from '@decaf-ts/ui-decorators/graph';
-import type { GraphPortDefinition, GraphWorkflowDefinition } from '@decaf-ts/ui-decorators/graph';
+import {
+  graphLeafPortsOf,
+  type GraphPortDefinition,
+  type GraphWorkflowDefinition,
+} from '@decaf-ts/ui-decorators/graph';
 
 export type WorkflowInputControlType =
   | 'text'
@@ -20,6 +24,8 @@ export type WorkflowInputControlType =
 
 export interface WorkflowInputFieldDefinition {
   property: string;
+  path: string;
+  controlName: string;
   label: string;
   placeholder?: string;
   controlType: WorkflowInputControlType;
@@ -42,9 +48,21 @@ function isDateLike(value: unknown): value is string | number | Date {
   return value instanceof Date || typeof value === 'string' || typeof value === 'number';
 }
 
-function resolveInitialValue(port: GraphPortDefinition, values?: Record<string, unknown>) {
-  if (values && port.property in values) {
-    return values[port.property];
+function resolveInitialValue(
+  port: GraphPortDefinition,
+  values?: Record<string, unknown>,
+  fallbackKey?: string
+) {
+  const path = port.path || port.property;
+  if (values) {
+    const direct = readNestedValue(values, path);
+    if (direct !== undefined) {
+      return direct;
+    }
+
+    if (fallbackKey && fallbackKey in values) {
+      return values[fallbackKey];
+    }
   }
 
   const elementValue = port.element?.['props']?.['value'] ?? port.prop?.['value'];
@@ -54,6 +72,50 @@ function resolveInitialValue(port: GraphPortDefinition, values?: Record<string, 
   if (modelValue !== undefined) return modelValue;
 
   return undefined;
+}
+
+function readNestedValue(values: Record<string, unknown>, path: string): unknown {
+  return path.split('.').reduce<unknown>((current, segment) => {
+    if (current && typeof current === 'object' && segment in (current as Record<string, unknown>)) {
+      return (current as Record<string, unknown>)[segment];
+    }
+    return undefined;
+  }, values);
+}
+
+function assignNestedValue(target: Record<string, unknown>, path: string, value: unknown) {
+  const segments = path.split('.').filter(Boolean);
+  if (!segments.length) return;
+
+  let current: Record<string, unknown> = target;
+  for (let index = 0; index < segments.length - 1; index += 1) {
+    const segment = segments[index];
+    const existing = current[segment];
+    if (!existing || typeof existing !== 'object' || Array.isArray(existing)) {
+      current[segment] = {};
+    }
+    current = current[segment] as Record<string, unknown>;
+  }
+
+  current[segments[segments.length - 1]] = value;
+}
+
+export function normalizeWorkflowInputValues(
+  fields: WorkflowInputFieldDefinition[],
+  values: Record<string, unknown>
+): Record<string, unknown> {
+  const normalized: Record<string, unknown> = {};
+
+  for (const field of fields) {
+    const value =
+      values[field.controlName] ??
+      values[field.path] ??
+      values[field.property] ??
+      field.value;
+    assignNestedValue(normalized, field.path, value);
+  }
+
+  return normalized;
 }
 
 function resolveControlType(port: GraphPortDefinition): WorkflowInputControlType {
@@ -202,12 +264,26 @@ function buildAttributeModelBuilder(
   attribute.decorate(
     uielement(port.element?.['tag'] || 'input', uielementMetadata),
     graphInput({
-      handle: port.graph?.handle || port.property,
+      handle: port.graph?.handle || port.path || port.property,
       connectionRules: port.connectionRules,
     })
   );
 
   return attribute;
+}
+
+function buildWorkflowModelBuilder(
+  builder: ModelBuilder<Model & Record<string, unknown>>,
+  ports: GraphPortDefinition[]
+) {
+  for (const port of ports) {
+    if (port.children && port.children.length) {
+      buildWorkflowModelBuilder(builder.model(port.property), port.children);
+      continue;
+    }
+
+    buildAttributeModelBuilder(builder, port);
+  }
 }
 
 export function buildWorkflowInputModelClass(
@@ -217,9 +293,7 @@ export function buildWorkflowInputModelClass(
     `${workflow.name}WorkflowInputs`
   );
 
-  for (const port of workflow.inputs) {
-    buildAttributeModelBuilder(builder, port);
-  }
+  buildWorkflowModelBuilder(builder, workflow.inputs);
 
   return builder.build();
 }
@@ -228,15 +302,21 @@ export function buildWorkflowInputFields(
   workflow: GraphWorkflowDefinition,
   values?: Record<string, unknown>
 ): WorkflowInputFieldDefinition[] {
-  return workflow.inputs.map((port) => ({
-    property: port.property,
-    label: port.label,
-    placeholder: port.element?.['props']?.['placeholder'] ?? port.prop?.['placeholder'],
-    controlType: resolveControlType(port),
-    value: resolveInitialValue(port, values),
-    validators: resolveValidators(port),
-    required: port.required,
-  }));
+  return graphLeafPortsOf(workflow.inputs).map((port) => {
+    const path = port.path || port.property;
+    const controlName = path.replace(/[^\w-]/g, '__');
+    return {
+      property: port.property,
+      path,
+      controlName,
+      label: port.label,
+      placeholder: port.element?.['props']?.['placeholder'] ?? port.prop?.['placeholder'],
+      controlType: resolveControlType(port),
+      value: resolveInitialValue(port, values, controlName),
+      validators: resolveValidators(port),
+      required: port.required,
+    };
+  });
 }
 
 export function buildWorkflowInputForm(
@@ -245,7 +325,7 @@ export function buildWorkflowInputForm(
 ): FormGroup {
   const controls = Object.fromEntries(
     buildWorkflowInputFields(workflow, values).map((field) => [
-      field.property,
+      field.controlName,
       new FormControl(field.value, {
         validators: field.validators,
         nonNullable: false,
@@ -260,8 +340,10 @@ export function instantiateWorkflowInputModel(
   workflow: GraphWorkflowDefinition,
   values: Record<string, unknown>
 ) {
+  const fields = buildWorkflowInputFields(workflow, values);
+  const normalizedValues = normalizeWorkflowInputValues(fields, values);
   const ModelClass = buildWorkflowInputModelClass(workflow);
-  const instance = new ModelClass(values as ModelArg<Model>);
-  Object.assign(instance, values);
+  const instance = new ModelClass(normalizedValues as ModelArg<Model>);
+  Object.assign(instance, normalizedValues);
   return instance;
 }

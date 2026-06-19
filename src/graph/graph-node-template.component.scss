@@ -21,6 +21,36 @@
   backdrop-filter: blur(12px);
 }
 
+.graph-node__actions {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.35rem;
+}
+
+.graph-node__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.86);
+  color: #f8fafc;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.graph-node__action--active {
+  background: color-mix(in srgb, var(--graph-accent) 78%, black);
+  border-color: color-mix(in srgb, var(--graph-accent) 78%, white);
+}
+
 .graph-node__header h3,
 .graph-node__header p,
 .graph-node__column h4,
@@ -134,4 +164,3 @@
   font-size: 0.72rem;
   color: rgba(226, 232, 240, 0.65);
 }
-
