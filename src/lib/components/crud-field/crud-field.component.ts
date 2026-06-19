@@ -10,6 +10,7 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import {
   IonBadge,
@@ -775,6 +776,19 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
           }
         }
       }
+    }
+
+    const container = this.component?.nativeElement?.closest('.dcf-grid-col');
+
+    if (typeof this.options === Primitives.STRING) {
+      if (container) {
+        container.classList.add('dcf-hidden');
+      }
+      return [];
+    }
+
+    if (container) {
+      container.classList.remove('dcf-hidden');
     }
 
     if (this.optionsMapper) {
