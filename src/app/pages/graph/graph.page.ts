@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
-import { GraphRendererComponent, GraphPublishingWorkflow } from 'src/graph';
+import { GraphRendererComponent } from 'src/graph';
+import { GraphPublishingWorkflow } from './workflow-root';
 
 @Component({
   selector: 'app-graph',

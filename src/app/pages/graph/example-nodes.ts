@@ -1,7 +1,7 @@
 import { Model, model, required } from '@decaf-ts/decorator-validation';
 import { uielement } from '@decaf-ts/ui-decorators';
 import { input, node, output } from '@decaf-ts/ui-decorators/graph';
-import type { GraphDemoEdgeBlueprint } from './types';
+import type { GraphDemoEdgeBlueprint } from '../../../graph/types';
 
 @node('graph-intake-workflow', {
   kind: 'workflow',

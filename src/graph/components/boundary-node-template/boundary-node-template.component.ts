@@ -9,27 +9,35 @@ import {
   type Node,
 } from 'ng-diagram';
 import { PortDirection } from '@decaf-ts/ui-decorators/graph';
-import type { GraphDemoNodeData } from './types';
 import { getNgxModalCrudComponent } from 'src/lib/components/modal/modal.component';
+import { GraphBoundaryNodeData } from '../../types';
 
 @Component({
-  selector: 'app-graph-node-template',
+  selector: 'app-graph-boundary-node-template',
   standalone: true,
   imports: [NgDiagramBaseNodeTemplateComponent, NgDiagramPortComponent],
-  templateUrl: './graph-node-template.component.html',
-  styleUrl: './graph-node-template.component.scss',
+  templateUrl: './boundary-node-template.component.html',
+  styleUrl: './boundary-node-template.component.scss',
 })
-export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDemoNodeData> {
-  node = input.required<Node<GraphDemoNodeData>>();
+export class GraphBoundaryNodeTemplateComponent implements NgDiagramNodeTemplate<GraphBoundaryNodeData> {
+  node = input.required<Node<GraphBoundaryNodeData>>();
   private readonly modelService = inject(NgDiagramModelService);
   private readonly injector = inject(EnvironmentInjector);
 
-  inputPorts() {
-    return this.visiblePorts(PortDirection.INPUT);
+  outputPorts() {
+    return this.node().data.ports.filter((port) => port.direction === PortDirection.OUTPUT);
   }
 
-  outputPorts() {
-    return this.visiblePorts(PortDirection.OUTPUT);
+  displayValue(value: unknown) {
+    if (value === undefined || value === null || value === '') return 'empty';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+    if (value instanceof Date) return value.toISOString();
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
   }
 
   async deleteNode(event: Event) {
@@ -45,7 +53,7 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     const ModelClass = this.node().data.modelClass;
     if (typeof ModelClass !== 'function') return;
 
-    const model = Model.build({}, ModelClass as never) as Model;
+    const model = Model.build({ value: this.node().data.value }, ModelClass as never) as Model;
     const modal = await getNgxModalCrudComponent(
       model as Model,
       {
@@ -77,24 +85,5 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
 
   isExpanded() {
     return !!this.node().data.expanded;
-  }
-
-  hasExpandablePorts(direction: PortDirection) {
-    return this.node()
-      .data.ports.some((port) => port.direction === direction && !!port.children?.length);
-  }
-
-  visiblePorts(direction: PortDirection) {
-    return this.node().data.ports
-      .filter((port) => port.direction === direction)
-      .flatMap((port) => this.portLeaves(port));
-  }
-
-  portLeaves(port: GraphDemoNodeData['ports'][number]): GraphDemoNodeData['ports'] {
-    if (port.children?.length && this.isExpanded()) {
-      return port.children.flatMap((child) => this.portLeaves(child));
-    }
-
-    return [port];
   }
 }

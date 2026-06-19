@@ -1,4 +1,14 @@
-import { Component, Injector, computed, effect, inject, input, runInInjectionContext, signal, untracked } from '@angular/core';
+import {
+  Component,
+  Injector,
+  computed,
+  effect,
+  inject,
+  input,
+  runInInjectionContext,
+  signal,
+  untracked,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, type AbstractControl, type FormGroup } from '@angular/forms';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
@@ -9,7 +19,8 @@ import {
   NgDiagramNodeTemplateMap,
   provideNgDiagram,
 } from 'ng-diagram';
-import { GraphBoundaryNodeTemplateComponent } from './boundary-node-template.component';
+import { graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 import {
   buildGraphRendererModel,
   buildGraphRendererSnapshot,
@@ -17,28 +28,22 @@ import {
   buildGraphRendererViewModel,
   parseGraphRendererSnapshot,
   stringifyGraphRendererSnapshot,
-} from './adapter';
-import { GraphNodeTemplateComponent } from './graph-node-template.component';
+} from '../../utils';
+import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-template.component';
+import { GraphBoundaryNodeTemplateComponent } from '../boundary-node-template/boundary-node-template.component';
 import {
   buildWorkflowInputFields,
   buildWorkflowInputForm,
   buildWorkflowInputModelClass,
   normalizeWorkflowInputValues,
-  type WorkflowInputFieldDefinition,
-} from './workflow-inputs';
-import type { GraphRendererViewModel } from './types';
-import { graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
-import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+  WorkflowInputFieldDefinition,
+} from '../../workflow-inputs';
+import { GraphRendererViewModel } from '../../types';
 
 @Component({
   selector: 'app-graph-renderer',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    NgDiagramComponent,
-    NgDiagramBackgroundComponent,
-    NgDiagramMinimapComponent,
-  ],
+  imports: [ReactiveFormsModule, NgDiagramComponent, NgDiagramBackgroundComponent, NgDiagramMinimapComponent],
   providers: [provideNgDiagram()],
   templateUrl: './graph-renderer.component.html',
   styleUrl: './graph-renderer.component.scss',
@@ -70,9 +75,7 @@ export class GraphRendererComponent {
     buildWorkflowInputFields(this.workflowDefinition(), this.workflowInputValues())
   );
 
-  readonly workflowInputModelClass = computed(() =>
-    buildWorkflowInputModelClass(this.workflowDefinition())
-  );
+  readonly workflowInputModelClass = computed(() => buildWorkflowInputModelClass(this.workflowDefinition()));
 
   readonly workflowInputModel = computed(() =>
     (() => {
@@ -89,11 +92,7 @@ export class GraphRendererComponent {
   });
 
   readonly viewModel = computed<GraphRendererViewModel>(() =>
-    buildGraphRendererViewModel(
-      this.workflowRootClass() as never,
-      this.workflowInputValues(),
-      this.duplicateCounts()
-    )
+    buildGraphRendererViewModel(this.workflowRootClass() as never, this.workflowInputValues(), this.duplicateCounts())
   );
 
   readonly rootTitle = computed(() =>
@@ -114,9 +113,7 @@ export class GraphRendererComponent {
       const form = buildWorkflowInputForm(workflow);
       const fields = buildWorkflowInputFields(workflow, form.getRawValue() as Record<string, unknown>);
       this.workflowInputForm.set(form);
-      this.workflowInputValues.set(
-        normalizeWorkflowInputValues(fields, form.getRawValue() as Record<string, unknown>)
-      );
+      this.workflowInputValues.set(normalizeWorkflowInputValues(fields, form.getRawValue() as Record<string, unknown>));
 
       const subscription = form.valueChanges.subscribe((value) => {
         const currentValues = (value ?? {}) as Record<string, unknown>;
@@ -132,15 +129,7 @@ export class GraphRendererComponent {
       const duplicateCounts = this.duplicateCounts();
       const previousModel = untracked(() => this.model());
       runInInjectionContext(this.injector, () => {
-        this.model.set(
-          buildGraphRendererModel(
-            root,
-            this.injector,
-            inputValues,
-            duplicateCounts,
-            previousModel
-          )
-        );
+        this.model.set(buildGraphRendererModel(root, this.injector, inputValues, duplicateCounts, previousModel));
       });
     });
   }
@@ -223,15 +212,8 @@ export class GraphRendererComponent {
     const raw = this.snapshotJson().trim();
     if (!raw) return;
 
-    const snapshot = parseGraphRendererSnapshot(
-      raw,
-      this.workflowRootClass() as never
-    ) as GraphWorkflowSnapshot;
-    const restored = buildGraphRendererStateFromSnapshot(
-      this.workflowRootClass() as never,
-      snapshot,
-      this.injector
-    );
+    const snapshot = parseGraphRendererSnapshot(raw, this.workflowRootClass() as never) as GraphWorkflowSnapshot;
+    const restored = buildGraphRendererStateFromSnapshot(this.workflowRootClass() as never, snapshot, this.injector);
 
     this.skipNextModelSync = true;
     this.workflowInputValues.set(restored.inputValues);
@@ -256,8 +238,6 @@ export class GraphRendererComponent {
       return root.constructor as Constructor<Model>;
     }
 
-    return ModelBuilder.builder<Model & Record<string, unknown>>()
-      .setName('GeneratedGraphRoot')
-      .build();
+    return ModelBuilder.builder<Model & Record<string, unknown>>().setName('GeneratedGraphRoot').build();
   }
 }
