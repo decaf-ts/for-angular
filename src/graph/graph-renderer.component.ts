@@ -9,7 +9,6 @@ import {
   NgDiagramNodeTemplateMap,
   provideNgDiagram,
 } from 'ng-diagram';
-import { ContainerComponent } from 'src/app/components/container/container.component';
 import { GraphBoundaryNodeTemplateComponent } from './boundary-node-template.component';
 import {
   buildGraphRendererModel,
@@ -35,7 +34,6 @@ import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
   selector: 'app-graph-renderer',
   standalone: true,
   imports: [
-    ContainerComponent,
     ReactiveFormsModule,
     NgDiagramComponent,
     NgDiagramBackgroundComponent,

@@ -1,151 +1,149 @@
-<app-container>
-  <section class="graph-renderer">
-    <aside class="graph-renderer__side graph-renderer__side--inputs">
-      <div class="graph-renderer__side-header">
-        <p>Workflow inputs</p>
-        <h2>{{ rootTitle() }}</h2>
-        <small>Editable controls are built from the workflow input metadata and validated by a generated model class.</small>
-      </div>
+<section class="graph-renderer">
+  <div class="graph-renderer__canvas">
+    @if (model(); as graphModel) {
+      <ng-diagram [model]="graphModel" [nodeTemplateMap]="nodeTemplateMap">
+        <ng-diagram-background type="dots" />
+        <ng-diagram-minimap position="bottom-right" [showZoomControls]="true" />
+      </ng-diagram>
+    }
+  </div>
 
-      <form class="graph-renderer__form" [formGroup]="workflowInputForm()">
-        @for (field of workflowInputFields(); track field.path) {
-          <article class="graph-renderer__field">
-            <label class="graph-renderer__field-label" [attr.for]="'graph-input-' + field.controlName">
-              {{ field.label }}
-            </label>
-            <span class="graph-renderer__field-meta">{{ field.path }} · {{ field.controlType }}</span>
+  <aside class="graph-renderer__side graph-renderer__side--inputs">
+    <div class="graph-renderer__side-header">
+      <p>Workflow inputs</p>
+      <h2>{{ rootTitle() }}</h2>
+      <small>Editable controls are built from the workflow input metadata and validated by a generated model class.</small>
+    </div>
 
-            @switch (field.controlType) {
-              @case ('textarea') {
-                <textarea
-                  [id]="'graph-input-' + field.controlName"
-                  [formControlName]="field.controlName"
-                  [placeholder]="field.placeholder || field.label"
-                  rows="5"
-                ></textarea>
-              }
-              @case ('number') {
-                <input
-                  [id]="'graph-input-' + field.controlName"
-                  [formControlName]="field.controlName"
-                  type="number"
-                  [placeholder]="field.placeholder || field.label"
-                />
-              }
-              @case ('checkbox') {
-                <label class="graph-renderer__checkbox" [attr.for]="'graph-input-' + field.controlName">
-                  <input [id]="'graph-input-' + field.controlName" [formControlName]="field.controlName" type="checkbox" />
-                  <span>{{ field.placeholder || field.label }}</span>
-                </label>
-              }
-              @case ('date') {
-                <input
-                  [id]="'graph-input-' + field.controlName"
-                  [formControlName]="field.controlName"
-                  type="date"
-                  [placeholder]="field.placeholder || field.label"
-                />
-              }
-              @case ('email') {
-                <input
-                  [id]="'graph-input-' + field.controlName"
-                  [formControlName]="field.controlName"
-                  type="email"
-                  [placeholder]="field.placeholder || field.label"
-                />
-              }
-              @case ('url') {
-                <input
-                  [id]="'graph-input-' + field.controlName"
-                  [formControlName]="field.controlName"
-                  type="url"
-                  [placeholder]="field.placeholder || field.label"
-                />
-              }
-              @default {
-                <input
-                  [id]="'graph-input-' + field.controlName"
-                  [formControlName]="field.controlName"
-                  type="text"
-                  [placeholder]="field.placeholder || field.label"
-                />
-              }
+    <form class="graph-renderer__form" [formGroup]="workflowInputForm()">
+      @for (field of workflowInputFields(); track field.path) {
+        <article class="graph-renderer__field">
+          <label class="graph-renderer__field-label" [attr.for]="'graph-input-' + field.controlName">
+            {{ field.label }}
+          </label>
+          <span class="graph-renderer__field-meta">{{ field.path }} · {{ field.controlType }}</span>
+
+          @switch (field.controlType) {
+            @case ('textarea') {
+              <textarea
+                [id]="'graph-input-' + field.controlName"
+                [formControlName]="field.controlName"
+                [placeholder]="field.placeholder || field.label"
+                rows="5"
+              ></textarea>
             }
-
-            @if (fieldErrors(field).length) {
-              <ul class="graph-renderer__errors">
-                @for (message of fieldErrors(field); track message) {
-                  <li>{{ message }}</li>
-                }
-              </ul>
+            @case ('number') {
+              <input
+                [id]="'graph-input-' + field.controlName"
+                [formControlName]="field.controlName"
+                type="number"
+                [placeholder]="field.placeholder || field.label"
+              />
             }
+            @case ('checkbox') {
+              <label class="graph-renderer__checkbox" [attr.for]="'graph-input-' + field.controlName">
+                <input [id]="'graph-input-' + field.controlName" [formControlName]="field.controlName" type="checkbox" />
+                <span>{{ field.placeholder || field.label }}</span>
+              </label>
+            }
+            @case ('date') {
+              <input
+                [id]="'graph-input-' + field.controlName"
+                [formControlName]="field.controlName"
+                type="date"
+                [placeholder]="field.placeholder || field.label"
+              />
+            }
+            @case ('email') {
+              <input
+                [id]="'graph-input-' + field.controlName"
+                [formControlName]="field.controlName"
+                type="email"
+                [placeholder]="field.placeholder || field.label"
+              />
+            }
+            @case ('url') {
+              <input
+                [id]="'graph-input-' + field.controlName"
+                [formControlName]="field.controlName"
+                type="url"
+                [placeholder]="field.placeholder || field.label"
+              />
+            }
+            @default {
+              <input
+                [id]="'graph-input-' + field.controlName"
+                [formControlName]="field.controlName"
+                type="text"
+                [placeholder]="field.placeholder || field.label"
+              />
+            }
+          }
 
-            <button type="button" class="graph-renderer__duplicate" (click)="duplicateInput(field.path)">
-              Duplicate value node
-            </button>
-          </article>
-        }
-      </form>
+          @if (fieldErrors(field).length) {
+            <ul class="graph-renderer__errors">
+              @for (message of fieldErrors(field); track message) {
+                <li>{{ message }}</li>
+              }
+            </ul>
+          }
 
-      <div class="graph-renderer__validation">
-        <p>Model validation</p>
-        <strong>{{ hasFormErrors() ? 'Invalid' : 'Valid' }}</strong>
-        <small>{{ workflowInputErrors() ? displayValue(workflowInputErrors()) : 'No model errors' }}</small>
-      </div>
-    </aside>
+          <button type="button" class="graph-renderer__duplicate" (click)="duplicateInput(field.path)">
+            Duplicate value node
+          </button>
+        </article>
+      }
+    </form>
 
-    <div class="graph-renderer__canvas">
-      @if (model(); as graphModel) {
-        <ng-diagram [model]="graphModel" [nodeTemplateMap]="nodeTemplateMap">
-          <ng-diagram-background type="dots" />
-          <ng-diagram-minimap position="bottom-right" [showZoomControls]="true" />
-        </ng-diagram>
+    <div class="graph-renderer__validation">
+      <p>Model validation</p>
+      <strong>{{ hasFormErrors() ? 'Invalid' : 'Valid' }}</strong>
+      <small>{{ workflowInputErrors() ? displayValue(workflowInputErrors()) : 'No model errors' }}</small>
+    </div>
+  </aside>
+
+  <aside class="graph-renderer__side graph-renderer__side--outputs">
+    <div class="graph-renderer__side-header">
+      <p>Workflow outputs</p>
+      <h2>Run result</h2>
+      <small>Outputs are returned by the workflow engine and are not rendered as canvas nodes.</small>
+    </div>
+
+    <div class="graph-renderer__ports">
+      @for (port of viewModel().workflowOutputs; track port.property) {
+        <article class="graph-renderer__port-card graph-renderer__port-card--output">
+          <div>
+            <strong>{{ port.label }}</strong>
+            <small>{{ port.property }} · {{ port.type || 'unknown' }}</small>
+          </div>
+          <span>{{ workflowOutputValue() }}</span>
+        </article>
       }
     </div>
 
-    <aside class="graph-renderer__side graph-renderer__side--outputs">
-      <div class="graph-renderer__side-header">
-        <p>Workflow outputs</p>
-        <h2>Run result</h2>
-        <small>Outputs are returned by the workflow engine and are not rendered as canvas nodes.</small>
+    <div class="graph-renderer__snapshot">
+      <div class="graph-renderer__snapshot-header">
+        <p>Snapshot</p>
+        <small>Save the live graph state or restore a previously serialized snapshot.</small>
       </div>
 
-      <div class="graph-renderer__ports">
-        @for (port of viewModel().workflowOutputs; track port.property) {
-          <article class="graph-renderer__port-card graph-renderer__port-card--output">
-            <div>
-              <strong>{{ port.label }}</strong>
-              <small>{{ port.property }} · {{ port.type || 'unknown' }}</small>
-            </div>
-            <span>{{ workflowOutputValue() }}</span>
-          </article>
-        }
+      <textarea
+        #snapshotArea
+        class="graph-renderer__snapshot-text"
+        [value]="snapshotValue()"
+        (input)="updateSnapshotValue(snapshotArea.value)"
+        rows="12"
+        spellcheck="false"
+      ></textarea>
+
+      <div class="graph-renderer__snapshot-actions">
+        <button type="button" class="graph-renderer__snapshot-button" (click)="saveSnapshot()">
+          Save snapshot
+        </button>
+        <button type="button" class="graph-renderer__snapshot-button" (click)="loadSnapshot()">
+          Load snapshot
+        </button>
       </div>
-
-      <div class="graph-renderer__snapshot">
-        <div class="graph-renderer__snapshot-header">
-          <p>Snapshot</p>
-          <small>Save the live graph state or restore a previously serialized snapshot.</small>
-        </div>
-
-        <textarea
-          #snapshotArea
-          class="graph-renderer__snapshot-text"
-          [value]="snapshotValue()"
-          (input)="updateSnapshotValue(snapshotArea.value)"
-          rows="12"
-          spellcheck="false"
-        ></textarea>
-
-        <div class="graph-renderer__snapshot-actions">
-          <button type="button" class="graph-renderer__snapshot-button" (click)="saveSnapshot()">
-            Save snapshot
-          </button>
-          <button type="button" class="graph-renderer__snapshot-button" (click)="loadSnapshot()">
-            Load snapshot
-          </button>
-        </div>
-      </div>
-    </aside>
-  </section>
-</app-container>
+    </div>
+  </aside>
+</section>

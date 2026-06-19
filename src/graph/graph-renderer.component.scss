@@ -1,14 +1,12 @@
 .graph-renderer {
-  display: grid;
-  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr) minmax(260px, 320px);
-  gap: 1rem;
-  align-items: stretch;
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
 }
 
 .graph-renderer__side,
 .graph-renderer__canvas {
-  min-height: 720px;
-  padding: 1rem;
+  padding: 0;
   border: 1px solid rgba(148, 163, 184, 0.24);
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.84);
@@ -16,9 +14,38 @@
 }
 
 .graph-renderer__side {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 3;
   display: grid;
   align-content: start;
   gap: 1rem;
+  overflow: auto;
+  backdrop-filter: blur(18px);
+}
+
+.graph-renderer__side--inputs {
+  left: 0;
+  width: min(360px, 30vw);
+}
+
+.graph-renderer__side--outputs {
+  right: 0;
+  width: min(320px, 26vw);
+}
+
+.graph-renderer__side > * {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.graph-renderer__side > :first-child {
+  padding-top: 1rem;
+}
+
+.graph-renderer__side > :last-child {
+  padding-bottom: 1rem;
 }
 
 .graph-renderer__side-header {
@@ -245,25 +272,50 @@
 }
 
 .graph-renderer__canvas {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
   overflow: hidden;
   padding: 0;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.08), transparent 34%),
+    radial-gradient(circle at top right, rgba(249, 115, 22, 0.1), transparent 30%),
+    rgba(255, 255, 255, 0.58);
 }
 
 .graph-renderer__canvas ng-diagram {
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 720px;
-  border-radius: 24px;
+  min-height: 100vh;
+  border-radius: 28px;
 }
 
 @media (max-width: 1100px) {
   .graph-renderer {
-    grid-template-columns: 1fr;
+    min-height: auto;
   }
 
   .graph-renderer__side,
   .graph-renderer__canvas {
+    position: relative;
+    inset: auto;
+    width: 100%;
     min-height: auto;
+  }
+
+  .graph-renderer__side--inputs,
+  .graph-renderer__side--outputs {
+    max-width: none;
+    margin-bottom: 1rem;
+  }
+
+  .graph-renderer__canvas {
+    margin-bottom: 1rem;
+  }
+
+  .graph-renderer__canvas ng-diagram {
+    min-height: 560px;
   }
 }
