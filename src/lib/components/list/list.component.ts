@@ -1175,15 +1175,15 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
             this.changeDetectorRef.detectChanges();
           }
           const condition = this.parseConditions(this.searchValue as IFilterQuery);
-          request = await this.parseResult(
+          const result =
             typeof this.searchValue === Primitives.STRING
               ? await repo.find(String(this.searchValue), this.sortDirection)
               : await repo
                   .select()
                   .where(condition)
                   .orderBy((this.sortBy || this.pk) as keyof Model, this.sortDirection)
-                  .execute()
-          );
+                  .execute();
+          request = typeof result === Primitives.STRING ? [] : await this.parseResult(result);
           data = [];
           this.changeDetectorRef.detectChanges();
         }
