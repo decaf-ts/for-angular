@@ -5,6 +5,7 @@ import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { DecafComponent } from '@decaf-ts/ui-decorators';
 import { debounceTime, shareReplay, Subject, takeUntil } from 'rxjs';
+import { NgxRenderingEngine } from '../public-apis';
 import { getModelAndRepository } from './helpers';
 import { IFilterQuery } from './interfaces';
 import { DecafRepository, KeyValue } from './types';
@@ -367,8 +368,15 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
       const handler = this.handlers?.[hook] || undefined;
       const model = this.buildTransactionModel(data || {}, repository, operation);
       if (handler && typeof handler === 'function') {
-        const result = await handler.bind(this)(model, repository, this.modelId);
+        const result = await handler.bind(this)(
+          this,
+          NgxRenderingEngine.get('angular'),
+          model,
+          repository,
+          this.modelId
+        );
         if (result === false) {
+          this.model = model as M;
           return undefined;
         }
         return result as M;

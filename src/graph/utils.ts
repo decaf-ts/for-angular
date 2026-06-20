@@ -1,7 +1,6 @@
+import { Injector } from '@angular/core';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model } from '@decaf-ts/decorator-validation';
-import { Injector } from '@angular/core';
-import { initializeModel, type ModelAdapter } from 'ng-diagram';
 import {
   graphDefinitionOf,
   graphLeafPortsOf,
@@ -13,6 +12,8 @@ import {
   PortDirection,
   type GraphWorkflowSnapshot,
 } from '@decaf-ts/ui-decorators/graph';
+import { initializeModel, type ModelAdapter } from 'ng-diagram';
+import { GraphInputValueNode } from './nodes/boundary-nodes';
 import type {
   GraphBoundaryNodeData,
   GraphCanvasNodeBlueprint,
@@ -22,7 +23,6 @@ import type {
   GraphRendererSummaryItem,
   GraphRendererViewModel,
 } from './types';
-import { GraphInputValueNode } from './nodes';
 
 export interface GraphRendererSnapshotState {
   duplicateCounts: Record<string, number>;

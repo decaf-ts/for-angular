@@ -5,13 +5,13 @@ import { IonContent } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
-import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { CardComponent, EmptyStateComponent } from 'src/lib/components';
 import { ListComponent } from 'src/lib/components/list/list.component';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { ICrudFormEvent, IModelComponentSubmitEvent } from 'src/lib/engine/interfaces';
 import { NgxModelPageDirective } from 'src/lib/engine/NgxModelPageDirective';
 import { CrudEvent } from 'src/lib/engine/types';
+import { getNgxToast } from 'src/lib/utils/NgxToast';
 
 /**
  * @description Angular component page for CRUD operations on dynamic model entities.
@@ -121,7 +121,7 @@ import { CrudEvent } from 'src/lib/engine/types';
 })
 export class ModelPage extends NgxModelPageDirective implements OnInit {
   // constructor() {
-  //   super(true, getNgxToastComponent() as unknown as ToastController);
+  //   super(true, getNgxToast() as unknown as ToastController);
   // }
 
   async ngOnInit(): Promise<void> {
@@ -141,10 +141,9 @@ export class ModelPage extends NgxModelPageDirective implements OnInit {
         event as CrudEvent<M>,
         true
       )) as IModelComponentSubmitEvent<Model>;
-      const toast = getNgxToastComponent();
-      await toast.show({
+      const toast = getNgxToast();
+      await toast.show(message as string, {
         color: success ? 'dark' : 'danger',
-        message,
       });
     }
   }

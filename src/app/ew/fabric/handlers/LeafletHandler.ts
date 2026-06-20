@@ -2,13 +2,14 @@ import { Router } from '@angular/router';
 import { Condition, OrderDirection } from '@decaf-ts/core';
 import { composedFromCreateUpdate, ComposedFromMetadata, OperationKeys, PrimaryKeyType } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
-import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { DecafRepository, IFilterQuery, NgxEventHandler, SelectOption } from 'src/lib/engine';
 import { getModelAndRepository } from 'src/lib/engine/helpers';
+import { getNgxSpinner } from 'src/lib/utils/NgxSpinner';
+import { getNgxToast } from 'src/lib/utils/NgxToast';
+
 import { Leaflet } from '../Leaflet';
 
 import { ComponentEventNames, uihandlers, uitablecol } from '@decaf-ts/ui-decorators';
-import { getNgxLoadingComponent } from 'src/app/utils/NgxLoadingController';
 import { FileUploadComponent, ListComponent, TableComponent } from 'src/lib/components';
 import { getDoucumentOptions, getLanguageOptions, getMarketOptions } from '../../utils/helpers';
 import { LeafletFile } from '../LeafletFile';
@@ -133,7 +134,7 @@ export class LeafletHandler extends NgxEventHandler {
   override async handle<Leaflet>(event: { data: Leaflet }): Promise<void> {
     const repo = getModelAndRepository(this.model as Model);
     const { data } = event;
-    const loading = getNgxLoadingComponent();
+    const loading = getNgxSpinner();
     const phrase = await this.translate('operations.processing', { '0': '' });
     let operation = this.operation;
     let success = false;
@@ -193,15 +194,14 @@ export class LeafletHandler extends NgxEventHandler {
       await loading.remove();
     }
 
-    const options = {
+    const message = await this.translate(`operations.${operation}.${success ? 'success' : 'error'}`, {
+      '0': this.pk,
+      '1': uid,
+    });
+    const toast = getNgxToast();
+    await toast.show(message, {
       color: success ? 'dark' : 'danger',
-      message: await this.translate(`operations.${operation}.${success ? 'success' : 'error'}`, {
-        '0': this.pk,
-        '1': uid,
-      }),
-    };
-    const toast = getNgxToastComponent(options);
-    await toast.show(options);
+    });
   }
 
   static async getDocumentFiles(instance: FileUploadComponent): Promise<void> {

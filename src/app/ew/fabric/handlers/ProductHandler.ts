@@ -1,8 +1,6 @@
 import { Condition } from '@decaf-ts/core';
 import { IRepository, OperationKeys, PrimaryKeyType } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
-import { getNgxLoadingComponent, NgxLoadingComponent } from 'src/app/utils/NgxLoadingController';
-import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { CrudFieldComponent, FileUploadComponent } from 'src/lib/components';
 import { getNgxModalComponent, presentModalAlert } from 'src/lib/components/modal/modal.component';
 import {
@@ -17,6 +15,8 @@ import {
 } from 'src/lib/engine';
 import { SelectOption } from 'src/lib/engine/types';
 import { NgxRouterService } from 'src/lib/services/NgxRouterService';
+import { getNgxSpinner, NgxSpinner } from 'src/lib/utils/NgxSpinner';
+import { getNgxToast } from 'src/lib/utils/NgxToast';
 import { Product, ProductMarket } from '..';
 import { ProductLayout } from '../../layouts/ProductLayout';
 import { toDiffs } from '../helpers/comparison';
@@ -72,7 +72,7 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
 
   static pk: string;
 
-  static loading: NgxLoadingComponent = getNgxLoadingComponent();
+  static loading: NgxSpinner = getNgxSpinner();
 
   static instance?: NgxComponentDirective;
 
@@ -193,11 +193,11 @@ export class ProductHandler<M extends Model> extends NgxEventHandler {
           onSameUrlNavigation: 'reload',
         });
       }
-      const toast = getNgxToastComponent();
+      const toast = getNgxToast();
       if (result) {
-        await toast.show({
+        const message = await this.translate(`operations.multiple.success`);
+        await toast.show(message, {
           color: 'dark',
-          message: await this.translate(`operations.multiple.success`),
         });
       } else {
         const message = await this.translate(`operations.multiple.error`);

@@ -16,7 +16,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
-import { ComponentEventNames, UIFunctionLike, uihandlers } from '@decaf-ts/ui-decorators';
+import { ComponentEventNames, IDecafModal, UIFunctionLike, uihandlers } from '@decaf-ts/ui-decorators';
 import {
   IonButton,
   IonButtons,
@@ -117,7 +117,7 @@ import { ModelRendererComponent } from '../model-renderer/model-renderer.compone
  *
  * @public
  */
-export class ModalComponent extends NgxParentComponentDirective implements OnInit {
+export class ModalComponent extends NgxParentComponentDirective implements IDecafModal, OnInit {
   /**
    * @description Reference to the rendered Ionic modal instance.
    * @summary Captures the underlying `IonModal` so the component can control presentation and dismissal.
@@ -158,7 +158,7 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    * @type {ModalOptions | undefined}
    */
   @Input()
-  options?: ModalOptions;
+  options?: Partial<ModalOptions>;
 
   /**
    * @description Global key-value pairs for modal configuration.
@@ -399,7 +399,7 @@ export class ModalComponent extends NgxParentComponentDirective implements OnIni
    * @param {IBaseCustomEvent} event - The custom event to handle.
    * @returns {Promise<void>} - A promise that resolves when the event is handled.
    */
-  override async handleEvent(event: IBaseCustomEvent): Promise<void> {
+  override async handleEvent(event: CustomEvent & IBaseCustomEvent): Promise<void> {
     if (event instanceof Event) {
       event.stopImmediatePropagation();
     }

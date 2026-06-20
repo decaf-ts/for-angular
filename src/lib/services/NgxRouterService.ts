@@ -2,7 +2,7 @@ import { Location } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Primitives } from '@decaf-ts/decorator-validation';
-import { ComponentEventNames } from '@decaf-ts/ui-decorators';
+import { ComponentEventNames, IDecafRouter } from '@decaf-ts/ui-decorators';
 import { NavController } from '@ionic/angular/standalone';
 import { RouteDirections } from '../engine/constants';
 import { KeyValue } from '../engine/types';
@@ -21,7 +21,7 @@ import { KeyValue } from '../engine/types';
 @Injectable({
   providedIn: 'root',
 })
-export class NgxRouterService {
+export class NgxRouterService implements IDecafRouter {
   /**
    * @description Stores the previous URL for back navigation.
    * @summary Caches the previous URL from the router navigation events.
@@ -369,11 +369,10 @@ export class NgxRouterService {
    *
    * @memberOf RouterService
    */
-  async navigateTo(
-    page: string,
-    direction: RouteDirections = RouteDirections.FORWARD,
-    options?: KeyValue
-  ): Promise<boolean> {
+  async navigate(page: string, direction?: RouteDirections, options?: KeyValue): Promise<boolean> {
+    if (!direction) {
+      direction = RouteDirections.FORWARD;
+    }
     if (direction === RouteDirections.ROOT) return this.navController.navigateRoot(page, options);
     if (direction === RouteDirections.FORWARD) return await this.navController.navigateForward(page, options);
     return await this.navController.navigateBack(page, options);

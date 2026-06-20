@@ -1,17 +1,13 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Model } from '@decaf-ts/decorator-validation';
-import {
-  ComponentEventNames,
-  ElementPositions,
-  IPagedComponentProperties,
-} from '@decaf-ts/ui-decorators';
+import { ComponentEventNames, ElementPositions, IPagedComponentProperties } from '@decaf-ts/ui-decorators';
 import { IonButton } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
 import { ComponentRendererComponent } from 'src/lib/components/component-renderer/component-renderer.component';
 import { ElementPosition, NgxParentComponentDirective } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
+import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 
 export interface ITabItem {
@@ -28,13 +24,7 @@ export interface ITabItem {
   templateUrl: './switcher.component.html',
   styleUrls: ['./switcher.component.scss'],
   standalone: true,
-  imports: [
-    ForAngularCommonModule,
-    RouterModule,
-    TranslatePipe,
-    ComponentRendererComponent,
-    IonButton,
-  ],
+  imports: [ForAngularCommonModule, RouterModule, TranslatePipe, ComponentRendererComponent, IonButton],
 })
 export class AppSwitcherComponent extends NgxParentComponentDirective implements OnInit, OnDestroy {
   @Input()

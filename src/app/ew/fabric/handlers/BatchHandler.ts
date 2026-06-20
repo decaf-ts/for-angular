@@ -2,12 +2,12 @@ import { OperationKeys, PrimaryKeyType } from '@decaf-ts/db-decorators';
 import { formatDate, isValidDate, Model } from '@decaf-ts/decorator-validation';
 import { CrudOperationKeys } from '@decaf-ts/ui-decorators';
 import { AppExpiryDateFieldComponent } from 'src/app/components/expiry-date/expiry-date-field.component';
-import { getNgxToastComponent } from 'src/app/utils/NgxToastComponent';
 import { FieldsetComponent } from 'src/lib/components';
 import { TableComponent } from 'src/lib/components/table/table.component';
 import { ICrudFormEvent } from 'src/lib/engine';
 import { NgxComponentDirective } from 'src/lib/engine/NgxComponentDirective';
 import { DecafRepository, KeyValue } from 'src/lib/engine/types';
+import { getNgxToast } from 'src/lib/utils';
 import { BatchLayout } from '../../layouts/BatchLayout';
 import { Batch, ManufacturerAddress } from '../Batch';
 import { DatePattern } from '../constants';
@@ -207,8 +207,8 @@ export class BatchHandler extends ProductHandler<Batch> {
           onSameUrlNavigation: 'reload',
         });
       }
-      const toast = getNgxToastComponent();
-      await toast.show({
+      const toast = getNgxToast();
+      await toast.create({
         color: result ? 'dark' : 'danger',
         message: await this.translate(`operations.multiple.${result ? 'success' : 'error'}`),
       });

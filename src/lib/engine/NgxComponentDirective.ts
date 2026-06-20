@@ -40,6 +40,7 @@ import { LoadingController, LoadingOptions } from '@ionic/angular/standalone';
 import { fromEvent, shareReplay, takeUntil } from 'rxjs';
 import { getLocaleContext } from '../i18n/Loader';
 import { NgxMediaService } from '../services/NgxMediaService';
+import { NgxRouterService } from '../services/NgxRouterService';
 import { NgxTranslateService } from '../services/NgxTranslateService';
 import { generateRandomValue, getWindow, setOnWindow } from '../utils';
 import { AngularEngineKeys, BaseComponentProps, CPTKN, WindowColorSchemes } from './constants';
@@ -384,6 +385,16 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   override router: Router = inject(Router);
+
+  /**
+   * @description Decaf router service for route utilities and navigation helpers.
+   * @summary Injected application router abstraction used by the directive to access
+   * higher-level navigation helpers, query parameter utilities, and route-related
+   * behaviors without depending directly on lower-level router logic in consumers.
+   * @type {NgxRouterService}
+   * @memberOf module:lib/engine/NgxComponentDirective
+   */
+  routerService: NgxRouterService = inject(NgxRouterService);
 
   /**
    * @description Current locale identifier for component internationalization.

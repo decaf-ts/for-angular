@@ -24,12 +24,26 @@ import {
 import { InternalError, OperationKeys } from '@decaf-ts/db-decorators';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelKeys, Primitives } from '@decaf-ts/decorator-validation';
-import { FieldDefinition, HTML5InputTypes, RenderingEngine } from '@decaf-ts/ui-decorators';
+import {
+  DecafComponent,
+  FieldDefinition,
+  HTML5InputTypes,
+  IDecafModal,
+  IDecafRouter,
+  IDecafSpinner,
+  IDecafToast,
+  RenderingEngine,
+} from '@decaf-ts/ui-decorators';
+import { LoadingOptions, ModalOptions, ToastOptions } from '@ionic/angular/standalone';
+import { ModalComponent } from '../components/modal/modal.component';
 import { NgxFormService } from '../services/NgxFormService';
 import { isDevelopmentMode } from '../utils';
+import { getNgxSpinner } from '../utils/NgxSpinner';
+import { getNgxToast } from '../utils/NgxToast';
 import { AngularEngineKeys, BaseComponentProps } from './constants';
 import { getLogger } from './helpers';
 import { AngularDynamicOutput, IFormComponentProperties } from './interfaces';
+import { NgxComponentDirective } from './NgxComponentDirective';
 import { AngularFieldDefinition, FormParent, KeyValue } from './types';
 
 /**
@@ -148,6 +162,18 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    */
   constructor() {
     super(AngularEngineKeys.FLAVOUR);
+  }
+
+  override router(): IDecafRouter {
+    return (NgxRenderingEngine._instance as unknown as NgxComponentDirective)?.routerService as IDecafRouter;
+  }
+
+  override async getToast(options: Partial<ToastOptions>): Promise<IDecafToast> {
+    return getNgxToast(options);
+  }
+
+  override async getSpinner(options: Partial<LoadingOptions>): Promise<IDecafSpinner> {
+    return getNgxSpinner(options);
   }
 
   /**
@@ -492,6 +518,22 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    */
   override async initialize(): Promise<void> {
     if (!this.initialized) this.initialized = true;
+  }
+
+  async getModal<C extends DecafComponent<Model>>(
+    props: Partial<C>,
+    options?: Partial<ModalOptions>,
+    injector?: EnvironmentInjector
+  ): Promise<IDecafModal> {
+    const modalProps = props as Partial<ModalComponent>;
+    const { globals } = { ...modalProps };
+    if (!globals || !globals?.['operation']) {
+      modalProps.globals = { ...(globals || {}), operation: OperationKeys.CREATE };
+    }
+    const component = await (
+      NgxRenderingEngine.createComponent(ModalComponent, modalProps, injector || undefined) as ModalComponent
+    ).create(options);
+    return component;
   }
 
   /**

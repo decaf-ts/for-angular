@@ -10,7 +10,7 @@
  * @implements {OnInit}
  */
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { OrderDirection } from '@decaf-ts/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
@@ -29,7 +29,6 @@ import {
 import { getModelAndRepository } from '../../engine/helpers';
 import { IBaseCustomEvent, IFilterQuery } from '../../engine/interfaces';
 import { FunctionLike, KeyValue, SelectOption } from '../../engine/types';
-import { NgxRouterService } from '../../services/NgxRouterService';
 import { getWindow } from '../../utils/helpers';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { IconComponent } from '../icon/icon.component';
@@ -126,12 +125,6 @@ export class TableComponent extends ListComponent implements OnInit {
    */
   @Input()
   allowOperations: boolean = true;
-
-  /**
-   * @description Injected {@link NgxRouterService} used to read URL query parameters for pre-populating the search state.
-   * @type {NgxRouterService}
-   */
-  routerService: NgxRouterService = inject(NgxRouterService);
 
   /**
    * @description Resolves and sorts the visible column keys from the current mapper metadata.

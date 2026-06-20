@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, OnDestroy } from '@angular/core';
+import { Component, HostListener, OnDestroy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Condition } from '@decaf-ts/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
@@ -25,7 +25,6 @@ import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { getModelAndRepository, SelectOption } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
-import { NgxRouterService } from 'src/lib/services';
 import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/helpers';
 
 @Dynamic()
@@ -48,8 +47,6 @@ import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/help
   standalone: true,
 })
 export class AppSelectFieldComponent extends CrudFieldComponent implements OnDestroy {
-  routerService: NgxRouterService = inject(NgxRouterService);
-
   set lastProduct(product: Product) {
     setOnWindow('_lastProduct', {
       inventedName: product.inventedName,

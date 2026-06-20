@@ -1,9 +1,7 @@
-
-import { NgxEventHandler, ICrudFormEvent, KeyValue } from "src/lib/engine";
-import { getNgxToastComponent } from "../utils/NgxToastComponent";
-import { Router } from "@angular/router";
-import { setOnWindow } from "src/lib/utils/helpers";
-
+import { Router } from '@angular/router';
+import { ICrudFormEvent, KeyValue, NgxEventHandler } from 'src/lib/engine';
+import { setOnWindow } from 'src/lib/utils/helpers';
+import { getNgxToast } from 'src/lib/utils/NgxToast';
 
 /**
  * @description Handler for login events
@@ -18,8 +16,7 @@ import { setOnWindow } from "src/lib/utils/helpers";
  * const isValid = await loginHandler.handle(event);
  * console.log(isValid); // true
  */
-export class LoginHandler extends NgxEventHandler{
-
+export class LoginHandler extends NgxEventHandler {
   /**
    * @description Handles the login event
    * @summary This method extracts the username and password from the event data
@@ -31,13 +28,13 @@ export class LoginHandler extends NgxEventHandler{
   override async handle(event: ICrudFormEvent): Promise<void> {
     const { username, password } = event.data as KeyValue;
     const success = !!username && !!password;
-    if(success) {
+    if (success) {
       setOnWindow('loggedUser', username);
       setTimeout(async () => {
         await (this.router as Router).navigate(['/dashboard']);
       }, 50);
     }
-    const toast = await getNgxToastComponent().show({
+    const toast = await getNgxToast().create({
       message: success ? 'Login successful!' : 'Invalid username or password.',
       duration: 3000,
       color: success ? 'dark' : 'danger',
