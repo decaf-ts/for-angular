@@ -375,7 +375,6 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
           this.modelId
         );
         if (result === false) {
-          this.model = model as M;
           return undefined;
         }
         return result as M;

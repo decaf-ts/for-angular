@@ -414,7 +414,6 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       if (metadata) this.setInputs(cmp as ComponentRef<unknown>, inputs, metadata as ComponentMirror<unknown>);
       document.body.querySelector('ion-app')?.appendChild(host);
     });
-    (cmp.instance as any).changeDetectorRef.detectChanges();
     return cmp.instance as C;
   }
 

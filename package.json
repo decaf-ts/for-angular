@@ -69,6 +69,9 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
   },
+  "exports": {
+    "./assets/*": "./assets/*"
+  },
   "devDependencies": {
     "@angular-devkit/schematics": "^21.2.9",
     "@angular-devkit/schematics-cli": "^21.2.9",

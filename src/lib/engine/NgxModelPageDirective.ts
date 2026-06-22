@@ -97,16 +97,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     await this.refresh(this.modelId);
   }
 
-  // /**
-  //  * @description Angular lifecycle hook for component initialization.
-  //  * @summary Initializes the component by setting up the logger instance using the getLogger
-  //  * utility. This ensures that logging is available throughout the component's lifecycle
-  //  * for error tracking and debugging purposes.
-  //  */
-  // async ionViewWillEnter(): Promise<void> {
-  //   // await super.ionViewWillEnter();
-  // }
-
   /**
    * @description Refreshes the component data by loading the specified model instance.
    * @summary Loads model data from the repository based on the current operation type.
@@ -191,60 +181,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     }
   }
 
-  /**
-   * @description Parses and transforms form data for repository operations.
-   * @summary Converts raw form data into the appropriate format for repository operations.
-   * For DELETE operations, returns the primary key value (string or number). For CREATE
-   * and UPDATE operations, builds a complete model instance using the Model.build method
-   * with proper primary key assignment for updates.
-   *
-   * @param {Partial<Model>} data - The raw form data to be processed
-   * @return {Model | string | number} Processed data ready for repository operations
-   * @private
-   */
-  // private buildModel<M extends Model>(
-  //   data: KeyValue | KeyValue[],
-  //   repository: DecafRepository<M>,
-  //   operation?: OperationKeys,
-  // ): M | M[] | EventIds {
-  //   if (!operation) operation = this.operation;
-  //   operation = (
-  //     [OperationKeys.READ, OperationKeys.DELETE].includes(operation)
-  //       ? OperationKeys.DELETE
-  //       : operation.toLowerCase()
-  //   ) as OperationKeys;
-
-  //   if (Array.isArray(data))
-  //     return data.map((item) => this.buildModel(item, repository, operation)) as M[];
-
-  //   const pk = Model.pk(repository.class as Constructor<M>);
-  //   const pkType = Metadata.type(repository.class as Constructor<M>, pk as string).name;
-  //   const modelId = (this.modelId || data[pk as string]) as Primitives;
-  //   if (!this.modelId) this.modelId = modelId;
-  //   const uid = this.parsePkValue(
-  //     operation === OperationKeys.DELETE ? data[pk as string] : modelId,
-  //     pkType,
-  //   );
-  //   if (operation !== OperationKeys.DELETE) {
-  //     const properties = Metadata.properties(repository.class as Constructor<M>) as string[];
-  //     const relation =
-  //       pk === this.pk
-  //         ? {}
-  //         : properties.includes(this.pk as string) && !data[this.pk as string]
-  //           ? { [this.pk as string]: modelId }
-  //           : {};
-  //     return Model.build(
-  //       Object.assign(
-  //         data || {},
-  //         relation,
-  //         modelId && !data[this.pk] ? { [this.pk]: modelId } : {},
-  //       ),
-  //       repository.class.name,
-  //     ) as M;
-  //   }
-  //   return uid as EventIds;
-  // }
-
   async getTransactionRepository<M extends Model>(
     event: CrudEvent<M>,
     repo: DecafRepository<M>
@@ -252,8 +188,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     if (!repo) {
       repo = this.repository as DecafRepository<M>;
     }
-
-    if (!repo || repo?.class?.name !== this.model?.constructor?.name) {
+    const repoPk = !repo ? undefined : (repo?.class ?? Model.pk(Model.get(repo.class.name)));
+    if (!repo || repo?.class?.name !== this.model?.constructor?.name || typeof repoPk !== 'string') {
       const { context } = (await this.process(event, this.model as M, false)) as ILayoutModelContext;
       if (context) {
         // parse data from main model to event
@@ -266,20 +202,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     }
     return repo;
   }
-
-  // async beginTransaction<M extends Model>(
-  //   data: M,
-  //   repository: DecafRepository<M>,
-  //   operation: CrudOperations,
-  // ): Promise<M | M[] | EventIds> {
-  //   const hook = `before${operation.charAt(0).toUpperCase() + operation.slice(1)}`;
-  //   const handler = this.handlers?.[hook] || undefined;
-  //   const model = this.buildModel(data || {}, repository, operation);
-  //   if (handler && typeof handler === 'function') {
-  //     (await handler.bind(this)(model, repository, this.modelId)) as M;
-  //   }
-  //   return model as M;
-  // }
 
   /**
    * @description Retrieves a model instance from the repository by unique identifier.
