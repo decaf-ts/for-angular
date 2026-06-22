@@ -5,7 +5,6 @@ import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { DecafComponent } from '@decaf-ts/ui-decorators';
 import { debounceTime, shareReplay, Subject, takeUntil } from 'rxjs';
-import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { getModelAndRepository } from './helpers';
 import { IFilterQuery } from './interfaces';
 import { DecafRepository, KeyValue } from './types';
@@ -369,8 +368,8 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
       const model = this.buildTransactionModel(data || {}, repository, operation);
       if (handler && typeof handler === 'function') {
         const result = await handler.bind(this)(
-          this,
-          NgxRenderingEngine.get('angular'),
+          // this,
+          // NgxRenderingEngine.get('angular'), TODO: Pass component and engine instance to the handler (change UIEventProperty on ui-decorators repository)
           model,
           repository,
           this.modelId
