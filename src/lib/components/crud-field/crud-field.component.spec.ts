@@ -1,7 +1,9 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
+import { NavController } from '@ionic/angular/standalone';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { CrudFieldComponent } from './crud-field.component';
@@ -10,6 +12,12 @@ import { NgxTranslateService } from '../../services/NgxTranslateService';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { NgxFormService } from '../../services/NgxFormService';
 import { I18nFakeLoader, MockedEnTranslations } from '../../i18n/FakeLoader';
+
+const navControllerMock = {
+  navigateRoot: jest.fn(),
+  navigateForward: jest.fn(),
+  navigateBack: jest.fn(),
+};
 
 const imports = [
   ForAngularCommonModule,
@@ -60,6 +68,10 @@ describe('CrudFieldComponent', () => {
     await TestBed.configureTestingModule({
       imports,
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      providers: [
+        provideRouter([]),
+        { provide: NavController, useValue: navControllerMock },
+      ],
     }).compileComponents();
 
     translateService = TestBed.inject(NgxTranslateService);

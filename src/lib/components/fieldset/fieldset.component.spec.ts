@@ -1,8 +1,16 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { NavController } from '@ionic/angular/standalone';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { FieldsetComponent } from './fieldset.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { I18nFakeLoader } from '../../i18n';
+
+const navControllerMock = {
+  navigateRoot: jest.fn(),
+  navigateForward: jest.fn(),
+  navigateBack: jest.fn(),
+};
 
 const imports = [
   ForAngularCommonModule,
@@ -21,6 +29,10 @@ describe('FieldsetComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports,
+      providers: [
+        provideRouter([]),
+        { provide: NavController, useValue: navControllerMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FieldsetComponent);

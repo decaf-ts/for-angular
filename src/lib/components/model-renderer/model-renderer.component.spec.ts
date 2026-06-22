@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { NavController } from '@ionic/angular/standalone';
 import { ModelRendererComponent } from './model-renderer.component';
 import { ForAngularModel } from '../../../app/models/DemoModel';
 import { Model } from '@decaf-ts/decorator-validation';
@@ -7,6 +9,12 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { CrudFormComponent } from '../../components/crud-form/crud-form.component';
 import { I18nFakeLoader } from '../../i18n';
+
+const navControllerMock = {
+  navigateRoot: jest.fn(),
+  navigateForward: jest.fn(),
+  navigateBack: jest.fn(),
+};
 
 const imports = [
   ForAngularCommonModule,
@@ -20,7 +28,11 @@ const imports = [
   })
 ];
 
-const providers = [ provideHttpClientTesting() ];
+const providers = [
+  provideHttpClientTesting(),
+  provideRouter([]),
+  { provide: NavController, useValue: navControllerMock },
+];
 
 describe('ModelRendererComponent', () => {
   let component: ModelRendererComponent<Model>;

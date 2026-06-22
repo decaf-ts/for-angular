@@ -1,8 +1,16 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { NavController } from '@ionic/angular/standalone';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { I18nFakeLoader } from '../../i18n';
 import { ListComponent } from './list.component';
+
+const navControllerMock = {
+  navigateRoot: jest.fn(),
+  navigateForward: jest.fn(),
+  navigateBack: jest.fn(),
+};
 
 const imports = [
   ForAngularCommonModule,
@@ -22,6 +30,10 @@ describe('ListComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports,
+      providers: [
+        provideRouter([]),
+        { provide: NavController, useValue: navControllerMock },
+      ],
     })
       .overrideComponent(ListComponent, {
         add: {
