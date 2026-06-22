@@ -266,6 +266,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
     this.rows = this._rows;
 
     await super.initialize();
+    this.changeDetectorRef.detectChanges();
   }
 
   override async handleEvent(event: IBaseCustomEvent): Promise<void> {

@@ -339,7 +339,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    * @memberOf ListItemComponent
    */
   async ngOnInit(): Promise<void> {
-    this.parseItem(this.item);
+    await this.parseItem(this.item);
     this.showSlideItems = this.enableSlideItems();
     this.button = stringToBoolean(this.button);
     this.className = `${this.className}  dcf-flex dcf-flex-middle grid-item`;
@@ -351,7 +351,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
     this.checkDarkMode();
   }
 
-  parseItem(item: Pick<ListItemComponent, 'title' | 'description' | 'info' | 'subinfo'>): void {
+  async parseItem(item: Pick<ListItemComponent, 'title' | 'description' | 'info' | 'subinfo'>): Promise<void> {
     const model = this.model as Model;
     if (typeof model === 'object') {
       function getPropValue(prop: string): string | undefined {
@@ -373,6 +373,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
       if (!this.subinfo) {
         this.subinfo = getPropValue(`${item.subinfo}`);
       }
+      this.changeDetectorRef.markForCheck();
     }
   }
 

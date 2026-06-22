@@ -59,7 +59,9 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
         buttons: {
           submit: { text: 'filter.apply' },
         },
-      }
+      },
+      {},
+      this.injector
     );
     await modal.present();
     const { data, role } = await modal.onDidDismiss();

@@ -35,7 +35,7 @@ import {
   RenderingEngine,
 } from '@decaf-ts/ui-decorators';
 import { LoadingOptions, ModalOptions, ToastOptions } from '@ionic/angular/standalone';
-import { ModalComponent } from '../components/modal/modal.component';
+import type { ModalComponent } from '../components/modal/modal.component';
 import { NgxFormService } from '../services/NgxFormService';
 import { isDevelopmentMode } from '../utils';
 import { getNgxSpinner } from '../utils/NgxSpinner';
@@ -43,7 +43,7 @@ import { getNgxToast } from '../utils/NgxToast';
 import { AngularEngineKeys, BaseComponentProps } from './constants';
 import { getLogger } from './helpers';
 import { AngularDynamicOutput, IFormComponentProperties } from './interfaces';
-import { NgxComponentDirective } from './NgxComponentDirective';
+import type { NgxComponentDirective } from './NgxComponentDirective';
 import { AngularFieldDefinition, FormParent, KeyValue } from './types';
 
 /**
@@ -347,7 +347,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
   static createComponent<C>(
-    component: Type<unknown>,
+    component: Type<unknown> | string,
     inputs: KeyValue = {},
     injector?: Injector,
     metadata?: ComponentMirror<unknown>,
@@ -360,7 +360,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
   }
 
   static createViewComponent<C>(
-    component: Type<unknown>,
+    component: Type<unknown> | string,
     inputs: KeyValue = {},
     metadata: ComponentMirror<unknown>,
     vcr: ViewContainerRef,
@@ -414,7 +414,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       if (metadata) this.setInputs(cmp as ComponentRef<unknown>, inputs, metadata as ComponentMirror<unknown>);
       document.body.querySelector('ion-app')?.appendChild(host);
     });
-
+    (cmp.instance as any).changeDetectorRef.detectChanges();
     return cmp.instance as C;
   }
 
@@ -531,7 +531,7 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
       modalProps.globals = { ...(globals || {}), operation: OperationKeys.CREATE };
     }
     const component = await (
-      NgxRenderingEngine.createComponent(ModalComponent, modalProps, injector || undefined) as ModalComponent
+      NgxRenderingEngine.createComponent('ModalComponent', modalProps, injector || undefined) as ModalComponent
     ).create(options);
     return component;
   }

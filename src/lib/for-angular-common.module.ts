@@ -13,8 +13,19 @@ import { CommonModule } from '@angular/common';
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
+import { AngularEngineKeys } from './engine/constants';
+import { NgxRenderingEngine } from './engine/NgxRenderingEngine';
+import { getWindow, setOnWindow } from './utils/helpers';
 
 const CommonModules = [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, TranslatePipe];
+
+try {
+  const win = getWindow();
+  if (!win?.[AngularEngineKeys.LOADED]) new NgxRenderingEngine();
+  setOnWindow(AngularEngineKeys.LOADED, true);
+} catch (e: unknown) {
+  throw new Error(`Failed to load rendering engine: ${e}`);
+}
 
 /**
  * @description Main Angular module for the Decaf framework.

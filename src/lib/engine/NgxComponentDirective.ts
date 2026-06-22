@@ -626,7 +626,7 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
     }
     await super.initialize();
     this.initialized = true;
-    this.changeDetectorRef.markForCheck();
+    this.changeDetectorRef.detectChanges();
   }
 
   /**

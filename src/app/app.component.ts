@@ -18,7 +18,8 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { IconComponent } from 'src/lib/components';
 import { getDbAdapterFlavour } from 'src/lib/engine/helpers';
-import { NgxPageDirective } from '../lib/engine';
+import { IMenuItem } from '../lib/engine/interfaces';
+import { NgxPageDirective } from '../lib/engine/NgxPageDirective';
 import { isDevelopmentMode } from '../lib/utils';
 import { AppName } from './app.config';
 import { LogoComponent } from './components/logo/logo.component';
@@ -82,8 +83,8 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       // 'Leaflet',
       // //
       // // 'ProductImage',
-      // 'CategoryModel',
-      'AIVendorModel',
+      'CategoryModel',
+      // 'AIVendorModel',
       // 'CategoryModel',
     ];
     const menu = [];
@@ -111,7 +112,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     this.menu = [
       // DashboardMenuItem,
       // ...EwMenu,
-      // ...(menu as IMenuItem[]),
+      ...(menu as IMenuItem[]),
       ...AppMenu,
 
       // LogoutMenuItem,

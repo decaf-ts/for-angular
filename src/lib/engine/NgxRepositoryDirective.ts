@@ -5,7 +5,7 @@ import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { DecafComponent } from '@decaf-ts/ui-decorators';
 import { debounceTime, shareReplay, Subject, takeUntil } from 'rxjs';
-import { NgxRenderingEngine } from '../public-apis';
+import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { getModelAndRepository } from './helpers';
 import { IFilterQuery } from './interfaces';
 import { DecafRepository, KeyValue } from './types';

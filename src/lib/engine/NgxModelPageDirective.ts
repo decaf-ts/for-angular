@@ -160,6 +160,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     } else {
       this.operations = operations.filter((op) => !except.includes(op));
     }
+    this.changeDetectorRef?.detectChanges();
     return this.operations;
   }
 
