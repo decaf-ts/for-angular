@@ -5,7 +5,7 @@ import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { DecafComponent } from '@decaf-ts/ui-decorators';
 import { debounceTime, shareReplay, Subject, takeUntil } from 'rxjs';
-import { DB_ADAPTER_PROVIDER_TOKEN } from '../public-apis';
+import { DB_ADAPTER_PROVIDER_TOKEN } from './constants';
 import { getModelAndRepository } from './helpers';
 import { IFilterQuery } from './interfaces';
 import { DecafRepository, DecafRepositoryAdapter, KeyValue } from './types';
@@ -197,7 +197,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
 
   protected destroySubscriptions$ = new Subject<void>();
 
-  protected adapter: DecafRepositoryAdapter = inject(DB_ADAPTER_PROVIDER_TOKEN);
+  protected adapter: DecafRepositoryAdapter | null = inject(DB_ADAPTER_PROVIDER_TOKEN, { optional: true });
 
   override async initialize(): Promise<void> {
     if (this.repository) {
