@@ -6,7 +6,13 @@
     "no-inline-styles": "off",
     "typescript-config/consistent-casing": "off",
     "meta-viewport": "off",
-    "compat-api/css": "off"
+    "compat-api/css": "off",
+    "axe/structure": [
+      "default",
+      {
+        "list": "off"
+      }
+    ]
   },
   "browserslist": [
     "defaults",
