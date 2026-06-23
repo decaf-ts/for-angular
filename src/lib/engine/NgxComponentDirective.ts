@@ -84,6 +84,9 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
   @ViewChild('component', { read: ElementRef, static: true })
   component!: ElementRef;
 
+
+
+
   /**
    * @description Writable signal used for prop synchronization.
    * @summary Stores a reactive snapshot of component props so derived classes

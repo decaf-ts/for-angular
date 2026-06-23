@@ -22,6 +22,7 @@ import {
 } from '@decaf-ts/ui-decorators';
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
+import { AxiosInstance } from 'axios';
 import { ModalConfirmComponent } from '../components/modal/modal.component';
 import { ActionRoles, ListItemPositions, WindowColorSchemes } from './constants';
 import { FormServiceControl, I18nResourceConfig, IBaseCustomEvent, ICrudFormEvent, InputOption } from './interfaces';
@@ -46,7 +47,9 @@ export type DecafRepositoryAdapter<
   F extends RepositoryFlags = RepositoryFlags,
   C extends Context<F> = Context<F>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-> = Adapter<any, C, RawQuery<any>, any>;
+> = Adapter<any, C, RawQuery<any>, any> & {
+  client: AxiosInstance;
+};
 
 export type DecafRepository<M extends Model> = Repository<M, DecafRepositoryAdapter<RepositoryFlags, Context>>;
 

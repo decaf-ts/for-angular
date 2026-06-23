@@ -5,6 +5,7 @@ import type {
   ContextualArgs,
   DirectionLimitOffset,
   EventIds,
+  Repo,
 } from '@decaf-ts/core';
 import { PersistenceKeys, PreparedStatementKeys } from '@decaf-ts/core';
 import type { PrimaryKeyType } from '@decaf-ts/db-decorators';
@@ -15,18 +16,22 @@ import type { AxiosFlags, HttpConfig } from '@decaf-ts/for-http';
 import { AxiosFlavour, AxiosHttpAdapter } from '@decaf-ts/for-http';
 import { AxiosRequestConfig } from 'axios';
 import { auditTime, shareReplay, Subject } from 'rxjs';
-import { IObservableEvent } from './interfaces';
 import { KeyValue } from './types';
 
-const CRUD_METHODS = new Set(['createAll', 'readAll', 'updateAll', 'deleteAll', 'create', 'read', 'update', 'delete']);
-const HTTP_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
+interface ObservableEvent {
+  table: Constructor<Model> | string;
+  event: AllOperationKeys;
+  id: EventIds;
+  args: ContextualArgs<ContextOf<Repo<Model>>>;
+}
+
 export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
   bookmark: Record<string, DirectionLimitOffset[]> = {};
 
   static disableEvents = false;
-  static token: string =
-    'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJKQl9xUWRibTdBamFFZXh3THdFWjVMODlDUF9sVlRPTHFIbVZVX0hla3lNIn0.eyJleHAiOjE3Nzg2ODkwNDgsImlhdCI6MTc3ODY4ODc0OCwiYXV0aF90aW1lIjoxNzc4Njg3NjQ2LCJqdGkiOiJmNjkwYjM1YS0yYWNhLWNlNzAtNzZmYS05MmI0NTlhYjlhYWMiLCJpc3MiOiJodHRwczovL2tleWNsb2FrLnB0cC5pbnRlcm5hbC9yZWFsbXMvcGRtIiwiYXVkIjoicGRtLW9hdXRoIiwic3ViIjoiZGM1OGE1MTgtNzljMS00ZjRkLWFmNGEtNWM2MThlN2NjMDQ0IiwidHlwIjoiSUQiLCJhenAiOiJwZG0tb2F1dGgiLCJzaWQiOiJlZmQ1MDkyZC01OGIyLTViZmItYzBhOS01YzczNjc1M2FjYzIiLCJhdF9oYXNoIjoiejRMalRYZnA4U2YzQjRwRHQzUFEtdyIsImFjciI6IjEiLCJyZXNvdXJjZV9hY2Nlc3MiOnsicGRtLW9hdXRoIjp7InJvbGVzIjpbImVwaS1yZWFkZXIiLCJlcGktYWRtaW4iLCJlcGktd3JpdGVyIiwicGxhLXdyaXRlciIsInBsYS1yZWFkZXIiLCJwbGEtYWRtaW4iXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6IkRlbWVyc29uIE3DoXhpbW8gZGUgQ2FydmFsaG8iLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJkZW1lcnNvbi5jYXJ2YWxob0BwZG1mYy5jb20iLCJnaXZlbl9uYW1lIjoiRGVtZXJzb24iLCJmYW1pbHlfbmFtZSI6Ik3DoXhpbW8gZGUgQ2FydmFsaG8iLCJlbWFpbCI6ImRlbWVyc29uLmNhcnZhbGhvQHBkbWZjLmNvbSJ9.KPh_nOhdrC8ziEOPNN0nk74P2P4K7x0M3Jn8kXwgWpwyo26achLcfp_J2277eyjkOOBhqWYW6iYSPER8_LIAFyaXYHi2ehimqSfDic__oA0wLIaEYbi0FP88XXUX9BIH3Xu5OO0vF8-lo46jcOzgmq0EWthfiELzH4dHxMkmBfiiDsmBUNkpePM1m15rv15FUPNLQmWgR4DGs6L9G-oGATh_kZoeuIahaWl_9aZ9I80a5Lm7eNRB-oOBbafFlYdGrtDKG148BJ72Ek1dZisxXaD_yVtKAq-HKxSTjYt-UPw5PornGRU_G3fd0MP1bPmokxbTM3cE00fsDm8VOaa0Lg';
-  private updateObservers$ = new Subject<IObservableEvent>();
+  static token?: string;
+
+  private updateObservers$ = new Subject<ObservableEvent>();
 
   static lastEventId?: string;
 
@@ -160,11 +165,13 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     } catch (err: unknown) {
       // do nothing
     }
+
     if (DecafAxiosHttpAdapter.token) {
       overrides = {
         withCredentials: true,
         headers: {
           authorization: `Bearer ${DecafAxiosHttpAdapter.token}`,
+          // 'access-control-allow-origin': '*',
         },
       };
     }
@@ -185,6 +192,7 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
         break;
       }
     }
+
     return await this.client.request(
       Object.assign({}, details, { url: this.parseStatementURL(details.url || '') }, overrides)
     );
@@ -243,14 +251,23 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
       }
     }
   }
-  // fixed on HttpAdapter
+  // override async parseResponse<M extends Model>(
+  //   clazz: Constructor<M>,
+  //   method: OperationKeys | string,
+  //   res: (AxiosResponse & { body: unknown; error: Error | AxiosError }) | any
+  // ) {
+  //   if (method === PreparedStatementKeys.FIND_BY && res === '') {
+
+  //   }
+  //   return await super.parseResponse(clazz, method, res);
+  // }
+
   // override async parseResponse<M extends Model>(
   //   clazz: Constructor<M>,
   //   method: OperationKeys | string,
   //   res: AxiosResponse & { body: unknown; error: Error | AxiosError }
   // ) {
-  //   if (!res.status && method !== PersistenceKeys.STATEMENT && String(method) !== HTTPMethods.GET)
-  //     throw new InternalError('this should be impossible');
+  //   if (!res.status && method !== PersistenceKeys.STATEMENT) throw new InternalError('this should be impossible');
   //   if (res.status >= 400) {
   //     throw this.parseError(
   //       res?.request?.response ? JSON.parse(res.request.response)?.error : res.error || `${res.status}`
@@ -260,15 +277,23 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
   //     res.body = { data: JSON.parse(res.data) };
   //   }
 
-  //   res = await super.parseResponse(clazz, method, res);
-  //   if (CRUD_METHODS.has(String(method))) return res?.data || res?.body || undefined;
+  // res = await super.parseResponse(clazz, method, res);
   //   switch (method) {
+  //     case BulkCrudOperationKeys.CREATE_ALL:
+  //     case BulkCrudOperationKeys.READ_ALL:
+  //     case BulkCrudOperationKeys.UPDATE_ALL:
+  //     case BulkCrudOperationKeys.DELETE_ALL:
+  //     case OperationKeys.CREATE:
+  //     case OperationKeys.READ:
+  //     case OperationKeys.UPDATE:
+  //     case OperationKeys.DELETE:
+  //       return res?.data || res?.body || undefined;
   //     case PreparedStatementKeys.FIND_BY:
   //     case PreparedStatementKeys.LIST_BY:
   //     case PreparedStatementKeys.PAGE_BY:
   //     case PreparedStatementKeys.FIND_ONE_BY:
   //     case PersistenceKeys.STATEMENT:
-  //       return !res || typeof res === Primitives.STRING ? [] : res?.data || res;
+  //       return !res || typeof res === 'string' ? [] : res?.data || res;
   //     default:
   //       return res?.data || res?.body || undefined;
   //   }

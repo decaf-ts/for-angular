@@ -1,13 +1,14 @@
-import { Directive, Input } from '@angular/core';
+import { Directive, inject, Input } from '@angular/core';
 import { AttributeOption, Condition, Observer, OrderDirection, Paginator } from '@decaf-ts/core';
 import { CrudOperations, IRepository, OperationKeys, PrimaryKeyType } from '@decaf-ts/db-decorators';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { DecafComponent } from '@decaf-ts/ui-decorators';
 import { debounceTime, shareReplay, Subject, takeUntil } from 'rxjs';
+import { DB_ADAPTER_PROVIDER_TOKEN } from '../public-apis';
 import { getModelAndRepository } from './helpers';
 import { IFilterQuery } from './interfaces';
-import { DecafRepository, KeyValue } from './types';
+import { DecafRepository, DecafRepositoryAdapter, KeyValue } from './types';
 
 type TransactionResponse<M extends Model> = M | M[] | PrimaryKeyType | PrimaryKeyType[] | undefined;
 
@@ -195,6 +196,8 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   protected repositoryObserver!: Observer;
 
   protected destroySubscriptions$ = new Subject<void>();
+
+  protected adapter: DecafRepositoryAdapter = inject(DB_ADAPTER_PROVIDER_TOKEN);
 
   override async initialize(): Promise<void> {
     if (this.repository) {
