@@ -11,48 +11,6 @@ on:
       - .github/workflows/pages.yaml
 
 jobs:
-  # Single deploy job no building
   deploy:
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    strategy:
-      matrix:
-        node-version: [ 22 ]
-    environment:
-      name: github-pages
-    #      url: ${{steps.deployment.outputs.page_url}}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-      # Cache dependencies (npm)
-      - name: Cache dependencies
-        id: cache-npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: deps-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            deps-${{ runner.os }}-${{ matrix.node-version }}-
-
-      # Install dependencies only if cache missed
-      - run: npm ci
-      - run: npm run build:prod  # Replace with your build command  
-      - run: npm run coverage
-      - run: npm run docs
-      - name: Setup Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          name: docs
-          path: docs
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        with:
-          artifact_name: docs
+    uses: decaf-ts/reusable-actions/.github/workflows/pages.yaml@main
+    secrets: inherit

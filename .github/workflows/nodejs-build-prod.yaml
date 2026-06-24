@@ -5,43 +5,5 @@ on:
 
 jobs:
   test:
-    strategy:
-      matrix:
-        node-version: [22]  # Add your desired versions
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Cache dependencies
-        id: cache-npm
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.npm
-            node_modules
-          key: deps-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            deps-${{ runner.os }}-${{ matrix.node-version }}-
-
-      # Install dependencies only
-      - run: npm ci
-
-      - name: Cache Build
-        id: cache-build
-        uses: actions/cache@v4
-        with:
-          path: | 
-            lib
-            dist
-          key: build-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            build-${{ runner.os }}-${{ matrix.node-version }}-
-            
-      - if: ${{ steps.cache-build.outputs.cache-hit != 'true' }}
-        run: npm run build:prod  # Replace with your build command      
-
-      - run: npm run test:all
+    uses: decaf-ts/reusable-actions/.github/workflows/nodejs-build-prod.yaml@main
+    secrets: inherit
