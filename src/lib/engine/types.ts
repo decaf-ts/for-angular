@@ -23,7 +23,6 @@ import {
 import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
 import { TextFieldTypes } from '@ionic/core';
 import { AxiosInstance } from 'axios';
-import { ModalConfirmComponent } from '../components/modal/modal.component';
 import { ActionRoles, ListItemPositions, WindowColorSchemes } from './constants';
 import { FormServiceControl, I18nResourceConfig, IBaseCustomEvent, ICrudFormEvent, InputOption } from './interfaces';
 import { NgxComponentDirective } from './NgxComponentDirective';
@@ -312,13 +311,3 @@ export type CrudEvent<M extends Model> = IBaseCustomEvent &
  * @memberOf module:lib/engine/types
  */
 export type FilterCondition = 'Equal' | 'Contains' | 'Not Contains' | 'Greater Than' | 'Less Than' | 'Not Equal';
-
-/**
- * @description Private subset of modal confirmation properties used by the engine.
- * @summary Narrows the modal confirm component props to the fields required for confirmation dialogs.
- * @private
- */
-export type ModalConfirmProps = Pick<
-  ModalConfirmComponent,
-  'title' | 'role' | 'data' | 'locale' | 'message' | 'inlineContent'
->;

@@ -9,16 +9,15 @@
  */
 
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { IonButton, IonSpinner } from '@ionic/angular/standalone';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { TranslatePipe } from '@ngx-translate/core';
-import { Dynamic } from '../../engine/decorators';
 import { ElementSizes } from '@decaf-ts/ui-decorators';
-import { ElementSize, StringOrBoolean } from '../../engine/types';
-import { stringToBoolean } from '../../utils/helpers';
-import { FunctionLike } from '../../engine/types';
-import { CardComponent } from '../card/card.component';
+import { IonButton, IonSpinner } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IconComponent } from '../../components/icon/icon.component';
+import { Dynamic } from '../../engine/decorators';
+import { ElementSize, FunctionLike, StringOrBoolean } from '../../engine/types';
+import { stringToBoolean } from '../../utils/helpers';
+import { CardComponent } from '../card/card.component';
 
 /**
  * @description Component for displaying empty state messages with optional actions.
@@ -310,8 +309,7 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
     this.showIcon = stringToBoolean(this.showIcon);
     this.titleColor = `dcf-title dcf-color-${this.titleColor}`;
     this.subtitleColor = `dcf-subtitle dcf-color-${this.subtitleColor}`;
-    if (this.searchValue)
-      this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);
+    if (this.searchValue) this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);
     if (!this.buttonLink && this.model && this.route) this.enableCreationByModelRoute = true;
     await super.initialize();
   }
@@ -388,6 +386,6 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    */
   async getSearchSubtitle(content: string): Promise<SafeHtml> {
     const result = await this.translate(content, { '0': this.searchValue });
-    return this.sanitizer.bypassSecurityTrustHtml(result);
+    return this.sanitizer.bypassSecurityTrustHtml(result as string);
   }
 }

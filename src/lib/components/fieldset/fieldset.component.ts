@@ -38,7 +38,7 @@ import { NgxFormService } from '../../services/NgxFormService';
 import { itemMapper } from '../../utils/helpers';
 import { IconComponent } from '../icon/icon.component';
 import { LayoutComponent } from '../layout/layout.component';
-import { presentModalConfirm } from '../modal/modal.component';
+import { presentModalConfirm } from '../modal/modal-confirm.component';
 
 /**
  * @description Dynamic fieldset component with collapsible accordion functionality.

@@ -14,7 +14,7 @@ import { Color, modalController, OverlayEventDetail } from '@ionic/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames, IDecafModal, UIFunctionLike, uihandlers } from '@decaf-ts/ui-decorators';
 import {
@@ -34,7 +34,7 @@ import { IBaseCustomEvent } from '../../engine/interfaces';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
-import { ActionRole, CrudEvent, KeyValue, ModalConfirmProps, SelectOption } from '../../engine/types';
+import { CrudEvent, KeyValue, SelectOption } from '../../engine/types';
 import { removeFocusTrap } from '../../utils/helpers';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { CrudFormComponent } from '../crud-form/crud-form.component';
@@ -454,103 +454,6 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
   }
 }
 
-@Dynamic()
-@Component({
-  selector: 'ngx-decaf-modal-confirm',
-  templateUrl: 'modal-confirm.component.html',
-  standalone: true,
-  imports: [TranslatePipe, IonButton, IconComponent],
-  host: { '[attr.id]': 'uid' },
-})
-export class ModalConfirmComponent extends ModalComponent implements OnInit {
-  /**
-   * @description Data used to generate the confirmation message.
-   * @summary Carries the item label, primary key, and unique identifier for the entity being confirmed.
-   * @type {KeyValue | undefined}
-   */
-  @Input()
-  data?: KeyValue;
-
-  /**
-   * @description CRUD operation represented by the confirmation modal.
-   * @summary Defines which operation the modal is confirming, such as create, update, or delete.
-   * @type {CrudOperations | undefined}
-   */
-  @Input()
-  role?: CrudOperations;
-
-  /**
-   * @description Custom confirmation message.
-   * @summary Overrides the localized default message when provided.
-   * @type {string | undefined}
-   */
-  @Input()
-  message?: string;
-
-  /**
-   * @description Enables alert-style confirmation behavior.
-   * @summary When true, the modal is styled and configured as an alert confirmation.
-   * @type {boolean}
-   * @default false
-   */
-  @Input()
-  alert: boolean = false;
-
-  /**
-   * @description Title displayed in the confirmation modal header.
-   * @summary Overrides the localized default title when provided.
-   * @type {string | undefined}
-   */
-  @Input()
-  override title?: string;
-
-  /**
-   * @description Initializes the confirmation modal content.
-   * @summary Resolves localized title and message text from the current role and injected data, then prepares the base modal.
-   *
-   * @returns {Promise<void>} - A promise that resolves when initialization is complete.
-   */
-  override async ngOnInit(): Promise<void> {
-    const { uid, item, pk } = this.data || {};
-    const role = this.role || OperationKeys.DELETE;
-    if (!this.title) {
-      this.title = await this.translate(`${this.locale}.confirm.operations.${role}.title`, {
-        '0': item,
-      });
-      this.translatable = false;
-    }
-    if (!this.message) {
-      this.message = await this.translate(`${this.locale}.confirm.operations.${role}.message`, {
-        '0': uid,
-        '1': item,
-        '2': pk,
-      });
-      this.translatable = false;
-    }
-    this.changeDetectorRef.detectChanges();
-    await this.initialize();
-  }
-
-  /**
-   * @description Handles the confirmation modal action.
-   * @summary Confirms the modal when requested and passes the selected payload, otherwise cancels the modal.
-   *
-   * @param {string} - The action to perform.
-   * @returns {Promise<void>} - A promise that resolves when the action completes.
-   */
-  async handleAction(role: 'confirm' | 'cancel' = 'confirm'): Promise<void> {
-    if (role === ActionRoles.confirm)
-      return await this.confirm({
-        name: 'ModalConfirmComponent',
-        data: {
-          role,
-          data: this.data,
-        },
-      });
-    return await this.cancel();
-  }
-}
-
 /**
  * @description Retrieves a modal component instance.
  * @summary Creates and initializes a modal component with the provided properties and options.
@@ -729,58 +632,4 @@ export async function getNgxSelectOptionsModal(
     }
   }
   return modal;
-}
-
-/**
- * @description Presents a standard confirmation modal.
- * @summary Opens the confirmation modal with transparent header styling and a hidden close button.
- *
- * @param {ModalConfirmProps} props - Properties used to initialize the confirmation modal.
- * @param {ActionRole} role - The dismiss role applied to the modal.
- * @param {EnvironmentInjector} injector - Optional environment injector for dependency injection.
- * @returns {Promise<IonModal>} - A promise that resolves with the presented modal instance.
- */
-export async function presentModalConfirm(
-  props: ModalConfirmProps = {},
-  role: ActionRole = ActionRoles.confirm,
-  injector?: EnvironmentInjector
-): Promise<IonModal> {
-  return await getNgxModalComponent(
-    {
-      tag: 'ngx-decaf-modal-confirm',
-      headerTransparent: true,
-      className: `dcf-modal-confirm dcf-${role}`,
-      showCloseButton: false,
-      globals: Object.assign({}, { role }, props),
-    },
-    {},
-    injector
-  );
-}
-
-/**
- * @description Presents an alert-style confirmation modal.
- * @summary Opens the confirmation modal with alert styling and a visible close button.
- *
- * @param {ModalConfirmProps} props - Properties used to initialize the alert modal.
- * @param {ActionRole} role - The dismiss role applied to the modal.
- * @param {EnvironmentInjector} injector - Optional environment injector for dependency injection.
- * @returns {Promise<IonModal>} - A promise that resolves with the presented modal instance.
- */
-export async function presentModalAlert(
-  props: ModalConfirmProps = {},
-  role: ActionRole = ActionRoles.close,
-  injector?: EnvironmentInjector
-): Promise<IonModal> {
-  return await getNgxModalComponent(
-    {
-      tag: 'ngx-decaf-modal-confirm',
-      headerTransparent: true,
-      className: `dcf-modal-confirm dcf-modal-alert dcf-${role}`,
-      showCloseButton: true,
-      globals: Object.assign({}, { role }, props, { alert: true }),
-    },
-    {},
-    injector
-  );
 }

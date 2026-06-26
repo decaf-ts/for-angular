@@ -354,7 +354,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
     this.isVisible = stringToBoolean(this.isVisible);
     this.disabled = stringToBoolean(this.disabled);
     this.animated = stringToBoolean(this.animated);
-    this.placeholder = await this.translate(`component.searchbar.search`);
+    this.placeholder = (await this.translate(`component.searchbar.search`)) as string;
     if (this.modelName) {
       const repo = getModelAndRepository(this.modelName || this.constructor.name);
       if (repo) {
@@ -372,7 +372,7 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
         const phrase = (await this.translate(`${this.locale}.${index}.label`)) || index;
         fields = fields ? `${fields}, ${phrase}` : `${phrase}`;
       }
-      this.placeholder = await this.translate(`${this.placeholder}`, { '0': fields });
+      this.placeholder = (await this.translate(`${this.placeholder}`, { '0': fields })) as string;
       if (this.isModalChild) {
         this.changeDetectorRef.detectChanges();
       }

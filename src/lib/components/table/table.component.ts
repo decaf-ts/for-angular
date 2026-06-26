@@ -308,15 +308,15 @@ export class TableComponent extends ListComponent implements OnInit {
                   if (handler?.name === ComponentEventNames.Render) {
                     mapped[sequence] = {
                       ...mapped[sequence],
-                      value: await handler.bind(this)(this, name, value),
+                      value: await handler.bind(this)(this, name, value, item),
                     };
                   } else {
-                    const handlerFn = await handler(this, name, value);
+                    const handlerFn = await handler(this, name, value, item);
                     mapped[sequence] = {
                       ...mapped[sequence],
                       value:
                         name + ' ' + typeof handlerFn === 'function' || handlerFn instanceof Promise
-                          ? await handlerFn.bind(this)(this, name, value)
+                          ? await handlerFn.bind(this)(this, name, value, item)
                           : handlerFn,
                     };
                   }
@@ -382,7 +382,8 @@ export class TableComponent extends ListComponent implements OnInit {
     action: CrudOperations
   ): Promise<void> {
     if (handler) {
-      const handlerFn = await handler(this, event, uid);
+      const model = this.model || (this._data as [])?.find((item) => item[this.pk] === uid);
+      const handlerFn = await handler(this, event, uid, model);
       return typeof handlerFn === 'function' ? handlerFn() : handlerFn;
     }
     const win = getWindow() as Window;
@@ -439,7 +440,7 @@ export class TableComponent extends ListComponent implements OnInit {
 
     event.preventDefault();
     event.stopImmediatePropagation();
-    const title = await this.translate(`${this.locale}.filter_by`);
+    const title = (await this.translate(`${this.locale}.filter_by`)) as string;
     const modal = await getNgxSelectOptionsModal(
       title,
       this.filterModel as string | Model,

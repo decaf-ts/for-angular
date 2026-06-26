@@ -103,7 +103,10 @@ export function parseExpiryDateValue(
 export async function getExpiryDateDiffValue(value: string | Date, instance: NgxComponentDirective): Promise<string> {
   const enableDaySelection = enableExpiryDateDaySelection(value);
   const formatted = formatExpiryDate(value, enableDaySelection);
-  return await instance.translate('batch.diffs.expiryDate', [formatted, convertDateToGS1Format(formatted, '/')]);
+  return (await instance.translate('batch.diffs.expiryDate', [
+    formatted,
+    convertDateToGS1Format(formatted, '/'),
+  ])) as string;
 }
 
 export class BatchHandler extends ProductHandler<Batch> {

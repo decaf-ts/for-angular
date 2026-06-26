@@ -84,9 +84,6 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
   @ViewChild('component', { read: ElementRef, static: true })
   component!: ElementRef;
 
-
-
-
   /**
    * @description Writable signal used for prop synchronization.
    * @summary Stores a reactive snapshot of component props so derived classes
@@ -777,10 +774,10 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
    * provided, it's automatically converted to an object format for the translation service.
    * @param {string | string[]} phrase - The translation key or array of keys to translate
    * @param {object | string} [params] - Optional parameters for interpolation in translated text
-   * @return {Promise<string>} A promise that resolves to the translated text
+   * @return {Promise<string|KeyValue>} A promise that resolves to the translated text
    * @memberOf module:lib/engine/NgxComponentDirective
    */
-  override async translate(phrase: string | string[], params?: object | string): Promise<string> {
+  override async translate(phrase: string | string[], params?: object | string): Promise<string | KeyValue> {
     return await this.translateService.get(phrase, params || {});
   }
 

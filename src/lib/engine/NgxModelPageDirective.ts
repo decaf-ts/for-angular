@@ -428,10 +428,10 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
             this.location.back();
           }
         }
-        message = await this.translate(`operations.${operation}.${result ? 'success' : 'error'}`, {
+        message = (await this.translate(`operations.${operation}.${result ? 'success' : 'error'}`, {
           '0': repository.class.name || pk,
           '1': this.modelId || '',
-        });
+        })) as string;
       }
     } catch (error: unknown) {
       this.log

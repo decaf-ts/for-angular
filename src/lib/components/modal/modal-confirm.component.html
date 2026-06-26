@@ -1,14 +1,17 @@
-<div>
+<div class="dcf-modal-confirm-body">
   @if (alert) {
     <div class="dcf-title-container">
       <ngx-decaf-icon
         name="ti-alert-square-rounded"
         color="danger"
       />
-      <h2
-        class="dcf-title"
-        [innerHTML]="translatable ? (title | translate) : title"
-      ></h2>
+
+      @if (title?.lengh) {
+        <h2
+          class="dcf-title"
+          [innerHTML]="translatable ? (title | translate) : title"
+        ></h2>
+      }
     </div>
   } @else {
     <h2
@@ -20,27 +23,51 @@
   <div class="dcf-content">
     <div [innerHTML]="translatable ? (message | translate) : message"></div>
   </div>
+
+  @if (requireConfirmCode) {
+    <div class="dcf-confirm-code-container">
+      <div
+        class="dcf-message"
+        [innerHTML]="
+          'component.modal.confirm.code.message'
+            | translate: { '0': confirmCode }
+        "
+      ></div>
+      <input
+        aria-label="component.modal.confirm.code.message' | translate"
+        (input)="handleConfirmInputChanges($event)"
+        (blur)="handleConfirmInputChanges($event)"
+        [minlength]="confirmCode?.length"
+        [maxlength]="confirmCode?.length"
+        #confirmCodeComponent
+      />
+    </div>
+  }
   <div
     class="dcf-buttons-grid dcf-grid dcf-grid-collapse dcf-flex dcf-flex-right"
   >
     @if (!alert) {
       <div>
-        <ion-button
-          fill="clear"
-          (click)="handleAction('cancel')"
-          color="primary"
-        >
-          {{ locale + '.confirm.buttons.cancel' | translate }}
-        </ion-button>
+        @if (showCancelButton) {
+          <ion-button
+            fill="clear"
+            (click)="handleAction('cancel')"
+            color="primary"
+          >
+            {{ locale + '.confirm.buttons.cancel' | translate }}
+          </ion-button>
+        }
       </div>
 
       <div>
-        <ion-button
-          (click)="handleAction()"
-          [color]="role === OperationKeys.DELETE ? 'danger' : 'primary'"
-        >
-          {{ locale + '.confirm.buttons.confirm' | translate }}
-        </ion-button>
+        @if (showConfirmButton) {
+          <ion-button
+            (click)="handleAction()"
+            [color]="role === OperationKeys.DELETE ? 'danger' : 'primary'"
+            [disabled]="!allowSubmit"
+            [innerHTML]="locale + '.confirm.buttons.confirm' | translate"
+          ></ion-button>
+        }
       </div>
     }
   </div>

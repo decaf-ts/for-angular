@@ -15,6 +15,32 @@
         color: var(--dcf-color-gray-8);
       }
 
+      .dcf-confirm-code-container {
+        margin-top: var(--dcf-margin);
+        color: var(--dcf-color-gray-7);
+        font-size: 0.9rem;
+        input {
+          margin-top: var(--dcf-margin-small) !important;
+          margin-bottom: 1rem !important;
+          min-height: 40px;
+          min-width: 100px;
+          width: 100%;
+          font-size: 0.9rem;
+          border: 1px solid var(--dcf-color-gray-3) !important;
+          border-radius: 5px;
+          background: transparent;
+          outline: none !important;
+          padding: 0 0.5rem;
+          text-decoration: none !important;
+          &:focus,
+          &:active {
+            border-color: var(--dcf-color-primary) !important;
+            outline: none !important;
+            text-decoration: none !important;
+          }
+        }
+      }
+
       &.dcf-delete {
         .dcf-title {
           color: var(--dcf-color-danger);
@@ -25,7 +51,7 @@
         font-weight: 400;
         font-size: 0.935rem;
         line-height: 1.375rem;
-        color: var(--dcf-color-gray-6);
+        color: var(--dcf-color-gray-7);
         margin-top: 1rem;
       }
 
