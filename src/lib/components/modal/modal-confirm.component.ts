@@ -115,8 +115,6 @@ export class ModalConfirmComponent extends ModalComponent implements OnInit {
     }
     this.changeDetectorRef.detectChanges();
 
-    console.log('is translatable ' + this.translatable);
-
     // if (!this.title) {
     //   this.title = await this.translate(`${this.locale}.confirm.operations.${role}.title`, {
     //     '0': item,

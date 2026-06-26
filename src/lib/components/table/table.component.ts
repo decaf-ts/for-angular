@@ -308,15 +308,15 @@ export class TableComponent extends ListComponent implements OnInit {
                   if (handler?.name === ComponentEventNames.Render) {
                     mapped[sequence] = {
                       ...mapped[sequence],
-                      value: await handler.bind(this)(this, name, value, item),
+                      value: await handler.bind(this)(this, name, value, key, item),
                     };
                   } else {
-                    const handlerFn = await handler(this, name, value, item);
+                    const handlerFn = await handler(this, name, value, key, item);
                     mapped[sequence] = {
                       ...mapped[sequence],
                       value:
                         name + ' ' + typeof handlerFn === 'function' || handlerFn instanceof Promise
-                          ? await handlerFn.bind(this)(this, name, value, item)
+                          ? await handlerFn.bind(this)(this, name, value, key, item)
                           : handlerFn,
                     };
                   }
@@ -341,7 +341,7 @@ export class TableComponent extends ListComponent implements OnInit {
       const name = this.cols[Number(curr)];
       const index = Number(curr);
       const parserFn = mapper[name]?.valueParserFn || undefined;
-      const resolvedValue = parserFn ? await parserFn(this, name, value) : value;
+      const resolvedValue = parserFn ? await parserFn(this, name, value, item) : value;
       mapped[curr] = {
         prop: name ?? this.pk,
         value: resolvedValue,
@@ -359,6 +359,9 @@ export class TableComponent extends ListComponent implements OnInit {
    * @return {Promise<KeyValue[]>} Array of structured row objects.
    */
   override async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
+    // if ((this._data as [])?.length && data?.length === (this._data as [])?.length) {
+    //   return this._data as KeyValue[];
+    // }
     this._data = [...data];
     if (!data || !data.length) return [];
     return await Promise.all(
@@ -379,11 +382,12 @@ export class TableComponent extends ListComponent implements OnInit {
     event: IBaseCustomEvent,
     handler: UIFunctionLike | undefined,
     uid: string,
-    action: CrudOperations
+    action: CrudOperations,
+    colName?: string
   ): Promise<void> {
     if (handler) {
-      const model = this.model || (this._data as [])?.find((item) => item[this.pk] === uid);
-      const handlerFn = await handler(this, event, uid, model);
+      const model = (this._data as [])?.find((item) => item[this.pk] === uid) || this.model;
+      const handlerFn = await handler(this, event, colName, uid, model);
       return typeof handlerFn === 'function' ? handlerFn() : handlerFn;
     }
     const win = getWindow() as Window;
