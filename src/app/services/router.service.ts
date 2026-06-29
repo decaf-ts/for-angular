@@ -3,10 +3,11 @@ import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
 import { NavController } from '@ionic/angular/standalone';
 import { RouteDirections } from '../../lib/engine/constants';
 import { KeyValue } from '../../lib/engine/types';
+
+type NavigationOptions = Parameters<NavController['navigateForward']>[1];
 
 /**
  * @description Service for handling routing operations in the application.
@@ -399,7 +400,7 @@ export class RouterService {
   async navigateTo(
     page: string,
     direction: RouteDirections = RouteDirections.FORWARD,
-    options?: NavigationOptions
+    options?: KeyValue
   ): Promise<boolean> {
     if (direction === RouteDirections.ROOT) return this.navController.navigateRoot(page, options);
     if (direction === RouteDirections.FORWARD) return await this.navController.navigateForward(page, options);
