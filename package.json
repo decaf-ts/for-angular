@@ -81,7 +81,7 @@
     "@angular/cli": "^21.2.9",
     "@angular/compiler-cli": "^21.2.9",
     "@decaf-ts/cli": "latest",
-    "@decaf-ts/ui-decorators": "^0.17.0",
+    "@decaf-ts/ui-decorators": "^0.17.4",
     "@decaf-ts/utils": "latest",
     "@faker-js/faker": "^9.9.0",
     "@playwright/test": "^1.54.1",
