@@ -339,7 +339,13 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    * @memberOf ListItemComponent
    */
   async ngOnInit(): Promise<void> {
-    await this.parseItem(this.item);
+    const item = this.item as KeyValue;
+    if (typeof item === 'object' && 'mapper' in item) {
+      await this.parseItem(item, item['mapper']);
+    } else {
+      await this.parseItem(item);
+    }
+
     this.showSlideItems = this.enableSlideItems();
     this.button = stringToBoolean(this.button);
     this.className = `${this.className}  dcf-flex dcf-flex-middle grid-item`;
@@ -351,30 +357,43 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
     this.checkDarkMode();
   }
 
-  async parseItem(item: Pick<ListItemComponent, 'title' | 'description' | 'info' | 'subinfo'>): Promise<void> {
+  async parseItem(
+    item: Pick<ListItemComponent, 'title' | 'description' | 'info' | 'subinfo'>,
+    mapper?: KeyValue
+  ): Promise<void> {
     const model = this.model as Model;
-    if (typeof model === 'object') {
-      function getPropValue(prop: string): string | undefined {
-        if (prop in model) {
-          const value = model[prop as keyof Model];
-          return `${value}`?.length ? String(value) : undefined;
-        }
-        return prop?.length ? (prop !== 'undefined' ? prop : undefined) : undefined;
+    function getPropValue(prop: string): string | undefined {
+      if (prop in model) {
+        const value = model[prop as keyof Model];
+        return value === undefined ? '' : `${value}`?.length ? String(value) : undefined;
       }
-      if (!this.title) {
-        this.title = getPropValue(`${item.title}`);
-      }
-      if (!this.description) {
-        this.description = getPropValue(`${item.description}`);
-      }
-      if (!this.info) {
-        this.info = getPropValue(`${item.info}`);
-      }
-      if (!this.subinfo) {
-        this.subinfo = getPropValue(`${item.subinfo}`);
-      }
-      this.changeDetectorRef.markForCheck();
+      return prop?.length ? (prop !== 'undefined' ? prop : undefined) : undefined;
     }
+    if (mapper) {
+      Object.entries(mapper).forEach(([key, value]) => {
+        if (value) {
+          (this as KeyValue)[key] = getPropValue(value);
+          this.changeDetectorRef.detectChanges();
+        }
+      });
+    } else {
+      if (typeof model === 'object') {
+        if (!this.title) {
+          this.title = getPropValue(`${item.title}`);
+        }
+        if (!this.description) {
+          this.description = getPropValue(`${item.description}`);
+        }
+        if (!this.info) {
+          this.info = getPropValue(`${item.info}`);
+        }
+        if (!this.subinfo) {
+          this.subinfo = getPropValue(`${item.subinfo}`);
+        }
+      }
+    }
+
+    this.changeDetectorRef.markForCheck();
   }
 
   /**
