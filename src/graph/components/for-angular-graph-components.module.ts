@@ -13,8 +13,16 @@ import { NgModule } from '@angular/core';
 import { GraphBoundaryNodeTemplateComponent } from './boundary-node-template/boundary-node-template.component';
 import { GraphNodeTemplateComponent } from './graph-node-template/graph-node-template.component';
 import { GraphRendererComponent } from './graph-renderer/graph-renderer.component';
+import { GraphPortFieldComponent } from './graph-port-field/graph-port-field.component';
+import { GraphNodeEditModalComponent } from './graph-node-edit-modal/graph-node-edit-modal.component';
 
-const Components = [GraphBoundaryNodeTemplateComponent, GraphNodeTemplateComponent, GraphRendererComponent];
+const Components = [
+  GraphBoundaryNodeTemplateComponent,
+  GraphNodeTemplateComponent,
+  GraphRendererComponent,
+  GraphPortFieldComponent,
+  GraphNodeEditModalComponent,
+];
 
 @NgModule({
   imports: [...Components],

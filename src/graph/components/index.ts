@@ -14,5 +14,7 @@
 export * from './boundary-node-template/boundary-node-template.component';
 export * from './graph-node-template/graph-node-template.component';
 export * from './graph-renderer/graph-renderer.component';
+export * from './graph-port-field/graph-port-field.component';
+export * from './graph-node-edit-modal/graph-node-edit-modal.component';
 // Module export
 export * from './for-angular-graph-components.module';

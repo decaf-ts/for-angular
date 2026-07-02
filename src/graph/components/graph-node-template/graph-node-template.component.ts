@@ -1,6 +1,5 @@
-import { Component, EnvironmentInjector, inject, input } from '@angular/core';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { Model } from '@decaf-ts/decorator-validation';
+import { Component, EnvironmentInjector, inject, input, computed, signal, ElementRef, viewChild } from '@angular/core';
+import { ModalController } from '@ionic/angular/standalone';
 import {
   NgDiagramBaseNodeTemplateComponent,
   NgDiagramNodeTemplate,
@@ -9,8 +8,10 @@ import {
   type Node,
 } from 'ng-diagram';
 import { PortDirection } from '@decaf-ts/ui-decorators/graph';
-import { getNgxModalCrudComponent } from '../../../lib/components/modal/modal.component';
 import { GraphDemoNodeData } from '../../types';
+import { graphExecutionState } from '../../execution/GraphExecutionStateService';
+import { graphNodeConfig } from '../../execution/GraphNodeConfigStore';
+import { GraphNodeEditModalComponent, type GraphNodeEditResult } from '../graph-node-edit-modal/graph-node-edit-modal.component';
 
 @Component({
   selector: 'app-graph-node-template',
@@ -23,6 +24,47 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
   node = input.required<Node<GraphDemoNodeData>>();
   private readonly modelService = inject(NgDiagramModelService);
   private readonly injector = inject(EnvironmentInjector);
+  private readonly modalCtrl = inject(ModalController);
+  private readonly hostRef = inject(ElementRef<HTMLElement>);
+  private _pinned = false;
+
+  readonly nodeExecutionState = computed(() => {
+    const id = this.node().id;
+    return graphExecutionState.nodeStates()[id];
+  });
+
+  readonly isPinned = computed(() => this._pinned);
+
+  readonly statusLabel = computed(() => {
+    const state = this.nodeExecutionState();
+    if (!state) return '';
+    return state['status'] as string;
+  });
+
+  private updatePinnedClasses() {
+    const el = this.hostRef.nativeElement;
+    const article = el.querySelector('article.graph-node');
+    if (!article) return;
+    article.classList.toggle('graph-node--pinned', this._pinned);
+    const pinBtns = el.querySelectorAll('button.graph-node__action');
+    pinBtns.forEach((btn: Element) => {
+      if (btn.textContent?.includes('📌')) {
+        btn.classList.toggle('graph-node__action--pinned', this._pinned);
+      }
+    });
+    const statusBar = el.querySelector('.graph-node__status-bar');
+    if (statusBar) {
+      let pinnedBadge = statusBar.querySelector('.graph-node__status--pinned');
+      if (this._pinned && !pinnedBadge) {
+        pinnedBadge = document.createElement('span');
+        pinnedBadge.className = 'graph-node__status graph-node__status--pinned';
+        pinnedBadge.textContent = 'pinned';
+        statusBar.appendChild(pinnedBadge);
+      } else if (!this._pinned && pinnedBadge) {
+        pinnedBadge.remove();
+      }
+    }
+  }
 
   inputPorts() {
     return this.visiblePorts(PortDirection.INPUT);
@@ -45,25 +87,57 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     const ModelClass = this.node().data.modelClass;
     if (typeof ModelClass !== 'function') return;
 
-    const model = Model.build({}, ModelClass as never) as Model;
-    const modal = await getNgxModalCrudComponent(
-      model as Model,
-      {
-        title: this.node().data.title,
+    const nodeId = this.node().id;
+    const existingConfig = graphNodeConfig.getConfig(nodeId);
+    const initialValues = existingConfig?.values ?? {};
+    const initialPortModes = existingConfig?.portModes ?? {};
+
+    const modal = await this.modalCtrl.create({
+      component: GraphNodeEditModalComponent,
+      componentProps: {
+        nodeTitle: this.node().data.title,
+        modelClass: ModelClass,
+        nodeId,
+        initialValues,
+        initialPortModes,
       },
-      {
-        operation: OperationKeys.CREATE,
-      },
-      {},
-      this.injector
-    );
+      presentingElement: undefined,
+    });
 
     await modal.present();
+
+    const { role, data } = await modal.onWillDismiss<GraphNodeEditResult | null>();
+    if (role === 'confirm' && data) {
+      graphNodeConfig.applyResult(data);
+    }
   }
 
   pinNode(event: Event) {
     event.preventDefault();
     event.stopPropagation();
+    this._pinned = !this._pinned;
+    const target = event.target as HTMLElement;
+    const article = target.closest('article.graph-node');
+    if (!article) return;
+    article.classList.toggle('graph-node--pinned', this._pinned);
+    const pinBtns = article.querySelectorAll('button.graph-node__action');
+    pinBtns.forEach((btn: Element) => {
+      if (btn.textContent?.includes('📌')) {
+        btn.classList.toggle('graph-node__action--pinned', this._pinned);
+      }
+    });
+    const statusBar = article.querySelector('.graph-node__status-bar');
+    if (statusBar) {
+      let pinnedBadge = statusBar.querySelector('.graph-node__status--pinned');
+      if (this._pinned && !pinnedBadge) {
+        pinnedBadge = document.createElement('span');
+        pinnedBadge.className = 'graph-node__status graph-node__status--pinned';
+        pinnedBadge.textContent = 'pinned';
+        statusBar.appendChild(pinnedBadge);
+      } else if (!this._pinned && pinnedBadge) {
+        pinnedBadge.remove();
+      }
+    }
   }
 
   toggleExpanded(event: Event) {

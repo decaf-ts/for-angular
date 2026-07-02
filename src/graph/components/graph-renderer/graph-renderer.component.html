@@ -157,7 +157,7 @@
             <strong>{{ port.label }}</strong>
             <small>{{ port.property }} · {{ port.type || 'unknown' }}</small>
           </div>
-          <span>{{ workflowOutputValue() }}</span>
+          <span>{{ workflowOutputValue(port.property) }}</span>
         </article>
       }
     </div>

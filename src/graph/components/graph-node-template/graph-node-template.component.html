@@ -5,16 +5,49 @@
     [class.graph-node--pipeline]="node().data.kind === 'pipeline'"
     [class.graph-node--task]="node().data.kind === 'node'"
     [class.graph-node--expanded]="isExpanded()"
+    [class.graph-node--pinned]="isPinned()"
+    [class.graph-node--running]="statusLabel() === 'running'"
+    [class.graph-node--succeeded]="statusLabel() === 'succeeded'"
+    [class.graph-node--failed]="statusLabel() === 'failed'"
+    [class.graph-node--cached]="statusLabel() === 'cached'"
     [style.--graph-accent]="node().data.color || '#5b21b6'"
+    (dblclick)="openEditor($event)"
   >
     <div class="graph-node__actions">
       <button type="button" class="graph-node__action" title="Delete node" (click)="deleteNode($event)" (mousedown)="$event.stopPropagation()">x</button>
       <button type="button" class="graph-node__action" title="Edit node" (click)="openEditor($event)" (mousedown)="$event.stopPropagation()">⚙</button>
-      <button type="button" class="graph-node__action" title="Pin node" (click)="pinNode($event)" (mousedown)="$event.stopPropagation()">📌</button>
+      <button
+        type="button"
+        class="graph-node__action"
+        [class.graph-node__action--pinned]="isPinned()"
+        title="Pin node"
+        (click)="pinNode($event)"
+        (mousedown)="$event.stopPropagation()"
+      >📌</button>
       <button type="button" class="graph-node__action" [class.graph-node__action--active]="isExpanded()" title="Expand ports" (click)="toggleExpanded($event)" (mousedown)="$event.stopPropagation()">
         {{ isExpanded() ? '▾' : '▸' }}
       </button>
     </div>
+
+    @if (statusLabel() || isPinned()) {
+      <div class="graph-node__status-bar">
+        @if (statusLabel() === 'running') {
+          <span class="graph-node__status graph-node__status--running">running</span>
+        }
+        @if (statusLabel() === 'succeeded') {
+          <span class="graph-node__status graph-node__status--succeeded">done</span>
+        }
+        @if (statusLabel() === 'failed') {
+          <span class="graph-node__status graph-node__status--failed">failed</span>
+        }
+        @if (statusLabel() === 'cached') {
+          <span class="graph-node__status graph-node__status--cached">cached</span>
+        }
+        @if (isPinned()) {
+          <span class="graph-node__status graph-node__status--pinned">pinned</span>
+        }
+      </div>
+    }
 
     <header class="graph-node__header">
       <div class="graph-node__title-row">

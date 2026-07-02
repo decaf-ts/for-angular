@@ -1,5 +1,35 @@
 <ion-content fullscreen="true">
   <main class="graph-page">
-    <app-graph-renderer [graphRoot]="workflowRoot" />
+    <div class="graph-page__toolbar">
+      <button
+        type="button"
+        class="graph-page__run-btn"
+        [class.graph-page__run-btn--running]="isRunning()"
+        [disabled]="isRunning()"
+        (click)="runWorkflow()"
+      >
+        {{ isRunning() ? 'Running…' : 'Run workflow' }}
+      </button>
+      @if (runStatus() && runStatus() !== 'idle') {
+        <span class="graph-page__status">{{ runStatus() }}</span>
+      }
+      @if (runError()) {
+        <span class="graph-page__error">{{ runError() }}</span>
+      }
+    </div>
+
+    <app-graph-renderer [graphRoot]="workflowRoot" [outputs]="lastResult()" />
+
+    @if (workflowOutputs().length) {
+      <section class="graph-page__outputs">
+        <h2>Execution outputs</h2>
+        @for (output of workflowOutputs(); track output.key) {
+          <article class="graph-page__output">
+            <strong>{{ output.key }}</strong>
+            <span>{{ output.value }}</span>
+          </article>
+        }
+      </section>
+    }
   </main>
 </ion-content>

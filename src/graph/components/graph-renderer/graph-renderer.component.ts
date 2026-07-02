@@ -59,6 +59,7 @@ export class GraphRendererComponent {
   private skipNextModelSync = false;
 
   readonly graphRoot = input.required<unknown>();
+  readonly outputs = input<Record<string, unknown> | null>(null);
 
   readonly nodeTemplateMap = new NgDiagramNodeTemplateMap([
     ['workflow', GraphNodeTemplateComponent],
@@ -191,8 +192,11 @@ export class GraphRendererComponent {
     }
   }
 
-  workflowOutputValue() {
-    return 'pending run result';
+  workflowOutputValue(portProperty: string) {
+    const outs = this.outputs();
+    if (!outs) return 'pending run result';
+    const value = outs[portProperty];
+    return this.displayValue(value);
   }
 
   saveSnapshot() {

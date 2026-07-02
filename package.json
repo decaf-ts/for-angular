@@ -122,6 +122,7 @@
     "@decaf-ts/decorator-validation": "latest",
     "@decaf-ts/for-http": "latest",
     "@decaf-ts/injectable-decorators": "latest",
+    "@decaf-ts/integrations": "latest",
     "@decaf-ts/logging": "latest",
     "@decaf-ts/styles": "latest",
     "@decaf-ts/transactional-decorators": "latest",

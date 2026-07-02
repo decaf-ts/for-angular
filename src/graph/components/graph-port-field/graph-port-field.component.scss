@@ -1,0 +1,80 @@
+:host {
+  display: block;
+}
+
+.graph-port-field {
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.04);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.graph-port-field--port-mode {
+  border-color: rgba(168, 85, 247, 0.4);
+  background: rgba(168, 85, 247, 0.06);
+}
+
+.graph-port-field--output {
+  border-left: 3px solid rgba(34, 197, 94, 0.4);
+}
+
+.graph-port-field__checkbox-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.graph-port-field__checkbox-row ion-checkbox {
+  --size: 18px;
+  --checkbox-background-checked: #a855f7;
+  --border-color-checked: #a855f7;
+}
+
+.graph-port-field__checkbox-row ion-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.graph-port-field--port-mode .graph-port-field__checkbox-row ion-label {
+  color: #7c3aed;
+}
+
+.graph-port-field__input-row {
+  margin-top: 0.3rem;
+}
+
+.graph-port-field__item {
+  --background: transparent;
+  width: 100%;
+}
+
+.graph-port-field__port-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.3rem 0;
+}
+
+.graph-port-field__port-info ion-note {
+  font-size: 0.78rem;
+  color: #7c3aed;
+}
+
+.graph-port-field__split-btn {
+  align-self: flex-start;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  border-radius: 8px;
+  background: rgba(34, 197, 94, 0.1);
+  color: #15803d;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.graph-port-field__split-btn:hover {
+  background: rgba(34, 197, 94, 0.2);
+}
