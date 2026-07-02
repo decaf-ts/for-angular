@@ -85,7 +85,8 @@
                       $event,
                       col?.value.handler ? col.value.handler.handle : undefined,
                       item.uid.value,
-                      OperationKeys.READ
+                      OperationKeys.READ,
+                      col?.value?.prop
                     )
                   "
                   [innerHTML]="col.value.value"

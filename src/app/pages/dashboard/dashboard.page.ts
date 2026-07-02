@@ -5,8 +5,7 @@ import { cardOutline, documentAttachOutline, peopleOutline } from 'ionicons/icon
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { DashboardLayout } from 'src/app/layouts/Dashboboard';
-import { CategoryModel } from 'src/app/models/CategoryModel';
-import { getNgxModalCrudComponent, LayoutComponent } from 'src/lib/components';
+import { LayoutComponent, presentModalConfirm } from 'src/lib/components';
 import { NgxPageDirective } from 'src/lib/engine';
 @Component({
   selector: 'app-dashboard',
@@ -48,25 +47,30 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
   }
 
   async showFilterModal(): Promise<void> {
-    const modal = await getNgxModalCrudComponent(
-      new CategoryModel(),
-      {
-        title: 'dashboard.filter.title',
-        fullscreen: true,
-      },
-      {
-        locale: 'dashboard',
-        buttons: {
-          submit: { text: 'filter.apply' },
-        },
-      },
-      {},
-      this.injector
-    );
-    await modal.present();
-    const { data, role } = await modal.onDidDismiss();
-    if (role === 'confirm') {
-      console.log(data);
-    }
+    const modal = await presentModalConfirm({
+      message: 'Testing',
+      requireConfirmCode: true,
+    });
+
+    // const modal = await getNgxModalCrudComponent(
+    //   new CategoryModel(),
+    //   {
+    //     title: 'dashboard.filter.title',
+    //     fullscreen: true,
+    //   },
+    //   {
+    //     locale: 'dashboard',
+    //     buttons: {
+    //       submit: { text: 'filter.apply' },
+    //     },
+    //   },
+    //   {},
+    //   this.injector
+    // );
+    // await modal.present();
+    // const { data, role } = await modal.onDidDismiss();
+    // if (role === 'confirm') {
+    //   console.log(data);
+    // }
   }
 }

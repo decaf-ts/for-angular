@@ -1,5 +1,5 @@
 import { applicationConfig, componentWrapperDecorator, Meta, moduleMetadata } from '@storybook/angular';
-import { AppConfig } from 'src/app/app.config';
+import { StorybookAppConfig } from './storybook-app.config';
 import { RouterService } from 'src/app/services/router.service';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { NgxRenderingEngine } from 'src/lib/engine';
@@ -29,7 +29,7 @@ export function getComponentMeta<C>(imports: unknown[] = [], type: "component" |
       layout: 'fullscreen',
     },
     decorators: [
-      applicationConfig(AppConfig),
+      applicationConfig(StorybookAppConfig),
       moduleMetadata({
         //Imports both components to allow component composition with Storybook
         imports: [...imports, ForAngularCommonModule, HeaderComponent, ContainerComponent, BackButtonComponent, LogoComponent],

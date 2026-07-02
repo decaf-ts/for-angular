@@ -12,7 +12,7 @@ import { Model } from '@decaf-ts/decorator-validation';
 import { DecafEventHandler } from '@decaf-ts/ui-decorators';
 import { ICrudFormEvent } from './interfaces';
 import { NgxComponentDirective } from './NgxComponentDirective';
-import { KeyValue } from './types';
+import { DecafRepositoryAdapter, KeyValue } from './types';
 
 export abstract class NgxEventHandler extends DecafEventHandler {
   _data: Model | KeyValue | KeyValue[] | null = null;
@@ -23,9 +23,15 @@ export abstract class NgxEventHandler extends DecafEventHandler {
 
   injector!: EnvironmentInjector;
 
+  protected adapter!: DecafRepositoryAdapter;
+
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor() {
     super();
+  }
+
+  override async render(...args: unknown[]): Promise<any> {
+    this.log.for(this.handle).info(`Handle called with args:, ${args}`);
   }
 
   override async handle<T extends NgxComponentDirective>(

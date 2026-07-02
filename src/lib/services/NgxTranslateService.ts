@@ -9,6 +9,7 @@ import {
   Translation,
 } from '@ngx-translate/core';
 import { firstValueFrom, Observable } from 'rxjs';
+import { KeyValue } from '../engine/types';
 import { I18nLoader } from '../i18n';
 
 @Injectable({
@@ -21,14 +22,14 @@ export class NgxTranslateService extends DecafTranslateService implements DecafT
     return this.translateService.instant(key, interpolateParams);
   }
 
-  override async translate(key: string, params?: InterpolationParameters | string): Promise<string> {
+  override async translate(key: string, params?: InterpolationParameters | string): Promise<string | KeyValue> {
     if (typeof params === Primitives.STRING) {
       params = { '0': params };
     }
     return firstValueFrom(this.translateService.instant(key, params as InterpolationParameters));
   }
 
-  async get(key: string | string[], params?: InterpolationParameters | string): Promise<string> {
+  async get(key: string | string[], params?: InterpolationParameters | string): Promise<string | KeyValue> {
     if (key) {
       if (typeof params === Primitives.STRING) {
         params = { '0': params };

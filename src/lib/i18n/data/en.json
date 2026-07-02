@@ -145,6 +145,10 @@
 
     "modal": {
       "confirm": {
+        "code": {
+          "message": "Type confirm code <strong>{0}</strong> to allow submit.",
+          "label": "Type confirm code"
+        },
         "operations": {
           "delete": {
             "title": "Confirm Deletion of {0}",

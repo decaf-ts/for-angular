@@ -690,8 +690,11 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       this.value = `${this.value ?? ''}`;
     } else {
       this.options = await this.getOptions();
+      if (!this.formControl && this.formGroup instanceof FormGroup) {
+        this.formControl = this.formGroup.get(this.name) as FormControl;
+      }
       if ((!this.parentForm && this.formGroup instanceof FormGroup) || this.formGroup instanceof FormArray)
-        this.parentForm = (this.formGroup.root || this.formControl.root) as FormParent;
+        this.parentForm = (this.formGroup.root || this.formControl?.root) as FormParent;
       if (this.multiple) {
         this.formGroup = this.activeFormGroup as FormGroup;
         if (!this.parentForm) this.parentForm = this.formGroup.parent as FormArray;
@@ -816,7 +819,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
           );
       return {
         value: option.value,
-        text: this.interface === SelectFieldInterfaces.MODAL ? text : stripHTML(text),
+        text: this.interface === SelectFieldInterfaces.MODAL ? text : stripHTML(text as string),
         selected: option?.selected ?? false,
         hidden: option?.hidden ?? false,
         disabled: option?.disabled ?? false,

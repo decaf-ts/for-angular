@@ -2,7 +2,7 @@ import { Condition } from '@decaf-ts/core';
 import { IRepository, OperationKeys, PrimaryKeyType } from '@decaf-ts/db-decorators';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudFieldComponent, FileUploadComponent } from 'src/lib/components';
-import { getNgxModalComponent, presentModalAlert } from 'src/lib/components/modal/modal.component';
+import { getNgxModalComponent, presentModalAlert } from 'src/lib/components/modal';
 import {
   ActionRoles,
   DecafRepository,
