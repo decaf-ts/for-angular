@@ -12,6 +12,10 @@
           [showZoomControls]="true"
         />
       </ng-diagram>
+    } @else {
+      <div class="graph-renderer__loading">
+        <ion-spinner name="circular" color="primary" />
+      </div>
     }
 
     <div class="graph-renderer__palette">

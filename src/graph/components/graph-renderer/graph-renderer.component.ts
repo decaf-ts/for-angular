@@ -22,6 +22,7 @@ import {
 } from 'ng-diagram';
 import { graphDefinitionOf, graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
 import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import { IonSpinner } from '@ionic/angular/standalone';
 import {
   buildGraphRendererModel,
   buildGraphRendererSnapshot,
@@ -46,7 +47,7 @@ import { graphSelection } from '../../execution/GraphSelectionStore';
 @Component({
   selector: 'app-graph-renderer',
   standalone: true,
-  imports: [ReactiveFormsModule, NgDiagramComponent, NgDiagramBackgroundComponent, NgDiagramMinimapComponent],
+  imports: [ReactiveFormsModule, NgDiagramComponent, NgDiagramBackgroundComponent, NgDiagramMinimapComponent, IonSpinner],
   providers: [provideNgDiagram()],
   templateUrl: './graph-renderer.component.html',
   styleUrl: './graph-renderer.component.scss',

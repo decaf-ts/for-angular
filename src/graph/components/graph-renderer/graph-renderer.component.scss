@@ -291,6 +291,20 @@
     rgba(255, 255, 255, 0.58);
 }
 
+.graph-renderer__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.graph-renderer__loading ion-spinner {
+  width: 3rem;
+  height: 3rem;
+}
+
 .graph-renderer__palette {
   position: absolute;
   top: 1rem;

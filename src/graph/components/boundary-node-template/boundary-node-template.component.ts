@@ -42,7 +42,15 @@ export class GraphBoundaryNodeTemplateComponent implements NgDiagramNodeTemplate
   });
 
   outputPorts() {
-    return this.node().data.ports.filter((port) => port.direction === PortDirection.OUTPUT);
+    const isDefault = (port: { property: string; path?: string }) =>
+      port.property === 'value' || port.path === 'value' || port.property === 'default' || port.path === 'default';
+    return this.node()
+      .data.ports.filter((port) => port.direction === PortDirection.OUTPUT)
+      .sort((a, b) => {
+        const aDefault = isDefault(a) ? 1 : 0;
+        const bDefault = isDefault(b) ? 1 : 0;
+        return aDefault - bDefault;
+      });
   }
 
   async deleteNode(event: Event) {

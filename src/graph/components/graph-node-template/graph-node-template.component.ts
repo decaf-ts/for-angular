@@ -236,13 +236,20 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
   visiblePorts(direction: PortDirection) {
     const showAll = this.isSelected() || this.isConnecting();
     const connected = this.connectedPortIds();
+    const isDefault = (port: { property: string; path?: string }) =>
+      port.property === 'value' || port.path === 'value' || port.property === 'default' || port.path === 'default';
     return this.node()
       .data.ports.filter((port) => port.direction === direction)
       .filter((port) => {
         const portId = port.path || port.property;
-        if (port.property === 'value' || port.path === 'value') return true;
+        if (isDefault(port)) return true;
         if (showAll) return true;
         return connected.has(portId);
+      })
+      .sort((a, b) => {
+        const aDefault = isDefault(a) ? 1 : 0;
+        const bDefault = isDefault(b) ? 1 : 0;
+        return aDefault - bDefault;
       });
   }
 }
