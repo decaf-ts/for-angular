@@ -51,8 +51,8 @@ function buildNode(ctor: GraphDemoNodeConstructor, index: number) {
       y: index % 2 === 0 ? 120 : 80,
     },
     size: {
-      width: definition.width ?? 300,
-      height: definition.height ?? 220,
+      width: definition.width ?? 96,
+      height: definition.height ?? 96,
     },
     resizable: false,
     draggable: true,

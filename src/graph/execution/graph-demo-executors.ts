@@ -1,5 +1,13 @@
-import { GraphNodeExecutorRegistry, type GraphExecutionContext } from '@decaf-ts/integrations/graph';
-import type { GraphExecutionValues } from '@decaf-ts/integrations/graph';
+import {
+  GraphNodeExecutorRegistry,
+  type GraphExecutionContext,
+  type GraphExecutionValues,
+  type GraphExecutionEngineConfig,
+  GraphExecutionEngine,
+} from '@decaf-ts/integrations/graph';
+import { ForeachGraphNodeExecutor } from '@decaf-ts/integrations/graph';
+import { WhileGraphNodeExecutor } from '@decaf-ts/integrations/graph';
+import { UntilGraphNodeExecutor } from '@decaf-ts/integrations/graph';
 
 type ExecutorFn = (input: GraphExecutionValues, context: GraphExecutionContext) => GraphExecutionValues | Promise<GraphExecutionValues>;
 
@@ -19,6 +27,41 @@ const executorMap: Record<string, ExecutorFn> = {
   'graph-publish-workflow': (input) => ({
     artifact: `[Published] ${String(input['approved'] ?? '')}`,
   }),
+  // Flow-control demo executors (DECAF-32 §22.2.2 — no built-in engine executor)
+  'core.flow.map': (input) => ({
+    result: { mapped: input['value'] ?? input },
+  }),
+  'core.flow.delay': (input) => ({
+    valueOut: input['value'] ?? input,
+  }),
+  'core.flow.return': (input) => ({
+    result: input['value'] ?? input,
+  }),
+  'core.flow.merge': (input) => ({
+    merged: input['values'] ?? input,
+  }),
+  'core.flow.if': (input) => ({
+    then: input['value'] ?? input,
+  }),
+  'core.flow.switch': (input) => ({
+    default: input['value'] ?? input,
+  }),
+  'core.flow.parallel': (input) => ({
+    branches: [input['value'] ?? input],
+  }),
+  'core.flow.errorBoundary': (input) => ({
+    result: input['value'] ?? input,
+  }),
+  'core.flow.humanApproval': (input) => ({
+    approved: input['value'] ?? input,
+  }),
+  'core.flow.code': (input) => ({
+    result: input['input'] ?? input,
+  }),
+  'core.agent': (input) => ({
+    response: `[Agent response] ${String(input['instructions'] ?? '')}`,
+    actions: [],
+  }),
 };
 
 async function dispatchByTag(input: GraphExecutionValues, context: GraphExecutionContext): Promise<GraphExecutionValues> {
@@ -30,12 +73,62 @@ async function dispatchByTag(input: GraphExecutionValues, context: GraphExecutio
   return fn(input, context);
 }
 
-export function createDemoExecutorRegistry(): GraphNodeExecutorRegistry {
+/**
+ * Creates the demo engine config including loop executors.
+ * The loop executors need a back-reference to the engine, so they are
+ * registered via the `onEngineCreated` callback after the engine is built.
+ */
+export function createDemoEngineConfig(): GraphExecutionEngineConfig {
   const registry = new GraphNodeExecutorRegistry();
 
   registry.register('workflow', { execute: dispatchByTag });
   registry.register('pipeline', { execute: dispatchByTag });
   registry.register('node', { execute: dispatchByTag });
+  // Flow-control kinds (DECAF-32 §22.2.2 — no built-in engine executor)
+  registry.register('core.flow.map', { execute: dispatchByTag });
+  registry.register('core.flow.delay', { execute: dispatchByTag });
+  registry.register('core.flow.return', { execute: dispatchByTag });
+  registry.register('core.flow.merge', { execute: dispatchByTag });
+  registry.register('core.flow.if', { execute: dispatchByTag });
+  registry.register('core.flow.switch', { execute: dispatchByTag });
+  registry.register('core.flow.parallel', { execute: dispatchByTag });
+  registry.register('core.flow.errorBoundary', { execute: dispatchByTag });
+  registry.register('core.flow.humanApproval', { execute: dispatchByTag });
+  registry.register('core.flow.code', { execute: dispatchByTag });
+  registry.register('core.agent', { execute: dispatchByTag });
 
+  return {
+    registry,
+    defaultOptions: {
+      failFast: false,
+    },
+    onEngineCreated: (engine: GraphExecutionEngine) => {
+      registry.register('core.loop.foreach', new ForeachGraphNodeExecutor(engine));
+      registry.register('core.loop.while', new WhileGraphNodeExecutor(engine));
+      registry.register('core.loop.until', new UntilGraphNodeExecutor(engine));
+    },
+  };
+}
+
+/**
+ * @deprecated Use {@link createDemoEngineConfig} instead. This is kept for
+ * backward compatibility with code that only needs the registry.
+ */
+export function createDemoExecutorRegistry(): GraphNodeExecutorRegistry {
+  const registry = new GraphNodeExecutorRegistry();
+  registry.register('workflow', { execute: dispatchByTag });
+  registry.register('pipeline', { execute: dispatchByTag });
+  registry.register('node', { execute: dispatchByTag });
+  registry.register('core.flow.map', { execute: dispatchByTag });
+  registry.register('core.flow.delay', { execute: dispatchByTag });
+  registry.register('core.flow.return', { execute: dispatchByTag });
+  registry.register('core.flow.merge', { execute: dispatchByTag });
+  registry.register('core.flow.if', { execute: dispatchByTag });
+  registry.register('core.flow.switch', { execute: dispatchByTag });
+  registry.register('core.flow.parallel', { execute: dispatchByTag });
+  registry.register('core.flow.errorBoundary', { execute: dispatchByTag });
+  registry.register('core.flow.humanApproval', { execute: dispatchByTag });
+  registry.register('core.flow.code', { execute: dispatchByTag });
+  registry.register('core.agent', { execute: dispatchByTag });
   return registry;
 }

@@ -1,26 +1,35 @@
 <ng-diagram-base-node-template [node]="node()">
   <article
-    class="graph-boundary"
-    [class.graph-boundary--expanded]="isExpanded()"
-    [style.--graph-boundary-accent]="'#0f766e'"
+    class="graph-node graph-node--boundary"
+    [class.graph-node--selected]="isSelected()"
+    [class.graph-node--input]="node().data.role === 'input'"
+    [class.graph-node--output]="node().data.role === 'output'"
+    [style.--graph-accent]="node().data.role === 'input' ? '#0f766e' : '#6d28d9'"
   >
-    <div class="graph-boundary__actions">
-      <button type="button" class="graph-boundary__action" title="Delete node" (click)="deleteNode($event)" (mousedown)="$event.stopPropagation()">x</button>
-      <button type="button" class="graph-boundary__action" title="Edit node" (click)="openEditor($event)" (mousedown)="$event.stopPropagation()">⚙</button>
-      <button type="button" class="graph-boundary__action" title="Pin node" (click)="pinNode($event)" (mousedown)="$event.stopPropagation()">📌</button>
-      <button type="button" class="graph-boundary__action" title="Expand ports" (click)="toggleExpanded($event)" (mousedown)="$event.stopPropagation()">
-        {{ isExpanded() ? '▾' : '▸' }}
-      </button>
+    <div class="graph-node__icon">
+      <span class="graph-node__icon-fallback">{{ iconFallback() }}</span>
     </div>
 
-    <span class="graph-boundary__badge">input</span>
-    <div class="graph-boundary__copy">
-      <h3>{{ node().data.title }}</h3>
-      <p>{{ displayValue(node().data.value) }}</p>
-    </div>
+    <span class="graph-node__name">{{ node().data.title }}</span>
 
-    @for (port of outputPorts(); track port.property) {
-      <ng-diagram-port [id]="port.path || port.property" type="source" side="right" />
-    }
+    <button
+      type="button"
+      class="graph-node__delete"
+      title="Delete node"
+      (click)="deleteNode($event)"
+      (mousedown)="$event.stopPropagation()"
+    >&times;</button>
+
+    <div class="graph-node__ports graph-node__ports--out">
+      @for (port of outputPorts(); track port.property) {
+        <div
+          class="graph-node__port graph-node__port--out"
+          [class.graph-node__port--connected]="connectedPortIds().has(port.path || port.property)"
+          [class.graph-node__port--default]="port.property === 'value' || port.path === 'value'"
+        >
+          <ng-diagram-port [id]="port.path || port.property" type="source" side="right" />
+        </div>
+      }
+    </div>
   </article>
 </ng-diagram-base-node-template>

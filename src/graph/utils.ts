@@ -151,7 +151,7 @@ function buildBoundaryNode(
     },
     size: {
       width: 240,
-      height: 130,
+      height: 96,
     },
     resizable: false,
     draggable: true,
@@ -173,7 +173,7 @@ function buildBoundaryNode(
   };
 }
 
-function buildMemberNode(
+export function buildMemberNode(
   ctor: unknown,
   index: number,
   fallbackId?: string,
@@ -192,8 +192,8 @@ function buildMemberNode(
       y: index % 2 === 0 ? 130 : 70,
     },
     size: {
-      width: definition.width ?? 300,
-      height: definition.height ?? 220,
+      width: definition.width ?? 96,
+      height: definition.height ?? 96,
     },
     resizable: false,
     draggable: true,
@@ -203,8 +203,8 @@ function buildMemberNode(
       description: String(metadata['description'] ?? ''),
       kind: definition.kind,
       category: definition.category,
-      color: definition.color,
-      icon: definition.icon,
+      color: definition.effectiveColor ?? definition.color,
+      icon: definition.effectiveIcon ?? definition.icon,
       labels: definition.labels,
       ports: definition.ports,
       sourceClass: definition.name,

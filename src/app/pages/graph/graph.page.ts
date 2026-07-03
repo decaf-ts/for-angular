@@ -5,11 +5,13 @@ import {
   GraphExecutionService,
   GraphExecutionStateMapper,
   GRAPH_EXECUTION_ENGINE_CONFIG,
-  createDemoExecutorRegistry,
+  createDemoEngineConfig,
 } from 'src/graph';
 import { graphExecutionState } from 'src/graph';
 import { graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
+import { GRAPH_TRIGGER_NODES, GRAPH_FLOW_CONTROL_NODES, GRAPH_AGENT_NODES } from '@decaf-ts/integrations/graph';
 import { GraphPublishingWorkflow } from './workflow-root';
+import { GRAPH_DEMO_NODES } from './example-nodes';
 
 @Component({
   selector: 'app-graph',
@@ -22,7 +24,7 @@ import { GraphPublishingWorkflow } from './workflow-root';
     GraphExecutionService,
     {
       provide: GRAPH_EXECUTION_ENGINE_CONFIG,
-      useFactory: () => ({ registry: createDemoExecutorRegistry() }),
+      useFactory: () => createDemoEngineConfig(),
     },
   ],
   templateUrl: './graph.page.html',
@@ -37,6 +39,7 @@ export class GraphPage implements OnDestroy {
   readonly lastResult = signal<Record<string, unknown> | null>(null);
   readonly runError = signal<string | null>(null);
   readonly runStatus = signal<string>('idle');
+  readonly availableNodes = [...GRAPH_DEMO_NODES, ...GRAPH_TRIGGER_NODES, ...GRAPH_FLOW_CONTROL_NODES, ...GRAPH_AGENT_NODES];
 
   readonly workflowOutputs = computed(() => {
     const result = this.lastResult();

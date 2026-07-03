@@ -8,4 +8,5 @@ export * from "./GraphExecutionService";
 export * from "./GraphExecutionStateMapper";
 export * from "./GraphExecutionStateService";
 export * from "./GraphNodeConfigStore";
+export * from "./GraphSelectionStore";
 export * from "./graph-demo-executors";
