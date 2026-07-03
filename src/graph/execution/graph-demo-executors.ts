@@ -4,6 +4,11 @@ import {
   type GraphExecutionValues,
   type GraphExecutionEngineConfig,
   GraphExecutionEngine,
+  type SwitchNodeMetadata,
+  type SwitchCase,
+  type SwitchCaseCondition,
+  type ConditionExpression,
+  ConditionExpressionEvaluator,
 } from '@decaf-ts/integrations/graph';
 import { ForeachGraphNodeExecutor } from '@decaf-ts/integrations/graph';
 import { WhileGraphNodeExecutor } from '@decaf-ts/integrations/graph';
@@ -43,9 +48,27 @@ const executorMap: Record<string, ExecutorFn> = {
   'core.flow.if': (input) => ({
     then: input['value'] ?? input,
   }),
-  'core.flow.switch': (input) => ({
-    default: input['value'] ?? input,
-  }),
+  'core.flow.switch': (input, context) => {
+    const meta = (context.node.graph?.metadata as Record<string, unknown> | undefined)?.['switch'] as SwitchNodeMetadata | undefined;
+    const inputValue = input['value'] ?? input;
+    if (!meta || !meta.cases || meta.cases.length === 0) {
+      return { [meta?.defaultPort ?? 'default']: inputValue };
+    }
+    const evaluator = new ConditionExpressionEvaluator();
+    for (const c of meta.cases) {
+      const cond = c.condition as SwitchCaseCondition;
+      if ('op' in cond) {
+        try {
+          if (evaluator.evaluate(cond as ConditionExpression, inputValue)) {
+            return { [c.outputPort]: inputValue };
+          }
+        } catch {
+          // skip unparseable conditions in demo
+        }
+      }
+    }
+    return { [meta.defaultPort ?? 'default']: inputValue };
+  },
   'core.flow.parallel': (input) => ({
     branches: [input['value'] ?? input],
   }),
@@ -59,7 +82,7 @@ const executorMap: Record<string, ExecutorFn> = {
     result: input['input'] ?? input,
   }),
   'core.agent': (input) => ({
-    response: `[Agent response] ${String(input['instructions'] ?? '')}`,
+    response: `[Agent response] ${String(input['prompt'] ?? '')}`,
     actions: [],
   }),
 };

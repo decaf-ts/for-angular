@@ -12,13 +12,15 @@
 
     <span class="graph-node__name">{{ node().data.title }}</span>
 
-    <button
-      type="button"
-      class="graph-node__delete"
-      title="Delete node"
-      (click)="deleteNode($event)"
-      (mousedown)="$event.stopPropagation()"
-    >&times;</button>
+    <div class="graph-node__actions">
+      <button
+        type="button"
+        class="graph-node__btn graph-node__btn--delete"
+        title="Delete node"
+        (click)="deleteNode($event)"
+        (mousedown)="$event.stopPropagation()"
+      >&times;</button>
+    </div>
 
     <div class="graph-node__ports graph-node__ports--out">
       @for (port of outputPorts(); track port.property) {
@@ -28,6 +30,7 @@
           [class.graph-node__port--default]="port.property === 'value' || port.path === 'value'"
         >
           <ng-diagram-port [id]="port.path || port.property" type="source" side="right" />
+          <span class="graph-node__port-label">{{ port.label || port.property }}</span>
         </div>
       }
     </div>

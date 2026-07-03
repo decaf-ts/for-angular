@@ -10,8 +10,10 @@ import {
   graphWorkflowSnapshotOf,
   graphWorkflowSnapshotToJSON,
   PortDirection,
+  type GraphPortDefinition,
   type GraphWorkflowSnapshot,
 } from '@decaf-ts/ui-decorators/graph';
+import type { SwitchNodeMetadata, SwitchCase } from '@decaf-ts/integrations/graph';
 import { initializeModel, type ModelAdapter } from 'ng-diagram';
 import { GraphInputValueNode } from './nodes/boundary-nodes';
 import { graphNodeConfig, type GraphNodeConfig } from './execution/GraphNodeConfigStore';
@@ -184,6 +186,26 @@ export function buildMemberNode(
   const nodeId = fallbackId || definition.name;
   const label = fallbackLabel || String(metadata['title'] ?? titleFromDefinition(definition.name));
 
+  const switchMeta = metadata['switch'] as SwitchNodeMetadata | undefined;
+  const hasSwitchCases = switchMeta && Array.isArray(switchMeta.cases) && switchMeta.cases.length > 0;
+
+  let ports: GraphPortDefinition[] = [...definition.ports];
+  let height = definition.height ?? 96;
+
+  if (hasSwitchCases && switchMeta) {
+    const caseOutputPorts: GraphPortDefinition[] = switchMeta.cases.map((c: SwitchCase) => ({
+      property: c.outputPort,
+      name: c.label,
+      direction: PortDirection.OUTPUT,
+      label: c.label,
+      required: false,
+      hidden: false,
+      path: c.outputPort,
+    }));
+    ports = [...ports, ...caseOutputPorts];
+    height = Math.max(height, 140 + switchMeta.cases.length * 24);
+  }
+
   return {
     id: nodeId,
     type: definition.kind,
@@ -193,7 +215,7 @@ export function buildMemberNode(
     },
     size: {
       width: definition.width ?? 96,
-      height: definition.height ?? 96,
+      height,
     },
     resizable: false,
     draggable: true,
@@ -206,10 +228,11 @@ export function buildMemberNode(
       color: definition.effectiveColor ?? definition.color,
       icon: definition.effectiveIcon ?? definition.icon,
       labels: definition.labels,
-      ports: definition.ports,
+      ports,
       sourceClass: definition.name,
       modelClass: ctor as never,
       expanded: false,
+      switchMetadata: switchMeta,
     },
   };
 }

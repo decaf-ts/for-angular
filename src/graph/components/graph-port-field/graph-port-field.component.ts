@@ -58,6 +58,11 @@ export class GraphPortFieldComponent implements OnInit {
     this.emitChange();
   }
 
+  toggleBall() {
+    this._useAsPort.update((v) => !v);
+    this.emitChange();
+  }
+
   onValueChange(event: Event) {
     const target = event.target as HTMLInputElement | HTMLTextAreaElement;
     this._value.set(target.value);

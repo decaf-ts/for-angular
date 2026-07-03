@@ -1,5 +1,6 @@
 import type { GraphNodeDefinition, GraphPortDefinition } from '@decaf-ts/ui-decorators/graph';
 import type { GraphWorkflowDefinition } from '@decaf-ts/ui-decorators/graph';
+import type { SwitchNodeMetadata } from '@decaf-ts/integrations/graph';
 
 export interface GraphDemoNodeData {
   title: string;
@@ -13,6 +14,7 @@ export interface GraphDemoNodeData {
   sourceClass: string;
   modelClass?: unknown;
   expanded?: boolean;
+  switchMetadata?: SwitchNodeMetadata;
 }
 
 export interface GraphDemoEdgeData {
@@ -47,6 +49,7 @@ export interface GraphRendererNodeData {
   sourceClass: string;
   modelClass?: unknown;
   expanded?: boolean;
+  switchMetadata?: SwitchNodeMetadata;
 }
 
 export interface GraphBoundaryNodeData {

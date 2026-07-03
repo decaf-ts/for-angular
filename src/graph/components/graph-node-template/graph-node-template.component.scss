@@ -24,7 +24,7 @@
     0 12px 30px rgba(2, 6, 23, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.15s;
+  transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.15s, height 0.2s;
 }
 
 .graph-node:hover {
@@ -128,11 +128,31 @@
   color: rgba(241, 245, 249, 0.9);
 }
 
-/* ---- buttons (delete + pin) ---- */
+/* ---- actions zone (top-right, grouped for RTL reorientation) ---- */
+
+.graph-node__actions {
+  position: absolute;
+  top: -0.4rem;
+  right: -0.4rem;
+  z-index: 3;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.15rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.graph-node:hover .graph-node__actions {
+  opacity: 1;
+}
+
+/* keep actions visible when pinned */
+.graph-node--pinned .graph-node__actions {
+  opacity: 1;
+}
 
 .graph-node__btn {
-  position: absolute;
-  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -143,17 +163,9 @@
   font-size: 0.8rem;
   line-height: 1;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-
-.graph-node:hover .graph-node__btn {
-  opacity: 1;
 }
 
 .graph-node__btn--delete {
-  top: -0.4rem;
-  right: -0.4rem;
   border: 1px solid rgba(239, 68, 68, 0.6);
   background: rgba(15, 23, 42, 0.9);
   color: #fca5a5;
@@ -161,29 +173,31 @@
 }
 
 .graph-node__btn--pin {
-  top: -0.4rem;
-  left: -0.4rem;
   border: 1px solid rgba(168, 85, 247, 0.6);
   background: rgba(15, 23, 42, 0.9);
   color: #c4b5fd;
 }
 
 .graph-node__btn--pinned {
-  opacity: 1;
   background: rgba(168, 85, 247, 0.7);
   border-color: #c4b5fd;
 }
 
-/* ---- ports ---- */
+/* ---- ports — evenly distributed along the node's face ---- */
 
 .graph-node__ports {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
   pointer-events: none;
+  z-index: 2;
+}
+
+.graph-node__ports--in,
+.graph-node__ports--out {
+  top: 0.4rem;
+  bottom: 0.4rem;
+  flex-direction: column;
+  justify-content: space-evenly;
 }
 
 .graph-node__ports--in {
@@ -194,14 +208,13 @@
   right: -0.5rem;
 }
 
-/* connection ports — bottom side */
+/* connection ports — bottom side, evenly distributed */
 .graph-node__ports--connection {
-  top: auto;
   bottom: -0.5rem;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0.4rem;
+  right: 0.4rem;
   flex-direction: row;
-  gap: 0.5rem;
+  justify-content: space-evenly;
 }
 
 .graph-node__port {
@@ -224,12 +237,59 @@
 /* connection ports — colored by category */
 .graph-node__port--connection {
   justify-content: center;
+  flex-direction: column;
   --connection-color: var(--connection-color, #64748b);
 }
 
 ::ng-deep .graph-node__port--connection ng-diagram-port .ng-diagram-port__anchor {
   background: var(--connection-color) !important;
   border-color: color-mix(in srgb, var(--connection-color) 70%, white) !important;
+}
+
+/* ---- port labels — visible on hover or when connected ---- */
+
+.graph-node__port-label {
+  position: absolute;
+  white-space: nowrap;
+  font-size: 0.55rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+  z-index: 4;
+}
+
+.graph-node__port--in .graph-node__port-label {
+  right: 100%;
+  margin-right: 0.3rem;
+}
+
+.graph-node__port--out .graph-node__port-label {
+  left: 100%;
+  margin-left: 0.3rem;
+}
+
+.graph-node__port--connection .graph-node__port-label {
+  top: 100%;
+  margin-top: 0.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* show labels on node hover */
+.graph-node:hover .graph-node__port-label {
+  opacity: 1;
+}
+
+/* connected ports always show their label */
+.graph-node__port--connected .graph-node__port-label {
+  opacity: 1;
 }
 
 /* default port is always visible */

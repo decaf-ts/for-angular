@@ -1,51 +1,41 @@
 <div class="graph-port-field" [class.graph-port-field--port-mode]="useAsPort()" [class.graph-port-field--output]="isOutput()">
-  <div class="graph-port-field__checkbox-row">
-    <ion-checkbox
-      [checked]="useAsPort()"
-      (ionChange)="togglePort($event)"
-      justify="start"
-      labelPlacement="end"
-    >
-      <ion-label>Use as port: {{ portLabel() }}</ion-label>
-    </ion-checkbox>
-  </div>
+  <button
+    type="button"
+    class="graph-port-field__ball"
+    [class.graph-port-field__ball--active]="useAsPort()"
+    [title]="useAsPort() ? 'Port exposed — click to use literal value' : 'Click to expose as port'"
+    (click)="toggleBall()"
+  ></button>
 
-  @if (!useAsPort()) {
-    <div class="graph-port-field__input-row">
-      <ion-item fill="outline" class="graph-port-field__item">
-        <ion-label position="stacked">{{ fieldLabel() }}</ion-label>
-        @if (isTextarea()) {
-          <ion-textarea
-            [value]="_value()"
-            (ionInput)="onValueChange($event)"
-            [placeholder]="fieldLabel()"
-            rows="3"
-            autoGrow="true"
-          ></ion-textarea>
-        } @else {
-          <ion-input
-            [value]="_value()"
-            (ionInput)="onValueChange($event)"
-            [placeholder]="fieldLabel()"
-            type="text"
-          ></ion-input>
-        }
-      </ion-item>
-    </div>
-  } @else {
-    <div class="graph-port-field__port-info">
-      <ion-note>
-        @if (isInput()) {
-          Port "{{ portLabel() }}" is exposed for upstream connection on the canvas.
-        } @else {
-          Output port "{{ portLabel() }}" is exposed for downstream connection.
-        }
-      </ion-note>
-      @if (isOutput()) {
-        <button type="button" class="graph-port-field__split-btn" (click)="addOutputSplit()">
-          + Split output
-        </button>
+  <div class="graph-port-field__content">
+    @if (!useAsPort()) {
+      <span class="graph-port-field__label">{{ fieldLabel() }}</span>
+      @if (isTextarea()) {
+        <ion-textarea
+          class="graph-port-field__textarea"
+          [value]="_value()"
+          (ionInput)="onValueChange($event)"
+          [placeholder]="fieldLabel()"
+          [rows]="2"
+          [autoGrow]="true"
+        ></ion-textarea>
+      } @else {
+        <ion-input
+          class="graph-port-field__input"
+          [value]="_value()"
+          (ionInput)="onValueChange($event)"
+          [placeholder]="fieldLabel()"
+          type="text"
+        ></ion-input>
       }
-    </div>
-  }
+    } @else {
+      <span class="graph-port-field__port-text">
+        <strong>{{ portLabel() }}</strong>
+        <small>{{ isInput() ? 'wired from upstream' : 'exposed for downstream' }}</small>
+      </span>
+      @if (isOutput()) {
+        <button type="button" class="graph-port-field__split-btn" (click)="addOutputSplit()">+</button>
+      }
+    }
+  </div>
 </div>

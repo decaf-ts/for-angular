@@ -1,0 +1,120 @@
+.graph-switch-edit-modal__content {
+  --background: #f8fafc;
+}
+
+.graph-switch-edit-modal__body {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.graph-switch-edit-modal__section {
+  background: white;
+  border-radius: 10px;
+  padding: 0.75rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.graph-switch-edit-modal__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.graph-switch-edit-modal__section h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.graph-switch-edit-modal__case {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.3rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.4rem;
+  margin-bottom: 0.4rem;
+  background: #f8fafc;
+}
+
+.graph-switch-edit-modal__remove {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 0.3rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.graph-switch-edit-modal__remove:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.graph-switch-edit-modal__case-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.graph-switch-edit-modal__case-label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-switch-edit-modal__case-label {
+  flex: 1;
+  --background: transparent;
+  --padding-start: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.graph-switch-edit-modal__port-badge {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+  white-space: nowrap;
+}
+
+.graph-switch-edit-modal__port-badge--default {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fde68a;
+}
+
+.graph-switch-edit-modal__empty {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+.graph-switch-edit-modal__default-section {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.graph-switch-edit-modal__default-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}

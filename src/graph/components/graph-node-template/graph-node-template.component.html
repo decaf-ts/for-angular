@@ -9,6 +9,8 @@
     [class.graph-node--failed]="statusLabel() === 'failed'"
     [class.graph-node--cached]="statusLabel() === 'cached'"
     [style.--graph-accent]="node().data.color || '#5b21b6'"
+    [style.--node-size.px]="nodeWidth()"
+    [style.height.px]="nodeHeight()"
     (dblclick)="openEditor($event)"
   >
     <div class="graph-node__icon" [class]="node().data.icon || ''">
@@ -17,22 +19,24 @@
 
     <span class="graph-node__name">{{ node().data.title }}</span>
 
-    <button
-      type="button"
-      class="graph-node__btn graph-node__btn--delete"
-      title="Delete node"
-      (click)="deleteNode($event)"
-      (mousedown)="$event.stopPropagation()"
-    >&times;</button>
+    <div class="graph-node__actions">
+      <button
+        type="button"
+        class="graph-node__btn graph-node__btn--pin"
+        [class.graph-node__btn--pinned]="isPinned()"
+        title="Pin node"
+        (click)="pinNode($event)"
+        (mousedown)="$event.stopPropagation()"
+      >&#128204;</button>
 
-    <button
-      type="button"
-      class="graph-node__btn graph-node__btn--pin"
-      [class.graph-node__btn--pinned]="isPinned()"
-      title="Pin node"
-      (click)="pinNode($event)"
-      (mousedown)="$event.stopPropagation()"
-    >&#128204;</button>
+      <button
+        type="button"
+        class="graph-node__btn graph-node__btn--delete"
+        title="Delete node"
+        (click)="deleteNode($event)"
+        (mousedown)="$event.stopPropagation()"
+      >&times;</button>
+    </div>
 
     <div class="graph-node__ports graph-node__ports--in">
       @for (port of inputPorts(); track port.path || port.property) {
@@ -41,6 +45,7 @@
           [class.graph-node__port--connected]="connectedPortIds().has(port.path || port.property)"
           [class.graph-node__port--default]="port.property === 'value' || port.path === 'value'"
         >
+          <span class="graph-node__port-label">{{ port.label || port.property }}</span>
           <ng-diagram-port [id]="port.path || port.property" type="target" side="left" />
         </div>
       }
@@ -54,6 +59,7 @@
           [class.graph-node__port--default]="port.property === 'value' || port.path === 'value'"
         >
           <ng-diagram-port [id]="port.path || port.property" type="source" side="right" />
+          <span class="graph-node__port-label">{{ port.label || port.property }}</span>
         </div>
       }
     </div>
@@ -65,9 +71,9 @@
             class="graph-node__port graph-node__port--connection"
             [class.graph-node__port--connected]="connectedPortIds().has(port.path || port.property)"
             [style.--connection-color]="connectionColor(port.graph?.category)"
-            [title]="port.graph?.category || port.label"
           >
             <ng-diagram-port [id]="port.path || port.property" type="target" side="bottom" />
+            <span class="graph-node__port-label">{{ port.graph?.category || port.label || port.property }}</span>
           </div>
         }
       </div>
