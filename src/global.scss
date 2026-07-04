@@ -57,6 +57,24 @@
 @forward "@tabler/icons-webfont/dist/tabler-icons.scss";
 @import "ng-diagram/styles.css";
 
+/* Make ng-diagram node wrapper transparent so only the custom node template is visible */
+:root {
+  --ngd-node-bg-primary-default: transparent !important;
+  --ngd-node-stroke-primary-default: transparent !important;
+  --ngd-node-stroke-primary-hover: transparent !important;
+}
+
+.ng-diagram-node-wrapper,
+.ng-diagram-node-wrapper.node {
+  background: transparent !important;
+  border: none !important;
+}
+
+ng-diagram-base-node-template,
+ng-diagram-node-resize-adornment {
+  background: transparent !important;
+}
+
 // ion-router-outlet ion-content {
 //   --background: var(--dcf-content-background);
 // }

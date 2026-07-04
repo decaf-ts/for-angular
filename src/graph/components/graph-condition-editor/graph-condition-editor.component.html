@@ -1,0 +1,57 @@
+<div class="condition-editor">
+  @if (mode() === 'graphical') {
+    <div class="condition-editor__graphical">
+      <ion-select
+        class="condition-editor__select"
+        [value]="leftPath()"
+        (ionChange)="onLeftPathChange($event)"
+        interface="popover"
+        placeholder="property"
+      >
+        @for (prop of inputProperties; track prop) {
+          <ion-select-option [value]="prop">{{ prop }}</ion-select-option>
+        }
+      </ion-select>
+
+      <ion-select
+        class="condition-editor__select condition-editor__select--op"
+        [value]="op()"
+        (ionChange)="onOpChange($event)"
+        interface="popover"
+      >
+        @for (o of operators; track o.op) {
+          <ion-select-option [value]="o.op">{{ o.op }}</ion-select-option>
+        }
+      </ion-select>
+
+      @if (!isExists()) {
+        <ion-input
+          class="condition-editor__input"
+          [value]="rightValue()"
+          (ionInput)="onRightValueChange($event)"
+          placeholder="value"
+        />
+      }
+    </div>
+  } @else {
+    <div class="condition-editor__code">
+      <ion-textarea
+        class="condition-editor__textarea"
+        [value]="code()"
+        (ionInput)="onCodeChange($event)"
+        placeholder="return $input.status === 'active';"
+        [rows]="3"
+        [autoGrow]="true"
+      />
+      <ion-note class="condition-editor__hint" [innerText]="placeholderHelp"></ion-note>
+    </div>
+  }
+
+  <button
+    type="button"
+    class="condition-editor__mode-btn"
+    [class.condition-editor__mode-btn--active]="mode() === 'code'"
+    [title]="mode() === 'code' ? 'Switch to graphical mode' : 'Switch to code mode'"
+    (click)="setMode(mode() === 'code' ? 'graphical' : 'code')"
+  >{{ '{ }' }}</button>
+</div>

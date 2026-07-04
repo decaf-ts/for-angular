@@ -1,6 +1,7 @@
 import {
   Component,
   Injector,
+  ViewEncapsulation,
   computed,
   effect,
   inject,
@@ -19,13 +20,15 @@ import {
   NgDiagramNodeTemplateMap,
   provideNgDiagram,
 } from 'ng-diagram';
-import { graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
+import { graphDefinitionOf, graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
 import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import { IonSpinner } from '@ionic/angular/standalone';
 import {
   buildGraphRendererModel,
   buildGraphRendererSnapshot,
   buildGraphRendererStateFromSnapshot,
   buildGraphRendererViewModel,
+  buildMemberNode,
   parseGraphRendererSnapshot,
   stringifyGraphRendererSnapshot,
 } from '../../utils';
@@ -39,14 +42,16 @@ import {
   WorkflowInputFieldDefinition,
 } from '../../workflow-inputs';
 import { GraphRendererViewModel } from '../../types';
+import { graphSelection } from '../../execution/GraphSelectionStore';
 
 @Component({
   selector: 'app-graph-renderer',
   standalone: true,
-  imports: [ReactiveFormsModule, NgDiagramComponent, NgDiagramBackgroundComponent, NgDiagramMinimapComponent],
+  imports: [ReactiveFormsModule, NgDiagramComponent, NgDiagramBackgroundComponent, NgDiagramMinimapComponent, IonSpinner],
   providers: [provideNgDiagram()],
   templateUrl: './graph-renderer.component.html',
   styleUrl: './graph-renderer.component.scss',
+  encapsulation: ViewEncapsulation.None,
 })
 export class GraphRendererComponent {
   private readonly formBuilder = inject(FormBuilder);
@@ -59,11 +64,36 @@ export class GraphRendererComponent {
   private skipNextModelSync = false;
 
   readonly graphRoot = input.required<unknown>();
+  readonly outputs = input<Record<string, unknown> | null>(null);
+  readonly availableNodes = input<unknown[]>([]);
 
   readonly nodeTemplateMap = new NgDiagramNodeTemplateMap([
     ['workflow', GraphNodeTemplateComponent],
     ['pipeline', GraphNodeTemplateComponent],
     ['node', GraphNodeTemplateComponent],
+    ['core.loop.foreach', GraphNodeTemplateComponent],
+    ['core.loop.while', GraphNodeTemplateComponent],
+    ['core.loop.until', GraphNodeTemplateComponent],
+    // Trigger nodes (DECAF-32 §22.2.1)
+    ['core.trigger.manual', GraphNodeTemplateComponent],
+    ['core.trigger.webhook', GraphNodeTemplateComponent],
+    ['core.trigger.schedule', GraphNodeTemplateComponent],
+    ['core.trigger.event', GraphNodeTemplateComponent],
+    ['core.trigger.form', GraphNodeTemplateComponent],
+    ['core.trigger.chat', GraphNodeTemplateComponent],
+    // Flow-control nodes (DECAF-32 §22.2.2)
+    ['core.flow.if', GraphNodeTemplateComponent],
+    ['core.flow.switch', GraphNodeTemplateComponent],
+    ['core.flow.parallel', GraphNodeTemplateComponent],
+    ['core.flow.merge', GraphNodeTemplateComponent],
+    ['core.flow.map', GraphNodeTemplateComponent],
+    ['core.flow.delay', GraphNodeTemplateComponent],
+    ['core.flow.errorBoundary', GraphNodeTemplateComponent],
+    ['core.flow.humanApproval', GraphNodeTemplateComponent],
+    ['core.flow.return', GraphNodeTemplateComponent],
+    ['core.flow.code', GraphNodeTemplateComponent],
+    // Agent node (DECAF-32 §21.3)
+    ['core.agent', GraphNodeTemplateComponent],
     ['value', GraphBoundaryNodeTemplateComponent],
   ]);
 
@@ -102,6 +132,25 @@ export class GraphRendererComponent {
   readonly hasFormErrors = computed(() => this.workflowInputForm().invalid);
   readonly snapshotPreview = computed(() => this.snapshotJson());
 
+  readonly paletteOpen = signal(false);
+  readonly paletteEntries = computed(() => {
+    const nodes = this.availableNodes();
+    return nodes.map((ctor) => {
+      const definition = graphDefinitionOf(ctor as never);
+      const metadata = (definition.graph?.metadata || {}) as Record<string, unknown>;
+      return {
+        ctor,
+        name: definition.name,
+        kind: definition.kind,
+        title: String(metadata['title'] ?? definition.name),
+        description: String(metadata['description'] ?? ''),
+        category: definition.category,
+        color: definition.color,
+        icon: definition.icon,
+      };
+    });
+  });
+
   constructor() {
     effect((onCleanup) => {
       if (this.skipNextModelSync) {
@@ -139,6 +188,41 @@ export class GraphRendererComponent {
       ...current,
       [property]: (current[property] || 0) + 1,
     }));
+  }
+
+  onSelectionChanged(event: { selectedNodes?: { id: string }[] }) {
+    graphSelection.setSelected((event.selectedNodes ?? []).map((n) => n.id));
+  }
+
+  togglePalette() {
+    this.paletteOpen.set(!this.paletteOpen());
+  }
+
+  closePalette() {
+    this.paletteOpen.set(false);
+  }
+
+  addNode(ctor: unknown) {
+    const diagram = this.model();
+    if (!diagram) return;
+
+    const existing = diagram.getNodes();
+    const count = existing.length;
+    const blueprint = buildMemberNode(ctor, count);
+    const uniqueId = `${blueprint.data.sourceClass}-${Date.now()}`;
+    const offset = count * 40;
+
+    const newNode = {
+      ...blueprint,
+      id: uniqueId,
+      position: {
+        x: 420 + offset,
+        y: 200 + offset,
+      },
+    } as never;
+
+    diagram.updateNodes((nodes) => [...nodes, newNode] as never);
+    this.paletteOpen.set(false);
   }
 
   controlFor(controlName: string): AbstractControl | null {
@@ -191,8 +275,11 @@ export class GraphRendererComponent {
     }
   }
 
-  workflowOutputValue() {
-    return 'pending run result';
+  workflowOutputValue(portProperty: string) {
+    const outs = this.outputs();
+    if (!outs) return 'pending run result';
+    const value = outs[portProperty];
+    return this.displayValue(value);
   }
 
   saveSnapshot() {

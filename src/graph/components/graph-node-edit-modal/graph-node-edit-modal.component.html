@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">Cancel</ion-button>
+    </ion-buttons>
+    <ion-title>{{ nodeTitle }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="save()" strong>Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="graph-node-edit-modal__content">
+  <div class="graph-node-edit-modal__body">
+    @if (inputPorts().length) {
+      <section class="graph-node-edit-modal__section">
+        <h3>Inputs</h3>
+        <p class="graph-node-edit-modal__hint">
+          Toggle "Use as port" to wire this input from an upstream output.
+          Leave unchecked to set a literal value.
+        </p>
+        @for (config of fieldConfigs(); track config.port.property) {
+          @if (config.port.direction === 'input') {
+            <app-graph-port-field
+              [field]="config"
+              (fieldChange)="onFieldChange($event)"
+            />
+          }
+        }
+      </section>
+    }
+
+    @if (outputPorts().length) {
+      <section class="graph-node-edit-modal__section">
+        <h3>Outputs</h3>
+        <p class="graph-node-edit-modal__hint">
+          Toggle "Use as port" to expose this output for downstream connection.
+          Use "Split output" to connect a single output to multiple inputs.
+        </p>
+        @for (config of fieldConfigs(); track config.port.property) {
+          @if (config.port.direction === 'output') {
+            <app-graph-port-field
+              [field]="config"
+              (fieldChange)="onFieldChange($event)"
+            />
+          }
+        }
+      </section>
+    }
+  </div>
+</ion-content>

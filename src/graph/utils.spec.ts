@@ -18,7 +18,7 @@ describe('graph adapter', () => {
     const summary = getGraphWorkflowSummary(GraphPublishingWorkflow as never);
 
     expect(summary).toMatchObject({
-      totalNodes: 7,
+      totalNodes: 10,
       totalEdges: 6,
       totalInputs: 1,
       totalOutputs: 1,
@@ -28,6 +28,9 @@ describe('graph adapter', () => {
         expect.objectContaining({ kind: 'workflow', count: 3 }),
         expect.objectContaining({ kind: 'pipeline', count: 1 }),
         expect.objectContaining({ kind: 'node', count: 2 }),
+        expect.objectContaining({ kind: 'core.loop.foreach', count: 1 }),
+        expect.objectContaining({ kind: 'core.loop.while', count: 1 }),
+        expect.objectContaining({ kind: 'core.loop.until', count: 1 }),
         expect.objectContaining({ kind: 'value', count: 1 }),
       ])
     );
@@ -45,7 +48,7 @@ describe('graph adapter', () => {
     const viewModel = buildGraphRendererViewModel(GraphPublishingWorkflow as never);
 
     expect(viewModel.inputs).toHaveLength(1);
-    expect(viewModel.nodes).toHaveLength(5);
+    expect(viewModel.nodes).toHaveLength(8);
     expect(viewModel.workflowOutputs).toHaveLength(1);
     expect(viewModel.inputs[0]).toMatchObject({
       id: 'input-request',
@@ -71,7 +74,7 @@ describe('graph adapter', () => {
   it('builds an ng-diagram model for the workflow root', () => {
     const model = buildGraphRendererModel(GraphPublishingWorkflow as never, TestBed.inject(Injector));
 
-    expect(model.getNodes()).toHaveLength(6);
+    expect(model.getNodes()).toHaveLength(9);
     expect(model.getEdges()).toHaveLength(5);
     expect(model.getNodes()[0]).toMatchObject({
       id: 'input-request',

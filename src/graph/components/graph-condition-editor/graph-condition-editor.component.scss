@@ -1,0 +1,95 @@
+:host {
+  display: block;
+}
+
+.condition-editor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Graphical mode: horizontal row */
+.condition-editor__graphical {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.condition-editor__select {
+  --background: rgba(15, 23, 42, 0.04);
+  --padding-start: 0.4rem;
+  --padding-end: 0.4rem;
+  min-width: 80px;
+  max-width: 120px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.condition-editor__select--op {
+  min-width: 60px;
+  max-width: 70px;
+  font-family: 'Courier New', monospace;
+}
+
+.condition-editor__input {
+  --background: rgba(15, 23, 42, 0.04);
+  --padding-start: 0.4rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Code mode */
+.condition-editor__code {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.condition-editor__textarea {
+  --background: rgba(15, 23, 42, 0.04);
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+}
+
+.condition-editor__hint {
+  font-size: 0.65rem;
+  color: var(--ion-color-medium, #64748b);
+  padding: 0 0.2rem;
+}
+
+/* Mode toggle button (top-right corner) */
+.condition-editor__mode-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.04);
+  color: #94a3b8;
+  font-family: 'Courier New', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+}
+
+.condition-editor__mode-btn:hover {
+  border-color: #a855f7;
+  color: #a855f7;
+}
+
+.condition-editor__mode-btn--active {
+  background: rgba(168, 85, 247, 0.1);
+  border-color: #a855f7;
+  color: #7c3aed;
+}

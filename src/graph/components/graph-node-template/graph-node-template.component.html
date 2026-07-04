@@ -1,66 +1,82 @@
 <ng-diagram-base-node-template [node]="node()">
   <article
     class="graph-node"
-    [class.graph-node--workflow]="node().data.kind === 'workflow'"
-    [class.graph-node--pipeline]="node().data.kind === 'pipeline'"
-    [class.graph-node--task]="node().data.kind === 'node'"
-    [class.graph-node--expanded]="isExpanded()"
+    [class.graph-node--selected]="isSelected()"
+    [class.graph-node--connecting]="isConnecting()"
+    [class.graph-node--pinned]="isPinned()"
+    [class.graph-node--running]="statusLabel() === 'running'"
+    [class.graph-node--succeeded]="statusLabel() === 'succeeded'"
+    [class.graph-node--failed]="statusLabel() === 'failed'"
+    [class.graph-node--cached]="statusLabel() === 'cached'"
     [style.--graph-accent]="node().data.color || '#5b21b6'"
+    [style.--node-size.px]="nodeWidth()"
+    [style.height.px]="nodeHeight()"
+    (dblclick)="openEditor($event)"
   >
-    <div class="graph-node__actions">
-      <button type="button" class="graph-node__action" title="Delete node" (click)="deleteNode($event)" (mousedown)="$event.stopPropagation()">x</button>
-      <button type="button" class="graph-node__action" title="Edit node" (click)="openEditor($event)" (mousedown)="$event.stopPropagation()">⚙</button>
-      <button type="button" class="graph-node__action" title="Pin node" (click)="pinNode($event)" (mousedown)="$event.stopPropagation()">📌</button>
-      <button type="button" class="graph-node__action" [class.graph-node__action--active]="isExpanded()" title="Expand ports" (click)="toggleExpanded($event)" (mousedown)="$event.stopPropagation()">
-        {{ isExpanded() ? '▾' : '▸' }}
-      </button>
+    <div class="graph-node__icon" [class]="node().data.icon || ''">
+      <span class="graph-node__icon-fallback">{{ iconFallback() }}</span>
     </div>
 
-    <header class="graph-node__header">
-      <div class="graph-node__title-row">
-        <span class="graph-node__badge">{{ node().data.kind }}</span>
-        <span class="graph-node__category" [class.graph-node__category--empty]="!node().data.category">
-          {{ node().data.category || 'Graph' }}
-        </span>
-      </div>
-      <h3>{{ node().data.title }}</h3>
-      <p>{{ node().data.description }}</p>
-    </header>
+    <span class="graph-node__name">{{ node().data.title }}</span>
 
-    @if (node().data.labels.length) {
-      <div class="graph-node__labels">
-        @for (label of node().data.labels; track label) {
-          <span>{{ label }}</span>
+    <div class="graph-node__actions">
+      <button
+        type="button"
+        class="graph-node__btn graph-node__btn--pin"
+        [class.graph-node__btn--pinned]="isPinned()"
+        title="Pin node"
+        (click)="pinNode($event)"
+        (mousedown)="$event.stopPropagation()"
+      >&#128204;</button>
+
+      <button
+        type="button"
+        class="graph-node__btn graph-node__btn--delete"
+        title="Delete node"
+        (click)="deleteNode($event)"
+        (mousedown)="$event.stopPropagation()"
+      >&times;</button>
+    </div>
+
+    <div class="graph-node__ports graph-node__ports--in">
+      @for (port of inputPorts(); track port.path || port.property) {
+        <div
+          class="graph-node__port graph-node__port--in"
+          [class.graph-node__port--connected]="connectedPortIds().has(port.path || port.property)"
+          [class.graph-node__port--default]="port.property === 'value' || port.path === 'value'"
+        >
+          <span class="graph-node__port-label">{{ port.label || port.property }}</span>
+          <ng-diagram-port [id]="port.path || port.property" type="target" side="left" />
+        </div>
+      }
+    </div>
+
+    <div class="graph-node__ports graph-node__ports--out">
+      @for (port of outputPorts(); track port.path || port.property) {
+        <div
+          class="graph-node__port graph-node__port--out"
+          [class.graph-node__port--connected]="connectedPortIds().has(port.path || port.property)"
+          [class.graph-node__port--default]="port.property === 'value' || port.path === 'value'"
+        >
+          <ng-diagram-port [id]="port.path || port.property" type="source" side="right" />
+          <span class="graph-node__port-label">{{ port.label || port.property }}</span>
+        </div>
+      }
+    </div>
+
+    @if (connectionPorts().length) {
+      <div class="graph-node__ports graph-node__ports--connection">
+        @for (port of connectionPorts(); track port.path || port.property) {
+          <div
+            class="graph-node__port graph-node__port--connection"
+            [class.graph-node__port--connected]="connectedPortIds().has(port.path || port.property)"
+            [style.--connection-color]="connectionColor(port.graph?.category)"
+          >
+            <ng-diagram-port [id]="port.path || port.property" type="target" side="bottom" />
+            <span class="graph-node__port-label">{{ port.graph?.category || port.label || port.property }}</span>
+          </div>
         }
       </div>
     }
-
-    <section class="graph-node__ports">
-      <div class="graph-node__column">
-        <h4>Inputs</h4>
-        @for (port of inputPorts(); track port.path || port.property) {
-          <div class="graph-node__port-row">
-            <ng-diagram-port [id]="port.path || port.property" type="target" side="left" />
-            <div class="graph-node__port-copy">
-              <strong>{{ port.label }}</strong>
-              <span>{{ port.type || 'unknown' }}</span>
-            </div>
-          </div>
-        }
-      </div>
-
-      <div class="graph-node__column graph-node__column--outputs">
-        <h4>Outputs</h4>
-        @for (port of outputPorts(); track port.path || port.property) {
-          <div class="graph-node__port-row graph-node__port-row--output">
-            <div class="graph-node__port-copy graph-node__port-copy--right">
-              <strong>{{ port.label }}</strong>
-              <span>{{ port.type || 'unknown' }}</span>
-            </div>
-            <ng-diagram-port [id]="port.path || port.property" type="source" side="right" />
-          </div>
-        }
-      </div>
-    </section>
   </article>
 </ng-diagram-base-node-template>

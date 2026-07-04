@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { NgxPageDirective } from 'src/lib/engine/NgxPageDirective';
-import { ForAngularModel } from 'src/app/models/DemoModel';
-import { IBaseCustomEvent } from 'src/lib/engine';
 import { IonContent } from '@ionic/angular/standalone';
 import { ContainerComponent } from 'src/app/components/container/container.component';
-import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
+import { ForAngularModel } from 'src/app/models/DemoModel';
 import { CardComponent } from 'src/lib/components';
+import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
+import { IBaseCustomEvent } from 'src/lib/engine';
+import { NgxPageDirective } from 'src/lib/engine/NgxPageDirective';
 
 @Component({
   selector: 'app-crud',
@@ -28,7 +28,7 @@ export class CrudPage extends NgxPageDirective implements OnInit {
 
     this.model = new ForAngularModel({
       id: 1,
-      name: 'John Doe',
+      name: 'Demerson Carvalho',
       gender: 'male',
       // // birthdate: '1989-12-12',
       // email: 'john.doe@example.com',

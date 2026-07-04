@@ -1,0 +1,34 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.graph-node-edit-modal__content {
+  --background: #f8fafc;
+}
+
+.graph-node-edit-modal__body {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 2rem;
+}
+
+.graph-node-edit-modal__section {
+  margin-bottom: 1.5rem;
+}
+
+.graph-node-edit-modal__section h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.graph-node-edit-modal__hint {
+  margin: 0 0 0.8rem;
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.4;
+}

@@ -3,164 +3,315 @@
 }
 
 .graph-node {
-  --node-border: color-mix(in srgb, var(--graph-accent) 88%, white);
+  --node-size: 96px;
+  --node-border: color-mix(in srgb, var(--graph-accent) 78%, white);
 
   position: relative;
-  min-width: 260px;
-  min-height: 180px;
-  padding: 1rem;
+  width: var(--node-size);
+  height: var(--node-size);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
   color: #f8fafc;
   background:
-    radial-gradient(circle at top left, color-mix(in srgb, var(--graph-accent) 26%, transparent), transparent 48%),
-    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.96));
-  border: 1px solid var(--node-border);
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--graph-accent) 32%, transparent), transparent 60%),
+    linear-gradient(160deg, rgba(15, 23, 42, 0.97), rgba(2, 6, 23, 0.95));
+  border: 1.5px solid var(--node-border);
   border-radius: 18px;
   box-shadow:
-    0 20px 50px rgba(2, 6, 23, 0.48),
+    0 12px 30px rgba(2, 6, 23, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.15s, height 0.2s;
 }
+
+.graph-node:hover {
+  transform: scale(1.03);
+}
+
+/* ---- selection / connecting ---- */
+
+.graph-node--selected {
+  border-color: var(--graph-accent);
+  box-shadow:
+    0 12px 30px rgba(2, 6, 23, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 3px color-mix(in srgb, var(--graph-accent) 45%, transparent);
+}
+
+.graph-node--connecting {
+  border-color: #f59e0b;
+  box-shadow:
+    0 12px 30px rgba(245, 158, 11, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 3px rgba(245, 158, 11, 0.35);
+}
+
+/* ---- execution status ---- */
+
+.graph-node--running {
+  border-color: #f59e0b;
+  box-shadow:
+    0 12px 30px rgba(245, 158, 11, 0.25),
+    0 0 0 2px rgba(245, 158, 11, 0.3);
+  animation: graph-node-pulse 1.2s ease-in-out infinite;
+}
+
+.graph-node--succeeded {
+  border-color: #22c55e;
+}
+
+.graph-node--failed {
+  border-color: #ef4444;
+  box-shadow:
+    0 12px 30px rgba(239, 68, 68, 0.25),
+    0 0 0 2px rgba(239, 68, 68, 0.3);
+}
+
+.graph-node--cached {
+  border-color: #6366f1;
+}
+
+@keyframes graph-node-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ---- pinned ---- */
+
+.graph-node--pinned {
+  opacity: 0.5;
+  border-style: dashed;
+  border-color: #a855f7;
+  pointer-events: none;
+  filter: grayscale(0.4);
+}
+
+.graph-node--pinned .graph-node__btn {
+  pointer-events: auto;
+}
+
+/* ---- icon ---- */
+
+.graph-node__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--graph-accent) 30%, rgba(15, 23, 42, 0.6));
+  border: 1.5px solid color-mix(in srgb, var(--graph-accent) 55%, transparent);
+  font-size: 1.3rem;
+  line-height: 1;
+  position: relative;
+}
+
+.graph-node__icon-fallback {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--graph-accent) 70%, white);
+}
+
+/* ---- name ---- */
+
+.graph-node__name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+  max-width: calc(var(--node-size) - 0.75rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(241, 245, 249, 0.9);
+}
+
+/* ---- actions zone (top-right, grouped for RTL reorientation) ---- */
 
 .graph-node__actions {
   position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
-  z-index: 2;
+  top: -0.4rem;
+  right: -0.4rem;
+  z-index: 3;
   display: flex;
-  gap: 0.35rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.15rem;
+  opacity: 0;
+  transition: opacity 0.15s;
 }
 
-.graph-node__action {
-  display: inline-flex;
+.graph-node:hover .graph-node__actions {
+  opacity: 1;
+}
+
+/* keep actions visible when pinned */
+.graph-node--pinned .graph-node__actions {
+  opacity: 1;
+}
+
+.graph-node__btn {
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 1.25rem;
+  height: 1.25rem;
   padding: 0;
-  border: 1px solid rgba(148, 163, 184, 0.34);
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.86);
-  color: #f8fafc;
+  border-radius: 50%;
   font-size: 0.8rem;
   line-height: 1;
   cursor: pointer;
 }
 
-.graph-node__action--active {
-  background: color-mix(in srgb, var(--graph-accent) 78%, black);
-  border-color: color-mix(in srgb, var(--graph-accent) 78%, white);
+.graph-node__btn--delete {
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  background: rgba(15, 23, 42, 0.9);
+  color: #fca5a5;
+  font-size: 0.85rem;
 }
 
-.graph-node__header h3,
-.graph-node__header p,
-.graph-node__column h4,
-.graph-node__port-copy strong,
-.graph-node__port-copy span {
-  margin: 0;
+.graph-node__btn--pin {
+  border: 1px solid rgba(168, 85, 247, 0.6);
+  background: rgba(15, 23, 42, 0.9);
+  color: #c4b5fd;
 }
 
-.graph-node__header h3 {
-  margin-top: 0.45rem;
-  font-size: 1.05rem;
-  line-height: 1.2;
+.graph-node__btn--pinned {
+  background: rgba(168, 85, 247, 0.7);
+  border-color: #c4b5fd;
 }
 
-.graph-node__header p {
-  margin-top: 0.45rem;
-  color: rgba(226, 232, 240, 0.8);
-  font-size: 0.82rem;
-  line-height: 1.45;
-}
-
-.graph-node__title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.graph-node__badge,
-.graph-node__category {
-  border-radius: 999px;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.graph-node__badge {
-  background: color-mix(in srgb, var(--graph-accent) 80%, black);
-  color: white;
-}
-
-.graph-node__category {
-  color: rgba(226, 232, 240, 0.8);
-  background: rgba(148, 163, 184, 0.12);
-}
-
-.graph-node__category--empty {
-  color: rgba(226, 232, 240, 0.45);
-}
-
-.graph-node__labels {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0.9rem 0 0.7rem;
-}
-
-.graph-node__labels span {
-  border-radius: 999px;
-  padding: 0.25rem 0.55rem;
-  font-size: 0.7rem;
-  color: color-mix(in srgb, var(--graph-accent) 72%, white);
-  background: rgba(255, 255, 255, 0.05);
-}
+/* ---- ports — evenly distributed along the node's face ---- */
 
 .graph-node__ports {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.9rem;
-  margin-top: 0.9rem;
+  position: absolute;
+  display: flex;
+  pointer-events: none;
+  z-index: 2;
 }
 
-.graph-node__column h4 {
-  margin-bottom: 0.55rem;
-  color: rgba(241, 245, 249, 0.78);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.graph-node__ports--in,
+.graph-node__ports--out {
+  top: 0.4rem;
+  bottom: 0.4rem;
+  flex-direction: column;
+  justify-content: space-evenly;
 }
 
-.graph-node__port-row {
+.graph-node__ports--in {
+  left: -0.5rem;
+}
+
+.graph-node__ports--out {
+  right: -0.5rem;
+}
+
+/* connection ports — bottom side, evenly distributed */
+.graph-node__ports--connection {
+  bottom: -0.5rem;
+  left: 0.4rem;
+  right: 0.4rem;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.graph-node__port {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  min-height: 2rem;
+  pointer-events: auto;
+  opacity: 0;
+  animation: graph-port-fade-in 150ms ease-out forwards;
 }
 
-.graph-node__port-row--output {
+.graph-node__port--in {
+  justify-content: flex-start;
+}
+
+.graph-node__port--out {
   justify-content: flex-end;
 }
 
-.graph-node__port-copy {
-  display: flex;
+/* connection ports — colored by category */
+.graph-node__port--connection {
+  justify-content: center;
   flex-direction: column;
-  gap: 0.15rem;
+  --connection-color: var(--connection-color, #64748b);
 }
 
-.graph-node__port-copy--right {
-  align-items: flex-end;
-  text-align: right;
+::ng-deep .graph-node__port--connection ng-diagram-port .ng-diagram-port__anchor {
+  background: var(--connection-color) !important;
+  border-color: color-mix(in srgb, var(--connection-color) 70%, white) !important;
 }
 
-.graph-node__port-copy strong {
-  font-size: 0.8rem;
-  color: #f8fafc;
+/* ---- port labels — visible on hover or when connected ---- */
+
+.graph-node__port-label {
+  position: absolute;
+  white-space: nowrap;
+  font-size: 0.55rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+  z-index: 4;
 }
 
-.graph-node__port-copy span {
-  font-size: 0.72rem;
-  color: rgba(226, 232, 240, 0.65);
+.graph-node__port--in .graph-node__port-label {
+  right: 100%;
+  margin-right: 0.3rem;
+}
+
+.graph-node__port--out .graph-node__port-label {
+  left: 100%;
+  margin-left: 0.3rem;
+}
+
+.graph-node__port--connection .graph-node__port-label {
+  top: 100%;
+  margin-top: 0.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* show labels on node hover */
+.graph-node:hover .graph-node__port-label {
+  opacity: 1;
+}
+
+/* connected ports always show their label */
+.graph-node__port--connected .graph-node__port-label {
+  opacity: 1;
+}
+
+/* default port is always visible */
+.graph-node__port--default {
+  opacity: 1;
+  animation: none;
+}
+
+/* connected ports stay visible */
+.graph-node__port--connected {
+  opacity: 1;
+  animation: none;
+}
+
+/* when selected or connecting, all ports visible */
+.graph-node--selected .graph-node__port,
+.graph-node--connecting .graph-node__port {
+  opacity: 1;
+  animation: graph-port-fade-in 150ms ease-out forwards;
+}
+
+@keyframes graph-port-fade-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
 }

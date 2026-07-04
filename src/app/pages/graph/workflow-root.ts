@@ -3,10 +3,13 @@ import { uielement } from '@decaf-ts/ui-decorators';
 import { graph, input, output } from '@decaf-ts/ui-decorators/graph';
 import {
   GraphDraftNode,
+  GraphForeachLoopNode,
   GraphIntakeWorkflow,
   GraphPlanningPipeline,
   GraphPublishWorkflow,
   GraphReviewNode,
+  GraphUntilLoopNode,
+  GraphWhileLoopNode,
 } from './example-nodes';
 
 @graph('graph-workflow-root', {
@@ -50,6 +53,24 @@ import {
       kind: 'workflow',
       label: 'Publish',
       node: GraphPublishWorkflow,
+    },
+    {
+      id: GraphForeachLoopNode.name,
+      kind: 'core.loop.foreach',
+      label: 'Foreach',
+      node: GraphForeachLoopNode,
+    },
+    {
+      id: GraphWhileLoopNode.name,
+      kind: 'core.loop.while',
+      label: 'While',
+      node: GraphWhileLoopNode,
+    },
+    {
+      id: GraphUntilLoopNode.name,
+      kind: 'core.loop.until',
+      label: 'Until',
+      node: GraphUntilLoopNode,
     },
   ],
   relations: [

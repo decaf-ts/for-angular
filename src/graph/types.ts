@@ -1,5 +1,6 @@
 import type { GraphNodeDefinition, GraphPortDefinition } from '@decaf-ts/ui-decorators/graph';
 import type { GraphWorkflowDefinition } from '@decaf-ts/ui-decorators/graph';
+import type { SwitchNodeMetadata } from '@decaf-ts/integrations/graph';
 
 export interface GraphDemoNodeData {
   title: string;
@@ -13,6 +14,7 @@ export interface GraphDemoNodeData {
   sourceClass: string;
   modelClass?: unknown;
   expanded?: boolean;
+  switchMetadata?: SwitchNodeMetadata;
 }
 
 export interface GraphDemoEdgeData {
@@ -47,6 +49,7 @@ export interface GraphRendererNodeData {
   sourceClass: string;
   modelClass?: unknown;
   expanded?: boolean;
+  switchMetadata?: SwitchNodeMetadata;
 }
 
 export interface GraphBoundaryNodeData {
@@ -131,3 +134,42 @@ export interface GraphRendererViewModel {
   edges: GraphCanvasEdgeBlueprint[];
   workflowOutputs: GraphWorkflowDefinition['outputs'];
 }
+
+/**
+ * Execution state for a single graph node, updated from GraphExecutionEvents.
+ */
+export interface GraphNodeUiExecutionState {
+  status: string;
+  startedAt?: string;
+  finishedAt?: string;
+  progress?: unknown;
+  outputs?: Record<string, unknown>;
+  error?: { name: string; message: string; stack?: string; code?: string };
+  fromCache?: boolean;
+  pinned?: boolean;
+  pinnable?: boolean;
+  loop?: {
+    currentIteration?: number;
+    completedIterations?: number;
+    maxIterations?: number;
+  };
+}
+
+/**
+ * Execution state for a single graph edge, updated from EDGE_VALUE_ROUTED events.
+ */
+export interface GraphEdgeUiExecutionState {
+  status: string;
+  lastValue?: unknown;
+  updatedAt?: string;
+}
+
+/**
+ * Map of node id -> execution state, maintained by the renderer.
+ */
+export type GraphNodeExecutionStateMap = Record<string, GraphNodeUiExecutionState>;
+
+/**
+ * Map of edge id -> execution state, maintained by the renderer.
+ */
+export type GraphEdgeExecutionStateMap = Record<string, GraphEdgeUiExecutionState>;

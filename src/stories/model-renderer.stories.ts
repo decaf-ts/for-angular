@@ -1,11 +1,12 @@
-import './setup';
-import type { Meta, StoryObj } from '@storybook/angular';
-import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
-import { getComponentMeta } from './utils';
-import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
-import { ForAngularModel } from 'src/app/models/DemoModel';
-import { OperationKeys } from '@decaf-ts/db-decorators';
 import { NgComponentOutlet } from '@angular/common';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import type { Meta, StoryObj } from '@storybook/angular';
+import { ForAngularModel } from 'src/app/models/DemoModel';
+import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
+import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
+import { fn } from 'storybook/test';
+import './setup';
+import { getComponentMeta } from './utils';
 
 const model = new ForAngularModel({
   id: 1,
@@ -15,20 +16,25 @@ const model = new ForAngularModel({
   website: 'https://johndoe.example.com',
   password: 'password123',
 });
-const component = getComponentMeta<ModelRendererComponent<any>>([
-  ForAngularCommonModule,
-  NgComponentOutlet,
-]);
+const component = getComponentMeta<ModelRendererComponent<any>>([ForAngularCommonModule, NgComponentOutlet]);
 const meta: Meta<ModelRendererComponent<any>> = {
   title: 'Components/Model Renderer',
   component: ModelRendererComponent,
-  // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
+
   ...component,
+  argTypes: {
+    globals: {
+      control: 'object',
+    },
+  },
   args: {
     model: new ForAngularModel({
       birthdate: '1989-12-12',
     }),
     globals: { operation: OperationKeys.CREATE },
+    projectable: true,
+    listenEvent: fn(),
+    refreshEvent: fn(),
   },
 };
 export default meta;
@@ -54,5 +60,13 @@ export const Delete: Story = {
   args: {
     model,
     globals: { operation: OperationKeys.DELETE, uid: 1 },
+  },
+};
+
+export const NonProjectable: Story = {
+  args: {
+    model,
+    globals: { operation: OperationKeys.READ },
+    projectable: false,
   },
 };

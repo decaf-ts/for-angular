@@ -10,10 +10,13 @@ import {
   graphWorkflowSnapshotOf,
   graphWorkflowSnapshotToJSON,
   PortDirection,
+  type GraphPortDefinition,
   type GraphWorkflowSnapshot,
 } from '@decaf-ts/ui-decorators/graph';
+import type { SwitchNodeMetadata, SwitchCase } from '@decaf-ts/integrations/graph';
 import { initializeModel, type ModelAdapter } from 'ng-diagram';
 import { GraphInputValueNode } from './nodes/boundary-nodes';
+import { graphNodeConfig, type GraphNodeConfig } from './execution/GraphNodeConfigStore';
 import type {
   GraphBoundaryNodeData,
   GraphCanvasNodeBlueprint,
@@ -52,9 +55,32 @@ function readNestedValue(values: Record<string, unknown>, path: string): unknown
 function cloneJson<T>(value: T): T {
   if (value === undefined) return value;
   if (typeof globalThis.structuredClone === 'function') {
-    return globalThis.structuredClone(value);
+    try {
+      return globalThis.structuredClone(value);
+    } catch {
+      // fall through to JSON clone for values containing functions
+    }
   }
   return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function cloneNodeArray<T>(value: T): T {
+  if (value === undefined) return value;
+  if (Array.isArray(value)) {
+    return value.map((entry) => cloneNodeArray(entry)) as T;
+  }
+  if (value && typeof value === 'object') {
+    const result: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+      if (typeof entry === 'function') {
+        result[key] = entry;
+      } else {
+        result[key] = cloneNodeArray(entry);
+      }
+    }
+    return result as T;
+  }
+  return value;
 }
 
 function toRecord(value: unknown): Record<string, unknown> {
@@ -127,7 +153,7 @@ function buildBoundaryNode(
     },
     size: {
       width: 240,
-      height: 130,
+      height: 96,
     },
     resizable: false,
     draggable: true,
@@ -149,7 +175,7 @@ function buildBoundaryNode(
   };
 }
 
-function buildMemberNode(
+export function buildMemberNode(
   ctor: unknown,
   index: number,
   fallbackId?: string,
@@ -160,6 +186,26 @@ function buildMemberNode(
   const nodeId = fallbackId || definition.name;
   const label = fallbackLabel || String(metadata['title'] ?? titleFromDefinition(definition.name));
 
+  const switchMeta = metadata['switch'] as SwitchNodeMetadata | undefined;
+  const hasSwitchCases = switchMeta && Array.isArray(switchMeta.cases) && switchMeta.cases.length > 0;
+
+  let ports: GraphPortDefinition[] = [...definition.ports];
+  let height = definition.height ?? 96;
+
+  if (hasSwitchCases && switchMeta) {
+    const caseOutputPorts: GraphPortDefinition[] = switchMeta.cases.map((c: SwitchCase) => ({
+      property: c.outputPort,
+      name: c.label,
+      direction: PortDirection.OUTPUT,
+      label: c.label,
+      required: false,
+      hidden: false,
+      path: c.outputPort,
+    }));
+    ports = [...ports, ...caseOutputPorts];
+    height = Math.max(height, 140 + switchMeta.cases.length * 24);
+  }
+
   return {
     id: nodeId,
     type: definition.kind,
@@ -168,8 +214,8 @@ function buildMemberNode(
       y: index % 2 === 0 ? 130 : 70,
     },
     size: {
-      width: definition.width ?? 300,
-      height: definition.height ?? 220,
+      width: definition.width ?? 96,
+      height,
     },
     resizable: false,
     draggable: true,
@@ -179,13 +225,14 @@ function buildMemberNode(
       description: String(metadata['description'] ?? ''),
       kind: definition.kind,
       category: definition.category,
-      color: definition.color,
-      icon: definition.icon,
+      color: definition.effectiveColor ?? definition.color,
+      icon: definition.effectiveIcon ?? definition.icon,
       labels: definition.labels,
-      ports: definition.ports,
+      ports,
       sourceClass: definition.name,
       modelClass: ctor as never,
       expanded: false,
+      switchMetadata: switchMeta,
     },
   };
 }
@@ -540,13 +587,31 @@ export function buildGraphRendererSnapshot<M extends Model>(
   duplicateInputs: Record<string, number> = {}
 ): GraphWorkflowSnapshot {
   const state = readModelState(diagram);
+  const nodeConfigs = graphNodeConfig.serialize();
+  const nodesWithConfigs = (state.nodes as Record<string, unknown>[]).map((node) => {
+    const nodeId = typeof node['id'] === 'string' ? node['id'] : undefined;
+    const config = nodeId ? nodeConfigs[nodeId] : undefined;
+    if (!config) return node;
+    const ports: Record<string, { mode?: 'port' | 'value'; value?: unknown }> = {};
+    for (const [property, mode] of Object.entries(config.portModes)) {
+      ports[property] = { mode };
+    }
+    for (const [property, value] of Object.entries(config.values)) {
+      ports[property] = { ...ports[property], value };
+    }
+    return {
+      ...node,
+      ports: { ...(typeof node['ports'] === 'object' && node['ports'] ? node['ports'] : {}), ...ports },
+    };
+  });
   return graphWorkflowSnapshotOf(model as never, {
     inputs: inputValues,
-    nodes: state.nodes as never[],
+    nodes: nodesWithConfigs as never[],
     edges: state.edges as never[],
     ui: {
       duplicateCounts: cloneJson(duplicateInputs),
       diagramMetadata: cloneJson(state.metadata),
+      nodeConfigs: cloneJson(nodeConfigs),
     },
     metadata: {
       serializedAt: new Date().toISOString(),
@@ -562,10 +627,11 @@ export function buildGraphRendererStateFromSnapshot<M extends Model>(
   const snapshotUi = toRecord(snapshot.state.ui);
   const duplicateCounts = toRecord(snapshotUi['duplicateCounts']);
   const diagramMetadata = toRecord(snapshotUi['diagramMetadata']);
+  const restoredNodeConfigs = toRecord(snapshotUi['nodeConfigs']) as Record<string, GraphNodeConfig>;
   const inputValues = graphWorkflowSnapshotInputValuesOf(snapshot);
   const diagram = initializeModel(
     {
-      nodes: cloneJson(snapshot.state.nodes) as never[],
+      nodes: cloneNodeArray(snapshot.state.nodes) as never[],
       edges: cloneJson(snapshot.state.edges) as never[],
       metadata: {
         ...diagramMetadata,
@@ -579,6 +645,10 @@ export function buildGraphRendererStateFromSnapshot<M extends Model>(
     },
     injector
   );
+
+  if (Object.keys(restoredNodeConfigs).length) {
+    graphNodeConfig.deserialize(restoredNodeConfigs);
+  }
 
   return {
     diagram,

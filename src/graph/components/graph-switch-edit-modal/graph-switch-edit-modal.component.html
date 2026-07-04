@@ -1,0 +1,61 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">Cancel</ion-button>
+    </ion-buttons>
+    <ion-title>{{ nodeTitle }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="save()" strong>Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="graph-switch-edit-modal__content">
+  <div class="graph-switch-edit-modal__body">
+    <section class="graph-switch-edit-modal__section">
+      <div class="graph-switch-edit-modal__section-header">
+        <h3>Conditions</h3>
+        <ion-button size="small" fill="clear" (click)="addCase()">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          Add
+        </ion-button>
+      </div>
+
+      @for (caseItem of cases(); track caseItem.id) {
+        <div class="graph-switch-edit-modal__case">
+          <button
+            type="button"
+            class="graph-switch-edit-modal__remove"
+            (click)="removeCase(caseItem.id)"
+            title="Remove condition"
+          >&times;</button>
+          <div class="graph-switch-edit-modal__case-main">
+            <div class="graph-switch-edit-modal__case-label-row">
+              <ion-input
+                class="graph-switch-edit-modal__case-label"
+                [value]="caseItem.label"
+                (ionInput)="onCaseLabelChange(caseItem.id, $event)"
+                placeholder="Label"
+              />
+              <span class="graph-switch-edit-modal__port-badge">{{ caseItem.outputPort }}</span>
+            </div>
+            <app-graph-condition-editor
+              [inputProperties]="inputProperties"
+              [condition]="caseItem.condition"
+              (conditionChange)="onConditionChange(caseItem.id, $event)"
+            />
+          </div>
+        </div>
+      }
+
+      @if (!cases().length) {
+        <p class="graph-switch-edit-modal__empty">No conditions. Click "Add" to create one.</p>
+      }
+    </section>
+
+    <section class="graph-switch-edit-modal__default-section">
+      <span class="graph-switch-edit-modal__port-badge graph-switch-edit-modal__port-badge--default">{{ defaultPort() }}</span>
+      <span class="graph-switch-edit-modal__default-label">fallback when no condition matches</span>
+    </section>
+  </div>
+</ion-content>
