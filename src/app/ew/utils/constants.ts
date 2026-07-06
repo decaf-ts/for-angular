@@ -35,6 +35,11 @@ export const AppMenu: IAppMenuItem[] = [
     icon: 'ti-graph',
     url: 'graph',
   },
+  {
+    label: 'Model Builder',
+    icon: 'ti-widgetized',
+    url: 'model-builder',
+  },
   // {
   //   label: 'sytem',
   //   url: undefined,

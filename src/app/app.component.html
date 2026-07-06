@@ -34,10 +34,10 @@
                   title="{{ item.label | translate }}"
                   [class.dcf-separator]="!item.url"
                   [class.dcf-active-item]="item?.activeWhen ? isMenuActive(item) : false"
-                  [button]="true"
+                  [button]="!!item.url"
                   [detail]="false"
                   [routerDirection]="'forward'"
-                  [routerLink]="[item.url]"
+                  [routerLink]="item.url ? [item.url] : null"
                   lines="none"
                   routerLinkActive="dcf-active"
                 >

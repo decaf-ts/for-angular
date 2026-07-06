@@ -252,7 +252,7 @@ function mergeNodeRuntimeState<
     ...previous,
     ...next,
     position: (previous.position as Record<string, unknown> | undefined) ?? next.position,
-    size: (previous.size as Record<string, unknown> | undefined) ?? next.size,
+    size: next.size,
     data: {
       ...(previous.data || {}),
       ...(next.data || {}),

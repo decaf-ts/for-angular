@@ -18,6 +18,12 @@
   padding: 0 !important;
 }
 
+/* Force the article to maintain its defined size regardless of wrapper */
+.ng-diagram-node-wrapper.node article.graph-node {
+  width: var(--node-size, 96px) !important;
+  min-width: var(--node-size, 96px) !important;
+}
+
 .graph-renderer__side,
 .graph-renderer__canvas {
   padding: 0;
