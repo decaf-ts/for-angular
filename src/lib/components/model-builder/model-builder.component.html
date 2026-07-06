@@ -1,0 +1,431 @@
+<div class="model-builder" [class.model-builder--with-preview]="preview">
+  <!-- Builder Panel -->
+  <div class="model-builder__panel">
+    <div class="model-builder__header">
+      <h2 class="model-builder__title">Model Builder</h2>
+      <div class="model-builder__actions">
+        <ion-button size="small" fill="clear" (click)="loadExample()">
+          <ion-icon slot="icon-only" name="bulb-outline"></ion-icon>
+          Example
+        </ion-button>
+        <ion-button size="small" fill="clear" color="danger" (click)="reset()" [disabled]="!hasProperties() && !modelConfig().name">
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          Reset
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Model Settings -->
+    <ion-accordion-group [value]="'model-settings'">
+      <ion-accordion value="model-settings">
+        <ion-item slot="header">
+          <ion-label>Model Settings</ion-label>
+        </ion-item>
+        <div slot="content" class="model-builder__section-content">
+          <div class="model-builder__grid-2">
+            <ion-item>
+              <ion-label position="stacked">Model Name *</ion-label>
+              <ion-input
+                [ngModel]="modelConfig().name"
+                (ngModelChange)="modelConfig.set({ ...modelConfig(), name: $event })"
+                placeholder="e.g. User, Product, Order..."
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Description</ion-label>
+              <ion-input
+                [ngModel]="modelConfig().description"
+                (ngModelChange)="modelConfig.set({ ...modelConfig(), description: $event })"
+                placeholder="Optional model description"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Render Component (uimodel tag)</ion-label>
+              <ion-input
+                [ngModel]="modelConfig().renderTag"
+                (ngModelChange)="modelConfig.set({ ...modelConfig(), renderTag: $event })"
+                placeholder="ngx-decaf-crud-form"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">List Model Tag (uilistmodel)</ion-label>
+              <ion-input
+                [ngModel]="modelConfig().listModelTag"
+                (ngModelChange)="modelConfig.set({ ...modelConfig(), listModelTag: $event })"
+                placeholder="e.g. ngx-decaf-list-item (optional)"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Layout Columns</ion-label>
+              <ion-input
+                type="number"
+                [ngModel]="modelConfig().layoutCols"
+                (ngModelChange)="modelConfig.set({ ...modelConfig(), layoutCols: +$event || 1 })"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Layout Rows</ion-label>
+              <ion-input
+                type="number"
+                [ngModel]="modelConfig().layoutRows"
+                (ngModelChange)="modelConfig.set({ ...modelConfig(), layoutRows: +$event || 1 })"
+              ></ion-input>
+            </ion-item>
+          </div>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+
+    <!-- Properties -->
+    <div class="model-builder__section">
+      <div class="model-builder__section-header">
+        <h3 class="model-builder__subtitle">Properties</h3>
+        <ion-button size="small" (click)="addProperty()" [disabled]="properties().length >= 30">
+          <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+          Add Property
+        </ion-button>
+      </div>
+
+      @if (!hasProperties()) {
+        <div class="model-builder__empty">
+          <ion-icon name="cube-outline"></ion-icon>
+          <p>No properties yet. Click "Add Property" to start defining your model.</p>
+        </div>
+      } @else {
+        <div class="model-builder__properties">
+          @for (prop of properties(); track $index; let i = $index) {
+            <div class="model-builder__property" [class.model-builder__property--expanded]="prop.expanded">
+              <!-- Property Header (always visible) -->
+              <div class="model-builder__property-header">
+                <span class="model-builder__property-index">{{ i + 1 }}</span>
+                <button class="model-builder__property-toggle" (click)="toggleExpanded(i)">
+                  <ion-icon [name]="prop.expanded ? 'chevron-down-outline' : 'chevron-forward-outline'"></ion-icon>
+                </button>
+                <span class="model-builder__property-name">{{ prop.name || '(unnamed)' }}</span>
+                <span class="model-builder__property-type">{{ prop.type }}</span>
+                <span class="model-builder__property-component">{{ prop.ui.tag === 'custom' ? prop.ui.customTag : prop.ui.tag }}</span>
+                <div class="model-builder__property-actions">
+                  <ion-button size="small" fill="clear" (click)="moveProperty(i, -1)" [disabled]="i === 0">
+                    <ion-icon slot="icon-only" name="arrow-up-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button size="small" fill="clear" (click)="moveProperty(i, 1)" [disabled]="i === properties().length - 1">
+                    <ion-icon slot="icon-only" name="arrow-down-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button size="small" fill="clear" color="danger" (click)="removeProperty(i)">
+                    <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+
+              <!-- Basic fields (always visible) -->
+              <div class="model-builder__property-basic">
+                <ion-item>
+                  <ion-label position="stacked">Name</ion-label>
+                  <ion-input
+                    [ngModel]="prop.name"
+                    (ngModelChange)="onPropertyNameChange(i, $event)"
+                    placeholder="property name"
+                  ></ion-input>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label position="stacked">Data Type</ion-label>
+                  <ion-select
+                    [ngModel]="prop.type"
+                    (ngModelChange)="properties()[i].type = $event; properties.set([...properties()])"
+                    interface="popover"
+                  >
+                    <ion-select-option value="string">String</ion-select-option>
+                    <ion-select-option value="number">Number</ion-select-option>
+                    <ion-select-option value="date">Date</ion-select-option>
+                    <ion-select-option value="boolean">Boolean</ion-select-option>
+                  </ion-select>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label position="stacked">Component (uielement tag)</ion-label>
+                  <ion-select
+                    [ngModel]="prop.ui.tag"
+                    (ngModelChange)="properties()[i].ui.tag = $event; properties.set([...properties()])"
+                    interface="popover"
+                  >
+                    @for (tag of componentTags; track tag.value) {
+                      <ion-select-option [value]="tag.value">{{ tag.label }}</ion-select-option>
+                    }
+                  </ion-select>
+                </ion-item>
+              </div>
+
+              <!-- Advanced fields (collapsible) -->
+              @if (prop.expanded) {
+                <div class="model-builder__property-advanced">
+                  <!-- UI Element Configuration -->
+                  <div class="model-builder__group">
+                    <h4 class="model-builder__group-title">UI Element</h4>
+                    <div class="model-builder__grid-3">
+                      @if (prop.ui.tag === 'custom') {
+                        <ion-item>
+                          <ion-label position="stacked">Custom Tag</ion-label>
+                          <ion-input
+                            [ngModel]="prop.ui.customTag"
+                            (ngModelChange)="properties()[i].ui.customTag = $event; properties.set([...properties()])"
+                            placeholder="my-custom-component"
+                          ></ion-input>
+                        </ion-item>
+                      }
+
+                      <ion-item>
+                        <ion-label position="stacked">Label</ion-label>
+                        <ion-input
+                          [ngModel]="prop.ui.label"
+                          (ngModelChange)="properties()[i].ui.label = $event; properties.set([...properties()])"
+                          placeholder="Display label"
+                        ></ion-input>
+                      </ion-item>
+
+                      <ion-item>
+                        <ion-label position="stacked">Placeholder</ion-label>
+                        <ion-input
+                          [ngModel]="prop.ui.placeholder"
+                          (ngModelChange)="properties()[i].ui.placeholder = $event; properties.set([...properties()])"
+                          placeholder="Enter value..."
+                        ></ion-input>
+                      </ion-item>
+
+                      <ion-item>
+                        <ion-label position="stacked">Input Type</ion-label>
+                        <ion-select
+                          [ngModel]="prop.ui.type"
+                          (ngModelChange)="properties()[i].ui.type = $event; properties.set([...properties()])"
+                          interface="popover"
+                        >
+                          @for (t of inputTypes; track t) {
+                            <ion-select-option [value]="t">{{ t }}</ion-select-option>
+                          }
+                        </ion-select>
+                      </ion-item>
+
+                      <ion-item lines="none" class="model-builder__checkbox-item">
+                        <ion-checkbox
+                          [ngModel]="prop.ui.readonly"
+                          (ngModelChange)="properties()[i].ui.readonly = $event; properties.set([...properties()])"
+                        ></ion-checkbox>
+                        <ion-label class="model-builder__checkbox-label">Readonly</ion-label>
+                      </ion-item>
+
+                      <ion-item lines="none" class="model-builder__checkbox-item">
+                        <ion-checkbox
+                          [ngModel]="prop.ui.translatable"
+                          (ngModelChange)="properties()[i].ui.translatable = $event; properties.set([...properties()])"
+                        ></ion-checkbox>
+                        <ion-label class="model-builder__checkbox-label">Translatable</ion-label>
+                      </ion-item>
+                    </div>
+
+                    @if (prop.ui.type === 'select' || prop.ui.type === 'radio') {
+                      <ion-item>
+                        <ion-label position="stacked">Options (value:label, value:label, ...)</ion-label>
+                        <ion-textarea
+                          [ngModel]="prop.ui.options"
+                          (ngModelChange)="properties()[i].ui.options = $event; properties.set([...properties()])"
+                          placeholder="admin:Administrator, user:Regular User"
+                          [rows]="2"
+                        ></ion-textarea>
+                      </ion-item>
+                    }
+                  </div>
+
+                  <!-- Layout Configuration -->
+                  <div class="model-builder__group">
+                    <h4 class="model-builder__group-title">Layout</h4>
+                    <div class="model-builder__grid-3">
+                      <ion-item>
+                        <ion-label position="stacked">Column Span (uilayoutprop)</ion-label>
+                        <ion-select
+                          [ngModel]="prop.layout.col"
+                          (ngModelChange)="properties()[i].layout.col = $event; properties.set([...properties()])"
+                          interface="popover"
+                        >
+                          <ion-select-option [value]="1">1 (default)</ion-select-option>
+                          <ion-select-option [value]="2">2</ion-select-option>
+                          <ion-select-option value="half">half</ion-select-option>
+                          <ion-select-option value="full">full</ion-select-option>
+                        </ion-select>
+                      </ion-item>
+
+                      <ion-item>
+                        <ion-label position="stacked">Row</ion-label>
+                        <ion-input
+                          type="number"
+                          [ngModel]="prop.layout.row"
+                          (ngModelChange)="properties()[i].layout.row = +$event || 1; properties.set([...properties()])"
+                        ></ion-input>
+                      </ion-item>
+
+                      <ion-item>
+                        <ion-label position="stacked">Order (uiorder)</ion-label>
+                        <ion-select
+                          [ngModel]="prop.layout.order"
+                          (ngModelChange)="properties()[i].layout.order = $event; properties.set([...properties()])"
+                          interface="popover"
+                        >
+                          <ion-select-option value="">None (default)</ion-select-option>
+                          <ion-select-option value="first">first</ion-select-option>
+                          <ion-select-option value="last">last</ion-select-option>
+                        </ion-select>
+                      </ion-item>
+
+                      @if (prop.layout.order === '') {
+                        <ion-item>
+                          <ion-label position="stacked">Custom Order Number</ion-label>
+                          <ion-input
+                            type="number"
+                            [ngModel]="prop.layout.orderNum"
+                            (ngModelChange)="properties()[i].layout.orderNum = $event ? +$event : null; properties.set([...properties()])"
+                            placeholder="e.g. 10"
+                          ></ion-input>
+                        </ion-item>
+                      }
+                    </div>
+
+                    <div class="model-builder__group-sub">
+                      <span class="model-builder__group-label">Hide On (hideOn):</span>
+                      <div class="model-builder__checkbox-row">
+                        @for (op of hideOnOps; track op) {
+                          <ion-item lines="none" class="model-builder__checkbox-item">
+                            <ion-checkbox
+                              [checked]="prop.layout.hideOn.includes(op)"
+                              (ionChange)="toggleHideOn(i, op)"
+                            ></ion-checkbox>
+                            <ion-label class="model-builder__checkbox-label">{{ op }}</ion-label>
+                          </ion-item>
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Validators -->
+                  <div class="model-builder__group">
+                    <h4 class="model-builder__group-title">Validators</h4>
+                    <div class="model-builder__checkbox-row">
+                      <ion-item lines="none" class="model-builder__checkbox-item">
+                        <ion-checkbox
+                          [ngModel]="prop.validators.required"
+                          (ngModelChange)="properties()[i].validators.required = $event; properties.set([...properties()])"
+                        ></ion-checkbox>
+                        <ion-label class="model-builder__checkbox-label">Required</ion-label>
+                      </ion-item>
+
+                      @if (prop.type === 'string') {
+                        <ion-item lines="none" class="model-builder__checkbox-item">
+                          <ion-checkbox
+                            [ngModel]="prop.validators.email"
+                            (ngModelChange)="properties()[i].validators.email = $event; properties.set([...properties()])"
+                          ></ion-checkbox>
+                          <ion-label class="model-builder__checkbox-label">Email</ion-label>
+                        </ion-item>
+
+                        <ion-item lines="none" class="model-builder__checkbox-item">
+                          <ion-checkbox
+                            [ngModel]="prop.validators.url"
+                            (ngModelChange)="properties()[i].validators.url = $event; properties.set([...properties()])"
+                          ></ion-checkbox>
+                          <ion-label class="model-builder__checkbox-label">URL</ion-label>
+                        </ion-item>
+                      }
+                    </div>
+
+                    <div class="model-builder__grid-4">
+                      @if (prop.type === 'number') {
+                        <ion-item>
+                          <ion-label position="stacked">Min</ion-label>
+                          <ion-input type="number" [ngModel]="prop.validators.min" (ngModelChange)="properties()[i].validators.min = $event ? +$event : null; properties.set([...properties()])"></ion-input>
+                        </ion-item>
+                        <ion-item>
+                          <ion-label position="stacked">Max</ion-label>
+                          <ion-input type="number" [ngModel]="prop.validators.max" (ngModelChange)="properties()[i].validators.max = $event ? +$event : null; properties.set([...properties()])"></ion-input>
+                        </ion-item>
+                      }
+
+                      @if (prop.type === 'string') {
+                        <ion-item>
+                          <ion-label position="stacked">Min Length</ion-label>
+                          <ion-input type="number" [ngModel]="prop.validators.minlength" (ngModelChange)="properties()[i].validators.minlength = $event ? +$event : null; properties.set([...properties()])"></ion-input>
+                        </ion-item>
+                        <ion-item>
+                          <ion-label position="stacked">Max Length</ion-label>
+                          <ion-input type="number" [ngModel]="prop.validators.maxlength" (ngModelChange)="properties()[i].validators.maxlength = $event ? +$event : null; properties.set([...properties()])"></ion-input>
+                        </ion-item>
+                        <ion-item class="model-builder__item-wide">
+                          <ion-label position="stacked">Pattern (regex)</ion-label>
+                          <ion-input [ngModel]="prop.validators.pattern" (ngModelChange)="properties()[i].validators.pattern = $event; properties.set([...properties()])" placeholder="^[A-Z].*"></ion-input>
+                        </ion-item>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Build Button -->
+    <div class="model-builder__footer">
+      <ion-button
+        expand="block"
+        (click)="buildModel()"
+        [disabled]="!canBuild()"
+      >
+        <ion-icon slot="start" name="build-outline"></ion-icon>
+        Build Model
+      </ion-button>
+
+      @if (buildError()) {
+        <div class="model-builder__error">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <span>{{ buildError() }}</span>
+        </div>
+      }
+
+      @if (buildInfo() && !buildError()) {
+        <div class="model-builder__success">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>{{ buildInfo() }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Preview Panel -->
+  @if (preview) {
+    <div class="model-builder__preview">
+      <div class="model-builder__preview-header">
+        <h2 class="model-builder__title">Live Preview</h2>
+        @if (builtModel()) {
+          <span class="model-builder__preview-model-name">{{ builtModel()!.constructor.name }}</span>
+        }
+      </div>
+
+      <div class="model-builder__preview-body">
+        @if (builtModel()) {
+          <ngx-decaf-model-renderer
+            [model]="builtModel()"
+            [globals]="{ operation: 'create' }"
+          ></ngx-decaf-model-renderer>
+        } @else {
+          <div class="model-builder__empty">
+            <ion-icon name="eye-outline"></ion-icon>
+            <p>Build a model to see the live preview here.</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

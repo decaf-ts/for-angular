@@ -17,6 +17,7 @@ import {
   uilayoutprop,
   uilistmodel,
   uilistprop,
+  uimodel,
   uionrender,
 } from '@decaf-ts/ui-decorators';
 import { Cacheable } from './Cacheable';
@@ -27,6 +28,7 @@ import { audit } from './utils';
 // @BlockOperations([OperationKeys.DELETE])
 //@uses(FabricFlavour)
 
+@uimodel('ngx-decaf-crud-form', { empty: { showButton: false } })
 @uilistmodel('app-product-item', { icon: 'ti-package' })
 @uilayout('ngx-decaf-crud-form', true, 1, { empty: { showButton: false } })
 @model()

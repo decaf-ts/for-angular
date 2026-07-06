@@ -19,6 +19,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage)
   },
   {
+    path: 'model-builder',
+    loadComponent: () => import('./pages/model-builder/model-builder.page').then(m => m.ModelBuilderPage)
+  },
+  {
     path: 'fieldset',
     loadComponent: () => import('./pages/fieldset/fieldset.page').then( m => m.FieldsetPage)
   },

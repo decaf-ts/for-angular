@@ -6,6 +6,7 @@ import {
   uihandlers,
   uilayout,
   uilayoutprop,
+  uimodel,
   UIMediaBreakPoints
 } from '@decaf-ts/ui-decorators';
 import { LayoutComponent } from 'src/lib/components';
@@ -13,6 +14,7 @@ import { Product } from '../fabric';
 import { ProductHandler } from '../fabric/handlers/ProductHandler';
 import { EpiLayout } from './EpiLayout';
 
+@uimodel('ngx-decaf-crud-form', {})
 @uilayout('ngx-decaf-crud-form', true, 1, {
   borders: true,
   breakpoint: UIMediaBreakPoints.XLARGE,

@@ -1,0 +1,23 @@
+.model-builder-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+
+  &__header {
+    margin-bottom: 1.5rem;
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      color: var(--ion-color-dark, #222428);
+    }
+
+    p {
+      margin: 0;
+      color: var(--ion-color-medium, #92949c);
+      font-size: 0.9375rem;
+      max-width: 600px;
+    }
+  }
+}

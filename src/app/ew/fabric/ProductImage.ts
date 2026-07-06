@@ -5,13 +5,14 @@ import { model, type ModelArg, required } from '@decaf-ts/decorator-validation';
 // import { gtin } from "@pharmaledgerassoc/ptp-toolkit/shared";
 import { Cacheable } from './Cacheable';
 import { TableNames } from './constants';
-import { uilayout } from '@decaf-ts/ui-decorators';
+import { uilayout, uimodel } from '@decaf-ts/ui-decorators';
 // import { cache } from "@pharmaledgerassoc/ptp-toolkit/shared";
 
 @description('Links a product to a specific market.')
 //@uses(FabricFlavour)
 @table(TableNames.ProductImage)
 @uilayout('ngx-decaf-crud-form', true, 1, { empty: { showButton: false } })
+@uimodel('ngx-decaf-crud-form', { empty: { showButton: false } })
 @model()
 export class ProductImage extends Cacheable {
   //@gtin()

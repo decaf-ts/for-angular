@@ -24,6 +24,7 @@ export * from './list-item/list-item.component';
 export * from './list/list.component';
 export * from './modal';
 export * from './model-renderer/model-renderer.component';
+export * from './model-builder/model-builder.component';
 export * from './pagination/pagination.component';
 export * from './searchbar/searchbar.component';
 export * from './stepped-form/stepped-form.component';
