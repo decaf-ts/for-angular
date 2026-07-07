@@ -102,21 +102,6 @@ export default tseslint.config(
     ignores: ['!**/types.ts', '!**/types/*'],
   },
 
-  // Temporary override: in-browser demo executor files still import the
-  // execution engine directly. Removed in TASK-232 when these are quarantined
-  // or migrated to an SSE backend.
-  {
-    files: [
-      'src/graph/execution/graph-demo-executors.ts',
-      'src/graph/execution/GraphExecutionService.ts',
-      'src/graph/execution/GraphExecutionEventSubjectObserver.ts',
-      'src/graph/execution/GraphExecutionStateMapper.ts',
-    ],
-    rules: {
-      'no-restricted-imports': 'off',
-    },
-  },
-
   {
     files: ['**/*.html'],
     extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],

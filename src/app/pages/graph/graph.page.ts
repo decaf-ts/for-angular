@@ -4,8 +4,6 @@ import { GraphRendererComponent } from 'src/graph';
 import {
   GraphExecutionService,
   GraphExecutionStateMapper,
-  GRAPH_EXECUTION_ENGINE_CONFIG,
-  createDemoEngineConfig,
 } from 'src/graph';
 import { graphExecutionState } from 'src/graph';
 import { graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
@@ -22,10 +20,6 @@ import { GRAPH_DEMO_NODES } from './example-nodes';
   ],
   providers: [
     GraphExecutionService,
-    {
-      provide: GRAPH_EXECUTION_ENGINE_CONFIG,
-      useFactory: () => createDemoEngineConfig(),
-    },
   ],
   templateUrl: './graph.page.html',
   styleUrl: './graph.page.scss',

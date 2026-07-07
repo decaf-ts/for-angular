@@ -3,7 +3,7 @@
  * @summary Maps graph execution events to Angular UI state updates.
  * @description Translates GraphExecutionEvent instances into updates for GraphNodeUiExecutionState and GraphEdgeUiExecutionState maps.
  */
-import type { GraphExecutionEvent } from "@decaf-ts/integrations/graph";
+import type { GraphExecutionEvent } from "@decaf-ts/integrations/graph/shared";
 
 import type {
   GraphEdgeExecutionStateMap,
