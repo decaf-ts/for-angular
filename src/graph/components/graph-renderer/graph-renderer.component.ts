@@ -1,18 +1,21 @@
 import {
   Component,
-  Injector,
-  ViewEncapsulation,
   computed,
   effect,
   inject,
+  Injector,
   input,
   runInInjectionContext,
   signal,
   untracked,
+  ViewEncapsulation,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, type AbstractControl, type FormGroup } from '@angular/forms';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import { graphDefinitionOf, graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
+import { IonSpinner } from '@ionic/angular/standalone';
 import {
   NgDiagramBackgroundComponent,
   NgDiagramComponent,
@@ -20,9 +23,8 @@ import {
   NgDiagramNodeTemplateMap,
   provideNgDiagram,
 } from 'ng-diagram';
-import { graphDefinitionOf, graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
-import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
-import { IonSpinner } from '@ionic/angular/standalone';
+import { graphSelection } from '../../execution/GraphSelectionStore';
+import { GraphRendererViewModel } from '../../types';
 import {
   buildGraphRendererModel,
   buildGraphRendererSnapshot,
@@ -32,8 +34,6 @@ import {
   parseGraphRendererSnapshot,
   stringifyGraphRendererSnapshot,
 } from '../../utils';
-import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-template.component';
-import { GraphBoundaryNodeTemplateComponent } from '../boundary-node-template/boundary-node-template.component';
 import {
   buildWorkflowInputFields,
   buildWorkflowInputForm,
@@ -41,13 +41,23 @@ import {
   normalizeWorkflowInputValues,
   WorkflowInputFieldDefinition,
 } from '../../workflow-inputs';
-import { GraphRendererViewModel } from '../../types';
-import { graphSelection } from '../../execution/GraphSelectionStore';
+import { GraphBoundaryNodeTemplateComponent } from '../boundary-node-template/boundary-node-template.component';
+import { GraphHeaderbarComponent } from '../graph-headerbar/graph-headerbar.component';
+import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-template.component';
+import { GraphSidebarComponent } from '../graph-sidebar/graph-sidebar.component';
 
 @Component({
   selector: 'app-graph-renderer',
   standalone: true,
-  imports: [ReactiveFormsModule, NgDiagramComponent, NgDiagramBackgroundComponent, NgDiagramMinimapComponent, IonSpinner],
+  imports: [
+    ReactiveFormsModule,
+    NgDiagramComponent,
+    NgDiagramBackgroundComponent,
+    NgDiagramMinimapComponent,
+    IonSpinner,
+    GraphSidebarComponent,
+    GraphHeaderbarComponent,
+  ],
   providers: [provideNgDiagram()],
   templateUrl: './graph-renderer.component.html',
   styleUrl: './graph-renderer.component.scss',
@@ -61,6 +71,8 @@ export class GraphRendererComponent {
   private readonly snapshotJson = signal('');
   readonly workflowInputForm = signal<FormGroup>(this.formBuilder.group({}));
   readonly model = signal<ReturnType<typeof buildGraphRendererModel> | null>(null);
+  readonly sidebarCollapsed = signal(true);
+  readonly sidebarWidth = computed(() => (this.sidebarCollapsed() ? '42px' : '240px'));
   private skipNextModelSync = false;
 
   readonly graphRoot = input.required<unknown>();
@@ -261,6 +273,12 @@ export class GraphRendererComponent {
 
   inputLabel(property: string) {
     return this.workflowInputFields().find((field) => field.path === property)?.label || property;
+  }
+
+  ariaDescribedBy(field: WorkflowInputFieldDefinition): string {
+    const meta = `graph-renderer-meta-${field.controlName}`;
+    const errors = this.fieldErrors(field).length ? ` graph-renderer-errors-${field.controlName}` : '';
+    return `${meta}${errors}`.trim();
   }
 
   displayValue(value: unknown) {

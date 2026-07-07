@@ -1,0 +1,260 @@
+<header class="dcf-header">
+  <div class="dcf-header-identity cmx-header-left">
+    <div class="dcf-breadcrumbs">
+      <a
+        class="dcf-project-chip"
+        href="javascript:void(0)"
+      >
+        <span class="dcf-project-chip-icon">
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+            <circle
+              cx="12"
+              cy="7"
+              r="4"
+            />
+          </svg>
+        </span>
+        <span>{{ projectName() }}</span>
+      </a>
+
+      <span class="dcf-breadcrumbs-separator">/</span>
+
+      @if (editingName()) {
+        <input
+          class="dcf-workflow-name-input"
+          type="text"
+          [value]="draftWorkflowName()"
+          (input)="draftWorkflowName.set($any($event.target).value)"
+          (blur)="saveWorkflowName()"
+          (keydown.enter)="saveWorkflowName()"
+          (keydown.escape)="cancelEditingName()"
+          aria-label="Workflow name"
+        />
+      } @else {
+        <button
+          type="button"
+          class="dcf-workflow-name"
+          (click)="startEditingName()"
+        >
+          {{ draftWorkflowName() || workflowName() }}
+        </button>
+      }
+    </div>
+
+    <div class="dcf-tags">
+      @for (tag of tags(); track trackTag($index, tag)) {
+        <span class="dcf-tag-pill">
+          {{ tag }}
+          <button
+            type="button"
+            class="dcf-tag-pill-remove"
+            (click)="removeTag(tag)"
+            aria-label="Remove tag"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </span>
+      }
+
+      @if (addingTag()) {
+        <div class="dcf-tag-editor">
+          <input
+            class="dcf-tag-editor-input"
+            type="text"
+            [value]="draftTag()"
+            (input)="draftTag.set($any($event.target).value)"
+            (keydown.enter)="addTag()"
+            (keydown.escape)="cancelTag()"
+            placeholder="Tag name"
+            aria-label="Tag name"
+          />
+          <button
+            type="button"
+            class="dcf-tag-editor-save"
+            (click)="addTag()"
+          >
+            Add
+          </button>
+        </div>
+      } @else {
+        <button
+          type="button"
+          class="dcf-add-tag"
+          (click)="openTagInput()"
+        >
+          + Add tag
+        </button>
+      }
+    </div>
+  </div>
+  <div class="cmx-header-center">
+    <div class="dcf-header-tabs">
+      <div>
+        <button
+          type="button"
+          class="dcf-tab"
+          [class.dcf-tab-active]="activeTab() === 'editor'"
+          (click)="setActiveTab('editor')"
+        >
+          Editor
+        </button>
+        <button
+          type="button"
+          class="dcf-tab"
+          [class.dcf-tab-active]="activeTab() === 'executions'"
+          (click)="setActiveTab('executions')"
+        >
+          Executions
+        </button>
+        <button
+          type="button"
+          class="dcf-tab"
+          [class.dcf-tab-active]="activeTab() === 'evaluations'"
+          (click)="setActiveTab('evaluations')"
+        >
+          Evaluations
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="dcf-header-actions cmx-header-right">
+    <div class="dcf-publish-group">
+      <button
+        type="button"
+        class="dcf-btn dcf-btn-primary dcf-btn-disabled"
+        disabled
+      >
+        Publish
+      </button>
+      <button
+        type="button"
+        class="dcf-btn dcf-btn-icon dcf-btn-disabled"
+        disabled
+        aria-label="Publish options"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+    </div>
+
+    <button
+      type="button"
+      class="dcf-btn dcf-btn-ghost dcf-btn-disabled"
+      disabled
+      aria-label="Version history"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+        <path d="M3 3v5h5" />
+        <path d="M12 7v5l4 2" />
+      </svg>
+    </button>
+
+    <div class="dcf-actions-menu">
+      <button
+        type="button"
+        class="dcf-btn dcf-btn-ghost"
+        (click)="toggleActionsMenu()"
+        aria-label="Workflow actions"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle
+            cx="5"
+            cy="12"
+            r="1"
+          />
+          <circle
+            cx="12"
+            cy="12"
+            r="1"
+          />
+          <circle
+            cx="19"
+            cy="12"
+            r="1"
+          />
+        </svg>
+      </button>
+
+      @if (actionsOpen()) {
+        <div class="dcf-actions-dropdown">
+          @for (action of actions; track trackAction($index, action)) {
+            <button
+              type="button"
+              class="dcf-actions-dropdown-item"
+              (click)="runAction(action.id)"
+            >
+              <span class="dcf-actions-dropdown-icon">
+                @switch (action.icon) {
+                  @case ('copy') {
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <rect
+                        x="9"
+                        y="9"
+                        width="13"
+                        height="13"
+                        rx="2"
+                      />
+                      <path
+                        d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                      />
+                    </svg>
+                  }
+                  @case ('download') {
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 3v12" />
+                      <path d="m7 10 5 5 5-5" />
+                      <path d="M5 21h14" />
+                    </svg>
+                  }
+                  @default {
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="3"
+                      />
+                      <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                      />
+                    </svg>
+                  }
+                }
+              </span>
+              <span>{{ action.label }}</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</header>

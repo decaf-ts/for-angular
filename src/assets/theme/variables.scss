@@ -1,0 +1,586 @@
+@use "sass:list";
+
+/**
+ * CMXWK Design System v2.0.3
+ * Base tokens, typography, mixins and global utilities.
+ * Prefix rule:
+ * - Classes: .dcf-*
+ * - SCSS variables: $dcf-*
+ */
+
+/* ==========================================================================
+   Brand / Semantic Colors
+   ========================================================================== */
+
+$dcf-color-primary: #5b2ecc;
+$dcf-color-primary-shade: #4c25b8;
+$dcf-color-primary-tint: #f0eaff;
+$dcf-color-primary-rgb: 91, 46, 204;
+
+$dcf-color-secondary: #2563eb;
+$dcf-color-secondary-shade: #1d4ed8;
+$dcf-color-secondary-tint: #dbeafe;
+$dcf-color-secondary-rgb: 37, 99, 235;
+
+$dcf-color-tertiary: #0891b2;
+$dcf-color-tertiary-shade: #0e7490;
+$dcf-color-tertiary-tint: #cffafe;
+$dcf-color-tertiary-rgb: 8, 145, 178;
+
+$dcf-color-success: #00bfa5;
+$dcf-color-success-shade: #009e89;
+$dcf-color-success-tint: #d9f8f3;
+$dcf-color-success-rgb: 0, 191, 165;
+
+$dcf-color-warning: #ffa420;
+$dcf-color-warning-shade: #e28600;
+$dcf-color-warning-tint: #fff1d6;
+$dcf-color-warning-rgb: 255, 164, 32;
+
+$dcf-color-danger: #eb445a;
+$dcf-color-danger-shade: #d63349;
+$dcf-color-danger-tint: #ffe0e5;
+$dcf-color-danger-rgb: 235, 68, 90;
+
+$dcf-color-info: #2563eb;
+$dcf-color-info-shade: #1d4ed8;
+$dcf-color-info-tint: #dbeafe;
+$dcf-color-info-rgb: 37, 99, 235;
+
+$dcf-color-neutral: #667085;
+$dcf-color-neutral-shade: #4d586a;
+$dcf-color-neutral-tint: #f2f4f7;
+$dcf-color-neutral-rgb: 102, 112, 133;
+
+/* ==========================================================================
+   Surfaces / Borders / Text
+   ========================================================================== */
+
+$dcf-color-background: #f8f8fc;
+$dcf-color-surface: #ffffff;
+$dcf-color-surface-rgb: 255, 255, 255;
+$dcf-color-surface-subtle: #fcfcfd;
+$dcf-color-surface-soft: #fbfaff;
+$dcf-color-surface-shade: #f2f4f7;
+$dcf-color-surface-inverse: #0b0d16;
+
+$dcf-color-border: #e8eaf2;
+$dcf-color-border-rgb: 232, 234, 242;
+$dcf-color-outline: #d9ddea;
+$dcf-color-outline-shade: #a7afc4;
+$dcf-color-outline-rgb: 217, 221, 234;
+
+$dcf-color-text-primary: #151827;
+$dcf-color-text-primary-rgb: 21, 24, 39;
+$dcf-color-text-secondary: #667085;
+$dcf-color-text-tertiary: #8a91a3;
+$dcf-color-text-disabled: #a7afc4;
+$dcf-color-text-inverse: #ffffff;
+
+/* ==========================================================================
+   Layout Tokens
+   ========================================================================== */
+
+$dcf-sidebar-width: 250px;
+$dcf-sidebar-width-min: 220px;
+$dcf-sidebar-collapsed-width: 64px;
+$dcf-navbar-height: 56px;
+
+$dcf-page-padding-x: 40px;
+$dcf-page-padding-y: 32px;
+
+$dcf-media-xs: 480px;
+$dcf-media-sm: 640px;
+$dcf-media-md: 960px;
+$dcf-media-lg: 1024px;
+$dcf-media-xl: 1200px;
+$dcf-media-2xl: 1536px;
+
+/* ==========================================================================
+   Typography Tokens
+   ========================================================================== */
+
+$dcf-font-family-base: Inter, Roboto, Arial, sans-serif;
+$dcf-font-family-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+$dcf-font-weight-regular: 400;
+$dcf-font-weight-medium: 500;
+$dcf-font-weight-semibold: 600;
+$dcf-font-weight-bold: 700;
+$dcf-font-weight-extrabold: 800;
+
+$dcf-font-size-display: 57px;
+$dcf-line-height-display: 64px;
+
+$dcf-font-size-h1: 32px;
+$dcf-line-height-h1: 40px;
+
+$dcf-font-size-h2: 24px;
+$dcf-line-height-h2: 32px;
+
+$dcf-font-size-h3: 20px;
+$dcf-line-height-h3: 28px;
+
+$dcf-font-size-h4: 16px;
+$dcf-line-height-h4: 24px;
+
+$dcf-font-size-h5: 14px;
+$dcf-line-height-h5: 20px;
+
+$dcf-font-size-h6: 12px;
+$dcf-line-height-h6: 16px;
+
+$dcf-font-size-base: 16px;
+$dcf-line-height-base: 1.5;
+
+$dcf-font-size-lg: 1.25rem;
+$dcf-line-height-text-lg: 1.5;
+
+$dcf-font-size-sm: 0.875rem;
+$dcf-line-height-sm: 1.5;
+$dcf-line-height-font-sm: $dcf-line-height-sm;
+
+$dcf-font-size-meta: 0.875rem;
+$dcf-line-height-meta: 1.4;
+$dcf-line-height-size-meta: $dcf-line-height-meta;
+
+$dcf-font-size-caption: 1.5rem;
+$dcf-line-height-caption: 1.5;
+$dcf-line-height-size-caption: $dcf-line-height-caption;
+
+$dcf-font-size-label-caps: 11px;
+$dcf-font-label-caps: $dcf-font-size-label-caps;
+$dcf-line-height-label-caps: 16px;
+$dcf-letter-spacing-label-caps: 0.045em;
+
+/* ==========================================================================
+   Spacing / Radius / Sizing
+   ========================================================================== */
+
+$dcf-space-0: 0;
+$dcf-space-px: 1px;
+
+$dcf-space-0-5: 2px;
+$dcf-space-1: 4px;
+$dcf-space-1-5: 6px;
+$dcf-space-2: 8px;
+$dcf-space-2-5: 10px;
+$dcf-space-3: 12px;
+$dcf-space-3-5: 14px;
+$dcf-space-4: 16px;
+$dcf-space-5: 20px;
+$dcf-space-6: 24px;
+$dcf-space-7: 28px;
+$dcf-space-8: 32px;
+$dcf-space-9: 36px;
+$dcf-space-10: 40px;
+$dcf-space-11: 44px;
+$dcf-space-12: 48px;
+$dcf-space-13: 52px;
+$dcf-space-14: 56px;
+$dcf-space-15: 60px;
+$dcf-space-16: 64px;
+$dcf-space-20: 80px;
+$dcf-space-24: 96px;
+$dcf-space-28: 112px;
+$dcf-space-32: 128px;
+$dcf-space-36: 144px;
+$dcf-space-40: 160px;
+$dcf-space-44: 176px;
+$dcf-space-48: 192px;
+$dcf-space-52: 208px;
+$dcf-space-56: 224px;
+$dcf-space-60: 240px;
+$dcf-space-64: 256px;
+$dcf-space-72: 288px;
+$dcf-space-80: 320px;
+$dcf-space-96: 384px;
+
+$dcf-radius-elements: 4px;
+$dcf-radius-xs: 6px;
+$dcf-radius-sm: 8px;
+$dcf-radius-md: 12px;
+$dcf-radius-lg: 16px;
+$dcf-radius-xl: 20px;
+$dcf-radius-full: 999px;
+
+$dcf-size-button-height: 42px;
+$dcf-size-field-height: 42px;
+$dcf-size-avatar: 40px;
+$dcf-size-icon: 20px;
+$dcf-size-touch: 42px;
+
+$dcf-form-field-height: 42px;
+$dcf-form-field-font-size: 1rem;
+$dcf-form-field-border-radius: 4px;
+$dcf-form-field-active-font-size: 0.78rem;
+$dcf-form-field-error-font-size: 0.725rem;
+
+/* ==========================================================================
+   Border / Elevation / Focus / Motion
+   ========================================================================== */
+
+$dcf-border-subtle: 1px solid $dcf-color-border;
+$dcf-border-default: 1px solid $dcf-color-outline;
+$dcf-border-strong: 1px solid $dcf-color-outline-shade;
+$dcf-border-focus: 2px solid $dcf-color-primary;
+
+$dcf-shadow-card:
+  0 1px 2px
+    rgba(
+      list.nth($dcf-color-text-primary-rgb, 1),
+      list.nth($dcf-color-text-primary-rgb, 2),
+      list.nth($dcf-color-text-primary-rgb, 3),
+      0.04
+    ),
+  0 0 0 1px
+    rgba(
+      list.nth($dcf-color-text-primary-rgb, 1),
+      list.nth($dcf-color-text-primary-rgb, 2),
+      list.nth($dcf-color-text-primary-rgb, 3),
+      0.05
+    );
+$dcf-shadow-popover: 0 14px 32px
+  rgba(
+    list.nth($dcf-color-text-primary-rgb, 1),
+    list.nth($dcf-color-text-primary-rgb, 2),
+    list.nth($dcf-color-text-primary-rgb, 3),
+    0.12
+  );
+$dcf-shadow-modal: 0 24px 56px
+  rgba(
+    list.nth($dcf-color-text-primary-rgb, 1),
+    list.nth($dcf-color-text-primary-rgb, 2),
+    list.nth($dcf-color-text-primary-rgb, 3),
+    0.18
+  );
+$dcf-shadow-glass: 0 8px 32px
+  rgba(
+    list.nth($dcf-color-primary-rgb, 1),
+    list.nth($dcf-color-primary-rgb, 2),
+    list.nth($dcf-color-primary-rgb, 3),
+    0.06
+  );
+
+$dcf-focus-ring: 0 0 0 3px
+  rgba(
+    list.nth($dcf-color-primary-rgb, 1),
+    list.nth($dcf-color-primary-rgb, 2),
+    list.nth($dcf-color-primary-rgb, 3),
+    0.16
+  );
+
+$dcf-motion-fast: 140ms;
+$dcf-motion-base: 180ms;
+$dcf-motion-slow: 240ms;
+$dcf-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+
+$dcf-box-shadow: 0px 3px 12px rgba(47, 43, 61, 0.14);
+$dcf-box-shadow-sm: 0px 3px 12px rgba(47, 43, 61, 0.07);
+$dcf-box-shadow-md: 0px 6px 24px rgba(47, 43, 61, 0.14);
+$dcf-box-shadow-sg: 0px 12px 24px rgba(47, 43, 61, 0.28);
+$dcf-box-shadow-xl: 0px 24px 48px rgba(47, 43, 61, 0.56);
+$dcf-box-shadow-cp:
+  0px 1px 3px rgba(0, 0, 0, 0.1),
+  0px 1px 2px -1px rgba(0, 0, 0, 0.1);
+
+$dcf-border-radius-xsmall: $dcf-radius-xs;
+$dcf-border-radius: $dcf-radius-sm;
+$dcf-border-radius-small: $dcf-radius-md;
+$dcf-border-radius-large: $dcf-radius-lg;
+
+/* ==========================================================================
+   Dark Mode Tokens
+   ========================================================================== */
+
+$dcf-dark-color-background: #0d0f1a;
+$dcf-dark-color-surface: #161827;
+$dcf-dark-color-surface-rgb: 22, 24, 39;
+$dcf-dark-color-surface-subtle: #1c1f31;
+$dcf-dark-color-surface-soft: #1a1d2e;
+$dcf-dark-color-surface-shade: #252840;
+$dcf-dark-color-surface-inverse: #f8f8fc;
+
+$dcf-dark-color-border: #2a2d45;
+$dcf-dark-color-border-rgb: 42, 45, 69;
+$dcf-dark-color-outline: #333655;
+$dcf-dark-color-outline-shade: #4a4e72;
+$dcf-dark-color-outline-rgb: 51, 54, 85;
+
+$dcf-dark-color-text-primary: #e8eaf2;
+$dcf-dark-color-text-primary-rgb: 232, 234, 242;
+$dcf-dark-color-text-secondary: #9097b0;
+$dcf-dark-color-text-tertiary: #6b7194;
+$dcf-dark-color-text-disabled: #454a6a;
+$dcf-dark-color-text-inverse: #151827;
+
+$dcf-dark-color-primary-tint: rgba(91, 46, 204, 0.18);
+$dcf-dark-color-success-tint: rgba(0, 191, 165, 0.14);
+$dcf-dark-color-warning-tint: rgba(255, 164, 32, 0.14);
+$dcf-dark-color-danger-tint: rgba(235, 68, 90, 0.14);
+$dcf-dark-color-info-tint: rgba(37, 99, 235, 0.14);
+
+$dcf-dark-shadow-card:
+  0 1px 2px rgba(0, 0, 0, 0.4),
+  0 0 0 1px rgba(0, 0, 0, 0.3);
+$dcf-dark-shadow-popover: 0 14px 32px rgba(0, 0, 0, 0.48);
+$dcf-dark-shadow-modal: 0 24px 56px rgba(0, 0, 0, 0.64);
+$dcf-dark-shadow-glass: 0 8px 32px rgba(91, 46, 204, 0.12);
+
+$dcf-dark-border-subtle: 1px solid $dcf-dark-color-border;
+$dcf-dark-border-default: 1px solid $dcf-dark-color-outline;
+$dcf-dark-border-strong: 1px solid $dcf-dark-color-outline-shade;
+
+/* ==========================================================================
+   Mixins
+   ========================================================================== */
+
+@mixin dcf-focusable() {
+  outline: none;
+  transition:
+    color var(--dcf-motion-fast) var(--dcf-easing-standard),
+    background-color var(--dcf-motion-fast) var(--dcf-easing-standard),
+    border-color var(--dcf-motion-fast) var(--dcf-easing-standard),
+    box-shadow var(--dcf-motion-fast) var(--dcf-easing-standard),
+    transform var(--dcf-motion-fast) var(--dcf-easing-standard);
+
+  &:focus-visible {
+    box-shadow: var(--dcf-focus-ring);
+  }
+}
+
+@mixin dcf-surface-mixin() {
+  background: var(--dcf-color-surface);
+  border: var(--dcf-border-subtle);
+  border-radius: var(--dcf-radius-md);
+  box-shadow: var(--dcf-shadow-card);
+}
+
+@mixin dcf-button-base() {
+  @include dcf-focusable();
+  height: var(--dcf-size-button-height);
+  min-width: var(--dcf-size-touch);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dcf-space-2);
+  padding: 0 var(--dcf-space-4);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-family: var(--dcf-font-family-base);
+  font-size: var(--dcf-font-size-base);
+  line-height: var(--dcf-line-height-base);
+  font-size: var(--dcf-font-size-body);
+  line-height: var(--dcf-line-height-body);
+  font-weight: var(--dcf-font-weight-semibold);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+@mixin dcf-truncate() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:root {
+  --dcf-color-primary: $dcf-color-primary;
+  --dcf-color-primary-shade: $dcf-color-primary-shade;
+  --dcf-color-primary-tint: $dcf-color-primary-tint;
+  --dcf-color-primary-rgb: $dcf-color-primary-rgb;
+
+  --dcf-color-secondary: $dcf-color-secondary;
+  --dcf-color-secondary-shade: $dcf-color-secondary-shade;
+  --dcf-color-secondary-tint: $dcf-color-secondary-tint;
+  --dcf-color-secondary-rgb: $dcf-color-secondary-rgb;
+
+  --dcf-color-tertiary: $dcf-color-tertiary;
+  --dcf-color-tertiary-shade: $dcf-color-tertiary-shade;
+  --dcf-color-tertiary-tint: $dcf-color-tertiary-tint;
+  --dcf-color-tertiary-rgb: $dcf-color-tertiary-rgb;
+
+  --dcf-color-success: $dcf-color-success;
+  --dcf-color-success-shade: $dcf-color-success-shade;
+  --dcf-color-success-tint: $dcf-color-success-tint;
+  --dcf-color-success-rgb: $dcf-color-success-rgb;
+
+  --dcf-color-warning: $dcf-color-warning;
+  --dcf-color-warning-shade: $dcf-color-warning-shade;
+  --dcf-color-warning-tint: $dcf-color-warning-tint;
+  --dcf-color-warning-rgb: $dcf-color-warning-rgb;
+
+  --dcf-color-danger: $dcf-color-danger;
+  --dcf-color-danger-shade: $dcf-color-danger-shade;
+  --dcf-color-danger-tint: $dcf-color-danger-tint;
+  --dcf-color-danger-rgb: $dcf-color-danger-rgb;
+
+  --dcf-color-info: $dcf-color-info;
+  --dcf-color-info-shade: $dcf-color-info-shade;
+  --dcf-color-info-tint: $dcf-color-info-tint;
+  --dcf-color-info-rgb: $dcf-color-info-rgb;
+
+  --dcf-color-neutral: $dcf-color-neutral;
+  --dcf-color-neutral-shade: $dcf-color-neutral-shade;
+  --dcf-color-neutral-tint: $dcf-color-neutral-tint;
+  --dcf-color-neutral-rgb: $dcf-color-neutral-rgb;
+
+  --dcf-color-background: $dcf-color-background;
+  --dcf-color-surface: $dcf-color-surface;
+  --dcf-color-surface-rgb: $dcf-color-surface-rgb;
+  --dcf-color-surface-subtle: $dcf-color-surface-subtle;
+  --dcf-color-surface-soft: $dcf-color-surface-soft;
+  --dcf-color-surface-shade: $dcf-color-surface-shade;
+  --dcf-color-surface-inverse: $dcf-color-surface-inverse;
+
+  --dcf-color-border: $dcf-color-border;
+  --dcf-color-border-rgb: $dcf-color-border-rgb;
+  --dcf-color-outline: $dcf-color-outline;
+  --dcf-color-outline-shade: $dcf-color-outline-shade;
+  --dcf-color-outline-rgb: $dcf-color-outline-rgb;
+
+  --dcf-color-text-primary: $dcf-color-text-primary;
+  --dcf-color-text-primary-rgb: $dcf-color-text-primary-rgb;
+  --dcf-color-text-secondary: $dcf-color-text-secondary;
+  --dcf-color-text-tertiary: $dcf-color-text-tertiary;
+  --dcf-color-text-disabled: $dcf-color-text-disabled;
+  --dcf-color-text-inverse: $dcf-color-text-inverse;
+
+  --dcf-sidebar-width: $dcf-sidebar-width;
+  --dcf-sidebar-width-min: $dcf-sidebar-width-min;
+  --dcf-sidebar-collapsed-width: $dcf-sidebar-collapsed-width;
+  --dcf-navbar-height: $dcf-navbar-height;
+
+  --dcf-page-padding-x: $dcf-page-padding-x;
+  --dcf-page-padding-y: $dcf-page-padding-y;
+
+  --dcf-media-xs: $dcf-media-xs;
+  --dcf-media-sm: $dcf-media-sm;
+  --dcf-media-md: $dcf-media-md;
+  --dcf-media-lg: $dcf-media-lg;
+  --dcf-media-xl: $dcf-media-xl;
+  --dcf-media-2xl: $dcf-media-2xl;
+
+  --dcf-font-family-base: $dcf-font-family-base;
+  --dcf-font-family-mono: $dcf-font-family-mono;
+
+  --dcf-font-weight-regular: $dcf-font-weight-regular;
+  --dcf-font-weight-medium: $dcf-font-weight-medium;
+  --dcf-font-weight-semibold: $dcf-font-weight-semibold;
+  --dcf-font-weight-bold: $dcf-font-weight-bold;
+  --dcf-font-weight-extrabold: $dcf-font-weight-extrabold;
+
+  --dcf-font-size-display: $dcf-font-size-display;
+  --dcf-line-height-display: $dcf-line-height-display;
+
+  --dcf-font-size-h1: $dcf-font-size-h1;
+  --dcf-line-height-h1: $dcf-line-height-h1;
+
+  --dcf-font-size-h2: $dcf-font-size-h2;
+  --dcf-line-height-h2: $dcf-line-height-h2;
+
+  --dcf-font-size-h3: $dcf-font-size-h3;
+  --dcf-line-height-h3: $dcf-line-height-h3;
+
+  --dcf-font-size-h4: $dcf-font-size-h4;
+  --dcf-line-height-h4: $dcf-line-height-h4;
+
+  --dcf-font-size-h5: $dcf-font-size-h5;
+  --dcf-line-height-h5: $dcf-line-height-h5;
+
+  --dcf-font-size-h6: $dcf-font-size-h6;
+  --dcf-line-height-h6: $dcf-line-height-h6;
+
+  --dcf-font-size-base: $dcf-font-size-base;
+  --dcf-line-height-base: $dcf-line-height-base;
+  --dcf-font-size-body: $dcf-font-size-base;
+  --dcf-line-height-body: $dcf-line-height-base;
+
+  --dcf-font-size-lg: $dcf-font-size-lg;
+  --dcf-line-height-text-lg: $dcf-line-height-text-lg;
+  --dcf-line-height-lg: $dcf-line-height-text-lg;
+
+  --dcf-font-size-sm: $dcf-font-size-sm;
+  --dcf-line-height-sm: $dcf-line-height-sm;
+  --dcf-line-height-font-sm: $dcf-line-height-font-sm;
+
+  --dcf-font-size-meta: $dcf-font-size-meta;
+  --dcf-line-height-meta: $dcf-line-height-meta;
+  --dcf-line-height-size-meta: $dcf-line-height-size-meta;
+
+  --dcf-font-size-caption: $dcf-font-size-caption;
+  --dcf-line-height-caption: $dcf-line-height-caption;
+  --dcf-line-height-size-caption: $dcf-line-height-size-caption;
+
+  --dcf-font-size-label-caps: $dcf-font-size-label-caps;
+  --dcf-line-height-label-caps: $dcf-line-height-label-caps;
+  --dcf-letter-spacing-label-caps: $dcf-letter-spacing-label-caps;
+
+  --dcf-space-0: $dcf-space-0;
+  --dcf-space-1: $dcf-space-1;
+  --dcf-space-2: $dcf-space-2;
+  --dcf-space-3: $dcf-space-3;
+  --dcf-space-4: $dcf-space-4;
+  --dcf-space-5: $dcf-space-5;
+  --dcf-space-6: $dcf-space-6;
+  --dcf-space-8: $dcf-space-8;
+  --dcf-space-10: $dcf-space-10;
+  --dcf-space-11: $dcf-space-11;
+  --dcf-space-12: $dcf-space-12;
+  --dcf-space-13: $dcf-space-13;
+  --dcf-space-14: $dcf-space-14;
+  --dcf-space-15: $dcf-space-15;
+
+  --dcf-radius-xs: $dcf-radius-xs;
+  --dcf-radius-sm: $dcf-radius-sm;
+  --dcf-radius-md: $dcf-radius-md;
+  --dcf-radius-lg: $dcf-radius-lg;
+  --dcf-radius-xl: $dcf-radius-xl;
+  --dcf-radius-full: $dcf-radius-full;
+
+  --dcf-size-button-height: $dcf-size-button-height;
+  --dcf-size-field-height: $dcf-size-field-height;
+  --dcf-size-avatar: $dcf-size-avatar;
+  --dcf-size-icon: $dcf-size-icon;
+  --dcf-size-touch: $dcf-size-touch;
+
+  --dcf-border-subtle: $dcf-border-subtle;
+  --dcf-border-default: $dcf-border-default;
+  --dcf-border-strong: $dcf-border-strong;
+  --dcf-border-focus: $dcf-border-focus;
+
+  --dcf-shadow-card: $dcf-shadow-card;
+  --dcf-shadow-popover: $dcf-shadow-popover;
+  --dcf-shadow-modal: $dcf-shadow-modal;
+  --dcf-shadow-glass: $dcf-shadow-glass;
+
+  --dcf-focus-ring: $dcf-focus-ring;
+
+  --dcf-motion-fast: $dcf-motion-fast;
+  --dcf-motion-base: $dcf-motion-base;
+  --dcf-motion-slow: $dcf-motion-slow;
+  --dcf-easing-standard: $dcf-easing-standard;
+
+  --dcf-box-shadow: $dcf-box-shadow;
+  --dcf-box-shadow-sm: $dcf-box-shadow-sm;
+  --dcf-box-shadow-md: $dcf-box-shadow-md;
+  --dcf-box-shadow-sg: $dcf-box-shadow-sg;
+  --dcf-box-shadow-xl: $dcf-box-shadow-xl;
+  --dcf-box-shadow-cp: $dcf-box-shadow-cp;
+
+  --dcf-radius-xs: $dcf-radius-xs;
+  --dcf-radius-sm: $dcf-radius-sm;
+  --dcf-radius-md: $dcf-radius-md;
+  --dcf-radius-lg: $dcf-radius-lg;
+
+  --dcf-border-radius-xsmall: $dcf-radius-xs;
+  --dcf-border-radius: $dcf-radius-sm;
+  --dcf-border-radius-small: $dcf-radius-md;
+  --dcf-border-radius-large: $dcf-radius-lg;
+
+  --dcf-form-field-border-radius: $dcf-form-field-border-radius;
+  --dcf-form-field-height: $dcf-form-field-height;
+  --dcf-form-field-font-size: $dcf-form-field-font-size;
+  --dcf-form-field-active-font-size: $dcf-form-field-active-font-size;
+  --dcf-form-field-error-font-size: $dcf-form-field-error-font-size;
+}

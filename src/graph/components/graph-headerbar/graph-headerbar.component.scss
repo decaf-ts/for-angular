@@ -1,0 +1,419 @@
+@use "../../../assets/theme/variables" as dcf;
+
+button,
+input,
+a {
+  font: inherit;
+}
+
+// .dcf-header {
+//   position: relative;
+//   min-height: 65px;
+//   border-bottom: dcf.$dcf-border-subtle;
+//   background: dcf.$dcf-color-surface;
+// }
+
+.dcf-header {
+  position: relative;
+  z-index: 100;
+  height: 65px;
+  display: flex;
+  align-items: center;
+  gap: dcf.$dcf-space-5;
+  padding: 0px dcf.$dcf-space-7;
+  background-color: rgba(255, 255, 255, 0.7);
+  // padding: 0 dcf.$dcf-space-5;
+  // background: rgba(var(--cmx-color-surface-rgb), 0.92);
+  border-bottom: dcf.$dcf-border-subtle;
+  background-color: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.cmx-header,
+.cmx-header-right,
+.cmx-header-center {
+  display: flex;
+  align-items: center;
+  gap: var(--cmx-space-3);
+}
+
+.cmx-header-right {
+  margin-left: auto;
+}
+
+.cmx-header-center:only-child {
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+
+.cmx-header-center:not(:only-child) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: max-content;
+  box-sizing: border-box;
+  z-index: 90;
+  height: 100%;
+  align-items: stretch;
+}
+
+.dcf-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: dcf.$dcf-space-6;
+  min-height: 64px;
+  padding: dcf.$dcf-space-3 dcf.$dcf-space-5;
+}
+
+.dcf-header-identity {
+  display: flex;
+  align-items: center;
+  gap: dcf.$dcf-space-4;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.dcf-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: dcf.$dcf-space-2;
+  min-width: 0;
+  margin-right: dcf.$dcf-space-4;
+}
+
+.dcf-project-chip {
+  @include dcf.dcf-focusable();
+  display: inline-flex;
+  align-items: center;
+  gap: dcf.$dcf-space-2;
+  padding: 6px dcf.$dcf-space-2 4px;
+  border: 1px solid transparent;
+  border-radius: dcf.$dcf-radius-sm;
+  color: dcf.$dcf-color-text-primary;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dcf-project-chip:hover {
+  background: dcf.$dcf-color-surface-shade;
+}
+
+.dcf-project-chip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: dcf.$dcf-radius-full;
+  border: dcf.$dcf-border-subtle;
+  color: dcf.$dcf-color-text-primary;
+  background: dcf.$dcf-color-surface;
+}
+
+.dcf-project-chip-icon svg,
+.dcf-workflow-name-input + svg,
+.dcf-btn svg,
+.dcf-tag-pill-remove svg,
+.dcf-actions-dropdown-icon svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.dcf-breadcrumbs-separator {
+  color: dcf.$dcf-color-text-tertiary;
+}
+
+.dcf-workflow-name,
+.dcf-workflow-name-input {
+  @include dcf.dcf-focusable();
+  min-width: 0;
+  max-width: 500px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: dcf.$dcf-color-text-primary;
+  font-size: 0.95rem;
+  font-weight: dcf.$dcf-font-weight-semibold;
+  text-align: left;
+}
+
+.dcf-workflow-name {
+  cursor: text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dcf-workflow-name-input {
+  padding-bottom: 2px;
+  border-bottom: 2px solid dcf.$dcf-color-primary;
+  outline: none;
+}
+
+.dcf-tags {
+  display: flex;
+  align-items: center;
+  gap: dcf.$dcf-space-2;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.dcf-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: dcf.$dcf-radius-full;
+  background: dcf.$dcf-color-surface-shade;
+  color: dcf.$dcf-color-text-secondary;
+  font-size: 0.75rem;
+  font-weight: dcf.$dcf-font-weight-medium;
+}
+
+.dcf-tag-pill-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: dcf.$dcf-radius-full;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.dcf-add-tag {
+  @include dcf.dcf-focusable();
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: dcf.$dcf-color-primary;
+  font-size: 0.8rem;
+  font-weight: dcf.$dcf-font-weight-medium;
+  cursor: pointer;
+}
+
+.dcf-tag-editor {
+  display: inline-flex;
+  align-items: center;
+  gap: dcf.$dcf-space-2;
+}
+
+.dcf-tag-editor-input {
+  @include dcf.dcf-focusable();
+  width: 120px;
+  height: 30px;
+  padding: 0 dcf.$dcf-space-2;
+  border: dcf.$dcf-border-subtle;
+  border-radius: dcf.$dcf-radius-sm;
+  background: dcf.$dcf-color-surface;
+  color: dcf.$dcf-color-text-primary;
+}
+
+.dcf-tag-editor-save {
+  @include dcf.dcf-focusable();
+  height: 30px;
+  padding: 0 dcf.$dcf-space-3;
+  border: 0;
+  border-radius: dcf.$dcf-radius-sm;
+  background: dcf.$dcf-color-primary;
+  color: dcf.$dcf-color-text-inverse;
+  cursor: pointer;
+}
+
+.dcf-header-actions {
+  display: flex;
+  align-items: center;
+  gap: dcf.$dcf-space-3;
+  flex: 0 0 auto;
+}
+
+.dcf-publish-group {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: dcf.$dcf-radius-sm;
+  overflow: hidden;
+}
+
+.dcf-btn {
+  @include dcf.dcf-focusable();
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0 dcf.$dcf-space-3;
+  border: 0;
+  border-radius: dcf.$dcf-radius-sm;
+  background: transparent;
+  color: dcf.$dcf-color-text-primary;
+  font-size: 0.8125rem;
+  font-weight: dcf.$dcf-font-weight-medium;
+  cursor: pointer;
+}
+
+.dcf-btn-primary {
+  background: dcf.$dcf-color-surface;
+}
+
+.dcf-btn-icon,
+.dcf-btn-ghost {
+  width: 32px;
+  padding: 0;
+}
+
+.dcf-btn-ghost:hover,
+.dcf-btn-icon:hover,
+.dcf-actions-dropdown-item:hover {
+  background: dcf.$dcf-color-surface-shade;
+}
+
+.dcf-btn-disabled {
+  opacity: 0.56;
+  cursor: not-allowed;
+}
+
+.dcf-actions-menu {
+  position: relative;
+}
+
+.dcf-actions-dropdown {
+  position: absolute;
+  top: calc(100% + #{dcf.$dcf-space-2});
+  right: 0;
+  z-index: 20;
+  display: grid;
+  min-width: 220px;
+  padding: dcf.$dcf-space-2;
+  border: dcf.$dcf-border-subtle;
+  border-radius: dcf.$dcf-radius-md;
+  background: dcf.$dcf-color-surface;
+  box-shadow: dcf.$dcf-shadow-popover;
+}
+
+.dcf-actions-dropdown-item {
+  @include dcf.dcf-focusable();
+  display: flex;
+  align-items: center;
+  gap: dcf.$dcf-space-2;
+  width: 100%;
+  padding: dcf.$dcf-space-2 dcf.$dcf-space-3;
+  border: 0;
+  border-radius: dcf.$dcf-radius-sm;
+  background: transparent;
+  color: dcf.$dcf-color-text-secondary;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dcf-actions-dropdown-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: dcf.$dcf-color-text-tertiary;
+}
+
+.dcf-header-tabs {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  // position: absolute;
+  // left: 50%;
+  // bottom: 2px;
+  // transform: translateX(-50%);
+  // display: flex;
+  // border: 1px solid red;
+  // align-items: center;
+  //
+  > div {
+    border-radius: dcf.$dcf-radius-sm;
+    background: dcf.$dcf-color-outline;
+    padding: dcf.$dcf-space-1;
+  }
+}
+
+.dcf-tab {
+  @include dcf.dcf-focusable();
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 dcf.$dcf-space-3;
+  border: 0;
+  border-radius: dcf.$dcf-radius-sm;
+  background: transparent;
+  color: dcf.$dcf-color-text-secondary;
+  font-size: 0.75rem;
+  font-weight: dcf.$dcf-font-weight-medium;
+  cursor: pointer;
+}
+
+.dcf-tab-active {
+  background: dcf.$dcf-color-surface;
+  color: dcf.$dcf-color-text-primary;
+}
+
+@media (max-width: 1180px) {
+  .dcf-header {
+    padding-bottom: 44px;
+  }
+
+  .dcf-header-top {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .dcf-header-identity,
+  .dcf-header-actions {
+    width: 100%;
+  }
+
+  .dcf-header-actions {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .dcf-header-top {
+    padding: dcf.$dcf-space-3;
+  }
+
+  .dcf-breadcrumbs {
+    margin-right: 0;
+    width: 100%;
+  }
+
+  .dcf-tags {
+    width: 100%;
+  }
+
+  .dcf-header-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .dcf-header-tabs {
+    left: dcf.$dcf-space-3;
+    right: dcf.$dcf-space-3;
+    transform: none;
+    justify-content: stretch;
+  }
+
+  .dcf-tab {
+    flex: 1 1 0;
+  }
+}

@@ -1,0 +1,176 @@
+@use "../../../assets/theme/variables" as dcf;
+
+$sidebar-width-collapsed: 42px;
+$sidebar-width-expanded: 240px;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+button {
+  font: inherit;
+}
+
+.dcf-sidebar {
+  height: 100vh;
+  width: $sidebar-width-collapsed;
+  background-color: rgba(255, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: dcf.$dcf-border-subtle;
+  transition: width dcf.$dcf-motion-base dcf.$dcf-easing-standard;
+}
+
+.dcf-sidebar-expanded {
+  width: $sidebar-width-expanded;
+}
+
+.dcf-sidebar-rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  border-right: dcf.$dcf-border-subtle;
+  background-color: rgba(255, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.dcf-sidebar-resize-handle {
+  position: absolute;
+  top: 0;
+  right: -1px;
+  width: 4px;
+  height: 100%;
+  cursor: col-resize;
+}
+
+.dcf-sidebar-header,
+.dcf-sidebar-menu,
+.dcf-sidebar-footer {
+  transition: padding dcf.$dcf-motion-base dcf.$dcf-easing-standard;
+}
+
+.dcf-sidebar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: dcf.$dcf-space-2 6px;
+}
+
+.dcf-sidebar-expanded .dcf-sidebar-header {
+  padding-inline: dcf.$dcf-space-3;
+}
+
+.dcf-sidebar-scroll {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.dcf-sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.dcf-sidebar-expanded .dcf-sidebar-menu {
+  align-items: stretch;
+}
+
+.dcf-sidebar-menu-primary,
+.dcf-sidebar-menu-secondary {
+  padding: 6px;
+}
+
+.dcf-sidebar-expanded .dcf-sidebar-menu-primary,
+.dcf-sidebar-expanded .dcf-sidebar-menu-secondary {
+  padding-inline: dcf.$dcf-space-3;
+}
+
+.dcf-sidebar-footer {
+  padding-bottom: dcf.$dcf-space-2;
+}
+
+.dcf-sidebar-icon-btn,
+.dcf-sidebar-nav-btn {
+  @include dcf.dcf-focusable();
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: dcf.$dcf-radius-sm;
+  background: transparent;
+  color: dcf.$dcf-color-text-secondary;
+  cursor: pointer;
+  transition:
+    width dcf.$dcf-motion-base dcf.$dcf-easing-standard,
+    height dcf.$dcf-motion-base dcf.$dcf-easing-standard,
+    padding dcf.$dcf-motion-base dcf.$dcf-easing-standard,
+    background dcf.$dcf-motion-fast dcf.$dcf-easing-standard,
+    color dcf.$dcf-motion-fast dcf.$dcf-easing-standard;
+}
+
+.dcf-sidebar-icon-btn {
+  gap: dcf.$dcf-space-2;
+}
+
+.dcf-sidebar-nav-btn {
+  width: 29px;
+  height: 32px;
+  padding: 4px;
+}
+
+.dcf-sidebar-expanded .dcf-sidebar-icon-btn,
+.dcf-sidebar-expanded .dcf-sidebar-nav-btn {
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
+  padding-inline: dcf.$dcf-space-2;
+}
+
+.dcf-sidebar-icon-btn:hover,
+.dcf-sidebar-nav-btn:hover,
+.dcf-sidebar-icon-btn-selected,
+.dcf-sidebar-nav-btn-active {
+  background: dcf.$dcf-color-surface-shade;
+  color: dcf.$dcf-color-text-primary;
+}
+
+.dcf-sidebar-icon-shell,
+.dcf-sidebar-nav-icon,
+.dcf-sidebar-icon-btn svg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.dcf-sidebar-nav-icon svg,
+.dcf-sidebar-icon-shell svg,
+.dcf-sidebar-icon-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.dcf-sidebar-button-label,
+.dcf-sidebar-nav-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  font-weight: dcf.$dcf-font-weight-medium;
+}

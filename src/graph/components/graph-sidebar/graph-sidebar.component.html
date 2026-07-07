@@ -1,0 +1,107 @@
+<aside
+  class="dcf-sidebar"
+  [class.dcf-sidebar-expanded]="expanded()"
+>
+  <div class="dcf-sidebar-rail">
+    <div
+      class="dcf-sidebar-resize-handle"
+      aria-hidden="true"
+    ></div>
+
+    <div class="dcf-sidebar-header">
+      <button
+        type="button"
+        class="dcf-sidebar-icon-btn"
+        [class.dcf-sidebar-icon-btn-selected]="selectedTopAction() === 'add'"
+        (click)="selectTopAction('add')"
+        title="Add new item"
+        aria-label="Add new item"
+      >
+        <i class="ti ti-location-plus"></i>
+        @if (expanded()) {
+          <span class="dcf-sidebar-button-label">Add</span>
+        }
+      </button>
+
+      <button
+        type="button"
+        class="dcf-sidebar-icon-btn"
+        [class.dcf-sidebar-icon-btn-selected]="selectedTopAction() === 'search'"
+        (click)="selectTopAction('search')"
+        title="Open command palette"
+        aria-label="Open command palette"
+      >
+        <i class="ti ti-search"></i>
+        @if (expanded()) {
+          <span class="dcf-sidebar-button-label">Search</span>
+        }
+      </button>
+
+      <button
+        type="button"
+        class="dcf-sidebar-icon-btn"
+        [class.dcf-sidebar-icon-btn-selected]="selectedTopAction() === 'toggle'"
+        (click)="selectTopAction('toggle')"
+        title="Toggle sidebar"
+        aria-label="Toggle sidebar"
+      >
+        @if (expanded()) {
+          <i class="ti ti-layout-sidebar-right-expand"></i>
+          <span class="dcf-sidebar-button-label">Collapse</span>
+        } @else {
+          <i class="ti ti-layout-sidebar-left-expand"></i>
+        }
+      </button>
+    </div>
+
+    <div class="dcf-sidebar-scroll">
+      <nav
+        class="dcf-sidebar-menu dcf-sidebar-menu-primary"
+        aria-label="Primary sidebar"
+      >
+        @for (item of primaryItems; track trackItem($index, item)) {
+          <button
+            type="button"
+            class="dcf-sidebar-nav-btn"
+            [class.dcf-sidebar-nav-btn-active]="activeItem() === item.id"
+            (click)="selectItem(item.id)"
+            [attr.title]="item.label"
+            [attr.aria-label]="item.label"
+          >
+            <span class="dcf-sidebar-nav-icon">
+              <span class="ti ti-{{ item.icon }}"></span>
+            </span>
+            @if (expanded()) {
+              <span class="dcf-sidebar-nav-label">{{ item.label }}</span>
+            }
+          </button>
+        }
+      </nav>
+    </div>
+
+    <div class="dcf-sidebar-footer">
+      <nav
+        class="dcf-sidebar-menu dcf-sidebar-menu-secondary"
+        aria-label="Secondary sidebar"
+      >
+        @for (item of secondaryItems; track trackItem($index, item)) {
+          <button
+            type="button"
+            class="dcf-sidebar-nav-btn"
+            [class.dcf-sidebar-nav-btn-active]="activeItem() === item.id"
+            (click)="selectItem(item.id)"
+            [attr.title]="item.label"
+            [attr.aria-label]="item.label"
+          >
+            <span class="dcf-sidebar-nav-icon">
+              <span class="ti ti-{{ item.icon }}"></span>
+            </span>
+            @if (expanded()) {
+              <span class="dcf-sidebar-nav-label">{{ item.label }}</span>
+            }
+          </button>
+        }
+      </nav>
+    </div>
+  </div>
+</aside>
