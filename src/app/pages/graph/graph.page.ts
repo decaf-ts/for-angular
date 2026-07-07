@@ -9,7 +9,7 @@ import {
 } from 'src/graph';
 import { graphExecutionState } from 'src/graph';
 import { graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
-import { GRAPH_TRIGGER_NODES, GRAPH_FLOW_CONTROL_NODES, GRAPH_AGENT_NODES } from '@decaf-ts/integrations/graph';
+import { GRAPH_TRIGGER_NODES, GRAPH_FLOW_CONTROL_NODES, GRAPH_AGENT_NODES } from '@decaf-ts/integrations/graph/shared';
 import { GraphPublishingWorkflow } from './workflow-root';
 import { GRAPH_DEMO_NODES } from './example-nodes';
 

@@ -13,7 +13,7 @@ import {
   type GraphPortDefinition,
   type GraphWorkflowSnapshot,
 } from '@decaf-ts/ui-decorators/graph';
-import type { SwitchNodeMetadata, SwitchCase } from '@decaf-ts/integrations/graph';
+import type { SwitchNodeMetadata, SwitchCase } from '@decaf-ts/integrations/graph/shared';
 import { initializeModel, type ModelAdapter } from 'ng-diagram';
 import { GraphInputValueNode } from './nodes/boundary-nodes';
 import { graphNodeConfig, type GraphNodeConfig } from './execution/GraphNodeConfigStore';
