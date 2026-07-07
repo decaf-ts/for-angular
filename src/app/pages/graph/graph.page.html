@@ -1,11 +1,18 @@
 <ion-content fullscreen="true">
   <main class="graph-page">
+    @if (backendAvailable() === false) {
+      <div class="graph-page__backend-warning">
+        <strong>Graph backend not running.</strong>
+        Start it with <code>npm run start:backend</code> or run <code>npm run start:dev</code> to start both.
+      </div>
+    }
+
     <div class="graph-page__toolbar">
       <button
         type="button"
         class="graph-page__run-btn"
         [class.graph-page__run-btn--running]="isRunning()"
-        [disabled]="isRunning()"
+        [disabled]="isRunning() || backendAvailable() === false"
         (click)="runWorkflow()"
       >
         {{ isRunning() ? 'Running…' : 'Run workflow' }}

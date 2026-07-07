@@ -1,9 +1,10 @@
-import { Component, inject, signal, computed, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, OnDestroy, OnInit } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { GraphRendererComponent } from 'src/graph';
 import {
   GraphExecutionService,
   GraphExecutionStateMapper,
+  GraphBackendUnavailableError,
 } from 'src/graph';
 import { graphExecutionState } from 'src/graph';
 import { graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
@@ -24,7 +25,7 @@ import { GRAPH_DEMO_NODES } from './example-nodes';
   templateUrl: './graph.page.html',
   styleUrl: './graph.page.scss',
 })
-export class GraphPage implements OnDestroy {
+export class GraphPage implements OnInit, OnDestroy {
   readonly workflowRoot = GraphPublishingWorkflow;
   private readonly executionService = inject(GraphExecutionService);
   private readonly stateMapper = new GraphExecutionStateMapper();
@@ -33,6 +34,7 @@ export class GraphPage implements OnDestroy {
   readonly lastResult = signal<Record<string, unknown> | null>(null);
   readonly runError = signal<string | null>(null);
   readonly runStatus = signal<string>('idle');
+  readonly backendAvailable = this.executionService.backendAvailable;
   readonly availableNodes = [...GRAPH_DEMO_NODES, ...GRAPH_TRIGGER_NODES, ...GRAPH_FLOW_CONTROL_NODES, ...GRAPH_AGENT_NODES];
 
   readonly workflowOutputs = computed(() => {
@@ -44,14 +46,23 @@ export class GraphPage implements OnDestroy {
   private eventsSubscription?: { unsubscribe: () => void };
 
   constructor() {
-    this.eventsSubscription = this.executionService.events$.subscribe((event) => {
-      const nodes = { ...graphExecutionState.nodeStates() };
-      const edges = { ...graphExecutionState.edgeStates() };
-      this.stateMapper.apply(event, nodes, edges);
-      graphExecutionState.nodeStates.set(nodes);
-      graphExecutionState.edgeStates.set(edges);
-      this.runStatus.set(event.type);
+    this.eventsSubscription = this.executionService.events$.subscribe({
+      next: (event) => {
+        const nodes = { ...graphExecutionState.nodeStates() };
+        const edges = { ...graphExecutionState.edgeStates() };
+        this.stateMapper.apply(event, nodes, edges);
+        graphExecutionState.nodeStates.set(nodes);
+        graphExecutionState.edgeStates.set(edges);
+        this.runStatus.set(event.type);
+      },
+      error: () => {
+        // SSE error — non-fatal; the execution result already arrived via HTTP.
+      },
     });
+  }
+
+  ngOnInit(): void {
+    void this.executionService.checkBackend();
   }
 
   ngOnDestroy() {
@@ -73,6 +84,9 @@ export class GraphPage implements OnDestroy {
       this.lastResult.set(result.outputs as Record<string, unknown>);
       this.runStatus.set(result.status);
     } catch (err) {
+      if (err instanceof GraphBackendUnavailableError) {
+        this.backendAvailable.set(false);
+      }
       this.runError.set(err instanceof Error ? err.message : String(err));
     } finally {
       this.isRunning.set(false);
