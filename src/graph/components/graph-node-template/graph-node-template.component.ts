@@ -9,7 +9,7 @@ import {
   type Node,
 } from 'ng-diagram';
 import { PortDirection } from '@decaf-ts/ui-decorators/graph';
-import type { SwitchNodeMetadata, NodeMetadataChange } from '@decaf-ts/integrations/graph';
+import type { SwitchNodeMetadata, NodeMetadataChange } from '@decaf-ts/integrations/graph/shared';
 import { GraphDemoNodeData } from '../../types';
 import { graphExecutionState } from '../../execution/GraphExecutionStateService';
 import { graphNodeConfig } from '../../execution/GraphNodeConfigStore';

@@ -77,6 +77,15 @@ export default tseslint.config(
       ],
 
       '@typescript-eslint/no-unused-vars': 'warn',
+
+      'no-restricted-imports': [
+        'error',
+        {
+          name: '@decaf-ts/integrations/graph',
+          message:
+            'Use @decaf-ts/integrations/graph/shared instead. The bare export pulls in the execution engine (backend-only).',
+        },
+      ],
     },
   },
 
@@ -91,6 +100,21 @@ export default tseslint.config(
     // Só ativa este override se o arquivo estiver na mesma pasta que types.ts
     // ou se o caminho contiver "types"
     ignores: ['!**/types.ts', '!**/types/*'],
+  },
+
+  // Temporary override: in-browser demo executor files still import the
+  // execution engine directly. Removed in TASK-232 when these are quarantined
+  // or migrated to an SSE backend.
+  {
+    files: [
+      'src/graph/execution/graph-demo-executors.ts',
+      'src/graph/execution/GraphExecutionService.ts',
+      'src/graph/execution/GraphExecutionEventSubjectObserver.ts',
+      'src/graph/execution/GraphExecutionStateMapper.ts',
+    ],
+    rules: {
+      'no-restricted-imports': 'off',
+    },
   },
 
   {

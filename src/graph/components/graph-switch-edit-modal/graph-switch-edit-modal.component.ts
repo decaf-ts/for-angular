@@ -2,7 +2,7 @@ import { Component, Input, signal, computed, inject, OnInit } from '@angular/cor
 import { ModalController } from '@ionic/angular/standalone';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonIcon, IonItem, IonLabel, IonInput } from '@ionic/angular/standalone';
 import { GraphConditionEditorComponent, type GraphConditionEditorChange } from '../graph-condition-editor/graph-condition-editor.component';
-import type { SwitchCase, SwitchCaseCondition, SwitchNodeMetadata } from '@decaf-ts/integrations/graph';
+import type { SwitchCase, SwitchCaseCondition, SwitchNodeMetadata } from '@decaf-ts/integrations/graph/shared';
 
 let caseIdCounter = 0;
 
