@@ -1,8 +1,4 @@
-<main
-  class="dcf-shell"
-  [class.dcf-graph-shell]="graph()"
-  [style.--dcf-graph-sidebar-width]="sidebarWidth()"
->
+<main class="dcf-shell">
   <ngx-decaf-graph-sidebar-menu
     [collapsed]="sidebarCollapsed()"
     (collapsedChange)="sidebarCollapsed.set($event)"

@@ -81,9 +81,10 @@ $dcf-color-text-inverse: #ffffff;
    Layout Tokens
    ========================================================================== */
 
-$dcf-sidebar-width: 250px;
+$dcf-sidebar-width: 42px;
+$dcf-sidebar-width-expanded: 240px;
 $dcf-sidebar-width-min: 220px;
-$dcf-sidebar-collapsed-width: 64px;
+
 $dcf-navbar-height: 56px;
 
 $dcf-page-padding-x: 40px;
@@ -449,8 +450,8 @@ $dcf-dark-border-strong: 1px solid $dcf-dark-color-outline-shade;
   --dcf-color-text-inverse: #{$dcf-color-text-inverse};
 
   --dcf-sidebar-width: #{$dcf-sidebar-width};
+  --dcf-sidebar-width-expanded: #{$dcf-sidebar-width-expanded};
   --dcf-sidebar-width-min: #{$dcf-sidebar-width-min};
-  --dcf-sidebar-collapsed-width: #{$dcf-sidebar-collapsed-width};
   --dcf-navbar-height: #{$dcf-navbar-height};
 
   --dcf-page-padding-x: #{$dcf-page-padding-x};

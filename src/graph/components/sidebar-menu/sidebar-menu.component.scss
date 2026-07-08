@@ -6,6 +6,7 @@ $sidebar-width-expanded: 240px;
 :host {
   display: block;
   height: 100%;
+  --dcf-sidebar-width-expanded: 200px;
 }
 
 button {
@@ -13,17 +14,16 @@ button {
 }
 
 .dcf-sidebar {
+  min-width: var(--dcf-graph-sidebar-width);
   height: 100vh;
-  width: $sidebar-width-collapsed;
   background-color: rgba(255, 255, 255, 0.3);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border-bottom: dcf.$dcf-border-alt;
   transition: width dcf.$dcf-motion-base dcf.$dcf-easing-standard;
-}
-
-.dcf-sidebar-expanded {
-  width: $sidebar-width-expanded;
+  &.dcf-sidebar-expanded {
+    min-width: var(--dcf-sidebar-width-expanded);
+  }
 }
 
 .dcf-sidebar-rail {
