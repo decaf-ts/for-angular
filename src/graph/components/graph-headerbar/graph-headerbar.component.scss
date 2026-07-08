@@ -9,7 +9,7 @@ a {
 // .dcf-header {
 //   position: relative;
 //   min-height: 65px;
-//   border-bottom: dcf.$dcf-border-subtle;
+//   border-bottom: dcf.$dcf-border-alt;
 //   background: dcf.$dcf-color-surface;
 // }
 
@@ -24,7 +24,7 @@ a {
   background-color: rgba(255, 255, 255, 0.7);
   // padding: 0 dcf.$dcf-space-5;
   // background: rgba(var(--cmx-color-surface-rgb), 0.92);
-  border-bottom: dcf.$dcf-border-subtle;
+  border-bottom: dcf.$dcf-border-alt;
   background-color: rgba(255, 255, 255, 0.7);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
@@ -109,7 +109,7 @@ a {
   width: 22px;
   height: 22px;
   border-radius: dcf.$dcf-radius-full;
-  border: dcf.$dcf-border-subtle;
+  border: dcf.$dcf-border-alt;
   color: dcf.$dcf-color-text-primary;
   background: dcf.$dcf-color-surface;
 }
@@ -215,7 +215,7 @@ a {
   width: 120px;
   height: 30px;
   padding: 0 dcf.$dcf-space-2;
-  border: dcf.$dcf-border-subtle;
+  border: dcf.$dcf-border-alt;
   border-radius: dcf.$dcf-radius-sm;
   background: dcf.$dcf-color-surface;
   color: dcf.$dcf-color-text-primary;
@@ -297,7 +297,7 @@ a {
   display: grid;
   min-width: 220px;
   padding: dcf.$dcf-space-2;
-  border: dcf.$dcf-border-subtle;
+  border: dcf.$dcf-border-alt;
   border-radius: dcf.$dcf-radius-md;
   background: dcf.$dcf-color-surface;
   box-shadow: dcf.$dcf-shadow-popover;

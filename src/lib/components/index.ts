@@ -12,6 +12,7 @@
 // Component exports
 export * from './card/card.component';
 export * from './component-renderer/component-renderer.component';
+export * from './container/container.component';
 export * from './crud-field/crud-field.component';
 export * from './crud-form/crud-form.component';
 export * from './empty-state/empty-state.component';
@@ -23,8 +24,8 @@ export * from './layout/layout.component';
 export * from './list-item/list-item.component';
 export * from './list/list.component';
 export * from './modal';
-export * from './model-renderer/model-renderer.component';
 export * from './model-builder/model-builder.component';
+export * from './model-renderer/model-renderer.component';
 export * from './pagination/pagination.component';
 export * from './searchbar/searchbar.component';
 export * from './stepped-form/stepped-form.component';

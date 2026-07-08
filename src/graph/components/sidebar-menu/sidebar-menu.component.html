@@ -59,12 +59,12 @@
         class="dcf-sidebar-menu dcf-sidebar-menu-primary"
         aria-label="Primary sidebar"
       >
-        @for (item of primaryItems; track trackItem($index, item)) {
+        @for (item of primaryItems; track trackItemFn($index, item)) {
           <button
             type="button"
             class="dcf-sidebar-nav-btn"
             [class.dcf-sidebar-nav-btn-active]="activeItem() === item.id"
-            (click)="selectItem(item.id)"
+            (click)="selectItem(item)"
             [attr.title]="item.label"
             [attr.aria-label]="item.label"
           >
@@ -84,12 +84,12 @@
         class="dcf-sidebar-menu dcf-sidebar-menu-secondary"
         aria-label="Secondary sidebar"
       >
-        @for (item of secondaryItems; track trackItem($index, item)) {
+        @for (item of secondaryItems; track trackItemFn($index, item)) {
           <button
             type="button"
             class="dcf-sidebar-nav-btn"
             [class.dcf-sidebar-nav-btn-active]="activeItem() === item.id"
-            (click)="selectItem(item.id)"
+            (click)="selectItem(item)"
             [attr.title]="item.label"
             [attr.aria-label]="item.label"
           >

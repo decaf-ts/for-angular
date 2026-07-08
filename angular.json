@@ -115,7 +115,7 @@
               "src/cli-module.ts",
               "src/lib/**/*"
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["node_modules/ng-diagram/styles.css", "src/global.scss", "src/theme/variables.scss"],
             "serviceWorker": false,
             "ngswConfigPath": "ngsw-config.json"
           },
@@ -197,7 +197,7 @@
               "src/cli-module.ts",
               "src/lib/**/*"
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["node_modules/ng-diagram/styles.css", "src/global.scss", "src/theme/variables.scss"],
             "scripts": []
           },
           "configurations": {

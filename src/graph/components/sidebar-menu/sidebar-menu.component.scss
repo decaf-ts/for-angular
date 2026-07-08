@@ -18,7 +18,7 @@ button {
   background-color: rgba(255, 255, 255, 0.3);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  border-bottom: dcf.$dcf-border-subtle;
+  border-bottom: dcf.$dcf-border-alt;
   transition: width dcf.$dcf-motion-base dcf.$dcf-easing-standard;
 }
 
@@ -32,7 +32,7 @@ button {
   flex-direction: column;
   width: 100%;
   height: 100%;
-  border-right: dcf.$dcf-border-subtle;
+  border-right: dcf.$dcf-border-alt;
   background-color: rgba(255, 255, 255, 0.3);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);

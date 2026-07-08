@@ -1,0 +1,269 @@
+<section class="graph-container">
+  <ngx-decaf-graph-headerbar [workflowName]="graphTitle()" />
+
+  <section class="graph-renderer">
+    <div class="graph-renderer__canvas">
+      @if (model(); as graphModel) {
+        <ng-diagram
+          [model]="graphModel"
+          [nodeTemplateMap]="nodeTemplateMap"
+          (selectionChanged)="onSelectionChanged($event)"
+        >
+          <ng-diagram-background type="dots" />
+          <ng-diagram-minimap
+            position="bottom-right"
+            [showZoomControls]="true"
+          />
+        </ng-diagram>
+      } @else {
+        <div class="graph-renderer__loading">
+          <ion-spinner
+            name="circular"
+            color="primary"
+          />
+        </div>
+      }
+
+      <div class="graph-renderer__palette">
+        <button
+          type="button"
+          class="graph-renderer__palette-btn"
+          [class.graph-renderer__palette-btn--open]="paletteOpen()"
+          (click)="togglePalette()"
+        >
+          + Add node
+        </button>
+
+        @if (paletteOpen()) {
+          <div class="graph-renderer__palette-popup">
+            <div class="graph-renderer__palette-popup-header">
+              <span>Available nodes</span>
+              <button
+                type="button"
+                class="graph-renderer__palette-close"
+                (click)="closePalette()"
+              >
+                &times;
+              </button>
+            </div>
+            <ul class="graph-renderer__palette-list">
+              @for (entry of paletteEntries(); track entry.name) {
+                <li>
+                  <button
+                    type="button"
+                    class="graph-renderer__palette-item"
+                    (click)="addNode(entry.ctor)"
+                  >
+                    <span
+                      class="graph-renderer__palette-icon"
+                      [style.background]="entry.color || '#64748b'"
+                    >
+                      {{ entry.icon ? '' : entry.title.charAt(0) }}
+                    </span>
+                    <span class="graph-renderer__palette-info">
+                      <strong>{{ entry.title }}</strong>
+                      <small>{{ entry.category || entry.kind }}</small>
+                    </span>
+                  </button>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    </div>
+
+    <aside class="graph-renderer__side graph-renderer__side--inputs">
+      <div class="graph-renderer__side-header">
+        <p>Workflow inputs</p>
+        <h2>{{ graphTitle() }}</h2>
+        <small>
+          Editable controls are built from the workflow input metadata and
+          validated by a generated model class.
+        </small>
+      </div>
+
+      <form
+        class="graph-renderer__form"
+        [formGroup]="workflowInputForm()"
+      >
+        @for (field of workflowInputFields(); track field.path) {
+          <article class="graph-renderer__field">
+            <label
+              class="graph-renderer__field-label"
+              id="label-{{ field.controlName }}"
+              [attr.for]="'graph-input-' + field.controlName"
+            >
+              {{ field.label }}
+            </label>
+            <span class="graph-renderer__field-meta">
+              {{ field.path }} · {{ field.controlType }}
+            </span>
+
+            @switch (field.controlType) {
+              @case ('textarea') {
+                <textarea
+                  aria-label="label-{{ field.controlName }}"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
+                  [placeholder]="field.placeholder || field.label"
+                  rows="5"
+                ></textarea>
+              }
+              @case ('number') {
+                <input
+                  aria-label="label-{{ field.controlName }}"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
+                  type="number"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+              @case ('checkbox') {
+                <label
+                  class="graph-renderer__checkbox"
+                  [attr.for]="'graph-input-' + field.controlName"
+                >
+                  <input
+                    [id]="'graph-input-' + field.controlName"
+                    [formControlName]="field.controlName"
+                    type="checkbox"
+                    [attr.aria-label]="field.label"
+                    [attr.title]="field.label"
+                  />
+                  <span>{{ field.placeholder || field.label }}</span>
+                </label>
+              }
+              @case ('date') {
+                <input
+                  aria-label="label-{{ field.controlName }}"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
+                  type="date"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+              @case ('email') {
+                <input
+                  aria-label="label-{{ field.controlName }}"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
+                  type="email"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+              @case ('url') {
+                <input
+                  aria-label="label-{{ field.controlName }}"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
+                  type="url"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+              @default {
+                <input
+                  aria-label="label-{{ field.controlName }}"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
+                  type="text"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+            }
+
+            @if (fieldErrors(field).length) {
+              <ul class="graph-renderer__errors">
+                @for (message of fieldErrors(field); track message) {
+                  <li>{{ message }}</li>
+                }
+              </ul>
+            }
+
+            <button
+              type="button"
+              class="graph-renderer__duplicate"
+              (click)="duplicateInput(field.path)"
+            >
+              Duplicate value node
+            </button>
+          </article>
+        }
+      </form>
+
+      <div class="graph-renderer__validation">
+        <p>Model validation</p>
+        <strong>{{ hasFormErrors() ? 'Invalid' : 'Valid' }}</strong>
+        <small>
+          {{
+            workflowInputErrors()
+              ? displayValue(workflowInputErrors())
+              : 'No model errors'
+          }}
+        </small>
+      </div>
+    </aside>
+
+    <aside class="graph-renderer__side graph-renderer__side--outputs">
+      <div class="graph-renderer__side-header">
+        <p>Workflow outputs</p>
+        <h2>Run result</h2>
+        <small>
+          Outputs are returned by the workflow engine and are not rendered as
+          canvas nodes.
+        </small>
+      </div>
+
+      <div class="graph-renderer__ports">
+        @for (port of viewModel().workflowOutputs; track port.property) {
+          <article
+            class="graph-renderer__port-card graph-renderer__port-card--output"
+          >
+            <div>
+              <strong>{{ port.label }}</strong>
+              <small>{{ port.property }} · {{ port.type || 'unknown' }}</small>
+            </div>
+            <span>{{ workflowOutputValue(port.property) }}</span>
+          </article>
+        }
+      </div>
+
+      <div class="graph-renderer__snapshot">
+        <div class="graph-renderer__snapshot-header">
+          <p>Snapshot</p>
+          <small>
+            Save the live graph state or restore a previously serialized
+            snapshot.
+          </small>
+        </div>
+
+        <textarea
+          aria-label="label-snapshot"
+          #snapshotArea
+          class="graph-renderer__snapshot-text"
+          [value]="snapshotValue()"
+          (input)="updateSnapshotValue(snapshotArea.value)"
+          rows="12"
+          spellcheck="false"
+        ></textarea>
+
+        <div class="graph-renderer__snapshot-actions">
+          <button
+            type="button"
+            class="graph-renderer__snapshot-button"
+            (click)="saveSnapshot()"
+          >
+            Save snapshot
+          </button>
+          <button
+            type="button"
+            class="graph-renderer__snapshot-button"
+            (click)="loadSnapshot()"
+          >
+            Load snapshot
+          </button>
+        </div>
+      </div>
+    </aside>
+  </section>
+</section>

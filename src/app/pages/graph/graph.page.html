@@ -21,10 +21,16 @@
     </div> -->
 
     <app-graph-renderer
+      [graph]="workflowRoot"
+      [nodes]="availableNodes"
+      [outputs]="lastResult()"
+    />
+
+    <!-- <app-graph-renderer
       [graphRoot]="workflowRoot"
       [outputs]="lastResult()"
       [availableNodes]="availableNodes"
-    />
+    /> -->
 
     @if (workflowOutputs().length) {
     <section class="graph-page__outputs">

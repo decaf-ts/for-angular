@@ -1,6 +1,16 @@
-import type { GraphNodeDefinition, GraphPortDefinition } from '@decaf-ts/ui-decorators/graph';
-import type { GraphWorkflowDefinition } from '@decaf-ts/ui-decorators/graph';
 import type { SwitchNodeMetadata } from '@decaf-ts/integrations/graph/shared';
+import type { GraphNodeDefinition, GraphPortDefinition, GraphWorkflowDefinition } from '@decaf-ts/ui-decorators/graph';
+
+interface GraphWorkflowsItem {
+  id: GraphWorkflowsItemId;
+  label: string;
+  icon: string;
+  group: 'primary' | 'secondary';
+  count?: number;
+}
+
+type GraphWorkflowsActionId = 'add' | 'search' | 'filter' | 'toggle';
+type GraphWorkflowsItemId = 'drafts' | 'running' | 'completed' | 'failed' | 'scheduled' | 'archived';
 
 export interface GraphDemoNodeData {
   title: string;

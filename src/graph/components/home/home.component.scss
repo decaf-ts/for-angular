@@ -1,0 +1,51 @@
+.dcf-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--dcf-border-color);
+
+  &-content {
+    padding-top: 1rem;
+  }
+
+  &-button {
+    appearance: none;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--dcf-text-secondary);
+    border-bottom: 2px solid transparent;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease;
+
+    &:hover {
+      color: var(--dcf-text-primary);
+    }
+
+    &-active {
+      color: var(--dcf-primary);
+      border-bottom-color: var(--dcf-primary);
+    }
+  }
+}
+
+::ng-deep {
+  ngx-decaf-card ion-card {
+    margin: 0px !important;
+    animation: tabInAnimation 0.2s ease-out;
+  }
+}
+
+@keyframes tabInAnimation {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

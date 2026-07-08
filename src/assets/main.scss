@@ -1,0 +1,56 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@use "./theme/variables.scss";
+@use "./theme/ng-diagram.scss";
+
+@use "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@forward "@ionic/angular/css/normalize.css";
+@forward "@ionic/angular/css/structure.css";
+@forward "@ionic/angular/css/typography.css";
+@forward "@ionic/angular/css/display.css";
+
+@forward "@decaf-ts/styles/dist/main.css";
+
+@forward "@tabler/icons-webfont/dist/tabler-icons.scss";
+/* ng-diagram/styles.css is loaded via angular.json — its internal
+   relative @import './tokens.css' cannot resolve when inlined by Sass */
+
+html {
+  --ion-dynamic-font: var(--dcf-default-dynamic-font);
+}
+html,
+body,
+* {
+  font-family: var(--dcf-default-dynamic-font);
+  font-style: normal;
+}
+
+/* Make ng-diagram node wrapper transparent so only the custom node template is visible */
+:root {
+  --ngd-node-bg-primary-default: transparent !important;
+  --ngd-node-stroke-primary-default: transparent !important;
+  --ngd-node-stroke-primary-hover: transparent !important;
+}
+
+.ng-diagram-node-wrapper,
+.ng-diagram-node-wrapper.node {
+  background: transparent !important;
+  border: none !important;
+}
+
+ng-diagram-base-node-template,
+ng-diagram-node-resize-adornment {
+  background: transparent !important;
+}

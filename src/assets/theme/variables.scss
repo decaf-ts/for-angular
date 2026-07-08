@@ -101,7 +101,7 @@ $dcf-media-2xl: 1536px;
    ========================================================================== */
 
 $dcf-font-family-base: Inter, Roboto, Arial, sans-serif;
-$dcf-font-family-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+$dcf-font-family-mono: "Ubuntu", "SFMono-Regular", Consolas, monospace;
 
 $dcf-font-weight-regular: 400;
 $dcf-font-weight-medium: 500;
@@ -210,6 +210,9 @@ $dcf-size-avatar: 40px;
 $dcf-size-icon: 20px;
 $dcf-size-touch: 42px;
 
+/* ==========================================================================
+    Forms
+   ========================================================================== */
 $dcf-form-field-height: 42px;
 $dcf-form-field-font-size: 1rem;
 $dcf-form-field-border-radius: 4px;
@@ -220,8 +223,8 @@ $dcf-form-field-error-font-size: 0.725rem;
    Border / Elevation / Focus / Motion
    ========================================================================== */
 
-$dcf-border-subtle: 1px solid $dcf-color-border;
 $dcf-border-default: 1px solid $dcf-color-outline;
+$dcf-border-alt: 1px solid $dcf-color-border;
 $dcf-border-strong: 1px solid $dcf-color-outline-shade;
 $dcf-border-focus: 2px solid $dcf-color-primary;
 
@@ -293,7 +296,6 @@ $dcf-border-radius-large: $dcf-radius-lg;
    Dark Mode Tokens
    ========================================================================== */
 
-$dcf-dark-color-background: #0d0f1a;
 $dcf-dark-color-surface: #161827;
 $dcf-dark-color-surface-rgb: 22, 24, 39;
 $dcf-dark-color-surface-subtle: #1c1f31;
@@ -351,7 +353,7 @@ $dcf-dark-border-strong: 1px solid $dcf-dark-color-outline-shade;
 
 @mixin dcf-surface-mixin() {
   background: var(--dcf-color-surface);
-  border: var(--dcf-border-subtle);
+  border: var(--dcf-border-alt);
   border-radius: var(--dcf-radius-md);
   box-shadow: var(--dcf-shadow-card);
 }
@@ -385,202 +387,202 @@ $dcf-dark-border-strong: 1px solid $dcf-dark-color-outline-shade;
 }
 
 :root {
-  --dcf-color-primary: $dcf-color-primary;
-  --dcf-color-primary-shade: $dcf-color-primary-shade;
-  --dcf-color-primary-tint: $dcf-color-primary-tint;
-  --dcf-color-primary-rgb: $dcf-color-primary-rgb;
+  --dcf-color-primary: #{$dcf-color-primary};
+  --dcf-color-primary-shade: #{$dcf-color-primary-shade};
+  --dcf-color-primary-tint: #{$dcf-color-primary-tint};
+  --dcf-color-primary-rgb: #{$dcf-color-primary-rgb};
 
-  --dcf-color-secondary: $dcf-color-secondary;
-  --dcf-color-secondary-shade: $dcf-color-secondary-shade;
-  --dcf-color-secondary-tint: $dcf-color-secondary-tint;
-  --dcf-color-secondary-rgb: $dcf-color-secondary-rgb;
+  --dcf-color-secondary: #{$dcf-color-secondary};
+  --dcf-color-secondary-shade: #{$dcf-color-secondary-shade};
+  --dcf-color-secondary-tint: #{$dcf-color-secondary-tint};
+  --dcf-color-secondary-rgb: #{$dcf-color-secondary-rgb};
 
-  --dcf-color-tertiary: $dcf-color-tertiary;
-  --dcf-color-tertiary-shade: $dcf-color-tertiary-shade;
-  --dcf-color-tertiary-tint: $dcf-color-tertiary-tint;
-  --dcf-color-tertiary-rgb: $dcf-color-tertiary-rgb;
+  --dcf-color-tertiary: #{$dcf-color-tertiary};
+  --dcf-color-tertiary-shade: #{$dcf-color-tertiary-shade};
+  --dcf-color-tertiary-tint: #{$dcf-color-tertiary-tint};
+  --dcf-color-tertiary-rgb: #{$dcf-color-tertiary-rgb};
 
-  --dcf-color-success: $dcf-color-success;
-  --dcf-color-success-shade: $dcf-color-success-shade;
-  --dcf-color-success-tint: $dcf-color-success-tint;
-  --dcf-color-success-rgb: $dcf-color-success-rgb;
+  --dcf-color-success: #{$dcf-color-success};
+  --dcf-color-success-shade: #{$dcf-color-success-shade};
+  --dcf-color-success-tint: #{$dcf-color-success-tint};
+  --dcf-color-success-rgb: #{$dcf-color-success-rgb};
 
-  --dcf-color-warning: $dcf-color-warning;
-  --dcf-color-warning-shade: $dcf-color-warning-shade;
-  --dcf-color-warning-tint: $dcf-color-warning-tint;
-  --dcf-color-warning-rgb: $dcf-color-warning-rgb;
+  --dcf-color-warning: #{$dcf-color-warning};
+  --dcf-color-warning-shade: #{$dcf-color-warning-shade};
+  --dcf-color-warning-tint: #{$dcf-color-warning-tint};
+  --dcf-color-warning-rgb: #{$dcf-color-warning-rgb};
 
-  --dcf-color-danger: $dcf-color-danger;
-  --dcf-color-danger-shade: $dcf-color-danger-shade;
-  --dcf-color-danger-tint: $dcf-color-danger-tint;
-  --dcf-color-danger-rgb: $dcf-color-danger-rgb;
+  --dcf-color-danger: #{$dcf-color-danger};
+  --dcf-color-danger-shade: #{$dcf-color-danger-shade};
+  --dcf-color-danger-tint: #{$dcf-color-danger-tint};
+  --dcf-color-danger-rgb: #{$dcf-color-danger-rgb};
 
-  --dcf-color-info: $dcf-color-info;
-  --dcf-color-info-shade: $dcf-color-info-shade;
-  --dcf-color-info-tint: $dcf-color-info-tint;
-  --dcf-color-info-rgb: $dcf-color-info-rgb;
+  --dcf-color-info: #{$dcf-color-info};
+  --dcf-color-info-shade: #{$dcf-color-info-shade};
+  --dcf-color-info-tint: #{$dcf-color-info-tint};
+  --dcf-color-info-rgb: #{$dcf-color-info-rgb};
 
-  --dcf-color-neutral: $dcf-color-neutral;
-  --dcf-color-neutral-shade: $dcf-color-neutral-shade;
-  --dcf-color-neutral-tint: $dcf-color-neutral-tint;
-  --dcf-color-neutral-rgb: $dcf-color-neutral-rgb;
+  --dcf-color-neutral: #{$dcf-color-neutral};
+  --dcf-color-neutral-shade: #{$dcf-color-neutral-shade};
+  --dcf-color-neutral-tint: #{$dcf-color-neutral-tint};
+  --dcf-color-neutral-rgb: #{$dcf-color-neutral-rgb};
 
-  --dcf-color-background: $dcf-color-background;
-  --dcf-color-surface: $dcf-color-surface;
-  --dcf-color-surface-rgb: $dcf-color-surface-rgb;
-  --dcf-color-surface-subtle: $dcf-color-surface-subtle;
-  --dcf-color-surface-soft: $dcf-color-surface-soft;
-  --dcf-color-surface-shade: $dcf-color-surface-shade;
-  --dcf-color-surface-inverse: $dcf-color-surface-inverse;
+  --dcf-color-background: #{$dcf-color-background};
+  --dcf-color-surface: #{$dcf-color-surface};
+  --dcf-color-surface-rgb: #{$dcf-color-surface-rgb};
+  --dcf-color-surface-subtle: #{$dcf-color-surface-subtle};
+  --dcf-color-surface-soft: #{$dcf-color-surface-soft};
+  --dcf-color-surface-shade: #{$dcf-color-surface-shade};
+  --dcf-color-surface-inverse: #{$dcf-color-surface-inverse};
 
-  --dcf-color-border: $dcf-color-border;
-  --dcf-color-border-rgb: $dcf-color-border-rgb;
-  --dcf-color-outline: $dcf-color-outline;
-  --dcf-color-outline-shade: $dcf-color-outline-shade;
-  --dcf-color-outline-rgb: $dcf-color-outline-rgb;
+  --dcf-color-border: #{$dcf-color-border};
+  --dcf-color-border-rgb: #{$dcf-color-border-rgb};
+  --dcf-color-outline: #{$dcf-color-outline};
+  --dcf-color-outline-shade: #{$dcf-color-outline-shade};
+  --dcf-color-outline-rgb: #{$dcf-color-outline-rgb};
 
-  --dcf-color-text-primary: $dcf-color-text-primary;
-  --dcf-color-text-primary-rgb: $dcf-color-text-primary-rgb;
-  --dcf-color-text-secondary: $dcf-color-text-secondary;
-  --dcf-color-text-tertiary: $dcf-color-text-tertiary;
-  --dcf-color-text-disabled: $dcf-color-text-disabled;
-  --dcf-color-text-inverse: $dcf-color-text-inverse;
+  --dcf-color-text-primary: #{$dcf-color-text-primary};
+  --dcf-color-text-primary-rgb: #{$dcf-color-text-primary-rgb};
+  --dcf-color-text-secondary: #{$dcf-color-text-secondary};
+  --dcf-color-text-tertiary: #{$dcf-color-text-tertiary};
+  --dcf-color-text-disabled: #{$dcf-color-text-disabled};
+  --dcf-color-text-inverse: #{$dcf-color-text-inverse};
 
-  --dcf-sidebar-width: $dcf-sidebar-width;
-  --dcf-sidebar-width-min: $dcf-sidebar-width-min;
-  --dcf-sidebar-collapsed-width: $dcf-sidebar-collapsed-width;
-  --dcf-navbar-height: $dcf-navbar-height;
+  --dcf-sidebar-width: #{$dcf-sidebar-width};
+  --dcf-sidebar-width-min: #{$dcf-sidebar-width-min};
+  --dcf-sidebar-collapsed-width: #{$dcf-sidebar-collapsed-width};
+  --dcf-navbar-height: #{$dcf-navbar-height};
 
-  --dcf-page-padding-x: $dcf-page-padding-x;
-  --dcf-page-padding-y: $dcf-page-padding-y;
+  --dcf-page-padding-x: #{$dcf-page-padding-x};
+  --dcf-page-padding-y: #{$dcf-page-padding-y};
 
-  --dcf-media-xs: $dcf-media-xs;
-  --dcf-media-sm: $dcf-media-sm;
-  --dcf-media-md: $dcf-media-md;
-  --dcf-media-lg: $dcf-media-lg;
-  --dcf-media-xl: $dcf-media-xl;
-  --dcf-media-2xl: $dcf-media-2xl;
+  --dcf-media-xs: #{$dcf-media-xs};
+  --dcf-media-sm: #{$dcf-media-sm};
+  --dcf-media-md: #{$dcf-media-md};
+  --dcf-media-lg: #{$dcf-media-lg};
+  --dcf-media-xl: #{$dcf-media-xl};
+  --dcf-media-2xl: #{$dcf-media-2xl};
 
-  --dcf-font-family-base: $dcf-font-family-base;
-  --dcf-font-family-mono: $dcf-font-family-mono;
+  --dcf-font-family-base: #{$dcf-font-family-base};
+  --dcf-font-family-mono: #{$dcf-font-family-mono};
 
-  --dcf-font-weight-regular: $dcf-font-weight-regular;
-  --dcf-font-weight-medium: $dcf-font-weight-medium;
-  --dcf-font-weight-semibold: $dcf-font-weight-semibold;
-  --dcf-font-weight-bold: $dcf-font-weight-bold;
-  --dcf-font-weight-extrabold: $dcf-font-weight-extrabold;
+  --dcf-font-weight-regular: #{$dcf-font-weight-regular};
+  --dcf-font-weight-medium: #{$dcf-font-weight-medium};
+  --dcf-font-weight-semibold: #{$dcf-font-weight-semibold};
+  --dcf-font-weight-bold: #{$dcf-font-weight-bold};
+  --dcf-font-weight-extrabold: #{$dcf-font-weight-extrabold};
 
-  --dcf-font-size-display: $dcf-font-size-display;
-  --dcf-line-height-display: $dcf-line-height-display;
+  --dcf-font-size-display: #{$dcf-font-size-display};
+  --dcf-line-height-display: #{$dcf-line-height-display};
 
-  --dcf-font-size-h1: $dcf-font-size-h1;
-  --dcf-line-height-h1: $dcf-line-height-h1;
+  --dcf-font-size-h1: #{$dcf-font-size-h1};
+  --dcf-line-height-h1: #{$dcf-line-height-h1};
 
-  --dcf-font-size-h2: $dcf-font-size-h2;
-  --dcf-line-height-h2: $dcf-line-height-h2;
+  --dcf-font-size-h2: #{$dcf-font-size-h2};
+  --dcf-line-height-h2: #{$dcf-line-height-h2};
 
-  --dcf-font-size-h3: $dcf-font-size-h3;
-  --dcf-line-height-h3: $dcf-line-height-h3;
+  --dcf-font-size-h3: #{$dcf-font-size-h3};
+  --dcf-line-height-h3: #{$dcf-line-height-h3};
 
-  --dcf-font-size-h4: $dcf-font-size-h4;
-  --dcf-line-height-h4: $dcf-line-height-h4;
+  --dcf-font-size-h4: #{$dcf-font-size-h4};
+  --dcf-line-height-h4: #{$dcf-line-height-h4};
 
-  --dcf-font-size-h5: $dcf-font-size-h5;
-  --dcf-line-height-h5: $dcf-line-height-h5;
+  --dcf-font-size-h5: #{$dcf-font-size-h5};
+  --dcf-line-height-h5: #{$dcf-line-height-h5};
 
-  --dcf-font-size-h6: $dcf-font-size-h6;
-  --dcf-line-height-h6: $dcf-line-height-h6;
+  --dcf-font-size-h6: #{$dcf-font-size-h6};
+  --dcf-line-height-h6: #{$dcf-line-height-h6};
 
-  --dcf-font-size-base: $dcf-font-size-base;
-  --dcf-line-height-base: $dcf-line-height-base;
-  --dcf-font-size-body: $dcf-font-size-base;
-  --dcf-line-height-body: $dcf-line-height-base;
+  --dcf-font-size-base: #{$dcf-font-size-base};
+  --dcf-line-height-base: #{$dcf-line-height-base};
+  --dcf-font-size-body: #{$dcf-font-size-base};
+  --dcf-line-height-body: #{$dcf-line-height-base};
 
-  --dcf-font-size-lg: $dcf-font-size-lg;
-  --dcf-line-height-text-lg: $dcf-line-height-text-lg;
-  --dcf-line-height-lg: $dcf-line-height-text-lg;
+  --dcf-font-size-lg: #{$dcf-font-size-lg};
+  --dcf-line-height-text-lg: #{$dcf-line-height-text-lg};
+  --dcf-line-height-lg: #{$dcf-line-height-text-lg};
 
-  --dcf-font-size-sm: $dcf-font-size-sm;
-  --dcf-line-height-sm: $dcf-line-height-sm;
-  --dcf-line-height-font-sm: $dcf-line-height-font-sm;
+  --dcf-font-size-sm: #{$dcf-font-size-sm};
+  --dcf-line-height-sm: #{$dcf-line-height-sm};
+  --dcf-line-height-font-sm: #{$dcf-line-height-font-sm};
 
-  --dcf-font-size-meta: $dcf-font-size-meta;
-  --dcf-line-height-meta: $dcf-line-height-meta;
-  --dcf-line-height-size-meta: $dcf-line-height-size-meta;
+  --dcf-font-size-meta: #{$dcf-font-size-meta};
+  --dcf-line-height-meta: #{$dcf-line-height-meta};
+  --dcf-line-height-size-meta: #{$dcf-line-height-size-meta};
 
-  --dcf-font-size-caption: $dcf-font-size-caption;
-  --dcf-line-height-caption: $dcf-line-height-caption;
-  --dcf-line-height-size-caption: $dcf-line-height-size-caption;
+  --dcf-font-size-caption: #{$dcf-font-size-caption};
+  --dcf-line-height-caption: #{$dcf-line-height-caption};
+  --dcf-line-height-size-caption: #{$dcf-line-height-size-caption};
 
-  --dcf-font-size-label-caps: $dcf-font-size-label-caps;
-  --dcf-line-height-label-caps: $dcf-line-height-label-caps;
-  --dcf-letter-spacing-label-caps: $dcf-letter-spacing-label-caps;
+  --dcf-font-size-label-caps: #{$dcf-font-size-label-caps};
+  --dcf-line-height-label-caps: #{$dcf-line-height-label-caps};
+  --dcf-letter-spacing-label-caps: #{$dcf-letter-spacing-label-caps};
 
-  --dcf-space-0: $dcf-space-0;
-  --dcf-space-1: $dcf-space-1;
-  --dcf-space-2: $dcf-space-2;
-  --dcf-space-3: $dcf-space-3;
-  --dcf-space-4: $dcf-space-4;
-  --dcf-space-5: $dcf-space-5;
-  --dcf-space-6: $dcf-space-6;
-  --dcf-space-8: $dcf-space-8;
-  --dcf-space-10: $dcf-space-10;
-  --dcf-space-11: $dcf-space-11;
-  --dcf-space-12: $dcf-space-12;
-  --dcf-space-13: $dcf-space-13;
-  --dcf-space-14: $dcf-space-14;
-  --dcf-space-15: $dcf-space-15;
+  --dcf-space-0: #{$dcf-space-0};
+  --dcf-space-1: #{$dcf-space-1};
+  --dcf-space-2: #{$dcf-space-2};
+  --dcf-space-3: #{$dcf-space-3};
+  --dcf-space-4: #{$dcf-space-4};
+  --dcf-space-5: #{$dcf-space-5};
+  --dcf-space-6: #{$dcf-space-6};
+  --dcf-space-8: #{$dcf-space-8};
+  --dcf-space-10: #{$dcf-space-10};
+  --dcf-space-11: #{$dcf-space-11};
+  --dcf-space-12: #{$dcf-space-12};
+  --dcf-space-13: #{$dcf-space-13};
+  --dcf-space-14: #{$dcf-space-14};
+  --dcf-space-15: #{$dcf-space-15};
 
-  --dcf-radius-xs: $dcf-radius-xs;
-  --dcf-radius-sm: $dcf-radius-sm;
-  --dcf-radius-md: $dcf-radius-md;
-  --dcf-radius-lg: $dcf-radius-lg;
-  --dcf-radius-xl: $dcf-radius-xl;
-  --dcf-radius-full: $dcf-radius-full;
+  --dcf-radius-xs: #{$dcf-radius-xs};
+  --dcf-radius-sm: #{$dcf-radius-sm};
+  --dcf-radius-md: #{$dcf-radius-md};
+  --dcf-radius-lg: #{$dcf-radius-lg};
+  --dcf-radius-xl: #{$dcf-radius-xl};
+  --dcf-radius-full: #{$dcf-radius-full};
 
-  --dcf-size-button-height: $dcf-size-button-height;
-  --dcf-size-field-height: $dcf-size-field-height;
-  --dcf-size-avatar: $dcf-size-avatar;
-  --dcf-size-icon: $dcf-size-icon;
-  --dcf-size-touch: $dcf-size-touch;
+  --dcf-size-button-height: #{$dcf-size-button-height};
+  --dcf-size-field-height: #{$dcf-size-field-height};
+  --dcf-size-avatar: #{$dcf-size-avatar};
+  --dcf-size-icon: #{$dcf-size-icon};
+  --dcf-size-touch: #{$dcf-size-touch};
 
-  --dcf-border-subtle: $dcf-border-subtle;
-  --dcf-border-default: $dcf-border-default;
-  --dcf-border-strong: $dcf-border-strong;
-  --dcf-border-focus: $dcf-border-focus;
+  --dcf-border-alt: #{$dcf-border-alt};
+  --dcf-border-default: #{$dcf-border-default};
+  --dcf-border-strong: #{$dcf-border-strong};
+  --dcf-border-focus: #{$dcf-border-focus};
 
-  --dcf-shadow-card: $dcf-shadow-card;
-  --dcf-shadow-popover: $dcf-shadow-popover;
-  --dcf-shadow-modal: $dcf-shadow-modal;
-  --dcf-shadow-glass: $dcf-shadow-glass;
+  --dcf-shadow-card: #{$dcf-shadow-card};
+  --dcf-shadow-popover: #{$dcf-shadow-popover};
+  --dcf-shadow-modal: #{$dcf-shadow-modal};
+  --dcf-shadow-glass: #{$dcf-shadow-glass};
 
-  --dcf-focus-ring: $dcf-focus-ring;
+  --dcf-focus-ring: #{$dcf-focus-ring};
 
-  --dcf-motion-fast: $dcf-motion-fast;
-  --dcf-motion-base: $dcf-motion-base;
-  --dcf-motion-slow: $dcf-motion-slow;
-  --dcf-easing-standard: $dcf-easing-standard;
+  --dcf-motion-fast: #{$dcf-motion-fast};
+  --dcf-motion-base: #{$dcf-motion-base};
+  --dcf-motion-slow: #{$dcf-motion-slow};
+  --dcf-easing-standard: #{$dcf-easing-standard};
 
-  --dcf-box-shadow: $dcf-box-shadow;
-  --dcf-box-shadow-sm: $dcf-box-shadow-sm;
-  --dcf-box-shadow-md: $dcf-box-shadow-md;
-  --dcf-box-shadow-sg: $dcf-box-shadow-sg;
-  --dcf-box-shadow-xl: $dcf-box-shadow-xl;
-  --dcf-box-shadow-cp: $dcf-box-shadow-cp;
+  --dcf-box-shadow: #{$dcf-box-shadow};
+  --dcf-box-shadow-sm: #{$dcf-box-shadow-sm};
+  --dcf-box-shadow-md: #{$dcf-box-shadow-md};
+  --dcf-box-shadow-sg: #{$dcf-box-shadow-sg};
+  --dcf-box-shadow-xl: #{$dcf-box-shadow-xl};
+  --dcf-box-shadow-cp: #{$dcf-box-shadow-cp};
 
-  --dcf-radius-xs: $dcf-radius-xs;
-  --dcf-radius-sm: $dcf-radius-sm;
-  --dcf-radius-md: $dcf-radius-md;
-  --dcf-radius-lg: $dcf-radius-lg;
+  --dcf-radius-xs: #{$dcf-radius-xs};
+  --dcf-radius-sm: #{$dcf-radius-sm};
+  --dcf-radius-md: #{$dcf-radius-md};
+  --dcf-radius-lg: #{$dcf-radius-lg};
 
-  --dcf-border-radius-xsmall: $dcf-radius-xs;
-  --dcf-border-radius: $dcf-radius-sm;
-  --dcf-border-radius-small: $dcf-radius-md;
-  --dcf-border-radius-large: $dcf-radius-lg;
+  --dcf-border-radius-xsmall: #{$dcf-radius-xs};
+  --dcf-border-radius: #{$dcf-radius-sm};
+  --dcf-border-radius-small: #{$dcf-radius-md};
+  --dcf-border-radius-large: #{$dcf-radius-lg};
 
-  --dcf-form-field-border-radius: $dcf-form-field-border-radius;
-  --dcf-form-field-height: $dcf-form-field-height;
-  --dcf-form-field-font-size: $dcf-form-field-font-size;
-  --dcf-form-field-active-font-size: $dcf-form-field-active-font-size;
-  --dcf-form-field-error-font-size: $dcf-form-field-error-font-size;
+  --dcf-form-field-border-radius: #{$dcf-form-field-border-radius};
+  --dcf-form-field-height: #{$dcf-form-field-height};
+  --dcf-form-field-font-size: #{$dcf-form-field-font-size};
+  --dcf-form-field-active-font-size: #{$dcf-form-field-active-font-size};
+  --dcf-form-field-error-font-size: #{$dcf-form-field-error-font-size};
 }

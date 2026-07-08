@@ -1,0 +1,33 @@
+<nav
+  class="dcf-tabs"
+  role="tablist"
+>
+  @for (tab of tabs; track tab.id) {
+    <button
+      type="button"
+      role="tab"
+      class="dcf-tabs-button"
+      [class.dcf-tabs-button-active]="activeTab() === tab.id"
+      [attr.aria-selected]="activeTab() === tab.id"
+      (click)="selectTab(tab.id)"
+    >
+      {{ tab.label }}
+    </button>
+  }
+</nav>
+
+<div class="dcf-tabs-content">
+  <section role="tabpanel">
+    @switch (activeTab()) {
+      @case ('executions') {
+        <ngx-decaf-card>aaa</ngx-decaf-card>
+      }
+      @case ('credentials') {
+        <ngx-decaf-card>bbb</ngx-decaf-card>
+      }
+      @case ('workflows') {
+        <ngx-decaf-card>ccc</ngx-decaf-card>
+      }
+    }
+  </section>
+</div>

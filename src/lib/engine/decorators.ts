@@ -1,15 +1,10 @@
-import { apply, metadata } from '@decaf-ts/decoration';
+import { reflectComponentType, Type } from '@angular/core';
+import { Repository as CoreRepository, Service as CoreService, ModelService } from '@decaf-ts/core';
+import { InternalError } from '@decaf-ts/db-decorators';
+import { apply, Constructor, metadata, Metadata } from '@decaf-ts/decoration';
+import { Model } from '@decaf-ts/decorator-validation';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { AngularEngineKeys } from './constants';
-import { Constructor, Metadata } from '@decaf-ts/decoration';
-import { InternalError } from '@decaf-ts/db-decorators';
-import { reflectComponentType, Type } from '@angular/core';
-import { Model } from '@decaf-ts/decorator-validation';
-import {
-  ModelService,
-  Repository as CoreRepository,
-  Service as CoreService,
-} from '@decaf-ts/core';
 
 /**
  * @description Marks an Angular component as dynamically loadable
@@ -49,7 +44,7 @@ export function Dynamic() {
   );
 }
 
-function isModelConstructor(value: unknown): value is Constructor<any> {
+function isModelConstructor(value: unknown): value is Constructor<unknown> {
   return typeof value === 'function' && value.prototype instanceof Model;
 }
 
@@ -77,20 +72,13 @@ function isModelConstructor(value: unknown): value is Constructor<any> {
  * @return the resolved `ModelService<M>` when `key` is a Model class, otherwise the registered `Service` instance.
  * @category Decorators
  */
-export function injectService<M extends Model<boolean>>(
-  model: Constructor<M>
-): ModelService<M>;
-export function injectService<S extends CoreService>(
-  service: Constructor<S>
-): S;
+export function injectService<M extends Model<boolean>>(model: Constructor<M>): ModelService<M>;
+export function injectService<S extends CoreService>(service: Constructor<S>): S;
 export function injectService<S extends CoreService>(alias: string): S;
-export function injectService(key: string | Constructor<any>): any {
-  if (key == null)
-    throw new InternalError(
-      `injectService() requires a model class, service class, or alias string`
-    );
+export function injectService(key: string | Constructor<unknown>): unknown {
+  if (key == null) throw new InternalError(`injectService() requires a model class, service class, or alias string`);
   if (typeof key === 'string') return CoreService.get(key);
-  if (isModelConstructor(key)) return ModelService.forModel(key);
+  if (isModelConstructor(key)) return ModelService.forModel(key as Constructor<Model>);
   return CoreService.get(key);
 }
 
@@ -118,7 +106,6 @@ export function injectRepository<M extends Model<boolean>>(
   model: Constructor<M>,
   flavour?: string
 ): CoreRepository<M, any> {
-  if (model == null)
-    throw new InternalError(`injectRepository() requires a model class`);
+  if (model == null) throw new InternalError(`injectRepository() requires a model class`);
   return CoreRepository.forModel(model, flavour);
 }

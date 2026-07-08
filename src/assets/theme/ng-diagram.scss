@@ -1,0 +1,149 @@
+// ng-diagram semantic tokens (--ngd-*) remapped onto this project's --dcf-*
+// design tokens instead of the package's own gray/accent primitives, so the
+// diagram matches the app theme even in builds where ng-diagram's own
+// tokens.css/primitives.css are not loaded. Each value below was picked as
+// the closest existing --dcf-* match to the package's default (see
+// node_modules/ng-diagram/{tokens,primitives}.css for the original values).
+:root {
+  --ngd-node-background-color: var(--dcf-color-surface);
+  --ngd-node-border-color: var(--dcf-color-outline);
+  --ngd-node-border-color-hover: var(--dcf-color-primary);
+  --ngd-node-border-radius: var(--dcf-radius-md);
+  --ngd-node-border-size: 0.0625rem;
+
+  --ngd-group-border-color: var(--dcf-color-neutral);
+  --ngd-group-border-color-hover: var(--dcf-color-neutral-shade);
+  --ngd-group-border-color-highlight: var(--dcf-color-primary);
+  --ngd-group-box-shadow-color-highlight: rgba(var(--dcf-color-primary-rgb), 0.5);
+  --ngd-group-background-color-highlight: var(--dcf-color-outline);
+  --ngd-group-border-radius: var(--dcf-radius-md);
+  --ngd-group-highlight-size: 1.25rem;
+
+  --ngd-selected-node-box-shadow: var(--dcf-focus-ring);
+
+  --ngd-rotate-handle-size: 2rem;
+  --ngd-rotate-handle-distance: 2rem;
+  --ngd-rotate-handle-background-color: var(--dcf-color-neutral);
+  --ngd-rotate-handle-background-color-hover: var(--dcf-color-neutral-shade);
+  --ngd-rotate-handle-background-color-active: var(--dcf-color-text-primary);
+  --ngd-rotate-handle-xy: calc(-0.7071 * var(--ngd-rotate-handle-distance));
+  --ngd-rotate-handle-top: var(--ngd-rotate-handle-xy);
+  --ngd-rotate-handle-right: var(--ngd-rotate-handle-xy);
+
+  --ngd-resize-line-border-width: 0.0625rem;
+  --ngd-resize-line-border-style: solid;
+  --ngd-resize-line-border-color: var(--dcf-color-secondary);
+
+  --ngd-resize-handle-size: 0.375rem;
+  --ngd-resize-handle-background-color: var(--dcf-color-surface);
+  --ngd-resize-handle-border-size: 0.0625rem;
+  --ngd-resize-handle-border-style: solid;
+  --ngd-resize-handle-border-color: var(--dcf-color-secondary);
+  --ngd-resize-handle-border-radius: 0;
+
+  --ngd-port-size: 0.25rem;
+  --ngd-port-background-color: var(--dcf-color-surface);
+  --ngd-port-border-color: var(--dcf-color-neutral);
+  --ngd-port-border-size: 0.125rem;
+  --ngd-port-border-radius: 50%;
+  --ngd-port-background-color-hover: var(--dcf-color-primary);
+  --ngd-port-border-color-hover: var(--dcf-color-surface);
+  --ngd-port-border-size-hover: 0.25rem;
+
+  --ngd-default-edge-stroke: var(--dcf-color-neutral);
+  --ngd-default-edge-stroke-hover: var(--dcf-color-text-primary);
+  --ngd-default-edge-stroke-selected: var(--dcf-color-primary);
+
+  --ngd-box-selection-border-color: var(--dcf-color-primary);
+  --ngd-box-selection-border-size: var(--dcf-space-px);
+  --ngd-box-selection-background: rgba(var(--dcf-color-primary-rgb), 0.12);
+
+  --ngd-default-edge-label-background-color: var(--dcf-color-surface);
+  --ngd-default-edge-label-color: var(--dcf-color-text-primary);
+  --ngd-default-edge-label-border-color: var(--dcf-color-neutral);
+
+  --ngd-background-dot-color: var(--dcf-color-neutral);
+
+  --ngd-background-line-minor-width: 0.5;
+  --ngd-background-line-major-width: 1;
+  --ngd-background-line-minor-opacity: 0.5;
+  --ngd-background-line-major-opacity: 0.6;
+
+  --ngd-minimap-background: var(--dcf-color-surface);
+  --ngd-minimap-border-color: var(--dcf-color-outline);
+  --ngd-minimap-shadow-color: rgba(var(--dcf-color-text-primary-rgb), 0.2);
+  --ngd-minimap-border-radius: 1rem;
+  --ngd-minimap-padding: 0.5rem;
+  --ngd-minimap-margin: 1rem;
+
+  --ngd-minimap-node-color: var(--dcf-color-outline);
+  --ngd-minimap-node-opacity: 0.8;
+
+  --ngd-minimap-diagram-bounds-opacity: 0.3;
+  --ngd-minimap-diagram-bounds-color: var(--dcf-color-outline);
+
+  --ngd-minimap-viewport-stroke-color: var(--dcf-color-outline);
+  --ngd-minimap-viewport-stroke-width: 1;
+
+  --ngd-nav-button-color: var(--dcf-color-neutral-shade);
+  --ngd-nav-button-size: 1.25rem;
+  --ngd-nav-button-border-radius: var(--dcf-radius-sm);
+  --ngd-nav-button-padding: 0.6875rem;
+  --ngd-nav-button-background-color-hover: rgba(var(--dcf-color-text-primary-rgb), 0.05);
+  --ngd-nav-button-color-active: var(--dcf-color-primary-shade);
+  --ngd-nav-button-color-disabled: var(--dcf-color-text-disabled);
+
+  --ngd-zoom-controls-font-size: 0.8125rem;
+  --ngd-zoom-controls-font-weight: var(--dcf-font-weight-medium);
+  --ngd-zoom-controls-color: var(--dcf-color-neutral-shade);
+}
+
+.ng-diagram-port-hoverable .ng-diagram-port:hover,
+.ng-diagram-port-hoverable .ng-diagram-port:hover,
+.ng-diagram-port-hoverable .ng-diagram-port.custom-content:hover .content-projection,
+.ng-diagram-port-hoverable-over-node:hover:not(:has(.ng-diagram-rotate-handle:hover)):not(
+    :has([data-rotating])
+  )
+  .ng-diagram-port.custom-content
+  .content-projection,
+.ng-diagram-port-hoverable-over-node:hover:not(:has(.ng-diagram-rotate-handle:hover)):not(
+    :has([data-rotating])
+  )
+  .ng-diagram-port {
+  background-color: var(--ngd-port-background-color-hover);
+  border-color: var(--ngd-port-background-color-hover);
+  /*
+    Temporary 1px offset solution fixing the issue with white space being rendered
+    between the outline and the border of the port. `transform: scale()` could be
+    used instead, but it's causing visual distortions on the whole page in Safari.
+  */
+  outline: calc(1px + var(--ngd-port-border-size)) solid var(--ngd-port-background-color-hover);
+  outline-offset: -1px;
+
+  box-shadow: 0 0 0 var(--ngd-port-border-size-hover) var(--ngd-port-border-color-hover);
+}
+
+.ng-diagram-node-wrapper {
+  &:not(.ng-diagram-node-selected) {
+    transition: box-shadow 0.1s ease-in-out;
+  }
+
+  &.ng-diagram-group-highlight,
+  &.ng-diagram-group.ng-diagram-group-highlight {
+    border-color: var(--ngd-group-border-color-highlight);
+    box-shadow: 0px 0px var(--ngd-group-highlight-size) 0px
+      var(--ngd-group-box-shadow-color-highlight) inset;
+  }
+
+  &.ng-diagram-node-selected {
+    box-shadow: var(--ngd-selected-node-box-shadow);
+  }
+}
+
+ng-diagram {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+}
