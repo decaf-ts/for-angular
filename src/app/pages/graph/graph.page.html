@@ -7,25 +7,23 @@
       </div>
     }
 
-    <div class="graph-page__toolbar">
-      <button
-        type="button"
-        class="graph-page__run-btn"
-        [class.graph-page__run-btn--running]="isRunning()"
-        [disabled]="isRunning() || backendAvailable() === false"
-        (click)="runWorkflow()"
-      >
-        {{ isRunning() ? 'Running…' : 'Run workflow' }}
-      </button>
-      @if (runStatus() && runStatus() !== 'idle') {
-        <span class="graph-page__status">{{ runStatus() }}</span>
-      }
-      @if (runError()) {
-        <span class="graph-page__error">{{ runError() }}</span>
-      }
-    </div>
+    <app-graph-toolbar
+      [workflowId]="workflowId"
+      [canRun]="backendAvailable() !== false"
+      [isRunning]="isRunning()"
+      (runWorkflow)="runWorkflow()"
+      (saveWorkflow)="onSaveWorkflow()"
+      (restoreSnapshot)="onRestoreSnapshot($event)"
+    />
 
-    <app-graph-renderer [graphRoot]="workflowRoot" [outputs]="lastResult()" [availableNodes]="availableNodes" />
+    <app-graph-renderer
+      [graphRoot]="workflowRoot"
+      [outputs]="lastResult()"
+      [availableNodes]="availableNodes"
+      (nodeDragEnded)="onNodeDragEnded()"
+      (edgeDrawn)="onEdgeDrawn()"
+      (elementsRemoved)="onElementsRemoved()"
+    />
 
     @if (workflowOutputs().length) {
       <section class="graph-page__outputs">

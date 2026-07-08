@@ -1,7 +1,8 @@
 import { Component, Input, signal, computed, Output, EventEmitter, OnInit } from '@angular/core';
-import { IonCheckbox, IonItem, IonLabel, IonInput, IonTextarea, IonNote } from '@ionic/angular/standalone';
+import { IonInput, IonTextarea } from '@ionic/angular/standalone';
 import type { GraphPortDefinition } from '@decaf-ts/ui-decorators/graph';
 import { PortDirection } from '@decaf-ts/ui-decorators/graph';
+import { CodeEditorComponent, type CodeEditorMode } from '../code-editor/code-editor.component';
 
 export interface GraphPortFieldConfig {
   port: GraphPortDefinition;
@@ -20,7 +21,7 @@ export interface GraphPortFieldChange {
 @Component({
   selector: 'app-graph-port-field',
   standalone: true,
-  imports: [IonCheckbox, IonItem, IonLabel, IonInput, IonTextarea, IonNote],
+  imports: [IonInput, IonTextarea, CodeEditorComponent],
   templateUrl: './graph-port-field.component.html',
   styleUrl: './graph-port-field.component.scss',
 })
@@ -33,6 +34,14 @@ export class GraphPortFieldComponent implements OnInit {
     useAsPort: false,
   };
 
+  /**
+   * When set to `'formula'`, the literal-value editor (port toggle OFF) uses
+   * the CodeEditorComponent in formula mode (single-line JS syntax highlight)
+   * instead of a plain ion-input/ion-textarea. Pass `'formula'` for nodes
+   * whose input values are JS expressions (e.g. Code node).
+   */
+  @Input() codeMode: CodeEditorMode | null = null;
+
   readonly _useAsPort = signal(false);
   readonly _value = signal('');
 
@@ -43,6 +52,7 @@ export class GraphPortFieldComponent implements OnInit {
   readonly fieldLabel = computed(() => this.field?.label ?? '');
   readonly fieldType = computed(() => this.field?.type ?? 'text');
   readonly isTextarea = computed(() => this.fieldType() === 'textarea');
+  readonly useCodeEditor = computed(() => this.codeMode === 'formula' && this.isInput());
 
   @Output() fieldChange = new EventEmitter<GraphPortFieldChange>();
 
@@ -66,6 +76,11 @@ export class GraphPortFieldComponent implements OnInit {
   onValueChange(event: Event) {
     const target = event.target as HTMLInputElement | HTMLTextAreaElement;
     this._value.set(target.value);
+    this.emitChange();
+  }
+
+  onCodeChange(code: string) {
+    this._value.set(code);
     this.emitChange();
   }
 

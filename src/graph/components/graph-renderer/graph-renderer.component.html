@@ -5,6 +5,9 @@
         [model]="graphModel"
         [nodeTemplateMap]="nodeTemplateMap"
         (selectionChanged)="onSelectionChanged($event)"
+        (nodeDragEnded)="onNodeDragEnded()"
+        (edgeDrawn)="onEdgeDrawn()"
+        (selectionRemoved)="onElementsRemoved()"
       >
         <ng-diagram-background type="dots" />
         <ng-diagram-minimap

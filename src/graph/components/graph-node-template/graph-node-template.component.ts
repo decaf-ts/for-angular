@@ -172,6 +172,7 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     const existingConfig = graphNodeConfig.getConfig(nodeId);
     const initialValues = existingConfig?.values ?? {};
     const initialPortModes = existingConfig?.portModes ?? {};
+    const initialMetadata = existingConfig?.metadata ?? {};
 
     const modal = await this.modalCtrl.create({
       component: GraphNodeEditModalComponent,
@@ -181,6 +182,7 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
         nodeId,
         initialValues,
         initialPortModes,
+        initialMetadata,
       },
       presentingElement: undefined,
     });

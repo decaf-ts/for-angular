@@ -10,7 +10,14 @@
   <div class="graph-port-field__content">
     @if (!useAsPort()) {
       <span class="graph-port-field__label">{{ fieldLabel() }}</span>
-      @if (isTextarea()) {
+      @if (useCodeEditor()) {
+        <app-code-editor
+          [mode]="'formula'"
+          [code]="_value()"
+          [placeholder]="fieldLabel()"
+          (codeChange)="onCodeChange($event)"
+        />
+      } @else if (isTextarea()) {
         <ion-textarea
           class="graph-port-field__textarea"
           [value]="_value()"

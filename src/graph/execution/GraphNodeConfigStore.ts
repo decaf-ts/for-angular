@@ -5,6 +5,12 @@ export interface GraphNodeConfig {
   values: Record<string, unknown>;
   portModes: Record<string, 'port' | 'value'>;
   outputSplits: string[];
+  /**
+   * Node metadata overrides (e.g. `code`, `language`, `timeoutMs` for the
+   * Code node). Serialized alongside the graph snapshot so node settings
+   * survive save/load round-trips.
+   */
+  metadata?: Record<string, unknown>;
 }
 
 class GraphNodeConfigStore {
@@ -26,6 +32,7 @@ class GraphNodeConfigStore {
       values: result.values,
       portModes: result.portModes,
       outputSplits: result.outputSplits,
+      metadata: result.metadata,
     });
   }
 

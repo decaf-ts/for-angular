@@ -1,0 +1,62 @@
+<div class="graph-toolbar">
+  <button
+    type="button"
+    class="graph-toolbar__btn graph-toolbar__btn--undo"
+    [disabled]="!canUndo()"
+    (click)="onUndo()"
+    title="Undo (Ctrl/Cmd+Z)"
+  >
+    &#x21A9; Undo
+  </button>
+  <button
+    type="button"
+    class="graph-toolbar__btn graph-toolbar__btn--redo"
+    [disabled]="!canRedo()"
+    (click)="onRedo()"
+    title="Redo (Ctrl/Cmd+Shift+Z)"
+  >
+    &#x21AA; Redo
+  </button>
+
+  <div class="graph-toolbar__spacer"></div>
+
+  <div class="graph-toolbar__autosave">
+    <ion-toggle
+      [checked]="autoSaveEnabled()"
+      (ionChange)="onAutoSaveToggle($event)"
+      labelPlacement="start"
+    >
+      Auto-Save
+    </ion-toggle>
+  </div>
+
+  <button
+    type="button"
+    class="graph-toolbar__btn graph-toolbar__btn--save"
+    [disabled]="isSaving()"
+    (click)="onSave()"
+  >
+    @if (isSaving()) {
+      <ion-spinner name="circular" style="width: 16px; height: 16px;" />
+    } @else {
+      Save
+    }
+  </button>
+
+  @if (saveMessage()) {
+    <span class="graph-toolbar__msg graph-toolbar__msg--ok">{{ saveMessage() }}</span>
+  }
+  @if (saveError()) {
+    <span class="graph-toolbar__msg graph-toolbar__msg--err">{{ saveError() }}</span>
+  }
+
+  <button
+    type="button"
+    class="graph-toolbar__btn graph-toolbar__btn--run"
+    [class.graph-toolbar__btn--running]="isRunning()"
+    [disabled]="!canRun() || isRunning()"
+    (click)="onRun()"
+  >
+    {{ isRunning() ? 'Running...' : 'Start' }}
+  </button>
+</div>

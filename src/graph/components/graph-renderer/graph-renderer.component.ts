@@ -6,6 +6,7 @@ import {
   effect,
   inject,
   input,
+  output,
   runInInjectionContext,
   signal,
   untracked,
@@ -66,6 +67,10 @@ export class GraphRendererComponent {
   readonly graphRoot = input.required<unknown>();
   readonly outputs = input<Record<string, unknown> | null>(null);
   readonly availableNodes = input<unknown[]>([]);
+
+  readonly nodeDragEnded = output<void>();
+  readonly edgeDrawn = output<void>();
+  readonly elementsRemoved = output<void>();
 
   readonly nodeTemplateMap = new NgDiagramNodeTemplateMap([
     ['workflow', GraphNodeTemplateComponent],
@@ -194,6 +199,18 @@ export class GraphRendererComponent {
     graphSelection.setSelected((event.selectedNodes ?? []).map((n) => n.id));
   }
 
+  onNodeDragEnded(): void {
+    this.nodeDragEnded.emit();
+  }
+
+  onEdgeDrawn(): void {
+    this.edgeDrawn.emit();
+  }
+
+  onElementsRemoved(): void {
+    this.elementsRemoved.emit();
+  }
+
   togglePalette() {
     this.paletteOpen.set(!this.paletteOpen());
   }
@@ -283,16 +300,29 @@ export class GraphRendererComponent {
   }
 
   saveSnapshot() {
-    const diagram = this.model();
-    if (!diagram) return;
+    const snapshot = this.buildSnapshot();
+    if (snapshot) {
+      this.snapshotJson.set(stringifyGraphRendererSnapshot(snapshot));
+    }
+  }
 
-    const snapshot = buildGraphRendererSnapshot(
+  buildSnapshot(): GraphWorkflowSnapshot | null {
+    const diagram = this.model();
+    if (!diagram) return null;
+    return buildGraphRendererSnapshot(
       this.workflowRootClass() as never,
       diagram,
       this.workflowInputValues(),
       this.duplicateCounts()
     );
-    this.snapshotJson.set(stringifyGraphRendererSnapshot(snapshot));
+  }
+
+  restoreFromSnapshot(snapshot: GraphWorkflowSnapshot): void {
+    const restored = buildGraphRendererStateFromSnapshot(this.workflowRootClass() as never, snapshot, this.injector);
+    this.skipNextModelSync = true;
+    this.workflowInputValues.set(restored.inputValues);
+    this.duplicateCounts.set(restored.duplicateCounts);
+    this.model.set(restored.diagram as never);
   }
 
   loadSnapshot() {

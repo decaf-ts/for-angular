@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { GraphRendererComponent } from 'src/graph';
 import {
@@ -9,6 +9,11 @@ import {
 import { graphExecutionState } from 'src/graph';
 import { graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
 import { GRAPH_TRIGGER_NODES, GRAPH_FLOW_CONTROL_NODES, GRAPH_AGENT_NODES } from '@decaf-ts/integrations/graph/shared';
+import { GraphToolbarComponent } from 'src/graph';
+import { GraphSaveService } from 'src/graph';
+import { GraphAutoSaveService } from 'src/graph';
+import { GraphMutationDetectorService } from 'src/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 import { GraphPublishingWorkflow } from './workflow-root';
 import { GRAPH_DEMO_NODES } from './example-nodes';
 
@@ -18,6 +23,7 @@ import { GRAPH_DEMO_NODES } from './example-nodes';
   imports: [
     IonContent,
     GraphRendererComponent,
+    GraphToolbarComponent,
   ],
   providers: [
     GraphExecutionService,
@@ -27,8 +33,14 @@ import { GRAPH_DEMO_NODES } from './example-nodes';
 })
 export class GraphPage implements OnInit, OnDestroy {
   readonly workflowRoot = GraphPublishingWorkflow;
+  readonly workflowId = 'graph-publishing-workflow';
   private readonly executionService = inject(GraphExecutionService);
   private readonly stateMapper = new GraphExecutionStateMapper();
+  private readonly saveService = inject(GraphSaveService);
+  private readonly autoSave = inject(GraphAutoSaveService);
+  private readonly mutationDetector = inject(GraphMutationDetectorService);
+
+  @ViewChild(GraphRendererComponent) renderer!: GraphRendererComponent;
 
   readonly isRunning = signal(false);
   readonly lastResult = signal<Record<string, unknown> | null>(null);
@@ -63,10 +75,39 @@ export class GraphPage implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     void this.executionService.checkBackend();
+    this.mutationDetector.configure(this.workflowId, () => {
+      return this.renderer?.buildSnapshot() ?? null;
+    });
   }
 
   ngOnDestroy() {
     this.eventsSubscription?.unsubscribe();
+  }
+
+  onNodeDragEnded(): void {
+    this.mutationDetector.recordMutation('node-position');
+  }
+
+  onEdgeDrawn(): void {
+    this.mutationDetector.recordMutation('edge-connect');
+  }
+
+  onElementsRemoved(): void {
+    this.mutationDetector.recordMutation('edge-disconnect');
+  }
+
+  onRestoreSnapshot(snapshot: GraphWorkflowSnapshot): void {
+    this.renderer?.restoreFromSnapshot(snapshot);
+  }
+
+  async onSaveWorkflow(): Promise<void> {
+    const snapshot = this.renderer?.buildSnapshot();
+    if (!snapshot) return;
+    try {
+      await this.saveService.save(this.workflowId, snapshot);
+    } catch (err) {
+      this.runError.set(err instanceof Error ? err.message : String(err));
+    }
   }
 
   async runWorkflow() {

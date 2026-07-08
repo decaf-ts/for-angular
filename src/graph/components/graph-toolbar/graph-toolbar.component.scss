@@ -1,0 +1,83 @@
+.graph-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.graph-toolbar__spacer {
+  flex: 1;
+}
+
+.graph-toolbar__btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.6);
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.graph-toolbar__btn:hover:not(:disabled) {
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.graph-toolbar__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.graph-toolbar__btn--save {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.3));
+  color: #dbeafe;
+}
+
+.graph-toolbar__btn--save:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.35), rgba(37, 99, 235, 0.45));
+}
+
+.graph-toolbar__btn--run {
+  border-color: rgba(34, 197, 94, 0.5);
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.3));
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.graph-toolbar__btn--run:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.35), rgba(22, 163, 74, 0.45));
+}
+
+.graph-toolbar__btn--running {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.graph-toolbar__autosave {
+  display: flex;
+  align-items: center;
+}
+
+.graph-toolbar__autosave ion-toggle {
+  --label-color: #cbd5e1;
+  font-size: 0.82rem;
+}
+
+.graph-toolbar__msg {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.graph-toolbar__msg--ok {
+  color: #86efac;
+}
+
+.graph-toolbar__msg--err {
+  color: #fca5a5;
+}
