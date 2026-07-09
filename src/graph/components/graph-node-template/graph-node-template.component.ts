@@ -67,6 +67,11 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     return ids;
   });
 
+  readonly portModes = computed(() => {
+    const nodeId = this.node().id;
+    return graphNodeConfig.getConfig(nodeId)?.portModes ?? {};
+  });
+
   readonly iconFallback = computed(() => {
     const title = this.node().data.title || this.node().data.kind;
     return title.charAt(0).toUpperCase();
@@ -238,12 +243,18 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
   visiblePorts(direction: PortDirection) {
     const showAll = this.isSelected() || this.isConnecting();
     const connected = this.connectedPortIds();
+    const modes = this.portModes();
     const isDefault = (port: { property: string; path?: string }) =>
       port.property === 'value' || port.path === 'value' || port.property === 'default' || port.path === 'default';
     return this.node()
       .data.ports.filter((port) => port.direction === direction)
       .filter((port) => {
         const portId = port.path || port.property;
+        const mode = modes[portId];
+        if (mode === 'value') return false;
+        if (mode !== 'port' && port.element) {
+          return connected.has(portId);
+        }
         if (isDefault(port)) return true;
         if (showAll) return true;
         return connected.has(portId);

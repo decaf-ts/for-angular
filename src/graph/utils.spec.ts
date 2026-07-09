@@ -7,7 +7,7 @@ import {
   buildGraphRendererViewModel,
   getGraphWorkflowSummary,
 } from './utils';
-import { GraphPublishingWorkflow } from '../app/pages/graph/workflow-root';
+import { TextPipelineWorkflow } from '../app/pages/graph/workflow-root';
 
 describe('graph adapter', () => {
   beforeEach(() => {
@@ -15,93 +15,117 @@ describe('graph adapter', () => {
   });
 
   it('derives the workflow-root summary from the decorated graph class', () => {
-    const summary = getGraphWorkflowSummary(GraphPublishingWorkflow as never);
+    const summary = getGraphWorkflowSummary(TextPipelineWorkflow as never);
 
     expect(summary).toMatchObject({
-      totalNodes: 10,
-      totalEdges: 6,
-      totalInputs: 1,
+      totalNodes: 9,
+      totalEdges: 11,
+      totalInputs: 2,
       totalOutputs: 1,
     });
     expect(summary.items).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ kind: 'workflow', count: 3 }),
-        expect.objectContaining({ kind: 'pipeline', count: 1 }),
-        expect.objectContaining({ kind: 'node', count: 2 }),
+        expect.objectContaining({ kind: 'workflow', count: 1 }),
+        expect.objectContaining({ kind: 'core.flow.code', count: 1 }),
+        expect.objectContaining({ kind: 'core.flow.switch', count: 1 }),
+        expect.objectContaining({ kind: 'core.flow.log', count: 3 }),
         expect.objectContaining({ kind: 'core.loop.foreach', count: 1 }),
-        expect.objectContaining({ kind: 'core.loop.while', count: 1 }),
-        expect.objectContaining({ kind: 'core.loop.until', count: 1 }),
         expect.objectContaining({ kind: 'value', count: 1 }),
       ])
     );
-    expect(summary.edgeLabels.map((item) => item.label)).toEqual([
-      'request',
-      'brief',
-      'plan',
-      'draft',
-      'approved',
-      'artifact',
-    ]);
+    expect(summary.edgeLabels.map((item) => item.label)).toEqual(
+      expect.arrayContaining([
+        'count',
+        'text',
+        'lines',
+        'short',
+        'long',
+        'default',
+        'short-result',
+        'long-result',
+        'default-result',
+        'results',
+      ])
+    );
   });
 
   it('builds reusable value nodes and full workflow graph connections from the graph root', () => {
-    const viewModel = buildGraphRendererViewModel(GraphPublishingWorkflow as never);
+    const viewModel = buildGraphRendererViewModel(TextPipelineWorkflow as never);
 
-    expect(viewModel.inputs).toHaveLength(1);
-    expect(viewModel.nodes).toHaveLength(8);
+    expect(viewModel.inputs).toHaveLength(2);
+    expect(viewModel.nodes).toHaveLength(6);
     expect(viewModel.workflowOutputs).toHaveLength(1);
     expect(viewModel.inputs[0]).toMatchObject({
-      id: 'input-request',
+      id: 'input-count',
       type: 'value',
       data: expect.objectContaining({
         role: 'input',
-        property: 'request',
+        property: 'count',
+        isPrimary: true,
+      }),
+    });
+    expect(viewModel.inputs[1]).toMatchObject({
+      id: 'input-text',
+      type: 'value',
+      data: expect.objectContaining({
+        role: 'input',
+        property: 'text',
         isPrimary: true,
       }),
     });
     expect(viewModel.edges).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          source: 'input-request',
-          target: 'GraphIntakeWorkflow',
+          source: 'input-count',
+          target: 'SplitTextCodeNode',
           sourcePort: 'value',
-          targetPort: 'request',
+          targetPort: 'data',
+        }),
+        expect.objectContaining({
+          source: 'input-text',
+          target: 'SplitTextCodeNode',
+          sourcePort: 'value',
+          targetPort: 'data',
         }),
       ])
     );
   });
 
   it('builds an ng-diagram model for the workflow root', () => {
-    const model = buildGraphRendererModel(GraphPublishingWorkflow as never, TestBed.inject(Injector));
+    const model = buildGraphRendererModel(TextPipelineWorkflow as never, TestBed.inject(Injector));
 
-    expect(model.getNodes()).toHaveLength(9);
-    expect(model.getEdges()).toHaveLength(5);
+    expect(model.getNodes()).toHaveLength(8);
+    expect(model.getEdges()).toHaveLength(7);
     expect(model.getNodes()[0]).toMatchObject({
-      id: 'input-request',
+      id: 'input-count',
       type: 'value',
     });
-    expect(model.getNodes()[5]).toMatchObject({
-      id: 'GraphPublishWorkflow',
-      type: 'workflow',
+    expect(model.getNodes()[2]).toMatchObject({
+      id: 'SplitTextCodeNode',
+      type: 'core.flow.code',
     });
   });
 
   it('serializes and restores the workflow renderer state', () => {
     const injector = TestBed.inject(Injector);
+    const inputValues = {
+      count: 1,
+      text: 'Hello\nWorld\nFoo\nBar\nBaz',
+    };
+    const duplicateInputs = {
+      count: 1,
+      text: 1,
+    };
     const model = buildGraphRendererModel(
-      GraphPublishingWorkflow as never,
+      TextPipelineWorkflow as never,
       injector,
-      {
-        request: 'Draft a publishing workflow for the next product release.',
-      },
-      {
-        request: 1,
-      }
+      inputValues,
+      duplicateInputs
     );
 
     model.updateNodes((nodes) =>
       nodes.map((node) =>
-        node.id === 'input-request'
+        node.id === 'input-text'
           ? {
               ...node,
               position: {
@@ -126,26 +150,23 @@ describe('graph adapter', () => {
     }));
 
     const snapshot = buildGraphRendererSnapshot(
-      GraphPublishingWorkflow as never,
+      TextPipelineWorkflow as never,
       model,
-      {
-        request: 'Draft a publishing workflow for the next product release.',
-      },
-      {
-        request: 1,
-      }
+      inputValues,
+      duplicateInputs
     );
-    const restored = buildGraphRendererStateFromSnapshot(GraphPublishingWorkflow as never, snapshot, injector);
+    const restored = buildGraphRendererStateFromSnapshot(TextPipelineWorkflow as never, snapshot, injector);
 
     expect(snapshot.state.ui).toMatchObject({
       duplicateCounts: {
-        request: 1,
+        count: 1,
+        text: 1,
       },
     });
     expect(snapshot.state.nodes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 'input-request',
+          id: 'input-text',
           position: {
             x: 48,
             y: 96,
@@ -157,15 +178,17 @@ describe('graph adapter', () => {
       ])
     );
     expect(restored.duplicateCounts).toEqual({
-      request: 1,
+      count: 1,
+      text: 1,
     });
     expect(restored.inputValues).toEqual({
-      request: 'Draft a publishing workflow for the next product release.',
+      count: 1,
+      text: 'Hello\nWorld\nFoo\nBar\nBaz',
     });
     expect(restored.diagram.getNodes()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 'input-request',
+          id: 'input-text',
           position: {
             x: 48,
             y: 96,

@@ -1,6 +1,6 @@
 import { Component, Input, signal, computed, inject, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonIcon, IonItem, IonLabel, IonInput } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonIcon, IonItem, IonLabel, IonInput, IonToggle } from '@ionic/angular/standalone';
 import { GraphConditionEditorComponent, type GraphConditionEditorChange } from '../graph-condition-editor/graph-condition-editor.component';
 import type { SwitchCase, SwitchCaseCondition, SwitchNodeMetadata } from '@decaf-ts/integrations/graph/shared';
 
@@ -31,7 +31,7 @@ export interface GraphSwitchEditResult {
   selector: 'app-graph-switch-edit-modal',
   standalone: true,
   imports: [
-    IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonIcon, IonInput,
+    IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonIcon, IonInput, IonToggle,
     GraphConditionEditorComponent,
   ],
   templateUrl: './graph-switch-edit-modal.component.html',
@@ -47,18 +47,23 @@ export class GraphSwitchEditModalComponent implements OnInit {
 
   readonly _cases = signal<SwitchCase[]>([]);
   readonly _defaultPort = signal('default');
+  readonly _hasDefault = signal(true);
 
   readonly cases = this._cases.asReadonly();
   readonly defaultPort = this._defaultPort.asReadonly();
+  readonly hasDefault = this._hasDefault.asReadonly();
   readonly outputPorts = computed(() => {
     const ports = this._cases().map((c) => c.outputPort);
-    ports.push(this._defaultPort());
+    if (this._hasDefault()) {
+      ports.push(this._defaultPort());
+    }
     return ports;
   });
 
   ngOnInit() {
     this._cases.set(this.initialSwitchMetadata.cases.map((c) => ({ ...c })));
     this._defaultPort.set(this.initialSwitchMetadata.defaultPort ?? 'default');
+    this._hasDefault.set(this.initialSwitchMetadata.hasDefault !== false);
   }
 
   addCase() {
@@ -76,6 +81,23 @@ export class GraphSwitchEditModalComponent implements OnInit {
 
   removeCase(id: string) {
     this._cases.update((cases) => cases.filter((c) => c.id !== id));
+  }
+
+  moveCase(id: string, direction: 'up' | 'down') {
+    this._cases.update((cases) => {
+      const index = cases.findIndex((c) => c.id === id);
+      if (index === -1) return cases;
+      const target = direction === 'up' ? index - 1 : index + 1;
+      if (target < 0 || target >= cases.length) return cases;
+      const updated = [...cases];
+      [updated[index], updated[target]] = [updated[target], updated[index]];
+      return updated;
+    });
+  }
+
+  onHasDefaultChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this._hasDefault.set(target.checked);
   }
 
   onCaseLabelChange(id: string, event: Event) {
@@ -106,6 +128,7 @@ export class GraphSwitchEditModalComponent implements OnInit {
       switchMetadata: {
         cases: this._cases(),
         defaultPort: this._defaultPort(),
+        hasDefault: this._hasDefault(),
       },
     };
     this.modalCtrl.dismiss(result, 'confirm');

@@ -11,15 +11,18 @@
   max-width: 640px;
   margin: 0 auto;
   padding: 1rem 1.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .graph-node-edit-modal__section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .graph-node-edit-modal__section h3 {
   margin: 0 0 0.3rem;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #1e293b;
   text-transform: uppercase;
@@ -27,8 +30,53 @@
 }
 
 .graph-node-edit-modal__hint {
-  margin: 0 0 0.8rem;
-  font-size: 0.8rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.78rem;
   color: #64748b;
   line-height: 1.4;
+}
+
+.graph-node-edit-modal__field-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.graph-node-edit-modal__field-row label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.graph-node-edit-modal__field-row ion-input {
+  flex: 1;
+  min-width: 80px;
+}
+
+.graph-node-edit-modal__errors {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0.4rem 0;
+}
+
+.graph-node-edit-modal__error {
+  color: #dc2626;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.graph-node-edit-modal__warnings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0.4rem 0;
+}
+
+.graph-node-edit-modal__warning {
+  color: #d97706;
+  font-size: 0.78rem;
+  font-weight: 600;
 }

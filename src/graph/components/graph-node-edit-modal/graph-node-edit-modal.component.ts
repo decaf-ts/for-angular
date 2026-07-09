@@ -1,4 +1,4 @@
-import { Component, signal, computed, Output, EventEmitter, inject, Input, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonInput } from '@ionic/angular/standalone';
 import {
@@ -8,17 +8,12 @@ import {
   type GraphPortDefinition,
 } from '@decaf-ts/ui-decorators/graph';
 import { GraphPortFieldComponent, type GraphPortFieldConfig, type GraphPortFieldChange } from '../graph-port-field/graph-port-field.component';
-import { CodeEditorComponent } from '../code-editor/code-editor.component';
 
 export interface GraphNodeEditResult {
   nodeId: string;
   values: Record<string, unknown>;
   portModes: Record<string, 'port' | 'value'>;
   outputSplits: string[];
-  /**
-   * Node metadata overrides (e.g. `code`, `language`, `timeoutMs` for the
-   * Code node). Serialized with the graph snapshot via `GraphNodeConfig`.
-   */
   metadata?: Record<string, unknown>;
 }
 
@@ -28,7 +23,6 @@ export interface GraphNodeEditResult {
   imports: [
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonInput,
     GraphPortFieldComponent,
-    CodeEditorComponent,
   ],
   templateUrl: './graph-node-edit-modal.component.html',
   styleUrl: './graph-node-edit-modal.component.scss',
@@ -50,19 +44,21 @@ export class GraphNodeEditModalComponent implements OnInit {
   readonly _metadata = signal<Record<string, unknown>>({});
 
   readonly ports = this._ports.asReadonly();
-  readonly inputPorts = computed(() => this._ports().filter((p) => p.direction === PortDirection.INPUT));
-  readonly outputPorts = computed(() => this._ports().filter((p) => p.direction === PortDirection.OUTPUT));
+  readonly inputPorts = computed(() => this._ports().filter((p) => p.direction === PortDirection.INPUT && !p.hidden));
+  readonly outputPorts = computed(() => this._ports().filter((p) => p.direction === PortDirection.OUTPUT && !p.hidden));
 
   readonly fieldConfigs = computed<GraphPortFieldConfig[]>(() => {
     const values = this._values();
     const modes = this._portModes();
-    return this._ports().map((port) => ({
-      port,
-      label: port.label || port.name,
-      type: port.type || 'text',
-      value: values[port.property] ?? '',
-      useAsPort: modes[port.property] === 'port',
-    }));
+    return this._ports()
+      .filter((p) => !p.hidden)
+      .map((port) => ({
+        port,
+        label: port.label || port.name,
+        type: port.type || 'text',
+        value: values[port.property] ?? '',
+        useAsPort: modes[port.property] === 'port',
+      }));
   });
 
   readonly isCodeNode = computed(() => {
@@ -72,7 +68,6 @@ export class GraphNodeEditModalComponent implements OnInit {
     return def.kind === 'core.flow.code';
   });
 
-  readonly codeValue = computed(() => String(this._metadata()['code'] ?? ''));
   readonly codeTimeoutMs = computed(() => Number(this._metadata()['timeoutMs'] ?? 1000));
 
   readonly editableOutputPorts = computed(() => {
@@ -80,6 +75,9 @@ export class GraphNodeEditModalComponent implements OnInit {
   });
 
   readonly hasEditableOutputs = computed(() => this.editableOutputPorts().length > 0);
+
+  readonly codeValidationErrors = signal<string[]>([]);
+  readonly codeValidationWarnings = signal<string[]>([]);
 
   ngOnInit() {
     const cls = this.modelClass;
@@ -89,15 +87,17 @@ export class GraphNodeEditModalComponent implements OnInit {
     this._values.set({ ...this.initialValues });
     this._portModes.set({ ...this.initialPortModes });
     this._metadata.set({ ...this.initialMetadata });
-  }
 
-  onCodeChange(code: string) {
-    this._metadata.update((m) => ({ ...m, code }));
-  }
-
-  onTimeoutChange(value: string) {
-    const timeoutMs = Number(value) || 1000;
-    this._metadata.update((m) => ({ ...m, timeoutMs }));
+    if (this.isCodeNode()) {
+      const def = typeof cls === 'function' ? graphDefinitionOf(cls as never) : null;
+      const defMeta = (def?.graph?.metadata ?? {}) as Record<string, unknown>;
+      if (!this._values()['code'] && typeof defMeta['defaultCode'] === 'string') {
+        this._values.update((v) => ({ ...v, code: defMeta['defaultCode'] }));
+      }
+      if (this._metadata()['timeoutMs'] === undefined && defMeta['timeoutMs'] !== undefined) {
+        this._metadata.update((m) => ({ ...m, timeoutMs: defMeta['timeoutMs'] }));
+      }
+    }
   }
 
   onFieldChange(change: GraphPortFieldChange) {
@@ -113,7 +113,53 @@ export class GraphNodeEditModalComponent implements OnInit {
     }
   }
 
+  onTimeoutChange(value: string) {
+    const timeoutMs = Number(value) || 1000;
+    this._metadata.update((m) => ({ ...m, timeoutMs }));
+  }
+
+  validateCode(): boolean {
+    this.codeValidationErrors.set([]);
+    this.codeValidationWarnings.set([]);
+
+    if (!this.isCodeNode()) return true;
+
+    const code = String(this._values()['code'] ?? '').trim();
+    const codeWired = this._portModes()['code'] === 'port';
+
+    if (codeWired) return true;
+
+    if (!code) {
+      this.codeValidationErrors.set(['Code is empty. Type code or wire from upstream.']);
+      return false;
+    }
+
+    const errors: string[] = [];
+    const warnings: string[] = [];
+
+    try {
+      const hasReturn = /\breturn\b[\s;]/.test(code);
+      const body = hasReturn ? code : `return (${code});`;
+      new Function(body);
+    } catch (err) {
+      errors.push(`Syntax error: ${(err as Error).message}`);
+    }
+
+    if (!/\breturn\b[\s;]/.test(code)) {
+      warnings.push('No return statement — code will be treated as a single expression.');
+    }
+
+    this.codeValidationErrors.set(errors);
+    this.codeValidationWarnings.set(warnings);
+
+    return errors.length === 0;
+  }
+
   save() {
+    if (this.isCodeNode() && !this.validateCode()) {
+      return;
+    }
+
     const result: GraphNodeEditResult = {
       nodeId: this.nodeId,
       values: this._values(),

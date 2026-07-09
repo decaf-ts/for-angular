@@ -2,6 +2,23 @@
   display: block;
 }
 
+/* ---- neutralize ng-diagram base node template's outer wrapper ---- */
+/* The base template wraps <ng-content> in a .node div with its own border, */
+/* background, and adds port-left/port-right. We neutralize those so only */
+/* our inner <article> is the visible node. */
+:host ::ng-deep .node {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+:host ::ng-deep ng-diagram-port[id="port-left"],
+:host ::ng-deep ng-diagram-port[id="port-right"] {
+  display: none !important;
+}
+
 .graph-node {
   --node-size: 96px;
   --node-border: color-mix(in srgb, var(--graph-accent) 78%, white);

@@ -12,7 +12,7 @@
       <span class="graph-port-field__label">{{ fieldLabel() }}</span>
       @if (useCodeEditor()) {
         <app-code-editor
-          [mode]="'formula'"
+          [mode]="codeEditorMode()"
           [code]="_value()"
           [placeholder]="fieldLabel()"
           (codeChange)="onCodeChange($event)"

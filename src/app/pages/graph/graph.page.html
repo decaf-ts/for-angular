@@ -7,15 +7,6 @@
       </div>
     }
 
-    <app-graph-toolbar
-      [workflowId]="workflowId"
-      [canRun]="backendAvailable() !== false"
-      [isRunning]="isRunning()"
-      (runWorkflow)="runWorkflow()"
-      (saveWorkflow)="onSaveWorkflow()"
-      (restoreSnapshot)="onRestoreSnapshot($event)"
-    />
-
     <app-graph-renderer
       [graphRoot]="workflowRoot"
       [outputs]="lastResult()"
@@ -23,7 +14,17 @@
       (nodeDragEnded)="onNodeDragEnded()"
       (edgeDrawn)="onEdgeDrawn()"
       (elementsRemoved)="onElementsRemoved()"
-    />
+    >
+      <app-graph-toolbar
+        graphFloatingControls
+        [workflowId]="workflowId"
+        [canRun]="backendAvailable() !== false"
+        [isRunning]="isRunning()"
+        (runWorkflow)="runWorkflow()"
+        (saveWorkflow)="onSaveWorkflow()"
+        (restoreSnapshot)="onRestoreSnapshot($event)"
+      />
+    </app-graph-renderer>
 
     @if (workflowOutputs().length) {
       <section class="graph-page__outputs">

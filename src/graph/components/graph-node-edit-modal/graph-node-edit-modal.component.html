@@ -14,48 +14,55 @@
   <div class="graph-node-edit-modal__body">
     @if (inputPorts().length) {
       <section class="graph-node-edit-modal__section">
-        <h3>Inputs</h3>
-        <p class="graph-node-edit-modal__hint">
-          Toggle "Use as port" to wire this input from an upstream output.
-          Leave unchecked to set a literal value.
-        </p>
+        @if (isCodeNode()) {
+          <h3>Code</h3>
+          <p class="graph-node-edit-modal__hint">
+            JavaScript only. Access the input as <code>$input</code>, variables as
+            <code>$vars</code>, loop item as <code>$item</code>/<code>$index</code>,
+            and upstream outputs as <code>$node["Name"].output</code>.
+            Return a value with <code>return</code> or write a bare expression.
+          </p>
+        } @else {
+          <h3>Inputs</h3>
+          <p class="graph-node-edit-modal__hint">
+            Toggle "Use as port" to wire this input from an upstream output.
+            Leave unchecked to set a literal value.
+          </p>
+        }
         @for (config of fieldConfigs(); track config.port.property) {
           @if (config.port.direction === 'input') {
             <app-graph-port-field
               [field]="config"
-              [codeMode]="'formula'"
               (fieldChange)="onFieldChange($event)"
             />
           }
         }
-      </section>
-    }
-
-    @if (isCodeNode()) {
-      <section class="graph-node-edit-modal__section">
-        <h3>Code</h3>
-        <p class="graph-node-edit-modal__hint">
-          JavaScript only. Access the input as <code>$input</code>, variables as
-          <code>$vars</code>, loop item as <code>$item</code>/<code>$index</code>,
-          and upstream outputs as <code>$node["Name"].output</code>.
-          Return a value with <code>return</code> or write a bare expression.
-        </p>
-        <app-code-editor
-          [mode]="'code'"
-          [code]="codeValue()"
-          [placeholder]="'// User-authored JS code'"
-          (codeChange)="onCodeChange($event)"
-        />
-        <div class="graph-node-edit-modal__field-row">
-          <label for="graph-node-timeout">Timeout (ms)</label>
-          <ion-input
-            id="graph-node-timeout"
-            type="number"
-            [value]="codeTimeoutMs()"
-            (ionInput)="onTimeoutChange($any($event.target).value)"
-            placeholder="1000"
-          ></ion-input>
-        </div>
+        @if (isCodeNode()) {
+          @if (codeValidationErrors().length) {
+            <div class="graph-node-edit-modal__errors">
+              @for (err of codeValidationErrors(); track err) {
+                <span class="graph-node-edit-modal__error">{{ err }}</span>
+              }
+            </div>
+          }
+          @if (codeValidationWarnings().length) {
+            <div class="graph-node-edit-modal__warnings">
+              @for (warn of codeValidationWarnings(); track warn) {
+                <span class="graph-node-edit-modal__warning">{{ warn }}</span>
+              }
+            </div>
+          }
+          <div class="graph-node-edit-modal__field-row">
+            <label for="graph-node-timeout">Timeout (ms)</label>
+            <ion-input
+              id="graph-node-timeout"
+              type="number"
+              [value]="codeTimeoutMs()"
+              (ionInput)="onTimeoutChange($any($event.target).value)"
+              placeholder="1000"
+            ></ion-input>
+          </div>
+        }
       </section>
     }
 

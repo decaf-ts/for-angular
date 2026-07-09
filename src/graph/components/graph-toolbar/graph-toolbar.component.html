@@ -1,62 +1,56 @@
-<div class="graph-toolbar">
-  <button
-    type="button"
-    class="graph-toolbar__btn graph-toolbar__btn--undo"
-    [disabled]="!canUndo()"
-    (click)="onUndo()"
-    title="Undo (Ctrl/Cmd+Z)"
-  >
-    &#x21A9; Undo
-  </button>
-  <button
-    type="button"
-    class="graph-toolbar__btn graph-toolbar__btn--redo"
-    [disabled]="!canRedo()"
-    (click)="onRedo()"
-    title="Redo (Ctrl/Cmd+Shift+Z)"
-  >
-    &#x21AA; Redo
-  </button>
-
-  <div class="graph-toolbar__spacer"></div>
-
-  <div class="graph-toolbar__autosave">
-    <ion-toggle
-      [checked]="autoSaveEnabled()"
-      (ionChange)="onAutoSaveToggle($event)"
-      labelPlacement="start"
+<div class="graph-float-controls">
+  <div class="graph-float-controls__group graph-float-controls__group--left">
+    <button
+      type="button"
+      class="graph-float-btn"
+      [disabled]="!canUndo()"
+      (click)="onUndo()"
+      title="Undo (Ctrl/Cmd+Z)"
     >
-      Auto-Save
-    </ion-toggle>
+      &#x21A9;
+    </button>
+    <button
+      type="button"
+      class="graph-float-btn"
+      [disabled]="!canRedo()"
+      (click)="onRedo()"
+      title="Redo (Ctrl/Cmd+Shift+Z)"
+    >
+      &#x21AA;
+    </button>
   </div>
 
-  <button
-    type="button"
-    class="graph-toolbar__btn graph-toolbar__btn--save"
-    [disabled]="isSaving()"
-    (click)="onSave()"
-  >
-    @if (isSaving()) {
-      <ion-spinner name="circular" style="width: 16px; height: 16px;" />
-    } @else {
-      Save
-    }
-  </button>
+  <div class="graph-float-controls__group graph-float-controls__group--right">
+    <div class="graph-float-toggle" title="Auto-Save">
+      <ion-toggle
+        [checked]="autoSaveEnabled()"
+        (ionChange)="onAutoSaveToggle($event)"
+      />
+    </div>
 
-  @if (saveMessage()) {
-    <span class="graph-toolbar__msg graph-toolbar__msg--ok">{{ saveMessage() }}</span>
-  }
-  @if (saveError()) {
-    <span class="graph-toolbar__msg graph-toolbar__msg--err">{{ saveError() }}</span>
-  }
+    <button
+      type="button"
+      class="graph-float-btn graph-float-btn--save"
+      [disabled]="isSaving()"
+      (click)="onSave()"
+      title="Save"
+    >
+      @if (isSaving()) {
+        <ion-spinner name="circular" style="width: 14px; height: 14px;" />
+      } @else {
+        Save
+      }
+    </button>
 
-  <button
-    type="button"
-    class="graph-toolbar__btn graph-toolbar__btn--run"
-    [class.graph-toolbar__btn--running]="isRunning()"
-    [disabled]="!canRun() || isRunning()"
-    (click)="onRun()"
-  >
-    {{ isRunning() ? 'Running...' : 'Start' }}
-  </button>
+    <button
+      type="button"
+      class="graph-float-btn graph-float-btn--run"
+      [class.graph-float-btn--running]="isRunning()"
+      [disabled]="!canRun() || isRunning()"
+      (click)="onRun()"
+      title="Start workflow"
+    >
+      {{ isRunning() ? '...' : 'Start' }}
+    </button>
+  </div>
 </div>

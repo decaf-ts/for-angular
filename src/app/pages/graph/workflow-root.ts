@@ -1,16 +1,101 @@
 import { Model, model, required } from '@decaf-ts/decorator-validation';
 import { uielement } from '@decaf-ts/ui-decorators';
-import { graph, input, output } from '@decaf-ts/ui-decorators/graph';
-import {
-  GraphDraftNode,
-  GraphForeachLoopNode,
-  GraphIntakeWorkflow,
-  GraphPlanningPipeline,
-  GraphPublishWorkflow,
-  GraphReviewNode,
-  GraphUntilLoopNode,
-  GraphWhileLoopNode,
-} from './example-nodes';
+import { graph, input, node, output } from '@decaf-ts/ui-decorators/graph';
+import { CodeInputSchema, LogFlowNode } from '@decaf-ts/integrations/graph/shared';
+import { GraphForeachLoopNode } from './example-nodes';
+
+/**
+ * Code node that splits the input text by newlines into an array.
+ * The `data` input port (hidden, from `CodeInputSchema`) receives the
+ * `text` workflow input via a badge connection. The default code is
+ * stored in `metadata.defaultCode` and used as a fallback when the `code`
+ * input port is not wired.
+ */
+@node('split-text-code', {
+  kind: 'core.flow.code',
+  category: 'Utility',
+  color: '#7c3aed',
+  icon: 'ti-code',
+  width: 96,
+  height: 96,
+  labels: ['flow', 'code', 'split'],
+  metadata: {
+    title: 'Split text',
+    description: 'Splits the input text by newlines into an array.',
+    timeoutMs: 1000,
+    defaultCode: 'return $input.text.split("\\n");',
+  },
+})
+@model()
+export class SplitTextCodeNode extends Model {
+  @required()
+  @input({ handle: 'input', model: CodeInputSchema })
+  input!: CodeInputSchema;
+
+  @required()
+  @output({ handle: 'result', connectionRules: { allowMultiple: true } })
+  result!: unknown;
+}
+
+/**
+ * Switch node — routes the split-text array based on line count.
+ * Case "Short" (< 3 lines), Case "Long" (>= 5 lines), Default (everything
+ * else). Each output port goes to a dedicated Log node so the branching is
+ * visible on the canvas (DECAF-34 §6.2).
+ */
+@node('line-length-switch', {
+  kind: 'core.flow.switch',
+  category: 'Flow Control',
+  color: '#f97316',
+  icon: 'ti-arrows-shuffle',
+  width: 120,
+  height: 140,
+  labels: ['flow', 'switch', 'line-length'],
+  metadata: {
+    title: 'Line length switch',
+    description: 'Routes the split text based on the number of lines: short (< 3), long (>= 5), or default.',
+    switch: {
+      cases: [
+        {
+          id: 'short',
+          label: 'Short',
+          outputPort: 'short',
+          condition: { op: 'lt', left: { path: 'length' }, right: { const: 3 } },
+        },
+        {
+          id: 'long',
+          label: 'Long',
+          outputPort: 'long',
+          condition: { op: 'gte', left: { path: 'length' }, right: { const: 5 } },
+        },
+      ],
+      defaultPort: 'default',
+      hasDefault: true,
+    },
+  },
+})
+@model()
+export class LineLengthSwitchNode extends Model {
+  @required()
+  @uielement('textarea', { label: 'Input value', placeholder: 'Value to switch on' })
+  @input({ handle: 'value' })
+  value!: unknown;
+
+  @required()
+  @uielement('input', { label: 'Short', placeholder: 'Output for short arrays' })
+  @output({ handle: 'short' })
+  short!: unknown;
+
+  @required()
+  @uielement('input', { label: 'Long', placeholder: 'Output for long arrays' })
+  @output({ handle: 'long' })
+  long!: unknown;
+
+  @required()
+  @uielement('input', { label: 'Default', placeholder: 'Default output' })
+  @output({ handle: 'default' })
+  default!: unknown;
+}
 
 @graph('graph-workflow-root', {
   kind: 'workflow',
@@ -19,40 +104,40 @@ import {
   icon: 'ti-sitemap',
   labels: ['workflow', 'root'],
   metadata: {
-    title: 'Publishing workflow',
+    title: 'Text pipeline',
     description:
-      'Workflow root that owns the full pipeline and wires workflow inputs and outputs to the decorated node chain.',
+      'Splits text into lines, iterates with Foreach, routes even/odd items through Switch to Code (log) or Log (discard).',
   },
   nodes: [
     {
-      id: GraphIntakeWorkflow.name,
-      kind: 'workflow',
-      label: 'Intake',
-      node: GraphIntakeWorkflow,
+      id: SplitTextCodeNode.name,
+      kind: 'core.flow.code',
+      label: 'Split',
+      node: SplitTextCodeNode,
     },
     {
-      id: GraphPlanningPipeline.name,
-      kind: 'pipeline',
-      label: 'Planning',
-      node: GraphPlanningPipeline,
+      id: LineLengthSwitchNode.name,
+      kind: 'core.flow.switch',
+      label: 'Switch',
+      node: LineLengthSwitchNode,
     },
     {
-      id: GraphDraftNode.name,
-      kind: 'node',
-      label: 'Draft',
-      node: GraphDraftNode,
+      id: 'ShortLogNode',
+      kind: 'core.flow.log',
+      label: 'Log Short',
+      node: LogFlowNode,
     },
     {
-      id: GraphReviewNode.name,
-      kind: 'node',
-      label: 'Review',
-      node: GraphReviewNode,
+      id: 'LongLogNode',
+      kind: 'core.flow.log',
+      label: 'Log Long',
+      node: LogFlowNode,
     },
     {
-      id: GraphPublishWorkflow.name,
-      kind: 'workflow',
-      label: 'Publish',
-      node: GraphPublishWorkflow,
+      id: 'DefaultLogNode',
+      kind: 'core.flow.log',
+      label: 'Log Default',
+      node: LogFlowNode,
     },
     {
       id: GraphForeachLoopNode.name,
@@ -60,90 +145,127 @@ import {
       label: 'Foreach',
       node: GraphForeachLoopNode,
     },
-    {
-      id: GraphWhileLoopNode.name,
-      kind: 'core.loop.while',
-      label: 'While',
-      node: GraphWhileLoopNode,
-    },
-    {
-      id: GraphUntilLoopNode.name,
-      kind: 'core.loop.until',
-      label: 'Until',
-      node: GraphUntilLoopNode,
-    },
   ],
   relations: [
     {
       source: 'workflow',
-      sourcePort: 'request',
-      target: GraphIntakeWorkflow.name,
-      targetPort: 'request',
-      label: 'request',
+      sourcePort: 'count',
+      target: SplitTextCodeNode.name,
+      targetPort: 'data',
+      label: 'count',
     },
     {
-      source: GraphIntakeWorkflow.name,
-      sourcePort: 'brief',
-      target: GraphPlanningPipeline.name,
-      targetPort: 'brief',
-      label: 'brief',
+      source: 'workflow',
+      sourcePort: 'text',
+      target: SplitTextCodeNode.name,
+      targetPort: 'data',
+      label: 'text',
     },
     {
-      source: GraphPlanningPipeline.name,
-      sourcePort: 'plan',
-      target: GraphDraftNode.name,
-      targetPort: 'plan',
-      label: 'plan',
+      source: SplitTextCodeNode.name,
+      sourcePort: 'result',
+      target: LineLengthSwitchNode.name,
+      targetPort: 'value',
+      label: 'lines',
     },
     {
-      source: GraphDraftNode.name,
-      sourcePort: 'draft',
-      target: GraphReviewNode.name,
-      targetPort: 'draft',
-      label: 'draft',
+      source: LineLengthSwitchNode.name,
+      sourcePort: 'short',
+      target: 'ShortLogNode',
+      targetPort: 'value',
+      label: 'short',
     },
     {
-      source: GraphReviewNode.name,
-      sourcePort: 'approved',
-      target: GraphPublishWorkflow.name,
-      targetPort: 'approved',
-      label: 'approved',
+      source: LineLengthSwitchNode.name,
+      sourcePort: 'long',
+      target: 'LongLogNode',
+      targetPort: 'value',
+      label: 'long',
     },
     {
-      source: GraphPublishWorkflow.name,
-      sourcePort: 'artifact',
+      source: LineLengthSwitchNode.name,
+      sourcePort: 'default',
+      target: 'DefaultLogNode',
+      targetPort: 'value',
+      label: 'default',
+    },
+    {
+      source: 'ShortLogNode',
+      sourcePort: 'logged',
       target: 'workflow',
-      targetPort: 'artifact',
-      label: 'artifact',
+      targetPort: 'result',
+      label: 'short-result',
+    },
+    {
+      source: 'LongLogNode',
+      sourcePort: 'logged',
+      target: 'workflow',
+      targetPort: 'result',
+      label: 'long-result',
+    },
+    {
+      source: 'DefaultLogNode',
+      sourcePort: 'logged',
+      target: 'workflow',
+      targetPort: 'result',
+      label: 'default-result',
+    },
+    {
+      source: SplitTextCodeNode.name,
+      sourcePort: 'result',
+      target: GraphForeachLoopNode.name,
+      targetPort: 'items',
+      label: 'lines',
+    },
+    {
+      source: GraphForeachLoopNode.name,
+      sourcePort: 'results',
+      target: 'workflow',
+      targetPort: 'result',
+      label: 'results',
     },
   ],
 })
 @model()
-export class GraphPublishingWorkflow extends Model {
+export class TextPipelineWorkflow extends Model {
   @required()
-  @uielement('textarea', {
-    label: 'Workflow request',
-    placeholder: 'Describe the workflow goal',
-    value: 'Draft a publishing workflow for the next product release.',
+  @uielement('input', {
+    label: 'Count',
+    placeholder: 'Number of items to process',
+    value: 1,
   })
   @input({
-    handle: 'request',
+    handle: 'count',
     connectionRules: {
       allowMultiple: true,
     },
   })
-  request!: string;
+  count!: number;
+
+  @required()
+  @uielement('textarea', {
+    label: 'Text',
+    placeholder: 'Text to split by newlines',
+    value: 'Hello\nWorld\nFoo\nBar\nBaz',
+  })
+  @input({
+    handle: 'text',
+    connectionRules: {
+      allowMultiple: true,
+    },
+  })
+  text!: string;
 
   @required()
   @uielement('input', {
-    label: 'Published artifact',
-    placeholder: 'Release artifact',
+    label: 'Results',
+    placeholder: 'Processed results',
   })
   @output({
-    handle: 'artifact',
+    handle: 'result',
     connectionRules: {
       allowMultiple: true,
     },
   })
-  artifact!: string;
+  result!: unknown[];
 }

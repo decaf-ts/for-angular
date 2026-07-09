@@ -34,14 +34,6 @@ export class GraphPortFieldComponent implements OnInit {
     useAsPort: false,
   };
 
-  /**
-   * When set to `'formula'`, the literal-value editor (port toggle OFF) uses
-   * the CodeEditorComponent in formula mode (single-line JS syntax highlight)
-   * instead of a plain ion-input/ion-textarea. Pass `'formula'` for nodes
-   * whose input values are JS expressions (e.g. Code node).
-   */
-  @Input() codeMode: CodeEditorMode | null = null;
-
   readonly _useAsPort = signal(false);
   readonly _value = signal('');
 
@@ -52,7 +44,13 @@ export class GraphPortFieldComponent implements OnInit {
   readonly fieldLabel = computed(() => this.field?.label ?? '');
   readonly fieldType = computed(() => this.field?.type ?? 'text');
   readonly isTextarea = computed(() => this.fieldType() === 'textarea');
-  readonly useCodeEditor = computed(() => this.codeMode === 'formula' && this.isInput());
+
+  readonly elementTag = computed(() => {
+    const el = this.field?.port?.element as { tag?: string } | undefined;
+    return el?.tag ?? '';
+  });
+  readonly useCodeEditor = computed(() => this.isInput() && this.elementTag() === 'code-editor');
+  readonly codeEditorMode = computed<CodeEditorMode>(() => this.elementTag() === 'code-editor' ? 'code' : 'formula');
 
   @Output() fieldChange = new EventEmitter<GraphPortFieldChange>();
 

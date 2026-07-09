@@ -1,36 +1,28 @@
 <ng-diagram-base-node-template [node]="node()">
   <article
-    class="graph-node graph-node--boundary"
-    [class.graph-node--selected]="isSelected()"
-    [class.graph-node--input]="node().data.role === 'input'"
-    [class.graph-node--output]="node().data.role === 'output'"
+    class="graph-badge"
+    [class.graph-badge--selected]="isSelected()"
+    [class.graph-badge--input]="node().data.role === 'input'"
+    [class.graph-badge--output]="node().data.role === 'output'"
     [style.--graph-accent]="node().data.role === 'input' ? '#0f766e' : '#6d28d9'"
   >
-    <div class="graph-node__icon">
-      <span class="graph-node__icon-fallback">{{ iconFallback() }}</span>
-    </div>
+    <span class="graph-badge__name">{{ node().data.property }}</span>
 
-    <span class="graph-node__name">{{ node().data.title }}</span>
+    <button
+      type="button"
+      class="graph-badge__btn graph-badge__btn--delete"
+      title="Delete"
+      (click)="deleteNode($event)"
+      (mousedown)="$event.stopPropagation()"
+    >&times;</button>
 
-    <div class="graph-node__actions">
-      <button
-        type="button"
-        class="graph-node__btn graph-node__btn--delete"
-        title="Delete node"
-        (click)="deleteNode($event)"
-        (mousedown)="$event.stopPropagation()"
-      >&times;</button>
-    </div>
-
-    <div class="graph-node__ports graph-node__ports--out">
+    <div class="graph-badge__ports graph-badge__ports--out">
       @for (port of outputPorts(); track port.property) {
         <div
-          class="graph-node__port graph-node__port--out"
-          [class.graph-node__port--connected]="connectedPortIds().has(port.path || port.property)"
-          [class.graph-node__port--default]="port.property === 'value' || port.path === 'value'"
+          class="graph-badge__port graph-badge__port--out"
+          [class.graph-badge__port--connected]="connectedPortIds().has(port.path || port.property)"
         >
           <ng-diagram-port [id]="port.path || port.property" type="source" side="right" />
-          <span class="graph-node__port-label">{{ port.label || port.property }}</span>
         </div>
       }
     </div>

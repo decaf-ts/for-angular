@@ -14,7 +14,7 @@ import { GraphSaveService } from 'src/graph';
 import { GraphAutoSaveService } from 'src/graph';
 import { GraphMutationDetectorService } from 'src/graph';
 import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
-import { GraphPublishingWorkflow } from './workflow-root';
+import { TextPipelineWorkflow } from './workflow-root';
 import { GRAPH_DEMO_NODES } from './example-nodes';
 
 @Component({
@@ -32,8 +32,8 @@ import { GRAPH_DEMO_NODES } from './example-nodes';
   styleUrl: './graph.page.scss',
 })
 export class GraphPage implements OnInit, OnDestroy {
-  readonly workflowRoot = GraphPublishingWorkflow;
-  readonly workflowId = 'graph-publishing-workflow';
+  readonly workflowRoot = TextPipelineWorkflow;
+  readonly workflowId = 'text-pipeline-workflow';
   private readonly executionService = inject(GraphExecutionService);
   private readonly stateMapper = new GraphExecutionStateMapper();
   private readonly saveService = inject(GraphSaveService);
@@ -117,7 +117,8 @@ export class GraphPage implements OnInit, OnDestroy {
 
     const workflow = graphWorkflowDefinitionOf(this.workflowRoot as never);
     const inputs: Record<string, unknown> = {
-      request: 'Draft a publishing workflow for the next product release.',
+      count: 1,
+      text: 'Hello\nWorld\nFoo\nBar\nBaz',
     };
 
     try {
@@ -134,3 +135,4 @@ export class GraphPage implements OnInit, OnDestroy {
     }
   }
 }
+// trigger rebuild

@@ -1,21 +1,3 @@
-/**
- * @module for-angular/graph/components/code-editor
- * @summary CodeMirror 6-backed code editor with two modes: formula and code.
- * @description Provides a syntax-highlighted JavaScript code editor for the
- * graph node CRUD modal. Uses CodeMirror 6 (installed as an optional
- * dependency) with a dynamic import fallback to `ion-textarea` when
- * CodeMirror packages are not available.
- *
- * Two modes:
- * - **formula** — single-line, compact, resizable. Used inside input port
- *   fields when the port toggle is OFF. Lets users type a JS expression that
- *   evaluates to the input value.
- * - **code** — multi-line, line numbers, folding, autocomplete, bracket
- *   matching, larger default height, resizable. Used for the Code node's
- *   `metadata.code` field.
- *
- * Both modes enforce JavaScript only (no TypeScript) for now.
- */
 import {
   Component,
   ElementRef,
@@ -27,20 +9,12 @@ import {
   signal,
   effect,
   ChangeDetectionStrategy,
+  ViewEncapsulation,
 } from '@angular/core';
 import { IonTextarea } from '@ionic/angular/standalone';
 
-/**
- * Editor mode.
- */
 export type CodeEditorMode = 'formula' | 'code';
 
-/**
- * Dynamic loader for CodeMirror modules.
- *
- * Returns `null` when the packages are not installed (optional dependency).
- * The caller falls back to `ion-textarea` in that case.
- */
 async function loadCodeMirror(): Promise<{
   EditorState: typeof import('@codemirror/state')['EditorState'];
   EditorView: typeof import('@codemirror/view')['EditorView'];
@@ -53,8 +27,6 @@ async function loadCodeMirror(): Promise<{
   history: typeof import('@codemirror/commands')['history'];
   historyKeymap: typeof import('@codemirror/commands')['historyKeymap'];
   javascript: typeof import('@codemirror/lang-javascript')['javascript'];
-  syntaxHighlighting: typeof import('@codemirror/language')['syntaxHighlighting'];
-  defaultHighlightStyle: typeof import('@codemirror/language')['defaultHighlightStyle'];
   indentOnInput: typeof import('@codemirror/language')['indentOnInput'];
   bracketMatching: typeof import('@codemirror/language')['bracketMatching'];
   foldGutter: typeof import('@codemirror/language')['foldGutter'];
@@ -64,9 +36,11 @@ async function loadCodeMirror(): Promise<{
   closeBrackets: typeof import('@codemirror/autocomplete')['closeBrackets'];
   closeBracketsKeymap: typeof import('@codemirror/autocomplete')['closeBracketsKeymap'];
   oneDark: typeof import('@codemirror/theme-one-dark')['oneDark'];
+  linter: typeof import('@codemirror/lint')['linter'];
+  lintGutter: typeof import('@codemirror/lint')['lintGutter'];
 } | null> {
   try {
-    const [stateMod, viewMod, commandsMod, langJsMod, langMod, autocompleteMod, themeMod] =
+    const [stateMod, viewMod, commandsMod, langJsMod, langMod, autocompleteMod, themeMod, lintMod] =
       await Promise.all([
         import('@codemirror/state'),
         import('@codemirror/view'),
@@ -75,6 +49,7 @@ async function loadCodeMirror(): Promise<{
         import('@codemirror/language'),
         import('@codemirror/autocomplete'),
         import('@codemirror/theme-one-dark'),
+        import('@codemirror/lint'),
       ]);
     return {
       EditorState: stateMod.EditorState,
@@ -88,8 +63,6 @@ async function loadCodeMirror(): Promise<{
       history: commandsMod.history,
       historyKeymap: commandsMod.historyKeymap,
       javascript: langJsMod.javascript,
-      syntaxHighlighting: langMod.syntaxHighlighting,
-      defaultHighlightStyle: langMod.defaultHighlightStyle,
       indentOnInput: langMod.indentOnInput,
       bracketMatching: langMod.bracketMatching,
       foldGutter: langMod.foldGutter,
@@ -99,6 +72,8 @@ async function loadCodeMirror(): Promise<{
       closeBrackets: autocompleteMod.closeBrackets,
       closeBracketsKeymap: autocompleteMod.closeBracketsKeymap,
       oneDark: themeMod.oneDark,
+      linter: lintMod.linter,
+      lintGutter: lintMod.lintGutter,
     };
   } catch {
     return null;
@@ -110,9 +85,11 @@ async function loadCodeMirror(): Promise<{
   standalone: true,
   imports: [IonTextarea],
   template: `
-    @if (cmAvailable()) {
-      <div #host class="code-editor-host" [class.code-editor-host--formula]="mode() === 'formula'"></div>
-    } @else {
+    <div #host
+      class="code-editor-host"
+      [class.code-editor-host--formula]="mode() === 'formula'"
+    ></div>
+    @if (showFallback()) {
       <ion-textarea
         class="code-editor-fallback"
         [value]="code()"
@@ -125,17 +102,10 @@ async function loadCodeMirror(): Promise<{
   `,
   styles: [
     `
-      :host {
-        display: block;
-        width: 100%;
-      }
-
       .code-editor-host {
         width: 100%;
         border-radius: 6px;
         overflow: hidden;
-        resize: vertical;
-        min-height: 28px;
       }
 
       .code-editor-host--formula {
@@ -145,26 +115,31 @@ async function loadCodeMirror(): Promise<{
       }
 
       .code-editor-host:not(.code-editor-host--formula) {
-        min-height: 200px;
-        height: 200px;
+        min-height: 160px;
+        height: 160px;
+        resize: vertical;
       }
 
-      .code-editor-host :deep(.cm-editor) {
+      .cm-editor {
         height: 100%;
         font-family: 'Fira Code', 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
         font-size: 13px;
       }
 
-      .code-editor-host--formula :deep(.cm-editor) {
+      .cm-editor.cm-focused {
+        outline: 2px solid rgba(59, 130, 246, 0.5);
+      }
+
+      .code-editor-host--formula .cm-editor {
         min-height: 28px;
       }
 
-      .code-editor-host--formula :deep(.cm-scroller) {
+      .code-editor-host--formula .cm-scroller {
         white-space: nowrap;
         overflow-x: auto;
       }
 
-      .code-editor-host :deep(.cm-scroller) {
+      .cm-scroller {
         font-family: 'Fira Code', 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
         font-size: 13px;
       }
@@ -177,50 +152,39 @@ async function loadCodeMirror(): Promise<{
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
 })
 export class CodeEditorComponent implements AfterViewInit, OnDestroy {
-  /**
-   * Editor mode: `'formula'` (single-line, compact) or `'code'` (multi-line,
-   * full-featured).
-   */
   readonly mode = input<CodeEditorMode>('code');
-
-  /**
-   * The code string to display/edit.
-   */
   readonly code = input<string>('');
-
-  /**
-   * Placeholder text for the fallback textarea.
-   */
   readonly placeholder = input<string>('');
-
-  /**
-   * Emitted on every code change.
-   */
   readonly codeChange = output<string>();
 
-  @ViewChild('host', { static: false }) host?: ElementRef<HTMLElement>;
+  @ViewChild('host', { static: true }) host?: ElementRef<HTMLElement>;
 
   private view: InstanceType<typeof import('@codemirror/view')['EditorView']> | null = null;
-  private isInternalUpdate = false;
-  readonly cmAvailable = signal(false);
+  private lastEmitted = '';
+  readonly showFallback = signal(false);
 
   constructor() {
     effect(() => {
-      const value = this.code();
-      if (this.view && this.cmAvailable() && !this.isInternalUpdate) {
-        this.view.dispatch({
-          changes: { from: 0, to: this.view.state.doc.length, insert: value || '' },
-        });
-      }
+      const value = this.code() ?? '';
+      if (!this.view) return;
+      // Skip echoes: if this is the value we just emitted, the editor
+      // already has it — dispatching would reset the cursor.
+      if (value === this.lastEmitted) return;
+      const current = this.view.state.doc.toString();
+      if (current === value) return;
+      this.view.dispatch({
+        changes: { from: 0, to: current.length, insert: value },
+      });
     });
   }
 
   async ngAfterViewInit(): Promise<void> {
     const cm = await loadCodeMirror();
     if (!cm || !this.host) {
-      this.cmAvailable.set(false);
+      this.showFallback.set(true);
       return;
     }
 
@@ -231,7 +195,6 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
       cm.drawSelection(),
       cm.EditorState.allowMultipleSelections.of(true),
       cm.indentOnInput(),
-      cm.syntaxHighlighting(cm.defaultHighlightStyle, { fallback: true }),
       cm.bracketMatching(),
       cm.closeBrackets(),
       cm.autocompletion(),
@@ -244,16 +207,34 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
       ]),
       cm.javascript({ typescript: false }),
       cm.oneDark,
-      cm.EditorView.updateListener.of((update: { docChanged: boolean; state: { doc: { toString: () => string } } }) => {
+      cm.EditorView.updateListener.of((update) => {
         if (update.docChanged) {
-          this.isInternalUpdate = true;
-          this.codeChange.emit(update.state.doc.toString());
-          this.isInternalUpdate = false;
+          this.lastEmitted = update.state.doc.toString();
+          this.codeChange.emit(this.lastEmitted);
         }
       }),
     ];
 
     if (!isFormula) {
+      const syntaxLinter = cm.linter((view) => {
+        const doc = view.state.doc.toString();
+        if (!doc.trim()) return [];
+        const diagnostics: { from: number; to: number; severity: 'error'; message: string }[] = [];
+        try {
+          const hasReturn = /\breturn\b[\s;]/.test(doc);
+          const body = hasReturn ? doc : `return (${doc});`;
+          new Function(body);
+        } catch (err) {
+          diagnostics.push({
+            from: 0,
+            to: doc.length,
+            severity: 'error',
+            message: `Syntax: ${(err as Error).message}`,
+          });
+        }
+        return diagnostics;
+      });
+      extensions.push(syntaxLinter, cm.lintGutter());
       extensions.unshift(
         cm.lineNumbers(),
         cm.foldGutter(),
@@ -269,9 +250,8 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
     this.view = new cm.EditorView({
       state,
       parent: this.host.nativeElement,
+      root: document,
     });
-
-    this.cmAvailable.set(true);
   }
 
   ngOnDestroy(): void {

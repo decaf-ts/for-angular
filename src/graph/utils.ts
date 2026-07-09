@@ -152,8 +152,8 @@ function buildBoundaryNode(
       y: 120 + index * 120 + duplicateIndex * 22,
     },
     size: {
-      width: 240,
-      height: 96,
+      width: 72,
+      height: 48,
     },
     resizable: false,
     draggable: true,
@@ -188,6 +188,8 @@ export function buildMemberNode(
 
   const switchMeta = metadata['switch'] as SwitchNodeMetadata | undefined;
   const hasSwitchCases = switchMeta && Array.isArray(switchMeta.cases) && switchMeta.cases.length > 0;
+  const hasDefault = switchMeta?.hasDefault !== false;
+  const defaultPortName = switchMeta?.defaultPort ?? 'default';
 
   let ports: GraphPortDefinition[] = [...definition.ports];
   let height = definition.height ?? 96;
@@ -202,7 +204,16 @@ export function buildMemberNode(
       hidden: false,
       path: c.outputPort,
     }));
-    ports = [...ports, ...caseOutputPorts];
+    // Separate the default port so it renders LAST (DECAF-32 §21 port-ordering rule).
+    const nonDefaultPorts = ports.filter((p) => p.property !== defaultPortName);
+    const defaultPort = ports.find((p) => p.property === defaultPortName);
+    ports = [...nonDefaultPorts, ...caseOutputPorts];
+    if (hasDefault && defaultPort) {
+      ports.push(defaultPort);
+    } else if (!hasDefault) {
+      // Remove the default port entirely when hasDefault is false.
+      ports = nonDefaultPorts;
+    }
     height = Math.max(height, 140 + switchMeta.cases.length * 24);
   }
 

@@ -16,7 +16,7 @@ import { Subject, Observable } from "rxjs";
 
 import { ServerEventConnector } from "@decaf-ts/for-http";
 import type { GraphExecutionEvent } from "@decaf-ts/integrations/graph/shared";
-import type { GraphWorkflowDefinition } from "@decaf-ts/ui-decorators/graph";
+import { graphDefinitionOf, type GraphWorkflowDefinition } from "@decaf-ts/ui-decorators/graph";
 
 /**
  * Injection token for the base URL of the NestJS backend that hosts the graph
@@ -44,6 +44,44 @@ interface GraphExecuteResponse {
   runId: string;
   status: string;
   outputs: Record<string, unknown>;
+}
+
+/**
+ * Recursively serializes a {@link GraphWorkflowDefinition} so it survives
+ * `JSON.stringify`. Class constructors in `nodes[].node` are resolved to
+ * plain `GraphNodeDefinition` objects via {@link graphDefinitionOf}. Nested
+ * body workflows (found in node metadata `loop.body`) are serialized too.
+ */
+function serializeWorkflow(workflow: GraphWorkflowDefinition): GraphWorkflowDefinition {
+  const nodes = (workflow.nodes ?? []).map((entry) => {
+    if (!entry.node || typeof entry.node === "function") {
+      try {
+        const def = graphDefinitionOf(entry.node as never) as Record<string, unknown>;
+        const graphMeta = def["graph"] as Record<string, unknown> | undefined;
+        if (graphMeta && graphMeta["metadata"]) {
+          graphMeta["metadata"] = serializeLoopMetadata(graphMeta["metadata"]);
+        }
+        return { ...entry, node: def, metadata: serializeLoopMetadata(entry.metadata) };
+      } catch {
+        return { ...entry, metadata: serializeLoopMetadata(entry.metadata) };
+      }
+    }
+    return { ...entry, metadata: serializeLoopMetadata(entry.metadata) };
+  });
+  return { ...workflow, nodes: nodes as GraphWorkflowDefinition["nodes"] };
+}
+
+function serializeLoopMetadata(metadata: unknown): unknown {
+  if (!metadata || typeof metadata !== "object") return metadata;
+  const obj = metadata as Record<string, unknown>;
+  const loop = obj["loop"];
+  if (!loop || typeof loop !== "object") return metadata;
+  const loopObj = loop as Record<string, unknown>;
+  const body = loopObj["body"];
+  if (body && typeof body === "object" && !Array.isArray(body)) {
+    return { ...obj, loop: { ...loopObj, body: serializeWorkflow(body as GraphWorkflowDefinition) } };
+  }
+  return metadata;
 }
 
 /**
@@ -95,12 +133,13 @@ export class GraphExecutionService {
     workflow: GraphWorkflowDefinition,
     inputs: Record<string, unknown>,
   ): Promise<{ status: string; outputs: Record<string, unknown> }> {
+    const serializableWorkflow = serializeWorkflow(workflow);
     let response: Response;
     try {
       response = await fetch(`${this.baseUrl}/graph/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workflow, inputs }),
+        body: JSON.stringify({ workflow: serializableWorkflow, inputs }),
         signal: AbortSignal.timeout(10000),
       });
     } catch (err) {
