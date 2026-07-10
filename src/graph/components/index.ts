@@ -18,8 +18,8 @@ export * from './graph-headerbar/graph-headerbar.component';
 export * from './graph-node-edit-modal/graph-node-edit-modal.component';
 export * from './graph-node-template/graph-node-template.component';
 export * from './graph-port-field/graph-port-field.component';
-export * from './graph-renderer/graph-renderer.component';
 export * from './graph-switch-edit-modal/graph-switch-edit-modal.component';
+export * from './renderer/renderer.component';
 export * from './sidebar-menu/sidebar-menu.component';
 // export * from './workflow/workflow.component';
 // Module export

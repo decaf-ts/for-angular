@@ -34,8 +34,8 @@ import { GraphWorkflowComponent } from '../workflow/workflow.component';
     ContainerComponent,
   ],
   providers: [provideNgDiagram()],
-  templateUrl: './graph-renderer.component.html',
-  styleUrl: './graph-renderer.component.scss',
+  templateUrl: './renderer.component.html',
+  styleUrl: './renderer.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
 export class GraphRendererComponent extends NgxGraphDirective implements OnInit {
