@@ -17,7 +17,7 @@ fieldset {
 
 .dcf-fieldset-read-item {
   border: 1px solid var(--dcf-color-gray-3);
-  border-radius: var(--dcf-border-radius-small);
+  border-radius: var(--dcf-border-radius-sm);
   padding: var(--dcf-padding-small) var(--dcf-padding-xsmall);
   padding-bottom: 0px;
   margin-bottom: var(--dcf-margin-small) !important;
@@ -30,7 +30,7 @@ fieldset {
 }
 
 .dcf-fieldset-component {
-  border-radius: var(--dcf-border-radius-small);
+  border-radius: var(--dcf-border-radius-sm);
   border: 1px solid var(--dcf-color-gray-3);
   padding: var(--dcf-padding-small);
   &.create {
@@ -108,7 +108,7 @@ legend,
     --border-color: transparent;
     --background: rgba(var(--dcf-color-primary-rgb), 0.025) !important;
     border: 1px solid var(--dcf-color-gray-3);
-    border-radius: var(--dcf-border-radius-small);
+    border-radius: var(--dcf-border-radius-sm);
     box-sizing: border-box;
     &:not(:last-child) {
       margin-bottom: var(--dcf-margin-small);
@@ -137,7 +137,7 @@ legend,
 
 // .dcf-fieldset-item {
 //   border: 1px solid var(--dcf-color-gray-3);
-//   border-radius: var(--dcf-border-radius-small);
+//   border-radius: var(--dcf-border-radius-sm);
 //   padding: var(--dcf-padding-small) var(--dcf-padding-xsmall);
 //   padding-bottom: 0px;
 //   margin-bottom: var(--dcf-margin-small);
@@ -203,7 +203,7 @@ legend,
 // }
 
 // .dcf-fieldset-component {
-//   border-radius: var(--dcf-border-radius-small);
+//   border-radius: var(--dcf-border-radius-sm);
 //   border: 1px solid var(--dcf-color-gray-3);
 //   &.dcf-blank {
 //     border-color: transparent;

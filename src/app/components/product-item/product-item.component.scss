@@ -1,6 +1,6 @@
 .dcf-product-list-item {
   border: 1px solid var(--dcf-color-gray-3);
-  border-radius: var(--dcf-border-radius-small);
+  border-radius: var(--dcf-border-radius-sm);
   background: var(--dcf-card-background);
   // margin: 1rem .5rem;
   margin-bottom: 1rem !important;
@@ -30,7 +30,7 @@
 .dcf-icon-container {
   > div {
     background: rgba(var(--dcf-color-tertiary-rgb), 0.15);
-    border-radius: var(--dcf-border-radius-small);
+    border-radius: var(--dcf-border-radius-sm);
     width: 45px;
     height: 45px;
     display: flex;

@@ -95,7 +95,7 @@
   ion-button {
     &.dcf-button-close {
       --background: var(--dcf-color-light) !important;
-      --border-radius: var(--dcf-border-radius-small) !important;
+      --border-radius: var(--dcf-border-radius-sm) !important;
     }
   }
   &.dcf-modal-no-header,
@@ -113,7 +113,7 @@
       overflow-wrap: anywhere;
       background: rgba(var(--dcf-color-warning-rgb), 0.175) !important;
       padding: var(--dcf-padding);
-      border-radius: var(--dcf-border-radius-small);
+      border-radius: var(--dcf-border-radius-sm);
       font-size: 0.9rem !important;
       font-weight: 500;
       margin-top: 2rem;

@@ -1,0 +1,56 @@
+<!-- <div class="graph-float-controls">
+  <div class="graph-float-controls__group graph-float-controls__group--left">
+    <button
+      type="button"
+      class="graph-float-btn"
+      [disabled]="!canUndo()"
+      (click)="onUndo()"
+      title="Undo (Ctrl/Cmd+Z)"
+    >
+      &#x21A9;
+    </button>
+    <button
+      type="button"
+      class="graph-float-btn"
+      [disabled]="!canRedo()"
+      (click)="onRedo()"
+      title="Redo (Ctrl/Cmd+Shift+Z)"
+    >
+      &#x21AA;
+    </button>
+  </div>
+
+  <div class="graph-float-controls__group graph-float-controls__group--right">
+    <div class="graph-float-toggle" title="Auto-Save">
+      <ion-toggle
+        [checked]="autoSaveEnabled()"
+        (ionChange)="onAutoSaveToggle($event)"
+      />
+    </div>
+
+    <button
+      type="button"
+      class="graph-float-btn graph-float-btn--save"
+      [disabled]="isSaving()"
+      (click)="onSave()"
+      title="Save"
+    >
+      @if (isSaving()) {
+        <ion-spinner name="circular" style="width: 14px; height: 14px;" />
+      } @else {
+        Save
+      }
+    </button>
+
+    <button
+      type="button"
+      class="graph-float-btn graph-float-btn--run"
+      [class.graph-float-btn--running]="isRunning()"
+      [disabled]="!canRun() || isRunning()"
+      (click)="onRun()"
+      title="Start workflow"
+    >
+      {{ isRunning() ? '...' : 'Start' }}
+    </button>
+  </div>
+</div> -->

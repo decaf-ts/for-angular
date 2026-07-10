@@ -13,7 +13,6 @@ import { map } from 'rxjs';
 import { GraphPublishingWorkflow } from 'src/app/pages/graph/workflow-root';
 import { NgxGraphDirective } from 'src/graph/NgxGraphDirective';
 import { ContainerComponent } from 'src/lib/components';
-import { GraphHeaderbarComponent } from '../graph-headerbar/graph-headerbar.component';
 import { GraphHomeComponent } from '../home/home.component';
 import { GraphSidebarMenuComponent } from '../sidebar-menu/sidebar-menu.component';
 import { GraphWorkflowComponent } from '../workflow/workflow.component';
@@ -28,7 +27,6 @@ import { GraphWorkflowComponent } from '../workflow/workflow.component';
     NgDiagramMinimapComponent,
     IonSpinner,
     GraphSidebarMenuComponent,
-    GraphHeaderbarComponent,
     GraphWorkflowComponent,
     GraphHomeComponent,
     ContainerComponent,
@@ -38,7 +36,7 @@ import { GraphWorkflowComponent } from '../workflow/workflow.component';
   styleUrl: './renderer.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
-export class GraphRendererComponent extends NgxGraphDirective implements OnInit {
+export class GraphRenderer2Component extends NgxGraphDirective implements OnInit {
   readonly sidebarCollapsed = signal(true);
   readonly sidebarWidth = computed(() => (this.sidebarCollapsed() ? '42px' : '240px'));
 

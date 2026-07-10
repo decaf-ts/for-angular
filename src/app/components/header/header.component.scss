@@ -290,7 +290,7 @@ ion-header {
           top: 1.25rem;
           left: -0.5rem;
           width: calc(100% - (var(--dcf-padding-xlarge) * 2.25)) !important;
-          border-radius: var(--dcf-border-radius-small) !important;
+          border-radius: var(--dcf-border-radius-sm) !important;
           box-shadow: var(--dcf-box-shadow-small) !important;
 
           ::ng-deep .dcf-container {

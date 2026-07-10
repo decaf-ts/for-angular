@@ -50,7 +50,7 @@
       --background-focused: rgb(var(--dcf-color-primary-rgb), 0.4);
 
       --color: var(--dcf-color-primary-shade);
-      --border-radius: var(--dcf-border-radius-small);
+      --border-radius: var(--dcf-border-radius-sm);
       --box-shadow: none;
       --padding-top: var(--dcf-padding-xsmall);
       --padding-bottom: var(--dcf-padding-xsmall);
@@ -101,7 +101,7 @@
     display: flex;
     align-items: center;
     border: 1.5px dashed var(--dcf-color-gray-3);
-    border-radius: var(--dcf-border-radius-small) !important;
+    border-radius: var(--dcf-border-radius-sm) !important;
 
     &.dcf-large {
       min-height: 180px;

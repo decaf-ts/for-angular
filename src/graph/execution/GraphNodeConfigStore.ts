@@ -1,10 +1,12 @@
 import { signal } from '@angular/core';
+import { SwitchNodeMetadata } from '@decaf-ts/integrations/graph/shared';
 import type { GraphNodeEditResult } from '../components/graph-node-edit-modal/graph-node-edit-modal.component';
 
 export interface GraphNodeConfig {
   values: Record<string, unknown>;
   portModes: Record<string, 'port' | 'value'>;
   outputSplits: string[];
+  metadata?: SwitchNodeMetadata;
 }
 
 class GraphNodeConfigStore {

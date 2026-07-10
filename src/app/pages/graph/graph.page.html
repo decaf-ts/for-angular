@@ -20,9 +20,14 @@
       }
     </div> -->
 
-    <app-graph-renderer
+    <!-- <app-graph-renderer
       [graph]="workflowRoot"
       [nodes]="availableNodes"
+      [outputs]="lastResult()"
+    /> -->
+
+    <app-graph-renderer
+      [graphRoot]="workflowRoot"
       [outputs]="lastResult()"
     />
 

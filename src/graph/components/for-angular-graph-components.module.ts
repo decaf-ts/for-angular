@@ -14,7 +14,7 @@ import { GraphBoundaryNodeTemplateComponent } from './boundary-node-template/bou
 import { GraphNodeEditModalComponent } from './graph-node-edit-modal/graph-node-edit-modal.component';
 import { GraphNodeTemplateComponent } from './graph-node-template/graph-node-template.component';
 import { GraphPortFieldComponent } from './graph-port-field/graph-port-field.component';
-import { GraphRendererComponent } from './renderer/renderer.component';
+import { GraphRendererComponent } from './graph-renderer/graph-renderer.component';
 
 const Components = [
   GraphBoundaryNodeTemplateComponent,

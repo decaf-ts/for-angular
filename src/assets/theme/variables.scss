@@ -92,10 +92,16 @@ $dcf-page-padding-y: 32px;
 
 $dcf-media-xs: 480px;
 $dcf-media-sm: 640px;
-$dcf-media-md: 960px;
+$dcf-media-md: 992px;
 $dcf-media-lg: 1024px;
 $dcf-media-xl: 1200px;
 $dcf-media-2xl: 1536px;
+
+$dcf-width-small: $dcf-media-xs;
+$dcf-width-medium: $dcf-media-sm;
+$dcf-width-large: $dcf-media-md;
+$dcf-width-xlarge: $dcf-media-lg;
+$dcf-width-2xlarge: $dcf-media-2xl;
 
 /* ==========================================================================
    Typography Tokens
@@ -288,10 +294,10 @@ $dcf-box-shadow-cp:
   0px 1px 3px rgba(0, 0, 0, 0.1),
   0px 1px 2px -1px rgba(0, 0, 0, 0.1);
 
-$dcf-border-radius-xsmall: $dcf-radius-xs;
+$dcf-border-radius-xs: $dcf-radius-xs;
 $dcf-border-radius: $dcf-radius-sm;
-$dcf-border-radius-small: $dcf-radius-md;
-$dcf-border-radius-large: $dcf-radius-lg;
+$dcf-border-radius-sm: $dcf-radius-md;
+$dcf-border-radius-lg: $dcf-radius-lg;
 
 /* ==========================================================================
    Dark Mode Tokens
@@ -578,8 +584,8 @@ $dcf-dark-border-strong: 1px solid $dcf-dark-color-outline-shade;
 
   --dcf-border-radius-xsmall: #{$dcf-radius-xs};
   --dcf-border-radius: #{$dcf-radius-sm};
-  --dcf-border-radius-small: #{$dcf-radius-md};
-  --dcf-border-radius-large: #{$dcf-radius-lg};
+  --dcf-border-radius-sm: #{$dcf-radius-md};
+  --dcf-border-radius-lg: #{$dcf-radius-lg};
 
   --dcf-form-field-border-radius: #{$dcf-form-field-border-radius};
   --dcf-form-field-height: #{$dcf-form-field-height};

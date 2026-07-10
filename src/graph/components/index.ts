@@ -21,6 +21,11 @@ export * from './graph-port-field/graph-port-field.component';
 export * from './graph-switch-edit-modal/graph-switch-edit-modal.component';
 export * from './renderer/renderer.component';
 export * from './sidebar-menu/sidebar-menu.component';
+
+export * from './code-editor/code-editor.component';
+export * from './graph-renderer/graph-renderer.component';
+export * from './graph-toolbar/graph-toolbar.component';
+
 // export * from './workflow/workflow.component';
 // Module export
 export * from './for-angular-graph-components.module';

@@ -34,7 +34,7 @@
   &.dcf-grid-bordered {
     > div > div {
       padding: var(--dcf-padding-small) var(--dcf-padding);
-      border-radius: var(--dcf-border-radius-small);
+      border-radius: var(--dcf-border-radius-sm);
       border: 1px solid var(--dcf-color-gray-2);
       background: var(--dcf-card-background) !important;
     }

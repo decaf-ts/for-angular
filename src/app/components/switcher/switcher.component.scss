@@ -104,7 +104,7 @@ ngx-decaf-icon {
     margin-left: 0px !important;
     border-radius: 0px;
     > * {
-      border-radius: var(--dcf-border-radius-small);
+      border-radius: var(--dcf-border-radius-sm);
       padding-left: 0px !important;
 
       &:not(:last-child) {
@@ -145,7 +145,7 @@ ngx-decaf-icon {
           &.dcf-active {
             a {
               background: var(--dcf-color-primary);
-              border-radius: var(--dcf-border-radius-small);
+              border-radius: var(--dcf-border-radius-sm);
             }
           }
           > a {

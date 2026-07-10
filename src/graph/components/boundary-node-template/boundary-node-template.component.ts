@@ -37,10 +37,6 @@ export class GraphBoundaryNodeTemplateComponent implements NgDiagramNodeTemplate
     return ids;
   });
 
-  readonly iconFallback = computed(() => {
-    return this.node().data.role === 'input' ? 'I' : 'O';
-  });
-
   outputPorts() {
     const isDefault = (port: { property: string; path?: string }) =>
       port.property === 'value' || port.path === 'value' || port.property === 'default' || port.path === 'default';

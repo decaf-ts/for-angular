@@ -1,7 +1,8 @@
 import { Component, Input, signal, computed, Output, EventEmitter, OnInit } from '@angular/core';
-import { IonCheckbox, IonItem, IonLabel, IonInput, IonTextarea, IonNote } from '@ionic/angular/standalone';
+import { IonInput, IonTextarea } from '@ionic/angular/standalone';
 import type { GraphPortDefinition } from '@decaf-ts/ui-decorators/graph';
 import { PortDirection } from '@decaf-ts/ui-decorators/graph';
+import { CodeEditorComponent, type CodeEditorMode } from '../code-editor/code-editor.component';
 
 export interface GraphPortFieldConfig {
   port: GraphPortDefinition;
@@ -20,7 +21,7 @@ export interface GraphPortFieldChange {
 @Component({
   selector: 'app-graph-port-field',
   standalone: true,
-  imports: [IonCheckbox, IonItem, IonLabel, IonInput, IonTextarea, IonNote],
+  imports: [IonInput, IonTextarea, CodeEditorComponent],
   templateUrl: './graph-port-field.component.html',
   styleUrl: './graph-port-field.component.scss',
 })
@@ -44,6 +45,13 @@ export class GraphPortFieldComponent implements OnInit {
   readonly fieldType = computed(() => this.field?.type ?? 'text');
   readonly isTextarea = computed(() => this.fieldType() === 'textarea');
 
+  readonly elementTag = computed(() => {
+    const el = this.field?.port?.element as { tag?: string } | undefined;
+    return el?.tag ?? '';
+  });
+  readonly useCodeEditor = computed(() => this.isInput() && this.elementTag() === 'code-editor');
+  readonly codeEditorMode = computed<CodeEditorMode>(() => this.elementTag() === 'code-editor' ? 'code' : 'formula');
+
   @Output() fieldChange = new EventEmitter<GraphPortFieldChange>();
 
   ngOnInit() {
@@ -66,6 +74,11 @@ export class GraphPortFieldComponent implements OnInit {
   onValueChange(event: Event) {
     const target = event.target as HTMLInputElement | HTMLTextAreaElement;
     this._value.set(target.value);
+    this.emitChange();
+  }
+
+  onCodeChange(code: string) {
+    this._value.set(code);
     this.emitChange();
   }
 
