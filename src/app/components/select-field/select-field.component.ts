@@ -1,5 +1,5 @@
 import { Component, HostListener, OnDestroy } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Condition } from '@decaf-ts/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
@@ -24,7 +24,6 @@ import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.com
 import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { getModelAndRepository, SelectOption } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
-import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/helpers';
 
 @Dynamic()
@@ -34,7 +33,7 @@ import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/help
   styleUrls: ['./select-field.component.scss'],
   imports: [
     TranslatePipe,
-    ForAngularCommonModule,
+    ReactiveFormsModule,
     IonItem,
     IonButton,
     IonLabel,

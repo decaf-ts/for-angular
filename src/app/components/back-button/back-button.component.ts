@@ -15,7 +15,6 @@ import { shareReplay } from 'rxjs';
 import { IconComponent } from 'src/lib/components';
 import { RouteDirections } from 'src/lib/engine/constants';
 import { FunctionLike, StringOrBoolean } from 'src/lib/engine/types';
-import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { NgxMediaService } from 'src/lib/services/NgxMediaService';
 import { stringToBoolean, windowEventEmitter } from 'src/lib/utils/helpers';
 
@@ -98,7 +97,7 @@ import { stringToBoolean, windowEventEmitter } from 'src/lib/utils/helpers';
   templateUrl: './back-button.component.html',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   styleUrls: ['./back-button.component.scss'],
-  imports: [ForAngularCommonModule, IconComponent],
+  imports: [IconComponent],
   standalone: true,
 })
 export class BackButtonComponent implements OnInit {
