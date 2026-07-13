@@ -608,7 +608,7 @@ export async function getNgxSelectOptionsModal(
       data: [],
       showSearchbar: true,
       // showSearchbar: options?.length > 10,
-      item: { tag: true, emitEvent: true },
+      item: { tag: true, emitEvent: true, pk: globals?.['pk'] },
       pk: 'value',
       mapper: { title: 'text', uid: 'value' },
       ...globals,

@@ -662,6 +662,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   @Input()
   override page!: number;
 
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor() {
     super();
   }
@@ -700,7 +701,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       if (HTML5InputTypes.SELECT === this.type && !this.value) {
         if (this.options?.length) {
           const selected = this.options.find((o) => o['selected']);
-          this.parseSelectLabel();
+          // this.parseSelectLabel();
           // if (this.interface === SelectFieldInterfaces.MODAL) {
           //   if (selected && selected?.value.length) {
           //     this.setValue(selected.value);
@@ -719,6 +720,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         this.setValue(this.value);
       }
     }
+
     await super.initialize();
   }
 
@@ -759,19 +761,19 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    */
   async getOptions(): Promise<CrudFieldOption[]> {
     if (!this.options) return [];
-
     if (this.options instanceof Function) {
       if (this.options.name === 'options') this.options = (await this.options()) as FunctionLike;
       const fnName = (this.options as FunctionLike)?.name;
       if (fnName) {
-        if (fnName === 'function') {
+        if (fnName.toLowerCase() === 'function') {
           this.options = (await (this.options as FunctionLike)()) as KeyValue[];
         } else {
-          const repo = getModelAndRepository((this.options as KeyValue)?.['name'], this);
+          const modelName = this.options?.name ?? this.options?.constructor?.name ?? '';
+          const repo = getModelAndRepository(modelName, this);
           if (repo) {
-            const { repository } = repo;
+            const { repository, pk } = repo;
             if (typeof this.optionsMapper === 'object' && !Object.keys(this.optionsMapper).length)
-              this.optionsMapper = { value: this.pk, text: this.pk };
+              this.optionsMapper = { value: pk, text: pk };
             this.options = await repository.select().execute();
           }
         }
@@ -858,10 +860,16 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       timer(100)
         .pipe(take(1))
         .subscribe(async () => {
-          const modal = await getNgxSelectOptionsModal(this.label, this.options as SelectOption[], {}, this.name);
+          const modal = await getNgxSelectOptionsModal(
+            this.label,
+            this.options as SelectOption[],
+            { pk: this.pk, modelName: this.modelName },
+            this.name
+          );
           // this.changeDetectorRef.detectChanges();
           await loading.dismiss();
           const { data, role } = await modal.onWillDismiss();
+          console.log(data, role);
           if (role === ActionRoles.confirm && data !== this.value) {
             this.setValue(data);
             this.component.nativeElement.ionChange.emit({ value: data });

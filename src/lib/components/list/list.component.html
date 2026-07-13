@@ -85,10 +85,11 @@
               mapper: mapper,
               route: isModalChild ? route : undefined,
               model: child,
-              isModalChild: child.isModalChild,
+              pk: pk,
+              isModalChild: isModalChild || child.isModalChild,
               emitEvent: child.emitEvent,
             }"
-          ></ngx-decaf-component-renderer>
+          />
         }
       } @else {
         <ng-content></ng-content>
@@ -96,11 +97,7 @@
     </ion-list>
   </div>
   @if (loadMoreData) {
-    @if (
-      (pages > 0 || bookMarkPagination) &&
-      type === 'paginated' &&
-      !searchValue?.length
-    ) {
+    @if (type === 'paginated' && !searchValue?.length) {
       <ngx-decaf-pagination
         [disablePages]="disablePaginationPages"
         [truncatePages]="truncatePaginationPages"

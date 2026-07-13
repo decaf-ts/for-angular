@@ -84,6 +84,7 @@ export function getModelAndRepository<M extends Model>(
       clazz.repository = repository as DecafRepository<Model>;
       clazz.model = model;
       clazz.pk = pk;
+      clazz.modelName = modelName;
       clazz.pkType = Metadata.type(repository.class, pk).name;
     }
     return { repository, model, pk, pkType };

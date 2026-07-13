@@ -9,6 +9,7 @@
  * @link {@link ListItemComponent}
  */
 
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -39,7 +40,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Dynamic } from '../../engine/decorators';
 import { IListItemCustomEvent } from '../../engine/interfaces';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
-import { KeyValue } from '../../engine/types';
+import { FunctionLike, KeyValue } from '../../engine/types';
 import { getWindowWidth, removeFocusTrap, windowEventEmitter } from '../../utils/helpers';
 import { IconComponent } from '../icon/icon.component';
 
@@ -93,6 +94,7 @@ import { IconComponent } from '../icon/icon.component';
     IonListHeader,
     IonItem,
     IonItemSliding,
+    CommonModule,
     IonItemOptions,
     IonItemOption,
     IonLabel,
@@ -222,6 +224,18 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
   info?: string;
 
   /**
+   * @description Additional information text for the list item.
+   * @summary Displays supplementary information that provides extra context
+   * about the item. This could include metadata, status information, or
+   * other relevant details that don't fit in the title or description.
+   *
+   * @type {string}
+   * @memberOf ListItemComponent
+   */
+  @Input()
+  override mapper: Record<string, string> | FunctionLike | Record<string, FunctionLike> = {};
+
+  /**
    * @description Sub-information text displayed in the list item.
    * @summary Provides tertiary level information that complements the info field.
    * This is typically used for additional metadata or contextual details
@@ -334,11 +348,13 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    */
   async ngOnInit(): Promise<void> {
     const item = this.item as KeyValue;
-    if (typeof item === 'object' && 'mapper' in item) {
-      await this.parseItem(item, item['mapper']);
-    } else {
-      await this.parseItem(item);
-    }
+    const mapper =
+      (this.mapper as KeyValue) && Object.keys(this.mapper).length
+        ? (this.mapper as KeyValue)
+        : typeof item === 'object' && 'mapper' in item
+          ? (item['mapper'] as KeyValue)
+          : undefined;
+    await this.parseItem(item, mapper);
 
     this.showSlideItems = this.enableSlideItems();
     this.className = `${this.className}  dcf-flex dcf-flex-middle grid-item`;

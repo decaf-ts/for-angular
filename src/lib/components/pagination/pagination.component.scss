@@ -27,7 +27,6 @@
     justify-content: flex-end;
     margin: 1.5rem 0px;
   }
-
   .page-item {
     display: flex;
     justify-content: center;
@@ -73,11 +72,15 @@
 .dcf-nav {
   background: var(--dcf-color-gray-2);
   padding: 0.5rem;
-  border-radius: var(--dcf-border-radius-sm) !important;
-  .ti,
-  ion-icon {
+  border-radius: var(--dcf-radius-elements) !important;
+  display: flex;
+  align-items: center;
+  column-gap: 0.25em;
+  padding: 5px 10px;
+  transition: color 0.1s ease-in-out;
+  ::ng-deep .ti {
     position: relative;
-    top: 2px;
+    top: 1px;
   }
 
   &.dcf-nav-next {

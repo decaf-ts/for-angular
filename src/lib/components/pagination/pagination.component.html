@@ -52,6 +52,7 @@
           pages?.length > 1 || (bookMarkPagination && nextBookmark !== 'nil')
         ) {
           <div
+            aria-label="next"
             tabindex="0"
             [class]="disablePages ? 'dcf-nav dcf-nav-next' : ''"
             (click)="next()"

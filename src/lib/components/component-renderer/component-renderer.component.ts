@@ -18,12 +18,12 @@ import {
  *
  * @link {@link ComponentRendererComponent}
  */
-import { NgComponentOutlet } from '@angular/common';
+import { CommonModule, NgComponentOutlet } from '@angular/common';
 
-import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
-import { KeyValue } from '../../engine/types';
 import { AngularEngineKeys, BaseComponentProps } from '../../engine/constants';
 import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableComponentDirective';
+import { NgxRenderingEngine } from '../../engine/NgxRenderingEngine';
+import { KeyValue } from '../../engine/types';
 
 /**
  * @description Dynamic component renderer for Decaf Angular applications.
@@ -68,14 +68,11 @@ import { NgxRenderableComponentDirective } from '../../engine/NgxRenderableCompo
   selector: 'ngx-decaf-component-renderer',
   templateUrl: './component-renderer.component.html',
   styleUrls: ['./component-renderer.component.scss'],
-  imports: [NgComponentOutlet],
+  imports: [NgComponentOutlet, CommonModule],
   standalone: true,
   host: { '[attr.id]': 'uid' },
 })
-export class ComponentRendererComponent
-  extends NgxRenderableComponentDirective
-  implements OnInit, OnDestroy
-{
+export class ComponentRendererComponent extends NgxRenderableComponentDirective implements OnInit, OnDestroy {
   /**
    * @description The tag name of the component to be dynamically rendered.
    * @summary This input property specifies which component should be rendered by providing
@@ -166,7 +163,15 @@ export class ComponentRendererComponent
     const component = NgxRenderingEngine.components(tag)?.constructor as Type<unknown>;
     const metadata = reflectComponentType(component);
     const componentInputs = (metadata as ComponentMirror<unknown>).inputs;
-    const props = globals?.['item'] || globals?.['props'] || {};
+    console.log(globals);
+
+    const { item: itemValue, props: wrappedProps, ...siblings } = globals || {};
+    const props = Object.assign(
+      {},
+      siblings,
+      (wrappedProps || itemValue || {}) as KeyValue,
+      itemValue ? { item: itemValue } : {}
+    );
     if (props?.['tag']) delete props['tag'];
     if (props?.[AngularEngineKeys.CHILDREN] && !this.children.length)
       this.children = props[AngularEngineKeys.CHILDREN] as KeyValue[];
@@ -193,19 +198,17 @@ export class ComponentRendererComponent
     const hasRootForm = hasProperty(BaseComponentProps.PARENT_FORM);
     if (hasRootForm && this.parentForm) props[BaseComponentProps.PARENT_FORM] = this.parentForm;
 
-    props['className'] = props['className']
-      ? props['className'] + ' ' + this.className
-      : this.className || '';
+    props['className'] = props['className'] ? props['className'] + ' ' + this.className : this.className || '';
     this.vcr.clear();
     // const projectable = (this.children?.length && this.projectable);
     // const template = projectable ? this.vcr.createEmbeddedView(this.inner as TemplateRef<unknown>, this.injector).rootNodes : [];
     this.instance = NgxRenderingEngine.createComponent(
       component,
-      { ...props, ...{ modelId: props?.modelId || this.modelId, pk: props?.pk || this.pk } },
+      { ...props, ...{ modelId: props?.['modelId'] || this.modelId, pk: props?.['pk'] || this.pk } },
       this.injector as Injector,
       metadata as ComponentMirror<unknown>,
       this.vcr,
-      [],
+      []
     );
     this.subscribeEvents(component);
   }
@@ -216,14 +219,7 @@ export class ComponentRendererComponent
     const template = this.projectable
       ? this.vcr.createEmbeddedView(this.inner as TemplateRef<unknown>, this.injector).rootNodes
       : [];
-    this.instance = NgxRenderingEngine.createComponent(
-      component,
-      inputs,
-      this.injector,
-      metadata,
-      this.vcr,
-      template,
-    );
+    this.instance = NgxRenderingEngine.createComponent(component, inputs, this.injector, metadata, this.vcr, template);
     this.subscribeEvents(component);
   }
 }

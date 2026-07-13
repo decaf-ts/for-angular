@@ -9,6 +9,7 @@
  * @link {@link ListComponent}
  */
 
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Condition, Observer, Paginator } from '@decaf-ts/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
@@ -132,6 +133,7 @@ import { SearchbarComponent } from '../searchbar/searchbar.component';
     IonButton,
     PaginationComponent,
     IonList,
+    CommonModule,
     IonItem,
     IonThumbnail,
     IonSkeletonText,
@@ -699,10 +701,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     this.refreshing = true;
 
     this.data = (await this.getFromModel(!!event)) as KeyValue[];
+
+    this.refreshEventEmit(this.data);
     if (this.isModalChild) {
       this.changeDetectorRef.detectChanges();
     }
-    this.refreshEventEmit(this.data);
     if (this.type === ListComponentsTypes.INFINITE) {
       if (this.page === this.pages) {
         if ((event as InfiniteScrollCustomEvent)?.target) (event as InfiniteScrollCustomEvent).target.complete();
@@ -1289,11 +1292,14 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       } else {
         this.pages = this.paginator?.total || this.paginator['_totalPages'];
         if (this.pages === undefined) {
-          this.bookMarkPagination = this.paginator?.['_bookmark'] !== undefined ? true : false;
-        } else {
-          if (this.pages === 1) {
-            this.loadMoreData = false;
-          }
+          // Bookmark/cursor-style paginator: `total` is never resolvable, and this is
+          // permanent for the lifetime of this paginator. Latch it once detected instead
+          // of re-deriving from the *current* bookmark value on every fetch — an empty
+          // bookmark means "no next page", not "not in bookmark mode", and re-deriving
+          // it here was flipping this flag to false when the last page was reached.
+          this.bookMarkPagination = true;
+        } else if (this.pages === 1) {
+          this.loadMoreData = false;
         }
       }
     }

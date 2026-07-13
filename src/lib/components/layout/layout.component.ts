@@ -189,7 +189,6 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    * @memberOf LayoutComponent
    */
   private buildRows(): KeyValue[] {
-    console.log(this);
     let rows = this.rows;
     if (typeof rows === Primitives.NUMBER)
       rows = Array.from({ length: Number(rows) }, () => ({

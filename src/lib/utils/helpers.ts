@@ -363,13 +363,21 @@ export function formatDate(date: string | Date | number, locale?: string | undef
     date = new Date(typeof date === Primitives.STRING ? `${date}`.replace(/\//g, '-') : date);
   }
 
-  return !isValidDate(date)
-    ? `${date}`
-    : date.toLocaleString(locale, {
-        year: 'numeric',
-        day: '2-digit',
-        month: '2-digit',
-      });
+  if (!isValidDate(date)) {
+    // Do NOT stringify an invalid Date instance here. Model date fields decorated with
+    // decaf's `@date()` are Proxies that override `toString`/`toISOString` to route
+    // through the library's own formatter, which throws on an Invalid Date
+    // (`DAYS_OF_WEEK_NAMES[NaN]` is `undefined`, then `.substr` on it). The `${date}`
+    // template literal would trigger exactly that proxied `toString`, crashing the whole
+    // list render for a single bad date. Only stringify non-Date inputs; an invalid Date
+    // becomes an empty cell.
+    return date instanceof Date ? '' : `${date}`;
+  }
+  return date.toLocaleString(locale, {
+    year: 'numeric',
+    day: '2-digit',
+    month: '2-digit',
+  });
 }
 
 /**

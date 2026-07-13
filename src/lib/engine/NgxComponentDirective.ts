@@ -670,7 +670,7 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
   override get repository(): DecafRepository<Model> {
     try {
       if (!this._repository) {
-        const context = getModelAndRepository(this.model as Model);
+        const context = getModelAndRepository((this.model as Model) ?? this.modelName);
         if (context) {
           const { repository, pk, pkType } = context;
           this._repository = repository;
@@ -877,7 +877,6 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
       this.model = model;
       const engine = NgxRenderingEngine.get() as unknown as NgxRenderingEngine;
       const field = engine.getDecorators(this.model as Model, {});
-      console.log(field);
       const { props, item, children } = field;
       this.props = Object.assign(props || {}, { children: children || [] }, this.props, {
         handlers: props?.['handlers'] || {},
