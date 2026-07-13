@@ -1069,7 +1069,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     if (!this.indexes) {
       this.indexes = Object.keys(Model.indexes(this.model as Model) || {});
     }
-    if (!this.data?.length || force || this.hasSearch) {
+    const hasModelSource = !!(this.model || this.modelName || this._repository || this.paginator);
+    if (hasModelSource && (!this.data?.length || force || this.hasSearch)) {
       try {
         if (!this.hasSearch) {
           if (this.type !== ListComponentsTypes.INFINITE) {

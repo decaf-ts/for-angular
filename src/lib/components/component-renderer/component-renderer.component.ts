@@ -163,8 +163,6 @@ export class ComponentRendererComponent extends NgxRenderableComponentDirective 
     const component = NgxRenderingEngine.components(tag)?.constructor as Type<unknown>;
     const metadata = reflectComponentType(component);
     const componentInputs = (metadata as ComponentMirror<unknown>).inputs;
-    console.log(globals);
-
     const { item: itemValue, props: wrappedProps, ...siblings } = globals || {};
     const props = Object.assign(
       {},
