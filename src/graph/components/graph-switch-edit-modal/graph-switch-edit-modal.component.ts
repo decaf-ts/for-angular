@@ -5,13 +5,13 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
-  IonIcon,
   IonInput,
   IonTitle,
   IonToggle,
   IonToolbar,
   ModalController,
 } from '@ionic/angular/standalone';
+import { IconComponent } from 'src/lib/components';
 import {
   GraphConditionEditorComponent,
   type GraphConditionEditorChange,
@@ -54,7 +54,7 @@ type SwitchNodeMetadata = BaseSwitchNodeMetadata & { hasDefault?: boolean };
     IonContent,
     IonButton,
     IonButtons,
-    IonIcon,
+    IconComponent,
     IonInput,
     IonToggle,
     GraphConditionEditorComponent,

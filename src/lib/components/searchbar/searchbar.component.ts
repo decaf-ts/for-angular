@@ -16,7 +16,7 @@ import { getModelAndRepository } from '../../engine';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { StringOrBoolean } from '../../engine/types';
 import { stringToBoolean, windowEventEmitter } from '../../utils/helpers';
-import '../../utils/registerIonicons';
+import '../icon/icon.component';
 
 /**
  * @description Searchbar component for Angular applications.

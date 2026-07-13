@@ -5,11 +5,11 @@
       <h2 class="model-builder__title">Model Builder</h2>
       <div class="model-builder__actions">
         <ion-button size="small" fill="clear" (click)="loadExample()">
-          <ion-icon slot="icon-only" name="bulb-outline"></ion-icon>
+          <ngx-decaf-icon slot="icon-only" name="ti-bulb" />
           Example
         </ion-button>
         <ion-button size="small" fill="clear" color="danger" (click)="reset()" [disabled]="!hasProperties() && !modelConfig().name">
-          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          <ngx-decaf-icon slot="icon-only" name="ti-trash" />
           Reset
         </ion-button>
       </div>
@@ -86,14 +86,14 @@
       <div class="model-builder__section-header">
         <h3 class="model-builder__subtitle">Properties</h3>
         <ion-button size="small" (click)="addProperty()" [disabled]="properties().length >= 30">
-          <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+          <ngx-decaf-icon slot="icon-only" name="ti-plus" />
           Add Property
         </ion-button>
       </div>
 
       @if (!hasProperties()) {
         <div class="model-builder__empty">
-          <ion-icon name="cube-outline"></ion-icon>
+          <ngx-decaf-icon name="ti-cube" />
           <p>No properties yet. Click "Add Property" to start defining your model.</p>
         </div>
       } @else {
@@ -104,20 +104,20 @@
               <div class="model-builder__property-header">
                 <span class="model-builder__property-index">{{ i + 1 }}</span>
                 <button class="model-builder__property-toggle" (click)="toggleExpanded(i)">
-                  <ion-icon [name]="prop.expanded ? 'chevron-down-outline' : 'chevron-forward-outline'"></ion-icon>
+                  <ngx-decaf-icon [name]="prop.expanded ? 'ti-chevron-down' : 'ti-chevron-right'" />
                 </button>
                 <span class="model-builder__property-name">{{ prop.name || '(unnamed)' }}</span>
                 <span class="model-builder__property-type">{{ prop.type }}</span>
                 <span class="model-builder__property-component">{{ prop.ui.tag === 'custom' ? prop.ui.customTag : prop.ui.tag }}</span>
                 <div class="model-builder__property-actions">
                   <ion-button size="small" fill="clear" (click)="moveProperty(i, -1)" [disabled]="i === 0">
-                    <ion-icon slot="icon-only" name="arrow-up-outline"></ion-icon>
+                    <ngx-decaf-icon slot="icon-only" name="ti-arrow-up" />
                   </ion-button>
                   <ion-button size="small" fill="clear" (click)="moveProperty(i, 1)" [disabled]="i === properties().length - 1">
-                    <ion-icon slot="icon-only" name="arrow-down-outline"></ion-icon>
+                    <ngx-decaf-icon slot="icon-only" name="ti-arrow-down" />
                   </ion-button>
                   <ion-button size="small" fill="clear" color="danger" (click)="removeProperty(i)">
-                    <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+                    <ngx-decaf-icon slot="icon-only" name="ti-x" />
                   </ion-button>
                 </div>
               </div>
@@ -383,20 +383,20 @@
         (click)="buildModel()"
         [disabled]="!canBuild()"
       >
-        <ion-icon slot="start" name="build-outline"></ion-icon>
+        <ngx-decaf-icon slot="start" name="ti-tool" />
         Build Model
       </ion-button>
 
       @if (buildError()) {
         <div class="model-builder__error">
-          <ion-icon name="alert-circle-outline"></ion-icon>
+          <ngx-decaf-icon name="ti-alert-circle" />
           <span>{{ buildError() }}</span>
         </div>
       }
 
       @if (buildInfo() && !buildError()) {
         <div class="model-builder__success">
-          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <ngx-decaf-icon name="ti-circle-check" />
           <span>{{ buildInfo() }}</span>
         </div>
       }
@@ -421,7 +421,7 @@
           ></ngx-decaf-model-renderer>
         } @else {
           <div class="model-builder__empty">
-            <ion-icon name="eye-outline"></ion-icon>
+            <ngx-decaf-icon name="ti-eye" />
             <p>Build a model to see the live preview here.</p>
           </div>
         }

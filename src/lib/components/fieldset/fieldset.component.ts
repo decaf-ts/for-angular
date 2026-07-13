@@ -15,7 +15,6 @@ import { Model, ReservedModels } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames, CrudOperationKeys, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import {
   IonButton,
-  IonIcon,
   IonItem,
   IonLabel,
   IonList,
@@ -26,8 +25,6 @@ import {
   ItemReorderEventDetail,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { addIcons } from 'ionicons';
-import { addOutline, alertCircleOutline, createOutline, trashOutline } from 'ionicons/icons';
 import { timer } from 'rxjs';
 import { ActionRoles } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
@@ -107,7 +104,6 @@ import { presentModalConfirm } from '../modal/modal-confirm.component';
     IonReorder,
     IonReorderGroup,
     IonButton,
-    IonIcon,
     LayoutComponent,
     IonSpinner,
     IconComponent,
@@ -356,15 +352,13 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
 
   /**
    * @description Component constructor that initializes the fieldset with icons and component name.
-   * @summary Calls the parent NgxFormDirective constructor with the component name and
-   * required Ionic icons (alertCircleOutline for validation errors and createOutline for add actions).
-   * Sets up the foundational component structure and icon registry.
+   * @summary Calls the parent NgxFormDirective constructor with the component name.
+   * Sets up the foundational component structure.
    *
    * @memberOf FieldsetComponent
    */
   constructor() {
     super('FieldsetComponent');
-    addIcons({ alertCircleOutline, addOutline, trashOutline, createOutline });
   }
 
   /**

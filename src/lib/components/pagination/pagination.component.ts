@@ -10,13 +10,11 @@
 
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { IonIcon } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { addIcons } from 'ionicons';
-import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { IPaginationCustomEvent } from '../../engine/interfaces';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { KeyValue } from '../../engine/types';
+import { IconComponent } from '../icon/icon.component';
 
 /**
  * @description A pagination component for navigating through multiple pages of content.
@@ -63,7 +61,7 @@ import { KeyValue } from '../../engine/types';
   selector: 'ngx-decaf-pagination',
   templateUrl: './pagination.component.html',
   styleUrls: ['./pagination.component.scss'],
-  imports: [TranslatePipe, IonIcon],
+  imports: [TranslatePipe, IconComponent],
   standalone: true,
   host: { '[attr.id]': 'uid' },
 })
@@ -161,7 +159,6 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    */
   constructor() {
     super('PaginationComponent');
-    addIcons({ chevronBackOutline, chevronForwardOutline });
   }
 
   /**

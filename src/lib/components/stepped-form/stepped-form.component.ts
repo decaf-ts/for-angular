@@ -12,8 +12,6 @@ import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonSkeletonText, IonText } from '@ionic/angular/standalone';
-import { arrowForwardOutline, arrowBackOutline } from 'ionicons/icons';
-import { addIcons } from 'ionicons';
 import { UIElementMetadata, ComponentEventNames, UIModelMetadata } from '@decaf-ts/ui-decorators';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { Dynamic } from '../../engine/decorators';
@@ -180,14 +178,12 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
 
   /**
    * @description Creates an instance of SteppedFormComponent.
-   * @summary Initializes a new SteppedFormComponent instance and registers the required
-   * Ionic icons for navigation buttons (forward and back arrows).
+   * @summary Initializes a new SteppedFormComponent instance.
    *
    * @memberOf SteppedFormComponent
    */
   constructor() {
     super('SteppedFormComponent');
-    addIcons({ arrowForwardOutline, arrowBackOutline });
     this.enableDarkMode = true;
   }
 

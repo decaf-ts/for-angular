@@ -1,5 +1,5 @@
 import { Component, Input, signal, computed, Output, EventEmitter, OnInit } from '@angular/core';
-import { IonSelect, IonSelectOption, IonInput, IonTextarea, IonButton, IonIcon, IonLabel, IonNote, IonToggle } from '@ionic/angular/standalone';
+import { IonSelect, IonSelectOption, IonInput, IonTextarea, IonNote } from '@ionic/angular/standalone';
 import type { SwitchCaseCondition, ConditionExpression, CodeCondition, ExprValue } from '@decaf-ts/integrations/graph/shared';
 
 export type ConditionMode = 'graphical' | 'code';

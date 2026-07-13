@@ -26,7 +26,6 @@ import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import {
   IonButton,
   IonContent,
-  IonIcon,
   IonItem,
   IonItemOption,
   IonItemOptions,
@@ -41,7 +40,6 @@ import { Dynamic } from '../../engine/decorators';
 import { IListItemCustomEvent } from '../../engine/interfaces';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { KeyValue, StringOrBoolean } from '../../engine/types';
-import '../../utils/registerIonicons';
 import { getWindowWidth, removeFocusTrap, stringToBoolean, windowEventEmitter } from '../../utils/helpers';
 import { IconComponent } from '../icon/icon.component';
 
@@ -97,7 +95,6 @@ import { IconComponent } from '../icon/icon.component';
     IonItemSliding,
     IonItemOptions,
     IonItemOption,
-    IonIcon,
     IonLabel,
     IonButton,
     IonContent,

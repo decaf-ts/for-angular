@@ -27,8 +27,6 @@ import {
 } from '@ionic/angular/standalone';
 import { AutocompleteTypes, CheckboxCustomEvent, LoadingOptions, SelectInterface } from '@ionic/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { addIcons } from 'ionicons';
-import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { take, timer } from 'rxjs';
 import { DecafTooltipDirective } from '../../directives';
 import { NgxFormFieldDirective } from '../../engine/NgxFormFieldDirective';
@@ -666,7 +664,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
 
   constructor() {
     super();
-    addIcons({ chevronDownOutline, chevronUpOutline });
   }
 
   /**

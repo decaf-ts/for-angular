@@ -14,18 +14,8 @@ import { NavigationStart } from '@angular/router';
 import { OrderDirection } from '@decaf-ts/core';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model } from '@decaf-ts/decorator-validation';
-import { IonButton, IonChip, IonIcon, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+import { IonChip, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { addIcons } from 'ionicons';
-import {
-  arrowDownOutline,
-  arrowUpOutline,
-  chevronDownOutline,
-  chevronUpOutline,
-  closeOutline,
-  searchOutline,
-  trashOutline,
-} from 'ionicons/icons';
 import { debounceTime, fromEvent, shareReplay, Subscription, takeUntil } from 'rxjs';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { Dynamic } from '../../engine/decorators';
@@ -85,11 +75,8 @@ import { SearchbarComponent } from '../searchbar/searchbar.component';
     FormsModule,
     TranslatePipe,
     IonChip,
-    IonIcon,
-    IonButton,
     IonSelect,
     IonSelectOption,
-    IonIcon,
     SearchbarComponent,
     IconComponent,
   ],
@@ -304,15 +291,6 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    */
   constructor() {
     super('FilterComponent');
-    addIcons({
-      chevronDownOutline,
-      trashOutline,
-      closeOutline,
-      searchOutline,
-      arrowDownOutline,
-      arrowUpOutline,
-      chevronUpOutline,
-    });
   }
 
   /**

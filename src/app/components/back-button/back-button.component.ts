@@ -11,9 +11,8 @@ import {
 } from '@angular/core';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { PredefinedColors } from '@ionic/core';
-import { addIcons } from 'ionicons';
-import { chevronBackOutline } from 'ionicons/icons';
 import { shareReplay } from 'rxjs';
+import { IconComponent } from 'src/lib/components';
 import { RouteDirections } from 'src/lib/engine/constants';
 import { FunctionLike, StringOrBoolean } from 'src/lib/engine/types';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
@@ -99,7 +98,7 @@ import { stringToBoolean, windowEventEmitter } from 'src/lib/utils/helpers';
   templateUrl: './back-button.component.html',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   styleUrls: ['./back-button.component.scss'],
-  imports: [ForAngularCommonModule],
+  imports: [ForAngularCommonModule, IconComponent],
   standalone: true,
 })
 export class BackButtonComponent implements OnInit {
@@ -275,9 +274,7 @@ export class BackButtonComponent implements OnInit {
    *
    * @memberOf BackButtonComponent
    */
-  constructor() {
-    addIcons({ chevronBackOutline });
-  }
+  constructor() {}
 
   /**
    * @description Initializes the component after Angular first displays the data-bound properties.

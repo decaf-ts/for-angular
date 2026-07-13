@@ -12,11 +12,12 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { IonButton } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DefaultFormButtonsOptions } from '../../engine/constants';
 import { Dynamic } from '../../engine/decorators';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
+import { IconComponent } from '../icon/icon.component';
 import { LayoutComponent } from '../layout/layout.component';
 
 import { getModelAndRepository } from '../../engine/helpers';
@@ -27,7 +28,7 @@ import { getModelAndRepository } from '../../engine/helpers';
   selector: 'ngx-decaf-crud-form',
   templateUrl: './crud-form.component.html',
   styleUrls: ['./crud-form.component.scss'],
-  imports: [TranslatePipe, ReactiveFormsModule, LayoutComponent, IonButton, IonIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, LayoutComponent, IonButton, IconComponent],
   host: { '[attr.id]': 'uid' },
 })
 export class CrudFormComponent extends NgxFormDirective implements OnInit {

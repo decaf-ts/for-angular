@@ -35,9 +35,9 @@
               [slot]="iconSlot"
             >
               <ion-avatar>
-                <ion-icon
-                  aria-hidden="true"
-                  name="reader-outline"
+                <ngx-decaf-icon
+                  slot="icon-only"
+                  name="ti-file-text"
                   size="default"
                 />
               </ion-avatar>
@@ -94,10 +94,9 @@
                     (click)="presentActionsMenu($event)"
                     [attr.aria-label]="locale + '.actions' | translate"
                   >
-                    <ion-icon
+                    <ngx-decaf-icon
                       slot="icon-only"
-                      aria-hidden="true"
-                      name="ellipsis-vertical-outline"
+                      name="ti-dots-vertical"
                     />
                   </ion-button>
                   <ion-popover
@@ -217,10 +216,9 @@
             (click)="handleAction($event, OperationKeys.UPDATE, component)"
             [expandable]="operations.length === 1"
           >
-            <ion-icon
-              aria-hidden="true"
+            <ngx-decaf-icon
               slot="icon-only"
-              name="create-outline"
+              name="ti-edit"
             />
           </ion-item-option>
         }
@@ -230,10 +228,9 @@
             (click)="handleAction($event, OperationKeys.DELETE, component)"
             [expandable]="operations.length === 1"
           >
-            <ion-icon
-              aria-hidden="true"
+            <ngx-decaf-icon
               slot="icon-only"
-              name="trash"
+              name="ti-trash"
             />
           </ion-item-option>
         }

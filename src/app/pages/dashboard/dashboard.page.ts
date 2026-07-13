@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { cardOutline, documentAttachOutline, peopleOutline } from 'ionicons/icons';
 import { ContainerComponent } from 'src/app/components/container/container.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { DashboardLayout } from 'src/app/layouts/Dashboboard';
@@ -22,11 +20,6 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
 
   constructor() {
     super('DashboardPage');
-    addIcons({
-      cardOutline,
-      peopleOutline,
-      documentAttachOutline,
-    });
   }
 
   async ngOnInit(): Promise<void> {

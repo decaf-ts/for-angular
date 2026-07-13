@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { IonIcon, NavController } from '@ionic/angular/standalone';
+import { NavController } from '@ionic/angular/standalone';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { I18nFakeLoader } from '../../i18n';
@@ -15,7 +15,6 @@ const navControllerMock = {
 const imports = [
   ForAngularCommonModule,
   PaginationComponent,
-  IonIcon,
   TranslateModule.forRoot({
     loader: {
       provide: TranslateLoader,

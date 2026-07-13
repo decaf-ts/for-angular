@@ -28,10 +28,7 @@
           [class.dcf-disabled]="current === 1"
           [class.dcf-hidden]="bookMarkPagination && nextBookmark === 'nil'"
         >
-          <ion-icon
-            name="chevron-back-outline"
-            aria-hidden="true"
-          ></ion-icon>
+          <ngx-decaf-icon name="ti-chevron-left" />
 
           @if (disablePages) {
             {{ locale + '.previous' | translate }}
@@ -66,10 +63,7 @@
             @if (disablePages) {
               {{ locale + '.next' | translate }}
             }
-            <ion-icon
-              name="chevron-forward-outline"
-              aria-hidden="true"
-            ></ion-icon>
+            <ngx-decaf-icon name="ti-chevron-right" />
           </div>
         }
       </div>
