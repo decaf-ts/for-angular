@@ -62,7 +62,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    * @return {Promise<void>}
    */
   async ngOnInit(): Promise<void> {
-    this.hasMenu = true;
+    this.hasMenu.set(true);
     this.title = 'Decaf-ts for-angular demo';
     this.appName = AppName;
     await this.initialize();

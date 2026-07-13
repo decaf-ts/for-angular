@@ -5,11 +5,11 @@
  * offers page-focused utilities such as menu management, title handling and router event hooks.
  * @link {@link NgxPageDirective}
  */
-import { AfterViewInit, Directive, Inject, inject } from '@angular/core';
+import { AfterViewInit, Directive, Inject, inject, model } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { NavigationEnd, NavigationStart } from '@angular/router';
 import { Model } from '@decaf-ts/decorator-validation';
-import { MenuController } from '@ionic/angular';
+import { MenuController } from '@ionic/angular/standalone';
 import { removeFocusTrap } from '../utils/helpers';
 import { CPTKN } from './constants';
 import { IMenuItem } from './interfaces';
@@ -107,7 +107,7 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
    * @default true
    * @memberOf module:lib/engine/NgxPageDirective
    */
-  protected hasMenu: boolean = true;
+  protected hasMenu = model<boolean>(true);
 
   /**
    * @description Currently active route path for the page (without leading slash).
@@ -139,7 +139,7 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
     @Inject(CPTKN) hasMenu: boolean = true
   ) {
     super('NgxPageDirective', localeRoot);
-    this.hasMenu = hasMenu;
+    this.hasMenu.set(hasMenu);
     // subscribe to media service color scheme changes
   }
 
@@ -176,19 +176,22 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
         if (event instanceof NavigationEnd) {
           const url = (event?.url || '').replace('/', '');
           this.currentRoute = url;
-          if (this.hasMenu) this.hasMenu = url !== 'login' && url !== '';
+          if (this.hasMenu) this.hasMenu.set(url !== 'login' && url !== '');
           this.title = this.pageTitle;
           await this.setPageTitle(url);
           this.changeDetectorRef.detectChanges();
         }
         if (event instanceof NavigationStart) {
           const url = (event?.url || '').replace('/', '');
-          if (this.hasMenu) this.hasMenu = url !== 'login' && url !== '';
+          if (this.hasMenu) {
+            this.hasMenu.set(url !== 'login' && url !== '');
+          }
+          await this.menuController.enable(this.hasMenu());
+
           removeFocusTrap();
         }
       });
     if (!this.route) this.route = this.router.url.replace('/', '');
-    await this.menuController.enable(this.hasMenu);
   }
 
   /**

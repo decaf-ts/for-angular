@@ -1,4 +1,4 @@
-import { LoadingOptions } from '@ionic/angular';
+import type { LoadingOptions } from '@ionic/angular/standalone';
 import { loadingController } from '@ionic/core';
 import { IDecafSpinner } from 'node_modules/@decaf-ts/ui-decorators/lib/types/ui/interfaces/index.mjs';
 import { getLogger } from '../engine/helpers';

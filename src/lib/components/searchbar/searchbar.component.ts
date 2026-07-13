@@ -12,12 +12,11 @@ import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@a
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonSearchbar } from '@ionic/angular/standalone';
 import { AutocompleteTypes, PredefinedColors } from '@ionic/core';
-import { addIcons } from 'ionicons';
-import * as allIcons from 'ionicons/icons';
 import { getModelAndRepository } from '../../engine';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { StringOrBoolean } from '../../engine/types';
 import { stringToBoolean, windowEventEmitter } from '../../utils/helpers';
+import '../../utils/registerIonicons';
 
 /**
  * @description Searchbar component for Angular applications.
@@ -309,14 +308,11 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
   /**
    * @description Creates an instance of SearchbarComponent.
    * @summary Initializes the SearchbarComponent with all necessary dependencies and configurations.
-   * During initialization, it adds all available Ionicons to the application's icon registry,
-   * ensuring that search and clear icons are available for use throughout the component's lifecycle.
    *
    * @memberOf SearchbarComponent
    */
   constructor() {
     super('SearchbarComponent');
-    addIcons(allIcons);
   }
 
   /**

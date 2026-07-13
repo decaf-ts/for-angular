@@ -1,11 +1,27 @@
 <ion-app>
-  <ion-split-pane [class.dcf-collapsed]="menuCollapsed" when="(min-width: 1200px)" contentId="main-content">
-    <ion-menu [class.dcf-collapsable]="showCollapseButton" [class.dcf-collapsed]="menuCollapsed" contentId="main-content" type="overlay" [disabled]="!hasMenu" #component>
+  <ion-split-pane
+    [class.dcf-collapsed]="menuCollapsed"
+    when="(min-width: 1200px)"
+    contentId="main-content"
+  >
+    <ion-menu
+      [class.dcf-collapsable]="showCollapseButton"
+      [class.dcf-collapsed]="menuCollapsed"
+      contentId="main-content"
+      type="overlay"
+      [disabled]="!hasMenu()"
+      #component
+    >
       <section class="dcf-logo-container">
-        @if(!menuCollapsed) {
+        @if (!menuCollapsed) {
           <div class="dcf-logo-full">
             <div class="dcf-logo">
-              <app-logo width="25" position="center" logo="assets/images/favicon-contrast.svg" logoContrast="assets/images/favicon-contrast.svg" />
+              <app-logo
+                width="25"
+                position="center"
+                logo="assets/images/favicon-contrast.svg"
+                logoContrast="assets/images/favicon-contrast.svg"
+              />
             </div>
             <div>
               <h1 class="dcf-logo-title">{{ appName }}</h1>
@@ -13,27 +29,44 @@
             </div>
           </div>
         } @else {
-          <app-logo width="30" position="center" logo="assets/images/favicon.svg" logoContrast="assets/images/favicon-contrast.svg" />
+          <app-logo
+            width="30"
+            position="center"
+            logo="assets/images/favicon.svg"
+            logoContrast="assets/images/favicon-contrast.svg"
+          />
         }
       </section>
 
-      @if(showCollapseButton) {
-        <a class="dcf-menu-expand-button" tabindex="0" (keydown.enter)="handleCollapseMenu()"  (click)="handleCollapseMenu()">
-          <ngx-decaf-icon name="ti-layout-sidebar-left-collapse" [size]="menuCollapsed ? 'large' : 'default'" />
+      @if (showCollapseButton) {
+        <a
+          class="dcf-menu-expand-button"
+          tabindex="0"
+          (keydown.enter)="handleCollapseMenu()"
+          (click)="handleCollapseMenu()"
+        >
+          <ngx-decaf-icon
+            name="ti-layout-sidebar-left-collapse"
+            [size]="menuCollapsed ? 'large' : 'default'"
+          />
           <span>{{ 'menu.collapse' | translate }}</span>
         </a>
       }
 
       @if (initialized) {
-        <ion-content class="dfc-animation dcf-animation-slide-right-small dcf-animation-fast">
+        <ion-content
+          class="dfc-animation dcf-animation-slide-right-small dcf-animation-fast"
+        >
           <ion-list class="dcf-menu">
             @for (item of menu; track $index) {
               <ion-menu-toggle auto-hide="false">
                 <ion-item
-                  [class]="'dcf-menu-'+item.label.toLowerCase()"
+                  [class]="'dcf-menu-' + item.label.toLowerCase()"
                   title="{{ item.label | translate }}"
                   [class.dcf-separator]="!item.url"
-                  [class.dcf-active-item]="item?.activeWhen ? isMenuActive(item) : false"
+                  [class.dcf-active-item]="
+                    item?.activeWhen ? isMenuActive(item) : false
+                  "
                   [button]="!!item.url"
                   [detail]="false"
                   [routerDirection]="'forward'"
@@ -41,20 +74,24 @@
                   lines="none"
                   routerLinkActive="dcf-active"
                 >
-                @if (item.icon) {
-                  <ngx-decaf-icon
-                    [color]="item.color || ''"
-                    [name]="item.icon.includes('.svg') ? 'assets/images/icons/' + item.icon : item.icon"
-                  />
-                } @else {
-                  <ngx-decaf-icon
-                   class="dcf-default-icon"
-                   name="chevron-forward-outline"
-                   [color]="item.color || ''"
-                   [hidden]="!menuCollapsed"
-                  />
-                }
-                <ion-label>{{ 'menu.' + item.label | translate }}</ion-label>
+                  @if (item.icon) {
+                    <ngx-decaf-icon
+                      [color]="item.color || ''"
+                      [name]="
+                        item.icon.includes('.svg')
+                          ? 'assets/images/icons/' + item.icon
+                          : item.icon
+                      "
+                    />
+                  } @else {
+                    <ngx-decaf-icon
+                      class="dcf-default-icon"
+                      name="chevron-forward-outline"
+                      [color]="item.color || ''"
+                      [hidden]="!menuCollapsed"
+                    />
+                  }
+                  <ion-label>{{ 'menu.' + item.label | translate }}</ion-label>
                 </ion-item>
               </ion-menu-toggle>
             }

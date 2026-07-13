@@ -13,14 +13,14 @@ import {
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { ElementSizes } from '@decaf-ts/ui-decorators';
 
+import { NgxComponentDirective } from 'src/lib/engine/NgxComponentDirective';
+import { ElementSize, FunctionLike } from 'src/lib/engine/types';
 import { getOnWindow, getOnWindowDocument } from 'src/lib/utils/helpers';
 import { BackButtonComponent } from '../back-button/back-button.component';
-import { NgxComponentDirective } from 'src/lib/engine/NgxComponentDirective';
-import { FunctionLike, ElementSize } from 'src/lib/engine/types';
 
 import { TranslatePipe } from '@ngx-translate/core';
-import { AngularEngineKeys, WindowColorSchemes } from 'src/lib/engine/constants';
 import { IconComponent } from 'src/lib/components/icon/icon.component';
+import { AngularEngineKeys, WindowColorSchemes } from 'src/lib/engine/constants';
 import { ContainerComponent } from '../container/container.component';
 
 /**
@@ -401,7 +401,9 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
     // remove back button case dont have any operation defined
     if (!this.operation) this.showBackButton = false;
 
-    if (this.showMenuButton) this.menuController.enable(true);
+    if (this.showMenuButton) {
+      await this.menuController.enable(true);
+    }
 
     if (this.color === 'white') this.backButtonColor = 'dark';
 
@@ -414,7 +416,8 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
       });
     }
     this.showThemeToggleButton = false;
-    await this.initialize();
+    await super.initialize();
+    this.initialized = true;
   }
 
   async isLoggedIn(): Promise<string | undefined> {
@@ -429,14 +432,12 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   changeColorSchema(): void {
     if (this.mediaService.darkModeEnabled()) {
       this.colorSchema =
-        this.colorSchema === WindowColorSchemes.dark
-          ? WindowColorSchemes.light
-          : WindowColorSchemes.dark;
+        this.colorSchema === WindowColorSchemes.dark ? WindowColorSchemes.light : WindowColorSchemes.dark;
       this.isDarkMode = this.colorSchema === WindowColorSchemes.dark ? true : false;
       this.mediaService.toggleClass(
         [getOnWindowDocument('documentElement'), this.component],
         AngularEngineKeys.DARK_PALETTE_CLASS,
-        this.isDarkMode,
+        this.isDarkMode
       );
     } else {
       this.showThemeToggleButton = false;
@@ -448,8 +449,7 @@ export class HeaderComponent extends NgxComponentDirective implements OnInit {
   }
 
   getBackButtonSlot(): string {
-    return this.modelId &&
-      ![OperationKeys.READ, OperationKeys.UPDATE].includes(this.operation as OperationKeys)
+    return this.modelId && ![OperationKeys.READ, OperationKeys.UPDATE].includes(this.operation as OperationKeys)
       ? 'start'
       : 'end';
   }

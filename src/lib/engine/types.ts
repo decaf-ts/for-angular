@@ -20,7 +20,7 @@ import {
   LayoutGridGaps,
   UIFunctionLike,
 } from '@decaf-ts/ui-decorators';
-import { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular';
+import type { IonCheckbox, IonInput, IonSelect, IonTextarea } from '@ionic/angular/standalone';
 import { TextFieldTypes } from '@ionic/core';
 import { AxiosInstance } from 'axios';
 import { ActionRoles, ListItemPositions, WindowColorSchemes } from './constants';

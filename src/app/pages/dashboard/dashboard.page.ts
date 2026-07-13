@@ -21,7 +21,7 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
   lastUsage!: string;
 
   constructor() {
-    super('DashboardPage', false);
+    super('DashboardPage');
     addIcons({
       cardOutline,
       peopleOutline,

@@ -1,14 +1,13 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Color } from '@ionic/core';
-import { addIcons } from 'ionicons';
-import * as allIcons from 'ionicons/icons';
 import { shareReplay, Subject, takeUntil } from 'rxjs';
 
 import { NgxSvgDirective } from '../../directives/svg.directive';
 import { Dynamic } from '../../engine/decorators';
 import { NgxMediaService } from '../../services/NgxMediaService';
 import { generateRandomValue } from '../../utils';
+import '../../utils/registerIonicons';
 
 @Dynamic()
 @Component({
@@ -64,10 +63,6 @@ export class IconComponent implements OnInit, OnDestroy {
   mediaService: NgxMediaService = new NgxMediaService();
 
   protected destroySubscriptions$ = new Subject<void>();
-
-  constructor() {
-    addIcons(allIcons);
-  }
 
   ngOnInit(): void {
     if (this.button) this.slot = 'icon-only';

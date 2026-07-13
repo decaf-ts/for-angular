@@ -37,12 +37,11 @@ import {
   IonPopover,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { addIcons } from 'ionicons';
-import * as AllIcons from 'ionicons/icons';
 import { Dynamic } from '../../engine/decorators';
 import { IListItemCustomEvent } from '../../engine/interfaces';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { KeyValue, StringOrBoolean } from '../../engine/types';
+import '../../utils/registerIonicons';
 import { getWindowWidth, removeFocusTrap, stringToBoolean, windowEventEmitter } from '../../utils/helpers';
 import { IconComponent } from '../icon/icon.component';
 
@@ -300,14 +299,12 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
   /**
    * @description Creates an instance of ListItemComponent.
    * @summary Initializes a new ListItemComponent by calling the parent class constructor
-   * with the component name for logging and identification purposes. Also registers
-   * all available Ionic icons to ensure they can be displayed in the component.
+   * with the component name for logging and identification purposes.
    *
    * @memberOf ListItemComponent
    */
   constructor() {
     super('ListItemComponent');
-    addIcons(AllIcons);
     this.enableDarkMode = true;
   }
 

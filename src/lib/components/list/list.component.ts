@@ -15,7 +15,7 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames, UIFunctionLike } from '@decaf-ts/ui-decorators';
-import { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular';
+import type { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular/standalone';
 import {
   IonButton,
   IonInfiniteScroll,
