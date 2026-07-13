@@ -16,7 +16,7 @@ import { IMenuItem } from './interfaces';
 import { NgxComponentDirective } from './NgxComponentDirective';
 import { KeyValue } from './types';
 
-import { shareReplay, takeUntil } from 'rxjs';
+import { takeUntil } from 'rxjs';
 
 /**
  * @description Base directive for page-level components in Decaf Angular applications.
@@ -41,14 +41,33 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
 
   /**
    * @description Page title text for the current view.
-   * @summary Stores the title text to be displayed for this page. This can be set dynamically
-   * based on the current route or menu configuration and is used to update the browser's
-   * title bar or page header.
+   * @summary Stores the title text to be displayed for this page. When the value is set by
+   * a child page component (subclass), it is considered explicit and this directive will
+   * never overwrite it. Values derived internally (menu resolution) only apply when no
+   * explicit title was provided.
    * @type {string}
    * @default ''
    * @memberOf module:lib/engine/NgxPageDirective
    */
-  title: string = '';
+  private _title: string = '';
+
+  /**
+   * @description Tracks whether the title was explicitly provided by the child component.
+   * @summary When true, the page directive must not overwrite the title with derived values.
+   * Any assignment through the public `title` setter (i.e. from a subclass/page) marks the
+   * title as explicit. Internal derived assignments bypass the setter and keep this flag false.
+   * @private
+   */
+  private titleFromChild = false;
+
+  get title(): string {
+    return this._title;
+  }
+
+  set title(value: string) {
+    this._title = value;
+    this.titleFromChild = !!value;
+  }
 
   /**
    * @description Global key-value pairs for application-wide settings.
@@ -144,10 +163,10 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
   }
 
   get pageTitle(): string {
-    if (this.title) return this.title;
+    if (this._title) return this._title;
     if (this.locale) return `${this.locale}.title`;
     if (this.currentRoute) return `${this.currentRoute}.title`;
-    return `${(this.model as Model).constructor.name}.title`;
+    return `${(this.model as Model)?.constructor?.name}.title`;
   }
 
   // async ngOnInit(): Promise<void> {}
@@ -170,28 +189,35 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
    * @memberOf module:lib/engine/NgxPageDirective
    */
   async ngAfterViewInit(): Promise<void> {
-    this.router.events
-      .pipe(takeUntil(this.destroySubscriptions$), shareReplay({ bufferSize: 1, refCount: true }))
-      .subscribe(async (event) => {
-        if (event instanceof NavigationEnd) {
-          const url = (event?.url || '').replace('/', '');
-          this.currentRoute = url;
-          if (this.hasMenu) this.hasMenu.set(url !== 'login' && url !== '');
-          this.title = this.pageTitle;
-          await this.setPageTitle(url);
-          this.changeDetectorRef.detectChanges();
-        }
-        if (event instanceof NavigationStart) {
-          const url = (event?.url || '').replace('/', '');
-          if (this.hasMenu) {
-            this.hasMenu.set(url !== 'login' && url !== '');
-          }
-          await this.menuController.enable(this.hasMenu());
+    this.router.events.pipe(takeUntil(this.destroySubscriptions$)).subscribe(async (event) => {
+      if (event instanceof NavigationEnd) {
+        const url = (event?.url || '').replace('/', '');
+        this.currentRoute = url;
+        this.updateMenuForRoute(url);
+        await this.setPageTitle(url);
+        this.changeDetectorRef.detectChanges();
+      }
+      if (event instanceof NavigationStart) {
+        const url = (event?.url || '').replace('/', '');
+        this.updateMenuForRoute(url);
+        await this.menuController.enable(this.hasMenu());
 
-          removeFocusTrap();
-        }
-      });
+        removeFocusTrap();
+      }
+    });
     if (!this.route) this.route = this.router.url.replace('/', '');
+  }
+
+  /**
+   * @description Updates menu availability based on the target route.
+   * @summary Disables the menu for routes that must not display it (login and root).
+   * Only narrows availability: when `hasMenu` was disabled by the page it stays disabled.
+   * @param {string} url - Route path without leading slash
+   * @return {void}
+   * @memberOf module:lib/engine/NgxPageDirective
+   */
+  private updateMenuForRoute(url: string): void {
+    if (this.hasMenu) this.hasMenu.set(url !== 'login' && url !== '');
   }
 
   /**
@@ -217,8 +243,12 @@ export abstract class NgxPageDirective extends NgxComponentDirective implements 
         label = `menu.${label}`;
       }
       const title = `${await this.translate(label)} ${this.appName ? `- ${this.appName}` : ''}`;
+      // Browser (document) title is always kept in sync with the active route.
       this.titleService.setTitle(title);
-      if (!this.title) this.title = title;
+      // The page title is only derived when the child component did not provide one:
+      // an explicit child title is the source of truth and must never be overwritten.
+      // Internal write bypasses the setter so derived values don't flag titleFromChild.
+      if (!this.titleFromChild) this._title = title;
     }
   }
 }

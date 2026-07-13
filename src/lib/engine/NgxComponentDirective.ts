@@ -710,20 +710,6 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
       this.locale = this.localeContext;
     }
 
-    // if (changes[UIKeys.HANDLERS]) {
-    //   const { currentValue, previousValue } = changes[UIKeys.HANDLERS];
-    //   if (currentValue && typeof currentValue !== previousValue) {
-    //     for(const key in currentValue) {
-    //       const event = currentValue[key]();
-    //       if (event && typeof event === 'function') {
-    //         const clazz = new event();
-    //         this.handlers[key] = clazz[key].bind(this);
-    //         console.log(this.handlers);
-    //       }
-    //     }
-    //   }
-    // }
-
     if (changes[BaseComponentProps.HANDLERS]) {
       const { currentValue, previousValue } = changes[BaseComponentProps.HANDLERS];
       if (currentValue && currentValue !== previousValue)
@@ -737,27 +723,6 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
           this._repository = this.repository;
         }
         this.parseEvents(currentValue, this);
-
-        // for (const key in currentValue) {
-        //   const event = currentValue[key]();
-        //   if (event && typeof event === 'function') {
-        //     try {
-        //       const clazz = new event();
-        //       this.events[key] = clazz[key].bind(this);
-        //       if (event[key] instanceof Promise) {
-        //         await clazz[key].bind(this)();
-        //       } else {
-        //         clazz[key].bind(this)();
-        //       }
-        //     } catch (error: unknown) {
-        //       this.log
-        //         .for(this.ngOnChanges)
-        //         .error(
-        //           `Error occurred while processing event "${key}": ${(error as Error)?.message || (error as string)}`
-        //         );
-        //     }
-        //   }
-        // }
       }
     }
     if (changes[BaseComponentProps.LOCALE_ROOT] || changes[BaseComponentProps.COMPONENT_NAME])
@@ -912,6 +877,7 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
       this.model = model;
       const engine = NgxRenderingEngine.get() as unknown as NgxRenderingEngine;
       const field = engine.getDecorators(this.model as Model, {});
+      console.log(field);
       const { props, item, children } = field;
       this.props = Object.assign(props || {}, { children: children || [] }, this.props, {
         handlers: props?.['handlers'] || {},

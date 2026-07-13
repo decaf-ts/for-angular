@@ -19,9 +19,9 @@ import { getOnWindow, getOnWindowDocument } from 'src/lib/utils/helpers';
 import { BackButtonComponent } from '../back-button/back-button.component';
 
 import { TranslatePipe } from '@ngx-translate/core';
+import { ContainerComponent } from 'src/lib/components';
 import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { AngularEngineKeys, WindowColorSchemes } from 'src/lib/engine/constants';
-import { ContainerComponent } from '../container/container.component';
 
 /**
  * @description Header component for application pages.

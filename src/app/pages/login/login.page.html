@@ -1,6 +1,6 @@
 <ion-content [fullscreen]="true">
   <main>
-    <app-container>
+    <ngx-decaf-container>
       <div class="dcf-card-container">
         <ngx-decaf-card>
           <div
@@ -9,7 +9,9 @@
           >
             <app-logo width="220"></app-logo>
           </div>
-          <div class="dcf-animation dcf-animation-slide-bottom-small dcf-animation-medium">
+          <div
+            class="dcf-animation dcf-animation-slide-bottom-small dcf-animation-medium"
+          >
             <ngx-decaf-model-renderer
               [model]="model"
               [globals]="{action: 'login'}"
@@ -17,6 +19,6 @@
           </div>
         </ngx-decaf-card>
       </div>
-    </app-container>
+    </ngx-decaf-container>
   </main>
 </ion-content>

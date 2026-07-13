@@ -6,8 +6,8 @@ import {
   uihandlers,
   uilayout,
   uilayoutprop,
+  UIMediaBreakPoints,
   uimodel,
-  UIMediaBreakPoints
 } from '@decaf-ts/ui-decorators';
 import { LayoutComponent } from 'src/lib/components';
 import { Product } from '../fabric';

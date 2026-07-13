@@ -552,3 +552,40 @@ export function stripHTML(content: string): unknown {
   }
   return content;
 }
+
+/**
+ * @description Resolves a count from a value that may be a number or an array.
+ * @summary Several component/props fields (e.g. `pages`) accept either a numeric count
+ * or an array whose length represents the count. This helper normalizes both shapes.
+ *
+ * @param {number | unknown[] | undefined} value - A count or an array representing the count
+ * @returns {number} The numeric count (0 when undefined/empty)
+ *
+ * @function asLength
+ * @memberOf module:lib/helpers/utils
+ */
+export function asLength(value: number | unknown[] | undefined): number {
+  if (typeof value === 'number') return value;
+  return value?.length || 0;
+}
+
+/**
+ * @description Safely resolves a nested value from an object using a dot path.
+ * @summary Walks the object following the dot-separated path and returns the value found,
+ * or undefined when any segment is missing. Centralizes the path-resolution logic used
+ * by components that read nested props/data (e.g. fieldset `childOf` resolution).
+ *
+ * @param {Record<string, unknown>} obj - The source object
+ * @param {string} path - Dot-separated path (e.g. "parent.child.prop")
+ * @returns {unknown} The resolved value or undefined
+ *
+ * @function getByPath
+ * @memberOf module:lib/helpers/utils
+ */
+export function getByPath(obj: Record<string, unknown>, path: string): unknown {
+  return path.split('.').reduce<unknown>((acc, key) => {
+    if (acc && typeof acc === 'object' && key in (acc as Record<string, unknown>))
+      return (acc as Record<string, unknown>)[key];
+    return undefined;
+  }, obj);
+}

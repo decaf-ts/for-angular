@@ -39,8 +39,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Dynamic } from '../../engine/decorators';
 import { IListItemCustomEvent } from '../../engine/interfaces';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
-import { KeyValue, StringOrBoolean } from '../../engine/types';
-import { getWindowWidth, removeFocusTrap, stringToBoolean, windowEventEmitter } from '../../utils/helpers';
+import { KeyValue } from '../../engine/types';
+import { getWindowWidth, removeFocusTrap, windowEventEmitter } from '../../utils/helpers';
 import { IconComponent } from '../icon/icon.component';
 
 /**
@@ -54,7 +54,7 @@ import { IconComponent } from '../icon/icon.component';
  * @param {Record<string, any>} item - The data item to be displayed in the list item.
  * @param {string} icon - The name of the icon to be displayed.
  * @param {'start' | 'end'} [iconSlot='start'] - The position of the icon within the item.
- * @param {StringOrBoolean} [button=true] - Determines if the item should behave as a button.
+ * @param {boolean} [button=true] - Determines if the item should behave as a button.
  * @param {string} [title] - The main title of the list item.
  * @param {string} [description] - A description for the list item.
  * @param {string} [info] - Additional information for the list item.
@@ -178,12 +178,12 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    * hover effects, click handling, and appropriate accessibility attributes.
    * When false, the item is displayed as static content without interactive behavior.
    *
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default true
    * @memberOf ListItemComponent
    */
   @Input()
-  button: StringOrBoolean = true;
+  button: boolean = true;
 
   /**
    * @description The main title text displayed in the list item.
@@ -341,7 +341,6 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
     }
 
     this.showSlideItems = this.enableSlideItems();
-    this.button = stringToBoolean(this.button);
     this.className = `${this.className}  dcf-flex dcf-flex-middle grid-item`;
     if (this.operations?.length) this.className += ` action`;
     this.windowWidth = getWindowWidth() as number;

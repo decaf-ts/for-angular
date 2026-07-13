@@ -75,7 +75,7 @@ import { getNgxSelectOptionsModal } from '../modal/modal.component';
  * @param {boolean} required - Whether the field is required
  * @param {number} step - Step value for number inputs
  * @param {FormGroup} formGroup - The parent form group
- * @param {StringOrBoolean} translatable - Whether field labels should be translated
+ * @param {boolean} translatable - Whether field labels should be translated
  *
  * @component CrudFieldComponent
  * @example
@@ -902,23 +902,4 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     }
     return this.formControl.value.includes(value);
   }
-
-  // /**
-  //  * @description Handles fieldset group update events from parent fieldsets.
-  //  * @summary Processes events triggered when an existing group needs to be updated.
-  //  * Updates the active form group index and refreshes the form group and form control
-  //  * references to point to the group being edited.
-  //  *
-  //  * @param {CustomEvent} event - The fieldset update group event containing update details
-  //  * @returns {void}
-  //  * @memberOf CrudFieldComponent
-  //  */
-  // @HostListener('window:fieldsetUpdateGroupEvent', ['$event'])
-  // handleFieldsetUpdateGroupEvent(event: CustomEvent): void {
-  //   const {formGroup, index} = event.detail;
-  //   this.activeFormGroupIndex = index;
-  //   this.formGroup = formGroup;
-  //   this.formControl = (this.formGroup as FormGroup).get(this.name) as FormControl;
-  //   this.value = this.formControl.value;
-  // }
 }

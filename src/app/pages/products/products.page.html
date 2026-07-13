@@ -6,7 +6,7 @@
 
 <ion-content [fullscreen]="true">
   <main>
-    <app-container>
+    <ngx-decaf-container>
       @if(!operation) {
       <app-card-title
         [locale]="locale"
@@ -37,7 +37,7 @@
       <ngx-decaf-model-renderer
         [model]="model"
         (listenEvent)="handleEvent($event)"
-        [globals]="{operation: operation, refreshing, operations,  modelId, allowClear: false}"
+        [globals]="{operation, operations, model, _data, refreshing,  modelId, allowClear: false, title}"
       ></ngx-decaf-model-renderer>
       } @else {
       <ngx-decaf-empty-state
@@ -50,6 +50,6 @@
       } } } @else {
       <div>No Model</div>
       }
-    </app-container>
+    </ngx-decaf-container>
   </main>
 </ion-content>

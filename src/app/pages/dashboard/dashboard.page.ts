@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
-import { ContainerComponent } from 'src/app/components/container/container.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { DashboardLayout } from 'src/app/layouts/Dashboboard';
-import { LayoutComponent, presentModalConfirm } from 'src/lib/components';
+import { ContainerComponent, LayoutComponent, presentModalConfirm } from 'src/lib/components';
 import { NgxPageDirective } from 'src/lib/engine';
 @Component({
   selector: 'app-dashboard',

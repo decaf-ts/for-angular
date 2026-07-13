@@ -3,10 +3,10 @@ import { Component, OnInit } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { AppName } from 'src/app/app.config';
 import { HeaderComponent } from 'src/app/components/header/header.component';
+import { ContainerComponent } from 'src/lib/components';
 import { CardComponent } from 'src/lib/components/card/card.component';
 import { NgxPageDirective } from 'src/lib/engine/NgxPageDirective';
 import { KeyValue } from 'src/lib/engine/types';
-import { ContainerComponent } from '../../components/container/container.component';
 
 @Component({
   selector: 'app-account',

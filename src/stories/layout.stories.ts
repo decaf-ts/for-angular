@@ -51,6 +51,29 @@ export const threeColumns: Story = {
   },
 };
 
+export const nonFlexColumnSpan: Story = {
+  args: {
+    cols: 3,
+    rows: 2,
+    children: [
+      { tag: 'ngx-decaf-card', props: { row: 1, col: 1, title: 'Span 1 of 3' } },
+      { tag: 'ngx-decaf-card', props: { row: 1, col: 2, title: 'Span 2 of 3' } },
+      { tag: 'ngx-decaf-card', props: { row: 2, col: 3, title: 'Span 3 of 3 (full width)' } },
+    ],
+  },
+};
+
+export const nonFlexOverflowFallback: Story = {
+  args: {
+    cols: 2,
+    rows: 1,
+    children: [
+      { tag: 'ngx-decaf-card', props: { row: 1, col: 1, title: 'Half width (1 of 2)' } },
+      { tag: 'ngx-decaf-card', props: { row: 1, col: 3, title: 'Requests 3 of 2 (fallback full width)' } },
+    ],
+  },
+};
+
 export const accordion: Story = {
   args: {
     accordion: true,

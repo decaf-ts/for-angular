@@ -212,14 +212,6 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
           await this.refresh();
           this.changeDetectorRef.markForCheck();
         }
-      } else {
-        // this._data = await this.read(this.modelId as PrimaryKeyType);
-        // if (String(this.modelName) === this.model?.constructor.name) {
-        //   const model = await this.repository.read(this.modelId as PrimaryKeyType);
-        //   if (model) {
-        //     await this.refresh(model);
-        //   }
-        // }
       }
     }
   }
@@ -256,9 +248,6 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
         refresh: async (...args) => this.handleRepositoryRefresh(...args),
       };
       try {
-        // const observerHandler = (this._repository as DecafRepository<Model>)['observerHandler'];
-        // if (!observerHandler)
-        //   (this._repository as DecafRepository<Model>).observe(this.repositoryObserver);
         const observerHandler = this.repository?.['observerHandler'] as { observers: Observer[] } | undefined;
         if (!observerHandler?.observers?.length) {
           this.repository?.observe(this.repositoryObserver);
@@ -330,15 +319,6 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
       this.log.for(this).error((error as Error)?.message || String(error));
       return [];
     }
-    // const paginator = await this.repository
-    //   .select()
-    //   .where(condition)
-    //   .orderBy([(this.sortBy || this.pk) as keyof M, sortDirection])
-    //   .paginate(250);
-    // if (paginator.total === 0) {
-    //   return [];
-    // }
-    // return await paginator.page(1);
   }
 
   async paginate(

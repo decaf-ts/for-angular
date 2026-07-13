@@ -9,7 +9,7 @@ const config: EnvConfig = {
   app: env.app || 'EW Frontend',
   env: env.env || 'development',
   api: {
-    host: env.api.host || 'localhost:3000',
+    host: env.api.host + '/v1' || 'localhost:3000',
     protocol: env.api.protocol || 'http',
   },
   level: LogLevel.debug,

@@ -18,7 +18,6 @@ import {
   FieldUpdateMode,
   FormParent,
   KeyValue,
-  StringOrBoolean,
 } from './types';
 
 /**
@@ -238,7 +237,7 @@ export interface AngularDynamicOutput {
  * @interface InputOption
  * @property {string} text - The display text for the option
  * @property {string|number} value - The value associated with the option
- * @property {StringOrBoolean} [disabled] - Whether the option is disabled
+ * @property {boolean} [disabled] - Whether the option is disabled
  * @property {string} [className] - CSS class name for styling the option
  * @property {string} [icon] - Icon to display with the option
  * @memberOf module:engine
@@ -246,8 +245,8 @@ export interface AngularDynamicOutput {
 export interface InputOption {
   text: string;
   value: string | number;
-  disabled?: StringOrBoolean;
-  hidden?: StringOrBoolean;
+  disabled?: boolean;
+  hidden?: boolean;
   className?: string;
   icon?: string;
 }

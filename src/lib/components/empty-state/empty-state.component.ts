@@ -15,8 +15,7 @@ import { IonButton, IonSpinner } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IconComponent } from '../../components/icon/icon.component';
 import { Dynamic } from '../../engine/decorators';
-import { ElementSize, FunctionLike, StringOrBoolean } from '../../engine/types';
-import { stringToBoolean } from '../../utils/helpers';
+import { ElementSize, FunctionLike } from '../../engine/types';
 import { CardComponent } from '../card/card.component';
 
 /**
@@ -34,7 +33,7 @@ import { CardComponent } from '../card/card.component';
  *     +string titleColor
  *     +string subtitle
  *     +string subtitleColor
- *     +StringOrBoolean showIcon
+ *     +boolean showIcon
  *     +string icon
  *     +string iconSize
  *     +string iconColor
@@ -117,15 +116,14 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
   /**
    * @description Controls whether the icon is displayed.
    * @summary Determines if the visual icon should be shown in the empty state.
-   * This can be provided as a boolean or a string that will be converted to a boolean.
    * Icons help visually communicate the empty state context to users.
    *
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default true
    * @memberOf EmptyStateComponent
    */
   @Input()
-  showIcon: StringOrBoolean = true;
+  showIcon: boolean = true;
 
   /**
    * @description The name of the icon to display.
@@ -306,7 +304,6 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    */
   override async ngOnInit(): Promise<void> {
     super.ngOnInit();
-    this.showIcon = stringToBoolean(this.showIcon);
     this.titleColor = `dcf-title dcf-color-${this.titleColor}`;
     this.subtitleColor = `dcf-subtitle dcf-color-${this.subtitleColor}`;
     if (this.searchValue) this.searchSubtitle = await this.getSearchSubtitle(this.subtitle as string);

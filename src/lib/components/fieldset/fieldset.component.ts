@@ -32,7 +32,7 @@ import { IFieldSetItem, IFieldSetValidationEvent } from '../../engine/interfaces
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
 import { DecafRepository, FormParent, KeyValue } from '../../engine/types';
 import { NgxFormService } from '../../services/NgxFormService';
-import { itemMapper } from '../../utils/helpers';
+import { getByPath, itemMapper } from '../../utils/helpers';
 import { IconComponent } from '../icon/icon.component';
 import { LayoutComponent } from '../layout/layout.component';
 import { presentModalConfirm } from '../modal/modal-confirm.component';
@@ -455,16 +455,8 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
       this.changeDetectorRef.detectChanges();
     }
     if (this._data && !this.value?.length) {
-      function resolvePath(obj: KeyValue, path: string) {
-        return path.split('.').reduce((acc, key) => {
-          if (acc && key in acc) {
-            return acc[key];
-          }
-          return false;
-        }, obj);
-      }
       if (!Array.isArray(this._data)) {
-        this._data = resolvePath(this._data, this.childOf as string);
+        this._data = getByPath(this._data as Record<string, unknown>, this.childOf as string) as KeyValue[];
       }
       if (this._data) {
         const data = this._data || [];
@@ -505,63 +497,10 @@ export class FieldsetComponent extends NgxFormDirective implements OnInit, After
               this.activeFormGroupIndex = (formGroup.parent as FormArray).length - 1;
             });
             this.setValue();
-            // this.changeDetectorRef.detectChanges();
           }
-          // this.getItems(data as []);
         }
       }
     }
-    // this.refreshing = true;
-    // this.changeDetectorRef.detectChanges();
-    // if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
-    //   // if(!this.multiple) {
-    //   //   this.required = this.collapsable = false;
-    //   // }
-    //   this.items = [
-    //     ...this.value.map((v) => {
-    //       return this.children.map((child) => {
-    //         const { props, tag } = child as KeyValue;
-    //         return {
-    //           tag,
-    //           props: {
-    //             ...props,
-    //             value: v[props.name] || "",
-    //           },
-    //         };
-    //       });
-    //     }),
-    //   ] as UIElementMetadata[][];
-    // }
-    // if ([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
-    //   const value = [...this.value];
-    //   this.value = [];
-    //   value.map((v) => {
-    //     const formGroup = this.activeFormGroup as FormGroup;
-    //     if (value.length > (formGroup.parent as FormArray).length)
-    //       NgxFormService.addGroupToParent(formGroup.parent as FormArray);
-
-    //     if (!Object.keys(this.mapper).length)
-    //       this.mapper = this.getMapper(v as KeyValue);
-    //     Object.entries(v).forEach(([key, value]) => {
-    //       if (key === this.pk)
-    //         formGroup.addControl(
-    //           key,
-    //           new FormControl({ value: value, disabled: false })
-    //         );
-    //       const control = formGroup.get(key);
-    //       if (control instanceof FormControl) {
-    //         control.setValue(value);
-    //         control.updateValueAndValidity();
-    //         formGroup.updateValueAndValidity();
-    //       }
-    //     });
-    //     this.activeFormGroupIndex = (formGroup.parent as FormArray).length - 1;
-    //   });
-    //   this.setValue();
-    //   this.changeDetectorRef.detectChanges();
-    // }
-    // this.refreshing = false;
-    // this.changeDetectorRef.detectChanges();
   }
 
   /**
