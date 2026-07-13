@@ -105,7 +105,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       menu.push({
         label: `${label}`,
         url: `/model/${Model.tableName(model)}`,
-        icon: 'cube-outline',
+        icon: 'ti-cube',
       });
     }
     this.initialized = true;

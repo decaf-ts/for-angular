@@ -41,19 +41,19 @@
         @if(operations?.length && route && (!operation || operation === OperationKeys.READ)) {
           @if(!modelId && isAllowed(OperationKeys.CREATE)) {
             <ion-button (click)="changeOperation(OperationKeys.CREATE)" fill="clear" [title]="'create' | translate ">
-              <ngx-decaf-icon [name]="'save-outline'" [slot]="'icon-only'" />
+              <ngx-decaf-icon [name]="'ti-device-floppy'" [slot]="'icon-only'" />
             </ion-button>
           } @else {
 
             @if(isAllowed(OperationKeys.READ)) {
               <ion-button (click)="changeOperation(OperationKeys.READ)" fill="clear"  [title]="'read' | translate ">
-                <ngx-decaf-icon [name]="'folder-open-outline'" [slot]="'icon-only'" />
+                <ngx-decaf-icon [name]="'ti-folder-open'" [slot]="'icon-only'" />
               </ion-button>
             }
 
             @if(isAllowed(OperationKeys.UPDATE)) {
               <ion-button (click)="changeOperation(OperationKeys.UPDATE)" fill="clear"  [title]="'update' | translate ">
-                <ngx-decaf-icon [name]="'create-outline'" [slot]="'icon-only'" />
+                <ngx-decaf-icon [name]="'ti-edit'" [slot]="'icon-only'" />
               </ion-button>
             }
 

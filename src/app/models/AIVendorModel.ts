@@ -8,7 +8,7 @@ import { OperationKeys } from "@decaf-ts/db-decorators";
 
 @table("ai_vendors")
 @uimodel('ngx-decaf-crud-form')
-@uilistmodel('ngx-decaf-list-item', {icon: 'globe-outline', className: 'testing'})
+@uilistmodel('ngx-decaf-list-item', {icon: 'ti-world', className: 'testing'})
 @model()
 export class AIVendorModel extends Model {
 
@@ -52,7 +52,7 @@ export class AIVendorModel extends Model {
 
 @table("ai_models")
 @uimodel('ngx-decaf-crud-form')
-@uilistmodel('ngx-decaf-list-item', {icon: 'globe-outline', className: 'testing'})
+@uilistmodel('ngx-decaf-list-item', {icon: 'ti-world', className: 'testing'})
 @model()
 export class AIModel extends Model {
   /**

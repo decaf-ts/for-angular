@@ -2,7 +2,7 @@ import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@ang
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Color } from '@ionic/core';
 import { addIcons } from 'ionicons';
-import * as allIcons from 'ionicons/icons';
+import { chevronDownOutline, chevronUpOutline, closeCircle, closeSharp, searchOutline, searchSharp } from 'ionicons/icons';
 import { shareReplay, Subject, takeUntil } from 'rxjs';
 
 import { NgxSvgDirective } from '../../directives/svg.directive';
@@ -11,13 +11,22 @@ import { NgxMediaService } from '../../services/NgxMediaService';
 import { generateRandomValue } from '../../utils';
 
 /**
- * @description Single registration point for the full Ionicons set.
- * @summary Icon names can come from dynamic config/data, not just template literals,
- * so the whole Ionicons set is registered here rather than a curated subset. Every
- * component that renders an Ionic icon does so through `IconComponent`, so this is
- * the only place in the app that needs to call `addIcons`.
+ * @description Single registration point for Ionicons used across the app.
+ * @summary All icons under our control were migrated to the Tabler webfont set (`ti-*`),
+ * which doesn't need registration. This list covers only the icons Ionic's own internal
+ * components fall back to and can't be swapped for Tabler: `ion-select`'s toggle/expand
+ * chevrons and `ion-searchbar`'s default search/clear icons. Every component that renders
+ * an Ionic icon does so through `IconComponent`, so this is the only place in the app that
+ * needs to call `addIcons`.
  */
-addIcons(allIcons);
+addIcons({
+  chevronDownOutline,
+  chevronUpOutline,
+  closeCircle,
+  closeSharp,
+  searchOutline,
+  searchSharp,
+});
 
 @Dynamic()
 @Component({

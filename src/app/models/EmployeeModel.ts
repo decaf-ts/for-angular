@@ -14,7 +14,7 @@ import {
 import { pk } from '@decaf-ts/core';
 import { OperationKeys, timestamp } from '@decaf-ts/db-decorators';
 
-@uilistmodel('ngx-decaf-list-item', { icon: 'person-outline' })
+@uilistmodel('ngx-decaf-list-item', { icon: 'ti-user' })
 @uimodel('ngx-decaf-crud-form', { rows: 1, cols: 1 })
 @model()
 export class EmployeeModel extends Model {

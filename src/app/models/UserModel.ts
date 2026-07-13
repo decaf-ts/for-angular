@@ -15,7 +15,7 @@ import {
 } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from './CategoryModel';
 
-@uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
+@uilistmodel('ngx-decaf-list-item', { icon: 'ti-cup' })
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class UserModel extends Model {

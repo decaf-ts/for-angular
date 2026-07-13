@@ -409,7 +409,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    *   title: 'empty.title',
    *   subtitle: 'empty.subtitle',
    *   showButton: false,
-   *   icon: 'alert-circle-outline',
+   *   icon: 'ti-alert-circle',
    *   buttonText: 'locale.empty.button',
    *   link: ''
    * }

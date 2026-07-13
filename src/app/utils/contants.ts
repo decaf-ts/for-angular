@@ -2,14 +2,14 @@ import { IMenuItem } from "src/lib/engine/interfaces";
 
 export const DashboardMenuItem =  {
   label: 'Dashboard',
-  icon: 'apps-outline',
+  icon: 'ti-apps',
   url: '/dashboard',
 };
 
 export const LogoutMenuItem =   {
   label: 'Logout',
   title: 'Login',
-  icon: 'log-out-outline',
+  icon: 'ti-logout',
   url: '/login',
   color: 'danger'
 };
@@ -17,7 +17,7 @@ export const LogoutMenuItem =   {
 export const AppMenu: IMenuItem[] = [
   {
     label: 'Crud',
-    icon: 'save-outline',
+    icon: 'ti-device-floppy',
   },
   {
     label: 'Read',
@@ -41,7 +41,7 @@ export const AppMenu: IMenuItem[] = [
   },
   {
     label: 'Model Lists',
-    icon: 'list-outline',
+    icon: 'ti-list',
   },
   {
     label: 'AI Models (Infinite)',

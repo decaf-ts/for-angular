@@ -179,12 +179,12 @@
         [modelId]="modelId"
         [buttonLink]="empty?.link ?? undefined"
         [borders]="borders"
-        [icon]="(item?.icon ?? 'folder-open-outline') || empty.icon"
+        [icon]="(item?.icon ?? 'ti-folder-open') || empty.icon"
         className="dcf-empty-data"
       />
     } @else {
       <ngx-decaf-empty-state
-        icon="search-outline"
+        icon="ti-search"
         [model]="empty?.showButton ? model : undefined"
         [route]="route"
         [modelId]="modelId"

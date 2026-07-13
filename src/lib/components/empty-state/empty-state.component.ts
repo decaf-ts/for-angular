@@ -134,11 +134,11 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * and this value should correspond to an available icon name.
    *
    * @type {string}
-   * @default "folder-open-outline"
+   * @default "ti-folder-open"
    * @memberOf EmptyStateComponent
    */
   @Input()
-  icon: string = 'folder-open-outline';
+  icon: string = 'ti-folder-open';
 
   /**
    * @description The size of the displayed icon.

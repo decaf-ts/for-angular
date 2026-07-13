@@ -1,11 +1,5 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import {
-  PreloadAllModules,
-  provideRouter,
-  RouteReuseStrategy,
-  withComponentInputBinding,
-  withPreloading,
-} from '@angular/router';
+import { provideRouter, RouteReuseStrategy, withComponentInputBinding } from '@angular/router';
 import { RamAdapter, RamFlavour } from '@decaf-ts/core/ram';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
@@ -43,7 +37,7 @@ export const AppConfig: ApplicationConfig = {
     // }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
+    provideRouter(routes, withComponentInputBinding()),
     // provide dark theme
     // provideDecafDarkMode(),
     // change the default page transition
