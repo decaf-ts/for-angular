@@ -886,7 +886,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * displayed data based on the search term. The behavior differs between infinite
    * and paginated modes to provide the best user experience for each mode.
    *
-   * @param {string | undefined} value - The search term or undefined to clear search
+   * @param {string | IFilterQuery | CustomEvent | undefined} rawValue - The search term, filter query,
+   * or a raw `CustomEvent` when triggered via the `window:searchbarEvent` broadcast; undefined clears the search
    * @returns {Promise<void>}
    *
    * @mermaid
@@ -905,7 +906,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @memberOf ListComponent
    */
   @HostListener('window:searchbarEvent', ['$event'])
-  async handleSearch(value: string | IFilterQuery | undefined): Promise<void> {
+  async handleSearch(rawValue: string | IFilterQuery | CustomEvent | undefined): Promise<void> {
+    const value: string | IFilterQuery | undefined =
+      rawValue instanceof CustomEvent ? rawValue.detail?.value : rawValue;
     this.searching = value !== undefined;
 
     if (this.type === ListComponentsTypes.INFINITE) {
@@ -913,16 +916,14 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       if (value === undefined) {
         this.loadMoreData = true;
         this.page = 1;
-        this.items = this.data = [];
+        this.items = [];
         this.changeDetectorRef.detectChanges();
       }
-
       this.searchValue = value;
+      await this.refresh(true);
       if (this.isModalChild) {
         this.changeDetectorRef.detectChanges();
       }
-
-      await this.refresh(true);
     } else {
       this.loadMoreData = true;
       this.searchValue = value;
@@ -1052,16 +1053,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * data loading and subsequent refresh operations when using a model as the data source.
    *
    * @param {boolean} force - Whether to force a refresh even if data already exists
-   * @param {number} start - The starting index for pagination
-   * @param {number} limit - The maximum number of items to retrieve
    * @returns {Promise<KeyValue[]>} A promise that resolves to the fetched data
    *
    * @memberOf ListComponent
    */
   async getFromModel(force: boolean = false): Promise<KeyValue[]> {
-    let data = [...(this.data || [])];
-    let request: KeyValue[] = [];
-
     if (!this._repository) {
       this._repository = this.repository;
     }
@@ -1070,7 +1066,15 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       this.indexes = Object.keys(Model.indexes(this.model as Model) || {});
     }
     const hasModelSource = !!(this.model || this.modelName || this._repository || this.paginator);
-    if (hasModelSource && (!this.data?.length || force || this.hasSearch)) {
+    if (!hasModelSource) {
+      const start = this.page > 1 ? (this.page - 1) * this.limit : this.start;
+      const limit = this.page * (this.limit > 12 ? 12 : this.limit);
+      return this.getFromRequest(force, start, limit);
+    }
+    let data = [...(this.data || [])];
+    let request: KeyValue[] = [];
+
+    if (!this.data?.length || force || this.hasSearch) {
       try {
         if (!this.hasSearch) {
           if (this.type !== ListComponentsTypes.INFINITE) {
@@ -1125,6 +1129,59 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       this.getMoreData(this.paginator.total);
     }
     return data || ([] as KeyValue[]);
+  }
+
+  async getFromRequest(force: boolean = false, start: number, limit: number): Promise<KeyValue[]> {
+    let data: KeyValue[] = [...(this.data || [])];
+
+    function parseSearchResults(results: KeyValue[], search: string): KeyValue[] {
+      const filtered = results.filter((item: KeyValue) =>
+        Object.values(item).some((v) => {
+          if (typeof v !== 'boolean') {
+            if (`${v}`.toLowerCase().includes((search as string)?.toLowerCase())) {
+              return v;
+            }
+          }
+        })
+      );
+      return filtered;
+    }
+
+    if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
+      // (self.data as ListItem[]) = [];
+      if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
+        if (!this.data?.length) {
+          this.log.info('No data and source passed to infinite list');
+          return [];
+        }
+
+        if (!data?.length && this.data?.length) data = this.data as KeyValue[];
+        data = [...(await this.parseResult(data))];
+        if (this.data?.length)
+          data =
+            this.type === ListComponentsTypes.INFINITE
+              ? [...(this.items || []).concat([...data.slice(start, limit)])]
+              : [...(data.slice(start, limit) as KeyValue[])];
+      } else {
+        if (this.type === ListComponentsTypes.INFINITE) {
+          this.items = [];
+          this.changeDetectorRef.detectChanges();
+        }
+        data = await this.parseResult(parseSearchResults(this.data as [], this.searchValue as string));
+      }
+      this.items = [...data];
+      if (this.isModalChild) this.changeDetectorRef.detectChanges();
+    } else {
+      const data = [...(await this.parseResult(this.data as []))];
+      this.items =
+        this.type === ListComponentsTypes.INFINITE ? [...(this.items || []), ...(data || [])] : [...(data || [])];
+      if (this.isModalChild) this.changeDetectorRef.detectChanges();
+    }
+
+    if (this.loadMoreData && this.type === ListComponentsTypes.PAGINATED) {
+      this.getMoreData(this.data?.length || 0);
+    }
+    return this.data || ([] as KeyValue[]);
   }
 
   /**
