@@ -92,41 +92,54 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
       if (!this.bookmark[key]) {
         this.bookmark[key] = [];
       }
-      this.bookmark[key].push(this.getAllRawQueryParams(url));
+      const params = this.getAllRawQueryParams(url);
+      const offset = Number(params['offset']);
+      const existingIndex = this.bookmark[key].findIndex((item) => Number(item.offset) === offset);
+      if (existingIndex >= 0) {
+        this.bookmark[key][existingIndex] = params;
+      } else {
+        this.bookmark[key].push(params);
+      }
     }
   }
 
-  parseBookmarkURL(url: string): string {
-    let bookmark = this.getOnQueryParams(url, 'bookmark');
-    const cached = this.getFromBookmark(url);
-    if (!bookmark) {
-      if (cached) {
-        bookmark = cached.bookmark as string;
-        url = url.replace(/bookmark=[^&]*/, `bookmark=${bookmark}`);
-      }
+  setQueryParam(url: string, param: string, value: string | undefined): string {
+    const parsed = new URL(url);
+    if (typeof value === 'undefined') {
+      parsed.searchParams.delete(param);
     } else {
-      if (cached?.bookmark && bookmark !== cached.bookmark) {
-        url = url.replace(/bookmark=[^&]*/, `bookmark=${cached.bookmark}`);
-      } else {
-        this.setOnBookmark(url);
-      }
+      parsed.searchParams.set(param, value);
     }
+    return parsed.toString();
+  }
+
+  parseBookmarkURL(url: string): string {
+    const offset = Number(this.getOnQueryParams(url, 'offset'));
+    const cached = this.getFromBookmark(url);
+    const bookmark = this.getOnQueryParams(url, 'bookmark');
+    if (offset < 2) {
+      return bookmark ? this.setQueryParam(url, 'bookmark', undefined) : url;
+    }
+
+    if (!bookmark) {
+      return cached?.bookmark ? this.setQueryParam(url, 'bookmark', String(cached.bookmark)) : url;
+    }
+    if (cached?.bookmark && bookmark !== cached.bookmark) {
+      return this.setQueryParam(url, 'bookmark', String(cached.bookmark));
+    }
+    this.setOnBookmark(url);
     return url;
   }
 
   getFromBookmark(url: string): DirectionLimitOffset | undefined {
     const key = this.getBookmarkEntryKey(url);
-    const offset = this.getOnQueryParams(url, 'offset');
-    if (key) {
-      const cached = this.bookmark?.[key];
-      if (Number(offset) <= 2) {
-        this.bookmark[key] = [];
-      }
-      if (cached) {
-        return cached.find((item) => Number(item.offset) === Number(offset));
-      }
+    if (!key) return undefined;
+    const offset = Number(this.getOnQueryParams(url, 'offset'));
+    if (offset < 2) {
+      this.bookmark[key] = [];
+      return undefined;
     }
-    return undefined;
+    return this.bookmark[key]?.find((item) => Number(item.offset) === offset);
   }
 
   getOnQueryParams(url: string, param: string): string {
@@ -149,10 +162,11 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
           return urlArray.filter((part) => part !== PersistenceKeys.STATEMENT).join('/');
         }
       } else {
-        // const hasBookmark = this.hasQueryParam(url, 'bookmark');
-        // if (hasBookmark) {
-        //   url = this.parseBookmarkURL(url);
-        // }
+        // Must run even when the `bookmark` param is entirely absent from the URL:
+        // navigating backward past the paginator's known bookmark range drops the
+        // param altogether rather than sending it empty, and only this cache lookup
+        // can recover the correct bookmark for that offset.
+        url = this.parseBookmarkURL(url);
       }
     }
     return url;
