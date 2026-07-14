@@ -74,3 +74,4 @@ node_modules/
 CLAUDE.md
 /workdocs/ai
 /.playwright-mcp
+/.agents

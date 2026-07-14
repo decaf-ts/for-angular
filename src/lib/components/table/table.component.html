@@ -205,16 +205,15 @@
 </div>
 
 <div class="dcf-table-pagination">
-  @if (
-    (pages > 0 || bookMarkPagination) && (data?.length >= limit || page > 1)
-  ) {
+  @if (type === 'paginated' || bookMarkPagination) {
     <ngx-decaf-pagination
-      [table]="component"
-      [bookMarkPagination]="bookMarkPagination"
-      [nextBookmark]="paginator?.['_bookmark']"
-      [totalPages]="pages"
       [disablePages]="disablePaginationPages"
       [truncatePages]="truncatePaginationPages"
+      [totalPages]="pages"
+      [bookMarkPagination]="bookMarkPagination"
+      [nextBookmark]="paginator?.['_bookmark']"
+      [paginator]="paginator"
+      [table]="component"
       [current]="page"
       (clickEvent)="handlePaginate($event)"
     />

@@ -41,7 +41,7 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
   async showFilterModal(): Promise<void> {
     const modal = await presentModalConfirm({
       message: 'Testing',
-      requireConfirmCode: true,
+      requireConfirmCode: false,
     });
 
     // const modal = await getNgxModalCrudComponent(

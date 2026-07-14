@@ -149,10 +149,10 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
           return urlArray.filter((part) => part !== PersistenceKeys.STATEMENT).join('/');
         }
       } else {
-        const hasBookmark = this.hasQueryParam(url, 'bookmark');
-        if (hasBookmark) {
-          url = this.parseBookmarkURL(url);
-        }
+        // const hasBookmark = this.hasQueryParam(url, 'bookmark');
+        // if (hasBookmark) {
+        //   url = this.parseBookmarkURL(url);
+        // }
       }
     }
     return url;

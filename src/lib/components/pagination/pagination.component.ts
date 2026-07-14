@@ -226,7 +226,7 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
   private recompute(): void {
     this.disablePages = this.bookMarkPagination || this.disablePages;
     if (this.disablePages) {
-      this.truncatePages = false;
+      this.truncatePages = true;
     }
     this.pages = this.getPages(this.totalPages, this.current) as KeyValue[];
     this.last = this.totalPages;

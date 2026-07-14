@@ -869,7 +869,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
           // this.changeDetectorRef.detectChanges();
           await loading.dismiss();
           const { data, role } = await modal.onWillDismiss();
-          console.log(data, role);
           if (role === ActionRoles.confirm && data !== this.value) {
             this.setValue(data);
             this.component.nativeElement.ionChange.emit({ value: data });

@@ -1292,7 +1292,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         }
       } else {
         this.pages = this.paginator?.total || this.paginator['_totalPages'];
-        if (this.pages === undefined) {
+        if (this.pages === undefined || this.paginator?.['_bookmark']) {
           // Bookmark/cursor-style paginator: `total` is never resolvable, and this is
           // permanent for the lifetime of this paginator. Latch it once detected instead
           // of re-deriving from the *current* bookmark value on every fetch — an empty

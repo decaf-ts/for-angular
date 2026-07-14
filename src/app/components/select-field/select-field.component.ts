@@ -182,11 +182,14 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements After
     const { source, value, bubbles } = event.detail;
     if (source !== this.name) {
       if (source === 'productCode') {
-        const product = await this.readProduct(value);
         if (this.name === 'batchNumber') {
+          if (this.value) {
+            this.setValue('');
+          }
           await this.readBatchByProductCode(value);
         }
         if (['inventedName', 'nameMedicinalProduct'].includes(this.name)) {
+          const product = await this.readProduct(value);
           if (product) {
             this.value = product[this.name as keyof Product] as string;
           }

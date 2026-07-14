@@ -513,6 +513,11 @@ export abstract class NgxFormFieldDirective
       this.formControl.updateValueAndValidity();
     }
     this.value = value as string | number | Date | string[];
+    // keep the (manually rendered) select label in sync on programmatic value changes,
+    // otherwise a reset leaves the previously selected option text stale in the shadow DOM
+    if (this.type === HTML5InputTypes.SELECT) {
+      this.parseSelectLabel();
+    }
   }
 
   /**
@@ -555,21 +560,19 @@ export abstract class NgxFormFieldDirective
 
   parseSelectLabel() {
     const element = this.component?.nativeElement;
+    if (!element?.shadowRoot) return;
 
     if (this.type === HTML5InputTypes.SELECT && !this.translatable) {
-      const label = element.shadowRoot.querySelector('.select-text');
       //strip html from element text content to prevent html tags from being rendered in the label
       timer(25)
         .pipe(take(1))
         .subscribe(() => {
-          if (label) {
-            const button = element.shadowRoot.querySelector('button');
-            if (button) {
-              const textContent = stripHTML(button.getAttribute('aria-label').split(',')?.[1] || '');
-              if (typeof textContent === Primitives.STRING && String(textContent).length) {
-                label.textContent = textContent;
-              }
-            }
+          const label = element.shadowRoot.querySelector('.select-text');
+          const button = element.shadowRoot.querySelector('button');
+          if (label && button) {
+            // always reassign so a programmatic value reset clears any stale label text
+            const textContent = String(stripHTML((button.getAttribute('aria-label') || '').split(',')?.[1] || '')).trim();
+            label.textContent = textContent;
           }
         });
     }
