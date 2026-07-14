@@ -348,6 +348,7 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    */
   async ngOnInit(): Promise<void> {
     const item = this.item as KeyValue;
+
     const mapper =
       (this.mapper as KeyValue) && Object.keys(this.mapper).length
         ? (this.mapper as KeyValue)
@@ -446,23 +447,26 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
     if (this.actionMenuOpen) {
       await this.actionMenuComponent.dismiss();
     }
-    const uid = this.model ? (this.model as KeyValue)[this.pk] : this.uid;
+    const model = this.model as KeyValue;
+    const uid = model && this.pk ? (model?.[this.pk] ?? this.value) : this.uid;
     // forcing trap focus
     removeFocusTrap();
-    if (!this.route || this.emitEvent) {
-      const event = {
-        target: target,
-        action,
-        pk: this.pk,
-        data: uid,
-        name: ComponentEventNames.Click,
-        component: this.componentName,
-      } as IListItemCustomEvent;
-      windowEventEmitter(`ListItem${ComponentEventNames.Click}`, event);
-      return this.clickEvent.emit(event);
-    }
+    if (uid) {
+      if (!this.route || this.emitEvent || this.isModalChild) {
+        const event = {
+          target: target,
+          action,
+          pk: this.pk,
+          data: uid,
+          name: ComponentEventNames.Click,
+          component: this.componentName,
+        } as IListItemCustomEvent;
+        windowEventEmitter(`ListItem${ComponentEventNames.Click}`, event);
+        return this.clickEvent.emit(event);
+      }
 
-    await this.redirect(action, `${this.uid}`);
+      await this.redirect(action, `${uid}`);
+    }
   }
 
   /**

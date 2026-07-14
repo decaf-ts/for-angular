@@ -170,6 +170,7 @@ export class ComponentRendererComponent extends NgxRenderableComponentDirective 
       (wrappedProps || itemValue || {}) as KeyValue,
       itemValue ? { item: itemValue } : {}
     );
+    console.log(props);
     if (props?.['tag']) delete props['tag'];
     if (props?.[AngularEngineKeys.CHILDREN] && !this.children.length)
       this.children = props[AngularEngineKeys.CHILDREN] as KeyValue[];

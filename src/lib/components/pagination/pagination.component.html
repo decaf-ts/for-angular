@@ -36,7 +36,12 @@
         </div>
 
         @if (!disablePages) {
-          @for (page of pages; track page['index'] != null ? 'page-' + page['index'] : 'sep-' + $index) {
+          @for (
+            page of pages;
+            track page['index'] !== null
+              ? 'page-' + page['index']
+              : 'sep-' + $index
+          ) {
             <div
               tabindex="0"
               [class]="page['class']"
