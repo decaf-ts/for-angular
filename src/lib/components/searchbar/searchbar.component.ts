@@ -15,7 +15,6 @@ import { AutocompleteTypes, PredefinedColors } from '@ionic/core';
 import { getModelAndRepository } from '../../engine';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { windowEventEmitter } from '../../utils/helpers';
-import '../icon/icon.component';
 
 /**
  * @description Searchbar component for Angular applications.
@@ -330,7 +329,6 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
         this.indexes = Model.defaultQueryAttributes(repo.model) || [];
       }
     }
-
     if (!this.indexes?.length && this.model) {
       this.indexes = Model.defaultQueryAttributes(this.model as Model) || [];
     }
@@ -338,7 +336,12 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
       this.placeholder = `component.searchbar.search_by`;
       let fields = '';
       for (const index of this.indexes) {
-        const phrase = (await this.translate(`${this.locale}.${index}.label`)) || index;
+        let label = this.locale;
+        if (!label?.includes(index)) {
+          label = `${this.locale}.${index}.label`;
+        }
+        label = (await this.translate(label)) as string;
+        const phrase = !label || label.includes('.') ? index : label;
         fields = fields ? `${fields}, ${phrase}` : `${phrase}`;
       }
       this.placeholder = (await this.translate(`${this.placeholder}`, { '0': fields })) as string;

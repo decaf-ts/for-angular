@@ -19,40 +19,42 @@ module.exports = (config, options) => {
   // gives us: dead code elimination, whitespace/comment stripping, local
   // variable mangling, and console/debugger stripping — the vast majority
   // of the size win — without touching anything decorators depend on.
-  config.optimization = config.optimization || {};
-  config.optimization.minimize = true;
-  config.optimization.minimizer = [
-    new TerserPlugin({
-      terserOptions: {
-        ecma: 2020,
-        compress: {
-          keep_classnames: true,
-          keep_fnames: true,
-          // passes: 2 is Angular CLI's default; keep it modest to avoid
-          // build time blowing up on top of the decorator-safety constraint
-          passes: 2,
-          // Angular's own JavaScriptOptimizerPlugin normally injects these via
-          // @angular/compiler-cli's GLOBAL_DEFS_FOR_TERSER(_WITH_AOT). Replacing
-          // the minimizer array here bypasses that plugin, so without redefining
-          // them ngDevMode/ngJitMode/ngI18nClosureMode are left as free variables
-          // in the minified bundle, throwing "ngDevMode is not defined" at runtime.
-          global_defs: {
-            ngDevMode: false,
-            ngI18nClosureMode: false,
-            ngJitMode: false,
+  if (config.mode !== 'development') {
+    config.optimization = config.optimization || {};
+    config.optimization.minimize = true;
+    config.optimization.minimizer = [
+      new TerserPlugin({
+        terserOptions: {
+          ecma: 2020,
+          compress: {
+            keep_classnames: true,
+            keep_fnames: true,
+            // passes: 2 is Angular CLI's default; keep it modest to avoid
+            // build time blowing up on top of the decorator-safety constraint
+            passes: 2,
+            // Angular's own JavaScriptOptimizerPlugin normally injects these via
+            // @angular/compiler-cli's GLOBAL_DEFS_FOR_TERSER(_WITH_AOT). Replacing
+            // the minimizer array here bypasses that plugin, so without redefining
+            // them ngDevMode/ngJitMode/ngI18nClosureMode are left as free variables
+            // in the minified bundle, throwing "ngDevMode is not defined" at runtime.
+            global_defs: {
+              ngDevMode: false,
+              ngI18nClosureMode: false,
+              ngJitMode: false,
+            },
+          },
+          mangle: {
+            keep_classnames: true,
+            keep_fnames: true,
+          },
+          format: {
+            comments: false,
           },
         },
-        mangle: {
-          keep_classnames: true,
-          keep_fnames: true,
-        },
-        format: {
-          comments: false,
-        },
-      },
-      extractComments: false,
-    }),
-  ];
+        extractComments: false,
+      }),
+    ];
+  }
 
   return config;
 };

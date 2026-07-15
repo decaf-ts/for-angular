@@ -576,22 +576,26 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
   static setInputs(component: ComponentRef<unknown>, inputs: KeyValue, metadata: ComponentMirror<unknown>): void {
-    const isValidInput = (key: string): boolean =>
-      metadata.inputs.some((item: { propName: string }) => item.propName === key);
-
     function parseInputValue(component: ComponentRef<unknown>, input: KeyValue) {
       Object.keys(input).forEach((key) => {
         const value = input[key];
         if (typeof value === 'object' && !!value) return parseInputValue(component, value);
-        // only forward nested props keys that are actual inputs of the component
-        if (isValidInput(key)) component.setInput(key, value);
+        component.setInput(key, value);
       });
     }
 
     Object.entries(inputs).forEach(([key, value]) => {
-      if (!isValidInput(key)) return;
-      component.setInput(key, value);
-      if (key === 'props') parseInputValue(component, value);
+      const prop = metadata.inputs.find((item: { propName: string }) => item.propName === key);
+      if (prop) {
+        if (key === 'props') {
+          component.setInput(key, value);
+          parseInputValue(component, value);
+        }
+
+        // if (key === 'locale' && !value)
+        //   value = getLocaleFromClassName(this._componentName);
+        component.setInput(key, value);
+      }
     });
   }
 }

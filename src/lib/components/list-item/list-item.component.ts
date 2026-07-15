@@ -124,6 +124,9 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
   @Input()
   actionsType: 'popover' | 'inline' = 'inline';
 
+  @Input()
+  option!: { title: string; description?: string };
+
   /**
    * @description Controls the display of lines around the list item.
    * @summary Determines how lines are displayed around the list item borders.
@@ -347,19 +350,29 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    * @memberOf ListItemComponent
    */
   async ngOnInit(): Promise<void> {
-    const item = this.item as KeyValue;
+    const option = this.option;
 
-    const mapper =
-      (this.mapper as KeyValue) && Object.keys(this.mapper).length
-        ? (this.mapper as KeyValue)
-        : typeof item === 'object' && 'mapper' in item
-          ? (item['mapper'] as KeyValue)
-          : undefined;
-    await this.parseItem(item, mapper);
+    if (option && option?.title) {
+      this.value = this.title = option.title;
+      // if (option?.description) {
+      //   this.description = option.description;
+      // }
+    } else {
+      const item = this.item as KeyValue;
+      const mapper =
+        (this.mapper as KeyValue) && Object.keys(this.mapper).length
+          ? (this.mapper as KeyValue)
+          : typeof item === 'object' && 'mapper' in item
+            ? (item['mapper'] as KeyValue)
+            : undefined;
+      await this.parseItem(item, mapper);
+    }
 
     this.showSlideItems = this.enableSlideItems();
     this.className = `${this.className}  dcf-flex dcf-flex-middle grid-item`;
-    if (this.operations?.length) this.className += ` action`;
+    if (this.operations?.length) {
+      this.className += ` action`;
+    }
     this.windowWidth = getWindowWidth() as number;
   }
 
@@ -448,7 +461,11 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
       await this.actionMenuComponent.dismiss();
     }
     const model = this.model as KeyValue;
-    const uid = model && this.pk ? (model?.[this.pk] ?? this.value) : this.uid;
+    const uid = this.option
+      ? model?.['value'] || model?.[this.pk]
+      : model && this.pk
+        ? (model?.[this.pk] ?? this.value)
+        : this.uid;
     // forcing trap focus
     removeFocusTrap();
     if (uid) {

@@ -662,6 +662,11 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
   @Input()
   override page!: number;
 
+  @Input()
+  customSource: boolean = false;
+
+  @Input()
+  override mapper: Record<string, string> = { value: 'value', text: 'text' };
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor() {
     super();
@@ -767,6 +772,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
       if (fnName) {
         if (fnName.toLowerCase() === 'function') {
           this.options = (await (this.options as FunctionLike)()) as KeyValue[];
+          this.customSource = true;
         } else {
           const modelName = this.options?.name ?? this.options?.constructor?.name ?? '';
           const repo = getModelAndRepository(modelName, this);
@@ -828,7 +834,9 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
     this.options = await Promise.all(translateOptions);
     if (this.type !== HTML5InputTypes.SELECT) return this.options as CrudFieldOption[];
 
-    if (this.options.length === 0 && !this.required) this.value = '';
+    if (this.options.length === 0 && !this.required) {
+      this.value = '';
+    }
     const options = (
       !this.required || (this.options?.length > 1 && this.startEmpty)
         ? [{ value: '', text: '', selected: true, disabled: this.required }, ...this.options]
@@ -863,7 +871,14 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
           const modal = await getNgxSelectOptionsModal(
             this.label,
             this.options as SelectOption[],
-            { pk: this.pk, modelName: this.modelName },
+            {
+              pk: this.pk,
+              modelName: this.modelName,
+              locale: this.label as string,
+              translatable: this.translatable,
+              mapper: this.optionsMapper || this.mapper,
+              customSource: this.customSource,
+            },
             this.name
           );
           // this.changeDetectorRef.detectChanges();

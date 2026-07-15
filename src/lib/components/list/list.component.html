@@ -81,10 +81,10 @@
             [tag]="item.tag"
             (listenEvent)="handleEvent($event)"
             [globals]="{
-              item: child,
-              mapper: mapper,
+              item: child.item,
+              option: child?.option,
               route: isModalChild ? undefined : route,
-              model: child,
+              model: child.model,
               pk: pk,
               isModalChild: isModalChild || child.isModalChild,
               emitEvent: child.emitEvent,

@@ -271,6 +271,10 @@ export function getLanguageOptions(): SelectOption[] {
     }));
 }
 
+export function getLanguages(): { name: string; code: string }[] {
+  return languages.sort((a) => (a.code === 'en' ? -1 : 1));
+}
+
 type DocumentType = 'leaflet' | 'prescribingInfo' | 'SMPC';
 
 export const DocumentsTypes: { [key in DocumentType]: key } = {

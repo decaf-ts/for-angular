@@ -76,11 +76,13 @@ export class EpiHandler extends NgxEventHandler {
       const query = await this.query<ProductMarket>(ProductMarket.name, 'productCode', component.modelId as Primitives);
       if (query?.length) {
         const filterMarkets = query.map((item) => item.marketId);
+
         component.options = (component.options as SelectOption[])?.filter((option) => {
           if (!filterMarkets.includes(option.value as string)) {
             return option;
           }
         });
+
       }
     }
   }

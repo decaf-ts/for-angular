@@ -479,6 +479,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
 
   bookMarkPagination: boolean = false;
 
+  @Input()
+  customSource: boolean = false;
+
   /**
    * @description Event emitter for item click interactions.
    * @summary Emits an event when a list item is clicked. The event includes the data
@@ -919,6 +922,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         this.items = [];
         this.changeDetectorRef.detectChanges();
       }
+
       this.searchValue = value;
       await this.refresh(true);
       if (this.isModalChild) {
@@ -929,6 +933,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       this.searchValue = value;
       if (value === undefined) this.page = this.lastPage;
       await this.refresh(true);
+      if (this.isModalChild) {
+        this.changeDetectorRef.detectChanges();
+      }
     }
   }
 
@@ -1065,7 +1072,10 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     if (!this.indexes) {
       this.indexes = Object.keys(Model.indexes(this.model as Model) || {});
     }
-    const hasModelSource = !!(this.model || this.modelName || this._repository || this.paginator);
+    const hasModelSource = this.customSource
+      ? false
+      : !!(this.model || this.modelName || this._repository || this.paginator);
+
     if (!hasModelSource) {
       const start = this.page > 1 ? (this.page - 1) * this.limit : this.start;
       const limit = this.page * (this.limit > 12 ? 12 : this.limit);
@@ -1113,10 +1123,12 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
           data = this.type === ListComponentsTypes.INFINITE ? [...data.concat(request)] : [...request];
         }
       } catch (error: unknown) {
-        this.log.error(
+        this.log.warn(
           (error as Error)?.message || `Unable to find ${this.model} on registry. Return empty array from component`
         );
       }
+    } else {
+      data = [...(await this.parseResult(this.data ?? []))];
     }
 
     if (data?.length) {
@@ -1444,9 +1456,15 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     } else {
       return await Promise.all(
         data.map(async (item) => {
-          const mapped = await (this.mapper as UIFunctionLike)(item);
+          // dont parse already parsed data from crud-field
+          const parsed = 'selected' in item || 'text' in item ? item : await (this.mapper as UIFunctionLike)(item);
           return {
-            item: mapped as KeyValue,
+            item: parsed as KeyValue,
+            option: {
+              title: parsed.text,
+              description: parsed?.value,
+            },
+            locale: this.locale,
             model: item,
             pk: this.pk,
             isModalChild: this.isModalChild,
