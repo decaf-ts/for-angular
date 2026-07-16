@@ -1,5 +1,6 @@
 :host {
   display: block;
+  height: 100%;
 }
 
 /* ---- neutralize ng-diagram base node template's outer wrapper ---- */
@@ -12,6 +13,13 @@
   box-shadow: none !important;
   padding: 0 !important;
   margin: 0 !important;
+  height: 100% !important;
+}
+
+:host ::ng-deep ng-diagram-base-node-template,
+:host ::ng-deep ng-diagram-node-resize-adornment {
+  display: block;
+  height: 100%;
 }
 
 :host ::ng-deep ng-diagram-port[id="port-left"],
@@ -25,7 +33,7 @@
 
   position: relative;
   width: var(--node-size);
-  height: var(--node-size);
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -41,7 +49,7 @@
     0 12px 30px rgba(2, 6, 23, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.15s, height 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.15s;
 }
 
 .graph-node:hover {

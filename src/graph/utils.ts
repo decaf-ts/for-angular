@@ -152,8 +152,8 @@ function buildBoundaryNode(
       y: 120 + index * 120 + duplicateIndex * 22,
     },
     size: {
-      width: 240,
-      height: 96,
+      width: 72,
+      height: 32,
     },
     resizable: false,
     draggable: true,
@@ -188,11 +188,14 @@ export function buildMemberNode(
 
   const switchMeta = metadata['switch'] as SwitchNodeMetadata | undefined;
   const hasSwitchCases = switchMeta && Array.isArray(switchMeta.cases) && switchMeta.cases.length > 0;
+  const hasDefault = switchMeta?.hasDefault === true;
+  const defaultPortName = switchMeta?.defaultPort ?? 'default';
 
   let ports: GraphPortDefinition[] = [...definition.ports];
   let height = definition.height ?? 96;
 
   if (hasSwitchCases && switchMeta) {
+    const casePortNames = new Set(switchMeta.cases.map((c: SwitchCase) => c.outputPort));
     const caseOutputPorts: GraphPortDefinition[] = switchMeta.cases.map((c: SwitchCase) => ({
       property: c.outputPort,
       name: c.label,
@@ -202,7 +205,16 @@ export function buildMemberNode(
       hidden: false,
       path: c.outputPort,
     }));
-    ports = [...ports, ...caseOutputPorts];
+    // Remove both the default port and any case ports that are already declared
+    // as static @output on the class (prevents duplicate port rendering).
+    const nonDefaultNonCasePorts = ports.filter(
+      (p) => p.property !== defaultPortName && !casePortNames.has(p.property)
+    );
+    const defaultPort = ports.find((p) => p.property === defaultPortName);
+    ports = [...nonDefaultNonCasePorts, ...caseOutputPorts];
+    if (hasDefault && defaultPort) {
+      ports.push(defaultPort);
+    }
     height = Math.max(height, 140 + switchMeta.cases.length * 24);
   }
 

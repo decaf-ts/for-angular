@@ -40,6 +40,7 @@ export interface GraphSwitchEditResult {
   portModes: Record<string, 'port' | 'value'>;
   outputSplits: string[];
   switchMetadata: BaseSwitchNodeMetadata;
+  autoCreateDefaultNode: boolean;
 }
 
 type SwitchNodeMetadata = BaseSwitchNodeMetadata & { hasDefault?: boolean };
@@ -72,11 +73,16 @@ export class GraphSwitchEditModalComponent implements OnInit {
 
   readonly _cases = signal<SwitchCase[]>([]);
   readonly _defaultPort = signal('default');
-  readonly _hasDefault = signal(true);
+  readonly _hasDefault = signal(false);
+  readonly _wasDefaultToggledOn = signal(false);
+  readonly _draggedId = signal<string | null>(null);
+  readonly _dragOverIndex = signal<number | null>(null);
 
   readonly cases = this._cases.asReadonly();
   readonly defaultPort = this._defaultPort.asReadonly();
   readonly hasDefault = this._hasDefault.asReadonly();
+  readonly draggedId = this._draggedId.asReadonly();
+  readonly dragOverIndex = this._dragOverIndex.asReadonly();
   readonly outputPorts = computed(() => {
     const ports = this._cases().map((c) => c.outputPort);
     if (this._hasDefault()) {
@@ -88,7 +94,7 @@ export class GraphSwitchEditModalComponent implements OnInit {
   ngOnInit() {
     this._cases.set(this.initialSwitchMetadata.cases.map((c) => ({ ...c })));
     this._defaultPort.set(this.initialSwitchMetadata.defaultPort ?? 'default');
-    this._hasDefault.set(this.initialSwitchMetadata.hasDefault !== false);
+    this._hasDefault.set(this.initialSwitchMetadata.hasDefault === true);
   }
 
   addCase() {
@@ -108,21 +114,55 @@ export class GraphSwitchEditModalComponent implements OnInit {
     this._cases.update((cases) => cases.filter((c) => c.id !== id));
   }
 
-  moveCase(id: string, direction: 'up' | 'down') {
+  onDragStart(id: string, event: DragEvent) {
+    this._draggedId.set(id);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', id);
+    }
+  }
+
+  onDragEnd() {
+    this._draggedId.set(null);
+    this._dragOverIndex.set(null);
+  }
+
+  onDragOver(index: number, event: DragEvent) {
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    if (this._dragOverIndex() !== index) {
+      this._dragOverIndex.set(index);
+    }
+  }
+
+  onDragLeave() {
+    this._dragOverIndex.set(null);
+  }
+
+  onDrop(index: number, event: DragEvent) {
+    event.preventDefault();
+    const draggedId = this._draggedId() ?? event.dataTransfer?.getData('text/plain');
+    this._draggedId.set(null);
+    this._dragOverIndex.set(null);
+    if (!draggedId) return;
+
     this._cases.update((cases) => {
-      const index = cases.findIndex((c) => c.id === id);
-      if (index === -1) return cases;
-      const target = direction === 'up' ? index - 1 : index + 1;
-      if (target < 0 || target >= cases.length) return cases;
+      const fromIndex = cases.findIndex((c) => c.id === draggedId);
+      if (fromIndex === -1 || fromIndex === index) return cases;
       const updated = [...cases];
-      [updated[index], updated[target]] = [updated[target], updated[index]];
+      const [moved] = updated.splice(fromIndex, 1);
+      updated.splice(index, 0, moved);
       return updated;
     });
   }
 
   onHasDefaultChange(event: Event) {
     const target = event.target as HTMLInputElement;
-    this._hasDefault.set(target.checked);
+    const next = target.checked;
+    if (next && !this._hasDefault()) {
+      this._wasDefaultToggledOn.set(true);
+    }
+    this._hasDefault.set(next);
   }
 
   onCaseLabelChange(id: string, event: Event) {
@@ -150,7 +190,8 @@ export class GraphSwitchEditModalComponent implements OnInit {
         cases: this._cases(),
         defaultPort: this._defaultPort(),
         hasDefault: this._hasDefault(),
-      } as SwitchNodeMetadata,
+      },
+      autoCreateDefaultNode: this._wasDefaultToggledOn(),
     };
     this.modalCtrl.dismiss(result, 'confirm');
   }

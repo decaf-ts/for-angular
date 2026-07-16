@@ -10,7 +10,7 @@ import {
   provideNgDiagram,
 } from 'ng-diagram';
 import { map } from 'rxjs';
-import { GraphPublishingWorkflow } from 'src/app/pages/graph/workflow-root';
+import { TextPipelineWorkflow } from 'src/app/pages/graph/workflow-root';
 import { NgxGraphDirective } from 'src/graph/NgxGraphDirective';
 import { ContainerComponent } from 'src/lib/components';
 import { GraphHomeComponent } from '../home/home.component';
@@ -40,9 +40,9 @@ export class GraphRenderer2Component extends NgxGraphDirective implements OnInit
   readonly sidebarCollapsed = signal(true);
   readonly sidebarWidth = computed(() => (this.sidebarCollapsed() ? '42px' : '240px'));
 
-  graph = model<GraphPublishingWorkflow | string | undefined>();
+  graph = model<TextPipelineWorkflow | string | undefined>();
 
-  // input<GraphPublishingWorkflow | string>.required();
+  // input<TextPipelineWorkflow | string>.required();
   nodes = input<Model[]>();
 
   outputs = input<Record<string, unknown>>();

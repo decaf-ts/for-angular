@@ -1,5 +1,6 @@
 import { Component, Input, signal, computed, Output, EventEmitter, OnInit } from '@angular/core';
-import { IonSelect, IonSelectOption, IonInput, IonTextarea, IonButton, IonIcon, IonLabel, IonNote, IonToggle } from '@ionic/angular/standalone';
+import { IonSelect, IonSelectOption, IonInput } from '@ionic/angular/standalone';
+import { CodeEditorComponent } from '../code-editor/code-editor.component';
 import type { SwitchCaseCondition, ConditionExpression, CodeCondition, ExprValue } from '@decaf-ts/integrations/graph/shared';
 
 export type ConditionMode = 'graphical' | 'code';
@@ -22,7 +23,7 @@ const OPERATORS = [
 @Component({
   selector: 'app-graph-condition-editor',
   standalone: true,
-  imports: [IonSelect, IonSelectOption, IonInput, IonTextarea, IonNote],
+  imports: [IonSelect, IonSelectOption, IonInput, CodeEditorComponent],
   templateUrl: './graph-condition-editor.component.html',
   styleUrl: './graph-condition-editor.component.scss',
 })
@@ -86,9 +87,8 @@ export class GraphConditionEditorComponent implements OnInit {
     this.emit();
   }
 
-  onCodeChange(event: Event) {
-    const target = event.target as HTMLTextAreaElement;
-    this._code.set(target.value);
+  onCodeChange(value: string) {
+    this._code.set(value);
     this.emit();
   }
 

@@ -1,4 +1,4 @@
-import { Component, EnvironmentInjector, inject, input, computed, ElementRef } from '@angular/core';
+import { Component, EnvironmentInjector, inject, input, computed, ElementRef, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
 import {
   NgDiagramBaseNodeTemplateComponent,
@@ -7,15 +7,61 @@ import {
   NgDiagramPortComponent,
   NgDiagramService,
   type Node,
+  type Edge,
 } from 'ng-diagram';
-import { PortDirection } from '@decaf-ts/ui-decorators/graph';
-import type { SwitchNodeMetadata, NodeMetadataChange } from '@decaf-ts/integrations/graph/shared';
+import { graphDefinitionOf, PortDirection } from '@decaf-ts/ui-decorators/graph';
+import type { GraphPortDefinition } from '@decaf-ts/ui-decorators/graph';
+import type { SwitchNodeMetadata, SwitchCase, NodeMetadataChange } from '@decaf-ts/integrations/graph/shared';
+import { LogFlowNode } from '@decaf-ts/integrations/graph/shared';
+import { buildMemberNode } from '../../utils';
 import { GraphDemoNodeData } from '../../types';
 import { graphExecutionState } from '../../execution/GraphExecutionStateService';
 import { graphNodeConfig } from '../../execution/GraphNodeConfigStore';
 import { graphSelection } from '../../execution/GraphSelectionStore';
 import { GraphNodeEditModalComponent, type GraphNodeEditResult } from '../graph-node-edit-modal/graph-node-edit-modal.component';
 import { GraphSwitchEditModalComponent, type GraphSwitchEditResult } from '../graph-switch-edit-modal/graph-switch-edit-modal.component';
+
+function computeSwitchMetadataChange(
+  modelClass: unknown,
+  currentData: GraphDemoNodeData,
+  meta: SwitchNodeMetadata
+): NodeMetadataChange {
+  const definition = graphDefinitionOf(modelClass as never);
+  const defaultPortName = meta.defaultPort ?? 'default';
+  const hasDefault = meta.hasDefault === true;
+  const casePortNames = new Set((meta.cases || []).map((c: SwitchCase) => c.outputPort));
+
+  const basePorts: GraphPortDefinition[] = definition.ports;
+  const nonDefaultNonCasePorts = basePorts.filter(
+    (p) => p.property !== defaultPortName && !casePortNames.has(p.property)
+  );
+  const defaultPort = basePorts.find((p) => p.property === defaultPortName);
+
+  const casePorts: GraphPortDefinition[] = (meta.cases || []).map((c: SwitchCase) => ({
+    property: c.outputPort,
+    name: c.label,
+    direction: PortDirection.OUTPUT,
+    label: c.label,
+    required: false,
+    hidden: false,
+    path: c.outputPort,
+  }));
+
+  const ports = [...nonDefaultNonCasePorts, ...casePorts];
+  if (hasDefault && defaultPort) {
+    ports.push(defaultPort);
+  }
+
+  const caseCount = (meta.cases || []).length;
+  return {
+    ports,
+    size: {
+      width: definition.width ?? 120,
+      height: caseCount > 0 ? 140 + caseCount * 24 : definition.height ?? 140,
+    },
+    dataPatch: { switchMetadata: meta },
+  };
+}
 
 @Component({
   selector: 'app-graph-node-template',
@@ -24,14 +70,90 @@ import { GraphSwitchEditModalComponent, type GraphSwitchEditResult } from '../gr
   templateUrl: './graph-node-template.component.html',
   styleUrl: './graph-node-template.component.scss',
 })
-export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDemoNodeData> {
+export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDemoNodeData>, AfterViewInit, OnDestroy {
   node = input.required<Node<GraphDemoNodeData>>();
   private readonly modelService = inject(NgDiagramModelService);
   private readonly diagramService = inject(NgDiagramService);
   private readonly injector = inject(EnvironmentInjector);
   private readonly modalCtrl = inject(ModalController);
   private readonly hostRef = inject(ElementRef<HTMLElement>);
+  private readonly zone = inject(NgZone);
   private _pinned = false;
+  private portObserver: MutationObserver | null = null;
+  private pendingRaf: number | null = null;
+
+  ngAfterViewInit() {
+    const host = this.hostRef.nativeElement;
+    const nodeEl = host.closest('.ng-diagram-node') as HTMLElement | null;
+    if (!nodeEl) return;
+
+    this.zone.runOutsideAngular(() => {
+      this.portObserver = new MutationObserver(() => {
+        if (this.pendingRaf !== null) return;
+        this.pendingRaf = requestAnimationFrame(() => {
+          this.pendingRaf = null;
+          this.remeasurePorts(nodeEl);
+        });
+      });
+      this.portObserver.observe(nodeEl, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['data-port-id', 'style', 'class'],
+      });
+    });
+
+    this.pendingRaf = requestAnimationFrame(() => {
+      this.pendingRaf = null;
+      this.remeasurePorts(nodeEl);
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.portObserver) {
+      this.portObserver.disconnect();
+      this.portObserver = null;
+    }
+    if (this.pendingRaf !== null) {
+      cancelAnimationFrame(this.pendingRaf);
+      this.pendingRaf = null;
+    }
+  }
+
+  private remeasurePorts(nodeEl: HTMLElement) {
+    const id = this.node().id;
+    const nodeRect = nodeEl.getBoundingClientRect();
+    if (nodeRect.width === 0 && nodeRect.height === 0) return;
+
+    let scale = 1;
+    try {
+      scale = this.modelService.metadata()?.viewport?.scale ?? 1;
+    } catch {
+      scale = 1;
+    }
+
+    const portEls = nodeEl.querySelectorAll('[data-port-id]');
+    const portUpdates: { portId: string; portChanges: { position: { x: number; y: number }; size: { width: number; height: number } } }[] = [];
+    portEls.forEach((el) => {
+      const portId = el.getAttribute('data-port-id');
+      if (!portId) return;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) return;
+      portUpdates.push({
+        portId,
+        portChanges: {
+          position: { x: (r.left - nodeRect.left) / scale, y: (r.top - nodeRect.top) / scale },
+          size: { width: r.width / scale, height: r.height / scale },
+        },
+      });
+    });
+    if (portUpdates.length === 0) return;
+
+    const ds = this.diagramService as unknown as { flowCoreProvider?: { provide: () => { updater: { applyPortChanges: (nodeId: string, updates: typeof portUpdates) => void } } } };
+    const flowCore = ds.flowCoreProvider?.provide();
+    if (!flowCore) return;
+    flowCore.updater.applyPortChanges(id, portUpdates);
+  }
 
   readonly nodeExecutionState = computed(() => {
     const id = this.node().id;
@@ -77,16 +199,7 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     return title.charAt(0).toUpperCase();
   });
 
-  readonly nodeHeight = computed(() => {
-    const data = this.node().data;
-    const caseCount = data.switchMetadata?.cases?.length ?? 0;
-    if (caseCount > 0) {
-      return 140 + caseCount * 24;
-    }
-    return data.switchMetadata ? 140 : null;
-  });
-
-  readonly nodeWidth = computed(() => {
+  readonly nodeWidthPx = computed(() => {
     const data = this.node().data;
     return data.switchMetadata ? 120 : null;
   });
@@ -166,9 +279,11 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
           outputSplits: result.outputSplits,
         });
         const change = (ModelClass as unknown as { applyMetadata?: (m: unknown) => NodeMetadataChange | null })
-          .applyMetadata?.(result.switchMetadata);
-        if (change) {
-          this.applyNodeMetadata(change);
+          .applyMetadata?.(result.switchMetadata)
+          ?? computeSwitchMetadataChange(ModelClass, data, result.switchMetadata);
+        this.applyNodeMetadata(change);
+        if (result.autoCreateDefaultNode) {
+          this.autoCreateExceptionNode(result.switchMetadata.defaultPort ?? 'default');
         }
       }
       return;
@@ -233,6 +348,37 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     }
   }
 
+  /**
+   * Auto-creates a Log node (as a simple exception/default handler) to the
+   * right of the switch node and connects the switch's `default` output port
+   * to the Log node's `value` input port. The user can delete the auto-created
+   * node and connect the default port to something else.
+   */
+  private autoCreateExceptionNode(defaultPort: string) {
+    const switchNode = this.node();
+    const switchPos = switchNode.position ?? { x: 0, y: 0 };
+    const switchSize = switchNode.size ?? { width: 120, height: 140 };
+
+    const exceptionNode = buildMemberNode(LogFlowNode, 0, `default-handler-${Date.now()}`, 'No match (default)');
+    exceptionNode.position = {
+      x: switchPos.x + switchSize.width + 150,
+      y: switchPos.y,
+    };
+
+    const diagram = this.modelService;
+    diagram.addNodes([exceptionNode as never]);
+
+    const edge: Edge = {
+      id: `edge-default-${Date.now()}`,
+      source: switchNode.id,
+      sourcePort: defaultPort,
+      target: exceptionNode.id,
+      targetPort: 'value',
+      data: { label: 'default' },
+    } as Edge;
+    diagram.addEdges([edge]);
+  }
+
   pinNode(event: Event) {
     event.preventDefault();
     event.stopPropagation();
@@ -246,12 +392,15 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     const modes = this.portModes();
     const isDefault = (port: { property: string; path?: string }) =>
       port.property === 'value' || port.path === 'value' || port.property === 'default' || port.path === 'default';
+    // Switch case ports (no @uielement, dynamically generated) are always visible.
+    const isSwitchCasePort = (port: { element?: unknown }) => !port.element;
     return this.node()
       .data.ports.filter((port) => port.direction === direction)
       .filter((port) => {
         const portId = port.path || port.property;
         const mode = modes[portId];
         if (mode === 'value') return false;
+        if (isSwitchCasePort(port)) return true;
         if (mode !== 'port' && port.element) {
           return connected.has(portId);
         }

@@ -23,6 +23,8 @@ import {
   NgDiagramMinimapComponent,
   NgDiagramNodeTemplateMap,
   provideNgDiagram,
+  createMiddlewares,
+  type Middleware,
 } from 'ng-diagram';
 import { graphSelection } from '../../execution/GraphSelectionStore';
 import { GraphRendererViewModel } from '../../types';
@@ -78,6 +80,27 @@ export class GraphRendererComponent {
   readonly edgeDrawn = output<void>();
   readonly elementsRemoved = output<void>();
 
+  readonly portGuardMiddleware: Middleware = {
+    name: 'port-guard',
+    execute: async (context, next, _cancel) => {
+      const actions = context.modelActionTypes;
+      if (actions.includes('deletePortsBulk') && !actions.includes('deleteNodes')) {
+        const update = context.initialUpdate;
+        const cleaned = {
+          ...update,
+          nodesToUpdate: update.nodesToUpdate?.filter(
+            (n) => !('measuredPorts' in n && Object.keys(n).length <= 2)
+          ),
+        };
+        await next(cleaned);
+        return;
+      }
+      await next();
+    },
+  };
+
+  readonly middlewares = createMiddlewares((defaults) => [...defaults, this.portGuardMiddleware]);
+
   readonly nodeTemplateMap = new NgDiagramNodeTemplateMap([
     ['workflow', GraphNodeTemplateComponent],
     ['pipeline', GraphNodeTemplateComponent],
@@ -103,6 +126,7 @@ export class GraphRendererComponent {
     ['core.flow.humanApproval', GraphNodeTemplateComponent],
     ['core.flow.return', GraphNodeTemplateComponent],
     ['core.flow.code', GraphNodeTemplateComponent],
+    ['core.flow.log', GraphNodeTemplateComponent],
     // Agent node (DECAF-32 §21.3)
     ['core.agent', GraphNodeTemplateComponent],
     ['value', GraphBoundaryNodeTemplateComponent],

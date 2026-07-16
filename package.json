@@ -4,6 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "npx rimraf .angular && ng run for-angular-app:serve --host=localhost --port=8110",
+    "start:backend": "node ../integrations/lib/cjs/nest/graph/main.cjs",
+    "start:dev": "concurrently -n backend,ui -c blue,green \"npm run start:backend\" \"npm run start\"",
     "decaf": "decaf angular generate",
     "start:ptp": "npx rimraf .angular && ng serve --host 0.0.0.0 --allowed-hosts all --port=8131 --configuration development",
     "start:pdm": "npx rimraf .angular && ng serve --host 0.0.0.0 --allowed-hosts all --port=8130 --configuration development",
@@ -92,6 +94,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^22.15.24",
     "angular-eslint": "^21.2.9",
+    "concurrently": "^10.0.3",
     "eslint": "^9.29.0",
     "eslint-plugin-storybook": "^10.4.0",
     "eslint-plugin-unused-imports": "^4.4.1",

@@ -22,22 +22,21 @@
       </div>
 
       @for (caseItem of cases(); track caseItem.id; let i = $index) {
-        <div class="graph-switch-edit-modal__case">
+        @if (dragOverIndex() === i && draggedId() !== caseItem.id) {
+          <div class="graph-switch-edit-modal__drop-placeholder"></div>
+        }
+        <div
+          class="graph-switch-edit-modal__case"
+          [class.graph-switch-edit-modal__case--dragging]="draggedId() === caseItem.id"
+          draggable="true"
+          (dragstart)="onDragStart(caseItem.id, $event)"
+          (dragend)="onDragEnd()"
+          (dragover)="onDragOver(i, $event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop(i, $event)"
+        >
           <div class="graph-switch-edit-modal__case-controls">
-            <button
-              type="button"
-              class="graph-switch-edit-modal__reorder"
-              [disabled]="i === 0"
-              (click)="moveCase(caseItem.id, 'up')"
-              title="Move up"
-            >&uarr;</button>
-            <button
-              type="button"
-              class="graph-switch-edit-modal__reorder"
-              [disabled]="i === cases().length - 1"
-              (click)="moveCase(caseItem.id, 'down')"
-              title="Move down"
-            >&darr;</button>
+            <span class="graph-switch-edit-modal__drag-handle" title="Drag to reorder">&#x2630;</span>
             <button
               type="button"
               class="graph-switch-edit-modal__remove"
@@ -63,6 +62,13 @@
           </div>
         </div>
       }
+      @if (draggedId() !== null) {
+        <div
+          class="graph-switch-edit-modal__drop-placeholder"
+          (dragover)="onDragOver(cases().length, $event)"
+          (drop)="onDrop(cases().length, $event)"
+        ></div>
+      }
 
       @if (!cases().length) {
         <p class="graph-switch-edit-modal__empty">No conditions. Click "Add" to create one.</p>
@@ -79,7 +85,7 @@
         <span class="graph-switch-edit-modal__port-badge graph-switch-edit-modal__port-badge--default">{{ defaultPort() }}</span>
         <span class="graph-switch-edit-modal__default-label">fallback when no condition matches</span>
       } @else {
-        <span class="graph-switch-edit-modal__default-label">no default — input is dropped when no case matches</span>
+        <span class="graph-switch-edit-modal__default-label">no default — throws an error when no case matches</span>
       }
     </section>
   </div>
