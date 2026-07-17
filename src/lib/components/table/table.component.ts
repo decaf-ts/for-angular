@@ -255,14 +255,19 @@ export class TableComponent extends ListComponent implements OnInit {
       if (!this.filterBy) {
         this.filterBy = pk as keyof Model;
       }
+      const title = Object.entries(this.mapper).find(([_, value]) => value.sequence === 0)?.[0] || this.filterBy;
+
       if (!this.filterOptionsMapper) {
-        this.filterOptionsMapper = (item) => ({
-          title: `${item[pk]}`,
-          description: `${item[pk]}`,
-          uid: `${item[this.filterBy]}`,
-        });
+        this.filterOptionsMapper = (item) => {
+          // parse options to SelectOption shape
+          return {
+            text: `${item[title]}`,
+            value: `${item[this.filterBy]}`,
+          };
+        };
       }
     };
+
     if (typeof this.filterModel === 'function') {
       this.filterOptions = await this.filterModel();
     } else {
@@ -270,6 +275,7 @@ export class TableComponent extends ListComponent implements OnInit {
       if (repo) {
         const { pk } = repo;
         getFilterOptionsMapper(pk);
+
         // const query = await repository.select().execute();
         // this.filterOptions = query.map((item) => this.filterOptionsMapper(item));
       }
@@ -358,10 +364,10 @@ export class TableComponent extends ListComponent implements OnInit {
    * @param {KeyValue[]} data - Raw row objects returned by the data source.
    * @return {Promise<KeyValue[]>} Array of structured row objects.
    */
-  override async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
-    // if ((this._data as [])?.length && data?.length === (this._data as [])?.length) {
-    //   return this._data as KeyValue[];
-    // }
+  override async mapResults(data: KeyValue[], remap: boolean = false): Promise<KeyValue[]> {
+    if (!remap && (this._data as [])?.length && data?.length === (this._data as [])?.length) {
+      return this._data as KeyValue[];
+    }
     this._data = [...data];
     if (!data || !data.length) return [];
     return await Promise.all(
@@ -445,10 +451,16 @@ export class TableComponent extends ListComponent implements OnInit {
     event.preventDefault();
     event.stopImmediatePropagation();
     const title = (await this.translate(`${this.locale}.filter_by`)) as string;
+
     const modal = await getNgxSelectOptionsModal(
       title,
       this.filterModel as string | Model,
-      { mapper: this.filterOptionsMapper, pk: this.filterBy, locale: this.locale ?? undefined },
+      {
+        mapper: this.filterOptionsMapper || this.mapper,
+        pk: this.filterBy,
+        modelName: this.modelName,
+        locale: this.locale ?? undefined,
+      },
       this.filterBy || 'tableComponentFilter',
       this.injector
     );

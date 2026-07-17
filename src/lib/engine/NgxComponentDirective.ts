@@ -215,7 +215,7 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  mapper: Record<string, string> | FunctionLike | Record<string, FunctionLike> = {};
+  mapper: Record<string, string> | FunctionLike | Record<string, FunctionLike> | Record<string, KeyValue> = {};
 
   /**
    * @description Available CRUD operations for this component instance.

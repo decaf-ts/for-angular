@@ -1,7 +1,7 @@
 @if (title || description) {
   <ion-item-sliding>
     <ion-item
-      [id]="uid"
+      [id]="option ? value : uid"
       [lines]="lines"
       [button]="!operations?.length ? false : button"
       [class]="className"
@@ -53,6 +53,7 @@
             }
             @if (description) {
               <div
+                [id]="description?.textContent ?? description"
                 class="dcf-description"
                 [innerHTML]="description"
               ></div>

@@ -351,12 +351,11 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    */
   async ngOnInit(): Promise<void> {
     const option = this.option;
-
     if (option && option?.title) {
       this.value = this.title = option.title;
-      // if (option?.description) {
-      //   this.description = option.description;
-      // }
+      if (option?.description && option.description !== this.value) {
+        this.description = option.description;
+      }
     } else {
       const item = this.item as KeyValue;
       const mapper =
