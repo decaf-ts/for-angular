@@ -127,6 +127,7 @@ export class GraphRendererComponent {
     ['core.flow.return', GraphNodeTemplateComponent],
     ['core.flow.code', GraphNodeTemplateComponent],
     ['core.flow.log', GraphNodeTemplateComponent],
+    ['core.flow.break', GraphNodeTemplateComponent],
     // Agent node (DECAF-32 §21.3)
     ['core.agent', GraphNodeTemplateComponent],
     ['value', GraphBoundaryNodeTemplateComponent],

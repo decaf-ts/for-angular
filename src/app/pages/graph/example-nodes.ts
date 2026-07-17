@@ -1,6 +1,6 @@
 import { Model, model, required } from '@decaf-ts/decorator-validation';
 import { uielement } from '@decaf-ts/ui-decorators';
-import { input, node, output } from '@decaf-ts/ui-decorators/graph';
+import { connection, input, node, output } from '@decaf-ts/ui-decorators/graph';
 import type { GraphDemoEdgeBlueprint } from '../../../graph/types';
 import { buildForeachBodyWorkflow, buildLoopBodyWorkflow } from './loop-body-workflows';
 
@@ -9,17 +9,18 @@ import { buildForeachBodyWorkflow, buildLoopBodyWorkflow } from './loop-body-wor
   category: 'Loop',
   color: '#eab308',
   icon: 'ti-repeat',
-  width: 96,
-  height: 96,
+  width: 120,
+  height: 140,
   labels: ['loop', 'iteration', 'foreach'],
   metadata: {
     title: 'Foreach loop',
-    description: 'Iterates over an array input and executes the body once per item.',
+    description: 'Iterates over an array input and executes the body once per item (or per slice of items).',
     loop: {
       body: buildForeachBodyWorkflow(),
       maxIterations: 100,
       itemPort: 'item',
       resultPort: 'result',
+      slice: 1,
     },
   },
 })
@@ -31,9 +32,21 @@ export class GraphForeachLoopNode extends Model {
   items!: unknown[];
 
   @required()
-  @uielement('input', { label: 'Results', placeholder: 'Collected results' })
-  @output({ handle: 'results' })
-  results!: unknown[];
+  @uielement('input', { label: 'Slice size', placeholder: 'Items per iteration (default 1)' })
+  @input({ handle: 'slice' })
+  slice!: number;
+
+  @required()
+  @output({ handle: 'body' })
+  body!: unknown;
+
+  @required()
+  @connection({ handle: 'loop', connectionRules: { allowSelf: true, maxConnections: 1 } })
+  loop!: unknown;
+
+  @required()
+  @output({ handle: 'completed' })
+  completed!: unknown[];
 }
 
 @node('graph-while-loop-node', {

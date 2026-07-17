@@ -18,8 +18,8 @@ describe('graph adapter', () => {
     const summary = getGraphWorkflowSummary(TextPipelineWorkflow as never);
 
     expect(summary).toMatchObject({
-      totalNodes: 8,
-      totalEdges: 9,
+      totalNodes: 6,
+      totalEdges: 5,
       totalInputs: 2,
       totalOutputs: 1,
     });
@@ -27,8 +27,8 @@ describe('graph adapter', () => {
       expect.arrayContaining([
         expect.objectContaining({ kind: 'workflow', count: 1 }),
         expect.objectContaining({ kind: 'core.flow.code', count: 1 }),
-        expect.objectContaining({ kind: 'core.flow.switch', count: 1 }),
-        expect.objectContaining({ kind: 'core.flow.log', count: 3 }),
+        expect.objectContaining({ kind: 'core.loop.foreach', count: 1 }),
+        expect.objectContaining({ kind: 'core.flow.log', count: 1 }),
         expect.objectContaining({ kind: 'value', count: 1 }),
       ])
     );
@@ -37,12 +37,8 @@ describe('graph adapter', () => {
         'count',
         'text',
         'lines',
-        'short',
-        'long',
-        'default',
-        'short-result',
-        'long-result',
-        'default-result',
+        'results',
+        'final-result',
       ])
     );
   });
@@ -51,7 +47,7 @@ describe('graph adapter', () => {
     const viewModel = buildGraphRendererViewModel(TextPipelineWorkflow as never);
 
     expect(viewModel.inputs).toHaveLength(2);
-    expect(viewModel.nodes).toHaveLength(5);
+    expect(viewModel.nodes).toHaveLength(3);
     expect(viewModel.workflowOutputs).toHaveLength(1);
     expect(viewModel.inputs[0]).toMatchObject({
       id: 'input-count',
@@ -92,8 +88,8 @@ describe('graph adapter', () => {
   it('builds an ng-diagram model for the workflow root', () => {
     const model = buildGraphRendererModel(TextPipelineWorkflow as never, TestBed.inject(Injector));
 
-    expect(model.getNodes()).toHaveLength(7);
-    expect(model.getEdges()).toHaveLength(6);
+    expect(model.getNodes()).toHaveLength(5);
+    expect(model.getEdges()).toHaveLength(4);
     expect(model.getNodes()[0]).toMatchObject({
       id: 'input-count',
       type: 'value',
