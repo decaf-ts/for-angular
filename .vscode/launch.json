@@ -13,13 +13,23 @@
       "name": "PDM - Chrome Debug",
       "type": "chrome",
       "request": "launch",
-      "url": "https://ew-frontend-pdm.ptp.internal/"
+      "url": "https://ew-frontend-pdm.ptp.internal/",
+      "runtimeArgs": [
+        "--ignore-certificate-errors",
+        "--ignore-urlfetcher-cert-requests",
+        "--allow-insecure-localhost"
+      ]
     },
     {
       "name": "PTP - Chrome Debug",
       "type": "chrome",
       "request": "launch",
-      "url": "https://ew-frontend.ptp.internal/"
+      "url": "https://ew-frontend.ptp.internal/",
+      "runtimeArgs": [
+        "--ignore-certificate-errors",
+        "--ignore-urlfetcher-cert-requests",
+        "--allow-insecure-localhost"
+      ]
     },
     {
       "name": "ng serve",

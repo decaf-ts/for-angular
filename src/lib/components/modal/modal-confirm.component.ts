@@ -112,6 +112,9 @@ export class ModalConfirmComponent extends ModalComponent implements OnInit {
       this.confirmCode = generateRandomValue(6).toLowerCase();
       this.showConfirmButton = true;
       this.allowSubmit = false;
+    } else {
+      this.allowSubmit = true;
+      this.showConfirmButton = true;
     }
     this.changeDetectorRef.detectChanges();
 

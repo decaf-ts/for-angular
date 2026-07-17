@@ -21,7 +21,7 @@ import { BaseComponentProps } from '../engine/constants';
 import { IComponentConfig, IFormComponentProperties } from '../engine/interfaces';
 import { FieldUpdateMode, FormParent, FormParentGroup, KeyValue } from '../engine/types';
 import { ValidatorFactory } from '../engine/ValidatorFactory';
-import { cleanSpaces, dateFromString } from '../utils/helpers';
+import { asLength, cleanSpaces, dateFromString } from '../utils/helpers';
 
 /**
  * @description Service for managing Angular forms and form controls.
@@ -624,16 +624,10 @@ export class NgxFormService {
     props: IFormComponentProperties,
     parentProps?: IFormComponentProperties
   ): FormParent {
-    const componentPages = (
-      typeof props?.pages === Primitives.NUMBER ? props?.pages : (props?.pages as IPagedComponentProperties[])?.length
-    ) as number;
-    const parentPages = (
-      typeof parentProps?.pages === Primitives.NUMBER
-        ? parentProps?.pages
-        : (parentProps?.pages as IPagedComponentProperties[])?.length
-    ) as number;
+    const componentPages = asLength(props?.pages as number | IPagedComponentProperties[] | undefined);
+    const parentPages = asLength(parentProps?.pages as number | IPagedComponentProperties[] | undefined);
 
-    const isFormArray = (componentPages && componentPages >= 1) || props.multiple === true;
+    const isFormArray = componentPages >= 1 || props.multiple === true;
     let form = this.createForm(id, isFormArray, true);
 
     if (parentPages && parentPages > 0) {

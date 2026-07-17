@@ -6,14 +6,13 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IonItem, IonCheckbox, IonLabel, IonText, IonInput } from '@ionic/angular/standalone';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { timer } from 'rxjs';
 import { Dynamic } from 'src/lib/engine';
-import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { CrudFieldComponent } from 'src/lib/components';
 import { windowEventEmitter } from 'src/lib/utils/helpers';
 
@@ -29,7 +28,7 @@ import { windowEventEmitter } from 'src/lib/utils/helpers';
     IonItem,
     IonLabel,
     IonText,
-    ForAngularCommonModule,
+    ReactiveFormsModule,
   ],
   standalone: true,
 })

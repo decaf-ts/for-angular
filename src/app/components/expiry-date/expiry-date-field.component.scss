@@ -132,35 +132,6 @@ ion-item {
 }
 
 // Customizando o checkbox
-ion-checkbox::part(container) {
-  border: 2px solid var(--dcf-color-primary);
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
-  border-radius: var(--dcf-border-radius-sm);
-  padding: 3px;
-}
-
-ion-checkbox {
-  --size: 1.5rem;
-  --checkbox-background-checked: var(--dcf-color-primary);
-  --checkmark-width: 2px;
-}
-
-.dcf-checkbox-group {
-  width: 100%;
-  .dcf-label {
-    // margin-left: .5rem;
-    font-weight: 600;
-    ~ ion-item {
-      margin-top: 0.5rem;
-      --inner-padding-start: 0.75rem;
-    }
-  }
-  + .dcf-helper {
-    padding-left: 0.75rem;
-    position: relative;
-  }
-}
 
 .dcf-input-error {
   position: absolute;

@@ -42,11 +42,10 @@
               (click)="handleReset()"
             >
               @if (buttons.clear?.icon) {
-                <ion-icon
-                  aria-hidden="true"
+                <ngx-decaf-icon
                   [slot]="buttons.clear?.iconSlot"
                   [name]="buttons.clear?.icon"
-                ></ion-icon>
+                />
               }
               {{
                 locale + '.' + (allowClear ? buttons.clear?.text : 'back')
@@ -61,11 +60,10 @@
             [expand]="action ? 'block' : 'default'"
           >
             @if (buttons.submit.icon) {
-              <ion-icon
-                aria-hidden="true"
+              <ngx-decaf-icon
                 [slot]="buttons.submit.iconSlot"
                 [name]="buttons.submit.icon"
-              ></ion-icon>
+              />
             }
             {{
               action ? action : (locale + '.' + buttons.submit.text | translate)
@@ -116,11 +114,10 @@
           type="button"
         >
           @if (buttons.submit.icon) {
-            <ion-icon
-              aria-hidden="true"
+            <ngx-decaf-icon
               [slot]="buttons.submit.iconSlot"
               [name]="buttons.submit.icon"
-            ></ion-icon>
+            />
           }
           {{ locale + '.delete' | translate }}
         </ion-button>
@@ -132,11 +129,10 @@
       <div>
         <ion-button type="submit">
           @if (buttons.submit.icon) {
-            <ion-icon
-              aria-hidden="true"
+            <ngx-decaf-icon
               [slot]="buttons.submit.iconSlot"
               [name]="buttons.submit.icon"
-            ></ion-icon>
+            />
           }
           {{
             action
@@ -154,11 +150,10 @@
         (click)="handleReset()"
       >
         @if (buttons.clear?.icon) {
-          <ion-icon
-            aria-hidden="true"
+          <ngx-decaf-icon
             [slot]="buttons.clear?.iconSlot"
             [name]="buttons.clear?.icon"
-          ></ion-icon>
+          />
         }
         {{
           !translatable

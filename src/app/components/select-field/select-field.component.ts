@@ -1,5 +1,5 @@
-import { Component, HostListener, OnDestroy } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { AfterViewInit, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Condition } from '@decaf-ts/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
@@ -15,16 +15,14 @@ import {
   SelectCustomEvent,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { take, timer } from 'rxjs';
 import { LeafletType } from 'src/app/ew/fabric';
 import { Batch } from 'src/app/ew/fabric/Batch';
 import { Product } from 'src/app/ew/fabric/Product';
 import { getDoucumentOptions } from 'src/app/ew/utils/helpers';
 import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.component';
 import { IconComponent } from 'src/lib/components/icon/icon.component';
-import { getModelAndRepository, SelectOption } from 'src/lib/engine';
+import { getModelAndRepository } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
-import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/helpers';
 
 @Dynamic()
@@ -34,7 +32,7 @@ import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/help
   styleUrls: ['./select-field.component.scss'],
   imports: [
     TranslatePipe,
-    ForAngularCommonModule,
+    ReactiveFormsModule,
     IonItem,
     IonButton,
     IonLabel,
@@ -46,8 +44,12 @@ import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/help
 
   standalone: true,
 })
-export class AppSelectFieldComponent extends CrudFieldComponent implements OnDestroy {
+export class AppSelectFieldComponent extends CrudFieldComponent implements AfterViewInit, OnInit, OnDestroy {
   set lastProduct(product: Product) {
+    const lastProduct = this.lastProduct;
+    if (lastProduct && lastProduct.productCode === product.productCode) {
+      product = { ...product, ...lastProduct } as Product;
+    }
     setOnWindow('_lastProduct', {
       inventedName: product.inventedName,
       nameMedicinalProduct: product.nameMedicinalProduct,
@@ -58,7 +60,13 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
   get lastProduct(): Product | undefined {
     return getOnWindow('_lastProduct') as Product | undefined;
   }
-
+  override async ngOnInit(): Promise<void> {
+    // keep this inline to ensure it runs before any potential async operations in the parent ngOnInit and disable productCode filed
+    if (this.name === 'productCode' && this.operation !== OperationKeys.CREATE) {
+      this.readonly = true;
+    }
+    await super.ngOnInit();
+  }
   override async onDestroy(): Promise<void> {
     super.onDestroy();
     this.setValue(undefined);
@@ -70,80 +78,88 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
     }
 
     await super.ngAfterViewInit();
-    const batchNumber = this.routerService.getQueryParamValue('batchNumber');
-    const productCode = this.routerService.getQueryParamValue('productCode');
 
-    if (this.name === 'productCode') {
-      if (this.operation === OperationKeys.CREATE) {
-        if (productCode) {
-          this.setValue(productCode as string);
+    if ([OperationKeys.CREATE, OperationKeys.UPDATE].includes(this.operation)) {
+      const batchNumber = this.routerService.getQueryParamValue('batchNumber');
+      const productCode = this.routerService.getQueryParamValue('productCode');
+      if (this.operation === OperationKeys.CREATE && !batchNumber) {
+        if (this.name === 'productCode') {
+          if (this.operation === OperationKeys.CREATE) {
+            if (productCode) {
+              this.setValue(productCode as string);
+              this.readonly = true;
+            }
+
+            if (batchNumber || this.value) {
+              // this.disabled = true;
+              this.changeDetectorRef.detectChanges();
+            }
+          }
+          if (this.value) {
+            windowEventEmitter(ComponentEventNames.Change, {
+              source: this.name,
+              value: this.value,
+            });
+          }
         }
+      }
 
-        if (batchNumber || this.value) {
+      if (this.name === 'batchNumber') {
+        this.required = false;
+        if (this.operation === OperationKeys.CREATE) {
           this.disabled = true;
-          this.changeDetectorRef.detectChanges();
+          if (batchNumber) {
+            await this.readBatchById(batchNumber);
+            this.readonly = true;
+          }
+
+          if (batchNumber || this.value) {
+            this.disabled = false;
+            this.changeDetectorRef.detectChanges();
+          }
+        }
+        if ((this.value as string)?.length) {
+          if (this.formGroup instanceof FormGroup) {
+            this.formGroup?.enable();
+          }
+
+          if (this.operation === OperationKeys.CREATE) {
+            windowEventEmitter(ComponentEventNames.Change, {
+              source: this.name,
+              value: this.value,
+            });
+            // if (this.component?.nativeElement) {
+            //   const timerSubscription = timer(200)
+            //     .pipe(take(1))
+            //     .subscribe(() => {
+            //       this.component.nativeElement.ionChange.emit({
+            //         source: this.name,
+            //         value: this.value,
+            //         bubbles: batchNumber ? false : true,
+            //       });
+
+            //       timerSubscription.unsubscribe();
+            //     });
+            // }
+          }
         }
       }
-      if (this.value) {
-        windowEventEmitter(ComponentEventNames.Change, {
-          source: this.name,
-          value: this.value,
-        });
-      }
-    }
 
-    if (this.name === 'batchNumber') {
-      this.required = false;
-      if (this.operation === OperationKeys.CREATE) {
-        this.disabled = true;
+      if (this.name === 'productCode') {
         if (batchNumber) {
-          await this.readBatchById(batchNumber);
-        }
-
-        if (batchNumber || this.value) {
-          this.disabled = false;
-          this.changeDetectorRef.detectChanges();
+          this.readonly = true;
         }
       }
-      if ((this.value as string)?.length) {
+
+      if (this.name === 'leafletType') {
+        if (batchNumber) {
+          this.readonly = true;
+        }
+      }
+      if (this.name === 'epiMarket' && !this.value) {
         if (this.formGroup instanceof FormGroup) {
-          this.formGroup?.enable();
+          this.value = this.formGroup.get(this.name)?.value;
         }
-        // windowEventEmitter(ComponentEventNames.Change, {
-        //   source: this.name,
-        //   value: this.value,
-        // });
-      }
-
-      if (this.component?.nativeElement) {
-        const timerSubscription = timer(200)
-          .pipe(take(1))
-          .subscribe(() => {
-            if (this.value) {
-              this.component.nativeElement.ionChange.emit({
-                source: this.name,
-                value: this.value,
-                bubbles: batchNumber ? false : true,
-              });
-            }
-
-            if (!productCode && [OperationKeys.CREATE].includes(this.operation)) {
-              const productCode = this.formGroup?.get('productCode')?.value;
-              if (productCode) {
-                this.lastProduct = { productCode } as Product;
-                this.readonly = this.disabled = false;
-                this.formGroup?.enable();
-              }
-            }
-
-            timerSubscription.unsubscribe();
-          });
-      }
-    }
-
-    if (this.name === 'epiMarket' && !this.value) {
-      if (this.formGroup instanceof FormGroup) {
-        this.value = this.formGroup.get(this.name)?.value;
       }
     }
 
@@ -167,6 +183,9 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
     if (source !== this.name) {
       if (source === 'productCode') {
         if (this.name === 'batchNumber') {
+          if (this.value) {
+            this.setValue('');
+          }
           await this.readBatchByProductCode(value);
         }
         if (['inventedName', 'nameMedicinalProduct'].includes(this.name)) {
@@ -175,15 +194,16 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
             this.value = product[this.name as keyof Product] as string;
           }
         }
+
+        if (this.name === 'leafletType') {
+          if (this.value !== LeafletType.leaflet) {
+            this.setValue(LeafletType.leaflet);
+          }
+        }
       }
       if (source === 'batchNumber') {
         if (this.name === 'leafletType') {
-          this.options = (this.options as SelectOption[]).map((option) => {
-            if (option.value === LeafletType.prescribingInfo) {
-              option.disabled = value !== '';
-            }
-            return option;
-          });
+          await this.getLeafletTypeOptions(value !== '' ? 'batch' : 'product');
         }
         if (this.name === 'epiMarket') {
           if (value !== '') this.value = '';
@@ -195,12 +215,9 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
           const { productCode } = this.lastProduct || {};
           if (currentValue && currentValue !== productCode) {
             await this.setProductValue(value, bubbles);
-          } else if (productCode && !bubbles && this.value !== productCode) {
+          } else if (productCode && !bubbles) {
             this.setValue(productCode);
           }
-        }
-        if (this.name === 'type') {
-          await this.filterTypeOptions(value !== '' ? 'batch' : 'product');
         }
       }
     }
@@ -266,11 +283,11 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements OnDes
     }
   }
 
-  async filterTypeOptions(type: 'product' | 'batch' = 'product') {
-    const value = this.value;
+  async getLeafletTypeOptions(type: 'product' | 'batch' = 'product') {
     this.options = getDoucumentOptions(type);
-    await this.getOptions();
-    this.value = value;
+    this.component.nativeElement.ionChange.emit({
+      value: LeafletType.leaflet,
+    });
   }
 
   override handleClearValue(event: Event): void {

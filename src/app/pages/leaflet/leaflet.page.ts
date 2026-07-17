@@ -3,10 +3,9 @@ import { OperationKeys } from '@decaf-ts/db-decorators';
 import { IonContent } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.component';
-import { ContainerComponent } from 'src/app/components/container/container.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { Leaflet } from 'src/app/ew/fabric/Leaflet';
-import { TableComponent } from 'src/lib/components';
+import { ContainerComponent, TableComponent } from 'src/lib/components';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { NgxModelPageDirective } from 'src/lib/engine';
 

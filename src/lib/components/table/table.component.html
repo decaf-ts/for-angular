@@ -179,12 +179,12 @@
         [modelId]="modelId"
         [buttonLink]="empty?.link ?? undefined"
         [borders]="borders"
-        [icon]="(item?.icon ?? 'folder-open-outline') || empty.icon"
+        [icon]="(item?.icon ?? 'ti-folder-open') || empty.icon"
         className="dcf-empty-data"
       />
     } @else {
       <ngx-decaf-empty-state
-        icon="search-outline"
+        icon="ti-search"
         [model]="empty?.showButton ? model : undefined"
         [route]="route"
         [modelId]="modelId"
@@ -205,16 +205,14 @@
 </div>
 
 <div class="dcf-table-pagination">
-  @if (
-    (pages > 0 || bookMarkPagination) && (data?.length >= limit || page > 1)
-  ) {
+  @if (type === 'paginated' || bookMarkPagination) {
     <ngx-decaf-pagination
-      [table]="component"
-      [bookMarkPagination]="bookMarkPagination"
-      [nextBookmark]="paginator?.['_bookmark']"
-      [totalPages]="pages"
       [disablePages]="disablePaginationPages"
       [truncatePages]="truncatePaginationPages"
+      [totalPages]="pages"
+      [bookMarkPagination]="bookMarkPagination"
+      [nextBookmark]="paginator?.['_bookmark']"
+      [table]="component"
       [current]="page"
       (clickEvent)="handlePaginate($event)"
     />

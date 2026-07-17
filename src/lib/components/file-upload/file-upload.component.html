@@ -44,7 +44,7 @@
             @if (!previewFile) {
               @if (showIcon) {
                 <ngx-decaf-icon
-                  name="cloud-upload-outline"
+                  name="ti-cloud-upload"
                   size="large"
                 />
               }
@@ -188,8 +188,8 @@
                             (click)="preview(file?.source || file, file.type)"
                             [name]="
                               file.type.includes('image')
-                                ? 'image-outline'
-                                : 'document-text-outline'
+                                ? 'ti-photo'
+                                : 'ti-file-text'
                             "
                           />
                           <ngx-decaf-icon
@@ -279,8 +279,8 @@
                       [slot]="'icon-only'"
                       [name]="
                         file.type.includes('image')
-                          ? 'image-outline'
-                          : 'document-text-outline'
+                          ? 'ti-photo'
+                          : 'ti-file-text'
                       "
                     />
                   </div>

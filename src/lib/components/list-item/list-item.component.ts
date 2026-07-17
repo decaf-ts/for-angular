@@ -9,6 +9,7 @@
  * @link {@link ListItemComponent}
  */
 
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -26,7 +27,6 @@ import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import {
   IonButton,
   IonContent,
-  IonIcon,
   IonItem,
   IonItemOption,
   IonItemOptions,
@@ -40,9 +40,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Dynamic } from '../../engine/decorators';
 import { IListItemCustomEvent } from '../../engine/interfaces';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
-import { KeyValue, StringOrBoolean } from '../../engine/types';
-import '../../utils/registerIonicons';
-import { getWindowWidth, removeFocusTrap, stringToBoolean, windowEventEmitter } from '../../utils/helpers';
+import { FunctionLike, KeyValue } from '../../engine/types';
+import { getWindowWidth, removeFocusTrap, windowEventEmitter } from '../../utils/helpers';
 import { IconComponent } from '../icon/icon.component';
 
 /**
@@ -56,7 +55,7 @@ import { IconComponent } from '../icon/icon.component';
  * @param {Record<string, any>} item - The data item to be displayed in the list item.
  * @param {string} icon - The name of the icon to be displayed.
  * @param {'start' | 'end'} [iconSlot='start'] - The position of the icon within the item.
- * @param {StringOrBoolean} [button=true] - Determines if the item should behave as a button.
+ * @param {boolean} [button=true] - Determines if the item should behave as a button.
  * @param {string} [title] - The main title of the list item.
  * @param {string} [description] - A description for the list item.
  * @param {string} [info] - Additional information for the list item.
@@ -95,9 +94,9 @@ import { IconComponent } from '../icon/icon.component';
     IonListHeader,
     IonItem,
     IonItemSliding,
+    CommonModule,
     IonItemOptions,
     IonItemOption,
-    IonIcon,
     IonLabel,
     IonButton,
     IonContent,
@@ -124,6 +123,9 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
 
   @Input()
   actionsType: 'popover' | 'inline' = 'inline';
+
+  @Input()
+  option!: { title: string; description?: string };
 
   /**
    * @description Controls the display of lines around the list item.
@@ -181,12 +183,12 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    * hover effects, click handling, and appropriate accessibility attributes.
    * When false, the item is displayed as static content without interactive behavior.
    *
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default true
    * @memberOf ListItemComponent
    */
   @Input()
-  button: StringOrBoolean = true;
+  button: boolean = true;
 
   /**
    * @description The main title text displayed in the list item.
@@ -223,6 +225,18 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    */
   @Input()
   info?: string;
+
+  /**
+   * @description Additional information text for the list item.
+   * @summary Displays supplementary information that provides extra context
+   * about the item. This could include metadata, status information, or
+   * other relevant details that don't fit in the title or description.
+   *
+   * @type {string}
+   * @memberOf ListItemComponent
+   */
+  @Input()
+  override mapper: Record<string, string> | FunctionLike | Record<string, FunctionLike> = {};
 
   /**
    * @description Sub-information text displayed in the list item.
@@ -336,17 +350,28 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
    * @memberOf ListItemComponent
    */
   async ngOnInit(): Promise<void> {
-    const item = this.item as KeyValue;
-    if (typeof item === 'object' && 'mapper' in item) {
-      await this.parseItem(item, item['mapper']);
+    const option = this.option;
+    if (option && option?.title) {
+      this.value = this.title = option.title;
+      if (option?.description && option.description !== this.value) {
+        this.description = option.description;
+      }
     } else {
-      await this.parseItem(item);
+      const item = this.item as KeyValue;
+      const mapper =
+        (this.mapper as KeyValue) && Object.keys(this.mapper).length
+          ? (this.mapper as KeyValue)
+          : typeof item === 'object' && 'mapper' in item
+            ? (item['mapper'] as KeyValue)
+            : undefined;
+      await this.parseItem(item, mapper);
     }
 
     this.showSlideItems = this.enableSlideItems();
-    this.button = stringToBoolean(this.button);
     this.className = `${this.className}  dcf-flex dcf-flex-middle grid-item`;
-    if (this.operations?.length) this.className += ` action`;
+    if (this.operations?.length) {
+      this.className += ` action`;
+    }
     this.windowWidth = getWindowWidth() as number;
   }
 
@@ -434,23 +459,30 @@ export class ListItemComponent extends NgxComponentDirective implements OnInit, 
     if (this.actionMenuOpen) {
       await this.actionMenuComponent.dismiss();
     }
-    const uid = this.model ? (this.model as KeyValue)[this.pk] : this.uid;
+    const model = this.model as KeyValue;
+    const uid = this.option
+      ? model?.['value'] || model?.[this.pk]
+      : model && this.pk
+        ? (model?.[this.pk] ?? this.value)
+        : this.uid;
     // forcing trap focus
     removeFocusTrap();
-    if (!this.route || this.emitEvent) {
-      const event = {
-        target: target,
-        action,
-        pk: this.pk,
-        data: uid,
-        name: ComponentEventNames.Click,
-        component: this.componentName,
-      } as IListItemCustomEvent;
-      windowEventEmitter(`ListItem${ComponentEventNames.Click}`, event);
-      return this.clickEvent.emit(event);
-    }
+    if (uid) {
+      if (!this.route || this.emitEvent || this.isModalChild) {
+        const event = {
+          target: target,
+          action,
+          pk: this.pk,
+          data: uid,
+          name: ComponentEventNames.Click,
+          component: this.componentName,
+        } as IListItemCustomEvent;
+        windowEventEmitter(`ListItem${ComponentEventNames.Click}`, event);
+        return this.clickEvent.emit(event);
+      }
 
-    await this.redirect(action, `${this.uid}`);
+      await this.redirect(action, `${uid}`);
+    }
   }
 
   /**

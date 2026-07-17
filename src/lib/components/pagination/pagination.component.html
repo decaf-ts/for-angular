@@ -28,10 +28,7 @@
           [class.dcf-disabled]="current === 1"
           [class.dcf-hidden]="bookMarkPagination && nextBookmark === 'nil'"
         >
-          <ion-icon
-            name="chevron-back-outline"
-            aria-hidden="true"
-          ></ion-icon>
+          <ngx-decaf-icon name="ti-chevron-left" />
 
           @if (disablePages) {
             {{ locale + '.previous' | translate }}
@@ -39,7 +36,12 @@
         </div>
 
         @if (!disablePages) {
-          @for (page of pages; track page) {
+          @for (
+            page of pages;
+            track page['index'] !== null
+              ? 'page-' + page['index']
+              : 'sep-' + $index
+          ) {
             <div
               tabindex="0"
               [class]="page['class']"
@@ -55,6 +57,7 @@
           pages?.length > 1 || (bookMarkPagination && nextBookmark !== 'nil')
         ) {
           <div
+            aria-label="next"
             tabindex="0"
             [class]="disablePages ? 'dcf-nav dcf-nav-next' : ''"
             (click)="next()"
@@ -66,10 +69,7 @@
             @if (disablePages) {
               {{ locale + '.next' | translate }}
             }
-            <ion-icon
-              name="chevron-forward-outline"
-              aria-hidden="true"
-            ></ion-icon>
+            <ngx-decaf-icon name="ti-chevron-right" />
           </div>
         }
       </div>

@@ -50,19 +50,6 @@ export class ContainerComponent extends NgxComponentDirective implements OnInit 
    */
   flex = input<boolean>(true);
 
-  // /**
-  //  * @description Determines if the container should expand to fill available space.
-  //  * @summary When true, applies expansion classes for width, making the container
-  //  * take up all available horizontal space. When false, the container's width is
-  //  * determined by the size property.
-  //  *
-  //  * @type {StringOrBoolean}
-  //  * @default false
-  //  * @memberOf ContainerComponent
-  //  */
-  // @Input()
-  // expand: StringOrBoolean = false;
-
   /**
    * @description Determines if the container should take up the full viewport height.
    * @summary When true, applies the viewport height class, making the container
@@ -99,32 +86,12 @@ export class ContainerComponent extends NgxComponentDirective implements OnInit 
 
   /**
    * @description Initializes the component after Angular first displays the data-bound properties.
-   * @summary Sets up the menu controller based on the hasSideMenu property, processes boolean inputs
-   * to handle string representations, and applies appropriate CSS classes based on the component's
-   * configuration. This method builds the final className by combining all the layout options.
-   *
-   * @mermaid
-   * sequenceDiagram
-   *   participant A as Angular Lifecycle
-   *   participant C as ContainerComponent
-   *   participant M as MenuController
-   *
-   *   A->>C: ngOnInit()
-   *   C->>C: Process hasSideMenu
-   *   C->>M: enable(stringToBoolean(hasSideMenu))
-   *   C->>C: Process expand input
-   *   C->>C: Process flex input
-   *   C->>C: Build size class
-   *   Note over C: Add width class based on expand or size
-   *   C->>C: Check if flex is enabled
-   *   Note over C: Add flex classes if needed
-   *   C->>C: Process fullscreen input
-   *   Note over C: Add height-viewport class if fullscreen
+   * @summary Builds the final `className` by combining the flex, position and size options into
+   * the CSS classes consumed by the template.
    *
    * @memberOf ContainerComponent
    */
   ngOnInit() {
-    // this.expand = stringToBoolean(this.expand);
     if (this.flex() && !this.className?.includes('dcf-flex-')) {
       this.className += ` dcf-flex dcf-flex-${this.position()}`;
     }

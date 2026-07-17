@@ -1,20 +1,9 @@
-import {
-  Model,
-  model,
-  ModelArg,
-  required,
-} from '@decaf-ts/decorator-validation';
-import {
-  HTML5InputTypes,
-  uielement,
-  uilistmodel,
-  uilistprop,
-  uimodel,
-} from '@decaf-ts/ui-decorators';
 import { pk } from '@decaf-ts/core';
 import { OperationKeys, timestamp } from '@decaf-ts/db-decorators';
+import { Model, model, ModelArg, required } from '@decaf-ts/decorator-validation';
+import { HTML5InputTypes, uielement, uilistmodel, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
 
-@uilistmodel('ngx-decaf-list-item', { icon: 'person-outline' })
+@uilistmodel('ngx-decaf-list-item', { icon: 'ti-user' })
 @uimodel('ngx-decaf-crud-form', { rows: 1, cols: 1 })
 @model()
 export class EmployeeModel extends Model {
@@ -23,7 +12,7 @@ export class EmployeeModel extends Model {
     label: 'employee.id.label',
     placeholder: 'employee.id.placeholder',
   })
- @pk({ type: Number })
+  @pk({ type: Number })
   id!: number;
 
   @required()

@@ -136,8 +136,6 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    */
   private static _instance: Type<unknown> | undefined;
 
-  // private static _projectable: boolean = true
-
   /**
    * @description Parent component properties for child component inheritance.
    * @summary Static property that stores parent component properties that should be
@@ -233,24 +231,11 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     const { inputs: possibleInputs } = componentMetadata;
     const inputs = { ...fieldDef.props };
 
-    // const unmappedKeys = Object.keys(inputs).filter((input) => {
-    //   const isMapped = possibleInputs.find(({ propName }) => propName === input);
-    //   if (!isMapped) delete inputs[input];
-    //   return !isMapped;
-    // });
-    // if (unmappedKeys.length > 0 && isDevelopmentMode())
-    //   getLogger(this).warn(
-    //     `Unmapped input properties for component ${fieldDef.tag}: ${unmappedKeys.join(', ')}`,
-    //   );
     const operation = NgxRenderingEngine._operation;
 
     const hiddenOn = inputs?.hidden || [];
     if ((hiddenOn as string[]).includes(operation as string)) return { inputs, injector };
 
-    // const customTypes = (inputs as KeyValue)?.['customTypes'] || [];
-    // const hasFormRoot = Object.values(possibleInputs).some(({propName}) => propName ===  AngularEngineKeys.PARENT_FORM);
-    // if (hasFormRoot && !inputs?.[AngularEngineKeys.PARENT_FORM] && formGroup)
-    //   inputs[AngularEngineKeys.PARENT_FORM] = formGroup;
     if (operation !== OperationKeys.CREATE && (hiddenOn as string[]).includes(OperationKeys.CREATE)) {
       fieldDef.props = { ...fieldDef.props, ...{ readonly: true, type: HTML5InputTypes.TEXT } };
     }
@@ -262,11 +247,6 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     };
 
     if (fieldDef.rendererId) (result.inputs as Record<string, unknown>)['rendererId'] = fieldDef.rendererId;
-    // process children
-    // generating DOM
-    // const projectable = NgxRenderingEngine._projectable;
-    // const template = !projectable ? [] : vcr.createEmbeddedView(tpl, injector).rootNodes;
-    // const template = [];
     const hasChildren = Object.values(possibleInputs).some(({ propName }) => propName === AngularEngineKeys.CHILDREN);
     const hasModel = Object.values(possibleInputs).some(({ propName }) => propName === ModelKeys.MODEL);
     const componentInputs = Object.assign(
@@ -298,16 +278,6 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
           fieldDef.props?.['readonly'] ||
           (operation === OperationKeys.UPDATE &&
             ((child?.props?.hidden || []) as string[]).includes(OperationKeys.CREATE));
-        // const hiddenOn = (child?.props?.hidden || []) as string[];
-        // // moved to ui decorators
-        // if (child?.children?.length) {
-        //   child.children = child.children.filter(c => {
-        //     const hiddenOn = c?.props?.hidden || [];
-        //     if (!(hiddenOn as string[]).includes(operation as string))
-        //       return c
-        //   })
-        // }
-        // if (!hiddenOn?.length || !(hiddenOn as CrudOperations[]).includes(operation as CrudOperations))
         child.props['handlers'] = Object.keys(child.props?.['handlers'] || {}).length
           ? child.props?.['handlers']
           : handlers;

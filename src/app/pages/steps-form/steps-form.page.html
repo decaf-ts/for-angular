@@ -1,16 +1,16 @@
 <app-header [title]="title" />
 
 <ion-content [fullscreen]="true">
-   <main>
-    <app-container>
-       <ion-card class="dcf-card-default dcf-padding-small">
-       <ngx-decaf-model-renderer
+  <main>
+    <ngx-decaf-container>
+      <ion-card class="dcf-card-default dcf-padding-small">
+        <ngx-decaf-model-renderer
           [model]="model"
           [projectable]="false"
           (listenEvent)="handleSubmit($event)"
-          [globals]="globals">
-        </ngx-decaf-model-renderer>
-       </ion-card>
-    </app-container>
+          [globals]="globals"
+        ></ngx-decaf-model-renderer>
+      </ion-card>
+    </ngx-decaf-container>
   </main>
 </ion-content>

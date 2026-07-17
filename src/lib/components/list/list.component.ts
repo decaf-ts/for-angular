@@ -9,6 +9,7 @@
  * @link {@link ListComponent}
  */
 
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Condition, Observer, Paginator } from '@decaf-ts/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
@@ -42,8 +43,8 @@ import {
   IListItemCustomEvent,
   IPaginationCustomEvent,
 } from '../../engine/interfaces';
-import { DecafRepository, FunctionLike, KeyValue } from '../../engine/types';
-import { dateFromString, formatDate, isValidDate, stringToBoolean } from '../../utils/helpers';
+import { DecafRepository, KeyValue } from '../../engine/types';
+import { dateFromString, formatDate, isValidDate } from '../../utils/helpers';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { FilterComponent } from '../filter/filter.component';
@@ -132,6 +133,7 @@ import { SearchbarComponent } from '../searchbar/searchbar.component';
     IonButton,
     PaginationComponent,
     IonList,
+    CommonModule,
     IonItem,
     IonThumbnail,
     IonSkeletonText,
@@ -201,20 +203,6 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   @Input()
   data?: KeyValue[] | undefined = undefined;
-
-  /**
-   * @description The data source for the list component.
-   * @summary Specifies where the list should fetch its data from. This can be either:
-   * - A string URL or endpoint identifier
-   * - A function that returns data when called
-   * The component will call this source when it needs to load or refresh data.
-   *
-   * @type {string | FunctionLike}
-   * @required
-   * @memberOf ListComponent
-   */
-  @Input()
-  source!: string | FunctionLike;
 
   /**
    * @description Controls whether more data can be loaded.
@@ -409,7 +397,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    *   title: 'empty.title',
    *   subtitle: 'empty.subtitle',
    *   showButton: false,
-   *   icon: 'alert-circle-outline',
+   *   icon: 'ti-alert-circle',
    *   buttonText: 'locale.empty.button',
    *   link: ''
    * }
@@ -490,6 +478,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
   lastPage: number = 1;
 
   bookMarkPagination: boolean = false;
+
+  @Input()
+  customSource: boolean = false;
 
   /**
    * @description Event emitter for item click interactions.
@@ -577,13 +568,6 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
 
     this.limit = Number(this.limit);
     this.start = Number(this.start);
-
-    this.enableFilter = stringToBoolean(this.enableFilter);
-    this.inset = stringToBoolean(this.inset);
-    this.showRefresher = stringToBoolean(this.showRefresher);
-    this.loadMoreData = stringToBoolean(this.loadMoreData);
-    this.showSearchbar = stringToBoolean(this.showSearchbar);
-    this.disableSort = stringToBoolean(this.disableSort);
 
     if (!this.operations || !this.operations.includes(OperationKeys.CREATE)) this.createButton = false;
     if (typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)
@@ -697,13 +681,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    *   L->>L: refresh(event)
    *   L->>L: Set refreshing flag
    *   L->>L: Calculate start and limit
-   *   alt Using model
-   *     L->>D: getFromModel(force, start, limit)
-   *     D-->>L: Return data
-   *   else Using request
-   *     L->>D: getFromRequest(force, start, limit)
-   *     D-->>L: Return data
-   *   end
+   *   L->>D: getFromModel(force)
+   *   D-->>L: Return data
    *   L->>E: refreshEventEmit()
    *   alt Infinite scrolling mode
    *     L->>L: Check if reached last page
@@ -722,22 +701,14 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    */
   override async refresh(event: InfiniteScrollCustomEvent | RefresherCustomEvent | boolean = false): Promise<void> {
     await super.refresh();
-    //  if (typeof force !== 'boolean' && force.type === ComponentEventNames.BackButtonClickEvent) {
-    //    const {refresh} = (force as CustomEvent).detail;
-    //    if (!refresh)
-    //      return false;
-    //  }
     this.refreshing = true;
-    const start: number = this.page > 1 ? (this.page - 1) * this.limit : this.start;
-    const limit: number = this.page * (this.limit > 12 ? 12 : this.limit);
 
-    this.data = !this.model
-      ? await this.getFromRequest(!!event, start, limit)
-      : ((await this.getFromModel(!!event)) as KeyValue[]);
+    this.data = (await this.getFromModel(!!event)) as KeyValue[];
+
+    this.refreshEventEmit(this.data);
     if (this.isModalChild) {
       this.changeDetectorRef.detectChanges();
     }
-    this.refreshEventEmit(this.data);
     if (this.type === ListComponentsTypes.INFINITE) {
       if (this.page === this.pages) {
         if ((event as InfiniteScrollCustomEvent)?.target) (event as InfiniteScrollCustomEvent).target.complete();
@@ -842,20 +813,33 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       model = (await this._repository?.read(uid)) as Model;
     }
 
-    // const item: KeyValue = this.itemMapper((await this._repository?.read(uid)) || {}, this.mapper);
     this.data = [];
     this.changeDetectorRef.detectChanges();
-    for (const key in this.items as KeyValue[]) {
-      const child = this.items[key] as KeyValue;
-      if (`${child['uid']}`.trim() === `${uid}`.trim()) {
-        this.items[key] = Object.assign({}, child, this.itemMapper(model || {}, this.mapper), {
-          model: model || {},
-        });
-        break;
-      }
+    const items = this.items as KeyValue[];
+    const index = items.findIndex((item) => `${item['uid']}`.trim() === `${uid}`.trim());
+    if (index > -1) {
+      items[index] = Object.assign({}, items[index], this.itemMapper(model || {}, this.mapper), {
+        model: model || {},
+      });
     }
     this.data = [...this.items];
     this.changeDetectorRef.detectChanges();
+  }
+
+  /**
+   * @description Resolves a comparable primitive from a raw item's uid field.
+   * @summary The `uid` field on raw data items may be a plain primitive or an object
+   * shaped like `{ value }` (as produced by some repository primary key wrappers).
+   * Centralizes that narrowing so callers can compare uids without repeating the check.
+   *
+   * @param {unknown} uid - The raw uid value from a data item
+   * @returns {string | number} The comparable primitive uid value
+   * @private
+   * @memberOf ListComponent
+   */
+  private resolveUid(uid: unknown): string | number {
+    if (typeof uid === Primitives.STRING || typeof uid === Primitives.NUMBER) return uid as string | number;
+    return (uid as KeyValue)?.['value'];
   }
 
   /**
@@ -873,16 +857,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     if (!pk) {
       pk = this.pk;
     }
-    this.items = [
-      ...(this.data?.filter(({ uid }: KeyValue) => {
-        if (typeof uid === Primitives.STRING) {
-          return uid !== modelId;
-        } else {
-          const { value } = uid;
-          return value !== modelId;
-        }
-      }) || []),
-    ];
+    this.items = [...(this.data?.filter(({ uid }: KeyValue) => this.resolveUid(uid) !== modelId) || [])];
     this.data = [...this.items];
     if (!this.data.length) {
       this.searchValue = undefined;
@@ -914,7 +889,8 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * displayed data based on the search term. The behavior differs between infinite
    * and paginated modes to provide the best user experience for each mode.
    *
-   * @param {string | undefined} value - The search term or undefined to clear search
+   * @param {string | IFilterQuery | CustomEvent | undefined} rawValue - The search term, filter query,
+   * or a raw `CustomEvent` when triggered via the `window:searchbarEvent` broadcast; undefined clears the search
    * @returns {Promise<void>}
    *
    * @mermaid
@@ -933,7 +909,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * @memberOf ListComponent
    */
   @HostListener('window:searchbarEvent', ['$event'])
-  async handleSearch(value: string | IFilterQuery | undefined): Promise<void> {
+  async handleSearch(rawValue: string | IFilterQuery | CustomEvent | undefined): Promise<void> {
+    const value: string | IFilterQuery | undefined =
+      rawValue instanceof CustomEvent ? rawValue.detail?.value : rawValue;
     this.searching = value !== undefined;
 
     if (this.type === ListComponentsTypes.INFINITE) {
@@ -941,21 +919,23 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       if (value === undefined) {
         this.loadMoreData = true;
         this.page = 1;
-        this.items = this.data = [];
+        this.items = [];
         this.changeDetectorRef.detectChanges();
       }
 
       this.searchValue = value;
+      await this.refresh(true);
       if (this.isModalChild) {
         this.changeDetectorRef.detectChanges();
       }
-
-      await this.refresh(true);
     } else {
       this.loadMoreData = true;
       this.searchValue = value;
       if (value === undefined) this.page = this.lastPage;
       await this.refresh(true);
+      if (this.isModalChild) {
+        this.changeDetectorRef.detectChanges();
+      }
     }
   }
 
@@ -1061,75 +1041,16 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
   }
 
   /**
-   * @description Filters data based on a search string.
-   * @summary Processes the current data array to find items that match the provided
-   * search string. This uses the arrayQueryByString utility to perform the filtering
-   * across all properties of the items.
+   * @description Whether a search filter is currently active.
+   * @summary Centralizes the "is there an active search" check used across the data-fetching
+   * pipeline. A search is active when `searchValue` is a non-empty string or a filter query object.
    *
-   * @param {KeyValue[]} results - The array of items to search through
-   * @param {string} search - The search string to filter by
-   * @returns {KeyValue[]} A promise that resolves to the filtered array of items
-   *
+   * @type {boolean}
+   * @readonly
    * @memberOf ListComponent
    */
-  parseSearchResults(results: KeyValue[], search: string): KeyValue[] {
-    const filtered = results.filter((item: KeyValue) =>
-      Object.values(item).some((v) => {
-        if (`${v}`.toLowerCase().includes((search as string)?.toLowerCase())) return v;
-      })
-    );
-    return filtered;
-  }
-
-  /**
-   * @description Fetches data from a request source.
-   * @summary Retrieves data from the configured source function or URL, processes it,
-   * and updates the component's data state. This method handles both initial data loading
-   * and subsequent refresh operations when using an external data source rather than a model.
-   *
-   * @param {boolean} force - Whether to force a refresh even if data already exists
-   * @param {number} start - The starting index for pagination
-   * @param {number} limit - The maximum number of items to retrieve
-   * @returns {Promise<KeyValue[]>} A promise that resolves to the fetched data
-   *
-   * @memberOf ListComponent
-   */
-  async getFromRequest(force: boolean = false, start: number, limit: number): Promise<KeyValue[]> {
-    let data: KeyValue[] = [...(this.data || [])];
-
-    if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
-      // (self.data as ListItem[]) = [];
-      if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
-        if (!this.source && !this.data?.length) {
-          this.log.info('No data and source passed to infinite list');
-          return [];
-        }
-        if (this.source instanceof Function) {
-          data = (await this.source()) as KeyValue[];
-          if (!Array.isArray(data)) data = data?.['response']?.['data'] || data?.['results'] || [];
-        }
-
-        if (!data?.length && this.data?.length) data = this.data as KeyValue[];
-        data = [...(await this.parseResult(data))];
-        if (this.data?.length)
-          data =
-            this.type === ListComponentsTypes.INFINITE
-              ? [...(this.items || []).concat([...data.slice(start, limit)])]
-              : [...(data.slice(start, limit) as KeyValue[])];
-      } else {
-        data = await this.parseResult(this.parseSearchResults(this.data as [], this.searchValue as string));
-      }
-      this.items = [...data];
-      if (this.isModalChild) this.changeDetectorRef.detectChanges();
-    } else {
-      const data = [...(await this.parseResult(this.data as []))];
-      this.items =
-        this.type === ListComponentsTypes.INFINITE ? [...(this.items || []), ...(data || [])] : [...(data || [])];
-      if (this.isModalChild) this.changeDetectorRef.detectChanges();
-    }
-
-    if (this.loadMoreData && this.type === ListComponentsTypes.PAGINATED) this.getMoreData(this.data?.length || 0);
-    return this.data || ([] as KeyValue[]);
+  private get hasSearch(): boolean {
+    return !!(this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery);
   }
 
   /**
@@ -1139,16 +1060,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * data loading and subsequent refresh operations when using a model as the data source.
    *
    * @param {boolean} force - Whether to force a refresh even if data already exists
-   * @param {number} start - The starting index for pagination
-   * @param {number} limit - The maximum number of items to retrieve
    * @returns {Promise<KeyValue[]>} A promise that resolves to the fetched data
    *
    * @memberOf ListComponent
    */
   async getFromModel(force: boolean = false): Promise<KeyValue[]> {
-    let data = [...(this.data || [])];
-    let request: KeyValue[] = [];
-
     if (!this._repository) {
       this._repository = this.repository;
     }
@@ -1156,9 +1072,21 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     if (!this.indexes) {
       this.indexes = Object.keys(Model.indexes(this.model as Model) || {});
     }
-    if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
+    const hasModelSource = this.customSource
+      ? false
+      : !!(this.model || this.modelName || this._repository || this.paginator);
+
+    if (!hasModelSource) {
+      const start = this.page > 1 ? (this.page - 1) * this.limit : this.start;
+      const limit = this.page * (this.limit > 12 ? 12 : this.limit);
+      return this.getFromRequest(force, start, limit);
+    }
+    let data = [...(this.data || [])];
+    let request: KeyValue[] = [];
+
+    if (!this.data?.length || force || this.hasSearch) {
       try {
-        if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
+        if (!this.hasSearch) {
           if (this.type !== ListComponentsTypes.INFINITE) {
             (this.data as KeyValue[]) = [];
           }
@@ -1195,26 +1123,77 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
           data = this.type === ListComponentsTypes.INFINITE ? [...data.concat(request)] : [...request];
         }
       } catch (error: unknown) {
-        this.log.error(
+        this.log.warn(
           (error as Error)?.message || `Unable to find ${this.model} on registry. Return empty array from component`
         );
       }
+    } else {
+      data = [...(await this.parseResult(this.data ?? []))];
     }
 
     if (data?.length) {
-      if (this.searchValue) {
-        this.items = [...data];
-        if (this.items?.length <= this.limit) {
-          this.loadMoreData = false;
-        }
-      } else {
-        this.items = [...data];
+      this.items = [...data];
+      if (this.searchValue && this.items.length <= this.limit) {
+        this.loadMoreData = false;
       }
     }
     if (this.type === ListComponentsTypes.PAGINATED && this.paginator && !this.pages) {
       this.getMoreData(this.paginator.total);
     }
     return data || ([] as KeyValue[]);
+  }
+
+  async getFromRequest(force: boolean = false, start: number, limit: number): Promise<KeyValue[]> {
+    let data: KeyValue[] = [...(this.data || [])];
+
+    function parseSearchResults(results: KeyValue[], search: string): KeyValue[] {
+      const filtered = results.filter((item: KeyValue) =>
+        Object.values(item).some((v) => {
+          if (typeof v !== 'boolean') {
+            if (`${v}`.toLowerCase().includes((search as string)?.toLowerCase())) {
+              return v;
+            }
+          }
+        })
+      );
+      return filtered;
+    }
+
+    if (!this.data?.length || force || (this.searchValue as string)?.length || !!(this.searchValue as IFilterQuery)) {
+      // (self.data as ListItem[]) = [];
+      if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
+        if (!this.data?.length) {
+          this.log.info('No data and source passed to infinite list');
+          return [];
+        }
+
+        if (!data?.length && this.data?.length) data = this.data as KeyValue[];
+        data = [...(await this.parseResult(data))];
+        if (this.data?.length)
+          data =
+            this.type === ListComponentsTypes.INFINITE
+              ? [...(this.items || []).concat([...data.slice(start, limit)])]
+              : [...(data.slice(start, limit) as KeyValue[])];
+      } else {
+        if (this.type === ListComponentsTypes.INFINITE) {
+          this.items = [];
+          this.changeDetectorRef.detectChanges();
+        }
+        data = await this.parseResult(parseSearchResults(this.data as [], this.searchValue as string));
+      }
+      this.items = [...data];
+      if (this.isModalChild) this.changeDetectorRef.detectChanges();
+    } else {
+      const data = [...(await this.parseResult(this.data as []))];
+      this.items =
+        this.type === ListComponentsTypes.INFINITE ? [...(this.items || []), ...(data || [])] : [...(data || [])];
+      if (this.isModalChild) this.changeDetectorRef.detectChanges();
+    }
+
+    if (this.loadMoreData && this.type === ListComponentsTypes.PAGINATED) {
+      this.getMoreData(this.data?.length || 0);
+    }
+    return this.data || ([] as KeyValue[]);
   }
 
   /**
@@ -1382,12 +1361,15 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
         }
       } else {
         this.pages = this.paginator?.total || this.paginator['_totalPages'];
-        if (this.pages === undefined) {
-          this.bookMarkPagination = this.paginator?.['_bookmark'] !== undefined ? true : false;
-        } else {
-          if (this.pages === 1) {
-            this.loadMoreData = false;
-          }
+        if (this.pages === undefined || this.paginator?.['_bookmark']) {
+          // Bookmark/cursor-style paginator: `total` is never resolvable, and this is
+          // permanent for the lifetime of this paginator. Latch it once detected instead
+          // of re-deriving from the *current* bookmark value on every fetch — an empty
+          // bookmark means "no next page", not "not in bookmark mode", and re-deriving
+          // it here was flipping this flag to false when the last page was reached.
+          this.bookMarkPagination = true;
+        } else if (this.pages === 1) {
+          this.loadMoreData = false;
         }
       }
     }
@@ -1446,7 +1428,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    *
    * @memberOf ListComponent
    */
-  async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
+  async mapResults(data: KeyValue[], remap: boolean = false): Promise<KeyValue[]> {
     if (!data || !data.length) return [];
 
     const props = Object.assign({
@@ -1474,9 +1456,15 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     } else {
       return await Promise.all(
         data.map(async (item) => {
-          const mapped = await (this.mapper as UIFunctionLike)(item);
+          // dont parse already parsed data from crud-field
+          const parsed = 'selected' in item || 'text' in item ? item : await (this.mapper as UIFunctionLike)(item);
           return {
-            item: mapped as KeyValue,
+            item: parsed as KeyValue,
+            option: {
+              title: parsed.text,
+              description: parsed?.value,
+            },
+            locale: this.locale,
             model: item,
             pk: this.pk,
             isModalChild: this.isModalChild,

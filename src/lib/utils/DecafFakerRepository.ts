@@ -4,7 +4,7 @@ import { Metadata, uses } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { LoggedClass } from '@decaf-ts/logging';
 import { parseToNumber } from '@decaf-ts/ui-decorators';
-import { faker } from '@faker-js/faker';
+import { faker } from '@faker-js/faker/locale/en';
 import { DB_ADAPTER_FLAVOUR_TOKEN } from '../engine/constants';
 import { DecafRepository, FunctionLike, KeyValue } from '../engine/types';
 import { formatDate, getOnWindow } from './helpers';

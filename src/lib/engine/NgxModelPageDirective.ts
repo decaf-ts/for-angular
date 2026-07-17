@@ -46,10 +46,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
    */
   errorMessage: string | undefined = undefined;
 
-  // constructor(@Inject(CPTKN) hm: boolean = true, @Inject(CPTKN) protected toastController?: ToastController) {
-  //   super("NgxModelPageDirective");
-  // }
-
   /**
    * @description Lazy-initialized repository getter with model resolution.
    * @summary Creates and returns a repository instance for the specified model name.
@@ -265,17 +261,8 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
             if (!Object.keys(this._data || {}).length) {
               this._data = _model as Model;
             }
-          } else {
-            // model[parent] = {
-            //   ...model[parent],
-            //   [prop]: data,
-            // };
           }
         }
-        // this._data = model;
-        // this.changeDetectorRef.detectChanges();
-        // this.model = Model.build(model, this.modelName as string);
-        // this.changeDetectorRef.detectChanges();
       }
     };
     repository = (repository || (await getRepository(modelName as string))) as IRepository<M>;
@@ -353,7 +340,6 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     }
     await iterate(event, model);
     return result;
-    // return (await this.batchOperation(result)) as IModelComponentSubmitEvent<M>;
   }
 
   /**
@@ -457,24 +443,4 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
     }
     return { ...event, success, message, model: result, aborted: false };
   }
-
-  // async batchOperation(context: ILayoutModelContext, redirect: boolean = false): Promise<any> {
-  // const { data, repository, pk } = context.context;
-  // return data;
-  // return await this.submit({data}, false, repository, pk);
-  // const result: boolean[] = [];
-  // let resultMessage = '';
-  // const promises = Object.keys(models).map(async(m) => {
-  //   const {model, repository} = models[m];
-  //   const {success} = await this.submit({data: model}, false, repository as IRepository<Model>);
-  //   if(success)
-  //     resultMessage = await this.translate('operations.multiple.success');
-  //   result.push(success);
-  // })
-  // await Promise.all(promises);
-  // const success = result.every((r: boolean) => r);
-  // if (success && redirect)
-  //   this.location.back();
-  // return {...{data: models}, success, message: resultMessage};
-  // }
 }

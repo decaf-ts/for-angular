@@ -81,15 +81,16 @@
             [tag]="item.tag"
             (listenEvent)="handleEvent($event)"
             [globals]="{
-              item: child,
-              mapper: mapper,
-              route: isModalChild ? route : undefined,
-              model: child,
-              isModalChild: child.isModalChild,
+              item: child.item,
+              option: child?.option,
+              route: isModalChild ? undefined : route,
+              model: child.model,
+              pk: pk,
+              isModalChild: isModalChild || child.isModalChild,
               emitEvent: child.emitEvent,
               operations: operations,
             }"
-          ></ngx-decaf-component-renderer>
+          />
         }
       } @else {
         <ng-content></ng-content>
@@ -97,11 +98,7 @@
     </ion-list>
   </div>
   @if (loadMoreData) {
-    @if (
-      (pages > 0 || bookMarkPagination) &&
-      type === 'paginated' &&
-      !searchValue?.length
-    ) {
+    @if (type === 'paginated' && !searchValue?.length) {
       <ngx-decaf-pagination
         [disablePages]="disablePaginationPages"
         [truncatePages]="truncatePaginationPages"
@@ -153,7 +150,7 @@
         [buttonLink]="empty?.link ?? undefined"
         [borders]="borders"
         [refreshing]="refreshing"
-        [icon]="(item?.icon ?? 'folder-open-outline') || empty.icon"
+        [icon]="(item?.icon ?? 'ti-folder-open') || empty.icon"
         className="dcf-empty-data"
         [title]="empty.title ? (locale + '.' + empty.title | translate) : ''"
         [subtitle]="
@@ -162,7 +159,7 @@
       />
     } @else {
       <ngx-decaf-empty-state
-        icon="search-outline"
+        icon="ti-search"
         [model]="empty?.showButton ? model : undefined"
         [route]="route"
         [modelId]="modelId"

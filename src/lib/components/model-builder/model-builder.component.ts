@@ -12,7 +12,8 @@ import {
   hideOn,
   uionrender,
 } from '@decaf-ts/ui-decorators';
-import { IonButton, IonIcon, IonInput, IonSelect, IonLabel, IonItem, IonCheckbox, IonTextarea, IonAccordion, IonAccordionGroup } from '@ionic/angular/standalone';
+import { IonButton, IonInput, IonSelect, IonLabel, IonItem, IonCheckbox, IonTextarea, IonAccordion, IonAccordionGroup } from '@ionic/angular/standalone';
+import { IconComponent } from '../icon/icon.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 
 type PropType = 'string' | 'number' | 'date' | 'boolean';
@@ -172,7 +173,7 @@ function parseOptions(optionsStr: string): { value: string; label: string }[] {
   imports: [
     FormsModule,
     IonButton,
-    IonIcon,
+    IconComponent,
     IonInput,
     IonSelect,
     IonLabel,

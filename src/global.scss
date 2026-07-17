@@ -1,5 +1,74 @@
 @import "assets/main.scss";
 
+// Customizando o checkbox
+ion-checkbox::part(container) {
+  border: 2px solid var(--dcf-color-primary);
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  border-radius: var(--dcf-border-radius-small);
+  padding: 3px;
+}
+
+ion-checkbox {
+  --size: 1.5rem;
+  --checkbox-background-checked: var(--dcf-color-primary);
+  --checkmark-width: 2px;
+}
+
+.dcf-checkbox-group {
+  width: 100%;
+  .dcf-label {
+    // margin-left: .5rem;
+    font-weight: 600;
+    ~ ion-item {
+      margin-top: 0.5rem;
+      --inner-padding-start: 0.75rem;
+    }
+  }
+  + .dcf-helper {
+    padding-left: 0.75rem;
+    position: relative;
+  }
+}
+
+ion-radio-group {
+  .dcf-radio-group-label {
+    // margin-left: .5rem;
+    font-weight: 600;
+    ~ ion-item {
+      margin-top: 0.5rem;
+      --inner-padding-start: 0.75rem;
+    }
+  }
+  + .dcf-input-helper {
+    padding-left: 0.75rem;
+    position: relative;
+  }
+}
+
+.dcf-checkbox-group {
+  width: 100%;
+  .dcf-label {
+    // margin-left: .5rem;
+    font-weight: 600;
+    ~ ion-item {
+      margin-top: 0.5rem;
+      --inner-padding-start: 0.75rem;
+    }
+  }
+  + .dcf-input-helper {
+    padding-left: 0.75rem;
+    position: relative;
+  }
+}
+
+ion-textarea {
+  min-height: 80px !important;
+  scrollbar-color: #888 #f0f0f0;
+  scrollbar-width: thin !important;
+  margin-bottom: 0.5rem !important;
+}
+
 // Ew Styles Overrides
 ion-app {
   --dcf-box-shadow-small: 0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px -1px rgba(0, 0, 0, 0.1);

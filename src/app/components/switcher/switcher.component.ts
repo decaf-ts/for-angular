@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Model } from '@decaf-ts/decorator-validation';
@@ -8,7 +9,6 @@ import { ComponentRendererComponent } from 'src/lib/components/component-rendere
 import { ElementPosition, NgxParentComponentDirective } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
 import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
-import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 
 export interface ITabItem {
   title?: string;
@@ -24,7 +24,7 @@ export interface ITabItem {
   templateUrl: './switcher.component.html',
   styleUrls: ['./switcher.component.scss'],
   standalone: true,
-  imports: [ForAngularCommonModule, RouterModule, TranslatePipe, ComponentRendererComponent, IonButton],
+  imports: [CommonModule, RouterModule, TranslatePipe, ComponentRendererComponent, IonButton],
 })
 export class AppSwitcherComponent extends NgxParentComponentDirective implements OnInit, OnDestroy {
   @Input()

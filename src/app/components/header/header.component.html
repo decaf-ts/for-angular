@@ -4,32 +4,54 @@
   [class.dcf-sticky]="sticky || stickyActive"
   [class.dcf-header-floating]="floating"
   [class.dcf-sticky-floating]="sticky && stickyActive"
-  [class]="'dcf-background-'+color + ' ' + className"
-  #component>
-  <app-container [size]="size" className="dcf-nav-container">
+  [class]="'dcf-background-' + color + ' ' + className"
+  #component
+>
+  <ngx-decaf-container
+    [size]="size"
+    className="dcf-nav-container"
+  >
     <ion-toolbar [color]="color">
-      @if(initialized && showMenuButton && (!operation || operation === OperationKeys.READ && !modelId)) {
+      @if (
+        initialized &&
+        showMenuButton &&
+        (!operation || (operation === OperationKeys.READ && !modelId))
+      ) {
         <ion-buttons [slot]="showBackButton ? 'end' : buttonMenuSlot">
           <ion-menu-button>
             <ngx-decaf-icon
               [name]="'assets/images/icons/menu.svg'"
               [slot]="'icon-only'"
-              [color]="(['primary', 'secondary', 'tertiary', 'danger', 'medium', 'dark'].includes(color) ? 'light' : 'dark')"
+              [color]="
+                [
+                  'primary',
+                  'secondary',
+                  'tertiary',
+                  'danger',
+                  'medium',
+                  'dark',
+                ].includes(color)
+                  ? 'light'
+                  : 'dark'
+              "
             />
           </ion-menu-button>
         </ion-buttons>
       }
-      @if(showBackButton && operation) {
+      @if (showBackButton && operation) {
         <ion-buttons slot="start">
-          <app-back-button [link]="backButtonLink" [toolbarColor]="isDarkMode ? 'light' : backButtonColor"></app-back-button>
+          <app-back-button
+            [link]="backButtonLink"
+            [toolbarColor]="isDarkMode ? 'light' : backButtonColor"
+          ></app-back-button>
         </ion-buttons>
       }
       <ng-content select="[slot='start']"></ng-content>
 
-      @if(title) {
-        <ion-title class="ion-text-{{titleAligment}}">
-          @if(operation?.length) {
-            {{'operations.' + operation +'.title' | translate}}
+      @if (title) {
+        <ion-title class="ion-text-{{ titleAligment }}">
+          @if (operation?.length) {
+            {{ 'operations.' + operation + '.title' | translate }}
           }
           {{ locale ? (title | translate) : title }}
         </ion-title>
@@ -38,35 +60,66 @@
       <ng-content select="[slot='end']"></ng-content>
 
       <ion-buttons slot="end">
-        @if(operations?.length && route && (!operation || operation === OperationKeys.READ)) {
-          @if(!modelId && isAllowed(OperationKeys.CREATE)) {
-            <ion-button (click)="changeOperation(OperationKeys.CREATE)" fill="clear" [title]="'create' | translate ">
-              <ngx-decaf-icon [name]="'save-outline'" [slot]="'icon-only'" />
+        @if (
+          operations?.length &&
+          route &&
+          (!operation || operation === OperationKeys.READ)
+        ) {
+          @if (!modelId && isAllowed(OperationKeys.CREATE)) {
+            <ion-button
+              (click)="changeOperation(OperationKeys.CREATE)"
+              fill="clear"
+              [title]="'create' | translate"
+            >
+              <ngx-decaf-icon
+                [name]="'ti-device-floppy'"
+                [slot]="'icon-only'"
+              />
             </ion-button>
           } @else {
-
-            @if(isAllowed(OperationKeys.READ)) {
-              <ion-button (click)="changeOperation(OperationKeys.READ)" fill="clear"  [title]="'read' | translate ">
-                <ngx-decaf-icon [name]="'folder-open-outline'" [slot]="'icon-only'" />
+            @if (isAllowed(OperationKeys.READ)) {
+              <ion-button
+                (click)="changeOperation(OperationKeys.READ)"
+                fill="clear"
+                [title]="'read' | translate"
+              >
+                <ngx-decaf-icon
+                  [name]="'ti-folder-open'"
+                  [slot]="'icon-only'"
+                />
               </ion-button>
             }
 
-            @if(isAllowed(OperationKeys.UPDATE)) {
-              <ion-button (click)="changeOperation(OperationKeys.UPDATE)" fill="clear"  [title]="'update' | translate ">
-                <ngx-decaf-icon [name]="'create-outline'" [slot]="'icon-only'" />
+            @if (isAllowed(OperationKeys.UPDATE)) {
+              <ion-button
+                (click)="changeOperation(OperationKeys.UPDATE)"
+                fill="clear"
+                [title]="'update' | translate"
+              >
+                <ngx-decaf-icon
+                  [name]="'ti-edit'"
+                  [slot]="'icon-only'"
+                />
               </ion-button>
             }
-
           }
         }
-        @if(showThemeToggleButton) {
-          <ion-button name="toggle-theme" shape="round" (click)="changeColorSchema()" fill="clear">
+        @if (showThemeToggleButton) {
+          <ion-button
+            name="toggle-theme"
+            shape="round"
+            (click)="changeColorSchema()"
+            fill="clear"
+          >
             <ngx-decaf-icon [name]="'ti-moon-stars'" />
           </ion-button>
         }
 
-        @if(user) {
-          <ion-avatar (click)="navigateToAccount()" title="{{ 'menu.account' | translate }}">
+        @if (user) {
+          <ion-avatar
+            (click)="navigateToAccount()"
+            title="{{ 'menu.account' | translate }}"
+          >
             <div class="avatar-content">
               {{ user.charAt(0).toUpperCase() + user.charAt(1).toUpperCase() }}
             </div>
@@ -74,6 +127,5 @@
         }
       </ion-buttons>
     </ion-toolbar>
-  </app-container>
+  </ngx-decaf-container>
 </ion-header>
-

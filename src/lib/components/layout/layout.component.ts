@@ -17,7 +17,7 @@ import { Dynamic } from '../../engine/decorators';
 import { IBaseCustomEvent, IComponentProperties } from '../../engine/interfaces';
 import { NgxParentComponentDirective } from '../../engine/NgxParentComponentDirective';
 import { KeyValue, LayoutGridGap } from '../../engine/types';
-import { filterString } from '../../utils/helpers';
+import { asLength, filterString } from '../../utils/helpers';
 import { CardComponent } from '../card/card.component';
 import { ComponentRendererComponent } from '../component-renderer/component-renderer.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
@@ -136,11 +136,10 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    * When cols is already an array, it returns the array as-is. This normalization
    * ensures consistent handling of column definitions in the template.
    *
-   * @type {string[]}
-   * @readonly
+   * @returns {string[]} Normalized column definitions
    * @memberOf LayoutComponent
    */
-  get _cols(): string[] {
+  private buildCols(): string[] {
     let cols = this.cols;
     if (typeof cols === Primitives.BOOLEAN) {
       cols = 1;
@@ -162,7 +161,7 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
   getRowColsLength(row: KeyValue | IComponentProperties): number {
     let length: number = (row.cols as [])?.length ?? 1;
     const colsLength = (this.cols as [])?.length;
-    const rowsLength = (typeof this.rows === Primitives.NUMBER ? this.rows : (this.rows as [])?.length) as number;
+    const rowsLength = asLength(this.rows as number | unknown[]);
     if (length > this.maxColsLength) length = this.maxColsLength;
 
     if (length !== colsLength) {
@@ -186,11 +185,10 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
    * When rows is already an array, it returns the array as-is. This normalization
    * ensures consistent handling of row definitions in the template.
    *
-   * @type {KeyValue[]}
-   * @readonly
+   * @returns {KeyValue[]} Normalized row definitions with resolved column classes
    * @memberOf LayoutComponent
    */
-  get _rows(): KeyValue[] {
+  private buildRows(): KeyValue[] {
     let rows = this.rows;
     if (typeof rows === Primitives.NUMBER)
       rows = Array.from({ length: Number(rows) }, () => ({
@@ -230,11 +228,12 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
 
           if (!this.flexMode) {
             if (typeof col === Primitives.NUMBER) {
-              col = col === colsLength ? `1-1` : col > colsLength ? `${colsLength}-${col}` : `${col}-${colsLength}`;
+              col = col >= colsLength ? `1-1` : `${col}-${colsLength}`;
             }
           } else {
-            if (typeof col === Primitives.NUMBER)
+            if (typeof col === Primitives.NUMBER) {
               col = colsLength <= this.maxColsLength ? `${col}-${colsLength}` : `${index + 1}-${col}`;
+            }
             col = ['2-4', '3-6'].includes(col) ? `1-2` : col;
           }
           col = `dcf-child-${col}-${this.breakpoint} dcf-width-${col}`;
@@ -262,8 +261,8 @@ export class LayoutComponent extends NgxParentComponentDirective implements OnIn
     if (this.breakpoint)
       this.breakpoint =
         `${this.breakpoint.startsWith('x') ? this.breakpoint.substring(0, 2) : this.breakpoint.substring(0, 1)}`.toLowerCase();
-    this.cols = this._cols;
-    this.rows = this._rows;
+    this.cols = this.buildCols();
+    this.rows = this.buildRows();
 
     await super.initialize();
     this.changeDetectorRef.detectChanges();

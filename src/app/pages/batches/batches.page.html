@@ -6,7 +6,7 @@
 
 <ion-content [fullscreen]="true">
   <main>
-    <app-container>
+    <ngx-decaf-container>
       @if(!operation) {
       <app-card-title
         [locale]="locale"
@@ -44,12 +44,12 @@
         [model]="model"
         title="404 - Not Found"
         iconColor="danger"
-        icon="sad-outline"
+        icon="ti-mood-sad"
         [subtitle]="'errors.not_found' | translate:{'0': pk, '1': modelId, '2': modelName}"
       />
       } } } @else {
       <div>No Model</div>
       }
-    </app-container>
+    </ngx-decaf-container>
   </main>
 </ion-content>

@@ -4,7 +4,7 @@ import { list, Model, model, ModelArg, required } from '@decaf-ts/decorator-vali
 import { hideOn, uichild, uielement, uilayoutprop, uilistmodel, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
 import { CategoryModel } from '../models/CategoryModel';
 
-@uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
+@uilistmodel('ngx-decaf-list-item', { icon: 'ti-cup' })
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class User extends Model {
@@ -37,7 +37,7 @@ export class User extends Model {
 }
 
 
-@uilistmodel('ngx-decaf-list-item', { icon: 'cafe-outline' })
+@uilistmodel('ngx-decaf-list-item', { icon: 'ti-cup' })
 @uimodel('ngx-decaf-crud-form')
 @model()
 export class FieldSetForm extends Model {

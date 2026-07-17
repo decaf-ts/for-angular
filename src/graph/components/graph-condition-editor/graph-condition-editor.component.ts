@@ -1,7 +1,12 @@
-import { Component, Input, signal, computed, Output, EventEmitter, OnInit } from '@angular/core';
-import { IonSelect, IonSelectOption, IonInput } from '@ionic/angular/standalone';
+import { Component, computed, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
+import type {
+  CodeCondition,
+  ConditionExpression,
+  ExprValue,
+  SwitchCaseCondition,
+} from '@decaf-ts/integrations/graph/shared';
+import { IonInput, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
-import type { SwitchCaseCondition, ConditionExpression, CodeCondition, ExprValue } from '@decaf-ts/integrations/graph/shared';
 
 export type ConditionMode = 'graphical' | 'code';
 
@@ -44,7 +49,8 @@ export class GraphConditionEditorComponent implements OnInit {
   readonly code = this._code.asReadonly();
 
   readonly operators = OPERATORS;
-  readonly placeholderHelp = 'Supports placeholders like {{ $input.foo }}, {{ $node["Name"].output }}, {{ $vars.bar }}. Must return a boolean. Same restrictions as the Code Node apply.';
+  readonly placeholderHelp =
+    'Supports placeholders like {{ $input.foo }}, {{ $node["Name"].output }}, {{ $vars.bar }}. Must return a boolean. Same restrictions as the Code Node apply.';
   readonly isExists = computed(() => this._op() === 'exists');
   readonly isValid = computed(() => {
     if (this._mode() === 'code') {

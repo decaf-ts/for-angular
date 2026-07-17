@@ -8,15 +8,13 @@
  * @link {@link PaginationComponent}
  */
 
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { IonIcon } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { addIcons } from 'ionicons';
-import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { IPaginationCustomEvent } from '../../engine/interfaces';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { KeyValue } from '../../engine/types';
+import { IconComponent } from '../icon/icon.component';
 
 /**
  * @description A pagination component for navigating through multiple pages of content.
@@ -63,11 +61,11 @@ import { KeyValue } from '../../engine/types';
   selector: 'ngx-decaf-pagination',
   templateUrl: './pagination.component.html',
   styleUrls: ['./pagination.component.scss'],
-  imports: [TranslatePipe, IonIcon],
+  imports: [TranslatePipe, IconComponent],
   standalone: true,
   host: { '[attr.id]': 'uid' },
 })
-export class PaginationComponent extends NgxComponentDirective implements OnInit {
+export class PaginationComponent extends NgxComponentDirective implements OnInit, OnChanges {
   @Input()
   table!: ElementRef<HTMLElement>;
 
@@ -161,7 +159,6 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    */
   constructor() {
     super('PaginationComponent');
-    addIcons({ chevronBackOutline, chevronForwardOutline });
   }
 
   /**
@@ -186,15 +183,53 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    * @memberOf PaginationComponent
    */
   ngOnInit(): void {
-    if (this.disablePages) {
-      this.truncatePages = false;
+    this.recompute();
+  }
+
+  /**
+   * @description Reacts to changes on the pagination-driving inputs.
+   * @summary Whenever `totalPages`, `current`, or `bookMarkPagination` change after the
+   * initial render, recomputes the derived state (`pages`, `last`, `disablePages`). This
+   * is necessary because the component may now mount before the parent's data has
+   * resolved (e.g. `totalPages` still `undefined` while a bookmark-based fetch is in
+   * flight), and must react correctly once real values arrive — instead of freezing on
+   * whatever was true at first init.
+   *
+   * @param {SimpleChanges} changes - The set of changed inputs since the last check
+   * @returns {void}
+   * @memberOf PaginationComponent
+   */
+  override async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    // recompute() runs synchronously, BEFORE awaiting the base class call: this
+    // matters because `await` yields control back to the caller, and Angular's
+    // change-detection pass that triggered this hook does not wait for the promise
+    // to settle. If recompute() ran after the await, its state update (`this.pages`,
+    // `this.last`, `this.disablePages`) would land one microtask late — missing the
+    // very change-detection cycle that's currently rendering the template, and
+    // showing stale/empty content for one tick (most visibly the first time
+    // `totalPages` resolves from `undefined` to a real value).
+    if (changes['totalPages'] || changes['current'] || changes['bookMarkPagination']) {
+      this.recompute();
     }
-    // this.locale = this.getLocale(this.translatable);
+    await super.ngOnChanges(changes);
+  }
+
+  /**
+   * @description Recomputes derived pagination state from the current inputs.
+   * @summary Shared by `ngOnInit` and `ngOnChanges` so the component reacts consistently
+   * to input changes across its whole lifetime, not just at construction.
+   *
+   * @returns {void}
+   * @private
+   * @memberOf PaginationComponent
+   */
+  private recompute(): void {
+    this.disablePages = this.bookMarkPagination || this.disablePages;
+    if (this.disablePages) {
+      this.truncatePages = true;
+    }
     this.pages = this.getPages(this.totalPages, this.current) as KeyValue[];
     this.last = this.totalPages;
-    if (this.bookMarkPagination) {
-      this.disablePages = true;
-    }
   }
 
   /**
@@ -262,6 +297,7 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
    */
   getPages(total: number, current?: number): KeyValue[] {
     if (!current) current = this.current;
+    if (!total || Number.isNaN(total)) return [];
 
     const pages: KeyValue[] = [];
 
@@ -339,17 +375,19 @@ export class PaginationComponent extends NgxComponentDirective implements OnInit
   next(): void {
     if (!this.bookMarkPagination) {
       const page = this.current + 1;
-      if (page <= Object.keys(this.pages)?.length || 0) {
+      // Compare against `this.last` (the real total page count), not the truncated
+      // button array (`this.pages`, which can have as few as 5 entries once
+      // truncation kicks in for >5 total pages — comparing against its length was
+      // silently blocking forward navigation once `current` grew past that count).
+      if (page <= this.last) {
         this.current = page;
         this.handleClick('next');
       }
     } else {
       if (this.nextBookmark) {
-        if (this.nextBookmark) {
-          const page = this.current + 1;
-          this.current = page;
-          this.handleClick('next');
-        }
+        const page = this.current + 1;
+        this.current = page;
+        this.handleClick('next');
       }
     }
   }

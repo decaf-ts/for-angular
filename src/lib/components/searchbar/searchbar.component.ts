@@ -14,9 +14,7 @@ import { IonSearchbar } from '@ionic/angular/standalone';
 import { AutocompleteTypes, PredefinedColors } from '@ionic/core';
 import { getModelAndRepository } from '../../engine';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
-import { StringOrBoolean } from '../../engine/types';
-import { stringToBoolean, windowEventEmitter } from '../../utils/helpers';
-import '../../utils/registerIonicons';
+import { windowEventEmitter } from '../../utils/helpers';
 
 /**
  * @description Searchbar component for Angular applications.
@@ -81,12 +79,12 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    * When enabled, the searchbar will use smooth animations for state changes, providing a more
    * polished user experience. This affects transitions like showing/hiding the component.
    *
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default true
    * @memberOf SearchbarComponent
    */
   @Input()
-  animated: StringOrBoolean = true;
+  animated: boolean = true;
 
   /**
    * @description The text for the cancel button.
@@ -135,12 +133,12 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
   /**
    * @description Whether the searchbar is disabled.
    * @summary Controls whether the searchbar is interactive or not.
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default false
    * @memberOf SearchbarComponent
    */
   @Input()
-  disabled: StringOrBoolean = false;
+  disabled: boolean = false;
 
   /**
    * @description A hint to the browser for which enter key to display.
@@ -245,22 +243,22 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
   /**
    * @description Whether the searchbar is visible.
    * @summary Controls the visibility of the searchbar component.
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default false
    * @memberOf SearchbarComponent
    */
   @Input()
-  isVisible: StringOrBoolean = false;
+  isVisible: boolean = false;
 
   /**
    * @description Whether to wrap the searchbar in a container.
    * @summary Controls whether the searchbar is wrapped in an additional container element.
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default false
    * @memberOf SearchbarComponent
    */
   @Input()
-  wrapper: StringOrBoolean = false;
+  wrapper: boolean = false;
 
   /**
    * @description The color of the wrapper.
@@ -275,12 +273,12 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
   /**
    * @description Whether to emit events to the window.
    * @summary Controls whether search events should be emitted as window events.
-   * @type {StringOrBoolean}
+   * @type {boolean}
    * @default true
    * @memberOf SearchbarComponent
    */
   @Input()
-  emitEventToWindow: StringOrBoolean = true;
+  emitEventToWindow: boolean = true;
 
   /**
    * @description The current value of the searchbar.
@@ -317,39 +315,13 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
 
   /**
    * @description Initializes the component after Angular first displays the data-bound properties.
-   * @summary Performs essential component initialization by converting string-based boolean inputs
-   * to proper boolean values using the stringToBoolean utility. This ensures that all boolean
-   * properties work correctly regardless of how they were passed from parent components or templates.
+   * @summary Sets the localized placeholder text and prepares the component for interaction.
    *
    * @return {void}
-   *
-   * @mermaid
-   * sequenceDiagram
-   *   participant A as Angular Lifecycle
-   *   participant S as SearchbarComponent
-   *   participant U as Utility Functions
-   *
-   *   A->>S: ngOnInit()
-   *   S->>U: stringToBoolean(emitEventToWindow)
-   *   U-->>S: boolean value
-   *   S->>U: stringToBoolean(wrapper)
-   *   U-->>S: boolean value
-   *   S->>U: stringToBoolean(isVisible)
-   *   U-->>S: boolean value
-   *   S->>U: stringToBoolean(disabled)
-   *   U-->>S: boolean value
-   *   S->>U: stringToBoolean(animated)
-   *   U-->>S: boolean value
-   *   Note over S: Component ready for interaction
    *
    * @memberOf SearchbarComponent
    */
   async ngOnInit(): Promise<void> {
-    this.emitEventToWindow = stringToBoolean(this.emitEventToWindow);
-    this.wrapper = stringToBoolean(this.wrapper);
-    this.isVisible = stringToBoolean(this.isVisible);
-    this.disabled = stringToBoolean(this.disabled);
-    this.animated = stringToBoolean(this.animated);
     this.placeholder = (await this.translate(`component.searchbar.search`)) as string;
     if (this.modelName) {
       const repo = getModelAndRepository(this.modelName || this.constructor.name);
@@ -357,7 +329,6 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
         this.indexes = Model.defaultQueryAttributes(repo.model) || [];
       }
     }
-
     if (!this.indexes?.length && this.model) {
       this.indexes = Model.defaultQueryAttributes(this.model as Model) || [];
     }
@@ -365,7 +336,12 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
       this.placeholder = `component.searchbar.search_by`;
       let fields = '';
       for (const index of this.indexes) {
-        const phrase = (await this.translate(`${this.locale}.${index}.label`)) || index;
+        let label = this.locale;
+        if (!label?.includes(index)) {
+          label = `${this.locale}.${index}.label`;
+        }
+        label = (await this.translate(label)) as string;
+        const phrase = !label || label.includes('.') ? index : label;
         fields = fields ? `${fields}, ${phrase}` : `${phrase}`;
       }
       this.placeholder = (await this.translate(`${this.placeholder}`, { '0': fields })) as string;

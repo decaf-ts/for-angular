@@ -1,15 +1,15 @@
 <app-header [title]="title" />
 
 <ion-content [fullscreen]="true">
-   <main>
-    <app-container>
-       <ngx-decaf-card body="small">
-          <ngx-decaf-model-renderer
-            [model]="model"
-            (listenEvent)="handleSubmit($event)"
-            [globals]="globals">
-          </ngx-decaf-model-renderer>
-       </ngx-decaf-card>
-    </app-container>
+  <main>
+    <ngx-decaf-container>
+      <ngx-decaf-card body="small">
+        <ngx-decaf-model-renderer
+          [model]="model"
+          (listenEvent)="handleSubmit($event)"
+          [globals]="globals"
+        ></ngx-decaf-model-renderer>
+      </ngx-decaf-card>
+    </ngx-decaf-container>
   </main>
 </ion-content>

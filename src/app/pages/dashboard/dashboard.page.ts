@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { cardOutline, documentAttachOutline, peopleOutline } from 'ionicons/icons';
-import { ContainerComponent } from 'src/app/components/container/container.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { DashboardLayout } from 'src/app/layouts/Dashboboard';
-import { LayoutComponent, presentModalConfirm } from 'src/lib/components';
+import { ContainerComponent, LayoutComponent, presentModalConfirm } from 'src/lib/components';
 import { NgxPageDirective } from 'src/lib/engine';
 @Component({
   selector: 'app-dashboard',
@@ -22,11 +19,6 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
 
   constructor() {
     super('DashboardPage');
-    addIcons({
-      cardOutline,
-      peopleOutline,
-      documentAttachOutline,
-    });
   }
 
   async ngOnInit(): Promise<void> {
@@ -49,7 +41,7 @@ export class DashboardPage extends NgxPageDirective implements OnInit {
   async showFilterModal(): Promise<void> {
     const modal = await presentModalConfirm({
       message: 'Testing',
-      requireConfirmCode: true,
+      requireConfirmCode: false,
     });
 
     // const modal = await getNgxModalCrudComponent(

@@ -186,44 +186,6 @@ export abstract class NgxFormDirective
   @Output()
   private formGroupLoadedEvent: EventEmitter<IBaseCustomEvent> = new EventEmitter<IBaseCustomEvent>();
 
-  // protected override enableDarkMode: boolean = true;
-
-  //   /**
-  //  * @description Angular change detection service.
-  //  * @summary Injected service that provides manual control over change detection cycles.
-  //  * This is essential for ensuring that programmatic DOM changes (like setting accordion
-  //  * attributes) are properly reflected in the component's state and trigger appropriate
-  //  * view updates when modifications occur outside the normal Angular change detection flow.
-  //  *
-  //  * @protected
-  //  * @type {ChangeDetectorRef}
-  //  * @memberOf CrudFormComponent
-  //  */
-  // protected changeDetectorRef: ChangeDetectorRef = inject(ChangeDetectorRef);
-
-  // /**
-  //  * @description Angular Renderer2 service for safe DOM manipulation.
-  //  * @summary Injected service that provides a safe, platform-agnostic way to manipulate DOM elements.
-  //  * This service ensures proper handling of DOM operations across different platforms and environments,
-  //  * including server-side rendering and web workers.
-  //  *
-  //  * @protected
-  //  * @type {Renderer2}
-  //  * @memberOf CrudFormComponent
-  //  */
-  // protected renderer: Renderer2 = inject(Renderer2);
-
-  // /**
-  //  * @description Translation service for internationalization.
-  //  * @summary Injected service that provides translation capabilities for UI text.
-  //  * Used to translate button labels and validation messages based on the current locale.
-  //  *
-  //  * @protected
-  //  * @type {TranslateService}
-  //  * @memberOf CrudFormComponent
-  //  */
-  // protected translateService: TranslateService = inject(TranslateService);
-
   protected activeFormGroupIndex: number = 0;
 
   get activeFormGroup(): FormParent {
@@ -254,35 +216,9 @@ export abstract class NgxFormDirective
 
   override async ngOnChanges(changes: SimpleChanges): Promise<void> {
     await super.ngOnChanges(changes);
-
-    // if (changes[BaseComponentProps.MODEL_ID]) {
-    //   const { previousValue, currentValue } = changes[BaseComponentProps.MODEL_ID];
-    //   if (!previousValue && currentValue) {
-    //     await this.refresh(this.operation);
-    //   }
-    // }
   }
 
   async ngAfterViewInit(): Promise<void> {
-    const formElement = this.component?.nativeElement;
-    // if (this.isModalChild && formElement) {
-    //   const ionContent = await formElement.closest('ion-content');
-    //   const formHeigth = interval(50)
-    //     .pipe(
-    //       map(() => Math.ceil(formElement.getBoundingClientRect().height)),
-
-    //       filter((h) => h > 0), // só passa quando tiver altura real
-    //       take(1)
-    //     )
-    //     .subscribe(async (height) => {
-    //       const scrollElement = await ionContent.getScrollElement();
-    //       const extraSpace = 24; // margem para evitar corte no final
-    //       const targetHeight = height + extraSpace * 10000;
-    //       this.renderer.setStyle(scrollElement, 'height', `auto !important`);
-    //       this.renderer.setStyle(ionContent, 'min-height', `${targetHeight}px`);
-    //       this.renderer.setStyle(scrollElement, 'overflow-y', 'auto');
-    //     });
-    // }
     //TODO: ver se isso é necessário
     // if (this.formGroup)
     //   this.formGroupLoadedEvent.emit({

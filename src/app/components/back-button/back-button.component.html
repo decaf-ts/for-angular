@@ -1,21 +1,19 @@
 
 @if(!showText) {
   <ion-button shape="round" fill="clear" class="dcf-icon-only" [color]="color" (click)="backToPage()">
-    <ion-icon
-      name="chevron-back-outline"
+    <ngx-decaf-icon
+      name="ti-chevron-left"
       [color]="isDarkMode ? 'light' : color"
-      aria-hidden="true"
-      slot="icon-only">
-    </ion-icon>
+      slot="icon-only"
+    />
 </ion-button>
 } @else {
   <ion-button fill="clear" [color]="color" (click)="backToPage()">
-    <ion-icon
-      name="chevron-back-outline"
+    <ngx-decaf-icon
+      name="ti-chevron-left"
       [color]="isDarkMode ? 'light' : color"
-      aria-hidden="true"
-      slot="icon-only">
-    </ion-icon>
+      slot="icon-only"
+    />
     <span class="margin-small-left">{{text}}</span>
   </ion-button>
 }

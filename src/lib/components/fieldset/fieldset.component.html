@@ -96,20 +96,15 @@
                     @if (ordenable) {
                       @if (items?.length > 1 && !updatingItem) {
                         <ion-reorder slot="start">
-                          <ion-icon
-                            aria-hidden="true"
-                            name="swap-vertical-outline"
-                          ></ion-icon>
+                          <ngx-decaf-icon name="ti-switch-vertical" />
                         </ion-reorder>
                       } @else {
                         <div slot="start">
-                          <ion-icon
-                            aria-hidden="true"
+                          <ngx-decaf-icon
                             class="dcf-reorder-disabled"
                             size="small"
-                            name="swap-vertical-outline"
-                            disabled
-                          ></ion-icon>
+                            name="ti-switch-vertical"
+                          />
                         </div>
                       }
                     }
@@ -205,10 +200,7 @@
                   class="dcf-auto"
                   [attr.style]="'max-width: 50px'"
                 >
-                  <ion-icon
-                    aria-hidden="true"
-                    name="alert-circle-outline"
-                  ></ion-icon>
+                  <ngx-decaf-icon name="ti-alert-circle" />
                 </div>
                 <div class="dcf-width-expand">
                   <ion-text
@@ -266,11 +258,10 @@
                   (click)="handleCreateItem()"
                   [attr.aria-label]="locale + '.update_item' | translate"
                 >
-                  <ion-icon
-                    aria-hidden="true"
-                    name="refresh-outline"
+                  <ngx-decaf-icon
+                    name="ti-refresh"
                     slot="start"
-                  ></ion-icon>
+                  />
                   {{ locale + '.update_item' | translate }}
                 </ion-button>
               </div>
@@ -285,7 +276,6 @@
                     (click)="handleCreateItem()"
                     [attr.aria-label]="locale + '.create_item' | translate"
                   >
-                    <!-- <ion-icon aria-hidden="true" name="add-outline" slot="start"></ion-icon> -->
                     <ngx-decaf-icon
                       slot="icon-only"
                       name="ti-code-plus"

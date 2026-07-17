@@ -1,18 +1,19 @@
 <app-header [title]="locale+'.title'" />
 
 <ion-content fullscreen="true">
-   <main>
-    <app-container>
-     <ngx-decaf-card [title]="locale+'.title'">
-      <div class="dcf-props-container">
-        <span [innerHTML]="'{'"></span>
-        @for (prop of account | keyvalue; track prop.key; ) {
-          <span class="dcf-prop">{{prop.key}}: {{prop.value}}{{ (!$first  && !$last) ? ',' : ''}}</span>
-        }
-        <span [innerHTML]="'}'"></span>
-      </div>
-
+  <main>
+    <ngx-decaf-container>
+      <ngx-decaf-card [title]="locale+'.title'">
+        <div class="dcf-props-container">
+          <span [innerHTML]="'{'"></span>
+          @for (prop of account | keyvalue; track prop.key; ) {
+          <span class="dcf-prop">
+            {{prop.key}}: {{prop.value}}{{ (!$first && !$last) ? ',' : ''}}
+          </span>
+          }
+          <span [innerHTML]="'}'"></span>
+        </div>
       </ngx-decaf-card>
-    </app-container>
+    </ngx-decaf-container>
   </main>
 </ion-content>

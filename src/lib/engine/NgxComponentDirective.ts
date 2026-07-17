@@ -215,7 +215,7 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
    * @memberOf module:lib/engine/NgxComponentDirective
    */
   @Input()
-  mapper: Record<string, string> | FunctionLike | Record<string, FunctionLike> = {};
+  mapper: Record<string, string> | FunctionLike | Record<string, FunctionLike> | Record<string, KeyValue> = {};
 
   /**
    * @description Available CRUD operations for this component instance.
@@ -670,7 +670,7 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
   override get repository(): DecafRepository<Model> {
     try {
       if (!this._repository) {
-        const context = getModelAndRepository(this.model as Model);
+        const context = getModelAndRepository((this.model as Model) ?? this.modelName);
         if (context) {
           const { repository, pk, pkType } = context;
           this._repository = repository;
@@ -710,20 +710,6 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
       this.locale = this.localeContext;
     }
 
-    // if (changes[UIKeys.HANDLERS]) {
-    //   const { currentValue, previousValue } = changes[UIKeys.HANDLERS];
-    //   if (currentValue && typeof currentValue !== previousValue) {
-    //     for(const key in currentValue) {
-    //       const event = currentValue[key]();
-    //       if (event && typeof event === 'function') {
-    //         const clazz = new event();
-    //         this.handlers[key] = clazz[key].bind(this);
-    //         console.log(this.handlers);
-    //       }
-    //     }
-    //   }
-    // }
-
     if (changes[BaseComponentProps.HANDLERS]) {
       const { currentValue, previousValue } = changes[BaseComponentProps.HANDLERS];
       if (currentValue && currentValue !== previousValue)
@@ -737,27 +723,6 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
           this._repository = this.repository;
         }
         this.parseEvents(currentValue, this);
-
-        // for (const key in currentValue) {
-        //   const event = currentValue[key]();
-        //   if (event && typeof event === 'function') {
-        //     try {
-        //       const clazz = new event();
-        //       this.events[key] = clazz[key].bind(this);
-        //       if (event[key] instanceof Promise) {
-        //         await clazz[key].bind(this)();
-        //       } else {
-        //         clazz[key].bind(this)();
-        //       }
-        //     } catch (error: unknown) {
-        //       this.log
-        //         .for(this.ngOnChanges)
-        //         .error(
-        //           `Error occurred while processing event "${key}": ${(error as Error)?.message || (error as string)}`
-        //         );
-        //     }
-        //   }
-        // }
       }
     }
     if (changes[BaseComponentProps.LOCALE_ROOT] || changes[BaseComponentProps.COMPONENT_NAME])

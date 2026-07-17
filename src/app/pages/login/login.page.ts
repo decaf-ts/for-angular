@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
-import { ContainerComponent } from 'src/app/components/container/container.component';
 import { LogoComponent } from 'src/app/components/logo/logo.component';
 import { LoginForm } from 'src/app/forms/LoginForm';
-import { CardComponent } from 'src/lib/components';
+import { CardComponent, ContainerComponent } from 'src/lib/components';
 import { ModelRendererComponent } from 'src/lib/components/model-renderer/model-renderer.component';
 import { NgxPageDirective } from 'src/lib/engine/NgxPageDirective';
 

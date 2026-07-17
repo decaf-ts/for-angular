@@ -95,7 +95,7 @@ export const DefaultListEmptyOptions: IListEmptyOptions = {
   title: 'empty.title',
   subtitle: 'empty.subtitle',
   showButton: true,
-  icon: 'folder-open-outline',
+  icon: 'ti-folder-open',
   buttonText: 'create',
   link: '',
 } as const;

@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { Comparison, formatDate, isValidDate, Model } from '@decaf-ts/decorator-validation';
@@ -10,7 +11,6 @@ import { ModalComponent } from 'src/lib/components';
 import { ActionRoles } from 'src/lib/engine/constants';
 import { Dynamic } from 'src/lib/engine/decorators';
 import { KeyValue } from 'src/lib/engine/types';
-import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { isValidBase64 } from 'src/lib/utils';
 
 @Dynamic()
@@ -18,7 +18,7 @@ import { isValidBase64 } from 'src/lib/utils';
   selector: 'app-modal-diffs',
   templateUrl: './modal-diffs.component.html',
   styleUrls: ['./modal-diffs.component.scss'],
-  imports: [TranslatePipe, ForAngularCommonModule, IonButton],
+  imports: [TranslatePipe, IonButton, CommonModule],
   standalone: true,
 })
 export class AppModalDiffsComponent extends ModalComponent implements OnInit {

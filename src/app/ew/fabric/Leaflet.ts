@@ -18,7 +18,7 @@ import {
   uionrender,
   uitablecol,
 } from '@decaf-ts/ui-decorators';
-import { getDoucumentOptions, getLanguageOptions, getMarketOptions } from 'src/app/ew/utils/helpers';
+import { getDoucumentOptions, getLanguages, getMarketOptions } from 'src/app/ew/utils/helpers';
 import { Batch } from './Batch';
 import { Cacheable } from './Cacheable';
 import { TableNames } from './constants';
@@ -67,6 +67,7 @@ export class Leaflet extends Cacheable {
       text: `${item.productCode} <span class="dcf-option-description">${item.nameMedicinalProduct} (${item.inventedName})</span>`,
       value: `${item.productCode}`,
     }),
+    mapper: { text: 'productCode', value: 'productCode' },
     translatable: false,
   })
   // @uionrender(
@@ -160,7 +161,13 @@ export class Leaflet extends Cacheable {
     placeholder: 'leaflet.lang.placeholder',
     type: HTML5InputTypes.SELECT,
     value: 'en',
-    options: getLanguageOptions(),
+    options: getLanguages(),
+    optionsMapper: (item: { name: string; code: string }) => ({
+      text: item.name,
+      value: item.code.toLowerCase(),
+      disabled: false,
+      selected: item.code.toLowerCase() === 'en',
+    }),
     startEmpty: false,
     translatable: false,
   })

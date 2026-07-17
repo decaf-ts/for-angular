@@ -1,16 +1,10 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import {
-  PreloadAllModules,
-  provideRouter,
-  RouteReuseStrategy,
-  withComponentInputBinding,
-  withPreloading,
-} from '@angular/router';
-import { RamAdapter, RamFlavour } from '@decaf-ts/core/ram';
+import { provideRouter, RouteReuseStrategy, withComponentInputBinding } from '@angular/router';
+import { RamFlavour } from '@decaf-ts/core/ram';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { RootTranslateServiceConfig } from '@ngx-translate/core';
-import { I18nResourceConfigType } from 'src/lib/engine';
+import { DecafAxiosHttpAdapter, I18nResourceConfigType } from 'src/lib/engine';
 import {
   provideDecafDbAdapter,
   provideDecafDynamicComponents,
@@ -35,15 +29,15 @@ export const AppConfig: ApplicationConfig = {
     provideIonicAngular({
       mode: 'md',
     }),
-    provideDecafDbAdapter(RamAdapter, { user: 'user' }),
-    // provideDecafDbAdapter(DecafAxiosHttpAdapter, {
-    //   protocol: 'https',
-    //   host: 'ew-backend-pdm.ptp.internal',
-    //   events: false,
-    // }),
+    // provideDecafDbAdapter(RamAdapter, { user: 'user' }),
+    provideDecafDbAdapter(DecafAxiosHttpAdapter, {
+      protocol: 'https',
+      host: 'ew-backend-pdm.ptp.internal',
+      events: true,
+    }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
+    provideRouter(routes, withComponentInputBinding()),
     // provide dark theme
     // provideDecafDarkMode(),
     // change the default page transition

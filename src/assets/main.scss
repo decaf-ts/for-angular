@@ -23,7 +23,7 @@
 
 @forward "@decaf-ts/styles/dist/main.css";
 
-@forward "@tabler/icons-webfont/dist/tabler-icons.scss";
+@forward "@tabler/icons-webfont/dist/tabler-icons-outline.scss";
 /* ng-diagram/styles.css is loaded via angular.json — its internal
    relative @import './tokens.css' cannot resolve when inlined by Sass */
 
@@ -53,4 +53,52 @@ body,
 ng-diagram-base-node-template,
 ng-diagram-node-resize-adornment {
   background: transparent !important;
+}
+
+.dcf-button-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  color: inherit;
+  &.locked {
+    span {
+      background: var(--dcf-color-primary);
+      opacity: 0.5;
+    }
+  }
+  span {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+    background: #ccc;
+    border-radius: 999px;
+    transition: background 0.25s ease;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.25s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  /* estado ativo — adicione .active no <a> ou no <span> */
+  &.dcf-active {
+    span {
+      background: var(--dcf-color-primary);
+      &::after {
+        transform: translateX(18px);
+      }
+    }
+  }
 }

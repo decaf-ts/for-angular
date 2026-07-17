@@ -1,29 +1,22 @@
 import { Component, OnInit } from '@angular/core';
+import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { IonContent } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { HeaderComponent } from 'src/app/components/header/header.component';
-import { ContainerComponent } from 'src/app/components/container/container.component';
-import { NgxModelPageDirective } from 'src/lib/engine';
-import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
 import { AppCardTitleComponent } from 'src/app/components/card-title/card-title.component';
-import { TableComponent } from 'src/lib/components/table/table.component';
+import { HeaderComponent } from 'src/app/components/header/header.component';
 import { Audit } from 'src/app/ew/fabric/Audit';
 import { downloadAsCsv } from 'src/app/ew/fabric/handlers/AuditHandler';
+import { ContainerComponent } from 'src/lib/components';
+import { TableComponent } from 'src/lib/components/table/table.component';
+import { NgxModelPageDirective } from 'src/lib/engine';
+import { IBaseCustomEvent } from 'src/lib/engine/interfaces';
 
 @Component({
   selector: 'app-audit',
   templateUrl: './audit.page.html',
   styleUrls: ['./audit.page.scss'],
   standalone: true,
-  imports: [
-    TranslatePipe,
-    HeaderComponent,
-    AppCardTitleComponent,
-    IonContent,
-    TableComponent,
-    ContainerComponent,
-  ],
+  imports: [TranslatePipe, HeaderComponent, AppCardTitleComponent, IonContent, TableComponent, ContainerComponent],
 })
 export class AuditPage extends NgxModelPageDirective implements OnInit {
   override _data: Audit[] = [];
@@ -48,13 +41,7 @@ export class AuditPage extends NgxModelPageDirective implements OnInit {
   }
 
   async exportCsvFile(): Promise<void> {
-    downloadAsCsv(this._data as Audit[], `${Date.now()}`, [
-      'User',
-      'Group',
-      'Table',
-      'Transaction',
-      'Action',
-    ]);
+    downloadAsCsv(this._data as Audit[], `${Date.now()}`, ['User', 'Group', 'Table', 'Transaction', 'Action']);
   }
 
   // async handleTabChangeEvent(event: IBaseCustomEvent): Promise<void> {
