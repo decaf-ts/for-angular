@@ -1,6 +1,12 @@
-import { Component, Input, signal, computed, Output, EventEmitter, OnInit } from '@angular/core';
-import { IonSelect, IonSelectOption, IonInput, IonTextarea, IonNote } from '@ionic/angular/standalone';
-import type { SwitchCaseCondition, ConditionExpression, CodeCondition, ExprValue } from '@decaf-ts/integrations/graph/shared';
+import { Component, computed, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
+import type {
+  CodeCondition,
+  ConditionExpression,
+  ExprValue,
+  SwitchCaseCondition,
+} from '@decaf-ts/integrations/graph/shared';
+import { IonInput, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+import { CodeEditorComponent } from '../code-editor/code-editor.component';
 
 export type ConditionMode = 'graphical' | 'code';
 
@@ -22,7 +28,7 @@ const OPERATORS = [
 @Component({
   selector: 'app-graph-condition-editor',
   standalone: true,
-  imports: [IonSelect, IonSelectOption, IonInput, IonTextarea, IonNote],
+  imports: [IonSelect, IonSelectOption, IonInput, CodeEditorComponent],
   templateUrl: './graph-condition-editor.component.html',
   styleUrl: './graph-condition-editor.component.scss',
 })
@@ -43,7 +49,8 @@ export class GraphConditionEditorComponent implements OnInit {
   readonly code = this._code.asReadonly();
 
   readonly operators = OPERATORS;
-  readonly placeholderHelp = 'Supports placeholders like {{ $input.foo }}, {{ $node["Name"].output }}, {{ $vars.bar }}. Must return a boolean. Same restrictions as the Code Node apply.';
+  readonly placeholderHelp =
+    'Supports placeholders like {{ $input.foo }}, {{ $node["Name"].output }}, {{ $vars.bar }}. Must return a boolean. Same restrictions as the Code Node apply.';
   readonly isExists = computed(() => this._op() === 'exists');
   readonly isValid = computed(() => {
     if (this._mode() === 'code') {
@@ -86,9 +93,8 @@ export class GraphConditionEditorComponent implements OnInit {
     this.emit();
   }
 
-  onCodeChange(event: Event) {
-    const target = event.target as HTMLTextAreaElement;
-    this._code.set(target.value);
+  onCodeChange(value: string) {
+    this._code.set(value);
     this.emit();
   }
 

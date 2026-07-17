@@ -4,6 +4,7 @@
       <ng-diagram
         [model]="graphModel"
         [nodeTemplateMap]="nodeTemplateMap"
+        [middlewares]="middlewares"
         (selectionChanged)="onSelectionChanged($event)"
         (nodeDragEnded)="onNodeDragEnded()"
         (edgeDrawn)="onEdgeDrawn()"

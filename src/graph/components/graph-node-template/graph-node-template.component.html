@@ -9,8 +9,7 @@
     [class.graph-node--failed]="statusLabel() === 'failed'"
     [class.graph-node--cached]="statusLabel() === 'cached'"
     [style.--graph-accent]="node().data.color || '#5b21b6'"
-    [style.--node-size.px]="nodeWidth()"
-    [style.height.px]="nodeHeight()"
+    [style.--node-size.px]="nodeWidthPx()"
     (dblclick)="openEditor($event)"
   >
     <div class="graph-node__icon" [class]="node().data.icon || ''">

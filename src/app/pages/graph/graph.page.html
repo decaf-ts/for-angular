@@ -1,52 +1,41 @@
-<ion-content
-  fullscreen="true"
-  scrollY="false"
->
+<ion-content fullscreen="true">
   <main class="graph-page">
-    <!-- <div class="graph-page__toolbar">
-      <button
-        type="button"
-        class="graph-page__run-btn"
-        [class.graph-page__run-btn--running]="isRunning()"
-        [disabled]="isRunning()"
-        (click)="runWorkflow()"
-      >
-        {{ isRunning() ? 'Running…' : 'Run workflow' }}
-      </button>
-      @if (runStatus() && runStatus() !== 'idle') {
-      <span class="graph-page__status">{{ runStatus() }}</span>
-      } @if (runError()) {
-      <span class="graph-page__error">{{ runError() }}</span>
-      }
-    </div> -->
-
-    <!-- <app-graph-renderer
-      [graph]="workflowRoot"
-      [nodes]="availableNodes"
-      [outputs]="lastResult()"
-    /> -->
+    @if (backendAvailable() === false) {
+      <div class="graph-page__backend-warning">
+        <strong>Graph backend not running.</strong>
+        Start it with <code>npm run start:backend</code> or run <code>npm run start:dev</code> to start both.
+      </div>
+    }
 
     <app-graph-renderer
       [graphRoot]="workflowRoot"
       [outputs]="lastResult()"
-    />
-
-    <!-- <app-graph-renderer
-      [graphRoot]="workflowRoot"
-      [outputs]="lastResult()"
       [availableNodes]="availableNodes"
-    /> -->
+      (nodeDragEnded)="onNodeDragEnded()"
+      (edgeDrawn)="onEdgeDrawn()"
+      (elementsRemoved)="onElementsRemoved()"
+    >
+      <app-graph-toolbar
+        graphFloatingControls
+        [workflowId]="workflowId"
+        [canRun]="backendAvailable() !== false"
+        [isRunning]="isRunning()"
+        (runWorkflow)="runWorkflow()"
+        (saveWorkflow)="onSaveWorkflow()"
+        (restoreSnapshot)="onRestoreSnapshot($event)"
+      />
+    </app-graph-renderer>
 
     @if (workflowOutputs().length) {
-    <section class="graph-page__outputs">
-      <h2>Execution outputs</h2>
-      @for (output of workflowOutputs(); track output.key) {
-      <article class="graph-page__output">
-        <strong>{{ output.key }}</strong>
-        <span>{{ output.value }}</span>
-      </article>
-      }
-    </section>
+      <section class="graph-page__outputs">
+        <h2>Execution outputs</h2>
+        @for (output of workflowOutputs(); track output.key) {
+          <article class="graph-page__output">
+            <strong>{{ output.key }}</strong>
+            <span>{{ output.value }}</span>
+          </article>
+        }
+      </section>
     }
   </main>
 </ion-content>

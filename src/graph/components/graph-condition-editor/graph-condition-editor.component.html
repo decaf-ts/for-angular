@@ -35,15 +35,13 @@
     </div>
   } @else {
     <div class="condition-editor__code">
-      <ion-textarea
-        class="condition-editor__textarea"
-        [value]="code()"
-        (ionInput)="onCodeChange($event)"
-        placeholder="return $input.status === 'active';"
-        [rows]="3"
-        [autoGrow]="true"
+      <app-code-editor
+        class="condition-editor__formula"
+        mode="formula"
+        [code]="code()"
+        (codeChange)="onCodeChange($event)"
+        [placeholder]="placeholderHelp"
       />
-      <ion-note class="condition-editor__hint" [innerText]="placeholderHelp"></ion-note>
     </div>
   }
 
