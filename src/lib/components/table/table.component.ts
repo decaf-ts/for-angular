@@ -364,10 +364,10 @@ export class TableComponent extends ListComponent implements OnInit {
    * @param {KeyValue[]} data - Raw row objects returned by the data source.
    * @return {Promise<KeyValue[]>} Array of structured row objects.
    */
-  override async mapResults(data: KeyValue[], remap: boolean = false): Promise<KeyValue[]> {
-    if (!remap && (this._data as [])?.length && data?.length === (this._data as [])?.length) {
-      return this._data as KeyValue[];
-    }
+  override async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
+    // if (!remap && (this._data as [])?.length && data?.length === (this._data as [])?.length) {
+    //   return this._data as KeyValue[];
+    // }
     this._data = [...data];
     if (!data || !data.length) return [];
     return await Promise.all(

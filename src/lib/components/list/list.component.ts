@@ -1428,7 +1428,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    *
    * @memberOf ListComponent
    */
-  async mapResults(data: KeyValue[], remap: boolean = false): Promise<KeyValue[]> {
+  async mapResults(data: KeyValue[]): Promise<KeyValue[]> {
     if (!data || !data.length) return [];
 
     const props = Object.assign({
