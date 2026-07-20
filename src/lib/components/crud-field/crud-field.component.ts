@@ -9,8 +9,9 @@
 
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { OrderDirection } from '@decaf-ts/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
-import { Primitives } from '@decaf-ts/decorator-validation';
+import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { CrudOperationKeys, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import {
   IonBadge,
@@ -777,10 +778,16 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
           const modelName = this.options?.name ?? this.options?.constructor?.name ?? '';
           const repo = getModelAndRepository(modelName, this);
           if (repo) {
-            const { repository, pk } = repo;
+            const { repository, pk, model } = repo;
             if (typeof this.optionsMapper === 'object' && !Object.keys(this.optionsMapper).length)
               this.optionsMapper = { value: pk, text: pk };
-            this.options = await repository.select().execute();
+            const orderBy = 'updatedAt' in model ? 'updatedAt' : 'createdAt' in model ? 'createdAt' : pk;
+
+            // force sor options by updatedAt or createdAt descending to ensure the latest records are shown first
+            this.options = await repository
+              .select()
+              .orderBy(orderBy as keyof Model, OrderDirection.DSC)
+              .execute();
           }
         }
       }

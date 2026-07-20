@@ -62,6 +62,7 @@ export class Leaflet extends Cacheable {
     label: 'leaflet.productCode.label',
     placeholder: 'leaflet.productCode.placeholder',
     type: HTML5InputTypes.SELECT,
+    interface: 'modal',
     options: () => Product,
     optionsMapper: (item: Product) => ({
       text: `${item.productCode} <span class="dcf-option-description">${item.nameMedicinalProduct} (${item.inventedName})</span>`,

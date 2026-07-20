@@ -1,5 +1,4 @@
 $active-color: white;
-
 ion-split-pane {
   --side-max-width: 240px;
   transition: all 0.3s ease;
@@ -26,11 +25,9 @@ ion-split-pane {
       ion-label {
         display: none !important;
       }
-
       .dcf-separator {
         display: none;
       }
-
       .dcf-menu-expand-button {
         justify-content: center;
         padding: 0.5rem !important;
@@ -47,11 +44,6 @@ ion-split-pane {
       }
       ion-item {
         max-width: 65px;
-        // --background: transparent !important;
-        // --background-activated: transparent !important;
-        // --background-hover: transparent !important;
-        // --background-focused: transparent !important;
-        // --ripple-color: transparent !important;
         --inner-padding-end: 0.5rem !important;
         --padding-end: 0rem !important;
         --inner-padding-start: 0.85rem !important;
@@ -160,7 +152,6 @@ ion-menu {
           ion-image {
             color: var(--ion-color-gray-2) !important;
             stroke: var(--ion-color-gray-2) !important;
-
             * {
               color: var(--ion-color-gray-2) !important;
               stroke: var(--ion-color-gray-2) !important;
@@ -183,11 +174,9 @@ ion-menu {
       }
     }
   }
-
   ion-content {
     --background: var(--ion-item-background, var(--ion-background-color, #fff)) !important;
   }
-
   ion-list {
     transition: padding-top 0.1s ease;
     pointer-events: none;
@@ -261,8 +250,6 @@ ion-menu {
         font-weight: 400 !important;
         cursor: pointer;
         margin-bottom: 0.1rem;
-
-        // color: #2f2b32 !important;
       }
     }
   }
