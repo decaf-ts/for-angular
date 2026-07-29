@@ -1,0 +1,21 @@
+<ng-diagram-base-node-template [node]="node()">
+  <article
+    class="graph-ghost-node"
+    (click)="onAddNode($event)"
+  >
+    <div class="graph-ghost-node__plus">+</div>
+    <span class="graph-ghost-node__label">Add node</span>
+
+    <div class="graph-ghost-node__ports graph-ghost-node__ports--in">
+      <div class="graph-ghost-node__port graph-ghost-node__port--in">
+        <ng-diagram-port id="in" type="target" side="left" />
+      </div>
+    </div>
+
+    <div class="graph-ghost-node__ports graph-ghost-node__ports--out">
+      <div class="graph-ghost-node__port graph-ghost-node__port--out">
+        <ng-diagram-port id="out" type="source" side="right" />
+      </div>
+    </div>
+  </article>
+</ng-diagram-base-node-template>

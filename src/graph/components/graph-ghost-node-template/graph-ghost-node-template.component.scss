@@ -1,0 +1,93 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+:host ::ng-deep .node {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  height: 100% !important;
+}
+
+:host ::ng-deep ng-diagram-base-node-template {
+  display: block;
+  height: 100%;
+}
+
+:host ::ng-deep ng-diagram-port[id="port-left"],
+:host ::ng-deep ng-diagram-port[id="port-right"] {
+  display: none !important;
+}
+
+.graph-ghost-node {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px dashed rgba(148, 163, 184, 0.5);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+
+.graph-ghost-node:hover {
+  border-color: #eab308;
+  background: rgba(234, 179, 8, 0.12);
+  transform: scale(1.05);
+}
+
+.graph-ghost-node__plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: rgba(234, 179, 8, 0.2);
+  border: 1.5px solid rgba(234, 179, 8, 0.6);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #eab308;
+  line-height: 1;
+}
+
+.graph-ghost-node__label {
+  font-size: 0.5rem;
+  font-weight: 600;
+  color: rgba(203, 213, 225, 0.7);
+  white-space: nowrap;
+}
+
+.graph-ghost-node__ports {
+  position: absolute;
+  display: flex;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.graph-ghost-node__ports--in {
+  top: 50%;
+  left: -0.4rem;
+  transform: translateY(-50%);
+}
+
+.graph-ghost-node__ports--out {
+  top: 50%;
+  right: -0.4rem;
+  transform: translateY(-50%);
+}
+
+.graph-ghost-node__port {
+  position: relative;
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
+}

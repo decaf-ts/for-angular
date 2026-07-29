@@ -37,8 +37,8 @@ export class GraphForeachLoopNode extends Model {
   slice!: number;
 
   @required()
-  @output({ handle: 'body' })
-  body!: unknown;
+  @output({ handle: 'item' })
+  item!: unknown;
 
   @required()
   @connection({ handle: 'loop', connectionRules: { allowSelf: true, maxConnections: 1 } })

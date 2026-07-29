@@ -216,7 +216,12 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
   }
 
   outputPorts() {
-    return this.visiblePorts(PortDirection.OUTPUT);
+    // Sort output ports so that 'completed' renders first (topmost on the right edge)
+    return this.visiblePorts(PortDirection.OUTPUT).sort((a, b) => {
+      const aCompleted = a.property === 'completed' ? 0 : 1;
+      const bCompleted = b.property === 'completed' ? 0 : 1;
+      return aCompleted - bCompleted;
+    });
   }
 
   connectionPorts() {

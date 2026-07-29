@@ -27,6 +27,7 @@ import {
   type Middleware,
 } from 'ng-diagram';
 import { graphSelection } from '../../execution/GraphSelectionStore';
+import { ghostNodeStore } from '../../execution/GhostNodeStore';
 import { GraphRendererViewModel } from '../../types';
 import {
   buildGraphRendererModel,
@@ -45,6 +46,7 @@ import {
   WorkflowInputFieldDefinition,
 } from '../../workflow-inputs';
 import { GraphBoundaryNodeTemplateComponent } from '../boundary-node-template/boundary-node-template.component';
+import { GraphGhostNodeTemplateComponent } from '../graph-ghost-node-template/graph-ghost-node-template.component';
 import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-template.component';
 
 @Component({
@@ -99,7 +101,63 @@ export class GraphRendererComponent {
     },
   };
 
-  readonly middlewares = createMiddlewares((defaults) => [...defaults, this.portGuardMiddleware]);
+  /**
+   * Prevents deletion of mandatory edges (item→ghost→loop) and ghost nodes.
+   */
+  readonly mandatoryEdgeGuardMiddleware: Middleware = {
+    name: 'mandatory-edge-guard',
+    execute: async (context, next, _cancel) => {
+      const actions = context.modelActionTypes;
+      const update = context.initialUpdate;
+      const diagram = this.model();
+
+      // Filter out mandatory edges from deletion
+      if (diagram && update.edgesToRemove?.length && (actions.includes('deleteEdges') || actions.includes('deleteElements') || actions.includes('deleteSelection'))) {
+        const allowedEdges = update.edgesToRemove.filter((edgeId: string) => {
+          const edge = diagram.getEdges().find((e) => (e as { id: string }).id === edgeId) as { data?: { mandatory?: boolean } } | undefined;
+          return !edge?.data?.mandatory;
+        });
+        if (allowedEdges.length === 0 && update.edgesToRemove.length > 0) {
+          // All edges were mandatory — strip edges from the update
+          const { edgesToRemove, ...rest } = update;
+          if (Object.keys(rest).length === 0 || (actions.includes('deleteEdges') && !actions.includes('deleteNodes'))) {
+            return; // block entirely
+          }
+          await next(rest);
+          return;
+        }
+        if (allowedEdges.length < update.edgesToRemove.length) {
+          await next({ ...update, edgesToRemove: allowedEdges });
+          return;
+        }
+      }
+
+      // Filter out ghost nodes from deletion
+      if (update.nodesToRemove?.length && (actions.includes('deleteNodes') || actions.includes('deleteElements') || actions.includes('deleteSelection'))) {
+        const allowedNodes = update.nodesToRemove.filter((nodeId: string) => !nodeId.startsWith('ghost-'));
+        if (allowedNodes.length === 0 && update.nodesToRemove.length > 0) {
+          const { nodesToRemove, ...rest } = update;
+          if (Object.keys(rest).length === 0 || (actions.includes('deleteNodes') && !actions.includes('deleteEdges'))) {
+            return;
+          }
+          await next(rest);
+          return;
+        }
+        if (allowedNodes.length < update.nodesToRemove.length) {
+          await next({ ...update, nodesToRemove: allowedNodes });
+          return;
+        }
+      }
+
+      await next();
+    },
+  };
+
+  readonly middlewares = createMiddlewares((defaults) => [
+    ...defaults,
+    this.portGuardMiddleware,
+    this.mandatoryEdgeGuardMiddleware,
+  ]);
 
   readonly nodeTemplateMap = new NgDiagramNodeTemplateMap([
     ['workflow', GraphNodeTemplateComponent],
@@ -131,6 +189,7 @@ export class GraphRendererComponent {
     // Agent node (DECAF-32 §21.3)
     ['core.agent', GraphNodeTemplateComponent],
     ['value', GraphBoundaryNodeTemplateComponent],
+    ['graph.ghost', GraphGhostNodeTemplateComponent],
   ]);
 
   readonly workflowRootClass = computed(() => this.resolveGraphRoot(this.graphRoot()));
@@ -217,6 +276,14 @@ export class GraphRendererComponent {
         this.model.set(buildGraphRendererModel(root, this.injector, inputValues, duplicateCounts, previousModel));
       });
     });
+
+    // Open palette when a ghost node + is clicked
+    effect(() => {
+      const pendingId = ghostNodeStore.pendingParentId();
+      if (pendingId) {
+        this.paletteOpen.set(true);
+      }
+    });
   }
 
   duplicateInput(property: string) {
@@ -260,6 +327,39 @@ export class GraphRendererComponent {
     const uniqueId = `${blueprint.data.sourceClass}-${Date.now()}`;
     const offset = count * 40;
 
+    // If a ghost parent is set, replace the ghost with the selected node
+    const ghostParentId = ghostNodeStore.consume();
+    if (ghostParentId) {
+      const ghostId = `ghost-${ghostParentId}`;
+      const ghostNode = existing.find((n: { id: string }) => n.id === ghostId);
+      const ghostPos = (ghostNode as { position?: { x: number; y: number } })?.position ?? { x: 420 + offset, y: 200 + offset };
+
+      const newNode = {
+        ...blueprint,
+        id: uniqueId,
+        position: ghostPos,
+      } as never;
+
+      const inputPort = blueprint.data.ports.find((p: { direction: string; property: string }) => p.direction === 'input');
+      const outputPort = blueprint.data.ports.find((p: { direction: string; property: string }) => p.direction === 'output');
+
+      // Remove ghost node + edges, add real node + new edges
+      diagram.updateNodes((nodes) =>
+        nodes.filter((n: { id: string }) => n.id !== ghostId).concat([newNode]) as never
+      );
+      diagram.updateEdges((edges) =>
+        edges
+          .filter((e: { id: string }) => e.id !== `edge-ghost-in-${ghostParentId}` && e.id !== `edge-ghost-out-${ghostParentId}`)
+          .concat([
+            { id: `edge-loop-in-${ghostParentId}-${uniqueId}`, source: ghostParentId, sourcePort: 'item', target: uniqueId, targetPort: inputPort?.property || 'value', data: { label: 'item', mandatory: true } } as never,
+            { id: `edge-loop-out-${ghostParentId}-${uniqueId}`, source: uniqueId, sourcePort: outputPort?.property || 'result', target: ghostParentId, targetPort: 'loop', data: { label: 'loop', mandatory: true } } as never,
+          ]) as never
+      );
+
+      this.paletteOpen.set(false);
+      return;
+    }
+
     const newNode = {
       ...blueprint,
       id: uniqueId,
@@ -271,6 +371,78 @@ export class GraphRendererComponent {
 
     diagram.updateNodes((nodes) => [...nodes, newNode] as never);
     this.paletteOpen.set(false);
+
+    // If this is a foreach node, auto-create the mandatory ghost node + edges
+    if (blueprint.data.kind === 'core.loop.foreach') {
+      this.createForeachGhost(diagram, uniqueId);
+    }
+  }
+
+  /**
+   * Creates the mandatory ghost/placeholder node between the foreach's `item`
+   * output port and its `loop` connection port. The ghost has a + icon that
+   * opens the palette when clicked. The item→ghost→loop edges are
+   * non-deletable.
+   */
+  private createForeachGhost(diagram: ReturnType<typeof buildGraphRendererModel>, foreachId: string) {
+    const foreachNode = diagram.getNodes().find((n: { id: string }) => n.id === foreachId);
+    if (!foreachNode) return;
+    const pos = (foreachNode as { position?: { x: number; y: number } }).position ?? { x: 0, y: 0 };
+    const size = (foreachNode as { size?: { width: number; height: number } }).size ?? { width: 120, height: 140 };
+
+    const ghostId = `ghost-${foreachId}`;
+    const ghostNode = {
+      id: ghostId,
+      type: 'graph.ghost',
+      position: {
+        x: pos.x + size.width + 80,
+        y: pos.y + size.height / 2 - 28,
+      },
+      size: { width: 56, height: 56 },
+      resizable: false,
+      draggable: true,
+      autoSize: false,
+      data: {
+        title: 'Add node',
+        description: 'Click + to add a node to the loop body',
+        kind: 'graph.ghost',
+        labels: [],
+        ports: [],
+        sourceClass: 'GraphGhostNode',
+        ghostParentId: foreachId,
+        isGhost: true,
+      },
+    } as never;
+
+    const edge1 = {
+      id: `edge-ghost-in-${foreachId}`,
+      source: foreachId,
+      sourcePort: 'item',
+      target: ghostId,
+      targetPort: 'in',
+      data: { label: 'item', mandatory: true },
+    } as never;
+
+    const edge2 = {
+      id: `edge-ghost-out-${foreachId}`,
+      source: ghostId,
+      sourcePort: 'out',
+      target: foreachId,
+      targetPort: 'loop',
+      data: { label: 'loop', mandatory: true },
+    } as never;
+
+    diagram.updateNodes((nodes) => [...nodes, ghostNode] as never);
+    diagram.updateEdges((edges) => [...edges, edge1, edge2] as never);
+  }
+
+  /**
+   * Called when a ghost node's + button is clicked. Opens the palette so the
+   * user can pick a node to insert into the loop body.
+   */
+  onGhostAddNode(parentNodeId: string) {
+    ghostNodeStore.requestAddNode(parentNodeId);
+    this.paletteOpen.set(true);
   }
 
   controlFor(controlName: string): AbstractControl | null {

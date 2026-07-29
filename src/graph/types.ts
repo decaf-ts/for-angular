@@ -60,6 +60,10 @@ export interface GraphRendererNodeData {
   modelClass?: unknown;
   expanded?: boolean;
   switchMetadata?: SwitchNodeMetadata;
+  /** ID of the foreach node this ghost belongs to (ghost nodes only). */
+  ghostParentId?: string;
+  /** Whether this node is a ghost/placeholder (non-deletable, no CRUD). */
+  isGhost?: boolean;
 }
 
 export interface GraphBoundaryNodeData {

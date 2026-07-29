@@ -14,6 +14,7 @@
 export * from './boundary-node-template/boundary-node-template.component';
 export * from './chat/chat.component';
 export * from './graph-condition-editor/graph-condition-editor.component';
+export * from './graph-ghost-node-template/graph-ghost-node-template.component';
 export * from './graph-headerbar/graph-headerbar.component';
 export * from './graph-node-edit-modal/graph-node-edit-modal.component';
 export * from './graph-node-template/graph-node-template.component';
