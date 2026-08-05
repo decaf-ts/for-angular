@@ -208,9 +208,9 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
       }
     }
 
-    return await this.client.request(
+    return (await this.client.request(
       Object.assign({}, details, { url: this.parseStatementURL(details.url || '') }, overrides)
-    );
+    )) as unknown as V;
   }
 
   override async create<M extends Model>(

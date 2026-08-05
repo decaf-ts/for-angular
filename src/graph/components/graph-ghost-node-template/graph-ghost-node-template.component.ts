@@ -26,4 +26,11 @@ export class GraphGhostNodeTemplateComponent implements NgDiagramNodeTemplate<Gr
       ghostNodeStore.requestAddNode(parentNodeId);
     }
   }
+
+  onAddNodeKeydown(event: KeyboardEvent) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+
+    event.preventDefault();
+    this.onAddNode(event);
+  }
 }

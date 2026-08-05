@@ -1,7 +1,10 @@
 <ng-diagram-base-node-template [node]="node()">
   <article
     class="graph-ghost-node"
+    role="button"
+    tabindex="0"
     (click)="onAddNode($event)"
+    (keydown)="onAddNodeKeydown($event)"
   >
     <div class="graph-ghost-node__plus">+</div>
     <span class="graph-ghost-node__label">Add node</span>
