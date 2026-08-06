@@ -5,6 +5,8 @@
     },
     "cron_selector": {
       "frequency": "Frequência da medicação",
+      "close": "Fechar",
+      "close_schedule": "Fechar plano",
       "modes": {
         "daily": "Diário",
         "hourly": "Intervalo",
@@ -18,6 +20,8 @@
       "hours": "horas",
       "time": "Hora",
       "generated_schedule": "Horário gerado:",
+      "enable_schedule": "Ativar plano",
+      "disable_schedule": "Desativar plano",
       "weekdays": {
         "sunday": "Domingo",
         "monday": "Segunda-feira",

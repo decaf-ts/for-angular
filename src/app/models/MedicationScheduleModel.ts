@@ -26,7 +26,8 @@ export class MedicationScheduleModel extends Model {
   @required()
   @uielement('app-cron-selector-field', {
     label: 'medication_schedule.cron_expression.label',
-    type: HTML5InputTypes.TEXT,
+    allowEmpty: true,
+    describeCron: true,
   })
   cronExpression!: string;
 

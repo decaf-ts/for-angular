@@ -7,6 +7,17 @@ ion-list {
   padding: 0;
 }
 
+ion-segment {
+  width: 100%;
+}
+
+.dcf-cron-selector-segment {
+  min-width: 3.75rem;
+  --padding-start: 0.5rem;
+  --padding-end: 0.5rem;
+  font-size: 0.85rem;
+}
+
 code {
   display: inline-block;
   margin-top: 0.25rem;

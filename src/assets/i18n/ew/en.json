@@ -17,6 +17,8 @@
     },
     "cron_selector": {
       "frequency": "Medication frequency",
+      "close": "Close",
+      "close_schedule": "Close schedule",
       "modes": {
         "daily": "Daily",
         "hourly": "Interval",
@@ -30,6 +32,8 @@
       "hours": "hours",
       "time": "Time",
       "generated_schedule": "Generated schedule:",
+      "enable_schedule": "Enable schedule",
+      "disable_schedule": "Disable schedule",
       "weekdays": {
         "sunday": "Sunday",
         "monday": "Monday",

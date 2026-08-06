@@ -119,6 +119,9 @@
               "src/global.scss",
               "src/theme/variables.scss"
             ],
+            "allowedCommonJsDependencies": [
+              "cronstrue"
+            ],
             "serviceWorker": false,
             "ngswConfigPath": "ngsw-config.json"
           },

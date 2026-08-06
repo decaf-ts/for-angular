@@ -5,20 +5,47 @@
   [class.dcf-field-required]="required"
   [class.dcf-field-readonly]="isReadOnlyOperation"
 >
-  <ion-item lines="none">
-    <ion-label position="stacked">
+  <div class="dcf-cron-selector-header">
+    <ion-label class="dcf-cron-selector-label">
       {{ label | translate }}
     </ion-label>
-  </ion-item>
 
-  <app-cron-selector
-    [cron]="cronValue"
-    [disabled]="isReadOnlyOperation"
-    [hideDaily]="hideDaily"
-    [hideInterval]="hideInterval"
-    [hideWeekly]="hideWeekly"
-    (cronChange)="handleCronChange($event)"
-  />
+    @if (allowEmpty) {
+      @if (hasCronValue) {
+        <ion-button
+          class="dcf-cron-selector-close"
+          fill="clear"
+          size="small"
+          [disabled]="isReadOnlyOperation"
+          [attr.aria-label]="'component.cron_selector.close_schedule' | translate"
+          (click)="toggleEmpty(false)">
+          {{ 'component.cron_selector.close' | translate }}
+        </ion-button>
+      } @else {
+        <ion-checkbox
+          class="dcf-cron-selector-toggle"
+          [checked]="false"
+          [disabled]="isReadOnlyOperation"
+          [attr.aria-label]="'component.cron_selector.enable_schedule' | translate"
+          (ionChange)="toggleEmpty($event.detail.checked)">
+        </ion-checkbox>
+      }
+    }
+  </div>
+
+  @if (showSelector) {
+    <div class="dcf-cron-selector-body">
+      <ngx-decaf-cron-selector
+        [cron]="cronValue"
+        [describeCron]="describeCron"
+        [disabled]="isReadOnlyOperation"
+        [hideDaily]="hideDaily"
+        [hideInterval]="hideInterval"
+        [hideWeekly]="hideWeekly"
+        (cronChange)="handleCronChange($event)"
+      />
+    </div>
+  }
 
   @if (!isReadOnlyOperation) {
     <div

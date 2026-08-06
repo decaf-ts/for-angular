@@ -99,6 +99,7 @@
     "eslint-plugin-storybook": "^10.4.0",
     "eslint-plugin-unused-imports": "^4.4.1",
     "ffmpeg-static": "5.2.0",
+    "cronstrue": "^3.24.0",
     "jest-environment-jsdom": "^30.4.1",
     "jest-preset-angular": "^16.1.4",
     "ng-diagram": "^1.2.4",
@@ -139,6 +140,7 @@
     "@ngx-translate/http-loader": "^17.0.0",
     "@tabler/icons-webfont": "3.31.0",
     "codemirror": "^6.0.2",
+    "cronstrue": "^3.24.0",
     "ionicons": "^7.4.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "~7.8.0",
@@ -170,6 +172,9 @@
   },
   "peerDependenciesMeta": {
     "@faker-js/faker": {
+      "optional": true
+    },
+    "cronstrue": {
       "optional": true
     }
   }

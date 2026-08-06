@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   inject,
@@ -26,7 +27,7 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { InternalError } from '@decaf-ts/db-decorators';
 
@@ -38,7 +39,7 @@ interface WeekdayOption {
 }
 
 @Component({
-  selector: 'app-cron-selector',
+  selector: 'ngx-decaf-cron-selector',
   standalone: true,
   imports: [
     CommonModule,
@@ -89,6 +90,9 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
   hideWeekly = false;
 
   @Input()
+  describeCron = false;
+
+  @Input()
   set disabled(value: boolean) {
     this.setDisabledState(value);
   }
@@ -109,19 +113,24 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
   readonly hourlyIntervals = [2, 4, 6, 8, 12];
 
   private readonly formBuilder = inject(FormBuilder);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly translateService = inject(TranslateService);
 
   readonly form = this.formBuilder.nonNullable.group({
     mode: 'daily' as ScheduleMode,
     time: '09:00',
     times: this.formBuilder.nonNullable.control<string[]>(['09:00']),
     everyHours: 8,
-    startAt: this.formBuilder.nonNullable.control<string>(this.formatDateTime(new Date())),
     weekdays: this.formBuilder.nonNullable.control<number[]>([1, 2, 3, 4, 5]),
   });
 
   private readonly subscriptions = new Subscription();
 
   private internalCron = '0 9 * * *';
+  private displayedSchedule = this.internalCron;
+  private crontrueModulePromise?: Promise<CrontrueModule>;
+  private crontrueLocalePromises = new Map<string, Promise<unknown>>();
+  private scheduleRequestId = 0;
 
   private isDisabled = false;
 
@@ -135,10 +144,16 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
         this.emitCron();
       })
     );
+    this.subscriptions.add(
+      this.translateService.onLangChange.subscribe(() => {
+        void this.refreshDisplayedSchedule();
+      })
+    );
   }
 
   ngOnChanges(): void {
     this.ensureVisibleMode();
+    void this.refreshDisplayedSchedule();
   }
 
   ngOnDestroy(): void {
@@ -192,7 +207,11 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
   }
 
   get generatedCron(): string {
-    return this.createCron();
+    return this.internalCron;
+  }
+
+  get generatedSchedule(): string {
+    return this.displayedSchedule;
   }
 
   writeValue(value: string | null): void {
@@ -231,6 +250,7 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
     this.internalCron = cron;
     this.cronChange.emit(cron);
     this.onChange(cron);
+    void this.refreshDisplayedSchedule();
   }
 
   private createCron(): string {
@@ -241,18 +261,17 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
         return `0 */${value.everyHours} * * *`;
 
       case 'weekly': {
-        const [hour, minute] = this.splitTime(value.time);
         const days = value.weekdays.length ? value.weekdays.join(',') : '*';
-        return `${minute} ${hour} * * ${days}`;
+        return this.createTimedCron(value.times, days);
       }
 
       case 'daily':
       default:
-        return this.createDailyCron(value.times);
+        return this.createTimedCron(value.times);
     }
   }
 
-  private createDailyCron(times: string[]): string {
+  private createTimedCron(times: string[], dayOfWeek: string = '*'): string {
     const normalized = times
       .map((time) => this.splitTime(time))
       .sort(([hourA, minuteA], [hourB, minuteB]) => hourA - hourB || minuteA - minuteB);
@@ -262,15 +281,16 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
     if (minutes.size === 1) {
       const minute = normalized[0][1];
       const hours = normalized.map(([hour]) => hour).join(',');
-      return `${minute} ${hours} * * *`;
+      return `${minute} ${hours} * * ${dayOfWeek}`;
     }
 
-    return normalized.map(([hour, minute]) => `${minute} ${hour} * * *`).join(';');
+    return normalized.map(([hour, minute]) => `${minute} ${hour} * * ${dayOfWeek}`).join(';');
   }
 
   private loadCron(cron: string): void {
     if (!cron?.trim()) {
       this.ensureVisibleMode();
+      void this.refreshDisplayedSchedule();
       return;
     }
 
@@ -280,17 +300,47 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
       .filter(Boolean);
 
     if (expressions.length > 1) {
-      const times = expressions.map((expression) => this.parseDailyExpression(expression));
-      if (times.every((value): value is string => value !== null)) {
+      const dailyTimes = expressions
+        .map((expression) => this.parseDailyExpression(expression))
+        .filter((value): value is string => value !== null);
+      if (dailyTimes.length === expressions.length) {
         this.form.patchValue(
           {
             mode: 'daily',
-            times,
+            times: dailyTimes,
           },
           { emitEvent: false }
         );
         this.internalCron = this.createCron();
         this.ensureVisibleMode();
+        void this.refreshDisplayedSchedule();
+        return;
+      }
+
+      const weeklySchedules = expressions
+        .map((expression) => this.parseWeeklyExpression(expression))
+        .filter((value): value is { times: string[]; weekdays: number[] } => value !== null);
+      if (weeklySchedules.length === expressions.length) {
+        const [firstSchedule] = weeklySchedules;
+        const hasMatchingWeekdays = weeklySchedules.every((schedule) => {
+          const weekdays = schedule.weekdays;
+          return weekdays.length === firstSchedule.weekdays.length && weekdays.every((day, index) => day === firstSchedule.weekdays[index]);
+        });
+
+        if (hasMatchingWeekdays) {
+          const times = weeklySchedules.flatMap((schedule) => schedule.times);
+          this.form.patchValue(
+            {
+              mode: 'weekly',
+              times,
+              weekdays: firstSchedule.weekdays,
+            },
+            { emitEvent: false }
+          );
+          this.internalCron = this.createCron();
+          this.ensureVisibleMode();
+          void this.refreshDisplayedSchedule();
+        }
       }
 
       return;
@@ -314,20 +364,25 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
       );
       this.internalCron = this.createCron();
       this.ensureVisibleMode();
+      void this.refreshDisplayedSchedule();
       return;
     }
 
     if (dayOfMonth === '*' && month === '*' && dayOfWeek !== '*') {
-      this.form.patchValue(
-        {
-          mode: 'weekly',
-          time: this.formatTime(Number(hour), Number(minute)),
-          weekdays: dayOfWeek.split(',').map(Number),
-        },
-        { emitEvent: false }
-      );
-      this.internalCron = this.createCron();
-      this.ensureVisibleMode();
+      const weeklySchedule = this.parseWeeklyExpression(cron);
+      if (weeklySchedule) {
+        this.form.patchValue(
+          {
+            mode: 'weekly',
+            times: weeklySchedule.times,
+            weekdays: weeklySchedule.weekdays,
+          },
+          { emitEvent: false }
+        );
+        this.internalCron = this.createCron();
+        this.ensureVisibleMode();
+        void this.refreshDisplayedSchedule();
+      }
       return;
     }
 
@@ -342,6 +397,7 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
       );
       this.internalCron = this.createCron();
       this.ensureVisibleMode();
+      void this.refreshDisplayedSchedule();
     }
   }
 
@@ -359,6 +415,61 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
     }
 
     return this.formatTime(Number(hour), Number(minute));
+  }
+
+  private parseWeeklyExpression(expression: string): { times: string[]; weekdays: number[] } | null {
+    const fields = expression.split(/\s+/);
+
+    if (fields.length !== 5) {
+      return null;
+    }
+
+    const [minute, hour, dayOfMonth, month, dayOfWeek] = fields;
+
+    if (dayOfMonth !== '*' || month !== '*' || dayOfWeek === '*' || minute.includes(',')) {
+      return null;
+    }
+
+    const weekdays = this.parseWeekdays(dayOfWeek);
+
+    if (!weekdays) {
+      return null;
+    }
+
+    if (hour.includes(',')) {
+      const hours = hour.split(',').map(Number);
+
+      if (hours.some((item) => Number.isNaN(item))) {
+        return null;
+      }
+
+      return {
+        times: hours.map((item) => this.formatTime(item, Number(minute))),
+        weekdays,
+      };
+    }
+
+    const hourValue = Number(hour);
+    const minuteValue = Number(minute);
+
+    if (Number.isNaN(hourValue) || Number.isNaN(minuteValue)) {
+      return null;
+    }
+
+    return {
+      times: [this.formatTime(hourValue, minuteValue)],
+      weekdays,
+    };
+  }
+
+  private parseWeekdays(value: string): number[] | null {
+    const weekdays = value.split(',').map(Number);
+
+    if (weekdays.some((day) => Number.isNaN(day))) {
+      return null;
+    }
+
+    return [...new Set(weekdays)].sort((a, b) => a - b);
   }
 
   private splitTime(time: string): [number, number] {
@@ -415,4 +526,111 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
     if (mode === 'hourly') return this.hideInterval;
     return this.hideWeekly;
   }
+
+  private async refreshDisplayedSchedule(): Promise<void> {
+    const requestId = ++this.scheduleRequestId;
+
+    if (!this.describeCron) {
+      this.displayedSchedule = this.internalCron;
+      this.changeDetectorRef.detectChanges();
+      return;
+    }
+
+    const cron = this.internalCron;
+
+    try {
+      const description = await this.describeCronExpression(cron);
+
+      if (requestId !== this.scheduleRequestId) {
+        return;
+      }
+
+      this.displayedSchedule = description;
+    } catch {
+      if (requestId !== this.scheduleRequestId) {
+        return;
+      }
+
+      this.displayedSchedule = cron;
+    }
+
+    this.changeDetectorRef.detectChanges();
+  }
+
+  private async describeCronExpression(cron: string): Promise<string> {
+    const locale = this.getCrontrueLocale();
+    await this.loadCrontrueLocale(locale);
+    const cronstrue = await this.loadCrontrue();
+
+    return cron
+      .split(';')
+      .map((expression) => expression.trim())
+      .filter(Boolean)
+      .map((expression) =>
+        cronstrue.toString(expression, {
+          locale,
+          throwExceptionOnParseError: false,
+          use24HourTimeFormat: true,
+        })
+      )
+      .join('; ');
+  }
+
+  private getLocale(): string {
+    return (this.translateService.getCurrentLang() || this.translateService.defaultLang || 'en').toLowerCase();
+  }
+
+  private getCrontrueLocale(): string {
+    const locale = this.getLocale();
+
+    if (locale.startsWith('pt')) {
+      return 'pt_BR';
+    }
+
+    if (locale.startsWith('en')) {
+      return 'en';
+    }
+
+    return locale.replace('-', '_');
+  }
+
+  private async loadCrontrue(): Promise<CrontrueModule> {
+    if (!this.crontrueModulePromise) {
+      this.crontrueModulePromise = import('cronstrue') as Promise<CrontrueModule>;
+    }
+
+    return this.crontrueModulePromise;
+  }
+
+  private async loadCrontrueLocale(locale: string): Promise<unknown> {
+    if (!this.crontrueLocalePromises.has(locale)) {
+      const localePromise = this.loadCrontrueLocaleModule(locale);
+      this.crontrueLocalePromises.set(locale, localePromise);
+    }
+
+    return this.crontrueLocalePromises.get(locale) as Promise<unknown>;
+  }
+
+  private async loadCrontrueLocaleModule(locale: string): Promise<unknown> {
+    switch (locale) {
+      case 'pt_BR':
+        // @ts-expect-error cRonstrue does not ship typings for locale entry points.
+        return import('cronstrue/locales/pt_BR.js');
+
+      case 'en':
+      default:
+        // @ts-expect-error cRonstrue does not ship typings for locale entry points.
+        return import('cronstrue/locales/en.js');
+    }
+  }
+}
+
+interface CrontrueModule {
+  toString(expression: string, options?: CrontrueOptions): string;
+}
+
+interface CrontrueOptions {
+  locale?: string;
+  throwExceptionOnParseError?: boolean;
+  use24HourTimeFormat?: boolean;
 }
