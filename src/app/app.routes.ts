@@ -19,6 +19,23 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage)
   },
   {
+    path: 'cron-selector',
+    loadComponent: () => import('./pages/cron-selector/cron-selector.page').then(m => m.CronSelectorPage)
+  },
+  {
+    path: 'medication-schedule',
+    redirectTo: 'medication-schedule/create',
+    pathMatch: 'full'
+  },
+  {
+    path: 'medication-schedule/:operation',
+    loadComponent: () => import('./pages/medication-schedule/medication-schedule.page').then(m => m.MedicationSchedulePage)
+  },
+  {
+    path: 'medication-schedule/:operation/:modelId',
+    loadComponent: () => import('./pages/medication-schedule/medication-schedule.page').then(m => m.MedicationSchedulePage)
+  },
+  {
     path: 'model-builder',
     loadComponent: () => import('./pages/model-builder/model-builder.page').then(m => m.ModelBuilderPage)
   },

@@ -1,4 +1,70 @@
 {
+  "component": {
+    "switcher": {
+      "leaflet": "Criar novo documento"
+    },
+    "cron_selector": {
+      "frequency": "Frequência da medicação",
+      "modes": {
+        "daily": "Diário",
+        "hourly": "Intervalo",
+        "weekly": "Semanal"
+      },
+      "dose": "Dose {0}",
+      "remove": "Remover",
+      "add_time": "Adicionar outro horário",
+      "repeat_every": "Repetir a cada",
+      "start_date_time": "Data e hora de início",
+      "hours": "horas",
+      "time": "Hora",
+      "generated_schedule": "Horário gerado:",
+      "weekdays": {
+        "sunday": "Domingo",
+        "monday": "Segunda-feira",
+        "tuesday": "Terça-feira",
+        "wednesday": "Quarta-feira",
+        "thursday": "Quinta-feira",
+        "friday": "Sexta-feira",
+        "saturday": "Sábado"
+      }
+    }
+  },
+  "menu": {
+    "dashboard": "Painel",
+    "graph": "Grafo",
+    "product": "Produtos",
+    "batch": "Lotes",
+    "cron_selector": "Seletor de cron",
+    "medication_schedule": "Plano de medicação",
+    "logout": "Terminar sessão",
+    "account": "Conta",
+    "leaflets": "Folhetos",
+    "user": "Utilizadores",
+    "category": "Categorias",
+    "employee": "Colaboradores",
+    "ai": "Modelos de IA",
+    "aivendor": "Fornecedores de IA",
+    "product_management": "Gestão de produtos"
+  },
+  "cron_selector": {
+    "title": "Seletor de cron",
+    "current_cron": "Cron atual:"
+  },
+  "medication_schedule": {
+    "title": "Plano de medicação",
+    "description": "Criar, ler, atualizar ou eliminar um plano de medicação.",
+    "id": {
+      "label": "Identificador",
+      "placeholder": "Introduza um identificador do plano"
+    },
+    "name": {
+      "label": "Nome",
+      "placeholder": "Introduza o nome do lembrete"
+    },
+    "cron_expression": {
+      "label": "Expressão cron"
+    }
+  },
   "login": {
     "username": {
       "label": "Nome de utilizador",

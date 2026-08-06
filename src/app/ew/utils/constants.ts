@@ -36,6 +36,16 @@ export const AppMenu: IAppMenuItem[] = [
     url: 'graph',
   },
   {
+    label: 'cron_selector',
+    icon: 'ti-calendar-time',
+    url: 'cron-selector',
+  },
+  {
+    label: 'medication_schedule',
+    icon: 'ti-calendar-event',
+    url: 'medication-schedule',
+  },
+  {
     label: 'Model Builder',
     icon: 'ti-widgetized',
     url: 'model-builder',

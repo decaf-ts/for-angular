@@ -48,3 +48,25 @@ Object.defineProperty(document.body.style, 'transform', {
 
 (global as Record<string, unknown>)['TextEncoder'] = TextEncoder;
 (global as Record<string, unknown>)['TextDecoder'] = TextDecoder;
+
+class MockIntersectionObserver {
+  readonly root = null;
+  readonly rootMargin = '';
+  readonly thresholds: number[] = [];
+
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
+}
+
+class MockResizeObserver {
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+}
+
+(global as Record<string, unknown>)['IntersectionObserver'] = MockIntersectionObserver;
+(global as Record<string, unknown>)['ResizeObserver'] = MockResizeObserver;

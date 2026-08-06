@@ -16,6 +16,7 @@ import { routes } from './app.routes';
 import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
 import { AppSelectFieldComponent } from './components/select-field/select-field.component';
 import { AppSwitcherComponent } from './components/switcher/switcher.component';
+import { CronSelectorFieldComponent } from 'src/lib/components';
 
 export const isLocalDevelopmentMode = isDevelopmentMode('localhost');
 // export const isLocalDevelopmentMode = false;
@@ -43,7 +44,12 @@ export const AppConfig: ApplicationConfig = {
     // change the default page transition
     provideDecafPageTransition(),
     // Providing Local components for dynamic rendering
-    provideDecafDynamicComponents(AppExpiryDateFieldComponent, AppSwitcherComponent, AppSelectFieldComponent),
+    provideDecafDynamicComponents(
+      AppExpiryDateFieldComponent,
+      AppSwitcherComponent,
+      AppSelectFieldComponent,
+      CronSelectorFieldComponent
+    ),
     provideDecafI18nConfig(
       {
         fallbackLang: 'en',

@@ -1,0 +1,17 @@
+:host {
+  display: block;
+}
+
+ion-list {
+  background: transparent;
+  padding: 0;
+}
+
+code {
+  display: inline-block;
+  margin-top: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
+}

@@ -14,6 +14,31 @@
     },
     "switcher": {
       "leaflet": "Create ePI Document"
+    },
+    "cron_selector": {
+      "frequency": "Medication frequency",
+      "modes": {
+        "daily": "Daily",
+        "hourly": "Interval",
+        "weekly": "Weekly"
+      },
+      "dose": "Dose {0}",
+      "remove": "Remove",
+      "add_time": "Add another time",
+      "repeat_every": "Repeat every",
+      "start_date_time": "Start date and time",
+      "hours": "hours",
+      "time": "Time",
+      "generated_schedule": "Generated schedule:",
+      "weekdays": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday"
+      }
     }
   },
   "menu": {
@@ -22,6 +47,8 @@
     "graph": "Graph",
     "products": "Products & Batches",
     "batches": "Batches",
+    "cron_selector": "Cron Selector",
+    "medication_schedule": "Medication Schedule",
     "logout": "Logout",
     "audit": "Audit",
     "account": "Account",
@@ -69,6 +96,25 @@
     "title": "Error",
     "message": "An unexpected error has occurred.",
     "back": "Back"
+  },
+  "cron_selector": {
+    "title": "Cron Selector",
+    "current_cron": "Current cron:"
+  },
+  "medication_schedule": {
+    "title": "Medication Schedule",
+    "description": "Create, read, update, or delete a medication reminder schedule.",
+    "id": {
+      "label": "Identifier",
+      "placeholder": "Enter a schedule identifier"
+    },
+    "name": {
+      "label": "Name",
+      "placeholder": "Enter a reminder name"
+    },
+    "cron_expression": {
+      "label": "Cron expression"
+    }
   },
   "diffs": {
     "continue": "Continue",

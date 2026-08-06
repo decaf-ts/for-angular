@@ -1,0 +1,31 @@
+<app-header
+  [title]="title"
+  [operation]="operation"
+  [modelId]="modelId"
+/>
+
+<ion-content [fullscreen]="true">
+  <main>
+    <ngx-decaf-container>
+      <ngx-decaf-card [title]="title">
+        @if (model) {
+          @if (!errorMessage) {
+            <ngx-decaf-model-renderer
+              [model]="model"
+              (listenEvent)="handleEvent($event)"
+              [globals]="{ operation, operations, model, _data, refreshing, modelId, allowClear: false, title }"
+            />
+          } @else {
+            <ngx-decaf-empty-state
+              [model]="model"
+              title="404 - Not Found"
+              iconColor="danger"
+              icon="ti-mood-sad"
+              [subtitle]="'errors.not_found' | translate:{ '0': pk, '1': modelId, '2': modelName }"
+            />
+          }
+        }
+      </ngx-decaf-card>
+    </ngx-decaf-container>
+  </main>
+</ion-content>

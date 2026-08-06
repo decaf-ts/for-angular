@@ -1,0 +1,16 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ 'cron_selector.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <app-cron-selector [(cron)]="medicationCron"></app-cron-selector>
+
+  <ion-item lines="none">
+    <ion-note>
+      {{ 'cron_selector.current_cron' | translate }}
+      <code>{{ medicationCron }}</code>
+    </ion-note>
+  </ion-item>
+</ion-content>

@@ -1,0 +1,29 @@
+<div
+  #component
+  #container
+  [class]="'dcf-input-item ' + operation + ' ' + className"
+  [class.dcf-field-required]="required"
+  [class.dcf-field-readonly]="isReadOnlyOperation"
+>
+  <ion-item lines="none">
+    <ion-label position="stacked">
+      {{ label | translate }}
+    </ion-label>
+  </ion-item>
+
+  <app-cron-selector
+    [cron]="cronValue"
+    [disabled]="isReadOnlyOperation"
+    [hideDaily]="hideDaily"
+    [hideInterval]="hideInterval"
+    [hideWeekly]="hideWeekly"
+    (cronChange)="handleCronChange($event)"
+  />
+
+  @if (!isReadOnlyOperation) {
+    <div
+      class="dcf-input-error"
+      [innerHTML]="getErrors(container)"
+    ></div>
+  }
+</div>

@@ -2,6 +2,31 @@
   "component": {
     "switcher": {
       "leaflet": "Create new document"
+    },
+    "cron_selector": {
+      "frequency": "Medication frequency",
+      "modes": {
+        "daily": "Daily",
+        "hourly": "Interval",
+        "weekly": "Weekly"
+      },
+      "dose": "Dose {0}",
+      "remove": "Remove",
+      "add_time": "Add another time",
+      "repeat_every": "Repeat every",
+      "start_date_time": "Start date and time",
+      "hours": "hours",
+      "time": "Time",
+      "generated_schedule": "Generated schedule:",
+      "weekdays": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday"
+      }
     }
   },
   "menu": {
@@ -9,6 +34,8 @@
     "graph": "Graph",
     "product": "Products",
     "batch": "Batches",
+    "cron_selector": "Cron Selector",
+    "medication_schedule": "Medication Schedule",
     "logout": "Logout",
     "account": "Account",
     "leaflets": "Leaflets",
@@ -18,6 +45,25 @@
     "ai": "AI Models",
     "aivendor": "Ai Vendors",
     "product_management": "Product Management"
+  },
+  "cron_selector": {
+    "title": "Cron Selector",
+    "current_cron": "Current cron:"
+  },
+  "medication_schedule": {
+    "title": "Medication Schedule",
+    "description": "Create, read, update, or delete a medication reminder schedule.",
+    "id": {
+      "label": "Identifier",
+      "placeholder": "Enter a schedule identifier"
+    },
+    "name": {
+      "label": "Name",
+      "placeholder": "Enter a reminder name"
+    },
+    "cron_expression": {
+      "label": "Cron expression"
+    }
   },
   "login": {
      "username": {
