@@ -1,130 +1,180 @@
-<ion-list [formGroup]="form">
-  <ion-item lines="none">
-    <ion-segment formControlName="mode" (ionBlur)="markTouched()">
-      @if (!hideDaily) {
-        <ion-segment-button class="dcf-cron-selector-segment" value="daily">
-          <ion-label>{{ 'component.cron_selector.modes.daily' | translate }}</ion-label>
-        </ion-segment-button>
-      }
+<div
+  class="dcf-cron-selector-component"
+  role="form"
+  [formGroup]="form"
+>
+  <div
+    class="dcf-grid dcf-grid-small dcf-flex dcf-flex-middle dcf-grid-match-item dcf-segment-grid"
+  >
+    <div class="dcf-width-expand@s">
+      <ion-segment
+        formControlName="mode"
+        mode="ios"
+        (ionBlur)="markTouched()"
+      >
+        @if (!hideDaily) {
+          <ion-segment-button
+            class="dcf-cron-selector-segment"
+            value="daily"
+          >
+            <ion-label>
+              {{ 'component.cron_selector.modes.daily' | translate }}
+            </ion-label>
+          </ion-segment-button>
+        }
 
-      @if (!hideInterval) {
-        <ion-segment-button class="dcf-cron-selector-segment" value="hourly">
-          <ion-label>{{ 'component.cron_selector.modes.hourly' | translate }}</ion-label>
-        </ion-segment-button>
-      }
+        @if (!hideInterval) {
+          <ion-segment-button
+            class="dcf-cron-selector-segment"
+            value="hourly"
+          >
+            <ion-label>
+              {{ 'component.cron_selector.modes.hourly' | translate }}
+            </ion-label>
+          </ion-segment-button>
+        }
 
-      @if (!hideWeekly) {
-        <ion-segment-button class="dcf-cron-selector-segment" value="weekly">
-          <ion-label>{{ 'component.cron_selector.modes.weekly' | translate }}</ion-label>
-        </ion-segment-button>
-      }
-    </ion-segment>
-  </ion-item>
-
-  @switch (form.controls.mode.value) {
-    @case ("daily") {
-      @for (time of form.controls.times.value; track $index; let index = $index) {
-        <ion-item>
-          <ion-label>
-            {{ 'component.cron_selector.dose' | translate: { '0': index + 1 } }}
-          </ion-label>
-
-          <ion-datetime-button [datetime]="'daily-time-' + index"></ion-datetime-button>
-
-          <ion-button
-            slot="end"
-            fill="clear"
-            [disabled]="form.controls.times.value.length === 1"
-            (click)="removeTime(index)">
-            {{ 'component.cron_selector.remove' | translate }}
-          </ion-button>
-
-          <ion-modal [keepContentsMounted]="true">
-            <ng-template>
-              <ion-datetime
-                [id]="'daily-time-' + index"
-                presentation="time"
-                [value]="time"
-                [showDefaultButtons]="true"
-                (ionChange)="updateTime(index, $event.detail.value)">
-              </ion-datetime>
-            </ng-template>
-          </ion-modal>
-        </ion-item>
-      }
-
-      <ion-button expand="block" fill="outline" (click)="addTime()">
+        @if (!hideWeekly) {
+          <ion-segment-button
+            class="dcf-cron-selector-segment"
+            value="weekly"
+          >
+            <ion-label>
+              {{ 'component.cron_selector.modes.weekly' | translate }}
+            </ion-label>
+          </ion-segment-button>
+        }
+      </ion-segment>
+    </div>
+    <div class="dcf-width-auto@s dcf-add-button-col">
+      <ion-button
+        expand="block"
+        (click)="addTime()"
+      >
         {{ 'component.cron_selector.add_time' | translate }}
       </ion-button>
-    }
+    </div>
+  </div>
 
-    @case ("hourly") {
-      <ion-item>
-        <ion-select
-          [label]="'component.cron_selector.repeat_every' | translate"
-          formControlName="everyHours"
-          interface="popover">
-          @for (hours of hourlyIntervals; track hours) {
-            <ion-select-option [value]="hours">
-              {{ hours }} {{ 'component.cron_selector.hours' | translate }}
-            </ion-select-option>
-          }
-        </ion-select>
-      </ion-item>
-    }
-
-    @case ("weekly") {
-      @for (time of form.controls.times.value; track $index; let index = $index) {
-        <ion-item>
-          <ion-label>
-            {{ 'component.cron_selector.dose' | translate: { '0': index + 1 } }}
-          </ion-label>
-
-          <ion-datetime-button [datetime]="'weekly-time-' + index"></ion-datetime-button>
-
-          <ion-button
-            slot="end"
-            fill="clear"
-            [disabled]="form.controls.times.value.length === 1"
-            (click)="removeTime(index)">
-            {{ 'component.cron_selector.remove' | translate }}
-          </ion-button>
-
-          <ion-modal [keepContentsMounted]="true">
-            <ng-template>
-              <ion-datetime
-                [id]="'weekly-time-' + index"
-                presentation="time"
-                [value]="time"
-                [showDefaultButtons]="true"
-                (ionChange)="updateTime(index, $event.detail.value)">
-              </ion-datetime>
-            </ng-template>
-          </ion-modal>
-        </ion-item>
-      }
-
-      <ion-button expand="block" fill="outline" (click)="addTime()">
-        {{ 'component.cron_selector.add_time' | translate }}
-      </ion-button>
-
-      @for (day of weekdays; track day.value) {
-        <ion-item>
-          <ion-checkbox
-            justify="space-between"
-            [checked]="isWeekdaySelected(day.value)"
-            (ionChange)="toggleWeekday(day.value, $event.detail.checked)">
-            {{ day.label | translate }}
-          </ion-checkbox>
-        </ion-item>
-      }
-    }
-  }
-
-  <ion-item lines="none">
+  <ion-item class="dcf-current-cron">
     <ion-note>
       {{ 'component.cron_selector.generated_schedule' | translate }}
       <code>{{ generatedSchedule }}</code>
     </ion-note>
   </ion-item>
-</ion-list>
+
+  <ion-list>
+    @switch (form.controls.mode.value) {
+      @case ('weekly')
+      @case ('daily') {
+        @if (form.controls.mode.value === 'weekly') {
+          <div class="dcf-grid dcf-grid-small dcf-grid-weekly">
+            @for (day of weekdays; track day.value) {
+              <div
+                class="dcf-width-1-4@m dcf-width-1-2@s dcf-animation dcf-animation-slide-top-small dcf-animation-medium"
+              >
+                <ion-item>
+                  <ion-checkbox
+                    justify="space-between"
+                    [checked]="isWeekdaySelected(day.value)"
+                    (ionChange)="
+                      toggleWeekday(day.value, $event.detail.checked)
+                    "
+                  >
+                    {{ day.label | translate }}
+                  </ion-checkbox>
+                </ion-item>
+              </div>
+            }
+          </div>
+        }
+        @for (
+          time of form.controls.times.value;
+          track $index;
+          let index = $index
+        ) {
+          <ion-item
+            class="dcf-cron-item dcf-animation dcf-animation-slide-bottom-small dcf-animation-medium"
+          >
+            <ngx-decaf-icon
+              class="dcf-task-icon"
+              name="ti-clock-2"
+              color="primary"
+              button="true"
+              aria-hidden="true"
+            />
+
+            <ion-label>
+              {{
+                'component.cron_selector.dose' | translate: { '0': index + 1 }
+              }}
+            </ion-label>
+            <div
+              class="dcf-flex"
+              slot="end"
+            >
+              <ion-datetime-button [datetime]="'daily-time-' + index" />
+
+              <ion-button
+                fill="clear"
+                size="small"
+                [color]="form.controls.times.value.length === 1 ? '' : 'danger'"
+                class="dcf-button-delete"
+                [disabled]="form.controls.times.value.length === 1"
+                (click)="removeTime(index)"
+              >
+                <ngx-decaf-icon
+                  name="ti-trash"
+                  [color]="
+                    form.controls.times.value.length === 1 ? 'medium' : 'danger'
+                  "
+                />
+                <span class="dcf-text">
+                  {{ 'component.cron_selector.remove' | translate }}
+                </span>
+              </ion-button>
+            </div>
+
+            <ion-modal [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime
+                  [id]="'daily-time-' + index"
+                  presentation="time"
+                  [value]="time"
+                  [showDefaultButtons]="true"
+                  (ionChange)="updateTime(index, $event.detail.value)"
+                ></ion-datetime>
+              </ng-template>
+            </ion-modal>
+          </ion-item>
+        }
+      }
+
+      @case ('hourly') {
+        <ion-item
+          class="dcf-cron-item dcf-animation dcf-animation-slide-bottom-small dcf-animation-medium"
+        >
+          <ngx-decaf-icon
+            class="dcf-task-icon hourly"
+            name="ti-clock-bolt"
+            color="warning"
+            button="true"
+            aria-hidden="true"
+          />
+
+          <ion-select
+            [label]="'component.cron_selector.repeat_every' | translate"
+            formControlName="everyHours"
+            interface="popover"
+          >
+            @for (hours of hourlyIntervals; track hours) {
+              <ion-select-option [value]="hours">
+                {{ hours }} {{ 'component.cron_selector.hours' | translate }}
+              </ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      }
+    }
+  </ion-list>
+</div>

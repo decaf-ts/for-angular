@@ -1,28 +1,172 @@
-:host {
-  display: block;
-}
-
 ion-list {
   background: transparent;
   padding: 0;
 }
+// grid of week days
+.dcf-grid-weekly {
+  border-bottom: 1px solid var(--dcf-color-gray-3);
+  margin-bottom: var(--dcf-space-4);
+  padding-bottom: var(--dcf-space-1);
+  ion-item {
+    &:hover {
+      border-color: var(--dcf-color-primary);
+      transform: translateY(-2px);
+      --box-shadow: var(--dcf-shadow-glass);
+      box-shadow: var(--dcf-shadow-glass);
+    }
+  }
+}
+
+// grid with ion segments
+.dcf-segment-grid {
+  .dcf-add-button-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    ion-button {
+      position: relative;
+      top: -4px !important;
+      @media (max-width: 576px) {
+        display: block;
+        width: 100%;
+        margin-bottom: 1rem !important;
+      }
+    }
+  }
+  // margin-bottom: var(--dcf-space-3);
+}
 
 ion-segment {
   width: 100%;
+  padding: var(--dcf-space-1);
 }
 
-.dcf-cron-selector-segment {
-  min-width: 3.75rem;
-  --padding-start: 0.5rem;
-  --padding-end: 0.5rem;
-  font-size: 0.85rem;
+ion-segment-button {
+  height: 35px;
+
+  --color: var(--dcf-color-text-secondary);
+  --color-hover: (--dcf-color-primary);
+  --color-focused: (--dcf-color-primary);
+
+  &::before {
+    border-left: none !important;
+  }
+  &:hover {
+    ion-label {
+      color: var(--dcf-color-primary);
+    }
+  }
+
+  &.segment-button-checked {
+    ion-label {
+      color: var(--dcf-color-primary);
+    }
+  }
 }
 
-code {
-  display: inline-block;
-  margin-top: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.5rem;
-  background: rgba(0, 0, 0, 0.06);
-  white-space: nowrap;
+ion-label {
+  font-weight: 600;
+  color: var(--dcf-color-gray-6) !important;
+}
+
+ion-item:not([lines="none"]) {
+  margin-top: var(--dcf-space-1);
+  margin-bottom: var(--dcf-space-3);
+  border: 1px solid var(--dcf-color-gray-2);
+  border-radius: var(--dcf-radius-sm);
+  --color: var(--dcf-color-gray-6);
+  font-weight: 600;
+  transition:
+    transform var(--dcf-motion-base),
+    border-color var(--dcf-motion-base),
+    box-shadow var(--dcf-motion-base);
+  --background: var(--dcf-color-surface);
+  --border-color: transparent;
+  --inner-border-width: 0;
+  --padding-start: var(--dcf-space-4);
+  --inner-padding-end: var(--dcf-space-4);
+  --border-radius: var(--dcf-radius-sm);
+
+  --color-hover: var(--dcf-color-primary);
+  --color-focused: var(--dcf-color-primary);
+
+  ngx-decaf-icon.dcf-task-icon {
+    margin-right: var(--dcf-space-2);
+    &.hourly {
+      ::ng-deep {
+        ion-button {
+          background: rgba(var(--dcf-color-warning-rgb), 0.075);
+        }
+      }
+    }
+    ::ng-deep {
+      ion-button {
+        transform: scale(0.8);
+        border-radius: var(--dcf-radius-sm);
+        background: rgba(var(--dcf-color-primary-rgb), 0.125);
+      }
+    }
+  }
+
+  &.dcf-cron-item {
+    --padding-start: var(--dcf-space-1);
+    &:hover {
+      --box-shadow: var(--dcf-shadow-element);
+      box-shadow: var(--dcf-shadow-element);
+      // transform: translateY(-2px);
+    }
+    ion-datetime-button::part(native) {
+      background: rgba(var(--dcf-color-success-rgb), 0.1);
+      border-radius: var(--dcf-radius-sm);
+      color: var(--dcf-color-success-shade);
+      font-weight: 500;
+      padding: var(--dcf-space-1) var(--dcf-space-2);
+      font-size: var(--dcf-font-size-sm);
+    }
+
+    .dcf-button-delete {
+      --padding-start: 0.25rem !important;
+      --padding-end: 0.25rem !important;
+      transition:
+        color var(--dcf-motion-base) var(--dcf-easing-standard),
+        background var(--dcf-motion-base) var(--dcf-easing-standard);
+
+      .dcf-text {
+        display: inline-block;
+        max-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        transition:
+          max-width var(--dcf-motion-slow) var(--dcf-easing-standard),
+          opacity var(--dcf-motion-base) var(--dcf-easing-standard);
+      }
+
+      &:hover .dcf-text {
+        transition: max-width var(--dcf-motion-2slow) var(--dcf-easing-standard);
+        max-width: 8rem;
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.dcf-current-cron {
+  margin-top: var(--dcf-space-2) !important;
+  // margin-bottom: var(--dcf-space-15) !important;
+  ion-note {
+    font-size: var(--dcf-font-size-sm);
+    color: var(--dcf-color-text-secondary);
+    padding: var(--dcf-space-3) 0;
+    line-height: var(--dcf-line-height-sm);
+  }
+
+  code {
+    display: inline-block;
+    background: rgba(var(--dcf-color-primary-rgb), 0.125);
+    padding: var(--dcf-space-1) var(--dcf-space-3);
+    border-radius: var(--dcf-radius-sm);
+    color: var(--dcf-color-primary-shade);
+    font-family: var(--dcf-font-family-mono);
+  }
 }

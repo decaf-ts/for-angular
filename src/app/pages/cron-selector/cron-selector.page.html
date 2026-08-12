@@ -1,16 +1,17 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>{{ 'cron_selector.title' | translate }}</ion-title>
-  </ion-toolbar>
-</ion-header>
+<app-header title="{{ 'cron_selector.title' | translate }}" />
 
-<ion-content class="ion-padding">
-  <ngx-decaf-cron-selector [(cron)]="medicationCron"></ngx-decaf-cron-selector>
+<ion-content
+  fullscreen="true"
+  [scrollY]="true"
+>
+  <main>
+    <ngx-decaf-container>
+      <ngx-decaf-cron-selector [(cron)]="medicationCron" />
 
-  <ion-item lines="none">
-    <ion-note>
-      {{ 'cron_selector.current_cron' | translate }}
-      <code>{{ medicationCron }}</code>
-    </ion-note>
-  </ion-item>
+      <!-- <div class="dcf-current-cron">
+        {{ 'cron_selector.current_cron' | translate }}
+        <code>{{ medicationCron }}</code>
+      </div> -->
+    </ngx-decaf-container>
+  </main>
 </ion-content>

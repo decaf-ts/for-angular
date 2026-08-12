@@ -4,14 +4,15 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
-  inject,
   forwardRef,
+  inject,
   Input,
   OnChanges,
   OnDestroy,
   Output,
 } from '@angular/core';
 import { ControlValueAccessor, FormBuilder, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { InternalError } from '@decaf-ts/db-decorators';
 import {
   IonButton,
   IonCheckbox,
@@ -29,7 +30,7 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { InternalError } from '@decaf-ts/db-decorators';
+import { IconComponent } from '../icon/icon.component';
 
 type ScheduleMode = 'daily' | 'hourly' | 'weekly';
 
@@ -44,6 +45,7 @@ interface WeekdayOption {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    IconComponent,
     IonButton,
     IonCheckbox,
     IonDatetime,
@@ -324,7 +326,10 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
         const [firstSchedule] = weeklySchedules;
         const hasMatchingWeekdays = weeklySchedules.every((schedule) => {
           const weekdays = schedule.weekdays;
-          return weekdays.length === firstSchedule.weekdays.length && weekdays.every((day, index) => day === firstSchedule.weekdays[index]);
+          return (
+            weekdays.length === firstSchedule.weekdays.length &&
+            weekdays.every((day, index) => day === firstSchedule.weekdays[index])
+          );
         });
 
         if (hasMatchingWeekdays) {
@@ -596,7 +601,8 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
 
   private async loadCrontrue(): Promise<CrontrueModule> {
     if (!this.crontrueModulePromise) {
-      this.crontrueModulePromise = import('cronstrue') as Promise<CrontrueModule>;
+      const mod = 'cronstrue';
+      this.crontrueModulePromise = import(/* webpackIgnore: true */ mod) as Promise<CrontrueModule>;
     }
 
     return this.crontrueModulePromise;
@@ -612,16 +618,12 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
   }
 
   private async loadCrontrueLocaleModule(locale: string): Promise<unknown> {
-    switch (locale) {
-      case 'pt_BR':
-        // @ts-expect-error cRonstrue does not ship typings for locale entry points.
-        return import('cronstrue/locales/pt_BR.js');
-
-      case 'en':
-      default:
-        // @ts-expect-error cRonstrue does not ship typings for locale entry points.
-        return import('cronstrue/locales/en.js');
-    }
+    const locales: Record<string, string> = {
+      pt_BR: 'cronstrue/locales/pt_BR.js',
+      en: 'cronstrue/locales/en.js',
+    };
+    const mod = locales[locale] ?? locales['en'];
+    return import(/* webpackIgnore: true */ mod);
   }
 }
 

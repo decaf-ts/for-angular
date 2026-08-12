@@ -1,3 +1,14 @@
 :host {
   display: block;
 }
+
+.dcf-current-cron {
+  background: white;
+  padding: var(--dcf-space-3);
+  margin-top: var(--dcf-space-4);
+  border-radius: var(--dcf-radius-sm);
+  font-size: var(--dcf-font-meta);
+  code {
+    background: var(--dcf-color-primary-rgb);
+  }
+}

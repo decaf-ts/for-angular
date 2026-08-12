@@ -143,7 +143,7 @@ $dcf-line-height-base: 1.5;
 $dcf-font-size-lg: 1.25rem;
 $dcf-line-height-text-lg: 1.5;
 
-$dcf-font-size-sm: 0.875rem;
+$dcf-font-size-sm: 0.825rem;
 $dcf-line-height-sm: 1.5;
 $dcf-line-height-font-sm: $dcf-line-height-sm;
 
@@ -272,6 +272,8 @@ $dcf-shadow-glass: 0 8px 32px
     0.06
   );
 
+$dcf-shadow-element: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+
 $dcf-focus-ring: 0 0 0 3px
   rgba(
     list.nth($dcf-color-primary-rgb, 1),
@@ -281,8 +283,9 @@ $dcf-focus-ring: 0 0 0 3px
   );
 
 $dcf-motion-fast: 140ms;
-$dcf-motion-base: 180ms;
-$dcf-motion-slow: 240ms;
+$dcf-motion-base: 240ms;
+$dcf-motion-slow: 400ms;
+$dcf-motion-2slow: 800ms;
 $dcf-easing-standard: cubic-bezier(0.2, 0, 0, 1);
 
 $dcf-box-shadow: 0px 3px 12px rgba(47, 43, 61, 0.14);
@@ -562,13 +565,15 @@ $dcf-dark-border-strong: 1px solid $dcf-dark-color-outline-shade;
   --dcf-shadow-card: #{$dcf-shadow-card};
   --dcf-shadow-popover: #{$dcf-shadow-popover};
   --dcf-shadow-modal: #{$dcf-shadow-modal};
-  --dcf-shadow-glass: #{$dcf-shadow-glass};
+
+  --dcf-shadow-element: #{$dcf-shadow-element};
 
   --dcf-focus-ring: #{$dcf-focus-ring};
 
   --dcf-motion-fast: #{$dcf-motion-fast};
   --dcf-motion-base: #{$dcf-motion-base};
   --dcf-motion-slow: #{$dcf-motion-slow};
+  --dcf-motion-2slow: #{$dcf-motion-2slow};
   --dcf-easing-standard: #{$dcf-easing-standard};
 
   --dcf-box-shadow: #{$dcf-box-shadow};
