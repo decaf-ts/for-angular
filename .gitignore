@@ -75,3 +75,5 @@ CLAUDE.md
 /workdocs/ai
 /.playwright-mcp
 /.agents
+/.claude
+/.omo
