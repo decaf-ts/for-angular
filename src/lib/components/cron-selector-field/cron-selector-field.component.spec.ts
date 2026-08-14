@@ -79,7 +79,7 @@ describe('CronSelectorFieldComponent', () => {
 
     const cronSelector = fixture.debugElement.query(By.directive(CronSelectorComponent));
     expect(cronSelector).toBeTruthy();
-    expect(cronSelector.componentInstance.describeCron).toBe(true);
+    expect(cronSelector.componentInstance.describeCron()).toBe(true);
   });
 
   it('should keep required validation visible when the empty checkbox is unchecked', () => {

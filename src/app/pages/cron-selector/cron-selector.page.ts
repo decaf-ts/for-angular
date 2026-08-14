@@ -23,4 +23,8 @@ import { ContainerComponent, CronSelectorComponent } from 'src/lib/components';
 })
 export class CronSelectorPage {
   medicationCron = '0 9 * * *';
+
+  onCronChange(cron: string): void {
+    console.log('[cron-selector] changed:', cron);
+  }
 }

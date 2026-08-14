@@ -10,9 +10,8 @@
       <ion-segment
         formControlName="mode"
         mode="ios"
-        (ionBlur)="markTouched()"
       >
-        @if (!hideDaily) {
+        @if (!hideDaily()) {
           <ion-segment-button
             class="dcf-cron-selector-segment"
             value="daily"
@@ -23,7 +22,7 @@
           </ion-segment-button>
         }
 
-        @if (!hideInterval) {
+        @if (!hideInterval()) {
           <ion-segment-button
             class="dcf-cron-selector-segment"
             value="hourly"
@@ -34,7 +33,7 @@
           </ion-segment-button>
         }
 
-        @if (!hideWeekly) {
+        @if (!hideWeekly()) {
           <ion-segment-button
             class="dcf-cron-selector-segment"
             value="weekly"
