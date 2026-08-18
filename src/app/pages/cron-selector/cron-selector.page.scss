@@ -9,6 +9,11 @@
   border-radius: var(--dcf-radius-sm);
   font-size: var(--dcf-font-meta);
   code {
-    background: var(--dcf-color-primary-rgb);
+    display: inline-block;
+    background: rgba(var(--dcf-color-primary-rgb), 0.125);
+    padding: var(--dcf-space-1) var(--dcf-space-3);
+    border-radius: var(--dcf-radius-sm);
+    color: var(--dcf-color-primary-shade);
+    font-family: var(--dcf-font-family-mono);
   }
 }
