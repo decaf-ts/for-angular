@@ -8,12 +8,14 @@ import {
   inject,
   input,
   model,
+  OnInit,
   signal,
   untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { InternalError } from '@decaf-ts/db-decorators';
+import { LoggedClass } from '@decaf-ts/logging';
 import {
   IonButton,
   IonCheckbox,
@@ -30,6 +32,7 @@ import {
   IonSelectOption,
 } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import cronstrue from 'cronstrue/i18n';
 import { IconComponent } from '../icon/icon.component';
 
 type ScheduleMode = 'daily' | 'hourly' | 'weekly';
@@ -65,7 +68,7 @@ interface WeekdayOption {
   styleUrls: ['./cron-selector.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CronSelectorComponent {
+export class CronSelectorComponent extends LoggedClass implements OnInit {
   readonly cron = model<string>('0 9 * * *');
   readonly hideDaily = input<boolean>(false);
   readonly hideInterval = input<boolean>(false);
@@ -108,6 +111,7 @@ export class CronSelectorComponent {
   private scheduleRequestId = 0;
 
   constructor() {
+    super();
     effect(() => {
       const value = this.cron();
       untracked(() => this.loadCron(value));
@@ -148,6 +152,10 @@ export class CronSelectorComponent {
 
   get generatedSchedule(): string {
     return this.displayedSchedule();
+  }
+
+  async ngOnInit(): Promise<void> {
+    await this.refreshDisplayedSchedule();
   }
 
   addTime(): void {
@@ -497,7 +505,8 @@ export class CronSelectorComponent {
       }
 
       this.displayedSchedule.set(description);
-    } catch {
+    } catch (error: unknown) {
+      this.log.for(this.refreshDisplayedSchedule).error((error as Error)?.message || String(error));
       if (requestId !== this.scheduleRequestId) {
         return;
       }
@@ -508,8 +517,6 @@ export class CronSelectorComponent {
 
   private async describeCronExpression(cron: string): Promise<string> {
     const locale = this.getCrontrueLocale();
-    await this.loadCrontrueLocale(locale);
-    const cronstrue = await this.loadCrontrue();
 
     return cron
       .split(';')
@@ -543,32 +550,33 @@ export class CronSelectorComponent {
     return locale.replace('-', '_');
   }
 
-  private async loadCrontrue(): Promise<CrontrueModule> {
-    if (!this.crontrueModulePromise) {
-      const mod = 'cronstrue';
-      this.crontrueModulePromise = import(/* webpackIgnore: true */ mod) as Promise<CrontrueModule>;
-    }
+  // private async loadCrontrue(): Promise<CrontrueModule> {
+  //   if (!this.crontrueModulePromise) {
+  //     const mod = 'cronstrue';
+  //     this.crontrueModulePromise = import(/* webpackIgnore: true */ mod) as Promise<CrontrueModule>;
+  //   }
 
-    return this.crontrueModulePromise;
-  }
+  //   return this.crontrueModulePromise;
+  // }
 
-  private async loadCrontrueLocale(locale: string): Promise<unknown> {
-    if (!this.crontrueLocalePromises.has(locale)) {
-      const localePromise = this.loadCrontrueLocaleModule(locale);
-      this.crontrueLocalePromises.set(locale, localePromise);
-    }
+  // private async loadCrontrueLocale(locale: string): Promise<unknown> {
+  //   if (!this.crontrueLocalePromises.has(locale)) {
+  //     const localePromise = this.loadCrontrueLocaleModule(locale);
+  //     this.crontrueLocalePromises.set(locale, localePromise);
+  //   }
 
-    return this.crontrueLocalePromises.get(locale) as Promise<unknown>;
-  }
+  //   return this.crontrueLocalePromises.get(locale) as Promise<unknown>;
+  // }
 
-  private async loadCrontrueLocaleModule(locale: string): Promise<unknown> {
-    const locales: Record<string, string> = {
-      pt_BR: 'cronstrue/locales/pt_BR.js',
-      en: 'cronstrue/locales/en.js',
-    };
-    const mod = locales[locale] ?? locales['en'];
-    return import(/* webpackIgnore: true */ mod);
-  }
+  // private async loadCrontrueLocaleModule(locale: string): Promise<unknown> {
+  //   const locales: Record<string, string> = {
+  //     pt_BR: './cronstrue/pt_BR.js',
+  //     en: './cronstrue/en.js',
+  //   };
+  //   const mod = locales[locale] ?? locales['en'];
+  //   console.log(mod);
+  //   return import(/* webpackIgnore: true */ mod);
+  // }
 }
 
 interface CrontrueModule {
