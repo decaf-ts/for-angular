@@ -568,7 +568,6 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
 
     this.limit = Number(this.limit);
     this.start = Number(this.start);
-    console.log(this.operations);
 
     if (!this.operations || !this.operations.includes(OperationKeys.CREATE)) this.createButton = false;
     if (typeof this.item?.['tag'] === 'boolean' && this.item?.['tag'] === true)

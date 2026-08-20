@@ -13,5 +13,5 @@
       "output": "assets"
     }
   ],
-  "allowedNonPeerDependencies": ["YOUR_PACKAGE_NAME_HERE"]
+  "allowedNonPeerDependencies": ["cronstrue"]
 }

@@ -4,7 +4,7 @@ import { uielement, uilistmodel, uilistprop, uimodel } from '@decaf-ts/ui-decora
 
 // @table('medication_schedules')
 @uilistmodel('ngx-decaf-list-item', { icon: 'ti-cup' })
-@uimodel('ngx-decaf-crud-form', { empty: { showButton: false } })
+@uimodel('ngx-decaf-crud-form', { empty: { showButton: true } })
 @model()
 export class MedicationScheduleModel extends Model {
   @pk({ type: String, generated: false })

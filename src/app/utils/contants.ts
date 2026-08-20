@@ -25,11 +25,11 @@ export const AppMenu: IMenuItem[] = [
     icon: 'ti-graph',
     url: 'graph',
   },
-  {
-    label: 'cron_selector',
-    icon: 'ti-calendar-time',
-    url: 'cron-selector',
-  },
+  // {
+  //   label: 'cron_selector',
+  //   icon: 'ti-calendar-time',
+  //   url: 'cron-selector',
+  // },
   // {
   //   label: 'medicationschedule',
   //   icon: 'ti-calendar-event',

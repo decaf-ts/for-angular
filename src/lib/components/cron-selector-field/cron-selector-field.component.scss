@@ -1,5 +1,7 @@
-:host {
-  display: block;
+.dcf-cron-selector-field {
+  padding: var(--dcf-padding-small);
+  border: 1px solid var(--dcf-color-gray-4);
+  border-radius: var(--dcf-border-radius-small);
 }
 
 .dcf-cron-selector-header {
@@ -13,6 +15,7 @@
 .dcf-cron-selector-label {
   flex: 1 1 auto;
   min-width: 0;
+  font-weight: bold;
 }
 
 .dcf-cron-selector-toggle,

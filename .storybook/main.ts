@@ -9,7 +9,7 @@ const config: StorybookConfig = {
     "name": "@storybook/angular",
     "options": {}
   },
-  "staticDirs": ["../src/stories/assets"],
+  "staticDirs": ["../src/stories/assets", { from: "../src/assets", to: "/assets" }],
   webpackFinal: async (config) => {
     config.performance = {
       maxAssetSize: 512000, // 500 KiB

@@ -55,6 +55,7 @@ const meta: Meta<CrudFieldComponent> = {
 
   ...component,
   argTypes: {
+    ...component.argTypes,
     type: {
       control: 'select',
       options: ['text', 'number', 'email', 'password', 'date', 'textarea', 'checkbox', 'radio', 'select', 'tel', 'url'],

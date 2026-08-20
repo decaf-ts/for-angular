@@ -1,5 +1,3 @@
-{{ describeCron }}
-
 <div
   class="dcf-cron-selector-component"
   role="form"
@@ -13,35 +11,13 @@
         formControlName="mode"
         mode="ios"
       >
-        @if (!hideDaily()) {
+        @for (mode of modes(); track mode) {
           <ion-segment-button
             class="dcf-cron-selector-segment"
-            value="daily"
+            [value]="mode"
           >
-            <ion-label>
-              {{ 'component.cron_selector.modes.daily' | translate }}
-            </ion-label>
-          </ion-segment-button>
-        }
-
-        @if (!hideInterval()) {
-          <ion-segment-button
-            class="dcf-cron-selector-segment"
-            value="hourly"
-          >
-            <ion-label>
-              {{ 'component.cron_selector.modes.hourly' | translate }}
-            </ion-label>
-          </ion-segment-button>
-        }
-
-        @if (!hideWeekly()) {
-          <ion-segment-button
-            class="dcf-cron-selector-segment"
-            value="weekly"
-          >
-            <ion-label>
-              {{ 'component.cron_selector.modes.weekly' | translate }}
+            <ion-label [innerText]="">
+              {{ 'component.cron_selector.modes.' + mode | translate }}
             </ion-label>
           </ion-segment-button>
         }
@@ -51,8 +27,9 @@
       <ion-button
         expand="block"
         (click)="addTime()"
+        [disabled]="getControlValue('mode') === 'hourly'"
       >
-        {{ 'component.cron_selector.add_time' | translate }}
+        {{ 'component.cron_selector.add_ocurrence' | translate }}
       </ion-button>
     </div>
   </div>
@@ -60,15 +37,15 @@
   <ion-item class="dcf-current-cron">
     <ion-note>
       {{ 'component.cron_selector.generated_schedule' | translate }}
-      <code>{{ generatedSchedule }}</code>
+      <code>{{ displayedSchedule() }}</code>
     </ion-note>
   </ion-item>
 
   <ion-list>
-    @switch (form.controls.mode.value) {
+    @switch (getControlValue('mode')) {
       @case ('weekly')
       @case ('daily') {
-        @if (form.controls.mode.value === 'weekly') {
+        @if (getControlValue('mode') === 'weekly') {
           <div class="dcf-grid dcf-grid-small dcf-grid-weekly">
             @for (day of weekdays; track day.value) {
               <div
@@ -90,7 +67,7 @@
           </div>
         }
         @for (
-          time of form.controls.times.value;
+          time of getControlValue('times');
           track $index;
           let index = $index
         ) {
@@ -150,7 +127,6 @@
           </ion-item>
         }
       }
-
       @case ('hourly') {
         <ion-item
           class="dcf-cron-item dcf-animation dcf-animation-slide-bottom-small dcf-animation-medium"

@@ -1,10 +1,10 @@
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { applicationConfig, componentWrapperDecorator, Meta, moduleMetadata } from '@storybook/angular';
 import { BackButtonComponent } from 'src/app/components/back-button/back-button.component';
-import { ContainerComponent } from 'src/app/components/container/container.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { LogoComponent } from 'src/app/components/logo/logo.component';
 import { RouterService } from 'src/app/services/router.service';
+import { ContainerComponent } from 'src/lib/components/container/container.component';
 import { NgxRenderingEngine } from 'src/lib/engine';
 import { ForAngularCommonModule } from 'src/lib/for-angular-common.module';
 import { StorybookAppConfig } from './storybook-app.config';
@@ -29,8 +29,15 @@ export function getComponentMeta<C>(
     tags: ['autodocs'],
     parameters: {
       // More on how to position stories at: https://storybook.js.org/docs/configure/story-layout
-      layout: 'fullscreen',
+      layout: 'padded',
     },
+    argTypes: {
+      // FormGroup/FormControl instances hold circular `_parent` references that crash the
+      // Controls addon (`Converting circular structure to JSON`) when it tries to serialize them.
+      formGroup: { control: false, table: { disable: true } },
+      formControl: { control: false, table: { disable: true } },
+      parentForm: { control: false, table: { disable: true } },
+    } as Meta<C>['argTypes'],
     decorators: [
       applicationConfig(StorybookAppConfig),
       moduleMetadata({

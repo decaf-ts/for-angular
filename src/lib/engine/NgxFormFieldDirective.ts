@@ -313,6 +313,10 @@ export abstract class NgxFormFieldDirective
     }
   }
 
+  get isReadOnlyOperation(): boolean {
+    return [OperationKeys.READ, OperationKeys.DELETE].includes(this.operation) || !!this.readonly || !!this.disabled;
+  }
+
   /**
    * @description Gets the currently active form group based on context.
    * @summary Returns the appropriate FormGroup based on whether this field supports
@@ -571,7 +575,9 @@ export abstract class NgxFormFieldDirective
           const button = element.shadowRoot.querySelector('button');
           if (label && button) {
             // always reassign so a programmatic value reset clears any stale label text
-            const textContent = String(stripHTML((button.getAttribute('aria-label') || '').split(',')?.[1] || '')).trim();
+            const textContent = String(
+              stripHTML((button.getAttribute('aria-label') || '').split(',')?.[1] || '')
+            ).trim();
             label.textContent = textContent;
           }
         });

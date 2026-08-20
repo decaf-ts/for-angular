@@ -14,7 +14,7 @@
       },
       "dose": "Dose {0}",
       "remove": "Remove",
-      "add_time": "Add another time",
+      "add_ocurrence": "Add another ocurrence",
       "repeat_every": "Repeat every",
       "start_date_time": "Start date and time",
       "hours": "hours",

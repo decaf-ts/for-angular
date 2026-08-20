@@ -75,6 +75,10 @@ export class AppComponent extends NgxPageDirective implements OnInit {
    */
   override async initialize(): Promise<void> {
     const isDevelopment = isDevelopmentMode();
+
+    const menu = [];
+    // const models = AppModels;
+    const models = [new CategoryModel(), new MedicationScheduleModel()];
     const populate = [
       // 'Audit',
       // 'Product',
@@ -83,14 +87,10 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       // 'Leaflet',
       // //
       // // 'ProductImage',
-      'MedicationScheduleModel',
       'CategoryModel',
       // 'AIVendorModel',
       // 'CategoryModel',
     ];
-    const menu = [];
-    // const models = AppModels;
-    const models = [new CategoryModel(), new MedicationScheduleModel()];
     const dbAdapterFlavour = getDbAdapterFlavour();
     for (let model of models) {
       uses(dbAdapterFlavour)(model);

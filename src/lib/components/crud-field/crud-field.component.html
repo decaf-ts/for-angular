@@ -1,8 +1,4 @@
-@if (
-  operation === OperationKeys.READ ||
-  operation === OperationKeys.DELETE ||
-  readonly
-) {
+@if (isReadOnlyOperation) {
   @if (!hidden) {
     <ng-container>
       <div>

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { IonCard, IonCardContent, IonContent } from '@ionic/angular/standalone';
 import { HeaderComponent } from 'src/app/components/header/header.component';
-import { ContainerComponent } from 'src/app/components/container/container.component';
+import { ContainerComponent } from 'src/lib/components/container/container.component';
 
 @Component({
   standalone: true,

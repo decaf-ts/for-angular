@@ -1,14 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { OperationKeys } from '@decaf-ts/db-decorators';
-import { ComponentEventNames } from '@decaf-ts/ui-decorators';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit } from '@angular/core';
 import { IonButton, IonCheckbox, IonLabel } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { takeUntil } from 'rxjs';
+import { Dynamic } from '../../engine/decorators';
 import { CronSelectorComponent } from '../cron-selector/cron-selector.component';
 import { CrudFieldComponent } from '../crud-field/crud-field.component';
-import { Dynamic } from '../../engine/decorators';
-import { windowEventEmitter } from '../../utils/helpers';
 
 @Dynamic()
 @Component({
@@ -37,10 +33,6 @@ export class CronSelectorFieldComponent extends CrudFieldComponent implements On
   @Input()
   describeCron = false;
 
-  get isReadOnlyOperation(): boolean {
-    return [OperationKeys.READ, OperationKeys.DELETE].includes(this.operation) || !!this.readonly || !!this.disabled;
-  }
-
   get hasCronValue(): boolean {
     return typeof this.value === 'string' && this.value.trim().length > 0;
   }
@@ -54,72 +46,26 @@ export class CronSelectorFieldComponent extends CrudFieldComponent implements On
   }
 
   override async ngOnInit(): Promise<void> {
-    if (!this.allowEmpty && !this.hasCronValue) {
-      this.setValue(this.defaultCron);
+    await super.initialize();
+    this.handleCronChange(this.allowEmpty && !this.required ? '' : this.cronValue);
+    // always show cron when required  and not empty
+    if (this.required && !this.allowEmpty) {
+      this.checked = true;
+      this.changeDetectorRef.markForCheck();
     }
-
-    await super.ngOnInit();
-    this.bindControlState();
   }
 
-  override async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    await super.ngOnChanges(changes);
-
-    if (!this.allowEmpty && !this.hasCronValue && !this.isReadOnlyOperation) {
-      this.setValue(this.defaultCron);
+  toggleVisibility(): void {
+    this.checked = !this.checked;
+    if (!this.checked) {
+      this.setValue(this.allowEmpty && !this.required ? '' : this.cronValue);
     }
-
-    this.bindControlState();
-  }
-
-  toggleEmpty(checked: boolean): void {
-    if (this.isReadOnlyOperation) {
-      return;
-    }
-
-    if (checked) {
-      this.setValue(this.hasCronValue ? (this.value as string) : this.defaultCron);
-      windowEventEmitter(ComponentEventNames.Change, {
-        source: this.name,
-        value: this.cronValue,
-      });
-    } else {
-      this.setValue(undefined);
-      windowEventEmitter(ComponentEventNames.Change, {
-        source: this.name,
-        value: undefined,
-      });
-    }
-
-    this.onTouch();
-    this.changeDetectorRef.detectChanges();
+    this.changeDetectorRef.markForCheck();
   }
 
   handleCronChange(value: string): void {
-    if (this.isReadOnlyOperation) {
-      return;
+    if (!this.isReadOnlyOperation) {
+      this.setValue(value);
     }
-
-    this.setValue(value);
-    this.onTouch();
-    this.changeDetectorRef.detectChanges();
-    windowEventEmitter(ComponentEventNames.Change, {
-      source: this.name,
-      value,
-    });
-  }
-
-  private bindControlState(): void {
-    if (!this.formControl || (this.formControl as { __cronSelectorBound?: boolean }).__cronSelectorBound) {
-      return;
-    }
-
-    (this.formControl as { __cronSelectorBound?: boolean }).__cronSelectorBound = true;
-    this.formControl.statusChanges.pipe(takeUntil(this.destroySubscriptions$)).subscribe(() => {
-      this.changeDetectorRef.detectChanges();
-    });
-    this.formControl.valueChanges.pipe(takeUntil(this.destroySubscriptions$)).subscribe(() => {
-      this.changeDetectorRef.detectChanges();
-    });
   }
 }

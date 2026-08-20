@@ -1,26 +1,23 @@
+import { CUSTOM_ELEMENTS_SCHEMA, Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import {
-  CUSTOM_ELEMENTS_SCHEMA,
-  Component,
-  NO_ERRORS_SCHEMA,
-} from '@angular/core';
-import { Dynamic } from './decorators';
-import {
+  IonButton,
   IonCheckbox,
   IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
   IonRadio,
   IonRadioGroup,
+  IonRange,
   IonSelect,
   IonSelectOption,
   IonTextarea,
-  IonRange,
   IonToggle,
-  IonButton,
-  IonDatetimeButton,
 } from '@ionic/angular/standalone';
+import { CrudFieldComponent } from '../components/crud-field/crud-field.component';
 import { ForAngularCommonModule } from '../for-angular-common.module';
+import { Dynamic } from './decorators';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 
 describe('decorators', () => {
@@ -46,17 +43,16 @@ describe('decorators', () => {
       IonDatetimeButton,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-    templateUrl:
-      '../components/crud-field/crud-field.component.html',
+    template: '<div><input /></div>',
     styleUrl: '../components/crud-field/crud-field.component.scss',
   })
-  class DecoratorTestFormFieldComponent {}
+  class DecoratorTestFormFieldComponent extends CrudFieldComponent {}
 
   // beforeEach(() => {});
 
   xit('should populate from @Component Metadata', () => {
     expect(
-      NgxRenderingEngine.components('ngx-decaf-decorator-test-form-field-component') as DecoratorTestFormFieldComponent,
+      NgxRenderingEngine.components('ngx-decaf-decorator-test-form-field-component') as DecoratorTestFormFieldComponent
     ).toBeDefined();
   });
 });

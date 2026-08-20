@@ -7,7 +7,9 @@
   padding: var(--dcf-space-3);
   margin-top: var(--dcf-space-4);
   border-radius: var(--dcf-radius-sm);
-  font-size: var(--dcf-font-meta);
+  font-size: var(--dcf-font-size-sm);
+  font-weight: 600;
+
   code {
     display: inline-block;
     background: rgba(var(--dcf-color-primary-rgb), 0.125);
