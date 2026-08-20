@@ -17,8 +17,11 @@
           fill="clear"
           size="small"
           [disabled]="isReadOnlyOperation"
-          [attr.aria-label]="'component.cron_selector.close_schedule' | translate"
-          (click)="toggleEmpty(false)">
+          [attr.aria-label]="
+            'component.cron_selector.close_schedule' | translate
+          "
+          (click)="toggleEmpty(false)"
+        >
           {{ 'component.cron_selector.close' | translate }}
         </ion-button>
       } @else {
@@ -26,13 +29,16 @@
           class="dcf-cron-selector-toggle"
           [checked]="false"
           [disabled]="isReadOnlyOperation"
-          [attr.aria-label]="'component.cron_selector.enable_schedule' | translate"
-          (ionChange)="toggleEmpty($event.detail.checked)">
-        </ion-checkbox>
+          [attr.aria-label]="
+            'component.cron_selector.enable_schedule' | translate
+          "
+          (ionChange)="toggleEmpty($event.detail.checked)"
+        ></ion-checkbox>
       }
     }
   </div>
-
+  {{ showSelector }}
+  {{ describeCron }}
   @if (showSelector) {
     <div class="dcf-cron-selector-body">
       <ngx-decaf-cron-selector

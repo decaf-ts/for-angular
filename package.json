@@ -138,7 +138,7 @@
     "@ionic/angular": "^8.7.4",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
-    "@tabler/icons-webfont": "3.31.0",
+    "@tabler/icons-webfont": "3.46.0",
     "codemirror": "^6.0.2",
     "cronstrue": "^3.24.0",
     "ionicons": "^7.4.0",

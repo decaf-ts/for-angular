@@ -1,61 +1,125 @@
-import { IMenuItem } from "src/lib/engine/interfaces";
+import { IMenuItem } from 'src/lib/engine/interfaces';
 
-export const DashboardMenuItem =  {
+export const DashboardMenuItem = {
   label: 'Dashboard',
   icon: 'ti-apps',
   url: '/dashboard',
 };
 
-export const LogoutMenuItem =   {
+export const LogoutMenuItem = {
   label: 'Logout',
   title: 'Login',
   icon: 'ti-logout',
   url: '/login',
-  color: 'danger'
+  color: 'danger',
 };
 
 export const AppMenu: IMenuItem[] = [
   {
-    label: 'Crud',
-    icon: 'ti-device-floppy',
+    label: 'dashboard',
+    icon: 'ti-layout-dashboard',
+    url: '/dashboard',
   },
   {
-    label: 'Read',
-    url: '/crud/read',
+    label: 'graph',
+    icon: 'ti-graph',
+    url: 'graph',
   },
   {
-    label: 'Create / Update',
-    url: '/crud/create',
+    label: 'cron_selector',
+    icon: 'ti-calendar-time',
+    url: 'cron-selector',
   },
+  // {
+  //   label: 'medicationschedule',
+  //   icon: 'ti-calendar-event',
+  //   url: 'medication-schedule',
+  // },
   {
-    label: 'Delete',
-    url: '/crud/delete',
+    label: 'modelbuilder',
+    icon: 'ti-scan-cube',
+    url: 'model-builder',
   },
-   {
-    label: 'Fieldset',
-    url: '/fieldset',
-  },
-  {
-    label: 'Steps Form',
-    url: '/steps-form',
-  },
-  {
-    label: 'Model Lists',
-    icon: 'ti-list',
-  },
-  {
-    label: 'AI Models (Infinite)',
-    url: '/list-model/infinite',
-  },
-  {
-    label: 'AI Vendors (Paginated)',
-    url: '/list-model/paginated',
-  },
+  // {
+  //   label: 'sytem',
+  //   url: undefined,
+  //   accessRole: {
+  //     feature: 'systemManagement',
+  //     role: ['admin'],
+  //     module: 'system'
+  //   }
+  // },
+  // {
+  //   label: 'core',
+  //   url: undefined,
+  // },
+  // {
+  //   label: 'products',
+  //   url: 'products',
+  //   activeWhen: ['products', 'batches'],
+  //   icon: 'ti-package',
+  // },
+  // {
+  //   label: 'leaflet',
+  //   url: 'leaflets',
+  //   icon: 'ti-file-barcode',
+  // },
+  // {
+  //   label: 'audit',
+  //   url: 'audit',
+  //   icon: 'ti-shield-lock',
+  // },
+  // {
+  //   label: 'account',
+  //   url: 'account',
+  //   icon: 'ti-user',
+  // },
+  // {
+  //   label: 'logout',
+  //   icon: 'ti-logout-2',
+  //   url: '/login',
+  //   color: 'danger'
+  // }
 ];
 
-
-
-
+// export const AppMenu: IMenuItem[] = [
+//   {
+//     label: 'Crud',
+//     icon: 'ti-device-floppy',
+//   },
+//   {
+//     label: 'Read',
+//     url: '/crud/read',
+//   },
+//   {
+//     label: 'Create / Update',
+//     url: '/crud/create',
+//   },
+//   {
+//     label: 'Delete',
+//     url: '/crud/delete',
+//   },
+//    {
+//     label: 'Fieldset',
+//     url: '/fieldset',
+//   },
+//   {
+//     label: 'Steps Form',
+//     url: '/steps-form',
+//   },
+//   {
+//     label: 'Model Lists',
+//     icon: 'ti-list',
+//   },
+//   {
+//     label: 'AI Models (Infinite)',
+//     url: '/list-model/infinite',
+//   },
+//   {
+//     label: 'AI Vendors (Paginated)',
+//     url: '/list-model/paginated',
+//   },
+// ];
 
 /**
  * @description Supported AI vendors/providers
@@ -66,23 +130,22 @@ export const AppMenu: IMenuItem[] = [
  */
 export enum AIVendors {
   /** Google AI/Vertex provider */
-  GOOGLE = "google",
+  GOOGLE = 'google',
   /** OpenAI provider (GPT family) */
-  OPEN_AI = "openai",
+  OPEN_AI = 'openai',
   /** Anthropic provider (Claude family) */
-  ANTHROPIC = "anthropic",
+  ANTHROPIC = 'anthropic',
   /** Perplexity provider */
-  PERPLEXITY = "perplexity",
+  PERPLEXITY = 'perplexity',
   /** Midjourney image generation provider */
-  MIDJOURNEY = "midjourney",
+  MIDJOURNEY = 'midjourney',
   /** Runway video/creative provider */
-  RUNWAY = "runway",
+  RUNWAY = 'runway',
   /** Ollama local model runtime */
-  OLLAMA = "ollama",
+  OLLAMA = 'ollama',
   /** Ollama local model runtime */
-  MISTRAL = "mistralai",
+  MISTRAL = 'mistralai',
 }
-
 
 /**
  * @description Supported AI feature capabilities
@@ -93,49 +156,49 @@ export enum AIVendors {
  */
 export enum AIFeatures {
   /** Summarization of text content */
-  PERSONAL_IDENTIFIERS = "personal-identifiers",
+  PERSONAL_IDENTIFIERS = 'personal-identifiers',
   /** Summarization of text content */
-  SUMMARIZATION = "summarization",
+  SUMMARIZATION = 'summarization',
   /** Context building or contextualization from inputs */
-  CONTEXTUALIZATION = "contextualization",
+  CONTEXTUALIZATION = 'contextualization',
   /** Keyword extraction capability */
-  KEYWORDS = "keywords",
+  KEYWORDS = 'keywords',
   /** Re-ranking of results based on relevance */
-  RERANKING = "reranking",
+  RERANKING = 'reranking',
   /** Convert text to speech (TTS) */
-  TEXT_TO_SPEECH = "text-to-speech",
+  TEXT_TO_SPEECH = 'text-to-speech',
   /** Convert speech to text (ASR) */
-  SPEECH_TO_TEXT = "speech-to-text",
+  SPEECH_TO_TEXT = 'speech-to-text',
   /** Extract text from images (OCR) */
-  IMAGE_TO_TEXT = "image-to-text",
+  IMAGE_TO_TEXT = 'image-to-text',
   /** Generate images from text prompts */
-  TEXT_TO_IMAGE = "text-to-image",
+  TEXT_TO_IMAGE = 'text-to-image',
   /** Generate videos from text prompts */
-  TEXT_TO_VIDEO = "text-to-video",
+  TEXT_TO_VIDEO = 'text-to-video',
   /** Understand images and output text */
-  VISION_TO_TEXT = "vision-to-text",
+  VISION_TO_TEXT = 'vision-to-text',
   /** Recognize objects in visual inputs */
-  OBJECT_RECOGNITION = "object-recognition",
+  OBJECT_RECOGNITION = 'object-recognition',
   /** Advanced reasoning tasks */
-  REASONING = "reasoning",
+  REASONING = 'reasoning',
   /** Question answering over provided context */
-  QUESTION_ANSWERING = "question-answering",
+  QUESTION_ANSWERING = 'question-answering',
   /** Conversational chat capability */
-  CHAT = "chat",
+  CHAT = 'chat',
   /** Translation between languages */
-  TRANSLATION = "translation",
+  TRANSLATION = 'translation',
   /** Planning tasks and steps */
-  PLANNING = "planning",
+  PLANNING = 'planning',
   /** Research-oriented tasks */
-  RESEARCH = "research",
+  RESEARCH = 'research',
   /** Long-horizon or deep research */
-  DEEP_RESEARCH = "deep-research",
+  DEEP_RESEARCH = 'deep-research',
   /** Tool usage or function calling */
-  TOOL_USAGE = "tool-usage",
+  TOOL_USAGE = 'tool-usage',
   /** Code generation or assistance */
-  CODING = "coding",
+  CODING = 'coding',
   /** Lightweight/fast variant */
-  LIGHTWEIGHT = "lightweight",
+  LIGHTWEIGHT = 'lightweight',
   /** Heavyweight/high-capability variant */
-  HEAVYWEIGHT = "heavyweight",
+  HEAVYWEIGHT = 'heavyweight',
 }

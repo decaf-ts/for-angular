@@ -1,6 +1,7 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # Compiled output
+/src/app/ew
 /tmp
 /out-tsc
 /bazel-out
@@ -8,7 +9,7 @@
 # Node
 npm-debug.log
 yarn-error.log
-
+.tlc
 # IDEs and editors
 .idea/
 .project
@@ -77,3 +78,7 @@ CLAUDE.md
 /.agents
 /.claude
 /.omo
+
+.tlc/harness/state/
+.aimemory.toml
+.mcp.json

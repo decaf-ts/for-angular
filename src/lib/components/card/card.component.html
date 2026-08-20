@@ -13,12 +13,12 @@
     <ion-card-header>
       @if (title) {
         <ion-card-title>
-          {{ locale ? (title | translate) : title }}
+          {{ translatable ? (title | translate) : title }}
         </ion-card-title>
       }
       @if (subtitle) {
         <ion-card-subtitle>
-          {{ locale ? (subtitle | translate) : subtitle }}
+          {{ translatable ? (subtitle | translate) : subtitle }}
         </ion-card-subtitle>
       }
     </ion-card-header>

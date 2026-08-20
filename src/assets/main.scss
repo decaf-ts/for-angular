@@ -23,7 +23,7 @@
 
 @forward "@decaf-ts/styles/dist/main.css";
 
-@forward "@tabler/icons-webfont/dist/tabler-icons-outline.scss";
+@forward "@tabler/icons-webfont/dist/tabler-icons.min.css";
 /* ng-diagram/styles.css is loaded via angular.json — its internal
    relative @import './tokens.css' cannot resolve when inlined by Sass */
 

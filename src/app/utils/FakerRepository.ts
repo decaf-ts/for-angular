@@ -87,7 +87,7 @@ export class FakerRepository<T extends Model> extends DecafFakerRepository<T> {
     const repo = this._repository as DecafRepository<Model>;
     const model = this.model as Model;
     let data = await repo.select().execute();
-    if (!this.data?.length) {
+    if (!data?.length) {
       const name = model.constructor.name;
       switch (name) {
         case AIModel.name:

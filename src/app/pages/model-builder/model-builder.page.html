@@ -1,11 +1,16 @@
 <ion-content [fullscreen]="true">
   <main>
-    <div class="model-builder-page">
-      <div class="model-builder-page__header">
-        <h1>Model Builder</h1>
-        <p>Define model classes at runtime using Decaf's ModelBuilder API. Add properties, configure validators, and build instantly.</p>
+    <ngx-decaf-container>
+      <div class="model-builder-page">
+        <div class="model-builder-page__header">
+          <h1>Model Builder</h1>
+          <p>
+            Define model classes at runtime using Decaf's ModelBuilder API. Add
+            properties, configure validators, and build instantly.
+          </p>
+        </div>
+        <ngx-decaf-model-builder [preview]="preview"></ngx-decaf-model-builder>
       </div>
-      <ngx-decaf-model-builder [preview]="preview"></ngx-decaf-model-builder>
-    </div>
+    </ngx-decaf-container>
   </main>
 </ion-content>

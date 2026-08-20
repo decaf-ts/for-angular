@@ -1,10 +1,11 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, RouteReuseStrategy, withComponentInputBinding } from '@angular/router';
-import { RamFlavour } from '@decaf-ts/core/ram';
+import { RamAdapter, RamFlavour } from '@decaf-ts/core/ram';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { RootTranslateServiceConfig } from '@ngx-translate/core';
-import { DecafAxiosHttpAdapter, I18nResourceConfigType } from 'src/lib/engine';
+import { CronSelectorFieldComponent } from 'src/lib/components';
+import { I18nResourceConfigType } from 'src/lib/engine';
 import {
   provideDecafDbAdapter,
   provideDecafDynamicComponents,
@@ -16,7 +17,6 @@ import { routes } from './app.routes';
 import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
 import { AppSelectFieldComponent } from './components/select-field/select-field.component';
 import { AppSwitcherComponent } from './components/switcher/switcher.component';
-import { CronSelectorFieldComponent } from 'src/lib/components';
 
 export const isLocalDevelopmentMode = isDevelopmentMode('localhost');
 // export const isLocalDevelopmentMode = false;
@@ -30,12 +30,12 @@ export const AppConfig: ApplicationConfig = {
     provideIonicAngular({
       mode: 'md',
     }),
-    // provideDecafDbAdapter(RamAdapter, { user: 'user' }),
-    provideDecafDbAdapter(DecafAxiosHttpAdapter, {
-      protocol: 'https',
-      host: 'ew-backend-pdm.ptp.internal',
-      events: true,
-    }),
+    provideDecafDbAdapter(RamAdapter, { user: 'user', dbName: 'for-angular' }),
+    // provideDecafDbAdapter(DecafAxiosHttpAdapter, {
+    //   protocol: 'https',
+    //   host: 'ew-backend-pdm.ptp.internal',
+    //   events: true,
+    // }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideRouter(routes, withComponentInputBinding()),
@@ -59,9 +59,6 @@ export const AppConfig: ApplicationConfig = {
       [
         {
           prefix: './assets/i18n/',
-        },
-        {
-          prefix: './assets/i18n/ew/',
           suffix: '.json',
         },
       ] as I18nResourceConfigType

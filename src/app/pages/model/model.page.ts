@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { IonContent } from '@ionic/angular/standalone';
@@ -107,25 +109,29 @@ import { getNgxToast } from 'src/lib/utils/NgxToast';
   selector: 'app-model',
   templateUrl: './model.page.html',
   imports: [
+    CommonModule,
     IonContent,
-    ModelRendererComponent,
     TranslatePipe,
     ListComponent,
     HeaderComponent,
     ContainerComponent,
     EmptyStateComponent,
+    ModelRendererComponent,
+
     CardComponent,
   ],
   styleUrls: ['./model.page.scss'],
 })
 export class ModelPage extends NgxModelPageDirective implements OnInit {
-  // constructor() {
-  //   super(true, getNgxToast() as unknown as ToastController);
-  // }
+  override operations: CrudOperations[] = [
+    OperationKeys.CREATE,
+    OperationKeys.UPDATE,
+    OperationKeys.DELETE,
+    OperationKeys.READ,
+  ];
 
   async ngOnInit(): Promise<void> {
     await super.initialize();
-    this.enableCrudOperations();
   }
 
   // override async ionViewWillEnter(): Promise<void> {

@@ -1,10 +1,10 @@
-import { pk, table, column } from '@decaf-ts/core';
+import { column, pk } from '@decaf-ts/core';
 import { model, Model, ModelArg, required } from '@decaf-ts/decorator-validation';
-import { HTML5InputTypes, uielement, uimodel, uilayout } from '@decaf-ts/ui-decorators';
+import { uielement, uilistmodel, uilistprop, uimodel } from '@decaf-ts/ui-decorators';
 
-@table('medication_schedules')
+// @table('medication_schedules')
+@uilistmodel('ngx-decaf-list-item', { icon: 'ti-cup' })
 @uimodel('ngx-decaf-crud-form', { empty: { showButton: false } })
-@uilayout('ngx-decaf-crud-form', true, 1, { empty: { showButton: false } })
 @model()
 export class MedicationScheduleModel extends Model {
   @pk({ type: String, generated: false })
@@ -12,6 +12,7 @@ export class MedicationScheduleModel extends Model {
     label: 'medication_schedule.id.label',
     placeholder: 'medication_schedule.id.placeholder',
   })
+  @uilistprop('description')
   id!: string;
 
   @column()
@@ -20,6 +21,7 @@ export class MedicationScheduleModel extends Model {
     label: 'medication_schedule.name.label',
     placeholder: 'medication_schedule.name.placeholder',
   })
+  @uilistprop('title')
   name!: string;
 
   @column()

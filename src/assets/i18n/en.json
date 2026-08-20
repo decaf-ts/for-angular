@@ -39,7 +39,7 @@
     "product": "Products",
     "batch": "Batches",
     "cron_selector": "Cron Selector",
-    "medication_schedule": "Medication Schedule",
+
     "logout": "Logout",
     "account": "Account",
     "leaflets": "Leaflets",
@@ -48,7 +48,10 @@
     "employee": "Employees",
     "ai": "AI Models",
     "aivendor": "Ai Vendors",
-    "product_management": "Product Management"
+    "product_management": "Product Management",
+    "modelbuilder": "Model Builder",
+    "models": "Sample Models",
+    "medicationschedule": "Medication Schedule"
   },
   "cron_selector": {
     "title": "Cron Selector",
@@ -70,7 +73,7 @@
     }
   },
   "login": {
-     "username": {
+    "username": {
       "label": "Username",
       "placeholder": "Type your username"
     },
@@ -213,19 +216,27 @@
       }
     }
   },
-   "aivendors": {
+  "model": {
+    "category": {
+      "title": "Categories"
+    },
+    "medication_schedule": {
+      "title": "Medication Schedule"
+    }
+  },
+  "aivendors": {
     "name": {
       "label": "Name",
       "placeholder": "Select vendor",
       "options": {
-       "google": "Google",
-       "openai": "OpenAI",
-       "anthropic": "Anthropic",
-       "perplexity": "Perplexity",
-       "midjourney": "Midjourney",
-       "runway": "Runway",
-       "ollama": "Ollama",
-       "mistralai": "Mistral AI"
+        "google": "Google",
+        "openai": "OpenAI",
+        "anthropic": "Anthropic",
+        "perplexity": "Perplexity",
+        "midjourney": "Midjourney",
+        "runway": "Runway",
+        "ollama": "Ollama",
+        "mistralai": "Mistral AI"
       }
     },
     "models": {

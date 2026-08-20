@@ -133,6 +133,9 @@ export class CardComponent extends NgxComponentDirective implements OnInit {
   @Input()
   separator: boolean = false;
 
+  @Input()
+  override translatable: boolean = true;
+
   /**
    * @description Controls whether the card renders borders.
    * @summary Set to false to remove borders for inline or transparent card designs. Marked `override` to explicitly shadow the base directive's value.
@@ -175,7 +178,7 @@ export class CardComponent extends NgxComponentDirective implements OnInit {
    *
    * @return {void}
    */
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.mediaService
       .isDarkMode()
       .pipe(shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this.destroySubscriptions$))
@@ -183,6 +186,6 @@ export class CardComponent extends NgxComponentDirective implements OnInit {
         this.isDarkMode = isDark;
         this.mediaService.toggleClass([this.component], AngularEngineKeys.DARK_PALETTE_CLASS, this.isDarkMode);
       });
-    this.initialize();
+    await super.initialize();
   }
 }

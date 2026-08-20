@@ -27,8 +27,21 @@ ion-infinite-scroll {
   padding-bottom: 0px;
 
   .dcf-button-container {
-    margin-top: var(--dcf-margin-small);
+    margin-top: 0.85rem;
+    &::before {
+      content: "";
+      display: block;
+      margin-left: 0rem;
+      width: 1px;
+      margin-right: 0.5rem;
+      border-left: 1px solid var(--dcf-color-gray-3);
+      height: 1.5rem;
+    }
+
     @media (max-width: 768px) {
+      &::before {
+        display: none;
+      }
       width: 100% !important;
       * {
         width: calc(100% - 5px) !important;

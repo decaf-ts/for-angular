@@ -23,9 +23,9 @@ import { NgxPageDirective } from '../lib/engine/NgxPageDirective';
 import { isDevelopmentMode } from '../lib/utils';
 import { AppName } from './app.config';
 import { LogoComponent } from './components/logo/logo.component';
-import { AppMenu } from './ew/utils/constants';
-import { IAppMenuItem } from './ew/utils/interfaces';
 import { CategoryModel } from './models/CategoryModel';
+import { MedicationScheduleModel } from './models/MedicationScheduleModel';
+import { AppMenu } from './utils/contants';
 import { FakerRepository } from './utils/FakerRepository';
 
 @Component({
@@ -83,13 +83,14 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       // 'Leaflet',
       // //
       // // 'ProductImage',
+      'MedicationScheduleModel',
       'CategoryModel',
       // 'AIVendorModel',
       // 'CategoryModel',
     ];
     const menu = [];
     // const models = AppModels;
-    const models = [new CategoryModel()];
+    const models = [new CategoryModel(), new MedicationScheduleModel()];
     const dbAdapterFlavour = getDbAdapterFlavour();
     for (let model of models) {
       uses(dbAdapterFlavour)(model);
@@ -98,7 +99,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       }
       const name = model.constructor.name.replace(/[0-9]/g, '');
       if (dbAdapterFlavour.includes(RamFlavour)) {
-        if (populate.includes(name)) await new FakerRepository(model, 11).initialize();
+        if (populate.includes(name)) await new FakerRepository(model, 36).initialize();
       }
       const label = name.toLowerCase().replace(ModelKeys.MODEL, '');
       if (!menu.length) menu.push({ label: 'models' });
@@ -112,15 +113,21 @@ export class AppComponent extends NgxPageDirective implements OnInit {
     this.menu = [
       // DashboardMenuItem,
       // ...EwMenu,
-      ...(menu as IMenuItem[]),
       ...AppMenu,
+      ...(menu as IMenuItem[]),
+      {
+        label: 'logout',
+        icon: 'ti-logout-2',
+        url: '/login',
+        color: 'danger',
+      },
 
       // LogoutMenuItem,
     ];
     await super.initialize();
   }
 
-  isMenuActive(item: IAppMenuItem & { activeWhen: string[] }): boolean {
+  isMenuActive(item: IMenuItem & { activeWhen: string[] }): boolean {
     const { url, activeWhen } = item;
     return (
       (url?.length && (url === this.currentRoute || (activeWhen || []).includes(this.currentRoute as string))) || false

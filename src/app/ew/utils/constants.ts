@@ -1,4 +1,4 @@
-import { IAppMenuItem, ITabItem } from "./interfaces";
+import { IAppMenuItem, ITabItem } from './interfaces';
 
 export const EpiTabs: ITabItem[] = [
   {
@@ -17,7 +17,7 @@ export const LogTabs: ITabItem[] = [
     value: 'actions',
     icon: 'assets/images/icons/lock.svg',
   },
-   {
+  {
     title: 'logTabs.access',
     value: 'access',
     icon: 'assets/images/icons/users.svg',
@@ -40,14 +40,14 @@ export const AppMenu: IAppMenuItem[] = [
     icon: 'ti-calendar-time',
     url: 'cron-selector',
   },
+  // {
+  //   label: 'medicationschedule',
+  //   icon: 'ti-calendar-event',
+  //   url: 'medication-schedule',
+  // },
   {
-    label: 'medication_schedule',
-    icon: 'ti-calendar-event',
-    url: 'medication-schedule',
-  },
-  {
-    label: 'Model Builder',
-    icon: 'ti-widgetized',
+    label: 'modelbuilder',
+    icon: 'ti-scan-cube',
     url: 'model-builder',
   },
   // {
@@ -59,35 +59,35 @@ export const AppMenu: IAppMenuItem[] = [
   //     module: 'system'
   //   }
   // },
-  {
-    label: 'core',
-    url: undefined,
-  },
-  {
-    label: 'products',
-    url: 'products',
-    activeWhen: ['products', 'batches'],
-    icon: 'ti-package',
-  },
-  {
-    label: 'leaflet',
-    url: 'leaflets',
-    icon: 'ti-file-barcode',
-  },
-  {
-    label: 'audit',
-    url: 'audit',
-    icon: 'ti-shield-lock',
-  },
-  {
-    label: 'account',
-    url: 'account',
-    icon: 'ti-user',
-  },
-  {
-    label: 'logout',
-    icon: 'ti-logout-2',
-    url: '/login',
-    color: 'danger'
-  }
+  // {
+  //   label: 'core',
+  //   url: undefined,
+  // },
+  // {
+  //   label: 'products',
+  //   url: 'products',
+  //   activeWhen: ['products', 'batches'],
+  //   icon: 'ti-package',
+  // },
+  // {
+  //   label: 'leaflet',
+  //   url: 'leaflets',
+  //   icon: 'ti-file-barcode',
+  // },
+  // {
+  //   label: 'audit',
+  //   url: 'audit',
+  //   icon: 'ti-shield-lock',
+  // },
+  // {
+  //   label: 'account',
+  //   url: 'account',
+  //   icon: 'ti-user',
+  // },
+  // {
+  //   label: 'logout',
+  //   icon: 'ti-logout-2',
+  //   url: '/login',
+  //   color: 'danger'
+  // }
 ];

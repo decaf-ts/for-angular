@@ -25,3 +25,4 @@ export * from './NgxRenderingEngine';
 export * from './overrides';
 export * from './types';
 
+export * from './NgxSessionAdapter';

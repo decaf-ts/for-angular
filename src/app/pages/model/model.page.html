@@ -8,13 +8,14 @@
 <ion-content [fullscreen]="true">
   <main>
     <ngx-decaf-container>
-      <ngx-decaf-card [title]="pageTitle">
+      <ngx-decaf-card [title]="pageTitle | translate">
         @if(model) { @if(!operation) {
         <ngx-decaf-list
           [model]="model"
           [operation]="operation"
           [createButton]="true"
-          [operations]="operations"
+          type="infinite"
+          [operations]="['create', 'read', 'update', 'delete']"
           (listenEvent)="handleEvent($event)"
         />
         } @else { @if(!errorMessage) {

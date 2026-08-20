@@ -1,18 +1,27 @@
-import { Component, Input, signal, computed } from '@angular/core';
+import { Component, computed, Input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
 import { OperationKeys } from '@decaf-ts/db-decorators';
+import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
 import {
+  hideOn,
   uielement,
-  uimodel,
   uilayout,
   uilayoutprop,
   uilistmodel,
-  uiorder,
-  hideOn,
-  uionrender,
+  uimodel,
+  uiorder
 } from '@decaf-ts/ui-decorators';
-import { IonButton, IonInput, IonSelect, IonLabel, IonItem, IonCheckbox, IonTextarea, IonAccordion, IonAccordionGroup } from '@ionic/angular/standalone';
+import {
+  IonAccordion,
+  IonAccordionGroup,
+  IonButton,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 import { IconComponent } from '../icon/icon.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 
@@ -126,9 +135,25 @@ const COMPONENT_TAGS: { value: ComponentTag; label: string }[] = [
 ];
 
 const INPUT_TYPES = [
-  'text', 'number', 'date', 'checkbox', 'select', 'textarea',
-  'radio', 'email', 'password', 'url', 'tel', 'search', 'color',
-  'range', 'time', 'week', 'month', 'datetime-local', 'file',
+  'text',
+  'number',
+  'date',
+  'checkbox',
+  'select',
+  'textarea',
+  'radio',
+  'email',
+  'password',
+  'url',
+  'tel',
+  'search',
+  'color',
+  'range',
+  'time',
+  'week',
+  'month',
+  'datetime-local',
+  'file',
 ];
 
 const HIDE_ON_OPS: HideOnOp[] = ['create', 'read', 'update', 'delete'];
@@ -145,22 +170,26 @@ function makeProperty(name = '', type: PropType = 'string'): PropertyConfig {
 }
 
 function resolveTag(ui: UIElementConfig): string {
-  return ui.tag === 'custom' ? (ui.customTag || 'input') : ui.tag;
+  return ui.tag === 'custom' ? ui.customTag || 'input' : ui.tag;
 }
 
 function resolveInputType(propType: PropType, uiType: string): string {
   if (uiType && uiType !== 'text') return uiType;
   switch (propType) {
-    case 'number': return 'number';
-    case 'date': return 'date';
-    case 'boolean': return 'checkbox';
-    default: return 'text';
+    case 'number':
+      return 'number';
+    case 'date':
+      return 'date';
+    case 'boolean':
+      return 'checkbox';
+    default:
+      return 'text';
   }
 }
 
 function parseOptions(optionsStr: string): { value: string; label: string }[] {
   if (!optionsStr.trim()) return [];
-  return optionsStr.split(',').map(s => {
+  return optionsStr.split(',').map((s) => {
     const trimmed = s.trim();
     const parts = trimmed.split(':');
     return { value: parts[0].trim(), label: (parts[1] || parts[0]).trim() };
@@ -209,17 +238,16 @@ export class ModelBuilderComponent {
   hideOnOps = HIDE_ON_OPS;
 
   hasProperties = computed(() => this.properties().length > 0);
-  canBuild = computed(() =>
-    this.modelConfig().name.trim().length > 0 &&
-    this.properties().every(p => p.name.trim().length > 0)
+  canBuild = computed(
+    () => this.modelConfig().name.trim().length > 0 && this.properties().every((p) => p.name.trim().length > 0)
   );
 
   addProperty(): void {
-    this.properties.update(props => [...props, makeProperty()]);
+    this.properties.update((props) => [...props, makeProperty()]);
   }
 
   removeProperty(index: number): void {
-    this.properties.update(props => props.filter((_, i) => i !== index));
+    this.properties.update((props) => props.filter((_, i) => i !== index));
   }
 
   moveProperty(index: number, direction: -1 | 1): void {
@@ -240,7 +268,10 @@ export class ModelBuilderComponent {
     const props = [...this.properties()];
     props[index] = { ...props[index], name: value };
     const autoLabel = value.charAt(0).toUpperCase() + value.slice(1);
-    if (!props[index].ui.label || props[index].ui.label === makeProperty(props[index].name.replace(value, '')).ui.label) {
+    if (
+      !props[index].ui.label ||
+      props[index].ui.label === makeProperty(props[index].name.replace(value, '')).ui.label
+    ) {
       props[index].ui = { ...props[index].ui, label: autoLabel };
     }
     this.properties.set(props);
@@ -252,7 +283,7 @@ export class ModelBuilderComponent {
     const isSelected = current.includes(op);
     props[propIndex].layout = {
       ...props[propIndex].layout,
-      hideOn: isSelected ? current.filter(o => o !== op) : [...current, op],
+      hideOn: isSelected ? current.filter((o) => o !== op) : [...current, op],
     };
     this.properties.set(props);
   }
@@ -286,10 +317,18 @@ export class ModelBuilderComponent {
 
         let attr;
         switch (prop.type) {
-          case 'number': attr = builder.number(propName as never); break;
-          case 'date':   attr = builder.date(propName as never); break;
-          case 'boolean':attr = builder.instance(Boolean as never, propName as never); break;
-          default:       attr = builder.string(propName as never); break;
+          case 'number':
+            attr = builder.number(propName as never);
+            break;
+          case 'date':
+            attr = builder.date(propName as never);
+            break;
+          case 'boolean':
+            attr = builder.instance(Boolean as never, propName as never);
+            break;
+          default:
+            attr = builder.string(propName as never);
+            break;
         }
 
         const v = prop.validators;
@@ -331,26 +370,33 @@ export class ModelBuilderComponent {
         }
 
         if (prop.layout.hideOn.length) {
-          const ops = prop.layout.hideOn.map(o => {
+          const ops = prop.layout.hideOn.map((o) => {
             switch (o) {
-              case 'create': return OperationKeys.CREATE;
-              case 'read':   return OperationKeys.READ;
-              case 'update': return OperationKeys.UPDATE;
-              case 'delete': return OperationKeys.DELETE;
-              default: return o;
+              case 'create':
+                return OperationKeys.CREATE;
+              case 'read':
+                return OperationKeys.READ;
+              case 'update':
+                return OperationKeys.UPDATE;
+              case 'delete':
+                return OperationKeys.DELETE;
+              default:
+                return o;
             }
           });
-          decorators.push(hideOn(...ops as never[]) as DecoratorFn);
+          decorators.push(hideOn(...(ops as never[])) as DecoratorFn);
         }
 
-        attr.decorate(...decorators as never[]);
+        attr.decorate(...(decorators as never[]));
         appliedProps.push(propName);
       }
 
       const ModelClass = builder.build();
       const instance = new ModelClass() as Model;
       this.builtModel.set(instance);
-      this.buildInfo.set(`Built "${name}" with ${appliedProps.length} propert${appliedProps.length === 1 ? 'y' : 'ies'}: ${appliedProps.join(', ')}`);
+      this.buildInfo.set(
+        `Built "${name}" with ${appliedProps.length} propert${appliedProps.length === 1 ? 'y' : 'ies'}: ${appliedProps.join(', ')}`
+      );
     } catch (e: unknown) {
       this.buildError.set(e instanceof Error ? e.message : String(e));
       this.builtModel.set(null);
@@ -386,7 +432,13 @@ export class ModelBuilderComponent {
         name: 'username',
         type: 'string',
         validators: { ...DEFAULT_VALIDATORS, required: true, minlength: 3, maxlength: 20 },
-        ui: { ...DEFAULT_UI, tag: 'ngx-decaf-crud-field', label: 'Username', placeholder: 'Enter username', type: 'text' },
+        ui: {
+          ...DEFAULT_UI,
+          tag: 'ngx-decaf-crud-field',
+          label: 'Username',
+          placeholder: 'Enter username',
+          type: 'text',
+        },
         layout: { ...DEFAULT_LAYOUT, col: 1 },
         expanded: false,
       },
@@ -394,7 +446,13 @@ export class ModelBuilderComponent {
         name: 'email',
         type: 'string',
         validators: { ...DEFAULT_VALIDATORS, required: true, email: true },
-        ui: { ...DEFAULT_UI, tag: 'ngx-decaf-crud-field', label: 'Email Address', placeholder: 'user@example.com', type: 'email' },
+        ui: {
+          ...DEFAULT_UI,
+          tag: 'ngx-decaf-crud-field',
+          label: 'Email Address',
+          placeholder: 'user@example.com',
+          type: 'email',
+        },
         layout: { ...DEFAULT_LAYOUT, col: 1 },
         expanded: false,
       },
@@ -410,7 +468,13 @@ export class ModelBuilderComponent {
         name: 'role',
         type: 'string',
         validators: { ...DEFAULT_VALIDATORS, required: true },
-        ui: { ...DEFAULT_UI, tag: 'ngx-decaf-crud-field', label: 'Role', type: 'select', options: 'admin:Administrator, user:Regular User, guest:Guest' },
+        ui: {
+          ...DEFAULT_UI,
+          tag: 'ngx-decaf-crud-field',
+          label: 'Role',
+          type: 'select',
+          options: 'admin:Administrator, user:Regular User, guest:Guest',
+        },
         layout: { ...DEFAULT_LAYOUT, col: 'half' },
         expanded: false,
       },
@@ -418,7 +482,13 @@ export class ModelBuilderComponent {
         name: 'bio',
         type: 'string',
         validators: { ...DEFAULT_VALIDATORS, maxlength: 500 },
-        ui: { ...DEFAULT_UI, tag: 'ngx-decaf-crud-field', label: 'Biography', placeholder: 'Tell us about yourself', type: 'textarea' },
+        ui: {
+          ...DEFAULT_UI,
+          tag: 'ngx-decaf-crud-field',
+          label: 'Biography',
+          placeholder: 'Tell us about yourself',
+          type: 'textarea',
+        },
         layout: { ...DEFAULT_LAYOUT, col: 'full' },
         expanded: false,
       },
@@ -434,7 +504,14 @@ export class ModelBuilderComponent {
         name: 'createdAt',
         type: 'date',
         validators: { ...DEFAULT_VALIDATORS },
-        ui: { ...DEFAULT_UI, tag: 'ngx-decaf-crud-field', label: 'Created At', type: 'date', readonly: true, translatable: false },
+        ui: {
+          ...DEFAULT_UI,
+          tag: 'ngx-decaf-crud-field',
+          label: 'Created At',
+          type: 'date',
+          readonly: true,
+          translatable: false,
+        },
         layout: { ...DEFAULT_LAYOUT, col: 'half', hideOn: ['create'] },
         expanded: false,
       },
