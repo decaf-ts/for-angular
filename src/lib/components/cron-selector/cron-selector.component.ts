@@ -1,17 +1,18 @@
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  EventEmitter,
-  forwardRef,
+  computed,
+  DestroyRef,
+  effect,
   inject,
-  Input,
-  OnChanges,
-  OnDestroy,
-  Output,
+  input,
+  model,
+  signal,
+  untracked,
 } from '@angular/core';
-import { ControlValueAccessor, FormBuilder, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { InternalError } from '@decaf-ts/db-decorators';
 import {
   IonButton,
@@ -29,7 +30,6 @@ import {
   IonSelectOption,
 } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
 import { IconComponent } from '../icon/icon.component';
 
 type ScheduleMode = 'daily' | 'hourly' | 'weekly';
@@ -64,43 +64,14 @@ interface WeekdayOption {
   templateUrl: './cron-selector.component.html',
   styleUrls: ['./cron-selector.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => CronSelectorComponent),
-      multi: true,
-    },
-  ],
 })
-export class CronSelectorComponent implements ControlValueAccessor, OnChanges, OnDestroy {
-  @Input()
-  set cron(value: string) {
-    this.loadCron(value);
-  }
-
-  get cron(): string {
-    return this.internalCron;
-  }
-
-  @Input()
-  hideDaily = false;
-
-  @Input()
-  hideInterval = false;
-
-  @Input()
-  hideWeekly = false;
-
-  @Input()
-  describeCron = false;
-
-  @Input()
-  set disabled(value: boolean) {
-    this.setDisabledState(value);
-  }
-
-  @Output()
-  readonly cronChange = new EventEmitter<string>();
+export class CronSelectorComponent {
+  readonly cron = model<string>('0 9 * * *');
+  readonly hideDaily = input<boolean>(false);
+  readonly hideInterval = input<boolean>(false);
+  readonly hideWeekly = input<boolean>(false);
+  readonly describeCron = input<boolean>(false);
+  readonly disabled = input<boolean>(false);
 
   readonly weekdays: WeekdayOption[] = [
     { label: 'component.cron_selector.weekdays.sunday', value: 0 },
@@ -115,8 +86,8 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
   readonly hourlyIntervals = [2, 4, 6, 8, 12];
 
   private readonly formBuilder = inject(FormBuilder);
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly translateService = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly form = this.formBuilder.nonNullable.group({
     mode: 'daily' as ScheduleMode,
@@ -126,44 +97,57 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
     weekdays: this.formBuilder.nonNullable.control<number[]>([1, 2, 3, 4, 5]),
   });
 
-  private readonly subscriptions = new Subscription();
+  readonly visibleModes = computed(() =>
+    (['daily', 'hourly', 'weekly'] as ScheduleMode[]).filter((mode) => !this.isModeHidden(mode))
+  );
 
   private internalCron = '0 9 * * *';
-  private displayedSchedule = this.internalCron;
+  private readonly displayedSchedule = signal(this.internalCron);
   private crontrueModulePromise?: Promise<CrontrueModule>;
   private crontrueLocalePromises = new Map<string, Promise<unknown>>();
   private scheduleRequestId = 0;
 
-  private isDisabled = false;
-
-  private onChange: (value: string) => void = () => undefined;
-
-  private onTouched: () => void = () => undefined;
-
   constructor() {
-    this.subscriptions.add(
-      this.form.valueChanges.subscribe(() => {
-        this.emitCron();
-      })
-    );
-    this.subscriptions.add(
-      this.translateService.onLangChange.subscribe(() => {
+    effect(() => {
+      const value = this.cron();
+      untracked(() => this.loadCron(value));
+    });
+
+    effect(() => {
+      const isDisabled = this.disabled();
+      untracked(() => this.setDisabledState(isDisabled));
+    });
+
+    effect(() => {
+      this.hideDaily();
+      this.hideInterval();
+      this.hideWeekly();
+      untracked(() => {
+        this.ensureVisibleMode();
         void this.refreshDisplayedSchedule();
-      })
-    );
+      });
+    });
+
+    effect(() => {
+      this.describeCron();
+      untracked(() => void this.refreshDisplayedSchedule());
+    });
+
+    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.emitCron();
+    });
+
+    this.translateService.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      void this.refreshDisplayedSchedule();
+    });
   }
 
-  ngOnChanges(): void {
-    this.ensureVisibleMode();
-    void this.refreshDisplayedSchedule();
+  get generatedCron(): string {
+    return this.internalCron;
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
-
-  get visibleModes(): ScheduleMode[] {
-    return (['daily', 'hourly', 'weekly'] as ScheduleMode[]).filter((mode) => !this.isModeHidden(mode));
+  get generatedSchedule(): string {
+    return this.displayedSchedule();
   }
 
   addTime(): void {
@@ -208,51 +192,24 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
     return this.form.controls.weekdays.value.includes(day);
   }
 
-  get generatedCron(): string {
-    return this.internalCron;
+  private emitCron(): void {
+    if (this.disabled()) {
+      return;
+    }
+
+    const cron = this.createCron();
+    this.internalCron = cron;
+    this.cron.set(cron);
+    void this.refreshDisplayedSchedule();
   }
 
-  get generatedSchedule(): string {
-    return this.displayedSchedule;
-  }
-
-  writeValue(value: string | null): void {
-    this.loadCron(value ?? '');
-  }
-
-  registerOnChange(fn: (value: string) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.isDisabled = isDisabled;
-
+  private setDisabledState(isDisabled: boolean): void {
     if (isDisabled) {
       this.form.disable({ emitEvent: false });
       return;
     }
 
     this.form.enable({ emitEvent: false });
-  }
-
-  markTouched(): void {
-    this.onTouched();
-  }
-
-  private emitCron(): void {
-    if (this.isDisabled) {
-      return;
-    }
-
-    const cron = this.createCron();
-    this.internalCron = cron;
-    this.cronChange.emit(cron);
-    this.onChange(cron);
-    void this.refreshDisplayedSchedule();
   }
 
   private createCron(): string {
@@ -501,16 +458,6 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
     return [String(hour).padStart(2, '0'), String(minute).padStart(2, '0')].join(':');
   }
 
-  private formatDateTime(date: Date): string {
-    const year = String(date.getFullYear()).padStart(4, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  }
-
   private ensureVisibleMode(): void {
     const currentMode = this.form.controls.mode.value;
 
@@ -518,7 +465,7 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
       return;
     }
 
-    const fallbackMode = this.visibleModes[0];
+    const fallbackMode = this.visibleModes()[0];
     if (!fallbackMode) {
       return;
     }
@@ -527,17 +474,16 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
   }
 
   private isModeHidden(mode: ScheduleMode): boolean {
-    if (mode === 'daily') return this.hideDaily;
-    if (mode === 'hourly') return this.hideInterval;
-    return this.hideWeekly;
+    if (mode === 'daily') return this.hideDaily();
+    if (mode === 'hourly') return this.hideInterval();
+    return this.hideWeekly();
   }
 
   private async refreshDisplayedSchedule(): Promise<void> {
     const requestId = ++this.scheduleRequestId;
 
-    if (!this.describeCron) {
-      this.displayedSchedule = this.internalCron;
-      this.changeDetectorRef.detectChanges();
+    if (!this.describeCron()) {
+      this.displayedSchedule.set(this.internalCron);
       return;
     }
 
@@ -550,16 +496,14 @@ export class CronSelectorComponent implements ControlValueAccessor, OnChanges, O
         return;
       }
 
-      this.displayedSchedule = description;
+      this.displayedSchedule.set(description);
     } catch {
       if (requestId !== this.scheduleRequestId) {
         return;
       }
 
-      this.displayedSchedule = cron;
+      this.displayedSchedule.set(cron);
     }
-
-    this.changeDetectorRef.detectChanges();
   }
 
   private async describeCronExpression(cron: string): Promise<string> {

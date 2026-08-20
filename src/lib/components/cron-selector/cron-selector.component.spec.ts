@@ -51,7 +51,8 @@ describe('CronSelectorComponent', () => {
   });
 
   it('should serialize daily times with a shared minute into one cron expression', () => {
-    component.writeValue('0 9,21 * * *');
+    component.cron.set('0 9,21 * * *');
+    fixture.detectChanges();
 
     expect(component.form.controls.mode.value).toBe('daily');
     expect(component.form.controls.times.value).toEqual(['09:00', '21:00']);
@@ -59,7 +60,8 @@ describe('CronSelectorComponent', () => {
   });
 
   it('should serialize daily times with different minutes into multiple expressions', () => {
-    component.writeValue('0 8 * * *;30 20 * * *');
+    component.cron.set('0 8 * * *;30 20 * * *');
+    fixture.detectChanges();
 
     expect(component.form.controls.mode.value).toBe('daily');
     expect(component.form.controls.times.value).toEqual(['08:00', '20:30']);
@@ -67,7 +69,8 @@ describe('CronSelectorComponent', () => {
   });
 
   it('should serialize hourly schedules', () => {
-    component.writeValue('0 */6 * * *');
+    component.cron.set('0 */6 * * *');
+    fixture.detectChanges();
 
     expect(component.form.controls.mode.value).toBe('hourly');
     expect(component.form.controls.everyHours.value).toBe(6);
@@ -75,17 +78,17 @@ describe('CronSelectorComponent', () => {
   });
 
   it('should hide configured schedule modes and fall back to the first visible one', () => {
-    component.hideDaily = true;
-    component.hideWeekly = true;
-    component.ngOnChanges();
+    fixture.componentRef.setInput('hideDaily', true);
+    fixture.componentRef.setInput('hideWeekly', true);
     fixture.detectChanges();
 
-    expect(component.visibleModes).toEqual(['hourly']);
+    expect(component.visibleModes()).toEqual(['hourly']);
     expect(component.form.controls.mode.value).toBe('hourly');
   });
 
   it('should serialize weekly schedules with selected weekdays', () => {
-    component.writeValue('30 8 * * 1,3,5');
+    component.cron.set('30 8 * * 1,3,5');
+    fixture.detectChanges();
 
     expect(component.form.controls.mode.value).toBe('weekly');
     expect(component.form.controls.times.value).toEqual(['08:30']);
@@ -94,7 +97,8 @@ describe('CronSelectorComponent', () => {
   });
 
   it('should serialize weekly schedules with multiple hours into one cron expression when the minute matches', () => {
-    component.writeValue('30 8,20 * * 1,3,5');
+    component.cron.set('30 8,20 * * 1,3,5');
+    fixture.detectChanges();
 
     expect(component.form.controls.mode.value).toBe('weekly');
     expect(component.form.controls.times.value).toEqual(['08:30', '20:30']);
@@ -103,7 +107,8 @@ describe('CronSelectorComponent', () => {
   });
 
   it('should serialize weekly schedules with different minutes into multiple expressions', () => {
-    component.writeValue('30 8 * * 1,3,5;45 10 * * 1,3,5');
+    component.cron.set('30 8 * * 1,3,5;45 10 * * 1,3,5');
+    fixture.detectChanges();
 
     expect(component.form.controls.mode.value).toBe('weekly');
     expect(component.form.controls.times.value).toEqual(['08:30', '10:45']);
@@ -111,19 +116,17 @@ describe('CronSelectorComponent', () => {
     expect(component.generatedCron).toBe('30 8 * * 1,3,5;45 10 * * 1,3,5');
   });
 
-  it('should emit cron changes when the form updates', () => {
-    const emitted: string[] = [];
-    component.cronChange.subscribe((value) => emitted.push(value));
-
+  it('should update cron signal when the form updates', () => {
     component.form.controls.mode.setValue('hourly');
     component.form.controls.everyHours.setValue(12);
 
-    expect(emitted.at(-1)).toBe('0 */12 * * *');
+    expect(component.cron()).toBe('0 */12 * * *');
   });
 
   it('should render a human readable schedule when describeCron is enabled', async () => {
-    component.describeCron = true;
-    component.writeValue('0 9 * * *');
+    fixture.componentRef.setInput('describeCron', true);
+    component.cron.set('0 9 * * *');
+    fixture.detectChanges();
 
     await waitForScheduleValue(fixture, component, 'At 09:00');
 
@@ -134,8 +137,9 @@ describe('CronSelectorComponent', () => {
   it('should render the schedule in the active language when describeCron is enabled', async () => {
     const translateService = TestBed.inject(TranslateService);
 
-    component.describeCron = true;
-    component.writeValue('0 9 * * *');
+    fixture.componentRef.setInput('describeCron', true);
+    component.cron.set('0 9 * * *');
+    fixture.detectChanges();
 
     await waitForScheduleValue(fixture, component, 'At 09:00');
 

@@ -6,12 +6,15 @@
 >
   <main>
     <ngx-decaf-container>
-      <ngx-decaf-cron-selector [(cron)]="medicationCron" />
+      <ngx-decaf-cron-selector
+        [(cron)]="medicationCron"
+        (cronChange)="onCronChange($event)"
+      />
 
-      <!-- <div class="dcf-current-cron">
+      <div class="dcf-current-cron">
         {{ 'cron_selector.current_cron' | translate }}
         <code>{{ medicationCron }}</code>
-      </div> -->
+      </div>
     </ngx-decaf-container>
   </main>
 </ion-content>
