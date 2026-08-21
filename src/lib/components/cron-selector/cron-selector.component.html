@@ -112,18 +112,6 @@
                 </span>
               </ion-button>
             </div>
-
-            <ion-modal [keepContentsMounted]="true">
-              <ng-template>
-                <ion-datetime
-                  [id]="'daily-time-' + index"
-                  presentation="time"
-                  [value]="time"
-                  [showDefaultButtons]="true"
-                  (ionChange)="updateTime(index, $event.detail.value)"
-                ></ion-datetime>
-              </ng-template>
-            </ion-modal>
           </ion-item>
         }
       }

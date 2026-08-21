@@ -5,12 +5,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Dynamic } from '../../engine/decorators';
 import { CronSelectorComponent } from '../cron-selector/cron-selector.component';
 import { CrudFieldComponent } from '../crud-field/crud-field.component';
+import { CronBuilderComponent } from './cron-builder/cron-builder.component';
 
 @Dynamic()
 @Component({
   selector: 'app-cron-selector-field',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, IonButton, IonCheckbox, IonLabel, CronSelectorComponent],
+  imports: [CommonModule, TranslatePipe, IonButton, IonCheckbox, IonLabel, CronBuilderComponent, CronSelectorComponent],
   templateUrl: './cron-selector-field.component.html',
   styleUrls: ['./cron-selector-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +33,9 @@ export class CronSelectorFieldComponent extends CrudFieldComponent implements On
 
   @Input()
   describeCron = false;
+
+  @Input()
+  override multiple = true;
 
   get hasCronValue(): boolean {
     return typeof this.value === 'string' && this.value.trim().length > 0;

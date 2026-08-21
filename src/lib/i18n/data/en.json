@@ -74,6 +74,37 @@
     "processing": "Processing {0}..."
   },
   "component": {
+    "cron_builder": {
+      "quick_presets": "Quick presets",
+      "every": "Every",
+      "minutes": "minutes",
+      "hour": "hour",
+      "daily_at": "Daily at",
+      "weekdays_preset": "Weekdays",
+      "all": "All",
+      "monthly": "Monthly",
+      "copy": "Copy",
+      "fields": {
+        "minute": "Minute",
+        "hour": "Hour",
+        "day": "Day",
+        "month": "Month",
+        "weekday": "Weekday"
+      },
+      "copied": "Copied!",
+      "add_another": "Add another"
+    },
+    "cron_selector": {
+      "weekdays": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday"
+      }
+    },
     "crud_form": {
       "submit": "Submit",
       "cancel": "Cancel",
@@ -144,7 +175,6 @@
       "search": "Search",
       "search_by": "Search by: {0}"
     },
-
     "modal": {
       "confirm": {
         "code": {
