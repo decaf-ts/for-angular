@@ -10,12 +10,8 @@
  */
 
 import type { Context, ContextFlags, ContextualArgs } from '@decaf-ts/core';
-import type { CancelledError } from '@decaf-ts/ui-decorators/user-requests';
-import {
-  userRequest,
-  UserRequestHandler,
-} from '@decaf-ts/ui-decorators/user-requests';
-import type { UserRequest } from '@decaf-ts/ui-decorators/user-requests';
+import type { CancelledError, UserRequest } from '@decaf-ts/ui-decorators/user-requests';
+import { userRequest, UserRequestHandler } from '@decaf-ts/ui-decorators/user-requests';
 
 /**
  * @summary Payload/result shape resolved by the `user-data` handler.
@@ -54,10 +50,7 @@ export class UserDataUserRequestHandler extends UserRequestHandler<UserData> {
    * @throws {import('@decaf-ts/db-decorators').ValidationError} When the
    * submitted form fails validation.
    */
-  async handle(
-    request: UserRequest<UserData>,
-    ...args: ContextualArgs<Context<ContextFlags<any>>>
-  ): Promise<UserData> {
+  async handle(request: UserRequest<UserData>, ...args: ContextualArgs<Context<ContextFlags<any>>>): Promise<UserData> {
     const { log } = await this.logCtx([request, ...args], this.handle, true);
     log.info(`Resolving user-data request "${request.id}"`);
     log.debug(`User-data request payload: ${JSON.stringify(request.payload)}`);

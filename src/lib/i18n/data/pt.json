@@ -46,6 +46,37 @@
     }
   },
   "component": {
+    "cron_builder": {
+      "quick_presets": "Predefinições rápidas",
+      "every": "A cada",
+      "minutes": "minutos",
+      "hour": "hora",
+      "daily_at": "Diariamente às",
+      "weekdays_preset": "Dias úteis",
+      "all": "Todos",
+      "monthly": "Mensal",
+      "copy": "Copiar",
+      "fields": {
+        "minute": "Minuto",
+        "hour": "Hora",
+        "day": "Dia",
+        "month": "Mês",
+        "weekday": "Dia da semana"
+      },
+      "copied": "Copiado!",
+      "add_another": "Adicionar outro"
+    },
+    "cron_selector": {
+      "weekdays": {
+        "sunday": "Domingo",
+        "monday": "Segunda-feira",
+        "tuesday": "Terça-feira",
+        "wednesday": "Quarta-feira",
+        "thursday": "Quinta-feira",
+        "friday": "Sexta-feira",
+        "saturday": "Sábado"
+      }
+    },
     "fieldset": {
       "add": "Adicionar outro",
       "update": "Atualizar item",

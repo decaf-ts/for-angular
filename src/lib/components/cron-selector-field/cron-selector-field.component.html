@@ -41,7 +41,7 @@
   </div>
   @if (checked) {
     <div class="dcf-cron-selector-body">
-      <ngx-decaf-cron-selector
+      <ngx-decaf-cron-builder
         [formControl]="formControl"
         [value]="cronValue"
         [describeCron]="describeCron"
@@ -49,6 +49,7 @@
         [hideDaily]="hideDaily"
         [hideInterval]="hideInterval"
         [hideWeekly]="hideWeekly"
+        [multiple]="multiple"
         (changeEvent)="handleCronChange($event)"
       />
     </div>
