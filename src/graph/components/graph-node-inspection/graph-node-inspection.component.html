@@ -1,0 +1,52 @@
+@if (store.openNodeId()) {
+  @if (payload(); as inspection) {
+    <section class="graph-node-inspection">
+      <header class="graph-node-inspection__header">
+        <div class="graph-node-inspection__identity">
+          @if (meta(); as metaInfo) {
+            <strong>{{ metaInfo.title }}</strong>
+            <small>{{ metaInfo.sourceClass }} · {{ metaInfo.kind }}</small>
+          } @else {
+            <strong>{{ nodeTitle() }}</strong>
+          }
+          <span class="graph-node-inspection__badge" [class]="stateBadgeClass()">
+            {{ nodeState() || 'idle' }}
+          </span>
+        </div>
+        <button
+          type="button"
+          class="graph-node-inspection__close"
+          title="Close inspection"
+          (click)="close()"
+        >
+          &times;
+        </button>
+      </header>
+
+      <div class="graph-node-inspection__body">
+        <section
+          class="graph-node-inspection__pane graph-node-inspection__pane--outputs"
+        >
+          @if (inspection.error) {
+            <app-graph-io-viewer
+              title="Outputs"
+              [value]="null"
+              [error]="inspection.error"
+            />
+          } @else {
+            <app-graph-io-viewer
+              title="Outputs"
+              [value]="inspection.outputs"
+            />
+          }
+        </section>
+
+        <section
+          class="graph-node-inspection__pane graph-node-inspection__pane--inputs"
+        >
+          <app-graph-io-viewer title="Inputs" [value]="inspection.inputs" />
+        </section>
+      </div>
+    </section>
+  }
+}

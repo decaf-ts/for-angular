@@ -4,12 +4,14 @@ import { IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { CategoryModel } from 'src/app/models/CategoryModel';
+import { UserModel } from 'src/app/models/UserModel';
 import { EmptyStateComponent } from 'src/lib/components/empty-state/empty-state.component';
 import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { PaginationComponent } from 'src/lib/components/pagination/pagination.component';
 import { SearchbarComponent } from 'src/lib/components/searchbar/searchbar.component';
 import { TableComponent } from 'src/lib/components/table/table.component';
 import { DecafTooltipDirective } from 'src/lib/directives';
+import { TableDemoModel } from './table-demo.model';
 import './setup';
 import { getComponentMeta } from './utils';
 
@@ -30,7 +32,7 @@ const meta: Meta<TableComponent> = {
 
   ...component,
   args: {
-    model: new CategoryModel({}),
+    model: new TableDemoModel({}),
     operations: [OperationKeys.READ, OperationKeys.UPDATE, OperationKeys.DELETE],
     allowOperations: true,
     maxContentLength: -1,
@@ -51,5 +53,27 @@ export const ReadOnly: Story = {
 export const TruncatedContent: Story = {
   args: {
     maxContentLength: 40,
+  },
+};
+
+export const Empty: Story = {
+  args: {
+    model: new UserModel({}),
+    showSearchbar: false,
+    operations: [OperationKeys.READ],
+  },
+};
+
+export const WithFilter: Story = {
+  args: {
+    filterModel: new CategoryModel({}),
+    filterLabel: 'Filter by category',
+  },
+};
+
+export const ReadOnlyActions: Story = {
+  args: {
+    operations: [OperationKeys.UPDATE],
+    allowOperations: false,
   },
 };

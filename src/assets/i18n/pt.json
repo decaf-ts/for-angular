@@ -252,5 +252,25 @@
         "heavyweight": "Pesado"
       }
     }
+  },
+  "user-request": {
+    "title": "User Request",
+    "cancel": "Cancelar",
+    "step1": {
+      "title": "Name",
+      "description": "Diz-nos o teu nome."
+    },
+    "step2": {
+      "title": "Email",
+      "description": "Diz-nos o teu email."
+    },
+    "name": {
+      "label": "Nome",
+      "placeholder": "O teu nome"
+    },
+    "email": {
+      "label": "Email",
+      "placeholder": "O teu email"
+    }
   }
 }

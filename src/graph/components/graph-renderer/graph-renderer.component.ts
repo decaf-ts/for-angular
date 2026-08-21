@@ -22,6 +22,7 @@ import {
   NgDiagramComponent,
   NgDiagramMinimapComponent,
   NgDiagramNodeTemplateMap,
+  NgDiagramEdgeTemplateMap,
   provideNgDiagram,
   createMiddlewares,
   type Middleware,
@@ -46,7 +47,10 @@ import {
   WorkflowInputFieldDefinition,
 } from '../../workflow-inputs';
 import { GraphBoundaryNodeTemplateComponent } from '../boundary-node-template/boundary-node-template.component';
+import { GraphEdgeTemplateComponent } from '../graph-edge-template/graph-edge-template.component';
 import { GraphGhostNodeTemplateComponent } from '../graph-ghost-node-template/graph-ghost-node-template.component';
+import { GraphLogsWidgetComponent } from '../graph-logs-widget/graph-logs-widget.component';
+import { GraphNodeInspectionComponent } from '../graph-node-inspection/graph-node-inspection.component';
 import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-template.component';
 
 @Component({
@@ -58,6 +62,9 @@ import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-te
     NgDiagramBackgroundComponent,
     NgDiagramMinimapComponent,
     IonSpinner,
+    GraphEdgeTemplateComponent,
+    GraphLogsWidgetComponent,
+    GraphNodeInspectionComponent,
   ],
   providers: [provideNgDiagram()],
   templateUrl: './graph-renderer.component.html',
@@ -190,6 +197,16 @@ export class GraphRendererComponent {
     ['core.agent', GraphNodeTemplateComponent],
     ['value', GraphBoundaryNodeTemplateComponent],
     ['graph.ghost', GraphGhostNodeTemplateComponent],
+  ]);
+
+  /**
+   * Edge template keyed by the `graph-edge` type set on every canvas edge by
+   * {@link buildGraphRendererViewModel}. The `graph-edge` template applies the
+   * run's visual state (running / blocked / succeeded / failed / skipped) to
+   * the line (DECAF-48 §4.4).
+   */
+  readonly edgeTemplateMap = new NgDiagramEdgeTemplateMap([
+    ['graph-edge', GraphEdgeTemplateComponent],
   ]);
 
   readonly workflowRootClass = computed(() => this.resolveGraphRoot(this.graphRoot()));

@@ -100,6 +100,26 @@ describe('graph adapter', () => {
     });
   });
 
+  it('carries the engine plan-edge id + edge template type on every canvas edge (DECAF-48 §4.4)', () => {
+    const viewModel = buildGraphRendererViewModel(TextPipelineWorkflow as never);
+
+    expect(viewModel.edges.every((edge) => edge.type === 'graph-edge')).toBe(true);
+    const engineIds = viewModel.edges.map((edge) => edge.data.engineEdgeId).filter(Boolean);
+    // Outgoing workflow-output edges carry no engineEdgeId: workflow outputs
+    // are surfaced through the run result, not as canvas edges, so the canvas
+    // shows only the 4 intra-workflow edges (ResultLogNode:logged->$workflow:result is dropped).
+    expect(engineIds).toHaveLength(viewModel.edges.length);
+    expect(engineIds).toEqual(
+      expect.arrayContaining([
+        '$workflow:count->SplitTextCodeNode:data',
+        '$workflow:text->SplitTextCodeNode:data',
+        'SplitTextCodeNode:result->GraphForeachLoopNode:items',
+        'GraphForeachLoopNode:completed->ResultLogNode:value',
+      ])
+    );
+    expect(viewModel.edges.every((edge) => !(edge.data.engineEdgeId ?? '').includes('undefined'))).toBe(true);
+  });
+
   it('serializes and restores the workflow renderer state', () => {
     const injector = TestBed.inject(Injector);
     const inputValues = {

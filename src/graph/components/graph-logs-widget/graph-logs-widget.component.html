@@ -1,0 +1,94 @@
+@if (store.open() && store.entries().length) {
+  <section
+    class="graph-logs"
+    [class.graph-logs--collapsed]="store.collapsed()"
+  >
+    <header class="graph-logs__header">
+      <button
+        type="button"
+        class="graph-logs__toggle"
+        [attr.aria-label]="store.collapsed() ? 'Expand run log' : 'Collapse run log'"
+        (click)="toggleCollapsed()"
+      >
+        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+          @if (store.collapsed()) {
+            <path d="M2 3 L8 3 L5 6 Z" fill="currentColor" />
+          } @else {
+            <path d="M2 6 L8 6 L5 3 Z" fill="currentColor" />
+          }
+        </svg>
+      </button>
+
+      <span class="graph-logs__title">Run console</span>
+
+      <span class="graph-logs__count">
+        {{ store.counts().warnings }}&nbsp;W&nbsp;&middot;&nbsp;{{ store.counts().errors }}&nbsp;E
+      </span>
+
+      <nav class="graph-logs__filters">
+        @for (option of levelOptions; track option) {
+          <button
+            type="button"
+            class="graph-logs__filter"
+            [class.graph-logs__filter--active]="store.filter() === option"
+            (click)="setFilter(option)"
+          >
+            {{ filterLabels[option] }}
+          </button>
+        }
+      </nav>
+
+      <button
+        type="button"
+        class="graph-logs__icon-btn"
+        title="Clear log"
+        (click)="clearLogs()"
+      >
+        Clear
+      </button>
+
+      <button
+        type="button"
+        class="graph-logs__icon-btn"
+        title="Dismiss console"
+        (click)="closeLogs()"
+      >
+        &times;
+      </button>
+    </header>
+
+    @if (!store.collapsed()) {
+      <div class="graph-logs__body">
+        @if (store.visibleEntries().length) {
+          <ol
+            #logList
+            class="graph-logs__list"
+          >
+            @for (entry of store.visibleEntries(); track trackEntry($index, entry)) {
+              <li
+                class="graph-logs__entry"
+                [class]="entryLevelClass(entry)"
+              >
+                <span class="graph-logs__level graph-logs__level-badge">
+                  {{ entryLevelLabel(entry) }}
+                </span>
+                <span class="graph-logs__time">{{ entryTime(entry) }}</span>
+                @if (entry.nodeId) {
+                  <span class="graph-logs__node" title="nodeId: {{ entry.nodeId }}">
+                    {{ entry.nodeId }}
+                  </span>
+                }
+                <span class="graph-logs__message">{{ entry.message }}</span>
+                @if (entry.payload !== null && entry.payload !== undefined) {
+                  <code class="graph-logs__payload">{{ formatValue(entry.payload) }}</code>
+                }
+              </li>
+            }
+          </ol>
+        } @else {
+          <p class="graph-logs__empty">No messages match the selected filter.</p>
+        }
+      </div>
+    }
+  </section>
+}

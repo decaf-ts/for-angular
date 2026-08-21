@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { defineConfig, devices } from '@playwright/test';
 
 /**
@@ -11,6 +12,16 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
+/*
+ * The Paperclip CI sandbox has no /etc/fonts configuration, so Skia cannot
+ * resolve fonts and Chromium crashes with `SkFontMgr_FontConfigInterface: Not
+ * implemented`. Only apply the fontconfig workaround in that environment
+ * (detected by the sandbox flag or the sandbox's own fontconfig file); all
+ * other environments are unaffected.
+ */
+const needsSandboxFontConfig =
+  !!process.env['PAPERCLIP_SANDBOX'] || existsSync('/paperclip/.config/fontconfig/fonts.conf');
+
 export default defineConfig({
   testDir: './tests/playwright',
   /* Run tests in files in parallel */
@@ -31,6 +42,18 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     video: 'on',
+
+    ...(needsSandboxFontConfig
+      ? {
+          launchOptions: {
+            env: {
+              ...process.env,
+              FONTCONFIG_FILE: '/paperclip/.config/fontconfig/fonts.conf',
+              FONTCONFIG_PATH: '/paperclip/.config/fontconfig',
+            },
+          },
+        }
+      : {}),
   },
 
   /* Configure projects for major browsers */

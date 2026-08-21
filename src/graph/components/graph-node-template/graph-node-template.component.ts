@@ -16,6 +16,7 @@ import { LogFlowNode } from '@decaf-ts/integrations/graph/shared';
 import { buildMemberNode } from '../../utils';
 import { GraphDemoNodeData } from '../../types';
 import { graphExecutionState } from '../../execution/GraphExecutionStateService';
+import { graphInspection } from '../../execution/GraphInspectionStore';
 import { graphNodeConfig } from '../../execution/GraphNodeConfigStore';
 import { graphSelection } from '../../execution/GraphSelectionStore';
 import { GraphNodeEditModalComponent, type GraphNodeEditResult } from '../graph-node-edit-modal/graph-node-edit-modal.component';
@@ -168,6 +169,18 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     return state['status'] as string;
   });
 
+  /**
+   * Whether this node has already executed, i.e. double-clicking should open
+   * the I/O inspection panel instead of the edit modal (DECAF-48 §4.6).
+   */
+  readonly hasRan = computed(() => {
+    if (graphInspection.has(this.node().id)) return true;
+    const state = this.nodeExecutionState();
+    if (!state) return false;
+    const status = state.status as string;
+    return status === 'succeeded' || status === 'failed' || status === 'cached';
+  });
+
   readonly isSelected = computed(() => {
     const nodeId = this.node().id;
     return graphSelection.selectedNodeIds().has(nodeId);
@@ -247,6 +260,13 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
   async openEditor(event: Event) {
     event.preventDefault();
     event.stopPropagation();
+
+    // Double-click on an already-ran node opens the I/O inspection panel
+    // instead of the edit modal (DECAF-48 §4.6).
+    if (this.hasRan()) {
+      graphInspection.toggle(this.node().id);
+      return;
+    }
 
     const ModelClass = this.node().data.modelClass;
     if (typeof ModelClass !== 'function') return;

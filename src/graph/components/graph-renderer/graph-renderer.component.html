@@ -4,6 +4,7 @@
       <ng-diagram
         [model]="graphModel"
         [nodeTemplateMap]="nodeTemplateMap"
+        [edgeTemplateMap]="edgeTemplateMap"
         [middlewares]="middlewares"
         (selectionChanged)="onSelectionChanged($event)"
         (nodeDragEnded)="onNodeDragEnded()"
@@ -71,6 +72,9 @@
     </div>
 
     <ng-content select="[graphFloatingControls]"></ng-content>
+
+    <app-graph-logs-widget />
+    <app-graph-node-inspection />
   </div>
 
   <aside class="graph-renderer__side graph-renderer__side--inputs">

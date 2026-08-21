@@ -13,7 +13,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonSkeletonText, IonText } from '@ionic/angular/standalone';
 import { UIElementMetadata, ComponentEventNames, UIModelMetadata } from '@decaf-ts/ui-decorators';
-import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
+import { CrudOperations, OperationKeys, ValidationError } from '@decaf-ts/db-decorators';
 import { Dynamic } from '../../engine/decorators';
 import { NgxFormService } from '../../services/NgxFormService';
 import { getLocaleContext } from '../../i18n/Loader';
@@ -37,6 +37,45 @@ import { FormParent } from '../../engine/types';
   standalone: true,
   host: { '[attr.id]': 'uid' },
 })
+
+/**
+ * @description Multi-page (stepped) form component driven by Decaf UI metadata.
+ * @summary Renders a set of `UIModelMetadata` children organized into logical
+ * pages with next/back navigation, per-page validation and a final submit event.
+ * It extends `NgxFormDirective` and can be used directly in templates or rendered
+ * dynamically by the `NgxRenderingEngine`. When hosted inside a modal,
+ * `notifyOnInvalidSubmit` makes a failed last-page submit surface a
+ * `ValidationError` event instead of silently leaving the modal open.
+ *
+ * @extends {NgxFormDirective}
+ * @implements {OnInit}
+ * @implements {OnDestroy}
+ *
+ * @example
+ * ```html
+ * <ngx-decaf-stepped-form
+ *   [children]="fieldMetadata"
+ *   [operation]="operation"
+ *   (submitEvent)="onSubmit($event)">
+ * </ngx-decaf-stepped-form>
+ * ```
+ * @mermaid
+ * sequenceDiagram
+ *   participant U as User
+ *   participant S as SteppedFormComponent
+ *   participant F as NgxFormService
+ *
+ *   U->>S: Navigate to next page
+ *   S->>F: validateFields(activeFormGroup)
+ *   alt valid and not last page
+ *     S->>S: Advance active page
+ *   else valid and last page
+ *     S->>F: getFormData(rootForm)
+ *     S-->>U: Emit submit event
+ *   else invalid and modal child opted in
+ *     S-->>U: Emit ValidationError event
+ *   end
+ */
 export class SteppedFormComponent extends NgxFormDirective implements OnInit, OnDestroy {
   /**
    * @description Array of UI model metadata for all form fields.
@@ -67,6 +106,20 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
   @Input()
   paginated: boolean = true;
 
+  /**
+   * @description Emits a `ValidationError` event when a last-page submit is
+   * invalid while the form is hosted inside a modal.
+   * @summary Lets the hosting (generic) modal surface invalid form submissions
+   * through the engine event pipeline instead of silently leaving the modal
+   * open. Only active for modal children that opt in, so regular forms keep
+   * their current behavior.
+   *
+   * @type {boolean}
+   * @default false
+   * @memberOf SteppedFormComponent
+   */
+  @Input()
+  notifyOnInvalidSubmit: boolean = false;
   // /**
   //  * @description Optional action identifier for form submission context.
   //  * @summary Specifies a custom action name that will be included in the submit event.
@@ -274,9 +327,12 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
 
   /**
    * @description Handles navigation to the next page or form submission.
-   * @summary Validates the current page's form fields and either navigates to the next page
-   * or submits the entire form if on the last page. Form validation must pass before
-   * proceeding. On successful submission, emits a submit event with form data.
+   * @summary Validates the current page's form fields and either navigates to the
+   * next page or submits the entire form if on the last page. Form validation must
+   * pass before proceeding. On successful submission, emits a submit event with the
+   * form data. When the last page is invalid and the component is a modal child with
+   * `notifyOnInvalidSubmit` enabled, a `ValidationError` event is emitted instead so
+   * the hosting modal can surface the failure.
    *
    * @param {boolean} lastPage - Whether this is the last page of the form
    * @return {void}
@@ -298,6 +354,8 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
    *     S->>F: getFormData(formGroup)
    *     F-->>S: Return form data
    *     S->>P: submitEvent.emit({data, name: SUBMIT})
+   *   else Last page invalid and modal child opted in
+   *     S->>P: submitEvent.emit({data: ValidationError, name: VALIDATION_ERROR})
    *   end
    *
    * @memberOf SteppedFormComponent
@@ -323,6 +381,15 @@ export class SteppedFormComponent extends NgxFormDirective implements OnInit, On
           data,
           'SteppedFormComponent',
           this.action || ComponentEventNames.Submit,
+          this.handlers,
+        );
+      } else if (this.isModalChild && this.notifyOnInvalidSubmit) {
+        super.submitEventEmit(
+          new ValidationError(
+            'Form is invalid. Please correct the errors and try again.',
+          ),
+          'SteppedFormComponent',
+          ComponentEventNames.ValidationError,
           this.handlers,
         );
       }

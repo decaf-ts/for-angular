@@ -1,0 +1,154 @@
+.graph-io {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  height: 100%;
+  gap: 0.4rem;
+}
+
+/* ---- pane header (title + JSON/table/raw mode toggle) ---- */
+
+.graph-io__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.graph-io__title {
+  margin: 0;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #64748b;
+}
+
+.graph-io__modes {
+  display: flex;
+  gap: 0.15rem;
+}
+
+.graph-io__mode {
+  border: 0;
+  border-radius: 6px;
+  padding: 0.18rem 0.45rem;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.graph-io__mode:hover {
+  color: #334155;
+}
+
+.graph-io__mode--active {
+  background: rgba(15, 118, 110, 0.12);
+  color: #0f766e;
+}
+
+.graph-io__body {
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* ---- json / raw text output ---- */
+
+.graph-io__json,
+.graph-io__raw {
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: #0f172a;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.graph-io__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.7rem;
+}
+
+.graph-io__table th {
+  position: sticky;
+  top: 0;
+  text-align: left;
+  padding: 0.35rem 0.6rem;
+  background: rgba(241, 245, 249, 0.98);
+  color: #64748b;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+.graph-io__table td {
+  padding: 0.3rem 0.6rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  vertical-align: top;
+  color: #334155;
+  word-break: break-word;
+}
+
+/* ---- failed-run error state (replaces the value rendering) ---- */
+
+.graph-io__table-key {
+  font-weight: 700;
+  color: #0f766e;
+  white-space: nowrap;
+  max-width: 10rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.graph-io__table-empty {
+  color: #94a3b8;
+}
+
+.graph-io__error {
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 10px;
+  background: rgba(254, 242, 242, 0.85);
+}
+
+.graph-io__error strong {
+  color: #b91c1c;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.graph-io__error code {
+  color: #b91c1c;
+  font-size: 0.72rem;
+  word-break: break-word;
+}
+
+/* ---- "No data." placeholder ---- */
+
+.graph-io__stack {
+  margin: 0;
+  font-size: 0.66rem;
+  color: #7f1d1d;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.graph-io__empty {
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  color: #94a3b8;
+  font-size: 0.72rem;
+}

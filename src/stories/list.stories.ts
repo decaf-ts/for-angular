@@ -17,6 +17,7 @@ import {
 } from '@ionic/angular/standalone';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { CategoryModel } from 'src/app/models/CategoryModel';
+import { UserModel } from 'src/app/models/UserModel';
 import { ComponentRendererComponent } from 'src/lib/components/component-renderer/component-renderer.component';
 import { EmptyStateComponent } from 'src/lib/components/empty-state/empty-state.component';
 import { FilterComponent } from 'src/lib/components/filter/filter.component';
@@ -135,5 +136,25 @@ export const paginationWithoutTruncate: Story = {
   args: {
     type: ListComponentsTypes.PAGINATED,
     truncatePaginationPages: false,
+  },
+};
+
+export const empty: Story = {
+  args: {
+    model: new UserModel({}),
+    type: ListComponentsTypes.PAGINATED,
+    showSearchbar: false,
+    showRefresher: false,
+    enableFilter: false,
+    createButton: false,
+    loadMoreData: false,
+  },
+};
+
+export const fullCrud: Story = {
+  args: {
+    type: ListComponentsTypes.PAGINATED,
+    createButton: true,
+    operations: [OperationKeys.READ, OperationKeys.CREATE, OperationKeys.UPDATE, OperationKeys.DELETE],
   },
 };

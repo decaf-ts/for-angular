@@ -268,5 +268,25 @@
         "heavyweight": "Heavyweight"
       }
     }
+  },
+  "user-request": {
+    "title": "User Request",
+    "cancel": "Cancel",
+    "step1": {
+      "title": "Name",
+      "description": "Tell us your name."
+    },
+    "step2": {
+      "title": "Email",
+      "description": "Tell us your email."
+    },
+    "name": {
+      "label": "Name",
+      "placeholder": "Your name"
+    },
+    "email": {
+      "label": "Email",
+      "placeholder": "Your email"
+    }
   }
 }

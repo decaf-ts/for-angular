@@ -13,6 +13,7 @@
  */
 import { InjectionToken, Injectable, inject, signal } from "@angular/core";
 import { Subject, Observable } from "rxjs";
+import type { GraphNodeInspectionPayload, GraphVisualState } from "@decaf-ts/integrations/graph/shared";
 
 import { ServerEventConnector } from "@decaf-ts/for-http";
 import type { GraphExecutionEvent } from "@decaf-ts/integrations/graph/shared";
@@ -44,6 +45,38 @@ interface GraphExecuteResponse {
   runId: string;
   status: string;
   outputs: Record<string, unknown>;
+}
+
+/**
+ * Serialised `GraphExecutionResultModel` returned by `GET /graph/results/:runId`.
+ * `nodeResults` maps engine node ids to their per-node execution detail.
+ */
+export interface GraphRunResultModel {
+  runId: string;
+  workflowId: string;
+  status: string;
+  inputs: Record<string, unknown>;
+  outputs: Record<string, unknown>;
+  nodeResults: Record<string, GraphNodeResultEntry>;
+  startedAt: string;
+  finishedAt?: string;
+}
+
+/**
+ * Per-node execution detail within a saved run result (DECAF-48 §4.6).
+ */
+export interface GraphNodeResultEntry {
+  nodeId: string;
+  status: string;
+  inputs: Record<string, unknown>;
+  outputs?: Record<string, unknown>;
+  error?: { name: string; message: string; stack?: string; code?: string };
+  startedAt?: string;
+  finishedAt?: string;
+  fromCache?: boolean;
+  pinned?: boolean;
+  events?: unknown[];
+  iteration?: number;
 }
 
 /**
@@ -102,6 +135,12 @@ export class GraphExecutionService {
   readonly backendAvailable = signal<boolean | null>(null);
 
   /**
+   * Run id of the most recent `execute()` invocation. Inspections for a run
+   * are fetched from `GET /graph/results/:runId` via `getRunResult`.
+   */
+  readonly lastRunId = signal<string | null>(null);
+
+  /**
    * Probes the backend by sending a lightweight HEAD request. Updates the
    * `backendAvailable` signal. Returns `true` when the backend responds
    * (any HTTP status), `false` when the request fails to connect.
@@ -110,6 +149,9 @@ export class GraphExecutionService {
     try {
       await fetch(`${this.baseUrl}/graph/results/__health__`, {
         method: "GET",
+        // Match the SSE path (`credentials: "include"`) so session-cookie auth
+        // is transmitted consistently on every backend call (SAA-116 F1).
+        credentials: "include",
         signal: AbortSignal.timeout(3000),
       });
       // Any response (even 404) means the server is up.
@@ -140,6 +182,7 @@ export class GraphExecutionService {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ workflow: serializableWorkflow, inputs }),
+        credentials: "include",
         signal: AbortSignal.timeout(10000),
       });
     } catch (err) {
@@ -161,11 +204,79 @@ export class GraphExecutionService {
     }
 
     const result = (await response.json()) as GraphExecuteResponse;
+    this.lastRunId.set(result.runId);
 
     // Stream events for this run over SSE.
     this.streamEvents(result.runId);
 
     return { status: result.status, outputs: result.outputs };
+  }
+
+  /**
+   * Fetches the full run result (per-node inputs/outputs/state) for the given
+   * run id from the backend `GET /graph/results/:runId` endpoint. Resolves
+   * with `null` when the run result is not (yet) available.
+   */
+  async getRunResult(runId: string): Promise<GraphRunResultModel | null> {
+    try {
+      const response = await fetch(`${this.baseUrl}/graph/results/${encodeURIComponent(runId)}`, {
+        method: "GET",
+        credentials: "include",
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!response.ok) {
+        if (response.status === 404) return null;
+        return null;
+      }
+      return (await response.json()) as GraphRunResultModel;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Convenience for inspection: resolves the run result for
+   * {@link lastRunId} and folds every `nodeResults` entry into
+   * {@link GraphNodeInspectionPayload} values (DECAF-48 §4.6).
+   */
+  async fetchInspections(runId: string): Promise<GraphNodeInspectionPayload[]> {
+    const result = await this.getRunResult(runId);
+    if (!result) return [];
+    return Object.entries(result.nodeResults ?? {}).map(([nodeId, entry]) => {
+      const detail = (entry ?? {}) as GraphNodeResultEntry;
+      return {
+        runId: result.runId,
+        workflowId: result.workflowId,
+        nodeId,
+        state: this.visualStateOf(detail.status),
+        inputs: detail.inputs ?? {},
+        outputs: detail.outputs,
+        error: detail.error,
+      };
+    });
+  }
+
+  /**
+   * Maps a stored per-node result status onto the frontend-safe visual state
+   * used by inspection payloads. `cached` renders as `succeeded`; unknown or
+   * absent statuses map to `idle`.
+   * @param status Engine-stored node status from `GET /graph/results/:runId`.
+   * @returns The corresponding {@link GraphVisualState}.
+   */
+  private visualStateOf(status?: string): GraphVisualState {
+    switch (status) {
+      case "running":
+        return "running" as GraphVisualState;
+      case "failed":
+        return "failed" as GraphVisualState;
+      case "cached":
+      case "succeeded":
+        return "succeeded" as GraphVisualState;
+      case "skipped":
+        return "skipped" as GraphVisualState;
+      default:
+        return "idle" as GraphVisualState;
+    }
   }
 
   /**

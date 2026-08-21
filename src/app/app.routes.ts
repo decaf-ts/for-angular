@@ -75,6 +75,10 @@ export const routes: Routes = [
     path: 'steps-form',
     loadComponent: () => import('./pages/steps-form/steps-form.page').then( m => m.StepsFormPage)
   },
+  {
+    path: 'user-request',
+    loadComponent: () => import('./pages/user-request/user-request.page').then( m => m.UserRequestPage)
+  },
 
   // EW
   {

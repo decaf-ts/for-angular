@@ -39,6 +39,32 @@ class GraphExecutionStateStore {
     return this.pinnedNodes().has(nodeId);
   }
 
+  /**
+   * Seeds every known canvas node and edge with a `blocked` status at run
+   * start. The engine never emits BLOCKED (DECAF-48 §4.4: it is derived
+   * frontend-side); nodes/edges awaiting upstream completion are yellow until
+   * a NODE_STATE_CHANGED / EDGE_STATE_CHANGED event overrides them.
+   */
+  markAllBlocked(nodeIds: string[], edges: { id: string; engineEdgeId?: string }[]) {
+    for (const nodeId of nodeIds) {
+      const current = this.nodeStates()[nodeId];
+      if (!current || current.status === 'pending' || current.status === 'idle') {
+        this.setNodeState(nodeId, { status: 'blocked', visualState: 'blocked' });
+      }
+    }
+    for (const edge of edges) {
+      // Register under both the canvas id and the engine plan-edge id so the
+      // edge template (which resolves via `engineEdgeId`) sees the state.
+      for (const edgeId of new Set([edge.id, edge.engineEdgeId])) {
+        if (!edgeId) continue;
+        const current = this.edgeStates()[edgeId];
+        if (!current || current.status === 'pending' || current.status === 'idle') {
+          this.setEdgeState(edgeId, { status: 'blocked', visualState: 'blocked' });
+        }
+      }
+    }
+  }
+
   reset() {
     this.nodeStates.set({});
     this.edgeStates.set({});

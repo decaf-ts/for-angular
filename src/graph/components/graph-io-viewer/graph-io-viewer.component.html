@@ -1,0 +1,67 @@
+<section class="graph-io">
+  <header class="graph-io__header">
+    @if (title()) {
+      <h3 class="graph-io__title">{{ title() }}</h3>
+    }
+
+    <nav class="graph-io__modes">
+      @for (option of ['json', 'table', 'raw']; track option) {
+        <button
+          type="button"
+          class="graph-io__mode"
+          [class.graph-io__mode--active]="mode() === option"
+          (click)="setMode(option)"
+        >
+          {{ option }}
+        </button>
+      }
+    </nav>
+  </header>
+
+  @if (hasError()) {
+    <div class="graph-io__error">
+      <strong>{{ error()?.name || 'Error' }}</strong>
+      <code>{{ errorMessage() }}</code>
+      @if (error()?.stack) {
+        <pre class="graph-io__stack">{{ error()?.stack }}</pre>
+      }
+    </div>
+  } @else if (!hasContents()) {
+    <p class="graph-io__empty">No data.</p>
+  } @else {
+    <div class="graph-io__body">
+      @switch (mode()) {
+        @case ('table') {
+          <table class="graph-io__table">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of tableRows(); track row.key) {
+                <tr>
+                  <td class="graph-io__table-key">{{ row.key }}</td>
+                  <td [class.graph-io__table-empty]="isEmptyValue(row)">
+                    @if (isEmptyValue(row)) {
+                      —
+                    } @else {
+                      {{ cellText(row.value) }}
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+        @case ('raw') {
+          <pre class="graph-io__raw">{{ rawText() }}</pre>
+        }
+        @default {
+          <pre class="graph-io__json">{{ rawText() }}</pre>
+        }
+      }
+    </div>
+  }
+</section>

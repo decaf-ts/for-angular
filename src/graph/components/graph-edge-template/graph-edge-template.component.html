@@ -1,0 +1,20 @@
+<ng-diagram-base-edge
+  class="default-edge graph-edge"
+  [class.graph-edge--running]="isRunning()"
+  [class.graph-edge--blocked]="isBlocked()"
+  [class.graph-edge--succeeded]="isSucceeded()"
+  [class.graph-edge--failed]="isFailed()"
+  [class.graph-edge--skipped]="isSkipped()"
+  [edge]="edge()"
+>
+  @let edgeLabel = label();
+  @if (edgeLabel) {
+    <ng-diagram-base-edge-label
+      class="ng-diagram-default-label"
+      [id]="'edge-label'"
+      [positionOnEdge]="positionOnEdge()"
+    >
+      <div class="ng-diagram-default-edge-label">{{ edgeLabel }}</div>
+    </ng-diagram-base-edge-label>
+  }
+</ng-diagram-base-edge>

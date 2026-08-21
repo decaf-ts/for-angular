@@ -7,8 +7,11 @@ import {
   GraphBackendUnavailableError,
 } from 'src/graph';
 import { graphExecutionState } from 'src/graph';
+import { graphRunLog } from 'src/graph';
+import { graphInspection } from 'src/graph';
 import { graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
 import { GRAPH_TRIGGER_NODES, GRAPH_FLOW_CONTROL_NODES, GRAPH_AGENT_NODES } from '@decaf-ts/integrations/graph/shared';
+import type { GraphRunLogEntry } from '@decaf-ts/integrations/graph/shared';
 import { GraphToolbarComponent } from 'src/graph';
 import { GraphSaveService } from 'src/graph';
 import { GraphAutoSaveService } from 'src/graph';
@@ -65,6 +68,25 @@ export class GraphPage implements OnInit, OnDestroy {
         this.stateMapper.apply(event, nodes, edges);
         graphExecutionState.nodeStates.set(nodes);
         graphExecutionState.edgeStates.set(edges);
+
+        if (event.type === 'graph.run.log' && event.payload) {
+          graphRunLog.append(event.payload as GraphRunLogEntry);
+        }
+
+        if (event.type === 'workflow.completed' || event.type === 'workflow.failed') {
+          graphRunLog.setOpen(true);
+          // Populate per-node I/O for inspection (DECAF-48 §4.6). Always fetch
+          // the run the user initiated (lastRunId) instead of trusting the
+          // `runId` inside the SSE payload, which is attacker-influenceable
+          // and could point at another user's run (SAA-116 F2).
+          const runId = this.executionService.lastRunId();
+          if (runId) {
+            void this.executionService.fetchInspections(runId).then((inspections) => {
+              graphInspection.setMany(inspections);
+            });
+          }
+        }
+
         this.runStatus.set(event.type);
       },
       error: () => {
@@ -114,6 +136,28 @@ export class GraphPage implements OnInit, OnDestroy {
     this.isRunning.set(true);
     this.runError.set(null);
     graphExecutionState.reset();
+    graphRunLog.reset();
+    graphInspection.reset();
+    graphRunLog.setOpen(true);
+
+    // Seed canvas member nodes/edges as BLOCKED (waiting on upstream deps).
+    // The engine never emits BLOCKED (DECAF-48 §4.4); NODE_STATE_CHANGED /
+    // EDGE_STATE_CHANGED transitions override these as the run progresses.
+    // Input boundary nodes are excluded — the engine references workflow
+    // inputs via plan-edge ids, not as engine nodes, so they stay neutral.
+    const viewModel = this.renderer?.viewModel();
+    if (viewModel) {
+      const nodeIds = viewModel.nodes.map((node) => node.id);
+      // Canvas edges carry the engine plan-edge id nested under `edge.data`
+      // (buildGraphRendererViewModel), while the store's markAllBlocked reads
+      // it top-level — map the shape so both the canvas id and the engine
+      // plan-edge id get seeded as blocked (DECAF-48 §4.4).
+      const edges = viewModel.edges.map((edge) => ({
+        id: edge.id,
+        engineEdgeId: edge.data?.engineEdgeId,
+      }));
+      graphExecutionState.markAllBlocked(nodeIds, edges);
+    }
 
     const workflow = graphWorkflowDefinitionOf(this.workflowRoot as never);
     const inputs: Record<string, unknown> = {

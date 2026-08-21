@@ -29,6 +29,10 @@ export interface GraphDemoNodeData {
 
 export interface GraphDemoEdgeData {
   label?: string;
+  /** Engine plan-edge id (`source:sourcePort->target:targetPort`) that this
+   *  canvas edge represents. The engine emits EDGE_STATE_CHANGED / EDGE_VALUE_ROUTED
+   *  keyed by this id, so the edge template resolves visual state via it. */
+  engineEdgeId?: string;
 }
 
 export interface GraphDemoNodeBlueprint {
@@ -45,6 +49,8 @@ export interface GraphDemoEdgeBlueprint {
   targetClass: string;
   targetPort: string;
   label?: string;
+  /** Template key (`graph-edge`) selecting the run-state edge template. */
+  type?: string;
 }
 
 export interface GraphRendererNodeData {
@@ -100,12 +106,15 @@ export interface GraphCanvasNodeBlueprint<Data extends object = GraphRendererNod
 
 export interface GraphCanvasEdgeBlueprint {
   id: string;
+  /** Template key (`graph-edge`) selecting the run-state edge template. */
+  type?: string;
   source: string;
   target: string;
   sourcePort: string;
   targetPort: string;
   data: {
     label?: string;
+    engineEdgeId?: string;
   };
 }
 
@@ -154,6 +163,8 @@ export interface GraphRendererViewModel {
  */
 export interface GraphNodeUiExecutionState {
   status: string;
+  /** Frontend-safe visual state (DECAF-48 §4.4), when surfaced by the engine. */
+  visualState?: string;
   startedAt?: string;
   finishedAt?: string;
   progress?: unknown;
@@ -174,6 +185,8 @@ export interface GraphNodeUiExecutionState {
  */
 export interface GraphEdgeUiExecutionState {
   status: string;
+  /** Frontend-safe visual state (DECAF-48 §4.4), when surfaced by the engine. */
+  visualState?: string;
   lastValue?: unknown;
   updatedAt?: string;
 }

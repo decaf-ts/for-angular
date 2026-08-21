@@ -9,6 +9,7 @@
 import '@decaf-ts/overrides/ui-decorators';
 
 import {
+  ApplicationRef,
   ComponentMirror,
   ComponentRef,
   createComponent,
@@ -305,14 +306,17 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
    * @description Creates an Angular component instance with inputs and template projection.
    * @summary This static utility method creates an Angular component instance with the specified
    * inputs and template. It uses Angular's component creation API to instantiate the component
-   * and then sets the input properties using the provided metadata.
+   * and then sets the input properties using the provided metadata. When a view container,
+   * metadata and injector are supplied, the component is created inside that container via
+   * `createViewComponent`; otherwise `createHostComponent` is used.
+   * @template C - The component instance type returned when creation succeeds.
    * @param {Type<unknown>} component - The component type to create
    * @param {KeyValue} [inputs={}] - The input properties to set on the component
    * @param {ComponentMirror<unknown>} metadata - The component metadata for input validation
    * @param {ViewContainerRef} vcr - The view container reference for component creation
    * @param {Injector} injector - The Angular injector for dependency injection
    * @param {Node[]} [template=[]] - The template nodes to project into the component
-   * @return {ComponentRef<unknown>} The created component reference
+   * @return {C} The created component instance
    * @static
    * @memberOf module:lib/engine/NgxRenderingEngine
    */
@@ -329,6 +333,23 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     return NgxRenderingEngine.createHostComponent(component, inputs, injector);
   }
 
+  /**
+   * @description Creates a component inside an Angular view container.
+   * @summary Instantiates the component with `vcr.createComponent` using the supplied
+   * environment injector and projectable template nodes, then applies the mapped inputs
+   * through `setInputs`. The component lives inside the provided view container, so its
+   * change detection is tied to that container.
+   * @template C - The component instance type returned.
+   * @param {Type<unknown> | string} component - The component type to create.
+   * @param {KeyValue} [inputs={}] - The input properties to set on the component.
+   * @param {ComponentMirror<unknown>} metadata - The component metadata for input validation.
+   * @param {ViewContainerRef} vcr - The view container reference for component creation.
+   * @param {Injector} injector - The Angular injector for dependency injection.
+   * @param {Node[]} [template=[]] - The template nodes to project into the component.
+   * @return {C} The created component instance.
+   * @static
+   * @memberOf module:lib/engine/NgxRenderingEngine
+   */
   static createViewComponent<C>(
     component: Type<unknown> | string,
     inputs: KeyValue = {},
@@ -345,6 +366,23 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
     return cmp.instance as C;
   }
 
+  /**
+   * @description Creates a component attached to a new host element outside any view container.
+   * @summary Builds an isolated environment injector (falling back to the engine-wide injector),
+   * wraps creation in `runInInjectionContext` and appends a fresh host element inside `ion-app`.
+   * Inputs are validated against the reflected component metadata; unmapped inputs are dropped and
+   * warned about in development mode. When the injector exposes an `ApplicationRef`, the new host
+   * view is attached to it so the detached component participates in the application-wide change
+   * detection lifecycle.
+   * @template C - The component instance type returned.
+   * @param {Type<C | unknown> | string} component - The component type to create.
+   * @param {KeyValue} [props={}] - The input properties to set on the component.
+   * @param {Injector} [injector] - The Angular injector used to create the environment injector
+   * and to look up the `ApplicationRef`.
+   * @return {C} The created component instance.
+   * @static
+   * @memberOf module:lib/engine/NgxRenderingEngine
+   */
   static createHostComponent<C>(component: Type<C | unknown> | string, props: KeyValue = {}, injector?: Injector): C {
     if (!injector) injector = NgxRenderingEngine._injector || Injector.create({ providers: [], parent: Injector.NULL });
     const envInjector: EnvironmentInjector = createEnvironmentInjector([], injector as EnvironmentInjector);
@@ -383,6 +421,10 @@ export class NgxRenderingEngine extends RenderingEngine<AngularFieldDefinition, 
 
       if (metadata) this.setInputs(cmp as ComponentRef<unknown>, inputs, metadata as ComponentMirror<unknown>);
       document.body.querySelector('ion-app')?.appendChild(host);
+      const appRef = injector?.get(ApplicationRef, null, { optional: true });
+      if (appRef && !cmp.hostView.destroyed) {
+        appRef.attachView(cmp.hostView);
+      }
     });
     return cmp.instance as C;
   }

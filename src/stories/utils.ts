@@ -22,7 +22,8 @@ function getEngine(): void {
 export function getComponentMeta<C>(
   imports: unknown[] = [],
   type: 'component' | 'page' = 'component',
-  args: any = {}
+  args: any = {},
+  providers: any[] = []
 ): Meta<C> {
   getEngine();
   return {
@@ -50,7 +51,7 @@ export function getComponentMeta<C>(
           BackButtonComponent,
           LogoComponent,
         ],
-        providers: [{ provide: RouterService, useValue: RouterService }],
+        providers: [{ provide: RouterService, useValue: RouterService }, ...providers],
       }),
       // Wraps our stories with a decorator
       componentWrapperDecorator((story) =>

@@ -1,0 +1,45 @@
+:host {
+  display: block;
+}
+
+.graph-edge {
+  --edge-stroke: var(--ngd-default-edge-stroke);
+  --edge-stroke-transition: stroke 0.15s ease-in-out;
+}
+
+.graph-edge:hover:not(.selected):not(.temporary) {
+  --edge-stroke: var(--ngd-default-edge-stroke-hover);
+  --edge-label-border-color: var(--ngd-default-edge-stroke-hover);
+}
+
+.graph-edge.selected {
+  --edge-stroke: var(--ngd-default-edge-stroke-selected);
+  --edge-label-border-color: var(--ngd-default-edge-stroke-selected);
+}
+
+.graph-edge.temporary {
+  --edge-stroke-opacity: 0.5;
+}
+
+/* Visual run states (DECAF-48 §4.4 / §4.5). */
+.graph-edge--blocked {
+  --edge-stroke: var(--graph-edge-blocked, #eab308);
+  --edge-stroke-opacity: 0.8;
+}
+
+.graph-edge--running {
+  --edge-stroke: var(--graph-edge-running, #22c55e);
+}
+
+.graph-edge--succeeded {
+  --edge-stroke: var(--graph-edge-succeeded, #22c55e);
+}
+
+.graph-edge--failed {
+  --edge-stroke: var(--graph-edge-failed, #ef4444);
+  --edge-stroke-width: 2.5;
+}
+
+.graph-edge--skipped {
+  --edge-stroke-opacity: 0.25;
+}

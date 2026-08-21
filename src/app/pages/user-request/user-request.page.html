@@ -1,0 +1,19 @@
+<app-header [title]="title" />
+
+<ion-content [fullscreen]="true">
+  <main>
+    <ion-button
+      data-testid="request-user-data"
+      (click)="requestUserData()"
+    >
+      Request user data
+    </ion-button>
+
+    @if (result) {
+      <pre data-testid="user-request-result">{{ result | json }}</pre>
+    }
+    @if (error) {
+      <pre data-testid="user-request-error">ERROR: {{ error.name }}: {{ error.message }}</pre>
+    }
+  </main>
+</ion-content>

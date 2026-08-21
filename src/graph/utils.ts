@@ -341,6 +341,7 @@ function resolveWorkflowEndpoint(
     return {
       nodeId: boundary.id,
       portId: 'value',
+      boundary: true,
     };
   }
 
@@ -352,6 +353,7 @@ function resolveWorkflowEndpoint(
   return {
     nodeId,
     portId: property || 'value',
+    boundary: false,
   };
 }
 
@@ -525,12 +527,22 @@ export function buildGraphRendererViewModel<M extends Model>(
 
     return {
       id: `edge-${index}`,
+      type: 'graph-edge',
       source: source.nodeId,
       target: target.nodeId,
       sourcePort: source.portId,
       targetPort: target.portId,
       data: {
         label: relation.label,
+        // The engine keys EDGE_STATE_CHANGED / EDGE_VALUE_ROUTED events by the
+        // plan-edge id (`${sourceNodeId}:${sourcePort}->${targetNodeId}:${targetPort}`,
+        // boundary resolved to `$workflow`). The canvas id is positional
+        // (`edge-${index}`), so we carry the engine match key in data.
+        engineEdgeId: `${
+          source.boundary ? '$workflow' : source.nodeId
+        }:${relation.sourcePort ?? source.portId}->${
+          target.boundary ? '$workflow' : target.nodeId
+        }:${relation.targetPort ?? target.portId}`,
       },
     };
   });
