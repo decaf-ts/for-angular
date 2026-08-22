@@ -77,7 +77,7 @@
     "cron_builder": {
       "quick_presets": "Quick presets",
       "every": "Every",
-      "minutes": "minutes",
+      "minute": "minutes",
       "hour": "hour",
       "daily_at": "Daily at",
       "weekdays_preset": "Weekdays",
@@ -91,6 +91,7 @@
         "month": "Month",
         "weekday": "Weekday"
       },
+      "enable_step": "Every can only be enabled for values greater than or equal to 1. */0 is invalid.",
       "copied": "Copied!",
       "add_another": "Add another"
     },

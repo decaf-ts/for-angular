@@ -20,41 +20,76 @@
   color: var(--dcf-color-text-secondary);
 }
 
-.dcf-cron-builder-preset-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--dcf-space-2);
-}
-
 .dcf-cron-builder-preset {
-  display: flex;
-  align-items: center;
   gap: var(--dcf-space-2);
-  padding: var(--dcf-space-2) var(--dcf-space-3);
+  padding: var(--dcf-space-2) var(--dcf-space-4) !important;
   border-radius: var(--dcf-radius-sm);
   border: 1px solid var(--dcf-color-gray-2);
   background: var(--dcf-color-surface-subtle);
   font-size: var(--dcf-font-size-sm);
   color: var(--dcf-color-gray-6);
+  font-weight: 600;
+  &.selectable {
+    > div {
+      display: flex;
+      align-items: center;
+      gap: var(--dcf-space-2);
+    }
 
-  ion-select {
-    max-width: 100px;
-    --padding-start: 0;
+    ion-select {
+      --min-height: 20px;
+      height: 38px;
+      min-height: 20px;
+      min-width: 150px;
+      max-width: 150px;
+      --padding-top: 0;
+      --padding-bottom: 0;
+      --border-color: transparent;
+      --border-width: 0;
+      border: none;
+      box-shadow: none;
+      &:focus-within {
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+      }
+    }
   }
-}
+  &:not(.selectable) {
+    display: flex;
+    align-items: center;
+    // padding: 10px var(--dcf-space-4) !important;
+  }
 
-.dcf-cron-builder-preset-weekdays {
-  ion-select {
-    min-width: 180px;
-    max-width: 220px;
+  > span {
+    min-width: max-content;
   }
+
+  .dcf-every {
+    color: var(--dcf-color-gray-3);
+  }
+
+  .dcf-input-controls {
+    padding-left: 2px;
+    background: rgba(var(--dcf-color-dark-rgb), 0.05);
+    max-height: 38px;
+    > div {
+      width: 1rem;
+      cursor: pointer;
+    }
+  }
+
+  // ion-select {
+  //   max-width: 100px;
+  //   --padding-start: 0;
+  // }
 }
 
 .dcf-cron-builder-preset-input {
   width: 3.5rem;
   text-align: center;
-  padding: var(--dcf-space-1) var(--dcf-space-2);
-  border-radius: var(--dcf-radius-xs);
+  padding: var(--dcf-space-2) var(--dcf-space-2);
+  border-radius: var(--dcf-radius-xs) 0px 0px var(--dcf-radius-xs);
   border: 1px solid var(--dcf-color-gray-2);
   background: var(--dcf-color-surface);
   color: var(--dcf-color-gray-6);

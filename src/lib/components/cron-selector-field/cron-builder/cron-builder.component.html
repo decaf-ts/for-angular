@@ -7,8 +7,133 @@
     <p class="dcf-cron-builder-label">
       {{ 'component.cron_builder.quick_presets' | translate }}
     </p>
+    <div class="dcf-grid dcf-grid-small dcf-grid-child-width-auto">
+      @for (field of fields(); track $index) {
+        @let control = form.get(field);
+        @let fieldValue = control.value;
+        @let every = isEvery(field);
 
-    <div class="dcf-cron-builder-preset-grid">
+        <!-- {{ field }} -->
+        @if (['hour', 'minute'].includes(field)) {
+          <div>
+            <div class="dcf-cron-builder-preset">
+              <span
+                class="dcf-every"
+                (click)="toggleEvery(field)"
+                [class.dcf-color-primary]="every"
+                (keydown)="handleKeydown($event, enableEvery, field)"
+                role="button"
+                tabindex="0"
+                [ngx-decaf-tooltip]="
+                  'component.cron_builder.enable_step' | translate
+                "
+              >
+                {{ 'component.cron_builder.every' | translate }}
+              </span>
+
+              <div class="dcf-flex dcf-flex-middle">
+                <input
+                  #everyHourInput
+                  type="text"
+                  minlength="1"
+                  [pattern]="field === 'hour' ? '[0-9*/]+' : '[0-9*/]+'"
+                  maxlengh="2"
+                  class="dcf-cron-builder-preset-input"
+                  [value]="fieldValue"
+                  [disabled]="disabled()"
+                  (keypress)="(e) => e.stopImmediatePropagation()"
+                />
+                <div class="dcf-input-controls">
+                  <div
+                    tabindex="0"
+                    (click)="incrementTime(field, every)"
+                    (keydown)="incrementTime(field, every)"
+                  >
+                    <span
+                      class="ti ti-chevron-up"
+                      aria-hidden="true"
+                    ></span>
+                  </div>
+                  <div
+                    tabindex="0"
+                    (click)="decrementTime(field, every)"
+                    (keydown)="decrementTime(field, every)"
+                  >
+                    <span
+                      class="ti ti-chevron-down"
+                      aria-hidden="true"
+                    ></span>
+                  </div>
+                </div>
+              </div>
+              <span>{{ 'component.cron_builder.' + field | translate }}</span>
+            </div>
+          </div>
+        }
+        @if (field === 'day') {
+          <div>
+            <div class="dcf-cron-builder-preset selectable">
+              <!-- <span>{{ 'component.cron_builder.daily_at' | translate }}</span> -->
+              <ion-select
+                label="{{ 'component.cron_builder.daily_at' | translate }}"
+                interface="popover"
+                value="0"
+                fill="clear"
+                [disabled]="disabled()"
+                (ionChange)="applyDailyAt($event.detail.value)"
+              >
+                @for (hour of hourOptions; track hour) {
+                  <ion-select-option [value]="hour">
+                    {{ hour.toString().padStart(2, '0') }}:00
+                  </ion-select-option>
+                }
+              </ion-select>
+            </div>
+          </div>
+        }
+
+        @if (field === 'weekday') {
+          <div>
+            <div
+              class="dcf-cron-builder-preset selectable"
+              [ngx-decaf-tooltip]=""
+            >
+              <div>
+                <ion-button
+                  [fill]="fieldValue === '*' ? 'solid' : 'clear'"
+                  size="small"
+                  slot="start"
+                  (click)="handleWeekDaysPreset(['all'], element)"
+                >
+                  {{ 'component.cron_builder.all' | translate }}
+                </ion-button>
+                <ion-select
+                  multiple="true"
+                  interface="popover"
+                  placeholder="All "
+                  justify="start"
+                  [label]="'component.cron_builder.weekdays_preset' | translate"
+                  [selectedText]=""
+                  [disabled]="disabled()"
+                  (ionChange)="
+                    handleWeekDaysPreset($event.detail.value, element)
+                  "
+                  #element
+                >
+                  @for (day of weekdays; track day.value) {
+                    <ion-select-option [value]="day.value">
+                      {{ day.text | translate }}
+                    </ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- <div class="dcf-cron-builder-preset-grid">
       @if (!isPresetHidden('minutes')) {
         <div class="dcf-cron-builder-preset">
           <span>{{ 'component.cron_builder.every' | translate }}</span>
@@ -29,16 +154,41 @@
       @if (!isPresetHidden('hour')) {
         <div class="dcf-cron-builder-preset">
           <span>{{ 'component.cron_builder.every' | translate }}</span>
-          <input
-            #everyHourInput
-            type="number"
-            min="0"
-            max="23"
-            class="dcf-cron-builder-preset-input"
-            [value]="everyHourValue"
-            [disabled]="disabled()"
-            (change)="applyEveryHour(everyHourInput.valueAsNumber)"
-          />
+          <div class="dcf-flex dcf-flex-middle">
+            <input
+              #everyHourInput
+              type="text"
+              minlength="1"
+              pattern="[0-9*]+"
+              maxlengh="2"
+              class="dcf-cron-builder-preset-input"
+              [value]="getFieldValue('hour')"
+              [disabled]="disabled()"
+              (change)="applyEveryHour(everyHourInput.value)"
+            />
+            <div class="dcf-input-controls">
+              <div
+                tabindex="0"
+                (click)="incrementTime('hour')"
+                (keydown)="incrementTime('hour')"
+              >
+                <span
+                  class="ti ti-chevron-up"
+                  aria-hidden="true"
+                ></span>
+              </div>
+              <div
+                tabindex="0"
+                (click)="decrementTime('hour')"
+                (keydown)="decrementTime('hour')"
+              >
+                <span
+                  class="ti ti-chevron-down"
+                  aria-hidden="true"
+                ></span>
+              </div>
+            </div>
+          </div>
           <span>{{ 'component.cron_builder.hour' | translate }}</span>
         </div>
       }
@@ -69,7 +219,11 @@
             [label]="'component.cron_builder.weekdays_preset' | translate"
             [placeholder]="'component.cron_builder.all' | translate"
             [value]="weekdaySelectValue()"
-            [selectedText]="isPresetWeekdaySelected('all') ? ('component.cron_builder.all' | translate) : null"
+            [selectedText]="
+              isPresetWeekdaySelected('all')
+                ? ('component.cron_builder.all' | translate)
+                : null
+            "
             [disabled]="disabled()"
             (ionChange)="onWeekdaysSelectChange($event.detail.value)"
           >
@@ -95,12 +249,12 @@
           {{ 'component.cron_builder.monthly' | translate }}
         </ion-button>
       </div>
-    </div>
+    </div> -->
   </div>
 
   <div
     class="dcf-cron-builder-fields"
-    [formGroup]="fieldsForm"
+    [formGroup]="form"
   >
     <div class="dcf-cron-builder-field">
       <label
@@ -187,7 +341,12 @@
         class="dcf-cron-builder-copy-button"
         (click)="copyToClipboard()"
       >
-        {{ (copied() ? 'component.cron_builder.copied' : 'component.cron_builder.copy') | translate }}
+        {{
+          (copied()
+            ? 'component.cron_builder.copied'
+            : 'component.cron_builder.copy'
+          ) | translate
+        }}
       </ion-button>
     </div>
     @if (describeCron()) {
@@ -200,7 +359,9 @@
       @if (accumulatedCrons.length) {
         <ion-list class="dcf-cron-builder-accumulated">
           @for (cron of accumulatedCrons; track $index; let index = $index) {
-            <ion-item class="dcf-cron-item dcf-animation dcf-animation-slide-bottom-small dcf-animation-medium">
+            <ion-item
+              class="dcf-cron-item dcf-animation dcf-animation-slide-bottom-small dcf-animation-medium"
+            >
               <ngx-decaf-icon
                 class="dcf-task-icon"
                 name="ti-clock-2"

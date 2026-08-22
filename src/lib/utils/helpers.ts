@@ -597,3 +597,7 @@ export function getByPath(obj: Record<string, unknown>, path: string): unknown {
     return undefined;
   }, obj);
 }
+
+export function isNumber(value: string | number): boolean {
+  return String(value) !== '' && Number.isFinite(Number(value));
+}

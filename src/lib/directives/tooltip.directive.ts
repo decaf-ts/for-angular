@@ -46,7 +46,7 @@ import { DecafTruncatePipe } from '../pipes/truncate.pipe';
 })
 export class DecafTooltipDirective implements OnChanges {
   @Input('ngx-decaf-tooltip')
-  options!: ITooltipConfig;
+  options!: string | ITooltipConfig;
 
   /**
    * @description Reference to the host DOM element into which the SVG will be injected.
@@ -72,14 +72,14 @@ export class DecafTooltipDirective implements OnChanges {
       truncate: false,
       limit: 30,
       ...{ position: 'top' },
-      ...this.options,
+      ...(typeof this.options === 'string' ? { text: this.options, position: 'bottom', trail: '' } : this.options),
     };
     if (options?.text && options?.text.trim().length) {
       const value = options.text.replace(/<[^>]+>/g, '').trim();
       if (value.length > options.limit) {
         const text = !options.truncate
           ? value
-          : this.truncatePipe.transform(value, options.limit, options.trail || '...');
+          : this.truncatePipe.transform(value, options.limit, options.trail ?? '...');
 
         const element = this.element?.nativeElement ? this.element?.nativeElement : this.element;
         if (options.truncate) {

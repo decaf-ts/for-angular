@@ -1,4 +1,10 @@
 @import "assets/main.scss";
+[role="button"] {
+  &:not([disabled]),
+  &:not(.dcf-disabled) {
+    cursor: pointer;
+  }
+}
 
 // Customizando o checkbox
 ion-checkbox::part(container) {

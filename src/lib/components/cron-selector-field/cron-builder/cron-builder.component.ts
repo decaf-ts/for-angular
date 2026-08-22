@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   EventEmitter,
   inject,
   Input,
@@ -15,18 +14,20 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { LoggedClass } from '@decaf-ts/logging';
+import { UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { IonButton, IonItem, IonLabel, IonList, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import cronstrue from 'cronstrue/i18n';
 import { shareReplay } from 'rxjs';
+import { DecafTooltipDirective } from 'src/lib/directives';
+import { SelectOption } from 'src/lib/engine/types';
+import { isNumber } from 'src/lib/utils';
 import { IconComponent } from '../../icon/icon.component';
 
 type CronFieldKey = 'minute' | 'hour' | 'day' | 'month' | 'weekday';
-
-interface WeekdayOption {
-  label: string;
-  value: number;
-}
+type CronFormControl = FormControl<CronFieldKey> & {
+  every: boolean;
+};
 
 const DEFAULT_CRON = '0 9 * * *';
 const CRON_FIELD_KEYS: CronFieldKey[] = ['minute', 'hour', 'day', 'month', 'weekday'];
@@ -52,6 +53,7 @@ function parseIntervalValue(field: string): number {
     IonItem,
     IonLabel,
     IonList,
+    DecafTooltipDirective,
     IonSelect,
     IonSelectOption,
     TranslatePipe,
@@ -61,11 +63,19 @@ function parseIntervalValue(field: string): number {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CronBuilderComponent extends LoggedClass implements OnInit {
+  readonly form!: FormGroup;
+
   @Input()
   formControl!: FormControl;
 
   @Output()
   changeEvent = new EventEmitter<string>();
+
+  cron = input<string>(DEFAULT_CRON);
+
+  fields = input<CronFieldKey[]>(CRON_FIELD_KEYS);
+  value = model<string>(DEFAULT_CRON);
+  presets!: Record<CronFieldKey, { every: boolean }>;
 
   readonly describeCron = input<boolean>(true);
   readonly disabled = input<boolean>(false);
@@ -74,44 +84,52 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
   readonly hideWeekly = input<boolean>(false);
   readonly multiple = input<boolean>(false);
 
-  value = model<string>(DEFAULT_CRON);
   displayedSchedule = model<string>('');
 
-  readonly weekdays: WeekdayOption[] = [
-    { label: 'component.cron_selector.weekdays.sunday', value: 0 },
-    { label: 'component.cron_selector.weekdays.monday', value: 1 },
-    { label: 'component.cron_selector.weekdays.tuesday', value: 2 },
-    { label: 'component.cron_selector.weekdays.wednesday', value: 3 },
-    { label: 'component.cron_selector.weekdays.thursday', value: 4 },
-    { label: 'component.cron_selector.weekdays.friday', value: 5 },
-    { label: 'component.cron_selector.weekdays.saturday', value: 6 },
+  readonly weekdays: SelectOption[] = [
+    { text: 'component.cron_selector.weekdays.sunday', value: '0' },
+    { text: 'component.cron_selector.weekdays.monday', value: '1' },
+    { text: 'component.cron_selector.weekdays.tuesday', value: '2' },
+    { text: 'component.cron_selector.weekdays.wednesday', value: '3' },
+    { text: 'component.cron_selector.weekdays.thursday', value: '4' },
+    { text: 'component.cron_selector.weekdays.friday', value: '5' },
+    { text: 'component.cron_selector.weekdays.saturday', value: '6' },
   ];
 
-  readonly hourOptions: number[] = Array.from({ length: 24 }, (_, index) => index);
+  readonly hourOptions: string[] = Array.from({ length: 24 }, (_, index) => String(index));
 
   everyMinutesValue = parseIntervalValue(DEFAULT_FIELD_VALUES.minute);
-  everyHourValue = parseIntervalValue(DEFAULT_FIELD_VALUES.hour);
   dailyAtHourValue = parseIntervalValue(DEFAULT_FIELD_VALUES.hour);
-  presetWeekdays: number[] = [];
+  presetWeekdays: string[] = [];
   accumulatedCrons: string[] = [];
 
   private readonly formBuilder = inject(FormBuilder);
   private readonly translateService = inject(TranslateService);
-  private readonly destroyRef = inject(DestroyRef);
-
-  readonly fieldsForm: FormGroup<Record<CronFieldKey, FormControl<string>>> =
-    this.formBuilder.nonNullable.group(DEFAULT_FIELD_VALUES);
 
   private scheduleRequestId = 0;
 
   constructor() {
     super();
-    this.fieldsForm.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef), shareReplay({ bufferSize: 1, refCount: true }))
+    const controls = this.fields().reduce(
+      (acc, key, index) => {
+        const value = this.cron().split(' ')[index];
+        const control = this.formBuilder.control(value) as CronFormControl;
+        control.every = false;
+        return {
+          ...acc,
+          [key]: control,
+        };
+      },
+      {} as Record<CronFieldKey, CronFormControl>
+    );
+    this.form = this.formBuilder.group(controls);
+    console.log(this.hourOptions);
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(), shareReplay({ bufferSize: 1, refCount: true }))
       .subscribe(() => this.setValue());
 
     this.translateService.onLangChange
-      .pipe(takeUntilDestroyed(this.destroyRef), shareReplay({ bufferSize: 1, refCount: true }))
+      .pipe(takeUntilDestroyed(), shareReplay({ bufferSize: 1, refCount: true }))
       .subscribe(() => void this.refresh());
   }
 
@@ -122,23 +140,98 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
   }
 
   getFieldValue(key: CronFieldKey): string {
-    return this.fieldsForm.controls[key].value;
+    return String(this.form.controls[key].value);
   }
 
   setFieldValue(key: CronFieldKey, value: string): void {
-    this.fieldsForm.controls[key].setValue(value.trim() || '*');
+    this.form.controls[key].setValue(value.trim() || '*');
+  }
+
+  parseToValue(key: string, hours: number | string, value: string): void {
+    // let value = typeof hours === 'string' ? parseIntervalValue(hours) : hours;
+    // if (value < 0) {
+    //   value = '*';
+    // }
+    // this.patchFields({ hour: `*/${this.everyHourValue}` });
+    // value = value === "*" ?
+  }
+
+  isEvery(key: CronFieldKey): boolean {
+    return (this.form.get(key) as CronFormControl).every ?? false;
+  }
+
+  toggleEvery(key: CronFieldKey) {
+    const control = this.form.get(key) as CronFormControl;
+    const validNumber = isNumber(control.value);
+    let every = !control.every;
+    if (!validNumber || Number(control.value) < 1) {
+      every = false;
+    }
+    control.every = every;
+    this.patchValue(key, every, control.value);
+  }
+
+  handleKeydown(event: KeyboardEvent, handler: UIFunctionLike, ...args: unknown[]) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handler(...args);
+    }
+  }
+
+  patchValue(key: CronFieldKey, every: boolean = false, value: string) {
+    if (!every) {
+      value = value.replace(/\D/g, '');
+    }
+    value = !['*', '0', 0].includes(value) && every ? `*/${value}` : String(value);
+    this.form.patchValue({ [key]: value });
+  }
+
+  incrementTime(key: 'hour' | 'minute', every = false): void {
+    const current = this.getFieldValue(key);
+    const max = key === 'hour' ? 23 : 59;
+    const value = Math.min(max, current === '*' ? 0 : Number(current) + 1);
+    this.form.patchValue({ [key]: value < 0 ? 0 : value });
+
+    // if (key === 'hour') {
+
+    //   const parsed = Math.min(23, current === '*' ? 0 : Number(current) + 1);
+    //   this.form.patchValue(values);
+    //   return this.parseToValue(key, String(parsed));
+    // }
+    // const current = this.getFieldValue('minute');
+    // const time = Math.min(59, current === '*' ? 0 : Number(current) + 1);
+    // return this.parseToValue(key, String(time));
+  }
+
+  decrementTime(key: 'hour' | 'minute', every = false): void {
+    let current = this.getFieldValue(key);
+    if (current !== '*') {
+      current = current.replace(/\D/g, '');
+      let value = String(Math.max(-1, current === '*' ? 0 : Number(current) - 1));
+      if (current === '0') {
+        value = '*';
+      }
+      this.patchValue(key, every, value);
+    }
+    // this.applyEveryHour(Math.max(-1, this.everyHourValue - 1));
+  }
+
+  handleWeekDaysPreset(value: string[], element: IonSelect): void {
+    if (value.length === 1) {
+      if (value.includes('all')) {
+        element.value = '';
+      }
+      value = [...value.map((v) => (['', 'all'].includes(v) ? '*' : String(value)))];
+    }
+    this.setFieldValue('weekday', value.join(','));
+
+    // done until here
   }
 
   applyEveryMinutes(minutes: number): void {
     const value = Number.isNaN(minutes) ? 0 : minutes;
     this.everyMinutesValue = value;
     this.patchFields({ minute: `*/${value}`, hour: '*', day: '*', month: '*', weekday: '*' });
-  }
-
-  applyEveryHour(hours: number): void {
-    const value = Number.isNaN(hours) ? 0 : hours;
-    this.everyHourValue = value;
-    this.patchFields({ minute: '0', hour: `*/${value}`, day: '*', month: '*', weekday: '*' });
   }
 
   applyDailyAt(hour: number): void {
@@ -148,43 +241,29 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
 
   togglePresetWeekday(day: number): void {
     const set = new Set(this.presetWeekdays);
-    if (set.has(day)) {
-      set.delete(day);
-    } else {
-      set.add(day);
-    }
-    this.presetWeekdays = [...set].sort((a, b) => a - b);
+    // if (set.has(day)) {
+    //   set.delete(day);
+    // } else {
+    //   set.add(day);
+    // }
+    this.presetWeekdays = [...set].sort((a, b) => Number(a) - Number(b));
     this.applyPresetWeekdays();
   }
 
   toggleAllWeekdays(): void {
-    this.presetWeekdays = this.isPresetWeekdaySelected('all') ? [] : this.weekdays.map((day) => day.value);
+    // this.presetWeekdays = this.isPresetWeekdaySelected('all') ? [] : this.weekdays.map((day) => day.value);
     this.applyPresetWeekdays();
   }
 
-  isPresetWeekdaySelected(day: number | 'all'): boolean {
+  isPresetWeekdaySelected(day: string | 'all'): boolean {
     if (day === 'all') {
       return this.presetWeekdays.length === this.weekdays.length;
     }
     return this.presetWeekdays.includes(day);
   }
 
-  weekdaySelectValue(): (number | 'all')[] {
+  weekdaySelectValue(): (string | 'all')[] {
     return this.isPresetWeekdaySelected('all') ? [...this.presetWeekdays, 'all'] : this.presetWeekdays;
-  }
-
-  onWeekdaysSelectChange(value: (number | 'all')[]): void {
-    const values = value || [];
-    const wasAllSelected = this.isPresetWeekdaySelected('all');
-    const allJustChecked = values.includes('all') && !wasAllSelected;
-
-    if (allJustChecked) {
-      this.presetWeekdays = this.weekdays.map((day) => day.value);
-      this.closeOpenSelectPopover();
-    } else {
-      this.presetWeekdays = values.filter((day): day is number => typeof day === 'number').sort((a, b) => a - b);
-    }
-    this.applyPresetWeekdays();
   }
 
   private closeOpenSelectPopover(): void {
@@ -203,7 +282,7 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
     if (this.accumulatedCrons.includes(cron)) return;
 
     this.accumulatedCrons = [...this.accumulatedCrons, cron];
-    this.resetFieldsToDefault();
+    this.resetFields();
     this.setValue();
   }
 
@@ -248,27 +327,34 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
   }
 
   private applyPresetWeekdays(): void {
-    const weekday = this.presetWeekdays.length && this.presetWeekdays.length < this.weekdays.length
-      ? this.presetWeekdays.join(',')
-      : '*';
+    const weekday =
+      this.presetWeekdays.length && this.presetWeekdays.length < this.weekdays.length
+        ? this.presetWeekdays.join(',')
+        : '*';
     this.patchFields({ minute: '0', hour: '9', day: '*', month: '*', weekday });
   }
 
-  private patchFields(values: Record<CronFieldKey, string>): void {
-    this.fieldsForm.patchValue(values);
+  private patchFields(values: Record<string, string>): void {
+    this.form.patchValue(values);
   }
 
-  private resetFieldsToDefault(): void {
-    this.fieldsForm.patchValue(DEFAULT_FIELD_VALUES, { emitEvent: false });
+  private resetFields(): void {
+    this.form.patchValue(DEFAULT_FIELD_VALUES, { emitEvent: false });
     this.everyMinutesValue = parseIntervalValue(DEFAULT_FIELD_VALUES.minute);
-    this.everyHourValue = parseIntervalValue(DEFAULT_FIELD_VALUES.hour);
+    this.form.patchValue({ hour: DEFAULT_FIELD_VALUES.hour });
+    // this.everyHourValue = parseIntervalValue(DEFAULT_FIELD_VALUES.hour);
     this.dailyAtHourValue = parseIntervalValue(DEFAULT_FIELD_VALUES.hour);
     this.presetWeekdays = [];
   }
 
   private parseInitialValue(): void {
     const raw = (this.value() || DEFAULT_CRON).trim();
-    const segments = this.multiple() ? raw.split(';').map((segment) => segment.trim()).filter(Boolean) : [raw];
+    const segments = this.multiple()
+      ? raw
+          .split(';')
+          .map((segment) => segment.trim())
+          .filter(Boolean)
+      : [raw];
     const last = segments.pop() || DEFAULT_CRON;
     this.accumulatedCrons = segments;
 
@@ -279,7 +365,7 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
       (acc, key, index) => ({ ...acc, [key]: parts[index] || '*' }),
       {} as Record<CronFieldKey, string>
     );
-    this.fieldsForm.patchValue(values, { emitEvent: false });
+    this.form.patchValue(values, { emitEvent: false });
   }
 
   private setValue(): void {
@@ -288,7 +374,10 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
     const currentCron = this.createCron();
     const cron =
       this.multiple() && this.accumulatedCrons.length
-        ? (this.accumulatedCrons.includes(currentCron) ? this.accumulatedCrons : [...this.accumulatedCrons, currentCron]).join(';')
+        ? (this.accumulatedCrons.includes(currentCron)
+            ? this.accumulatedCrons
+            : [...this.accumulatedCrons, currentCron]
+          ).join(';')
         : currentCron;
 
     this.value.set(cron);
@@ -301,10 +390,10 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
 
   private setDisabledState(isDisabled: boolean): void {
     if (isDisabled) {
-      this.fieldsForm.disable({ emitEvent: false });
+      this.form.disable({ emitEvent: false });
       return;
     }
-    this.fieldsForm.enable({ emitEvent: false });
+    this.form.enable({ emitEvent: false });
   }
 
   private createCron(): string {
