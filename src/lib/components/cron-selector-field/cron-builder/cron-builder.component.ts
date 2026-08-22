@@ -21,7 +21,7 @@ import cronstrue from 'cronstrue/i18n';
 import { shareReplay } from 'rxjs';
 import { DecafTooltipDirective } from 'src/lib/directives';
 import { SelectOption } from 'src/lib/engine/types';
-import { isNumber } from 'src/lib/utils';
+import { copyToClipboard, isNumber } from 'src/lib/utils';
 import { IconComponent } from '../../icon/icon.component';
 
 type CronFieldKey = 'minute' | 'hour' | 'day' | 'month' | 'weekday';
@@ -30,7 +30,7 @@ type CronFormControl = FormControl<CronFieldKey> & {
 };
 
 const DEFAULT_CRON = '0 9 * * *';
-const CRON_FIELD_KEYS: CronFieldKey[] = ['minute', 'hour', 'day', 'month', 'weekday'];
+const CRON_FIELD_KEYS: CronFieldKey[] = ['minute', 'hour', 'day', 'weekday', 'month'];
 const DEFAULT_FIELD_VALUES: Record<CronFieldKey, string> = CRON_FIELD_KEYS.reduce(
   (acc, key, index) => ({ ...acc, [key]: DEFAULT_CRON.split(' ')[index] }),
   {} as Record<CronFieldKey, string>
@@ -87,13 +87,28 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
   displayedSchedule = model<string>('');
 
   readonly weekdays: SelectOption[] = [
-    { text: 'component.cron_selector.weekdays.sunday', value: '0' },
-    { text: 'component.cron_selector.weekdays.monday', value: '1' },
-    { text: 'component.cron_selector.weekdays.tuesday', value: '2' },
-    { text: 'component.cron_selector.weekdays.wednesday', value: '3' },
-    { text: 'component.cron_selector.weekdays.thursday', value: '4' },
-    { text: 'component.cron_selector.weekdays.friday', value: '5' },
-    { text: 'component.cron_selector.weekdays.saturday', value: '6' },
+    { text: 'date.weekdays.sunday', value: '0' },
+    { text: 'date.weekdays.monday', value: '1' },
+    { text: 'date.weekdays.tuesday', value: '2' },
+    { text: 'date.weekdays.wednesday', value: '3' },
+    { text: 'date.weekdays.thursday', value: '4' },
+    { text: 'date.weekdays.friday', value: '5' },
+    { text: 'date.weekdays.saturday', value: '6' },
+  ];
+
+  readonly months: SelectOption[] = [
+    { text: 'date.months.january', value: '1' },
+    { text: 'date.months.february', value: '2' },
+    { text: 'date.months.march', value: '3' },
+    { text: 'date.months.april', value: '4' },
+    { text: 'date.months.may', value: '5' },
+    { text: 'date.months.june', value: '6' },
+    { text: 'date.months.july', value: '7' },
+    { text: 'date.months.august', value: '8' },
+    { text: 'date.months.september', value: '9' },
+    { text: 'date.months.october', value: '10' },
+    { text: 'date.months.november', value: '11' },
+    { text: 'date.months.december', value: '12' },
   ];
 
   readonly hourOptions: string[] = Array.from({ length: 24 }, (_, index) => String(index));
@@ -179,53 +194,44 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
   }
 
   patchValue(key: CronFieldKey, every: boolean = false, value: string) {
-    if (!every) {
+    if (!every && value !== '*') {
       value = value.replace(/\D/g, '');
     }
     value = !['*', '0', 0].includes(value) && every ? `*/${value}` : String(value);
     this.form.patchValue({ [key]: value });
   }
 
+  // digits-only base: '*' or '*/N' or '' all parse to -1 (the slot just below 0, i.e. '*')
+  private toBase(current: string): number {
+    const digits = current.replace(/\D/g, '');
+    return digits === '' ? -1 : Number(digits);
+  }
+
+  private fromBase(value: number): string {
+    return value < 0 ? '*' : String(value);
+  }
+
   incrementTime(key: 'hour' | 'minute', every = false): void {
-    const current = this.getFieldValue(key);
     const max = key === 'hour' ? 23 : 59;
-    const value = Math.min(max, current === '*' ? 0 : Number(current) + 1);
-    this.form.patchValue({ [key]: value < 0 ? 0 : value });
-
-    // if (key === 'hour') {
-
-    //   const parsed = Math.min(23, current === '*' ? 0 : Number(current) + 1);
-    //   this.form.patchValue(values);
-    //   return this.parseToValue(key, String(parsed));
-    // }
-    // const current = this.getFieldValue('minute');
-    // const time = Math.min(59, current === '*' ? 0 : Number(current) + 1);
-    // return this.parseToValue(key, String(time));
+    const base = this.toBase(this.getFieldValue(key));
+    const next = Math.min(max, base + 1);
+    this.patchValue(key, every, this.fromBase(next));
   }
 
   decrementTime(key: 'hour' | 'minute', every = false): void {
-    let current = this.getFieldValue(key);
-    if (current !== '*') {
-      current = current.replace(/\D/g, '');
-      let value = String(Math.max(-1, current === '*' ? 0 : Number(current) - 1));
-      if (current === '0') {
-        value = '*';
-      }
-      this.patchValue(key, every, value);
-    }
-    // this.applyEveryHour(Math.max(-1, this.everyHourValue - 1));
+    const base = this.toBase(this.getFieldValue(key));
+    const next = Math.max(-1, base - 1);
+    this.patchValue(key, every, this.fromBase(next));
   }
 
-  handleWeekDaysPreset(value: string[], element: IonSelect): void {
+  handleSelectionPreset(value: string[], key: 'weekday' | 'month', element: IonSelect): void {
     if (value.length === 1) {
       if (value.includes('all')) {
         element.value = '';
       }
       value = [...value.map((v) => (['', 'all'].includes(v) ? '*' : String(value)))];
     }
-    this.setFieldValue('weekday', value.join(','));
-
-    // done until here
+    this.setFieldValue(key, value.join(','));
   }
 
   applyEveryMinutes(minutes: number): void {
@@ -316,13 +322,13 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
 
   readonly copied = signal(false);
 
-  async copyToClipboard(): Promise<void> {
+  async handleCopyToClipBoard(): Promise<void> {
     try {
-      await navigator.clipboard.writeText(this.currentCron());
+      await copyToClipboard(this.currentCron());
       this.copied.set(true);
       setTimeout(() => this.copied.set(false), 1500);
     } catch (error: unknown) {
-      this.log.for(this.copyToClipboard).error((error as Error)?.message || String(error));
+      this.log.for(copyToClipboard).error((error as Error)?.message || String(error));
     }
   }
 

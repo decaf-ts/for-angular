@@ -30,24 +30,36 @@
   color: var(--dcf-color-gray-6);
   font-weight: 600;
   &.selectable {
+    overflow: hidden;
+
     > div {
       display: flex;
       align-items: center;
       gap: var(--dcf-space-2);
+      min-width: 0;
     }
 
     ion-select {
       --min-height: 20px;
       height: 38px;
       min-height: 20px;
-      min-width: 150px;
-      max-width: 150px;
+      min-width: 0;
+      max-width: 100%;
+      width: 100%;
+      flex: 1 1 auto;
+      overflow: hidden;
       --padding-top: 0;
       --padding-bottom: 0;
       --border-color: transparent;
       --border-width: 0;
       border: none;
       box-shadow: none;
+      &::part(text),
+      &::part(label) {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
       &:focus-within {
         border: none !important;
         outline: none !important;
@@ -101,13 +113,17 @@
   }
 }
 
-.dcf-cron-builder-fields {
+.dcf-grid-fields {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: var(--dcf-space-2);
 
   @media (max-width: 576px) {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  &.presets {
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   }
 }
 
@@ -127,7 +143,7 @@
 .dcf-cron-builder-field-input {
   width: 100%;
   text-align: center;
-  padding: var(--dcf-space-1) var(--dcf-space-2);
+  padding: var(--dcf-space-2);
   border-radius: var(--dcf-radius-sm);
   border: 1px solid var(--dcf-color-gray-2);
   background: var(--dcf-color-surface);
@@ -148,36 +164,58 @@
   border: 1px solid var(--dcf-color-gray-2);
 }
 
-.dcf-cron-builder-result-row {
+.dcf-cron-description {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--dcf-space-3);
   margin-bottom: var(--dcf-space-2);
-}
 
-.dcf-cron-builder-expression {
-  display: inline-block;
-  background: rgba(var(--dcf-color-primary-rgb), 0.125);
-  padding: var(--dcf-space-2) var(--dcf-space-3);
-  border-radius: var(--dcf-radius-sm);
-  color: var(--dcf-color-primary-shade);
-  font-family: var(--dcf-font-family-mono);
-  font-size: var(--dcf-font-size-h2);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
+  .dcf-copy-button {
+    .ti {
+      font-size: 1rem;
+      margin-right: 5px;
+    }
+  }
 
-.dcf-cron-builder-copy-button {
-  --border-radius: var(--dcf-radius-sm);
-  transition: color var(--dcf-motion-fast) var(--dcf-easing-standard);
+  code {
+    display: inline-block;
+    background: rgba(var(--dcf-color-primary-rgb), 0.125);
+    padding: var(--dcf-space-1) var(--dcf-space-3);
+    border-radius: var(--dcf-radius-sm);
+    color: var(--dcf-color-primary-shade);
+    font-family: var(--dcf-font-family-mono);
+    font-size: 1.75rem;
+    letter-spacing: 0.25rem;
+    font-weight: 600;
+  }
 }
 
 .dcf-cron-builder-description {
-  margin: 0;
+  display: inline-block;
+  margin-top: var(--dcf-space-2) !important;
   font-size: var(--dcf-font-size-sm);
-  color: var(--dcf-color-text-secondary);
+  color: var(--dcf-color-gray-6);
+  font-weight: 600 !important;
 }
+
+// .dcf-cron-builder-expression {
+//   display: inline-block;
+//   background: rgba(var(--dcf-color-primary-rgb), 0.125);
+//   padding: var(--dcf-space-2) var(--dcf-space-3);
+//   border-radius: var(--dcf-radius-sm);
+//   color: var(--dcf-color-primary-shade);
+//   font-family: var(--dcf-font-family-mono);
+//   font-size: var(--dcf-font-size-h2);
+//   font-weight: 700;
+//   letter-spacing: 0.02em;
+// }
+
+// sem uso deletar
+// .dcf-cron-builder-copy-button {
+//   --border-radius: var(--dcf-radius-sm);
+//   transition: color var(--dcf-motion-fast) var(--dcf-easing-standard);
+// }
 
 .dcf-cron-builder-multiple {
   display: flex;

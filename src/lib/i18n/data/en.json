@@ -46,6 +46,31 @@
     "http_version_not_supported": "The HTTP version used in this request is not supported.",
     "generic": "An error occurred while processing your request. Please try again."
   },
+  "date": {
+    "weekdays": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    },
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    }
+  },
   "operations": {
     "read": {
       "title": "Read",
@@ -84,6 +109,7 @@
       "all": "All",
       "monthly": "Monthly",
       "copy": "Copy",
+
       "fields": {
         "minute": "Minute",
         "hour": "Hour",
@@ -94,17 +120,6 @@
       "enable_step": "Every can only be enabled for values greater than or equal to 1. */0 is invalid.",
       "copied": "Copied!",
       "add_another": "Add another"
-    },
-    "cron_selector": {
-      "weekdays": {
-        "sunday": "Sunday",
-        "monday": "Monday",
-        "tuesday": "Tuesday",
-        "wednesday": "Wednesday",
-        "thursday": "Thursday",
-        "friday": "Friday",
-        "saturday": "Saturday"
-      }
     },
     "crud_form": {
       "submit": "Submit",

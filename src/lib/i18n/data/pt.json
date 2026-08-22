@@ -1,4 +1,7 @@
 {
+  "menu": {
+    "collapse": "Reduzir barra lateral"
+  },
   "errors": {
     "required": "Este campo é obrigatório.",
     "pattern": "O valor fornecido não corresponde ao padrão.",
@@ -24,32 +27,82 @@
     "greaterThan": "Este campo deve ser superior ao campo {0}",
     "greaterThanOrEqual": "Este campo deve ser superior ou igual ao campo {0}",
     "form_control": "Controlador de formulário não localizado para {0}.",
+    "empty_options": "Sem opções disponíveis para o campo {0}. Corrija a fonte de dados.",
+    "bad_request": "Pedido inválido. Reveja os dados submetidos.",
+    "unauthorized": "Não está autorizado. Inicie sessão e tente novamente.",
+    "forbidden": "Não tem permissão para executar esta ação.",
     "not_found": "Não foram encontrados registos com <span class=\"text-bold\">{0}: {1} em {2}</span>.",
-    "empty_options": "Sem opções disponíveis para o campo {0}. Corrija a fonte de dados."
+    "method_not_allowed": "Esta ação não é permitida para o recurso solicitado.",
+    "request_timeout": "O pedido demorou demasiado tempo a ser concluído. Tente novamente.",
+    "conflict": "Já existe um recurso com {0} {1}.",
+    "gone": "O recurso solicitado já não está disponível.",
+    "payload_too_large": "Os dados submetidos são demasiado grandes. Reduza o tamanho e tente novamente.",
+    "too_many_requests": "Foram enviados demasiados pedidos. Aguarde um momento e tente novamente.",
+    "internal_server_error": "Ocorreu um erro inesperado no servidor. Tente novamente mais tarde.",
+    "not_implemented": "Esta funcionalidade ainda não está disponível.",
+    "bad_gateway": "O servidor recebeu uma resposta inválida de um serviço a montante.",
+    "service_unavailable": "O serviço está temporariamente indisponível. Tente novamente mais tarde.",
+    "gateway_timeout": "O serviço a montante demorou demasiado tempo a responder. Tente novamente.",
+    "http_version_not_supported": "A versão HTTP utilizada neste pedido não é suportada.",
+    "generic": "Ocorreu um erro ao processar o seu pedido. Tente novamente."
+  },
+  "date": {
+    "weekdays": {
+      "sunday": "Domingo",
+      "monday": "Segunda-feira",
+      "tuesday": "Terça-feira",
+      "wednesday": "Quarta-feira",
+      "thursday": "Quinta-feira",
+      "friday": "Sexta-feira",
+      "saturday": "Sábado"
+    },
+    "months": {
+      "january": "Janeiro",
+      "february": "Fevereiro",
+      "march": "Março",
+      "april": "Abril",
+      "may": "Maio",
+      "june": "Junho",
+      "july": "Julho",
+      "august": "Agosto",
+      "september": "Setembro",
+      "october": "Outubro",
+      "november": "Novembro",
+      "december": "Dezembro"
+    }
   },
   "operations": {
     "read": {
+      "title": "Ler",
       "success": "Item {0} {1} encontrado.",
       "error": "Item {0} {1} não encontrado."
     },
     "create": {
+      "title": "Criar",
       "success": "Item com {0} {1} criado com sucesso.",
       "error": "Erro ao criar o item com {0} {1}."
     },
     "update": {
+      "title": "Atualizar",
       "success": "Item com {0} {1} atualizado com sucesso.",
       "error": "Erro ao atualizar o item com {0} {1}."
     },
     "delete": {
+      "title": "Eliminar",
       "success": "Item com {0} {1} eliminado com sucesso.",
       "error": "Erro ao eliminar o item com {0} {1}."
-    }
+    },
+    "multiple": {
+      "success": "Todas as operações foram processadas com sucesso.",
+      "error": "Erro ao processar as operações."
+    },
+    "processing": "A processar {0}..."
   },
   "component": {
     "cron_builder": {
       "quick_presets": "Predefinições rápidas",
       "every": "A cada",
-      "minutes": "minutos",
+      "minute": "minutos",
       "hour": "hora",
       "daily_at": "Diariamente às",
       "weekdays_preset": "Dias úteis",
@@ -63,24 +116,31 @@
         "month": "Mês",
         "weekday": "Dia da semana"
       },
+      "enable_step": "O 'A cada' só pode ser ativado para valores maiores ou iguais a 1. */0 é inválido.",
       "copied": "Copiado!",
       "add_another": "Adicionar outro"
     },
-    "cron_selector": {
-      "weekdays": {
-        "sunday": "Domingo",
-        "monday": "Segunda-feira",
-        "tuesday": "Terça-feira",
-        "wednesday": "Quarta-feira",
-        "thursday": "Quinta-feira",
-        "friday": "Sexta-feira",
-        "saturday": "Sábado"
-      }
+    "crud_form": {
+      "submit": "Submeter",
+      "cancel": "Cancelar",
+      "back": "Voltar",
+      "delete": "Eliminar",
+      "login": "Entrar",
+      "create": "Criar",
+      "update": "Atualizar"
     },
     "fieldset": {
+      "add_first": "Adicionar primeiro item",
+      "show_form": "Mostrar formulário",
+      "hidden_form": "Ocultar formulário",
+      "clear_items": "Limpar itens",
       "add": "Adicionar outro",
-      "update": "Atualizar item",
       "cancel": "Cancelar",
+      "edit_item": "Editar item",
+      "remove_item": "Remover item",
+      "cancel_update": "Cancelar atualização",
+      "create_item": "Criar item",
+      "update_item": "Atualizar item",
       "not_unique": "O valor inserido já existe. Valor {0}",
       "max_items": "Pode criar até {0} itens.",
       "max_items_reached": "Máximo de {0} itens atingido.",
@@ -89,10 +149,13 @@
     "list": {
       "pagination": "A mostrar página <span class=\"text-bold\">{0} de {1}</span>",
       "loading": "A carregar dados",
+      "select": "Filtrar seleção",
+      "type": "Introduzir valor",
       "search": {
         "title": "Nenhum dado encontrado para a pesquisa",
         "subtitle": "Pesquisou por: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{0}</ion-text>",
-        "button": "Limpar pesquisa"
+        "button": "Limpar pesquisa",
+        "placeholder": "Pesquisar..."
       },
       "empty": {
         "title": "Nenhum dado encontrado",
@@ -119,11 +182,39 @@
       }
     },
     "pagination": {
-      "resume": "A mostrar página <span class=\"text-bold\">{0} de {1}</span>"
+      "resume": "A mostrar página <span class=\"text-bold\">{0} de {1}</span>",
+      "next": "Seguinte",
+      "previous": "Anterior"
     },
     "searchbar": {
       "search": "Buscar",
       "search_by": "Buscar por: {0}"
+    },
+    "modal": {
+      "confirm": {
+        "code": {
+          "message": "Digite o código de confirmação <strong>{0}</strong> para permitir submeter.",
+          "label": "Digite o código de confirmação"
+        },
+        "operations": {
+          "delete": {
+            "title": "Confirmar eliminação de {0}",
+            "message": "Tem a certeza de que pretende eliminar o item {0} de {1}? <p class=\"text-bold dcf-color-danger\">Esta ação não pode ser revertida.</p>"
+          }
+        },
+        "buttons": {
+          "confirm": "Confirmar",
+          "cancel": "Cancelar",
+          "close": "Fechar",
+          "expand": "Alternar ecrã inteiro"
+        }
+      },
+      "buttons": {
+        "confirm": "Confirmar",
+        "cancel": "Cancelar",
+        "close": "Fechar",
+        "expand": "Alternar ecrã inteiro"
+      }
     },
     "filter": {
       "title": "Filtrar",
@@ -133,7 +224,17 @@
       "step2": "Selecionar uma condição",
       "step3": "Introduzir um valor",
       "no_suggestions": "Sem sugestões",
-      "sort": "Ordenar por"
+      "sort": "Ordenar por",
+      "operators": {
+        "equal": "Igual",
+        "contains": "Contém",
+        "not_contains": "Não contém",
+        "greater_than": "Maior que",
+        "less_than": "Menor que",
+        "not_equal": "Diferente",
+        "starts_with": "Começa com",
+        "ends_with": "Termina com"
+      }
     },
     "stepped_form": {
       "next": "Seguinte",
@@ -142,11 +243,13 @@
       "cancel": "Cancelar"
     },
     "file_upload": {
+      "label": "Ficheiros",
       "drag_file": "Arraste e solte a sua imagem aqui",
       "empty": "Nenhum ficheiro encontrado.",
       "preview": "Pré-visualização",
       "buttons": {
         "select": "Selecionar Ficheiro",
+        "select_directory": "Selecionar Diretório",
         "preview": "Pré-visualizar",
         "clear": "Limpar"
       },

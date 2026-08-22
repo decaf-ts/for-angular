@@ -601,3 +601,63 @@ export function getByPath(obj: Record<string, unknown>, path: string): unknown {
 export function isNumber(value: string | number): boolean {
   return String(value) !== '' && Number.isFinite(Number(value));
 }
+
+export async function copyToClipboard(data: string): Promise<void> {
+  // Modern clipboard API approach
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(data);
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = data;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const success = document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+  }
+
+  // Fallback — old safari versions
+  return new Promise((resolve) => {
+    const textarea = document.createElement('textarea');
+    textarea.value = data;
+
+    // iOS exige que o elemento seja visível e focável
+    textarea.style.position = 'fixed';
+    textarea.style.top = '0';
+    textarea.style.left = '0';
+    textarea.style.width = '2em';
+    textarea.style.height = '2em';
+    textarea.style.opacity = '0';
+    textarea.style.border = 'none';
+    textarea.style.outline = 'none';
+    textarea.style.boxShadow = 'none';
+    textarea.style.background = 'transparent';
+    textarea.setAttribute('readonly', '');
+    textarea.setAttribute('contenteditable', 'true');
+
+    document.body.appendChild(textarea);
+
+    if (navigator.userAgent.match(/ipad|iphone/i)) {
+      const range = document.createRange();
+      range.selectNodeContents(textarea);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      textarea.setSelectionRange(0, data.length);
+    } else {
+      textarea.select();
+    }
+
+    try {
+      const success = document.execCommand('copy');
+      resolve();
+    } catch {
+      resolve();
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  });
+}
