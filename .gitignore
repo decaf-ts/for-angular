@@ -82,3 +82,4 @@ CLAUDE.md
 .tlc/harness/state/
 .aimemory.toml
 .mcp.json
+/graphify-out

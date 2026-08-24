@@ -47,7 +47,7 @@ export class UserDataUserRequestHandler extends UserRequestHandler<UserData> {
    * (`name` trimmed, `email` lowercased) once the user submits the modal.
    * @throws {CancelledError} When the user cancels the request
    * mid-resolution.
-   * @throws {import('@decaf-ts/db-decorators').ValidationError} When the
+   * @throws {ValidationError} When the
    * submitted form fails validation.
    */
   async handle(request: UserRequest<UserData>, ...args: ContextualArgs<Context<ContextFlags<any>>>): Promise<UserData> {

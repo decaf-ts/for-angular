@@ -381,7 +381,6 @@ export function formatDate(date: string | Date | number, locale?: string | undef
 }
 
 /**
-/**
  * @description Maps an item object using a provided mapper object and optional additional properties.
  * @summary This function transforms a source object into a new object based on mapping rules defined
  * in the mapper parameter. It supports dot notation for nested property access (e.g., 'user.name.first')
@@ -526,17 +525,36 @@ export function filterString(original: string | string[], value: string, contain
 }
 
 /**
- * @summary Retrieves the icon associated with a menu item based on its label.
+ * @description Finds the icon of a menu item that matches a given label
+ * @summary Searches the provided menu list for the first item whose `label` matches the given
+ * `label` (case-insensitive) and returns its associated `icon`. Returns an empty string when no
+ * matching item is found.
  *
- * @param {string} label - The label of the menu item to search for. The search is case-insensitive.
- * @param {IMenuItem[]} menu - An array of menu items to search within.
- * @returns {string} The icon associated with the menu item if found, otherwise an empty string.
+ * @param {string} label - The label of the menu item to search for. The search is case-insensitive
+ * @param {IMenuItem[]} menu - An array of menu items to search within
+ * @return {string} The icon associated with the menu item if found, otherwise an empty string
+ *
+ * @function getMenuIcon
+ * @memberOf module:lib/helpers/utils
  */
 export function getMenuIcon(label: string, menu: IMenuItem[]): string {
   const item = menu.find((m) => m.label?.toLowerCase() === label.toLowerCase());
   return item?.icon || '';
 }
 
+/**
+ * @description Parses a date-only or date-time string into a Date object
+ * @summary Converts the given value into a `Date` instance. If `value` is already a `Date`, it is
+ * returned unchanged. If it is a date-only string (no time component, e.g. `2024-01-01`), a
+ * midnight (`T00:00:00`) time is appended before parsing so the result reflects local midnight
+ * rather than UTC midnight.
+ *
+ * @param {string | Date} value - The date-only or date-time string to parse, or a `Date` instance
+ * @return {Date} The resulting `Date` object
+ *
+ * @function dateFromString
+ * @memberOf module:lib/helpers/utils
+ */
 export function dateFromString(value: string | Date): Date {
   if (value instanceof Date) {
     return value;
@@ -545,6 +563,18 @@ export function dateFromString(value: string | Date): Date {
   return new Date(dateArray.length === 1 ? `${value}T00:00:00` : value);
 }
 
+/**
+ * @description Checks whether a string is valid Base64-encoded content
+ * @summary Validates that the given string is either a raw Base64-encoded value or a Base64
+ * `data:` URL (e.g. `data:image/png;base64,...`). Empty or whitespace-only strings are considered
+ * invalid.
+ *
+ * @param {string} value - The string to validate
+ * @return {boolean} True if the string is valid Base64 content or a Base64 data URL, false otherwise
+ *
+ * @function isValidBase64
+ * @memberOf module:lib/helpers/utils
+ */
 export function isValidBase64(value: string): boolean {
   if (!value?.trim()?.length) {
     return false;
@@ -554,6 +584,17 @@ export function isValidBase64(value: string): boolean {
   return pure.test(value) || dataUrl.test(value);
 }
 
+/**
+ * @description Removes HTML tags from a string
+ * @summary Strips any HTML markup from the given content by replacing all `<...>` tags with an
+ * empty string. Non-string input is returned unchanged.
+ *
+ * @param {string} content - The content to strip HTML tags from
+ * @return {unknown} The content with HTML tags removed, or the original value if it is not a string
+ *
+ * @function stripHTML
+ * @memberOf module:lib/helpers/utils
+ */
 export function stripHTML(content: string): unknown {
   if (typeof content === Primitives.STRING) {
     return content.replace(/<[^>]*>/g, '');
@@ -598,10 +639,61 @@ export function getByPath(obj: Record<string, unknown>, path: string): unknown {
   }, obj);
 }
 
+/**
+ * @description Checks whether a value represents a valid finite number
+ * @summary Determines whether the given string or number can be treated as a valid, finite
+ * numeric value. Rejects empty strings, since `Number('')` coerces to `0` and would otherwise be
+ * treated as a valid number.
+ *
+ * @param {string | number} value - The value to check
+ * @return {boolean} True if the value is a non-empty, finite number, false otherwise
+ *
+ * @function isNumber
+ * @memberOf module:lib/helpers/utils
+ */
 export function isNumber(value: string | number): boolean {
   return String(value) !== '' && Number.isFinite(Number(value));
 }
 
+/**
+ * @description Copies a string to the system clipboard
+ * @summary Writes the given text to the clipboard using the modern async Clipboard API
+ * (`navigator.clipboard.writeText`) when running in a secure context. When the Clipboard API is
+ * unavailable, unsupported, or fails, falls back to a hidden `<textarea>` element combined with
+ * `document.execCommand('copy')`, including an iOS-specific selection workaround using
+ * `Range`/`Selection` for older Safari versions.
+ *
+ * @param {string} data - The text to copy to the clipboard
+ * @return {Promise<void>} A promise that resolves once the copy attempt has completed
+ *
+ * @mermaid
+ * sequenceDiagram
+ *   participant Caller
+ *   participant copyToClipboard
+ *   participant ClipboardAPI as navigator.clipboard
+ *   participant DOM
+ *   Caller->>copyToClipboard: copyToClipboard(data)
+ *   alt secure context and Clipboard API available
+ *     copyToClipboard->>ClipboardAPI: writeText(data)
+ *     alt write succeeds
+ *       ClipboardAPI-->>copyToClipboard: resolved
+ *     else write fails
+ *       copyToClipboard->>DOM: create textarea, select, execCommand('copy')
+ *       DOM-->>copyToClipboard: copy attempted
+ *     end
+ *   end
+ *   copyToClipboard->>DOM: create fallback textarea
+ *   alt iOS user agent
+ *     copyToClipboard->>DOM: select via Range/Selection
+ *   else other browsers
+ *     copyToClipboard->>DOM: textarea.select()
+ *   end
+ *   copyToClipboard->>DOM: execCommand('copy')
+ *   copyToClipboard-->>Caller: resolve()
+ *
+ * @function copyToClipboard
+ * @memberOf module:lib/helpers/utils
+ */
 export async function copyToClipboard(data: string): Promise<void> {
   // Modern clipboard API approach
   if (navigator.clipboard && window.isSecureContext) {
