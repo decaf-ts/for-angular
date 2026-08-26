@@ -51,6 +51,7 @@ export class CronSelectorFieldComponent extends CrudFieldComponent implements On
 
   override async ngOnInit(): Promise<void> {
     await super.initialize();
+    console.log(this.isReadOnlyOperation);
     this.handleCronChange(this.allowEmpty && !this.required ? '' : this.cronValue);
     // always show cron when required  and not empty
     if (this.required && !this.allowEmpty) {

@@ -1,11 +1,13 @@
 .dcf-cron-builder {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dcf-space-4);
-  padding: var(--dcf-space-4);
-  border-radius: var(--dcf-radius-md);
-  background: var(--dcf-color-surface);
-  border: 1px solid var(--dcf-color-gray-2);
+  &:not(.dcf-readonly) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--dcf-space-4);
+    padding: var(--dcf-space-4);
+    border-radius: var(--dcf-radius-md);
+    background: var(--dcf-color-surface);
+    border: 1px solid var(--dcf-color-gray-2);
+  }
 
   &.dcf-cron-builder-disabled {
     opacity: 0.6;
@@ -300,6 +302,66 @@
         transition: max-width var(--dcf-motion-2slow) var(--dcf-easing-standard);
         max-width: 8rem;
         opacity: 1;
+      }
+    }
+  }
+}
+ion-item {
+  --border-color: transparent;
+
+  &.dcf-input-item {
+    --padding-end: 0rem;
+    --padding-start: 0px !important;
+    --padding-top: 0px !important;
+    --inner-padding-start: 0.75rem;
+
+    --background: transparent;
+    --background-hover-opacity: 0.1;
+    --background-activated-opacity: 0.15;
+    --background-focused-opacity: 0.15;
+    --background-hover: var(--dcf-color-primary);
+    --background-focused: var(--dcf-color-primary);
+    --border-color: var(--dcf-color-gray-2);
+
+    &.dcf-palette-dark {
+      --border-color: var(--dcf-color-gray-6) !important;
+    }
+
+    .dcf-empty {
+      padding-left: 0.05rem;
+    }
+    ::ng-deep a {
+      cursor: pointer;
+    }
+
+    --min-height: 30px;
+    padding: unset;
+    margin: unset !important;
+    margin-bottom: var(--dcf-margin-xsmall) !important;
+
+    ion-label {
+      font-weight: 600;
+      margin-top: 0px !important;
+      margin-bottom: 0.25rem !important;
+      font-size: 0.925rem;
+      color: var(--color);
+
+      &:not(:first-of-type) {
+        margin: 100rem;
+      }
+    }
+    span,
+    ion-text {
+      font-weight: 400 !important;
+      font-size: 0.825rem;
+      min-height: 0.5rem !important;
+
+      &:not(.dcf-display-block) {
+        display: inline-block;
+      }
+
+      &.dcf-display-block {
+        display: block !important;
       }
     }
   }

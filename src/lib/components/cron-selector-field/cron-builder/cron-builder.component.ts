@@ -1,16 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  inject,
-  Input,
-  input,
-  model,
-  OnInit,
-  Output,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, input, model, OnInit, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { LoggedClass } from '@decaf-ts/logging';
@@ -30,7 +19,7 @@ type CronFormControl = FormControl<CronFieldKey> & {
 };
 
 const DEFAULT_CRON = '0 9 * * *';
-const CRON_FIELD_KEYS: CronFieldKey[] = ['minute', 'hour', 'day', 'weekday', 'month'];
+const CRON_FIELD_KEYS: CronFieldKey[] = ['minute', 'hour', 'day', 'month', 'weekday'];
 const DEFAULT_FIELD_VALUES: Record<CronFieldKey, string> = CRON_FIELD_KEYS.reduce(
   (acc, key, index) => ({ ...acc, [key]: DEFAULT_CRON.split(' ')[index] }),
   {} as Record<CronFieldKey, string>
@@ -68,10 +57,11 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
   @Input()
   formControl!: FormControl;
 
-  @Output()
-  changeEvent = new EventEmitter<string>();
+  changeEvent = output<string>();
 
   cron = input<string>(DEFAULT_CRON);
+  label = input<string>('');
+  isReadOnlyOperation = input<boolean>(false);
 
   fields = input<CronFieldKey[]>(CRON_FIELD_KEYS);
   value = model<string>(DEFAULT_CRON);
@@ -138,7 +128,6 @@ export class CronBuilderComponent extends LoggedClass implements OnInit {
       {} as Record<CronFieldKey, CronFormControl>
     );
     this.form = this.formBuilder.group(controls);
-    console.log(this.hourOptions);
     this.form.valueChanges
       .pipe(takeUntilDestroyed(), shareReplay({ bufferSize: 1, refCount: true }))
       .subscribe(() => this.setValue());

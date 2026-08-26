@@ -6,11 +6,12 @@
   [class.dcf-field-readonly]="isReadOnlyOperation"
   class="dcf-cron-selector-field"
 >
-  <div class="dcf-cron-selector-header">
-    <ion-label class="dcf-cron-selector-label">
-      {{ label | translate }}
-    </ion-label>
-    @if (!isReadOnlyOperation) {
+  @if (!isReadOnlyOperation) {
+    <div class="dcf-cron-selector-header">
+      <ion-label class="dcf-cron-selector-label">
+        {{ label | translate }}
+      </ion-label>
+
       @if (allowEmpty) {
         @if (checked) {
           <ion-button
@@ -37,12 +38,14 @@
           />
         }
       }
-    }
-  </div>
+    </div>
+  }
   @if (checked) {
-    <div class="dcf-cron-selector-body">
+    <div [class.dcf-cron-selector-body]="!isReadOnlyOperation">
       <ngx-decaf-cron-builder
+        [label]="label"
         [formControl]="formControl"
+        [isReadOnlyOperation]="isReadOnlyOperation"
         [value]="cronValue"
         [describeCron]="describeCron"
         [disabled]="isReadOnlyOperation"

@@ -1,7 +1,13 @@
 .dcf-cron-selector-field {
-  padding: var(--dcf-padding-small);
-  border: 1px solid var(--dcf-color-gray-4);
-  border-radius: var(--dcf-border-radius-small);
+  &:not(.dcf-field-readonly) {
+    padding: var(--dcf-padding-small);
+    border: 1px solid var(--dcf-color-gray-4);
+    border-radius: var(--dcf-border-radius-small);
+  }
+}
+
+.dcf-cron-selector-body {
+  margin-top: 0.5rem;
 }
 
 .dcf-cron-selector-header {
@@ -22,8 +28,4 @@
 .dcf-cron-selector-close {
   flex: 0 0 auto;
   margin: 0;
-}
-
-.dcf-cron-selector-body {
-  margin-top: 0.5rem;
 }
