@@ -9,7 +9,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { I18nFakeLoader } from '../../i18n';
 import { CrudFormComponent } from '../crud-form/crud-form.component';
-import { CronSelectorComponent } from '../cron-selector/cron-selector.component';
+import { CronBuilderComponent } from './cron-builder/cron-builder.component';
 import { CronSelectorFieldComponent } from './cron-selector-field.component';
 
 const navControllerMock = {
@@ -90,14 +90,14 @@ describe('CronSelectorFieldComponent', () => {
 
     expect(component.checked).toBe(true);
     expect(fixture.nativeElement.querySelector('ion-checkbox')).toBeNull();
-    expect(fixture.nativeElement.querySelector('ngx-decaf-cron-selector')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('ngx-decaf-cron-builder')).toBeTruthy();
   });
 
-  it('should reveal the cron selector and set the default cron when the checkbox is toggled on', () => {
+  it('should reveal the cron builder and set the default cron when the checkbox is toggled on', () => {
     toggle();
 
     expect(component.checked).toBe(true);
-    expect(fixture.nativeElement.querySelector('ngx-decaf-cron-selector')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('ngx-decaf-cron-builder')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('ion-button.dcf-cron-selector-close')).toBeTruthy();
   });
 
@@ -125,19 +125,19 @@ describe('CronSelectorFieldComponent', () => {
     expect(component.formControl.value).toBe('');
   });
 
-  it('should pass describeCron, hideDaily, hideInterval and hideWeekly through to the cron selector component', () => {
+  it('should pass describeCron, hideDaily, hideInterval and hideWeekly through to the cron builder component', () => {
     component.describeCron = true;
     component.hideDaily = true;
     component.hideInterval = true;
     component.hideWeekly = true;
     toggle();
 
-    const cronSelector = fixture.debugElement.query(By.directive(CronSelectorComponent));
-    expect(cronSelector).toBeTruthy();
-    expect(cronSelector.componentInstance.describeCron()).toBe(true);
-    expect(cronSelector.componentInstance.hideDaily()).toBe(true);
-    expect(cronSelector.componentInstance.hideInterval()).toBe(true);
-    expect(cronSelector.componentInstance.hideWeekly()).toBe(true);
+    const cronBuilder = fixture.debugElement.query(By.directive(CronBuilderComponent));
+    expect(cronBuilder).toBeTruthy();
+    expect(cronBuilder.componentInstance.describeCron()).toBe(true);
+    expect(cronBuilder.componentInstance.hideDaily()).toBe(true);
+    expect(cronBuilder.componentInstance.hideInterval()).toBe(true);
+    expect(cronBuilder.componentInstance.hideWeekly()).toBe(true);
   });
 
   it('should update the form control value through handleCronChange', () => {
@@ -202,7 +202,7 @@ describe('CronSelectorFieldComponent', () => {
     toggle();
 
     expect(component.formControl.value).toBe(component.defaultCron);
-    expect(fixture.nativeElement.querySelector('ngx-decaf-cron-selector')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('ngx-decaf-cron-builder')).toBeTruthy();
 
     component.handleCronChange('0 8 * * *');
     fixture.detectChanges();

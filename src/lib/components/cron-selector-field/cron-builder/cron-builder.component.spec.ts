@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormBuilder, FormControl } from '@angular/forms';
+import { IonSelect } from '@ionic/angular/standalone';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { I18nFakeLoader } from '../../../i18n';
@@ -83,29 +84,34 @@ describe('CronBuilderComponent', () => {
   });
 
   it('should apply the every-hour preset overwriting all fields', () => {
-    component.applyEveryHour(2);
+    component.setFieldValue('hour', '2');
+    component.toggleEvery('hour');
     fixture.detectChanges();
 
     expect(component.value()).toBe('0 */2 * * *');
+    expect(component.isEvery('hour')).toBe(true);
   });
 
-  it('should accept 0 for the every-minutes and every-hour presets', () => {
+  it('should accept 0 for the every-minutes preset', () => {
     component.applyEveryMinutes(0);
     fixture.detectChanges();
 
     expect(component.value()).toBe('*/0 * * * *');
     expect(component.everyMinutesValue).toBe(0);
-
-    component.applyEveryHour(0);
-    fixture.detectChanges();
-
-    expect(component.value()).toBe('0 */0 * * *');
-    expect(component.everyHourValue).toBe(0);
   });
 
-  it('should default the every-minutes and every-hour preset inputs from the default cron', () => {
+  it('should not enable the every-hour step when the current hour value is 0', () => {
+    component.applyDailyAt(0);
+    component.setFieldValue('hour', '0');
+    component.toggleEvery('hour');
+    fixture.detectChanges();
+
+    expect(component.isEvery('hour')).toBe(false);
+    expect(component.value()).toBe('0 0 * * *');
+  });
+
+  it('should default the every-minutes and daily-at preset inputs from the default cron', () => {
     expect(component.everyMinutesValue).toBe(0);
-    expect(component.everyHourValue).toBe(9);
     expect(component.dailyAtHourValue).toBe(9);
   });
 
@@ -117,31 +123,26 @@ describe('CronBuilderComponent', () => {
   });
 
   it('should toggle weekdays and apply the weekdays preset', () => {
-    component.togglePresetWeekday(1);
-    component.togglePresetWeekday(3);
+    const selector = { value: '' } as unknown as IonSelect;
+
+    component.handleSelectionPreset(['1', '3'], 'weekday', selector);
     fixture.detectChanges();
 
-    expect(component.isPresetWeekdaySelected(1)).toBe(true);
     expect(component.value()).toBe('0 9 * * 1,3');
 
-    component.togglePresetWeekday(1);
+    component.handleSelectionPreset(['3'], 'weekday', selector);
     fixture.detectChanges();
 
-    expect(component.isPresetWeekdaySelected(1)).toBe(false);
     expect(component.value()).toBe('0 9 * * 3');
   });
 
   it('should treat all weekdays selected as *', () => {
-    component.toggleAllWeekdays();
+    const selector = { value: '' } as unknown as IonSelect;
+
+    component.handleSelectionPreset(['all'], 'weekday', selector);
     fixture.detectChanges();
 
     expect(component.value()).toBe('0 9 * * *');
-    expect(component.isPresetWeekdaySelected('all')).toBe(true);
-
-    component.toggleAllWeekdays();
-    fixture.detectChanges();
-
-    expect(component.isPresetWeekdaySelected('all')).toBe(false);
   });
 
   it('should apply the monthly preset', () => {
