@@ -47,8 +47,21 @@ A very versatile persistence layer. from smart contracts, Digital wallets or jus
 - [Initial Setup](./workdocs/tutorials/For%20Developers.md#_initial-setup_)
 - [Installation](./workdocs/tutorials/For%20Developers.md#installation)
 
+## Graph frontend (DECAF-50)
 
+The canonical graph frontend (DECAF-50 §4.12, §4.17–§4.20) is manifest-driven and document-native — no node constructors, no legacy config store, no flag mechanics reach the browser:
 
+- **Catalogue (`src/graph/catalog/`):** `GraphNodeCatalogService` loads/refreshes `GraphNodeManifest[]` (palette consumes manifests; adding a node creates a `GraphNodeInstance` via `GraphNodePaletteFactory` and dispatches `node.add`). Sources: `GraphNodeCatalogApi` (backend), offline `GraphNodeManifestFixtures` (compiled from the demo's decorated classes with the ui-decorators compiler — demo-decorated kinds stay locally authoritative), and `GraphNodeCatalogCompositeSource` merging both. The catalogue service pairs a decaf `@service()` registry singleton with an Angular `Injectable({providedIn:'root'})` root provider (normative pairing, spec §4.12); `@graphAngularServiceShare` (from `src/graph/utils/graphAngularServiceShare.ts`) re-attaches the Angular provider to the decaf `@service()` wrapper class so DI resolves either shape.
+- **Document layer (`src/graph/document/`):** `GraphWorkflowDocumentStore` (canonical document state; every semantic mutation is a command), `GraphDiagramMutationTranslator` + `GraphDiagramAdapter` (projection is a pure function of document + manifest reader; canvas mutations become document commands, never the reverse), `GraphDocumentSelectors`/`GraphDocumentCommands`.
+- **Editing (`src/graph/components/`):** node edit modal, switch case editor, and node templates all seed from the document's `GraphNodeInstance`/canvas data and save through the store. Edit results update the store directly — `GraphNodeConfigStore` is gone.
+- **Parameter renderers (`src/graph/parameters/`):** 12 built-in typed renderers (text, multiline, number, boolean, static/dynamic options, collection, object, code, expression, resource locator, credential, notice, hidden) registered in `GraphParameterRendererRegistry`, with generic fallback rendering, visibility DSL evaluation, manifest validation, and dependency-triggered dynamic options reload.
+- **Runs (`src/graph/runs/`):** `GraphRunClient`/`GraphRunEventClient`/`GraphRunStateStore` wire the editor document to the backend run API, including live node/edge event mapping and terminal-state semantics (DECAF-48).
+
+Boundary guarantee: no graph engine, executor, catalogue runtime, validator, or run-store code reaches the production browser bundle (§4.20 bar 1 — enforced by the TASK-233 bundle scan).
+
+### Graph demo
+
+`src/app/pages/graph/graph.page.ts` hosts the demo (workflow editor + run console) wired to the canonical document store, the manifest-driven palette, and the composite catalogue source.
 
 ## Coding Principles
 

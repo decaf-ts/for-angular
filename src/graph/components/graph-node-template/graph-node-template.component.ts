@@ -9,30 +9,68 @@ import {
   type Node,
   type Edge,
 } from 'ng-diagram';
-import { graphDefinitionOf, PortDirection } from '@decaf-ts/ui-decorators/graph';
-import type { GraphPortDefinition } from '@decaf-ts/ui-decorators/graph';
+import { PortDirection } from '@decaf-ts/ui-decorators/graph';
+import type {
+  GraphInputBinding,
+  GraphJsonValue,
+  GraphNodeInstance,
+  GraphOutputBinding,
+  GraphPortDefinition,
+} from '@decaf-ts/ui-decorators/graph';
 import type { SwitchNodeMetadata, SwitchCase, NodeMetadataChange } from '@decaf-ts/integrations/graph/shared';
-import { LogFlowNode } from '@decaf-ts/integrations/graph/shared';
-import { buildMemberNode } from '../../utils';
 import { GraphDemoNodeData } from '../../types';
 import { graphExecutionState } from '../../execution/GraphExecutionStateService';
 import { graphInspection } from '../../execution/GraphInspectionStore';
-import { graphNodeConfig } from '../../execution/GraphNodeConfigStore';
+import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocumentStore';
+import type { GraphDocumentCommand } from '../../document/GraphDocumentCommands';
+import { graphNodeAddCommandOf } from '../../document/GraphDiagramMutationTranslator';
+import { GraphNodeCatalogService } from '../../catalog/GraphNodeCatalogService';
 import { graphSelection } from '../../execution/GraphSelectionStore';
 import { GraphNodeEditModalComponent, type GraphNodeEditResult } from '../graph-node-edit-modal/graph-node-edit-modal.component';
 import { GraphSwitchEditModalComponent, type GraphSwitchEditResult } from '../graph-switch-edit-modal/graph-switch-edit-modal.component';
 
+const GRAPH_CANVAS_BOUNDARY_NODE_PREFIX = 'input-';
+const GRAPH_CANVAS_GHOST_PREFIX = 'ghost-';
+
+/**
+ * Document-native switch write path (§4.4.4/§4.18): the canonical switch
+ * instance carries its configuration in TWO shapes.
+ * - `parameters["switch"]` block — backend executor parity
+ *   (`SwitchGraphNodeExecutor.readSwitchMetadata` reads that block).
+ * - top-level `parameters["cases"]`/`parameters["hasDefault"]` — the shared
+ *   dynamic-port rules (`repeatFromParameter` on `cases`, `togglePort` on
+ *   `hasDefault`) and both catalogue resolvers read that surface; the adapter's
+ *   projection sizes the switch from `parameters["cases"]` as well.
+ */
+function switchParameterBlockOf(meta: SwitchNodeMetadata): Record<string, GraphJsonValue> {
+  const cases = (meta.cases ?? []).map((entry) => ({
+    id: entry.id,
+    label: entry.label,
+    condition: entry.condition,
+    outputPort: entry.outputPort,
+  })) as unknown as GraphJsonValue;
+  const hasDefault = meta.hasDefault === true;
+  return {
+    cases,
+    hasDefault,
+    switch: {
+      cases,
+      defaultPort: meta.defaultPort ?? 'default',
+      hasDefault,
+    } as unknown as GraphJsonValue,
+  } as Record<string, GraphJsonValue>;
+}
+
+
 function computeSwitchMetadataChange(
-  modelClass: unknown,
   currentData: GraphDemoNodeData,
   meta: SwitchNodeMetadata
 ): NodeMetadataChange {
-  const definition = graphDefinitionOf(modelClass as never);
   const defaultPortName = meta.defaultPort ?? 'default';
   const hasDefault = meta.hasDefault === true;
   const casePortNames = new Set((meta.cases || []).map((c: SwitchCase) => c.outputPort));
 
-  const basePorts: GraphPortDefinition[] = definition.ports;
+  const basePorts: GraphPortDefinition[] = currentData.ports ?? [];
   const nonDefaultNonCasePorts = basePorts.filter(
     (p) => p.property !== defaultPortName && !casePortNames.has(p.property)
   );
@@ -57,13 +95,18 @@ function computeSwitchMetadataChange(
   return {
     ports,
     size: {
-      width: definition.width ?? 120,
-      height: caseCount > 0 ? 140 + caseCount * 24 : definition.height ?? 140,
+      width: 120,
+      height: caseCount > 0 ? 140 + caseCount * 24 : 140,
     },
     dataPatch: { switchMetadata: meta },
   };
 }
 
+/**
+ * Canvas node template for the graph editor: renders node chrome, ports, and
+ * badges from the node's manifest-derived data, including loop and switch
+ * indicator overlays (DECAF-50 §4.4).
+ */
 @Component({
   selector: 'app-graph-node-template',
   standalone: true,
@@ -79,6 +122,8 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
   private readonly modalCtrl = inject(ModalController);
   private readonly hostRef = inject(ElementRef<HTMLElement>);
   private readonly zone = inject(NgZone);
+  private readonly documentStore = inject(GraphWorkflowDocumentStore, { optional: true });
+  private readonly catalog = inject(GraphNodeCatalogService);
   private _pinned = false;
   private portObserver: MutationObserver | null = null;
   private pendingRaf: number | null = null;
@@ -202,9 +247,23 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     return ids;
   });
 
+  /**
+   * Document-active port modes (canonical-only): the mode map derives from
+   * the node instance's input bindings in the document store (§4.4.5) —
+   * 'edge' reads as the legacy `port` mode, literal/expression as `value`.
+   */
   readonly portModes = computed(() => {
     const nodeId = this.node().id;
-    return graphNodeConfig.getConfig(nodeId)?.portModes ?? {};
+    const node = this.documentStore?.document()?.nodes.find((candidate) => candidate.id === nodeId);
+    const modes: Record<string, 'port' | 'value'> = {};
+    for (const [portId, binding] of Object.entries(node?.inputBindings ?? {})) {
+      if (binding?.mode !== 'edge') {
+        modes[portId] = 'value';
+        continue;
+      }
+      modes[portId] = 'port';
+    }
+    return modes;
   });
 
   readonly iconFallback = computed(() => {
@@ -254,7 +313,21 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
   async deleteNode(event: Event) {
     event.preventDefault();
     event.stopPropagation();
-    this.modelService.deleteNodes([this.node().id]);
+    const nodeId = this.node().id;
+    if (nodeId.startsWith(GRAPH_CANVAS_GHOST_PREFIX) || nodeId.startsWith(GRAPH_CANVAS_BOUNDARY_NODE_PREFIX)) {
+      // Legacy-viewport placeholders are canvas-only; remove them directly.
+      this.modelService.deleteNodes([nodeId]);
+      return;
+    }
+    if (!this.documentStore) {
+      this.modelService.deleteNodes([nodeId]);
+      return;
+    }
+    try {
+      this.documentStore.removeNode(nodeId);
+    } catch (error) {
+      console.warn('[GraphNodeTemplateComponent] node removal skipped', error);
+    }
   }
 
   async openEditor(event: Event) {
@@ -268,18 +341,15 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
       return;
     }
 
-    const ModelClass = this.node().data.modelClass;
-    if (typeof ModelClass !== 'function') return;
-
     const nodeId = this.node().id;
     const data = this.node().data;
     const isSwitch = data.kind === 'core.flow.switch';
+    const nodeInstance = this.documentStore?.document()?.nodes.find((candidate) => candidate.id === nodeId) ?? null;
 
     if (isSwitch) {
       const inputProps = data.ports
         .filter((p) => p.direction === PortDirection.INPUT)
         .map((p) => p.property);
-      const existingConfig = graphNodeConfig.getConfig(nodeId);
       const initialSwitchMeta: SwitchNodeMetadata = data.switchMetadata ?? { cases: [], defaultPort: 'default' };
 
       const modal = await this.modalCtrl.create({
@@ -297,16 +367,7 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
 
       const { role, data: result } = await modal.onWillDismiss<GraphSwitchEditResult | null>();
       if (role === 'confirm' && result) {
-        graphNodeConfig.applyResult({
-          nodeId: result.nodeId,
-          values: result.values,
-          portModes: result.portModes,
-          outputSplits: result.outputSplits,
-        });
-        const change = (ModelClass as unknown as { applyMetadata?: (m: unknown) => NodeMetadataChange | null })
-          .applyMetadata?.(result.switchMetadata)
-          ?? computeSwitchMetadataChange(ModelClass, data, result.switchMetadata);
-        this.applyNodeMetadata(change);
+        this.applySwitchEditResult(result, nodeInstance);
         if (result.autoCreateDefaultNode) {
           this.autoCreateExceptionNode(result.switchMetadata.defaultPort ?? 'default');
         }
@@ -314,20 +375,14 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
       return;
     }
 
-    const existingConfig = graphNodeConfig.getConfig(nodeId);
-    const initialValues = existingConfig?.values ?? {};
-    const initialPortModes = existingConfig?.portModes ?? {};
-    const initialMetadata = existingConfig?.metadata ?? {};
-
     const modal = await this.modalCtrl.create({
       component: GraphNodeEditModalComponent,
       componentProps: {
         nodeTitle: this.node().data.title,
-        modelClass: ModelClass,
         nodeId,
-        initialValues,
-        initialPortModes,
-        initialMetadata,
+        nodeData: data,
+        nodeInstance,
+        parameterDefs: this.catalog.get(data.kind)?.parameters ?? [],
       },
       presentingElement: undefined,
     });
@@ -336,8 +391,79 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
 
     const { role, data: result } = await modal.onWillDismiss<GraphNodeEditResult | null>();
     if (role === 'confirm' && result) {
-      graphNodeConfig.applyResult(result);
+      this.dispatchNodeUpdate(result.nodeId, result);
     }
+  }
+
+  /**
+   * Writes one node instance patch into the canonical document store. The edit
+   * result carries the document-native fields (input bindings, parameters,
+   * metadata) directly.
+   */
+  private dispatchNodeUpdate(nodeId: string, result: GraphNodeEditResult): void {
+    if (!this.documentStore) return;
+    try {
+      this.documentStore.updateNode(nodeId, {
+        inputBindings: result.inputBindings,
+        parameters: result.parameters,
+        ...(result.metadata && Object.keys(result.metadata).length
+          ? { metadata: result.metadata }
+          : {}),
+      });
+    } catch (error) {
+      // The document store can be uninitialized in consumed-widget contexts;
+      // editor-only writes degrade gracefully there.
+      console.warn('[GraphNodeTemplateComponent] document write skipped', error);
+    }
+  }
+
+  /**
+   * Writes the canonical switch-cases patch for the switch's own edit modal.
+   * The doc's write targets the dual switch shape (`switchParameterBlockOf` —
+   * the `parameters["switch"]` executor block plus the top-level
+   * `parameters["cases"]`/`parameters["hasDefault"]` resolver surface), while
+   * the size/ports deltas replay through the node metadata change so the
+   * canvas renders the case ports.
+   */
+  private applySwitchEditResult(result: GraphSwitchEditResult, nodeInstance: GraphNodeInstance | null): void {
+    const data = this.node().data;
+    const change = computeSwitchMetadataChange(data as GraphDemoNodeData, result.switchMetadata);
+    this.applyNodeMetadata(change);
+    if (!this.documentStore) return;
+    try {
+      this.documentStore.updateNode(result.nodeId, {
+        parameters: switchParameterBlockOf(result.switchMetadata),
+        size: { height: change.size.height, width: change.size.width },
+        ...(Object.keys(result.portModes).length
+          ? { inputBindings: this.inputBindingsFromPortModes(nodeInstance, result.portModes) }
+          : {}),
+      });
+    } catch (error) {
+      console.warn('[GraphNodeTemplateComponent] switch document write skipped', error);
+    }
+  }
+
+  /**
+   * The switch modal's legacy result still carries per-input port modes; map
+   * them back into canonical bindings when the node exists in the document.
+   */
+  private inputBindingsFromPortModes(
+    nodeInstance: GraphNodeInstance | null,
+    portModes: Record<string, 'port' | 'value'>
+  ): Record<string, GraphInputBinding> {
+    const bindings: Record<string, GraphInputBinding> = { ...(nodeInstance?.inputBindings ?? {}) };
+    for (const [portId, mode] of Object.entries(portModes)) {
+      if (mode === 'port') {
+        bindings[portId] = { mode: 'edge' };
+        continue;
+      }
+      // 'value' keeps an existing literal/expression binding as-is; without one
+      // the upstream manifest `defaultValue` fallback stays in force.
+      const current = bindings[portId];
+      if (current?.mode === 'literal' || current?.mode === 'expression') continue;
+      delete bindings[portId];
+    }
+    return bindings;
   }
 
   /**
@@ -376,32 +502,50 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
   /**
    * Auto-creates a Log node (as a simple exception/default handler) to the
    * right of the switch node and connects the switch's `default` output port
-   * to the Log node's `value` input port. The user can delete the auto-created
+   * to the Log node's `value` input port. Dispatches `node.add` + `edge.add`
+   * into the canonical document store and lets the reconcile projection
+   * materialize them on canvas (§4.4.4). The user can delete the auto-created
    * node and connect the default port to something else.
    */
   private autoCreateExceptionNode(defaultPort: string) {
     const switchNode = this.node();
+    const documentStore = this.documentStore;
+    if (!documentStore) return;
+    const document = documentStore.document();
+    if (!document) return;
+
     const switchPos = switchNode.position ?? { x: 0, y: 0 };
     const switchSize = switchNode.size ?? { width: 120, height: 140 };
+    const reader = this.catalog.reader();
 
-    const exceptionNode = buildMemberNode(LogFlowNode, 0, `default-handler-${Date.now()}`, 'No match (default)');
-    exceptionNode.position = {
-      x: switchPos.x + switchSize.width + 150,
-      y: switchPos.y,
+    const nodeCommand = graphNodeAddCommandOf(document, {
+      id: `default-handler-${Date.now()}`,
+      kind: 'core.flow.log',
+      label: 'No match (default)',
+      position: { x: switchPos.x + switchSize.width + 150, y: switchPos.y },
+    }, reader);
+
+    if (nodeCommand.type !== 'node.add') return;
+
+    const exceptionNodeId = nodeCommand.node.id;
+    const edgeId = `${switchNode.id}:${defaultPort}->${exceptionNodeId}:value`;
+    const edgeCommand: GraphDocumentCommand = {
+      type: 'edge.add',
+      edge: {
+        id: edgeId,
+        type: 'data',
+        source: { scope: 'node', nodeId: switchNode.id, port: defaultPort },
+        target: { scope: 'node', nodeId: exceptionNodeId, port: 'value' },
+        label: 'default',
+      },
     };
 
-    const diagram = this.modelService;
-    diagram.addNodes([exceptionNode as never]);
-
-    const edge: Edge = {
-      id: `edge-default-${Date.now()}`,
-      source: switchNode.id,
-      sourcePort: defaultPort,
-      target: exceptionNode.id,
-      targetPort: 'value',
-      data: { label: 'default' },
-    } as Edge;
-    diagram.addEdges([edge]);
+    try {
+      documentStore.dispatchCommand(nodeCommand);
+      documentStore.dispatchCommand(edgeCommand);
+    } catch (error) {
+      console.warn('[GraphNodeTemplateComponent] default-handler dispatch skipped', error);
+    }
   }
 
   pinNode(event: Event) {

@@ -13,7 +13,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, type AbstractControl, type FormGroup } from '@angular/forms';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
-import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import type { LegacyGraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 import { graphDefinitionOf, graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
 import { IonSpinner } from '@ionic/angular/standalone';
 import {
@@ -61,6 +61,7 @@ import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-te
   styleUrl: './workflow.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+/** Legacy workflow diagram component: renders a decorated workflow root on the Rete.js canvas. */
 export class GraphWorkflowComponent {
   /**
    * The root of the workflow graph, which can be a class constructor
@@ -321,7 +322,7 @@ export class GraphWorkflowComponent {
     const raw = this.snapshotJson().trim();
     if (!raw) return;
 
-    const snapshot = parseGraphRendererSnapshot(raw, this.workflowRootClass() as never) as GraphWorkflowSnapshot;
+    const snapshot = parseGraphRendererSnapshot(raw, this.workflowRootClass() as never) as LegacyGraphWorkflowSnapshot;
     const restored = buildGraphRendererStateFromSnapshot(this.workflowRootClass() as never, snapshot, this.injector);
 
     this.skipNextModelSync = true;

@@ -55,6 +55,26 @@
   min-width: 80px;
 }
 
+.graph-node-edit-modal__param-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.graph-node-edit-modal__param-row label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.graph-node-edit-modal__param-row ion-input,
+.graph-node-edit-modal__param-row ion-textarea {
+  flex: 1;
+  min-width: 80px;
+}
+
 .graph-node-edit-modal__errors {
   display: flex;
   flex-direction: column;

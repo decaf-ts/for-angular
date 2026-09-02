@@ -13,6 +13,8 @@ import {
 } from 'src/lib/engine/helpers';
 import { provideDecafI18nConfig } from 'src/lib/i18n/Loader';
 import { isDevelopmentMode } from 'src/lib/utils/helpers';
+// The canonical graph module's live node catalogue source (DECAF-50 §4.12/§4.13).
+import { GraphNodeCatalogApi, GRAPH_NODE_CATALOG_SOURCE } from 'src/graph';
 import { routes } from './app.routes';
 import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
 import { AppSelectFieldComponent } from './components/select-field/select-field.component';
@@ -50,6 +52,11 @@ export const AppConfig: ApplicationConfig = {
       AppSelectFieldComponent,
       CronSelectorFieldComponent
     ),
+    // Canonical graph module's live node catalogue source (DECAF-50 §4.12/§4.13):
+    // the root-scoped GraphNodeCatalogService dispatches node manifests,
+    // dynamic-port resolutions and declared-method invocations through this
+    // HTTP backend bridge; failures surface through the store's status signal.
+    { provide: GRAPH_NODE_CATALOG_SOURCE, useExisting: GraphNodeCatalogApi },
     provideDecafI18nConfig(
       {
         fallbackLang: 'en',

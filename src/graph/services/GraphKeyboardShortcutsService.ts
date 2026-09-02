@@ -1,9 +1,18 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import type { GraphWorkflowSnapshot,
+  LegacyGraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 import { GraphHistoryService } from './GraphHistoryService';
 import { GraphAutoSaveService } from './GraphAutoSaveService';
 
-type RestoreCallback = (snapshot: import('@decaf-ts/ui-decorators/graph').GraphWorkflowSnapshot) => void;
+type GraphHistorySnapshot = GraphWorkflowSnapshot | LegacyGraphWorkflowSnapshot;
 
+type RestoreCallback = (snapshot: GraphHistorySnapshot) => void;
+
+/**
+ * Keyboard shortcuts for the graph editor: binds undo/redo (and save, where
+ * applicable) to the active workflow's history and autosave services, with a
+ * configurable snapshot-restore callback.
+ */
 @Injectable({ providedIn: 'root' })
 export class GraphKeyboardShortcutsService {
   private readonly history = inject(GraphHistoryService);

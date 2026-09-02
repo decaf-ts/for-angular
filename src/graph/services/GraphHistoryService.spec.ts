@@ -1,15 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { GRAPH_HISTORY_LIMIT } from '../tokens/graph-configuration.tokens';
 import { GraphHistoryService } from './GraphHistoryService';
-import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import type { LegacyGraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 
-function makeSnapshot(id: string): GraphWorkflowSnapshot {
+function makeSnapshot(id: string): LegacyGraphWorkflowSnapshot {
   return {
     state: {
       nodes: [{ id } as never],
       edges: [],
     },
-  } as unknown as GraphWorkflowSnapshot;
+  } as unknown as LegacyGraphWorkflowSnapshot;
 }
 
 describe('GraphHistoryService', () => {

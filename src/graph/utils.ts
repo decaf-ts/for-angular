@@ -11,12 +11,14 @@ import {
   graphWorkflowSnapshotToJSON,
   PortDirection,
   type GraphPortDefinition,
-  type GraphWorkflowSnapshot,
+  type LegacyGraphWorkflowSnapshot,
 } from '@decaf-ts/ui-decorators/graph';
+import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
 import type { SwitchNodeMetadata, SwitchCase } from '@decaf-ts/integrations/graph/shared';
 import { initializeModel, type ModelAdapter } from 'ng-diagram';
 import { GraphInputValueNode } from './nodes/boundary-nodes';
-import { graphNodeConfig, type GraphNodeConfig } from './execution/GraphNodeConfigStore';
+import { graphCanvasPortDefinitionOf } from './document/GraphDiagramAdapter';
+import type { GraphWorkflowDocumentStore } from './document/GraphWorkflowDocumentStore';
 import type {
   GraphBoundaryNodeData,
   GraphCanvasNodeBlueprint,
@@ -30,6 +32,14 @@ import type {
 export interface GraphRendererSnapshotState {
   duplicateCounts: Record<string, number>;
   diagramMetadata: Record<string, unknown>;
+}
+
+/** Per-node editor state mirrored from canonical `GraphNodeInstance` port blocks. */
+export interface GraphNodeInstanceState {
+  portModes: Record<string, 'port' | 'value'>;
+  values: Record<string, unknown>;
+  outputSplits: string[];
+  metadata?: SwitchNodeMetadata;
 }
 
 export function titleFromDefinition(definitionName: string): string {
@@ -222,8 +232,8 @@ export function buildMemberNode(
     id: nodeId,
     type: definition.kind,
     position: {
-      x: 380 + index * 270,
-      y: index % 2 === 0 ? 130 : 70,
+      x: 380 + index * 190,
+      y: [130, 70, 280][index % 3],
     },
     size: {
       width: definition.width ?? 96,
@@ -245,6 +255,103 @@ export function buildMemberNode(
       modelClass: ctor as never,
       expanded: false,
       switchMetadata: switchMeta,
+    },
+  };
+}
+
+/** A manifest-only palette entry (§4.14): display-ready metadata derived from a `GraphNodeManifest`, never a constructor. */
+export interface GraphPaletteEntry {
+  manifest: GraphNodeManifest;
+  name: string;
+  kind: string;
+  title: string;
+  description: string;
+  category?: string;
+  color?: string;
+  icon?: string;
+}
+
+function graphPaletteIconNameOf(manifest: GraphNodeManifest): string | undefined {
+  const icon = manifest.display?.icon as { type?: string; name?: string; url?: string } | undefined;
+  if (!icon) return undefined;
+  if (icon.type === 'catalogue' && typeof icon.name === 'string' && icon.name) return icon.name;
+  if (icon.type === 'url' && typeof icon.url === 'string' && icon.url) return icon.url;
+  return undefined;
+}
+
+/**
+ * Build the manifest-only palette entries the editor palette renders after
+ * the P7 cutover (§4.14): node constructors never participate in discovery.
+ */
+export function graphPaletteEntriesOf(manifests: GraphNodeManifest[]): GraphPaletteEntry[] {
+  return manifests
+    .filter((manifest) => !!manifest && typeof manifest.kind === 'string' && !!manifest.kind)
+    .map((manifest) => {
+      const display = manifest.display;
+      const name = typeof display?.name === 'string' && display.name ? display.name : manifest.kind;
+      return {
+        manifest,
+        name,
+        kind: manifest.kind,
+        title: name,
+        description: typeof display?.description === 'string' ? display.description : '',
+        category: typeof display?.category === 'string' ? display.category : undefined,
+        color: typeof display?.color === 'string' ? display.color : undefined,
+        icon: graphPaletteIconNameOf(manifest),
+      };
+    })
+    .sort((left, right) => left.title.localeCompare(right.title));
+}
+
+/**
+ * Standalone manifest-backed canvas blueprint for palette/ghost-added nodes
+ * (§4.14): a manifest drives every editor-affecting property (ports, size,
+ * display data); no constructor runs in the browser.
+ */
+export function buildManifestMemberNode(
+  entry: GraphPaletteEntry,
+  index: number,
+  fallbackId?: string,
+  fallbackLabel?: string
+): GraphCanvasNodeBlueprint<GraphRendererNodeData> {
+  const display = entry.manifest.display;
+  const inputs = entry.manifest.inputs ?? [];
+  const outputs = entry.manifest.outputs ?? [];
+  const connections = entry.manifest.connections ?? [];
+  const staticIds = new Set([...inputs, ...outputs, ...connections].map((port) => port.id));
+  const ports: GraphPortDefinition[] = [
+    ...inputs,
+    ...outputs,
+    ...connections,
+  ].map((port) => graphCanvasPortDefinitionOf(port, !staticIds.has(port.id)));
+  const width = typeof display?.width === 'number' ? display.width : 96;
+  const height = typeof display?.height === 'number' ? display.height : 96;
+
+  return {
+    id: fallbackId ?? entry.kind,
+    type: entry.kind,
+    position: {
+      x: 380 + index * 190,
+      y: [130, 70, 280][index % 3],
+    },
+    size: {
+      width,
+      height,
+    },
+    resizable: false,
+    draggable: true,
+    autoSize: false,
+    data: {
+      title: fallbackLabel ?? entry.title,
+      description: entry.description,
+      kind: entry.kind,
+      category: entry.category,
+      color: entry.color,
+      icon: entry.icon,
+      labels: Array.isArray(display?.labels) ? [...display.labels] : [],
+      ports,
+      sourceClass: entry.name,
+      expanded: false,
     },
   };
 }
@@ -608,21 +715,39 @@ export function buildGraphRendererSnapshot<M extends Model>(
   model: GraphModelLike<M>,
   diagram: ModelAdapter,
   inputValues: Record<string, unknown> = {},
-  duplicateInputs: Record<string, number> = {}
-): GraphWorkflowSnapshot {
+  duplicateInputs: Record<string, number> = {},
+  instances: Record<string, GraphNodeInstance> = {}
+): LegacyGraphWorkflowSnapshot {
   const state = readModelState(diagram);
-  const nodeConfigs = graphNodeConfig.serialize();
+  const instanceEntries = Object.entries(instances);
+  const nodeConfigs: Record<string, Record<string, unknown>> = {};
+  const portsByNode = new Map<string, Record<string, { mode?: 'port' | 'value'; value?: unknown }>>();
+  for (const [nodeId, instance] of instanceEntries) {
+    const ports: Record<string, { mode?: 'port' | 'value'; value?: unknown }> = {};
+    const portModes: Record<string, 'port' | 'value'> = {};
+    const values: Record<string, unknown> = {};
+    for (const [portId, binding] of Object.entries(instance.inputBindings ?? {})) {
+      if (binding?.mode === 'edge') {
+        portModes[portId] = 'port';
+        ports[portId] = { mode: 'port' };
+        continue;
+      }
+      portModes[portId] = 'value';
+      if (binding?.mode === 'literal') values[portId] = (binding as { value?: unknown }).value;
+      else if (binding?.mode === 'expression') values[portId] = (binding as { expression?: unknown }).expression;
+      ports[portId] = { mode: 'value', value: values[portId] };
+    }
+    const outputSplits = state.edges
+      .map((edge) => edge as { source?: string; sourcePort?: string })
+      .filter((edge) => edge.source === nodeId && typeof edge.sourcePort === 'string')
+      .map((edge) => edge.sourcePort as string);
+    nodeConfigs[nodeId] = { portModes, values, outputSplits };
+    portsByNode.set(nodeId, ports);
+  }
   const nodesWithConfigs = (state.nodes as Record<string, unknown>[]).map((node) => {
     const nodeId = typeof node['id'] === 'string' ? node['id'] : undefined;
-    const config = nodeId ? nodeConfigs[nodeId] : undefined;
-    if (!config) return node;
-    const ports: Record<string, { mode?: 'port' | 'value'; value?: unknown }> = {};
-    for (const [property, mode] of Object.entries(config.portModes)) {
-      ports[property] = { mode };
-    }
-    for (const [property, value] of Object.entries(config.values)) {
-      ports[property] = { ...ports[property], value };
-    }
+    const ports = nodeId ? portsByNode.get(nodeId) : undefined;
+    if (!ports || !Object.keys(ports).length) return node;
     return {
       ...node,
       ports: { ...(typeof node['ports'] === 'object' && node['ports'] ? node['ports'] : {}), ...ports },
@@ -645,13 +770,13 @@ export function buildGraphRendererSnapshot<M extends Model>(
 
 export function buildGraphRendererStateFromSnapshot<M extends Model>(
   model: GraphModelLike<M>,
-  snapshot: GraphWorkflowSnapshot,
+  snapshot: LegacyGraphWorkflowSnapshot,
   injector?: Injector
 ) {
   const snapshotUi = toRecord(snapshot.state.ui);
   const duplicateCounts = toRecord(snapshotUi['duplicateCounts']);
   const diagramMetadata = toRecord(snapshotUi['diagramMetadata']);
-  const restoredNodeConfigs = toRecord(snapshotUi['nodeConfigs']) as Record<string, GraphNodeConfig>;
+  const restoredNodeConfigs = toRecord(snapshotUi['nodeConfigs']) as Record<string, GraphNodeInstanceState>;
   const inputValues = graphWorkflowSnapshotInputValuesOf(snapshot);
   const diagram = initializeModel(
     {
@@ -670,27 +795,25 @@ export function buildGraphRendererStateFromSnapshot<M extends Model>(
     injector
   );
 
-  if (Object.keys(restoredNodeConfigs).length) {
-    graphNodeConfig.deserialize(restoredNodeConfigs);
-  }
-
   return {
     diagram,
     inputValues,
     duplicateCounts: Object.keys(duplicateCounts).length
       ? (duplicateCounts as Record<string, number>)
       : readDuplicateCountsFromNodes(snapshot.state.nodes as never[]),
+    instanceConfigs: restoredNodeConfigs,
   };
 }
 
 export function parseGraphRendererSnapshot(
-  json: string | GraphWorkflowSnapshot,
+  json: string | LegacyGraphWorkflowSnapshot,
   model: GraphModelLike
-): GraphWorkflowSnapshot {
+): LegacyGraphWorkflowSnapshot {
   return graphWorkflowSnapshotFromJSON(json, model as never);
 }
 
-export function stringifyGraphRendererSnapshot(snapshot: GraphWorkflowSnapshot, space = 2) {
+/** Serializes a canvas snapshot to its persisted JSON form (see {@link parseGraphRendererSnapshot}). */
+export function stringifyGraphRendererSnapshot(snapshot: LegacyGraphWorkflowSnapshot, space = 2) {
   return graphWorkflowSnapshotToJSON(snapshot, space);
 }
 type GraphModelLike<M extends Model = Model> = Constructor<M> | M;

@@ -14,8 +14,8 @@ import {
 import { FormBuilder, ReactiveFormsModule, type AbstractControl, type FormGroup } from '@angular/forms';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
-import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
-import { graphDefinitionOf, graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
+import type { LegacyGraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import { graphWorkflowDefinitionOf, graphWorkflowDocumentFromLegacySnapshot } from '@decaf-ts/ui-decorators/graph';
 import { IonSpinner } from '@ionic/angular/standalone';
 import {
   NgDiagramBackgroundComponent,
@@ -25,7 +25,10 @@ import {
   NgDiagramEdgeTemplateMap,
   provideNgDiagram,
   createMiddlewares,
+  type EdgeDrawnEvent,
   type Middleware,
+  type NodeDragEndedEvent,
+  type SelectionRemovedEvent,
 } from 'ng-diagram';
 import { graphSelection } from '../../execution/GraphSelectionStore';
 import { ghostNodeStore } from '../../execution/GhostNodeStore';
@@ -36,9 +39,24 @@ import {
   buildGraphRendererStateFromSnapshot,
   buildGraphRendererViewModel,
   buildMemberNode,
+  buildManifestMemberNode,
+  graphPaletteEntriesOf,
   parseGraphRendererSnapshot,
   stringifyGraphRendererSnapshot,
+  type GraphPaletteEntry,
 } from '../../utils';
+import { GraphDiagramAdapter } from '../../document/GraphDiagramAdapter';
+import {
+  isGraphNodeGhost,
+  type NgDiagramMutation,
+} from '../../document/GraphDocumentMutation';
+import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocumentStore';
+import { GraphNodeCatalogService } from '../../catalog/GraphNodeCatalogService';
+import type { GraphJsonValue, GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
+import type {
+  GraphWorkflowDocument,
+  GraphWorkflowSnapshot,
+} from '@decaf-ts/ui-decorators/graph';
 import {
   buildWorkflowInputFields,
   buildWorkflowInputForm,
@@ -71,19 +89,35 @@ import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-te
   styleUrl: './graph-renderer.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
+/**
+ * Rete.js-based canvas renderer for the graph editor: hosts the diagram,
+ * binds it to the document store through the diagram adapter and mutation
+ * translator, and exposes canvas snapshots for autosave/history.
+ */
 export class GraphRendererComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly injector = inject(Injector);
+  private readonly documentStore = inject(GraphWorkflowDocumentStore, { optional: true });
+  private readonly catalogService = inject(GraphNodeCatalogService, { optional: true });
+  private readonly canvasAdapter = new GraphDiagramAdapter();
+  private restoreOptions: { restore: boolean; applyViewport?: boolean } | null = null;
   private readonly duplicateCounts = signal<Record<string, number>>({});
   private readonly workflowInputValues = signal<Record<string, unknown>>({});
   private readonly snapshotJson = signal('');
   readonly workflowInputForm = signal<FormGroup>(this.formBuilder.group({}));
   readonly model = signal<ReturnType<typeof buildGraphRendererModel> | null>(null);
   private skipNextModelSync = false;
+  /**
+   * Highest document version already reconciled to the canvas. Reconcile runs
+   * at most once per document version so render-cycle effect re-firing can
+   * never enter a reconcile loop (the nodes/edges updates inside `reconcile`
+   * would otherwise trigger another view refresh per cycle).
+   */
+  private reconciledVersion = -1;
 
   readonly graphRoot = input.required<unknown>();
   readonly outputs = input<Record<string, unknown> | null>(null);
-  readonly availableNodes = input<unknown[]>([]);
+  readonly availableNodes = input<GraphNodeManifest[]>([]);
 
   readonly nodeDragEnded = output<void>();
   readonly edgeDrawn = output<void>();
@@ -193,6 +227,9 @@ export class GraphRendererComponent {
     ['core.flow.code', GraphNodeTemplateComponent],
     ['core.flow.log', GraphNodeTemplateComponent],
     ['core.flow.break', GraphNodeTemplateComponent],
+    // Utility node (DECAF-48 §4.4): the DECAF-50 demo fixture adds a text-log
+    // node to the mandated canvas→run proof.
+    ['core.utility.log', GraphNodeTemplateComponent],
     // Agent node (DECAF-32 §21.3)
     ['core.agent', GraphNodeTemplateComponent],
     ['value', GraphBoundaryNodeTemplateComponent],
@@ -245,23 +282,12 @@ export class GraphRendererComponent {
   readonly snapshotPreview = computed(() => this.snapshotJson());
 
   readonly paletteOpen = signal(false);
-  readonly paletteEntries = computed(() => {
-    const nodes = this.availableNodes();
-    return nodes.map((ctor) => {
-      const definition = graphDefinitionOf(ctor as never);
-      const metadata = (definition.graph?.metadata || {}) as Record<string, unknown>;
-      return {
-        ctor,
-        name: definition.name,
-        kind: definition.kind,
-        title: String(metadata['title'] ?? definition.name),
-        description: String(metadata['description'] ?? ''),
-        category: definition.category,
-        color: definition.color,
-        icon: definition.icon,
-      };
-    });
-  });
+  /**
+   * Manifest-driven palette entries (P7 cutover §4.14): entries derive from
+   * {@link GraphNodeManifest}s through {@link graphPaletteEntriesOf} — no node
+   * constructors participate in discovery.
+   */
+  readonly paletteEntries = computed(() => graphPaletteEntriesOf(this.availableNodes()));
 
   constructor() {
     effect((onCleanup) => {
@@ -285,6 +311,10 @@ export class GraphRendererComponent {
     });
 
     effect(() => {
+      // One-way doc ownership (§4.12): once the document store owns a canvas,
+      // the decorated-root model never rebuilds it — the doc-driven reconcile
+      // alone drives the canvas so gesture commit/store re-projection stays.
+      if (this.documentStore?.document()) return;
       const root = this.workflowRootClass() as never;
       const inputValues = this.workflowInputValues();
       const duplicateCounts = this.duplicateCounts();
@@ -292,6 +322,17 @@ export class GraphRendererComponent {
       runInInjectionContext(this.injector, () => {
         this.model.set(buildGraphRendererModel(root, this.injector, inputValues, duplicateCounts, previousModel));
       });
+    });
+
+    // Canonical document projection (§4.12): when the doc store owns a
+    // document, the canvas reconciles to its projection; while it is empty, the
+    // decorated-root canvas is used as the seed for the lossless conversion.
+    // Dependencies are the doc document and the catalogue status; the reconcile
+    // itself is version-gated inside {@link settleCanvasFromDocument} so the
+    // same document version can never reconcile twice (render-cycle safety).
+    effect(() => {
+      void this.catalogService?.status?.();
+      this.settleCanvasFromDocument();
     });
 
     // Open palette when a ghost node + is clicked
@@ -314,16 +355,73 @@ export class GraphRendererComponent {
     graphSelection.setSelected((event.selectedNodes ?? []).map((n) => n.id));
   }
 
-  onNodeDragEnded(): void {
+  /**
+   * Canvas gestures become canonical document commands (§4.12): the canvas event
+   * payload maps onto the {@link NgDiagramMutation}-shaped gesture and the
+   * document store dispatches the translated commands; the doc-driven effect
+   * then reconciles the canvas from the refreshed store output — never the
+   * reverse. Palette/Autosave notifications still flow to the page for the
+   * unsaved-changes indicator and the run history trigger.
+   */
+  onNodeDragEnded(event: NodeDragEndedEvent): void {
+    // Drag-end commit policy (§4.12): positions commit when the gesture ends.
+    if (event?.nodes?.length) {
+      this.applyCanvasMutation({
+        type: 'nodes-moved',
+        nodes: event.nodes.map((node) => ({
+          nodeId: node.id,
+          position: { x: node.position.x, y: node.position.y },
+        })),
+      });
+    }
     this.nodeDragEnded.emit();
   }
 
-  onEdgeDrawn(): void {
+  onEdgeDrawn(event: EdgeDrawnEvent): void {
+    if (event?.source?.id && event?.target?.id) {
+      this.applyCanvasMutation({
+        type: 'edges-added',
+        edges: [
+          {
+            sourceNodeId: event.source.id,
+            sourcePort: event.sourcePort,
+            targetNodeId: event.target.id,
+            targetPort: event.targetPort,
+          },
+        ],
+      });
+    }
     this.edgeDrawn.emit();
   }
 
-  onElementsRemoved(): void {
+  onElementsRemoved(event: SelectionRemovedEvent): void {
+    const edgeIds = (event?.deletedEdges ?? []).map((edge) => edge.id);
+    const nodeIds = (event?.deletedNodes ?? []).map((node) => node.id);
+    if (edgeIds.length) this.applyCanvasMutation({ type: 'edges-removed', edgeIds });
+    if (nodeIds.length) this.applyCanvasMutation({ type: 'nodes-removed', nodeIds });
     this.elementsRemoved.emit();
+  }
+
+  /**
+   * Dispatches one canvas gesture's canonical document commands through the
+   * adapter (the only translator, §4.12) onto the document store. Guarded when
+   * the store/catalogue are not ready and when an optimistic connection is
+   * rejected: the canvas then silently keeps its gesture-local change out of
+   * the document (the reconcile drops it), keeping the seed/failed state visible.
+   */
+  private applyCanvasMutation(mutation: NgDiagramMutation): void {
+    const documentStore = this.documentStore;
+    const current = documentStore?.document();
+    const catalogue = this.catalogService?.reader();
+    if (!documentStore || !current || !catalogue) return;
+    try {
+      const commands = this.canvasAdapter.commandsForDiagramMutation(current, mutation, catalogue);
+      for (const command of commands) documentStore.dispatchCommand(command);
+    } catch (error) {
+      // Invalid optimistic connections stay canvas-local: the document keeps
+      // its pre-gesture shape so the next reconcile drops the rejected edge.
+      console.warn('[GraphRendererComponent] canvas mutation rejected', error);
+    }
   }
 
   togglePalette() {
@@ -334,65 +432,55 @@ export class GraphRendererComponent {
     this.paletteOpen.set(false);
   }
 
-  addNode(ctor: unknown) {
-    const diagram = this.model();
-    if (!diagram) return;
+  /**
+   * Adds a palette node through the canonical document pipeline (§4.4.4 §4.14):
+   * the manifest drives the built instance (id/defaults/label), the store
+   * dispatches `node.add`, the reconcile in the doc-driven effect renders it.
+   * No node constructor participates in the editor path.
+   */
+  addNode(entry: GraphPaletteEntry) {
+    const documentStore = this.documentStore;
+    if (!documentStore) return;
 
-    const existing = diagram.getNodes();
-    const count = existing.length;
-    const blueprint = buildMemberNode(ctor, count);
-    const uniqueId = `${blueprint.data.sourceClass}-${Date.now()}`;
-    const offset = count * 40;
-
-    // If a ghost parent is set, replace the ghost with the selected node
+    const existing = documentStore.document()?.nodes.length ?? 0;
+    const offset = existing * 40;
     const ghostParentId = ghostNodeStore.consume();
+    let position = { x: 420 + offset, y: 200 + offset };
+    let label = entry.title;
+
     if (ghostParentId) {
-      const ghostId = `ghost-${ghostParentId}`;
-      const ghostNode = existing.find((n: { id: string }) => n.id === ghostId);
-      const ghostPos = (ghostNode as { position?: { x: number; y: number } })?.position ?? { x: 420 + offset, y: 200 + offset };
-
-      const newNode = {
-        ...blueprint,
-        id: uniqueId,
-        position: ghostPos,
-      } as never;
-
-      const inputPort = blueprint.data.ports.find((p: { direction: string; property: string }) => p.direction === 'input');
-      const outputPort = blueprint.data.ports.find((p: { direction: string; property: string }) => p.direction === 'output');
-
-      // Remove ghost node + edges, add real node + new edges
-      diagram.updateNodes((nodes) =>
-        nodes.filter((n: { id: string }) => n.id !== ghostId).concat([newNode]) as never
-      );
-      diagram.updateEdges((edges) =>
-        edges
-          .filter((e: { id: string }) => e.id !== `edge-ghost-in-${ghostParentId}` && e.id !== `edge-ghost-out-${ghostParentId}`)
-          .concat([
-            { id: `edge-loop-in-${ghostParentId}-${uniqueId}`, source: ghostParentId, sourcePort: 'item', target: uniqueId, targetPort: inputPort?.property || 'value', data: { label: 'item', mandatory: true } } as never,
-            { id: `edge-loop-out-${ghostParentId}-${uniqueId}`, source: uniqueId, sourcePort: outputPort?.property || 'result', target: ghostParentId, targetPort: 'loop', data: { label: 'loop', mandatory: true } } as never,
-          ]) as never
-      );
-
-      this.paletteOpen.set(false);
-      return;
+      const ghostNode = this.model()?.getNodes().find((n: { id: string }) => n.id === `ghost-${ghostParentId}`);
+      position = (ghostNode as { position?: { x: number; y: number } })?.position ?? position;
+      label = `${entry.title} (${ghostParentId.startsWith('loop-') ? 'loop body' : 'materialized'})`;
     }
 
-    const newNode = {
-      ...blueprint,
-      id: uniqueId,
-      position: {
-        x: 420 + offset,
-        y: 200 + offset,
-      },
-    } as never;
+    const node = documentStore.addNodeFromManifest(entry.manifest, position, label);
 
-    diagram.updateNodes((nodes) => [...nodes, newNode] as never);
+    if (ghostParentId) {
+      const inputPort = (entry.manifest.inputs ?? [])[0]?.id ?? 'value';
+      const outputPort = (entry.manifest.outputs ?? [])[0]?.id ?? 'result';
+      documentStore.addEdge({
+        id: `${ghostParentId}:item->${node.id}:${inputPort}`,
+        type: 'data',
+        source: { scope: 'node', nodeId: ghostParentId, port: 'item' },
+        target: { scope: 'node', nodeId: node.id, port: inputPort },
+        label: 'item',
+        metadata: { mandatory: true },
+      });
+      documentStore.addEdge({
+        id: `${node.id}:${outputPort}->${ghostParentId}:loop`,
+        type: 'data',
+        source: { scope: 'node', nodeId: node.id, port: outputPort },
+        target: { scope: 'node', nodeId: ghostParentId, port: 'loop' },
+        label: 'loop',
+        metadata: { mandatory: true },
+      });
+    } else if (entry.kind === 'core.loop.foreach') {
+      // Foreach keeps the legacy ghost placeholder machinery (loop body add) so
+      // the added node immediately shows its loop-body ghost on canvas.
+      this.createForeachGhost(node.id);
+    }
     this.paletteOpen.set(false);
-
-    // If this is a foreach node, auto-create the mandatory ghost node + edges
-    if (blueprint.data.kind === 'core.loop.foreach') {
-      this.createForeachGhost(diagram, uniqueId);
-    }
   }
 
   /**
@@ -401,56 +489,40 @@ export class GraphRendererComponent {
    * opens the palette when clicked. The item→ghost→loop edges are
    * non-deletable.
    */
-  private createForeachGhost(diagram: ReturnType<typeof buildGraphRendererModel>, foreachId: string) {
-    const foreachNode = diagram.getNodes().find((n: { id: string }) => n.id === foreachId);
+  private createForeachGhost(foreachId: string) {
+    const documentStore = this.documentStore;
+    if (!documentStore) return;
+    const foreachNode = documentStore.document()?.nodes.find((node) => node.id === foreachId);
     if (!foreachNode) return;
-    const pos = (foreachNode as { position?: { x: number; y: number } }).position ?? { x: 0, y: 0 };
-    const size = (foreachNode as { size?: { width: number; height: number } }).size ?? { width: 120, height: 140 };
-
+    const pos = foreachNode.ui?.position ?? { x: 0, y: 0 };
+    const size = foreachNode.ui?.size ?? { width: 120, height: 140 };
+    const width = size.width ?? 120;
+    const height = size.height ?? 140;
     const ghostId = `ghost-${foreachId}`;
-    const ghostNode = {
+    const ghostPosition = { x: pos.x + width + 80, y: pos.y + height / 2 - 28 };
+    documentStore.addNode({
       id: ghostId,
-      type: 'graph.ghost',
-      position: {
-        x: pos.x + size.width + 80,
-        y: pos.y + size.height / 2 - 28,
-      },
-      size: { width: 56, height: 56 },
-      resizable: false,
-      draggable: true,
-      autoSize: false,
-      data: {
-        title: 'Add node',
-        description: 'Click + to add a node to the loop body',
-        kind: 'graph.ghost',
-        labels: [],
-        ports: [],
-        sourceClass: 'GraphGhostNode',
-        ghostParentId: foreachId,
-        isGhost: true,
-      },
-    } as never;
-
-    const edge1 = {
-      id: `edge-ghost-in-${foreachId}`,
-      source: foreachId,
-      sourcePort: 'item',
-      target: ghostId,
-      targetPort: 'in',
-      data: { label: 'item', mandatory: true },
-    } as never;
-
-    const edge2 = {
-      id: `edge-ghost-out-${foreachId}`,
-      source: ghostId,
-      sourcePort: 'out',
-      target: foreachId,
-      targetPort: 'loop',
-      data: { label: 'loop', mandatory: true },
-    } as never;
-
-    diagram.updateNodes((nodes) => [...nodes, ghostNode] as never);
-    diagram.updateEdges((edges) => [...edges, edge1, edge2] as never);
+      kind: 'graph.ghost',
+      label: 'Add node',
+      ui: { position: ghostPosition, size: { width: 56, height: 56 } },
+      parameters: { ghostParentId: foreachId },
+    });
+    documentStore.addEdge({
+      id: `${foreachId}:item->${ghostId}:in`,
+      type: 'data',
+      source: { scope: 'node', nodeId: foreachId, port: 'item' },
+      target: { scope: 'node', nodeId: ghostId, port: 'in' },
+      label: 'item',
+      metadata: { mandatory: true },
+    });
+    documentStore.addEdge({
+      id: `${ghostId}:out->${foreachId}:loop`,
+      type: 'data',
+      source: { scope: 'node', nodeId: ghostId, port: 'out' },
+      target: { scope: 'node', nodeId: foreachId, port: 'loop' },
+      label: 'loop',
+      metadata: { mandatory: true },
+    });
   }
 
   /**
@@ -526,7 +598,7 @@ export class GraphRendererComponent {
     }
   }
 
-  buildSnapshot(): GraphWorkflowSnapshot | null {
+  buildSnapshot(): LegacyGraphWorkflowSnapshot | null {
     const diagram = this.model();
     if (!diagram) return null;
     return buildGraphRendererSnapshot(
@@ -537,19 +609,107 @@ export class GraphRendererComponent {
     );
   }
 
-  restoreFromSnapshot(snapshot: GraphWorkflowSnapshot): void {
+  /**
+   * Document-driven canvas reconcile (§4.12): when the canonical document store
+   * owns a document, the canvas reconciles to its projection. While the store
+   * is still empty, the decorated-root legacy canvas builds once and seeds the
+   * store through the sanctioned lossless conversion (§4.11) so the demo graph
+   * always starts as a canonical document.
+   * The reconcile itself is version-gated: it runs at most once per store
+   * document version, so render-cycle re-firing of the underlying effects can
+   * never re-enter the reconcile loop.
+   */
+  private settleCanvasFromDocument(): void {
+    const documentStore = this.documentStore;
+    const document = documentStore?.document();
+    const version = documentStore?.version?.() ?? 0;
+    if (document && version <= this.reconciledVersion) return;
+    if (!document || !documentStore) {
+      const seedSnapshot = this.buildSnapshot();
+      if (!seedSnapshot || !documentStore || documentStore.document()) return;
+      const seeded = graphWorkflowDocumentFromLegacySnapshot(seedSnapshot);
+      documentStore.initialize(seeded);
+      return;
+    }
+    const catalogue = this.catalogService?.reader();
+    if (!catalogue) return;
+    // The fixture catalogue load is asynchronous: until every member kind is
+    // registered, the projection would throw and permanently freeze the canvas
+    // on its legacy seed. Defer and let the catalogue-ready effect retry.
+    const missingKinds = document.nodes.filter(
+      (node) => !isGraphNodeGhost(node) && !catalogue.get(node.kind)
+    );
+    if (missingKinds.length) return;
+    const restoredOptions = this.restoreOptions;
+    const previousModel = untracked(() => this.model());
+    const diagram = this.canvasAdapter.reconcile(
+      document,
+      previousModel,
+      catalogue,
+      this.injector,
+      restoredOptions ?? undefined
+    );
+    this.restoreOptions = null;
+    this.reconciledVersion = version;
+    this.skipNextModelSync = true;
+    this.model.set(diagram as never);
+  }
+
+  /**
+   * Reinstates a persisted canonical wrapper (`{ document, editor, metadata }`,
+   * §4.10): the loaded document replaces the store's current one, and the next
+   * reconcile applies the document positions/sizes/viewport verbatim
+   * (restore mode; 12-step E2E steps 6–7).
+   */
+  restoreFromDocument(saved: GraphWorkflowSnapshot): void {
+    const documentStore = this.documentStore;
+    if (!documentStore || !saved?.document) return;
+    documentStore.replace(saved.document);
+    const duplicateCounts = saved.editor?.duplicateCounts;
+    if (duplicateCounts) {
+      this.duplicateCounts.set({ ...duplicateCounts });
+    }
+    this.restoreOptions = { restore: true, applyViewport: !!saved.document.ui?.viewport };
+    this.settleCanvasFromDocument();
+  }
+
+  /**
+   * Restores an undo/redo history entry (legacy or canonical snapshot; §4.11):
+   * the canonical/legacy document converts into the doc store's replace path;
+   * legacy entries restore directly through the snapshot machinery.
+   */
+  restoreFromSnapshot(snapshot: LegacyGraphWorkflowSnapshot): void {
     const restored = buildGraphRendererStateFromSnapshot(this.workflowRootClass() as never, snapshot, this.injector);
+    const documentStore = this.documentStore;
+    if (documentStore) {
+      try {
+        documentStore.replace(graphWorkflowDocumentFromLegacySnapshot(snapshot));
+      } catch (error) {
+        console.warn('[GraphRendererComponent] undo snapshot document conversion skipped', error);
+      }
+    }
     this.skipNextModelSync = true;
     this.workflowInputValues.set(restored.inputValues);
     this.duplicateCounts.set(restored.duplicateCounts);
     this.model.set(restored.diagram as never);
   }
 
+  private setUpCanvasViewport(viewport: { x: number; y: number; zoom: number }) {
+    const diagram = this.model();
+    if (!diagram) return;
+    diagram.updateMetadata(
+      {
+        ...diagram.getMetadata(),
+        viewport: { x: viewport.x, y: viewport.y, scale: viewport.zoom },
+      } as never
+    );
+  }
+
   loadSnapshot() {
     const raw = this.snapshotJson().trim();
     if (!raw) return;
 
-    const snapshot = parseGraphRendererSnapshot(raw, this.workflowRootClass() as never) as GraphWorkflowSnapshot;
+    const snapshot = parseGraphRendererSnapshot(raw, this.workflowRootClass() as never) as LegacyGraphWorkflowSnapshot;
     const restored = buildGraphRendererStateFromSnapshot(this.workflowRootClass() as never, snapshot, this.injector);
 
     this.skipNextModelSync = true;

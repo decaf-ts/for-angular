@@ -13,10 +13,8 @@ export const DEMO_NODES: NodeInfo[] = [
   { id: 'input-count', title: 'count', kind: 'value', isBoundary: true },
   { id: 'input-text', title: 'text', kind: 'value', isBoundary: true },
   { id: 'SplitTextCodeNode', title: 'Split', kind: 'core.flow.code' },
-  { id: 'LineLengthSwitchNode', title: 'Switch', kind: 'core.flow.switch' },
-  { id: 'ShortLogNode', title: 'Log Short', kind: 'core.flow.log' },
-  { id: 'LongLogNode', title: 'Log Long', kind: 'core.flow.log' },
-  { id: 'DefaultLogNode', title: 'Log Default', kind: 'core.flow.log' },
+  { id: 'GraphForeachLoopNode', title: 'Foreach', kind: 'core.loop.foreach' },
+  { id: 'ResultLogNode', title: 'Log', kind: 'core.flow.log' },
 ];
 
 export async function gotoGraph(page: Page): Promise<void> {

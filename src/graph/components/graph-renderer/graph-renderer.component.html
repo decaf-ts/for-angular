@@ -3,13 +3,14 @@
     @if (model(); as graphModel) {
       <ng-diagram
         [model]="graphModel"
+        [config]="{ zoom: { zoomToFit: { onInit: true, padding: [16, 16, 16, 16] } } }"
         [nodeTemplateMap]="nodeTemplateMap"
         [edgeTemplateMap]="edgeTemplateMap"
         [middlewares]="middlewares"
         (selectionChanged)="onSelectionChanged($event)"
-        (nodeDragEnded)="onNodeDragEnded()"
-        (edgeDrawn)="onEdgeDrawn()"
-        (selectionRemoved)="onElementsRemoved()"
+        (nodeDragEnded)="onNodeDragEnded($event)"
+        (edgeDrawn)="onEdgeDrawn($event)"
+        (selectionRemoved)="onElementsRemoved($event)"
       >
         <ng-diagram-background type="dots" />
         <ng-diagram-minimap
@@ -51,7 +52,7 @@
                 <button
                   type="button"
                   class="graph-renderer__palette-item"
-                  (click)="addNode(entry.ctor)"
+                  (click)="addNode(entry)"
                 >
                   <span
                     class="graph-renderer__palette-icon"

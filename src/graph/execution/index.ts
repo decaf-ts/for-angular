@@ -5,12 +5,11 @@
  * event-to-state mapper, and the execution state stores. Besides the
  * node/edge state store, it exposes the run log store (`graphRunLog`) and the
  * node I/O inspection store (`graphInspection`) that back the DECAF-48 logs
- * widget and inspection panel, plus the node-config and node-selection stores.
+ * widget and inspection panel, plus the node-selection store.
  */
 export * from "./GraphExecutionService";
 export * from "./GraphExecutionStateMapper";
 export * from "./GraphExecutionStateService";
 export * from "./GraphInspectionStore";
-export * from "./GraphNodeConfigStore";
 export * from "./GraphRunLogStore";
 export * from "./GraphSelectionStore";

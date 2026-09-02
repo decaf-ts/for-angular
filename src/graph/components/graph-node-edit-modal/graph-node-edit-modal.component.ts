@@ -1,27 +1,113 @@
 import { Component, signal, computed, inject, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonInput } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonInput, IonTextarea, IonCheckbox } from '@ionic/angular/standalone';
 import {
-  graphDefinitionOf,
-  graphLeafPortsOf,
   PortDirection,
+  type GraphInputBinding,
+  type GraphJsonValue,
+  type GraphOutputBinding,
+  type GraphParameterDefinition,
   type GraphPortDefinition,
 } from '@decaf-ts/ui-decorators/graph';
-import { GraphPortFieldComponent, type GraphPortFieldConfig, type GraphPortFieldChange } from '../graph-port-field/graph-port-field.component';
+import type { GraphNodeInstance } from '@decaf-ts/ui-decorators/graph';
+import {
+  GraphPortFieldComponent,
+  type GraphPortFieldChange,
+  type GraphPortFieldConfig,
+} from '../graph-port-field/graph-port-field.component';
+import type { GraphDemoNodeData, GraphRendererNodeData } from '../../types';
 
+/**
+ * Document-native edit result (§4.4.4/§4.4.5): port bindings, non-port
+ * parameters and instance metadata are the node instance's own state; the
+ * modal returns the exact patch the caller dispatches to
+ * `GraphWorkflowDocumentStore.updateNode` — no config store leg remains.
+ */
 export interface GraphNodeEditResult {
   nodeId: string;
-  values: Record<string, unknown>;
-  portModes: Record<string, 'port' | 'value'>;
-  outputSplits: string[];
-  metadata?: Record<string, unknown>;
+  inputBindings: Record<string, GraphInputBinding>;
+  outputBindings: Record<string, GraphOutputBinding>;
+  parameters: Record<string, GraphJsonValue>;
+  metadata?: Record<string, GraphJsonValue>;
 }
 
+/** Control configuration for one modal parameter row: id, label, control type, and current control value. */
+export interface GraphParameterFieldConfig {
+  id: string;
+  label: string;
+  /** 'boolean' → checkbox; 'textinput' → ion-input; 'textbox'/'valuetextarea' → textarea. */
+  parameterType: 'boolean' | 'textinput' | 'textbox' | 'valuetextarea';
+  value: string | boolean;
+}
+
+function graphParameterControlTypeOf(param: GraphParameterDefinition): GraphParameterFieldConfig['parameterType'] {
+  if (param.type === 'boolean') return 'boolean';
+  if (param.type === 'string' && (param.type === 'string' ? (param as { multiline?: boolean }).multiline : false)) {
+    return 'textbox';
+  }
+  if (param.type === 'string' || param.type === 'number') return 'textinput';
+  return 'valuetextarea';
+}
+
+/**
+ * Renders one parameter into the row control value: strings pass through,
+ * numbers/booleans stringify, non-JSON-safe values serialize as JSON and
+ * missing values fall back to the manifest's `defaultValue`.
+ */
+function graphParameterValueControlOf(param: GraphParameterDefinition, value: unknown): string | boolean {
+  if (param.type === 'boolean') return value === true || value === 'true';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (value === undefined || value === null) {
+    const { defaultValue } = param as { defaultValue?: unknown };
+    return defaultValue === undefined || defaultValue === null ? '' : String(defaultValue);
+  }
+  return JSON.stringify(value) ?? '';
+}
+
+/**
+ * Parses one row into the canonical parameter value: numbers parse numerically,
+ * booleans are booleans, JSON-shaped values parse as JSON (falling back to the
+ * raw string when the row is not valid JSON), and everything else keeps the
+ * string the row carried.
+ */
+function graphParameterValueOf(
+  param: GraphParameterDefinition | undefined,
+  parameterId: string,
+  raw: string
+): GraphJsonValue {
+  void parameterId;
+  switch (param?.type) {
+    case 'boolean':
+      return raw === 'true';
+    case 'number': {
+      const numeric = Number(raw);
+      return Number.isFinite(numeric) ? numeric : raw;
+    }
+    case 'collection':
+    case 'object': {
+      if (!raw.trim()) return param.defaultValue ?? '';
+      try {
+        return JSON.parse(raw) as GraphJsonValue;
+      } catch {
+        return raw;
+      }
+    }
+    default:
+      return raw;
+  }
+}
+
+/**
+ * Node edit modal: edits a node instance's parameters and ports against its
+ * manifest — legacy node data and canonical instances are both accepted —
+ * and returns the edited instance to the caller on save.
+ */
 @Component({
   selector: 'app-graph-node-edit-modal',
   standalone: true,
   imports: [
-    IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonInput,
+    IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonInput, IonTextarea, IonCheckbox,
     GraphPortFieldComponent,
   ],
   templateUrl: './graph-node-edit-modal.component.html',
@@ -29,21 +115,21 @@ export interface GraphNodeEditResult {
 })
 export class GraphNodeEditModalComponent implements OnInit {
   @Input() nodeTitle = '';
-  @Input() modelClass: unknown;
   @Input() nodeId = '';
-  @Input() initialValues: Record<string, unknown> = {};
-  @Input() initialPortModes: Record<string, 'port' | 'value'> = {};
-  @Input() initialMetadata: Record<string, unknown> = {};
+  @Input() nodeData: (GraphDemoNodeData | GraphRendererNodeData) | null = null;
+  @Input() nodeInstance: GraphNodeInstance | null = null;
+  /** Manifest-level node parameter definitions (non-port parameter rows). */
+  @Input() parameterDefs: GraphParameterDefinition[] = [];
 
   private readonly modalCtrl = inject(ModalController);
 
   readonly _ports = signal<GraphPortDefinition[]>([]);
   readonly _values = signal<Record<string, unknown>>({});
   readonly _portModes = signal<Record<string, 'port' | 'value'>>({});
-  readonly _outputSplits = signal<string[]>([]);
+  readonly _parameters = signal<Record<string, unknown>>({});
   readonly _metadata = signal<Record<string, unknown>>({});
 
-  readonly ports = this._ports.asReadonly();
+  readonly portsLive = this._ports.asReadonly();
   readonly inputPorts = computed(() => this._ports().filter((p) => p.direction === PortDirection.INPUT && !p.hidden));
   readonly outputPorts = computed(() => this._ports().filter((p) => p.direction === PortDirection.OUTPUT && !p.hidden));
 
@@ -61,12 +147,39 @@ export class GraphNodeEditModalComponent implements OnInit {
       }));
   });
 
-  readonly isCodeNode = computed(() => {
-    const cls = this.modelClass as { prototype?: { constructor?: { name?: string } } } | undefined;
-    if (!cls) return false;
-    const def = graphDefinitionOf(cls as never);
-    return def.kind === 'core.flow.code';
+  readonly editableParameterIds = computed<Set<string>>(
+    () => new Set(this.parameterDefs.map((param) => param.id))
+  );
+
+  /** Manifest-level editable row model for one parameter (§4.4.4). */
+  readonly parameterFields = computed<GraphParameterFieldConfig[]>(() => {
+    const parameters = this._parameters();
+    return this.parameterDefs
+      .filter((param) => param.type !== 'hidden')
+      .map((param) => ({
+        id: param.id,
+        label: param.label,
+        parameterType: graphParameterControlTypeOf(param),
+        value: graphParameterValueControlOf(param, parameters[param.id]),
+      }))
+      .sort((left, right) => left.id.localeCompare(right.id));
   });
+
+  readonly hasEditableParameters = computed(() => this.parameterFields().length > 0);
+
+  isEditableParameter(property: string): boolean {
+    return this.editableParameterIds().has(property);
+  }
+
+  parameterById(parameterId: string): GraphParameterDefinition | undefined {
+    return this.parameterDefs.find((param) => param.id === parameterId);
+  }
+
+  onParameterChange(parameterId: string, parameter: GraphParameterDefinition | undefined, raw: string): void {
+    const value = graphParameterValueOf(parameter, parameterId, raw);
+    this._parameters.update((parameters) => ({ ...parameters, [parameterId]: value }));
+  }
+  readonly isCodeNode = computed(() => this.nodeData?.kind === 'core.flow.code');
 
   readonly codeTimeoutMs = computed(() => Number(this._metadata()['timeoutMs'] ?? 1000));
 
@@ -80,22 +193,34 @@ export class GraphNodeEditModalComponent implements OnInit {
   readonly codeValidationWarnings = signal<string[]>([]);
 
   ngOnInit() {
-    const cls = this.modelClass;
-    if (typeof cls === 'function') {
-      this._ports.set(graphLeafPortsOf(graphDefinitionOf(cls as never).ports));
-    }
-    this._values.set({ ...this.initialValues });
-    this._portModes.set({ ...this.initialPortModes });
-    this._metadata.set({ ...this.initialMetadata });
-
-    if (this.isCodeNode()) {
-      const def = typeof cls === 'function' ? graphDefinitionOf(cls as never) : null;
-      const defMeta = (def?.graph?.metadata ?? {}) as Record<string, unknown>;
-      if (!this._values()['code'] && typeof defMeta['defaultCode'] === 'string') {
-        this._values.update((v) => ({ ...v, code: defMeta['defaultCode'] }));
+    this._ports.set([...(this.nodeData?.ports ?? [])]);
+    this._parameters.set({ ...(this.nodeInstance?.parameters ?? {}) });
+    this._metadata.set({ ...(this.nodeInstance?.metadata ?? {}) });
+    for (const [portId, binding] of Object.entries(this.nodeInstance?.inputBindings ?? {})) {
+      this._portModes.update((modes) => ({
+        ...modes,
+        [portId]: binding?.mode === 'edge' ? 'port' : 'value',
+      }));
+      if (binding?.mode === 'literal' && typeof binding === 'object' && 'value' in (binding as object)) {
+        const literal = (binding as unknown as { value?: unknown }).value;
+        if (literal === undefined) continue;
+        this._values.update((values) => ({ ...values, [portId]: literal as never }));
       }
-      if (this._metadata()['timeoutMs'] === undefined && defMeta['timeoutMs'] !== undefined) {
-        this._metadata.update((m) => ({ ...m, timeoutMs: defMeta['timeoutMs'] }));
+      if (binding?.mode === 'expression') {
+        const expression = (binding as unknown as { expression?: unknown }).expression;
+        if (expression === undefined) continue;
+        this._values.update((values) => ({ ...values, [portId]: String(expression) }));
+      }
+    }
+    if (this.isCodeNode()) {
+      const nodeParameters = (this.nodeInstance?.parameters ?? {}) as Record<string, unknown>;
+      const codeValue = nodeParameters['code'];
+      if (typeof codeValue === 'string' && codeValue.trim()) {
+        this._values.update((values) => ({ ...values, code: codeValue }));
+      }
+      const nodeMetadata = (this.nodeInstance?.metadata ?? {}) as Record<string, unknown>;
+      if (nodeMetadata['timeoutMs'] !== undefined) {
+        this._metadata.update((metadata) => ({ ...metadata, timeoutMs: nodeMetadata['timeoutMs'] }));
       }
     }
   }
@@ -106,11 +231,6 @@ export class GraphNodeEditModalComponent implements OnInit {
       ...m,
       [change.property]: change.useAsPort ? 'port' : 'value',
     }));
-    if (change.useAsPort && !this._outputSplits().includes(change.property)) {
-      if (this.outputPorts().some((p) => p.property === change.property)) {
-        this._outputSplits.update((s) => [...s, change.property]);
-      }
-    }
   }
 
   onTimeoutChange(value: string) {
@@ -159,13 +279,42 @@ export class GraphNodeEditModalComponent implements OnInit {
     if (this.isCodeNode() && !this.validateCode()) {
       return;
     }
-
+    const inputBindings: Record<string, GraphInputBinding> = {};
+    for (const port of this.inputPorts()) {
+      const portId = port.path || port.property;
+      if (!portId) continue;
+      const mode = this._portModes()[portId];
+      if (mode === 'port') {
+        inputBindings[portId] = { mode: 'edge' };
+        continue;
+      }
+      const raw = this._values()[portId];
+      if (raw === undefined || raw === null || (typeof raw === 'string' && raw === '')) continue;
+      inputBindings[portId] = { mode: 'literal', value: raw as GraphJsonValue };
+    }
+    // Non-port parameter rows commit their edited literals onto the node's
+    // `inputBindings` map as literal bindings (mode:'literal', value) so the
+    // canonical document carries them on the binding surface; the value also
+    // stays in `parameters` for the executor's own configuration read.
+    for (const parameter of this.parameterDefs) {
+      if (parameter.type === 'hidden') continue;
+      const edited = this._parameters()[parameter.id];
+      if (edited === undefined) continue;
+      inputBindings[parameter.id] = { mode: 'literal', value: edited as GraphJsonValue };
+    }
+    const outputBindings: Record<string, GraphOutputBinding> = {};
+    const parameters: Record<string, GraphJsonValue> = { ...this._parameters() } as never;
+    const codeValue = this._values()['code'];
+    if (this.isCodeNode() && typeof codeValue === 'string' && codeValue.trim()) {
+      parameters['code'] = codeValue;
+    }
+    const metadata = { ...this._metadata() };
     const result: GraphNodeEditResult = {
       nodeId: this.nodeId,
-      values: this._values(),
-      portModes: this._portModes(),
-      outputSplits: this._outputSplits(),
-      metadata: Object.keys(this._metadata()).length ? this._metadata() : undefined,
+      inputBindings,
+      outputBindings,
+      parameters,
+      ...(Object.keys(metadata).length ? { metadata: metadata as Record<string, GraphJsonValue> } : {}),
     };
     this.modalCtrl.dismiss(result, 'confirm');
   }

@@ -10,7 +10,7 @@
     <app-graph-renderer
       [graphRoot]="workflowRoot"
       [outputs]="lastResult()"
-      [availableNodes]="availableNodes"
+      [availableNodes]="availableNodes()"
       (nodeDragEnded)="onNodeDragEnded()"
       (edgeDrawn)="onEdgeDrawn()"
       (elementsRemoved)="onElementsRemoved()"

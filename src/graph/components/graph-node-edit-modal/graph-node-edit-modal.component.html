@@ -66,6 +66,41 @@
       </section>
     }
 
+    @if (hasEditableParameters()) {
+      <section class="graph-node-edit-modal__section">
+        <h3>Parameters</h3>
+        <p class="graph-node-edit-modal__hint">
+          Non-port parameters of the node definition, edited on the instance.
+        </p>
+        @for (field of parameterFields(); track field.id) {
+          <div class="graph-node-edit-modal__param-row">
+            <label [for]="'graph-node-param-' + field.id">{{ field.label }}</label>
+            @if (field.parameterType === 'boolean') {
+              <ion-checkbox
+                [id]="'graph-node-param-' + field.id"
+                [checked]="field.value === true"
+                (ionChange)="onParameterChange(field.id, parameterById(field.id), $any($event.detail.checked) ? 'true' : 'false')"
+              ></ion-checkbox>
+            } @else if (field.parameterType === 'textinput') {
+              <ion-input
+                [id]="'graph-node-param-' + field.id"
+                [value]="field.value"
+                (ionInput)="onParameterChange(field.id, parameterById(field.id), $any($event.target).value)"
+              ></ion-input>
+            } @else {
+              <ion-textarea
+                [id]="'graph-node-param-' + field.id"
+                [value]="field.value"
+                (ionInput)="onParameterChange(field.id, parameterById(field.id), $any($event.target).value)"
+                [rows]="2"
+                [autoGrow]="true"
+              ></ion-textarea>
+            }
+          </div>
+        }
+      </section>
+    }
+
     @if (hasEditableOutputs()) {
       <section class="graph-node-edit-modal__section">
         <h3>Outputs</h3>

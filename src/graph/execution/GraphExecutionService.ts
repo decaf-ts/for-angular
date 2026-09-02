@@ -18,6 +18,8 @@ import type { GraphNodeInspectionPayload, GraphVisualState } from "@decaf-ts/int
 import { ServerEventConnector } from "@decaf-ts/for-http";
 import type { GraphExecutionEvent } from "@decaf-ts/integrations/graph/shared";
 import { graphDefinitionOf, type GraphWorkflowDefinition } from "@decaf-ts/ui-decorators/graph";
+import type { GraphWorkflowDocument } from "@decaf-ts/ui-decorators/graph";
+import { InternalError } from "@decaf-ts/db-decorators";
 
 /**
  * Injection token for the base URL of the NestJS backend that hosts the graph
@@ -207,6 +209,62 @@ export class GraphExecutionService {
     this.lastRunId.set(result.runId);
 
     // Stream events for this run over SSE.
+    this.streamEvents(result.runId);
+
+    return { status: result.status, outputs: result.outputs };
+  }
+
+  /**
+   * Executes a canonical {@link GraphWorkflowDocument} through the deprecated
+   * (kept, not removed) `POST /graph/execute` endpoint — DECAF-50 §4.16
+   * cutover: the legacy wire accepts canonical documents only. Same wire as
+   * the legacy `execute` path otherwise (legacy global SSE, run-id keyed
+   * legacy result store, synchronous wait).
+   *
+   * @throws {GraphBackendUnavailableError} when the backend is unreachable.
+   * @throws {Error} when the backend rejects the request (e.g. a non-canonical
+   *                 document shape per §4.16).
+   */
+  async executeDocument(
+    workflow: GraphWorkflowDocument,
+    inputs: Record<string, unknown>,
+  ): Promise<{ status: string; outputs: Record<string, unknown> }> {
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}/graph/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workflow, inputs }),
+        credentials: "include",
+        signal: AbortSignal.timeout(10000),
+      });
+    } catch (err) {
+      this.backendAvailable.set(false);
+      throw new GraphBackendUnavailableError(
+        err instanceof Error && err.name === "TimeoutError"
+          ? "Graph backend did not respond within 10 seconds. Is it running?"
+          : "Graph backend is not running. Start it with `npm run start:backend`.",
+      );
+    }
+
+    this.backendAvailable.set(true);
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => response.statusText);
+      throw new InternalError(
+        `Graph execution request failed: ${response.status} ${text}`,
+      );
+    }
+
+    const result = (await response.json()) as GraphExecuteResponse;
+    if (!result?.runId) {
+      throw new InternalError(
+        "Graph execution response is missing a run id; legacy payload is out of contract.",
+      );
+    }
+    this.lastRunId.set(result.runId);
+
+    // Stream events for this run over the deprecated global SSE path.
     this.streamEvents(result.runId);
 
     return { status: result.status, outputs: result.outputs };

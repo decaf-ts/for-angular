@@ -1,9 +1,16 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { GRAPH_HISTORY_LIMIT } from '../tokens/graph-configuration.tokens';
-import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import type {
+  GraphWorkflowSnapshot,
+  LegacyGraphWorkflowSnapshot,
+} from '@decaf-ts/ui-decorators/graph';
 
+/** A history checkpoint: either a legacy canvas snapshot or a canonical snapshot wrapper. */
+export type GraphHistorySnapshot = LegacyGraphWorkflowSnapshot | GraphWorkflowSnapshot;
+
+/** One undo/redo entry: the checkpointed snapshot with a change label and timestamp. */
 export interface GraphHistoryEntry {
-  snapshot: GraphWorkflowSnapshot;
+  snapshot: GraphHistorySnapshot;
   label: string;
   timestamp: number;
 }
@@ -13,6 +20,11 @@ interface WorkflowHistory {
   cursor: number;
 }
 
+/**
+ * Per-workflow undo/redo history: keeps bounded snapshot checkpoints with a
+ * cursor, and exposes `canUndo`/`canRedo` signals for the toolbar. Supports
+ * both legacy and canonical snapshot forms.
+ */
 @Injectable({ providedIn: 'root' })
 export class GraphHistoryService {
   private readonly limit = inject(GRAPH_HISTORY_LIMIT);
@@ -37,7 +49,7 @@ export class GraphHistoryService {
     this.activeWorkflowId.set(workflowId);
   }
 
-  push(workflowId: string, snapshot: GraphWorkflowSnapshot, label = 'change'): void {
+  push(workflowId: string, snapshot: GraphHistorySnapshot, label = 'change'): void {
     let h = this.histories.get(workflowId);
     if (!h) {
       h = { entries: [], cursor: -1 };
@@ -106,7 +118,7 @@ export class GraphHistoryService {
     throw new Error('setLimit not supported when limit is injected via GRAPH_HISTORY_LIMIT token');
   }
 
-  private cloneSnapshot(snapshot: GraphWorkflowSnapshot): GraphWorkflowSnapshot {
+  private cloneSnapshot(snapshot: GraphHistorySnapshot): GraphHistorySnapshot {
     if (typeof globalThis.structuredClone === 'function') {
       try {
         return globalThis.structuredClone(snapshot);
@@ -114,6 +126,6 @@ export class GraphHistoryService {
         // fall through
       }
     }
-    return JSON.parse(JSON.stringify(snapshot)) as GraphWorkflowSnapshot;
+    return JSON.parse(JSON.stringify(snapshot)) as GraphHistorySnapshot;
   }
 }

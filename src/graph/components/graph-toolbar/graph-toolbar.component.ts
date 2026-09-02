@@ -13,8 +13,21 @@ import { GraphHistoryService } from '../../services/GraphHistoryService';
 import { GraphSaveService } from '../../services/GraphSaveService';
 import { GraphAutoSaveService } from '../../services/GraphAutoSaveService';
 import { GraphKeyboardShortcutsService } from '../../services/GraphKeyboardShortcutsService';
-import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import type {
+  GraphWorkflowSnapshot,
+  LegacyGraphWorkflowSnapshot,
+} from '@decaf-ts/ui-decorators/graph';
 
+/** Snapshot form the toolbar hands to its restore callback: legacy canvas snapshot or canonical wrapper. */
+export type GraphToolbarRestoreSnapshot =
+  | LegacyGraphWorkflowSnapshot
+  | GraphWorkflowSnapshot;
+
+/**
+ * Graph editor toolbar: run/autosave toggles plus undo/redo/save controls,
+ * wired to the history, save, autosave, and keyboard-shortcut services and
+ * emitting restore requests for undo/redo.
+ */
 @Component({
   selector: 'app-graph-toolbar',
   standalone: true,
@@ -33,7 +46,7 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
   readonly isRunning = input<boolean>(false);
   readonly runWorkflow = output<void>();
   readonly saveWorkflow = output<void>();
-  readonly restoreSnapshot = output<GraphWorkflowSnapshot>();
+  readonly restoreSnapshot = output<GraphToolbarRestoreSnapshot>();
 
   readonly autoSaveEnabled = this.autoSave.enabled;
   readonly isSaving = this.saveService.saving;

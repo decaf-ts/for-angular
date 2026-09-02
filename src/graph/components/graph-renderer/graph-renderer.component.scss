@@ -40,12 +40,12 @@
 
 .graph-renderer__side--inputs {
   left: 0;
-  width: min(360px, 30vw);
+  width: min(280px, 22vw);
 }
 
 .graph-renderer__side--outputs {
   right: 0;
-  width: min(320px, 26vw);
+  width: min(280px, 22vw);
 }
 
 .graph-renderer__side > * {
@@ -289,6 +289,9 @@
   z-index: 1;
   min-height: 100vh;
   overflow: hidden;
+  /* Keep the working area clear of the absolutely positioned input/output rails */
+  margin-left: min(280px, 22vw);
+  margin-right: min(280px, 22vw);
   padding: 0;
   border-radius: 28px;
   background:
@@ -313,7 +316,10 @@
 
 .graph-renderer__palette {
   position: absolute;
-  top: 1rem;
+  /* Sits below the floating toolbar's top strip (undo/redo + auto-save/save/start
+     own top: 1rem between the two side panels) so their hit targets never cover
+     the palette button. */
+  top: 4rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -463,6 +469,8 @@
     inset: auto;
     width: 100%;
     min-height: auto;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .graph-renderer__side--inputs,
