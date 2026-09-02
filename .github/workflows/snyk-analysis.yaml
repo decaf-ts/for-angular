@@ -1,12 +1,11 @@
 name: "Snyk Analysis"
+
+# Snyk enforcement happens at RELEASE time: the shared release-on-tag workflow
+# runs the snyk release gate (severity-threshold=high) before creating the
+# GitHub Release. This standalone workflow is kept for manual/on-demand scans.
+# Thin caller of decaf-ts/reusable-actions/.github/workflows/snyk-analysis.yaml.
+
 on:
-  push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-      - '!*-alpha'
-      - '!*-no-ci'
-  pull_request:
-    branches: ["master"]
   workflow_dispatch:
 
 permissions:
@@ -16,5 +15,5 @@ permissions:
 
 jobs:
   security:
-    uses: decaf-ts/reusable-actions/.github/workflows/snyk-analysis.yaml@main
+    uses: decaf-ts/reusable-actions/.github/workflows/snyk-analysis.yaml@master
     secrets: inherit

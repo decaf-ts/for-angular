@@ -57,6 +57,7 @@
     "storybook": "ng run for-angular:storybook --debug-webpack",
     "storybook:build": "ng run for-angular:build-storybook",
     "test:single": "jest --runInBand --passWithNoTests src/lib/components/searchbar/searchbar.component.spec.ts",
+    "prepare-it-tests": "echo \"prepare-it-tests: no infra to boot\"",
     "pwa": "npx rimraf .angular && npm run build:prod && npx http-server www -p 8110"
   },
   "author": "Tiago Venceslau and Contributors",

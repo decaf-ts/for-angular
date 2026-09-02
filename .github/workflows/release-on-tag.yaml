@@ -1,5 +1,10 @@
 name: "Release on Tag"
 
+# Triggered by the tag pushed from release-on-merge-pr.yml. Runs the snyk +
+# trivy release gates, then creates a GitHub Release, which in turn triggers
+# publish-on-release (npm publish). A failing gate blocks the release.
+# Thin caller of decaf-ts/reusable-actions/.github/workflows/release-on-tag.yaml.
+
 on:
   push:
     tags:
@@ -10,5 +15,8 @@ on:
 
 jobs:
   deploy:
-    uses: decaf-ts/reusable-actions/.github/workflows/release-on-tag.yaml@main
+    uses: decaf-ts/reusable-actions/.github/workflows/release-on-tag.yaml@master
+    permissions:
+      contents: write
+      security-events: write
     secrets: inherit
