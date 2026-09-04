@@ -173,8 +173,6 @@ fi
 
 npm version "$TAG" -m "$MESSAGE"
 
-GIT_USER=$(git config user.name)
-
 REMOTE_URL=$(git remote get-url origin)
 
 # for-angular publishes an ng-packagr build (dist/lib has its own package.json); the
@@ -188,8 +186,19 @@ if [[ -s .token ]]; then
   CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
   UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || true)
 
-  # Push using token; omit -u to avoid changing upstream
-  git push "https://${GIT_USER}:$(cat .token)@${REMOTE_URL#https://}" --follow-tags
+  # Push using token; omit -u to avoid changing upstream.
+  # Strip any embedded credentials from the configured origin before
+  # injecting the release token. Some local setups leave origin already
+  # rewritten as https://user:token@github.com/..., which breaks curl
+  # if we prepend auth a second time.
+  PUSH_TARGET="$REMOTE_URL"
+  if [[ "$PUSH_TARGET" == http://* || "$PUSH_TARGET" == https://* ]]; then
+    PUSH_TARGET="${PUSH_TARGET#*://}"
+    PUSH_TARGET="${PUSH_TARGET#*@}"
+    git push "https://x-access-token:$(tr -d '\r\n' < .token)@${PUSH_TARGET}" --follow-tags
+  else
+    git push --follow-tags
+  fi
   # Restore upstream tracking if it existed
   if [[ -n "$UPSTREAM" ]]; then
     git branch --set-upstream-to="$UPSTREAM" "$CURRENT_BRANCH" 2>/dev/null || true
@@ -212,7 +221,13 @@ if [[ "$TAG" == "prerelease" ]]; then
 fi
 
 if message_has_skip_ci "$MESSAGE"; then
-  # Use .npmtoken for publishing; respect chosen access level and dist-tag. Published
-  # from dist/lib (the ng-packagr build output), not the repo root.
-  NPM_TOKEN=$(cat .npmtoken) npm publish ./dist/lib --access "$NPM_ACCESS_VALUE" "${NPM_PUBLISH_TAG_ARGS[@]}"
+  # Use .npmtoken for non-interactive publishing by default.
+  # Set NPM_PUBLISH_INTERACTIVE=0 to force token-based publishing and let npm
+  # use its interactive auth flow instead. Published from dist/lib
+  # (the ng-packagr build output), not the repo root.
+  if [[ "${NPM_PUBLISH_INTERACTIVE:-1}" != "0" ]]; then
+    npm publish ./dist/lib --access "$NPM_ACCESS_VALUE" "${NPM_PUBLISH_TAG_ARGS[@]}"
+  else
+    NPM_TOKEN=$(tr -d '\r\n' < .npmtoken) npm publish ./dist/lib --access "$NPM_ACCESS_VALUE" "${NPM_PUBLISH_TAG_ARGS[@]}"
+  fi
 fi
