@@ -1,20 +1,30 @@
-name: Renovate
+name: "Renovate (on-demand)"
+
+# Thin caller of decaf-ts/reusable-actions/.github/workflows/renovate.yml.
+# Triggers:
+#   - workflow_dispatch: manual / forced renovate run
+#   - repository_dispatch (renovate-trigger, renovate-dep-trigger): fired by the
+#     release gates / weekly trivy dep pass when vulns / dep updates are found.
 
 on:
+  workflow_dispatch:
+    inputs:
+      pr-strategy:
+        description: "overrides | bump-dependents | both"
+        required: false
+        default: "bump-dependents"
+      clear-stale-overrides:
+        description: "Remove package.json overrides that no longer match a known vuln (weekly dep run)."
+        required: false
+        default: false
   repository_dispatch:
-    types: [renovate-trigger]
+    types: [renovate-trigger, renovate-dep-trigger]
 
 jobs:
   renovate:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Run Renovate
-        uses: renovatebot/github-action@v46.1.14
-        with:
-          configurationFile: renovate.json
-        env:
-          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
-          RENOVATE_REPOSITORIES: ${{ github.repository}}
+    uses: decaf-ts/reusable-actions/.github/workflows/renovate.yml@master
+    with:
+      pr-strategy: ${{ inputs.pr-strategy || 'bump-dependents' }}
+      clear-stale-overrides: ${{ github.event.action == 'renovate-dep-trigger' }}
+      renovate-config-file: renovate.json
+    secrets: inherit

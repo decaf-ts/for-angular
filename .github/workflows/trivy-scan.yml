@@ -1,51 +1,35 @@
-name: Trivy Security Scan
+name: "Trivy Security Scan"
+
+# Security scanning is enforced at RELEASE time: the shared release-on-tag
+# workflow runs the trivy release gate before creating the GitHub Release.
+# This standalone workflow is kept only for the weekly dependency-update pass
+# (which drives the weekly renovate dep run) and manual diagnostics.
+# Thin caller of decaf-ts/reusable-actions/.github/workflows/trivy-scan.yml.
+
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 9 * * *'
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
+    # Weekly dependency-update pass (Monday 02:00 UTC).
+    - cron: "0 2 * * 1"
 
 jobs:
-  trivy-scan:
-    name: Trivy Vulnerability Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  vuln:
+    name: Trivy vuln scan
+    if: github.event_name != 'schedule'
+    uses: decaf-ts/reusable-actions/.github/workflows/trivy-scan.yml@master
+    with:
+      scan-type: vuln
+      severity: HIGH,CRITICAL
+      ignore-unfixed: true
+      exit-code: "0"
+      upload-artifact: true
+    secrets: inherit
 
-      - name: Generate Trivy Vulnerability Report
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          scan-type: "fs"
-          output: trivy-report.json
-          format: json
-          scan-ref: .
-          exit-code: 0
-
-      - name: Upload Vulnerability Scan Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-report
-          path: trivy-report.json
-          retention-days: 30
-
-      - name: Check vulnerabilities
-        id: check
-        run: |
-          COUNT=$(jq '[.Results[]?.Vulnerabilities[]?] | length' trivy-report.json)
-          if [ "$COUNT" -gt 0 ]; then
-            echo "vulnerabilities=true" >> $GITHUB_OUTPUT
-          else
-            echo "vulnerabilities=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Trigger Renovate
-        if: steps.check.outputs.vulnerabilities == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          gh api repos/${{ github.repository }}/dispatches \
-            -f event_type=renovate-trigger
+  dep:
+    name: Trivy dep scan
+    if: github.event_name == 'schedule'
+    uses: decaf-ts/reusable-actions/.github/workflows/trivy-scan.yml@master
+    with:
+      scan-type: dep
+      upload-artifact: true
+    secrets: inherit

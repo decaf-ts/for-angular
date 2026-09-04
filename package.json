@@ -28,6 +28,7 @@
     "test:all": "jest --runInBand --passWithNoTests",
     "test:components": "jest --runInBand --passWithNoTests src/lib/components",
     "test:services": "jest --runInBand --passWithNoTests src/lib/services",
+    "prepare-it-tests": "echo \"prepare-it-tests: no infra to boot\"",
     "lint": "ng lint for-angular",
     "lint-fix": "ng lint --fix",
     "coverage": "npx rimraf ./workdocs/reports/data/*.json && npm run test:all -- --coverage --config=./workdocs/reports/jest.coverage.config.ts",
