@@ -2,11 +2,17 @@ name: "Snyk Analysis"
 
 # Snyk enforcement happens at RELEASE time: the shared release-on-tag workflow
 # runs the snyk release gate (severity-threshold=high) before creating the
-# GitHub Release. This standalone workflow is kept for manual/on-demand scans.
+# GitHub Release. This standalone workflow is kept for manual/on-demand scans,
+# triggerable from the Actions UI with the input below.
 # Thin caller of decaf-ts/reusable-actions/.github/workflows/snyk-analysis.yaml.
 
 on:
   workflow_dispatch:
+    inputs:
+      args:
+        description: "Extra snyk arguments (e.g. --severity-threshold=high). SARIF output is always enabled."
+        required: false
+        default: ""
 
 permissions:
   actions: read
@@ -16,4 +22,6 @@ permissions:
 jobs:
   security:
     uses: decaf-ts/reusable-actions/.github/workflows/snyk-analysis.yaml@master
+    with:
+      args: ${{ inputs.args }}
     secrets: inherit

@@ -2,34 +2,52 @@ name: "Trivy Security Scan"
 
 # Security scanning is enforced at RELEASE time: the shared release-on-tag
 # workflow runs the trivy release gate before creating the GitHub Release.
-# This standalone workflow is kept only for the weekly dependency-update pass
-# (which drives the weekly renovate dep run) and manual diagnostics.
+# This standalone workflow runs the weekly dependency-update pass (which
+# drives the weekly renovate dep run) and is triggerable on demand from the
+# Actions UI with the inputs below.
 # Thin caller of decaf-ts/reusable-actions/.github/workflows/trivy-scan.yml.
 
 on:
   workflow_dispatch:
+    inputs:
+      scan-type:
+        description: "vuln = vulnerability scan (severity-filtered, upload JSON artifact, report/fail on found vulns and dispatch renovate on findings); dep = dependency-update pass that drives the weekly renovate path."
+        required: false
+        default: "vuln"
+      severity:
+        description: "Comma-separated Trivy severity filter applied to the vuln scan (e.g. HIGH,CRITICAL)."
+        required: false
+        default: "HIGH,CRITICAL"
+      ignore-unfixed:
+        description: "Ignore vulnerabilities that do not have a known fix."
+        type: boolean
+        required: false
+        default: true
+      exit-code:
+        description: "Trivy exit-code when vulnerabilities are found during a vuln scan (0 = report only, 1 = fail the job)."
+        required: false
+        default: "0"
+      upload-artifact:
+        description: "Upload the generated trivy-report.json as a workflow artifact."
+        type: boolean
+        required: false
+        default: true
+      target-branch:
+        description: "Branch to check out and scan."
+        required: false
+        default: "master"
   schedule:
     # Weekly dependency-update pass (Monday 02:00 UTC).
     - cron: "0 2 * * 1"
 
 jobs:
-  vuln:
-    name: Trivy vuln scan
-    if: github.event_name != 'schedule'
+  trivy:
     uses: decaf-ts/reusable-actions/.github/workflows/trivy-scan.yml@master
     with:
-      scan-type: vuln
-      severity: HIGH,CRITICAL
-      ignore-unfixed: true
-      exit-code: "0"
-      upload-artifact: true
-    secrets: inherit
-
-  dep:
-    name: Trivy dep scan
-    if: github.event_name == 'schedule'
-    uses: decaf-ts/reusable-actions/.github/workflows/trivy-scan.yml@master
-    with:
-      scan-type: dep
-      upload-artifact: true
+      scan-type: ${{ inputs.scan-type || (github.event_name == 'schedule' && 'dep') || 'vuln' }}
+      severity: ${{ inputs.severity || 'HIGH,CRITICAL' }}
+      ignore-unfixed: ${{ inputs.ignore-unfixed != false }}
+      exit-code: ${{ inputs.exit-code || '0' }}
+      upload-artifact: ${{ inputs.upload-artifact != false }}
+      target-branch: ${{ inputs.target-branch || 'master' }}
     secrets: inherit
