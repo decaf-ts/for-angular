@@ -36,8 +36,8 @@ import {
   NotFoundError,
   SerializationError,
 } from '@decaf-ts/db-decorators';
-import type { GraphRunEventEnvelope } from '@decaf-ts/integrations/graph/shared';
-import { GraphExecutionEventType } from '@decaf-ts/integrations/graph/shared';
+import type { GraphRunEventEnvelope } from '@decaf-ts/ui-decorators/graph';
+import { GraphExecutionEventType } from '@decaf-ts/ui-decorators/graph';
 
 import {
   GRAPH_BACKEND_URL,

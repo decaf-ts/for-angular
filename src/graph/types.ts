@@ -1,4 +1,4 @@
-import type { SwitchNodeMetadata } from '@decaf-ts/integrations/graph/shared';
+import type { SwitchNodeMetadata } from '@decaf-ts/ui-decorators/graph';
 import type { GraphNodeDefinition, GraphPortDefinition, GraphWorkflowDefinition } from '@decaf-ts/ui-decorators/graph';
 
 interface GraphWorkflowsItem {

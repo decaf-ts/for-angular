@@ -13,10 +13,10 @@
  */
 import { InjectionToken, Injectable, inject, signal } from "@angular/core";
 import { Subject, Observable } from "rxjs";
-import type { GraphNodeInspectionPayload, GraphVisualState } from "@decaf-ts/integrations/graph/shared";
+import type { GraphNodeInspectionPayload, GraphVisualState } from "@decaf-ts/ui-decorators/graph";
 
 import { ServerEventConnector } from "@decaf-ts/for-http";
-import type { GraphExecutionEvent } from "@decaf-ts/integrations/graph/shared";
+import type { GraphExecutionEvent } from "@decaf-ts/ui-decorators/graph";
 import { graphDefinitionOf, type GraphWorkflowDefinition } from "@decaf-ts/ui-decorators/graph";
 import type { GraphWorkflowDocument } from "@decaf-ts/ui-decorators/graph";
 import { InternalError } from "@decaf-ts/db-decorators";

@@ -25,8 +25,8 @@ import type { GraphWorkflowDocument } from '@decaf-ts/ui-decorators/graph';
 import {
   isGraphRunStatus,
   type GraphRunEventEnvelope,
-} from '@decaf-ts/integrations/graph/shared';
-import type { GraphRunLogEntry } from '@decaf-ts/integrations/graph/shared';
+} from '@decaf-ts/ui-decorators/graph';
+import type { GraphRunLogEntry } from '@decaf-ts/ui-decorators/graph';
 import { GraphToolbarComponent } from 'src/graph';
 import { GraphSaveService } from 'src/graph';
 import { GraphAutoSaveService } from 'src/graph';

@@ -2,7 +2,7 @@
  * @module for-angular/graph/execution/GraphExecutionStateMapper.spec
  * @summary Unit tests for the graph execution event-to-state mapper.
  */
-import { GraphExecutionEventType } from '@decaf-ts/integrations/graph/shared';
+import { GraphExecutionEventType } from '@decaf-ts/ui-decorators/graph';
 
 import type {
   GraphEdgeExecutionStateMap,

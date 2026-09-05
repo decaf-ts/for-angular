@@ -2,7 +2,7 @@
  * @module for-angular/graph/execution/GraphInspectionStore.spec
  * @summary Unit tests for the node I/O inspection store (DECAF-48 §4.6/Req-8).
  */
-import type { GraphNodeInspectionPayload, GraphVisualState } from '@decaf-ts/integrations/graph/shared';
+import type { GraphNodeInspectionPayload, GraphVisualState } from '@decaf-ts/ui-decorators/graph';
 
 import { graphInspection } from './GraphInspectionStore';
 

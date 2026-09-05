@@ -8,7 +8,7 @@
  */
 import { computed, signal } from "@angular/core";
 
-import type { GraphRunLogEntry, LogNodeLevel } from "@decaf-ts/integrations/graph/shared";
+import type { GraphRunLogEntry, LogNodeLevel } from "@decaf-ts/ui-decorators/graph";
 
 /**
  * Console-style log presets for the run log filter.

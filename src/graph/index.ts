@@ -2,7 +2,6 @@ export * from './catalog';
 export * from './components';
 export * from './document';
 export * from './execution';
-export * from './nodes/boundary-nodes';
 export * from './parameters';
 export * from './runs';
 export * from './services';
@@ -11,6 +10,7 @@ export * from './types';
 export * from './utils';
 export * from './workflow-inputs';
 export {
+  GraphInputValueNode,
   graphWorkflowDocumentFromLegacySnapshot,
   graphWorkflowSnapshotFromLegacy,
   graphWorkflowSnapshotLikeToCanonical,

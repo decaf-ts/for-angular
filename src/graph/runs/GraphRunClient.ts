@@ -13,13 +13,13 @@
  *
  * The client never imports the execution engine; it talks JSON over HTTP using
  * the frontend-safe wire shapes re-exported from
- * `@decaf-ts/integrations/graph/shared` (DECAF-50 §4.1/§4.2) and mirrors the
+ * `@decaf-ts/ui-decorators/graph` (DECAF-50 §4.1/§4.2) and mirrors the
  * legacy `GraphExecutionService`'s error surface
  * ({@link GraphBackendUnavailableError} for network-level failures).
  */
 import { Injectable, inject } from "@angular/core";
 import type { GraphWorkflowDocument } from "@decaf-ts/ui-decorators/graph";
-import type { GraphRunEventEnvelope } from "@decaf-ts/integrations/graph/shared";
+import type { GraphRunEventEnvelope } from "@decaf-ts/ui-decorators/graph";
 import {
   BadRequestError,
   InternalError,

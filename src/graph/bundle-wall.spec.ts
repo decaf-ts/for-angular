@@ -8,10 +8,12 @@
  * (catalog, document, parameters, runs).
  *
  * Two walls are asserted:
- *  1. Static import wall — every production graph source imports only
- *     frontend-safe contract paths (`@decaf-ts/integrations/graph/shared`,
- *     `@decaf-ts/ui-decorators`, contracts); `for-nest`/nest and engine
- *     backend import specifiers are forbidden.
+ *  1. Static import wall — every production graph source under `src/graph/**`
+ *     and `src/lib/**` imports only frontend-safe paths (`@decaf-ts/ui-decorators`,
+ *     contracts); ALL `@decaf-ts/integrations` specifiers (every subpath — the
+ *     lib never depends on integrations after the Phase B cutover; only the
+ *     app provisions the backend), `for-nest` and the other backend packages
+ *     are forbidden.
  *  2. Runtime symbol wall — the production bundle (`www/`) carries no
  *     engine-side executable symbols. When `www/` is missing or older than
  *     the graph sources the test rebuilds the bundle first
@@ -35,13 +37,15 @@ const DIST_DIR = path.join(PACKAGE_ROOT, 'www');
 
 /**
  * Import specifier prefixes that never may appear in the browser's
- * canonical-graph module. `integrations/graph` outside the `shared` export is
- * the engine's own surface; `for-nest` and raw `integrations` default imports
- * pull backend/Node-only code.
+ * canonical-graph module. ALL `@decaf-ts/integrations` import specifiers
+ * (every subpath, including the retired shared-contracts re-export) are
+ * forbidden from the lib production sources (Phase B boundary cutover): the
+ * lib must depend only on the shared `@decaf-ts/ui-decorators` graph export;
+ * the app alone provisions the integrations backend. `for-nest` and the other
+ * backend packages pull backend/Node-only code.
  */
 const FORBIDDEN_IMPORT_SPECIFIERS = [
-  '@decaf-ts/integrations/graph/engine',
-  '@decaf-ts/integrations/nest',
+  '@decaf-ts/integrations',
   '@decaf-ts/for-nest',
   '@decaf-ts/for-server',
   'node:',
@@ -227,19 +231,21 @@ function refreshProductionBundleWhenStale(): void {
 describe('bundle wall (DECAF_50 §4.20 verification bar 1)', () => {
   test('static import wall: no backend import segment is reachable from the graph sources', () => {
     const violations: string[] = [];
-    const sourceRoot = path.join(PACKAGE_ROOT, 'src', 'graph');
-    walkSources(sourceRoot, (file) => {
-      if (!file.endsWith('.ts')) return;
-      const content = fs.readFileSync(file, 'utf8');
-      for (const matcher of content.matchAll(/from\s+['"]([^'"]+)['"]/g)) {
-        const specifier = matcher[1];
-        for (const forbidden of FORBIDDEN_IMPORT_SPECIFIERS) {
-          if (specifier === forbidden || specifier.startsWith(`${forbidden}/`)) {
-            violations.push(`${path.relative(sourceRoot, file)} imports '${specifier}'`);
+    const sourceRoots = [path.join(PACKAGE_ROOT, 'src', 'graph'), path.join(PACKAGE_ROOT, 'src', 'lib')];
+    for (const sourceRoot of sourceRoots) {
+      walkSources(sourceRoot, (file) => {
+        if (!file.endsWith('.ts')) return;
+        const content = fs.readFileSync(file, 'utf8');
+        for (const matcher of content.matchAll(/from\s+['"]([^'"]+)['"]/g)) {
+          const specifier = matcher[1];
+          for (const forbidden of FORBIDDEN_IMPORT_SPECIFIERS) {
+            if (specifier === forbidden || specifier.startsWith(`${forbidden}/`)) {
+              violations.push(`${path.relative(sourceRoot, file)} imports '${specifier}'`);
+            }
           }
         }
-      }
-    });
+      });
+    }
     expect(violations).toEqual([]);
   });
 

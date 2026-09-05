@@ -14,9 +14,9 @@ import {
   type LegacyGraphWorkflowSnapshot,
 } from '@decaf-ts/ui-decorators/graph';
 import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
-import type { SwitchNodeMetadata, SwitchCase } from '@decaf-ts/integrations/graph/shared';
+import type { SwitchNodeMetadata, SwitchCase } from '@decaf-ts/ui-decorators/graph';
+import { GraphInputValueNode } from '@decaf-ts/ui-decorators/graph';
 import { initializeModel, type ModelAdapter } from 'ng-diagram';
-import { GraphInputValueNode } from './nodes/boundary-nodes';
 import { graphCanvasPortDefinitionOf } from './document/GraphDiagramAdapter';
 import type { GraphWorkflowDocumentStore } from './document/GraphWorkflowDocumentStore';
 import type {

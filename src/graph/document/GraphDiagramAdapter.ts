@@ -35,7 +35,7 @@ import type {
   SwitchCase,
   SwitchCaseCondition,
   SwitchNodeMetadata,
-} from '@decaf-ts/integrations/graph/shared';
+} from '@decaf-ts/ui-decorators/graph';
 import type {
   GraphBoundaryNodeData,
   GraphRendererNodeData,

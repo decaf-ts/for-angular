@@ -1,10 +1,10 @@
 /** @module for-angular/graph/catalog/GraphNodeManifestFixtures
  * @summary Node manifest fixtures for the canonical Angular catalogue (DECAF-50 §4.12).
  * @description The Angular demo compiles its catalogue from frontend-safe manifests
- * built with the ui-decorators `graphNodeManifest` compiler from the decorated
- * `@node` classes the demo already imports. The demo's own decorated kinds keep
- * their locally compiled shapes AND display (the backend publishes its own
- * built-ins for the same kinds, whose port/parameter shapes may differ), while
+ * built with the ui-decorators `graphNodeManifest` compiler from the shared
+ * `@node` classes (system kinds, `nodes/<category>/<node>.ts` layout) the demo
+ * re-exports. All fixtures compile from the shared declarations — demo-only
+ * `@node` kinds no longer exist in the app (app composes system kinds) — while
  * the shared registry constructors (triggers, flow control, agents) overlay the
  * backend-published `display` so the palette presents the platform's human node
  * titles instead of the shared class names. The `core.flow.switch` fixture adds
@@ -16,14 +16,15 @@ import { Injectable } from '@angular/core';
 import { InternalError, NotFoundError } from '@decaf-ts/db-decorators';
 import { graphNodeManifest } from '@decaf-ts/ui-decorators/graph';
 import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphPortManifest } from '@decaf-ts/ui-decorators/graph';
-import type { GraphResolvedNodeManifest } from '@decaf-ts/integrations/graph/shared';
+import type { GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
 import {
   GRAPH_AGENT_NODES,
   GRAPH_BUILT_IN_NODE_MANIFESTS_BY_KIND,
   GRAPH_FLOW_CONTROL_NODES,
   GRAPH_TRIGGER_NODES,
-} from '@decaf-ts/integrations/graph/shared';
-import { GRAPH_DEMO_NODES } from '../../app/pages/graph/example-nodes';
+} from '@decaf-ts/ui-decorators/graph';
+import { GRAPH_LOOP_NODES } from '@decaf-ts/ui-decorators/graph';
+
 import { resolveGraphNodeManifest } from './GraphNodeResolution';
 import type { GraphNodeCatalogSource } from './GraphNodeCatalogStore';
 
@@ -33,7 +34,7 @@ import type { GraphNodeCatalogSource } from './GraphNodeCatalogStore';
  * concrete constructor symbols it imports — never a general `new` contract.
  */
 export const GRAPH_NODE_MANIFEST_FIXTURE_CONSTRUCTORS = [
-  ...GRAPH_DEMO_NODES,
+  ...GRAPH_LOOP_NODES,
   ...GRAPH_TRIGGER_NODES,
   ...GRAPH_FLOW_CONTROL_NODES,
   ...GRAPH_AGENT_NODES,
@@ -106,8 +107,8 @@ const GRAPH_SWITCH_CASES_PARAMETER = {
 function compileManifest(ctor: GraphNodeFixtureConstructor): GraphNodeManifest {
   const manifest = graphNodeManifest(ctor as never);
   // Shared registry constructors carry the backend-published display (human
-  // titles/categories/colors/icons); the demo's own decorated kinds keep their
-  // locally compiled display so the palette presents the demo's node shapes.
+  // titles/categories/colors/icons); the loop classes compile locally like the
+  // demo used to. The palette presents the shared classes' human node shapes.
   const sharedDisplay =
     GRAPH_SHARED_NODE_CONSTRUCTORS.has(ctor)
       ? GRAPH_BUILT_IN_NODE_MANIFESTS_BY_KIND[manifest.kind ?? '']?.display

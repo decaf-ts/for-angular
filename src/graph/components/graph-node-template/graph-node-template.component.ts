@@ -17,7 +17,7 @@ import type {
   GraphOutputBinding,
   GraphPortDefinition,
 } from '@decaf-ts/ui-decorators/graph';
-import type { SwitchNodeMetadata, SwitchCase, NodeMetadataChange } from '@decaf-ts/integrations/graph/shared';
+import type { SwitchNodeMetadata, SwitchCase, NodeMetadataChange } from '@decaf-ts/ui-decorators/graph';
 import { GraphDemoNodeData } from '../../types';
 import { graphExecutionState } from '../../execution/GraphExecutionStateService';
 import { graphInspection } from '../../execution/GraphInspectionStore';

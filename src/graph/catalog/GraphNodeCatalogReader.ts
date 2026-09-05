@@ -6,7 +6,7 @@
  */
 import type { GraphNodeInstance } from '@decaf-ts/ui-decorators/graph';
 import type { GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
-import type { GraphResolvedNodeManifest } from '@decaf-ts/integrations/graph/shared';
+import type { GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
 
 /**
  * Read-only view over the node catalogue the canonical canvas consumes.

@@ -13,7 +13,7 @@ import type {
 } from '@decaf-ts/ui-decorators/graph';
 import { resolveGraphNodeManifest } from './GraphNodeResolution';
 import type { GraphNodeManifestReader } from './GraphNodeCatalogReader';
-import type { GraphResolvedNodeManifest } from '@decaf-ts/integrations/graph/shared';
+import type { GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
 
 /** Status of the catalogue fixture/HTTP source. */
 export type GraphNodeCatalogStatus = 'unloaded' | 'loading' | 'ready' | 'failed';

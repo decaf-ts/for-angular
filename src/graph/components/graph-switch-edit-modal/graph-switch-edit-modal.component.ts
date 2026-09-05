@@ -1,5 +1,5 @@
 import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
-import type { SwitchNodeMetadata as BaseSwitchNodeMetadata, SwitchCase } from '@decaf-ts/integrations/graph/shared';
+import type { SwitchNodeMetadata as BaseSwitchNodeMetadata, SwitchCase } from '@decaf-ts/ui-decorators/graph';
 import {
   IonButton,
   IonButtons,

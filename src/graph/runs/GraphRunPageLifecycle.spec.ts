@@ -26,8 +26,8 @@
  * template).
  */
 import type { GraphWorkflowDocument } from '@decaf-ts/ui-decorators/graph';
-import type { GraphRunEventEnvelope } from '@decaf-ts/integrations/graph/shared';
-import { GraphExecutionEventType } from '@decaf-ts/integrations/graph/shared';
+import type { GraphRunEventEnvelope } from '@decaf-ts/ui-decorators/graph';
+import { GraphExecutionEventType } from '@decaf-ts/ui-decorators/graph';
 
 import {
   GraphAutoSaveService,

@@ -9,7 +9,7 @@
  */
 import { computed, signal } from '@angular/core';
 
-import type { GraphNodeInspectionPayload } from '@decaf-ts/integrations/graph/shared';
+import type { GraphNodeInspectionPayload } from '@decaf-ts/ui-decorators/graph';
 
 /**
  * Angular-signal store for node I/O inspection. Holds the per-node inspection

@@ -26,12 +26,12 @@ import { InternalError } from '@decaf-ts/db-decorators';
 import type {
   GraphRunEventEnvelope,
   GraphRunStatus,
-} from '@decaf-ts/integrations/graph/shared';
+} from '@decaf-ts/ui-decorators/graph';
 import {
   GraphExecutionEventType,
   isGraphRunTerminalEventType,
   isGraphRunTerminalStatus,
-} from '@decaf-ts/integrations/graph/shared';
+} from '@decaf-ts/ui-decorators/graph';
 
 import {
   GRAPH_BACKEND_URL,

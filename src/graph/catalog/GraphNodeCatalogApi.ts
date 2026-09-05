@@ -19,7 +19,7 @@ import type {
 } from '@decaf-ts/ui-decorators/graph';
 import type {
   GraphResolvedNodeManifest,
-} from '@decaf-ts/integrations/graph/shared';
+} from '@decaf-ts/ui-decorators/graph';
 import { GRAPH_BACKEND_URL } from '../execution/GraphExecutionService';
 import type { GraphNodeCatalogSource } from './GraphNodeCatalogStore';
 

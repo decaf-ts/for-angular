@@ -1,95 +1,58 @@
 import { Model, model, required } from '@decaf-ts/decorator-validation';
 import { uielement } from '@decaf-ts/ui-decorators';
-import { graph, input, node, output, graphWorkflowDefinitionOf, type GraphWorkflowDefinition } from '@decaf-ts/ui-decorators/graph';
-import { CodeInputSchema, LogFlowNode } from '@decaf-ts/integrations/graph/shared';
+import {
+  CodeFlowNode,
+  LogFlowNode,
+  SwitchFlowNode,
+  graph,
+  graphWorkflowDefinitionOf,
+  input,
+  output,
+  type GraphWorkflowDefinition,
+} from '@decaf-ts/ui-decorators/graph';
 
-/**
- * Switch node for the foreach body — routes even-indexed items to the `even`
- * output port and everything else to the `default` port. The condition uses
- * a `CodeCondition` that reads `$index` from the sandbox context (propagated
- * by the Foreach executor via `context.metadata`).
- */
-@node('foreach-even-odd-switch', {
-  kind: 'core.flow.switch',
-  category: 'Flow Control',
-  color: '#f97316',
-  icon: 'ti-arrows-shuffle',
-  width: 120,
-  height: 140,
-  labels: ['flow', 'switch', 'even-odd'],
-  metadata: {
-    title: 'Even/Odd Switch',
-    description: 'Routes even-indexed items to the Code node and odd-indexed items to the Log node.',
-    switch: {
-      cases: [
-        {
-          id: 'even',
-          label: 'Even',
-          condition: { type: 'code', code: 'return $index % 2 === 0;' },
-          outputPort: 'even',
-        },
-      ],
-      defaultPort: 'default',
-    },
+/** Switch metadata for the foreach body — routes even-indexed items to the
+ *  `even` output port and everything else to the `default` port. The
+ *  condition is a `CodeCondition` reading `$index` from the sandbox context
+ *  (propagated by the Foreach executor via `context.metadata`). */
+const evenOddSwitchMetadata: Record<string, unknown> = {
+  switch: {
+    cases: [
+      {
+        id: 'even',
+        label: 'Even',
+        condition: { type: 'code', code: 'return $index % 2 === 0;' } as never,
+        outputPort: 'even',
+      },
+    ],
+    defaultPort: 'default',
+    hasDefault: true,
   },
-})
-@model()
-export class EvenOddSwitchNode extends Model {
-  @required()
-  @uielement('textarea', { label: 'Input value', placeholder: 'Value to switch on' })
-  @input({ handle: 'value' })
-  value!: unknown;
+} as never;
 
-  @required()
-  @uielement('input', { label: 'Even', placeholder: 'Output for even-indexed items' })
-  @output({ handle: 'even' })
-  even!: unknown;
+/** The `defaultCode` fallback used when the shared Code node's `code` input
+ *  port is not wired (which is the case in the demo body workflow). */
+const logEvenCodeMetadata: Record<string, unknown> = {
+  defaultCode: 'console.log("Even item:", $input.data); return $input.data;',
+};
 
-  @required()
-  @uielement('input', { label: 'Default', placeholder: 'Default output for odd-indexed items' })
-  @output({ handle: 'default' })
-  default!: unknown;
-}
-
-/**
- * Code node for the even branch — logs the item via `console.log` and
- * forwards it on the `result` output port. The default code is stored in
- * `metadata.defaultCode` and used as a fallback when the `code` input port
- * is not wired (which is the case in the demo workflow).
- */
-@node('foreach-even-code', {
-  kind: 'core.flow.code',
-  category: 'Utility',
-  color: '#7c3aed',
-  icon: 'ti-code',
-  width: 96,
-  height: 96,
-  labels: ['flow', 'code', 'log'],
-  metadata: {
-    title: 'Log even item',
-    description: 'Logs the even-indexed item and forwards it unchanged.',
-    timeoutMs: 1000,
-    defaultCode: 'console.log("Even item:", $input.data); return $input.data;',
-  },
-})
-@model()
-export class LogEvenCodeNode extends Model {
-  @required()
-  @input({ handle: 'input' })
-  input!: CodeInputSchema;
-
-  @required()
-  @output({ handle: 'result' })
-  result!: unknown;
-}
+/** Metadata patch on the shared Code node in the even branch — logs the item
+ *  via `console.log` and forwards it on the `result` output port. */
+const logEvenNodeMetadata = {
+  title: 'Log even item',
+  description: 'Logs the even-indexed item and forwards it unchanged.',
+  timeoutMs: 1000,
+  ...logEvenCodeMetadata,
+};
 
 /**
  * Foreach body workflow — processes a single item from the foreach input
  * array. Receives `item` and `index` as workflow inputs (seeded by the
- * Foreach executor). The Switch node routes even-indexed items to the Code
- * node (which logs and forwards) and odd-indexed items to the Log node
- * (which logs and forwards). Both branches output to the body's `result`
- * output port.
+ * Foreach executor). Composed exclusively from system node kinds
+ * (`core.flow.switch`, `core.flow.code`, `core.flow.log`): the Switch node
+ * routes even-indexed items to the Code node (which logs and forwards) and
+ * odd-indexed items to the Log node (which logs and forwards). Both branches
+ * output to the body's `result` output port.
  */
 @graph('foreach-body-workflow', {
   kind: 'workflow',
@@ -103,16 +66,18 @@ export class LogEvenCodeNode extends Model {
   },
   nodes: [
     {
-      id: EvenOddSwitchNode.name,
+      id: 'EvenOddSwitchNode',
       kind: 'core.flow.switch',
       label: 'Switch',
-      node: EvenOddSwitchNode,
+      node: SwitchFlowNode,
+      metadata: evenOddSwitchMetadata,
     },
     {
-      id: LogEvenCodeNode.name,
+      id: 'LogEvenCodeNode',
       kind: 'core.flow.code',
       label: 'Log Even',
-      node: LogEvenCodeNode,
+      node: CodeFlowNode,
+      metadata: logEvenNodeMetadata,
     },
     {
       id: 'OddLogNode',
@@ -125,26 +90,26 @@ export class LogEvenCodeNode extends Model {
     {
       source: 'workflow',
       sourcePort: 'item',
-      target: EvenOddSwitchNode.name,
+      target: 'EvenOddSwitchNode',
       targetPort: 'value',
       label: 'item',
     },
     {
-      source: EvenOddSwitchNode.name,
+      source: 'EvenOddSwitchNode',
       sourcePort: 'even',
-      target: LogEvenCodeNode.name,
+      target: 'LogEvenCodeNode',
       targetPort: 'data',
       label: 'even',
     },
     {
-      source: EvenOddSwitchNode.name,
+      source: 'EvenOddSwitchNode',
       sourcePort: 'default',
       target: 'OddLogNode',
       targetPort: 'value',
       label: 'odd',
     },
     {
-      source: LogEvenCodeNode.name,
+      source: 'LogEvenCodeNode',
       sourcePort: 'result',
       target: 'workflow',
       targetPort: 'result',
@@ -211,4 +176,32 @@ export function buildForeachBodyWorkflow(): GraphWorkflowDefinition {
 
 export function buildLoopBodyWorkflow(): GraphWorkflowDefinition {
   return graphWorkflowDefinitionOf(LoopBodyWorkflow as never);
+}
+
+/**
+ * Loop-body `metadata.loop` patch supplying the demo's body workflow to the
+ * shared loop node declarations (the shared classes carry no `body` — the
+ * body is app-side demo content).
+ */
+export function foreachLoopMetadata(maxIterations = 100): Record<string, unknown> {
+  return {
+    loop: {
+      body: buildForeachBodyWorkflow(),
+      maxIterations,
+      itemPort: 'item',
+      resultPort: 'result',
+      slice: 1,
+    },
+  };
+}
+
+/** While/until loop `metadata.loop` patch for the loop-body workflow above. */
+export function conditionalLoopMetadata(maxIterations = 50): Record<string, unknown> {
+  return {
+    loop: {
+      body: buildLoopBodyWorkflow(),
+      maxIterations,
+      statePort: 'state',
+    },
+  };
 }

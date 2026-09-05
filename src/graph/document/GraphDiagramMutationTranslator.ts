@@ -15,7 +15,7 @@ import type {
   GraphPortManifest,
   GraphWorkflowDocument,
 } from '@decaf-ts/ui-decorators/graph';
-import type { GraphResolvedNodeManifest } from '@decaf-ts/integrations/graph/shared';
+import type { GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
 import type { GraphNodeManifestReader } from '../catalog/GraphNodeCatalogReader';
 import {
   isGraphNodeGhost,

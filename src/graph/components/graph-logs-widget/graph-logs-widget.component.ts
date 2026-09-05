@@ -9,7 +9,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import type { GraphRunLogEntry } from '@decaf-ts/integrations/graph/shared';
+import type { GraphRunLogEntry } from '@decaf-ts/ui-decorators/graph';
 import {
   GRAPH_LOG_FILTER_LABELS,
   GRAPH_LOG_LEVEL_SEVERITY,

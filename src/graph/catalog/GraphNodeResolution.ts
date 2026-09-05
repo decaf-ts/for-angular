@@ -14,7 +14,7 @@ import type {
   GraphPortManifest,
 } from '@decaf-ts/ui-decorators/graph';
 import { isGraphPortManifest } from '@decaf-ts/ui-decorators/graph';
-import type { GraphResolvedNodeManifest } from '@decaf-ts/integrations/graph/shared';
+import type { GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
 
 /** Manifest slice consumed by dynamic-port expansion: the rule list plus static ports per direction. */
 export type GraphNodeManifestWithDynamicPorts = Pick<

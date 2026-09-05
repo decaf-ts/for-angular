@@ -3,7 +3,15 @@ import { initializeModel } from 'ng-diagram';
 import { graphDefinitionOf, graphLeafPortsOf, PortDirection } from '@decaf-ts/ui-decorators/graph';
 import { countPortsByDirection, titleFromDefinition } from '../../../graph/utils';
 import type { GraphDemoEdgeBlueprint, GraphDemoEdgeData, GraphDemoNodeData } from '../../../graph/types';
-import { GRAPH_DEMO_EDGES, GRAPH_DEMO_NODES, type GraphDemoNodeConstructor } from './example-nodes';
+import { GRAPH_LOOP_NODES } from '@decaf-ts/ui-decorators/graph';
+
+/** Loop node constructors the demo helpers summarize (system kinds only). */
+export const GRAPH_DEMO_NODES = GRAPH_LOOP_NODES;
+
+/** Alias matching the legacy example-node constructor contract. */
+export type GraphDemoNodeConstructor = (typeof GRAPH_DEMO_NODES)[number];
+
+const GRAPH_DEMO_EDGES: readonly GraphDemoEdgeBlueprint[] = [];
 
 export interface GraphDemoSummaryItem {
   kind: string;

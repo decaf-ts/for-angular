@@ -4,7 +4,7 @@ import type {
   ConditionExpression,
   ExprValue,
   SwitchCaseCondition,
-} from '@decaf-ts/integrations/graph/shared';
+} from '@decaf-ts/ui-decorators/graph';
 import { IonInput, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
 

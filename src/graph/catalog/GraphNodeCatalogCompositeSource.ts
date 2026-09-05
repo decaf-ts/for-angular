@@ -13,7 +13,7 @@ import type {
   GraphNodeInstance,
   GraphNodeManifest,
 } from '@decaf-ts/ui-decorators/graph';
-import type { GraphResolvedNodeManifest } from '@decaf-ts/integrations/graph/shared';
+import type { GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
 import { GraphNodeCatalogApi } from './GraphNodeCatalogApi';
 import {
   GraphNodeCatalogFixtureSource,
