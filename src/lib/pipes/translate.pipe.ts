@@ -1,5 +1,4 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
-import { sf } from '@decaf-ts/logging';
 import { TranslateService } from '@ngx-translate/core';
 import { I18nLoader } from '../i18n/Loader';
 /**
@@ -13,7 +12,10 @@ import { I18nLoader } from '../i18n/Loader';
  */
 @Pipe({
   name: 'translate',
-  // pure: false,
+  // Impure so it re-evaluates on each change-detection pass: the translation
+  // resources are loaded asynchronously after bootstrap, so a pure pipe that
+  // caches on the (unchanged) key would keep showing the untranslated key.
+  pure: false,
   standalone: true,
 })
 export class DecafTranslatePipe implements PipeTransform {
@@ -26,19 +28,24 @@ export class DecafTranslatePipe implements PipeTransform {
   /**
    * @description Transforms a text key into its localized string representation.
    * @summary Uses the `TranslateService` to fetch the translated string for the provided key.
-   * If translations are disabled or the key is not found, it returns a fallback HTML-wrapped key.
+   * While translations are enabled the translated string is returned. When translations are
+   * disabled via `I18nLoader.enabled` (report mode), the raw translation key is returned so it
+   * is visually identifiable on the page.
    * @param {string} value - The translation key to be transformed.
    * @param {...any[]} args - Optional arguments to interpolate within the translation string.
-   * @return {string} The translated string or a fallback HTML-wrapped key.
+   * @return {string} The translated string or the raw key when translations are disabled.
    * @example
    * ```html
    * {{ 'HELLO_WORLD' | translate }}
    * ```
    */
   transform(value: string, ...args: []): string {
-    if (I18nLoader.enabled && value) {
-      return this.translate.instant(value, ...args);
+    if (!value?.length) return value;
+
+    if (!I18nLoader.enabled) {
+      return value;
     }
-    return `<div class="dcf-translation-key">${sf(value, args)}</div>`;
+
+    return this.translate.instant(value, ...args);
   }
 }

@@ -1,0 +1,14 @@
+.dashboard-builder {
+  padding: 1rem;
+}
+
+.dashboard-builder__toolbar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.dashboard-builder__delete-panel {
+  max-width: 480px;
+}

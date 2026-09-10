@@ -18,8 +18,8 @@ import { ElementSize, FunctionLike } from 'src/lib/engine/types';
 import { getOnWindow, getOnWindowDocument } from 'src/lib/utils/helpers';
 import { BackButtonComponent } from '../back-button/back-button.component';
 
-import { TranslatePipe } from '@ngx-translate/core';
 import { ContainerComponent } from 'src/lib/components';
+import { DecafTranslatePipe } from 'src/lib/pipes';
 import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { AngularEngineKeys, WindowColorSchemes } from 'src/lib/engine/constants';
 
@@ -40,7 +40,7 @@ import { AngularEngineKeys, WindowColorSchemes } from 'src/lib/engine/constants'
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
   imports: [
-    TranslatePipe,
+    DecafTranslatePipe,
     IonHeader,
     IonToolbar,
     IonTitle,

@@ -21,6 +21,11 @@ export const AppMenu: IMenuItem[] = [
     url: '/dashboard',
   },
   {
+    label: 'dashboard-builder',
+    icon: 'ti-layout-grid',
+    url: 'dashboard-builder',
+  },
+  {
     label: 'graph',
     icon: 'ti-graph',
     url: 'graph',

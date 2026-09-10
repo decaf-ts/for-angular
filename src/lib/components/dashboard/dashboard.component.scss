@@ -1,0 +1,175 @@
+.ngx-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+
+  &--read,
+  &--delete {
+    min-height: 200px;
+  }
+}
+
+.ngx-dashboard__section-title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ngx-dashboard__palette {
+  border: 1px solid var(--dcf-border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: var(--dcf-surface, #fff);
+}
+
+.ngx-dashboard__palette-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ngx-dashboard__palette-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px dashed var(--dcf-border-color, #ccc);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+.ngx-dashboard__palette-item:hover {
+  border-color: var(--dcf-primary, #5b8def);
+  color: var(--dcf-primary, #5b8def);
+}
+
+.ngx-dashboard__empty {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.ngx-dashboard__canvas-wrap {
+  position: relative;
+}
+
+.ngx-dashboard__canvas {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--dcf-border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 8px;
+  min-height: 240px;
+  background: var(--dcf-surface, #fafafa);
+}
+
+.ngx-dashboard__tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  border: 1px solid var(--dcf-border-color, #ccc);
+  border-radius: 6px;
+  background: var(--dcf-surface, #fff);
+  cursor: grab;
+  user-select: none;
+}
+
+.ngx-dashboard__tile:hover {
+  border-color: var(--dcf-primary, #5b8def);
+}
+
+.ngx-dashboard__tile-label {
+  font-size: 0.85rem;
+  opacity: 0.75;
+  pointer-events: none;
+  text-align: center;
+  padding: 0 1.5rem;
+}
+
+.ngx-dashboard__tile-delete {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--dcf-danger, #d13c3c);
+  cursor: pointer;
+  padding: 0;
+}
+
+.ngx-dashboard__tile-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  opacity: 0;
+}
+
+.ngx-dashboard__tile:hover .ngx-dashboard__tile-handle {
+  opacity: 1;
+}
+
+.ngx-dashboard__preview {
+  border: 2px dashed var(--dcf-primary, #5b8def);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--dcf-primary, #5b8def) 12%, transparent);
+  pointer-events: none;
+  z-index: 5;
+
+  &--invalid {
+    border-color: var(--dcf-danger, #d13c3c);
+    background: color-mix(in srgb, var(--dcf-danger, #d13c3c) 12%, transparent);
+  }
+}
+
+.ngx-dashboard__confirm {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+  z-index: 10;
+}
+
+.ngx-dashboard__confirm-card {
+  background: var(--dcf-surface, #fff);
+  border-radius: 8px;
+  padding: 1.25rem;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.ngx-dashboard__confirm-text {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.ngx-dashboard__confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.ngx-dashboard__actions {
+  display: flex;
+  justify-content: flex-end;
+}

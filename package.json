@@ -42,6 +42,8 @@
     "publish-docs": "docker run -it --rm --user $(id -u):$(id -g) -v \"$(pwd)/workdocs/confluence:/content\" -e ATLASSIAN_API_TOKEN=$(cat .confluence-token) ghcr.io/markdown-confluence/publish:latest",
     "playwright": "npx playwright test --config=./playwright.config.ts",
     "playwright-ui": "npx playwright test --config=./playwright.config.ts --ui",
+    "playwright:i18n:normal": "UI_REPORT_MODE=false npx playwright test --config=./playwright.config.ts tests/playwright/dashboard-builder.i18n-screenshots.spec.ts",
+    "playwright:i18n:report": "UI_REPORT_MODE=true DECAF__I18N__ENABLED=false npx playwright test --config=./playwright.config.ts tests/playwright/dashboard-builder.i18n-screenshots.spec.ts",
     "playwright-setup": "npm init playwright@latest",
     "increase:fs:watches": "sudo sysctl -n -w fs.inotify.max_user_watches=1048576 && sudo sysctl -n -w fs.inotify.max_user_instances=512",
     "resources": "npm run resources:pwa",

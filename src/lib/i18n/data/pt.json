@@ -259,6 +259,15 @@
         "not_allowed": "O ficheiro {0} não é permitido.",
         "max_size": "O tamanho máximo permitido para o ficheiro é {0} MB"
       }
+    },
+    "dashboard": {
+      "palette": "Componentes",
+      "emptyPalette": "Nenhum componente de dashboard registado.",
+      "deleteTitle": "Remover componente",
+      "deleteConfirm": "Tem a certeza que deseja remover este componente?",
+      "cancel": "Cancelar",
+      "delete": "Apagar",
+      "save": "Guardar Dashboard"
     }
   }
 }

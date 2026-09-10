@@ -15,8 +15,8 @@ import {
   IonRouterOutlet,
   IonSplitPane,
 } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
 import { IconComponent } from 'src/lib/components';
+import { DecafTranslatePipe } from 'src/lib/pipes';
 import { getDbAdapterFlavour } from 'src/lib/engine/helpers';
 import { IMenuItem } from '../lib/engine/interfaces';
 import { NgxPageDirective } from '../lib/engine/NgxPageDirective';
@@ -32,7 +32,7 @@ import { FakerRepository } from './utils/FakerRepository';
   standalone: true,
   selector: 'app-root',
   imports: [
-    TranslatePipe,
+    DecafTranslatePipe,
     IonApp,
     IonSplitPane,
     IonMenu,

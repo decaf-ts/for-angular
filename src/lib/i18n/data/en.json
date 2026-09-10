@@ -1,0 +1,273 @@
+{
+  "menu": {
+    "collapse": "Collapse sidebar"
+  },
+  "errors": {
+    "required": "This field is required.",
+    "pattern": "The provided value does not match the pattern.",
+    "min": "The minimum value for this field is {0}.",
+    "max": "The maximum value for this field is {0}.",
+    "minlength": "The minimum length for this field is {0}.",
+    "maxlength": "The maximum length for this field is {0}.",
+    "equal": "This field must be equal to {0}",
+    "default": "This value appears to be invalid.",
+    "unique": "Field {0} must be unique",
+    "password": "Password must be at least 8 characters and contain one of number, lower and upper case letters, and special character (@$!%*?&_-.,)",
+    "email": "This field must be a valid email address.",
+    "url": "This field must be a valid URL.",
+    "number": "This field must be a valid number.",
+    "integer": "This field must be a valid integer.",
+    "digits": "This field must contain only digits.",
+    "alphanum": "This field must be alphanumeric.",
+    "file": "Only {0} files are allowed",
+    "equals": "This field must be equal to field {0}",
+    "different": "This field must be different from field {0}",
+    "lessThan": "This field must be less than field {0}",
+    "lessThanOrEqual": "This field must be less than or equal to field {0}",
+    "greaterThan": "This field must be greater than field {0}",
+    "greaterThanOrEqual": "This field must be greater than or equal to field {0}",
+    "form_control": "Controlador do formulário não encontrado para {0}.",
+    "empty_options": "No options available for required field {0}. Fix the data source.",
+    "bad_request": "Invalid request. Please review the submitted data.",
+    "unauthorized": "You are not authorized. Please log in and try again.",
+    "forbidden": "You do not have permission to perform this action.",
+    "not_found": "No records found with <span class=\"text-bold\">{0}: {1} in {2}</span>.",
+    "method_not_allowed": "This action is not allowed for the requested resource.",
+    "request_timeout": "The request took too long to complete. Please try again.",
+    "conflict": "Resource with {0} {1} already exists.",
+    "gone": "The requested resource is no longer available.",
+    "payload_too_large": "The submitted data is too large. Please reduce its size and try again.",
+    "too_many_requests": "Too many requests were sent. Please wait a moment and try again.",
+    "internal_server_error": "An unexpected server error occurred. Please try again later.",
+    "not_implemented": "This feature is not available yet.",
+    "bad_gateway": "The server received an invalid response from an upstream service.",
+    "service_unavailable": "The service is temporarily unavailable. Please try again later.",
+    "gateway_timeout": "The upstream service took too long to respond. Please try again.",
+    "http_version_not_supported": "The HTTP version used in this request is not supported.",
+    "generic": "An error occurred while processing your request. Please try again."
+  },
+  "date": {
+    "weekdays": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    },
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    }
+  },
+  "operations": {
+    "read": {
+      "title": "Read",
+      "success": "Successfully read item with {0} {1}.",
+      "error": "Error reading item with {0} {1}."
+    },
+    "create": {
+      "title": "Create",
+      "success": "Successfully created item.",
+      "error": "Error creating item."
+    },
+    "update": {
+      "title": "Update",
+      "success": "Successfully updated item with {0} {1}.",
+      "error": "Error updating item with {0} {1}."
+    },
+    "delete": {
+      "title": "Delete",
+      "success": "Successfully deleted item with {0} {1}.",
+      "error": "Error deleting item with {0} {1}."
+    },
+    "multiple": {
+      "success": "Successfully processed all operations.",
+      "error": "Error processing operations."
+    },
+    "processing": "Processing {0}..."
+  },
+  "component": {
+    "cron_builder": {
+      "quick_presets": "Quick presets",
+      "every": "Every",
+      "minute": "minutes",
+      "hour": "hour",
+      "daily_at": "Daily at",
+      "weekdays_preset": "Weekdays",
+      "all": "All",
+      "monthly": "Monthly",
+      "copy": "Copy",
+      "fields": {
+        "minute": "Minute",
+        "hour": "Hour",
+        "day": "Day",
+        "month": "Month",
+        "weekday": "Weekday"
+      },
+      "enable_step": "Every can only be enabled for values greater than or equal to 1. */0 is invalid.",
+      "copied": "Copied!",
+      "add_another": "Add another"
+    },
+    "crud_form": {
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "back": "Back",
+      "delete": "Delete",
+      "login": "Login",
+      "create": "Create",
+      "update": "Update"
+    },
+    "fieldset": {
+      "add_first": "Add first item",
+      "show_form": "Show form",
+      "hidden_form": "Hide form",
+      "clear_items": "Clear items",
+      "add": "Add another",
+      "cancel": "Cancel",
+      "edit_item": "Edit item",
+      "remove_item": "Remove item",
+      "cancel_update": "Cancel update",
+      "create_item": "Create item",
+      "update_item": "Update item",
+      "not_unique": "The value entered already exists. Value {0}",
+      "max_items": "You can create up to {0} items.",
+      "max_items_reached": "Maximum of {0} items reached.",
+      "empty": "No items found."
+    },
+    "list": {
+      "pagination": "Showing page <span class=\"text-bold\">{0} of {1}</span>",
+      "loading": "Loading data",
+      "select": "Filter selection",
+      "type": "Type value",
+      "search": {
+        "title": "Not data found for search",
+        "subtitle": "You searched for: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{0}</ion-text>",
+        "button": "Clear search",
+        "placeholder": "Search..."
+      },
+      "empty": {
+        "title": "No data found",
+        "subtitle": "",
+        "button": "Create"
+      }
+    },
+    "list_item": {
+      "actions": "Actions",
+      "operations": {
+        "read": "Read",
+        "create": "Create",
+        "update": "Update",
+        "delete": "Delete"
+      }
+    },
+    "empty_state": {
+      "title": "No data found",
+      "button_create": "Create",
+      "search": {
+        "title": "Not data found for search",
+        "subtitle": "You searched for: <ion-text color=\"primary\" class=\"display-block ion-text-center text-bold\">{0}</ion-text>",
+        "button": "Clear search"
+      }
+    },
+    "pagination": {
+      "resume": "Showing page <span class=\"text-bold\">{0} of {1}</span>",
+      "next": "Next",
+      "previous": "Previous"
+    },
+    "searchbar": {
+      "search": "Search",
+      "search_by": "Search by: {0}"
+    },
+    "modal": {
+      "confirm": {
+        "code": {
+          "message": "Type confirm code <strong>{0}</strong> to allow submit.",
+          "label": "Type confirm code"
+        },
+        "operations": {
+          "delete": {
+            "title": "Confirm Deletion of {0}",
+            "message": "Are you sure you want to delete the item {0} from {1}? <p class=\"text-bold dcf-color-danger\">This action cannot be undone.</p>"
+          }
+        },
+        "buttons": {
+          "confirm": "Confirm",
+          "cancel": "Cancel",
+          "close": "Close",
+          "expand": "Toggle Fullscreen"
+        }
+      },
+      "buttons": {
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "close": "Close",
+        "expand": "Toggle Fullscreen"
+      }
+    },
+    "filter": {
+      "title": "Filter",
+      "type": "Type value",
+      "select": "Filter selection",
+      "step1": "Select an index",
+      "step2": "Select a condition",
+      "step3": "Type a value",
+      "no_suggestions": "No suggestions",
+      "sort": "Sort by",
+      "operators": {
+        "equal": "Equal",
+        "contains": "Contains",
+        "not_contains": "Not Contains",
+        "greater_than": "Greater Than",
+        "less_than": "Less Than",
+        "not_equal": "Not Equal",
+        "starts_with": "Starts With",
+        "ends_with": "Ends With"
+      }
+    },
+    "stepped_form": {
+      "next": "Next",
+      "previous": "Previous",
+      "submit": "Submit",
+      "cancel": "Cancel"
+    },
+    "file_upload": {
+      "label": "Files",
+      "drag_file": "Drag and drop your image here",
+      "empty": "No files found.",
+      "preview": "Preview",
+      "buttons": {
+        "select": "Select File",
+        "select_directory": "Select Directory",
+        "preview": "Preview",
+        "clear": "Clear"
+      },
+      "selection": "{0} file(s) selected with success",
+      "selection_error": "{0} file(s) failed validation and will not be uploaded.",
+      "errors": {
+        "not_allowed": "Extension {0} is not allowed.",
+        "max_size": "The maximum allowed file size is {0} MB"
+      }
+    },
+    "dashboard": {
+      "palette": "Components",
+      "emptyPalette": "No dashboard components registered.",
+      "deleteTitle": "Remove component",
+      "deleteConfirm": "Are you sure you want to remove this component?",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "save": "Save Dashboard"
+    }
+  }
+}

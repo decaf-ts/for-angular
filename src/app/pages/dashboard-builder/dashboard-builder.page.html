@@ -1,0 +1,58 @@
+<app-header
+  [title]="'dashboard-builder.title' | translate"
+  [showBackButton]="false"
+/>
+
+<ion-content [fullscreen]="true">
+  <main class="dashboard-builder">
+    <div class="dashboard-builder__toolbar">
+      <ion-button
+        size="small"
+        [color]="mode === 'create' ? 'primary' : 'default'"
+        (click)="newDashboard()"
+      >
+        {{ 'dashboard-builder.create' | translate }}
+      </ion-button>
+      <ion-button
+        size="small"
+        [color]="mode === 'read' ? 'primary' : 'default'"
+        (click)="setOperation('read')"
+      >
+        {{ 'dashboard-builder.read' | translate }}
+      </ion-button>
+      <ion-button
+        size="small"
+        [color]="mode === 'update' ? 'primary' : 'default'"
+        (click)="setOperation('update')"
+      >
+        {{ 'dashboard-builder.update' | translate }}
+      </ion-button>
+      <ion-button
+        size="small"
+        [color]="mode === 'delete' ? 'primary' : 'default'"
+        (click)="setOperation('delete')"
+      >
+        {{ 'dashboard-builder.delete' | translate }}
+      </ion-button>
+    </div>
+
+    @if (mode === 'delete') {
+      <div class="dashboard-builder__delete-panel">
+        <ngx-decaf-dashboard
+          [operation]="mode"
+          [document]="saved"
+          (save)="onSave($event)"
+          (deleted)="onDelete()"
+        />
+      </div>
+    } @else {
+      <ngx-decaf-dashboard
+        [operation]="mode"
+        [document]="mode === 'create' ? null : document"
+        [cols]="4"
+        [rows]="4"
+        (save)="onSave($event)"
+      />
+    }
+  </main>
+</ion-content>

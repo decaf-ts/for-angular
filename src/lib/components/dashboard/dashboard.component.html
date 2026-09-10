@@ -1,0 +1,132 @@
+@if (!isRead && !isDelete) {
+  <div class="ngx-dashboard">
+    <div class="ngx-dashboard__palette">
+      <h4 class="ngx-dashboard__section-title">
+        {{ 'component.dashboard.palette' | translate }}
+      </h4>
+      @if (palette.length) {
+        <div class="ngx-dashboard__palette-items">
+          @for (entry of palette; track entry.tag) {
+            <button
+              class="ngx-dashboard__palette-item"
+              type="button"
+              (click)="addFromPalette(entry)"
+            >
+              <ngx-decaf-icon name="ti-layout-grid" />
+              <span>
+                {{ (entry.label || entry.name) | translate }}
+              </span>
+            </button>
+          }
+        </div>
+      } @else {
+        <p class="ngx-dashboard__empty">
+          {{ 'component.dashboard.emptyPalette' | translate }}
+        </p>
+      }
+    </div>
+
+    <div class="ngx-dashboard__canvas-wrap">
+      <div
+        class="ngx-dashboard__canvas"
+        #canvas
+        [style.gridTemplateColumns]="'repeat(' + cols + ', 1fr)'"
+        [style.gridTemplateRows]="'repeat(' + rows + ', 1fr)'"
+      >
+        @for (item of items; track item.id) {
+          <div
+            class="ngx-dashboard__tile"
+            [style.gridColumn]="item.col + ' / span ' + item.cols"
+            [style.gridRow]="item.row + ' / span ' + item.rows"
+            (pointerdown)="onDragStart(item, $event)"
+          >
+            <button
+              class="ngx-dashboard__tile-delete"
+              type="button"
+              (click)="requestDelete(item)"
+              (pointerdown)="$event.stopPropagation()"
+            >
+              <ngx-decaf-icon name="ti-x" />
+            </button>
+            <span class="ngx-dashboard__tile-label">
+              {{ (item.labelKey || item.tag) | translate }}
+            </span>
+            <div
+              class="ngx-dashboard__tile-handle ngx-dashboard__tile-handle--se"
+              (pointerdown)="onResizeStart(item, $event)"
+            ></div>
+          </div>
+        }
+
+        @if (dropPreview) {
+          <div
+            class="ngx-dashboard__preview"
+            [class.ngx-dashboard__preview--invalid]="previewInvalid"
+            [style.gridColumn]="dropPreview.col + ' / span ' + dropPreview.cols"
+            [style.gridRow]="dropPreview.row + ' / span ' + dropPreview.rows"
+          ></div>
+        }
+      </div>
+
+      @if (pendingDelete) {
+        <div class="ngx-dashboard__confirm">
+          <div class="ngx-dashboard__confirm-card">
+            <h4 class="ngx-dashboard__section-title">
+              {{ 'component.dashboard.deleteTitle' | translate }}
+            </h4>
+            <p class="ngx-dashboard__confirm-text">
+              {{ 'component.dashboard.deleteConfirm' | translate }}
+            </p>
+            <div class="ngx-dashboard__confirm-actions">
+              <ion-button
+                fill="clear"
+                (click)="cancelDelete()"
+              >
+                {{ 'component.dashboard.cancel' | translate }}
+              </ion-button>
+              <ion-button
+                color="danger"
+                (click)="confirmDelete()"
+              >
+                {{ 'component.dashboard.delete' | translate }}
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="ngx-dashboard__actions">
+      <ion-button
+        expand="block"
+        (click)="handleSave()"
+      >
+        <ngx-decaf-icon slot="start" name="ti-device-floppy" />
+        {{ 'component.dashboard.save' | translate }}
+      </ion-button>
+    </div>
+  </div>
+} @else if (isRead) {
+  <div class="ngx-dashboard ngx-dashboard--read">
+    <ngx-decaf-model-renderer [model]="readModel"></ngx-decaf-model-renderer>
+  </div>
+} @else {
+  <div class="ngx-dashboard ngx-dashboard--delete">
+    <div class="ngx-dashboard__confirm-card">
+      <h4 class="ngx-dashboard__section-title">
+        {{ 'component.dashboard.deleteTitle' | translate }}
+      </h4>
+      <p class="ngx-dashboard__confirm-text">
+        {{ 'component.dashboard.deleteConfirm' | translate }}
+      </p>
+      <div class="ngx-dashboard__confirm-actions">
+        <ion-button fill="clear" (click)="handleReset()">
+          {{ 'component.dashboard.cancel' | translate }}
+        </ion-button>
+        <ion-button color="danger" (click)="handleDelete()">
+          {{ 'component.dashboard.delete' | translate }}
+        </ion-button>
+      </div>
+    </div>
+  </div>
+}
