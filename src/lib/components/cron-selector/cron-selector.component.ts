@@ -18,17 +18,15 @@ import { LoggedClass } from '@decaf-ts/logging';
 import {
   IonButton,
   IonCheckbox,
-  IonDatetime,
   IonDatetimeButton,
   IonItem,
   IonLabel,
   IonList,
-  IonModal,
   IonNote,
   IonSegment,
   IonSegmentButton,
   IonSelect,
-  IonSelectOption,
+  IonSelectOption
 } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import cronstrue from 'cronstrue/i18n';
@@ -51,12 +49,10 @@ interface WeekdayOption {
     IconComponent,
     IonButton,
     IonCheckbox,
-    IonDatetime,
     IonDatetimeButton,
     IonItem,
     IonLabel,
     IonList,
-    IonModal,
     IonNote,
     IonSegment,
     IonSegmentButton,

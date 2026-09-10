@@ -14,49 +14,39 @@ import {
 import { FormBuilder, ReactiveFormsModule, type AbstractControl, type FormGroup } from '@angular/forms';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
-import type { LegacyGraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import type { GraphNodeManifest, GraphWorkflowSnapshot, LegacyGraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 import { graphWorkflowDefinitionOf, graphWorkflowDocumentFromLegacySnapshot } from '@decaf-ts/ui-decorators/graph';
 import { IonSpinner } from '@ionic/angular/standalone';
 import {
+  createMiddlewares,
   NgDiagramBackgroundComponent,
   NgDiagramComponent,
+  NgDiagramEdgeTemplateMap,
   NgDiagramMinimapComponent,
   NgDiagramNodeTemplateMap,
-  NgDiagramEdgeTemplateMap,
   provideNgDiagram,
-  createMiddlewares,
   type EdgeDrawnEvent,
   type Middleware,
   type NodeDragEndedEvent,
   type SelectionRemovedEvent,
 } from 'ng-diagram';
-import { graphSelection } from '../../execution/GraphSelectionStore';
+import { GraphNodeCatalogService } from '../../catalog/GraphNodeCatalogService';
+import { GraphDiagramAdapter } from '../../document/GraphDiagramAdapter';
+import { isGraphNodeGhost, type NgDiagramMutation } from '../../document/GraphDocumentMutation';
+import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocumentStore';
 import { ghostNodeStore } from '../../execution/GhostNodeStore';
+import { graphSelection } from '../../execution/GraphSelectionStore';
 import { GraphRendererViewModel } from '../../types';
 import {
   buildGraphRendererModel,
   buildGraphRendererSnapshot,
   buildGraphRendererStateFromSnapshot,
   buildGraphRendererViewModel,
-  buildMemberNode,
-  buildManifestMemberNode,
   graphPaletteEntriesOf,
   parseGraphRendererSnapshot,
   stringifyGraphRendererSnapshot,
-  type GraphPaletteEntry,
+  type GraphPaletteEntry
 } from '../../utils';
-import { GraphDiagramAdapter } from '../../document/GraphDiagramAdapter';
-import {
-  isGraphNodeGhost,
-  type NgDiagramMutation,
-} from '../../document/GraphDocumentMutation';
-import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocumentStore';
-import { GraphNodeCatalogService } from '../../catalog/GraphNodeCatalogService';
-import type { GraphJsonValue, GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
-import type {
-  GraphWorkflowDocument,
-  GraphWorkflowSnapshot,
-} from '@decaf-ts/ui-decorators/graph';
 import {
   buildWorkflowInputFields,
   buildWorkflowInputForm,
@@ -80,7 +70,6 @@ import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-te
     NgDiagramBackgroundComponent,
     NgDiagramMinimapComponent,
     IonSpinner,
-    GraphEdgeTemplateComponent,
     GraphLogsWidgetComponent,
     GraphNodeInspectionComponent,
   ],
@@ -131,9 +120,7 @@ export class GraphRendererComponent {
         const update = context.initialUpdate;
         const cleaned = {
           ...update,
-          nodesToUpdate: update.nodesToUpdate?.filter(
-            (n) => !('measuredPorts' in n && Object.keys(n).length <= 2)
-          ),
+          nodesToUpdate: update.nodesToUpdate?.filter((n) => !('measuredPorts' in n && Object.keys(n).length <= 2)),
         };
         await next(cleaned);
         return;
@@ -153,9 +140,15 @@ export class GraphRendererComponent {
       const diagram = this.model();
 
       // Filter out mandatory edges from deletion
-      if (diagram && update.edgesToRemove?.length && (actions.includes('deleteEdges') || actions.includes('deleteElements') || actions.includes('deleteSelection'))) {
+      if (
+        diagram &&
+        update.edgesToRemove?.length &&
+        (actions.includes('deleteEdges') || actions.includes('deleteElements') || actions.includes('deleteSelection'))
+      ) {
         const allowedEdges = update.edgesToRemove.filter((edgeId: string) => {
-          const edge = diagram.getEdges().find((e) => (e as { id: string }).id === edgeId) as { data?: { mandatory?: boolean } } | undefined;
+          const edge = diagram.getEdges().find((e) => (e as { id: string }).id === edgeId) as
+            | { data?: { mandatory?: boolean } }
+            | undefined;
           return !edge?.data?.mandatory;
         });
         if (allowedEdges.length === 0 && update.edgesToRemove.length > 0) {
@@ -174,7 +167,10 @@ export class GraphRendererComponent {
       }
 
       // Filter out ghost nodes from deletion
-      if (update.nodesToRemove?.length && (actions.includes('deleteNodes') || actions.includes('deleteElements') || actions.includes('deleteSelection'))) {
+      if (
+        update.nodesToRemove?.length &&
+        (actions.includes('deleteNodes') || actions.includes('deleteElements') || actions.includes('deleteSelection'))
+      ) {
         const allowedNodes = update.nodesToRemove.filter((nodeId: string) => !nodeId.startsWith('ghost-'));
         if (allowedNodes.length === 0 && update.nodesToRemove.length > 0) {
           const { nodesToRemove, ...rest } = update;
@@ -242,9 +238,7 @@ export class GraphRendererComponent {
    * run's visual state (running / blocked / succeeded / failed / skipped) to
    * the line (DECAF-48 §4.4).
    */
-  readonly edgeTemplateMap = new NgDiagramEdgeTemplateMap([
-    ['graph-edge', GraphEdgeTemplateComponent],
-  ]);
+  readonly edgeTemplateMap = new NgDiagramEdgeTemplateMap([['graph-edge', GraphEdgeTemplateComponent]]);
 
   readonly workflowRootClass = computed(() => this.resolveGraphRoot(this.graphRoot()));
 
@@ -449,7 +443,9 @@ export class GraphRendererComponent {
     let label = entry.title;
 
     if (ghostParentId) {
-      const ghostNode = this.model()?.getNodes().find((n: { id: string }) => n.id === `ghost-${ghostParentId}`);
+      const ghostNode = this.model()
+        ?.getNodes()
+        .find((n: { id: string }) => n.id === `ghost-${ghostParentId}`);
       position = (ghostNode as { position?: { x: number; y: number } })?.position ?? position;
       label = `${entry.title} (${ghostParentId.startsWith('loop-') ? 'loop body' : 'materialized'})`;
     }
@@ -636,9 +632,7 @@ export class GraphRendererComponent {
     // The fixture catalogue load is asynchronous: until every member kind is
     // registered, the projection would throw and permanently freeze the canvas
     // on its legacy seed. Defer and let the catalogue-ready effect retry.
-    const missingKinds = document.nodes.filter(
-      (node) => !isGraphNodeGhost(node) && !catalogue.get(node.kind)
-    );
+    const missingKinds = document.nodes.filter((node) => !isGraphNodeGhost(node) && !catalogue.get(node.kind));
     if (missingKinds.length) return;
     const restoredOptions = this.restoreOptions;
     const previousModel = untracked(() => this.model());
@@ -697,12 +691,10 @@ export class GraphRendererComponent {
   private setUpCanvasViewport(viewport: { x: number; y: number; zoom: number }) {
     const diagram = this.model();
     if (!diagram) return;
-    diagram.updateMetadata(
-      {
-        ...diagram.getMetadata(),
-        viewport: { x: viewport.x, y: viewport.y, scale: viewport.zoom },
-      } as never
-    );
+    diagram.updateMetadata({
+      ...diagram.getMetadata(),
+      viewport: { x: viewport.x, y: viewport.y, scale: viewport.zoom },
+    } as never);
   }
 
   loadSnapshot() {

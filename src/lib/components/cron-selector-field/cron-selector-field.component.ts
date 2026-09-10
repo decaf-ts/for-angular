@@ -3,7 +3,6 @@ import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit } from '@a
 import { IonButton, IonCheckbox, IonLabel } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Dynamic } from '../../engine/decorators';
-import { CronSelectorComponent } from '../cron-selector/cron-selector.component';
 import { CrudFieldComponent } from '../crud-field/crud-field.component';
 import { CronBuilderComponent } from './cron-builder/cron-builder.component';
 
@@ -11,7 +10,7 @@ import { CronBuilderComponent } from './cron-builder/cron-builder.component';
 @Component({
   selector: 'app-cron-selector-field',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, IonButton, IonCheckbox, IonLabel, CronBuilderComponent, CronSelectorComponent],
+  imports: [CommonModule, TranslatePipe, IonButton, IonCheckbox, IonLabel, CronBuilderComponent],
   templateUrl: './cron-selector-field.component.html',
   styleUrls: ['./cron-selector-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,6 +1,5 @@
 import { EnvironmentProviders, provideEnvironmentInitializer, Provider } from '@angular/core';
-import { Repository } from '@decaf-ts/core';
-import { Constructor, Metadata, uses } from '@decaf-ts/decoration';
+import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { Logger, Logging } from '@decaf-ts/logging';
 import { AnimationController, provideIonicAngular } from '@ionic/angular/standalone';
@@ -8,6 +7,7 @@ import { NgxRenderingEngine } from '../engine/NgxRenderingEngine';
 import { getOnWindow, getWindow, getWindowDocument, setOnWindow } from '../utils/helpers';
 import { NgxComponentDirective } from './NgxComponentDirective';
 import { AngularEngineKeys, DB_ADAPTER_FLAVOUR_TOKEN, DB_ADAPTER_PROVIDER_TOKEN } from './constants';
+import { injectRepository } from './decorators';
 import { IRepositoryModelProps } from './interfaces';
 import { DecafRepository, FunctionLike, KeyValue } from './types';
 
@@ -68,14 +68,8 @@ export function getModelAndRepository<M extends Model>(
     const modelName = (typeof model === Primitives.STRING ? model : (model as Model).constructor.name) as string;
     const constructor = Model.get((modelName.charAt(0).toUpperCase() + modelName.slice(1)) as string);
     if (!constructor) return undefined;
-    const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || undefined;
-    if (dbAdapterFlavour) {
-      uses(dbAdapterFlavour as string)(constructor);
-    }
-    const repository = Repository.forModel(
-      constructor,
-      typeof dbAdapterFlavour === Primitives.STRING ? String(dbAdapterFlavour) : undefined
-    );
+    const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) as string;
+    const repository = injectRepository(constructor, dbAdapterFlavour);
     model = new constructor() as M;
     const pk = Model.pk(repository.class as Constructor<Model>);
     if (!pk) return undefined;

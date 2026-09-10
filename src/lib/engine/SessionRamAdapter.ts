@@ -10,17 +10,17 @@
  * @link {@link SessionRamAdapter}
  */
 import { RamAdapter, RamConfig, RamContext, RamStorage } from '@decaf-ts/core/ram';
-import { Model } from '@decaf-ts/decorator-validation';
+import type { ContextualArgs } from '@decaf-ts/core/types/index.mjs';
 import type { PrimaryKeyType } from '@decaf-ts/db-decorators';
 import type { Constructor } from '@decaf-ts/decoration';
-import type { ContextualArgs } from '@decaf-ts/core/types/index.mjs';
+import { Model } from '@decaf-ts/decorator-validation';
 
 /**
  * @description localStorage-backed record snapshot format.
  * @summary Serializes one RAM table as an ordered list of `[id, record]`
  * tuples, so `Object.entries` round-trips into `Map` tables on hydration.
  */
-type Snapshot = Record<string, [PrimaryKeyType, any][]>;
+type Snapshot = Record<string, [PrimaryKeyType, unknown][]>;
 
 /**
  * @description Extends {@link RamConfig} with the localStorage key backing the adapter.
@@ -89,8 +89,7 @@ export class SessionRamAdapter extends RamAdapter {
     const raw = localStorage.getItem(this.persistentDbName);
     if (!raw) return client;
     const snapshot = JSON.parse(raw) as Snapshot;
-    for (const [table, records] of Object.entries(snapshot))
-      client.set(table, new Map(records));
+    for (const [table, records] of Object.entries(snapshot)) client.set(table, new Map(records));
     return client;
   }
 
@@ -102,8 +101,7 @@ export class SessionRamAdapter extends RamAdapter {
    */
   private persistToStorage(): void {
     const snapshot: Snapshot = {};
-    for (const [table, records] of this.client.entries())
-      snapshot[table] = Array.from(records.entries());
+    for (const [table, records] of this.client.entries()) snapshot[table] = Array.from(records.entries());
     localStorage.setItem(this.persistentDbName, JSON.stringify(snapshot));
   }
 
@@ -113,16 +111,16 @@ export class SessionRamAdapter extends RamAdapter {
    * snapshot to localStorage only when the base mutation succeeds.
    * @param {Constructor<M>} clazz - the model class being persisted
    * @param {PrimaryKeyType} id - the primary key of the record
-   * @param {Record<string, any>} model - the record payload
+   * @param {Record<string, unknown>} model - the record payload
    * @param {...ContextualArgs<RamContext>} args - contextual arguments
-   * @return {Promise<Record<string, any>>} the created record
+   * @return {Promise<Record<string, unknown>>} the created record
    */
   override async create<M extends Model>(
     clazz: Constructor<M>,
     id: PrimaryKeyType,
-    model: Record<string, any>,
+    model: Record<string, unknown>,
     ...args: ContextualArgs<RamContext>
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     const result = await super.create<M>(clazz, id, model, ...args);
     this.persistToStorage();
     return result;
@@ -134,16 +132,16 @@ export class SessionRamAdapter extends RamAdapter {
    * snapshot to localStorage only when the base mutation succeeds.
    * @param {Constructor<M>} clazz - the model class being persisted
    * @param {PrimaryKeyType} id - the primary key of the record
-   * @param {Record<string, any>} model - the record payload
+   * @param {Record<string, unknown>} model - the record payload
    * @param {...ContextualArgs<RamContext>} args - contextual arguments
-   * @return {Promise<Record<string, any>>} the updated record
+   * @return {Promise<Record<string, unknown>>} the updated record
    */
   override async update<M extends Model>(
     clazz: Constructor<M>,
     id: PrimaryKeyType,
-    model: Record<string, any>,
+    model: Record<string, unknown>,
     ...args: ContextualArgs<RamContext>
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     const result = await super.update<M>(clazz, id, model, ...args);
     this.persistToStorage();
     return result;
@@ -156,13 +154,13 @@ export class SessionRamAdapter extends RamAdapter {
    * @param {Constructor<M>} clazz - the model class being persisted
    * @param {PrimaryKeyType} id - the primary key of the record
    * @param {...ContextualArgs<RamContext>} args - contextual arguments
-   * @return {Promise<Record<string, any>>} the deleted record
+   * @return {Promise<Record<string, unknown>>} the deleted record
    */
   override async delete<M extends Model>(
     clazz: Constructor<M>,
     id: PrimaryKeyType,
     ...args: ContextualArgs<RamContext>
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     const result = await super.delete<M>(clazz, id, ...args);
     this.persistToStorage();
     return result;

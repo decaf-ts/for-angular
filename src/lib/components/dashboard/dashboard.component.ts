@@ -11,25 +11,36 @@
  * through a confirmation screen.
  */
 
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { NgZone } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  inject,
+  Input,
+  NgZone,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonButton } from '@ionic/angular/standalone';
 import { Dynamic } from '../../engine/decorators';
-import { DecafTranslatePipe } from '../../pipes';
 import { NgxFormDirective } from '../../engine/NgxFormDirective';
+import { DecafTranslatePipe } from '../../pipes';
 import { IconComponent } from '../icon/icon.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 import { DashComponentCatalogService } from './dashboard-catalog.service';
-import type { DashPaletteEntry, DashPlacement, DashDocument, DragState, ResizeState, GridRange } from './dashboard.types';
-import {
-  buildDashboardModel,
-  canPlace,
-  serializeDocument,
-  snapDrag,
-  snapResize,
-} from './dashboard.utils';
+import type {
+  DashDocument,
+  DashPaletteEntry,
+  DashPlacement,
+  DragState,
+  GridRange,
+  ResizeState,
+} from './dashboard.types';
+import { buildDashboardModel, canPlace, serializeDocument, snapDrag, snapResize } from './dashboard.utils';
 
 /**
  * @description The editable dashboard component.
@@ -95,10 +106,10 @@ export class DashboardComponent extends NgxFormDirective implements OnInit {
 
   private rafPending = false;
 
-  constructor(
-    private readonly catalog: DashComponentCatalogService,
-    private readonly zone: NgZone
-  ) {
+  private readonly catalog = inject(DashComponentCatalogService);
+  private readonly zone = inject(NgZone);
+
+  constructor() {
     super('DashboardComponent');
   }
 
@@ -187,12 +198,7 @@ export class DashboardComponent extends NgxFormDirective implements OnInit {
    */
   private afterItemsChanged(): void {
     if (this.isRead || this.isDelete) {
-      this.readModel = buildDashboardModel(
-        `Dashboard${this.uid || Date.now()}`,
-        this.cols,
-        this.rows,
-        this.items
-      );
+      this.readModel = buildDashboardModel(`Dashboard${this.uid || Date.now()}`, this.cols, this.rows, this.items);
     } else {
       this.readModel = null;
     }
@@ -327,7 +333,9 @@ export class DashboardComponent extends NgxFormDirective implements OnInit {
    */
   private applyPlacement(placementId: string, target: GridRange): void {
     this.items = this.items.map((item) =>
-      item.id === placementId ? { ...item, col: target.col, row: target.row, cols: target.cols, rows: target.rows } : item
+      item.id === placementId
+        ? { ...item, col: target.col, row: target.row, cols: target.cols, rows: target.rows }
+        : item
     );
   }
 

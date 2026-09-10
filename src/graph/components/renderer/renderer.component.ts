@@ -1,14 +1,7 @@
 import { Component, computed, input, model, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
-import { IonSpinner } from '@ionic/angular/standalone';
-import {
-  Model,
-  NgDiagramBackgroundComponent,
-  NgDiagramComponent,
-  NgDiagramMinimapComponent,
-  provideNgDiagram,
-} from 'ng-diagram';
+import { Model, provideNgDiagram } from 'ng-diagram';
 import { map } from 'rxjs';
 import { TextPipelineWorkflow } from 'src/app/pages/graph/workflow-root';
 import { NgxGraphDirective } from 'src/graph/NgxGraphDirective';
@@ -22,10 +15,6 @@ import { GraphWorkflowComponent } from '../workflow/workflow.component';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    NgDiagramComponent,
-    NgDiagramBackgroundComponent,
-    NgDiagramMinimapComponent,
-    IonSpinner,
     GraphSidebarMenuComponent,
     GraphWorkflowComponent,
     GraphHomeComponent,

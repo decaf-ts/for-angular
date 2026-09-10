@@ -3,6 +3,7 @@ import { Repository as CoreRepository, Service as CoreService, ModelService } fr
 import { InternalError } from '@decaf-ts/db-decorators';
 import { apply, Constructor, metadata, Metadata } from '@decaf-ts/decoration';
 import { Model } from '@decaf-ts/decorator-validation';
+import { DecafRepository } from '.';
 import { NgxRenderingEngine } from './NgxRenderingEngine';
 import { AngularEngineKeys } from './constants';
 
@@ -102,10 +103,7 @@ export function injectService(key: string | Constructor<unknown>): unknown {
  * @return the resolved {@link CoreRepository} instance for `model`.
  * @category Decorators
  */
-export function injectRepository<M extends Model<boolean>>(
-  model: Constructor<M>,
-  flavour?: string
-): CoreRepository<M, any> {
+export function injectRepository<M extends Model>(model: Constructor<M>, flavour?: string): DecafRepository<M> {
   if (model == null) throw new InternalError(`injectRepository() requires a model class`);
   return CoreRepository.forModel(model, flavour);
 }

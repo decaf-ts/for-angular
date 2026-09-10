@@ -15,7 +15,7 @@ import type { DashComponentDefinition } from '@decaf-ts/ui-decorators';
  * @typedef DashPlacement
  * @memberOf module:lib/components/dashboard/dashboard.types
  */
-export type DashPlacement = {
+export interface DashPlacement {
   /** Stable unique id (drives set-aside keys and deterministic generated-class property names). */
   id: string;
   /** Component tag resolved for rendering (whitelisted against the palette registry at load). */
@@ -32,7 +32,7 @@ export type DashPlacement = {
   rows: number;
   /** Configuration props forwarded to the rendered component. */
   config: Record<string, unknown>;
-};
+}
 
 /**
  * @description A normalized palette entry, resolved from the `@dashcomponent()`
@@ -53,12 +53,12 @@ export type DashPaletteEntry = DashComponentDefinition & {
  * @typedef GridRange
  * @memberOf module:lib/components/dashboard/dashboard.types
  */
-export type GridRange = {
+export interface GridRange {
   col: number;
   row: number;
   cols: number;
   rows: number;
-};
+}
 
 /**
  * @description Interaction state during a drag gesture.
@@ -67,12 +67,12 @@ export type GridRange = {
  * @typedef DragState
  * @memberOf module:lib/components/dashboard/dashboard.types
  */
-export type DragState = {
+export interface DragState {
   placementId: string;
   pointerCol: number;
   pointerRow: number;
   target: GridRange | null;
-};
+}
 
 /**
  * @description Interaction state during a border-resize gesture.
@@ -81,12 +81,12 @@ export type DragState = {
  * @typedef ResizeState
  * @memberOf module:lib/components/dashboard/dashboard.types
  */
-export type ResizeState = {
+export interface ResizeState {
   placementId: string;
   pointerCol: number;
   pointerRow: number;
   target: GridRange | null;
-};
+}
 
 /**
  * @description The shape of the persistable dashboard composition model.
@@ -96,7 +96,7 @@ export type ResizeState = {
  * @typedef DashDocument
  * @memberOf module:lib/components/dashboard/dashboard.types
  */
-export type DashDocument = {
+export interface DashDocument {
   /** Model identity used for persistence. */
   name: string;
   /** Grid dimensions. */
@@ -104,4 +104,4 @@ export type DashDocument = {
   rows: number;
   /** Placed components. */
   placements: DashPlacement[];
-};
+}
