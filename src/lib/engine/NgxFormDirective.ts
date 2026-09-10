@@ -323,7 +323,6 @@ export abstract class NgxFormDirective
     this.changeDetectorRef.detectChanges();
     const data = NgxFormService.getFormData(formGroup);
     if (Object.keys(data).length > 0) {
-      console.log(data);
       return this.submitEventEmit(data, eventName, componentName, this.handlers);
     }
   }
