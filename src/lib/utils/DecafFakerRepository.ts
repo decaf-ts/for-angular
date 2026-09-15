@@ -5,9 +5,9 @@ import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { LoggedClass } from '@decaf-ts/logging';
 import { parseToNumber } from '@decaf-ts/ui-decorators';
 import { faker } from '@faker-js/faker/locale/en';
-import { DB_ADAPTER_FLAVOUR_TOKEN } from '../engine/constants';
+import { getDbAdapterFlavour } from '../engine/helpers';
 import { DecafRepository, FunctionLike, KeyValue } from '../engine/types';
-import { formatDate, getOnWindow } from './helpers';
+import { formatDate } from './helpers';
 
 export class DecafFakerRepository<T extends Model> extends LoggedClass {
   protected propFnMapper?: KeyValue;
@@ -34,7 +34,7 @@ export class DecafFakerRepository<T extends Model> extends LoggedClass {
       if (!constructor) throw new InternalError(`Cannot find model ${modelName}. was it registered with @model?`);
       try {
         this.model = new constructor();
-        const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || undefined;
+        const dbAdapterFlavour = getDbAdapterFlavour() || undefined;
         if (dbAdapterFlavour) {
           uses(String(dbAdapterFlavour))(constructor);
         }

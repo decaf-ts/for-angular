@@ -42,6 +42,14 @@ ion-button {
   &:not(.dcf-icon-button) {
     margin-right: 0.125rem;
   }
+
+  &.dcf-tabler-icon svg {
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+    vertical-align: -0.125em;
+    stroke: currentColor;
+  }
   &.large,
   &[size="large"] {
     font-size: 2.2rem !important;

@@ -1,10 +1,18 @@
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Color } from '@ionic/core';
 import { addIcons } from 'ionicons';
-import { chevronDownOutline, chevronUpOutline, closeCircle, closeSharp, searchOutline, searchSharp } from 'ionicons/icons';
-import { shareReplay, Subject, takeUntil } from 'rxjs';
+import {
+  chevronDownOutline,
+  chevronUpOutline,
+  closeCircle,
+  closeSharp,
+  searchOutline,
+  searchSharp,
+} from 'ionicons/icons';
+import { shareReplay } from 'rxjs';
 
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgxSvgDirective } from '../../directives/svg.directive';
 import { Dynamic } from '../../engine/decorators';
 import { NgxMediaService } from '../../services/NgxMediaService';
@@ -68,6 +76,9 @@ export class IconComponent implements OnInit, OnDestroy {
   @Input()
   size?: 'large' | 'small' | 'default' = 'default';
 
+  @Input()
+  tablerSpritePath: string = 'assets/tabler-sprite.svg';
+
   type: 'image' | 'ionic' | 'icon' = 'ionic';
 
   isSvg: boolean = false;
@@ -79,9 +90,9 @@ export class IconComponent implements OnInit, OnDestroy {
 
   isDarkMode: boolean = false;
 
-  mediaService: NgxMediaService = new NgxMediaService();
+  private readonly mediaService: NgxMediaService = new NgxMediaService();
 
-  protected destroySubscriptions$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     if (this.button) this.slot = 'icon-only';
@@ -96,7 +107,7 @@ export class IconComponent implements OnInit, OnDestroy {
     }
     this.mediaService
       .isDarkMode()
-      .pipe(shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this.destroySubscriptions$))
+      .pipe(shareReplay({ bufferSize: 1, refCount: true }), takeUntilDestroyed(this.destroyRef))
       .subscribe((isDark) => {
         this.isDarkMode = isDark;
       });
@@ -109,13 +120,9 @@ export class IconComponent implements OnInit, OnDestroy {
    * released (DOM listeners, timers, subscriptions, etc.). Implementations should
    * keep `mediaService.destroy()` idempotent; calling it here prevents leaks when
    * components are torn down.
-   * @returns {Promise<void>}
+   * @returns {void}
    */
-  async ngOnDestroy(): Promise<void> {
+  ngOnDestroy(): void {
     this.mediaService.destroy();
-    if (this.destroySubscriptions$) {
-      this.destroySubscriptions$.next();
-      this.destroySubscriptions$.complete();
-    }
   }
 }

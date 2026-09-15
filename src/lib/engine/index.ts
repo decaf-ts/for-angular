@@ -23,4 +23,6 @@ export * from './NgxPageDirective';
 export * from './NgxParentComponentDirective';
 export * from './NgxRenderingEngine';
 export * from './overrides';
+export * from './providers';
 export * from './types';
+

@@ -8,7 +8,7 @@ import { I18nResourceConfigType } from 'src/lib/engine';
 import {
   provideDecafDynamicComponents,
   provideDecafPageTransition,
-} from 'src/lib/engine/helpers';
+} from 'src/lib/engine/providers';
 import { provideDecafI18nConfig } from 'src/lib/i18n/Loader';
 import { setOnWindow } from 'src/lib/utils/helpers';
 import { AppExpiryDateFieldComponent } from 'src/app/components/expiry-date/expiry-date-field.component';

@@ -14,8 +14,7 @@ import { Model, Primitives, type } from '@decaf-ts/decorator-validation';
 import { Audit } from './Audit';
 import { TableNames } from './constants';
 
-import { DB_ADAPTER_FLAVOUR_TOKEN } from 'src/lib/engine/constants';
-import { getOnWindow } from 'src/lib/utils/helpers';
+import { getDbAdapterFlavour } from 'src/lib/engine/helpers';
 import { toDiffs } from './helpers/comparison';
 
 export async function createAuditHandler<M extends Model, R extends Repository<M, any>, V>(
@@ -25,7 +24,7 @@ export async function createAuditHandler<M extends Model, R extends Repository<M
   key: keyof M,
   model: M
 ): Promise<void> {
-  const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || undefined;
+  const dbAdapterFlavour = getDbAdapterFlavour() || undefined;
   if (dbAdapterFlavour) {
     uses(dbAdapterFlavour as string)(Audit);
   }

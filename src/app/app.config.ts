@@ -10,7 +10,7 @@ import {
   provideDecafDbAdapter,
   provideDecafDynamicComponents,
   provideDecafPageTransition,
-} from 'src/lib/engine/helpers';
+} from 'src/lib/engine/providers';
 import { provideDecafI18nConfig } from 'src/lib/i18n/Loader';
 import { isDevelopmentMode } from 'src/lib/utils/helpers';
 // The canonical graph module's live node catalogue source (DECAF-50 §4.12/§4.13).

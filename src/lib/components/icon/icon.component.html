@@ -37,7 +37,10 @@
           <span
             aria-hidden="true"
             [slot]="slot"
-            [class]="'dcf-icon-button ti ' +name + ' ' + size + ' dcf-color-' + color">
+            [class]="'dcf-icon-button dcf-tabler-icon ti ' + name + ' ' + size + ' dcf-color-' + color">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <use [attr.href]="tablerSpritePath + '#tabler-' + name.slice(3)"></use>
+            </svg>
           </span>
         }
       </ion-button>
@@ -79,7 +82,10 @@
         <span
           aria-hidden="true"
           [slot]="slot"
-          [class]="'ti ' + name + ' ' + size + ' dcf-color-' + color">
+          [class]="'dcf-tabler-icon ti ' + name + ' ' + size + ' dcf-color-' + color">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <use [attr.href]="tablerSpritePath + '#tabler-' + name.slice(3)"></use>
+          </svg>
         </span>
       }
     }

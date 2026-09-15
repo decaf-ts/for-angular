@@ -11,10 +11,9 @@ import {
 import { Constructor, Metadata, uses } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
-import { getOnWindow } from '../utils/helpers';
 import { NgxPageDirective } from './NgxPageDirective';
-import { DB_ADAPTER_FLAVOUR_TOKEN, ErrorCodesTranslationKeys } from './constants';
-import { getModelAndRepository } from './helpers';
+import { ErrorCodesTranslationKeys } from './constants';
+import { getDbAdapterFlavour, getModelAndRepository } from './helpers';
 import { ICrudFormEvent, ILayoutModelContext, IModelComponentSubmitEvent } from './interfaces';
 import { CrudEvent, DecafRepository, KeyValue } from './types';
 
@@ -64,7 +63,7 @@ export abstract class NgxModelPageDirective extends NgxPageDirective implements 
       if (!this._repository && modelName) {
         const constructor = Model.get(String(modelName));
         if (!constructor) throw new InternalError('Cannot find model. was it registered with @model?');
-        const dbAdapterFlavour = getOnWindow(DB_ADAPTER_FLAVOUR_TOKEN) || undefined;
+        const dbAdapterFlavour = getDbAdapterFlavour() || undefined;
         if (dbAdapterFlavour) {
           uses(String(dbAdapterFlavour))(constructor);
         }
