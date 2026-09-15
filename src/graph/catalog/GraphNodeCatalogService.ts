@@ -6,25 +6,18 @@
  * node constructors.
  */
 import { Injectable, InjectionToken, inject } from '@angular/core';
-import { InternalError, ValidationError } from '@decaf-ts/db-decorators';
-import type {
-  GraphJsonValue,
-  GraphNodeInstance,
-  GraphNodeManifest,
-} from '@decaf-ts/ui-decorators/graph';
-import type { GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
 import { service } from '@decaf-ts/core';
+import { InternalError } from '@decaf-ts/db-decorators';
+import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
+import { graphAngularServiceShare } from '../utils/graphAngularServiceShare';
 import type { GraphNodeManifestReader } from './GraphNodeCatalogReader';
 import { GraphNodeCatalogStore, type GraphNodeCatalogSource } from './GraphNodeCatalogStore';
-import { graphAngularServiceShare } from '../utils/graphAngularServiceShare';
 
 /**
  * The catalogue source used by {@link GraphNodeCatalogService}'s load/refresh paths.
  * Graph demo (P4) provides frontend fixtures; P6 swaps to the HTTP node catalogue.
  */
-export const GRAPH_NODE_CATALOG_SOURCE = new InjectionToken<GraphNodeCatalogSource>(
-  'GRAPH_NODE_CATALOG_SOURCE'
-);
+export const GRAPH_NODE_CATALOG_SOURCE = new InjectionToken<GraphNodeCatalogSource>('GRAPH_NODE_CATALOG_SOURCE');
 
 /**
  * The {@link graphAngularServiceShare} decorator is declared above `@service()` so the
@@ -69,12 +62,10 @@ export class GraphNodeCatalogService {
     }
   }
 
-  /** @inheritdoc GraphNodeManifestReader */
   all(): GraphNodeManifest[] {
     return this.store.all();
   }
 
-  /** @inheritdoc GraphNodeManifestReader */
   get(kind: string): GraphNodeManifest | undefined {
     return this.store.get(kind);
   }
@@ -98,11 +89,7 @@ export class GraphNodeCatalogService {
   /**
    * Invokes a declared node method (P6). Fixtures reject with a Decaf error.
    */
-  async invokeMethod(
-    kind: string,
-    method: string,
-    request: Record<string, GraphJsonValue>
-  ): Promise<GraphJsonValue> {
+  async invokeMethod(kind: string, method: string, request: Record<string, GraphJsonValue>): Promise<GraphJsonValue> {
     return this.source().invokeMethod(kind, method, request);
   }
 

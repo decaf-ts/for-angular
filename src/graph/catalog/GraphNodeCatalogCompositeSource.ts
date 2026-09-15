@@ -8,17 +8,10 @@
  * down. Invocations of node methods stay backend-only.
  */
 import { Injectable, inject } from '@angular/core';
-import type {
-  GraphJsonValue,
-  GraphNodeInstance,
-  GraphNodeManifest,
-} from '@decaf-ts/ui-decorators/graph';
-import type { GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
+import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
 import { GraphNodeCatalogApi } from './GraphNodeCatalogApi';
-import {
-  GraphNodeCatalogFixtureSource,
-} from './GraphNodeManifestFixtures';
 import type { GraphNodeCatalogSource } from './GraphNodeCatalogStore';
+import { GraphNodeCatalogFixtureSource } from './GraphNodeManifestFixtures';
 
 /** Catalog source merging fixture manifests (authoritative) with live backend extras; fixtures stand alone when the backend is down. */
 @Injectable({ providedIn: 'root' })
@@ -45,8 +38,11 @@ export class GraphNodeCatalogCompositeSource implements GraphNodeCatalogSource {
     return this.fixed.fetchManifests();
   }
 
-  /** {@inheritdoc GraphNodeCatalogSource} */
-  async fetchManifest(kind: string): Promise<GraphNodeManifest | undefined> {
+  /**
+   * Fixture manifests first (they keep the demo's own decorated kinds
+   * authoritative), live backend extras merged in, fixture set alone when the
+   * backend is unreachable.
+   */ async fetchManifest(kind: string): Promise<GraphNodeManifest | undefined> {
     const fixed = await this.fixed.fetchManifest(kind);
     if (fixed) return fixed;
     if (this.live) {
@@ -59,7 +55,6 @@ export class GraphNodeCatalogCompositeSource implements GraphNodeCatalogSource {
     return undefined;
   }
 
-  /** {@inheritdoc GraphNodeCatalogSource} */
   async resolveManifest(
     kind: string,
     instance: Pick<GraphNodeInstance, 'parameters' | 'metadata'>
@@ -73,12 +68,7 @@ export class GraphNodeCatalogCompositeSource implements GraphNodeCatalogSource {
     return this.fixed.resolveManifest(kind, instance);
   }
 
-  /** {@inheritdoc GraphNodeCatalogSource} */
-  async invokeMethod(
-    kind: string,
-    method: string,
-    request: Record<string, GraphJsonValue>
-  ): Promise<GraphJsonValue> {
+  async invokeMethod(kind: string, method: string, request: Record<string, GraphJsonValue>): Promise<GraphJsonValue> {
     if (this.live) {
       return this.live.invokeMethod(kind, method, request);
     }

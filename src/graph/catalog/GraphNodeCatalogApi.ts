@@ -7,19 +7,8 @@
  * bridge as the (@link GRAPH_NODE_CATALOG_SOURCE) write-through source.
  */
 import { Injectable, inject } from '@angular/core';
-import {
-  BadRequestError,
-  InternalError,
-  NotFoundError,
-} from '@decaf-ts/db-decorators';
-import type {
-  GraphJsonValue,
-  GraphNodeInstance,
-  GraphNodeManifest,
-} from '@decaf-ts/ui-decorators/graph';
-import type {
-  GraphResolvedNodeManifest,
-} from '@decaf-ts/ui-decorators/graph';
+import { BadRequestError, InternalError, NotFoundError } from '@decaf-ts/db-decorators';
+import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
 import { GRAPH_BACKEND_URL } from '../execution/GraphExecutionService';
 import type { GraphNodeCatalogSource } from './GraphNodeCatalogStore';
 
@@ -29,9 +18,7 @@ import type { GraphNodeCatalogSource } from './GraphNodeCatalogStore';
  */
 export class GraphCatalogueUnavailableError extends InternalError {
   constructor(operation: string, reason?: unknown) {
-    super(
-      `Graph node catalogue '${operation}' is unavailable (${String(reason ?? 'backend offline')}).`
-    );
+    super(`Graph node catalogue '${operation}' is unavailable (${String(reason ?? 'backend offline')}).`);
   }
 }
 
@@ -39,7 +26,6 @@ export class GraphCatalogueUnavailableError extends InternalError {
 @Injectable({ providedIn: 'root' })
 export class GraphNodeCatalogApi implements GraphNodeCatalogSource {
   private readonly backendUrl = inject(GRAPH_BACKEND_URL);
-  /** @inheritdoc */
   async fetchManifests(): Promise<GraphNodeManifest[]> {
     const response = await this.request<unknown>('graph/node-types');
     if (Array.isArray(response)) return response as GraphNodeManifest[];
@@ -51,38 +37,27 @@ export class GraphNodeCatalogApi implements GraphNodeCatalogSource {
     return manifests as GraphNodeManifest[];
   }
 
-  /** @inheritdoc */
   async fetchManifest(kind: string): Promise<GraphNodeManifest | undefined> {
-    return (await this.request<unknown>(
-      `graph/node-types/${encodeURIComponent(kind)}`,
-    )) as GraphNodeManifest | undefined;
+    return (await this.request<unknown>(`graph/node-types/${encodeURIComponent(kind)}`)) as
+      | GraphNodeManifest
+      | undefined;
   }
 
-  /** @inheritdoc */
   async resolveManifest(
     kind: string,
     instance: Pick<GraphNodeInstance, 'parameters' | 'metadata'>
   ): Promise<GraphResolvedNodeManifest> {
-    const resolved = await this.request<unknown>(
-      `graph/node-types/${encodeURIComponent(kind)}/resolve`,
-      'POST',
-      {
-        parameters: instance.parameters ?? {},
-        metadata: instance.metadata ?? {},
-      }
-    );
+    const resolved = await this.request<unknown>(`graph/node-types/${encodeURIComponent(kind)}/resolve`, 'POST', {
+      parameters: instance.parameters ?? {},
+      metadata: instance.metadata ?? {},
+    });
     if (!resolved) {
       throw new GraphCatalogueUnavailableError('resolve', `No resolved manifest for kind '${kind}'.`);
     }
     return resolved as GraphResolvedNodeManifest;
   }
 
-  /** @inheritdoc */
-  async invokeMethod(
-    kind: string,
-    method: string,
-    request: Record<string, GraphJsonValue>
-  ): Promise<GraphJsonValue> {
+  async invokeMethod(kind: string, method: string, request: Record<string, GraphJsonValue>): Promise<GraphJsonValue> {
     return (await this.request<unknown>(
       `graph/node-types/${encodeURIComponent(kind)}/methods/${encodeURIComponent(method)}`,
       'POST',
@@ -112,9 +87,10 @@ export class GraphNodeCatalogApi implements GraphNodeCatalogSource {
       if (response.status === 404) {
         throw new NotFoundError(`Graph node catalogue has no entry for ${method} /${path}.`);
       }
-      const error = response.status < 500
-        ? new BadRequestError(`Graph node catalogue ${method} /${path} failed (${response.status}): ${message}`)
-        : new InternalError(`Graph node catalogue ${method} /${path} failed (${response.status}).`);
+      const error =
+        response.status < 500
+          ? new BadRequestError(`Graph node catalogue ${method} /${path} failed (${response.status}): ${message}`)
+          : new InternalError(`Graph node catalogue ${method} /${path} failed (${response.status}).`);
       throw error;
     }
     return (await response.json().catch(() => ({}))) as T;

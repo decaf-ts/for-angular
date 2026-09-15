@@ -92,7 +92,7 @@
     "@decaf-ts/cli": "latest",
     "@decaf-ts/ui-decorators": "latest",
     "@decaf-ts/utils": "latest",
-    "@faker-js/faker": "^9.9.0",
+    "@faker-js/faker": "^10.4.0",
     "@playwright/test": "^1.54.1",
     "@storybook/addon-docs": "^10.4.0",
     "@storybook/angular": "^10.4.0",

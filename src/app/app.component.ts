@@ -16,8 +16,8 @@ import {
   IonSplitPane,
 } from '@ionic/angular/standalone';
 import { IconComponent } from 'src/lib/components';
-import { DecafTranslatePipe } from 'src/lib/pipes';
 import { getDbAdapterFlavour } from 'src/lib/engine/helpers';
+import { DecafTranslatePipe } from 'src/lib/pipes';
 import { IMenuItem } from '../lib/engine/interfaces';
 import { NgxPageDirective } from '../lib/engine/NgxPageDirective';
 import { isDevelopmentMode } from '../lib/utils';
@@ -98,6 +98,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
         model = new (model as unknown as ModelConstructor<typeof model>)();
       }
       const name = model.constructor.name.replace(/[0-9]/g, '');
+      const tableName = Model.tableName(model);
       if (dbAdapterFlavour.includes(RamFlavour)) {
         if (populate.includes(name)) await new FakerRepository(model, 36).initialize();
       }
@@ -105,7 +106,7 @@ export class AppComponent extends NgxPageDirective implements OnInit {
       if (!menu.length) menu.push({ label: 'models' });
       menu.push({
         label: `${label}`,
-        url: `/model/${Model.tableName(model)}`,
+        url: `/model/${tableName}`,
         icon: 'ti-cube',
       });
     }

@@ -116,7 +116,11 @@ export function isGraphNodeGhost(node: { kind?: unknown; id: string }): boolean 
   return node.kind === 'graph.ghost' || isGraphGhostCanvasId(node.id);
 }
 
-/** Type guard narrowing canvas event payloads into the mutation union. */
+/**
+ * Type guard narrowing canvas event payloads into the mutation union.
+ * @param value - value to check.
+ * @returns {boolean} true when value is an {@link NgDiagramMutation}.
+ */
 export function isGraphDiagramMutation(value: unknown): value is NgDiagramMutation {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   return (GRAPH_DIAGRAM_MUTATION_TYPES as readonly string[]).includes(

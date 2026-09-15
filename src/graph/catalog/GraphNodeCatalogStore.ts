@@ -88,12 +88,10 @@ export class GraphNodeCatalogStore implements GraphNodeManifestReader {
     return this.manifestsSignal();
   }
 
-  /** @inheritdoc GraphNodeManifestReader */
   all(): GraphNodeManifest[] {
     return this.manifestsSignal();
   }
 
-  /** @inheritdoc GraphNodeManifestReader */
   get(kind: string): GraphNodeManifest | undefined {
     return this.manifestMap.get(kind);
   }

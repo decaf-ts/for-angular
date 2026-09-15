@@ -7,8 +7,6 @@
  * @link {@link NgxComponentDirective}
  */
 
-import '@decaf-ts/overrides/ui-decorators';
-
 import { Location } from '@angular/common';
 import {
   ChangeDetectorRef,

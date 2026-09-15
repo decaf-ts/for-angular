@@ -10,11 +10,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CrudOperations, OperationKeys } from '@decaf-ts/db-decorators';
 import { IonButton, IonContent } from '@ionic/angular/standalone';
-import { DecafTranslatePipe } from 'src/lib/pipes';
-import { DashComponentCatalogService, DashboardComponent } from 'src/lib/components';
-import type { DashDocument } from 'src/lib/components';
-import { NgxPageDirective } from 'src/lib/engine';
 import { HeaderComponent } from 'src/app/components/header/header.component';
+import type { DashDocument } from 'src/lib/components';
+import { DashComponentCatalogService, DashboardComponent } from 'src/lib/components';
+import { NgxPageDirective } from 'src/lib/engine';
+import { DecafTranslatePipe } from 'src/lib/pipes';
 import { DemoListComponent, DemoNoteComponent, DemoStatsComponent } from './demo/demo-components';
 
 const STORAGE_KEY = 'dashboard-builder:composition';
@@ -38,9 +38,9 @@ const STORAGE_KEY = 'dashboard-builder:composition';
     DashboardComponent,
     // Statically imported so the `@dashcomponent()` + `@Dynamic()` decorators
     // register the palette at build time (AC-10).
-    DemoStatsComponent,
-    DemoListComponent,
-    DemoNoteComponent,
+    // DemoStatsComponent,
+    // DemoListComponent,
+    // DemoNoteComponent,
   ],
 })
 export class DashboardBuilderPage extends NgxPageDirective implements OnInit {

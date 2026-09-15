@@ -16,11 +16,7 @@ import type {
   GraphWorkflowDocument,
   GraphWorkflowViewport,
 } from '@decaf-ts/ui-decorators/graph';
-import {
-  assertGraphWorkflowDocumentValid,
-  isGraphEndpoint,
-  isGraphInputBinding,
-} from '@decaf-ts/ui-decorators/graph';
+import { assertGraphWorkflowDocumentValid, isGraphEndpoint, isGraphInputBinding } from '@decaf-ts/ui-decorators/graph';
 
 /**
  * Shallow patch describing a node change. `id`/`kind` cannot change (they are node
@@ -74,6 +70,8 @@ export type GraphDocumentCommandType = (typeof GRAPH_DOCUMENT_COMMAND_TYPES)[num
 
 /**
  * Ports commands strictly by type name (canvas event payloads never widen the union).
+ * @param value - value to check.
+ * @returns {boolean} true when value is a {@link GraphDocumentCommand}.
  */
 export function isGraphDocumentCommand(value: unknown): value is GraphDocumentCommand {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -85,8 +83,7 @@ export function isGraphDocumentCommand(value: unknown): value is GraphDocumentCo
 /**
  * Strict command type list (ordered), for adapters and tests to reason over.
  */
-export const GRAPH_DOCUMENT_COMMAND_TYPE_LIST: readonly GraphDocumentCommandType[] =
-  GRAPH_DOCUMENT_COMMAND_TYPES;
+export const GRAPH_DOCUMENT_COMMAND_TYPE_LIST: readonly GraphDocumentCommandType[] = GRAPH_DOCUMENT_COMMAND_TYPES;
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.length > 0;
@@ -107,10 +104,7 @@ function isSize(value: unknown): value is { width?: number; height?: number } {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const width = (value as { width?: unknown }).width;
   const height = (value as { height?: unknown }).height;
-  return (
-    (width === undefined || typeof width === 'number') &&
-    (height === undefined || typeof height === 'number')
-  );
+  return (width === undefined || typeof width === 'number') && (height === undefined || typeof height === 'number');
 }
 
 function assertValidPatch(patch: GraphNodeInstancePatch): void {
@@ -123,10 +117,7 @@ function assertValidPatch(patch: GraphNodeInstancePatch): void {
   ) {
     throw new ValidationError('Node patch carries a malformed input binding.');
   }
-  if (
-    patch.parameters !== undefined &&
-    typeof patch.parameters !== 'object'
-  ) {
+  if (patch.parameters !== undefined && typeof patch.parameters !== 'object') {
     throw new ValidationError('Node patch parameters must be a JSON-value record.');
   }
 }
@@ -136,14 +127,17 @@ function describeDocument(document: unknown): string {
   return typeof id === 'string' ? id : '<missing document>';
 }
 
-function endpointTargetPortIdsOf(document: GraphWorkflowDocument, edgeId: string, endpoint: GraphEndpoint, context: string): void {
+function endpointTargetPortIdsOf(
+  document: GraphWorkflowDocument,
+  edgeId: string,
+  endpoint: GraphEndpoint,
+  context: string
+): void {
   if (!isGraphEndpoint(endpoint)) {
     throw new ValidationError(`Edge '${edgeId}' ${context} endpoint is not a valid GraphEndpoint.`);
   }
   if (endpoint.scope === 'workflow') {
-    const declared = [...document.inputs, ...document.outputs].some(
-      (port) => port.id === endpoint.port
-    );
+    const declared = [...document.inputs, ...document.outputs].some((port) => port.id === endpoint.port);
     if (!declared) {
       throw new ValidationError(
         `Edge '${edgeId}' ${context} references workflow port '${endpoint.port}' that is not declared on the document.`
@@ -158,9 +152,7 @@ function endpointTargetPortIdsOf(document: GraphWorkflowDocument, edgeId: string
     );
   }
   if (typeof endpoint.port !== 'string' || !endpoint.port) {
-    throw new ValidationError(
-      `Edge '${edgeId}' ${context} node endpoint must reference a non-empty port identifier.`
-    );
+    throw new ValidationError(`Edge '${edgeId}' ${context} node endpoint must reference a non-empty port identifier.`);
   }
 }
 
@@ -235,24 +227,27 @@ export function applyGraphDocumentCommand(
         ...node,
         ...patchRest,
         parameters: { ...node.parameters, ...(patch.parameters ?? {}) },
-        inputBindings: node.inputBindings || patch.inputBindings
-          ? {
-              ...(node.inputBindings ?? {}),
-              ...(patch.inputBindings ?? {}),
-            }
-          : undefined,
-        outputBindings: node.outputBindings || patch.outputBindings
-          ? {
-              ...(node.outputBindings ?? {}),
-              ...(patch.outputBindings ?? {}),
-            }
-          : undefined,
-        metadata: node.metadata || patch.metadata
-          ? {
-              ...(node.metadata ?? {}),
-              ...(patch.metadata ?? {}),
-            }
-          : undefined,
+        inputBindings:
+          node.inputBindings || patch.inputBindings
+            ? {
+                ...(node.inputBindings ?? {}),
+                ...(patch.inputBindings ?? {}),
+              }
+            : undefined,
+        outputBindings:
+          node.outputBindings || patch.outputBindings
+            ? {
+                ...(node.outputBindings ?? {}),
+                ...(patch.outputBindings ?? {}),
+              }
+            : undefined,
+        metadata:
+          node.metadata || patch.metadata
+            ? {
+                ...(node.metadata ?? {}),
+                ...(patch.metadata ?? {}),
+              }
+            : undefined,
       };
       if (merged.inputBindings && !Object.keys(merged.inputBindings).length) delete merged.inputBindings;
       if (merged.outputBindings && !Object.keys(merged.outputBindings).length) delete merged.outputBindings;
@@ -394,9 +389,7 @@ export function applyGraphDocumentCommand(
       return { ...document, ui: { ...(document.ui ?? {}), viewport } };
     }
     default:
-      throw new ValidationError(
-        `Unknown graph document command '${String((command as { type: unknown }).type)}'.`
-      );
+      throw new ValidationError(`Unknown graph document command '${String((command as { type: unknown }).type)}'.`);
   }
 }
 

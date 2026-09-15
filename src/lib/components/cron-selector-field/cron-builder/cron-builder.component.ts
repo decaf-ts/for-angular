@@ -8,9 +8,9 @@ import { IonButton, IonItem, IonLabel, IonList, IonSelect, IonSelectOption } fro
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import cronstrue from 'cronstrue/i18n';
 import { shareReplay } from 'rxjs';
-import { DecafTooltipDirective } from 'src/lib/directives';
-import { SelectOption } from 'src/lib/engine/types';
-import { copyToClipboard, isNumber } from 'src/lib/utils';
+import { SelectOption } from '../../../engine/types';
+import { copyToClipboard, isNumber } from '../../../utils';
+import { DecafTooltipDirective } from '../../../directives';
 import { IconComponent } from '../../icon/icon.component';
 
 type CronFieldKey = 'minute' | 'hour' | 'day' | 'month' | 'weekday';

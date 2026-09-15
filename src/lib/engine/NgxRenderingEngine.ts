@@ -6,7 +6,6 @@
  * dynamic component creation and input mapping.
  * @link {@link NgxRenderingEngine}
  */
-import '@decaf-ts/overrides/ui-decorators';
 
 import {
   ApplicationRef,

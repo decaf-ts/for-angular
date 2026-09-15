@@ -12,8 +12,8 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { I18nFakeLoader } from '../../i18n';
 import { DashComponentCatalogService } from './dashboard-catalog.service';
-import type { DashPaletteEntry } from './dashboard.types';
 import { DashboardComponent } from './dashboard.component';
+import type { DashPaletteEntry } from './dashboard.types';
 
 @dashcomponent('test-widget', {
   label: 'test.widget',

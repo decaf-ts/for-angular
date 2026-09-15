@@ -1,6 +1,3 @@
-// alias to path on ui-decorators overrides to ensure correct resolution in Angular projects
-import '@decaf-ts/overrides/ui-decorators';
-
 /**
  * @module lib/for-angular-common.module
  * @description Core Angular module and providers for Decaf's for-angular package.

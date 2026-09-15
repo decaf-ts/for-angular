@@ -87,17 +87,16 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular/build:application",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "allowedCommonJsDependencies": ["cronstrue", "reflect-metadata"],
             "preserveSymlinks": true,
-            "outputPath": {
-              "base": "www",
-              "browser": ""
-            },
+            "outputPath": "www",
             "index": "src/index.html",
-            "polyfills": ["src/polyfills.ts", "zone.js"],
-
+            "main": "src/main.ts",
+            "polyfills": ["src/polyfills.ts", "zone.js", "zone.js/testing"],
+            "customWebpackConfig": {
+              "path": "./webpack.config.js"
+            },
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -119,7 +118,12 @@
               "node_modules/ng-diagram/styles.css",
               "src/global.scss",
               "src/theme/variables.scss"
-            ]
+            ],
+            "allowedCommonJsDependencies": [
+              "cronstrue"
+            ],
+            "serviceWorker": false,
+            "ngswConfigPath": "ngsw-config.json"
           },
           "configurations": {
             "production": {
@@ -142,7 +146,14 @@
                 "fonts": true
               }
             },
-            "development": {},
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            },
             "ci": {
               "progress": false
             }
@@ -150,7 +161,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular/build:dev-server",
+          "builder": "@angular-builders/custom-webpack:dev-server",
           "configurations": {
             "production": {
               "buildTarget": "for-angular-app:build:production"
