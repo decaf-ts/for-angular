@@ -1,11 +1,11 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, RouteReuseStrategy, withComponentInputBinding } from '@angular/router';
-import { RamAdapter, RamFlavour } from '@decaf-ts/core/ram';
+import { RamFlavour } from '@decaf-ts/core/ram';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { RootTranslateServiceConfig } from '@ngx-translate/core';
 import { CronSelectorFieldComponent } from 'src/lib/components';
-import { I18nResourceConfigType } from 'src/lib/engine';
+import { DecafAxiosHttpAdapter, I18nResourceConfigType } from 'src/lib/engine';
 import {
   provideDecafDbAdapter,
   provideDecafDynamicComponents,
@@ -14,7 +14,7 @@ import {
 import { provideDecafI18nConfig } from 'src/lib/i18n/Loader';
 import { isDevelopmentMode } from 'src/lib/utils/helpers';
 // The canonical graph module's live node catalogue source (DECAF-50 §4.12/§4.13).
-import { GraphNodeCatalogApi, GRAPH_NODE_CATALOG_SOURCE } from 'src/graph';
+import { GRAPH_NODE_CATALOG_SOURCE, GraphNodeCatalogApi } from 'src/graph';
 import { routes } from './app.routes';
 import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
 import { AppSelectFieldComponent } from './components/select-field/select-field.component';
@@ -44,12 +44,12 @@ export const AppConfig: ApplicationConfig = {
     provideIonicAngular({
       mode: 'md',
     }),
-    provideDecafDbAdapter(RamAdapter, { user: 'user', dbName: 'for-angular' }),
-    // provideDecafDbAdapter(DecafAxiosHttpAdapter, {
-    //   protocol: 'https',
-    //   host: 'ew-backend-pdm.ptp.internal',
-    //   events: true,
-    // }),
+    // provideDecafDbAdapter(RamAdapter, { user: 'user', dbName: 'for-angular' }),
+    provideDecafDbAdapter(DecafAxiosHttpAdapter, {
+      protocol: 'https',
+      host: 'ew-backend-pdm.ptp.internal',
+      events: true,
+    }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideRouter(routes, withComponentInputBinding()),

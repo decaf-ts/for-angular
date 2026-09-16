@@ -87,8 +87,9 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular/build:application",
+          "builder": "@angular-builders/custom-esbuild:application",
           "options": {
+            "plugins": ["./esbuild.config.js"],
             "allowedCommonJsDependencies": ["cronstrue", "reflect-metadata"],
             "preserveSymlinks": true,
             "outputPath": {
@@ -142,7 +143,17 @@
                 "fonts": true
               }
             },
-            "development": {},
+            "development": {
+              "optimization": {
+                "scripts": false,
+                "styles": true,
+                "fonts": false
+              },
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": false,
+              "outputHashing": "media"
+            },
             "ci": {
               "progress": false
             }
@@ -150,7 +161,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular/build:dev-server",
+          "builder": "@angular-builders/custom-esbuild:dev-server",
           "configurations": {
             "production": {
               "buildTarget": "for-angular-app:build:production"

@@ -8,7 +8,7 @@
     "start:dev": "concurrently -n backend,ui -c blue,green \"npm run start:backend\" \"npm run start\"",
     "decaf": "decaf angular generate",
     "start:ptp": "npx rimraf .angular && ng serve --host 0.0.0.0 --allowed-hosts all --port=8131 --configuration development",
-    "start:pdm": "npx rimraf .angular && ng serve --host 0.0.0.0 --allowed-hosts all --port=8130 --configuration development",
+    "start:pdm": "npx rimraf .angular && ng serve --host 0.0.0.0 --allowed-hosts for-angular-app --port=8130 --configuration development",
     "schematics": "schematics",
     "do-install": "NPM_TOKEN=$(cat .npmtoken) npm install && npm run build:icons",
     "update-scripts": "npx update-scripts",
@@ -84,6 +84,7 @@
     "cronstrue": "^3.24.0"
   },
   "devDependencies": {
+    "@angular-builders/custom-esbuild": "^21.1.0",
     "@angular-devkit/schematics": "^21.2.9",
     "@angular-devkit/schematics-cli": "^21.2.9",
     "@angular-eslint/builder": "^21.3.1",

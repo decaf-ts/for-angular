@@ -15,6 +15,7 @@
       "request": "launch",
       "url": "https://ew-frontend-pdm.ptp.internal/",
       "runtimeArgs": [
+        "--remote-debugging-port=29222",
         "--ignore-certificate-errors",
         "--ignore-urlfetcher-cert-requests",
         "--allow-insecure-localhost"
