@@ -143,17 +143,7 @@
                 "fonts": true
               }
             },
-            "development": {
-              "optimization": {
-                "scripts": false,
-                "styles": true,
-                "fonts": false
-              },
-              "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": false,
-              "outputHashing": "media"
-            },
+            "development": {},
             "ci": {
               "progress": false
             }
