@@ -7,6 +7,8 @@ import type { GraphRunLogEntry, LogNodeLevel } from '@decaf-ts/ui-decorators/gra
 import {
   GRAPH_LOG_FILTER_LABELS,
   GRAPH_LOG_FILTER_THRESHOLD,
+  GRAPH_RUN_LOG_LIFECYCLE_LABELS,
+  GRAPH_RUN_LOG_LIFECYCLE_LEVELS,
   graphRunLog,
 } from './GraphRunLogStore';
 
@@ -160,5 +162,77 @@ describe('GraphRunLogStore', () => {
       error: 'Errors',
     });
     expect(GRAPH_LOG_FILTER_THRESHOLD).toEqual({ verbose: 0, info: 3, warn: 5, error: 6 });
+  });
+
+  it('is empty until an entry or a run-lifecycle line lands (D6)', () => {
+    expect(graphRunLog.isEmpty()).toBe(true);
+    graphRunLog.recordLifecycle('created', 'Run r1 created for workflow w1');
+    expect(graphRunLog.isEmpty()).toBe(false);
+    graphRunLog.clear();
+    expect(graphRunLog.isEmpty()).toBe(true);
+    graphRunLog.append(entry('info'));
+    expect(graphRunLog.isEmpty()).toBe(false);
+  });
+
+  it('records run-lifecycle lines with their severity and run context (D6/G3-21)', () => {
+    graphRunLog.recordLifecycle('created', 'Run r1 created for workflow w1', {
+      runId: 'r1',
+      workflowId: 'w1',
+    });
+    graphRunLog.recordLifecycle('validated', 'Workflow w1 validated', { workflowId: 'w1' });
+    graphRunLog.recordLifecycle('validation-issues', 'Workflow w1 validation reported 1 issue(s)', {
+      workflowId: 'w1',
+    });
+
+    const lines = graphRunLog.lifecycle();
+    expect(lines.map((line) => line.kind)).toEqual([
+      'created',
+      'validated',
+      'validation-issues',
+    ]);
+    expect(lines[0]).toMatchObject({
+      level: GRAPH_RUN_LOG_LIFECYCLE_LEVELS.created,
+      runId: 'r1',
+      workflowId: 'w1',
+    });
+    expect(lines[2].level).toBe(GRAPH_RUN_LOG_LIFECYCLE_LEVELS['validation-issues']);
+    // Lifecycle lines never pollute the streamed engine entry stream.
+    expect(graphRunLog.entries()).toHaveLength(0);
+  });
+
+  it('exposes run-lifecycle labels and severities', () => {
+    expect(GRAPH_RUN_LOG_LIFECYCLE_LABELS).toEqual({
+      created: 'Created',
+      validated: 'Validated',
+      'validation-issues': 'Validation issues',
+      cancelled: 'Cancelled',
+    });
+    expect(GRAPH_RUN_LOG_LIFECYCLE_LEVELS).toEqual({
+      created: 'info',
+      validated: 'info',
+      'validation-issues': 'warn',
+      cancelled: 'warn',
+    });
+  });
+
+  it('records a cancelled run-lifecycle line (G3-34)', () => {
+    graphRunLog.recordLifecycle('cancelled', "Run 'r1' was cancelled.", { runId: 'r1' });
+
+    const lines = graphRunLog.lifecycle();
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatchObject({
+      kind: 'cancelled',
+      level: GRAPH_RUN_LOG_LIFECYCLE_LEVELS.cancelled,
+      message: "Run 'r1' was cancelled.",
+      runId: 'r1',
+    });
+  });
+
+  it('clear empties both the streamed entries and the run-lifecycle lines', () => {
+    graphRunLog.appendAll([entry('debug'), entry('info')]);
+    graphRunLog.recordLifecycle('validated', 'Workflow w1 validated');
+    graphRunLog.clear();
+    expect(graphRunLog.entries()).toHaveLength(0);
+    expect(graphRunLog.lifecycle()).toHaveLength(0);
   });
 });

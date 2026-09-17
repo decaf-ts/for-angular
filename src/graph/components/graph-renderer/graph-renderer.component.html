@@ -1,5 +1,28 @@
 <section class="graph-renderer">
-  <div class="graph-renderer__canvas">
+  <div
+    class="graph-renderer__canvas"
+    [class.graph-renderer__canvas--invalid]="graphInvalid()"
+    [attr.data-graph-validity]="graphValidityStatus()"
+  >
+    @if (graphInvalid()) {
+      <div
+        class="graph-renderer__validation-banner"
+        role="alert"
+        aria-live="polite"
+      >
+        <strong>{{ graphValidityLabel() }}</strong>
+        <ul class="graph-renderer__validation-list">
+          @for (issue of graphIssues(); track $index) {
+            <li class="graph-renderer__validation-issue">
+              @if (issue.path) {
+                <code>{{ issue.path }}</code>
+              }
+              <span>{{ issue.message }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
     @if (model(); as graphModel) {
       <ng-diagram
         [model]="graphModel"
@@ -46,6 +69,46 @@
               &times;
             </button>
           </div>
+
+          @if (catalogStatus() === 'loading') {
+            <p
+              class="graph-renderer__palette-status"
+              role="status"
+              aria-live="polite"
+            >
+              {{ catalogStatusMessage() }}
+            </p>
+          } @else if (catalogStatus() === 'degraded') {
+            <p
+              class="graph-renderer__palette-status graph-renderer__palette-status--degraded"
+              role="status"
+              aria-live="polite"
+            >
+              {{ catalogStatusMessage() }}
+            </p>
+          } @else if (catalogStatus() === 'failed') {
+            <p
+              class="graph-renderer__palette-status graph-renderer__palette-status--failed"
+              role="alert"
+            >
+              {{ catalogStatusMessage() }}
+            </p>
+            <button
+              type="button"
+              class="graph-renderer__palette-retry"
+              (click)="reloadCatalogue()"
+            >
+              Retry catalogue
+            </button>
+          } @else if (paletteEmpty()) {
+            <p
+              class="graph-renderer__palette-status graph-renderer__palette-status--empty"
+              role="status"
+            >
+              No nodes are available in the catalogue.
+            </p>
+          }
+
           <ul class="graph-renderer__palette-list">
             @for (entry of paletteEntries(); track entry.name) {
               <li>
@@ -75,7 +138,13 @@
     <ng-content select="[graphFloatingControls]"></ng-content>
 
     <app-graph-logs-widget />
-    <app-graph-node-inspection />
+    <app-graph-node-inspection
+      [runState]="runResultState()"
+      [validationIssues]="validationIssues()"
+      [workflowInputForm]="workflowInputForm()"
+      [workflowInputFields]="workflowInputFields()"
+      (retry)="retryRunResult.emit()"
+    />
   </div>
 
   <aside class="graph-renderer__side graph-renderer__side--inputs">
@@ -177,28 +246,42 @@
               }
             </ul>
           }
-
-          <button
-            type="button"
-            class="graph-renderer__duplicate"
-            (click)="duplicateInput(field.path)"
-          >
-            Duplicate value node
-          </button>
         </article>
       }
     </form>
 
-    <div class="graph-renderer__validation">
-      <p>Model validation</p>
-      <strong>{{ hasFormErrors() ? 'Invalid' : 'Valid' }}</strong>
+    <div
+      class="graph-renderer__validation"
+      [class.graph-renderer__validation--invalid]="graphInvalid()"
+    >
+      <p>Graph validation</p>
+      <strong>{{ graphValidityLabel() }}</strong>
       <small>
-        {{
-          workflowInputErrors()
-            ? displayValue(workflowInputErrors())
-            : 'No model errors'
-        }}
+        @if (graphValidityStatus() === 'valid') {
+          No graph validation issues.
+        } @else if (graphValidityStatus() === 'unavailable') {
+          Validation backend unavailable; Run is gated on backend availability.
+        } @else if (graphValidityStatus() === 'checking') {
+          Checking the graph against the backend…
+        } @else if (graphValidityStatus() === 'idle') {
+          Not validated yet.
+        } @else {
+          The graph cannot run until these issues are fixed.
+        }
       </small>
+
+      @if (graphIssues().length) {
+        <ul class="graph-renderer__validation-issues">
+          @for (issue of graphIssues(); track $index) {
+            <li class="graph-renderer__validation-issue">
+              @if (issue.path) {
+                <strong>{{ issue.path }}</strong>
+              }
+              <span>{{ issue.message }}</span>
+            </li>
+          }
+        </ul>
+      }
     </div>
   </aside>
 
@@ -226,39 +309,64 @@
       }
     </div>
 
-    <div class="graph-renderer__snapshot">
-      <div class="graph-renderer__snapshot-header">
-        <p>Snapshot</p>
-        <small>
-          Save the live graph state or restore a previously serialized snapshot.
-        </small>
-      </div>
+    @if (validationIssues().length) {
+      <ul class="graph-renderer__validation-issues">
+        @for (issue of validationIssues(); track $index) {
+          <li class="graph-renderer__validation-issue">
+            @if (issue.path) {
+              <strong>{{ issue.path }}</strong>
+            }
+            <span>{{ issue.message }}</span>
+          </li>
+        }
+      </ul>
+    }
 
-      <textarea
-        #snapshotArea
-        class="graph-renderer__snapshot-text"
-        [value]="snapshotValue()"
-        (input)="updateSnapshotValue(snapshotArea.value)"
-        rows="12"
-        spellcheck="false"
-      ></textarea>
+    @if (runResultState() === 'failed') {
+      <button
+        type="button"
+        class="graph-renderer__retry"
+        (click)="retryRunResult.emit()"
+      >
+        Retry result fetch
+      </button>
+    }
 
-      <div class="graph-renderer__snapshot-actions">
-        <button
-          type="button"
-          class="graph-renderer__snapshot-button"
-          (click)="saveSnapshot()"
-        >
-          Save snapshot
-        </button>
-        <button
-          type="button"
-          class="graph-renderer__snapshot-button"
-          (click)="loadSnapshot()"
-        >
-          Load snapshot
-        </button>
+    @if (devMode) {
+      <div class="graph-renderer__snapshot">
+        <div class="graph-renderer__snapshot-header">
+          <p>Snapshot</p>
+          <small>
+            Save the live graph state or restore a previously serialized snapshot.
+          </small>
+        </div>
+
+        <textarea
+          #snapshotArea
+          class="graph-renderer__snapshot-text"
+          [value]="snapshotValue()"
+          (input)="updateSnapshotValue(snapshotArea.value)"
+          rows="12"
+          spellcheck="false"
+        ></textarea>
+
+        <div class="graph-renderer__snapshot-actions">
+          <button
+            type="button"
+            class="graph-renderer__snapshot-button"
+            (click)="saveSnapshot()"
+          >
+            Save snapshot
+          </button>
+          <button
+            type="button"
+            class="graph-renderer__snapshot-button"
+            (click)="loadSnapshot()"
+          >
+            Load snapshot
+          </button>
+        </div>
       </div>
-    </div>
+    }
   </aside>
 </section>

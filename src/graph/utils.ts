@@ -138,6 +138,24 @@ export function countPortsByDirection(direction: PortDirection, ports: GraphDemo
 }
 
 const graphInputBoundaryDefinition = graphDefinitionOf(GraphInputValueNode as never);
+
+/**
+ * Static port of the output-boundary badge (the n8n result analog, D2/G3-09):
+ * a single `value` **input** handle so workflow-output edges project as
+ * port→port connections instead of being dropped.
+ */
+const graphOutputBoundaryPorts: GraphPortDefinition[] = [
+  {
+    property: 'value',
+    path: 'value',
+    direction: PortDirection.INPUT,
+    name: 'value',
+    label: 'value',
+    required: false,
+    hidden: false,
+  } as GraphPortDefinition,
+];
+
 function resolveGraphReference(ref: unknown) {
   if (typeof ref === 'function') {
     return graphDefinitionOf(ref as never);
@@ -180,6 +198,59 @@ function buildBoundaryNode(
       value,
       ports: graphInputBoundaryDefinition.ports,
       modelClass: GraphInputValueNode as never,
+      expanded: false,
+    },
+  };
+}
+
+/**
+ * Resolves the declared default value of a workflow port definition the same way
+ * the manifest/workflow compilers do: element props, then `prop.value`, then the
+ * validation metadata's `defaultValue`. `GraphPortDefinition` itself carries no
+ * `defaultValue` (that lives on the document port instance), so the definition's
+ * nested metadata is the only source.
+ */
+function resolvePortDefaultValue(port: GraphPortDefinition): unknown {
+  return port.element?.['props']?.['value'] ?? port.prop?.['value'] ?? port.validation?.['defaultValue'];
+}
+
+/**
+ * Builds the canvas output-boundary badge for one workflow output port
+ * (D2/G3-09). Mirrors {@link buildBoundaryNode} for the result role: the
+ * badge carries a real `value` input handle and is positioned opposite the
+ * input badges.
+ */
+function buildOutputBoundaryNode(
+  property: string,
+  port: GraphRendererViewModel['workflow']['outputs'][number],
+  index: number,
+  workflowName: string
+): GraphCanvasNodeBlueprint<GraphBoundaryNodeData> {
+  return {
+    id: `output-${property}`,
+    type: graphInputBoundaryDefinition.kind,
+    position: {
+      x: 980,
+      y: 120 + index * 120,
+    },
+    size: {
+      width: 72,
+      height: 32,
+    },
+    resizable: false,
+    draggable: true,
+    autoSize: false,
+    data: {
+      title: port.label ?? property,
+      kind: graphInputBoundaryDefinition.kind,
+      role: 'output',
+      property,
+      sourceClass: workflowName,
+      sourcePort: property,
+      duplicateIndex: 0,
+      isPrimary: true,
+      value: resolvePortDefaultValue(port),
+      ports: graphOutputBoundaryPorts,
       expanded: false,
     },
   };
@@ -426,7 +497,7 @@ function resolveWorkflowEndpoint(
   property: string | undefined,
   workflowName: string,
   nodeLookup: Map<string, GraphCanvasNodeBlueprint<GraphRendererNodeData>>,
-  inputLookup: Map<string, GraphCanvasNodeBlueprint<GraphBoundaryNodeData>>
+  boundaryLookup: Map<string, GraphCanvasNodeBlueprint<GraphBoundaryNodeData>>
 ) {
   const normalizedReference =
     typeof reference === 'string'
@@ -440,7 +511,7 @@ function resolveWorkflowEndpoint(
       throw new Error('Workflow boundary relations require a port name.');
     }
 
-    const boundary = inputLookup.get(property);
+    const boundary = boundaryLookup.get(property);
     if (!boundary) {
       throw new Error(`Unknown workflow boundary port: ${property}`);
     }
@@ -568,7 +639,9 @@ export function buildGraphRendererViewModel<M extends Model>(
 ): GraphRendererViewModel {
   const workflow = graphWorkflowDefinitionOf(model);
   const workflowInputs: ReturnType<typeof graphLeafPortsOf> = graphLeafPortsOf(workflow.inputs);
+  const workflowOutputs: ReturnType<typeof graphLeafPortsOf> = graphLeafPortsOf(workflow.outputs);
   const inputLookup = new Map<string, GraphCanvasNodeBlueprint<GraphBoundaryNodeData>>();
+  const outputLookup = new Map<string, GraphCanvasNodeBlueprint<GraphBoundaryNodeData>>();
   const memberNodes = new Map<string, GraphCanvasNodeBlueprint<GraphRendererNodeData>>();
 
   const inputs = workflowInputs.flatMap((port, index) => {
@@ -590,6 +663,16 @@ export function buildGraphRendererViewModel<M extends Model>(
     });
   });
 
+  // Output-boundary badges (D2/G3-09): one per workflow output port, so the
+  // workflow-output relations project as port→port connections in the legacy
+  // decorated-root canvas exactly as they do in the doc-driven adapter.
+  const outputs = workflowOutputs.map((port, index) => {
+    const portPath = resolvePortPath(port);
+    const node = buildOutputBoundaryNode(portPath, port, index, workflow.name);
+    outputLookup.set(portPath, node);
+    return node;
+  });
+
   const nodes = workflow.nodes.map((entry, index) => {
     if (!entry.node || typeof entry.node !== 'function') {
       throw new Error(`Graph node entry ${entry.id} does not reference a decorated class.`);
@@ -602,7 +685,7 @@ export function buildGraphRendererViewModel<M extends Model>(
     return node;
   });
 
-  const edges = (workflow.relations || []).map((relation, index) => {
+  const edges = (workflow.relations || []).flatMap((relation, index) => {
     const source = resolveWorkflowEndpoint(
       relation.source,
       relation.sourcePort,
@@ -610,55 +693,64 @@ export function buildGraphRendererViewModel<M extends Model>(
       memberNodes,
       inputLookup
     );
-    const targetIsWorkflow = (() => {
-      const normalizedTarget =
-        typeof relation.target === 'string'
-          ? relation.target
-          : typeof relation.target === 'function'
-            ? resolveGraphReference(relation.target)?.name
-            : undefined;
-      return normalizedTarget === workflow.name || normalizedTarget === 'workflow' || normalizedTarget === 'graph';
-    })();
+    const normalizedTarget =
+      typeof relation.target === 'string'
+        ? relation.target
+        : typeof relation.target === 'function'
+          ? resolveGraphReference(relation.target)?.name
+          : undefined;
+    const targetIsWorkflow =
+      normalizedTarget === workflow.name || normalizedTarget === 'workflow' || normalizedTarget === 'graph';
 
+    // Workflow-output relations bind the member output to the output-boundary
+    // badge's `value` input port (D2/G3-09). An undeclared output port is
+    // skipped (matching the doc-driven adapter's lenient projection) rather
+    // than throwing inside the renderer's view-model computed.
+    let target: ReturnType<typeof resolveWorkflowEndpoint>;
     if (targetIsWorkflow) {
-      return undefined;
+      const boundary = relation.targetPort ? outputLookup.get(relation.targetPort) : undefined;
+      if (!boundary) return [];
+      target = { nodeId: boundary.id, portId: 'value', boundary: true };
+    } else {
+      target = resolveWorkflowEndpoint(
+        relation.target,
+        relation.targetPort,
+        workflow.name,
+        memberNodes,
+        inputLookup
+      );
     }
 
-    const target = resolveWorkflowEndpoint(
-      relation.target,
-      relation.targetPort,
-      workflow.name,
-      memberNodes,
-      inputLookup
-    );
-
-    return {
-      id: `edge-${index}`,
-      type: 'graph-edge',
-      source: source.nodeId,
-      target: target.nodeId,
-      sourcePort: source.portId,
-      targetPort: target.portId,
-      data: {
-        label: relation.label,
-        // The engine keys EDGE_STATE_CHANGED / EDGE_VALUE_ROUTED events by the
-        // plan-edge id (`${sourceNodeId}:${sourcePort}->${targetNodeId}:${targetPort}`,
-        // boundary resolved to `$workflow`). The canvas id is positional
-        // (`edge-${index}`), so we carry the engine match key in data.
-        engineEdgeId: `${
-          source.boundary ? '$workflow' : source.nodeId
-        }:${relation.sourcePort ?? source.portId}->${
-          target.boundary ? '$workflow' : target.nodeId
-        }:${relation.targetPort ?? target.portId}`,
+    return [
+      {
+        id: `edge-${index}`,
+        type: 'graph-edge',
+        source: source.nodeId,
+        target: target.nodeId,
+        sourcePort: source.portId,
+        targetPort: target.portId,
+        data: {
+          label: relation.label,
+          // The engine keys EDGE_STATE_CHANGED / EDGE_VALUE_ROUTED events by the
+          // plan-edge id (`${sourceNodeId}:${sourcePort}->${targetNodeId}:${targetPort}`,
+          // boundary resolved to `$workflow`). The canvas id is positional
+          // (`edge-${index}`), so we carry the engine match key in data.
+          engineEdgeId: `${
+            source.boundary ? '$workflow' : source.nodeId
+          }:${relation.sourcePort ?? source.portId}->${
+            target.boundary ? '$workflow' : target.nodeId
+          }:${relation.targetPort ?? target.portId}`,
+        },
       },
-    };
+    ];
   });
 
   return {
     workflow,
     inputs,
+    outputs,
     nodes,
-    edges: edges.filter((edge): edge is NonNullable<typeof edge> => !!edge),
+    edges,
     workflowOutputs: workflow.outputs,
   };
 }
@@ -673,7 +765,7 @@ export function buildGraphRendererModel<M extends Model>(
   const viewModel = buildGraphRendererViewModel(model, inputValues, duplicateInputs);
   const nextModel = initializeModel(
     {
-      nodes: [...viewModel.inputs, ...viewModel.nodes],
+      nodes: [...viewModel.inputs, ...viewModel.outputs, ...viewModel.nodes],
       edges: viewModel.edges,
       metadata: {
         viewport: {

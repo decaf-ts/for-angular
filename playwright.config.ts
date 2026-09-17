@@ -94,10 +94,28 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  /* Run the demo stack before starting the tests (DECAF-50 §4.25 PR-G /
+   * G3-31): the frontend dev server (:8110) plus the graph backend (:3000)
+   * the app talks to by default (`GRAPH_BACKEND_URL`). Both are managed so the
+   * Playwright suite never depends on a manually booted server, and the backend
+   * is launched from `for-angular`'s own `node_modules` (G3-30) — never via a
+   * `../integrations` path traversal. */
+  webServer: [
+    {
+      command: 'npm run start:backend',
+      port: 3000,
+      reuseExistingServer: !process.env['CI'],
+      timeout: 120_000,
+      stdout: 'pipe',
+      stderr: 'pipe',
+    },
+    {
+      command: 'npm run start',
+      url: 'http://localhost:8110',
+      reuseExistingServer: !process.env['CI'],
+      timeout: 240_000,
+      stdout: 'pipe',
+      stderr: 'pipe',
+    },
+  ],
 });

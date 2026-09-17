@@ -20,6 +20,29 @@
   margin-bottom: 0.5rem;
 }
 
+/* G3-28: explicit degraded-catalogue notice so backend-down never silently
+   empties the dynamic parameter options. */
+.graph-node-edit-modal__degraded {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid rgba(234, 179, 8, 0.5);
+  border-radius: 10px;
+  background: rgba(234, 179, 8, 0.12);
+  color: #854d0e;
+}
+
+.graph-node-edit-modal__degraded strong {
+  display: block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.graph-node-edit-modal__degraded p {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
 .graph-node-edit-modal__section h3 {
   margin: 0 0 0.3rem;
   font-size: 0.9rem;

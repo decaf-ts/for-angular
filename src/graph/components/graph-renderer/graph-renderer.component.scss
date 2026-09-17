@@ -156,14 +156,46 @@
   font-size: 0.82rem;
 }
 
-.graph-renderer__duplicate {
-  justify-self: start;
-  border: 0;
-  border-radius: 999px;
-  padding: 0.45rem 0.75rem;
-  background: #0f766e;
-  color: white;
+/* G3-26/G3-27: the palette projects the catalogue's own status so a
+   backend-down or out-of-contract response is never a silently empty list. */
+.graph-renderer__palette-status {
+  margin: 0;
+  padding: 0.6rem 1rem;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.graph-renderer__palette-status--degraded {
+  color: #fcd34d;
+  background: rgba(234, 179, 8, 0.08);
+}
+
+.graph-renderer__palette-status--failed {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.graph-renderer__palette-status--empty {
+  color: #94a3b8;
+}
+
+.graph-renderer__palette-retry {
+  display: inline-flex;
+  margin: 0.5rem 1rem 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.14);
+  color: #fecaca;
+  font-size: 0.78rem;
   font-weight: 700;
+  cursor: pointer;
+}
+
+.graph-renderer__palette-retry:hover {
+  background: rgba(239, 68, 68, 0.24);
 }
 
 .graph-renderer__validation {
@@ -185,6 +217,49 @@
 
 .graph-renderer__validation strong {
   font-size: 1.05rem;
+}
+
+/* D5/G3-16: the canvas projects the invalid graph state visibly. */
+.graph-renderer__canvas--invalid {
+  border-color: rgba(249, 115, 22, 0.65);
+  box-shadow:
+    0 18px 42px rgba(249, 115, 22, 0.18),
+    inset 0 0 0 1px rgba(249, 115, 22, 0.4);
+}
+
+.graph-renderer__validation--invalid {
+  border-color: rgba(249, 115, 22, 0.5);
+  background: rgba(249, 115, 22, 0.08);
+}
+
+.graph-renderer__validation-banner {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  max-width: min(640px, 60vw);
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.7rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(249, 115, 22, 0.55);
+  background: rgba(255, 247, 237, 0.96);
+  color: #9a3412;
+  box-shadow: 0 14px 34px rgba(249, 115, 22, 0.22);
+}
+
+.graph-renderer__validation-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.82rem;
+}
+
+.graph-renderer__validation-issue code {
+  margin-right: 0.4rem;
+  font-size: 0.78rem;
 }
 
 .graph-renderer__ports {

@@ -1,10 +1,11 @@
 /**
  * @module for-angular/graph/components/graph-logs-widget
- * @summary Chrome-console-style run log widget docked to the canvas.
- * @description Renders the streamed `GRAPH_RUN_LOG` entries from the
- * {@link graphRunLog} singleton store as a collapsible, filterable console.
- * Level filtering follows browser devtools semantics: picking a level shows
- * that level plus everything above it.
+ * @summary Chrome-console-style run log drawer docked to the canvas bottom.
+ * @description Renders the streamed `GRAPH_RUN_LOG` entries plus the
+ * run-lifecycle lines (created/validated/validation issues) from the
+ * {@link graphRunLog} singleton store as a collapsible, filterable console the
+ * user opens on demand. Level filtering follows browser devtools semantics:
+ * picking a level shows that level plus everything above it.
  */
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -13,8 +14,10 @@ import type { GraphRunLogEntry } from '@decaf-ts/ui-decorators/graph';
 import {
   GRAPH_LOG_FILTER_LABELS,
   GRAPH_LOG_LEVEL_SEVERITY,
+  GRAPH_RUN_LOG_LIFECYCLE_LABELS,
   graphRunLog,
   type GraphLogFilterLevel,
+  type GraphRunLogLifecycleEntry,
 } from '../../execution/GraphRunLogStore';
 
 function entryLevelClassFn(level: GraphRunLogEntry['level']): string {
@@ -50,12 +53,23 @@ function formatValueFn(value: unknown): string {
 }
 
 /**
- * Docked Chrome-console-style run log console. Renders the streamed
- * `GRAPH_RUN_LOG` entries held by the shared {@link graphRunLog} signal store
- * with a header bar of level presets, a warnings/errors counter, and clear /
- * collapse / dismiss actions. Purely presentational: it never writes to the
- * store beyond the user actions it exposes, so the store remains the single
- * source of truth for entries and filter state.
+ * CSS modifier class for a run-lifecycle line based on its kind.
+ * @param kind Lifecycle transition the line reports.
+ * @returns `graph-logs__lifecycle-entry--{created|validated|validation-issues}`.
+ */
+function lifecycleClassFn(kind: GraphRunLogLifecycleEntry['kind']): string {
+  return `graph-logs__lifecycle-entry--${kind}`;
+}
+
+/**
+ * Docked bottom-drawer run log console (DECAF-50 §4.22/D6). Renders the
+ * streamed `GRAPH_RUN_LOG` entries and the run-lifecycle lines held by the
+ * shared {@link graphRunLog} signal store, with a header bar of level presets, a
+ * warnings/errors counter, and clear / collapse / dismiss actions. When closed it
+ * renders an open affordance so the user can open it on demand regardless of
+ * whether the run produced any entries; when open with nothing to show it renders
+ * an empty state. Purely presentational: it never writes to the store beyond the
+ * user actions it exposes, so the store remains the single source of truth.
  */
 @Component({
   selector: 'app-graph-logs-widget',
@@ -90,6 +104,11 @@ export class GraphLogsWidgetComponent {
     this.store.setOpen(false);
   }
 
+  /** Opens the on-demand console from its docked handle (D6/G3-19). */
+  protected openLogs(): void {
+    this.store.setOpen(true);
+  }
+
   /** Flips the console body between collapsed and expanded states. */
   protected toggleCollapsed(): void {
     this.store.setCollapsed(!this.store.collapsed());
@@ -109,9 +128,19 @@ export class GraphLogsWidgetComponent {
     return entryLevelLabelFn(entry.level);
   }
 
-  /** Local `HH:MM:SS` time for a log entry's ISO timestamp. */
-  protected entryTime(entry: GraphRunLogEntry): string {
-    return entryTimeFn(entry.timestamp);
+  /** Readable label rendered as a run-lifecycle line's badge (D6/G3-21). */
+  protected lifecycleLabel(line: GraphRunLogLifecycleEntry): string {
+    return GRAPH_RUN_LOG_LIFECYCLE_LABELS[line.kind];
+  }
+
+  /** CSS modifier class for a run-lifecycle line based on its kind. */
+  protected lifecycleClass(line: GraphRunLogLifecycleEntry): string {
+    return lifecycleClassFn(line.kind);
+  }
+
+  /** Local `HH:MM:SS` time for a log line's ISO timestamp. */
+  protected entryTime(line: { timestamp: string }): string {
+    return entryTimeFn(line.timestamp);
   }
 
   /** Stable-ish display string for arbitrary log payload values. */
@@ -125,5 +154,13 @@ export class GraphLogsWidgetComponent {
    */
   protected trackEntry(_: number, entry: GraphRunLogEntry): string {
     return `${entry.runId}-${entry.timestamp}-${entry.message}`;
+  }
+
+  /**
+   * ngFor track key for a run-lifecycle line, keyed by kind, timestamp and
+   * message so repeated lifecycle lines stay distinct.
+   */
+  protected trackLifecycle(_: number, line: GraphRunLogLifecycleEntry): string {
+    return `${line.kind}-${line.timestamp}-${line.message}`;
   }
 }

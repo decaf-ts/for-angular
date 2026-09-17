@@ -109,9 +109,55 @@
   justify-content: center;
 }
 
+/* Result boundary: the real `value` input handle sits on the left edge
+   (D2/G3-09). */
+.graph-badge__ports--in {
+  top: 0;
+  bottom: 0;
+  left: -0.4rem;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .graph-badge__port {
   position: relative;
   display: flex;
   align-items: center;
   pointer-events: auto;
+}
+
+.graph-badge__port--in {
+  justify-content: flex-start;
+}
+
+.graph-badge__port--out {
+  justify-content: flex-end;
+}
+
+/* ---- port labels — readable on every visible badge port (D2/G3-09) ---- */
+
+.graph-badge__port-label {
+  position: absolute;
+  white-space: nowrap;
+  font-size: 0.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  pointer-events: none;
+  opacity: 1;
+  z-index: 4;
+}
+
+.graph-badge__port--in .graph-badge__port-label {
+  right: 100%;
+  margin-right: 0.3rem;
+}
+
+.graph-badge__port--out .graph-badge__port-label {
+  left: 100%;
+  margin-left: 0.3rem;
 }

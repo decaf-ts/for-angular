@@ -17,6 +17,7 @@ import type {
   GraphWorkflowSnapshot,
   LegacyGraphWorkflowSnapshot,
 } from '@decaf-ts/ui-decorators/graph';
+import type { GraphValidationIssue } from '../../validation';
 
 /** Snapshot form the toolbar hands to its restore callback: legacy canvas snapshot or canonical wrapper. */
 export type GraphToolbarRestoreSnapshot =
@@ -44,7 +45,20 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
   readonly workflowId = input.required<string>();
   readonly canRun = input<boolean>(true);
   readonly isRunning = input<boolean>(false);
+  /**
+   * Whether the editor's validity projection marks the graph invalid
+   * (D5/G3-17): an invalid graph must never be submittable, so the Run
+   * affordance is disabled and its title surfaces the issue count.
+   */
+  readonly invalid = input<boolean>(false);
+  /** Structured graph validation issues backing {@link invalid} (D5/G3-16). */
+  readonly validationIssues = input<GraphValidationIssue[]>([]);
   readonly runWorkflow = output<void>();
+  /**
+   * Requests cancellation of the in-flight run (G3-34): the page owns the run
+   * client and the run id, so the toolbar only forwards the intent.
+   */
+  readonly cancelWorkflow = output<void>();
   readonly saveWorkflow = output<void>();
   readonly restoreSnapshot = output<GraphToolbarRestoreSnapshot>();
 
@@ -63,6 +77,22 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
 
   readonly saveMessage = signal<string | null>(null);
   readonly saveError = signal<string | null>(null);
+
+  /**
+   * Whether Run is blocked (D5/G3-17): the backend must be available, no run
+   * may be in flight, and the editor's validity projection must not mark the
+   * graph invalid. An invalid graph is never submittable.
+   */
+  readonly runDisabled = computed(
+    () => !this.canRun() || this.isRunning() || this.invalid()
+  );
+
+  /** Run affordance title, surfacing the structured issue count when invalid. */
+  readonly runTitle = computed(() =>
+    this.invalid()
+      ? `Fix ${this.validationIssues().length} graph validation issue(s) before running`
+      : 'Start workflow'
+  );
 
   ngOnInit(): void {
     this.history.setActiveWorkflow(this.workflowId());
@@ -100,6 +130,16 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
   }
 
   onRun(): void {
+    // D5/G3-17: an invalid graph is never submittable from the toolbar.
+    if (this.runDisabled()) return;
     this.runWorkflow.emit();
+  }
+
+  /**
+   * Forwards a run-cancel request (G3-34) while a run is in flight.
+   */
+  onCancel(): void {
+    if (!this.isRunning()) return;
+    this.cancelWorkflow.emit();
   }
 }

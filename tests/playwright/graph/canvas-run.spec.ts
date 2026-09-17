@@ -40,6 +40,8 @@ import {
   openNodeEditor,
   closeModal,
   isPortConnected,
+  pinNode,
+  isNodePinned,
 } from './helpers';
 
 /** Demo canvas ids (src/app/pages/graph/workflow-root.ts). */
@@ -61,13 +63,27 @@ const INITIAL_EDGES = [
   REMOVED_EDGE,
 ] as const;
 
+/**
+ * Canvas document edges at open (D2 boundary decision, DECAF-50 §4.22/G3-09):
+ * the 4 engine plan edges above plus the workflow-output edge
+ * (`ResultLogNode:logged -> $workflow:result`) that now projects onto the
+ * output badge instead of being dropped. The mock SSE body only routes the 4
+ * engine edges, so the succeeded-edge assertions stay keyed on INITIAL_EDGES.
+ */
+const INITIAL_DOCUMENT_EDGES = INITIAL_EDGES.length + 1;
+
 const WORKFLOW_ID = 'text-pipeline-workflow';
 const RUN_ID = 'run-e2e-1';
 const EDITED_LITERAL = 'warn';
 
 interface WorkflowDocumentLike {
   id?: string;
-  nodes?: { id: string; inputBindings?: Record<string, unknown>; parameters?: Record<string, unknown> }[];
+  nodes?: {
+    id: string;
+    inputBindings?: Record<string, unknown>;
+    parameters?: Record<string, unknown>;
+    pinned?: { parameters: Record<string, unknown>; pinnedAt?: string };
+  }[];
   edges?: { id?: string; source?: { nodeId?: string; port?: string }; target?: { nodeId?: string; port?: string } }[];
   ui?: unknown;
 }
@@ -141,6 +157,15 @@ class MockGraphServer {
   savedWrapper: { document: WorkflowDocumentLike } | null = null;
   savePutCount = 0;
   runCreateRequest: { workflow: WorkflowDocumentLike; inputs: Record<string, unknown> } | null = null;
+  /**
+   * The validation authority's answer (D5): the renderer re-validates
+   * continuously, so the route returns this on every request. The valid
+   * default keeps the existing spine's Run enabled.
+   */
+  validationResult: {
+    valid: boolean;
+    issues: { code: string; path: string; message: string }[];
+  } = { valid: true, issues: [] };
 
   /** SSE body: node/edge events live and in order, terminal strictly last. */
   sseBody(): string {
@@ -236,6 +261,16 @@ async function installMockBackend(page: Page, server: MockGraphServer): Promise<
     route.fulfill({ status: 404, body: '' })
   );
 
+  // Canonical validation authority (D5/§4.10): the renderer validates the
+  // document continuously, so every validate request gets the current answer.
+  await page.route('**/graph/workflows/validate', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(server.validationResult),
+    })
+  );
+
   // Canonical persistence (§4.10): PUT/GET /graph/workflows/:id.
   await page.route(`**/graph/workflows/${WORKFLOW_ID}`, (route: Route) => {
     if (route.request().method() === 'PUT') {
@@ -322,6 +357,20 @@ async function documentEdgeCount(page: Page): Promise<number> {
   );
 }
 
+/** Waits (bounded) for the canvas document edge count to settle on `expected`. */
+async function settlesTo(
+  page: Page,
+  expected: number,
+  timeoutMs = 3000
+): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if ((await documentEdgeCount(page)) === expected) return true;
+    await page.waitForTimeout(150);
+  }
+  return false;
+}
+
 /** Draws one canvas edge source-port → target-port (step 5). */
 async function drawEdge(
   page: Page,
@@ -357,7 +406,16 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
       await expect(getNodeArticle(page, nodeId)).toBeVisible();
     }
     const initialEdgeCount = await documentEdgeCount(page);
-    expect(initialEdgeCount).toBe(INITIAL_EDGES.length);
+    expect(initialEdgeCount).toBe(INITIAL_DOCUMENT_EDGES);
+
+    // ── Validity pre-run gate (D5/§4.22): the continuous validate call
+    // returns the valid branch, so the canvas projects `valid`, no issue banner
+    // renders, and Run stays enabled through to submission (step 8).
+    const canvas = page.locator('.graph-renderer__canvas');
+    await expect(canvas).toHaveAttribute('data-graph-validity', 'valid', {
+      timeout: 20_000,
+    });
+    await expect(page.locator('.graph-renderer__validation-banner')).toHaveCount(0);
 
     // ── Step 2: add a node through the manifest-driven palette ────────────
     await page.locator('button.graph-renderer__palette-btn').click();
@@ -369,7 +427,7 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
     await utilityLogEntry.click();
     await expect(getNodeArticle(page, ADDED)).toBeVisible({ timeout: 10_000 });
     // Adding a node creates exactly one new canvas node — no auto edges.
-    expect(await documentEdgeCount(page)).toBe(INITIAL_EDGES.length);
+    expect(await documentEdgeCount(page)).toBe(INITIAL_DOCUMENT_EDGES);
 
     // ── Step 3: edit a literal input on the added node ────────────────────
     await openNodeEditor(page, ADDED);
@@ -383,6 +441,12 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
     await closeModal(page, 'save');
     await expect(page.locator('ion-modal')).toBeHidden({ timeout: 10_000 });
 
+    // ── Step 3.5: pin the added node (D4 data pinning) ───────────────────
+    // The pin freezes the node's parameter values into the canonical document.
+    // It must not touch the live literal, so steps 7/9 still observe `warn`.
+    await pinNode(page, ADDED);
+    expect(await isNodePinned(page, ADDED)).toBe(true);
+
     // ── Step 4: remove an edge (Foreach:completed → ResultLog:value) ──────
     const removedEdgeLabel = page
       .locator('.ng-diagram-default-edge-label')
@@ -392,12 +456,23 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
     await page.waitForTimeout(400);
     await page.keyboard.press('Delete');
     await page.waitForTimeout(800);
-    expect(await documentEdgeCount(page)).toBe(INITIAL_EDGES.length - 1);
+    expect(await documentEdgeCount(page)).toBe(INITIAL_DOCUMENT_EDGES - 1);
 
     // ── Step 5: draw a new edge chain through the added node ──────────────
     await drawEdge(page, { nodeId: FOREACH, portId: 'completed' }, { nodeId: ADDED, portId: 'value' });
-    await drawEdge(page, { nodeId: ADDED, portId: 'logged' }, { nodeId: RESULT_LOG, portId: 'value' });
-    expect(await documentEdgeCount(page)).toBe(INITIAL_EDGES.length + 1);
+    // Let the first new edge settle before dragging the second: the canvas
+    // re-renders/re-layouts on the document mutation, and a drag started
+    // mid-settle is swallowed (flaky second edge).
+    await expect.poll(() => documentEdgeCount(page)).toBe(INITIAL_DOCUMENT_EDGES);
+    // The second drag starts on a node that just re-laid out with the first
+    // new edge; a drag issued mid-settle is swallowed by ng-diagram, so retry
+    // until the document actually carries the second edge (the edge count is
+    // the source of truth, so a late-landing retry cannot double-connect).
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await drawEdge(page, { nodeId: ADDED, portId: 'logged' }, { nodeId: RESULT_LOG, portId: 'value' });
+      if (await settlesTo(page, INITIAL_DOCUMENT_EDGES + 1)) break;
+    }
+    expect(await documentEdgeCount(page)).toBe(INITIAL_DOCUMENT_EDGES + 1);
     await expect
       .poll(async () => isPortConnected(page, ADDED, 'value'))
       .toBe(true);
@@ -417,7 +492,7 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
     for (const nodeId of [SPLIT, FOREACH, RESULT_LOG, ADDED]) {
       await expect(getNodeArticle(page, nodeId)).toBeVisible();
     }
-    expect(await documentEdgeCount(page)).toBe(INITIAL_EDGES.length + 1);
+    expect(await documentEdgeCount(page)).toBe(INITIAL_DOCUMENT_EDGES + 1);
     // The removed edge did not survive the save/reload round trip.
     await expect
       .poll(async () => isPortConnected(page, FOREACH, 'completed'))
@@ -447,10 +522,13 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
     expect(savedEdgeIds).not.toContain(REMOVED_EDGE);
     expect(savedEdgeIds).toContain(NEW_EDGE_INTO_ADDED);
     expect(savedEdgeIds).toContain(NEW_EDGE_OUT_OF_ADDED);
+    // Step 3.5's pin survived the round-trip as canonical document data.
+    expect(nodeOf(savedDocument, ADDED).pinned?.parameters?.['level']).toBe(EDITED_LITERAL);
 
     // ── Step 8: run the workflow ──────────────────────────────────────────
     const runButton = page.locator('button.graph-float-btn--run');
     await expect(runButton).toBeEnabled();
+    await expect(runButton).toHaveAttribute('title', 'Start workflow');
     await runButton.click();
     await expect
       .poll(() => (server.runCreateRequest ? 1 : 0))
@@ -484,6 +562,10 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
       mode: 'literal',
       value: EDITED_LITERAL,
     });
+    // The run consumed the pinned document (D4): `pinned` survived the freeze
+    // projection and the frozen value matches the live edited literal.
+    expect(nodeOf(runDocument, ADDED).pinned?.parameters?.['level']).toBe(EDITED_LITERAL);
+    expect(nodeOf(runDocument, ADDED).parameters?.['level']).toBe(EDITED_LITERAL);
 
     // Step 11: live node/edge events arrived before the terminal event —
     // the pre-terminal log lines are folded into the run console, and the
@@ -503,8 +585,19 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
     await addedNode.dblclick({ force: true });
     const inspection = page.locator('.graph-node-inspection');
     await expect(inspection).toBeVisible({ timeout: 10_000 });
-    const inputsViewer = inspection.locator('app-graph-io-viewer').nth(1);
+    // Post-run split-view inspection (D3): the run inputs are the LEFT pane,
+    // the CRUD form is the CENTER pane, the run outputs are the RIGHT pane.
+    await expect(
+      inspection.locator('.graph-node-inspection__pane--crud app-graph-node-inline-editor')
+    ).toBeVisible();
+    const inputsViewer = inspection.locator(
+      '.graph-node-inspection__pane--inputs app-graph-io-viewer'
+    );
+    await expect(inputsViewer).toBeVisible();
     await expect(inputsViewer.locator('.graph-io__json')).toContainText(EDITED_LITERAL);
+    await expect(
+      inspection.locator('.graph-node-inspection__pane--outputs app-graph-io-viewer .graph-io__json')
+    ).toBeVisible();
 
     // ── Definition-of-done proof (PM-approved): the document the SERVER
     // persisted at save time equals the document the run consumed —
@@ -512,5 +605,56 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
     const savedHash = semanticHash(savedDocument);
     const runHash = semanticHash(runDocument);
     expect(runHash, `saved document hash ${savedHash} must equal run document hash`).toBe(savedHash);
+  });
+
+  test('gates Run on an invalid graph: canvas invalid, issue banner, no run submitted (D5/§4.22)', async ({ page }) => {
+    test.setTimeout(120_000);
+    const server = new MockGraphServer();
+    server.validationResult = {
+      valid: false,
+      issues: [
+        {
+          code: 'graph.edge.dangling',
+          path: 'edges.2',
+          message: 'Edge target is missing',
+        },
+      ],
+    };
+    await installMockBackend(page, server);
+
+    // Open the same demo canvas; the validate authority now answers invalid.
+    await gotoGraph(page);
+    for (const nodeId of [SPLIT, FOREACH, RESULT_LOG]) {
+      await expect(getNodeArticle(page, nodeId)).toBeVisible();
+    }
+
+    // The continuous projection lands on `invalid` and renders the issue banner.
+    const canvas = page.locator('.graph-renderer__canvas');
+    await expect(canvas).toHaveAttribute('data-graph-validity', 'invalid', {
+      timeout: 20_000,
+    });
+    await expect(canvas).toHaveClass(/graph-renderer__canvas--invalid/);
+
+    const banner = page.locator('.graph-renderer__validation-banner');
+    await expect(banner).toBeVisible();
+    await expect(banner).toContainText('Edge target is missing');
+
+    // The toolbar Run control is disabled and titled with the issue count, and
+    // the "Invalid (n)" badge renders.
+    const runButton = page.locator('button.graph-float-btn--run');
+    await expect(runButton).toBeDisabled();
+    await expect(runButton).toHaveAttribute(
+      'title',
+      /Fix 1 graph validation issue\(s\) before running/,
+    );
+    await expect(page.locator('.graph-float-btn--invalid')).toHaveText(
+      /Invalid \(1\)/,
+    );
+
+    // Force past the disabled actionability gate; the toolbar's own onRun()
+    // guard must still refuse, so no POST /graph/runs is ever issued.
+    await runButton.click({ force: true });
+    await page.waitForTimeout(1000);
+    expect(server.runCreateRequest).toBeNull();
   });
 });

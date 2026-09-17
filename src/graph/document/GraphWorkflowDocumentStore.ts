@@ -21,6 +21,7 @@ import {
   type GraphDocumentCommand,
   type GraphNodeInstancePatch,
 } from './GraphDocumentCommands';
+import { graphNodePinStateOf } from './GraphDocumentSelectors';
 import { graphNodeInstanceFromManifest } from './GraphNodePaletteFactory';
 
 /** Position of a node in the workflow diagram `{x, y}` (DECAF-50 §4.12). */
@@ -238,6 +239,43 @@ export class GraphWorkflowDocumentStore {
   /** Commits a node's final canvas position (drag-end only). */
   moveNode(nodeId: string, position: GraphPosition): void {
     this.dispatchCommand({ type: 'node.move', nodeId, position });
+  }
+
+  /**
+   * Pins a node (D4 data pinning, DECAF-50 §4.22): writes a frozen deep clone
+   * of the node's current parameter values into the document-carried pin state so
+   * downstream runs reuse them. This is UI data pinning, never the engine's cache
+   * pinning (`GraphPinning`).
+   * @param nodeId - Node to pin; must exist in the workflow document.
+   * @param pinnedAt - Optional ISO-8601 capture timestamp (tests use it for determinism).
+   */
+  pinNode(nodeId: string, pinnedAt?: string): void {
+    const node = this.documentSignal()?.nodes.find((candidate) => candidate.id === nodeId);
+    if (!node) {
+      throw new ValidationError(`Graph node '${nodeId}' does not exist in the workflow document.`);
+    }
+    this.dispatchCommand({
+      type: 'node.update',
+      nodeId,
+      patch: { pinned: graphNodePinStateOf(node, pinnedAt) },
+    });
+  }
+
+  /**
+   * Unpins a node (D4): clears the document-carried pin state, releasing the
+   * frozen parameter values so subsequent runs use the live values again.
+   */
+  unpinNode(nodeId: string): void {
+    this.dispatchCommand({ type: 'node.update', nodeId, patch: { pinned: null } });
+  }
+
+  /** Whether a node currently carries a document-carried pin state (D4). */
+  isNodePinned(nodeId: string): boolean {
+    return (
+      this.documentSignal()?.nodes.some(
+        (candidate) => candidate.id === nodeId && candidate.pinned !== undefined
+      ) ?? false
+    );
   }
 
   /** Adds an edge (endpoints validated upstream by the adapter). */

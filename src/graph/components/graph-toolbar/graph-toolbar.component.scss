@@ -72,6 +72,26 @@
   cursor: not-allowed;
 }
 
+/* G3-34: cancel affordance for the in-flight run. */
+.graph-float-btn--cancel {
+  border-color: rgba(239, 68, 68, 0.55);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.32));
+  color: #fee2e2;
+  font-weight: 700;
+}
+
+.graph-float-btn--cancel:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.35), rgba(185, 28, 28, 0.45));
+}
+
+.graph-float-btn--invalid {
+  border-color: rgba(239, 68, 68, 0.55);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.32));
+  color: #fee2e2;
+  font-weight: 700;
+  cursor: default;
+}
+
 .graph-float-toggle {
   display: inline-flex;
   align-items: center;

@@ -42,13 +42,35 @@
       }
     </button>
 
+    @if (invalid()) {
+      <span
+        class="graph-float-btn graph-float-btn--invalid"
+        role="status"
+        [title]="runTitle()"
+      >
+        Invalid ({{ validationIssues().length }})
+      </span>
+    }
+
+    @if (isRunning()) {
+      <button
+        type="button"
+        class="graph-float-btn graph-float-btn--cancel"
+        (click)="onCancel()"
+        title="Cancel run"
+      >
+        Cancel
+      </button>
+    }
+
     <button
       type="button"
       class="graph-float-btn graph-float-btn--run"
       [class.graph-float-btn--running]="isRunning()"
-      [disabled]="!canRun() || isRunning()"
+      [disabled]="runDisabled()"
+      [attr.aria-disabled]="runDisabled()"
+      [title]="runTitle()"
       (click)="onRun()"
-      title="Start workflow"
     >
       {{ isRunning() ? '...' : 'Start' }}
     </button>

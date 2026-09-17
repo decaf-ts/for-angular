@@ -237,12 +237,13 @@ test.describe('graph run console & node I/O (DECAF-48)', () => {
     await expect(page.locator('ng-diagram-base-edge.graph-edge--blocked')).toHaveCount(4);
   });
 
-  test('opens the node I/O inspection panel for a completed node (JSON/table/raw)', async ({ page }) => {
+  test('opens the node I/O inspection panel for a completed node (3-pane split view)', async ({ page }) => {
     await mockBackend(page);
     await gotoGraph(page);
     await startRun(page);
 
-    // Double-click a node that has run: opens inspection instead of the editor.
+    // Double-click a node that has run: the D3 split view opens (never the
+    // pre-run edit modal), whose CENTER pane is the CRUD form (G3-10).
     const splitArticle = getNodeArticle(page, 'SplitTextCodeNode');
     await expect(splitArticle).toHaveClass(/graph-node--succeeded/);
     await splitArticle.dblclick({ force: true });
@@ -251,23 +252,37 @@ test.describe('graph run console & node I/O (DECAF-48)', () => {
     await expect(inspection).toBeVisible();
     await expect(inspection.locator('.graph-node-inspection__identity')).toContainText('Split');
 
-    // Two io-viewer panes: outputs and inputs, both defaulting to JSON.
-    const viewers = inspection.locator('app-graph-io-viewer');
-    await expect(viewers).toHaveCount(2);
-    await expect(viewers.nth(0).locator('.graph-io__title')).toContainText('Outputs');
-    await expect(viewers.nth(1).locator('.graph-io__title')).toContainText('Inputs');
-    await expect(viewers.nth(0).locator('.graph-io__json')).toContainText('5');
-    await expect(viewers.nth(1).locator('.graph-io__json')).toContainText('Hello');
+    // D3 three-pane split: run inputs LEFT / CRUD CENTER / run outputs RIGHT.
+    const inputsPane = inspection.locator('.graph-node-inspection__pane--inputs');
+    const crudPane = inspection.locator('.graph-node-inspection__pane--crud');
+    const outputsPane = inspection.locator('.graph-node-inspection__pane--outputs');
+    await expect(inputsPane).toBeVisible();
+    await expect(crudPane).toBeVisible();
+    await expect(outputsPane).toBeVisible();
 
-    // Outputs viewer can switch to table and raw rendering.
-    const modes = viewers.nth(0).locator('.graph-io__modes button.graph-io__mode');
+    // CENTER pane is the editable CRUD form (never removed by a run).
+    await expect(crudPane.locator('app-graph-node-inline-editor')).toBeVisible();
+
+    // LEFT pane is the populated "Run inputs" viewer (JSON default).
+    const inputsViewer = inputsPane.locator('app-graph-io-viewer');
+    await expect(inputsViewer).toBeVisible();
+    await expect(inputsViewer.locator('.graph-io__title')).toHaveText('Run inputs');
+    await expect(inputsViewer.locator('.graph-io__json')).toContainText('Hello');
+
+    // RIGHT pane is the populated "Run outputs" viewer (JSON/table/raw modes).
+    const outputsViewer = outputsPane.locator('app-graph-io-viewer');
+    await expect(outputsViewer).toBeVisible();
+    await expect(outputsViewer.locator('.graph-io__title')).toHaveText('Run outputs');
+    await expect(outputsViewer.locator('.graph-io__json')).toContainText('5');
+
+    const modes = outputsViewer.locator('.graph-io__modes button.graph-io__mode');
     await expect(modes.nth(0)).toHaveText('json');
     await modes.filter({ hasText: 'table' }).click({ force: true });
-    await expect(viewers.nth(0).locator('.graph-io__table tbody tr')).toHaveCount(1);
-    await expect(viewers.nth(0).locator('.graph-io__table')).toContainText('5');
+    await expect(outputsViewer.locator('.graph-io__table tbody tr')).toHaveCount(1);
+    await expect(outputsViewer.locator('.graph-io__table')).toContainText('5');
 
     await modes.filter({ hasText: 'raw' }).click({ force: true });
-    await expect(viewers.nth(0).locator('.graph-io__raw')).toContainText('"result"');
+    await expect(outputsViewer.locator('.graph-io__raw')).toContainText('"result"');
   });
 });
 
@@ -280,8 +295,11 @@ test.describe('canonical run trio wire contract (DECAF-50 §4.19)', () => {
     `$workflow:text->${SPLIT}:data`,
     `${SPLIT}:result->${FOREACH}:items`,
     `${FOREACH}:completed->${RESULT_LOG}:value`,
-    // The document also carries the workflow output boundary edge.
+    // The document carries the workflow-output relation twice: the lossless
+    // conversion keeps the legacy `$workflow` edge, and the D2/G3-09 boundary
+    // projection adds the port→port edge onto the output-boundary badge.
     `${RESULT_LOG}:logged->$workflow:result`,
+    `${RESULT_LOG}:logged->output-result:value`,
   ];
 
   test('run action posts the exact editor document and follows the 202 eventsUrl from sequence zero', async ({ page }) => {
@@ -295,7 +313,11 @@ test.describe('canonical run trio wire contract (DECAF-50 §4.19)', () => {
     const createBody = wire.runCreateBodies[0];
     // Document mode: the workflow is submitted inline, never by workflowId.
     expect(createBody['workflowId']).toBeUndefined();
+    // G3-13 wire-contract re-check: the run submits the workflow-input form's
+    // own defaults (count 1 / the text default), never the retired hardcoded body.
     expect(createBody['inputs']).toMatchObject({ count: 1 });
+    const formInputs = createBody['inputs'] as Record<string, unknown>;
+    expect(String(formInputs['text'])).toContain('Hello');
     const workflow = createBody['workflow'] as WorkflowDocumentLike;
     const nodeIds = (workflow.nodes ?? []).map((node) => node.id);
     for (const nodeId of [SPLIT, FOREACH, RESULT_LOG]) {
@@ -333,10 +355,13 @@ test.describe('canonical run trio wire contract (DECAF-50 §4.19)', () => {
     await expect(logs.locator('.graph-logs__entry')).toHaveCount(4);
 
     // Terminal fold ran strictly after the live events: the stored result is
-    // reachable through the completed node's inspection panel.
+    // reachable through the completed node's split-view outputs pane (D3).
     await getNodeArticle(page, SPLIT).dblclick({ force: true });
-    await expect(page.locator('.graph-node-inspection')).toBeVisible();
-    await expect(page.locator('.graph-node-inspection .graph-io__json').first()).toContainText('5');
+    const inspection = page.locator('.graph-node-inspection');
+    await expect(inspection).toBeVisible();
+    await expect(
+      inspection.locator('.graph-node-inspection__pane--outputs .graph-io__json')
+    ).toContainText('5');
   });
 
   test('rejects a 202 without resultUrl and never opens the event stream', async ({ page }) => {

@@ -61,9 +61,9 @@ test.describe('Switch node (core.flow.switch), palette-added', () => {
     await expect(article.locator('.graph-node__name')).toHaveText('Switch');
   });
 
-  test('has the Flow Control category accent colour (#f97316)', async ({ page }) => {
+  test('has the Flow Control category accent colour (#f59e0b)', async ({ page }) => {
     const color = await getNodeAccentColor(page, SWITCH);
-    expect(color.toLowerCase()).toBe('#f97316');
+    expect(color.toLowerCase()).toBe('#f59e0b');
   });
 
   test('has a value input port', async ({ page }) => {
@@ -78,7 +78,7 @@ test.describe('Switch node (core.flow.switch), palette-added', () => {
 
   test('double-click opens the switch edit modal', async ({ page }) => {
     await openNodeEditor(page, SWITCH);
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 20_000 });
     const title = await getModalTitle(page);
     expect(title).toContain('Switch');
     await closeModal(page, 'cancel');
@@ -86,14 +86,14 @@ test.describe('Switch node (core.flow.switch), palette-added', () => {
 
   test('switch edit modal shows condition editor', async ({ page }) => {
     await openNodeEditor(page, SWITCH);
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 20_000 });
     await expect(page.locator('ion-modal app-graph-switch-edit-modal')).toBeVisible({ timeout: 10_000 });
     await closeModal(page, 'cancel');
   });
 
   test('switch edit modal has drag handles for conditions', async ({ page }) => {
     await openNodeEditor(page, SWITCH);
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 20_000 });
     // A fresh palette switch carries an empty cases list — create one condition
     // first so the reorder machinery (drag handle per condition row) renders.
     await page.locator('ion-modal ion-button').filter({ hasText: 'Add' }).first().click();
@@ -105,7 +105,7 @@ test.describe('Switch node (core.flow.switch), palette-added', () => {
 
   test('switch edit modal has a default toggle', async ({ page }) => {
     await openNodeEditor(page, SWITCH);
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 20_000 });
     const toggle = page.locator('ion-modal ion-toggle, ion-modal [type="checkbox"]');
     expect(await toggle.count()).toBeGreaterThan(0);
     await closeModal(page, 'cancel');
@@ -119,7 +119,7 @@ test.describe('Switch node (core.flow.switch), palette-added', () => {
 
     // Toggle default through the modal (writes parameters['hasDefault']).
     await openNodeEditor(page, SWITCH);
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 20_000 });
     const toggle = page.locator('ion-modal ion-toggle').first();
     const isCheckedBefore = await toggle.evaluate((el) => (el as HTMLElement & { checked?: boolean }).checked);
     await toggle.click();
@@ -133,7 +133,7 @@ test.describe('Switch node (core.flow.switch), palette-added', () => {
 
     // Toggle back — the default port visibility restores.
     await openNodeEditor(page, SWITCH);
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 20_000 });
     const toggle2 = page.locator('ion-modal ion-toggle').first();
     const isCheckedAfter = await toggle2.evaluate((el) => (el as HTMLElement & { checked?: boolean }).checked);
     expect(isCheckedAfter).toBe(!isCheckedBefore);

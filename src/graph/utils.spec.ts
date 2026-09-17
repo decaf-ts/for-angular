@@ -88,16 +88,41 @@ describe('graph adapter', () => {
   it('builds an ng-diagram model for the workflow root', () => {
     const model = buildGraphRendererModel(TextPipelineWorkflow as never, TestBed.inject(Injector));
 
-    expect(model.getNodes()).toHaveLength(5);
-    expect(model.getEdges()).toHaveLength(4);
+    // D2 output-boundary projection: the workflow-output badge adds one node
+    // (`output-result`) and its relation one edge to the legacy decorated-root
+    // model, so 2 input badges + 1 output badge + 3 member nodes / 5 edges.
+    expect(model.getNodes()).toHaveLength(6);
+    expect(model.getEdges()).toHaveLength(5);
     expect(model.getNodes()[0]).toMatchObject({
       id: 'input-count',
       type: 'value',
     });
-    expect(model.getNodes()[2]).toMatchObject({
-      id: 'SplitTextCodeNode',
-      type: 'core.flow.code',
-    });
+    expect(model.getNodes()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'output-result',
+          type: 'value',
+          data: expect.objectContaining({ role: 'output', property: 'result' }),
+        }),
+        expect.objectContaining({
+          id: 'SplitTextCodeNode',
+          type: 'core.flow.code',
+        }),
+      ])
+    );
+    expect(model.getEdges()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: 'ResultLogNode',
+          target: 'output-result',
+          sourcePort: 'logged',
+          targetPort: 'value',
+          data: expect.objectContaining({
+            engineEdgeId: 'ResultLogNode:logged->$workflow:result',
+          }),
+        }),
+      ])
+    );
   });
 
   it('carries the engine plan-edge id + edge template type on every canvas edge (DECAF-48 §4.4)', () => {
@@ -105,9 +130,9 @@ describe('graph adapter', () => {
 
     expect(viewModel.edges.every((edge) => edge.type === 'graph-edge')).toBe(true);
     const engineIds = viewModel.edges.map((edge) => edge.data.engineEdgeId).filter(Boolean);
-    // Outgoing workflow-output edges carry no engineEdgeId: workflow outputs
-    // are surfaced through the run result, not as canvas edges, so the canvas
-    // shows only the 4 intra-workflow edges (ResultLogNode:logged->$workflow:result is dropped).
+    // D2/G3-09: the workflow-output relation now projects as a port→port
+    // connection to the output-boundary badge (`$workflow:result`), so it carries an
+    // engineEdgeId like every intra-workflow edge.
     expect(engineIds).toHaveLength(viewModel.edges.length);
     expect(engineIds).toEqual(
       expect.arrayContaining([
@@ -115,6 +140,7 @@ describe('graph adapter', () => {
         '$workflow:text->SplitTextCodeNode:data',
         'SplitTextCodeNode:result->GraphForeachLoopNode:items',
         'GraphForeachLoopNode:completed->ResultLogNode:value',
+        'ResultLogNode:logged->$workflow:result',
       ])
     );
     expect(viewModel.edges.every((edge) => !(edge.data.engineEdgeId ?? '').includes('undefined'))).toBe(true);

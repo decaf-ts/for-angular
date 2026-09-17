@@ -4,6 +4,7 @@
     [class.graph-node--selected]="isSelected()"
     [class.graph-node--connecting]="isConnecting()"
     [class.graph-node--pinned]="isPinned()"
+    [class.graph-node--invalid]="isInvalid()"
     [class.graph-node--running]="statusLabel() === 'running'"
     [class.graph-node--blocked]="statusLabel() === 'blocked'"
     [class.graph-node--succeeded]="statusLabel() === 'succeeded'"
@@ -11,24 +12,35 @@
     [class.graph-node--skipped]="statusLabel() === 'skipped'"
     [class.graph-node--cached]="statusLabel() === 'cached'"
     [style.--graph-accent]="node().data.color || '#5b21b6'"
-    [style.--node-size.px]="nodeWidthPx()"
+    [style.border-radius.px]="cornerRadiusPx()"
+    [attr.data-node-shape]="nodeShape()"
     (dblclick)="openEditor($event)"
   >
-    <div class="graph-node__icon" [class]="node().data.icon || ''">
-      <span class="graph-node__icon-fallback">{{ iconFallback() }}</span>
+    <div class="graph-node__icon">
+      @if (iconSpriteHref(); as spriteHref) {
+        <svg class="graph-node__icon-svg" aria-hidden="true">
+          <use [attr.href]="spriteHref"></use>
+        </svg>
+      } @else if (iconImageSrc(); as imageSrc) {
+        <img class="graph-node__icon-img" [src]="imageSrc" alt="" />
+      } @else {
+        <span class="graph-node__icon-fallback">{{ iconFallback() }}</span>
+      }
     </div>
 
     <span class="graph-node__name">{{ node().data.title }}</span>
 
     <div class="graph-node__actions">
-      <button
-        type="button"
-        class="graph-node__btn graph-node__btn--pin"
-        [class.graph-node__btn--pinned]="isPinned()"
-        title="Pin node"
-        (click)="pinNode($event)"
-        (mousedown)="$event.stopPropagation()"
-      >&#128204;</button>
+      @if (isPinnable()) {
+        <button
+          type="button"
+          class="graph-node__btn graph-node__btn--pin"
+          [class.graph-node__btn--pinned]="isPinned()"
+          title="Pin node"
+          (click)="pinNode($event)"
+          (mousedown)="$event.stopPropagation()"
+        >&#128204;</button>
+      }
 
       <button
         type="button"
@@ -44,9 +56,14 @@
         <div
           class="graph-node__port graph-node__port--in"
           [class.graph-node__port--connected]="connectedPortIds().has(port.path || port.property)"
-          [class.graph-node__port--default]="port.property === 'value' || port.path === 'value'"
+          [class.graph-node__port--default]="isDefaultPort(port)"
+          [class.graph-node__port--required]="port.required === true"
+          [class.graph-node__port--value-bound]="portBindingMode(port) === 'value'"
         >
           <span class="graph-node__port-label">{{ port.label || port.property }}</span>
+          @if (portValueBadge(port); as valueBadge) {
+            <span class="graph-node__port-value">{{ valueBadge }}</span>
+          }
           <ng-diagram-port [id]="port.path || port.property" type="target" side="left" />
         </div>
       }
@@ -57,13 +74,25 @@
         <div
           class="graph-node__port graph-node__port--out"
           [class.graph-node__port--connected]="connectedPortIds().has(port.path || port.property)"
-          [class.graph-node__port--default]="port.property === 'value' || port.path === 'value'"
+          [class.graph-node__port--default]="isDefaultPort(port)"
+          [class.graph-node__port--required]="port.required === true"
         >
           <ng-diagram-port [id]="port.path || port.property" type="source" side="right" />
           <span class="graph-node__port-label">{{ port.label || port.property }}</span>
         </div>
       }
     </div>
+
+    @if (hasOutputPorts()) {
+      <button
+        type="button"
+        class="graph-node__add"
+        title="Add node"
+        aria-label="Add node connected to {{ node().data.title }}"
+        (click)="addNodeFromConnector($event)"
+        (mousedown)="$event.stopPropagation()"
+      >+</button>
+    }
 
     @if (connectionPorts().length) {
       <div class="graph-node__ports graph-node__ports--connection">

@@ -4,6 +4,7 @@ import {
   getNodePorts,
   getNodeArticle,
   getAllNodeIds,
+  openNodeEditor,
 } from './helpers';
 
 const BOUNDARY_NODES = [
@@ -67,9 +68,18 @@ test.describe('Boundary Input Nodes — collective behaviour', () => {
   test('boundary nodes are positioned on the left side of the canvas', async ({ page }) => {
     for (const id of ['input-count', 'input-text']) {
       const article = getNodeArticle(page, id);
-      const x = await article.evaluate(el => el.getBoundingClientRect().x);
-      const canvasWidth = await page.locator('.graph-renderer__canvas').evaluate(el => el.getBoundingClientRect().width);
-      expect(x).toBeLessThan(canvasWidth / 3);
+      // Viewport coordinates: measure the badge relative to the canvas origin
+      // (the app shell offsets the canvas, so absolute x is never comparable
+      // to the canvas width).
+      const { x, canvasX, canvasWidth } = await article.evaluate((el) => {
+        const canvas = document.querySelector('.graph-renderer__canvas')!;
+        return {
+          x: el.getBoundingClientRect().x,
+          canvasX: canvas.getBoundingClientRect().x,
+          canvasWidth: canvas.getBoundingClientRect().width,
+        };
+      });
+      expect(x - canvasX).toBeLessThan(canvasWidth / 3);
     }
   });
 
@@ -80,5 +90,38 @@ test.describe('Boundary Input Nodes — collective behaviour', () => {
       expect(className).toContain('graph-badge');
       expect(className).not.toContain('graph-node');
     }
+  });
+
+  test('double-click opens the editable workflow-input CRUD in the split-view center (D3/G3-10)', async ({
+    page,
+  }) => {
+    await openNodeEditor(page, 'input-count');
+    const inspection = page.locator('.graph-node-inspection');
+    await expect(inspection).toBeVisible({ timeout: 10_000 });
+    await expect(inspection.locator('.graph-node-inspection__identity')).toContainText(
+      'Count'
+    );
+    // CENTER pane: the editable workflow-input form (never the edit modal).
+    const crud = inspection.locator('.graph-node-inspection__pane--crud');
+    await expect(crud.locator('app-graph-workflow-input-editor')).toBeVisible();
+    await expect(
+      crud.locator('.graph-workflow-input-editor__control')
+    ).toBeVisible();
+    await expect(page.locator('ion-modal')).toBeHidden();
+  });
+
+  test('workflow-output boundary double-click renders its value read-only (D3)', async ({
+    page,
+  }) => {
+    await openNodeEditor(page, 'output-result');
+    const inspection = page.locator('.graph-node-inspection');
+    await expect(inspection).toBeVisible({ timeout: 10_000 });
+    const crud = inspection.locator('.graph-node-inspection__pane--crud');
+    await expect(
+      crud.locator('.graph-workflow-input-editor__field--readonly')
+    ).toBeVisible();
+    await expect(
+      crud.locator('.graph-workflow-input-editor__control')
+    ).toHaveCount(0);
   });
 });

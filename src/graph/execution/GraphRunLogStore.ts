@@ -1,10 +1,12 @@
 /**
  * @module for-angular/graph/execution/GraphRunLogStore
- * @summary Singleton signal store backing the bottom-docked run log console.
- * @description Holds the `graph.run.log` streamed entries plus the
+ * @summary Singleton signal store backing the bottom-docked run log drawer.
+ * @description Holds the `graph.run.log` streamed entries, the run-lifecycle
+ * lines fed in by the run and validity stores (DECAF-50 §4.22/D6), and the
  * Chrome-console-style filter state. The widget is a pure projection of this
  * store, so a page can forward SSE `GRAPH_RUN_LOG` events with a single
- * `graphRunLog.append(entry)` call.
+ * `graphRunLog.append(entry)` call and lifecycle transitions with
+ * `graphRunLog.recordLifecycle(kind, message)`.
  */
 import { computed, signal } from "@angular/core";
 
@@ -14,6 +16,64 @@ import type { GraphRunLogEntry, LogNodeLevel } from "@decaf-ts/ui-decorators/gra
  * Console-style log presets for the run log filter.
  */
 export type GraphLogFilterLevel = "verbose" | "info" | "warn" | "error";
+
+/**
+ * Run-lifecycle line kinds fed into the drawer alongside the streamed entries
+ * (DECAF-50 §4.22/D6, G3-21): a run is created, the graph validates, or
+ * validation reports structured issues. The drawer renders them even when the run
+ * produced zero `GRAPH_RUN_LOG` entries. `cancelled` (G3-34) records a user- or
+ * timeout-driven cancellation.
+ */
+export type GraphRunLogLifecycleKind =
+  | "created"
+  | "validated"
+  | "validation-issues"
+  | "cancelled";
+
+/**
+ * Display labels for the run-lifecycle line kinds (D6).
+ */
+export const GRAPH_RUN_LOG_LIFECYCLE_LABELS: Record<GraphRunLogLifecycleKind, string> = {
+  created: "Created",
+  validated: "Validated",
+  "validation-issues": "Validation issues",
+  cancelled: "Cancelled",
+};
+
+/**
+ * Console severity a run-lifecycle line renders at: creation/validation are
+ * informational, validation issues and cancellations surface as warnings.
+ */
+export const GRAPH_RUN_LOG_LIFECYCLE_LEVELS: Record<
+  GraphRunLogLifecycleKind,
+  GraphRunLogEntry["level"]
+> = {
+  created: "info",
+  validated: "info",
+  "validation-issues": "warn",
+  cancelled: "warn",
+};
+
+/**
+ * A run-lifecycle line held by the console feed (D6): `kind` names the
+ * lifecycle transition, `level` drives the Chrome-console-style colouring, and the
+ * remaining fields mirror a streamed {@link GraphRunLogEntry} so both render as
+ * the same console lines.
+ */
+export interface GraphRunLogLifecycleEntry {
+  /** Lifecycle transition this line reports. */
+  kind: GraphRunLogLifecycleKind;
+  /** Console severity the line renders at (see {@link GRAPH_RUN_LOG_LIFECYCLE_LEVELS}). */
+  level: GraphRunLogEntry["level"];
+  /** Human-readable lifecycle message. */
+  message: string;
+  /** ISO timestamp the lifecycle line was recorded at. */
+  timestamp: string;
+  /** Run the lifecycle line belongs to, when the run was already created. */
+  runId?: string;
+  /** Workflow the lifecycle line belongs to, when known. */
+  workflowId?: string;
+}
 
 /**
  * Display labels for the console-style filter presets (Req-4).
@@ -58,15 +118,18 @@ export const GRAPH_LOG_FILTER_THRESHOLD: Record<GraphLogFilterLevel, number> = {
 const MAX_ENTRIES = 500;
 
 /**
- * Angular-signal store backing the bottom-docked run log console. Holds the
- * streamed `GRAPH_RUN_LOG` entries, the console open/collapsed/filter UI state,
- * and the derived projections (`visibleEntries`, `counts`). The page wiring
- * forwards SSE entries via {@link append}; the widget is a pure projection of
- * this store.
+ * Angular-signal store backing the bottom-docked run log drawer. Holds the
+ * streamed `GRAPH_RUN_LOG` entries, the run-lifecycle lines (D6), the console
+ * open/collapsed/filter UI state, and the derived projections
+ * (`visibleEntries`, `counts`, `isEmpty`). The page wiring forwards SSE entries
+ * via {@link append} and lifecycle transitions via {@link recordLifecycle}; the
+ * widget is a pure projection of this store.
  */
 class GraphRunLogStore {
   /** Run log entries buffered for the current run, capped at {@link MAX_ENTRIES}. */
   readonly entries = signal<GraphRunLogEntry[]>([]);
+  /** Run-lifecycle lines fed into the console (D6/G3-21), capped at {@link MAX_ENTRIES}. */
+  readonly lifecycle = signal<GraphRunLogLifecycleEntry[]>([]);
   /** Whether the console is currently shown on the canvas. */
   readonly open = signal(false);
   /** Whether the console body is collapsed to just its header bar. */
@@ -102,6 +165,15 @@ class GraphRunLogStore {
   });
 
   /**
+   * Whether the drawer has nothing to show at all: no streamed entries and no
+   * run-lifecycle lines. Drives the drawer's empty state (D6) — independent of
+   * the filter and of whether the run produced any `GRAPH_RUN_LOG` entries.
+   */
+  readonly isEmpty = computed(
+    () => this.entries().length === 0 && this.lifecycle().length === 0,
+  );
+
+  /**
    * Appends a single log entry to the buffer, dropping the oldest entries when
    * the buffer exceeds {@link MAX_ENTRIES}.
    * @param entry The streamed `GRAPH_RUN_LOG` payload originating from the run.
@@ -132,6 +204,37 @@ class GraphRunLogStore {
   /** Clears every buffered entry (the console header "Clear" action). */
   clear(): void {
     this.entries.set([]);
+    this.lifecycle.set([]);
+  }
+
+  /**
+   * Appends a run-lifecycle line (D6/G3-21) to the console feed. Called at the
+   * run-lifecycle transitions the page drives — run created, graph validated, and
+   * validation issues — so the drawer shows feedback even when the run streams no
+   * `GRAPH_RUN_LOG` entries. Applies the same {@link MAX_ENTRIES} cap as
+   * {@link append}.
+   * @param kind Lifecycle transition the line reports.
+   * @param message Human-readable lifecycle message.
+   * @param context Run/workflow ids the line belongs to, when known.
+   */
+  recordLifecycle(
+    kind: GraphRunLogLifecycleKind,
+    message: string,
+    context: { runId?: string; workflowId?: string } = {},
+  ): void {
+    const line: GraphRunLogLifecycleEntry = {
+      kind,
+      level: GRAPH_RUN_LOG_LIFECYCLE_LEVELS[kind],
+      message,
+      timestamp: new Date().toISOString(),
+      ...(context.runId ? { runId: context.runId } : {}),
+      ...(context.workflowId ? { workflowId: context.workflowId } : {}),
+    };
+    this.lifecycle.update((current) => {
+      const next = [...current, line];
+      if (next.length > MAX_ENTRIES) return next.slice(next.length - MAX_ENTRIES);
+      return next;
+    });
   }
 
   /**

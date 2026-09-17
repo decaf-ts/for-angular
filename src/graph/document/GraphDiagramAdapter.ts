@@ -20,6 +20,7 @@ import type {
   GraphConnectionRule,
   GraphEndpoint,
   GraphEdgeInstance,
+  GraphIconReference,
   GraphJsonValue,
   GraphNodeInstance,
   GraphPortDefinition,
@@ -27,7 +28,13 @@ import type {
   GraphValueSchema,
   GraphWorkflowDocument,
 } from '@decaf-ts/ui-decorators/graph';
-import { PortDirection } from '@decaf-ts/ui-decorators/graph';
+import {
+  GRAPH_DEFAULT_NODE_CORNER_RADIUS,
+  GRAPH_DEFAULT_NODE_SIZE,
+  PortDirection,
+  graphNodeSizeOf,
+  resolveEffectiveColor,
+} from '@decaf-ts/ui-decorators/graph';
 import type {
   ConditionExpression,
   ExprValue,
@@ -47,6 +54,8 @@ import {
   graphEndpointNodeId,
   graphEndpointPortOf,
   graphJsonValueCloneOf,
+  graphNodeManifestPinnableOf,
+  graphNodePinStateCloneOf,
   graphWorkflowDocumentViewportOf,
   graphWorkflowNodeOf,
 } from './GraphDocumentSelectors';
@@ -75,8 +84,32 @@ const GRAPH_INPUT_BOUNDARY_PORTS = [
   },
 ] as const;
 
+/** Static ports of the output-boundary node (the n8n result analog, D2/G3-09). */
+const GRAPH_OUTPUT_BOUNDARY_PORTS = [
+  {
+    property: 'value',
+    path: 'value',
+    direction: PortDirection.INPUT,
+    name: 'value',
+    label: 'value',
+    required: false,
+    hidden: false,
+  },
+] as const;
+
 /** Boundary template key (mirrors `graphInputBoundaryDefinition.kind` = 'value'). */
 const GRAPH_INPUT_BOUNDARY_TEMPLATE_KEY = 'value';
+
+/** Output-boundary template key (same `value` badge template, result role). */
+const GRAPH_OUTPUT_BOUNDARY_TEMPLATE_KEY = 'value';
+
+/**
+ * Boundary decision (D2/G3-09, PR-B owned): the workflow boundary is rendered
+ * as compact trigger/result badge nodes with **real ports** — the input badge
+ * carries the `value` output handle, the output badge carries the `value` input
+ * handle, and workflow-output edges are projected instead of dropped.
+ */
+const GRAPH_OUTPUT_BOUNDARY_X = 980;
 
 /**
  * Legacy-compatible view of the projected canvas node data.
@@ -101,11 +134,27 @@ export interface GraphCanvasProjection {
 }
 
 
+/**
+ * Returns the manifest icon reference verbatim (D7/G3-25) so the template can
+ * render `catalogue`/`url`/`data:` per reference type. The legacy `icon` name is
+ * also kept for consumers that only understand the old string shape.
+ */
+function iconReferenceOf(
+  manifest: GraphResolvedNodeManifest | null
+): GraphIconReference | undefined {
+  const icon = manifest?.display?.icon as
+    | { type?: string; name?: string; url?: string; mediaType?: string; value?: string }
+    | undefined;
+  if (!icon || typeof icon.type !== 'string') return undefined;
+  return icon as unknown as GraphIconReference;
+}
+
 function legacyIconNameOf(manifest: GraphResolvedNodeManifest | null): string | undefined {
-  const icon = manifest?.display?.icon as { type?: string; name?: string; url?: string } | undefined;
+  const icon = iconReferenceOf(manifest);
   if (!icon) return undefined;
   if (icon.type === 'catalogue' && typeof icon.name === 'string' && icon.name) return icon.name;
   if (icon.type === 'url' && typeof icon.url === 'string' && icon.url) return icon.url;
+  if (icon.type === 'data' && typeof icon.value === 'string' && icon.value) return icon.value;
   return undefined;
 }
 
@@ -343,17 +392,34 @@ function dataPortsOf(
 
 function canvasDataOf(node: GraphNodeInstance, resolved: GraphResolvedNodeManifest): GraphDiagramCanvasNodeData {
   const display = resolved.display ?? ({} as Record<string, unknown>);
+  const category = typeof display.category === 'string' ? display.category : undefined;
+  // One precedence point for colour (G3-22): the category base colour is
+  // authoritative; the manifest per-node colour is only honoured when the
+  // category has no registered base style. A genuine user override arrives
+  // through the node instance's `ui` block.
+  const colorOverride = node.ui?.color;
   const data: GraphDiagramCanvasNodeData = {
     title: node.label || String(display.name ?? node.kind),
     description: typeof display.description === 'string' ? display.description : '',
     kind: node.kind,
-    category: typeof display.category === 'string' ? display.category : undefined,
-    color: typeof display.color === 'string' ? display.color : undefined,
+    category,
+    color: resolveEffectiveColor(
+      typeof display.color === 'string' ? display.color : undefined,
+      category,
+      colorOverride
+    ),
     icon: legacyIconNameOf(resolved),
+    iconReference: iconReferenceOf(resolved),
+    cornerRadius: numberOrFallback(display['cornerRadius'], GRAPH_DEFAULT_NODE_CORNER_RADIUS),
+    shape: typeof display['shape'] === 'string' ? display['shape'] : undefined,
     labels: Array.isArray(display.labels) ? [...display.labels] : [],
     ports: dataPortsOf(node, switchPortSurfaceResolvedOf(node, resolved)),
     sourceClass: typeof display.name === 'string' ? display.name : node.kind,
+    // D4/G3-14: the pin affordance is gated on the manifest's pinnable
+    // declaration; the document-carried pin state is projected verbatim.
+    pinnable: graphNodeManifestPinnableOf(resolved),
   };
+  if (node.pinned) data.pinned = graphNodePinStateCloneOf(node.pinned);
   const ghostParent = graphGhostParentIdOf(node);
   if (ghostParent !== undefined) data.ghostParentId = ghostParent;
   if (node.kind === 'graph.ghost') data.isGhost = true;
@@ -425,6 +491,7 @@ function graphVirtualGhostNodeOf(
     position: ghostPosition,
     size: { width: 56, height: 56 },
     resizable: false,
+    rotatable: false,
     draggable: true,
     autoSize: false,
     data: {
@@ -476,21 +543,50 @@ function graphVirtualGhostNodeOf(
 
 /**
  * Maps a document node id to the canvas node id it projects as (boundary mapping).
+ *
+ * Node-scope endpoints only resolve to member nodes. A lossless legacy snapshot can
+ * carry a boundary badge inside `document.nodes`; such an entry is projected from
+ * `document.inputs`/`document.outputs` and must never resolve a member endpoint,
+ * otherwise the legacy badge edge would render a duplicate of the canonical
+ * workflow-output relation (D2/G3-09).
  */
 function canvasNodeIdFromEndpoint(
   endpoint: GraphEndpoint,
-  document: GraphWorkflowDocument
+  document: GraphWorkflowDocument,
+  boundaryNodeIds: Set<string>
 ): string | undefined {
   if (endpoint.scope === 'workflow') {
-    const port = document.inputs.find((candidate) => candidate.id === endpoint.port);
-    return port ? `input-${port.id}` : undefined;
+    const input = document.inputs.find((candidate) => candidate.id === endpoint.port);
+    if (input) return `input-${input.id}`;
+    const output = document.outputs.find((candidate) => candidate.id === endpoint.port);
+    return output ? `output-${output.id}` : undefined;
   }
-  const node = document.nodes.find((candidate) => candidate.id === endpoint.nodeId);
+  const node = document.nodes.find(
+    (candidate) => candidate.id === endpoint.nodeId && !boundaryNodeIds.has(candidate.id)
+  );
   return node ? node.id : undefined;
 }
 
 function canvasConnectionPortOf(endpoint: GraphEndpoint): string {
   return endpoint.scope === 'workflow' ? 'value' : graphEndpointPortOf(endpoint);
+}
+
+/**
+ * Canvas node ids the workflow boundary projects as badges: `input-${port.id}`
+ * and `output-${port.id}`. Boundary badges are projected from
+ * `document.inputs`/`document.outputs`, never from `document.nodes`; a lossless
+ * legacy snapshot may still carry a badge inside `document.nodes` (its id becomes
+ * its `kind` when the badge has no member kind), so the projection and the
+ * doc-driven reconcile gate must ignore those entries instead of treating them as
+ * unregistered member kinds (D2/G3-09).
+ */
+export function graphWorkflowDocumentBoundaryNodeIdsOf(
+  document: GraphWorkflowDocument
+): Set<string> {
+  return new Set<string>([
+    ...document.inputs.map((port) => `input-${port.id}`),
+    ...document.outputs.map((port) => `output-${port.id}`),
+  ]);
 }
 
 function canvasEdgeLabelOf(edge: GraphEdgeInstance): string | undefined {
@@ -530,6 +626,7 @@ export function graphWorkflowDocumentCanvasModelOf(
   const nodes: Node[] = [];
   const nodeIds: string[] = [];
   const boundaryNodeIds: string[] = [];
+  const projectedBoundaryIds = graphWorkflowDocumentBoundaryNodeIdsOf(document);
 
   // Workflow input boundary nodes (one per input port; legacy 'value' template).
   let boundaryIndex = 0;
@@ -556,12 +653,49 @@ export function graphWorkflowDocumentCanvasModelOf(
       position: { x: 40, y: 120 + boundaryIndex * 120 },
       size: { width: 72, height: 32 },
       resizable: false,
+      rotatable: false,
       draggable: true,
       autoSize: false,
       data: boundaryData,
     } as Node;
     nodes.push(boundaryNode);
     boundaryIndex += 1;
+  }
+
+  // Workflow output boundary nodes (one per output port; the n8n result analog,
+  // D2/G3-09). The output badge carries a real `value` input handle so the
+  // workflow-output edges project as port→port connections.
+  let outputBoundaryIndex = 0;
+  for (const port of document.outputs) {
+    const boundaryId = `output-${port.id}`;
+    nodeIds.push(boundaryId);
+    boundaryNodeIds.push(boundaryId);
+    const boundaryData: GraphDiagramCanvasBoundaryData = {
+      title: port.label ?? port.id,
+      kind: GRAPH_OUTPUT_BOUNDARY_TEMPLATE_KEY,
+      role: 'output',
+      property: port.id,
+      sourceClass: document.name,
+      sourcePort: port.id,
+      duplicateIndex: 0,
+      isPrimary: true,
+      value: port.defaultValue ?? undefined,
+      ports: [...GRAPH_OUTPUT_BOUNDARY_PORTS],
+      expanded: false,
+    };
+    const boundaryNode = {
+      id: boundaryId,
+      type: GRAPH_OUTPUT_BOUNDARY_TEMPLATE_KEY,
+      position: { x: GRAPH_OUTPUT_BOUNDARY_X, y: 120 + outputBoundaryIndex * 120 },
+      size: { width: 72, height: 32 },
+      resizable: false,
+      rotatable: false,
+      draggable: true,
+      autoSize: false,
+      data: boundaryData,
+    } as Node;
+    nodes.push(boundaryNode);
+    outputBoundaryIndex += 1;
   }
 
   // Member nodes (from the resolved manifest: static ports, dynamic ports, display).
@@ -576,6 +710,7 @@ export function graphWorkflowDocumentCanvasModelOf(
         position: positionOf(node, index),
         size: ghostNodeSizeOf(node),
         resizable: false,
+        rotatable: false,
         draggable: true,
         autoSize: false,
         data: graphGhostCanvasDataOf(node),
@@ -583,6 +718,13 @@ export function graphWorkflowDocumentCanvasModelOf(
       nodes.push(ghostNode);
       nodeIds.push(node.id);
       index += 1;
+      continue;
+    }
+    if (projectedBoundaryIds.has(node.id)) {
+      // A lossless legacy snapshot can carry a boundary badge inside
+      // `document.nodes`; the badge is already projected from
+      // `document.inputs`/`document.outputs` above, so never project it again
+      // as a member node (its id would be mistaken for an unregistered kind).
       continue;
     }
     const manifest = catalogue.get(node.kind);
@@ -598,6 +740,7 @@ export function graphWorkflowDocumentCanvasModelOf(
       position: positionOf(node, index),
       size: nodeUiSizeOf(node, resolved),
       resizable: false,
+      rotatable: false,
       draggable: true,
       autoSize: false,
       data: canvasDataOf(node, resolved),
@@ -610,11 +753,11 @@ export function graphWorkflowDocumentCanvasModelOf(
   const edges: Edge[] = [];
   const edgeIds: string[] = [];
   for (const edge of document.edges) {
-    // Workflow-boundary targets are materialized by the canvas engine only; the
-    // canvas drops them, exactly like the legacy view-model did (§4.12/§4.13).
-    if (edge.target.scope === 'workflow') continue;
-    const sourceId = canvasNodeIdFromEndpoint(edge.source, document);
-    const targetId = canvasNodeIdFromEndpoint(edge.target, document);
+    // Workflow-boundary endpoints project to the boundary badge nodes as real
+    // port→port connections (D2/G3-09): the workflow-output edge is no longer
+    // dropped; it binds the member output to the output badge's `value` input.
+    const sourceId = canvasNodeIdFromEndpoint(edge.source, document, projectedBoundaryIds);
+    const targetId = canvasNodeIdFromEndpoint(edge.target, document, projectedBoundaryIds);
     if (!sourceId || !targetId) continue;
     const canvasEdge = {
       id: edge.id,
@@ -658,29 +801,64 @@ export function graphWorkflowDocumentCanvasModelOf(
   };
 }
 
-function nodeUiSizeOf(
+/**
+ * Projects a node instance's canvas size (D1/G3-01..03, DECAF-50 §4.5).
+ *
+ * The manifest `display` is authoritative. An instance `ui.size` is honoured
+ * **only** when it is an explicit user resize (`ui.resized === true`); a carried
+ * default or template CSS never wins over the manifest. Content-driven growth is
+ * evaluated from the manifest's declared, value-driven display rules.
+ *
+ * Exported for the gate-2 P0 precedence unit tests.
+ */
+export function nodeUiSizeOf(
   node: GraphNodeInstance,
   resolved: GraphResolvedNodeManifest
 ): { width: number; height: number } {
   const display = resolved.display ?? ({} as Record<string, unknown>);
+  const manifestSize = graphNodeSizeOf(
+    {
+      width: numberOrFallback(display['width'], GRAPH_DEFAULT_NODE_SIZE),
+      height: numberOrFallback(display['height'], GRAPH_DEFAULT_NODE_SIZE),
+      sizeRules: Array.isArray(display['sizeRules']) ? display['sizeRules'] : undefined,
+    },
+    parameterCountsOf(node)
+  );
+  if (node.ui?.resized !== true) return manifestSize;
   return {
-    width: node.ui?.size?.width ?? numberOrFallback(display['width'], 96),
-    height: node.ui?.size?.height
-      ?? projectedNodeHeightOf(node, resolved, numberOrFallback(display['height'], 96)),
+    width: node.ui.size?.width ?? manifestSize.width,
+    height: node.ui.size?.height ?? manifestSize.height,
   };
 }
 
-function projectedNodeHeightOf(
+/**
+ * Evaluates the manifest-declared, value-driven height rules (D1/G3-03) for a node
+ * against its parameters. Never a hardcoded per-node formula. Exported for the
+ * gate-2 P0 precedence unit tests.
+ */
+export function projectedNodeHeightOf(
   node: GraphNodeInstance,
   resolved: GraphResolvedNodeManifest,
   fallback: number
 ): number {
-  if (node.kind === 'core.flow.switch') {
-    const casesValue = node.parameters['cases'];
-    const caseCount = Array.isArray(casesValue) ? casesValue.length : 0;
-    return caseCount > 0 ? 140 + caseCount * 24 : fallback;
+  const display = resolved.display ?? ({} as Record<string, unknown>);
+  return graphNodeSizeOf(
+    {
+      width: numberOrFallback(display['width'], GRAPH_DEFAULT_NODE_SIZE),
+      height: numberOrFallback(display['height'], fallback),
+      sizeRules: Array.isArray(display['sizeRules']) ? display['sizeRules'] : undefined,
+    },
+    parameterCountsOf(node)
+  ).height;
+}
+
+/** Item counts per parameter, the value input for manifest display rules. */
+function parameterCountsOf(node: GraphNodeInstance): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const [key, value] of Object.entries(node.parameters ?? {})) {
+    if (Array.isArray(value)) counts[key] = value.length;
   }
-  return fallback;
+  return counts;
 }
 
 /**

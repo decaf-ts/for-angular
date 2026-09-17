@@ -46,7 +46,13 @@ import { GraphWorkflowDocumentStore } from '../document';
 import {
   GraphRunClient,
   GraphRunEventClient,
+  GRAPH_RUN_STUCK_TIMEOUT_MS,
 } from '../runs';
+import {
+  GraphWorkflowValidateClient,
+  graphValidity,
+  type GraphValidationIssue,
+} from '../validation';
 import { graphRunState, graphRunStateSnapshot } from './GraphRunStateStore';
 
 jest.mock('@angular/core', () => {
@@ -78,9 +84,17 @@ jest.mock('src/graph', () => ({
   ...jest.requireActual('../execution'),
   ...jest.requireActual('../runs'),
   ...jest.requireActual('../services'),
+  ...jest.requireActual('../validation'),
+  ...jest.requireActual('../tokens/graph-configuration.tokens'),
   ...jest.requireActual('@decaf-ts/ui-decorators/graph'),
   GraphRendererComponent: class GraphRendererComponent {},
   GraphToolbarComponent: class GraphToolbarComponent {},
+}), { virtual: true });
+
+// PR-H (G3-36): the page provides `GRAPH_DEV_MODE` from the demo environment's
+// dev flag; the app-root environment module is outside this unit harness.
+jest.mock('src/environments/environment', () => ({
+  Environment: { env: 'test' },
 }), { virtual: true });
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -110,6 +124,13 @@ const DOCUMENT = {
   nodes: [],
   edges: [],
 } as never as GraphWorkflowDocument;
+
+/** One structured graph validation issue (D5). */
+const ISSUE: GraphValidationIssue = {
+  code: 'graph.edge.dangling',
+  path: 'edges.0',
+  message: 'Edge target is missing',
+};
 
 /** Builds a canonical run envelope with sensible defaults. */
 function envelope(
@@ -150,13 +171,20 @@ function freshPage(
   overrides: {
     createRun?: () => Promise<unknown>;
     document?: () => GraphWorkflowDocument | undefined;
+    validate?: () => Promise<{ valid: boolean; issues: GraphValidationIssue[] }>;
   } = {},
 ) {
   const createRun = jest.fn(overrides.createRun ?? (() => Promise.resolve(created)));
   const fetchRunResult = jest.fn(() => Promise.resolve(null as unknown));
+  const cancelRun = jest.fn(() =>
+    Promise.resolve({ runId: RUN_ID, workflowId: WORKFLOW_ID, status: 'cancelled' }),
+  );
   const connect = jest.fn();
   const disconnect = jest.fn();
   const backendAvailable = signal(true);
+  const validate: jest.Mock = jest.fn(
+    overrides.validate ?? (() => Promise.resolve({ valid: true, issues: [] })),
+  );
 
   injectables.clear();
   injectables.set(GraphExecutionService, {
@@ -175,13 +203,14 @@ function freshPage(
     fetchRunResult,
     getRunResult: jest.fn(),
     getStatus: jest.fn(),
-    cancelRun: jest.fn(),
+    cancelRun,
   });
   injectables.set(GraphRunEventClient, { connect, disconnect });
   injectables.set(GraphNodeCatalogService, {
     manifests: [],
     load: jest.fn(() => Promise.resolve()),
   });
+  injectables.set(GraphWorkflowValidateClient, { validate });
 
   const page = new GraphPage() as never as {
     isRunning(): boolean;
@@ -189,12 +218,18 @@ function freshPage(
     runError(): string | null;
     runStatus(): string;
     backendAvailable(): boolean;
+    canRun(): boolean;
+    runValidationIssues(): GraphValidationIssue[];
+    runResultState(): string;
     runWorkflow(): Promise<void>;
+    cancelRun(): Promise<void>;
+    onCancelWorkflow(): void;
+    cancelRequested(): boolean;
     ngOnDestroy(): void;
     runEventSubscribers: Map<string, unknown>;
     renderer?: unknown;
   };
-  return { page, createRun, fetchRunResult, connect, disconnect, backendAvailable };
+  return { page, createRun, fetchRunResult, cancelRun, connect, disconnect, backendAvailable, validate };
 }
 
 /** The subscriber the page registered, captured from the SSE connect call. */
@@ -218,6 +253,7 @@ describe('GraphPage canonical run lifecycle (DECAF-50 §4.19 Angular run row)', 
     graphRunLog.reset();
     graphInspection.reset();
     graphRunState.reset();
+    graphValidity.reset();
   });
 
   afterEach(() => {
@@ -226,6 +262,13 @@ describe('GraphPage canonical run lifecycle (DECAF-50 §4.19 Angular run row)', 
 
   it('handles the 202 created-run shape: subscriber registered and SSE connect opened after createRun resolves', async () => {
     const { page, createRun, connect } = freshPage();
+    // G3-13: `runWorkflow()` submits the renderer's own workflow-input form
+    // values, so the fake renderer must expose the validated payload the page
+    // folds into `createRun`.
+    (page as never as { renderer: unknown }).renderer = {
+      viewModel: () => ({ nodes: [], edges: [], outputs: [] }),
+      workflowInputPayload: () => ({ valid: true, inputs: RUN_INPUTS, errors: [] }),
+    };
 
     await page.runWorkflow();
 
@@ -244,13 +287,56 @@ describe('GraphPage canonical run lifecycle (DECAF-50 §4.19 Angular run row)', 
     });
   });
 
+  it("submits each pinned node's frozen parameter values to the run (D4 value freeze)", async () => {
+    // The live document carries `level: 'error'`; the node is pinned with a
+    // frozen `level: 'warn'` snapshot. The page must submit the frozen value
+    // so a downstream run reuses the value captured at pin time.
+    const pinnedDocument = {
+      ...DOCUMENT,
+      nodes: [
+        {
+          id: 'n1',
+          kind: 'core.utility.log',
+          parameters: { level: 'error' },
+          pinned: { parameters: { level: 'warn' }, pinnedAt: '2026-09-16T10:00:00.000Z' },
+        },
+      ],
+    } as never as GraphWorkflowDocument;
+    const { page, createRun } = freshPage({ document: () => pinnedDocument });
+    (page as never as { renderer: unknown }).renderer = {
+      viewModel: () => ({ nodes: [], edges: [], outputs: [] }),
+      workflowInputPayload: () => ({ valid: true, inputs: RUN_INPUTS, errors: [] }),
+    };
+
+    await page.runWorkflow();
+
+    expect(createRun).toHaveBeenCalledWith({
+      workflow: expect.objectContaining({
+        nodes: [
+          expect.objectContaining({
+            id: 'n1',
+            parameters: { level: 'warn' },
+            pinned: { parameters: { level: 'warn' }, pinnedAt: '2026-09-16T10:00:00.000Z' },
+          }),
+        ],
+      }),
+      inputs: RUN_INPUTS,
+    });
+  });
+
   it('seeds the canvas members as BLOCKED before the run starts (DECAF-48 §4.4)', async () => {
     const { page, createRun } = freshPage();
+    // G3-13: the page reads the renderer's workflow-input payload before the
+    // document gate, so the fake renderer must implement it. `outputs` is now read
+    // by the BLOCKED seed too: workflow-output boundary edges are excluded
+    // (SAA-1439, `graph.page.ts:241`).
     (page as never as { renderer: unknown }).renderer = {
       viewModel: () => ({
         nodes: [{ id: 'n1' }, { id: 'n2' }],
         edges: [{ id: 'e1', data: { engineEdgeId: 'plan-e1' } }],
+        outputs: [],
       }),
+      workflowInputPayload: () => ({ valid: true, inputs: {}, errors: [] }),
     };
 
     await page.runWorkflow();
@@ -271,6 +357,56 @@ describe('GraphPage canonical run lifecycle (DECAF-50 §4.19 Angular run row)', 
 
     expect(createRun).not.toHaveBeenCalled();
     expect(page.isRunning()).toBe(false);
+  });
+
+  it('gates Run on the validity projection and backend availability (D5/G3-17)', () => {
+    const { page, backendAvailable } = freshPage();
+
+    graphValidity.applyResult({ valid: true, issues: [] });
+    expect(page.canRun()).toBe(true);
+
+    graphValidity.applyResult({ valid: false, issues: [ISSUE] });
+    expect(page.canRun()).toBe(false);
+
+    // A backend outage leaves the graph not known-invalid, so Run stays gated
+    // on backend availability instead (D5).
+    graphValidity.applyFailure(new Error('backend down'));
+    expect(page.canRun()).toBe(true);
+
+    backendAvailable.set(false);
+    expect(page.canRun()).toBe(false);
+  });
+
+  it('re-validates before the run and never submits an invalid graph, surfacing the issues (D5/G3-16..17)', async () => {
+    const { page, createRun, validate } = freshPage({
+      validate: () => Promise.resolve({ valid: false, issues: [ISSUE] }),
+    });
+    (page as never as { renderer: unknown }).renderer = {
+      viewModel: () => ({ nodes: [], edges: [], outputs: [] }),
+      workflowInputPayload: () => ({ valid: true, inputs: RUN_INPUTS, errors: [] }),
+    };
+
+    await page.runWorkflow();
+
+    expect(validate).toHaveBeenCalledTimes(1);
+    expect(validate.mock.calls[0][0]).toMatchObject({ id: WORKFLOW_ID });
+    expect(createRun).not.toHaveBeenCalled();
+    expect(page.runValidationIssues()).toEqual([ISSUE]);
+    expect(page.runResultState()).toBe('idle');
+    expect(page.isRunning()).toBe(false);
+  });
+
+  it('awaits validation and submits the graph when it is valid (D5)', async () => {
+    const { page, createRun, validate } = freshPage();
+    (page as never as { renderer: unknown }).renderer = {
+      viewModel: () => ({ nodes: [], edges: [], outputs: [] }),
+      workflowInputPayload: () => ({ valid: true, inputs: RUN_INPUTS, errors: [] }),
+    };
+
+    await page.runWorkflow();
+
+    expect(validate).toHaveBeenCalledTimes(1);
+    expect(createRun).toHaveBeenCalledWith({ workflow: DOCUMENT, inputs: RUN_INPUTS });
   });
 
   it('folds every subscriber envelope into the run state store and the runStatus signal', async () => {
@@ -373,7 +509,12 @@ describe('GraphPage canonical run lifecycle (DECAF-50 §4.19 Angular run row)', 
     subscriber.onTerminal(envelope(4, GraphExecutionEventType.WORKFLOW_COMPLETED));
     await until(() => !page.isRunning());
 
-    expect(page.runError()).toMatch(/round trip drifted/u);
+    // G3-35: the drift message is human-readable (run id + remedy), never the
+    // raw semantic-hash string alone.
+    const message = page.runError() ?? '';
+    expect(message).toMatch(/stored workflow differs/u);
+    expect(message).toContain(RUN_ID);
+    expect(message).toMatch(/Reload the page and run again/u);
   });
 
   it('folds the workflow.cancelled terminal envelope: run-status + skipped demotion + teardown', async () => {
@@ -433,5 +574,48 @@ describe('GraphPage canonical run lifecycle (DECAF-50 §4.19 Angular run row)', 
 
     expect(disconnect).toHaveBeenCalledWith(RUN_ID);
     expect(page.runEventSubscribers.size).toBe(0);
+  });
+
+  it('issues DELETE for the in-flight run through cancelRun (G3-34)', async () => {
+    const { page, cancelRun } = freshPage();
+    (page as never as { renderer: unknown }).renderer = {
+      viewModel: () => ({ nodes: [], edges: [], outputs: [] }),
+      workflowInputPayload: () => ({ valid: true, inputs: RUN_INPUTS, errors: [] }),
+    };
+    await page.runWorkflow();
+
+    await page.cancelRun();
+
+    expect(cancelRun).toHaveBeenCalledWith(RUN_ID);
+    expect(page.cancelRequested()).toBe(true);
+  });
+
+  it('never issues a cancel when no run is in flight (G3-34)', async () => {
+    const { page, cancelRun } = freshPage();
+
+    await page.cancelRun();
+
+    expect(cancelRun).not.toHaveBeenCalled();
+    expect(page.cancelRequested()).toBe(false);
+  });
+
+  it('cancels a run that produced no terminal event within the stuck window (G3-34)', async () => {
+    jest.useFakeTimers();
+    try {
+      const { page, cancelRun } = freshPage();
+      (page as never as { renderer: unknown }).renderer = {
+        viewModel: () => ({ nodes: [], edges: [], outputs: [] }),
+        workflowInputPayload: () => ({ valid: true, inputs: RUN_INPUTS, errors: [] }),
+      };
+      await page.runWorkflow();
+      expect(page.isRunning()).toBe(true);
+
+      jest.advanceTimersByTime(GRAPH_RUN_STUCK_TIMEOUT_MS);
+
+      expect(page.runError()).toMatch(/no terminal event/u);
+      expect(cancelRun).toHaveBeenCalledWith(RUN_ID);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 });

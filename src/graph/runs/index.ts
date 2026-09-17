@@ -8,4 +8,5 @@
  */
 export * from './GraphRunClient';
 export * from './GraphRunEventClient';
+export * from './GraphRunPresentation';
 export * from './GraphRunStateStore';

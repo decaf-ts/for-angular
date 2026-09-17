@@ -7,10 +7,10 @@
  * kinds when it responds, and the fixture set stands alone when the backend is
  * down. Invocations of node methods stay backend-only.
  */
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
-import { GraphNodeCatalogApi } from './GraphNodeCatalogApi';
-import type { GraphNodeCatalogSource } from './GraphNodeCatalogStore';
+import { GraphNodeCatalogApi, graphNodeCatalogFailureOf } from './GraphNodeCatalogApi';
+import type { GraphNodeCatalogFailure, GraphNodeCatalogSource } from './GraphNodeCatalogStore';
 import { GraphNodeCatalogFixtureSource } from './GraphNodeManifestFixtures';
 
 /** Catalog source merging fixture manifests (authoritative) with live backend extras; fixtures stand alone when the backend is down. */
@@ -18,24 +18,43 @@ import { GraphNodeCatalogFixtureSource } from './GraphNodeManifestFixtures';
 export class GraphNodeCatalogCompositeSource implements GraphNodeCatalogSource {
   private readonly live = inject(GraphNodeCatalogApi, { optional: true });
   private readonly fixed = inject(GraphNodeCatalogFixtureSource);
+  /**
+   * Failure class of the last degraded live fetch (G3-27): `null` while the
+   * live source is healthy (or absent), otherwise the classified failure the
+   * palette renders alongside the fixture fallback.
+   */
+  private readonly failureSignal = signal<GraphNodeCatalogFailure | null>(null);
 
   /**
    * Fixture manifests first (they keep the demo's own decorated kinds
    * authoritative), live backend extras merged in, fixture set alone when the
-   * backend is unreachable.
+   * backend is unreachable or answers out of contract. A degraded live fetch is
+   * recorded on {@link failure} instead of being swallowed (G3-27).
    */
   async fetchManifests(): Promise<GraphNodeManifest[]> {
-    if (this.live) {
-      try {
-        const live = await this.live.fetchManifests();
-        const fixed = await this.fixed.fetchManifests();
-        const fixedKinds = new Set(fixed.map((manifest) => manifest.kind));
-        return [...fixed, ...live.filter((manifest) => !fixedKinds.has(manifest.kind))];
-      } catch {
-        // backend down → fixtures only
-      }
+    const fixed = await this.fixed.fetchManifests();
+    if (!this.live) {
+      this.failureSignal.set(null);
+      return fixed;
     }
-    return this.fixed.fetchManifests();
+    try {
+      const live = await this.live.fetchManifests();
+      this.failureSignal.set(null);
+      const fixedKinds = new Set(fixed.map((manifest) => manifest.kind));
+      return [...fixed, ...live.filter((manifest) => !fixedKinds.has(manifest.kind))];
+    } catch (error) {
+      // backend down (or out of contract) → fixtures only, but never silently
+      this.failureSignal.set(graphNodeCatalogFailureOf(error));
+      return fixed;
+    }
+  }
+
+  /**
+   * Last degraded live fetch's failure class, or `null` while the live source is
+   * healthy or absent (G3-27).
+   */
+  failure(): GraphNodeCatalogFailure | null {
+    return this.failureSignal();
   }
 
   /**
@@ -48,8 +67,9 @@ export class GraphNodeCatalogCompositeSource implements GraphNodeCatalogSource {
     if (this.live) {
       try {
         return await this.live.fetchManifest(kind);
-      } catch {
-        // backend down → fixtures only
+      } catch (error) {
+        // backend down (or out of contract) → fixtures only, but never silently
+        this.failureSignal.set(graphNodeCatalogFailureOf(error));
       }
     }
     return undefined;

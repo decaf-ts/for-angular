@@ -12,6 +12,14 @@
 
 <ion-content class="graph-node-edit-modal__content">
   <div class="graph-node-edit-modal__body">
+    @if (degraded) {
+      <div class="graph-node-edit-modal__degraded" role="status">
+        <strong>Catalogue degraded</strong>
+        <p>
+          {{ degradedReason || 'The node catalogue backend is unavailable; some dynamic parameter options may be missing.' }}
+        </p>
+      </div>
+    }
     @if (inputPorts().length) {
       <section class="graph-node-edit-modal__section">
         @if (isCodeNode()) {

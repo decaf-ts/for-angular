@@ -33,17 +33,24 @@ test.describe('GraphForeachLoopNode (core.loop.foreach)', () => {
 
   test('input port label is "Items"', async ({ page }) => {
     const article = getNodeArticle(page, 'GraphForeachLoopNode');
-    const label = await article.locator('div.graph-node__port--in .graph-node__port-label').textContent();
+    const label = await article.locator('div.graph-node__port--in .graph-node__port-label').first().textContent();
     expect(label?.trim()).toBe('Items');
   });
 
   test('items input port is connected from upstream Code node', async ({ page }) => {
-    expect(await isPortConnected(page, 'GraphForeachLoopNode', 'items')).toBe(true);
+    await expect.poll(() => isPortConnected(page, 'GraphForeachLoopNode', 'items')).toBe(true);
   });
 
-  test('results output port is hidden (has @uielement, not in port mode, not connected)', async ({ page }) => {
+  test('required output ports (item, completed) are visible (D2/G3-05)', async ({ page }) => {
     const outputs = await getNodePorts(page, 'GraphForeachLoopNode', 'out');
-    expect(outputs).not.toContain('results');
+    expect(outputs).toContain('item');
+    expect(outputs).toContain('completed');
+  });
+
+  test('required input port slice stays visible while unconnected (D2/G3-06)', async ({ page }) => {
+    const inputs = await getNodePorts(page, 'GraphForeachLoopNode', 'in');
+    expect(inputs).toContain('slice');
+    expect(await isPortConnected(page, 'GraphForeachLoopNode', 'slice')).toBe(false);
   });
 
   test('double-click opens the node edit modal', async ({ page }) => {

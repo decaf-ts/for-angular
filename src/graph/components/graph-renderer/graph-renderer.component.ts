@@ -31,7 +31,15 @@ import {
   type SelectionRemovedEvent,
 } from 'ng-diagram';
 import { GraphNodeCatalogService } from '../../catalog/GraphNodeCatalogService';
-import { GraphDiagramAdapter } from '../../document/GraphDiagramAdapter';
+import {
+  GraphWorkflowValidateClient,
+  graphValidity,
+} from '../../validation';
+import { GRAPH_DEV_MODE } from '../../tokens/graph-configuration.tokens';
+import {
+  GraphDiagramAdapter,
+  graphWorkflowDocumentBoundaryNodeIdsOf,
+} from '../../document/GraphDiagramAdapter';
 import { isGraphNodeGhost, type NgDiagramMutation } from '../../document/GraphDocumentMutation';
 import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocumentStore';
 import { ghostNodeStore } from '../../execution/GhostNodeStore';
@@ -50,7 +58,6 @@ import {
 import {
   buildWorkflowInputFields,
   buildWorkflowInputForm,
-  buildWorkflowInputModelClass,
   normalizeWorkflowInputValues,
   WorkflowInputFieldDefinition,
 } from '../../workflow-inputs';
@@ -58,7 +65,7 @@ import { GraphBoundaryNodeTemplateComponent } from '../boundary-node-template/bo
 import { GraphEdgeTemplateComponent } from '../graph-edge-template/graph-edge-template.component';
 import { GraphGhostNodeTemplateComponent } from '../graph-ghost-node-template/graph-ghost-node-template.component';
 import { GraphLogsWidgetComponent } from '../graph-logs-widget/graph-logs-widget.component';
-import { GraphNodeInspectionComponent } from '../graph-node-inspection/graph-node-inspection.component';
+import { GraphNodeInspectionComponent, type GraphInspectionRunState, type GraphRunValidationIssue } from '../graph-node-inspection/graph-node-inspection.component';
 import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-template.component';
 
 @Component({
@@ -88,6 +95,9 @@ export class GraphRendererComponent {
   private readonly injector = inject(Injector);
   private readonly documentStore = inject(GraphWorkflowDocumentStore, { optional: true });
   private readonly catalogService = inject(GraphNodeCatalogService, { optional: true });
+  private readonly validateClient = inject(GraphWorkflowValidateClient, { optional: true });
+  /** Developer-mode chrome gate (G3-36): the raw snapshot textarea renders only in dev mode. */
+  readonly devMode = inject(GRAPH_DEV_MODE);
   private readonly canvasAdapter = new GraphDiagramAdapter();
   private restoreOptions: { restore: boolean; applyViewport?: boolean } | null = null;
   private readonly duplicateCounts = signal<Record<string, number>>({});
@@ -107,10 +117,27 @@ export class GraphRendererComponent {
   readonly graphRoot = input.required<unknown>();
   readonly outputs = input<Record<string, unknown> | null>(null);
   readonly availableNodes = input<GraphNodeManifest[]>([]);
+  /** Run-result lifecycle of the last run (drives the split view's run panes, G3-12). */
+  readonly runResultState = input<GraphInspectionRunState>('idle');
+  /** Structured validation issues surfaced by the last run (G3-33). */
+  readonly validationIssues = input<GraphRunValidationIssue[]>([]);
+
+  /**
+   * Editor validity projection (D5/G3-16..G3-18): the canvas/document
+   * invalid state, the structured graph issues, and their readable label. The
+   * renderer feeds the projection continuously as the document changes; the
+   * toolbar/page read the same singleton to gate Run.
+   */
+  readonly graphValidityStatus = graphValidity.status;
+  readonly graphValidityLabel = graphValidity.label;
+  readonly graphIssues = graphValidity.issues;
+  readonly graphInvalid = graphValidity.isInvalid;
 
   readonly nodeDragEnded = output<void>();
   readonly edgeDrawn = output<void>();
   readonly elementsRemoved = output<void>();
+  /** Requests a run-result re-fetch from the page (split-view retry, G3-33). */
+  readonly retryRunResult = output<void>();
 
   readonly portGuardMiddleware: Middleware = {
     name: 'port-guard',
@@ -248,22 +275,6 @@ export class GraphRendererComponent {
     buildWorkflowInputFields(this.workflowDefinition(), this.workflowInputValues())
   );
 
-  readonly workflowInputModelClass = computed(() => buildWorkflowInputModelClass(this.workflowDefinition()));
-
-  readonly workflowInputModel = computed(() =>
-    (() => {
-      const ModelClass = this.workflowInputModelClass();
-      const instance = new ModelClass(this.workflowInputValues() as never);
-      Object.assign(instance, this.workflowInputValues());
-      return instance;
-    })()
-  );
-
-  readonly workflowInputErrors = computed(() => {
-    const model = this.workflowInputModel() as Model & { hasErrors?: () => unknown };
-    return typeof model.hasErrors === 'function' ? model.hasErrors() : undefined;
-  });
-
   readonly viewModel = computed<GraphRendererViewModel>(() =>
     buildGraphRendererViewModel(this.workflowRootClass() as never, this.workflowInputValues(), this.duplicateCounts())
   );
@@ -272,8 +283,34 @@ export class GraphRendererComponent {
     String(this.workflowDefinition().graph?.metadata?.['title'] ?? this.workflowDefinition().tag)
   );
 
-  readonly hasFormErrors = computed(() => this.workflowInputForm().invalid);
   readonly snapshotPreview = computed(() => this.snapshotJson());
+
+  /**
+   * Snapshot of the workflow-input form for a run (G3-13): the same form the
+   * renderer builds and validates drives the run inputs, so a boundary edit and a
+   * Run share one input source. Returns the normalized values, whether the form is
+   * valid, and the structured validation messages when it is not.
+   */
+  workflowInputPayload(): {
+    valid: boolean;
+    inputs: Record<string, unknown>;
+    errors: GraphRunValidationIssue[];
+  } {
+    const form = this.workflowInputForm();
+    const values = normalizeWorkflowInputValues(
+      this.workflowInputFields(),
+      form.getRawValue() as Record<string, unknown>
+    );
+    const errors: GraphRunValidationIssue[] = [];
+    for (const field of this.workflowInputFields()) {
+      const control = form.get(field.controlName);
+      if (!control || !control.errors) continue;
+      for (const message of this.controlErrorMessages(field)) {
+        errors.push({ path: field.path, message, code: 'workflow-input' });
+      }
+    }
+    return { valid: form.valid, inputs: values, errors };
+  }
 
   readonly paletteOpen = signal(false);
   /**
@@ -282,6 +319,43 @@ export class GraphRendererComponent {
    * constructors participate in discovery.
    */
   readonly paletteEntries = computed(() => graphPaletteEntriesOf(this.availableNodes()));
+
+  /**
+   * Live catalogue status (G3-26): the palette renders the catalogue's
+   * loading/degraded/failed state instead of silently rendering an empty list.
+   * A renderer without a catalogue service (isolated component tests) reports
+   * `ready` so it never shows a spurious failure state.
+   */
+  readonly catalogStatus = computed(() => this.catalogService?.status() ?? 'ready');
+
+  /** Structured failure of the last degraded/failed catalogue load (G3-27). */
+  readonly catalogFailure = computed(() => this.catalogService?.failure() ?? null);
+
+  /** Whether the palette has no entries at all, driving its empty state (G3-26). */
+  readonly paletteEmpty = computed(() => this.paletteEntries().length === 0);
+
+  /**
+   * Human-readable catalogue status message (G3-26/G3-27): distinguishes a
+   * backend that is down from one that answered out of contract, and reports the
+   * fixture-only degraded fallback instead of a silently empty palette.
+   */
+  readonly catalogStatusMessage = computed<string>(() => {
+    const failure = this.catalogFailure();
+    switch (this.catalogStatus()) {
+      case 'loading':
+        return 'Loading the node catalogue…';
+      case 'degraded':
+        return failure?.kind === 'malformed-response'
+          ? 'The node catalogue backend returned an unexpected response; showing the built-in nodes only.'
+          : 'The node catalogue backend is unavailable; showing the built-in nodes only.';
+      case 'failed':
+        return failure?.message ?? 'The node catalogue could not be loaded.';
+      case 'ready':
+        return 'Node catalogue ready.';
+      default:
+        return 'The node catalogue has not loaded yet.';
+    }
+  });
 
   constructor() {
     effect((onCleanup) => {
@@ -329,20 +403,43 @@ export class GraphRendererComponent {
       this.settleCanvasFromDocument();
     });
 
-    // Open palette when a ghost node + is clicked
+    // Continuous validity projection (D5/G3-16): every semantic document
+    // change re-validates through `POST /graph/workflows/validate`, and the
+    // result drives the canvas invalid state, the structured issue list, and the
+    // Run gate. The read is untracked so the projection's own signal writes
+    // can never re-enter this effect; `validateIfChanged` dedupes layout-only
+    // edits by semantic hash.
+    effect(() => {
+      const document = this.documentStore?.document();
+      const validateClient = this.validateClient;
+      if (!document || !validateClient) return;
+      untracked(() => {
+        void graphValidity.validateIfChanged(document, validateClient);
+      });
+    });
+
+    // Open palette when a ghost node + is clicked, or when a node-side add
+    // connector is clicked (G3-29 n8n-look ruling).
     effect(() => {
       const pendingId = ghostNodeStore.pendingParentId();
-      if (pendingId) {
+      const pendingAdd = ghostNodeStore.pendingAddSource();
+      if (pendingId || pendingAdd) {
         this.paletteOpen.set(true);
       }
     });
   }
 
-  duplicateInput(property: string) {
-    this.duplicateCounts.update((current) => ({
-      ...current,
-      [property]: (current[property] || 0) + 1,
-    }));
+  /**
+   * Reloads the node catalogue from its source (G3-26 retry affordance): the
+   * palette's failed state offers a retry so a transient backend failure is
+   * recoverable without a page reload.
+   */
+  async reloadCatalogue(): Promise<void> {
+    try {
+      await this.catalogService?.refresh();
+    } catch (error) {
+      console.warn('[GraphRendererComponent] catalogue reload failed', error);
+    }
   }
 
   onSelectionChanged(event: { selectedNodes?: { id: string }[] }) {
@@ -423,6 +520,7 @@ export class GraphRendererComponent {
   }
 
   closePalette() {
+    ghostNodeStore.clear();
     this.paletteOpen.set(false);
   }
 
@@ -431,6 +529,11 @@ export class GraphRendererComponent {
    * the manifest drives the built instance (id/defaults/label), the store
    * dispatches `node.add`, the reconcile in the doc-driven effect renders it.
    * No node constructor participates in the editor path.
+   *
+   * Three insertion modes (G3-29 n8n-look ruling): a node-side add connector
+   * places the new node beside its source and auto-connects it, a foreach ghost
+   * inserts into the loop body, and the canvas-level "+ Add node" places an
+   * unconnected node.
    */
   addNode(entry: GraphPaletteEntry) {
     const documentStore = this.documentStore;
@@ -439,6 +542,7 @@ export class GraphRendererComponent {
     const existing = documentStore.document()?.nodes.length ?? 0;
     const offset = existing * 40;
     const ghostParentId = ghostNodeStore.consume();
+    const addSource = ghostNodeStore.consumeAddSource();
     let position = { x: 420 + offset, y: 200 + offset };
     let label = entry.title;
 
@@ -448,6 +552,17 @@ export class GraphRendererComponent {
         .find((n: { id: string }) => n.id === `ghost-${ghostParentId}`);
       position = (ghostNode as { position?: { x: number; y: number } })?.position ?? position;
       label = `${entry.title} (${ghostParentId.startsWith('loop-') ? 'loop body' : 'materialized'})`;
+    } else if (addSource) {
+      // Node-side connector (G3-29): the new node is placed beside its source
+      // and auto-connected from the source's chosen output port.
+      const sourceNode = this.model()
+        ?.getNodes()
+        .find((n: { id: string }) => n.id === addSource.nodeId) as
+        | { position?: { x: number; y: number }; size?: { width?: number; height?: number } }
+        | undefined;
+      const sourcePosition = sourceNode?.position ?? position;
+      const sourceWidth = sourceNode?.size?.width ?? 96;
+      position = { x: sourcePosition.x + sourceWidth + 120, y: sourcePosition.y };
     }
 
     const node = documentStore.addNodeFromManifest(entry.manifest, position, label);
@@ -470,6 +585,15 @@ export class GraphRendererComponent {
         target: { scope: 'node', nodeId: ghostParentId, port: 'loop' },
         label: 'loop',
         metadata: { mandatory: true },
+      });
+    } else if (addSource) {
+      const inputPort = (entry.manifest.inputs ?? [])[0]?.id ?? 'value';
+      documentStore.addEdge({
+        id: `${addSource.nodeId}:${addSource.portId}->${node.id}:${inputPort}`,
+        type: 'data',
+        source: { scope: 'node', nodeId: addSource.nodeId, port: addSource.portId },
+        target: { scope: 'node', nodeId: node.id, port: inputPort },
+        label: inputPort,
       });
     } else if (entry.kind === 'core.loop.foreach') {
       // Foreach keeps the legacy ghost placeholder machinery (loop body add) so
@@ -537,6 +661,16 @@ export class GraphRendererComponent {
   fieldErrors(field: WorkflowInputFieldDefinition): string[] {
     const control = this.controlFor(field.controlName);
     if (!control || !control.errors || (!control.dirty && !control.touched)) return [];
+    return this.controlErrorMessages(field);
+  }
+
+  /**
+   * Validation messages for a field's control regardless of dirty/touched state
+   * (used by the run gate so a pristine invalid form still reports why, G3-33).
+   */
+  private controlErrorMessages(field: WorkflowInputFieldDefinition): string[] {
+    const control = this.controlFor(field.controlName);
+    if (!control || !control.errors) return [];
 
     return Object.entries(control.errors).map(([key, value]) => {
       switch (key) {
@@ -632,7 +766,13 @@ export class GraphRendererComponent {
     // The fixture catalogue load is asynchronous: until every member kind is
     // registered, the projection would throw and permanently freeze the canvas
     // on its legacy seed. Defer and let the catalogue-ready effect retry.
-    const missingKinds = document.nodes.filter((node) => !isGraphNodeGhost(node) && !catalogue.get(node.kind));
+    // Boundary badges are projected from `document.inputs`/`document.outputs`;
+    // a lossless legacy snapshot may also carry one inside `document.nodes`
+    // (unregistered as a member kind), which must not defer the reconcile.
+    const boundaryNodeIds = graphWorkflowDocumentBoundaryNodeIdsOf(document);
+    const missingKinds = document.nodes.filter(
+      (node) => !isGraphNodeGhost(node) && !boundaryNodeIds.has(node.id) && !catalogue.get(node.kind)
+    );
     if (missingKinds.length) return;
     const restoredOptions = this.restoreOptions;
     const previousModel = untracked(() => this.model());

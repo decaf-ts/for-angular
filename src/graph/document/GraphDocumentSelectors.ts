@@ -9,6 +9,7 @@ import type {
   GraphEndpoint,
   GraphJsonValue,
   GraphNodeInstance,
+  GraphNodePinState,
   GraphWorkflowDocument,
   GraphWorkflowPortInstance,
   GraphWorkflowViewport,
@@ -188,9 +189,77 @@ export function graphWorkflowNodeCloneOf(node: GraphNodeInstance): GraphNodeInst
   if (node.outputBindings) clone.outputBindings = { ...node.outputBindings };
   if (node.metadata) clone.metadata = { ...node.metadata };
   if (node.loop) clone.loop = JSON.parse(JSON.stringify(node.loop)) as typeof node.loop;
+  if (node.pinned) clone.pinned = graphNodePinStateCloneOf(node.pinned);
   if (node.ui) {
     const { size, ...uiRest } = node.ui;
     clone.ui = size ? { ...uiRest, size: { ...size } } : { ...uiRest };
   }
   return clone;
+}
+
+/** Deep clone of a document-carried pin state (D4, DECAF-50 §4.22). */
+export function graphNodePinStateCloneOf(state: GraphNodePinState): GraphNodePinState {
+  const clone: GraphNodePinState = {
+    parameters: JSON.parse(JSON.stringify(state.parameters ?? {})) as Record<string, GraphJsonValue>,
+  };
+  if (state.pinnedAt !== undefined) clone.pinnedAt = state.pinnedAt;
+  return clone;
+}
+
+/**
+ * Captures the UI data-pin state (D4, DECAF-50 §4.22) for a node: a frozen
+ * deep clone of its current parameter values. The optional `pinnedAt` timestamp is
+ * caller-supplied so the pure helper stays deterministic in tests.
+ */
+export function graphNodePinStateOf(node: GraphNodeInstance, pinnedAt?: string): GraphNodePinState {
+  const parameters = JSON.parse(JSON.stringify(node.parameters ?? {})) as Record<string, GraphJsonValue>;
+  return pinnedAt !== undefined ? { parameters, pinnedAt } : { parameters };
+}
+
+/**
+ * Whether a node manifest declares the node as pinnable (D4, DECAF-50 §4.22,
+ * G3-14). A node is pinnable unless its manifest metadata explicitly disables
+ * it — `metadata.pinnable: false`, `metadata.pinnable.enabled: false`, or
+ * `metadata.pinnable.strategy: "disabled"`.
+ */
+export function graphNodePinnableOf(metadata: Record<string, GraphJsonValue> | undefined): boolean {
+  const pinnable = metadata?.['pinnable'];
+  if (pinnable === undefined || pinnable === null) return true;
+  if (typeof pinnable === 'boolean') return pinnable;
+  if (typeof pinnable === 'object' && !Array.isArray(pinnable)) {
+    const record = pinnable as Record<string, unknown>;
+    if (record['enabled'] === false) return false;
+    if (record['strategy'] === 'disabled') return false;
+  }
+  return true;
+}
+
+/**
+ * Whether a node manifest declares the node as pinnable (D4, G3-14). Accepts the
+ * published or the resolved manifest shape — both carry the same `metadata` block.
+ */
+export function graphNodeManifestPinnableOf(
+  manifest: { metadata?: Record<string, GraphJsonValue> } | undefined
+): boolean {
+  return graphNodePinnableOf(manifest?.metadata);
+}
+
+/**
+ * Applies the frozen parameter snapshots (D4, DECAF-50 §4.22) of every pinned
+ * node onto the document handed to a run: a pinned node's downstream run reuses
+ * its frozen values even when the live document parameters have since changed.
+ * Passes through pin-free documents unchanged (allocation-free path).
+ */
+export function graphWorkflowDocumentWithPinnedParameters(
+  document: GraphWorkflowDocument
+): GraphWorkflowDocument {
+  if (!document.nodes.some((node) => node.pinned)) return document;
+  return {
+    ...document,
+    nodes: document.nodes.map((node) =>
+      node.pinned
+        ? { ...node, parameters: { ...node.parameters, ...node.pinned.parameters } }
+        : node
+    ),
+  };
 }

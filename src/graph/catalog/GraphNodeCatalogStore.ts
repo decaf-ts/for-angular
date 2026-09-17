@@ -15,8 +15,28 @@ import { resolveGraphNodeManifest } from './GraphNodeResolution';
 import type { GraphNodeManifestReader } from './GraphNodeCatalogReader';
 import type { GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
 
-/** Status of the catalogue fixture/HTTP source. */
-export type GraphNodeCatalogStatus = 'unloaded' | 'loading' | 'ready' | 'failed';
+/**
+ * Status of the catalogue fixture/HTTP source. `degraded` is the partial
+ * success the composite source reports when the live backend failed but the
+ * frontend fixtures still serve the palette (G3-26/G3-27); `failed` is the
+ * total failure where not even the fixture set loaded.
+ */
+export type GraphNodeCatalogStatus = 'unloaded' | 'loading' | 'ready' | 'degraded' | 'failed';
+
+/**
+ * Failure class of the live (HTTP) catalogue (G3-27): `backend-down` means the
+ * backend was unreachable or errored, `malformed-response` means it answered but
+ * its payload was out of contract.
+ */
+export type GraphNodeCatalogFailureKind = 'backend-down' | 'malformed-response';
+
+/** Structured catalogue failure the palette surfaces to the user (G3-26/G3-27). */
+export interface GraphNodeCatalogFailure {
+  /** Which failure class the live source reported. */
+  kind: GraphNodeCatalogFailureKind;
+  /** Human-readable failure detail. */
+  message: string;
+}
 
 /**
  * Pluggable catalogue source. The HTTP-backed NestJS catalogue (P2/P6) and
@@ -38,6 +58,13 @@ export interface GraphNodeCatalogSource {
     method: string,
     request: Record<string, GraphJsonValue>
   ): Promise<GraphJsonValue>;
+  /**
+   * Optional classification of the source's last degraded load (G3-27). A source
+   * that degrades gracefully (the composite source falls back to fixtures) reports
+   * the failure class here instead of swallowing it; a source that throws
+   * reports nothing and the consumer classifies the thrown error.
+   */
+  failure?(): GraphNodeCatalogFailure | null;
 }
 
 /** Error for node kinds missing from the catalogue (§4.8 semantics). */
@@ -56,6 +83,7 @@ export class GraphNodeNotFoundError extends NotFoundError {
 export class GraphNodeCatalogStore implements GraphNodeManifestReader {
   private readonly manifestsSignal = signal<GraphNodeManifest[]>([]);
   private readonly statusSignal = signal<GraphNodeCatalogStatus>('unloaded');
+  private readonly failureSignal = signal<GraphNodeCatalogFailure | null>(null);
   private readonly manifestMap = new Map<string, GraphNodeManifest>();
 
   /** Registers manifests (load/refresh). Throws on unknown or duplicated kinds. */
@@ -78,9 +106,19 @@ export class GraphNodeCatalogStore implements GraphNodeManifestReader {
     this.manifestsSignal.set(next);
   }
 
-  /** Sets the source status before/after a load attempt. */
-  setStatus(status: GraphNodeCatalogStatus): void {
+  /**
+   * Sets the source status before/after a load attempt. A failure is carried
+   * only for the degraded/failed statuses, so a later success always clears the
+   * previous failure (G3-26/G3-27).
+   */
+  setStatus(status: GraphNodeCatalogStatus, failure: GraphNodeCatalogFailure | null = null): void {
     this.statusSignal.set(status);
+    this.failureSignal.set(status === 'degraded' || status === 'failed' ? failure : null);
+  }
+
+  /** Structured failure of the last degraded/failed load, or `null`. */
+  failure(): GraphNodeCatalogFailure | null {
+    return this.failureSignal();
   }
 
   /** Deterministically kind-sorted manifest list. */
@@ -112,6 +150,10 @@ export class GraphNodeCatalogStore implements GraphNodeManifestReader {
 
   /** Signals powering Angular compositions. */
   get signals() {
-    return { manifests: this.manifestsSignal, status: this.statusSignal };
+    return {
+      manifests: this.manifestsSignal,
+      status: this.statusSignal,
+      failure: this.failureSignal,
+    };
   }
 }

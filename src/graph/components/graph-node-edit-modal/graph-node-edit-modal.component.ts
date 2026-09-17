@@ -120,6 +120,14 @@ export class GraphNodeEditModalComponent implements OnInit {
   @Input() nodeInstance: GraphNodeInstance | null = null;
   /** Manifest-level node parameter definitions (non-port parameter rows). */
   @Input() parameterDefs: GraphParameterDefinition[] = [];
+  /**
+   * Whether the node catalogue is degraded (G3-28): backend-down silently drops
+   * dynamic parameter options, so the modal shows an explicit degraded notice
+   * instead of an empty parameter section.
+   */
+  @Input() degraded = false;
+  /** Human-readable degraded-mode reason rendered in the modal notice (G3-28). */
+  @Input() degradedReason = '';
 
   private readonly modalCtrl = inject(ModalController);
 

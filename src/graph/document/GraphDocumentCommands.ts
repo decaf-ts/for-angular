@@ -12,6 +12,7 @@ import type {
   GraphJsonValue,
   GraphLoopConfiguration,
   GraphNodeInstance,
+  GraphNodePinState,
   GraphOutputBinding,
   GraphWorkflowDocument,
   GraphWorkflowViewport,
@@ -20,7 +21,9 @@ import { assertGraphWorkflowDocumentValid, isGraphEndpoint, isGraphInputBinding 
 
 /**
  * Shallow patch describing a node change. `id`/`kind` cannot change (they are node
- * identity); `size` merges into the node's `ui.size` block.
+ * identity); `size` merges into the node's `ui.size` block. `pinned` writes (a
+ * {@link GraphNodePinState}) or clears (`null`) the document-carried UI
+ * data-pinning state (D4, DECAF-50 §4.22).
  */
 export interface GraphNodeInstancePatch {
   label?: string;
@@ -31,6 +34,7 @@ export interface GraphNodeInstancePatch {
   metadata?: Record<string, GraphJsonValue>;
   loop?: GraphLoopConfiguration;
   size?: { width?: number; height?: number };
+  pinned?: GraphNodePinState | null;
 }
 
 /**
@@ -107,6 +111,19 @@ function isSize(value: unknown): value is { width?: number; height?: number } {
   return (width === undefined || typeof width === 'number') && (height === undefined || typeof height === 'number');
 }
 
+/**
+ * Structural guard for the document-carried UI data-pinning state (D4,
+ * DECAF-50 §4.22): a frozen parameter snapshot, optionally timestamped.
+ */
+function isGraphNodePinState(value: unknown): value is GraphNodePinState {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  const parameters = record['parameters'];
+  if (!parameters || typeof parameters !== 'object' || Array.isArray(parameters)) return false;
+  const pinnedAt = record['pinnedAt'];
+  return pinnedAt === undefined || typeof pinnedAt === 'string';
+}
+
 function assertValidPatch(patch: GraphNodeInstancePatch): void {
   if (!patch || typeof patch !== 'object' || Array.isArray(patch)) {
     throw new ValidationError('Node patch must be an object.');
@@ -119,6 +136,9 @@ function assertValidPatch(patch: GraphNodeInstancePatch): void {
   }
   if (patch.parameters !== undefined && typeof patch.parameters !== 'object') {
     throw new ValidationError('Node patch parameters must be a JSON-value record.');
+  }
+  if (patch.pinned !== undefined && patch.pinned !== null && !isGraphNodePinState(patch.pinned)) {
+    throw new ValidationError('Node patch pin state must be a frozen parameter snapshot or null.');
   }
 }
 
@@ -222,7 +242,7 @@ export function applyGraphDocumentCommand(
         throw new ValidationError(`Graph node '${nodeId}' does not exist in the workflow document.`);
       }
       const node = document.nodes[index];
-      const { size: patchSize, ...patchRest } = patch;
+      const { size: patchSize, pinned: patchPinned, ...patchRest } = patch;
       const merged: GraphNodeInstance = {
         ...node,
         ...patchRest,
@@ -252,6 +272,13 @@ export function applyGraphDocumentCommand(
       if (merged.inputBindings && !Object.keys(merged.inputBindings).length) delete merged.inputBindings;
       if (merged.outputBindings && !Object.keys(merged.outputBindings).length) delete merged.outputBindings;
       if (merged.metadata && !Object.keys(merged.metadata).length) delete merged.metadata;
+      // D4 pin-state write: `null` clears the pin, an object freezes the
+      // parameters carried by the document (DECAF-50 §4.22).
+      if (patchPinned === null) {
+        delete merged.pinned;
+      } else if (patchPinned !== undefined) {
+        merged.pinned = patchPinned;
+      }
       if (!isNonEmptyString(merged.id) || !isNonEmptyString(merged.kind)) {
         throw new ValidationError('Graph node update must preserve id and kind.');
       }
@@ -264,6 +291,9 @@ export function applyGraphDocumentCommand(
         merged.ui = {
           ...ui,
           size: { width: size.width ?? ui.size?.width, height: size.height ?? ui.size?.height },
+          // D1/G3-02: only a genuine user resize marks `ui.size` as explicit,
+          // so the manifest display keeps winning for carried defaults.
+          resized: true,
         };
       } else if (size && !size.width && !size.height && merged.ui) {
         delete merged.ui.size;
@@ -325,7 +355,9 @@ export function applyGraphDocumentCommand(
       const ui = node.ui ?? { position: { x: 0, y: 0 } };
       const mergedSize = { width: size.width ?? ui.size?.width, height: size.height ?? ui.size?.height };
       const nodes = [...document.nodes];
-      nodes[index] = { ...node, ui: { ...ui, size: mergedSize } };
+      // D1/G3-02: a resize gesture is the explicit user resize that lets
+      // `ui.size` win over the manifest display on the next projection.
+      nodes[index] = { ...node, ui: { ...ui, size: mergedSize, resized: true } };
       return { ...document, nodes };
     }
     case 'edge.add': {

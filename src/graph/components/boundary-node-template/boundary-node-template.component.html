@@ -5,6 +5,7 @@
     [class.graph-badge--input]="node().data.role === 'input'"
     [class.graph-badge--output]="node().data.role === 'output'"
     [style.--graph-accent]="node().data.role === 'input' ? '#0f766e' : '#6d28d9'"
+    (dblclick)="openEditor($event)"
   >
     <span class="graph-badge__name">{{ node().data.property }}</span>
 
@@ -16,6 +17,20 @@
       (mousedown)="$event.stopPropagation()"
     >&times;</button>
 
+    @if (inputPorts().length) {
+      <div class="graph-badge__ports graph-badge__ports--in">
+        @for (port of inputPorts(); track port.path || port.property) {
+          <div
+            class="graph-badge__port graph-badge__port--in"
+            [class.graph-badge__port--connected]="connectedPortIds().has(port.path || port.property)"
+          >
+            <ng-diagram-port [id]="port.path || port.property" type="target" side="left" />
+            <span class="graph-badge__port-label">{{ port.label || port.property }}</span>
+          </div>
+        }
+      </div>
+    }
+
     <div class="graph-badge__ports graph-badge__ports--out">
       @for (port of outputPorts(); track port.property) {
         <div
@@ -23,6 +38,7 @@
           [class.graph-badge__port--connected]="connectedPortIds().has(port.path || port.property)"
         >
           <ng-diagram-port [id]="port.path || port.property" type="source" side="right" />
+          <span class="graph-badge__port-label">{{ port.label || port.property }}</span>
         </div>
       }
     </div>

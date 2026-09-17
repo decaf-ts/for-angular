@@ -708,6 +708,22 @@ describe('GraphRunLifecycle (DECAF-50 §4.19 Angular run row)', () => {
       });
     });
 
+    it('feeds a run-created lifecycle line into the log drawer (D6/G3-21)', () => {
+      graphRunState.beginObservation({ runId: RUN_ID, workflowId: WORKFLOW_ID, status: 'queued' });
+
+      const lines = graphRunLog.lifecycle();
+      expect(lines).toHaveLength(1);
+      expect(lines[0]).toMatchObject({
+        kind: 'created',
+        level: 'info',
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+      });
+      expect(lines[0].message).toContain(RUN_ID);
+      // The created line is lifecycle feedback, not a streamed engine entry.
+      expect(graphRunLog.entries()).toHaveLength(0);
+    });
+
     it('returns a null snapshot before any run is observed', () => {
       expect(graphRunStateSnapshot()).toBeNull();
     });

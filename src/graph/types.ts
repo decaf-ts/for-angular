@@ -1,5 +1,11 @@
 import type { SwitchNodeMetadata } from '@decaf-ts/ui-decorators/graph';
-import type { GraphNodeDefinition, GraphPortDefinition, GraphWorkflowDefinition } from '@decaf-ts/ui-decorators/graph';
+import type {
+  GraphIconReference,
+  GraphNodeDefinition,
+  GraphNodePinState,
+  GraphPortDefinition,
+  GraphWorkflowDefinition,
+} from '@decaf-ts/ui-decorators/graph';
 
 interface GraphWorkflowsItem {
   id: GraphWorkflowsItemId;
@@ -25,6 +31,29 @@ export interface GraphDemoNodeData {
   modelClass?: unknown;
   expanded?: boolean;
   switchMetadata?: SwitchNodeMetadata;
+  /**
+   * Manifest icon reference (D7/G3-25) carried verbatim so the template can
+   * render `catalogue`/`url`/`data:` per reference type.
+   */
+  iconReference?: GraphIconReference;
+  /**
+   * Manifest-authoritative node corner radius in pixels (D1/G3-04).
+   */
+  cornerRadius?: number;
+  /**
+   * Manifest-authoritative node face silhouette (D1/G3-04).
+   */
+  shape?: string;
+  /**
+   * Document-carried UI data-pin state (D4, DECAF-50 §4.22), projected from
+   * the node instance's `pinned` field. Present iff the node is pinned.
+   */
+  pinned?: GraphNodePinState;
+  /**
+   * Whether the node's manifest declares it pinnable (D4/G3-14); the pin
+   * affordance renders only when this is not `false`.
+   */
+  pinnable?: boolean;
 }
 
 export interface GraphDemoEdgeData {
@@ -70,6 +99,29 @@ export interface GraphRendererNodeData {
   ghostParentId?: string;
   /** Whether this node is a ghost/placeholder (non-deletable, no CRUD). */
   isGhost?: boolean;
+  /**
+   * Manifest icon reference (D7/G3-25) carried verbatim so the template can
+   * render `catalogue`/`url`/`data:` per reference type.
+   */
+  iconReference?: GraphIconReference;
+  /**
+   * Manifest-authoritative node corner radius in pixels (D1/G3-04).
+   */
+  cornerRadius?: number;
+  /**
+   * Manifest-authoritative node face silhouette (D1/G3-04).
+   */
+  shape?: string;
+  /**
+   * Document-carried UI data-pin state (D4, DECAF-50 §4.22), projected from
+   * the node instance's `pinned` field. Present iff the node is pinned.
+   */
+  pinned?: GraphNodePinState;
+  /**
+   * Whether the node's manifest declares it pinnable (D4/G3-14); the pin
+   * affordance renders only when this is not `false`.
+   */
+  pinnable?: boolean;
 }
 
 export interface GraphBoundaryNodeData {
@@ -153,6 +205,7 @@ export interface GraphRendererSummary {
 export interface GraphRendererViewModel {
   workflow: GraphWorkflowDefinition;
   inputs: GraphCanvasNodeBlueprint<GraphBoundaryNodeData>[];
+  outputs: GraphCanvasNodeBlueprint<GraphBoundaryNodeData>[];
   nodes: GraphCanvasNodeBlueprint<GraphRendererNodeData>[];
   edges: GraphCanvasEdgeBlueprint[];
   workflowOutputs: GraphWorkflowDefinition['outputs'];

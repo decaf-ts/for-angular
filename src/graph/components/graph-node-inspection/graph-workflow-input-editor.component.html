@@ -1,0 +1,93 @@
+<section class="graph-workflow-input-editor">
+  @if (role === 'input') {
+    @if (form; as inputForm) {
+      <form class="graph-workflow-input-editor__form" [formGroup]="inputForm">
+        <article class="graph-workflow-input-editor__field">
+          <label
+            class="graph-workflow-input-editor__label"
+            [attr.for]="'graph-boundary-input-' + controlName()"
+          >
+            {{ label() }}
+          </label>
+          <span class="graph-workflow-input-editor__meta">
+            {{ field?.path }} · {{ controlType() }}
+          </span>
+
+          @switch (controlType()) {
+            @case ('textarea') {
+              <textarea
+                class="graph-workflow-input-editor__control"
+                [id]="'graph-boundary-input-' + controlName()"
+                [formControlName]="controlName()"
+                [placeholder]="placeholder()"
+                rows="5"
+              ></textarea>
+            }
+            @case ('number') {
+              <input
+                class="graph-workflow-input-editor__control"
+                [id]="'graph-boundary-input-' + controlName()"
+                [formControlName]="controlName()"
+                type="number"
+                [placeholder]="placeholder()"
+              />
+            }
+            @case ('checkbox') {
+              <label
+                class="graph-workflow-input-editor__checkbox"
+                [attr.for]="'graph-boundary-input-' + controlName()"
+              >
+                <input
+                  [id]="'graph-boundary-input-' + controlName()"
+                  [formControlName]="controlName()"
+                  type="checkbox"
+                />
+                <span>{{ placeholder() }}</span>
+              </label>
+            }
+            @case ('date') {
+              <input
+                class="graph-workflow-input-editor__control"
+                [id]="'graph-boundary-input-' + controlName()"
+                [formControlName]="controlName()"
+                type="date"
+              />
+            }
+            @case ('email') {
+              <input
+                class="graph-workflow-input-editor__control"
+                [id]="'graph-boundary-input-' + controlName()"
+                [formControlName]="controlName()"
+                type="email"
+                [placeholder]="placeholder()"
+              />
+            }
+            @case ('url') {
+              <input
+                class="graph-workflow-input-editor__control"
+                [id]="'graph-boundary-input-' + controlName()"
+                [formControlName]="controlName()"
+                type="url"
+                [placeholder]="placeholder()"
+              />
+            }
+            @default {
+              <input
+                class="graph-workflow-input-editor__control"
+                [id]="'graph-boundary-input-' + controlName()"
+                [formControlName]="controlName()"
+                type="text"
+                [placeholder]="placeholder()"
+              />
+            }
+          }
+        </article>
+      </form>
+    }
+  } @else {
+    <article class="graph-workflow-input-editor__field graph-workflow-input-editor__field--readonly">
+      <span class="graph-workflow-input-editor__label">{{ label() }}</span>
+      <span class="graph-workflow-input-editor__value">{{ readOnlyValue() }}</span>
+    </article>
+  }
+</section>

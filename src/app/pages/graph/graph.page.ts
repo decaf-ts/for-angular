@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, signal, computed, isDevMode, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { GraphRendererComponent } from 'src/graph';
 import {
@@ -14,10 +14,15 @@ import {
   GraphRunEventClient,
   GraphRunExecutionResult,
   graphRunState,
+  GRAPH_RUN_STUCK_TIMEOUT_MS,
+  graphRunCancelFailureMessageOf,
+  graphRunDriftMessageOf,
+  graphRunStuckMessageOf,
 } from 'src/graph';
 import {
   GraphWorkflowDocumentStore,
   graphWorkflowDocumentSemanticHashOf,
+  graphWorkflowDocumentWithPinnedParameters,
   graphWorkflowSnapshotFromLegacy,
   graphWorkflowSnapshotToLegacy,
 } from 'src/graph';
@@ -40,8 +45,15 @@ import {
   GraphNodeCatalogService,
   GraphNodeCatalogCompositeSource,
   GRAPH_NODE_CATALOG_SOURCE,
+  GRAPH_DEV_MODE,
+  GraphWorkflowValidateClient,
+  graphValidity,
   graphRunLog,
   graphInspection,
+} from 'src/graph';
+import type {
+  GraphInspectionRunState,
+  GraphRunValidationIssue,
 } from 'src/graph';
 import type { GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
 
@@ -65,6 +77,13 @@ import type { GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
     // page provider the service would instantiate against the app-level HTTP
     // binding and the demo's fixture kinds would never reach the palette.
     GraphNodeCatalogService,
+    // G3-36: the developer-only raw snapshot textarea is gated behind the
+    // Angular dev-mode flag, so the demo chrome is n8n-like in production
+    // while developers keep the snapshot round-trip tool. Reading
+    // `isDevMode()` avoids the `src/environments/environment` module-eval
+    // `env.api.host` access, which throws when no `window.ENV` bootstrap is
+    // present (the normal `npm run start:dev` condition).
+    { provide: GRAPH_DEV_MODE, useFactory: () => isDevMode() },
   ],
   templateUrl: './graph.page.html',
   styleUrl: './graph.page.scss',
@@ -76,6 +95,9 @@ import type { GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
  * lifecycle UI.
  */
 export class GraphPage implements OnInit, OnDestroy {
+  /** Bounded backoff (ms) between run-result fetch attempts (G3-33). */
+  private static readonly RUN_RESULT_RETRY_DELAYS_MS = [80, 160, 240, 320, 400, 480, 560, 640];
+
   readonly workflowRoot = TextPipelineWorkflow;
   readonly workflowId = 'text-pipeline-workflow';
   private readonly executionService = inject(GraphExecutionService);
@@ -85,6 +107,7 @@ export class GraphPage implements OnInit, OnDestroy {
   private readonly documentStore = inject(GraphWorkflowDocumentStore);
   private readonly runClient = inject(GraphRunClient);
   private readonly runEventClient = inject(GraphRunEventClient);
+  private readonly validateClient = inject(GraphWorkflowValidateClient);
   private readonly catalogService = inject(GraphNodeCatalogService);
   private readonly runEventSubscribers = new Map<string, GraphRunEventClientSubscriber>();
 
@@ -94,7 +117,26 @@ export class GraphPage implements OnInit, OnDestroy {
   readonly lastResult = signal<Record<string, unknown> | null>(null);
   readonly runError = signal<string | null>(null);
   readonly runStatus = signal<string>('idle');
+  /** Run-result lifecycle for the split view's run panes (G3-12). */
+  readonly runResultState = signal<GraphInspectionRunState>('idle');
+  /** Structured validation issues surfaced by the run gate (G3-33). */
+  readonly runValidationIssues = signal<GraphRunValidationIssue[]>([]);
+  /** Whether a run-cancel request is in flight (G3-34). */
+  readonly cancelRequested = signal(false);
+  private runStuckTimer: ReturnType<typeof setTimeout> | null = null;
   readonly backendAvailable = this.executionService.backendAvailable;
+  /**
+   * Run gating (D5/G3-17): the toolbar can only start a run when the backend
+   * is available and the editor's validity projection does not mark the graph
+   * invalid. An invalid graph is never submittable.
+   */
+  readonly canRun = computed(
+    () => this.backendAvailable() !== false && !graphValidity.isInvalid()
+  );
+  /** Editor validity projection (D5/G3-16..G3-18) for the toolbar + canvas. */
+  readonly graphValidityStatus = graphValidity.status;
+  readonly graphValidityIssues = graphValidity.issues;
+  readonly graphInvalid = graphValidity.isInvalid;
   /** The palette is manifest-driven only (P7 cutover): no constructor node arrays. */
   readonly availableNodes = this.catalogService.manifests;
 
@@ -195,22 +237,30 @@ export class GraphPage implements OnInit, OnDestroy {
   /**
    * Canonical submission document for the demo's Run action (DECAF-50 §4.14
    * cutover): the run action runs the EXACT editor document unconditionally —
-   * the live document store's own snapshot; no flag, no legacy conversion leg
+   * the live document store's own snapshot, with each pinned node's frozen
+   * parameter values applied (D4 data pinning, §4.22) so downstream runs
+   * reuse the values captured at pin time. No flag, no legacy conversion leg
    * remains in the run path.
    * @returns The canonical document to submit, or `null` when no canvas state
    *          is available yet.
    */
   private runSubmissionDocument(): GraphWorkflowDocument | null {
-    return this.documentStore.document() ?? null;
+    const document = this.documentStore.document();
+    if (!document) return null;
+    return graphWorkflowDocumentWithPinnedParameters(document);
   }
 
   async runWorkflow() {
     this.isRunning.set(true);
+    this.cancelRequested.set(false);
+    this.clearRunStuckTimeout();
     this.runError.set(null);
     graphRunLog.reset();
     graphInspection.reset();
     graphRunState.reset();
     graphRunLog.setOpen(true);
+    this.runResultState.set('idle');
+    this.runValidationIssues.set([]);
 
     // Seed canvas member nodes/edges as BLOCKED (waiting on upstream deps).
     // The engine never emits BLOCKED (DECAF-48 §4.4); NODE_STATE_CHANGED /
@@ -224,19 +274,44 @@ export class GraphPage implements OnInit, OnDestroy {
       // (buildGraphRendererViewModel), while the store's markAllBlocked reads
       // it top-level — map the shape so both the canvas id and the engine
       // plan-edge id get seeded as blocked (DECAF-48 §4.4).
-      const edges = viewModel.edges.map((edge) => ({
-        id: edge.id,
-        engineEdgeId: edge.data?.engineEdgeId,
-      }));
+      // Workflow-output boundary edges are excluded (mirroring the input
+      // boundary nodes above): the engine surfaces the run's outputs through the
+      // run result, never as an EDGE_STATE_CHANGED plan edge, so a boundary
+      // edge must stay neutral instead of being seeded blocked forever.
+      const outputBoundaryIds = new Set((viewModel.outputs ?? []).map((node) => node.id));
+      const edges = viewModel.edges
+        .filter((edge) => !outputBoundaryIds.has(edge.target))
+        .map((edge) => ({
+          id: edge.id,
+          engineEdgeId: edge.data?.engineEdgeId,
+        }));
       graphExecutionState.markAllBlocked(nodeIds, edges);
     }
 
-    const inputs: Record<string, unknown> = {
-      count: 1,
-      text: 'Hello\nWorld\nFoo\nBar\nBaz',
-    };
+    // G3-13: the run submits the renderer's own workflow-input form values —
+    // the same form a boundary edit writes — never hardcoded demo inputs.
+    const payload = this.renderer?.workflowInputPayload();
+    if (payload && !payload.valid) {
+      this.runValidationIssues.set(payload.errors);
+      this.isRunning.set(false);
+      return;
+    }
+    this.runValidationIssues.set([]);
+    const inputs = payload?.inputs ?? {};
+
     const document = this.runSubmissionDocument();
     if (!document) {
+      this.isRunning.set(false);
+      return;
+    }
+
+    // D5/G3-17 pre-run gate: re-validate the exact document before
+    // submission. An invalid graph is never submittable, and the backend's
+    // structured issues surface on the page's run-validation signal.
+    await graphValidity.validate(document, this.validateClient);
+    if (graphValidity.isInvalid()) {
+      this.runValidationIssues.set(graphValidity.issues());
+      this.runResultState.set('idle');
       this.isRunning.set(false);
       return;
     }
@@ -276,6 +351,7 @@ export class GraphPage implements OnInit, OnDestroy {
       workflowId: created.workflowId,
       status: isGraphRunStatus(created.status) ? created.status : null,
     });
+    this.armRunStuckTimeout(created.runId);
     const subscriber = this.runEventSubscriber(created.runId, document);
     this.runEventSubscribers.set(created.runId, subscriber);
     try {
@@ -336,9 +412,13 @@ export class GraphPage implements OnInit, OnDestroy {
     document: GraphWorkflowDocument,
     envelope: GraphRunEventEnvelope,
   ): Promise<void> {
+    this.clearRunStuckTimeout();
     this.runStatus.set(envelope.type);
     if (envelope.type === 'workflow.cancelled') {
       graphRunState.markRunCancelled();
+      graphRunLog.recordLifecycle('cancelled', `Run '${runId}' was cancelled.`, {
+        runId,
+      });
     }
     if (
       envelope.type === 'workflow.completed' ||
@@ -347,15 +427,9 @@ export class GraphPage implements OnInit, OnDestroy {
       graphRunLog.setOpen(true);
     }
 
-    let result: GraphRunExecutionResult | null = null;
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-      const runResult = await this.runClient.fetchRunResult(runId);
-      if (runResult || attempt === 4) {
-        result = runResult;
-        break;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 80));
-    }
+    this.runResultState.set('pending');
+    const result = await this.fetchRunResultWithRetry(runId);
+    this.runResultState.set(result ? 'ready' : 'failed');
 
     graphRunState.applyRunResult(result);
     if (result) {
@@ -363,20 +437,108 @@ export class GraphPage implements OnInit, OnDestroy {
       const submitted = graphWorkflowDocumentSemanticHashOf(document);
       const returned = graphWorkflowDocumentSemanticHashOf(result.document);
       if (submitted !== returned) {
-        this.runError.set(
-          `Run '${runId}' document round trip drifted: submitted hash '${submitted}' vs stored hash '${returned}'`,
-        );
+        this.runError.set(graphRunDriftMessageOf(runId, submitted, returned));
       }
     }
     this.runEventClient.disconnect(runId);
     this.runEventSubscribers.delete(runId);
+    this.cancelRequested.set(false);
     this.isRunning.set(false);
+  }
+
+  /**
+   * Hardened run-result fetch (G3-33): the engine finalizes the stored result
+   * asynchronously after the terminal event, so the fetch retries with a bounded
+   * backoff schedule. Returns `null` once the schedule is exhausted.
+   * @param runId The run whose stored result should be fetched.
+   * @returns The stored run result, or `null` when none landed.
+   */
+  private async fetchRunResultWithRetry(runId: string): Promise<GraphRunExecutionResult | null> {
+    let result = await this.runClient.fetchRunResult(runId);
+    for (const delay of GraphPage.RUN_RESULT_RETRY_DELAYS_MS) {
+      if (result) break;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      result = await this.runClient.fetchRunResult(runId);
+    }
+    return result;
+  }
+
+  /**
+   * Re-fetches the last run's stored result when the split view renders its
+   * failed empty state (G3-12/G3-33 retry affordance). Folds the result into
+   * the run state store (inspection payloads) and refreshes the pane state.
+   */
+  async retryRunResult(): Promise<void> {
+    const runId = graphRunState.runId();
+    if (!runId) return;
+    this.runResultState.set('pending');
+    const result = await this.fetchRunResultWithRetry(runId);
+    this.runResultState.set(result ? 'ready' : 'failed');
+    graphRunState.applyRunResult(result);
+    if (result) {
+      this.lastResult.set((result.outputs ?? null) as Record<string, unknown> | null);
+    }
+  }
+
+  /**
+   * Forwards the toolbar's run-cancel intent (G3-34) into the run client.
+   */
+  onCancelWorkflow(): void {
+    void this.cancelRun();
+  }
+
+  /**
+   * Cancels the in-flight run (G3-34): `DELETE /graph/runs/:runId` is
+   * idempotent for terminal runs. The terminal `workflow.cancelled` event still
+   * arrives over SSE and drives the canvas demotion; this method only surfaces a
+   * cancel failure so the user knows the run may still be live.
+   */
+  async cancelRun(): Promise<void> {
+    const runId = graphRunState.runId();
+    if (!runId || !this.isRunning() || this.cancelRequested()) return;
+    this.cancelRequested.set(true);
+    try {
+      await this.runClient.cancelRun(runId);
+    } catch (err) {
+      this.cancelRequested.set(false);
+      this.runError.set(graphRunCancelFailureMessageOf(runId, err));
+    }
+  }
+
+  /**
+   * Arms the stuck-run timeout (G3-34): a run that never produces a terminal
+   * event would otherwise leave Start spinning "…" forever. When the window
+   * elapses the run is cancelled and the user sees why.
+   * @param runId The run to watch.
+   */
+  private armRunStuckTimeout(runId: string): void {
+    this.clearRunStuckTimeout();
+    this.runStuckTimer = setTimeout(() => {
+      this.runStuckTimer = null;
+      if (!this.isRunning()) return;
+      const message = graphRunStuckMessageOf(runId, GRAPH_RUN_STUCK_TIMEOUT_MS);
+      this.runError.set(message);
+      graphRunLog.recordLifecycle('cancelled', message, { runId });
+      void this.cancelRun();
+    }, GRAPH_RUN_STUCK_TIMEOUT_MS);
+  }
+
+  /**
+   * Clears the armed stuck-run timeout (G3-34) when the run reaches a terminal
+   * event, is torn down, or a new run starts.
+   */
+  private clearRunStuckTimeout(): void {
+    if (this.runStuckTimer !== null) {
+      clearTimeout(this.runStuckTimer);
+      this.runStuckTimer = null;
+    }
   }
 
   /**
    * Tears down the canonical run's SSE subscriber map for the page teardown.
    */
   private teardownCanonicalRuns(): void {
+    this.clearRunStuckTimeout();
     for (const runId of this.runEventSubscribers.keys()) {
       this.runEventClient.disconnect(runId);
       this.runEventSubscribers.delete(runId);

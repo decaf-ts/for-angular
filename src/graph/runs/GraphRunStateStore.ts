@@ -69,6 +69,13 @@ class GraphRunStateStore {
     this.status.set(descriptor.status);
     this.lastSequence.set(null);
     this.lastError.set(null);
+    // D6/G3-21: the created run is a run-lifecycle line in the drawer, so a
+    // run with no streamed `GRAPH_RUN_LOG` entries still shows feedback.
+    graphRunLog.recordLifecycle(
+      'created',
+      `Run ${descriptor.runId} created for workflow ${descriptor.workflowId}`,
+      { runId: descriptor.runId, workflowId: descriptor.workflowId },
+    );
   }
 
   /**

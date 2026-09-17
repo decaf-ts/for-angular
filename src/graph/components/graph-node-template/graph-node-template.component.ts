@@ -10,9 +10,12 @@ import {
   type Edge,
 } from 'ng-diagram';
 import { PortDirection } from '@decaf-ts/ui-decorators/graph';
+import { GRAPH_DEFAULT_NODE_CORNER_RADIUS, graphNodeSizeOf } from '@decaf-ts/ui-decorators/graph';
 import type {
+  GraphIconReference,
   GraphInputBinding,
   GraphJsonValue,
+  GraphNodeDisplayManifest,
   GraphNodeInstance,
   GraphOutputBinding,
   GraphPortDefinition,
@@ -25,12 +28,186 @@ import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocument
 import type { GraphDocumentCommand } from '../../document/GraphDocumentCommands';
 import { graphNodeAddCommandOf } from '../../document/GraphDiagramMutationTranslator';
 import { GraphNodeCatalogService } from '../../catalog/GraphNodeCatalogService';
+import type { GraphNodeCatalogFailure } from '../../catalog/GraphNodeCatalogStore';
+import { ghostNodeStore } from '../../execution/GhostNodeStore';
 import { graphSelection } from '../../execution/GraphSelectionStore';
+import { graphValidity } from '../../validation/GraphWorkflowValidityStore';
 import { GraphNodeEditModalComponent, type GraphNodeEditResult } from '../graph-node-edit-modal/graph-node-edit-modal.component';
 import { GraphSwitchEditModalComponent, type GraphSwitchEditResult } from '../graph-switch-edit-modal/graph-switch-edit-modal.component';
 
+/**
+ * `catalogue` icon references resolve to a Tabler sprite `<svg><use>` href
+ * (D7/G3-25). The sprite ships every `ti-*` symbol id.
+ */
+export function graphIconSpriteHrefOf(icon: GraphIconReference | undefined): string | null {
+  if (!icon || icon.type !== 'catalogue' || !icon.name) return null;
+  return `assets/tabler-sprite.svg#tabler-${icon.name.replace(/^ti-/, '')}`;
+}
+
+/**
+ * `url` and `data:` icon references resolve to an image source (D7/G3-25).
+ * `data:` carries an inline `image/svg+xml` payload.
+ */
+export function graphIconImageSrcOf(icon: GraphIconReference | undefined): string | null {
+  if (!icon) return null;
+  if (icon.type === 'url' && icon.url) return icon.url;
+  if (icon.type === 'data' && icon.value) {
+    return `data:${icon.mediaType ?? 'image/svg+xml'};utf8,${encodeURIComponent(icon.value)}`;
+  }
+  return null;
+}
+
+/**
+ * First output port id of a node (G3-29): the node-side add connector
+ * auto-connects the new node from this port. Falls back to `result` when the node
+ * exposes no output port.
+ */
+export function graphNodePrimaryOutputPortIdOf(ports: GraphPortDefinition[]): string {
+  const outputs = (ports ?? []).filter((port) => port.direction === PortDirection.OUTPUT);
+  return (outputs[0]?.path || outputs[0]?.property) ?? 'result';
+}
+
+/**
+ * Degraded-mode feedback for the node CRUD modal (G3-28): backend-down silently
+ * drops dynamic parameter options, so the modal is told the catalogue is degraded
+ * and why. Only a `degraded`/`failed` catalogue produces a notice.
+ */
+export function graphNodeCatalogDegradedNoticeOf(
+  status: string,
+  failure: GraphNodeCatalogFailure | null
+): { degraded: boolean; reason: string } {
+  const degraded = status === 'degraded' || status === 'failed';
+  if (!degraded) return { degraded: false, reason: '' };
+  return {
+    degraded: true,
+    reason:
+      failure?.kind === 'malformed-response'
+        ? 'The node catalogue backend returned an unexpected response; dynamic parameter options may be incomplete.'
+        : 'The node catalogue backend is unavailable; dynamic parameter options may be incomplete.',
+  };
+}
+
 const GRAPH_CANVAS_BOUNDARY_NODE_PREFIX = 'input-';
 const GRAPH_CANVAS_GHOST_PREFIX = 'ghost-';
+
+/**
+ * Vocabulary used to split a single-token node name into readable words for the
+ * category letter silhouette (D7/G3-24). Longest first so `foreach` -> `for`+`each`.
+ */
+const GRAPH_SILHOUETTE_WORDS = [
+  'parallel',
+  'schedule',
+  'boundary',
+  'approval',
+  'webhook',
+  'trigger',
+  'manual',
+  'switch',
+  'return',
+  'delay',
+  'merge',
+  'until',
+  'while',
+  'break',
+  'agent',
+  'error',
+  'human',
+  'event',
+  'form',
+  'code',
+  'chat',
+  'each',
+  'text',
+  'for',
+  'log',
+  'map',
+  'if',
+];
+
+/**
+ * D2 default-port predicate (DECAF-50 §4.22): the manifest's default port is the
+ * complete-input `value` port (or a `default` output branch). Default ports are
+ * always visible.
+ *
+ * Exported for the gate-2 P0 port-visibility unit tests.
+ */
+export function isGraphDefaultPort(port: { property: string; path?: string }): boolean {
+  const id = port.path || port.property;
+  return id === 'value' || id === 'default';
+}
+
+/**
+ * D2 dynamic-port predicate (G3-08): ports the manifest generates from its
+ * declarative dynamic rules (e.g. Switch case ports) carry no static `@uielement`
+ * and are covered by the same visibility rule as every other visible port.
+ *
+ * Exported for the gate-2 P0 port-visibility unit tests.
+ */
+export function isGraphDynamicPort(port: { element?: unknown }): boolean {
+  return !port.element;
+}
+
+/**
+ * D2 port-visibility rule (DECAF-50 §4.22, G3-05..G3-08). A port handle is
+ * visible when any of the named guarantees holds:
+ *
+ * 1. it is the manifest's default port;
+ * 2. it is connected (an edge binds it);
+ * 3. it is a required **input** port (required inputs stay visible even when
+ *    unconnected);
+ * 4. it is value-bound (literal/expression) — it renders with a value badge
+ *    instead of vanishing;
+ * 5. it is a dynamic port (Switch cases), covered by the same rule.
+ *
+ * Selection/connection reveals every port. The manifest `hidden` flag is a
+ * CRUD-form flag, never a canvas-hiding authority (`CodeInputSchema.data` is
+ * canvas-only and hidden in the modal, yet still visible on the canvas).
+ *
+ * Exported for the gate-2 P0 port-visibility unit tests.
+ */
+export function graphPortVisible(
+  port: { property: string; path?: string; required?: boolean; element?: unknown; direction: PortDirection },
+  connected: ReadonlySet<string>,
+  modes: Record<string, 'port' | 'value'>,
+  showAll: boolean
+): boolean {
+  const portId = port.path || port.property;
+  if (isGraphDefaultPort(port)) return true;
+  if (connected.has(portId)) return true;
+  if (port.direction === PortDirection.INPUT && port.required === true) return true;
+  if (modes[portId] === 'value') return true;
+  if (isGraphDynamicPort(port)) return true;
+  return showAll;
+}
+
+/**
+ * Readable category letter silhouette (D7/G3-24): the fallback when the manifest
+ * provides no icon. Derived from the node's human name by splitting camelCase and
+ * word boundaries and taking the first letter of up to two tokens — never just the
+ * title's first character. `"Foreach"` -> `"FE"`, `"Split text"` -> `"ST"`.
+ *
+ * Exported for the gate-2 P0 node-face unit tests.
+ */
+export function graphNodeLetterSilhouetteOf(name: string): string {
+  if (!name) return '?';
+  const spaced = name
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[^a-zA-Z0-9]+/g, ' ')
+    .trim();
+  let tokens = spaced.split(/\s+/).filter(Boolean);
+  if (tokens.length === 1) {
+    const lower = tokens[0].toLowerCase();
+    for (const word of GRAPH_SILHOUETTE_WORDS) {
+      if (lower === word) break;
+      if (lower.startsWith(word) && lower.length > word.length) {
+        tokens = [word, lower.slice(word.length)];
+        break;
+      }
+    }
+  }
+  const initials = tokens.map((token) => token.charAt(0).toUpperCase()).filter(Boolean);
+  return initials.slice(0, 2).join('') || '?';
+}
 
 /**
  * Document-native switch write path (§4.4.4/§4.18): the canonical switch
@@ -64,7 +241,8 @@ function switchParameterBlockOf(meta: SwitchNodeMetadata): Record<string, GraphJ
 
 function computeSwitchMetadataChange(
   currentData: GraphDemoNodeData,
-  meta: SwitchNodeMetadata
+  meta: SwitchNodeMetadata,
+  display?: GraphNodeDisplayManifest
 ): NodeMetadataChange {
   const defaultPortName = meta.defaultPort ?? 'default';
   const hasDefault = meta.hasDefault === true;
@@ -92,12 +270,19 @@ function computeSwitchMetadataChange(
   }
 
   const caseCount = (meta.cases || []).length;
+  // Value-driven growth (D1/G3-03): the size comes from the manifest's
+  // declared display rules — never a hardcoded per-node formula.
+  const size = graphNodeSizeOf(
+    {
+      width: display?.width,
+      height: display?.height,
+      sizeRules: display?.sizeRules,
+    },
+    { cases: caseCount }
+  );
   return {
     ports,
-    size: {
-      width: 120,
-      height: caseCount > 0 ? 140 + caseCount * 24 : 140,
-    },
+    size,
     dataPatch: { switchMetadata: meta },
   };
 }
@@ -124,7 +309,6 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
   private readonly zone = inject(NgZone);
   private readonly documentStore = inject(GraphWorkflowDocumentStore, { optional: true });
   private readonly catalog = inject(GraphNodeCatalogService);
-  private _pinned = false;
   private portObserver: MutationObserver | null = null;
   private pendingRaf: number | null = null;
 
@@ -206,7 +390,34 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     return graphExecutionState.nodeStates()[id];
   });
 
-  readonly isPinned = computed(() => this._pinned);
+  /**
+   * Document-carried node instance (D4): the pin state is read from and written
+   * to the canonical document, never a component-local flag.
+   */
+  private readonly documentNode = computed(() => {
+    const nodeId = this.node().id;
+    return this.documentStore?.signals.document()?.nodes.find((candidate) => candidate.id === nodeId);
+  });
+
+  /**
+   * UI data-pin state (D4, DECAF-50 §4.22): pinned iff the canonical document
+   * carries the node's pin state. The CSS class is incidental; the document is
+   * the authority.
+   */
+  readonly isPinned = computed(() => this.documentNode()?.pinned !== undefined);
+
+  /**
+   * Whether the node is pinnable (D4/G3-14): the pin affordance renders only
+   * when the manifest declares the node pinnable. Non-member canvases (ghosts,
+   * consumed widgets without a manifest) default to pinnable.
+   */
+  readonly isPinnable = computed(() => this.node().data.pinnable !== false);
+
+  /**
+   * Whether the node carries at least one graph validation issue (D5/G3-16):
+   * the canvas highlights it so the invalid state is visible per node.
+   */
+  readonly isInvalid = computed(() => graphValidity.invalidNodeIds().has(this.node().id));
 
   readonly statusLabel = computed(() => {
     const state = this.nodeExecutionState();
@@ -215,8 +426,10 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
   });
 
   /**
-   * Whether this node has already executed, i.e. double-clicking should open
-   * the I/O inspection panel instead of the edit modal (DECAF-48 §4.6).
+   * Whether this node has already executed. It never removes the CRUD form:
+   * double-clicking always opens CRUD, and a ran node routes to the D3
+   * three-pane split view whose CENTER pane is that same CRUD form
+   * (DECAF-50 §4.22 D3/G3-10).
    */
   readonly hasRan = computed(() => {
     if (graphInspection.has(this.node().id)) return true;
@@ -266,22 +479,32 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     return modes;
   });
 
-  readonly iconFallback = computed(() => {
-    const title = this.node().data.title || this.node().data.kind;
-    return title.charAt(0).toUpperCase();
-  });
+  readonly iconFallback = computed(() =>
+    graphNodeLetterSilhouetteOf(this.node().data.title || this.node().data.kind)
+  );
 
-  readonly nodeWidthPx = computed(() => {
-    const data = this.node().data;
-    return data.switchMetadata ? 120 : null;
-  });
+  /** Manifest icon reference (D7/G3-25) rendered per reference type. */
+  readonly iconReference = computed<GraphIconReference | undefined>(() => this.node().data.iconReference);
 
-  private updatePinnedClasses() {
-    const el = this.hostRef.nativeElement;
-    const article = el.querySelector('article.graph-node');
-    if (!article) return;
-    article.classList.toggle('graph-node--pinned', this._pinned);
-  }
+  /** Manifest-authoritative corner radius (D1/G3-04). */
+  readonly cornerRadiusPx = computed<number>(() => this.node().data.cornerRadius ?? GRAPH_DEFAULT_NODE_CORNER_RADIUS);
+
+  /** Manifest-authoritative face silhouette (D1/G3-04). */
+  readonly nodeShape = computed<string>(() => this.node().data.shape ?? 'rounded');
+
+  /** `catalogue` icons resolve to a Tabler sprite `<svg><use>` href. */
+  readonly iconSpriteHref = computed<string | null>(() => graphIconSpriteHrefOf(this.iconReference()));
+
+  /** `url` / `data:` icons resolve to an image source. */
+  readonly iconImageSrc = computed<string | null>(() => graphIconImageSrcOf(this.iconReference()));
+
+  /**
+   * Whether the node exposes at least one output port: the node-side add
+   * connector (G3-29) only renders when there is an edge to connect from.
+   */
+  readonly hasOutputPorts = computed(() =>
+    this.node().data.ports.some((port) => port.direction === PortDirection.OUTPUT)
+  );
 
   inputPorts() {
     return this.visiblePorts(PortDirection.INPUT);
@@ -334,13 +557,25 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     event.preventDefault();
     event.stopPropagation();
 
-    // Double-click on an already-ran node opens the I/O inspection panel
-    // instead of the edit modal (DECAF-48 §4.6).
+    // D3 (DECAF-50 §4.22): double-click ALWAYS opens the CRUD form. A node
+    // that has run opens the three-pane split view whose CENTER pane is the
+    // CRUD form (run inputs LEFT / CRUD CENTER / run outputs RIGHT) — the
+    // `hasRan` state is kept but never removes CRUD (G3-10, supersedes
+    // DECAF-48 §4.6 / DECAF-32 §21.11).
     if (this.hasRan()) {
-      graphInspection.toggle(this.node().id);
+      graphInspection.open(this.node().id);
       return;
     }
 
+    await this.openCrudModal();
+  }
+
+  /**
+   * Opens the node's CRUD form as a modal (pre-run path, D3). The modal is the
+   * same document-native editor the split view renders inline once the node has
+   * run, so both paths share one CRUD surface.
+   */
+  private async openCrudModal(): Promise<void> {
     const nodeId = this.node().id;
     const data = this.node().data;
     const isSwitch = data.kind === 'core.flow.switch';
@@ -375,6 +610,13 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
       return;
     }
 
+    const catalogStatus = this.catalog.status();
+    const catalogFailure = this.catalog.failure();
+    const { degraded, reason: degradedReason } = graphNodeCatalogDegradedNoticeOf(
+      catalogStatus,
+      catalogFailure
+    );
+
     const modal = await this.modalCtrl.create({
       component: GraphNodeEditModalComponent,
       componentProps: {
@@ -383,6 +625,8 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
         nodeData: data,
         nodeInstance,
         parameterDefs: this.catalog.get(data.kind)?.parameters ?? [],
+        degraded,
+        degradedReason,
       },
       presentingElement: undefined,
     });
@@ -427,13 +671,13 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
    */
   private applySwitchEditResult(result: GraphSwitchEditResult, nodeInstance: GraphNodeInstance | null): void {
     const data = this.node().data;
-    const change = computeSwitchMetadataChange(data as GraphDemoNodeData, result.switchMetadata);
+    const display = this.catalog.get(data.kind)?.display;
+    const change = computeSwitchMetadataChange(data as GraphDemoNodeData, result.switchMetadata, display);
     this.applyNodeMetadata(change);
     if (!this.documentStore) return;
     try {
       this.documentStore.updateNode(result.nodeId, {
         parameters: switchParameterBlockOf(result.switchMetadata),
-        size: { height: change.size.height, width: change.size.width },
         ...(Object.keys(result.portModes).length
           ? { inputBindings: this.inputBindingsFromPortModes(nodeInstance, result.portModes) }
           : {}),
@@ -491,12 +735,6 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
       } as never;
     }) as never[];
     diagram.updateNodes(updatedNodes);
-
-    const el = this.hostRef.nativeElement;
-    const article = el.querySelector('article.graph-node');
-    if (article) {
-      article.style.setProperty('height', `${change.size.height}px`);
-    }
   }
 
   /**
@@ -548,38 +786,101 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     }
   }
 
+  /**
+   * D4 data pinning (DECAF-50 §4.22, fixes G3-14): toggles the node's pin
+   * state by writing the canonical document — pinning freezes the current
+   * parameter values, unpinning releases them. Never a local CSS-only toggle,
+   * and never wired to the engine's cache pinning (`GraphPinning`).
+   */
   pinNode(event: Event) {
     event.preventDefault();
     event.stopPropagation();
-    this._pinned = !this._pinned;
-    this.updatePinnedClasses();
+    const nodeId = this.node().id;
+    if (!this.documentStore) return;
+    try {
+      if (this.isPinned()) {
+        this.documentStore.unpinNode(nodeId);
+      } else {
+        this.documentStore.pinNode(nodeId);
+      }
+    } catch (error) {
+      console.warn('[GraphNodeTemplateComponent] document pin write skipped', error);
+    }
   }
 
+  /** D2 default-port predicate (`value`/`default`), always visible. */
+  isDefaultPort(port: { property: string; path?: string }): boolean {
+    return isGraphDefaultPort(port);
+  }
+
+  /**
+   * First output port id (D2/G3-29): the node-side add connector
+   * auto-connects the new node from this port.
+   */
+  primaryOutputPortId(): string {
+    return graphNodePrimaryOutputPortIdOf(this.node().data.ports);
+  }
+
+  /**
+   * Node-side add connector (G3-29 n8n-look ruling): records this node as the
+   * pending connection source so the palette opens and the chosen node is placed
+   * beside it and auto-connected from its first output port. This replaces the
+   * corner popup as the node-adjacent add affordance; the canvas-level "+ Add
+   * node" remains for unconnected insertion.
+   */
+  addNodeFromConnector(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    ghostNodeStore.requestAddNodeFrom(this.node().id, this.primaryOutputPortId());
+  }
+
+  /**
+   * Binding mode for a port (`port` when edge-bound, `value` for literal /
+   * expression bindings). Value-bound input ports render with a value badge
+   * (D2/G3-07) instead of vanishing.
+   */
+  portBindingMode(port: { property: string; path?: string }): 'port' | 'value' | undefined {
+    const portId = port.path || port.property;
+    return this.portModes()[portId];
+  }
+
+  /**
+   * Value indication for a value-bound (literal/expression) input port
+   * (D2/G3-07): the bound literal is shown (truncated) and an expression
+   * binding shows `ƒx`. Returns `null` for edge-bound ports.
+   */
+  portValueBadge(port: { property: string; path?: string }): string | null {
+    const portId = port.path || port.property;
+    if (this.portBindingMode(port) !== 'value') return null;
+    const nodeId = this.node().id;
+    const node = this.documentStore?.document()?.nodes.find((candidate) => candidate.id === nodeId);
+    const binding = node?.inputBindings?.[portId];
+    if (!binding || binding.mode === 'edge') return null;
+    if (binding.mode === 'expression') return 'ƒx';
+    const value = (binding as { value?: unknown }).value;
+    if (value === undefined || value === null) return '=';
+    const text = typeof value === 'string' ? value : JSON.stringify(value);
+    return text.length > 12 ? `${text.slice(0, 11)}…` : text;
+  }
+
+  /**
+   * D2 visible ports (DECAF-50 §4.22, G3-05..G3-08): the single principled
+   * visibility rule. Port handles are visible by default on the node edges; the
+   * named guarantees are the manifest default port, any connected port, and any
+   * required input port (visible even unconnected). Value-bound input ports do
+   * not vanish — they render with a value badge. Dynamic ports (Switch cases)
+   * are covered by the same rule.
+   */
   visiblePorts(direction: PortDirection) {
     const showAll = this.isSelected() || this.isConnecting();
     const connected = this.connectedPortIds();
     const modes = this.portModes();
-    const isDefault = (port: { property: string; path?: string }) =>
-      port.property === 'value' || port.path === 'value' || port.property === 'default' || port.path === 'default';
-    // Switch case ports (no @uielement, dynamically generated) are always visible.
-    const isSwitchCasePort = (port: { element?: unknown }) => !port.element;
     return this.node()
       .data.ports.filter((port) => port.direction === direction)
-      .filter((port) => {
-        const portId = port.path || port.property;
-        const mode = modes[portId];
-        if (mode === 'value') return false;
-        if (isSwitchCasePort(port)) return true;
-        if (mode !== 'port' && port.element) {
-          return connected.has(portId);
-        }
-        if (isDefault(port)) return true;
-        if (showAll) return true;
-        return connected.has(portId);
-      })
+      .filter((port) => graphPortVisible(port, connected, modes, showAll))
       .sort((a, b) => {
-        const aDefault = isDefault(a) ? 1 : 0;
-        const bDefault = isDefault(b) ? 1 : 0;
+        const aDefault = isGraphDefaultPort(a) ? 1 : 0;
+        const bDefault = isGraphDefaultPort(b) ? 1 : 0;
         return aDefault - bDefault;
       });
   }

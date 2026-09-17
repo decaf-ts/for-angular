@@ -11,7 +11,12 @@ import { InternalError } from '@decaf-ts/db-decorators';
 import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
 import { graphAngularServiceShare } from '../utils/graphAngularServiceShare';
 import type { GraphNodeManifestReader } from './GraphNodeCatalogReader';
-import { GraphNodeCatalogStore, type GraphNodeCatalogSource } from './GraphNodeCatalogStore';
+import { graphNodeCatalogFailureOf } from './GraphNodeCatalogApi';
+import {
+  GraphNodeCatalogStore,
+  type GraphNodeCatalogFailure,
+  type GraphNodeCatalogSource,
+} from './GraphNodeCatalogStore';
 
 /**
  * The catalogue source used by {@link GraphNodeCatalogService}'s load/refresh paths.
@@ -33,8 +38,11 @@ export class GraphNodeCatalogService {
   /** Live manifest signal (P7 cutover): the editor palette reads this directly. */
   readonly manifests = this.store.signals.manifests;
 
-  /** Live catalogue status signal ('unloaded'|'loading'|'ready'|'failed'). */
+  /** Live catalogue status signal ('unloaded'|'loading'|'ready'|'degraded'|'failed'). */
   readonly status = this.store.signals.status;
+
+  /** Structured failure of the last degraded/failed catalogue load (G3-26/G3-27). */
+  readonly failure = this.store.signals.failure;
 
   /**
    * Loads the manifests when no source has run before. Idempotent.
@@ -47,7 +55,12 @@ export class GraphNodeCatalogService {
   }
 
   /**
-   * Re-fetches the manifests from the configured source and pushes them into the store.
+   * Re-fetches the manifests from the configured source and pushes them into the
+   * store. A source that degrades gracefully (the composite source keeps the
+   * fixtures when the live backend fails) reports its failure class on
+   * {@link GraphNodeCatalogSource.failure}; the store then lands on `degraded`
+   * with that failure instead of silently claiming `ready` (G3-27). A source
+   * that throws lands on `failed` with the classified error (G3-26).
    */
   async refresh(): Promise<void> {
     const source = this.source();
@@ -55,9 +68,10 @@ export class GraphNodeCatalogService {
     try {
       const manifests = await source.fetchManifests();
       this.store.setManifests(manifests);
-      this.store.setStatus('ready');
+      const failure = source.failure?.() ?? null;
+      this.store.setStatus(failure ? 'degraded' : 'ready', failure);
     } catch (error) {
-      this.store.setStatus('failed');
+      this.store.setStatus('failed', graphNodeCatalogFailureOf(error));
       throw error;
     }
   }

@@ -9,6 +9,7 @@ import {
 import { PortDirection } from '@decaf-ts/ui-decorators/graph';
 import { GraphBoundaryNodeData } from '../../types';
 import { graphSelection } from '../../execution/GraphSelectionStore';
+import { graphInspection } from '../../execution/GraphInspectionStore';
 
 @Component({
   selector: 'app-graph-boundary-node-template',
@@ -37,6 +38,17 @@ export class GraphBoundaryNodeTemplateComponent implements NgDiagramNodeTemplate
     return ids;
   });
 
+  /**
+   * Boundary decision (D2/G3-09): the workflow boundary is a real
+   * trigger/result port, not a synthesized handle. The input badge (trigger)
+   * exposes its `value` output port; the output badge (result) exposes its
+   * `value` input port. Port labels are readable on the badge (the D2 rule).
+   */
+  inputPorts() {
+    return this.node()
+      .data.ports.filter((port) => port.direction === PortDirection.INPUT);
+  }
+
   outputPorts() {
     const isDefault = (port: { property: string; path?: string }) =>
       port.property === 'value' || port.path === 'value' || port.property === 'default' || port.path === 'default';
@@ -53,5 +65,16 @@ export class GraphBoundaryNodeTemplateComponent implements NgDiagramNodeTemplate
     event.preventDefault();
     event.stopPropagation();
     this.modelService.deleteNodes([this.node().id]);
+  }
+
+  /**
+   * Double-click on a boundary badge opens its CRUD form (D3/G3-10, DECAF-50
+   * §4.22): a workflow input boundary renders the editable workflow-input form,
+   * an output boundary its run value — both in the split view's CENTER pane.
+   */
+  openEditor(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    graphInspection.open(this.node().id);
   }
 }

@@ -11,16 +11,22 @@
       [graphRoot]="workflowRoot"
       [outputs]="lastResult()"
       [availableNodes]="availableNodes()"
+      [runResultState]="runResultState()"
+      [validationIssues]="runValidationIssues()"
       (nodeDragEnded)="onNodeDragEnded()"
       (edgeDrawn)="onEdgeDrawn()"
       (elementsRemoved)="onElementsRemoved()"
+      (retryRunResult)="retryRunResult()"
     >
       <app-graph-toolbar
         graphFloatingControls
         [workflowId]="workflowId"
-        [canRun]="backendAvailable() !== false"
+        [canRun]="canRun()"
         [isRunning]="isRunning()"
+        [invalid]="graphInvalid()"
+        [validationIssues]="graphValidityIssues()"
         (runWorkflow)="runWorkflow()"
+        (cancelWorkflow)="onCancelWorkflow()"
         (saveWorkflow)="onSaveWorkflow()"
         (restoreSnapshot)="onRestoreSnapshot($event)"
       />

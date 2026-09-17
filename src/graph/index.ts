@@ -8,6 +8,7 @@ export * from './services';
 export * from './tokens/graph-configuration.tokens';
 export * from './types';
 export * from './utils';
+export * from './validation';
 export * from './workflow-inputs';
 export {
   GraphInputValueNode,

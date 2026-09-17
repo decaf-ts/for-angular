@@ -21,9 +21,9 @@ test.describe('SplitTextCodeNode (core.flow.code)', () => {
     await expect(article.locator('.graph-node__name')).toHaveText('Split');
   });
 
-  test('has the Utility category accent colour (#7c3aed)', async ({ page }) => {
+  test('has the Utility category accent colour (#0d9488)', async ({ page }) => {
     const color = await getNodeAccentColor(page, 'SplitTextCodeNode');
-    expect(color.toLowerCase()).toBe('#7c3aed');
+    expect(color.toLowerCase()).toBe('#0d9488');
   });
 
   test('data input port is visible (from CodeInputSchema, no @uielement)', async ({ page }) => {
@@ -31,13 +31,19 @@ test.describe('SplitTextCodeNode (core.flow.code)', () => {
     expect(inputs).toContain('data');
   });
 
-  test('result output port is connected to Switch node', async ({ page }) => {
-    expect(await isPortConnected(page, 'SplitTextCodeNode', 'result')).toBe(true);
+  test('result output port is connected to the downstream Foreach node', async ({ page }) => {
+    await expect.poll(() => isPortConnected(page, 'SplitTextCodeNode', 'result')).toBe(true);
   });
 
-  test('code input port is hidden (has @uielement, not in port mode, not connected)', async ({ page }) => {
+  test('code input port is visible (uielement code-editor port)', async ({ page }) => {
     const inputs = await getNodePorts(page, 'SplitTextCodeNode', 'in');
-    expect(inputs).not.toContain('code');
+    expect(inputs).toContain('code');
+  });
+
+  test('required code input port stays visible while unconnected (D2/G3-06)', async ({ page }) => {
+    const inputs = await getNodePorts(page, 'SplitTextCodeNode', 'in');
+    expect(inputs).toContain('code');
+    expect(await isPortConnected(page, 'SplitTextCodeNode', 'code')).toBe(false);
   });
 
   test('double-click opens the node edit modal', async ({ page }) => {

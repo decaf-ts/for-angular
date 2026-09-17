@@ -7,10 +7,10 @@
  * bridge as the (@link GRAPH_NODE_CATALOG_SOURCE) write-through source.
  */
 import { Injectable, inject } from '@angular/core';
-import { BadRequestError, InternalError, NotFoundError } from '@decaf-ts/db-decorators';
+import { BadRequestError, InternalError, NotFoundError, SerializationError } from '@decaf-ts/db-decorators';
 import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
 import { GRAPH_BACKEND_URL } from '../execution/GraphExecutionService';
-import type { GraphNodeCatalogSource } from './GraphNodeCatalogStore';
+import type { GraphNodeCatalogFailure, GraphNodeCatalogSource } from './GraphNodeCatalogStore';
 
 /**
  * Raised when the catalogue is unavailable or responds unexpectedly; mirrors
@@ -20,6 +20,25 @@ export class GraphCatalogueUnavailableError extends InternalError {
   constructor(operation: string, reason?: unknown) {
     super(`Graph node catalogue '${operation}' is unavailable (${String(reason ?? 'backend offline')}).`);
   }
+}
+
+/**
+ * Classifies a catalogue load error into the palette's failure surface (G3-27):
+ * a {@link GraphCatalogueUnavailableError} means the backend was unreachable
+ * (`backend-down`); every other error (out-of-contract payloads, rejected
+ * requests, fixture compile failures) means the backend answered but the catalogue
+ * was unusable (`malformed-response`).
+ * @param error The error a catalogue source threw or reported.
+ * @returns The structured failure the palette renders.
+ */
+export function graphNodeCatalogFailureOf(error: unknown): GraphNodeCatalogFailure {
+  if (error instanceof GraphCatalogueUnavailableError) {
+    return { kind: 'backend-down', message: error.message };
+  }
+  return {
+    kind: 'malformed-response',
+    message: error instanceof Error ? error.message : String(error),
+  };
 }
 
 /** HTTP bridge to the NestJS node catalogue (DECAF-50 §4.13): fetches manifests and resolves dynamic ports/methods as data. */
@@ -33,7 +52,12 @@ export class GraphNodeCatalogApi implements GraphNodeCatalogSource {
       nodes?: unknown[];
       manifests?: unknown[];
     };
-    const manifests = record.nodes ?? record.manifests ?? [];
+    const manifests = record.nodes ?? record.manifests;
+    if (!Array.isArray(manifests)) {
+      throw new SerializationError(
+        'Graph node catalogue list response is out of contract (expected a manifest array or a `nodes`/`manifests` array).'
+      );
+    }
     return manifests as GraphNodeManifest[];
   }
 
