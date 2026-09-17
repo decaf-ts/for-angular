@@ -230,6 +230,18 @@ export class GraphNodeEditModalComponent implements OnInit {
       if (nodeMetadata['timeoutMs'] !== undefined) {
         this._metadata.update((metadata) => ({ ...metadata, timeoutMs: nodeMetadata['timeoutMs'] }));
       }
+      // R1: the code node comes pre-filled with the code to perform its task.
+      // The node instance's `parameters.code` wins; otherwise the manifest's
+      // `metadata.defaultCode` pre-fills the editor (the same fallback the
+      // executor evaluates when the `code` input port is not wired).
+      const defaultValue = nodeMetadata['defaultCode'];
+      if (
+        !this._values()['code'] &&
+        typeof defaultValue === 'string' &&
+        defaultValue.trim()
+      ) {
+        this._values.update((values) => ({ ...values, code: defaultValue }));
+      }
     }
   }
 

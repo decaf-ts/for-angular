@@ -33,6 +33,7 @@
         (selectionChanged)="onSelectionChanged($event)"
         (nodeDragEnded)="onNodeDragEnded($event)"
         (edgeDrawn)="onEdgeDrawn($event)"
+        (edgeDrawEnded)="onEdgeDrawEnded($event)"
         (selectionRemoved)="onElementsRemoved($event)"
       >
         <ng-diagram-background type="dots" />
@@ -68,6 +69,28 @@
             >
               &times;
             </button>
+          </div>
+
+          <div class="graph-renderer__palette-search">
+            <input
+              type="search"
+              class="graph-renderer__palette-search-input"
+              role="searchbox"
+              aria-label="Search nodes"
+              placeholder="Search nodes…"
+              [value]="paletteQuery()"
+              (input)="onPaletteQueryChange($any($event.target).value)"
+            />
+            @if (paletteQuery().length) {
+              <button
+                type="button"
+                class="graph-renderer__palette-search-clear"
+                aria-label="Clear node search"
+                (click)="clearPaletteQuery()"
+              >
+                &times;
+              </button>
+            }
           </div>
 
           @if (catalogStatus() === 'loading') {
@@ -109,8 +132,17 @@
             </p>
           }
 
+          @if (paletteSearchEmpty()) {
+            <p
+              class="graph-renderer__palette-status graph-renderer__palette-status--empty"
+              role="status"
+            >
+              No nodes match "{{ paletteQuery() }}".
+            </p>
+          }
+
           <ul class="graph-renderer__palette-list">
-            @for (entry of paletteEntries(); track entry.name) {
+            @for (entry of filteredPaletteEntries(); track entry.name) {
               <li>
                 <button
                   type="button"

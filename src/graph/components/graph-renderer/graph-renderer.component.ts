@@ -25,6 +25,7 @@ import {
   NgDiagramMinimapComponent,
   NgDiagramNodeTemplateMap,
   provideNgDiagram,
+  type EdgeDrawEndedEvent,
   type EdgeDrawnEvent,
   type Middleware,
   type NodeDragEndedEvent,
@@ -314,11 +315,37 @@ export class GraphRendererComponent {
 
   readonly paletteOpen = signal(false);
   /**
+   * Palette search query (R6, DECAF-50 gate-4 follow-up): the node add list
+   * filters its manifest entries by title, kind, and category as the user types.
+   */
+  readonly paletteQuery = signal('');
+  /**
    * Manifest-driven palette entries (P7 cutover §4.14): entries derive from
    * {@link GraphNodeManifest}s through {@link graphPaletteEntriesOf} — no node
    * constructors participate in discovery.
    */
   readonly paletteEntries = computed(() => graphPaletteEntriesOf(this.availableNodes()));
+
+  /**
+   * Search-filtered palette entries (R6): the palette list renders these so the
+   * search field filters the catalogue by title, kind, or category.
+   */
+  readonly filteredPaletteEntries = computed(() => {
+    const query = this.paletteQuery().trim().toLowerCase();
+    const entries = this.paletteEntries();
+    if (!query) return entries;
+    return entries.filter(
+      (entry) =>
+        entry.title.toLowerCase().includes(query) ||
+        entry.kind.toLowerCase().includes(query) ||
+        (entry.category ?? '').toLowerCase().includes(query)
+    );
+  });
+
+  /** Whether the search query matched no catalogue entry (R6 empty state). */
+  readonly paletteSearchEmpty = computed(
+    () => this.paletteQuery().trim().length > 0 && this.filteredPaletteEntries().length === 0
+  );
 
   /**
    * Live catalogue status (G3-26): the palette renders the catalogue's
@@ -485,6 +512,25 @@ export class GraphRendererComponent {
     this.edgeDrawn.emit();
   }
 
+  /**
+   * Add-node on empty canvas (R5, supersedes G3-29/PR-H): when a connection
+   * drag from an output port is released over empty canvas (no target), the
+   * add-node palette opens; the node the user selects is placed at the drop point
+   * and appears already connected from the drag's source output port into the new
+   * node's first available input port. The node-side "+" button is gone.
+   */
+  onEdgeDrawEnded(event: EdgeDrawEndedEvent): void {
+    if (event?.success) return;
+    if (event?.reason !== 'noTarget') return;
+    const sourceId = event?.source?.id;
+    if (!sourceId || !event?.sourcePort) return;
+    ghostNodeStore.requestAddNodeFrom(sourceId, event.sourcePort, {
+      x: event.dropPosition?.x ?? 0,
+      y: event.dropPosition?.y ?? 0,
+    });
+    this.paletteOpen.set(true);
+  }
+
   onElementsRemoved(event: SelectionRemovedEvent): void {
     const edgeIds = (event?.deletedEdges ?? []).map((edge) => edge.id);
     const nodeIds = (event?.deletedNodes ?? []).map((node) => node.id);
@@ -521,7 +567,21 @@ export class GraphRendererComponent {
 
   closePalette() {
     ghostNodeStore.clear();
+    this.paletteQuery.set('');
     this.paletteOpen.set(false);
+  }
+
+  /**
+   * Applies the palette search query (R6): the node add list filters its
+   * manifest entries by title/kind/category.
+   */
+  onPaletteQueryChange(value: string) {
+    this.paletteQuery.set(value ?? '');
+  }
+
+  /** Clears the palette search query (R6). */
+  clearPaletteQuery() {
+    this.paletteQuery.set('');
   }
 
   /**
@@ -553,16 +613,23 @@ export class GraphRendererComponent {
       position = (ghostNode as { position?: { x: number; y: number } })?.position ?? position;
       label = `${entry.title} (${ghostParentId.startsWith('loop-') ? 'loop body' : 'materialized'})`;
     } else if (addSource) {
-      // Node-side connector (G3-29): the new node is placed beside its source
-      // and auto-connected from the source's chosen output port.
-      const sourceNode = this.model()
-        ?.getNodes()
-        .find((n: { id: string }) => n.id === addSource.nodeId) as
-        | { position?: { x: number; y: number }; size?: { width?: number; height?: number } }
-        | undefined;
-      const sourcePosition = sourceNode?.position ?? position;
-      const sourceWidth = sourceNode?.size?.width ?? 96;
-      position = { x: sourcePosition.x + sourceWidth + 120, y: sourcePosition.y };
+      // Add-node on empty canvas (R5, supersedes G3-29): a connection drag
+      // released over empty canvas places the new node at the drop point and
+      // connects the source output port into its first available input port.
+      // A programmatic node-side request without a drop point places the new
+      // node beside its source instead.
+      if (addSource.position) {
+        position = { x: addSource.position.x, y: addSource.position.y };
+      } else {
+        const sourceNode = this.model()
+          ?.getNodes()
+          .find((n: { id: string }) => n.id === addSource.nodeId) as
+          | { position?: { x: number; y: number }; size?: { width?: number; height?: number } }
+          | undefined;
+        const sourcePosition = sourceNode?.position ?? position;
+        const sourceWidth = sourceNode?.size?.width ?? 96;
+        position = { x: sourcePosition.x + sourceWidth + 120, y: sourcePosition.y };
+      }
     }
 
     const node = documentStore.addNodeFromManifest(entry.manifest, position, label);
@@ -600,6 +667,7 @@ export class GraphRendererComponent {
       // the added node immediately shows its loop-body ghost on canvas.
       this.createForeachGhost(node.id);
     }
+    this.paletteQuery.set('');
     this.paletteOpen.set(false);
   }
 

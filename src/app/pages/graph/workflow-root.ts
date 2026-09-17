@@ -12,16 +12,24 @@ import { foreachLoopMetadata } from './loop-body-workflows';
 
 /**
  * Split Code node — composes the shared system kind `core.flow.code`
- * (`CodeFlowNode`): splits the input text by newlines into an array.
- * The `data` input port receives the `text`/`count` workflow inputs via
- * badge connections. The default code (`metadata.defaultCode`) is used as a
- * fallback when the `code` input port is not wired.
+ * (`CodeFlowNode`): splits the `text` input into an array where each element
+ * contains `count` input lines of `text`. The `data` input port receives the
+ * `text`/`count` workflow inputs via connections. The default code
+ * (`metadata.defaultCode`) is used as a fallback when the `code` input port is
+ * not wired, and it is the code the node comes pre-filled with (R1).
  */
 const splitCodeNodeMetadata: Record<string, unknown> = {
   title: 'Split text',
-  description: 'Splits the input text by newlines into an array.',
+  description: 'Splits the input text into chunks of count lines.',
   timeoutMs: 1000,
-  defaultCode: 'return $input.text.split("\\n");',
+  defaultCode:
+    'const lines = String($input.text ?? "").split("\\n");\n' +
+    'const size = Math.max(1, Number($input.count) || 1);\n' +
+    'const chunks = [];\n' +
+    'for (let i = 0; i < lines.length; i += size) {\n' +
+    '  chunks.push(lines.slice(i, i + size).join("\\n"));\n' +
+    '}\n' +
+    'return chunks;',
 };
 
 /**

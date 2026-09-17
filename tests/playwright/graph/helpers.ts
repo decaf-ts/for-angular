@@ -296,3 +296,75 @@ export async function addPaletteNode(page: Page, title: string): Promise<void> {
   await entry.click();
   await page.waitForTimeout(1000);
 }
+
+/** Viewport centre of one node port handle (in/out), for drag gestures. */
+export async function getPortCenter(
+  page: Page,
+  nodeId: string,
+  portId: string,
+  direction: 'in' | 'out'
+): Promise<{ x: number; y: number }> {
+  const isBoundary = isBoundaryNode(nodeId);
+  const portClass = isBoundary
+    ? `graph-badge__port--${direction}`
+    : `graph-node__port--${direction}`;
+  const port = getNodeHost(page, nodeId)
+    .locator(`div.${portClass}`)
+    .filter({ has: page.locator(`[data-port-id="${portId}"]`) })
+    .first();
+  const box = await port.boundingBox();
+  if (!box) throw new Error(`Port ${nodeId}:${direction}:${portId} not visible`);
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+}
+
+/**
+ * Drags a connection from a source output port and releases it over empty canvas
+ * (R5): the release point is a canvas point far from any node/port.
+ */
+export async function dragPortToEmptyCanvas(
+  page: Page,
+  nodeId: string,
+  portId: string,
+  drop: { x: number; y: number }
+): Promise<void> {
+  const from = await getPortCenter(page, nodeId, portId, 'out');
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move((from.x + drop.x) / 2, (from.y + drop.y) / 2, { steps: 5 });
+  await page.mouse.move(drop.x, drop.y, { steps: 5 });
+  await page.mouse.up();
+  await page.waitForTimeout(800);
+}
+
+/** Empty canvas point (viewport coords) that no node occupies. */
+export async function emptyCanvasPoint(page: Page): Promise<{ x: number; y: number }> {
+  return page.locator('.graph-renderer__canvas').evaluate((el) => {
+    const rect = el.getBoundingClientRect();
+    return { x: rect.right - 80, y: rect.bottom - 80 };
+  });
+}
+
+/** Viewport centre of a node's rendered article/badge. */
+export async function getNodeCenter(
+  page: Page,
+  nodeId: string
+): Promise<{ x: number; y: number }> {
+  const box = await getNodeArticle(page, nodeId).boundingBox();
+  if (!box) throw new Error(`Node ${nodeId} not visible`);
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+}
+
+/** Drags a node by `delta` (viewport px) and waits for the gesture to commit. */
+export async function dragNodeBy(
+  page: Page,
+  nodeId: string,
+  delta: { x: number; y: number }
+): Promise<void> {
+  const start = await getNodeCenter(page, nodeId);
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move(start.x + delta.x / 2, start.y + delta.y / 2, { steps: 8 });
+  await page.mouse.move(start.x + delta.x, start.y + delta.y, { steps: 8 });
+  await page.mouse.up();
+  await page.waitForTimeout(1000);
+}

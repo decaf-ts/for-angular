@@ -40,6 +40,15 @@ export class GraphPortFieldComponent implements OnInit {
   readonly isInput = computed(() => this.field?.port?.direction === PortDirection.INPUT);
   readonly isOutput = computed(() => this.field?.port?.direction === PortDirection.OUTPUT);
   readonly useAsPort = computed(() => this._useAsPort());
+  /**
+   * R3 checkbox state: an input that already carries a user-provided value has
+   * its checkbox disabled — the user introduced data directly, so the input cannot
+   * be switched to a connection. An empty input (or an already-checked port) keeps
+   * the checkbox enabled.
+   */
+  readonly ballDisabled = computed(
+    () => this.isInput() && !this.useAsPort() && this._value().trim().length > 0
+  );
   readonly portLabel = computed(() => this.field?.port?.name ?? '');
   readonly fieldLabel = computed(() => this.field?.label ?? '');
   readonly fieldType = computed(() => this.field?.type ?? 'text');

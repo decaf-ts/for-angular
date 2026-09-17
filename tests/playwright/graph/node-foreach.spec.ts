@@ -8,6 +8,8 @@ import {
   getModalTitle,
   getNodeArticle,
   isPortConnected,
+  getAllNodeIds,
+  getEdgeCount,
 } from './helpers';
 
 test.describe('GraphForeachLoopNode (core.loop.foreach)', () => {
@@ -68,5 +70,51 @@ test.describe('GraphForeachLoopNode (core.loop.foreach)', () => {
     const portFields = page.locator('ion-modal app-graph-port-field');
     expect(await portFields.count()).toBeGreaterThan(0);
     await closeModal(page, 'cancel');
+  });
+});
+
+test.describe('GraphForeachLoopNode — single loop discipline (G4-R2)', () => {
+  test.beforeEach(async ({ page }) => {
+    await gotoGraph(page);
+  });
+
+  test('keeps exactly one loop: one ghost and one item/loop edge pair', async ({ page }) => {
+    const ids = await getAllNodeIds(page);
+    expect(ids.filter((id) => id.startsWith('ghost-'))).toHaveLength(1);
+
+    const labels = (await page.locator('.ng-diagram-default-edge-label').allTextContents()).map(
+      (label) => label.trim()
+    );
+    expect(labels.filter((label) => label === 'item')).toHaveLength(1);
+    expect(labels.filter((label) => label === 'loop')).toHaveLength(1);
+  });
+
+  test('addNode inside the foreach appends to the same single loop', async ({ page }) => {
+    const edgesBefore = await getEdgeCount(page);
+    const labelsBefore = (await page.locator('.ng-diagram-default-edge-label').allTextContents()).map(
+      (label) => label.trim()
+    );
+    await page.locator('.graph-ghost-node').first().click();
+    await expect(page.locator('.graph-renderer__palette-list')).toBeVisible({ timeout: 10000 });
+    await page
+      .locator('.graph-renderer__palette-item')
+      .filter({ hasText: 'Utility Log' })
+      .first()
+      .click();
+    await page.waitForTimeout(1200);
+
+    // Two mandatory loop edges (item → new, new → loop) are added …
+    expect(await getEdgeCount(page)).toBe(edgesBefore + 2);
+    // … still exactly one ghost: no second loop body is created on the foreach.
+    const ids = await getAllNodeIds(page);
+    expect(ids.filter((id) => id.startsWith('ghost-'))).toHaveLength(1);
+    // … and the new node joins the same single loop (one extra item/loop edge).
+    const labelsAfter = (await page.locator('.ng-diagram-default-edge-label').allTextContents()).map(
+      (label) => label.trim()
+    );
+    const countOf = (labels: string[], label: string) =>
+      labels.filter((candidate) => candidate === label).length;
+    expect(countOf(labelsAfter, 'item')).toBe(countOf(labelsBefore, 'item') + 1);
+    expect(countOf(labelsAfter, 'loop')).toBe(countOf(labelsBefore, 'loop') + 1);
   });
 });

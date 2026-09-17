@@ -37,7 +37,19 @@ import {
 } from './GraphNodePaletteFactory';
 
 const GRAPH_CANVAS_BOUNDARY_NODE_PREFIX = 'input-';
+const GRAPH_CANVAS_BOUNDARY_OUTPUT_PREFIX = 'output-';
 const GRAPH_DEFAULT_PORT_ID = 'value';
+
+/**
+ * True when a canvas node id denotes a document boundary (workflow input/output)
+ * projection rather than a member node (R4).
+ */
+function isGraphBoundaryCanvasNodeId(document: GraphWorkflowDocument, nodeId: string): boolean {
+  return (
+    document.inputs.some((port) => `${GRAPH_CANVAS_BOUNDARY_NODE_PREFIX}${port.id}` === nodeId) ||
+    document.outputs.some((port) => `${GRAPH_CANVAS_BOUNDARY_OUTPUT_PREFIX}${port.id}` === nodeId)
+  );
+}
 
 function graphUniqueEdgeIdOf(document: GraphWorkflowDocument, seed: string): string {
   const ids = new Set(document.edges.map((edge) => edge.id));
@@ -410,7 +422,21 @@ export function graphDocumentCommandsFromDiagramMutation(
     }
     case 'nodes-moved': {
       const moves: { nodeId: string; position: { x: number; y: number } }[] = [];
+      const boundaryMoves: { nodeId: string; position: { x: number; y: number } }[] = [];
+      const boundaryPositions =
+        (document.ui?.['boundaryPositions'] as Record<string, { x: number; y: number }> | undefined) ?? {};
       for (const move of mutation.nodes) {
+        // R4: boundary nodes are document-port projections, not member nodes;
+        // their canvas positions persist on `document.ui.boundaryPositions`. A
+        // lossless legacy snapshot can also carry the badge inside `document.nodes`,
+        // so boundary detection must win over the member lookup — otherwise the drag
+        // commits a `node.moves` position the projection never reads (snap back).
+        if (isGraphBoundaryCanvasNodeId(document, move.nodeId)) {
+          const committed = boundaryPositions[move.nodeId];
+          if (committed && committed.x === move.position.x && committed.y === move.position.y) continue;
+          boundaryMoves.push({ nodeId: move.nodeId, position: { x: move.position.x, y: move.position.y } });
+          continue;
+        }
         const node = graphWorkflowNodeOf(document, move.nodeId);
         if (!node) continue;
         const committed = node.ui?.position;
@@ -423,7 +449,10 @@ export function graphDocumentCommandsFromDiagramMutation(
         }
         moves.push({ nodeId: move.nodeId, position: { x: move.position.x, y: move.position.y } });
       }
-      return moves.length ? [{ type: 'node.moves', moves }] : [];
+      const commands: GraphDocumentCommand[] = [];
+      if (moves.length) commands.push({ type: 'node.moves', moves });
+      if (boundaryMoves.length) commands.push({ type: 'boundary.moves', moves: boundaryMoves });
+      return commands;
     }
     case 'node-resized': {
       const node = graphWorkflowNodeOf(document, mutation.node.nodeId);

@@ -163,6 +163,15 @@ export class GraphNodeInlineEditorComponent implements OnChanges {
         this._values.update((values) => ({ ...values, [portId]: String(expression) }));
       }
     }
+    // R1: the code node comes pre-filled with the manifest's `defaultCode`
+    // when the instance carries no `code` parameter (the same fallback the
+    // executor evaluates when the `code` input port is not wired).
+    if (this.nodeData?.kind === 'core.flow.code' && !this._values()['code']) {
+      const defaultValue = (this.nodeInstance?.metadata as Record<string, unknown> | undefined)?.['defaultCode'];
+      if (typeof defaultValue === 'string' && defaultValue.trim()) {
+        this._values.update((values) => ({ ...values, code: defaultValue }));
+      }
+    }
   }
 
   parameterById(parameterId: string): GraphParameterDefinition | undefined {

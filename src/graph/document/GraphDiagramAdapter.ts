@@ -627,6 +627,10 @@ export function graphWorkflowDocumentCanvasModelOf(
   const nodeIds: string[] = [];
   const boundaryNodeIds: string[] = [];
   const projectedBoundaryIds = graphWorkflowDocumentBoundaryNodeIdsOf(document);
+  // R4: boundary badge positions are document-carried UI state so a dragged
+  // boundary keeps its position across re-projections (and its connection).
+  const boundaryPositions =
+    (document.ui?.['boundaryPositions'] as Record<string, { x: number; y: number }> | undefined) ?? {};
 
   // Workflow input boundary nodes (one per input port; legacy 'value' template).
   let boundaryIndex = 0;
@@ -650,7 +654,7 @@ export function graphWorkflowDocumentCanvasModelOf(
     const boundaryNode = {
       id: boundaryId,
       type: GRAPH_INPUT_BOUNDARY_TEMPLATE_KEY,
-      position: { x: 40, y: 120 + boundaryIndex * 120 },
+      position: boundaryPositions[boundaryId] ?? { x: 40, y: 120 + boundaryIndex * 120 },
       size: { width: 72, height: 32 },
       resizable: false,
       rotatable: false,
@@ -686,7 +690,7 @@ export function graphWorkflowDocumentCanvasModelOf(
     const boundaryNode = {
       id: boundaryId,
       type: GRAPH_OUTPUT_BOUNDARY_TEMPLATE_KEY,
-      position: { x: GRAPH_OUTPUT_BOUNDARY_X, y: 120 + outputBoundaryIndex * 120 },
+      position: boundaryPositions[boundaryId] ?? { x: GRAPH_OUTPUT_BOUNDARY_X, y: 120 + outputBoundaryIndex * 120 },
       size: { width: 72, height: 32 },
       resizable: false,
       rotatable: false,

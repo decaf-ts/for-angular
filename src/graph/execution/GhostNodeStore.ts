@@ -1,11 +1,17 @@
 import { signal } from '@angular/core';
 
-/** Source descriptor for a node-side add connector click (G3-29). */
+/** Source descriptor for an add-node request (G3-29; R5 drag-to-canvas). */
 export interface GraphNodeAddSource {
-  /** Node whose edge connector opened the palette. */
+  /** Node whose output port opened the palette. */
   nodeId: string;
   /** Output port the new node is connected from. */
   portId: string;
+  /**
+   * Canvas position the connection drag was released at (R5): when present the
+   * new node is placed at the drop point and auto-connected from the source
+   * output port into the new node's first available input port.
+   */
+  position?: { x: number; y: number };
 }
 
 class GhostNodeStore {
@@ -27,8 +33,10 @@ class GhostNodeStore {
    * @param nodeId The source node whose connector was clicked.
    * @param portId The source node's output port to connect from.
    */
-  requestAddNodeFrom(nodeId: string, portId: string) {
-    this.pendingAddSource.set({ nodeId, portId });
+  requestAddNodeFrom(nodeId: string, portId: string, position?: { x: number; y: number }) {
+    this.pendingAddSource.set(
+      position ? { nodeId, portId, position } : { nodeId, portId }
+    );
   }
 
   consume(): string | null {

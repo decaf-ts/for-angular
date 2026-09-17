@@ -83,17 +83,6 @@
       }
     </div>
 
-    @if (hasOutputPorts()) {
-      <button
-        type="button"
-        class="graph-node__add"
-        title="Add node"
-        aria-label="Add node connected to {{ node().data.title }}"
-        (click)="addNodeFromConnector($event)"
-        (mousedown)="$event.stopPropagation()"
-      >+</button>
-    }
-
     @if (connectionPorts().length) {
       <div class="graph-node__ports graph-node__ports--connection">
         @for (port of connectionPorts(); track port.path || port.property) {

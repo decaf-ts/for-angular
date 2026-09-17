@@ -29,7 +29,6 @@ import type { GraphDocumentCommand } from '../../document/GraphDocumentCommands'
 import { graphNodeAddCommandOf } from '../../document/GraphDiagramMutationTranslator';
 import { GraphNodeCatalogService } from '../../catalog/GraphNodeCatalogService';
 import type { GraphNodeCatalogFailure } from '../../catalog/GraphNodeCatalogStore';
-import { ghostNodeStore } from '../../execution/GhostNodeStore';
 import { graphSelection } from '../../execution/GraphSelectionStore';
 import { graphValidity } from '../../validation/GraphWorkflowValidityStore';
 import { GraphNodeEditModalComponent, type GraphNodeEditResult } from '../graph-node-edit-modal/graph-node-edit-modal.component';
@@ -57,15 +56,7 @@ export function graphIconImageSrcOf(icon: GraphIconReference | undefined): strin
   return null;
 }
 
-/**
- * First output port id of a node (G3-29): the node-side add connector
- * auto-connects the new node from this port. Falls back to `result` when the node
- * exposes no output port.
- */
-export function graphNodePrimaryOutputPortIdOf(ports: GraphPortDefinition[]): string {
-  const outputs = (ports ?? []).filter((port) => port.direction === PortDirection.OUTPUT);
-  return (outputs[0]?.path || outputs[0]?.property) ?? 'result';
-}
+
 
 /**
  * Degraded-mode feedback for the node CRUD modal (G3-28): backend-down silently
@@ -147,23 +138,57 @@ export function isGraphDynamicPort(port: { element?: unknown }): boolean {
   return !port.element;
 }
 
+/** A directly-provided value is anything but `undefined`, `null` or a blank string. */
+function isGraphProvidedValue(value: unknown): boolean {
+  if (value === undefined || value === null) return false;
+  return typeof value !== 'string' || value.trim().length > 0;
+}
+
 /**
- * D2 port-visibility rule (DECAF-50 §4.22, G3-05..G3-08). A port handle is
- * visible when any of the named guarantees holds:
+ * Directly-provided input ports on a node instance (G4-R1/G4-R3): mirrors the
+ * edit modal's prefill so the canvas and the modal agree on the checked/value
+ * state. A port is value-provided when the instance carries a non-empty
+ * `parameters[portId]`, or when the manifest ships a prefilled
+ * `default<PortId>` metadata value (the code node's `defaultCode`).
  *
- * 1. it is the manifest's default port;
- * 2. it is connected (an edge binds it);
- * 3. it is a required **input** port (required inputs stay visible even when
- *    unconnected);
- * 4. it is value-bound (literal/expression) — it renders with a value badge
- *    instead of vanishing;
- * 5. it is a dynamic port (Switch cases), covered by the same rule.
+ * Exported for the port-visibility unit tests.
+ */
+export function directlyProvidedPortIds(
+  node: Pick<GraphNodeInstance, 'parameters' | 'metadata'> | undefined,
+  portIds: readonly string[]
+): Set<string> {
+  const provided = new Set<string>();
+  if (!node) return provided;
+  const parameters = (node.parameters ?? {}) as Record<string, unknown>;
+  const metadata = (node.metadata ?? {}) as Record<string, unknown>;
+  for (const portId of portIds) {
+    if (isGraphProvidedValue(parameters[portId])) {
+      provided.add(portId);
+      continue;
+    }
+    const prefilled = metadata[`default${portId.charAt(0).toUpperCase()}${portId.slice(1)}`];
+    if (isGraphProvidedValue(prefilled)) provided.add(portId);
+  }
+  return provided;
+}
+
+/**
+ * Port-visibility rule — D2 (G3-05..G3-08) refined by R3 (G4-R3).
  *
- * Selection/connection reveals every port. The manifest `hidden` flag is a
- * CRUD-form flag, never a canvas-hiding authority (`CodeInputSchema.data` is
- * canvas-only and hidden in the modal, yet still visible on the canvas).
+ * D2 remains in force: a port handle is visible when it is the manifest default
+ * port, is connected, is a required input, is a dynamic (declarative) port, or when
+ * the node is selected/connecting (`showAll`). The manifest `hidden` flag is a
+ * CRUD-form flag, never a canvas-hiding authority.
  *
- * Exported for the gate-2 P0 port-visibility unit tests.
+ * G4-R1/G4-R3 refine the input rules with the checkbox/port coupling: a directly
+ * user-provided value (`mode: 'value'`, the unchecked checkbox) renders the value
+ * indication with **no** connectable port — this takes precedence over the D2
+ * required-input exception, so a prefilled required input (`code`) never renders a
+ * handle; a checked input (`mode: 'port'`) reveals the port and expects a
+ * connection. The "vanish" prohibition is satisfied by the visible checkbox/value
+ * indication, not by a port handle.
+ *
+ * Exported for the port-visibility unit tests.
  */
 export function graphPortVisible(
   port: { property: string; path?: string; required?: boolean; element?: unknown; direction: PortDirection },
@@ -174,9 +199,16 @@ export function graphPortVisible(
   const portId = port.path || port.property;
   if (isGraphDefaultPort(port)) return true;
   if (connected.has(portId)) return true;
+  // G4-R1/G4-R3 take precedence over the D2 required-input exception: a
+  // directly-provided input value (`value` binding, the unchecked checkbox) shows
+  // its value indication and must never render a connectable port, even when the
+  // input is required and unconnected (the prefilled `code` port).
+  if (port.direction === PortDirection.INPUT && modes[portId] === 'value') return false;
   if (port.direction === PortDirection.INPUT && port.required === true) return true;
-  if (modes[portId] === 'value') return true;
   if (isGraphDynamicPort(port)) return true;
+  // G4-R3: a checked input (`port` binding) reveals the port even when
+  // unconnected. Both modes are pre-filled from the backend.
+  if (port.direction === PortDirection.INPUT && modes[portId] === 'port') return true;
   return showAll;
 }
 
@@ -464,10 +496,15 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
    * Document-active port modes (canonical-only): the mode map derives from
    * the node instance's input bindings in the document store (§4.4.5) —
    * 'edge' reads as the legacy `port` mode, literal/expression as `value`.
+   *
+   * G4-R1/G4-R3: the canvas must agree with the edit modal's prefill. A node
+   * that ships a directly-provided value for an input — an instance parameter,
+   * or the manifest's `default<Port>` metadata (the code node's `defaultCode`) —
+   * is value-provided even without an explicit binding, so its required port
+   * renders no connectable handle.
    */
   readonly portModes = computed(() => {
-    const nodeId = this.node().id;
-    const node = this.documentStore?.document()?.nodes.find((candidate) => candidate.id === nodeId);
+    const node = this.documentNode();
     const modes: Record<string, 'port' | 'value'> = {};
     for (const [portId, binding] of Object.entries(node?.inputBindings ?? {})) {
       if (binding?.mode !== 'edge') {
@@ -475,6 +512,12 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
         continue;
       }
       modes[portId] = 'port';
+    }
+    const inputPortIds = this.node()
+      .data.ports.filter((port) => port.direction === PortDirection.INPUT)
+      .map((port) => port.path || port.property);
+    for (const portId of directlyProvidedPortIds(node, inputPortIds)) {
+      if (modes[portId] === undefined) modes[portId] = 'value';
     }
     return modes;
   });
@@ -497,14 +540,6 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
 
   /** `url` / `data:` icons resolve to an image source. */
   readonly iconImageSrc = computed<string | null>(() => graphIconImageSrcOf(this.iconReference()));
-
-  /**
-   * Whether the node exposes at least one output port: the node-side add
-   * connector (G3-29) only renders when there is an edge to connect from.
-   */
-  readonly hasOutputPorts = computed(() =>
-    this.node().data.ports.some((port) => port.direction === PortDirection.OUTPUT)
-  );
 
   inputPorts() {
     return this.visiblePorts(PortDirection.INPUT);
@@ -811,27 +846,6 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
   /** D2 default-port predicate (`value`/`default`), always visible. */
   isDefaultPort(port: { property: string; path?: string }): boolean {
     return isGraphDefaultPort(port);
-  }
-
-  /**
-   * First output port id (D2/G3-29): the node-side add connector
-   * auto-connects the new node from this port.
-   */
-  primaryOutputPortId(): string {
-    return graphNodePrimaryOutputPortIdOf(this.node().data.ports);
-  }
-
-  /**
-   * Node-side add connector (G3-29 n8n-look ruling): records this node as the
-   * pending connection source so the palette opens and the chosen node is placed
-   * beside it and auto-connected from its first output port. This replaces the
-   * corner popup as the node-adjacent add affordance; the canvas-level "+ Add
-   * node" remains for unconnected insertion.
-   */
-  addNodeFromConnector(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
-    ghostNodeStore.requestAddNodeFrom(this.node().id, this.primaryOutputPortId());
   }
 
   /**

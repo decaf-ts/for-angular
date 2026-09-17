@@ -1,5 +1,5 @@
 /**
- * Gate-2 P0 #7 (D7) — node face unit contract.
+ * Gate-2 P0 #7 (D7) — node face unit contract, plus the G4-R5 connector pin.
  *
  * The rendered canvas node face (D7/G3-24/25) derives its icon from the
  * manifest icon reference: `catalogue` resolves to a Tabler sprite `<use>` href,
@@ -8,16 +8,21 @@
  * character. These pure helpers are the single rendering contract; the
  * `tests/playwright/graph/node-face.spec.ts` suite asserts the same face on the
  * running demo.
+ *
+ * G4-R5 supersedes the G3-29/PR-H add-node connector: the node-highlight "+"
+ * button and its `hasOutputPorts`/`primaryOutputPortId()`/`addNodeFromConnector`
+ * APIs are removed. The `tests/playwright/graph/add-node-empty-canvas.spec.ts`
+ * suite pins the no-"+" rule on the running demo and asserts the replacement
+ * drag-to-empty-canvas insertion.
  */
+import * as templateModule from './graph-node-template.component';
 import {
   graphIconImageSrcOf,
   graphIconSpriteHrefOf,
   graphNodeCatalogDegradedNoticeOf,
   graphNodeLetterSilhouetteOf,
-  graphNodePrimaryOutputPortIdOf,
   GraphNodeTemplateComponent,
 } from './graph-node-template.component';
-import { ghostNodeStore } from '../../execution/GhostNodeStore';
 
 describe('GraphNodeTemplateComponent — node face helpers (D7/G3-24..25)', () => {
   describe('graphNodeLetterSilhouetteOf', () => {
@@ -75,29 +80,6 @@ describe('GraphNodeTemplateComponent — node face helpers (D7/G3-24..25)', () =
     });
   });
 
-  describe('graphNodePrimaryOutputPortIdOf (G3-29)', () => {
-    it('prefers the first output port path', () => {
-      expect(
-        graphNodePrimaryOutputPortIdOf([
-          { direction: 'input', property: 'value', path: 'value' } as never,
-          { direction: 'output', property: 'result', path: 'out-1' } as never,
-        ])
-      ).toBe('out-1');
-    });
-
-    it('falls back to the output property when no path is set', () => {
-      expect(
-        graphNodePrimaryOutputPortIdOf([
-          { direction: 'output', property: 'result' } as never,
-        ])
-      ).toBe('result');
-    });
-
-    it('falls back to `result` when the node exposes no output port', () => {
-      expect(graphNodePrimaryOutputPortIdOf([])).toBe('result');
-    });
-  });
-
   describe('graphNodeCatalogDegradedNoticeOf (G3-28)', () => {
     it('renders no notice for a healthy catalogue', () => {
       expect(graphNodeCatalogDegradedNoticeOf('ready', null)).toEqual({
@@ -125,29 +107,18 @@ describe('GraphNodeTemplateComponent — node face helpers (D7/G3-24..25)', () =
     });
   });
 
-  describe('addNodeFromConnector (G3-29)', () => {
-    afterEach(() => {
-      ghostNodeStore.clear();
+  describe('R5 add-node connector removal (G4-R5)', () => {
+    it('no longer exposes the node-highlight "+" connector API', () => {
+      const prototype = GraphNodeTemplateComponent.prototype as unknown as Record<string, unknown>;
+      expect(prototype['addNodeFromConnector']).toBeUndefined();
+      expect(prototype['primaryOutputPortId']).toBeUndefined();
+      expect(prototype['hasOutputPorts']).toBeUndefined();
     });
 
-    it('records the node and its primary output port as the pending add source', () => {
-      const event = {
-        preventDefault: jest.fn(),
-        stopPropagation: jest.fn(),
-      } as unknown as Event;
-      const context = {
-        node: () => ({ id: 'node-a', data: {} }),
-        primaryOutputPortId: () => 'result',
-      };
-
-      GraphNodeTemplateComponent.prototype.addNodeFromConnector.call(context, event);
-
-      expect(ghostNodeStore.pendingAddSource()).toEqual({
-        nodeId: 'node-a',
-        portId: 'result',
-      });
-      expect((event as unknown as { preventDefault: jest.Mock }).preventDefault).toHaveBeenCalled();
-      expect((event as unknown as { stopPropagation: jest.Mock }).stopPropagation).toHaveBeenCalled();
+    it('no longer exports the primary-output-port helper', () => {
+      expect(
+        (templateModule as unknown as Record<string, unknown>)['graphNodePrimaryOutputPortIdOf']
+      ).toBeUndefined();
     });
   });
 });

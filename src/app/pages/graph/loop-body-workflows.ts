@@ -49,10 +49,11 @@ const logEvenNodeMetadata = {
  * Foreach body workflow — processes a single item from the foreach input
  * array. Receives `item` and `index` as workflow inputs (seeded by the
  * Foreach executor). Composed exclusively from system node kinds
- * (`core.flow.switch`, `core.flow.code`, `core.flow.log`): the Switch node
- * routes even-indexed items to the Code node (which logs and forwards) and
- * odd-indexed items to the Log node (which logs and forwards). Both branches
- * output to the body's `result` output port.
+ * (`core.flow.switch`, `core.flow.code`, `core.flow.log`): the body **starts
+ * with a Log node** (G4-R2) that logs every element of the array produced by the
+ * code node, then the Switch node routes even-indexed items to the Code node (which
+ * logs and forwards) and odd-indexed items to the Log node (which logs and
+ * forwards). Both branches output to the body's `result` output port.
  */
 @graph('foreach-body-workflow', {
   kind: 'workflow',
@@ -65,6 +66,12 @@ const logEvenNodeMetadata = {
     description: 'Processes a single item: Switch (even/odd) → Code (log) / Log (discard).',
   },
   nodes: [
+    {
+      id: 'LoopItemLogNode',
+      kind: 'core.flow.log',
+      label: 'Log Item',
+      node: LogFlowNode,
+    },
     {
       id: 'EvenOddSwitchNode',
       kind: 'core.flow.switch',
@@ -90,6 +97,13 @@ const logEvenNodeMetadata = {
     {
       source: 'workflow',
       sourcePort: 'item',
+      target: 'LoopItemLogNode',
+      targetPort: 'value',
+      label: 'item',
+    },
+    {
+      source: 'LoopItemLogNode',
+      sourcePort: 'logged',
       target: 'EvenOddSwitchNode',
       targetPort: 'value',
       label: 'item',

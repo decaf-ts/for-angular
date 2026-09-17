@@ -3,7 +3,16 @@
     type="button"
     class="graph-port-field__ball"
     [class.graph-port-field__ball--active]="useAsPort()"
-    [title]="useAsPort() ? 'Port exposed — click to use literal value' : 'Click to expose as port'"
+    [class.graph-port-field__ball--disabled]="ballDisabled()"
+    [disabled]="ballDisabled()"
+    [attr.aria-disabled]="ballDisabled()"
+    [title]="
+      ballDisabled()
+        ? 'Value provided directly — clear it to connect from upstream'
+        : useAsPort()
+          ? 'Port exposed — click to use a literal value'
+          : 'Click to expose as port'
+    "
     (click)="toggleBall()"
   ></button>
 

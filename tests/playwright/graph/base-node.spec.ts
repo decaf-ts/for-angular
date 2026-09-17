@@ -138,13 +138,14 @@ test.describe('Graph — Base Node Behaviours (shared by all nodes)', () => {
     expect(value?.classes).toContain('graph-node__port--default');
   });
 
-  test('required input port is visible even when unconnected (D2/G3-06)', async ({ page }) => {
+  test('required input port is visible even when unconnected (D2/G3-06, refined by G4-R1)', async ({ page }) => {
+    // G4-R1: the code node ships prefilled code, so its `code` input port is a
+    // value-provided port and is not rendered (G4-R3 refinement of D2).
     const codeInputs = await getRenderedPorts(page, 'SplitTextCodeNode', 'in');
-    const code = codeInputs.find(p => p.id === 'code');
-    expect(code, 'required code input port').toBeDefined();
-    expect(code?.classes).toContain('graph-node__port--required');
-    expect(code?.classes).not.toContain('graph-node__port--connected');
+    expect(codeInputs.find(p => p.id === 'code'), 'value-provided code input port').toBeUndefined();
 
+    // A genuinely required input port with no direct value stays visible while
+    // unconnected (D2/G3-06).
     const foreachInputs = await getRenderedPorts(page, 'GraphForeachLoopNode', 'in');
     const slice = foreachInputs.find(p => p.id === 'slice');
     expect(slice, 'required slice input port').toBeDefined();

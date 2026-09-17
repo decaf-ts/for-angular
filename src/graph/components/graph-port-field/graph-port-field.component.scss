@@ -46,6 +46,17 @@
   border-color: #a855f7;
 }
 
+/* R3: a value-provided input has its checkbox disabled — the user
+   introduced data directly, so it cannot be switched to a connection. */
+.graph-port-field__ball--disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.graph-port-field__ball--disabled:hover {
+  border-color: #94a3b8;
+}
+
 /* Content area */
 .graph-port-field__content {
   flex: 1;

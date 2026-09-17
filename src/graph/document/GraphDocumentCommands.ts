@@ -46,6 +46,7 @@ export type GraphDocumentCommand =
   | { type: 'node.update'; nodeId: string; patch: GraphNodeInstancePatch }
   | { type: 'node.move'; nodeId: string; position: { x: number; y: number } }
   | { type: 'node.moves'; moves: { nodeId: string; position: { x: number; y: number } }[] }
+  | { type: 'boundary.moves'; moves: { nodeId: string; position: { x: number; y: number } }[] }
   | { type: 'node.resize'; nodeId: string; size: { width?: number; height?: number } }
   | { type: 'edge.add'; edge: GraphEdgeInstance }
   | { type: 'edge.remove'; edgeId: string }
@@ -60,6 +61,7 @@ const GRAPH_DOCUMENT_COMMAND_TYPES = [
   'node.update',
   'node.move',
   'node.moves',
+  'boundary.moves',
   'node.resize',
   'edge.add',
   'edge.remove',
@@ -339,6 +341,22 @@ export function applyGraphDocumentCommand(
         next = moved;
       }
       return next;
+    }
+    case 'boundary.moves': {
+      const moves = Array.isArray(command.moves) ? command.moves : [];
+      if (!moves.every((move) => isNonEmptyString(move.nodeId) && isPoint(move.position))) {
+        throw new ValidationError('Graph boundary moves must carry node ids and finite positions.');
+      }
+      // R4: canvas boundary nodes (`input-<portId>`/`output-<portId>`) are
+      // projections of the document's workflow ports, not document nodes, so
+      // their positions persist on the document-carried UI state instead.
+      const positions: Record<string, { x: number; y: number }> = {
+        ...((document.ui?.['boundaryPositions'] as Record<string, { x: number; y: number }> | undefined) ?? {}),
+      };
+      for (const move of moves) {
+        positions[move.nodeId] = { x: move.position.x, y: move.position.y };
+      }
+      return { ...document, ui: { ...(document.ui ?? {}), boundaryPositions: positions } };
     }
     case 'node.resize': {
       const { nodeId, size } = command;
