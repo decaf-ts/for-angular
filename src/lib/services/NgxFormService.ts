@@ -908,6 +908,10 @@ export class NgxFormService {
     const supportedValidationKeys = Validation.keys();
     return Object.keys(props)
       .filter((k: string) => supportedValidationKeys.includes(k))
+      // a validation key present with a "disabled" value must not register a
+      // validator: RequiredValidator ignores the prop value (it only checks
+      // emptiness), so an explicit `required: false` would become mandatory
+      .filter((k: string) => props[k] !== false && props[k] != null)
       .map((k: string) => {
         return ValidatorFactory.spawn(props as FieldProperties, k);
       });
