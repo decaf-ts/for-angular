@@ -2,6 +2,8 @@ import {
   Component,
   computed,
   effect,
+  ElementRef,
+  HostListener,
   inject,
   Injector,
   input,
@@ -9,13 +11,17 @@ import {
   runInInjectionContext,
   signal,
   untracked,
+  ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, type AbstractControl, type FormGroup } from '@angular/forms';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
-import type { GraphNodeManifest, GraphWorkflowSnapshot, LegacyGraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
-import { graphWorkflowDefinitionOf, graphWorkflowDocumentFromLegacySnapshot } from '@decaf-ts/ui-decorators/graph';
+import type { GraphNodeManifest, GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import {
+  graphNodeEndpointId,
+  graphWorkflowDefinitionOf,
+} from '@decaf-ts/ui-decorators/graph';
 import { IonSpinner } from '@ionic/angular/standalone';
 import {
   createMiddlewares,
@@ -49,9 +55,9 @@ import { GraphRendererViewModel } from '../../types';
 import {
   buildGraphRendererModel,
   buildGraphRendererSnapshot,
-  buildGraphRendererStateFromSnapshot,
   buildGraphRendererViewModel,
   graphPaletteEntriesOf,
+  graphWorkflowUnresolvedNodeKinds,
   parseGraphRendererSnapshot,
   stringifyGraphRendererSnapshot,
   type GraphPaletteEntry
@@ -106,6 +112,8 @@ export class GraphRendererComponent {
   private readonly snapshotJson = signal('');
   readonly workflowInputForm = signal<FormGroup>(this.formBuilder.group({}));
   readonly model = signal<ReturnType<typeof buildGraphRendererModel> | null>(null);
+  /** Palette root (button + popup): the outside-click close target (R2-3(5)). */
+  @ViewChild('paletteRoot') private paletteRoot?: ElementRef<HTMLElement>;
   private skipNextModelSync = false;
   /**
    * Highest document version already reconciled to the canvas. Reconcile runs
@@ -276,9 +284,25 @@ export class GraphRendererComponent {
     buildWorkflowInputFields(this.workflowDefinition(), this.workflowInputValues())
   );
 
-  readonly viewModel = computed<GraphRendererViewModel>(() =>
-    buildGraphRendererViewModel(this.workflowRootClass() as never, this.workflowInputValues(), this.duplicateCounts())
-  );
+  readonly viewModel = computed<GraphRendererViewModel>(() => {
+    // R2-1: the frontend knows no node classes; kind-only workflow entries
+    // resolve their display from the metadata catalogue manifests. The catalogue
+    // load is asynchronous, so while a kind-only entry's manifest has not landed
+    // the projection stays empty and re-evaluates once the manifest signal
+    // resolves — never throwing from inside the computed, which would abort the
+    // page's change detection before the seed effect can run.
+    const manifests = this.catalogService?.manifests?.() ?? [];
+    if (graphWorkflowUnresolvedNodeKinds(this.workflowRootClass() as never, manifests).length) {
+      const workflow = this.workflowDefinition();
+      return { workflow, inputs: [], outputs: [], nodes: [], edges: [], workflowOutputs: workflow.outputs };
+    }
+    return buildGraphRendererViewModel(
+      this.workflowRootClass() as never,
+      this.workflowInputValues(),
+      this.duplicateCounts(),
+      manifests
+    );
+  });
 
   readonly rootTitle = computed(() =>
     String(this.workflowDefinition().graph?.metadata?.['title'] ?? this.workflowDefinition().tag)
@@ -413,9 +437,20 @@ export class GraphRendererComponent {
       const root = this.workflowRootClass() as never;
       const inputValues = this.workflowInputValues();
       const duplicateCounts = this.duplicateCounts();
+      // R2-1 metadata-only: when the workflow nodes carry only kinds (no node
+      // classes), the canvas nodes are built from the serializable catalogue
+      // manifests. Reading the signal makes the seed rebuild once the catalogue
+      // resolves.
+      const manifests = this.catalogService?.manifests?.() ?? [];
+      // The catalogue load is asynchronous: while a kind-only entry's manifest
+      // has not landed, defer the legacy seed and let this effect re-run once the
+      // manifest signal resolves rather than throwing from inside the effect.
+      if (graphWorkflowUnresolvedNodeKinds(this.workflowRootClass() as never, manifests).length) return;
       const previousModel = untracked(() => this.model());
       runInInjectionContext(this.injector, () => {
-        this.model.set(buildGraphRendererModel(root, this.injector, inputValues, duplicateCounts, previousModel));
+        this.model.set(
+          buildGraphRendererModel(root, this.injector, inputValues, duplicateCounts, previousModel, manifests)
+        );
       });
     });
 
@@ -443,6 +478,23 @@ export class GraphRendererComponent {
       untracked(() => {
         void graphValidity.validateIfChanged(document, validateClient);
       });
+    });
+
+    // R2-3(3): track which for-each loops already hold a real loop body node
+    // (an `item` edge toward a node that is not the loop's own ghost), so the
+    // loop's add-node ghost can fade out except while the loop is hovered.
+    effect(() => {
+      const document = this.documentStore?.document();
+      const bodyIds = new Set<string>();
+      for (const edge of document?.edges ?? []) {
+        if (edge.source?.port !== 'item') continue;
+        const sourceId = graphNodeEndpointId(edge.source);
+        const targetId = graphNodeEndpointId(edge.target);
+        if (!sourceId || !targetId) continue;
+        if (targetId === `ghost-${sourceId}`) continue;
+        bodyIds.add(sourceId);
+      }
+      ghostNodeStore.setLoopBodyIds(bodyIds);
     });
 
     // Open palette when a ghost node + is clicked, or when a node-side add
@@ -572,6 +624,21 @@ export class GraphRendererComponent {
   }
 
   /**
+   * R2-3(5) (round-2): clicking outside the add-node popup closes it. The
+   * pointerdown on the palette root (button + popup) is inside and never closes;
+   * a pointerdown anywhere else in the document closes the open palette and clears
+   * any pending add-node request so the next open starts clean.
+   */
+  @HostListener('document:pointerdown', ['$event'])
+  onDocumentPointerDown(event: Event): void {
+    if (!this.paletteOpen()) return;
+    const root = this.paletteRoot?.nativeElement;
+    const target = event.target as Node | null;
+    if (root && target && root.contains(target)) return;
+    this.closePalette();
+  }
+
+  /**
    * Applies the palette search query (R6): the node add list filters its
    * manifest entries by title/kind/category.
    */
@@ -635,8 +702,33 @@ export class GraphRendererComponent {
     const node = documentStore.addNodeFromManifest(entry.manifest, position, label);
 
     if (ghostParentId) {
+      // R2-3(3): splice the new node between the for-each and its ghost —
+      // for-each → <added> → ghost('Add node') → for-each — instead of adding
+      // a parallel edge pair that would create a second loop body. The ghost keeps
+      // its `out → loop` back edge; only the `item → ghost:in` edge is replaced
+      // by `item → <added>` and `<added> → ghost:in`.
+      const ghostId = `ghost-${ghostParentId}`;
       const inputPort = (entry.manifest.inputs ?? [])[0]?.id ?? 'value';
       const outputPort = (entry.manifest.outputs ?? [])[0]?.id ?? 'result';
+      // A loop with no document-carried ghost projects a canvas-only virtual ghost
+      // (GraphDiagramAdapter) whose containment edges are not document edges.
+      // Materialize the ghost into the document first so the spliced edges are
+      // canonical document edges and survive re-projection (R2-1/R2-3(3)).
+      const hasDocumentGhost = documentStore
+        .document()
+        ?.nodes.some((candidate) => candidate.id === ghostId);
+      if (!hasDocumentGhost) this.createForeachGhost(ghostParentId);
+      const itemEdge = documentStore
+        .document()
+        ?.edges.find(
+          (edge) =>
+            edge.source?.scope === 'node' &&
+            edge.source.nodeId === ghostParentId &&
+            edge.source.port === 'item' &&
+            edge.target?.scope === 'node' &&
+            edge.target.nodeId === ghostId
+        );
+      if (itemEdge) documentStore.removeEdge(itemEdge.id);
       documentStore.addEdge({
         id: `${ghostParentId}:item->${node.id}:${inputPort}`,
         type: 'data',
@@ -646,11 +738,11 @@ export class GraphRendererComponent {
         metadata: { mandatory: true },
       });
       documentStore.addEdge({
-        id: `${node.id}:${outputPort}->${ghostParentId}:loop`,
+        id: `${node.id}:${outputPort}->${ghostId}:in`,
         type: 'data',
         source: { scope: 'node', nodeId: node.id, port: outputPort },
-        target: { scope: 'node', nodeId: ghostParentId, port: 'loop' },
-        label: 'loop',
+        target: { scope: 'node', nodeId: ghostId, port: 'in' },
+        label: 'item',
         metadata: { mandatory: true },
       });
     } else if (addSource) {
@@ -796,14 +888,16 @@ export class GraphRendererComponent {
     }
   }
 
-  buildSnapshot(): LegacyGraphWorkflowSnapshot | null {
+  buildSnapshot(): GraphWorkflowSnapshot | null {
     const diagram = this.model();
     if (!diagram) return null;
     return buildGraphRendererSnapshot(
       this.workflowRootClass() as never,
       diagram,
       this.workflowInputValues(),
-      this.duplicateCounts()
+      this.duplicateCounts(),
+      {},
+      this.availableNodes()
     );
   }
 
@@ -825,8 +919,7 @@ export class GraphRendererComponent {
     if (!document || !documentStore) {
       const seedSnapshot = this.buildSnapshot();
       if (!seedSnapshot || !documentStore || documentStore.document()) return;
-      const seeded = graphWorkflowDocumentFromLegacySnapshot(seedSnapshot);
-      documentStore.initialize(seeded);
+      documentStore.initialize(seedSnapshot.document);
       return;
     }
     const catalogue = this.catalogService?.reader();
@@ -876,24 +969,12 @@ export class GraphRendererComponent {
   }
 
   /**
-   * Restores an undo/redo history entry (legacy or canonical snapshot; §4.11):
-   * the canonical/legacy document converts into the doc store's replace path;
-   * legacy entries restore directly through the snapshot machinery.
+   * Restores an undo/redo history entry (canonical snapshot; §4.11): every
+   * entry is the document-first wrapper (`{ document, editor?, metadata? }`,
+   * §4.26 R2-2), so it restores through the same document path as a load.
    */
-  restoreFromSnapshot(snapshot: LegacyGraphWorkflowSnapshot): void {
-    const restored = buildGraphRendererStateFromSnapshot(this.workflowRootClass() as never, snapshot, this.injector);
-    const documentStore = this.documentStore;
-    if (documentStore) {
-      try {
-        documentStore.replace(graphWorkflowDocumentFromLegacySnapshot(snapshot));
-      } catch (error) {
-        console.warn('[GraphRendererComponent] undo snapshot document conversion skipped', error);
-      }
-    }
-    this.skipNextModelSync = true;
-    this.workflowInputValues.set(restored.inputValues);
-    this.duplicateCounts.set(restored.duplicateCounts);
-    this.model.set(restored.diagram as never);
+  restoreFromSnapshot(snapshot: GraphWorkflowSnapshot): void {
+    this.restoreFromDocument(snapshot);
   }
 
   private setUpCanvasViewport(viewport: { x: number; y: number; zoom: number }) {
@@ -909,13 +990,12 @@ export class GraphRendererComponent {
     const raw = this.snapshotJson().trim();
     if (!raw) return;
 
-    const snapshot = parseGraphRendererSnapshot(raw, this.workflowRootClass() as never) as LegacyGraphWorkflowSnapshot;
-    const restored = buildGraphRendererStateFromSnapshot(this.workflowRootClass() as never, snapshot, this.injector);
-
-    this.skipNextModelSync = true;
-    this.workflowInputValues.set(restored.inputValues);
-    this.duplicateCounts.set(restored.duplicateCounts);
-    this.model.set(restored.diagram as never);
+    const snapshot = parseGraphRendererSnapshot(raw);
+    const inputValues = snapshot.metadata?.['inputValues'];
+    if (inputValues && typeof inputValues === 'object') {
+      this.workflowInputValues.set({ ...(inputValues as Record<string, unknown>) });
+    }
+    this.restoreFromDocument(snapshot);
   }
 
   snapshotValue() {

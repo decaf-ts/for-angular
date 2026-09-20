@@ -106,7 +106,9 @@
 .graph-node--skipped {
   opacity: 0.35;
   filter: grayscale(0.7);
-  pointer-events: none;
+  /* R2-3(10): faded means executed, never disabled — a faded node must still
+     accept double-click (D3 split view) and keep its x/pin buttons usable. The
+     old `pointer-events: none` swallowed every interaction. */
 }
 
 /* D5/G3-16: a node carrying a structured validation issue is highlighted on
@@ -191,13 +193,15 @@
 }
 
 /* ---- actions zone (top-right, grouped for RTL reorientation) ---- */
-/* G3-38: the action zone sits INSIDE the node face (positive offsets) so the
-   hover buttons never overflow the rendered node or its hit area. */
+/* R2-3(1) (round-2, partially supersedes G3-38): the action panel moves up
+   and right so the CENTER of the 'X' button sits on the node's notional
+   un-rounded corner — the corner the node would have if it were not rounded.
+   The last button (delete/X) is half a button outside the node on both axes. */
 
 .graph-node__actions {
   position: absolute;
-  top: 0.2rem;
-  right: 0.2rem;
+  top: -0.625rem;
+  right: -0.625rem;
   z-index: 3;
   display: flex;
   flex-direction: row;

@@ -1,0 +1,368 @@
+{
+  "id": "graph-workflow-root",
+  "name": "TextPipelineWorkflow",
+  "inputs": [
+    {
+      "id": "count",
+      "label": "Count",
+      "schema": {
+        "type": "model",
+        "name": "Number"
+      },
+      "required": true,
+      "defaultValue": 1
+    },
+    {
+      "id": "text",
+      "label": "Text",
+      "schema": {
+        "type": "model",
+        "name": "String"
+      },
+      "required": true,
+      "defaultValue": "Hello\nWorld\nFoo\nBar\nBaz"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "result",
+      "label": "Results",
+      "schema": {
+        "type": "model",
+        "name": "Array"
+      },
+      "required": true
+    }
+  ],
+  "nodes": [
+    {
+      "id": "SplitTextCodeNode",
+      "kind": "core.flow.code",
+      "parameters": {
+        "code": "const lines = String($input.text ?? \"\").split(\"\\n\");\nconst size = Math.max(1, Number($input.count) || 1);\nconst chunks = [];\nfor (let i = 0; i < lines.length; i += size) {\n  chunks.push(lines.slice(i, i + size).join(\"\\n\"));\n}\nreturn chunks;"
+      },
+      "label": "Split",
+      "metadata": {
+        "title": "Split text",
+        "description": "Splits the input text into chunks of count lines.",
+        "timeoutMs": 1000,
+        "defaultCode": "const lines = String($input.text ?? \"\").split(\"\\n\");\nconst size = Math.max(1, Number($input.count) || 1);\nconst chunks = [];\nfor (let i = 0; i < lines.length; i += size) {\n  chunks.push(lines.slice(i, i + size).join(\"\\n\"));\n}\nreturn chunks;"
+      },
+      "inputBindings": {
+        "data": {
+          "mode": "edge"
+        }
+      }
+    },
+    {
+      "id": "GraphForeachLoopNode",
+      "kind": "core.loop.foreach",
+      "parameters": {
+        "itemPort": "item",
+        "resultPort": "result",
+        "slice": 1
+      },
+      "label": "Foreach",
+      "loop": {
+        "body": {
+          "id": "foreach-body-workflow",
+          "name": "ForeachBodyWorkflow",
+          "inputs": [
+            {
+              "id": "item",
+              "label": "Item",
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "id": "result",
+              "label": "Processed item",
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "required": true
+            }
+          ],
+          "nodes": [
+            {
+              "id": "LoopItemLogNode",
+              "kind": "core.flow.log",
+              "parameters": {},
+              "label": "Log Item",
+              "inputBindings": {
+                "value": {
+                  "mode": "edge"
+                }
+              }
+            },
+            {
+              "id": "EvenOddSwitchNode",
+              "kind": "core.flow.switch",
+              "parameters": {
+                "hasDefault": true,
+                "cases": [
+                  {
+                    "id": "even",
+                    "label": "Even",
+                    "condition": {
+                      "type": "code",
+                      "code": "return $index % 2 === 0;"
+                    },
+                    "outputPort": "even"
+                  }
+                ]
+              },
+              "label": "Switch",
+              "metadata": {
+                "switch": {
+                  "cases": [
+                    {
+                      "id": "even",
+                      "label": "Even",
+                      "condition": {
+                        "type": "code",
+                        "code": "return $index % 2 === 0;"
+                      },
+                      "outputPort": "even"
+                    }
+                  ],
+                  "defaultPort": "default",
+                  "hasDefault": true
+                }
+              },
+              "inputBindings": {
+                "value": {
+                  "mode": "edge"
+                }
+              }
+            },
+            {
+              "id": "LogEvenCodeNode",
+              "kind": "core.flow.code",
+              "parameters": {
+                "code": "console.log(\"Even item:\", $input.data); return $input.data;"
+              },
+              "label": "Log Even",
+              "metadata": {
+                "title": "Log even item",
+                "description": "Logs the even-indexed item and forwards it unchanged.",
+                "timeoutMs": 1000,
+                "defaultCode": "console.log(\"Even item:\", $input.data); return $input.data;"
+              },
+              "inputBindings": {
+                "data": {
+                  "mode": "edge"
+                }
+              }
+            },
+            {
+              "id": "OddLogNode",
+              "kind": "core.flow.log",
+              "parameters": {},
+              "label": "Log Odd",
+              "inputBindings": {
+                "value": {
+                  "mode": "edge"
+                }
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "re0",
+              "type": "data",
+              "source": {
+                "scope": "workflow",
+                "port": "item"
+              },
+              "target": {
+                "scope": "node",
+                "nodeId": "LoopItemLogNode",
+                "port": "value"
+              },
+              "label": "item"
+            },
+            {
+              "id": "re1",
+              "type": "data",
+              "source": {
+                "scope": "node",
+                "nodeId": "LoopItemLogNode",
+                "port": "logged"
+              },
+              "target": {
+                "scope": "node",
+                "nodeId": "EvenOddSwitchNode",
+                "port": "value"
+              },
+              "label": "item"
+            },
+            {
+              "id": "re2",
+              "type": "data",
+              "source": {
+                "scope": "node",
+                "nodeId": "EvenOddSwitchNode",
+                "port": "even"
+              },
+              "target": {
+                "scope": "node",
+                "nodeId": "LogEvenCodeNode",
+                "port": "data"
+              },
+              "label": "even"
+            },
+            {
+              "id": "re3",
+              "type": "data",
+              "source": {
+                "scope": "node",
+                "nodeId": "EvenOddSwitchNode",
+                "port": "default"
+              },
+              "target": {
+                "scope": "node",
+                "nodeId": "OddLogNode",
+                "port": "value"
+              },
+              "label": "odd"
+            },
+            {
+              "id": "re4",
+              "type": "data",
+              "source": {
+                "scope": "node",
+                "nodeId": "LogEvenCodeNode",
+                "port": "result"
+              },
+              "target": {
+                "scope": "workflow",
+                "port": "result"
+              },
+              "label": "result"
+            },
+            {
+              "id": "re5",
+              "type": "data",
+              "source": {
+                "scope": "node",
+                "nodeId": "OddLogNode",
+                "port": "logged"
+              },
+              "target": {
+                "scope": "workflow",
+                "port": "result"
+              },
+              "label": "result"
+            }
+          ],
+          "metadata": {
+            "title": "Foreach body",
+            "description": "Processes a single item: Switch (even/odd) → Code (log) / Log (discard)."
+          }
+        },
+        "maxIterations": 100
+      },
+      "inputBindings": {
+        "items": {
+          "mode": "edge"
+        }
+      }
+    },
+    {
+      "id": "ResultLogNode",
+      "kind": "core.flow.log",
+      "parameters": {},
+      "label": "Log Results",
+      "inputBindings": {
+        "value": {
+          "mode": "edge"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "re0",
+      "type": "data",
+      "source": {
+        "scope": "workflow",
+        "port": "count"
+      },
+      "target": {
+        "scope": "node",
+        "nodeId": "SplitTextCodeNode",
+        "port": "data"
+      },
+      "label": "count"
+    },
+    {
+      "id": "re1",
+      "type": "data",
+      "source": {
+        "scope": "workflow",
+        "port": "text"
+      },
+      "target": {
+        "scope": "node",
+        "nodeId": "SplitTextCodeNode",
+        "port": "data"
+      },
+      "label": "text"
+    },
+    {
+      "id": "re2",
+      "type": "data",
+      "source": {
+        "scope": "node",
+        "nodeId": "SplitTextCodeNode",
+        "port": "result"
+      },
+      "target": {
+        "scope": "node",
+        "nodeId": "GraphForeachLoopNode",
+        "port": "items"
+      },
+      "label": "lines"
+    },
+    {
+      "id": "re3",
+      "type": "data",
+      "source": {
+        "scope": "node",
+        "nodeId": "GraphForeachLoopNode",
+        "port": "completed"
+      },
+      "target": {
+        "scope": "node",
+        "nodeId": "ResultLogNode",
+        "port": "value"
+      },
+      "label": "results"
+    },
+    {
+      "id": "re4",
+      "type": "data",
+      "source": {
+        "scope": "node",
+        "nodeId": "ResultLogNode",
+        "port": "logged"
+      },
+      "target": {
+        "scope": "workflow",
+        "port": "result"
+      },
+      "label": "final-result"
+    }
+  ],
+  "metadata": {
+    "title": "Text pipeline",
+    "description": "Splits text into lines, iterates with Foreach, routes even/odd items through Switch to Code (log) or Log (discard)."
+  }
+}

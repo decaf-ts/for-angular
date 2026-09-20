@@ -221,6 +221,12 @@ export function graphCanvasPortDefinitionOf(
   };
   const schemaType = portSchemaTypeOf(port.schema);
   if (schemaType !== undefined) definition.type = schemaType;
+  // R2-3(4): the fixture manifest carries the frontend `@uielement`
+  // decoration on the port; forward it so widget-bearing inputs (the code
+  // node's IDE editor) render their decorated control instead of a plain field.
+  const element = (port as GraphPortManifest & { element?: Record<string, unknown> })
+    .element;
+  if (element) definition.element = element;
   const policy = port.connectionPolicy;
   if (policy && !dynamic) {
     const rules: GraphConnectionRule = {};

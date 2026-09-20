@@ -8,6 +8,10 @@ import {
   getGraphWorkflowSummary,
 } from './utils';
 import { TextPipelineWorkflow } from '../app/pages/graph/workflow-root';
+import { GraphNodeCatalogStore } from './catalog/GraphNodeCatalogStore';
+import { GRAPH_NODE_MANIFEST_FIXTURES } from './catalog/GraphNodeManifestFixtures';
+
+const MANIFESTS = GRAPH_NODE_MANIFEST_FIXTURES;
 
 describe('graph adapter', () => {
   beforeEach(() => {
@@ -44,7 +48,7 @@ describe('graph adapter', () => {
   });
 
   it('builds reusable value nodes and full workflow graph connections from the graph root', () => {
-    const viewModel = buildGraphRendererViewModel(TextPipelineWorkflow as never);
+    const viewModel = buildGraphRendererViewModel(TextPipelineWorkflow as never, {}, {}, MANIFESTS);
 
     expect(viewModel.inputs).toHaveLength(2);
     expect(viewModel.nodes).toHaveLength(3);
@@ -86,7 +90,14 @@ describe('graph adapter', () => {
   });
 
   it('builds an ng-diagram model for the workflow root', () => {
-    const model = buildGraphRendererModel(TextPipelineWorkflow as never, TestBed.inject(Injector));
+    const model = buildGraphRendererModel(
+      TextPipelineWorkflow as never,
+      TestBed.inject(Injector),
+      {},
+      {},
+      null,
+      MANIFESTS
+    );
 
     // D2 output-boundary projection: the workflow-output badge adds one node
     // (`output-result`) and its relation one edge to the legacy decorated-root
@@ -126,7 +137,7 @@ describe('graph adapter', () => {
   });
 
   it('carries the engine plan-edge id + edge template type on every canvas edge (DECAF-48 §4.4)', () => {
-    const viewModel = buildGraphRendererViewModel(TextPipelineWorkflow as never);
+    const viewModel = buildGraphRendererViewModel(TextPipelineWorkflow as never, {}, {}, MANIFESTS);
 
     expect(viewModel.edges.every((edge) => edge.type === 'graph-edge')).toBe(true);
     const engineIds = viewModel.edges.map((edge) => edge.data.engineEdgeId).filter(Boolean);
@@ -146,7 +157,7 @@ describe('graph adapter', () => {
     expect(viewModel.edges.every((edge) => !(edge.data.engineEdgeId ?? '').includes('undefined'))).toBe(true);
   });
 
-  it('serializes and restores the workflow renderer state', () => {
+  it('serializes and restores the canonical workflow renderer state', () => {
     const injector = TestBed.inject(Injector);
     const inputValues = {
       count: 1,
@@ -160,21 +171,19 @@ describe('graph adapter', () => {
       TextPipelineWorkflow as never,
       injector,
       inputValues,
-      duplicateInputs
+      duplicateInputs,
+      null,
+      MANIFESTS
     );
 
     model.updateNodes((nodes) =>
       nodes.map((node) =>
-        node.id === 'input-text'
+        node.id === 'SplitTextCodeNode'
           ? {
               ...node,
               position: {
                 x: 48,
                 y: 96,
-              },
-              data: {
-                ...node.data,
-                expanded: true,
               },
             }
           : node
@@ -195,47 +204,48 @@ describe('graph adapter', () => {
       inputValues,
       duplicateInputs
     );
-    const restored = buildGraphRendererStateFromSnapshot(TextPipelineWorkflow as never, snapshot, injector);
 
-    expect(snapshot.state.ui).toMatchObject({
-      duplicateCounts: {
-        count: 1,
-        text: 1,
-      },
+    // R2-2: the snapshot is the canonical wrapper only — no version/definition/state.
+    expect(snapshot.document).toBeDefined();
+    expect(snapshot.editor?.duplicateCounts).toEqual({
+      count: 1,
+      text: 1,
     });
-    expect(snapshot.state.nodes).toEqual(
+    expect(snapshot.document.nodes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 'input-text',
-          position: {
-            x: 48,
-            y: 96,
-          },
-          data: expect.objectContaining({
-            expanded: true,
+          id: 'SplitTextCodeNode',
+          ui: expect.objectContaining({
+            position: {
+              x: 48,
+              y: 96,
+            },
           }),
         }),
       ])
     );
+
+    const catalogue = new GraphNodeCatalogStore();
+    catalogue.setManifests(GRAPH_NODE_MANIFEST_FIXTURES);
+    const restored = buildGraphRendererStateFromSnapshot(
+      TextPipelineWorkflow as never,
+      snapshot,
+      catalogue,
+      injector
+    );
+
     expect(restored.duplicateCounts).toEqual({
       count: 1,
       text: 1,
     });
-    expect(restored.inputValues).toEqual({
-      count: 1,
-      text: 'Hello\nWorld\nFoo\nBar\nBaz',
-    });
     expect(restored.diagram.getNodes()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 'input-text',
+          id: 'SplitTextCodeNode',
           position: {
             x: 48,
             y: 96,
           },
-          data: expect.objectContaining({
-            expanded: true,
-          }),
         }),
       ])
     );

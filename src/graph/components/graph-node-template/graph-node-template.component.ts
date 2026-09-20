@@ -147,25 +147,27 @@ function isGraphProvidedValue(value: unknown): boolean {
 /**
  * Directly-provided input ports on a node instance (G4-R1/G4-R3): mirrors the
  * edit modal's prefill so the canvas and the modal agree on the checked/value
- * state. A port is value-provided when the instance carries a non-empty
- * `parameters[portId]`, or when the manifest ships a prefilled
+ * state. A port is value-provided when the manifest ships a prefilled
  * `default<PortId>` metadata value (the code node's `defaultCode`).
+ *
+ * Node `parameters` are **configuration**, not user-provided port values: the
+ * decorated-class compiler folds port defaults and the legacy `metadata.loop`
+ * configuration keys (`slice`, `condition`, `statePort`, …) into `parameters`, so
+ * treating them as a directly-provided value would wrongly hide a required input
+ * such as the for-each `slice` port. The serialized checked/value state that
+ * G4-R3 mandates lives in the instance `inputBindings` (handled by the caller),
+ * never in `parameters`.
  *
  * Exported for the port-visibility unit tests.
  */
 export function directlyProvidedPortIds(
-  node: Pick<GraphNodeInstance, 'parameters' | 'metadata'> | undefined,
+  node: Pick<GraphNodeInstance, 'metadata'> | undefined,
   portIds: readonly string[]
 ): Set<string> {
   const provided = new Set<string>();
   if (!node) return provided;
-  const parameters = (node.parameters ?? {}) as Record<string, unknown>;
   const metadata = (node.metadata ?? {}) as Record<string, unknown>;
   for (const portId of portIds) {
-    if (isGraphProvidedValue(parameters[portId])) {
-      provided.add(portId);
-      continue;
-    }
     const prefilled = metadata[`default${portId.charAt(0).toUpperCase()}${portId.slice(1)}`];
     if (isGraphProvidedValue(prefilled)) provided.add(portId);
   }
@@ -462,13 +464,16 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
    * double-clicking always opens CRUD, and a ran node routes to the D3
    * three-pane split view whose CENTER pane is that same CRUD form
    * (DECAF-50 §4.22 D3/G3-10).
+   *
+   * R2-3(10): `skipped` is the faded run state and counts as executed for the
+   * split-view route — a faded node must still open its inputs/outputs.
    */
   readonly hasRan = computed(() => {
     if (graphInspection.has(this.node().id)) return true;
     const state = this.nodeExecutionState();
     if (!state) return false;
     const status = state.status as string;
-    return status === 'succeeded' || status === 'failed' || status === 'cached';
+    return status === 'succeeded' || status === 'failed' || status === 'cached' || status === 'skipped';
   });
 
   readonly isSelected = computed(() => {

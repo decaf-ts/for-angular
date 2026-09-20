@@ -2,10 +2,7 @@ import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { GRAPH_AUTOSAVE_DEBOUNCE_MS } from '../tokens/graph-configuration.tokens';
 import { GraphAutoSaveService } from './GraphAutoSaveService';
 import { GraphSaveService } from './GraphSaveService';
-import type {
-  GraphWorkflowSnapshot,
-  LegacyGraphWorkflowSnapshot,
-} from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 
 /** Canonical snapshot wrapper (`{ document, editor?, metadata? }`). */
 function makeSnapshot(): GraphWorkflowSnapshot {
@@ -21,28 +18,12 @@ function makeSnapshot(): GraphWorkflowSnapshot {
   };
 }
 
-/** Full legacy persisted snapshot convertible by `graphWorkflowSnapshotFromLegacy`. */
-function makeLegacySnapshot(): LegacyGraphWorkflowSnapshot {
+/** Canonical wrapper with an editor block (`{ document, editor?, metadata? }`). */
+function makeSnapshotWithEditor(): GraphWorkflowSnapshot {
   return {
-    version: 1,
-    definition: {
-      name: 'Workflow',
-      tag: 'wf1',
-      kind: 'workflow',
-      inputs: [],
-      outputs: [],
-      nodes: [],
-      relations: [],
-    },
-    state: {
-      inputs: [],
-      outputs: [],
-      nodes: [],
-      edges: [],
-      ui: {},
-      metadata: {},
-    },
-  } as unknown as LegacyGraphWorkflowSnapshot;
+    ...makeSnapshot(),
+    editor: { duplicateCounts: { text: 1 }, diagramMetadata: { viewport: { x: 0, y: 0, scale: 1 } } },
+  };
 }
 
 describe('GraphAutoSaveService', () => {
@@ -117,15 +98,15 @@ describe('GraphAutoSaveService', () => {
     );
   }));
 
-  it('converts a legacy snapshot to the canonical wrapper before save-posting', fakeAsync(() => {
+  it('save-posts the canonical wrapper verbatim (editor block preserved)', fakeAsync(() => {
     autoSave.setEnabled(true);
-    autoSave.onMutation('wf1', makeLegacySnapshot());
+    autoSave.onMutation('wf1', makeSnapshotWithEditor());
     tick(100);
 
     expect(saveService).toHaveBeenCalledTimes(1);
     const [, posted] = saveService.mock.calls[0] as [string, GraphWorkflowSnapshot];
     expect(posted.document).toBeDefined();
     expect(posted.document.id).toBe('wf1');
-    expect(posted.editor).toBeDefined();
+    expect(posted.editor).toEqual({ duplicateCounts: { text: 1 }, diagramMetadata: { viewport: { x: 0, y: 0, scale: 1 } } });
   }));
 });

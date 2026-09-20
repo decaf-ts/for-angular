@@ -1,9 +1,6 @@
 import { Model, model, required } from '@decaf-ts/decorator-validation';
 import { uielement } from '@decaf-ts/ui-decorators';
 import {
-  CodeFlowNode,
-  LogFlowNode,
-  SwitchFlowNode,
   graph,
   graphWorkflowDefinitionOf,
   input,
@@ -70,27 +67,23 @@ const logEvenNodeMetadata = {
       id: 'LoopItemLogNode',
       kind: 'core.flow.log',
       label: 'Log Item',
-      node: LogFlowNode,
     },
     {
       id: 'EvenOddSwitchNode',
       kind: 'core.flow.switch',
       label: 'Switch',
-      node: SwitchFlowNode,
       metadata: evenOddSwitchMetadata,
     },
     {
       id: 'LogEvenCodeNode',
       kind: 'core.flow.code',
       label: 'Log Even',
-      node: CodeFlowNode,
       metadata: logEvenNodeMetadata,
     },
     {
       id: 'OddLogNode',
       kind: 'core.flow.log',
       label: 'Log Odd',
-      node: LogFlowNode,
     },
   ],
   relations: [

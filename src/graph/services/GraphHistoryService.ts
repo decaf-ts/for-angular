@@ -1,12 +1,9 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { GRAPH_HISTORY_LIMIT } from '../tokens/graph-configuration.tokens';
-import type {
-  GraphWorkflowSnapshot,
-  LegacyGraphWorkflowSnapshot,
-} from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 
-/** A history checkpoint: either a legacy canvas snapshot or a canonical snapshot wrapper. */
-export type GraphHistorySnapshot = LegacyGraphWorkflowSnapshot | GraphWorkflowSnapshot;
+/** A history checkpoint: the canonical document-first snapshot wrapper (§4.26 R2-2). */
+export type GraphHistorySnapshot = GraphWorkflowSnapshot;
 
 /** One undo/redo entry: the checkpointed snapshot with a change label and timestamp. */
 export interface GraphHistoryEntry {
@@ -22,8 +19,8 @@ interface WorkflowHistory {
 
 /**
  * Per-workflow undo/redo history: keeps bounded snapshot checkpoints with a
- * cursor, and exposes `canUndo`/`canRedo` signals for the toolbar. Supports
- * both legacy and canonical snapshot forms.
+ * cursor, and exposes `canUndo`/`canRedo` signals for the toolbar. Stores the
+ * canonical snapshot wrapper only (§4.26 R2-2).
  */
 @Injectable({ providedIn: 'root' })
 export class GraphHistoryService {

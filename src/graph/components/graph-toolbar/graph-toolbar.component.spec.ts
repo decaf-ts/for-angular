@@ -16,6 +16,7 @@ function render(inputs: {
   canRun?: boolean;
   isRunning?: boolean;
   invalid?: boolean;
+  hasRun?: boolean;
   issues?: { code: string; path: string; message: string }[];
 }): ComponentFixture<GraphToolbarComponent> {
   const fixture = TestBed.createComponent(GraphToolbarComponent);
@@ -23,6 +24,7 @@ function render(inputs: {
   fixture.componentRef.setInput('canRun', inputs.canRun ?? true);
   fixture.componentRef.setInput('isRunning', inputs.isRunning ?? false);
   fixture.componentRef.setInput('invalid', inputs.invalid ?? false);
+  fixture.componentRef.setInput('hasRun', inputs.hasRun ?? false);
   fixture.componentRef.setInput('validationIssues', inputs.issues ?? []);
   fixture.detectChanges();
   return fixture;
@@ -141,6 +143,135 @@ describe('GraphToolbarComponent — Run gate (D5/G3-17)', () => {
     expect(cancel).not.toBeNull();
     expect(cancel.textContent?.trim()).toBe('Cancel');
     cancel.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(emitted).toBe(1);
+  });
+});
+
+describe('GraphToolbarComponent — Save gate (R2-3(8))', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('enables Save and titles it with the save affordance when the graph is valid', () => {
+    const fixture = render({ invalid: false });
+    const save = fixture.nativeElement.querySelector(
+      'button.graph-float-btn--save',
+    ) as HTMLButtonElement;
+
+    expect(save.disabled).toBe(false);
+    expect(save.getAttribute('aria-disabled')).toBe('false');
+    expect(save.getAttribute('title')).toBe('Save workflow');
+    expect(save.textContent?.trim()).toBe('Save');
+  });
+
+  it('disables and titles Save with the issue count when the graph is invalid', () => {
+    const fixture = render({
+      invalid: true,
+      issues: [
+        { code: 'graph.edge.dangling', path: 'edges.0', message: 'Edge target is missing' },
+        { code: 'graph.node.missing', path: 'nodes.1', message: 'Node kind is not registered' },
+      ],
+    });
+    const save = fixture.nativeElement.querySelector(
+      'button.graph-float-btn--save',
+    ) as HTMLButtonElement;
+
+    expect(save.disabled).toBe(true);
+    expect(save.getAttribute('aria-disabled')).toBe('true');
+    expect(save.getAttribute('title')).toBe(
+      'Fix 2 graph validation issue(s) before saving',
+    );
+  });
+
+  it('does not emit saveWorkflow when Save is clicked on an invalid graph', async () => {
+    const fixture = render({
+      invalid: true,
+      issues: [{ code: 'c', path: 'p', message: 'm' }],
+    });
+    let emitted = 0;
+    fixture.componentInstance.saveWorkflow.subscribe(() => {
+      emitted += 1;
+    });
+
+    const save = fixture.nativeElement.querySelector(
+      'button.graph-float-btn--save',
+    ) as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+    save.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await fixture.componentInstance.onSave();
+
+    expect(emitted).toBe(0);
+  });
+
+  it('emits saveWorkflow once when Save is clicked on a valid graph', () => {
+    const fixture = render({ invalid: false });
+    let emitted = 0;
+    fixture.componentInstance.saveWorkflow.subscribe(() => {
+      emitted += 1;
+    });
+
+    const save = fixture.nativeElement.querySelector(
+      'button.graph-float-btn--save',
+    ) as HTMLButtonElement;
+    expect(save.disabled).toBe(false);
+    save.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(emitted).toBe(1);
+  });
+});
+
+describe('GraphToolbarComponent — return to edit after run (R2-3(9))', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('renders no Edit affordance before a run has happened', () => {
+    const fixture = render({ hasRun: false, isRunning: false });
+
+    expect(
+      fixture.nativeElement.querySelector('.graph-float-btn--edit'),
+    ).toBeNull();
+  });
+
+  it('renders the Edit affordance once a run has happened and is not running', () => {
+    const fixture = render({ hasRun: true, isRunning: false });
+    const edit = fixture.nativeElement.querySelector(
+      'button.graph-float-btn--edit',
+    ) as HTMLButtonElement;
+
+    expect(edit).not.toBeNull();
+    expect(edit.textContent?.trim()).toBe('Edit');
+    expect(edit.getAttribute('title')).toBe('Back to edit mode');
+  });
+
+  it('renders no Edit affordance while a run is in flight', () => {
+    const fixture = render({ hasRun: true, isRunning: true });
+
+    expect(
+      fixture.nativeElement.querySelector('.graph-float-btn--edit'),
+    ).toBeNull();
+  });
+
+  it('emits editWorkflow once when Edit is clicked', () => {
+    const fixture = render({ hasRun: true, isRunning: false });
+    let emitted = 0;
+    fixture.componentInstance.editWorkflow.subscribe(() => {
+      emitted += 1;
+    });
+
+    const edit = fixture.nativeElement.querySelector(
+      'button.graph-float-btn--edit',
+    ) as HTMLButtonElement;
+    edit.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(emitted).toBe(1);
   });

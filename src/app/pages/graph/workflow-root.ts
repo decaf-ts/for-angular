@@ -1,13 +1,6 @@
 import { Model, model, required } from '@decaf-ts/decorator-validation';
 import { uielement } from '@decaf-ts/ui-decorators';
-import {
-  CodeFlowNode,
-  LogFlowNode,
-  GraphForeachLoopNode,
-  graph,
-  input,
-  output,
-} from '@decaf-ts/ui-decorators/graph';
+import { graph, input, output } from '@decaf-ts/ui-decorators/graph';
 import { foreachLoopMetadata } from './loop-body-workflows';
 
 /**
@@ -54,21 +47,18 @@ const splitCodeNodeMetadata: Record<string, unknown> = {
       id: 'SplitTextCodeNode',
       kind: 'core.flow.code',
       label: 'Split',
-      node: CodeFlowNode,
       metadata: splitCodeNodeMetadata,
     },
     {
       id: 'GraphForeachLoopNode',
       kind: 'core.loop.foreach',
       label: 'Foreach',
-      node: GraphForeachLoopNode,
       metadata: foreachLoopMetadata(),
     },
     {
       id: 'ResultLogNode',
       kind: 'core.flow.log',
       label: 'Log Results',
-      node: LogFlowNode,
     },
   ],
   relations: [

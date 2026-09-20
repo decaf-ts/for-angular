@@ -1,8 +1,11 @@
 <ng-diagram-base-node-template [node]="node()" [removeDefaultPorts]="true">
   <article
     class="graph-ghost-node"
+    [class.graph-ghost-node--muted]="muted()"
     role="button"
     tabindex="0"
+    (mouseenter)="onHoverStart()"
+    (mouseleave)="onHoverEnd()"
     (click)="onAddNode($event)"
     (keydown)="onAddNodeKeydown($event)"
   >

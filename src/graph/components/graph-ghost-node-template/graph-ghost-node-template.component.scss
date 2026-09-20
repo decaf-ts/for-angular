@@ -44,6 +44,15 @@
   transform: scale(1.05);
 }
 
+/* R2-3(3): when the for-each loop already holds a real body node the ghost
+   fades out; hovering the loop (or the ghost itself) reveals it as the insertion
+   anchor. Opacity is used instead of `visibility` so the anchor stays hover- and
+   click-reachable while revealed. */
+.graph-ghost-node--muted {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
 .graph-ghost-node__plus {
   display: flex;
   align-items: center;

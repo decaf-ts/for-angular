@@ -84,6 +84,18 @@
   background: linear-gradient(180deg, rgba(239, 68, 68, 0.35), rgba(185, 28, 28, 0.45));
 }
 
+/* R2-3(9): return-to-edit-mode affordance shown after a run. */
+.graph-float-btn--edit {
+  border-color: rgba(148, 163, 184, 0.55);
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.22), rgba(71, 85, 105, 0.32));
+  color: #e2e8f0;
+  font-weight: 700;
+}
+
+.graph-float-btn--edit:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.35), rgba(71, 85, 105, 0.45));
+}
+
 .graph-float-btn--invalid {
   border-color: rgba(239, 68, 68, 0.55);
   background: linear-gradient(180deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.32));

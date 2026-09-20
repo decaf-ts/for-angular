@@ -72,3 +72,67 @@ describe('GhostNodeStore (G3-29 node-side add source, R5 drop position)', () => 
     expect(ghostNodeStore.pendingAddSource()).toBeNull();
   });
 });
+
+describe('GhostNodeStore (R2-3(5) loop-body + hover state)', () => {
+  beforeEach(() => {
+    ghostNodeStore.setLoopBodyIds([]);
+    ghostNodeStore.hoveredLoopId.set(null);
+    ghostNodeStore.hoveredGhostId.set(null);
+  });
+
+  afterEach(() => {
+    ghostNodeStore.setLoopBodyIds([]);
+    ghostNodeStore.hoveredLoopId.set(null);
+    ghostNodeStore.hoveredGhostId.set(null);
+  });
+
+  it('has no loop body while the set is empty', () => {
+    expect(ghostNodeStore.hasLoopBody('loop-1')).toBe(false);
+  });
+
+  it('records every populated loop id and reports membership', () => {
+    ghostNodeStore.setLoopBodyIds(['loop-1', 'loop-2']);
+
+    expect(ghostNodeStore.hasLoopBody('loop-1')).toBe(true);
+    expect(ghostNodeStore.hasLoopBody('loop-2')).toBe(true);
+    expect(ghostNodeStore.hasLoopBody('loop-3')).toBe(false);
+  });
+
+  it('replaces the previous set instead of merging into it', () => {
+    ghostNodeStore.setLoopBodyIds(['loop-1', 'loop-2']);
+    ghostNodeStore.setLoopBodyIds(['loop-2', 'loop-3']);
+
+    expect(ghostNodeStore.hasLoopBody('loop-1')).toBe(false);
+    expect(ghostNodeStore.hasLoopBody('loop-2')).toBe(true);
+    expect(ghostNodeStore.hasLoopBody('loop-3')).toBe(true);
+  });
+
+  it('accepts any iterable and copies it into an immutable set', () => {
+    const ids = new Set(['loop-1']);
+    ghostNodeStore.setLoopBodyIds(ids);
+
+    // mutating the source iterable after the replace-set call has no effect
+    ids.add('loop-2');
+
+    expect(ghostNodeStore.hasLoopBody('loop-1')).toBe(true);
+    expect(ghostNodeStore.hasLoopBody('loop-2')).toBe(false);
+    expect(ghostNodeStore.loopBodyIds()).toBeInstanceOf(Set);
+  });
+
+  it('carries the hovered loop and hovered ghost signals', () => {
+    expect(ghostNodeStore.hoveredLoopId()).toBeNull();
+    expect(ghostNodeStore.hoveredGhostId()).toBeNull();
+
+    ghostNodeStore.hoveredLoopId.set('loop-1');
+    ghostNodeStore.hoveredGhostId.set('ghost-loop-1');
+
+    expect(ghostNodeStore.hoveredLoopId()).toBe('loop-1');
+    expect(ghostNodeStore.hoveredGhostId()).toBe('ghost-loop-1');
+
+    ghostNodeStore.hoveredLoopId.set(null);
+    ghostNodeStore.hoveredGhostId.set(null);
+
+    expect(ghostNodeStore.hoveredLoopId()).toBeNull();
+    expect(ghostNodeStore.hoveredGhostId()).toBeNull();
+  });
+});

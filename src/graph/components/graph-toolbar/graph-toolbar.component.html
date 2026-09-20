@@ -31,9 +31,10 @@
     <button
       type="button"
       class="graph-float-btn graph-float-btn--save"
-      [disabled]="isSaving()"
+      [disabled]="saveDisabled()"
+      [attr.aria-disabled]="saveDisabled()"
       (click)="onSave()"
-      title="Save"
+      [title]="saveTitle()"
     >
       @if (isSaving()) {
         <ion-spinner name="circular" style="width: 14px; height: 14px;" />
@@ -60,6 +61,17 @@
         title="Cancel run"
       >
         Cancel
+      </button>
+    }
+
+    @if (hasRun() && !isRunning()) {
+      <button
+        type="button"
+        class="graph-float-btn graph-float-btn--edit"
+        (click)="onEdit()"
+        title="Back to edit mode"
+      >
+        Edit
       </button>
     }
 

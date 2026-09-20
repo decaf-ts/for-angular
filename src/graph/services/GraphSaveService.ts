@@ -2,10 +2,8 @@ import { Injectable, inject, signal } from '@angular/core';
 import { InternalError } from '@decaf-ts/db-decorators';
 import { GRAPH_BACKEND_URL } from '../execution/GraphExecutionService';
 import type {
-  GraphSnapshotEditorState,
   GraphWorkflowDocument,
   GraphWorkflowSnapshot,
-  LegacyGraphWorkflowSnapshot,
 } from '@decaf-ts/ui-decorators/graph';
 
 /** Result of a workflow save: persisted identity and timestamp. */

@@ -23,6 +23,9 @@ import {
 /** Palette-added switch instance id (GraphNodePaletteFactory seed + label). */
 const SWITCH = 'core-flow-switch-Switch';
 
+/** Palette-added agent instance id (GraphNodePaletteFactory seed + label). */
+const AGENT = 'core-agent-Agent';
+
 async function openSwitchEditor(page: Page): Promise<void> {
   await getNodeArticle(page, SWITCH).evaluate((el: HTMLElement) => {
     el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
@@ -53,6 +56,15 @@ test.describe('Graph node geometry — manifest-authoritative (D1/G3-01..03)', (
       );
       expect(articleHeight, `${node.id} face height`).toBe(node.height);
     }
+  });
+
+  test('a palette-added agent renders wider than high (140x120)', async ({ page }) => {
+    await gotoGraph(page);
+    await addPaletteNode(page, 'Agent');
+    await expect(getNodeHost(page, AGENT)).toBeVisible({ timeout: 10_000 });
+
+    const size = await getNodeComputedSize(page, AGENT);
+    expect(size).toEqual({ width: 140, height: 120 });
   });
 
   test('a palette switch grows by one manifest case row when a case is added', async ({ page }) => {

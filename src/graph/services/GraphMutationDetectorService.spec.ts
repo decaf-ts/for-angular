@@ -8,7 +8,6 @@ import { GRAPH_BACKEND_URL } from '../execution/GraphExecutionService';
 import type {
   GraphWorkflowDocument,
   GraphWorkflowSnapshot,
-  LegacyGraphWorkflowSnapshot,
 } from '@decaf-ts/ui-decorators/graph';
 
 /** Minimal canonical document held by the document store (§4.11/§4.12). */
@@ -31,28 +30,12 @@ function makeDocument(): GraphWorkflowDocument {
   };
 }
 
-/** Full legacy persisted snapshot convertible by `graphWorkflowSnapshotFromLegacy`. */
-function makeLegacySnapshot(): LegacyGraphWorkflowSnapshot {
+/** Canonical snapshot with editor-only state (`{ document, editor?, metadata? }`, §4.26 R2-2). */
+function makeEditorSnapshot(): GraphWorkflowSnapshot {
   return {
-    version: 1,
-    definition: {
-      name: 'Workflow',
-      tag: 'wf1',
-      kind: 'workflow',
-      inputs: [],
-      outputs: [],
-      nodes: [],
-      relations: [],
-    },
-    state: {
-      inputs: [],
-      outputs: [],
-      nodes: [],
-      edges: [],
-      ui: {},
-      metadata: {},
-    },
-  } as unknown as LegacyGraphWorkflowSnapshot;
+    document: makeDocument(),
+    editor: { duplicateCounts: { text: 1 }, diagramMetadata: { viewport: { x: 0, y: 0, scale: 1 } } },
+  };
 }
 
 describe('GraphMutationDetectorService', () => {
@@ -80,7 +63,7 @@ describe('GraphMutationDetectorService', () => {
 
   it('records a canonical history entry from the document store when auto-save is off', () => {
     documentStore.initialize(makeDocument());
-    detector.configure('wf1', () => makeLegacySnapshot());
+    detector.configure('wf1', () => makeEditorSnapshot());
 
     detector.recordMutation('node-position');
 
@@ -96,7 +79,7 @@ describe('GraphMutationDetectorService', () => {
 
   it('routes the canonical store snapshot to auto-save when enabled', () => {
     documentStore.initialize(makeDocument());
-    detector.configure('wf1', () => makeLegacySnapshot());
+    detector.configure('wf1', () => makeEditorSnapshot());
     autoSave.setEnabled(true);
 
     const spy = jest.spyOn(autoSave, 'onMutation');
@@ -109,7 +92,7 @@ describe('GraphMutationDetectorService', () => {
     expect(history.current('wf1')).toBeUndefined();
   });
 
-  it('still records the document when the legacy snapshot builder returns null', () => {
+  it('still records the document when the canonical snapshot builder returns null', () => {
     documentStore.initialize(makeDocument());
     detector.configure('wf1', () => null);
 
@@ -129,7 +112,7 @@ describe('GraphMutationDetectorService', () => {
   });
 
   it('does nothing when the document store has no document', () => {
-    detector.configure('wf1', () => makeLegacySnapshot());
+    detector.configure('wf1', () => makeEditorSnapshot());
     autoSave.setEnabled(true);
     const spy = jest.spyOn(autoSave, 'onMutation');
 

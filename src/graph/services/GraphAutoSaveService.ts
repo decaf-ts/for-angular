@@ -1,16 +1,10 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { GRAPH_AUTOSAVE_DEBOUNCE_MS } from '../tokens/graph-configuration.tokens';
 import { GraphSaveService } from './GraphSaveService';
-import type {
-  GraphWorkflowSnapshot,
-  LegacyGraphWorkflowSnapshot,
-} from '@decaf-ts/ui-decorators/graph';
-import { graphWorkflowSnapshotLikeToCanonical } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 
-/** Snapshot form accepted by autosave: either a legacy canvas snapshot or a canonical wrapper. */
-export type GraphAutosaveSnapshot =
-  | LegacyGraphWorkflowSnapshot
-  | GraphWorkflowSnapshot;
+/** Snapshot form accepted by autosave: the canonical document-first wrapper (§4.26 R2-2). */
+export type GraphAutosaveSnapshot = GraphWorkflowSnapshot;
 
 interface PendingSave {
   workflowId: string;
@@ -56,12 +50,9 @@ export class GraphAutoSaveService {
 
     // Canonical autosave (§4.11): the autosave save-posts the canonical
     // snapshot wrapper (`{ document, editor?, metadata? }`) so the backend
-    // GraphWorkflowModel carries the canonical `document`. The legacy flag-off
-    // path is gone after the P7 cutover.
-    return this.saveService.saveDocument(
-      workflowId,
-      graphWorkflowSnapshotLikeToCanonical(snapshot),
-    ).then(
+    // GraphWorkflowModel carries the canonical `document`. The legacy snapshot
+    // form is gone (§4.26 R2-2): the canonical wrapper is the only form.
+    return this.saveService.saveDocument(workflowId, snapshot).then(
       () => void 0,
       (err: unknown) => {
         console.error('[GraphAutoSaveService] flush failed', err);

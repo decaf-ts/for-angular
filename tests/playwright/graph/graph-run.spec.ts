@@ -52,6 +52,21 @@ function visualStateBody(): string {
   );
 }
 
+/**
+ * Run that terminates with `ResultLogNode` left in the faded `skipped` state
+ * (R2-3(10)): the canvas fades it, but it must still open its I/O and keep its
+ * pin/delete actions usable.
+ */
+function skippedRunBody(): string {
+  return (
+    sseEvent('workflow.started', 1) +
+    sseEvent('node.stateChanged', 2, { nodeId: 'SplitTextCodeNode', payload: { state: 'running' } }) +
+    sseEvent('node.stateChanged', 3, { nodeId: 'SplitTextCodeNode', payload: { state: 'succeeded' } }) +
+    sseEvent('node.stateChanged', 4, { nodeId: 'ResultLogNode', payload: { state: 'skipped' } }) +
+    sseEvent('workflow.completed', 5, { status: 'succeeded' })
+  );
+}
+
 interface WorkflowDocumentLike {
   nodes?: { id: string }[];
   edges?: { source?: { nodeId?: string; port?: string }; target?: { nodeId?: string; port?: string } }[];
@@ -74,6 +89,12 @@ interface MockBackendOptions {
   eventsUrl?: string;
   /** Omits `resultUrl` from the `202` (wire-contract violation probe). */
   omitResultUrl?: boolean;
+  /**
+   * Echoes the submitted workflow back as the stored result's `document`
+   * (canonical wire contract, §4.16) so the terminal fold's document
+   * round-trip assertion passes and the run lifecycle closes cleanly.
+   */
+  withDocument?: boolean;
 }
 
 const CANONICAL_EVENTS_URL = `/graph/runs/${RUN_ID}/events`;
@@ -125,6 +146,9 @@ async function mockBackend(
           runId: RUN_ID,
           workflowId: WORKFLOW_ID,
           status: 'succeeded',
+          ...(options.withDocument && recorder.runCreateBodies[0]?.workflow
+            ? { document: recorder.runCreateBodies[0].workflow }
+            : {}),
           nodeResults: {
             SplitTextCodeNode: {
               nodeId: 'SplitTextCodeNode',
@@ -286,6 +310,54 @@ test.describe('graph run console & node I/O (DECAF-48)', () => {
   });
 });
 
+test.describe('graph run return-to-edit & faded-node interaction (R2-3(9)/(10))', () => {
+  test('R2-3(9) Edit returns to edit mode: the Edit affordance disappears and the canvas unfades', async ({ page }) => {
+    await mockBackend(page, { withDocument: true });
+    await gotoGraph(page);
+    await startRun(page);
+
+    const split = getNodeArticle(page, 'SplitTextCodeNode');
+    await expect(split).toHaveClass(/graph-node--succeeded/);
+
+    const edit = page.locator('button.graph-float-btn--edit');
+    await expect(edit).toBeVisible();
+    await edit.click();
+
+    // The affordance retires and the executed run state is cleared from the canvas.
+    await expect(edit).toBeHidden();
+    await expect(page.locator('.graph-node--succeeded')).toHaveCount(0);
+    await expect(split).not.toHaveClass(/graph-node--succeeded/);
+  });
+
+  test('R2-3(10) a faded (skipped) node still opens its run I/O and keeps its actions usable', async ({ page }) => {
+    await mockBackend(page, { body: skippedRunBody() });
+    await gotoGraph(page);
+    await startRun(page);
+
+    // The skipped node is faded (executed), not removed from interaction.
+    const skipped = getNodeArticle(page, 'ResultLogNode');
+    await expect(skipped).toHaveClass(/graph-node--skipped/);
+    await expect(skipped).toHaveCSS('opacity', '0.35');
+
+    // Double-clicking a faded node still routes to the D3 split view with I/O.
+    await skipped.dblclick({ force: true });
+    const inspection = page.locator('.graph-node-inspection');
+    await expect(inspection).toBeVisible();
+    const outputsPane = inspection.locator('.graph-node-inspection__pane--outputs');
+    await expect(outputsPane).toBeVisible();
+    await expect(outputsPane.locator('app-graph-io-viewer')).toContainText('logged');
+    await inspection.locator('.graph-node-inspection__close').click();
+    await expect(inspection).toBeHidden();
+
+    // The node's own actions remain usable while faded: pin toggles the document.
+    await expect(skipped.locator('button.graph-node__btn--pin')).toBeVisible();
+    await skipped.locator('button.graph-node__btn--pin').click();
+    await expect(skipped.locator('button.graph-node__btn--pin')).toHaveClass(
+      /graph-node__btn--pinned/,
+    );
+  });
+});
+
 test.describe('canonical run trio wire contract (DECAF-50 §4.19)', () => {
   const SPLIT = 'SplitTextCodeNode';
   const FOREACH = 'GraphForeachLoopNode';
@@ -295,11 +367,12 @@ test.describe('canonical run trio wire contract (DECAF-50 §4.19)', () => {
     `$workflow:text->${SPLIT}:data`,
     `${SPLIT}:result->${FOREACH}:items`,
     `${FOREACH}:completed->${RESULT_LOG}:value`,
-    // The document carries the workflow-output relation twice: the lossless
-    // conversion keeps the legacy `$workflow` edge, and the D2/G3-09 boundary
-    // projection adds the port→port edge onto the output-boundary badge.
+    // The canonical document carries the workflow-output relation once, as the
+    // engine's `$workflow` plan edge (DECAF-50 §4.26 R2-2 removed the legacy
+    // lossless conversion). The D2/G3-09 port→port edge onto the
+    // output-boundary badge (`${RESULT_LOG}:logged->output-result:value`) is a
+    // canvas projection, not a document edge (see `edges.spec.ts`).
     `${RESULT_LOG}:logged->$workflow:result`,
-    `${RESULT_LOG}:logged->output-result:value`,
   ];
 
   test('run action posts the exact editor document and follows the 202 eventsUrl from sequence zero', async ({ page }) => {

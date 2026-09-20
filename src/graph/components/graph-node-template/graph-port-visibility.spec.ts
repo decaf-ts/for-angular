@@ -20,6 +20,7 @@
  */
 import { PortDirection } from '@decaf-ts/ui-decorators/graph';
 import {
+  directlyProvidedPortIds,
   graphPortVisible,
   isGraphDefaultPort,
   isGraphDynamicPort,
@@ -156,5 +157,41 @@ describe('graphPortVisible — D2 principled visibility rule (G3-05..G3-08)', ()
     it('reveals every port while the node is selected or connecting', () => {
       expect(visible({ property: 'code' }, [], {}, true)).toBe(true);
     });
+  });
+});
+
+describe('directlyProvidedPortIds — parameters are configuration, not values (G4-R1/R2-3)', () => {
+  it('does not treat node parameters as directly-provided port values', () => {
+    const node = { parameters: { slice: 4 }, metadata: {} };
+
+    expect([...directlyProvidedPortIds(node, ['slice'])]).toEqual([]);
+  });
+
+  it('treats a prefilled default<PortId> metadata value as directly provided', () => {
+    const node = { metadata: { defaultCode: 'return 1;' } };
+
+    expect([...directlyProvidedPortIds(node, ['code'])]).toEqual(['code']);
+  });
+
+  it('derives the prefilled metadata key from the port id casing', () => {
+    const node = { metadata: { defaultItems: [1, 2] } };
+
+    expect([...directlyProvidedPortIds(node, ['items'])]).toEqual(['items']);
+  });
+
+  it('does not treat blank or null prefills as provided', () => {
+    const node = { metadata: { defaultCode: '   ', defaultText: null } };
+
+    expect([...directlyProvidedPortIds(node, ['code', 'text'])]).toEqual([]);
+  });
+
+  it('returns an empty set for an undefined node', () => {
+    expect([...directlyProvidedPortIds(undefined, ['code'])]).toEqual([]);
+  });
+
+  it('only reports the port ids that carry a provided value', () => {
+    const node = { metadata: { defaultCode: 'return 1;' } };
+
+    expect([...directlyProvidedPortIds(node, ['code', 'slice'])]).toEqual(['code']);
   });
 });

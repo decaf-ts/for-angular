@@ -15,6 +15,10 @@
  * suite pins the no-"+" rule on the running demo and asserts the replacement
  * drag-to-empty-canvas insertion.
  */
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ModalController } from '@ionic/angular/standalone';
+import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
+
 import * as templateModule from './graph-node-template.component';
 import {
   graphIconImageSrcOf,
@@ -23,6 +27,46 @@ import {
   graphNodeLetterSilhouetteOf,
   GraphNodeTemplateComponent,
 } from './graph-node-template.component';
+import { GraphNodeCatalogService } from '../../catalog/GraphNodeCatalogService';
+import { graphExecutionState } from '../../execution/GraphExecutionStateService';
+import { graphInspection } from '../../execution/GraphInspectionStore';
+
+/**
+ * Mounts the node template with its diagram services stubbed and a blank
+ * template, so the `hasRan` projection can be read against the real singleton
+ * run-state stores.
+ */
+function renderNode(nodeId: string): ComponentFixture<GraphNodeTemplateComponent> {
+  TestBed.overrideComponent(GraphNodeTemplateComponent, {
+    set: {
+      template: '',
+      providers: [
+        {
+          provide: NgDiagramModelService,
+          useValue: {
+            nodes: () => [],
+            edges: () => [],
+            metadata: () => ({ viewport: { scale: 1 } }),
+          },
+        },
+        {
+          provide: NgDiagramService,
+          useValue: { actionState: () => ({ linking: null }) },
+        },
+        { provide: ModalController, useValue: { create: jest.fn() } },
+        {
+          provide: GraphNodeCatalogService,
+          useValue: { status: () => 'ready', failure: () => null, manifests: () => [] },
+        },
+      ],
+    },
+  });
+
+  const fixture = TestBed.createComponent(GraphNodeTemplateComponent);
+  fixture.componentRef.setInput('node', { id: nodeId, data: { ports: [] } });
+  fixture.detectChanges();
+  return fixture;
+}
 
 describe('GraphNodeTemplateComponent — node face helpers (D7/G3-24..25)', () => {
   describe('graphNodeLetterSilhouetteOf', () => {
@@ -120,5 +164,64 @@ describe('GraphNodeTemplateComponent — node face helpers (D7/G3-24..25)', () =
         (templateModule as unknown as Record<string, unknown>)['graphNodePrimaryOutputPortIdOf']
       ).toBeUndefined();
     });
+  });
+});
+
+describe('GraphNodeTemplateComponent — hasRan run-state mapping (R2-3(10))', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    graphExecutionState.reset();
+    graphInspection.reset();
+  });
+
+  afterEach(() => {
+    graphExecutionState.reset();
+    graphInspection.reset();
+    TestBed.resetTestingModule();
+  });
+
+  it('is false while the node is running', () => {
+    graphExecutionState.setNodeState('n1', { status: 'running' });
+    const fixture = renderNode('n1');
+
+    expect(fixture.componentInstance.hasRan()).toBe(false);
+  });
+
+  it('is true for a skipped (faded) node', () => {
+    graphExecutionState.setNodeState('n1', { status: 'skipped' });
+    const fixture = renderNode('n1');
+
+    expect(fixture.componentInstance.hasRan()).toBe(true);
+  });
+
+  it('is true for every terminal executed status (succeeded/failed/cached/skipped)', () => {
+    const fixture = renderNode('n1');
+
+    for (const status of ['succeeded', 'failed', 'cached', 'skipped']) {
+      graphExecutionState.setNodeState('n1', { status });
+      expect(fixture.componentInstance.hasRan()).toBe(true);
+    }
+  });
+
+  it('is false for blocked/pending/idle statuses', () => {
+    const fixture = renderNode('n1');
+
+    for (const status of ['blocked', 'pending', 'idle']) {
+      graphExecutionState.setNodeState('n1', { status });
+      expect(fixture.componentInstance.hasRan()).toBe(false);
+    }
+  });
+
+  it('is true when the node carries an inspection payload even without a run status', () => {
+    graphInspection.set({ nodeId: 'n1' } as never);
+    const fixture = renderNode('n1');
+
+    expect(fixture.componentInstance.hasRan()).toBe(true);
+  });
+
+  it('is false when the node has neither run state nor inspection payload', () => {
+    const fixture = renderNode('n1');
+
+    expect(fixture.componentInstance.hasRan()).toBe(false);
   });
 });

@@ -44,6 +44,23 @@ test.describe('SplitTextCodeNode (core.flow.code)', () => {
     expect(inputs).not.toContain('code');
   });
 
+  test('renders the code field as an IDE-like CodeMirror editor (DECAF-50 r2)', async ({ page }) => {
+    await openNodeEditor(page, 'SplitTextCodeNode');
+    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10000 });
+    const codeField = page
+      .locator('ion-modal app-graph-port-field')
+      .filter({ hasText: 'Code' })
+      .first();
+
+    // the manifest `element.tag: 'code-editor'` routes this input to the
+    // CodeMirror editor, not a bare ion-input/ion-textarea
+    const editor = codeField.locator('.cm-editor');
+    await expect(editor).toBeVisible();
+    await expect(codeField.locator('.cm-gutters')).toBeVisible();
+    await expect(codeField.locator('.cm-content[contenteditable="true"]')).toBeVisible();
+    await closeModal(page, 'cancel');
+  });
+
   test('edit modal prefills the code field with the split code (G4-R1)', async ({ page }) => {
     await openNodeEditor(page, 'SplitTextCodeNode');
     await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10000 });
@@ -51,7 +68,7 @@ test.describe('SplitTextCodeNode (core.flow.code)', () => {
       .locator('ion-modal app-graph-port-field')
       .filter({ hasText: 'Code' })
       .first();
-    const value = await codeField.locator('input.native-input, textarea').first().inputValue();
+    const value = (await codeField.locator('.cm-content').textContent()) ?? '';
     expect(value).toContain('$input.text');
     expect(value).toContain('$input.count');
     expect(value).toContain('return chunks');

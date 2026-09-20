@@ -2,11 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { GraphAutoSaveService } from './GraphAutoSaveService';
 import { GraphHistoryService } from './GraphHistoryService';
 import { GraphWorkflowDocumentStore } from '../document/GraphWorkflowDocumentStore';
-import { graphWorkflowSnapshotFromLegacy } from '@decaf-ts/ui-decorators/graph';
 import type {
   GraphWorkflowDocument,
   GraphWorkflowSnapshot,
-  LegacyGraphWorkflowSnapshot,
 } from '@decaf-ts/ui-decorators/graph';
 
 /** The editor interaction class that produced a mutation, driving history labels and autosave. */
@@ -28,12 +26,12 @@ export class GraphMutationDetectorService {
   private readonly history = inject(GraphHistoryService);
   private readonly documentStore = inject(GraphWorkflowDocumentStore);
 
-  private snapshotBuilder: (() => LegacyGraphWorkflowSnapshot | null) | null = null;
+  private snapshotBuilder: (() => GraphWorkflowSnapshot | null) | null = null;
   private workflowId: string | null = null;
 
   configure(
     workflowId: string,
-    snapshotBuilder: () => LegacyGraphWorkflowSnapshot | null,
+    snapshotBuilder: () => GraphWorkflowSnapshot | null,
   ): void {
     this.workflowId = workflowId;
     this.snapshotBuilder = snapshotBuilder;
@@ -73,9 +71,8 @@ export class GraphMutationDetectorService {
    * ports/configs, duplicate counts, viewport metadata) for lossless round trips.
    */
   private canonicalSnapshotOf(document: GraphWorkflowDocument): GraphWorkflowSnapshot {
-    const legacy = this.snapshotBuilder?.() ?? null;
-    if (!legacy) return { document };
-    const canonical = graphWorkflowSnapshotFromLegacy(legacy);
-    return { document, editor: canonical.editor, metadata: canonical.metadata };
+    const snapshot = this.snapshotBuilder?.() ?? null;
+    if (!snapshot) return { document };
+    return { document, editor: snapshot.editor, metadata: snapshot.metadata };
   }
 }

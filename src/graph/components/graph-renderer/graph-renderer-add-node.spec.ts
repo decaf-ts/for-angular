@@ -7,8 +7,8 @@
  *   over empty canvas and records the drag source + drop position;
  * - `addNode` places the selected node at the drop point and connects the drag
  *   source output into the node's first available input port;
- * - `addNode` inside a foreach inserts into that foreach's existing single loop
- *   (two mandatory loop edges, never a second loop);
+ * - `addNode` inside a foreach splices the node between the foreach and its
+ *   ghost (`for-each → added → ghost → for-each`, never a parallel loop);
  * - `addNode` with no pending source places an unconnected node.
  *
  * The real `ng-diagram` canvas cannot mount under jsdom, so the component is
@@ -31,6 +31,7 @@ interface StoreStub {
   addNodeFromManifest: jest.Mock;
   addNode: jest.Mock;
   addEdge: jest.Mock;
+  removeEdge: jest.Mock;
   dispatchCommand: jest.Mock;
 }
 
@@ -44,7 +45,10 @@ const LOG_ENTRY = {
   },
 } as unknown as GraphPaletteEntry;
 
-function render(store: StoreStub): ComponentFixture<GraphRendererComponent> {
+function render(
+  store: StoreStub,
+  template = ''
+): ComponentFixture<GraphRendererComponent> {
   const catalogStub = {
     status: () => 'ready',
     failure: () => null,
@@ -59,7 +63,7 @@ function render(store: StoreStub): ComponentFixture<GraphRendererComponent> {
         { provide: GraphWorkflowValidateClient, useValue: null },
         { provide: GRAPH_DEV_MODE, useValue: false },
       ],
-      template: '',
+      template,
     },
   });
 
@@ -77,6 +81,7 @@ function storeStub(nodes: { id: string; position?: { x: number; y: number } }[] 
     addNodeFromManifest: jest.fn(() => ({ id: 'new-node' })),
     addNode: jest.fn(() => ({ id: 'ghost-new-node' })),
     addEdge: jest.fn(),
+    removeEdge: jest.fn(),
     dispatchCommand: jest.fn(),
   };
 }
@@ -181,8 +186,8 @@ describe('GraphRendererComponent — add-node interaction (G4-R5)', () => {
     });
   });
 
-  describe('addNode inside a foreach (G4-R2)', () => {
-    it('inserts into the existing single loop with two mandatory edges and no new loop', () => {
+  describe('addNode inside a foreach (R2-3(3))', () => {
+    it('splices the node between the foreach and its ghost, with no parallel loop', () => {
       const store = storeStub();
       const fixture = render(store);
       const component = fixture.componentInstance;
@@ -191,6 +196,20 @@ describe('GraphRendererComponent — add-node interaction (G4-R5)', () => {
           { id: 'ghost-GraphForeachLoopNode', position: { x: 200, y: 200 } },
         ],
       } as never);
+      // The loop's add-node ghost is document-carried (R2-1/R2-3(3)): the
+      // document holds the ghost node plus its `item → ghost:in` edge.
+      store.document.mockReturnValue({
+        nodes: [{ id: 'ghost-GraphForeachLoopNode', ui: { position: { x: 200, y: 200 } } }],
+        edges: [
+          {
+            id: 'GraphForeachLoopNode:item->ghost-GraphForeachLoopNode:in',
+            source: { scope: 'node', nodeId: 'GraphForeachLoopNode', port: 'item' },
+            target: { scope: 'node', nodeId: 'ghost-GraphForeachLoopNode', port: 'in' },
+          },
+        ],
+        inputs: [],
+        outputs: [],
+      });
       ghostNodeStore.requestAddNode('GraphForeachLoopNode');
 
       component.addNode(LOG_ENTRY);
@@ -199,6 +218,11 @@ describe('GraphRendererComponent — add-node interaction (G4-R5)', () => {
         LOG_ENTRY.manifest,
         { x: 200, y: 200 },
         `${LOG_ENTRY.title} (materialized)`
+      );
+      // The ghost's `item → ghost:in` edge is removed and replaced by
+      // `item → <added>` + `<added> → ghost:in`: for-each → added → ghost.
+      expect(store.removeEdge).toHaveBeenCalledWith(
+        'GraphForeachLoopNode:item->ghost-GraphForeachLoopNode:in'
       );
       expect(store.addEdge).toHaveBeenCalledTimes(2);
       expect(store.addEdge).toHaveBeenCalledWith(
@@ -211,7 +235,7 @@ describe('GraphRendererComponent — add-node interaction (G4-R5)', () => {
       expect(store.addEdge).toHaveBeenCalledWith(
         expect.objectContaining({
           source: { scope: 'node', nodeId: 'new-node', port: 'logged' },
-          target: { scope: 'node', nodeId: 'GraphForeachLoopNode', port: 'loop' },
+          target: { scope: 'node', nodeId: 'ghost-GraphForeachLoopNode', port: 'in' },
           metadata: { mandatory: true },
         })
       );
@@ -230,6 +254,89 @@ describe('GraphRendererComponent — add-node interaction (G4-R5)', () => {
 
       expect(store.addNodeFromManifest).toHaveBeenCalledTimes(1);
       expect(store.addEdge).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * R2-3(5) round-2 add-node popup dismissal: a pointerdown inside the
+   * palette root (button + popup) keeps it open; a pointerdown elsewhere in
+   * the document closes it and clears the pending add-node source plus the
+   * palette query; a pointerdown while already closed is a no-op; and the
+   * toggle button still toggles open/closed.
+   */
+  describe('outside-click dismissal (R2-3(5))', () => {
+    const PALETTE_TEMPLATE = `
+      <div #paletteRoot class="graph-renderer__palette">
+        <button
+          type="button"
+          class="graph-renderer__palette-btn"
+          (click)="togglePalette()"
+        >
+          + Add node
+        </button>
+        <div class="graph-renderer__palette-popup">popup</div>
+      </div>
+      <div class="graph-renderer__canvas">canvas</div>
+    `;
+
+    function pointerDown(element: Element): void {
+      element.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    }
+
+    it('keeps the palette open on a pointerdown inside the palette root', () => {
+      const fixture = render(storeStub(), PALETTE_TEMPLATE);
+      const component = fixture.componentInstance;
+      ghostNodeStore.requestAddNodeFrom('node-a', 'result', { x: 1, y: 2 });
+      component.paletteQuery.set('log');
+      component.paletteOpen.set(true);
+
+      pointerDown(
+        fixture.nativeElement.querySelector('.graph-renderer__palette-popup')
+      );
+
+      expect(component.paletteOpen()).toBe(true);
+      expect(ghostNodeStore.pendingAddSource()).not.toBeNull();
+      expect(component.paletteQuery()).toBe('log');
+    });
+
+    it('closes the palette and clears the pending add-node source on an outside pointerdown', () => {
+      const fixture = render(storeStub(), PALETTE_TEMPLATE);
+      const component = fixture.componentInstance;
+      ghostNodeStore.requestAddNodeFrom('node-a', 'result', { x: 1, y: 2 });
+      component.paletteQuery.set('log');
+      component.paletteOpen.set(true);
+
+      pointerDown(fixture.nativeElement.querySelector('.graph-renderer__canvas'));
+
+      expect(component.paletteOpen()).toBe(false);
+      expect(ghostNodeStore.pendingAddSource()).toBeNull();
+      expect(component.paletteQuery()).toBe('');
+    });
+
+    it('is a no-op when the palette is already closed', () => {
+      const fixture = render(storeStub(), PALETTE_TEMPLATE);
+      const component = fixture.componentInstance;
+      component.paletteQuery.set('keep');
+      component.paletteOpen.set(false);
+
+      pointerDown(fixture.nativeElement.querySelector('.graph-renderer__canvas'));
+
+      expect(component.paletteOpen()).toBe(false);
+      expect(component.paletteQuery()).toBe('keep');
+    });
+
+    it('toggles the palette open and closed through the toggle button', () => {
+      const fixture = render(storeStub(), PALETTE_TEMPLATE);
+      const component = fixture.componentInstance;
+      const toggle = fixture.nativeElement.querySelector(
+        '.graph-renderer__palette-btn'
+      ) as HTMLButtonElement;
+
+      toggle.click();
+      expect(component.paletteOpen()).toBe(true);
+
+      toggle.click();
+      expect(component.paletteOpen()).toBe(false);
     });
   });
 });

@@ -23,8 +23,6 @@ import {
   GraphWorkflowDocumentStore,
   graphWorkflowDocumentSemanticHashOf,
   graphWorkflowDocumentWithPinnedParameters,
-  graphWorkflowSnapshotFromLegacy,
-  graphWorkflowSnapshotToLegacy,
 } from 'src/graph';
 import type { GraphWorkflowDocument } from '@decaf-ts/ui-decorators/graph';
 import {
@@ -36,10 +34,7 @@ import { GraphToolbarComponent } from 'src/graph';
 import { GraphSaveService } from 'src/graph';
 import { GraphAutoSaveService } from 'src/graph';
 import { GraphMutationDetectorService } from 'src/graph';
-import type {
-  GraphWorkflowSnapshot,
-  LegacyGraphWorkflowSnapshot,
-} from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 import { TextPipelineWorkflow } from './workflow-root';
 import {
   GraphNodeCatalogService,
@@ -146,6 +141,17 @@ export class GraphPage implements OnInit, OnDestroy {
     return Object.entries(result).map(([key, value]) => ({ key, value }));
   });
 
+  /**
+   * R2-3(9)/(10): whether the canvas carries run state — any node execution
+   * state or a non-idle run-result lifecycle — so the toolbar can offer the
+   * return-to-edit-mode affordance.
+   */
+  readonly hasRun = computed(
+    () =>
+      this.runResultState() !== 'idle' ||
+      Object.keys(graphExecutionState.nodeStates()).length > 0
+  );
+
   private eventsSubscription?: { unsubscribe: () => void };
 
   ngOnInit(): void {
@@ -200,12 +206,11 @@ export class GraphPage implements OnInit, OnDestroy {
     this.mutationDetector.recordMutation('edge-disconnect');
   }
 
-  onRestoreSnapshot(snapshot: LegacyGraphWorkflowSnapshot | GraphWorkflowSnapshot): void {
-    // Undo/redo (§4.11): canonical entries convert back to the legacy restore
-    // shape; legacy entries restore directly.
-    this.renderer?.restoreFromSnapshot(
-      ('document' in snapshot) ? graphWorkflowSnapshotToLegacy(snapshot) : snapshot,
-    );
+  onRestoreSnapshot(snapshot: GraphWorkflowSnapshot): void {
+    // Undo/redo (§4.11): every history entry is the canonical wrapper
+    // (`{ document, editor?, metadata? }`, §4.26 R2-2) and restores through
+    // the document-first path.
+    this.renderer?.restoreFromSnapshot(snapshot);
   }
 
   /**
@@ -217,21 +222,37 @@ export class GraphPage implements OnInit, OnDestroy {
   private async saveCanonicalDocument(): Promise<void> {
     if (!this.documentStore.document()) return;
     const liveDocument = this.documentStore.snapshot();
-    const legacy = this.renderer?.buildSnapshot() ?? null;
-    const canonical = legacy ? graphWorkflowSnapshotFromLegacy(legacy) : null;
-    const payload = canonical
-      ? { document: liveDocument, editor: canonical.editor, metadata: canonical.metadata }
+    const editor = this.renderer?.buildSnapshot() ?? null;
+    const payload: GraphWorkflowSnapshot = editor
+      ? { document: liveDocument, editor: editor.editor, metadata: editor.metadata }
       : { document: liveDocument };
     await this.saveService.saveDocument(this.workflowId, payload);
   }
 
   async onSaveWorkflow(): Promise<void> {
+    // R2-3(8): a loose/invalid graph must fail validation on save exactly as
+    // it does on Run — an invalid graph is never submittable.
+    if (graphValidity.isInvalid()) {
+      this.runValidationIssues.set(graphValidity.issues());
+      return;
+    }
     // Canonical save is the only save path after the P7 cutover (§4.11).
     try {
       await this.saveCanonicalDocument();
     } catch (err) {
       this.runError.set(err instanceof Error ? err.message : String(err));
     }
+  }
+
+  /**
+   * R2-3(9)/(10): returns the editor to edit (unfaded) mode after a run. The
+   * page owns the execution/inspection stores, so clearing them unfades every
+   * node while the last run's outputs remain available in the outputs column.
+   */
+  onEditWorkflow(): void {
+    graphExecutionState.reset();
+    graphInspection.reset();
+    this.runResultState.set('idle');
   }
 
   /**

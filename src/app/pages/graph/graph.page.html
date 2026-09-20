@@ -25,9 +25,11 @@
         [isRunning]="isRunning()"
         [invalid]="graphInvalid()"
         [validationIssues]="graphValidityIssues()"
+        [hasRun]="hasRun()"
         (runWorkflow)="runWorkflow()"
         (cancelWorkflow)="onCancelWorkflow()"
         (saveWorkflow)="onSaveWorkflow()"
+        (editWorkflow)="onEditWorkflow()"
         (restoreSnapshot)="onRestoreSnapshot($event)"
       />
     </app-graph-renderer>

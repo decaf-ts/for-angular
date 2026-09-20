@@ -13,16 +13,11 @@ import { GraphHistoryService } from '../../services/GraphHistoryService';
 import { GraphSaveService } from '../../services/GraphSaveService';
 import { GraphAutoSaveService } from '../../services/GraphAutoSaveService';
 import { GraphKeyboardShortcutsService } from '../../services/GraphKeyboardShortcutsService';
-import type {
-  GraphWorkflowSnapshot,
-  LegacyGraphWorkflowSnapshot,
-} from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 import type { GraphValidationIssue } from '../../validation';
 
-/** Snapshot form the toolbar hands to its restore callback: legacy canvas snapshot or canonical wrapper. */
-export type GraphToolbarRestoreSnapshot =
-  | LegacyGraphWorkflowSnapshot
-  | GraphWorkflowSnapshot;
+/** Snapshot form the toolbar hands to its restore callback: the canonical wrapper (§4.26 R2-2). */
+export type GraphToolbarRestoreSnapshot = GraphWorkflowSnapshot;
 
 /**
  * Graph editor toolbar: run/autosave toggles plus undo/redo/save controls,
@@ -60,6 +55,17 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
    */
   readonly cancelWorkflow = output<void>();
   readonly saveWorkflow = output<void>();
+  /**
+   * R2-3(9) (round-2): requests the editor return to the edit (unfaded)
+   * mode after a run. The page owns the execution/inspection stores, so the
+   * toolbar only forwards the intent.
+   */
+  readonly editWorkflow = output<void>();
+  /**
+   * Whether a run has happened (R2-3(9)/(10)): the toolbar shows the return
+   * to edit mode affordance only when the canvas carries run state.
+   */
+  readonly hasRun = input<boolean>(false);
   readonly restoreSnapshot = output<GraphToolbarRestoreSnapshot>();
 
   readonly autoSaveEnabled = this.autoSave.enabled;
@@ -94,6 +100,21 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
       : 'Start workflow'
   );
 
+  /**
+   * Whether Save is blocked (R2-3(8)): a loose/invalid graph must fail
+   * validation on save exactly as it does on Run (D5/G3-17). An invalid graph
+   * is never submittable from the toolbar, so Save is disabled and its title
+   * surfaces the structured issue count.
+   */
+  readonly saveDisabled = computed(() => this.isSaving() || this.invalid());
+
+  /** Save affordance title, surfacing the structured issue count when invalid. */
+  readonly saveTitle = computed(() =>
+    this.invalid()
+      ? `Fix ${this.validationIssues().length} graph validation issue(s) before saving`
+      : 'Save workflow'
+  );
+
   ngOnInit(): void {
     this.history.setActiveWorkflow(this.workflowId());
     this.shortcuts.configure(this.workflowId(), (snapshot) => {
@@ -126,7 +147,18 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
   }
 
   async onSave(): Promise<void> {
+    // R2-3(8): a loose/invalid graph must fail validation on save exactly
+    // as it does on Run — an invalid graph is never submittable.
+    if (this.saveDisabled()) return;
     this.saveWorkflow.emit();
+  }
+
+  /**
+   * Returns the editor to edit (unfaded) mode after a run (R2-3(9)). The page
+   * owns the execution/inspection stores and clears the run state there.
+   */
+  onEdit(): void {
+    this.editWorkflow.emit();
   }
 
   onRun(): void {

@@ -1,24 +1,32 @@
 import { Injector } from '@angular/core';
+import { ValidationError } from '@decaf-ts/db-decorators';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model } from '@decaf-ts/decorator-validation';
 import {
+  graphDecoratedWorkflowCompiler,
   graphDefinitionOf,
+  graphJsonParser,
+  graphJsonSerializer,
   graphLeafPortsOf,
   graphWorkflowDefinitionOf,
-  graphWorkflowSnapshotFromJSON,
-  graphWorkflowSnapshotInputValuesOf,
-  graphWorkflowSnapshotOf,
-  graphWorkflowSnapshotToJSON,
   PortDirection,
+  type GraphJsonValue,
+  type GraphNodeInstance,
+  type GraphNodeKind,
+  type GraphNodeManifest,
   type GraphPortDefinition,
-  type LegacyGraphWorkflowSnapshot,
+  type GraphSnapshotEditorState,
+  type GraphWorkflowSnapshot,
 } from '@decaf-ts/ui-decorators/graph';
-import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
 import type { SwitchNodeMetadata, SwitchCase } from '@decaf-ts/ui-decorators/graph';
-import { GraphInputValueNode } from '@decaf-ts/ui-decorators/graph';
+import type { GraphNodeDefinition } from '@decaf-ts/ui-decorators/graph';
 import { initializeModel, type ModelAdapter } from 'ng-diagram';
-import { graphCanvasPortDefinitionOf } from './document/GraphDiagramAdapter';
-import type { GraphWorkflowDocumentStore } from './document/GraphWorkflowDocumentStore';
+import {
+  graphCanvasPortDefinitionOf,
+  graphWorkflowDocumentCanvasModelOf,
+} from './document/GraphDiagramAdapter';
+import { hydrateGraphWorkflowDocumentValues } from './document/GraphNodeValueHydration';
+import type { GraphNodeManifestReader } from './catalog';
 import type {
   GraphBoundaryNodeData,
   GraphCanvasNodeBlueprint,
@@ -114,30 +122,45 @@ function readModelState(model: ModelAdapter) {
   };
 }
 
-function readDuplicateCountsFromNodes(nodes: unknown[]) {
-  const counts = new Map<string, number>();
-
-  for (const node of nodes) {
-    if (!node || typeof node !== 'object') continue;
-    const data = toRecord((node as Record<string, unknown>)['data']);
-    if (data['role'] !== 'input') continue;
-
-    const property = String(data['property'] || '');
-    if (!property) continue;
-    counts.set(property, (counts.get(property) || 0) + 1);
-  }
-
-  return Array.from(counts.entries()).reduce<Record<string, number>>((acc, [property, count]) => {
-    acc[property] = Math.max(0, count - 1);
-    return acc;
-  }, {});
-}
-
 export function countPortsByDirection(direction: PortDirection, ports: GraphDemoNodeData['ports']) {
   return ports.filter((port) => port.direction === direction).length;
 }
 
-const graphInputBoundaryDefinition = graphDefinitionOf(GraphInputValueNode as never);
+/**
+ * Metadata-only definition of the workflow input-value boundary badge (R2-1):
+ * the backend `GraphInputValueNode` class is no longer frontend-reachable, so the
+ * boundary's kind/ports/display are declared here as serializable metadata only —
+ * no class, constructor, or function participates.
+ */
+const graphInputBoundaryDefinition: GraphNodeDefinition = {
+  name: 'GraphInputValueNode',
+  tag: 'graph-input-value-node',
+  kind: 'value',
+  category: 'Boundary',
+  color: '#0f766e',
+  icon: 'ti-circle-plus',
+  labels: ['workflow', 'input', 'value'],
+  width: 72,
+  height: 32,
+  ports: [
+    {
+      property: 'value',
+      path: 'value',
+      direction: PortDirection.OUTPUT,
+      name: 'value',
+      label: 'value',
+      required: false,
+      hidden: false,
+      connectionRules: { allowMultiple: true },
+    } as GraphPortDefinition,
+  ],
+  graph: {
+    metadata: {
+      title: 'Workflow input value',
+      description: 'Reusable canvas value node representing a workflow input.',
+    },
+  },
+} as unknown as GraphNodeDefinition;
 
 /**
  * Static port of the output-boundary badge (the n8n result analog, D2/G3-09):
@@ -197,7 +220,6 @@ function buildBoundaryNode(
       isPrimary: duplicateIndex === 0,
       value,
       ports: graphInputBoundaryDefinition.ports,
-      modelClass: GraphInputValueNode as never,
       expanded: false,
     },
   };
@@ -537,10 +559,18 @@ function resolveWorkflowEndpoint(
 
 export function getGraphWorkflowSummary<M extends Model>(model: GraphModelLike<M>): GraphRendererSummary {
   const workflow = graphWorkflowDefinitionOf(model);
-  const nodeDefinitions = workflow.nodes
-    .map((entry) => entry.node)
-    .filter((entry): entry is Constructor<Model> => typeof entry === 'function')
-    .map((ctor) => graphDefinitionOf(ctor as never));
+  const nodeDefinitions = workflow.nodes.map((entry) =>
+    typeof entry.node === 'function'
+      ? graphDefinitionOf(entry.node as never)
+      : {
+          kind: entry.kind ?? 'node',
+          name: entry.id,
+          tag: entry.id,
+          category: undefined,
+          color: undefined,
+          graph: { metadata: entry.metadata ?? {} },
+        }
+  );
   const inputBoundaryDefinition = graphInputBoundaryDefinition;
   const itemsByKind = new Map<string, GraphRendererSummaryItem>();
 
@@ -632,10 +662,30 @@ export function getGraphWorkflowSummary<M extends Model>(model: GraphModelLike<M
   };
 }
 
+/**
+ * Kinds of kind-only workflow node entries whose manifest has not yet landed in
+ * the catalogue (R2-1 metadata-only). The catalogue load is asynchronous, so the
+ * renderer defers its seed and view-model projection while this is non-empty —
+ * exactly like the doc-driven `settleCanvasFromDocument` reconcile — instead of
+ * throwing from inside a computed/effect and destabilizing the page.
+ */
+export function graphWorkflowUnresolvedNodeKinds<M extends Model>(
+  model: GraphModelLike<M>,
+  manifests: GraphNodeManifest[] = []
+): GraphNodeKind[] {
+  const workflow = graphWorkflowDefinitionOf(model);
+  const kinds = new Set(manifests.map((manifest) => manifest.kind));
+  return workflow.nodes
+    .filter((entry) => !(entry.node && typeof entry.node === 'function'))
+    .map((entry) => entry.kind)
+    .filter((kind): kind is GraphNodeKind => !!kind && !kinds.has(kind));
+}
+
 export function buildGraphRendererViewModel<M extends Model>(
   model: GraphModelLike<M>,
   inputValues: Record<string, unknown> = {},
-  duplicateInputs: Record<string, number> = {}
+  duplicateInputs: Record<string, number> = {},
+  manifests: GraphNodeManifest[] = []
 ): GraphRendererViewModel {
   const workflow = graphWorkflowDefinitionOf(model);
   const workflowInputs: ReturnType<typeof graphLeafPortsOf> = graphLeafPortsOf(workflow.inputs);
@@ -674,13 +724,28 @@ export function buildGraphRendererViewModel<M extends Model>(
   });
 
   const nodes = workflow.nodes.map((entry, index) => {
-    if (!entry.node || typeof entry.node !== 'function') {
-      throw new Error(`Graph node entry ${entry.id} does not reference a decorated class.`);
+    // R2-1 metadata-only: a workflow node entry may carry a decorated authoring
+    // class (legacy authoring input) or only a kind. When only a kind is present
+    // the canvas node is built from the serializable catalogue manifest — no node
+    // class is imported, extended, or instantiated by the frontend.
+    if (entry.node && typeof entry.node === 'function') {
+      const node = buildMemberNode(entry.node, index, entry.id, entry.label);
+      memberNodes.set(entry.id, node);
+      memberNodes.set(node.data.sourceClass, node);
+      memberNodes.set(node.type, node);
+      return node;
     }
 
-    const node = buildMemberNode(entry.node, index, entry.id, entry.label);
+    const manifest = entry.kind ? manifests.find((candidate) => candidate.kind === entry.kind) : undefined;
+    if (!manifest) {
+      throw new Error(
+        `Graph node entry ${entry.id} references kind '${entry.kind}' which is not in the node catalogue.`
+      );
+    }
+    const paletteEntry = graphPaletteEntriesOf([manifest])[0];
+    const node = buildManifestMemberNode(paletteEntry, index, entry.id, entry.label);
     memberNodes.set(entry.id, node);
-    memberNodes.set(node.data.sourceClass, node);
+    memberNodes.set(entry.kind ?? '', node);
     memberNodes.set(node.type, node);
     return node;
   });
@@ -760,9 +825,10 @@ export function buildGraphRendererModel<M extends Model>(
   injector?: Injector,
   inputValues: Record<string, unknown> = {},
   duplicateInputs: Record<string, number> = {},
-  previousModel?: ModelAdapter | null
+  previousModel?: ModelAdapter | null,
+  manifests: GraphNodeManifest[] = []
 ) {
-  const viewModel = buildGraphRendererViewModel(model, inputValues, duplicateInputs);
+  const viewModel = buildGraphRendererViewModel(model, inputValues, duplicateInputs, manifests);
   const nextModel = initializeModel(
     {
       nodes: [...viewModel.inputs, ...viewModel.outputs, ...viewModel.nodes],
@@ -803,84 +869,126 @@ export function buildGraphRendererModel<M extends Model>(
   return nextModel;
 }
 
+/**
+ * Builds the canonical document-first snapshot (`{ document, editor?, metadata? }`,
+ * DECAF-50 §4.26 R2-2) from the decorated workflow root and the live canvas.
+ *
+ * The `document` is compiled through the sanctioned decorated-workflow authoring
+ * compiler (§4.4 — an authoring input convenience, not engine retro-compat); the
+ * `editor` block carries the canvas-only state (duplicate counts, diagram
+ * metadata, per-node port configs) that the canonical document cannot express.
+ * No legacy snapshot shape, version field, or legacy conversion participates.
+ */
 export function buildGraphRendererSnapshot<M extends Model>(
   model: GraphModelLike<M>,
   diagram: ModelAdapter,
   inputValues: Record<string, unknown> = {},
   duplicateInputs: Record<string, number> = {},
-  instances: Record<string, GraphNodeInstance> = {}
-): LegacyGraphWorkflowSnapshot {
+  instances: Record<string, GraphNodeInstance> = {},
+  manifests: readonly GraphNodeManifest[] = []
+): GraphWorkflowSnapshot {
   const state = readModelState(diagram);
-  const instanceEntries = Object.entries(instances);
-  const nodeConfigs: Record<string, Record<string, unknown>> = {};
-  const portsByNode = new Map<string, Record<string, { mode?: 'port' | 'value'; value?: unknown }>>();
-  for (const [nodeId, instance] of instanceEntries) {
-    const ports: Record<string, { mode?: 'port' | 'value'; value?: unknown }> = {};
-    const portModes: Record<string, 'port' | 'value'> = {};
-    const values: Record<string, unknown> = {};
-    for (const [portId, binding] of Object.entries(instance.inputBindings ?? {})) {
-      if (binding?.mode === 'edge') {
-        portModes[portId] = 'port';
-        ports[portId] = { mode: 'port' };
-        continue;
-      }
-      portModes[portId] = 'value';
-      if (binding?.mode === 'literal') values[portId] = (binding as { value?: unknown }).value;
-      else if (binding?.mode === 'expression') values[portId] = (binding as { expression?: unknown }).expression;
-      ports[portId] = { mode: 'value', value: values[portId] };
+  const positions: Record<string, { x: number; y: number }> = {};
+  for (const node of state.nodes as Record<string, unknown>[]) {
+    const nodeId = typeof node['id'] === 'string' ? (node['id'] as string) : undefined;
+    const position = node['position'] as { x?: unknown; y?: unknown } | undefined;
+    if (!nodeId || !position) continue;
+    if (typeof position.x === 'number' && typeof position.y === 'number') {
+      positions[nodeId] = { x: position.x, y: position.y };
     }
-    const outputSplits = state.edges
-      .map((edge) => edge as { source?: string; sourcePort?: string })
-      .filter((edge) => edge.source === nodeId && typeof edge.sourcePort === 'string')
-      .map((edge) => edge.sourcePort as string);
-    nodeConfigs[nodeId] = { portModes, values, outputSplits };
-    portsByNode.set(nodeId, ports);
   }
-  const nodesWithConfigs = (state.nodes as Record<string, unknown>[]).map((node) => {
-    const nodeId = typeof node['id'] === 'string' ? node['id'] : undefined;
-    const ports = nodeId ? portsByNode.get(nodeId) : undefined;
-    if (!ports || !Object.keys(ports).length) return node;
-    return {
-      ...node,
-      ports: { ...(typeof node['ports'] === 'object' && node['ports'] ? node['ports'] : {}), ...ports },
-    };
-  });
-  return graphWorkflowSnapshotOf(model as never, {
-    inputs: inputValues,
-    nodes: nodesWithConfigs as never[],
-    edges: state.edges as never[],
-    ui: {
-      duplicateCounts: cloneJson(duplicateInputs),
-      diagramMetadata: cloneJson(state.metadata),
-      nodeConfigs: cloneJson(nodeConfigs),
-    },
+  const diagramMetadata = toRecord(state.metadata);
+  const viewportRaw = toRecord(diagramMetadata['viewport']);
+  const viewport =
+    typeof viewportRaw['x'] === 'number' && typeof viewportRaw['y'] === 'number'
+      ? {
+          x: viewportRaw['x'] as number,
+          y: viewportRaw['y'] as number,
+          zoom: typeof viewportRaw['scale'] === 'number' ? (viewportRaw['scale'] as number) : 1,
+        }
+      : undefined;
+
+  const document = hydrateGraphWorkflowDocumentValues(
+    graphDecoratedWorkflowCompiler(model, {
+      positions,
+      viewport,
+    }),
+    manifests
+  );
+
+  const nodeConfigs: Record<string, Record<string, unknown>> = {};
+  for (const [nodeId, instance] of Object.entries(instances)) {
+    nodeConfigs[nodeId] = nodeInstanceConfigOf(instance, state.edges as never[]);
+  }
+
+  const editor: GraphSnapshotEditorState = {
+    duplicateCounts: cloneJson(duplicateInputs),
+    diagramMetadata: cloneJson(diagramMetadata) as Record<string, GraphJsonValue>,
+    nodeConfigs: cloneJson(nodeConfigs) as Record<string, GraphJsonValue>,
+  };
+
+  return {
+    document,
+    editor,
     metadata: {
       serializedAt: new Date().toISOString(),
+      inputValues: cloneJson(inputValues) as Record<string, GraphJsonValue>,
     },
-  });
+  };
 }
 
+/** Per-node editor config carried in the canonical snapshot's `editor` block (port modes/values/splits). */
+function nodeInstanceConfigOf(
+  instance: GraphNodeInstance,
+  edges: { source?: unknown; sourcePort?: unknown }[]
+): Record<string, unknown> {
+  const portModes: Record<string, 'port' | 'value'> = {};
+  const values: Record<string, unknown> = {};
+  for (const [portId, binding] of Object.entries(instance.inputBindings ?? {})) {
+    if (binding?.mode === 'edge') {
+      portModes[portId] = 'port';
+      continue;
+    }
+    portModes[portId] = 'value';
+    if (binding?.mode === 'literal') values[portId] = (binding as { value?: unknown }).value;
+    else if (binding?.mode === 'expression')
+      values[portId] = (binding as { expression?: unknown }).expression;
+  }
+  const outputSplits = edges
+    .filter((edge) => edge.source === instance.id && typeof edge.sourcePort === 'string')
+    .map((edge) => edge.sourcePort as string);
+  return { portModes, values, outputSplits };
+}
+
+/**
+ * Projects a canonical snapshot (`{ document, editor?, metadata? }`) into the
+ * ng-diagram model the renderer restores. The document is projected through the
+ * catalogue-backed adapter; the `editor` block restores the canvas-only state
+ * (duplicate counts, viewport metadata) that the document does not carry.
+ */
 export function buildGraphRendererStateFromSnapshot<M extends Model>(
   model: GraphModelLike<M>,
-  snapshot: LegacyGraphWorkflowSnapshot,
+  snapshot: GraphWorkflowSnapshot,
+  catalogue: GraphNodeManifestReader,
   injector?: Injector
 ) {
-  const snapshotUi = toRecord(snapshot.state.ui);
-  const duplicateCounts = toRecord(snapshotUi['duplicateCounts']);
-  const diagramMetadata = toRecord(snapshotUi['diagramMetadata']);
-  const restoredNodeConfigs = toRecord(snapshotUi['nodeConfigs']) as Record<string, GraphNodeInstanceState>;
-  const inputValues = graphWorkflowSnapshotInputValuesOf(snapshot);
+  const editor = snapshot.editor ?? {};
+  const duplicateCounts = toRecord(editor.duplicateCounts) as Record<string, number>;
+  const diagramMetadata = toRecord(editor.diagramMetadata);
+  const restoredNodeConfigs = toRecord(editor.nodeConfigs) as Record<string, GraphNodeInstanceState>;
+  const projection = graphWorkflowDocumentCanvasModelOf(snapshot.document, catalogue);
+  const viewport = toRecord(projection.metadata?.['viewport']);
   const diagram = initializeModel(
     {
-      nodes: cloneNodeArray(snapshot.state.nodes) as never[],
-      edges: cloneJson(snapshot.state.edges) as never[],
+      nodes: cloneNodeArray(projection.nodes) as never[],
+      edges: cloneJson(projection.edges) as never[],
       metadata: {
         ...diagramMetadata,
         viewport: {
           x: 0,
           y: 0,
           scale: 1,
-          ...((diagramMetadata['viewport'] as Record<string, unknown>) || {}),
+          ...viewport,
         },
       },
     },
@@ -889,23 +997,32 @@ export function buildGraphRendererStateFromSnapshot<M extends Model>(
 
   return {
     diagram,
-    inputValues,
-    duplicateCounts: Object.keys(duplicateCounts).length
-      ? (duplicateCounts as Record<string, number>)
-      : readDuplicateCountsFromNodes(snapshot.state.nodes as never[]),
+    inputValues: toRecord(snapshot.metadata?.['inputValues']),
+    duplicateCounts,
     instanceConfigs: restoredNodeConfigs,
   };
 }
 
+/**
+ * Parses the persisted canonical snapshot JSON (`{ document, editor?, metadata? }`,
+ * §4.26 R2-2). The legacy `{ definition, state }` snapshot and its version
+ * field are gone; only the canonical wrapper is accepted.
+ */
 export function parseGraphRendererSnapshot(
-  json: string | LegacyGraphWorkflowSnapshot,
-  model: GraphModelLike
-): LegacyGraphWorkflowSnapshot {
-  return graphWorkflowSnapshotFromJSON(json, model as never);
+  json: string | GraphWorkflowSnapshot
+): GraphWorkflowSnapshot {
+  if (typeof json !== 'string') return json;
+  const parsed = graphJsonParser(json);
+  if (!parsed || typeof parsed !== 'object' || !('document' in (parsed as Record<string, unknown>))) {
+    throw new ValidationError(
+      'Serialized graph snapshot is not a canonical wrapper ({ document, editor?, metadata? }).'
+    );
+  }
+  return parsed as GraphWorkflowSnapshot;
 }
 
-/** Serializes a canvas snapshot to its persisted JSON form (see {@link parseGraphRendererSnapshot}). */
-export function stringifyGraphRendererSnapshot(snapshot: LegacyGraphWorkflowSnapshot, space = 2) {
-  return graphWorkflowSnapshotToJSON(snapshot, space);
+/** Serializes a canonical snapshot to its persisted JSON form (see {@link parseGraphRendererSnapshot}). */
+export function stringifyGraphRendererSnapshot(snapshot: GraphWorkflowSnapshot, space = 2) {
+  return graphJsonSerializer(snapshot, space);
 }
 type GraphModelLike<M extends Model = Model> = Constructor<M> | M;

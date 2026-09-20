@@ -10,11 +10,4 @@ export * from './types';
 export * from './utils';
 export * from './validation';
 export * from './workflow-inputs';
-export {
-  GraphInputValueNode,
-  graphWorkflowDocumentFromLegacySnapshot,
-  graphWorkflowSnapshotFromLegacy,
-  graphWorkflowSnapshotLikeToCanonical,
-  graphWorkflowSnapshotToLegacy,
-} from '@decaf-ts/ui-decorators/graph';
 

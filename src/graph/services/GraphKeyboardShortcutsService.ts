@@ -1,10 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import type { GraphWorkflowSnapshot,
-  LegacyGraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
 import { GraphHistoryService } from './GraphHistoryService';
 import { GraphAutoSaveService } from './GraphAutoSaveService';
 
-type GraphHistorySnapshot = GraphWorkflowSnapshot | LegacyGraphWorkflowSnapshot;
+type GraphHistorySnapshot = GraphWorkflowSnapshot;
 
 type RestoreCallback = (snapshot: GraphHistorySnapshot) => void;
 
