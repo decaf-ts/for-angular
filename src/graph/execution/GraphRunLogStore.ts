@@ -17,6 +17,8 @@ import type { GraphRunLogEntry, LogNodeLevel } from "@decaf-ts/ui-decorators/gra
  */
 export type GraphLogFilterLevel = "verbose" | "info" | "warn" | "error";
 
+export type GraphRunLogLevel = LogNodeLevel | "benchmark";
+
 /**
  * Run-lifecycle line kinds fed into the drawer alongside the streamed entries
  * (DECAF-50 §4.22/D6, G3-21): a run is created, the graph validates, or
@@ -46,7 +48,7 @@ export const GRAPH_RUN_LOG_LIFECYCLE_LABELS: Record<GraphRunLogLifecycleKind, st
  */
 export const GRAPH_RUN_LOG_LIFECYCLE_LEVELS: Record<
   GraphRunLogLifecycleKind,
-  GraphRunLogEntry["level"]
+  GraphRunLogLevel
 > = {
   created: "info",
   validated: "info",
@@ -64,7 +66,7 @@ export interface GraphRunLogLifecycleEntry {
   /** Lifecycle transition this line reports. */
   kind: GraphRunLogLifecycleKind;
   /** Console severity the line renders at (see {@link GRAPH_RUN_LOG_LIFECYCLE_LEVELS}). */
-  level: GraphRunLogEntry["level"];
+  level: GraphRunLogLevel;
   /** Human-readable lifecycle message. */
   message: string;
   /** ISO timestamp the lifecycle line was recorded at. */

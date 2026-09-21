@@ -25,6 +25,7 @@ import { TestBed } from '@angular/core/testing';
 import type {
   GraphNodeInstance,
   GraphNodeManifest,
+  GraphEdgeInstance,
   GraphWorkflowDocument,
 } from '@decaf-ts/ui-decorators/graph';
 
@@ -85,7 +86,7 @@ function logManifestOf(
 /** One canonical document carrying the nodes under test. */
 function documentOf(
   nodes: GraphNodeInstance[],
-  edges: GraphWorkflowDocument['edges'] = []
+  edges: GraphEdgeInstance[] = []
 ): GraphWorkflowDocument {
   return {
     id: 'wf-hydrate',

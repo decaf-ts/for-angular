@@ -17,11 +17,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import type { GraphRunLogEntry } from '@decaf-ts/ui-decorators/graph';
 
-import { graphRunLog } from '../../execution/GraphRunLogStore';
+import { graphRunLog, type GraphRunLogLevel } from '../../execution/GraphRunLogStore';
 import { GraphLogsWidgetComponent } from './graph-logs-widget.component';
 
 /** One streamed `GRAPH_RUN_LOG` entry. */
-function entry(level: GraphRunLogEntry['level'], message = `msg-${level}`): GraphRunLogEntry {
+function entry(level: GraphRunLogLevel, message = `msg-${level}`): GraphRunLogEntry {
   return {
     level,
     message,

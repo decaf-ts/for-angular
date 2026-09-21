@@ -89,7 +89,7 @@ export class GraphNodeInlineEditorComponent implements OnChanges {
   /** Canvas node id the form edits. */
   @Input() nodeId = '';
   /** Canvas node data (ports / kind) the form renders. */
-  @Input() nodeData: (GraphDemoNodeData | GraphRendererNodeData) | null = null;
+  @Input() nodeData: GraphDemoNodeData | GraphRendererNodeData | null = null;
   /** Canonical node instance whose bindings/parameters are edited. */
   @Input() nodeInstance: GraphNodeInstance | null = null;
   /** Manifest-level node parameter definitions (non-port parameter rows). */

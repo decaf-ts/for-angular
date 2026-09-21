@@ -162,7 +162,8 @@ function isGraphProvidedValue(value: unknown): boolean {
  */
 export function directlyProvidedPortIds(
   node: Pick<GraphNodeInstance, 'metadata'> | undefined,
-  portIds: readonly string[]
+  // eslint-disable-next-line @typescript-eslint/array-type -- JSDoc cannot parse readonly array syntax.
+  portIds: ReadonlyArray<string>
 ): Set<string> {
   const provided = new Set<string>();
   if (!node) return provided;

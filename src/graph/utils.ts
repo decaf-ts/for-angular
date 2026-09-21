@@ -244,7 +244,7 @@ function resolvePortDefaultValue(port: GraphPortDefinition): unknown {
  */
 function buildOutputBoundaryNode(
   property: string,
-  port: GraphRendererViewModel['workflow']['outputs'][number],
+  port: GraphPortDefinition,
   index: number,
   workflowName: string
 ): GraphCanvasNodeBlueprint<GraphBoundaryNodeData> {
@@ -885,7 +885,8 @@ export function buildGraphRendererSnapshot<M extends Model>(
   inputValues: Record<string, unknown> = {},
   duplicateInputs: Record<string, number> = {},
   instances: Record<string, GraphNodeInstance> = {},
-  manifests: readonly GraphNodeManifest[] = []
+  // eslint-disable-next-line @typescript-eslint/array-type -- JSDoc cannot parse readonly array syntax.
+  manifests: ReadonlyArray<GraphNodeManifest> = []
 ): GraphWorkflowSnapshot {
   const state = readModelState(diagram);
   const positions: Record<string, { x: number; y: number }> = {};

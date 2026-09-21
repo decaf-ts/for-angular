@@ -147,7 +147,8 @@ export function hydrateGraphNodeInstanceValues(
  */
 export function hydrateGraphWorkflowDocumentValues(
   document: GraphWorkflowDocument,
-  manifests: readonly GraphNodeManifest[]
+  // eslint-disable-next-line @typescript-eslint/array-type -- JSDoc cannot parse readonly array syntax.
+  manifests: ReadonlyArray<GraphNodeManifest>
 ): GraphWorkflowDocument {
   if (!document || !Array.isArray(document.nodes) || !manifests.length) return document;
   const manifestByKind = new Map(manifests.map((manifest) => [manifest.kind, manifest]));

@@ -117,7 +117,7 @@ function isSize(value: unknown): value is { width?: number; height?: number } {
  * Structural guard for the document-carried UI data-pinning state (D4,
  * DECAF-50 §4.22): a frozen parameter snapshot, optionally timestamped.
  */
-function isGraphNodePinState(value: unknown): value is GraphNodePinState {
+function isGraphNodePinState(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const record = value as Record<string, unknown>;
   const parameters = record['parameters'];

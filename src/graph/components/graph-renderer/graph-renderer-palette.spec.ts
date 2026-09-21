@@ -16,7 +16,7 @@
  * end-to-end by `tests/playwright/graph/canvas-run.spec.ts`.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { signal } from '@angular/core';
+import { signal, type Signal } from '@angular/core';
 
 import { GraphRendererComponent } from './graph-renderer.component';
 import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocumentStore';
@@ -33,8 +33,8 @@ class DummyRoot {}
  * their continuous projections do not race the test's own catalogue signals.
  */
 function render(
-  status: ReturnType<typeof signal<string>>,
-  failure: ReturnType<typeof signal<GraphNodeCatalogFailure | null>>,
+  status: Signal<string>,
+  failure: Signal<GraphNodeCatalogFailure | null>,
   devMode = false,
 ): {
   fixture: ComponentFixture<GraphRendererComponent>;
