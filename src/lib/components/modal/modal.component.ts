@@ -351,9 +351,10 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
   parseInlineContent(): void {
     if (this.inlineContent) {
       if (this.inlineContent instanceof HTMLElement) {
-        this.inlineContent = this.inlineContent.outerHTML;
+        this.inlineContent = this.domSanitizer.bypassSecurityTrustHtml(this.inlineContent.outerHTML);
+      } else if (typeof this.inlineContent === 'string') {
+        this.inlineContent = this.domSanitizer.bypassSecurityTrustHtml(this.inlineContent);
       }
-      this.inlineContent = this.domSanitizer.bypassSecurityTrustHtml(this.inlineContent as string);
     }
   }
 
@@ -533,7 +534,7 @@ export async function presentNgxLightBoxModal(
   injector?: EnvironmentInjector
 ): Promise<void> {
   return (
-    await getNgxModalComponent({ props, ...{ inlineContent, lightBox: true } }, {}, injector || undefined)
+    await getNgxModalComponent({ ...props, inlineContent, lightBox: true }, {}, injector || undefined)
   ).present();
 }
 
@@ -570,11 +571,9 @@ export async function getNgxInlineModal(
 ): Promise<IonModal> {
   return await getNgxModalComponent(
     {
-      props,
-      ...{
-        inlineContent: inlineContent ?? '<div></div>',
-        className: `${props?.className ?? ''} dcf-modal`,
-      },
+      ...props,
+      inlineContent: inlineContent ?? '<div></div>',
+      className: `${props?.className ?? ''} dcf-modal`,
     },
     {},
     injector || undefined

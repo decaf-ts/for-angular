@@ -68,29 +68,33 @@ export class ModelRendererComponent<M extends Model> extends NgxRenderableCompon
    * @param {string | M} model - The model to be rendered
    */
   override async render(model: string | M): Promise<void> {
-    model = typeof model === Primitives.STRING ? (Model.build({}, String(model)) as M) : model;
+    try {
+      model = typeof model === Primitives.STRING ? (Model.build({}, String(model)) as M) : model;
 
-    if (model) {
-      this.output = (model as unknown as Renderable).render<AngularDynamicOutput>(
-        this.globals || {},
-        this.vcr,
-        this.injector,
-        this.inner,
-        this.projectable
-      );
-      if (this.output?.inputs)
-        this.rendererId = sf(
-          AngularEngineKeys.RENDERED_ID,
-          (this.output.inputs as Record<string, unknown>)['rendererId'] as string
+      if (model) {
+        this.output = (model as unknown as Renderable).render<AngularDynamicOutput>(
+          this.globals || {},
+          this.vcr,
+          this.injector,
+          this.inner,
+          this.projectable
         );
-      this.instance = this.output?.component;
-      const { operation } = this.globals || {};
-      // const {inputs} = this.output;
-      // await this.initProps(inputs || {});
-      if (operation) {
-        this.operation = operation as CrudOperationKeys;
+        if (this.output?.inputs)
+          this.rendererId = sf(
+            AngularEngineKeys.RENDERED_ID,
+            (this.output.inputs as Record<string, unknown>)['rendererId'] as string
+          );
+        this.instance = this.output?.component;
+        const { operation } = this.globals || {};
+        // const {inputs} = this.output;
+        // await this.initProps(inputs || {});
+        if (operation) {
+          this.operation = operation as CrudOperationKeys;
+        }
+        this.subscribeEvents();
       }
-      this.subscribeEvents();
+    } catch (error: unknown) {
+      this.log.for(this).error(`Error on render ${model}. ${(error as Error).message ?? error}`);
     }
   }
 }

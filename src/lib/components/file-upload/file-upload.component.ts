@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ComponentEventNames, ElementSizes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { IonButton, IonItem, IonLabel, IonList, IonText } from '@ionic/angular/standalone';
@@ -12,6 +12,7 @@ import { ElementSize, FlexPosition, FunctionLike, KeyValue, PossibleInputTypes }
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../icon/icon.component';
 import { presentNgxInlineModal, presentNgxLightBoxModal } from '../modal/modal.component';
+import { DomSanitizer } from '@angular/platform-browser';
 
 /**
  * @description File upload component for Angular applications.
@@ -275,6 +276,8 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    */
   @Input()
   subType: string = 'text';
+
+  private sanitizer = inject(DomSanitizer);
 
   /**
    * @description Creates a new file upload component instance.
