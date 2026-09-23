@@ -9,6 +9,7 @@ import {
   GRAPH_LOG_FILTER_THRESHOLD,
   GRAPH_RUN_LOG_LIFECYCLE_LABELS,
   GRAPH_RUN_LOG_LIFECYCLE_LEVELS,
+  graphLogSeverityOf,
   graphRunLog,
 } from './GraphRunLogStore';
 
@@ -109,6 +110,29 @@ describe('GraphRunLogStore', () => {
     expect(graphRunLog.entries()).toHaveLength(3);
     graphRunLog.setFilter('verbose');
     expect(graphRunLog.visibleEntries()).toHaveLength(3);
+  });
+
+  /**
+   * R4-2 (DECAF-50 round 4): the console must render EVERY streamed record.
+   * A record whose level is outside the frontend's severity map used to fall
+   * through the `>= threshold` comparison as `undefined >= 0 === false` and was
+   * silently hidden even at the default `verbose` filter.
+   */
+  it('keeps an entry whose level the frontend does not model at the default filter (R4-2)', () => {
+    graphRunLog.append(entry('info', 'modelled'));
+    graphRunLog.append(entry('unmodelled' as LogNodeLevel, 'unmodelled'));
+    graphRunLog.setFilter('verbose');
+
+    expect(graphRunLog.visibleEntries().map((e) => e.message)).toEqual([
+      'modelled',
+      'unmodelled',
+    ]);
+  });
+
+  it('graphLogSeverityOf falls back to the noisiest level for an unmodelled level (R4-2)', () => {
+    expect(graphLogSeverityOf('info')).toBe(4);
+    expect(graphLogSeverityOf('benchmark')).toBe(4);
+    expect(graphLogSeverityOf('unmodelled' as LogNodeLevel)).toBe(0);
   });
 
   it('counts reports total, warnings and errors (severity >=5 / >=6)', () => {

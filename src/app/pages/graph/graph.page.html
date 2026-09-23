@@ -33,17 +33,5 @@
         (restoreSnapshot)="onRestoreSnapshot($event)"
       />
     </app-graph-renderer>
-
-    @if (workflowOutputs().length) {
-      <section class="graph-page__outputs">
-        <h2>Execution outputs</h2>
-        @for (output of workflowOutputs(); track output.key) {
-          <article class="graph-page__output">
-            <strong>{{ output.key }}</strong>
-            <span>{{ output.value }}</span>
-          </article>
-        }
-      </section>
-    }
   </main>
 </ion-content>

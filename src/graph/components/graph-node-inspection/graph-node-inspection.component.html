@@ -1,5 +1,9 @@
 @if (store.openNodeId(); as openNodeId) {
-  <section class="graph-node-inspection" [attr.data-open-node-id]="openNodeId">
+  <section
+    class="graph-node-inspection"
+    [class.graph-node-inspection--crud-only]="!showRunPanes()"
+    [attr.data-open-node-id]="openNodeId"
+  >
     <header class="graph-node-inspection__header">
       <div class="graph-node-inspection__identity">
         @if (meta(); as metaInfo) {
@@ -23,26 +27,28 @@
     </header>
 
     <div class="graph-node-inspection__body">
-      <!-- LEFT: run inputs (D3 three-pane split view) -->
-      <section class="graph-node-inspection__pane graph-node-inspection__pane--inputs">
-        @if (payload(); as inspection) {
-          <app-graph-io-viewer title="Run inputs" [value]="inspection.inputs" />
-        } @else {
-          <div class="graph-node-inspection__empty graph-node-inspection__empty--inputs">
-            <strong>No run inputs</strong>
-            <small>{{ emptyReason() }}</small>
-            @if (runFailed()) {
-              <button
-                type="button"
-                class="graph-node-inspection__retry"
-                (click)="requestRetry()"
-              >
-                Retry result fetch
-              </button>
-            }
-          </div>
-        }
-      </section>
+      <!-- LEFT: run inputs (D3 three-pane split view); omitted for un-ran nodes (R4-8) -->
+      @if (showRunPanes()) {
+        <section class="graph-node-inspection__pane graph-node-inspection__pane--inputs">
+          @if (payload(); as inspection) {
+            <app-graph-io-viewer title="Run inputs" [value]="inspection.inputs" />
+          } @else {
+            <div class="graph-node-inspection__empty graph-node-inspection__empty--inputs">
+              <strong>No run inputs</strong>
+              <small>{{ emptyReason() }}</small>
+              @if (runFailed()) {
+                <button
+                  type="button"
+                  class="graph-node-inspection__retry"
+                  (click)="requestRetry()"
+                >
+                  Retry result fetch
+                </button>
+              }
+            </div>
+          }
+        </section>
+      }
 
       <!-- CENTER: CRUD form (always present; never removed by a run) -->
       <section class="graph-node-inspection__pane graph-node-inspection__pane--crud">
@@ -64,34 +70,36 @@
         }
       </section>
 
-      <!-- RIGHT: run outputs (or the node error) -->
-      <section class="graph-node-inspection__pane graph-node-inspection__pane--outputs">
-        @if (payload(); as inspection) {
-          @if (inspection.error) {
-            <app-graph-io-viewer
-              title="Run outputs"
-              [value]="null"
-              [error]="inspection.error"
-            />
-          } @else {
-            <app-graph-io-viewer title="Run outputs" [value]="inspection.outputs" />
-          }
-        } @else {
-          <div class="graph-node-inspection__empty graph-node-inspection__empty--outputs">
-            <strong>No run outputs</strong>
-            <small>{{ emptyReason() }}</small>
-            @if (runFailed()) {
-              <button
-                type="button"
-                class="graph-node-inspection__retry"
-                (click)="requestRetry()"
-              >
-                Retry result fetch
-              </button>
+      <!-- RIGHT: run outputs (or the node error); omitted for un-ran nodes (R4-8) -->
+      @if (showRunPanes()) {
+        <section class="graph-node-inspection__pane graph-node-inspection__pane--outputs">
+          @if (payload(); as inspection) {
+            @if (inspection.error) {
+              <app-graph-io-viewer
+                title="Run outputs"
+                [value]="null"
+                [error]="inspection.error"
+              />
+            } @else {
+              <app-graph-io-viewer title="Run outputs" [value]="inspection.outputs" />
             }
-          </div>
-        }
-      </section>
+          } @else {
+            <div class="graph-node-inspection__empty graph-node-inspection__empty--outputs">
+              <strong>No run outputs</strong>
+              <small>{{ emptyReason() }}</small>
+              @if (runFailed()) {
+                <button
+                  type="button"
+                  class="graph-node-inspection__retry"
+                  (click)="requestRetry()"
+                >
+                  Retry result fetch
+                </button>
+              }
+            </div>
+          }
+        </section>
+      }
     </div>
 
     @if (validationIssues().length) {

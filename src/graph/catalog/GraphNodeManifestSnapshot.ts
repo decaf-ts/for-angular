@@ -9,7 +9,7 @@
  * Display values mirror the canonical `@node`-decorated classes (category,
  * colour, icon, size, ports): the live catalogue currently resolves each node's
  * effective icon from its category registry entry instead of the node's own
- * explicit `@node` icon, so `core.flow.code`/`core.flow.log` and the
+ * explicit `@node` icon, so `core.utility.code`/`core.flow.log` and the
  * triggers publish their category icon. The fixture keeps the canonical per-node
  * icons the node face renders (D7/G3-24..25); the shared precedence bug is
  * reported separately.
@@ -171,93 +171,6 @@ export const GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT: GraphNodeManifest[] = [
         "label": "Value",
         "required": true,
         "placeholder": "Value to forward (collected as the last partial result)"
-      }
-    ]
-  },
-  {
-    "kind": "core.flow.code",
-    "display": {
-      "name": "Code",
-      "description": "Runs user-authored JS/TS in a restricted VM sandbox. Supports placeholder syntax for workflow data references.",
-      "category": "Utility",
-      "labels": [
-        "flow",
-        "code",
-        "sandbox",
-        "transform"
-      ],
-      "icon": {
-        "type": "catalogue",
-        "name": "ti-code"
-      },
-      "color": "#0d9488",
-      "width": 96,
-      "height": 96
-    },
-    "inputs": [
-      {
-        "id": "code",
-        "label": "Code",
-        "direction": "input",
-        "schema": {
-          "type": "model",
-          "name": "String"
-        },
-        "required": true,
-        "handle": "code",
-        // R2-3(4): the code input carries its `@uielement("code-editor", ...)`
-        // decoration so the canvas adapter forwards it to the port field and the
-        // IDE-like editor renders instead of a plain input. Serialized shape
-        // mirrors `uielement()`: `{ tag, serialize, props: { ...props, name } }`.
-        "element": {
-          "tag": "code-editor",
-          "serialize": false,
-          "props": {
-            "label": "Code",
-            "placeholder": "// User-authored JS code",
-            "name": "code"
-          }
-        }
-      } as GraphPortManifest & { element: Record<string, unknown> },
-      {
-        "id": "data",
-        "label": "data",
-        "direction": "input",
-        "schema": {
-          "type": "object",
-          "properties": {}
-        },
-        "hidden": true,
-        "handle": "data"
-      }
-    ],
-    "outputs": [
-      {
-        "id": "result",
-        "label": "result",
-        "direction": "output",
-        "schema": {
-          "type": "object",
-          "properties": {}
-        },
-        "required": true,
-        "handle": "result"
-      }
-    ],
-    "parameters": [
-      {
-        "type": "code",
-        "id": "code",
-        "label": "Code",
-        "required": true,
-        "placeholder": "// User-authored JS code",
-        "language": "javascript"
-      },
-      {
-        "type": "hidden",
-        "id": "data",
-        "label": "data",
-        "required": false
       }
     ]
   },
@@ -567,61 +480,6 @@ export const GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT: GraphNodeManifest[] = [
         "label": "Input value",
         "required": true,
         "placeholder": "Value to log"
-      }
-    ]
-  },
-  {
-    "kind": "core.flow.map",
-    "display": {
-      "name": "Map",
-      "description": "Transforms the current input into a new output object using the configured mapper.",
-      "category": "Utility",
-      "labels": [
-        "flow",
-        "map",
-        "transform"
-      ],
-      "icon": {
-        "type": "catalogue",
-        "name": "ti-tool"
-      },
-      "color": "#0d9488",
-      "width": 96,
-      "height": 96
-    },
-    "inputs": [
-      {
-        "id": "value",
-        "label": "Input value",
-        "direction": "input",
-        "schema": {
-          "type": "object",
-          "properties": {}
-        },
-        "required": true,
-        "handle": "value"
-      }
-    ],
-    "outputs": [
-      {
-        "id": "result",
-        "label": "Transformed output",
-        "direction": "output",
-        "schema": {
-          "type": "object",
-          "properties": {}
-        },
-        "required": true,
-        "handle": "result"
-      }
-    ],
-    "parameters": [
-      {
-        "type": "object",
-        "id": "value",
-        "label": "Input value",
-        "required": true,
-        "placeholder": "Value to transform"
       }
     ]
   },
@@ -1368,6 +1226,93 @@ export const GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT: GraphNodeManifest[] = [
     "parameters": []
   },
   {
+    "kind": "core.utility.code",
+    "display": {
+      "name": "Code",
+      "description": "Runs user-authored JS/TS in a restricted VM sandbox. Supports placeholder syntax for workflow data references.",
+      "category": "Utility",
+      "labels": [
+        "utility",
+        "code",
+        "sandbox",
+        "transform"
+      ],
+      "icon": {
+        "type": "catalogue",
+        "name": "ti-code"
+      },
+      "color": "#0d9488",
+      "width": 96,
+      "height": 96
+    },
+    "inputs": [
+      {
+        "id": "code",
+        "label": "Code",
+        "direction": "input",
+        "schema": {
+          "type": "model",
+          "name": "String"
+        },
+        "required": true,
+        "handle": "code",
+        // R2-3(4): the code input carries its `@uielement("code-editor", ...)`
+        // decoration so the canvas adapter forwards it to the port field and the
+        // IDE-like editor renders instead of a plain input. Serialized shape
+        // mirrors `uielement()`: `{ tag, serialize, props: { ...props, name } }`.
+        "element": {
+          "tag": "code-editor",
+          "serialize": false,
+          "props": {
+            "label": "Code",
+            "placeholder": "// User-authored JS code",
+            "name": "code"
+          }
+        }
+      } as GraphPortManifest & { element: Record<string, unknown> },
+      {
+        "id": "data",
+        "label": "data",
+        "direction": "input",
+        "schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "hidden": true,
+        "handle": "data"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "label": "result",
+        "direction": "output",
+        "schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "required": true,
+        "handle": "result"
+      }
+    ],
+    "parameters": [
+      {
+        "type": "code",
+        "id": "code",
+        "label": "Code",
+        "required": true,
+        "placeholder": "// User-authored JS code",
+        "language": "javascript"
+      },
+      {
+        "type": "hidden",
+        "id": "data",
+        "label": "data",
+        "required": false
+      }
+    ]
+  },
+  {
     "kind": "core.utility.log",
     "display": {
       "name": "Utility Log",
@@ -1426,6 +1371,61 @@ export const GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT: GraphNodeManifest[] = [
         "id": "level",
         "label": "Log level",
         "defaultValue": "info"
+      }
+    ]
+  },
+  {
+    "kind": "core.utility.map",
+    "display": {
+      "name": "Map",
+      "description": "Transforms the current input into a new output object using the configured mapper.",
+      "category": "Utility",
+      "labels": [
+        "utility",
+        "map",
+        "transform"
+      ],
+      "icon": {
+        "type": "catalogue",
+        "name": "ti-tool"
+      },
+      "color": "#0d9488",
+      "width": 96,
+      "height": 96
+    },
+    "inputs": [
+      {
+        "id": "value",
+        "label": "Input value",
+        "direction": "input",
+        "schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "required": true,
+        "handle": "value"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "label": "Transformed output",
+        "direction": "output",
+        "schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "required": true,
+        "handle": "result"
+      }
+    ],
+    "parameters": [
+      {
+        "type": "object",
+        "id": "value",
+        "label": "Input value",
+        "required": true,
+        "placeholder": "Value to transform"
       }
     ]
   }

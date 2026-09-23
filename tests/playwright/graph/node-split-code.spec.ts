@@ -4,13 +4,11 @@ import {
   getNodePorts,
   getNodeAccentColor,
   openNodeEditor,
-  closeModal,
-  getModalTitle,
   getNodeArticle,
   isPortConnected,
 } from './helpers';
 
-test.describe('SplitTextCodeNode (core.flow.code)', () => {
+test.describe('SplitTextCodeNode (core.utility.code)', () => {
   test.beforeEach(async ({ page }) => {
     await gotoGraph(page);
   });
@@ -46,9 +44,10 @@ test.describe('SplitTextCodeNode (core.flow.code)', () => {
 
   test('renders the code field as an IDE-like CodeMirror editor (DECAF-50 r2)', async ({ page }) => {
     await openNodeEditor(page, 'SplitTextCodeNode');
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10000 });
-    const codeField = page
-      .locator('ion-modal app-graph-port-field')
+    const inspection = page.locator('.graph-node-inspection');
+    await expect(inspection).toBeVisible({ timeout: 10000 });
+    const codeField = inspection
+      .locator('app-graph-port-field')
       .filter({ hasText: 'Code' })
       .first();
 
@@ -58,52 +57,62 @@ test.describe('SplitTextCodeNode (core.flow.code)', () => {
     await expect(editor).toBeVisible();
     await expect(codeField.locator('.cm-gutters')).toBeVisible();
     await expect(codeField.locator('.cm-content[contenteditable="true"]')).toBeVisible();
-    await closeModal(page, 'cancel');
+    await inspection.locator('.graph-node-inspection__close').click();
   });
 
-  test('edit modal prefills the code field with the split code (G4-R1)', async ({ page }) => {
+  test('split view prefills the code field with the split code (G4-R1)', async ({ page }) => {
     await openNodeEditor(page, 'SplitTextCodeNode');
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10000 });
-    const codeField = page
-      .locator('ion-modal app-graph-port-field')
+    const inspection = page.locator('.graph-node-inspection');
+    await expect(inspection).toBeVisible({ timeout: 10000 });
+    const codeField = inspection
+      .locator('app-graph-port-field')
       .filter({ hasText: 'Code' })
       .first();
     const value = (await codeField.locator('.cm-content').textContent()) ?? '';
     expect(value).toContain('$input.text');
     expect(value).toContain('$input.count');
     expect(value).toContain('return chunks');
-    await closeModal(page, 'cancel');
+    await inspection.locator('.graph-node-inspection__close').click();
   });
 
-  test('edit modal disables the code checkbox (value provided directly) (G4-R3)', async ({ page }) => {
+  test('split view marks the code checkbox selected but disabled (value provided) (G4-R3/R4-9)', async ({ page }) => {
     await openNodeEditor(page, 'SplitTextCodeNode');
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10000 });
-    const ball = page
-      .locator('ion-modal app-graph-port-field .graph-port-field__ball')
+    const inspection = page.locator('.graph-node-inspection');
+    await expect(inspection).toBeVisible({ timeout: 10000 });
+    const ball = inspection
+      .locator('app-graph-port-field .graph-port-field__ball')
       .first();
     await expect(ball).toHaveClass(/graph-port-field__ball--disabled/);
+    await expect(ball).toHaveClass(/graph-port-field__ball--active/);
     await expect(ball).toHaveAttribute('aria-disabled', 'true');
     await expect(ball).toHaveAttribute(
       'title',
       'Value provided directly — clear it to connect from upstream'
     );
-    await closeModal(page, 'cancel');
+    await inspection.locator('.graph-node-inspection__close').click();
   });
 
-  test('double-click opens the node edit modal', async ({ page }) => {
+  test('double-click opens the unified split-view editor (R4-8)', async ({ page }) => {
     await openNodeEditor(page, 'SplitTextCodeNode');
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10000 });
-    const title = await getModalTitle(page);
-    expect(title).toContain('Split');
-    await closeModal(page, 'cancel');
+    const inspection = page.locator('.graph-node-inspection');
+    await expect(inspection).toBeVisible({ timeout: 10000 });
+    await expect(inspection.locator('.graph-node-inspection__identity')).toContainText(
+      'Split'
+    );
+    await expect(page.locator('ion-modal')).toBeHidden();
+    await inspection.locator('.graph-node-inspection__close').click();
   });
 
-  test('edit modal has a Code section with port fields', async ({ page }) => {
+  test('un-ran split view has a CRUD center with port fields and omits the run panes (R4-8)', async ({ page }) => {
     await openNodeEditor(page, 'SplitTextCodeNode');
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('ion-modal h3').filter({ hasText: 'Code' })).toBeVisible();
-    const portFields = page.locator('ion-modal app-graph-port-field');
-    expect(await portFields.count()).toBeGreaterThan(0);
-    await closeModal(page, 'cancel');
+    const inspection = page.locator('.graph-node-inspection');
+    await expect(inspection).toBeVisible({ timeout: 10000 });
+    await expect(
+      inspection.locator('.graph-node-inspection__pane--crud app-graph-node-inline-editor')
+    ).toBeVisible();
+    expect(await inspection.locator('app-graph-port-field').count()).toBeGreaterThan(0);
+    await expect(inspection.locator('.graph-node-inspection__pane--inputs')).toHaveCount(0);
+    await expect(inspection.locator('.graph-node-inspection__pane--outputs')).toHaveCount(0);
+    await inspection.locator('.graph-node-inspection__close').click();
   });
 });

@@ -37,7 +37,7 @@
   "nodes": [
     {
       "id": "SplitTextCodeNode",
-      "kind": "core.flow.code",
+      "kind": "core.utility.code",
       "parameters": {
         "code": "const lines = String($input.text ?? \"\").split(\"\\n\");\nconst size = Math.max(1, Number($input.count) || 1);\nconst chunks = [];\nfor (let i = 0; i < lines.length; i += size) {\n  chunks.push(lines.slice(i, i + size).join(\"\\n\"));\n}\nreturn chunks;"
       },
@@ -144,7 +144,7 @@
             },
             {
               "id": "LogEvenCodeNode",
-              "kind": "core.flow.code",
+              "kind": "core.utility.code",
               "parameters": {
                 "code": "console.log(\"Even item:\", $input.data); return $input.data;"
               },

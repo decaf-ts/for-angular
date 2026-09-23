@@ -2,7 +2,7 @@
   <button
     type="button"
     class="graph-port-field__ball"
-    [class.graph-port-field__ball--active]="useAsPort()"
+    [class.graph-port-field__ball--active]="ballSelected()"
     [class.graph-port-field__ball--disabled]="ballDisabled()"
     [disabled]="ballDisabled()"
     [attr.aria-disabled]="ballDisabled()"

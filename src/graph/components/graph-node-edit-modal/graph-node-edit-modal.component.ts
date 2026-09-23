@@ -187,7 +187,7 @@ export class GraphNodeEditModalComponent implements OnInit {
     const value = graphParameterValueOf(parameter, parameterId, raw);
     this._parameters.update((parameters) => ({ ...parameters, [parameterId]: value }));
   }
-  readonly isCodeNode = computed(() => this.nodeData?.kind === 'core.flow.code');
+  readonly isCodeNode = computed(() => this.nodeData?.kind === 'core.utility.code');
 
   readonly codeTimeoutMs = computed(() => Number(this._metadata()['timeoutMs'] ?? 1000));
 

@@ -135,12 +135,6 @@ export class GraphPage implements OnInit, OnDestroy {
   /** The palette is manifest-driven only (P7 cutover): no constructor node arrays. */
   readonly availableNodes = this.catalogService.manifests;
 
-  readonly workflowOutputs = computed(() => {
-    const result = this.lastResult();
-    if (!result) return [];
-    return Object.entries(result).map(([key, value]) => ({ key, value }));
-  });
-
   /**
    * R2-3(9)/(10): whether the canvas carries run state — any node execution
    * state or a non-idle run-result lifecycle — so the toolbar can offer the

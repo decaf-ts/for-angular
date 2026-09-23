@@ -4,8 +4,8 @@ import { graph, input, output } from '@decaf-ts/ui-decorators/graph';
 import { foreachLoopMetadata } from './loop-body-workflows';
 
 /**
- * Split Code node — composes the shared system kind `core.flow.code`
- * (`CodeFlowNode`): splits the `text` input into an array where each element
+ * Split Code node — composes the shared system kind `core.utility.code`
+ * (`CodeNode`): splits the `text` input into an array where each element
  * contains `count` input lines of `text`. The `data` input port receives the
  * `text`/`count` workflow inputs via connections. The default code
  * (`metadata.defaultCode`) is used as a fallback when the `code` input port is
@@ -27,7 +27,7 @@ const splitCodeNodeMetadata: Record<string, unknown> = {
 
 /**
  * The demo workflow root (DECAF-50 canonical frontend): composed exclusively
- * from system node kinds instantiated per-workflow — the shared `core.flow.code`
+ * from system node kinds instantiated per-workflow — the shared `core.utility.code`
  * node (Split), the shared `core.loop.foreach` node (Foreach, with the demo's
  * loop-body patch) and the shared `core.flow.log` node (Log Results).
  */
@@ -45,7 +45,7 @@ const splitCodeNodeMetadata: Record<string, unknown> = {
   nodes: [
     {
       id: 'SplitTextCodeNode',
-      kind: 'core.flow.code',
+      kind: 'core.utility.code',
       label: 'Split',
       metadata: splitCodeNodeMetadata,
     },

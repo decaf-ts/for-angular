@@ -277,9 +277,9 @@ describe('adapter projection (D4/G3-14)', () => {
     const projection = graphWorkflowDocumentCanvasModelOf(
       documentOf([
         nodeOf({ id: 'node-1', kind: 'core.flow.log', pinned: { parameters: { level: 'info' } } }),
-        nodeOf({ id: 'node-2', kind: 'core.flow.code' }),
+        nodeOf({ id: 'node-2', kind: 'core.utility.code' }),
       ]),
-      readerOf([resolvedOf('core.flow.log', { pinnable: false }), resolvedOf('core.flow.code')])
+      readerOf([resolvedOf('core.flow.log', { pinnable: false }), resolvedOf('core.utility.code')])
     );
 
     const pinned = projection.nodes.find((node) => node.id === 'node-1')!;

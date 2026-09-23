@@ -3,10 +3,10 @@
  * @summary DECAF-50 §4.22 D3 / §4.24 P0 #3 gate-2 E2E contract.
  * @description Pins the D3 ruling (PR-C) on the live demo:
  *
- *  1. Double-click ALWAYS opens CRUD — pre-run opens the edit modal, post-run
- *     opens the three-pane split view whose CENTER pane is the CRUD form, and the
- *     modal must NOT open for a ran node (regression pin for the `hasRan`
- *     takeover, G3-10).
+ *  1. Double-click ALWAYS opens ONE editor surface (R4-8): pre-run opens the
+ *     same three-pane split view with the run panes omitted, post-run opens it
+ *     with all three panes populated, and the old Ionic edit modal must NOT open
+ *     for a member node.
  *  2. A ran node shows run inputs LEFT / CRUD CENTER / run outputs RIGHT with
  *     all three populated — the "NOTHING APPEARS" regression pin (G3-11/G3-12).
  *  3. A run-result fetch miss renders an explicit empty/failed state with a retry
@@ -30,7 +30,6 @@ import {
   gotoGraph,
   getNodeArticle,
   openNodeEditor,
-  closeModal,
 } from './helpers';
 
 const RUN_ID = 'run-d3-1';
@@ -196,7 +195,7 @@ test.describe('D3 split-view node CRUD (DECAF-50 §4.22 D3 / §4.24 P0 #3)', () 
   // (`gotoGraph`), which reloads the app and resets the inspection store
   // (open node + run payloads). No scenario inherits another's state.
 
-  test('double-click always opens CRUD: pre-run modal, post-run split view with CRUD center', async ({
+  test('double-click opens the same split view before and after a run (R4-8)', async ({
     page,
   }) => {
     const backend: D3Backend = {
@@ -207,28 +206,34 @@ test.describe('D3 split-view node CRUD (DECAF-50 §4.22 D3 / §4.24 P0 #3)', () 
     await mockBackend(page, backend);
     await gotoGraph(page);
 
-    // ── Pre-run: double-click opens the edit modal (the CRUD form). ────────
+    // ── Pre-run: the SAME split view, with the run panes omitted (R4-8). ──
     await openNodeEditor(page, SPLIT);
-    await expect(page.locator('ion-modal app-graph-node-edit-modal')).toBeVisible({
-      timeout: 10_000,
-    });
-    // The split view is not the pre-run path.
-    await expect(page.locator('.graph-node-inspection')).toBeHidden();
-    await closeModal(page, 'cancel');
-    await expect(page.locator('ion-modal')).toBeHidden({ timeout: 10_000 });
+    const { inspection, inputs, crud, outputs } = panes(page);
+    await expect(inspection).toBeVisible({ timeout: 10_000 });
+    // The old pre-run Ionic edit modal is gone (R4-8).
+    await expect(page.locator('ion-modal')).toBeHidden();
+    // CENTER pane carries the editable inline CRUD form.
+    await expect(crud.locator('app-graph-node-inline-editor')).toBeVisible();
+    await expect(inspection).toHaveClass(/graph-node-inspection--crud-only/);
+    // The run input/output panes are omitted for an un-ran node.
+    await expect(inputs).toHaveCount(0);
+    await expect(outputs).toHaveCount(0);
+    await inspection.locator('.graph-node-inspection__close').click();
+    await expect(inspection).toBeHidden();
 
-    // ── Post-run: double-click opens the split view, never the modal. ───────
+    // ── Post-run: the same split view, all three panes populated. ──────────
     await startRun(page);
     const split = getNodeArticle(page, SPLIT);
     await expect(split).toHaveClass(/graph-node--succeeded/);
     await split.dblclick({ force: true });
 
-    const { inspection, crud } = panes(page);
     await expect(inspection).toBeVisible();
     // The CRUD is never removed by the run: the modal must NOT open.
     await expect(page.locator('ion-modal')).toBeHidden();
-    // CENTER pane carries the editable inline CRUD form.
     await expect(crud.locator('app-graph-node-inline-editor')).toBeVisible();
+    await expect(inputs).toBeVisible();
+    await expect(outputs).toBeVisible();
+    await expect(inspection).not.toHaveClass(/graph-node-inspection--crud-only/);
   });
 
   test('ran node split view populates all three panes (NOTHING APPEARS pin)', async ({

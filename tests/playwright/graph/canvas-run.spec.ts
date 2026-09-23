@@ -38,7 +38,6 @@ import {
   getNodeArticle,
   getNodeHost,
   openNodeEditor,
-  closeModal,
   isPortConnected,
   pinNode,
   isNodePinned,
@@ -167,21 +166,28 @@ class MockGraphServer {
     issues: { code: string; path: string; message: string }[];
   } = { valid: true, issues: [] };
 
+  /**
+   * R4-2: extra `graph.run.log` records the run streams before the terminal
+   * event. Used to prove the console renders EVERY streamed record, including a
+   * level the frontend does not model.
+   */
+  logRecords: { level: string; message: string; nodeId?: string }[] = [];
+
   /** SSE body: node/edge events live and in order, terminal strictly last. */
   sseBody(): string {
-    return (
-      sseEvent(1, 'workflow.started') +
-      sseEvent(2, 'node.stateChanged', { nodeId: SPLIT, payload: { state: 'running' } }) +
-      sseEvent(3, 'edge.stateChanged', { edgeId: INITIAL_EDGES[0], payload: { state: 'succeeded', value: 1 } }) +
-      sseEvent(4, 'edge.stateChanged', { edgeId: INITIAL_EDGES[1], payload: { state: 'succeeded', value: 'Hello\nWorld\nFoo\nBar\nBaz' } }) +
-      sseEvent(5, 'node.stateChanged', { nodeId: SPLIT, payload: { state: 'succeeded' } }) +
-      sseEvent(6, 'edge.stateChanged', { edgeId: INITIAL_EDGES[2], payload: { state: 'succeeded', value: ['Hello', 'World', 'Foo', 'Bar', 'Baz'] } }) +
-      sseEvent(7, 'node.stateChanged', { nodeId: FOREACH, payload: { state: 'running' } }) +
-      sseEvent(8, 'node.stateChanged', { nodeId: FOREACH, payload: { state: 'succeeded' } }) +
+    const frames: string[] = [
+      sseEvent(1, 'workflow.started'),
+      sseEvent(2, 'node.stateChanged', { nodeId: SPLIT, payload: { state: 'running' } }),
+      sseEvent(3, 'edge.stateChanged', { edgeId: INITIAL_EDGES[0], payload: { state: 'succeeded', value: 1 } }),
+      sseEvent(4, 'edge.stateChanged', { edgeId: INITIAL_EDGES[1], payload: { state: 'succeeded', value: 'Hello\nWorld\nFoo\nBar\nBaz' } }),
+      sseEvent(5, 'node.stateChanged', { nodeId: SPLIT, payload: { state: 'succeeded' } }),
+      sseEvent(6, 'edge.stateChanged', { edgeId: INITIAL_EDGES[2], payload: { state: 'succeeded', value: ['Hello', 'World', 'Foo', 'Bar', 'Baz'] } }),
+      sseEvent(7, 'node.stateChanged', { nodeId: FOREACH, payload: { state: 'running' } }),
+      sseEvent(8, 'node.stateChanged', { nodeId: FOREACH, payload: { state: 'succeeded' } }),
       // The NEW edge routes data into the added node; the REMOVED edge never
       // appears in the stream (it is not part of the run's document).
-      sseEvent(9, 'edge.stateChanged', { edgeId: NEW_EDGE_INTO_ADDED, payload: { state: 'running' } }) +
-      sseEvent(10, 'node.stateChanged', { nodeId: ADDED, payload: { state: 'running' } }) +
+      sseEvent(9, 'edge.stateChanged', { edgeId: NEW_EDGE_INTO_ADDED, payload: { state: 'running' } }),
+      sseEvent(10, 'node.stateChanged', { nodeId: ADDED, payload: { state: 'running' } }),
       sseEvent(11, 'graph.run.log', {
         nodeId: ADDED,
         payload: {
@@ -192,11 +198,11 @@ class MockGraphServer {
           nodeId: ADDED,
           timestamp: '2026-09-02T10:00:00.100Z',
         },
-      }) +
-      sseEvent(12, 'edge.stateChanged', { edgeId: NEW_EDGE_INTO_ADDED, payload: { state: 'succeeded', value: [5] } }) +
-      sseEvent(13, 'node.stateChanged', { nodeId: ADDED, payload: { state: 'succeeded' } }) +
-      sseEvent(14, 'edge.stateChanged', { edgeId: NEW_EDGE_OUT_OF_ADDED, payload: { state: 'succeeded', value: [5] } }) +
-      sseEvent(15, 'node.stateChanged', { nodeId: RESULT_LOG, payload: { state: 'running' } }) +
+      }),
+      sseEvent(12, 'edge.stateChanged', { edgeId: NEW_EDGE_INTO_ADDED, payload: { state: 'succeeded', value: [5] } }),
+      sseEvent(13, 'node.stateChanged', { nodeId: ADDED, payload: { state: 'succeeded' } }),
+      sseEvent(14, 'edge.stateChanged', { edgeId: NEW_EDGE_OUT_OF_ADDED, payload: { state: 'succeeded', value: [5] } }),
+      sseEvent(15, 'node.stateChanged', { nodeId: RESULT_LOG, payload: { state: 'running' } }),
       sseEvent(16, 'graph.run.log', {
         nodeId: RESULT_LOG,
         payload: {
@@ -207,11 +213,32 @@ class MockGraphServer {
           nodeId: RESULT_LOG,
           timestamp: '2026-09-02T10:00:00.200Z',
         },
-      }) +
-      sseEvent(17, 'node.stateChanged', { nodeId: RESULT_LOG, payload: { state: 'succeeded' } }) +
-      // Terminal strictly after every live node/edge event (step 11).
-      sseEvent(18, 'workflow.completed', { payload: { status: 'succeeded' } })
-    );
+      }),
+      sseEvent(17, 'node.stateChanged', { nodeId: RESULT_LOG, payload: { state: 'succeeded' } }),
+    ];
+
+    let sequence = 18;
+    for (const record of this.logRecords) {
+      const nodeId = record.nodeId ?? RESULT_LOG;
+      frames.push(
+        sseEvent(sequence, 'graph.run.log', {
+          nodeId,
+          payload: {
+            level: record.level,
+            message: record.message,
+            runId: RUN_ID,
+            workflowId: WORKFLOW_ID,
+            nodeId,
+            timestamp: '2026-09-02T10:00:00.150Z',
+          },
+        })
+      );
+      sequence += 1;
+    }
+
+    // Terminal strictly after every live node/edge/log event (step 11).
+    frames.push(sseEvent(sequence, 'workflow.completed', { payload: { status: 'succeeded' } }));
+    return frames.join('');
   }
 
   /** Stored run result echoing the run's own submitted document (§4.14). */
@@ -430,16 +457,20 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
     expect(await documentEdgeCount(page)).toBe(INITIAL_DOCUMENT_EDGES);
 
     // ── Step 3: edit a literal input on the added node ────────────────────
+    // R4-8: double-click opens the unified split view; pre-run it renders the
+    // CRUD center pane only (the run panes are omitted).
     await openNodeEditor(page, ADDED);
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10_000 });
-    const levelField = page
-      .locator('ion-modal .graph-node-edit-modal__param-row')
+    const addedInspection = page.locator('.graph-node-inspection');
+    await expect(addedInspection).toBeVisible({ timeout: 10_000 });
+    const levelField = addedInspection
+      .locator('.graph-node-inline-editor__param-row')
       .filter({ hasText: 'Log level' })
       .first();
     await expect(levelField).toBeVisible();
     await levelField.locator('ion-input input').fill(EDITED_LITERAL);
-    await closeModal(page, 'save');
-    await expect(page.locator('ion-modal')).toBeHidden({ timeout: 10_000 });
+    await addedInspection.locator('.graph-node-inline-editor__save').click();
+    await addedInspection.locator('.graph-node-inspection__close').click();
+    await expect(addedInspection).toBeHidden({ timeout: 10_000 });
 
     // ── Step 3.5: pin the added node (D4 data pinning) ───────────────────
     // The pin freezes the node's parameter values into the canonical document.
@@ -502,13 +533,14 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
     expect(await isPortConnected(page, ADDED, 'logged')).toBe(true);
     // The edited literal restored: reopening the editor shows `level` = warn.
     await openNodeEditor(page, ADDED);
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10_000 });
-    const restoredLevel = page
-      .locator('ion-modal .graph-node-edit-modal__param-row')
+    const restoredInspection = page.locator('.graph-node-inspection');
+    await expect(restoredInspection).toBeVisible({ timeout: 10_000 });
+    const restoredLevel = restoredInspection
+      .locator('.graph-node-inline-editor__param-row')
       .filter({ hasText: 'Log level' })
       .first();
     await expect(restoredLevel.locator('ion-input input')).toHaveValue(EDITED_LITERAL);
-    await closeModal(page, 'cancel');
+    await restoredInspection.locator('.graph-node-inspection__close').click();
 
     // The persisted wrapper itself carries the edited literal + new edges.
     const savedDocument = server.savedWrapper!.document;
@@ -574,12 +606,14 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
     await expect(logs.locator('.graph-logs__entry').filter({ hasText: 'logged routed results' })).toHaveCount(1);
     await expect(page.locator('.graph-page__backend-warning')).toBeHidden();
 
-    // Step 12: the final output reflects the edited canvas.
-    const outputs = page.locator('.graph-page__outputs');
+    // Step 12: the final output reflects the edited canvas. The page-level
+    // "Execution outputs" duplicate is gone (R4-1); the renderer's own
+    // "Run result" side panel is the single outputs surface.
+    const outputs = page.locator('.graph-renderer__side--outputs');
     await expect(outputs).toBeVisible({ timeout: 20_000 });
-    await expect(outputs.locator('article.graph-page__output').filter({ hasText: 'result' })).toContainText(
-      'Hello'
-    );
+    await expect(
+      outputs.locator('.graph-renderer__port-card--output').filter({ hasText: 'result' })
+    ).toContainText('Hello');
     // The added node's stored result carries the edited literal as its input.
     const addedNode = getNodeArticle(page, ADDED);
     await addedNode.dblclick({ force: true });
@@ -605,6 +639,42 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
     const savedHash = semanticHash(savedDocument);
     const runHash = semanticHash(runDocument);
     expect(runHash, `saved document hash ${savedHash} must equal run document hash`).toBe(savedHash);
+  });
+
+  test('renders EVERY streamed log record in the run console (R4-2)', async ({ page }) => {
+    test.setTimeout(120_000);
+    const server = new MockGraphServer();
+    // A known set spanning the modelled severities plus one the frontend does
+    // not model: the console must render them all (no silent drops).
+    server.logRecords = [
+      { level: 'silly', message: 'log-record-0-silly' },
+      { level: 'trace', message: 'log-record-1-trace' },
+      { level: 'debug', message: 'log-record-2-debug' },
+      { level: 'verbose', message: 'log-record-3-verbose' },
+      { level: 'info', message: 'log-record-4-info' },
+      { level: 'warn', message: 'log-record-5-warn' },
+      { level: 'error', message: 'log-record-6-error' },
+      { level: 'unmodelled', message: 'log-record-7-unmodelled' },
+    ];
+    await installMockBackend(page, server);
+
+    await gotoGraph(page);
+    const runButton = page.locator('button.graph-float-btn--run');
+    await expect(runButton).toBeEnabled();
+    await runButton.click();
+    await expect.poll(() => (server.runCreateRequest ? 1 : 0)).toBe(1);
+
+    const logs = page.locator('.graph-logs');
+    await expect(logs).toBeVisible({ timeout: 20_000 });
+    // The two records baked into the base stream plus every extra record.
+    await expect(logs.locator('.graph-logs__entry')).toHaveCount(server.logRecords.length + 2, {
+      timeout: 20_000,
+    });
+    for (const record of server.logRecords) {
+      await expect(
+        logs.locator('.graph-logs__entry').filter({ hasText: record.message })
+      ).toHaveCount(1);
+    }
   });
 
   test('gates Run on an invalid graph: canvas invalid, issue banner, no run submitted (D5/§4.22)', async ({ page }) => {

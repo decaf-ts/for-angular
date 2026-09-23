@@ -120,6 +120,18 @@ export const GRAPH_LOG_FILTER_THRESHOLD: Record<GraphLogFilterLevel, number> = {
 const MAX_ENTRIES = 500;
 
 /**
+ * R4-2: resolves the console severity of a streamed entry. An entry whose
+ * `level` is outside the known {@link GRAPH_LOG_LEVEL_SEVERITY} map (e.g. a level
+ * the backend emits that the frontend does not model) is treated as the noisiest
+ * level rather than as `undefined`, so it can never be silently dropped by the
+ * severity threshold comparison (`undefined >= threshold` is always `false`).
+ */
+export function graphLogSeverityOf(level: GraphRunLogEntry['level']): number {
+  const severity = GRAPH_LOG_LEVEL_SEVERITY[level as LogNodeLevel | "benchmark"];
+  return typeof severity === "number" ? severity : 0;
+}
+
+/**
  * Angular-signal store backing the bottom-docked run log drawer. Holds the
  * streamed `GRAPH_RUN_LOG` entries, the run-lifecycle lines (D6), the console
  * open/collapsed/filter UI state, and the derived projections
@@ -147,7 +159,7 @@ class GraphRunLogStore {
   readonly visibleEntries = computed(() => {
     const threshold = GRAPH_LOG_FILTER_THRESHOLD[this.filter()];
     return this.entries().filter(
-      (entry) => GRAPH_LOG_LEVEL_SEVERITY[entry.level] >= threshold,
+      (entry) => graphLogSeverityOf(entry.level) >= threshold,
     );
   });
 
@@ -160,8 +172,9 @@ class GraphRunLogStore {
     let warnings = 0;
     let errors = 0;
     for (const entry of this.entries()) {
-      if (GRAPH_LOG_LEVEL_SEVERITY[entry.level] >= 6) errors++;
-      if (GRAPH_LOG_LEVEL_SEVERITY[entry.level] >= 5) warnings++;
+      const severity = graphLogSeverityOf(entry.level);
+      if (severity >= 6) errors++;
+      if (severity >= 5) warnings++;
     }
     return { total, warnings, errors };
   });

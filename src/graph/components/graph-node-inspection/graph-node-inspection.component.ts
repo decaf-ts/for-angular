@@ -172,6 +172,16 @@ export class GraphNodeInspectionComponent {
   /** Whether a run payload exists for the open node (G3-12). */
   protected readonly hasPayload = computed(() => this.payload() !== null);
 
+  /**
+   * R4-8: whether the split view renders its run panes. A node that has run
+   * (or whose result is still being fetched) shows run inputs LEFT and run
+   * outputs RIGHT; a node that has not run shows the same split view with only
+   * the CRUD center pane, so un-ran and ran nodes share one editor surface.
+   */
+  protected readonly showRunPanes = computed(
+    () => this.hasPayload() || this.runState() !== 'idle'
+  );
+
   /** Whether the open node's run result fetch failed (G3-12/G3-33). */
   protected readonly runFailed = computed(() => this.runState() === 'failed');
 

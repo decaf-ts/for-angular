@@ -51,4 +51,17 @@ test.describe('Graph — palette search (G4-R6)', () => {
     await page.locator('.graph-renderer__palette-search-clear').click();
     await expect(page.locator('.graph-renderer__palette-item')).toHaveCount(total);
   });
+
+  test('focuses the search field when the node add list opens (R4-3)', async ({ page }) => {
+    await expect(page.locator('.graph-renderer__palette-search-input')).toBeFocused();
+  });
+
+  test('closes the node add list on an outside click (R4-3)', async ({ page }) => {
+    await expect(page.locator('.graph-renderer__palette-popup')).toBeVisible();
+    // Click a point outside the palette root (the workflow-inputs side panel).
+    await page
+      .locator('.graph-renderer__side--inputs .graph-renderer__side-header h2')
+      .click();
+    await expect(page.locator('.graph-renderer__palette-popup')).toBeHidden();
+  });
 });

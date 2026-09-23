@@ -12,7 +12,7 @@ export interface NodeInfo {
 export const DEMO_NODES: NodeInfo[] = [
   { id: 'input-count', title: 'count', kind: 'value', isBoundary: true },
   { id: 'input-text', title: 'text', kind: 'value', isBoundary: true },
-  { id: 'SplitTextCodeNode', title: 'Split', kind: 'core.flow.code' },
+  { id: 'SplitTextCodeNode', title: 'Split', kind: 'core.utility.code' },
   { id: 'GraphForeachLoopNode', title: 'Foreach', kind: 'core.loop.foreach' },
   { id: 'ResultLogNode', title: 'Log Results', kind: 'core.flow.log' },
   { id: 'output-result', title: 'result', kind: 'value', isBoundary: true },

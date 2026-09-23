@@ -46,7 +46,7 @@ const logEvenNodeMetadata = {
  * Foreach body workflow — processes a single item from the foreach input
  * array. Receives `item` and `index` as workflow inputs (seeded by the
  * Foreach executor). Composed exclusively from system node kinds
- * (`core.flow.switch`, `core.flow.code`, `core.flow.log`): the body **starts
+ * (`core.flow.switch`, `core.utility.code`, `core.flow.log`): the body **starts
  * with a Log node** (G4-R2) that logs every element of the array produced by the
  * code node, then the Switch node routes even-indexed items to the Code node (which
  * logs and forwards) and odd-indexed items to the Log node (which logs and
@@ -76,7 +76,7 @@ const logEvenNodeMetadata = {
     },
     {
       id: 'LogEvenCodeNode',
-      kind: 'core.flow.code',
+      kind: 'core.utility.code',
       label: 'Log Even',
       metadata: logEvenNodeMetadata,
     },

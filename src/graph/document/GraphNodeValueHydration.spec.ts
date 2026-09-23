@@ -43,19 +43,19 @@ const MANIFESTS = GRAPH_NODE_MANIFEST_FIXTURES;
 function nodeOf(overrides: Partial<GraphNodeInstance> = {}): GraphNodeInstance {
   return {
     id: 'node-1',
-    kind: 'core.flow.code',
+    kind: 'core.utility.code',
     label: 'Node',
     parameters: {},
     ...overrides,
   } as GraphNodeInstance;
 }
 
-/** A `core.flow.code` manifest carrying a required `code` code parameter. */
+/** A `core.utility.code` manifest carrying a required `code` code parameter. */
 function codeManifestOf(
   overrides: Partial<GraphNodeManifest> = {}
 ): GraphNodeManifest {
   return {
-    kind: 'core.flow.code',
+    kind: 'core.utility.code',
     display: { name: 'Code', category: 'Utility' },
     inputs: [{ id: 'code', label: 'Code', direction: 'input', required: true }],
     outputs: [{ id: 'result', label: 'result', direction: 'output', required: true }],
@@ -233,7 +233,7 @@ describe('hydrateGraphNodeInstanceValues (R2-1)', () => {
 describe('hydrateGraphWorkflowDocumentValues (R2-1)', () => {
   it('maps manifests by kind and hydrates every matching node', () => {
     const document = documentOf([
-      nodeOf({ id: 'code-node', kind: 'core.flow.code' }),
+      nodeOf({ id: 'code-node', kind: 'core.utility.code' }),
       nodeOf({ id: 'log-node', kind: 'core.utility.log' }),
     ]);
 
@@ -266,7 +266,7 @@ describe('hydrateGraphWorkflowDocumentValues (R2-1)', () => {
   it('records an edge binding for every node with an incoming data edge', () => {
     const document = documentOf(
       [
-        nodeOf({ id: 'source-node', kind: 'core.flow.code' }),
+        nodeOf({ id: 'source-node', kind: 'core.utility.code' }),
         nodeOf({ id: 'target-node', kind: 'core.flow.log' }),
       ],
       [

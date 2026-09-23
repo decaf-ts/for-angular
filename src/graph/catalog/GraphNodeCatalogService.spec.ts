@@ -45,7 +45,7 @@ function buildService(source: Partial<GraphNodeCatalogSource>): GraphNodeCatalog
 describe('GraphNodeCatalogService (G3-26/G3-27 status surface)', () => {
   it('lands ready with the manifests and no failure on a healthy load', async () => {
     const service = buildService({
-      fetchManifests: jest.fn(async () => [manifest('core.flow.code')]),
+      fetchManifests: jest.fn(async () => [manifest('core.utility.code')]),
     });
 
     await service.refresh();
@@ -54,7 +54,7 @@ describe('GraphNodeCatalogService (G3-26/G3-27 status surface)', () => {
     // empty the palette while a count-only assertion still passed.
     expect(service.status()).toBe('ready');
     expect(service.failure()).toBeNull();
-    expect(service.manifests().map((item) => item.kind)).toEqual(['core.flow.code']);
+    expect(service.manifests().map((item) => item.kind)).toEqual(['core.utility.code']);
   });
 
   it('lands degraded with the source failure class when the source degrades gracefully', async () => {
@@ -63,7 +63,7 @@ describe('GraphNodeCatalogService (G3-26/G3-27 status surface)', () => {
       message: 'backend offline',
     };
     const service = buildService({
-      fetchManifests: jest.fn(async () => [manifest('core.flow.code')]),
+      fetchManifests: jest.fn(async () => [manifest('core.utility.code')]),
       failure: () => failure,
     });
 
@@ -106,7 +106,7 @@ describe('GraphNodeCatalogService (G3-26/G3-27 status surface)', () => {
     const service = buildService({
       fetchManifests: jest.fn(async () => {
         if (fail) throw new GraphCatalogueUnavailableError('GET graph/node-types');
-        return [manifest('core.flow.code')];
+        return [manifest('core.utility.code')];
       }),
     });
 
@@ -121,7 +121,7 @@ describe('GraphNodeCatalogService (G3-26/G3-27 status surface)', () => {
   });
 
   it('load is idempotent: it never refetches a populated store', async () => {
-    const fetchManifests = jest.fn(async () => [manifest('core.flow.code')]);
+    const fetchManifests = jest.fn(async () => [manifest('core.utility.code')]);
     const service = buildService({ fetchManifests });
 
     await service.load();

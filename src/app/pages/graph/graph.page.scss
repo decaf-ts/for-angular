@@ -50,41 +50,6 @@
   font-weight: 600;
 }
 
-.graph-page__outputs {
-  margin: 1rem 1.25rem;
-  padding: 1.25rem;
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  border-radius: 18px;
-  background: rgba(15, 23, 42, 0.72);
-}
-
-.graph-page__outputs h2 {
-  margin: 0 0 0.8rem;
-  color: #f8fafc;
-  font-size: 1rem;
-}
-
-.graph-page__output {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.6rem 0.8rem;
-  margin-bottom: 0.5rem;
-  border-radius: 10px;
-  background: rgba(2, 6, 23, 0.5);
-}
-
-.graph-page__output strong {
-  color: #86efac;
-  font-size: 0.85rem;
-}
-
-.graph-page__output span {
-  color: rgba(226, 232, 240, 0.85);
-  font-size: 0.82rem;
-  word-break: break-word;
-}
-
 .graph-page app-graph-renderer {
   display: block;
   width: 100%;

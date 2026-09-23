@@ -49,6 +49,14 @@ export class GraphPortFieldComponent implements OnInit {
   readonly ballDisabled = computed(
     () => this.isInput() && !this.useAsPort() && this._value().trim().length > 0
   );
+  /**
+   * R4-9 checkbox state: the input is always "bound" once it either carries a
+   * user-provided value (value mode) or is exposed as a port (port mode), so the
+   * checkbox renders selected in both cases. A value-provided input keeps the
+   * checkbox selected but disabled — the port stays invisible/unusable, enforcing
+   * the value-XOR-port exclusivity.
+   */
+  readonly ballSelected = computed(() => this.useAsPort() || this.ballDisabled());
   readonly portLabel = computed(() => this.field?.port?.name ?? '');
   readonly fieldLabel = computed(() => this.field?.label ?? '');
   readonly fieldType = computed(() => this.field?.type ?? 'text');

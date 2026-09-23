@@ -91,7 +91,7 @@ function manifest(kind: string): GraphNodeManifest {
   } as unknown as GraphNodeManifest;
 }
 
-const MANIFEST_A = manifest('core.flow.code');
+const MANIFEST_A = manifest('core.utility.code');
 const MANIFEST_B = manifest('core.loop.foreach');
 const MANIFEST_C = manifest('core.trigger.manual');
 
@@ -155,19 +155,19 @@ describe('GraphRunCatalogBinding (DECAF-50 §4.19 — GRAPH_NODE_CATALOG_SOURCE 
       store.setManifests([MANIFEST_C, MANIFEST_A, MANIFEST_B]);
 
       expect(store.all().map((entry) => entry.kind)).toEqual([
-        'core.flow.code',
         'core.loop.foreach',
         'core.trigger.manual',
+        'core.utility.code',
       ]);
       // Deterministic regardless of insertion order.
       store.setManifests([MANIFEST_B, MANIFEST_C, MANIFEST_A]);
       expect(store.all().map((entry) => entry.kind)).toEqual([
-        'core.flow.code',
         'core.loop.foreach',
         'core.trigger.manual',
+        'core.utility.code',
       ]);
-      expect(store.digest()).toBe('core.flow.code,core.loop.foreach,core.trigger.manual');
-      expect(store.get('core.flow.code')).toBe(MANIFEST_A);
+      expect(store.digest()).toBe('core.loop.foreach,core.trigger.manual,core.utility.code');
+      expect(store.get('core.utility.code')).toBe(MANIFEST_A);
       expect(store.get('missing.kind')).toBeUndefined();
     });
 
@@ -182,12 +182,12 @@ describe('GraphRunCatalogBinding (DECAF-50 §4.19 — GRAPH_NODE_CATALOG_SOURCE 
       store.setManifests([MANIFEST_A]);
 
       const instance = {
-        kind: 'core.flow.code',
+        kind: 'core.utility.code',
         parameters: { cases: [{ outputPort: 'alpha', label: 'Alpha' }] },
       } as unknown as Pick<GraphNodeInstance, 'kind' | 'parameters' | 'metadata'>;
       const resolved = store.resolve(instance);
 
-      expect(resolved.kind).toBe('core.flow.code');
+      expect(resolved.kind).toBe('core.utility.code');
       expect(resolved.outputs.map((port) => port.id)).toContain('alpha');
 
       expect(() =>
@@ -228,10 +228,10 @@ describe('GraphRunCatalogBinding (DECAF-50 §4.19 — GRAPH_NODE_CATALOG_SOURCE 
       );
       expect(store.signals.status()).toBe('ready');
       expect(service.all().map((entry) => entry.kind)).toEqual([
-        'core.flow.code',
         'core.trigger.manual',
+        'core.utility.code',
       ]);
-      expect(store.digest()).toBe('core.flow.code,core.trigger.manual');
+      expect(store.digest()).toBe('core.trigger.manual,core.utility.code');
 
       // Idempotent load: the store keeps its manifests without a second fetch.
       await service.load();
@@ -295,17 +295,17 @@ describe('GraphRunCatalogBinding (DECAF-50 §4.19 — GRAPH_NODE_CATALOG_SOURCE 
 
     it('invokes declared node methods through POST /graph/node-types/:kind/methods/:method', async () => {
       globalThis.fetch = jest.fn((url: string, init?: RequestInit) =>
-        url === `${BACKEND_URL}/graph/node-types/core.flow.code/methods/run`
+        url === `${BACKEND_URL}/graph/node-types/core.utility.code/methods/run`
           ? Promise.resolve(httpResponse({ echoed: true }))
           : Promise.reject(new Error(`unexpected fetch: ${url}`)),
       ) as never as jest.Mock;
       globalThis.fetch = globalThis.fetch as never as typeof globalThis.fetch;
 
-      const result = await service.invokeMethod('core.flow.code', 'run', { count: 1 });
+      const result = await service.invokeMethod('core.utility.code', 'run', { count: 1 });
 
       expect(result).toEqual({ echoed: true });
       expect(globalThis.fetch).toHaveBeenCalledWith(
-        `${BACKEND_URL}/graph/node-types/core.flow.code/methods/run`,
+        `${BACKEND_URL}/graph/node-types/core.utility.code/methods/run`,
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -324,10 +324,10 @@ describe('GraphRunCatalogBinding (DECAF-50 §4.19 — GRAPH_NODE_CATALOG_SOURCE 
       await service.load();
 
       const resolved = await service.resolve({
-        kind: 'core.flow.code',
+        kind: 'core.utility.code',
         parameters: { cases: [{ outputPort: 'beta' }] },
       } as never);
-      expect(resolved.kind).toBe('core.flow.code');
+      expect(resolved.kind).toBe('core.utility.code');
       expect(resolved.outputs.map((port) => port.id)).toContain('beta');
 
       await expect(

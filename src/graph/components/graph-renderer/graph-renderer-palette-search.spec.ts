@@ -22,7 +22,7 @@ import { GRAPH_DEV_MODE } from '../../tokens/graph-configuration.tokens';
 class DummyRoot {}
 
 const MANIFESTS = [
-  { kind: 'core.flow.code', display: { name: 'Split text', category: 'Utility' } },
+  { kind: 'core.utility.code', display: { name: 'Split text', category: 'Utility' } },
   { kind: 'core.loop.foreach', display: { name: 'Foreach', category: 'Loop' } },
   { kind: 'core.flow.log', display: { name: 'Log Results', category: 'Utility' } },
 ] as unknown as GraphNodeManifest[];
@@ -92,11 +92,11 @@ describe('GraphRendererComponent — palette search (G4-R6)', () => {
     const fixture = render();
     const component = fixture.componentInstance;
 
-    component.onPaletteQueryChange('core.flow.code');
+    component.onPaletteQueryChange('core.utility.code');
     fixture.detectChanges();
 
     expect(component.filteredPaletteEntries().map((entry) => entry.kind)).toEqual([
-      'core.flow.code',
+      'core.utility.code',
     ]);
   });
 

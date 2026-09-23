@@ -30,7 +30,7 @@ describe('graph adapter', () => {
     expect(summary.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ kind: 'workflow', count: 1 }),
-        expect.objectContaining({ kind: 'core.flow.code', count: 1 }),
+        expect.objectContaining({ kind: 'core.utility.code', count: 1 }),
         expect.objectContaining({ kind: 'core.loop.foreach', count: 1 }),
         expect.objectContaining({ kind: 'core.flow.log', count: 1 }),
         expect.objectContaining({ kind: 'value', count: 1 }),
@@ -117,7 +117,7 @@ describe('graph adapter', () => {
         }),
         expect.objectContaining({
           id: 'SplitTextCodeNode',
-          type: 'core.flow.code',
+          type: 'core.utility.code',
         }),
       ])
     );

@@ -329,17 +329,20 @@ test.describe('graph run return-to-edit & faded-node interaction (R2-3(9)/(10))'
     await expect(split).not.toHaveClass(/graph-node--succeeded/);
   });
 
-  test('R2-3(10) a faded (skipped) node still opens its run I/O and keeps its actions usable', async ({ page }) => {
+  test('R4-5 a skipped (executed) node gets a green outline without fading and keeps its actions usable', async ({ page }) => {
     await mockBackend(page, { body: skippedRunBody() });
     await gotoGraph(page);
     await startRun(page);
 
-    // The skipped node is faded (executed), not removed from interaction.
+    // The skipped node ran (the engine short-circuited it), so it keeps full
+    // opacity and gets the same green outline as every other executed node — the
+    // old fade made executed nodes harder to read.
     const skipped = getNodeArticle(page, 'ResultLogNode');
     await expect(skipped).toHaveClass(/graph-node--skipped/);
-    await expect(skipped).toHaveCSS('opacity', '0.35');
+    await expect(skipped).toHaveCSS('opacity', '1');
+    await expect(skipped).toHaveCSS('border-color', 'rgb(34, 197, 94)');
 
-    // Double-clicking a faded node still routes to the D3 split view with I/O.
+    // Double-clicking an executed node still routes to the D3 split view with I/O.
     await skipped.dblclick({ force: true });
     const inspection = page.locator('.graph-node-inspection');
     await expect(inspection).toBeVisible();

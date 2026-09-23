@@ -114,6 +114,16 @@ export class GraphRendererComponent {
   readonly model = signal<ReturnType<typeof buildGraphRendererModel> | null>(null);
   /** Palette root (button + popup): the outside-click close target (R2-3(5)). */
   @ViewChild('paletteRoot') private paletteRoot?: ElementRef<HTMLElement>;
+
+  /**
+   * R4-3: the palette search input is focused as soon as the popup renders so a
+   * keyboard-first user can start typing the node name immediately. The `@if`
+   * around the popup recreates the input on each open, re-firing the setter.
+   */
+  @ViewChild('paletteSearch')
+  set paletteSearchInput(ref: ElementRef<HTMLInputElement> | undefined) {
+    if (ref) queueMicrotask(() => ref.nativeElement.focus());
+  }
   private skipNextModelSync = false;
   /**
    * Highest document version already reconciled to the canvas. Reconcile runs
@@ -251,16 +261,17 @@ export class GraphRendererComponent {
     ['core.flow.switch', GraphNodeTemplateComponent],
     ['core.flow.parallel', GraphNodeTemplateComponent],
     ['core.flow.merge', GraphNodeTemplateComponent],
-    ['core.flow.map', GraphNodeTemplateComponent],
     ['core.flow.delay', GraphNodeTemplateComponent],
     ['core.flow.errorBoundary', GraphNodeTemplateComponent],
     ['core.flow.humanApproval', GraphNodeTemplateComponent],
     ['core.flow.return', GraphNodeTemplateComponent],
-    ['core.flow.code', GraphNodeTemplateComponent],
     ['core.flow.log', GraphNodeTemplateComponent],
     ['core.flow.break', GraphNodeTemplateComponent],
-    // Utility node (DECAF-48 §4.4): the DECAF-50 demo fixture adds a text-log
-    // node to the mandated canvas→run proof.
+    // Utility nodes (DECAF-48 §4.4): the DECAF-50 demo fixture adds a text-log
+    // node to the mandated canvas→run proof, and the Code/Map nodes are
+    // reclassified out of `core.flow.*` (DECAF-50 R2).
+    ['core.utility.code', GraphNodeTemplateComponent],
+    ['core.utility.map', GraphNodeTemplateComponent],
     ['core.utility.log', GraphNodeTemplateComponent],
     // Agent node (DECAF-32 §21.3)
     ['core.agent', GraphNodeTemplateComponent],

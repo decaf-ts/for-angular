@@ -339,4 +339,74 @@ describe('GraphRendererComponent — add-node interaction (G4-R5)', () => {
       expect(component.paletteOpen()).toBe(false);
     });
   });
+
+  /**
+   * R4-3 round-4 palette-search focus: opening the palette (either through the
+   * toggle button or a drag-to-canvas release) focuses the search input so the
+   * user can type the node name immediately without a second click.
+   */
+  describe('palette search autofocus (R4-3)', () => {
+    const FOCUS_TEMPLATE = `
+      <div #paletteRoot class="graph-renderer__palette">
+        <button
+          type="button"
+          class="graph-renderer__palette-btn"
+          (click)="togglePalette()"
+        >
+          + Add node
+        </button>
+        @if (paletteOpen()) {
+          <div class="graph-renderer__palette-popup">
+            <input
+              #paletteSearch
+              class="graph-renderer__palette-search-input"
+              type="search"
+            />
+          </div>
+        }
+      </div>
+    `;
+
+    it('focuses the search input once the palette opens', async () => {
+      const fixture = render(storeStub(), FOCUS_TEMPLATE);
+      const component = fixture.componentInstance;
+
+      component.togglePalette();
+      fixture.detectChanges();
+      await Promise.resolve();
+
+      const input = fixture.nativeElement.querySelector(
+        '.graph-renderer__palette-search-input'
+      ) as HTMLInputElement;
+      expect(input).not.toBeNull();
+      expect(document.activeElement).toBe(input);
+    });
+
+    it('focuses the search input when the palette opens from a drag release', async () => {
+      const fixture = render(storeStub(), FOCUS_TEMPLATE);
+      const component = fixture.componentInstance;
+
+      component.onEdgeDrawEnded({
+        success: false,
+        reason: 'noTarget',
+        source: { id: 'node-a' },
+        sourcePort: 'result',
+        dropPosition: { x: 10, y: 20 },
+      } as never);
+      fixture.detectChanges();
+      await Promise.resolve();
+
+      expect(component.paletteOpen()).toBe(true);
+      expect(document.activeElement).toBe(
+        fixture.nativeElement.querySelector('.graph-renderer__palette-search-input')
+      );
+    });
+
+    it('renders no search input while the palette stays closed', () => {
+      const fixture = render(storeStub(), FOCUS_TEMPLATE);
+      expect(
+        fixture.nativeElement.querySelector('.graph-renderer__palette-search-input')
+      ).toBeNull();
+    });
+  });
 });

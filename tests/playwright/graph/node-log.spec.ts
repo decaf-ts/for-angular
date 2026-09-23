@@ -4,8 +4,6 @@ import {
   getNodePorts,
   getNodeAccentColor,
   openNodeEditor,
-  closeModal,
-  getModalTitle,
   getNodeArticle,
   isPortConnected,
 } from './helpers';
@@ -47,20 +45,29 @@ test.describe('LogFlowNode — ResultLogNode (core.flow.log)', () => {
     expect(outputs).toContain('logged');
   });
 
-  test('double-click opens the node edit modal', async ({ page }) => {
+  test('double-click opens the unified split-view editor (R4-8)', async ({ page }) => {
     await openNodeEditor(page, LOG);
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10000 });
-    const title = await getModalTitle(page);
-    expect(title).toContain('Log Results');
-    await closeModal(page, 'cancel');
+    const inspection = page.locator('.graph-node-inspection');
+    await expect(inspection).toBeVisible({ timeout: 10000 });
+    await expect(inspection.locator('.graph-node-inspection__identity')).toContainText(
+      'Log Results'
+    );
+    // The old pre-run Ionic edit modal is gone (R4-8).
+    await expect(page.locator('ion-modal')).toBeHidden();
+    await inspection.locator('.graph-node-inspection__close').click();
+    await expect(inspection).toBeHidden();
   });
 
-  test('edit modal has an Inputs section with port fields', async ({ page }) => {
+  test('un-ran split view has a CRUD center and omits the run panes (R4-8)', async ({ page }) => {
     await openNodeEditor(page, LOG);
-    await expect(page.locator('ion-modal')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('ion-modal h3').filter({ hasText: 'Inputs' })).toBeVisible();
-    const portFields = page.locator('ion-modal app-graph-port-field');
-    expect(await portFields.count()).toBeGreaterThan(0);
-    await closeModal(page, 'cancel');
+    const inspection = page.locator('.graph-node-inspection');
+    await expect(inspection).toBeVisible({ timeout: 10000 });
+    await expect(inspection).toHaveClass(/graph-node-inspection--crud-only/);
+    await expect(
+      inspection.locator('.graph-node-inspection__pane--crud app-graph-node-inline-editor')
+    ).toBeVisible();
+    await expect(inspection.locator('.graph-node-inspection__pane--inputs')).toHaveCount(0);
+    await expect(inspection.locator('.graph-node-inspection__pane--outputs')).toHaveCount(0);
+    await inspection.locator('.graph-node-inspection__close').click();
   });
 });

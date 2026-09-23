@@ -187,7 +187,7 @@ describe('GraphNodeTemplateComponent — hasRan run-state mapping (R2-3(10))', (
     expect(fixture.componentInstance.hasRan()).toBe(false);
   });
 
-  it('is true for a skipped (faded) node', () => {
+  it('is true for a skipped (executed) node', () => {
     graphExecutionState.setNodeState('n1', { status: 'skipped' });
     const fixture = renderNode('n1');
 

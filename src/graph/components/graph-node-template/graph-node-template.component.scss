@@ -94,6 +94,9 @@
 
 .graph-node--succeeded {
   border-color: #22c55e;
+  box-shadow:
+    0 12px 30px rgba(34, 197, 94, 0.22),
+    0 0 0 2px rgba(34, 197, 94, 0.3);
 }
 
 .graph-node--failed {
@@ -104,11 +107,13 @@
 }
 
 .graph-node--skipped {
-  opacity: 0.35;
-  filter: grayscale(0.7);
-  /* R2-3(10): faded means executed, never disabled — a faded node must still
-     accept double-click (D3 split view) and keep its x/pin buttons usable. The
-     old `pointer-events: none` swallowed every interaction. */
+  /* R4-5: a skipped node still ran (the engine short-circuited it), so it gets
+     the same green outline as every other executed node. The old
+     opacity/grayscale fade made executed nodes harder to read. */
+  border-color: #22c55e;
+  box-shadow:
+    0 12px 30px rgba(34, 197, 94, 0.2),
+    0 0 0 2px rgba(34, 197, 94, 0.25);
 }
 
 /* D5/G3-16: a node carrying a structured validation issue is highlighted on
@@ -121,7 +126,10 @@
 }
 
 .graph-node--cached {
-  border-color: #6366f1;
+  border-color: #22c55e;
+  box-shadow:
+    0 12px 30px rgba(34, 197, 94, 0.2),
+    0 0 0 2px rgba(34, 197, 94, 0.25);
 }
 
 @keyframes graph-node-pulse {

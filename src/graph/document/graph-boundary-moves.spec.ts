@@ -23,7 +23,7 @@ import type { GraphNodeManifestReader } from '../catalog/GraphNodeCatalogReader'
 
 function codeResolved(): GraphResolvedNodeManifest {
   return {
-    kind: 'core.flow.code',
+    kind: 'core.utility.code',
     display: { name: 'Code', category: 'Utility', width: 96, height: 96 },
     inputs: [
       { id: 'data', label: 'Data', direction: 'input', required: false },
@@ -64,7 +64,7 @@ function demoDocument(): GraphWorkflowDocument {
     inputs: [{ id: 'count', label: 'count' }],
     outputs: [{ id: 'result', label: 'result' }],
     nodes: [
-      { id: 'SplitTextCodeNode', kind: 'core.flow.code', label: 'Split', parameters: {} },
+      { id: 'SplitTextCodeNode', kind: 'core.utility.code', label: 'Split', parameters: {} },
       { id: 'ResultLogNode', kind: 'core.flow.log', label: 'Log Results', parameters: {} },
     ],
     edges: [

@@ -148,6 +148,25 @@ describe('GraphPortFieldComponent — IDE-like code input routing (DECAF-50 roun
     expect(fixture.componentInstance.ballDisabled()).toBe(false);
   });
 
+  it('selects the ball but keeps it disabled when a direct input value is present (R4-9)', () => {
+    const fixture = render(config({ value: 'const a = 1;' }));
+
+    expect(fixture.componentInstance.ballSelected()).toBe(true);
+    expect(fixture.componentInstance.ballDisabled()).toBe(true);
+    const ball = fixture.nativeElement.querySelector(
+      '.graph-port-field__ball'
+    ) as HTMLButtonElement;
+    expect(ball.classList.contains('graph-port-field__ball--active')).toBe(true);
+    expect(ball.disabled).toBe(true);
+  });
+
+  it('does not select the ball for an empty input', () => {
+    const fixture = render(config());
+
+    expect(fixture.componentInstance.ballSelected()).toBe(false);
+    expect(fixture.componentInstance.ballDisabled()).toBe(false);
+  });
+
   it('emits the edited code and current useAsPort on code change', () => {
     const fixture = render(config());
     const emitted: { property: string; value: unknown; useAsPort: boolean }[] = [];

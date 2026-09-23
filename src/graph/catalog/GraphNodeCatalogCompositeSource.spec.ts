@@ -62,7 +62,7 @@ describe('GraphNodeCatalogCompositeSource (G3-27 failure classes)', () => {
     const fixed = {
       fetchManifests: jest.fn(async () => {
         calls.push('fixtures');
-        return [manifest('core.flow.code'), manifest('core.loop.foreach')];
+        return [manifest('core.utility.code'), manifest('core.loop.foreach')];
       }),
     };
     const live = {
@@ -78,7 +78,7 @@ describe('GraphNodeCatalogCompositeSource (G3-27 failure classes)', () => {
     // Fixtures stay authoritative: the live duplicate of a fixture kind is dropped.
     expect(calls).toEqual(['fixtures', 'live']);
     expect(manifests.map((item) => item.kind)).toEqual([
-      'core.flow.code',
+      'core.utility.code',
       'core.loop.foreach',
       'backend.extra',
     ]);
@@ -87,7 +87,7 @@ describe('GraphNodeCatalogCompositeSource (G3-27 failure classes)', () => {
 
   it('keeps the fixture set when the backend is down and reports backend-down', async () => {
     const fixed = {
-      fetchManifests: jest.fn(async () => [manifest('core.flow.code')]),
+      fetchManifests: jest.fn(async () => [manifest('core.utility.code')]),
     };
     const live = {
       fetchManifests: jest.fn(async () => {
@@ -98,13 +98,13 @@ describe('GraphNodeCatalogCompositeSource (G3-27 failure classes)', () => {
 
     const manifests = await source.fetchManifests();
 
-    expect(manifests.map((item) => item.kind)).toEqual(['core.flow.code']);
+    expect(manifests.map((item) => item.kind)).toEqual(['core.utility.code']);
     expect(source.failure()).toMatchObject({ kind: 'backend-down' });
   });
 
   it('keeps the fixture set on an out-of-contract response and reports malformed-response', async () => {
     const fixed = {
-      fetchManifests: jest.fn(async () => [manifest('core.flow.code')]),
+      fetchManifests: jest.fn(async () => [manifest('core.utility.code')]),
     };
     const live = {
       fetchManifests: jest.fn(async () => {
@@ -115,13 +115,13 @@ describe('GraphNodeCatalogCompositeSource (G3-27 failure classes)', () => {
 
     const manifests = await source.fetchManifests();
 
-    expect(manifests.map((item) => item.kind)).toEqual(['core.flow.code']);
+    expect(manifests.map((item) => item.kind)).toEqual(['core.utility.code']);
     expect(source.failure()).toMatchObject({ kind: 'malformed-response' });
   });
 
   it('clears a prior failure after a successful live fetch', async () => {
     const fixed = {
-      fetchManifests: jest.fn(async () => [manifest('core.flow.code')]),
+      fetchManifests: jest.fn(async () => [manifest('core.utility.code')]),
     };
     let fail = true;
     const live = {
@@ -143,7 +143,7 @@ describe('GraphNodeCatalogCompositeSource (G3-27 failure classes)', () => {
   it('serves a fixture manifest without touching the live source', async () => {
     const fixed = {
       fetchManifest: jest.fn(async (kind: string) =>
-        kind === 'core.flow.code' ? manifest(kind) : undefined
+        kind === 'core.utility.code' ? manifest(kind) : undefined
       ),
     };
     const live = {
@@ -151,9 +151,9 @@ describe('GraphNodeCatalogCompositeSource (G3-27 failure classes)', () => {
     };
     const source = buildSource(live, fixed);
 
-    const found = await source.fetchManifest('core.flow.code');
+    const found = await source.fetchManifest('core.utility.code');
 
-    expect(found?.kind).toBe('core.flow.code');
+    expect(found?.kind).toBe('core.utility.code');
     expect(live.fetchManifest).not.toHaveBeenCalled();
   });
 
@@ -176,7 +176,7 @@ describe('GraphNodeCatalogCompositeSource (G3-27 failure classes)', () => {
 
   it('reports no failure when no live source is bound', async () => {
     const fixed = {
-      fetchManifests: jest.fn(async () => [manifest('core.flow.code')]),
+      fetchManifests: jest.fn(async () => [manifest('core.utility.code')]),
     };
     TestBed.configureTestingModule({
       providers: [
