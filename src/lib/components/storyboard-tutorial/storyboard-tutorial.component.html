@@ -1,0 +1,8 @@
+<div
+  class="dcf-storyboard-tutorial"
+  [class.dcf-storyboard-tutorial--active]="isRunning()"
+  [attr.aria-hidden]="!isRunning()"
+>
+  <div #overlay class="dcf-storyboard-tutorial__overlay"></div>
+  <div #messageHost class="dcf-storyboard-tutorial__message-host"></div>
+</div>

@@ -1,0 +1,130 @@
+.dcf-storyboard-tutorial {
+  position: fixed;
+  inset: 0;
+  z-index: var(--dcf-tutorial-z-index, 9998);
+  display: none;
+  pointer-events: none;
+
+  &--active {
+    display: block;
+  }
+}
+
+.dcf-storyboard-tutorial__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  background: var(--dcf-tutorial-overlay, rgba(0, 0, 0, 0.45));
+  transition: background 150ms ease;
+
+  &--fade {
+    backdrop-filter: blur(2px);
+  }
+
+  &--highlight {
+    background: var(--dcf-tutorial-overlay-soft, rgba(0, 0, 0, 0.25));
+  }
+}
+
+.dcf-storyboard-tutorial__message-host {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.dcf-storyboard-tutorial__bubble {
+  position: absolute;
+  box-sizing: border-box;
+  min-width: 220px;
+  max-width: 340px;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--dcf-border-color, #e0e0e0);
+  border-radius: var(--dcf-tutorial-radius, 8px);
+  background: var(--dcf-surface, #fff);
+  color: var(--dcf-text-color, #1a1a1a);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  pointer-events: auto;
+}
+
+.dcf-storyboard-tutorial__bubble-close {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.35rem;
+  padding: 0 0.3rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.dcf-storyboard-tutorial__bubble-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.dcf-storyboard-tutorial__bubble-content {
+  margin: 0 0 0.65rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+.dcf-storyboard-tutorial__bubble-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dcf-storyboard-tutorial__bubble-progress {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.dcf-storyboard-tutorial__bubble-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.dcf-storyboard-tutorial__bubble-button {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--dcf-border-color, #ccc);
+  border-radius: var(--dcf-tutorial-radius, 8px);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+.dcf-storyboard-tutorial__bubble-primary {
+  border-color: var(--dcf-primary, #5b8def);
+  background: var(--dcf-primary, #5b8def);
+  color: var(--dcf-on-primary, #fff);
+}
+
+.dcf-storyboard-tutorial__bubble-abort {
+  border-color: transparent;
+  opacity: 0.7;
+}
+
+.dcf-storyboard-tutorial__target--focused {
+  border-radius: var(--dcf-tutorial-radius, 8px);
+}
+
+.dcf-storyboard-tutorial__target--highlighted {
+  outline: 2px solid var(--dcf-tutorial-highlight, #5b8def);
+  outline-offset: 2px;
+  border-radius: var(--dcf-tutorial-radius, 8px);
+}
