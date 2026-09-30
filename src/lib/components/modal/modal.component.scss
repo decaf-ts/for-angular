@@ -325,3 +325,7 @@
     }
   }
 }
+
+ion-loading.dcf-loading-component .loading-content:empty {
+  display: none;
+}

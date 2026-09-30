@@ -115,6 +115,7 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
    * @type {string | undefined}
    * @memberOf ListComponent
    */
+  @Input()
   searchValue?: string | IFilterQuery | undefined;
 
   /**
