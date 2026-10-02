@@ -19,10 +19,17 @@
         <h4 class="dcf-ititle" [class]="isDarkMode ? 'light' : titleColor" [innerHTML]="title"></h4>
       }
       @if (subtitle) {
-        <p
-          [class]="isDarkMode ? 'light' : subtitleColor"
-          [innerHTML]="searchValue ? searchSubtitle : subtitle"
-        ></p>
+        @if (searchValue) {
+          <p
+            [class]="isDarkMode ? 'light' : subtitleColor"
+            [innerHTML]="searchSubtitle | safeHtml"
+          ></p>
+        } @else {
+          <p
+            [class]="isDarkMode ? 'light' : subtitleColor"
+            [innerHTML]="subtitle"
+          ></p>
+        }
       }
       @if (!enableCreationByModelRoute) {
         @if (buttonLink) {

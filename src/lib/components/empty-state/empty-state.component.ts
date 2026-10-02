@@ -8,14 +8,14 @@
  * @link {@link EmptyStateComponent}
  */
 
-import { Component, inject, Input, OnInit } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Component, Input, OnInit } from '@angular/core';
 import { ElementSizes } from '@decaf-ts/ui-decorators';
 import { IonButton, IonSpinner } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IconComponent } from '../../components/icon/icon.component';
 import { Dynamic } from '../../engine/decorators';
 import { ElementSize, FunctionLike } from '../../engine/types';
+import { DecafSafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { CardComponent } from '../card/card.component';
 
 /**
@@ -53,13 +53,29 @@ import { CardComponent } from '../card/card.component';
  * @extends {NgxBaseComponentDirective}
  * @implements {OnInit}
  */
+/**
+ * HTML-escapes &, <, >, ", and ' characters in text.
+ *
+ * @param {string} text - Raw input text to escape
+ * @returns {string} Escaped text safe for interpolation into HTML templates
+ */
+export function escapeHtml(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 @Dynamic()
 @Component({
   selector: 'ngx-decaf-empty-state',
   templateUrl: './empty-state.component.html',
   styleUrls: ['./empty-state.component.scss'],
   standalone: true,
-  imports: [IconComponent, TranslatePipe, IonSpinner, IonButton, CardComponent],
+  imports: [IconComponent, TranslatePipe, IonSpinner, IonButton, CardComponent, DecafSafeHtmlPipe],
 })
 export class EmptyStateComponent extends CardComponent implements OnInit {
   /**
@@ -236,20 +252,12 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
   override searchValue!: string;
 
   /**
-   * @description Sanitizer instance for bypassing security and sanitizing HTML content.
-   * @summary Used to sanitize dynamic HTML content, ensuring it is safe to render in the DOM.
-   * @type {DomSanitizer}
+   * @description The subtitle for search results.
+   * @summary Holds the processed translated content with the HTML-escaped search term.
+   * @type {string}
    * @memberOf EmptyStateComponent
    */
-  private sanitizer: DomSanitizer = inject(DomSanitizer);
-
-  /**
-   * @description The sanitized subtitle for search results.
-   * @summary Holds the processed and sanitized HTML content for the subtitle when a search yields no results.
-   * @type {SafeHtml}
-   * @memberOf EmptyStateComponent
-   */
-  searchSubtitle!: SafeHtml;
+  searchSubtitle!: string;
 
   /**
    * @description Flag to enable creation by model route.
@@ -358,31 +366,28 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
   }
 
   /**
-   * @description Generates a localized and sanitized subtitle for search results.
+   * @description Generates a localized subtitle for search results with an HTML-escaped search term.
    * @summary This method takes a content string, typically the subtitle, and processes it
-   * through the translation service. It replaces a placeholder ('0') with the actual
-   * search value, then sanitizes the result to safely use as HTML. This is particularly
-   * useful for displaying dynamic, localized messages in the empty state when a search
-   * yields no results.
+   * through the translation service. It replaces a placeholder ('0') with the HTML-escaped
+   * search value.
    *
    * @param {string} content - The content string to be translated and processed
-   * @return {Promise<SafeHtml>} A promise that resolves to a sanitized HTML string
+   * @return {Promise<string>} A promise that resolves to a translated subtitle string
    *
    * @mermaid
    * sequenceDiagram
    *   participant E as EmptyStateComponent
    *   participant T as TranslateService
-   *   participant S as DomSanitizer
    *
-   *   E->>T: instant(content, {'0': searchValue})
+   *   E->>E: escapeHtml(searchValue)
+   *   E->>T: translate(content, {'0': escapedSearchValue})
    *   T-->>E: Return translated string
-   *   E->>S: bypassSecurityTrustHtml(translatedString)
-   *   S-->>E: Return sanitized SafeHtml
    *
    * @memberOf EmptyStateComponent
    */
-  async getSearchSubtitle(content: string): Promise<SafeHtml> {
-    const result = await this.translate(content, { '0': this.searchValue });
-    return this.sanitizer.bypassSecurityTrustHtml(result as string);
+  async getSearchSubtitle(content: string): Promise<string> {
+    const escaped = escapeHtml(this.searchValue);
+    const result = await this.translate(content, { '0': escaped });
+    return result as string;
   }
 }

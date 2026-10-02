@@ -1,8 +1,9 @@
 import { EnvironmentInjector } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import BwipJs, { BwippOptions } from '@bwip-js/browser';
 import { CrudFieldComponent } from 'src/lib/components';
 import { presentNgxInlineModal } from 'src/lib/components/modal/modal.component';
-import { getModelAndRepository } from 'src/lib/engine';
+import { getDbAdapterEnvInjector, getModelAndRepository } from 'src/lib/engine';
 import { NgxEventHandler } from 'src/lib/engine/NgxEventHandler';
 import { Batch } from '../Batch';
 import { convertDateToGS1Format } from './BatchHandler';
@@ -19,7 +20,7 @@ export async function createOnClickShowBarcodeModal(instance: CrudFieldComponent
     }
     element.classList.add('dcf-has-action');
     element.onclick = () => {
-      DatamatrixModalHandler.showBarcodeModal(instance._data as Batch);
+      DatamatrixModalHandler.showBarcodeModal(instance._data as Batch, (instance as any).injector);
     };
   }
 }
@@ -88,15 +89,19 @@ export class DatamatrixModalHandler extends NgxEventHandler {
     const datamatrixElement = DatamatrixModalHandler.getDatamatrixCanvasElement(item);
     //TODO: Create logic to make button copy value with correct lwa url to clipboard
     if (datamatrixElement) {
+      const envInjector = injector || getDbAdapterEnvInjector();
+      const sanitizer = envInjector?.get(DomSanitizer, null, { optional: true });
+      const content: SafeHtml = sanitizer
+        ? sanitizer.bypassSecurityTrustHtml(datamatrixElement.outerHTML)
+        : ({ changingThisBreaksApplicationSecurity: datamatrixElement.outerHTML } as unknown as SafeHtml);
       await presentNgxInlineModal(
-        datamatrixElement,
+        content,
         {
           title: 'batch.dataMatrix.preview',
           uid: 'dcf-datamatrix-modal',
           headerTransparent: true,
         },
         injector
-        // this.injector
       );
     }
   }

@@ -298,20 +298,104 @@ export class NgxMediaService {
   }
 
   /**
+   * Sanitizes SVG string content by parsing it as XML and removing hostile elements and attributes.
+   * Hostile elements: <script>, <foreignObject>, <animate>, <set>, <animateTransform>, <animateMotion>
+   * Hostile attributes: on* (e.g., onload, onclick), href or xlink:href with javascript:, data:, or vbscript:
+   * (including obfuscated variants with whitespace, ASCII control chars, or percent encoding).
+   * Returns empty string if parsing fails or root is not <svg>.
+   *
+   * @param {string} svgText - The SVG text content to sanitize.
+   * @return {string} - The sanitized SVG string.
+   */
+  private sanitizeSvg(svgText: string): string {
+    if (!svgText || typeof svgText !== 'string') {
+      return '';
+    }
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgText, 'image/svg+xml');
+      const parserError = doc.querySelector('parsererror');
+      if (parserError) {
+        return '';
+      }
+      const root = doc.documentElement;
+      if (!root || root.tagName.toLowerCase() !== 'svg') {
+        return '';
+      }
+
+      const hostileTags = new Set([
+        'script',
+        'foreignobject',
+        'animate',
+        'set',
+        'animatetransform',
+        'animatemotion',
+      ]);
+
+      // Collect all elements starting from root
+      const elements = [root, ...Array.from(root.querySelectorAll('*'))];
+      for (const el of elements) {
+        const localTag = (el.localName || el.tagName || '').toLowerCase();
+        if (hostileTags.has(localTag)) {
+          el.remove();
+          continue;
+        }
+
+        const attrNames = Array.from(el.attributes).map((attr) => attr.name);
+        for (const name of attrNames) {
+          const lowerName = name.toLowerCase();
+          const val = el.getAttribute(name) || '';
+
+          if (lowerName.startsWith('on')) {
+            el.removeAttribute(name);
+            continue;
+          }
+
+          if (lowerName === 'href' || lowerName.endsWith(':href')) {
+            // eslint-disable-next-line no-control-regex
+            let cleanVal = val.replace(/[\u0000- ]/g, '');
+            try {
+              cleanVal = decodeURIComponent(cleanVal);
+            } catch {
+              // ignore malformed URI percent-encoding
+            }
+            // eslint-disable-next-line no-control-regex
+            cleanVal = cleanVal.replace(/[\u0000- ]/g, '').toLowerCase();
+
+            if (
+              cleanVal.startsWith('javascript:') ||
+              cleanVal.startsWith('data:') ||
+              cleanVal.startsWith('vbscript:')
+            ) {
+              el.removeAttribute(name);
+            }
+          }
+        }
+      }
+
+      return new XMLSerializer().serializeToString(root);
+    } catch {
+      return '';
+    }
+  }
+
+  /**
    * @description Loads an SVG file and injects it into a target element.
    * @summary
    * This method fetches an SVG file from the specified path and injects its content
    * into the provided target element. The operation is performed outside Angular's
    * zone to improve performance, and the DOM update is brought back into the Angular
    * zone to ensure change detection.
+   * Cross-origin SVG paths are currently allowed; the need for restricting them is under analysis.
    *
+   * @param {HttpClient} http - The HTTP client to perform requests.
    * @param {string} path - The path to the SVG file.
    * @param {HTMLElement} target - The target element to inject the SVG content into.
    * @return {void}
    * @function loadSvgObserver
    * @example
    * const targetElement = document.getElementById('svg-container');
-   * mediaService.loadSvgObserver('/assets/icons/icon.svg', targetElement);
+   * mediaService.loadSvgObserver(http, '/assets/icons/icon.svg', targetElement);
    */
   loadSvgObserver(http: HttpClient, path: string, target: HTMLElement): void {
     this.angularZone.runOutsideAngular(() => {
@@ -319,8 +403,9 @@ export class NgxMediaService {
         .get(path, { responseType: 'text' })
         .pipe(takeUntil(this.destroy$), shareReplay({ bufferSize: 1, refCount: true }));
       svg$.subscribe((svg: string) => {
+        const cleanSvg = this.sanitizeSvg(svg);
         this.angularZone.run(() => {
-          target.innerHTML = svg;
+          target.innerHTML = cleanSvg;
         });
       });
     });

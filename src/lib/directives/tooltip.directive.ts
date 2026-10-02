@@ -75,6 +75,7 @@ export class DecafTooltipDirective implements OnChanges {
       ...(typeof this.options === 'string' ? { text: this.options, position: 'bottom', trail: '' } : this.options),
     };
     if (options?.text && options?.text.trim().length) {
+      // Tag-stripping is display-only and not a security control
       const value = options.text.replace(/<[^>]+>/g, '').trim();
       if (value.length > options.limit) {
         const text = !options.truncate
