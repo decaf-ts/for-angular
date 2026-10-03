@@ -3,6 +3,8 @@ import { provideRouter } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NavController } from '@ionic/angular/standalone';
 import { TranslateLoader, TranslateModule, TranslateParser } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { I18nFakeLoader, I18nParser } from '../../i18n';
 import { ModalComponent } from './modal.component';
@@ -67,6 +69,22 @@ describe('ModalComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('loading announces status', async () => {
+    const translate = TestBed.inject(TranslateService);
+    await firstValueFrom(translate.use('en'));
+    translate.setTranslation('en', { component: { loading: 'Loading' } }, true);
+    component.isOpen = true;
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const status = document.body.querySelector('[role="status"]');
+    expect(status).toBeTruthy();
+    expect(status?.getAttribute('aria-busy')).toBe('true');
+    expect(status?.textContent).toContain('Loading');
+    expect(status?.querySelector('ion-spinner')).toBeTruthy();
   });
 
   const cases: Array<{ type: 'string' | 'HTMLElement' | 'SafeHtml'; position: 'top' | 'bottom' }> = [

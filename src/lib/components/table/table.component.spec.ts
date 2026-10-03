@@ -119,4 +119,49 @@ describe('TableComponent', () => {
     expect(actionBtns[0].getAttribute('aria-label')).toBe('Update');
     expect(actionBtns[1].getAttribute('aria-label')).toBe('Delete');
   });
+
+  it('regression interactive cell focusable', () => {
+    (component as any).initialized = true;
+    component.data = [{ id: '1' }];
+    component.items = [
+      {
+        '0': { prop: 'name', value: 'Test', index: 0, handler: { handle: jest.fn() } },
+        uid: { value: '1' },
+      },
+    ];
+    component.headers = ['name'];
+    const action = jest.spyOn(component, 'handleAction').mockResolvedValue(undefined);
+    fixture.detectChanges();
+
+    const button: HTMLButtonElement | null = fixture.nativeElement.querySelector('td button');
+    expect(button).not.toBeNull();
+    expect(button?.textContent).toContain('Test');
+    button?.click();
+    expect(action).toHaveBeenCalledTimes(1);
+  });
+
+  it('interactive cell keyboard', () => {
+    (component as any).initialized = true;
+    component.data = [{ id: '1' }];
+    component.items = [
+      {
+        '0': { prop: 'name', value: 'Test', index: 0, handler: { handle: jest.fn() } },
+        uid: { value: '1' },
+      },
+    ];
+    component.headers = ['name'];
+    const action = jest.spyOn(component, 'handleAction').mockResolvedValue(undefined);
+    fixture.detectChanges();
+    const button = fixture.nativeElement.querySelector('td button') as HTMLButtonElement;
+    expect(button.getAttribute('aria-label')).toBeNull();
+    expect(button.textContent).toContain('Test');
+
+    for (const key of ['Enter', ' ']) {
+      action.mockClear();
+      button.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+      // JSDOM omits native button key activation; the click below models the browser default.
+      button.click();
+      expect(action).toHaveBeenCalledTimes(1);
+    }
+  });
 });

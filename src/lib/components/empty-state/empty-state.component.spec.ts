@@ -56,6 +56,19 @@ describe('EmptyStateComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('loading announces status', async () => {
+    await firstValueFrom(translateService.use('en'));
+    translateService.setTranslation('en', { component: { loading: 'Loading' } }, true);
+    component.refreshing = true;
+    fixture.detectChanges();
+
+    const status = fixture.nativeElement.querySelector('[role="status"]');
+    expect(status).toBeTruthy();
+    expect(status.getAttribute('aria-busy')).toBe('true');
+    expect(status.textContent).toContain('Loading');
+    expect(status.querySelector('ion-spinner')).toBeTruthy();
+  });
+
   it('baseline search subtitle benign term', async () => {
     await firstValueFrom(translateService.use('en'));
     translateService.setTranslation('en', { 'No results for {0}': 'No results for {0}' }, true);
