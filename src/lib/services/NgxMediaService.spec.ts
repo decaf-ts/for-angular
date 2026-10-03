@@ -85,6 +85,34 @@ describe('NgxMediaService', () => {
         },
       },
       {
+        name: '<style> and style attribute',
+        input: '<svg><style>circle{background:url(//attacker)}</style><circle style="fill:url(//x)" r="1"/><rect width="1" height="1"/></svg>',
+        verify: (target: HTMLElement) => {
+          expect(target.querySelector('circle')).toBeTruthy();
+          expect(target.querySelector('style')).toBeNull();
+          expect(target.querySelector('circle')?.getAttribute('style')).toBeNull();
+        },
+      },
+      {
+        name: 'iframe/embed/object namespace breakout',
+        input: '<svg><iframe srcdoc="x"></iframe><embed src="x"/><object data="x"></object><meta charset="utf-8"/><rect width="1" height="1"/></svg>',
+        verify: (target: HTMLElement) => {
+          expect(target.querySelector('rect')).toBeTruthy();
+          expect(target.querySelector('iframe')).toBeNull();
+          expect(target.querySelector('embed')).toBeNull();
+          expect(target.querySelector('object')).toBeNull();
+          expect(target.querySelector('meta')).toBeNull();
+        },
+      },
+      {
+        name: 'formaction attribute',
+        input: '<svg><circle r="1" formaction="javascript:alert(1)"/></svg>',
+        verify: (target: HTMLElement) => {
+          expect(target.querySelector('circle')).toBeTruthy();
+          expect(target.querySelector('circle')?.hasAttribute('formaction')).toBe(false);
+        },
+      },
+      {
         name: 'xlink:href="data:..."',
         input:
           '<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="data:image/svg+xml,..."><circle r="1"/></use></svg>',
@@ -107,7 +135,7 @@ describe('NgxMediaService', () => {
 
   it('svg sprite shape preserved', () => {
     const spriteSvg =
-      '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><symbol id="a" viewBox="0 0 20 20"><path d="M0 0" fill="none" stroke="black"/></symbol></svg>';
+      '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad"><stop offset="0" stop-color="#fff"/></linearGradient></defs><symbol id="a" viewBox="0 0 20 20"><path d="M0 0" fill="none" stroke="black"/></symbol><use href="#a"/></svg>';
     const httpMock = {
       get: jest.fn().mockReturnValue(of(spriteSvg)),
     } as unknown as HttpClient;
