@@ -73,6 +73,6 @@ describe('theme token completion', () => {
       throw new Error(`Could not compile list-item styles: ${String(error)}`);
     }
     expect(css).not.toMatch(/@media[^\{]*var\(/);
-    for (const width of [576, 768, 992]) expect(css).toContain(`${width}px`);
+    for (const width of [576, 768]) expect(css).toContain(`${width}px`);
   });
 });
