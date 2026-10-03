@@ -24,6 +24,7 @@ import {
 } from '@ionic/angular/standalone';
 import { IconComponent } from '../icon/icon.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 type PropType = 'string' | 'number' | 'date' | 'boolean';
 
@@ -122,16 +123,16 @@ const DEFAULT_LAYOUT: UILayoutConfig = {
 };
 
 const COMPONENT_TAGS: { value: ComponentTag; label: string }[] = [
-  { value: 'ngx-decaf-crud-field', label: 'CRUD Field (text/number/date/checkbox/select)' },
-  { value: 'ngx-decaf-file-upload', label: 'File Upload' },
-  { value: 'ngx-decaf-searchbar', label: 'Search Bar' },
-  { value: 'ngx-decaf-table', label: 'Table' },
-  { value: 'ngx-decaf-list', label: 'List' },
-  { value: 'ngx-decaf-fieldset', label: 'Fieldset (nested group)' },
-  { value: 'app-select-field', label: 'Select Field (custom)' },
-  { value: 'input', label: 'Raw HTML Input' },
-  { value: 'textarea', label: 'Raw HTML Textarea' },
-  { value: 'custom', label: 'Custom (specify tag)' },
+  { value: 'ngx-decaf-crud-field', label: 'component.model_builder.tags.component_tag' },
+  { value: 'ngx-decaf-file-upload', label: 'component.model_builder.tags.file_upload_tag' },
+  { value: 'ngx-decaf-searchbar', label: 'component.model_builder.tags.search_bar_tag' },
+  { value: 'ngx-decaf-table', label: 'component.model_builder.tags.table_tag' },
+  { value: 'ngx-decaf-list', label: 'component.model_builder.tags.list_tag' },
+  { value: 'ngx-decaf-fieldset', label: 'component.model_builder.tags.fieldset_tag' },
+  { value: 'app-select-field', label: 'component.model_builder.tags.select_field_tag' },
+  { value: 'input', label: 'component.model_builder.tags.raw_html_input_tag' },
+  { value: 'textarea', label: 'component.model_builder.tags.raw_html_textarea_tag' },
+  { value: 'custom', label: 'component.model_builder.tags.custom_tag_option' },
 ];
 
 const INPUT_TYPES = [
@@ -201,6 +202,7 @@ function parseOptions(optionsStr: string): { value: string; label: string }[] {
   selector: 'ngx-decaf-model-builder',
   imports: [
     FormsModule,
+    TranslatePipe,
     IonButton,
     IconComponent,
     IonInput,
@@ -231,7 +233,7 @@ export class ModelBuilderComponent {
   properties = signal<PropertyConfig[]>([]);
   builtModel = signal<Model | null>(null);
   buildError = signal<string | null>(null);
-  buildInfo = signal<string | null>(null);
+  buildInfo = signal<{ key: string; params: Record<string, unknown> } | null>(null);
 
   componentTags = COMPONENT_TAGS;
   inputTypes = INPUT_TYPES;
@@ -294,7 +296,7 @@ export class ModelBuilderComponent {
     try {
       const cfg = this.modelConfig();
       const name = cfg.name.trim();
-      if (!name) throw new Error('Model name is required');
+      if (!name) throw new Error('component.model_builder.model_name_required');
 
       const builder = ModelBuilder.builder<Model & Record<string, unknown>>();
       builder.setName(name);
@@ -310,10 +312,9 @@ export class ModelBuilderComponent {
 
       const appliedProps: string[] = [];
 
-      for (let i = 0; i < this.properties().length; i++) {
-        const prop = this.properties()[i];
+      for (const [i, prop] of this.properties().entries()) {
         const propName = prop.name.trim();
-        if (!propName) throw new Error(`Property #${i + 1} has no name`);
+        if (!propName) throw new Error('component.model_builder.property_name_required');
 
         let attr;
         switch (prop.type) {
@@ -394,11 +395,12 @@ export class ModelBuilderComponent {
       const ModelClass = builder.build();
       const instance = new ModelClass() as Model;
       this.builtModel.set(instance);
-      this.buildInfo.set(
-        `Built "${name}" with ${appliedProps.length} propert${appliedProps.length === 1 ? 'y' : 'ies'}: ${appliedProps.join(', ')}`
-      );
+      this.buildInfo.set({
+        key: 'component.model_builder.build_success',
+        params: { name, count: appliedProps.length, properties: appliedProps.join(', ') },
+      });
     } catch (e: unknown) {
-      this.buildError.set(e instanceof Error ? e.message : String(e));
+      this.buildError.set(e instanceof Error && e.message.startsWith('component.model_builder.') ? e.message : 'component.model_builder.build_failed');
       this.builtModel.set(null);
     }
   }
