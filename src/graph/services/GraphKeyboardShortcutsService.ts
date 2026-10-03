@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/as-graph/shared';
 import { GraphHistoryService } from './GraphHistoryService';
 import { GraphAutoSaveService } from './GraphAutoSaveService';
 

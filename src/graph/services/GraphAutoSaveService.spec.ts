@@ -2,7 +2,8 @@ import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { GRAPH_AUTOSAVE_DEBOUNCE_MS } from '../tokens/graph-configuration.tokens';
 import { GraphAutoSaveService } from './GraphAutoSaveService';
 import { GraphSaveService } from './GraphSaveService';
-import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import { graphValidity } from '../validation/GraphWorkflowValidityStore';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/as-graph/shared';
 
 /** Canonical snapshot wrapper (`{ document, editor?, metadata? }`). */
 function makeSnapshot(): GraphWorkflowSnapshot {
@@ -31,6 +32,7 @@ describe('GraphAutoSaveService', () => {
   let saveService: jest.SpyInstance;
 
   beforeEach(() => {
+    graphValidity.reset();
     TestBed.configureTestingModule({
       providers: [
         GraphAutoSaveService,
@@ -47,6 +49,7 @@ describe('GraphAutoSaveService', () => {
 
   afterEach(() => {
     saveService.mockRestore();
+    graphValidity.reset();
   });
 
   it('does nothing when disabled', fakeAsync(() => {
@@ -108,5 +111,52 @@ describe('GraphAutoSaveService', () => {
     expect(posted.document).toBeDefined();
     expect(posted.document.id).toBe('wf1');
     expect(posted.editor).toEqual({ duplicateCounts: { text: 1 }, diagramMetadata: { viewport: { x: 0, y: 0, scale: 1 } } });
+  }));
+
+  it('does not schedule a save when the graph is invalid, preserving the enabled toggle', fakeAsync(() => {
+    autoSave.setEnabled(true);
+    graphValidity.applyResult({
+      valid: false,
+      issues: [{ code: 'kind.unknown', path: 'nodes.0.kind', message: 'unknown kind' }],
+    });
+
+    autoSave.onMutation('wf1', makeSnapshot());
+    tick(200);
+
+    expect(saveService).not.toHaveBeenCalled();
+    expect(autoSave.enabled()).toBe(true);
+  }));
+
+  it('drops a pending save when the graph turns invalid inside the debounce window', fakeAsync(() => {
+    autoSave.setEnabled(true);
+    graphValidity.applyResult({ valid: true, issues: [] });
+    autoSave.onMutation('wf1', makeSnapshot());
+
+    graphValidity.applyResult({
+      valid: false,
+      issues: [{ code: 'kind.unknown', path: 'nodes.0.kind', message: 'unknown kind' }],
+    });
+    autoSave.flush();
+
+    expect(saveService).not.toHaveBeenCalled();
+    expect(autoSave.enabled()).toBe(true);
+  }));
+
+  it('resumes autosave once the graph is valid again', fakeAsync(() => {
+    autoSave.setEnabled(true);
+    graphValidity.applyResult({
+      valid: false,
+      issues: [{ code: 'kind.unknown', path: 'nodes.0.kind', message: 'unknown kind' }],
+    });
+    autoSave.onMutation('wf1', makeSnapshot());
+    tick(200);
+    expect(saveService).not.toHaveBeenCalled();
+
+    graphValidity.applyResult({ valid: true, issues: [] });
+    autoSave.onMutation('wf1', makeSnapshot());
+    tick(100);
+
+    expect(saveService).toHaveBeenCalledTimes(1);
+    expect(autoSave.enabled()).toBe(true);
   }));
 });

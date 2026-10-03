@@ -16,7 +16,7 @@ import type {
   GraphNodeInstance,
   GraphNodeManifest,
   GraphResolvedNodeManifest,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 
 import { GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT } from './GraphNodeManifestSnapshot';
 import { resolveGraphNodeManifest } from './GraphNodeResolution';

@@ -5,7 +5,7 @@ import { GraphWorkflowDocumentStore } from '../document/GraphWorkflowDocumentSto
 import type {
   GraphWorkflowDocument,
   GraphWorkflowSnapshot,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 
 /** The editor interaction class that produced a mutation, driving history labels and autosave. */
 export type GraphMutationSource =

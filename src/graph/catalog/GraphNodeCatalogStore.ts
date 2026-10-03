@@ -10,10 +10,10 @@ import type {
   GraphJsonValue,
   GraphNodeInstance,
   GraphNodeManifest,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import { resolveGraphNodeManifest } from './GraphNodeResolution';
 import type { GraphNodeManifestReader } from './GraphNodeCatalogReader';
-import type { GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
+import type { GraphResolvedNodeManifest } from '@decaf-ts/as-graph/shared';
 
 /**
  * Status of the catalogue fixture/HTTP source. `degraded` is the partial

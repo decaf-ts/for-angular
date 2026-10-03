@@ -1,0 +1,24 @@
+<ion-modal
+  class="graph-workflow-create-modal"
+  [isOpen]="open()"
+  (didDismiss)="onDismiss()"
+>
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>{{ 'graph.workflow.create.title' | translate }}</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="onDismiss()" [attr.aria-label]="'graph.workflow.create.cancel' | translate">
+          {{ 'graph.workflow.create.cancel' | translate }}
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding">
+    <ngx-decaf-model-renderer
+      [model]="model()"
+      [projectable]="false"
+      [globals]="globals"
+      (listenEvent)="onSubmit($event)"
+    ></ngx-decaf-model-renderer>
+  </ion-content>
+</ion-modal>

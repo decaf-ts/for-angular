@@ -25,9 +25,9 @@
  * fake registry. The page class is exercised directly (jsdom; no rendered
  * template).
  */
-import type { GraphWorkflowDocument } from '@decaf-ts/ui-decorators/graph';
-import type { GraphRunEventEnvelope } from '@decaf-ts/ui-decorators/graph';
-import { GraphExecutionEventType } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowDocument } from '@decaf-ts/as-graph/shared';
+import type { GraphRunEventEnvelope } from '@decaf-ts/as-graph/shared';
+import { GraphExecutionEventType } from '@decaf-ts/as-graph/shared';
 
 import {
   GraphAutoSaveService,
@@ -86,7 +86,7 @@ jest.mock('src/graph', () => ({
   ...jest.requireActual('../services'),
   ...jest.requireActual('../validation'),
   ...jest.requireActual('../tokens/graph-configuration.tokens'),
-  ...jest.requireActual('@decaf-ts/ui-decorators/graph'),
+  ...jest.requireActual('@decaf-ts/as-graph/shared'),
   GraphRendererComponent: class GraphRendererComponent {},
   GraphToolbarComponent: class GraphToolbarComponent {},
 }), { virtual: true });
@@ -211,6 +211,12 @@ function freshPage(
     load: jest.fn(() => Promise.resolve()),
   });
   injectables.set(GraphWorkflowValidateClient, { validate });
+  // SAA-68 added an (unused) `inject(Router)` field to GraphPage; register a
+  // fake so the page's field initializers run under the mocked Angular `inject`.
+  injectables.set(require('@angular/router').Router, {
+    navigate: jest.fn(() => Promise.resolve(true)),
+    navigateByUrl: jest.fn(() => Promise.resolve(true)),
+  });
 
   const page = new GraphPage() as never as {
     isRunning(): boolean;

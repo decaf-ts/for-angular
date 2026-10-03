@@ -7,6 +7,15 @@
       </div>
     }
 
+    @if (operation !== 'demo') {
+      <app-graph-breadcrumbs
+        [steps]="breadcrumbSteps()"
+        [workflowName]="workflowName()"
+        [renamable]="renamable()"
+        (rename)="onRenameWorkflow($event)"
+      />
+    }
+
     <app-graph-renderer
       [graphRoot]="workflowRoot"
       [outputs]="lastResult()"
@@ -33,5 +42,15 @@
         (restoreSnapshot)="onRestoreSnapshot($event)"
       />
     </app-graph-renderer>
+
+    @if (operation === 'create') {
+      <app-graph-workflow-create-modal
+        [open]="createModalOpen()"
+        [name]="workflowName()"
+        [defaultNamespace]="privateNamespace"
+        (submitted)="onCreateSubmitted($event)"
+        (cancelled)="onCreateCancelled()"
+      />
+    }
   </main>
 </ion-content>

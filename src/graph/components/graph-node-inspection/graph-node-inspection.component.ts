@@ -12,7 +12,7 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { NgDiagramModelService, type Node } from 'ng-diagram';
-import type { GraphNodeInspectionPayload } from '@decaf-ts/ui-decorators/graph';
+import type { GraphNodeInspectionPayload } from '@decaf-ts/as-graph/shared';
 import { graphInspection } from '../../execution/GraphInspectionStore';
 import { GraphNodeCatalogService } from '../../catalog/GraphNodeCatalogService';
 import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocumentStore';

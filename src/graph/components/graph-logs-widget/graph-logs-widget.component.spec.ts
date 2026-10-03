@@ -15,7 +15,7 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import type { GraphRunLogEntry } from '@decaf-ts/ui-decorators/graph';
+import type { GraphRunLogEntry } from '@decaf-ts/as-graph/shared';
 
 import { graphRunLog, type GraphRunLogLevel } from '../../execution/GraphRunLogStore';
 import { GraphLogsWidgetComponent } from './graph-logs-widget.component';

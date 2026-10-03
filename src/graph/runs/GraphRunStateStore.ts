@@ -19,8 +19,8 @@ import type {
   GraphNodeInspectionPayload,
   GraphRunEventEnvelope,
   GraphRunStatus,
-} from '@decaf-ts/ui-decorators/graph';
-import { GraphExecutionEventType, GraphVisualState, isGraphRunStatus } from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
+import { GraphExecutionEventType, GraphVisualState, isGraphRunStatus } from '@decaf-ts/as-graph/shared';
 
 import {
   graphExecutionState,

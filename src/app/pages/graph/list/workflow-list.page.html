@@ -1,0 +1,27 @@
+<ion-content [fullscreen]="true">
+  <main>
+    <ngx-decaf-container>
+      <app-card-title
+        [locale]="locale"
+        [route]="route"
+        [title]="title | translate"
+        [subtitle]="subtitle | translate"
+        [allowCreate]="true"
+        [createButton]="{ text: 'create', color: 'primary', handle: onCreate }"
+      />
+      <div class="dcf-list-container">
+        <ngx-decaf-list
+          [model]="listModel"
+          [data]="workflows()"
+          [mapper]="mapper"
+          [route]="route"
+          [locale]="locale"
+          [customSource]="true"
+          [enableFilter]="false"
+          [loadMoreData]="false"
+          [showRefresher]="true"
+        />
+      </div>
+    </ngx-decaf-container>
+  </main>
+</ion-content>

@@ -6,7 +6,7 @@ import {
   input,
   output,
   type GraphWorkflowDefinition,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 
 /** Switch metadata for the foreach body — routes even-indexed items to the
  *  `even` output port and everything else to the `default` port. The

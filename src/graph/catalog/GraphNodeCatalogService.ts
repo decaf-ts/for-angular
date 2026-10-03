@@ -8,7 +8,7 @@
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import { service } from '@decaf-ts/core';
 import { InternalError } from '@decaf-ts/db-decorators';
-import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
+import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/as-graph/shared';
 import { graphAngularServiceShare } from '../utils/graphAngularServiceShare';
 import type { GraphNodeManifestReader } from './GraphNodeCatalogReader';
 import { graphNodeCatalogFailureOf } from './GraphNodeCatalogApi';

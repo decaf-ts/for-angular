@@ -14,7 +14,7 @@ import type {
   GraphNodeManifest,
   GraphParameterDefinition,
   GraphWorkflowDocument,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import type { GraphDocumentCommand } from './GraphDocumentCommands';
 import { graphJsonValueCloneOf } from './GraphDocumentSelectors';
 

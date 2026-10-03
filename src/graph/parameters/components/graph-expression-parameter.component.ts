@@ -9,7 +9,7 @@ import {
   inject,
 } from '@angular/core';
 import { IonInput } from '@ionic/angular/standalone';
-import type { GraphJsonValue, GraphParameterDefinition } from '@decaf-ts/ui-decorators/graph';
+import type { GraphJsonValue, GraphParameterDefinition } from '@decaf-ts/as-graph/shared';
 import type {
   GraphParameterFormContext,
   GraphParameterRendererContract,

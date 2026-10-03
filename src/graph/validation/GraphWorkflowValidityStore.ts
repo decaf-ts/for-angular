@@ -12,7 +12,7 @@
  * {@link GraphWorkflowValidateClient}.
  */
 import { computed, signal } from '@angular/core';
-import type { GraphWorkflowDocument } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowDocument } from '@decaf-ts/as-graph/shared';
 import { graphWorkflowDocumentSemanticHashOf } from '../document/GraphDocumentSelectors';
 import { graphRunLog } from '../execution/GraphRunLogStore';
 import type {

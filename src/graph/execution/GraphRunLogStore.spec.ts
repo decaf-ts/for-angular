@@ -2,7 +2,7 @@
  * @module for-angular/graph/execution/GraphRunLogStore.spec
  * @summary Unit tests for the run log signal store (DECAF-48 §4.5/Req-4).
  */
-import type { GraphRunLogEntry, LogNodeLevel } from '@decaf-ts/ui-decorators/graph';
+import type { GraphRunLogEntry, LogNodeLevel } from '@decaf-ts/as-graph/shared';
 
 import {
   GRAPH_LOG_FILTER_LABELS,

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { GRAPH_HISTORY_LIMIT } from '../tokens/graph-configuration.tokens';
-import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/as-graph/shared';
 
 /** A history checkpoint: the canonical document-first snapshot wrapper (§4.26 R2-2). */
 export type GraphHistorySnapshot = GraphWorkflowSnapshot;

@@ -9,8 +9,8 @@ import {
   type Node,
   type Edge,
 } from 'ng-diagram';
-import { PortDirection } from '@decaf-ts/ui-decorators/graph';
-import { GRAPH_DEFAULT_NODE_CORNER_RADIUS, graphNodeSizeOf } from '@decaf-ts/ui-decorators/graph';
+import { PortDirection } from '@decaf-ts/as-graph/shared';
+import { GRAPH_DEFAULT_NODE_CORNER_RADIUS, graphNodeSizeOf } from '@decaf-ts/as-graph/shared';
 import type {
   GraphIconReference,
   GraphInputBinding,
@@ -19,8 +19,8 @@ import type {
   GraphNodeInstance,
   GraphOutputBinding,
   GraphPortDefinition,
-} from '@decaf-ts/ui-decorators/graph';
-import type { SwitchNodeMetadata, SwitchCase, NodeMetadataChange } from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
+import type { SwitchNodeMetadata, SwitchCase, NodeMetadataChange } from '@decaf-ts/as-graph/shared';
 import { GraphDemoNodeData } from '../../types';
 import { graphExecutionState } from '../../execution/GraphExecutionStateService';
 import { graphInspection } from '../../execution/GraphInspectionStore';

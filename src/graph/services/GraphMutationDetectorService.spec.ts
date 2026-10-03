@@ -8,7 +8,7 @@ import { GRAPH_BACKEND_URL } from '../execution/GraphExecutionService';
 import type {
   GraphWorkflowDocument,
   GraphWorkflowSnapshot,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 
 /** Minimal canonical document held by the document store (§4.11/§4.12). */
 function makeDocument(): GraphWorkflowDocument {

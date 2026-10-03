@@ -1,12 +1,13 @@
-import { Component, computed, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import type {
   CodeCondition,
   ConditionExpression,
   ExprValue,
   SwitchCaseCondition,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import { IonInput, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
+import { GraphTranslateService } from '../../i18n/graph-translate.service';
 
 export type ConditionMode = 'graphical' | 'code';
 
@@ -24,6 +25,16 @@ const OPERATORS = [
   { op: 'lte', label: 'less or equal (<=)' },
   { op: 'exists', label: 'exists (not null/undefined)' },
 ] as const;
+
+/** English fallbacks for the condition-editor locale keys (§13 locale rule). */
+const GRAPH_CONDITION_EDIT_LABELS: Record<string, string> = {
+  property: 'property',
+  value: 'value',
+  graphical_mode: 'Switch to graphical mode',
+  code_mode: 'Switch to code mode',
+  placeholder_help:
+    'Supports placeholders like {{ $input.foo }}, {{ $node["Name"].output }}, {{ $vars.bar }}. Must return a boolean. Same restrictions as the Code Node apply.',
+};
 
 @Component({
   selector: 'app-graph-condition-editor',
@@ -48,9 +59,18 @@ export class GraphConditionEditorComponent implements OnInit {
   readonly rightValue = this._rightValue.asReadonly();
   readonly code = this._code.asReadonly();
 
-  readonly operators = OPERATORS;
-  readonly placeholderHelp =
-    'Supports placeholders like {{ $input.foo }}, {{ $node["Name"].output }}, {{ $vars.bar }}. Must return a boolean. Same restrictions as the Code Node apply.';
+  private readonly i18n = inject(GraphTranslateService);
+
+  /** Resolves one condition-editor locale key through `@ngx-translate` (§13 locale rule). */
+  label(key: string): string {
+    return this.i18n.key(`graph.editor.condition.${key}`, GRAPH_CONDITION_EDIT_LABELS[key] ?? key);
+  }
+
+  readonly operators = OPERATORS.map((operator) => ({
+    op: operator.op,
+    label: this.i18n.key(`graph.editor.condition.op.${operator.op}`, operator.label),
+  }));
+  readonly placeholderHelp = this.label('placeholder_help');
   readonly isExists = computed(() => this._op() === 'exists');
   readonly isValid = computed(() => {
     if (this._mode() === 'code') {

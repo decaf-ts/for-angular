@@ -4,9 +4,9 @@
  * through this interface, so test fixtures, the HTTP-backed NestJS catalogue and the
  * in-memory store are interchangeable without touching rendering code.
  */
-import type { GraphNodeInstance } from '@decaf-ts/ui-decorators/graph';
-import type { GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
-import type { GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
+import type { GraphNodeInstance } from '@decaf-ts/as-graph/shared';
+import type { GraphNodeManifest } from '@decaf-ts/as-graph/shared';
+import type { GraphResolvedNodeManifest } from '@decaf-ts/as-graph/shared';
 
 /**
  * Read-only view over the node catalogue the canonical canvas consumes.

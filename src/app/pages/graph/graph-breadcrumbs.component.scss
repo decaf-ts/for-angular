@@ -1,0 +1,35 @@
+.graph-breadcrumbs {
+  --color: var(--ion-color-medium);
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.graph-breadcrumbs__current {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.graph-breadcrumbs__name {
+  color: var(--ion-color-dark);
+  font-weight: 600;
+}
+
+.graph-breadcrumbs__rename-input {
+  --padding-start: 0;
+  --padding-end: 0;
+  min-width: 10rem;
+  max-width: 18rem;
+}
+
+.graph-breadcrumbs__rename-action,
+.graph-breadcrumbs__rename-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0 0.15rem;
+}

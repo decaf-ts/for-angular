@@ -12,7 +12,7 @@ import { IonButton } from '@ionic/angular/standalone';
 import type {
   GraphJsonValue,
   GraphParameterDefinition,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import { GraphParameterFieldComponent } from './graph-parameter-field.component';
 import type {
   GraphParameterFormContext,

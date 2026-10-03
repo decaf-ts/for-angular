@@ -14,7 +14,7 @@
  * icons the node face renders (D7/G3-24..25); the shared precedence bug is
  * reported separately.
  */
-import type { GraphNodeManifest, GraphPortManifest } from '@decaf-ts/ui-decorators/graph';
+import type { GraphNodeManifest, GraphPortManifest } from '@decaf-ts/as-graph/shared';
 
 /** Serialized built-in node manifests, kind-sorted; mirrors the canonical `@node` display values. */
 export const GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT: GraphNodeManifest[] = [

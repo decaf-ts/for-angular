@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output, inject } from '@angular/core';
-import type { GraphJsonValue, GraphParameterDefinition } from '@decaf-ts/ui-decorators/graph';
+import type { GraphJsonValue, GraphParameterDefinition } from '@decaf-ts/as-graph/shared';
 import type {
   GraphParameterFormContext,
   GraphParameterRendererContract,

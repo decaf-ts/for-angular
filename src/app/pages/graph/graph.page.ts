@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, isDevMode, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, signal, computed, Input, isDevMode, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { GraphRendererComponent } from 'src/graph';
 import {
@@ -24,17 +24,17 @@ import {
   graphWorkflowDocumentSemanticHashOf,
   graphWorkflowDocumentWithPinnedParameters,
 } from 'src/graph';
-import type { GraphWorkflowDocument } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowDocument } from '@decaf-ts/as-graph/shared';
 import {
   isGraphRunStatus,
   type GraphRunEventEnvelope,
-} from '@decaf-ts/ui-decorators/graph';
-import type { GraphRunLogEntry } from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
+import type { GraphRunLogEntry } from '@decaf-ts/as-graph/shared';
 import { GraphToolbarComponent } from 'src/graph';
 import { GraphSaveService } from 'src/graph';
 import { GraphAutoSaveService } from 'src/graph';
 import { GraphMutationDetectorService } from 'src/graph';
-import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/as-graph/shared';
 import { TextPipelineWorkflow } from './workflow-root';
 import {
   GraphNodeCatalogService,
@@ -50,7 +50,16 @@ import type {
   GraphInspectionRunState,
   GraphRunValidationIssue,
 } from 'src/graph';
-import type { GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
+import type { GraphNodeManifest } from '@decaf-ts/as-graph/shared';
+import {
+  GraphBreadcrumbsComponent,
+  type GraphBreadcrumbStep,
+} from './graph-breadcrumbs.component';
+import {
+  GraphWorkflowCreateModalComponent,
+  type GraphWorkflowCreateResult,
+} from './graph-workflow-create.modal';
+import { GRAPH_WORKFLOW_PRIVATE_NAMESPACE } from 'src/app/models/GraphWorkflowFormModel';
 
 @Component({
   selector: 'app-graph',
@@ -59,6 +68,8 @@ import type { GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
     IonContent,
     GraphRendererComponent,
     GraphToolbarComponent,
+    GraphBreadcrumbsComponent,
+    GraphWorkflowCreateModalComponent,
   ],
   providers: [
     GraphExecutionService,
@@ -93,8 +104,16 @@ export class GraphPage implements OnInit, OnDestroy {
   /** Bounded backoff (ms) between run-result fetch attempts (G3-33). */
   private static readonly RUN_RESULT_RETRY_DELAYS_MS = [80, 160, 240, 320, 400, 480, 560, 640];
 
+  /** Canonical demo workflow id (bare `graph` route, e2e fixture). */
+  private static readonly DEMO_WORKFLOW_ID = 'text-pipeline-workflow';
+
   readonly workflowRoot = TextPipelineWorkflow;
-  readonly workflowId = 'text-pipeline-workflow';
+
+  /** Route-selected operation: `demo` | `create` | `read` | `update`. */
+  @Input() operation: string = 'demo';
+  /** Workflow id route param (read/update); demo default otherwise. */
+  @Input() workflowId: string = GraphPage.DEMO_WORKFLOW_ID;
+
   private readonly executionService = inject(GraphExecutionService);
   private readonly saveService = inject(GraphSaveService);
   private readonly autoSave = inject(GraphAutoSaveService);
@@ -146,20 +165,45 @@ export class GraphPage implements OnInit, OnDestroy {
       Object.keys(graphExecutionState.nodeStates()).length > 0
   );
 
+  /** Current workflow display name for the breadcrumb trail (§13). */
+  readonly workflowName = signal<string>('');
+
+  /** Breadcrumb trail: the workflow list root (leading steps) only. */
+  readonly breadcrumbSteps = computed<GraphBreadcrumbStep[]>(() => [
+    { id: 'workflows', labelKey: 'graph.breadcrumbs.workflows', route: '/workflows' },
+  ]);
+
+  /** Whether the current workflow name may be renamed in place (§13). */
+  readonly renamable = computed(() => this.operation !== 'read');
+
+  /** First-save create modal visibility (§13 "Saving & validation"). */
+  readonly createModalOpen = signal(false);
+
+  /** Private user namespace default for the create form (§0.4). */
+  readonly privateNamespace = GRAPH_WORKFLOW_PRIVATE_NAMESPACE;
+
   private eventsSubscription?: { unsubscribe: () => void };
+
+  /** Id assigned by the first successful create (§13); null until created. */
+  private createdWorkflowId: string | null = null;
 
   ngOnInit(): void {
     void this.executionService.checkBackend();
-    // One builder for both modes: legacy mode rebuilds from the decorated root
-    // while canonical mode derives only editor-only state (document truth stays
-    // in the document store, spec §4.11).
-    this.mutationDetector.configure(this.workflowId, () => this.renderer?.buildSnapshot() ?? null);
 
     // Warm the live HTTP node catalogue backend (DECAF-50 §4.13): the palette
     // renders `GraphNodeManifest[]` from this source — constructor node arrays
     // are gone from the editor's discovery path (P7 cutover). Failure keeps
     // the fixture fallback's manifests through the composite source.
     void this.catalogService.load();
+
+    // First save creates the workflow (§13): autosave stays unwired until a
+    // successful create supplies an id, so an unsaved draft never autosaves.
+    if (this.operation === 'create') return;
+
+    // One builder for both modes: legacy mode rebuilds from the decorated root
+    // while canonical mode derives only editor-only state (document truth stays
+    // in the document store, spec §4.11).
+    this.mutationDetector.configure(this.workflowId, () => this.renderer?.buildSnapshot() ?? null);
 
     // Reinstate the persisted canonical wrapper when one exists (§4.10): the
     // store is re-seeded from the saved document and the canvas reconciles to
@@ -177,6 +221,7 @@ export class GraphPage implements OnInit, OnDestroy {
     try {
       const saved = await this.saveService.loadDocument(this.workflowId);
       if (!saved?.document) return;
+      this.workflowName.set(saved.document.name ?? '');
       this.renderer?.restoreFromDocument(saved);
     } catch {
       // Backend without a saved workflow: keep the canvas-derived document.
@@ -230,12 +275,63 @@ export class GraphPage implements OnInit, OnDestroy {
       this.runValidationIssues.set(graphValidity.issues());
       return;
     }
+    // §13 "Saving & validation": the very first save of a new workflow opens
+    // the create modal; nothing is persisted until the user confirms it.
+    if (this.operation === 'create' && !this.createdWorkflowId) {
+      this.createModalOpen.set(true);
+      return;
+    }
     // Canonical save is the only save path after the P7 cutover (§4.11).
     try {
       await this.saveCanonicalDocument();
     } catch (err) {
       this.runError.set(err instanceof Error ? err.message : String(err));
     }
+  }
+
+  /**
+   * §13 first-save create: assigns the workflow its id/name, enables autosave for
+   * the now-existing workflow, and persists the first revision. The name is
+   * slugged into the id so the workflow list can route by a stable, readable key.
+   */
+  async onCreateSubmitted(result: GraphWorkflowCreateResult): Promise<void> {
+    this.createModalOpen.set(false);
+    const name = result.name.trim();
+    if (!name) return;
+    const id = this.workflowIdFromName(name);
+    const document = this.documentStore.document();
+    if (!document) return;
+    this.documentStore.replace({ ...document, id, name });
+    this.createdWorkflowId = id;
+    this.workflowId = id;
+    this.workflowName.set(name);
+    this.mutationDetector.configure(this.workflowId, () => this.renderer?.buildSnapshot() ?? null);
+    await this.onSaveWorkflow();
+  }
+
+  onCreateCancelled(): void {
+    this.createModalOpen.set(false);
+  }
+
+  /** §13 in-place rename: updates the document name and the breadcrumb trail. */
+  onRenameWorkflow(name: string): void {
+    const trimmed = name.trim();
+    const document = this.documentStore.document();
+    if (!trimmed || !document) return;
+    this.workflowName.set(trimmed);
+    this.documentStore.dispatchCommand({
+      type: 'document.replace',
+      document: { ...document, name: trimmed },
+    });
+  }
+
+  /** Derives a stable workflow id from a display name (fallback: timestamp). */
+  private workflowIdFromName(name: string): string {
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return slug || `workflow-${Date.now()}`;
   }
 
   /**

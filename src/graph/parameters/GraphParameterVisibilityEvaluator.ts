@@ -3,7 +3,7 @@ import type {
   GraphJsonValue,
   GraphParameterDefinition,
   GraphVisibilityExpression,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 
 /** Parameter values keyed by parameter id, as consumed by visibility expressions. */
 export type GraphParameterValues = Record<string, GraphJsonValue | undefined>;

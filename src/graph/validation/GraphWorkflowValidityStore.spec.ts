@@ -22,7 +22,7 @@ import type {
   GraphValidationIssue,
   GraphWorkflowValidationResult,
 } from './GraphWorkflowValidateClient';
-import type { GraphWorkflowDocument } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowDocument } from '@decaf-ts/as-graph/shared';
 
 /** Minimal literal issue. */
 function issue(extra: Partial<GraphValidationIssue> = {}): GraphValidationIssue {

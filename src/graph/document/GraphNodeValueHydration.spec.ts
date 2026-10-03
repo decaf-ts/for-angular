@@ -27,7 +27,7 @@ import type {
   GraphNodeManifest,
   GraphEdgeInstance,
   GraphWorkflowDocument,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 
 import {
   hydrateGraphNodeInstanceValues,

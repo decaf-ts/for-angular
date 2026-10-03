@@ -1,0 +1,30 @@
+@if (item) {
+  <div class="graph-run-item">
+    <div class="graph-run-item__icon">
+      <ngx-decaf-icon
+        color="tertiary"
+        name="ti-player-play"
+      />
+    </div>
+    <div class="graph-run-item__content">
+      <p class="graph-run-item__status">
+        {{ item.status }}
+      </p>
+      <span class="graph-run-item__meta">
+        {{ locale + '.createdAt.label' | translate }}: {{ item.createdAt }}
+      </span>
+    </div>
+    <div class="graph-run-item__actions">
+      <ngx-decaf-icon
+        (click)="replay($event)"
+        (keyup.enter)="replay($event)"
+        [button]="true"
+        [attr.tabindex]="0"
+        [attr.aria-label]="locale + '.replay' | translate"
+        slot="icon-only"
+        color="primary"
+        name="ti-reload"
+      />
+    </div>
+  </div>
+}

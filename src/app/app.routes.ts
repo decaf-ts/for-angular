@@ -23,6 +23,29 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage)
   },
   {
+    path: 'graph/create',
+    loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage),
+    data: { operation: 'create' }
+  },
+  {
+    path: 'graph/read/:workflowId',
+    loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage),
+    data: { operation: 'read' }
+  },
+  {
+    path: 'graph/update/:workflowId',
+    loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage),
+    data: { operation: 'update' }
+  },
+  {
+    path: 'workflows',
+    loadComponent: () => import('./pages/graph/list/workflow-list.page').then(m => m.WorkflowListPage)
+  },
+  {
+    path: 'workflows/:workflowId/runs',
+    loadComponent: () => import('./pages/graph/executions/workflow-execution-list.page').then(m => m.WorkflowExecutionListPage)
+  },
+  {
     path: 'cron-selector',
     loadComponent: () => import('./pages/cron-selector/cron-selector.page').then(m => m.CronSelectorPage)
   },

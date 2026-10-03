@@ -5,7 +5,7 @@ import type {
   GraphNodeInstance,
   GraphNodeManifest,
   GraphParameterDefinition,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 
 /** A parameter value: any JSON value, or `undefined` while unset. */
 export type GraphJsonValueOrUndefined = GraphJsonValue | undefined;
