@@ -298,10 +298,14 @@ export class NgxMediaService {
   }
 
   /**
-   * Sanitizes SVG string content by parsing it as XML and removing hostile elements and attributes.
-   * Hostile elements: <script>, <foreignObject>, <animate>, <set>, <animateTransform>, <animateMotion>
-   * Hostile attributes: on* (e.g., onload, onclick), href or xlink:href with javascript:, data:, or vbscript:
-   * (including obfuscated variants with whitespace, ASCII control chars, or percent encoding).
+   * Sanitizes SVG string content with an ALLOWLIST policy.
+   * Denylists age badly: anything not remembered gets through, and elements like <iframe>,
+   * <embed>, <object>, <meta> or <style> survive XML serialization only to break out of the
+   * SVG namespace when the string is later re-parsed by the HTML parser via innerHTML
+   * (namespace breakout). An allowlist removes by default: only elements and attributes that
+   * legitimate SVG sprites use are kept; everything else is dropped.
+   * Always dropped: on* handlers; href/xlink:href with javascript:, data: or vbscript: schemes
+   * (including obfuscated variants with whitespace, ASCII control chars or percent encoding).
    * Returns empty string if parsing fails or root is not <svg>.
    *
    * @param {string} svgText - The SVG text content to sanitize.
@@ -323,20 +327,109 @@ export class NgxMediaService {
         return '';
       }
 
-      const hostileTags = new Set([
-        'script',
-        'foreignobject',
-        'animate',
-        'set',
-        'animatetransform',
-        'animatemotion',
+      // Only structural and presentational SVG elements; anything else is removed.
+      const ALLOWED_TAGS = new Set([
+        'svg',
+        'g',
+        'defs',
+        'symbol',
+        'use',
+        'path',
+        'circle',
+        'ellipse',
+        'rect',
+        'line',
+        'polyline',
+        'polygon',
+        'text',
+        'tspan',
+        'title',
+        'desc',
+        'lineargradient',
+        'radialgradient',
+        'stop',
+        'clippath',
+        'mask',
+        'pattern',
+        'marker',
+        'a',
+      ]);
+      const ALLOWED_ATTRS = new Set([
+        'id',
+        'class',
+        'width',
+        'height',
+        'x',
+        'y',
+        'x1',
+        'x2',
+        'y1',
+        'y2',
+        'cx',
+        'cy',
+        'r',
+        'rx',
+        'ry',
+        'd',
+        'points',
+        'transform',
+        'fill',
+        'fill-opacity',
+        'fill-rule',
+        'stroke',
+        'stroke-width',
+        'stroke-opacity',
+        'stroke-linecap',
+        'stroke-linejoin',
+        'stroke-dasharray',
+        'stroke-dashoffset',
+        'opacity',
+        'offset',
+        'stop-color',
+        'stop-opacity',
+        'viewbox',
+        'preserveaspectratio',
+        'version',
+        'xmlns',
+        'xmlns:xlink',
+        'clip-path',
+        'clip-rule',
+        'clippathunits',
+        'maskunits',
+        'maskcontentunits',
+        'patternunits',
+        'patterncontentunits',
+        'patterntransform',
+        'markerwidth',
+        'markerheight',
+        'refx',
+        'refy',
+        'orient',
+        'markerunits',
+        'gradientunits',
+        'gradienttransform',
+        'spreadmethod',
+        'fx',
+        'fy',
+        'text-anchor',
+        'dominant-baseline',
+        'font-family',
+        'font-size',
+        'font-weight',
+        'font-style',
+        'xml:space',
+        'xml:lang',
+        'aria-hidden',
+        'focusable',
+        'href',
+        'xlink:href',
       ]);
 
       // Collect all elements starting from root
       const elements = [root, ...Array.from(root.querySelectorAll('*'))];
       for (const el of elements) {
         const localTag = (el.localName || el.tagName || '').toLowerCase();
-        if (hostileTags.has(localTag)) {
+        if (!ALLOWED_TAGS.has(localTag)) {
           el.remove();
           continue;
         }
@@ -346,7 +439,7 @@ export class NgxMediaService {
           const lowerName = name.toLowerCase();
           const val = el.getAttribute(name) || '';
 
-          if (lowerName.startsWith('on')) {
+          if (!ALLOWED_ATTRS.has(lowerName)) {
             el.removeAttribute(name);
             continue;
           }
