@@ -81,16 +81,6 @@
             @for (col of item | keyvalue; track $index) {
               @if (!['handler', 'actions', 'uid'].includes(col.key)) {
                 <td
-                  (click)="
-                    handleAction(
-                      $event,
-                      col?.value.handler ? col.value.handler.handle : undefined,
-                      item.uid.value,
-                      OperationKeys.READ,
-                      col?.value?.prop
-                    )
-                  "
-                  [innerHTML]="col.value.value"
                   [ngx-decaf-tooltip]="
                     maxContentLength > 0 && !preserve.includes(col.value.prop)
                       ? {
@@ -100,7 +90,26 @@
                         }
                       : {}
                   "
-                ></td>
+                >
+                  @if (col?.value.handler) {
+                    <button
+                      type="button"
+                      class="dcf-table-cell-button"
+                      (click)="
+                    handleAction(
+                      $event,
+                      col?.value.handler ? col.value.handler.handle : undefined,
+                      item.uid.value,
+                      OperationKeys.READ,
+                      col?.value?.prop
+                    )
+                      "
+                      [innerHTML]="col.value.value"
+                    ></button>
+                  } @else {
+                    <span [innerHTML]="col.value.value"></span>
+                  }
+                </td>
               } @else {
                 @if (allowOperations && col.key !== 'handler') {
                   <td class="dcf-col-actions">
