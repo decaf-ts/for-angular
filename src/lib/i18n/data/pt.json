@@ -177,7 +177,12 @@
         "read": "Ler",
         "update": "Atualizar",
         "delete": "Eliminar"
-      }
+      },
+      "id.label": "ID",
+      "name.label": "Nome",
+      "description.label": "Descrição",
+      "createdAt.label": "Criado",
+      "actions.label": "Ações"
     },
     "list_item": {
       "actions": "Ações",
