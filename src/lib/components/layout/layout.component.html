@@ -47,6 +47,7 @@
                       (click)="toggleCollapse(collapsableElement)"
                       [button]="true"
                       [name]="collapsed ? 'ti-eye' : 'ti-eye-off'"
+                      [ariaLabel]="locale + '.toggle' | translate"
                     />
                   </div>
                 }

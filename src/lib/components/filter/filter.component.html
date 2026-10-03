@@ -39,6 +39,8 @@
                 name="ti-x"
                 (click)="removeFilter(filter?.['value'])"
                 size="small"
+                [button]="true"
+                [ariaLabel]="locale + '.remove' | translate: { '0': filter?.['value'] }"
               />
             </ion-chip>
           }
@@ -48,20 +50,29 @@
           <input
             fill="none"
             [(ngModel)]="value"
-            (keydown.enter)="addFilter(value, $event)"
+            (keydown.enter)="handleEnter($event)"
             (keydown.backspace)="clear(value)"
             (input)="handleInput($event)"
             (click)="handleFocus()"
             (blur)="handleBlur()"
+            (keydown)="handleComboboxKeydown($event)"
             type="text"
-            id="dcf-filter-field"
+            [id]="uid + '-field'"
+            role="combobox"
+            [attr.aria-expanded]="dropdownOpen"
+            [attr.aria-controls]="uid + '-listbox'"
+            aria-autocomplete="list"
+            [attr.aria-activedescendant]="activeOptionIndex >= 0 ? uid + '-option-' + activeOptionIndex : null"
+            #filterField
             autocomplete="off"
             placeholder="{{
               locale + (step === 3 ? '.type' : '.select') | translate
             }}"
           />
           @if (windowWidth >= 768) {
-            <div
+        <div
+              [id]="uid + '-listbox'"
+              role="listbox"
               [class]="
                 'dcf-dropdown ' + (options.length > 0 ? ' dcf-active' : '')
               "
@@ -72,7 +83,10 @@
                   @for (key of filteredOptions; track key) {
                     <div
                       class="dcf-item"
-                      tabindex="0"
+                      [id]="uid + '-option-' + $index"
+                      role="option"
+                      [attr.aria-selected]="activeOptionIndex === $index"
+                      tabindex="-1"
                       (keydown.enter)="selectOption(key)"
                       (click)="selectOption(key)"
                     >
@@ -101,6 +115,7 @@
             buttonFill="clear"
             size="small"
             (click)="clear()"
+            [ariaLabel]="locale + '.clear' | translate"
             name="ti-trash"
             [color]="!isDarkMode ? 'dark' : 'light'"
           />
@@ -112,6 +127,7 @@
           buttonFill="clear"
           size="small"
           (click)="submit()"
+          [ariaLabel]="locale + '.search' | translate"
           name="ti-search"
           [color]="!isDarkMode ? 'dark' : 'light'"
         />
@@ -121,13 +137,18 @@
       <div
         [class]="'dcf-dropdown ' + (options.length > 0 ? ' dcf-active' : '')"
         #optionsFilterElement
+        [id]="uid + '-listbox'"
+        role="listbox"
       >
         <div>
           @if (filteredOptions.length > 0) {
             @for (key of filteredOptions; track key) {
               <div
                 class="dcf-item"
-                tabindex="0"
+                [id]="uid + '-option-' + $index"
+                role="option"
+                [attr.aria-selected]="activeOptionIndex === $index"
+                tabindex="-1"
                 (keydown.enter)="selectOption(key)"
                 (click)="selectOption(key)"
               >
@@ -182,6 +203,10 @@
           <ngx-decaf-icon
             (click)="handleSortDirectionChange()"
             [button]="true"
+            [ariaLabel]="
+              locale + (sortDirection === 'desc' ? '.sort_desc' : '.sort_asc')
+                | translate
+            "
             fill="clear"
             slot="icon-only"
             [color]="!isDarkMode ? 'primary' : 'light'"

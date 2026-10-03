@@ -64,7 +64,8 @@
         [class.dcf-has-title]="title?.length"
       >
         @if (!tag && !model && !inlineContent) {
-          <div class="dcf-loading-container">
+          <div class="dcf-loading-container" role="status" aria-busy="true">
+            <span class="dcf-sr-only">{{ 'component.loading' | translate }}</span>
             <ion-spinner
               name="crescent"
               color="primary"

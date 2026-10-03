@@ -1,7 +1,8 @@
 <div class="decaf-empty-state-component" #component>
   <ngx-decaf-card [className]="className" [borders]="borders" [body]="body">
     @if (refreshing) {
-      <div class="dcf-spinner-container">
+      <div class="dcf-spinner-container" role="status" aria-busy="true">
+        <span class="dcf-sr-only">{{ 'component.loading' | translate }}</span>
         <ion-spinner color="primary" name="circular" />
       </div>
     } @else {

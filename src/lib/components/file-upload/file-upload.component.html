@@ -32,6 +32,11 @@
           "
           [class.dcf-dragging]="dragging"
           [class.dcf-has-files]="files.length"
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="label ? (label | translate) : (locale + '.drag_file' | translate)"
+          (keydown.enter)="handleDropzoneKeydown($event)"
+          (keydown.space)="handleDropzoneKeydown($event)"
           (drop)="!files?.length ? handleDrop($event) : (dragging = false)"
           (dragover)="
             !files?.length ? handleDragOver($event) : (dragging = false)
@@ -132,6 +137,7 @@
                       color="danger"
                       (click)="handleClear()"
                       [title]="locale + '.buttons.clear' | translate"
+                      [ariaLabel]="locale + '.buttons.clear' | translate"
                     />
                   }
                   {{ locale + ".selection" | translate: { "0": files.length > 10 ? files.length : `0${files.length}` } }}
@@ -186,6 +192,9 @@
                             [button]="true"
                             [slot]="'icon-only'"
                             (click)="preview(file?.source || file, file.type)"
+                            [ariaLabel]="
+                              locale + '.buttons.preview' | translate
+                            "
                             [name]="
                               file.type.includes('image')
                                 ? 'ti-photo'
@@ -197,6 +206,9 @@
                             [slot]="'icon-only'"
                             [name]="'ti-trash'"
                             (click)="handleRemove($index)"
+                            [ariaLabel]="
+                              locale + '.buttons.remove' | translate
+                            "
                             [color]="'danger'"
                             [size]="'small'"
                           />
@@ -275,7 +287,7 @@
                     slot="end"
                   >
                     <ngx-decaf-icon
-                      [button]="true"
+                      [button]="false"
                       [slot]="'icon-only'"
                       [name]="
                         file.type.includes('image')

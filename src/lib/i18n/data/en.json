@@ -1,4 +1,11 @@
 {
+  "back": "Back",
+  "theme": {
+    "toggle": "Toggle theme"
+  },
+  "create": "Create",
+  "read": "Read",
+  "update": "Update",
   "menu": {
     "collapse": "Collapse sidebar"
   },
@@ -99,6 +106,7 @@
     "processing": "Processing {0}..."
   },
   "component": {
+    "loading": "Loading",
     "cron_builder": {
       "quick_presets": "Quick presets",
       "every": "Every",
@@ -161,7 +169,20 @@
         "title": "No data found",
         "subtitle": "",
         "button": "Create"
-      }
+      },
+      "filter": {
+        "clear": "Clear filter"
+      },
+      "operations": {
+        "read": "Read",
+        "update": "Update",
+        "delete": "Delete"
+      },
+      "id.label": "ID",
+      "name.label": "Name",
+      "description.label": "Description",
+      "createdAt.label": "Created",
+      "actions.label": "Actions"
     },
     "list_item": {
       "actions": "Actions",
@@ -184,7 +205,8 @@
     "pagination": {
       "resume": "Showing page <span class=\"text-bold\">{0} of {1}</span>",
       "next": "Next",
-      "previous": "Previous"
+      "previous": "Previous",
+      "page": "Page {0}"
     },
     "searchbar": {
       "search": "Search",
@@ -217,6 +239,11 @@
       }
     },
     "filter": {
+      "remove": "Remove filter: {0}",
+      "clear": "Clear filter",
+      "search": "Search",
+      "sort_asc": "Sort ascending",
+      "sort_desc": "Sort descending",
       "title": "Filter",
       "type": "Type value",
       "select": "Filter selection",
@@ -237,6 +264,7 @@
       }
     },
     "stepped_form": {
+      "step_of": "Step {current} of {total}",
       "next": "Next",
       "previous": "Previous",
       "submit": "Submit",
@@ -251,7 +279,8 @@
         "select": "Select File",
         "select_directory": "Select Directory",
         "preview": "Preview",
-        "clear": "Clear"
+        "clear": "Clear",
+        "remove": "Remove file"
       },
       "selection": "{0} file(s) selected with success",
       "selection_error": "{0} file(s) failed validation and will not be uploaded.",
@@ -268,6 +297,98 @@
       "cancel": "Cancel",
       "delete": "Delete",
       "save": "Save Dashboard"
+    },
+    "layout": {
+      "toggle": "Toggle panel"
+    },
+    "crud_field": {
+      "clear": "Clear field"
+    },
+    "model_builder": {
+      "title": "Model Builder",
+      "example": "Example",
+      "reset": "Reset",
+      "model_settings": "Model Settings",
+      "model_name": "Model Name *",
+      "description": "Description",
+      "layout_columns": "Layout Columns",
+      "layout_rows": "Layout Rows",
+      "properties": "Properties",
+      "add_property": "Add Property",
+      "empty_properties": "No properties yet. Click \"Add Property\" to start defining your model.",
+      "toggle_property": "Toggle property",
+      "move_up": "Move up",
+      "move_down": "Move down",
+      "remove_property": "Remove property",
+      "name": "Name",
+      "data_type": "Data Type",
+      "component_tag": "Component (uielement tag)",
+      "render_component": "Render Component (uimodel tag)",
+      "list_model_tag": "List Model Tag (uilistmodel)",
+      "ui_element": "UI Element",
+      "custom_tag": "Custom Tag",
+      "label": "Label",
+      "placeholder": "Placeholder",
+      "input_type": "Input Type",
+      "readonly": "Readonly",
+      "translatable": "Translatable",
+      "options_label": "Options (value:label, value:label, ...)",
+      "layout": "Layout",
+      "column_span": "Column Span (uilayoutprop)",
+      "column_default": "1 (default)",
+      "none_default": "None (default)",
+      "row": "Row",
+      "order": "Order (uiorder)",
+      "custom_order_number": "Custom Order Number",
+      "hide_on": "Hide On (hideOn):",
+      "validators": "Validators",
+      "required": "Required",
+      "email": "Email",
+      "url": "URL",
+      "min": "Min",
+      "max": "Max",
+      "min_length": "Min Length",
+      "max_length": "Max Length",
+      "pattern": "Pattern (regex)",
+      "build_model": "Build Model",
+      "live_preview": "Live Preview",
+      "preview_empty": "Build a model to see the live preview here.",
+      "model_name_example": "e.g. User, Product, Order...",
+      "description_placeholder": "Optional model description",
+      "list_tag_example": "e.g. ngx-decaf-list-item (optional)",
+      "property_name_placeholder": "property name",
+      "custom_tag_placeholder": "my-custom-component",
+      "display_label_placeholder": "Display label",
+      "value_placeholder": "Enter value...",
+      "options_placeholder": "admin:Administrator, user:Regular User",
+      "order_number_placeholder": "e.g. 10",
+      "pattern_placeholder": "^[A-Z].*",
+      "operations": {
+        "create": "Create",
+        "read": "Read",
+        "update": "Update",
+        "delete": "Delete"
+      },
+      "tags": {
+        "component_tag": "CRUD Field (text/number/date/checkbox/select)",
+        "file_upload_tag": "File Upload",
+        "search_bar_tag": "Search Bar",
+        "table_tag": "Table",
+        "list_tag": "List",
+        "fieldset_tag": "Fieldset (nested group)",
+        "select_field_tag": "Select Field (custom)",
+        "raw_html_input_tag": "Raw HTML Input",
+        "raw_html_textarea_tag": "Raw HTML Textarea",
+        "custom_tag_option": "Custom (specify tag)"
+      },
+      "model_name_required": "Model name is required",
+      "property_name_required": "A property name is required",
+      "half": "half",
+      "full": "full",
+      "first": "first",
+      "last": "last",
+      "build_failed": "Could not build model. Check the configuration and try again.",
+      "build_success": "Built \"{{name}}\" with {{count}} properties: {{properties}}"
     }
   }
 }

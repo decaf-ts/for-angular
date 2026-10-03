@@ -69,7 +69,7 @@
             <ion-button
               (click)="changeOperation(OperationKeys.CREATE)"
               fill="clear"
-              [title]="'create' | translate"
+              [attr.aria-label]="'create' | translate"
             >
               <ngx-decaf-icon
                 [name]="'ti-device-floppy'"
@@ -81,7 +81,7 @@
               <ion-button
                 (click)="changeOperation(OperationKeys.READ)"
                 fill="clear"
-                [title]="'read' | translate"
+                [attr.aria-label]="'read' | translate"
               >
                 <ngx-decaf-icon
                   [name]="'ti-folder-open'"
@@ -94,7 +94,7 @@
               <ion-button
                 (click)="changeOperation(OperationKeys.UPDATE)"
                 fill="clear"
-                [title]="'update' | translate"
+                [attr.aria-label]="'update' | translate"
               >
                 <ngx-decaf-icon
                   [name]="'ti-edit'"
@@ -110,6 +110,7 @@
             shape="round"
             (click)="changeColorSchema()"
             fill="clear"
+            [attr.aria-label]="'theme.toggle' | translate"
           >
             <ngx-decaf-icon [name]="'ti-moon-stars'" />
           </ion-button>

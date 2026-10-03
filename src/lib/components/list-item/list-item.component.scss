@@ -187,7 +187,7 @@ ion-item {
     .dcf-subinfo {
       &.dcf-line {
         margin-left: 0.5rem;
-        @media (min-width: var(--dcf-width-sm)) {
+        @media (min-width: 576px) {
           display: block;
           margin-left: 0px;
         }
@@ -196,7 +196,7 @@ ion-item {
   }
   #dcf-actions {
     padding: 5px;
-    @media (max-width: var(--dcf-width-m)) {
+    @media (max-width: 768px) {
       display: none;
       pointer-events: none !important;
       cursor: text !important;
@@ -228,7 +228,7 @@ ion-item {
 
   #dcf-end,
   [slot="end"] {
-    @media (max-width: var(--dcf-width-m)) {
+    @media (max-width: 768px) {
       display: none !important;
     }
   }
@@ -253,7 +253,7 @@ ion-item {
       justify-content: flex-start;
     }
 
-    @media (max-width: var(--dcf-width-s)) {
+    @media (max-width: 576px) {
       align-items: flex-start !important;
     }
   }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { HeaderComponent } from 'src/app/components/header/header.component';
-import { DashboardLayout } from 'src/app/layouts/Dashboboard';
+import { DashboardLayout } from 'src/app/layouts/Dashboard';
 import { ContainerComponent, LayoutComponent } from 'src/lib/components';
 import { NgxPageDirective } from 'src/lib/engine';
 @Component({

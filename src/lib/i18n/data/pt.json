@@ -1,4 +1,11 @@
 {
+  "back": "Voltar",
+  "theme": {
+    "toggle": "Alternar tema"
+  },
+  "create": "Criar",
+  "read": "Ler",
+  "update": "Atualizar",
   "menu": {
     "collapse": "Reduzir barra lateral"
   },
@@ -99,6 +106,7 @@
     "processing": "A processar {0}..."
   },
   "component": {
+    "loading": "A carregar",
     "cron_builder": {
       "quick_presets": "Predefinições rápidas",
       "every": "A cada",
@@ -161,7 +169,20 @@
         "title": "Nenhum dado encontrado",
         "subtitle": "",
         "button": "Criar"
-      }
+      },
+      "filter": {
+        "clear": "Limpar filtro"
+      },
+      "operations": {
+        "read": "Ler",
+        "update": "Atualizar",
+        "delete": "Eliminar"
+      },
+      "id.label": "ID",
+      "name.label": "Nome",
+      "description.label": "Descrição",
+      "createdAt.label": "Criado",
+      "actions.label": "Ações"
     },
     "list_item": {
       "actions": "Ações",
@@ -184,7 +205,8 @@
     "pagination": {
       "resume": "A mostrar página <span class=\"text-bold\">{0} de {1}</span>",
       "next": "Seguinte",
-      "previous": "Anterior"
+      "previous": "Anterior",
+      "page": "Página {0}"
     },
     "searchbar": {
       "search": "Buscar",
@@ -217,6 +239,11 @@
       }
     },
     "filter": {
+      "remove": "Remover filtro: {0}",
+      "clear": "Limpar filtro",
+      "search": "Pesquisar",
+      "sort_asc": "Ordenar ascendente",
+      "sort_desc": "Ordenar descendente",
       "title": "Filtrar",
       "type": "Introduzir valor",
       "select": "Filtrar seleção",
@@ -237,6 +264,7 @@
       }
     },
     "stepped_form": {
+      "step_of": "Passo {current} de {total}",
       "next": "Seguinte",
       "previous": "Anterior",
       "submit": "Submeter",
@@ -251,7 +279,8 @@
         "select": "Selecionar Ficheiro",
         "select_directory": "Selecionar Diretório",
         "preview": "Pré-visualizar",
-        "clear": "Limpar"
+        "clear": "Limpar",
+        "remove": "Remover ficheiro"
       },
       "selection": "{0} ficheiro(s) selecionado(s) com sucesso",
       "selection_error": "{0} ficheiro(s) falharam a validação e não serão carregados.",
@@ -268,6 +297,98 @@
       "cancel": "Cancelar",
       "delete": "Apagar",
       "save": "Guardar Dashboard"
+    },
+    "layout": {
+      "toggle": "Alternar painel"
+    },
+    "crud_field": {
+      "clear": "Limpar campo"
+    },
+    "model_builder": {
+      "title": "Construtor de Modelos",
+      "example": "Exemplo",
+      "reset": "Redefinir",
+      "model_settings": "Configurações do modelo",
+      "model_name": "Nome do modelo *",
+      "description": "Descrição",
+      "layout_columns": "Colunas do layout",
+      "layout_rows": "Linhas do layout",
+      "properties": "Propriedades",
+      "add_property": "Adicionar propriedade",
+      "empty_properties": "Ainda não há propriedades. Clique em \"Adicionar propriedade\" para começar a definir seu modelo.",
+      "toggle_property": "Alternar propriedade",
+      "move_up": "Mover para cima",
+      "move_down": "Mover para baixo",
+      "remove_property": "Remover propriedade",
+      "name": "Nome",
+      "data_type": "Tipo de dado",
+      "component_tag": "Componente (tag uielement)",
+      "render_component": "Componente de renderização (tag uimodel)",
+      "list_model_tag": "Tag do modelo de lista (uilistmodel)",
+      "ui_element": "Elemento de interface",
+      "custom_tag": "Tag personalizada",
+      "label": "Rótulo",
+      "placeholder": "Texto de exemplo",
+      "input_type": "Tipo de entrada",
+      "readonly": "Somente leitura",
+      "translatable": "Traduzível",
+      "options_label": "Opções (valor:rótulo, valor:rótulo, ...)",
+      "layout": "Layout",
+      "column_span": "Extensão da coluna (uilayoutprop)",
+      "column_default": "1 (padrão)",
+      "none_default": "Nenhum (padrão)",
+      "row": "Linha",
+      "order": "Ordem (uiorder)",
+      "custom_order_number": "Número de ordem personalizado",
+      "hide_on": "Ocultar em (hideOn):",
+      "validators": "Validadores",
+      "required": "Obrigatório",
+      "email": "E-mail",
+      "url": "URL",
+      "min": "Mínimo",
+      "max": "Máximo",
+      "min_length": "Comprimento mínimo",
+      "max_length": "Comprimento máximo",
+      "pattern": "Padrão (regex)",
+      "build_model": "Criar modelo",
+      "live_preview": "Pré-visualização ao vivo",
+      "preview_empty": "Crie um modelo para ver a pré-visualização aqui.",
+      "model_name_example": "ex.: Usuário, Produto, Pedido...",
+      "description_placeholder": "Descrição opcional do modelo",
+      "list_tag_example": "ex.: ngx-decaf-list-item (opcional)",
+      "property_name_placeholder": "nome da propriedade",
+      "custom_tag_placeholder": "meu-componente-personalizado",
+      "display_label_placeholder": "Rótulo exibido",
+      "value_placeholder": "Digite um valor...",
+      "options_placeholder": "admin:Administrador, user:Usuário comum",
+      "order_number_placeholder": "ex.: 10",
+      "pattern_placeholder": "^[A-Z].*",
+      "operations": {
+        "create": "Criar",
+        "read": "Ler",
+        "update": "Atualizar",
+        "delete": "Excluir"
+      },
+      "tags": {
+        "component_tag": "Campo CRUD (texto/número/data/checkbox/select)",
+        "file_upload_tag": "Envio de arquivo",
+        "search_bar_tag": "Barra de pesquisa",
+        "table_tag": "Tabela",
+        "list_tag": "Lista",
+        "fieldset_tag": "Grupo de campos (aninhado)",
+        "select_field_tag": "Campo de seleção (personalizado)",
+        "raw_html_input_tag": "Entrada HTML simples",
+        "raw_html_textarea_tag": "Área de texto HTML simples",
+        "custom_tag_option": "Personalizado (defina a tag)"
+      },
+      "model_name_required": "O nome do modelo é obrigatório",
+      "property_name_required": "O nome da propriedade é obrigatório",
+      "half": "metade",
+      "full": "completo",
+      "first": "primeiro",
+      "last": "último",
+      "build_failed": "Não foi possível criar o modelo. Confira a configuração e tente novamente.",
+      "build_success": "\"{{name}}\" criado com {{count}} propriedades: {{properties}}"
     }
   }
 }

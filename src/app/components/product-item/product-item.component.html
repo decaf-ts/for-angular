@@ -29,6 +29,7 @@
               slot="icon-only"
               color="primary"
               name="ti-pencil"
+              [ariaLabel]="'operations.update.title' | translate"
             />
             <ngx-decaf-icon
               (click)="handleClick($event, OperationKeys.DELETE, item.productCode)"
@@ -37,6 +38,7 @@
               slot="icon-only"
               color="danger"
               name="ti-trash"
+              [ariaLabel]="'operations.delete.title' | translate"
             />
           </div>
         </div>

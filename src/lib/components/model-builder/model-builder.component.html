@@ -5,7 +5,7 @@
   <!-- Builder Panel -->
   <div class="model-builder__panel">
     <div class="model-builder__header">
-      <h2 class="model-builder__title">Model Builder</h2>
+      <h2 class="model-builder__title">{{ 'component.model_builder.title' | translate }}</h2>
       <div class="model-builder__actions">
         <ion-button
           size="small"
@@ -16,7 +16,7 @@
             slot="icon-only"
             name="ti-bulb"
           />
-          Example
+          {{ 'component.model_builder.example' | translate }}
         </ion-button>
         <ion-button
           size="small"
@@ -29,7 +29,7 @@
             slot="icon-only"
             name="ti-trash"
           />
-          Reset
+          {{ 'component.model_builder.reset' | translate }}
         </ion-button>
       </div>
     </div>
@@ -38,7 +38,7 @@
     <ion-accordion-group [value]="'model-settings'">
       <ion-accordion value="model-settings">
         <ion-item slot="header">
-          <ion-label>Model Settings</ion-label>
+          <ion-label>{{ 'component.model_builder.model_settings' | translate }}</ion-label>
         </ion-item>
         <div
           slot="content"
@@ -46,32 +46,27 @@
         >
           <div class="model-builder__grid-2">
             <ion-item>
-              <ion-label position="stacked">Model Name *</ion-label>
-              <ion-input
+              <ion-input labelPlacement="stacked" [label]="'component.model_builder.model_name' | translate"
                 [ngModel]="modelConfig().name"
                 (ngModelChange)="
                   modelConfig.set({ ...modelConfig(), name: $event })
                 "
-                placeholder="e.g. User, Product, Order..."
+                [placeholder]="'component.model_builder.model_name_example' | translate"
               ></ion-input>
             </ion-item>
 
             <ion-item>
-              <ion-label position="stacked">Description</ion-label>
-              <ion-input
+              <ion-input labelPlacement="stacked" [label]="'component.model_builder.description' | translate"
                 [ngModel]="modelConfig().description"
                 (ngModelChange)="
                   modelConfig.set({ ...modelConfig(), description: $event })
                 "
-                placeholder="Optional model description"
+                [placeholder]="'component.model_builder.description_placeholder' | translate"
               ></ion-input>
             </ion-item>
 
             <ion-item>
-              <ion-label position="stacked">
-                Render Component (uimodel tag)
-              </ion-label>
-              <ion-input
+              <ion-input labelPlacement="stacked" [label]="'component.model_builder.render_component' | translate"
                 [ngModel]="modelConfig().renderTag"
                 (ngModelChange)="
                   modelConfig.set({ ...modelConfig(), renderTag: $event })
@@ -81,21 +76,17 @@
             </ion-item>
 
             <ion-item>
-              <ion-label position="stacked">
-                List Model Tag (uilistmodel)
-              </ion-label>
-              <ion-input
+              <ion-input labelPlacement="stacked" [label]="'component.model_builder.list_model_tag' | translate"
                 [ngModel]="modelConfig().listModelTag"
                 (ngModelChange)="
                   modelConfig.set({ ...modelConfig(), listModelTag: $event })
                 "
-                placeholder="e.g. ngx-decaf-list-item (optional)"
+                [placeholder]="'component.model_builder.list_tag_example' | translate"
               ></ion-input>
             </ion-item>
 
             <ion-item>
-              <ion-label position="stacked">Layout Columns</ion-label>
-              <ion-input
+              <ion-input labelPlacement="stacked" [label]="'component.model_builder.layout_columns' | translate"
                 type="number"
                 [ngModel]="modelConfig().layoutCols"
                 (ngModelChange)="
@@ -108,8 +99,7 @@
             </ion-item>
 
             <ion-item>
-              <ion-label position="stacked">Layout Rows</ion-label>
-              <ion-input
+              <ion-input labelPlacement="stacked" [label]="'component.model_builder.layout_rows' | translate"
                 type="number"
                 [ngModel]="modelConfig().layoutRows"
                 (ngModelChange)="
@@ -128,7 +118,7 @@
     <!-- Properties -->
     <div class="model-builder__section">
       <div class="model-builder__section-header">
-        <h3 class="model-builder__subtitle">Properties</h3>
+        <h3 class="model-builder__subtitle">{{ 'component.model_builder.properties' | translate }}</h3>
         <ion-button
           size="small"
           (click)="addProperty()"
@@ -138,7 +128,7 @@
             slot="icon-only"
             name="ti-plus"
           />
-          Add Property
+          {{ 'component.model_builder.add_property' | translate }}
         </ion-button>
       </div>
 
@@ -163,6 +153,8 @@
                 <button
                   class="model-builder__property-toggle"
                   (click)="toggleExpanded(i)"
+                  aria-label="Toggle property"
+                  [attr.aria-expanded]="prop.expanded"
                 >
                   <ngx-decaf-icon
                     [name]="
@@ -187,6 +179,7 @@
                     fill="clear"
                     (click)="moveProperty(i, -1)"
                     [disabled]="i === 0"
+                    aria-label="Move up"
                   >
                     <ngx-decaf-icon
                       slot="icon-only"
@@ -198,6 +191,7 @@
                     fill="clear"
                     (click)="moveProperty(i, 1)"
                     [disabled]="i === properties().length - 1"
+                    aria-label="Move down"
                   >
                     <ngx-decaf-icon
                       slot="icon-only"
@@ -209,6 +203,7 @@
                     fill="clear"
                     color="danger"
                     (click)="removeProperty(i)"
+                    aria-label="Remove property"
                   >
                     <ngx-decaf-icon
                       slot="icon-only"
@@ -221,17 +216,15 @@
               <!-- Basic fields (always visible) -->
               <div class="model-builder__property-basic">
                 <ion-item>
-                  <ion-label position="stacked">Name</ion-label>
-                  <ion-input
+                  <ion-input labelPlacement="stacked" [label]="'component.model_builder.name' | translate"
                     [ngModel]="prop.name"
                     (ngModelChange)="onPropertyNameChange(i, $event)"
-                    placeholder="property name"
+                    [placeholder]="'component.model_builder.property_name_placeholder' | translate"
                   ></ion-input>
                 </ion-item>
 
                 <ion-item>
-                  <ion-label position="stacked">Data Type</ion-label>
-                  <ion-select
+                  <ion-select labelPlacement="stacked" [label]="'component.model_builder.data_type' | translate"
                     [ngModel]="prop.type"
                     (ngModelChange)="
                       properties()[i].type = $event;
@@ -249,10 +242,7 @@
                 </ion-item>
 
                 <ion-item>
-                  <ion-label position="stacked">
-                    Component (uielement tag)
-                  </ion-label>
-                  <ion-select
+                  <ion-select labelPlacement="stacked" [label]="'component.model_builder.component_tag' | translate"
                     [ngModel]="prop.ui.tag"
                     (ngModelChange)="
                       properties()[i].ui.tag = $event;
@@ -262,7 +252,7 @@
                   >
                     @for (tag of componentTags; track tag.value) {
                       <ion-select-option [value]="tag.value">
-                        {{ tag.label }}
+                        {{ tag.label | translate }}
                       </ion-select-option>
                     }
                   </ion-select>
@@ -274,49 +264,45 @@
                 <div class="model-builder__property-advanced">
                   <!-- UI Element Configuration -->
                   <div class="model-builder__group">
-                    <h4 class="model-builder__group-title">UI Element</h4>
+                    <h4 class="model-builder__group-title">{{ 'component.model_builder.ui_element' | translate }}</h4>
                     <div class="model-builder__grid-3">
                       @if (prop.ui.tag === 'custom') {
                         <ion-item>
-                          <ion-label position="stacked">Custom Tag</ion-label>
-                          <ion-input
+                          <ion-input labelPlacement="stacked" [label]="'component.model_builder.custom_tag' | translate"
                             [ngModel]="prop.ui.customTag"
                             (ngModelChange)="
                               properties()[i].ui.customTag = $event;
                               properties.set([...properties()])
                             "
-                            placeholder="my-custom-component"
+                            [placeholder]="'component.model_builder.custom_tag_placeholder' | translate"
                           ></ion-input>
                         </ion-item>
                       }
 
                       <ion-item>
-                        <ion-label position="stacked">Label</ion-label>
-                        <ion-input
+                        <ion-input labelPlacement="stacked" [label]="'component.model_builder.label' | translate"
                           [ngModel]="prop.ui.label"
                           (ngModelChange)="
                             properties()[i].ui.label = $event;
                             properties.set([...properties()])
                           "
-                          placeholder="Display label"
+                          [placeholder]="'component.model_builder.display_label_placeholder' | translate"
                         ></ion-input>
                       </ion-item>
 
                       <ion-item>
-                        <ion-label position="stacked">Placeholder</ion-label>
-                        <ion-input
+                        <ion-input labelPlacement="stacked" [label]="'component.model_builder.placeholder' | translate"
                           [ngModel]="prop.ui.placeholder"
                           (ngModelChange)="
                             properties()[i].ui.placeholder = $event;
                             properties.set([...properties()])
                           "
-                          placeholder="Enter value..."
+                          [placeholder]="'component.model_builder.value_placeholder' | translate"
                         ></ion-input>
                       </ion-item>
 
                       <ion-item>
-                        <ion-label position="stacked">Input Type</ion-label>
-                        <ion-select
+                        <ion-select labelPlacement="stacked" [label]="'component.model_builder.input_type' | translate"
                           [ngModel]="prop.ui.type"
                           (ngModelChange)="
                             properties()[i].ui.type = $event;
@@ -344,7 +330,7 @@
                           "
                         ></ion-checkbox>
                         <ion-label class="model-builder__checkbox-label">
-                          Readonly
+                          {{ 'component.model_builder.readonly' | translate }}
                         </ion-label>
                       </ion-item>
 
@@ -360,7 +346,7 @@
                           "
                         ></ion-checkbox>
                         <ion-label class="model-builder__checkbox-label">
-                          Translatable
+                          {{ 'component.model_builder.translatable' | translate }}
                         </ion-label>
                       </ion-item>
                     </div>
@@ -369,16 +355,13 @@
                       prop.ui.type === 'select' || prop.ui.type === 'radio'
                     ) {
                       <ion-item>
-                        <ion-label position="stacked">
-                          Options (value:label, value:label, ...)
-                        </ion-label>
-                        <ion-textarea
+                        <ion-textarea labelPlacement="stacked" [label]="'component.model_builder.options_label' | translate"
                           [ngModel]="prop.ui.options"
                           (ngModelChange)="
                             properties()[i].ui.options = $event;
                             properties.set([...properties()])
                           "
-                          placeholder="admin:Administrator, user:Regular User"
+                          [placeholder]="'component.model_builder.options_placeholder' | translate"
                           [rows]="2"
                         ></ion-textarea>
                       </ion-item>
@@ -387,13 +370,10 @@
 
                   <!-- Layout Configuration -->
                   <div class="model-builder__group">
-                    <h4 class="model-builder__group-title">Layout</h4>
+                    <h4 class="model-builder__group-title">{{ 'component.model_builder.layout' | translate }}</h4>
                     <div class="model-builder__grid-3">
                       <ion-item>
-                        <ion-label position="stacked">
-                          Column Span (uilayoutprop)
-                        </ion-label>
-                        <ion-select
+                        <ion-select labelPlacement="stacked" [label]="'component.model_builder.column_span' | translate"
                           [ngModel]="prop.layout.col"
                           (ngModelChange)="
                             properties()[i].layout.col = $event;
@@ -406,17 +386,16 @@
                           </ion-select-option>
                           <ion-select-option [value]="2">2</ion-select-option>
                           <ion-select-option value="half">
-                            half
+                            {{ 'component.model_builder.half' | translate }}
                           </ion-select-option>
                           <ion-select-option value="full">
-                            full
+                            {{ 'component.model_builder.full' | translate }}
                           </ion-select-option>
                         </ion-select>
                       </ion-item>
 
                       <ion-item>
-                        <ion-label position="stacked">Row</ion-label>
-                        <ion-input
+                        <ion-input labelPlacement="stacked" [label]="'component.model_builder.row' | translate"
                           type="number"
                           [ngModel]="prop.layout.row"
                           (ngModelChange)="
@@ -427,10 +406,7 @@
                       </ion-item>
 
                       <ion-item>
-                        <ion-label position="stacked">
-                          Order (uiorder)
-                        </ion-label>
-                        <ion-select
+                        <ion-select labelPlacement="stacked" [label]="'component.model_builder.order' | translate"
                           [ngModel]="prop.layout.order"
                           (ngModelChange)="
                             properties()[i].layout.order = $event;
@@ -442,20 +418,17 @@
                             None (default)
                           </ion-select-option>
                           <ion-select-option value="first">
-                            first
+                            {{ 'component.model_builder.first' | translate }}
                           </ion-select-option>
                           <ion-select-option value="last">
-                            last
+                            {{ 'component.model_builder.last' | translate }}
                           </ion-select-option>
                         </ion-select>
                       </ion-item>
 
                       @if (prop.layout.order === '') {
                         <ion-item>
-                          <ion-label position="stacked">
-                            Custom Order Number
-                          </ion-label>
-                          <ion-input
+                          <ion-input labelPlacement="stacked" [label]="'component.model_builder.custom_order_number' | translate"
                             type="number"
                             [ngModel]="prop.layout.orderNum"
                             (ngModelChange)="
@@ -464,7 +437,7 @@
                                 : null;
                               properties.set([...properties()])
                             "
-                            placeholder="e.g. 10"
+                            [placeholder]="'component.model_builder.order_number_placeholder' | translate"
                           ></ion-input>
                         </ion-item>
                       }
@@ -485,7 +458,7 @@
                               (ionChange)="toggleHideOn(i, op)"
                             ></ion-checkbox>
                             <ion-label class="model-builder__checkbox-label">
-                              {{ op }}
+                              {{ ('component.model_builder.operations.' + op) | translate }}
                             </ion-label>
                           </ion-item>
                         }
@@ -495,7 +468,7 @@
 
                   <!-- Validators -->
                   <div class="model-builder__group">
-                    <h4 class="model-builder__group-title">Validators</h4>
+                    <h4 class="model-builder__group-title">{{ 'component.model_builder.validators' | translate }}</h4>
                     <div class="model-builder__checkbox-row">
                       <ion-item
                         lines="none"
@@ -509,7 +482,7 @@
                           "
                         ></ion-checkbox>
                         <ion-label class="model-builder__checkbox-label">
-                          Required
+                          {{ 'component.model_builder.required' | translate }}
                         </ion-label>
                       </ion-item>
 
@@ -526,7 +499,7 @@
                             "
                           ></ion-checkbox>
                           <ion-label class="model-builder__checkbox-label">
-                            Email
+                            {{ 'component.model_builder.email' | translate }}
                           </ion-label>
                         </ion-item>
 
@@ -542,7 +515,7 @@
                             "
                           ></ion-checkbox>
                           <ion-label class="model-builder__checkbox-label">
-                            URL
+                            {{ 'component.model_builder.url' | translate }}
                           </ion-label>
                         </ion-item>
                       }
@@ -551,8 +524,7 @@
                     <div class="model-builder__grid-4">
                       @if (prop.type === 'number') {
                         <ion-item>
-                          <ion-label position="stacked">Min</ion-label>
-                          <ion-input
+                          <ion-input labelPlacement="stacked" [label]="'component.model_builder.min' | translate"
                             type="number"
                             [ngModel]="prop.validators.min"
                             (ngModelChange)="
@@ -564,8 +536,7 @@
                           ></ion-input>
                         </ion-item>
                         <ion-item>
-                          <ion-label position="stacked">Max</ion-label>
-                          <ion-input
+                          <ion-input labelPlacement="stacked" [label]="'component.model_builder.max' | translate"
                             type="number"
                             [ngModel]="prop.validators.max"
                             (ngModelChange)="
@@ -580,8 +551,7 @@
 
                       @if (prop.type === 'string') {
                         <ion-item>
-                          <ion-label position="stacked">Min Length</ion-label>
-                          <ion-input
+                          <ion-input labelPlacement="stacked" [label]="'component.model_builder.min_length' | translate"
                             type="number"
                             [ngModel]="prop.validators.minlength"
                             (ngModelChange)="
@@ -593,8 +563,7 @@
                           ></ion-input>
                         </ion-item>
                         <ion-item>
-                          <ion-label position="stacked">Max Length</ion-label>
-                          <ion-input
+                          <ion-input labelPlacement="stacked" [label]="'component.model_builder.max_length' | translate"
                             type="number"
                             [ngModel]="prop.validators.maxlength"
                             (ngModelChange)="
@@ -606,16 +575,13 @@
                           ></ion-input>
                         </ion-item>
                         <ion-item class="model-builder__item-wide">
-                          <ion-label position="stacked">
-                            Pattern (regex)
-                          </ion-label>
-                          <ion-input
+                          <ion-input labelPlacement="stacked" [label]="'component.model_builder.pattern' | translate"
                             [ngModel]="prop.validators.pattern"
                             (ngModelChange)="
                               properties()[i].validators.pattern = $event;
                               properties.set([...properties()])
                             "
-                            placeholder="^[A-Z].*"
+                            [placeholder]="'component.model_builder.pattern_placeholder' | translate"
                           ></ion-input>
                         </ion-item>
                       }
@@ -640,20 +606,20 @@
           slot="start"
           name="ti-tool"
         />
-        Build Model
+        {{ 'component.model_builder.build_model' | translate }}
       </ion-button>
 
       @if (buildError()) {
         <div class="model-builder__error">
           <ngx-decaf-icon name="ti-alert-circle" />
-          <span>{{ buildError() }}</span>
+          <span>{{ buildError() | translate }}</span>
         </div>
       }
 
       @if (buildInfo() && !buildError()) {
         <div class="model-builder__success">
           <ngx-decaf-icon name="ti-circle-check" />
-          <span>{{ buildInfo() }}</span>
+          <span>{{ buildInfo()?.key | translate: buildInfo()?.params }}</span>
         </div>
       }
     </div>
@@ -663,7 +629,7 @@
   @if (preview) {
     <div class="model-builder__preview">
       <div class="model-builder__preview-header">
-        <h2 class="model-builder__title">Live Preview</h2>
+        <h2 class="model-builder__title">{{ 'component.model_builder.live_preview' | translate }}</h2>
         @if (builtModel()) {
           <span class="model-builder__preview-model-name">
             {{ builtModel()!.constructor.name }}
@@ -680,7 +646,7 @@
         } @else {
           <div class="model-builder__empty">
             <ngx-decaf-icon name="ti-eye" />
-            <p>Build a model to see the live preview here.</p>
+            <p>{{ 'component.model_builder.preview_empty' | translate }}</p>
           </div>
         }
       </div>

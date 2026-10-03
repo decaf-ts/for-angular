@@ -43,7 +43,7 @@
 
       &.dcf-delete {
         .dcf-title {
-          color: var(--dcf-color-danger);
+          color: var(--dcf-color-danger-text);
         }
       }
 
@@ -72,7 +72,7 @@
           border: 1px;
           .dcf-title {
             margin: 0px !important;
-            color: var(--dcf-color-danger) !important;
+            color: var(--dcf-color-danger-text) !important;
           }
           .ti {
             margin-right: 10px !important;
@@ -328,4 +328,15 @@
 
 ion-loading.dcf-loading-component .loading-content:empty {
   display: none;
+}
+.dcf-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

@@ -133,13 +133,13 @@
                                 <div slot="start">
                                   @if (operation === OperationKeys.UPDATE) {
                                     <ngx-decaf-icon
-                                      [button]="true"
+                                      [button]="false"
                                       slot="icon-only"
                                       name="ti-edit"
                                     />
                                   } @else {
                                     <ngx-decaf-icon
-                                      [button]="true"
+                                      [button]="false"
                                       slot="icon-only"
                                       color="danger"
                                       name="ti-trash"
@@ -170,6 +170,9 @@
                             (click)="handleAction($event, operation, component)"
                             fill="clear"
                             shape="round"
+                            [ariaLabel]="
+                              locale + '.operations.' + operation | translate
+                            "
                             [attr.aria-label]="
                               locale + '.operations.' + operation | translate
                             "
@@ -216,6 +219,7 @@
             class="dcf-update"
             (click)="handleAction($event, OperationKeys.UPDATE, component)"
             [expandable]="operations.length === 1"
+            [attr.aria-label]="locale + '.operations.update' | translate"
           >
             <ngx-decaf-icon
               slot="icon-only"
@@ -228,6 +232,7 @@
             class="dcf-delete"
             (click)="handleAction($event, OperationKeys.DELETE, component)"
             [expandable]="operations.length === 1"
+            [attr.aria-label]="locale + '.operations.delete' | translate"
           >
             <ngx-decaf-icon
               slot="icon-only"

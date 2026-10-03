@@ -180,6 +180,8 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    */
   filteredOptions: string[] = [];
 
+  activeOptionIndex = -1;
+
   /**
    * @description Complete filter objects created by the user.
    * @summary Array of complete filter objects, each containing index, condition, and value properties.
@@ -406,9 +408,44 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    * @memberOf FilterComponent
    */
   handleFocus(options: string[] = []): void {
+    this.inputElement ??= this.component?.nativeElement.querySelector(`#${this.uid}-field`);
     if (!options.length) options = this.getOptions();
     this.filteredOptions = this.options = options;
     this.dropdownOpen = true;
+    this.activeOptionIndex = -1;
+  }
+
+  handleComboboxKeydown(event: KeyboardEvent): void {
+    const options = this.filteredOptions;
+    if (event.key === 'Escape') {
+      if (this.dropdownOpen) {
+        event.preventDefault();
+        this.options = [];
+        this.filteredOptions = [];
+        this.dropdownOpen = false;
+        this.activeOptionIndex = -1;
+        this.inputElement?.focus();
+      }
+      return;
+    }
+    if (!options.length || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    this.dropdownOpen = true;
+    if (event.key === 'Home') this.activeOptionIndex = 0;
+    else if (event.key === 'End') this.activeOptionIndex = options.length - 1;
+    else if (event.key === 'ArrowDown') this.activeOptionIndex = (this.activeOptionIndex + 1) % options.length;
+    else this.activeOptionIndex = (this.activeOptionIndex - 1 + options.length) % options.length;
+  }
+
+  handleEnter(event: KeyboardEvent): void {
+    if (this.activeOptionIndex >= 0 && this.filteredOptions[this.activeOptionIndex]) {
+      event.preventDefault();
+      this.selectOption(this.filteredOptions[this.activeOptionIndex]);
+      this.activeOptionIndex = -1;
+      this.inputElement?.focus();
+      return;
+    }
+    void this.addFilter(this.value, event);
   }
 
   /**
@@ -515,9 +552,9 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
    *
    * @memberOf FilterComponent
    */
-  async addFilter(value: string, event?: CustomEvent): Promise<void> {
+  async addFilter(value: string, event?: Event): Promise<void> {
     value = value.trim();
-    if (!this.inputElement) this.inputElement = this.component.nativeElement.querySelector('input');
+    if (!this.inputElement) this.inputElement = this.component.nativeElement.querySelector(`#${this.uid}-field`);
     if (event instanceof KeyboardEvent && !value) {
       this.inputElement.blur();
       await this.submit();
@@ -557,7 +594,7 @@ export class FilterComponent extends NgxComponentDirective implements OnInit, On
         this.step++;
         this.value = '';
         if (this.options.length) this.handleFocus(this.options);
-        this.component.nativeElement.querySelector('#dcf-filter-field').focus();
+        this.component.nativeElement.querySelector(`#${this.uid}-field`)?.focus();
       }
     }
   }

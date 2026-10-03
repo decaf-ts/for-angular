@@ -51,6 +51,43 @@ describe('CronBuilderComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('cron builder role activation', () => {
+    const every = fixture.nativeElement.querySelector('.dcf-every') as HTMLButtonElement;
+    const increment = fixture.nativeElement.querySelector('.dcf-input-controls button') as HTMLButtonElement;
+    expect(every.tagName.toLowerCase()).toBe('button');
+    expect(every.type).toBe('button');
+    expect(increment.tagName.toLowerCase()).toBe('button');
+    expect(increment.type).toBe('button');
+
+    const toggle = jest.spyOn(component, 'toggleEvery');
+    every.click();
+    expect(toggle).toHaveBeenCalledTimes(1);
+    for (const key of ['Enter', ' ']) {
+      toggle.mockClear();
+      every.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+      // JSDOM does not implement native button key activation; click models the browser default.
+      every.click();
+      expect(toggle).toHaveBeenCalledTimes(1);
+    }
+    toggle.mockClear();
+    every.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, cancelable: true }));
+    expect(toggle).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('[role="button"]')).toBeNull();
+  });
+
+  it('should not render unnamed focusable controls inside aria-hidden content', () => {
+    fixture.componentRef.setInput('multiple', true);
+    component.addAnother();
+    fixture.detectChanges();
+
+    const decorativeIcons = fixture.nativeElement.querySelectorAll('.dcf-task-icon');
+    expect(decorativeIcons.length).toBeGreaterThan(0);
+    decorativeIcons.forEach((icon: Element) => {
+      expect(icon.getAttribute('aria-hidden')).toBe('true');
+      expect(icon.querySelector('button, ion-button, [role="button"], [tabindex]')).toBeNull();
+    });
+  });
+
   it('should parse the initial value into the five raw cron fields', () => {
     expect(component.getFieldValue('minute')).toBe('0');
     expect(component.getFieldValue('hour')).toBe('9');
