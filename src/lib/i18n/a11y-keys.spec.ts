@@ -109,7 +109,7 @@ function getNestedValue(obj: Record<string, any>, path: string): string | undefi
 }
 
 describe('a11y i18n keys', () => {
-  it('model builder keys present in en and pt', () => {
+  it('new a11y keys present in en and pt', () => {
     for (const key of NEW_A11Y_KEYS) {
       const enVal = getNestedValue(en, key);
       expect(typeof enVal).toBe('string');
@@ -120,4 +120,12 @@ describe('a11y i18n keys', () => {
       expect(ptVal?.trim().length).toBeGreaterThan(0);
     }
   });
+
+  it('model builder keys', () => {
+    for (const key of NEW_A11Y_KEYS.filter((entry) => entry.startsWith('component.model_builder.'))) {
+      expect(getNestedValue(en, key)?.trim().length).toBeGreaterThan(0);
+      expect(getNestedValue(pt, key)?.trim().length).toBeGreaterThan(0);
+    }
+  });
+
 });
