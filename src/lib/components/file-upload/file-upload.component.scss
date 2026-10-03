@@ -64,7 +64,7 @@
   }
 
   .dcf-file-error {
-    color: var(--dcf-color-danger) !important;
+    color: var(--dcf-color-danger-text) !important;
     font-size: 0.8rem !important;
     font-weight: 500 !important;
     line-height: 1.1rem;
@@ -88,7 +88,7 @@
     width: 100%;
   }
   .dcf-error-message {
-    color: var(--dcf-color-danger);
+    color: var(--dcf-color-danger-text);
     font-size: 0.875rem;
   }
   .dcf-drag-description {
@@ -208,7 +208,7 @@
       &.dcf-error-item {
         --background: rgba(var(--dcf-color-danger-rgb), 0.02) !important;
         --border-color: rgba(var(--dcf-color-danger-rgb), 0.2) !important;
-        // --color: var(--dcf-color-danger);
+        // --color: var(--dcf-color-danger-text);
       }
       ion-item {
         --padding-top: 0.25rem;

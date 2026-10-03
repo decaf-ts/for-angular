@@ -43,7 +43,7 @@
 
       &.dcf-delete {
         .dcf-title {
-          color: var(--dcf-color-danger);
+          color: var(--dcf-color-danger-text);
         }
       }
 
@@ -72,7 +72,7 @@
           border: 1px;
           .dcf-title {
             margin: 0px !important;
-            color: var(--dcf-color-danger) !important;
+            color: var(--dcf-color-danger-text) !important;
           }
           .ti {
             margin-right: 10px !important;

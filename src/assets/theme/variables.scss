@@ -602,5 +602,22 @@ $dcf-dark-border-strong: 1px solid $dcf-dark-color-outline-shade;
   --dcf-form-field-font-size: #{$dcf-form-field-font-size};
   --dcf-form-field-active-font-size: #{$dcf-form-field-active-font-size};
   --dcf-form-field-error-font-size: #{$dcf-form-field-error-font-size};
+
+  /* A11y + token completion — OWNER: migrate to @decaf-ts/styles */
+  --dcf-box-shadow-compact: #{$dcf-shadow-card};
+  --dcf-shadow-glass: #{$dcf-shadow-glass};
+  --dcf-box-shadow-small: #{$dcf-box-shadow-sm};
+  --dcf-box-shadow-large: #{$dcf-box-shadow-xl};
+  --dcf-graph-sidebar-width: 260px;
+  --dcf-primary: #{$dcf-color-primary};
+  --dcf-text-primary: #{$dcf-color-text-primary};
+  --dcf-text-secondary: #{$dcf-color-text-secondary};
+  --dcf-space-px: #{$dcf-space-px};
+  --dcf-border-radius-small: #{$dcf-radius-sm};
+  --dcf-color-warning-text: #8a5300;
+  --dcf-color-success-text: #00857a;
+  --dcf-color-danger-text: #b3223a;
+  --dcf-color-text-tertiary-text: #5d6478;
+
   --ion-color-step-300: var(--dcf-color-gray-4);
 }
