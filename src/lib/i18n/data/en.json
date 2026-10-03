@@ -106,6 +106,7 @@
     "processing": "Processing {0}..."
   },
   "component": {
+    "loading": "Loading",
     "cron_builder": {
       "quick_presets": "Quick presets",
       "every": "Every",
@@ -233,6 +234,7 @@
       }
     },
     "filter": {
+      "remove": "Remove filter: {0}",
       "clear": "Clear filter",
       "search": "Search",
       "sort_asc": "Sort ascending",
@@ -257,6 +259,7 @@
       }
     },
     "stepped_form": {
+      "step_of": "Step {current} of {total}",
       "next": "Next",
       "previous": "Previous",
       "submit": "Submit",

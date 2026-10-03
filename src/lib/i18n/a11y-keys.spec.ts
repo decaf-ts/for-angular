@@ -17,6 +17,9 @@ export const NEW_A11Y_KEYS = [
   'component.filter.search',
   'component.filter.sort_asc',
   'component.filter.sort_desc',
+  'component.filter.remove',
+  'component.loading',
+  'component.stepped_form.step_of',
   'component.layout.toggle',
   'component.crud_field.clear',
 ];
