@@ -61,6 +61,8 @@ ngx-decaf-icon {
   list-style: none;
   position: relative;
 
+  button[role='tab'] { min-height: var(--dcf-size-touch); min-width: var(--dcf-size-touch); font: inherit; color: inherit; background: transparent; border: 0; cursor: pointer; }
+
   &.dcf-switcher-toggle {
     background: var(--dcf-color-gray-3);
     max-width: max-content;
@@ -77,11 +79,11 @@ ngx-decaf-icon {
       }
       &:hover {
         background: var(--dcf-color-gray-1);
-        a {
+        button[role='tab'] {
           opacity: 0.8;
         }
       }
-      a {
+      button[role='tab'] {
         padding-top: 0.4rem !important;
         opacity: 0.7;
         color: var(--dcf-color-dark) !important;
@@ -90,7 +92,7 @@ ngx-decaf-icon {
         opacity: 1;
         background: white;
         color: var(--dcf-color-dark) !important;
-        a {
+        button[role='tab'] {
           opacity: 1;
           color: var(--dcf-color-dark) !important;
           text-align: center;
@@ -111,16 +113,16 @@ ngx-decaf-icon {
         margin-right: 0px !important;
       }
       &:hover {
-        a {
+        button[role='tab'] {
           opacity: 0.8;
         }
       }
-      a {
+      button[role='tab'] {
         padding: 0.65rem 1.25rem;
         opacity: 0.7;
       }
       &:not(.dcf-active) {
-        a {
+        button[role='tab'] {
           color: var(--dcf-color-dark) !important;
         }
       }
@@ -128,7 +130,7 @@ ngx-decaf-icon {
         opacity: 1;
         background: var(--dcf-color-primary);
         color: white !important;
-        a {
+        button[role='tab'] {
           opacity: 1;
           text-align: center;
         }
@@ -143,12 +145,12 @@ ngx-decaf-icon {
         > * {
           padding-left: 0;
           &.dcf-active {
-            a {
+            button[role='tab'] {
               background: var(--dcf-color-primary);
               border-radius: var(--dcf-border-radius-sm);
             }
           }
-          > a {
+          > button[role='tab'] {
             justify-content: left;
             border: transparent;
             border-bottom: none;
@@ -183,7 +185,7 @@ ngx-decaf-icon {
       > * {
         padding-left: 0;
 
-        > a {
+        > button[role='tab'] {
           justify-content: left;
           border-left: 1px solid transparent;
           border-bottom: none;
@@ -200,14 +202,14 @@ ngx-decaf-icon {
     }
 
     > * {
-      a {
+      button[role='tab'] {
         border-bottom: 1px solid transparent;
         text-transform: uppercase;
       }
     }
 
     > .dcf-active {
-      > a {
+      > button[role='tab'] {
         color: var(--dcf-color-text);
         border-color: var(--dcf-color-primary);
 
@@ -225,7 +227,7 @@ ngx-decaf-icon {
     position: relative;
     cursor: pointer;
 
-    > a {
+    > button[role='tab'] {
       display: flex;
       align-items: center;
       column-gap: 0.25em;
@@ -243,7 +245,7 @@ ngx-decaf-icon {
   }
 
   > .dcf-active {
-    > a {
+    > button[role='tab'] {
       color: white;
 
       &:active,
@@ -256,7 +258,7 @@ ngx-decaf-icon {
   }
 
   > .dcf-disabled {
-    > a {
+    > button[role='tab'] {
       color: var(--dcf-color-gray-4);
     }
   }
