@@ -32,6 +32,11 @@
           "
           [class.dcf-dragging]="dragging"
           [class.dcf-has-files]="files.length"
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="label ? (label | translate) : (locale + '.drag_file' | translate)"
+          (keydown.enter)="handleDropzoneKeydown($event)"
+          (keydown.space)="handleDropzoneKeydown($event)"
           (drop)="!files?.length ? handleDrop($event) : (dragging = false)"
           (dragover)="
             !files?.length ? handleDragOver($event) : (dragging = false)

@@ -341,6 +341,12 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
     }
   }
 
+  handleDropzoneKeydown(event: KeyboardEvent): void {
+    if (event.target !== event.currentTarget) return;
+    event.preventDefault();
+    void this.handleClickToSelect();
+  }
+
   /**
    * @description Handles the file selection event.
    * @summary Processes the files selected by the user, validates them, and updates the file list.

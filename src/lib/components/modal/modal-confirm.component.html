@@ -6,7 +6,7 @@
         color="danger"
       />
 
-      @if (title?.lengh) {
+      @if (title?.length) {
         <h2
           class="dcf-title"
           [innerHTML]="translatable ? (title | translate) : title"
@@ -34,7 +34,7 @@
         "
       ></div>
       <input
-        aria-label="component.modal.confirm.code.message' | translate"
+        [attr.aria-label]="'component.modal.confirm.code.label' | translate"
         (input)="handleConfirmInputChanges($event)"
         (blur)="handleConfirmInputChanges($event)"
         [minlength]="confirmCode?.length"

@@ -30,19 +30,16 @@
           @if (['hour', 'minute'].includes(field)) {
             <div>
               <div class="dcf-cron-builder-preset">
-                <span
+                <button type="button"
                   class="dcf-every"
                   (click)="toggleEvery(field)"
                   [class.dcf-color-primary]="every"
-                  (keydown)="handleKeydown($event, enableEvery, field)"
-                  role="button"
-                  tabindex="0"
                   [ngx-decaf-tooltip]="
                     'component.cron_builder.enable_step' | translate
                   "
                 >
                   {{ 'component.cron_builder.every' | translate }}
-                </span>
+                </button>
 
                 <div class="dcf-flex dcf-flex-middle">
                   <input
@@ -50,35 +47,29 @@
                     type="text"
                     minlength="1"
                     [pattern]="field === 'hour' ? '[0-9*/]+' : '[0-9*/]+'"
-                    maxlengh="2"
+                    maxlength="2"
                     class="dcf-cron-builder-preset-input"
                     [value]="fieldValue"
                     [disabled]="disabled()"
                     (keypress)="(e) => e.stopImmediatePropagation()"
                   />
                   <div class="dcf-input-controls">
-                    <div
-                      tabindex="0"
-                      [role]="button"
+                    <button type="button"
                       (click)="incrementTime(field, every)"
-                      (keydown)="incrementTime(field, every)"
                     >
                       <span
                         class="ti ti-chevron-up"
                         aria-hidden="true"
                       ></span>
-                    </div>
-                    <div
-                      [role]="button"
-                      tabindex="0"
+                    </button>
+                    <button type="button"
                       (click)="decrementTime(field, every)"
-                      (keydown)="decrementTime(field, every)"
                     >
                       <span
                         class="ti ti-chevron-down"
                         aria-hidden="true"
                       ></span>
-                    </div>
+                    </button>
                   </div>
                 </div>
                 <span>{{ 'component.cron_builder.' + field | translate }}</span>
@@ -198,7 +189,7 @@
           (click)="handleCopyToClipBoard()"
         >
           <span
-            arai-hidden="true"
+            aria-hidden="true"
             class="ti"
             [ngClass]="
               copied()
