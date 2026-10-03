@@ -1,4 +1,11 @@
 {
+  "back": "Back",
+  "theme": {
+    "toggle": "Toggle theme"
+  },
+  "create": "Create",
+  "read": "Read",
+  "update": "Update",
   "menu": {
     "collapse": "Collapse sidebar"
   },
@@ -161,6 +168,14 @@
         "title": "No data found",
         "subtitle": "",
         "button": "Create"
+      },
+      "filter": {
+        "clear": "Clear filter"
+      },
+      "operations": {
+        "read": "Read",
+        "update": "Update",
+        "delete": "Delete"
       }
     },
     "list_item": {
@@ -184,7 +199,8 @@
     "pagination": {
       "resume": "Showing page <span class=\"text-bold\">{0} of {1}</span>",
       "next": "Next",
-      "previous": "Previous"
+      "previous": "Previous",
+      "page": "Page {0}"
     },
     "searchbar": {
       "search": "Search",
@@ -217,6 +233,10 @@
       }
     },
     "filter": {
+      "clear": "Clear filter",
+      "search": "Search",
+      "sort_asc": "Sort ascending",
+      "sort_desc": "Sort descending",
       "title": "Filter",
       "type": "Type value",
       "select": "Filter selection",
@@ -251,7 +271,8 @@
         "select": "Select File",
         "select_directory": "Select Directory",
         "preview": "Preview",
-        "clear": "Clear"
+        "clear": "Clear",
+        "remove": "Remove file"
       },
       "selection": "{0} file(s) selected with success",
       "selection_error": "{0} file(s) failed validation and will not be uploaded.",
@@ -268,6 +289,12 @@
       "cancel": "Cancel",
       "delete": "Delete",
       "save": "Save Dashboard"
+    },
+    "layout": {
+      "toggle": "Toggle panel"
+    },
+    "crud_field": {
+      "clear": "Clear field"
     }
   }
 }

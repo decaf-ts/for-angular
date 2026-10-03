@@ -1,6 +1,6 @@
 
 @if(!showText) {
-  <ion-button shape="round" fill="clear" class="dcf-icon-only" [color]="color" (click)="backToPage()">
+  <ion-button shape="round" fill="clear" class="dcf-icon-only" [color]="color" (click)="backToPage()" [attr.aria-label]="'back' | translate">
     <ngx-decaf-icon
       name="ti-chevron-left"
       [color]="isDarkMode ? 'light' : color"

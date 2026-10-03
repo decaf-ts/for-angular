@@ -1,12 +1,16 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { NavController } from '@ionic/angular/standalone';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { ListItemComponent } from './list-item.component';
+import { IconComponent } from '../icon/icon.component';
 import { NgxRenderingEngine } from '../../engine';
 import { Model, ModelBuilderFunction } from '@decaf-ts/decorator-validation';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { I18nFakeLoader } from '../../i18n';
+
+import { OperationKeys } from '@decaf-ts/db-decorators';
 
 const navControllerMock = {
   navigateRoot: jest.fn(),
@@ -45,6 +49,40 @@ describe('ListItemComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('baseline actions', () => {
+    component.title = 'Item Title';
+    component.uid = '1';
+    component.showSlideItems = false;
+
+    // Both UPDATE and DELETE
+    component.operations = [OperationKeys.UPDATE, OperationKeys.DELETE];
+    fixture.detectChanges();
+    let actionIcons = fixture.debugElement
+      .queryAll(By.css('#dcf-actions'))
+      .flatMap((de) => de.queryAll(By.directive(IconComponent)));
+    expect(actionIcons.length).toBe(2);
+    expect(actionIcons[0].componentInstance.name).toBe('ti-edit');
+    expect(actionIcons[1].componentInstance.name).toBe('ti-trash');
+
+    // Only UPDATE
+    component.operations = [OperationKeys.UPDATE];
+    fixture.detectChanges();
+    actionIcons = fixture.debugElement
+      .queryAll(By.css('#dcf-actions'))
+      .flatMap((de) => de.queryAll(By.directive(IconComponent)));
+    expect(actionIcons.length).toBe(1);
+    expect(actionIcons[0].componentInstance.name).toBe('ti-edit');
+
+    // Only DELETE
+    component.operations = [OperationKeys.DELETE];
+    fixture.detectChanges();
+    actionIcons = fixture.debugElement
+      .queryAll(By.css('#dcf-actions'))
+      .flatMap((de) => de.queryAll(By.directive(IconComponent)));
+    expect(actionIcons.length).toBe(1);
+    expect(actionIcons[0].componentInstance.name).toBe('ti-trash');
   });
 });
 

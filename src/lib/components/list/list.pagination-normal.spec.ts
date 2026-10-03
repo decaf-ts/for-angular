@@ -2,7 +2,7 @@ import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { NavController } from '@ionic/angular/standalone';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { I18nFakeLoader } from '../../i18n';
 import { ListComponentsTypes } from '../../engine/constants';
@@ -20,6 +20,7 @@ const imports = [
   ForAngularCommonModule,
   ListComponent,
   TranslateModule.forRoot({
+    defaultLanguage: 'en',
     loader: {
       provide: TranslateLoader,
       useClass: I18nFakeLoader,
@@ -107,6 +108,7 @@ describe('ListComponent - normal (non-bookmark) pagination: sequential + page-sk
     component = fixture.componentInstance;
     component.data = [];
     component.type = ListComponentsTypes.PAGINATED;
+    TestBed.inject(TranslateService).use('en');
     fixture.detectChanges();
 
     paginator = buildTenPageNormalParginator();
@@ -120,11 +122,17 @@ describe('ListComponent - normal (non-bookmark) pagination: sequential + page-sk
   }
 
   function previousControl(): HTMLElement {
-    return fixture.nativeElement.querySelector('ngx-decaf-pagination [aria-label="previous"]');
+    return (
+      fixture.nativeElement.querySelector('ngx-decaf-pagination .dcf-pagination > button:first-child') ||
+      fixture.nativeElement.querySelector('ngx-decaf-pagination [aria-label="previous"]')
+    );
   }
 
   function nextControl(): HTMLElement {
-    return fixture.nativeElement.querySelector('ngx-decaf-pagination [aria-label="next"]');
+    return (
+      fixture.nativeElement.querySelector('ngx-decaf-pagination .dcf-pagination > button:last-child') ||
+      fixture.nativeElement.querySelector('ngx-decaf-pagination [aria-label="next"]')
+    );
   }
 
   function isDisabled(el: HTMLElement): boolean {
@@ -145,7 +153,7 @@ describe('ListComponent - normal (non-bookmark) pagination: sequential + page-sk
     if (!span) {
       throw new Error(`page button "${text}" is not currently rendered (rendered: ${renderedPageButtonTexts().join(', ')})`);
     }
-    (span.closest('div') as HTMLElement).click();
+    (span.closest('button, div') as HTMLElement).click();
     await fixture.whenStable();
     fixture.detectChanges();
   }

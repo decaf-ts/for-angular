@@ -45,6 +45,7 @@
               type="button"
               (click)="requestDelete(item)"
               (pointerdown)="$event.stopPropagation()"
+              [attr.aria-label]="'component.dashboard.deleteTitle' | translate"
             >
               <ngx-decaf-icon name="ti-x" />
             </button>

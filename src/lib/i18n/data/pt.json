@@ -1,4 +1,11 @@
 {
+  "back": "Voltar",
+  "theme": {
+    "toggle": "Alternar tema"
+  },
+  "create": "Criar",
+  "read": "Ler",
+  "update": "Atualizar",
   "menu": {
     "collapse": "Reduzir barra lateral"
   },
@@ -161,6 +168,14 @@
         "title": "Nenhum dado encontrado",
         "subtitle": "",
         "button": "Criar"
+      },
+      "filter": {
+        "clear": "Limpar filtro"
+      },
+      "operations": {
+        "read": "Ler",
+        "update": "Atualizar",
+        "delete": "Eliminar"
       }
     },
     "list_item": {
@@ -184,7 +199,8 @@
     "pagination": {
       "resume": "A mostrar página <span class=\"text-bold\">{0} de {1}</span>",
       "next": "Seguinte",
-      "previous": "Anterior"
+      "previous": "Anterior",
+      "page": "Página {0}"
     },
     "searchbar": {
       "search": "Buscar",
@@ -217,6 +233,10 @@
       }
     },
     "filter": {
+      "clear": "Limpar filtro",
+      "search": "Pesquisar",
+      "sort_asc": "Ordenar ascendente",
+      "sort_desc": "Ordenar descendente",
       "title": "Filtrar",
       "type": "Introduzir valor",
       "select": "Filtrar seleção",
@@ -251,7 +271,8 @@
         "select": "Selecionar Ficheiro",
         "select_directory": "Selecionar Diretório",
         "preview": "Pré-visualizar",
-        "clear": "Limpar"
+        "clear": "Limpar",
+        "remove": "Remover ficheiro"
       },
       "selection": "{0} ficheiro(s) selecionado(s) com sucesso",
       "selection_error": "{0} ficheiro(s) falharam a validação e não serão carregados.",
@@ -268,6 +289,12 @@
       "cancel": "Cancelar",
       "delete": "Apagar",
       "save": "Guardar Dashboard"
+    },
+    "layout": {
+      "toggle": "Alternar painel"
+    },
+    "crud_field": {
+      "clear": "Limpar campo"
     }
   }
 }

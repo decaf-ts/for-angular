@@ -65,6 +65,9 @@ export class IconComponent implements OnInit, OnDestroy {
   button: boolean = false;
 
   @Input()
+  ariaLabel?: string;
+
+  @Input()
   buttonFill: 'clear' | 'outline' | 'solid' | 'default' = 'clear';
 
   @Input()

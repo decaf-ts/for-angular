@@ -2,7 +2,7 @@ import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { NavController } from '@ionic/angular/standalone';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { I18nFakeLoader } from '../../i18n';
 import { ListComponentsTypes } from '../../engine/constants';
@@ -20,6 +20,7 @@ const imports = [
   ForAngularCommonModule,
   ListComponent,
   TranslateModule.forRoot({
+    defaultLanguage: 'en',
     loader: {
       provide: TranslateLoader,
       useClass: I18nFakeLoader,
@@ -109,6 +110,7 @@ describe('ListComponent - bookmark pagination (10-page real-usage simulation)', 
     component = fixture.componentInstance;
     component.data = [];
     component.type = ListComponentsTypes.PAGINATED;
+    TestBed.inject(TranslateService).use('en');
     fixture.detectChanges();
 
     paginator = buildTenPageParginator();

@@ -72,7 +72,7 @@
                   fill="clear"
                   (click)="handleClearValue($event)"
                   slot="end"
-                  aria-label="Show/hide password"
+                  [attr.aria-label]="'component.crud_field.clear' | translate"
                 >
                   <ngx-decaf-icon
                     size="small"

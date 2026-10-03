@@ -46,6 +46,7 @@ function updateFieldValidators(
   fixture: ComponentFixture<CrudFieldComponent>,
   component: CrudFieldComponent,
 ): void {
+  (component as any).initialized = true;
   fixture.detectChanges();
   const validators = NgxFormService['validatorsFromProps'](component);
   component.formControl = new FormControl(component.value, validators);
@@ -90,6 +91,259 @@ describe('CrudFieldComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('baseline groups and error element', () => {
+    // 1. Checkbox group (3 options)
+    component.type = 'checkbox';
+    component.label = 'Checkboxes';
+    component.options = [
+      { value: 'opt1', text: 'Option 1' },
+      { value: 'opt2', text: 'Option 2' },
+      { value: 'opt3', text: 'Option 3' },
+    ];
+    component.required = true;
+    component.value = [];
+    updateFieldValidators(fixture, component);
+
+    const checkboxes = fixture.nativeElement.querySelectorAll('.dcf-checkbox-group ion-checkbox');
+    expect(checkboxes.length).toBe(3);
+    const checkboxGroup = fixture.nativeElement.querySelector('.dcf-checkbox-group');
+    expect(checkboxGroup.getAttribute('role')).toBe('group');
+    const checkboxError = fixture.nativeElement.querySelector('.dcf-checkbox-group .dcf-input-error');
+    expect(checkboxError).toBeTruthy();
+
+    // 2. Radio group (3 options)
+    component.type = 'radio';
+    component.label = 'Radios';
+    component.options = [
+      { value: 'opt1', text: 'Option 1' },
+      { value: 'opt2', text: 'Option 2' },
+      { value: 'opt3', text: 'Option 3' },
+    ];
+    component.required = true;
+    component.value = '';
+    updateFieldValidators(fixture, component);
+
+    const radios = fixture.nativeElement.querySelectorAll('ion-radio-group ion-radio');
+    expect(radios.length).toBe(3);
+    const radioError = fixture.nativeElement.querySelector('.dcf-input-error');
+    expect(radioError).toBeTruthy();
+
+    // 3. Select (3 options)
+    component.type = 'select';
+    component.label = 'Select Field';
+    (component as any).initialized = false;
+    component.options = [
+      { value: 'opt1', text: 'Option 1' },
+      { value: 'opt2', text: 'Option 2' },
+      { value: 'opt3', text: 'Option 3' },
+    ];
+    component.required = true;
+    component.value = '';
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dcf-input-error')).toBeNull();
+    const uninitializedSelect = fixture.nativeElement.querySelector('ion-select');
+    expect(uninitializedSelect.getAttribute('aria-describedby')).toBeNull();
+
+    (component as any).initialized = true;
+    updateFieldValidators(fixture, component);
+
+    const select = fixture.nativeElement.querySelector('ion-select');
+    expect(select).toBeTruthy();
+    const selectOptions = fixture.nativeElement.querySelectorAll('ion-select-option');
+    expect(selectOptions.length).toBe(3);
+    const selectError = fixture.nativeElement.querySelector('.dcf-input-error');
+    expect(selectError).toBeTruthy();
+    expect(select.getAttribute('aria-describedby')).toBe(selectError.id);
+  });
+
+  it('regression option ids unique', () => {
+    component.type = 'checkbox';
+    component.label = 'Checkboxes';
+    component.options = [
+      { value: 'opt1', text: 'Option 1' },
+      { value: 'opt2', text: 'Option 2' },
+      { value: 'opt3', text: 'Option 3' },
+    ];
+    updateFieldValidators(fixture, component);
+
+    const checkboxes = Array.from(
+      fixture.nativeElement.querySelectorAll('.dcf-checkbox-group ion-checkbox')
+    ) as HTMLElement[];
+    expect(checkboxes.length).toBe(3);
+    const ids = checkboxes.map((cb) => cb.getAttribute('id') || cb.id);
+    const uniqueIds = new Set(ids);
+    expect(uniqueIds.size).toBe(3);
+    expect(ids).not.toContain(component.path);
+  });
+
+  it('error is announced and described', () => {
+    const cases = [
+      {
+        type: 'checkbox',
+        selector: '.dcf-checkbox-group',
+        value: [],
+        options: [
+          { value: 'opt1', text: 'Option 1' },
+          { value: 'opt2', text: 'Option 2' },
+          { value: 'opt3', text: 'Option 3' },
+        ],
+      },
+      {
+        type: 'radio',
+        selector: 'ion-radio-group',
+        value: '',
+        options: [
+          { value: 'opt1', text: 'Option 1' },
+          { value: 'opt2', text: 'Option 2' },
+          { value: 'opt3', text: 'Option 3' },
+        ],
+      },
+      {
+        type: 'select',
+        selector: 'ion-select',
+        value: '',
+        options: [
+          { value: 'opt1', text: 'Option 1' },
+          { value: 'opt2', text: 'Option 2' },
+          { value: 'opt3', text: 'Option 3' },
+        ],
+      },
+    ];
+
+    for (const c of cases) {
+      component.type = c.type;
+      component.label = `${c.type} label`;
+      component.options = c.options;
+      component.required = true;
+      component.value = c.value;
+      updateFieldValidators(fixture, component);
+
+      const errorEl = fixture.nativeElement.querySelector('.dcf-input-error');
+      expect(errorEl).not.toBeNull();
+      expect(errorEl.getAttribute('id')).toBe(`${component.path}-error`);
+      expect(errorEl.getAttribute('role')).toBe('alert');
+
+      const control = fixture.nativeElement.querySelector(c.selector);
+      expect(control).not.toBeNull();
+      expect(control.getAttribute('aria-invalid')).toBe('true');
+      expect(control.getAttribute('aria-describedby')).toBe(`${component.path}-error`);
+    }
+  });
+
+  it('no error no aria', () => {
+    const cases = [
+      {
+        type: 'checkbox',
+        selector: '.dcf-checkbox-group',
+        value: ['opt1'],
+        options: [
+          { value: 'opt1', text: 'Option 1' },
+          { value: 'opt2', text: 'Option 2' },
+          { value: 'opt3', text: 'Option 3' },
+        ],
+      },
+      {
+        type: 'radio',
+        selector: 'ion-radio-group',
+        value: 'opt1',
+        options: [
+          { value: 'opt1', text: 'Option 1' },
+          { value: 'opt2', text: 'Option 2' },
+          { value: 'opt3', text: 'Option 3' },
+        ],
+      },
+      {
+        type: 'select',
+        selector: 'ion-select',
+        value: 'opt1',
+        options: [
+          { value: 'opt1', text: 'Option 1' },
+          { value: 'opt2', text: 'Option 2' },
+          { value: 'opt3', text: 'Option 3' },
+        ],
+      },
+    ];
+
+    for (const c of cases) {
+      component.type = c.type;
+      component.label = `${c.type} label`;
+      component.options = c.options;
+      component.required = true;
+      component.value = c.value;
+      updateFieldValidators(fixture, component);
+
+      const control = fixture.nativeElement.querySelector(c.selector);
+      expect(control).not.toBeNull();
+      expect(control.getAttribute('aria-invalid')).toBeNull();
+      expect(control.getAttribute('aria-describedby')).toBeNull();
+    }
+  });
+
+  it('option ids and group label', () => {
+    const cases = [
+      {
+        type: 'checkbox',
+        groupSelector: '.dcf-checkbox-group',
+        itemSelector: '.dcf-checkbox-group ion-checkbox',
+        labelSelector: '.dcf-label',
+      },
+      {
+        type: 'radio',
+        groupSelector: 'ion-radio-group',
+        itemSelector: 'ion-radio-group ion-radio',
+        labelSelector: '.dcf-radio-group-label',
+      },
+    ];
+
+    const options = [
+      { value: 'opt1', text: 'Option 1' },
+      { value: 'opt2', text: 'Option 2' },
+      { value: 'opt3', text: 'Option 3' },
+    ];
+
+    for (const c of cases) {
+      component.type = c.type;
+      component.label = `${c.type} label`;
+      component.options = options;
+      component.required = false;
+      component.value = '';
+      updateFieldValidators(fixture, component);
+
+      const group = fixture.nativeElement.querySelector(c.groupSelector);
+      expect(group).not.toBeNull();
+      expect(group.getAttribute('aria-labelledby')).toBe(`${component.path}-label`);
+      if (c.type === 'checkbox') {
+        expect(group.getAttribute('role')).toBe('group');
+      }
+
+      const label = fixture.nativeElement.querySelector(c.labelSelector);
+      expect(label).not.toBeNull();
+      expect(label.getAttribute('id')).toBe(`${component.path}-label`);
+
+      const items = Array.from(fixture.nativeElement.querySelectorAll(c.itemSelector)) as HTMLElement[];
+      expect(items.length).toBe(3);
+      items.forEach((item, index) => {
+        expect(item.getAttribute('id')).toBe(`${component.path}.${index}`);
+      });
+    }
+  });
+
+  it('text input keeps error text', () => {
+    component.type = 'text';
+    component.label = 'Text Field';
+    component.required = true;
+    component.value = '';
+    updateFieldValidators(fixture, component);
+
+    const input = fixture.nativeElement.querySelector('ion-input');
+    expect(input).not.toBeNull();
+    expect(typeof (input as any).errorText).toBe('string');
+    expect(((input as any).errorText as string).trim().length).toBeGreaterThan(0);
+
+    const alert = fixture.nativeElement.querySelector('[role="alert"]');
+    expect(alert).toBeNull();
   });
 
   const testCases: { type: string; selector: string; value: any }[] = [

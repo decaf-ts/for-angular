@@ -39,6 +39,24 @@
     border-radius: 50%;
     box-sizing: border-box;
   }
+
+  // Low-specificity reset (:where adds 0 specificity) allows .dcf-nav background/padding to take precedence
+  :where(button) {
+    background: transparent;
+    border: 0;
+    font: inherit;
+    color: inherit;
+  }
+
+  > button:not(.dcf-nav) {
+    padding: 0;
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--dcf-color-primary);
+    outline-offset: 2px;
+  }
+
   > * {
     flex: none;
     padding-left: 0;
@@ -46,10 +64,11 @@
     margin: 0px 0.15rem;
     cursor: pointer;
 
-    &.dcf-disabled {
+    &.dcf-disabled,
+    &:disabled {
       pointer-events: none;
       touch-action: none;
-      cursor: text;
+      cursor: not-allowed;
     }
     &.dcf-active {
       pointer-events: none;

@@ -5,6 +5,7 @@
   @if (initialized) {
     @if (button) {
       <ion-button
+        [attr.aria-label]="ariaLabel || null"
         [fill]="buttonFill"
         [shape]="buttonShape"
         [color]="isDarkMode ? 'light' : color"

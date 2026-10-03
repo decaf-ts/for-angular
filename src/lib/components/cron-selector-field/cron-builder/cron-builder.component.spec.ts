@@ -51,6 +51,19 @@ describe('CronBuilderComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should not render unnamed focusable controls inside aria-hidden content', () => {
+    fixture.componentRef.setInput('multiple', true);
+    component.addAnother();
+    fixture.detectChanges();
+
+    const decorativeIcons = fixture.nativeElement.querySelectorAll('.dcf-task-icon');
+    expect(decorativeIcons.length).toBeGreaterThan(0);
+    decorativeIcons.forEach((icon: Element) => {
+      expect(icon.getAttribute('aria-hidden')).toBe('true');
+      expect(icon.querySelector('button, ion-button, [role="button"], [tabindex]')).toBeNull();
+    });
+  });
+
   it('should parse the initial value into the five raw cron fields', () => {
     expect(component.getFieldValue('minute')).toBe('0');
     expect(component.getFieldValue('hour')).toBe('9');

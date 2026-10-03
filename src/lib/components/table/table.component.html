@@ -45,6 +45,7 @@
               slot="end"
               size="small"
               [disabled]="!filterValue"
+              [attr.aria-label]="locale + '.filter.clear' | translate"
             >
               <ngx-decaf-icon
                 fill="clear"
@@ -107,6 +108,9 @@
                       @if (operations?.includes(OperationKeys.UPDATE)) {
                         <ngx-decaf-icon
                           [button]="true"
+                          [ariaLabel]="
+                            locale + '.operations.update' | translate
+                          "
                           (click)="
                             handleRedirect(
                               $event,
@@ -127,6 +131,9 @@
                         ) {
                           <ngx-decaf-icon
                             [button]="true"
+                            [ariaLabel]="
+                              locale + '.operations.read' | translate
+                            "
                             (click)="
                               handleRedirect(
                                 $event,
@@ -145,6 +152,9 @@
                       @if (operations?.includes(OperationKeys.DELETE)) {
                         <ngx-decaf-icon
                           [button]="true"
+                          [ariaLabel]="
+                            locale + '.operations.delete' | translate
+                          "
                           (click)="
                             handleRedirect(
                               $event,

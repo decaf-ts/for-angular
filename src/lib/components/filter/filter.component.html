@@ -101,6 +101,7 @@
             buttonFill="clear"
             size="small"
             (click)="clear()"
+            [ariaLabel]="locale + '.clear' | translate"
             name="ti-trash"
             [color]="!isDarkMode ? 'dark' : 'light'"
           />
@@ -112,6 +113,7 @@
           buttonFill="clear"
           size="small"
           (click)="submit()"
+          [ariaLabel]="locale + '.search' | translate"
           name="ti-search"
           [color]="!isDarkMode ? 'dark' : 'light'"
         />
@@ -182,6 +184,10 @@
           <ngx-decaf-icon
             (click)="handleSortDirectionChange()"
             [button]="true"
+            [ariaLabel]="
+              locale + (sortDirection === 'desc' ? '.sort_desc' : '.sort_asc')
+                | translate
+            "
             fill="clear"
             slot="icon-only"
             [color]="!isDarkMode ? 'primary' : 'light'"

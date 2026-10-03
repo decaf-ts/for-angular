@@ -115,10 +115,18 @@
               </ion-checkbox>
             </ion-item>
           } @else {
-            <div class="dcf-checkbox-group">
+            @let errors = getErrors(container);
+            <div
+              class="dcf-checkbox-group"
+              role="group"
+              [attr.aria-labelledby]="path + '-label'"
+              [attr.aria-invalid]="errors ? 'true' : null"
+              [attr.aria-describedby]="errors ? path + '-error' : null"
+            >
+              <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
               <label
                 class="dcf-label"
-                [for]="path"
+                [id]="path + '-label'"
               >
                 {{ label | translate }}
               </label>
@@ -130,7 +138,7 @@
                   <ion-checkbox
                     (ionInput)="handleModalChildChanges($event, formControl)"
                     (ionChange)="handleModalChildChanges($event, formControl)"
-                    [id]="path"
+                    [id]="path + '.' + $index"
                     [mode]="'md'"
                     [labelPlacement]="labelPlacement"
                     [justify]="justify"
@@ -149,24 +157,31 @@
                   </ion-checkbox>
                 </ion-item>
               }
-              @if (getErrors(container)) {
+              @if (errors) {
                 <ion-text
                   class="dcf-input-error"
-                  [innerHTML]="errorMessage || getErrors(container)"
+                  [id]="path + '-error'"
+                  role="alert"
+                  [innerHTML]="errorMessage || errors"
                 />
               }
             </div>
           }
         } @else if (type === HTML5InputTypes.RADIO && options?.length) {
+          @let errors = getErrors(container);
           <ion-radio-group
             class="dcf-width-1-1"
             [formControlName]="name"
             [value]="value"
+            [attr.aria-labelledby]="path + '-label'"
+            [attr.aria-invalid]="errors ? 'true' : null"
+            [attr.aria-describedby]="errors ? path + '-error' : null"
             #component
           >
+            <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
             <label
               class="dcf-radio-group-label"
-              [for]="path"
+              [id]="path + '-label'"
             >
               {{ label | translate }}
             </label>
@@ -175,7 +190,7 @@
                 <ion-radio
                   (ionInput)="handleModalChildChanges($event, formControl)"
                   (ionChange)="handleModalChildChanges($event, formControl)"
-                  [id]="path"
+                  [id]="path + '.' + $index"
                   [mode]="'md'"
                   [hidden]="hidden"
                   [labelPlacement]="labelPlacement"
@@ -192,19 +207,24 @@
               </ion-item>
             }
           </ion-radio-group>
-          @if (getErrors(container)) {
+          @if (errors) {
             <ion-text
               class="dcf-input-error"
-              [innerHTML]="errorMessage || getErrors(container)"
+              [id]="path + '-error'"
+              role="alert"
+              [innerHTML]="errorMessage || errors"
             />
           }
         } @else if (type === HTML5InputTypes.SELECT) {
           <div>
+            @let errors = getErrors(container);
             <ion-select
               (ionInput)="handleModalChildChanges($event)"
               (ionChange)="handleModalChildChanges($event)"
               (click)="handleModalChildChanges($event, formControl)"
               [id]="name"
+              [attr.aria-invalid]="errors ? 'true' : null"
+              [attr.aria-describedby]="initialized && errors ? path + '-error' : null"
               toggleIcon="chevron-down-outline"
               expandedIcon="chevron-up-outline"
               [interface]="interface"
@@ -256,7 +276,7 @@
                   fill="clear"
                   (click)="handleClearValue($event)"
                   slot="end"
-                  [attr.aria-label]="'Clear field'"
+                  [attr.aria-label]="'component.crud_field.clear' | translate"
                 >
                   <ngx-decaf-icon
                     size="small"
@@ -267,10 +287,12 @@
               }
             </ion-select>
             @if (initialized) {
-              @if (getErrors(container)) {
+              @if (errors) {
                 <ion-text
                   class="dcf-input-error"
-                  [innerHTML]="errorMessage || getErrors(container)"
+                  [id]="path + '-error'"
+                  role="alert"
+                  [innerHTML]="errorMessage || errors"
                 />
               }
             }
