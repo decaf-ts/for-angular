@@ -6,7 +6,7 @@ import { CategoryModel } from 'src/app/models/CategoryModel';
 import { FilterComponent } from 'src/lib/components/filter/filter.component';
 import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { SearchbarComponent } from 'src/lib/components/searchbar/searchbar.component';
-import { fn } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import './setup';
 import { getComponentMeta } from './utils';
 
@@ -38,6 +38,23 @@ export default meta;
 type Story = StoryObj<FilterComponent>;
 
 export const init: Story = {};
+
+export const comboboxKeyboard: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole('combobox');
+    await expect(input).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(input);
+    await expect(input).toHaveAttribute('aria-expanded', 'true');
+
+    await userEvent.type(input, '{ArrowDown}');
+    const listbox = canvas.getByRole('listbox');
+    await expect(listbox.querySelectorAll('[role="option"]')).not.toHaveLength(0);
+    const selected = listbox.querySelector('[aria-selected="true"]');
+    await expect(selected).toBeTruthy();
+  },
+};
 
 export const singleFilter: Story = {
   args: {

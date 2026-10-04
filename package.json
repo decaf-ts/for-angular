@@ -102,6 +102,7 @@
     "@nestjs/platform-express": "^11.0.0",
     "@nestjs/swagger": "^11.4.4",
     "@playwright/test": "^1.54.1",
+    "@storybook/addon-a11y": "^10.4.0",
     "@storybook/addon-docs": "^10.4.0",
     "@storybook/angular": "^10.4.0",
     "@tabler/icons-sprite": "3.46.0",
