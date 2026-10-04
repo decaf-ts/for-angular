@@ -77,7 +77,6 @@ $dcf-color-text-tertiary: #8a91a3;
 $dcf-color-text-disabled: #a7afc4;
 $dcf-color-text-inverse: #ffffff;
 
-$dcf-color-gray-4: red !important;
 
 /* ==========================================================================
    Layout Tokens
@@ -153,7 +152,7 @@ $dcf-font-size-meta: 0.875rem;
 $dcf-line-height-meta: 1.4;
 $dcf-line-height-size-meta: $dcf-line-height-meta;
 
-$dcf-font-size-caption: 1.5rem;
+$dcf-font-size-caption: 0.75rem;
 $dcf-line-height-caption: 1.5;
 $dcf-line-height-size-caption: $dcf-line-height-caption;
 
@@ -566,6 +565,8 @@ $dcf-dark-border-strong: 1px solid $dcf-dark-color-outline-shade;
   --dcf-border-strong: #{$dcf-border-strong};
   --dcf-border-focus: #{$dcf-border-focus};
 
+  /* Shadow families: --dcf-shadow-* = soft elevation (cards/popovers/modals);
+     --dcf-box-shadow-* = boxed offset scale. Distinct purposes - do NOT merge. */
   --dcf-shadow-card: #{$dcf-shadow-card};
   --dcf-shadow-popover: #{$dcf-shadow-popover};
   --dcf-shadow-modal: #{$dcf-shadow-modal};
@@ -586,11 +587,6 @@ $dcf-dark-border-strong: 1px solid $dcf-dark-color-outline-shade;
   --dcf-box-shadow-sg: #{$dcf-box-shadow-sg};
   --dcf-box-shadow-xl: #{$dcf-box-shadow-xl};
   --dcf-box-shadow-cp: #{$dcf-box-shadow-cp};
-
-  --dcf-radius-xs: #{$dcf-radius-xs};
-  --dcf-radius-sm: #{$dcf-radius-sm};
-  --dcf-radius-md: #{$dcf-radius-md};
-  --dcf-radius-lg: #{$dcf-radius-lg};
 
   --dcf-border-radius-xsmall: #{$dcf-radius-xs};
   --dcf-border-radius: #{$dcf-radius-sm};
