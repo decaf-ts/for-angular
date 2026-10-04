@@ -39,9 +39,17 @@
         (cancelWorkflow)="onCancelWorkflow()"
         (saveWorkflow)="onSaveWorkflow()"
         (editWorkflow)="onEditWorkflow()"
+        (browseWorkflows)="onBrowseWorkflows()"
         (restoreSnapshot)="onRestoreSnapshot($event)"
       />
     </app-graph-renderer>
+
+    <app-graph-engine-workflow-picker
+      #workflowPicker
+      [open]="workflowPickerOpen()"
+      (workflowSelected)="onWorkflowSelected($event)"
+      (dismiss)="onWorkflowPickerDismiss()"
+    />
 
     @if (operation === 'create') {
       <app-graph-workflow-create-modal

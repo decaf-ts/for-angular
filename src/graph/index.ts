@@ -1,3 +1,4 @@
+export * from './capabilities';
 export * from './catalog';
 export * from './components';
 export * from './document';

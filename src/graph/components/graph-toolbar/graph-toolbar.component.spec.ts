@@ -10,6 +10,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GraphToolbarComponent } from './graph-toolbar.component';
+import { GraphEngineCapabilityStore } from '../../capabilities/GraphEngineCapabilityStore';
+import type {
+  GraphEngineCapabilityManifest,
+  GraphEngineDescriptor,
+  GraphEngineFeature,
+} from '../../capabilities';
 
 /** Renders the toolbar with the given inputs and returns the live fixture. */
 function render(inputs: {
@@ -272,6 +278,136 @@ describe('GraphToolbarComponent — return to edit after run (R2-3(9))', () => {
       'button.graph-float-btn--edit',
     ) as HTMLButtonElement;
     edit.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(emitted).toBe(1);
+  });
+});
+
+/** Builds an engine descriptor with the given capability rows. */
+function capabilityEngine(
+  engineId: string,
+  capabilities: GraphEngineFeature[],
+): GraphEngineDescriptor {
+  return {
+    engineId,
+    displayName: `Engine ${engineId}`,
+    local: true,
+    pinnedEngineVersion: '1.0.0',
+    capabilities,
+  };
+}
+
+/** A manifest whose default engine supports workflow browsing. */
+function capabilityManifest(): GraphEngineCapabilityManifest {
+  return {
+    engines: [
+      capabilityEngine('engine-a', [
+        { feature: 'workflowList', verdict: 'SUPPORTED' },
+      ]),
+    ],
+    defaultEngineId: 'engine-a',
+  };
+}
+
+describe('GraphToolbarComponent — engine capability affordances (SAA-198)', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('hides Browse and the engine label when no manifest has landed', () => {
+    const fixture = render({});
+
+    expect(
+      fixture.nativeElement.querySelector('.graph-float-btn--browse'),
+    ).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('.graph-float-btn--engine'),
+    ).toBeNull();
+  });
+
+  it('shows Browse and the engine label when the selected engine supports browsing', () => {
+    const fixture = render({});
+    const store = TestBed.inject(GraphEngineCapabilityStore);
+    store.setManifest(capabilityManifest());
+    store.setStatus('ready');
+    fixture.detectChanges();
+
+    const browse = fixture.nativeElement.querySelector(
+      '.graph-float-btn--browse',
+    ) as HTMLButtonElement;
+    const label = fixture.nativeElement.querySelector(
+      '.graph-float-btn--engine',
+    ) as HTMLElement;
+
+    expect(browse).not.toBeNull();
+    expect(browse.textContent?.trim()).toBe('Browse');
+    expect(label).not.toBeNull();
+    expect(label.textContent?.trim()).toBe('Engine engine-a');
+  });
+
+  it('hides Browse but keeps the engine label when the engine cannot browse', () => {
+    const fixture = render({});
+    const store = TestBed.inject(GraphEngineCapabilityStore);
+    store.setManifest({
+      engines: [
+        capabilityEngine('engine-a', [
+          { feature: 'workflowList', verdict: 'NOT_SUPPORTED' },
+        ]),
+      ],
+      defaultEngineId: 'engine-a',
+    });
+    store.setStatus('ready');
+    fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelector('.graph-float-btn--browse'),
+    ).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('.graph-float-btn--engine'),
+    ).not.toBeNull();
+  });
+
+  it('hides the engine label when no engine is selected', () => {
+    const fixture = render({});
+    const store = TestBed.inject(GraphEngineCapabilityStore);
+    store.setManifest({ engines: [], defaultEngineId: 'engine-a' });
+    store.setStatus('ready');
+    fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelector('.graph-float-btn--engine'),
+    ).toBeNull();
+  });
+
+  it('does not emit browseWorkflows when the engine cannot browse', () => {
+    const fixture = render({});
+    let emitted = 0;
+    fixture.componentInstance.browseWorkflows.subscribe(() => {
+      emitted += 1;
+    });
+
+    fixture.componentInstance.onBrowseWorkflows();
+
+    expect(emitted).toBe(0);
+  });
+
+  it('emits browseWorkflows once when the engine supports browsing', () => {
+    const fixture = render({});
+    const store = TestBed.inject(GraphEngineCapabilityStore);
+    store.setManifest(capabilityManifest());
+    store.setStatus('ready');
+    fixture.detectChanges();
+
+    let emitted = 0;
+    fixture.componentInstance.browseWorkflows.subscribe(() => {
+      emitted += 1;
+    });
+
+    fixture.componentInstance.onBrowseWorkflows();
 
     expect(emitted).toBe(1);
   });

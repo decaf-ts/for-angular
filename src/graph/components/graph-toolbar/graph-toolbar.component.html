@@ -21,6 +21,27 @@
   </div>
 
   <div class="graph-float-controls__group graph-float-controls__group--right">
+    @if (engineLabel()) {
+      <span
+        class="graph-float-btn graph-float-btn--engine"
+        role="status"
+        [title]="engineLabel()"
+      >
+        {{ engineLabel() }}
+      </span>
+    }
+
+    @if (canBrowseWorkflows()) {
+      <button
+        type="button"
+        class="graph-float-btn graph-float-btn--browse"
+        (click)="onBrowseWorkflows()"
+        title="Browse workflows"
+      >
+        Browse
+      </button>
+    }
+
     <div class="graph-float-toggle" title="Auto-Save">
       <ion-toggle
         [checked]="autoSaveEnabled()"

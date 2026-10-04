@@ -13,6 +13,7 @@ import { GraphHistoryService } from '../../services/GraphHistoryService';
 import { GraphSaveService } from '../../services/GraphSaveService';
 import { GraphAutoSaveService } from '../../services/GraphAutoSaveService';
 import { GraphKeyboardShortcutsService } from '../../services/GraphKeyboardShortcutsService';
+import { GraphEngineCapabilityService } from '../../capabilities';
 import type { GraphWorkflowSnapshot } from '@decaf-ts/as-graph/shared';
 import type { GraphValidationIssue } from '../../validation';
 
@@ -36,6 +37,7 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
   readonly saveService = inject(GraphSaveService);
   private readonly autoSave = inject(GraphAutoSaveService);
   private readonly shortcuts = inject(GraphKeyboardShortcutsService);
+  private readonly capabilities = inject(GraphEngineCapabilityService);
 
   readonly workflowId = input.required<string>();
   readonly canRun = input<boolean>(true);
@@ -67,9 +69,16 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
    */
   readonly hasRun = input<boolean>(false);
   readonly restoreSnapshot = output<GraphToolbarRestoreSnapshot>();
+  /** Emits when the user asks to browse the engine's workflow catalogue. */
+  readonly browseWorkflows = output<void>();
 
   readonly autoSaveEnabled = this.autoSave.enabled;
   readonly isSaving = this.saveService.saving;
+
+  /** Whether the selected engine advertises workflow browsing (manifest-driven). */
+  readonly canBrowseWorkflows = this.capabilities.canBrowseWorkflows;
+  /** Human-readable label for the selected engine, if any. */
+  readonly engineLabel = this.capabilities.engineLabel;
 
   readonly canUndo = computed(() => {
     if (this.autoSaveEnabled()) return false;
@@ -121,6 +130,7 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
       this.restoreSnapshot.emit(snapshot);
     });
     this.shortcuts.attach();
+    void this.capabilities.load().catch(() => undefined);
   }
 
   ngOnDestroy(): void {
@@ -159,6 +169,12 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
    */
   onEdit(): void {
     this.editWorkflow.emit();
+  }
+
+  /** Emits the browse affordance only when the manifest allows browsing. */
+  onBrowseWorkflows(): void {
+    if (!this.canBrowseWorkflows()) return;
+    this.browseWorkflows.emit();
   }
 
   onRun(): void {
