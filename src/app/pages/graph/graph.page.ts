@@ -244,6 +244,19 @@ export class GraphPage implements OnInit, OnDestroy {
     this.mutationDetector.recordMutation('node-position');
   }
 
+  /**
+   * Auto-arrange commit (§4.12): the renderer asks the document store to
+   * compute and commit the layout through the same `node.moves` command a
+   * drag-end uses; the page then records ONE history/autosave entry, exactly
+   * as a drag does — arrange is one undo step, not one per node.
+   */
+  async onArrangeWorkflow(): Promise<void> {
+    const applied = await this.renderer?.arrangeWorkflow();
+    if (applied) {
+      this.mutationDetector.recordMutation('node-position');
+    }
+  }
+
   onEdgeDrawn(): void {
     this.mutationDetector.recordMutation('edge-connect');
   }

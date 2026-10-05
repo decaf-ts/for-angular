@@ -69,6 +69,8 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
    */
   readonly hasRun = input<boolean>(false);
   readonly restoreSnapshot = output<GraphToolbarRestoreSnapshot>();
+  /** Emits when the user asks to auto-arrange the workflow layout. */
+  readonly arrangeWorkflow = output<void>();
   /** Emits when the user asks to browse the engine's workflow catalogue. */
   readonly browseWorkflows = output<void>();
 
@@ -149,6 +151,16 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
     if (entry) {
       this.restoreSnapshot.emit(entry.snapshot);
     }
+  }
+
+  /**
+   * Requests an auto-arrange of the current workflow (DECAF-50 §4.12). The
+   * document store commits the layout through the same drag-end path a drag uses,
+   * so a run in flight must never be disturbed by a re-arrange.
+   */
+  onArrange(): void {
+    if (this.isRunning()) return;
+    this.arrangeWorkflow.emit();
   }
 
   onAutoSaveToggle(event: CustomEvent): void {

@@ -11,6 +11,7 @@ import { InternalError, ValidationError } from '@decaf-ts/db-decorators';
 import type {
   GraphEdgeInstance,
   GraphJsonValue,
+  GraphLayoutOptions,
   GraphNodeInstance,
   GraphNodeManifest,
   GraphWorkflowDocument,
@@ -21,6 +22,8 @@ import {
   type GraphDocumentCommand,
   type GraphNodeInstancePatch,
 } from './GraphDocumentCommands';
+import type { GraphDiagramNodeMove } from './GraphDocumentMutation';
+import { graphNodeMovesCommandsOf } from './GraphDiagramMutationTranslator';
 import { graphNodePinStateOf } from './GraphDocumentSelectors';
 import { graphNodeInstanceFromManifest } from './GraphNodePaletteFactory';
 
@@ -239,6 +242,36 @@ export class GraphWorkflowDocumentStore {
   /** Commits a node's final canvas position (drag-end only). */
   moveNode(nodeId: string, position: GraphPosition): void {
     this.dispatchCommand({ type: 'node.move', nodeId, position });
+  }
+
+  /**
+   * Auto-arranges the workflow through the canonical drag-end commit path
+   * (DECAF-50 §4.12): snapshots the current document, dynamically imports
+   * the shared `computeGraphWorkflowLayout` (the layout/elk code never reaches
+   * an eager bundle) and dispatches the returned positions as the SAME
+   * `node.moves` command a drag-end produces, so drag and auto-layout share
+   * one commit path, one history step and one autosave notification.
+   * @param options - Layout mode/spacing options; defaults to BALANCED.
+   * @returns {Promise<boolean>} true when at least one node moved.
+   */
+  async arrange(options?: GraphLayoutOptions): Promise<boolean> {
+    const current = this.documentSignal();
+    if (!current) return false;
+    const snapshot = this.snapshot();
+    const { computeGraphWorkflowLayout } = await import('./GraphWorkflowLayoutLoader');
+    const result = await computeGraphWorkflowLayout(snapshot, options);
+    const moves: GraphDiagramNodeMove[] = [];
+    for (const node of snapshot.nodes) {
+      const position = result.nodes[node.id];
+      if (!position) continue;
+      moves.push({ nodeId: node.id, position: { x: position.x, y: position.y } });
+    }
+    const commands = graphNodeMovesCommandsOf(current, moves);
+    if (!commands.length) return false;
+    for (const command of commands) {
+      this.dispatchCommand(command);
+    }
+    return true;
   }
 
   /**

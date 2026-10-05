@@ -20,6 +20,7 @@ import type { GraphNodeManifestReader } from '../catalog/GraphNodeCatalogReader'
 import {
   isGraphNodeGhost,
   type GraphDiagramEdgePayload,
+  type GraphDiagramNodeMove,
   type NgDiagramMutation,
 } from './GraphDocumentMutation';
 import {
@@ -395,6 +396,50 @@ export function graphEdgeAddCommandOf(
 }
 
 /**
+ * Translates a `nodes-moved` gesture (drag-end or auto-layout) into document
+ * commands against the SAME document. Pure and catalogue-free: node moves and
+ * boundary moves are both expressed here so the drag-end commit path and the
+ * arrange command share exactly one translation.
+ */
+export function graphNodeMovesCommandsOf(
+  document: GraphWorkflowDocument,
+  nodes: GraphDiagramNodeMove[]
+): GraphDocumentCommand[] {
+  const moves: { nodeId: string; position: { x: number; y: number } }[] = [];
+  const boundaryMoves: { nodeId: string; position: { x: number; y: number } }[] = [];
+  const boundaryPositions =
+    (document.ui?.['boundaryPositions'] as Record<string, { x: number; y: number }> | undefined) ?? {};
+  for (const move of nodes) {
+    // R4: boundary nodes are document-port projections, not member nodes;
+    // their canvas positions persist on `document.ui.boundaryPositions`. A
+    // lossless legacy snapshot can also carry the badge inside `document.nodes`,
+    // so boundary detection must win over the member lookup — otherwise the drag
+    // commits a `node.moves` position the projection never reads (snap back).
+    if (isGraphBoundaryCanvasNodeId(document, move.nodeId)) {
+      const committed = boundaryPositions[move.nodeId];
+      if (committed && committed.x === move.position.x && committed.y === move.position.y) continue;
+      boundaryMoves.push({ nodeId: move.nodeId, position: { x: move.position.x, y: move.position.y } });
+      continue;
+    }
+    const node = graphWorkflowNodeOf(document, move.nodeId);
+    if (!node) continue;
+    const committed = node.ui?.position;
+    if (
+      committed &&
+      committed.x === move.position.x &&
+      committed.y === move.position.y
+    ) {
+      continue;
+    }
+    moves.push({ nodeId: move.nodeId, position: { x: move.position.x, y: move.position.y } });
+  }
+  const commands: GraphDocumentCommand[] = [];
+  if (moves.length) commands.push({ type: 'node.moves', moves });
+  if (boundaryMoves.length) commands.push({ type: 'boundary.moves', moves: boundaryMoves });
+  return commands;
+}
+
+/**
  * Translates a canvas mutation into document commands for the store dispatcher.
  * Pure: the returned list is applied by the caller against the SAME document;
  * invalid optimistic connections throw a Decaf `ValidationError` before any
@@ -420,40 +465,8 @@ export function graphDocumentCommandsFromDiagramMutation(
       }
       return commands;
     }
-    case 'nodes-moved': {
-      const moves: { nodeId: string; position: { x: number; y: number } }[] = [];
-      const boundaryMoves: { nodeId: string; position: { x: number; y: number } }[] = [];
-      const boundaryPositions =
-        (document.ui?.['boundaryPositions'] as Record<string, { x: number; y: number }> | undefined) ?? {};
-      for (const move of mutation.nodes) {
-        // R4: boundary nodes are document-port projections, not member nodes;
-        // their canvas positions persist on `document.ui.boundaryPositions`. A
-        // lossless legacy snapshot can also carry the badge inside `document.nodes`,
-        // so boundary detection must win over the member lookup — otherwise the drag
-        // commits a `node.moves` position the projection never reads (snap back).
-        if (isGraphBoundaryCanvasNodeId(document, move.nodeId)) {
-          const committed = boundaryPositions[move.nodeId];
-          if (committed && committed.x === move.position.x && committed.y === move.position.y) continue;
-          boundaryMoves.push({ nodeId: move.nodeId, position: { x: move.position.x, y: move.position.y } });
-          continue;
-        }
-        const node = graphWorkflowNodeOf(document, move.nodeId);
-        if (!node) continue;
-        const committed = node.ui?.position;
-        if (
-          committed &&
-          committed.x === move.position.x &&
-          committed.y === move.position.y
-        ) {
-          continue;
-        }
-        moves.push({ nodeId: move.nodeId, position: { x: move.position.x, y: move.position.y } });
-      }
-      const commands: GraphDocumentCommand[] = [];
-      if (moves.length) commands.push({ type: 'node.moves', moves });
-      if (boundaryMoves.length) commands.push({ type: 'boundary.moves', moves: boundaryMoves });
-      return commands;
-    }
+    case 'nodes-moved':
+      return graphNodeMovesCommandsOf(document, mutation.nodes);
     case 'node-resized': {
       const node = graphWorkflowNodeOf(document, mutation.node.nodeId);
       if (!node || isGraphNodeGhost(node)) return [];

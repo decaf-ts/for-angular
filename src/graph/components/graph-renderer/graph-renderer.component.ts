@@ -624,6 +624,19 @@ export class GraphRendererComponent {
     }
   }
 
+  /**
+   * Auto-arranges the workflow through the canonical drag-end commit path
+   * (DECAF-50 §4.12): the document store computes the layout lazily and
+   * commits it as one `node.moves` command — the same path a drag-end uses —
+   * and the document-driven reconcile projects the result.
+   * @returns {Promise<boolean>} true when at least one node moved.
+   */
+  async arrangeWorkflow(): Promise<boolean> {
+    const documentStore = this.documentStore;
+    if (!documentStore) return false;
+    return documentStore.arrange();
+  }
+
   togglePalette() {
     this.paletteOpen.set(!this.paletteOpen());
   }

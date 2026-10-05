@@ -18,6 +18,15 @@
     >
       &#x21AA;
     </button>
+    <button
+      type="button"
+      class="graph-float-btn graph-float-btn--arrange"
+      [disabled]="isRunning()"
+      (click)="onArrange()"
+      title="Auto-arrange graph"
+    >
+      Arrange
+    </button>
   </div>
 
   <div class="graph-float-controls__group graph-float-controls__group--right">
