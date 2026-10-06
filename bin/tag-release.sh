@@ -174,11 +174,6 @@ fi
 npm version "$TAG" -m "$MESSAGE"
 
 REMOTE_URL=$(git remote get-url origin)
-case "$REMOTE_URL" in
-  git@github.com:*)        REMOTE_URL="https://github.com/${REMOTE_URL#git@github.com:}" ;;
-  ssh://git@github.com/*)  REMOTE_URL="https://github.com/${REMOTE_URL#ssh://git@github.com/}" ;;
-esac
-
 
 # for-angular publishes an ng-packagr build (dist/lib has its own package.json); the
 # repo root is never what gets published, so it needs a fresh build before that happens.
