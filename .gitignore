@@ -85,3 +85,4 @@ CLAUDE.md
 /graphify-out
 /docs-output
 /.specs
+/.playwright-cli

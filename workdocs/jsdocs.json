@@ -18,6 +18,7 @@
     "exclude": [
       "cli.(ts|js)"
     ],
+    "excludePattern": "(^|/)[^/]*\\.spec\\.ts$",
     "includePattern": "\\.(jsx|js|ts|tsx)$"
   },
   "tags": {

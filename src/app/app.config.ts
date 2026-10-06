@@ -1,11 +1,11 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, RouteReuseStrategy, withComponentInputBinding } from '@angular/router';
-import { RamFlavour } from '@decaf-ts/core/ram';
+import { RamAdapter, RamFlavour } from '@decaf-ts/core/ram';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { RootTranslateServiceConfig } from '@ngx-translate/core';
 import { CronSelectorFieldComponent } from 'src/lib/components';
-import { DecafAxiosHttpAdapter, I18nResourceConfigType } from 'src/lib/engine';
+import { I18nResourceConfigType } from 'src/lib/engine';
 import {
   provideDecafDbAdapter,
   provideDecafDynamicComponents,
@@ -44,12 +44,12 @@ export const AppConfig: ApplicationConfig = {
     provideIonicAngular({
       mode: 'md',
     }),
-    // provideDecafDbAdapter(RamAdapter, { user: 'user', dbName: 'for-angular' }),
-    provideDecafDbAdapter(DecafAxiosHttpAdapter, {
-      protocol: 'https',
-      host: 'ew-backend-pdm.ptp.internal',
-      events: true,
-    }),
+    provideDecafDbAdapter(RamAdapter, { user: 'user', dbName: 'for-angular' }),
+    // provideDecafDbAdapter(DecafAxiosHttpAdapter, {
+    //   protocol: 'https',
+    //   host: 'ew-backend-pdm.ptp.internal',
+    //   events: true,
+    // }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideRouter(routes, withComponentInputBinding()),

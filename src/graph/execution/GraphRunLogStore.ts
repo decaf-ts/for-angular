@@ -125,6 +125,8 @@ const MAX_ENTRIES = 500;
  * the backend emits that the frontend does not model) is treated as the noisiest
  * level rather than as `undefined`, so it can never be silently dropped by the
  * severity threshold comparison (`undefined >= threshold` is always `false`).
+ * @param {string} level Streamed log level to map to a console severity.
+ * @returns {number} Severity threshold value, with unknown levels treated as verbose.
  */
 export function graphLogSeverityOf(level: GraphRunLogEntry['level']): number {
   const severity = GRAPH_LOG_LEVEL_SEVERITY[level as LogNodeLevel | "benchmark"];

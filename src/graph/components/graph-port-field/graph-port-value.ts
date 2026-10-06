@@ -137,6 +137,8 @@ export function graphValueTemplateOf(
 /**
  * Whether a persisted parameter value is a `GraphValueTemplate`. Used to seed the
  * edit surfaces with an existing expression/template value.
+ * @param {unknown} value Persisted parameter value to inspect.
+ * @returns {boolean} Whether the value is a graph value template.
  */
 export function isGraphValueTemplateValue(value: unknown): value is GraphValueTemplate {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
