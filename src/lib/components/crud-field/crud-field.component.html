@@ -224,7 +224,9 @@
               (click)="handleModalChildChanges($event, formControl)"
               [id]="name"
               [attr.aria-invalid]="errors ? 'true' : null"
-              [attr.aria-describedby]="initialized && errors ? path + '-error' : null"
+              [attr.aria-describedby]="
+                initialized && errors ? path + '-error' : null
+              "
               toggleIcon="chevron-down-outline"
               expandedIcon="chevron-up-outline"
               [interface]="interface"
