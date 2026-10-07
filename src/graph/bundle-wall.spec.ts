@@ -9,11 +9,12 @@
  *
  * Two walls are asserted:
  *  1. Static import wall — every production graph source under `src/graph/**`
- *     and `src/lib/**` imports only frontend-safe paths (`@decaf-ts/ui-decorators`,
- *     contracts); ALL `@decaf-ts/integrations` specifiers (every subpath — the
- *     lib never depends on integrations after the Phase B cutover; only the
- *     app provisions the backend), `for-nest` and the other backend packages
- *     are forbidden.
+ *     and `src/lib/**` imports only frontend-safe paths
+ *     (`@decaf-ts/as-graph/shared`, `@decaf-ts/ui-decorators` contracts);
+ *     the retired `@decaf-ts/ui-decorators/graph` subpath, ALL
+ *     `@decaf-ts/integrations` specifiers (every subpath — the lib never
+ *     depends on integrations after the Phase B cutover; only the app provisions
+ *     the backend), `for-nest` and the other backend packages are forbidden.
  *  2. Runtime symbol wall — the production bundle (`www/`) carries no
  *     engine-side executable symbols. When `www/` is missing or older than
  *     the graph sources the test rebuilds the bundle first
@@ -37,17 +38,19 @@ const DIST_DIR = path.join(PACKAGE_ROOT, 'www');
 
 /**
  * Import specifier prefixes that never may appear in the browser's
- * canonical-graph module. ALL `@decaf-ts/integrations` import specifiers
- * (every subpath, including the retired shared-contracts re-export) are
- * forbidden from the lib production sources (Phase B boundary cutover): the
- * lib must depend only on the shared `@decaf-ts/ui-decorators` graph export;
- * the app alone provisions the integrations backend. `for-nest` and the other
- * backend packages pull backend/Node-only code.
+ * canonical-graph module. The retired `@decaf-ts/ui-decorators/graph` subpath
+ * and ALL `@decaf-ts/integrations` import specifiers (every subpath,
+ * including the retired shared-contracts re-export) are forbidden from the lib
+ * production sources (Phase B boundary cutover): the lib must depend only on the
+ * shared `@decaf-ts/as-graph/shared` graph export; the app alone provisions
+ * the integrations backend. `for-nest` and the other backend packages pull
+ * backend/Node-only code.
  */
 const FORBIDDEN_IMPORT_SPECIFIERS = [
   '@decaf-ts/integrations',
   '@decaf-ts/for-nest',
   '@decaf-ts/for-server',
+  '@decaf-ts/ui-decorators/graph',
   'node:',
   'isolated-vm',
   'vm:',

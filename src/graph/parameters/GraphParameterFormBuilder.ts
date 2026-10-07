@@ -4,7 +4,7 @@ import type {
   GraphNodeInstance,
   GraphNodeManifest,
   GraphParameterDefinition,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import { graphParameterValidationIssuesOf } from './GraphParameterValidationMapper';
 import { graphParameterVisibilityOf, type GraphParameterValues } from './GraphParameterVisibilityEvaluator';
 import type { GraphParameterValueIssue } from './GraphParameterRendererContract';

@@ -17,11 +17,11 @@ import {
 import { FormBuilder, ReactiveFormsModule, type AbstractControl, type FormGroup } from '@angular/forms';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
-import type { GraphNodeManifest, GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import type { GraphNodeManifest, GraphWorkflowSnapshot } from '@decaf-ts/as-graph/shared';
 import {
   graphNodeEndpointId,
   graphWorkflowDefinitionOf,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import { IonSpinner } from '@ionic/angular/standalone';
 import {
   createMiddlewares,

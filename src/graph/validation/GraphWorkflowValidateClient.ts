@@ -11,7 +11,7 @@
  * `@decaf-ts/integrations` imports, DECAF-35).
  */
 import { Injectable, inject } from '@angular/core';
-import type { GraphJsonValue, GraphWorkflowDocument } from '@decaf-ts/ui-decorators/graph';
+import type { GraphJsonValue, GraphWorkflowDocument } from '@decaf-ts/as-graph/shared';
 import { BadRequestError, InternalError, NotFoundError } from '@decaf-ts/db-decorators';
 import { AuthorizationError, ForbiddenError } from '@decaf-ts/core';
 import {

@@ -13,7 +13,7 @@ import { GraphHistoryService } from '../../services/GraphHistoryService';
 import { GraphSaveService } from '../../services/GraphSaveService';
 import { GraphAutoSaveService } from '../../services/GraphAutoSaveService';
 import { GraphKeyboardShortcutsService } from '../../services/GraphKeyboardShortcutsService';
-import type { GraphWorkflowSnapshot } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowSnapshot } from '@decaf-ts/as-graph/shared';
 import type { GraphValidationIssue } from '../../validation';
 
 /** Snapshot form the toolbar hands to its restore callback: the canonical wrapper (§4.26 R2-2). */

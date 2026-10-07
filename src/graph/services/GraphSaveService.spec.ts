@@ -6,7 +6,7 @@ import type {
   GraphNodeInstance,
   GraphWorkflowDocument,
   GraphWorkflowSnapshot,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 
 /**
  * Minimal canonical workflow document (DECAF-50 §4.4): the executable

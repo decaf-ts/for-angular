@@ -1,0 +1,29 @@
+<ion-content [fullscreen]="true">
+  <main>
+    <ngx-decaf-container>
+      <app-card-title
+        [locale]="locale"
+        [route]="route"
+        [title]="title | translate"
+        [subtitle]="subtitle | translate"
+      />
+      @if (replayError()) {
+        <p class="graph-executions__error">{{ replayError() }}</p>
+      }
+      <div class="dcf-list-container">
+        <ngx-decaf-list
+          [model]="listModel"
+          [data]="runs()"
+          [mapper]="mapper"
+          [route]="route"
+          [locale]="locale"
+          [customSource]="true"
+          [enableFilter]="false"
+          [loadMoreData]="false"
+          [showRefresher]="true"
+          (listenEvent)="onListEvent($event)"
+        />
+      </div>
+    </ngx-decaf-container>
+  </main>
+</ion-content>

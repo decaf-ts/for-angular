@@ -8,7 +8,7 @@
  * down. Invocations of node methods stay backend-only.
  */
 import { Injectable, inject, signal } from '@angular/core';
-import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
+import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/as-graph/shared';
 import { GraphNodeCatalogApi, graphNodeCatalogFailureOf } from './GraphNodeCatalogApi';
 import type { GraphNodeCatalogFailure, GraphNodeCatalogSource } from './GraphNodeCatalogStore';
 import { GraphNodeCatalogFixtureSource } from './GraphNodeManifestFixtures';

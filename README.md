@@ -47,8 +47,50 @@ A very versatile persistence layer. from smart contracts, Digital wallets or jus
 - [Initial Setup](./workdocs/tutorials/For%20Developers.md#_initial-setup_)
 - [Installation](./workdocs/tutorials/For%20Developers.md#installation)
 
+## Components
 
+### `<decaf-curve-editor>`
 
+Standalone interactive curve editor backed by Apache ECharts: a line series with draggable control points, drawn with linear or monotone cubic (Fritsch–Carlson, no overshoot) interpolation. The control points are the source of truth for the rendered curve; a LaTeX formula can also be set, and is sampled over the x range into control points. Curve drags regenerate the formula, so both stay consistent. MathLive and ECharts types never leak through the public API.
+
+| Binding | Type | Description |
+| --- | --- | --- |
+| `[(points)]` | `CurvePoint[]` (`{ x, y }`) | Control points, kept sorted by ascending `x` (two-way) |
+| `[(formula)]` | `string` | LaTeX formula describing the curve (two-way) |
+| `[interpolation]` | `'monotonic' \| 'linear'` | Interpolation strategy (default `'monotonic'`) |
+| `[xRange]` / `[yRange]` | `[number, number]` | Inclusive `[min, max]` domains (default `[0, 1]`) |
+| `[lockEndpoints]` | `boolean` | Pins the first/last points to the x range bounds and prevents their removal |
+| `[height]` | `number` | Rendered chart height in pixels (default `320`) |
+
+Outputs: `pointAdded` (`CurvePoint`), `pointRemoved` (`CurvePoint`), `pointMoved` (`{ index, point, previous }`), `curveChanged` (sampled `CurvePoint[]`), `formulaChanged` (`string`).
+
+```html
+<decaf-curve-editor
+  [(points)]="points"
+  [(formula)]="formula"
+  [interpolation]="'monotonic'"
+  [xRange]="[0, 10]"
+  [yRange]="[0, 1]"
+  [lockEndpoints]="true"
+  (pointMoved)="onPointMoved($event)">
+</decaf-curve-editor>
+```
+
+### `<decaf-math-input>`
+
+Standalone LaTeX formula input wrapping the MathLive `<math-field>` custom element (lazy-loaded on first render, no MathLive types in the public API). The field value is a plain LaTeX string emitted on every input.
+
+| Binding | Type | Description |
+| --- | --- | --- |
+| `[(value)]` | `string` | LaTeX value, emitted on input (two-way) |
+| `[placeholder]` | `string` | Placeholder shown when the field is empty |
+| `[disabled]` | `boolean` | Renders the field read-only |
+
+```html
+<decaf-math-input [(value)]="formula" placeholder="f(x) = ..."></decaf-math-input>
+```
+
+Typical pairing: bind both components to the same `formula` string — editing the math field re-samples the curve over the x range, and dragging curve points regenerates the formula.
 
 ## Coding Principles
 

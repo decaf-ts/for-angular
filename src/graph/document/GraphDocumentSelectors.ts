@@ -13,7 +13,7 @@ import type {
   GraphWorkflowDocument,
   GraphWorkflowPortInstance,
   GraphWorkflowViewport,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 
 /**
  * Stable node id for workflow-boundary endpoints (legacy `$workflow` sentinel).

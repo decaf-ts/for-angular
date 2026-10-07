@@ -1,11 +1,11 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-button (click)="cancel()">Cancel</ion-button>
+      <ion-button (click)="cancel()">{{ label('cancel') }}</ion-button>
     </ion-buttons>
     <ion-title>{{ nodeTitle }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="save()" strong>Save</ion-button>
+      <ion-button (click)="save()" strong>{{ label('save') }}</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -14,10 +14,10 @@
   <div class="graph-switch-edit-modal__body">
     <section class="graph-switch-edit-modal__section">
       <div class="graph-switch-edit-modal__section-header">
-        <h3>Conditions</h3>
+        <h3>{{ label('conditions') }}</h3>
         <ion-button size="small" fill="clear" (click)="addCase()">
           <ngx-decaf-icon slot="start" name="ti-plus" />
-          Add
+          {{ label('add') }}
         </ion-button>
       </div>
 
@@ -36,12 +36,12 @@
           (drop)="onDrop(i, $event)"
         >
           <div class="graph-switch-edit-modal__case-controls">
-            <span class="graph-switch-edit-modal__drag-handle" title="Drag to reorder">&#x2630;</span>
+            <span class="graph-switch-edit-modal__drag-handle" [title]="label('drag_to_reorder')">&#x2630;</span>
             <button
               type="button"
               class="graph-switch-edit-modal__remove"
               (click)="removeCase(caseItem.id)"
-              title="Remove condition"
+              [title]="label('remove_condition')"
             >&times;</button>
           </div>
           <div class="graph-switch-edit-modal__case-main">
@@ -50,7 +50,7 @@
                 class="graph-switch-edit-modal__case-label"
                 [value]="caseItem.label"
                 (ionInput)="onCaseLabelChange(caseItem.id, $event)"
-                placeholder="Label"
+                [placeholder]="label('label_placeholder')"
               />
               <span class="graph-switch-edit-modal__port-badge">{{ caseItem.outputPort }}</span>
             </div>
@@ -71,7 +71,7 @@
       }
 
       @if (!cases().length) {
-        <p class="graph-switch-edit-modal__empty">No conditions. Click "Add" to create one.</p>
+        <p class="graph-switch-edit-modal__empty">{{ label('empty') }}</p>
       }
     </section>
 
@@ -80,12 +80,12 @@
         class="graph-switch-edit-modal__default-toggle"
         [checked]="hasDefault()"
         (ionChange)="onHasDefaultChange($event)"
-      >Default port</ion-toggle>
+      >{{ label('default_port') }}</ion-toggle>
       @if (hasDefault()) {
         <span class="graph-switch-edit-modal__port-badge graph-switch-edit-modal__port-badge--default">{{ defaultPort() }}</span>
-        <span class="graph-switch-edit-modal__default-label">fallback when no condition matches</span>
+        <span class="graph-switch-edit-modal__default-label">{{ label('default_fallback') }}</span>
       } @else {
-        <span class="graph-switch-edit-modal__default-label">no default — throws an error when no case matches</span>
+        <span class="graph-switch-edit-modal__default-label">{{ label('no_default') }}</span>
       }
     </section>
   </div>

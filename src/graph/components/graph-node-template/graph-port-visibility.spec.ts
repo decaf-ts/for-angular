@@ -18,7 +18,7 @@
  * `required` exception, so a *required* value-provided input renders no
  * connectable handle.
  */
-import { PortDirection } from '@decaf-ts/ui-decorators/graph';
+import { PortDirection } from '@decaf-ts/as-graph/shared';
 import {
   directlyProvidedPortIds,
   graphPortVisible,

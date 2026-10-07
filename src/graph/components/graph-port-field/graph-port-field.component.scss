@@ -66,12 +66,52 @@
   gap: 0.15rem;
 }
 
+.graph-port-field__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
 .graph-port-field__label {
   font-size: 0.72rem;
   font-weight: 600;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+}
+
+/* §13 "Value input modes": a line of small buttons selects the input mode. */
+.graph-port-field__modes {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.graph-port-field__mode-btn {
+  min-width: 22px;
+  height: 18px;
+  padding: 0 0.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 4px;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.graph-port-field__mode-btn:hover {
+  border-color: #3b82f6;
+  color: #2563eb;
+}
+
+.graph-port-field__mode-btn--active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+  color: #1d4ed8;
 }
 
 .graph-port-field--port-mode .graph-port-field__label {

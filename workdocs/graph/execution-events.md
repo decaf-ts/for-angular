@@ -71,6 +71,12 @@ Each entry in `edgeStates` follows `GraphEdgeUiExecutionState`:
 | `lastValue` | The most recent value routed along the edge |
 | `updatedAt` | ISO timestamp of the last routing |
 
+## Run Log Severity
+
+The run log widget filters streamed entries by severity. Known levels map to the
+frontend severity thresholds; an unrecognized level maps to `verbose` so it stays
+visible instead of disappearing from filtered output.
+
 ## Configuring the Engine
 
 Provide a custom engine config (e.g., custom executors or value store) via the `GRAPH_EXECUTION_ENGINE_CONFIG` token:

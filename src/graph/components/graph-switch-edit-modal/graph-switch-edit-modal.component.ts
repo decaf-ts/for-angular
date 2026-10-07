@@ -1,5 +1,5 @@
 import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
-import type { SwitchNodeMetadata as BaseSwitchNodeMetadata, SwitchCase } from '@decaf-ts/ui-decorators/graph';
+import type { SwitchNodeMetadata as BaseSwitchNodeMetadata, SwitchCase } from '@decaf-ts/as-graph/shared';
 import {
   IonButton,
   IonButtons,
@@ -16,6 +16,23 @@ import {
   GraphConditionEditorComponent,
   type GraphConditionEditorChange,
 } from '../graph-condition-editor/graph-condition-editor.component';
+import { GraphTranslateService } from '../../i18n/graph-translate.service';
+
+/** English fallbacks for the switch-editor locale keys (§13 locale rule). */
+const GRAPH_SWITCH_EDIT_LABELS: Record<string, string> = {
+  cancel: 'Cancel',
+  save: 'Save',
+  conditions: 'Conditions',
+  add: 'Add',
+  drag_to_reorder: 'Drag to reorder',
+  remove_condition: 'Remove condition',
+  label_placeholder: 'Label',
+  empty: 'No conditions. Click "Add" to create one.',
+  default_port: 'Default port',
+  default_fallback: 'fallback when no condition matches',
+  no_default: 'no default — throws an error when no case matches',
+  case_prefix: 'Case',
+};
 
 let caseIdCounter = 0;
 
@@ -70,6 +87,12 @@ export class GraphSwitchEditModalComponent implements OnInit {
   @Input() initialSwitchMetadata: SwitchNodeMetadata = { cases: [], defaultPort: 'default' };
 
   private readonly modalCtrl = inject(ModalController);
+  private readonly i18n = inject(GraphTranslateService);
+
+  /** Resolves one switch-editor locale key through `@ngx-translate` (§13 locale rule). */
+  label(key: string): string {
+    return this.i18n.key(`graph.editor.switch.${key}`, GRAPH_SWITCH_EDIT_LABELS[key] ?? key);
+  }
 
   readonly _cases = signal<SwitchCase[]>([]);
   readonly _defaultPort = signal('default');
@@ -99,7 +122,7 @@ export class GraphSwitchEditModalComponent implements OnInit {
 
   addCase() {
     const id = generateCaseId();
-    const label = `Case ${this._cases().length + 1}`;
+    const label = `${this.label('case_prefix')} ${this._cases().length + 1}`;
     const outputPort = `case_${this._cases().length + 1}`;
     const newCase: SwitchCase = {
       id,

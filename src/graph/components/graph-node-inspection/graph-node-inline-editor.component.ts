@@ -8,8 +8,14 @@
  * reuses the same document-native write path as the edit modal
  * ({@link GraphWorkflowDocumentStore.updateNode}) but renders inline, so the
  * canvas never has to leave the split view to edit a node.
+ *
+ * The port rows carry the full value-input-mode contract (§13 "Value input
+ * modes"): `edge`/`literal` bindings plus `expression` bindings and persisted
+ * `GraphValueTemplate` parameters. `if`/`while`/`until` nodes additionally
+ * render the graphical|code condition editor, emitting a `CodeCondition` or
+ * `ConditionExpression` into `parameters.condition`.
  */
-import { Component, Input, computed, signal, output, OnChanges } from '@angular/core';
+import { Component, Input, computed, signal, output, OnChanges, inject } from '@angular/core';
 import { IonCheckbox, IonInput, IonTextarea } from '@ionic/angular/standalone';
 import {
   PortDirection,
@@ -18,15 +24,44 @@ import {
   type GraphOutputBinding,
   type GraphParameterDefinition,
   type GraphPortDefinition,
-} from '@decaf-ts/ui-decorators/graph';
-import type { GraphNodeInstance } from '@decaf-ts/ui-decorators/graph';
+  type SwitchCaseCondition,
+} from '@decaf-ts/as-graph/shared';
+import type { GraphNodeInstance } from '@decaf-ts/as-graph/shared';
 import {
   GraphPortFieldComponent,
   type GraphPortFieldChange,
   type GraphPortFieldConfig,
+  type GraphPortFieldModeChange,
 } from '../graph-port-field/graph-port-field.component';
+import {
+  graphPortDefaultValueMode,
+  graphPortValueBodyOf,
+  graphPortValueModeOf,
+  graphPortValueModesOf,
+  graphPortValuePatchOf,
+  isGraphValueTemplateValue,
+  type GraphPortValueMode,
+} from '../graph-port-field/graph-port-value';
+import {
+  GraphConditionEditorComponent,
+  type GraphConditionEditorChange,
+} from '../graph-condition-editor/graph-condition-editor.component';
+import { graphParameterVisibilityOf } from '../../parameters/GraphParameterVisibilityEvaluator';
+import { GraphTranslateService } from '../../i18n/graph-translate.service';
 import type { GraphNodeEditResult, GraphParameterFieldConfig } from '../graph-node-edit-modal/graph-node-edit-modal.component';
 import type { GraphDemoNodeData, GraphRendererNodeData } from '../../types';
+
+/** Node kinds whose inline edit surface carries a graphical|code condition editor. */
+const GRAPH_CONDITION_NODE_KINDS = new Set(['core.flow.if', 'core.loop.while', 'core.loop.until']);
+
+/** English fallbacks for the inline-editor locale keys (§13 locale rule). */
+const GRAPH_INLINE_EDIT_LABELS: Record<string, string> = {
+  cancel: 'Cancel',
+  save: 'Save',
+  inputs: 'Inputs',
+  parameters: 'Parameters',
+  condition: 'Condition',
+};
 
 function graphParameterControlTypeOf(param: GraphParameterDefinition): GraphParameterFieldConfig['parameterType'] {
   if (param.type === 'boolean') return 'boolean';
@@ -81,7 +116,7 @@ function graphParameterValueOf(
 @Component({
   selector: 'app-graph-node-inline-editor',
   standalone: true,
-  imports: [IonCheckbox, IonInput, IonTextarea, GraphPortFieldComponent],
+  imports: [IonCheckbox, IonInput, IonTextarea, GraphPortFieldComponent, GraphConditionEditorComponent],
   templateUrl: './graph-node-inline-editor.component.html',
   styleUrl: './graph-node-inline-editor.component.scss',
 })
@@ -100,28 +135,62 @@ export class GraphNodeInlineEditorComponent implements OnChanges {
   /** Emitted when the user cancels the inline edit. */
   readonly cancelled = output<void>();
 
+  private readonly i18n = inject(GraphTranslateService);
+
   private readonly _ports = signal<GraphPortDefinition[]>([]);
   private readonly _values = signal<Record<string, unknown>>({});
   private readonly _portModes = signal<Record<string, 'port' | 'value'>>({});
+  private readonly _portValueModes = signal<Record<string, GraphPortValueMode>>({});
   private readonly _parameters = signal<Record<string, unknown>>({});
+  private readonly _condition = signal<SwitchCaseCondition | null>(null);
+  private readonly _conditionValid = signal(true);
+
+  /** Resolves one inline-editor locale key through `@ngx-translate` (§13 locale rule). */
+  label(key: string): string {
+    return this.i18n.key(`graph.editor.node.${key}`, GRAPH_INLINE_EDIT_LABELS[key] ?? key);
+  }
+
+  /** Whether this node kind's inline edit surface carries a condition editor. */
+  readonly isConditionNode = computed(() =>
+    GRAPH_CONDITION_NODE_KINDS.has(this.nodeData?.kind ?? '')
+  );
+
+  readonly condition = this._condition.asReadonly();
+  readonly conditionValid = this._conditionValid.asReadonly();
+
+  readonly inputPorts = computed(() =>
+    this._ports().filter((port) => port.direction === PortDirection.INPUT && !port.hidden)
+  );
 
   readonly inputFieldConfigs = computed<GraphPortFieldConfig[]>(() => {
     const values = this._values();
     const modes = this._portModes();
-    return this._ports()
-      .filter((port) => port.direction === PortDirection.INPUT && !port.hidden)
-      .map((port) => ({
-        port,
-        label: port.label || port.name,
-        type: port.type || 'text',
-        value: values[port.property] ?? '',
-        useAsPort: modes[port.property] === 'port',
-      }));
+    const valueModes = this._portValueModes();
+    return this.inputPorts()
+      .map((port) => {
+        const portId = port.path || port.property;
+        return {
+          port,
+          label: port.label || port.name,
+          type: port.type || 'text',
+          value: values[port.property] ?? '',
+          useAsPort: modes[port.property] === 'port',
+          valueMode: valueModes[portId] ?? graphPortDefaultValueMode(port),
+          valueModes: graphPortValueModesOf(port),
+        };
+      });
+  });
+
+  readonly visibleParameterDefs = computed<GraphParameterDefinition[]>(() => {
+    const values = this._parameters();
+    return this.parameterDefs.filter((param) =>
+      graphParameterVisibilityOf(param.visibility, values as never)
+    );
   });
 
   readonly parameterFields = computed<GraphParameterFieldConfig[]>(() => {
     const parameters = this._parameters();
-    return this.parameterDefs
+    return this.visibleParameterDefs()
       .filter((param) => param.type !== 'hidden')
       .map((param) => ({
         id: param.id,
@@ -146,27 +215,33 @@ export class GraphNodeInlineEditorComponent implements OnChanges {
     this._ports.set([...(this.nodeData?.ports ?? [])]);
     this._values.set({});
     this._portModes.set({});
+    this._portValueModes.set({});
     this._parameters.set({ ...(this.nodeInstance?.parameters ?? {}) });
-    for (const [portId, binding] of Object.entries(this.nodeInstance?.inputBindings ?? {})) {
+    const conditionValue = (this.nodeInstance?.parameters ?? {})['condition'];
+    this._condition.set(
+      conditionValue && typeof conditionValue === 'object'
+        ? (conditionValue as unknown as SwitchCaseCondition)
+        : null
+    );
+    for (const port of this.inputPorts()) {
+      const portId = port.path || port.property;
+      const binding = (this.nodeInstance?.inputBindings ?? {})[portId];
+      const parameterValue = (this.nodeInstance?.parameters ?? {})[portId];
+      const mode = graphPortValueModeOf(port, binding, parameterValue);
+      this._portValueModes.update((modes) => ({ ...modes, [portId]: mode }));
       this._portModes.update((modes) => ({
         ...modes,
-        [portId]: binding?.mode === 'edge' ? 'port' : 'value',
+        [portId]: mode === 'port' ? 'port' : 'value',
       }));
-      if (binding?.mode === 'literal' && typeof binding === 'object' && 'value' in binding) {
-        const literal = (binding as unknown as { value?: unknown }).value;
-        if (literal === undefined) continue;
-        this._values.update((values) => ({ ...values, [portId]: literal as never }));
-      }
-      if (binding?.mode === 'expression') {
-        const expression = (binding as unknown as { expression?: unknown }).expression;
-        if (expression === undefined) continue;
-        this._values.update((values) => ({ ...values, [portId]: String(expression) }));
+      const body = graphPortValueBodyOf(binding, parameterValue);
+      if (body !== '' || mode === 'expression' || mode === 'template' || mode === 'formula') {
+        this._values.update((values) => ({ ...values, [portId]: body as never }));
       }
     }
     // R1: the code node comes pre-filled with the manifest's `defaultCode`
     // when the instance carries no `code` parameter (the same fallback the
     // executor evaluates when the `code` input port is not wired).
-    if (this.nodeData?.kind === 'core.flow.code' && !this._values()['code']) {
+    if (this.nodeData?.kind === 'core.utility.code' && !this._values()['code']) {
       const defaultValue = (this.nodeInstance?.metadata as Record<string, unknown> | undefined)?.['defaultCode'];
       if (typeof defaultValue === 'string' && defaultValue.trim()) {
         this._values.update((values) => ({ ...values, code: defaultValue }));
@@ -186,6 +261,19 @@ export class GraphNodeInlineEditorComponent implements OnChanges {
     }));
   }
 
+  onFieldModeChange(change: GraphPortFieldModeChange): void {
+    this._portValueModes.update((modes) => ({ ...modes, [change.property]: change.mode }));
+    this._portModes.update((modes) => ({
+      ...modes,
+      [change.property]: change.mode === 'port' ? 'port' : 'value',
+    }));
+  }
+
+  onConditionChange(change: GraphConditionEditorChange): void {
+    this._condition.set(change.condition);
+    this._conditionValid.set(change.valid);
+  }
+
   onParameterChange(parameterId: string, parameter: GraphParameterDefinition | undefined, raw: string): void {
     const value = graphParameterValueOf(parameter, raw);
     this._parameters.update((parameters) => ({ ...parameters, [parameterId]: value }));
@@ -193,29 +281,42 @@ export class GraphNodeInlineEditorComponent implements OnChanges {
 
   save(): void {
     const inputBindings: Record<string, GraphInputBinding> = {};
+    const parameters: Record<string, GraphJsonValue> = { ...this._parameters() } as never;
     for (const config of this.inputFieldConfigs()) {
       const portId = config.port.path || config.port.property;
       if (!portId) continue;
-      if (this._portModes()[portId] === 'port') {
+      const mode = this._portValueModes()[portId] ?? graphPortDefaultValueMode(config.port);
+      const raw = this._values()[portId];
+      const body = raw === undefined || raw === null ? '' : String(raw);
+      if (mode === 'port') {
         inputBindings[portId] = { mode: 'edge' };
         continue;
       }
-      const raw = this._values()[portId];
-      if (raw === undefined || raw === null || (typeof raw === 'string' && raw === '')) continue;
-      inputBindings[portId] = { mode: 'literal', value: raw as GraphJsonValue };
+      if (mode === 'literal') {
+        if (body === '') continue;
+        inputBindings[portId] = { mode: 'literal', value: body as GraphJsonValue };
+        continue;
+      }
+      const patch = graphPortValuePatchOf(config.port, mode, body);
+      if (patch.binding) inputBindings[portId] = patch.binding;
+      if (patch.template) parameters[portId] = patch.template as unknown as GraphJsonValue;
     }
-    for (const parameter of this.parameterDefs) {
+    for (const parameter of this.visibleParameterDefs()) {
       if (parameter.type === 'hidden') continue;
+      if (isGraphValueTemplateValue(parameters[parameter.id])) continue;
       const edited = this._parameters()[parameter.id];
       if (edited === undefined) continue;
       inputBindings[parameter.id] = { mode: 'literal', value: edited as GraphJsonValue };
+    }
+    if (this.isConditionNode() && this._condition()) {
+      parameters['condition'] = this._condition() as unknown as GraphJsonValue;
     }
     const outputBindings: Record<string, GraphOutputBinding> = {};
     const result: GraphNodeEditResult = {
       nodeId: this.nodeId,
       inputBindings,
       outputBindings,
-      parameters: { ...this._parameters() } as never,
+      parameters,
     };
     this.saved.emit(result);
   }

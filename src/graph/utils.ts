@@ -17,9 +17,9 @@ import {
   type GraphPortDefinition,
   type GraphSnapshotEditorState,
   type GraphWorkflowSnapshot,
-} from '@decaf-ts/ui-decorators/graph';
-import type { SwitchNodeMetadata, SwitchCase } from '@decaf-ts/ui-decorators/graph';
-import type { GraphNodeDefinition } from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
+import type { SwitchNodeMetadata, SwitchCase } from '@decaf-ts/as-graph/shared';
+import type { GraphNodeDefinition } from '@decaf-ts/as-graph/shared';
 import { initializeModel, type ModelAdapter } from 'ng-diagram';
 import {
   graphCanvasPortDefinitionOf,
@@ -641,7 +641,7 @@ export function getGraphWorkflowSummary<M extends Model>(model: GraphModelLike<M
       ...nodeDefinitions.map((definition) => {
         const metadata = (definition.graph?.metadata || {}) as Record<string, unknown>;
         return {
-          name: definition.name,
+          name: definition.name ?? definition.tag ?? '',
           kind: definition.kind,
           label: String(metadata['title'] ?? definition.tag ?? definition.name),
           category: definition.category,
@@ -730,7 +730,7 @@ export function buildGraphRendererViewModel<M extends Model>(
     // class is imported, extended, or instantiated by the frontend.
     if (entry.node && typeof entry.node === 'function') {
       const node = buildMemberNode(entry.node, index, entry.id, entry.label);
-      memberNodes.set(entry.id, node);
+      if (entry.id) memberNodes.set(entry.id, node);
       memberNodes.set(node.data.sourceClass, node);
       memberNodes.set(node.type, node);
       return node;
@@ -744,7 +744,7 @@ export function buildGraphRendererViewModel<M extends Model>(
     }
     const paletteEntry = graphPaletteEntriesOf([manifest])[0];
     const node = buildManifestMemberNode(paletteEntry, index, entry.id, entry.label);
-    memberNodes.set(entry.id, node);
+    if (entry.id) memberNodes.set(entry.id, node);
     memberNodes.set(entry.kind ?? '', node);
     memberNodes.set(node.type, node);
     return node;

@@ -15,7 +15,7 @@ import {
   inject,
 } from '@angular/core';
 import { IonLabel, IonItem, IonNote } from '@ionic/angular/standalone';
-import type { GraphJsonValue, GraphParameterDefinition } from '@decaf-ts/ui-decorators/graph';
+import type { GraphJsonValue, GraphParameterDefinition } from '@decaf-ts/as-graph/shared';
 import { GraphParameterRendererRegistry, graphRegisterParameterRenderers } from '../GraphParameterRendererRegistry';
 import type {
   GraphParameterFormContext,

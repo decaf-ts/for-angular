@@ -6,12 +6,12 @@ import {
   ValidationKeys,
 } from '@decaf-ts/decorator-validation';
 import { uielement } from '@decaf-ts/ui-decorators';
-import { input as graphInput } from '@decaf-ts/ui-decorators/graph';
+import { input as graphInput } from '@decaf-ts/as-graph/shared';
 import {
   graphLeafPortsOf,
   type GraphPortDefinition,
   type GraphWorkflowDefinition,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 
 export type WorkflowInputControlType =
   | 'text'

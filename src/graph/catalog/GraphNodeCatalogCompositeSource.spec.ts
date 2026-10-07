@@ -15,7 +15,7 @@
  */
 import { TestBed } from '@angular/core/testing';
 import { InternalError, SerializationError } from '@decaf-ts/db-decorators';
-import type { GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
+import type { GraphNodeManifest } from '@decaf-ts/as-graph/shared';
 
 import {
   GraphCatalogueUnavailableError,

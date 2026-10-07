@@ -8,7 +8,7 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { BadRequestError, InternalError, NotFoundError, SerializationError } from '@decaf-ts/db-decorators';
-import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/ui-decorators/graph';
+import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/as-graph/shared';
 import { GRAPH_BACKEND_URL } from '../execution/GraphExecutionService';
 import type { GraphNodeCatalogFailure, GraphNodeCatalogSource } from './GraphNodeCatalogStore';
 

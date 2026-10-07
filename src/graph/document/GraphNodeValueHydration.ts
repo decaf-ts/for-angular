@@ -21,7 +21,7 @@ import type {
   GraphNodeInstance,
   GraphNodeManifest,
   GraphWorkflowDocument,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import { graphWorkflowNodeCloneOf } from './GraphDocumentSelectors';
 
 /** Clones a JSON value defensively, returning `undefined` for absent values. */

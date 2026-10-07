@@ -4,7 +4,8 @@
  * @summary Re-exports the component modules and individual components from
  * `src/lib/components` so consumers can import them from a single entrypoint.
  * This file exposes components such as `ListComponent`, `PaginationComponent`,
- * `SearchbarComponent`, and the `ForAngularComponentsModule`.
+ * `SearchbarComponent`, the `CurveEditorComponent`, the `MathInputComponent`,
+ * and the `ForAngularComponentsModule`.
  *
  * @link {@link ForAngularComponentsModule}
  */
@@ -15,6 +16,8 @@ export * from './component-renderer/component-renderer.component';
 export * from './dashboard';
 export * from './container/container.component';
 export * from './cron-selector/cron-selector.component';
+export * from './curve-editor/curve-editor.component';
+export * from './curve-editor/curve-interpolation';
 export * from './cron-selector-field/cron-selector-field.component';
 export * from './crud-field/crud-field.component';
 export * from './crud-form/crud-form.component';
@@ -26,6 +29,7 @@ export * from './icon/icon.component';
 export * from './layout/layout.component';
 export * from './list-item/list-item.component';
 export * from './list/list.component';
+export * from './math-input/math-input.component';
 export * from './modal';
 export * from './model-builder/model-builder.component';
 export * from './model-renderer/model-renderer.component';

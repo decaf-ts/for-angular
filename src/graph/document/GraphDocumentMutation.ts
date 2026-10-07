@@ -6,7 +6,7 @@
  * document commands while rejecting invalid optimistic connections client-side (never
  * trusted as the backend gate, DECAF-50 §4.12).
  */
-import type { GraphJsonValue } from '@decaf-ts/ui-decorators/graph';
+import type { GraphJsonValue } from '@decaf-ts/as-graph/shared';
 
 /**
  * Endpoint reference on the canvas during a mutation.

@@ -17,7 +17,7 @@ import type {
   GraphNodeInstance,
   GraphResolvedNodeManifest,
   GraphWorkflowDocument,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { GraphWorkflowDocumentStore } from './GraphWorkflowDocumentStore';

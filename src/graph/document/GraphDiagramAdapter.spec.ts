@@ -10,7 +10,7 @@
 import type {
   GraphNodeInstance,
   GraphResolvedNodeManifest,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import { nodeUiSizeOf, projectedNodeHeightOf } from './GraphDiagramAdapter';
 
 function nodeOf(overrides: Partial<GraphNodeInstance> = {}): GraphNodeInstance {

@@ -23,7 +23,7 @@ import {
 import type {
   GraphNodeInstance,
   GraphNodeManifest,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 
 import { GRAPH_BACKEND_URL } from '../execution/GraphExecutionService';
 import {

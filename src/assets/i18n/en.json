@@ -302,5 +302,141 @@
       "list": "List",
       "note": "Note"
     }
+  },
+  "graph": {
+    "breadcrumbs": {
+      "workflows": "Workflows",
+      "current": "Current workflow",
+      "untitled": "Untitled workflow",
+      "rename": {
+        "aria": "Rename workflow",
+        "trigger": "Rename",
+        "confirm": "Confirm",
+        "cancel": "Cancel"
+      }
+    },
+    "workflow": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Workflow name"
+      },
+      "tags": {
+        "label": "Tags",
+        "placeholder": "Comma-separated tags"
+      },
+      "category": {
+        "label": "Category",
+        "placeholder": "Workflow category"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "What does this workflow do?"
+      },
+      "namespace": {
+        "label": "Namespace",
+        "scope": {
+          "private": "Private",
+          "department": "Department",
+          "project": "Project",
+          "company": "Company"
+        }
+      },
+      "create": {
+        "title": "Create workflow",
+        "cancel": "Cancel"
+      }
+    },
+    "editor": {
+      "node": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "code": "Code",
+        "inputs": "Inputs",
+        "outputs": "Outputs",
+        "parameters": "Parameters",
+        "condition": "Condition",
+        "code_hint": "JavaScript only. Access the input as $input, variables as $vars, loop item as $item/$index, and upstream outputs as $node[\"Name\"].output. Return a value with return or write a bare expression.",
+        "inputs_hint": "Toggle \"Use as port\" to wire this input from an upstream output. Leave unchecked to set a literal value.",
+        "parameters_hint": "Non-port parameters of the node definition, edited on the instance.",
+        "outputs_hint": "Toggle \"Use as port\" to expose this output for downstream connection. Use \"Split output\" to connect a single output to multiple inputs.",
+        "timeout": "Timeout (ms)",
+        "catalogue_degraded": "Catalogue degraded",
+        "catalogue_degraded_fallback": "The node catalogue backend is unavailable; some dynamic parameter options may be missing."
+      },
+      "port": {
+        "port_disabled": "Value provided directly — clear it to connect from upstream",
+        "port_use_value": "Port exposed — click to use a literal value",
+        "port_expose": "Click to expose as port",
+        "wired_from_upstream": "wired from upstream",
+        "exposed_for_downstream": "exposed for downstream",
+        "value_mode": {
+          "literal": "Value",
+          "expression": "Code",
+          "template": "Template",
+          "formula": "Formula",
+          "literal_short": "Val",
+          "expression_short": "{ }",
+          "template_short": "T",
+          "formula_short": "ƒ"
+        }
+      },
+      "switch": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "conditions": "Conditions",
+        "add": "Add",
+        "drag_to_reorder": "Drag to reorder",
+        "remove_condition": "Remove condition",
+        "label_placeholder": "Label",
+        "empty": "No conditions. Click \"Add\" to create one.",
+        "default_port": "Default port",
+        "default_fallback": "fallback when no condition matches",
+        "no_default": "no default — throws an error when no case matches",
+        "case_prefix": "Case"
+      },
+      "condition": {
+        "property": "property",
+        "value": "value",
+        "graphical_mode": "Switch to graphical mode",
+        "code_mode": "Switch to code mode",
+        "placeholder_help": "Supports placeholders like {{ $input.foo }}, {{ $node[\"Name\"].output }}, {{ $vars.bar }}. Must return a boolean. Same restrictions as the Code Node apply.",
+        "op": {
+          "eq": "equals (==)",
+          "neq": "not equals (!=)",
+          "gt": "greater than (>)",
+          "gte": "greater or equal (>=)",
+          "lt": "less than (<)",
+          "lte": "less or equal (<=)",
+          "exists": "exists (not null/undefined)"
+        }
+      }
+    },
+    "workflows": {
+      "title": "Workflows",
+      "subtitle": "Browse and open saved workflows",
+      "name": {
+        "label": "Name"
+      },
+      "updatedAt": {
+        "label": "Last updated"
+      },
+      "untitled": "Untitled workflow",
+      "open": "Open workflow",
+      "runs": "Past executions",
+      "empty": "No workflows yet"
+    },
+    "executions": {
+      "title": "Executions",
+      "subtitle": "Past executions for this workflow",
+      "status": {
+        "label": "Status"
+      },
+      "createdAt": {
+        "label": "Created"
+      },
+      "replay": "Replay execution",
+      "open": "Open execution",
+      "empty": "No executions yet"
+    }
   }
 }

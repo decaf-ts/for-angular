@@ -15,7 +15,7 @@ import type {
   GraphNodeManifest,
   GraphResolvedNodeManifest,
   GraphWorkflowDocument,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import { graphWorkflowDocumentCanvasModelOf } from './GraphDiagramAdapter';
 import { applyGraphDocumentCommand } from './GraphDocumentCommands';
 import { graphDocumentCommandsFromDiagramMutation } from './GraphDiagramMutationTranslator';

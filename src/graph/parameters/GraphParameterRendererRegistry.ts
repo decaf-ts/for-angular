@@ -1,5 +1,5 @@
 import { Injectable, Type } from '@angular/core';
-import type { GraphParameterDefinition } from '@decaf-ts/ui-decorators/graph';
+import type { GraphParameterDefinition } from '@decaf-ts/as-graph/shared';
 import type { GraphParameterRendererContract } from './GraphParameterRendererContract';
 import { GraphGenericParameterComponent } from './components/graph-generic-parameter.component';
 import { GraphTextParameterComponent } from './components/graph-text-parameter.component';

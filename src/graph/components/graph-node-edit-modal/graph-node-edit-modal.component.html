@@ -1,11 +1,11 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-button (click)="cancel()">Cancel</ion-button>
+      <ion-button (click)="cancel()">{{ label('cancel') }}</ion-button>
     </ion-buttons>
     <ion-title>{{ nodeTitle }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="save()" strong>Save</ion-button>
+      <ion-button (click)="save()" strong>{{ label('save') }}</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -14,27 +14,32 @@
   <div class="graph-node-edit-modal__body">
     @if (degraded) {
       <div class="graph-node-edit-modal__degraded" role="status">
-        <strong>Catalogue degraded</strong>
+        <strong>{{ label('catalogue_degraded') }}</strong>
         <p>
-          {{ degradedReason || 'The node catalogue backend is unavailable; some dynamic parameter options may be missing.' }}
+          {{ degradedReason || label('catalogue_degraded_fallback') }}
         </p>
       </div>
+    }
+    @if (isConditionNode()) {
+      <section class="graph-node-edit-modal__section">
+        <h3>{{ label('condition') }}</h3>
+        <app-graph-condition-editor
+          [condition]="condition()"
+          (conditionChange)="onConditionChange($event)"
+        />
+      </section>
     }
     @if (inputPorts().length) {
       <section class="graph-node-edit-modal__section">
         @if (isCodeNode()) {
-          <h3>Code</h3>
+          <h3>{{ label('code') }}</h3>
           <p class="graph-node-edit-modal__hint">
-            JavaScript only. Access the input as <code>$input</code>, variables as
-            <code>$vars</code>, loop item as <code>$item</code>/<code>$index</code>,
-            and upstream outputs as <code>$node["Name"].output</code>.
-            Return a value with <code>return</code> or write a bare expression.
+            {{ label('code_hint') }}
           </p>
         } @else {
-          <h3>Inputs</h3>
+          <h3>{{ label('inputs') }}</h3>
           <p class="graph-node-edit-modal__hint">
-            Toggle "Use as port" to wire this input from an upstream output.
-            Leave unchecked to set a literal value.
+            {{ label('inputs_hint') }}
           </p>
         }
         @for (config of fieldConfigs(); track config.port.property) {
@@ -42,6 +47,7 @@
             <app-graph-port-field
               [field]="config"
               (fieldChange)="onFieldChange($event)"
+              (fieldModeChange)="onFieldModeChange($event)"
             />
           }
         }
@@ -61,7 +67,7 @@
             </div>
           }
           <div class="graph-node-edit-modal__field-row">
-            <label for="graph-node-timeout">Timeout (ms)</label>
+            <label for="graph-node-timeout">{{ label('timeout') }}</label>
             <ion-input
               id="graph-node-timeout"
               type="number"
@@ -76,9 +82,9 @@
 
     @if (hasEditableParameters()) {
       <section class="graph-node-edit-modal__section">
-        <h3>Parameters</h3>
+        <h3>{{ label('parameters') }}</h3>
         <p class="graph-node-edit-modal__hint">
-          Non-port parameters of the node definition, edited on the instance.
+          {{ label('parameters_hint') }}
         </p>
         @for (field of parameterFields(); track field.id) {
           <div class="graph-node-edit-modal__param-row">
@@ -111,10 +117,9 @@
 
     @if (hasEditableOutputs()) {
       <section class="graph-node-edit-modal__section">
-        <h3>Outputs</h3>
+        <h3>{{ label('outputs') }}</h3>
         <p class="graph-node-edit-modal__hint">
-          Toggle "Use as port" to expose this output for downstream connection.
-          Use "Split output" to connect a single output to multiple inputs.
+          {{ label('outputs_hint') }}
         </p>
         @for (config of fieldConfigs(); track config.port.property) {
           @if (config.port.direction === 'output' && config.port.property !== 'result') {

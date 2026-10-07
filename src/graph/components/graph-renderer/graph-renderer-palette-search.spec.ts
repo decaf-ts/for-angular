@@ -11,7 +11,7 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import type { GraphNodeManifest } from '@decaf-ts/ui-decorators/graph';
+import type { GraphNodeManifest } from '@decaf-ts/as-graph/shared';
 
 import { GraphRendererComponent } from './graph-renderer.component';
 import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocumentStore';

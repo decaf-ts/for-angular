@@ -287,5 +287,141 @@
       "list": "Lista",
       "note": "Nota"
     }
+  },
+  "graph": {
+    "breadcrumbs": {
+      "workflows": "Fluxos de trabalho",
+      "current": "Fluxo de trabalho atual",
+      "untitled": "Fluxo de trabalho sem título",
+      "rename": {
+        "aria": "Renomear fluxo de trabalho",
+        "trigger": "Renomear",
+        "confirm": "Confirmar",
+        "cancel": "Cancelar"
+      }
+    },
+    "workflow": {
+      "name": {
+        "label": "Nome",
+        "placeholder": "Nome do fluxo de trabalho"
+      },
+      "tags": {
+        "label": "Etiquetas",
+        "placeholder": "Etiquetas separadas por vírgulas"
+      },
+      "category": {
+        "label": "Categoria",
+        "placeholder": "Categoria do fluxo de trabalho"
+      },
+      "description": {
+        "label": "Descrição",
+        "placeholder": "O que faz este fluxo de trabalho?"
+      },
+      "namespace": {
+        "label": "Namespace",
+        "scope": {
+          "private": "Privado",
+          "department": "Departamento",
+          "project": "Projeto",
+          "company": "Empresa"
+        }
+      },
+      "create": {
+        "title": "Criar fluxo de trabalho",
+        "cancel": "Cancelar"
+      }
+    },
+    "editor": {
+      "node": {
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "code": "Código",
+        "inputs": "Entradas",
+        "outputs": "Saídas",
+        "parameters": "Parâmetros",
+        "condition": "Condição",
+        "code_hint": "Apenas JavaScript. Acede à entrada como $input, às variáveis como $vars, ao item do ciclo como $item/$index e às saídas anteriores como $node[\"Nome\"].output. Devolve um valor com return ou escreve uma expressão simples.",
+        "inputs_hint": "Ativa \"Usar como porta\" para ligar esta entrada a uma saída anterior. Deixa desmarcado para definir um valor literal.",
+        "parameters_hint": "Parâmetros sem porta da definição do nó, editados na instância.",
+        "outputs_hint": "Ativa \"Usar como porta\" para expor esta saída a ligações seguintes. Usa \"Dividir saída\" para ligar uma saída a várias entradas.",
+        "timeout": "Tempo limite (ms)",
+        "catalogue_degraded": "Catálogo degradado",
+        "catalogue_degraded_fallback": "O backend do catálogo de nós está indisponível; algumas opções de parâmetros dinâmicos podem faltar."
+      },
+      "port": {
+        "port_disabled": "Valor fornecido diretamente — limpa-o para ligar a montante",
+        "port_use_value": "Porta exposta — clica para usar um valor literal",
+        "port_expose": "Clica para expor como porta",
+        "wired_from_upstream": "ligado a montante",
+        "exposed_for_downstream": "exposto a jusante",
+        "value_mode": {
+          "literal": "Valor",
+          "expression": "Código",
+          "template": "Modelo",
+          "formula": "Fórmula",
+          "literal_short": "Val",
+          "expression_short": "{ }",
+          "template_short": "M",
+          "formula_short": "ƒ"
+        }
+      },
+      "switch": {
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "conditions": "Condições",
+        "add": "Adicionar",
+        "drag_to_reorder": "Arrasta para reordenar",
+        "remove_condition": "Remover condição",
+        "label_placeholder": "Etiqueta",
+        "empty": "Sem condições. Clica em \"Adicionar\" para criar uma.",
+        "default_port": "Porta predefinida",
+        "default_fallback": "alternativa quando nenhuma condição corresponde",
+        "no_default": "sem predefinição — gera erro quando nenhum caso corresponde",
+        "case_prefix": "Caso"
+      },
+      "condition": {
+        "property": "propriedade",
+        "value": "valor",
+        "graphical_mode": "Mudar para modo gráfico",
+        "code_mode": "Mudar para modo de código",
+        "placeholder_help": "Suporta marcadores como {{ $input.foo }}, {{ $node[\"Nome\"].output }}, {{ $vars.bar }}. Deve devolver um booleano. Aplicam-se as mesmas restrições do Nó de Código.",
+        "op": {
+          "eq": "igual (==)",
+          "neq": "diferente (!=)",
+          "gt": "maior que (>)",
+          "gte": "maior ou igual (>=)",
+          "lt": "menor que (<)",
+          "lte": "menor ou igual (<=)",
+          "exists": "existe (não nulo/indefinido)"
+        }
+      }
+    },
+    "workflows": {
+      "title": "Fluxos de trabalho",
+      "subtitle": "Consultar e abrir fluxos de trabalho guardados",
+      "name": {
+        "label": "Nome"
+      },
+      "updatedAt": {
+        "label": "Última atualização"
+      },
+      "untitled": "Fluxo de trabalho sem título",
+      "open": "Abrir fluxo de trabalho",
+      "runs": "Execuções anteriores",
+      "empty": "Ainda não existem fluxos de trabalho"
+    },
+    "executions": {
+      "title": "Execuções",
+      "subtitle": "Execuções anteriores deste fluxo de trabalho",
+      "status": {
+        "label": "Estado"
+      },
+      "createdAt": {
+        "label": "Criado"
+      },
+      "replay": "Repetir execução",
+      "open": "Abrir execução",
+      "empty": "Ainda não existem execuções"
+    }
   }
 }

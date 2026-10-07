@@ -8,7 +8,7 @@ import {
   Output,
   inject,
 } from '@angular/core';
-import type { GraphJsonValue, GraphParameterDefinition } from '@decaf-ts/ui-decorators/graph';
+import type { GraphJsonValue, GraphParameterDefinition } from '@decaf-ts/as-graph/shared';
 import { GraphParameterFieldComponent } from './graph-parameter-field.component';
 import type {
   GraphParameterFormContext,

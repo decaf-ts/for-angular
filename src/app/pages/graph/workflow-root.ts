@@ -1,6 +1,6 @@
 import { Model, model, required } from '@decaf-ts/decorator-validation';
 import { uielement } from '@decaf-ts/ui-decorators';
-import { graph, input, output } from '@decaf-ts/ui-decorators/graph';
+import { graph, input, output } from '@decaf-ts/as-graph/shared';
 import { foreachLoopMetadata } from './loop-body-workflows';
 
 /**

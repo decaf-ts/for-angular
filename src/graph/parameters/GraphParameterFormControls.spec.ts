@@ -27,7 +27,7 @@ import type {
   GraphNodeManifest,
   GraphParameterDefinition,
   GraphParameterOption,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import type { GraphParameterValueIssue } from './GraphParameterRendererContract';
 import type { GraphParameterFormContext } from './GraphParameterRendererContract';
 import { GraphParameterFormBuilder } from './GraphParameterFormBuilder';

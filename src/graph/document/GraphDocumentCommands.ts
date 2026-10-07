@@ -16,8 +16,8 @@ import type {
   GraphOutputBinding,
   GraphWorkflowDocument,
   GraphWorkflowViewport,
-} from '@decaf-ts/ui-decorators/graph';
-import { assertGraphWorkflowDocumentValid, isGraphEndpoint, isGraphInputBinding } from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
+import { assertGraphWorkflowDocumentValid, isGraphEndpoint, isGraphInputBinding } from '@decaf-ts/as-graph/shared';
 
 /**
  * Shallow patch describing a node change. `id`/`kind` cannot change (they are node

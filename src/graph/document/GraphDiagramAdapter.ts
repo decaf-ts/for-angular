@@ -27,14 +27,14 @@ import type {
   GraphPortManifest,
   GraphValueSchema,
   GraphWorkflowDocument,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import {
   GRAPH_DEFAULT_NODE_CORNER_RADIUS,
   GRAPH_DEFAULT_NODE_SIZE,
   PortDirection,
   graphNodeSizeOf,
   resolveEffectiveColor,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import type {
   ConditionExpression,
   ExprValue,
@@ -42,7 +42,7 @@ import type {
   SwitchCase,
   SwitchCaseCondition,
   SwitchNodeMetadata,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import type {
   GraphBoundaryNodeData,
   GraphRendererNodeData,

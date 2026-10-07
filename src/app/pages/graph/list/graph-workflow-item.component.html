@@ -1,0 +1,40 @@
+@if (item) {
+  <div class="graph-workflow-item">
+    <div class="graph-workflow-item__icon">
+      <ngx-decaf-icon
+        color="tertiary"
+        name="ti-sitemap"
+      />
+    </div>
+    <div class="graph-workflow-item__content">
+      <p class="graph-workflow-item__name">
+        {{ item.name || (locale + '.untitled' | translate) }}
+      </p>
+      <span class="graph-workflow-item__meta">
+        {{ locale + '.updatedAt.label' | translate }}: {{ item.updatedAt }}
+      </span>
+    </div>
+    <div class="graph-workflow-item__actions">
+      <ngx-decaf-icon
+        (click)="pastExecutions($event)"
+        (keyup.enter)="pastExecutions($event)"
+        [button]="true"
+        [attr.tabindex]="0"
+        [attr.aria-label]="locale + '.runs' | translate"
+        slot="icon-only"
+        color="primary"
+        name="ti-history"
+      />
+      <ngx-decaf-icon
+        (click)="openWorkflow($event)"
+        (keyup.enter)="openWorkflow($event)"
+        [button]="true"
+        [attr.tabindex]="0"
+        [attr.aria-label]="locale + '.open' | translate"
+        slot="icon-only"
+        color="primary"
+        name="ti-edit"
+      />
+    </div>
+  </div>
+}

@@ -1,0 +1,55 @@
+<ion-breadcrumbs class="graph-breadcrumbs" [maxItems]="4">
+  @for (step of steps(); track step.id) {
+    @if (step.route) {
+      <ion-breadcrumb class="graph-breadcrumbs__step" [routerLink]="step.route">
+        {{ step.labelKey | translate }}
+      </ion-breadcrumb>
+    } @else {
+      <ion-breadcrumb class="graph-breadcrumbs__step">
+        {{ step.labelKey | translate }}
+      </ion-breadcrumb>
+    }
+  }
+
+  <ion-breadcrumb class="graph-breadcrumbs__current graph-breadcrumbs__rename">
+    @if (editing) {
+      <ion-input
+        #renameInput
+        class="graph-breadcrumbs__rename-input"
+        [value]="draftName"
+        (input)="draftName = $any($event.target).value"
+        (keydown.enter)="commitRename()"
+        (keydown.escape)="cancelRename()"
+        [attr.aria-label]="'graph.breadcrumbs.rename.aria' | translate"
+      ></ion-input>
+      <button
+        type="button"
+        class="graph-breadcrumbs__rename-action"
+        (click)="commitRename()"
+        [attr.aria-label]="'graph.breadcrumbs.rename.confirm' | translate"
+      >
+        <ion-icon name="checkmark"></ion-icon>
+      </button>
+      <button
+        type="button"
+        class="graph-breadcrumbs__rename-action"
+        (click)="cancelRename()"
+        [attr.aria-label]="'graph.breadcrumbs.rename.cancel' | translate"
+      >
+        <ion-icon name="close"></ion-icon>
+      </button>
+    } @else {
+      <span class="graph-breadcrumbs__name">{{ workflowName() || ('graph.breadcrumbs.untitled' | translate) }}</span>
+      @if (renamable()) {
+        <button
+          type="button"
+          class="graph-breadcrumbs__rename-trigger"
+          (click)="startRename()"
+          [attr.aria-label]="'graph.breadcrumbs.rename.trigger' | translate"
+        >
+          <ion-icon name="create-outline"></ion-icon>
+        </button>
+      }
+    }
+  </ion-breadcrumb>
+</ion-breadcrumbs>

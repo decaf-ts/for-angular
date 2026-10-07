@@ -13,8 +13,8 @@ import type {
   GraphPortManifest,
   GraphResolvedNodeManifest,
   GraphWorkflowDocument,
-} from '@decaf-ts/ui-decorators/graph';
-import { PortDirection } from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
+import { PortDirection } from '@decaf-ts/as-graph/shared';
 import { graphWorkflowDocumentCanvasModelOf } from './GraphDiagramAdapter';
 import type { GraphNodeManifestReader } from '../catalog/GraphNodeCatalogReader';
 

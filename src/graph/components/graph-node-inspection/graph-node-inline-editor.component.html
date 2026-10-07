@@ -7,25 +7,36 @@
         class="graph-node-inline-editor__cancel"
         (click)="cancel()"
       >
-        Cancel
+        {{ label('cancel') }}
       </button>
       <button
         type="button"
         class="graph-node-inline-editor__save"
         (click)="save()"
       >
-        Save
+        {{ label('save') }}
       </button>
     </div>
   </header>
 
+  @if (isConditionNode()) {
+    <section class="graph-node-inline-editor__section">
+      <h3>{{ label('condition') }}</h3>
+      <app-graph-condition-editor
+        [condition]="condition()"
+        (conditionChange)="onConditionChange($event)"
+      />
+    </section>
+  }
+
   @if (inputFieldConfigs().length) {
     <section class="graph-node-inline-editor__section">
-      <h3>Inputs</h3>
+      <h3>{{ label('inputs') }}</h3>
       @for (config of inputFieldConfigs(); track config.port.property) {
         <app-graph-port-field
           [field]="config"
           (fieldChange)="onFieldChange($event)"
+          (fieldModeChange)="onFieldModeChange($event)"
         />
       }
     </section>
@@ -33,7 +44,7 @@
 
   @if (parameterFields().length) {
     <section class="graph-node-inline-editor__section">
-      <h3>Parameters</h3>
+      <h3>{{ label('parameters') }}</h3>
       @for (field of parameterFields(); track field.id) {
         <div class="graph-node-inline-editor__param-row">
           <label [for]="'graph-node-inline-param-' + field.id">{{ field.label }}</label>

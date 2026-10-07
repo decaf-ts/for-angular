@@ -7,7 +7,7 @@
  * `useAsPort` state.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PortDirection } from '@decaf-ts/ui-decorators/graph';
+import { PortDirection } from '@decaf-ts/as-graph/shared';
 
 import {
   GraphPortFieldComponent,

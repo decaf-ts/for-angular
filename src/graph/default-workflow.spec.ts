@@ -10,8 +10,8 @@
  * The e2e suites (`tests/playwright/graph/node-split-code.spec.ts`,
  * `node-foreach.spec.ts`) assert the same contract on the running demo.
  */
-import type { GraphWorkflowDefinition } from '@decaf-ts/ui-decorators/graph';
-import { graphWorkflowDefinitionOf } from '@decaf-ts/ui-decorators/graph';
+import type { GraphWorkflowDefinition } from '@decaf-ts/as-graph/shared';
+import { graphWorkflowDefinitionOf } from '@decaf-ts/as-graph/shared';
 
 import { TextPipelineWorkflow } from '../app/pages/graph/workflow-root';
 import { buildForeachBodyWorkflow, foreachLoopMetadata } from '../app/pages/graph/loop-body-workflows';

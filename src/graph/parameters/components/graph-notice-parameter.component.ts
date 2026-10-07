@@ -12,7 +12,7 @@ import { IonNote } from '@ionic/angular/standalone';
 import type {
   GraphJsonValue,
   GraphParameterDefinition,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import type {
   GraphParameterFormContext,
   GraphParameterRendererContract,

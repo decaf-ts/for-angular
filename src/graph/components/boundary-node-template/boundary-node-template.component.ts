@@ -6,7 +6,7 @@ import {
   NgDiagramPortComponent,
   type Node,
 } from 'ng-diagram';
-import { PortDirection } from '@decaf-ts/ui-decorators/graph';
+import { PortDirection } from '@decaf-ts/as-graph/shared';
 import { GraphBoundaryNodeData } from '../../types';
 import { graphSelection } from '../../execution/GraphSelectionStore';
 import { graphInspection } from '../../execution/GraphInspectionStore';

@@ -15,7 +15,7 @@ import type {
   GraphNodeManifest,
   GraphWorkflowDocument,
   GraphWorkflowViewport,
-} from '@decaf-ts/ui-decorators/graph';
+} from '@decaf-ts/as-graph/shared';
 import {
   applyGraphDocumentCommand,
   type GraphDocumentCommand,
