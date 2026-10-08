@@ -1,5 +1,19 @@
 // read only field
 
+.dcf-input-helper {
+  font-size: 0.825rem !important;
+  font-weight: 500;
+  color: var(--dcf-color-primary) !important;
+}
+
+.ng-invalid ~ .dcf-input-helper {
+  margin-top: 1rem !important;
+}
+
+.input-disabled ~ .dcf-input-helper {
+  opacity: 0.3 !important;
+}
+
 .dcf-item-readonly {
   .create,
   .update {

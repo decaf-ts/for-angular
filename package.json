@@ -191,7 +191,16 @@
     "ng-diagram": "^1.2.4"
   },
   "peerDependenciesMeta": {
+    "@cortex-js/compute-engine": {
+      "optional": true
+    },
     "@faker-js/faker": {
+      "optional": true
+    },
+    "echarts": {
+      "optional": true
+    },
+    "mathlive": {
       "optional": true
     }
   }

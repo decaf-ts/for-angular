@@ -76,6 +76,9 @@ export abstract class NgxFormFieldDirective
   @Input({ required: true })
   override operation: CrudOperations = OperationKeys.CREATE;
 
+  @Input()
+  helperText: string = '';
+
   /**
    * @description Parent form container for this field.
    * @summary Reference to the parent FormGroup or FormArray that contains this field.
@@ -638,6 +641,7 @@ export abstract class NgxFormFieldDirective
     if (formControl) {
       const accordionComponent = parent.closest('ngx-decaf-fieldset')?.querySelector('ion-accordion-group');
       const invalid = this.validateControl(formControl);
+
       if (invalid) {
         const errors: Record<string, string>[] = Object.entries(formControl.errors ?? {}).map(([key, value]) => {
           const message = typeof value === 'boolean' ? key : value;
@@ -662,6 +666,7 @@ export abstract class NgxFormFieldDirective
           }
         } else {
           this.errorMessage = '';
+          this.changeDetectorRef.detectChanges();
         }
       }
     }

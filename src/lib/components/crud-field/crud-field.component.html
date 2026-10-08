@@ -300,6 +300,14 @@
 
           <!-- <span class="dcf-input-error" [innerHTML]="getErrors(container)"></span> -->
         }
+        @if (helperText) {
+          <p
+            class="dcf-input-helper"
+            [class.dcf-invalid]="errorMessage?.length"
+          >
+            {{ helperText | translate }}
+          </p>
+        }
       </div>
     </ng-container>
   } @else {
