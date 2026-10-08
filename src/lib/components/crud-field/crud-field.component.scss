@@ -6,6 +6,17 @@
   color: var(--dcf-color-primary) !important;
 }
 
+ion-item.dcf-field-readonly {
+  opacity: 0.8;
+  pointer-events: none;
+  touch-action: none;
+  cursor: text;
+  * {
+    pointer-events: none;
+    touch-action: none;
+    cursor: text;
+  }
+}
 .ng-invalid ~ .dcf-input-helper {
   margin-top: 1rem !important;
 }

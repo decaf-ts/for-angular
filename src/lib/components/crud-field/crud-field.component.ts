@@ -837,8 +837,10 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         value: option.value,
         text: this.interface === SelectFieldInterfaces.MODAL ? text : stripHTML(text as string),
         selected: option?.selected ?? false,
+        checked: (option as CheckboxOption)?.checked ?? false,
         hidden: option?.hidden ?? false,
         disabled: option?.disabled ?? false,
+        readonly: option?.readonly ?? false,
       };
     });
 

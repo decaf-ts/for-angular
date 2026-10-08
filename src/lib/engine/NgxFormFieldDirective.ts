@@ -666,7 +666,6 @@ export abstract class NgxFormFieldDirective
           }
         } else {
           this.errorMessage = '';
-          this.changeDetectorRef.detectChanges();
         }
       }
     }

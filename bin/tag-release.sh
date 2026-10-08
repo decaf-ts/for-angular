@@ -208,10 +208,10 @@ else
 fi
 
 # Map user-friendly flag to npm --access value. npm expects "public" or "restricted"
-if [[ "$PUBLISH_ACCESS_FLAG" == "public" ]]; then
-  NPM_ACCESS_VALUE="public"
-else
+if [[ "$PUBLISH_ACCESS_FLAG" == "restricted" ]]; then
   NPM_ACCESS_VALUE="restricted"
+else
+  NPM_ACCESS_VALUE="public"
 fi
 
 # A prerelease bump must never publish under the default "latest" dist-tag.
