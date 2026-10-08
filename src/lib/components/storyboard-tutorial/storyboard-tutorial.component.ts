@@ -140,6 +140,9 @@ export class StoryboardTutorialComponent<C extends TutorialContext = TutorialCon
   /** Id of the last rendered step, used to detect start/step transitions. */
   private lastStepId: string | null = null;
 
+  /** Element focused before the tutorial started; restored on teardown. */
+  private lastFocusedElement: HTMLElement | null = null;
+
   constructor() {
     effect(() => {
       const state = this.service.state();
@@ -285,6 +288,8 @@ export class StoryboardTutorialComponent<C extends TutorialContext = TutorialCon
     }
 
     const step = state!.steps[0];
+    if (this.lastStepId === null)
+      this.lastFocusedElement = root.ownerDocument.activeElement as HTMLElement | null;
     root.classList.add(TUTORIAL_ACTIVE_CLASS);
 
     this.clearStrategies();
@@ -440,5 +445,7 @@ export class StoryboardTutorialComponent<C extends TutorialContext = TutorialCon
     this.clearStrategies();
     this.clearInteractionBlock(this.overlayRef?.nativeElement);
     this.hostRef.nativeElement.classList.remove(TUTORIAL_ACTIVE_CLASS);
+    if (this.lastFocusedElement?.isConnected) this.lastFocusedElement.focus();
+    this.lastFocusedElement = null;
   }
 }

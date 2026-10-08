@@ -126,7 +126,13 @@
       },
       "enable_step": "O 'A cada' só pode ser ativado para valores maiores ou iguais a 1. */0 é inválido.",
       "copied": "Copiado!",
-      "add_another": "Adicionar outro"
+      "add_another": "Adicionar outro",
+      "step_value": {
+        "hour": "Valor do intervalo em horas",
+        "minute": "Valor do intervalo em minutos"
+      },
+      "increment": "Aumentar valor",
+      "decrement": "Diminuir valor"
     },
     "crud_form": {
       "submit": "Submeter",
@@ -155,6 +161,7 @@
       "empty": "Nenhum item encontrado."
     },
     "list": {
+      "create": "Criar",
       "pagination": "A mostrar página <span class=\"text-bold\">{0} de {1}</span>",
       "loading": "A carregar dados",
       "select": "Filtrar seleção",
@@ -296,7 +303,9 @@
       "deleteConfirm": "Tem a certeza que deseja remover este componente?",
       "cancel": "Cancelar",
       "delete": "Apagar",
-      "save": "Guardar Dashboard"
+      "save": "Guardar Dashboard",
+      "tile_position": "Coluna {col}, linha {row}, {cols} por {rows} células",
+      "tile_keyboard_hint": "Use as setas para mover; segure Shift com as setas para redimensionar"
     },
     "layout": {
       "toggle": "Alternar painel"

@@ -3,9 +3,9 @@
   #component
 >
   <input
-    id="dcf-file-input"
+    [id]="inputId"
     type="file"
-    placeholder="Select files"
+    [attr.aria-label]="locale + '.buttons.select' | translate"
     [attr.accept]="accept"
     [attr.multiple]="multiple ? true : null"
     (change)="handleSelection($event)"
@@ -144,7 +144,10 @@
                 </div>
 
                 @if (errors.length > 0) {
-                  <div class="dcf-error-message">
+                  <div
+                    class="dcf-error-message"
+                    role="alert"
+                  >
                     {{ locale + ".selection_error" | translate: { "0": errors.length > 10 ? errors.length : `0${errors.length}` } }}
                   </div>
                 }
@@ -275,6 +278,7 @@
               @for (file of files; track $index) {
                 <ion-item
                   [lines]="files?.length > 1 ? 'full' : 'none'"
+                  [button]="true"
                   (click)="preview(file.source, file.type)"
                 >
                   @if (file?.name) {

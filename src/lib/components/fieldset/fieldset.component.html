@@ -1,6 +1,7 @@
 @if (['create', 'update'].includes(operation) || !multiple) {
   <div
     [attr.role]="['create', 'update'].includes(operation) ? 'group' : 'region'"
+    [attr.aria-labelledby]="name?.toLowerCase() + '-fieldset-title'"
     [class]="'dcf-fieldset-component ' + operation"
     [class.dcf-blank]="!borders"
     [class.dcf-empty]="!items?.length"
@@ -14,7 +15,11 @@
           class="dcf-grid dcf-grid-collapse dcf-flex dcf-flex-middle dcf-width-1-1"
         >
           <div class="dcf-width-expand">
-            <legend>{{ (title ? title : name) | translate }}</legend>
+            <span
+              class="dcf-title"
+              [id]="name?.toLowerCase() + '-fieldset-title'"
+              >{{ (title ? title : name) | translate }}</span
+            >
           </div>
           @if (!isRequired && ['create'].includes(operation) && multiple) {
             <div class="dcf-width-auto dcf-delete">
@@ -312,7 +317,7 @@
       ></ion-spinner>
     </div>
   } @else {
-    <legend>{{ (title ? title : name) | translate }}</legend>
+    <span class="dcf-title">{{ (title ? title : name) | translate }}</span>
     @if (!items.length) {
       <div class="dcf-padding-xsmall">
         <ion-text>{{ locale + '.empty' | translate }}</ion-text>

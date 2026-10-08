@@ -120,6 +120,30 @@ describe('TableComponent', () => {
     expect(actionBtns[1].getAttribute('aria-label')).toBe('Delete');
   });
 
+  it('row action icons still dispatch handleRedirect on click', () => {
+    (component as any).initialized = true;
+    component.data = [{ id: '1' }];
+    component.items = [
+      {
+        '0': { prop: 'name', value: 'Test', index: 0 },
+        uid: { value: '1' },
+      },
+    ];
+    component.headers = ['name'];
+    component.cols = ['name', 'actions'];
+    component.allowOperations = true;
+    component.operations = [OperationKeys.READ];
+    const redirect = jest.spyOn(component, 'handleRedirect').mockResolvedValue(undefined);
+    fixture.detectChanges();
+
+    const icon = fixture.nativeElement.querySelector(
+      '.dcf-col-actions ngx-decaf-icon'
+    ) as HTMLElement;
+    expect(icon).not.toBeNull();
+    icon.click();
+    expect(redirect).toHaveBeenCalledTimes(1);
+  });
+
   it('regression interactive cell focusable', () => {
     (component as any).initialized = true;
     component.data = [{ id: '1' }];

@@ -9,6 +9,7 @@
 import { Directive, ElementRef, inject, Input, OnChanges, Renderer2 } from '@angular/core';
 import { ITooltipConfig } from '../engine/interfaces';
 import { DecafTruncatePipe } from '../pipes/truncate.pipe';
+import { generateRandomValue } from '../utils/helpers';
 
 /**
  * @description Angular directive that appends a tooltip `<span>` to the host element and
@@ -60,9 +61,12 @@ export class DecafTooltipDirective implements OnChanges {
   renderer: Renderer2 = inject(Renderer2);
   truncatePipe: DecafTruncatePipe = inject(DecafTruncatePipe);
 
+  /** Current tooltip span; kept so repeated changes replace instead of duplicate. */
+  private tooltip: HTMLElement | null = null;
+
   /**
    * @description Angular lifecycle hook invoked whenever one or more input properties change.
-   * @summary Processes the {@link TooltipConfig} options, sanitizes the text, and updates the
+   * @summary Processes the {@link ITooltipConfig} options, sanitizes the text, and updates the
    * host element's content and tooltip span accordingly. Applies the `dcf-tooltip-parent` CSS class
    * to the host for styling.
    * @return {void}
@@ -74,6 +78,8 @@ export class DecafTooltipDirective implements OnChanges {
       ...{ position: 'top' },
       ...(typeof this.options === 'string' ? { text: this.options, position: 'bottom', trail: '' } : this.options),
     };
+    const element = this.element?.nativeElement ? this.element?.nativeElement : this.element;
+    this.clearTooltip(element);
     if (options?.text && options?.text.trim().length) {
       // Tag-stripping is display-only and not a security control
       const value = options.text.replace(/<[^>]+>/g, '').trim();
@@ -82,7 +88,6 @@ export class DecafTooltipDirective implements OnChanges {
           ? value
           : this.truncatePipe.transform(value, options.limit, options.trail ?? '...');
 
-        const element = this.element?.nativeElement ? this.element?.nativeElement : this.element;
         if (options.truncate) {
           this.renderer.setProperty(element, 'innerHTML', '');
           const textNode = this.renderer.createText(text);
@@ -93,10 +98,29 @@ export class DecafTooltipDirective implements OnChanges {
         const tooltip = this.renderer.createElement('span');
         this.renderer.addClass(tooltip, `dcf-tooltip`);
         this.renderer.addClass(tooltip, `dcf-tooltip-${options.position}`);
+        this.renderer.setAttribute(tooltip, 'role', 'tooltip');
+        const tooltipId = `dcf-tooltip-${generateRandomValue(8)}`;
+        this.renderer.setAttribute(tooltip, 'id', tooltipId);
         this.renderer.appendChild(tooltip, this.renderer.createText(this.truncatePipe.sanitize(value)));
         this.renderer.appendChild(element, tooltip);
+        this.renderer.setAttribute(element, 'aria-describedby', tooltipId);
         this.renderer.addClass(element, 'dcf-tooltip-parent');
+        this.tooltip = tooltip;
       }
     }
+  }
+
+  /**
+   * @description Removes the previously appended tooltip span, if any.
+   * @summary Without this, every `ngOnChanges` run appends another `.dcf-tooltip`
+   * span and screen readers read the content once per stale copy.
+   * @param element the host element.
+   * @return {void}
+   */
+  private clearTooltip(element: HTMLElement): void {
+    if (!this.tooltip) return;
+    this.renderer.removeChild(element, this.tooltip);
+    this.tooltip = null;
+    this.renderer.removeAttribute(element, 'aria-describedby');
   }
 }

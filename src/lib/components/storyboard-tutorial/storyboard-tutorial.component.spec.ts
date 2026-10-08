@@ -331,6 +331,40 @@ describe('StoryboardTutorialComponent', () => {
       expect(component.isRunning()).toBe(false);
     });
 
+    it('focuses the bubble, traps Tab, aborts on Escape and restores prior focus', async () => {
+      const opener = document.createElement('button');
+      opener.textContent = 'opener';
+      document.body.appendChild(opener);
+      opener.focus();
+      const finished = jest.fn();
+      try {
+        await boot({ id: 'bubble-focus', steps: [{ id: 's1' }, { id: 's2' }] });
+        await flush();
+        component.finished.subscribe(finished);
+
+        expect(document.activeElement).toBe(bubble());
+
+        const bubbleButtons = Array.from(
+          bubble().querySelectorAll<HTMLButtonElement>('button:not([disabled])')
+        );
+        bubbleButtons[bubbleButtons.length - 1].focus();
+        bubble().dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+        );
+        expect(document.activeElement).toBe(bubbleButtons[0]);
+
+        bubble().dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'Escape', cancelable: true })
+        );
+        await flush();
+
+        expect(finished).toHaveBeenCalledWith('aborted');
+        expect(document.activeElement).toBe(opener);
+      } finally {
+        opener.remove();
+      }
+    });
+
     it('shows Finish on a final step and reports the progress text', async () => {
       await boot({
         id: 'bubble-final',

@@ -126,7 +126,13 @@
       },
       "enable_step": "Every can only be enabled for values greater than or equal to 1. */0 is invalid.",
       "copied": "Copied!",
-      "add_another": "Add another"
+      "add_another": "Add another",
+      "step_value": {
+        "hour": "Step value in hours",
+        "minute": "Step value in minutes"
+      },
+      "increment": "Increase value",
+      "decrement": "Decrease value"
     },
     "crud_form": {
       "submit": "Submit",
@@ -155,6 +161,7 @@
       "empty": "No items found."
     },
     "list": {
+      "create": "Create",
       "pagination": "Showing page <span class=\"text-bold\">{0} of {1}</span>",
       "loading": "Loading data",
       "select": "Filter selection",
@@ -296,7 +303,9 @@
       "deleteConfirm": "Are you sure you want to remove this component?",
       "cancel": "Cancel",
       "delete": "Delete",
-      "save": "Save Dashboard"
+      "save": "Save Dashboard",
+      "tile_position": "Column {col}, row {row}, {cols} by {rows} cells",
+      "tile_keyboard_hint": "Use the arrow keys to move; hold Shift with the arrow keys to resize"
     },
     "layout": {
       "toggle": "Toggle panel"

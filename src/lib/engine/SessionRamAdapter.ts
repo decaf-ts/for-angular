@@ -88,8 +88,16 @@ export class SessionRamAdapter extends RamAdapter {
     const client: RamStorage = new Map();
     const raw = localStorage.getItem(this.persistentDbName);
     if (!raw) return client;
-    const snapshot = JSON.parse(raw) as Snapshot;
-    for (const [table, records] of Object.entries(snapshot)) client.set(table, new Map(records));
+    try {
+      const snapshot = JSON.parse(raw) as Snapshot;
+      if (snapshot && typeof snapshot === 'object') {
+        for (const [table, records] of Object.entries(snapshot)) {
+          if (Array.isArray(records)) client.set(table, new Map(records));
+        }
+      }
+    } catch {
+      // corrupted or hand-edited storage hydrates as empty RAM, never fails boot
+    }
     return client;
   }
 
@@ -97,12 +105,18 @@ export class SessionRamAdapter extends RamAdapter {
    * @description Persists the full current storage snapshot to localStorage.
    * @summary Serialization is write-through on successful mutations only; it
    * never writes on reads, so hydration-once semantics stay consistent.
+   * Storage failures (quota, privacy mode) are swallowed: the in-memory
+   * mutation already succeeded.
    * @return {void}
    */
   private persistToStorage(): void {
     const snapshot: Snapshot = {};
     for (const [table, records] of this.client.entries()) snapshot[table] = Array.from(records.entries());
-    localStorage.setItem(this.persistentDbName, JSON.stringify(snapshot));
+    try {
+      localStorage.setItem(this.persistentDbName, JSON.stringify(snapshot));
+    } catch {
+      // ignore storage write failures
+    }
   }
 
   /**

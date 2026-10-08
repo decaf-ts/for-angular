@@ -59,6 +59,37 @@ describe('DashboardComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should move and resize the focused tile with the keyboard, rejecting invalid targets', () => {
+    component.operation = OperationKeys.CREATE;
+    component.cols = 4;
+    component.rows = 4;
+    component.items = [
+      { id: 'tile-a', tag: 'test-widget', labelKey: 'test.widget', col: 1, row: 1, cols: 1, rows: 1, config: {} },
+      { id: 'tile-b', tag: 'test-widget', labelKey: 'test.widget', col: 3, row: 1, cols: 1, rows: 1, config: {} },
+    ];
+    fixture.detectChanges();
+
+    const tile = fixture.nativeElement.querySelector('.ngx-dashboard__tile') as HTMLElement;
+    expect(tile.getAttribute('tabindex')).toBe('0');
+    expect(tile.getAttribute('aria-label')?.trim().length).toBeGreaterThan(0);
+
+    tile.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    fixture.detectChanges();
+    expect(component.items[0].col).toBe(2);
+
+    tile.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    fixture.detectChanges();
+    expect(component.items[0].col).toBe(2);
+
+    tile.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', shiftKey: true, bubbles: true }));
+    fixture.detectChanges();
+    expect(component.items[0].cols).toBe(1);
+
+    tile.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', shiftKey: true, bubbles: true }));
+    fixture.detectChanges();
+    expect(component.items[0].rows).toBe(2);
+  });
+
   it('exposes editing affordances only in create/update mode', () => {
     component.operation = OperationKeys.CREATE;
     expect(component.isEditing).toBe(true);

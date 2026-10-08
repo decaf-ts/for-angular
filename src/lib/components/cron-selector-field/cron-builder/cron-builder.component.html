@@ -34,6 +34,7 @@
                   class="dcf-every"
                   (click)="toggleEvery(field)"
                   [class.dcf-color-primary]="every"
+                  [attr.aria-pressed]="every"
                   [ngx-decaf-tooltip]="
                     'component.cron_builder.enable_step' | translate
                   "
@@ -51,10 +52,12 @@
                     class="dcf-cron-builder-preset-input"
                     [value]="fieldValue"
                     [disabled]="disabled()"
+                    [attr.aria-label]="('component.cron_builder.step_value.' + field) | translate"
                     (keypress)="(e) => e.stopImmediatePropagation()"
                   />
                   <div class="dcf-input-controls">
                     <button type="button"
+                      [attr.aria-label]="'component.cron_builder.increment' | translate"
                       (click)="incrementTime(field, every)"
                     >
                       <span
@@ -63,6 +66,7 @@
                       ></span>
                     </button>
                     <button type="button"
+                      [attr.aria-label]="'component.cron_builder.decrement' | translate"
                       (click)="decrementTime(field, every)"
                     >
                       <span
@@ -112,7 +116,7 @@
                   <ion-select
                     multiple="true"
                     interface="popover"
-                    placeholder="All "
+                    placeholder="{{ 'component.cron_builder.all' | translate }}"
                     justify="start"
                     [label]="
                       'component.cron_builder.weekdays_preset' | translate

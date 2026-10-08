@@ -156,24 +156,24 @@ describe('ModalComponent', () => {
     expect(component.inlineContent).toBe(rawString);
   });
 
-  it('html element serialized then sanitized', async () => {
+  it('html element content is appended live, keeping svg intact', async () => {
     const div = document.createElement('div');
-    div.setAttribute('onclick', 'alert(1)');
-    div.textContent = 'a';
+    div.innerHTML = '<svg viewBox="0 0 1 1"><circle r="1"></circle></svg>';
 
     (component as any).inlineContent = div;
     component.isOpen = true;
     await component.ngOnInit();
     fixture.detectChanges();
 
-    expect(typeof component.inlineContent).toBe('string');
-    expect(component.inlineContent).toContain('onclick');
+    // live elements stay elements: stringifying + [innerHTML] would run them
+    // through the sanitizer, which strips SVG and empties the modal body
+    expect(component.inlineContentIsElement).toBe(true);
 
     const modalEl = document.getElementById(String(component.uid));
     const contentEl = modalEl?.querySelector('.dcf-modal-content');
     expect(contentEl).toBeTruthy();
-    expect(contentEl?.innerHTML).not.toContain('onclick');
-    expect(contentEl?.textContent).toContain('a');
+    expect(contentEl?.querySelector('svg')).toBeTruthy();
+    expect(contentEl?.contains(div)).toBe(true);
   });
 
   it('safe html passthrough', async () => {

@@ -76,7 +76,8 @@
             <div
               class="dcf-modal-content"
               id="dcf-modal-content"
-              [innerHTML]="inlineContent"
+              #inlineContentHost
+              [innerHTML]="inlineContentIsElement ? null : inlineContent"
             ></div>
           }
           @if (!tag && model) {
@@ -97,7 +98,8 @@
             <div
               class="dcf-modal-content"
               id="dcf-modal-content"
-              [innerHTML]="inlineContent"
+              #inlineContentHost
+              [innerHTML]="inlineContentIsElement ? null : inlineContent"
             ></div>
           }
         }

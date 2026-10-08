@@ -75,6 +75,24 @@ describe('CronBuilderComponent', () => {
     expect(fixture.nativeElement.querySelector('[role="button"]')).toBeNull();
   });
 
+  it('should label the every-step input and the increment/decrement buttons', () => {
+    const inputs = fixture.nativeElement.querySelectorAll(
+      '.dcf-cron-builder-preset-input'
+    );
+    const buttons = fixture.nativeElement.querySelectorAll(
+      '.dcf-input-controls button'
+    );
+
+    expect(inputs.length).toBeGreaterThan(0);
+    inputs.forEach((input: Element) => {
+      expect(input.getAttribute('aria-label')?.trim().length).toBeGreaterThan(0);
+    });
+    expect(buttons.length).toBe(inputs.length * 2);
+    buttons.forEach((button: Element) => {
+      expect(button.getAttribute('aria-label')?.trim().length).toBeGreaterThan(0);
+    });
+  });
+
   it('should not render unnamed focusable controls inside aria-hidden content', () => {
     fixture.componentRef.setInput('multiple', true);
     component.addAnother();

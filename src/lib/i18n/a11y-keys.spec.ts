@@ -101,7 +101,13 @@ export const NEW_A11Y_KEYS = [
   'component.model_builder.first',
   'component.model_builder.last',
   'component.model_builder.build_failed',
-  'component.model_builder.build_success'
+  'component.model_builder.build_success',
+  'component.cron_builder.step_value.hour',
+  'component.cron_builder.step_value.minute',
+  'component.cron_builder.increment',
+  'component.cron_builder.decrement',
+  'component.dashboard.tile_position',
+  'component.dashboard.tile_keyboard_hint'
 ];
 
 function getNestedValue(obj: Record<string, any>, path: string): string | undefined {

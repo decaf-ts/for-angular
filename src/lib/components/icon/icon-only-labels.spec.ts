@@ -158,25 +158,25 @@ export const SITES: ControlSite[] = [
     name: 'model-builder toggle',
     file: 'src/lib/components/model-builder/model-builder.component.html',
     type: 'labelled',
-    pattern: /class="model-builder__property-toggle"[^>]*aria-label="Toggle property"/,
+    pattern: /class="model-builder__property-toggle"[^>]*\[attr\.aria-label\]="'component\.model_builder\.toggle_property' \| translate"/,
   },
   {
     name: 'model-builder move up',
     file: 'src/lib/components/model-builder/model-builder.component.html',
     type: 'labelled',
-    pattern: /aria-label="Move up"/,
+    pattern: /\[attr\.aria-label\]="'component\.model_builder\.move_up' \| translate"/,
   },
   {
     name: 'model-builder move down',
     file: 'src/lib/components/model-builder/model-builder.component.html',
     type: 'labelled',
-    pattern: /aria-label="Move down"/,
+    pattern: /\[attr\.aria-label\]="'component\.model_builder\.move_down' \| translate"/,
   },
   {
     name: 'model-builder remove',
     file: 'src/lib/components/model-builder/model-builder.component.html',
     type: 'labelled',
-    pattern: /aria-label="Remove property"/,
+    pattern: /\[attr\.aria-label\]="'component\.model_builder\.remove_property' \| translate"/,
   },
   // 2 decorative sites
   {

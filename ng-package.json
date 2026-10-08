@@ -13,5 +13,5 @@
       "output": "assets"
     }
   ],
-  "allowedNonPeerDependencies": ["cronstrue"]
+  "allowedNonPeerDependencies": ["@cortex-js/compute-engine", "cronstrue", "echarts", "mathlive"]
 }

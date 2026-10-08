@@ -319,6 +319,8 @@
             [formControlName]="name"
             [errorText]="getErrors(container)"
             [label]="label | translate"
+            [attr.aria-invalid]="errors ? 'true' : null"
+            [attr.aria-describedby]="errors ? path + '-error' : null"
             #component
           />
 

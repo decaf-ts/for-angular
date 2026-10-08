@@ -171,6 +171,17 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
   placeholder: string = 'Search';
 
   /**
+   * @description Accessible name for the search input.
+   * @summary Forwarded to the searchbar as `aria-label`. Placeholders are a weak
+   * accessible name (WCAG 3.3.2), so consumers should set this for screen-reader users.
+   * @type {string | undefined}
+   * @default undefined
+   * @memberOf SearchbarComponent
+   */
+  @Input()
+  ariaLabel: string | undefined;
+
+  /**
    * @description The icon to use for the search button.
    * @summary Specifies the icon to be displayed for the search button of the searchbar.
    * @type {string | undefined}

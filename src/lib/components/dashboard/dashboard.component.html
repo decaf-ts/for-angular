@@ -38,8 +38,18 @@
             class="ngx-dashboard__tile"
             [style.gridColumn]="item.col + ' / span ' + item.cols"
             [style.gridRow]="item.row + ' / span ' + item.rows"
+            [attr.tabindex]="isEditing ? 0 : null"
+            role="group"
+            [attr.aria-label]="
+              'component.dashboard.tile_position'
+                | translate: { col: item.col, row: item.row, cols: item.cols, rows: item.rows }
+            "
             (pointerdown)="onDragStart(item, $event)"
+            (keydown)="onTileKeydown(item, $event)"
           >
+            <span class="dcf-sr-only">
+              {{ 'component.dashboard.tile_keyboard_hint' | translate }}
+            </span>
             <button
               class="ngx-dashboard__tile-delete"
               type="button"

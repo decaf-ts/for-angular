@@ -12,6 +12,8 @@ import { ElementSize, FlexPosition, FunctionLike, KeyValue, PossibleInputTypes }
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../icon/icon.component';
 import { presentNgxInlineModal, presentNgxLightBoxModal } from '../modal/modal.component';
+import { escapeHtml } from '../empty-state/empty-state.component';
+import { generateRandomValue } from '../../utils/helpers';
 
 /**
  * @description File upload component for Angular applications.
@@ -56,6 +58,15 @@ import { presentNgxInlineModal, presentNgxLightBoxModal } from '../modal/modal.c
 export class FileUploadComponent extends NgxFormFieldDirective implements OnInit, OnDestroy {
   @ViewChild('component', { static: true })
   override component!: ElementRef<HTMLInputElement>;
+
+  /**
+   * @description Per-instance id for the hidden file input.
+   * @summary Multiple file-upload instances on one page must not share an id,
+   * otherwise label/aria references and the programmatic click resolve to the wrong input.
+   *
+   * @type {string}
+   */
+  readonly inputId: string = `dcf-file-input-${generateRandomValue(8)}`;
 
   /**
    * @description Parent form group.
@@ -337,7 +348,7 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
   async handleClickToSelect(): Promise<void> {
     const element = this.component.nativeElement;
     if (element) {
-      (element.querySelector('#dcf-file-input') as HTMLButtonElement)?.click();
+      (element.querySelector(`[id="${this.inputId}"]`) as HTMLButtonElement)?.click();
     }
   }
 
@@ -582,7 +593,17 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
         file = Array.isArray(dataUrl) ? dataUrl[0] : dataUrl;
       }
     }
-    if (fileExtension.includes('image')) content = '<img src="' + file + '" style="max-width: 100%; height: auto;" />';
+    if (fileExtension.includes('image'))
+      content = '<img src="' + escapeHtml(file as string) + '" style="max-width: 100%; height: auto;" />';
+
+    if (fileExtension.includes('html')) {
+      if (this.previewHandler && typeof this.previewHandler === 'function') {
+        return await this.previewHandler(this, { data: file });
+      }
+      // plain strings are sanitized by the modal's [innerHTML] binding:
+      // document structure renders, scripts and event handlers do not run
+      return await presentNgxInlineModal(this.decodeDocumentContent(file as string));
+    }
 
     if (fileExtension.includes('xml')) {
       const parseXml = (xmlString: string): string | undefined => {
@@ -596,7 +617,8 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
           // const utf8Bytes = encoder.encode(xmlDoc.documentElement.outerHTML);
           // return new TextDecoder("utf-8").decode(utf8Bytes);
 
-          return xmlDoc.documentElement.outerHTML;
+          // rendering XML as escaped source text: markup round-trips through innerHTML are a mXSS sink
+          return '<pre><code>' + escapeHtml(xmlDoc.documentElement.outerHTML) + '</code></pre>';
         } catch (error: unknown) {
           this.log.error((error as Error)?.message);
           return undefined;
@@ -624,6 +646,28 @@ export class FileUploadComponent extends NgxFormFieldDirective implements OnInit
    */
   isImageFile(file: File): boolean {
     return file && file.type.startsWith('image/');
+  }
+
+  /**
+   * @description Decodes stored document content for preview.
+   * @summary Accepts raw text or base64/data-URL payloads and returns the decoded
+   * text. The presented modal sanitizes the result through `[innerHTML]`, so
+   * scripts and event handlers never execute.
+   *
+   * @param {string} value - Raw or base64-encoded document content.
+   * @returns {string} - The decoded content ready for sanitized presentation.
+   */
+  decodeDocumentContent(value: string): string {
+    if (!value) return '';
+    if (this.isBase64String(value)) {
+      try {
+        return atob(value.replace(/^data:[^;]+;base64,/, ''));
+      } catch (error: unknown) {
+        this.log.error((error as Error)?.message);
+        return '';
+      }
+    }
+    return value;
   }
 
   /**

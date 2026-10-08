@@ -53,7 +53,7 @@
             }
             @if (description) {
               <div
-                [id]="description?.textContent ?? description"
+                [id]="uid + '-description'"
                 class="dcf-description"
                 [innerHTML]="description"
               ></div>

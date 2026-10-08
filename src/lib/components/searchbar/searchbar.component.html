@@ -4,6 +4,7 @@
     ngClass="dcf-searchbar"
     name="search"
     mode="ios"
+    [attr.aria-label]="ariaLabel || null"
     (keyup.enter)="preventChange($event)"
     (ionInput)="handleInput($event)"
     (ionClear)="handleClear()"

@@ -136,8 +136,7 @@
         <div class="model-builder__empty">
           <ngx-decaf-icon name="ti-cube" />
           <p>
-            No properties yet. Click "Add Property" to start defining your
-            model.
+            {{ 'component.model_builder.empty_properties' | translate }}
           </p>
         </div>
       } @else {
@@ -153,7 +152,7 @@
                 <button
                   class="model-builder__property-toggle"
                   (click)="toggleExpanded(i)"
-                  aria-label="Toggle property"
+                  [attr.aria-label]="'component.model_builder.toggle_property' | translate"
                   [attr.aria-expanded]="prop.expanded"
                 >
                   <ngx-decaf-icon
@@ -179,7 +178,7 @@
                     fill="clear"
                     (click)="moveProperty(i, -1)"
                     [disabled]="i === 0"
-                    aria-label="Move up"
+                    [attr.aria-label]="'component.model_builder.move_up' | translate"
                   >
                     <ngx-decaf-icon
                       slot="icon-only"
@@ -191,7 +190,7 @@
                     fill="clear"
                     (click)="moveProperty(i, 1)"
                     [disabled]="i === properties().length - 1"
-                    aria-label="Move down"
+                    [attr.aria-label]="'component.model_builder.move_down' | translate"
                   >
                     <ngx-decaf-icon
                       slot="icon-only"
@@ -203,7 +202,7 @@
                     fill="clear"
                     color="danger"
                     (click)="removeProperty(i)"
-                    aria-label="Remove property"
+                    [attr.aria-label]="'component.model_builder.remove_property' | translate"
                   >
                     <ngx-decaf-icon
                       slot="icon-only"
@@ -324,6 +323,7 @@
                       >
                         <ion-checkbox
                           [ngModel]="prop.ui.readonly"
+                          [attr.aria-label]="'component.model_builder.readonly' | translate"
                           (ngModelChange)="
                             properties()[i].ui.readonly = $event;
                             properties.set([...properties()])
@@ -340,6 +340,7 @@
                       >
                         <ion-checkbox
                           [ngModel]="prop.ui.translatable"
+                          [attr.aria-label]="'component.model_builder.translatable' | translate"
                           (ngModelChange)="
                             properties()[i].ui.translatable = $event;
                             properties.set([...properties()])
@@ -455,6 +456,7 @@
                           >
                             <ion-checkbox
                               [checked]="prop.layout.hideOn.includes(op)"
+                              [attr.aria-label]="('component.model_builder.operations.' + op) | translate"
                               (ionChange)="toggleHideOn(i, op)"
                             ></ion-checkbox>
                             <ion-label class="model-builder__checkbox-label">
@@ -476,6 +478,7 @@
                       >
                         <ion-checkbox
                           [ngModel]="prop.validators.required"
+                          [attr.aria-label]="'component.model_builder.required' | translate"
                           (ngModelChange)="
                             properties()[i].validators.required = $event;
                             properties.set([...properties()])
@@ -493,6 +496,7 @@
                         >
                           <ion-checkbox
                             [ngModel]="prop.validators.email"
+                            [attr.aria-label]="'component.model_builder.email' | translate"
                             (ngModelChange)="
                               properties()[i].validators.email = $event;
                               properties.set([...properties()])
@@ -509,6 +513,7 @@
                         >
                           <ion-checkbox
                             [ngModel]="prop.validators.url"
+                            [attr.aria-label]="'component.model_builder.url' | translate"
                             (ngModelChange)="
                               properties()[i].validators.url = $event;
                               properties.set([...properties()])

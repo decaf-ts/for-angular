@@ -57,4 +57,14 @@ describe('FileUploadComponent dropzone', () => {
     dropzone.dispatchEvent(new Event('dragleave', { bubbles: true, cancelable: true }));
     expect(component.dragging).toBe(false);
   });
+
+  it('decodes html document content for preview', () => {
+    const raw = '<p>hello</p>';
+    expect(component.decodeDocumentContent(raw)).toBe(raw);
+
+    const encoded = btoa('<p>decoded</p>');
+    expect(component.decodeDocumentContent(encoded)).toBe('<p>decoded</p>');
+    expect(component.decodeDocumentContent(`data:text/html;base64,${encoded}`)).toBe('<p>decoded</p>');
+    expect(component.decodeDocumentContent('')).toBe('');
+  });
 });

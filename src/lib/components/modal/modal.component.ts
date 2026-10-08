@@ -1,5 +1,7 @@
 import {
+  AfterViewChecked,
   Component,
+  ElementRef,
   effect,
   EnvironmentInjector,
   EventEmitter,
@@ -7,8 +9,10 @@ import {
   Input,
   OnInit,
   Output,
+  QueryList,
   runInInjectionContext,
   ViewChild,
+  ViewChildren,
 } from '@angular/core';
 import { Color, modalController, OverlayEventDetail } from '@ionic/core';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -117,7 +121,7 @@ import { ModelRendererComponent } from '../model-renderer/model-renderer.compone
  *
  * @public
  */
-export class ModalComponent extends NgxParentComponentDirective implements IDecafModal, OnInit {
+export class ModalComponent extends NgxParentComponentDirective implements IDecafModal, OnInit, AfterViewChecked {
   /**
    * @description Reference to the rendered Ionic modal instance.
    * @summary Captures the underlying `IonModal` so the component can control presentation and dismissal.
@@ -309,9 +313,37 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
    *
    * @returns {Promise<void>} - A promise that resolves when initialization is complete.
    */
+  @ViewChildren('inlineContentHost')
+  inlineContentHost?: QueryList<ElementRef<HTMLElement>>;
+
+  /**
+   * @description Whether the inline content is a live DOM element.
+   * @summary Element content bypasses `[innerHTML]`: Angular's sanitizer strips
+   * SVG and similar markup when a node is stringified, so live elements are
+   * appended directly to the rendered host instead.
+   */
+  get inlineContentIsElement(): boolean {
+    return typeof HTMLElement !== 'undefined' && this.inlineContent instanceof HTMLElement;
+  }
+
+  ngAfterViewChecked(): void {
+    this.attachInlineElementContent();
+  }
+
+  /**
+   * @description Appends live-element inline content into the rendered host.
+   * @summary Idempotent: runs after every view check but only moves the node
+   * while it is not mounted, so repeated change detection never duplicates it.
+   */
+  private attachInlineElementContent(): void {
+    if (!this.inlineContentIsElement) return;
+    const host = this.inlineContentHost?.first?.nativeElement;
+    const element = this.inlineContent as HTMLElement;
+    if (host && !host.contains(element)) host.appendChild(element);
+  }
+
   async ngOnInit(): Promise<void> {
     await super.initialize();
-    this.parseInlineContent();
   }
 
   /**
@@ -350,11 +382,9 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
    * @returns {void} - Does not return a value.
    */
   parseInlineContent(): void {
-    if (this.inlineContent) {
-      if (this.inlineContent instanceof HTMLElement) {
-        this.inlineContent = this.inlineContent.outerHTML;
-      }
-    }
+    // HTMLElement content is appended directly (attachInlineElementContent):
+    // round-tripping via outerHTML + [innerHTML] runs it through the sanitizer,
+    // which strips SVG (e.g. barcode previews) and yields an empty modal body.
   }
 
   /**

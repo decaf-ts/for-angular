@@ -69,7 +69,10 @@
       <thead>
         <tr>
           @for (header of headers; track $index) {
-            <th class="dcf-th-{{ header }}">
+            <th
+              class="dcf-th-{{ header }}"
+              scope="col"
+            >
               {{ locale + '.' + header + '.label' | translate }}
             </th>
           }

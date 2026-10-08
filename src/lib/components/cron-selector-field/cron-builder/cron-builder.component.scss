@@ -64,8 +64,9 @@
       }
       &:focus-within {
         border: none !important;
-        outline: none !important;
         box-shadow: none !important;
+        outline: 2px solid var(--dcf-color-primary) !important;
+        outline-offset: 2px;
       }
     }
   }
