@@ -92,7 +92,7 @@ const splitCodeNodeMetadata: Record<string, unknown> = {
     },
     {
       source: 'ResultLogNode',
-      sourcePort: 'logged',
+      sourcePort: 'value',
       target: 'workflow',
       targetPort: 'result',
       label: 'final-result',

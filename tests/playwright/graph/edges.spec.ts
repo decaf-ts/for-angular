@@ -3,7 +3,7 @@
  * @summary Graph edge & connection behaviours against the CURRENT demo.
  * @description Re-derived for the D2 boundary decision (DECAF-50 §4.22, G3-09):
  * the workflow boundary now renders as a real trigger/result badge, so the
- * workflow-output edge (`ResultLogNode:logged -> $workflow:result`) is projected
+ * workflow-output edge (`ResultLogNode:value -> $workflow:result`) is projected
  * instead of dropped. The demo therefore renders 7 edges (5 document edges plus
  * the foreach containment ghost's 2 mandatory edges) and 7 edge labels.
  *

@@ -74,7 +74,7 @@ function logManifestOf(
     kind: 'core.utility.log',
     display: { name: 'Utility Log', category: 'Utility' },
     inputs: [{ id: 'value', label: 'Input value', direction: 'input', required: true }],
-    outputs: [{ id: 'logged', label: 'Logged value', direction: 'output', required: true }],
+    outputs: [{ id: 'value', label: 'Logged value', direction: 'output', required: true }],
     parameters: [
       { type: 'object', id: 'value', label: 'Input value', required: true },
       { type: 'string', id: 'level', label: 'Log level', defaultValue: 'info' },

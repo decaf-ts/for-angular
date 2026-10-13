@@ -126,10 +126,10 @@ describe('graph adapter', () => {
         expect.objectContaining({
           source: 'ResultLogNode',
           target: 'output-result',
-          sourcePort: 'logged',
+          sourcePort: 'value',
           targetPort: 'value',
           data: expect.objectContaining({
-            engineEdgeId: 'ResultLogNode:logged->$workflow:result',
+            engineEdgeId: 'ResultLogNode:value->$workflow:result',
           }),
         }),
       ])
@@ -151,7 +151,7 @@ describe('graph adapter', () => {
         '$workflow:text->SplitTextCodeNode:data',
         'SplitTextCodeNode:result->GraphForeachLoopNode:items',
         'GraphForeachLoopNode:completed->ResultLogNode:value',
-        'ResultLogNode:logged->$workflow:result',
+        'ResultLogNode:value->$workflow:result',
       ])
     );
     expect(viewModel.edges.every((edge) => !(edge.data.engineEdgeId ?? '').includes('undefined'))).toBe(true);

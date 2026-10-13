@@ -39,7 +39,7 @@ function logResolved(): GraphResolvedNodeManifest {
     kind: 'core.flow.log',
     display: { name: 'Log', category: 'Utility', width: 96, height: 96 },
     inputs: [{ id: 'value', label: 'Input value', direction: 'input', required: true }],
-    outputs: [{ id: 'logged', label: 'Logged value', direction: 'output', required: true }],
+    outputs: [{ id: 'value', label: 'Logged value', direction: 'output', required: true }],
     parameters: [],
   };
 }
@@ -96,7 +96,7 @@ function demoDocument(): GraphWorkflowDocument {
       {
         id: 'e-final',
         type: 'data',
-        source: { scope: 'node', nodeId: 'ResultLogNode', port: 'logged' },
+        source: { scope: 'node', nodeId: 'ResultLogNode', port: 'value' },
         target: { scope: 'workflow', port: 'result' },
         label: 'final-result',
       },
@@ -159,7 +159,7 @@ describe('graphWorkflowDocumentCanvasModelOf — workflow boundary (D2/G3-09)', 
     expect(projection.edgeIds).toContain('e-final');
     const edge = projection.edges.find((candidate) => candidate.id === 'e-final');
     expect(edge?.source).toBe('ResultLogNode');
-    expect(edge?.sourcePort).toBe('logged');
+    expect(edge?.sourcePort).toBe('value');
     expect(edge?.target).toBe('output-result');
     expect(edge?.targetPort).toBe('value');
   });

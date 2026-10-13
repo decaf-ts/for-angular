@@ -40,9 +40,9 @@ test.describe('LogFlowNode — ResultLogNode (core.flow.log)', () => {
     await expect.poll(() => isPortConnected(page, LOG, 'value')).toBe(true);
   });
 
-  test('logged output port is visible (uielement port on the canvas)', async ({ page }) => {
+  test('value output port is visible (uielement port on the canvas)', async ({ page }) => {
     const outputs = await getNodePorts(page, LOG, 'out');
-    expect(outputs).toContain('logged');
+    expect(outputs).toContain('value');
   });
 
   test('double-click opens the unified split-view editor (R4-8)', async ({ page }) => {

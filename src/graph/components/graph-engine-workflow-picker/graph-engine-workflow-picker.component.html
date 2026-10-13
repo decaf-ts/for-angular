@@ -21,9 +21,10 @@
       </header>
 
       @if (engines().length > 1) {
-        <label class="graph-engine-picker__engine">
+        <label class="graph-engine-picker__engine" for="graph-engine-picker-engine">
           <span>{{ 'graph.engines.picker.engine' | translate }}</span>
           <ion-select
+            id="graph-engine-picker-engine"
             [value]="selectedEngineId()"
             interface="popover"
             (ionChange)="onEngineChange($event)"

@@ -41,7 +41,7 @@ const LOG_ENTRY = {
   manifest: {
     kind: 'core.flow.log',
     inputs: [{ id: 'value' }],
-    outputs: [{ id: 'logged' }],
+    outputs: [{ id: 'value' }],
   },
 } as unknown as GraphPaletteEntry;
 
@@ -234,7 +234,7 @@ describe('GraphRendererComponent — add-node interaction (G4-R5)', () => {
       );
       expect(store.addEdge).toHaveBeenCalledWith(
         expect.objectContaining({
-          source: { scope: 'node', nodeId: 'new-node', port: 'logged' },
+          source: { scope: 'node', nodeId: 'new-node', port: 'value' },
           target: { scope: 'node', nodeId: 'ghost-GraphForeachLoopNode', port: 'in' },
           metadata: { mandatory: true },
         })

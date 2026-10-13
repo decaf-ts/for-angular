@@ -79,7 +79,7 @@ function resolvedOf(
     kind,
     display: { name: kind, category: 'Utility', width: 96, height: 96 },
     inputs: [{ id: 'value', label: 'value', direction: 'input', required: true }],
-    outputs: [{ id: 'logged', label: 'logged', direction: 'output', required: true }],
+    outputs: [{ id: 'value', label: 'value', direction: 'output', required: true }],
     parameters: [],
     ...(metadata ? { metadata } : {}),
   } as unknown as GraphResolvedNodeManifest;

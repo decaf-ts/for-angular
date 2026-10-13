@@ -96,7 +96,7 @@ const logEvenNodeMetadata = {
     },
     {
       source: 'LoopItemLogNode',
-      sourcePort: 'logged',
+      sourcePort: 'value',
       target: 'EvenOddSwitchNode',
       targetPort: 'value',
       label: 'item',
@@ -124,7 +124,7 @@ const logEvenNodeMetadata = {
     },
     {
       source: 'OddLogNode',
-      sourcePort: 'logged',
+      sourcePort: 'value',
       target: 'workflow',
       targetPort: 'result',
       label: 'result',
