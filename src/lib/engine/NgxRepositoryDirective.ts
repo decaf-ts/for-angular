@@ -432,7 +432,8 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
         data[pk] = undefined;
       }
       return Model.build(
-        Object.assign(data || {}, relation, modelId && !data[this.pk] ? { [this.pk]: modelId } : {}),
+        Object.assign(data || {}, relation, modelId && !data[this.pk] ? { [this.pk]: uid } : {}),
+        // Object.assign(data || {}, relation, modelId && !data[this.pk] ? { [this.pk]: modelId } : {}),
         repository.class.name
       ) as M;
     }

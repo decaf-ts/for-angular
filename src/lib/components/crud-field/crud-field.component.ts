@@ -740,7 +740,7 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
    * @memberOf CrudFieldComponent
    */
   async ngAfterViewInit(): Promise<void> {
-    if (this.type === HTML5InputTypes.RADIO && this.formGroup && !this.value) {
+    if (this.type === HTML5InputTypes.RADIO && this.formGroup) {
       if (typeof this.options === 'function') {
         this.options = await (this.options as FunctionLike)();
       }
@@ -754,6 +754,10 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         this.changeDetectorRef.detectChanges();
       }
       this.setValue(this.value);
+    }
+    if (this.readonly) {
+      this.value = `${this.value ?? ''}`;
+      this.changeDetectorRef.detectChanges();
     }
   }
 
@@ -833,8 +837,10 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         value: option.value,
         text: this.interface === SelectFieldInterfaces.MODAL ? text : stripHTML(text as string),
         selected: option?.selected ?? false,
+        checked: (option as CheckboxOption)?.checked ?? false,
         hidden: option?.hidden ?? false,
         disabled: option?.disabled ?? false,
+        readonly: option?.readonly ?? false,
       };
     });
 

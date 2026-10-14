@@ -92,6 +92,7 @@
             <ion-item
               class="dcf-width-1-1"
               [hidden]="hidden"
+              [class.dcf-field-readonly]="option?.readonly || option?.disabled"
             >
               <ion-checkbox
                 (ionInput)="handleModalChildChanges($event, formControl)"
@@ -126,6 +127,9 @@
                 <ion-item
                   class="dcf-width-1-1"
                   [button]="true"
+                  [class.dcf-field-readonly]="
+                    option?.readonly || option?.disabled
+                  "
                 >
                   <ion-checkbox
                     (ionInput)="handleModalChildChanges($event, formControl)"
@@ -135,8 +139,13 @@
                     [labelPlacement]="labelPlacement"
                     [justify]="justify"
                     [value]="option.value"
-                    [attr.readonly]="readonly"
-                    [checked]="isOptionChecked(option.value)"
+                    [attr.readonly]="
+                      readonly ||
+                      disabled ||
+                      option?.readonly ||
+                      option?.disabled
+                    "
+                    [checked]="option.checked || isOptionChecked(option.value)"
                     (ionChange)="toggleOptionSelection(option.value, $event)"
                     #component
                   >
@@ -171,7 +180,11 @@
               {{ label | translate }}
             </label>
             @for (option of options; track $index) {
-              <ion-item>
+              <ion-item
+                [class.dcf-field-readonly]="
+                  option?.readonly || option?.disabled
+                "
+              >
                 <ion-radio
                   (ionInput)="handleModalChildChanges($event, formControl)"
                   (ionChange)="handleModalChildChanges($event, formControl)"
@@ -181,7 +194,9 @@
                   [labelPlacement]="labelPlacement"
                   [alignment]="alignment"
                   [justify]="justify"
-                  [attr.readonly]="readonly"
+                  [attr.readonly]="
+                    readonly || option?.readonly || option?.disabled
+                  "
                   [value]="option.value"
                   [attr.aria-label]="
                     translatable ? (option?.text | translate) : option?.text
@@ -299,6 +314,14 @@
           />
 
           <!-- <span class="dcf-input-error" [innerHTML]="getErrors(container)"></span> -->
+        }
+        @if (helperText) {
+          <p
+            class="dcf-input-helper"
+            [class.dcf-invalid]="errorMessage?.length"
+          >
+            {{ helperText | translate }}
+          </p>
         }
       </div>
     </ng-container>

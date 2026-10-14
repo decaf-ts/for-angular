@@ -497,40 +497,15 @@ export class TableComponent extends ListComponent implements OnInit {
   }
 
   /**
-   * @description Updates the matching rendered table row after an edit operation.
-   * @summary Executes the default update flow inherited from `ListComponent` and then
-   * finds the already-mapped row in `this.items` by `uid`. When found, it synchronizes
-   * each displayed cell value (except the `uid` field) with the latest values from
-   * `model`, preserving the mapped row structure used by the table.
-   * @param {Model} model - Model instance containing updated values.
-   * @param {string | number} uid - Unique identifier of the row to update.
+   * @description Refreshes the table after a repository update.
+   * @summary Forces a fresh repository read so rows are mapped from model data rather
+   * than remapping the table's already-mapped display rows.
+   * @param {Model} _model - Updated model (unused because the repository is re-read).
+   * @param {string | number} _uid - Updated row ID (unused because the repository is re-read).
    * @return {Promise<void>}
    */
-  override async handleUpdate(model: Model, uid: string | number): Promise<void> {
-    await super.refresh();
-    // await super.handleUpdate(model, uid);
-    // const item = this.items.find((item) => `${item['uid']?.value}`.trim() === `${uid}`.trim());
-    // const mapper: KeyValue = this.mapper || {};
-    // if (item) {
-    //   for (const [key, entry] of Object.entries(item)) {
-    //     const { prop } = entry;
-    //     if (key !== 'uid' && prop in model) {
-    //       const value = model[prop as keyof Model];
-    //       if (value !== undefined) {
-    //         const valueFn = mapper?.[prop]?.valueParserFn || value;
-    //         if (typeof valueFn === 'function') {
-    //           entry.value = await valueFn(this, prop, value);
-    //         } else {
-    //           if (isValidDate(value)) {
-    //             entry.value = `${formatDate(dateFromString(value as unknown as string))}`;
-    //           } else {
-    //             entry.value = value;
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+  override async handleUpdate(_model: Model, _uid: string | number): Promise<void> {
+    await super.refresh(true);
   }
 
   // /**
