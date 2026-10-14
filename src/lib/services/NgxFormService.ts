@@ -758,8 +758,12 @@ export class NgxFormService {
             value = !isNaN(value) ? value : escapeHtml(value)?.trim();
         }
       } else {
-        if (props['type'] === HTML5InputTypes.CHECKBOX)
-          value = Array.isArray(value) || typeof value === Primitives.STRING ? value : (value ?? false);
+        if (props['type'] === HTML5InputTypes.CHECKBOX) {
+          // checkbox group (with options) is multi-value: always an array, never a boolean
+          const isGroup = Array.isArray(props['options']) || typeof props['options'] === 'function';
+          if (isGroup) value = Array.isArray(value) ? value : typeof value === Primitives.STRING ? [value] : [];
+          else value = Array.isArray(value) || typeof value === Primitives.STRING ? value : (value ?? false);
+        }
       }
       data[key] = value;
     }

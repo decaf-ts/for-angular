@@ -145,7 +145,7 @@
                       option?.readonly ||
                       option?.disabled
                     "
-                    [checked]="option.checked || isOptionChecked(option.value)"
+                    [checked]="isOptionChecked(option.value)"
                     (ionChange)="toggleOptionSelection(option.value, $event)"
                     #component
                   >
