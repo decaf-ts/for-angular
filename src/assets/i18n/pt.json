@@ -408,7 +408,19 @@
       "untitled": "Fluxo de trabalho sem título",
       "open": "Abrir fluxo de trabalho",
       "runs": "Execuções anteriores",
-      "empty": "Ainda não existem fluxos de trabalho"
+      "empty": "Ainda não existem fluxos de trabalho",
+      "create": "Criar fluxo de trabalho",
+      "createBlocked": "O motor selecionado não suporta criar fluxos de trabalho",
+      "run": "Executar fluxo de trabalho",
+      "runBlocked": "O motor selecionado não suporta executar fluxos de trabalho",
+      "engine": {
+        "label": "Motor"
+      },
+      "failure": {
+        "backendDown": "O backend de grafos está indisponível. A mostrar a lista legada de fluxos de trabalho.",
+        "malformed": "O manifesto de capacidades do motor está fora do contrato. A mostrar a lista legada de fluxos de trabalho.",
+        "retry": "Tentar novamente"
+      }
     },
     "executions": {
       "title": "Execuções",
@@ -422,6 +434,20 @@
       "replay": "Repetir execução",
       "open": "Abrir execução",
       "empty": "Ainda não existem execuções"
+    },
+    "engines": {
+      "picker": {
+        "title": "Selecionar um cenário de fluxo de trabalho",
+        "close": "Fechar",
+        "engine": "Motor",
+        "unsupported": "O motor selecionado não suporta consultar fluxos de trabalho",
+        "empty": "Não existem cenários de fluxo de trabalho para o motor selecionado",
+        "run": "Executar",
+        "failure": {
+          "backendDown": "O backend de grafos está indisponível.",
+          "malformed": "O manifesto de capacidades do motor está fora do contrato."
+        }
+      }
     }
   }
 }

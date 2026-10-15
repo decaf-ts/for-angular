@@ -26,6 +26,17 @@
         name="ti-history"
       />
       <ngx-decaf-icon
+        (click)="runScenario($event)"
+        (keyup.enter)="runScenario($event)"
+        [button]="true"
+        [attr.tabindex]="canRunWorkflow() ? 0 : -1"
+        [attr.aria-disabled]="!canRunWorkflow()"
+        [attr.aria-label]="(canRunWorkflow() ? locale + '.run' : locale + '.runBlocked') | translate"
+        slot="icon-only"
+        color="primary"
+        name="ti-player-play"
+      />
+      <ngx-decaf-icon
         (click)="openWorkflow($event)"
         (keyup.enter)="openWorkflow($event)"
         [button]="true"

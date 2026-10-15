@@ -46,6 +46,7 @@ import {
   graphRunLog,
   graphInspection,
   GraphEngineWorkflowPickerComponent,
+  GraphEngineCapabilityService,
 } from 'src/graph';
 import type {
   GraphInspectionRunState,
@@ -116,6 +117,14 @@ export class GraphPage implements OnInit, OnDestroy {
   @Input() operation: string = 'demo';
   /** Workflow id route param (read/update); demo default otherwise. */
   @Input() workflowId: string = GraphPage.DEMO_WORKFLOW_ID;
+  /**
+   * Engine id query param (SAA-707): set when a workflow is opened from an
+   * engine catalogue row, so the page resolves the scenario through the
+   * selected engine's catalogue instead of the legacy save endpoint.
+   */
+  @Input() engine?: string;
+  /** Whether to start the run automatically after loading (SAA-707). */
+  @Input() autorun?: string;
 
   private readonly executionService = inject(GraphExecutionService);
   private readonly saveService = inject(GraphSaveService);
@@ -126,6 +135,7 @@ export class GraphPage implements OnInit, OnDestroy {
   private readonly runEventClient = inject(GraphRunEventClient);
   private readonly validateClient = inject(GraphWorkflowValidateClient);
   private readonly catalogService = inject(GraphNodeCatalogService);
+  private readonly capabilities = inject(GraphEngineCapabilityService);
   private readonly runEventSubscribers = new Map<string, GraphRunEventClientSubscriber>();
 
   @ViewChild(GraphRendererComponent) renderer!: GraphRendererComponent;
@@ -144,12 +154,16 @@ export class GraphPage implements OnInit, OnDestroy {
   private runStuckTimer: ReturnType<typeof setTimeout> | null = null;
   readonly backendAvailable = this.executionService.backendAvailable;
   /**
-   * Run gating (D5/G3-17): the toolbar can only start a run when the backend
-   * is available and the editor's validity projection does not mark the graph
-   * invalid. An invalid graph is never submittable.
+   * Run gating (D5/G3-17, SAA-707): the toolbar can only start a run when the
+   * backend is available, the selected engine's capability manifest does not
+   * declare run `NOT_SUPPORTED`, and the editor's validity projection does not
+   * mark the graph invalid. An invalid graph is never submittable.
    */
   readonly canRun = computed(
-    () => this.backendAvailable() !== false && !graphValidity.isInvalid()
+    () =>
+      this.backendAvailable() !== false &&
+      this.capabilities.canRunWorkflow() &&
+      !graphValidity.isInvalid()
   );
   /** Editor validity projection (D5/G3-16..G3-18) for the toolbar + canvas. */
   readonly graphValidityStatus = graphValidity.status;
@@ -225,11 +239,33 @@ export class GraphPage implements OnInit, OnDestroy {
    * canvas-derived seed (fresh editor sessions).
    */
   private async catalogBackendWorkflowLoad(): Promise<void> {
+    // SAA-707: a workflow opened from an engine catalogue row carries its
+    // engine id, so resolve it through the capability catalogue first. The
+    // catalogue is preferred only when the manifest advertises browsing; the
+    // legacy save endpoint stays the fallback for saved/editor workflows.
+    if (this.engine) {
+      try {
+        await this.capabilities.load();
+        const document = await this.capabilities.getWorkflow(
+          this.engine,
+          this.workflowId,
+        );
+        if (document) {
+          this.workflowName.set(document.name ?? this.workflowId);
+          this.renderer?.restoreFromDocument({ document });
+          if (this.autorun) await this.runWorkflow();
+          return;
+        }
+      } catch {
+        // Fall through to the legacy load below.
+      }
+    }
     try {
       const saved = await this.saveService.loadDocument(this.workflowId);
       if (!saved?.document) return;
       this.workflowName.set(saved.document.name ?? '');
       this.renderer?.restoreFromDocument(saved);
+      if (this.autorun) await this.runWorkflow();
     } catch {
       // Backend without a saved workflow: keep the canvas-derived document.
     }

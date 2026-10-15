@@ -17,12 +17,18 @@ import {
 } from "@angular/core";
 import type { GraphWorkflowDocument } from "@decaf-ts/as-graph/shared";
 import {
-  GRAPH_ENGINE_WORKFLOW_LIST_FEATURE,
-  GRAPH_ENGINE_WORKFLOW_LOOKUP_FEATURE,
+  graphEngineFeatureVerdictOf,
   graphEngineSupportsFeature,
   type GraphEngineDescriptor,
+  type GraphEngineFeatureVerdict,
   type GraphEngineWorkflowSummary,
 } from "./GraphEngineCapability";
+import {
+  GRAPH_ENGINE_FEATURE_ALIASES,
+  graphEngineActionGatesOf,
+  graphEngineFeatureAllowed,
+  type GraphEngineActionGates,
+} from "./GraphEngineCapabilityGates";
 import {
   GraphEngineCapabilityUnavailableError,
   GraphEngineWorkflowCatalogUnsupportedError,
@@ -83,21 +89,95 @@ export class GraphEngineCapabilityService {
   /** Whether more than one engine is advertised (engine selection UI). */
   readonly canSelectEngine = computed(() => this.engines().length > 1);
 
-  /** Whether the selected engine declares `workflowList` SUPPORTED. */
+  /**
+   * Whether the selected engine natively advertises workflow browsing. Strict
+   * `SUPPORTED` only: the workflow table prefers the engine catalogue when this
+   * holds and falls back to the legacy `GET /graph/workflows` endpoint otherwise
+   * (an explicit `NOT_SUPPORTED` verdict, an extension point, or no manifest).
+   * The broader alias set keeps the decision backend-agnostic, so a backend that
+   * names the feature `list` instead of `workflowList` still takes the catalogue.
+   */
   readonly canBrowseWorkflows = computed(() =>
     graphEngineSupportsFeature(
       this.store.selectedEngine(),
-      GRAPH_ENGINE_WORKFLOW_LIST_FEATURE,
+      ...GRAPH_ENGINE_FEATURE_ALIASES.workflowList,
     ),
   );
 
-  /** Whether the selected engine declares `workflowLookup` SUPPORTED. */
+  /** Whether the selected engine natively advertises workflow lookup. */
   readonly canLookupWorkflow = computed(() =>
     graphEngineSupportsFeature(
       this.store.selectedEngine(),
-      GRAPH_ENGINE_WORKFLOW_LOOKUP_FEATURE,
+      ...GRAPH_ENGINE_FEATURE_ALIASES.workflowLookup,
     ),
   );
+
+  /** Whether the selected engine allows creating a workflow. */
+  readonly canCreateWorkflow = computed(() =>
+    graphEngineFeatureAllowed(
+      this.store.selectedEngine(),
+      GRAPH_ENGINE_FEATURE_ALIASES.workflowCreate,
+    ),
+  );
+
+  /** Whether the selected engine allows editing/saving a workflow. */
+  readonly canUpdateWorkflow = computed(() =>
+    graphEngineFeatureAllowed(
+      this.store.selectedEngine(),
+      GRAPH_ENGINE_FEATURE_ALIASES.workflowUpdate,
+    ),
+  );
+
+  /** Whether the selected engine allows deleting a workflow. */
+  readonly canDeleteWorkflow = computed(() =>
+    graphEngineFeatureAllowed(
+      this.store.selectedEngine(),
+      GRAPH_ENGINE_FEATURE_ALIASES.workflowDelete,
+    ),
+  );
+
+  /** Whether the selected engine allows running a workflow. */
+  readonly canRunWorkflow = computed(() =>
+    graphEngineFeatureAllowed(
+      this.store.selectedEngine(),
+      GRAPH_ENGINE_FEATURE_ALIASES.workflowRun,
+    ),
+  );
+
+  /** Whether the selected engine allows streaming a run's live events. */
+  readonly canStreamRunEvents = computed(() =>
+    graphEngineFeatureAllowed(
+      this.store.selectedEngine(),
+      GRAPH_ENGINE_FEATURE_ALIASES.runEventStream,
+    ),
+  );
+
+  /** Whether the selected engine allows resuming a run. */
+  readonly canResumeWorkflow = computed(() =>
+    graphEngineFeatureAllowed(
+      this.store.selectedEngine(),
+      GRAPH_ENGINE_FEATURE_ALIASES.workflowResume,
+    ),
+  );
+
+  /** Every per-action gate projected from the selected engine. */
+  readonly actionGates = computed<GraphEngineActionGates>(() =>
+    graphEngineActionGatesOf(this.store.selectedEngine()),
+  );
+
+  /** Whether a manifest has loaded and the gates can be trusted. */
+  readonly manifestReady = computed(
+    () => this.store.signals.status() === "ready",
+  );
+
+  /**
+   * Whether the last capability interaction degraded or failed, so the UI can
+   * surface the store's `backend-down`/`malformed-response` failure visibly.
+   */
+  readonly degraded = computed(() => {
+    const status = this.store.signals.status();
+    return status === "degraded" || status === "failed";
+  });
 
   /** Feature names the selected engine declares SUPPORTED, for chip display. */
   readonly capabilityChips = computed(() =>
@@ -143,7 +223,21 @@ export class GraphEngineCapabilityService {
    * @return {boolean} `true` when the feature resolves to `SUPPORTED`.
    */
   supports(...aliases: string[]): boolean {
-    return graphEngineSupportsFeature(this.store.selectedEngine(), ...aliases);
+    return graphEngineFeatureAllowed(this.store.selectedEngine(), aliases);
+  }
+
+  /**
+   * Resolves the selected engine's verdict for a feature by alias, without
+   * collapsing it to a boolean, so a caller can distinguish an explicit refusal
+   * from an undeclared feature.
+   *
+   * @param aliases - Acceptable aliases of the queried feature.
+   * @return The resolved verdict, or `undefined` when nothing matches.
+   */
+  featureVerdict(
+    ...aliases: string[]
+  ): GraphEngineFeatureVerdict | undefined {
+    return graphEngineFeatureVerdictOf(this.store.selectedEngine(), aliases);
   }
 
   /**

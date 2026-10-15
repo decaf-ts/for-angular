@@ -412,3 +412,131 @@ describe('GraphToolbarComponent — engine capability affordances (SAA-198)', ()
     expect(emitted).toBe(1);
   });
 });
+
+/** A manifest whose single engine carries the given capability rows. */
+function manifestWith(
+  capabilities: GraphEngineFeature[],
+): GraphEngineCapabilityManifest {
+  return {
+    engines: [capabilityEngine('engine-a', capabilities)],
+    defaultEngineId: 'engine-a',
+  };
+}
+
+describe('GraphToolbarComponent — engine capability run/save gate (SAA-707)', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('disables and titles Run when the engine explicitly blocks running', () => {
+    const fixture = render({ canRun: true, invalid: false });
+    const store = TestBed.inject(GraphEngineCapabilityStore);
+    store.setManifest(
+      manifestWith([{ feature: 'workflowRun', verdict: 'NOT_SUPPORTED' }]),
+    );
+    store.setStatus('ready');
+    fixture.detectChanges();
+
+    const run = fixture.nativeElement.querySelector(
+      'button.graph-float-btn--run',
+    ) as HTMLButtonElement;
+
+    expect(run.disabled).toBe(true);
+    expect(run.getAttribute('aria-disabled')).toBe('true');
+    expect(run.getAttribute('title')).toBe(
+      'The selected engine does not support running workflows',
+    );
+  });
+
+  it('keeps Run enabled when the engine leaves running undeclared', () => {
+    const fixture = render({ canRun: true, invalid: false });
+    const store = TestBed.inject(GraphEngineCapabilityStore);
+    store.setManifest(manifestWith([]));
+    store.setStatus('ready');
+    fixture.detectChanges();
+
+    const run = fixture.nativeElement.querySelector(
+      'button.graph-float-btn--run',
+    ) as HTMLButtonElement;
+
+    expect(run.disabled).toBe(false);
+    expect(run.getAttribute('title')).toBe('Start workflow');
+  });
+
+  it('does not emit runWorkflow when the engine blocks running', () => {
+    const fixture = render({ canRun: true, invalid: false });
+    const store = TestBed.inject(GraphEngineCapabilityStore);
+    store.setManifest(
+      manifestWith([{ feature: 'workflowRun', verdict: 'NOT_SUPPORTED' }]),
+    );
+    store.setStatus('ready');
+    fixture.detectChanges();
+
+    let emitted = 0;
+    fixture.componentInstance.runWorkflow.subscribe(() => {
+      emitted += 1;
+    });
+
+    fixture.componentInstance.onRun();
+
+    expect(emitted).toBe(0);
+  });
+
+  it('disables and titles Save when the engine explicitly blocks editing', () => {
+    const fixture = render({ invalid: false });
+    const store = TestBed.inject(GraphEngineCapabilityStore);
+    store.setManifest(
+      manifestWith([{ feature: 'workflowUpdate', verdict: 'NOT_SUPPORTED' }]),
+    );
+    store.setStatus('ready');
+    fixture.detectChanges();
+
+    const save = fixture.nativeElement.querySelector(
+      'button.graph-float-btn--save',
+    ) as HTMLButtonElement;
+
+    expect(save.disabled).toBe(true);
+    expect(save.getAttribute('aria-disabled')).toBe('true');
+    expect(save.getAttribute('title')).toBe(
+      'The selected engine does not support editing/saving workflows',
+    );
+  });
+
+  it('does not emit saveWorkflow when the engine blocks editing', async () => {
+    const fixture = render({ invalid: false });
+    const store = TestBed.inject(GraphEngineCapabilityStore);
+    store.setManifest(
+      manifestWith([{ feature: 'workflowUpdate', verdict: 'NOT_SUPPORTED' }]),
+    );
+    store.setStatus('ready');
+    fixture.detectChanges();
+
+    let emitted = 0;
+    fixture.componentInstance.saveWorkflow.subscribe(() => {
+      emitted += 1;
+    });
+
+    await fixture.componentInstance.onSave();
+
+    expect(emitted).toBe(0);
+  });
+
+  it('keeps Save enabled and titled with the save affordance when editing is undeclared', () => {
+    const fixture = render({ invalid: false });
+    const store = TestBed.inject(GraphEngineCapabilityStore);
+    store.setManifest(manifestWith([]));
+    store.setStatus('ready');
+    fixture.detectChanges();
+
+    const save = fixture.nativeElement.querySelector(
+      'button.graph-float-btn--save',
+    ) as HTMLButtonElement;
+
+    expect(save.disabled).toBe(false);
+    expect(save.getAttribute('title')).toBe('Save workflow');
+  });
+});

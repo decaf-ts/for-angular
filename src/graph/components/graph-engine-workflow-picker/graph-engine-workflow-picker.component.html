@@ -38,6 +38,16 @@
         </label>
       }
 
+      @if (failure(); as failed) {
+        <p class="graph-engine-picker__failure" role="alert">
+          {{
+            (failed.kind === 'backend-down'
+              ? 'graph.engines.picker.failure.backendDown'
+              : 'graph.engines.picker.failure.malformed') | translate
+          }}
+        </p>
+      }
+
       @if (!canListWorkflows()) {
         <p class="graph-engine-picker__unsupported">
           {{ 'graph.engines.picker.unsupported' | translate }}
@@ -60,6 +70,8 @@
               <ion-button
                 slot="end"
                 fill="clear"
+                [disabled]="!canRunWorkflow()"
+                [attr.aria-disabled]="!canRunWorkflow()"
                 (click)="onWorkflowRun(workflow)"
                 [attr.aria-label]="'graph.engines.picker.run' | translate"
               >

@@ -92,6 +92,42 @@ Standalone LaTeX formula input wrapping the MathLive `<math-field>` custom eleme
 
 Typical pairing: bind both components to the same `formula` string — editing the math field re-samples the curve over the x range, and dragging curve points regenerates the formula.
 
+## Running the graph UI against a backend
+
+The graph pages (`/graph`, workflow list, runs) talk to a standalone `@decaf-ts/as-graph` backend
+over `http://localhost:3000` (the `GRAPH_BACKEND_URL` injection token, default
+`http://localhost:3000`). The UI is backend-agnostic: it lists whatever engine catalogue the backend
+serves and gates create/run/save from the served capability manifest, so switching engines needs no
+UI change.
+
+The backend is booted by the `@decaf-ts/as-graph` standalone host. `for-angular` wires one script
+per variant:
+
+| Script | Backend it boots |
+| --- | --- |
+| `npm run start:backend` / `start:backend:local` | local built-in engine |
+| `npm run start:backend:mastra` | Mastra (`@mastra/core`) |
+| `npm run start:backend:dagster` | Dagster (needs `DAGSTER_GRAPHQL_URL`) |
+
+`npm run start` runs the UI dev server on `http://localhost:8110`. To boot a backend and the UI
+together, use `npm run start:dev` (local), `npm run start:dev:mastra`, or
+`npm run start:dev:dagster`.
+
+**Prerequisites**
+
+- `@decaf-ts/as-graph` must be installed with the variant-capable standalone host
+  (`lib/cjs/nest/graph/main.cjs`); if the installed version predates it, build and link the local
+  `as-graph` package first.
+- `mastra`: the `@mastra/core` peer (`^1.77.0`) is installed with the backend package.
+- `dagster`: a Dagster gateway plus `DAGSTER_GRAPHQL_URL`; the `as-graph` package's
+  `npm run prepare-it-tests` provisions the pinned fixture, and `npm run teardown-it-tests` stops it.
+
+See the `@decaf-ts/as-graph` "Running each backend + UI combination" guide for the full setup, port,
+and verification details.
+
+**Verification** — with a backend on `:3000`, open `http://localhost:8110/graph`; the workflow table
+lists the selected engine's scenarios. The UI unit tests for this surface are `npm run test:graph`.
+
 ## Coding Principles
 
 - group similar functionality in folders (analog to namespaces but without any namespace declaration)

@@ -398,3 +398,130 @@ describe('GraphEngineCapabilityService — workflow catalog', () => {
     expect(store.signals.failure()).toBeNull();
   });
 });
+
+/** A manifest whose default engine explicitly refuses every authoring/run action. */
+function gatedManifest(): GraphEngineCapabilityManifest {
+  return {
+    engines: [
+      engine('gate-engine', [
+        { feature: 'workflowList', verdict: 'SUPPORTED' },
+        { feature: 'workflowLookup', verdict: 'NOT_SUPPORTED' },
+        { feature: 'workflowCreate', verdict: 'NOT_SUPPORTED' },
+        { feature: 'workflowUpdate', verdict: 'NOT_SUPPORTED' },
+        { feature: 'workflowDelete', verdict: 'NOT_SUPPORTED' },
+        { feature: 'workflowRun', verdict: 'NOT_SUPPORTED' },
+        { feature: 'runEventStream', verdict: 'NOT_SUPPORTED' },
+        { feature: 'workflowResume', verdict: 'NOT_SUPPORTED' },
+      ]),
+      engine('bare-engine', []),
+    ],
+    defaultEngineId: 'gate-engine',
+  };
+}
+
+/** Builds the service against the all-refusing manifest. */
+function buildGatedService(): GraphEngineCapabilityService {
+  return buildService(
+    fakeSource({ fetchManifest: jest.fn(async () => gatedManifest()) }),
+  ).service;
+}
+
+describe('GraphEngineCapabilityService — SAA-707 action gates', () => {
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('blocks every can*Workflow gate the selected engine explicitly refuses', async () => {
+    const service = buildGatedService();
+    await service.load();
+
+    expect(service.canBrowseWorkflows()).toBe(true);
+    expect(service.canLookupWorkflow()).toBe(false);
+    expect(service.canCreateWorkflow()).toBe(false);
+    expect(service.canUpdateWorkflow()).toBe(false);
+    expect(service.canDeleteWorkflow()).toBe(false);
+    expect(service.canRunWorkflow()).toBe(false);
+    expect(service.canStreamRunEvents()).toBe(false);
+    expect(service.canResumeWorkflow()).toBe(false);
+  });
+
+  it('default-allows an undeclared action so an unlisted feature never disables a control', async () => {
+    const service = buildGatedService();
+    await service.load();
+    service.selectEngine('bare-engine');
+
+    expect(service.canCreateWorkflow()).toBe(true);
+    expect(service.canUpdateWorkflow()).toBe(true);
+    expect(service.canDeleteWorkflow()).toBe(true);
+    expect(service.canRunWorkflow()).toBe(true);
+    expect(service.canStreamRunEvents()).toBe(true);
+    expect(service.canResumeWorkflow()).toBe(true);
+    expect(service.supports('workflowRun')).toBe(true);
+  });
+
+  it('projects actionGates consistently with the individual gates', async () => {
+    const service = buildGatedService();
+    await service.load();
+
+    const gates = service.actionGates();
+    expect(gates).toEqual({
+      browseWorkflows: service.canBrowseWorkflows(),
+      lookupWorkflow: service.canLookupWorkflow(),
+      createWorkflow: service.canCreateWorkflow(),
+      updateWorkflow: service.canUpdateWorkflow(),
+      deleteWorkflow: service.canDeleteWorkflow(),
+      runWorkflow: service.canRunWorkflow(),
+      streamRunEvents: service.canStreamRunEvents(),
+      resumeWorkflow: service.canResumeWorkflow(),
+    });
+    expect(gates.runWorkflow).toBe(false);
+    expect(gates.browseWorkflows).toBe(true);
+  });
+
+  it('resolves featureVerdict without collapsing it to a boolean', async () => {
+    const service = buildGatedService();
+    await service.load();
+
+    expect(service.featureVerdict('workflowRun')).toBe('NOT_SUPPORTED');
+    expect(service.featureVerdict('workflowList')).toBe('SUPPORTED');
+    expect(service.featureVerdict('notDeclared')).toBeUndefined();
+  });
+
+  it('keeps supports false for an explicit NOT_SUPPORTED row', async () => {
+    const service = buildGatedService();
+    await service.load();
+
+    expect(service.supports('workflowLookup')).toBe(false);
+    expect(service.supports('workflowCreate')).toBe(false);
+    expect(service.supports('workflowRun')).toBe(false);
+  });
+
+  it('reports manifestReady from the ready status', async () => {
+    const service = buildGatedService();
+
+    expect(service.manifestReady()).toBe(false);
+
+    await service.load();
+
+    expect(service.manifestReady()).toBe(true);
+  });
+
+  it('reports degraded when a catalogue interaction fails', async () => {
+    const { service } = buildService(
+      fakeSource({
+        fetchManifest: jest.fn(async () => gatedManifest()),
+        listWorkflows: jest.fn(async () => {
+          throw new SerializationError('workflow list is out of contract');
+        }),
+      }),
+    );
+
+    expect(service.degraded()).toBe(false);
+    await service.load();
+    expect(service.degraded()).toBe(false);
+
+    await service.listWorkflows();
+
+    expect(service.degraded()).toBe(true);
+  });
+});

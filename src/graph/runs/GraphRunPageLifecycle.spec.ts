@@ -53,6 +53,7 @@ import {
   graphValidity,
   type GraphValidationIssue,
 } from '../validation';
+import { GraphEngineCapabilityService } from '../capabilities';
 import { graphRunState, graphRunStateSnapshot } from './GraphRunStateStore';
 
 jest.mock('@angular/core', () => {
@@ -85,6 +86,10 @@ jest.mock('src/graph', () => ({
   ...jest.requireActual('../runs'),
   ...jest.requireActual('../services'),
   ...jest.requireActual('../validation'),
+  // SAA-707: `graph.page.ts` now injects `GraphEngineCapabilityService` from the
+  // barrel, so the virtual mock must expose the real capabilities module and the
+  // suite must register a fake for its token below.
+  ...jest.requireActual('../capabilities'),
   ...jest.requireActual('../tokens/graph-configuration.tokens'),
   ...jest.requireActual('@decaf-ts/as-graph/shared'),
   GraphRendererComponent: class GraphRendererComponent {},
@@ -172,6 +177,11 @@ function freshPage(
     createRun?: () => Promise<unknown>;
     document?: () => GraphWorkflowDocument | undefined;
     validate?: () => Promise<{ valid: boolean; issues: GraphValidationIssue[] }>;
+    getWorkflow?: (
+      engineId: string,
+      workflowId: string,
+    ) => Promise<GraphWorkflowDocument | undefined>;
+    capabilityLoad?: () => Promise<void>;
   } = {},
 ) {
   const createRun = jest.fn(overrides.createRun ?? (() => Promise.resolve(created)));
@@ -211,6 +221,21 @@ function freshPage(
     load: jest.fn(() => Promise.resolve()),
   });
   injectables.set(GraphWorkflowValidateClient, { validate });
+  // SAA-707: `graph.page.ts` injects the capability facade for the engine run
+  // gate and the catalogue-first document load. Register a fake covering the
+  // members the page touches so its field initializers run under the mocked
+  // Angular `inject`.
+  const capabilities = {
+    load: jest.fn(overrides.capabilityLoad ?? (() => Promise.resolve())),
+    getWorkflow: jest.fn(
+      overrides.getWorkflow ?? (() => Promise.resolve(undefined)),
+    ),
+    canRunWorkflow: () => true,
+    canBrowseWorkflows: () => false,
+    selectedEngineId: () => null,
+    failure: () => null,
+  };
+  injectables.set(GraphEngineCapabilityService, capabilities);
   // SAA-68 added an (unused) `inject(Router)` field to GraphPage; register a
   // fake so the page's field initializers run under the mocked Angular `inject`.
   injectables.set(require('@angular/router').Router, {
@@ -232,10 +257,21 @@ function freshPage(
     onCancelWorkflow(): void;
     cancelRequested(): boolean;
     ngOnDestroy(): void;
+    ngOnInit(): void;
     runEventSubscribers: Map<string, unknown>;
     renderer?: unknown;
   };
-  return { page, createRun, fetchRunResult, cancelRun, connect, disconnect, backendAvailable, validate };
+  return {
+    page,
+    createRun,
+    fetchRunResult,
+    cancelRun,
+    connect,
+    disconnect,
+    backendAvailable,
+    validate,
+    capabilities,
+  };
 }
 
 /** The subscriber the page registered, captured from the SSE connect call. */
@@ -623,5 +659,56 @@ describe('GraphPage canonical run lifecycle (DECAF-50 §4.19 Angular run row)', 
     } finally {
       jest.useRealTimers();
     }
+  });
+
+  it('loads a workflow opened from an engine catalogue row through the capability service (SAA-707)', async () => {
+    const engineDocument = {
+      ...DOCUMENT,
+      name: 'engine-wf',
+    } as GraphWorkflowDocument;
+    const { page, capabilities } = freshPage({
+      getWorkflow: () => Promise.resolve(engineDocument),
+    });
+    const restoreFromDocument = jest.fn();
+    (page as never as { renderer: unknown }).renderer = { restoreFromDocument };
+    (page as never as { engine?: string }).engine = 'engine-a';
+
+    page.ngOnInit();
+    await until(() => restoreFromDocument.mock.calls.length > 0);
+
+    expect(capabilities.load).toHaveBeenCalledTimes(1);
+    expect(capabilities.getWorkflow).toHaveBeenCalledWith('engine-a', WORKFLOW_ID);
+    expect(restoreFromDocument).toHaveBeenCalledWith({
+      document: engineDocument,
+    });
+  });
+
+  it('autoruns a workflow opened from an engine catalogue row when autorun is set (SAA-707)', async () => {
+    const engineDocument = {
+      ...DOCUMENT,
+      name: 'engine-wf',
+    } as GraphWorkflowDocument;
+    const { page, createRun, capabilities } = freshPage({
+      getWorkflow: () => Promise.resolve(engineDocument),
+    });
+    (page as never as { renderer: unknown }).renderer = {
+      restoreFromDocument: jest.fn(),
+      viewModel: () => ({ nodes: [], edges: [], outputs: [] }),
+      workflowInputPayload: () => ({ valid: true, inputs: RUN_INPUTS, errors: [] }),
+    };
+    (page as never as { engine?: string }).engine = 'engine-a';
+    (page as never as { autorun?: string }).autorun = '1';
+
+    page.ngOnInit();
+    await until(() => createRun.mock.calls.length > 0);
+
+    expect(capabilities.getWorkflow).toHaveBeenCalledWith('engine-a', WORKFLOW_ID);
+    // The run submits the document store's current document (the fake renderer's
+    // `restoreFromDocument` does not propagate it back in this harness), so the
+    // SAA-707 assertion here is that the catalogue load autoran the workflow.
+    expect(createRun).toHaveBeenCalledTimes(1);
+    expect(createRun).toHaveBeenCalledWith(
+      expect.objectContaining({ inputs: RUN_INPUTS }),
+    );
   });
 });

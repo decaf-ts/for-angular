@@ -7,8 +7,48 @@
         [title]="title | translate"
         [subtitle]="subtitle | translate"
         [allowCreate]="true"
+        [createDisabled]="!canCreateWorkflow()"
+        [createTitle]="(canCreateWorkflow() ? locale + '.create' : locale + '.createBlocked') | translate"
         [createButton]="{ text: 'create', color: 'primary', handle: onCreate }"
       />
+
+      @if (failure(); as failed) {
+        <div class="workflow-list__failure" role="alert">
+          <span class="workflow-list__failure-message">
+            {{
+              (failed.kind === 'backend-down'
+                ? locale + '.failure.backendDown'
+                : locale + '.failure.malformed') | translate
+            }}
+          </span>
+          <button
+            type="button"
+            class="workflow-list__retry"
+            (click)="onRetry()"
+          >
+            {{ locale + '.failure.retry' | translate }}
+          </button>
+        </div>
+      }
+
+      @if (canSelectEngine()) {
+        <label class="workflow-list__engine" for="workflow-list-engine">
+          <span>{{ locale + '.engine.label' | translate }}</span>
+          <ion-select
+            id="workflow-list-engine"
+            [value]="selectedEngineId()"
+            interface="popover"
+            (ionChange)="onEngineChange($event)"
+          >
+            @for (engine of engines(); track engine.engineId) {
+              <ion-select-option [value]="engine.engineId">
+                {{ engine.displayName }}
+              </ion-select-option>
+            }
+          </ion-select>
+        </label>
+      }
+
       <div class="dcf-list-container">
         <ngx-decaf-list
           [model]="listModel"

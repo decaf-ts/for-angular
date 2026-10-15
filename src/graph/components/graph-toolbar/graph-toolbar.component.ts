@@ -79,6 +79,10 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
 
   /** Whether the selected engine advertises workflow browsing (manifest-driven). */
   readonly canBrowseWorkflows = this.capabilities.canBrowseWorkflows;
+  /** Whether the selected engine allows editing/saving a workflow. */
+  readonly canSaveWorkflow = this.capabilities.canUpdateWorkflow;
+  /** Whether the selected engine allows running a workflow. */
+  readonly canRunWorkflow = this.capabilities.canRunWorkflow;
   /** Human-readable label for the selected engine, if any. */
   readonly engineLabel = this.capabilities.engineLabel;
 
@@ -97,33 +101,45 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
 
   /**
    * Whether Run is blocked (D5/G3-17): the backend must be available, no run
-   * may be in flight, and the editor's validity projection must not mark the
-   * graph invalid. An invalid graph is never submittable.
+   * may be in flight, the editor's validity projection must not mark the graph
+   * invalid, and the selected engine's capability manifest must not declare run
+   * `NOT_SUPPORTED` (SAA-707). An invalid graph is never submittable.
    */
   readonly runDisabled = computed(
-    () => !this.canRun() || this.isRunning() || this.invalid()
+    () =>
+      !this.canRun() ||
+      this.isRunning() ||
+      this.invalid() ||
+      !this.canRunWorkflow()
   );
 
-  /** Run affordance title, surfacing the structured issue count when invalid. */
+  /** Run affordance title, surfacing the capability block or issue count. */
   readonly runTitle = computed(() =>
-    this.invalid()
-      ? `Fix ${this.validationIssues().length} graph validation issue(s) before running`
-      : 'Start workflow'
+    !this.canRunWorkflow()
+      ? 'The selected engine does not support running workflows'
+      : this.invalid()
+        ? `Fix ${this.validationIssues().length} graph validation issue(s) before running`
+        : 'Start workflow'
   );
 
   /**
    * Whether Save is blocked (R2-3(8)): a loose/invalid graph must fail
-   * validation on save exactly as it does on Run (D5/G3-17). An invalid graph
-   * is never submittable from the toolbar, so Save is disabled and its title
-   * surfaces the structured issue count.
+   * validation on save exactly as it does on Run (D5/G3-17), and the selected
+   * engine's capability manifest must not declare edit/update `NOT_SUPPORTED`
+   * (SAA-707). An invalid graph is never submittable from the toolbar, so Save
+   * is disabled and its title surfaces the structured issue count.
    */
-  readonly saveDisabled = computed(() => this.isSaving() || this.invalid());
+  readonly saveDisabled = computed(
+    () => this.isSaving() || this.invalid() || !this.canSaveWorkflow()
+  );
 
-  /** Save affordance title, surfacing the structured issue count when invalid. */
+  /** Save affordance title, surfacing the capability block or issue count. */
   readonly saveTitle = computed(() =>
-    this.invalid()
-      ? `Fix ${this.validationIssues().length} graph validation issue(s) before saving`
-      : 'Save workflow'
+    !this.canSaveWorkflow()
+      ? 'The selected engine does not support editing/saving workflows'
+      : this.invalid()
+        ? `Fix ${this.validationIssues().length} graph validation issue(s) before saving`
+        : 'Save workflow'
   );
 
   ngOnInit(): void {

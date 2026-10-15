@@ -22,7 +22,13 @@
           class="dcf-flex dcf-flex-middle dcf-flex-right@m dcf-flex-center"
           [class.dcf-width-1-1]="!tabs"
         >
-          <ion-button (click)="createButton.handle()" color="primary">
+          <ion-button
+            (click)="createButton.handle()"
+            color="primary"
+            [disabled]="createDisabled"
+            [attr.aria-disabled]="createDisabled"
+            [title]="createTitle"
+          >
             {{ locale + '.' + createButton.text | translate }}
           </ion-button>
         </div>

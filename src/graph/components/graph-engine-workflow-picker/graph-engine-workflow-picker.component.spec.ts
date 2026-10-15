@@ -335,3 +335,84 @@ describe('GraphEngineWorkflowPickerComponent — selection', () => {
     expect(emitted).toBe(1);
   });
 });
+
+describe('GraphEngineWorkflowPickerComponent — gated Run action (SAA-707)', () => {
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('disables the Run button when the engine explicitly blocks running', async () => {
+    const { fixture, store } = await render();
+    store.setManifest(
+      manifest(
+        [
+          engine('engine-a', [
+            { feature: 'workflowList', verdict: 'SUPPORTED' },
+            { feature: 'workflowRun', verdict: 'NOT_SUPPORTED' },
+          ]),
+        ],
+        'engine-a',
+      ),
+    );
+    store.setStatus('ready');
+    store.setWorkflows([{ workflowId: 'wf-1', name: 'Workflow One' }]);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector(
+      'ion-button',
+    ) as HTMLElement;
+
+    expect(button).not.toBeNull();
+    expect(button.getAttribute('aria-disabled')).toBe('true');
+  });
+
+  it('keeps the Run button enabled when the engine leaves running undeclared', async () => {
+    const { fixture, store } = await render();
+    store.setManifest(
+      manifest(
+        [engine('engine-a', [{ feature: 'workflowList', verdict: 'SUPPORTED' }])],
+        'engine-a',
+      ),
+    );
+    store.setStatus('ready');
+    store.setWorkflows([{ workflowId: 'wf-1', name: 'Workflow One' }]);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector(
+      'ion-button',
+    ) as HTMLElement;
+
+    expect(button.getAttribute('aria-disabled')).toBe('false');
+  });
+
+  it('does not resolve or emit when the engine blocks running', async () => {
+    const getWorkflow = jest.fn(async () => document('wf-1'));
+    const { fixture, store } = await render(fakeSource({ getWorkflow }));
+    store.setManifest(
+      manifest(
+        [
+          engine('engine-a', [
+            { feature: 'workflowList', verdict: 'SUPPORTED' },
+            { feature: 'workflowRun', verdict: 'NOT_SUPPORTED' },
+          ]),
+        ],
+        'engine-a',
+      ),
+    );
+    store.setStatus('ready');
+    store.setWorkflows([{ workflowId: 'wf-1', name: 'Workflow One' }]);
+
+    let emitted = 0;
+    fixture.componentInstance.workflowSelected.subscribe(() => {
+      emitted += 1;
+    });
+
+    await fixture.componentInstance.onWorkflowRun({
+      workflowId: 'wf-1',
+      name: 'Workflow One',
+    });
+
+    expect(getWorkflow).not.toHaveBeenCalled();
+    expect(emitted).toBe(0);
+  });
+});

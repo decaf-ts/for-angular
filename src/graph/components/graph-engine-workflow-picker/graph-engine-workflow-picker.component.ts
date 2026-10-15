@@ -65,8 +65,12 @@ export class GraphEngineWorkflowPickerComponent {
   readonly workflows = this.capabilities.workflows;
   /** Whether the selected engine declares `workflowList` SUPPORTED. */
   readonly canListWorkflows = this.capabilities.canBrowseWorkflows;
+  /** Whether the selected engine allows running a picked scenario. */
+  readonly canRunWorkflow = this.capabilities.canRunWorkflow;
   /** The manifest load lifecycle status. */
   readonly status = this.capabilities.status;
+  /** The classified capability failure, when degraded/failed. */
+  readonly failure = this.capabilities.failure;
 
   /** Emits a picked workflow with its resolved document. */
   readonly workflowSelected = output<GraphEngineWorkflowSelection>();
@@ -110,6 +114,9 @@ export class GraphEngineWorkflowPickerComponent {
    * @returns Resolves once the selection has been emitted or dropped.
    */
   async onWorkflowRun(workflow: GraphEngineWorkflowSummary): Promise<void> {
+    // SAA-707: the selected engine's manifest gates running; a `NOT_SUPPORTED`
+    // verdict disables the action rather than removing the row.
+    if (!this.canRunWorkflow()) return;
     const engineId = this.selectedEngineId();
     if (!engineId) return;
     const document = await this.capabilities.getWorkflow(

@@ -4,6 +4,7 @@
  * barrel (SAA-197 / Deliverable 3).
  */
 export * from "./GraphEngineCapability";
+export * from "./GraphEngineCapabilityGates";
 export * from "./GraphEngineCapabilityApi";
 export * from "./GraphEngineCapabilityStore";
 export * from "./GraphEngineCapabilityService";
