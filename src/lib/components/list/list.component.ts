@@ -10,7 +10,16 @@
  */
 
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { Condition, Observer, Paginator } from '@decaf-ts/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
@@ -576,6 +585,44 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
     this.empty = Object.assign({}, DefaultListEmptyOptions, this.empty);
     // await this.initialize();
     await this.initialize();
+    await this.refresh();
+  }
+
+  /**
+   * @description Reacts to `data` input changes that the base directive does not cover.
+   * @summary Delegates to the base directive's lifecycle handling first, then refreshes
+   * the list when a `data` change arrives after the initial render on an initialized
+   * custom-source list. This is required because custom-source lists are fed purely by
+   * the externally-provided `data` array (no repository observer drives updates), so a
+   * late-arriving catalogue would otherwise keep the list showing stale or partial
+   * content. The first change is skipped because `ngOnInit` already performs the initial
+   * refresh, and repository-backed lists are untouched so their observer-based refresh
+   * path is preserved.
+   *
+   * @param {SimpleChanges} changes - The set of changed inputs since the last check
+   * @returns {Promise<void>}
+   * @memberOf ListComponent
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant A as Angular Lifecycle
+   *   participant L as ListComponent
+   *
+   *   A->>L: ngOnChanges(changes)
+   *   L->>L: super.ngOnChanges(changes)
+   *   alt no `data` change or first change
+   *     L-->>A: return (initial refresh handled by ngOnInit)
+   *   else not customSource or not initialized
+   *     L-->>A: return (observer-driven path handles refresh)
+   *   else late `data` change on custom source
+   *     L->>L: refresh()
+   *   end
+   */
+  override async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    await super.ngOnChanges(changes);
+    const dataChange = changes['data'];
+    if (!dataChange || dataChange.firstChange) return;
+    if (!this.customSource || !this.initialized) return;
     await this.refresh();
   }
 
@@ -1163,7 +1210,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       // (self.data as ListItem[]) = [];
       if (!(this.searchValue as string)?.length && !(this.searchValue as IFilterQuery)) {
         if (!this.data?.length) {
-          this.log.info('No data and source passed to infinite list');
+          if (!this.customSource) this.log.info('No data and source passed to infinite list');
           return [];
         }
 
@@ -1173,7 +1220,9 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
           data =
             this.type === ListComponentsTypes.INFINITE
               ? [...(this.items || []).concat([...data.slice(start, limit)])]
-              : [...(data.slice(start, limit) as KeyValue[])];
+              : this.customSource
+                ? [...data]
+                : [...(data.slice(start, limit) as KeyValue[])];
       } else {
         if (this.type === ListComponentsTypes.INFINITE) {
           this.items = [];
