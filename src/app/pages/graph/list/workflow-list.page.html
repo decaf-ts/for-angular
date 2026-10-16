@@ -7,7 +7,7 @@
         [title]="title | translate"
         [subtitle]="subtitle | translate"
         [allowCreate]="true"
-        [createDisabled]="!canCreateWorkflow()"
+        [hideCreate]="!canCreateWorkflow()"
         [createTitle]="(canCreateWorkflow() ? locale + '.create' : locale + '.createBlocked') | translate"
         [createButton]="{ text: 'create', color: 'primary', handle: onCreate }"
       />

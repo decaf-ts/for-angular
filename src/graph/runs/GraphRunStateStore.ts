@@ -18,6 +18,7 @@ import type {
   GraphExecutionEvent,
   GraphNodeInspectionPayload,
   GraphRunEventEnvelope,
+  GraphRunLogEntry,
   GraphRunStatus,
 } from '@decaf-ts/as-graph/shared';
 import { GraphExecutionEventType, GraphVisualState, isGraphRunStatus } from '@decaf-ts/as-graph/shared';
@@ -93,8 +94,9 @@ class GraphRunStateStore {
     graphExecutionState.nodeStates.set(nodes);
     graphExecutionState.edgeStates.set(edges);
 
-    if (envelope.type === 'graph.run.log' && envelope.payload) {
-      graphRunLog.append(envelope.payload as never);
+    if (envelope.type === 'graph.run.log') {
+      const logEntry = graphRunLogEntryOf(envelope);
+      if (logEntry) graphRunLog.append(logEntry);
     }
 
     this.observeEvent(envelope);
@@ -252,6 +254,45 @@ export function graphRunStateSnapshot(): {
     lastRunId: graphRunState.lastRunId(),
     lastSequence: graphRunState.lastSequence(),
     lastError: graphRunState.lastError(),
+  };
+}
+
+/**
+ * Shapes a `graph.run.log` envelope into a render-safe {@link GraphRunLogEntry}.
+ * The backend replaces a payload it cannot serialize with a
+ * `{ nonSerializable: true }` (or `{ truncated: true, ... }`) sentinel, so a
+ * streamed log line may arrive without the `level`/`message`/`timestamp` the
+ * console requires. Such a payload is folded into an explicit placeholder line
+ * instead of being mishandled downstream (a malformed entry used to throw
+ * during the console's change detection, aborting the canvas render). Returns
+ * `null` for a payload that is not an object.
+ * @param envelope The canonical run envelope carrying the log payload.
+ */
+function graphRunLogEntryOf(envelope: GraphRunEventEnvelope): GraphRunLogEntry | null {
+  const payload = envelope.payload as Record<string, unknown> | undefined;
+  if (!payload || typeof payload !== 'object') return null;
+  const level = payload['level'];
+  const message = payload['message'];
+  if (typeof level === 'string' && typeof message === 'string') {
+    return {
+      ...(payload as unknown as GraphRunLogEntry),
+      timestamp:
+        typeof payload['timestamp'] === 'string' ? payload['timestamp'] : envelope.timestamp,
+      runId: typeof payload['runId'] === 'string' ? payload['runId'] : envelope.runId,
+      workflowId:
+        typeof payload['workflowId'] === 'string' ? payload['workflowId'] : envelope.workflowId,
+    };
+  }
+  const truncated = payload['truncated'] === true;
+  return {
+    level: 'warn',
+    message: truncated
+      ? 'Run log entry exceeded the payload limit.'
+      : 'Run log entry could not be serialized.',
+    timestamp: envelope.timestamp,
+    runId: envelope.runId,
+    workflowId: envelope.workflowId,
+    ...(envelope.nodeId ? { nodeId: envelope.nodeId } : {}),
   };
 }
 

@@ -37,11 +37,22 @@ export class GraphWorkflowItemComponent extends ListItemComponent implements OnI
     this.item = this.model as KeyValue;
   }
 
+  /**
+   * Opens the listed workflow in the editor (SAA-722). The selected engine id is
+   * forwarded so the editor resolves the scenario through the served engine
+   * catalogue (its WorkflowRepository) instead of falling back to the legacy save
+   * endpoint, so a served workflow opens the document the engine actually serves
+   * (and its nodes carry the ids the run produces, keeping double-click settings
+   * wired after a replay).
+   */
   openWorkflow(event: Event): void {
     event.stopImmediatePropagation();
     const workflowId = this.item?.['workflowId'];
     if (!workflowId) return;
-    void this.router.navigate([`/graph/read/${workflowId}`]);
+    const engine = this.capabilities.selectedEngineId();
+    void this.router.navigate([`/graph/read/${workflowId}`], {
+      queryParams: engine ? { engine } : {},
+    });
   }
 
   /**

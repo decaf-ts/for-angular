@@ -45,13 +45,11 @@ import {
   graphValidity,
   graphRunLog,
   graphInspection,
-  GraphEngineWorkflowPickerComponent,
   GraphEngineCapabilityService,
 } from 'src/graph';
 import type {
   GraphInspectionRunState,
   GraphRunValidationIssue,
-  GraphEngineWorkflowSelection,
 } from 'src/graph';
 import type { GraphNodeManifest } from '@decaf-ts/as-graph/shared';
 import {
@@ -73,7 +71,6 @@ import { GRAPH_WORKFLOW_PRIVATE_NAMESPACE } from 'src/app/models/GraphWorkflowFo
     GraphToolbarComponent,
     GraphBreadcrumbsComponent,
     GraphWorkflowCreateModalComponent,
-    GraphEngineWorkflowPickerComponent,
   ],
   providers: [
     GraphExecutionService,
@@ -139,7 +136,6 @@ export class GraphPage implements OnInit, OnDestroy {
   private readonly runEventSubscribers = new Map<string, GraphRunEventClientSubscriber>();
 
   @ViewChild(GraphRendererComponent) renderer!: GraphRendererComponent;
-  @ViewChild('workflowPicker') picker?: GraphEngineWorkflowPickerComponent;
 
   readonly isRunning = signal(false);
   readonly lastResult = signal<Record<string, unknown> | null>(null);
@@ -171,9 +167,6 @@ export class GraphPage implements OnInit, OnDestroy {
   readonly graphInvalid = graphValidity.isInvalid;
   /** The palette is manifest-driven only (P7 cutover): no constructor node arrays. */
   readonly availableNodes = this.catalogService.manifests;
-
-  /** Whether the engine/workflow picker panel is open. */
-  readonly workflowPickerOpen = signal(false);
 
   /**
    * R2-3(9)/(10): whether the canvas carries run state — any node execution
@@ -399,45 +392,6 @@ export class GraphPage implements OnInit, OnDestroy {
     graphExecutionState.reset();
     graphInspection.reset();
     this.runResultState.set('idle');
-  }
-
-  /**
-   * Opens the manifest-driven workflow browser (Deliverable 4). The toolbar
-   * only exposes this affordance when the served manifest declares
-   * `workflowList` SUPPORTED, so this path is never reachable for an engine
-   * without it. The picker owns the capability client and loads the catalogue
-   * when opened.
-   */
-  onBrowseWorkflows(): void {
-    this.workflowPickerOpen.set(true);
-    void this.picker?.openAndLoad();
-  }
-
-  /** Closes the engine/workflow picker panel. */
-  onWorkflowPickerDismiss(): void {
-    this.workflowPickerOpen.set(false);
-  }
-
-  /**
-   * Loads a selected engine workflow's canonical document into the editor and
-   * runs it through the existing run path. The picker resolves the document
-   * from the capability client, which degrades to `undefined` rather than
-   * erroring; a missing document leaves the editor untouched.
-   *
-   * @param selection - The picked engine workflow and its resolved document.
-   */
-  async onWorkflowSelected(
-    selection: GraphEngineWorkflowSelection,
-  ): Promise<void> {
-    this.workflowId = selection.summary.workflowId;
-    this.workflowName.set(
-      selection.document.name ??
-        selection.summary.name ??
-        selection.summary.workflowId,
-    );
-    this.renderer?.restoreFromDocument({ document: selection.document });
-    this.workflowPickerOpen.set(false);
-    await this.runWorkflow();
   }
 
   /**

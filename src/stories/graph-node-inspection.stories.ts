@@ -1,3 +1,8 @@
+/**
+ * @module for-angular/stories/graph-node-inspection
+ * @summary Storybook stories for the node inspection split view.
+ * @description Covers {@link GraphNodeInspectionComponent} with its inputs/outputs panes, per-node I/O payloads and error rendering.
+ */
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -38,9 +43,21 @@ const BOUNDARY_INPUT_DATA: GraphDemoNodeData = {
   property: 'text',
 } as GraphDemoNodeData;
 
+const BOUNDARY_OUTPUT_DATA: GraphDemoNodeData = {
+  title: 'Result',
+  description: 'Workflow output',
+  kind: 'core.boundary.output',
+  labels: [],
+  sourceClass: 'WorkflowOutputBoundary',
+  ports: [],
+  role: 'output',
+  property: 'result',
+} as GraphDemoNodeData;
+
 const NODES: Node<GraphDemoNodeData>[] = [
   { id: 'code-1', position: { x: 0, y: 0 }, type: 'core.utility.code', data: CODE_DATA },
   { id: 'input-text', position: { x: 0, y: 0 }, type: 'core.boundary.input', data: BOUNDARY_INPUT_DATA },
+  { id: 'output-result', position: { x: 0, y: 0 }, type: 'core.boundary.output', data: BOUNDARY_OUTPUT_DATA },
 ];
 
 const CATALOG = {
@@ -171,4 +188,73 @@ export const boundaryInput: Story = {
       { property: 'text', path: 'text', label: 'Text', controlName: 'text', controlType: 'text' },
     ] as never[],
   },
+};
+
+export const boundaryOutput: Story = {
+  args: {
+    nodeId: 'output-result',
+    runState: 'ready',
+    payload: {
+      runId: 'run-42',
+      workflowId: 'demo-workflow',
+      nodeId: 'output-result',
+      state: GraphVisualState.SUCCEEDED,
+      inputs: { result: 42 },
+      outputs: { result: 42 },
+    },
+  },
+};
+
+export const memberIdle: Story = {
+  args: { nodeId: 'code-1', runState: 'idle' },
+};
+
+export const memberRunningBadge: Story = {
+  args: {
+    nodeId: 'code-1',
+    runState: 'ready',
+    payload: {
+      runId: 'run-42',
+      workflowId: 'demo-workflow',
+      nodeId: 'code-1',
+      state: GraphVisualState.RUNNING,
+      inputs: { value: 21 },
+    },
+  },
+};
+
+export const memberBlockedBadge: Story = {
+  args: {
+    nodeId: 'code-1',
+    runState: 'ready',
+    payload: {
+      runId: 'run-42',
+      workflowId: 'demo-workflow',
+      nodeId: 'code-1',
+      state: GraphVisualState.BLOCKED,
+      inputs: { value: 21 },
+    },
+  },
+};
+
+export const memberSkippedBadge: Story = {
+  args: {
+    nodeId: 'code-1',
+    runState: 'ready',
+    payload: {
+      runId: 'run-42',
+      workflowId: 'demo-workflow',
+      nodeId: 'code-1',
+      state: GraphVisualState.SKIPPED,
+      inputs: { value: 21 },
+    },
+  },
+};
+
+export const memberPendingNoPayload: Story = {
+  args: { nodeId: 'code-1', runState: 'pending' },
+};
+
+export const memberReadyNoPayload: Story = {
+  args: { nodeId: 'code-1', runState: 'ready' },
 };

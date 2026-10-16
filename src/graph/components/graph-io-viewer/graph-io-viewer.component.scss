@@ -23,9 +23,61 @@
   color: #64748b;
 }
 
+.graph-io__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .graph-io__modes {
   display: flex;
   gap: 0.15rem;
+}
+
+.graph-io__download {
+  border: 0;
+  border-radius: 6px;
+  padding: 0.18rem 0.5rem;
+  background: rgba(15, 118, 110, 0.12);
+  color: #0f766e;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.graph-io__download:hover {
+  background: rgba(15, 118, 110, 0.2);
+}
+
+.graph-io__truncated {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  border-radius: 8px;
+  background: rgba(254, 243, 199, 0.75);
+}
+
+.graph-io__truncated-message {
+  color: #92400e;
+  font-size: 0.66rem;
+  line-height: 1.35;
+}
+
+.graph-io__truncated-download {
+  border: 0;
+  border-radius: 6px;
+  padding: 0.18rem 0.5rem;
+  background: #b45309;
+  color: #fffbeb;
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .graph-io__mode {

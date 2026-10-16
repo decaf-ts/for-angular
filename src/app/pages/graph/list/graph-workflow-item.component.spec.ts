@@ -64,13 +64,27 @@ describe('GraphWorkflowItemComponent — workflow row (SAA-68 D1)', () => {
     expect(name?.textContent).toContain('Text Pipeline');
   });
 
-  it('opens the workflow in the edit canvas', async () => {
+  it('opens the workflow in the edit canvas with the selected engine query param (SAA-722)', async () => {
     const fixture = await render({ workflowId: 'wf-9', name: 'Flow' });
     const navigate = jest.spyOn(fixture.componentInstance.router, 'navigate').mockResolvedValue(true);
 
     fixture.componentInstance.openWorkflow(new Event('click'));
 
-    expect(navigate).toHaveBeenCalledWith(['/graph/read/wf-9']);
+    expect(navigate).toHaveBeenCalledWith(['/graph/read/wf-9'], {
+      queryParams: { engine: 'engine-a' },
+    });
+  });
+
+  it('opens the workflow without an engine query param when no engine is selected (SAA-722)', async () => {
+    selectedEngineId.mockReturnValue(null);
+    const fixture = await render({ workflowId: 'wf-9', name: 'Flow' });
+    const navigate = jest.spyOn(fixture.componentInstance.router, 'navigate').mockResolvedValue(true);
+
+    fixture.componentInstance.openWorkflow(new Event('click'));
+
+    expect(navigate).toHaveBeenCalledWith(['/graph/read/wf-9'], {
+      queryParams: {},
+    });
   });
 
   it('navigates to the workflow past executions', async () => {

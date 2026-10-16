@@ -1,3 +1,8 @@
+/**
+ * @module for-angular/stories/graph-switch-edit-modal
+ * @summary Storybook stories for the switch-node edit modal.
+ * @description Covers {@link GraphSwitchEditModalComponent} case/default routing configuration.
+ */
 import type { SwitchNodeMetadata } from '@decaf-ts/as-graph/shared';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { GraphSwitchEditModalComponent } from 'src/graph/components/graph-switch-edit-modal/graph-switch-edit-modal.component';
@@ -73,6 +78,44 @@ export const noDefaultPort: Story = {
       defaultPort: 'default',
       hasDefault: false,
       cases: POPULATED_METADATA.cases,
+    },
+  },
+};
+
+export const singleCase: Story = {
+  args: {
+    nodeTitle: 'Switch',
+    nodeId: 'switch-4',
+    inputProperties: INPUT_PROPERTIES,
+    initialSwitchMetadata: {
+      defaultPort: 'default',
+      hasDefault: false,
+      cases: [
+        {
+          id: 'only',
+          label: 'Only branch',
+          outputPort: 'only',
+          condition: { op: 'exists', value: { path: 'value' } },
+        },
+      ],
+    },
+  },
+};
+
+export const manyCases: Story = {
+  args: {
+    nodeTitle: 'Route by status',
+    nodeId: 'switch-5',
+    inputProperties: INPUT_PROPERTIES,
+    initialSwitchMetadata: {
+      defaultPort: 'default',
+      hasDefault: true,
+      cases: Array.from({ length: 8 }, (_, index) => ({
+        id: `case-${index}`,
+        label: `Branch ${index + 1}`,
+        outputPort: `branch_${index + 1}`,
+        condition: { op: 'eq', left: { path: 'status' }, right: { const: `s${index}` } },
+      })),
     },
   },
 };

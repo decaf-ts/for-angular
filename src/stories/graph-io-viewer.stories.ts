@@ -1,12 +1,56 @@
+/**
+ * @module for-angular/stories/graph-io-viewer
+ * @summary Storybook stories for the node I/O viewer.
+ * @description Covers {@link GraphIoViewerComponent} across the json/table/raw representations, the byte/line render cap with its truncation notice (SAA-722) and the full-payload download affordance.
+ */
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, Input, ViewChild } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphIoViewerComponent } from 'src/graph/components/graph-io-viewer/graph-io-viewer.component';
+import {
+  GraphIoViewerComponent,
+  type GraphIoViewMode,
+  type GraphIoViewerField,
+} from 'src/graph/components/graph-io-viewer/graph-io-viewer.component';
 import './setup';
 import { getComponentMeta } from './utils';
 
-const component = getComponentMeta<GraphIoViewerComponent>([]);
-const meta: Meta<GraphIoViewerComponent> = {
+@Component({
+  selector: 'story-graph-io-viewer-host',
+  standalone: true,
+  imports: [CommonModule, GraphIoViewerComponent],
+  template: `
+    <div style="height: 360px">
+      <app-graph-io-viewer
+        [title]="title"
+        [value]="value"
+        [error]="error"
+        [runId]="runId"
+        [nodeId]="nodeId"
+        [field]="field"
+      />
+    </div>
+  `,
+})
+class GraphIoViewerHostComponent implements AfterViewInit {
+  @Input() title = '';
+  @Input() value: unknown = undefined;
+  @Input() error: { name?: string; message?: string; stack?: string } | null = null;
+  @Input() runId = '';
+  @Input() nodeId = '';
+  @Input() field: GraphIoViewerField = 'inputs';
+  @Input() mode: GraphIoViewMode = 'json';
+
+  @ViewChild(GraphIoViewerComponent) viewer?: GraphIoViewerComponent;
+
+  ngAfterViewInit(): void {
+    this.viewer?.setMode(this.mode);
+  }
+}
+
+const component = getComponentMeta<GraphIoViewerHostComponent>([]);
+const meta: Meta<GraphIoViewerHostComponent> = {
   title: 'Graph/Panels/IO Viewer',
-  component: GraphIoViewerComponent,
+  component: GraphIoViewerHostComponent,
   ...component,
   argTypes: {
     ...component.argTypes,
@@ -15,7 +59,7 @@ const meta: Meta<GraphIoViewerComponent> = {
   },
 };
 export default meta;
-type Story = StoryObj<GraphIoViewerComponent>;
+type Story = StoryObj<GraphIoViewerHostComponent>;
 
 export const objectValue: Story = {
   args: {
@@ -54,5 +98,65 @@ export const empty: Story = {
   args: {
     title: 'Run outputs',
     value: null,
+  },
+};
+
+export const tableMode: Story = {
+  args: {
+    title: 'Run outputs',
+    value: { result: 42, total: 21, nested: { ok: true }, empty: null },
+    mode: 'table',
+  },
+};
+
+export const tableModeArrayOfRecords: Story = {
+  args: {
+    title: 'Run outputs',
+    value: [
+      { id: 'a', value: 1 },
+      { id: 'b', value: 2 },
+    ],
+    mode: 'table',
+  },
+};
+
+export const rawMode: Story = {
+  args: {
+    title: 'Run inputs',
+    value: { code: 'return $input.value * 2;', value: 21 },
+    mode: 'raw',
+  },
+};
+
+export const emptyObject: Story = {
+  args: {
+    title: 'Run outputs',
+    value: {},
+  },
+};
+
+export const emptyArray: Story = {
+  args: {
+    title: 'Run outputs',
+    value: [],
+  },
+};
+
+export const downloadEnabled: Story = {
+  args: {
+    title: 'Run outputs',
+    value: { result: 42 },
+    runId: 'run-42',
+    nodeId: 'code-1',
+    field: 'outputs',
+  },
+};
+
+export const truncatedPayload: Story = {
+  args: {
+    title: 'Run outputs',
+    value: { rows: Array.from({ length: 4000 }, (_, index) => ({ index, value: `row-${index}` })) },
+    runId: 'run-42',
+    nodeId: 'code-1',
   },
 };

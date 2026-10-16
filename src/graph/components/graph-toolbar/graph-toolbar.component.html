@@ -40,17 +40,6 @@
       </span>
     }
 
-    @if (canBrowseWorkflows()) {
-      <button
-        type="button"
-        class="graph-float-btn graph-float-btn--browse"
-        (click)="onBrowseWorkflows()"
-        title="Browse workflows"
-      >
-        Browse
-      </button>
-    }
-
     <div class="graph-float-toggle" title="Auto-Save">
       <ion-toggle
         [checked]="autoSaveEnabled()"

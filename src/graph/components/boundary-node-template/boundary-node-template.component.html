@@ -4,6 +4,12 @@
     [class.graph-badge--selected]="isSelected()"
     [class.graph-badge--input]="node().data.role === 'input'"
     [class.graph-badge--output]="node().data.role === 'output'"
+    [class.graph-badge--running]="statusLabel() === 'running'"
+    [class.graph-badge--blocked]="statusLabel() === 'blocked'"
+    [class.graph-badge--succeeded]="statusLabel() === 'succeeded'"
+    [class.graph-badge--failed]="statusLabel() === 'failed'"
+    [class.graph-badge--skipped]="statusLabel() === 'skipped'"
+    [class.graph-badge--cached]="statusLabel() === 'cached'"
     [style.--graph-accent]="node().data.role === 'input' ? '#0f766e' : '#6d28d9'"
     (dblclick)="openEditor($event)"
   >

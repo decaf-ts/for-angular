@@ -9,7 +9,7 @@
   </div>
 </div>
 
-@if (tabs || allowCreate) {
+@if (tabs || (allowCreate && !hideCreate)) {
   <div class="dcf-filters-container" [class.dcf-border-top]="borders">
     <div class="dcf-grid dcf-grid-collapse">
       @if (tabs) {
@@ -17,7 +17,7 @@
           <app-switcher [mode]="'toggle'" [type]="'tabs'" [items]="tabs" />
         </div>
       }
-      @if (allowCreate && operation !== OperationKeys.CREATE) {
+      @if (allowCreate && !hideCreate && operation !== OperationKeys.CREATE) {
         <div
           class="dcf-flex dcf-flex-middle dcf-flex-right@m dcf-flex-center"
           [class.dcf-width-1-1]="!tabs"

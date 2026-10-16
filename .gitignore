@@ -86,3 +86,5 @@ CLAUDE.md
 /docs-output
 /.specs
 /.playwright-cli
+/tests/playwright/graph/per-engine/.reports
+/tests/playwright/graph/per-engine/.results

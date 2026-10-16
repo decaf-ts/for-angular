@@ -318,38 +318,30 @@ describe('GraphToolbarComponent — engine capability affordances (SAA-198)', ()
     TestBed.resetTestingModule();
   });
 
-  it('hides Browse and the engine label when no manifest has landed', () => {
+  it('hides the engine label when no manifest has landed', () => {
     const fixture = render({});
 
-    expect(
-      fixture.nativeElement.querySelector('.graph-float-btn--browse'),
-    ).toBeNull();
     expect(
       fixture.nativeElement.querySelector('.graph-float-btn--engine'),
     ).toBeNull();
   });
 
-  it('shows Browse and the engine label when the selected engine supports browsing', () => {
+  it('shows the engine label when the selected engine supports browsing', () => {
     const fixture = render({});
     const store = TestBed.inject(GraphEngineCapabilityStore);
     store.setManifest(capabilityManifest());
     store.setStatus('ready');
     fixture.detectChanges();
 
-    const browse = fixture.nativeElement.querySelector(
-      '.graph-float-btn--browse',
-    ) as HTMLButtonElement;
     const label = fixture.nativeElement.querySelector(
       '.graph-float-btn--engine',
     ) as HTMLElement;
 
-    expect(browse).not.toBeNull();
-    expect(browse.textContent?.trim()).toBe('Browse');
     expect(label).not.toBeNull();
     expect(label.textContent?.trim()).toBe('Engine engine-a');
   });
 
-  it('hides Browse but keeps the engine label when the engine cannot browse', () => {
+  it('keeps the engine label when the engine cannot browse', () => {
     const fixture = render({});
     const store = TestBed.inject(GraphEngineCapabilityStore);
     store.setManifest({
@@ -363,9 +355,6 @@ describe('GraphToolbarComponent — engine capability affordances (SAA-198)', ()
     store.setStatus('ready');
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector('.graph-float-btn--browse'),
-    ).toBeNull();
     expect(
       fixture.nativeElement.querySelector('.graph-float-btn--engine'),
     ).not.toBeNull();
@@ -383,33 +372,16 @@ describe('GraphToolbarComponent — engine capability affordances (SAA-198)', ()
     ).toBeNull();
   });
 
-  it('does not emit browseWorkflows when the engine cannot browse', () => {
-    const fixture = render({});
-    let emitted = 0;
-    fixture.componentInstance.browseWorkflows.subscribe(() => {
-      emitted += 1;
-    });
-
-    fixture.componentInstance.onBrowseWorkflows();
-
-    expect(emitted).toBe(0);
-  });
-
-  it('emits browseWorkflows once when the engine supports browsing', () => {
+  it('renders no Browse affordance even when the engine advertises workflowList SUPPORTED (SAA-722)', () => {
     const fixture = render({});
     const store = TestBed.inject(GraphEngineCapabilityStore);
     store.setManifest(capabilityManifest());
     store.setStatus('ready');
     fixture.detectChanges();
 
-    let emitted = 0;
-    fixture.componentInstance.browseWorkflows.subscribe(() => {
-      emitted += 1;
-    });
-
-    fixture.componentInstance.onBrowseWorkflows();
-
-    expect(emitted).toBe(1);
+    expect(
+      fixture.nativeElement.querySelector('.graph-float-btn--browse'),
+    ).toBeNull();
   });
 });
 

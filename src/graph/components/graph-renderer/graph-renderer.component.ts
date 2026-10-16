@@ -17,7 +17,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, type AbstractControl, type FormGroup } from '@angular/forms';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
-import type { GraphNodeManifest, GraphWorkflowSnapshot } from '@decaf-ts/as-graph/shared';
+import type { GraphNodeManifest, GraphWorkflowPortInstance, GraphWorkflowSnapshot } from '@decaf-ts/as-graph/shared';
 import {
   graphNodeEndpointId,
   graphWorkflowDefinitionOf,
@@ -64,7 +64,9 @@ import {
 } from '../../utils';
 import {
   buildWorkflowInputFields,
+  buildWorkflowInputFieldsFromPorts,
   buildWorkflowInputForm,
+  buildWorkflowInputFormFromPorts,
   normalizeWorkflowInputValues,
   WorkflowInputFieldDefinition,
 } from '../../workflow-inputs';
@@ -110,7 +112,18 @@ export class GraphRendererComponent {
   private readonly duplicateCounts = signal<Record<string, number>>({});
   private readonly workflowInputValues = signal<Record<string, unknown>>({});
   private readonly snapshotJson = signal('');
-  readonly workflowInputForm = signal<FormGroup>(this.formBuilder.group({}));
+  /**
+   * The run form's fields and `FormGroup` published together (G1/SAA-783): the
+   * template renders `workflowInputFields()` and binds `workflowInputForm()`
+   * from this single source, so the controls and the form's controls can never
+   * momentarily disagree (a field whose control name is absent from the form
+   * throws Angular's `_rawValidators` read on the null control).
+   */
+  private readonly workflowInputBinding = signal<{
+    form: FormGroup;
+    fields: WorkflowInputFieldDefinition[];
+  }>({ form: this.formBuilder.group({}), fields: [] });
+  readonly workflowInputForm = computed(() => this.workflowInputBinding().form);
   readonly model = signal<ReturnType<typeof buildGraphRendererModel> | null>(null);
   /** Palette root (button + popup): the outside-click close target (R2-3(5)). */
   @ViewChild('paletteRoot') private paletteRoot?: ElementRef<HTMLElement>;
@@ -124,7 +137,6 @@ export class GraphRendererComponent {
   set paletteSearchInput(ref: ElementRef<HTMLInputElement> | undefined) {
     if (ref) queueMicrotask(() => ref.nativeElement.focus());
   }
-  private skipNextModelSync = false;
   /**
    * Highest document version already reconciled to the canvas. Reconcile runs
    * at most once per document version so render-cycle effect re-firing can
@@ -291,8 +303,43 @@ export class GraphRendererComponent {
 
   readonly workflowDefinition = computed(() => graphWorkflowDefinitionOf(this.workflowRootClass() as never));
 
-  readonly workflowInputFields = computed<WorkflowInputFieldDefinition[]>(() =>
-    buildWorkflowInputFields(this.workflowDefinition(), this.workflowInputValues())
+  /**
+   * Declared input ports of the loaded canonical document (G1/SAA-783). When a
+   * document owns the canvas — every fixture catalog load — its own declared
+   * inputs drive the run form; with no document (a bare decorated demo root)
+   * the fallback is the decorated root's compiled ports.
+   */
+  private readonly declaredWorkflowInputPorts = computed<
+    readonly GraphWorkflowPortInstance[] | null
+  >(() => {
+    const inputs = this.documentStore?.document()?.inputs;
+    return inputs && inputs.length > 0 ? inputs : null;
+  });
+
+  /**
+   * Builds the run form's editable fields from whichever input source is
+   * authoritative: the loaded document's declared ports when present, else the
+   * decorated root's compiled ports.
+   */
+  private workflowInputFieldsFor(
+    values?: Record<string, unknown>
+  ): WorkflowInputFieldDefinition[] {
+    const ports = this.declaredWorkflowInputPorts();
+    return ports
+      ? buildWorkflowInputFieldsFromPorts(ports, values)
+      : buildWorkflowInputFields(this.workflowDefinition(), values);
+  }
+
+  /** Builds the run form for the authoritative input source (G1/SAA-783). */
+  private workflowInputFormFor(values?: Record<string, unknown>): FormGroup {
+    const ports = this.declaredWorkflowInputPorts();
+    return ports
+      ? buildWorkflowInputFormFromPorts(ports, values)
+      : buildWorkflowInputForm(this.workflowDefinition(), values);
+  }
+
+  readonly workflowInputFields = computed<WorkflowInputFieldDefinition[]>(
+    () => this.workflowInputBinding().fields
   );
 
   readonly viewModel = computed<GraphRendererViewModel>(() => {
@@ -421,15 +468,16 @@ export class GraphRendererComponent {
 
   constructor() {
     effect((onCleanup) => {
-      if (this.skipNextModelSync) {
-        this.skipNextModelSync = false;
-        return;
-      }
-
-      const workflow = this.workflowDefinition();
-      const form = buildWorkflowInputForm(workflow);
-      const fields = buildWorkflowInputFields(workflow, form.getRawValue() as Record<string, unknown>);
-      this.workflowInputForm.set(form);
+      // The authoritative input source (the loaded document's declared ports,
+      // else the decorated root) rebuilds the form. Existing values — set by a
+      // snapshot restore before the document load — seed the rebuilt controls,
+      // so a rebuild never clobbers restored inputs. Reading the values
+      // untracked keeps this effect from re-firing on every keystroke (the
+      // form's own `valueChanges` publishes them).
+      const currentValues = untracked(() => this.workflowInputValues());
+      const form = this.workflowInputFormFor(currentValues);
+      const fields = this.workflowInputFieldsFor(form.getRawValue() as Record<string, unknown>);
+      this.workflowInputBinding.set({ form, fields });
       this.workflowInputValues.set(normalizeWorkflowInputValues(fields, form.getRawValue() as Record<string, unknown>));
 
       const subscription = form.valueChanges.subscribe((value) => {
@@ -970,7 +1018,6 @@ export class GraphRendererComponent {
     );
     this.restoreOptions = null;
     this.reconciledVersion = version;
-    this.skipNextModelSync = true;
     this.model.set(diagram as never);
   }
 

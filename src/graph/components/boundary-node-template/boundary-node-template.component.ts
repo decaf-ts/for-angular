@@ -10,6 +10,7 @@ import { PortDirection } from '@decaf-ts/as-graph/shared';
 import { GraphBoundaryNodeData } from '../../types';
 import { graphSelection } from '../../execution/GraphSelectionStore';
 import { graphInspection } from '../../execution/GraphInspectionStore';
+import { graphExecutionState } from '../../execution/GraphExecutionStateService';
 
 @Component({
   selector: 'app-graph-boundary-node-template',
@@ -25,6 +26,19 @@ export class GraphBoundaryNodeTemplateComponent implements NgDiagramNodeTemplate
   readonly isSelected = computed(() => {
     const nodeId = this.node().id;
     return graphSelection.selectedNodeIds().has(nodeId);
+  });
+
+  /**
+   * The badge's run status (D1/G3-11): a workflow `value`/`result` boundary
+   * renders through this template, so it carries the same
+   * `running/blocked/succeeded/failed/skipped` status classes the member node
+   * template does. Without them the boundary-value fixture's terminal badge
+   * never turns green and the run appears to time out (SAA-783 G2).
+   */
+  readonly statusLabel = computed(() => {
+    const state = graphExecutionState.nodeStates()[this.node().id];
+    if (!state) return '';
+    return String(state['status'] ?? '');
   });
 
   readonly connectedPortIds = computed(() => {

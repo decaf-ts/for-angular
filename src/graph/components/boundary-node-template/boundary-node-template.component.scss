@@ -50,6 +50,60 @@
     0 0 0 2px color-mix(in srgb, var(--graph-accent) 50%, transparent);
 }
 
+/* ---- run status (D1/G3-11, SAA-783 G2): a boundary badge is a run node, so it
+   carries the same terminal-state outline as the member node template. ---- */
+
+.graph-badge--running {
+  border-color: #22c55e;
+  box-shadow:
+    0 4px 12px rgba(2, 6, 23, 0.4),
+    0 0 0 2px rgba(34, 197, 94, 0.3);
+  animation: graph-badge-pulse 1.2s ease-in-out infinite;
+}
+
+.graph-badge--blocked {
+  border-color: #eab308;
+  box-shadow:
+    0 4px 12px rgba(2, 6, 23, 0.4),
+    0 0 0 2px rgba(234, 179, 8, 0.25);
+}
+
+.graph-badge--succeeded {
+  border-color: #22c55e;
+  box-shadow:
+    0 4px 12px rgba(2, 6, 23, 0.4),
+    0 0 0 2px rgba(34, 197, 94, 0.3);
+}
+
+.graph-badge--failed {
+  border-color: #ef4444;
+  box-shadow:
+    0 4px 12px rgba(2, 6, 23, 0.4),
+    0 0 0 2px rgba(239, 68, 68, 0.3);
+}
+
+.graph-badge--skipped,
+.graph-badge--cached {
+  border-color: #22c55e;
+  box-shadow:
+    0 4px 12px rgba(2, 6, 23, 0.4),
+    0 0 0 2px rgba(34, 197, 94, 0.25);
+}
+
+@keyframes graph-badge-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 4px 12px rgba(2, 6, 23, 0.4),
+      0 0 0 2px rgba(34, 197, 94, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 4px 12px rgba(2, 6, 23, 0.4),
+      0 0 0 4px rgba(34, 197, 94, 0.15);
+  }
+}
+
 /* ---- label ---- */
 
 .graph-badge__name {

@@ -1,3 +1,8 @@
+/**
+ * @module for-angular/stories/graph-logs-widget
+ * @summary Storybook stories for the run log console widget.
+ * @description Covers {@link GraphLogsWidgetComponent} streamed-entry rendering, level badges and the placeholder entry shown for non-serializable backend log payloads.
+ */
 import type { GraphRunLogEntry } from '@decaf-ts/as-graph/shared';
 import type {
   Decorator,
@@ -105,4 +110,25 @@ export const errorFilter: Story = {
 
 export const warningFilter: Story = {
   decorators: [withLogs(STREAMED, LIFECYCLE, { filter: 'warn' })],
+};
+
+export const infoFilter: Story = {
+  decorators: [withLogs(STREAMED, LIFECYCLE, { filter: 'info' })],
+};
+
+export const verboseFilter: Story = {
+  decorators: [withLogs(STREAMED, LIFECYCLE, { filter: 'verbose' })],
+};
+
+export const filterNoMatches: Story = {
+  decorators: [withLogs([entry('info', 'Only an info line', 0)], [], { filter: 'error' })],
+};
+
+export const cancelledLifecycle: Story = {
+  decorators: [
+    withLogs(STREAMED, [
+      { kind: 'created', message: `Run ${RUN_ID} created for workflow ${WORKFLOW_ID}` },
+      { kind: 'cancelled', message: `Run ${RUN_ID} cancelled by user` },
+    ]),
+  ],
 };

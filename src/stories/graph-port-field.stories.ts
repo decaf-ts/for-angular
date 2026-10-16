@@ -1,3 +1,8 @@
+/**
+ * @module for-angular/stories/graph-port-field
+ * @summary Storybook stories for the graph port field editor.
+ * @description Covers {@link GraphPortFieldComponent} value binding across the supported port types.
+ */
 import { PortDirection, type GraphPortDefinition } from '@decaf-ts/as-graph/shared';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { GraphPortFieldComponent } from 'src/graph/components/graph-port-field/graph-port-field.component';
@@ -87,6 +92,88 @@ export const outputSplit: Story = {
         label: 'Result',
         direction: PortDirection.OUTPUT,
       })
+    ),
+  },
+};
+
+export const templateMode: Story = {
+  args: {
+    field: {
+      ...buildField(
+        buildPort({
+          property: 'message',
+          name: 'message',
+          label: 'Message',
+          type: 'code',
+          graph: { direction: PortDirection.INPUT, userControlled: true },
+        })
+      ),
+      value: 'Hello {{ $input.name }}!',
+      valueMode: 'template',
+    },
+  },
+};
+
+export const formulaMode: Story = {
+  args: {
+    field: {
+      ...buildField(
+        buildPort({
+          property: 'total',
+          name: 'total',
+          label: 'Total',
+          type: 'code',
+          element: { tag: 'formula-editor' },
+          graph: { direction: PortDirection.INPUT, userControlled: true },
+        })
+      ),
+      value: 'SUM($input.rows)',
+      valueMode: 'formula',
+    },
+  },
+};
+
+export const textareaField: Story = {
+  args: {
+    field: buildField(
+      buildPort({
+        property: 'notes',
+        name: 'notes',
+        label: 'Notes',
+        type: 'textarea',
+        graph: { direction: PortDirection.INPUT, userControlled: true },
+      }),
+      false,
+      'A longer free-form value rendered in a textarea.'
+    ),
+  },
+};
+
+export const ballDisabledWithValue: Story = {
+  args: {
+    field: buildField(
+      buildPort({
+        property: 'value',
+        name: 'value',
+        label: 'Value',
+        graph: { direction: PortDirection.INPUT, userControlled: true },
+      }),
+      false,
+      'provided directly'
+    ),
+  },
+};
+
+export const exposedAsPort: Story = {
+  args: {
+    field: buildField(
+      buildPort({
+        property: 'result',
+        name: 'result',
+        label: 'Result',
+        direction: PortDirection.OUTPUT,
+      }),
+      true
     ),
   },
 };

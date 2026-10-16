@@ -4,18 +4,32 @@
       <h3 class="graph-io__title">{{ title() }}</h3>
     }
 
-    <nav class="graph-io__modes">
-      @for (option of ['json', 'table', 'raw']; track option) {
+    <div class="graph-io__header-actions">
+      @if (canDownload() && hasContents() && !hasError()) {
         <button
           type="button"
-          class="graph-io__mode"
-          [class.graph-io__mode--active]="mode() === option"
-          (click)="setMode(option)"
+          class="graph-io__download"
+          (click)="download()"
+          title="Download the full payload"
+          aria-label="Download the full payload"
         >
-          {{ option }}
+          Download
         </button>
       }
-    </nav>
+
+      <nav class="graph-io__modes">
+        @for (option of ['json', 'table', 'raw']; track option) {
+          <button
+            type="button"
+            class="graph-io__mode"
+            [class.graph-io__mode--active]="mode() === option"
+            (click)="setMode(option)"
+          >
+            {{ option }}
+          </button>
+        }
+      </nav>
+    </div>
   </header>
 
   @if (hasError()) {
@@ -29,6 +43,22 @@
   } @else if (!hasContents()) {
     <p class="graph-io__empty">No data.</p>
   } @else {
+    @if (isTruncated()) {
+      <div class="graph-io__truncated" role="status">
+        <span class="graph-io__truncated-message">
+          Showing the first {{ limitLabel() }}. Download the full payload for the
+          complete result.
+        </span>
+        <button
+          type="button"
+          class="graph-io__truncated-download"
+          (click)="download()"
+        >
+          Download full payload
+        </button>
+      </div>
+    }
+
     <div class="graph-io__body">
       @switch (mode()) {
         @case ('table') {
@@ -40,7 +70,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of tableRows(); track row.key) {
+              @for (row of visibleTableRows(); track row.key) {
                 <tr>
                   <td class="graph-io__table-key">{{ row.key }}</td>
                   <td [class.graph-io__table-empty]="isEmptyValue(row)">

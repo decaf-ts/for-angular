@@ -12,7 +12,6 @@ const config: Config = {
     // suite stays green while the new SAA-68 `src/app` specs run.
     'src/app/components/product-item/',
     'src/app/components/select-field/',
-    'src/app/components/card-title/',
     'src/app/components/switcher/',
     'src/app/pages/audit/',
     'src/app/pages/leaflet/',

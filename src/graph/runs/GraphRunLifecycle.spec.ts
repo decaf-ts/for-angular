@@ -795,6 +795,35 @@ describe('GraphRunLifecycle (DECAF-50 §4.19 Angular run row)', () => {
       expect(entries[1].message).toBe('second');
     });
 
+    it('folds an unserializable graph.run.log payload into a safe placeholder line', () => {
+      // The backend replaces a payload it cannot serialize with a
+      // `{ nonSerializable: true }` (or `{ truncated: true }`) sentinel, so the
+      // streamed payload can arrive without `level`/`message`. Such a payload
+      // must never become a malformed entry: the console reads `level` during
+      // change detection, and an undefined level aborted the whole canvas
+      // render (SAA-767).
+      graphRunState.applyEvent(
+        envelope(1, GraphExecutionEventType.GRAPH_RUN_LOG, { payload: { nonSerializable: true } }),
+      );
+      graphRunState.applyEvent(
+        envelope(2, GraphExecutionEventType.GRAPH_RUN_LOG, {
+          payload: { truncated: true, originalLength: 4096 },
+        }),
+      );
+
+      const entries = graphRunLog.entries();
+      expect(entries).toHaveLength(2);
+      // Every folded entry carries a string level and message so downstream
+      // rendering can never call `toUpperCase()` on undefined.
+      for (const line of entries) {
+        expect(typeof line.level).toBe('string');
+        expect(typeof line.message).toBe('string');
+        expect(line.level).toBe('warn');
+      }
+      expect(entries[0].message).toContain('serialized');
+      expect(entries[1].message).toContain('payload limit');
+    });
+
     it('folds run lifecycle statuses from workflow events and keeps ownership keys', () => {
       graphRunState.beginObservation({ runId: RUN_ID, workflowId: WORKFLOW_ID, status: 'queued' });
 

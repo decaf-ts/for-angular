@@ -71,14 +71,10 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
   readonly restoreSnapshot = output<GraphToolbarRestoreSnapshot>();
   /** Emits when the user asks to auto-arrange the workflow layout. */
   readonly arrangeWorkflow = output<void>();
-  /** Emits when the user asks to browse the engine's workflow catalogue. */
-  readonly browseWorkflows = output<void>();
 
   readonly autoSaveEnabled = this.autoSave.enabled;
   readonly isSaving = this.saveService.saving;
 
-  /** Whether the selected engine advertises workflow browsing (manifest-driven). */
-  readonly canBrowseWorkflows = this.capabilities.canBrowseWorkflows;
   /** Whether the selected engine allows editing/saving a workflow. */
   readonly canSaveWorkflow = this.capabilities.canUpdateWorkflow;
   /** Whether the selected engine allows running a workflow. */
@@ -197,12 +193,6 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
    */
   onEdit(): void {
     this.editWorkflow.emit();
-  }
-
-  /** Emits the browse affordance only when the manifest allows browsing. */
-  onBrowseWorkflows(): void {
-    if (!this.canBrowseWorkflows()) return;
-    this.browseWorkflows.emit();
   }
 
   onRun(): void {

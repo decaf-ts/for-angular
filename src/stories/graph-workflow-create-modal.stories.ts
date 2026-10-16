@@ -1,3 +1,8 @@
+/**
+ * @module for-angular/stories/graph-workflow-create-modal
+ * @summary Storybook stories for the workflow creation modal.
+ * @description Covers {@link GraphWorkflowCreateModalComponent} name/namespace entry and capability gating.
+ */
 import type { Meta, StoryObj } from '@storybook/angular';
 import { fn } from 'storybook/test';
 import { GraphWorkflowCreateModalComponent } from 'src/app/pages/graph/graph-workflow-create.modal';
@@ -28,5 +33,12 @@ export const explicitNamespace: Story = {
   args: {
     name: '',
     defaultNamespace: 'company',
+  },
+};
+
+/** The create modal while closed (no dialog rendered). */
+export const closed: Story = {
+  args: {
+    open: false,
   },
 };
