@@ -46,7 +46,7 @@
     "clean-publish": "npx clean-publish",
     "drawings": "for FILE in workdocs/drawings/*.drawio; do echo \"converting $FILE to image...\" && docker run --rm -v $(pwd):/data rlespinasse/drawio-export --format png $FILE; done && cp -rf workdocs/drawings/export/* workdocs/resources/",
     "uml": "cd workdocs/uml && for FILE in ./*.puml; do docker run --rm -v $(pwd):/work -w /work miy4/plantuml -DPLANTUML_LIMIT_SIZE=8192 -tpng $FILE; done && cd ../.. && cp -fr workdocs/uml/*.png workdocs/resources/",
-    "docs": "npx rimraf ./docs && mkdir docs && decaf build --docs",
+    "docs": "npx rimraf ./docs && mkdir docs && node ./bin/build-scripts.cjs --docs",
     "publish-docs": "docker run -it --rm --user $(id -u):$(id -g) -v \"$(pwd)/workdocs/confluence:/content\" -e ATLASSIAN_API_TOKEN=$(cat .confluence-token) ghcr.io/markdown-confluence/publish:latest",
     "playwright": "npx playwright test --config=./playwright.config.ts",
     "playwright-ui": "npx playwright test --config=./playwright.config.ts --ui",
@@ -87,9 +87,7 @@
     "./assets/*": "./assets/*"
   },
   "dependencies": {
-    "better-docs": "^2.7.3",
-    "cronstrue": "^3.24.0",
-    "taffydb": "^2.7.3"
+    "cronstrue": "^3.24.0"
   },
   "devDependencies": {
     "@angular-builders/custom-esbuild": "^21.1.0",
@@ -130,9 +128,13 @@
     "ffmpeg-static": "5.2.0",
     "jest-environment-jsdom": "^30.4.1",
     "jest-preset-angular": "^16.1.4",
+    "jsdoc": "^4.0.4",
+    "jsdoc-mermaid": "^1.0.0",
+    "markdown-include": "^0.4.3",
     "mathlive": "^0.111.0",
     "ng-diagram": "^1.2.4",
     "ng-packagr": "^21.2.3",
+    "rimraf": "^6.0.1",
     "storybook": "^10.4.0",
     "ts-node": "^10.9.2",
     "tslib": "^2.3.0",
