@@ -28,7 +28,11 @@ import {
 } from '../execution/GraphExecutionStateService';
 import { GraphExecutionStateMapper } from '../execution/GraphExecutionStateMapper';
 import { graphRunLog } from '../execution/GraphRunLogStore';
-import { graphInspection } from '../execution/GraphInspectionStore';
+import {
+  graphInspection,
+  graphInspectionPayloadsFromRunEvents,
+  type GraphInspectionRunEvent,
+} from '../execution/GraphInspectionStore';
 import type { GraphNodeExecutionStateMap, GraphEdgeExecutionStateMap } from '../types';
 import type { GraphRunExecutionResult, GraphRunNodeResult } from './GraphRunClient';
 
@@ -107,8 +111,17 @@ class GraphRunStateStore {
    * `result` payload, spec §4.16) into the run lifecycle signals and the
    * DECAF-48 §4.6 node I/O inspection payloads, so both sides of the
    * legacy/canonical cutover maintain the inspection parity required by
-   * §4.14/§4.15. Resolving the run's `result` conservatively closes the
-   * inspection payloads from the run's own node results.
+   * §4.14/§4.15.
+   *
+   * The inspection payloads merge the run's persisted `nodeResults` with the
+   * event-derived payloads folded from the run's observed event log
+   * ({@link graphInspectionPayloadsFromRunEvents}): engines that stream node
+   * lifecycle events but persist an empty `nodeResults` (the as-graph mastra
+   * driver, SAA-829) leave the split view with nothing to render even for a
+   * completed run, so the event-derived payloads fill any node the persisted
+   * results do not cover and the run panes render for every engine. Persisted
+   * results win because they also carry the routed inputs the events omit; a
+   * result with neither source resolves to a no-op.
    * @param result The terminal run's stored result, or `null` when the run
    *               ranks no stored result (cancelled before the engine landed
    *               one, or the store lost the run).
@@ -118,10 +131,27 @@ class GraphRunStateStore {
     this.lastRunId.set(result.runId);
     this.status.set(isGraphRunStatus(result.status) ? result.status : null);
     const nodeResults = Object.values(result.nodeResults ?? {}) as GraphRunNodeResult[];
-    if (!nodeResults.length) return;
-    graphInspection.setMany(
-      nodeResults.map((nodeResult) => this.toInspectionPayload(result, nodeResult)),
+    const fromNodeResults = nodeResults.map((nodeResult) =>
+      this.toInspectionPayload(result, nodeResult),
     );
+    // Engines that stream node lifecycle events but persist an empty
+    // `nodeResults` (the as-graph mastra driver, SAA-829) leave the split view
+    // with nothing to render even for a completed run. Fall back to the run's
+    // observed event log for any node the persisted results do not cover, so
+    // the run panes render for every engine; persisted results win because they
+    // also carry the routed inputs the events omit.
+    const merged = new Map<string, GraphNodeInspectionPayload>(
+      fromNodeResults.map((payload) => [payload.nodeId, payload]),
+    );
+    for (const payload of graphInspectionPayloadsFromRunEvents(
+      result.runId,
+      result.workflowId,
+      result.events as GraphInspectionRunEvent[] | undefined,
+    )) {
+      if (!merged.has(payload.nodeId)) merged.set(payload.nodeId, payload);
+    }
+    if (!merged.size) return;
+    graphInspection.setMany([...merged.values()]);
   }
 
   /**

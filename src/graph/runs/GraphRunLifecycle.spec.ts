@@ -911,6 +911,115 @@ describe('GraphRunLifecycle (DECAF-50 §4.19 Angular run row)', () => {
       expect(graphInspection.inspections()).toEqual({});
     });
 
+    it('merges event-derived payloads under the persisted nodeResults (persisted wins, SAA-829)', () => {
+      graphInspection.reset();
+      graphRunState.applyRunResult({
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+        status: 'succeeded',
+        document: { id: WORKFLOW_ID, name: 'wf', inputs: [], outputs: [], nodes: [], edges: [] },
+        inputs: {},
+        outputs: {},
+        nodeResults: {
+          n1: {
+            nodeId: 'n1',
+            status: 'succeeded',
+            inputs: { text: 'hello' },
+            outputs: { upper: 'HELLO' },
+          },
+        },
+        events: [
+          { type: GraphExecutionEventType.NODE_STARTED, nodeId: 'n1' },
+          {
+            type: GraphExecutionEventType.NODE_COMPLETED,
+            nodeId: 'n1',
+            payload: { outputs: { upper: 'EVENT' } },
+          },
+          {
+            type: GraphExecutionEventType.NODE_COMPLETED,
+            nodeId: 'n2',
+            payload: { outputs: { ok: true } },
+          },
+        ],
+      });
+
+      const inspections = graphInspection.inspections();
+      expect(Object.keys(inspections).sort()).toEqual(['n1', 'n2']);
+      // Persisted results win: n1 keeps its routed inputs and persisted outputs,
+      // never the event-derived `EVENT` payload.
+      expect(inspections['n1']).toEqual({
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+        nodeId: 'n1',
+        state: 'succeeded',
+        inputs: { text: 'hello' },
+        outputs: { upper: 'HELLO' },
+      });
+      // The event log fills only the node the persisted results do not cover.
+      expect(inspections['n2']).toEqual({
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+        nodeId: 'n2',
+        state: 'succeeded',
+        inputs: {},
+        outputs: { ok: true },
+      });
+    });
+
+    it('falls back to the run event log when nodeResults are empty (mastra lane, SAA-829)', () => {
+      graphInspection.reset();
+      graphRunState.applyRunResult({
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+        status: 'succeeded',
+        document: { id: WORKFLOW_ID, name: 'wf', inputs: [], outputs: [], nodes: [], edges: [] },
+        inputs: {},
+        outputs: {},
+        nodeResults: {},
+        events: [
+          { type: GraphExecutionEventType.NODE_STARTED, nodeId: 'trigger' },
+          {
+            type: GraphExecutionEventType.NODE_COMPLETED,
+            nodeId: 'trigger',
+            payload: { outputs: { count: 1 } },
+          },
+          {
+            type: GraphExecutionEventType.NODE_FAILED,
+            nodeId: 'logger',
+            error: { name: 'Error', message: 'boom' },
+          },
+        ],
+      });
+
+      const inspections = graphInspection.inspections();
+      expect(Object.keys(inspections).sort()).toEqual(['logger', 'trigger']);
+      expect(inspections['trigger']).toEqual({
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+        nodeId: 'trigger',
+        state: 'succeeded',
+        inputs: {},
+        outputs: { count: 1 },
+      });
+      expect(inspections['logger']).toMatchObject({ nodeId: 'logger', state: 'failed' });
+      expect(inspections['logger'].error).toEqual({ name: 'Error', message: 'boom' });
+    });
+
+    it('still yields no payloads for empty nodeResults with an empty event log', () => {
+      graphInspection.reset();
+      graphRunState.applyRunResult({
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+        status: 'succeeded',
+        document: { id: WORKFLOW_ID, name: 'wf', inputs: [], outputs: [], nodes: [], edges: [] },
+        inputs: {},
+        outputs: {},
+        nodeResults: {},
+        events: [],
+      });
+      expect(graphInspection.inspections()).toEqual({});
+    });
+
     it('demotes unexecuted canvas nodes and edges to skipped for a cancelled run', () => {
       graphExecutionState.setNodeState('n1', { status: 'succeeded', visualState: 'succeeded' });
       graphExecutionState.setNodeState('n2', { status: 'blocked', visualState: 'blocked' });
