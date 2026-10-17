@@ -87,6 +87,37 @@ export function graphIoCapText(
   return { text: capped, truncated };
 }
 
+export const GRAPH_IO_TRUNCATED_MARKER = '_truncated';
+
+export function isNetworkClassError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  if (
+    error.name === 'GraphBackendUnavailableError' ||
+    error.name === 'TypeError' ||
+    error.name === 'AbortError' ||
+    error.name === 'TimeoutError'
+  ) {
+    return true;
+  }
+  const code = (error as { code?: unknown }).code;
+  return (
+    typeof code === 'string' &&
+    /^(ECONN|ENOTFOUND|EAI_AGAIN|ETIMEDOUT|ENETUNREACH|ERR_NETWORK)/.test(code)
+  );
+}
+
+export function markDownloadFallback(payload: unknown): unknown {
+  if (isRecord(payload)) {
+    return { ...payload, [GRAPH_IO_TRUNCATED_MARKER]: true };
+  }
+  return { [GRAPH_IO_TRUNCATED_MARKER]: true, value: payload };
+}
+
+export function sanitizeFilenameSegment(segment: string): string {
+  const sanitized = segment.replace(/[^A-Za-z0-9._-]+/g, '_').replace(/^\.+/, '_');
+  return sanitized || '_';
+}
+
 /**
  * Reusable read-only viewer for the node I/O inspection split view (DECAF-48
  * §4.6 / Req-9). Renders one arbitrary value with JSON (default), table or raw
@@ -119,6 +150,8 @@ export class GraphIoViewerComponent {
   readonly field = input<GraphIoViewerField>('inputs');
   /** Currently selected representation (`json` by default). */
   readonly mode = signal<GraphIoViewMode>('json');
+  readonly downloadFallback = signal(false);
+  readonly downloadError = signal<string | null>(null);
 
   private readonly limit = inject(GRAPH_IO_PANEL_LIMIT, { optional: true }) ?? GRAPH_IO_PANEL_LIMIT_DEFAULT;
   private readonly runClient = inject(GraphRunClient, { optional: true });
@@ -144,13 +177,21 @@ export class GraphIoViewerComponent {
   readonly tableRows = computed(() => {
     const value = this.value();
     if (Array.isArray(value)) {
-      return value.map((entry, index) => ({ key: `[${index}]`, value: entry }));
+      return value.map((entry, index) => this.toTableRow(`[${index}]`, entry));
     }
     if (isRecord(value)) {
-      return Object.entries(value).map(([key, entry]) => ({ key, value: entry }));
+      return Object.entries(value).map(([key, entry]) => this.toTableRow(key, entry));
     }
-    return [{ key: this.title(), value }];
+    return [this.toTableRow(this.title(), value)];
   });
+
+  private toTableRow(
+    key: string,
+    value: unknown,
+  ): { key: string; value: unknown; text: string; truncated: boolean } {
+    const capped = this.capCell(value);
+    return { key, value, text: capped.text, truncated: capped.truncated };
+  }
 
   /** Table rows capped to the configured line limit (SAA-722). */
   readonly visibleTableRows = computed(() =>
@@ -160,6 +201,10 @@ export class GraphIoViewerComponent {
   /** Whether table mode dropped rows because of the cap (SAA-722). */
   readonly tableTruncated = computed(
     () => this.tableRows().length > this.visibleTableRows().length,
+  );
+
+  readonly tableCellTruncated = computed(() =>
+    this.visibleTableRows().some((row) => row.truncated),
   );
 
   /** Full printable form of the value (never truncated). */
@@ -172,7 +217,10 @@ export class GraphIoViewerComponent {
 
   /** Whether the rendered payload was truncated by the cap (SAA-722). */
   readonly isTruncated = computed(
-    () => this.cappedText().truncated || this.tableTruncated(),
+    () =>
+      this.cappedText().truncated ||
+      this.tableTruncated() ||
+      this.tableCellTruncated(),
   );
 
   /** Human-readable cap description for the truncation notice. */
@@ -219,15 +267,34 @@ export class GraphIoViewerComponent {
     const runId = this.runId();
     const nodeId = this.nodeId();
     if (!runId || !nodeId) return;
+    this.downloadFallback.set(false);
+    this.downloadError.set(null);
+
     let payload: unknown = this.value();
+    let fellBack = !this.runClient;
     if (this.runClient) {
       try {
         const result = await this.runClient.getRunResult(runId);
         const serverPayload = result?.nodeResults?.[nodeId]?.[this.field()];
-        if (serverPayload !== undefined) payload = serverPayload;
-      } catch {
-        // Fall back to the rendered payload when the run detail fetch fails.
+        if (serverPayload !== undefined) {
+          payload = serverPayload;
+        } else {
+          fellBack = true;
+        }
+      } catch (err) {
+        if (!isNetworkClassError(err)) {
+          this.downloadError.set(
+            err instanceof Error ? err.message : 'Could not fetch the full payload.',
+          );
+          return;
+        }
+        fellBack = true;
       }
+    }
+
+    if (fellBack) {
+      this.downloadFallback.set(true);
+      payload = markDownloadFallback(payload);
     }
     this.savePayload(payload);
   }
@@ -240,7 +307,7 @@ export class GraphIoViewerComponent {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `${this.field()}-${this.nodeId()}.json`;
+    anchor.download = `${sanitizeFilenameSegment(this.field())}-${sanitizeFilenameSegment(this.nodeId())}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
   }
@@ -251,8 +318,12 @@ export class GraphIoViewerComponent {
     return value === undefined || value === null || value === '';
   }
 
+  private capCell(value: unknown): GraphIoCapResult {
+    return graphIoCapText(printable(value), this.limit);
+  }
+
   /** Display string for a single value (used for table cells). */
   cellText(value: unknown): string {
-    return printable(value);
+    return this.capCell(value).text;
   }
 }

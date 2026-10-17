@@ -125,8 +125,25 @@ together, use `npm run start:dev` (local), `npm run start:dev:mastra`, or
 See the `@decaf-ts/as-graph` "Running each backend + UI combination" guide for the full setup, port,
 and verification details.
 
-**Verification** — with a backend on `:3000`, open `http://localhost:8110/graph`; the workflow table
-lists the selected engine's scenarios. The UI unit tests for this surface are `npm run test:graph`.
+**The `/workflows` catalogue** — `/workflows` is the catalog surface: it lists the selected engine's
+served catalogue (`graph/engines/{engineId}/workflows`) and falls back to the legacy
+`GET /graph/workflows` endpoint when the manifest does not advertise catalogue browsing. Create
+Workflow routes to the empty canvas (`graph/create`) only when the selected engine's served manifest
+allows authoring (`canCreateWorkflow`); otherwise the button is hidden and its tooltip reports that
+the engine does not support creating workflows.
+
+**Node I/O panels** — after a run, each node's inputs/outputs render capped at
+`GRAPH_IO_PANEL_LIMIT` (default 256 KB / 2000 lines, provider-overridable) so a large run payload
+cannot overflow the page; a download action fetches the entire untruncated payload from the run
+detail endpoint (requires the run id and node id). See
+[Node I/O panel](./workdocs/graph/node-io-panel.md).
+
+**Verification** — with a backend on `:3000`, open `http://localhost:8110/workflows`; the workflow
+table lists the selected engine's scenarios. The UI unit tests for this surface are
+`npm run test:graph`, and the per-engine UI validation lane — booting each engine's backend and
+driving list/show/replay/node-I-O for every fixture with Playwright — runs through
+`tests/playwright/graph/per-engine/run-per-engine-ui.sh`. All graph components carry Storybook
+stories (`npm run storybook`).
 
 ## Coding Principles
 

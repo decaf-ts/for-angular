@@ -43,6 +43,21 @@
   } @else if (!hasContents()) {
     <p class="graph-io__empty">No data.</p>
   } @else {
+    @if (downloadError()) {
+      <div class="graph-io__download-error" role="alert">
+        <span class="graph-io__download-error-message">{{ downloadError() }}</span>
+      </div>
+    }
+
+    @if (downloadFallback()) {
+      <div class="graph-io__download-fallback" role="status">
+        <span class="graph-io__download-fallback-message">
+          Full payload unavailable. Downloaded the on-screen value, marked
+          <code>_truncated</code>.
+        </span>
+      </div>
+    }
+
     @if (isTruncated()) {
       <div class="graph-io__truncated" role="status">
         <span class="graph-io__truncated-message">
@@ -77,7 +92,14 @@
                     @if (isEmptyValue(row)) {
                       —
                     } @else {
-                      {{ cellText(row.value) }}
+                      {{ row.text }}
+                      @if (row.truncated) {
+                        <span
+                          class="graph-io__table-cell-truncated"
+                          title="Cell content truncated"
+                          >… truncated</span
+                        >
+                      }
                     }
                   </td>
                 </tr>
