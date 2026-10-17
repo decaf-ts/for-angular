@@ -1,7 +1,17 @@
 .graph-breadcrumbs {
-  --color: var(--ion-color-medium);
+  /* a11y: breadcrumbs sit on the (always light) page background, so the
+     color is fixed to an AA-compliant gray in both modes (axe
+     color-contrast on .graph-breadcrumbs__step). */
+  --color: #5d6470;
   align-items: center;
   font-size: 0.8rem;
+}
+
+.graph-breadcrumbs ion-breadcrumb {
+  /* light-DOM rule — Ionic's shadow :host sets --color to
+     var(--ion-color-step-600, #677483), which fails AA on the #f5f5f5 app
+     background; a light-DOM rule targeting the host element wins. */
+  --color: #5d6470;
 }
 
 .graph-breadcrumbs__current {

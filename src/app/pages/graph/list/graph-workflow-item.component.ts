@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { IonButton } from '@ionic/angular/standalone';
 import { IconComponent, ListItemComponent } from 'src/lib/components';
 import { Dynamic, KeyValue } from 'src/lib/engine';
 import { GraphEngineCapabilityService } from 'src/graph/capabilities';
@@ -22,7 +23,7 @@ import { GraphEngineCapabilityService } from 'src/graph/capabilities';
   selector: 'app-graph-workflow-item',
   templateUrl: './graph-workflow-item.component.html',
   standalone: true,
-  imports: [TranslatePipe, IconComponent],
+  imports: [TranslatePipe, IconComponent, IonButton],
 })
 export class GraphWorkflowItemComponent extends ListItemComponent implements OnInit {
   /** Capability facade driving the run gate for the selected engine. */
@@ -31,6 +32,7 @@ export class GraphWorkflowItemComponent extends ListItemComponent implements OnI
   /** Whether the selected engine allows running a workflow scenario. */
   readonly canRunWorkflow = this.capabilities.canRunWorkflow;
 
+  /** Binds the workflows i18n subtree and the served row to the list item. */
   override async ngOnInit(): Promise<void> {
     await super.ngOnInit();
     this.locale = 'graph.workflows';
@@ -71,6 +73,7 @@ export class GraphWorkflowItemComponent extends ListItemComponent implements OnI
     });
   }
 
+  /** Navigates to the listed workflow's execution list. */
   pastExecutions(event: Event): void {
     event.stopImmediatePropagation();
     const workflowId = this.item?.['workflowId'];

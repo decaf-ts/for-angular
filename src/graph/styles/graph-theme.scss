@@ -1,0 +1,232 @@
+/*
+ * Graph editor (as-graph / mastra UI) theme tokens.
+ * ----------------------------------------------------------------------------
+ * The editor surfaces (canvas, side panes, modals, inline editors, port and
+ * condition editors, model builder) were styled with literal light-palette
+ * values. This file lifts those values into `--gx-*` custom properties so the
+ * same components can render a dark palette without touching light mode:
+ *
+ * - `:root` carries the LIGHT values — they are byte-identical to the literal
+ *   values they replaced, so light mode is pixel-for-pixel unchanged.
+ * - Dark values are applied under BOTH triggers used by the decaf engine:
+ *     * `html.dcf-palette-dark` (NgxMediaService / manual engine toggle), and
+ *     * `@media (prefers-color-scheme: dark)` (system preference auto-dark),
+ *   so the editor follows the OS preference and any engine-driven toggle.
+ * - Only `--gx-*` (new) and canvas `--ngd-*` remaps are touched here; global
+ *   `--dcf-*` / `--ion-*` tokens stay light app-wide, so no surface outside
+ *   the graph editor changes appearance.
+ * - Ionic widgets inside controller-presented editor modals read `--ion-*`
+ *   vars; those are darkened only inside a `.gx-editor` scope (see the modal
+ *   `cssClass` values and the inline workflow-create modal).
+ *
+ * Host apps that render the graph editor must load this file globally (the
+ * demo app imports it from `src/theme/variables.scss`).
+ */
+
+:root {
+  // Surfaces
+  --gx-surface: #ffffff;
+  --gx-surface-veil: rgba(248, 250, 252, 0.97);
+  --gx-surface-head: rgba(255, 255, 255, 0.8);
+  --gx-surface-page: #f8fafc;
+  --gx-surface-muted: #f1f5f9;
+  --gx-surface-soft: #f4f5f8;
+  --gx-surface-panel: rgba(255, 255, 255, 0.84);
+  --gx-surface-wash: rgba(255, 255, 255, 0.9);
+  --gx-surface-ghost: rgba(255, 255, 255, 0.6);
+  --gx-surface-input: #ffffff;
+  --gx-surface-inset: rgba(15, 23, 42, 0.04);
+  --gx-field-gradient: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 0.92));
+  --gx-canvas-bg:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.08), transparent 34%),
+    radial-gradient(circle at top right, rgba(249, 115, 22, 0.1), transparent 30%),
+    rgba(255, 255, 255, 0.58);
+
+  // Borders
+  --gx-border-soft: #e2e8f0;
+  --gx-border-ion: #d7d8da;
+  --gx-border-ion-tint: #f0f1f3;
+  --gx-surface-ion-tint: #f6f7f9;
+
+  // Text
+  --gx-text: #0f172a;
+  --gx-text-strong: #1e293b;
+  --gx-text-secondary: #334155;
+  --gx-text-muted: #5d6470;
+  --gx-text-faint: #5d6470;
+  --gx-text-ion-dark: #222428;
+  --gx-text-ion-medium: #5d6470;
+
+  // Status / accent foregrounds (sit on translucent tints over the surface)
+  --gx-success-fg: #15803d;
+  --gx-teal-fg: #0f766e;
+  --gx-teal-focus: rgba(15, 118, 110, 0.24);
+  --gx-teal-focus-strong: rgba(15, 118, 110, 0.48);
+  --gx-warning-fg: #a16207;
+  --gx-warning-fg-deep: #92400e;
+  --gx-warning-fg-amber: #854d0e;
+  --gx-warning-fg-vivid: #d97706;
+  --gx-danger-fg: #b91c1c;
+  --gx-danger-fg-vivid: #dc2626;
+  --gx-danger-fg-deep: #7f1d1d;
+  --gx-info-fg: #1d4ed8;
+  --gx-info-fg-bright: #2563eb;
+  --gx-indigo-fg: #4338ca;
+  --gx-accent-fg: #7c3aed;
+  --gx-accent-fg-deep: #6d28d9;
+
+  // Validation banner (light orange card)
+  --gx-banner-bg: rgba(255, 247, 237, 0.96);
+  --gx-banner-fg: #9a3412;
+
+  // Port badges (pastel chips)
+  --gx-badge-amber-bg: #fef3c7;
+  --gx-badge-amber-border: #fde68a;
+  --gx-badge-violet-bg: #ede9fe;
+  --gx-badge-violet-border: #ddd6fe;
+
+  // Inspection issues strip
+  --gx-issues-strip: rgba(254, 226, 226, 0.6);
+
+  // Status chips that sit directly on light panels (palette status, retry)
+  --gx-warn-chip-fg: #a16207;
+  --gx-fail-chip-fg: #b91c1c;
+}
+
+@mixin gx-dark-vars {
+  // Surfaces (decaf dark design tokens: $dcf-dark-*)
+  --gx-surface: #161827;
+  --gx-surface-veil: rgba(22, 24, 39, 0.97);
+  --gx-surface-head: rgba(22, 24, 39, 0.8);
+  --gx-surface-page: #1c1f31;
+  --gx-surface-muted: #1a1d2e;
+  --gx-surface-soft: #1a1d2e;
+  --gx-surface-panel: rgba(22, 24, 39, 0.97);
+  --gx-surface-wash: rgba(37, 40, 64, 0.92);
+  --gx-surface-ghost: rgba(26, 29, 46, 0.6);
+  --gx-surface-input: #161827;
+  --gx-surface-inset: rgba(148, 163, 184, 0.08);
+  --gx-field-gradient: linear-gradient(180deg, #1c1f31, #1a1d2e);
+  --gx-canvas-bg:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.08), transparent 34%),
+    radial-gradient(circle at top right, rgba(249, 115, 22, 0.1), transparent 30%),
+    rgba(22, 24, 39, 0.97);
+
+  // Borders
+  --gx-border-soft: #2a2d45;
+  --gx-border-ion: #2a2d45;
+  --gx-border-ion-tint: #252840;
+  --gx-surface-ion-tint: #1a1d2e;
+
+  // Text
+  --gx-text: #e8eaf2;
+  --gx-text-strong: #e8eaf2;
+  --gx-text-secondary: #c7ccdd;
+  --gx-text-muted: #94a3b8;
+  --gx-text-faint: #a8b0c4;
+  --gx-text-ion-dark: #e8eaf2;
+  --gx-text-ion-medium: #9097b0;
+
+  // Status / accent foregrounds
+  --gx-success-fg: #4ade80;
+  --gx-teal-fg: #5eead4;
+  --gx-teal-focus: rgba(45, 212, 191, 0.35);
+  --gx-teal-focus-strong: rgba(45, 212, 191, 0.6);
+  --gx-warning-fg: #fcd34d;
+  --gx-warning-fg-deep: #fcd34d;
+  --gx-warning-fg-amber: #fbbf24;
+  --gx-warning-fg-vivid: #fbbf24;
+  --gx-danger-fg: #f87171;
+  --gx-danger-fg-vivid: #fca5a5;
+  --gx-danger-fg-deep: #fca5a5;
+  --gx-info-fg: #93c5fd;
+  --gx-info-fg-bright: #60a5fa;
+  --gx-indigo-fg: #a5b4fc;
+  --gx-accent-fg: #c4b5fd;
+  --gx-accent-fg-deep: #c4b5fd;
+
+  // Validation banner
+  --gx-banner-bg: rgba(67, 43, 25, 0.92);
+  --gx-banner-fg: #fdba74;
+
+  // Port badges
+  --gx-badge-amber-bg: rgba(234, 179, 8, 0.22);
+  --gx-badge-amber-border: rgba(234, 179, 8, 0.45);
+  --gx-badge-violet-bg: rgba(139, 92, 246, 0.24);
+  --gx-badge-violet-border: rgba(139, 92, 246, 0.42);
+
+  // Inspection issues strip
+  --gx-issues-strip: rgba(239, 68, 68, 0.12);
+
+  // Status chips that sit directly on panels
+  --gx-warn-chip-fg: #fcd34d;
+  --gx-fail-chip-fg: #fca5a5;
+
+  // Canvas primitives: remap the ng-diagram semantic tokens (see
+  // src/assets/theme/ng-diagram.scss) onto the dark surface family so ports,
+  // resize/rotate handles, group highlights and default edges stay visible.
+  // ng-diagram's own dark theme is keyed on html[data-theme='dark'] (never
+  // set by this app), so the diagram/canvas tokens are remapped here.
+  --ngd-diagram-background-color: #151516;
+  --ngd-background-dot-color: #3a3d4a;
+  --ngd-node-background-color: #161827;
+  --ngd-node-border-color: #4a4e72;
+  --ngd-port-background-color: #1a1d2e;
+  --ngd-port-border-color: #4a4e72;
+  --ngd-port-border-color-hover: #e8eaf2;
+  --ngd-resize-handle-background-color: #1a1d2e;
+  --ngd-rotate-handle-background-color-active: #e8eaf2;
+  --ngd-group-background-color-highlight: #252840;
+  --ngd-default-edge-stroke: #4a4e72;
+  --ngd-default-edge-stroke-hover: #e8eaf2;
+}
+
+// Manual / engine-driven dark mode (NgxMediaService toggles this class on
+// <html> when `has-dark-mode` is enabled).
+html.dcf-palette-dark {
+  @include gx-dark-vars;
+}
+
+// System-preference auto-dark for the editor surfaces.
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include gx-dark-vars;
+  }
+}
+
+// Ionic widgets inside the editor surfaces read the global `--ion-*` tokens,
+// which stay light app-wide. Darken them only inside the editor component
+// scopes (controller-presented modals wrap their component tag, so the tag
+// selector covers them; `.gx-editor` is the opt-in class for inline overlays
+// such as the workflow-create modal).
+@mixin gx-editor-dark-vars {
+  --ion-text-color: #e8eaf2;
+  --ion-text-color-rgb: 232, 234, 242;
+  --ion-background-color: #161827;
+  --ion-color-light: #1a1d2e;
+  --ion-color-light-rgb: 26, 29, 46;
+  --ion-color-light-shade: #2a2d45;
+  --ion-color-light-tint: #252840;
+  --ion-color-dark: #e8eaf2;
+  --ion-color-medium: #9097b0;
+}
+
+@mixin gx-editor-dark-scope {
+  .gx-editor,
+  app-graph-node-edit-modal,
+  app-graph-switch-edit-modal,
+  app-graph-condition-editor,
+  app-graph-port-field,
+  app-graph-engine-workflow-picker,
+  ngx-decaf-model-builder {
+    @include gx-editor-dark-vars;
+  }
+}
+
+html.dcf-palette-dark {
+  @include gx-editor-dark-scope;
+}
+
+@media (prefers-color-scheme: dark) {
+  @include gx-editor-dark-scope;
+}

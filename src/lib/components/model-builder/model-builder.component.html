@@ -34,6 +34,87 @@
       </div>
     </div>
 
+    <!-- Structured Output definition (SAA-836 U1/S1) -->
+    @if (structuredOutputMode) {
+      <div class="model-builder__section model-builder__section--structured">
+        <div class="model-builder__section-header">
+          <h3 class="model-builder__subtitle">Structured Output</h3>
+        </div>
+        <p class="model-builder__hint">
+          The model name below is the decaf model the structured output is
+          derived from; its as-zod conversion generates the output form. The
+          backend resolves it through its decaf-model registry.
+        </p>
+        <ion-item>
+          <ion-label position="stacked">Structuring instructions</ion-label>
+          <ion-textarea
+            [ngModel]="structuredInstructions()"
+            (ngModelChange)="onStructuredInstructionsChange($event)"
+            placeholder="Optional instructions forwarded to the agent"
+            [rows]="2"
+            [autoGrow]="true"
+          ></ion-textarea>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">JSON prompt injection</ion-label>
+          <ion-select
+            [ngModel]="structuredInjection()"
+            (ngModelChange)="onStructuredInjectionChange($event)"
+            interface="popover"
+          >
+            <ion-select-option value="default">(default)</ion-select-option>
+            <ion-select-option value="auto">auto</ion-select-option>
+            <ion-select-option value="system">system</ion-select-option>
+            <ion-select-option value="inline">inline</ion-select-option>
+            <ion-select-option value="true">true</ion-select-option>
+            <ion-select-option value="false">false</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        @if (generatedFields().length) {
+          <div class="model-builder__generated-form">
+            <h4 class="model-builder__group-title">
+              Generated structured-output form (as-zod)
+            </h4>
+            @for (field of generatedFields(); track field.name) {
+              <ion-item>
+                <ion-label position="stacked">
+                  {{ field.label }}{{ field.required ? ' *' : '' }}
+                  <small>({{ field.type }})</small>
+                </ion-label>
+                @if (field.type === 'checkbox') {
+                  <ion-checkbox
+                    [ngModel]="generatedValues()[field.name] ?? false"
+                    (ngModelChange)="onGeneratedValueChange(field, $event)"
+                  ></ion-checkbox>
+                } @else {
+                  <ion-input
+                    [type]="
+                      field.type === 'number'
+                        ? 'number'
+                        : field.type === 'date'
+                          ? 'date'
+                          : 'text'
+                    "
+                    [ngModel]="generatedValues()[field.name] ?? ''"
+                    (ngModelChange)="onGeneratedValueChange(field, $event)"
+                  ></ion-input>
+                }
+              </ion-item>
+            }
+          </div>
+        } @else {
+          <div class="model-builder__empty">
+            <ngx-decaf-icon name="ti-schema" />
+            <p>
+              Define properties and build the model to generate the
+              structured-output form.
+            </p>
+          </div>
+        }
+      </div>
+    }
+
     <!-- Model Settings -->
     <ion-accordion-group [value]="'model-settings'">
       <ion-accordion value="model-settings">

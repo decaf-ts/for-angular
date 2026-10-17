@@ -7,7 +7,7 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { I18nFakeLoader } from 'src/lib/i18n';
 import type { KeyValue } from 'src/lib/engine';
 import { GraphEngineCapabilityService } from 'src/graph/capabilities';
@@ -116,6 +116,21 @@ describe('GraphWorkflowItemComponent — workflow row (SAA-68 D1)', () => {
     expect(stop).toHaveBeenCalled();
   });
 
+  it('exposes the row as a list item whose action buttons are all named (SAA-905)', async () => {
+    const fixture = await render({ workflowId: 'wf-9', name: 'Flow' });
+
+    const row = fixture.nativeElement.querySelector('.graph-workflow-item') as HTMLElement;
+    expect(row.getAttribute('role')).toBe('listitem');
+
+    const actionLabels = Array.from(
+      fixture.nativeElement.querySelectorAll('.graph-workflow-item__actions ion-button')
+    ).map((button) => (button as HTMLElement).getAttribute('aria-label'));
+    expect(actionLabels).toHaveLength(3);
+    for (const label of actionLabels) {
+      expect(label?.trim()).not.toBe('');
+    }
+  });
+
   describe('gated run action (SAA-707)', () => {
     it('navigates to the graph editor with the engine and autorun query params', async () => {
       const fixture = await render({ workflowId: 'wf-9', name: 'Flow' });
@@ -177,15 +192,34 @@ describe('GraphWorkflowItemComponent — workflow row (SAA-68 D1)', () => {
       expect(stop).toHaveBeenCalled();
     });
 
-    it('disables the run affordance when the engine blocks running', async () => {
+    it('disables the run affordance when the engine blocks running (SAA-905)', async () => {
       canRunWorkflow.mockReturnValue(false);
       const fixture = await render({ workflowId: 'wf-9', name: 'Flow' });
-      const run = fixture.nativeElement.querySelectorAll(
-        '.graph-workflow-item__actions ngx-decaf-icon'
-      )[1] as HTMLElement;
+      const actions = fixture.nativeElement.querySelectorAll(
+        '.graph-workflow-item__actions ion-button'
+      );
+      const run = actions[1] as HTMLElement;
 
-      expect(run.getAttribute('aria-disabled')).toBe('true');
-      expect(run.getAttribute('tabindex')).toBe('-1');
+      expect(run.hasAttribute('disabled')).toBe(true);
+      expect(run.classList.contains('button-disabled')).toBe(true);
+      const blockedLabel = TestBed.inject(TranslateService).instant(
+        'graph.workflows.runBlocked'
+      );
+      expect(run.getAttribute('aria-label')).toBe(blockedLabel);
+      expect(blockedLabel.trim()).not.toBe('');
+    });
+
+    it('keeps the run affordance enabled and named when the engine allows running (SAA-905)', async () => {
+      const fixture = await render({ workflowId: 'wf-9', name: 'Flow' });
+      const actions = fixture.nativeElement.querySelectorAll(
+        '.graph-workflow-item__actions ion-button'
+      );
+      const run = actions[1] as HTMLElement;
+
+      expect(run.hasAttribute('disabled')).toBe(false);
+      const runLabel = TestBed.inject(TranslateService).instant('graph.workflows.run');
+      expect(run.getAttribute('aria-label')).toBe(runLabel);
+      expect(runLabel.trim()).not.toBe('');
     });
   });
 });

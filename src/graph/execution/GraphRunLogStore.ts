@@ -30,7 +30,9 @@ export type GraphRunLogLifecycleKind =
   | "created"
   | "validated"
   | "validation-issues"
-  | "cancelled";
+  | "cancelled"
+  | "replay"
+  | "restored";
 
 /**
  * Display labels for the run-lifecycle line kinds (D6).
@@ -40,6 +42,8 @@ export const GRAPH_RUN_LOG_LIFECYCLE_LABELS: Record<GraphRunLogLifecycleKind, st
   validated: "Validated",
   "validation-issues": "Validation issues",
   cancelled: "Cancelled",
+  replay: "Replayed",
+  restored: "Restored",
 };
 
 /**
@@ -54,6 +58,8 @@ export const GRAPH_RUN_LOG_LIFECYCLE_LEVELS: Record<
   validated: "info",
   "validation-issues": "warn",
   cancelled: "warn",
+  replay: "info",
+  restored: "info",
 };
 
 /**

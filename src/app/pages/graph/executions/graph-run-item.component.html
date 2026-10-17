@@ -1,5 +1,8 @@
 @if (item) {
-  <div class="graph-run-item">
+  <div
+    class="graph-run-item"
+    role="listitem"
+  >
     <div class="graph-run-item__icon">
       <ngx-decaf-icon
         color="tertiary"
@@ -15,16 +18,18 @@
       </span>
     </div>
     <div class="graph-run-item__actions">
-      <ngx-decaf-icon
+      <ion-button
         (click)="replay($event)"
-        (keyup.enter)="replay($event)"
-        [button]="true"
-        [attr.tabindex]="0"
         [attr.aria-label]="locale + '.replay' | translate"
-        slot="icon-only"
+        fill="clear"
+        shape="round"
         color="primary"
-        name="ti-reload"
-      />
+      >
+        <ngx-decaf-icon
+          name="ti-reload"
+          color="primary"
+        />
+      </ion-button>
     </div>
   </div>
 }

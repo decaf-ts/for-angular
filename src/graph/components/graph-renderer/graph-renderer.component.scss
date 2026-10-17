@@ -22,7 +22,7 @@
   padding: 0;
   border: 1px solid rgba(148, 163, 184, 0.24);
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.84);
+  background: var(--gx-surface-panel);
   box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
 }
 
@@ -71,17 +71,18 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: #64748b;
+  color: var(--gx-text-muted);
 }
 
 .graph-renderer__side-header h2 {
   margin: 0;
   font-size: 1.15rem;
+  color: var(--gx-text);
 }
 
 .graph-renderer__side-header small,
 .graph-renderer__validation small {
-  color: #64748b;
+  color: var(--gx-text-muted);
   line-height: 1.45;
 }
 
@@ -96,17 +97,17 @@
   padding: 0.9rem;
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 0.92));
+  background: var(--gx-field-gradient);
 }
 
 .graph-renderer__field-label {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--gx-text);
 }
 
 .graph-renderer__field-meta {
   font-size: 0.78rem;
-  color: #64748b;
+  color: var(--gx-text-muted);
 }
 
 .graph-renderer__field input:not([type='checkbox']),
@@ -114,9 +115,9 @@
   width: 100%;
   border-radius: 14px;
   border: 1px solid rgba(148, 163, 184, 0.28);
-  background: white;
+  background: var(--gx-surface-input);
   padding: 0.8rem 0.9rem;
-  color: #0f172a;
+  color: var(--gx-text);
   font: inherit;
 }
 
@@ -137,7 +138,7 @@
   gap: 0.65rem;
   padding: 0.7rem 0.85rem;
   border-radius: 14px;
-  background: white;
+  background: var(--gx-surface-input);
   border: 1px solid rgba(148, 163, 184, 0.28);
 }
 
@@ -152,7 +153,7 @@
 .graph-renderer__errors {
   margin: 0;
   padding-left: 1rem;
-  color: #b91c1c;
+  color: var(--gx-danger-fg);
   font-size: 0.82rem;
 }
 
@@ -161,24 +162,24 @@
 .graph-renderer__palette-status {
   margin: 0;
   padding: 0.6rem 1rem;
-  color: #cbd5e1;
+  color: var(--gx-text-muted);
   font-size: 0.78rem;
   line-height: 1.35;
   border-bottom: 1px solid rgba(148, 163, 184, 0.16);
 }
 
 .graph-renderer__palette-status--degraded {
-  color: #fcd34d;
+  color: var(--gx-warn-chip-fg);
   background: rgba(234, 179, 8, 0.08);
 }
 
 .graph-renderer__palette-status--failed {
-  color: #fca5a5;
+  color: var(--gx-fail-chip-fg);
   background: rgba(239, 68, 68, 0.1);
 }
 
 .graph-renderer__palette-status--empty {
-  color: #94a3b8;
+  color: var(--gx-text-faint);
 }
 
 .graph-renderer__palette-retry {
@@ -188,7 +189,7 @@
   border: 1px solid rgba(239, 68, 68, 0.5);
   border-radius: 8px;
   background: rgba(239, 68, 68, 0.14);
-  color: #fecaca;
+  color: var(--gx-fail-chip-fg);
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
@@ -203,7 +204,7 @@
   gap: 0.35rem;
   padding: 0.9rem 1rem;
   border-radius: 18px;
-  background: rgba(15, 23, 42, 0.04);
+  background: var(--gx-surface-inset);
   border: 1px solid rgba(148, 163, 184, 0.18);
 }
 
@@ -212,11 +213,12 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: #64748b;
+  color: var(--gx-text-muted);
 }
 
 .graph-renderer__validation strong {
   font-size: 1.05rem;
+  color: var(--gx-text);
 }
 
 /* D5/G3-16: the canvas projects the invalid graph state visibly. */
@@ -244,8 +246,8 @@
   padding: 0.7rem 1rem;
   border-radius: 14px;
   border: 1px solid rgba(249, 115, 22, 0.55);
-  background: rgba(255, 247, 237, 0.96);
-  color: #9a3412;
+  background: var(--gx-banner-bg);
+  color: var(--gx-banner-fg);
   box-shadow: 0 14px 34px rgba(249, 115, 22, 0.22);
 }
 
@@ -273,7 +275,7 @@
   padding: 0.9rem 1rem;
   border-radius: 18px;
   border: 1px solid rgba(148, 163, 184, 0.18);
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 0.92));
+  background: var(--gx-field-gradient);
 }
 
 .graph-renderer__snapshot-header {
@@ -286,11 +288,11 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: #64748b;
+  color: var(--gx-text-muted);
 }
 
 .graph-renderer__snapshot-header small {
-  color: #64748b;
+  color: var(--gx-text-muted);
   line-height: 1.45;
 }
 
@@ -303,8 +305,8 @@
   font: inherit;
   font-size: 0.78rem;
   line-height: 1.45;
-  color: #0f172a;
-  background: white;
+  color: var(--gx-text);
+  background: var(--gx-surface-input);
   resize: vertical;
 }
 
@@ -335,7 +337,7 @@
   gap: 0.8rem;
   padding: 0.85rem 0.95rem;
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 0.92));
+  background: var(--gx-field-gradient);
   border: 1px solid rgba(148, 163, 184, 0.18);
 }
 
@@ -345,7 +347,7 @@
 
 .graph-renderer__port-card small {
   display: block;
-  color: #64748b;
+  color: var(--gx-text-muted);
 }
 
 .graph-renderer__port-card--output span {
@@ -369,10 +371,7 @@
   margin-right: min(280px, 22vw);
   padding: 0;
   border-radius: 28px;
-  background:
-    radial-gradient(circle at top left, rgba(14, 165, 233, 0.08), transparent 34%),
-    radial-gradient(circle at top right, rgba(249, 115, 22, 0.1), transparent 30%),
-    rgba(255, 255, 255, 0.58);
+  background: var(--gx-canvas-bg);
 }
 
 .graph-renderer__loading {
@@ -457,7 +456,7 @@
 .graph-renderer__palette-close {
   border: 0;
   background: transparent;
-  color: #94a3b8;
+  color: var(--gx-text-faint);
   font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
@@ -489,7 +488,7 @@
 }
 
 .graph-renderer__palette-search-input::placeholder {
-  color: #64748b;
+  color: var(--gx-text-muted);
 }
 
 .graph-renderer__palette-search-input:focus {
@@ -502,7 +501,7 @@
   right: 1rem;
   border: 0;
   background: transparent;
-  color: #94a3b8;
+  color: var(--gx-text-faint);
   font-size: 1rem;
   line-height: 1;
   cursor: pointer;
@@ -566,7 +565,7 @@
 }
 
 .graph-renderer__palette-info small {
-  color: #94a3b8;
+  color: var(--gx-text-faint);
   font-size: 0.72rem;
 }
 

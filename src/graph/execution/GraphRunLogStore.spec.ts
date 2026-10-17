@@ -230,12 +230,16 @@ describe('GraphRunLogStore', () => {
       validated: 'Validated',
       'validation-issues': 'Validation issues',
       cancelled: 'Cancelled',
+      replay: 'Replayed',
+      restored: 'Restored',
     });
     expect(GRAPH_RUN_LOG_LIFECYCLE_LEVELS).toEqual({
       created: 'info',
       validated: 'info',
       'validation-issues': 'warn',
       cancelled: 'warn',
+      replay: 'info',
+      restored: 'info',
     });
   });
 

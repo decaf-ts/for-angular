@@ -68,6 +68,7 @@ import {
   type NgDiagramMutation,
 } from './GraphDocumentMutation';
 import { graphDocumentCommandsFromDiagramMutation, graphEngineEdgeIdOf } from './GraphDiagramMutationTranslator';
+import { graphManifestPortZoneOf } from '../port-zones';
 
 const GRAPH_CANVAS_DEFAULT_POSITION_STEP = 190;
 
@@ -219,6 +220,19 @@ export function graphCanvasPortDefinitionOf(
     required: port.required === true,
     hidden: port.hidden === true,
   };
+  // Mastra agent port zones (SAA-836 M1/U1): category, handle and zone are
+  // manifest-authoritative connection placement metadata. The canvas carries
+  // them on the legacy `graph` block so the node template can render zoned
+  // port groups without a shape migration.
+  const zone = graphManifestPortZoneOf(port);
+  if (port.category || port.handle || zone) {
+    definition.graph = {
+      direction: definition.direction,
+      ...(port.category ? { category: port.category } : {}),
+      ...(port.handle ? { handle: port.handle } : {}),
+      ...(zone ? { zone } : {}),
+    };
+  }
   const schemaType = portSchemaTypeOf(port.schema);
   if (schemaType !== undefined) definition.type = schemaType;
   // R2-3(4): the fixture manifest carries the frontend `@uielement`

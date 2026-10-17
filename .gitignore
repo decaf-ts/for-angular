@@ -88,3 +88,5 @@ CLAUDE.md
 /.playwright-cli
 /tests/playwright/graph/per-engine/.reports
 /tests/playwright/graph/per-engine/.results
+workdocs/locks/*
+!workdocs/locks/.gitkeep

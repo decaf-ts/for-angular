@@ -36,6 +36,8 @@ const config: Config = {
     '^src/app/(.*)$': '<rootDir>/src/app/$1',
     '^src/graph/(.*)$': '<rootDir>/src/graph/$1',
     '^src/graph$': '<rootDir>/src/graph/index.ts',
+    '^src/agent/(.*)$': '<rootDir>/src/agent/$1',
+    '^src/agent$': '<rootDir>/src/agent/index.ts',
     '^src/lib/engine/(.*)$': '<rootDir>/src/lib/engine/$1',
     '^src/lib/helpers/(.*)$': '<rootDir>/src/lib/helpers/$1',
     '^src/lib/(.*)$': '<rootDir>/src/lib/$1',
@@ -45,7 +47,7 @@ const config: Config = {
   },
 
   // Critical for Ionic/Stencil modules
-  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|@ionic/core|@stencil|@ionic/angular|ionicons|@decaf-ts)'],
+  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|@ionic/core|@stencil|@ionic/angular|ionicons|@decaf-ts|@storybook|storybook)'],
 
   // Other settings
   verbose: true,

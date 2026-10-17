@@ -27,7 +27,7 @@
       <ng-diagram
         [model]="graphModel"
         [config]="{ zoom: { zoomToFit: { onInit: true, padding: [16, 16, 16, 16] } } }"
-        [nodeTemplateMap]="nodeTemplateMap"
+        [nodeTemplateMap]="nodeTemplateMap()"
         [edgeTemplateMap]="edgeTemplateMap"
         [middlewares]="middlewares"
         (selectionChanged)="onSelectionChanged($event)"

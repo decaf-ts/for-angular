@@ -14,7 +14,7 @@
     max-height: 70vh;
     overflow: auto;
     border-radius: 0.5rem;
-    background: var(--ion-background-color, #fff);
+    background: var(--gx-surface);
     box-shadow: 0 8px 24px rgb(0 0 0 / 25%);
   }
 
@@ -23,7 +23,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--ion-color-light, #eee);
+    border-bottom: 1px solid var(--gx-border-ion-tint);
   }
 
   &__title {

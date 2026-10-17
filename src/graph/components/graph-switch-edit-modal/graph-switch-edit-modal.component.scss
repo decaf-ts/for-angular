@@ -1,5 +1,5 @@
 .graph-switch-edit-modal__content {
-  --background: #f8fafc;
+  --background: var(--gx-surface-page);
 }
 
 .graph-switch-edit-modal__body {
@@ -10,7 +10,7 @@
 }
 
 .graph-switch-edit-modal__section {
-  background: white;
+  background: var(--gx-surface);
   border-radius: 10px;
   padding: 0.75rem;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -26,18 +26,18 @@
   margin: 0 0 0.25rem 0;
   font-size: 0.9rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--gx-text-strong);
 }
 
 .graph-switch-edit-modal__case {
   display: flex;
   align-items: flex-start;
   gap: 0.3rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--gx-border-soft);
   border-radius: 8px;
   padding: 0.4rem;
   margin-bottom: 0.4rem;
-  background: #f8fafc;
+  background: var(--gx-surface-page);
 }
 
 .graph-switch-edit-modal__case-controls {
@@ -51,7 +51,7 @@
 
 .graph-switch-edit-modal__drag-handle {
   cursor: grab;
-  color: #94a3b8;
+  color: var(--gx-text-faint);
   font-size: 0.85rem;
   line-height: 1;
   user-select: none;
@@ -119,20 +119,20 @@
   font-size: 0.65rem;
   font-weight: 600;
   font-family: 'Courier New', monospace;
-  background: #ede9fe;
-  color: #6d28d9;
-  border: 1px solid #ddd6fe;
+  background: var(--gx-badge-violet-bg);
+  color: var(--gx-accent-fg-deep);
+  border: 1px solid var(--gx-badge-violet-border);
   white-space: nowrap;
 }
 
 .graph-switch-edit-modal__port-badge--default {
-  background: #fef3c7;
-  color: #92400e;
-  border-color: #fde68a;
+  background: var(--gx-badge-amber-bg);
+  color: var(--gx-warning-fg-deep);
+  border-color: var(--gx-badge-amber-border);
 }
 
 .graph-switch-edit-modal__empty {
-  color: #94a3b8;
+  color: var(--gx-text-faint);
   font-size: 0.8rem;
   text-align: center;
   padding: 1rem;
@@ -152,5 +152,5 @@
 
 .graph-switch-edit-modal__default-label {
   font-size: 0.72rem;
-  color: #94a3b8;
+  color: var(--gx-text-faint);
 }

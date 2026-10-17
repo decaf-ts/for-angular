@@ -254,7 +254,7 @@ export class GraphRendererComponent {
     this.mandatoryEdgeGuardMiddleware,
   ]);
 
-  readonly nodeTemplateMap = new NgDiagramNodeTemplateMap([
+  private readonly staticNodeTemplateMap = new NgDiagramNodeTemplateMap([
     ['workflow', GraphNodeTemplateComponent],
     ['pipeline', GraphNodeTemplateComponent],
     ['node', GraphNodeTemplateComponent],
@@ -290,6 +290,23 @@ export class GraphRendererComponent {
     ['value', GraphBoundaryNodeTemplateComponent],
     ['graph.ghost', GraphGhostNodeTemplateComponent],
   ]);
+
+  /**
+   * Canvas template keyed by node type. Every catalogued kind the static map
+   * does not name renders with the generic node template (SAA-836 U1), so
+   * newly landed engine kinds — the mastra agent family in particular — stay
+   * editable without a renderer change, while the boundary/ghost canvas
+   * artifacts keep their dedicated templates.
+   */
+  readonly nodeTemplateMap = computed(() => {
+    const map = new NgDiagramNodeTemplateMap(this.staticNodeTemplateMap);
+    for (const manifest of this.availableNodes()) {
+      if (manifest && typeof manifest.kind === 'string' && manifest.kind && !map.has(manifest.kind)) {
+        map.set(manifest.kind, GraphNodeTemplateComponent);
+      }
+    }
+    return map;
+  });
 
   /**
    * Edge template keyed by the `graph-edge` type set on every canvas edge by

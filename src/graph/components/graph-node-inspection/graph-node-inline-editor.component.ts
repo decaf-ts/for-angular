@@ -33,6 +33,7 @@ import {
   type GraphPortFieldConfig,
   type GraphPortFieldModeChange,
 } from '../graph-port-field/graph-port-field.component';
+import { modelBuilderStructuredDefinitionOf } from '../../../lib/components/model-builder/model-builder.component';
 import {
   graphPortDefaultValueMode,
   graphPortValueBodyOf,
@@ -62,6 +63,17 @@ const GRAPH_INLINE_EDIT_LABELS: Record<string, string> = {
   parameters: 'Parameters',
   condition: 'Condition',
 };
+
+/**
+ * Model-builder widget ports (SAA-836 U1/S1): manifest ports decorated with
+ * `@uielement("ngx-decaf-model-builder")` (the agent family's
+ * `structuredOutput`) persist their literal value as a structured-output
+ * definition object on both `inputBindings` and `parameters`.
+ */
+function isModelBuilderPort(port: GraphPortDefinition): boolean {
+  const tag = (port.element as { tag?: string } | undefined)?.tag;
+  return tag === 'ngx-decaf-model-builder';
+}
 
 function graphParameterControlTypeOf(param: GraphParameterDefinition): GraphParameterFieldConfig['parameterType'] {
   if (param.type === 'boolean') return 'boolean';
@@ -294,6 +306,18 @@ export class GraphNodeInlineEditorComponent implements OnChanges {
       }
       if (mode === 'literal') {
         if (body === '') continue;
+        // Model-builder widget ports (SAA-836 U1/S1): the structured-output
+        // definition persists as a JSON object on BOTH surfaces — the literal
+        // binding (executor parity) and `parameters` (the mastra lane reads
+        // `parameters.structuredOutput` through resolveMastraStructuredOutput).
+        if (isModelBuilderPort(config.port)) {
+          const definition = modelBuilderStructuredDefinitionOf(raw);
+          if (definition) {
+            inputBindings[portId] = { mode: 'literal', value: definition as GraphJsonValue };
+            parameters[portId] = definition as GraphJsonValue;
+            continue;
+          }
+        }
         inputBindings[portId] = { mode: 'literal', value: body as GraphJsonValue };
         continue;
       }

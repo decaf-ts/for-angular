@@ -48,6 +48,25 @@ Standalone LaTeX formula input wrapping the MathLive `<math-field>` custom eleme
 
 Typical pairing: bind both components to the same `formula` string — editing the math field re-samples the curve over the x range, and dragging curve points regenerates the formula.
 
+### `<ngx-decaf-agent-chat>`
+
+Standalone agent conversation UI over a graph workflow run, exported from the `for-angular/src/agent` public barrel together with its transport contract (`AgentChatTransport` with `send`/`replay`/`cancel`), the `AGENT_CHAT_TRANSPORT` injection token, the composer/message models, the envelope fold, the `AgentChatService`, and the translation fallback pipe. The transcript is a `role="log"` live region with per-role styling, action/attachment chips and auto-scroll; the composer handles Enter-to-send / Shift+Enter newline, metadata-only attachments (file contents are never read), and a knowledge-base selector forwarded as `knowledgeBaseIds` run inputs. A collapsible telemetry strip shows per-roundtrip rows, a structured-object panel reuses the graph I/O viewer for the latest structured output, and namespace chips derive from the configured workflow document's auth metadata. All user-facing strings resolve through the `agent.chat.*` i18n subtree with hardcoded English fallbacks.
+
+| Binding | Type | Description |
+| --- | --- | --- |
+| `[workflow]` | `GraphWorkflowDocument \| null` | Workflow document the chat runs against (namespace chips derive from its auth metadata) |
+| `[workflowId]` | `string \| null` | Backend workflow id to run (`null` clears a previously configured value) |
+| `[sessionId]` | `string \| null` | Conversation session id (generated as `agent-chat-<epoch>-<seq>` when unset) |
+| `[headerTitleKey]` | `string` | Localized header title key (default `agent.chat.title`) |
+| `[headerTitleFallback]` | `string` | Header title fallback when the key is missing (default `Agent chat`) |
+| `[knowledgeSources]` | `AgentChatKnowledgeSource[]` | Knowledge-base options offered in the composer |
+
+Runs go through the injectable `AgentChatTransport`: the default `GraphRunAgentChatTransport` runs the configured workflow over the graph backend's `POST /graph/runs` + SSE envelope stream (replay from sequence zero, idempotent cancel). Override the `AGENT_CHAT_TRANSPORT` token to plug in a scripted or alternative transport (e.g. the optional `@ai-sdk/angular` peer). Storybook coverage (`src/stories/agent-chat.stories.ts`) mounts the component with a scripted transport, so no backend is needed.
+
+```html
+<ngx-decaf-agent-chat [workflow]="document" [workflowId]="id"></ngx-decaf-agent-chat>
+```
+
 ## Running the graph UI against a backend
 
 The graph pages (`/graph`, workflow list, runs) talk to a standalone `@decaf-ts/as-graph` backend
@@ -100,6 +119,19 @@ table lists the selected engine's scenarios. The UI unit tests for this surface 
 driving list/show/replay/node-I-O for every fixture with Playwright — runs through
 `tests/playwright/graph/per-engine/run-per-engine-ui.sh`. All graph components carry Storybook
 stories (`npm run storybook`).
+
+### Editor dark mode & accessibility gate
+
+The graph editor surfaces carry their palette in `src/graph/styles/graph-theme.scss` (`--gx-*`
+custom properties, plus canvas `--ngd-*` remaps): the `:root` values are byte-identical to the
+literals they replaced (light mode pixel-for-pixel unchanged), and the dark palette applies under
+both triggers the decaf engine uses — `html.dcf-palette-dark` (engine toggle) and
+`@media (prefers-color-scheme: dark)` (OS preference) — so the editor follows both without touching
+surfaces outside the graph editor. Host apps embedding the editor must load `graph-theme.scss`
+globally. The editor is covered by an axe-core accessibility gate
+(`tests/playwright/graph/a11y.spec.ts`, WCAG 2.x AA) over the canvas/toolbar/palette, the node
+inspection split view and inline editor, the node/switch edit modals, the model-builder surface,
+the workflow-create modal, and the workflow/executions lists — including a forced dark-mode pass.
 
 ## Coding Principles
 

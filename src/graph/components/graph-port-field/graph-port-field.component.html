@@ -35,11 +35,19 @@
           </span>
         }
       </div>
-      @if (showValueCodeEditor()) {
+      @if (showModelBuilder()) {
+        <ngx-decaf-model-builder
+          class="graph-port-field__model-builder"
+          [structuredOutputMode]="true"
+          [definition]="definitionValue()"
+          (structuredOutputChange)="onDefinitionChange($event)"
+        />
+      } @else if (showValueCodeEditor()) {
         <app-code-editor
           [mode]="valueCodeEditorMode()"
           [code]="_value()"
           [placeholder]="fieldLabel()"
+          [ariaLabel]="fieldLabel()"
           (codeChange)="onCodeChange($event)"
         />
       } @else if (isTextarea()) {

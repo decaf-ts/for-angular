@@ -22,6 +22,11 @@ import type {
 } from '@decaf-ts/as-graph/shared';
 import type { SwitchNodeMetadata, SwitchCase, NodeMetadataChange } from '@decaf-ts/as-graph/shared';
 import { GraphDemoNodeData } from '../../types';
+import {
+  graphConnectionPortSideOf,
+  graphPortZoneOf,
+  type GraphPortZone,
+} from '../../port-zones';
 import { graphExecutionState } from '../../execution/GraphExecutionStateService';
 import { graphInspection } from '../../execution/GraphInspectionStore';
 import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocumentStore';
@@ -142,6 +147,50 @@ export function isGraphDynamicPort(port: { element?: unknown }): boolean {
 function isGraphProvidedValue(value: unknown): boolean {
   if (value === undefined || value === null) return false;
   return typeof value !== 'string' || value.trim().length > 0;
+}
+
+/**
+ * One zoned cluster of connection ports on a node edge (SAA-836 M1/U1).
+ * `zoned: false` marks the legacy full-width bottom strip shared by every
+ * port that declares no manifest zone.
+ */
+export interface GraphConnectionZoneGroup {
+  key: string;
+  side: 'top' | 'bottom' | 'left' | 'right';
+  align: 'start' | 'center' | 'end';
+  zoned: boolean;
+  ports: GraphPortDefinition[];
+}
+
+/**
+ * Groups visible connection ports into manifest-declared render zones
+ * (SAA-836 M1/U1): zoned ports cluster by side+align with zone `order` inside
+ * the group; unzoned ports share the legacy full-width bottom strip. The
+ * legacy strip renders after the zoned clusters.
+ *
+ * Exported for the port-zone rendering unit tests.
+ */
+export function graphConnectionZoneGroupsOf(ports: GraphPortDefinition[]): GraphConnectionZoneGroup[] {
+  const groups = new Map<string, GraphConnectionZoneGroup>();
+  for (const port of ports) {
+    const zone = graphPortZoneOf(port);
+    const side = zone?.side ?? 'bottom';
+    const align = zone?.align ?? 'center';
+    const key = zone ? `${side}:${align}` : 'legacy';
+    let group = groups.get(key);
+    if (!group) {
+      group = { key, side, align, zoned: !!zone, ports: [] };
+      groups.set(key, group);
+    }
+    group.ports.push(port);
+  }
+  const ordered = [...groups.values()];
+  for (const group of ordered) {
+    group.ports.sort(
+      (left, right) => (graphPortZoneOf(left)?.order ?? 0) - (graphPortZoneOf(right)?.order ?? 0)
+    );
+  }
+  return ordered.sort((left, right) => (left.zoned === right.zoned ? 0 : left.zoned ? -1 : 1));
 }
 
 /**
@@ -564,12 +613,37 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
     return this.visiblePorts(PortDirection.CONNECTION);
   }
 
+  /**
+   * Zoned connection port groups (SAA-836 M1/U1): manifest-declared zones group
+   * the mastra agent family's connection handles into per-edge clusters
+   * (memory bottom-left, scorers top-right, embedding bottom-right,
+   * hooks/sandbox top-middle, tools/skill bottom-middle). Ports without a zone
+   * keep the legacy full-width bottom strip.
+   */
+  connectionZoneGroups() {
+    return graphConnectionZoneGroupsOf(this.connectionPorts());
+  }
+
+  /** ng-diagram edge side for one connection port handle. */
+  connectionPortSide(port: GraphPortDefinition): GraphPortZone['side'] {
+    return graphConnectionPortSideOf(port);
+  }
+
   connectionColor(category?: string): string {
     if (!category) return '#64748b';
     const colors: Record<string, string> = {
       model: '#3b82f6',
       memory: '#10b981',
       workspace: '#f59e0b',
+      // Mastra agent family zone categories (SAA-836 M1): the palette mirrors
+      // the as-graph `registerBuiltinCategoryStyles` connection styles so both
+      // surfaces read as one editor.
+      tools: '#0ea5e9',
+      hooks: '#f97316',
+      skill: '#8b5cf6',
+      sandbox: '#14b8a6',
+      scorers: '#ec4899',
+      embedding: '#6366f1',
     };
     return colors[category] ?? '#64748b';
   }
@@ -637,6 +711,9 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
           initialSwitchMetadata: initialSwitchMeta,
         },
         presentingElement: undefined,
+        // gx-editor: dark-theme ion-token scope for editor modals (see
+        // src/graph/styles/graph-theme.scss)
+        cssClass: ['gx-editor'],
       });
 
       await modal.present();
@@ -670,6 +747,7 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
         degradedReason,
       },
       presentingElement: undefined,
+      cssClass: ['gx-editor'],
     });
 
     await modal.present();

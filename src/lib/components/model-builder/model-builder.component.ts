@@ -1,7 +1,10 @@
-import { Component, computed, Input, signal } from '@angular/core';
+import { Component, computed, EventEmitter, Input, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
+import { modelToZod } from '@decaf-ts/as-zod';
+import type { ZodTypeAny } from 'zod';
+import { z } from 'zod';
 import {
   hideOn,
   uielement,
@@ -196,6 +199,39 @@ function parseOptions(optionsStr: string): { value: string; label: string }[] {
   });
 }
 
+/** One generated structured-output form field, derived from the as-zod schema shape (SAA-836 U1/S1). */
+export interface ModelBuilderStructuredField {
+  name: string;
+  label: string;
+  type: 'text' | 'number' | 'checkbox' | 'date';
+  required: boolean;
+}
+
+/** JSON prompt-injection vocabulary of the S1 structured-output definition (mastra `structuredOutput.jsonPromptInjection`). */
+export type ModelBuilderInjectionMode = 'default' | 'auto' | 'system' | 'inline' | 'true' | 'false';
+
+/**
+ * Parses a persisted structured-output definition (SAA-836 S1 shape:
+ * `{ model, instructions?, jsonPromptInjection?, providerOptions? }`) from an
+ * object or its JSON-stringified form. Non-definition shapes return `null`.
+ *
+ * Exported for the structured-output editor unit tests.
+ */
+export function modelBuilderStructuredDefinitionOf(value: unknown): Record<string, unknown> | null {
+  let candidate = value;
+  if (typeof candidate === 'string') {
+    try {
+      candidate = JSON.parse(candidate);
+    } catch {
+      return null;
+    }
+  }
+  if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) return null;
+  const record = candidate as Record<string, unknown>;
+  if (typeof record['model'] !== 'string' || !record['model'].trim()) return null;
+  return record;
+}
+
 @Component({
   standalone: true,
   selector: 'ngx-decaf-model-builder',
@@ -219,6 +255,22 @@ function parseOptions(optionsStr: string): { value: string; label: string }[] {
 export class ModelBuilderComponent {
   @Input() preview = false;
 
+  /**
+   * Structured-output editing mode (SAA-836 U1/S1): the component authors the
+   * decaf model whose as-zod conversion generates the structured-output form,
+   * and emits the S1 definition (`model`/`instructions`/`jsonPromptInjection`)
+   * the backend resolves through its decaf-model registry.
+   */
+  @Input() structuredOutputMode = false;
+
+  /** Persisted S1 structured-output definition to preload (object or JSON string). */
+  @Input() set definition(value: unknown) {
+    this.loadStructuredDefinition(value);
+  }
+
+  /** Emits the edited S1 structured-output definition. */
+  @Output() structuredOutputChange = new EventEmitter<Record<string, unknown>>();
+
   modelConfig = signal<ModelConfig>({
     name: '',
     description: '',
@@ -232,6 +284,18 @@ export class ModelBuilderComponent {
   builtModel = signal<Model | null>(null);
   buildError = signal<string | null>(null);
   buildInfo = signal<string | null>(null);
+
+  /** Structuring instructions forwarded to mastra (`structuredOutput.instructions`). */
+  structuredInstructions = signal('');
+
+  /** JSON prompt-injection mode forwarded to mastra (`structuredOutput.jsonPromptInjection`). */
+  structuredInjection = signal<ModelBuilderInjectionMode>('default');
+
+  /** Form fields generated from the built model's as-zod schema shape. */
+  generatedFields = signal<ModelBuilderStructuredField[]>([]);
+
+  /** Current values of the generated structured-output form. */
+  generatedValues = signal<Record<string, string | boolean>>({});
 
   componentTags = COMPONENT_TAGS;
   inputTypes = INPUT_TYPES;
@@ -397,10 +461,89 @@ export class ModelBuilderComponent {
       this.buildInfo.set(
         `Built "${name}" with ${appliedProps.length} propert${appliedProps.length === 1 ? 'y' : 'ies'}: ${appliedProps.join(', ')}`
       );
+      if (this.structuredOutputMode) {
+        this.generateStructuredForm(instance);
+        this.emitStructuredDefinition();
+      }
     } catch (e: unknown) {
       this.buildError.set(e instanceof Error ? e.message : String(e));
       this.builtModel.set(null);
     }
+  }
+
+  /**
+   * Structured-output mode (SAA-836 U1/S1): converts the built decaf model
+   * through `@decaf-ts/as-zod` (`modelToZod`, the single decaf↔mastra
+   * conversion path) and generates the structured-output form fields from the
+   * resulting Zod shape.
+   */
+  private generateStructuredForm(instance: Model): void {
+    const schema = modelToZod(instance as never) as unknown as { shape?: Record<string, ZodTypeAny> };
+    const shape = schema?.shape ?? {};
+    const fields: ModelBuilderStructuredField[] = Object.entries(shape).map(([name, field]) => {
+      let type: ModelBuilderStructuredField['type'] = 'text';
+      if (field instanceof z.ZodNumber) type = 'number';
+      else if (field instanceof z.ZodBoolean) type = 'checkbox';
+      else if (field instanceof z.ZodDate) type = 'date';
+      return {
+        name,
+        label: name.charAt(0).toUpperCase() + name.slice(1),
+        type,
+        required: !field.isOptional(),
+      };
+    });
+    this.generatedFields.set(fields);
+    this.generatedValues.set(
+      Object.fromEntries(fields.map((field) => [field.name, field.type === 'checkbox' ? false : '']))
+    );
+  }
+
+  /** Builds the serializable S1 structured-output definition and emits it. */
+  private emitStructuredDefinition(): void {
+    const name = this.modelConfig().name.trim();
+    if (!name) return;
+    const definition: Record<string, unknown> = { model: name };
+    const instructions = this.structuredInstructions().trim();
+    if (instructions) definition['instructions'] = instructions;
+    const injection = this.structuredInjection();
+    if (injection === 'true') definition['jsonPromptInjection'] = true;
+    else if (injection === 'false') definition['jsonPromptInjection'] = false;
+    else if (injection !== 'default') definition['jsonPromptInjection'] = injection;
+    this.structuredOutputChange.emit(definition);
+  }
+
+  onStructuredInstructionsChange(value: string): void {
+    this.structuredInstructions.set(value);
+    this.emitStructuredDefinition();
+  }
+
+  onStructuredInjectionChange(value: ModelBuilderInjectionMode): void {
+    this.structuredInjection.set(value);
+    this.emitStructuredDefinition();
+  }
+
+  onGeneratedValueChange(field: ModelBuilderStructuredField, value: string | boolean): void {
+    this.generatedValues.update((values) => ({ ...values, [field.name]: value }));
+  }
+
+  /** Preloads a persisted S1 definition into the builder state (name, instructions, injection). */
+  private loadStructuredDefinition(value: unknown): void {
+    const definition = modelBuilderStructuredDefinitionOf(value);
+    if (!definition) return;
+    const name = String(definition['model']);
+    this.modelConfig.update((config) => ({ ...config, name }));
+    const instructions = definition['instructions'];
+    this.structuredInstructions.set(typeof instructions === 'string' ? instructions : '');
+    const injection = definition['jsonPromptInjection'];
+    this.structuredInjection.set(
+      injection === true
+        ? 'true'
+        : injection === false
+          ? 'false'
+          : injection === 'system' || injection === 'inline' || injection === 'auto'
+            ? injection
+            : 'default'
+    );
   }
 
   reset(): void {
@@ -416,6 +559,8 @@ export class ModelBuilderComponent {
     this.builtModel.set(null);
     this.buildError.set(null);
     this.buildInfo.set(null);
+    this.generatedFields.set([]);
+    this.generatedValues.set({});
   }
 
   loadExample(): void {

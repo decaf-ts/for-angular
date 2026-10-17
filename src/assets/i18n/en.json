@@ -464,5 +464,73 @@
         }
       }
     }
+  },
+  "agent": {
+    "chat": {
+      "title": "Agent chat",
+      "namespaces": {
+        "label": "Namespaces"
+      },
+      "typing": "Agent is responding…",
+      "actions": {
+        "label": "Agent actions"
+      },
+      "transcript": {
+        "aria": "Conversation transcript",
+        "empty": "Start the conversation by sending a message.",
+        "content": {
+          "label": "Content",
+          "placeholder": "Message content"
+        },
+        "created": {
+          "label": "Created at"
+        }
+      },
+      "role": {
+        "label": "Role",
+        "user": "You",
+        "assistant": "Agent",
+        "system": "System",
+        "error": "Error"
+      },
+      "composer": {
+        "message": {
+          "label": "Message",
+          "placeholder": "Type a message…"
+        },
+        "send": "Send",
+        "cancel": "Cancel"
+      },
+      "attachments": {
+        "label": "Attachments",
+        "add": "Attach",
+        "remove": "Remove attachment"
+      },
+      "knowledge": {
+        "label": "Knowledge base"
+      },
+      "roundtrip": {
+        "label": "Roundtrip",
+        "empty": "No roundtrips yet."
+      },
+      "status": {
+        "queued": "Queued",
+        "running": "Running",
+        "succeeded": "Succeeded",
+        "failed": "Failed",
+        "cancelled": "Cancelled",
+        "replayed": "Replayed"
+      },
+      "telemetry": {
+        "show": "Telemetry",
+        "hide": "Hide telemetry"
+      },
+      "structured": {
+        "title": "Structured object"
+      },
+      "error": {
+        "backendUnavailable": "Agent backend is not reachable. Reconnect and try again."
+      }
+    }
   }
 }
