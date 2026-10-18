@@ -90,3 +90,4 @@ CLAUDE.md
 /tests/playwright/graph/per-engine/.results
 workdocs/locks/*
 !workdocs/locks/.gitkeep
+/var

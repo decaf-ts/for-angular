@@ -139,8 +139,8 @@ export class AgentChatComponent implements OnInit, AfterViewChecked {
 
   constructor() {
     effect(() => {
-      this.messages().length;
-      this.roundtrips().length;
+      void this.messages().length;
+      void this.roundtrips().length;
       this.running();
       this.scrollPending = true;
     });
