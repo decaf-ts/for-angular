@@ -216,12 +216,6 @@
     "@faker-js/faker": {
       "optional": true
     },
-    "echarts": {
-      "optional": true
-    },
-    "mathlive": {
-      "optional": true
-    },
     "@decaf-ts/as-graph": {
       "optional": true
     },
