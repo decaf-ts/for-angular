@@ -65,7 +65,7 @@
     "repo:readme": "codex exec \"$(cat ./.codex/prompts/update-readme.md)\nbase_path is ./\"",
     "repo:pr": "npm run repo:doc && npm run repo:tests && npm run repo:readme",
     "sync-codex": "./bin/sync-codex.sh",
-    "storybook": "ng run for-angular:storybook --debug-webpack",
+    "storybook": "ng run for-angular:storybook",
     "storybook:build": "ng run for-angular:build-storybook",
     "test:single": "jest --runInBand --passWithNoTests src/lib/components/searchbar/searchbar.component.spec.ts",
     "pwa": "npx rimraf .angular && npm run build:prod && npx http-server www -p 8110"
@@ -230,6 +230,11 @@
     ]
   },
   "overrides": {
+    "webpack-dev-middleware": "^7.4.5",
+    "braces": "^3.0.3",
+    "micromatch": "^4.0.8",
+    "uuid": "^11.1.1",
+    "js-yaml": "^4.1.1",
     "chokidar": "^5.0.0",
     "rxjs": "~7.8.0",
     "@emnapi/core": "1.10.0",
