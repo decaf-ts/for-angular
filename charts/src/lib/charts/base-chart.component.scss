@@ -1,0 +1,24 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.decaf-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  min-height: 160px;
+
+  &__form {
+    display: block;
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  &__canvas {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 160px;
+  }
+}

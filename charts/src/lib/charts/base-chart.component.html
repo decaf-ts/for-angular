@@ -1,0 +1,16 @@
+<div class="decaf-chart" [style.height]="height">
+  @if (isEditing) {
+    <ngx-decaf-model-renderer
+      class="decaf-chart__form"
+      [model]="configModel"
+      [globals]="rendererGlobals"
+      (listenEvent)="handleEvent($event)"
+    />
+  }
+  <div
+    #canvas
+    class="decaf-chart__canvas"
+    role="img"
+    [attr.aria-label]="ariaLabel"
+  ></div>
+</div>

@@ -1,9 +1,10 @@
 # `@decaf-ts/for-angular/charts`
 
-Interactive curve editor and interpolation helpers backed by Apache ECharts and
-the Cortex compute engine. The entry point keeps both engines out of the root
-bundle and exposes only plain `CurvePoint` data — no ECharts, MathLive or
-compute-engine types leak through the public API.
+CRD-ready chart layout components, a virtual-dataset layer over the decaf core
+query types, an interactive curve editor and interpolation helpers backed by
+Apache ECharts and the Cortex compute engine. The entry point keeps both engines
+out of the root bundle and exposes only plain data and option types — no ECharts,
+MathLive or compute-engine types leak through the public API.
 
 ## Install
 
@@ -134,6 +135,85 @@ and outputs.
 `evaluateCurve`, `sampleCurve`, `curveToLatex`, `polynomialLatex`,
 `formatLatexNumber`, `dataToPixel` and `pixelToData` are exported for hosts that
 need the same math or coordinate mapping outside the component.
+
+## Chart components
+
+Four CRD wrappers render a chart from a query-backed dataset and, in
+`CREATE`/`UPDATE` operation, render their decorated configuration model through
+`ngx-decaf-model-renderer`:
+
+| Selector | Family | Configuration model |
+| --- | --- | --- |
+| `ngx-decaf-line-chart` | line | `LineChartConfigModel` |
+| `ngx-decaf-bar-chart` | bar | `BarChartConfigModel` |
+| `ngx-decaf-pie-chart` | pie | `PieChartConfigModel` |
+| `ngx-decaf-scatter-chart` | scatter | `ScatterChartConfigModel` |
+
+All wrappers extend `BaseChartComponent`; the base itself is registered as
+`ngx-decaf-chart` and defaults to a line chart, so it can also be used directly
+through `@uielement`. Every chart inherits the standard decaf component inputs,
+including the required `operation` (`CREATE`, `READ`, `UPDATE`, `DELETE`).
+
+| Input | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `[operation]` | `CrudOperations` | `CREATE` | `READ` renders the chart; `CREATE`/`UPDATE` also render the configuration form. |
+| `[config]` | `ChartConfig \| Model` | family defaults | Plain configuration or a decorated configuration model instance. |
+| `[dataset]` | `VirtualDataset \| VirtualDatasetView` | – | Query source to sub-query or an already narrowed view. |
+| `[datasetQuery]` | `VirtualDatasetQuery` | `{}` | Sub-query applied to a `VirtualDataset` source. |
+| `[data]` | `readonly unknown[]` | – | Direct rows; takes precedence over `dataset`. |
+| `[height]` | `number \| string` | `320` | Canvas height; numbers are pixels. |
+
+Outputs: `configChanged` (`ChartConfig`) after a submitted configuration,
+`chartError` (`unknown`) for dataset/render failures, plus the inherited
+`listenEvent` and `submitEvent` emitters.
+
+```html
+<ngx-decaf-line-chart
+  operation="READ"
+  [dataset]="salesDataset"
+  [datasetQuery]="{ where: regionCondition }"
+  [config]="{ title: 'Sales', xField: 'month', yField: 'revenue', seriesField: 'region' }"
+  (chartError)="onChartError($event)">
+</ngx-decaf-line-chart>
+```
+
+### Virtual datasets
+
+`VirtualDataset` is a thin pavement over `@decaf-ts/core` query types. It does not
+re-implement query execution: a sub-query is merged over the source's global
+query (conditions are AND-combined, projections are intersected, limits take the
+smaller bound, offsets add) and the source's loader owns execution. `QueryOptions`
+allow flags are enforced with the core semantics (`QueryError` by default,
+stripped when `throws` is `false`). `[datasetQuery]` is developer-trusted input:
+build it from application code, never from unvalidated end-user input.
+
+```ts
+import { Condition } from '@decaf-ts/core';
+import { VirtualDataset, type VirtualDatasetQuery } from '@decaf-ts/for-angular/charts';
+
+const dataset = new VirtualDataset<Sale>({
+  model: Sale,
+  query: { where: Condition.attribute<Sale>('active').eq(true) },
+  options: { allowLimit: true, allowOffset: true },
+  load: (query, options) => {
+    let statement = repository.select();
+    if (query.where) statement = statement.where(query.where);
+    if (query.limit !== undefined) statement = statement.limit(query.limit);
+    if (query.offset !== undefined) statement = statement.offset(query.offset);
+    return statement.execute();
+  },
+});
+
+const north: VirtualDatasetQuery = {
+  where: Condition.attribute<Sale>('region').eq('north'),
+  limit: 50,
+};
+```
+
+`mergeVirtualDatasetQuery`, `applyVirtualDatasetQueryOptions`,
+`toChartRows`, `toChartDatasetSource` and `buildChartOption` are exported for
+hosts that need the same composition or option mapping outside the components.
+
 
 ## Accessibility and SSR
 

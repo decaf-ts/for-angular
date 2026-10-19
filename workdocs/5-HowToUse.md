@@ -36,6 +36,40 @@ Outputs: `pointAdded` (`CurvePoint`), `pointRemoved` (`CurvePoint`), `pointMoved
 </decaf-curve-editor>
 ```
 
+### Chart components
+
+Four CRD chart layout components backed by Apache ECharts are exported from the
+`/charts` entry point: `ngx-decaf-line-chart`, `ngx-decaf-bar-chart`,
+`ngx-decaf-pie-chart` and `ngx-decaf-scatter-chart` (base:
+`ngx-decaf-chart`). In `READ` operation each renders its dataset; in
+`CREATE`/`UPDATE` it also renders its decorated configuration model through
+`ngx-decaf-model-renderer`.
+
+| Binding | Type | Description |
+| --- | --- | --- |
+| `[operation]` | `CrudOperations` | `READ` renders the chart; `CREATE`/`UPDATE` also render the configuration form |
+| `[config]` | `ChartConfig \| Model` | Plain configuration or a decorated family config model |
+| `[dataset]` | `VirtualDataset \| VirtualDatasetView` | Query source to sub-query or an already narrowed view |
+| `[datasetQuery]` | `VirtualDatasetQuery` | Sub-query applied to a `VirtualDataset` source |
+| `[data]` | `readonly unknown[]` | Direct rows, taking precedence over `dataset` |
+| `[height]` | `number \| string` | Canvas height (default `320`) |
+
+Outputs: `configChanged` after a submitted configuration and `chartError` for
+dataset/render failures. `VirtualDataset` composes a sub-query over a global
+`@decaf-ts/core` query — AND-combined conditions, the smaller limit and additive
+offsets — and delegates execution to the source loader. See
+[charts/README.md](./charts/README.md#chart-components) for the configuration
+models, option builder and dataset examples.
+
+```html
+<ngx-decaf-bar-chart
+  operation="READ"
+  [dataset]="salesDataset"
+  [datasetQuery]="{ where: regionCondition }"
+  [config]="{ title: 'Sales', xField: 'month', yField: 'revenue' }">
+</ngx-decaf-bar-chart>
+```
+
 ### `<decaf-math-input>`
 
 Standalone LaTeX formula input wrapping the MathLive `<math-field>` custom element (lazy-loaded on first render, no MathLive types in the public API). The field value is a plain LaTeX string emitted on every input.
