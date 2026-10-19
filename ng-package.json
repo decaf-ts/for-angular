@@ -64,8 +64,18 @@
     },
     {
       "glob": "README.md",
-      "input": "model-builder",
-      "output": "model-builder"
+      "input": "agent",
+      "output": "agent"
+    },
+    {
+      "glob": "README.md",
+      "input": "cron",
+      "output": "cron"
+    },
+    {
+      "glob": "README.md",
+      "input": "storyboard",
+      "output": "storyboard"
     },
     {
       "glob": "LICENSE.md",
@@ -77,8 +87,5 @@
       "input": ".",
       "output": "."
     }
-  ],
-  "allowedNonPeerDependencies": [
-    "cronstrue"
   ]
 }

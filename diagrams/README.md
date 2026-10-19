@@ -62,14 +62,16 @@ network call to the default on its own.
 
 ### Feature isolation
 
-`/diagrams` does **not** import `/code-editor` or `/model-builder` at runtime.
-Those surfaces are host-provided through the `GRAPH_CODE_EDITOR_COMPONENT` and
-`GRAPH_MODEL_BUILDER_COMPONENT` injection tokens. A diagram consumer therefore
-installs no CodeMirror package and no `@decaf-ts/as-zod`/`zod`; this retired the
-Phase 1 feature-to-feature debt. `@decaf-ts/as-zod` can still appear
-transitively through `@decaf-ts/as-graph`, never through this package.
+`/diagrams` does **not** import `/code-editor` at runtime, and the model-builder
+is now part of the root entry point. Those surfaces are host-provided through
+the `GRAPH_CODE_EDITOR_COMPONENT` and `GRAPH_MODEL_BUILDER_COMPONENT` injection
+tokens. A diagram consumer therefore installs no CodeMirror package and no
+model-builder-specific peer; this retired the Phase 1 feature-to-feature debt.
+`@decaf-ts/as-zod` can still appear transitively through `@decaf-ts/as-graph`,
+never through this package.
 
-The only feature→feature edge in the package remains `/scrum → /kanban`.
+The feature→feature edges in the package are `/scrum → /kanban` and
+`/agent → /diagrams`.
 
 ## Controlled-view contract
 

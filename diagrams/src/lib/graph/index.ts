@@ -3,6 +3,7 @@ export * from './catalog';
 export * from './components';
 export * from './document';
 export * from './execution';
+export * from './i18n/graph-translate.service';
 export * from './parameters';
 export * from './runs';
 export * from './services';

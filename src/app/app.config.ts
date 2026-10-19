@@ -4,7 +4,7 @@ import { RamAdapter, RamFlavour } from '@decaf-ts/core/ram';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { RootTranslateServiceConfig } from '@ngx-translate/core';
-import { CronSelectorFieldComponent } from 'src/lib/components';
+import { CronSelectorFieldComponent } from '@decaf-ts/for-angular/cron';
 import { I18nResourceConfigType } from 'src/lib/engine';
 import {
   provideDecafDbAdapter,
@@ -20,7 +20,7 @@ import {
   GRAPH_MODEL_BUILDER_COMPONENT,
 } from 'diagrams/src/lib/graph';
 import { CodeEditorComponent } from 'code-editor/src/lib/code-editor/code-editor.component';
-import { ModelBuilderComponent } from 'model-builder/src/lib/model-builder/model-builder.component';
+import { ModelBuilderComponent } from 'src/lib/components';
 import {
   GRAPH_ENGINE_CAPABILITY_SOURCE,
   GraphEngineCapabilityApi,
@@ -51,7 +51,7 @@ export const i18nEnabled = i18nEnabledFlag !== 'false' && i18nEnabledFlag !== fa
 export const AppConfig: ApplicationConfig = {
   providers: [
     // The /diagrams entry point renders specialised ports through host-provided
-    // feature widgets; this app imports /code-editor and /model-builder too.
+    // feature widgets; this app imports /code-editor and the root model builder.
     { provide: GRAPH_CODE_EDITOR_COMPONENT, useValue: CodeEditorComponent },
     { provide: GRAPH_MODEL_BUILDER_COMPONENT, useValue: ModelBuilderComponent },
     // Providers from ionic angular

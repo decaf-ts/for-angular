@@ -50,8 +50,6 @@ const CORE_SPECIFIERS = [
   '@ionic/core',
   '@ngx-translate/core',
   '@ngx-translate/http-loader',
-  'cronstrue',
-  'cronstrue/i18n',
   'ionicons',
   'ionicons/icons',
   'reflect-metadata',
@@ -77,14 +75,16 @@ const FEATURE_SPECIFIERS: Record<string, string[]> = {
     '@codemirror/view',
     'codemirror',
   ],
+  './agent': ['@decaf-ts/as-graph/shared'],
+  './cron': ['cronstrue', 'cronstrue/i18n'],
   './diagrams': ['@decaf-ts/as-graph/shared', 'ng-diagram'],
   './gantt': ['@worktile/gantt', 'html2canvas'],
   './kanban': ['@angular/cdk/drag-drop'],
   './math': ['mathlive'],
-  './model-builder': ['@decaf-ts/as-zod', 'zod'],
   // `/scrum` is the only entry allowed to compose another feature: it has no
   // third-party feature peer of its own and reuses `/kanban`.
   './scrum': [],
+  './storyboard': [],
 };
 
 /**
@@ -93,18 +93,21 @@ const FEATURE_SPECIFIERS: Record<string, string[]> = {
  * because it composes the Kanban board instead of duplicating it.
  */
 const CROSS_ENTRY_SPECIFIERS: Record<string, string[]> = {
+  './agent': ['@decaf-ts/for-angular/diagrams'],
   './scrum': ['@decaf-ts/for-angular/kanban'],
 };
 
 /** Feature directories that must never leak into the `/scrum` graph. */
 const NON_SCRUM_FEATURE_DIRECTORIES = [
+  'agent',
   'gantt',
   'diagrams',
   'charts',
   'code-editor',
   'math',
   'barcode',
-  'model-builder',
+  'cron',
+  'storyboard',
 ];
 
 /** Every feature specifier owned by any secondary entry point. */
@@ -285,6 +288,77 @@ describe('packed bundle isolation (Phase 2)', () => {
     expect(peers['@angular-builders/custom-webpack']).toBeUndefined();
     expect(peers['@angular-builders/custom-esbuild']).toBeUndefined();
     expect(peers['@faker-js/faker']).toBeUndefined();
+  });
+
+  it('does not ship the removed /model-builder entry point', () => {
+    const exportsMap = packedPackageJson['exports'] as Record<string, unknown>;
+    expect(exportsMap['./model-builder']).toBeUndefined();
+    expect(
+      fs.existsSync(
+        path.join(extractRoot, 'fesm2022', 'decaf-ts-for-angular-model-builder.mjs')
+      )
+    ).toBe(false);
+    expect(fs.existsSync(path.join(extractRoot, 'model-builder'))).toBe(false);
+  });
+
+  it('keeps cronstrue as an optional peer of ./cron only', () => {
+    const peers = (packedPackageJson['peerDependencies'] ?? {}) as Record<string, string>;
+    const peerMeta = (packedPackageJson['peerDependenciesMeta'] ?? {}) as Record<
+      string,
+      { optional?: boolean }
+    >;
+    const dependencies = (packedPackageJson['dependencies'] ?? {}) as Record<string, string>;
+    expect(peers['cronstrue']).toBe('^3.24.0');
+    expect(peerMeta['cronstrue']?.optional).toBe(true);
+    expect(dependencies['cronstrue']).toBeUndefined();
+    expect(dependencies['@decaf-ts/as-zod']).toBeUndefined();
+    expect(dependencies['zod']).toBeUndefined();
+    expect(peers['@decaf-ts/as-zod']).toBeUndefined();
+    expect(peers['zod']).toBeUndefined();
+  });
+
+  it.each(['./agent', './cron', './storyboard'])(
+    '%s ships its README, declarations, and FESM',
+    (exportKey) => {
+      const exportsMap = packedPackageJson['exports'] as Record<string, unknown>;
+      const directory = exportKey.replace('./', '');
+      expect(exportsMap[exportKey]).toBeTruthy();
+      expect(
+        fs.existsSync(path.join(extractRoot, directory, 'README.md'))
+      ).toBe(true);
+      expect(
+        fs.existsSync(
+          path.join(
+            extractRoot,
+            'types',
+            `decaf-ts-for-angular-${directory}.d.ts`
+          )
+        )
+      ).toBe(true);
+      expect(
+        fs.existsSync(path.join(extractRoot, 'fesm2022', fesmFileOf(exportKey)))
+      ).toBe(true);
+    }
+  );
+
+  it('keeps the extracted feature implementations out of the root FESM', () => {
+    const rootSource = fs.readFileSync(
+      path.join(extractRoot, 'fesm2022', fesmFileOf('.')),
+      'utf8'
+    );
+    expect(rootSource).not.toMatch(
+      /AgentChatComponent|CronSelectorComponent|CronSelectorFieldComponent|CronBuilderComponent|StoryboardTutorialComponent|StoryboardTutorialService/
+    );
+    expect(rootSource).not.toMatch(/cronstrue/);
+  });
+
+  it('keeps the model builder available from the root entry point without its former peers', () => {
+    const rootSource = fs.readFileSync(
+      path.join(extractRoot, 'fesm2022', fesmFileOf('.')),
+      'utf8'
+    );
+    expect(rootSource).toMatch(/ModelBuilderComponent/);
+    expect(rootSource).not.toMatch(/@decaf-ts\/as-zod|from ['"]zod['"]/);
   });
 
   describe('phase 5 scrum entry-point isolation', () => {

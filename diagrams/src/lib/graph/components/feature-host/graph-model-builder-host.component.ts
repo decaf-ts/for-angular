@@ -2,10 +2,10 @@
  * @module graph/components/feature-host/graph-model-builder-host
  * @description Dependency-free host for the graph's model-builder ports.
  *
- * Renders the host-provided `/model-builder` component when one is registered
- * through {@link GRAPH_MODEL_BUILDER_COMPONENT}; otherwise it degrades to a
- * JSON textarea, so the `/diagrams` entry point keeps building and running
- * without the `@decaf-ts/as-zod` and `zod` peers installed.
+ * Renders the host-provided model-builder component (from the root entry
+ * point) when one is registered through {@link GRAPH_MODEL_BUILDER_COMPONENT};
+ * otherwise it degrades to a JSON textarea, so the `/diagrams` entry point
+ * keeps building and running without the optional code-editor peers.
  */
 import { NgComponentOutlet } from '@angular/common';
 import { Component, EventEmitter, inject, Input, OnDestroy, Output } from '@angular/core';

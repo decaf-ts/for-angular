@@ -216,8 +216,8 @@ therefore loads one shared `/kanban` chunk; it does not embed a copy of the
 Kanban implementation.
 
 Adding `/scrum` does not pull `/gantt`, `/diagrams`, `/charts`, `/code-editor`,
-`/math`, `/barcode`, `/model-builder` or any other feature entry point, and the
-root FESM stays scrum-free.
+`/math`, `/barcode`, `/agent`, `/cron`, `/storyboard` or any other feature entry
+point, and the root FESM stays scrum-free.
 
 ## Licensing (Phase 6 inventory note)
 

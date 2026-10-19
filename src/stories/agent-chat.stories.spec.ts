@@ -2,13 +2,13 @@ import { TestBed } from "@angular/core/testing";
 import type { GraphRunEventEnvelope } from "@decaf-ts/as-graph/shared";
 import { GraphExecutionEventType } from "@decaf-ts/as-graph/shared";
 
-import { GraphBackendUnavailableError } from "../graph/execution/GraphExecutionService";
-import { AGENT_CHAT_TRANSPORT } from "../agent";
+import { GraphBackendUnavailableError } from '@decaf-ts/for-angular/diagrams';
+import { AGENT_CHAT_TRANSPORT } from '@decaf-ts/for-angular/agent';
 import type {
   AgentChatSendRequest,
   AgentChatTransport,
   AgentChatTransportHandlers,
-} from "../agent/types";
+} from '@decaf-ts/for-angular/agent';
 import stories, {
   backendUnavailable,
   conversationThroughTime,

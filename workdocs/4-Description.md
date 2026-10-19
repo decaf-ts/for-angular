@@ -26,13 +26,19 @@ Then add only the optional peers required by the entry points you import:
 | `@decaf-ts/for-angular/math` | `mathlive@^0.111.1` | [math/README.md](./math/README.md) |
 | `@decaf-ts/for-angular/code-editor` | the CodeMirror 6 family | [code-editor/README.md](./code-editor/README.md) |
 | `@decaf-ts/for-angular/barcode` | `@bwip-js/browser@^4.11.4` | [barcode/README.md](./barcode/README.md) |
+| `@decaf-ts/for-angular/agent` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` (through `/diagrams`) | [agent/README.md](./agent/README.md) |
+| `@decaf-ts/for-angular/cron` | `cronstrue@^3.24.0` | [cron/README.md](./cron/README.md) |
 | `@decaf-ts/for-angular/diagrams` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` | [diagrams/README.md](./diagrams/README.md) |
-| `@decaf-ts/for-angular/model-builder` | `@decaf-ts/as-zod@^1.15.3`, `zod@^4.6.7` | [model-builder/README.md](./model-builder/README.md) |
+| `@decaf-ts/for-angular/storyboard` | none | [storyboard/README.md](./storyboard/README.md) |
+
+The model builder is part of the **root** entry point; import
+`ModelBuilderComponent` directly from `@decaf-ts/for-angular`.
 
 Every entry point can be imported independently from the packed npm artifact.
-The only feature-to-feature dependency is **`/scrum → /kanban`**: the sprint
-board and backlog compose the shared Kanban primitives instead of shipping a
-second drag/drop engine. `/diagrams` receives its code-editor and model-builder
+Feature-to-feature dependencies are **`/scrum → /kanban`** (the sprint board and
+backlog compose the shared Kanban primitives instead of shipping a second
+drag/drop engine) and **`/agent → /diagrams`** (the chat transcript reuses the
+graph I/O viewer). `/diagrams` receives its code-editor and model-builder
 surfaces through injection tokens, so it does not import those entry points.
 
 ### Compatibility

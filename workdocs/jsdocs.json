@@ -23,7 +23,9 @@
       "./code-editor/src",
       "./barcode/src",
       "./diagrams/src",
-      "./model-builder/src"
+      "./agent/src",
+      "./cron/src",
+      "./storyboard/src"
     ],
     "exclude": [
       "cli.(ts|js)"

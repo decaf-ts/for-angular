@@ -2,8 +2,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { IonButton, IonCheckbox, IonLabel } from '@ionic/angular/standalone';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { CronSelectorComponent } from 'src/lib/components/cron-selector/cron-selector.component';
-import { CronSelectorFieldComponent } from 'src/lib/components/cron-selector-field/cron-selector-field.component';
+import { CronSelectorComponent, CronSelectorFieldComponent } from '@decaf-ts/for-angular/cron';
 import './setup';
 import { getComponentMeta } from './utils';
 
