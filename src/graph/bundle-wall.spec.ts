@@ -33,13 +33,15 @@
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
+import os from 'node:os';
 
 /** `for-angular` package root (this module's grandparent directory). */
 const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 
-/** Production bundle directory (`angular.json` `for-angular-app` `outputPath`). */
-const DIST_DIR = path.join(PACKAGE_ROOT, 'www');
+/** Isolated production output so concurrent builds cannot replace scanned chunks. */
+const BUILD_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'for-angular-bundle-wall-'));
+const DIST_DIR = path.join(BUILD_DIR, 'browser');
 
 /**
  * Import specifier prefixes that never may appear in the browser's
@@ -227,47 +229,17 @@ function walkSources(root: string, visit: (file: string) => void): void {
 
 /** Runs the Angular production build for the app project. */
 function runProductionBuild(): void {
-  execSync('npx ng build for-angular-app --configuration production', {
+  execFileSync('npx', ['ng', 'build', 'for-angular-app', '--configuration', 'production', '--output-path', BUILD_DIR], {
     cwd: PACKAGE_ROOT,
     stdio: 'pipe',
     env: { ...process.env, NG_BUILD_CACHE: '0' },
   });
 }
 
-/**
- * Detects the app's production `outputPath` shape (`angular.json` `for-angular-app`
- * builds both `production` and `development` into `www/`; production hashes every
- * chunk onto `main.<hash>.js`, while the development config emits the unhashed
- * `main.js`/`vendor.js` bundle). The runtime wall never asserts against a
- * development dist — the dev bundle carries un-minified backend symbol names even
- * when no backend code is actually executable in the browser.
- */
-function isProductionBundle(): boolean {
-  const indexHtml = path.join(DIST_DIR, 'index.html');
-  if (!fs.existsSync(indexHtml)) return false;
-  const text = fs.readFileSync(indexHtml, 'utf8');
-  return /<(script|link)[^>]+(main|polyfills|vendor|styles|runtime)\.[0-9a-f]+\.(js|css)/.test(text);
-}
-
-/**
- * Rebuilds the production bundle when it is missing, not a production build, or
- * older than the graph sources so the runtime wall never asserts on a stale dist.
- */
-function refreshProductionBundleWhenStale(): void {
-  if (!fs.existsSync(path.join(DIST_DIR, 'index.html')) || !isProductionBundle()) {
-    runProductionBuild();
-    return;
-  }
-  const distStamp = fs.statSync(path.join(DIST_DIR, 'index.html')).mtimeMs;
-  const sourceRoot = path.join(PACKAGE_ROOT, 'src');
-  let newestSource = 0;
-  walkSources(sourceRoot, (file) => {
-    newestSource = Math.max(newestSource, fs.statSync(file).mtimeMs);
-  });
-  if (newestSource > distStamp) runProductionBuild();
-}
-
 describe('bundle wall (DECAF_50 §4.20 verification bar 1)', () => {
+  beforeAll(() => runProductionBuild());
+  afterAll(() => fs.rmSync(BUILD_DIR, { recursive: true, force: true }));
+
   test('static import wall: no backend import segment is reachable from the graph sources', () => {
     const violations: string[] = [];
     const sourceRoots = [path.join(PACKAGE_ROOT, 'src', 'graph'), path.join(PACKAGE_ROOT, 'src', 'lib')];
@@ -289,7 +261,6 @@ describe('bundle wall (DECAF_50 §4.20 verification bar 1)', () => {
   });
 
   test('runtime bundle wall: the production bundle carries no backend engine/executor/validator/run-store symbols', () => {
-    refreshProductionBundleWhenStale();
     const chunks: string[] = [];
     const walkDist = (dir: string): void => {
       for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -327,7 +298,6 @@ describe('bundle wall (DECAF_50 §4.20 verification bar 1)', () => {
   });
 
   test('eager bundle wall: layout/elk code never reaches an initial chunk and stays lazily split', () => {
-    refreshProductionBundleWhenStale();
     const indexHtml = fs.readFileSync(path.join(DIST_DIR, 'index.html'), 'utf8');
     const initialChunks = initialJsChunkFilesOf(indexHtml);
     expect(initialChunks.length).toBeGreaterThan(0);
