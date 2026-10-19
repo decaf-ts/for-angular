@@ -1,0 +1,23 @@
+.dcf-gantt {
+  --gantt-color-primary: var(--dcf-color-primary, #3460dc);
+  --gantt-color-danger: var(--dcf-color-danger, #c0392b);
+  --gantt-color-highlight: var(--dcf-color-warning, #b9770e);
+  --gantt-color-background: var(
+    --dcf-content-background,
+    var(--dcf-color-white, #ffffff)
+  );
+  --gantt-color-text-main: var(--dcf-color-text, #1f2933);
+  --gantt-color-text-muted: var(--dcf-color-text-secondary, #52606d);
+  --gantt-color-text-light: var(--dcf-color-text-tertiary, #7b8794);
+  --gantt-color-text-inverse: var(--dcf-color-white, #ffffff);
+  --gantt-color-gray-100: var(--dcf-color-gray-1, #f7f8f9);
+  --gantt-color-gray-200: var(--dcf-color-gray-2, #f1f3f5);
+  --gantt-color-gray-300: var(--dcf-color-gray-3, #e9ecef);
+  --gantt-color-gray-400: var(--dcf-color-gray-4, #dee2e6);
+  --gantt-color-gray-500: var(--dcf-color-gray-5, #ced4da);
+  --gantt-color-gray-600: var(--dcf-color-gray-6, #adb5bd);
+
+  --gantt-header-height: 44px;
+  --gantt-row-height: 44px;
+  --gantt-bar-height: 24px;
+}

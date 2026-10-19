@@ -5,8 +5,8 @@ import { GraphExecutionEventType } from "@decaf-ts/as-graph/shared";
 import {
   GRAPH_BACKEND_URL,
   GraphBackendUnavailableError,
-} from "../../graph/execution/GraphExecutionService";
-import { GRAPH_RUN_EVENT_SOURCE } from "../../graph/runs/GraphRunEventClient";
+} from "diagrams/src/lib/graph/execution/GraphExecutionService";
+import { GRAPH_RUN_EVENT_SOURCE } from "diagrams/src/lib/graph/runs/GraphRunEventClient";
 import { GraphRunAgentChatTransport } from "./GraphRunAgentChatTransport";
 import type {
   AgentChatRunDescriptor,

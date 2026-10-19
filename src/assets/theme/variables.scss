@@ -40,6 +40,7 @@ $dcf-color-warning-rgb: 255, 164, 32;
 $dcf-color-danger: #eb445a;
 $dcf-color-danger-shade: #d63349;
 $dcf-color-danger-tint: #ffe0e5;
+$dcf-color-danger-text: #a61e2c;
 $dcf-color-danger-rgb: 235, 68, 90;
 
 $dcf-color-info: #2563eb;
@@ -427,6 +428,7 @@ $dcf-dark-border-strong: 1px solid $dcf-dark-color-outline-shade;
   --dcf-color-danger: #{$dcf-color-danger};
   --dcf-color-danger-shade: #{$dcf-color-danger-shade};
   --dcf-color-danger-tint: #{$dcf-color-danger-tint};
+  --dcf-color-danger-text: #{$dcf-color-danger-text};
   --dcf-color-danger-rgb: #{$dcf-color-danger-rgb};
 
   --dcf-color-info: #{$dcf-color-info};

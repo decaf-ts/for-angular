@@ -10,7 +10,7 @@ import {
   GraphIoViewerComponent,
   type GraphIoViewMode,
   type GraphIoViewerField,
-} from 'src/graph/components/graph-io-viewer/graph-io-viewer.component';
+} from 'diagrams/src/lib/graph/components/graph-io-viewer/graph-io-viewer.component';
 import './setup';
 import { getComponentMeta } from './utils';
 

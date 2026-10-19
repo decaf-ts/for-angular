@@ -1,0 +1,171 @@
+<div
+  class="dcf-gantt"
+  [class.dcf-gantt--readonly]="readOnly()"
+  [class.dcf-gantt--disabled]="disabled()"
+  [class.dcf-gantt--busy]="loading()"
+  role="region"
+  [attr.aria-label]="label()"
+  [attr.aria-busy]="loading()"
+  [attr.aria-describedby]="helpId()"
+  [attr.data-gantt-instance]="resolvedInstanceId()"
+  (keydown)="onKeydown($event)"
+>
+  @if (showToolbar() && !loading() && !error()) {
+    <div
+      class="dcf-gantt__toolbar"
+      role="toolbar"
+      [attr.aria-label]="toolbarLabel()"
+    >
+      <span class="dcf-gantt__title">{{ label() }}</span>
+      <div class="dcf-gantt__views">
+        @for (scale of viewScales; track scale) {
+          <button
+            type="button"
+            class="dcf-gantt__view"
+            [class.dcf-gantt__view--active]="viewType() === scale"
+            [attr.data-gantt-view]="scale"
+            [attr.aria-pressed]="viewType() === scale"
+            [disabled]="isBusy()"
+            (click)="setViewType(scale)"
+          >
+            {{ viewLabel(scale) }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="dcf-gantt__state dcf-gantt__state--loading" role="status">
+      <span class="dcf-gantt__spinner" aria-hidden="true"></span>
+      <p>{{ loadingLabel() }}</p>
+    </div>
+  } @else if (error()) {
+    <div class="dcf-gantt__state dcf-gantt__state--error" role="alert">
+      <p>{{ error() }}</p>
+      <button type="button" class="dcf-gantt__retry" (click)="retry()">
+        {{ retryLabel() }}
+      </button>
+    </div>
+  } @else if (!hasTasks()) {
+    <div class="dcf-gantt__state dcf-gantt__state--empty">
+      @if (emptyTemplate(); as empty) {
+        <ng-container [ngTemplateOutlet]="empty.templateRef" />
+      } @else {
+        <p>{{ emptyLabel() }}</p>
+      }
+    </div>
+  } @else {
+    <div class="dcf-gantt__canvas">
+      @if (isBrowser) {
+        <ngx-gantt
+          [items]="mappedItems()"
+          [viewType]="vendorViewType()"
+          [start]="timelineStartMs()"
+          [end]="timelineEndMs()"
+          [draggable]="draggable() && isEditable()"
+          [selectable]="selectable()"
+          [showToolbar]="false"
+          [showTodayLine]="showTodayLine()"
+          (viewTypeChange)="onVendorViewTypeChange($event)"
+          (selectedChange)="onSelectionChange($event)"
+          (barClick)="onBarClick($event)"
+          (dragStarted)="onDragStarted($event)"
+          (dragEnded)="onDragEnded($event)"
+        >
+          <ngx-gantt-table [width]="sideWidth()" [draggable]="false">
+            <ngx-gantt-column
+              [name]="taskColumnLabel()"
+              [width]="taskColumnWidth()"
+            >
+              <ng-template #cell let-item="item">
+                <span
+                  class="dcf-gantt__table-title"
+                  [class.dcf-gantt__table-title--milestone]="
+                    isMilestone(item)
+                  "
+                  [attr.title]="taskTooltip(item)"
+                >
+                  {{ taskTitle(item) }}
+                </span>
+              </ng-template>
+            </ngx-gantt-column>
+            <ngx-gantt-column [name]="progressColumnLabel()" width="96">
+              <ng-template #cell let-item="item">
+                <span class="dcf-gantt__table-progress">
+                  {{ progressLabel(item) }}
+                </span>
+              </ng-template>
+            </ngx-gantt-column>
+          </ngx-gantt-table>
+
+          <ng-template #bar let-item="item">
+            @let context = barContext(item);
+            <span
+              class="dcf-gantt__bar-marker"
+              [class.dcf-gantt__bar-marker--milestone]="context.milestone"
+              [attr.data-gantt-task-id]="context.taskId"
+            >
+              @if (barTemplate(); as bar) {
+                <ng-container
+                  [ngTemplateOutlet]="bar.templateRef"
+                  [ngTemplateOutletContext]="context"
+                />
+              } @else {
+                <span class="dcf-gantt__bar-label">
+                  {{ context.title }}
+                </span>
+              }
+            </span>
+          </ng-template>
+        </ngx-gantt>
+      } @else {
+        <div class="dcf-gantt__ssr-placeholder" aria-hidden="true"></div>
+      }
+    </div>
+  }
+
+  @if (issues().length > 0) {
+    <ul class="dcf-gantt__issues" aria-label="Timeline data warnings">
+      @for (issue of issues(); track issue.taskId + issue.code + issue.detail) {
+        <li class="dcf-gantt__issue">{{ issue.detail }}</li>
+      }
+    </ul>
+  }
+
+  @if (editing(); as editingTask) {
+    <aside
+      class="dcf-gantt__detail"
+      role="dialog"
+      aria-modal="false"
+      [attr.aria-label]="editingTask.title"
+    >
+      <div class="dcf-gantt__detail-header">
+        <h3 class="dcf-gantt__detail-title">{{ editingTask.title }}</h3>
+        <button
+          type="button"
+          class="dcf-gantt__detail-close"
+          (click)="closeDetail()"
+        >
+          Close
+        </button>
+      </div>
+      @if (detailTemplate(); as detail) {
+        <ng-container
+          [ngTemplateOutlet]="detail.templateRef"
+          [ngTemplateOutletContext]="detailContext(editingTask)"
+        />
+      }
+    </aside>
+  }
+
+  <p class="dcf-gantt__help" [id]="helpId()">{{ keyboardHelp() }}</p>
+  <div
+    class="dcf-gantt__sr-only"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    {{ announcement() }}
+  </div>
+</div>

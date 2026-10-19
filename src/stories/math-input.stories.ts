@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { MathInputComponent } from 'src/lib/components/math-input/math-input.component';
+import { MathInputComponent } from 'math/src/lib/math-input/math-input.component';
 import { fn } from 'storybook/test';
 import './setup';
 import { getComponentMeta } from './utils';

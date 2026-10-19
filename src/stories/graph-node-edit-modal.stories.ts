@@ -5,8 +5,8 @@
  */
 import { PortDirection, type GraphNodeInstance, type GraphParameterDefinition } from '@decaf-ts/as-graph/shared';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphNodeEditModalComponent } from 'src/graph/components/graph-node-edit-modal/graph-node-edit-modal.component';
-import type { GraphDemoNodeData } from 'src/graph/types';
+import { GraphNodeEditModalComponent } from 'diagrams/src/lib/graph/components/graph-node-edit-modal/graph-node-edit-modal.component';
+import type { GraphDemoNodeData } from 'diagrams/src/lib/graph/types';
 import './setup';
 import { getComponentMeta } from './utils';
 

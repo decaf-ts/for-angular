@@ -9,7 +9,7 @@
  * translation service's locale can change without the pipe's input changing.
  */
 import { Pipe, PipeTransform, inject } from "@angular/core";
-import { GraphTranslateService } from "../../graph/i18n/graph-translate.service";
+import { GraphTranslateService } from "diagrams/src/lib/graph/i18n/graph-translate.service";
 
 /**
  * Usage: `{{ 'agent.chat.title' | translateFallback: 'Agent chat' }}`.

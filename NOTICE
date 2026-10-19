@@ -1,0 +1,76 @@
+@decaf-ts/for-angular
+Copyright (c) Tiago Venceslau and Contributors
+
+This package is distributed under the terms in LICENSE.md
+(SPDX-License-Identifier: MPL-2.0 OR AGPL-3.0), including the
+Decaf-TS Fair Usage Addendum that defines when the AGPL-3.0 option applies.
+
+Third-party runtime libraries
+-----------------------------
+
+The packed package does not vendor third-party JavaScript. Every runtime
+dependency below is an external peer dependency, installed by the consumer and
+shipped with its own license text. Versions listed are the tested versions at
+the time of the v0.11.0 release candidate.
+
+Library                          Version    SPDX            License file in package
+@angular/*                       21.2.x     MIT             LICENSE
+@angular/cdk                     21.2.14    MIT             LICENSE
+@ionic/angular                   8.8.19     MIT             no LICENSE file in tarball;
+                                                            text at https://github.com/ionic-team/ionic-framework/blob/main/LICENSE
+@ionic/core                     8.8.19     MIT             LICENSE
+ionicons                         7.4.0      MIT             LICENSE
+@ngx-translate/core              17.0.0     MIT             LICENSE
+rxjs                             7.8.2      Apache-2.0      LICENSE.txt
+tslib                            2.8.1      0BSD            LICENSE.txt
+cronstrue                        3.33.0     MIT             LICENSE
+@bwip-js/browser                 4.11.4     MIT             LICENSE
+@cortex-js/compute-engine        0.147.0    MIT             LICENSE
+echarts                          6.1.0      Apache-2.0      LICENSE and NOTICE
+mathlive                         0.111.1    MIT             LICENSE.txt
+ng-diagram                       1.4.0      Apache-2.0      LICENSE
+@worktile/gantt                  21.0.0     MIT             no LICENSE file in tarball;
+                                                            upstream text (MIT, Copyright
+                                                            (c) 2018-2019 Worktile Inc.) at
+                                                            https://github.com/worktile/ngx-gantt/blob/master/LICENSE
+html2canvas                      1.4.1      MIT             LICENSE
+date-fns                         4.1.0      MIT             LICENSE.md
+@date-fns/tz                     1.2.0      MIT             LICENSE.md
+zod                              4.6.7      MIT             LICENSE
+@codemirror/autocomplete         6.20.3     MIT             LICENSE
+@codemirror/commands             6.11.1     MIT             LICENSE
+@codemirror/lang-javascript      6.2.5      MIT             LICENSE
+@codemirror/language             6.13.1     MIT             LICENSE
+@codemirror/lint                 6.9.7      MIT             LICENSE
+@codemirror/state                6.7.6      MIT             LICENSE
+@codemirror/theme-one-dark       6.1.3      MIT             LICENSE
+@codemirror/view                 6.43.14    MIT             LICENSE
+@decaf-ts/core                   0.32.4     MPL-2.0         LICENSE.md
+@decaf-ts/db-decorators          0.19.5     MIT             LICENSE.md
+@decaf-ts/decoration             0.19.3     MIT             LICENSE.md
+@decaf-ts/decorator-validation   1.23.3     MIT             LICENSE.md
+@decaf-ts/for-http               0.21.1     MIT             LICENSE.md
+@decaf-ts/injectable-decorators  1.20.3     MIT             LICENSE.md
+@decaf-ts/logging                0.26.3     MIT             LICENSE.md
+@decaf-ts/ui-decorators          0.21.1     MPL-2.0 OR AGPL-3.0  LICENSE.md
+@decaf-ts/as-graph               0.6.0      MIT             LICENSE.md
+@decaf-ts/as-zod                 1.15.3     MIT             LICENSE.md
+@decaf-ts/styles                 0.7.5      MIT             LICENSE.md (CSS imported by assets/main.scss)
+
+Embedded assets
+---------------
+
+- assets/tabler-sprite.svg -- Tabler Icons, @tabler/icons-sprite 3.46.0, MIT.
+- assets/images/angular-logo.svg -- Angular wordmark and shield. Angular is a
+  trademark of Google LLC; the logo is used as-is for demonstration/attribution
+  only and is not part of this package's licensed source. See
+  https://angular.dev/press-kit for the Angular brand guidelines.
+- assets/images/decaf-*.svg, assets/images/favicon*.svg, assets/icons/*,
+  assets/i18n/*.json, assets/theme/*.scss -- original Decaf-TS project assets,
+  covered by LICENSE.md.
+- diagrams/assets/theme/*.scss -- original Decaf-TS theme sources, covered by
+  LICENSE.md.
+
+Demo-only fixtures are not part of the published package. In particular, the
+AI-generated C2PA sample image kept at src/assets/images/ew/product.txt is
+excluded from dist/lib and is not redistributed in the npm tarball.

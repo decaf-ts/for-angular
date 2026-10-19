@@ -14,10 +14,10 @@ import {
   provideNgDiagram,
   type ModelAdapter,
 } from 'ng-diagram';
-import { GraphNodeCatalogService } from 'src/graph/catalog/GraphNodeCatalogService';
-import { GraphBoundaryNodeTemplateComponent } from 'src/graph/components/boundary-node-template/boundary-node-template.component';
-import { graphSelection } from 'src/graph/execution/GraphSelectionStore';
-import type { GraphBoundaryNodeData } from 'src/graph/types';
+import { GraphNodeCatalogService } from 'diagrams/src/lib/graph/catalog/GraphNodeCatalogService';
+import { GraphBoundaryNodeTemplateComponent } from 'diagrams/src/lib/graph/components/boundary-node-template/boundary-node-template.component';
+import { graphSelection } from 'diagrams/src/lib/graph/execution/GraphSelectionStore';
+import type { GraphBoundaryNodeData } from 'diagrams/src/lib/graph/types';
 import './setup';
 import { getComponentMeta } from './utils';
 

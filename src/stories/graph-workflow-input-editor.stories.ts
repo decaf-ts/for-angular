@@ -5,8 +5,8 @@
  */
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphWorkflowInputEditorComponent } from 'src/graph/components/graph-node-inspection/graph-workflow-input-editor.component';
-import type { WorkflowInputFieldDefinition } from 'src/graph/workflow-inputs';
+import { GraphWorkflowInputEditorComponent } from 'diagrams/src/lib/graph/components/graph-node-inspection/graph-workflow-input-editor.component';
+import type { WorkflowInputFieldDefinition } from 'diagrams/src/lib/graph/workflow-inputs';
 import './setup';
 import { getComponentMeta } from './utils';
 

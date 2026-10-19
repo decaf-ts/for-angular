@@ -6,7 +6,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, inject } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphEngineWorkflowPickerComponent } from 'src/graph/components/graph-engine-workflow-picker/graph-engine-workflow-picker.component';
+import { GraphEngineWorkflowPickerComponent } from 'diagrams/src/lib/graph/components/graph-engine-workflow-picker/graph-engine-workflow-picker.component';
 import {
   GRAPH_ENGINE_CAPABILITY_SOURCE,
   GraphEngineCapabilityService,
@@ -15,7 +15,7 @@ import {
   type GraphEngineCapabilitySource,
   type GraphEngineDescriptor,
   type GraphEngineWorkflowSummary,
-} from 'src/graph/capabilities';
+} from 'diagrams/src/lib/graph/capabilities';
 import './setup';
 import { getComponentMeta } from './utils';
 

@@ -5,7 +5,7 @@
  */
 import type { SwitchNodeMetadata } from '@decaf-ts/as-graph/shared';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphSwitchEditModalComponent } from 'src/graph/components/graph-switch-edit-modal/graph-switch-edit-modal.component';
+import { GraphSwitchEditModalComponent } from 'diagrams/src/lib/graph/components/graph-switch-edit-modal/graph-switch-edit-modal.component';
 import './setup';
 import { getComponentMeta } from './utils';
 

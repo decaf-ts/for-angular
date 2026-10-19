@@ -24,7 +24,7 @@ import { Injectable, inject, signal } from "@angular/core";
 import type { GraphRunEventEnvelope } from "@decaf-ts/as-graph/shared";
 import { isGraphRunTerminalEventType } from "@decaf-ts/as-graph/shared";
 import { getOnWindow } from "../../lib/utils/helpers";
-import { GraphBackendUnavailableError } from "../../graph/execution/GraphExecutionService";
+import { GraphBackendUnavailableError } from "diagrams/src/lib/graph/execution/GraphExecutionService";
 import { AGENT_CHAT_SESSION_PREFIX, AGENT_CHAT_TRANSPORT } from "../tokens/agent-chat.tokens";
 import {
   agentChatFoldEnvelope,

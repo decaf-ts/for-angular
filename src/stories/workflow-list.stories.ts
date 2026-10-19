@@ -14,7 +14,7 @@ import {
   type GraphEngineCapabilitySource,
   type GraphEngineDescriptor,
   type GraphEngineWorkflowSummary,
-} from 'src/graph/capabilities';
+} from 'diagrams/src/lib/graph/capabilities';
 import './setup';
 import { getComponentMeta } from './utils';
 

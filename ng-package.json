@@ -3,15 +3,82 @@
   "dest": "./dist/lib",
   "lib": {
     "entryFile": "src/lib/public-apis.ts",
-    "styleIncludePaths": ["./src/assets"]
+    "styleIncludePaths": [
+      "./src/assets"
+    ]
   },
   "inlineStyleLanguage": "scss",
   "assets": [
     {
       "glob": "**/*",
       "input": "src/assets",
-      "output": "assets"
+      "output": "assets",
+      "ignore": [
+        "images/ew/**"
+      ]
+    },
+    {
+      "glob": "**/*",
+      "input": "diagrams/src/assets",
+      "output": "diagrams/assets"
+    },
+    {
+      "glob": "README.md",
+      "input": "kanban",
+      "output": "kanban"
+    },
+    {
+      "glob": "README.md",
+      "input": "scrum",
+      "output": "scrum"
+    },
+    {
+      "glob": "README.md",
+      "input": "gantt",
+      "output": "gantt"
+    },
+    {
+      "glob": "README.md",
+      "input": "charts",
+      "output": "charts"
+    },
+    {
+      "glob": "README.md",
+      "input": "math",
+      "output": "math"
+    },
+    {
+      "glob": "README.md",
+      "input": "code-editor",
+      "output": "code-editor"
+    },
+    {
+      "glob": "README.md",
+      "input": "barcode",
+      "output": "barcode"
+    },
+    {
+      "glob": "README.md",
+      "input": "diagrams",
+      "output": "diagrams"
+    },
+    {
+      "glob": "README.md",
+      "input": "model-builder",
+      "output": "model-builder"
+    },
+    {
+      "glob": "LICENSE.md",
+      "input": ".",
+      "output": "."
+    },
+    {
+      "glob": "NOTICE",
+      "input": ".",
+      "output": "."
     }
   ],
-  "allowedNonPeerDependencies": ["cronstrue"]
+  "allowedNonPeerDependencies": [
+    "cronstrue"
+  ]
 }

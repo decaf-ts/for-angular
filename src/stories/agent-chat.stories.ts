@@ -27,7 +27,7 @@ import {
   AgentChatTransport,
   AgentChatTransportHandlers,
 } from 'src/agent';
-import { GraphBackendUnavailableError } from 'src/graph/execution/GraphExecutionService';
+import { GraphBackendUnavailableError } from 'diagrams/src/lib/graph/execution/GraphExecutionService';
 import './setup';
 import { getComponentMeta } from './utils';
 

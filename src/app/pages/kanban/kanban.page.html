@@ -1,0 +1,66 @@
+<app-header title="Kanban" />
+
+<ion-content fullscreen="true" [scrollY]="true">
+  <main class="kanban-page">
+    <section class="kanban-page__toolbar" aria-label="Kanban demo controls">
+      <button type="button" data-testid="kanban-reset" (click)="reset()">
+        Reset
+      </button>
+      <button type="button" data-testid="kanban-clear" (click)="clear()">
+        Clear tasks
+      </button>
+      <label>
+        <input
+          type="checkbox"
+          data-testid="kanban-readonly"
+          [checked]="readOnly()"
+          (change)="toggleReadOnly()"
+        />
+        Read only
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          data-testid="kanban-loading"
+          [checked]="loading()"
+          (change)="toggleLoading()"
+        />
+        Loading
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          data-testid="kanban-error"
+          [checked]="!!error()"
+          (change)="toggleError()"
+        />
+        Error
+      </label>
+      <output data-testid="kanban-last-event">{{ lastEvent() }}</output>
+    </section>
+
+    <decaf-kanban-board
+      data-testid="kanban-board"
+      [items]="tasks()"
+      [config]="config"
+      [selectedId]="selectedId()"
+      [readonly]="readOnly()"
+      [loading]="loading()"
+      [error]="error()"
+      label="Sprint board"
+      (taskMoved)="onMoved($event)"
+      (taskReordered)="onReordered($event)"
+      (taskSelected)="onSelected($event)"
+      (taskEditRequested)="onEditRequested($event)"
+      (taskMoveRejected)="onRejected($event)"
+      (retryRequested)="onRetry()"
+    >
+      <ng-template decafKanbanCard let-task let-column="column" let-index="index">
+        <strong class="kanban-page__card-title">{{ task.title }}</strong>
+        <span class="kanban-page__card-meta">
+          {{ task.assignee }} · {{ column.title }} · #{{ index + 1 }}
+        </span>
+      </ng-template>
+    </decaf-kanban-board>
+  </main>
+</ion-content>

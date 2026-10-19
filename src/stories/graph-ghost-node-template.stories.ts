@@ -13,9 +13,9 @@ import {
   provideNgDiagram,
   type ModelAdapter,
 } from 'ng-diagram';
-import { GraphGhostNodeTemplateComponent } from 'src/graph/components/graph-ghost-node-template/graph-ghost-node-template.component';
-import { ghostNodeStore } from 'src/graph/execution/GhostNodeStore';
-import type { GraphRendererNodeData } from 'src/graph/types';
+import { GraphGhostNodeTemplateComponent } from 'diagrams/src/lib/graph/components/graph-ghost-node-template/graph-ghost-node-template.component';
+import { ghostNodeStore } from 'diagrams/src/lib/graph/execution/GhostNodeStore';
+import type { GraphRendererNodeData } from 'diagrams/src/lib/graph/types';
 import './setup';
 import { getComponentMeta } from './utils';
 

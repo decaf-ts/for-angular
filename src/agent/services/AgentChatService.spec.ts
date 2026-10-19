@@ -6,7 +6,7 @@ import {
   AGENT_CHAT_SESSION_PREFIX,
   AGENT_CHAT_TRANSPORT,
 } from "../tokens/agent-chat.tokens";
-import { GraphBackendUnavailableError } from "../../graph/execution/GraphExecutionService";
+import { GraphBackendUnavailableError } from "diagrams/src/lib/graph/execution/GraphExecutionService";
 import { AgentChatService } from "./AgentChatService";
 import type { AgentChatTransport, AgentChatTransportHandlers } from "../types";
 

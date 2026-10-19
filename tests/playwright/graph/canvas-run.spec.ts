@@ -25,7 +25,7 @@
  * /graph/workflows/:id body) and the document the run consumed (POST
  * /graph/runs body) and asserts the two are SEMANTICALLY equal (sorted-key
  * semantic hash, `ui` excluded — mirrors
- * `graphWorkflowDocumentSemanticHashOf` in src/graph/document), not a canvas
+ * `graphWorkflowDocumentSemanticHashOf` in diagrams/src/lib/graph/document), not a canvas
  * diff.
  *
  * RUN REQUIREMENTS: `npm run start` (dev server on :8110). The backend is
@@ -116,7 +116,7 @@ function withoutUi(document: WorkflowDocumentLike): WorkflowDocumentLike {
 
 /**
  * Semantic hash mirroring `graphWorkflowDocumentSemanticHashOf`
- * (src/graph/document/GraphDocumentSelectors.ts): FNV-1a over the sorted-key
+ * (diagrams/src/lib/graph/document/GraphDocumentSelectors.ts): FNV-1a over the sorted-key
  * serialization with `ui` excluded, so layout-only deltas never count.
  */
 function semanticHash(document: WorkflowDocumentLike): string {

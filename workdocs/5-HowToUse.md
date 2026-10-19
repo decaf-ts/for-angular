@@ -5,6 +5,10 @@
 
 ## Components
 
+> The curve editor and math input below now live in the `/charts` and `/math`
+> entry points. Import them from their dedicated entry point; the root barrel
+> no longer re-exports feature components.
+
 ### `<decaf-curve-editor>`
 
 Standalone interactive curve editor backed by Apache ECharts: a line series with draggable control points, drawn with linear or monotone cubic (Fritsch–Carlson, no overshoot) interpolation. The control points are the source of truth for the rendered curve; a LaTeX formula can also be set, and is sampled over the x range into control points. Curve drags regenerate the formula, so both stay consistent. MathLive and ECharts types never leak through the public API.
@@ -50,7 +54,7 @@ Typical pairing: bind both components to the same `formula` string — editing t
 
 ### `<ngx-decaf-agent-chat>`
 
-Standalone agent conversation UI over a graph workflow run, exported from the `for-angular/src/agent` public barrel together with its transport contract (`AgentChatTransport` with `send`/`replay`/`cancel`), the `AGENT_CHAT_TRANSPORT` injection token, the composer/message models, the envelope fold, the `AgentChatService`, and the translation fallback pipe. The transcript is a `role="log"` live region with per-role styling, action/attachment chips and auto-scroll; the composer handles Enter-to-send / Shift+Enter newline, metadata-only attachments (file contents are never read), and a knowledge-base selector forwarded as `knowledgeBaseIds` run inputs. A collapsible telemetry strip shows per-roundtrip rows, a structured-object panel reuses the graph I/O viewer for the latest structured output, and namespace chips derive from the configured workflow document's auth metadata. All user-facing strings resolve through the `agent.chat.*` i18n subtree with hardcoded English fallbacks.
+Standalone agent conversation UI over a graph workflow run, exported from the repository's `src/agent` application barrel — it is **not** part of the packed `@decaf-ts/for-angular` npm distribution; package consumers get the graph workflow surface through the [`/diagrams`](./diagrams/README.md) entry point. Ships together with its transport contract (`AgentChatTransport` with `send`/`replay`/`cancel`), the `AGENT_CHAT_TRANSPORT` injection token, the composer/message models, the envelope fold, the `AgentChatService`, and the translation fallback pipe. The transcript is a `role="log"` live region with per-role styling, action/attachment chips and auto-scroll; the composer handles Enter-to-send / Shift+Enter newline, metadata-only attachments (file contents are never read), and a knowledge-base selector forwarded as `knowledgeBaseIds` run inputs. A collapsible telemetry strip shows per-roundtrip rows, a structured-object panel reuses the graph I/O viewer for the latest structured output, and namespace chips derive from the configured workflow document's auth metadata. All user-facing strings resolve through the `agent.chat.*` i18n subtree with hardcoded English fallbacks.
 
 | Binding | Type | Description |
 | --- | --- | --- |

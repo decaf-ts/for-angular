@@ -1,0 +1,39 @@
+/**
+ * @module module:graph/components/index
+ * @description Barrel exports for graph components.
+ * @summary Re-exports the component modules and individual components from
+ * `src/graph/components` so consumers can import them from a single entrypoint.
+ * This file exposes components such as `GraphBoundaryNodeTemplateComponent`,
+ * `GraphNodeTemplateComponent`, `GraphRendererComponent`, and the
+ * `ForAngularGraphComponentsModule`.
+ *
+ * @link {@link ForAngularGraphComponentsModule}
+ */
+
+// Component exports
+export * from './boundary-node-template/boundary-node-template.component';
+export * from './chat/chat.component';
+export * from './feature-host/graph-code-editor-host.component';
+export * from './feature-host/graph-feature-components';
+export * from './feature-host/graph-model-builder-host.component';
+export * from './graph-condition-editor/graph-condition-editor.component';
+export * from './graph-edge-template/graph-edge-template.component';
+export * from './graph-ghost-node-template/graph-ghost-node-template.component';
+export * from './graph-headerbar/graph-headerbar.component';
+export * from './graph-io-viewer/graph-io-viewer.component';
+export * from './graph-logs-widget/graph-logs-widget.component';
+export * from './graph-node-edit-modal/graph-node-edit-modal.component';
+export * from './graph-node-inspection/graph-node-inspection.component';
+export * from './graph-node-inspection/graph-node-inline-editor.component';
+export * from './graph-node-inspection/graph-workflow-input-editor.component';
+export * from './graph-engine-workflow-picker/graph-engine-workflow-picker.component';
+export * from './graph-node-template/graph-node-template.component';
+export * from './graph-port-field/graph-port-field.component';
+export * from './graph-switch-edit-modal/graph-switch-edit-modal.component';
+export * from './sidebar-menu/sidebar-menu.component';
+
+export * from './graph-renderer/graph-renderer.component';
+export * from './graph-toolbar/graph-toolbar.component';
+
+// Module export
+export * from './for-angular-graph-components.module';

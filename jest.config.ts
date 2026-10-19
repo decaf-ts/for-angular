@@ -6,6 +6,17 @@ const config: Config = {
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: [
     '/tests/playwright',
+    // The Kanban functional suite must consume the packed tarball, never the
+    // monorepo path aliases; it runs through tests/kanban/jest.config.cjs.
+    '/tests/kanban',
+    // The Gantt functional suite must consume the packed tarball, never the
+    // monorepo path aliases; it runs through tests/gantt/jest.config.cjs.
+    '/tests/gantt/functional',
+    // The Scrum functional suite consumes the packed tarball through
+    // tests/scrum/jest.config.cjs, never the monorepo path aliases.
+    '/tests/scrum/functional',
+    // Gantt browser E2E specs run through tests/gantt/playwright.config.ts.
+    '/tests/gantt/playwright',
     // Pre-existing legacy specs that were never run because `src/app` was ignored
     // wholesale; they reference removed/renamed APIs and lack the router/i18n
     // providers the current components need. They are excluded so the standard
@@ -34,8 +45,14 @@ const config: Config = {
   // Module handling
   moduleNameMapper: {
     '^src/app/(.*)$': '<rootDir>/src/app/$1',
-    '^src/graph/(.*)$': '<rootDir>/src/graph/$1',
-    '^src/graph$': '<rootDir>/src/graph/index.ts',
+    '^src/graph/(.*)$': '<rootDir>/diagrams/src/lib/graph/$1',
+    '^src/graph$': '<rootDir>/diagrams/src/lib/graph/index.ts',
+    '^diagrams/src/lib/graph/(.*)$': '<rootDir>/diagrams/src/lib/graph/$1',
+    '^diagrams/src/lib/graph$': '<rootDir>/diagrams/src/lib/graph/index.ts',
+    '^code-editor/src/(.*)$': '<rootDir>/code-editor/src/$1',
+    '^model-builder/src/(.*)$': '<rootDir>/model-builder/src/$1',
+    '^@decaf-ts/for-angular$': '<rootDir>/src/lib/public-apis.ts',
+    '^@decaf-ts/for-angular/(.*)$': '<rootDir>/$1/src/public-api.ts',
     '^src/agent/(.*)$': '<rootDir>/src/agent/$1',
     '^src/agent$': '<rootDir>/src/agent/index.ts',
     '^src/lib/engine/(.*)$': '<rootDir>/src/lib/engine/$1',

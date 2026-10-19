@@ -1,0 +1,75 @@
+<section
+  class="dcf-kanban-column"
+  [attr.data-column-id]="column().id"
+  [attr.data-column-title]="column().title"
+  [class.dcf-kanban-column--over-limit]="overLimit()"
+  [class.dcf-kanban-column--readonly]="dragDisabled()"
+  role="group"
+  [attr.aria-labelledby]="headingId()"
+>
+  <header class="dcf-kanban-column__header">
+    @if (headerTemplate()) {
+      <ng-container
+        [ngTemplateOutlet]="headerTemplate()"
+        [ngTemplateOutletContext]="headerContext()"
+      />
+    } @else {
+      <h2 class="dcf-kanban-column__title" [id]="headingId()">
+        {{ column().title }}
+      </h2>
+      <span class="dcf-kanban-column__count">
+        {{ items().length }}
+        @if (column().wipLimit !== undefined) {
+          / {{ column().wipLimit }}
+        }
+      </span>
+    }
+  </header>
+
+  <div
+    class="dcf-kanban-column__dropzone"
+    cdkDropList
+    [id]="dropListId()"
+    [cdkDropListData]="items()"
+    [cdkDropListDisabled]="dragDisabled()"
+    [class.dcf-kanban-column__dropzone--empty]="!items().length"
+    [class.dcf-kanban-column__dropzone--over-limit]="overLimit()"
+    [attr.aria-disabled]="dragDisabled()"
+    [attr.aria-labelledby]="headingId()"
+    [attr.role]="items().length ? 'list' : 'group'"
+    (cdkDropListDropped)="onDrop($event)"
+  >
+    @for (item of items(); track taskId(item); let i = $index) {
+      <decaf-kanban-card
+        cdkDrag
+        [cdkDragData]="item"
+        [cdkDragDisabled]="dragDisabled()"
+        [cdkDragPreviewClass]="'dcf-kanban-drag-preview'"
+        [task]="item"
+        [config]="config()"
+        [column]="column()"
+        [index]="i"
+        [count]="items().length"
+        [selected]="selectedId() === taskId(item)"
+        [grabbed]="grabbedId() === taskId(item)"
+        [readOnly]="dragDisabled()"
+        [disabled]="disabled()"
+        [showHandle]="showDragHandles() && !dragDisabled()"
+        [template]="cardTemplate()"
+        [helpId]="helpId()"
+        (cardSelected)="onCardSelected(item)"
+        (cardEditRequested)="onCardEditRequested(item)"
+        (cardKeydown)="onCardKeydown($event)"
+      />
+    } @empty {
+      @if (emptyTemplate()) {
+        <ng-container
+          [ngTemplateOutlet]="emptyTemplate()"
+          [ngTemplateOutletContext]="emptyContext()"
+        />
+      } @else {
+        <p class="dcf-kanban-column__empty">{{ emptyMessage() }}</p>
+      }
+    }
+  </div>
+</section>

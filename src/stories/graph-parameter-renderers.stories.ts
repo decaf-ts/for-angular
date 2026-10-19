@@ -10,20 +10,20 @@ import type {
   GraphParameterDefinition,
 } from '@decaf-ts/as-graph/shared';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphBooleanParameterComponent } from 'src/graph/parameters/components/graph-boolean-parameter.component';
-import { GraphCodeParameterComponent } from 'src/graph/parameters/components/graph-code-parameter.component';
-import { GraphCollectionParameterComponent } from 'src/graph/parameters/components/graph-collection-parameter.component';
-import { GraphCredentialParameterComponent } from 'src/graph/parameters/components/graph-credential-parameter.component';
-import { GraphExpressionParameterComponent } from 'src/graph/parameters/components/graph-expression-parameter.component';
-import { GraphGenericParameterComponent } from 'src/graph/parameters/components/graph-generic-parameter.component';
-import { GraphHiddenParameterComponent } from 'src/graph/parameters/components/graph-hidden-parameter.component';
-import { GraphNoticeParameterComponent } from 'src/graph/parameters/components/graph-notice-parameter.component';
-import { GraphNumberParameterComponent } from 'src/graph/parameters/components/graph-number-parameter.component';
-import { GraphObjectParameterComponent } from 'src/graph/parameters/components/graph-object-parameter.component';
-import { GraphOptionsParameterComponent } from 'src/graph/parameters/components/graph-options-parameter.component';
-import { GraphResourceLocatorParameterComponent } from 'src/graph/parameters/components/graph-resource-locator-parameter.component';
-import { GraphTextParameterComponent } from 'src/graph/parameters/components/graph-text-parameter.component';
-import type { GraphParameterFormContext } from 'src/graph/parameters/GraphParameterRendererContract';
+import { GraphBooleanParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-boolean-parameter.component';
+import { GraphCodeParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-code-parameter.component';
+import { GraphCollectionParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-collection-parameter.component';
+import { GraphCredentialParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-credential-parameter.component';
+import { GraphExpressionParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-expression-parameter.component';
+import { GraphGenericParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-generic-parameter.component';
+import { GraphHiddenParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-hidden-parameter.component';
+import { GraphNoticeParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-notice-parameter.component';
+import { GraphNumberParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-number-parameter.component';
+import { GraphObjectParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-object-parameter.component';
+import { GraphOptionsParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-options-parameter.component';
+import { GraphResourceLocatorParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-resource-locator-parameter.component';
+import { GraphTextParameterComponent } from 'diagrams/src/lib/graph/parameters/components/graph-text-parameter.component';
+import type { GraphParameterFormContext } from 'diagrams/src/lib/graph/parameters/GraphParameterRendererContract';
 import './setup';
 import { getComponentMeta } from './utils';
 

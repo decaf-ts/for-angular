@@ -1,0 +1,68 @@
+<decaf-kanban-board
+  [items]="backlogItems()"
+  [config]="boardConfig()"
+  [selectedId]="selectedId()"
+  [readonly]="readOnly()"
+  [disabled]="disabled()"
+  [loading]="loading()"
+  [error]="error()"
+  [filter]="filter()"
+  [label]="label()"
+  [emptyMessage]="emptyMessage()"
+  [loadingMessage]="loadingMessage()"
+  [errorMessage]="errorMessage()"
+  [retryLabel]="retryLabel()"
+  [showDragHandles]="showDragHandles()"
+  [instanceId]="resolvedInstanceId()"
+  (taskReordered)="onReordered($event)"
+  (taskMoveRejected)="onRejected($event)"
+  (taskSelected)="taskSelected.emit($event)"
+  (taskEditRequested)="taskEditRequested.emit($event)"
+  (selectionCleared)="selectionCleared.emit()"
+  (retryRequested)="retryRequested.emit()"
+>
+  <ng-template
+    decafKanbanCard
+    let-task
+    let-column="column"
+    let-index="index"
+    let-selected="selected"
+    let-isReadOnly="readOnly"
+  >
+    <div class="dcf-scrum-backlog__card" [attr.data-scrum-backlog-task-id]="config().id(task)">
+      @if (cardTemplate(); as template) {
+        <ng-container
+          [ngTemplateOutlet]="template"
+          [ngTemplateOutletContext]="{
+            $implicit: task,
+            task: task,
+            column: column,
+            index: index,
+            selected: selected,
+            readOnly: isReadOnly
+          }"
+        />
+      } @else {
+        <span class="dcf-scrum-backlog__title">{{ config().title(task) }}</span>
+      }
+      <label class="dcf-scrum-backlog__assign">
+        <span class="dcf-scrum-backlog__assign-label">{{ assignmentLabel() }}</span>
+        <select
+          class="dcf-scrum-backlog__select"
+          [attr.data-scrum-assign-task-id]="config().id(task)"
+          [attr.aria-label]="assignmentLabel() + ': ' + config().title(task)"
+          [disabled]="!canAssign() || sprints().length === 0"
+          [value]="sprintIdOf(task) ?? ''"
+          (click)="stopInteractivePropagation($event)"
+          (keydown)="stopInteractivePropagation($event)"
+          (change)="onAssign(task, $event)"
+        >
+          <option value="">{{ assignmentPlaceholder() }}</option>
+          @for (sprint of sprints(); track sprint.id) {
+            <option [value]="sprint.id">{{ sprint.title }}</option>
+          }
+        </select>
+      </label>
+    </div>
+  </ng-template>
+</decaf-kanban-board>
