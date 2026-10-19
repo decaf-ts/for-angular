@@ -30,7 +30,9 @@ export type GraphRunLogLifecycleKind =
   | "created"
   | "validated"
   | "validation-issues"
-  | "cancelled";
+  | "cancelled"
+  | "replay"
+  | "restored";
 
 /**
  * Display labels for the run-lifecycle line kinds (D6).
@@ -40,6 +42,8 @@ export const GRAPH_RUN_LOG_LIFECYCLE_LABELS: Record<GraphRunLogLifecycleKind, st
   validated: "Validated",
   "validation-issues": "Validation issues",
   cancelled: "Cancelled",
+  replay: "Replayed",
+  restored: "Restored",
 };
 
 /**
@@ -54,6 +58,8 @@ export const GRAPH_RUN_LOG_LIFECYCLE_LEVELS: Record<
   validated: "info",
   "validation-issues": "warn",
   cancelled: "warn",
+  replay: "info",
+  restored: "info",
 };
 
 /**
@@ -125,8 +131,9 @@ const MAX_ENTRIES = 500;
  * the backend emits that the frontend does not model) is treated as the noisiest
  * level rather than as `undefined`, so it can never be silently dropped by the
  * severity threshold comparison (`undefined >= threshold` is always `false`).
- * @param {string} level Streamed log level to map to a console severity.
- * @returns {number} Severity threshold value, with unknown levels treated as verbose.
+ *
+ * @param level - The streamed entry level to resolve.
+ * @return {number} The severity, or `0` (noisiest) for unknown levels.
  */
 export function graphLogSeverityOf(level: GraphRunLogEntry['level']): number {
   const severity = GRAPH_LOG_LEVEL_SEVERITY[level as LogNodeLevel | "benchmark"];

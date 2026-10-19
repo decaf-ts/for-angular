@@ -10,7 +10,7 @@
   grid-template-rows: auto minmax(0, 1fr) auto;
   border: 1px solid rgba(148, 163, 184, 0.32);
   border-radius: 16px;
-  background: rgba(248, 250, 252, 0.97);
+  background: var(--gx-surface-veil);
   backdrop-filter: blur(18px);
   box-shadow: 0 20px 48px rgba(15, 23, 42, 0.35);
   overflow: hidden;
@@ -23,7 +23,7 @@
   gap: 0.75rem;
   padding: 0.6rem 0.9rem;
   border-bottom: 1px solid rgba(148, 163, 184, 0.22);
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--gx-surface-head);
 }
 
 .graph-node-inspection__identity {
@@ -35,7 +35,7 @@
 
 .graph-node-inspection__identity strong {
   font-size: 0.85rem;
-  color: #0f172a;
+  color: var(--gx-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -43,7 +43,7 @@
 
 .graph-node-inspection__identity small {
   font-size: 0.68rem;
-  color: #64748b;
+  color: var(--gx-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -62,29 +62,29 @@
 .graph-node-inspection__badge--running,
 .graph-node-inspection__badge--succeeded {
   background: rgba(34, 197, 94, 0.16);
-  color: #15803d;
+  color: var(--gx-success-fg);
 }
 
 .graph-node-inspection__badge--blocked {
   background: rgba(234, 179, 8, 0.18);
-  color: #a16207;
+  color: var(--gx-warning-fg);
 }
 
 .graph-node-inspection__badge--failed {
   background: rgba(239, 68, 68, 0.16);
-  color: #b91c1c;
+  color: var(--gx-danger-fg);
 }
 
 .graph-node-inspection__badge--skipped {
   background: rgba(148, 163, 184, 0.2);
-  color: #64748b;
+  color: var(--gx-text-muted);
 }
 
 .graph-node-inspection__close {
   flex-shrink: 0;
   border: 0;
   background: transparent;
-  color: #64748b;
+  color: var(--gx-text-muted);
   font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
@@ -92,7 +92,7 @@
 }
 
 .graph-node-inspection__close:hover {
-  color: #0f172a;
+  color: var(--gx-text);
 }
 
 /* ---- body: three panes — inputs LEFT / CRUD CENTER / outputs RIGHT ---- */
@@ -143,18 +143,18 @@
   padding: 0.75rem;
   border: 1px dashed rgba(148, 163, 184, 0.5);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--gx-surface-ghost);
   text-align: center;
 }
 
 .graph-node-inspection__empty strong {
   font-size: 0.78rem;
-  color: #334155;
+  color: var(--gx-text-secondary);
 }
 
 .graph-node-inspection__empty small {
   font-size: 0.68rem;
-  color: #64748b;
+  color: var(--gx-text-muted);
 }
 
 .graph-node-inspection__retry {
@@ -162,7 +162,7 @@
   border: 1px solid rgba(99, 102, 241, 0.5);
   border-radius: 999px;
   background: rgba(99, 102, 241, 0.12);
-  color: #4338ca;
+  color: var(--gx-indigo-fg);
   font-size: 0.68rem;
   font-weight: 700;
   padding: 0.25rem 0.75rem;
@@ -178,14 +178,14 @@
   padding: 0.5rem 0.9rem;
   list-style: none;
   border-top: 1px solid rgba(148, 163, 184, 0.22);
-  background: rgba(254, 226, 226, 0.6);
+  background: var(--gx-issues-strip);
 }
 
 .graph-node-inspection__issue {
   display: flex;
   gap: 0.4rem;
   font-size: 0.68rem;
-  color: #b91c1c;
+  color: var(--gx-danger-fg);
 }
 
 .graph-node-inspection__issue strong {

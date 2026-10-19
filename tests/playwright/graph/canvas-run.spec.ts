@@ -54,7 +54,7 @@ const ADDED = 'core-utility-log-Utility-Log';
 /** Engine plan-edge ids (`${source}:${port}->${target}:${port}`, utils.ts engineEdgeId). */
 const REMOVED_EDGE = `${FOREACH}:completed->${RESULT_LOG}:value`;
 const NEW_EDGE_INTO_ADDED = `${FOREACH}:completed->${ADDED}:value`;
-const NEW_EDGE_OUT_OF_ADDED = `${ADDED}:logged->${RESULT_LOG}:value`;
+const NEW_EDGE_OUT_OF_ADDED = `${ADDED}:value->${RESULT_LOG}:value`;
 const INITIAL_EDGES = [
   `$workflow:count->${SPLIT}:data`,
   `$workflow:text->${SPLIT}:data`,
@@ -65,7 +65,7 @@ const INITIAL_EDGES = [
 /**
  * Canvas document edges at open (D2 boundary decision, DECAF-50 §4.22/G3-09):
  * the 4 engine plan edges above plus the workflow-output edge
- * (`ResultLogNode:logged -> $workflow:result`) that now projects onto the
+ * (`ResultLogNode:value -> $workflow:result`) that now projects onto the
  * output badge instead of being dropped. The mock SSE body only routes the 4
  * engine edges, so the succeeded-edge assertions stay keyed on INITIAL_EDGES.
  */
@@ -267,13 +267,13 @@ class MockGraphServer {
             status: 'succeeded',
             // Step 9: the added node consumed its EDITED LITERAL.
             inputs: { value: [5], level: EDITED_LITERAL },
-            outputs: { logged: [5] },
+            outputs: { value: [5] },
           },
           [RESULT_LOG]: {
             nodeId: RESULT_LOG,
             status: 'succeeded',
             inputs: { value: [5] },
-            outputs: { logged: [5] },
+            outputs: { value: [5] },
           },
         },
         events: [],
@@ -500,7 +500,7 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
     // until the document actually carries the second edge (the edge count is
     // the source of truth, so a late-landing retry cannot double-connect).
     for (let attempt = 0; attempt < 3; attempt += 1) {
-      await drawEdge(page, { nodeId: ADDED, portId: 'logged' }, { nodeId: RESULT_LOG, portId: 'value' });
+      await drawEdge(page, { nodeId: ADDED, portId: 'value' }, { nodeId: RESULT_LOG, portId: 'value' });
       if (await settlesTo(page, INITIAL_DOCUMENT_EDGES + 1)) break;
     }
     expect(await documentEdgeCount(page)).toBe(INITIAL_DOCUMENT_EDGES + 1);
@@ -508,7 +508,7 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
       .poll(async () => isPortConnected(page, ADDED, 'value'))
       .toBe(true);
     await expect
-      .poll(async () => isPortConnected(page, ADDED, 'logged'))
+      .poll(async () => isPortConnected(page, ADDED, 'value'))
       .toBe(true);
 
     // ── Step 6: save and reload ───────────────────────────────────────────
@@ -530,7 +530,7 @@ test.describe('12-step canvas→run E2E (DECAF-50 §4.19, P7-F cutover)', () => 
       .toBe(true);
     // New chain restored through the added node.
     expect(await isPortConnected(page, ADDED, 'value')).toBe(true);
-    expect(await isPortConnected(page, ADDED, 'logged')).toBe(true);
+    expect(await isPortConnected(page, ADDED, 'value')).toBe(true);
     // The edited literal restored: reopening the editor shows `level` = warn.
     await openNodeEditor(page, ADDED);
     const restoredInspection = page.locator('.graph-node-inspection');

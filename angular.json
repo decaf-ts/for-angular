@@ -90,7 +90,7 @@
           "builder": "@angular-builders/custom-esbuild:application",
           "options": {
             "plugins": ["./esbuild.config.js"],
-            "allowedCommonJsDependencies": ["cronstrue", "reflect-metadata"],
+            "allowedCommonJsDependencies": ["cronstrue", "reflect-metadata", "elk.bundled.js"],
             "preserveSymlinks": true,
             "outputPath": {
               "base": "www",

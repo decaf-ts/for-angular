@@ -12,13 +12,7 @@ import { Constructor } from '@decaf-ts/decoration';
 import { Model } from '@decaf-ts/decorator-validation';
 import { CrudOperationKeys, FieldProperties, IPagedComponentProperties, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import { ActionRoles } from './constants';
-import {
-  AngularFieldDefinition,
-  DecafRepository,
-  FieldUpdateMode,
-  FormParent,
-  KeyValue,
-} from './types';
+import { AngularFieldDefinition, DecafRepository, FieldUpdateMode, FormParent, KeyValue } from './types';
 
 /**
  * @description Interface for models that can be rendered
@@ -246,6 +240,7 @@ export interface InputOption {
   text: string;
   value: string | number;
   disabled?: boolean;
+  readonly?: boolean;
   hidden?: boolean;
   className?: string;
   icon?: string;

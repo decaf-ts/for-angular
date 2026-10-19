@@ -1,3 +1,8 @@
+/**
+ * @module for-angular/stories/graph-node-template
+ * @summary Storybook stories for the graph member node template.
+ * @description Covers {@link GraphNodeTemplateComponent} across selection, run status, ports and node kinds from the served catalogue.
+ */
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnDestroy, OnInit, signal } from '@angular/core';
 import { PortDirection } from '@decaf-ts/as-graph/shared';
@@ -203,6 +208,92 @@ export const valueBoundPort: Story = {
         { property: 'count', name: 'Count', label: 'Count', direction: PortDirection.INPUT, type: 'number', required: false, hidden: false },
         { property: 'result', name: 'Result', label: 'Result', direction: PortDirection.OUTPUT, type: 'text', required: true, hidden: false },
       ] as GraphDemoNodeData['ports'],
+    }),
+  },
+};
+
+export const blockedFace: Story = {
+  args: { nodeData: nodeDataOf(), executionStatus: 'blocked' },
+};
+
+export const cachedFace: Story = {
+  args: { nodeData: nodeDataOf(), executionStatus: 'cached' },
+};
+
+export const squareShape: Story = {
+  args: { nodeData: nodeDataOf({ shape: 'square' }) },
+};
+
+export const pillShape: Story = {
+  args: { nodeData: nodeDataOf({ shape: 'pill' }) },
+};
+
+export const sharpCorners: Story = {
+  args: { nodeData: nodeDataOf({ cornerRadius: 0 }) },
+};
+
+export const largeCornerRadius: Story = {
+  args: { nodeData: nodeDataOf({ cornerRadius: 28 }) },
+};
+
+export const connectionPorts: Story = {
+  args: {
+    nodeData: nodeDataOf({
+      title: 'Agent',
+      kind: 'core.utility.code',
+      ports: [
+        { property: 'value', name: 'Value', label: 'Value', direction: PortDirection.INPUT, type: 'text', required: true, hidden: false },
+        { property: 'result', name: 'Result', label: 'Result', direction: PortDirection.OUTPUT, type: 'text', required: true, hidden: false },
+        { property: 'model', name: 'Model', label: 'Model', direction: PortDirection.CONNECTION, required: false, hidden: false, graph: { direction: PortDirection.CONNECTION, category: 'model' } },
+        { property: 'memory', name: 'Memory', label: 'Memory', direction: PortDirection.CONNECTION, required: false, hidden: false, graph: { direction: PortDirection.CONNECTION, category: 'memory' } },
+        { property: 'workspace', name: 'Workspace', label: 'Workspace', direction: PortDirection.CONNECTION, required: false, hidden: false, graph: { direction: PortDirection.CONNECTION, category: 'workspace' } },
+      ] as GraphDemoNodeData['ports'],
+    }),
+  },
+};
+
+export const switchNodeWithCases: Story = {
+  args: {
+    nodeData: nodeDataOf({
+      title: 'Switch',
+      description: 'Routes the input to the first matching case',
+      kind: 'core.utility.code',
+      ports: [
+        { property: 'value', name: 'Value', label: 'Value', direction: PortDirection.INPUT, type: 'text', required: true, hidden: false },
+        { property: 'case_a', name: 'Case A', label: 'Case A', direction: PortDirection.OUTPUT, required: false, hidden: false, path: 'case_a' },
+        { property: 'case_b', name: 'Case B', label: 'Case B', direction: PortDirection.OUTPUT, required: false, hidden: false, path: 'case_b' },
+        { property: 'default', name: 'Default', label: 'Default', direction: PortDirection.OUTPUT, required: false, hidden: false, path: 'default' },
+      ] as GraphDemoNodeData['ports'],
+      switchMetadata: {
+        cases: [
+          { id: 'a', label: 'Case A', condition: { left: 'value', operator: 'eq', right: 'a' } as never, outputPort: 'case_a' },
+          { id: 'b', label: 'Case B', condition: { left: 'value', operator: 'eq', right: 'b' } as never, outputPort: 'case_b' },
+        ],
+        defaultPort: 'default',
+        hasDefault: true,
+      },
+    }),
+  },
+};
+
+export const switchNodeNoDefault: Story = {
+  args: {
+    nodeData: nodeDataOf({
+      title: 'Switch',
+      description: 'No default branch configured',
+      kind: 'core.utility.code',
+      ports: [
+        { property: 'value', name: 'Value', label: 'Value', direction: PortDirection.INPUT, type: 'text', required: true, hidden: false },
+        { property: 'case_a', name: 'Case A', label: 'Case A', direction: PortDirection.OUTPUT, required: false, hidden: false, path: 'case_a' },
+        { property: 'default', name: 'Default', label: 'Default', direction: PortDirection.OUTPUT, required: false, hidden: false, path: 'default' },
+      ] as GraphDemoNodeData['ports'],
+      switchMetadata: {
+        cases: [
+          { id: 'a', label: 'Case A', condition: { left: 'value', operator: 'eq', right: 'a' } as never, outputPort: 'case_a' },
+        ],
+        defaultPort: 'default',
+        hasDefault: false,
+      },
     }),
   },
 };

@@ -15,6 +15,10 @@ import { provideDecafI18nConfig } from 'src/lib/i18n/Loader';
 import { isDevelopmentMode } from 'src/lib/utils/helpers';
 // The canonical graph module's live node catalogue source (DECAF-50 §4.12/§4.13).
 import { GRAPH_NODE_CATALOG_SOURCE, GraphNodeCatalogApi } from 'src/graph';
+import {
+  GRAPH_ENGINE_CAPABILITY_SOURCE,
+  GraphEngineCapabilityApi,
+} from 'src/graph';
 import { routes } from './app.routes';
 import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
 import { AppSelectFieldComponent } from './components/select-field/select-field.component';
@@ -69,6 +73,13 @@ export const AppConfig: ApplicationConfig = {
     // dynamic-port resolutions and declared-method invocations through this
     // HTTP backend bridge; failures surface through the store's status signal.
     { provide: GRAPH_NODE_CATALOG_SOURCE, useExisting: GraphNodeCatalogApi },
+    // Served engine capability manifest source (SAA-197 / Deliverable 3): the
+    // graph toolbar and workflow picker toggle their affordances from this
+    // server-served manifest, never from environment or build-time flags.
+    {
+      provide: GRAPH_ENGINE_CAPABILITY_SOURCE,
+      useExisting: GraphEngineCapabilityApi,
+    },
     provideDecafI18nConfig(
       {
         fallbackLang: 'en',

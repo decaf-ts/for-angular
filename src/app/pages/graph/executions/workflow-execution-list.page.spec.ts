@@ -3,14 +3,14 @@
  * @summary SAA-68 D2 execution list page contract.
  * @description Proves the execution list page loads
  * `GET /graph/workflows/:workflowId/runs`, maps each run row, and replays a run
- * through the canonical `GraphRunClient.createRun({ workflowId, inputs })`.
+ * through mastra time travel (SAA-836 U1 AC3) by navigating to the editor with
+ * the `replayRun` query param.
  */
-import type { ActivatedRoute } from '@angular/router';
+import type { ActivatedRoute, Router } from '@angular/router';
 import type {
   GraphListService,
   GraphRunRow,
 } from 'src/app/services/graph-list/graph-list.service';
-import type { GraphRunClient } from 'src/graph/runs/GraphRunClient';
 import { WorkflowExecutionListPage } from './workflow-execution-list.page';
 
 const rows: GraphRunRow[] = [
@@ -18,15 +18,15 @@ const rows: GraphRunRow[] = [
   { runId: 'run-2', workflowId: 'wf-1', status: 'failed' },
 ];
 
-/** Builds the page with a mocked route, list service, and run client. */
+/** Builds the page with a mocked route, router, and list service. */
 function createPage(options: {
   workflowId?: string;
   listRuns?: jest.Mock;
-  createRun?: jest.Mock;
+  navigate?: jest.Mock;
 } = {}): {
   page: WorkflowExecutionListPage;
   service: { listRuns: jest.Mock };
-  runClient: { createRun: jest.Mock };
+  router: { navigate: jest.Mock };
 } {
   const route = {
     snapshot: {
@@ -35,18 +35,18 @@ function createPage(options: {
       },
     },
   };
+  const router = {
+    navigate: options.navigate ?? jest.fn().mockResolvedValue(true),
+  };
   const service = {
     listRuns: options.listRuns ?? jest.fn().mockResolvedValue(rows),
   };
-  const runClient = {
-    createRun: options.createRun ?? jest.fn().mockResolvedValue({ runId: 'run-3' }),
-  };
   const page = new WorkflowExecutionListPage(
     route as unknown as ActivatedRoute,
-    service as unknown as GraphListService,
-    runClient as unknown as GraphRunClient
+    router as unknown as Router,
+    service as unknown as GraphListService
   );
-  return { page, service, runClient };
+  return { page, service, router };
 }
 
 describe('WorkflowExecutionListPage — execution list (SAA-68 D2)', () => {
@@ -88,40 +88,39 @@ describe('WorkflowExecutionListPage — execution list (SAA-68 D2)', () => {
     });
   });
 
-  it('replays a run through the canonical run client on a replay event', async () => {
-    const { page, runClient } = createPage();
+  it('replays a run through mastra time travel on a replay event', async () => {
+    const { page, router } = createPage();
     await page.ngOnInit();
 
     await page.onListEvent({ action: 'replay', data: 'run-1' } as never);
 
-    expect(runClient.createRun).toHaveBeenCalledWith({
-      workflowId: 'wf-1',
-      inputs: {},
+    expect(router.navigate).toHaveBeenCalledWith(['/graph/read/wf-1'], {
+      queryParams: { replayRun: 'run-1' },
     });
     expect(page.replayError()).toBeNull();
   });
 
   it('ignores a list event that is not a replay', async () => {
-    const { page, runClient } = createPage();
+    const { page, router } = createPage();
     await page.ngOnInit();
 
     await page.onListEvent({ action: 'open', data: 'run-1' } as never);
 
-    expect(runClient.createRun).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 
   it('ignores a replay event without a run id', async () => {
-    const { page, runClient } = createPage();
+    const { page, router } = createPage();
     await page.ngOnInit();
 
     await page.onListEvent({ action: 'replay', data: '' } as never);
 
-    expect(runClient.createRun).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 
   it('surfaces a replay failure without throwing', async () => {
     const { page } = createPage({
-      createRun: jest.fn().mockRejectedValue(new Error('backend down')),
+      navigate: jest.fn().mockRejectedValue(new Error('backend down')),
     });
     await page.ngOnInit();
 
@@ -131,10 +130,10 @@ describe('WorkflowExecutionListPage — execution list (SAA-68 D2)', () => {
   });
 
   it('does not replay before the workflow id is known', async () => {
-    const { page, runClient } = createPage({ workflowId: '' });
+    const { page, router } = createPage({ workflowId: '' });
 
     await page.onListEvent({ action: 'replay', data: 'run-1' } as never);
 
-    expect(runClient.createRun).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 });

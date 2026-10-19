@@ -208,10 +208,10 @@ else
 fi
 
 # Map user-friendly flag to npm --access value. npm expects "public" or "restricted"
-if [[ "$PUBLISH_ACCESS_FLAG" == "public" ]]; then
-  NPM_ACCESS_VALUE="public"
-else
+if [[ "$PUBLISH_ACCESS_FLAG" == "restricted" ]]; then
   NPM_ACCESS_VALUE="restricted"
+else
+  NPM_ACCESS_VALUE="public"
 fi
 
 # A prerelease bump must never publish under the default "latest" dist-tag.
@@ -225,9 +225,5 @@ if message_has_skip_ci "$MESSAGE"; then
   # Set NPM_PUBLISH_INTERACTIVE=0 to force token-based publishing and let npm
   # use its interactive auth flow instead. Published from dist/lib
   # (the ng-packagr build output), not the repo root.
-  if [[ "${NPM_PUBLISH_INTERACTIVE:-1}" != "0" ]]; then
-    npm publish ./dist/lib --access "$NPM_ACCESS_VALUE" "${NPM_PUBLISH_TAG_ARGS[@]}"
-  else
-    NPM_TOKEN=$(tr -d '\r\n' < .npmtoken) npm publish ./dist/lib --access "$NPM_ACCESS_VALUE" "${NPM_PUBLISH_TAG_ARGS[@]}"
-  fi
+  NPM_TOKEN=$(tr -d '\r\n' < .npmtoken) npm publish ./dist/lib --access "$NPM_ACCESS_VALUE" "${NPM_PUBLISH_TAG_ARGS[@]}"
 fi

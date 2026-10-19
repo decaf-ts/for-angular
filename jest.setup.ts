@@ -5,7 +5,8 @@ import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
 setupZoneTestEnv();
 
 // Jest + Ionic
-Object.defineProperty(window, 'CSS', { value: null });
+// `writable`/`configurable` so Storybook's preview runtime can re-assign `window.CSS`
+Object.defineProperty(window, 'CSS', { value: null, writable: true, configurable: true });
 
 // Mocking window.matchMedia
 Object.defineProperty(window, 'matchMedia', {

@@ -7,7 +7,7 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { I18nFakeLoader } from 'src/lib/i18n';
 import type { IListItemCustomEvent, KeyValue } from 'src/lib/engine';
 import { GraphRunItemComponent } from './graph-run-item.component';
@@ -60,6 +60,27 @@ describe('GraphRunItemComponent — execution row (SAA-68 D2)', () => {
     expect(emitted).toHaveLength(1);
     expect(emitted[0].action).toBe('replay');
     expect(emitted[0].data).toBe('run-1');
+  });
+
+  it('exposes the row as a list item whose replay button is named with a decorative icon (SAA-906)', async () => {
+    const fixture = await render({ runId: 'run-1', status: 'completed' });
+
+    const row = fixture.nativeElement.querySelector('.graph-run-item') as HTMLElement;
+    expect(row.getAttribute('role')).toBe('listitem');
+
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll('.graph-run-item__actions ion-button')
+    ) as HTMLElement[];
+    expect(buttons).toHaveLength(1);
+
+    const replayLabel = TestBed.inject(TranslateService).instant('graph.executions.replay');
+    expect(replayLabel.trim()).not.toBe('');
+    const replay = buttons[0];
+    expect(replay.getAttribute('aria-label')).toBe(replayLabel);
+
+    const icon = replay.querySelector('ngx-decaf-icon') as HTMLElement;
+    expect(icon).not.toBeNull();
+    expect(icon.getAttribute('aria-hidden')).toBe('true');
   });
 
   it('does not emit a replay event when the row has no run id', async () => {

@@ -158,6 +158,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
   readonly mode = input<CodeEditorMode>('code');
   readonly code = input<string>('');
   readonly placeholder = input<string>('');
+  readonly ariaLabel = input<string>('Code editor');
   readonly codeChange = output<string>();
 
   @ViewChild('host', { static: true }) host?: ElementRef<HTMLElement>;
@@ -193,6 +194,9 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
     const extensions = [
       cm.history(),
       cm.drawSelection(),
+      // a11y: the .cm-content element must carry an accessible name (axe
+      // aria-input-field-name); CM6 only exposes one via content attributes.
+      cm.EditorView.contentAttributes.of({ 'aria-label': this.ariaLabel() }),
       cm.EditorState.allowMultipleSelections.of(true),
       cm.indentOnInput(),
       cm.bracketMatching(),

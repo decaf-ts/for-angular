@@ -77,7 +77,6 @@ $dcf-color-text-tertiary: #8a91a3;
 $dcf-color-text-disabled: #a7afc4;
 $dcf-color-text-inverse: #ffffff;
 
-
 /* ==========================================================================
    Layout Tokens
    ========================================================================== */
@@ -610,10 +609,6 @@ $dcf-dark-border-strong: 1px solid $dcf-dark-color-outline-shade;
   --dcf-text-secondary: #{$dcf-color-text-secondary};
   --dcf-space-px: #{$dcf-space-px};
   --dcf-border-radius-small: #{$dcf-radius-sm};
-  --dcf-color-warning-text: #8a5300;
-  --dcf-color-success-text: #00857a;
-  --dcf-color-danger-text: #b3223a;
-  --dcf-color-text-tertiary-text: #5d6478;
 
   --ion-color-step-300: var(--dcf-color-gray-4);
 }

@@ -83,19 +83,23 @@
       }
     </div>
 
-    @if (connectionPorts().length) {
-      <div class="graph-node__ports graph-node__ports--connection">
-        @for (port of connectionPorts(); track port.path || port.property) {
-          <div
-            class="graph-node__port graph-node__port--connection"
-            [class.graph-node__port--connected]="connectedPortIds().has(port.path || port.property)"
-            [style.--connection-color]="connectionColor(port.graph?.category)"
-          >
-            <ng-diagram-port [id]="port.path || port.property" type="target" side="bottom" />
-            <span class="graph-node__port-label">{{ port.graph?.category || port.label || port.property }}</span>
-          </div>
-        }
-      </div>
+    @if (connectionZoneGroups().length) {
+      @for (group of connectionZoneGroups(); track group.key) {
+        <div
+          class="graph-node__ports graph-node__ports--connection graph-node__zone--{{ group.zoned ? group.side + '-' + group.align : 'legacy' }}"
+        >
+          @for (port of group.ports; track port.path || port.property) {
+            <div
+              class="graph-node__port graph-node__port--connection"
+              [class.graph-node__port--connected]="connectedPortIds().has(port.path || port.property)"
+              [style.--connection-color]="connectionColor(port.graph?.category)"
+            >
+              <ng-diagram-port [id]="port.path || port.property" type="target" [side]="connectionPortSide(port)" />
+              <span class="graph-node__port-label">{{ port.graph?.category || port.label || port.property }}</span>
+            </div>
+          }
+        </div>
+      }
     }
   </article>
 </ng-diagram-base-node-template>

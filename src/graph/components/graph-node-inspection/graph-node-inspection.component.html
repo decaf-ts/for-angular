@@ -31,7 +31,13 @@
       @if (showRunPanes()) {
         <section class="graph-node-inspection__pane graph-node-inspection__pane--inputs">
           @if (payload(); as inspection) {
-            <app-graph-io-viewer title="Run inputs" [value]="inspection.inputs" />
+            <app-graph-io-viewer
+              title="Run inputs"
+              [value]="inspection.inputs"
+              [runId]="inspection.runId"
+              [nodeId]="inspection.nodeId"
+              field="inputs"
+            />
           } @else {
             <div class="graph-node-inspection__empty graph-node-inspection__empty--inputs">
               <strong>No run inputs</strong>
@@ -81,7 +87,13 @@
                 [error]="inspection.error"
               />
             } @else {
-              <app-graph-io-viewer title="Run outputs" [value]="inspection.outputs" />
+              <app-graph-io-viewer
+                title="Run outputs"
+                [value]="inspection.outputs"
+                [runId]="inspection.runId"
+                [nodeId]="inspection.nodeId"
+                field="outputs"
+              />
             }
           } @else {
             <div class="graph-node-inspection__empty graph-node-inspection__empty--outputs">

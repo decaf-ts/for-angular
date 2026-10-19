@@ -41,7 +41,7 @@ test.describe('Graph — port visibility & boundary rendering (D2/G3-05..09)', (
       ['GraphForeachLoopNode', 'out', 'item'],
       ['GraphForeachLoopNode', 'out', 'completed'],
       ['ResultLogNode', 'in', 'value'],
-      ['ResultLogNode', 'out', 'logged'],
+      ['ResultLogNode', 'out', 'value'],
       ['input-count', 'out', 'value'],
       ['input-text', 'out', 'value'],
     ];

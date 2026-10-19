@@ -194,7 +194,7 @@
               "source": {
                 "scope": "node",
                 "nodeId": "LoopItemLogNode",
-                "port": "logged"
+                "port": "value"
               },
               "target": {
                 "scope": "node",
@@ -253,7 +253,7 @@
               "source": {
                 "scope": "node",
                 "nodeId": "OddLogNode",
-                "port": "logged"
+                "port": "value"
               },
               "target": {
                 "scope": "workflow",
@@ -352,7 +352,7 @@
       "source": {
         "scope": "node",
         "nodeId": "ResultLogNode",
-        "port": "logged"
+        "port": "value"
       },
       "target": {
         "scope": "workflow",

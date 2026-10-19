@@ -531,3 +531,18 @@ describe('CrudFieldComponent', () => {
     expect(input.disabled).toBeTruthy();
   });
 });
+
+describe('NgxFormService.getFormData checkbox group', () => {
+  it('returns an array (never a boolean) for checkbox fields with options', () => {
+    const group = new FormGroup({ features: new FormControl<string[] | null>(null), agree: new FormControl(null) });
+    NgxFormService.register(group.get('features')!, {
+      name: 'features',
+      type: 'checkbox',
+      options: [{ text: 'a', value: 'a' }],
+    } as any);
+    NgxFormService.register(group.get('agree')!, { name: 'agree', type: 'checkbox' } as any);
+    expect(NgxFormService.getFormData(group)).toEqual({ features: [], agree: false });
+    group.get('features')!.setValue(['a']);
+    expect(NgxFormService.getFormData(group)['features']).toEqual(['a']);
+  });
+});

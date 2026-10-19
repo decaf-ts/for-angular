@@ -4,6 +4,7 @@
     "plugins/summarize",
     "node_modules/jsdoc-mermaid",
     "node_modules/better-docs/typescript",
+    "./workdocs/plugins/strip-readonly-types.cjs",
     "node_modules/better-docs/category"
   ],
   "typescript": {

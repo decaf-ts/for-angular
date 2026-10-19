@@ -18,13 +18,33 @@
     >
       &#x21AA;
     </button>
+    <button
+      type="button"
+      class="graph-float-btn graph-float-btn--arrange"
+      [disabled]="isRunning()"
+      (click)="onArrange()"
+      title="Auto-arrange graph"
+    >
+      Arrange
+    </button>
   </div>
 
   <div class="graph-float-controls__group graph-float-controls__group--right">
+    @if (engineLabel()) {
+      <span
+        class="graph-float-btn graph-float-btn--engine"
+        role="status"
+        [title]="engineLabel()"
+      >
+        {{ engineLabel() }}
+      </span>
+    }
+
     <div class="graph-float-toggle" title="Auto-Save">
       <ion-toggle
         [checked]="autoSaveEnabled()"
         (ionChange)="onAutoSaveToggle($event)"
+        aria-label="Auto-Save"
       />
     </div>
 

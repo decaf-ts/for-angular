@@ -22,6 +22,27 @@ export class AppCardTitleComponent extends NgxComponentDirective implements OnIn
   @Input()
   allowCreate: boolean = false;
 
+  /**
+   * Disables the create button in place (SAA-707) when the selected engine's
+   * capability manifest blocks creating a workflow, keeping the affordance visible
+   * for discoverability instead of hiding it.
+   */
+  @Input()
+  createDisabled: boolean = false;
+
+  /**
+   * Hides the create button entirely (SAA-722) when the selected engine's
+   * capability manifest does not advertise authoring. Distinct from
+   * {@link createDisabled}, which keeps the affordance visible but inert; a
+   * read-only engine must not render a create action at all.
+   */
+  @Input()
+  hideCreate: boolean = false;
+
+  /** Optional tooltip explaining why the create button is disabled. */
+  @Input()
+  createTitle: string = '';
+
   @Input()
   tabs: ITabItem[] = [];
 

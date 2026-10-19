@@ -408,7 +408,19 @@
       "untitled": "Fluxo de trabalho sem título",
       "open": "Abrir fluxo de trabalho",
       "runs": "Execuções anteriores",
-      "empty": "Ainda não existem fluxos de trabalho"
+      "empty": "Ainda não existem fluxos de trabalho",
+      "create": "Criar fluxo de trabalho",
+      "createBlocked": "O motor selecionado não suporta criar fluxos de trabalho",
+      "run": "Executar fluxo de trabalho",
+      "runBlocked": "O motor selecionado não suporta executar fluxos de trabalho",
+      "engine": {
+        "label": "Motor"
+      },
+      "failure": {
+        "backendDown": "O backend de grafos está indisponível. A mostrar a lista legada de fluxos de trabalho.",
+        "malformed": "O manifesto de capacidades do motor está fora do contrato. A mostrar a lista legada de fluxos de trabalho.",
+        "retry": "Tentar novamente"
+      }
     },
     "executions": {
       "title": "Execuções",
@@ -422,6 +434,88 @@
       "replay": "Repetir execução",
       "open": "Abrir execução",
       "empty": "Ainda não existem execuções"
+    },
+    "engines": {
+      "picker": {
+        "title": "Selecionar um cenário de fluxo de trabalho",
+        "close": "Fechar",
+        "engine": "Motor",
+        "unsupported": "O motor selecionado não suporta consultar fluxos de trabalho",
+        "empty": "Não existem cenários de fluxo de trabalho para o motor selecionado",
+        "run": "Executar",
+        "failure": {
+          "backendDown": "O backend de grafos está indisponível.",
+          "malformed": "O manifesto de capacidades do motor está fora do contrato."
+        }
+      }
+    }
+  },
+  "agent": {
+    "chat": {
+      "title": "Conversa com agente",
+      "namespaces": {
+        "label": "Namespaces"
+      },
+      "typing": "O agente está a responder…",
+      "actions": {
+        "label": "Ações do agente"
+      },
+      "transcript": {
+        "aria": "Transcrição da conversa",
+        "empty": "Inicie a conversa enviando uma mensagem.",
+        "content": {
+          "label": "Conteúdo",
+          "placeholder": "Conteúdo da mensagem"
+        },
+        "created": {
+          "label": "Criado em"
+        }
+      },
+      "role": {
+        "label": "Papel",
+        "user": "Você",
+        "assistant": "Agente",
+        "system": "Sistema",
+        "error": "Erro"
+      },
+      "composer": {
+        "message": {
+          "label": "Mensagem",
+          "placeholder": "Escreva uma mensagem…"
+        },
+        "send": "Enviar",
+        "cancel": "Cancelar"
+      },
+      "attachments": {
+        "label": "Anexos",
+        "add": "Anexar",
+        "remove": "Remover anexo"
+      },
+      "knowledge": {
+        "label": "Base de conhecimento"
+      },
+      "roundtrip": {
+        "label": "Ida e volta",
+        "empty": "Ainda sem interações."
+      },
+      "status": {
+        "queued": "Em fila",
+        "running": "Em execução",
+        "succeeded": "Concluído",
+        "failed": "Falhou",
+        "cancelled": "Cancelado",
+        "replayed": "Reproduzido"
+      },
+      "telemetry": {
+        "show": "Telemetria",
+        "hide": "Ocultar telemetria"
+      },
+      "structured": {
+        "title": "Objeto estruturado"
+      },
+      "error": {
+        "backendUnavailable": "O backend do agente não está acessível. Reconecte e tente novamente."
+      }
     }
   }
 }

@@ -1,3 +1,8 @@
+/**
+ * @module for-angular/stories/graph-node-edit-modal
+ * @summary Storybook stories for the graph node edit modal.
+ * @description Covers {@link GraphNodeEditModalComponent} parameter editing for manifest-declared node kinds.
+ */
 import { PortDirection, type GraphNodeInstance, type GraphParameterDefinition } from '@decaf-ts/as-graph/shared';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { GraphNodeEditModalComponent } from 'src/graph/components/graph-node-edit-modal/graph-node-edit-modal.component';
@@ -111,6 +116,80 @@ export const genericNode: Story = {
     nodeId: 'log-1',
     nodeData: buildNodeData('core.flow.log', 'Log', []),
     nodeInstance: { id: 'log-1', kind: 'core.flow.log', parameters: {} },
+    parameterDefs: [],
+  },
+};
+
+export const degradedCatalogue: Story = {
+  args: {
+    nodeTitle: 'Code',
+    nodeId: 'code-1',
+    nodeData: buildNodeData('core.utility.code', 'Code', CODE_PORTS),
+    nodeInstance: codeInstance,
+    parameterDefs: [],
+    degraded: true,
+    degradedReason:
+      'The node catalogue backend is unavailable; dynamic parameter options may be incomplete.',
+  },
+};
+
+export const booleanAndTextParameters: Story = {
+  args: {
+    nodeTitle: 'Log',
+    nodeId: 'log-1',
+    nodeData: buildNodeData('core.flow.log', 'Log', []),
+    nodeInstance: { id: 'log-1', kind: 'core.flow.log', parameters: {} },
+    parameterDefs: [
+      { id: 'level', label: 'Level', type: 'textinput', required: true },
+      { id: 'strict', label: 'Strict mode', type: 'boolean', required: false },
+      { id: 'timeoutMs', label: 'Timeout (ms)', type: 'number', required: false },
+    ] as GraphParameterDefinition[],
+  },
+};
+
+export const withOutputPorts: Story = {
+  args: {
+    nodeTitle: 'Code',
+    nodeId: 'code-1',
+    nodeData: buildNodeData('core.utility.code', 'Code', [
+      ...CODE_PORTS,
+      {
+        property: 'result',
+        name: 'result',
+        label: 'Result',
+        direction: PortDirection.OUTPUT,
+        type: 'text',
+        required: true,
+        hidden: false,
+      },
+      {
+        property: 'error',
+        name: 'error',
+        label: 'Error',
+        direction: PortDirection.OUTPUT,
+        type: 'text',
+        required: false,
+        hidden: false,
+      },
+    ]),
+    nodeInstance: codeInstance,
+    parameterDefs: [],
+  },
+};
+
+export const literalValueMode: Story = {
+  args: {
+    nodeTitle: 'Code',
+    nodeId: 'code-1',
+    nodeData: buildNodeData('core.utility.code', 'Code', CODE_PORTS),
+    nodeInstance: {
+      id: 'code-1',
+      kind: 'core.utility.code',
+      parameters: {
+        code: { mode: 'literal', value: 'return 42;' },
+      },
+      inputBindings: {},
+    } as GraphNodeInstance,
     parameterDefs: [],
   },
 };

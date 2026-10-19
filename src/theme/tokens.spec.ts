@@ -1,6 +1,6 @@
-import * as sass from 'sass';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import * as sass from 'sass';
 
 const root = process.cwd();
 let tokenCss: string | undefined;
@@ -16,11 +16,20 @@ function compileTokens(): string {
 }
 
 const tokens = [
-  '--dcf-box-shadow-compact', '--dcf-shadow-glass', '--dcf-box-shadow-small',
-  '--dcf-box-shadow-large', '--dcf-graph-sidebar-width', '--dcf-primary',
-  '--dcf-text-primary', '--dcf-text-secondary', '--dcf-space-px',
-  '--dcf-border-radius-small', '--dcf-color-warning-text', '--dcf-color-success-text',
-  '--dcf-color-danger-text', '--dcf-color-text-tertiary-text',
+  '--dcf-box-shadow-compact',
+  '--dcf-shadow-glass',
+  '--dcf-box-shadow-small',
+  '--dcf-box-shadow-large',
+  '--dcf-graph-sidebar-width',
+  '--dcf-primary',
+  '--dcf-text-primary',
+  '--dcf-text-secondary',
+  '--dcf-space-px',
+  '--dcf-border-radius-small',
+  '--dcf-color-warning',
+  '--dcf-color-success',
+  '--dcf-color-danger',
+  '--dcf-color-text-tertiary',
 ];
 
 function rootValue(css: string, token: string): string | undefined {
@@ -29,8 +38,12 @@ function rootValue(css: string, token: string): string | undefined {
 }
 
 function contrast(hex: string): number {
-  const channels = hex.replace('#', '').match(/.{2}/g)!.map((part) => parseInt(part, 16) / 255);
-  const luminance = channels.map((channel) => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4)
+  const channels = hex
+    .replace('#', '')
+    .match(/.{2}/g)!
+    .map((part) => parseInt(part, 16) / 255);
+  const luminance = channels
+    .map((channel) => (channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4))
     .reduce((sum, channel, index) => sum + channel * [0.2126, 0.7152, 0.0722][index], 0);
   return 1.05 / (luminance + 0.05);
 }
@@ -43,10 +56,15 @@ describe('theme token completion', () => {
 
   it('consumed tokens resolve', () => {
     const css = compileTokens();
-    const sourceFiles = (directory: string): string[] => readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-      const path = join(directory, entry.name);
-      return entry.isDirectory() ? sourceFiles(path) : /\.(scss|css|html|ts)$/.test(entry.name) ? [readFileSync(path, 'utf8')] : [];
-    });
+    const sourceFiles = (directory: string): string[] =>
+      readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+        const path = join(directory, entry.name);
+        return entry.isDirectory()
+          ? sourceFiles(path)
+          : /\.(scss|css|html|ts)$/.test(entry.name)
+            ? [readFileSync(path, 'utf8')]
+            : [];
+      });
     const source = sourceFiles(join(root, 'src')).join('\n');
     for (const token of tokens.slice(0, 10)) {
       expect(source).toContain(token);

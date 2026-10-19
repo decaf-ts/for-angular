@@ -13,12 +13,12 @@
 .graph-workflow-input-editor__label {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #334155;
+  color: var(--gx-text-secondary);
 }
 
 .graph-workflow-input-editor__meta {
   font-size: 0.62rem;
-  color: #94a3b8;
+  color: var(--gx-text-faint);
 }
 
 .graph-workflow-input-editor__control {
@@ -27,8 +27,8 @@
   border-radius: 8px;
   padding: 0.35rem 0.5rem;
   font-size: 0.75rem;
-  color: #0f172a;
-  background: #ffffff;
+  color: var(--gx-text);
+  background: var(--gx-surface-input);
 }
 
 .graph-workflow-input-editor__checkbox {
@@ -36,18 +36,18 @@
   align-items: center;
   gap: 0.35rem;
   font-size: 0.72rem;
-  color: #334155;
+  color: var(--gx-text-secondary);
 }
 
 .graph-workflow-input-editor__field--readonly {
   padding: 0.5rem;
   border: 1px dashed rgba(148, 163, 184, 0.5);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--gx-surface-ghost);
 }
 
 .graph-workflow-input-editor__value {
   font-size: 0.72rem;
-  color: #334155;
+  color: var(--gx-text-secondary);
   word-break: break-word;
 }

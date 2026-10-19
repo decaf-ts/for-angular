@@ -87,7 +87,7 @@ describe('G4-R2 — foreach single loop with a Log node inside', () => {
     });
     expect(relations).toContainEqual({
       source: 'LoopItemLogNode',
-      sourcePort: 'logged',
+      sourcePort: 'value',
       target: 'EvenOddSwitchNode',
       targetPort: 'value',
     });

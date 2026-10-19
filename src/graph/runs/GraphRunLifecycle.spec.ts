@@ -795,6 +795,35 @@ describe('GraphRunLifecycle (DECAF-50 §4.19 Angular run row)', () => {
       expect(entries[1].message).toBe('second');
     });
 
+    it('folds an unserializable graph.run.log payload into a safe placeholder line', () => {
+      // The backend replaces a payload it cannot serialize with a
+      // `{ nonSerializable: true }` (or `{ truncated: true }`) sentinel, so the
+      // streamed payload can arrive without `level`/`message`. Such a payload
+      // must never become a malformed entry: the console reads `level` during
+      // change detection, and an undefined level aborted the whole canvas
+      // render (SAA-767).
+      graphRunState.applyEvent(
+        envelope(1, GraphExecutionEventType.GRAPH_RUN_LOG, { payload: { nonSerializable: true } }),
+      );
+      graphRunState.applyEvent(
+        envelope(2, GraphExecutionEventType.GRAPH_RUN_LOG, {
+          payload: { truncated: true, originalLength: 4096 },
+        }),
+      );
+
+      const entries = graphRunLog.entries();
+      expect(entries).toHaveLength(2);
+      // Every folded entry carries a string level and message so downstream
+      // rendering can never call `toUpperCase()` on undefined.
+      for (const line of entries) {
+        expect(typeof line.level).toBe('string');
+        expect(typeof line.message).toBe('string');
+        expect(line.level).toBe('warn');
+      }
+      expect(entries[0].message).toContain('serialized');
+      expect(entries[1].message).toContain('payload limit');
+    });
+
     it('folds run lifecycle statuses from workflow events and keeps ownership keys', () => {
       graphRunState.beginObservation({ runId: RUN_ID, workflowId: WORKFLOW_ID, status: 'queued' });
 
@@ -869,6 +898,115 @@ describe('GraphRunLifecycle (DECAF-50 §4.19 Angular run row)', () => {
     it('ignores null and empty stored results', () => {
       graphInspection.reset();
       graphRunState.applyRunResult(null);
+      graphRunState.applyRunResult({
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+        status: 'succeeded',
+        document: { id: WORKFLOW_ID, name: 'wf', inputs: [], outputs: [], nodes: [], edges: [] },
+        inputs: {},
+        outputs: {},
+        nodeResults: {},
+        events: [],
+      });
+      expect(graphInspection.inspections()).toEqual({});
+    });
+
+    it('merges event-derived payloads under the persisted nodeResults (persisted wins, SAA-829)', () => {
+      graphInspection.reset();
+      graphRunState.applyRunResult({
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+        status: 'succeeded',
+        document: { id: WORKFLOW_ID, name: 'wf', inputs: [], outputs: [], nodes: [], edges: [] },
+        inputs: {},
+        outputs: {},
+        nodeResults: {
+          n1: {
+            nodeId: 'n1',
+            status: 'succeeded',
+            inputs: { text: 'hello' },
+            outputs: { upper: 'HELLO' },
+          },
+        },
+        events: [
+          { type: GraphExecutionEventType.NODE_STARTED, nodeId: 'n1' },
+          {
+            type: GraphExecutionEventType.NODE_COMPLETED,
+            nodeId: 'n1',
+            payload: { outputs: { upper: 'EVENT' } },
+          },
+          {
+            type: GraphExecutionEventType.NODE_COMPLETED,
+            nodeId: 'n2',
+            payload: { outputs: { ok: true } },
+          },
+        ],
+      });
+
+      const inspections = graphInspection.inspections();
+      expect(Object.keys(inspections).sort()).toEqual(['n1', 'n2']);
+      // Persisted results win: n1 keeps its routed inputs and persisted outputs,
+      // never the event-derived `EVENT` payload.
+      expect(inspections['n1']).toEqual({
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+        nodeId: 'n1',
+        state: 'succeeded',
+        inputs: { text: 'hello' },
+        outputs: { upper: 'HELLO' },
+      });
+      // The event log fills only the node the persisted results do not cover.
+      expect(inspections['n2']).toEqual({
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+        nodeId: 'n2',
+        state: 'succeeded',
+        inputs: {},
+        outputs: { ok: true },
+      });
+    });
+
+    it('falls back to the run event log when nodeResults are empty (mastra lane, SAA-829)', () => {
+      graphInspection.reset();
+      graphRunState.applyRunResult({
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+        status: 'succeeded',
+        document: { id: WORKFLOW_ID, name: 'wf', inputs: [], outputs: [], nodes: [], edges: [] },
+        inputs: {},
+        outputs: {},
+        nodeResults: {},
+        events: [
+          { type: GraphExecutionEventType.NODE_STARTED, nodeId: 'trigger' },
+          {
+            type: GraphExecutionEventType.NODE_COMPLETED,
+            nodeId: 'trigger',
+            payload: { outputs: { count: 1 } },
+          },
+          {
+            type: GraphExecutionEventType.NODE_FAILED,
+            nodeId: 'logger',
+            error: { name: 'Error', message: 'boom' },
+          },
+        ],
+      });
+
+      const inspections = graphInspection.inspections();
+      expect(Object.keys(inspections).sort()).toEqual(['logger', 'trigger']);
+      expect(inspections['trigger']).toEqual({
+        runId: RUN_ID,
+        workflowId: WORKFLOW_ID,
+        nodeId: 'trigger',
+        state: 'succeeded',
+        inputs: {},
+        outputs: { count: 1 },
+      });
+      expect(inspections['logger']).toMatchObject({ nodeId: 'logger', state: 'failed' });
+      expect(inspections['logger'].error).toEqual({ name: 'Error', message: 'boom' });
+    });
+
+    it('still yields no payloads for empty nodeResults with an empty event log', () => {
+      graphInspection.reset();
       graphRunState.applyRunResult({
         runId: RUN_ID,
         workflowId: WORKFLOW_ID,

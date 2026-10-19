@@ -45,6 +45,7 @@ import {
   graphValidity,
   graphRunLog,
   graphInspection,
+  GraphEngineCapabilityService,
 } from 'src/graph';
 import type {
   GraphInspectionRunState,
@@ -113,6 +114,24 @@ export class GraphPage implements OnInit, OnDestroy {
   @Input() operation: string = 'demo';
   /** Workflow id route param (read/update); demo default otherwise. */
   @Input() workflowId: string = GraphPage.DEMO_WORKFLOW_ID;
+  /**
+   * Engine id query param (SAA-707): set when a workflow is opened from an
+   * engine catalogue row, so the page resolves the scenario through the
+   * selected engine's catalogue instead of the legacy save endpoint.
+   */
+  @Input() engine?: string;
+  /** Whether to start the run automatically after loading (SAA-707). */
+  @Input() autorun?: string;
+  /**
+   * Recorded run id to replay in mastra time-travel mode (SAA-836 U1 AC3):
+   * when set, the page loads the workflow and replays the recorded run's
+   * event stream from sequence zero into the run state store instead of
+   * starting a fresh run. On the replayed terminal the run's stored result is
+   * folded and, when the run executed a different document version than the
+   * currently loaded one, the executed (prior) version is restored into the
+   * editor.
+   */
+  @Input() replayRun?: string;
 
   private readonly executionService = inject(GraphExecutionService);
   private readonly saveService = inject(GraphSaveService);
@@ -123,6 +142,7 @@ export class GraphPage implements OnInit, OnDestroy {
   private readonly runEventClient = inject(GraphRunEventClient);
   private readonly validateClient = inject(GraphWorkflowValidateClient);
   private readonly catalogService = inject(GraphNodeCatalogService);
+  private readonly capabilities = inject(GraphEngineCapabilityService);
   private readonly runEventSubscribers = new Map<string, GraphRunEventClientSubscriber>();
 
   @ViewChild(GraphRendererComponent) renderer!: GraphRendererComponent;
@@ -140,12 +160,16 @@ export class GraphPage implements OnInit, OnDestroy {
   private runStuckTimer: ReturnType<typeof setTimeout> | null = null;
   readonly backendAvailable = this.executionService.backendAvailable;
   /**
-   * Run gating (D5/G3-17): the toolbar can only start a run when the backend
-   * is available and the editor's validity projection does not mark the graph
-   * invalid. An invalid graph is never submittable.
+   * Run gating (D5/G3-17, SAA-707): the toolbar can only start a run when the
+   * backend is available, the selected engine's capability manifest does not
+   * declare run `NOT_SUPPORTED`, and the editor's validity projection does not
+   * mark the graph invalid. An invalid graph is never submittable.
    */
   readonly canRun = computed(
-    () => this.backendAvailable() !== false && !graphValidity.isInvalid()
+    () =>
+      this.backendAvailable() !== false &&
+      this.capabilities.canRunWorkflow() &&
+      !graphValidity.isInvalid()
   );
   /** Editor validity projection (D5/G3-16..G3-18) for the toolbar + canvas. */
   readonly graphValidityStatus = graphValidity.status;
@@ -218,11 +242,35 @@ export class GraphPage implements OnInit, OnDestroy {
    * canvas-derived seed (fresh editor sessions).
    */
   private async catalogBackendWorkflowLoad(): Promise<void> {
+    // SAA-707: a workflow opened from an engine catalogue row carries its
+    // engine id, so resolve it through the capability catalogue first. The
+    // catalogue is preferred only when the manifest advertises browsing; the
+    // legacy save endpoint stays the fallback for saved/editor workflows.
+    if (this.engine) {
+      try {
+        await this.capabilities.load();
+        const document = await this.capabilities.getWorkflow(
+          this.engine,
+          this.workflowId,
+        );
+        if (document) {
+          this.workflowName.set(document.name ?? this.workflowId);
+          this.renderer?.restoreFromDocument({ document });
+          if (this.replayRun) await this.replayRecordedRun(this.replayRun, document);
+          else if (this.autorun) await this.runWorkflow();
+          return;
+        }
+      } catch {
+        // Fall through to the legacy load below.
+      }
+    }
     try {
       const saved = await this.saveService.loadDocument(this.workflowId);
       if (!saved?.document) return;
       this.workflowName.set(saved.document.name ?? '');
       this.renderer?.restoreFromDocument(saved);
+      if (this.replayRun) await this.replayRecordedRun(this.replayRun, saved.document);
+      else if (this.autorun) await this.runWorkflow();
     } catch {
       // Backend without a saved workflow: keep the canvas-derived document.
     }
@@ -235,6 +283,19 @@ export class GraphPage implements OnInit, OnDestroy {
 
   onNodeDragEnded(): void {
     this.mutationDetector.recordMutation('node-position');
+  }
+
+  /**
+   * Auto-arrange commit (§4.12): the renderer asks the document store to
+   * compute and commit the layout through the same `node.moves` command a
+   * drag-end uses; the page then records ONE history/autosave entry, exactly
+   * as a drag does — arrange is one undo step, not one per node.
+   */
+  async onArrangeWorkflow(): Promise<void> {
+    const applied = await this.renderer?.arrangeWorkflow();
+    if (applied) {
+      this.mutationDetector.recordMutation('node-position');
+    }
   }
 
   onEdgeDrawn(): void {
@@ -477,6 +538,52 @@ export class GraphPage implements OnInit, OnDestroy {
   }
 
   /**
+   * Mastra time-travel replay (SAA-836 U1 AC3): replays a recorded run's
+   * event stream from sequence zero through the run's SSE events endpoint
+   * into the run state store, so the canvas and split-view panes light up
+   * with the historical run's node states and payloads. No fresh run is
+   * created; the recorded stream is the source of truth.
+   * @param runId The recorded run's id.
+   * @param document The currently loaded workflow document (replay context).
+   */
+  private async replayRecordedRun(
+    runId: string,
+    document: GraphWorkflowDocument,
+  ): Promise<void> {
+    this.isRunning.set(true);
+    graphRunState.beginObservation({
+      runId,
+      workflowId: document.id,
+      status: null,
+    });
+    this.armRunStuckTimeout(runId);
+    graphRunLog.recordLifecycle(
+      'replay',
+      `Replaying recorded run '${runId}'.`,
+      { runId, workflowId: document.id },
+    );
+    const subscriber = this.runEventSubscriber(runId, document, true);
+    this.runEventSubscribers.set(runId, subscriber);
+    try {
+      this.runEventClient.connect(
+        {
+          runId,
+          eventsUrl: `/graph/runs/${encodeURIComponent(runId)}/events`,
+          afterSequence: 0,
+        },
+        subscriber,
+      );
+    } catch (err) {
+      this.runEventSubscribers.delete(runId);
+      this.isRunning.set(false);
+      if (err instanceof GraphBackendUnavailableError) {
+        this.backendAvailable.set(false);
+      }
+      this.runError.set(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  /**
    * Creates the per-run canonical stream subscriber. It folds every
    * replayed/live envelope into the run state store, routes the terminal
    * envelope into the stored-result fold (plus the run's SSE document
@@ -484,10 +591,14 @@ export class GraphPage implements OnInit, OnDestroy {
    * page's `runError` signal.
    * @param runId The run's id.
    * @param document The canonical document submitted to the run.
+   * @param replay Whether the subscriber observes a recorded run's replay
+   * (SAA-836 U1 AC3): the terminal then folds through
+   * {@link finishReplayRun} instead of the fresh-run fold.
    */
   private runEventSubscriber(
     runId: string,
     document: GraphWorkflowDocument,
+    replay = false,
   ): GraphRunEventClientSubscriber {
     return {
       onEvent: (envelope: GraphRunEventEnvelope): void => {
@@ -495,7 +606,8 @@ export class GraphPage implements OnInit, OnDestroy {
         this.runStatus.set(envelope.type);
       },
       onTerminal: (envelope: GraphRunEventEnvelope): void => {
-        void this.finishCanonicalRun(runId, document, envelope);
+        if (replay) void this.finishReplayRun(runId, envelope);
+        else void this.finishCanonicalRun(runId, document, envelope);
       },
       onError: (error: unknown): void => {
         // Stream-level failure (SSE reconnect budget exhausted; the polling
@@ -554,6 +666,49 @@ export class GraphPage implements OnInit, OnDestroy {
     this.runEventClient.disconnect(runId);
     this.runEventSubscribers.delete(runId);
     this.cancelRequested.set(false);
+    this.isRunning.set(false);
+  }
+
+  /**
+   * Folds a replayed run's terminal envelope (SAA-836 U1 AC3): run-status
+   * signals, the stored-result fold, and the prior-version restore. When the
+   * recorded run executed a different document version than the currently
+   * loaded one (fingerprint change), the run's stored document is restored
+   * into the editor — the mastra compiler is fingerprint-keyed, so running
+   * the restored version recompiles once, atomically.
+   * @param runId The replayed run's id.
+   * @param envelope The replayed run's terminal envelope.
+   */
+  private async finishReplayRun(
+    runId: string,
+    envelope: GraphRunEventEnvelope,
+  ): Promise<void> {
+    this.clearRunStuckTimeout();
+    this.runStatus.set(envelope.type);
+    graphRunLog.setOpen(true);
+
+    this.runResultState.set('pending');
+    const result = await this.fetchRunResultWithRetry(runId);
+    this.runResultState.set(result ? 'ready' : 'failed');
+
+    graphRunState.applyRunResult(result);
+    if (result) {
+      this.lastResult.set((result.outputs ?? null) as Record<string, unknown> | null);
+      const executed = graphWorkflowDocumentSemanticHashOf(result.document);
+      const loaded = graphWorkflowDocumentSemanticHashOf(
+        this.documentStore.document() ?? ({} as GraphWorkflowDocument),
+      );
+      if (executed !== loaded) {
+        this.renderer?.restoreFromDocument({ document: result.document });
+        graphRunLog.recordLifecycle(
+          'restored',
+          `Restored the version executed by run '${runId}'.`,
+          { runId },
+        );
+      }
+    }
+    this.runEventClient.disconnect(runId);
+    this.runEventSubscribers.delete(runId);
     this.isRunning.set(false);
   }
 

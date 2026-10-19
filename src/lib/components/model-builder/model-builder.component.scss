@@ -24,10 +24,10 @@
 
   &__panel,
   &__preview {
-    background: var(--ion-color-light, #f4f5f8);
+    background: var(--gx-surface-soft);
     border-radius: 12px;
     padding: 1.25rem;
-    border: 1px solid var(--ion-color-light-shade, #d7d8da);
+    border: 1px solid var(--gx-border-ion);
   }
 
   &__preview {
@@ -55,11 +55,29 @@
     font-size: 1.25rem;
     font-weight: 600;
     margin: 0;
-    color: var(--ion-color-dark, #222428);
+    color: var(--gx-text-ion-dark);
   }
 
   &__section {
     margin-bottom: 1.25rem;
+  }
+
+  &__section--structured {
+    border: 1px solid var(--gx-border-ion);
+    border-radius: 8px;
+    padding: 0.75rem;
+  }
+
+  &__hint {
+    font-size: 0.8rem;
+    color: var(--gx-text-ion-medium);
+    margin: 0 0 0.5rem;
+  }
+
+  &__generated-form {
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--gx-border-ion);
   }
 
   &__section-content {
@@ -77,7 +95,7 @@
     font-size: 1rem;
     font-weight: 600;
     margin: 0;
-    color: var(--ion-color-dark, #222428);
+    color: var(--gx-text-ion-dark);
   }
 
   &__empty {
@@ -87,7 +105,7 @@
     justify-content: center;
     padding: 2rem 1rem;
     text-align: center;
-    color: var(--ion-color-medium, #92949c);
+    color: var(--gx-text-ion-medium);
 
     ion-icon {
       font-size: 2.5rem;
@@ -108,9 +126,9 @@
   }
 
   &__property {
-    background: var(--ion-background-color, #fff);
+    background: var(--gx-surface);
     border-radius: 8px;
-    border: 1px solid var(--ion-color-light-shade, #d7d8da);
+    border: 1px solid var(--gx-border-ion);
     overflow: hidden;
 
     &--expanded {
@@ -123,20 +141,20 @@
     align-items: center;
     gap: 0.375rem;
     padding: 0.5rem 0.75rem;
-    background: var(--ion-color-light, #f4f5f8);
-    border-bottom: 1px solid var(--ion-color-light-tint, #f0f1f3);
+    background: var(--gx-surface-soft);
+    border-bottom: 1px solid var(--gx-border-ion-tint);
   }
 
   &__property-index {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--ion-color-medium, #92949c);
+    color: var(--gx-text-ion-medium);
     min-width: 1.5rem;
     height: 1.5rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: var(--ion-background-color, #fff);
+    background: var(--gx-surface);
     border-radius: 50%;
   }
 
@@ -145,7 +163,7 @@
     border: none;
     cursor: pointer;
     padding: 0.125rem;
-    color: var(--ion-color-medium, #92949c);
+    color: var(--gx-text-ion-medium);
     display: inline-flex;
     align-items: center;
 
@@ -157,7 +175,7 @@
   &__property-name {
     font-weight: 600;
     font-size: 0.875rem;
-    color: var(--ion-color-dark, #222428);
+    color: var(--gx-text-ion-dark);
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -213,7 +231,7 @@
   }
 
   &__group {
-    background: var(--ion-color-light-tint, #f6f7f9);
+    background: var(--gx-surface-ion-tint);
     border-radius: 6px;
     padding: 0.625rem;
   }
@@ -223,7 +241,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--ion-color-medium, #92949c);
+    color: var(--gx-text-ion-medium);
     margin: 0 0 0.5rem 0;
   }
 
@@ -234,7 +252,7 @@
   &__group-label {
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--ion-color-medium, #92949c);
+    color: var(--gx-text-ion-medium);
     display: block;
     margin-bottom: 0.375rem;
   }
@@ -267,7 +285,7 @@
     display: inline-flex !important;
     align-items: center;
     gap: 0.375rem;
-    background: var(--ion-background-color, #fff);
+    background: var(--gx-surface);
     border-radius: 6px;
     padding: 0 0.5rem !important;
     flex: 0 0 auto;
@@ -280,7 +298,7 @@
   &__checkbox-label {
     font-size: 0.8125rem !important;
     font-weight: 500 !important;
-    color: var(--ion-color-dark, #222428) !important;
+    color: var(--gx-text-ion-dark) !important;
   }
 
   &__checkbox-row {
@@ -332,9 +350,9 @@
     flex: 1;
     overflow: auto;
     padding: 0.5rem;
-    background: var(--ion-background-color, #fff);
+    background: var(--gx-surface);
     border-radius: 8px;
-    border: 1px solid var(--ion-color-light-shade, #d7d8da);
+    border: 1px solid var(--gx-border-ion);
     min-height: 300px;
   }
 }

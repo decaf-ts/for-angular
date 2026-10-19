@@ -1,5 +1,8 @@
 @if (item) {
-  <div class="graph-workflow-item">
+  <div
+    class="graph-workflow-item"
+    role="listitem"
+  >
     <div class="graph-workflow-item__icon">
       <ngx-decaf-icon
         color="tertiary"
@@ -15,26 +18,43 @@
       </span>
     </div>
     <div class="graph-workflow-item__actions">
-      <ngx-decaf-icon
+      <ion-button
         (click)="pastExecutions($event)"
-        (keyup.enter)="pastExecutions($event)"
-        [button]="true"
-        [attr.tabindex]="0"
         [attr.aria-label]="locale + '.runs' | translate"
-        slot="icon-only"
+        fill="clear"
+        shape="round"
         color="primary"
-        name="ti-history"
-      />
-      <ngx-decaf-icon
+      >
+        <ngx-decaf-icon
+          name="ti-history"
+          color="primary"
+        />
+      </ion-button>
+      <ion-button
+        (click)="runScenario($event)"
+        [disabled]="!canRunWorkflow()"
+        [attr.aria-label]="(canRunWorkflow() ? locale + '.run' : locale + '.runBlocked') | translate"
+        fill="clear"
+        shape="round"
+        color="primary"
+      >
+        <ngx-decaf-icon
+          name="ti-player-play"
+          color="primary"
+        />
+      </ion-button>
+      <ion-button
         (click)="openWorkflow($event)"
-        (keyup.enter)="openWorkflow($event)"
-        [button]="true"
-        [attr.tabindex]="0"
         [attr.aria-label]="locale + '.open' | translate"
-        slot="icon-only"
+        fill="clear"
+        shape="round"
         color="primary"
-        name="ti-edit"
-      />
+      >
+        <ngx-decaf-icon
+          name="ti-edit"
+          color="primary"
+        />
+      </ion-button>
     </div>
   </div>
 }

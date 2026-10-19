@@ -25,16 +25,23 @@
  * asserts one probe symbol is detected inside a synthetic chunk, so a blind
  * scanner cannot silently pass, and a fixture frontend symbol present in
  * every build proves the scan reads real production bytes.
+ *
+ * A third wall extends the guard to the auto-layout boundary (DECAF-50 §4.12):
+ * the shared layout engine and elkjs must stay out of every eager chunk listed
+ * by `www/index.html` (modulepreload + `<script type="module">`) and only ship
+ * as non-initial lazy chunks.
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
+import os from 'node:os';
 
 /** `for-angular` package root (this module's grandparent directory). */
 const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 
-/** Production bundle directory (`angular.json` `for-angular-app` `outputPath`). */
-const DIST_DIR = path.join(PACKAGE_ROOT, 'www');
+/** Isolated production output so concurrent builds cannot replace scanned chunks. */
+const BUILD_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'for-angular-bundle-wall-'));
+const DIST_DIR = path.join(BUILD_DIR, 'browser');
 
 /**
  * Import specifier prefixes that never may appear in the browser's
@@ -141,6 +148,19 @@ const FORBIDDEN_BUNDLE_SYMBOLS = [
   'GraphNodeCatalogueController',
 ] as const;
 
+/**
+ * Layout/elk symbols that must never reach an eager bundle (DECAF-50 §4.12): the
+ * shared layout glue (`buildLayoutOptions`, `toElkGraph`, `fromElkLayout`, the
+ * hard-coded `elk.direction`) and the elkjs runtime marker (`org.eclipse.elk`).
+ */
+const LAYOUT_BUNDLE_SYMBOLS = [
+  'org.eclipse.elk',
+  'elk.direction',
+  'buildLayoutOptions',
+  'toElkGraph',
+  'fromElkLayout',
+] as const;
+
 /** Escapes all regex control characters in one phrase. */
 function escapeRegExp(phrase: string): string {
   return phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -163,6 +183,24 @@ function occurrenceOf(text: string, symbol: string): number {
 /** Scans one bundle text for every forbidden symbol. @returns violations. */
 function bundleViolationsOf(text: string): string[] {
   return FORBIDDEN_BUNDLE_SYMBOLS.filter((symbol) => occurrenceOf(text, symbol) > 0);
+}
+
+/** Layout/elk symbols present in one bundle text (substring match, order-stable). */
+function layoutSymbolsInText(text: string): string[] {
+  return LAYOUT_BUNDLE_SYMBOLS.filter((symbol) => text.includes(symbol));
+}
+
+/**
+ * Collects the JS chunk filenames `index.html` loads eagerly (modulepreload
+ * `href` plus `<script type="module">` `src`). These are the only chunks the
+ * browser pays for before any user interaction.
+ */
+function initialJsChunkFilesOf(indexHtml: string): string[] {
+  const files = new Set<string>();
+  for (const match of indexHtml.matchAll(/(?:href|src)="([^"]+\.js)"/g)) {
+    files.add(match[1].replace(/^\.\//, ''));
+  }
+  return [...files];
 }
 
 /** Visits every `.ts`/`.scss`/`.html` production source file under one root. */
@@ -191,47 +229,17 @@ function walkSources(root: string, visit: (file: string) => void): void {
 
 /** Runs the Angular production build for the app project. */
 function runProductionBuild(): void {
-  execSync('npx ng build for-angular-app --configuration production', {
+  execFileSync('npx', ['ng', 'build', 'for-angular-app', '--configuration', 'production', '--output-path', BUILD_DIR], {
     cwd: PACKAGE_ROOT,
     stdio: 'pipe',
     env: { ...process.env, NG_BUILD_CACHE: '0' },
   });
 }
 
-/**
- * Detects the app's production `outputPath` shape (`angular.json` `for-angular-app`
- * builds both `production` and `development` into `www/`; production hashes every
- * chunk onto `main.<hash>.js`, while the development config emits the unhashed
- * `main.js`/`vendor.js` bundle). The runtime wall never asserts against a
- * development dist — the dev bundle carries un-minified backend symbol names even
- * when no backend code is actually executable in the browser.
- */
-function isProductionBundle(): boolean {
-  const indexHtml = path.join(DIST_DIR, 'index.html');
-  if (!fs.existsSync(indexHtml)) return false;
-  const text = fs.readFileSync(indexHtml, 'utf8');
-  return /<(script|link)[^>]+(main|polyfills|vendor|styles|runtime)\.[0-9a-f]+\.(js|css)/.test(text);
-}
-
-/**
- * Rebuilds the production bundle when it is missing, not a production build, or
- * older than the graph sources so the runtime wall never asserts on a stale dist.
- */
-function refreshProductionBundleWhenStale(): void {
-  if (!fs.existsSync(path.join(DIST_DIR, 'index.html')) || !isProductionBundle()) {
-    runProductionBuild();
-    return;
-  }
-  const distStamp = fs.statSync(path.join(DIST_DIR, 'index.html')).mtimeMs;
-  const sourceRoot = path.join(PACKAGE_ROOT, 'src');
-  let newestSource = 0;
-  walkSources(sourceRoot, (file) => {
-    newestSource = Math.max(newestSource, fs.statSync(file).mtimeMs);
-  });
-  if (newestSource > distStamp) runProductionBuild();
-}
-
 describe('bundle wall (DECAF_50 §4.20 verification bar 1)', () => {
+  beforeAll(() => runProductionBuild());
+  afterAll(() => fs.rmSync(BUILD_DIR, { recursive: true, force: true }));
+
   test('static import wall: no backend import segment is reachable from the graph sources', () => {
     const violations: string[] = [];
     const sourceRoots = [path.join(PACKAGE_ROOT, 'src', 'graph'), path.join(PACKAGE_ROOT, 'src', 'lib')];
@@ -253,7 +261,6 @@ describe('bundle wall (DECAF_50 §4.20 verification bar 1)', () => {
   });
 
   test('runtime bundle wall: the production bundle carries no backend engine/executor/validator/run-store symbols', () => {
-    refreshProductionBundleWhenStale();
     const chunks: string[] = [];
     const walkDist = (dir: string): void => {
       for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -288,5 +295,47 @@ describe('bundle wall (DECAF_50 §4.20 verification bar 1)', () => {
     const found = bundleViolationsOf(synthetic);
     expect(found).toContain('GraphExecutionEngine');
     expect(found).toContain('GraphRunService');
+  });
+
+  test('eager bundle wall: layout/elk code never reaches an initial chunk and stays lazily split', () => {
+    const indexHtml = fs.readFileSync(path.join(DIST_DIR, 'index.html'), 'utf8');
+    const initialChunks = initialJsChunkFilesOf(indexHtml);
+    expect(initialChunks.length).toBeGreaterThan(0);
+
+    const initial = new Set(initialChunks);
+    const eagerViolations: string[] = [];
+    for (const chunk of initialChunks) {
+      const file = path.join(DIST_DIR, chunk);
+      if (!fs.existsSync(file)) continue;
+      const found = layoutSymbolsInText(fs.readFileSync(file, 'utf8'));
+      if (found.length) eagerViolations.push(`${chunk}: ${found.join(', ')}`);
+    }
+    expect(eagerViolations).toEqual([]);
+
+    // The layout glue and elkjs are still shipped, just lazily: at least one
+    // non-initial `chunk-*.js` not referenced by index.html carries each.
+    const lazyChunks = fs
+      .readdirSync(DIST_DIR)
+      .filter((name) => name.startsWith('chunk-') && name.endsWith('.js') && !initial.has(name));
+    const lazyWithElk = lazyChunks.filter((name) =>
+      fs.readFileSync(path.join(DIST_DIR, name), 'utf8').includes('org.eclipse.elk')
+    );
+    const lazyWithGlue = lazyChunks.filter((name) =>
+      fs.readFileSync(path.join(DIST_DIR, name), 'utf8').includes('buildLayoutOptions')
+    );
+    expect(lazyWithElk.length).toBeGreaterThan(0);
+    expect(lazyWithGlue.length).toBeGreaterThan(0);
+  });
+
+  test('scanner control: a synthetic eager chunk carrying layout code is detected', () => {
+    const synthetic = `function buildLayoutOptions(){ return { 'elk.direction': 'RIGHT' }; }`;
+    const found = layoutSymbolsInText(synthetic);
+    expect(found).toContain('buildLayoutOptions');
+    expect(found).toContain('elk.direction');
+  });
+
+  test('scanner control: a front-end safe symbol never counts as layout/elk code', () => {
+    const safeBundle = `class GraphWorkflowDocumentStore { arrange(){ return computeGraphWorkflowLayout; } }`;
+    expect(layoutSymbolsInText(safeBundle)).toEqual([]);
   });
 });

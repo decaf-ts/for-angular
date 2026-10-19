@@ -14,7 +14,11 @@ import {
   type GraphConditionEditorChange,
 } from './graph-condition-editor.component';
 
-/** Mounts the condition editor, optionally seeded with an existing condition. */
+/**
+ * Mounts the condition editor, optionally seeded with an existing condition.
+ * @param [condition] - Optional existing condition to seed the editor with.
+ * @return The mounted fixture.
+ */
 function render(
   condition: GraphConditionEditorChange['condition'] | null = null
 ): ComponentFixture<GraphConditionEditorComponent> {

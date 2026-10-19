@@ -723,6 +723,13 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         if (this.labelPlacement === 'floating') {
           this.labelPlacement = 'end';
         }
+        // checkbox group: value is always an array, seeded from checked options when not provided
+        if (this.options?.length && !Array.isArray(this.value)) {
+          const current = this.formControl?.value;
+          this.value = Array.isArray(current)
+            ? current
+            : (this.options as CheckboxOption[]).filter((o) => o.checked).map((o) => o.value as string);
+        }
         this.setValue(this.value);
       }
     }
@@ -837,8 +844,10 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
         value: option.value,
         text: this.interface === SelectFieldInterfaces.MODAL ? text : stripHTML(text as string),
         selected: option?.selected ?? false,
+        checked: (option as CheckboxOption)?.checked ?? false,
         hidden: option?.hidden ?? false,
         disabled: option?.disabled ?? false,
+        readonly: option?.readonly ?? false,
       };
     });
 

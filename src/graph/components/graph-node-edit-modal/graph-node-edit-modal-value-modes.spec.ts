@@ -18,7 +18,12 @@ import {
 } from './graph-node-edit-modal.component';
 import type { GraphDemoNodeData } from '../../types';
 
-/** Builds a node-data fixture with the given kind and ports. */
+/**
+ * Builds a node-data fixture with the given kind and ports.
+ * @param kind - The node kind/title.
+ * @param ports - The port fixtures.
+ * @return The node-data fixture.
+ */
 function nodeData(kind: string, ports: GraphDemoNodeData['ports']): GraphDemoNodeData {
   return {
     title: kind,

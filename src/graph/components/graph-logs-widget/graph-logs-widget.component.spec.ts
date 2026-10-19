@@ -140,6 +140,26 @@ describe('GraphLogsWidgetComponent — on-demand docked drawer (D6/G3-19..21)', 
     expect(fixture.nativeElement.querySelector('.graph-logs__handle')).not.toBeNull();
   });
 
+  it('renders a malformed streamed entry without throwing (missing level / bad timestamp)', () => {
+    const fixture = render();
+    // A regressed stream could still hand the console an entry without a
+    // `level` or with an unparseable timestamp; the drawer must degrade, not
+    // throw during change detection (SAA-767).
+    graphRunLog.append({
+      message: 'no level',
+      timestamp: 'not-a-date',
+      runId: 'r1',
+      workflowId: 'w1',
+    } as never);
+    graphRunLog.setOpen(true);
+
+    expect(() => fixture.detectChanges()).not.toThrow();
+    const line = fixture.nativeElement.querySelector('.graph-logs__entry') as HTMLElement | null;
+    expect(line).not.toBeNull();
+    expect(line?.textContent).toContain('LOG');
+    expect(line?.textContent).toContain('no level');
+  });
+
   it('clears both streamed entries and run-lifecycle lines', () => {
     const fixture = render();
     graphRunLog.append(entry('info', 'streamed'));

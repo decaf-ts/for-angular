@@ -117,7 +117,7 @@ function storedResultBody(): Record<string, unknown> {
           nodeId: RESULT_LOG,
           status: 'succeeded',
           inputs: { value: true },
-          outputs: { logged: 5 },
+          outputs: { value: 5 },
         },
       },
     },

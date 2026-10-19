@@ -106,7 +106,6 @@ describe('curve-interpolation', () => {
 
   it('keeps tangents non-negative for monotone increasing data', () => {
     const tangents = computeMonotoneTangents(increasing);
-
     expect(tangents.every((tangent) => tangent >= -1e-9)).toBe(true);
   });
 

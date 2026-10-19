@@ -18,7 +18,7 @@
 }
 
 .condition-editor__select {
-  --background: rgba(15, 23, 42, 0.04);
+  --background: var(--gx-surface-inset);
   --padding-start: 0.4rem;
   --padding-end: 0.4rem;
   min-width: 80px;
@@ -35,7 +35,7 @@
 }
 
 .condition-editor__input {
-  --background: rgba(15, 23, 42, 0.04);
+  --background: var(--gx-surface-inset);
   --padding-start: 0.4rem;
   font-size: 0.8rem;
   border-radius: 6px;
@@ -66,8 +66,8 @@
   padding: 0;
   border: 1px solid rgba(148, 163, 184, 0.3);
   border-radius: 6px;
-  background: rgba(15, 23, 42, 0.04);
-  color: #94a3b8;
+  background: var(--gx-surface-inset);
+  color: var(--gx-text-faint);
   font-family: 'Courier New', monospace;
   font-size: 0.65rem;
   font-weight: 700;
@@ -84,5 +84,5 @@
 .condition-editor__mode-btn--active {
   background: rgba(168, 85, 247, 0.1);
   border-color: #a855f7;
-  color: #7c3aed;
+  color: var(--gx-accent-fg);
 }

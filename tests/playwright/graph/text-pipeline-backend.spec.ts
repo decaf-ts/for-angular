@@ -23,7 +23,7 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
  * The main run only publishes the top-level member nodes — the engine filters the
  * nested loop-body node results out of `result.nodeResults` — so the in-loop
  * `LoopItemLogNode` is proven by executing the foreach body document standalone
- * once per split item, which surfaces its `logged` output.
+ * once per split item, which surfaces its `value` output.
  */
 
 const BACKEND_URL = process.env['GRAPH_BACKEND_URL'] ?? 'http://127.0.0.1:3000';
@@ -163,7 +163,7 @@ test.describe('real backend text pipeline (DECAF-50 R2)', () => {
     const split = nodeResults[SPLIT_NODE_ID]?.outputs?.result;
     const foreach = nodeResults[FOREACH_NODE_ID]?.outputs ?? {};
     const completed = foreach['completed'] as unknown[];
-    const logged = nodeResults[LOG_NODE_ID]?.outputs?.logged;
+    const logOutput = nodeResults[LOG_NODE_ID]?.outputs?.value;
 
     // The Code node split the raw input into one chunk per line.
     expect(split).toEqual(INPUT_ITEMS);
@@ -181,7 +181,7 @@ test.describe('real backend text pipeline (DECAF-50 R2)', () => {
     // Board item 8: the workflow output carries the foreach `completed` results
     // and the ResultLog node logs those results rather than a hardcoded payload.
     expect(run.result?.outputs?.result).toEqual(completed);
-    expect(logged).toEqual(completed);
+    expect(logOutput).toEqual(completed);
   });
 
   test('logs every split item through the in-loop Log node (foreach body)', async ({
@@ -197,8 +197,8 @@ test.describe('real backend text pipeline (DECAF-50 R2)', () => {
       const run = await runDocument(request, body, { item });
       expect(run.status, JSON.stringify(run.error)).toBe('succeeded');
 
-      const logged = run.result?.nodeResults?.[BODY_LOG_NODE_ID]?.outputs?.logged;
-      expect(logged).toBe(item);
+      const logOutput = run.result?.nodeResults?.[BODY_LOG_NODE_ID]?.outputs?.value;
+      expect(logOutput).toBe(item);
     }
   });
 

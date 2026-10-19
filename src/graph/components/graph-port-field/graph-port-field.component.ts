@@ -5,6 +5,10 @@ import { IonInput, IonTextarea } from '@ionic/angular/standalone';
 import { CodeEditorComponent, type CodeEditorMode } from '../code-editor/code-editor.component';
 import { GraphTranslateService } from '../../i18n/graph-translate.service';
 import {
+  modelBuilderStructuredDefinitionOf,
+  ModelBuilderComponent,
+} from '../../../lib/components/model-builder/model-builder.component';
+import {
   graphPortDefaultValueMode,
   graphPortValueModesOf,
   type GraphPortValueMode,
@@ -61,7 +65,7 @@ export interface GraphPortFieldModeChange {
 @Component({
   selector: 'app-graph-port-field',
   standalone: true,
-  imports: [IonInput, IonTextarea, CodeEditorComponent],
+  imports: [IonInput, IonTextarea, CodeEditorComponent, ModelBuilderComponent],
   templateUrl: './graph-port-field.component.html',
   styleUrl: './graph-port-field.component.scss',
 })
@@ -77,6 +81,8 @@ export class GraphPortFieldComponent implements OnInit {
   readonly _useAsPort = signal(false);
   readonly _value = signal('');
   readonly _valueMode = signal<GraphPortValueMode>('literal');
+  /** Parsed S1 structured-output definition for model-builder widget ports. */
+  readonly _definition = signal<Record<string, unknown> | null>(null);
 
   readonly isInput = computed(() => this.field?.port?.direction === PortDirection.INPUT);
   readonly isOutput = computed(() => this.field?.port?.direction === PortDirection.OUTPUT);
@@ -109,6 +115,19 @@ export class GraphPortFieldComponent implements OnInit {
   });
   readonly useCodeEditor = computed(() => this.isInput() && this.elementTag() === 'code-editor');
   readonly codeEditorMode = computed<CodeEditorMode>(() => this.elementTag() === 'code-editor' ? 'code' : 'formula');
+
+  /**
+   * Model-builder widget ports (SAA-836 U1/S1): a manifest port decorated with
+   * `@uielement("ngx-decaf-model-builder")` (the agent family's
+   * `structuredOutput`) edits its literal value through the model-builder
+   * component instead of a raw text field. The persisted value is the S1
+   * structured-output definition object.
+   */
+  readonly useModelBuilder = computed(
+    () => this.isInput() && this.elementTag() === 'ngx-decaf-model-builder'
+  );
+  readonly showModelBuilder = computed(() => this.useModelBuilder() && this.isLiteralMode());
+  readonly definitionValue = computed(() => this._definition());
 
   /**
    * Value modes the port's metadata allows (§13 "Gating"). The modal passes an
@@ -157,7 +176,16 @@ export class GraphPortFieldComponent implements OnInit {
   ngOnInit() {
     const f = this.field;
     this._useAsPort.set(f?.useAsPort ?? false);
-    this._value.set(f?.value !== undefined && f?.value !== null ? String(f.value) : '');
+    this._value.set(
+      f?.value === undefined || f?.value === null
+        ? ''
+        : typeof f.value === 'object'
+          ? JSON.stringify(f.value)
+          : String(f.value)
+    );
+    if (this.useModelBuilder()) {
+      this._definition.set(modelBuilderStructuredDefinitionOf(f?.value));
+    }
     const modes = this.valueModes();
     const fallback = graphPortDefaultValueMode(f?.port);
     this._valueMode.set(
@@ -215,6 +243,13 @@ export class GraphPortFieldComponent implements OnInit {
     this.emitChange();
   }
 
+  /** Model-builder widget edit (SAA-836 U1/S1): stores the emitted S1 definition object. */
+  onDefinitionChange(definition: Record<string, unknown>) {
+    this._definition.set(definition);
+    this._value.set(JSON.stringify(definition));
+    this.emitChange();
+  }
+
   addOutputSplit() {
     this.fieldChange.emit({
       property: this.field.port.property,
@@ -226,7 +261,7 @@ export class GraphPortFieldComponent implements OnInit {
   private emitChange() {
     this.fieldChange.emit({
       property: this.field.port.property,
-      value: this._value(),
+      value: this.useModelBuilder() ? this._definition() : this._value(),
       useAsPort: this._useAsPort(),
     });
   }

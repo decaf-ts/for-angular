@@ -423,7 +423,19 @@
       "untitled": "Untitled workflow",
       "open": "Open workflow",
       "runs": "Past executions",
-      "empty": "No workflows yet"
+      "empty": "No workflows yet",
+      "create": "Create workflow",
+      "createBlocked": "The selected engine does not support creating workflows",
+      "run": "Run workflow",
+      "runBlocked": "The selected engine does not support running workflows",
+      "engine": {
+        "label": "Engine"
+      },
+      "failure": {
+        "backendDown": "The graph backend is unavailable. Showing the legacy workflow list.",
+        "malformed": "The engine capability manifest could not be read. Showing the legacy workflow list.",
+        "retry": "Retry"
+      }
     },
     "executions": {
       "title": "Executions",
@@ -437,6 +449,88 @@
       "replay": "Replay execution",
       "open": "Open execution",
       "empty": "No executions yet"
+    },
+    "engines": {
+      "picker": {
+        "title": "Select a workflow scenario",
+        "close": "Close",
+        "engine": "Engine",
+        "unsupported": "The selected engine does not support browsing workflows",
+        "empty": "No workflow scenarios are available for the selected engine",
+        "run": "Run",
+        "failure": {
+          "backendDown": "The graph backend is unavailable.",
+          "malformed": "The engine capability manifest is out of contract."
+        }
+      }
+    }
+  },
+  "agent": {
+    "chat": {
+      "title": "Agent chat",
+      "namespaces": {
+        "label": "Namespaces"
+      },
+      "typing": "Agent is responding…",
+      "actions": {
+        "label": "Agent actions"
+      },
+      "transcript": {
+        "aria": "Conversation transcript",
+        "empty": "Start the conversation by sending a message.",
+        "content": {
+          "label": "Content",
+          "placeholder": "Message content"
+        },
+        "created": {
+          "label": "Created at"
+        }
+      },
+      "role": {
+        "label": "Role",
+        "user": "You",
+        "assistant": "Agent",
+        "system": "System",
+        "error": "Error"
+      },
+      "composer": {
+        "message": {
+          "label": "Message",
+          "placeholder": "Type a message…"
+        },
+        "send": "Send",
+        "cancel": "Cancel"
+      },
+      "attachments": {
+        "label": "Attachments",
+        "add": "Attach",
+        "remove": "Remove attachment"
+      },
+      "knowledge": {
+        "label": "Knowledge base"
+      },
+      "roundtrip": {
+        "label": "Roundtrip",
+        "empty": "No roundtrips yet."
+      },
+      "status": {
+        "queued": "Queued",
+        "running": "Running",
+        "succeeded": "Succeeded",
+        "failed": "Failed",
+        "cancelled": "Cancelled",
+        "replayed": "Replayed"
+      },
+      "telemetry": {
+        "show": "Telemetry",
+        "hide": "Hide telemetry"
+      },
+      "structured": {
+        "title": "Structured object"
+      },
+      "error": {
+        "backendUnavailable": "Agent backend is not reachable. Reconnect and try again."
+      }
     }
   }
 }

@@ -166,7 +166,7 @@ async function mockBackend(
               nodeId: 'ResultLogNode',
               status: 'succeeded',
               inputs: { value: true },
-              outputs: { logged: 5 },
+              outputs: { value: 5 },
             },
           },
         },
@@ -348,7 +348,7 @@ test.describe('graph run return-to-edit & faded-node interaction (R2-3(9)/(10))'
     await expect(inspection).toBeVisible();
     const outputsPane = inspection.locator('.graph-node-inspection__pane--outputs');
     await expect(outputsPane).toBeVisible();
-    await expect(outputsPane.locator('app-graph-io-viewer')).toContainText('logged');
+    await expect(outputsPane.locator('app-graph-io-viewer')).toContainText('value');
     await inspection.locator('.graph-node-inspection__close').click();
     await expect(inspection).toBeHidden();
 
@@ -373,9 +373,9 @@ test.describe('canonical run trio wire contract (DECAF-50 §4.19)', () => {
     // The canonical document carries the workflow-output relation once, as the
     // engine's `$workflow` plan edge (DECAF-50 §4.26 R2-2 removed the legacy
     // lossless conversion). The D2/G3-09 port→port edge onto the
-    // output-boundary badge (`${RESULT_LOG}:logged->output-result:value`) is a
+    // output-boundary badge (`${RESULT_LOG}:value->output-result:value`) is a
     // canvas projection, not a document edge (see `edges.spec.ts`).
-    `${RESULT_LOG}:logged->$workflow:result`,
+    `${RESULT_LOG}:value->$workflow:result`,
   ];
 
   test('run action posts the exact editor document and follows the 202 eventsUrl from sequence zero', async ({ page }) => {

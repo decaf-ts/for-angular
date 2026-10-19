@@ -39,7 +39,7 @@ function logResolved(): GraphResolvedNodeManifest {
     kind: 'core.flow.log',
     display: { name: 'Log', category: 'Utility', width: 96, height: 96 },
     inputs: [{ id: 'value', label: 'Input value', direction: 'input', required: true }],
-    outputs: [{ id: 'logged', label: 'Logged value', direction: 'output', required: true }],
+    outputs: [{ id: 'value', label: 'Logged value', direction: 'output', required: true }],
     parameters: [],
   };
 }
@@ -71,7 +71,7 @@ function demoDocument(): GraphWorkflowDocument {
       {
         id: 'e-final',
         type: 'data',
-        source: { scope: 'node', nodeId: 'ResultLogNode', port: 'logged' },
+        source: { scope: 'node', nodeId: 'ResultLogNode', port: 'value' },
         target: { scope: 'workflow', port: 'result' },
         label: 'final-result',
       },

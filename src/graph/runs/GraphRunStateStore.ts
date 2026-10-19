@@ -18,6 +18,7 @@ import type {
   GraphExecutionEvent,
   GraphNodeInspectionPayload,
   GraphRunEventEnvelope,
+  GraphRunLogEntry,
   GraphRunStatus,
 } from '@decaf-ts/as-graph/shared';
 import { GraphExecutionEventType, GraphVisualState, isGraphRunStatus } from '@decaf-ts/as-graph/shared';
@@ -27,7 +28,11 @@ import {
 } from '../execution/GraphExecutionStateService';
 import { GraphExecutionStateMapper } from '../execution/GraphExecutionStateMapper';
 import { graphRunLog } from '../execution/GraphRunLogStore';
-import { graphInspection } from '../execution/GraphInspectionStore';
+import {
+  graphInspection,
+  graphInspectionPayloadsFromRunEvents,
+  type GraphInspectionRunEvent,
+} from '../execution/GraphInspectionStore';
 import type { GraphNodeExecutionStateMap, GraphEdgeExecutionStateMap } from '../types';
 import type { GraphRunExecutionResult, GraphRunNodeResult } from './GraphRunClient';
 
@@ -93,8 +98,9 @@ class GraphRunStateStore {
     graphExecutionState.nodeStates.set(nodes);
     graphExecutionState.edgeStates.set(edges);
 
-    if (envelope.type === 'graph.run.log' && envelope.payload) {
-      graphRunLog.append(envelope.payload as never);
+    if (envelope.type === 'graph.run.log') {
+      const logEntry = graphRunLogEntryOf(envelope);
+      if (logEntry) graphRunLog.append(logEntry);
     }
 
     this.observeEvent(envelope);
@@ -105,8 +111,17 @@ class GraphRunStateStore {
    * `result` payload, spec §4.16) into the run lifecycle signals and the
    * DECAF-48 §4.6 node I/O inspection payloads, so both sides of the
    * legacy/canonical cutover maintain the inspection parity required by
-   * §4.14/§4.15. Resolving the run's `result` conservatively closes the
-   * inspection payloads from the run's own node results.
+   * §4.14/§4.15.
+   *
+   * The inspection payloads merge the run's persisted `nodeResults` with the
+   * event-derived payloads folded from the run's observed event log
+   * ({@link graphInspectionPayloadsFromRunEvents}): engines that stream node
+   * lifecycle events but persist an empty `nodeResults` (the as-graph mastra
+   * driver, SAA-829) leave the split view with nothing to render even for a
+   * completed run, so the event-derived payloads fill any node the persisted
+   * results do not cover and the run panes render for every engine. Persisted
+   * results win because they also carry the routed inputs the events omit; a
+   * result with neither source resolves to a no-op.
    * @param result The terminal run's stored result, or `null` when the run
    *               ranks no stored result (cancelled before the engine landed
    *               one, or the store lost the run).
@@ -116,10 +131,27 @@ class GraphRunStateStore {
     this.lastRunId.set(result.runId);
     this.status.set(isGraphRunStatus(result.status) ? result.status : null);
     const nodeResults = Object.values(result.nodeResults ?? {}) as GraphRunNodeResult[];
-    if (!nodeResults.length) return;
-    graphInspection.setMany(
-      nodeResults.map((nodeResult) => this.toInspectionPayload(result, nodeResult)),
+    const fromNodeResults = nodeResults.map((nodeResult) =>
+      this.toInspectionPayload(result, nodeResult),
     );
+    // Engines that stream node lifecycle events but persist an empty
+    // `nodeResults` (the as-graph mastra driver, SAA-829) leave the split view
+    // with nothing to render even for a completed run. Fall back to the run's
+    // observed event log for any node the persisted results do not cover, so
+    // the run panes render for every engine; persisted results win because they
+    // also carry the routed inputs the events omit.
+    const merged = new Map<string, GraphNodeInspectionPayload>(
+      fromNodeResults.map((payload) => [payload.nodeId, payload]),
+    );
+    for (const payload of graphInspectionPayloadsFromRunEvents(
+      result.runId,
+      result.workflowId,
+      result.events as GraphInspectionRunEvent[] | undefined,
+    )) {
+      if (!merged.has(payload.nodeId)) merged.set(payload.nodeId, payload);
+    }
+    if (!merged.size) return;
+    graphInspection.setMany([...merged.values()]);
   }
 
   /**
@@ -252,6 +284,45 @@ export function graphRunStateSnapshot(): {
     lastRunId: graphRunState.lastRunId(),
     lastSequence: graphRunState.lastSequence(),
     lastError: graphRunState.lastError(),
+  };
+}
+
+/**
+ * Shapes a `graph.run.log` envelope into a render-safe {@link GraphRunLogEntry}.
+ * The backend replaces a payload it cannot serialize with a
+ * `{ nonSerializable: true }` (or `{ truncated: true, ... }`) sentinel, so a
+ * streamed log line may arrive without the `level`/`message`/`timestamp` the
+ * console requires. Such a payload is folded into an explicit placeholder line
+ * instead of being mishandled downstream (a malformed entry used to throw
+ * during the console's change detection, aborting the canvas render). Returns
+ * `null` for a payload that is not an object.
+ * @param envelope The canonical run envelope carrying the log payload.
+ */
+function graphRunLogEntryOf(envelope: GraphRunEventEnvelope): GraphRunLogEntry | null {
+  const payload = envelope.payload as Record<string, unknown> | undefined;
+  if (!payload || typeof payload !== 'object') return null;
+  const level = payload['level'];
+  const message = payload['message'];
+  if (typeof level === 'string' && typeof message === 'string') {
+    return {
+      ...(payload as unknown as GraphRunLogEntry),
+      timestamp:
+        typeof payload['timestamp'] === 'string' ? payload['timestamp'] : envelope.timestamp,
+      runId: typeof payload['runId'] === 'string' ? payload['runId'] : envelope.runId,
+      workflowId:
+        typeof payload['workflowId'] === 'string' ? payload['workflowId'] : envelope.workflowId,
+    };
+  }
+  const truncated = payload['truncated'] === true;
+  return {
+    level: 'warn',
+    message: truncated
+      ? 'Run log entry exceeded the payload limit.'
+      : 'Run log entry could not be serialized.',
+    timestamp: envelope.timestamp,
+    runId: envelope.runId,
+    workflowId: envelope.workflowId,
+    ...(envelope.nodeId ? { nodeId: envelope.nodeId } : {}),
   };
 }
 

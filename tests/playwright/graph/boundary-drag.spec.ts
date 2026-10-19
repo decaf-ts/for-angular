@@ -2,7 +2,7 @@
  * G4-R4 — results output node drag (DECAF-50 §4.22).
  *
  * The workflow-boundary result badge is draggable like any other node, and a drag
- * keeps its input connection (`ResultLogNode:logged → output-result:value`). The
+ * keeps its input connection (`ResultLogNode:value → output-result:value`). The
  * unit contract lives in
  * `src/graph/document/graph-boundary-moves.spec.ts`.
  *

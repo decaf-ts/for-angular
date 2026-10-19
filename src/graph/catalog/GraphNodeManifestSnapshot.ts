@@ -462,7 +462,7 @@ export const GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT: GraphNodeManifest[] = [
     ],
     "outputs": [
       {
-        "id": "logged",
+        "id": "value",
         "label": "Logged value",
         "direction": "output",
         "schema": {
@@ -470,7 +470,7 @@ export const GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT: GraphNodeManifest[] = [
           "properties": {}
         },
         "required": true,
-        "handle": "logged"
+        "handle": "value"
       }
     ],
     "parameters": [
@@ -1347,7 +1347,7 @@ export const GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT: GraphNodeManifest[] = [
     ],
     "outputs": [
       {
-        "id": "logged",
+        "id": "value",
         "label": "Logged value",
         "direction": "output",
         "schema": {
@@ -1355,7 +1355,7 @@ export const GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT: GraphNodeManifest[] = [
           "properties": {}
         },
         "required": true,
-        "handle": "logged"
+        "handle": "value"
       }
     ],
     "parameters": [

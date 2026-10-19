@@ -1,0 +1,86 @@
+@if (open()) {
+  <div
+    class="graph-engine-picker"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="'graph.engines.picker.title' | translate"
+  >
+    <div class="graph-engine-picker__panel">
+      <header class="graph-engine-picker__header">
+        <h2 class="graph-engine-picker__title">
+          {{ 'graph.engines.picker.title' | translate }}
+        </h2>
+        <button
+          type="button"
+          class="graph-engine-picker__close"
+          (click)="onDismiss()"
+          [attr.aria-label]="'graph.engines.picker.close' | translate"
+        >
+          &times;
+        </button>
+      </header>
+
+      @if (engines().length > 1) {
+        <label class="graph-engine-picker__engine" for="graph-engine-picker-engine">
+          <span>{{ 'graph.engines.picker.engine' | translate }}</span>
+          <ion-select
+            id="graph-engine-picker-engine"
+            [value]="selectedEngineId()"
+            interface="popover"
+            (ionChange)="onEngineChange($event)"
+          >
+            @for (engine of engines(); track engine.engineId) {
+              <ion-select-option [value]="engine.engineId">
+                {{ engine.displayName }}
+              </ion-select-option>
+            }
+          </ion-select>
+        </label>
+      }
+
+      @if (failure(); as failed) {
+        <p class="graph-engine-picker__failure" role="alert">
+          {{
+            (failed.kind === 'backend-down'
+              ? 'graph.engines.picker.failure.backendDown'
+              : 'graph.engines.picker.failure.malformed') | translate
+          }}
+        </p>
+      }
+
+      @if (!canListWorkflows()) {
+        <p class="graph-engine-picker__unsupported">
+          {{ 'graph.engines.picker.unsupported' | translate }}
+        </p>
+      } @else if (status() === 'loading') {
+        <div class="graph-engine-picker__loading">
+          <ion-spinner name="circular" />
+        </div>
+      } @else if (workflows().length === 0) {
+        <p class="graph-engine-picker__empty">
+          {{ 'graph.engines.picker.empty' | translate }}
+        </p>
+      } @else {
+        <ion-list class="graph-engine-picker__list">
+          @for (workflow of workflows(); track workflow.workflowId) {
+            <ion-item>
+              <span class="graph-engine-picker__workflow">
+                {{ workflow.name || workflow.workflowId }}
+              </span>
+              <ion-button
+                slot="end"
+                fill="clear"
+                [disabled]="!canRunWorkflow()"
+                [attr.aria-disabled]="!canRunWorkflow()"
+                (click)="onWorkflowRun(workflow)"
+                [attr.aria-label]="'graph.engines.picker.run' | translate"
+              >
+                {{ 'graph.engines.picker.run' | translate }}
+              </ion-button>
+            </ion-item>
+          }
+        </ion-list>
+      }
+    </div>
+  </div>
+}

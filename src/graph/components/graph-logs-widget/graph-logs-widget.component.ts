@@ -31,11 +31,12 @@ function entryLevelClassFn(level: GraphRunLogEntry['level']): string {
 }
 
 function entryLevelLabelFn(level: GraphRunLogEntry['level']): string {
-  return level.toUpperCase();
+  return typeof level === 'string' && level ? level.toUpperCase() : 'LOG';
 }
 
 function entryTimeFn(timestamp: string): string {
   const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return '';
   const hours = date.getHours().toString().padStart(2, '0');
   const minutes = date.getMinutes().toString().padStart(2, '0');
   const seconds = date.getSeconds().toString().padStart(2, '0');
@@ -152,8 +153,8 @@ export class GraphLogsWidgetComponent {
    * ngFor track key for a log entry, keyed by run, timestamp and message so
    * streamed duplicates collapse without re-rendering the list.
    */
-  protected trackEntry(_: number, entry: GraphRunLogEntry): string {
-    return `${entry.runId}-${entry.timestamp}-${entry.message}`;
+  protected trackEntry(index: number, entry: GraphRunLogEntry): string {
+    return `${index}-${entry.runId}-${entry.timestamp}-${entry.message}`;
   }
 
   /**

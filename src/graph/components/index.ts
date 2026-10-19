@@ -23,6 +23,7 @@ export * from './graph-node-edit-modal/graph-node-edit-modal.component';
 export * from './graph-node-inspection/graph-node-inspection.component';
 export * from './graph-node-inspection/graph-node-inline-editor.component';
 export * from './graph-node-inspection/graph-workflow-input-editor.component';
+export * from './graph-engine-workflow-picker/graph-engine-workflow-picker.component';
 export * from './graph-node-template/graph-node-template.component';
 export * from './graph-port-field/graph-port-field.component';
 export * from './graph-switch-edit-modal/graph-switch-edit-modal.component';

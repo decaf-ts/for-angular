@@ -11,6 +11,8 @@ import {
   graphLeafPortsOf,
   type GraphPortDefinition,
   type GraphWorkflowDefinition,
+  type GraphWorkflowPortInstance,
+  type GraphValueSchemaType,
 } from '@decaf-ts/as-graph/shared';
 
 export type WorkflowInputControlType =
@@ -22,6 +24,14 @@ export type WorkflowInputControlType =
   | 'email'
   | 'url';
 
+/**
+ * How a submitted field's raw form value is typed for the run payload. A
+ * document port that declares no schema accepts free-form JSON text, so a
+ * schema-less port (the engine fixtures) still submits the declared type the
+ * user entered (`7` → number, `[1,2,3]` → array, `{n:0}` → object).
+ */
+export type WorkflowInputValueType = 'text' | 'number' | 'boolean' | 'json';
+
 export interface WorkflowInputFieldDefinition {
   property: string;
   path: string;
@@ -32,6 +42,8 @@ export interface WorkflowInputFieldDefinition {
   value: unknown;
   validators: ValidatorFn[];
   required: boolean;
+  /** Declared typing applied to the raw form value before it is submitted. */
+  valueType?: WorkflowInputValueType;
 }
 
 export interface WorkflowInputBuildResult {
@@ -100,6 +112,42 @@ function assignNestedValue(target: Record<string, unknown>, path: string, value:
   current[segments[segments.length - 1]] = value;
 }
 
+/**
+ * Applies a field's declared typing to the raw form value. A schema-less
+ * document port is typed `json`, so a JSON-shaped string entered in a control
+ * is parsed back to the declared type (number/array/object); a value that does
+ * not parse stays the literal string (a plain text port such as `name`).
+ * @param field The field whose declared `valueType` drives the coercion.
+ * @param value The raw form value for the field.
+ * @returns The value typed for submission.
+ */
+export function coerceWorkflowInputValue(
+  field: WorkflowInputFieldDefinition,
+  value: unknown
+): unknown {
+  switch (field.valueType) {
+    case 'number':
+      if (typeof value === 'string' && value.trim() !== '') {
+        const numeric = Number(value);
+        return Number.isNaN(numeric) ? value : numeric;
+      }
+      return value;
+    case 'json':
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (!trimmed) return value;
+        try {
+          return JSON.parse(trimmed);
+        } catch {
+          return value;
+        }
+      }
+      return value;
+    default:
+      return value;
+  }
+}
+
 export function normalizeWorkflowInputValues(
   fields: WorkflowInputFieldDefinition[],
   values: Record<string, unknown>
@@ -112,7 +160,7 @@ export function normalizeWorkflowInputValues(
       values[field.path] ??
       values[field.property] ??
       field.value;
-    assignNestedValue(normalized, field.path, value);
+    assignNestedValue(normalized, field.path, coerceWorkflowInputValue(field, value));
   }
 
   return normalized;
@@ -305,16 +353,153 @@ export function buildWorkflowInputFields(
   return graphLeafPortsOf(workflow.inputs).map((port) => {
     const path = port.path || port.property;
     const controlName = path.replace(/[^\w-]/g, '__');
+    const controlType = resolveControlType(port);
     return {
       property: port.property,
       path,
       controlName,
       label: port.label,
       placeholder: port.element?.['props']?.['placeholder'] ?? port.prop?.['placeholder'],
-      controlType: resolveControlType(port),
+      controlType,
       value: resolveInitialValue(port, values, controlName),
       validators: resolveValidators(port),
       required: port.required,
+      valueType: resolveDecoratedValueType(controlType, port),
+    };
+  });
+}
+
+/**
+ * Declared submit typing for a decorated-root input port, derived from the
+ * rendered control and the port's declared type: number/checkbox controls map
+ * to `number`/`boolean`, and an array/object/any/model port accepts free-form
+ * JSON text (`json`); everything else submits as literal text.
+ * @param controlType The control widget resolved for the port.
+ * @param port The decorated root's input port definition.
+ * @returns The declared typing applied to the raw form value on submit.
+ */
+function resolveDecoratedValueType(
+  controlType: WorkflowInputControlType,
+  port: GraphPortDefinition
+): WorkflowInputValueType {
+  if (controlType === 'number') return 'number';
+  if (controlType === 'checkbox') return 'boolean';
+  const type = String(port.type || port.designType || '').toLowerCase();
+  if (type === 'array' || type === 'object' || type === 'any' || type === 'model') {
+    return 'json';
+  }
+  return 'text';
+}
+
+/**
+ * Control widget for a canonical workflow-document input port instance. The
+ * instance carries only an optional `schema`, so a schema-less port (the engine
+ * fixtures) renders as a free-form `text` control typed `json` on submit.
+ * @param port The document's declared input port instance.
+ * @returns The control widget the run form should render for the port.
+ */
+function resolvePortControlType(port: GraphWorkflowPortInstance): WorkflowInputControlType {
+  const schema = port.schema;
+  const type = schema?.type;
+  if (type === 'number') return 'number';
+  if (type === 'boolean') return 'checkbox';
+  if (
+    type === 'string' &&
+    typeof (schema as { format?: unknown })?.format === 'string' &&
+    /date|time/i.test((schema as { format: string }).format)
+  ) {
+    return 'date';
+  }
+  if (type === 'array' || type === 'object' || type === 'model' || type === 'any') {
+    return 'textarea';
+  }
+  return 'text';
+}
+
+/**
+ * Declared submit typing for a document input port instance, derived from the
+ * rendered control and the port's optional schema: number/checkbox controls map
+ * to `number`/`boolean`, a schema-less or non-string schema accepts free-form
+ * JSON text (`json`), and a string schema submits as literal text.
+ * @param controlType The control widget resolved for the port.
+ * @param schemaType The port's declared schema type, when any.
+ * @returns The declared typing applied to the raw form value on submit.
+ */
+function resolvePortValueType(
+  controlType: WorkflowInputControlType,
+  schemaType: GraphValueSchemaType | undefined
+): WorkflowInputValueType {
+  if (controlType === 'number') return 'number';
+  if (controlType === 'checkbox') return 'boolean';
+  if (schemaType === 'string') return 'text';
+  return 'json';
+}
+
+/**
+ * Seeds a document-port control's initial value: the caller-supplied values
+ * (matched by port id, then by the sanitized control name) take precedence,
+ * otherwise the port's declared default applies.
+ * @param port The document's declared input port instance.
+ * @param values Optional current values to seed the control with.
+ * @param fallbackKey Alternate key in `values` (the sanitized control name).
+ * @returns The control's initial value.
+ */
+function resolvePortInitialValue(
+  port: GraphWorkflowPortInstance,
+  values?: Record<string, unknown>,
+  fallbackKey?: string
+): unknown {
+  if (values) {
+    const direct = values[port.id];
+    if (direct !== undefined) return direct;
+    if (fallbackKey && fallbackKey in values) return values[fallbackKey];
+  }
+  return port.defaultValue;
+}
+
+/**
+ * Validators for a document-port control: `required` when the port is marked
+ * required, plus numeric `min`/`max` bounds declared on the port's schema.
+ * @param port The document's declared input port instance.
+ * @returns The reactive validators for the port's control.
+ */
+function resolvePortValidators(port: GraphWorkflowPortInstance): ValidatorFn[] {
+  const validators: ValidatorFn[] = [];
+  if (port.required) validators.push(Validators.required);
+  const schema = port.schema as { min?: unknown; max?: unknown } | undefined;
+  if (typeof schema?.min === 'number') validators.push(Validators.min(schema.min));
+  if (typeof schema?.max === 'number') validators.push(Validators.max(schema.max));
+  return validators;
+}
+
+/**
+ * Builds the run form's editable fields from the canonical document's declared
+ * input port instances (G1/SAA-783): the fixture catalog exposes its declared
+ * inputs (`n`, `items`, `state`, …) instead of the decorated demo root's
+ * `count`/`text`, so the run form and the run payload share the document's own
+ * input contract.
+ * @param ports The document's declared input port instances.
+ * @param values Optional current values to seed the controls with.
+ * @returns One field definition per declared port.
+ */
+export function buildWorkflowInputFieldsFromPorts(
+  ports: readonly GraphWorkflowPortInstance[],
+  values?: Record<string, unknown>
+): WorkflowInputFieldDefinition[] {
+  return ports.map((port) => {
+    const path = port.id;
+    const controlName = path.replace(/[^\w-]/g, '__');
+    const controlType = resolvePortControlType(port);
+    return {
+      property: path,
+      path,
+      controlName,
+      label: port.label ?? path,
+      controlType,
+      value: resolvePortInitialValue(port, values, controlName),
+      validators: resolvePortValidators(port),
+      required: port.required === true,
+      valueType: resolvePortValueType(controlType, port.schema?.type),
     };
   });
 }
@@ -325,6 +510,30 @@ export function buildWorkflowInputForm(
 ): FormGroup {
   const controls = Object.fromEntries(
     buildWorkflowInputFields(workflow, values).map((field) => [
+      field.controlName,
+      new FormControl(field.value, {
+        validators: field.validators,
+        nonNullable: false,
+      }),
+    ])
+  );
+
+  return new FormGroup(controls);
+}
+
+/**
+ * Builds the run form's `FormGroup` from the document's declared input port
+ * instances (G1/SAA-783), mirroring {@link buildWorkflowInputForm}.
+ * @param ports The document's declared input port instances.
+ * @param values Optional current values to seed the controls with.
+ * @returns The reactive form for the declared ports.
+ */
+export function buildWorkflowInputFormFromPorts(
+  ports: readonly GraphWorkflowPortInstance[],
+  values?: Record<string, unknown>
+): FormGroup {
+  const controls = Object.fromEntries(
+    buildWorkflowInputFieldsFromPorts(ports, values).map((field) => [
       field.controlName,
       new FormControl(field.value, {
         validators: field.validators,
