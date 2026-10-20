@@ -17,6 +17,7 @@ export default tseslint.config(
       'src/stories/**/*.ts',
       'src/polyfills.ts',
       'src/zone-flags.ts',
+      'jest*.config.cjs',
     ],
   },
   {
