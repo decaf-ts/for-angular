@@ -45,13 +45,12 @@ const config: Config = {
   // Module handling
   moduleNameMapper: {
     '^src/app/(.*)$': '<rootDir>/src/app/$1',
-    '^src/graph/(.*)$': '<rootDir>/diagrams/src/lib/graph/$1',
-    '^src/graph$': '<rootDir>/diagrams/src/lib/graph/index.ts',
-    '^diagrams/src/lib/graph/(.*)$': '<rootDir>/diagrams/src/lib/graph/$1',
-    '^diagrams/src/lib/graph$': '<rootDir>/diagrams/src/lib/graph/index.ts',
-    '^code-editor/src/(.*)$': '<rootDir>/code-editor/src/$1',
+    '^src/graph/(.*)$': '<rootDir>/src/diagrams/components/graph/$1',
+    '^src/graph$': '<rootDir>/src/diagrams/components/graph/index.ts',
+    '^src/diagrams/components/graph/(.*)$': '<rootDir>/src/diagrams/components/graph/$1',
+    '^src/diagrams/components/graph$': '<rootDir>/src/diagrams/components/graph/index.ts',
     '^@decaf-ts/for-angular$': '<rootDir>/src/lib/public-apis.ts',
-    '^@decaf-ts/for-angular/(.*)$': '<rootDir>/$1/src/public-api.ts',
+    '^@decaf-ts/for-angular/(.*)$': '<rootDir>/src/$1/public-api.ts',
     '^src/lib/engine/(.*)$': '<rootDir>/src/lib/engine/$1',
     '^src/lib/helpers/(.*)$': '<rootDir>/src/lib/helpers/$1',
     '^src/lib/(.*)$': '<rootDir>/src/lib/$1',

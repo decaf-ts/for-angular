@@ -6,7 +6,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphChatComponent } from 'diagrams/src/lib/graph/components/chat/chat.component';
+import { GraphChatComponent } from 'src/diagrams/components/graph/components/chat/chat.component';
 import './setup';
 import { getComponentMeta } from './utils';
 

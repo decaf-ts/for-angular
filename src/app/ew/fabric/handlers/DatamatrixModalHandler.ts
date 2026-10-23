@@ -1,5 +1,5 @@
 import { EnvironmentInjector } from '@angular/core';
-import { BarcodeTypes, createBarcodeContainer } from 'barcode/src/lib';
+import { BarcodeTypes, createBarcodeContainer } from 'src/barcode/components';
 import { CrudFieldComponent } from 'src/lib/components';
 import { presentNgxInlineModal } from 'src/lib/components/modal/modal.component';
 import { getModelAndRepository } from 'src/lib/engine';

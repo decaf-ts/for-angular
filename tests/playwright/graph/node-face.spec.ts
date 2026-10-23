@@ -6,7 +6,7 @@
  * description renders, and a `catalogue` icon reference renders as a Tabler sprite
  * `<use>`. The `url`/`data:` icon branches and the letter-silhouette fallback
  * cannot be reached from the demo (every demo manifest carries a catalogue icon);
- * they are pinned by `diagrams/src/lib/graph/components/graph-node-template/
+ * they are pinned by `src/diagrams/components/graph/components/graph-node-template/
  * graph-node-template.component.spec.ts` instead.
  *
  * RUN REQUIREMENTS: `npm run start` (dev server on :8110).

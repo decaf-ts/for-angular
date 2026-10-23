@@ -10,7 +10,7 @@ import type {
   GraphListService,
   GraphWorkflowSummary,
 } from 'src/app/services/graph-list/graph-list.service';
-import type { GraphEngineCapabilityService } from 'diagrams/src/lib/graph/capabilities';
+import type { GraphEngineCapabilityService } from 'src/diagrams/components/graph/capabilities';
 import { WorkflowListPage } from './workflow-list.page';
 
 const rows: GraphWorkflowSummary[] = [

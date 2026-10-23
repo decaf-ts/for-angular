@@ -15,11 +15,11 @@ import {
   provideNgDiagram,
   type ModelAdapter,
 } from 'ng-diagram';
-import { GraphNodeCatalogService } from 'diagrams/src/lib/graph/catalog/GraphNodeCatalogService';
-import { GraphEdgeTemplateComponent } from 'diagrams/src/lib/graph/components/graph-edge-template/graph-edge-template.component';
-import { GraphNodeTemplateComponent } from 'diagrams/src/lib/graph/components/graph-node-template/graph-node-template.component';
-import { graphExecutionState } from 'diagrams/src/lib/graph/execution/GraphExecutionStateService';
-import type { GraphRendererNodeData } from 'diagrams/src/lib/graph/types';
+import { GraphNodeCatalogService } from 'src/diagrams/components/graph/catalog/GraphNodeCatalogService';
+import { GraphEdgeTemplateComponent } from 'src/diagrams/components/graph/components/graph-edge-template/graph-edge-template.component';
+import { GraphNodeTemplateComponent } from 'src/diagrams/components/graph/components/graph-node-template/graph-node-template.component';
+import { graphExecutionState } from 'src/diagrams/components/graph/execution/GraphExecutionStateService';
+import type { GraphRendererNodeData } from 'src/diagrams/components/graph/types';
 import './setup';
 import { getComponentMeta } from './utils';
 

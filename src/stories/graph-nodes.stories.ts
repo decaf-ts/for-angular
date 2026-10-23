@@ -8,10 +8,10 @@ import {
   provideNgDiagram,
   type ModelAdapter,
 } from 'ng-diagram';
-import { GraphNodeCatalogService } from 'diagrams/src/lib/graph/catalog/GraphNodeCatalogService';
-import { GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT } from 'diagrams/src/lib/graph/catalog/GraphNodeManifestSnapshot';
-import { GraphNodeTemplateComponent } from 'diagrams/src/lib/graph/components/graph-node-template/graph-node-template.component';
-import { buildManifestMemberNode, graphPaletteEntriesOf } from 'diagrams/src/lib/graph/utils';
+import { GraphNodeCatalogService } from 'src/diagrams/components/graph/catalog/GraphNodeCatalogService';
+import { GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT } from 'src/diagrams/components/graph/catalog/GraphNodeManifestSnapshot';
+import { GraphNodeTemplateComponent } from 'src/diagrams/components/graph/components/graph-node-template/graph-node-template.component';
+import { buildManifestMemberNode, graphPaletteEntriesOf } from 'src/diagrams/components/graph/utils';
 import './setup';
 import { getComponentMeta } from './utils';
 

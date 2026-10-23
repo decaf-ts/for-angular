@@ -6,7 +6,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphSidebarMenuComponent } from 'diagrams/src/lib/graph/components/sidebar-menu/sidebar-menu.component';
+import { GraphSidebarMenuComponent } from 'src/diagrams/components/graph/components/sidebar-menu/sidebar-menu.component';
 import './setup';
 import { getComponentMeta } from './utils';
 

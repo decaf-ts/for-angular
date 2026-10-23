@@ -29,7 +29,7 @@
         "build": {
           "builder": "@angular/build:ng-packagr",
           "options": {
-            "project": "ng-package.json"
+            "project": "src/ng-package.json"
           },
           "configurations": {
             "production": {

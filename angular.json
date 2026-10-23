@@ -9,9 +9,7 @@
       "sourceRoot": "src",
       "prefix": "ngx-decaf",
       "cli": {
-        "schematicCollections": [
-          "./schematics"
-        ]
+        "schematicCollections": ["./schematics"]
       },
       "schematics": {
         "@schematics/angular:component": {
@@ -31,7 +29,7 @@
         "build": {
           "builder": "@angular/build:ng-packagr",
           "options": {
-            "project": "ng-package.json"
+            "project": "src/ng-package.json"
           },
           "configurations": {
             "production": {
@@ -62,11 +60,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": [
-              "src/theme/variables.scss",
-              "src/global.scss",
-              "src/theme/diagrams.scss"
-            ]
+            "styles": ["src/theme/variables.scss", "src/global.scss", "src/theme/diagrams.scss"]
           }
         },
         "build-storybook": {
@@ -81,10 +75,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
@@ -98,23 +89,15 @@
         "build": {
           "builder": "@angular-builders/custom-esbuild:application",
           "options": {
-            "plugins": [
-              "./esbuild.config.js"
-            ],
-            "allowedCommonJsDependencies": [
-              "cronstrue",
-              "reflect-metadata"
-            ],
+            "plugins": ["./esbuild.config.js"],
+            "allowedCommonJsDependencies": ["cronstrue", "reflect-metadata", "html2canvas", "elkjs/lib/elk.bundled.js"],
             "preserveSymlinks": true,
             "outputPath": {
               "base": "www",
               "browser": ""
             },
             "index": "src/index.html",
-            "polyfills": [
-              "src/polyfills.ts",
-              "zone.js"
-            ],
+            "polyfills": ["src/polyfills.ts", "zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -149,8 +132,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "10kb",
-                  "maximumError": "20kb"
+                  "maximumWarning": "32kb",
+                  "maximumError": "32kb"
                 }
               ],
               "outputHashing": "all",
@@ -190,9 +173,7 @@
           "builder": "@angular/build:karma",
           "options": {
             "main": "src/test.ts",
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "inlineStyleLanguage": "scss",
@@ -245,11 +226,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": [
-              "src/theme/variables.scss",
-              "src/global.scss",
-              "src/theme/diagrams.scss"
-            ]
+            "styles": ["src/theme/variables.scss", "src/global.scss", "src/theme/diagrams.scss"]
           }
         },
         "build-storybook": {
@@ -264,19 +241,14 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
     }
   },
   "cli": {
-    "schematicCollections": [
-      "@ionic/angular-toolkit"
-    ],
+    "schematicCollections": ["@ionic/angular-toolkit"],
     "analytics": false
   },
   "schematics": {

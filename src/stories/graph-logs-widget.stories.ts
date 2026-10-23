@@ -10,12 +10,12 @@ import type {
   IStory,
   StoryObj,
 } from '@storybook/angular';
-import { GraphLogsWidgetComponent } from 'diagrams/src/lib/graph/components/graph-logs-widget/graph-logs-widget.component';
+import { GraphLogsWidgetComponent } from 'src/diagrams/components/graph/components/graph-logs-widget/graph-logs-widget.component';
 import {
   graphRunLog,
   type GraphLogFilterLevel,
   type GraphRunLogLifecycleKind,
-} from 'diagrams/src/lib/graph/execution/GraphRunLogStore';
+} from 'src/diagrams/components/graph/execution/GraphRunLogStore';
 import './setup';
 import { getComponentMeta } from './utils';
 

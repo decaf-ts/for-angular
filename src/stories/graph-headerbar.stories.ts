@@ -6,7 +6,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, Input, ViewChild } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphHeaderbarComponent } from 'diagrams/src/lib/graph/components/graph-headerbar/graph-headerbar.component';
+import { GraphHeaderbarComponent } from 'src/diagrams/components/graph/components/graph-headerbar/graph-headerbar.component';
 import './setup';
 import { getComponentMeta } from './utils';
 

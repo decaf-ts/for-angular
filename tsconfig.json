@@ -28,7 +28,7 @@
     "lib": ["es2018", "DOM"],
     "useDefineForClassFields": false,
     "paths": {
-      "@decaf-ts/for-angular/*": ["./*/src/public-api.ts"],
+      "@decaf-ts/for-angular/*": ["./src/*/public-api.ts"],
       "@decaf-ts/for-angular": ["./src/lib/public-apis.ts"],
       "@decaf-ts/core": ["./node_modules/@decaf-ts/core/lib"],
       "@decaf-ts/core/*": ["./node_modules/@decaf-ts/core/lib/*"],
@@ -44,7 +44,7 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": false, // default true
     "paths": {
-      "@decaf-ts/for-angular/*": ["./*/src/public-api.ts"],
+      "@decaf-ts/for-angular/*": ["./src/*/public-api.ts"],
       "@decaf-ts/for-angular": ["./src/lib/public-apis.ts"],
       "@decaf-ts/core": ["./node_modules/@decaf-ts/core/lib"],
       "@decaf-ts/core/*": ["./node_modules/@decaf-ts/core/lib/*"],

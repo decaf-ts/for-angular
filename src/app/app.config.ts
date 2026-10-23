@@ -14,17 +14,17 @@ import {
 import { provideDecafI18nConfig } from 'src/lib/i18n/Loader';
 import { isDevelopmentMode } from 'src/lib/utils/helpers';
 // The canonical graph module's live node catalogue source (DECAF-50 §4.12/§4.13).
-import { GRAPH_NODE_CATALOG_SOURCE, GraphNodeCatalogApi } from 'diagrams/src/lib/graph';
+import { GRAPH_NODE_CATALOG_SOURCE, GraphNodeCatalogApi } from 'src/diagrams/components/graph';
 import {
   GRAPH_CODE_EDITOR_COMPONENT,
   GRAPH_MODEL_BUILDER_COMPONENT,
-} from 'diagrams/src/lib/graph';
-import { CodeEditorComponent } from 'code-editor/src/lib/code-editor/code-editor.component';
+} from 'src/diagrams/components/graph';
+import { CodeEditorComponent } from 'src/code-editor/components/code-editor/code-editor.component';
 import { ModelBuilderComponent } from 'src/lib/components';
 import {
   GRAPH_ENGINE_CAPABILITY_SOURCE,
   GraphEngineCapabilityApi,
-} from 'diagrams/src/lib/graph';
+} from 'src/diagrams/components/graph';
 import { routes } from './app.routes';
 import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
 import { AppSelectFieldComponent } from './components/select-field/select-field.component';

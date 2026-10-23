@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { CurveEditorComponent } from 'charts/src/lib/curve-editor/curve-editor.component';
+import { CurveEditorComponent } from 'src/charts/components/curve-editor/curve-editor.component';
 import { fn } from 'storybook/test';
 import './setup';
 import { getComponentMeta } from './utils';

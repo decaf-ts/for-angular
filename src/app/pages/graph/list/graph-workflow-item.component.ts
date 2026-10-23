@@ -3,7 +3,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton } from '@ionic/angular/standalone';
 import { IconComponent, ListItemComponent } from 'src/lib/components';
 import { Dynamic, KeyValue } from 'src/lib/engine';
-import { GraphEngineCapabilityService } from 'diagrams/src/lib/graph/capabilities';
+import { GraphEngineCapabilityService } from 'src/diagrams/components/graph/capabilities';
 
 /**
  * Custom `ngx-decaf-list` item renderer for a workflow summary (SAA-68 D1,
