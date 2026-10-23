@@ -54,6 +54,7 @@ const config: Config = {
     '^src/lib/engine/(.*)$': '<rootDir>/src/lib/engine/$1',
     '^src/lib/helpers/(.*)$': '<rootDir>/src/lib/helpers/$1',
     '^src/lib/(.*)$': '<rootDir>/src/lib/$1',
+    '^src/(.*)$': '<rootDir>/src/$1',
     '^lodash-es$': 'lodash',
     '^ionicons/components/ion-icon.js$': '@ionic/core/components/ion-icon.js',
     '@decaf-ts/overrides/ui-decorators': '<rootDir>/node_modules/@decaf-ts/ui-decorators/lib/esm/model/overrides.js',

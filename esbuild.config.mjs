@@ -1,4 +1,4 @@
-module.exports = [
+export default [
   {
     name: 'preserve-names-plugin',
     setup(build) {

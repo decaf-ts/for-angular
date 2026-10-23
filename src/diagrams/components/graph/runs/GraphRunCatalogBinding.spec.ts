@@ -48,7 +48,7 @@ const fs = require('fs');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require('path');
 const APP_CONFIG_SOURCE = fs.readFileSync(
-  path.resolve(__dirname, '../../app/app.config.ts'),
+  path.resolve(__dirname, '../../../../app/app.config.ts'),
   'utf-8',
 );
 

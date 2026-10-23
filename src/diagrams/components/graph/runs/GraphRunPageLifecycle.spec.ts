@@ -110,7 +110,7 @@ const injectables = (require('@angular/core') as {
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 /* eslint-disable-next-line @typescript-eslint/no-var-requires */
-const { GraphPage } = require('../../app/pages/graph/graph.page') as {
+const { GraphPage } = require('../../../../app/pages/graph/graph.page') as {
   GraphPage: new () => InstanceType<new () => { ngOnInit(): void; ngOnDestroy(): void }>;
 };
 

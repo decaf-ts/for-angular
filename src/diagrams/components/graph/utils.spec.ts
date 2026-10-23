@@ -7,7 +7,7 @@ import {
   buildGraphRendererViewModel,
   getGraphWorkflowSummary,
 } from './utils';
-import { TextPipelineWorkflow } from '../app/pages/graph/workflow-root';
+import { TextPipelineWorkflow } from '../../../app/pages/graph/workflow-root';
 import { GraphNodeCatalogStore } from './catalog/GraphNodeCatalogStore';
 import { GRAPH_NODE_MANIFEST_FIXTURES } from './catalog/GraphNodeManifestFixtures';
 
