@@ -58,6 +58,7 @@ Thumbs.db
 !/workdocs/uml/*.puml
 /.token
 /.npmtoken
+/.env.secret
 /.dockertoken
 /.confluence-token
 /node_modules
