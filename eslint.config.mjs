@@ -12,7 +12,7 @@ export default tseslint.config(
       'tests/**',
       '**/*.spec.*',
       '**/cli-module.*',
-      'src/tests/**',
+      'tests/**',
       'src/app/**',
       'src/stories/**/*.ts',
       'src/polyfills.ts',

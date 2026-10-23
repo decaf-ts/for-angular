@@ -36,3 +36,10 @@ The download action fetches the **entire untruncated payload from the server run
 ## Representations
 
 Three toggleable representations share one capped text: `json` (default, pretty-printed), `table` (key/value row grid for records and arrays; array entries keyed `[index]`), and `raw` (pretty-printed text). The cap applies to the rendered text of whichever representation is active.
+
+## Shared editor styles
+
+Graph header and sidebar styles import the shared theme variables from
+`src/assets/theme/variables.scss`. Library assets are packaged from
+`src/assets` into `assets`; application translations live in
+`src/assets/i18n` and are served from `assets/i18n`.

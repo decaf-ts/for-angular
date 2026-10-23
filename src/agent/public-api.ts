@@ -4,4 +4,4 @@
  * Agent conversation UI over a graph workflow run, composed from the
  * `/diagrams` public surface.
  */
-export * from './components/agent/index';
+export * from './index';

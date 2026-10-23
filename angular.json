@@ -89,8 +89,13 @@
         "build": {
           "builder": "@angular-builders/custom-esbuild:application",
           "options": {
-            "plugins": ["./esbuild.config.js"],
-            "allowedCommonJsDependencies": ["cronstrue", "reflect-metadata", "html2canvas", "elkjs/lib/elk.bundled.js"],
+            "plugins": ["./esbuild.config.mjs"],
+            "allowedCommonJsDependencies": [
+              "cronstrue",
+              "reflect-metadata",
+              "html2canvas",
+              "elkjs/lib/elk.bundled.js"
+            ],
             "preserveSymlinks": true,
             "outputPath": {
               "base": "www",
@@ -105,11 +110,6 @@
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "src/app/assets",
-                "output": "app/assets"
               },
               "src/manifest.webmanifest",
               "src/cli-module.ts",
