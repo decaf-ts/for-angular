@@ -1,0 +1,49 @@
+<decaf-kanban-board
+  [items]="scopedItems()"
+  [config]="config()"
+  [selectedId]="selectedId()"
+  [readonly]="readOnly()"
+  [disabled]="disabled()"
+  [loading]="loading()"
+  [error]="error()"
+  [filter]="filter()"
+  [label]="label()"
+  [emptyMessage]="emptyMessage()"
+  [loadingMessage]="loadingMessage()"
+  [errorMessage]="errorMessage()"
+  [retryLabel]="retryLabel()"
+  [showDragHandles]="showDragHandles()"
+  [instanceId]="instanceId()"
+  (taskMoved)="onMoved($event)"
+  (taskReordered)="onReordered($event)"
+  (taskSelected)="onSelected($event)"
+  (taskEditRequested)="onEditRequested($event)"
+  (selectionCleared)="selectionCleared.emit()"
+  (taskMoveRejected)="onRejected($event)"
+  (retryRequested)="retryRequested.emit()"
+>
+  <ng-template
+    decafKanbanCard
+    let-task
+    let-column="column"
+    let-index="index"
+    let-selected="selected"
+    let-isReadOnly="readOnly"
+  >
+    @if (cardTemplate(); as template) {
+      <ng-container
+        [ngTemplateOutlet]="template"
+        [ngTemplateOutletContext]="{
+          $implicit: task,
+          task: task,
+          column: column,
+          index: index,
+          selected: selected,
+          readOnly: isReadOnly
+        }"
+      />
+    } @else {
+      <span class="dcf-scrum-sprint-board__title">{{ config().title(task) }}</span>
+    }
+  </ng-template>
+</decaf-kanban-board>

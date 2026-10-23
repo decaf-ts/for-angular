@@ -5,8 +5,8 @@
  */
 import { PortDirection, type GraphNodeInstance, type GraphParameterDefinition } from '@decaf-ts/as-graph/shared';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphNodeInlineEditorComponent } from 'src/graph/components/graph-node-inspection/graph-node-inline-editor.component';
-import type { GraphDemoNodeData } from 'src/graph/types';
+import { GraphNodeInlineEditorComponent } from 'src/diagrams/components/graph/components/graph-node-inspection/graph-node-inline-editor.component';
+import type { GraphDemoNodeData } from 'src/diagrams/components/graph/types';
 import './setup';
 import { getComponentMeta } from './utils';
 

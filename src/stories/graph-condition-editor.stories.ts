@@ -5,7 +5,7 @@
  */
 import type { SwitchCaseCondition } from '@decaf-ts/as-graph/shared';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphConditionEditorComponent } from 'src/graph/components/graph-condition-editor/graph-condition-editor.component';
+import { GraphConditionEditorComponent } from 'src/diagrams/components/graph/components/graph-condition-editor/graph-condition-editor.component';
 import './setup';
 import { getComponentMeta } from './utils';
 

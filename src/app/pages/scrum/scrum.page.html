@@ -1,0 +1,114 @@
+<app-header title="Scrum" />
+
+<ion-content #scrumContent fullscreen="true" [scrollY]="true">
+  <main class="scrum-page">
+    <section class="scrum-page__toolbar" aria-label="Scrum demo controls">
+      <button type="button" data-testid="scrum-reset" (click)="reset()">
+        Reset
+      </button>
+      <label class="scrum-page__search">
+        <span>Search</span>
+        <input
+          type="search"
+          data-testid="scrum-search"
+          placeholder="Filter tasks"
+          [value]="search()"
+          (input)="search.set($any($event.target).value)"
+        />
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          data-testid="scrum-readonly"
+          [checked]="readOnly()"
+          (change)="toggleReadOnly()"
+        />
+        Read only
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          data-testid="scrum-loading"
+          [checked]="loading()"
+          (change)="toggleLoading()"
+        />
+        Loading
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          data-testid="scrum-error"
+          [checked]="!!error()"
+          (change)="toggleError()"
+        />
+        Error
+      </label>
+      <output data-testid="scrum-last-event">{{ lastEvent() }}</output>
+    </section>
+
+    <section class="scrum-page__section" aria-label="Sprint selection">
+      <decaf-sprint-selector
+        data-testid="scrum-sprint-selector"
+        [sprints]="sprints"
+        [selectedSprintId]="selectedSprintId()"
+        [disabled]="loading()"
+        [loading]="loading()"
+        (sprintSelected)="onSprintSelected($event)"
+      />
+    </section>
+
+    <section class="scrum-page__section" aria-label="Backlog">
+      <h2 class="scrum-page__heading">Backlog</h2>
+      <decaf-scrum-backlog
+        data-testid="scrum-backlog"
+        [items]="tasks()"
+        [config]="config"
+        [sprints]="sprints"
+        [selectedId]="selectedId()"
+        [readonly]="readOnly()"
+        [loading]="loading()"
+        [error]="error()"
+        [filter]="filter()"
+        label="Backlog tasks"
+        columnTitle="Backlog"
+        (backlogReordered)="onBacklogReordered($event)"
+        (backlogReorderRejected)="onBacklogRejected($event)"
+        (sprintAssignmentRequested)="onAssignmentRequested($event)"
+        (sprintAssignmentRejected)="onAssignmentRejected($event)"
+        (taskSelected)="onSelected($event)"
+        (taskEditRequested)="onEditRequested($event)"
+        (selectionCleared)="onSelectionCleared()"
+        (retryRequested)="onRetry()"
+      />
+    </section>
+
+    @if (selectedSprintId(); as sprintId) {
+      <section class="scrum-page__section" aria-label="Sprint board">
+        <h2 class="scrum-page__heading">Sprint board</h2>
+        <decaf-scrum-sprint-board
+          data-testid="scrum-sprint-board"
+          [items]="tasks()"
+          [config]="config"
+          [sprintId]="sprintId"
+          [selectedId]="selectedId()"
+          [readonly]="readOnly()"
+          [loading]="loading()"
+          [error]="error()"
+          [filter]="filter()"
+          label="Sprint board tasks"
+          (taskMoved)="onMoved($event)"
+          (taskReordered)="onReordered($event)"
+          (taskSelected)="onSelected($event)"
+          (taskEditRequested)="onEditRequested($event)"
+          (selectionCleared)="onSelectionCleared()"
+          (taskMoveRejected)="onBoardRejected($event)"
+          (retryRequested)="onRetry()"
+        />
+      </section>
+    } @else {
+      <p class="scrum-page__hint" data-testid="scrum-no-sprint">
+        Select a sprint to open its board.
+      </p>
+    }
+  </main>
+</ion-content>

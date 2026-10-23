@@ -1,10 +1,19 @@
+/**
+ * @module module:lib/components/model-builder/model-builder.component
+ * @description Model-builder widget module (root entry point surface).
+ * @summary Exposes `ModelBuilderComponent`, which authors a decaf model at
+ * runtime (name, properties, validators, UI element and layout decorators) and,
+ * in structured-output mode, derives the structured-output form fields from the
+ * authored `properties()` definition and emits the S1 structured-output
+ * definition the backend resolves through its decaf-model registry.
+ *
+ * @link {@link ModelBuilderComponent}
+ */
+
 import { Component, computed, EventEmitter, Input, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
-import { modelToZod } from '@decaf-ts/as-zod';
-import type { ZodTypeAny } from 'zod';
-import { z } from 'zod';
 import {
   hideOn,
   uielement,
@@ -27,6 +36,7 @@ import {
 } from '@ionic/angular/standalone';
 import { IconComponent } from '../icon/icon.component';
 import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
+import { modelBuilderStructuredDefinitionOf } from '../../utils/structured-output';
 
 type PropType = 'string' | 'number' | 'date' | 'boolean';
 
@@ -45,6 +55,18 @@ type ComponentTag =
 type LayoutCol = 1 | 2 | 'half' | 'full';
 type OrderValue = 'first' | 'last' | '';
 type HideOnOp = 'create' | 'read' | 'update' | 'delete';
+
+// Undocumented single-value aliases: their union is exposed through
+// `moveProperty` and keeps the generated `@param` tag JSDoc-parseable.
+type MoveUp = -1;
+type MoveDown = 1;
+
+/**
+ * Property reorder step accepted by {@link ModelBuilderComponent.moveProperty}:
+ * one position up (`-1`) or down (`1`).
+ * @typedef {MoveUp | MoveDown} PropertyMoveDirection
+ */
+type PropertyMoveDirection = MoveUp | MoveDown;
 
 interface ValidatorConfig {
   required: boolean;
@@ -199,7 +221,7 @@ function parseOptions(optionsStr: string): { value: string; label: string }[] {
   });
 }
 
-/** One generated structured-output form field, derived from the as-zod schema shape (SAA-836 U1/S1). */
+/** One generated structured-output form field, derived from the authored model definition (SAA-836 U1/S1). */
 export interface ModelBuilderStructuredField {
   name: string;
   label: string;
@@ -210,28 +232,16 @@ export interface ModelBuilderStructuredField {
 /** JSON prompt-injection vocabulary of the S1 structured-output definition (mastra `structuredOutput.jsonPromptInjection`). */
 export type ModelBuilderInjectionMode = 'default' | 'auto' | 'system' | 'inline' | 'true' | 'false';
 
-/**
- * Parses a persisted structured-output definition (SAA-836 S1 shape:
- * `{ model, instructions?, jsonPromptInjection?, providerOptions? }`) from an
- * object or its JSON-stringified form. Non-definition shapes return `null`.
- *
- * Exported for the structured-output editor unit tests.
- */
-export function modelBuilderStructuredDefinitionOf(value: unknown): Record<string, unknown> | null {
-  let candidate = value;
-  if (typeof candidate === 'string') {
-    try {
-      candidate = JSON.parse(candidate);
-    } catch {
-      return null;
-    }
-  }
-  if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) return null;
-  const record = candidate as Record<string, unknown>;
-  if (typeof record['model'] !== 'string' || !record['model'].trim()) return null;
-  return record;
-}
+export { modelBuilderStructuredDefinitionOf } from '../../utils/structured-output';
 
+/**
+ * Standalone model-builder widget: authors a decaf model (name, properties,
+ * layout, render tags) whose definition generates the structured-output form,
+ * and emits the S1 structured-output definition the backend resolves through
+ * its decaf-model registry.
+ *
+ * @category ModelBuilder
+ */
 @Component({
   standalone: true,
   selector: 'ngx-decaf-model-builder',
@@ -257,8 +267,8 @@ export class ModelBuilderComponent {
 
   /**
    * Structured-output editing mode (SAA-836 U1/S1): the component authors the
-   * decaf model whose as-zod conversion generates the structured-output form,
-   * and emits the S1 definition (`model`/`instructions`/`jsonPromptInjection`)
+   * decaf model whose definition generates the structured-output form, and
+   * emits the S1 definition (`model`/`instructions`/`jsonPromptInjection`)
    * the backend resolves through its decaf-model registry.
    */
   @Input() structuredOutputMode = false;
@@ -291,7 +301,7 @@ export class ModelBuilderComponent {
   /** JSON prompt-injection mode forwarded to mastra (`structuredOutput.jsonPromptInjection`). */
   structuredInjection = signal<ModelBuilderInjectionMode>('default');
 
-  /** Form fields generated from the built model's as-zod schema shape. */
+  /** Form fields generated from the authored model definition. */
   generatedFields = signal<ModelBuilderStructuredField[]>([]);
 
   /** Current values of the generated structured-output form. */
@@ -306,15 +316,18 @@ export class ModelBuilderComponent {
     () => this.modelConfig().name.trim().length > 0 && this.properties().every((p) => p.name.trim().length > 0)
   );
 
+  /** Adds an empty property row to the builder. */
   addProperty(): void {
     this.properties.update((props) => [...props, makeProperty()]);
   }
 
+  /** Removes the property row at the given index. */
   removeProperty(index: number): void {
     this.properties.update((props) => props.filter((_, i) => i !== index));
   }
 
-  moveProperty(index: number, direction: -1 | 1): void {
+  /** Moves the property row one position up (`-1`) or down (`1`). */
+  moveProperty(index: number, direction: PropertyMoveDirection): void {
     const props = [...this.properties()];
     const target = index + direction;
     if (target < 0 || target >= props.length) return;
@@ -322,12 +335,14 @@ export class ModelBuilderComponent {
     this.properties.set(props);
   }
 
+  /** Expands or collapses the property row's detail editor. */
   toggleExpanded(index: number): void {
     const props = [...this.properties()];
     props[index] = { ...props[index], expanded: !props[index].expanded };
     this.properties.set(props);
   }
 
+  /** Updates a property name and auto-fills its label while it is still the default. */
   onPropertyNameChange(index: number, value: string): void {
     const props = [...this.properties()];
     props[index] = { ...props[index], name: value };
@@ -341,6 +356,7 @@ export class ModelBuilderComponent {
     this.properties.set(props);
   }
 
+  /** Toggles one operation (create/read/update/delete) in a property's hide-on layout rule. */
   toggleHideOn(propIndex: number, op: HideOnOp): void {
     const props = [...this.properties()];
     const current = props[propIndex].layout.hideOn;
@@ -352,6 +368,14 @@ export class ModelBuilderComponent {
     this.properties.set(props);
   }
 
+  /**
+   * Builds the decaf model class from the authored configuration: applies the
+   * class-level ui-model/layout decorators, then per-property attribute type,
+   * validators and `uielement`/`uilayoutprop`/`uiorder`/`hideOn` decorators. In
+   * structured-output mode it then derives the form fields and emits the S1
+   * definition. Failures are reported through the `buildError` signal without
+   * throwing.
+   */
   buildModel(): void {
     this.buildError.set(null);
     this.buildInfo.set(null);
@@ -462,7 +486,7 @@ export class ModelBuilderComponent {
         `Built "${name}" with ${appliedProps.length} propert${appliedProps.length === 1 ? 'y' : 'ies'}: ${appliedProps.join(', ')}`
       );
       if (this.structuredOutputMode) {
-        this.generateStructuredForm(instance);
+        this.generateStructuredForm();
         this.emitStructuredDefinition();
       }
     } catch (e: unknown) {
@@ -472,26 +496,26 @@ export class ModelBuilderComponent {
   }
 
   /**
-   * Structured-output mode (SAA-836 U1/S1): converts the built decaf model
-   * through `@decaf-ts/as-zod` (`modelToZod`, the single decaf↔mastra
-   * conversion path) and generates the structured-output form fields from the
-   * resulting Zod shape.
+   * Structured-output mode (SAA-836 U1/S1): derives the structured-output form
+   * fields from the authored model definition so the root entry point has no
+   * feature-specific schema dependency.
    */
-  private generateStructuredForm(instance: Model): void {
-    const schema = modelToZod(instance as never) as unknown as { shape?: Record<string, ZodTypeAny> };
-    const shape = schema?.shape ?? {};
-    const fields: ModelBuilderStructuredField[] = Object.entries(shape).map(([name, field]) => {
-      let type: ModelBuilderStructuredField['type'] = 'text';
-      if (field instanceof z.ZodNumber) type = 'number';
-      else if (field instanceof z.ZodBoolean) type = 'checkbox';
-      else if (field instanceof z.ZodDate) type = 'date';
-      return {
-        name,
-        label: name.charAt(0).toUpperCase() + name.slice(1),
-        type,
-        required: !field.isOptional(),
-      };
-    });
+  private generateStructuredForm(): void {
+    const fields: ModelBuilderStructuredField[] = this.properties()
+      .filter((prop) => prop.name.trim().length > 0)
+      .map((prop) => {
+        const name = prop.name.trim();
+        let type: ModelBuilderStructuredField['type'] = 'text';
+        if (prop.type === 'number') type = 'number';
+        else if (prop.type === 'boolean') type = 'checkbox';
+        else if (prop.type === 'date') type = 'date';
+        return {
+          name,
+          label: prop.ui.label || name.charAt(0).toUpperCase() + name.slice(1),
+          type,
+          required: prop.validators.required,
+        };
+      });
     this.generatedFields.set(fields);
     this.generatedValues.set(
       Object.fromEntries(fields.map((field) => [field.name, field.type === 'checkbox' ? false : '']))
@@ -512,16 +536,19 @@ export class ModelBuilderComponent {
     this.structuredOutputChange.emit(definition);
   }
 
+  /** Handles instruction edits in structured-output mode and re-emits the definition. */
   onStructuredInstructionsChange(value: string): void {
     this.structuredInstructions.set(value);
     this.emitStructuredDefinition();
   }
 
+  /** Handles injection-mode edits in structured-output mode and re-emits the definition. */
   onStructuredInjectionChange(value: ModelBuilderInjectionMode): void {
     this.structuredInjection.set(value);
     this.emitStructuredDefinition();
   }
 
+  /** Stores one edited value of the generated structured-output form. */
   onGeneratedValueChange(field: ModelBuilderStructuredField, value: string | boolean): void {
     this.generatedValues.update((values) => ({ ...values, [field.name]: value }));
   }
@@ -546,6 +573,7 @@ export class ModelBuilderComponent {
     );
   }
 
+  /** Clears all builder state (model config, properties, built model, generated form). */
   reset(): void {
     this.modelConfig.set({
       name: '',
@@ -563,6 +591,7 @@ export class ModelBuilderComponent {
     this.generatedValues.set({});
   }
 
+  /** Preloads a demonstration `User` model config with representative properties. */
   loadExample(): void {
     this.modelConfig.set({
       name: 'User',

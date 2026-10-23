@@ -1,0 +1,70 @@
+<app-header title="Gantt" />
+
+<ion-content fullscreen="true" [scrollY]="true">
+  <main class="gantt-page">
+    <section class="gantt-page__toolbar" aria-label="Gantt demo controls">
+      <button type="button" data-testid="gantt-reset" (click)="reset()">
+        Reset
+      </button>
+      <label>
+        <input
+          type="checkbox"
+          data-testid="gantt-readonly"
+          [checked]="readOnly()"
+          (change)="toggleReadOnly()"
+        />
+        Read only
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          data-testid="gantt-loading"
+          [checked]="loading()"
+          (change)="toggleLoading()"
+        />
+        Loading
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          data-testid="gantt-error"
+          [checked]="!!error()"
+          (change)="toggleError()"
+        />
+        Error
+      </label>
+      <output data-testid="gantt-last-event">{{ lastEvent() }}</output>
+    </section>
+
+    <decaf-gantt
+      data-testid="gantt-timeline"
+      [items]="tasks()"
+      [config]="config"
+      [selectedId]="selectedId()"
+      [readonly]="readOnly()"
+      [loading]="loading()"
+      [error]="error()"
+      [viewType]="viewType()"
+      label="Delivery timeline"
+      (viewTypeChange)="onViewTypeChange($event)"
+      (taskSelected)="onSelected($event)"
+      (taskEditRequested)="onEditRequested($event)"
+      (taskDateChanged)="onDateChanged($event)"
+      (taskDateChangeRejected)="onDateRejected($event)"
+      (taskProgressChanged)="onProgressChanged($event)"
+      (taskProgressChangeRejected)="onProgressRejected($event)"
+      (retryRequested)="onRetry()"
+    >
+      <ng-template
+        decafGanttBar
+        let-task
+        let-progressPercent="progressPercent"
+        let-milestone="milestone"
+      >
+        <span class="gantt-page__bar">
+          {{ task.title }} · {{ progressPercent }}%{{ milestone ? ' · milestone' : '' }}
+        </span>
+      </ng-template>
+    </decaf-gantt>
+  </main>
+</ion-content>

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/angular';
 import type { GraphRunRow } from 'src/app/services/graph-list/graph-list.service';
 import { GraphListService } from 'src/app/services/graph-list/graph-list.service';
 import { WorkflowExecutionListPage } from 'src/app/pages/graph/executions/workflow-execution-list.page';
-import { GraphRunClient } from 'src/graph/runs/GraphRunClient';
+import { GraphRunClient } from 'src/diagrams/components/graph/runs/GraphRunClient';
 import './setup';
 import { getComponentMeta } from './utils';
 

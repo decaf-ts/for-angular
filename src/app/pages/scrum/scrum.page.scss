@@ -1,0 +1,85 @@
+.scrum-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dcf-padding, 1rem);
+  padding: var(--dcf-padding, 1rem);
+  min-width: 0;
+}
+
+.scrum-page__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dcf-margin-small, 0.5rem);
+  padding: var(--dcf-padding-small, 0.75rem);
+  border: 1px solid var(--dcf-color-gray-2, #d7dbe0);
+  border-radius: var(--dcf-border-radius, 0.75rem);
+  background: var(--dcf-content-background, #f3f5f7);
+}
+
+.scrum-page__toolbar button {
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--dcf-color-gray-3, #c2c8cf);
+  border-radius: var(--dcf-border-radius-small, 0.5rem);
+  background: var(--dcf-card-background, #ffffff);
+  color: var(--dcf-color-text, #1f2933);
+  font: inherit;
+  cursor: pointer;
+}
+
+.scrum-page__toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  padding-block: 0.25rem;
+  color: var(--dcf-color-gray-7, #525c66);
+  font-size: 0.85rem;
+}
+
+.scrum-page__search input {
+  min-height: 2rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--dcf-color-gray-3, #c2c8cf);
+  border-radius: var(--dcf-border-radius-small, 0.5rem);
+  font: inherit;
+}
+
+.scrum-page__toolbar output {
+  margin-inline-start: auto;
+  color: var(--dcf-color-gray-7, #525c66);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.scrum-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dcf-margin-small, 0.5rem);
+  min-width: 0;
+}
+
+.scrum-page__heading {
+  margin: 0;
+  color: var(--dcf-color-text, #1f2933);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.scrum-page__hint {
+  margin: 0;
+  color: var(--dcf-color-gray-6, #6b7580);
+}
+
+@media (max-width: 640px) {
+  .scrum-page {
+    padding: var(--dcf-padding-small, 0.5rem);
+  }
+
+  .scrum-page__toolbar output {
+    margin-inline-start: 0;
+    flex-basis: 100%;
+  }
+}

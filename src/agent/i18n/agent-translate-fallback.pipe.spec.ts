@@ -2,7 +2,7 @@ import { Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
 
-import { GraphTranslateService } from "../../graph/i18n/graph-translate.service";
+import { GraphTranslateService } from "@decaf-ts/for-angular/diagrams";
 import { AgentTranslateFallbackPipe } from "./agent-translate-fallback.pipe";
 
 @Component({

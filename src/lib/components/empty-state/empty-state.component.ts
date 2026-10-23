@@ -13,7 +13,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ElementSizes } from '@decaf-ts/ui-decorators';
 import { IonButton, IonSpinner } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IconComponent } from '../../components/icon/icon.component';
+import { IconComponent } from '../icon/icon.component';
 import { Dynamic } from '../../engine/decorators';
 import { ElementSize, FunctionLike } from '../../engine/types';
 import { CardComponent } from '../card/card.component';

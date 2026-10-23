@@ -8,7 +8,7 @@
  */
 import { signal } from '@angular/core';
 import type { GraphWorkflowDocument } from '@decaf-ts/as-graph/shared';
-import { GraphWorkflowDocumentStore, graphValidity } from 'src/graph';
+import { GraphWorkflowDocumentStore, graphValidity } from 'src/diagrams/components/graph';
 import { GraphPage } from './graph.page';
 import fixture from '../../../../tests/fixtures/graph/text-pipeline.document.json';
 

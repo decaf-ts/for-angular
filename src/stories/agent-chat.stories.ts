@@ -26,8 +26,8 @@ import {
   AgentChatSendRequest,
   AgentChatTransport,
   AgentChatTransportHandlers,
-} from 'src/agent';
-import { GraphBackendUnavailableError } from 'src/graph/execution/GraphExecutionService';
+} from '@decaf-ts/for-angular/agent';
+import { GraphBackendUnavailableError } from '@decaf-ts/for-angular/diagrams';
 import './setup';
 import { getComponentMeta } from './utils';
 

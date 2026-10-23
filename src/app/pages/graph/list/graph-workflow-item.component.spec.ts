@@ -10,7 +10,7 @@ import { provideRouter, Router } from '@angular/router';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { I18nFakeLoader } from 'src/lib/i18n';
 import type { KeyValue } from 'src/lib/engine';
-import { GraphEngineCapabilityService } from 'src/graph/capabilities';
+import { GraphEngineCapabilityService } from 'src/diagrams/components/graph/capabilities';
 import { GraphWorkflowItemComponent } from './graph-workflow-item.component';
 
 /** Run-gate double backing the item's injected capability facade. */

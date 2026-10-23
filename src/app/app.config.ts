@@ -4,7 +4,7 @@ import { RamAdapter, RamFlavour } from '@decaf-ts/core/ram';
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { RootTranslateServiceConfig } from '@ngx-translate/core';
-import { CronSelectorFieldComponent } from 'src/lib/components';
+import { CronSelectorFieldComponent } from '@decaf-ts/for-angular/cron';
 import { I18nResourceConfigType } from 'src/lib/engine';
 import {
   provideDecafDbAdapter,
@@ -14,11 +14,17 @@ import {
 import { provideDecafI18nConfig } from 'src/lib/i18n/Loader';
 import { isDevelopmentMode } from 'src/lib/utils/helpers';
 // The canonical graph module's live node catalogue source (DECAF-50 §4.12/§4.13).
-import { GRAPH_NODE_CATALOG_SOURCE, GraphNodeCatalogApi } from 'src/graph';
+import { GRAPH_NODE_CATALOG_SOURCE, GraphNodeCatalogApi } from 'src/diagrams/components/graph';
+import {
+  GRAPH_CODE_EDITOR_COMPONENT,
+  GRAPH_MODEL_BUILDER_COMPONENT,
+} from 'src/diagrams/components/graph';
+import { CodeEditorComponent } from 'src/code-editor/components/code-editor/code-editor.component';
+import { ModelBuilderComponent } from 'src/lib/components';
 import {
   GRAPH_ENGINE_CAPABILITY_SOURCE,
   GraphEngineCapabilityApi,
-} from 'src/graph';
+} from 'src/diagrams/components/graph';
 import { routes } from './app.routes';
 import { AppExpiryDateFieldComponent } from './components/expiry-date/expiry-date-field.component';
 import { AppSelectFieldComponent } from './components/select-field/select-field.component';
@@ -44,6 +50,10 @@ export const i18nEnabled = i18nEnabledFlag !== 'false' && i18nEnabledFlag !== fa
 
 export const AppConfig: ApplicationConfig = {
   providers: [
+    // The /diagrams entry point renders specialised ports through host-provided
+    // feature widgets; this app imports /code-editor and the root model builder.
+    { provide: GRAPH_CODE_EDITOR_COMPONENT, useValue: CodeEditorComponent },
+    { provide: GRAPH_MODEL_BUILDER_COMPONENT, useValue: ModelBuilderComponent },
     // Providers from ionic angular
     provideIonicAngular({
       mode: 'md',

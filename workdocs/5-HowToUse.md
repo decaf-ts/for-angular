@@ -5,6 +5,10 @@
 
 ## Components
 
+> The curve editor and math input below now live in the `/charts` and `/math`
+> entry points. Import them from their dedicated entry point; the root barrel
+> no longer re-exports feature components.
+
 ### `<decaf-curve-editor>`
 
 Standalone interactive curve editor backed by Apache ECharts: a line series with draggable control points, drawn with linear or monotone cubic (Fritsch–Carlson, no overshoot) interpolation. The control points are the source of truth for the rendered curve; a LaTeX formula can also be set, and is sampled over the x range into control points. Curve drags regenerate the formula, so both stay consistent. MathLive and ECharts types never leak through the public API.
@@ -32,6 +36,40 @@ Outputs: `pointAdded` (`CurvePoint`), `pointRemoved` (`CurvePoint`), `pointMoved
 </decaf-curve-editor>
 ```
 
+### Chart components
+
+Four CRD chart layout components backed by Apache ECharts are exported from the
+`/charts` entry point: `ngx-decaf-line-chart`, `ngx-decaf-bar-chart`,
+`ngx-decaf-pie-chart` and `ngx-decaf-scatter-chart` (base:
+`ngx-decaf-chart`). In `READ` operation each renders its dataset; in
+`CREATE`/`UPDATE` it also renders its decorated configuration model through
+`ngx-decaf-model-renderer`.
+
+| Binding | Type | Description |
+| --- | --- | --- |
+| `[operation]` | `CrudOperations` | `READ` renders the chart; `CREATE`/`UPDATE` also render the configuration form |
+| `[config]` | `ChartConfig \| Model` | Plain configuration or a decorated family config model |
+| `[dataset]` | `VirtualDataset \| VirtualDatasetView` | Query source to sub-query or an already narrowed view |
+| `[datasetQuery]` | `VirtualDatasetQuery` | Sub-query applied to a `VirtualDataset` source |
+| `[data]` | `readonly unknown[]` | Direct rows, taking precedence over `dataset` |
+| `[height]` | `number \| string` | Canvas height (default `320`) |
+
+Outputs: `configChanged` after a submitted configuration and `chartError` for
+dataset/render failures. `VirtualDataset` composes a sub-query over a global
+`@decaf-ts/core` query — AND-combined conditions, the smaller limit and additive
+offsets — and delegates execution to the source loader. See
+[charts/README.md](./charts/README.md#chart-components) for the configuration
+models, option builder and dataset examples.
+
+```html
+<ngx-decaf-bar-chart
+  operation="READ"
+  [dataset]="salesDataset"
+  [datasetQuery]="{ where: regionCondition }"
+  [config]="{ title: 'Sales', xField: 'month', yField: 'revenue' }">
+</ngx-decaf-bar-chart>
+```
+
 ### `<decaf-math-input>`
 
 Standalone LaTeX formula input wrapping the MathLive `<math-field>` custom element (lazy-loaded on first render, no MathLive types in the public API). The field value is a plain LaTeX string emitted on every input.
@@ -50,7 +88,22 @@ Typical pairing: bind both components to the same `formula` string — editing t
 
 ### `<ngx-decaf-agent-chat>`
 
-Standalone agent conversation UI over a graph workflow run, exported from the `for-angular/src/agent` public barrel together with its transport contract (`AgentChatTransport` with `send`/`replay`/`cancel`), the `AGENT_CHAT_TRANSPORT` injection token, the composer/message models, the envelope fold, the `AgentChatService`, and the translation fallback pipe. The transcript is a `role="log"` live region with per-role styling, action/attachment chips and auto-scroll; the composer handles Enter-to-send / Shift+Enter newline, metadata-only attachments (file contents are never read), and a knowledge-base selector forwarded as `knowledgeBaseIds` run inputs. A collapsible telemetry strip shows per-roundtrip rows, a structured-object panel reuses the graph I/O viewer for the latest structured output, and namespace chips derive from the configured workflow document's auth metadata. All user-facing strings resolve through the `agent.chat.*` i18n subtree with hardcoded English fallbacks.
+Standalone agent conversation UI over a graph workflow run, exported from the
+[`/agent`](./agent/README.md) secondary entry point. `/agent` reuses the graph
+I/O viewer from [`/diagrams`](./diagrams/README.md) through its public specifier,
+so it needs the same optional peers (`@decaf-ts/as-graph`, `ng-diagram`). Ships
+together with its transport contract (`AgentChatTransport` with
+`send`/`replay`/`cancel`), the `AGENT_CHAT_TRANSPORT` injection token, the
+composer/message models, the envelope fold, the `AgentChatService`, and the
+translation fallback pipe. The transcript is a `role="log"` live region with
+per-role styling, action/attachment chips and auto-scroll; the composer handles
+Enter-to-send / Shift+Enter newline, metadata-only attachments (file contents
+are never read), and a knowledge-base selector forwarded as `knowledgeBaseIds`
+run inputs. A collapsible telemetry strip shows per-roundtrip rows, a
+structured-object panel reuses the graph I/O viewer for the latest structured
+output, and namespace chips derive from the configured workflow document's auth
+metadata. All user-facing strings resolve through the `agent.chat.*` i18n
+subtree with hardcoded English fallbacks.
 
 | Binding | Type | Description |
 | --- | --- | --- |

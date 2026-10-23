@@ -6,6 +6,17 @@ const config: Config = {
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: [
     '/tests/playwright',
+    // The Kanban functional suite must consume the packed tarball, never the
+    // monorepo path aliases; it runs through tests/kanban/jest.config.cjs.
+    '/tests/kanban',
+    // The Gantt functional suite must consume the packed tarball, never the
+    // monorepo path aliases; it runs through tests/gantt/jest.config.cjs.
+    '/tests/gantt/functional',
+    // The Scrum functional suite consumes the packed tarball through
+    // tests/scrum/jest.config.cjs, never the monorepo path aliases.
+    '/tests/scrum/functional',
+    // Gantt browser E2E specs run through tests/gantt/playwright.config.ts.
+    '/tests/gantt/playwright',
     // Pre-existing legacy specs that were never run because `src/app` was ignored
     // wholesale; they reference removed/renamed APIs and lack the router/i18n
     // providers the current components need. They are excluded so the standard
@@ -34,13 +45,16 @@ const config: Config = {
   // Module handling
   moduleNameMapper: {
     '^src/app/(.*)$': '<rootDir>/src/app/$1',
-    '^src/graph/(.*)$': '<rootDir>/src/graph/$1',
-    '^src/graph$': '<rootDir>/src/graph/index.ts',
-    '^src/agent/(.*)$': '<rootDir>/src/agent/$1',
-    '^src/agent$': '<rootDir>/src/agent/index.ts',
+    '^src/graph/(.*)$': '<rootDir>/src/diagrams/components/graph/$1',
+    '^src/graph$': '<rootDir>/src/diagrams/components/graph/index.ts',
+    '^src/diagrams/components/graph/(.*)$': '<rootDir>/src/diagrams/components/graph/$1',
+    '^src/diagrams/components/graph$': '<rootDir>/src/diagrams/components/graph/index.ts',
+    '^@decaf-ts/for-angular$': '<rootDir>/src/lib/public-apis.ts',
+    '^@decaf-ts/for-angular/(.*)$': '<rootDir>/src/$1/public-api.ts',
     '^src/lib/engine/(.*)$': '<rootDir>/src/lib/engine/$1',
     '^src/lib/helpers/(.*)$': '<rootDir>/src/lib/helpers/$1',
     '^src/lib/(.*)$': '<rootDir>/src/lib/$1',
+    '^src/(.*)$': '<rootDir>/src/$1',
     '^lodash-es$': 'lodash',
     '^ionicons/components/ion-icon.js$': '@ionic/core/components/ion-icon.js',
     '@decaf-ts/overrides/ui-decorators': '<rootDir>/node_modules/@decaf-ts/ui-decorators/lib/esm/model/overrides.js',

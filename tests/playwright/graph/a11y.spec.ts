@@ -12,7 +12,7 @@
  *   5. the first-save workflow-create modal;
  *   6. the workflow list page and the workflow executions page;
  *   7. the editor page again under forced dark-mode emulation (the editor now
- *      ships a dark palette — `src/graph/styles/graph-theme.scss` — so dark
+ *      ships a dark palette — `src/diagrams/components/graph/styles/graph-theme.scss` — so dark
  *      contrast is part of this gate).
  *
  * The gate FAILS the test on any axe violation (no silent passes): every scan

@@ -2,4 +2,5 @@
 
 # Decaf's Angular Module
 
-> Release docs refreshed on 2025-11-26. See [workdocs/reports/RELEASE_NOTES.md](./workdocs/reports/RELEASE_NOTES.md) for ticket summaries.
+> Release candidate for **v0.11.0** — the clean-break modular entry-point release. See
+> [workdocs/reports/RELEASE_NOTES.md](./workdocs/reports/RELEASE_NOTES.md) for ticket summaries.

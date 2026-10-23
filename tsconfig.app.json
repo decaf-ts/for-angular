@@ -5,7 +5,9 @@
     "outDir": "./out-tsc/app",
     "types": [],
     "paths": {
-      "@angular/*": ["./node_modules/@angular/*"]
+      "@angular/*": ["./node_modules/@angular/*"],
+      "@decaf-ts/for-angular": ["./src/lib/public-apis.ts"],
+      "@decaf-ts/for-angular/*": ["./src/*/public-api.ts"]
     }
   },
   "files": ["src/main.ts", "src/polyfills.ts"],

@@ -3,7 +3,8 @@ import { Component } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { HeaderComponent } from 'src/app/components/header/header.component';
-import { ContainerComponent, CronSelectorComponent } from 'src/lib/components';
+import { CronSelectorComponent } from '@decaf-ts/for-angular/cron';
+import { ContainerComponent } from 'src/lib/components';
 
 @Component({
   standalone: true,

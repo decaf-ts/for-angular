@@ -11,8 +11,8 @@ import type {
   GraphParameterDefinition,
 } from '@decaf-ts/as-graph/shared';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphParameterFieldComponent } from 'src/graph/parameters/components/graph-parameter-field.component';
-import type { GraphParameterFormContext } from 'src/graph/parameters';
+import { GraphParameterFieldComponent } from 'src/diagrams/components/graph/parameters/components/graph-parameter-field.component';
+import type { GraphParameterFormContext } from 'src/diagrams/components/graph/parameters';
 import './setup';
 import { getComponentMeta } from './utils';
 

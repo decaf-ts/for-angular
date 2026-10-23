@@ -58,6 +58,7 @@ Thumbs.db
 !/workdocs/uml/*.puml
 /.token
 /.npmtoken
+/.env.secret
 /.dockertoken
 /.confluence-token
 /node_modules
@@ -91,3 +92,8 @@ CLAUDE.md
 workdocs/locks/*
 !workdocs/locks/.gitkeep
 /var
+# copied from the repo root by bin/lib-package-root.js (ng-packagr package root)
+/src/package.json
+/src/README.md
+/src/LICENSE.md
+/src/NOTICE

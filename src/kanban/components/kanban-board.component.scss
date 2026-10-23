@@ -1,0 +1,116 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.dcf-kanban {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dcf-margin-small, 0.5rem);
+  min-width: 0;
+  height: 100%;
+  color: var(--dcf-color-text, #1f2933);
+}
+
+.dcf-kanban__board {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: stretch;
+  gap: var(--dcf-padding-small, 0.75rem);
+  min-height: 12rem;
+  padding-block-end: var(--dcf-padding-xsmall, 0.5rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dcf-kanban__board > * {
+  flex: 0 0 auto;
+}
+
+.dcf-kanban__board:focus-visible {
+  outline: 2px solid var(--dcf-color-primary, #3460dc);
+  outline-offset: 2px;
+}
+
+.dcf-kanban--readonly .dcf-kanban__board,
+.dcf-kanban--disabled .dcf-kanban__board {
+  overscroll-behavior-x: auto;
+}
+
+.dcf-kanban__state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dcf-margin-small, 0.5rem);
+  min-height: 8rem;
+  padding: var(--dcf-padding, 1rem);
+  border: 1px dashed var(--dcf-color-gray-3, #c2c8cf);
+  border-radius: var(--dcf-border-radius, 0.75rem);
+  background: var(--dcf-content-background, #f3f5f7);
+  color: var(--dcf-color-gray-7, #525c66);
+  text-align: center;
+}
+
+.dcf-kanban__state--error {
+  border-color: var(--dcf-color-danger, #c5000f);
+  color: var(--dcf-color-danger-text, #a61e2c);
+}
+
+.dcf-kanban__retry {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid currentColor;
+  border-radius: var(--dcf-border-radius-small, 0.5rem);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.dcf-kanban__retry:focus-visible {
+  outline: 2px solid var(--dcf-color-primary, #3460dc);
+  outline-offset: 2px;
+}
+
+.dcf-kanban__spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--dcf-color-gray-3, #c2c8cf);
+  border-top-color: var(--dcf-color-primary, #3460dc);
+  border-radius: 50%;
+  animation: dcf-kanban-spin 700ms linear infinite;
+}
+
+.dcf-kanban__help {
+  margin: 0;
+  color: var(--dcf-color-gray-6, #6b7580);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.dcf-kanban__live.dcf-kanban__sr-only,
+.dcf-kanban__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes dcf-kanban-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dcf-kanban__spinner {
+    animation: none;
+  }
+}

@@ -40,8 +40,7 @@ import {
 import { CommonModule } from "@angular/common";
 import type { GraphWorkflowDocument } from "@decaf-ts/as-graph/shared";
 import { graphAuthMetadataOf } from "@decaf-ts/as-graph/shared";
-import { GraphTranslateService } from "../../../graph/i18n/graph-translate.service";
-import { GraphIoViewerComponent } from "../../../graph/components/graph-io-viewer/graph-io-viewer.component";
+import { GraphTranslateService, GraphIoViewerComponent } from "@decaf-ts/for-angular/diagrams";
 import { AgentTranslateFallbackPipe } from "../../i18n/agent-translate-fallback.pipe";
 import { AgentChatService } from "../../services/AgentChatService";
 import type {

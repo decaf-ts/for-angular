@@ -2,7 +2,8 @@
 
 # Decaf's Angular Module
 
-> Release docs refreshed on 2025-11-26. See [workdocs/reports/RELEASE_NOTES.md](./workdocs/reports/RELEASE_NOTES.md) for ticket summaries.
+> Release candidate for **v0.11.0** — the clean-break modular entry-point release. See
+> [workdocs/reports/RELEASE_NOTES.md](./workdocs/reports/RELEASE_NOTES.md) for ticket summaries.
 
 ![Licence](https://img.shields.io/github/license/decaf-ts/for-angular.svg?style=plastic)
 ![GitHub language count](https://img.shields.io/github/languages/count/decaf-ts/for-angular?style=plastic)
@@ -42,12 +43,72 @@ A very versatile persistence layer. from smart contracts, Digital wallets or jus
 
 
 
+### Entry points (v0.11.0)
+
+The package is a **core root** plus dedicated secondary entry points. Every
+feature is exported only from its own entry point, so a core consumer never
+installs a feature engine it does not use.
+
+```bash
+npm install @decaf-ts/for-angular
+```
+
+Then add only the optional peers required by the entry points you import:
+
+| Entry point | Extra optional peers | Documentation |
+| --- | --- | --- |
+| `@decaf-ts/for-angular` (root) | none — uses the required Angular/Ionic/Decaf peers | this README |
+| `@decaf-ts/for-angular/kanban` | `@angular/cdk@^21.2.14` | [kanban/README.md](./kanban/README.md) |
+| `@decaf-ts/for-angular/scrum` | `@angular/cdk@^21.2.14` (through `/kanban`) | [scrum/README.md](./scrum/README.md) |
+| `@decaf-ts/for-angular/gantt` | `@worktile/gantt@^21.0.0`, `html2canvas@^1.4.1`, `date-fns@^4`, `@date-fns/tz@^1` | [gantt/README.md](./gantt/README.md) |
+| `@decaf-ts/for-angular/charts` | `echarts@^6.1.0`, `@cortex-js/compute-engine@^0.147.0` | [charts/README.md](./charts/README.md) |
+| `@decaf-ts/for-angular/math` | `mathlive@^0.111.1` | [math/README.md](./math/README.md) |
+| `@decaf-ts/for-angular/code-editor` | the CodeMirror 6 family | [code-editor/README.md](./code-editor/README.md) |
+| `@decaf-ts/for-angular/barcode` | `@bwip-js/browser@^4.11.4` | [barcode/README.md](./barcode/README.md) |
+| `@decaf-ts/for-angular/agent` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` (through `/diagrams`) | [agent/README.md](./agent/README.md) |
+| `@decaf-ts/for-angular/cron` | `cronstrue@^3.24.0` | [cron/README.md](./cron/README.md) |
+| `@decaf-ts/for-angular/diagrams` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` | [diagrams/README.md](./diagrams/README.md) |
+| `@decaf-ts/for-angular/storyboard` | none | [storyboard/README.md](./storyboard/README.md) |
+
+The model builder is part of the **root** entry point; import
+`ModelBuilderComponent` directly from `@decaf-ts/for-angular`.
+
+Every entry point can be imported independently from the packed npm artifact.
+Feature-to-feature dependencies are **`/scrum → /kanban`** (the sprint board and
+backlog compose the shared Kanban primitives instead of shipping a second
+drag/drop engine) and **`/agent → /diagrams`** (the chat transcript reuses the
+graph I/O viewer). `/diagrams` receives its code-editor and model-builder
+surfaces through injection tokens, so it does not import those entry points.
+
+### Compatibility
+
+| Package | Supported / tested |
+| --- | --- |
+| `@angular/*` | `21.2.17` – `21.2.25` (Angular 21 line) |
+| TypeScript | `~5.9.0` (`>=5.9 <6.0`) |
+| Node / npm | `>=20.0.0` / `>=10.0.0` |
+| Server rendering | Supported: components avoid import-time `window`/`document` access and emit host placeholders. |
+| Zoneless | Not advertised or tested in this release. |
+
+Any Angular 21 host that pins `@angular/core`, `@angular/common` and (for
+`/kanban` or `/scrum`) `@angular/cdk` to 21.x installs cleanly. A plain
+`npm install` of the tarball in a **truly empty** directory can hit npm 11's
+optional-peer resolution artifact: npm auto-installs `@angular/cdk`, floats
+Angular to 22 and collides with this package's `^21.2.17` anchor. Use
+`npm install @decaf-ts/for-angular --legacy-peer-deps` for a scratch or
+non-Angular host. This is a documented npm resolver artifact, not a missing
+manifest peer.
+
 ### How to Use
 
 - [Initial Setup](./workdocs/tutorials/For%20Developers.md#_initial-setup_)
 - [Installation](./workdocs/tutorials/For%20Developers.md#installation)
 
 ## Components
+
+> The curve editor and math input below now live in the `/charts` and `/math`
+> entry points. Import them from their dedicated entry point; the root barrel
+> no longer re-exports feature components.
 
 ### `<decaf-curve-editor>`
 
@@ -76,6 +137,40 @@ Outputs: `pointAdded` (`CurvePoint`), `pointRemoved` (`CurvePoint`), `pointMoved
 </decaf-curve-editor>
 ```
 
+### Chart components
+
+Four CRD chart layout components backed by Apache ECharts are exported from the
+`/charts` entry point: `ngx-decaf-line-chart`, `ngx-decaf-bar-chart`,
+`ngx-decaf-pie-chart` and `ngx-decaf-scatter-chart` (base:
+`ngx-decaf-chart`). In `READ` operation each renders its dataset; in
+`CREATE`/`UPDATE` it also renders its decorated configuration model through
+`ngx-decaf-model-renderer`.
+
+| Binding | Type | Description |
+| --- | --- | --- |
+| `[operation]` | `CrudOperations` | `READ` renders the chart; `CREATE`/`UPDATE` also render the configuration form |
+| `[config]` | `ChartConfig \| Model` | Plain configuration or a decorated family config model |
+| `[dataset]` | `VirtualDataset \| VirtualDatasetView` | Query source to sub-query or an already narrowed view |
+| `[datasetQuery]` | `VirtualDatasetQuery` | Sub-query applied to a `VirtualDataset` source |
+| `[data]` | `readonly unknown[]` | Direct rows, taking precedence over `dataset` |
+| `[height]` | `number \| string` | Canvas height (default `320`) |
+
+Outputs: `configChanged` after a submitted configuration and `chartError` for
+dataset/render failures. `VirtualDataset` composes a sub-query over a global
+`@decaf-ts/core` query — AND-combined conditions, the smaller limit and additive
+offsets — and delegates execution to the source loader. See
+[charts/README.md](./charts/README.md#chart-components) for the configuration
+models, option builder and dataset examples.
+
+```html
+<ngx-decaf-bar-chart
+  operation="READ"
+  [dataset]="salesDataset"
+  [datasetQuery]="{ where: regionCondition }"
+  [config]="{ title: 'Sales', xField: 'month', yField: 'revenue' }">
+</ngx-decaf-bar-chart>
+```
+
 ### `<decaf-math-input>`
 
 Standalone LaTeX formula input wrapping the MathLive `<math-field>` custom element (lazy-loaded on first render, no MathLive types in the public API). The field value is a plain LaTeX string emitted on every input.
@@ -94,7 +189,22 @@ Typical pairing: bind both components to the same `formula` string — editing t
 
 ### `<ngx-decaf-agent-chat>`
 
-Standalone agent conversation UI over a graph workflow run, exported from the `for-angular/src/agent` public barrel together with its transport contract (`AgentChatTransport` with `send`/`replay`/`cancel`), the `AGENT_CHAT_TRANSPORT` injection token, the composer/message models, the envelope fold, the `AgentChatService`, and the translation fallback pipe. The transcript is a `role="log"` live region with per-role styling, action/attachment chips and auto-scroll; the composer handles Enter-to-send / Shift+Enter newline, metadata-only attachments (file contents are never read), and a knowledge-base selector forwarded as `knowledgeBaseIds` run inputs. A collapsible telemetry strip shows per-roundtrip rows, a structured-object panel reuses the graph I/O viewer for the latest structured output, and namespace chips derive from the configured workflow document's auth metadata. All user-facing strings resolve through the `agent.chat.*` i18n subtree with hardcoded English fallbacks.
+Standalone agent conversation UI over a graph workflow run, exported from the
+[`/agent`](./agent/README.md) secondary entry point. `/agent` reuses the graph
+I/O viewer from [`/diagrams`](./diagrams/README.md) through its public specifier,
+so it needs the same optional peers (`@decaf-ts/as-graph`, `ng-diagram`). Ships
+together with its transport contract (`AgentChatTransport` with
+`send`/`replay`/`cancel`), the `AGENT_CHAT_TRANSPORT` injection token, the
+composer/message models, the envelope fold, the `AgentChatService`, and the
+translation fallback pipe. The transcript is a `role="log"` live region with
+per-role styling, action/attachment chips and auto-scroll; the composer handles
+Enter-to-send / Shift+Enter newline, metadata-only attachments (file contents
+are never read), and a knowledge-base selector forwarded as `knowledgeBaseIds`
+run inputs. A collapsible telemetry strip shows per-roundtrip rows, a
+structured-object panel reuses the graph I/O viewer for the latest structured
+output, and namespace chips derive from the configured workflow document's auth
+metadata. All user-facing strings resolve through the `agent.chat.*` i18n
+subtree with hardcoded English fallbacks.
 
 | Binding | Type | Description |
 | --- | --- | --- |

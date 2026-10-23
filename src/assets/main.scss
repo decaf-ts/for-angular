@@ -11,7 +11,6 @@
 
 /* Core CSS required for Ionic components to work properly */
 @use "./theme/variables.scss";
-@use "./theme/ng-diagram.scss";
 
 @use "@ionic/angular/css/core.css";
 
@@ -36,24 +35,6 @@ body,
 * {
   font-family: var(--dcf-default-dynamic-font);
   font-style: normal;
-}
-
-/* Make ng-diagram node wrapper transparent so only the custom node template is visible */
-:root {
-  --ngd-node-bg-primary-default: transparent !important;
-  --ngd-node-stroke-primary-default: transparent !important;
-  --ngd-node-stroke-primary-hover: transparent !important;
-}
-
-.ng-diagram-node-wrapper,
-.ng-diagram-node-wrapper.node {
-  background: transparent !important;
-  border: none !important;
-}
-
-ng-diagram-base-node-template,
-ng-diagram-node-resize-adornment {
-  background: transparent !important;
 }
 
 .dcf-button-toggle {

@@ -1,0 +1,72 @@
+<div
+  class="dcf-kanban"
+  [class.dcf-kanban--readonly]="isReadOnly()"
+  [class.dcf-kanban--disabled]="disabled()"
+  [class.dcf-kanban--busy]="isBusy()"
+  [attr.aria-busy]="loading()"
+  [attr.aria-disabled]="isReadOnly()"
+  role="region"
+  [attr.aria-label]="label()"
+>
+  @if (loading()) {
+    <div class="dcf-kanban__state dcf-kanban__state--loading" role="status" aria-live="polite">
+      <span class="dcf-kanban__spinner" aria-hidden="true"></span>
+      <span>{{ loadingMessage() }}</span>
+    </div>
+  } @else if (error()) {
+    <div class="dcf-kanban__state dcf-kanban__state--error" role="alert">
+      <span>{{ error() || errorMessage() }}</span>
+      <button type="button" class="dcf-kanban__retry" (click)="retryRequested.emit()">
+        {{ retryLabel() }}
+      </button>
+    </div>
+  } @else {
+    <div
+      class="dcf-kanban__board"
+      cdkDropListGroup
+      [attr.role]="hasVisibleItems() ? null : 'group'"
+      [attr.tabindex]="hasVisibleItems() ? null : 0"
+      [attr.aria-label]="hasVisibleItems() ? null : label()"
+    >
+      @for (view of columnViews(); track view.column.id) {
+        <decaf-kanban-column
+          [column]="view.column"
+          [config]="config()"
+          [items]="view.items"
+          [instanceId]="resolvedInstanceId()"
+          [selectedId]="selectedId()"
+          [grabbedId]="grabbedId()"
+          [readOnly]="isReadOnly()"
+          [disabled]="disabled()"
+          [showDragHandles]="showDragHandles()"
+          [emptyMessage]="emptyMessage()"
+          [helpId]="helpId()"
+          [cardTemplate]="cardTemplate()"
+          [headerTemplate]="columnHeaderTemplate()"
+          [emptyTemplate]="emptyTemplate()"
+          (cardSelected)="onCardSelected($event)"
+          (cardEditRequested)="onCardEditRequested($event)"
+          (cardKeydown)="onCardKeydown($event)"
+          (cardDropped)="onCardDrop($event)"
+        />
+      } @empty {
+        @if (emptyTemplate()) {
+          <ng-container
+            [ngTemplateOutlet]="emptyTemplate()"
+            [ngTemplateOutletContext]="boardEmptyContext()"
+          />
+        } @else {
+          <p class="dcf-kanban__state dcf-kanban__state--empty">{{ emptyMessage() }}</p>
+        }
+      }
+    </div>
+  }
+
+  <p class="dcf-kanban__help" [id]="helpId()">{{ keyboardHelp() }}</p>
+  <div
+    class="dcf-kanban__live dcf-kanban__sr-only"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >{{ announcement() }}</div>
+</div>

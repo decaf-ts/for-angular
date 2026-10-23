@@ -6,2578 +6,1842 @@
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/.probe-boot.mjs",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/.probe-boot.mjs",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/.probe.mjs",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/.probe.mjs",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/.storybook/main.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/.storybook/main.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/.storybook/preview.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/.storybook/preview.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/.storybook/typings.d.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/.storybook/typings.d.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/bin/build-schematics.js",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/bin/build-schematics.js",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/bin/build-scripts.cjs",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/bin/build-scripts.cjs",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/bin/tag-release.cjs",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/bin/tag-release.cjs",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/bin/update-scripts.cjs",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/bin/update-scripts.cjs",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
-      "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/esbuild.config.js",
-      "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/esbuild.config.js",
-      "kinds": [
-        "code"
-      ]
+      "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/esbuild.config.mjs",
+      "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/esbuild.config.mjs",
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/eslint.config.mjs",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/eslint.config.mjs",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/jest.config.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/jest.config.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/jest.setup.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/jest.setup.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/karma.conf.js",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/karma.conf.js",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/playwright.config.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/playwright.config.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/component/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/component/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/component/schema.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/component/schema.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/page/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/page/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/schematics/index_spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/schematics/index_spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/schematics/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/schematics/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/util/ast-util.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/util/ast-util.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/util/change.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/util/change.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/util/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/schematics/src/util/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/scripts/build-tabler-sprites.mjs",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/scripts/build-tabler-sprites.mjs",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/app.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/app.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/app.config.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/app.config.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/app.routes.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/app.routes.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/back-button/back-button.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/back-button/back-button.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/card-title/card-title.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/card-title/card-title.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/card-title/card-title.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/card-title/card-title.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/expiry-date/expiry-date-field.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/expiry-date/expiry-date-field.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/header/header.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/header/header.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/logo/logo.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/logo/logo.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/modal-diffs/modal-diffs.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/modal-diffs/modal-diffs.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/product-item/product-item.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/product-item/product-item.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/product-item/product-item.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/product-item/product-item.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/select-field/select-field.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/select-field/select-field.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/select-field/select-field.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/select-field/select-field.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/switcher/switcher.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/switcher/switcher.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/switcher/switcher.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/components/switcher/switcher.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/AccountModel.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/AccountModel.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Audit.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Audit.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Batch.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Batch.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Cacheable.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Cacheable.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/constants.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/constants.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Entity.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Entity.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/FabricBaseModel.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/FabricBaseModel.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/FabricIdentifiedModel.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/FabricIdentifiedModel.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/forms/BatchForm.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/forms/BatchForm.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/gtin.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/gtin.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/GtinOwner.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/GtinOwner.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/AuditHandler.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/AuditHandler.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/BatchHandler.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/BatchHandler.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/DatamatrixModalHandler.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/DatamatrixModalHandler.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/EpiHandler.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/EpiHandler.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/LeafletHandler.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/LeafletHandler.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/ProductHandler.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/ProductHandler.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/ProductImageHandler.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/handlers/ProductImageHandler.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/helpers/comparison.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/helpers/comparison.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Leaflet.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Leaflet.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/LeafletFile.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/LeafletFile.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/LeafletResolver.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/LeafletResolver.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Module.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Module.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/ModuleFeature.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/ModuleFeature.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Product.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/Product.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/ProductImage.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/ProductImage.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/ProductMarket.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/ProductMarket.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/ProductStrength.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/ProductStrength.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/utils.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/fabric/utils.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/handlers/LoginHandler.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/handlers/LoginHandler.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/layouts/BatchLayout.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/layouts/BatchLayout.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/layouts/EpiLayout.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/layouts/EpiLayout.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/layouts/ProductLayout.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/layouts/ProductLayout.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/utils/constants.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/utils/constants.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/utils/helpers.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/utils/helpers.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/utils/interfaces.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/ew/utils/interfaces.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/forms/FieldsetForm.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/forms/FieldsetForm.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/forms/LoginForm.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/forms/LoginForm.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/forms/SteppedForm.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/forms/SteppedForm.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/handlers/LoginHandler.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/handlers/LoginHandler.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/layouts/Dashboboard.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/layouts/Dashboboard.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/AIVendorModel.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/AIVendorModel.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/CategoryModel.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/CategoryModel.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/DemoModel.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/DemoModel.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/EmployeeModel.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/EmployeeModel.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/GraphListModels.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/GraphListModels.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/GraphWorkflowFormModel.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/GraphWorkflowFormModel.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/GraphWorkflowFormModel.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/GraphWorkflowFormModel.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/MedicationScheduleModel.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/MedicationScheduleModel.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/user-data-form.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/user-data-form.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/UserModel.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/models/UserModel.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/account/account.page.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/account/account.page.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/account/account.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/account/account.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/audit/audit.page.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/audit/audit.page.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/audit/audit.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/audit/audit.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/batches/batches.page.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/batches/batches.page.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/batches/batches.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/batches/batches.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/cron-selector/cron-selector.page.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/cron-selector/cron-selector.page.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/cron-selector/cron-selector.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/cron-selector/cron-selector.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/crud/crud.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/crud/crud.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/dashboard-builder/dashboard-builder.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/dashboard-builder/dashboard-builder.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/dashboard-builder/demo/demo-components.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/dashboard-builder/demo/demo-components.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/dashboard/dashboard.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/dashboard/dashboard.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/fieldset/fieldset.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/fieldset/fieldset.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/executions/graph-run-item.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/executions/graph-run-item.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/executions/graph-run-item.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/executions/graph-run-item.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/executions/workflow-execution-list.page.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/executions/workflow-execution-list.page.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/executions/workflow-execution-list.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/executions/workflow-execution-list.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/graph-breadcrumbs.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/graph-breadcrumbs.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/graph-workflow-create.modal.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/graph-workflow-create.modal.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/graph-workflow-create.modal.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/graph-workflow-create.modal.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/graph.page.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/graph.page.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/graph.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/graph.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/list/graph-workflow-item.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/list/graph-workflow-item.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/list/graph-workflow-item.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/list/graph-workflow-item.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/list/workflow-list.page.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/list/workflow-list.page.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/list/workflow-list.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/list/workflow-list.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/loop-body-workflows.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/loop-body-workflows.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/workflow-root.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/graph/workflow-root.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/leaflet/leaflet.page.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/leaflet/leaflet.page.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/leaflet/leaflet.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/leaflet/leaflet.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/list-model/list-model.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/list-model/list-model.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/login/login.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/login/login.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/medication-schedule/medication-schedule.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/medication-schedule/medication-schedule.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/model-builder/model-builder.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/model-builder/model-builder.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/model/model.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/model/model.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/products/products.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/products/products.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/steps-form/steps-form.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/steps-form/steps-form.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/user-request/user-request.page.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/pages/user-request/user-request.page.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/services/graph-list/graph-list.service.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/services/graph-list/graph-list.service.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/services/router.service.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/services/router.service.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/user-requests/handlers/user-data-handler.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/user-requests/handlers/user-data-handler.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/user-requests/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/user-requests/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/user-requests/user-request-rendering-context.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/user-requests/user-request-rendering-context.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/utils.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/utils.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/utils/contants.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/utils/contants.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/utils/FakerRepository.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/app/utils/FakerRepository.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/cli-module.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/cli-module.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/environments/environment.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/environments/environment.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/environments/types.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/environments/types.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/bundle-wall.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/bundle-wall.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogApi.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogApi.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogCompositeSource.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogCompositeSource.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogCompositeSource.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogCompositeSource.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogReader.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogReader.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogService.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogService.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogService.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogService.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogStore.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeCatalogStore.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeManifestFixtures.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeManifestFixtures.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeManifestSnapshot.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeManifestSnapshot.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeResolution.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/GraphNodeResolution.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/catalog/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/boundary-node-template/boundary-node-template.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/boundary-node-template/boundary-node-template.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/chat/chat.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/chat/chat.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/code-editor/code-editor.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/code-editor/code-editor.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/code-editor/code-editor.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/code-editor/code-editor.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/for-angular-graph-components.module.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/for-angular-graph-components.module.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-condition-editor/graph-condition-editor.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-condition-editor/graph-condition-editor.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-condition-editor/graph-condition-editor.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-condition-editor/graph-condition-editor.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-edge-template/graph-edge-template.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-edge-template/graph-edge-template.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-ghost-node-template/graph-ghost-node-template.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-ghost-node-template/graph-ghost-node-template.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-ghost-node-template/graph-ghost-node-template.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-ghost-node-template/graph-ghost-node-template.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-headerbar/graph-headerbar.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-headerbar/graph-headerbar.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-io-viewer/graph-io-viewer.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-io-viewer/graph-io-viewer.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-logs-widget/graph-logs-widget.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-logs-widget/graph-logs-widget.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-logs-widget/graph-logs-widget.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-logs-widget/graph-logs-widget.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-edit-modal/graph-node-edit-modal-value-modes.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-edit-modal/graph-node-edit-modal-value-modes.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-edit-modal/graph-node-edit-modal.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-edit-modal/graph-node-edit-modal.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-edit-modal/graph-node-edit-modal.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-edit-modal/graph-node-edit-modal.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-inspection/graph-node-inline-editor.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-inspection/graph-node-inline-editor.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-inspection/graph-node-inspection.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-inspection/graph-node-inspection.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-inspection/graph-workflow-input-editor.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-inspection/graph-workflow-input-editor.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-template/graph-node-document-round-trip.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-template/graph-node-document-round-trip.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-template/graph-node-template.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-template/graph-node-template.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-template/graph-node-template.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-template/graph-node-template.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-template/graph-port-visibility.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-node-template/graph-port-visibility.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-port-field/graph-port-field.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-port-field/graph-port-field.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-port-field/graph-port-field.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-port-field/graph-port-field.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-port-field/graph-port-value.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-port-field/graph-port-value.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-port-field/graph-port-value.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-port-field/graph-port-value.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-renderer/graph-renderer-add-node.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-renderer/graph-renderer-add-node.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-renderer/graph-renderer-palette-search.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-renderer/graph-renderer-palette-search.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-renderer/graph-renderer-palette.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-renderer/graph-renderer-palette.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-renderer/graph-renderer-validity.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-renderer/graph-renderer-validity.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-renderer/graph-renderer.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-renderer/graph-renderer.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-switch-edit-modal/graph-switch-edit-modal.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-switch-edit-modal/graph-switch-edit-modal.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-switch-edit-modal/graph-switch-edit-modal.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-switch-edit-modal/graph-switch-edit-modal.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-toolbar/graph-toolbar.component.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-toolbar/graph-toolbar.component.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-toolbar/graph-toolbar.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/graph-toolbar/graph-toolbar.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/home/home.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/home/home.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/sidebar-menu/sidebar-menu.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/components/sidebar-menu/sidebar-menu.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/default-workflow.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/default-workflow.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/graph-boundary-moves.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/graph-boundary-moves.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/graph-boundary-projection.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/graph-boundary-projection.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDataPinning.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDataPinning.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDiagramAdapter.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDiagramAdapter.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDiagramAdapter.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDiagramAdapter.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDiagramMutationTranslator.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDiagramMutationTranslator.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDocumentCommands.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDocumentCommands.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDocumentMutation.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDocumentMutation.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDocumentSelectors.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphDocumentSelectors.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphNodePaletteFactory.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphNodePaletteFactory.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphNodeValueHydration.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphNodeValueHydration.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphNodeValueHydration.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphNodeValueHydration.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphWorkflowDocumentStore.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/GraphWorkflowDocumentStore.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/document/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GhostNodeStore.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GhostNodeStore.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GhostNodeStore.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GhostNodeStore.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphExecutionService.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphExecutionService.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphExecutionStateMapper.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphExecutionStateMapper.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphExecutionStateMapper.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphExecutionStateMapper.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphExecutionStateService.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphExecutionStateService.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphExecutionStateService.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphExecutionStateService.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphInspectionStore.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphInspectionStore.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphInspectionStore.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphInspectionStore.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphRunLogStore.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphRunLogStore.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphRunLogStore.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphRunLogStore.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphSelectionStore.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/GraphSelectionStore.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/execution/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/i18n/graph-translate.service.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/i18n/graph-translate.service.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/interfaces.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/interfaces.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/NgxGraphDirective.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/NgxGraphDirective.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-boolean-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-boolean-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-code-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-code-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-collection-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-collection-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-credential-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-credential-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-expression-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-expression-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-generic-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-generic-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-hidden-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-hidden-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-notice-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-notice-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-number-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-number-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-object-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-object-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-options-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-options-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-parameter-field.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-parameter-field.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-resource-locator-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-resource-locator-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-text-parameter.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/components/graph-text-parameter.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/GraphParameterFormBuilder.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/GraphParameterFormBuilder.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/GraphParameterFormControls.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/GraphParameterFormControls.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/GraphParameterRendererContract.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/GraphParameterRendererContract.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/GraphParameterRendererRegistry.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/GraphParameterRendererRegistry.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/GraphParameterValidationMapper.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/GraphParameterValidationMapper.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/GraphParameterVisibilityEvaluator.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/GraphParameterVisibilityEvaluator.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/parameters/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunCatalogBinding.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunCatalogBinding.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunClient.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunClient.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunEventClient.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunEventClient.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunLifecycle.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunLifecycle.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunPageLifecycle.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunPageLifecycle.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunPresentation.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunPresentation.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunPresentation.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunPresentation.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunStateStore.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/GraphRunStateStore.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/runs/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphAutoSaveService.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphAutoSaveService.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphAutoSaveService.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphAutoSaveService.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphHistoryService.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphHistoryService.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphHistoryService.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphHistoryService.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphKeyboardShortcutsService.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphKeyboardShortcutsService.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphMutationDetectorService.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphMutationDetectorService.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphMutationDetectorService.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphMutationDetectorService.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphSaveService.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphSaveService.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphSaveService.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/GraphSaveService.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/services/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/tokens/graph-configuration.tokens.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/tokens/graph-configuration.tokens.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/types.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/types.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/utils.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/utils.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/utils.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/utils.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/utils/graphAngularServiceShare.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/utils/graphAngularServiceShare.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/validation/GraphWorkflowValidateClient.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/validation/GraphWorkflowValidateClient.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/validation/GraphWorkflowValidateClient.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/validation/GraphWorkflowValidateClient.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/validation/GraphWorkflowValidityStore.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/validation/GraphWorkflowValidityStore.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/validation/GraphWorkflowValidityStore.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/validation/GraphWorkflowValidityStore.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/validation/index.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/validation/index.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/workflow-inputs.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/graph/workflow-inputs.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/karma-test.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/karma-test.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/main.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/main.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/polyfills.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/polyfills.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/button.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/button.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/button.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/button.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/card.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/card.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/code-editor.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/code-editor.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/component-renderer.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/component-renderer.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/Configure.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/Configure.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/container.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/container.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/cron-selector-field.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/cron-selector-field.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/cron-selector.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/cron-selector.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/crud-field.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/crud-field.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/crud-form.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/crud-form.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/dashboard.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/dashboard.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/empty-state.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/empty-state.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/fieldset.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/fieldset.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/file-upload.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/file-upload.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/filter.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/filter.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-boundary-nodes.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-boundary-nodes.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-condition-editor.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-condition-editor.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-headerbar.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-headerbar.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-io-viewer.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-io-viewer.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-logs-widget.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-logs-widget.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-node-edit-modal.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-node-edit-modal.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-node-inspection.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-node-inspection.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-node-template.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-node-template.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-nodes.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-nodes.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-port-field.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-port-field.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-run-item.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-run-item.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-switch-edit-modal.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-switch-edit-modal.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-toolbar.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-toolbar.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-workflow-create-modal.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-workflow-create-modal.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-workflow-item.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/graph-workflow-item.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/header.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/header.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/icon.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/icon.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/layout.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/layout.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/list-item.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/list-item.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/list.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/list.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/login.page.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/login.page.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/modal.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/modal.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/model-builder.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/model-builder.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/model-renderer.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/model-renderer.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/page.component.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/page.component.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/page.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/page.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/pagination.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/pagination.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/searchbar.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/searchbar.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/seed.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/seed.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/setup.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/setup.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/stepped-form.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/stepped-form.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/storyboard-tutorial.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/storyboard-tutorial.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/storybook-app.config.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/storybook-app.config.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/svg.directive.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/svg.directive.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/table-demo.model.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/table-demo.model.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/table.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/table.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/tooltip.directive.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/tooltip.directive.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/translate.pipe.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/translate.pipe.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/truncate.pipe.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/truncate.pipe.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/user.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/user.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/utils.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/utils.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/workflow-execution-list.stories.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/stories/workflow-execution-list.stories.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/tests/karmaErrorParser.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/tests/karmaErrorParser.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/typings.d.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/typings.d.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/zone-flags.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/src/zone-flags.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/dashboard-builder.i18n-screenshots.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/dashboard-builder.i18n-screenshots.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/dashboard-builder.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/dashboard-builder.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/add-node-empty-canvas.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/add-node-empty-canvas.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/base-node.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/base-node.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/boundary-drag.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/boundary-drag.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/canvas-run.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/canvas-run.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/edges.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/edges.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/graph-boot-no-env.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/graph-boot-no-env.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/graph-node-inspection.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/graph-node-inspection.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/graph-run.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/graph-run.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/helpers.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/helpers.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-boundary-input.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-boundary-input.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-face.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-face.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-foreach.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-foreach.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-geometry.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-geometry.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-log.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-log.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-split-code.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-split-code.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-switch.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-switch.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-until.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-until.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-while.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/node-while.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/palette-search.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/palette-search.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/port-visibility.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/port-visibility.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/text-pipeline-backend.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/graph/text-pipeline-backend.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/login.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/login.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/user-requests/user-request.spec.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/user-requests/user-request.spec.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/utils/video-fixture.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/tests/playwright/utils/video-fixture.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/webpack.config.js",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/webpack.config.js",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     },
     {
       "id": "file:/home/tvenceslau/local-workspace/decaf-ts/for-angular/workdocs/reports/jest.coverage.config.ts",
       "path": "/home/tvenceslau/local-workspace/decaf-ts/for-angular/workdocs/reports/jest.coverage.config.ts",
-      "kinds": [
-        "code"
-      ]
+      "kinds": ["code"]
     }
   ],
   "edges": [

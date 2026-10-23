@@ -5,7 +5,7 @@
  */
 import { PortDirection, type GraphPortDefinition } from '@decaf-ts/as-graph/shared';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphPortFieldComponent } from 'src/graph/components/graph-port-field/graph-port-field.component';
+import { GraphPortFieldComponent } from 'src/diagrams/components/graph/components/graph-port-field/graph-port-field.component';
 import './setup';
 import { getComponentMeta } from './utils';
 

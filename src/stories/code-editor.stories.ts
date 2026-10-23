@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { CodeEditorComponent } from 'src/graph/components/code-editor/code-editor.component';
+import { CodeEditorComponent } from 'src/code-editor/components/code-editor/code-editor.component';
 import './setup';
 import { getComponentMeta } from './utils';
 

@@ -19,6 +19,18 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/dashboard-builder/dashboard-builder.page').then(m => m.DashboardBuilderPage)
   },
   {
+    path: 'kanban',
+    loadComponent: () => import('./pages/kanban/kanban.page').then(m => m.KanbanPage)
+  },
+  {
+    path: 'scrum',
+    loadComponent: () => import('./pages/scrum/scrum.page').then(m => m.ScrumPage)
+  },
+  {
+    path: 'gantt',
+    loadComponent: () => import('./pages/gantt/gantt.page').then(m => m.GanttPage)
+  },
+  {
     path: 'graph',
     loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage)
   },
