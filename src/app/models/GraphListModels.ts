@@ -32,6 +32,7 @@ export class GraphWorkflowListModel extends Model {
   name?: string;
   /** ISO timestamp of the last save/update. */
   updatedAt!: string;
+  runnable?: boolean;
 
   constructor(arg: ModelArg<GraphWorkflowListModel> = {}) {
     super(arg);

@@ -21,7 +21,7 @@ function getEngine(): void {
 
 export function getComponentMeta<C>(
   imports: unknown[] = [],
-  type: 'component' | 'page' = 'component',
+  type: 'component' | 'page' | 'modal' = 'component',
   args: any = {},
   providers: any[] = []
 ): Meta<C> {
@@ -29,8 +29,9 @@ export function getComponentMeta<C>(
   return {
     tags: ['autodocs'],
     parameters: {
-      // More on how to position stories at: https://storybook.js.org/docs/configure/story-layout
-      layout: 'padded',
+      // Page and modal hosts own the full viewport: Ionic's `ion-content`
+      // measures zero inside Storybook's padded, auto-height story root.
+      layout: type === 'component' ? 'padded' : 'fullscreen',
     },
     argTypes: {
       // FormGroup/FormControl instances hold circular `_parent` references that crash the
@@ -41,6 +42,11 @@ export function getComponentMeta<C>(
     } as Meta<C>['argTypes'],
     decorators: [
       applicationConfig(StorybookAppConfig),
+      // Story-scoped providers must live on the application injector, not only
+      // on the story's module injector: root-scoped services (`providedIn:
+      // "root"`) resolve their tokens in the application injector, so a module
+      // binding such as `GRAPH_BACKEND_URL` is invisible to them.
+      ...(providers.length ? [applicationConfig({ providers })] : []),
       moduleMetadata({
         //Imports both components to allow component composition with Storybook
         imports: [
@@ -53,19 +59,21 @@ export function getComponentMeta<C>(
         ],
         providers: [{ provide: RouterService, useValue: RouterService }, ...providers],
       }),
-      // Wraps our stories with a decorator
+      // Wraps our stories with a decorator.
+      //
+      // Page stories already render their own `<ion-content fullscreen>`, so a
+      // second Ionic content wrapper would collapse the inner host to zero
+      // height. Give `<ion-app>` the viewport instead. Modal-style components
+      // render `<ion-header>` + `<ion-content>` themselves and need a flex
+      // column with an explicit height for the content to fill the remainder.
       componentWrapperDecorator((story) =>
         type === 'component'
           ? story
-          : `<ion-app>
-            <ion-content [fullscreen]="true">
-               <main>
-                <app-container size="expand">
-                  ${story}
-                </app-container>
-              </main>
-            </ion-content>
-          </ion-app>`
+          : type === 'page'
+            ? `<ion-app style="display:block;height:100vh;width:100%">${story}</ion-app>`
+            : `<ion-app style="display:block;height:100vh;width:100%">
+                <div style="display:flex;flex-direction:column;height:100vh;width:100%">${story}</div>
+              </ion-app>`
       ),
     ],
     args: args || {},

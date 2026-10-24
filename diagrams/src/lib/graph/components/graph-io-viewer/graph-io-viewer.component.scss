@@ -82,7 +82,8 @@
   line-height: 1.35;
 }
 
-.graph-io__table-cell-truncated {
+.graph-io__table-cell-truncated,
+.graph-io__table-key-truncated {
   display: inline-block;
   margin-left: 0.3rem;
   padding: 0 0.25rem;

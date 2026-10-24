@@ -467,3 +467,67 @@ describe('workflow-inputs — model class, forms, and instantiation', () => {
     expect((instance as unknown as Record<string, unknown>)['count']).toBe(7);
   });
 });
+
+describe('workflow-inputs — document port model-name typing (SAA-1362 req 9)', () => {
+  /** A document port whose schema is a named model (the fixture-catalogue shape). */
+  function modelPort(name: string): GraphWorkflowPortInstance {
+    return docPort('value', { schema: { type: 'model', name } });
+  }
+
+  it('maps numeric model names to the number control and numeric submit typing', () => {
+    for (const name of ['Number', 'Integer', 'Float', 'Double', 'BigInt', 'number']) {
+      const definition = docField(modelPort(name));
+      expect(definition.controlType).toBe('number');
+      expect(definition.valueType).toBe('number');
+    }
+  });
+
+  it('maps boolean model names to the checkbox control and boolean submit typing', () => {
+    for (const name of ['Boolean', 'boolean']) {
+      const definition = docField(modelPort(name));
+      expect(definition.controlType).toBe('checkbox');
+      expect(definition.valueType).toBe('boolean');
+    }
+  });
+
+  it('maps string model names to the text control and text submit typing', () => {
+    for (const name of ['String', 'string']) {
+      const definition = docField(modelPort(name));
+      expect(definition.controlType).toBe('text');
+      expect(definition.valueType).toBe('text');
+    }
+  });
+
+  it('maps date-like schemas to the date control with literal text submit typing', () => {
+    const formatted = docField(docPort('at', { schema: { type: 'string', format: 'date' } }));
+    expect(formatted.controlType).toBe('date');
+    expect(formatted.valueType).toBe('text');
+
+    const dateTime = docField(docPort('at', { schema: { type: 'string', format: 'date-time' } }));
+    expect(dateTime.controlType).toBe('date');
+    expect(dateTime.valueType).toBe('text');
+
+    const dateModel = docField(modelPort('Date'));
+    expect(dateModel.controlType).toBe('date');
+  });
+
+  it('maps collection model names to the textarea control and JSON submit typing', () => {
+    for (const name of ['Array', 'Object', 'Map', 'Set', 'Collection']) {
+      const definition = docField(modelPort(name));
+      expect(definition.controlType).toBe('textarea');
+      expect(definition.valueType).toBe('json');
+    }
+  });
+
+  it('keeps a numeric model-name port required and coerces its submitted value to a number', () => {
+    const definition = docField(
+      docPort('count', { required: true, schema: { type: 'model', name: 'Number' } })
+    );
+
+    expect(definition.required).toBe(true);
+    expect(controlWith(definition.validators, '').hasError('required')).toBe(true);
+    expect(
+      normalizeWorkflowInputValues([definition], { count: '12' })
+    ).toEqual({ count: 12 });
+  });
+});

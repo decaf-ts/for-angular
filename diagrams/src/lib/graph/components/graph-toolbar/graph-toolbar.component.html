@@ -101,6 +101,7 @@
       [class.graph-float-btn--running]="isRunning()"
       [disabled]="runDisabled()"
       [attr.aria-disabled]="runDisabled()"
+      [attr.aria-label]="runTitle()"
       [title]="runTitle()"
       (click)="onRun()"
     >

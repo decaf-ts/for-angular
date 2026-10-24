@@ -18,6 +18,17 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GraphRendererComponent } from './graph-renderer.component';
 import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocumentStore';
+import {
+  GraphDiagramAdapter,
+  graphWorkflowDocumentCanvasModelOf,
+} from '../../document/GraphDiagramAdapter';
+import type { GraphNodeManifestReader } from '../../catalog/GraphNodeCatalogReader';
+import type {
+  GraphEdgeInstance,
+  GraphNodeInstance,
+  GraphResolvedNodeManifest,
+  GraphWorkflowDocument,
+} from '@decaf-ts/as-graph/shared';
 import { GraphWorkflowValidateClient } from '../../validation';
 import { GRAPH_DEV_MODE } from '../../tokens/graph-configuration.tokens';
 import { ghostNodeStore } from '../../execution/GhostNodeStore';
@@ -186,8 +197,8 @@ describe('GraphRendererComponent — add-node interaction (G4-R5)', () => {
     });
   });
 
-  describe('addNode inside a foreach (R2-3(3))', () => {
-    it('splices the node between the foreach and its ghost, with no parallel loop', () => {
+  describe('addNode inside a foreach (R2-3(3), SAA-1363 req 10)', () => {
+    it('creates the canonical loop:item -> added -> loop:loop chain and never a document ghost', () => {
       const store = storeStub();
       const fixture = render(store);
       const component = fixture.componentInstance;
@@ -196,51 +207,49 @@ describe('GraphRendererComponent — add-node interaction (G4-R5)', () => {
           { id: 'ghost-GraphForeachLoopNode', position: { x: 200, y: 200 } },
         ],
       } as never);
-      // The loop's add-node ghost is document-carried (R2-1/R2-3(3)): the
-      // document holds the ghost node plus its `item → ghost:in` edge.
+      // A loop ghost is canvas-only: the document holds the foreach loop and no
+      // ghost member at all.
       store.document.mockReturnValue({
-        nodes: [{ id: 'ghost-GraphForeachLoopNode', ui: { position: { x: 200, y: 200 } } }],
-        edges: [
-          {
-            id: 'GraphForeachLoopNode:item->ghost-GraphForeachLoopNode:in',
-            source: { scope: 'node', nodeId: 'GraphForeachLoopNode', port: 'item' },
-            target: { scope: 'node', nodeId: 'ghost-GraphForeachLoopNode', port: 'in' },
-          },
+        nodes: [
+          { id: 'GraphForeachLoopNode', kind: 'core.loop.foreach', parameters: {} },
         ],
+        edges: [],
         inputs: [],
         outputs: [],
       });
-      ghostNodeStore.requestAddNode('GraphForeachLoopNode');
+      ghostNodeStore.requestAddNode('GraphForeachLoopNode', { x: 640, y: 320 });
 
       component.addNode(LOG_ENTRY);
 
+      // The label is the entry title: no legacy `(materialized)` suffix.
       expect(store.addNodeFromManifest).toHaveBeenCalledWith(
         LOG_ENTRY.manifest,
         { x: 200, y: 200 },
-        `${LOG_ENTRY.title} (materialized)`
+        LOG_ENTRY.title
       );
-      // The ghost's `item → ghost:in` edge is removed and replaced by
-      // `item → <added>` + `<added> → ghost:in`: for-each → added → ghost.
-      expect(store.removeEdge).toHaveBeenCalledWith(
-        'GraphForeachLoopNode:item->ghost-GraphForeachLoopNode:in'
-      );
-      expect(store.addEdge).toHaveBeenCalledTimes(2);
-      expect(store.addEdge).toHaveBeenCalledWith(
-        expect.objectContaining({
+      // No ghost is materialised into the document, and the old
+      // addNode/removeEdge/addEdge splice is gone.
+      expect(store.addNode).not.toHaveBeenCalled();
+      expect(store.removeEdge).not.toHaveBeenCalled();
+      expect(store.addEdge).not.toHaveBeenCalled();
+      // The canonical chain is dispatched through the document command path.
+      expect(store.dispatchCommand).toHaveBeenCalledTimes(2);
+      expect(store.dispatchCommand).toHaveBeenNthCalledWith(1, {
+        type: 'edge.add',
+        edge: expect.objectContaining({
           source: { scope: 'node', nodeId: 'GraphForeachLoopNode', port: 'item' },
           target: { scope: 'node', nodeId: 'new-node', port: 'value' },
           metadata: { mandatory: true },
-        })
-      );
-      expect(store.addEdge).toHaveBeenCalledWith(
-        expect.objectContaining({
+        }),
+      });
+      expect(store.dispatchCommand).toHaveBeenNthCalledWith(2, {
+        type: 'edge.add',
+        edge: expect.objectContaining({
           source: { scope: 'node', nodeId: 'new-node', port: 'value' },
-          target: { scope: 'node', nodeId: 'ghost-GraphForeachLoopNode', port: 'in' },
+          target: { scope: 'node', nodeId: 'GraphForeachLoopNode', port: 'loop' },
           metadata: { mandatory: true },
-        })
-      );
-      // No second loop is ever created by an addNode.
-      expect(store.addNode).not.toHaveBeenCalled();
+        }),
+      });
     });
   });
 
@@ -408,5 +417,224 @@ describe('GraphRendererComponent — add-node interaction (G4-R5)', () => {
         fixture.nativeElement.querySelector('.graph-renderer__palette-search-input')
       ).toBeNull();
     });
+  });
+});
+
+
+/**
+ * SAA-1363 reqs 10-12: the canvas loop chain is a single ordered path built
+ * through document commands, and deleting a body node reconnects its survivors.
+ */
+function loopNodeOf(): GraphNodeInstance {
+  return { id: 'loop-1', kind: 'core.loop.foreach', label: 'For each', parameters: {} };
+}
+
+function logNodeOf(id: string): GraphNodeInstance {
+  return { id, kind: 'core.flow.log', label: id, parameters: {} };
+}
+
+function chainEdgeOf(
+  source: string,
+  sourcePort: string,
+  target: string,
+  targetPort: string
+): GraphEdgeInstance {
+  return {
+    id: `${source}:${sourcePort}->${target}:${targetPort}`,
+    type: 'data',
+    source: { scope: 'node', nodeId: source, port: sourcePort },
+    target: { scope: 'node', nodeId: target, port: targetPort },
+    label: targetPort,
+    metadata: { mandatory: true },
+  };
+}
+
+function loopChainDocument(body: string[] = ['a', 'b', 'c']): GraphWorkflowDocument {
+  const edges: GraphEdgeInstance[] = [];
+  if (body.length) {
+    edges.push(chainEdgeOf('loop-1', 'item', body[0], 'value'));
+    for (let index = 1; index < body.length; index += 1) {
+      edges.push(chainEdgeOf(body[index - 1], 'value', body[index], 'value'));
+    }
+    edges.push(chainEdgeOf(body[body.length - 1], 'value', 'loop-1', 'loop'));
+  }
+  return {
+    id: 'wf-loop-chain',
+    name: 'Loop chain',
+    inputs: [],
+    outputs: [],
+    nodes: [loopNodeOf(), ...body.map(logNodeOf)],
+    edges,
+  };
+}
+
+function seededStore(document: GraphWorkflowDocument): GraphWorkflowDocumentStore {
+  const store = new GraphWorkflowDocumentStore();
+  store.initialize(document);
+  return store;
+}
+
+function loopReader(): GraphNodeManifestReader {
+  const resolves: Record<string, GraphResolvedNodeManifest> = {
+    'core.loop.foreach': {
+      kind: 'core.loop.foreach',
+      display: { name: 'For each', category: 'Control', width: 120, height: 140 },
+      inputs: [{ id: 'list', label: 'List', direction: 'input', required: true }],
+      outputs: [
+        { id: 'item', label: 'Item', direction: 'output', required: true },
+        { id: 'done', label: 'Done', direction: 'output', required: true },
+      ],
+      connections: [{ id: 'loop', label: 'Loop', direction: 'input', required: true }],
+      parameters: [],
+    } as unknown as GraphResolvedNodeManifest,
+    'core.flow.log': {
+      kind: 'core.flow.log',
+      display: { name: 'Log', category: 'Utility', width: 96, height: 96 },
+      inputs: [{ id: 'value', label: 'Value', direction: 'input', required: true }],
+      outputs: [{ id: 'value', label: 'Value', direction: 'output', required: true }],
+      parameters: [],
+    } as unknown as GraphResolvedNodeManifest,
+  };
+  return {
+    all: () => Object.keys(resolves).map((kind) => ({ kind }) as never),
+    get: (kind: string) => (resolves[kind]?.kind ? ({ kind } as never) : undefined),
+    resolve: (instance: GraphNodeInstance) => resolves[instance.kind],
+  };
+}
+
+function pairsOf(document: GraphWorkflowDocument): string[] {
+  return document.edges.map((edge) => edge.id).sort();
+}
+
+describe('GraphRendererComponent — loop chain (SAA-1363 reqs 10-12)', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    ghostNodeStore.clear();
+  });
+
+  afterEach(() => {
+    ghostNodeStore.clear();
+    jest.restoreAllMocks();
+    TestBed.resetTestingModule();
+  });
+
+  it('adds the first body node to an empty loop and drops the canvas ghost', () => {
+    const store = seededStore(loopChainDocument([]));
+    const fixture = render(store as unknown as StoreStub);
+    const component = fixture.componentInstance;
+    ghostNodeStore.requestAddNode('loop-1', { x: 10, y: 10 });
+
+    component.addNode(LOG_ENTRY);
+
+    const added = store.document()!.nodes.find((node) => node.kind === 'core.flow.log')!;
+    expect(pairsOf(store.document()!)).toEqual([
+      `${added.id}:value->loop-1:loop`,
+      `loop-1:item->${added.id}:value`,
+    ]);
+    // Once the loop has a real body the canvas-only ghost disappears.
+    const projection = graphWorkflowDocumentCanvasModelOf(store.document()!, loopReader());
+    expect(projection.nodes.some((node) => node.id === 'ghost-loop-1')).toBe(false);
+  });
+
+  it('appends a second node after a body node instead of creating a parallel chain', () => {
+    const store = storeStub();
+    store.document.mockReturnValue(loopChainDocument(['a']));
+    const fixture = render(store);
+    const component = fixture.componentInstance;
+    ghostNodeStore.requestAddNodeFrom('a', 'value');
+
+    component.addNode(LOG_ENTRY);
+
+    expect(store.addEdge).not.toHaveBeenCalled();
+    expect(store.dispatchCommand).toHaveBeenCalledTimes(3);
+    expect(store.dispatchCommand).toHaveBeenNthCalledWith(1, {
+      type: 'edge.remove',
+      edgeId: 'a:value->loop-1:loop',
+    });
+    expect(store.dispatchCommand).toHaveBeenNthCalledWith(2, {
+      type: 'edge.add',
+      edge: expect.objectContaining({
+        source: { scope: 'node', nodeId: 'a', port: 'value' },
+        target: { scope: 'node', nodeId: 'new-node', port: 'value' },
+        metadata: { mandatory: true },
+      }),
+    });
+    expect(store.dispatchCommand).toHaveBeenNthCalledWith(3, {
+      type: 'edge.add',
+      edge: expect.objectContaining({
+        source: { scope: 'node', nodeId: 'new-node', port: 'value' },
+        target: { scope: 'node', nodeId: 'loop-1', port: 'loop' },
+        metadata: { mandatory: true },
+      }),
+    });
+    // No parallel `loop:item -> new-node` body edge is ever added.
+    const addedPairs = store.dispatchCommand.mock.calls
+      .map(([command]) => command)
+      .filter((command) => command.type === 'edge.add')
+      .map((command) => command.edge.id);
+    expect(addedPairs).not.toContain('loop-1:item->new-node:value');
+  });
+
+  it('deleting a mid-loop node regenerates the surviving ordered chain', () => {
+    const store = seededStore(loopChainDocument(['a', 'b', 'c']));
+    const fixture = render(store as unknown as StoreStub);
+    const component = fixture.componentInstance;
+
+    component.onElementsRemoved({
+      deletedNodes: [{ id: 'b' }],
+      deletedEdges: [],
+    } as never);
+
+    const document = store.document()!;
+    expect(document.nodes.map((node) => node.id).sort()).toEqual(['a', 'c', 'loop-1']);
+    expect(pairsOf(document)).toEqual([
+      'a:value->c:value',
+      'c:value->loop-1:loop',
+      'loop-1:item->a:value',
+    ]);
+    // The chain is still a single ordered path ending at loop:loop.
+    expect(document.edges.every((edge) => edge.metadata?.['mandatory'] === true)).toBe(true);
+    expect(store.version()).toBeGreaterThan(1);
+  });
+
+  it('anchors the add-node popup at the pointer offset, clamped/flipped to the viewport', () => {
+    const fixture = render(storeStub(), '<div #paletteRoot class="palette-root"></div>');
+    const component = fixture.componentInstance;
+
+    ghostNodeStore.requestAddNode('loop-1', { x: 640, y: 320 });
+    fixture.detectChanges();
+
+    expect(component.paletteAnchor()).toEqual({ x: 640, y: 328 });
+    expect(component.palettePopupStyle()).toEqual({ left: '640px', top: '328px' });
+
+    // Near the bottom-right corner the popup flips above the pointer and clamps
+    // its left edge inside the 1024x768 test viewport.
+    ghostNodeStore.requestAddNode('loop-1', { x: 1000, y: 700 });
+    fixture.detectChanges();
+
+    expect(component.paletteAnchor()).toEqual({ x: 732, y: 272 });
+  });
+
+  it('opts out of loop ghosts while execution state is active', () => {
+    const reconcileSpy = jest
+      .spyOn(GraphDiagramAdapter.prototype, 'reconcile')
+      .mockReturnValue({ getNodes: () => [], getEdges: () => [] } as never);
+    const store = seededStore(loopChainDocument([]));
+    const fixture = render(store as unknown as StoreStub);
+    const component = fixture.componentInstance;
+    (component as unknown as { catalogService: unknown }).catalogService = {
+      status: () => 'ready',
+      failure: () => null,
+      refresh: jest.fn(async () => undefined),
+      reader: loopReader,
+    };
+
+    fixture.componentRef.setInput('runResultState', 'running');
+    fixture.detectChanges();
+    expect(reconcileSpy.mock.calls.at(-1)?.[4]).toMatchObject({ includeLoopGhosts: false });
+
+    fixture.componentRef.setInput('runResultState', 'idle');
+    fixture.detectChanges();
+    expect(reconcileSpy.mock.calls.at(-1)?.[4]).toMatchObject({ includeLoopGhosts: true });
   });
 });

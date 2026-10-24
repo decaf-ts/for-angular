@@ -53,7 +53,7 @@
       <div class="graph-io__download-fallback" role="status">
         <span class="graph-io__download-fallback-message">
           Full payload unavailable. Downloaded the on-screen value, marked
-          <code>_truncated</code>.
+          <code>{{ truncatedMarker }}</code>.
         </span>
       </div>
     }
@@ -85,15 +85,24 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of visibleTableRows(); track row.key) {
+              @for (row of visibleTableRows(); track row.id) {
                 <tr>
-                  <td class="graph-io__table-key">{{ row.key }}</td>
+                  <td class="graph-io__table-key">
+                    {{ row.key }}
+                    @if (row.keyTruncated) {
+                      <span
+                        class="graph-io__table-key-truncated"
+                        aria-hidden="true"
+                        >…</span
+                      >
+                    }
+                  </td>
                   <td [class.graph-io__table-empty]="isEmptyValue(row)">
                     @if (isEmptyValue(row)) {
                       —
                     } @else {
                       {{ row.text }}
-                      @if (row.truncated) {
+                      @if (row.textTruncated) {
                         <span
                           class="graph-io__table-cell-truncated"
                           title="Cell content truncated"

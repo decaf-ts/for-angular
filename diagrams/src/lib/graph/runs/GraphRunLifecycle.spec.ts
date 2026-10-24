@@ -1032,6 +1032,9 @@ describe('GraphRunLifecycle (DECAF-50 §4.19 Angular run row)', () => {
       expect(nodes['n1'].status).toBe('succeeded');
       expect(nodes['n2'].status).toBe('skipped');
       expect(graphExecutionState.edgeStates()['e1'].status).toBe('skipped');
+      expect(
+        Object.values(nodes).filter((state) => state.status === 'failed'),
+      ).toHaveLength(0);
     });
 
     it('maps run event types onto run lifecycle statuses', () => {

@@ -52,8 +52,23 @@ export class GraphGhostNodeTemplateComponent implements NgDiagramNodeTemplate<Gr
     event.stopPropagation();
     const parentNodeId = this.node().data.ghostParentId;
     if (parentNodeId) {
-      ghostNodeStore.requestAddNode(parentNodeId);
+      ghostNodeStore.requestAddNode(parentNodeId, this.anchorOf(event));
     }
+  }
+
+  /**
+   * Pointer location that opened the palette. A pointer/click event carries the
+   * viewport coordinates; a keyboard activation falls back to the ghost's own
+   * centre so the popup still appears at the affordance, never under the
+   * canvas-level button.
+   */
+  private anchorOf(event: Event): { x: number; y: number } | undefined {
+    const pointer = event as MouseEvent;
+    if (typeof pointer.clientX === 'number' && typeof pointer.clientY === 'number') {
+      return { x: pointer.clientX, y: pointer.clientY };
+    }
+    const rect = (event.currentTarget as HTMLElement | null)?.getBoundingClientRect();
+    return rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : undefined;
   }
 
   onAddNodeKeydown(event: KeyboardEvent) {

@@ -49,6 +49,23 @@ export function graphRunStuckMessageOf(runId: string, timeoutMs: number): string
 }
 
 /**
+ * Builds the run-failure message (SAA-1361 D8): the run reached a
+ * `workflow.failed` terminal, so the UI surfaces the engine's structured error
+ * instead of leaving the canvas neutral.
+ * @param runId The failed run's id.
+ * @param error The terminal envelope's structured error, when the engine sent one.
+ * @returns The user-facing run-failure message.
+ */
+export function graphRunFailureMessageOf(runId: string, error: unknown): string {
+  const payload = (error ?? {}) as { message?: unknown; code?: unknown };
+  const detail = typeof payload.message === 'string' ? payload.message : '';
+  const code = typeof payload.code === 'string' && payload.code ? ` [${payload.code}]` : '';
+  return detail
+    ? `Run '${runId}' failed${code}: ${detail}`
+    : `Run '${runId}' failed before producing a result. Open the run console for details.`;
+}
+
+/**
  * Builds the run-cancel failure message (G3-34): the cancel request itself
  * failed, so the user knows the run may still be live.
  * @param runId The run whose cancellation failed.

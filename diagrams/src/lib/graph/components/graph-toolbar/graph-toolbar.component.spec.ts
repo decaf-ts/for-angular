@@ -20,6 +20,7 @@ import type {
 /** Renders the toolbar with the given inputs and returns the live fixture. */
 function render(inputs: {
   canRun?: boolean;
+  workflowRunnable?: boolean;
   isRunning?: boolean;
   invalid?: boolean;
   hasRun?: boolean;
@@ -28,6 +29,7 @@ function render(inputs: {
   const fixture = TestBed.createComponent(GraphToolbarComponent);
   fixture.componentRef.setInput('workflowId', 'text-pipeline-workflow');
   fixture.componentRef.setInput('canRun', inputs.canRun ?? true);
+  fixture.componentRef.setInput('workflowRunnable', inputs.workflowRunnable ?? true);
   fixture.componentRef.setInput('isRunning', inputs.isRunning ?? false);
   fixture.componentRef.setInput('invalid', inputs.invalid ?? false);
   fixture.componentRef.setInput('hasRun', inputs.hasRun ?? false);
@@ -151,6 +153,69 @@ describe('GraphToolbarComponent — Run gate (D5/G3-17)', () => {
     cancel.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(emitted).toBe(1);
+  });
+});
+
+describe('GraphToolbarComponent — per-workflow runnable gate (SAA-1359 D5)', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('disables Run and names the per-workflow block for a runnable:false row', () => {
+    const fixture = render({
+      canRun: true,
+      workflowRunnable: false,
+      invalid: false,
+    });
+    const run = fixture.nativeElement.querySelector(
+      'button.graph-float-btn--run',
+    ) as HTMLButtonElement;
+
+    expect(run.disabled).toBe(true);
+    expect(run.getAttribute('aria-disabled')).toBe('true');
+    expect(run.getAttribute('aria-label')).toBe(
+      'This workflow is a read-only canonical document, not a deployed job, so it cannot be run',
+    );
+    expect(run.getAttribute('title')).toBe(
+      'This workflow is a read-only canonical document, not a deployed job, so it cannot be run',
+    );
+    expect(run.getAttribute('aria-label')).not.toBe('Start workflow');
+  });
+
+  it('keeps Run enabled and named with the normal action for a runnable:true row', () => {
+    const fixture = render({
+      canRun: true,
+      workflowRunnable: true,
+      invalid: false,
+    });
+    const run = fixture.nativeElement.querySelector(
+      'button.graph-float-btn--run',
+    ) as HTMLButtonElement;
+
+    expect(run.disabled).toBe(false);
+    expect(run.getAttribute('aria-disabled')).toBe('false');
+    expect(run.getAttribute('aria-label')).toBe('Start workflow');
+    expect(run.getAttribute('title')).toBe('Start workflow');
+  });
+
+  it('does not emit runWorkflow for a runnable:false row even when clicked', () => {
+    const fixture = render({
+      canRun: true,
+      workflowRunnable: false,
+      invalid: false,
+    });
+    let emitted = 0;
+    fixture.componentInstance.runWorkflow.subscribe(() => {
+      emitted += 1;
+    });
+
+    fixture.componentInstance.onRun();
+
+    expect(emitted).toBe(0);
   });
 });
 

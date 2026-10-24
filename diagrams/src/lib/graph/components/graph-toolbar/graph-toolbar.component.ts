@@ -41,6 +41,7 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
 
   readonly workflowId = input.required<string>();
   readonly canRun = input<boolean>(true);
+  readonly workflowRunnable = input<boolean>(true);
   readonly isRunning = input<boolean>(false);
   /**
    * Whether the editor's validity projection marks the graph invalid
@@ -106,6 +107,7 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
       !this.canRun() ||
       this.isRunning() ||
       this.invalid() ||
+      !this.workflowRunnable() ||
       !this.canRunWorkflow()
   );
 
@@ -113,9 +115,11 @@ export class GraphToolbarComponent implements OnInit, OnDestroy {
   readonly runTitle = computed(() =>
     !this.canRunWorkflow()
       ? 'The selected engine does not support running workflows'
-      : this.invalid()
-        ? `Fix ${this.validationIssues().length} graph validation issue(s) before running`
-        : 'Start workflow'
+      : !this.workflowRunnable()
+        ? 'This workflow is a read-only canonical document, not a deployed job, so it cannot be run'
+        : this.invalid()
+          ? `Fix ${this.validationIssues().length} graph validation issue(s) before running`
+          : 'Start workflow'
   );
 
   /**

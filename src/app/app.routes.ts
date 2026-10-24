@@ -58,6 +58,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/graph/executions/workflow-execution-list.page').then(m => m.WorkflowExecutionListPage)
   },
   {
+    path: 'workflows/:workflowId',
+    loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage),
+    data: { operation: 'read' }
+  },
+  {
     path: 'cron-selector',
     loadComponent: () => import('./pages/cron-selector/cron-selector.page').then(m => m.CronSelectorPage)
   },

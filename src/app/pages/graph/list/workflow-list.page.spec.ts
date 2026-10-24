@@ -5,12 +5,15 @@
  * `GraphListService`, exposes the rows to the list through the `workflows` signal
  * and the display mapper, and routes the create action to `/graph/create`.
  */
-import type { Router } from '@angular/router';
-import type {
-  GraphListService,
-  GraphWorkflowSummary,
-} from 'src/app/services/graph-list/graph-list.service';
-import type { GraphEngineCapabilityService } from 'diagrams/src/lib/graph/capabilities';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
+import { NavController } from '@ionic/angular/standalone';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { GraphListService, type GraphWorkflowSummary } from 'src/app/services/graph-list/graph-list.service';
+import { GraphEngineCapabilityService } from 'diagrams/src/lib/graph/capabilities';
+import { I18nFakeLoader } from 'src/lib/i18n';
+import en from '../../../../assets/i18n/en.json';
+import pt from '../../../../assets/i18n/pt.json';
 import { WorkflowListPage } from './workflow-list.page';
 
 const rows: GraphWorkflowSummary[] = [
@@ -30,6 +33,8 @@ interface CapabilityFake {
   refresh: jest.Mock;
   listWorkflows: jest.Mock;
   selectEngine: jest.Mock;
+  canRunWorkflow: () => boolean;
+  canRunListedWorkflow: (row?: { runnable?: boolean }) => boolean;
 }
 
 /** Builds a capability-service double with every member the page touches. */
@@ -45,6 +50,8 @@ function capabilityFake(overrides: Partial<CapabilityFake> = {}): CapabilityFake
     refresh: jest.fn().mockResolvedValue(undefined),
     listWorkflows: jest.fn().mockResolvedValue([]),
     selectEngine: jest.fn(),
+    canRunWorkflow: () => true,
+    canRunListedWorkflow: (row?: { runnable?: boolean }) => row?.runnable !== false,
     ...overrides,
   };
 }
@@ -129,10 +136,9 @@ describe('WorkflowListPage — workflow list (SAA-68 D1)', () => {
 describe('WorkflowListPage — engine capability catalogue (SAA-707)', () => {
   it('loads the manifest then the engine catalogue rows when the engine can browse', async () => {
     const capabilities = capabilityFake({
-      listWorkflows: jest.fn().mockResolvedValue([
-        { workflowId: 'cat-1', name: 'Catalogue One' },
-        { workflowId: 'cat-2' },
-      ]),
+      listWorkflows: jest
+        .fn()
+        .mockResolvedValue([{ workflowId: 'cat-1', name: 'Catalogue One' }, { workflowId: 'cat-2' }]),
     });
     const { page, service } = createPage(undefined, capabilities);
 
@@ -180,15 +186,11 @@ describe('WorkflowListPage — engine capability catalogue (SAA-707)', () => {
     const capabilities = capabilityFake({ listWorkflows, selectEngine });
     const { page } = createPage(undefined, capabilities);
 
-    await page.onEngineChange(
-      new CustomEvent('ionChange', { detail: { value: 'engine-b' } })
-    );
+    await page.onEngineChange(new CustomEvent('ionChange', { detail: { value: 'engine-b' } }));
 
     expect(selectEngine).toHaveBeenCalledWith('engine-b');
     expect(listWorkflows).toHaveBeenCalledTimes(1);
-    expect(page.workflows()).toEqual([
-      { workflowId: 'wf-b', name: undefined, updatedAt: '' },
-    ]);
+    expect(page.workflows()).toEqual([{ workflowId: 'wf-b', name: undefined, updatedAt: '' }]);
   });
 
   it('ignores an engine change without a value', async () => {
@@ -271,4 +273,219 @@ describe('WorkflowListPage — engine capability catalogue (SAA-707)', () => {
 
     expect(router.navigate).toHaveBeenCalledWith(['/graph/create']);
   });
+});
+
+/**
+ * SAA-1359 D5 page-level regression: a catalogue row's per-row `runnable` flag
+ * must survive `WorkflowListPage`'s catalogue mapping and reach the rendered row.
+ * Mounting the page (not a hand-built `GraphWorkflowItemComponent` fixture) is the
+ * point: the historical bug lived in `refreshWorkflows`, which mapped catalogue
+ * rows to `{workflowId, name, updatedAt}` and dropped `runnable` before the list
+ * item ever saw it, so the item-level spec stayed green while every row was
+ * runnable on `/workflows`.
+ */
+describe('WorkflowListPage — per-row run gate (SAA-1359 D5)', () => {
+  const catalogueRows: GraphWorkflowSummary[] = [
+    {
+      workflowId: 'fixture-manual-log',
+      name: 'Seeded fixture',
+      updatedAt: '2026-10-24T00:00:00.000Z',
+      runnable: false,
+    },
+    {
+      workflowId: 'etl_pipeline',
+      name: 'Deployed job',
+      updatedAt: '2026-10-24T00:00:00.000Z',
+      runnable: true,
+    },
+  ];
+
+  let fixture: ComponentFixture<WorkflowListPage>;
+
+  /** Mounts the real page with the engine catalogue serving the given rows. */
+  async function renderPage(rows: GraphWorkflowSummary[]): Promise<WorkflowListPage> {
+    const capabilities = capabilityFake({
+      listWorkflows: jest.fn().mockResolvedValue(rows),
+    });
+    TestBed.configureTestingModule({
+      imports: [
+        WorkflowListPage,
+        TranslateModule.forRoot({
+          loader: { provide: TranslateLoader, useClass: I18nFakeLoader },
+        }),
+      ],
+      providers: [
+        provideRouter([]),
+        {
+          provide: NavController,
+          useValue: {
+            navigateRoot: jest.fn(),
+            navigateForward: jest.fn(),
+            navigateBack: jest.fn(),
+          },
+        },
+        {
+          provide: GraphListService,
+          useValue: { listWorkflows: jest.fn().mockResolvedValue([]) },
+        },
+        { provide: GraphEngineCapabilityService, useValue: capabilities },
+      ],
+    });
+
+    fixture = TestBed.createComponent(WorkflowListPage);
+    // Load the catalogue into the page signal before the first change detection
+    // so the list's `[data]` binding is created with the mapped rows; this mirrors
+    // the real page, whose catalogue arrives before `ngAfterViewInit` refreshes
+    // the list.
+    await fixture.componentInstance.loadWorkflows();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture.componentInstance;
+  }
+
+  /**
+   * Waits for the dynamically rendered row whose visible text carries the
+   * catalogue name. The list renders items through the component renderer, whose
+   * child `ngOnInit` is async, and Ionic hydrates the row's `ion-button` a tick
+   * after the first paint, so both the label and the `aria-disabled` reflection
+   * have to settle before the row is asserted.
+   */
+  async function renderedRow(name: string): Promise<HTMLElement> {
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const rows = Array.from(fixture.nativeElement.querySelectorAll('.graph-workflow-item')) as HTMLElement[];
+      const row = rows.find((candidate) => candidate.textContent?.includes(name));
+      if (row) {
+        const run = runButton(row);
+        const disabled = (run as unknown as { disabled?: unknown }).disabled === true;
+        const ariaDisabled = run.getAttribute('aria-disabled');
+        const labelled = !!run.getAttribute('aria-label');
+        if (labelled && (disabled ? ariaDisabled === 'true' : ariaDisabled !== 'true')) {
+          return row;
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    const rows = Array.from(fixture.nativeElement.querySelectorAll('.graph-workflow-item')) as HTMLElement[];
+    throw new Error(
+      `row "${name}" not rendered; rows=${JSON.stringify(
+        rows.map((candidate) => candidate.textContent?.trim())
+      )}; pageRows=${JSON.stringify(fixture.componentInstance.workflows())}`
+    );
+  }
+
+  /** The row's Run control (second action button: runs, run, edit). */
+  function runButton(row: HTMLElement): HTMLElement {
+    return row.querySelectorAll('.graph-workflow-item__actions ion-button')[1] as HTMLElement;
+  }
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('forwards the catalogue runnable flag from the page to the list rows', async () => {
+    const page = await renderPage(catalogueRows);
+
+    expect(page.workflows()).toEqual(catalogueRows);
+    expect(page.workflows().map((row) => row.runnable)).toEqual([false, true]);
+  });
+
+  it('disables Run and names the block for a runnable:false catalogue row', async () => {
+    await renderPage(catalogueRows);
+    const translate = TestBed.inject(TranslateService);
+    const seededRow = await renderedRow('Seeded fixture');
+    const run = runButton(seededRow);
+    expect(run.hasAttribute('disabled')).toBe(true);
+    expect(run.getAttribute('aria-disabled')).toBe('true');
+    expect(run.getAttribute('aria-label')).toBe(
+      translate.instant('graph.workflows.runBlockedReadOnly')
+    );
+    expect(run.getAttribute('title')).toBe(
+      translate.instant('graph.workflows.runBlockedReadOnly')
+    );
+    expect(run.getAttribute('aria-label')).not.toBe(
+      translate.instant('graph.workflows.runBlocked')
+    );
+    expect(run.getAttribute('aria-label')).not.toBe(translate.instant('graph.workflows.run'));
+    expect(run.getAttribute('aria-label')?.trim()).not.toBe('');
+  });
+
+  it('keeps Run enabled and named for a runnable:true catalogue row', async () => {
+    await renderPage(catalogueRows);
+    const translate = TestBed.inject(TranslateService);
+    const run = runButton(await renderedRow('Deployed job'));
+
+    expect(run.hasAttribute('disabled')).toBe(false);
+    expect(run.getAttribute('aria-disabled')).not.toBe('true');
+    expect(run.getAttribute('aria-label')).toBe(translate.instant('graph.workflows.run'));
+  });
+
+  it('keeps a runnable:false row from opening the autorun editor', async () => {
+    const page = await renderPage(catalogueRows);
+    const navigate = jest.spyOn(TestBed.inject(Router) as unknown as { navigate: jest.Mock }, 'navigate');
+    const run = runButton(await renderedRow('Seeded fixture'));
+
+    run.click();
+
+    expect(navigate).not.toHaveBeenCalledWith(['/graph/read/fixture-manual-log'], {
+      queryParams: expect.objectContaining({ autorun: '1' }),
+    });
+    expect(page.workflows()[0].runnable).toBe(false);
+  });
+});
+
+/**
+ * SAA-1359 D5 wording regression: the per-workflow block must explain *this
+ * row* (read-only canonical document / not a deployed job) instead of reusing
+ * the engine-level "the selected engine does not support running workflows"
+ * claim. Both shipped locales must carry the explanation for the workflow row
+ * and the engine picker, and the explanation must differ from the engine-level
+ * block.
+ */
+describe('Per-workflow run-block i18n strings (SAA-1359 D5)', () => {
+  const locales = [
+    ['en', en],
+    ['pt', pt],
+  ] as const;
+
+  it.each(locales)(
+    'ships a workflow-specific read-only explanation in %s',
+    (_locale, translations) => {
+      const workflows = translations.graph.workflows as {
+        run: string;
+        runBlocked: string;
+        runBlockedReadOnly: string;
+      };
+
+      expect(workflows.runBlockedReadOnly.trim()).not.toBe('');
+      expect(workflows.runBlockedReadOnly).not.toBe(workflows.runBlocked);
+      expect(workflows.runBlockedReadOnly).not.toBe(workflows.run);
+      expect(workflows.runBlockedReadOnly.toLowerCase()).toMatch(
+        /read-only|leitura/,
+      );
+      expect(workflows.runBlockedReadOnly.toLowerCase()).toMatch(
+        /canonical|canónico/,
+      );
+    },
+  );
+
+  it.each(locales)(
+    'ships the picker per-row and engine-level run blocks in %s',
+    (_locale, translations) => {
+      const picker = translations.graph.engines.picker as {
+        run: string;
+        runBlocked: string;
+        runBlockedReadOnly: string;
+      };
+
+      expect(picker.runBlocked.trim()).not.toBe('');
+      expect(picker.runBlockedReadOnly.trim()).not.toBe('');
+      expect(picker.runBlockedReadOnly).not.toBe(picker.runBlocked);
+      expect(picker.runBlocked).not.toBe(picker.run);
+    },
+  );
 });

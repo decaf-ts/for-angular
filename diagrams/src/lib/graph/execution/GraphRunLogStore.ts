@@ -35,6 +35,7 @@ export type GraphRunLogLifecycleKind =
   | "validated"
   | "validation-issues"
   | "cancelled"
+  | "failed"
   | "replay"
   | "restored";
 
@@ -46,6 +47,7 @@ export const GRAPH_RUN_LOG_LIFECYCLE_LABELS: Record<GraphRunLogLifecycleKind, st
   validated: "Validated",
   "validation-issues": "Validation issues",
   cancelled: "Cancelled",
+  failed: "Failed",
   replay: "Replayed",
   restored: "Restored",
 };
@@ -62,6 +64,7 @@ export const GRAPH_RUN_LOG_LIFECYCLE_LEVELS: Record<
   validated: "info",
   "validation-issues": "warn",
   cancelled: "warn",
+  failed: "error",
   replay: "info",
   restored: "info",
 };

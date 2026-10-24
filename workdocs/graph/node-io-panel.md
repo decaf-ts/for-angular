@@ -8,6 +8,8 @@ After a run, the node inspection split view renders each node's inputs (right pa
 
 A large run payload can never overflow the browser: the rendered text is capped at a configurable byte/line limit — default **256 KB / 2000 lines** — applied in that order (bytes first, so a single huge line cannot blow the DOM, then lines). The cap is a rendering cap only: it never mutates the source payload.
 
+In `table` mode the cap also covers each row: both the row key and the cell text are capped to the same limit, and the visible rows share one aggregate UTF-8 byte budget over their keys and cell texts in addition to the line cap — the first row that would overflow the remaining budget is trimmed to what still fits, and any later rows are dropped. `json` and `raw` stay at the single-value byte/line cap.
+
 The cap is the `GRAPH_IO_PANEL_LIMIT` injection token (`{ bytes, lines }`), provided root-wide with the 256 KB / 2000-line default. Hosts override it with their own provider:
 
 ```typescript
@@ -35,4 +37,4 @@ The download action fetches the **entire untruncated payload from the server run
 
 ## Representations
 
-Three toggleable representations share one capped text: `json` (default, pretty-printed), `table` (key/value row grid for records and arrays; array entries keyed `[index]`), and `raw` (pretty-printed text). The cap applies to the rendered text of whichever representation is active.
+Three toggleable representations: `json` (default, pretty-printed), `table` (key/value row grid for records and arrays; array entries keyed `[index]`), and `raw` (pretty-printed text). In `json`/`raw` the cap applies to the single rendered text; in `table` each row's key and cell text are capped individually and the rows share the aggregate byte budget described under [Rendering cap](#rendering-cap).

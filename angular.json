@@ -63,8 +63,9 @@
               }
             ],
             "styles": [
-              "src/theme/variables.scss",
+              "node_modules/ng-diagram/styles.css",
               "src/global.scss",
+              "src/theme/variables.scss",
               "src/theme/diagrams.scss"
             ]
           }
@@ -75,7 +76,25 @@
             "configDir": "./.storybook",
             "browserTarget": "for-angular:build",
             "compodoc": false,
-            "outputDir": "dist/storybook/for-angular"
+            "outputDir": "dist/storybook/for-angular",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              },
+              {
+                "glob": "**/*.svg",
+                "input": "node_modules/ionicons/dist/ionicons/svg",
+                "output": "./svg"
+              }
+            ],
+            "styles": [
+              "node_modules/ng-diagram/styles.css",
+              "src/global.scss",
+              "src/theme/variables.scss",
+              "src/theme/diagrams.scss"
+            ]
           }
         },
         "lint": {
@@ -246,8 +265,9 @@
               }
             ],
             "styles": [
-              "src/theme/variables.scss",
+              "node_modules/ng-diagram/styles.css",
               "src/global.scss",
+              "src/theme/variables.scss",
               "src/theme/diagrams.scss"
             ]
           }
@@ -258,7 +278,13 @@
             "configDir": "./.storybook",
             "browserTarget": "for-angular-app:build",
             "compodoc": false,
-            "outputDir": "dist/storybook/for-angular-app"
+            "outputDir": "dist/storybook/for-angular-app",
+            "styles": [
+              "node_modules/ng-diagram/styles.css",
+              "src/global.scss",
+              "src/theme/variables.scss",
+              "src/theme/diagrams.scss"
+            ]
           }
         },
         "lint": {

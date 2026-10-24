@@ -415,4 +415,162 @@ describe('GraphEngineWorkflowPickerComponent — gated Run action (SAA-707)', ()
     expect(getWorkflow).not.toHaveBeenCalled();
     expect(emitted).toBe(0);
   });
+
+  it('disables the Run button for a row marked runnable:false (SAA-1359 D5)', async () => {
+    const { fixture, store } = await render();
+    store.setManifest(
+      manifest(
+        [engine('engine-a', [{ feature: 'workflowList', verdict: 'SUPPORTED' }])],
+        'engine-a',
+      ),
+    );
+    store.setStatus('ready');
+    store.setWorkflows([
+      { workflowId: 'seeded-doc', name: 'Seeded doc', runnable: false },
+    ]);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('ion-button') as HTMLElement;
+
+    expect(button).not.toBeNull();
+    expect(button.getAttribute('aria-disabled')).toBe('true');
+  });
+
+  it('names a runnable:false row with the read-only explanation, not the plain run label', async () => {
+    const { fixture, store } = await render();
+    store.setManifest(
+      manifest(
+        [engine('engine-a', [{ feature: 'workflowList', verdict: 'SUPPORTED' }])],
+        'engine-a',
+      ),
+    );
+    store.setStatus('ready');
+    store.setWorkflows([
+      { workflowId: 'seeded-doc', name: 'Seeded doc', runnable: false },
+    ]);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('ion-button') as HTMLElement;
+
+    expect(button.getAttribute('aria-label')).toBe(
+      'graph.engines.picker.runBlockedReadOnly',
+    );
+    expect(button.getAttribute('title')).toBe(
+      'graph.engines.picker.runBlockedReadOnly',
+    );
+    expect(button.getAttribute('aria-label')).not.toBe(
+      'graph.engines.picker.run',
+    );
+  });
+
+  it('keeps a runnable:true row named graph.engines.picker.run', async () => {
+    const { fixture, store } = await render();
+    store.setManifest(
+      manifest(
+        [engine('engine-a', [{ feature: 'workflowList', verdict: 'SUPPORTED' }])],
+        'engine-a',
+      ),
+    );
+    store.setStatus('ready');
+    store.setWorkflows([
+      { workflowId: 'deployed-job', name: 'Deployed job', runnable: true },
+    ]);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('ion-button') as HTMLElement;
+
+    expect(button.getAttribute('aria-disabled')).toBe('false');
+    expect(button.getAttribute('aria-label')).toBe('graph.engines.picker.run');
+    expect(button.getAttribute('title')).toBe('graph.engines.picker.run');
+  });
+
+  it('names an engine-level block with graph.engines.picker.runBlocked', async () => {
+    const { fixture, store } = await render();
+    store.setManifest(
+      manifest(
+        [
+          engine('engine-a', [
+            { feature: 'workflowList', verdict: 'SUPPORTED' },
+            { feature: 'workflowRun', verdict: 'NOT_SUPPORTED' },
+          ]),
+        ],
+        'engine-a',
+      ),
+    );
+    store.setStatus('ready');
+    store.setWorkflows([
+      { workflowId: 'deployed-job', name: 'Deployed job', runnable: true },
+    ]);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('ion-button') as HTMLElement;
+
+    expect(button.getAttribute('aria-disabled')).toBe('true');
+    expect(button.getAttribute('aria-label')).toBe(
+      'graph.engines.picker.runBlocked',
+    );
+    expect(button.getAttribute('title')).toBe(
+      'graph.engines.picker.runBlocked',
+    );
+  });
+
+  it('does not resolve or emit for a row marked runnable:false (SAA-1359 D5)', async () => {
+    const getWorkflow = jest.fn(async () => document('seeded-doc'));
+    const { fixture, store } = await render(fakeSource({ getWorkflow }));
+    store.setManifest(
+      manifest(
+        [engine('engine-a', [{ feature: 'workflowList', verdict: 'SUPPORTED' }])],
+        'engine-a',
+      ),
+    );
+    store.setStatus('ready');
+    store.setWorkflows([
+      { workflowId: 'seeded-doc', name: 'Seeded doc', runnable: false },
+    ]);
+
+    let emitted = 0;
+    fixture.componentInstance.workflowSelected.subscribe(() => {
+      emitted += 1;
+    });
+
+    await fixture.componentInstance.onWorkflowRun({
+      workflowId: 'seeded-doc',
+      name: 'Seeded doc',
+      runnable: false,
+    });
+
+    expect(getWorkflow).not.toHaveBeenCalled();
+    expect(emitted).toBe(0);
+  });
+
+  it('resolves and emits a row marked runnable:true (SAA-1359 D5)', async () => {
+    const resolved = document('deployed-job');
+    const getWorkflow = jest.fn(async () => resolved);
+    const { fixture, store } = await render(fakeSource({ getWorkflow }));
+    store.setManifest(
+      manifest(
+        [engine('engine-a', [{ feature: 'workflowList', verdict: 'SUPPORTED' }])],
+        'engine-a',
+      ),
+    );
+    store.setStatus('ready');
+    const summary = {
+      workflowId: 'deployed-job',
+      name: 'Deployed job',
+      runnable: true,
+    };
+    store.setWorkflows([summary]);
+
+    const selections: unknown[] = [];
+    fixture.componentInstance.workflowSelected.subscribe((value) => {
+      selections.push(value);
+    });
+
+    await fixture.componentInstance.onWorkflowRun(summary);
+
+    expect(getWorkflow).toHaveBeenCalledWith('engine-a', 'deployed-job');
+    expect(selections).toEqual([
+      { engineId: 'engine-a', summary, document: resolved },
+    ]);
+  });
 });

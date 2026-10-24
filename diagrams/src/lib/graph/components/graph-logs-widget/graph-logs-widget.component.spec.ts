@@ -178,3 +178,116 @@ describe('GraphLogsWidgetComponent — on-demand docked drawer (D6/G3-19..21)', 
     expect(fixture.nativeElement.querySelector('.graph-logs__empty')).not.toBeNull();
   });
 });
+
+describe('GraphLogsWidgetComponent — always-visible dock bar and animated drawer (SAA-1362 req 7)', () => {
+  beforeEach(() => {
+    graphRunLog.reset();
+    TestBed.configureTestingModule({});
+  });
+
+  afterEach(() => {
+    graphRunLog.reset();
+    TestBed.resetTestingModule();
+  });
+
+  /** The widget's persistent top bar. */
+  function header(fixture: ComponentFixture<GraphLogsWidgetComponent>): HTMLElement {
+    const element = fixture.nativeElement.querySelector('.graph-logs__header') as HTMLElement | null;
+    expect(element).not.toBeNull();
+    return element as HTMLElement;
+  }
+
+  /** The drawer element (always mounted, inert while lowered). */
+  function drawer(fixture: ComponentFixture<GraphLogsWidgetComponent>): HTMLElement {
+    const element = fixture.nativeElement.querySelector('.graph-logs-dock__drawer') as HTMLElement | null;
+    expect(element).not.toBeNull();
+    return element as HTMLElement;
+  }
+
+  it('keeps the top bar mounted while lowered, with the drawer hidden and inert', () => {
+    const fixture = render();
+
+    expect(header(fixture).textContent).toContain('Run console');
+    expect(fixture.nativeElement.querySelector('.graph-logs__title')?.textContent).toContain(
+      'Run console'
+    );
+    expect(fixture.nativeElement.querySelector('.graph-logs__handle')).not.toBeNull();
+    expect(drawer(fixture).getAttribute('aria-hidden')).toBe('true');
+    expect(drawer(fixture).getAttribute('inert')).toBe('');
+    expect(fixture.nativeElement.querySelector('.graph-logs')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.graph-logs__filter')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.graph-logs__icon-btn')).toBeNull();
+  });
+
+  it('raises the drawer from the top-bar chevron and lowers it again without unmounting the bar', () => {
+    const fixture = render();
+    const toggle = fixture.nativeElement.querySelector(
+      '.graph-logs__toggle'
+    ) as HTMLButtonElement;
+
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(drawer(fixture).hasAttribute('inert')).toBe(false);
+    expect(drawer(fixture).getAttribute('aria-hidden')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.graph-logs')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.graph-logs__filter')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.graph-logs__handle')).toBeNull();
+    expect(header(fixture).textContent).toContain('Run console');
+
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(drawer(fixture).getAttribute('inert')).toBe('');
+    expect(fixture.nativeElement.querySelector('.graph-logs')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.graph-logs__handle')).not.toBeNull();
+    expect(header(fixture).textContent).toContain('Run console');
+  });
+
+  it('raises from the Run log handle and dismisses back to the always-visible bar', () => {
+    const fixture = render();
+
+    const handle = fixture.nativeElement.querySelector(
+      '.graph-logs__handle'
+    ) as HTMLButtonElement;
+    handle.click();
+    fixture.detectChanges();
+    expect(drawer(fixture).hasAttribute('inert')).toBe(false);
+
+    const dismiss = fixture.nativeElement.querySelector(
+      '.graph-logs__icon-btn[title="Dismiss console"]'
+    ) as HTMLButtonElement;
+    dismiss.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.graph-logs__handle')).not.toBeNull();
+    expect(header(fixture).textContent).toContain('Run console');
+    expect(drawer(fixture).getAttribute('inert')).toBe('');
+  });
+
+  it('treats a store-collapsed console as lowered while keeping the bar mounted', () => {
+    const fixture = render();
+    graphRunLog.setOpen(true);
+    graphRunLog.setCollapsed(true);
+    fixture.detectChanges();
+
+    const toggle = fixture.nativeElement.querySelector(
+      '.graph-logs__toggle'
+    ) as HTMLButtonElement;
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(drawer(fixture).getAttribute('inert')).toBe('');
+    expect(drawer(fixture).getAttribute('aria-hidden')).toBe('true');
+    expect(header(fixture).textContent).toContain('Run console');
+
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(drawer(fixture).hasAttribute('inert')).toBe(false);
+    expect(graphRunLog.open()).toBe(true);
+    expect(graphRunLog.collapsed()).toBe(false);
+  });
+});

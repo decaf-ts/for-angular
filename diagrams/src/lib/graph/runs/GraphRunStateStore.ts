@@ -194,11 +194,13 @@ class GraphRunStateStore {
   }
 
   /**
-   * Mirrors the legacy `workflow.failed` fold's visual semantics for the
-   * `workflow.cancelled` status (§4.15): nodes/edges that never reached a
-   * terminal execution state are demoted to `skipped` (faded/disabled), so a
+   * Mirrors the legacy `workflow.failed` fold's post-terminal visual semantics
+   * for the `workflow.cancelled` status (§4.15): nodes/edges that never reached
+   * a terminal execution state are demoted to `skipped` (faded/disabled), so a
    * cancelled run carries the mapper's post-terminal visual effect without a
-   * dedicated mapper branch.
+   * dedicated mapper branch. The event is typed `workflow.cancelled` so the
+   * mapper does not anchor the run's failure on an unexecuted node (SAA-1422):
+   * a cancelled run leaves those nodes `skipped`.
    * @param runId The observed run's id (unused; the fold is map-global).
    */
   markRunCancelled(): void {
@@ -211,10 +213,10 @@ class GraphRunStateStore {
         runId: this.runId() ?? '',
         parentRunId: undefined,
         workflowId: this.workflowId() ?? '',
-        type: 'workflow.failed' as never,
+        type: GraphExecutionEventType.WORKFLOW_CANCELLED,
         timestamp: new Date(),
         path: [],
-      } as GraphExecutionEvent,
+      },
       nodes,
       edges,
     );

@@ -230,6 +230,7 @@ describe('GraphRunLogStore', () => {
       validated: 'Validated',
       'validation-issues': 'Validation issues',
       cancelled: 'Cancelled',
+      failed: 'Failed',
       replay: 'Replayed',
       restored: 'Restored',
     });
@@ -238,6 +239,7 @@ describe('GraphRunLogStore', () => {
       validated: 'info',
       'validation-issues': 'warn',
       cancelled: 'warn',
+      failed: 'error',
       replay: 'info',
       restored: 'info',
     });

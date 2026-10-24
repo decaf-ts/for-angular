@@ -525,3 +525,118 @@ describe('GraphEngineCapabilityService — SAA-707 action gates', () => {
     expect(service.degraded()).toBe(true);
   });
 });
+
+/** A manifest whose default engine allows running, with a run-blocked engine. */
+function runnableManifest(): GraphEngineCapabilityManifest {
+  return {
+    engines: [
+      engine('engine-a', [
+        { feature: 'workflowList', verdict: 'SUPPORTED' },
+        { feature: 'workflowLookup', verdict: 'SUPPORTED' },
+        { feature: 'workflowRun', verdict: 'SUPPORTED' },
+      ]),
+      engine('engine-b', [
+        { feature: 'workflowList', verdict: 'SUPPORTED' },
+        { feature: 'workflowLookup', verdict: 'SUPPORTED' },
+        { feature: 'workflowRun', verdict: 'NOT_SUPPORTED' },
+      ]),
+    ],
+    defaultEngineId: 'engine-a',
+  };
+}
+
+/** Builds the service against the run-capable manifest. */
+function buildRunnableService(
+  overrides: Partial<GraphEngineCapabilitySource> = {},
+): GraphEngineCapabilityService {
+  return buildService(
+    fakeSource({
+      fetchManifest: jest.fn(async () => runnableManifest()),
+      ...overrides,
+    }),
+  ).service;
+}
+
+describe('GraphEngineCapabilityService — per-workflow runnable gate (SAA-1359 D5)', () => {
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('blocks an explicit runnable:false row and allows true/undefined when the engine allows', async () => {
+    const service = buildRunnableService();
+    await service.load();
+
+    expect(
+      service.canRunListedWorkflow({ runnable: false }),
+    ).toBe(false);
+    expect(
+      service.canRunListedWorkflow({ runnable: true }),
+    ).toBe(true);
+    expect(service.canRunListedWorkflow({})).toBe(true);
+    expect(service.canRunListedWorkflow()).toBe(true);
+  });
+
+  it('blocks every row when the engine declares workflowRun NOT_SUPPORTED', async () => {
+    const service = buildRunnableService();
+    await service.load();
+    service.selectEngine('engine-b');
+
+    expect(
+      service.canRunListedWorkflow({ runnable: true }),
+    ).toBe(false);
+    expect(service.canRunListedWorkflow({})).toBe(false);
+  });
+
+  it('resolves the run gate for a non-selected engine id', async () => {
+    const service = buildRunnableService();
+    await service.load();
+
+    expect(service.canRunWorkflowOn()).toBe(true);
+    expect(service.canRunWorkflowOn('engine-a')).toBe(true);
+    expect(service.canRunWorkflowOn('engine-b')).toBe(false);
+  });
+
+  it('prefers the already-listed row for workflowSummary and does not re-list', async () => {
+    const listWorkflows = jest.fn(async () => []);
+    const service = buildRunnableService({ listWorkflows });
+    await service.load();
+    const listed = {
+      workflowId: 'seeded-doc',
+      name: 'Seeded doc',
+      runnable: false,
+    };
+    TestBed.inject(GraphEngineCapabilityStore).setWorkflows([listed]);
+
+    await expect(
+      service.workflowSummary('engine-a', 'seeded-doc'),
+    ).resolves.toEqual(listed);
+    expect(listWorkflows).not.toHaveBeenCalled();
+  });
+
+  it('falls back to a fresh listing when workflowSummary has no cached row', async () => {
+    const listed = {
+      workflowId: 'deployed-job',
+      name: 'Deployed job',
+      runnable: true,
+    };
+    const listWorkflows = jest.fn(async () => [listed]);
+    const service = buildRunnableService({ listWorkflows });
+    await service.load();
+    TestBed.inject(GraphEngineCapabilityStore).setWorkflows([]);
+
+    await expect(
+      service.workflowSummary('engine-a', 'deployed-job'),
+    ).resolves.toEqual(listed);
+    expect(listWorkflows).toHaveBeenCalledWith('engine-a');
+  });
+
+  it('returns undefined for a missing engine or workflow id without calling the source', async () => {
+    const listWorkflows = jest.fn(async () => []);
+    const service = buildRunnableService({ listWorkflows });
+    await service.load();
+
+    await expect(service.workflowSummary('', 'wf-1')).resolves.toBeUndefined();
+    await expect(service.workflowSummary('engine-a', '')).resolves.toBeUndefined();
+    expect(listWorkflows).not.toHaveBeenCalled();
+  });
+});

@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, Input, isDevMode, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, input, signal, computed, Input, isDevMode, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { GraphRendererComponent } from 'diagrams/src/lib/graph';
 import {
@@ -17,6 +17,7 @@ import {
   GRAPH_RUN_STUCK_TIMEOUT_MS,
   graphRunCancelFailureMessageOf,
   graphRunDriftMessageOf,
+  graphRunFailureMessageOf,
   graphRunStuckMessageOf,
 } from 'diagrams/src/lib/graph';
 import {
@@ -123,6 +124,24 @@ export class GraphPage implements OnInit, OnDestroy {
   /** Whether to start the run automatically after loading (SAA-707). */
   @Input() autorun?: string;
   /**
+   * Host-level Run switch. A read-only/preview mount (including Storybook
+   * states that have no runnable fixture) disables the Run affordance so it can
+   * never show a run that does not exercise the documented node.
+   *
+   * `withComponentInputBinding()` sets every component input from the merged
+   * route data/params/query params, including absent keys as `undefined`; a
+   * plain `@Input() runAllowed = true` is therefore overwritten to `undefined`
+   * (falsy) on every normal route and disables Run. The signal input's
+   * transform maps an absent/empty value back to `true` while still honouring
+   * an explicit `false` from a preview mount or a `?runAllowed=false` query.
+   */
+  readonly runAllowed = input<boolean, boolean | string | null | undefined>(true, {
+    transform: (value: boolean | string | null | undefined): boolean =>
+      value === undefined || value === null || value === ''
+        ? true
+        : value === true || value === 'true',
+  });
+  /**
    * Recorded run id to replay in mastra time-travel mode (SAA-836 U1 AC3):
    * when set, the page loads the workflow and replays the recorded run's
    * event stream from sequence zero into the run state store instead of
@@ -160,6 +179,12 @@ export class GraphPage implements OnInit, OnDestroy {
   private runStuckTimer: ReturnType<typeof setTimeout> | null = null;
   readonly backendAvailable = this.executionService.backendAvailable;
   /**
+   * Per-workflow run gate: a served row marked `runnable: false` (read-only
+   * canonical demo documents on Dagster) blocks Run even though the engine
+   * allows running its already-deployed jobs.
+   */
+  readonly workflowRunnable = signal(true);
+  /**
    * Run gating (D5/G3-17, SAA-707): the toolbar can only start a run when the
    * backend is available, the selected engine's capability manifest does not
    * declare run `NOT_SUPPORTED`, and the editor's validity projection does not
@@ -167,8 +192,12 @@ export class GraphPage implements OnInit, OnDestroy {
    */
   readonly canRun = computed(
     () =>
+      this.runAllowed() &&
       this.backendAvailable() !== false &&
-      this.capabilities.canRunWorkflow() &&
+      this.capabilities.canRunWorkflowOn(
+        this.engine ?? this.capabilities.selectedEngineId(),
+      ) &&
+      this.workflowRunnable() &&
       !graphValidity.isInvalid()
   );
   /** Editor validity projection (D5/G3-16..G3-18) for the toolbar + canvas. */
@@ -243,16 +272,21 @@ export class GraphPage implements OnInit, OnDestroy {
    */
   private async catalogBackendWorkflowLoad(): Promise<void> {
     // SAA-707: a workflow opened from an engine catalogue row carries its
-    // engine id, so resolve it through the capability catalogue first. The
-    // catalogue is preferred only when the manifest advertises browsing; the
-    // legacy save endpoint stays the fallback for saved/editor workflows.
-    if (this.engine) {
-      try {
-        await this.capabilities.load();
-        const document = await this.capabilities.getWorkflow(
-          this.engine,
-          this.workflowId,
-        );
+    // engine id, so resolve it through the capability catalogue first.
+    // SAA-1361 D3: a direct `/workflows/:workflowId` visit carries no engine
+    // query param, so fall back to the manifest's default engine — the same
+    // catalogue the list page shows. The catalogue is preferred only when the
+    // manifest advertises browsing; the legacy save endpoint stays the fallback
+    // for saved/editor workflows.
+    try {
+      await this.capabilities.load();
+      const engine = this.engine ?? this.capabilities.selectedEngineId();
+      if (engine) {
+        const [document, summary] = await Promise.all([
+          this.capabilities.getWorkflow(engine, this.workflowId),
+          this.capabilities.workflowSummary(engine, this.workflowId),
+        ]);
+        this.workflowRunnable.set(summary?.runnable !== false);
         if (document) {
           this.workflowName.set(document.name ?? this.workflowId);
           this.renderer?.restoreFromDocument({ document });
@@ -260,16 +294,23 @@ export class GraphPage implements OnInit, OnDestroy {
           else if (this.autorun) await this.runWorkflow();
           return;
         }
-      } catch {
-        // Fall through to the legacy load below.
       }
+    } catch {
+      // Fall through to the legacy load below.
     }
     try {
-      const saved = await this.saveService.loadDocument(this.workflowId);
-      if (!saved?.document) return;
-      this.workflowName.set(saved.document.name ?? '');
-      this.renderer?.restoreFromDocument(saved);
-      if (this.replayRun) await this.replayRecordedRun(this.replayRun, saved.document);
+      const loaded = await this.saveService.loadDocument(this.workflowId);
+      // `GET /graph/workflows/:id` answers with a bare `GraphWorkflowDocument`,
+      // while older/editor saves wrap it as `{ document, editor?, metadata? }`.
+      // Accept both so a fixture opened without the capability catalogue still
+      // restores its real document instead of keeping the demo seed.
+      const document = loaded
+        ? (loaded.document ?? (loaded as unknown as GraphWorkflowDocument))
+        : null;
+      if (!document) return;
+      this.workflowName.set(document.name ?? '');
+      this.renderer?.restoreFromDocument({ document });
+      if (this.replayRun) await this.replayRecordedRun(this.replayRun, document);
       else if (this.autorun) await this.runWorkflow();
     } catch {
       // Backend without a saved workflow: keep the canvas-derived document.
@@ -422,11 +463,29 @@ export class GraphPage implements OnInit, OnDestroy {
     return graphWorkflowDocumentWithPinnedParameters(document);
   }
 
+  /**
+   * Starts a canonical run of the current editor document (DECAF-50 §4.14).
+   * Re-checks the full Run gate first — the host's {@link runAllowed} switch, the
+   * served row's `runnable` flag, and the selected engine's capability — so a
+   * programmatic caller cannot bypass a gate the toolbar already reflects. It
+   * then seeds the canvas as blocked, submits the pinned document, and subscribes
+   * to the run event stream.
+   */
   async runWorkflow() {
+    if (
+      !this.runAllowed() ||
+      !this.workflowRunnable() ||
+      !this.capabilities.canRunWorkflowOn(
+        this.engine ?? this.capabilities.selectedEngineId(),
+      )
+    ) {
+      return;
+    }
     this.isRunning.set(true);
     this.cancelRequested.set(false);
     this.clearRunStuckTimeout();
     this.runError.set(null);
+    this.runStatus.set('idle');
     graphRunLog.reset();
     graphInspection.reset();
     graphRunState.reset();
@@ -625,7 +684,9 @@ export class GraphPage implements OnInit, OnDestroy {
    * finalize race after the terminal event) armed via the run state store's
    * {@link graphRunState.applyRunResult}, followed by the SSE document
    * round-trip assertion (the run's stored document must be the exact
-   * document the client submitted).
+   * document the client submitted). A `workflow.failed` terminal also surfaces
+   * the structured failure message on the run banner and records the `failed`
+   * lifecycle line (SAA-1422).
    * @param runId The observed run's id.
    * @param document The canonical document submitted to the run.
    * @param envelope The canonical run's terminal envelope.
@@ -648,6 +709,11 @@ export class GraphPage implements OnInit, OnDestroy {
       envelope.type === 'workflow.failed'
     ) {
       graphRunLog.setOpen(true);
+    }
+    if (envelope.type === 'workflow.failed') {
+      const message = graphRunFailureMessageOf(runId, envelope.error);
+      this.runError.set(message);
+      graphRunLog.recordLifecycle('failed', message, { runId });
     }
 
     this.runResultState.set('pending');
@@ -675,7 +741,9 @@ export class GraphPage implements OnInit, OnDestroy {
    * recorded run executed a different document version than the currently
    * loaded one (fingerprint change), the run's stored document is restored
    * into the editor — the mastra compiler is fingerprint-keyed, so running
-   * the restored version recompiles once, atomically.
+   * the restored version recompiles once, atomically. A `workflow.failed`
+   * terminal also surfaces the structured failure message and records the
+   * `failed` lifecycle line.
    * @param runId The replayed run's id.
    * @param envelope The replayed run's terminal envelope.
    */
@@ -686,6 +754,11 @@ export class GraphPage implements OnInit, OnDestroy {
     this.clearRunStuckTimeout();
     this.runStatus.set(envelope.type);
     graphRunLog.setOpen(true);
+    if (envelope.type === 'workflow.failed') {
+      const message = graphRunFailureMessageOf(runId, envelope.error);
+      this.runError.set(message);
+      graphRunLog.recordLifecycle('failed', message, { runId });
+    }
 
     this.runResultState.set('pending');
     const result = await this.fetchRunResultWithRetry(runId);

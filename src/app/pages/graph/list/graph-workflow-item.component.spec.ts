@@ -15,6 +15,8 @@ import { GraphWorkflowItemComponent } from './graph-workflow-item.component';
 
 /** Run-gate double backing the item's injected capability facade. */
 let canRunWorkflow: jest.Mock;
+/** Per-row run-gate double backing the item's injected capability facade. */
+let canRunListedWorkflow: jest.Mock;
 /** Selected-engine double backing the item's injected capability facade. */
 let selectedEngineId: jest.Mock;
 
@@ -31,6 +33,9 @@ async function render(row: KeyValue): Promise<ComponentFixture<GraphWorkflowItem
 describe('GraphWorkflowItemComponent — workflow row (SAA-68 D1)', () => {
   beforeEach(() => {
     canRunWorkflow = jest.fn(() => true);
+    canRunListedWorkflow = jest.fn(
+      (row?: { runnable?: boolean }) => canRunWorkflow() && row?.runnable !== false,
+    );
     selectedEngineId = jest.fn(() => 'engine-a');
     TestBed.configureTestingModule({
       imports: [
@@ -43,7 +48,7 @@ describe('GraphWorkflowItemComponent — workflow row (SAA-68 D1)', () => {
         provideRouter([]),
         {
           provide: GraphEngineCapabilityService,
-          useValue: { canRunWorkflow, selectedEngineId },
+          useValue: { canRunWorkflow, canRunListedWorkflow, selectedEngineId },
         },
       ],
     });
@@ -220,6 +225,63 @@ describe('GraphWorkflowItemComponent — workflow row (SAA-68 D1)', () => {
       const runLabel = TestBed.inject(TranslateService).instant('graph.workflows.run');
       expect(run.getAttribute('aria-label')).toBe(runLabel);
       expect(runLabel.trim()).not.toBe('');
+    });
+
+    it('disables the run affordance for a row marked runnable:false (SAA-1359 D5)', async () => {
+      const fixture = await render({
+        workflowId: 'seeded-doc',
+        name: 'Seeded doc',
+        runnable: false,
+      });
+      const actions = fixture.nativeElement.querySelectorAll(
+        '.graph-workflow-item__actions ion-button'
+      );
+      const run = actions[1] as HTMLElement;
+
+      expect(canRunListedWorkflow).toHaveBeenCalledWith(
+        expect.objectContaining({ workflowId: 'seeded-doc', runnable: false }),
+      );
+      expect(run.getAttribute('aria-label')).toBe(
+        'graph.workflows.runBlockedReadOnly',
+      );
+      expect(run.getAttribute('title')).toBe(
+        'graph.workflows.runBlockedReadOnly',
+      );
+      expect(run.getAttribute('aria-label')).not.toBe(
+        'graph.workflows.runBlocked',
+      );
+      expect(fixture.componentInstance.canRunScenario()).toBe(false);
+    });
+
+    it('does not navigate when the row is marked runnable:false (SAA-1359 D5)', async () => {
+      const fixture = await render({
+        workflowId: 'seeded-doc',
+        name: 'Seeded doc',
+        runnable: false,
+      });
+      const navigate = jest
+        .spyOn(fixture.componentInstance.router, 'navigate')
+        .mockResolvedValue(true);
+
+      fixture.componentInstance.runScenario(new Event('click'));
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('keeps the run affordance enabled for a row marked runnable:true (SAA-1359 D5)', async () => {
+      const fixture = await render({
+        workflowId: 'deployed-job',
+        name: 'Deployed job',
+        runnable: true,
+      });
+      const actions = fixture.nativeElement.querySelectorAll(
+        '.graph-workflow-item__actions ion-button'
+      );
+      const run = actions[1] as HTMLElement;
+
+      expect(run.hasAttribute('disabled')).toBe(false);
+      expect(run.getAttribute('aria-label')).toBe('graph.workflows.run');
+      expect(run.getAttribute('title')).toBe('graph.workflows.run');
     });
   });
 });

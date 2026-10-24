@@ -151,3 +151,164 @@ describe('GraphWorkflowDocumentStore.arrange (DECAF-50 §4.12)', () => {
     expect(store.version()).toBe(versionAfterFirst);
   });
 });
+
+/**
+ * SAA-1363 reqs 10-12: loop ghosts are canvas-only. A legacy round trip may
+ * still carry a `graph.ghost` node and its two mandatory edges; the store strips
+ * them on initialize/replace and repairs a populated chain so it ends at
+ * `loop:loop` instead of dangling at the removed ghost.
+ */
+import type { GraphEdgeInstance, GraphNodeInstance } from '@decaf-ts/as-graph/shared';
+import { isGraphNodeGhost } from './GraphDocumentMutation';
+
+function loopNodeOf(): GraphNodeInstance {
+  return { id: 'loop-1', kind: 'core.loop.foreach', label: 'For each', parameters: {} };
+}
+
+function logNodeOf(id: string): GraphNodeInstance {
+  return { id, kind: 'core.flow.log', label: id, parameters: {} };
+}
+
+function chainEdgeOf(
+  id: string,
+  source: string,
+  sourcePort: string,
+  target: string,
+  targetPort: string
+): GraphEdgeInstance {
+  return {
+    id,
+    type: 'data',
+    source: { scope: 'node', nodeId: source, port: sourcePort },
+    target: { scope: 'node', nodeId: target, port: targetPort },
+    label: targetPort,
+    metadata: { mandatory: true },
+  };
+}
+
+function legacyGhostNodeOf(): GraphNodeInstance {
+  return {
+    id: 'ghost-loop-1',
+    kind: 'graph.ghost',
+    label: 'Add node',
+    parameters: { ghostParentId: 'loop-1' },
+    ui: { position: { x: 300, y: 200 }, size: { width: 56, height: 56 } },
+  };
+}
+
+/** Empty loop carrying the legacy document ghost and its containment edges. */
+function legacyGhostDocument(): GraphWorkflowDocument {
+  return {
+    id: 'wf-legacy-ghost',
+    name: 'Legacy ghost',
+    inputs: [],
+    outputs: [],
+    nodes: [loopNodeOf(), legacyGhostNodeOf()],
+    edges: [
+      chainEdgeOf('legacy-in', 'loop-1', 'item', 'ghost-loop-1', 'in'),
+      chainEdgeOf('legacy-out', 'ghost-loop-1', 'out', 'loop-1', 'loop'),
+    ],
+  };
+}
+
+/** Loop body `a` routed through the legacy ghost: item -> a -> ghost -> loop. */
+function legacyPopulatedChainDocument(): GraphWorkflowDocument {
+  return {
+    id: 'wf-legacy-populated',
+    name: 'Legacy populated',
+    inputs: [],
+    outputs: [],
+    nodes: [loopNodeOf(), logNodeOf('a'), legacyGhostNodeOf()],
+    edges: [
+      chainEdgeOf('item-to-a', 'loop-1', 'item', 'a', 'value'),
+      chainEdgeOf('a-to-ghost', 'a', 'value', 'ghost-loop-1', 'in'),
+      chainEdgeOf('ghost-to-loop', 'ghost-loop-1', 'out', 'loop-1', 'loop'),
+    ],
+  };
+}
+
+function edgePairsOf(document: GraphWorkflowDocument): string[] {
+  return document.edges
+    .map((edge) => `${(edge.source as { nodeId: string }).nodeId}:${(edge.source as { port?: string }).port}->${(edge.target as { nodeId: string }).nodeId}:${(edge.target as { port?: string }).port}`)
+    .sort();
+}
+
+describe('GraphWorkflowDocumentStore — legacy loop ghosts (SAA-1363 reqs 10-12)', () => {
+  it('strips a legacy ghost node and its edges on initialize', () => {
+    const store = new GraphWorkflowDocumentStore();
+    store.initialize(legacyGhostDocument());
+
+    const document = store.document()!;
+    expect(document.nodes.some((node) => isGraphNodeGhost(node))).toBe(false);
+    expect(document.nodes.map((node) => node.id)).toEqual(['loop-1']);
+    expect(document.edges).toEqual([]);
+    expect(store.version()).toBe(1);
+    expect(store.isDirty()).toBe(false);
+  });
+
+  it('strips a legacy ghost node and its edges on replace', () => {
+    const store = new GraphWorkflowDocumentStore();
+    store.initialize(documentOf());
+    const versionBefore = store.version();
+
+    store.replace(legacyGhostDocument());
+
+    const document = store.document()!;
+    expect(document.nodes.some((node) => isGraphNodeGhost(node))).toBe(false);
+    expect(document.edges).toEqual([]);
+    expect(store.version()).toBe(versionBefore + 1);
+    expect(store.isDirty()).toBe(false);
+  });
+
+  it('repairs a populated legacy chain to end at loop:loop on initialize', () => {
+    const store = new GraphWorkflowDocumentStore();
+    store.initialize(legacyPopulatedChainDocument());
+
+    const document = store.document()!;
+    expect(document.nodes.some((node) => isGraphNodeGhost(node))).toBe(false);
+    expect(edgePairsOf(document)).toEqual(['a:value->loop-1:loop', 'loop-1:item->a:value']);
+    const closing = document.edges.find(
+      (edge) => edge.target.scope === 'node' && edge.target.nodeId === 'loop-1' && edge.target.port === 'loop'
+    );
+    expect(closing).toBeDefined();
+    expect(closing!.source).toMatchObject({ scope: 'node', nodeId: 'a', port: 'value' });
+    expect(document.edges.every((edge) => edge.metadata?.['mandatory'] === true)).toBe(true);
+  });
+
+  it('repairs a populated legacy chain to end at loop:loop on replace', () => {
+    const store = new GraphWorkflowDocumentStore();
+    store.initialize(documentOf());
+
+    store.replace(legacyPopulatedChainDocument());
+
+    const document = store.document()!;
+    expect(edgePairsOf(document)).toEqual(['a:value->loop-1:loop', 'loop-1:item->a:value']);
+    const closing = document.edges.find(
+      (edge) => edge.target.scope === 'node' && edge.target.nodeId === 'loop-1' && edge.target.port === 'loop'
+    );
+    expect(closing).toBeDefined();
+    expect(closing!.source).toMatchObject({ scope: 'node', nodeId: 'a', port: 'value' });
+  });
+
+  it('passes a ghost-free canonical chain through unchanged (idempotent load)', () => {
+    const canonical: GraphWorkflowDocument = {
+      id: 'wf-canonical',
+      name: 'Canonical',
+      inputs: [],
+      outputs: [],
+      nodes: [loopNodeOf(), logNodeOf('a')],
+      edges: [
+        chainEdgeOf('loop-1:item->a:value', 'loop-1', 'item', 'a', 'value'),
+        chainEdgeOf('a:value->loop-1:loop', 'a', 'value', 'loop-1', 'loop'),
+      ],
+    };
+    const store = new GraphWorkflowDocumentStore();
+
+    store.initialize(canonical);
+    const first = store.document()!;
+    store.replace(first);
+
+    expect(edgePairsOf(store.document()!)).toEqual(edgePairsOf(canonical));
+    expect(store.document()!.edges).toHaveLength(2);
+  });
+});

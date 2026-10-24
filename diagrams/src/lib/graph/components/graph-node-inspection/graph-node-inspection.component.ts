@@ -9,10 +9,15 @@
  * DECAF-50 §4.22 D3/G3-12). Boundary (workflow-input) nodes render the
  * editable workflow-input form as their CRUD center pane (G3-10/G3-13).
  */
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { NgDiagramModelService, type Node } from 'ng-diagram';
-import type { GraphNodeInspectionPayload } from '@decaf-ts/as-graph/shared';
+import {
+  GraphVisualState,
+  type GraphNodeInspectionPayload,
+  type GraphNodeInstance,
+  type GraphWorkflowDocument,
+} from '@decaf-ts/as-graph/shared';
 import { graphInspection } from '../../execution/GraphInspectionStore';
 import { GraphNodeCatalogService } from '../../catalog/GraphNodeCatalogService';
 import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocumentStore';
@@ -36,6 +41,64 @@ interface InspectionNodeMeta {
   title: string;
   sourceClass: string;
   kind: string;
+}
+
+interface NestedBodyNodeView {
+  node: GraphNodeInstance;
+  payload: GraphNodeInspectionPayload | null;
+  state: string;
+  derived: boolean;
+}
+
+/**
+ * Visits every node of a workflow document, descending into nested loop bodies.
+ */
+function graphDocumentNodesDepthFirst(
+  document: GraphWorkflowDocument,
+  visit: (node: GraphNodeInstance) => void
+): void {
+  for (const node of document.nodes) {
+    visit(node);
+    if (node.loop?.body) graphDocumentNodesDepthFirst(node.loop.body, visit);
+  }
+}
+
+/**
+ * Collects the body nodes a loop executes. Only direct nested bodies are
+ * returned for the open loop; a nested loop's own body is shown under that
+ * loop, not flattened into its parent.
+ */
+function graphLoopBodyNodesOf(node: GraphNodeInstance | null): GraphNodeInstance[] {
+  const body = node?.loop?.body;
+  if (!body) return [];
+  const nodes: GraphNodeInstance[] = [];
+  graphDocumentNodesDepthFirst(body, (member) => nodes.push(member));
+  return nodes;
+}
+
+/**
+ * Derives the `core.flow.break` inspection payload from the enclosing loop's
+ * run result. The break node carries `value` on its `GraphBreakSignal`, and the
+ * loop appends that value to its collected results, so the carried value is the
+ * last collected result when the loop reports `broken: true`. Break declares no
+ * output port, so the payload carries inputs only.
+ */
+function graphNestedBreakPayloadOf(
+  node: GraphNodeInstance,
+  loopPayload: GraphNodeInspectionPayload | null
+): GraphNodeInspectionPayload | null {
+  if (node.kind !== 'core.flow.break' || !loopPayload) return null;
+  const outputs = (loopPayload.outputs ?? {}) as Record<string, unknown>;
+  if (outputs['broken'] !== true) return null;
+  const collected = outputs['completed'] ?? outputs['results'];
+  const value = Array.isArray(collected) ? collected[collected.length - 1] : collected;
+  return {
+    runId: loopPayload.runId,
+    workflowId: loopPayload.workflowId,
+    nodeId: node.id,
+    state: GraphVisualState.SUCCEEDED,
+    inputs: { value },
+  };
 }
 
 function nodeMeta(node: Node | undefined, nodeId: string): InspectionNodeMeta {
@@ -175,6 +238,46 @@ export class GraphNodeInspectionComponent {
     () => this.catalog?.get(this.meta()?.kind ?? '')?.parameters ?? []
   );
 
+  /** Nested body nodes the open loop executes, with their review payloads. */
+  protected readonly nestedBodyNodes = computed<NestedBodyNodeView[]>(() => {
+    const bodyNodes = graphLoopBodyNodesOf(this.nodeInstance());
+    if (!bodyNodes.length) return [];
+    const inspections = this.store.inspections();
+    const loopPayload = this.payload();
+    return bodyNodes.map((node) => {
+      const direct = inspections[node.id] ?? null;
+      const derived = direct ? null : graphNestedBreakPayloadOf(node, loopPayload);
+      const payload = direct ?? derived;
+      return {
+        node,
+        payload,
+        state: derived
+          ? 'break'
+          : String(payload?.state ?? (node.kind === 'core.flow.break' ? 'break' : 'nested')),
+        derived: derived !== null,
+      };
+    });
+  });
+
+  /** Nested body node the reviewer expanded, or `null`. */
+  protected readonly expandedNestedNodeId = signal<string | null>(null);
+
+  /** Whether a nested body node's run panes are expanded. */
+  protected isNestedExpanded(nodeId: string): boolean {
+    return this.expandedNestedNodeId() === nodeId;
+  }
+
+  /** Toggles a nested body node's run panes. */
+  protected toggleNestedNode(nodeId: string): void {
+    this.expandedNestedNodeId.update((current) => (current === nodeId ? null : nodeId));
+  }
+
+  /** Display title of a nested body node. */
+  protected nestedNodeTitle(node: GraphNodeInstance): string {
+    const title = (node.parameters as Record<string, unknown> | undefined)?.['title'];
+    return typeof title === 'string' && title ? title : node.id;
+  }
+
   /** Whether a run payload exists for the open node (G3-12). */
   protected readonly hasPayload = computed(() => this.payload() !== null);
 
@@ -203,6 +306,7 @@ export class GraphNodeInspectionComponent {
 
   /** Closes the split view. */
   protected close(): void {
+    this.expandedNestedNodeId.set(null);
     this.store.close();
   }
 

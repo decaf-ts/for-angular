@@ -72,6 +72,34 @@ export class GraphEngineWorkflowPickerComponent {
   readonly canListWorkflows = this.capabilities.canBrowseWorkflows;
   /** Whether the selected engine allows running a picked scenario. */
   readonly canRunWorkflow = this.capabilities.canRunWorkflow;
+
+  /**
+   * Whether this listed workflow may be run: the engine must allow runs and the
+   * served row must not be marked read-only.
+   *
+   * @param workflow - The listed workflow summary.
+   * @return {boolean} `true` only when both the engine and the row allow a run.
+   */
+  canRunListedWorkflow(workflow: GraphEngineWorkflowSummary): boolean {
+    return this.capabilities.canRunListedWorkflow(workflow);
+  }
+
+  /**
+   * Resolves the i18n key for a listed workflow's Run action: the engine-level
+   * block name when the engine cannot run workflows at all, the read-only
+   * explanation when only this row is not runnable, and the normal run label
+   * otherwise.
+   *
+   * @param workflow - The listed workflow summary.
+   * @return {string} The translation key naming the Run action.
+   */
+  runLabelKey(workflow: GraphEngineWorkflowSummary): string {
+    if (!this.canRunWorkflow()) return "graph.engines.picker.runBlocked";
+    if (!this.canRunListedWorkflow(workflow)) {
+      return "graph.engines.picker.runBlockedReadOnly";
+    }
+    return "graph.engines.picker.run";
+  }
   /** The manifest load lifecycle status. */
   readonly status = this.capabilities.status;
   /** The classified capability failure, when degraded/failed. */
@@ -120,8 +148,9 @@ export class GraphEngineWorkflowPickerComponent {
    */
   async onWorkflowRun(workflow: GraphEngineWorkflowSummary): Promise<void> {
     // SAA-707: the selected engine's manifest gates running; a `NOT_SUPPORTED`
-    // verdict disables the action rather than removing the row.
-    if (!this.canRunWorkflow()) return;
+    // verdict disables the action rather than removing the row. The served row's
+    // `runnable: false` blocks read-only canonical documents independently.
+    if (!this.canRunListedWorkflow(workflow)) return;
     const engineId = this.selectedEngineId();
     if (!engineId) return;
     const document = await this.capabilities.getWorkflow(

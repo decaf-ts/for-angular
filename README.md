@@ -261,6 +261,32 @@ Workflow routes to the empty canvas (`graph/create`) only when the selected engi
 allows authoring (`canCreateWorkflow`); otherwise the button is hidden and its tooltip reports that
 the engine does not support creating workflows.
 
+**Row-click navigation & deep links** — clicking a catalogue row opens the workflow's own
+`/workflows/:workflowId` editor route (forwarding the selected engine as `?engine=`), and the route
+also works as a direct deep link: without the query parameter the page resolves through the served
+manifest's default engine, and an unknown engine disables Run instead of falling back permissively.
+A row may carry `runnable: false` — a read-only canonical document the engine serves but does not
+execute — which disables that row's Run action (and Run on the editor page) with a read-only
+explanation. See
+[Workflow deep link & row navigation](./workdocs/graph/workflow-deep-link.md).
+
+**Run console & failed runs** — the run console is a docked bar that stays mounted while lowered and
+animates its drawer open on demand; a `workflow.failed` terminal surfaces on the canvas as an alert
+with the engine's structured error, anchors the failure on the node the run was working on (so an
+engine-level failure never reads as a neutral canvas), and records a `failed` entry in the console.
+See [Run console & failed-run surfacing](./workdocs/graph/run-console.md).
+
+**Editor side panels & typed inputs** — the floating Workflow inputs / Run result panels collapse to
+rails while the canvas re-fits around them; each typed workflow-input field can be dragged onto the
+canvas (or placed with its `+` button) to move its input boundary, with the control type derived
+from the port's declared value schema. See
+[Editor side panels & typed workflow inputs](./workdocs/graph/editor-side-panels.md).
+
+**Loop editor** — a foreach body is an ordered mandatory chain with labeled edges (`item`, the next
+node's input port, `loop`); the add-node ghost is an editor-only affordance for an empty loop and is
+never persisted into the document, deleting a mid-loop node repairs the chain, and ghosts are not
+projected while a run is on the canvas. See [Loop editor](./workdocs/graph/loop-editor.md).
+
 **Node I/O panels** — after a run, each node's inputs/outputs render capped at
 `GRAPH_IO_PANEL_LIMIT` (default 256 KB / 2000 lines, provider-overridable) so a large run payload
 cannot overflow the page; a download action fetches the entire untruncated payload from the run
@@ -272,7 +298,10 @@ table lists the selected engine's scenarios. The UI unit tests for this surface 
 `npm run test:graph`, and the per-engine UI validation lane — booting each engine's backend and
 driving list/show/replay/node-I-O for every fixture with Playwright — runs through
 `tests/playwright/graph/per-engine/run-per-engine-ui.sh`. All graph components carry Storybook
-stories (`npm run storybook`).
+stories (`npm run storybook`); every built-in functional node kind additionally gets a
+working-workflow story that plays a real run against the backend selected by the story URL
+(boundary kinds excluded) — see
+[Storybook working-workflow stories](./workdocs/graph/storybook-working-workflows.md).
 
 ### Editor dark mode & accessibility gate
 

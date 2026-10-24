@@ -22,8 +22,14 @@ import {
   type GraphDocumentCommand,
   type GraphNodeInstancePatch,
 } from './GraphDocumentCommands';
-import type { GraphDiagramNodeMove } from './GraphDocumentMutation';
+import { isGraphNodeGhost, type GraphDiagramNodeMove } from './GraphDocumentMutation';
 import { graphNodeMovesCommandsOf } from './GraphDiagramMutationTranslator';
+import {
+  GRAPH_FOREACH_LOOP_KIND,
+  GRAPH_LOOP_CONNECTION_PORT,
+  graphLoopBodyOrdersOf,
+  graphLoopChainCommandsFor,
+} from './LoopChainRepair';
 import { graphNodePinStateOf } from './GraphDocumentSelectors';
 import { graphNodeInstanceFromManifest } from './GraphNodePaletteFactory';
 
@@ -73,6 +79,84 @@ function dropLegacyBoundaryArtifacts(document: GraphWorkflowDocument, operation:
       (edge.target.scope !== 'node' || !artifactIds.has(edge.target.nodeId))
   );
   return { ...document, nodes, edges };
+}
+
+/**
+ * Drops persisted loop ghost nodes (kind `graph.ghost` / `ghost-*` ids) and the
+ * edges touching them. Ghosts are canvas-only affordances projected by the
+ * adapter for empty loops; the canonical document must never carry them, so a
+ * legacy round trip containing one is repaired on load. Passes through any
+ * ghost-free document unchanged (allocation-free path).
+ */
+function dropLegacyGhostArtifacts(document: GraphWorkflowDocument): GraphWorkflowDocument {
+  const ghostIds = new Set<string>(
+    document.nodes.filter((node) => isGraphNodeGhost(node)).map((node) => node.id)
+  );
+  if (!ghostIds.size) return document;
+  const nodes = document.nodes.filter((node) => !ghostIds.has(node.id));
+  const edges = document.edges.filter(
+    (edge) =>
+      (edge.source.scope !== 'node' || !ghostIds.has(edge.source.nodeId)) &&
+      (edge.target.scope !== 'node' || !ghostIds.has(edge.target.nodeId))
+  );
+  return { ...document, nodes, edges };
+}
+
+/**
+ * Output ports carried by the legacy edges that enter a ghost which routes back
+ * into a loop. Stripping the ghost also drops `last -> ghost`, so the body-order
+ * walk would otherwise lose the last body node's output port and fall back to
+ * `result` — a port nodes like `core.flow.log` do not declare (only `value`).
+ * Computed before the ghost artifacts are removed so the repaired closing edge
+ * keeps binding the original port.
+ */
+function legacyLoopOutputPortHintsOf(document: GraphWorkflowDocument): Map<string, string> {
+  const hints = new Map<string, string>();
+  const ghostIds = new Set<string>(
+    document.nodes.filter((node) => isGraphNodeGhost(node)).map((node) => node.id)
+  );
+  if (!ghostIds.size) return hints;
+  const ghostRoutesIntoLoop = document.edges.some((edge) => {
+    if (edge.source.scope !== 'node' || !ghostIds.has(edge.source.nodeId)) return false;
+    if (edge.target.scope !== 'node' || edge.target.port !== GRAPH_LOOP_CONNECTION_PORT) return false;
+    const targetNodeId = edge.target.nodeId;
+    return document.nodes.some(
+      (node) => node.id === targetNodeId && node.kind === GRAPH_FOREACH_LOOP_KIND
+    );
+  });
+  if (!ghostRoutesIntoLoop) return hints;
+  const nodesById = new Map(document.nodes.map((node) => [node.id, node]));
+  for (const edge of document.edges) {
+    if (edge.target.scope !== 'node' || !ghostIds.has(edge.target.nodeId)) continue;
+    if (edge.source.scope !== 'node') continue;
+    const source = nodesById.get(edge.source.nodeId);
+    if (!source || isGraphNodeGhost(source) || source.kind === GRAPH_FOREACH_LOOP_KIND) continue;
+    if (!edge.source.port) continue;
+    hints.set(edge.source.nodeId, edge.source.port);
+  }
+  return hints;
+}
+
+/**
+ * Reconciles each foreach loop's canvas chain with its surviving body order.
+ * Used after a legacy ghost is stripped on load so a populated loop that used to
+ * route through the ghost keeps a `last -> loop` connection (loops never break).
+ */
+function repairLoopChainsOf(
+  document: GraphWorkflowDocument,
+  outputPortHints?: ReadonlyMap<string, string>
+): GraphWorkflowDocument {
+  const commands = graphLoopChainCommandsFor(
+    document,
+    graphLoopBodyOrdersOf(document, outputPortHints)
+  );
+  if (!commands.length) return document;
+  let next: GraphWorkflowDocument | null = document;
+  for (const command of commands) {
+    next = applyGraphDocumentCommand(next, command);
+    if (!next) return document;
+  }
+  return next;
 }
 
 /** Id given by the stale legacy canvas to the positional clone of a relation edge (§4.11). */
@@ -129,7 +213,14 @@ export class GraphWorkflowDocumentStore {
    * a Decaf ValidationError before any state lands in the store.
    */
   initialize(document: GraphWorkflowDocument): void {
-    const prepared = dropDuplicateEdges(dropLegacyBoundaryArtifacts(document, 'initialize'), 'initialize');
+    const outputPortHints = legacyLoopOutputPortHintsOf(document);
+    const prepared = dropDuplicateEdges(
+      repairLoopChainsOf(
+        dropLegacyGhostArtifacts(dropLegacyBoundaryArtifacts(document, 'initialize')),
+        outputPortHints
+      ),
+      'initialize'
+    );
     this.assertValidShape(prepared, 'initialize');
     this.documentSignal.set(prepared);
     this.versionSignal.set(1);
@@ -140,7 +231,14 @@ export class GraphWorkflowDocumentStore {
    * Replaces the document (load/undo/restore) and marks the store dirty.
    */
   replace(document: GraphWorkflowDocument): void {
-    const prepared = dropDuplicateEdges(dropLegacyBoundaryArtifacts(document, 'replace'), 'replace');
+    const outputPortHints = legacyLoopOutputPortHintsOf(document);
+    const prepared = dropDuplicateEdges(
+      repairLoopChainsOf(
+        dropLegacyGhostArtifacts(dropLegacyBoundaryArtifacts(document, 'replace')),
+        outputPortHints
+      ),
+      'replace'
+    );
     this.assertValidShape(prepared, 'replace');
     this.documentSignal.set(prepared);
     this.versionSignal.update(incrementVersion);

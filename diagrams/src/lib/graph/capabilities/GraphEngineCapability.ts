@@ -59,6 +59,12 @@ export interface GraphEngineWorkflowSummary {
   name?: string;
   /** The last-update timestamp, when served. */
   updatedAt?: string;
+  /**
+   * Whether a run of this listed workflow can be launched through the engine.
+   * Omitted means "no per-workflow restriction beyond the engine capability";
+   * an explicit `false` blocks the Run action for this row only.
+   */
+  runnable?: boolean;
 }
 
 /** A workflow the user picked from an engine's catalogue, ready to run. */

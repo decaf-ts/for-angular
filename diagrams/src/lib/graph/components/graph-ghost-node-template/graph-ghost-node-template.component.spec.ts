@@ -29,10 +29,14 @@ const GHOST_BINDING_TEMPLATE = `
 `;
 
 /** Mounts the ghost template against the real singleton store. */
-function renderGhost(nodeId: string, parentId?: string): ComponentFixture<GraphGhostNodeTemplateComponent> {
+function renderGhost(
+  nodeId: string,
+  parentId?: string,
+  template = GHOST_BINDING_TEMPLATE
+): ComponentFixture<GraphGhostNodeTemplateComponent> {
   TestBed.configureTestingModule({});
   TestBed.overrideComponent(GraphGhostNodeTemplateComponent, {
-    set: { template: GHOST_BINDING_TEMPLATE },
+    set: { template },
   });
   const fixture = TestBed.createComponent(GraphGhostNodeTemplateComponent);
   fixture.componentRef.setInput('node', {
@@ -52,12 +56,14 @@ function ghostArticle(
 
 describe('GraphGhostNodeTemplateComponent — R2-3(5) hover-only visibility', () => {
   beforeEach(() => {
+    ghostNodeStore.clear();
     ghostNodeStore.setLoopBodyIds([]);
     ghostNodeStore.hoveredLoopId.set(null);
     ghostNodeStore.hoveredGhostId.set(null);
   });
 
   afterEach(() => {
+    ghostNodeStore.clear();
     ghostNodeStore.setLoopBodyIds([]);
     ghostNodeStore.hoveredLoopId.set(null);
     ghostNodeStore.hoveredGhostId.set(null);
@@ -171,5 +177,47 @@ describe('GraphGhostNodeTemplateComponent — R2-3(5) hover-only visibility', ()
     expect(event.preventDefault).toHaveBeenCalled();
     expect(event.stopPropagation).toHaveBeenCalled();
     expect(ghostNodeStore.consume()).toBe('loop-1');
+    expect(ghostNodeStore.pendingAnchor()).toBeNull();
+  });
+
+  it('forwards the pointer client coordinates into the pending anchor (SAA-1363)', () => {
+    const fixture = renderGhost('ghost-loop-1', 'loop-1');
+    const click = new MouseEvent('click', { clientX: 321, clientY: 654 });
+
+    fixture.componentInstance.onAddNode(click);
+
+    expect(ghostNodeStore.pendingParentId()).toBe('loop-1');
+    expect(ghostNodeStore.pendingAnchor()).toEqual({ x: 321, y: 654 });
+  });
+
+  it('falls back to the ghost centre for a keyboard activation', () => {
+    const KEYBOARD_TEMPLATE = `
+      <article
+        class="graph-ghost-node"
+        (keydown)="onAddNodeKeydown($event)"
+      ></article>
+    `;
+    const fixture = renderGhost('ghost-loop-1', 'loop-1', KEYBOARD_TEMPLATE);
+    const article = ghostArticle(fixture)!;
+    article.getBoundingClientRect = () =>
+      ({ left: 100, top: 50, width: 40, height: 20 }) as DOMRect;
+
+    const keydown = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true });
+    article.dispatchEvent(keydown);
+
+    expect(ghostNodeStore.pendingParentId()).toBe('loop-1');
+    expect(ghostNodeStore.pendingAnchor()).toEqual({ x: 120, y: 60 });
+  });
+
+  it('ignores a non-activation keydown', () => {
+    const KEYBOARD_TEMPLATE = `
+      <article class="graph-ghost-node" (keydown)="onAddNodeKeydown($event)"></article>
+    `;
+    const fixture = renderGhost('ghost-loop-1', 'loop-1', KEYBOARD_TEMPLATE);
+
+    ghostArticle(fixture)!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+
+    expect(ghostNodeStore.pendingParentId()).toBeNull();
+    expect(ghostNodeStore.pendingAnchor()).toBeNull();
   });
 });

@@ -30,10 +30,61 @@ export class GraphExecutionStateMapper {
     edges: GraphEdgeExecutionStateMap
   ): void {
     if (event.type === 'workflow.failed') {
+      this.markRunFailure(event, nodes);
+      this.markUnexecutedSkipped(nodes, edges);
+    } else if (event.type === 'workflow.cancelled') {
+      // Cancellation is not a failure: unexecuted nodes stay `skipped` rather
+      // than being anchored as the run's failed node.
       this.markUnexecutedSkipped(nodes, edges);
     }
     if (event.nodeId) this.applyNodeEvent(event, nodes);
     if (event.edgeId) this.applyEdgeEvent(event, edges);
+  }
+
+  /**
+   * Anchors a run-level failure on the node the run was working on (SAA-1361
+   * D8): engines may fail the run without emitting a `node.failed` event
+   * (pre-execution validation, an execution gate, an engine-level abort), and
+   * a canvas of neutral/skipped nodes then reads as success. When no node is
+   * already failed, the running node — or else the first node still waiting to
+   * execute — is marked failed with the run's structured error.
+   */
+  private markRunFailure(
+    event: GraphExecutionEvent,
+    nodes: GraphNodeExecutionStateMap
+  ): void {
+    if (Object.values(nodes).some((state) => state.status === 'failed')) return;
+    const anchorId =
+      (event.nodeId && nodes[event.nodeId] ? event.nodeId : undefined) ??
+      this.failureAnchorId(nodes);
+    if (!anchorId) return;
+    const state = nodes[anchorId] ?? { status: 'failed' };
+    nodes[anchorId] = {
+      ...state,
+      status: 'failed',
+      visualState: 'failed',
+      finishedAt: state.finishedAt ?? event.timestamp.toISOString(),
+      ...(event.error ? { error: event.error } : {}),
+    };
+  }
+
+  /**
+   * Picks the node a run-level failure is anchored on: the node still running,
+   * else the first node that never reached a terminal state. A run whose nodes
+   * all succeeded has no failure anchor.
+   */
+  private failureAnchorId(
+    nodes: GraphNodeExecutionStateMap
+  ): string | undefined {
+    const entries = Object.entries(nodes);
+    const running = entries.find(([, state]) => state.status === 'running');
+    if (running) return running[0];
+    const waiting = entries.find(
+      ([, state]) => state.status === 'blocked' || state.status === 'pending' || state.status === 'idle'
+    );
+    if (waiting) return waiting[0];
+    const nonTerminal = entries.find(([, state]) => !TERMINAL_NODE_STATUSES.has(state.status));
+    return nonTerminal?.[0];
   }
 
   /**

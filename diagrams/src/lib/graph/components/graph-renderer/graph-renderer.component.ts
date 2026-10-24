@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   computed,
   effect,
@@ -14,13 +15,26 @@ import {
   ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, type AbstractControl, type FormGroup } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  ReactiveFormsModule,
+  Validators,
+  type AbstractControl,
+  FormGroup,
+} from '@angular/forms';
 import { Constructor } from '@decaf-ts/decoration';
 import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
-import type { GraphNodeManifest, GraphWorkflowPortInstance, GraphWorkflowSnapshot } from '@decaf-ts/as-graph/shared';
+import type {
+  GraphNodeManifest,
+  GraphPortDefinition,
+  GraphWorkflowPortInstance,
+  GraphWorkflowSnapshot,
+} from '@decaf-ts/as-graph/shared';
 import {
   graphNodeEndpointId,
   graphWorkflowDefinitionOf,
+  PortDirection,
 } from '@decaf-ts/as-graph/shared';
 import { IonSpinner } from '@ionic/angular/standalone';
 import {
@@ -30,6 +44,8 @@ import {
   NgDiagramEdgeTemplateMap,
   NgDiagramMinimapComponent,
   NgDiagramNodeTemplateMap,
+  NgDiagramService,
+  NgDiagramViewportService,
   provideNgDiagram,
   type EdgeDrawEndedEvent,
   type EdgeDrawnEvent,
@@ -50,6 +66,15 @@ import {
 import { isGraphNodeGhost, type NgDiagramMutation } from '../../document/GraphDocumentMutation';
 import { GraphWorkflowDocumentStore } from '../../document/GraphWorkflowDocumentStore';
 import { ghostNodeStore } from '../../execution/GhostNodeStore';
+import { graphExecutionState } from '../../execution/GraphExecutionStateService';
+import {
+  graphForeachLoopIdsOf,
+  graphLoopBodyOrderOf,
+  graphLoopBodyOrdersOf,
+  graphLoopChainCommandsFor,
+  type GraphLoopBodyStep,
+} from '../../document/LoopChainRepair';
+import { graphRunLog } from '../../execution/GraphRunLogStore';
 import { graphSelection } from '../../execution/GraphSelectionStore';
 import { GraphRendererViewModel } from '../../types';
 import {
@@ -65,8 +90,6 @@ import {
 import {
   buildWorkflowInputFields,
   buildWorkflowInputFieldsFromPorts,
-  buildWorkflowInputForm,
-  buildWorkflowInputFormFromPorts,
   normalizeWorkflowInputValues,
   WorkflowInputFieldDefinition,
 } from '../../workflow-inputs';
@@ -76,6 +99,10 @@ import { GraphGhostNodeTemplateComponent } from '../graph-ghost-node-template/gr
 import { GraphLogsWidgetComponent } from '../graph-logs-widget/graph-logs-widget.component';
 import { GraphNodeInspectionComponent, type GraphInspectionRunState, type GraphRunValidationIssue } from '../graph-node-inspection/graph-node-inspection.component';
 import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-template.component';
+
+const WORKFLOW_INPUT_DRAG_TYPE = 'application/x-graph-workflow-input';
+const SIDE_PANEL_COLLAPSED_WIDTH = 48;
+const SIDE_PANELS_STACK_BREAKPOINT = 1100;
 
 @Component({
   selector: 'app-graph-renderer',
@@ -99,9 +126,11 @@ import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-te
  * binds it to the document store through the diagram adapter and mutation
  * translator, and exposes canvas snapshots for autosave/history.
  */
-export class GraphRendererComponent {
+export class GraphRendererComponent implements AfterViewInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly injector = inject(Injector);
+  private readonly diagramService = inject(NgDiagramService, { optional: true });
+  private readonly viewportService = inject(NgDiagramViewportService, { optional: true });
   private readonly documentStore = inject(GraphWorkflowDocumentStore, { optional: true });
   private readonly catalogService = inject(GraphNodeCatalogService, { optional: true });
   private readonly validateClient = inject(GraphWorkflowValidateClient, { optional: true });
@@ -109,6 +138,7 @@ export class GraphRendererComponent {
   readonly devMode = inject(GRAPH_DEV_MODE);
   private readonly canvasAdapter = new GraphDiagramAdapter();
   private restoreOptions: { restore: boolean; applyViewport?: boolean } | null = null;
+  private fitTimer?: ReturnType<typeof setTimeout>;
   private readonly duplicateCounts = signal<Record<string, number>>({});
   private readonly workflowInputValues = signal<Record<string, unknown>>({});
   private readonly snapshotJson = signal('');
@@ -125,8 +155,25 @@ export class GraphRendererComponent {
   }>({ form: this.formBuilder.group({}), fields: [] });
   readonly workflowInputForm = computed(() => this.workflowInputBinding().form);
   readonly model = signal<ReturnType<typeof buildGraphRendererModel> | null>(null);
+  readonly inputsPanelCollapsed = signal(false);
+  readonly outputsPanelCollapsed = signal(false);
+  readonly inputsPanelWidth = signal(280);
+  readonly outputsPanelWidth = signal(280);
+  readonly draggingInputPath = signal<string | null>(null);
+  readonly canvasDropActive = signal(false);
+  /**
+   * Viewport coordinates the add-node palette is anchored at when it was opened
+   * from a loop ghost; null keeps the default button-anchored popup.
+   */
+  readonly paletteAnchor = signal<{ x: number; y: number } | null>(null);
   /** Palette root (button + popup): the outside-click close target (R2-3(5)). */
   @ViewChild('paletteRoot') private paletteRoot?: ElementRef<HTMLElement>;
+
+  @ViewChild('inputsPanel') private inputsPanel?: ElementRef<HTMLElement>;
+
+  @ViewChild('outputsPanel') private outputsPanel?: ElementRef<HTMLElement>;
+
+  @ViewChild('canvasRoot') private canvasRoot?: ElementRef<HTMLElement>;
 
   /**
    * R4-3: the palette search input is focused as soon as the popup renders so a
@@ -150,6 +197,10 @@ export class GraphRendererComponent {
   readonly availableNodes = input<GraphNodeManifest[]>([]);
   /** Run-result lifecycle of the last run (drives the split view's run panes, G3-12). */
   readonly runResultState = input<GraphInspectionRunState>('idle');
+  /** Whether the last run reached a `workflow.failed` terminal (SAA-1361 D8). */
+  readonly runFailed = input<boolean>(false);
+  /** Human-readable run failure surfaced on the canvas (SAA-1361 D8). */
+  readonly runError = input<string | null>(null);
   /** Structured validation issues surfaced by the last run (G3-33). */
   readonly validationIssues = input<GraphRunValidationIssue[]>([]);
 
@@ -329,8 +380,35 @@ export class GraphRendererComponent {
   private readonly declaredWorkflowInputPorts = computed<
     readonly GraphWorkflowPortInstance[] | null
   >(() => {
-    const inputs = this.documentStore?.document()?.inputs;
-    return inputs && inputs.length > 0 ? inputs : null;
+    const document = this.documentStore?.document();
+    // A loaded document is authoritative even when it declares zero inputs:
+    // never fall back to the decorated demo root's fields for a fixture that
+    // takes no input.
+    if (!document) return null;
+    return document.inputs ?? [];
+  });
+
+  /**
+   * Declared output ports of the loaded canonical document. The right-hand
+   * "Run result" panel reads its labels from here so a fixture's outputs
+   * (`collected`, …) match the keys the engine returns, instead of the
+   * decorated demo root's ports.
+   */
+  private readonly declaredWorkflowOutputPorts = computed<
+    readonly GraphPortDefinition[] | null
+  >(() => {
+    const outputs = this.documentStore?.document()?.outputs;
+    if (!outputs || outputs.length === 0) return null;
+    return outputs.map((port) => ({
+      property: port.id,
+      path: port.id,
+      direction: PortDirection.OUTPUT,
+      name: port.id,
+      label: port.label ?? port.id,
+      type: port.schema?.type,
+      required: Boolean(port.required),
+      hidden: false,
+    }));
   });
 
   /**
@@ -342,17 +420,47 @@ export class GraphRendererComponent {
     values?: Record<string, unknown>
   ): WorkflowInputFieldDefinition[] {
     const ports = this.declaredWorkflowInputPorts();
-    return ports
-      ? buildWorkflowInputFieldsFromPorts(ports, values)
-      : buildWorkflowInputFields(this.workflowDefinition(), values);
+    if (!ports) return buildWorkflowInputFields(this.workflowDefinition(), values);
+    const modelFields = buildWorkflowInputFields(this.workflowDefinition(), values);
+    const modelFieldsByPath = new Map(modelFields.map((field) => [field.path, field]));
+    return buildWorkflowInputFieldsFromPorts(ports, values).map((docField) => {
+      const modelField =
+        modelFieldsByPath.get(docField.path) ?? modelFieldsByPath.get(docField.property);
+      if (!modelField) return docField;
+      const validators = [...modelField.validators];
+      if (docField.required && !modelField.required) validators.push(Validators.required);
+      return {
+        ...modelField,
+        property: docField.property,
+        path: docField.path,
+        controlName: docField.controlName,
+        label: docField.label || modelField.label,
+        placeholder: docField.placeholder ?? modelField.placeholder,
+        value: docField.value !== undefined ? docField.value : modelField.value,
+        required: docField.required || modelField.required,
+        validators,
+      };
+    });
   }
 
-  /** Builds the run form for the authoritative input source (G1/SAA-783). */
-  private workflowInputFormFor(values?: Record<string, unknown>): FormGroup {
-    const ports = this.declaredWorkflowInputPorts();
-    return ports
-      ? buildWorkflowInputFormFromPorts(ports, values)
-      : buildWorkflowInputForm(this.workflowDefinition(), values);
+  /**
+   * Builds the reactive form backing the served workflow inputs.
+   *
+   * @param fields - The workflow input field definitions to bind.
+   * @returns A form group keyed by each field's control name.
+   */
+  private workflowInputFormForFields(fields: WorkflowInputFieldDefinition[]): FormGroup {
+    return new FormGroup(
+      Object.fromEntries(
+        fields.map((field) => [
+          field.controlName,
+          new FormControl(field.value, {
+            validators: field.validators,
+            nonNullable: false,
+          }),
+        ])
+      )
+    );
   }
 
   readonly workflowInputFields = computed<WorkflowInputFieldDefinition[]>(
@@ -371,17 +479,61 @@ export class GraphRendererComponent {
       const workflow = this.workflowDefinition();
       return { workflow, inputs: [], outputs: [], nodes: [], edges: [], workflowOutputs: workflow.outputs };
     }
-    return buildGraphRendererViewModel(
+    const viewModel = buildGraphRendererViewModel(
       this.workflowRootClass() as never,
       this.workflowInputValues(),
       this.duplicateCounts(),
       manifests
     );
+    const declaredOutputs = this.declaredWorkflowOutputPorts();
+    return declaredOutputs
+      ? { ...viewModel, workflowOutputs: declaredOutputs as GraphRendererViewModel['workflowOutputs'] }
+      : viewModel;
   });
 
   readonly rootTitle = computed(() =>
     String(this.workflowDefinition().graph?.metadata?.['title'] ?? this.workflowDefinition().tag)
   );
+
+  readonly canvasFitPadding = computed<[number, number, number, number]>(() => {
+    const stacked =
+      typeof window !== 'undefined' && window.innerWidth <= SIDE_PANELS_STACK_BREAKPOINT;
+    if (stacked) return [24, 24, 24, 24];
+    const left = this.inputsPanelCollapsed()
+      ? SIDE_PANEL_COLLAPSED_WIDTH
+      : this.inputsPanelWidth();
+    const right = this.outputsPanelCollapsed()
+      ? SIDE_PANEL_COLLAPSED_WIDTH
+      : this.outputsPanelWidth();
+    const bottom = graphRunLog.open() && !graphRunLog.collapsed() ? 380 : 64;
+    return [24, right + 24, bottom + 24, left + 24];
+  });
+
+  readonly diagramConfig = computed(() => ({
+    zoom: { zoomToFit: { onInit: true, padding: this.canvasFitPadding() } },
+  }));
+
+  /**
+   * Whether the canvas is showing a run (execution) rather than edit mode.
+   * Loop add-node ghosts are editor affordances and must not be projected while
+   * run state is on the canvas: they are not really part of the workflow.
+   */
+  readonly executionActive = computed(
+    () =>
+      this.runResultState() !== 'idle' ||
+      Object.keys(graphExecutionState.nodeStates()).length > 0
+  );
+
+  /**
+   * Inline offset for the palette popup when a loop ghost opened it, expressed
+   * relative to the palette root (its positioned ancestor). Empty when the
+   * palette is button-anchored. Placement is clamped/flipped to the viewport by
+   * {@link paletteAnchorOffsetOf}.
+   */
+  readonly palettePopupStyle = computed<{ left?: string; top?: string }>(() => {
+    const anchor = this.paletteAnchor();
+    return anchor ? { left: `${anchor.x}px`, top: `${anchor.y}px` } : {};
+  });
 
   readonly snapshotPreview = computed(() => this.snapshotJson());
 
@@ -492,8 +644,8 @@ export class GraphRendererComponent {
       // untracked keeps this effect from re-firing on every keystroke (the
       // form's own `valueChanges` publishes them).
       const currentValues = untracked(() => this.workflowInputValues());
-      const form = this.workflowInputFormFor(currentValues);
-      const fields = this.workflowInputFieldsFor(form.getRawValue() as Record<string, unknown>);
+      const fields = this.workflowInputFieldsFor(currentValues);
+      const form = this.workflowInputFormForFields(fields);
       this.workflowInputBinding.set({ form, fields });
       this.workflowInputValues.set(normalizeWorkflowInputValues(fields, form.getRawValue() as Record<string, unknown>));
 
@@ -578,10 +730,40 @@ export class GraphRendererComponent {
     effect(() => {
       const pendingId = ghostNodeStore.pendingParentId();
       const pendingAdd = ghostNodeStore.pendingAddSource();
+      const anchor = ghostNodeStore.pendingAnchor();
       if (pendingId || pendingAdd) {
         this.paletteOpen.set(true);
       }
+      this.paletteAnchor.set(this.paletteAnchorOffsetOf(anchor));
     });
+
+    // Re-project once when the canvas enters/leaves run (execution) mode so the
+    // editor-only loop ghosts are present in edit mode and absent during a run.
+    let lastExecutionActive: boolean | undefined;
+    effect(() => {
+      const active = this.executionActive();
+      if (active === lastExecutionActive) return;
+      lastExecutionActive = active;
+      untracked(() => {
+        this.reconciledVersion = -1;
+        this.settleCanvasFromDocument();
+      });
+    });
+
+    effect(() => {
+      this.inputsPanelCollapsed();
+      this.outputsPanelCollapsed();
+      this.inputsPanelWidth();
+      this.outputsPanelWidth();
+      graphRunLog.open();
+      graphRunLog.collapsed();
+      untracked(() => this.scheduleFitToViewport());
+    });
+  }
+
+  /** Measures the side panels once the canvas view is available. */
+  ngAfterViewInit(): void {
+    this.measureSidePanels();
   }
 
   /**
@@ -660,10 +842,17 @@ export class GraphRendererComponent {
   }
 
   onElementsRemoved(event: SelectionRemovedEvent): void {
+    // Capture each loop's ordered body before the removal so a deleted mid-loop
+    // node can be spliced out and its surviving neighbours reconnected.
+    const beforeDocument = this.documentStore?.document();
+    const beforeOrders: Map<string, GraphLoopBodyStep[]> = beforeDocument
+      ? graphLoopBodyOrdersOf(beforeDocument)
+      : new Map();
     const edgeIds = (event?.deletedEdges ?? []).map((edge) => edge.id);
     const nodeIds = (event?.deletedNodes ?? []).map((node) => node.id);
     if (edgeIds.length) this.applyCanvasMutation({ type: 'edges-removed', edgeIds });
     if (nodeIds.length) this.applyCanvasMutation({ type: 'nodes-removed', nodeIds });
+    this.repairLoopChains(beforeOrders);
     this.elementsRemoved.emit();
   }
 
@@ -699,15 +888,259 @@ export class GraphRendererComponent {
   async arrangeWorkflow(): Promise<boolean> {
     const documentStore = this.documentStore;
     if (!documentStore) return false;
-    return documentStore.arrange();
+    const arranged = await documentStore.arrange();
+    if (typeof requestAnimationFrame !== 'undefined') {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    }
+    await this.fitDiagramToViewport();
+    return arranged;
+  }
+
+  /** Collapses or expands the workflow inputs side panel. */
+  toggleInputsPanel(): void {
+    this.inputsPanelCollapsed.update((collapsed) => !collapsed);
+  }
+
+  /** Collapses or expands the workflow outputs side panel. */
+  toggleOutputsPanel(): void {
+    this.outputsPanelCollapsed.update((collapsed) => !collapsed);
+  }
+
+  /**
+   * Starts dragging a workflow input field onto the canvas.
+   *
+   * @param field - The input field being dragged.
+   * @param event - The originating drag event carrying the data transfer.
+   */
+  onInputDragStart(field: WorkflowInputFieldDefinition, event: DragEvent): void {
+    if (!event.dataTransfer) return;
+    event.dataTransfer.effectAllowed = 'copy';
+    event.dataTransfer.setData(WORKFLOW_INPUT_DRAG_TYPE, field.path);
+    event.dataTransfer.setData('text/plain', field.path);
+    this.draggingInputPath.set(field.path);
+  }
+
+  /** Clears the drag state when an input drag ends without a drop. */
+  onInputDragEnd(): void {
+    this.draggingInputPath.set(null);
+    this.canvasDropActive.set(false);
+  }
+
+  /**
+   * Accepts a workflow-input drag over the canvas, showing the drop affordance.
+   *
+   * @param event - The canvas drag-over event.
+   */
+  onCanvasDragOver(event: DragEvent): void {
+    const types = event.dataTransfer?.types;
+    if (!this.draggingInputPath() && !(types && Array.from(types).includes(WORKFLOW_INPUT_DRAG_TYPE))) {
+      return;
+    }
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+    this.canvasDropActive.set(true);
+  }
+
+  /**
+   * Clears the drop affordance when the pointer leaves the canvas (ignoring
+   * moves onto descendants).
+   *
+   * @param event - The canvas drag-leave event.
+   */
+  onCanvasDragLeave(event: DragEvent): void {
+    const canvas = this.canvasRoot?.nativeElement;
+    const next = event.relatedTarget as Node | null;
+    if (canvas && next && canvas.contains(next)) return;
+    this.canvasDropActive.set(false);
+  }
+
+  /**
+   * Drops a dragged workflow input onto the canvas, placing its boundary node at
+   * the pointer position.
+   *
+   * @param event - The canvas drop event carrying the dragged field path.
+   */
+  onCanvasDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.canvasDropActive.set(false);
+    const path =
+      event.dataTransfer?.getData(WORKFLOW_INPUT_DRAG_TYPE) ||
+      event.dataTransfer?.getData('text/plain') ||
+      this.draggingInputPath();
+    this.draggingInputPath.set(null);
+    if (!path) return;
+    const field = this.workflowInputFields().find(
+      (candidate) =>
+        candidate.path === path ||
+        candidate.property === path ||
+        candidate.controlName === path
+    );
+    if (!field) return;
+    this.placeWorkflowInputBoundary(field, this.dropPositionOf(event));
+  }
+
+  /**
+   * Adds an input boundary node for a field at the default canvas position.
+   *
+   * @param field - The input field to place on the canvas.
+   */
+  addInputToCanvas(field: WorkflowInputFieldDefinition): void {
+    this.placeWorkflowInputBoundary(field, this.defaultInputPosition());
+  }
+
+  /**
+   * Places the input boundary node for a field at the supplied flow position.
+   *
+   * @param field - The workflow input field to materialise.
+   * @param position - The flow-space position for the boundary node.
+   */
+  private placeWorkflowInputBoundary(
+    field: WorkflowInputFieldDefinition,
+    position: { x: number; y: number }
+  ): void {
+    const documentStore = this.documentStore;
+    const document = documentStore?.document();
+    if (!documentStore || !document) return;
+    const port = document.inputs.find(
+      (input) => input.id === field.path || input.id === field.property
+    );
+    if (!port) return;
+    documentStore.dispatchCommand({
+      type: 'boundary.moves',
+      moves: [{ nodeId: `input-${port.id}`, position }],
+    });
+    this.nodeDragEnded.emit();
+  }
+
+  /**
+   * Converts a drop event's client coordinates into flow-space coordinates,
+   * falling back to canvas-relative offsets when the viewport API is unavailable.
+   *
+   * @param event - The drop event.
+   * @returns The flow-space drop position.
+   */
+  private dropPositionOf(event: DragEvent): { x: number; y: number } {
+    const point = this.clientToFlowPosition(event.clientX, event.clientY);
+    if (point) return point;
+    const rect = this.canvasRoot?.nativeElement.getBoundingClientRect();
+    return {
+      x: Math.max(0, event.clientX - (rect?.left ?? 0)),
+      y: Math.max(0, event.clientY - (rect?.top ?? 0)),
+    };
+  }
+
+  /**
+   * Default flow-space position for a newly added input boundary node.
+   *
+   * @returns The default position inside the padded viewport.
+   */
+  private defaultInputPosition(): { x: number; y: number } {
+    const rect = this.canvasRoot?.nativeElement.getBoundingClientRect();
+    const padding = this.canvasFitPadding();
+    const point = rect
+      ? this.clientToFlowPosition(rect.left + padding[3] + 80, rect.top + 160)
+      : null;
+    return point ?? { x: 120, y: 160 };
+  }
+
+  /**
+   * Converts client coordinates into flow-space coordinates.
+   *
+   * @param clientX - The viewport x coordinate.
+   * @param clientY - The viewport y coordinate.
+   * @returns The flow-space point, or `null` before the diagram is initialised.
+   */
+  private clientToFlowPosition(
+    clientX: number,
+    clientY: number
+  ): { x: number; y: number } | null {
+    if (!this.viewportService || !this.diagramService?.isInitialized()) return null;
+    try {
+      const point = this.viewportService.clientToFlowPosition({ x: clientX, y: clientY });
+      return { x: point.x, y: point.y };
+    } catch {
+      return null;
+    }
+  }
+
+  /** Records the rendered width of each expanded side panel. */
+  private measureSidePanels(): void {
+    if (!this.inputsPanelCollapsed()) {
+      const inputsWidth = this.inputsPanel?.nativeElement.getBoundingClientRect().width;
+      if (inputsWidth && Math.abs(inputsWidth - this.inputsPanelWidth()) > 1) {
+        this.inputsPanelWidth.set(inputsWidth);
+      }
+    }
+    if (!this.outputsPanelCollapsed()) {
+      const outputsWidth = this.outputsPanel?.nativeElement.getBoundingClientRect().width;
+      if (outputsWidth && Math.abs(outputsWidth - this.outputsPanelWidth()) > 1) {
+        this.outputsPanelWidth.set(outputsWidth);
+      }
+    }
+  }
+
+  /**
+   * Debounces a fit-to-viewport pass after a layout change (panel toggles,
+   * console open/close) so the canvas is measured before it is framed.
+   */
+  private scheduleFitToViewport(): void {
+    if (typeof setTimeout === 'undefined') return;
+    if (this.fitTimer) clearTimeout(this.fitTimer);
+    this.fitTimer = setTimeout(() => {
+      this.fitTimer = undefined;
+      this.measureSidePanels();
+      void this.fitDiagramToViewport();
+    }, 300);
+  }
+
+  /** Frames the whole workflow inside the canvas, honouring the fit padding. */
+  private async fitDiagramToViewport(): Promise<void> {
+    if (!this.viewportService || !this.diagramService?.isInitialized()) return;
+    try {
+      await this.viewportService.zoomToFit({ padding: this.canvasFitPadding() });
+    } catch {
+      // A detached or not-yet-measured canvas rejects the fit; the next
+      // layout change retries.
+    }
+  }
+
+  /**
+   * Converts a viewport-space pointer anchor into an offset relative to the
+   * palette root (the popup's positioned ancestor), clamping and flipping the
+   * 280x420 popup so it stays inside the viewport.
+   */
+  private paletteAnchorOffsetOf(
+    anchor: { x: number; y: number } | null
+  ): { x: number; y: number } | null {
+    if (!anchor || typeof window === 'undefined') return null;
+    const root = this.paletteRoot?.nativeElement;
+    if (!root) return null;
+    const rect = root.getBoundingClientRect();
+    const width = 280;
+    const height = 420;
+    const margin = 12;
+    const maxLeft = Math.max(margin, window.innerWidth - width - margin);
+    const left = Math.min(Math.max(margin, anchor.x), maxLeft);
+    const below = anchor.y + 8;
+    const top =
+      below + height > window.innerHeight - margin
+        ? Math.max(margin, anchor.y - height - 8)
+        : below;
+    return { x: left - rect.left, y: top - rect.top };
   }
 
   togglePalette() {
-    this.paletteOpen.set(!this.paletteOpen());
+    if (this.paletteOpen()) {
+      this.closePalette();
+      return;
+    }
+    this.paletteAnchor.set(null);
+    this.paletteOpen.set(true);
   }
 
   closePalette() {
     ghostNodeStore.clear();
+    this.paletteAnchor.set(null);
     this.paletteQuery.set('');
     this.paletteOpen.set(false);
   }
@@ -760,14 +1193,13 @@ export class GraphRendererComponent {
     const ghostParentId = ghostNodeStore.consume();
     const addSource = ghostNodeStore.consumeAddSource();
     let position = { x: 420 + offset, y: 200 + offset };
-    let label = entry.title;
+    const label = entry.title;
 
     if (ghostParentId) {
       const ghostNode = this.model()
         ?.getNodes()
         .find((n: { id: string }) => n.id === `ghost-${ghostParentId}`);
       position = (ghostNode as { position?: { x: number; y: number } })?.position ?? position;
-      label = `${entry.title} (${ghostParentId.startsWith('loop-') ? 'loop body' : 'materialized'})`;
     } else if (addSource) {
       // Add-node on empty canvas (R5, supersedes G3-29): a connection drag
       // released over empty canvas places the new node at the drop point and
@@ -789,118 +1221,196 @@ export class GraphRendererComponent {
     }
 
     const node = documentStore.addNodeFromManifest(entry.manifest, position, label);
+    const inputPort = (entry.manifest.inputs ?? [])[0]?.id ?? 'value';
+    const outputPort = (entry.manifest.outputs ?? [])[0]?.id ?? 'result';
 
     if (ghostParentId) {
-      // R2-3(3): splice the new node between the for-each and its ghost —
-      // for-each → <added> → ghost('Add node') → for-each — instead of adding
-      // a parallel edge pair that would create a second loop body. The ghost keeps
-      // its `out → loop` back edge; only the `item → ghost:in` edge is replaced
-      // by `item → <added>` and `<added> → ghost:in`.
-      const ghostId = `ghost-${ghostParentId}`;
-      const inputPort = (entry.manifest.inputs ?? [])[0]?.id ?? 'value';
-      const outputPort = (entry.manifest.outputs ?? [])[0]?.id ?? 'result';
-      // A loop with no document-carried ghost projects a canvas-only virtual ghost
-      // (GraphDiagramAdapter) whose containment edges are not document edges.
-      // Materialize the ghost into the document first so the spliced edges are
-      // canonical document edges and survive re-projection (R2-1/R2-3(3)).
-      const hasDocumentGhost = documentStore
-        .document()
-        ?.nodes.some((candidate) => candidate.id === ghostId);
-      if (!hasDocumentGhost) this.createForeachGhost(ghostParentId);
-      const itemEdge = documentStore
-        .document()
-        ?.edges.find(
-          (edge) =>
-            edge.source?.scope === 'node' &&
-            edge.source.nodeId === ghostParentId &&
-            edge.source.port === 'item' &&
-            edge.target?.scope === 'node' &&
-            edge.target.nodeId === ghostId
-        );
-      if (itemEdge) documentStore.removeEdge(itemEdge.id);
-      documentStore.addEdge({
-        id: `${ghostParentId}:item->${node.id}:${inputPort}`,
-        type: 'data',
-        source: { scope: 'node', nodeId: ghostParentId, port: 'item' },
-        target: { scope: 'node', nodeId: node.id, port: inputPort },
-        label: 'item',
-        metadata: { mandatory: true },
-      });
-      documentStore.addEdge({
-        id: `${node.id}:${outputPort}->${ghostId}:in`,
-        type: 'data',
-        source: { scope: 'node', nodeId: node.id, port: outputPort },
-        target: { scope: 'node', nodeId: ghostId, port: 'in' },
-        label: 'item',
-        metadata: { mandatory: true },
-      });
+      // A loop ghost only exists for an empty loop: the added node becomes the
+      // first body node and the ghost is not persisted anywhere. The canonical
+      // chain is `for-each:item → added → for-each:loop`.
+      this.appendNodeToLoop(documentStore, ghostParentId, node.id, inputPort, outputPort);
     } else if (addSource) {
-      const inputPort = (entry.manifest.inputs ?? [])[0]?.id ?? 'value';
-      documentStore.addEdge({
-        id: `${addSource.nodeId}:${addSource.portId}->${node.id}:${inputPort}`,
-        type: 'data',
-        source: { scope: 'node', nodeId: addSource.nodeId, port: addSource.portId },
-        target: { scope: 'node', nodeId: node.id, port: inputPort },
-        label: inputPort,
-      });
-    } else if (entry.kind === 'core.loop.foreach') {
-      // Foreach keeps the legacy ghost placeholder machinery (loop body add) so
-      // the added node immediately shows its loop-body ghost on canvas.
-      this.createForeachGhost(node.id);
+      const loopId = this.loopContainingNode(addSource.nodeId);
+      if (loopId) {
+        // A node-side add from inside a loop body splices the new node after
+        // its source instead of creating a parallel edge, so the loop chain
+        // stays a single ordered path.
+        this.insertNodeAfter(
+          documentStore,
+          loopId,
+          addSource.nodeId,
+          node.id,
+          inputPort,
+          outputPort
+        );
+      } else if (this.isForeachLoop(addSource.nodeId) && addSource.portId === 'item') {
+        this.prependNodeToLoop(documentStore, addSource.nodeId, node.id, inputPort, outputPort);
+      } else {
+        documentStore.addEdge({
+          id: `${addSource.nodeId}:${addSource.portId}->${node.id}:${inputPort}`,
+          type: 'data',
+          source: { scope: 'node', nodeId: addSource.nodeId, port: addSource.portId },
+          target: { scope: 'node', nodeId: node.id, port: inputPort },
+          label: inputPort,
+        });
+      }
     }
     this.paletteQuery.set('');
     this.paletteOpen.set(false);
   }
 
   /**
-   * Creates the mandatory ghost/placeholder node between the foreach's `item`
-   * output port and its `loop` connection port. The ghost has a + icon that
-   * opens the palette when clicked. The item→ghost→loop edges are
-   * non-deletable.
+   * Whether the node is a foreach loop in the current document.
+   *
+   * @param nodeId - The node id to classify.
+   * @returns `true` when the node is a canonical foreach loop.
    */
-  private createForeachGhost(foreachId: string) {
-    const documentStore = this.documentStore;
-    if (!documentStore) return;
-    const foreachNode = documentStore.document()?.nodes.find((node) => node.id === foreachId);
-    if (!foreachNode) return;
-    const pos = foreachNode.ui?.position ?? { x: 0, y: 0 };
-    const size = foreachNode.ui?.size ?? { width: 120, height: 140 };
-    const width = size.width ?? 120;
-    const height = size.height ?? 140;
-    const ghostId = `ghost-${foreachId}`;
-    const ghostPosition = { x: pos.x + width + 80, y: pos.y + height / 2 - 28 };
-    documentStore.addNode({
-      id: ghostId,
-      kind: 'graph.ghost',
-      label: 'Add node',
-      ui: { position: ghostPosition, size: { width: 56, height: 56 } },
-      parameters: { ghostParentId: foreachId },
-    });
-    documentStore.addEdge({
-      id: `${foreachId}:item->${ghostId}:in`,
-      type: 'data',
-      source: { scope: 'node', nodeId: foreachId, port: 'item' },
-      target: { scope: 'node', nodeId: ghostId, port: 'in' },
-      label: 'item',
-      metadata: { mandatory: true },
-    });
-    documentStore.addEdge({
-      id: `${ghostId}:out->${foreachId}:loop`,
-      type: 'data',
-      source: { scope: 'node', nodeId: ghostId, port: 'out' },
-      target: { scope: 'node', nodeId: foreachId, port: 'loop' },
-      label: 'loop',
-      metadata: { mandatory: true },
-    });
+  private isForeachLoop(nodeId: string): boolean {
+    const document = this.documentStore?.document();
+    return !!document && graphForeachLoopIdsOf(document).includes(nodeId);
   }
 
   /**
-   * Called when a ghost node's + button is clicked. Opens the palette so the
-   * user can pick a node to insert into the loop body.
+   * Finds the foreach loop whose body currently contains a node.
+   *
+   * @param nodeId - The candidate body node id.
+   * @returns The owning loop id, or `undefined` when the node is not in a loop body.
    */
-  onGhostAddNode(parentNodeId: string) {
-    ghostNodeStore.requestAddNode(parentNodeId);
-    this.paletteOpen.set(true);
+  private loopContainingNode(nodeId: string): string | undefined {
+    const document = this.documentStore?.document();
+    if (!document) return undefined;
+    for (const loopId of graphForeachLoopIdsOf(document)) {
+      if (graphLoopBodyOrderOf(document, loopId).some((step) => step.nodeId === nodeId)) {
+        return loopId;
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Appends a node to the end of a loop's ordered body chain.
+   *
+   * @param documentStore - The store owning the workflow document.
+   * @param loopId - The foreach loop to extend.
+   * @param nodeId - The node entering the loop body.
+   * @param inputPort - The body node's input port bound by the chain edge.
+   * @param outputPort - The body node's output port bound by the chain edge.
+   */
+  private appendNodeToLoop(
+    documentStore: GraphWorkflowDocumentStore,
+    loopId: string,
+    nodeId: string,
+    inputPort: string,
+    outputPort: string
+  ): void {
+    const document = documentStore.document();
+    if (!document) return;
+    const steps = [
+      ...graphLoopBodyOrderOf(document, loopId),
+      { nodeId, inputPort, outputPort },
+    ];
+    this.applyLoopBodyOrder(documentStore, loopId, steps);
+  }
+
+  /**
+   * Prepends a node to the front of a loop's ordered body chain.
+   *
+   * @param documentStore - The store owning the workflow document.
+   * @param loopId - The foreach loop to extend.
+   * @param nodeId - The node entering the loop body.
+   * @param inputPort - The body node's input port bound by the chain edge.
+   * @param outputPort - The body node's output port bound by the chain edge.
+   */
+  private prependNodeToLoop(
+    documentStore: GraphWorkflowDocumentStore,
+    loopId: string,
+    nodeId: string,
+    inputPort: string,
+    outputPort: string
+  ): void {
+    const document = documentStore.document();
+    if (!document) return;
+    const steps = [
+      { nodeId, inputPort, outputPort },
+      ...graphLoopBodyOrderOf(document, loopId),
+    ];
+    this.applyLoopBodyOrder(documentStore, loopId, steps);
+  }
+
+  /**
+   * Inserts a node into a loop's body chain directly after another body node.
+   *
+   * @param documentStore - The store owning the workflow document.
+   * @param loopId - The foreach loop to extend.
+   * @param afterNodeId - The body node the new node follows.
+   * @param nodeId - The node entering the loop body.
+   * @param inputPort - The body node's input port bound by the chain edge.
+   * @param outputPort - The body node's output port bound by the chain edge.
+   */
+  private insertNodeAfter(
+    documentStore: GraphWorkflowDocumentStore,
+    loopId: string,
+    afterNodeId: string,
+    nodeId: string,
+    inputPort: string,
+    outputPort: string
+  ): void {
+    const document = documentStore.document();
+    if (!document) return;
+    const steps = [...graphLoopBodyOrderOf(document, loopId)];
+    const index = steps.findIndex((step) => step.nodeId === afterNodeId);
+    const step = { nodeId, inputPort, outputPort };
+    if (index >= 0) steps.splice(index + 1, 0, step);
+    else steps.push(step);
+    this.applyLoopBodyOrder(documentStore, loopId, steps);
+  }
+
+  /**
+   * Makes a loop's canvas chain match the supplied body order.
+   *
+   * @param documentStore - The store owning the workflow document.
+   * @param loopId - The foreach loop to rewrite.
+   * @param steps - The desired ordered body steps.
+   */
+  private applyLoopBodyOrder(
+    documentStore: GraphWorkflowDocumentStore,
+    loopId: string,
+    steps: GraphLoopBodyStep[]
+  ): void {
+    const document = documentStore.document();
+    if (!document) return;
+    for (const command of graphLoopChainCommandsFor(document, new Map([[loopId, steps]]))) {
+      documentStore.dispatchCommand(command);
+    }
+  }
+
+  /**
+   * Regenerates every loop's ordered chain from the body order captured before
+   * the removal, so deleting a mid-loop node reconnects its surviving
+   * neighbours (a loop can never be left broken). A no-op pass dispatches
+   * nothing and cannot churn the document.
+   */
+  private repairLoopChains(beforeOrders: Map<string, GraphLoopBodyStep[]>): void {
+    const documentStore = this.documentStore;
+    const document = documentStore?.document();
+    if (!documentStore || !document) return;
+    const surviving = new Set(document.nodes.map((node) => node.id));
+    const orders = new Map<string, GraphLoopBodyStep[]>();
+    for (const [loopId, steps] of beforeOrders) {
+      if (!surviving.has(loopId)) continue;
+      orders.set(
+        loopId,
+        steps.filter((step) => surviving.has(step.nodeId))
+      );
+    }
+    for (const loopId of graphForeachLoopIdsOf(document)) {
+      if (!orders.has(loopId)) {
+        orders.set(loopId, graphLoopBodyOrderOf(document, loopId));
+      }
+    }
+    for (const command of graphLoopChainCommandsFor(document, orders)) {
+      documentStore.dispatchCommand(command);
+    }
   }
 
   controlFor(controlName: string): AbstractControl | null {
@@ -1031,11 +1541,32 @@ export class GraphRendererComponent {
       previousModel,
       catalogue,
       this.injector,
-      restoredOptions ?? undefined
+      { ...(restoredOptions ?? {}), includeLoopGhosts: !untracked(() => this.executionActive()) }
     );
     this.restoreOptions = null;
     this.reconciledVersion = version;
     this.model.set(diagram as never);
+    // A restored document without a persisted viewport (server fixtures, fresh
+    // imports) uses its authored coordinates; frame them so the workflow is
+    // visible instead of living below the initial pan offset. The diagram may
+    // still be initializing when the document lands, so retry until measured.
+    if (restoredOptions?.restore && !restoredOptions.applyViewport) {
+      void this.fitRestoredDiagramWhenReady();
+    }
+  }
+
+  /** Fits a restored document once ng-diagram has measured and initialized. */
+  private async fitRestoredDiagramWhenReady(attempts = 20): Promise<void> {
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      if (this.viewportService && this.diagramService?.isInitialized()) {
+        if (typeof requestAnimationFrame !== 'undefined') {
+          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        }
+        await this.fitDiagramToViewport();
+        return;
+      }
+      await new Promise<void>((resolve) => setTimeout(resolve, 150));
+    }
   }
 
   /**

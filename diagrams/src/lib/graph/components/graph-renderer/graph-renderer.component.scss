@@ -1,6 +1,10 @@
 .graph-renderer {
   position: relative;
-  min-height: 100vh;
+  /* Fill the content viewport exactly: the page already reserves space for the
+     breadcrumb/top bar, so a `100vh` minimum here pushes the docked console bar
+     past the clipped `ion-content` edge. */
+  height: 100%;
+  min-height: 0;
   isolation: isolate;
 }
 
@@ -17,53 +21,51 @@
   min-width: var(--node-size, 96px) !important;
 }
 
-.graph-renderer__side,
-.graph-renderer__canvas {
-  padding: 0;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 24px;
-  background: var(--gx-surface-panel);
-  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
-}
-
 .graph-renderer__side {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 3;
-  display: grid;
-  align-content: start;
-  gap: 1rem;
-  overflow: auto;
+  top: 1rem;
+  bottom: 4.75rem;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  width: min(300px, 26vw);
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 20px;
+  background: var(--gx-surface-panel);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.14);
   backdrop-filter: blur(18px);
+  transition: width 260ms ease, box-shadow 260ms ease;
 }
 
 .graph-renderer__side--inputs {
-  left: 0;
-  width: min(280px, 22vw);
+  left: 1rem;
 }
 
 .graph-renderer__side--outputs {
-  right: 0;
-  width: min(280px, 22vw);
+  right: 1rem;
 }
 
-.graph-renderer__side > * {
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-.graph-renderer__side > :first-child {
-  padding-top: 1rem;
-}
-
-.graph-renderer__side > :last-child {
-  padding-bottom: 1rem;
+.graph-renderer__side--collapsed {
+  width: 3rem;
 }
 
 .graph-renderer__side-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem 0.85rem 0.5rem 1rem;
+}
+
+.graph-renderer__side-heading {
   display: grid;
   gap: 0.35rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.graph-renderer__side--collapsed .graph-renderer__side-heading {
+  display: none;
 }
 
 .graph-renderer__side-header p {
@@ -86,6 +88,70 @@
   line-height: 1.45;
 }
 
+.graph-renderer__side-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: var(--gx-surface-input);
+  color: var(--gx-text-muted);
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.graph-renderer__side-toggle:hover {
+  background: rgba(15, 118, 110, 0.12);
+  color: var(--gx-text);
+}
+
+.graph-renderer__side-toggle svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.graph-renderer__side-rail {
+  display: none;
+}
+
+.graph-renderer__side--collapsed .graph-renderer__side-rail {
+  display: block;
+  margin: auto;
+  padding-bottom: 1rem;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--gx-text-muted);
+  white-space: nowrap;
+}
+
+.graph-renderer__side-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding: 0 1rem 1rem;
+  transition: opacity 180ms ease;
+}
+
+.graph-renderer__side--collapsed .graph-renderer__side-body {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .graph-renderer__form {
   display: grid;
   gap: 0.9rem;
@@ -98,6 +164,43 @@
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 18px;
   background: var(--gx-field-gradient);
+  transition: opacity 160ms ease, border-color 160ms ease;
+}
+
+.graph-renderer__field--dragging {
+  opacity: 0.55;
+  border-color: rgba(15, 118, 110, 0.42);
+}
+
+.graph-renderer__field-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  cursor: grab;
+}
+
+.graph-renderer__field-head:active {
+  cursor: grabbing;
+}
+
+.graph-renderer__field-grip {
+  display: inline-flex;
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+  color: var(--gx-text-faint);
+}
+
+.graph-renderer__field-grip svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  fill: currentColor;
+}
+
+.graph-renderer__field-titles {
+  display: grid;
+  gap: 0.15rem;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .graph-renderer__field-label {
@@ -108,6 +211,28 @@
 .graph-renderer__field-meta {
   font-size: 0.78rem;
   color: var(--gx-text-muted);
+}
+
+.graph-renderer__field-place {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: var(--gx-surface-input);
+  color: var(--gx-text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.graph-renderer__field-place:hover {
+  background: rgba(15, 118, 110, 0.12);
+  color: var(--gx-text);
 }
 
 .graph-renderer__field input:not([type='checkbox']),
@@ -251,6 +376,33 @@
   box-shadow: 0 14px 34px rgba(249, 115, 22, 0.22);
 }
 
+.graph-renderer__run-failure {
+  position: absolute;
+  /* Clear the floating toolbar and the add-node palette so the error text is
+     never covered by canvas controls. */
+  top: 8.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9;
+  max-width: min(640px, 60vw);
+  max-height: 30vh;
+  overflow: auto;
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.7rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(239, 68, 68, 0.65);
+  background: var(--gx-banner-bg, #ffffff);
+  color: var(--gx-banner-fg, #7f1d1d);
+  box-shadow: 0 14px 34px rgba(239, 68, 68, 0.28);
+}
+
+.graph-renderer__run-failure p {
+  margin: 0;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
 .graph-renderer__validation-list {
   margin: 0;
   padding-left: 1.1rem;
@@ -363,15 +515,39 @@
 
 .graph-renderer__canvas {
   position: relative;
-  z-index: 1;
-  min-height: 100vh;
+  /* No `z-index` here: it would create a stacking context that traps the
+     console (z-index 20) and its controls below the floating side panels
+     (z-index 6). Height is bounded by the page, not `100vh`, so the docked
+     console bar stays inside the visible viewport. */
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
-  /* Keep the working area clear of the absolutely positioned input/output rails */
-  margin-left: min(280px, 22vw);
-  margin-right: min(280px, 22vw);
+  margin: 0;
   padding: 0;
-  border-radius: 28px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 20px;
   background: var(--gx-canvas-bg);
+  transition: box-shadow 180ms ease;
+}
+
+.graph-renderer__canvas--drop-active {
+  box-shadow: inset 0 0 0 2px rgba(15, 118, 110, 0.5);
+}
+
+.graph-renderer__canvas--drop-active::after {
+  content: 'Drop to place the input boundary';
+  position: absolute;
+  left: 50%;
+  top: 1.25rem;
+  transform: translateX(-50%);
+  z-index: 7;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.92);
+  color: #fff;
+  font-size: 0.78rem;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .graph-renderer__loading {
@@ -438,6 +614,17 @@
   background: rgba(15, 23, 42, 0.92);
   backdrop-filter: blur(18px);
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.4);
+}
+
+/* Opened from a loop ghost: the popup follows the pointer that opened it.
+   Offsets are computed relative to the palette root, which is the popup's
+   positioned ancestor (the root's translateX must not be bypassed). */
+.graph-renderer__palette-popup--anchored {
+  position: absolute;
+  top: auto;
+  left: auto;
+  transform: none;
+  z-index: 40;
 }
 
 .graph-renderer__palette-popup-header {
@@ -570,15 +757,19 @@
 }
 
 .graph-renderer__canvas ng-diagram {
-  display: block;
+  /* Flex (not block) keeps ng-diagram's absolutely positioned canvas anchored
+     to the host's top-left; a block container gives it a static position below
+     the full-height background, pushing every node out of view. */
+  display: flex;
   width: 100%;
   height: 100%;
-  min-height: 100vh;
+  min-height: 0;
   border-radius: 28px;
 }
 
 @media (max-width: 1100px) {
   .graph-renderer {
+    height: auto;
     min-height: auto;
   }
 
@@ -587,6 +778,7 @@
     position: relative;
     inset: auto;
     width: 100%;
+    height: auto;
     min-height: auto;
     margin-left: 0;
     margin-right: 0;
@@ -594,8 +786,14 @@
 
   .graph-renderer__side--inputs,
   .graph-renderer__side--outputs {
+    bottom: auto;
     max-width: none;
+    max-height: none;
     margin-bottom: 1rem;
+  }
+
+  .graph-renderer__side--collapsed {
+    width: 100%;
   }
 
   .graph-renderer__canvas {

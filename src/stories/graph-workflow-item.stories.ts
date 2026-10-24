@@ -16,6 +16,8 @@ const SELECTED_ENGINE = signal<string | undefined>('local');
 
 const CAPABILITIES_MOCK = {
   canRunWorkflow: CAN_RUN,
+  canRunListedWorkflow: (item?: { runnable?: boolean }) =>
+    CAN_RUN() && item?.runnable !== false,
   selectedEngineId: SELECTED_ENGINE,
   load: () => Promise.resolve(),
 };

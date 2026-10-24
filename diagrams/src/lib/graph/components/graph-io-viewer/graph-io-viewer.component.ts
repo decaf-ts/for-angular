@@ -36,12 +36,28 @@ export interface GraphIoCapResult {
   text: string;
   /** Whether any content was dropped by the cap. */
   truncated: boolean;
+  /** UTF-8 byte length of the capped text (aggregate table budget accounting). */
+  bytes: number;
 }
 
+/**
+ * Narrowing guard for plain object payloads (excludes `null` and arrays).
+ *
+ * @param value - The value to test.
+ * @returns `true` when the value is a non-array object.
+ */
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+/**
+ * Renders an arbitrary payload value as display text: primitives keep their
+ * string form, objects/arrays are pretty-printed JSON, and circular or otherwise
+ * unserializable values degrade to {@link String} instead of throwing.
+ *
+ * @param value - The value to render.
+ * @returns The printable text form of the value.
+ */
 function printable(value: unknown): string {
   if (value === undefined) return 'undefined';
   if (value === null) return 'null';
@@ -60,9 +76,13 @@ function printable(value: unknown): string {
  * overflow the DOM), then the line cap on the byte-capped text. Never mutates the
  * source; the full payload stays available for download.
  *
+ * SAA-1432: the result also reports the capped text's UTF-8 byte length so table
+ * mode can enforce one aggregate byte budget across all visible rows without
+ * re-encoding each cell.
+ *
  * @param text - The full printable payload.
  * @param limit - The configured byte/line cap.
- * @return {GraphIoCapResult} The capped text plus whether anything was dropped.
+ * @returns {GraphIoCapResult} The capped text, whether anything was dropped, and its byte length.
  */
 export function graphIoCapText(
   text: string,
@@ -70,11 +90,15 @@ export function graphIoCapText(
 ): GraphIoCapResult {
   let capped = text;
   let truncated = false;
+  let bytes = text.length;
   if (typeof TextEncoder !== 'undefined' && limit.bytes > 0) {
     const encoded = new TextEncoder().encode(capped);
     if (encoded.length > limit.bytes) {
       capped = new TextDecoder().decode(encoded.slice(0, limit.bytes));
       truncated = true;
+      bytes = new TextEncoder().encode(capped).length;
+    } else {
+      bytes = encoded.length;
     }
   }
   if (limit.lines > 0) {
@@ -82,20 +106,67 @@ export function graphIoCapText(
     if (lines.length > limit.lines) {
       capped = lines.slice(0, limit.lines).join('\n');
       truncated = true;
+      bytes =
+        typeof TextEncoder !== 'undefined'
+          ? new TextEncoder().encode(capped).length
+          : capped.length;
     }
   }
-  return { text: capped, truncated };
+  return { text: capped, truncated, bytes };
 }
 /**
  * Key stamped on payload objects whose content was capped for display, so
  * consumers can tell truncated views apart from full payloads.
+ *
+ * SAA-1432 R3: the marker is namespaced so it cannot collide with a real
+ * payload key of the same name in a fallback export.
  * @category Graph
  */
-export const GRAPH_IO_TRUNCATED_MARKER = '_truncated';
+export const GRAPH_IO_TRUNCATED_MARKER = '__graphIoTruncated';
 /**
- * Classifies an error as transport/backend-unavailability (name- or errno-based)
- * rather than a data problem, so the viewer can offer retry instead of surfacing
- * a hard failure.
+ * Substrings that identify a `TypeError` thrown by a failed fetch/transport
+ * rather than by a client-side programming bug (SAA-1432 R4).
+ */
+const NETWORK_TYPE_ERROR_PATTERNS = [
+  'failed to fetch',
+  'fetch failed',
+  'networkerror',
+  'network error',
+  'network request failed',
+  'load failed',
+  'connection refused',
+  'connection reset',
+  'connection closed',
+  'socket hang up',
+  'net::err_',
+  'econnrefused',
+  'econnreset',
+  'econnaborted',
+  'enotfound',
+  'eai_again',
+  'etimedout',
+  'enetunreach',
+  'err_network',
+];
+/**
+ * Whether a `TypeError` carries a fetch/transport message, so a client-side
+ * programming bug that also happens to be a `TypeError` is not misclassified as
+ * a network failure (SAA-1432 R4).
+ *
+ * @param error - The `TypeError` to inspect.
+ * @returns `true` when the message matches a known transport failure shape.
+ */
+function isNetworkTypeError(error: Error): boolean {
+  if (error.name !== 'TypeError') return false;
+  const message = (error.message ?? '').toLowerCase();
+  return NETWORK_TYPE_ERROR_PATTERNS.some((pattern) => message.includes(pattern));
+}
+/**
+ * Classifies an error as transport/backend-unavailability (name-, message-, or
+ * errno-based) rather than a data problem, so the viewer treats it as a
+ * recoverable fallback instead of surfacing a hard failure. `TypeError`s are
+ * narrowed to fetch/transport messages (SAA-1432 R4) so a client bug falls
+ * through to the announced `downloadError` path instead.
  *
  * @param error - The thrown value to classify.
  * @returns `true` when the error looks like a network/backend availability problem.
@@ -105,9 +176,10 @@ export function isNetworkClassError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   if (
     error.name === 'GraphBackendUnavailableError' ||
-    error.name === 'TypeError' ||
+    error.name === 'NetworkError' ||
     error.name === 'AbortError' ||
-    error.name === 'TimeoutError'
+    error.name === 'TimeoutError' ||
+    isNetworkTypeError(error)
   ) {
     return true;
   }
@@ -145,6 +217,32 @@ export function sanitizeFilenameSegment(segment: string): string {
 }
 
 /**
+ * One fully capped key/value row rendered in table mode.
+ *
+ * SAA-1432: both the key and the cell text are capped, each row reports its
+ * rendered UTF-8 byte size, and `id` provides a render identity that stays
+ * unique even when capped keys collide.
+ */
+interface GraphIoTableRow {
+  /** Stable render identity for the `@for` track expression. */
+  id: number;
+  /** Capped display key. */
+  key: string;
+  /** Raw cell value, kept for empty-value checks. */
+  value: unknown;
+  /** Capped display text of the cell. */
+  text: string;
+  /** Whether the key was capped. */
+  keyTruncated: boolean;
+  /** Whether the cell text was capped. */
+  textTruncated: boolean;
+  /** Whether the key or the cell text was capped. */
+  truncated: boolean;
+  /** UTF-8 byte size of the rendered key and cell text. */
+  bytes: number;
+}
+
+/**
  * Reusable read-only viewer for the node I/O inspection split view (DECAF-48
  * §4.6 / Req-9). Renders one arbitrary value with JSON (default), table or raw
  * representations, or the node error when the run failed. Both inspection
@@ -176,7 +274,18 @@ export class GraphIoViewerComponent {
   readonly field = input<GraphIoViewerField>('inputs');
   /** Currently selected representation (`json` by default). */
   readonly mode = signal<GraphIoViewMode>('json');
+  /** Namespaced marker key shown in the download-fallback notice (SAA-1432 R3). */
+  readonly truncatedMarker = GRAPH_IO_TRUNCATED_MARKER;
+  /**
+   * Whether the last download had to fall back to the on-screen (capped) value
+   * because the full payload could not be fetched; the saved payload then carries
+   * {@link GRAPH_IO_TRUNCATED_MARKER}.
+   */
   readonly downloadFallback = signal(false);
+  /**
+   * Message of a non-recoverable download failure (a data/API error rather than a
+   * network-class one), surfaced in the panel; `null` when there is no failure.
+   */
   readonly downloadError = signal<string | null>(null);
 
   private readonly limit = inject(GRAPH_IO_PANEL_LIMIT, { optional: true }) ?? GRAPH_IO_PANEL_LIMIT_DEFAULT;
@@ -200,35 +309,128 @@ export class GraphIoViewerComponent {
   });
 
   /** Key/value rows for table mode (array entries keyed `[index]`). */
-  readonly tableRows = computed(() => {
+  readonly tableRows = computed<GraphIoTableRow[]>(() => {
     const value = this.value();
     if (Array.isArray(value)) {
-      return value.map((entry, index) => this.toTableRow(`[${index}]`, entry));
+      return value.map((entry, index) => this.toTableRow(index, `[${index}]`, entry));
     }
     if (isRecord(value)) {
-      return Object.entries(value).map(([key, entry]) => this.toTableRow(key, entry));
+      return Object.entries(value).map(([key, entry], index) =>
+        this.toTableRow(index, key, entry),
+      );
     }
-    return [this.toTableRow(this.title(), value)];
+    return [this.toTableRow(0, this.title(), value)];
   });
 
-  private toTableRow(
-    key: string,
-    value: unknown,
-  ): { key: string; value: unknown; text: string; truncated: boolean } {
-    const capped = this.capCell(value);
-    return { key, value, text: capped.text, truncated: capped.truncated };
+  /**
+   * Builds a single table row, capping both the key (SAA-1432 R1) and the cell
+   * text to the configured limit and recording their rendered byte size.
+   *
+   * @param id - Stable render identity for the `@for` track expression.
+   * @param key - Row key (object key, `[index]`, or the pane title).
+   * @param value - The raw cell value, kept for empty-value checks.
+   * @returns The row identity, capped key/text, truncation flags, and byte size.
+   */
+  private toTableRow(id: number, key: string, value: unknown): GraphIoTableRow {
+    const cappedKey = graphIoCapText(key, this.limit);
+    const cappedValue = this.capCell(value);
+    return {
+      id,
+      key: cappedKey.text,
+      value,
+      text: cappedValue.text,
+      keyTruncated: cappedKey.truncated,
+      textTruncated: cappedValue.truncated,
+      truncated: cappedKey.truncated || cappedValue.truncated,
+      bytes: cappedKey.bytes + cappedValue.bytes,
+    };
   }
 
-  /** Table rows capped to the configured line limit (SAA-722). */
+  /**
+   * Table rows that fit the configured line limit and one shared aggregate byte
+   * budget over their keys and cells (SAA-1432 R1/R2). The first row that would
+   * overflow the budget is trimmed to the remaining budget rather than dropped,
+   * so a single oversized key still renders its truncated content.
+   */
   readonly visibleTableRows = computed(() =>
-    this.tableRows().slice(0, this.limit.lines),
+    this.selectVisibleTableRows(this.tableRows()),
   );
+
+  /**
+   * Walks the capped rows in order, keeping rows until the line limit or the
+   * aggregate byte budget is exhausted.
+   *
+   * @param rows - The fully capped table rows.
+   * @returns The rows safe to render within both caps.
+   */
+  private selectVisibleTableRows(rows: GraphIoTableRow[]): GraphIoTableRow[] {
+    const maxRows = this.limit.lines > 0 ? this.limit.lines : rows.length;
+    const budget = this.limit.bytes;
+    const visible: GraphIoTableRow[] = [];
+    let usedBytes = 0;
+    for (const row of rows) {
+      if (visible.length >= maxRows) break;
+      if (budget > 0) {
+        const remaining = budget - usedBytes;
+        if (remaining <= 0) break;
+        if (row.bytes > remaining) {
+          const fitted = this.fitTableRowToBudget(row, remaining);
+          if (fitted) visible.push(fitted);
+          break;
+        }
+      }
+      visible.push(row);
+      usedBytes += row.bytes;
+    }
+    return visible;
+  }
+
+  /**
+   * Trims one overflowing row so its rendered key and text fit the remaining
+   * aggregate byte budget.
+   *
+   * @param row - The overflowing capped row.
+   * @param remainingBytes - Bytes left in the aggregate budget.
+   * @returns The trimmed row, or `null` when nothing can be rendered.
+   */
+  private fitTableRowToBudget(
+    row: GraphIoTableRow,
+    remainingBytes: number,
+  ): GraphIoTableRow | null {
+    const cappedKey = graphIoCapText(row.key, { bytes: remainingBytes, lines: 0 });
+    const textAllowance = remainingBytes - cappedKey.bytes;
+    if (textAllowance <= 0) {
+      return {
+        ...row,
+        key: cappedKey.text,
+        text: '',
+        keyTruncated: row.keyTruncated || cappedKey.truncated,
+        textTruncated: row.text.length > 0,
+        truncated: true,
+        bytes: cappedKey.bytes,
+      };
+    }
+    const cappedText = graphIoCapText(row.text, {
+      bytes: textAllowance,
+      lines: 0,
+    });
+    return {
+      ...row,
+      key: cappedKey.text,
+      text: cappedText.text,
+      keyTruncated: row.keyTruncated || cappedKey.truncated,
+      textTruncated: row.textTruncated || cappedText.truncated,
+      truncated: true,
+      bytes: cappedKey.bytes + cappedText.bytes,
+    };
+  }
 
   /** Whether table mode dropped rows because of the cap (SAA-722). */
   readonly tableTruncated = computed(
     () => this.tableRows().length > this.visibleTableRows().length,
   );
 
+  /** Whether any visible table row content was capped (SAA-722, SAA-1432 R1/R2). */
   readonly tableCellTruncated = computed(() =>
     this.visibleTableRows().some((row) => row.truncated),
   );
@@ -286,8 +488,50 @@ export class GraphIoViewerComponent {
   /**
    * Downloads the entire untruncated payload (SAA-722): fetches the run detail
    * from the server (`GET /graph/runs/:runId`) and saves the node's field
-   * payload, falling back to the rendered value when the fetch fails or the run
-   * client is unavailable. Browser-only; a no-op in a non-DOM environment.
+   * payload. Falls back to the rendered value, stamped with
+   * {@link GRAPH_IO_TRUNCATED_MARKER} and reported through
+   * {@link downloadFallback}, when the run client is unavailable, the server has
+   * no payload for the node, or the fetch fails with a network-class error
+   * ({@link isNetworkClassError}). Other failures set {@link downloadError} and
+   * abort without saving. Browser-only; a no-op in a non-DOM environment.
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   autonumber
+   *   participant U as User
+   *   participant V as GraphIoViewerComponent
+   *   participant R as GraphRunClient
+   *   participant S as Server
+   *
+   *   U->>V: download()
+   *   activate V
+   *   V->>V: reset downloadFallback and downloadError
+   *   alt Run client available
+   *     V->>R: getRunResult(runId)
+   *     activate R
+   *     R->>S: GET /graph/runs/:runId
+   *     S-->>R: run result
+   *     deactivate R
+   *     alt server has the node field
+   *       R-->>V: serverPayload
+   *     else payload missing
+   *       V->>V: fellBack = true
+   *     end
+   *   else Run client unavailable
+   *     V->>V: fellBack = true
+   *   end
+   *   alt fetch threw a non-network error
+   *     V->>V: downloadError.set(message)
+   *     V-->>U: abort without saving
+   *   else fellBack
+   *     V->>V: markDownloadFallback(payload)
+   *     V->>V: downloadFallback.set(true)
+   *     V->>V: savePayload(payload)
+   *   else full server payload
+   *     V->>V: savePayload(payload)
+   *   end
+   *   V-->>U: JSON file saved
+   *   deactivate V
    */
   async download(): Promise<void> {
     const runId = this.runId();
@@ -325,7 +569,13 @@ export class GraphIoViewerComponent {
     this.savePayload(payload);
   }
 
-  /** Saves a payload as a JSON download (browser-only, SAA-722). */
+  /**
+   * Saves a payload as a JSON download named
+   * `<field>-<nodeId>.json` with both segments sanitized by
+   * {@link sanitizeFilenameSegment} (browser-only, SAA-722).
+   *
+   * @param payload - The value to serialize; strings are saved verbatim.
+   */
   private savePayload(payload: unknown): void {
     if (typeof document === 'undefined' || typeof URL === 'undefined') return;
     const text = typeof payload === 'string' ? payload : printable(payload);
@@ -344,6 +594,12 @@ export class GraphIoViewerComponent {
     return value === undefined || value === null || value === '';
   }
 
+  /**
+   * Applies the configured byte/line cap to a single value's printable form.
+   *
+   * @param value - The raw cell value.
+   * @returns The capped text plus whether it was truncated.
+   */
   private capCell(value: unknown): GraphIoCapResult {
     return graphIoCapText(printable(value), this.limit);
   }

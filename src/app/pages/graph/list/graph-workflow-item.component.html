@@ -3,20 +3,26 @@
     class="graph-workflow-item"
     role="listitem"
   >
-    <div class="graph-workflow-item__icon">
-      <ngx-decaf-icon
-        color="tertiary"
-        name="ti-sitemap"
-      />
-    </div>
-    <div class="graph-workflow-item__content">
-      <p class="graph-workflow-item__name">
-        {{ item.name || (locale + '.untitled' | translate) }}
-      </p>
-      <span class="graph-workflow-item__meta">
-        {{ locale + '.updatedAt.label' | translate }}: {{ item.updatedAt }}
+    <button
+      type="button"
+      class="graph-workflow-item__open"
+      (click)="openWorkflowPage($event)"
+    >
+      <span class="graph-workflow-item__icon">
+        <ngx-decaf-icon
+          color="tertiary"
+          name="ti-sitemap"
+        />
       </span>
-    </div>
+      <span class="graph-workflow-item__content">
+        <span class="graph-workflow-item__name">
+          {{ item.name || (locale + '.untitled' | translate) }}
+        </span>
+        <span class="graph-workflow-item__meta">
+          {{ locale + '.updatedAt.label' | translate }}: {{ item.updatedAt }}
+        </span>
+      </span>
+    </button>
     <div class="graph-workflow-item__actions">
       <ion-button
         (click)="pastExecutions($event)"
@@ -32,8 +38,9 @@
       </ion-button>
       <ion-button
         (click)="runScenario($event)"
-        [disabled]="!canRunWorkflow()"
-        [attr.aria-label]="(canRunWorkflow() ? locale + '.run' : locale + '.runBlocked') | translate"
+        [disabled]="!canRunScenario()"
+        [attr.aria-label]="runLabelKey() | translate"
+        [title]="runLabelKey() | translate"
         fill="clear"
         shape="round"
         color="primary"

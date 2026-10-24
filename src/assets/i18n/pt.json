@@ -413,6 +413,7 @@
       "createBlocked": "O motor selecionado não suporta criar fluxos de trabalho",
       "run": "Executar fluxo de trabalho",
       "runBlocked": "O motor selecionado não suporta executar fluxos de trabalho",
+      "runBlockedReadOnly": "Este fluxo de trabalho é um documento canónico apenas de leitura, não uma tarefa implementada, pelo que não pode ser executado",
       "engine": {
         "label": "Motor"
       },
@@ -443,6 +444,8 @@
         "unsupported": "O motor selecionado não suporta consultar fluxos de trabalho",
         "empty": "Não existem cenários de fluxo de trabalho para o motor selecionado",
         "run": "Executar",
+        "runBlocked": "O motor selecionado não suporta executar fluxos de trabalho",
+        "runBlockedReadOnly": "Este fluxo de trabalho é um documento canónico apenas de leitura, não uma tarefa implementada, pelo que não pode ser executado",
         "failure": {
           "backendDown": "O backend de grafos está indisponível.",
           "malformed": "O manifesto de capacidades do motor está fora do contrato."

@@ -144,6 +144,40 @@ export class GraphEngineCapabilityService {
     ),
   );
 
+  /**
+   * Whether a specific engine allows running a workflow. Falls back to the
+   * selected engine when no id is supplied.
+   *
+   * @param engineId - The engine whose capability should gate the action.
+   * @return {boolean} `true` unless that engine explicitly declares run unsupported.
+   */
+  canRunWorkflowOn(engineId?: string | null): boolean {
+    if (engineId) {
+      // An explicitly requested engine that the served manifest does not know
+      // is not runnable: falling back to the permissive "no manifest" verdict
+      // would let a page start a demo run under an unavailable engine.
+      const engine = this.store.engine(engineId);
+      return engine
+        ? graphEngineFeatureAllowed(engine, GRAPH_ENGINE_FEATURE_ALIASES.workflowRun)
+        : false;
+    }
+    return graphEngineFeatureAllowed(
+      this.store.selectedEngine(),
+      GRAPH_ENGINE_FEATURE_ALIASES.workflowRun,
+    );
+  }
+
+  /**
+   * Whether the selected engine allows running a listed workflow row. A row's
+   * explicit `runnable: false` blocks the action even when the engine allows it.
+   *
+   * @param summary - The listed workflow summary.
+   * @return {boolean} `true` only when both the engine and the row allow a run.
+   */
+  canRunListedWorkflow(summary?: { runnable?: boolean }): boolean {
+    return this.canRunWorkflow() && summary?.runnable !== false;
+  }
+
   /** Whether the selected engine allows streaming a run's live events. */
   readonly canStreamRunEvents = computed(() =>
     graphEngineFeatureAllowed(
@@ -293,6 +327,39 @@ export class GraphEngineCapabilityService {
     if (!engineId || !workflowId) return undefined;
     try {
       return await this.source().getWorkflow(engineId, workflowId);
+    } catch (error) {
+      if (error instanceof GraphEngineWorkflowCatalogUnsupportedError) {
+        return undefined;
+      }
+      this.store.setStatus("degraded", graphEngineCapabilityFailureOf(error));
+      return undefined;
+    }
+  }
+
+  /**
+   * Resolves one workflow's catalogue summary, preferring the already-listed
+   * row and falling back to a fresh listing. Used to gate per-row actions on the
+   * editor page, which can be opened by direct URL without the list page loaded.
+   *
+   * @param engineId - The engine the workflow belongs to.
+   * @param workflowId - The workflow to resolve.
+   * @return The summary, or `undefined` when the catalogue does not list it.
+   */
+  async workflowSummary(
+    engineId: string,
+    workflowId: string,
+  ): Promise<GraphEngineWorkflowSummary | undefined> {
+    if (!engineId || !workflowId) return undefined;
+    const listed =
+      this.selectedEngineId() === engineId
+        ? this.store
+            .workflows()
+            .find((workflow) => workflow.workflowId === workflowId)
+        : undefined;
+    if (listed) return listed;
+    try {
+      const workflows = await this.source().listWorkflows(engineId);
+      return workflows.find((workflow) => workflow.workflowId === workflowId);
     } catch (error) {
       if (error instanceof GraphEngineWorkflowCatalogUnsupportedError) {
         return undefined;

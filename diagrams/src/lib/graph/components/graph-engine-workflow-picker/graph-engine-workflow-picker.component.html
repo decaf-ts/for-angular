@@ -70,10 +70,11 @@
               <ion-button
                 slot="end"
                 fill="clear"
-                [disabled]="!canRunWorkflow()"
-                [attr.aria-disabled]="!canRunWorkflow()"
+                [disabled]="!canRunListedWorkflow(workflow)"
+                [attr.aria-disabled]="!canRunListedWorkflow(workflow)"
                 (click)="onWorkflowRun(workflow)"
-                [attr.aria-label]="'graph.engines.picker.run' | translate"
+                [attr.aria-label]="runLabelKey(workflow) | translate"
+                [title]="runLabelKey(workflow) | translate"
               >
                 {{ 'graph.engines.picker.run' | translate }}
               </ion-button>

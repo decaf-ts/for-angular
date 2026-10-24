@@ -18,6 +18,12 @@ class GhostNodeStore {
   /** ID of the foreach node whose ghost + was clicked; null when no ghost is pending. */
   readonly pendingParentId = signal<string | null>(null);
   /**
+   * Viewport (client) coordinates of the pointer that opened the add-node
+   * palette from a loop ghost; null when the palette was opened from the
+   * canvas-level button. The popup is anchored here, not under the button.
+   */
+  readonly pendingAnchor = signal<{ x: number; y: number } | null>(null);
+  /**
    * Node-side add connector source (G3-29): the node + output port whose edge
    * connector opened the palette; null when no node-side add is pending.
    */
@@ -44,8 +50,16 @@ class GhostNodeStore {
     return this.loopBodyIds().has(parentNodeId);
   }
 
-  requestAddNode(parentNodeId: string) {
+  /**
+   * Requests an add-node palette open for a loop ghost, anchoring the palette
+   * at the pointer coordinates that opened it when supplied.
+   *
+   * @param parentNodeId - The foreach loop the new node should be added to.
+   * @param anchor - Optional viewport coordinates of the originating pointer.
+   */
+  requestAddNode(parentNodeId: string, anchor?: { x: number; y: number }) {
     this.pendingParentId.set(parentNodeId);
+    this.pendingAnchor.set(anchor ?? null);
   }
 
   /**
@@ -63,6 +77,7 @@ class GhostNodeStore {
   consume(): string | null {
     const id = this.pendingParentId();
     this.pendingParentId.set(null);
+    this.pendingAnchor.set(null);
     return id;
   }
 
@@ -79,6 +94,7 @@ class GhostNodeStore {
 
   clear() {
     this.pendingParentId.set(null);
+    this.pendingAnchor.set(null);
     this.pendingAddSource.set(null);
   }
 }

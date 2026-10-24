@@ -32,6 +32,30 @@ export class GraphWorkflowItemComponent extends ListItemComponent implements OnI
   /** Whether the selected engine allows running a workflow scenario. */
   readonly canRunWorkflow = this.capabilities.canRunWorkflow;
 
+  /**
+   * Whether this row may be run: the engine must allow runs and the served row
+   * must not be marked read-only. Canonical demo rows carry `runnable: false`,
+   * while already-deployed jobs stay runnable.
+   */
+  canRunScenario(): boolean {
+    return this.capabilities.canRunListedWorkflow(this.item);
+  }
+
+  /**
+   * Resolves the i18n key for this row's Run action: the engine-level block name
+   * when the selected engine cannot run workflows, the read-only explanation
+   * when this row is marked `runnable: false`, and the normal run label
+   * otherwise.
+   *
+   * @return {string} The translation key naming the Run action.
+   */
+  runLabelKey(): string {
+    if (this.canRunScenario()) return `${this.locale}.run`;
+    return this.canRunWorkflow()
+      ? `${this.locale}.runBlockedReadOnly`
+      : `${this.locale}.runBlocked`;
+  }
+
   /** Binds the workflows i18n subtree and the served row to the list item. */
   override async ngOnInit(): Promise<void> {
     await super.ngOnInit();
@@ -47,6 +71,24 @@ export class GraphWorkflowItemComponent extends ListItemComponent implements OnI
    * (and its nodes carry the ids the run produces, keeping double-click settings
    * wired after a replay).
    */
+  /**
+   * Row-click navigation (SAA-1361 D3, requirement 4): clicking anywhere on the
+   * row opens the workflow's own `/workflows/<workflowId>` route — the same
+   * editor the "open" action uses, addressed by the workflow id. The selected
+   * engine id is forwarded so the editor resolves the scenario through the
+   * served engine catalogue (a direct visit to the bare URL still falls back to
+   * the manifest's default engine).
+   */
+  openWorkflowPage(event: Event): void {
+    event.stopImmediatePropagation();
+    const workflowId = this.item?.['workflowId'];
+    if (!workflowId) return;
+    const engine = this.capabilities.selectedEngineId();
+    void this.router.navigate(['/workflows', `${workflowId}`], {
+      queryParams: engine ? { engine } : {},
+    });
+  }
+
   openWorkflow(event: Event): void {
     event.stopImmediatePropagation();
     const workflowId = this.item?.['workflowId'];
@@ -64,7 +106,7 @@ export class GraphWorkflowItemComponent extends ListItemComponent implements OnI
    */
   runScenario(event: Event): void {
     event.stopImmediatePropagation();
-    if (!this.canRunWorkflow()) return;
+    if (!this.canRunScenario()) return;
     const workflowId = this.item?.['workflowId'];
     if (!workflowId) return;
     const engine = this.capabilities.selectedEngineId();

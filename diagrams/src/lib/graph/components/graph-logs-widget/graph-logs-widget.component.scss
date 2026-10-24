@@ -1,5 +1,5 @@
 /* ---- docked bottom drawer (DECAF-50 §4.22/D6) ---- */
-.graph-logs {
+.graph-logs-dock {
   --console-bg: rgba(15, 23, 42, 0.96);
   --console-border: rgba(148, 163, 184, 0.35);
 
@@ -10,54 +10,65 @@
   z-index: 20;
   width: 100%;
   max-width: none;
+  color: #e2e8f0;
+  font-size: 0.78rem;
+}
+
+.graph-logs {
+  width: 100%;
+}
+
+/* ---- on-demand open affordance (D6/G3-19) ---- */
+.graph-logs__handle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  color: #cbd5e1;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.graph-logs__handle:hover {
+  background: rgba(148, 163, 184, 0.24);
+  color: #f1f5f9;
+}
+
+.graph-logs__header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
   border: 1px solid var(--console-border);
   border-bottom: 0;
   border-radius: 16px 16px 0 0;
   background: var(--console-bg);
   backdrop-filter: blur(18px);
   box-shadow: 0 -20px 48px rgba(2, 6, 23, 0.55);
-  color: #e2e8f0;
-  font-size: 0.78rem;
+}
+
+.graph-logs-dock__drawer {
+  display: grid;
+  grid-template-rows: 0fr;
   overflow: hidden;
+  border-left: 1px solid var(--console-border);
+  border-right: 1px solid var(--console-border);
+  background: var(--console-bg);
+  backdrop-filter: blur(18px);
+  opacity: 0;
+  transition: grid-template-rows 280ms ease, opacity 220ms ease;
 }
 
-/* ---- on-demand open affordance (D6/G3-19) ---- */
-.graph-logs__handle {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  z-index: 20;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.9rem;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  border-bottom: 0;
-  border-radius: 10px 10px 0 0;
-  background: rgba(15, 23, 42, 0.96);
-  color: #cbd5e1;
-  font-size: 0.72rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.graph-logs__handle:hover {
-  background: rgba(30, 41, 59, 0.98);
-  color: #f1f5f9;
-}
-
-.graph-logs--collapsed .graph-logs__header {
-  border-radius: 16px 16px 0 0;
-}
-
-.graph-logs__header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 0.75rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(2, 6, 23, 0.6);
+.graph-logs-dock--open .graph-logs-dock__drawer {
+  grid-template-rows: 1fr;
+  opacity: 1;
 }
 
 /* ---- header controls (collapse, W/E counters, filters, clear/dismiss) ---- */
@@ -142,6 +153,7 @@
 }
 
 .graph-logs__body {
+  min-height: 0;
   max-height: min(40vh, 320px);
   overflow: auto;
 }

@@ -68,6 +68,7 @@ import {
   type NgDiagramMutation,
 } from './GraphDocumentMutation';
 import { graphDocumentCommandsFromDiagramMutation, graphEngineEdgeIdOf } from './GraphDiagramMutationTranslator';
+import { graphLoopBodyOrderOf } from './LoopChainRepair';
 import { graphManifestPortZoneOf } from '../port-zones';
 
 const GRAPH_CANVAS_DEFAULT_POSITION_STEP = 190;
@@ -460,36 +461,6 @@ function graphGhostParentIdOf(node: GraphNodeInstance): string | undefined {
 }
 
 /**
- * Projects a document ghost node into the canvas ghost data shape. Ghost nodes
- * carry no constructor reference: the template data is built from the instance
- * metadata (`ghostParentId`) and the ghost-marker kind.
- */
-function graphGhostCanvasDataOf(node: GraphNodeInstance): GraphRendererNodeData {
-  return {
-    title: 'Add node',
-    description: 'Click + to add a node to the loop body',
-    kind: 'graph.ghost',
-    labels: [],
-    ports: [],
-    sourceClass: 'GraphGhostNode',
-    ghostParentId: graphGhostParentIdOf(node),
-    isGhost: true,
-    expanded: node.ui?.expanded ?? false,
-  } as GraphRendererNodeData;
-}
-
-/**
- * Fallback manifest view for document-carried ghost nodes (they have no kind
- * registration; the ghost node template only requires display/size info).
- */
-function ghostNodeSizeOf(node: GraphNodeInstance): { width: number; height: number } {
-  return {
-    width: node.ui?.size?.width ?? 56,
-    height: node.ui?.size?.height ?? 56,
-  };
-}
-
-/**
  * Builds the canvas-only virtual ghost node plus its two mandatory containment
  * edges for a `core.loop.foreach` member that has no document-carried ghost yet.
  */
@@ -641,7 +612,8 @@ function graphCanvasEdgeDataOf(
  */
 export function graphWorkflowDocumentCanvasModelOf(
   document: GraphWorkflowDocument,
-  catalogue: GraphNodeManifestReader
+  catalogue: GraphNodeManifestReader,
+  options?: { includeLoopGhosts?: boolean }
 ): GraphCanvasProjection {
   const nodes: Node[] = [];
   const nodeIds: string[] = [];
@@ -726,22 +698,9 @@ export function graphWorkflowDocumentCanvasModelOf(
   let index = 0;
   for (const node of document.nodes) {
     if (isGraphNodeGhost(node)) {
-      // Ghost nodes (canvas-only artifacts carried by legacy round trips) project
-      // verbatim from the document with the legacy ghost template.
-      const ghostNode = {
-        id: node.id,
-        type: 'graph.ghost',
-        position: positionOf(node, index),
-        size: ghostNodeSizeOf(node),
-        resizable: false,
-        rotatable: false,
-        draggable: true,
-        autoSize: false,
-        data: graphGhostCanvasDataOf(node),
-      } as Node;
-      nodes.push(ghostNode);
-      nodeIds.push(node.id);
-      index += 1;
+      // Ghosts are canvas-only affordances, never canonical members. A legacy
+      // round trip can still carry one; it is dropped here (and stripped by the
+      // store on load) so it can never reach the workflow or an execution.
       continue;
     }
     if (projectedBoundaryIds.has(node.id)) {
@@ -776,7 +735,18 @@ export function graphWorkflowDocumentCanvasModelOf(
 
   const edges: Edge[] = [];
   const edgeIds: string[] = [];
+  const ghostNodeIds = new Set(
+    document.nodes.filter((node) => isGraphNodeGhost(node)).map((node) => node.id)
+  );
   for (const edge of document.edges) {
+    // Edges carried by a legacy ghost are canvas-only artifacts and vanish with
+    // the ghost; they must never project to a node that is not on the canvas.
+    if (
+      (edge.source.scope === 'node' && ghostNodeIds.has(edge.source.nodeId)) ||
+      (edge.target.scope === 'node' && ghostNodeIds.has(edge.target.nodeId))
+    ) {
+      continue;
+    }
     // Workflow-boundary endpoints project to the boundary badge nodes as real
     // port→port connections (D2/G3-09): the workflow-output edge is no longer
     // dropped; it binds the member output to the output badge's `value` input.
@@ -796,17 +766,18 @@ export function graphWorkflowDocumentCanvasModelOf(
     edgeIds.push(edge.id);
   }
 
-  // Loop-body containment ghosts (canvas-only containment artifacts) are projected
-  // for every loop node still missing its dedicated ghost child in the document.
-  const projectedNodeIds = new Set(nodeIds);
-  for (const node of document.nodes) {
+  // Empty foreach loops project a canvas-only "Add node" ghost. The ghost is an
+  // affordance, never a document member: once the loop holds a real body node
+  // the ghost disappears and the canonical chain is the only thing left. Run
+  // (execution) projection opts out entirely — the ghost is not really there.
+  for (const node of (options?.includeLoopGhosts === false ? [] : document.nodes)) {
+    if (node.kind !== 'core.loop.foreach') continue;
+    if (graphLoopBodyOrderOf(document, node.id).length > 0) continue;
     const loopSize = ((node.ui?.size?.width || node.ui?.size?.height) ? {
       width: node.ui?.size?.width ?? 120,
       height: node.ui?.size?.height ?? 140,
     } : undefined) as { width: number; height: number } | undefined;
-    if (node.kind !== 'core.loop.foreach') continue;
     const ghostId = `ghost-${node.id}`;
-    if (projectedNodeIds.has(ghostId)) continue;
     const virtualGhost = graphVirtualGhostNodeOf(node, ghostId, index, loopSize ?? nodeUiSizeOf(node, catalogue.resolve(node)));
     if (!virtualGhost) continue;
     nodes.push(virtualGhost.node);
@@ -958,9 +929,10 @@ export class GraphDiagramAdapter {
   toDiagram(
     document: GraphWorkflowDocument,
     catalogue: GraphNodeManifestReader,
-    injector?: Injector
+    injector?: Injector,
+    options?: { includeLoopGhosts?: boolean }
   ): ModelAdapter {
-    const projection = graphWorkflowDocumentCanvasModelOf(document, catalogue);
+    const projection = graphWorkflowDocumentCanvasModelOf(document, catalogue, options);
     this.captureProjectedPositions(projection.nodes);
     this.lastDocument = document;
     return initializeModel(
@@ -1016,12 +988,12 @@ export class GraphDiagramAdapter {
     previousDiagram: ModelAdapter | null,
     catalogue: GraphNodeManifestReader,
     injector?: Injector,
-    options?: { restore?: boolean; applyViewport?: boolean }
+    options?: { restore?: boolean; applyViewport?: boolean; includeLoopGhosts?: boolean }
   ): ModelAdapter {
     if (!previousDiagram) {
-      return this.toDiagram(document, catalogue, injector);
+      return this.toDiagram(document, catalogue, injector, options);
     }
-    const projection = graphWorkflowDocumentCanvasModelOf(document, catalogue);
+    const projection = graphWorkflowDocumentCanvasModelOf(document, catalogue, options);
     const restore = options?.restore === true;
 
     const projectedNodeIds = new Set(projection.nodeIds);

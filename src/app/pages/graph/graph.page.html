@@ -21,6 +21,8 @@
       [outputs]="lastResult()"
       [availableNodes]="availableNodes()"
       [runResultState]="runResultState()"
+      [runFailed]="runStatus() === 'workflow.failed'"
+      [runError]="runError()"
       [validationIssues]="runValidationIssues()"
       (nodeDragEnded)="onNodeDragEnded()"
       (edgeDrawn)="onEdgeDrawn()"
@@ -31,6 +33,7 @@
         graphFloatingControls
         [workflowId]="workflowId"
         [canRun]="canRun()"
+        [workflowRunnable]="workflowRunnable()"
         [isRunning]="isRunning()"
         [invalid]="graphInvalid()"
         [validationIssues]="graphValidityIssues()"

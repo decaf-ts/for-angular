@@ -114,6 +114,102 @@
       }
     </div>
 
+    @if (nestedBodyNodes().length) {
+      <section class="graph-node-inspection__nested" data-nested-body="true">
+        <header class="graph-node-inspection__nested-header">
+          <strong>Loop body nodes</strong>
+          <small>
+            Executed inside this loop · select a node to review its run inputs and outputs
+          </small>
+        </header>
+        <div class="graph-node-inspection__nested-list">
+          @for (entry of nestedBodyNodes(); track entry.node.id) {
+            <article
+              class="graph-node-inspection__nested-node"
+              [attr.data-node-id]="entry.node.id"
+              [attr.data-node-kind]="entry.node.kind"
+              [attr.data-nested-derived]="entry.derived ? 'true' : null"
+            >
+              <button
+                type="button"
+                class="graph-node-inspection__nested-toggle"
+                [attr.aria-expanded]="isNestedExpanded(entry.node.id)"
+                (click)="toggleNestedNode(entry.node.id)"
+              >
+                <span class="graph-node-inspection__nested-identity">
+                  <strong>{{ nestedNodeTitle(entry.node) }}</strong>
+                  <small>{{ entry.node.id }} · {{ entry.node.kind }}</small>
+                </span>
+                <span
+                  class="graph-node-inspection__badge"
+                  [class]="'graph-node-inspection__badge--' + entry.state"
+                >
+                  {{ entry.state }}
+                </span>
+                <span class="graph-node-inspection__nested-caret" aria-hidden="true">
+                  {{ isNestedExpanded(entry.node.id) ? '▾' : '▸' }}
+                </span>
+              </button>
+
+              @if (isNestedExpanded(entry.node.id)) {
+                <div class="graph-node-inspection__nested-io">
+                  @if (entry.payload; as nestedPayload) {
+                    <app-graph-io-viewer
+                      title="Run inputs"
+                      [value]="nestedPayload.inputs"
+                      [runId]="nestedPayload.runId"
+                      [nodeId]="nestedPayload.nodeId"
+                      field="inputs"
+                    />
+                    @if (nestedPayload.error) {
+                      <app-graph-io-viewer
+                        title="Run outputs"
+                        [value]="null"
+                        [error]="nestedPayload.error"
+                      />
+                    } @else if (nestedPayload.outputs !== undefined) {
+                      <app-graph-io-viewer
+                        title="Run outputs"
+                        [value]="nestedPayload.outputs"
+                        [runId]="nestedPayload.runId"
+                        [nodeId]="nestedPayload.nodeId"
+                        field="outputs"
+                      />
+                    } @else {
+                      <div class="graph-node-inspection__empty graph-node-inspection__empty--outputs">
+                        <strong>No run outputs</strong>
+                        <small>
+                          {{
+                            entry.node.kind === 'core.flow.break'
+                              ? 'Break declares no output port; it ends the enclosing loop.'
+                              : 'The nested node recorded no output value.'
+                          }}
+                        </small>
+                      </div>
+                    }
+                    @if (entry.derived) {
+                      <p class="graph-node-inspection__nested-note">
+                        Derived from the loop's <code>broken</code> output: the break carried
+                        <code>value</code> into the collected results.
+                      </p>
+                    }
+                  } @else {
+                    <div class="graph-node-inspection__empty">
+                      <strong>No per-node run data</strong>
+                      <small>
+                        This node runs inside the loop body; the engine records its results on the
+                        enclosing loop node.
+                      </small>
+                    </div>
+                  }
+                </div>
+              }
+            </article>
+          }
+        </div>
+      </section>
+    }
+
     @if (validationIssues().length) {
       <ul class="graph-node-inspection__issues">
         @for (issue of validationIssues(); track $index) {

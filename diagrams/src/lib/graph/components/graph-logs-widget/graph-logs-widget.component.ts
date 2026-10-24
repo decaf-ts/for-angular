@@ -7,7 +7,7 @@
  * user opens on demand. Level filtering follows browser devtools semantics:
  * picking a level shows that level plus everything above it.
  */
-import { Component } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import type { GraphRunLogEntry } from '@decaf-ts/as-graph/shared';
@@ -82,6 +82,8 @@ function lifecycleClassFn(kind: GraphRunLogLifecycleEntry['kind']): string {
 export class GraphLogsWidgetComponent {
   /** The shared run-log store this console projects. */
   protected readonly store = graphRunLog;
+  /** Whether the console body is currently raised above its docked bar. */
+  protected readonly raised = computed(() => this.store.open() && !this.store.collapsed());
   /** Display labels for the console-style filter presets. */
   protected readonly filterLabels = GRAPH_LOG_FILTER_LABELS;
   /** Presets rendered as the filter buttons, broadest first. */
@@ -110,9 +112,13 @@ export class GraphLogsWidgetComponent {
     this.store.setOpen(true);
   }
 
-  /** Flips the console body between collapsed and expanded states. */
-  protected toggleCollapsed(): void {
-    this.store.setCollapsed(!this.store.collapsed());
+  /** Raises or lowers the console body while keeping its top bar docked. */
+  protected toggleOpen(): void {
+    if (this.store.open() && this.store.collapsed()) {
+      this.store.setCollapsed(false);
+      return;
+    }
+    this.store.setOpen(!this.store.open());
   }
 
   /**

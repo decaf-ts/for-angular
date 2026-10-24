@@ -13,6 +13,7 @@ export interface GraphWorkflowSummary {
   name?: string;
   /** ISO timestamp of the last save/update. */
   updatedAt: string;
+  runnable?: boolean;
 }
 
 /**

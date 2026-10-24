@@ -143,6 +143,9 @@ export class WorkflowListPage implements OnInit, AfterViewInit {
           workflowId: workflow.workflowId,
           name: workflow.name,
           updatedAt: workflow.updatedAt ?? '',
+          ...(workflow.runnable !== undefined
+            ? { runnable: workflow.runnable }
+            : {}),
         })),
       );
     } else {

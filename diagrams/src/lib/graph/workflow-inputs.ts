@@ -12,7 +12,6 @@ import {
   type GraphPortDefinition,
   type GraphWorkflowDefinition,
   type GraphWorkflowPortInstance,
-  type GraphValueSchemaType,
 } from '@decaf-ts/as-graph/shared';
 /**
  * HTML-ish control type a workflow input field renders as: `text`, `textarea`,
@@ -453,16 +452,30 @@ function resolveDecoratedValueType(
 function resolvePortControlType(port: GraphWorkflowPortInstance): WorkflowInputControlType {
   const schema = port.schema;
   const type = schema?.type;
-  if (type === 'number') return 'number';
-  if (type === 'boolean') return 'checkbox';
+  const modelName =
+    type === 'model'
+      ? String((schema as { name?: unknown })?.name ?? '').toLowerCase()
+      : '';
+  if (type === 'number' || ['number', 'integer', 'float', 'double', 'bigint'].includes(modelName)) {
+    return 'number';
+  }
+  if (type === 'boolean' || modelName === 'boolean') return 'checkbox';
   if (
-    type === 'string' &&
+    (type === 'string' || modelName === 'string') &&
     typeof (schema as { format?: unknown })?.format === 'string' &&
     /date|time/i.test((schema as { format: string }).format)
   ) {
     return 'date';
   }
-  if (type === 'array' || type === 'object' || type === 'model' || type === 'any') {
+  if (modelName === 'date') return 'date';
+  if (modelName === 'string') return 'text';
+  if (
+    type === 'array' ||
+    type === 'object' ||
+    type === 'model' ||
+    type === 'any' ||
+    ['array', 'object', 'any', 'map', 'set', 'collection'].includes(modelName)
+  ) {
     return 'textarea';
   }
   return 'text';
@@ -479,7 +492,7 @@ function resolvePortControlType(port: GraphWorkflowPortInstance): WorkflowInputC
  */
 function resolvePortValueType(
   controlType: WorkflowInputControlType,
-  schemaType: GraphValueSchemaType | undefined
+  schemaType: string | undefined
 ): WorkflowInputValueType {
   if (controlType === 'number') return 'number';
   if (controlType === 'checkbox') return 'boolean';
@@ -542,6 +555,11 @@ export function buildWorkflowInputFieldsFromPorts(
     const path = port.id;
     const controlName = path.replace(/[^\w-]/g, '__');
     const controlType = resolvePortControlType(port);
+    const schema = port.schema;
+    const schemaType =
+      schema?.type === 'model'
+        ? String((schema as { name?: unknown })?.name ?? '').toLowerCase()
+        : schema?.type;
     return {
       property: path,
       path,
@@ -551,7 +569,7 @@ export function buildWorkflowInputFieldsFromPorts(
       value: resolvePortInitialValue(port, values, controlName),
       validators: resolvePortValidators(port),
       required: port.required === true,
-      valueType: resolvePortValueType(controlType, port.schema?.type),
+      valueType: resolvePortValueType(controlType, schemaType),
     };
   });
 }

@@ -5,6 +5,22 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalo
 import { RootTranslateServiceConfig } from '@ngx-translate/core';
 import { DB_ADAPTER_FLAVOUR_TOKEN } from 'src/lib/engine/constants';
 import { I18nResourceConfigType } from 'src/lib/engine';
+import { GraphNodeCatalogApi } from 'diagrams/src/lib/graph/catalog/GraphNodeCatalogApi';
+import { GRAPH_NODE_CATALOG_SOURCE } from 'diagrams/src/lib/graph/catalog/GraphNodeCatalogService';
+import { GraphEngineCapabilityApi } from 'diagrams/src/lib/graph/capabilities/GraphEngineCapabilityApi';
+import { GRAPH_ENGINE_CAPABILITY_SOURCE } from 'diagrams/src/lib/graph/capabilities/GraphEngineCapabilityService';
+import { GRAPH_BACKEND_URL } from 'diagrams/src/lib/graph/execution/GraphExecutionService';
+
+/**
+ * Storybook's graph backend origin: the `?graphBackend=` URL parameter when
+ * present, otherwise the development default. Supplied on the application
+ * injector so every root-scoped graph client (node catalogue, validation, run,
+ * capability manifest, save) resolves the same origin.
+ */
+function storybookGraphBackendUrl(): string {
+  if (typeof location === 'undefined') return 'http://localhost:3000';
+  return new URLSearchParams(location.search).get('graphBackend') || 'http://localhost:3000';
+}
 import {
   provideDecafDynamicComponents,
   provideDecafPageTransition,
@@ -37,6 +53,12 @@ export const StorybookAppConfig: ApplicationConfig = {
     provideRouter([{ path: '**', component: StorybookRouteStubComponent }], withComponentInputBinding()),
     provideDecafPageTransition(),
     provideDecafDynamicComponents(AppExpiryDateFieldComponent, AppSwitcherComponent, AppSelectFieldComponent),
+    // Mirror the app's graph bindings so root-scoped graph clients talk to the
+    // real backend the story URL selects instead of stopping at a missing
+    // capability source or the fixture-only catalogue.
+    { provide: GRAPH_BACKEND_URL, useFactory: storybookGraphBackendUrl },
+    { provide: GRAPH_NODE_CATALOG_SOURCE, useExisting: GraphNodeCatalogApi },
+    { provide: GRAPH_ENGINE_CAPABILITY_SOURCE, useExisting: GraphEngineCapabilityApi },
     provideDecafI18nConfig(
       {
         fallbackLang: 'en',
