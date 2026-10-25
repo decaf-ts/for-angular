@@ -1,0 +1,103 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.chat-code-block {
+  margin: 0;
+  border: 1px solid var(--gx-border-soft);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--gx-surface-code, #0f172a);
+  color: var(--gx-text-code, #e2e8f0);
+}
+
+.chat-code-block__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.55rem;
+  border-bottom: 1px solid var(--gx-border-soft);
+  background: var(--gx-surface-soft);
+  color: var(--gx-text-secondary);
+}
+
+.chat-code-block__title {
+  font-size: 0.75rem;
+  font-family: var(--gx-font-mono, monospace);
+  color: var(--gx-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-code-block__copy {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--gx-border-soft);
+  background: transparent;
+  color: inherit;
+  border-radius: 5px;
+  padding: 0.12rem 0.4rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.chat-code-block__copy:hover {
+  border-color: var(--gx-teal-focus);
+  color: var(--gx-text-strong);
+}
+
+.chat-code-block__copy:focus-visible {
+  outline: 2px solid var(--gx-teal-focus-strong);
+  outline-offset: 1px;
+}
+
+.chat-code-block__pre {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  overflow: auto;
+  max-height: 24rem;
+  outline: none;
+}
+
+.chat-code-block__pre:focus-visible {
+  outline: 2px solid var(--gx-teal-focus-strong);
+  outline-offset: -2px;
+}
+
+.chat-code-block__code {
+  font-family: var(--gx-font-mono, monospace);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.chat-code-block__token--comment {
+  color: var(--gx-code-comment, #8b9cb3);
+  font-style: italic;
+}
+
+.chat-code-block__token--string {
+  color: var(--gx-code-string, #9ae6b4);
+}
+
+.chat-code-block__token--number {
+  color: var(--gx-code-number, #f6ad55);
+}
+
+.chat-code-block__token--keyword {
+  color: var(--gx-code-keyword, #90cdf4);
+  font-weight: 600;
+}
+
+.chat-code-block__token--literal {
+  color: var(--gx-code-literal, #d6bcfa);
+}
+
+.chat-code-block__token--punctuation {
+  color: var(--gx-code-punctuation, #cbd5e0);
+}

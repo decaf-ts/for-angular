@@ -1,0 +1,47 @@
+<section
+  class="chat-notifications"
+  role="status"
+  aria-live="polite"
+  aria-atomic="false"
+  aria-relevant="additions text"
+  [attr.aria-label]="'agent.chat.notification.label' | translateFallback: 'Notifications'"
+>
+  @for (notification of visible(); track trackNotification($index, notification)) {
+    <article
+      class="chat-notification"
+      [class.chat-notification--error]="severityOf(notification) === 'error'"
+      [class.chat-notification--warning]="severityOf(notification) === 'warning'"
+      [class.chat-notification--success]="severityOf(notification) === 'success'"
+      [attr.data-severity]="severityOf(notification)"
+    >
+      <span class="chat-notification__icon" aria-hidden="true">
+        <ngx-decaf-chat-icon [name]="iconOf(notification)" [size]="16" />
+      </span>
+      <div class="chat-notification__body">
+        @if (notification.title) {
+          <p class="chat-notification__title">{{ notification.title }}</p>
+        }
+        <p class="chat-notification__message">{{ notification.message }}</p>
+      </div>
+      @if (notification.actionLabel) {
+        <button
+          type="button"
+          class="chat-notification__action"
+          (click)="runAction(notification.id)"
+        >
+          {{ notification.actionLabel }}
+        </button>
+      }
+      @if (dismissible()) {
+        <button
+          type="button"
+          class="chat-notification__close"
+          (click)="dismiss(notification.id)"
+          [attr.aria-label]="'agent.chat.notification.dismiss' | translateFallback: 'Dismiss notification'"
+        >
+          <ngx-decaf-chat-icon name="x" [size]="14" />
+        </button>
+      }
+    </article>
+  }
+</section>

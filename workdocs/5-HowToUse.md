@@ -90,20 +90,19 @@ Typical pairing: bind both components to the same `formula` string — editing t
 
 Standalone agent conversation UI over a graph workflow run, exported from the
 [`/agent`](./agent/README.md) secondary entry point. `/agent` reuses the graph
-I/O viewer from [`/diagrams`](./diagrams/README.md) through its public specifier,
-so it needs the same optional peers (`@decaf-ts/as-graph`, `ng-diagram`). Ships
-together with its transport contract (`AgentChatTransport` with
-`send`/`replay`/`cancel`), the `AGENT_CHAT_TRANSPORT` injection token, the
-composer/message models, the envelope fold, the `AgentChatService`, and the
-translation fallback pipe. The transcript is a `role="log"` live region with
-per-role styling, action/attachment chips and auto-scroll; the composer handles
-Enter-to-send / Shift+Enter newline, metadata-only attachments (file contents
-are never read), and a knowledge-base selector forwarded as `knowledgeBaseIds`
-run inputs. A collapsible telemetry strip shows per-roundtrip rows, a
-structured-object panel reuses the graph I/O viewer for the latest structured
-output, and namespace chips derive from the configured workflow document's auth
-metadata. All user-facing strings resolve through the `agent.chat.*` i18n
-subtree with hardcoded English fallbacks.
+I/O viewer from [`/diagrams`](./diagrams/README.md) through its public
+specifier, so it needs the same optional peers (`@decaf-ts/as-graph`,
+`ng-diagram`). The entry point ships the shell together with the transport
+contract (`AgentChatTransport` with `send`/`replay`/`cancel`), the
+`AGENT_CHAT_TRANSPORT`, `AGENT_CHAT_HISTORY_SOURCE` and
+`AGENT_CHAT_KNOWLEDGE_BASE_SOURCE` injection tokens, the composer/message
+models, the envelope fold (`agentChatFoldEnvelope`), the per-component
+`AgentChatService` conversation state, the markdown transcript builder, the
+in-memory history/knowledge-base sources, and the translation fallback pipe.
+The shell owns only transient UI state (draft, staged attachments, drawers,
+inline editing, selectors): it projects `AgentChatService` signals into the
+`ngx-decaf-chat-*` component suite below and forwards user actions back to the
+service and transport.
 
 | Binding | Type | Description |
 | --- | --- | --- |
@@ -113,12 +112,156 @@ subtree with hardcoded English fallbacks.
 | `[headerTitleKey]` | `string` | Localized header title key (default `agent.chat.title`) |
 | `[headerTitleFallback]` | `string` | Header title fallback when the key is missing (default `Agent chat`) |
 | `[knowledgeSources]` | `AgentChatKnowledgeSource[]` | Knowledge-base options offered in the composer |
+| `[suggestions]` | `string[]` | Starter prompts shown above the composer on an empty transcript |
+| `[slashCommands]` | `AgentChatSlashCommand[]` | Slash commands offered by the composer popover |
+| `[models]` | `AgentChatModel[]` | Models offered by the composer's model selector |
+| `[visibility]` | `AgentChatVisibility` | Initial conversation visibility (default `private`) |
+| `[showHistory]` | `boolean` | Whether the history rail is rendered (default `true`) |
+| `[showKnowledgeBase]` | `boolean` | Whether the knowledge-base selector is available (default `true`) |
 
-Runs go through the injectable `AgentChatTransport`: the default `GraphRunAgentChatTransport` runs the configured workflow over the graph backend's `POST /graph/runs` + SSE envelope stream (replay from sequence zero, idempotent cancel). Override the `AGENT_CHAT_TRANSPORT` token to plug in a scripted or alternative transport (e.g. the optional `@ai-sdk/angular` peer). Storybook coverage (`src/stories/agent-chat.stories.ts`) mounts the component with a scripted transport, so no backend is needed.
+Outputs: `download` (`AgentChatTranscriptDownload` — the markdown transcript
+payload built by the conversation toolbar) and `historySelected`
+(`AgentChatHistoryEntry` — a conversation picked in the history rail).
 
 ```html
-<ngx-decaf-agent-chat [workflow]="document" [workflowId]="id"></ngx-decaf-agent-chat>
+<ngx-decaf-agent-chat
+  [workflow]="document"
+  [workflowId]="id"
+  [suggestions]="suggestions"
+  [slashCommands]="slashCommands"
+  [models]="models">
+</ngx-decaf-agent-chat>
 ```
+
+The transcript is a `role="log"` live region with per-role styling,
+action/attachment chips and auto-scroll; the composer handles Enter-to-send /
+Shift+Enter newline, metadata-only attachments (file contents are never read),
+and a knowledge-base selector forwarded as `knowledgeBaseIds` run inputs. A
+collapsible telemetry strip shows per-roundtrip rows, the structured-object
+panel reuses the graph I/O viewer for the latest structured output, and
+namespace chips derive from the configured workflow document's auth metadata.
+
+### Agent chat transports and data sources
+
+Every run goes through the injectable `AgentChatTransport` contract (`send`,
+`replay`, `cancel`). The default `AGENT_CHAT_TRANSPORT` is
+`GraphRunAgentChatTransport`, which runs the configured workflow over the
+graph backend's `POST /graph/runs` + SSE envelope stream (replay from sequence
+zero, idempotent cancel); `AgentChatService` folds every envelope into
+transcript state with `agentChatFoldEnvelope`. Override the token at component
+or environment level to plug in an alternative transport (e.g. the optional
+`@ai-sdk/angular` peer, or the scripted fake transport below).
+
+The history rail and knowledge-base selector read through the
+`AGENT_CHAT_HISTORY_SOURCE` and `AGENT_CHAT_KNOWLEDGE_BASE_SOURCE` tokens.
+Both default to an empty in-memory store; provide the seedable
+`InMemoryAgentChatHistorySource` / `InMemoryAgentKnowledgeBaseSource` or your
+own `AgentChatHistorySource` / `AgentChatKnowledgeBaseSource` implementation.
+
+### `AgentChatFakeTransport` (scripted demo transport)
+
+`AgentChatFakeTransport` is a deterministic, in-browser `AgentChatTransport`
+used by the demo `/chat` page and the Storybook integration stories — no
+network, no backend, no randomness. `configure({ scenario, speed })` selects
+the scripted scenario (`conversation` or `structured-object`) and the playback
+speed; every `send` replays it through the same envelope contract as the real
+transport, exercising token-by-token streaming, reasoning and code blocks,
+tool calls (orders, tracker, weather), workflow steps, progress, an approval
+prompt, telemetry and a streamed structured object. Component families that
+live outside the transcript (tool result cards, workflow status, progress,
+agent steps, nested agents, approval, notifications) are delivered through the
+demo-only `demoEvents$` side channel so a host page can drive its own panels
+from the same scripted run. `cancel` clears every pending timer and emits a
+single `WORKFLOW_CANCELLED` terminal envelope.
+
+```ts
+providers: [
+  AgentChatFakeTransport,
+  { provide: AGENT_CHAT_TRANSPORT, useExisting: AgentChatFakeTransport },
+]
+```
+
+### Chat component suite
+
+The 42 `ngx-decaf-chat-*` standalone components exported from the same
+[`/agent`](./agent/README.md) entry point. The shell composes most of them;
+each is also usable on its own, and every user-facing string resolves through
+the `agent.chat.*` i18n subtree via the `translateFallback` pipe
+(`AgentTranslateFallbackPipe`), which renders a hardcoded English fallback
+when the host provides no translation. Full per-component bindings live in
+the source JSDoc and the Storybook stories (`npm run storybook`).
+
+#### Conversation and history
+
+| Component | Selector | Purpose |
+| --- | --- | --- |
+| `ChatHeaderComponent` | `ngx-decaf-chat-header` | Chat header bar: title, namespace badges, history/knowledge-base/telemetry toggles |
+| `ChatIconComponent` | `ngx-decaf-chat-icon` | Inline SVG icon renderer with a fixed chat icon-name set |
+| `ChatConversationComponent` | `ngx-decaf-chat-conversation` | Scrollable transcript with autoscroll, empty state and markdown download |
+| `ChatMessageComponent` | `ngx-decaf-chat-message` | Single message: role avatar/label, text and nested parts (attachments, tools, reasoning, code) |
+| `ChatMessageActionsComponent` | `ngx-decaf-chat-message-actions` | Per-message copy/vote/edit/delete bar with role-aware defaults |
+| `ChatMessageEditorComponent` | `ngx-decaf-chat-message-editor` | Inline message editor (Escape cancels, Ctrl/Cmd+Enter saves) |
+| `ChatThinkingMessageComponent` | `ngx-decaf-chat-thinking-message` | Typing placeholder while the agent composes |
+| `ChatGreetingComponent` | `ngx-decaf-chat-greeting` | Empty-state greeting or info card with optional call-to-action |
+| `ChatHistoryComponent` | `ngx-decaf-chat-history` | History sidebar/drawer fed by entries, an observable stream or an injected source |
+| `ChatHistoryItemComponent` | `ngx-decaf-chat-history-item` | Single history row with visibility badge and inline delete confirmation |
+
+#### Composer and input
+
+| Component | Selector | Purpose |
+| --- | --- | --- |
+| `ChatComposerComponent` | `ngx-decaf-chat-composer` | Auto-growing prompt composer: Enter-to-send, status-aware send/stop, clear-and-refocus |
+| `ChatAttachmentInputComponent` | `ngx-decaf-chat-attachment-input` | Attachment intake: file picker, drag-drop overlay, clipboard paste, MIME/size validation |
+| `ChatAttachmentPreviewComponent` | `ngx-decaf-chat-attachment-preview` | Staged-attachment strip with thumbnails and per-item removal |
+| `ChatAttachmentPartComponent` | `ngx-decaf-chat-attachment-part` | Sent attachment inside a message: image, decoded text or fallback chip |
+| `ChatSuggestedActionsComponent` | `ngx-decaf-chat-suggested-actions` | Grid of starter prompts shown only in the empty state |
+| `ChatSlashCommandsComponent` | `ngx-decaf-chat-slash-commands` | Slash-command popover with prefix filtering and keyboard navigation |
+| `ChatSuggestionDialogComponent` | `ngx-decaf-chat-suggestion-dialog` | Modal presenting an AI-generated suggestion (Enter applies, Escape ignores) |
+| `ChatModelSelectorComponent` | `ngx-decaf-chat-model-selector` | Searchable model dropdown filtering by name/id/provider/description |
+| `ChatVisibilitySelectorComponent` | `ngx-decaf-chat-visibility-selector` | Private/shared visibility dropdown with optimistic update and rollback |
+| `ChatKnowledgeBaseSelectorComponent` | `ngx-decaf-chat-knowledge-base-selector` | Knowledge-base panel: selectable entries, upload queue, deletion |
+
+#### Reasoning, code and structured output
+
+| Component | Selector | Purpose |
+| --- | --- | --- |
+| `ChatReasoningComponent` | `ngx-decaf-chat-reasoning` | Collapsible reasoning panel for model thinking content |
+| `ChatCodeBlockComponent` | `ngx-decaf-chat-code-block` | Syntax-highlighted code block with header and copy button |
+| `ChatStructuredObjectComponent` | `ngx-decaf-chat-structured-object` | Structured object rendered as flattened rows, with streaming ghost state and history |
+
+#### Artifacts
+
+| Component | Selector | Purpose |
+| --- | --- | --- |
+| `ChatArtifactComponent` | `ngx-decaf-chat-artifact` | Artifact panel shell: title, kind/visibility badges, streamed text or image media |
+| `ChatArtifactDocumentComponent` | `ngx-decaf-chat-artifact-document` | Loads and displays an artifact document via an optional loader, with reload handling |
+| `ChatArtifactEditorComponent` | `ngx-decaf-chat-artifact-editor` | Editable artifact content (code editor, text area or image preview) |
+| `ChatArtifactSkeletonComponent` | `ngx-decaf-chat-artifact-skeleton` | Loading placeholder for artifact content |
+| `ChatArtifactToolbarComponent` | `ngx-decaf-chat-artifact-toolbar` | Toolbar of artifact kind tools emitting the selected kind |
+| `ChatArtifactVersionFooterComponent` | `ngx-decaf-chat-artifact-version-footer` | Version navigation footer (older/newer, current version label) |
+| `ChatArtifactDiffComponent` | `ngx-decaf-chat-artifact-diff` | Line diff between previous and current text with side-by-side/inline modes |
+| `ChatArtifactConsoleComponent` | `ngx-decaf-chat-artifact-console` | Resizable console log panel with level styling and clear action |
+
+#### Tools and agent network
+
+| Component | Selector | Purpose |
+| --- | --- | --- |
+| `ChatToolComponent` | `ngx-decaf-chat-tool` | Collapsible tool-call card: name, lifecycle state, input/output/error payloads |
+| `ChatToolOrdersComponent` | `ngx-decaf-chat-tool-orders` | Tool-result renderer for order lists (emits the selected order) |
+| `ChatToolTrackerComponent` | `ngx-decaf-chat-tool-tracker` | Delivery-tracker tool result: packed / in transit / delivered progress |
+| `ChatToolWeatherComponent` | `ngx-decaf-chat-weather` | Tool-result renderer for the weather tool: location, condition, temperature range |
+| `ChatWorkflowStatusComponent` | `ngx-decaf-chat-workflow-status` | Workflow step list with per-step status icons and optional serialized output |
+| `ChatAgentStepComponent` | `ngx-decaf-chat-agent-step` | One agent-network step: name, lifecycle status, input/output payloads |
+| `ChatNestedAgentComponent` | `ngx-decaf-chat-nested-agent` | Nested sub-agent transcript block with ancestry path and streamed text |
+| `ChatApprovalComponent` | `ngx-decaf-chat-approval` | Approval prompt for a suspended run, emitting resume/deny decisions |
+| `ChatProgressComponent` | `ngx-decaf-chat-progress` | Progress indicator driven by the latest run progress event |
+
+#### Feedback
+
+| Component | Selector | Purpose |
+| --- | --- | --- |
+| `ChatNotificationComponent` | `ngx-decaf-chat-notification` | Toast stack with severity icons, auto-dismiss timers and action forwarding |
+| `ChatTelemetryComponent` | `ngx-decaf-chat-telemetry` | Collapsible telemetry panel listing roundtrip rows with durations and tokens |
 
 ### `<decaf-calendar>`
 
@@ -186,6 +329,7 @@ backend:
 | `/storyboard` | [`/storyboard`](./storyboard/README.md): `StoryboardTutorialComponent` + `StoryboardTutorialService` running a four-step scenario with a custom non-blocking focus strategy, start/next/previous/abort/end controls and a live status/event readout |
 | `/diagrams` | [`/diagrams`](./diagrams/README.md): `GraphRendererComponent` over an in-memory fixture node catalogue (no backend) with a two-node preview workflow and the input/output panels open |
 | `/calendar` | [`/calendar`](./calendar/README.md): `CalendarComponent` with host-owned month/selection signals, month navigation applied back from `monthChange`, event add/remove with colour markers and locale following the app language |
+| `/chat` | [`/agent`](./agent/README.md): `ngx-decaf-agent-chat` in fake mode over the deterministic `AgentChatFakeTransport` (no backend needed), with a conversation/structured-object scenario switcher and live panels for the non-transcript component families (tool results, workflow status, progress, agent step, nested agent, approval, notifications) |
 
 ## Running the graph UI against a backend
 

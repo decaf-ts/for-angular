@@ -1,0 +1,23 @@
+<div
+  class="chat-artifact-toolbar"
+  role="toolbar"
+  [attr.aria-label]="'agent.chat.artifact.toolbar.label' | translateFallback: 'Artifact tools'"
+  [attr.aria-disabled]="disabled() ? 'true' : null"
+>
+  @for (tool of tools(); track trackTool($index, tool)) {
+    <button
+      type="button"
+      class="chat-artifact-toolbar__tool"
+      [class.chat-artifact-toolbar__tool--active]="isActive(tool)"
+      [attr.aria-pressed]="isActive(tool)"
+      [attr.data-kind]="tool.kind"
+      [disabled]="disabled() || tool.disabled"
+      (click)="select(tool)"
+    >
+      <ngx-decaf-chat-icon [name]="iconFor(tool)" [size]="14" />
+      <span class="chat-artifact-toolbar__label">
+        {{ labelKeyFor(tool) | translateFallback: tool.kind }}
+      </span>
+    </button>
+  }
+</div>

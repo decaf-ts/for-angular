@@ -41,6 +41,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage)
   },
   {
+    path: 'chat',
+    loadComponent: () => import('./pages/chat/chat.page').then(m => m.ChatPage)
+  },
+  {
     path: 'graph/create',
     loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage),
     data: { operation: 'create' }

@@ -39,6 +39,7 @@ import type {
   AgentChatRunDescriptor,
   AgentChatStructuredObjectView,
   AgentChatTransport,
+  AgentChatVote,
 } from "../types";
 
 /** Module-level counter backing locally generated message ids (`user:<n>`, `error:<n>`) and fallback session ids. */
@@ -195,6 +196,61 @@ export class AgentChatService {
     } catch (err) {
       this.error.set(errorTextOf(err));
     }
+  }
+
+  /**
+   * Replaces an already-sent user message: trailing messages after the edited
+   * one (including the original entry) are dropped and the replacement text is
+   * re-sent through {@link send}, preserving the original attachments and
+   * knowledge selections. No-op for non-user or unknown messages, blank text,
+   * or while another roundtrip is running.
+   */
+  async editMessage(messageId: string, newText: string): Promise<void> {
+    if (this.running()) return;
+    const index = this.foldState.messages.findIndex(
+      (message) => message.id === messageId,
+    );
+    if (index < 0) return;
+    const target = this.foldState.messages[index];
+    if (target.role !== "user") return;
+    const text = newText.trim();
+    if (!text) return;
+    this.foldState = {
+      ...this.foldState,
+      messages: this.foldState.messages.slice(0, index),
+      structuredObject: null,
+    };
+    this.publish();
+    await this.send(
+      text,
+      target.attachments ?? [],
+      target.knowledgeSourceIds ?? [],
+    );
+  }
+
+  /** Removes one message from the local transcript (no backend call). */
+  removeMessage(messageId: string): void {
+    const messages = this.foldState.messages;
+    const index = messages.findIndex((message) => message.id === messageId);
+    if (index < 0) return;
+    this.foldState = {
+      ...this.foldState,
+      messages: messages.filter((message) => message.id !== messageId),
+    };
+    this.publish();
+  }
+
+  /** Records (or clears with `null`) the user's vote on a message. */
+  setVote(messageId: string, vote: AgentChatVote | null): void {
+    let changed = false;
+    const messages = this.foldState.messages.map((message) => {
+      if (message.id !== messageId) return message;
+      changed = true;
+      return { ...message, vote };
+    });
+    if (!changed) return;
+    this.foldState = { ...this.foldState, messages };
+    this.publish();
   }
 
   /** Clears all conversation state, signals, and the per-run dedupe watermarks. */

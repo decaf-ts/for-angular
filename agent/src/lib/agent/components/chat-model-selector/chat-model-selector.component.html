@@ -1,0 +1,78 @@
+<div class="chat-model-selector">
+  <button
+    type="button"
+    class="chat-model-selector__trigger"
+    data-action="trigger"
+    [disabled]="disabled()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="listbox"
+    (click)="toggle()"
+  >
+    <span class="chat-model-selector__label">
+      {{ "agent.chat.modelSelector.label" | translateFallback: "Model" }}:
+    </span>
+    @if (selected(); as model) {
+      <span class="chat-model-selector__current">{{ model.name }}</span>
+      @if (model.provider) {
+        <span class="chat-model-selector__provider">{{ model.provider }}</span>
+      }
+    } @else {
+      <span class="chat-model-selector__placeholder">
+        {{ "agent.chat.modelSelector.trigger" | translateFallback: "Select model" }}
+      </span>
+    }
+    <ngx-decaf-chat-icon name="chevron-down" [size]="14" />
+  </button>
+
+  @if (isOpen()) {
+    <div class="chat-model-selector__panel">
+      <input
+        #searchField
+        type="search"
+        class="chat-model-selector__search"
+        data-role="search"
+        [value]="search()"
+        [attr.placeholder]="'agent.chat.modelSelector.search' | translateFallback: 'Search models…'"
+        [attr.aria-label]="'agent.chat.modelSelector.search' | translateFallback: 'Search models…'"
+        (input)="onSearchInput($event)"
+        (keydown)="onPanelKeydown($event)"
+      />
+
+      <div
+        class="chat-model-selector__list"
+        role="listbox"
+        [attr.aria-label]="'agent.chat.modelSelector.label' | translateFallback: 'Model'"
+      >
+        @if (filtered().length > 0) {
+          @for (model of filtered(); track model.id; let index = $index) {
+            <button
+              type="button"
+              class="chat-model-selector__option"
+              role="option"
+              [class.chat-model-selector__option--active]="activeIndex() === index"
+              [attr.aria-selected]="selected()?.id === model.id"
+              [attr.data-model-id]="model.id"
+              tabindex="-1"
+              (mousemove)="setActive(index)"
+              (click)="selectModel(model)"
+            >
+              <span class="chat-model-selector__name">{{ model.name }}</span>
+              @if (model.description) {
+                <span class="chat-model-selector__description">
+                  {{ model.description }}
+                </span>
+              }
+              @if (model.provider) {
+                <span class="chat-model-selector__provider">{{ model.provider }}</span>
+              }
+            </button>
+          }
+        } @else {
+          <p class="chat-model-selector__empty" role="status">
+            {{ "agent.chat.modelSelector.empty" | translateFallback: "No models match your search." }}
+          </p>
+        }
+      </div>
+    </div>
+  }
+</div>

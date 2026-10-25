@@ -1,0 +1,42 @@
+<section
+  class="chat-agent-step"
+  data-network="true"
+  [attr.data-status]="status()"
+  [attr.aria-label]="('agent.chat.agentStep.title' | translateFallback: 'Agent step') + (name() ? ' — ' + name() : '')"
+>
+  <header class="chat-agent-step__header">
+    <span class="chat-agent-step__icon" [class.chat-agent-step__icon--busy]="busy()" aria-hidden="true">
+      <ngx-decaf-chat-icon [name]="statusIcon()" [size]="15" />
+    </span>
+    <div class="chat-agent-step__heading">
+      <span class="chat-agent-step__name">{{ name() }}</span>
+      @if (agentId()) {
+        <span class="chat-agent-step__id">{{ agentId() }}</span>
+      }
+    </div>
+    <span class="chat-agent-step__chip">
+      {{ ("agent.chat.workflow.status." + status()) | translateFallback: statusFallback() }}
+    </span>
+  </header>
+
+  @if (error()) {
+    <p class="chat-agent-step__error" role="alert">{{ error() }}</p>
+  }
+
+  @if (hasInput() || hasOutput()) {
+    <div class="chat-agent-step__panes">
+      @if (hasInput()) {
+        <details class="chat-agent-step__pane">
+          <summary>{{ "agent.chat.agentStep.input" | translateFallback: "Input" }}</summary>
+          <pre class="chat-agent-step__json">{{ stringify(stepInput()) }}</pre>
+        </details>
+      }
+      @if (hasOutput()) {
+        <details class="chat-agent-step__pane">
+          <summary>{{ "agent.chat.agentStep.output" | translateFallback: "Output" }}</summary>
+          <pre class="chat-agent-step__json">{{ stringify(stepOutput()) }}</pre>
+        </details>
+      }
+    </div>
+  }
+</section>

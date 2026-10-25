@@ -1,30 +1,18 @@
 <section class="agent-chat" [attr.aria-label]="title()">
-  <header class="agent-chat__header">
-    <h2 class="agent-chat__title">{{ title() }}</h2>
-    @if (requiredNamespaces().length) {
-      <div
-        class="agent-chat__namespaces"
-        role="note"
-        [attr.aria-label]="'agent.chat.namespaces.label' | translateFallback: 'Required namespaces'"
-      >
-        <span class="agent-chat__namespaces-label">
-          {{ "agent.chat.namespaces.label" | translateFallback: "Namespaces" }}
-        </span>
-        @for (namespace of requiredNamespaces(); track namespace) {
-          <span class="agent-chat__namespace-chip">{{ namespace }}</span>
-        }
-      </div>
-    }
-    <button
-      type="button"
-      class="agent-chat__header-action"
-      (click)="toggleTelemetry()"
-      [attr.aria-expanded]="showTelemetry()"
-      [attr.aria-pressed]="showTelemetry()"
-    >
-      {{ (showTelemetry() ? "agent.chat.telemetry.hide" : "agent.chat.telemetry.show") | translateFallback: "Telemetry" }}
-    </button>
-  </header>
+  <ngx-decaf-chat-header
+    [titleKey]="headerTitleKey()"
+    [titleFallback]="headerTitleFallback()"
+    [namespaces]="requiredNamespaces()"
+    [showHistory]="showHistory()"
+    [showKnowledgeBase]="showKnowledgeBase()"
+    [historyOpen]="historyOpen()"
+    [knowledgeOpen]="knowledgeOpen()"
+    [telemetryOpen]="telemetryOpen()"
+    [selectedKnowledgeCount]="selectedKnowledgeCount()"
+    (historyToggle)="toggleHistory()"
+    (knowledgeBaseOpen)="openKnowledgeBase()"
+    (telemetryToggle)="toggleTelemetry()"
+  />
 
   @if (error()) {
     <div class="agent-chat__banner agent-chat__banner--error" role="alert">
@@ -36,197 +24,170 @@
     </div>
   }
 
-  <div
-    #transcript
-    class="agent-chat__transcript"
-    role="log"
-    aria-live="polite"
-    [attr.aria-label]="('agent.chat.transcript.aria' | translateFallback: 'Conversation transcript')"
-  >
-    @for (message of messages(); track trackMessage($index, message)) {
-      <article
-        class="agent-chat__message"
-        [class.agent-chat__message--user]="message.role === 'user'"
-        [class.agent-chat__message--assistant]="message.role === 'assistant'"
-        [class.agent-chat__message--error]="message.role === 'error'"
-        [class.agent-chat__message--system]="message.role === 'system'"
+  <div class="agent-chat__body">
+    @if (showHistory() && historyOpen()) {
+      <aside class="agent-chat__history">
+        <ngx-decaf-chat-history
+          variant="panel"
+          [entries]="historyEntries()"
+          [activeId]="activeHistoryId()"
+          (selectChat)="onSelectHistory($event)"
+          (delete)="onDeleteHistory($event)"
+          (newChat)="onNewChat()"
+        />
+      </aside>
+    }
+
+    <div class="agent-chat__main">
+      <ngx-decaf-chat-conversation
+        [messages]="messages()"
+        [running]="running()"
+        [showEmptyMessage]="false"
+        (download)="onDownload($event)"
       >
-        <header class="agent-chat__message-meta">
-          <span class="agent-chat__message-role">
-            {{ ("agent.chat.role." + message.role) | translateFallback: message.role }}
-          </span>
-          <time class="agent-chat__message-time" [attr.datetime]="message.createdAt">
-            {{ message.createdAt }}
-          </time>
-        </header>
-        <p class="agent-chat__message-content">{{ message.content }}</p>
-        @if (message.actions?.length) {
-          <ul class="agent-chat__message-actions" [attr.aria-label]="('agent.chat.actions.label' | translateFallback: 'Agent actions')">
-            @for (action of message.actions; track action) {
-              <li class="agent-chat__action-chip">{{ action }}</li>
+        <ngx-decaf-chat-greeting
+          chatConversationEmpty
+          class="agent-chat__empty"
+          [title]="'agent.chat.greeting.title' | translateFallback: 'How can I help?'"
+          [message]="'agent.chat.greeting.message' | translateFallback: 'Ask a question, attach a file, or pick a suggestion to get started.'"
+        />
+
+        @for (message of messages(); track trackMessage($index, message)) {
+          <div
+            class="agent-chat__message"
+            [class.agent-chat__message--user]="message.role === 'user'"
+            [class.agent-chat__message--assistant]="message.role === 'assistant'"
+            [class.agent-chat__message--error]="message.role === 'error'"
+            [class.agent-chat__message--system]="message.role === 'system'"
+          >
+            @if (editingMessageId() === message.id) {
+              <ngx-decaf-chat-message-editor
+                [message]="message"
+                [messageId]="message.id"
+                [initialText]="message.content"
+                [running]="running()"
+                (save)="saveEdit($event)"
+                (cancel)="cancelEdit()"
+              />
+            } @else {
+              <div class="agent-chat__message-content">
+                <ngx-decaf-chat-message
+                  [role]="message.role"
+                  [content]="message.content"
+                  [createdAt]="message.createdAt"
+                  [attachments]="message.attachments"
+                  [parts]="message.parts ?? []"
+                  [actions]="message.actions ?? []"
+                  [streaming]="message.streaming ?? false"
+                  [pending]="message.pending ?? false"
+                />
+              </div>
+              <ngx-decaf-chat-message-actions
+                [messageId]="message.id"
+                [role]="message.role"
+                [copyText]="message.content"
+                [running]="running()"
+                [vote]="message.vote ?? null"
+                (voteChange)="onVoteChange($event)"
+                (edit)="startEdit($event)"
+                (deleteMessage)="onDeleteMessage($event)"
+              />
             }
-          </ul>
+          </div>
         }
-        @if (message.attachments.length) {
-          <ul class="agent-chat__message-attachments">
-            @for (attachment of message.attachments; track attachment.id) {
-              <li class="agent-chat__attachment-chip">
-                {{ attachment.name }} ({{ attachment.mime }}, {{ attachment.size }}B)
-              </li>
-            }
-          </ul>
+
+        @if (showThinking()) {
+          <ngx-decaf-chat-thinking-message class="agent-chat__typing" />
         }
-      </article>
-    } @empty {
-      <p class="agent-chat__empty">
-        {{ "agent.chat.transcript.empty" | translateFallback: "Start the conversation by sending a message." }}
-      </p>
-    }
-    @if (running()) {
-      <p class="agent-chat__typing" aria-live="polite">
-        {{ "agent.chat.typing" | translateFallback: "Agent is responding…" }}
-      </p>
-    }
+      </ngx-decaf-chat-conversation>
+
+      <ngx-decaf-chat-telemetry
+        class="agent-chat__telemetry"
+        [roundtrips]="roundtrips()"
+        [open]="telemetryOpen()"
+        (toggle)="telemetryOpen.set($event)"
+      />
+
+      @if (structuredObject()) {
+        <section
+          class="agent-chat__structured"
+        >
+          <ngx-decaf-chat-structured-object
+            [value]="structuredObject()?.value"
+            [runId]="structuredObject()?.runId"
+            [partial]="structuredPartial()"
+            [streaming]="running()"
+          />
+        </section>
+      }
+    </div>
   </div>
 
-  @if (showTelemetry()) {
-    <div
-      class="agent-chat__telemetry"
-      role="region"
-      [attr.aria-label]="('agent.chat.telemetry.show' | translateFallback: 'Telemetry')"
-    >
-      @for (roundtrip of roundtrips(); track trackRoundtrip($index, roundtrip)) {
-        <div class="agent-chat__telemetry-row" [attr.data-replayed]="roundtrip.replayed ? 'true' : null">
-          <span class="agent-chat__telemetry-run">{{ roundtrip.runId }}</span>
-          <span class="agent-chat__telemetry-status">
-            {{ ("agent.chat.status." + roundtrip.status) | translateFallback: roundtrip.status }}
-          </span>
-          <span class="agent-chat__telemetry-nodes">
-            {{ roundtrip.completedNodeCount ?? 0 }}/{{ roundtrip.nodeCount ?? 0 }}
-          </span>
-          @if (roundtrip.startedAt) {
-            <time [attr.datetime]="roundtrip.startedAt">{{ roundtrip.startedAt }}</time>
-          }
-          @if (roundtrip.error?.message) {
-            <span class="agent-chat__telemetry-error">{{ roundtrip.error?.message }}</span>
-          }
-        </div>
-      } @empty {
-        <p class="agent-chat__telemetry-empty">
-          {{ "agent.chat.roundtrip.empty" | translateFallback: "No roundtrips yet." }}
-        </p>
-      }
-    </div>
-  }
-
-  @if (structuredObject()) {
-    <section
-      class="agent-chat__structured"
-      role="region"
-      [attr.aria-label]="('agent.chat.structured.title' | translateFallback: 'Structured object')"
-    >
-      <button
-        type="button"
-        class="agent-chat__header-action"
-        (click)="toggleStructured()"
-        [attr.aria-expanded]="showStructured()"
-      >
-        {{ "agent.chat.structured.title" | translateFallback: "Structured object" }}
-      </button>
-      @if (showStructured()) {
-        <app-graph-io-viewer
-          class="agent-chat__structured-viewer"
-          [title]="'agent.chat.structured.title' | translateFallback: 'Structured object'"
-          [value]="structuredObject()?.value"
-          [runId]="structuredObject()?.runId || ''"
-          field="outputs"
-        />
-      }
-    </section>
-  }
-
   <footer class="agent-chat__composer">
-    @if (attachments().length) {
-      <ul class="agent-chat__composer-attachments" [attr.aria-label]="('agent.chat.attachments.label' | translateFallback: 'Attachments')">
-        @for (attachment of attachments(); track attachment.id) {
-          <li class="agent-chat__attachment-chip">
-            {{ attachment.name }}
-            <button
-              type="button"
-              class="agent-chat__chip-remove"
-              (click)="removeAttachment(attachment.id)"
-              [attr.aria-label]="('agent.chat.attachments.remove' | translateFallback: 'Remove attachment') + ' ' + attachment.name"
-            >
-              ×
-            </button>
-          </li>
-        }
-      </ul>
-    }
-    @if (knowledgeSources().length) {
-      <fieldset class="agent-chat__knowledge">
-        <legend class="agent-chat__knowledge-label">
-          {{ "agent.chat.knowledge.label" | translateFallback: "Knowledge base" }}
-        </legend>
-        @for (source of knowledgeSources(); track source.id) {
-          <label class="agent-chat__knowledge-option">
-            <input
-              type="checkbox"
-              [checked]="selectedKnowledgeIds().includes(source.id)"
-              (change)="toggleKnowledge(source.id)"
-            />
-            {{ source.label }}
-          </label>
-        }
-      </fieldset>
-    }
-    <div class="agent-chat__composer-row">
-      <input
-        #fileInput
-        class="agent-chat__file-input"
-        type="file"
-        multiple
-        aria-hidden="true"
-        tabindex="-1"
-        (change)="onFilesSelected($event)"
-      />
-      <button
-        type="button"
-        class="agent-chat__composer-button"
-        (click)="openAttachments($event, fileInput)"
-      >
-        {{ "agent.chat.attachments.add" | translateFallback: "Attach" }}
-      </button>
-      <label class="agent-chat__composer-label" for="agent-chat-draft">
-        {{ "agent.chat.composer.message.label" | translateFallback: "Message" }}
-      </label>
-      <textarea
-        id="agent-chat-draft"
-        class="agent-chat__composer-input"
-        rows="2"
-        [value]="draft()"
-        (input)="onDraftInput($any($event.target).value)"
-        (keydown)="onComposerKeydown($event)"
-        [placeholder]="'agent.chat.composer.message.placeholder' | translateFallback: 'Type a message…'"
+    @if (showSuggestions()) {
+      <ngx-decaf-chat-suggested-actions
+        [suggestions]="suggestions()"
         [disabled]="running()"
-      ></textarea>
-      <button
-        type="button"
-        class="agent-chat__composer-button agent-chat__composer-button--primary"
-        (click)="send()"
-        [disabled]="!canSend()"
-      >
-        {{ "agent.chat.composer.send" | translateFallback: "Send" }}
-      </button>
-      @if (running()) {
-        <button
-          type="button"
-          class="agent-chat__composer-button agent-chat__composer-button--danger"
-          (click)="cancel()"
-        >
-          {{ "agent.chat.composer.cancel" | translateFallback: "Cancel" }}
-        </button>
-      }
+        (select)="sendSuggestion($event)"
+      />
+    }
+
+    @if (showSlashCommands()) {
+      <ngx-decaf-chat-slash-commands
+        [commands]="slashCommands()"
+        [query]="slashQuery() ?? ''"
+        [open]="true"
+        (select)="onSlashCommand($event)"
+        (close)="closeSlashCommands()"
+      />
+    }
+
+    <ngx-decaf-chat-attachment-preview
+      [attachments]="attachments()"
+      (remove)="removeAttachment($event)"
+    />
+
+    <div class="agent-chat__composer-toolbar">
+      <ngx-decaf-chat-attachment-input
+        [disabled]="running()"
+        (filesSelected)="onFilesSelected($event)"
+      />
+
+      <ngx-decaf-chat-composer
+        [value]="draft()"
+        [running]="running()"
+        (valueChange)="onDraftInput($event)"
+        (send)="send($event)"
+        (stop)="cancel()"
+        (slashQuery)="onSlashQuery($event)"
+      />
+
+      <div class="agent-chat__composer-selectors">
+        @if (models().length) {
+          <ngx-decaf-chat-model-selector
+            [models]="models()"
+            [model]="selectedModel()"
+            [disabled]="running()"
+            (modelChange)="onModelChange($event)"
+          />
+        }
+        <ngx-decaf-chat-visibility-selector
+          [visibility]="currentVisibility()"
+          [disabled]="running()"
+          (visibilityChange)="onVisibilityChange($event)"
+        />
+      </div>
     </div>
   </footer>
+
+  @if (showKnowledgeBase()) {
+    <ngx-decaf-chat-knowledge-base-selector
+      [open]="knowledgeOpen()"
+      [entries]="effectiveKnowledgeEntries()"
+      [selectedIds]="selectedKnowledgeIds()"
+      (selectionChange)="onKnowledgeSelection($event)"
+      (entriesChange)="onKnowledgeEntries($event)"
+      (openChange)="closeKnowledgeBase($event)"
+    />
+  }
 </section>

@@ -1,0 +1,24 @@
+@if (visible()) {
+  <section
+    class="chat-suggested-actions"
+    [attr.aria-label]="'agent.chat.suggestedActions.label' | translateFallback: 'Suggested prompts'"
+  >
+    <h3 class="chat-suggested-actions__title">
+      {{ title() || ("agent.chat.suggestedActions.title" | translateFallback: "Try asking") }}
+    </h3>
+    <ul class="chat-suggested-actions__grid">
+      @for (suggestion of suggestions(); track suggestion) {
+        <li>
+          <button
+            type="button"
+            class="chat-suggested-actions__item"
+            [disabled]="disabled()"
+            (click)="choose(suggestion)"
+          >
+            {{ suggestion }}
+          </button>
+        </li>
+      }
+    </ul>
+  </section>
+}

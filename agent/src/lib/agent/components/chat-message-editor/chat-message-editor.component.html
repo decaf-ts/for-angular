@@ -1,0 +1,40 @@
+<form class="chat-message-editor" (submit)="onSubmit($event)">
+  <label class="chat-message-editor__label" [for]="textareaId">
+    {{ "agent.chat.messageEditor.label" | translateFallback: "Edit message" }}
+  </label>
+  <textarea
+    #textarea
+    class="chat-message-editor__input"
+    [id]="textareaId"
+    rows="3"
+    [value]="draft()"
+    [disabled]="running() || saving()"
+    [placeholder]="'agent.chat.messageEditor.placeholder' | translateFallback: 'Update your message…'"
+    (input)="onInput($any($event.target).value)"
+    (keydown)="onKeydown($event)"
+  ></textarea>
+
+  @if (error()) {
+    <p class="chat-message-editor__error" role="alert">{{ error() }}</p>
+  }
+
+  <div class="chat-message-editor__actions">
+    <button
+      type="submit"
+      class="chat-message-editor__button chat-message-editor__button--save"
+      [disabled]="!canSave()"
+    >
+      <ngx-decaf-chat-icon name="check" [size]="15" />
+      <span>{{ "agent.chat.messageEditor.save" | translateFallback: "Save and resend" }}</span>
+    </button>
+    <button
+      type="button"
+      class="chat-message-editor__button"
+      [disabled]="saving()"
+      (click)="cancelEdit()"
+    >
+      <ngx-decaf-chat-icon name="x" [size]="15" />
+      <span>{{ "agent.chat.messageEditor.cancel" | translateFallback: "Cancel" }}</span>
+    </button>
+  </div>
+</form>

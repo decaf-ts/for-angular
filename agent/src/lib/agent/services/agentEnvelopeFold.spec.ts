@@ -208,6 +208,199 @@ describe("agentChatFoldEnvelope", () => {
     });
   });
 
+  describe("parts and streaming", () => {
+    it("folds a parts array alongside the response text", () => {
+      const state = agentChatFoldEnvelope(
+        emptyAgentChatFoldState(),
+        envelope(3, GraphExecutionEventType.NODE_OUTPUT, {
+          payload: {
+            response: "the answer",
+            parts: [
+              { id: "reasoning", kind: "reasoning", content: "thinking", open: true },
+              { id: "answer", kind: "text", text: "the answer", streaming: false },
+              { id: "code", kind: "code", code: "const x = 1;", language: "typescript" },
+              { id: "tool-orders", kind: "tool", name: "orders", status: "succeeded" },
+            ],
+          },
+        }),
+      );
+
+      expect(state.messages[0].content).toBe("the answer");
+      expect(state.messages[0].parts).toEqual([
+        { id: "reasoning", kind: "reasoning", content: "thinking", open: true },
+        { id: "answer", kind: "text", text: "the answer", streaming: false },
+        { id: "code", kind: "code", code: "const x = 1;", language: "typescript" },
+        { id: "tool-orders", kind: "tool", name: "orders", status: "succeeded" },
+      ]);
+    });
+
+    it("derives fallback ids and drops unknown part kinds", () => {
+      const state = agentChatFoldEnvelope(
+        emptyAgentChatFoldState(),
+        envelope(1, GraphExecutionEventType.NODE_OUTPUT, {
+          payload: {
+            response: "ok",
+            parts: [
+              { kind: "text", text: "hello" },
+              { kind: "attachment" },
+              { kind: "mystery" },
+              "not-a-record",
+              { kind: "code", id: "", code: "x" },
+            ],
+          },
+        }),
+      );
+
+      expect(state.messages[0].parts).toEqual([
+        { kind: "text", text: "hello", id: "text-0" },
+        { kind: "attachment", id: "attachment-1" },
+        { kind: "code", id: "code-4", code: "x" },
+      ]);
+    });
+
+    it("accepts a parts-only payload without a response or text member", () => {
+      const state = agentChatFoldEnvelope(
+        emptyAgentChatFoldState(),
+        envelope(1, GraphExecutionEventType.NODE_OUTPUT, {
+          payload: {
+            streaming: true,
+            parts: [{ id: "answer", kind: "text", text: "hello", streaming: true }],
+          },
+        }),
+      );
+
+      expect(state.messages).toHaveLength(1);
+      expect(state.messages[0]).toMatchObject({
+        role: "assistant",
+        content: "",
+        streaming: true,
+      });
+      expect(state.messages[0].parts).toEqual([
+        { id: "answer", kind: "text", text: "hello", streaming: true },
+      ]);
+    });
+
+    it("updates a streamed message in place through the explicit messageId", () => {
+      const runId = RUN_ID;
+      const messageId = `${runId}:assistant`;
+      let state = agentChatFoldEnvelope(
+        emptyAgentChatFoldState(),
+        envelope(1, GraphExecutionEventType.NODE_OUTPUT, {
+          payload: {
+            messageId,
+            response: "Hel",
+            streaming: true,
+            parts: [{ id: "answer", kind: "text", text: "Hel", streaming: true }],
+          },
+        }),
+      );
+      state = agentChatFoldEnvelope(
+        state,
+        envelope(2, GraphExecutionEventType.NODE_OUTPUT, {
+          payload: {
+            messageId,
+            response: "Hello",
+            streaming: true,
+            parts: [{ id: "answer", kind: "text", text: "Hello", streaming: true }],
+          },
+        }),
+      );
+
+      expect(state.messages).toHaveLength(1);
+      expect(state.messages[0]).toMatchObject({
+        id: messageId,
+        content: "Hello",
+        streaming: true,
+      });
+      expect(state.messages[0].parts).toEqual([
+        { id: "answer", kind: "text", text: "Hello", streaming: true },
+      ]);
+    });
+
+    it("replaces the streamed message with the final non-streaming update", () => {
+      const messageId = `${RUN_ID}:assistant`;
+      let state = agentChatFoldEnvelope(
+        emptyAgentChatFoldState(),
+        envelope(1, GraphExecutionEventType.NODE_OUTPUT, {
+          payload: {
+            messageId,
+            response: "Hello",
+            streaming: true,
+            parts: [{ id: "answer", kind: "text", text: "Hello", streaming: true }],
+          },
+        }),
+      );
+      state = agentChatFoldEnvelope(
+        state,
+        envelope(2, GraphExecutionEventType.NODE_OUTPUT, {
+          payload: {
+            messageId,
+            response: "Hello world",
+            parts: [
+              { id: "answer", kind: "text", text: "Hello world", streaming: false },
+              { id: "code", kind: "code", code: "x = 1" },
+            ],
+          },
+        }),
+      );
+
+      expect(state.messages).toHaveLength(1);
+      expect(state.messages[0]).toMatchObject({
+        id: messageId,
+        content: "Hello world",
+      });
+      expect(state.messages[0].streaming).toBeUndefined();
+      expect(state.messages[0].parts).toEqual([
+        { id: "answer", kind: "text", text: "Hello world", streaming: false },
+        { id: "code", kind: "code", code: "x = 1" },
+      ]);
+    });
+
+    it("updates the newest streaming assistant message when no messageId is present", () => {
+      let state = agentChatFoldEnvelope(
+        emptyAgentChatFoldState(),
+        envelope(1, GraphExecutionEventType.NODE_OUTPUT, {
+          payload: { response: "one", streaming: true },
+        }),
+      );
+      state = agentChatFoldEnvelope(
+        state,
+        envelope(2, GraphExecutionEventType.NODE_OUTPUT, {
+          payload: { response: "one two", streaming: true },
+        }),
+      );
+      state = agentChatFoldEnvelope(
+        state,
+        envelope(3, GraphExecutionEventType.NODE_OUTPUT, {
+          payload: { response: "one two three" },
+        }),
+      );
+
+      expect(state.messages).toHaveLength(1);
+      expect(state.messages[0]).toMatchObject({
+        content: "one two three",
+        id: `${RUN_ID}:3`,
+      });
+      expect(state.messages[0].streaming).toBeUndefined();
+    });
+
+    it("keeps legacy response/text payloads free of parts and streaming flags", () => {
+      const state = agentChatFoldEnvelope(
+        emptyAgentChatFoldState(),
+        envelope(1, GraphExecutionEventType.NODE_OUTPUT, {
+          payload: { response: "legacy answer" },
+        }),
+      );
+
+      expect(state.messages[0]).toMatchObject({
+        content: "legacy answer",
+        role: "assistant",
+      });
+      expect(state.messages[0].parts).toBeUndefined();
+      expect(state.messages[0].streaming).toBeUndefined();
+    });
+  });
+
   describe("actions extraction", () => {
     it("extracts plain string action entries", () => {
       const state = agentChatFoldEnvelope(

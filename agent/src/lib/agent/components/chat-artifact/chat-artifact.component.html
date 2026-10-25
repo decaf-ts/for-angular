@@ -1,0 +1,57 @@
+<aside
+  class="chat-artifact"
+  [class.chat-artifact--streaming]="streaming()"
+  [attr.aria-busy]="streaming() ? 'true' : null"
+  [attr.aria-label]="title() || ('agent.chat.artifact.title' | translateFallback: 'Artifact')"
+>
+  <header class="chat-artifact__header">
+    <span class="chat-artifact__kind" [attr.data-kind]="kind()">
+      <ngx-decaf-chat-icon [name]="kindIcon()" [size]="14" />
+      {{ kindLabelKey() | translateFallback: kind() }}
+    </span>
+    <h3 class="chat-artifact__title">
+      {{ title() || ("agent.chat.artifact.untitled" | translateFallback: "Untitled artifact") }}
+    </h3>
+    <div class="chat-artifact__actions">
+      <ng-content select="[artifact-actions]" />
+      <span
+        class="chat-artifact__visibility"
+        [attr.data-visibility]="visibility()"
+      >
+        <ngx-decaf-chat-icon [name]="visibilityIcon()" [size]="12" />
+        {{ visibilityLabelKey() | translateFallback: visibility() }}
+      </span>
+      @if (closable()) {
+        <button
+          type="button"
+          class="chat-artifact__close"
+          (click)="closeArtifact()"
+          [attr.aria-label]="'agent.chat.artifact.close' | translateFallback: 'Close artifact'"
+        >
+          <ngx-decaf-chat-icon name="x" [size]="15" />
+        </button>
+      }
+    </div>
+  </header>
+
+  <div class="chat-artifact__body">
+    @if (hasMedia()) {
+      <img
+        class="chat-artifact__image"
+        [src]="content()"
+        [alt]="imageAlt() || title() || ('agent.chat.artifact.imageAlt' | translateFallback: 'Artifact preview')"
+      />
+    } @else if (content() !== null && content() !== "") {
+      <pre class="chat-artifact__content" tabindex="0">{{ content() }}</pre>
+    } @else {
+      <ng-content />
+    }
+  </div>
+
+  @if (streaming()) {
+    <footer class="chat-artifact__footer" aria-live="polite">
+      <ngx-decaf-chat-icon name="loader" [size]="13" />
+      {{ "agent.chat.artifact.streaming" | translateFallback: "Streaming content…" }}
+    </footer>
+  }
+</aside>

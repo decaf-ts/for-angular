@@ -1,0 +1,98 @@
+:host {
+  display: block;
+}
+
+.chat-artifact-skeleton {
+  --skeleton-base: var(--gx-surface-hover, rgba(148, 163, 184, 0.16));
+  --skeleton-shine: var(--gx-surface-panel, rgba(148, 163, 184, 0.28));
+}
+
+.chat-artifact-skeleton--full {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 12rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--gx-border-soft);
+  border-radius: 10px;
+  background: var(--gx-surface-panel);
+}
+
+.chat-artifact-skeleton__header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.chat-artifact-skeleton__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.chat-artifact-skeleton__bar {
+  display: block;
+  border-radius: 5px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 0%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-base) 100%
+  );
+  background-size: 200% 100%;
+  animation: chat-artifact-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.chat-artifact-skeleton__bar--badge {
+  width: 3.25rem;
+  height: 0.95rem;
+}
+
+.chat-artifact-skeleton__bar--title {
+  flex: 1 1 auto;
+  height: 0.85rem;
+}
+
+.chat-artifact-skeleton__bar--action {
+  width: 1.6rem;
+  height: 0.95rem;
+}
+
+.chat-artifact-skeleton__bar--line {
+  height: 0.7rem;
+}
+
+.chat-artifact-skeleton--inline {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.chat-artifact-skeleton__bar--inline {
+  width: 2.5rem;
+  height: 0.7rem;
+}
+
+.chat-artifact-skeleton__label {
+  font-size: 0.72rem;
+  color: var(--gx-text-muted);
+}
+
+.chat-artifact-skeleton--full .chat-artifact-skeleton__label {
+  margin-top: auto;
+}
+
+@keyframes chat-artifact-skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-artifact-skeleton__bar {
+    animation: none;
+  }
+}

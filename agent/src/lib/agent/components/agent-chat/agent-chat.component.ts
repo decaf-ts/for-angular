@@ -1,68 +1,114 @@
 /**
  * @module for-angular/agent/components/agent-chat
- * @summary Standalone `ngx-decaf-agent-chat` component: agent conversation UI
- * on top of {@link AgentChatService} (slice U3 of SAA-836).
- * @description Renders the full agent chat surface:
+ * @summary Standalone `ngx-decaf-agent-chat` composition root: the complete
+ * agent conversation surface built from the chat component suite.
+ * @description Composes the per-component chat primitives into one public
+ * contract. The selector (`ngx-decaf-agent-chat`) and the existing inputs
+ * (`workflow`, `workflowId`, `sessionId`, `headerTitleKey`,
+ * `headerTitleFallback`, `knowledgeSources`) are unchanged; the template now
+ * delegates rendering to `chat-conversation`, `chat-message`,
+ * `chat-message-actions`, `chat-message-editor`, `chat-thinking-message`,
+ * `chat-greeting`, `chat-composer`, the attachment family,
+ * `chat-suggested-actions`, `chat-slash-commands`, the model/visibility
+ * selectors, `chat-history`, `chat-knowledge-base-selector`,
+ * `chat-telemetry`, and `chat-structured-object`.
  *
- * - A transcript `<section role="log" aria-live="polite">` with per-role
- *   styling, action chips, attachment chips, and auto-scroll to the newest
- *   message (deferred to `ngAfterViewChecked` via a `scrollPending` flag so
- *   the DOM is measured after rendering).
- * - A composer with Enter-to-send / Shift+Enter-newline handling, UI-only
- *   attachments (metadata only; file contents are never read), and a
- *   knowledge-base selector whose selections are forwarded as
- *   `knowledgeBaseIds` run inputs.
- * - A collapsible telemetry strip fed by
- *   {@link AgentChatRoundtripTelemetry} rows.
- * - A structured-object (use-object) panel reusing
- *   {@link GraphIoViewerComponent} for the latest
- *   {@link AgentChatStructuredObjectView}.
- * - Namespace chips derived from `graphAuthMetadataOf` on the configured
- *   workflow document's metadata, advertising the document's required
- *   authorization namespaces.
- *
- * All user-facing strings flow through the {@link AgentTranslateFallbackPipe}
- * over the `agent.chat.*` i18n subtree so a missing key degrades to the
- * hardcoded English fallback instead of a raw key.
+ * Conversation state still lives in {@link AgentChatService}; the component
+ * only owns UI state (draft, staged attachments, open drawers, inline editing,
+ * votes and selectors). Every user-facing string is resolved through
+ * {@link AgentTranslateFallbackPipe} over the `agent.chat.*` i18n subtree.
  */
 import {
-  AfterViewChecked,
   Component,
-  ElementRef,
+  DestroyRef,
   OnInit,
   computed,
-  effect,
   inject,
   input,
+  output,
   signal,
   viewChild,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import type { GraphWorkflowDocument } from "@decaf-ts/as-graph/shared";
 import { graphAuthMetadataOf } from "@decaf-ts/as-graph/shared";
-import { GraphTranslateService, GraphIoViewerComponent } from "@decaf-ts/for-angular/diagrams";
+import { GraphTranslateService } from "@decaf-ts/for-angular/diagrams";
 import { AgentTranslateFallbackPipe } from "../../i18n/agent-translate-fallback.pipe";
 import { AgentChatService } from "../../services/AgentChatService";
+import {
+  AGENT_CHAT_HISTORY_SOURCE,
+  AGENT_CHAT_KNOWLEDGE_BASE_SOURCE,
+} from "../../tokens/agent-chat.tokens";
 import type {
   AgentChatAttachment,
+  AgentChatHistoryEntry,
+  AgentChatKnowledgeBaseEntry,
   AgentChatKnowledgeSource,
+  AgentChatMessageEdit,
+  AgentChatMessageVoteChange,
+  AgentChatModel,
   AgentChatRunDescriptor,
+  AgentChatSlashCommand,
+  AgentChatStagedAttachment,
+  AgentChatTranscriptDownload,
+  AgentChatVisibility,
 } from "../../types";
+import { ChatConversationComponent } from "../chat-conversation/chat-conversation.component";
+import { ChatMessageComponent } from "../chat-message/chat-message.component";
+import { ChatMessageActionsComponent } from "../chat-message-actions/chat-message-actions.component";
+import { ChatMessageEditorComponent } from "../chat-message-editor/chat-message-editor.component";
+import { ChatThinkingMessageComponent } from "../chat-thinking-message/chat-thinking-message.component";
+import { ChatGreetingComponent } from "../chat-greeting/chat-greeting.component";
+import { ChatComposerComponent } from "../chat-composer/chat-composer.component";
+import { ChatAttachmentInputComponent } from "../chat-attachment-input/chat-attachment-input.component";
+import { ChatAttachmentPreviewComponent } from "../chat-attachment-preview/chat-attachment-preview.component";
+import { ChatSuggestedActionsComponent } from "../chat-suggested-actions/chat-suggested-actions.component";
+import { ChatSlashCommandsComponent } from "../chat-slash-commands/chat-slash-commands.component";
+import { ChatModelSelectorComponent } from "../chat-model-selector/chat-model-selector.component";
+import { ChatVisibilitySelectorComponent } from "../chat-visibility-selector/chat-visibility-selector.component";
+import { ChatHistoryComponent } from "../chat-history/chat-history.component";
+import { ChatKnowledgeBaseSelectorComponent } from "../chat-knowledge-base-selector/chat-knowledge-base-selector.component";
+import { ChatTelemetryComponent } from "../chat-telemetry/chat-telemetry.component";
+import { ChatStructuredObjectComponent } from "../chat-structured-object/chat-structured-object.component";
+import { ChatHeaderComponent } from "../chat-header/chat-header.component";
 
 /**
- * The agent chat component. Provides a fresh {@link AgentChatService} instance
- * per component (see `providers`), configures it from the inputs on
- * `ngOnInit`, and keeps all conversation state in signals.
+ * Composition root of the agent chat UI. Projects the conversation signals from
+ * {@link AgentChatService} into the component suite, owns transient UI state
+ * (draft, attachments, drawers, inline edit, selectors), and forwards user
+ * actions back to the service and transport.
  */
 @Component({
   selector: "ngx-decaf-agent-chat",
   templateUrl: "./agent-chat.component.html",
   styleUrls: ["./agent-chat.component.scss"],
-  imports: [CommonModule, GraphIoViewerComponent, AgentTranslateFallbackPipe],
+  imports: [
+    CommonModule,
+    AgentTranslateFallbackPipe,
+    ChatConversationComponent,
+    ChatMessageComponent,
+    ChatMessageActionsComponent,
+    ChatMessageEditorComponent,
+    ChatThinkingMessageComponent,
+    ChatGreetingComponent,
+    ChatComposerComponent,
+    ChatAttachmentInputComponent,
+    ChatAttachmentPreviewComponent,
+    ChatSuggestedActionsComponent,
+    ChatSlashCommandsComponent,
+    ChatModelSelectorComponent,
+    ChatVisibilitySelectorComponent,
+    ChatHistoryComponent,
+    ChatKnowledgeBaseSelectorComponent,
+    ChatTelemetryComponent,
+    ChatStructuredObjectComponent,
+    ChatHeaderComponent,
+  ],
   providers: [AgentChatService],
   standalone: true,
 })
-export class AgentChatComponent implements OnInit, AfterViewChecked {
+export class AgentChatComponent implements OnInit {
   /** Inline workflow document to run for each message; overrides `workflowId` when set. */
   readonly workflow = input<GraphWorkflowDocument | null>(null);
   /** Backend workflow id used when no inline document is provided. */
@@ -75,22 +121,60 @@ export class AgentChatComponent implements OnInit, AfterViewChecked {
   readonly headerTitleFallback = input<string>("Agent chat");
   /** Knowledge-base entries offered by the composer's selector. */
   readonly knowledgeSources = input<AgentChatKnowledgeSource[]>([]);
+  /** Suggested prompts shown above the composer on an empty transcript. */
+  readonly suggestions = input<string[]>([]);
+  /** Slash commands offered by the composer popover. */
+  readonly slashCommands = input<AgentChatSlashCommand[]>([]);
+  /** Models offered by the composer's model selector. */
+  readonly models = input<AgentChatModel[]>([]);
+  /** Initial conversation visibility. */
+  readonly visibility = input<AgentChatVisibility>("private");
+  /** Whether the history rail is shown. */
+  readonly showHistory = input<boolean>(true);
+  /** Whether the knowledge-base selector is available. */
+  readonly showKnowledgeBase = input<boolean>(true);
+  /** Emits the transcript download payload produced by the conversation toolbar. */
+  readonly download = output<AgentChatTranscriptDownload>();
+  /** Emits the selected chat-history entry. */
+  readonly historySelected = output<AgentChatHistoryEntry>();
 
   /** Conversation state service owned by this component instance. */
   readonly service = inject(AgentChatService);
+  private readonly historySource = inject(AGENT_CHAT_HISTORY_SOURCE);
+  private readonly knowledgeBaseSource = inject(AGENT_CHAT_KNOWLEDGE_BASE_SOURCE);
   private readonly translate = inject(GraphTranslateService);
-  private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly destroyRef = inject(DestroyRef);
 
   /** Composer draft text. */
   readonly draft = signal("");
-  /** Attachments staged for the next send (UI metadata only). */
-  readonly attachments = signal<AgentChatAttachment[]>([]);
+  /** Staged attachments (metadata plus optional original file for previews). */
+  readonly attachments = signal<AgentChatStagedAttachment[]>([]);
   /** Knowledge-base ids staged for the next send. */
   readonly selectedKnowledgeIds = signal<string[]>([]);
-  /** Whether the telemetry strip is expanded. */
-  readonly showTelemetry = signal(false);
-  /** Whether the structured-object panel is expanded. */
-  readonly showStructured = signal(false);
+  /** Whether the telemetry panel is expanded. */
+  readonly telemetryOpen = signal(false);
+  /** Whether the history rail is expanded. */
+  readonly historyOpen = signal(true);
+  /** Whether the knowledge-base selector is open. */
+  readonly knowledgeOpen = signal(false);
+  /** Id of the message currently being edited inline, or `null`. */
+  readonly editingMessageId = signal<string | null>(null);
+  /** Active slash-command query, or `null` when not composing one. */
+  readonly slashQuery = signal<string | null>(null);
+  /** Loaded history entries. */
+  readonly historyEntries = signal<AgentChatHistoryEntry[]>([]);
+  /** Loaded knowledge-base entries. */
+  readonly knowledgeEntries = signal<AgentChatKnowledgeBaseEntry[]>([]);
+  /** Active history entry id. */
+  readonly activeHistoryId = signal<string | null>(null);
+  /** Selected model, or `null` when the selector is idle. */
+  readonly selectedModel = signal<AgentChatModel | string | null>(null);
+  /** Local visibility state (optimistic; there is no backend in demo mode). */
+  readonly currentVisibility = signal<AgentChatVisibility>("private");
+  /** Reference to the composed composer for slash-command insertion and focus. */
+  readonly composer = viewChild(ChatComposerComponent);
+  /** Hidden attachment input reference used by the legacy attach action. */
+  readonly attachmentInput = viewChild(ChatAttachmentInputComponent);
 
   /** Transcript messages (from {@link AgentChatService.messages}). */
   readonly messages = computed(() => this.service.messages());
@@ -104,22 +188,11 @@ export class AgentChatComponent implements OnInit, AfterViewChecked {
   readonly structuredObject = computed(() => this.service.structuredObject());
   /** Tri-state backend reachability (from {@link AgentChatService.backendAvailable}). */
   readonly backendAvailable = computed(() => this.service.backendAvailable());
-
-  /** Transcript scroll container (queried after view init for auto-scroll). */
-  readonly transcript = viewChild.required<ElementRef<HTMLElement>>("transcript");
-  /** Set whenever new messages/roundtrips land; consumed by `ngAfterViewChecked` to auto-scroll. */
-  private scrollPending = false;
-
-  /** Header title resolved through the translation service with the configured key/fallback. */
+  /** Header title resolved through the translation service. */
   readonly title = computed(() =>
     this.translate.key(this.headerTitleKey(), this.headerTitleFallback()),
   );
-
-  /**
-   * Required authorization namespaces advertised as header chips, derived from
-   * `graphAuthMetadataOf` on the configured workflow document's metadata
-   * (empty when no workflow is configured).
-   */
+  /** Required authorization namespaces advertised as header chips. */
   readonly requiredNamespaces = computed<string[]>(() => {
     const document = this.workflow();
     const auth = document
@@ -127,132 +200,143 @@ export class AgentChatComponent implements OnInit, AfterViewChecked {
       : undefined;
     return auth?.namespaces ?? [];
   });
-
   /** Whether the composer can send: not running and non-blank draft. */
   readonly canSend = computed(
     () => !this.running() && this.draft().trim().length > 0,
+  );
+  /** The thinking placeholder shows only while no assistant text is streaming. */
+  readonly showThinking = computed(
+    () =>
+      this.running() &&
+      !this.messages().some((message) => message.streaming === true),
+  );
+  /** Number of staged knowledge-base ids. */
+  readonly selectedKnowledgeCount = computed(
+    () => this.selectedKnowledgeIds().length,
+  );
+  /** Suggested prompts only make sense before the first exchange. */
+  readonly showSuggestions = computed(
+    () => !this.messages().length && this.suggestions().length > 0,
+  );
+  /** Slash-command popover visibility. */
+  readonly showSlashCommands = computed(
+    () => this.slashQuery() !== null && this.slashCommands().length > 0,
+  );
+  /** Knowledge entries: the loaded source when available, else input sources. */
+  readonly effectiveKnowledgeEntries = computed<AgentChatKnowledgeBaseEntry[]>(
+    () => {
+      const entries = this.knowledgeEntries();
+      if (entries.length) return entries;
+      return this.knowledgeSources().map((source) => ({ ...source }));
+    },
+  );
+  /** The message currently being edited, or `null`. */
+  readonly editingMessage = computed(() => {
+    const id = this.editingMessageId();
+    return id ? this.messages().find((message) => message.id === id) ?? null : null;
+  });
+  /** Structured object carrying partial (streaming) state. */
+  readonly structuredPartial = computed(
+    () => !!this.structuredObject() && this.running(),
   );
 
   /** Static class counter backing staged attachment ids (`attachment:<n>`). */
   private static attachmentSequence = 0;
 
   constructor() {
-    effect(() => {
-      void this.messages().length;
-      void this.roundtrips().length;
-      this.running();
-      this.scrollPending = true;
-    });
+    this.currentVisibility.set(this.visibility());
   }
 
-  /** Configures {@link service} from the current inputs (workflow, workflowId, sessionId). */
+  /** Configures the service from the current inputs and loads the data sources. */
   ngOnInit(): void {
     this.service.configure({
       workflow: this.workflow() ?? undefined,
       workflowId: this.workflowId(),
       sessionId: this.sessionId(),
     });
+    this.historySource
+      .list({ page: 1, pageSize: 20 })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((entries) => this.historyEntries.set(entries ?? []));
+    this.knowledgeBaseSource
+      .list()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((entries) => this.knowledgeEntries.set(entries ?? []));
   }
 
-  /** Consumes the `scrollPending` flag by scrolling the transcript to its newest content. */
-  ngAfterViewChecked(): void {
-    if (!this.scrollPending) return;
-    this.scrollPending = false;
-    const element = this.transcript()?.nativeElement;
-    if (element) element.scrollTop = element.scrollHeight;
-  }
-
-  /** Updates the composer draft signal from the textarea's `input` event.
-   *
-   * @param value - The textarea's current value.
-   */
+  /** Keeps the composer draft in sync with the textarea. */
   onDraftInput(value: string): void {
     this.draft.set(value);
   }
 
-  /**
-   * Composer keyboard handling: `Enter` sends the message, `Shift+Enter`
-   * inserts a newline.
-   *
-   * @param event - The composer textarea's keydown event.
-   */
-  onComposerKeydown(event: KeyboardEvent): void {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      void this.send();
-    }
-  }
-
-  /**
-   * Sends the current draft with staged attachments/knowledge selections,
-   * clearing them first so the composer is ready while the roundtrip streams.
-   * No-op when {@link canSend} is `false`.
-   */
-  async send(): Promise<void> {
-    if (!this.canSend()) return;
-    const text = this.draft().trim();
-    const attachments = this.attachments();
+  /** Sends the trimmed draft with staged attachments and knowledge selections. */
+  async send(message: string = this.draft()): Promise<void> {
+    const text = message.trim();
+    if (!text || this.running()) return;
+    const attachments = this.attachments().map(toAttachment);
     const knowledgeIds = this.selectedKnowledgeIds();
     this.draft.set("");
     this.attachments.set([]);
     this.selectedKnowledgeIds.set([]);
-    this.scrollPending = true;
+    this.slashQuery.set(null);
     await this.service.send(text, attachments, knowledgeIds);
   }
 
-  /** Cancels the active run via {@link AgentChatService.cancel}. */
+  /** Sends a suggested prompt immediately. */
+  async sendSuggestion(suggestion: string): Promise<void> {
+    if (this.running()) return;
+    this.draft.set(suggestion);
+    await this.send(suggestion);
+  }
+
+  /** Cancels the active run. */
   async cancel(): Promise<void> {
     await this.service.cancel();
   }
 
-  /** Replays a recorded run's envelopes via {@link AgentChatService.replay}.
-   *
-   * @param descriptor - The recorded run descriptor to replay.
-   */
+  /** Replays a recorded run's envelopes. */
   async replay(descriptor: AgentChatRunDescriptor): Promise<void> {
     await this.service.replay(descriptor);
   }
 
-  /** Opens the hidden file input (metadata-only attachments; contents are never read).
-   *
-   * @param event - The triggering mouse/touch event (prevented).
-   * @param input - The hidden file input to open.
-   */
-  openAttachments(event: Event, input: HTMLInputElement): void {
-    event.preventDefault();
-    input.click();
-  }
-
-  /** Converts selected files into staged attachment chips (id/name/mime/size) and resets the input.
-   *
-   * @param event - The file input's `change` event.
-   */
-  onFilesSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const files = input.files;
-    if (!files) return;
-    const added = Array.from(files).map((file) => ({
+  /** Adds files selected through the composed attachment input. */
+  onFilesSelected(files: File[]): void {
+    const added = files.map<AgentChatStagedAttachment>((file) => ({
       id: `attachment:${++AgentChatComponent.attachmentSequence}`,
       name: file.name,
       mime: file.type || "application/octet-stream",
       size: file.size,
+      file,
     }));
     this.attachments.set([...this.attachments(), ...added]);
-    input.value = "";
   }
 
-  /** Removes a staged attachment by id.
-   *
-   * @param id - The staged attachment id to remove.
-   */
+  /** Removes a staged attachment by id. */
   removeAttachment(id: string): void {
     this.attachments.set(this.attachments().filter((entry) => entry.id !== id));
   }
 
-  /** Toggles a knowledge-base id in the staged selection.
-   *
-   * @param id - The knowledge-base id to toggle.
-   */
+  /** Opens the knowledge-base selector. */
+  openKnowledgeBase(): void {
+    this.knowledgeOpen.set(true);
+  }
+
+  /** Closes the knowledge-base selector. */
+  closeKnowledgeBase(open: boolean): void {
+    this.knowledgeOpen.set(open);
+  }
+
+  /** Syncs the staged knowledge-selection ids. */
+  onKnowledgeSelection(ids: string[]): void {
+    this.selectedKnowledgeIds.set(ids);
+  }
+
+  /** Refreshes the knowledge-base entries after an upload. */
+  onKnowledgeEntries(entries: AgentChatKnowledgeBaseEntry[]): void {
+    this.knowledgeEntries.set(entries ?? []);
+  }
+
+  /** Toggles a knowledge-base id (compatibility inline path). */
   toggleKnowledge(id: string): void {
     const selected = this.selectedKnowledgeIds();
     this.selectedKnowledgeIds.set(
@@ -262,33 +346,110 @@ export class AgentChatComponent implements OnInit, AfterViewChecked {
     );
   }
 
-  /** Shows/hides the telemetry strip. */
+  /** Toggles the telemetry panel. */
   toggleTelemetry(): void {
-    this.showTelemetry.update((visible) => !visible);
+    this.telemetryOpen.update((open) => !open);
   }
 
-  /** Shows/hides the structured-object viewer. */
-  toggleStructured(): void {
-    this.showStructured.update((visible) => !visible);
+  /** Toggles the history rail. */
+  toggleHistory(): void {
+    this.historyOpen.update((open) => !open);
   }
 
-  /** `@for` track-by: transcript messages are identified by their `id`.
-   *
-   * @param _ - Unused Angular track-by index.
-   * @param message - The iterated message view.
-   * @returns The message's tracking id.
-   */
+  /** Opens a history entry (in-memory: resets the transcript and marks it active). */
+  onSelectHistory(entry: AgentChatHistoryEntry): void {
+    if (this.running()) return;
+    this.activeHistoryId.set(entry.id);
+    this.editingMessageId.set(null);
+    this.service.reset();
+    this.historySelected.emit(entry);
+  }
+
+  /** Starts a fresh conversation. */
+  onNewChat(): void {
+    if (this.running()) return;
+    this.activeHistoryId.set(null);
+    this.editingMessageId.set(null);
+    this.service.reset();
+  }
+
+  /** Deletes a history entry through the injected source. */
+  async onDeleteHistory(entry: AgentChatHistoryEntry): Promise<void> {
+    const result = this.historySource.delete?.(entry.id);
+    if (result) await Promise.resolve(result);
+    this.historyEntries.set(
+      this.historyEntries().filter((candidate) => candidate.id !== entry.id),
+    );
+    if (this.activeHistoryId() === entry.id) this.activeHistoryId.set(null);
+  }
+
+  /** Tracks the composer slash query and opens the command popover. */
+  onSlashQuery(query: string | null): void {
+    this.slashQuery.set(query);
+  }
+
+  /** Inserts the selected slash command into the composer. */
+  onSlashCommand(command: AgentChatSlashCommand): void {
+    this.composer()?.acceptSlashCommand(command.name);
+    this.slashQuery.set(null);
+  }
+
+  /** Closes the slash-command popover. */
+  closeSlashCommands(): void {
+    this.slashQuery.set(null);
+  }
+
+  /** Records the selected model. */
+  onModelChange(model: AgentChatModel): void {
+    this.selectedModel.set(model);
+  }
+
+  /** Records the selected conversation visibility. */
+  onVisibilityChange(visibility: AgentChatVisibility): void {
+    this.currentVisibility.set(visibility);
+  }
+
+  /** Starts inline editing for a message. */
+  startEdit(messageId: string): void {
+    if (this.running()) return;
+    this.editingMessageId.set(messageId);
+  }
+
+  /** Saves an inline edit and re-sends the message. */
+  async saveEdit(edit: AgentChatMessageEdit): Promise<void> {
+    this.editingMessageId.set(null);
+    await this.service.editMessage(edit.messageId, edit.text);
+  }
+
+  /** Cancels inline editing. */
+  cancelEdit(): void {
+    this.editingMessageId.set(null);
+  }
+
+  /** Records a vote change on a message. */
+  onVoteChange(change: AgentChatMessageVoteChange): void {
+    this.service.setVote(change.messageId, change.vote);
+  }
+
+  /** Removes a message from the local transcript. */
+  onDeleteMessage(messageId: string): void {
+    if (this.editingMessageId() === messageId) this.editingMessageId.set(null);
+    this.service.removeMessage(messageId);
+  }
+
+  /** Forwards the transcript download payload to consumers. */
+  onDownload(payload: AgentChatTranscriptDownload): void {
+    this.download.emit(payload);
+  }
+
+  /** `@for` track-by for transcript messages. */
   trackMessage(_: number, message: { id: string }): string {
     return message.id;
   }
+}
 
-  /** `@for` track-by: telemetry rows are identified by their `runId`.
-   *
-   * @param _ - Unused Angular track-by index.
-   * @param roundtrip - The iterated telemetry row.
-   * @returns The row's tracking run id.
-   */
-  trackRoundtrip(_: number, roundtrip: { runId: string }): string {
-    return roundtrip.runId;
-  }
+/** Strips the browser file from a staged attachment before sending it. */
+function toAttachment(attachment: AgentChatStagedAttachment): AgentChatAttachment {
+  const { file: _file, ...metadata } = attachment;
+  return metadata;
 }

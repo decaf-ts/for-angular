@@ -1,0 +1,57 @@
+<header class="chat-header">
+  <div class="chat-header__heading">
+    <h2 class="chat-header__title">
+      {{ titleKey() | translateFallback: titleFallback() }}
+    </h2>
+    @if (namespaces().length) {
+      <div
+        class="chat-header__namespaces"
+        role="note"
+        [attr.aria-label]="'agent.chat.namespaces.label' | translateFallback: 'Required namespaces'"
+      >
+        <span class="chat-header__namespaces-label">
+          {{ "agent.chat.namespaces.label" | translateFallback: "Namespaces" }}
+        </span>
+        @for (namespace of namespaces(); track namespace) {
+          <span class="chat-header__namespace-chip">{{ namespace }}</span>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="chat-header__actions">
+    @if (showHistory()) {
+      <button
+        type="button"
+        class="chat-header__action"
+        (click)="historyToggle.emit()"
+        [attr.aria-expanded]="historyOpen()"
+        [attr.aria-pressed]="historyOpen()"
+      >
+        {{ "agent.chat.history.title" | translateFallback: "Chat history" }}
+      </button>
+    }
+    @if (showKnowledgeBase()) {
+      <button
+        type="button"
+        class="chat-header__action"
+        (click)="knowledgeBaseOpen.emit()"
+        [attr.aria-expanded]="knowledgeOpen()"
+      >
+        {{ "agent.chat.knowledge.label" | translateFallback: "Knowledge base" }}
+        @if (selectedKnowledgeCount()) {
+          <span class="chat-header__badge">{{ selectedKnowledgeCount() }}</span>
+        }
+      </button>
+    }
+    <button
+      type="button"
+      class="chat-header__action"
+      (click)="telemetryToggle.emit()"
+      [attr.aria-expanded]="telemetryOpen()"
+      [attr.aria-pressed]="telemetryOpen()"
+    >
+      {{ (telemetryOpen() ? "agent.chat.telemetry.hide" : "agent.chat.telemetry.show") | translateFallback: "Telemetry" }}
+    </button>
+  </div>
+</header>

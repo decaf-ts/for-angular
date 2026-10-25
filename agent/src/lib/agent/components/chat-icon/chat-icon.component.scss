@@ -1,0 +1,32 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  color: inherit;
+  flex: 0 0 auto;
+}
+
+.chat-icon {
+  display: block;
+  overflow: visible;
+}
+
+.chat-icon--spin {
+  animation: chat-icon-spin 1s linear infinite;
+}
+
+@keyframes chat-icon-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-icon--spin {
+    animation: none;
+  }
+}

@@ -1,0 +1,137 @@
+<section
+  class="chat-artifact-diff"
+  [attr.data-mode]="activeMode()"
+  [attr.aria-label]="'agent.chat.artifact.diff.label' | translateFallback: 'Artifact changes'"
+>
+  <header class="chat-artifact-diff__header">
+    <span class="chat-artifact-diff__caption">
+      {{ "agent.chat.artifact.diff.caption" | translateFallback: "Previous vs current" }}
+    </span>
+    <span class="chat-artifact-diff__stats">
+      <span
+        class="chat-artifact-diff__stat chat-artifact-diff__stat--added"
+        [attr.aria-label]="('agent.chat.artifact.diff.added' | translateFallback: 'Added lines') + ': ' + stats().added"
+      >
+        <ngx-decaf-chat-icon name="chevron-up" [size]="11" />
+        {{ stats().added }}
+      </span>
+      <span
+        class="chat-artifact-diff__stat chat-artifact-diff__stat--removed"
+        [attr.aria-label]="('agent.chat.artifact.diff.removed' | translateFallback: 'Removed lines') + ': ' + stats().removed"
+      >
+        <ngx-decaf-chat-icon name="chevron-down" [size]="11" />
+        {{ stats().removed }}
+      </span>
+    </span>
+    @if (showToggle()) {
+      <div
+        class="chat-artifact-diff__modes"
+        role="group"
+        [attr.aria-label]="'agent.chat.artifact.diff.mode' | translateFallback: 'Diff display mode'"
+      >
+        <button
+          type="button"
+          class="chat-artifact-diff__mode"
+          [class.chat-artifact-diff__mode--active]="activeMode() === 'side-by-side'"
+          [attr.aria-pressed]="activeMode() === 'side-by-side'"
+          (click)="setMode('side-by-side')"
+        >
+          {{ "agent.chat.artifact.diff.sideBySide" | translateFallback: "Side-by-side" }}
+        </button>
+        <button
+          type="button"
+          class="chat-artifact-diff__mode"
+          [class.chat-artifact-diff__mode--active]="activeMode() === 'inline'"
+          [attr.aria-pressed]="activeMode() === 'inline'"
+          (click)="setMode('inline')"
+        >
+          {{ "agent.chat.artifact.diff.inline" | translateFallback: "Inline" }}
+        </button>
+      </div>
+    }
+  </header>
+
+  @if (!changed()) {
+    <p class="chat-artifact-diff__empty">
+      <ngx-decaf-chat-icon name="check" [size]="14" />
+      {{ "agent.chat.artifact.diff.noChanges" | translateFallback: "No changes" }}
+    </p>
+  } @else if (activeMode() === "inline") {
+    <div class="chat-artifact-diff__inline" role="list">
+      @for (row of rows(); track $index) {
+        @switch (row.kind) {
+          @case ("equal") {
+            <div class="chat-artifact-diff__line chat-artifact-diff__line--equal" role="listitem">
+              <span class="chat-artifact-diff__number">{{ row.previous?.number }}</span>
+              <span class="chat-artifact-diff__sign" aria-hidden="true"> </span>
+              <span class="chat-artifact-diff__text">{{ row.previous?.text }}</span>
+            </div>
+          }
+          @case ("added") {
+            <div class="chat-artifact-diff__line chat-artifact-diff__line--added" role="listitem">
+              <span class="chat-artifact-diff__number">{{ row.current?.number }}</span>
+              <span class="chat-artifact-diff__sign" aria-hidden="true">+</span>
+              <span class="chat-artifact-diff__text">{{ row.current?.text }}</span>
+              <span class="chat-artifact-diff__sr">
+                {{ "agent.chat.artifact.diff.added" | translateFallback: "Added line" }}
+              </span>
+            </div>
+          }
+          @case ("removed") {
+            <div class="chat-artifact-diff__line chat-artifact-diff__line--removed" role="listitem">
+              <span class="chat-artifact-diff__number">{{ row.previous?.number }}</span>
+              <span class="chat-artifact-diff__sign" aria-hidden="true">−</span>
+              <span class="chat-artifact-diff__text">{{ row.previous?.text }}</span>
+              <span class="chat-artifact-diff__sr">
+                {{ "agent.chat.artifact.diff.removed" | translateFallback: "Removed line" }}
+              </span>
+            </div>
+          }
+          @case ("changed") {
+            <div class="chat-artifact-diff__line chat-artifact-diff__line--removed" role="listitem">
+              <span class="chat-artifact-diff__number">{{ row.previous?.number }}</span>
+              <span class="chat-artifact-diff__sign" aria-hidden="true">−</span>
+              <span class="chat-artifact-diff__text">{{ row.previous?.text }}</span>
+              <span class="chat-artifact-diff__sr">
+                {{ "agent.chat.artifact.diff.removed" | translateFallback: "Removed line" }}
+              </span>
+            </div>
+            <div class="chat-artifact-diff__line chat-artifact-diff__line--added" role="listitem">
+              <span class="chat-artifact-diff__number">{{ row.current?.number }}</span>
+              <span class="chat-artifact-diff__sign" aria-hidden="true">+</span>
+              <span class="chat-artifact-diff__text">{{ row.current?.text }}</span>
+              <span class="chat-artifact-diff__sr">
+                {{ "agent.chat.artifact.diff.added" | translateFallback: "Added line" }}
+              </span>
+            </div>
+          }
+        }
+      }
+    </div>
+  } @else {
+    <div class="chat-artifact-diff__side">
+      <div class="chat-artifact-diff__side-header" aria-hidden="true">
+        <span>{{ "agent.chat.artifact.diff.previous" | translateFallback: "Previous" }}</span>
+        <span>{{ "agent.chat.artifact.diff.current" | translateFallback: "Current" }}</span>
+      </div>
+      @for (row of rows(); track $index) {
+        <div class="chat-artifact-diff__side-row" [attr.data-kind]="row.kind">
+          <div
+            class="chat-artifact-diff__side-cell chat-artifact-diff__side-cell--previous"
+            [class.chat-artifact-diff__side-cell--empty]="!row.previous"
+          >
+            <span class="chat-artifact-diff__number">{{ row.previous?.number }}</span>
+            <span class="chat-artifact-diff__text">{{ row.previous?.text }}</span>
+          </div>
+          <div
+            class="chat-artifact-diff__side-cell chat-artifact-diff__side-cell--current"
+            [class.chat-artifact-diff__side-cell--empty]="!row.current"
+          >
+            <span class="chat-artifact-diff__number">{{ row.current?.number }}</span>
+            <span class="chat-artifact-diff__text">{{ row.current?.text }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

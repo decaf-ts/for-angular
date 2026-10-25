@@ -1,0 +1,68 @@
+<section
+  class="chat-approval"
+  data-tool-call-suspended="true"
+  [attr.data-status]="status()"
+  [attr.aria-label]="'agent.chat.approval.title' | translateFallback: 'Approval required'"
+>
+  <header class="chat-approval__header">
+    <span class="chat-approval__icon" aria-hidden="true">
+      <ngx-decaf-chat-icon name="info" [size]="16" />
+    </span>
+    <div class="chat-approval__heading">
+      <h3 class="chat-approval__title">
+        {{ "agent.chat.approval.title" | translateFallback: "Approval required" }}
+      </h3>
+      @if (toolName()) {
+        <span class="chat-approval__tool">{{ toolName() }}</span>
+      }
+    </div>
+    <span class="chat-approval__chip">
+      {{ ("agent.chat.approval.status." + status()) | translateFallback: statusFallback() }}
+    </span>
+  </header>
+
+  <p class="chat-approval__run">
+    <span class="chat-approval__run-label">
+      {{ "agent.chat.approval.run" | translateFallback: "Run" }}
+    </span>
+    <span class="chat-approval__run-id">{{ runId() }}</span>
+  </p>
+
+  <div class="chat-approval__payload">
+    <h4 class="chat-approval__payload-title">
+      {{ "agent.chat.approval.payload" | translateFallback: "Suspended payload" }}
+    </h4>
+    @if (hasPayload()) {
+      <pre
+        class="chat-approval__json"
+        tabindex="0"
+        [attr.aria-label]="'agent.chat.approval.payload' | translateFallback: 'Suspended payload'"
+      >{{ stringify(payload()) }}</pre>
+    } @else {
+      <p class="chat-approval__empty-payload">
+        {{ "agent.chat.approval.emptyPayload" | translateFallback: "No payload was provided." }}
+      </p>
+    }
+  </div>
+
+  <div class="chat-approval__actions" role="group" [attr.aria-label]="'agent.chat.approval.actions' | translateFallback: 'Approval actions'">
+    <button
+      type="button"
+      class="chat-approval__button chat-approval__button--approve"
+      [disabled]="!canDecide()"
+      (click)="onApprove()"
+    >
+      <ngx-decaf-chat-icon name="check" [size]="14" />
+      {{ "agent.chat.approval.approve" | translateFallback: "Approve" }}
+    </button>
+    <button
+      type="button"
+      class="chat-approval__button chat-approval__button--reject"
+      [disabled]="!canDecide()"
+      (click)="onReject()"
+    >
+      <ngx-decaf-chat-icon name="x" [size]="14" />
+      {{ "agent.chat.approval.reject" | translateFallback: "Reject" }}
+    </button>
+  </div>
+</section>

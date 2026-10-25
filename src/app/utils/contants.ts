@@ -36,6 +36,11 @@ export const AppMenu: IMenuItem[] = [
     icon: 'ti-graph',
     url: 'graph',
   },
+  {
+    label: 'chat',
+    icon: 'ti-message-chatbot',
+    url: 'chat',
+  },
   // {
   //   label: 'cron_selector',
   //   icon: 'ti-calendar-time',

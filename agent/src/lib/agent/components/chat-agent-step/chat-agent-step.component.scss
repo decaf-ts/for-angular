@@ -1,0 +1,148 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.chat-agent-step {
+  border: 1px solid var(--gx-border-soft);
+  border-radius: 10px;
+  background: var(--gx-surface-panel);
+  color: var(--gx-text-secondary);
+  padding: 0.5rem 0.6rem;
+}
+
+.chat-agent-step[data-status="failed"] {
+  border-color: var(--gx-danger-fg);
+}
+
+.chat-agent-step__header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chat-agent-step__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: var(--gx-surface-soft);
+  border: 1px solid var(--gx-border-soft);
+  color: var(--gx-text-muted);
+  flex: 0 0 auto;
+}
+
+.chat-agent-step[data-status="success"] .chat-agent-step__icon {
+  color: var(--gx-success-fg);
+}
+
+.chat-agent-step[data-status="failed"] .chat-agent-step__icon {
+  color: var(--gx-danger-fg);
+}
+
+.chat-agent-step[data-status="suspended"] .chat-agent-step__icon {
+  color: var(--gx-warning-fg);
+}
+
+.chat-agent-step__icon--busy ngx-decaf-chat-icon {
+  animation: chat-agent-step-spin 1.4s linear infinite;
+}
+
+.chat-agent-step__heading {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.chat-agent-step__name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gx-text-strong);
+  overflow-wrap: anywhere;
+}
+
+.chat-agent-step__id {
+  font-family: var(--gx-font-mono, monospace);
+  font-size: 0.66rem;
+  color: var(--gx-text-muted);
+}
+
+.chat-agent-step__chip {
+  margin-left: auto;
+  padding: 0.08rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--gx-border-soft);
+  background: var(--gx-surface-soft);
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gx-text-muted);
+  white-space: nowrap;
+}
+
+.chat-agent-step[data-status="success"] .chat-agent-step__chip {
+  border-color: var(--gx-success-fg);
+  color: var(--gx-success-fg);
+}
+
+.chat-agent-step[data-status="failed"] .chat-agent-step__chip {
+  border-color: var(--gx-danger-fg);
+  color: var(--gx-danger-fg);
+}
+
+.chat-agent-step[data-status="running"] .chat-agent-step__chip,
+.chat-agent-step[data-status="suspended"] .chat-agent-step__chip {
+  border-color: var(--gx-warning-fg);
+  color: var(--gx-warning-fg);
+}
+
+.chat-agent-step__error {
+  margin: 0.35rem 0 0;
+  color: var(--gx-danger-fg);
+  font-size: 0.74rem;
+}
+
+.chat-agent-step__panes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+.chat-agent-step__pane summary {
+  cursor: pointer;
+  font-size: 0.7rem;
+  color: var(--gx-text-muted);
+}
+
+.chat-agent-step__pane summary:focus-visible {
+  outline: 2px solid var(--gx-teal-focus-strong);
+  outline-offset: 1px;
+}
+
+.chat-agent-step__json {
+  margin: 0.3rem 0 0;
+  padding: 0.35rem 0.45rem;
+  border-radius: 6px;
+  background: var(--gx-surface-code, #0f172a);
+  color: var(--gx-text-code, #e2e8f0);
+  font-family: var(--gx-font-mono, monospace);
+  font-size: 0.7rem;
+  line-height: 1.4;
+  overflow-x: auto;
+  max-height: 14rem;
+}
+
+@keyframes chat-agent-step-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-agent-step__icon--busy ngx-decaf-chat-icon {
+    animation: none;
+  }
+}

@@ -1,13 +1,16 @@
 /**
  * @module for-angular/stories/agent-chat
  * @summary Storybook stories for the agent chat surface (slice U3 of SAA-836).
- * @description Covers {@link AgentChatComponent} conversations driven by a
- * scripted transport: plain assistant replies with action chips, structured
- * object (use-object) payloads, knowledge-base selection, failed roundtrips,
+ * @description Covers the composed {@link AgentChatComponent} surface driven
+ * by a scripted transport: plain assistant replies with action chips,
+ * structured object (use-object) payloads, knowledge-base selection, suggested
+ * prompts, model/slash-command affordances, failed roundtrips,
  * backend-unavailable sends, replay of a recorded run, and slow streaming
  * (typing state). The stories mount the component through
  * {@link AgentChatHostComponent} with the `AGENT_CHAT_TRANSPORT` token
  * overridden by {@link ScriptedAgentChatTransport}, so no backend is needed.
+ * See `agent-chat-fake.stories.ts` for the full composed integration story
+ * driven by `AgentChatFakeTransport`.
  */
 import {
   AfterViewInit,
@@ -232,6 +235,9 @@ function agentAnswerScript(options: {
         [sessionId]="sessionId"
         [headerTitleFallback]="headerTitleFallback"
         [knowledgeSources]="knowledgeSources"
+        [suggestions]="suggestions"
+        [slashCommands]="slashCommands"
+        [models]="models"
       />
     </div>
   `,
@@ -248,6 +254,12 @@ class AgentChatHostComponent implements AfterViewInit {
   @Input() headerTitleFallback = 'Agent chat';
   /** Knowledge-base entries offered by the composer. */
   @Input() knowledgeSources: { id: string; label: string }[] = [];
+  /** Suggested prompts shown before the first message. */
+  @Input() suggestions: string[] = [];
+  /** Slash commands offered by the composer. */
+  @Input() slashCommands: { name: string; description?: string }[] = [];
+  /** Models offered by the model selector. */
+  @Input() models: { id: string; name: string; description?: string; provider?: string }[] = [];
   /** Assistant reply text produced by the scripted run. */
   @Input() reply = 'The quarterly revenue grew 12% driven by the EMEA segment.';
   /** Action names attached to the assistant reply. */
@@ -310,6 +322,9 @@ const meta: Meta<AgentChatHostComponent> = {
     ...component.argTypes,
     structured: { control: false, table: { disable: true } },
     knowledgeSources: { control: false, table: { disable: true } },
+    suggestions: { control: false, table: { disable: true } },
+    slashCommands: { control: false, table: { disable: true } },
+    models: { control: false, table: { disable: true } },
     replayRunId: { control: 'text' },
   },
 };
@@ -371,6 +386,26 @@ export const replayConversation: Story = {
     replayRunId: 'scripted-run-replay',
     reply: 'Replayed answer from the recorded run.',
     delayMs: 120,
+  },
+};
+
+/** Composed surface: suggestions, slash commands, and the model selector wired to the scripted reply. */
+export const composedSurface: Story = {
+  args: {
+    reply: 'Pick a suggestion, type a slash command, or switch the model — all of it is composed from the chat suite.',
+    suggestions: [
+      'Summarize the last quarter',
+      'Show me the full roundtrip',
+      'Extract invoice INV-2026-0142',
+    ],
+    slashCommands: [
+      { name: 'summarize', description: 'Summarize the conversation' },
+      { name: 'extract', description: 'Extract a structured object' },
+    ],
+    models: [
+      { id: 'demo-fast', name: 'Demo Fast', provider: 'local' },
+      { id: 'demo-reasoning', name: 'Demo Reasoning', provider: 'local' },
+    ],
   },
 };
 

@@ -1,0 +1,89 @@
+<section
+  class="chat-artifact-document"
+  [attr.data-status]="effectiveStatus()"
+  [attr.aria-busy]="effectiveStatus() === 'loading' ? 'true' : null"
+  [attr.aria-label]="'agent.chat.artifact.document.label' | translateFallback: 'Document artifact'"
+>
+  <header class="chat-artifact-document__header">
+    <span class="chat-artifact-document__tool">
+      <ngx-decaf-chat-icon name="file" [size]="13" />
+      {{ "agent.chat.artifact.document.toolCall" | translateFallback: "Tool call" }}
+      @if (toolName()) {
+        <code class="chat-artifact-document__tool-name">{{ toolName() }}</code>
+      }
+    </span>
+    <span class="chat-artifact-document__status">
+      {{ ("agent.chat.artifact.document.status." + effectiveStatus()) | translateFallback: effectiveStatus() }}
+    </span>
+  </header>
+
+  @switch (effectiveStatus()) {
+    @case ("loading") {
+      <ngx-decaf-chat-artifact-skeleton
+        variant="full"
+        [lines]="3"
+        [label]="'agent.chat.artifact.document.loading' | translateFallback: 'Fetching document…'"
+      />
+    }
+    @case ("failed") {
+      <div class="chat-artifact-document__error" role="alert">
+        <span class="chat-artifact-document__error-icon" aria-hidden="true">
+          <ngx-decaf-chat-icon name="x" [size]="16" />
+        </span>
+        <p class="chat-artifact-document__error-message">{{ errorMessage() }}</p>
+        @if (documentId() && loader()) {
+          <button
+            type="button"
+            class="chat-artifact-document__retry"
+            (click)="reload()"
+          >
+            {{ "agent.chat.artifact.document.retry" | translateFallback: "Retry" }}
+          </button>
+        }
+      </div>
+    }
+    @case ("succeeded") {
+      @if (effectiveDocument(); as document) {
+        <article class="chat-artifact-document__preview">
+          <header class="chat-artifact-document__preview-header">
+            <span
+              class="chat-artifact-document__kind"
+              [attr.data-kind]="document.kind"
+            >
+              {{ kindLabelKey(document) | translateFallback: document.kind }}
+            </span>
+            <h4 class="chat-artifact-document__title">{{ document.title }}</h4>
+            @if (document.version) {
+              <span class="chat-artifact-document__version">v{{ document.version }}</span>
+            }
+          </header>
+          @if (document.kind === "image" && (document.url || document.content)) {
+            <img
+              class="chat-artifact-document__image"
+              [src]="document.url || document.content"
+              [alt]="document.title"
+            />
+          } @else if (document.content) {
+            <pre class="chat-artifact-document__content">{{ previewOf(document) }}</pre>
+          } @else {
+            <p class="chat-artifact-document__empty">
+              {{ "agent.chat.artifact.document.empty" | translateFallback: "The document is empty." }}
+            </p>
+          }
+        </article>
+      } @else {
+        <p class="chat-artifact-document__empty">
+          {{ "agent.chat.artifact.document.empty" | translateFallback: "The document is empty." }}
+        </p>
+      }
+    }
+    @default {
+      <div class="chat-artifact-document__placeholder">
+        <ngx-decaf-chat-icon name="loader" [size]="16" />
+        <span>
+          {{ "agent.chat.artifact.document.pending" | translateFallback: "Waiting for the tool result…" }}
+        </span>
+      </div>
+    }
+  }
+</section>

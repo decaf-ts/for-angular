@@ -1,0 +1,50 @@
+@if (attachment(); as attachment) {
+  <figure
+    class="chat-attachment-part"
+    [attr.data-kind]="isImage() ? 'image' : isText() ? 'text' : 'file'"
+    [attr.aria-label]="'agent.chat.attachmentPart.label' | translateFallback: 'Attachment'"
+  >
+    @if (isImage()) {
+      @if (imageUrl(); as url) {
+        <img
+          class="chat-attachment-part__image"
+          [src]="url"
+          [alt]="attachment.name"
+          loading="lazy"
+        />
+      } @else {
+        <div class="chat-attachment-part__fallback">
+          <ngx-decaf-chat-icon name="image" [size]="18" />
+          <span>{{ attachment.name }}</span>
+        </div>
+      }
+    } @else if (isText()) {
+      <div class="chat-attachment-part__text">
+        <figcaption class="chat-attachment-part__caption">
+          <ngx-decaf-chat-icon name="file" [size]="14" />
+          <span>{{ attachment.name }}</span>
+        </figcaption>
+        @if (hasText()) {
+          <pre class="chat-attachment-part__content">{{ textContent() }}</pre>
+        } @else {
+          <p class="chat-attachment-part__empty">
+            {{ "agent.chat.attachmentPart.empty" | translateFallback: "No text preview available." }}
+          </p>
+        }
+      </div>
+    } @else {
+      <div class="chat-attachment-part__fallback">
+        <ngx-decaf-chat-icon name="file" [size]="18" />
+        <span class="chat-attachment-part__name">{{ attachment.name }}</span>
+        <span class="chat-attachment-part__chip">{{ attachment.mime }}</span>
+      </div>
+    }
+
+    @if (isImage()) {
+      <figcaption class="chat-attachment-part__caption">
+        <span>{{ attachment.name }}</span>
+        <span class="chat-attachment-part__chip">{{ attachment.mime }}</span>
+      </figcaption>
+    }
+  </figure>
+}

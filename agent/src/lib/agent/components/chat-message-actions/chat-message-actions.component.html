@@ -1,0 +1,78 @@
+<div
+  class="chat-message-actions"
+  [class.chat-message-actions--persistent]="persistent()"
+  role="toolbar"
+  [attr.aria-label]="'agent.chat.messageActions.label' | translateFallback: 'Message actions'"
+>
+  @if (canCopyNow()) {
+    <button
+      type="button"
+      class="chat-message-actions__action"
+      data-action="copy"
+      [class.chat-message-actions__action--active]="copied()"
+      [disabled]="running()"
+      [attr.aria-label]="'agent.chat.messageActions.copy' | translateFallback: 'Copy message'"
+      [attr.title]="'agent.chat.messageActions.copy' | translateFallback: 'Copy message'"
+      (click)="copyMessage()"
+    >
+      <ngx-decaf-chat-icon [name]="copied() ? 'check' : 'copy'" [size]="15" />
+    </button>
+  }
+
+  @if (canVoteNow()) {
+    <button
+      type="button"
+      class="chat-message-actions__action"
+      data-action="vote-up"
+      [class.chat-message-actions__action--active]="activeVote() === 'up'"
+      [attr.aria-pressed]="activeVote() === 'up'"
+      [disabled]="running()"
+      [attr.aria-label]="'agent.chat.messageActions.voteUp' | translateFallback: 'Good response'"
+      [attr.title]="'agent.chat.messageActions.voteUp' | translateFallback: 'Good response'"
+      (click)="toggleVote('up')"
+    >
+      <ngx-decaf-chat-icon name="vote-up" [size]="15" />
+    </button>
+    <button
+      type="button"
+      class="chat-message-actions__action"
+      data-action="vote-down"
+      [class.chat-message-actions__action--active]="activeVote() === 'down'"
+      [attr.aria-pressed]="activeVote() === 'down'"
+      [disabled]="running()"
+      [attr.aria-label]="'agent.chat.messageActions.voteDown' | translateFallback: 'Bad response'"
+      [attr.title]="'agent.chat.messageActions.voteDown' | translateFallback: 'Bad response'"
+      (click)="toggleVote('down')"
+    >
+      <ngx-decaf-chat-icon name="vote-down" [size]="15" />
+    </button>
+  }
+
+  @if (canEditNow()) {
+    <button
+      type="button"
+      class="chat-message-actions__action"
+      data-action="edit"
+      [disabled]="running()"
+      [attr.aria-label]="'agent.chat.messageActions.edit' | translateFallback: 'Edit message'"
+      [attr.title]="'agent.chat.messageActions.edit' | translateFallback: 'Edit message'"
+      (click)="editMessage()"
+    >
+      <ngx-decaf-chat-icon name="pencil" [size]="15" />
+    </button>
+  }
+
+  @if (canDeleteNow()) {
+    <button
+      type="button"
+      class="chat-message-actions__action chat-message-actions__action--danger"
+      data-action="delete"
+      [disabled]="running()"
+      [attr.aria-label]="'agent.chat.messageActions.delete' | translateFallback: 'Delete message'"
+      [attr.title]="'agent.chat.messageActions.delete' | translateFallback: 'Delete message'"
+      (click)="removeMessage()"
+    >
+      <ngx-decaf-chat-icon name="trash" [size]="15" />
+    </button>
+  }
+</div>

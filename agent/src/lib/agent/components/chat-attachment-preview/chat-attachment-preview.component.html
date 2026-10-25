@@ -1,0 +1,60 @@
+@if (attachments().length > 0) {
+  <section
+    class="chat-attachment-preview"
+    [attr.aria-label]="'agent.chat.attachments.label' | translateFallback: 'Attachments'"
+  >
+    <ul class="chat-attachment-preview__list">
+      @for (attachment of attachments(); track attachment.id) {
+        <li
+          class="chat-attachment-preview__item"
+          [attr.data-kind]="isImage(attachment) ? 'image' : isText(attachment) ? 'text' : 'file'"
+        >
+          @if (isImage(attachment)) {
+            @if (imageUrl(attachment); as url) {
+              <img
+                class="chat-attachment-preview__thumb"
+                [src]="url"
+                [alt]="attachment.name"
+                loading="lazy"
+              />
+            } @else {
+              <span class="chat-attachment-preview__fallback-icon">
+                <ngx-decaf-chat-icon name="image" [size]="18" />
+              </span>
+            }
+          } @else if (isText(attachment)) {
+            <div class="chat-attachment-preview__text">
+              <span class="chat-attachment-preview__name">{{ attachment.name }}</span>
+              <p class="chat-attachment-preview__excerpt">
+                {{ textPreview(attachment) }}
+              </p>
+            </div>
+          } @else {
+            <span class="chat-attachment-preview__fallback-icon">
+              <ngx-decaf-chat-icon name="file" [size]="18" />
+            </span>
+            <span class="chat-attachment-preview__name">{{ attachment.name }}</span>
+          }
+
+          <div class="chat-attachment-preview__meta">
+            <span class="chat-attachment-preview__chip">
+              {{ formatSize(attachment.size) }}
+            </span>
+            <span class="chat-attachment-preview__chip">{{ attachment.mime }}</span>
+          </div>
+
+          <button
+            type="button"
+            class="chat-attachment-preview__remove"
+            data-action="remove"
+            [attr.aria-label]="'agent.chat.attachments.remove' | translateFallback: 'Remove attachment'"
+            [attr.title]="'agent.chat.attachments.remove' | translateFallback: 'Remove attachment'"
+            (click)="removeAttachment(attachment.id)"
+          >
+            <ngx-decaf-chat-icon name="x" [size]="14" />
+          </button>
+        </li>
+      }
+    </ul>
+  </section>
+}

@@ -62,7 +62,8 @@
     "math": "Math input",
     "storyboard": "Storyboard tutorial",
     "diagrams": "Diagrams",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "chat": "Agent chat"
   },
   "cron_selector": {
     "title": "Cron Selector",
@@ -267,6 +268,29 @@
     },
     "agree": {
       "label": "I accept the terms and conditions."
+    },
+    "chat": {
+      "eyebrow": "Scripted agent surface",
+      "title": "Agent chat demo",
+      "subtitle": "Every response on this page is generated locally from deterministic fixtures. No backend, network, or model call is made.",
+      "scenario": {
+        "label": "Demo scenario",
+        "conversation": "Full roundtrip",
+        "structured": "Structured object"
+      },
+      "header": "Agent chat (fake mode)",
+      "host": {
+        "aria": "Fake agent chat"
+      },
+      "panels": {
+        "aria": "Roundtrip components",
+        "tools": "Tool results",
+        "workflow": "Workflow status",
+        "progress": "Progress",
+        "agent": "Agent step",
+        "nested": "Nested agent",
+        "approval": "Approval"
+      }
     }
   },
   "category": {
@@ -644,12 +668,19 @@
           "placeholder": "Type a message…"
         },
         "send": "Send",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "stop": "Stop response",
+        "hint": "Enter to send, Shift+Enter for a new line",
+        "runningHint": "Agent is responding…"
       },
       "attachments": {
         "label": "Attachments",
         "add": "Attach",
-        "remove": "Remove attachment"
+        "remove": "Remove attachment",
+        "pasteHint": "Drop or paste files here",
+        "invalidType": "Some files are not supported.",
+        "dropTitle": "Drop files to attach",
+        "dropHint": "Images and text files only"
       },
       "knowledge": {
         "label": "Knowledge base"
@@ -668,13 +699,345 @@
       },
       "telemetry": {
         "show": "Telemetry",
-        "hide": "Hide telemetry"
+        "hide": "Hide telemetry",
+        "title": "Run telemetry",
+        "replayed": "Replayed",
+        "functionId": "Function",
+        "traceId": "Trace",
+        "promptTokens": "Prompt tokens",
+        "completionTokens": "Completion tokens",
+        "totalTokens": "Total tokens",
+        "runtimeContext": "Runtime context",
+        "tokensShort": "tokens",
+        "millisecondsShort": "ms",
+        "secondsShort": "s"
       },
       "structured": {
         "title": "Structured object"
       },
       "error": {
         "backendUnavailable": "Agent backend is not reachable. Reconnect and try again."
+      },
+      "conversation": {
+        "aria": "Conversation",
+        "empty": "Start the conversation by sending a message.",
+        "scrollToBottom": "Scroll to the newest message",
+        "download": "Download transcript"
+      },
+      "message": {
+        "streaming": "Streaming…",
+        "toolDetails": "Tool details"
+      },
+      "tool": {
+        "status": {
+          "queued": "Queued",
+          "running": "Running",
+          "succeeded": "Succeeded",
+          "failed": "Failed"
+        },
+        "state": {
+          "input-streaming": "Preparing input…",
+          "input-available": "Input ready",
+          "output-available": "Completed",
+          "output-error": "Failed",
+          "output-denied": "Denied"
+        },
+        "showDetails": "Show details",
+        "hideDetails": "Hide details",
+        "input": "Input",
+        "output": "Output",
+        "orders": {
+          "title": "Orders",
+          "empty": "No orders found."
+        },
+        "tracker": {
+          "title": "Shipment tracking",
+          "progress": "Shipment progress",
+          "status": {
+            "ordered": "Order confirmed",
+            "shipped": "On the way",
+            "delivered": "Delivered",
+            "cancelled": "Cancelled"
+          },
+          "step": {
+            "box": "Order packed",
+            "gps": "In transit",
+            "home": "Delivered"
+          },
+          "description": {
+            "ordered": "Your parcel has been packed and is waiting for the courier.",
+            "shipped": "The courier picked up your parcel and it is heading your way.",
+            "delivered": "Your parcel was delivered. Thanks for shopping with us.",
+            "cancelled": "This delivery was cancelled."
+          }
+        },
+        "weather": {
+          "title": "Weather",
+          "loading": "Fetching the forecast…",
+          "error": "The forecast is unavailable right now.",
+          "high": "High",
+          "low": "Low",
+          "condition": {
+            "day": "Sunny",
+            "night": "Clear night"
+          }
+        }
+      },
+      "messageActions": {
+        "label": "Message actions",
+        "copy": "Copy message",
+        "voteUp": "Good response",
+        "voteDown": "Bad response",
+        "edit": "Edit message",
+        "delete": "Delete message"
+      },
+      "messageEditor": {
+        "label": "Edit message",
+        "placeholder": "Update your message…",
+        "save": "Save and resend",
+        "cancel": "Cancel"
+      },
+      "thinking": {
+        "label": "Thinking…"
+      },
+      "greeting": {
+        "title": "How can I help?",
+        "message": "Ask a question, attach a file, or pick a suggestion to get started.",
+        "link": "Learn more"
+      },
+      "codeBlock": {
+        "label": "Code",
+        "copy": "Copy",
+        "copied": "Copied"
+      },
+      "reasoning": {
+        "title": "Reasoning",
+        "streaming": "Thinking…"
+      },
+      "history": {
+        "title": "Chat history",
+        "aria": "Chat history",
+        "newChat": "New chat",
+        "empty": "No chats found",
+        "loading": "Loading chats…",
+        "loadMore": "Load more",
+        "close": "Close chat history",
+        "untitled": "Untitled chat",
+        "item": {
+          "open": "Open chat",
+          "delete": "Delete chat",
+          "message": "message",
+          "messages": "messages",
+          "confirm": "Delete this chat?",
+          "confirmDelete": "Delete",
+          "cancel": "Cancel",
+          "visibility": {
+            "private": "Private",
+            "shared": "Shared",
+            "public": "Public"
+          }
+        }
+      },
+      "knowledgeBase": {
+        "title": "Manage knowledge base",
+        "aria": "Manage knowledge base",
+        "close": "Close knowledge base",
+        "done": "Done",
+        "empty": "No documents yet",
+        "loading": "Loading documents…",
+        "select": "Select",
+        "selectAll": "Select all",
+        "clear": "Clear selection",
+        "selectedSuffix": "selected",
+        "count": "Selected",
+        "upload": "Upload file",
+        "delete": "Delete file",
+        "queue": "Upload queue",
+        "dismiss": "Dismiss upload",
+        "status": {
+          "queued": "Queued",
+          "uploading": "Uploading…",
+          "done": "Uploaded",
+          "error": "Upload failed"
+        }
+      },
+      "suggestedActions": {
+        "label": "Suggested prompts",
+        "title": "Try asking"
+      },
+      "slashCommands": {
+        "label": "Slash commands",
+        "empty": "No matching commands"
+      },
+      "modelSelector": {
+        "label": "Model",
+        "trigger": "Select model",
+        "search": "Search models…",
+        "empty": "No models match your search."
+      },
+      "visibility": {
+        "label": "Conversation visibility",
+        "private": "Private",
+        "shared": "Shared",
+        "privateHint": "Only you can see this conversation.",
+        "sharedHint": "Anyone with the link can see this conversation."
+      },
+      "suggestionDialog": {
+        "title": "Suggested change",
+        "description": "Review the AI-generated suggestion before applying it.",
+        "apply": "Apply",
+        "ignore": "Ignore",
+        "close": "Close"
+      },
+      "attachmentPart": {
+        "label": "Attachment",
+        "empty": "No text preview available."
+      },
+      "structuredObject": {
+        "title": "Structured object",
+        "ghost": "Streaming preview",
+        "committed": "Committed",
+        "history": "History",
+        "historyUntitled": "Untitled run",
+        "empty": {
+          "title": "No structured data yet",
+          "message": "Stream a structured response to see its fields appear here.",
+          "line": "No structured data."
+        },
+        "fields": "Streamed fields",
+        "raw": "Raw JSON",
+        "waiting": "Waiting for the next field…"
+      },
+      "notification": {
+        "label": "Notifications",
+        "dismiss": "Dismiss notification"
+      },
+      "artifact": {
+        "title": "Artifact",
+        "untitled": "Untitled artifact",
+        "imageAlt": "Artifact preview",
+        "streaming": "Streaming content…",
+        "close": "Close artifact",
+        "kind": {
+          "text": "Text",
+          "code": "Code",
+          "image": "Image",
+          "sheet": "Sheet"
+        },
+        "visibility": {
+          "private": "Private",
+          "shared": "Shared",
+          "public": "Public"
+        },
+        "skeleton": {
+          "inline": "Loading artifact…",
+          "full": "Loading artifact panel…"
+        },
+        "toolbar": {
+          "label": "Artifact tools",
+          "text": "Text",
+          "code": "Code",
+          "image": "Image",
+          "sheet": "Sheet"
+        },
+        "version": {
+          "label": "Artifact versions",
+          "older": "Older version",
+          "newer": "Newer version",
+          "current": "Version",
+          "of": "of"
+        },
+        "diff": {
+          "label": "Artifact changes",
+          "caption": "Previous vs current",
+          "added": "Added lines",
+          "removed": "Removed lines",
+          "mode": "Diff display mode",
+          "sideBySide": "Side-by-side",
+          "inline": "Inline",
+          "noChanges": "No changes",
+          "previous": "Previous",
+          "current": "Current"
+        },
+        "console": {
+          "title": "Output",
+          "resize": "Resize output console",
+          "clear": "Clear output",
+          "clearLabel": "Clear",
+          "empty": "No output yet.",
+          "aria": "Console output",
+          "line": "line",
+          "lines": "lines"
+        },
+        "editor": {
+          "label": "Artifact editor",
+          "kind": {
+            "text": "Text",
+            "code": "Code",
+            "image": "Image",
+            "sheet": "Sheet"
+          },
+          "editable": "Editable",
+          "readOnly": "Read only",
+          "emptyImage": "No image preview available.",
+          "imageAlt": "Artifact image",
+          "placeholder": "Start writing…"
+        },
+        "document": {
+          "label": "Document artifact",
+          "toolCall": "Tool call",
+          "loading": "Fetching document…",
+          "retry": "Retry",
+          "empty": "The document is empty.",
+          "pending": "Waiting for the tool result…",
+          "status": {
+            "pending": "Pending",
+            "loading": "Loading",
+            "succeeded": "Ready",
+            "failed": "Failed"
+          },
+          "error": "The document could not be loaded."
+        }
+      },
+      "workflow": {
+        "title": "Workflow status",
+        "output": "Output",
+        "empty": "No workflow steps yet.",
+        "status": {
+          "running": "Running",
+          "success": "Succeeded",
+          "failed": "Failed",
+          "suspended": "Suspended",
+          "waiting": "Waiting"
+        }
+      },
+      "agentStep": {
+        "title": "Agent step",
+        "input": "Input",
+        "output": "Output"
+      },
+      "nestedAgent": {
+        "title": "Nested agent",
+        "errors": "Tool errors"
+      },
+      "progress": {
+        "title": "Progress",
+        "label": "Working…",
+        "empty": "Waiting for progress…"
+      },
+      "approval": {
+        "title": "Approval required",
+        "run": "Run",
+        "payload": "Suspended payload",
+        "emptyPayload": "No payload was provided.",
+        "actions": "Approval actions",
+        "approve": "Approve",
+        "reject": "Reject",
+        "status": {
+          "pending": "Awaiting approval",
+          "approved": "Approved",
+          "rejected": "Rejected"
+        }
       }
     }
   },

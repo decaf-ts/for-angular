@@ -1,0 +1,60 @@
+<section
+  class="chat-tool"
+  [attr.data-state]="state()"
+  [attr.data-tone]="tone()"
+>
+  <header class="chat-tool__header">
+    <span class="chat-tool__icon" aria-hidden="true">
+      <ngx-decaf-chat-icon name="box" [size]="16" />
+    </span>
+    <div class="chat-tool__heading">
+      <span class="chat-tool__name">{{ title() || name() }}</span>
+      @if (title() && name()) {
+        <span class="chat-tool__tool-name">{{ name() }}</span>
+      }
+    </div>
+    <span class="chat-tool__status" [class.chat-tool__status--busy]="busy()">
+      <ngx-decaf-chat-icon [name]="statusIcon()" [size]="13" />
+      {{ ("agent.chat.tool.state." + state()) | translateFallback: stateFallback() }}
+    </span>
+    @if (hasInput() || hasOutput() || error()) {
+      <button
+        type="button"
+        class="chat-tool__trigger"
+        [attr.aria-expanded]="expanded()"
+        [attr.aria-controls]="contentId"
+        (click)="onTrigger()"
+      >
+        <ngx-decaf-chat-icon [name]="expanded() ? 'chevron-up' : 'chevron-down'" [size]="15" />
+        <span class="chat-tool__trigger-label">
+          {{ (expanded() ? "agent.chat.tool.hideDetails" : "agent.chat.tool.showDetails") | translateFallback: (expanded() ? "Hide details" : "Show details") }}
+        </span>
+      </button>
+    }
+  </header>
+
+  @if (error()) {
+    <p class="chat-tool__error" role="alert">{{ error() }}</p>
+  }
+
+  @if (expanded()) {
+    <div class="chat-tool__content" [id]="contentId">
+      @if (hasInput()) {
+        <div class="chat-tool__pane">
+          <h4 class="chat-tool__pane-title">
+            {{ "agent.chat.tool.input" | translateFallback: "Input" }}
+          </h4>
+          <pre class="chat-tool__json" data-pane="input">{{ stringify(toolInput()) }}</pre>
+        </div>
+      }
+      @if (hasOutput()) {
+        <div class="chat-tool__pane">
+          <h4 class="chat-tool__pane-title">
+            {{ "agent.chat.tool.output" | translateFallback: "Output" }}
+          </h4>
+          <pre class="chat-tool__json" data-pane="output">{{ stringify(toolOutput()) }}</pre>
+        </div>
+      }
+    </div>
+  }
+</section>

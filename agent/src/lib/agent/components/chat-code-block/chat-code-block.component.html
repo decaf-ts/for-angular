@@ -1,0 +1,23 @@
+<figure class="chat-code-block" [attr.data-language]="language()">
+  @if (showHeader()) {
+    <figcaption class="chat-code-block__header">
+      <span class="chat-code-block__title">
+        {{ title() || filename() || language() || ("agent.chat.codeBlock.label" | translateFallback: "Code") }}
+      </span>
+      @if (copyable()) {
+        <button
+          type="button"
+          class="chat-code-block__copy"
+          (click)="copyCode()"
+          [attr.aria-label]="(copied() ? 'agent.chat.codeBlock.copied' : 'agent.chat.codeBlock.copy') | translateFallback: (copied() ? 'Copied' : 'Copy code')"
+        >
+          <ngx-decaf-chat-icon [name]="copied() ? 'check' : 'copy'" [size]="14" />
+          <span>
+            {{ (copied() ? "agent.chat.codeBlock.copied" : "agent.chat.codeBlock.copy") | translateFallback: (copied() ? "Copied" : "Copy") }}
+          </span>
+        </button>
+      }
+    </figcaption>
+  }
+  <pre class="chat-code-block__pre" tabindex="0"><code class="chat-code-block__code">@for (token of tokens(); track $index) {<span [class]="'chat-code-block__token chat-code-block__token--' + token.type">{{ token.text }}</span>}</code></pre>
+</figure>

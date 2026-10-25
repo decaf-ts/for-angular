@@ -1,0 +1,156 @@
+<ion-content fullscreen="true">
+  <div class="chat-demo">
+    <div class="chat-demo__intro">
+      <div class="chat-demo__copy">
+        <p class="chat-demo__eyebrow">
+          {{ "demo.chat.eyebrow" | translateFallback: "Scripted agent surface" }}
+        </p>
+        <h1 class="chat-demo__title">
+          {{ "demo.chat.title" | translateFallback: "Agent chat demo" }}
+        </h1>
+        <p class="chat-demo__subtitle">
+          {{ "demo.chat.subtitle" | translateFallback: "Every response on this page is generated locally from deterministic fixtures. No backend, network, or model call is made." }}
+        </p>
+      </div>
+
+      <div
+        class="chat-demo__scenario"
+        role="group"
+        [attr.aria-label]="'demo.chat.scenario.label' | translateFallback: 'Demo scenario'"
+      >
+        <button
+          type="button"
+          class="chat-demo__scenario-button"
+          [class.chat-demo__scenario-button--active]="scenario() === 'conversation'"
+          [attr.aria-pressed]="scenario() === 'conversation'"
+          (click)="selectScenario('conversation')"
+        >
+          {{ "demo.chat.scenario.conversation" | translateFallback: "Full roundtrip" }}
+        </button>
+        <button
+          type="button"
+          class="chat-demo__scenario-button"
+          [class.chat-demo__scenario-button--active]="scenario() === 'structured-object'"
+          [attr.aria-pressed]="scenario() === 'structured-object'"
+          (click)="selectScenario('structured-object')"
+        >
+          {{ "demo.chat.scenario.structured" | translateFallback: "Structured object" }}
+        </button>
+      </div>
+    </div>
+
+    <ngx-decaf-chat-notification
+      [notifications]="notifications()"
+      (dismissed)="dismissNotification($event)"
+    />
+
+    <div class="chat-demo__grid">
+      <section
+        class="chat-demo__chat"
+        [attr.aria-label]="'demo.chat.host.aria' | translateFallback: 'Fake agent chat'"
+      >
+        <ngx-decaf-agent-chat
+          workflowId="wf-agent-chat-demo"
+          sessionId="demo-chat-session"
+          [headerTitleFallback]="'demo.chat.header' | translateFallback: 'Agent chat (fake mode)'"
+          [suggestions]="suggestions"
+          [slashCommands]="slashCommands"
+          [models]="models"
+        />
+      </section>
+
+      <aside
+        class="chat-demo__panels"
+        [attr.aria-label]="'demo.chat.panels.aria' | translateFallback: 'Roundtrip components'"
+      >
+        <section class="chat-demo__panel">
+          <h2 class="chat-demo__panel-title">
+            {{ "demo.chat.panels.tools" | translateFallback: "Tool results" }}
+          </h2>
+          <ngx-decaf-chat-tool-orders [orders]="orders()" />
+          <ngx-decaf-chat-tool-tracker
+            [status]="trackerStatus()"
+            [progress]="trackerProgress()"
+            [label]="trackerLabel()"
+            [description]="trackerDescription()"
+          />
+          @if (weather(); as weather) {
+            <ngx-decaf-chat-weather
+              [location]="weather.location"
+              [condition]="weather.condition ?? null"
+              [high]="weather.high"
+              [low]="weather.low"
+              [unit]="weather.unit ?? '°C'"
+              [night]="weather.night ?? false"
+              [state]="weather.state ?? 'success'"
+            />
+          }
+        </section>
+
+        <section class="chat-demo__panel">
+          <h2 class="chat-demo__panel-title">
+            {{ "demo.chat.panels.workflow" | translateFallback: "Workflow status" }}
+          </h2>
+          <ngx-decaf-chat-workflow-status [steps]="workflowSteps()" />
+        </section>
+
+        <section class="chat-demo__panel">
+          <h2 class="chat-demo__panel-title">
+            {{ "demo.chat.panels.progress" | translateFallback: "Progress" }}
+          </h2>
+          <ngx-decaf-chat-progress [events]="progressEvents()" />
+        </section>
+
+        @if (agentStep(); as step) {
+          <section class="chat-demo__panel">
+            <h2 class="chat-demo__panel-title">
+              {{ "demo.chat.panels.agent" | translateFallback: "Agent step" }}
+            </h2>
+            <ngx-decaf-chat-agent-step
+              [name]="step.name"
+              [agentId]="step.id ?? null"
+              [status]="step.status"
+              [stepInput]="step.input"
+              [stepOutput]="step.output"
+              [error]="step.error ?? null"
+            />
+          </section>
+        }
+
+        @if (nestedAgent(); as nested) {
+          <section class="chat-demo__panel">
+            <h2 class="chat-demo__panel-title">
+              {{ "demo.chat.panels.nested" | translateFallback: "Nested agent" }}
+            </h2>
+            <ngx-decaf-chat-nested-agent
+              name="Research agent"
+              [runId]="nested.runId ?? null"
+              [depth]="nested.depth ?? 0"
+              [ancestry]="nested.ancestry ?? []"
+              [text]="nested.text ?? ''"
+              [streaming]="nested.streaming ?? false"
+              [status]="nested.status ?? 'running'"
+              [toolErrors]="nested.toolErrors ?? []"
+            />
+          </section>
+        }
+
+        @if (approvalPayload() !== undefined) {
+          <section class="chat-demo__panel">
+            <h2 class="chat-demo__panel-title">
+              {{ "demo.chat.panels.approval" | translateFallback: "Approval" }}
+            </h2>
+            <ngx-decaf-chat-approval
+              [runId]="approvalRunId()"
+              [toolName]="approvalToolName()"
+              [payload]="approvalPayload()"
+              [status]="approvalStatus()"
+              (approve)="onApprove($event)"
+              (reject)="onReject($event)"
+            />
+          </section>
+        }
+      </aside>
+    </div>
+  </div>
+</ion-content>

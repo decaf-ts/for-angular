@@ -1,0 +1,50 @@
+<section
+  class="chat-workflow-status"
+  data-workflow="true"
+  [attr.aria-label]="title() || ('agent.chat.workflow.title' | translateFallback: 'Workflow status')"
+>
+  <header class="chat-workflow-status__header">
+    <ngx-decaf-chat-icon name="sparkles" [size]="16" />
+    <h3 class="chat-workflow-status__title">
+      {{ title() || ("agent.chat.workflow.title" | translateFallback: "Workflow status") }}
+    </h3>
+    <span class="chat-workflow-status__count">{{ steps().length }}</span>
+  </header>
+
+  @if (hasSteps()) {
+    <ol class="chat-workflow-status__list">
+      @for (step of steps(); track step.id) {
+        <li
+          class="chat-workflow-status__step"
+          data-workflow-step="true"
+          [attr.data-status]="step.status"
+        >
+          <div class="chat-workflow-status__row">
+            <span class="chat-workflow-status__icon" aria-hidden="true">
+              <ngx-decaf-chat-icon [name]="statusIcon(step.status)" [size]="14" />
+            </span>
+            <span class="chat-workflow-status__name">{{ step.name }}</span>
+            <span class="chat-workflow-status__chip">
+              {{ ("agent.chat.workflow.status." + step.status) | translateFallback: statusFallback(step.status) }}
+            </span>
+          </div>
+          @if (step.error) {
+            <p class="chat-workflow-status__error" role="alert">{{ step.error }}</p>
+          }
+          @if (hasOutput(step)) {
+            <details class="chat-workflow-status__output">
+              <summary>
+                {{ "agent.chat.workflow.output" | translateFallback: "Output" }}
+              </summary>
+              <pre class="chat-workflow-status__json">{{ stringify(step.output) }}</pre>
+            </details>
+          }
+        </li>
+      }
+    </ol>
+  } @else {
+    <p class="chat-workflow-status__empty">
+      {{ "agent.chat.workflow.empty" | translateFallback: "No workflow steps yet." }}
+    </p>
+  }
+</section>

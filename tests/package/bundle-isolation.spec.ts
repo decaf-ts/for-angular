@@ -89,11 +89,16 @@ const FEATURE_SPECIFIERS: Record<string, string[]> = {
 
 /**
  * The only cross-feature entry-point imports each secondary entry may make.
- * `/scrum` is deliberately the sole exception to the zero-cross-feature wall
- * because it composes the Kanban board instead of duplicating it.
+ * Deliberate composition is allowed instead of duplication:
+ * `/scrum` composes the Kanban board, while `/agent` composes `/diagrams`
+ * (shared graph primitives and translation) and `/code-editor` (the chat
+ * artifact editor).
  */
 const CROSS_ENTRY_SPECIFIERS: Record<string, string[]> = {
-  './agent': ['@decaf-ts/for-angular/diagrams'],
+  './agent': [
+    '@decaf-ts/for-angular/code-editor',
+    '@decaf-ts/for-angular/diagrams',
+  ],
   './scrum': ['@decaf-ts/for-angular/kanban'],
 };
 

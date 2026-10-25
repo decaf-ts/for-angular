@@ -1,0 +1,96 @@
+:host {
+  display: inline-block;
+}
+
+.chat-visibility-selector {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.chat-visibility-selector__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--gx-border-soft, #cbd5e1);
+  border-radius: 8px;
+  background: var(--gx-surface, #ffffff);
+  color: var(--gx-text-strong, #0f172a);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chat-visibility-selector__trigger:hover:not(:disabled) {
+  background: var(--gx-surface-soft, #f8fafc);
+}
+
+.chat-visibility-selector__trigger:focus-visible {
+  outline: 2px solid var(--gx-teal-focus-strong, #0f766e);
+  outline-offset: 2px;
+}
+
+.chat-visibility-selector__trigger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.chat-visibility-selector__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.chat-visibility-selector__panel {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  right: 0;
+  z-index: 940;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: 16rem;
+  padding: 0.35rem;
+  border: 1px solid var(--gx-border-soft, #cbd5e1);
+  border-radius: 10px;
+  background: var(--gx-surface, #ffffff);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+}
+
+.chat-visibility-selector__option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  width: 100%;
+  padding: 0.45rem 0.5rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--gx-text-strong, #0f172a);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chat-visibility-selector__option:hover,
+.chat-visibility-selector__option--active {
+  background: var(--gx-surface-wash, #e2e8f0);
+}
+
+.chat-visibility-selector__name {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.chat-visibility-selector__hint {
+  color: var(--gx-text-muted, #64748b);
+  font-size: 0.7rem;
+  line-height: 1.35;
+}

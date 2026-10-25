@@ -1,0 +1,52 @@
+<section
+  class="chat-conversation"
+  [attr.aria-label]="'agent.chat.conversation.aria' | translateFallback: 'Conversation'"
+>
+  <div
+    #transcript
+    class="chat-conversation__transcript"
+    role="log"
+    aria-live="polite"
+    aria-relevant="additions text"
+    tabindex="0"
+    [attr.aria-busy]="running()"
+    (scroll)="onScroll($event)"
+  >
+    @if (isEmpty()) {
+      <div class="chat-conversation__empty">
+        <ng-content select="[chatConversationEmpty]" />
+        @if (showEmptyMessage()) {
+          <p class="chat-conversation__empty-message">
+            {{ emptyMessage() || ("agent.chat.conversation.empty" | translateFallback: "Start the conversation by sending a message.") }}
+          </p>
+        }
+      </div>
+    }
+    <ng-content />
+  </div>
+
+  @if (scrolledUp()) {
+    <button
+      type="button"
+      class="chat-conversation__scroll"
+      (click)="scrollToBottom()"
+      [attr.aria-label]="'agent.chat.conversation.scrollToBottom' | translateFallback: 'Scroll to the newest message'"
+    >
+      <ngx-decaf-chat-icon name="chevron-down" [size]="18" />
+    </button>
+  }
+
+  @if (downloadEnabled()) {
+    <footer class="chat-conversation__toolbar">
+      <button
+        type="button"
+        class="chat-conversation__download"
+        (click)="downloadTranscript()"
+        [attr.aria-label]="'agent.chat.conversation.download' | translateFallback: 'Download transcript'"
+      >
+        <ngx-decaf-chat-icon name="download" [size]="16" />
+        <span>{{ "agent.chat.conversation.download" | translateFallback: "Download transcript" }}</span>
+      </button>
+    </footer>
+  }
+</section>

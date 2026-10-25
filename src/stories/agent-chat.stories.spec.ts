@@ -11,6 +11,7 @@ import type {
 } from '@decaf-ts/for-angular/agent';
 import stories, {
   backendUnavailable,
+  composedSurface,
   conversationThroughTime,
   errorRoundtrip,
   knowledgeBase,
@@ -113,6 +114,31 @@ describe("agent-chat.stories — smoke contract", () => {
     expect(backendUnavailable).toBeDefined();
     expect(replayConversation).toBeDefined();
     expect(slowRoundtrip).toBeDefined();
+    expect(composedSurface).toBeDefined();
+  });
+
+  it("wires the composed composed-surface story args", () => {
+    const args = composedSurface.args as {
+      suggestions: string[];
+      slashCommands: { name: string; description?: string }[];
+      models: { id: string; name: string; provider?: string }[];
+      reply: string;
+    };
+
+    expect(args.suggestions).toEqual([
+      "Summarize the last quarter",
+      "Show me the full roundtrip",
+      "Extract invoice INV-2026-0142",
+    ]);
+    expect(args.slashCommands.map((command) => command.name)).toEqual([
+      "summarize",
+      "extract",
+    ]);
+    expect(args.models.map((model) => model.id)).toEqual([
+      "demo-fast",
+      "demo-reasoning",
+    ]);
+    expect(args.reply).toContain("composed from the chat suite");
   });
 
   it("wires the scripted transport into the story metadata", () => {

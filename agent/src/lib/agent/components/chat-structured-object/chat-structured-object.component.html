@@ -1,0 +1,115 @@
+<section
+  class="chat-structured-object"
+  [class.chat-structured-object--ghost]="ghost()"
+  [attr.aria-label]="title() || ('agent.chat.structuredObject.title' | translateFallback: 'Structured object')"
+  [attr.aria-busy]="ghost() ? 'true' : null"
+>
+  <header class="chat-structured-object__header">
+    <h3 class="chat-structured-object__title">
+      {{ title() || ("agent.chat.structuredObject.title" | translateFallback: "Structured object") }}
+    </h3>
+    <span
+      class="chat-structured-object__state"
+      [class.chat-structured-object__state--ghost]="ghost()"
+      [attr.data-state]="ghost() ? 'ghost' : 'committed'"
+    >
+      @if (ghost()) {
+        <ngx-decaf-chat-icon name="loader" [size]="12" />
+      } @else {
+        <ngx-decaf-chat-icon name="check" [size]="12" />
+      }
+      {{ stateLabelKey() | translateFallback: stateLabelFallback() }}
+    </span>
+  </header>
+
+  @if (!hasValue()) {
+    @if (emptyVariant()) {
+      <div class="chat-structured-object__empty" role="note">
+        <span class="chat-structured-object__empty-icon" aria-hidden="true">
+          <ngx-decaf-chat-icon name="info" [size]="20" />
+        </span>
+        <div>
+          <p class="chat-structured-object__empty-title">
+            {{ "agent.chat.structuredObject.empty.title" | translateFallback: "No structured data yet" }}
+          </p>
+          <p class="chat-structured-object__empty-message">
+            {{ "agent.chat.structuredObject.empty.message" | translateFallback: "Stream a structured response to see its fields appear here." }}
+          </p>
+        </div>
+      </div>
+    } @else {
+      <p class="chat-structured-object__empty-line">
+        {{ "agent.chat.structuredObject.empty.line" | translateFallback: "No structured data." }}
+      </p>
+    }
+  } @else if (rawMode()) {
+    <app-graph-io-viewer
+      class="chat-structured-object__raw"
+      [title]="title() || ('agent.chat.structuredObject.raw' | translateFallback: 'Raw JSON')"
+      [value]="value()"
+    />
+  } @else {
+    <ul
+      class="chat-structured-object__rows"
+      [class.chat-structured-object__rows--ghost]="ghost()"
+      role="list"
+      [attr.aria-label]="('agent.chat.structuredObject.fields' | translateFallback: 'Streamed fields')"
+    >
+      @for (row of rows(); track trackRow($index, row)) {
+        <li
+          class="chat-structured-object__row"
+          [class.chat-structured-object__row--container]="row.kind !== 'primitive'"
+          [attr.data-depth]="row.depth"
+          [attr.data-kind]="row.kind"
+        >
+          <span
+            class="chat-structured-object__key"
+            [style.padding-inline-start.px]="row.depth * 12"
+          >
+            {{ row.label }}
+          </span>
+          <span class="chat-structured-object__value">{{ row.display }}</span>
+        </li>
+      }
+    </ul>
+    @if (ghost()) {
+      <p class="chat-structured-object__waiting" aria-live="polite">
+        {{ "agent.chat.structuredObject.waiting" | translateFallback: "Waiting for the next field…" }}
+      </p>
+    }
+  }
+
+  @if (showHistory() && entries().length) {
+    <div class="chat-structured-object__history">
+      <h4 class="chat-structured-object__history-title">
+        {{ "agent.chat.structuredObject.history" | translateFallback: "History" }}
+      </h4>
+      <ol class="chat-structured-object__history-list">
+        @for (entry of entries(); track trackEntry($index, entry)) {
+          <li class="chat-structured-object__history-item">
+            <button
+              type="button"
+              class="chat-structured-object__history-button"
+              (click)="selectHistory(entry)"
+            >
+              <span class="chat-structured-object__history-run">
+                {{ entry.runId || ("agent.chat.structuredObject.historyUntitled" | translateFallback: "Untitled run") }}
+              </span>
+              <span class="chat-structured-object__history-summary">
+                {{ summary(entry.value) }}
+              </span>
+              @if (entry.committedAt) {
+                <time
+                  class="chat-structured-object__history-time"
+                  [attr.datetime]="entry.committedAt"
+                >
+                  {{ entry.committedAt }}
+                </time>
+              }
+            </button>
+          </li>
+        }
+      </ol>
+    </div>
+  }
+</section>

@@ -1,0 +1,55 @@
+<section
+  class="chat-tool-orders"
+  [attr.aria-label]="title() || ('agent.chat.tool.orders.title' | translateFallback: 'Orders')"
+>
+  <header class="chat-tool-orders__header">
+    <ngx-decaf-chat-icon name="invoice" [size]="16" />
+    <h3 class="chat-tool-orders__title">
+      {{ title() || ("agent.chat.tool.orders.title" | translateFallback: "Orders") }}
+    </h3>
+    <span class="chat-tool-orders__count">{{ orders().length }}</span>
+  </header>
+
+  @if (hasOrders()) {
+    <ul class="chat-tool-orders__list">
+      @for (order of orders(); track order.id) {
+        <li class="chat-tool-orders__item">
+          <button
+            type="button"
+            class="chat-tool-orders__row"
+            (click)="select(order)"
+          >
+            <span class="chat-tool-orders__thumb" aria-hidden="true">
+              @if (order.imageUrl) {
+                <img
+                  class="chat-tool-orders__image"
+                  [src]="order.imageUrl"
+                  [alt]="order.name"
+                  loading="lazy"
+                />
+              } @else {
+                <ngx-decaf-chat-icon [name]="order.icon || 'box'" [size]="18" />
+              }
+            </span>
+            <span class="chat-tool-orders__details">
+              <span class="chat-tool-orders__name">{{ order.name }}</span>
+              @if (order.date) {
+                <time class="chat-tool-orders__date" [attr.datetime]="order.date">
+                  {{ order.date }}
+                </time>
+              }
+            </span>
+            @if (order.status) {
+              <span class="chat-tool-orders__status">{{ order.status }}</span>
+            }
+            <span class="chat-tool-orders__id">{{ order.id }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="chat-tool-orders__empty">
+      {{ "agent.chat.tool.orders.empty" | translateFallback: "No orders found." }}
+    </p>
+  }
+</section>
