@@ -120,6 +120,73 @@ Runs go through the injectable `AgentChatTransport`: the default `GraphRunAgentC
 <ngx-decaf-agent-chat [workflow]="document" [workflowId]="id"></ngx-decaf-agent-chat>
 ```
 
+### `<decaf-calendar>`
+
+Controlled month-grid calendar exported from the [`/calendar`](./calendar/README.md)
+entry point: a fixed six-week grid (leading/trailing days from adjacent months
+stay rendered and selectable), single-date selection, host-owned event markers
+(up to three colour dots per day plus a `+N` overflow counter) and month
+navigation. It is presentation only — the host owns the rendered month, the
+selection and the events, so `dateSelected` and `monthChange` are requests the
+host applies back to the inputs. The entry point adds no runtime dependency of
+its own: only `@angular/*` and the platform `Intl` API.
+
+| Binding | Type | Description |
+| --- | --- | --- |
+| `[year]` / `[month]` | `number` | Rendered year and month (`month` is `1`-based; out-of-range values roll into adjacent years) |
+| `[selectedDate]` | `string \| null` | Selected local date key (`YYYY-MM-DD`), or `null` |
+| `[events]` | `readonly CalendarEvent[]` | Host-owned markers (`{ id, date, title, color?, data? }`) projected onto dates in host order; invalid dates are skipped |
+| `[today]` | `string \| null` | Override for the date marked as today (deterministic hosts/tests) |
+| `[locale]` | `string` | BCP 47 locale for month, weekday and accessible labels (default `en-GB`) |
+| `[firstDayOfWeek]` | `CalendarWeekday` | First grid column (`0` Sunday, `1` Monday; default `1`) |
+
+Outputs: `dateSelected` (`CalendarSelectionEvent`: `{ date, previousDate, year, month, day }`) and
+`monthChange` (`CalendarMonthChangeEvent`: `{ year, month, previousYear, previousMonth, direction }`
+with `direction` of `previous`, `next` or `today`). Keyboard navigation (arrows move by day/week,
+`Home`/`End` jump to the week edges) with a roving tabindex is built in. The accessible-label inputs
+(`label`, `previousMonthLabel`, `nextMonthLabel`, `todayLabel`), the `instanceId` prefix and the
+exported pure date helpers are documented in [calendar/README.md](./calendar/README.md).
+
+```html
+<decaf-calendar
+  [year]="year()"
+  [month]="month()"
+  [selectedDate]="selectedDate()"
+  [events]="events"
+  (dateSelected)="onSelected($event)"
+  (monthChange)="onMonthChange($event)">
+</decaf-calendar>
+```
+
+Because the calendar is controlled, the host applies each emitted request back:
+
+```ts
+onSelected(event: CalendarSelectionEvent): void {
+  this.selectedDate.set(event.date);
+}
+
+onMonthChange(event: CalendarMonthChangeEvent): void {
+  this.year.set(event.year);
+  this.month.set(event.month);
+}
+```
+
+## Demo pages
+
+The demo app served by `npm run start` (`http://localhost:8110`) ships one lazy
+route per feature entry point, each exercising the public surface without a
+backend:
+
+| Route | What it exercises |
+| --- | --- |
+| `/barcode` | [`/barcode`](./barcode/README.md): `renderBarcodeSvg` over an editable payload with symbology (all `BarcodeTypes`) and scale selectors, sanitized SVG output and the error path |
+| `/charts` | [`/charts`](./charts/README.md): the four CRD chart components in `READ` over an editable dataset with smooth/area/stack/legend/tooltip toggles, plus the curve editor's two-way `points`/`formula` binding and interpolation switch |
+| `/code-editor` | [`/code-editor`](./code-editor/README.md): `CodeEditorComponent` in `code` and `formula` modes with preloaded snippets, live line/character counts and validity feedback |
+| `/math` | [`/math`](./math/README.md): `MathInputComponent` with example LaTeX snippets evaluated through `@cortex-js/compute-engine`, a clear action and an inline error state for formulas that cannot be evaluated |
+| `/storyboard` | [`/storyboard`](./storyboard/README.md): `StoryboardTutorialComponent` + `StoryboardTutorialService` running a four-step scenario with a custom non-blocking focus strategy, start/next/previous/abort/end controls and a live status/event readout |
+| `/diagrams` | [`/diagrams`](./diagrams/README.md): `GraphRendererComponent` over an in-memory fixture node catalogue (no backend) with a two-node preview workflow and the input/output panels open |
+| `/calendar` | [`/calendar`](./calendar/README.md): `CalendarComponent` with host-owned month/selection signals, month navigation applied back from `monthChange`, event add/remove with colour markers and locale following the app language |
+
 ## Running the graph UI against a backend
 
 The graph pages (`/graph`, workflow list, runs) talk to a standalone `@decaf-ts/as-graph` backend

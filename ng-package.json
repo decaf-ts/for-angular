@@ -39,6 +39,11 @@
     },
     {
       "glob": "README.md",
+      "input": "calendar",
+      "output": "calendar"
+    },
+    {
+      "glob": "README.md",
       "input": "charts",
       "output": "charts"
     },

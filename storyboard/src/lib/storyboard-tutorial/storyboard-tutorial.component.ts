@@ -22,6 +22,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  ViewEncapsulation,
 } from '@angular/core';
 import { Dynamic, generateRandomValue } from '@decaf-ts/for-angular';
 import { StoryboardTutorialService } from './storyboard-tutorial.service';
@@ -65,6 +66,7 @@ import {
   templateUrl: './storyboard-tutorial.component.html',
   styleUrls: ['./storyboard-tutorial.component.scss'],
   imports: [],
+  encapsulation: ViewEncapsulation.None,
   host: { '[attr.id]': 'uid' },
 })
 export class StoryboardTutorialComponent<C extends TutorialContext = TutorialContext>

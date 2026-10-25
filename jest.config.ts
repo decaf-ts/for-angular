@@ -30,7 +30,10 @@ const config: Config = {
     'src/app/pages/account/',
     'src/app/pages/cron-selector/',
   ],
-  modulePathIgnorePatterns: ['/dist'],
+  // The built `lib/` artifact carries a copy of the root package.json. Haste
+  // would otherwise report a duplicate `@decaf-ts/for-angular` package once a
+  // spec imports the root barrel directly (e.g. through the charts entry point).
+  modulePathIgnorePatterns: ['/dist', '<rootDir>/lib/package.json'],
   transform: {
     '^.+\\.(ts|js|mjs|html|svg)$': [
       'jest-preset-angular',
@@ -56,6 +59,7 @@ const config: Config = {
     '^src/lib/helpers/(.*)$': '<rootDir>/src/lib/helpers/$1',
     '^src/lib/(.*)$': '<rootDir>/src/lib/$1',
     '^lodash-es$': 'lodash',
+    '^@bwip-js/browser$': '<rootDir>/node_modules/@bwip-js/browser/dist/bwip-js.mjs',
     '^ionicons/components/ion-icon.js$': '@ionic/core/components/ion-icon.js',
     '@decaf-ts/overrides/ui-decorators': '<rootDir>/node_modules/@decaf-ts/ui-decorators/lib/esm/model/overrides.js',
   },

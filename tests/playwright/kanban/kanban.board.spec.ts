@@ -114,6 +114,34 @@ test('narrow viewport keeps columns horizontally scrollable and usable', async (
   });
 });
 
+test('add-card control appends a todo card and reports taskAdded', async ({ page }) => {
+  const todo = column(page, 'todo').locator('[data-kanban-task-id]');
+  await expect(todo).toHaveCount(3);
+  await expect(page.locator('[data-kanban-task-id]')).toHaveCount(7);
+
+  await page.locator('[data-testid="kanban-add"]').click();
+
+  await expect(todo).toHaveCount(4);
+  await expect(page.locator('[data-kanban-task-id]')).toHaveCount(8);
+  await expect(page.locator('[data-kanban-task-id="task-8"]')).toBeVisible();
+  await expect(page.locator('[data-kanban-task-id="task-8"]')).toContainText(
+    'New task 8'
+  );
+  await expect(todo.last()).toHaveAttribute('data-kanban-task-id', 'task-8');
+  await expect(lastEvent(page)).toContainText('taskAdded: task-8');
+  await expect(column(page, 'doing').locator('[data-kanban-task-id]')).toHaveCount(2);
+
+  await page.locator('[data-testid="kanban-add"]').click();
+  await expect(page.locator('[data-kanban-task-id]')).toHaveCount(9);
+  await expect(todo).toHaveCount(5);
+  await expect(lastEvent(page)).toContainText('taskAdded: task-9');
+
+  await page.screenshot({
+    path: 'test-results/kanban-artifacts/add-card.png',
+    fullPage: true,
+  });
+});
+
 test.afterEach(async ({ page }) => {
   await resetBoard(page).catch(() => undefined);
 });

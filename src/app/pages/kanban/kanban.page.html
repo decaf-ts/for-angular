@@ -3,6 +3,9 @@
 <ion-content fullscreen="true" [scrollY]="true">
   <main class="kanban-page">
     <section class="kanban-page__toolbar" aria-label="Kanban demo controls">
+      <button type="button" data-testid="kanban-add" (click)="addTask()">
+        {{ 'kanban.add_card' | translate }}
+      </button>
       <button type="button" data-testid="kanban-reset" (click)="reset()">
         Reset
       </button>

@@ -14,6 +14,12 @@ export const LogoutMenuItem = {
   color: 'danger',
 };
 
+/**
+ * Sidebar entries of the demo application. An entry without `url` is a
+ * non-navigable group label, such as the `features` section header.
+ *
+ * @category Demo Pages
+ */
 export const AppMenu: IMenuItem[] = [
   {
     label: 'dashboard',
@@ -44,6 +50,60 @@ export const AppMenu: IMenuItem[] = [
     label: 'modelbuilder',
     icon: 'ti-scan-cube',
     url: 'model-builder',
+  },
+  {
+    label: 'features',
+    url: undefined,
+  },
+  {
+    label: 'kanban',
+    icon: 'ti-layout-kanban',
+    url: 'kanban',
+  },
+  {
+    label: 'scrum',
+    icon: 'ti-layout-list',
+    url: 'scrum',
+  },
+  {
+    label: 'gantt',
+    icon: 'ti-chart-bar',
+    url: 'gantt',
+  },
+  {
+    label: 'barcode',
+    icon: 'ti-barcode',
+    url: 'barcode',
+  },
+  {
+    label: 'charts',
+    icon: 'ti-chart-line',
+    url: 'charts',
+  },
+  {
+    label: 'code_editor',
+    icon: 'ti-code',
+    url: 'code-editor',
+  },
+  {
+    label: 'math',
+    icon: 'ti-math',
+    url: 'math',
+  },
+  {
+    label: 'storyboard',
+    icon: 'ti-presentation',
+    url: 'storyboard',
+  },
+  {
+    label: 'diagrams',
+    icon: 'ti-sitemap',
+    url: 'diagrams',
+  },
+  {
+    label: 'calendar',
+    icon: 'ti-calendar-month',
+    url: 'calendar',
   },
   // {
   //   label: 'sytem',

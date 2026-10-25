@@ -1,0 +1,118 @@
+<section class="dcf-calendar" [attr.aria-label]="label()">
+  <header class="dcf-calendar__header">
+    <button
+      type="button"
+      class="dcf-calendar__nav"
+      data-calendar-nav="previous"
+      [attr.aria-label]="previousMonthLabel()"
+      (click)="previousMonth()"
+    >
+      <svg
+        class="dcf-calendar__icon"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          d="M15 18l-6-6 6-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+
+    <h2 class="dcf-calendar__title" aria-live="polite">
+      {{ monthTitle() }}
+    </h2>
+
+    <button
+      type="button"
+      class="dcf-calendar__nav"
+      data-calendar-nav="next"
+      [attr.aria-label]="nextMonthLabel()"
+      (click)="nextMonth()"
+    >
+      <svg
+        class="dcf-calendar__icon"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          d="M9 18l6-6-6-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+
+    <button
+      type="button"
+      class="dcf-calendar__today"
+      data-calendar-nav="today"
+      (click)="goToToday()"
+    >
+      {{ todayLabel() }}
+    </button>
+  </header>
+
+  <div class="dcf-calendar__grid" role="grid" [attr.aria-label]="monthTitle()">
+    <div class="dcf-calendar__row dcf-calendar__weekdays" role="row">
+      @for (weekday of weekdays(); track weekday.long) {
+        <span
+          class="dcf-calendar__weekday"
+          role="columnheader"
+          [attr.aria-label]="weekday.long"
+        >
+          {{ weekday.short }}
+        </span>
+      }
+    </div>
+
+    @for (week of weeks(); track week.key) {
+      <div class="dcf-calendar__row dcf-calendar__week" role="row">
+        @for (day of week.days; track day.date) {
+          <button
+            type="button"
+            role="gridcell"
+            class="dcf-calendar__day"
+            [class.dcf-calendar__day--outside]="!day.inMonth"
+            [class.dcf-calendar__day--today]="day.isToday"
+            [class.dcf-calendar__day--selected]="day.isSelected"
+            [attr.data-calendar-date]="day.date"
+            [attr.aria-label]="dayAriaLabel(day)"
+            [attr.aria-selected]="day.isSelected"
+            [attr.aria-current]="day.isToday ? 'date' : null"
+            [attr.tabindex]="day.date === tabbableDate() ? 0 : -1"
+            (click)="select(day)"
+            (keydown)="onDayKeydown($event, day)"
+          >
+            <span class="dcf-calendar__day-number">{{ day.day }}</span>
+
+            @if (day.events.length) {
+              <span class="dcf-calendar__markers" aria-hidden="true">
+                @for (marker of day.events.slice(0, 3); track marker.id) {
+                  <span
+                    class="dcf-calendar__marker"
+                    [style.background]="marker.color || null"
+                  ></span>
+                }
+                @if (day.events.length > 3) {
+                  <span class="dcf-calendar__marker-more">
+                    +{{ day.events.length - 3 }}
+                  </span>
+                }
+              </span>
+            }
+          </button>
+        }
+      </div>
+    }
+  </div>
+</section>

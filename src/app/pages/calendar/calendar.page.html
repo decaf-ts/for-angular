@@ -1,0 +1,166 @@
+<app-header title="{{ 'calendar.title' | translate }}" />
+
+<ion-content fullscreen="true" [scrollY]="true">
+  <div class="calendar-page">
+    <ngx-decaf-container>
+      <header class="calendar-page__intro">
+        <h2>{{ 'calendar.title' | translate }}</h2>
+        <p>{{ 'calendar.intro' | translate }}</p>
+      </header>
+
+      <section
+        class="calendar-page__toolbar"
+        [attr.aria-label]="'calendar.controls' | translate"
+      >
+        <button
+          type="button"
+          class="calendar-page__reset"
+          data-testid="calendar-reset"
+          (click)="reset()"
+        >
+          {{ 'calendar.reset' | translate }}
+        </button>
+        <output
+          class="calendar-page__status"
+          data-testid="calendar-last-event"
+          aria-live="polite"
+        >
+          {{ lastEventKey() | translate: lastEventParams() }}
+        </output>
+      </section>
+
+      <div class="calendar-page__layout">
+        <section
+          class="calendar-page__panel"
+          [attr.aria-label]="'calendar.month_view' | translate"
+        >
+          <decaf-calendar
+            data-testid="calendar-grid"
+            [year]="year()"
+            [month]="month()"
+            [selectedDate]="selectedDate()"
+            [events]="events()"
+            [today]="todayKey"
+            [locale]="locale()"
+            [label]="'calendar.aria_label' | translate"
+            [previousMonthLabel]="'calendar.previous_month' | translate"
+            [nextMonthLabel]="'calendar.next_month' | translate"
+            [todayLabel]="'calendar.today' | translate"
+            (dateSelected)="onDateSelected($event)"
+            (monthChange)="onMonthChange($event)"
+          />
+        </section>
+
+        <aside
+          class="calendar-page__panel calendar-page__events"
+          [attr.aria-label]="'calendar.events_title' | translate"
+        >
+          <header class="calendar-page__events-header">
+            <h3 class="calendar-page__heading">
+              {{ 'calendar.events_title' | translate }}
+            </h3>
+            <p class="calendar-page__selected">
+              <span>{{ 'calendar.selected_date' | translate }}</span>
+              <time
+                data-testid="calendar-selected-date"
+                [attr.datetime]="selectedDate()"
+              >
+                {{ selectedDate() }}
+              </time>
+            </p>
+            <p class="calendar-page__count">
+              {{
+                'calendar.event_count'
+                  | translate: { count: selectedEventCount() }
+              }}
+            </p>
+          </header>
+
+          @if (selectedEvents().length) {
+            <ul class="calendar-page__event-list" data-testid="calendar-event-list">
+              @for (event of selectedEvents(); track event.id) {
+                <li class="calendar-page__event">
+                  <span
+                    class="calendar-page__event-dot"
+                    aria-hidden="true"
+                    [style.background]="event.color || null"
+                  ></span>
+                  <span class="calendar-page__event-title">{{ event.title }}</span>
+                  <button
+                    type="button"
+                    class="calendar-page__event-remove"
+                    data-testid="calendar-remove-event"
+                    [attr.aria-label]="
+                      'calendar.event_remove' | translate: { title: event.title }
+                    "
+                    (click)="onRemoveEvent(event)"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M18 6L6 18M6 6l12 12"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="calendar-page__empty" data-testid="calendar-no-events">
+              {{ 'calendar.no_events' | translate }}
+            </p>
+          }
+
+          <form class="calendar-page__form" (submit)="onAddEvent($event)">
+            <h4 class="calendar-page__subheading">
+              {{ 'calendar.add_event' | translate }}
+            </h4>
+
+            <label class="calendar-page__field">
+              <span>{{ 'calendar.event_title_label' | translate }}</span>
+              <input
+                #eventTitleInput
+                type="text"
+                data-testid="calendar-event-title"
+                [value]="newEventTitle()"
+                [placeholder]="'calendar.event_title_placeholder' | translate"
+                (input)="onEventTitleInput($event)"
+              />
+            </label>
+
+            <label class="calendar-page__field">
+              <span>{{ 'calendar.event_color_label' | translate }}</span>
+              <select
+                data-testid="calendar-event-color"
+                [value]="newEventColor()"
+                (change)="onEventColorChange($event)"
+              >
+                @for (color of colors; track color.id) {
+                  <option [value]="color.value">
+                    {{ color.labelKey | translate }}
+                  </option>
+                }
+              </select>
+            </label>
+
+            <button
+              type="submit"
+              class="calendar-page__add"
+              data-testid="calendar-add-event"
+              [disabled]="!canAddEvent()"
+            >
+              {{ 'calendar.event_add' | translate }}
+            </button>
+          </form>
+        </aside>
+      </div>
+    </ngx-decaf-container>
+  </div>
+</ion-content>

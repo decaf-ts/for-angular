@@ -1,5 +1,11 @@
 import { Routes } from '@angular/router';
 
+/**
+ * Declarative route table of the demo application. Feature pages are loaded
+ * lazily so each secondary entry point ships in its own route chunk.
+ *
+ * @category Demo Pages
+ */
 export const routes: Routes = [
   {
     path: '',
@@ -168,5 +174,33 @@ export const routes: Routes = [
   {
     path: 'account',
     loadComponent: () => import('./pages/account/account.page').then( m => m.AccountPage)
+  },
+  {
+    path: 'barcode',
+    loadComponent: () => import('./pages/barcode/barcode.page').then(m => m.BarcodePage)
+  },
+  {
+    path: 'charts',
+    loadComponent: () => import('./pages/charts/charts.page').then(m => m.ChartsPage)
+  },
+  {
+    path: 'code-editor',
+    loadComponent: () => import('./pages/code-editor/code-editor.page').then(m => m.CodeEditorPage)
+  },
+  {
+    path: 'math',
+    loadComponent: () => import('./pages/math/math.page').then(m => m.MathPage)
+  },
+  {
+    path: 'storyboard',
+    loadComponent: () => import('./pages/storyboard/storyboard.page').then(m => m.StoryboardPage)
+  },
+  {
+    path: 'diagrams',
+    loadComponent: () => import('./pages/diagrams/diagrams.page').then(m => m.DiagramsPage)
+  },
+  {
+    path: 'calendar',
+    loadComponent: () => import('./pages/calendar/calendar.page').then(m => m.CalendarPage)
   },
 ];

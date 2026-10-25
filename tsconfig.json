@@ -25,7 +25,7 @@
     "typeRoots": ["node_modules/@types"],
     "target": "es2022",
     "module": "es2020",
-    "lib": ["es2018", "DOM"],
+    "lib": ["es2022", "DOM"],
     "useDefineForClassFields": false,
     "paths": {
       "@decaf-ts/for-angular/*": ["./*/src/public-api.ts"],

@@ -41,7 +41,10 @@ async function loadCodeMirror(): Promise<{
   completionKeymap: typeof import('@codemirror/autocomplete')['completionKeymap'];
   closeBrackets: typeof import('@codemirror/autocomplete')['closeBrackets'];
   closeBracketsKeymap: typeof import('@codemirror/autocomplete')['closeBracketsKeymap'];
-  oneDark: typeof import('@codemirror/theme-one-dark')['oneDark'];
+  HighlightStyle: typeof import('@codemirror/language')['HighlightStyle'];
+  syntaxHighlighting: typeof import('@codemirror/language')['syntaxHighlighting'];
+  oneDarkTheme: typeof import('@codemirror/theme-one-dark')['oneDarkTheme'];
+  oneDarkHighlightStyle: typeof import('@codemirror/theme-one-dark')['oneDarkHighlightStyle'];
   linter: typeof import('@codemirror/lint')['linter'];
   lintGutter: typeof import('@codemirror/lint')['lintGutter'];
 } | null> {
@@ -57,6 +60,19 @@ async function loadCodeMirror(): Promise<{
         import('@codemirror/theme-one-dark'),
         import('@codemirror/lint'),
       ]);
+    const contrastSafeTokens: Record<string, string> = {
+      '#c678dd': '#d99bec',
+      '#e06c75': '#ff8a93',
+      '#7d8799': '#9aa4b1',
+    };
+    const oneDarkHighlightStyle = langMod.HighlightStyle.define(
+      themeMod.oneDarkHighlightStyle.specs.map((spec) => ({
+        ...spec,
+        color: spec['color']
+          ? contrastSafeTokens[spec['color']] ?? spec['color']
+          : spec['color'],
+      }))
+    );
     return {
       EditorState: stateMod.EditorState,
       EditorView: viewMod.EditorView,
@@ -77,7 +93,10 @@ async function loadCodeMirror(): Promise<{
       completionKeymap: autocompleteMod.completionKeymap,
       closeBrackets: autocompleteMod.closeBrackets,
       closeBracketsKeymap: autocompleteMod.closeBracketsKeymap,
-      oneDark: themeMod.oneDark,
+      HighlightStyle: langMod.HighlightStyle,
+      syntaxHighlighting: langMod.syntaxHighlighting,
+      oneDarkTheme: themeMod.oneDarkTheme,
+      oneDarkHighlightStyle,
       linter: lintMod.linter,
       lintGutter: lintMod.lintGutter,
     };
@@ -179,16 +198,27 @@ async function loadCodeMirror(): Promise<{
   encapsulation: ViewEncapsulation.None,
 })
 export class CodeEditorComponent implements AfterViewInit, OnDestroy {
+  /** Editing surface: `code` with syntax linting or `formula` without a gutter. */
   readonly mode = input<CodeEditorMode>('code');
+
+  /** Source of truth for the editor contents; the component never mutates it. */
   readonly code = input<string>('');
+
+  /** Placeholder shown when the editor is empty. */
   readonly placeholder = input<string>('');
+
+  /** Accessible name applied to the CodeMirror content element. */
   readonly ariaLabel = input<string>('Code editor');
+
+  /** Emits the full document whenever the user edits it. */
   readonly codeChange = output<string>();
 
   @ViewChild('host', { static: true }) host?: ElementRef<HTMLElement>;
 
   private view: InstanceType<typeof import('@codemirror/view')['EditorView']> | null = null;
   private lastEmitted = '';
+
+  /** True when the CodeMirror bundle cannot load and the Ionic textarea is used. */
   readonly showFallback = signal(false);
 
   constructor() {
@@ -206,6 +236,10 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  /**
+   * Angular lifecycle hook: lazy-loads CodeMirror and mounts the editor, or
+   * activates the textarea fallback when the bundle is unavailable.
+   */
   async ngAfterViewInit(): Promise<void> {
     const cm = await loadCodeMirror();
     if (!cm || !this.host) {
@@ -234,7 +268,8 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
         ...cm.completionKeymap,
       ]),
       cm.javascript({ typescript: false }),
-      cm.oneDark,
+      cm.oneDarkTheme,
+      cm.syntaxHighlighting(cm.oneDarkHighlightStyle),
       cm.EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           this.lastEmitted = update.state.doc.toString();
@@ -249,9 +284,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
         if (!doc.trim()) return [];
         const diagnostics: { from: number; to: number; severity: 'error'; message: string }[] = [];
         try {
-          const hasReturn = /\breturn\b[\s;]/.test(doc);
-          const body = hasReturn ? doc : `return (${doc});`;
-          new Function(body);
+          new Function(doc);
         } catch (err) {
           diagnostics.push({
             from: 0,
@@ -282,11 +315,17 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  /** Angular lifecycle hook: destroys the CodeMirror view. */
   ngOnDestroy(): void {
     this.view?.destroy();
     this.view = null;
   }
 
+  /**
+   * Emits edits made through the Ionic textarea fallback.
+   *
+   * @param event - Textarea input event.
+   */
   onFallbackChange(event: Event): void {
     const target = event.target as HTMLTextAreaElement;
     this.codeChange.emit(target.value);

@@ -26,6 +26,7 @@ Then add only the optional peers required by the entry points you import:
 | `@decaf-ts/for-angular/math` | `mathlive@^0.111.1` | [math/README.md](./math/README.md) |
 | `@decaf-ts/for-angular/code-editor` | the CodeMirror 6 family | [code-editor/README.md](./code-editor/README.md) |
 | `@decaf-ts/for-angular/barcode` | `@bwip-js/browser@^4.11.4` | [barcode/README.md](./barcode/README.md) |
+| `@decaf-ts/for-angular/calendar` | none | [calendar/README.md](./calendar/README.md) |
 | `@decaf-ts/for-angular/agent` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` (through `/diagrams`) | [agent/README.md](./agent/README.md) |
 | `@decaf-ts/for-angular/cron` | `cronstrue@^3.24.0` | [cron/README.md](./cron/README.md) |
 | `@decaf-ts/for-angular/diagrams` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` | [diagrams/README.md](./diagrams/README.md) |

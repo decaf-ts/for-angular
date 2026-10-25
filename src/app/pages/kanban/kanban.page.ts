@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   DecafKanbanCardDirective,
   KanbanBoardComponent,
@@ -35,11 +36,19 @@ const INITIAL_TASKS: DemoTask[] = [
   { id: 'task-7', title: 'Phase 2 bundle isolation', status: 'done', assignee: 'Ada' },
 ];
 
+/**
+ * `/kanban` demo page: exercises `KanbanBoardComponent` from
+ * `@decaf-ts/for-angular/kanban` with host-owned task state, WIP limits,
+ * read-only and loading states, and an add-card playground.
+ *
+ * @category Demo Pages
+ */
 @Component({
   selector: 'app-kanban-page',
   imports: [
     IonContent,
     HeaderComponent,
+    TranslatePipe,
     KanbanBoardComponent,
     DecafKanbanCardDirective,
   ],
@@ -47,6 +56,8 @@ const INITIAL_TASKS: DemoTask[] = [
   styleUrl: './kanban.page.scss',
 })
 export class KanbanPage {
+  private nextTaskNumber = INITIAL_TASKS.length + 1;
+
   protected readonly tasks = signal<DemoTask[]>(INITIAL_TASKS);
   protected readonly selectedId = signal<string | null>(null);
   protected readonly readOnly = signal(false);
@@ -119,6 +130,20 @@ export class KanbanPage {
   protected onRetry(): void {
     this.error.set(null);
     this.lastEvent.set('retryRequested');
+  }
+
+  protected addTask(): void {
+    const id = `task-${this.nextTaskNumber++}`;
+    this.tasks.update((tasks) => [
+      ...tasks,
+      {
+        id,
+        title: `New task ${this.nextTaskNumber - 1}`,
+        status: 'todo',
+        assignee: 'You',
+      },
+    ]);
+    this.lastEvent.set(`taskAdded: ${id}`);
   }
 
   protected clear(): void {

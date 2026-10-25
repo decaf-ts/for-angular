@@ -1,0 +1,80 @@
+<app-header title="{{ 'math.title' | translate }}" />
+
+<ion-content fullscreen="true" [scrollY]="true">
+  <main class="math-page">
+    <ngx-decaf-container>
+      <header class="math-page__intro">
+        <h2>{{ 'math.title' | translate }}</h2>
+        <p>{{ 'math.intro' | translate }}</p>
+      </header>
+
+      <div class="math-page__layout">
+        <section class="math-page__panel">
+          <label class="math-page__label" id="math-input-label">
+            {{ 'math.input_label' | translate }}
+          </label>
+          <decaf-math-input
+            id="math-input"
+            data-testid="math-input"
+            aria-labelledby="math-input-label"
+            [(value)]="value"
+            [placeholder]="'math.placeholder' | translate"
+          />
+
+          <div class="math-page__actions">
+            <button
+              type="button"
+              class="math-page__button"
+              data-testid="math-clear"
+              (click)="clear()"
+            >
+              {{ 'math.clear' | translate }}
+            </button>
+          </div>
+
+          <section class="math-page__examples">
+            <h3>{{ 'math.examples_label' | translate }}</h3>
+            <div class="math-page__example-list">
+              @for (example of examples; track example.id) {
+                <button
+                  type="button"
+                  class="math-page__example"
+                  [attr.data-testid]="'math-example-' + example.id"
+                  (click)="applyExample(example)"
+                >
+                  {{ example.labelKey | translate }}
+                </button>
+              }
+            </div>
+          </section>
+        </section>
+
+        <aside class="math-page__panel math-page__output" aria-live="polite">
+          <div>
+            <h3>{{ 'math.latex_label' | translate }}</h3>
+            <code class="math-page__latex" data-testid="math-latex">{{ value() }}</code>
+          </div>
+
+          <div>
+            <h3>{{ 'math.result_label' | translate }}</h3>
+            @switch (evaluation().state) {
+              @case ('ok') {
+                <output class="math-page__result" data-testid="math-result">
+                  {{ evaluation().result }}
+                </output>
+              }
+              @case ('error') {
+                <p class="math-page__error" role="alert">
+                  {{ 'math.error' | translate }}
+                </p>
+              }
+              @default {
+                <p class="math-page__empty">{{ 'math.empty' | translate }}</p>
+              }
+            }
+          </div>
+        </aside>
+      </div>
+    </ngx-decaf-container>
+  </main>
+</ion-content>

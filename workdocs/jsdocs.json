@@ -18,6 +18,7 @@
       "./kanban/src",
       "./scrum/src",
       "./gantt/src",
+      "./calendar/src",
       "./charts/src",
       "./math/src",
       "./code-editor/src",
