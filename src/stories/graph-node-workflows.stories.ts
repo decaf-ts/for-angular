@@ -15,7 +15,7 @@
  */
 import type { Meta, StoryObj } from '@storybook/angular';
 import { GraphPage } from 'src/app/pages/graph/graph.page';
-import { GRAPH_BACKEND_URL } from 'diagrams/src/lib/graph/execution/GraphExecutionService';
+import { GRAPH_BACKEND_URL } from 'src/diagrams/components/graph/execution/GraphExecutionService';
 import './setup';
 import { getComponentMeta } from './utils';
 

@@ -1,0 +1,64 @@
+@if (open()) {
+  <div
+    class="chat-suggestion-dialog"
+    data-role="overlay"
+    tabindex="-1"
+    (click)="onBackdropClick($event)"
+    (keydown.enter)="onBackdropKeydown($event)"
+    (keydown.space)="onBackdropKeydown($event)"
+  >
+    <div
+      #dialog
+      class="chat-suggestion-dialog__panel"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-labelledby]="titleId"
+      [attr.aria-describedby]="descriptionId"
+      tabindex="-1"
+    >
+      <header class="chat-suggestion-dialog__header">
+        <h2 class="chat-suggestion-dialog__title" [id]="titleId">
+          {{ title() || ("agent.chat.suggestionDialog.title" | translateFallback: "Suggested change") }}
+        </h2>
+        <button
+          type="button"
+          class="chat-suggestion-dialog__close"
+          data-action="close"
+          [attr.aria-label]="'agent.chat.suggestionDialog.close' | translateFallback: 'Close'"
+          [attr.title]="'agent.chat.suggestionDialog.close' | translateFallback: 'Close'"
+          (click)="ignoreSuggestion()"
+        >
+          <ngx-decaf-chat-icon name="x" [size]="14" />
+        </button>
+      </header>
+
+      <p class="chat-suggestion-dialog__description" [id]="descriptionId">
+        {{ description() || ("agent.chat.suggestionDialog.description" | translateFallback: "Review the AI-generated suggestion before applying it.") }}
+      </p>
+
+      <blockquote class="chat-suggestion-dialog__suggestion">
+        {{ suggestion() }}
+      </blockquote>
+
+      <footer class="chat-suggestion-dialog__actions">
+        <button
+          type="button"
+          class="chat-suggestion-dialog__action chat-suggestion-dialog__action--secondary"
+          data-action="ignore"
+          (click)="ignoreSuggestion()"
+        >
+          {{ "agent.chat.suggestionDialog.ignore" | translateFallback: "Ignore" }}
+        </button>
+        <button
+          type="button"
+          class="chat-suggestion-dialog__action chat-suggestion-dialog__action--primary"
+          data-action="apply"
+          [disabled]="!canApply()"
+          (click)="applySuggestion()"
+        >
+          {{ "agent.chat.suggestionDialog.apply" | translateFallback: "Apply" }}
+        </button>
+      </footer>
+    </div>
+  </div>
+}

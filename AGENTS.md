@@ -1,7 +1,7 @@
 # AGENTS.md — for-angular
 
 `@decaf-ts/for-angular` is the Angular rendering engine of decaf and hosts the
-graph workflow editor under `src/graph`. Graph metadata and engine code live in
+graph workflow editor under `src/diagrams/components/graph`. Graph metadata and engine code live in
 `@decaf-ts/as-graph` (backend-only module).
 
 ## Import rule — `@decaf-ts/as-graph/shared` only
@@ -14,7 +14,7 @@ readers, constants, catalog/manifest and document types, persisted
 legacy surface is superseded and must not be used or extended anywhere in
 `for-angular`. The `@decaf-ts/as-graph` root, `/nest`, and `/ram` entries are
 backend-only and must never be imported from Angular code — the bundle wall
-(`src/graph/bundle-wall.spec.ts`) enforces the engine-free boundary.
+(`src/diagrams/components/graph/bundle-wall.spec.ts`) enforces the engine-free boundary.
 
 ## Invariant — graph code changes MUST observe the graph rules and update the technical documentation
 

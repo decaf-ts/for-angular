@@ -15,18 +15,17 @@
   "source": {
     "include": [
       "./src",
-      "./kanban/src",
-      "./scrum/src",
-      "./gantt/src",
-      "./calendar/src",
-      "./charts/src",
-      "./math/src",
-      "./code-editor/src",
-      "./barcode/src",
-      "./diagrams/src",
-      "./agent/src",
-      "./cron/src",
-      "./storyboard/src"
+      "./src/kanban",
+      "./src/scrum",
+      "./src/gantt",
+      "./src/charts",
+      "./src/math",
+      "./src/code-editor",
+      "./src/barcode",
+      "./src/diagrams",
+      "./src/agent",
+      "./src/cron",
+      "./src/storyboard"
     ],
     "exclude": [
       "cli.(ts|js)"

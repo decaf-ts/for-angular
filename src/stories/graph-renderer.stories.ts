@@ -7,15 +7,15 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, Input, ViewChild, signal } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { TextPipelineWorkflow } from 'src/app/pages/graph/workflow-root';
-import { GraphNodeCatalogService } from 'diagrams/src/lib/graph/catalog/GraphNodeCatalogService';
-import { GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT } from 'diagrams/src/lib/graph/catalog/GraphNodeManifestSnapshot';
-import { GraphRendererComponent } from 'diagrams/src/lib/graph/components/graph-renderer/graph-renderer.component';
+import { GraphNodeCatalogService } from 'src/diagrams/components/graph/catalog/GraphNodeCatalogService';
+import { GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT } from 'src/diagrams/components/graph/catalog/GraphNodeManifestSnapshot';
+import { GraphRendererComponent } from 'src/diagrams/components/graph/components/graph-renderer/graph-renderer.component';
 import type {
   GraphInspectionRunState,
   GraphRunValidationIssue,
-} from 'diagrams/src/lib/graph/components/graph-node-inspection/graph-node-inspection.component';
-import { GraphWorkflowDocumentStore } from 'diagrams/src/lib/graph/document/GraphWorkflowDocumentStore';
-import { GRAPH_DEV_MODE } from 'diagrams/src/lib/graph/tokens/graph-configuration.tokens';
+} from 'src/diagrams/components/graph/components/graph-node-inspection/graph-node-inspection.component';
+import { GraphWorkflowDocumentStore } from 'src/diagrams/components/graph/document/GraphWorkflowDocumentStore';
+import { GRAPH_DEV_MODE } from 'src/diagrams/components/graph/tokens/graph-configuration.tokens';
 import './setup';
 import { getComponentMeta } from './utils';
 

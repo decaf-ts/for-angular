@@ -9,9 +9,7 @@
       "sourceRoot": "src",
       "prefix": "ngx-decaf",
       "cli": {
-        "schematicCollections": [
-          "./schematics"
-        ]
+        "schematicCollections": ["./schematics"]
       },
       "schematics": {
         "@schematics/angular:component": {
@@ -31,7 +29,7 @@
         "build": {
           "builder": "@angular/build:ng-packagr",
           "options": {
-            "project": "ng-package.json"
+            "project": "src/ng-package.json"
           },
           "configurations": {
             "production": {
@@ -100,10 +98,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
@@ -117,12 +112,12 @@
         "build": {
           "builder": "@angular-builders/custom-esbuild:application",
           "options": {
-            "plugins": [
-              "./esbuild.config.js"
-            ],
+            "plugins": ["./esbuild.config.mjs"],
             "allowedCommonJsDependencies": [
               "cronstrue",
-              "reflect-metadata"
+              "reflect-metadata",
+              "html2canvas",
+              "elkjs/lib/elk.bundled.js"
             ],
             "preserveSymlinks": true,
             "outputPath": {
@@ -130,10 +125,7 @@
               "browser": ""
             },
             "index": "src/index.html",
-            "polyfills": [
-              "src/polyfills.ts",
-              "zone.js"
-            ],
+            "polyfills": ["src/polyfills.ts", "zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -141,11 +133,6 @@
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "src/app/assets",
-                "output": "app/assets"
               },
               "src/manifest.webmanifest",
               "src/cli-module.ts",
@@ -209,9 +196,7 @@
           "builder": "@angular/build:karma",
           "options": {
             "main": "src/test.ts",
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "inlineStyleLanguage": "scss",
@@ -290,19 +275,14 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
     }
   },
   "cli": {
-    "schematicCollections": [
-      "@ionic/angular-toolkit"
-    ],
+    "schematicCollections": ["@ionic/angular-toolkit"],
     "analytics": false
   },
   "schematics": {

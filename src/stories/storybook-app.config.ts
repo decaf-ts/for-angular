@@ -5,11 +5,11 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalo
 import { RootTranslateServiceConfig } from '@ngx-translate/core';
 import { DB_ADAPTER_FLAVOUR_TOKEN } from 'src/lib/engine/constants';
 import { I18nResourceConfigType } from 'src/lib/engine';
-import { GraphNodeCatalogApi } from 'diagrams/src/lib/graph/catalog/GraphNodeCatalogApi';
-import { GRAPH_NODE_CATALOG_SOURCE } from 'diagrams/src/lib/graph/catalog/GraphNodeCatalogService';
-import { GraphEngineCapabilityApi } from 'diagrams/src/lib/graph/capabilities/GraphEngineCapabilityApi';
-import { GRAPH_ENGINE_CAPABILITY_SOURCE } from 'diagrams/src/lib/graph/capabilities/GraphEngineCapabilityService';
-import { GRAPH_BACKEND_URL } from 'diagrams/src/lib/graph/execution/GraphExecutionService';
+import { GraphNodeCatalogApi } from 'src/diagrams/components/graph/catalog/GraphNodeCatalogApi';
+import { GRAPH_NODE_CATALOG_SOURCE } from 'src/diagrams/components/graph/catalog/GraphNodeCatalogService';
+import { GraphEngineCapabilityApi } from 'src/diagrams/components/graph/capabilities/GraphEngineCapabilityApi';
+import { GRAPH_ENGINE_CAPABILITY_SOURCE } from 'src/diagrams/components/graph/capabilities/GraphEngineCapabilityService';
+import { GRAPH_BACKEND_URL } from 'src/diagrams/components/graph/execution/GraphExecutionService';
 
 /**
  * Storybook's graph backend origin: the `?graphBackend=` URL parameter when

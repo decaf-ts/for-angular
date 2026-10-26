@@ -1,14 +1,14 @@
 import { Component, inject, input, signal, computed, Input, isDevMode, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
-import { GraphRendererComponent } from 'diagrams/src/lib/graph';
+import { GraphRendererComponent } from 'src/diagrams/components/graph';
 import {
   GraphExecutionService,
   GraphBackendUnavailableError,
-} from 'diagrams/src/lib/graph';
-import { graphExecutionState } from 'diagrams/src/lib/graph';
+} from 'src/diagrams/components/graph';
+import { graphExecutionState } from 'src/diagrams/components/graph';
 import type {
   GraphRunEventClientSubscriber,
-} from 'diagrams/src/lib/graph';
+} from 'src/diagrams/components/graph';
 import {
   GraphRunClient,
   GraphRunEventClient,
@@ -19,22 +19,22 @@ import {
   graphRunDriftMessageOf,
   graphRunFailureMessageOf,
   graphRunStuckMessageOf,
-} from 'diagrams/src/lib/graph';
+} from 'src/diagrams/components/graph';
 import {
   GraphWorkflowDocumentStore,
   graphWorkflowDocumentSemanticHashOf,
   graphWorkflowDocumentWithPinnedParameters,
-} from 'diagrams/src/lib/graph';
+} from 'src/diagrams/components/graph';
 import type { GraphWorkflowDocument } from '@decaf-ts/as-graph/shared';
 import {
   isGraphRunStatus,
   type GraphRunEventEnvelope,
 } from '@decaf-ts/as-graph/shared';
 import type { GraphRunLogEntry } from '@decaf-ts/as-graph/shared';
-import { GraphToolbarComponent } from 'diagrams/src/lib/graph';
-import { GraphSaveService } from 'diagrams/src/lib/graph';
-import { GraphAutoSaveService } from 'diagrams/src/lib/graph';
-import { GraphMutationDetectorService } from 'diagrams/src/lib/graph';
+import { GraphToolbarComponent } from 'src/diagrams/components/graph';
+import { GraphSaveService } from 'src/diagrams/components/graph';
+import { GraphAutoSaveService } from 'src/diagrams/components/graph';
+import { GraphMutationDetectorService } from 'src/diagrams/components/graph';
 import type { GraphWorkflowSnapshot } from '@decaf-ts/as-graph/shared';
 import { TextPipelineWorkflow } from './workflow-root';
 import {
@@ -47,11 +47,11 @@ import {
   graphRunLog,
   graphInspection,
   GraphEngineCapabilityService,
-} from 'diagrams/src/lib/graph';
+} from 'src/diagrams/components/graph';
 import type {
   GraphInspectionRunState,
   GraphRunValidationIssue,
-} from 'diagrams/src/lib/graph';
+} from 'src/diagrams/components/graph';
 import type { GraphNodeManifest } from '@decaf-ts/as-graph/shared';
 import {
   GraphBreadcrumbsComponent,

@@ -65,7 +65,7 @@ Then add only the optional peers required by the entry points you import:
 | `@decaf-ts/for-angular/math` | `mathlive@^0.111.1` | [math/README.md](./math/README.md) |
 | `@decaf-ts/for-angular/code-editor` | the CodeMirror 6 family | [code-editor/README.md](./code-editor/README.md) |
 | `@decaf-ts/for-angular/barcode` | `@bwip-js/browser@^4.11.4` | [barcode/README.md](./barcode/README.md) |
-| `@decaf-ts/for-angular/calendar` | none | [calendar/README.md](./calendar/README.md) |
+| `@decaf-ts/for-angular/calendar` | none | [calendar/README.md](./src/calendar/README.md) |
 | `@decaf-ts/for-angular/agent` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` (through `/diagrams`) | [agent/README.md](./agent/README.md) |
 | `@decaf-ts/for-angular/cron` | `cronstrue@^3.24.0` | [cron/README.md](./cron/README.md) |
 | `@decaf-ts/for-angular/diagrams` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` | [diagrams/README.md](./diagrams/README.md) |
@@ -340,7 +340,7 @@ Then add only the optional peers required by the entry points you import:
 | `@decaf-ts/for-angular/math` | `mathlive@^0.111.1` | [math/README.md](./math/README.md) |
 | `@decaf-ts/for-angular/code-editor` | the CodeMirror 6 family | [code-editor/README.md](./code-editor/README.md) |
 | `@decaf-ts/for-angular/barcode` | `@bwip-js/browser@^4.11.4` | [barcode/README.md](./barcode/README.md) |
-| `@decaf-ts/for-angular/calendar` | none | [calendar/README.md](./calendar/README.md) |
+| `@decaf-ts/for-angular/calendar` | none | [calendar/README.md](./src/calendar/README.md) |
 | `@decaf-ts/for-angular/agent` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` (through `/diagrams`) | [agent/README.md](./agent/README.md) |
 | `@decaf-ts/for-angular/cron` | `cronstrue@^3.24.0` | [cron/README.md](./cron/README.md) |
 | `@decaf-ts/for-angular/diagrams` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` | [diagrams/README.md](./diagrams/README.md) |
@@ -476,7 +476,7 @@ characters) renders the component's placeholder/empty fallback instead.
 
 ### `<decaf-calendar>`
 
-Controlled month-grid calendar exported from the [`/calendar`](./calendar/README.md)
+Controlled month-grid calendar exported from the [`/calendar`](./src/calendar/README.md)
 entry point: a fixed six-week grid (leading/trailing days from adjacent months
 stay rendered and selectable), single-date selection, host-owned event markers
 (up to three colour dots per day plus a `+N` overflow counter) and month
@@ -499,7 +499,7 @@ Outputs: `dateSelected` (`CalendarSelectionEvent`: `{ date, previousDate, year, 
 with `direction` of `previous`, `next` or `today`). Keyboard navigation (arrows move by day/week,
 `Home`/`End` jump to the week edges) with a roving tabindex is built in. The accessible-label inputs
 (`label`, `previousMonthLabel`, `nextMonthLabel`, `todayLabel`), the `instanceId` prefix and the
-exported pure date helpers are documented in [calendar/README.md](./calendar/README.md).
+exported pure date helpers are documented in [calendar/README.md](./src/calendar/README.md).
 
 ```html
 <decaf-calendar
@@ -539,7 +539,7 @@ backend:
 | `/math` | [`/math`](./math/README.md): `MathInputComponent` with example LaTeX snippets evaluated through `@cortex-js/compute-engine`, a clear action and an inline error state for formulas that cannot be evaluated |
 | `/storyboard` | [`/storyboard`](./storyboard/README.md): `StoryboardTutorialComponent` + `StoryboardTutorialService` running a four-step scenario with a custom non-blocking focus strategy, start/next/previous/abort/end controls and a live status/event readout |
 | `/diagrams` | [`/diagrams`](./diagrams/README.md): `GraphRendererComponent` over an in-memory fixture node catalogue (no backend) with a two-node preview workflow and the input/output panels open |
-| `/calendar` | [`/calendar`](./calendar/README.md): `CalendarComponent` with host-owned month/selection signals, month navigation applied back from `monthChange`, event add/remove with colour markers and locale following the app language |
+| `/calendar` | [`/calendar`](./src/calendar/README.md): `CalendarComponent` with host-owned month/selection signals, month navigation applied back from `monthChange`, event add/remove with colour markers and locale following the app language |
 | `/chat` | [`/agent`](./agent/README.md): `ngx-decaf-agent-chat` in fake mode over the deterministic `AgentChatFakeTransport` (no backend needed), with a conversation/structured-object scenario switcher and live panels for the non-transcript component families (tool results, workflow status, progress, agent step, nested agent, approval, notifications) |
 
 ## Running the graph UI against a backend
@@ -633,7 +633,7 @@ working-workflow story that plays a real run against the backend selected by the
 
 ### Editor dark mode & accessibility gate
 
-The graph editor surfaces carry their palette in `src/graph/styles/graph-theme.scss` (`--gx-*`
+The graph editor surfaces carry their palette in `src/diagrams/assets/theme/graph-theme.scss` (`--gx-*`
 custom properties, plus canvas `--ngd-*` remaps): the `:root` values are byte-identical to the
 literals they replaced (light mode pixel-for-pixel unchanged), and the dark palette applies under
 both triggers the decaf engine uses — `html.dcf-palette-dark` (engine toggle) and

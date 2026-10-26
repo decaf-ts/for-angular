@@ -169,7 +169,7 @@ test('diagrams page: canvas renders a named workflow region', async ({ page }) =
   // SAA-1473): the graph-renderer workflow-inputs side body is scrollable
   // without focusable content. That is a graph-renderer contract issue, not a
   // demo-page regression, and the pinned manifest excludes
-  // `for-angular/src/graph`, so the entry stays with this recorded note.
+  // `for-angular/src/diagrams/components/graph`, so the entry stays with this recorded note.
   await audit(page, '.diagrams-page', 'diagrams', ['scrollable-region-focusable']);
 });
 

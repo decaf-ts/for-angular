@@ -38,3 +38,10 @@ The download action fetches the **entire untruncated payload from the server run
 ## Representations
 
 Three toggleable representations: `json` (default, pretty-printed), `table` (key/value row grid for records and arrays; array entries keyed `[index]`), and `raw` (pretty-printed text). In `json`/`raw` the cap applies to the single rendered text; in `table` each row's key and cell text are capped individually and the rows share the aggregate byte budget described under [Rendering cap](#rendering-cap).
+
+## Shared editor styles
+
+Graph header and sidebar styles import the shared theme variables from
+`src/assets/theme/variables.scss`. Library assets are packaged from
+`src/assets` into `assets`; application translations live in
+`src/assets/i18n` and are served from `assets/i18n`.

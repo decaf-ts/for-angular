@@ -33,7 +33,7 @@ import {
   GraphWorkflowDocumentStore,
   GraphWorkflowValidateClient,
   graphValidity,
-} from 'diagrams/src/lib/graph';
+} from 'src/diagrams/components/graph';
 import { GraphPage } from './graph.page';
 import { I18nFakeLoader } from 'src/lib/i18n';
 import fixture from '../../../../tests/fixtures/graph/text-pipeline.document.json';

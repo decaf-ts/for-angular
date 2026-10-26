@@ -4,7 +4,7 @@
  * The palette (the node add list, also reused by the R5 drag-to-empty-canvas
  * popup) gains a search field that filters the catalogue entries as the user
  * types. The unit contract lives in
- * `diagrams/src/lib/graph/components/graph-renderer/graph-renderer-palette-search.spec.ts`.
+ * `src/diagrams/components/graph/components/graph-renderer/graph-renderer-palette-search.spec.ts`.
  *
  * RUN REQUIREMENTS: `npm run start` (dev server on :8110); backend mocked.
  */

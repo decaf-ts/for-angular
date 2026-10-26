@@ -10,7 +10,7 @@ import { provideRouter, Router } from '@angular/router';
 import { NavController } from '@ionic/angular/standalone';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { GraphListService, type GraphWorkflowSummary } from 'src/app/services/graph-list/graph-list.service';
-import { GraphEngineCapabilityService } from 'diagrams/src/lib/graph/capabilities';
+import { GraphEngineCapabilityService } from 'src/diagrams/components/graph/capabilities';
 import { I18nFakeLoader } from 'src/lib/i18n';
 import en from '../../../../assets/i18n/en.json';
 import pt from '../../../../assets/i18n/pt.json';

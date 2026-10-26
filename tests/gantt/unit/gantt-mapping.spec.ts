@@ -8,7 +8,7 @@ import {
   buildGanttMapping,
   ganttViewScale,
   ganttViewType,
-} from '../../../gantt/src/lib/gantt-mapping';
+} from '../../../src/gantt/components/gantt-mapping';
 import {
   ganttConfigFromFields,
   ganttDateOnly,
@@ -17,7 +17,7 @@ import {
   toGanttDateRange,
   validateGanttModel,
   type GanttConfig,
-} from '../../../gantt/src/lib/gantt.types';
+} from '../../../src/gantt/components/gantt.types';
 
 interface Task {
   id: string;

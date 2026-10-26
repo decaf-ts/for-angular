@@ -15,9 +15,9 @@ import {
   type GraphNodeManifest,
   type GraphParameterDefinition,
 } from '@decaf-ts/as-graph/shared';
-import { GraphNodeEditModalComponent } from 'diagrams/src/lib/graph/components/graph-node-edit-modal/graph-node-edit-modal.component';
-import { GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT } from 'diagrams/src/lib/graph/catalog/GraphNodeManifestSnapshot';
-import type { GraphDemoNodeData } from 'diagrams/src/lib/graph/types';
+import { GraphNodeEditModalComponent } from 'src/diagrams/components/graph/components/graph-node-edit-modal/graph-node-edit-modal.component';
+import { GRAPH_BUILT_IN_NODE_MANIFEST_SNAPSHOT } from 'src/diagrams/components/graph/catalog/GraphNodeManifestSnapshot';
+import type { GraphDemoNodeData } from 'src/diagrams/components/graph/types';
 import './setup';
 import { getComponentMeta } from './utils';
 

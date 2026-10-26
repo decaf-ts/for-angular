@@ -6,7 +6,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, Input, ViewChild } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphHomeComponent } from 'diagrams/src/lib/graph/components/home/home.component';
+import { GraphHomeComponent } from 'src/diagrams/components/graph/components/home/home.component';
 import './setup';
 import { getComponentMeta } from './utils';
 
