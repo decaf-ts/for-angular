@@ -149,6 +149,49 @@ describe("ChatArtifactEditorComponent", () => {
     ).toBeNull();
   });
 
+  it.each([
+    ["https", "src", "https://example.test/chart.png"],
+    ["blob", "src", "blob:photo"],
+    ["data:image/png", "src", "data:image/png;base64,AAAA"],
+    ["https", "content", "https://example.test/chart.png"],
+    ["blob", "content", "blob:photo"],
+    ["data:image/png", "content", "data:image/png;base64,AAAA"],
+  ] as const)(
+    "renders an allowed %s image from the %s input",
+    async (_label, input, url) => {
+      const fixture = await mount({ kind: "image", [input]: url });
+      const image = element(fixture).querySelector(
+        ".chat-artifact-editor__image img",
+      ) as HTMLImageElement;
+
+      expect(image).not.toBeNull();
+      expect(image.getAttribute("src")).toBe(url);
+      expect(
+        element(fixture).querySelector(".chat-artifact-editor__empty"),
+      ).toBeNull();
+    },
+  );
+
+  it.each([
+    ["src", "javascript:alert(1)"],
+    ["src", "data:text/html,<script>alert(1)</script>"],
+    ["content", "javascript:alert(1)"],
+    ["content", "data:text/html,<script>alert(1)</script>"],
+  ] as const)(
+    "blocks an unsafe %s image source and renders the empty state",
+    async (input, url) => {
+      const fixture = await mount({ kind: "image", [input]: url });
+
+      expect(
+        element(fixture).querySelector(".chat-artifact-editor__image"),
+      ).toBeNull();
+      expect(
+        element(fixture).querySelector(".chat-artifact-editor__empty")
+          ?.textContent,
+      ).toContain("No image preview available");
+    },
+  );
+
   it("labels the section and shows the kind", async () => {
     const fixture = await mount({
       kind: "code",

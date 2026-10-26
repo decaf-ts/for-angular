@@ -58,11 +58,17 @@
             }
           </header>
           @if (document.kind === "image" && (document.url || document.content)) {
-            <img
-              class="chat-artifact-document__image"
-              [src]="document.url || document.content"
-              [alt]="document.title"
-            />
+            @if (imageUrl(); as url) {
+              <img
+                class="chat-artifact-document__image"
+                [src]="url"
+                [alt]="document.title"
+              />
+            } @else {
+              <p class="chat-artifact-document__empty">
+                {{ "agent.chat.artifact.document.empty" | translateFallback: "The document is empty." }}
+              </p>
+            }
           } @else if (document.content) {
             <pre class="chat-artifact-document__content">{{ previewOf(document) }}</pre>
           } @else {

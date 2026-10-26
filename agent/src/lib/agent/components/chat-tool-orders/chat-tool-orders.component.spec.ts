@@ -168,6 +168,46 @@ describe("ChatToolOrdersComponent", () => {
     );
   });
 
+  it.each([
+    ["https", "https://example.test/dock.png"],
+    ["blob", "blob:photo"],
+    ["data:image/png", "data:image/png;base64,AAAA"],
+  ])("renders an allowed %s order thumbnail", (_label, imageUrl) => {
+    const fixture = mount({
+      orders: [{ id: "ORD-3", name: "USB-C Dock", imageUrl }],
+    });
+    const image = element(fixture).querySelector(
+      ".chat-tool-orders__image",
+    ) as HTMLImageElement;
+
+    expect(image).not.toBeNull();
+    expect(image.getAttribute("src")).toBe(imageUrl);
+  });
+
+  it.each([
+    ["javascript", "javascript:alert(1)"],
+    ["data:text/html", "data:text/html,<script>alert(1)</script>"],
+  ])(
+    "blocks a %s order thumbnail and renders the icon branch",
+    (_label, imageUrl) => {
+      const fixture = mount({
+        orders: [
+          { id: "ORD-3", name: "USB-C Dock", icon: "box", imageUrl },
+        ],
+      });
+
+      expect(
+        element(fixture).querySelector(".chat-tool-orders__image"),
+      ).toBeNull();
+      const icons = fixture.debugElement.queryAll(
+        By.directive(ChatIconComponent),
+      );
+      expect(icons.map((icon) => icon.componentInstance.name())).toContain(
+        "box",
+      );
+    },
+  );
+
   it("emits the selected order on row click", () => {
     const fixture = mount({ orders: ORDERS });
     const selected: AgentChatOrder[] = [];

@@ -103,14 +103,15 @@ jest.mock('src/environments/environment', () => ({
 }), { virtual: true });
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const { signal } = require('@angular/core') as typeof import('@angular/core');
+const { signal, Injector, runInInjectionContext } =
+  require('@angular/core') as typeof import('@angular/core');
 const injectables = (require('@angular/core') as {
   __testInjectables: Map<unknown, unknown>;
 }).__testInjectables;
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 /* eslint-disable-next-line @typescript-eslint/no-var-requires */
-const { GraphPage } = require('../../app/pages/graph/graph.page') as {
+const { GraphPage } = require('src/app/pages/graph/graph.page') as {
   GraphPage: new () => InstanceType<new () => { ngOnInit(): void; ngOnDestroy(): void }>;
 };
 
@@ -231,7 +232,9 @@ function freshPage(
       overrides.getWorkflow ?? (() => Promise.resolve(undefined)),
     ),
     canRunWorkflow: () => true,
+    canRunWorkflowOn: () => true,
     canBrowseWorkflows: () => false,
+    workflowSummary: jest.fn(() => Promise.resolve(undefined)),
     selectedEngineId: () => null,
     failure: () => null,
   };
@@ -243,7 +246,10 @@ function freshPage(
     navigateByUrl: jest.fn(() => Promise.resolve(true)),
   });
 
-  const page = new GraphPage() as never as {
+  // `graph.page.ts` declares a signal `input()`, which asserts an Angular
+  // injection context at construction time. The mocked `inject` still supplies
+  // the token fakes; only the context marker is required here.
+  const page = runInInjectionContext(Injector.NULL, () => new GraphPage()) as never as {
     isRunning(): boolean;
     lastResult(): Record<string, unknown> | null;
     runError(): string | null;

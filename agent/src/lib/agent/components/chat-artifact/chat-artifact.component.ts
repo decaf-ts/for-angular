@@ -5,6 +5,7 @@ import type {
   AgentChatArtifactVisibility,
 } from "../../types";
 import { ChatIconComponent } from "../chat-icon/chat-icon.component";
+import { safeMediaUrl } from "../../utils/agentMediaUrl";
 
 const KIND_ICONS: Record<AgentChatArtifactKind, string> = {
   text: "file",
@@ -60,7 +61,14 @@ export class ChatArtifactComponent {
   readonly visibilityLabelKey = computed(
     () => `agent.chat.artifact.visibility.${this.visibility()}`,
   );
-  /** Whether the artifact renders image media. */
+  /** Image source when the artifact is a safely addressable image. */
+  readonly imageUrl = computed(() =>
+    this.kind() === "image" ? safeMediaUrl(this.content()) : null,
+  );
+  /**
+   * Whether the artifact declares image media; the actual render still depends
+   * on {@link imageUrl} accepting the content through the media-URL allowlist.
+   */
   readonly hasMedia = computed(
     () => this.kind() === "image" && Boolean(this.content()),
   );

@@ -7,6 +7,7 @@ import type {
 } from "../../types";
 import { ChatArtifactSkeletonComponent } from "../chat-artifact-skeleton/chat-artifact-skeleton.component";
 import { ChatIconComponent } from "../chat-icon/chat-icon.component";
+import { safeMediaUrl } from "../../utils/agentMediaUrl";
 
 type DocumentLoader = (id: string) => Promise<AgentChatArtifactDocument>;
 
@@ -64,6 +65,16 @@ export class ChatArtifactDocumentComponent {
     if (this.document()) return "succeeded";
     if (this.status() !== "pending") return this.status();
     return this.internalStatus() ?? "pending";
+  });
+
+  /**
+   * Safely addressable image source for image documents, or `null` when the
+   * document is not an image or its URL/content fails the media-URL allowlist.
+   */
+  readonly imageUrl = computed(() => {
+    const document = this.effectiveDocument();
+    if (!document || document.kind !== "image") return null;
+    return safeMediaUrl(document.url ?? document.content);
   });
 
   /** Error text to render, with a translated fallback. */

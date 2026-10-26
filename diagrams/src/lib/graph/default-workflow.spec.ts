@@ -13,8 +13,8 @@
 import type { GraphWorkflowDefinition } from '@decaf-ts/as-graph/shared';
 import { graphWorkflowDefinitionOf } from '@decaf-ts/as-graph/shared';
 
-import { TextPipelineWorkflow } from '../app/pages/graph/workflow-root';
-import { buildForeachBodyWorkflow, foreachLoopMetadata } from '../app/pages/graph/loop-body-workflows';
+import { TextPipelineWorkflow } from 'src/app/pages/graph/workflow-root';
+import { buildForeachBodyWorkflow, foreachLoopMetadata } from 'src/app/pages/graph/loop-body-workflows';
 
 function pipeline(): GraphWorkflowDefinition {
   return graphWorkflowDefinitionOf(TextPipelineWorkflow as never);

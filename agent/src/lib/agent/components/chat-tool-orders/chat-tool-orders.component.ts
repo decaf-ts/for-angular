@@ -2,6 +2,7 @@ import { Component, computed, input, output } from "@angular/core";
 import { AgentTranslateFallbackPipe } from "../../i18n/agent-translate-fallback.pipe";
 import type { AgentChatOrder } from "../../types";
 import { ChatIconComponent } from "../chat-icon/chat-icon.component";
+import { safeMediaUrl } from "../../utils/agentMediaUrl";
 
 /** Tool-result renderer for order lists produced by the demo order tool; emits the selected order for follow-up actions. */
 @Component({
@@ -22,6 +23,14 @@ export class ChatToolOrdersComponent {
 
   /** Whether the result contains any orders. */
   readonly hasOrders = computed(() => this.orders().length > 0);
+
+  /**
+   * Safely addressable thumbnail URL for an order, or `null` when the order
+   * has no image or its URL fails the media-URL allowlist.
+   */
+  imageUrl(order: AgentChatOrder): string | null {
+    return safeMediaUrl(order.imageUrl);
+  }
 
   /** Emits the selected order when the list is interactive. */
   select(order: AgentChatOrder): void {

@@ -10,6 +10,7 @@ import {
 import { AgentTranslateFallbackPipe } from "../../i18n/agent-translate-fallback.pipe";
 import type { AgentChatStagedAttachment } from "../../types";
 import { ChatIconComponent } from "../chat-icon/chat-icon.component";
+import { safeMediaUrl } from "../../utils/agentMediaUrl";
 
 const DEFAULT_TEXT_PREVIEW = 100;
 
@@ -74,9 +75,12 @@ export class ChatAttachmentPreviewComponent {
     return isTextMime(attachment.mime);
   }
 
-  /** Image URL used for the thumbnail, if any. */
+  /**
+   * Safely addressable image URL used for the thumbnail (the attachment URL or
+   * its generated `blob:` object URL), or `null` when none passes the allowlist.
+   */
   imageUrl(attachment: AgentChatStagedAttachment): string | null {
-    return attachment.url ?? this.imageUrls()[attachment.id] ?? null;
+    return safeMediaUrl(attachment.url ?? this.imageUrls()[attachment.id]);
   }
 
   /** Truncated text excerpt shown in a text preview card. */

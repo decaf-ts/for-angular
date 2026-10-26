@@ -191,6 +191,61 @@ describe("ChatArtifactDocumentComponent", () => {
     expect(image.getAttribute("src")).toContain("data:image/png");
   });
 
+  it.each([
+    ["https", "https://example.test/chart.png"],
+    ["blob", "blob:photo"],
+    ["data:image/png", "data:image/png;base64,AAAA"],
+  ])("renders an image preview for an allowed %s URL", (_label, url) => {
+    const fixture = mount({
+      document: { id: "img-1", title: "Chart", kind: "image", url },
+    });
+    const image = element(fixture).querySelector(
+      ".chat-artifact-document__image",
+    ) as HTMLImageElement;
+
+    expect(image).not.toBeNull();
+    expect(image.getAttribute("src")).toBe(url);
+    expect(
+      element(fixture).querySelector(".chat-artifact-document__empty"),
+    ).toBeNull();
+  });
+
+  it.each([
+    ["javascript", "javascript:alert(1)"],
+    ["data:text/html", "data:text/html,<script>alert(1)</script>"],
+  ])("blocks a %s image URL and renders the empty state", (_label, url) => {
+    const fixture = mount({
+      document: { id: "img-1", title: "Chart", kind: "image", url },
+    });
+
+    expect(
+      element(fixture).querySelector(".chat-artifact-document__image"),
+    ).toBeNull();
+    expect(
+      element(fixture).querySelector(".chat-artifact-document__empty")
+        ?.textContent,
+    ).toContain("The document is empty.");
+  });
+
+  it("blocks an unsafe content image source and renders the empty state", () => {
+    const fixture = mount({
+      document: {
+        id: "img-2",
+        title: "Chart",
+        kind: "image",
+        content: "javascript:alert(1)",
+      },
+    });
+
+    expect(
+      element(fixture).querySelector(".chat-artifact-document__image"),
+    ).toBeNull();
+    expect(
+      element(fixture).querySelector(".chat-artifact-document__empty")
+        ?.textContent,
+    ).toContain("The document is empty.");
+  });
+
   it("renders an error alert with an explicit error input", () => {
     const fixture = mount({ status: "failed", error: "Rate limited" });
 

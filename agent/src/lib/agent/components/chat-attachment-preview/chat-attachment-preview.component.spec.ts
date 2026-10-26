@@ -130,6 +130,51 @@ describe("ChatAttachmentPreviewComponent", () => {
     expect(createObjectURL).not.toHaveBeenCalled();
   });
 
+  it("renders an allowed data:image/png thumbnail URL", () => {
+    const fixture = mount({
+      attachments: [
+        attachment({
+          id: "img-data",
+          name: "photo.png",
+          mime: "image/png",
+          url: "data:image/png;base64,AAAA",
+        }),
+      ],
+    });
+
+    const image = element(fixture).querySelector(
+      ".chat-attachment-preview__thumb",
+    ) as HTMLImageElement;
+    expect(image).not.toBeNull();
+    expect(image.getAttribute("src")).toBe("data:image/png;base64,AAAA");
+  });
+
+  it.each([
+    ["javascript", "javascript:alert(1)"],
+    ["data:text/html", "data:text/html,<script>alert(1)</script>"],
+  ])(
+    "blocks a %s thumbnail URL and renders the fallback icon",
+    (_label, url) => {
+      const fixture = mount({
+        attachments: [
+          attachment({
+            id: "img-blocked",
+            name: "photo.png",
+            mime: "image/png",
+            url,
+          }),
+        ],
+      });
+      const item = items(fixture)[0];
+
+      expect(item.getAttribute("data-kind")).toBe("image");
+      expect(item.querySelector("img")).toBeNull();
+      expect(
+        item.querySelector(".chat-attachment-preview__fallback-icon"),
+      ).not.toBeNull();
+    },
+  );
+
   it("revokes the object URL when an attachment is removed", () => {
     const fixture = mount({
       attachments: [

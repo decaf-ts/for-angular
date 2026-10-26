@@ -4,6 +4,7 @@ import { CodeEditorComponent } from "@decaf-ts/for-angular/code-editor";
 import { AgentTranslateFallbackPipe } from "../../i18n/agent-translate-fallback.pipe";
 import type { AgentChatArtifactKind } from "../../types";
 import { ChatIconComponent } from "../chat-icon/chat-icon.component";
+import { safeMediaUrl } from "../../utils/agentMediaUrl";
 
 const KIND_ICONS: Record<AgentChatArtifactKind, string> = {
   text: "file",
@@ -55,21 +56,16 @@ export class ChatArtifactEditorComponent {
   /** Icon name for the artifact kind. */
   readonly kindIcon = computed(() => KIND_ICONS[this.kind()]);
 
-  /** Image source to render, accepting data/http/blob URLs. */
+  /**
+   * Image source to render for image artifacts: the explicit `src` when set,
+   * otherwise the content, both restricted to allowlisted `http(s)`, `blob`,
+   * and `data:image` URLs. `null` for other kinds or blocked sources.
+   */
   readonly imageSrc = computed(() => {
     if (this.kind() !== "image") return null;
     const explicit = this.src();
-    if (explicit) return explicit;
-    const content = this.content();
-    if (
-      content.startsWith("data:") ||
-      content.startsWith("http://") ||
-      content.startsWith("https://") ||
-      content.startsWith("blob:")
-    ) {
-      return content;
-    }
-    return null;
+    if (explicit) return safeMediaUrl(explicit);
+    return safeMediaUrl(this.content());
   });
 
   /** Accessible label with translated fallback. */

@@ -77,6 +77,42 @@ describe("ChatAttachmentPartComponent", () => {
     expect(figure?.textContent).toContain("photo.png");
   });
 
+  it.each([
+    ["https", "https://example.test/photo.png"],
+    ["blob", "blob:photo"],
+    ["data:image/png", "data:image/png;base64,AAAA"],
+  ])("renders an allowed %s image URL", (_label, url) => {
+    const fixture = mount({
+      attachment: attachment({ name: "photo.png", mime: "image/png", url }),
+    });
+    const figure = element(fixture).querySelector(
+      ".chat-attachment-part",
+    ) as HTMLElement;
+    const image = figure.querySelector("img") as HTMLImageElement;
+
+    expect(image).not.toBeNull();
+    expect(image.getAttribute("src")).toBe(url);
+    expect(figure.querySelector(".chat-attachment-part__fallback")).toBeNull();
+  });
+
+  it.each([
+    ["javascript", "javascript:alert(1)"],
+    ["data:text/html", "data:text/html,<script>alert(1)</script>"],
+  ])("blocks a %s image URL and renders the fallback chip", (_label, url) => {
+    const fixture = mount({
+      attachment: attachment({ name: "photo.png", mime: "image/png", url }),
+    });
+    const figure = element(fixture).querySelector(
+      ".chat-attachment-part",
+    ) as HTMLElement;
+
+    expect(figure.querySelector("img")).toBeNull();
+    expect(
+      figure.querySelector(".chat-attachment-part__fallback")?.textContent,
+    ).toContain("photo.png");
+    expect(figure.getAttribute("data-kind")).toBe("image");
+  });
+
   it("renders the decoded text box from attachment.textPreview", () => {
     const fixture = mount({
       attachment: attachment({

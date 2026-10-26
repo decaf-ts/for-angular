@@ -3,7 +3,8 @@
  * @summary Public barrel for the `for-angular/agent` chat UI export.
  * @description Re-exports the complete agent chat surface: transport contract
  * types, injection tokens, decaf ui-decorator models, the envelope fold,
- * transcript renderer, transport/service implementations (including the
+ * transcript renderer, the shared media-URL allowlist ({@link safeMediaUrl}),
+ * transport/service implementations (including the
  * deterministic fake transport and in-memory data sources), the translation
  * fallback pipe, the standalone `ngx-decaf-agent-chat` composition root, and
  * every per-family chat component (`ngx-decaf-chat-*`).
@@ -12,6 +13,7 @@ export * from "./types";
 export * from "./tokens/agent-chat.tokens";
 export * from "./models/AgentChatComposerModel";
 export * from "./models/AgentChatMessageModel";
+export * from "./utils/agentMediaUrl";
 export * from "./services/agentEnvelopeFold";
 export * from "./services/agentTranscriptMarkdown";
 export * from "./services/GraphRunAgentChatTransport";

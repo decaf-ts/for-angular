@@ -2,6 +2,7 @@ import { Component, computed, input } from "@angular/core";
 import { AgentTranslateFallbackPipe } from "../../i18n/agent-translate-fallback.pipe";
 import type { AgentChatAttachment } from "../../types";
 import { ChatIconComponent } from "../chat-icon/chat-icon.component";
+import { safeMediaUrl } from "../../utils/agentMediaUrl";
 
 /**
  * Renders a sent attachment inside a message: an image, a decoded text box, or
@@ -29,8 +30,11 @@ export class ChatAttachmentPartComponent {
   });
   /** Whether the attachment renders as decoded text. */
   readonly isText = computed(() => isTextMime(this.attachment()?.mime ?? ""));
-  /** Image source, when the attachment carries a URL. */
-  readonly imageUrl = computed(() => this.attachment()?.url ?? null);
+  /**
+   * Safely addressable image source from the attachment URL, or `null` when
+   * the URL is absent or rejected by the media-URL allowlist.
+   */
+  readonly imageUrl = computed(() => safeMediaUrl(this.attachment()?.url));
   /** Decoded text shown in the text box. */
   readonly textContent = computed(() => {
     const content = this.text() ?? this.attachment()?.textPreview ?? "";

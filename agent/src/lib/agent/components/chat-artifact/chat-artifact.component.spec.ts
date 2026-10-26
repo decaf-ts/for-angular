@@ -118,6 +118,43 @@ describe("ChatArtifactComponent", () => {
     ).toBeNull();
   });
 
+  it.each([
+    ["https", "https://example.test/chart.png"],
+    ["blob", "blob:photo"],
+    ["data:image/png", "data:image/png;base64,AAAA"],
+  ])("renders an image artifact for an allowed %s source", (_label, source) => {
+    const fixture = mount({ kind: "image", content: source });
+    const image = element(fixture).querySelector(
+      ".chat-artifact__image",
+    ) as HTMLImageElement;
+
+    expect(image).not.toBeNull();
+    expect(image.getAttribute("src")).toBe(source);
+    expect(
+      element(fixture).querySelector(".chat-artifact__content"),
+    ).toBeNull();
+  });
+
+  it.each([
+    ["javascript", "javascript:alert(1)"],
+    ["data:text/html", "data:text/html,<script>alert(1)</script>"],
+  ])(
+    "blocks a %s image source and renders the unavailable placeholder",
+    (_label, source) => {
+      const fixture = mount({ kind: "image", content: source });
+      const placeholder = element(fixture).querySelector(
+        ".chat-artifact__content",
+      ) as HTMLElement;
+
+      expect(
+        element(fixture).querySelector(".chat-artifact__image"),
+      ).toBeNull();
+      expect(placeholder).not.toBeNull();
+      expect(placeholder.getAttribute("role")).toBe("status");
+      expect(placeholder.textContent).toContain("Image preview unavailable.");
+    },
+  );
+
   it("emits close when the close button is clicked", () => {
     const fixture = mount({ title: "Closable" });
     let closed = 0;

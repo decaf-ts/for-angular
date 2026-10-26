@@ -34,7 +34,7 @@ import {
   hydrateGraphWorkflowDocumentValues,
 } from './GraphNodeValueHydration';
 import { buildGraphRendererModel, buildGraphRendererSnapshot } from '../utils';
-import { TextPipelineWorkflow } from '../../app/pages/graph/workflow-root';
+import { TextPipelineWorkflow } from 'src/app/pages/graph/workflow-root';
 import { GRAPH_NODE_MANIFEST_FIXTURES } from '../catalog/GraphNodeManifestFixtures';
 
 const MANIFESTS = GRAPH_NODE_MANIFEST_FIXTURES;

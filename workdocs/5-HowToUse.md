@@ -98,7 +98,8 @@ contract (`AgentChatTransport` with `send`/`replay`/`cancel`), the
 `AGENT_CHAT_KNOWLEDGE_BASE_SOURCE` injection tokens, the composer/message
 models, the envelope fold (`agentChatFoldEnvelope`), the per-component
 `AgentChatService` conversation state, the markdown transcript builder, the
-in-memory history/knowledge-base sources, and the translation fallback pipe.
+in-memory history/knowledge-base sources, the media-URL scheme guard
+(`safeMediaUrl`), and the translation fallback pipe.
 The shell owns only transient UI state (draft, staged attachments, drawers,
 inline editing, selectors): it projects `AgentChatService` signals into the
 `ngx-decaf-chat-*` component suite below and forwards user actions back to the
@@ -190,6 +191,12 @@ the `agent.chat.*` i18n subtree via the `translateFallback` pipe
 (`AgentTranslateFallbackPipe`), which renders a hardcoded English fallback
 when the host provides no translation. Full per-component bindings live in
 the source JSDoc and the Storybook stories (`npm run storybook`).
+
+Image media in the attachment preview/part, artifact panel/document/editor and
+tool-order cards flows through the exported `safeMediaUrl` guard: only
+`https:`, `http:`, `blob:` and `data:image/*` URLs render — anything else
+(including `javascript:`, non-image `data:` URLs and URLs containing control
+characters) renders the component's placeholder/empty fallback instead.
 
 #### Conversation and history
 

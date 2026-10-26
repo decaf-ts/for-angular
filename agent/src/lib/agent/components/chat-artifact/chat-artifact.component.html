@@ -36,11 +36,17 @@
 
   <div class="chat-artifact__body">
     @if (hasMedia()) {
-      <img
-        class="chat-artifact__image"
-        [src]="content()"
-        [alt]="imageAlt() || title() || ('agent.chat.artifact.imageAlt' | translateFallback: 'Artifact preview')"
-      />
+      @if (imageUrl(); as url) {
+        <img
+          class="chat-artifact__image"
+          [src]="url"
+          [alt]="imageAlt() || title() || ('agent.chat.artifact.imageAlt' | translateFallback: 'Artifact preview')"
+        />
+      } @else {
+        <p class="chat-artifact__content" role="status">
+          {{ "agent.chat.artifact.imageUnavailable" | translateFallback: "Image preview unavailable." }}
+        </p>
+      }
     } @else if (content() !== null && content() !== "") {
       <pre class="chat-artifact__content" tabindex="0">{{ content() }}</pre>
     } @else {

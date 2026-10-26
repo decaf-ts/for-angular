@@ -20,10 +20,10 @@
             (click)="select(order)"
           >
             <span class="chat-tool-orders__thumb" aria-hidden="true">
-              @if (order.imageUrl) {
+              @if (imageUrl(order); as url) {
                 <img
                   class="chat-tool-orders__image"
-                  [src]="order.imageUrl"
+                  [src]="url"
                   [alt]="order.name"
                   loading="lazy"
                 />
