@@ -364,9 +364,16 @@ together, use `npm run start:dev` (local), `npm run start:dev:mastra`, or
 - `@decaf-ts/as-graph` must be installed with the variant-capable standalone host
   (`lib/cjs/nest/graph/main.cjs`); if the installed version predates it, build and link the local
   `as-graph` package first.
-- `mastra`: the `@mastra/core` peer (`^1.77.0`) is installed with the backend package.
+- This repository installs every optional peer declared by `@decaf-ts/as-graph` and
+  `@decaf-ts/integrations` as a development dependency, including the Mastra driver packages. The
+  project `.npmrc` uses legacy peer resolution because some independently optional adapters declare
+  incompatible peer ranges when installed together.
+- `mastra`: Mastra's optional peers (including `@mastra/core@^1.77.0`) are installed for local
+  backend testing.
 - `dagster`: a Dagster gateway plus `DAGSTER_GRAPHQL_URL`; the `as-graph` package's
   `npm run prepare-it-tests` provisions the pinned fixture, and `npm run teardown-it-tests` stops it.
+- `start:backend:dagster` reads `../as-graph/.env` and `.env.secret` when present, like the Mastra
+  backend script, so `DAGSTER_GRAPHQL_URL` can live in either local file.
 
 See the `@decaf-ts/as-graph` "Running each backend + UI combination" guide for the full setup, port,
 and verification details.
