@@ -60,6 +60,17 @@ const config: Config = {
     '^@bwip-js/browser$': '<rootDir>/node_modules/@bwip-js/browser/dist/bwip-js.mjs',
     '^ionicons/components/ion-icon.js$': '@ionic/core/components/ion-icon.js',
     '@decaf-ts/overrides/ui-decorators': '<rootDir>/node_modules/@decaf-ts/ui-decorators/lib/esm/model/overrides.js',
+    // for-angular is developed inside the decaf-ts umbrella repo, where
+    // `@decaf-ts/*` dependencies also exist in the transitive packages'
+    // node_modules (e.g. `@decaf-ts/as-graph/node_modules/@decaf-ts/decoration`).
+    // Without pinning, jest loads a second copy of the stateful
+    // `@decaf-ts/decoration` Metadata registry: `@uielement`/`@required` write
+    // to one copy while the `@decaf-ts/as-graph/shared` readers read the other,
+    // dropping element tags and validators from the workflow-input ports. Pin
+    // every bare `@decaf-ts/*` import to this package's own copy so the whole
+    // test graph shares one instance of each package (mirrors as-graph's
+    // jest.config.cjs).
+    '^@decaf-ts/([^/]+)$': '<rootDir>/node_modules/@decaf-ts/$1',
   },
 
   // Critical for Ionic/Stencil modules
