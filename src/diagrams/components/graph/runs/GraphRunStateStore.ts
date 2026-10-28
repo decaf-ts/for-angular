@@ -355,6 +355,14 @@ export function graphRunStatusOfEventType(type: string): GraphRunStatus | null {
 /**
  * Derives the DECAF-48 §4.6 inspection `state` value from an engine node
  * result's status (`GraphExecutionStatus` semantics normalized per §4.6).
+ *
+ * The mapping follows the shared `GraphExecutionStateMapper.mapExecutionStatus`
+ * contract (as-graph), so the stored-result readout and the live event fold
+ * agree: `running` → `running`, `cached`/`succeeded` → `succeeded`,
+ * `failed` → `failed`, `suspended` → `blocked`, `cancelled`/`skipped` →
+ * `skipped`, and any unknown status → `idle`. `suspended` denotes a HITL run
+ * paused awaiting external input, so it renders `blocked` rather than falling
+ * through to `idle`.
  * @param status An engine node execution status from the run's stored result.
  * @returns The visual state to seed the inspection payload with.
  */
@@ -370,6 +378,8 @@ function graphRunNodeVisualStateOf(status: string): GraphVisualState {
     case 'cancelled':
     case 'skipped':
       return GraphVisualState.SKIPPED;
+    case 'suspended':
+      return GraphVisualState.BLOCKED;
     default:
       return GraphVisualState.IDLE;
   }

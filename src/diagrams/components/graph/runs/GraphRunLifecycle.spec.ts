@@ -872,6 +872,7 @@ describe('GraphRunLifecycle (DECAF-50 §4.19 Angular run row)', () => {
           n2: { nodeId: 'n2', status: 'failed', inputs: {}, error: { name: 'Error', message: 'boom' } },
           n3: { nodeId: 'n3', status: 'cached', inputs: {} },
           n4: { nodeId: 'n4', status: 'cancelled', inputs: {} },
+          n5: { nodeId: 'n5', status: 'suspended', inputs: { approval: 'pending' } },
         },
         events: [],
       });
@@ -880,7 +881,7 @@ describe('GraphRunLifecycle (DECAF-50 §4.19 Angular run row)', () => {
       expect(graphRunState.status()).toBe('succeeded');
 
       const inspections = graphInspection.inspections();
-      expect(Object.keys(inspections).sort()).toEqual(['n1', 'n2', 'n3', 'n4']);
+      expect(Object.keys(inspections).sort()).toEqual(['n1', 'n2', 'n3', 'n4', 'n5']);
       expect(inspections['n1']).toEqual({
         runId: RUN_ID,
         workflowId: WORKFLOW_ID,
@@ -893,6 +894,9 @@ describe('GraphRunLifecycle (DECAF-50 §4.19 Angular run row)', () => {
       expect(inspections['n2'].error).toEqual({ name: 'Error', message: 'boom' });
       expect(inspections['n3'].state).toBe('succeeded');
       expect(inspections['n4'].state).toBe('skipped');
+      // A suspended (HITL) node must surface as blocked, not idle.
+      expect(inspections['n5'].state).toBe('blocked');
+      expect(inspections['n5'].state).not.toBe('idle');
     });
 
     it('ignores null and empty stored results', () => {
