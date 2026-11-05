@@ -1,0 +1,11 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.dcf-scrum-sprint-board__title {
+  color: var(--dcf-color-text, #1f2933);
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}

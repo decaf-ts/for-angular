@@ -27,6 +27,7 @@ import {
 } from "@decaf-ts/as-graph/shared";
 import type { GraphRunEventEnvelope } from "@decaf-ts/as-graph/shared";
 import type {
+  AgentChatMessagePart,
   AgentChatMessageView,
   AgentChatRoundtripTelemetry,
   AgentChatStructuredObjectView,
@@ -178,28 +179,88 @@ function foldNodeOutput(
   roundtrip: AgentChatRoundtripTelemetry,
   envelope: GraphRunEventEnvelope,
 ): void {
+  const payload = recordOf(envelope.payload);
   const response = stringMemberOf(envelope.payload, "response") ?? stringMemberOf(envelope.payload, "text");
-  if (response === undefined) return;
+  const parts = messagePartsOf(payload);
+  if (response === undefined && !parts.length) return;
   const actions = actionNamesOf(envelope.payload);
+  const streaming = payload?.["streaming"] === true;
+  const explicitId = stringMemberOf(envelope.payload, "messageId");
   const pendingIndex = messages.findIndex(
     (message) => message.pending && message.runId === envelope.runId,
   );
+  const explicitIndex = explicitId
+    ? messages.findIndex((message) => message.id === explicitId)
+    : -1;
+  const streamingIndex = findLastStreamingAssistantIndex(messages, envelope.runId);
   const view: AgentChatMessageView = {
-    id: `${envelope.runId}:${envelope.sequence}`,
+    id: explicitId ?? `${envelope.runId}:${envelope.sequence}`,
     role: "assistant",
-    content: response,
+    content: response ?? "",
     attachments: [],
     knowledgeSourceIds: [],
     createdAt: envelope.timestamp,
     runId: envelope.runId,
-    actions: actions.length ? actions : undefined,
+    ...(parts.length ? { parts } : {}),
+    ...(streaming ? { streaming: true } : {}),
+    ...(actions.length ? { actions } : {}),
   };
-  if (pendingIndex >= 0) {
-    messages[pendingIndex] = view;
-    return;
+  const replaceIndex =
+    explicitIndex >= 0
+      ? explicitIndex
+      : pendingIndex >= 0
+        ? pendingIndex
+        : streamingIndex >= 0 && (streaming || response !== undefined)
+          ? streamingIndex
+          : -1;
+  if (replaceIndex >= 0) {
+    messages[replaceIndex] = view;
+  } else {
+    messages.push(view);
   }
-  messages.push(view);
   if (roundtrip.status === "queued") roundtrip.status = "running";
+}
+
+/** Index of the newest still-streaming assistant message for `runId`, or `-1`. */
+function findLastStreamingAssistantIndex(
+  messages: AgentChatMessageView[],
+  runId: string,
+): number {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    if (
+      message.role === "assistant" &&
+      message.runId === runId &&
+      message.streaming === true
+    ) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+/**
+ * Normalizes a `parts` payload member into {@link AgentChatMessagePart}
+ * entries. Entries must carry a known `kind`; missing ids get a stable
+ * `<kind>-<index>` fallback. Unknown kinds are dropped so a malformed payload
+ * never breaks the transcript fold.
+ */
+function messagePartsOf(payload: Record<string, unknown> | null): AgentChatMessagePart[] {
+  const raw = payload?.["parts"];
+  if (!Array.isArray(raw)) return [];
+  const kinds = new Set(["text", "attachment", "tool", "reasoning", "code"]);
+  const parts: AgentChatMessagePart[] = [];
+  raw.forEach((entry, index) => {
+    const record = recordOf(entry);
+    const kind = record?.["kind"];
+    if (!record || typeof kind !== "string" || !kinds.has(kind)) return;
+    const id =
+      typeof record["id"] === "string" && record["id"].length > 0
+        ? record["id"]
+        : `${kind}-${index}`;
+    parts.push({ ...(record as unknown as AgentChatMessagePart), id });
+  });
+  return parts;
 }
 
 /**

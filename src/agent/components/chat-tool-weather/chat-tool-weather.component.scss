@@ -1,0 +1,132 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.chat-tool-weather {
+  --weather-accent: var(--gx-warning-fg);
+  --weather-bg: var(--gx-surface-panel);
+  display: block;
+  width: fit-content;
+  min-width: 15rem;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--gx-border-soft);
+  border-radius: 10px;
+  background: var(--weather-bg);
+  color: var(--gx-text-secondary);
+  padding: 0.6rem 0.7rem;
+}
+
+.chat-tool-weather[data-variant="night"] {
+  --weather-accent: var(--gx-teal-fg);
+  --weather-bg: var(--gx-surface-soft);
+}
+
+.chat-tool-weather[data-state="error"] {
+  --weather-accent: var(--gx-danger-fg);
+}
+
+.chat-tool-weather__header {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.chat-tool-weather__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--gx-border-soft);
+  background: var(--gx-surface-panel);
+  color: var(--weather-accent);
+  flex: 0 0 auto;
+}
+
+.chat-tool-weather[data-state="loading"] .chat-tool-weather__icon svg {
+  animation: chat-tool-weather-spin 6s linear infinite;
+}
+
+.chat-tool-weather__heading {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.chat-tool-weather__location {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gx-text-strong);
+  overflow-wrap: anywhere;
+}
+
+.chat-tool-weather__condition {
+  font-size: 0.7rem;
+  color: var(--gx-text-muted);
+}
+
+.chat-tool-weather__temperatures {
+  display: flex;
+  gap: 0.9rem;
+  margin: 0.55rem 0 0;
+}
+
+.chat-tool-weather__temperature {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.chat-tool-weather__temperature dt {
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gx-text-muted);
+}
+
+.chat-tool-weather__temperature dd {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--gx-text-strong);
+}
+
+.chat-tool-weather__temperature--low dd {
+  color: var(--gx-text-secondary);
+  font-weight: 500;
+}
+
+.chat-tool-weather__loading {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  font-size: 0.74rem;
+  color: var(--gx-text-muted);
+}
+
+.chat-tool-weather__loading ngx-decaf-chat-icon {
+  animation: chat-tool-weather-spin 1.4s linear infinite;
+}
+
+.chat-tool-weather__error {
+  margin: 0.5rem 0 0;
+  color: var(--gx-danger-fg);
+  font-size: 0.76rem;
+}
+
+@keyframes chat-tool-weather-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-tool-weather[data-state="loading"] .chat-tool-weather__icon svg,
+  .chat-tool-weather__loading ngx-decaf-chat-icon {
+    animation: none;
+  }
+}

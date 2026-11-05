@@ -1,0 +1,110 @@
+<section class="chat-telemetry" [attr.aria-label]="title() || ('agent.chat.telemetry.title' | translateFallback: 'Run telemetry')">
+  <button
+    type="button"
+    class="chat-telemetry__trigger"
+    [attr.aria-expanded]="expanded()"
+    [attr.aria-controls]="contentId"
+    (click)="onTrigger()"
+  >
+    <ngx-decaf-chat-icon name="info" [size]="15" />
+    <span class="chat-telemetry__title">
+      {{ title() || ("agent.chat.telemetry.title" | translateFallback: "Run telemetry") }}
+    </span>
+    <span class="chat-telemetry__count">{{ roundtrips().length }}</span>
+    <ngx-decaf-chat-icon
+      class="chat-telemetry__chevron"
+      [name]="expanded() ? 'chevron-up' : 'chevron-down'"
+      [size]="15"
+    />
+  </button>
+
+  @if (expanded()) {
+    <div class="chat-telemetry__content" [id]="contentId" role="region" [attr.aria-label]="'agent.chat.telemetry.title' | translateFallback: 'Run telemetry'">
+      @if (hasRows()) {
+        <ul class="chat-telemetry__rows">
+          @for (row of roundtrips(); track row.runId) {
+            <li class="chat-telemetry__row" [attr.data-status]="row.status" [attr.data-replayed]="row.replayed ? 'true' : null">
+              <div class="chat-telemetry__summary">
+                <span class="chat-telemetry__run">{{ row.runId }}</span>
+                @if (durationOf(row); as duration) {
+                  <span class="chat-telemetry__duration">
+                    {{ duration.value }}
+                    {{ duration.unitKey | translateFallback: duration.unitFallback }}
+                  </span>
+                }
+                <span class="chat-telemetry__status">
+                  {{ ("agent.chat.status." + row.status) | translateFallback: row.status }}
+                </span>
+                @if (row.replayed) {
+                  <span class="chat-telemetry__replayed">
+                    {{ "agent.chat.telemetry.replayed" | translateFallback: "Replayed" }}
+                  </span>
+                }
+                <span class="chat-telemetry__nodes">
+                  {{ row.completedNodeCount ?? 0 }}/{{ row.nodeCount ?? 0 }}
+                </span>
+                @if (row.totalTokens !== undefined) {
+                  <span class="chat-telemetry__tokens">
+                    {{ row.totalTokens }}
+                    {{ "agent.chat.telemetry.tokensShort" | translateFallback: "tokens" }}
+                  </span>
+                }
+              </div>
+
+              @if (row.error?.message) {
+                <p class="chat-telemetry__error" role="alert">{{ row.error?.message }}</p>
+              }
+
+              @if (hasMetadata(row)) {
+                <dl class="chat-telemetry__metadata">
+                  @if (row.functionId) {
+                    <div class="chat-telemetry__meta">
+                      <dt>{{ "agent.chat.telemetry.functionId" | translateFallback: "Function" }}</dt>
+                      <dd>{{ row.functionId }}</dd>
+                    </div>
+                  }
+                  @if (row.traceId) {
+                    <div class="chat-telemetry__meta">
+                      <dt>{{ "agent.chat.telemetry.traceId" | translateFallback: "Trace" }}</dt>
+                      <dd class="chat-telemetry__mono">{{ row.traceId }}</dd>
+                    </div>
+                  }
+                  @if (row.promptTokens !== undefined) {
+                    <div class="chat-telemetry__meta">
+                      <dt>{{ "agent.chat.telemetry.promptTokens" | translateFallback: "Prompt tokens" }}</dt>
+                      <dd>{{ row.promptTokens }}</dd>
+                    </div>
+                  }
+                  @if (row.completionTokens !== undefined) {
+                    <div class="chat-telemetry__meta">
+                      <dt>{{ "agent.chat.telemetry.completionTokens" | translateFallback: "Completion tokens" }}</dt>
+                      <dd>{{ row.completionTokens }}</dd>
+                    </div>
+                  }
+                  @if (row.totalTokens !== undefined) {
+                    <div class="chat-telemetry__meta">
+                      <dt>{{ "agent.chat.telemetry.totalTokens" | translateFallback: "Total tokens" }}</dt>
+                      <dd>{{ row.totalTokens }}</dd>
+                    </div>
+                  }
+                </dl>
+                @if (row.runtimeContext !== undefined) {
+                  <div class="chat-telemetry__context">
+                    <span class="chat-telemetry__context-title">
+                      {{ "agent.chat.telemetry.runtimeContext" | translateFallback: "Runtime context" }}
+                    </span>
+                    <pre class="chat-telemetry__json">{{ contextText(row.runtimeContext) }}</pre>
+                  </div>
+                }
+              }
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="chat-telemetry__empty">
+          {{ "agent.chat.roundtrip.empty" | translateFallback: "No roundtrips yet." }}
+        </p>
+      }
+    </div>
+  }
+</section>

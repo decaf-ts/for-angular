@@ -1,0 +1,29 @@
+<section
+  class="chat-greeting"
+  [class.chat-greeting--info]="variant() === 'info'"
+  [class.chat-greeting--animated]="animated()"
+  role="note"
+  [attr.aria-label]="title() || ('agent.chat.greeting.title' | translateFallback: 'How can I help?')"
+>
+  @if (variant() === "info") {
+    <span class="chat-greeting__icon" aria-hidden="true">
+      <ngx-decaf-chat-icon [name]="icon()" [size]="iconSize()" />
+    </span>
+  }
+
+  <h2 class="chat-greeting__title">
+    {{ title() || ("agent.chat.greeting.title" | translateFallback: "How can I help?") }}
+  </h2>
+  <p class="chat-greeting__message">
+    {{ message() || ("agent.chat.greeting.message" | translateFallback: "Ask a question, attach a file, or pick a suggestion to get started.") }}
+  </p>
+
+  <ng-content />
+
+  @if (linkHref()) {
+    <a class="chat-greeting__link" [href]="linkHref()" (click)="onLinkClick($event)">
+      <span>{{ linkLabel() || ("agent.chat.greeting.link" | translateFallback: "Learn more") }}</span>
+      <ngx-decaf-chat-icon name="chevron-down" [size]="14" />
+    </a>
+  }
+</section>

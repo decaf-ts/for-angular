@@ -1,5 +1,11 @@
 import { Routes } from '@angular/router';
 
+/**
+ * Declarative route table of the demo application. Feature pages are loaded
+ * lazily so each secondary entry point ships in its own route chunk.
+ *
+ * @category Demo Pages
+ */
 export const routes: Routes = [
   {
     path: '',
@@ -19,8 +25,24 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/dashboard-builder/dashboard-builder.page').then(m => m.DashboardBuilderPage)
   },
   {
+    path: 'kanban',
+    loadComponent: () => import('./pages/kanban/kanban.page').then(m => m.KanbanPage)
+  },
+  {
+    path: 'scrum',
+    loadComponent: () => import('./pages/scrum/scrum.page').then(m => m.ScrumPage)
+  },
+  {
+    path: 'gantt',
+    loadComponent: () => import('./pages/gantt/gantt.page').then(m => m.GanttPage)
+  },
+  {
     path: 'graph',
     loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage)
+  },
+  {
+    path: 'chat',
+    loadComponent: () => import('./pages/chat/chat.page').then(m => m.ChatPage)
   },
   {
     path: 'graph/create',
@@ -44,6 +66,11 @@ export const routes: Routes = [
   {
     path: 'workflows/:workflowId/runs',
     loadComponent: () => import('./pages/graph/executions/workflow-execution-list.page').then(m => m.WorkflowExecutionListPage)
+  },
+  {
+    path: 'workflows/:workflowId',
+    loadComponent: () => import('./pages/graph/graph.page').then(m => m.GraphPage),
+    data: { operation: 'read' }
   },
   {
     path: 'cron-selector',
@@ -151,5 +178,33 @@ export const routes: Routes = [
   {
     path: 'account',
     loadComponent: () => import('./pages/account/account.page').then( m => m.AccountPage)
+  },
+  {
+    path: 'barcode',
+    loadComponent: () => import('./pages/barcode/barcode.page').then(m => m.BarcodePage)
+  },
+  {
+    path: 'charts',
+    loadComponent: () => import('./pages/charts/charts.page').then(m => m.ChartsPage)
+  },
+  {
+    path: 'code-editor',
+    loadComponent: () => import('./pages/code-editor/code-editor.page').then(m => m.CodeEditorPage)
+  },
+  {
+    path: 'math',
+    loadComponent: () => import('./pages/math/math.page').then(m => m.MathPage)
+  },
+  {
+    path: 'storyboard',
+    loadComponent: () => import('./pages/storyboard/storyboard.page').then(m => m.StoryboardPage)
+  },
+  {
+    path: 'diagrams',
+    loadComponent: () => import('./pages/diagrams/diagrams.page').then(m => m.DiagramsPage)
+  },
+  {
+    path: 'calendar',
+    loadComponent: () => import('./pages/calendar/calendar.page').then(m => m.CalendarPage)
   },
 ];

@@ -29,7 +29,7 @@
         "build": {
           "builder": "@angular/build:ng-packagr",
           "options": {
-            "project": "ng-package.json"
+            "project": "src/ng-package.json"
           },
           "configurations": {
             "production": {
@@ -104,11 +104,6 @@
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "src/app/assets",
-                "output": "app/assets"
               },
               "src/manifest.webmanifest",
               "src/cli-module.ts",

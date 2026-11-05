@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { InternalError } from '@decaf-ts/db-decorators';
-import { GRAPH_BACKEND_URL } from 'src/graph/execution/GraphExecutionService';
+import { GRAPH_BACKEND_URL } from 'src/diagrams/components/graph/execution/GraphExecutionService';
 
 /**
  * One row of `GET /graph/workflows` (SAA-76): the serving summary the workflow
@@ -13,6 +13,7 @@ export interface GraphWorkflowSummary {
   name?: string;
   /** ISO timestamp of the last save/update. */
   updatedAt: string;
+  runnable?: boolean;
 }
 
 /**

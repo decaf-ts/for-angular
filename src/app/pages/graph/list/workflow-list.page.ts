@@ -11,7 +11,7 @@ import {
   GraphListService,
   GraphWorkflowSummary,
 } from 'src/app/services/graph-list/graph-list.service';
-import { GraphEngineCapabilityService } from 'src/graph/capabilities';
+import { GraphEngineCapabilityService } from 'src/diagrams/components/graph/capabilities';
 import { GraphWorkflowItemComponent } from './graph-workflow-item.component';
 
 /**
@@ -143,6 +143,9 @@ export class WorkflowListPage implements OnInit, AfterViewInit {
           workflowId: workflow.workflowId,
           name: workflow.name,
           updatedAt: workflow.updatedAt ?? '',
+          ...(workflow.runnable !== undefined
+            ? { runnable: workflow.runnable }
+            : {}),
         })),
       );
     } else {

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { CronSelectorComponent } from 'src/lib/components/cron-selector/cron-selector.component';
+import { CronSelectorComponent } from '@decaf-ts/for-angular/cron';
 import './setup';
 import { getComponentMeta } from './utils';
 

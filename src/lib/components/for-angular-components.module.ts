@@ -27,8 +27,6 @@ import { IconComponent } from './icon/icon.component';
 import { CardComponent } from './card/card.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
 import { TableComponent } from './table/table.component';
-import { CurveEditorComponent } from './curve-editor/curve-editor.component';
-import { MathInputComponent } from './math-input/math-input.component';
 
 const Components = [
   ModelRendererComponent,
@@ -48,9 +46,7 @@ const Components = [
   IconComponent,
   CardComponent,
   FileUploadComponent,
-  TableComponent,
-  CurveEditorComponent,
-  MathInputComponent
+  TableComponent
 ];
 
 @NgModule({

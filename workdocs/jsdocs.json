@@ -14,7 +14,18 @@
   "recurseDepth": 10,
   "source": {
     "include": [
-      "./src"
+      "./src",
+      "./src/kanban",
+      "./src/scrum",
+      "./src/gantt",
+      "./src/charts",
+      "./src/math",
+      "./src/code-editor",
+      "./src/barcode",
+      "./src/diagrams",
+      "./src/agent",
+      "./src/cron",
+      "./src/storyboard"
     ],
     "exclude": [
       "cli.(ts|js)"

@@ -7,7 +7,7 @@ import { ForAngularModel } from '../../../app/models/DemoModel';
 import { Model } from '@decaf-ts/decorator-validation';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
-import { CrudFormComponent } from '../../components/crud-form/crud-form.component';
+import { CrudFormComponent } from '../crud-form/crud-form.component';
 import { I18nFakeLoader } from '../../i18n';
 
 const navControllerMock = {

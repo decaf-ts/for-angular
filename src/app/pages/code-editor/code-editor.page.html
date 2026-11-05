@@ -1,0 +1,118 @@
+<app-header title="{{ 'code_editor.title' | translate }}" />
+
+<ion-content fullscreen="true" [scrollY]="true">
+  <main class="code-editor-page">
+    <ngx-decaf-container>
+      <header class="code-editor-page__intro">
+        <h2>{{ 'code_editor.title' | translate }}</h2>
+        <p>{{ 'code_editor.intro' | translate }}</p>
+      </header>
+
+      <div class="code-editor-page__layout">
+        <section class="code-editor-page__panel">
+          <div class="code-editor-page__toolbar">
+            <label class="code-editor-page__field">
+              <span>{{ 'code_editor.mode_label' | translate }}</span>
+              <select
+                data-testid="code-editor-mode"
+                [value]="mode()"
+                (change)="onModeChange($event)"
+              >
+                <option value="code">
+                  {{ 'code_editor.mode_code' | translate }}
+                </option>
+                <option value="formula">
+                  {{ 'code_editor.mode_formula' | translate }}
+                </option>
+              </select>
+            </label>
+            <button
+              type="button"
+              class="code-editor-page__reset"
+              data-testid="code-editor-reset"
+              (click)="reset()"
+            >
+              {{ 'code_editor.reset' | translate }}
+            </button>
+          </div>
+
+          <app-code-editor
+            data-testid="code-editor-host"
+            [mode]="mode()"
+            [code]="code()"
+            [placeholder]="placeholderKey() | translate"
+            [ariaLabel]="'code_editor.title' | translate"
+            (codeChange)="onCodeChange($event)"
+          />
+
+          <section class="code-editor-page__snippets">
+            <h3>{{ 'code_editor.snippets_label' | translate }}</h3>
+            <div class="code-editor-page__snippet-list">
+              @for (snippet of snippets; track snippet.id) {
+                <button
+                  type="button"
+                  class="code-editor-page__snippet"
+                  [attr.data-testid]="'code-editor-snippet-' + snippet.id"
+                  (click)="loadSnippet(snippet)"
+                >
+                  {{ snippet.labelKey | translate }}
+                </button>
+              }
+            </div>
+          </section>
+        </section>
+
+        <aside class="code-editor-page__panel code-editor-page__status">
+          <h3>{{ 'code_editor.status_title' | translate }}</h3>
+          <dl class="code-editor-page__stats">
+            <div>
+              <dt>{{ 'code_editor.lines_label' | translate }}</dt>
+              <dd data-testid="code-editor-lines">{{ lineCount() }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'code_editor.characters_label' | translate }}</dt>
+              <dd data-testid="code-editor-characters">{{ characterCount() }}</dd>
+            </div>
+          </dl>
+
+          <p
+            class="code-editor-page__syntax"
+            data-testid="code-editor-syntax"
+            aria-live="polite"
+          >
+            @switch (status().state) {
+              @case ('valid') {
+                <span class="code-editor-page__syntax--ok">
+                  {{ 'code_editor.syntax_ok' | translate }}
+                </span>
+              }
+              @case ('invalid') {
+                <span class="code-editor-page__syntax--error">
+                  {{
+                    'code_editor.syntax_error'
+                      | translate: { message: status().message }
+                  }}
+                </span>
+              }
+              @case ('formula') {
+                {{ 'code_editor.syntax_formula' | translate }}
+              }
+              @default {
+                {{ 'code_editor.syntax_empty' | translate }}
+              }
+            }
+          </p>
+
+          <h3>{{ 'code_editor.emitted_title' | translate }}</h3>
+          @if (lastEmitted()) {
+            <pre class="code-editor-page__emitted" data-testid="code-editor-emitted">{{ lastEmitted() }}</pre>
+          } @else {
+            <p class="code-editor-page__empty">
+              {{ 'code_editor.emitted_empty' | translate }}
+            </p>
+          }
+        </aside>
+      </div>
+    </ngx-decaf-container>
+  </main>
+</ion-content>

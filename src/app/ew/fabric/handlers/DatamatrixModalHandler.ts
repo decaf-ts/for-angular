@@ -1,6 +1,6 @@
 import { EnvironmentInjector } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import BwipJs, { BwippOptions } from '@bwip-js/browser';
+import { BarcodeTypes, createBarcodeContainer } from 'src/barcode/components';
 import { CrudFieldComponent } from 'src/lib/components';
 import { presentNgxInlineModal } from 'src/lib/components/modal/modal.component';
 import { getDbAdapterEnvInjector, getModelAndRepository } from 'src/lib/engine';
@@ -24,12 +24,6 @@ export async function createOnClickShowBarcodeModal(instance: CrudFieldComponent
     };
   }
 }
-
-export const BarcodeTypes = {
-  gs1datamatrix: 'gs1datamatrix',
-  datamatrix: 'datamatrix',
-  qrcode: 'qrcode',
-} as const;
 
 export class DatamatrixModalHandler extends NgxEventHandler {
   private static readonly charsMap: Record<string, string> = {
@@ -65,18 +59,6 @@ export class DatamatrixModalHandler extends NgxEventHandler {
     '125': '}',
     '126': '~',
   };
-
-  private static readonly barcodeOptions = {
-    text: '',
-    includeBarcodeText: true,
-    scale: 4,
-    height: 16,
-    textxalign: 'center',
-    textyalign: 'center',
-    backgroundcolor: 'ffffff',
-    paddingwidth: 4,
-    paddingheight: 4,
-  } as BwippOptions;
 
   override async handleClick(instance: NgxEventHandler, event: CustomEvent, uid: string) {
     const item = (instance._data as Batch[]).find((item) => item[instance.pk as keyof Batch] === uid);
@@ -135,23 +117,6 @@ export class DatamatrixModalHandler extends NgxEventHandler {
     batch: Batch,
     bcid: keyof typeof BarcodeTypes = BarcodeTypes.datamatrix
   ): HTMLElement | undefined {
-    const barcodeData = this.getBarcodeData(batch);
-    const container = document.createElement('div');
-    container.setAttribute('style', 'width: 280px; height: 280px;');
-
-    const options = {
-      ...this.barcodeOptions,
-      text: barcodeData,
-      bcid,
-    };
-
-    try {
-      const image = BwipJs.toSVG(options);
-      container.innerHTML = image;
-    } catch (error) {
-      console.error('Invalid barcode data supplied:', error);
-    }
-
-    return container;
+    return createBarcodeContainer(this.getBarcodeData(batch), { bcid });
   }
 }

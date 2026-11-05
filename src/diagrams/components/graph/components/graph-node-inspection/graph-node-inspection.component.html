@@ -1,0 +1,226 @@
+@if (store.openNodeId(); as openNodeId) {
+  <section
+    class="graph-node-inspection"
+    [class.graph-node-inspection--crud-only]="!showRunPanes()"
+    [attr.data-open-node-id]="openNodeId"
+  >
+    <header class="graph-node-inspection__header">
+      <div class="graph-node-inspection__identity">
+        @if (meta(); as metaInfo) {
+          <strong>{{ metaInfo.title }}</strong>
+          <small>{{ metaInfo.sourceClass }} · {{ metaInfo.kind }}</small>
+        } @else {
+          <strong>{{ nodeTitle() }}</strong>
+        }
+        <span class="graph-node-inspection__badge" [class]="stateBadgeClass()">
+          {{ nodeState() || 'idle' }}
+        </span>
+      </div>
+      <button
+        type="button"
+        class="graph-node-inspection__close"
+        title="Close split view"
+        (click)="close()"
+      >
+        &times;
+      </button>
+    </header>
+
+    <div class="graph-node-inspection__body">
+      <!-- LEFT: run inputs (D3 three-pane split view); omitted for un-ran nodes (R4-8) -->
+      @if (showRunPanes()) {
+        <section class="graph-node-inspection__pane graph-node-inspection__pane--inputs">
+          @if (payload(); as inspection) {
+            <app-graph-io-viewer
+              title="Run inputs"
+              [value]="inspection.inputs"
+              [runId]="inspection.runId"
+              [nodeId]="inspection.nodeId"
+              field="inputs"
+            />
+          } @else {
+            <div class="graph-node-inspection__empty graph-node-inspection__empty--inputs">
+              <strong>No run inputs</strong>
+              <small>{{ emptyReason() }}</small>
+              @if (runFailed()) {
+                <button
+                  type="button"
+                  class="graph-node-inspection__retry"
+                  (click)="requestRetry()"
+                >
+                  Retry result fetch
+                </button>
+              }
+            </div>
+          }
+        </section>
+      }
+
+      <!-- CENTER: CRUD form (always present; never removed by a run) -->
+      <section class="graph-node-inspection__pane graph-node-inspection__pane--crud">
+        @if (isBoundary()) {
+          <app-graph-workflow-input-editor
+            [role]="boundaryRole() ?? 'input'"
+            [field]="boundaryField()"
+            [form]="workflowInputForm()"
+            [value]="boundaryValue()"
+          />
+        } @else if (openNode(); as node) {
+          <app-graph-node-inline-editor
+            [nodeId]="openNodeId"
+            [nodeData]="node.data"
+            [nodeInstance]="nodeInstance()"
+            [parameterDefs]="parameterDefs()"
+            (saved)="onInlineSave($event)"
+          />
+        }
+      </section>
+
+      <!-- RIGHT: run outputs (or the node error); omitted for un-ran nodes (R4-8) -->
+      @if (showRunPanes()) {
+        <section class="graph-node-inspection__pane graph-node-inspection__pane--outputs">
+          @if (payload(); as inspection) {
+            @if (inspection.error) {
+              <app-graph-io-viewer
+                title="Run outputs"
+                [value]="null"
+                [error]="inspection.error"
+              />
+            } @else {
+              <app-graph-io-viewer
+                title="Run outputs"
+                [value]="inspection.outputs"
+                [runId]="inspection.runId"
+                [nodeId]="inspection.nodeId"
+                field="outputs"
+              />
+            }
+          } @else {
+            <div class="graph-node-inspection__empty graph-node-inspection__empty--outputs">
+              <strong>No run outputs</strong>
+              <small>{{ emptyReason() }}</small>
+              @if (runFailed()) {
+                <button
+                  type="button"
+                  class="graph-node-inspection__retry"
+                  (click)="requestRetry()"
+                >
+                  Retry result fetch
+                </button>
+              }
+            </div>
+          }
+        </section>
+      }
+    </div>
+
+    @if (nestedBodyNodes().length) {
+      <section class="graph-node-inspection__nested" data-nested-body="true">
+        <header class="graph-node-inspection__nested-header">
+          <strong>Loop body nodes</strong>
+          <small>
+            Executed inside this loop · select a node to review its run inputs and outputs
+          </small>
+        </header>
+        <div class="graph-node-inspection__nested-list">
+          @for (entry of nestedBodyNodes(); track entry.node.id) {
+            <article
+              class="graph-node-inspection__nested-node"
+              [attr.data-node-id]="entry.node.id"
+              [attr.data-node-kind]="entry.node.kind"
+              [attr.data-nested-derived]="entry.derived ? 'true' : null"
+            >
+              <button
+                type="button"
+                class="graph-node-inspection__nested-toggle"
+                [attr.aria-expanded]="isNestedExpanded(entry.node.id)"
+                (click)="toggleNestedNode(entry.node.id)"
+              >
+                <span class="graph-node-inspection__nested-identity">
+                  <strong>{{ nestedNodeTitle(entry.node) }}</strong>
+                  <small>{{ entry.node.id }} · {{ entry.node.kind }}</small>
+                </span>
+                <span
+                  class="graph-node-inspection__badge"
+                  [class]="'graph-node-inspection__badge--' + entry.state"
+                >
+                  {{ entry.state }}
+                </span>
+                <span class="graph-node-inspection__nested-caret" aria-hidden="true">
+                  {{ isNestedExpanded(entry.node.id) ? '▾' : '▸' }}
+                </span>
+              </button>
+
+              @if (isNestedExpanded(entry.node.id)) {
+                <div class="graph-node-inspection__nested-io">
+                  @if (entry.payload; as nestedPayload) {
+                    <app-graph-io-viewer
+                      title="Run inputs"
+                      [value]="nestedPayload.inputs"
+                      [runId]="nestedPayload.runId"
+                      [nodeId]="nestedPayload.nodeId"
+                      field="inputs"
+                    />
+                    @if (nestedPayload.error) {
+                      <app-graph-io-viewer
+                        title="Run outputs"
+                        [value]="null"
+                        [error]="nestedPayload.error"
+                      />
+                    } @else if (nestedPayload.outputs !== undefined) {
+                      <app-graph-io-viewer
+                        title="Run outputs"
+                        [value]="nestedPayload.outputs"
+                        [runId]="nestedPayload.runId"
+                        [nodeId]="nestedPayload.nodeId"
+                        field="outputs"
+                      />
+                    } @else {
+                      <div class="graph-node-inspection__empty graph-node-inspection__empty--outputs">
+                        <strong>No run outputs</strong>
+                        <small>
+                          {{
+                            entry.node.kind === 'core.flow.break'
+                              ? 'Break declares no output port; it ends the enclosing loop.'
+                              : 'The nested node recorded no output value.'
+                          }}
+                        </small>
+                      </div>
+                    }
+                    @if (entry.derived) {
+                      <p class="graph-node-inspection__nested-note">
+                        Derived from the loop's <code>broken</code> output: the break carried
+                        <code>value</code> into the collected results.
+                      </p>
+                    }
+                  } @else {
+                    <div class="graph-node-inspection__empty">
+                      <strong>No per-node run data</strong>
+                      <small>
+                        This node runs inside the loop body; the engine records its results on the
+                        enclosing loop node.
+                      </small>
+                    </div>
+                  }
+                </div>
+              }
+            </article>
+          }
+        </div>
+      </section>
+    }
+
+    @if (validationIssues().length) {
+      <ul class="graph-node-inspection__issues">
+        @for (issue of validationIssues(); track $index) {
+          <li class="graph-node-inspection__issue">
+            @if (issue.path) {
+              <strong>{{ issue.path }}</strong>
+            }
+            <span>{{ issue.message }}</span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}

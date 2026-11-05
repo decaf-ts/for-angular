@@ -1,0 +1,57 @@
+<div class="chat-attachment-input">
+  <button
+    type="button"
+    class="chat-attachment-input__trigger"
+    data-action="attach"
+    [disabled]="disabled()"
+    [attr.aria-label]="'agent.chat.attachments.add' | translateFallback: 'Attach'"
+    [attr.title]="'agent.chat.attachments.add' | translateFallback: 'Attach'"
+    (click)="openPicker($event, fileInput)"
+  >
+    <ngx-decaf-chat-icon name="attachment" [size]="16" />
+    <span>{{ "agent.chat.attachments.add" | translateFallback: "Attach" }}</span>
+  </button>
+
+  <input
+    #fileInput
+    type="file"
+    class="chat-attachment-input__file"
+    data-role="file-input"
+    [attr.aria-label]="'agent.chat.attachments.add' | translateFallback: 'Attach files'"
+    [attr.accept]="acceptAttr()"
+    [attr.multiple]="multiple() ? '' : null"
+    [disabled]="disabled()"
+    (change)="onFileInputChange($event)"
+  />
+
+  <p class="chat-attachment-input__hint">
+    {{ "agent.chat.attachments.pasteHint" | translateFallback: "Drop or paste files here" }}
+  </p>
+
+  @if (rejectedCount() > 0) {
+    <p class="chat-attachment-input__error" role="alert">
+      <ngx-decaf-chat-icon name="info" [size]="14" />
+      <span>
+        {{ "agent.chat.attachments.invalidType" | translateFallback: "Some files are not supported." }}
+      </span>
+    </p>
+  }
+</div>
+
+@if (dragging()) {
+  <div
+    class="chat-attachment-input__overlay"
+    data-role="drop-overlay"
+    aria-hidden="true"
+  >
+    <div class="chat-attachment-input__overlay-card">
+      <ngx-decaf-chat-icon name="upload" [size]="32" />
+      <p class="chat-attachment-input__overlay-title">
+        {{ "agent.chat.attachments.dropTitle" | translateFallback: "Drop files to attach" }}
+      </p>
+      <p class="chat-attachment-input__overlay-hint">
+        {{ "agent.chat.attachments.dropHint" | translateFallback: "Images and text files only" }}
+      </p>
+    </div>
+  </div>
+}

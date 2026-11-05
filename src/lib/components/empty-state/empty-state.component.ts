@@ -12,7 +12,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ElementSizes } from '@decaf-ts/ui-decorators';
 import { IonButton, IonSpinner } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IconComponent } from '../../components/icon/icon.component';
+import { IconComponent } from '../icon/icon.component';
 import { Dynamic } from '../../engine/decorators';
 import { ElementSize, FunctionLike } from '../../engine/types';
 import { DecafSafeHtmlPipe } from '../../pipes/safe-html.pipe';

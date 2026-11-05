@@ -1,0 +1,46 @@
+<footer
+  class="chat-artifact-version-footer"
+  role="navigation"
+  [attr.aria-label]="'agent.chat.artifact.version.label' | translateFallback: 'Artifact versions'"
+>
+  <button
+    type="button"
+    class="chat-artifact-version-footer__button"
+    [disabled]="!canGoOlder()"
+    (click)="goOlder()"
+    [attr.aria-label]="'agent.chat.artifact.version.older' | translateFallback: 'Older version'"
+  >
+    <ngx-decaf-chat-icon name="chevron-up" [size]="14" />
+    <span class="chat-artifact-version-footer__button-label">
+      {{ "agent.chat.artifact.version.older" | translateFallback: "Older" }}
+    </span>
+  </button>
+
+  <div class="chat-artifact-version-footer__status">
+    <span
+      class="chat-artifact-version-footer__count"
+      [attr.aria-label]="('agent.chat.artifact.version.current' | translateFallback: 'Version') + ' ' + current() + ' ' + ('agent.chat.artifact.version.of' | translateFallback: 'of') + ' ' + total()"
+    >
+      {{ "agent.chat.artifact.version.current" | translateFallback: "Version" }}
+      {{ current() }}
+      {{ "agent.chat.artifact.version.of" | translateFallback: "of" }}
+      {{ total() }}
+    </span>
+    @if (activeLabel()) {
+      <span class="chat-artifact-version-footer__label">{{ activeLabel() }}</span>
+    }
+  </div>
+
+  <button
+    type="button"
+    class="chat-artifact-version-footer__button"
+    [disabled]="!canGoNewer()"
+    (click)="goNewer()"
+    [attr.aria-label]="'agent.chat.artifact.version.newer' | translateFallback: 'Newer version'"
+  >
+    <span class="chat-artifact-version-footer__button-label">
+      {{ "agent.chat.artifact.version.newer" | translateFallback: "Newer" }}
+    </span>
+    <ngx-decaf-chat-icon name="chevron-down" [size]="14" />
+  </button>
+</footer>

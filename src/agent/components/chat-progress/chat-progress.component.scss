@@ -1,0 +1,110 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.chat-progress {
+  border: 1px solid var(--gx-border-soft);
+  border-radius: 8px;
+  background: var(--gx-surface-soft);
+  color: var(--gx-text-secondary);
+  padding: 0.45rem 0.55rem;
+}
+
+.chat-progress[data-done="true"] {
+  border-color: var(--gx-success-fg);
+}
+
+.chat-progress__row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chat-progress__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  border: 1px solid var(--gx-border-soft);
+  background: var(--gx-surface-panel);
+  color: var(--gx-warning-fg);
+  flex: 0 0 auto;
+}
+
+.chat-progress__icon ngx-decaf-chat-icon {
+  animation: chat-progress-spin 1.4s linear infinite;
+}
+
+.chat-progress__icon--done {
+  color: var(--gx-success-fg);
+  border-color: var(--gx-success-fg);
+}
+
+.chat-progress__icon--done ngx-decaf-chat-icon {
+  animation: none;
+}
+
+.chat-progress__label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--gx-text-strong);
+  overflow-wrap: anywhere;
+}
+
+.chat-progress__percent {
+  margin-left: auto;
+  font-family: var(--gx-font-mono, monospace);
+  font-size: 0.7rem;
+  color: var(--gx-text-muted);
+}
+
+.chat-progress__track {
+  height: 4px;
+  margin-top: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid var(--gx-border-soft);
+  background: var(--gx-surface-panel);
+  overflow: hidden;
+}
+
+.chat-progress__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gx-teal-fg);
+  transition: width 260ms ease;
+}
+
+.chat-progress[data-done="true"] .chat-progress__fill {
+  background: var(--gx-success-fg);
+}
+
+.chat-progress__message {
+  margin: 0.3rem 0 0;
+  font-size: 0.72rem;
+  color: var(--gx-text-muted);
+  line-height: 1.4;
+}
+
+.chat-progress__empty {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--gx-text-muted);
+}
+
+@keyframes chat-progress-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-progress__icon ngx-decaf-chat-icon,
+  .chat-progress__fill {
+    animation: none;
+    transition: none;
+  }
+}

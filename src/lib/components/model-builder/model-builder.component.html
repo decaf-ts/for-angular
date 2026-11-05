@@ -42,7 +42,7 @@
         </div>
         <p class="model-builder__hint">
           The model name below is the decaf model the structured output is
-          derived from; its as-zod conversion generates the output form. The
+          derived from; its definition generates the output form. The
           backend resolves it through its decaf-model registry.
         </p>
         <ion-item>
@@ -74,7 +74,7 @@
         @if (generatedFields().length) {
           <div class="model-builder__generated-form">
             <h4 class="model-builder__group-title">
-              Generated structured-output form (as-zod)
+              Generated structured-output form
             </h4>
             @for (field of generatedFields(); track field.name) {
               <ion-item>

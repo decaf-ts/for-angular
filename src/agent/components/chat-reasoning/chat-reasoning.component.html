@@ -1,0 +1,46 @@
+<section
+  class="chat-reasoning"
+  [class.chat-reasoning--inline]="inline()"
+  [class.chat-reasoning--standalone]="!inline()"
+  [class.chat-reasoning--open]="isOpen()"
+>
+  <button
+    type="button"
+    class="chat-reasoning__trigger"
+    [attr.aria-expanded]="isOpen()"
+    [attr.aria-controls]="contentId"
+    (click)="onTrigger()"
+  >
+    <ngx-decaf-chat-icon name="sparkles" [size]="16" />
+    <span class="chat-reasoning__title">
+      {{ title() || ("agent.chat.reasoning.title" | translateFallback: "Reasoning") }}
+    </span>
+    @if (meta()) {
+      <span class="chat-reasoning__meta">{{ meta() }}</span>
+    }
+    @if (streaming()) {
+      <span class="chat-reasoning__streaming">
+        {{ "agent.chat.reasoning.streaming" | translateFallback: "Thinking…" }}
+      </span>
+    }
+    <ngx-decaf-chat-icon
+      class="chat-reasoning__chevron"
+      [name]="isOpen() ? 'chevron-up' : 'chevron-down'"
+      [size]="16"
+    />
+  </button>
+
+  @if (isOpen()) {
+    <div
+      class="chat-reasoning__content"
+      [id]="contentId"
+      role="region"
+      [attr.aria-label]="title() || ('agent.chat.reasoning.title' | translateFallback: 'Reasoning')"
+    >
+      <ng-content select="[chatReasoningContent]" />
+      @if (content()) {
+        <p class="chat-reasoning__text">{{ content() }}</p>
+      }
+    </div>
+  }
+</section>

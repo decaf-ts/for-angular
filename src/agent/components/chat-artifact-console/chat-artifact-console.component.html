@@ -1,0 +1,70 @@
+<section
+  class="chat-artifact-console"
+  [class.chat-artifact-console--resizable]="resizable()"
+  [style.height.px]="height()"
+  [attr.aria-label]="title() || ('agent.chat.artifact.console.title' | translateFallback: 'Output')"
+>
+  @if (resizable()) {
+    <div
+      class="chat-artifact-console__handle"
+      role="separator"
+      aria-orientation="horizontal"
+      tabindex="0"
+      [attr.aria-label]="'agent.chat.artifact.console.resize' | translateFallback: 'Resize output console'"
+      [attr.aria-valuenow]="height()"
+      [attr.aria-valuemin]="lowerBound()"
+      [attr.aria-valuemax]="upperBound()"
+      (pointerdown)="startResize($event)"
+      (pointermove)="onResize($event)"
+      (pointerup)="endResize($event)"
+      (pointercancel)="endResize($event)"
+      (keydown)="onHandleKeydown($event)"
+    >
+      <span class="chat-artifact-console__grip" aria-hidden="true"></span>
+    </div>
+  }
+
+  <header class="chat-artifact-console__header">
+    <span class="chat-artifact-console__title">
+      {{ title() || ("agent.chat.artifact.console.title" | translateFallback: "Output") }}
+    </span>
+    <span class="chat-artifact-console__count">
+      {{ rowCount() }}
+      {{ (rowCount() === 1 ? "agent.chat.artifact.console.line" : "agent.chat.artifact.console.lines") | translateFallback: (rowCount() === 1 ? "line" : "lines") }}
+    </span>
+    @if (showClear()) {
+      <button
+        type="button"
+        class="chat-artifact-console__clear"
+        (click)="clear()"
+        [attr.aria-label]="'agent.chat.artifact.console.clear' | translateFallback: 'Clear output'"
+      >
+        <ngx-decaf-chat-icon name="trash" [size]="13" />
+        {{ "agent.chat.artifact.console.clearLabel" | translateFallback: "Clear" }}
+      </button>
+    }
+  </header>
+
+  <div
+    class="chat-artifact-console__body"
+    role="log"
+    aria-live="polite"
+    [attr.aria-label]="'agent.chat.artifact.console.aria' | translateFallback: 'Console output'"
+  >
+    @for (row of rows(); track trackRow($index, row)) {
+      <div class="chat-artifact-console__row" [attr.data-level]="levelOf(row)">
+        <span class="chat-artifact-console__level">{{ levelOf(row) }}</span>
+        @if (row.timestamp) {
+          <time class="chat-artifact-console__time" [attr.datetime]="row.timestamp">
+            {{ row.timestamp }}
+          </time>
+        }
+        <span class="chat-artifact-console__text">{{ row.text }}</span>
+      </div>
+    } @empty {
+      <p class="chat-artifact-console__empty">
+        {{ "agent.chat.artifact.console.empty" | translateFallback: "No output yet." }}
+      </p>
+    }
+  </div>
+</section>

@@ -70,7 +70,7 @@
     1. **Clickable `<td>`s are mouse-only.** `table.component.html:82-102` — interactive cells have no keyboard operability. **Proposed fix:** expose the interactive cell content as real buttons/links (or add keyboard handlers with correct semantics) — "table interactive-cell semantics" in the P2 remediation plan.
     2. **Stepped-form step indicator is purely visual.** No `aria-current="step"` on the active step (`stepped-form.component.html:9-13`). **Proposed fix:** set `aria-current="step"` on the active step element.
     3. **File-upload drop zone is keyboard-inoperable.** `file-upload.component.html:23-42` — drag-only affordance with no keyboard path. **Proposed fix:** make the drop zone a real button that opens the file dialog.
-    4. **Spinners lack `role="status"`.** `modal.component.html:67-72`, `empty-state.component.html:4-6`, `fieldset.component.html:306-312`. **Proposed fix:** add `role="status"` (with `aria-busy`/announced text) — see finding 23 for the in-package positive example in `src/graph/**`.
+    4. **Spinners lack `role="status"`.** `modal.component.html:67-72`, `empty-state.component.html:4-6`, `fieldset.component.html:306-312`. **Proposed fix:** add `role="status"` (with `aria-busy`/announced text) — see finding 23 for the in-package positive example in `src/diagrams/components/graph/**`.
     5. **cron-builder `[role]="button"` broken.** `cron-builder.component.html:62` binds `[role]="button"` with `button` undefined → the role attribute is removed; `(keydown)` fires on every key (`cron-builder.component.html:75`); `arai-hidden`/`maxlengh` typos at `cron-builder.component.html:53,201`. **Proposed fix:** use a real `<button>` (or fix the role binding), switch to `(keydown.enter)`, and fix the typos.
     6. **modal-confirm malformed `aria-label`.** `modal-confirm.component.html:9,37` — malformed `aria-label` binding plus the `title?.lengh` typo. **Proposed fix:** correct the translate binding quoting and fix the `lengh` → `length` typo.
     7. **`role="form"` unnamed.** `cron-selector.component.html:3`. **Proposed fix:** remove the role or give the form an accessible name.
@@ -123,7 +123,7 @@
     - **Proposed fix:** replace duration literals with the motion tokens and add `:focus-visible` parity for hover-only feedback.
 22. **Touch targets:** pagination 34px vs the 42px `--dcf-size-touch` token (AA 24px still met); switcher tabs ~24–30px.
     - **Proposed fix:** size pagination (and switcher tabs) up to the `--dcf-size-touch` token.
-23. **Strengths worth keeping:** skeleton loading (list/file-upload/stepped-form/crud-field); empty-state distinguishing "no data" vs "no search results" with contextual action; pull-to-refresh + infinite-scroll/pagination switching; header overlay-menu fallback works; `src/graph/**` already uses `role="status"`/`aria-live` correctly (positive in-package example).
+23. **Strengths worth keeping:** skeleton loading (list/file-upload/stepped-form/crud-field); empty-state distinguishing "no data" vs "no search results" with contextual action; pull-to-refresh + infinite-scroll/pagination switching; header overlay-menu fallback works; `src/diagrams/components/graph/**` already uses `role="status"`/`aria-live` correctly (positive in-package example).
 
 ---
 

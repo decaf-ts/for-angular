@@ -14,6 +14,7 @@
  * {@link AgentChatTransport} against the same contract.
  */
 import type { GraphRunEventEnvelope } from "@decaf-ts/as-graph/shared";
+import type { Observable } from "rxjs";
 
 /** Role a {@link AgentChatMessageView} plays in the transcript. */
 export type AgentChatRole = "user" | "assistant" | "system" | "error";
@@ -28,7 +29,57 @@ export interface AgentChatAttachment {
   mime: string;
   /** File size in bytes. */
   size: number;
+  /** Optional object URL used to render image thumbnails (`blob:` / `data:`). */
+  url?: string;
+  /** Optional decoded text preview used by text-file cards and attachment parts. */
+  textPreview?: string;
 }
+
+/** Attachment staged for the next send, optionally keeping the original file. */
+export interface AgentChatStagedAttachment extends AgentChatAttachment {
+  /** Original browser file; the preview component derives object URLs/text previews from it. */
+  file?: File;
+}
+
+/** Reason a dropped/pasted/selected file was rejected by the attachment input. */
+export type AgentChatAttachmentRejectionReason = "mime" | "size";
+
+/** A file rejected by {@link AgentChatAttachmentInputComponent} validation. */
+export interface AgentChatAttachmentRejection {
+  /** Original file name. */
+  name: string;
+  /** MIME type reported by the browser. */
+  mime: string;
+  /** File size in bytes. */
+  size: number;
+  /** Why the file was rejected. */
+  reason: AgentChatAttachmentRejectionReason;
+}
+
+/** A slash command offered by the composer's slash-command popover. */
+export interface AgentChatSlashCommand {
+  /** Command name without the leading slash (e.g. `summarize`). */
+  name: string;
+  /** Optional human-readable description shown under the command. */
+  description?: string;
+  /** Optional alternative names matched by the prefix filter. */
+  aliases?: string[];
+}
+
+/** A model offered by the composer's model selector. */
+export interface AgentChatModel {
+  /** Stable model identifier passed through on run inputs. */
+  id: string;
+  /** Display name shown in the trigger and list. */
+  name: string;
+  /** Optional short description shown under the name. */
+  description?: string;
+  /** Optional provider label shown as a chip. */
+  provider?: string;
+}
+
+/** Conversation visibility shared with the visibility selector. */
+export type AgentChatVisibility = "private" | "shared";
 
 /** Knowledge-base entry the composer can attach to outgoing messages. */
 export interface AgentChatKnowledgeSource {
@@ -58,6 +109,124 @@ export interface AgentChatMessageView {
   pending?: boolean;
   /** Action names the agent reported alongside its response (rendered as chips). */
   actions?: string[];
+  /** Structured nested parts (text, attachment, tool, reasoning, code) rendered inside the message. */
+  parts?: AgentChatMessagePart[];
+  /** While `true` the message text is still streaming in. */
+  streaming?: boolean;
+  /** User feedback recorded for the message. */
+  vote?: AgentChatVote | null;
+  /** ISO timestamp of the last inline edit, when the message was edited. */
+  editedAt?: string;
+}
+
+/** User feedback a message can carry. */
+export type AgentChatVote = "up" | "down";
+
+/** Common shape of a nested message part. */
+export interface AgentChatMessagePartBase {
+  /** Stable part identifier within its message. */
+  id: string;
+}
+
+/** Plain text part of a message (may still be streaming). */
+export interface AgentChatTextPart extends AgentChatMessagePartBase {
+  /** Discriminator. */
+  kind: "text";
+  /** Displayed text. */
+  text: string;
+  /** While `true` the text is still streaming in. */
+  streaming?: boolean;
+}
+
+/** Attachment part of a message (image, document, or generic file). */
+export interface AgentChatAttachmentPart extends AgentChatMessagePartBase {
+  /** Discriminator. */
+  kind: "attachment";
+  /** Attachment metadata rendered as a nested chip. */
+  attachment: AgentChatAttachment;
+}
+
+/** Lifecycle status of a tool invocation rendered inside a message. */
+export type AgentChatToolPartStatus =
+  | "queued"
+  | "running"
+  | "succeeded"
+  | "failed";
+
+/** Tool invocation part of a message. */
+export interface AgentChatToolPart extends AgentChatMessagePartBase {
+  /** Discriminator. */
+  kind: "tool";
+  /** Tool name shown in the nested summary. */
+  name: string;
+  /** Current invocation status. */
+  status: AgentChatToolPartStatus;
+  /** Optional tool input rendered as JSON. */
+  input?: unknown;
+  /** Optional tool output rendered as JSON. */
+  output?: unknown;
+  /** Optional error message for a failed invocation. */
+  error?: string;
+}
+
+/** Collapsible reasoning/thinking part of a message. */
+export interface AgentChatReasoningPart extends AgentChatMessagePartBase {
+  /** Discriminator. */
+  kind: "reasoning";
+  /** Optional title overriding the default reasoning label. */
+  title?: string;
+  /** Reasoning text. */
+  content: string;
+  /** While `true` the reasoning is still streaming in. */
+  streaming?: boolean;
+  /** Whether the reasoning content starts expanded. */
+  open?: boolean;
+}
+
+/** Code block part of a message. */
+export interface AgentChatCodePart extends AgentChatMessagePartBase {
+  /** Discriminator. */
+  kind: "code";
+  /** Raw code text. */
+  code: string;
+  /** Language hint used for lightweight highlighting. */
+  language?: string;
+  /** Optional file name shown in the code-block header. */
+  filename?: string;
+  /** Optional title shown in the code-block header. */
+  title?: string;
+}
+
+/** A nested part rendered inside a chat message. */
+export type AgentChatMessagePart =
+  | AgentChatTextPart
+  | AgentChatAttachmentPart
+  | AgentChatToolPart
+  | AgentChatReasoningPart
+  | AgentChatCodePart;
+
+/** Transcript download payload emitted by the conversation container. */
+export interface AgentChatTranscriptDownload {
+  /** Suggested file name. */
+  filename: string;
+  /** Markdown body of the transcript. */
+  markdown: string;
+}
+
+/** Save payload emitted by the inline message editor. */
+export interface AgentChatMessageEdit {
+  /** Id of the edited message. */
+  messageId: string;
+  /** Replacement text. */
+  text: string;
+}
+
+/** Vote payload emitted by the message action bar. */
+export interface AgentChatMessageVoteChange {
+  /** Id of the voted message. */
+  messageId: string;
+  /** New vote, or `null` when the previous vote was cleared. */
+  vote: AgentChatVote | null;
 }
 
 /** Lifecycle status of a chat roundtrip's underlying graph run. `replayed` is
@@ -91,6 +260,20 @@ export interface AgentChatRoundtripTelemetry {
   logLines?: number;
   /** First error carried by a failed run or node. */
   error?: { name?: string; message?: string };
+  /** Wall-clock duration reported by the run, in milliseconds. */
+  durationMs?: number;
+  /** Generation function id (OTel `functionId`) when the backend reports it. */
+  functionId?: string;
+  /** Runtime context attached to the generation (OTel `runtimeContext`). */
+  runtimeContext?: unknown;
+  /** Distributed trace id for the generation. */
+  traceId?: string;
+  /** Prompt tokens consumed by the generation, when reported. */
+  promptTokens?: number;
+  /** Completion tokens produced by the generation, when reported. */
+  completionTokens?: number;
+  /** Total tokens consumed by the generation, when reported. */
+  totalTokens?: number;
 }
 
 /** Structured object (use-object style) extracted from a run's `NODE_OUTPUT` payload. */
@@ -172,3 +355,466 @@ export interface AgentChatConfiguration {
   /** Explicit user id override; `null` forces anonymous sends. */
   userId?: string | null;
 }
+
+/** Visibility state of a chat history entry. */
+export type AgentChatHistoryVisibility = "private" | "shared" | "public";
+
+/** One conversation entry rendered by the chat history sidebar. */
+export interface AgentChatHistoryEntry {
+  /** Stable conversation identifier. */
+  readonly id: string;
+  /** Conversation title. */
+  readonly title: string;
+  /** Last-message preview. */
+  readonly preview?: string;
+  /** ISO timestamp of the last update. */
+  readonly updatedAt?: string;
+  /** Number of messages in the conversation. */
+  readonly messageCount?: number;
+  /** Sharing scope of the conversation. */
+  readonly visibility?: AgentChatHistoryVisibility;
+  /** Principals the conversation is shared with. */
+  readonly sharedWith?: string[];
+}
+
+/** Page request accepted by {@link AgentChatHistorySource.list}. */
+export interface AgentChatHistoryPageQuery {
+  /** One-based page number. */
+  readonly page: number;
+  /** Maximum entries per page. */
+  readonly pageSize: number;
+}
+
+/** Data source backing the chat history sidebar (in-memory by default). */
+export interface AgentChatHistorySource {
+  /** Lists a page of conversations (all when `query` is omitted). */
+  list(query?: AgentChatHistoryPageQuery): Observable<AgentChatHistoryEntry[]>;
+  /** Deletes a conversation; optional, may be observable or a promise. */
+  delete?(id: string): Observable<void> | Promise<void>;
+}
+
+/** Lifecycle status of a knowledge-base entry. */
+export type AgentChatKnowledgeEntryStatus = "ready" | "uploading" | "error";
+
+/** Knowledge-base document entry rendered by the knowledge-base selector. */
+export interface AgentChatKnowledgeBaseEntry extends AgentChatKnowledgeSource {
+  /** Original uploaded filename. */
+  readonly fileName?: string;
+  /** MIME type of the uploaded file. */
+  readonly mime?: string;
+  /** File size in bytes. */
+  readonly size?: number;
+  /** ISO timestamp of the last update. */
+  readonly updatedAt?: string;
+  /** Number of files represented by the entry. */
+  readonly fileCount?: number;
+  /** Lifecycle status of the entry. */
+  readonly status?: AgentChatKnowledgeEntryStatus;
+}
+
+/** Lifecycle status of one upload queue row. */
+export type AgentChatKnowledgeUploadStatus =
+  | "queued"
+  | "uploading"
+  | "done"
+  | "error";
+
+/** Upload queue row rendered by the knowledge-base selector. */
+export interface AgentChatKnowledgeUpload {
+  /** Upload queue row identifier. */
+  readonly id: string;
+  /** Uploaded filename. */
+  readonly name: string;
+  /** File size in bytes. */
+  readonly size: number;
+  /** Entry the upload creates or updates. */
+  readonly entryId?: string;
+  /** Current queue status. */
+  status: AgentChatKnowledgeUploadStatus;
+  /** Upload progress from 0 to 1. */
+  progress?: number;
+  /** Failure message for failed uploads. */
+  error?: string;
+}
+
+/** Data source backing the knowledge-base selector (in-memory by default). */
+export interface AgentChatKnowledgeBaseSource {
+  /** Lists every knowledge-base entry. */
+  list(): Observable<AgentChatKnowledgeBaseEntry[]>;
+  /** Uploads a file, optionally updating an existing entry. */
+  upload?(
+    entryId: string | undefined,
+    file: File,
+  ): Observable<AgentChatKnowledgeBaseEntry | void> | Promise<AgentChatKnowledgeBaseEntry | void>;
+  /** Removes a knowledge-base entry. */
+  remove?(entryId: string): Observable<void> | Promise<void>;
+}
+
+/** Kind of content an artifact holds. */
+export type AgentChatArtifactKind = "text" | "code" | "image" | "sheet";
+
+/** Sharing scope of an artifact. */
+export type AgentChatArtifactVisibility = "private" | "shared" | "public";
+
+/** Recursively optional version of a record type, preserving array element shapes. */
+export type AgentChatDeepPartial<T> = {
+  [P in keyof T]?: T[P] extends (infer U)[]
+    ? AgentChatDeepPartial<U>[]
+    : T[P] extends object | null
+      ? AgentChatDeepPartial<T[P]>
+      : T[P];
+};
+
+/** One committed structured-object snapshot recorded in the viewer history. */
+export interface AgentChatStructuredObjectEntry {
+  /** Run that produced the value. */
+  readonly runId: string;
+  /** Committed structured value. */
+  readonly value: unknown;
+  /** ISO timestamp when the value was committed. */
+  readonly committedAt?: string;
+}
+
+/** Severity level of a chat notification. */
+export type AgentChatNotificationSeverity =
+  | "info"
+  | "success"
+  | "warning"
+  | "error";
+
+/** Toast-style notification rendered by the notification stack. */
+export interface AgentChatNotification {
+  /** Notification identifier. */
+  readonly id: string;
+  /** Severity driving the icon and tone. */
+  readonly severity?: AgentChatNotificationSeverity;
+  /** Optional notification title. */
+  readonly title?: string;
+  /** Notification body. */
+  readonly message: string;
+  /** Auto-dismiss delay; `0` keeps it open. */
+  readonly autoDismissMs?: number;
+  /** Label of the optional action. */
+  readonly actionLabel?: string;
+}
+
+/** Lifecycle state of an artifact tool action. */
+export type AgentChatArtifactToolState = "idle" | "running" | "done" | "error";
+
+/** One artifact tool rendered by the artifact toolbar. */
+export interface AgentChatArtifactTool {
+  /** Artifact kind the tool creates. */
+  readonly kind: AgentChatArtifactKind;
+  /** Optional i18n label key. */
+  readonly labelKey?: string;
+  /** Optional icon name override. */
+  readonly icon?: string;
+  /** Whether the tool is unavailable. */
+  readonly disabled?: boolean;
+}
+
+/** Document payload rendered by the artifact document viewer. */
+export interface AgentChatArtifactDocument {
+  /** Document identifier. */
+  readonly id: string;
+  /** Document title. */
+  readonly title: string;
+  /** Artifact kind. */
+  readonly kind: AgentChatArtifactKind;
+  /** Inline document content. */
+  readonly content?: string;
+  /** Document URL when content is remote. */
+  readonly url?: string;
+  /** Document version number. */
+  readonly version?: number;
+}
+
+/** Load lifecycle of an artifact document. */
+export type AgentChatArtifactDocumentStatus =
+  | "pending"
+  | "loading"
+  | "succeeded"
+  | "failed";
+
+/** One version of an artifact shown by the version footer. */
+export interface AgentChatArtifactVersionEntry {
+  /** Version identifier. */
+  readonly id: string;
+  /** Optional version label. */
+  readonly label?: string;
+  /** ISO timestamp of the version. */
+  readonly createdAt?: string;
+}
+
+/** Kind of a rendered diff row. */
+export type AgentChatDiffLineKind = "equal" | "added" | "removed" | "changed";
+
+/** One numbered line on a side of a text diff. */
+export interface AgentChatDiffLine {
+  /** One-based line number. */
+  readonly number: number;
+  /** Line text. */
+  readonly text: string;
+}
+
+/** One aligned row of a text diff. */
+export interface AgentChatDiffRow {
+  /** Kind of the diff row. */
+  readonly kind: AgentChatDiffLineKind;
+  /** Previous-side line, when present. */
+  readonly previous?: AgentChatDiffLine;
+  /** Current-side line, when present. */
+  readonly current?: AgentChatDiffLine;
+}
+
+/** Severity level of a console row. */
+export type AgentChatConsoleLevel = "log" | "info" | "warn" | "error" | "debug";
+
+/** One console output row rendered by the artifact console. */
+export interface AgentChatConsoleRow {
+  /** Optional stable row identifier. */
+  readonly id?: string;
+  /** Console severity level. */
+  readonly level?: AgentChatConsoleLevel;
+  /** Console line text. */
+  readonly text: string;
+  /** Optional ISO timestamp. */
+  readonly timestamp?: string;
+}
+
+/** Lifecycle state of a generic tool call rendered by `ngx-decaf-chat-tool`. */
+export type AgentChatToolCallState =
+  | "input-streaming"
+  | "input-available"
+  | "output-available"
+  | "output-error"
+  | "output-denied";
+
+/** One order row rendered by the orders tool result card. */
+export interface AgentChatOrder {
+  /** Order identifier. */
+  readonly id: string;
+  /** Order display name. */
+  readonly name: string;
+  /** Optional ISO order date. */
+  readonly date?: string;
+  /** Optional product image URL. */
+  readonly imageUrl?: string;
+  /** Optional icon name. */
+  readonly icon?: string;
+  /** Optional order status label. */
+  readonly status?: string;
+}
+
+/** Shipping status driving the tracker timeline and its progress percentage. */
+export type AgentChatTrackerStatus =
+  | "ordered"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+
+/** Lifecycle status shared by workflow and agent-network steps. */
+export type AgentChatWorkflowStepStatus =
+  | "running"
+  | "success"
+  | "failed"
+  | "suspended"
+  | "waiting";
+
+/** One workflow step row rendered by `ngx-decaf-chat-workflow-status`. */
+export interface AgentChatWorkflowStep {
+  /** Step identifier. */
+  readonly id: string;
+  /** Step display name. */
+  readonly name: string;
+  /** Step lifecycle status. */
+  readonly status: AgentChatWorkflowStepStatus;
+  /** Optional step output payload. */
+  readonly output?: unknown;
+  /** Optional step error message. */
+  readonly error?: string;
+}
+
+/** Lifecycle status of an agent-network step. */
+export type AgentChatAgentStepStatus = AgentChatWorkflowStepStatus;
+
+/** One agent-network step rendered by `ngx-decaf-chat-agent-step`. */
+export interface AgentChatAgentStep {
+  /** Optional step identifier. */
+  readonly id?: string;
+  /** Step display name. */
+  readonly name: string;
+  /** Step lifecycle status. */
+  readonly status: AgentChatAgentStepStatus;
+  /** Optional step input payload. */
+  readonly input?: unknown;
+  /** Optional step output payload. */
+  readonly output?: unknown;
+  /** Optional step error message. */
+  readonly error?: string;
+}
+
+/** Data state of a weather result card. */
+export type AgentChatWeatherState = "loading" | "success" | "error";
+
+/** Weather payload rendered by `ngx-decaf-chat-weather`. */
+export interface AgentChatWeather {
+  /** Forecast location. */
+  readonly location: string;
+  /** Optional condition text. */
+  readonly condition?: string;
+  /** High temperature in `unit`. */
+  readonly high: number;
+  /** Low temperature in `unit`. */
+  readonly low: number;
+  /** Temperature unit suffix. */
+  readonly unit?: string;
+  /** Whether the forecast is for the night. */
+  readonly night?: boolean;
+  /** Data state of the card. */
+  readonly state?: AgentChatWeatherState;
+}
+
+/** Tool error surfaced inside a nested agent run snapshot. */
+export interface AgentChatNestedAgentToolError {
+  /** Optional tool call identifier. */
+  readonly id?: string;
+  /** Name of the failing tool. */
+  readonly toolName: string;
+  /** Failure message. */
+  readonly message: string;
+}
+
+/** Nested agent run snapshot rendered by `ngx-decaf-chat-nested-agent`. */
+export interface AgentChatNestedAgentSnapshot {
+  /** Nested run identifier. */
+  readonly runId?: string;
+  /** Nesting depth. */
+  readonly depth?: number;
+  /** Parent agent names, outermost first. */
+  readonly ancestry?: string[];
+  /** Streamed nested-agent text. */
+  readonly text?: string;
+  /** Whether the nested agent is still streaming. */
+  readonly streaming?: boolean;
+  /** Nested run lifecycle status. */
+  readonly status?: AgentChatWorkflowStepStatus;
+  /** Tool errors reported by the nested agent. */
+  readonly toolErrors?: AgentChatNestedAgentToolError[];
+}
+
+/** One custom data event consumed by `ngx-decaf-chat-progress` (latest wins). */
+export interface AgentChatProgressEvent {
+  /** Optional event identifier. */
+  readonly id?: string;
+  /** Human-readable progress label. */
+  readonly label?: string;
+  /** i18n key for the progress label. */
+  readonly labelKey?: string;
+  /** Completed units. */
+  readonly value?: number;
+  /** Total units. */
+  readonly total?: number;
+  /** Whether the operation finished. */
+  readonly done?: boolean;
+  /** Optional progress detail message. */
+  readonly message?: string;
+}
+
+/** Approval decision states rendered by `ngx-decaf-chat-approval`. */
+export type AgentChatApprovalStatus = "pending" | "approved" | "rejected";
+
+/** Typed resume outcome emitted when a suspended run is approved. */
+export interface AgentChatApprovalResume {
+  /** Decision discriminator (`resume`). */
+  readonly type: "resume";
+  /** Run being resumed. */
+  readonly runId: string;
+  /** Payload sent back to the suspended run. */
+  readonly resumeData: unknown;
+}
+
+/** Typed deny outcome emitted when a suspended run is rejected. */
+export interface AgentChatApprovalDenial {
+  /** Decision discriminator (`deny`). */
+  readonly type: "deny";
+  /** Run being denied. */
+  readonly runId: string;
+  /** Optional denial reason. */
+  readonly reason?: string;
+}
+
+/** Scripted demo scenario selectable in the fake transport. */
+export type AgentChatDemoScenario = "conversation" | "structured-object";
+
+/** Demo options accepted by {@link AgentChatFakeTransport.configure}. */
+export interface AgentChatDemoOptions {
+  /** Scripted conversation to play for every send/replay. */
+  readonly scenario?: AgentChatDemoScenario;
+  /** Playback speed multiplier (`1` = the scripted default, `2` = twice as fast). */
+  readonly speed?: number;
+}
+
+/**
+ * Demo-only side-channel event emitted by `AgentChatFakeTransport` alongside
+ * the canonical graph run envelopes. This is how the demo page drives the
+ * component families that are not part of a chat transcript (workflow status,
+ * progress, approvals, nested agents, and the specialized tool cards) without
+ * inventing a second backend contract.
+ */
+export type AgentChatDemoEvent =
+  | {
+      /** Workflow step snapshot after a state transition. */
+      readonly kind: "workflow-steps";
+      readonly steps: AgentChatWorkflowStep[];
+    }
+  | {
+      /** Agent-network step snapshot after a state transition. */
+      readonly kind: "agent-step";
+      readonly step: AgentChatAgentStep;
+    }
+  | {
+      /** Nested-agent snapshot after a state transition. */
+      readonly kind: "nested-agent";
+      readonly snapshot: AgentChatNestedAgentSnapshot;
+    }
+  | {
+      /** Latest custom data progress event. */
+      readonly kind: "progress";
+      readonly event: AgentChatProgressEvent;
+    }
+  | {
+      /** Human-in-the-loop approval prompt. */
+      readonly kind: "approval";
+      readonly status: AgentChatApprovalStatus;
+      readonly runId: string;
+      readonly payload?: unknown;
+      readonly toolName?: string;
+    }
+  | {
+      /** Orders tool result card payload. */
+      readonly kind: "orders";
+      readonly orders: AgentChatOrder[];
+    }
+  | {
+      /** Shipment tracker tool result card payload. */
+      readonly kind: "tracker";
+      readonly status: AgentChatTrackerStatus;
+      readonly progress: number;
+      readonly label?: string;
+      readonly description?: string;
+    }
+  | {
+      /** Weather tool result card payload. */
+      readonly kind: "weather";
+      readonly weather: AgentChatWeather;
+    }
+  | {
+      /** Toast-style notification. */
+      readonly kind: "notification";
+      readonly notification: AgentChatNotification;
+    }
+  | {
+      /** Clears every demo side-channel panel before a new scripted run. */
+      readonly kind: "reset";
+    };

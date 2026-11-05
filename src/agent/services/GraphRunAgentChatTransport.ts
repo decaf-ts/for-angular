@@ -20,12 +20,12 @@
  * disconnects.
  */
 import { Injectable, inject } from "@angular/core";
-import { GraphRunClient } from "../../graph/runs/GraphRunClient";
+import { GraphRunClient } from "@decaf-ts/for-angular/diagrams";
 import {
   GraphRunEventClient,
   type GraphRunEventClientSubscriber,
-} from "../../graph/runs/GraphRunEventClient";
-import { GraphBackendUnavailableError } from "../../graph/execution/GraphExecutionService";
+} from "@decaf-ts/for-angular/diagrams";
+import { GraphBackendUnavailableError } from "@decaf-ts/for-angular/diagrams";
 import type { GraphRunEventEnvelope } from "@decaf-ts/as-graph/shared";
 import type {
   AgentChatRunDescriptor,

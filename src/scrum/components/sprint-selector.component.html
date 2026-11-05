@@ -1,0 +1,34 @@
+<div class="dcf-sprint-selector">
+  <label class="dcf-sprint-selector__label" [attr.for]="selectId()">
+    {{ label() }}
+  </label>
+  <select
+    class="dcf-sprint-selector__select"
+    [id]="selectId()"
+    [disabled]="isDisabled()"
+    [attr.aria-busy]="loading()"
+    [attr.aria-describedby]="describe()"
+    (change)="onChange($event)"
+  >
+    <option value="" [selected]="!selectedSprintId()">{{ placeholder() }}</option>
+    @for (sprint of sprints(); track sprint.id) {
+      <option [value]="sprint.id" [selected]="sprint.id === selectedSprintId()">
+        {{ sprint.title }}
+      </option>
+    }
+  </select>
+  @if (loading()) {
+    <span
+      class="dcf-sprint-selector__status"
+      [id]="statusId()"
+      role="status"
+      aria-live="polite"
+    >
+      Loading sprints...
+    </span>
+  } @else if (!sprints().length) {
+    <span class="dcf-sprint-selector__status" [id]="statusId()" role="status">
+      No sprints available.
+    </span>
+  }
+</div>

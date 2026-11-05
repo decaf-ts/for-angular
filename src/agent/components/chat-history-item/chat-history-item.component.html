@@ -1,0 +1,95 @@
+<article
+  class="chat-history-item"
+  [class.chat-history-item--active]="active()"
+  [class.chat-history-item--confirming]="confirming()"
+  [attr.data-chat-id]="entry().id"
+>
+  <div class="chat-history-item__row">
+    <button
+      type="button"
+      class="chat-history-item__main"
+      [attr.aria-current]="active() ? 'true' : null"
+      (click)="onOpen()"
+    >
+      <span class="chat-history-item__icon" aria-hidden="true">
+        <ngx-decaf-chat-icon name="bot" [size]="16" />
+      </span>
+
+      <span class="chat-history-item__body">
+        <span class="chat-history-item__title">
+          {{ title() || ("agent.chat.history.untitled" | translateFallback: "Untitled chat") }}
+        </span>
+
+        @if (preview()) {
+          <span class="chat-history-item__preview">{{ preview() }}</span>
+        }
+
+        <span class="chat-history-item__meta">
+          @if (entry().updatedAt; as updatedAt) {
+            <time class="chat-history-item__time" [attr.datetime]="updatedAt">
+              {{ updatedAt | date: "short" }}
+            </time>
+          }
+
+          @if (entry().messageCount; as count) {
+            <span class="chat-history-item__count">
+              {{ count }}
+              {{ (count === 1 ? "agent.chat.history.item.message" : "agent.chat.history.item.messages") | translateFallback: (count === 1 ? "message" : "messages") }}
+            </span>
+          }
+
+          <span
+            class="chat-history-item__visibility"
+            [attr.data-visibility]="visibility()"
+            [attr.title]="sharedWith().length ? sharedWith().join(', ') : null"
+          >
+            <span class="chat-history-item__visibility-dot" aria-hidden="true"></span>
+            {{ visibilityKey() | translateFallback: visibilityFallback() }}
+          </span>
+        </span>
+      </span>
+    </button>
+
+    <button
+      type="button"
+      class="chat-history-item__delete"
+      [disabled]="deleting()"
+      [attr.aria-label]="('agent.chat.history.item.delete' | translateFallback: 'Delete chat') + ': ' + title()"
+      (click)="onDelete()"
+    >
+      @if (deleting()) {
+        <ngx-decaf-chat-icon name="loader" [size]="15" />
+      } @else {
+        <ngx-decaf-chat-icon name="trash" [size]="15" />
+      }
+    </button>
+  </div>
+
+  @if (confirming()) {
+    <div
+      class="chat-history-item__confirm"
+      role="alertdialog"
+      [attr.aria-label]="'agent.chat.history.item.confirm' | translateFallback: 'Delete this chat?'"
+    >
+      <p class="chat-history-item__confirm-text">
+        {{ "agent.chat.history.item.confirm" | translateFallback: "Delete this chat?" }}
+      </p>
+      <div class="chat-history-item__confirm-actions">
+        <button
+          type="button"
+          class="chat-history-item__confirm-button chat-history-item__confirm-button--danger"
+          (click)="onConfirm()"
+        >
+          {{ "agent.chat.history.item.confirmDelete" | translateFallback: "Delete" }}
+        </button>
+        <button
+          type="button"
+          class="chat-history-item__confirm-button"
+          (click)="onCancel()"
+        >
+          {{ "agent.chat.history.item.cancel" | translateFallback: "Cancel" }}
+        </button>
+      </div>
+    </div>
+  }
+</article>

@@ -1,0 +1,65 @@
+:host {
+  display: block;
+}
+
+.diagrams-page {
+  padding-bottom: var(--dcf-space-6);
+}
+
+.diagrams-page__intro {
+  margin-bottom: var(--dcf-space-4);
+
+  h2 {
+    margin: 0 0 var(--dcf-space-2);
+    font-size: var(--dcf-font-size-h2);
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    color: var(--dcf-color-text-secondary);
+    font-size: var(--dcf-font-size-sm);
+    max-width: 68ch;
+  }
+}
+
+.diagrams-page__panel {
+  background: var(--dcf-color-surface);
+  border: 1px solid var(--dcf-color-border);
+  border-radius: var(--dcf-radius-md);
+  padding: var(--dcf-space-4);
+}
+
+.diagrams-page__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--dcf-space-3);
+  margin-bottom: var(--dcf-space-3);
+  font-size: var(--dcf-font-size-sm);
+  color: var(--dcf-color-text-secondary);
+
+  strong {
+    color: var(--dcf-color-text-primary);
+    font-size: var(--dcf-font-size-body);
+  }
+}
+
+.diagrams-page__canvas {
+  position: relative;
+  height: 560px;
+  min-height: 420px;
+  overflow: hidden;
+  border-radius: var(--dcf-radius-sm);
+  background: #0b1220;
+}
+
+.diagrams-page__legend {
+  margin: var(--dcf-space-3) 0 0;
+  color: var(--dcf-color-text-secondary);
+  font-size: var(--dcf-font-size-sm);
+}
+
+:host ::ng-deep app-graph-logs-widget {
+  display: none;
+}

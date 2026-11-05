@@ -1,0 +1,107 @@
+:host {
+  display: inline-flex;
+}
+
+.chat-attachment-input {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.chat-attachment-input__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--gx-border-soft, #cbd5e1);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--gx-text-strong, #0f172a);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chat-attachment-input__trigger:hover:not(:disabled) {
+  background: var(--gx-surface-soft, #f1f5f9);
+}
+
+.chat-attachment-input__trigger:focus-visible {
+  outline: 2px solid var(--gx-teal-focus-strong, #0f766e);
+  outline-offset: 2px;
+}
+
+.chat-attachment-input__trigger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.chat-attachment-input__file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chat-attachment-input__hint {
+  margin: 0;
+  color: var(--gx-text-muted, #64748b);
+  font-size: 0.7rem;
+}
+
+.chat-attachment-input__error {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+  color: var(--gx-danger-fg, #b91c1c);
+  font-size: 0.72rem;
+}
+
+.chat-attachment-input__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+
+.chat-attachment-input__overlay-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: min(28rem, 100%);
+  padding: 2rem 1.5rem;
+  border: 2px dashed var(--gx-teal-focus, #0d9488);
+  border-radius: 16px;
+  background: var(--gx-surface, #ffffff);
+  color: var(--gx-text-strong, #0f172a);
+  text-align: center;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.24);
+}
+
+.chat-attachment-input__overlay-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.chat-attachment-input__overlay-hint {
+  margin: 0;
+  color: var(--gx-text-muted, #64748b);
+  font-size: 0.8rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-attachment-input__overlay {
+    backdrop-filter: none;
+  }
+}

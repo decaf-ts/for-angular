@@ -1,0 +1,106 @@
+<nav
+  class="chat-history"
+  [class.chat-history--drawer]="isDrawer()"
+  [class.chat-history--open]="open()"
+  [attr.aria-hidden]="isDrawer() && !open() ? 'true' : null"
+  [attr.inert]="isDrawer() && !open() ? '' : null"
+  [attr.aria-label]="title() || ('agent.chat.history.aria' | translateFallback: 'Chat history')"
+>
+  <header class="chat-history__header">
+    <h2 class="chat-history__title">
+      {{ title() || ("agent.chat.history.title" | translateFallback: "Chat history") }}
+    </h2>
+
+    <div class="chat-history__header-actions">
+      <button
+        type="button"
+        class="chat-history__new"
+        [attr.aria-label]="'agent.chat.history.newChat' | translateFallback: 'New chat'"
+        (click)="onNewChat()"
+      >
+        <ngx-decaf-chat-icon name="sparkles" [size]="15" />
+        <span>{{ "agent.chat.history.newChat" | translateFallback: "New chat" }}</span>
+      </button>
+
+      @if (isDrawer()) {
+        <button
+          type="button"
+          class="chat-history__close"
+          [attr.aria-label]="'agent.chat.history.close' | translateFallback: 'Close chat history'"
+          (click)="requestClose()"
+        >
+          <ngx-decaf-chat-icon name="x" [size]="16" />
+        </button>
+      }
+    </div>
+  </header>
+
+  <ul
+    class="chat-history__list"
+    [attr.aria-busy]="isLoading() ? 'true' : 'false'"
+  >
+    @if (isLoading()) {
+      @for (_ of skeletonRowList(); track $index) {
+        <li class="chat-history__skeleton-row" aria-hidden="true">
+          <span class="chat-history__skeleton-avatar"></span>
+          <span class="chat-history__skeleton-lines">
+            <span class="chat-history__skeleton-line"></span>
+            <span class="chat-history__skeleton-line chat-history__skeleton-line--short"></span>
+          </span>
+        </li>
+      }
+      <li class="chat-history__status">
+        {{ "agent.chat.history.loading" | translateFallback: "Loading chats…" }}
+      </li>
+    } @else if (isEmpty()) {
+      <li class="chat-history__empty">
+        <ngx-decaf-chat-icon name="bot" [size]="22" />
+        <p class="chat-history__empty-text">
+          {{ "agent.chat.history.empty" | translateFallback: "No chats found" }}
+        </p>
+        <button
+          type="button"
+          class="chat-history__empty-action"
+          (click)="onNewChat()"
+        >
+          {{ "agent.chat.history.newChat" | translateFallback: "New chat" }}
+        </button>
+      </li>
+    } @else {
+      @for (entry of visibleEntries(); track entry.id) {
+        <li class="chat-history__entry">
+          <ngx-decaf-chat-history-item
+            [entry]="entry"
+            [active]="entry.id === activeId()"
+            (open)="onOpen($event)"
+            (delete)="onDelete($event)"
+          />
+        </li>
+      }
+
+      @if (canLoadMore()) {
+        <li class="chat-history__more">
+          <button
+            type="button"
+            class="chat-history__load-more"
+            [disabled]="loadingMore()"
+            (click)="requestMore()"
+          >
+            @if (loadingMore()) {
+              <ngx-decaf-chat-icon name="loader" [size]="14" />
+            }
+            {{ "agent.chat.history.loadMore" | translateFallback: "Load more" }}
+          </button>
+        </li>
+      }
+    }
+  </ul>
+</nav>
+
+@if (isDrawer() && open()) {
+  <div
+    class="chat-history__backdrop"
+    aria-hidden="true"
+    (click)="requestClose()"
+  ></div>
+}

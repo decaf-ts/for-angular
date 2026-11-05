@@ -1,0 +1,524 @@
+<section class="graph-renderer">
+  <div
+    #canvasRoot
+    class="graph-renderer__canvas"
+    [class.graph-renderer__canvas--invalid]="graphInvalid()"
+    [class.graph-renderer__canvas--drop-active]="canvasDropActive()"
+    [attr.data-graph-validity]="graphValidityStatus()"
+    (dragover)="onCanvasDragOver($event)"
+    (dragleave)="onCanvasDragLeave($event)"
+    (drop)="onCanvasDrop($event)"
+  >
+    @if (graphInvalid()) {
+      <div
+        class="graph-renderer__validation-banner"
+        role="alert"
+        aria-live="polite"
+      >
+        <strong>{{ graphValidityLabel() }}</strong>
+        <ul class="graph-renderer__validation-list">
+          @for (issue of graphIssues(); track $index) {
+            <li class="graph-renderer__validation-issue">
+              @if (issue.path) {
+                <code>{{ issue.path }}</code>
+              }
+              <span>{{ issue.message }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+    @if (runFailed()) {
+      <div
+        class="graph-renderer__run-failure"
+        role="alert"
+        aria-live="assertive"
+      >
+        <strong>Workflow run failed</strong>
+        <p>
+          {{
+            runError() ||
+              'The run failed before producing a result. Open the run console for details.'
+          }}
+        </p>
+      </div>
+    }
+    @if (model(); as graphModel) {
+      <ng-diagram
+        [model]="graphModel"
+        [config]="diagramConfig()"
+        [nodeTemplateMap]="nodeTemplateMap()"
+        [edgeTemplateMap]="edgeTemplateMap"
+        [middlewares]="middlewares"
+        (selectionChanged)="onSelectionChanged($event)"
+        (nodeDragEnded)="onNodeDragEnded($event)"
+        (edgeDrawn)="onEdgeDrawn($event)"
+        (edgeDrawEnded)="onEdgeDrawEnded($event)"
+        (selectionRemoved)="onElementsRemoved($event)"
+      >
+        <ng-diagram-background type="dots" />
+        <ng-diagram-minimap
+          position="bottom-right"
+          [showZoomControls]="true"
+        />
+      </ng-diagram>
+    } @else {
+      <div class="graph-renderer__loading">
+        <ion-spinner name="circular" color="primary" />
+      </div>
+    }
+
+    <div #paletteRoot class="graph-renderer__palette">
+      <button
+        type="button"
+        class="graph-renderer__palette-btn"
+        [class.graph-renderer__palette-btn--open]="paletteOpen()"
+        (click)="togglePalette()"
+      >
+        + Add node
+      </button>
+
+      @if (paletteOpen()) {
+        <div
+          class="graph-renderer__palette-popup"
+          [class.graph-renderer__palette-popup--anchored]="!!paletteAnchor()"
+          [style]="palettePopupStyle()"
+        >
+          <div class="graph-renderer__palette-popup-header">
+            <span>Available nodes</span>
+            <button
+              type="button"
+              class="graph-renderer__palette-close"
+              (click)="closePalette()"
+            >
+              &times;
+            </button>
+          </div>
+
+          <div class="graph-renderer__palette-search">
+            <input
+              #paletteSearch
+              type="search"
+              class="graph-renderer__palette-search-input"
+              role="searchbox"
+              aria-label="Search nodes"
+              placeholder="Search nodes…"
+              [value]="paletteQuery()"
+              (input)="onPaletteQueryChange($any($event.target).value)"
+            />
+            @if (paletteQuery().length) {
+              <button
+                type="button"
+                class="graph-renderer__palette-search-clear"
+                aria-label="Clear node search"
+                (click)="clearPaletteQuery()"
+              >
+                &times;
+              </button>
+            }
+          </div>
+
+          @if (catalogStatus() === 'loading') {
+            <p
+              class="graph-renderer__palette-status"
+              role="status"
+              aria-live="polite"
+            >
+              {{ catalogStatusMessage() }}
+            </p>
+          } @else if (catalogStatus() === 'degraded') {
+            <p
+              class="graph-renderer__palette-status graph-renderer__palette-status--degraded"
+              role="status"
+              aria-live="polite"
+            >
+              {{ catalogStatusMessage() }}
+            </p>
+          } @else if (catalogStatus() === 'failed') {
+            <p
+              class="graph-renderer__palette-status graph-renderer__palette-status--failed"
+              role="alert"
+            >
+              {{ catalogStatusMessage() }}
+            </p>
+            <button
+              type="button"
+              class="graph-renderer__palette-retry"
+              (click)="reloadCatalogue()"
+            >
+              Retry catalogue
+            </button>
+          } @else if (paletteEmpty()) {
+            <p
+              class="graph-renderer__palette-status graph-renderer__palette-status--empty"
+              role="status"
+            >
+              No nodes are available in the catalogue.
+            </p>
+          }
+
+          @if (paletteSearchEmpty()) {
+            <p
+              class="graph-renderer__palette-status graph-renderer__palette-status--empty"
+              role="status"
+            >
+              No nodes match "{{ paletteQuery() }}".
+            </p>
+          }
+
+          <ul class="graph-renderer__palette-list">
+            @for (entry of filteredPaletteEntries(); track entry.name) {
+              <li>
+                <button
+                  type="button"
+                  class="graph-renderer__palette-item"
+                  (click)="addNode(entry)"
+                >
+                  <span
+                    class="graph-renderer__palette-icon"
+                    [style.background]="entry.color || '#64748b'"
+                  >
+                    {{ entry.icon ? '' : entry.title.charAt(0) }}
+                  </span>
+                  <span class="graph-renderer__palette-info">
+                    <strong>{{ entry.title }}</strong>
+                    <small>{{ entry.category || entry.kind }}</small>
+                  </span>
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+
+    <ng-content select="[graphFloatingControls]"></ng-content>
+
+    <app-graph-logs-widget />
+    <app-graph-node-inspection
+      [runState]="runResultState()"
+      [validationIssues]="validationIssues()"
+      [workflowInputForm]="workflowInputForm()"
+      [workflowInputFields]="workflowInputFields()"
+      (retry)="retryRunResult.emit()"
+    />
+  </div>
+
+  <aside
+    #inputsPanel
+    class="graph-renderer__side graph-renderer__side--inputs"
+    [class.graph-renderer__side--collapsed]="inputsPanelCollapsed()"
+  >
+    <div class="graph-renderer__side-header">
+      <div class="graph-renderer__side-heading">
+        <p>Workflow inputs</p>
+        <h2>{{ rootTitle() }}</h2>
+        <small>
+          Editable controls are built from the workflow input metadata and
+          validated by a generated model class.
+        </small>
+      </div>
+      <button
+        type="button"
+        class="graph-renderer__side-toggle"
+        [attr.aria-expanded]="!inputsPanelCollapsed()"
+        aria-controls="graph-inputs-body"
+        [attr.aria-label]="inputsPanelCollapsed() ? 'Expand workflow inputs' : 'Collapse workflow inputs'"
+        [attr.title]="inputsPanelCollapsed() ? 'Expand workflow inputs' : 'Collapse workflow inputs'"
+        (click)="toggleInputsPanel()"
+      >
+        @if (inputsPanelCollapsed()) {
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" />
+          </svg>
+        } @else {
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 6l-6 6 6 6" />
+          </svg>
+        }
+      </button>
+    </div>
+
+    <span class="graph-renderer__side-rail">Workflow inputs</span>
+
+    <div id="graph-inputs-body" class="graph-renderer__side-body">
+      <form
+        class="graph-renderer__form"
+        [formGroup]="workflowInputForm()"
+      >
+        @for (field of workflowInputFields(); track field.path) {
+          <article
+            class="graph-renderer__field"
+            [class.graph-renderer__field--dragging]="draggingInputPath() === field.path"
+          >
+            <div
+              class="graph-renderer__field-head"
+              draggable="true"
+              [attr.title]="'Drag ' + field.label + ' onto the canvas to place its input boundary'"
+              (dragstart)="onInputDragStart(field, $event)"
+              (dragend)="onInputDragEnd()"
+            >
+              <span class="graph-renderer__field-grip" aria-hidden="true">
+                <svg viewBox="0 0 16 16">
+                  <circle cx="5" cy="4" r="1.2" />
+                  <circle cx="11" cy="4" r="1.2" />
+                  <circle cx="5" cy="8" r="1.2" />
+                  <circle cx="11" cy="8" r="1.2" />
+                  <circle cx="5" cy="12" r="1.2" />
+                  <circle cx="11" cy="12" r="1.2" />
+                </svg>
+              </span>
+              <span class="graph-renderer__field-titles">
+                <label
+                  class="graph-renderer__field-label"
+                  id="label-{{ field.controlName }}"
+                  [attr.for]="'graph-input-' + field.controlName"
+                >
+                  {{ field.label }}
+                </label>
+                <span class="graph-renderer__field-meta">
+                  {{ field.path }} · {{ field.controlType }}
+                </span>
+              </span>
+              <button
+                type="button"
+                class="graph-renderer__field-place"
+                [attr.aria-label]="'Place ' + field.label + ' on the canvas'"
+                title="Place on canvas"
+                (click)="addInputToCanvas(field)"
+              >
+                +
+              </button>
+            </div>
+
+            @switch (field.controlType) {
+              @case ('textarea') {
+                <textarea
+                  [attr.aria-label]="field.label"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
+                  [placeholder]="field.placeholder || field.label"
+                  rows="5"
+                ></textarea>
+              }
+              @case ('number') {
+                <input
+                  [attr.aria-label]="field.label"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
+                  type="number"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+              @case ('checkbox') {
+                <label
+                  class="graph-renderer__checkbox"
+                  [attr.for]="'graph-input-' + field.controlName"
+                >
+                  <input
+                    [id]="'graph-input-' + field.controlName"
+                    [formControlName]="field.controlName"
+                    type="checkbox"
+                  />
+                  <span>{{ field.placeholder || field.label }}</span>
+                </label>
+              }
+              @case ('date') {
+                <input
+                  [attr.aria-label]="field.label"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
+                  type="date"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+              @case ('email') {
+                <input
+                  [attr.aria-label]="field.label"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
+                  type="email"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+              @case ('url') {
+                <input
+                  [attr.aria-label]="field.label"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
+                  type="url"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+              @default {
+                <input
+                  [attr.aria-label]="field.label"
+                  [id]="'graph-input-' + field.controlName"
+                  [formControlName]="field.controlName"
+                  type="text"
+                  [placeholder]="field.placeholder || field.label"
+                />
+              }
+            }
+
+            @if (fieldErrors(field).length) {
+              <ul class="graph-renderer__errors">
+                @for (message of fieldErrors(field); track message) {
+                  <li>{{ message }}</li>
+                }
+              </ul>
+            }
+          </article>
+        }
+      </form>
+
+      <div
+        class="graph-renderer__validation"
+        [class.graph-renderer__validation--invalid]="graphInvalid()"
+      >
+        <p>Graph validation</p>
+        <strong>{{ graphValidityLabel() }}</strong>
+        <small>
+          @if (graphValidityStatus() === 'valid') {
+            No graph validation issues.
+          } @else if (graphValidityStatus() === 'unavailable') {
+            Validation backend unavailable; Run is gated on backend availability.
+          } @else if (graphValidityStatus() === 'checking') {
+            Checking the graph against the backend…
+          } @else if (graphValidityStatus() === 'idle') {
+            Not validated yet.
+          } @else {
+            The graph cannot run until these issues are fixed.
+          }
+        </small>
+
+        @if (graphIssues().length) {
+          <ul class="graph-renderer__validation-issues">
+            @for (issue of graphIssues(); track $index) {
+              <li class="graph-renderer__validation-issue">
+                @if (issue.path) {
+                  <strong>{{ issue.path }}</strong>
+                }
+                <span>{{ issue.message }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  </aside>
+
+  <aside
+    #outputsPanel
+    class="graph-renderer__side graph-renderer__side--outputs"
+    [class.graph-renderer__side--collapsed]="outputsPanelCollapsed()"
+  >
+    <div class="graph-renderer__side-header">
+      <div class="graph-renderer__side-heading">
+        <p>Workflow outputs</p>
+        <h2>Run result</h2>
+        <small>
+          Outputs are returned by the workflow engine and are not rendered as
+          canvas nodes.
+        </small>
+      </div>
+      <button
+        type="button"
+        class="graph-renderer__side-toggle"
+        [attr.aria-expanded]="!outputsPanelCollapsed()"
+        aria-controls="graph-outputs-body"
+        [attr.aria-label]="outputsPanelCollapsed() ? 'Expand workflow outputs' : 'Collapse workflow outputs'"
+        [attr.title]="outputsPanelCollapsed() ? 'Expand workflow outputs' : 'Collapse workflow outputs'"
+        (click)="toggleOutputsPanel()"
+      >
+        @if (outputsPanelCollapsed()) {
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 6l-6 6 6 6" />
+          </svg>
+        } @else {
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" />
+          </svg>
+        }
+      </button>
+    </div>
+
+    <span class="graph-renderer__side-rail">Workflow outputs</span>
+
+    <div id="graph-outputs-body" class="graph-renderer__side-body">
+      <div class="graph-renderer__ports">
+        @for (port of viewModel().workflowOutputs; track port.property) {
+          <article
+            class="graph-renderer__port-card graph-renderer__port-card--output"
+          >
+            <div>
+              <strong>{{ port.label }}</strong>
+              <small>{{ port.property }} · {{ port.type || 'unknown' }}</small>
+            </div>
+            <span>{{ workflowOutputValue(port.property) }}</span>
+          </article>
+        }
+      </div>
+
+      @if (validationIssues().length) {
+        <ul class="graph-renderer__validation-issues">
+          @for (issue of validationIssues(); track $index) {
+            <li class="graph-renderer__validation-issue">
+              @if (issue.path) {
+                <strong>{{ issue.path }}</strong>
+              }
+              <span>{{ issue.message }}</span>
+            </li>
+          }
+        </ul>
+      }
+
+      @if (runResultState() === 'failed' && !runFailed()) {
+        <button
+          type="button"
+          class="graph-renderer__retry"
+          (click)="retryRunResult.emit()"
+        >
+          Retry result fetch
+        </button>
+      }
+
+      @if (devMode) {
+        <div class="graph-renderer__snapshot">
+          <div class="graph-renderer__snapshot-header">
+            <p>Snapshot</p>
+            <small>
+              Save the live graph state or restore a previously serialized snapshot.
+            </small>
+          </div>
+
+          <textarea
+            #snapshotArea
+            class="graph-renderer__snapshot-text"
+            [value]="snapshotValue()"
+            (input)="updateSnapshotValue(snapshotArea.value)"
+            rows="12"
+            spellcheck="false"
+          ></textarea>
+
+          <div class="graph-renderer__snapshot-actions">
+            <button
+              type="button"
+              class="graph-renderer__snapshot-button"
+              (click)="saveSnapshot()"
+            >
+              Save snapshot
+            </button>
+            <button
+              type="button"
+              class="graph-renderer__snapshot-button"
+              (click)="loadSnapshot()"
+            >
+              Load snapshot
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </aside>
+</section>

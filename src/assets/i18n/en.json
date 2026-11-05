@@ -51,11 +51,154 @@
     "modelbuilder": "Model Builder",
     "models": "Sample Models",
     "medicationschedule": "Medication Schedule",
-    "dashboard-builder": "Dashboard Builder"
+    "dashboard-builder": "Dashboard Builder",
+    "features": "Feature demos",
+    "kanban": "Kanban",
+    "scrum": "Scrum",
+    "gantt": "Gantt",
+    "barcode": "Barcode",
+    "charts": "Charts",
+    "code_editor": "Code editor",
+    "math": "Math input",
+    "storyboard": "Storyboard tutorial",
+    "diagrams": "Diagrams",
+    "calendar": "Calendar",
+    "chat": "Agent chat"
   },
   "cron_selector": {
     "title": "Cron Selector",
     "current_cron": "Current cron:"
+  },
+  "kanban": {
+    "add_card": "Add card"
+  },
+  "barcode": {
+    "title": "Barcode",
+    "intro": "Render a barcode from the payload you type. Switch symbologies and rendering options and the SVG updates immediately.",
+    "payload_label": "Payload",
+    "payload_placeholder": "Type the content to encode",
+    "symbology_label": "Symbology",
+    "scale_label": "Scale",
+    "empty": "Type a payload to render a barcode.",
+    "error": "This payload cannot be encoded with the selected symbology.",
+    "preview_aria": "Rendered barcode preview",
+    "char_count": "{count} characters encoded",
+    "reset": "Reset"
+  },
+  "charts": {
+    "title": "Charts",
+    "intro": "Edit the dataset and the chart configuration to see every chart family update live. The curve editor below samples its own formula and control points.",
+    "type_label": "Chart family",
+    "type_line": "Line",
+    "type_bar": "Bar",
+    "type_pie": "Pie",
+    "type_scatter": "Scatter",
+    "data_title": "Dataset",
+    "add_row": "Add row",
+    "remove_row": "Remove row {index}",
+    "column_category": "Category",
+    "column_value": "Value",
+    "column_weight": "Weight",
+    "column_series": "Series",
+    "smooth_label": "Smooth line",
+    "area_label": "Fill area",
+    "stack_label": "Stack series",
+    "legend_label": "Show legend",
+    "tooltip_label": "Show tooltip",
+    "chart_title": "Live chart",
+    "chart_aria": "{type} chart preview",
+    "curve_title": "Curve editor",
+    "curve_intro": "Drag the control points on the canvas or type a formula in x. The formula and the interpolated curve stay in sync.",
+    "interpolation_label": "Interpolation",
+    "interpolation_linear": "Linear",
+    "interpolation_monotonic": "Monotonic cubic",
+    "formula_label": "Formula",
+    "formula_placeholder": "For example: x^2",
+    "points_count": "{count} control points"
+  },
+  "code_editor": {
+    "title": "Code editor",
+    "intro": "Edit code or a formula in the CodeMirror surface and inspect the emitted value, syntax status, and size counters live.",
+    "mode_label": "Editing mode",
+    "mode_code": "Code",
+    "mode_formula": "Formula",
+    "placeholder_code": "Write JavaScript code or an expression",
+    "placeholder_formula": "Write a condition such as $input.value > 0",
+    "snippets_label": "Load a snippet",
+    "snippet_transform": "Transform input",
+    "snippet_filter": "Filter items",
+    "snippet_formula": "Formula condition",
+    "reset": "Clear editor",
+    "status_title": "Editor status",
+    "lines_label": "Lines",
+    "characters_label": "Characters",
+    "syntax_ok": "Syntax valid",
+    "syntax_error": "Syntax error: {message}",
+    "syntax_empty": "Start typing to run the syntax check.",
+    "syntax_formula": "Formula mode edits a LaTeX-like condition; the JavaScript syntax check does not apply.",
+    "emitted_title": "Last emitted value",
+    "emitted_empty": "No edits emitted yet."
+  },
+  "math": {
+    "title": "Math input",
+    "intro": "Type a LaTeX formula in the MathLive field and evaluate it with the compute engine.",
+    "input_label": "Formula",
+    "placeholder": "For example: \\frac{1}{2} x^{2}",
+    "latex_label": "LaTeX value",
+    "evaluate": "Evaluate",
+    "result_label": "Result",
+    "empty": "Type a formula to evaluate.",
+    "error": "This formula cannot be evaluated.",
+    "clear": "Clear",
+    "examples_label": "Examples",
+    "example_quadratic": "Quadratic",
+    "example_fraction": "Fraction",
+    "example_integral": "Integral"
+  },
+  "storyboard": {
+    "title": "Storyboard tutorial",
+    "intro": "Start the guided flow. The tutorial dims the page, highlights the current step target, and stays in sync with the tour controls.",
+    "start": "Start tutorial",
+    "next": "Next step",
+    "previous": "Previous step",
+    "abort": "Abort",
+    "end": "End tutorial",
+    "close": "Close tutorial",
+    "status_label": "Status",
+    "status_idle": "Idle",
+    "status_running": "Running",
+    "status_completed": "Completed",
+    "status_aborted": "Aborted",
+    "step_label": "Active step",
+    "step_none": "No step is active.",
+    "event_label": "Last event",
+    "event_none": "No tutorial event yet.",
+    "event_started": "Tutorial started: {id}",
+    "event_stepped": "Now on step: {step}",
+    "event_finished": "Tutorial finished: {status}",
+    "scenario_name": "Feature page tour",
+    "welcome_title": "Welcome to the feature page",
+    "welcome_content": "This tour is driven by the storyboard tutorial engine. Follow the highlighted control and move on with Next step.",
+    "name_title": "Type your name",
+    "name_content": "The highlighted field is the focus of this step. Fill it in and continue with Next step.",
+    "confirm_title": "Confirm the value",
+    "confirm_content": "Click the highlighted confirmation button, then continue with Next step.",
+    "finish_title": "Tour complete",
+    "finish_content": "You exercised the scripted tutorial, its focus overlay, and its completion rules.",
+    "demo_title": "Tutorial playground",
+    "demo_intro": "This form is the tour target. Its values stay on the page after the tour ends.",
+    "name_label": "Your name",
+    "name_placeholder": "At least three characters",
+    "confirm": "Confirm",
+    "confirmed": "Value confirmed: {value}"
+  },
+  "diagrams": {
+    "title": "Diagrams",
+    "intro": "A small workflow rendered by the diagrams canvas renderer with its own document store, separate from the /graph workflow editor. Drag nodes, pan, and zoom to inspect the projection.",
+    "node_count": "{count} nodes",
+    "edge_count": "{count} connections",
+    "workflow_name": "Two-step pipeline",
+    "legend": "This preview mounts the diagrams renderer directly with an isolated document store, an in-memory node catalogue, and a no-op validator. It never touches the /graph editor document, saves, or runs."
   },
   "medication_schedule": {
     "title": "Medication Schedule",
@@ -125,6 +268,29 @@
     },
     "agree": {
       "label": "I accept the terms and conditions."
+    },
+    "chat": {
+      "eyebrow": "Scripted agent surface",
+      "title": "Agent chat demo",
+      "subtitle": "Every response on this page is generated locally from deterministic fixtures. No backend, network, or model call is made.",
+      "scenario": {
+        "label": "Demo scenario",
+        "conversation": "Full roundtrip",
+        "structured": "Structured object"
+      },
+      "header": "Agent chat (fake mode)",
+      "host": {
+        "aria": "Fake agent chat"
+      },
+      "panels": {
+        "aria": "Roundtrip components",
+        "tools": "Tool results",
+        "workflow": "Workflow status",
+        "progress": "Progress",
+        "agent": "Agent step",
+        "nested": "Nested agent",
+        "approval": "Approval"
+      }
     }
   },
   "category": {
@@ -428,6 +594,7 @@
       "createBlocked": "The selected engine does not support creating workflows",
       "run": "Run workflow",
       "runBlocked": "The selected engine does not support running workflows",
+      "runBlockedReadOnly": "This workflow is a read-only canonical document, not a deployed job, so it cannot be run",
       "engine": {
         "label": "Engine"
       },
@@ -458,6 +625,8 @@
         "unsupported": "The selected engine does not support browsing workflows",
         "empty": "No workflow scenarios are available for the selected engine",
         "run": "Run",
+        "runBlocked": "The selected engine does not support running workflows",
+        "runBlockedReadOnly": "This workflow is a read-only canonical document, not a deployed job, so it cannot be run",
         "failure": {
           "backendDown": "The graph backend is unavailable.",
           "malformed": "The engine capability manifest is out of contract."
@@ -499,12 +668,19 @@
           "placeholder": "Type a message…"
         },
         "send": "Send",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "stop": "Stop response",
+        "hint": "Enter to send, Shift+Enter for a new line",
+        "runningHint": "Agent is responding…"
       },
       "attachments": {
         "label": "Attachments",
         "add": "Attach",
-        "remove": "Remove attachment"
+        "remove": "Remove attachment",
+        "pasteHint": "Drop or paste files here",
+        "invalidType": "Some files are not supported.",
+        "dropTitle": "Drop files to attach",
+        "dropHint": "Images and text files only"
       },
       "knowledge": {
         "label": "Knowledge base"
@@ -523,14 +699,385 @@
       },
       "telemetry": {
         "show": "Telemetry",
-        "hide": "Hide telemetry"
+        "hide": "Hide telemetry",
+        "title": "Run telemetry",
+        "replayed": "Replayed",
+        "functionId": "Function",
+        "traceId": "Trace",
+        "promptTokens": "Prompt tokens",
+        "completionTokens": "Completion tokens",
+        "totalTokens": "Total tokens",
+        "runtimeContext": "Runtime context",
+        "tokensShort": "tokens",
+        "millisecondsShort": "ms",
+        "secondsShort": "s"
       },
       "structured": {
         "title": "Structured object"
       },
       "error": {
         "backendUnavailable": "Agent backend is not reachable. Reconnect and try again."
+      },
+      "conversation": {
+        "aria": "Conversation",
+        "empty": "Start the conversation by sending a message.",
+        "scrollToBottom": "Scroll to the newest message",
+        "download": "Download transcript"
+      },
+      "message": {
+        "streaming": "Streaming…",
+        "toolDetails": "Tool details"
+      },
+      "tool": {
+        "status": {
+          "queued": "Queued",
+          "running": "Running",
+          "succeeded": "Succeeded",
+          "failed": "Failed"
+        },
+        "state": {
+          "input-streaming": "Preparing input…",
+          "input-available": "Input ready",
+          "output-available": "Completed",
+          "output-error": "Failed",
+          "output-denied": "Denied"
+        },
+        "showDetails": "Show details",
+        "hideDetails": "Hide details",
+        "input": "Input",
+        "output": "Output",
+        "orders": {
+          "title": "Orders",
+          "empty": "No orders found."
+        },
+        "tracker": {
+          "title": "Shipment tracking",
+          "progress": "Shipment progress",
+          "status": {
+            "ordered": "Order confirmed",
+            "shipped": "On the way",
+            "delivered": "Delivered",
+            "cancelled": "Cancelled"
+          },
+          "step": {
+            "box": "Order packed",
+            "gps": "In transit",
+            "home": "Delivered"
+          },
+          "description": {
+            "ordered": "Your parcel has been packed and is waiting for the courier.",
+            "shipped": "The courier picked up your parcel and it is heading your way.",
+            "delivered": "Your parcel was delivered. Thanks for shopping with us.",
+            "cancelled": "This delivery was cancelled."
+          }
+        },
+        "weather": {
+          "title": "Weather",
+          "loading": "Fetching the forecast…",
+          "error": "The forecast is unavailable right now.",
+          "high": "High",
+          "low": "Low",
+          "condition": {
+            "day": "Sunny",
+            "night": "Clear night"
+          }
+        }
+      },
+      "messageActions": {
+        "label": "Message actions",
+        "copy": "Copy message",
+        "voteUp": "Good response",
+        "voteDown": "Bad response",
+        "edit": "Edit message",
+        "delete": "Delete message"
+      },
+      "messageEditor": {
+        "label": "Edit message",
+        "placeholder": "Update your message…",
+        "save": "Save and resend",
+        "cancel": "Cancel"
+      },
+      "thinking": {
+        "label": "Thinking…"
+      },
+      "greeting": {
+        "title": "How can I help?",
+        "message": "Ask a question, attach a file, or pick a suggestion to get started.",
+        "link": "Learn more"
+      },
+      "codeBlock": {
+        "label": "Code",
+        "copy": "Copy",
+        "copied": "Copied"
+      },
+      "reasoning": {
+        "title": "Reasoning",
+        "streaming": "Thinking…"
+      },
+      "history": {
+        "title": "Chat history",
+        "aria": "Chat history",
+        "newChat": "New chat",
+        "empty": "No chats found",
+        "loading": "Loading chats…",
+        "loadMore": "Load more",
+        "close": "Close chat history",
+        "untitled": "Untitled chat",
+        "item": {
+          "open": "Open chat",
+          "delete": "Delete chat",
+          "message": "message",
+          "messages": "messages",
+          "confirm": "Delete this chat?",
+          "confirmDelete": "Delete",
+          "cancel": "Cancel",
+          "visibility": {
+            "private": "Private",
+            "shared": "Shared",
+            "public": "Public"
+          }
+        }
+      },
+      "knowledgeBase": {
+        "title": "Manage knowledge base",
+        "aria": "Manage knowledge base",
+        "close": "Close knowledge base",
+        "done": "Done",
+        "empty": "No documents yet",
+        "loading": "Loading documents…",
+        "select": "Select",
+        "selectAll": "Select all",
+        "clear": "Clear selection",
+        "selectedSuffix": "selected",
+        "count": "Selected",
+        "upload": "Upload file",
+        "delete": "Delete file",
+        "queue": "Upload queue",
+        "dismiss": "Dismiss upload",
+        "status": {
+          "queued": "Queued",
+          "uploading": "Uploading…",
+          "done": "Uploaded",
+          "error": "Upload failed"
+        }
+      },
+      "suggestedActions": {
+        "label": "Suggested prompts",
+        "title": "Try asking"
+      },
+      "slashCommands": {
+        "label": "Slash commands",
+        "empty": "No matching commands"
+      },
+      "modelSelector": {
+        "label": "Model",
+        "trigger": "Select model",
+        "search": "Search models…",
+        "empty": "No models match your search."
+      },
+      "visibility": {
+        "label": "Conversation visibility",
+        "private": "Private",
+        "shared": "Shared",
+        "privateHint": "Only you can see this conversation.",
+        "sharedHint": "Anyone with the link can see this conversation."
+      },
+      "suggestionDialog": {
+        "title": "Suggested change",
+        "description": "Review the AI-generated suggestion before applying it.",
+        "apply": "Apply",
+        "ignore": "Ignore",
+        "close": "Close"
+      },
+      "attachmentPart": {
+        "label": "Attachment",
+        "empty": "No text preview available."
+      },
+      "structuredObject": {
+        "title": "Structured object",
+        "ghost": "Streaming preview",
+        "committed": "Committed",
+        "history": "History",
+        "historyUntitled": "Untitled run",
+        "empty": {
+          "title": "No structured data yet",
+          "message": "Stream a structured response to see its fields appear here.",
+          "line": "No structured data."
+        },
+        "fields": "Streamed fields",
+        "raw": "Raw JSON",
+        "waiting": "Waiting for the next field…"
+      },
+      "notification": {
+        "label": "Notifications",
+        "dismiss": "Dismiss notification"
+      },
+      "artifact": {
+        "title": "Artifact",
+        "untitled": "Untitled artifact",
+        "imageAlt": "Artifact preview",
+        "streaming": "Streaming content…",
+        "close": "Close artifact",
+        "kind": {
+          "text": "Text",
+          "code": "Code",
+          "image": "Image",
+          "sheet": "Sheet"
+        },
+        "visibility": {
+          "private": "Private",
+          "shared": "Shared",
+          "public": "Public"
+        },
+        "skeleton": {
+          "inline": "Loading artifact…",
+          "full": "Loading artifact panel…"
+        },
+        "toolbar": {
+          "label": "Artifact tools",
+          "text": "Text",
+          "code": "Code",
+          "image": "Image",
+          "sheet": "Sheet"
+        },
+        "version": {
+          "label": "Artifact versions",
+          "older": "Older version",
+          "newer": "Newer version",
+          "current": "Version",
+          "of": "of"
+        },
+        "diff": {
+          "label": "Artifact changes",
+          "caption": "Previous vs current",
+          "added": "Added lines",
+          "removed": "Removed lines",
+          "mode": "Diff display mode",
+          "sideBySide": "Side-by-side",
+          "inline": "Inline",
+          "noChanges": "No changes",
+          "previous": "Previous",
+          "current": "Current"
+        },
+        "console": {
+          "title": "Output",
+          "resize": "Resize output console",
+          "clear": "Clear output",
+          "clearLabel": "Clear",
+          "empty": "No output yet.",
+          "aria": "Console output",
+          "line": "line",
+          "lines": "lines"
+        },
+        "editor": {
+          "label": "Artifact editor",
+          "kind": {
+            "text": "Text",
+            "code": "Code",
+            "image": "Image",
+            "sheet": "Sheet"
+          },
+          "editable": "Editable",
+          "readOnly": "Read only",
+          "emptyImage": "No image preview available.",
+          "imageAlt": "Artifact image",
+          "placeholder": "Start writing…"
+        },
+        "document": {
+          "label": "Document artifact",
+          "toolCall": "Tool call",
+          "loading": "Fetching document…",
+          "retry": "Retry",
+          "empty": "The document is empty.",
+          "pending": "Waiting for the tool result…",
+          "status": {
+            "pending": "Pending",
+            "loading": "Loading",
+            "succeeded": "Ready",
+            "failed": "Failed"
+          },
+          "error": "The document could not be loaded."
+        }
+      },
+      "workflow": {
+        "title": "Workflow status",
+        "output": "Output",
+        "empty": "No workflow steps yet.",
+        "status": {
+          "running": "Running",
+          "success": "Succeeded",
+          "failed": "Failed",
+          "suspended": "Suspended",
+          "waiting": "Waiting"
+        }
+      },
+      "agentStep": {
+        "title": "Agent step",
+        "input": "Input",
+        "output": "Output"
+      },
+      "nestedAgent": {
+        "title": "Nested agent",
+        "errors": "Tool errors"
+      },
+      "progress": {
+        "title": "Progress",
+        "label": "Working…",
+        "empty": "Waiting for progress…"
+      },
+      "approval": {
+        "title": "Approval required",
+        "run": "Run",
+        "payload": "Suspended payload",
+        "emptyPayload": "No payload was provided.",
+        "actions": "Approval actions",
+        "approve": "Approve",
+        "reject": "Reject",
+        "status": {
+          "pending": "Awaiting approval",
+          "approved": "Approved",
+          "rejected": "Rejected"
+        }
       }
+    }
+  },
+  "calendar": {
+    "title": "Calendar",
+    "intro": "Inspect the in-house month-grid calendar: navigate months, select a date and add or remove event markers. The calendar itself is presentational; this page owns the state.",
+    "controls": "Calendar demo controls",
+    "reset": "Reset",
+    "aria_label": "Month calendar",
+    "month_view": "Month view",
+    "previous_month": "Previous month",
+    "next_month": "Next month",
+    "today": "Today",
+    "events_title": "Events",
+    "selected_date": "Selected date",
+    "event_count": "Events on this date: {count}",
+    "no_events": "No events on this date. Add one below.",
+    "add_event": "Add event",
+    "event_title_label": "Event title",
+    "event_title_placeholder": "Type an event title",
+    "event_color_label": "Marker colour",
+    "event_add": "Add",
+    "event_remove": "Remove {title}",
+    "colors": {
+      "blue": "Blue",
+      "green": "Green",
+      "amber": "Amber",
+      "red": "Red"
+    },
+    "direction": {
+      "previous": "previous",
+      "next": "next",
+      "today": "today"
+    },
+    "status": {
+      "none": "No calendar event yet.",
+      "selected": "dateSelected: {date}",
+      "month": "monthChange: {month} ({direction})",
+      "event_added": "eventAdded: {title}",
+      "event_removed": "eventRemoved: {title}"
     }
   }
 }

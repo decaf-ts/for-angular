@@ -7,7 +7,7 @@ import { signal } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { GraphWorkflowListModel } from 'src/app/models/GraphListModels';
 import { GraphWorkflowItemComponent } from 'src/app/pages/graph/list/graph-workflow-item.component';
-import { GraphEngineCapabilityService } from 'src/graph/capabilities';
+import { GraphEngineCapabilityService } from 'src/diagrams/components/graph/capabilities';
 import './setup';
 import { getComponentMeta } from './utils';
 
@@ -16,6 +16,8 @@ const SELECTED_ENGINE = signal<string | undefined>('local');
 
 const CAPABILITIES_MOCK = {
   canRunWorkflow: CAN_RUN,
+  canRunListedWorkflow: (item?: { runnable?: boolean }) =>
+    CAN_RUN() && item?.runnable !== false,
   selectedEngineId: SELECTED_ENGINE,
   load: () => Promise.resolve(),
 };

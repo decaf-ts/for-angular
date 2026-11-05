@@ -5,11 +5,11 @@
  */
 import { signal } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { GraphToolbarComponent } from 'src/graph/components/graph-toolbar/graph-toolbar.component';
-import { GraphAutoSaveService } from 'src/graph/services/GraphAutoSaveService';
-import { GraphSaveService } from 'src/graph/services/GraphSaveService';
-import { GraphEngineCapabilityService } from 'src/graph/capabilities';
-import type { GraphValidationIssue } from 'src/graph/validation';
+import { GraphToolbarComponent } from 'src/diagrams/components/graph/components/graph-toolbar/graph-toolbar.component';
+import { GraphAutoSaveService } from 'src/diagrams/components/graph/services/GraphAutoSaveService';
+import { GraphSaveService } from 'src/diagrams/components/graph/services/GraphSaveService';
+import { GraphEngineCapabilityService } from 'src/diagrams/components/graph/capabilities';
+import type { GraphValidationIssue } from 'src/diagrams/components/graph/validation';
 import './setup';
 import { getComponentMeta } from './utils';
 

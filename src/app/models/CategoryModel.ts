@@ -17,11 +17,12 @@ export class CategoryModel extends Model {
   @pk({ type: Number })
   @hideOn(OperationKeys.CREATE)
   @uilistprop('uid')
-  @readonly()
   @uielement('ngx-decaf-crud-field', {
     label: 'category.id.label',
     placeholder: 'category.id.placeholder',
+    readonly: true,
   })
+  @readonly()
   id!: number;
 
   @uielement('ngx-decaf-crud-field', {

@@ -1,0 +1,178 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.chat-workflow-status {
+  border: 1px solid var(--gx-border-soft);
+  border-radius: 10px;
+  background: var(--gx-surface-panel);
+  color: var(--gx-text-secondary);
+  overflow: hidden;
+}
+
+.chat-workflow-status__header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--gx-border-soft);
+  background: var(--gx-surface-soft);
+}
+
+.chat-workflow-status__title {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gx-text-strong);
+}
+
+.chat-workflow-status__count {
+  margin-left: auto;
+  min-width: 1.2rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  border: 1px solid var(--gx-border-soft);
+  background: var(--gx-surface-panel);
+  text-align: center;
+  font-size: 0.66rem;
+  color: var(--gx-text-muted);
+}
+
+.chat-workflow-status__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: workflow-step;
+}
+
+.chat-workflow-status__step {
+  padding: 0.45rem 0.6rem;
+}
+
+.chat-workflow-status__step + .chat-workflow-status__step {
+  border-top: 1px dashed var(--gx-border-soft);
+}
+
+.chat-workflow-status__row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chat-workflow-status__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  background: var(--gx-surface-soft);
+  color: var(--gx-text-muted);
+  flex: 0 0 auto;
+}
+
+.chat-workflow-status__step[data-status="running"] .chat-workflow-status__icon ngx-decaf-chat-icon {
+  animation: chat-workflow-spin 1.4s linear infinite;
+}
+
+.chat-workflow-status__step[data-status="success"] .chat-workflow-status__icon {
+  color: var(--gx-success-fg);
+}
+
+.chat-workflow-status__step[data-status="failed"] .chat-workflow-status__icon {
+  color: var(--gx-danger-fg);
+}
+
+.chat-workflow-status__step[data-status="suspended"] .chat-workflow-status__icon {
+  color: var(--gx-warning-fg);
+}
+
+.chat-workflow-status__name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--gx-text-strong);
+  overflow-wrap: anywhere;
+}
+
+.chat-workflow-status__chip {
+  margin-left: auto;
+  padding: 0.08rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--gx-border-soft);
+  background: var(--gx-surface-soft);
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gx-text-muted);
+  white-space: nowrap;
+}
+
+.chat-workflow-status__step[data-status="success"] .chat-workflow-status__chip {
+  border-color: var(--gx-success-fg);
+  color: var(--gx-success-fg);
+}
+
+.chat-workflow-status__step[data-status="failed"] .chat-workflow-status__chip {
+  border-color: var(--gx-danger-fg);
+  color: var(--gx-danger-fg);
+}
+
+.chat-workflow-status__step[data-status="running"] .chat-workflow-status__chip,
+.chat-workflow-status__step[data-status="suspended"] .chat-workflow-status__chip {
+  border-color: var(--gx-warning-fg);
+  color: var(--gx-warning-fg);
+}
+
+.chat-workflow-status__error {
+  margin: 0.3rem 0 0 1.75rem;
+  color: var(--gx-danger-fg);
+  font-size: 0.74rem;
+}
+
+.chat-workflow-status__output {
+  margin: 0.3rem 0 0 1.75rem;
+}
+
+.chat-workflow-status__output summary {
+  cursor: pointer;
+  font-size: 0.7rem;
+  color: var(--gx-text-muted);
+}
+
+.chat-workflow-status__output summary:focus-visible {
+  outline: 2px solid var(--gx-teal-focus-strong);
+  outline-offset: 1px;
+}
+
+.chat-workflow-status__json {
+  margin: 0.3rem 0 0;
+  padding: 0.35rem 0.45rem;
+  border-radius: 6px;
+  background: var(--gx-surface-code, #0f172a);
+  color: var(--gx-text-code, #e2e8f0);
+  font-family: var(--gx-font-mono, monospace);
+  font-size: 0.7rem;
+  line-height: 1.4;
+  overflow-x: auto;
+  max-height: 14rem;
+}
+
+.chat-workflow-status__empty {
+  margin: 0;
+  padding: 0.75rem 0.6rem;
+  font-size: 0.76rem;
+  color: var(--gx-text-muted);
+}
+
+@keyframes chat-workflow-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-workflow-status__step[data-status="running"] .chat-workflow-status__icon ngx-decaf-chat-icon {
+    animation: none;
+  }
+}

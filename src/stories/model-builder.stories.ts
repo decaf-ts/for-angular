@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { ModelBuilderComponent } from 'src/lib/components/model-builder/model-builder.component';
+import { ModelBuilderComponent } from '@decaf-ts/for-angular';
 import './setup';
 import { getComponentMeta } from './utils';
 

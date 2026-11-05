@@ -1,0 +1,141 @@
+<app-header title="{{ 'storyboard.title' | translate }}" />
+
+<ion-content fullscreen="true" [scrollY]="true">
+  <main class="storyboard-page">
+    <ngx-decaf-container>
+      <header class="storyboard-page__intro">
+        <h2>{{ 'storyboard.title' | translate }}</h2>
+        <p>{{ 'storyboard.intro' | translate }}</p>
+      </header>
+
+      <section
+        class="storyboard-page__controls"
+        data-tutorial="controls"
+        [attr.aria-label]="'storyboard.title' | translate"
+      >
+        <button
+          type="button"
+          class="storyboard-page__button storyboard-page__button--primary"
+          data-testid="storyboard-start"
+          [disabled]="status() === 'running'"
+          (click)="start()"
+        >
+          {{ 'storyboard.start' | translate }}
+        </button>
+        <button
+          type="button"
+          class="storyboard-page__button"
+          data-testid="storyboard-next"
+          [disabled]="status() !== 'running'"
+          (click)="next()"
+        >
+          {{ 'storyboard.next' | translate }}
+        </button>
+        <button
+          type="button"
+          class="storyboard-page__button"
+          data-testid="storyboard-previous"
+          [disabled]="status() !== 'running'"
+          (click)="previous()"
+        >
+          {{ 'storyboard.previous' | translate }}
+        </button>
+        <button
+          type="button"
+          class="storyboard-page__button"
+          data-testid="storyboard-abort"
+          [disabled]="status() !== 'running'"
+          (click)="abort()"
+        >
+          {{ 'storyboard.abort' | translate }}
+        </button>
+        <button
+          type="button"
+          class="storyboard-page__button"
+          data-testid="storyboard-end"
+          [disabled]="status() !== 'running'"
+          (click)="end()"
+        >
+          {{ 'storyboard.end' | translate }}
+        </button>
+      </section>
+
+      <div class="storyboard-page__layout">
+        <section
+          class="storyboard-page__panel"
+          data-tutorial="playground"
+        >
+          <h3>{{ 'storyboard.demo_title' | translate }}</h3>
+          <p class="storyboard-page__hint">{{ 'storyboard.demo_intro' | translate }}</p>
+
+          <label class="storyboard-page__field">
+            <span>{{ 'storyboard.name_label' | translate }}</span>
+            <input
+              id="tutorial-name"
+              data-testid="storyboard-name"
+              type="text"
+              [value]="name()"
+              [placeholder]="'storyboard.name_placeholder' | translate"
+              (input)="onNameInput($event)"
+            />
+          </label>
+
+          <button
+            type="button"
+            class="storyboard-page__button storyboard-page__button--primary"
+            data-tutorial="confirm"
+            data-testid="storyboard-confirm"
+            (click)="confirm()"
+          >
+            {{ 'storyboard.confirm' | translate }}
+          </button>
+
+          @if (confirmedValue()) {
+            <p class="storyboard-page__confirmed" data-testid="storyboard-confirmed">
+              {{
+                'storyboard.confirmed'
+                  | translate: { value: confirmedValue() }
+              }}
+            </p>
+          }
+        </section>
+
+        <aside class="storyboard-page__panel storyboard-page__status" aria-live="polite">
+          <div>
+            <h3>{{ 'storyboard.status_label' | translate }}</h3>
+            <p class="storyboard-page__status-value" data-testid="storyboard-status">
+              {{ statusKey() | translate }}
+            </p>
+          </div>
+          <div>
+            <h3>{{ 'storyboard.step_label' | translate }}</h3>
+            @if (active(); as step) {
+              <p class="storyboard-page__status-value" data-testid="storyboard-active-step">
+                {{ step.title }}
+              </p>
+            } @else {
+              <p class="storyboard-page__status-value">
+                {{ 'storyboard.step_none' | translate }}
+              </p>
+            }
+          </div>
+          <div>
+            <h3>{{ 'storyboard.event_label' | translate }}</h3>
+            <p class="storyboard-page__event" data-testid="storyboard-last-event">
+              {{ lastEvent() }}
+            </p>
+          </div>
+        </aside>
+      </div>
+
+    </ngx-decaf-container>
+  </main>
+</ion-content>
+
+<ngx-decaf-storyboard-tutorial
+  [scenario]="scenario"
+  [persist]="false"
+  (started)="onStarted($event)"
+  (stepped)="onStepped($event)"
+  (finished)="onFinished($event)"
+/>

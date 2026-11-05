@@ -1,0 +1,46 @@
+<div class="chat-visibility-selector">
+  <button
+    type="button"
+    class="chat-visibility-selector__trigger"
+    data-action="trigger"
+    [disabled]="disabled()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="listbox"
+    (click)="toggle()"
+  >
+    <span class="chat-visibility-selector__label">
+      {{ "agent.chat.visibility.label" | translateFallback: "Conversation visibility" }}:
+    </span>
+    <span class="chat-visibility-selector__value">
+      {{ currentKey() | translateFallback: currentFallback() }}
+    </span>
+    <ngx-decaf-chat-icon name="chevron-down" [size]="14" />
+  </button>
+
+  @if (isOpen()) {
+    <div
+      class="chat-visibility-selector__panel"
+      role="listbox"
+      [attr.aria-label]="'agent.chat.visibility.label' | translateFallback: 'Conversation visibility'"
+    >
+      @for (option of options(); track option) {
+        <button
+          type="button"
+          class="chat-visibility-selector__option"
+          role="option"
+          [class.chat-visibility-selector__option--active]="isSelected(option)"
+          [attr.aria-selected]="isSelected(option)"
+          [attr.data-visibility]="option"
+          (click)="select(option)"
+        >
+          <span class="chat-visibility-selector__name">
+            {{ optionKey(option) | translateFallback: optionFallback(option) }}
+          </span>
+          <span class="chat-visibility-selector__hint">
+            {{ (option === "shared" ? "agent.chat.visibility.sharedHint" : "agent.chat.visibility.privateHint") | translateFallback: (option === "shared" ? "Anyone with the link can see this conversation." : "Only you can see this conversation.") }}
+          </span>
+        </button>
+      }
+    </div>
+  }
+</div>

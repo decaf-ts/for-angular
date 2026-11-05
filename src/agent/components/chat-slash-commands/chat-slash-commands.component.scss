@@ -1,0 +1,62 @@
+:host {
+  display: block;
+}
+
+.chat-slash-commands {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  max-height: 15rem;
+  padding: 0.3rem;
+  overflow-y: auto;
+  border: 1px solid var(--gx-border-soft, #cbd5e1);
+  border-radius: 10px;
+  background: var(--gx-surface, #ffffff);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+}
+
+.chat-slash-commands:focus {
+  outline: none;
+}
+
+.chat-slash-commands:focus-visible {
+  outline: 2px solid var(--gx-teal-focus-strong, #0f766e);
+  outline-offset: 1px;
+}
+
+.chat-slash-commands__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  width: 100%;
+  padding: 0.4rem 0.55rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--gx-text-strong, #0f172a);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chat-slash-commands__item--active {
+  background: var(--gx-surface-wash, #e2e8f0);
+}
+
+.chat-slash-commands__name {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.chat-slash-commands__description {
+  color: var(--gx-text-muted, #64748b);
+  font-size: 0.72rem;
+}
+
+.chat-slash-commands__empty {
+  margin: 0;
+  padding: 0.55rem;
+  color: var(--gx-text-muted, #64748b);
+  font-size: 0.76rem;
+  text-align: center;
+}

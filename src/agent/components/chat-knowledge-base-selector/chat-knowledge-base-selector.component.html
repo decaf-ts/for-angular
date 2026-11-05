@@ -1,0 +1,234 @@
+@if (open()) {
+  <div class="chat-knowledge-base" role="presentation">
+    <div
+      class="chat-knowledge-base__backdrop"
+      aria-hidden="true"
+      (click)="requestClose()"
+    ></div>
+
+    <section
+      class="chat-knowledge-base__panel"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="title() || ('agent.chat.knowledgeBase.aria' | translateFallback: 'Manage knowledge base')"
+    >
+      <header class="chat-knowledge-base__header">
+        <div class="chat-knowledge-base__heading">
+          <h2 class="chat-knowledge-base__title">
+            {{ title() || ("agent.chat.knowledgeBase.title" | translateFallback: "Manage knowledge base") }}
+          </h2>
+          <span
+            class="chat-knowledge-base__badge"
+            [attr.aria-label]="('agent.chat.knowledgeBase.count' | translateFallback: 'Selected') + ': ' + selectedCount()"
+          >
+            {{ selectedCount() }}
+          </span>
+        </div>
+
+        <div class="chat-knowledge-base__header-actions">
+          @if (uploadEnabled()) {
+            <button
+              type="button"
+              class="chat-knowledge-base__icon-button"
+              [attr.aria-label]="'agent.chat.knowledgeBase.upload' | translateFallback: 'Upload file'"
+              [attr.title]="'agent.chat.knowledgeBase.upload' | translateFallback: 'Upload file'"
+              (click)="openFilePicker()"
+            >
+              <ngx-decaf-chat-icon name="upload" [size]="16" />
+            </button>
+          }
+          <button
+            type="button"
+            class="chat-knowledge-base__icon-button"
+            [attr.aria-label]="'agent.chat.knowledgeBase.close' | translateFallback: 'Close knowledge base'"
+            [attr.title]="'agent.chat.knowledgeBase.close' | translateFallback: 'Close knowledge base'"
+            (click)="requestClose()"
+          >
+            <ngx-decaf-chat-icon name="x" [size]="16" />
+          </button>
+        </div>
+      </header>
+
+      <input
+        #fileInput
+        class="chat-knowledge-base__file-input"
+        type="file"
+        multiple
+        aria-hidden="true"
+        tabindex="-1"
+        (change)="onFilesSelected($event)"
+      />
+
+      <div
+        class="chat-knowledge-base__body"
+        [attr.aria-busy]="isLoading() ? 'true' : 'false'"
+      >
+        @if (isLoading()) {
+          @for (_ of skeletonRowList(); track $index) {
+            <div class="chat-knowledge-base__skeleton-row" aria-hidden="true">
+              <span class="chat-knowledge-base__skeleton-check"></span>
+              <span class="chat-knowledge-base__skeleton-lines">
+                <span class="chat-knowledge-base__skeleton-line"></span>
+                <span class="chat-knowledge-base__skeleton-line chat-knowledge-base__skeleton-line--short"></span>
+              </span>
+            </div>
+          }
+          <p class="chat-knowledge-base__status">
+            {{ "agent.chat.knowledgeBase.loading" | translateFallback: "Loading documents…" }}
+          </p>
+        } @else if (isEmpty()) {
+          <div class="chat-knowledge-base__empty" role="note">
+            <ngx-decaf-chat-icon name="file" [size]="24" />
+            <p class="chat-knowledge-base__empty-text">
+              {{ "agent.chat.knowledgeBase.empty" | translateFallback: "No documents yet" }}
+            </p>
+            @if (uploadEnabled()) {
+              <button
+                type="button"
+                class="chat-knowledge-base__upload-action"
+                (click)="openFilePicker()"
+              >
+                <ngx-decaf-chat-icon name="upload" [size]="15" />
+                {{ "agent.chat.knowledgeBase.upload" | translateFallback: "Upload file" }}
+              </button>
+            }
+          </div>
+        } @else {
+          <div class="chat-knowledge-base__toolbar">
+            <label class="chat-knowledge-base__select-all">
+              <input
+                type="checkbox"
+                [checked]="allSelected()"
+                [indeterminate]="someSelected()"
+                (change)="toggleAll()"
+              />
+              <span>
+                {{ "agent.chat.knowledgeBase.selectAll" | translateFallback: "Select all" }}
+              </span>
+            </label>
+            @if (selectedCount() > 0) {
+              <button
+                type="button"
+                class="chat-knowledge-base__clear"
+                (click)="clearSelection()"
+              >
+                {{ "agent.chat.knowledgeBase.clear" | translateFallback: "Clear selection" }}
+              </button>
+            }
+          </div>
+
+          <ul class="chat-knowledge-base__list" role="list">
+            @for (entry of items(); track entry.id) {
+              <li class="chat-knowledge-base__row">
+                <label class="chat-knowledge-base__entry">
+                  <input
+                    type="checkbox"
+                    [checked]="isSelected(entry.id)"
+                    [attr.aria-label]="('agent.chat.knowledgeBase.select' | translateFallback: 'Select') + ': ' + entry.label"
+                    (change)="toggle(entry.id)"
+                  />
+                  <span class="chat-knowledge-base__entry-body">
+                    <span class="chat-knowledge-base__entry-name">
+                      {{ entry.label }}
+                    </span>
+                    @if (entrySubtitle(entry)) {
+                      <span class="chat-knowledge-base__entry-meta">
+                        {{ entrySubtitle(entry) }}
+                      </span>
+                    }
+                  </span>
+                </label>
+
+                <div class="chat-knowledge-base__entry-actions">
+                  @if (uploadEnabled()) {
+                    <button
+                      type="button"
+                      class="chat-knowledge-base__icon-button"
+                      [attr.aria-label]="('agent.chat.knowledgeBase.upload' | translateFallback: 'Upload file') + ': ' + entry.label"
+                      [attr.title]="'agent.chat.knowledgeBase.upload' | translateFallback: 'Upload file'"
+                      (click)="openFilePicker(entry.id)"
+                    >
+                      <ngx-decaf-chat-icon name="upload" [size]="15" />
+                    </button>
+                  }
+                  @if (deleteEnabled()) {
+                    <button
+                      type="button"
+                      class="chat-knowledge-base__icon-button chat-knowledge-base__icon-button--danger"
+                      [disabled]="isDeleting(entry.id)"
+                      [attr.aria-label]="('agent.chat.knowledgeBase.delete' | translateFallback: 'Delete file') + ': ' + entry.label"
+                      [attr.title]="'agent.chat.knowledgeBase.delete' | translateFallback: 'Delete file'"
+                      (click)="requestDelete(entry)"
+                    >
+                      @if (isDeleting(entry.id)) {
+                        <ngx-decaf-chat-icon name="loader" [size]="15" />
+                      } @else {
+                        <ngx-decaf-chat-icon name="trash" [size]="15" />
+                      }
+                    </button>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        }
+
+        @if (uploads().length) {
+          <div
+            class="chat-knowledge-base__queue"
+            role="region"
+            [attr.aria-label]="'agent.chat.knowledgeBase.queue' | translateFallback: 'Upload queue'"
+          >
+            <p class="chat-knowledge-base__queue-title">
+              {{ "agent.chat.knowledgeBase.queue" | translateFallback: "Upload queue" }}
+            </p>
+            <ul class="chat-knowledge-base__queue-list" role="list">
+              @for (row of uploads(); track trackUpload($index, row)) {
+                <li
+                  class="chat-knowledge-base__queue-row"
+                  [attr.data-status]="row.status"
+                >
+                  @if (row.status === "uploading" || row.status === "queued") {
+                    <ngx-decaf-chat-icon name="loader" [size]="14" />
+                  } @else if (row.status === "done") {
+                    <ngx-decaf-chat-icon name="check" [size]="14" />
+                  } @else {
+                    <ngx-decaf-chat-icon name="info" [size]="14" />
+                  }
+                  <span class="chat-knowledge-base__queue-name">{{ row.name }}</span>
+                  <span class="chat-knowledge-base__queue-status">
+                    {{ statusKey(row) | translateFallback: statusFallback(row) }}
+                  </span>
+                  @if (row.status === "done" || row.status === "error") {
+                    <button
+                      type="button"
+                      class="chat-knowledge-base__queue-dismiss"
+                      [attr.aria-label]="('agent.chat.knowledgeBase.dismiss' | translateFallback: 'Dismiss upload') + ': ' + row.name"
+                      (click)="dismissUpload(row.id)"
+                    >
+                      <ngx-decaf-chat-icon name="x" [size]="12" />
+                    </button>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+
+      <footer class="chat-knowledge-base__footer">
+        <span class="chat-knowledge-base__footer-count">
+          {{ selectedCount() }}/{{ total() }}
+          {{ "agent.chat.knowledgeBase.selectedSuffix" | translateFallback: "selected" }}
+        </span>
+        <button
+          type="button"
+          class="chat-knowledge-base__done"
+          (click)="requestClose()"
+        >
+          {{ "agent.chat.knowledgeBase.done" | translateFallback: "Done" }}
+        </button>
+      </footer>
+    </section>
+  </div>
+}

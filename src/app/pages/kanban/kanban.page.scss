@@ -1,0 +1,31 @@
+.kanban-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dcf-padding, 1rem);
+  padding: var(--dcf-padding, 1rem);
+  min-width: 0;
+}
+
+.kanban-page__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dcf-padding-small, 0.75rem);
+}
+
+.kanban-page__toolbar output {
+  margin-inline-start: auto;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.kanban-page__card-title {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.kanban-page__card-meta {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.75;
+}

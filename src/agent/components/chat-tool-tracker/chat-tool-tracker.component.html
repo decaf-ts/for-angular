@@ -1,0 +1,59 @@
+<section
+  class="chat-tool-tracker"
+  [attr.data-status]="status()"
+  [attr.aria-label]="label() || ('agent.chat.tool.tracker.title' | translateFallback: 'Shipment tracking')"
+>
+  <header class="chat-tool-tracker__header">
+    <ngx-decaf-chat-icon name="gps" [size]="16" />
+    <h3 class="chat-tool-tracker__title">
+      {{ "agent.chat.tool.tracker.title" | translateFallback: "Shipment tracking" }}
+    </h3>
+    <span class="chat-tool-tracker__status">
+      {{ ("agent.chat.tool.tracker.status." + status()) | translateFallback: statusFallback() }}
+    </span>
+  </header>
+
+  <div class="chat-tool-tracker__timeline">
+    @for (step of steps(); track step.id; let index = $index, last = $last) {
+      <div class="chat-tool-tracker__step" [attr.data-step]="step.id" [attr.data-state]="stepState(index)">
+        <span class="chat-tool-tracker__node" aria-hidden="true">
+          <ngx-decaf-chat-icon [name]="step.icon" [size]="18" />
+        </span>
+        <span class="chat-tool-tracker__step-label">
+          {{ ("agent.chat.tool.tracker.step." + step.id) | translateFallback: step.labelFallback }}
+        </span>
+      </div>
+      @if (!last) {
+        <div class="chat-tool-tracker__connector" aria-hidden="true">
+          <span class="chat-tool-tracker__connector-fill" [style.width.%]="progressValue()"></span>
+        </div>
+      }
+    }
+  </div>
+
+  <div
+    class="chat-tool-tracker__progress"
+    role="progressbar"
+    [attr.aria-label]="'agent.chat.tool.tracker.progress' | translateFallback: 'Shipment progress'"
+    [attr.aria-valuemin]="0"
+    [attr.aria-valuemax]="100"
+    [attr.aria-valuenow]="progressValue()"
+    [attr.aria-valuetext]="progressValue() + '%'"
+  >
+    <span class="chat-tool-tracker__progress-fill" [style.width.%]="progressValue()"></span>
+  </div>
+
+  <footer class="chat-tool-tracker__footer">
+    <span class="chat-tool-tracker__progress-label">
+      @if (label()) {
+        {{ label() }}
+      } @else {
+        {{ progressValue() }}% ·
+        {{ ("agent.chat.tool.tracker.status." + status()) | translateFallback: statusFallback() }}
+      }
+    </span>
+    <p class="chat-tool-tracker__description">
+      {{ description() || (("agent.chat.tool.tracker.description." + status()) | translateFallback: descriptionFallback()) }}
+    </p>
+  </footer>
+</section>

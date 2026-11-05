@@ -1,0 +1,37 @@
+@if (variant() === "inline") {
+  <div
+    class="chat-artifact-skeleton chat-artifact-skeleton--inline"
+    role="status"
+    aria-busy="true"
+    [attr.aria-label]="label() || ('agent.chat.artifact.skeleton.inline' | translateFallback: 'Loading artifact…')"
+  >
+    <span class="chat-artifact-skeleton__bar chat-artifact-skeleton__bar--inline" aria-hidden="true"></span>
+    <span class="chat-artifact-skeleton__label">
+      {{ label() || ("agent.chat.artifact.skeleton.inline" | translateFallback: "Loading artifact…") }}
+    </span>
+  </div>
+} @else {
+  <div
+    class="chat-artifact-skeleton chat-artifact-skeleton--full"
+    role="status"
+    aria-busy="true"
+    [attr.aria-label]="label() || ('agent.chat.artifact.skeleton.full' | translateFallback: 'Loading artifact panel…')"
+  >
+    <div class="chat-artifact-skeleton__header" aria-hidden="true">
+      <span class="chat-artifact-skeleton__bar chat-artifact-skeleton__bar--badge"></span>
+      <span class="chat-artifact-skeleton__bar chat-artifact-skeleton__bar--title"></span>
+      <span class="chat-artifact-skeleton__bar chat-artifact-skeleton__bar--action"></span>
+    </div>
+    <div class="chat-artifact-skeleton__body" aria-hidden="true">
+      @for (line of lineRange(); track line) {
+        <span
+          class="chat-artifact-skeleton__bar chat-artifact-skeleton__bar--line"
+          [style.width.%]="line % 3 === 0 ? 62 : line % 2 === 0 ? 88 : 100"
+        ></span>
+      }
+    </div>
+    <span class="chat-artifact-skeleton__label">
+      {{ label() || ("agent.chat.artifact.skeleton.full" | translateFallback: "Loading artifact panel…") }}
+    </span>
+  </div>
+}

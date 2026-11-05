@@ -14,13 +14,13 @@ import {
   provideNgDiagram,
   type ModelAdapter,
 } from 'ng-diagram';
-import { GraphNodeCatalogService } from 'src/graph/catalog/GraphNodeCatalogService';
-import { GraphNodeTemplateComponent } from 'src/graph/components/graph-node-template/graph-node-template.component';
-import { GraphWorkflowDocumentStore } from 'src/graph/document/GraphWorkflowDocumentStore';
-import { graphExecutionState } from 'src/graph/execution/GraphExecutionStateService';
-import { graphSelection } from 'src/graph/execution/GraphSelectionStore';
-import { graphValidity } from 'src/graph/validation/GraphWorkflowValidityStore';
-import type { GraphDemoNodeData } from 'src/graph/types';
+import { GraphNodeCatalogService } from 'src/diagrams/components/graph/catalog/GraphNodeCatalogService';
+import { GraphNodeTemplateComponent } from 'src/diagrams/components/graph/components/graph-node-template/graph-node-template.component';
+import { GraphWorkflowDocumentStore } from 'src/diagrams/components/graph/document/GraphWorkflowDocumentStore';
+import { graphExecutionState } from 'src/diagrams/components/graph/execution/GraphExecutionStateService';
+import { graphSelection } from 'src/diagrams/components/graph/execution/GraphSelectionStore';
+import { graphValidity } from 'src/diagrams/components/graph/validation/GraphWorkflowValidityStore';
+import type { GraphDemoNodeData } from 'src/diagrams/components/graph/types';
 import './setup';
 import { getComponentMeta } from './utils';
 

@@ -1,0 +1,38 @@
+<section
+  class="chat-progress"
+  role="status"
+  aria-live="polite"
+  [attr.data-done]="isDone() ? 'true' : null"
+  [attr.aria-label]="'agent.chat.progress.title' | translateFallback: 'Progress'"
+>
+  @if (current(); as event) {
+    <div class="chat-progress__row">
+      <span class="chat-progress__icon" [class.chat-progress__icon--done]="isDone()" aria-hidden="true">
+        <ngx-decaf-chat-icon [name]="isDone() ? 'check' : 'loader'" [size]="15" />
+      </span>
+      <span class="chat-progress__label">{{ labelKey() | translateFallback: labelFallback() }}</span>
+      @if (percent() !== null) {
+        <span class="chat-progress__percent">{{ percent() }}%</span>
+      }
+    </div>
+    @if (percent() !== null) {
+      <div
+        class="chat-progress__track"
+        role="progressbar"
+        [attr.aria-label]="labelKey() | translateFallback: labelFallback()"
+        [attr.aria-valuemin]="0"
+        [attr.aria-valuemax]="100"
+        [attr.aria-valuenow]="percent()"
+      >
+        <span class="chat-progress__fill" [style.width.%]="percent()"></span>
+      </div>
+    }
+    @if (event.message) {
+      <p class="chat-progress__message">{{ event.message }}</p>
+    }
+  } @else {
+    <p class="chat-progress__empty">
+      {{ "agent.chat.progress.empty" | translateFallback: "Waiting for progress…" }}
+    </p>
+  }
+</section>

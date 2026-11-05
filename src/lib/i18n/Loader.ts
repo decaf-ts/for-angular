@@ -74,7 +74,7 @@ export function I18nLoaderFactory(http: HttpClient): TranslateLoader {
     inject(I18N_CONFIG_TOKEN, { optional: true }) ?? provideDecafI18nLoader().useValue;
   return new I18nLoader(
     http,
-    resources?.length ? resources : [{ prefix: './app/assets/i18n/', suffix: '.json' }],
+    resources?.length ? resources : [{ prefix: './assets/i18n/', suffix: '.json' }],
     versionedSuffix
   );
 }

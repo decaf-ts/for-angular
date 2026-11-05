@@ -4,7 +4,7 @@
  * The workflow-boundary result badge is draggable like any other node, and a drag
  * keeps its input connection (`ResultLogNode:value → output-result:value`). The
  * unit contract lives in
- * `src/graph/document/graph-boundary-moves.spec.ts`.
+ * `src/diagrams/components/graph/document/graph-boundary-moves.spec.ts`.
  *
  * RUN REQUIREMENTS: `npm run start` (dev server on :8110); backend mocked.
  */

@@ -1,0 +1,89 @@
+:host {
+  display: block;
+}
+
+.chat-thinking-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.chat-thinking-message__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid var(--gx-border-soft);
+  background: var(--gx-surface-soft);
+  color: var(--gx-text-muted);
+}
+
+.chat-thinking-message__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: min(82%, 32rem);
+  border: 1px solid var(--gx-border-soft);
+  border-radius: 10px;
+  background: var(--gx-surface-panel);
+  padding: 0.5rem 0.6rem;
+  box-sizing: border-box;
+}
+
+.chat-thinking-message__label {
+  font-size: 0.75rem;
+  color: var(--gx-teal-fg);
+  animation: chat-thinking-pulse 1.6s ease-in-out infinite;
+}
+
+.chat-thinking-message__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.chat-thinking-message__line {
+  display: block;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--gx-surface-soft) 0%,
+    var(--gx-surface-wash) 50%,
+    var(--gx-surface-soft) 100%
+  );
+  background-size: 200% 100%;
+}
+
+.chat-thinking-message--animated .chat-thinking-message__line {
+  animation: chat-thinking-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes chat-thinking-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes chat-thinking-pulse {
+  0%,
+  100% {
+    opacity: 0.95;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-thinking-message__label,
+  .chat-thinking-message--animated .chat-thinking-message__line {
+    animation: none;
+  }
+}

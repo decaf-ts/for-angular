@@ -1,0 +1,98 @@
+:host {
+  display: block;
+}
+
+.chat-greeting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  color: var(--gx-text);
+}
+
+.chat-greeting--info {
+  align-items: flex-start;
+  text-align: left;
+  border: 1px solid var(--gx-border-soft);
+  border-radius: 12px;
+  background: var(--gx-surface-panel);
+  padding: 1rem 1.1rem;
+}
+
+.chat-greeting__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--gx-teal-focus);
+  background: var(--gx-surface-wash);
+  color: var(--gx-teal-fg);
+}
+
+.chat-greeting__title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--gx-text-strong);
+}
+
+.chat-greeting--info .chat-greeting__title {
+  font-size: 0.95rem;
+}
+
+.chat-greeting__message {
+  margin: 0;
+  max-width: 34rem;
+  color: var(--gx-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.chat-greeting__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--gx-teal-fg);
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.chat-greeting__link:hover {
+  text-decoration: underline;
+}
+
+.chat-greeting__link:focus-visible {
+  outline: 2px solid var(--gx-teal-focus-strong);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.chat-greeting__link ngx-decaf-chat-icon {
+  transform: rotate(-90deg);
+}
+
+.chat-greeting--animated {
+  animation: chat-greeting-enter 320ms ease-out both;
+}
+
+@keyframes chat-greeting-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-greeting--animated {
+    animation: none;
+  }
+}

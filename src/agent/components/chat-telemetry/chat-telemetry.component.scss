@@ -1,0 +1,196 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.chat-telemetry {
+  border: 1px solid var(--gx-border-soft);
+  border-radius: 8px;
+  background: var(--gx-surface-soft);
+  color: var(--gx-text-secondary);
+  overflow: hidden;
+}
+
+.chat-telemetry__trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 0.4rem 0.55rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chat-telemetry__trigger:hover {
+  color: var(--gx-text-strong);
+}
+
+.chat-telemetry__trigger:focus-visible {
+  outline: 2px solid var(--gx-teal-focus-strong);
+  outline-offset: -2px;
+}
+
+.chat-telemetry__title {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--gx-text-strong);
+}
+
+.chat-telemetry__count {
+  min-width: 1.1rem;
+  padding: 0.02rem 0.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--gx-border-soft);
+  background: var(--gx-surface-panel);
+  text-align: center;
+  font-size: 0.64rem;
+  color: var(--gx-text-muted);
+}
+
+.chat-telemetry__chevron {
+  margin-left: auto;
+  color: var(--gx-text-muted);
+}
+
+.chat-telemetry__content {
+  border-top: 1px dashed var(--gx-border-soft);
+  padding: 0.4rem 0.55rem 0.5rem;
+}
+
+.chat-telemetry__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.chat-telemetry__row {
+  border: 1px solid var(--gx-border-soft);
+  border-radius: 7px;
+  background: var(--gx-surface-panel);
+  padding: 0.35rem 0.45rem;
+}
+
+.chat-telemetry__summary {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chat-telemetry__run {
+  font-family: var(--gx-font-mono, monospace);
+  font-size: 0.7rem;
+  color: var(--gx-text-strong);
+  overflow-wrap: anywhere;
+}
+
+.chat-telemetry__duration,
+.chat-telemetry__nodes,
+.chat-telemetry__tokens {
+  font-family: var(--gx-font-mono, monospace);
+  font-size: 0.66rem;
+  color: var(--gx-text-muted);
+}
+
+.chat-telemetry__status {
+  margin-left: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.62rem;
+  color: var(--gx-text-muted);
+}
+
+.chat-telemetry__row[data-status="succeeded"] .chat-telemetry__status {
+  color: var(--gx-success-fg);
+}
+
+.chat-telemetry__row[data-status="failed"] .chat-telemetry__status {
+  color: var(--gx-danger-fg);
+}
+
+.chat-telemetry__row[data-status="running"] .chat-telemetry__status,
+.chat-telemetry__row[data-status="queued"] .chat-telemetry__status {
+  color: var(--gx-warning-fg);
+}
+
+.chat-telemetry__replayed {
+  padding: 0.02rem 0.3rem;
+  border-radius: 999px;
+  border: 1px dashed var(--gx-border-soft);
+  font-size: 0.6rem;
+  color: var(--gx-text-muted);
+}
+
+.chat-telemetry__error {
+  margin: 0.25rem 0 0;
+  font-size: 0.7rem;
+  color: var(--gx-danger-fg);
+}
+
+.chat-telemetry__metadata {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.25rem 0.5rem;
+  margin: 0.3rem 0 0;
+}
+
+.chat-telemetry__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.chat-telemetry__meta dt {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gx-text-muted);
+}
+
+.chat-telemetry__meta dd {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--gx-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.chat-telemetry__mono {
+  font-family: var(--gx-font-mono, monospace);
+}
+
+.chat-telemetry__context {
+  margin-top: 0.3rem;
+}
+
+.chat-telemetry__context-title {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gx-text-muted);
+}
+
+.chat-telemetry__json {
+  margin: 0.15rem 0 0;
+  padding: 0.3rem 0.4rem;
+  border-radius: 6px;
+  background: var(--gx-surface-code, #0f172a);
+  color: var(--gx-text-code, #e2e8f0);
+  font-family: var(--gx-font-mono, monospace);
+  font-size: 0.66rem;
+  line-height: 1.4;
+  overflow-x: auto;
+  max-height: 10rem;
+}
+
+.chat-telemetry__empty {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--gx-text-muted);
+}

@@ -1,0 +1,59 @@
+<form
+  class="chat-composer"
+  [class.chat-composer--running]="running()"
+  [class.chat-composer--disabled]="disabled()"
+  [attr.aria-busy]="running()"
+  (submit)="onFormSubmit($event)"
+>
+  <label class="chat-composer__label" [attr.for]="textareaId">
+    {{ "agent.chat.composer.message.label" | translateFallback: "Message" }}
+  </label>
+  <textarea
+    #textarea
+    class="chat-composer__input"
+    [id]="textareaId"
+    [value]="draft()"
+    [attr.rows]="minRows()"
+    [attr.placeholder]="placeholder() || ('agent.chat.composer.message.placeholder' | translateFallback: 'Type a message…')"
+    [attr.aria-label]="'agent.chat.composer.message.placeholder' | translateFallback: 'Type a message…'"
+    [disabled]="inputDisabled()"
+    (input)="onInput($event)"
+    (keydown)="onKeydown($event)"
+  ></textarea>
+
+  <div class="chat-composer__actions">
+    <span class="chat-composer__hint" aria-live="polite">
+      {{ hintKey() | translateFallback: hintFallback() }}
+    </span>
+
+    @if (running()) {
+      <button
+        type="button"
+        class="chat-composer__action chat-composer__action--stop"
+        data-action="stop"
+        [disabled]="!canStop()"
+        [attr.aria-label]="'agent.chat.composer.stop' | translateFallback: 'Stop response'"
+        [attr.title]="'agent.chat.composer.stop' | translateFallback: 'Stop response'"
+        (click)="submit()"
+      >
+        <ngx-decaf-chat-icon name="stop" [size]="16" />
+        <span>{{ "agent.chat.composer.stop" | translateFallback: "Stop response" }}</span>
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="chat-composer__action chat-composer__action--send"
+        data-action="send"
+        [disabled]="!canSend()"
+        [attr.aria-label]="'agent.chat.composer.send' | translateFallback: 'Send'"
+        [attr.title]="'agent.chat.composer.send' | translateFallback: 'Send'"
+        (click)="submit()"
+      >
+        <ngx-decaf-chat-icon name="send" [size]="16" />
+        <span>{{ "agent.chat.composer.send" | translateFallback: "Send" }}</span>
+      </button>
+    }
+  </div>
+
+  <ng-content />
+</form>

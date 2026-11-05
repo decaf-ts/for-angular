@@ -1,0 +1,133 @@
+<article
+  class="chat-message"
+  [class.chat-message--user]="role() === 'user'"
+  [class.chat-message--assistant]="role() === 'assistant'"
+  [class.chat-message--system]="role() === 'system'"
+  [class.chat-message--error]="role() === 'error'"
+  [class.chat-message--streaming]="streaming()"
+  [class.chat-message--pending]="pending()"
+  [attr.data-role]="role()"
+  [attr.aria-busy]="pending() || streaming() ? 'true' : null"
+>
+  @if (avatar() === "default") {
+    <div class="chat-message__avatar" aria-hidden="true">
+      <ng-content select="[chatMessageAvatar]" />
+      <ngx-decaf-chat-icon [name]="avatarName()" [size]="18" />
+    </div>
+  } @else {
+    <ng-content select="[chatMessageAvatar]" />
+  }
+
+  <div class="chat-message__body">
+    <header class="chat-message__meta">
+      <span class="chat-message__role">
+        {{ roleLabel() || (("agent.chat.role." + role()) | translateFallback: role()) }}
+      </span>
+      @if (createdAt()) {
+        <time class="chat-message__time" [attr.datetime]="createdAt()">{{ createdAt() }}</time>
+      }
+      @if (streaming()) {
+        <span class="chat-message__streaming">
+          {{ "agent.chat.message.streaming" | translateFallback: "Streaming…" }}
+        </span>
+      }
+    </header>
+
+    <div class="chat-message__content">
+      <ng-content select="[chatMessageContent]" />
+      @if (!hasParts() && content()) {
+        <p class="chat-message__text">{{ content() }}</p>
+      }
+      @for (part of parts(); track trackPart($index, part)) {
+        @switch (part.kind) {
+          @case ("text") {
+            @let text = asText(part);
+            <p class="chat-message__text" [class.chat-message__text--streaming]="text.streaming">
+              {{ text.text }}
+            </p>
+          }
+          @case ("attachment") {
+            @let attachmentPart = asAttachment(part);
+            <span class="chat-message__attachment">
+              <ngx-decaf-chat-icon name="attachment" [size]="14" />
+              {{ attachmentPart.attachment.name }}
+              <span class="chat-message__attachment-meta">
+                {{ attachmentPart.attachment.mime }}, {{ attachmentPart.attachment.size }}B
+              </span>
+            </span>
+          }
+          @case ("tool") {
+            @let tool = asTool(part);
+            <div class="chat-message__part chat-message__part--tool" [attr.data-status]="tool.status">
+              <div class="chat-message__tool-header">
+                <ngx-decaf-chat-icon name="box" [size]="14" />
+                <span class="chat-message__tool-name">{{ tool.name }}</span>
+                <span class="chat-message__tool-status">
+                  {{ ("agent.chat.tool.status." + tool.status) | translateFallback: tool.status }}
+                </span>
+              </div>
+              @if (tool.error) {
+                <p class="chat-message__tool-error" role="alert">{{ tool.error }}</p>
+              }
+              @if (tool.input !== undefined || tool.output !== undefined) {
+                <details class="chat-message__tool-details">
+                  <summary>
+                    {{ "agent.chat.message.toolDetails" | translateFallback: "Tool details" }}
+                  </summary>
+                  @if (tool.input !== undefined) {
+                    <pre class="chat-message__tool-json">{{ stringify(tool.input) }}</pre>
+                  }
+                  @if (tool.output !== undefined) {
+                    <pre class="chat-message__tool-json">{{ stringify(tool.output) }}</pre>
+                  }
+                </details>
+              }
+            </div>
+          }
+          @case ("reasoning") {
+            @let reasoning = asReasoning(part);
+            <ngx-decaf-chat-reasoning
+              [title]="reasoning.title ?? null"
+              [content]="reasoning.content"
+              [streaming]="reasoning.streaming ?? false"
+              [open]="reasoning.open ?? false"
+              [inline]="true"
+            />
+          }
+          @case ("code") {
+            @let code = asCode(part);
+            <ngx-decaf-chat-code-block
+              [code]="code.code"
+              [language]="code.language ?? null"
+              [filename]="code.filename ?? null"
+              [title]="code.title ?? null"
+            />
+          }
+        }
+      }
+      @if (streaming()) {
+        <span class="chat-message__caret" aria-hidden="true"></span>
+      }
+    </div>
+
+    @if (showsAttachmentList()) {
+      <ul class="chat-message__attachments">
+        @for (attachment of attachments(); track attachment.id) {
+          <li class="chat-message__attachment">
+            <ngx-decaf-chat-icon name="attachment" [size]="14" />
+            {{ attachment.name }}
+            <span class="chat-message__attachment-meta">{{ attachment.mime }}, {{ attachment.size }}B</span>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (actions().length) {
+      <ul class="chat-message__actions" [attr.aria-label]="'agent.chat.actions.label' | translateFallback: 'Agent actions'">
+        @for (action of actions(); track action) {
+          <li class="chat-message__action-chip">{{ action }}</li>
+        }
+      </ul>
+    }
+  </div>
+</article>

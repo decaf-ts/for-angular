@@ -13,3 +13,4 @@ export * from './helpers';
 export * from './NgxSpinner';
 export * from './NgxToast';
 
+export * from './structured-output';

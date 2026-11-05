@@ -1,0 +1,47 @@
+<section
+  class="chat-artifact-editor"
+  [attr.data-kind]="kind()"
+  [attr.aria-label]="ariaLabel() || ('agent.chat.artifact.editor.label' | translateFallback: 'Artifact editor')"
+>
+  <header class="chat-artifact-editor__header">
+    <span class="chat-artifact-editor__kind">
+      <ngx-decaf-chat-icon [name]="kindIcon()" [size]="13" />
+      {{ ("agent.chat.artifact.editor.kind." + kind()) | translateFallback: kind() }}
+    </span>
+    @if (language()) {
+      <span class="chat-artifact-editor__language">{{ language() }}</span>
+    }
+    <span class="chat-artifact-editor__mode">
+      {{ (editable() ? "agent.chat.artifact.editor.editable" : "agent.chat.artifact.editor.readOnly") | translateFallback: (editable() ? "Editable" : "Read only") }}
+    </span>
+  </header>
+
+  @if (kind() === "image") {
+    @if (imageSrc()) {
+      <figure class="chat-artifact-editor__image">
+        <img
+          [src]="imageSrc()"
+          [alt]="imageAlt() || ('agent.chat.artifact.editor.imageAlt' | translateFallback: 'Artifact image')"
+        />
+      </figure>
+    } @else {
+      <div class="chat-artifact-editor__empty">
+        <ngx-decaf-chat-icon name="image" [size]="20" />
+        <span>
+          {{ "agent.chat.artifact.editor.emptyImage" | translateFallback: "No image preview available." }}
+        </span>
+      </div>
+    }
+  } @else if (editable()) {
+    <app-code-editor
+      class="chat-artifact-editor__code"
+      [mode]="editorMode()"
+      [code]="content()"
+      [placeholder]="resolvedPlaceholder()"
+      [ariaLabel]="resolvedAriaLabel()"
+      (codeChange)="onContentChange($event)"
+    />
+  } @else {
+    <pre class="chat-artifact-editor__static" tabindex="0">{{ content() }}</pre>
+  }
+</section>

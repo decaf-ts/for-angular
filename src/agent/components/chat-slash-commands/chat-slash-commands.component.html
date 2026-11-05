@@ -1,0 +1,40 @@
+@if (open()) {
+  <div
+    #list
+    class="chat-slash-commands"
+    [attr.role]="filtered().length > 0 ? 'listbox' : 'group'"
+    tabindex="0"
+    [attr.aria-label]="'agent.chat.slashCommands.label' | translateFallback: 'Slash commands'"
+    [attr.aria-activedescendant]="activeDescendant()"
+    (keydown)="onKeydown($event)"
+  >
+    @if (filtered().length > 0) {
+      @for (command of filtered(); track command.name; let index = $index) {
+        <button
+          type="button"
+          class="chat-slash-commands__item"
+          role="option"
+          [id]="optionId(index)"
+          [class.chat-slash-commands__item--active]="activeIndex() === index"
+          [attr.aria-selected]="activeIndex() === index"
+          [attr.data-command-index]="index"
+          [attr.data-command]="command.name"
+          tabindex="-1"
+          (mousemove)="setActive(index)"
+          (click)="selectCommand(command)"
+        >
+          <span class="chat-slash-commands__name">/{{ command.name }}</span>
+          @if (command.description) {
+            <span class="chat-slash-commands__description">
+              {{ command.description }}
+            </span>
+          }
+        </button>
+      }
+    } @else {
+      <p class="chat-slash-commands__empty" role="status">
+        {{ "agent.chat.slashCommands.empty" | translateFallback: "No matching commands" }}
+      </p>
+    }
+  </div>
+}

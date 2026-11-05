@@ -1,0 +1,30 @@
+<app-header title="{{ 'diagrams.title' | translate }}" />
+
+<ion-content fullscreen="true" [scrollY]="true">
+  <main class="diagrams-page">
+    <ngx-decaf-container>
+      <header class="diagrams-page__intro">
+        <h2>{{ 'diagrams.title' | translate }}</h2>
+        <p>{{ 'diagrams.intro' | translate }}</p>
+      </header>
+
+      <section class="diagrams-page__panel">
+        <div class="diagrams-page__meta">
+          <strong>{{ 'diagrams.workflow_name' | translate }}</strong>
+          <span>{{ 'diagrams.node_count' | translate: { count: nodeCount } }}</span>
+          <span>{{ 'diagrams.edge_count' | translate: { count: edgeCount } }}</span>
+        </div>
+
+        <div class="diagrams-page__canvas">
+          <app-graph-renderer
+            data-testid="diagrams-canvas"
+            [graphRoot]="workflowRoot"
+            [availableNodes]="manifests"
+          />
+        </div>
+
+        <p class="diagrams-page__legend">{{ 'diagrams.legend' | translate }}</p>
+      </section>
+    </ngx-decaf-container>
+  </main>
+</ion-content>

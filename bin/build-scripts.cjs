@@ -9910,10 +9910,10 @@ class BuildScripts extends Command {
         return this.buildByEnv(false);
     }
     async buildDocs() {
-        await runCommand(`npm install better-docs taffydb`).promise;
+        await runCommand(`npm install better-docs taffydb --no-save --include=dev --legacy-peer-deps`).promise;
         await runCommand(`npx markdown-include ./workdocs/readme-md.json`).promise;
         await runCommand(`npx jsdoc -c ./workdocs/jsdocs.json -t ./node_modules/better-docs`).promise;
-        await runCommand(`npm remove better-docs taffydb`).promise;
+        await runCommand(`npm remove better-docs taffydb --no-save --include=dev --legacy-peer-deps`).promise;
         [
             {
                 src: "workdocs/assets",

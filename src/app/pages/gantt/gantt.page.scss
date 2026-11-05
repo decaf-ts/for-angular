@@ -1,0 +1,24 @@
+.gantt-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dcf-padding, 1rem);
+  padding: var(--dcf-padding, 1rem);
+  min-width: 0;
+}
+
+.gantt-page__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dcf-padding-small, 0.75rem);
+}
+
+.gantt-page__toolbar output {
+  margin-inline-start: auto;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.gantt-page__bar {
+  font-size: 0.7rem;
+}

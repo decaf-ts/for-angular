@@ -1,0 +1,56 @@
+<section
+  class="chat-nested-agent"
+  data-tool-agent="true"
+  data-tool-agent-step="true"
+  role="group"
+  [attr.data-status]="status()"
+  [attr.aria-label]="('agent.chat.nestedAgent.title' | translateFallback: 'Nested agent') + (name() ? ' — ' + name() : '')"
+  [style.paddingLeft.px]="indent()"
+>
+  <header class="chat-nested-agent__header">
+    <span class="chat-nested-agent__icon" aria-hidden="true">
+      <ngx-decaf-chat-icon name="bot" [size]="15" />
+    </span>
+    <div class="chat-nested-agent__heading">
+      <span class="chat-nested-agent__name">
+        {{ name() || ("agent.chat.nestedAgent.title" | translateFallback: "Nested agent") }}
+      </span>
+      @if (runId()) {
+        <span class="chat-nested-agent__run">{{ runId() }}</span>
+      }
+    </div>
+    @if (ancestry().length) {
+      <span class="chat-nested-agent__ancestry" [attr.title]="ancestryLabel()">
+        {{ ancestryLabel() }}
+      </span>
+    }
+    <span class="chat-nested-agent__chip">
+      {{ ("agent.chat.workflow.status." + status()) | translateFallback: statusFallback() }}
+    </span>
+  </header>
+
+  @if (text()) {
+    <p class="chat-nested-agent__text" [class.chat-nested-agent__text--streaming]="streaming()">
+      {{ text() }}
+      @if (streaming()) {
+        <span class="chat-nested-agent__caret" aria-hidden="true"></span>
+      }
+    </p>
+  }
+
+  @if (hasErrors()) {
+    <div
+      class="chat-nested-agent__errors"
+      role="group"
+      [attr.aria-label]="'agent.chat.nestedAgent.errors' | translateFallback: 'Tool errors'"
+    >
+      @for (toolError of toolErrors(); track toolError.id || toolError.toolName) {
+        <div class="chat-nested-agent__error" role="alert">
+          <ngx-decaf-chat-icon name="x" [size]="13" />
+          <span class="chat-nested-agent__error-tool">{{ toolError.toolName }}</span>
+          <span class="chat-nested-agent__error-message">{{ toolError.message }}</span>
+        </div>
+      }
+    </div>
+  }
+</section>

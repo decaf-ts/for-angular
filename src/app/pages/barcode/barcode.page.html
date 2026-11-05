@@ -1,0 +1,91 @@
+<app-header title="{{ 'barcode.title' | translate }}" />
+
+<ion-content fullscreen="true" [scrollY]="true">
+  <main class="barcode-page">
+    <ngx-decaf-container>
+      <header class="barcode-page__intro">
+        <h2>{{ 'barcode.title' | translate }}</h2>
+        <p>{{ 'barcode.intro' | translate }}</p>
+      </header>
+
+      <div class="barcode-page__layout">
+        <section
+          class="barcode-page__controls"
+          [attr.aria-label]="'barcode.title' | translate"
+        >
+          <label class="barcode-page__field">
+            <span>{{ 'barcode.payload_label' | translate }}</span>
+            <textarea
+              data-testid="barcode-payload"
+              rows="3"
+              [value]="payload()"
+              [placeholder]="'barcode.payload_placeholder' | translate"
+              (input)="onPayloadInput($event)"
+            ></textarea>
+          </label>
+
+          <label class="barcode-page__field">
+            <span>{{ 'barcode.symbology_label' | translate }}</span>
+            <select
+              data-testid="barcode-symbology"
+              (change)="onSymbologyChange($event)"
+            >
+              @for (type of symbologies; track type) {
+                <option [value]="type" [selected]="type === symbology()">
+                  {{ type }}
+                </option>
+              }
+            </select>
+          </label>
+
+          <label class="barcode-page__field">
+            <span>{{ 'barcode.scale_label' | translate }}</span>
+            <input
+              data-testid="barcode-scale"
+              type="range"
+              min="1"
+              max="10"
+              step="1"
+              [value]="scale()"
+              (input)="onScaleInput($event)"
+            />
+            <output>{{ scale() }}&times;</output>
+          </label>
+
+          <button
+            type="button"
+            class="barcode-page__reset"
+            data-testid="barcode-reset"
+            (click)="reset()"
+          >
+            {{ 'barcode.reset' | translate }}
+          </button>
+        </section>
+
+        <section class="barcode-page__preview" aria-live="polite">
+          @if (rendered().svg) {
+            <div
+              class="barcode-page__canvas"
+              data-testid="barcode-preview"
+              role="img"
+              [attr.aria-label]="'barcode.preview_aria' | translate"
+              [innerHTML]="rendered().svg"
+            ></div>
+            <p class="barcode-page__meta">
+              {{
+                'barcode.char_count'
+                  | translate: { count: payload().length }
+              }}
+            </p>
+          } @else if (rendered().error) {
+            <p class="barcode-page__error" role="alert">
+              {{ 'barcode.error' | translate }}
+            </p>
+          } @else {
+            <p class="barcode-page__empty">{{ 'barcode.empty' | translate }}</p>
+          }
+        </section>
+      </div>
+    </ngx-decaf-container>
+  </main>
+</ion-content>

@@ -1,0 +1,23 @@
+<div
+  class="chat-thinking-message"
+  [class.chat-thinking-message--animated]="animated()"
+  role="status"
+  aria-live="polite"
+  [attr.aria-label]="label() || ('agent.chat.thinking.label' | translateFallback: 'Agent is thinking')"
+>
+  @if (showAvatar()) {
+    <span class="chat-thinking-message__avatar" aria-hidden="true">
+      <ngx-decaf-chat-icon [name]="avatarIcon()" [size]="18" />
+    </span>
+  }
+  <div class="chat-thinking-message__body">
+    <span class="chat-thinking-message__label">
+      {{ label() || ("agent.chat.thinking.label" | translateFallback: "Thinking…") }}
+    </span>
+    <div class="chat-thinking-message__lines" aria-hidden="true">
+      @for (index of lineIndexes(); track index) {
+        <span class="chat-thinking-message__line" [style.width.%]="lineWidth(index)"></span>
+      }
+    </div>
+  </div>
+</div>

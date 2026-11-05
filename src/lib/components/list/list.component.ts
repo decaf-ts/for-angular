@@ -1391,6 +1391,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       if (length === undefined) {
         this.loadMoreData = `${this.paginator?.['_bookmark']}`?.length ? true : false;
       } else {
+        // A cursor/bookmark paginator with a next bookmark always has more data to load.
+        if (this.paginator && `${this.paginator['_bookmark'] ?? ''}`.length > 0) {
+          this.loadMoreData = true;
+          return;
+        }
         if (this.paginator) {
           length = this.paginator['_recordCount'] || length * this.limit;
         }

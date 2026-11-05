@@ -1,0 +1,259 @@
+<app-header title="{{ 'charts.title' | translate }}" />
+
+<ion-content fullscreen="true" [scrollY]="true">
+  <main class="charts-page">
+    <ngx-decaf-container>
+      <header class="charts-page__intro">
+        <h2>{{ 'charts.title' | translate }}</h2>
+        <p>{{ 'charts.intro' | translate }}</p>
+      </header>
+
+      <section class="charts-page__panel">
+        <div class="charts-page__toolbar">
+          <label class="charts-page__field">
+            <span>{{ 'charts.type_label' | translate }}</span>
+            <select
+              data-testid="charts-family"
+              [value]="family()"
+              (change)="onFamilyChange($event)"
+            >
+              @for (item of families; track item) {
+                <option [value]="item">
+                  {{ familyLabelKey(item) | translate }}
+                </option>
+              }
+            </select>
+          </label>
+
+          @if (family() === 'line') {
+            <label class="charts-page__checkbox">
+              <input
+                type="checkbox"
+                data-testid="charts-smooth"
+                [checked]="smooth()"
+                (change)="onSmoothChange($event)"
+              />
+              <span>{{ 'charts.smooth_label' | translate }}</span>
+            </label>
+            <label class="charts-page__checkbox">
+              <input
+                type="checkbox"
+                data-testid="charts-area"
+                [checked]="area()"
+                (change)="onAreaChange($event)"
+              />
+              <span>{{ 'charts.area_label' | translate }}</span>
+            </label>
+          }
+
+          @if (family() === 'bar') {
+            <label class="charts-page__checkbox">
+              <input
+                type="checkbox"
+                data-testid="charts-stack"
+                [checked]="stack()"
+                (change)="onStackChange($event)"
+              />
+              <span>{{ 'charts.stack_label' | translate }}</span>
+            </label>
+          }
+
+          <label class="charts-page__checkbox">
+            <input
+              type="checkbox"
+              data-testid="charts-legend"
+              [checked]="legend()"
+              (change)="onLegendChange($event)"
+            />
+            <span>{{ 'charts.legend_label' | translate }}</span>
+          </label>
+          <label class="charts-page__checkbox">
+            <input
+              type="checkbox"
+              data-testid="charts-tooltip"
+              [checked]="tooltip()"
+              (change)="onTooltipChange($event)"
+            />
+            <span>{{ 'charts.tooltip_label' | translate }}</span>
+          </label>
+        </div>
+
+        <h3 class="charts-page__subtitle">{{ 'charts.data_title' | translate }}</h3>
+        <div class="charts-page__table-wrap">
+          <table class="charts-page__table">
+            <thead>
+              <tr>
+                <th scope="col">{{ 'charts.column_category' | translate }}</th>
+                <th scope="col">{{ 'charts.column_value' | translate }}</th>
+                <th scope="col">{{ 'charts.column_weight' | translate }}</th>
+                <th scope="col">{{ 'charts.column_series' | translate }}</th>
+                <th scope="col">
+                  <span class="charts-page__visually-hidden">
+                    {{ 'charts.remove_row' | translate: { index: 0 } }}
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of rows(); track $index) {
+                <tr>
+                  <td>
+                    <input
+                      type="text"
+                      [attr.aria-label]="
+                        ('charts.column_category' | translate) + ' ' + ($index + 1)
+                      "
+                      [value]="row.category"
+                      (input)="onCategoryInput($index, $event)"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      [attr.aria-label]="
+                        ('charts.column_value' | translate) + ' ' + ($index + 1)
+                      "
+                      [value]="row.value"
+                      (input)="onValueInput($index, $event)"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      [attr.aria-label]="
+                        ('charts.column_weight' | translate) + ' ' + ($index + 1)
+                      "
+                      [value]="row.weight"
+                      (input)="onWeightInput($index, $event)"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      [attr.aria-label]="
+                        ('charts.column_series' | translate) + ' ' + ($index + 1)
+                      "
+                      [value]="row.series"
+                      (input)="onSeriesInput($index, $event)"
+                    />
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="charts-page__remove"
+                      [attr.aria-label]="
+                        'charts.remove_row' | translate: { index: $index + 1 }
+                      "
+                      [title]="
+                        'charts.remove_row' | translate: { index: $index + 1 }
+                      "
+                      (click)="removeRow($index)"
+                    >
+                      &times;
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <button
+          type="button"
+          class="charts-page__add"
+          data-testid="charts-add-row"
+          (click)="addRow()"
+        >
+          {{ 'charts.add_row' | translate }}
+        </button>
+
+        <h3 class="charts-page__subtitle">{{ 'charts.chart_title' | translate }}</h3>
+        <div class="charts-page__chart">
+          @switch (family()) {
+            @case ('bar') {
+              <ngx-decaf-bar-chart
+                data-testid="charts-chart"
+                [operation]="readOperation"
+                [data]="chartData()"
+                [config]="chartConfig()"
+                [height]="360"
+              />
+            }
+            @case ('pie') {
+              <ngx-decaf-pie-chart
+                data-testid="charts-chart"
+                [operation]="readOperation"
+                [data]="chartData()"
+                [config]="chartConfig()"
+                [height]="360"
+              />
+            }
+            @case ('scatter') {
+              <ngx-decaf-scatter-chart
+                data-testid="charts-chart"
+                [operation]="readOperation"
+                [data]="chartData()"
+                [config]="chartConfig()"
+                [height]="360"
+              />
+            }
+            @case ('line') {
+              <ngx-decaf-line-chart
+                data-testid="charts-chart"
+                [operation]="readOperation"
+                [data]="chartData()"
+                [config]="chartConfig()"
+                [height]="360"
+              />
+            }
+          }
+        </div>
+      </section>
+
+      <section class="charts-page__panel">
+        <h3 class="charts-page__subtitle">{{ 'charts.curve_title' | translate }}</h3>
+        <p class="charts-page__hint">{{ 'charts.curve_intro' | translate }}</p>
+
+        <div class="charts-page__toolbar">
+          <label class="charts-page__field">
+            <span>{{ 'charts.interpolation_label' | translate }}</span>
+            <select
+              data-testid="charts-interpolation"
+              [value]="interpolation()"
+              (change)="onInterpolationChange($event)"
+            >
+              <option value="monotonic">
+                {{ 'charts.interpolation_monotonic' | translate }}
+              </option>
+              <option value="linear">
+                {{ 'charts.interpolation_linear' | translate }}
+              </option>
+            </select>
+          </label>
+          <label class="charts-page__field charts-page__field--grow">
+            <span>{{ 'charts.formula_label' | translate }}</span>
+            <input
+              type="text"
+              data-testid="charts-formula"
+              [value]="formula()"
+              [placeholder]="'charts.formula_placeholder' | translate"
+              (input)="formula.set($any($event.target).value)"
+            />
+          </label>
+          <output class="charts-page__count" data-testid="charts-points-count">
+            {{ 'charts.points_count' | translate: { count: points().length } }}
+          </output>
+        </div>
+
+        <decaf-curve-editor
+          data-testid="charts-curve-editor"
+          [(points)]="points"
+          [(formula)]="formula"
+          [interpolation]="interpolation()"
+          [xRange]="[0, 1]"
+          [yRange]="[0, 1]"
+          [height]="280"
+        />
+      </section>
+    </ngx-decaf-container>
+  </main>
+</ion-content>

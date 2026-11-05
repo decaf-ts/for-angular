@@ -12,7 +12,7 @@ import {
   type TutorialMessageContext,
   type TutorialMessageStrategy,
   type TutorialStatus,
-} from 'src/lib/components/storyboard-tutorial';
+} from '@decaf-ts/for-angular/storyboard';
 import './setup';
 import { getComponentMeta } from './utils';
 
