@@ -86,7 +86,12 @@ export class SessionRamAdapter extends RamAdapter {
    */
   protected override getClient(): RamStorage {
     const client: RamStorage = new Map();
-    const raw = localStorage.getItem(this.persistentDbName);
+    let raw: string | null = null;
+    try {
+      raw = localStorage.getItem(this.persistentDbName);
+    } catch {
+      return client;
+    }
     if (!raw) return client;
     try {
       const snapshot = JSON.parse(raw) as Snapshot;
@@ -96,6 +101,11 @@ export class SessionRamAdapter extends RamAdapter {
         }
       }
     } catch {
+      try {
+        localStorage.removeItem(this.persistentDbName);
+      } catch {
+        // ignore remove failure
+      }
       // corrupted or hand-edited storage hydrates as empty RAM, never fails boot
     }
     return client;
