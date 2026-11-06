@@ -3,7 +3,7 @@
     @for (row of rows; track trackItemFn($index, row); let rowIndex = $index) {
       @if (row?.cols?.length) {
         <div
-          [id]="uid"
+          [id]="uid + '-row-' + rowIndex"
           [class]="
             (!grid
               ? 'dcf-layout-row '
@@ -43,12 +43,19 @@
               >
                 @if (accordion && $index === 0 && row.cols.length > 1) {
                   <div class="dcf-button-toggle-visibility">
-                    <ngx-decaf-icon
+                    <ion-button
+                      type="button"
+                      fill="clear"
+                      shape="round"
                       (click)="toggleCollapse(collapsableElement)"
-                      [button]="true"
-                      [name]="collapsed ? 'ti-eye' : 'ti-eye-off'"
-                      [ariaLabel]="locale + '.toggle' | translate"
-                    />
+                      [attr.aria-label]="locale + '.toggle' | translate"
+                      [attr.aria-expanded]="!collapsed"
+                    >
+                      <ngx-decaf-icon
+                        slot="icon-only"
+                        [name]="collapsed ? 'ti-eye' : 'ti-eye-off'"
+                      />
+                    </ion-button>
                   </div>
                 }
                 @if (child.tag === 'ngx-decaf-crud-form') {

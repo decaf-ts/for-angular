@@ -1,8 +1,8 @@
 import {
   AfterViewChecked,
   Component,
-  ElementRef,
   effect,
+  ElementRef,
   EnvironmentInjector,
   EventEmitter,
   inject,
@@ -380,6 +380,7 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
    * Strings are sanitized by default; trusted markup must be passed as SafeHtml.
    *
    * @returns {void} - Does not return a value.
+   * @deprecated
    */
   parseInlineContent(): void {
     // HTMLElement content is appended directly (attachInlineElementContent):

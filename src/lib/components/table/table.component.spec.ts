@@ -207,4 +207,44 @@ describe('TableComponent', () => {
     expect(action.mock.calls[0][1]).toBeUndefined();
     expect(action.mock.calls[0][3]).toBe(OperationKeys.READ);
   });
+
+  it('table is named by the model name (aria-label), without visible text', () => {
+    (component as any).initialized = true;
+    component.modelName = 'CategoryModel';
+    component.data = [{ id: '1' }];
+    component.items = [{ '0': { prop: 'name', value: 'Test', index: 0 }, uid: { value: '1' } }];
+    component.headers = ['name'];
+    fixture.detectChanges();
+    const table = fixture.nativeElement.querySelector('table') as HTMLElement;
+    expect(table.getAttribute('aria-label')).toBe('CategoryModel');
+    expect(table.querySelector('caption')).toBeNull();
+  });
+
+  it('READ trigger on the column is keyboard-operable when the READ icon is hidden', () => {
+    (component as any).initialized = true;
+    component.data = [{ id: '1' }];
+    component.operations = [OperationKeys.READ, OperationKeys.UPDATE];
+    component.items = [{ '0': { prop: 'name', value: 'Test', index: 0 }, uid: { value: '1' } }];
+    component.headers = ['name'];
+    const action = jest.spyOn(component, 'handleAction').mockResolvedValue(undefined);
+    fixture.detectChanges();
+    const td = fixture.nativeElement.querySelector('td') as HTMLElement;
+    expect(td.getAttribute('tabindex')).toBe('0');
+    for (const key of ['Enter', ' ']) {
+      action.mockClear();
+      td.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+      expect(action).toHaveBeenCalledTimes(1);
+      expect(action.mock.calls[0][3]).toBe(OperationKeys.READ);
+    }
+  });
+
+  it('READ-only (icon visible) or handler cell: td is not a tab stop', () => {
+    (component as any).initialized = true;
+    component.data = [{ id: '1' }];
+    component.operations = [OperationKeys.READ];
+    component.items = [{ '0': { prop: 'name', value: 'Test', index: 0 }, uid: { value: '1' } }];
+    component.headers = ['name'];
+    fixture.detectChanges();
+    expect((fixture.nativeElement.querySelector('td') as HTMLElement).getAttribute('tabindex')).toBeNull();
+  });
 });

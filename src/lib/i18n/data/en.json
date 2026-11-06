@@ -242,7 +242,8 @@
         "confirm": "Confirm",
         "cancel": "Cancel",
         "close": "Close",
-        "expand": "Toggle Fullscreen"
+        "expand": "Toggle Fullscreen",
+        "collapse": "Exit Fullscreen"
       }
     },
     "filter": {
@@ -315,6 +316,7 @@
     },
     "model_builder": {
       "title": "Model Builder",
+      "structured_output": "Structured Output",
       "example": "Example",
       "reset": "Reset",
       "model_settings": "Model Settings",

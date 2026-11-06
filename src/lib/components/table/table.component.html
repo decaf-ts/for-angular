@@ -65,7 +65,10 @@
   #component
 >
   @if (initialized && data?.length) {
-    <table class="dcf-table">
+    <table
+      class="dcf-table"
+      [attr.aria-label]="modelName"
+    >
       <thead>
         <tr>
           @for (header of headers; track $index) {
@@ -83,7 +86,21 @@
           <tr>
             @for (col of item | keyvalue; track $index) {
               @if (!['handler', 'actions', 'uid'].includes(col.key)) {
+                <!-- READ icon is hidden when UPDATE/DELETE exist: the column is then the READ trigger, so a cell without its own button is made keyboard-operable here -->
+                @let readViaColumn =
+                  operations?.includes(OperationKeys.READ) &&
+                  (operations?.includes(OperationKeys.UPDATE) || operations?.includes(OperationKeys.DELETE));
                 <td
+                  [attr.tabindex]="!col?.value.handler && readViaColumn ? 0 : null"
+                  (keydown.enter)="
+                    $event.target === $event.currentTarget &&
+                      handleAction($event, undefined, item.uid.value, OperationKeys.READ, col?.value?.prop)
+                  "
+                  (keydown.space)="
+                    $event.target === $event.currentTarget && $event.preventDefault();
+                    $event.target === $event.currentTarget &&
+                      handleAction($event, undefined, item.uid.value, OperationKeys.READ, col?.value?.prop)
+                  "
                   (click)="
                     handleAction(
                       $event,

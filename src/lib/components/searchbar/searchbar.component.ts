@@ -12,6 +12,7 @@ import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@a
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonSearchbar } from '@ionic/angular/standalone';
 import { AutocompleteTypes, PredefinedColors } from '@ionic/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { getModelAndRepository } from '../../engine';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { windowEventEmitter } from '../../utils/helpers';
@@ -34,7 +35,7 @@ import { windowEventEmitter } from '../../utils/helpers';
   templateUrl: './searchbar.component.html',
   styleUrls: ['./searchbar.component.scss'],
   standalone: true,
-  imports: [IonSearchbar],
+  imports: [IonSearchbar, TranslatePipe],
 })
 export class SearchbarComponent extends NgxComponentDirective implements OnInit {
   /**

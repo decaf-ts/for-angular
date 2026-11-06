@@ -98,7 +98,7 @@ export const SITES: ControlSite[] = [
     name: 'layout toggle',
     file: 'src/lib/components/layout/layout.component.html',
     type: 'labelled',
-    pattern: /\[ariaLabel\]="locale \+ '\.toggle' \| translate"/,
+    pattern: /\[attr\.aria-label\]="locale \+ '\.toggle' \| translate"/,
   },
   {
     name: 'header create',

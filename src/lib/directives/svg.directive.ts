@@ -101,6 +101,7 @@ export class NgxSvgDirective implements OnInit {
       /\.svg(\?.*)?$/i.test(path) &&
       !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(path) &&
       !path.startsWith('//') &&
+      !path.includes('\\') &&
       !path.includes('..')
     );
   }

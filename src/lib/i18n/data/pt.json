@@ -242,7 +242,8 @@
         "confirm": "Confirmar",
         "cancel": "Cancelar",
         "close": "Fechar",
-        "expand": "Alternar ecrã inteiro"
+        "expand": "Alternar ecrã inteiro",
+        "collapse": "Sair do ecrã inteiro"
       }
     },
     "filter": {
@@ -315,6 +316,7 @@
     },
     "model_builder": {
       "title": "Construtor de Modelos",
+      "structured_output": "Saída estruturada",
       "example": "Exemplo",
       "reset": "Redefinir",
       "model_settings": "Configurações do modelo",

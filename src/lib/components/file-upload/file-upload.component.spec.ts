@@ -38,20 +38,16 @@ describe('FileUploadComponent dropzone', () => {
     component.label = 'Upload documents';
   }));
 
-  it('dropzone keyboard', async () => {
+  it('dropzone is a labelled group whose only control is the select button', async () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
     const dropzone = fixture.nativeElement.querySelector('.dcf-drop-area') as HTMLElement;
-    expect(dropzone.getAttribute('role')).toBe('button');
-    expect(dropzone.getAttribute('tabindex')).toBe('0');
+    expect(dropzone.getAttribute('role')).toBe('group');
+    expect(dropzone.hasAttribute('tabindex')).toBe(false);
     expect(dropzone.getAttribute('aria-label')).toBeTruthy();
+    expect(dropzone.querySelector('ion-button.dcf-button-select')).toBeTruthy();
 
-    const select = jest.spyOn(component, 'handleClickToSelect').mockResolvedValue();
-    for (const key of ['Enter', ' ']) {
-      dropzone.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
-      expect(select).toHaveBeenCalledTimes(key === 'Enter' ? 1 : 2);
-    }
     dropzone.dispatchEvent(new Event('dragover', { bubbles: true, cancelable: true }));
     expect(component.dragging).toBe(true);
     dropzone.dispatchEvent(new Event('dragleave', { bubbles: true, cancelable: true }));

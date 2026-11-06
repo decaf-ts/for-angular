@@ -60,7 +60,7 @@ describe('ListItemComponent', () => {
     component.operations = [OperationKeys.UPDATE, OperationKeys.DELETE];
     fixture.detectChanges();
     let actionIcons = fixture.debugElement
-      .queryAll(By.css('#dcf-actions'))
+      .queryAll(By.css('.dcf-actions'))
       .flatMap((de) => de.queryAll(By.directive(IconComponent)));
     expect(actionIcons.length).toBe(2);
     expect(actionIcons[0].componentInstance.name).toBe('ti-edit');
@@ -70,7 +70,7 @@ describe('ListItemComponent', () => {
     component.operations = [OperationKeys.UPDATE];
     fixture.detectChanges();
     actionIcons = fixture.debugElement
-      .queryAll(By.css('#dcf-actions'))
+      .queryAll(By.css('.dcf-actions'))
       .flatMap((de) => de.queryAll(By.directive(IconComponent)));
     expect(actionIcons.length).toBe(1);
     expect(actionIcons[0].componentInstance.name).toBe('ti-edit');
@@ -79,7 +79,7 @@ describe('ListItemComponent', () => {
     component.operations = [OperationKeys.DELETE];
     fixture.detectChanges();
     actionIcons = fixture.debugElement
-      .queryAll(By.css('#dcf-actions'))
+      .queryAll(By.css('.dcf-actions'))
       .flatMap((de) => de.queryAll(By.directive(IconComponent)));
     expect(actionIcons.length).toBe(1);
     expect(actionIcons[0].componentInstance.name).toBe('ti-trash');

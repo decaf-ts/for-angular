@@ -133,6 +133,52 @@ describe('NgxMediaService', () => {
     }
   });
 
+  it.each([
+    {
+      name: 'external href',
+      input: '<svg><a href="https://evil.example/x"><circle r="1"/></a></svg>',
+      selector: 'a',
+      attr: 'href',
+    },
+    {
+      name: 'external xlink:href',
+      input:
+        '<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://evil.example/s.svg#a"/></svg>',
+      selector: 'use',
+      attr: 'xlink:href',
+    },
+    {
+      name: 'relative path href',
+      input: '<svg><use href="/other.svg#a"/></svg>',
+      selector: 'use',
+      attr: 'href',
+    },
+  ])('svg external reference removed: $name', ({ input, selector, attr }) => {
+    const httpMock = {
+      get: jest.fn().mockReturnValue(of(input)),
+    } as unknown as HttpClient;
+    const target = document.createElement('div');
+    service.loadSvgObserver(httpMock, '/test.svg', target);
+
+    expect(target.querySelector(selector)).toBeTruthy();
+    expect(target.querySelector(selector)?.hasAttribute(attr)).toBe(false);
+  });
+
+  it('svg in-document href references preserved', () => {
+    const input =
+      '<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use href="#icon"/><use xlink:href="#icon"/></svg>';
+    const httpMock = {
+      get: jest.fn().mockReturnValue(of(input)),
+    } as unknown as HttpClient;
+    const target = document.createElement('div');
+    service.loadSvgObserver(httpMock, '/test.svg', target);
+
+    const uses = target.querySelectorAll('use');
+    expect(uses).toHaveLength(2);
+    expect(uses[0].getAttribute('href')).toBe('#icon');
+    expect(uses[1].getAttribute('xlink:href')).toBe('#icon');
+  });
+
   it('svg sprite shape preserved', () => {
     const spriteSvg =
       '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad"><stop offset="0" stop-color="#fff"/></linearGradient></defs><symbol id="a" viewBox="0 0 20 20"><path d="M0 0" fill="none" stroke="black"/></symbol><use href="#a"/></svg>';

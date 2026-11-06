@@ -305,7 +305,8 @@ export class NgxMediaService {
    * (namespace breakout). An allowlist removes by default: only elements and attributes that
    * legitimate SVG sprites use are kept; everything else is dropped.
    * Always dropped: on* handlers; href/xlink:href with javascript:, data: or vbscript: schemes
-   * (including obfuscated variants with whitespace, ASCII control chars or percent encoding).
+   * (including obfuscated variants with whitespace, ASCII control chars or percent encoding);
+   * any href/xlink:href that is not an in-document reference (starting with '#').
    * Returns empty string if parsing fails or root is not <svg>.
    *
    * @param {string} svgText - The SVG text content to sanitize.
@@ -460,6 +461,9 @@ export class NgxMediaService {
               cleanVal.startsWith('data:') ||
               cleanVal.startsWith('vbscript:')
             ) {
+              el.removeAttribute(name);
+            } else if (!cleanVal.startsWith('#')) {
+              // only in-document references are allowed: external hrefs enable phishing links and tracking
               el.removeAttribute(name);
             }
           }

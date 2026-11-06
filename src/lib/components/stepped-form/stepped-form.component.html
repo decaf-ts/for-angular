@@ -5,7 +5,7 @@
   #component
 >
   @if (paginated) {
-  <div class="dcf-page-steps" [attr.aria-label]="'component.stepped_form.step_of' | translate: { current: activeIndex, total: pages }">
+  <div class="dcf-page-steps" role="group" [attr.aria-label]="'component.stepped_form.step_of' | translate: { current: activeIndex, total: pages }">
       <div class="dcf-grid dcf-grid-collapse skip">
         @for (page of pageTitles; track $index) {
           <div class="dcf-flex dcf-flex-middle">

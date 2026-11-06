@@ -62,6 +62,7 @@
             [attr.aria-expanded]="dropdownOpen"
             [attr.aria-controls]="uid + '-listbox'"
             aria-autocomplete="list"
+            [attr.aria-label]="locale + '.search' | translate"
             [attr.aria-activedescendant]="activeOptionIndex >= 0 ? uid + '-option-' + activeOptionIndex : null"
             #filterField
             autocomplete="off"
@@ -69,6 +70,14 @@
               locale + (step === 3 ? '.type' : '.select') | translate
             }}"
           />
+          <span
+            class="dcf-sr-only"
+            role="status"
+          >
+            @if (dropdownOpen && !filteredOptions.length) {
+              {{ locale + '.no_suggestions' | translate }}
+            }
+          </span>
           @if (windowWidth >= 768) {
         <div
               [id]="uid + '-listbox'"

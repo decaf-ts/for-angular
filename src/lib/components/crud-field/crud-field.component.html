@@ -58,7 +58,7 @@
   @if (formControl) {
     <ng-container [formGroup]="multiple ? activeFormGroup : formControl.parent">
       <div
-        [id]="uid"
+        [id]="uid + '-' + name"
         #container
         [class]="'dcf-input-item ' + (operation || 'create')"
         [class.dcf-field-required]="required"
@@ -66,6 +66,7 @@
       >
         @if (type === HTML5InputTypes.TEXTAREA) {
           <ion-textarea
+            [attr.aria-required]="required"
             (ionInput)="handleModalChildChanges($event, formControl)"
             (ionChange)="handleModalChildChanges($event, formControl)"
             [id]="name"
@@ -95,6 +96,7 @@
               [class.dcf-field-readonly]="option?.readonly || option?.disabled"
             >
               <ion-checkbox
+                [attr.aria-required]="required"
                 (ionInput)="handleModalChildChanges($event, formControl)"
                 (ionChange)="handleModalChildChanges($event, formControl)"
                 [id]="name"
@@ -179,6 +181,7 @@
         } @else if (type === HTML5InputTypes.RADIO && options?.length) {
           @let errors = getErrors(container);
           <ion-radio-group
+            [attr.aria-required]="required"
             class="dcf-width-1-1"
             [formControlName]="name"
             [value]="value"
@@ -238,6 +241,8 @@
               (ionChange)="handleModalChildChanges($event)"
               (click)="handleModalChildChanges($event, formControl)"
               [id]="name"
+              [attr.aria-required]="required"
+              [required]="required"
               [attr.aria-invalid]="errors ? 'true' : null"
               [attr.aria-describedby]="
                 initialized && errors ? path + '-error' : null
@@ -334,6 +339,7 @@
             [formControlName]="name"
             [errorText]="getErrors(container)"
             [label]="label | translate"
+            [attr.aria-required]="required"
             [attr.aria-invalid]="errors ? 'true' : null"
             [attr.aria-describedby]="errors ? path + '-error' : null"
             #component

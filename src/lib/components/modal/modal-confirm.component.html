@@ -28,6 +28,7 @@
     <div class="dcf-confirm-code-container">
       <div
         class="dcf-message"
+        [id]="uid + '-code-message'"
         [innerHTML]="
           'component.modal.confirm.code.message'
             | translate: { '0': confirmCode }
@@ -35,6 +36,7 @@
       ></div>
       <input
         [attr.aria-label]="'component.modal.confirm.code.label' | translate"
+        [attr.aria-describedby]="uid + '-code-message'"
         (input)="handleConfirmInputChanges($event)"
         (blur)="handleConfirmInputChanges($event)"
         [minlength]="confirmCode?.length"
@@ -65,6 +67,7 @@
             (click)="handleAction()"
             [color]="role === OperationKeys.DELETE ? 'danger' : 'primary'"
             [disabled]="!allowSubmit"
+            [attr.aria-describedby]="requireConfirmCode ? uid + '-code-message' : null"
             [innerHTML]="locale + '.confirm.buttons.confirm' | translate"
           ></ion-button>
         }

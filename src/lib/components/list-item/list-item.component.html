@@ -84,8 +84,7 @@
               uid
             ) {
               <div
-                class="dcf-visible@s"
-                id="dcf-actions"
+                class="dcf-visible@s dcf-actions"
               >
                 @if (actionsType === 'popover') {
                   <ion-button
@@ -173,9 +172,6 @@
                             [ariaLabel]="
                               locale + '.operations.' + operation | translate
                             "
-                            [attr.aria-label]="
-                              locale + '.operations.' + operation | translate
-                            "
                             [button]="true"
                             slot="icon-only"
                             [color]="
@@ -197,7 +193,7 @@
               </div>
             }
             @if (windowWidth > 639) {
-              <div id="end">
+              <div class="dcf-end">
                 <ng-content select="[slot='end']"></ng-content>
               </div>
             }
