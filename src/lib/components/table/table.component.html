@@ -84,6 +84,15 @@
             @for (col of item | keyvalue; track $index) {
               @if (!['handler', 'actions', 'uid'].includes(col.key)) {
                 <td
+                  (click)="
+                    handleAction(
+                      $event,
+                      col?.value.handler ? col.value.handler.handle : undefined,
+                      item.uid.value,
+                      OperationKeys.READ,
+                      col?.value?.prop
+                    )
+                  "
                   [ngx-decaf-tooltip]="
                     maxContentLength > 0 && !preserve.includes(col.value.prop)
                       ? {
@@ -95,18 +104,10 @@
                   "
                 >
                   @if (col?.value.handler) {
+                    <!-- keyboard entry point only: the click bubbles to the <td>, which owns the handler logic -->
                     <button
                       type="button"
                       class="dcf-table-cell-button"
-                      (click)="
-                    handleAction(
-                      $event,
-                      col?.value.handler ? col.value.handler.handle : undefined,
-                      item.uid.value,
-                      OperationKeys.READ,
-                      col?.value?.prop
-                    )
-                      "
                       [innerHTML]="col.value.value"
                     ></button>
                   } @else {

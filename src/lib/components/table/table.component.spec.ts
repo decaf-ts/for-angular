@@ -188,4 +188,23 @@ describe('TableComponent', () => {
       expect(action).toHaveBeenCalledTimes(1);
     }
   });
+
+  it('regression plain cell click still reaches handleAction (READ navigation)', () => {
+    (component as any).initialized = true;
+    component.data = [{ id: '1' }];
+    component.items = [
+      {
+        '0': { prop: 'name', value: 'Test', index: 0 },
+        uid: { value: '1' },
+      },
+    ];
+    component.headers = ['name'];
+    const action = jest.spyOn(component, 'handleAction').mockResolvedValue(undefined);
+    fixture.detectChanges();
+
+    (fixture.nativeElement.querySelector('td') as HTMLElement).click();
+    expect(action).toHaveBeenCalledTimes(1);
+    expect(action.mock.calls[0][1]).toBeUndefined();
+    expect(action.mock.calls[0][3]).toBe(OperationKeys.READ);
+  });
 });
