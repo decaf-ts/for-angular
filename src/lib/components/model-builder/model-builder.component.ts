@@ -727,6 +727,7 @@ export class ModelBuilderComponent{
           },
           ui: {
             ...defaultProp.ui,
+            uilistpropExpanded:Object.keys(uilistprop.props || {}).length? true: false,
             uilistprop,
             uilayoutprop: layoutProp,
             uielement: !!uielement,
