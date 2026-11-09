@@ -44,9 +44,11 @@ import {
   IonSelect,
   IonTextarea,
 } from "@ionic/angular/standalone";
-import { IconComponent, ModelRendererComponent } from "@decaf-ts/for-angular";
+
 import { addIcons } from "ionicons";
 import { arrowDown, arrowUp, checkmarkCircleOutline, chevronDownOutline, chevronForwardOutline, removeCircleOutline } from "ionicons/icons";
+import { IconComponent } from "../icon/icon.component";
+import { ModelRendererComponent } from "../model-renderer/model-renderer.component";
 
 type PropType = "string" | "number" | "date" | "boolean";
 
