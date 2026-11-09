@@ -89,6 +89,7 @@
     "./diagrams/assets/*": "./diagrams/assets/*"
   },
   "devDependencies": {
+    "@ai-sdk/angular": "^3.0.166",
     "@angular-builders/custom-esbuild": "^21.1.0",
     "@angular-devkit/architect": "^0.2102.27",
     "@angular-devkit/build-angular": "^21.2.27",
