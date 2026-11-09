@@ -2,6 +2,8 @@
   <ion-item-sliding>
     <ion-item
       [id]="option ? value : uid"
+      [attr.title]="title"
+      [attr.data-description]="description"
       [lines]="lines"
       [button]="!operations?.length ? false : button"
       [class]="className"
@@ -83,9 +85,7 @@
                 operations?.includes(OperationKeys.UPDATE)) &&
               uid
             ) {
-              <div
-                class="dcf-visible@s dcf-actions"
-              >
+              <div class="dcf-visible@s dcf-actions">
                 @if (actionsType === 'popover') {
                   <ion-button
                     shape="round"
