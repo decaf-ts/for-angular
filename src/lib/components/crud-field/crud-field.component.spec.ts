@@ -325,7 +325,7 @@ describe('CrudFieldComponent', () => {
       const items = Array.from(fixture.nativeElement.querySelectorAll(c.itemSelector)) as HTMLElement[];
       expect(items.length).toBe(3);
       items.forEach((item, index) => {
-        expect(item.getAttribute('id')).toBe(`${component.path}.${index}`);
+        expect(item.getAttribute('id')).toBe(`${component.path}-${index}`);
       });
     }
   });

@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
 import { FormArray, FormGroup } from '@angular/forms';
+import { provideRouter } from '@angular/router';
 import { NavController } from '@ionic/angular/standalone';
 import { TranslateLoader, TranslateModule, TranslateParser, TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { I18nFakeLoader, I18nParser } from '../../i18n';
-import { firstValueFrom } from 'rxjs';
 import { SteppedFormComponent } from './stepped-form.component';
 
 const navControllerMock = {
@@ -25,7 +25,7 @@ describe('SteppedFormComponent step indicator', () => {
         ForAngularCommonModule,
         SteppedFormComponent,
         TranslateModule.forRoot({
-          defaultLanguage: 'en',
+          fallbackLang: 'en',
           loader: { provide: TranslateLoader, useClass: I18nFakeLoader },
           parser: { provide: TranslateParser, useClass: I18nParser },
         }),

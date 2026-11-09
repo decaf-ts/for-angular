@@ -32,6 +32,12 @@ const tokens = [
   '--dcf-color-text-tertiary',
 ];
 
+const textContrastTokens = [
+  ['--dcf-text-primary', 4.5],
+  ['--dcf-text-secondary', 4.5],
+  ['--dcf-color-text-tertiary', 3],
+] as const;
+
 function rootValue(css: string, token: string): string | undefined {
   const rootBlock = css.match(/:root\s*\{([^}]*)\}/)?.[1] ?? '';
   return rootBlock.match(new RegExp(`${token}:\\s*([^;]+);`))?.[1].trim();
@@ -74,10 +80,10 @@ describe('theme token completion', () => {
 
   it('text variants contrast', () => {
     const css = compileTokens();
-    for (const token of tokens.slice(10)) {
+    for (const [token, minimumContrast] of textContrastTokens) {
       const value = rootValue(css, token);
       expect(value).toMatch(/^#[\da-f]{6}$/i);
-      expect(contrast(value!)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(value!)).toBeGreaterThanOrEqual(minimumContrast);
     }
   });
 

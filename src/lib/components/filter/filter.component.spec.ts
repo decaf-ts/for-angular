@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { NavController } from '@ionic/angular/standalone';
 import { TranslateLoader, TranslateModule, TranslateParser, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { By } from '@angular/platform-browser';
 import { ForAngularCommonModule } from '../../for-angular-common.module';
 import { I18nFakeLoader, I18nParser } from '../../i18n';
-import { FilterComponent } from './filter.component';
 import { IconComponent } from '../icon/icon.component';
+import { FilterComponent } from './filter.component';
 
 const navControllerMock = {
   navigateRoot: jest.fn(),
@@ -19,7 +19,7 @@ const imports = [
   ForAngularCommonModule,
   FilterComponent,
   TranslateModule.forRoot({
-    defaultLanguage: 'en',
+    fallbackLang: 'en',
     loader: { provide: TranslateLoader, useClass: I18nFakeLoader },
     parser: { provide: TranslateParser, useClass: I18nParser },
   }),

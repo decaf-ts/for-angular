@@ -23,7 +23,7 @@ describe('FileUploadComponent dropzone', () => {
         ForAngularCommonModule,
         FileUploadComponent,
         TranslateModule.forRoot({
-          defaultLanguage: 'en',
+          fallbackLang: 'en',
           loader: { provide: TranslateLoader, useClass: I18nFakeLoader },
           parser: { provide: TranslateParser, useClass: I18nParser },
         }),
