@@ -123,7 +123,7 @@
     // align-items: center;
     gap: 0.375rem;
     padding: 0.5rem 0.75rem;
-    background: var(--ion-color-light, #f4f5f8);
+    background: var(--ion-color-light-tint, #f4f5f8);
     border-bottom: 1px solid var(--ion-color-light-tint, #f0f1f3);
   }
 
@@ -170,6 +170,17 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: #3dc2ff;
+    background: #e6f7ff;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+  }
+
+    &__primary-key {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ion-color-tertiary, #92949c);
     background: #e6f7ff;
     padding: 0.125rem 0.375rem;
     border-radius: 4px;
