@@ -52,6 +52,34 @@ export class BubbleMessageStrategy<C extends TutorialContext = TutorialContext>
     bubble.setAttribute('role', 'dialog');
     bubble.setAttribute('aria-modal', 'true');
     bubble.setAttribute('aria-live', 'polite');
+    bubble.tabIndex = -1;
+
+    // dialog semantics: Escape aborts, Tab cycles inside the bubble only
+    bubble.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        controls.abort();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const focusables = Array.from(
+        bubble.querySelectorAll<HTMLButtonElement>('button:not([disabled])')
+      );
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = bubble.ownerDocument.activeElement;
+      if (!bubble.contains(active)) {
+        event.preventDefault();
+        first.focus();
+      } else if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
 
     if (step.title) {
       const title = container.ownerDocument.createElement('h3');
@@ -122,6 +150,7 @@ export class BubbleMessageStrategy<C extends TutorialContext = TutorialContext>
     container.appendChild(bubble);
 
     this.position(bubble, anchor, step.placement);
+    bubble.focus();
   }
 
   /**

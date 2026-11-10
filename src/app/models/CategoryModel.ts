@@ -50,6 +50,19 @@ export class CategoryModel extends Model {
   sets?: string;
 
   @uielement('ngx-decaf-crud-field', {
+    label: 'Período',
+    type: HTML5InputTypes.SELECT,
+    translatable: false,
+    options: [
+      { text: 'Tudo', value: 'all' },
+      { text: '15 Dias', value: 'fifteen' },
+      { text: '30 Dias', value: 'month' },
+      { text: 'Ano', value: 'year' },
+    ],
+  })
+  sets2?: string;
+
+  @uielement('ngx-decaf-crud-field', {
     label: 'category.description.label',
     placeholder: 'category.description.placeholder',
     type: 'textarea',

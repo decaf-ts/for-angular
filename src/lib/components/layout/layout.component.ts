@@ -11,6 +11,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Primitives } from '@decaf-ts/decorator-validation';
 import { LayoutGridGaps, UIElementMetadata } from '@decaf-ts/ui-decorators';
+import { IonButton } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IconComponent } from '../icon/icon.component';
 import { Dynamic } from '../../engine/decorators';
@@ -39,7 +40,7 @@ import { ModelRendererComponent } from '../model-renderer/model-renderer.compone
   selector: 'ngx-decaf-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
-  imports: [TranslatePipe, CardComponent, IconComponent, ModelRendererComponent, ComponentRendererComponent],
+  imports: [IonButton, TranslatePipe, CardComponent, IconComponent, ModelRendererComponent, ComponentRendererComponent],
   standalone: true,
 })
 export class LayoutComponent extends NgxParentComponentDirective implements OnInit {

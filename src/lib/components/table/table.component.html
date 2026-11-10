@@ -45,6 +45,7 @@
               slot="end"
               size="small"
               [disabled]="!filterValue"
+              [attr.aria-label]="locale + '.filter.clear' | translate"
             >
               <ngx-decaf-icon
                 fill="clear"
@@ -64,11 +65,17 @@
   #component
 >
   @if (initialized && data?.length) {
-    <table class="dcf-table">
+    <table
+      class="dcf-table"
+      [attr.aria-label]="modelName"
+    >
       <thead>
         <tr>
           @for (header of headers; track $index) {
-            <th class="dcf-th-{{ header }}">
+            <th
+              class="dcf-th-{{ header }}"
+              scope="col"
+            >
               {{ locale + '.' + header + '.label' | translate }}
             </th>
           }
@@ -79,7 +86,21 @@
           <tr>
             @for (col of item | keyvalue; track $index) {
               @if (!['handler', 'actions', 'uid'].includes(col.key)) {
+                <!-- READ icon is hidden when UPDATE/DELETE exist: the column is then the READ trigger, so a cell without its own button is made keyboard-operable here -->
+                @let readViaColumn =
+                  operations?.includes(OperationKeys.READ) &&
+                  (operations?.includes(OperationKeys.UPDATE) || operations?.includes(OperationKeys.DELETE));
                 <td
+                  [attr.tabindex]="!col?.value.handler && readViaColumn ? 0 : null"
+                  (keydown.enter)="
+                    $event.target === $event.currentTarget &&
+                      handleAction($event, undefined, item.uid.value, OperationKeys.READ, col?.value?.prop)
+                  "
+                  (keydown.space)="
+                    $event.target === $event.currentTarget && $event.preventDefault();
+                    $event.target === $event.currentTarget &&
+                      handleAction($event, undefined, item.uid.value, OperationKeys.READ, col?.value?.prop)
+                  "
                   (click)="
                     handleAction(
                       $event,
@@ -89,7 +110,6 @@
                       col?.value?.prop
                     )
                   "
-                  [innerHTML]="col.value.value"
                   [ngx-decaf-tooltip]="
                     maxContentLength > 0 && !preserve.includes(col.value.prop)
                       ? {
@@ -99,7 +119,18 @@
                         }
                       : {}
                   "
-                ></td>
+                >
+                  @if (col?.value.handler) {
+                    <!-- keyboard entry point only: the click bubbles to the <td>, which owns the handler logic -->
+                    <button
+                      type="button"
+                      class="dcf-table-cell-button"
+                      [innerHTML]="col.value.value"
+                    ></button>
+                  } @else {
+                    <span [innerHTML]="col.value.value"></span>
+                  }
+                </td>
               } @else {
                 @if (allowOperations && col.key !== 'handler') {
                   <td class="dcf-col-actions">
@@ -107,6 +138,9 @@
                       @if (operations?.includes(OperationKeys.UPDATE)) {
                         <ngx-decaf-icon
                           [button]="true"
+                          [ariaLabel]="
+                            locale + '.operations.update' | translate
+                          "
                           (click)="
                             handleRedirect(
                               $event,
@@ -127,6 +161,9 @@
                         ) {
                           <ngx-decaf-icon
                             [button]="true"
+                            [ariaLabel]="
+                              locale + '.operations.read' | translate
+                            "
                             (click)="
                               handleRedirect(
                                 $event,
@@ -145,6 +182,9 @@
                       @if (operations?.includes(OperationKeys.DELETE)) {
                         <ngx-decaf-icon
                           [button]="true"
+                          [ariaLabel]="
+                            locale + '.operations.delete' | translate
+                          "
                           (click)="
                             handleRedirect(
                               $event,

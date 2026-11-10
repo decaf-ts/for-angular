@@ -84,8 +84,25 @@ export class NgxSvgDirective implements OnInit {
    */
   ngOnInit(): void {
     this.path = this.path?.trim() || this.element?.nativeElement?.getAttribute('src')?.trim() || '';
-    if (this.path) {
+    if (this.isLocalAsset(this.path)) {
       this.mediaService.loadSvgObserver(this.http, this.path, this.element.nativeElement);
     }
+  }
+
+  /**
+   * @description Validates whether the asset path targets a local SVG resource.
+   * @param {string} path - The candidate asset path.
+   * @returns {boolean} True if the path is a local SVG asset.
+   * @private
+   */
+  private isLocalAsset(path: string): boolean {
+    if (!path) return false;
+    return (
+      /\.svg(\?.*)?$/i.test(path) &&
+      !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(path) &&
+      !path.startsWith('//') &&
+      !path.includes('\\') &&
+      !path.includes('..')
+    );
   }
 }

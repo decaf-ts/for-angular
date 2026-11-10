@@ -164,6 +164,7 @@
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "@playwright/test": "^1.54.1",
+    "@storybook/addon-a11y": "^10.4.0",
     "@storybook/addon-docs": "^10.4.0",
     "@storybook/angular": "^10.4.0",
     "@tabler/icons-sprite": "3.46.0",

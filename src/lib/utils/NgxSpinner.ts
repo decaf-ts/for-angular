@@ -79,7 +79,7 @@ export class NgxSpinner implements IDecafSpinner {
   private options: LoadingOptions = {
     cssClass: 'aeon-loading',
     duration: undefined,
-    message: 'Carregando...',
+    message: 'Loading...',
     spinner: 'crescent',
     backdropDismiss: false,
     showBackdrop: true,

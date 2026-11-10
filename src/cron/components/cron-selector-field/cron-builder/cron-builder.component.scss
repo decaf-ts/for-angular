@@ -64,8 +64,9 @@
       }
       &:focus-within {
         border: none !important;
-        outline: none !important;
         box-shadow: none !important;
+        outline: 2px solid var(--dcf-color-primary) !important;
+        outline-offset: 2px;
       }
     }
   }
@@ -81,11 +82,18 @@
 
   .dcf-every {
     color: var(--dcf-color-gray-3);
+    border: 0;
+    padding: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
   }
 
   .dcf-input-controls {
     padding-left: 2px;
     background: rgba(var(--dcf-color-dark-rgb), 0.05);
+
+    button { border: 0; padding: 0; background: transparent; color: inherit; cursor: pointer; }
     max-height: 38px;
     > div {
       width: 1rem;

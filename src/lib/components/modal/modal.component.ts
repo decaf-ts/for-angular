@@ -1,14 +1,18 @@
 import {
+  AfterViewChecked,
   Component,
   effect,
+  ElementRef,
   EnvironmentInjector,
   EventEmitter,
   inject,
   Input,
   OnInit,
   Output,
+  QueryList,
   runInInjectionContext,
   ViewChild,
+  ViewChildren,
 } from '@angular/core';
 import { Color, modalController, OverlayEventDetail } from '@ionic/core';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -117,7 +121,7 @@ import { ModelRendererComponent } from '../model-renderer/model-renderer.compone
  *
  * @public
  */
-export class ModalComponent extends NgxParentComponentDirective implements IDecafModal, OnInit {
+export class ModalComponent extends NgxParentComponentDirective implements IDecafModal, OnInit, AfterViewChecked {
   /**
    * @description Reference to the rendered Ionic modal instance.
    * @summary Captures the underlying `IonModal` so the component can control presentation and dismissal.
@@ -170,11 +174,11 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
 
   /**
    * @description Inline content to be displayed in the modal.
-   * @summary Specifies the HTML or SafeHtml content to be rendered inside the modal.
-   * @type {string | SafeHtml | undefined}
+   * @summary Specifies the string, HTMLElement, or SafeHtml content to be rendered inside the modal.
+   * @type {string | HTMLElement | SafeHtml | undefined}
    */
   @Input()
-  inlineContent?: string | SafeHtml;
+  inlineContent?: string | HTMLElement | SafeHtml;
 
   /**
    * @description Position of the inline content within the modal.
@@ -309,9 +313,37 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
    *
    * @returns {Promise<void>} - A promise that resolves when initialization is complete.
    */
+  @ViewChildren('inlineContentHost')
+  inlineContentHost?: QueryList<ElementRef<HTMLElement>>;
+
+  /**
+   * @description Whether the inline content is a live DOM element.
+   * @summary Element content bypasses `[innerHTML]`: Angular's sanitizer strips
+   * SVG and similar markup when a node is stringified, so live elements are
+   * appended directly to the rendered host instead.
+   */
+  get inlineContentIsElement(): boolean {
+    return typeof HTMLElement !== 'undefined' && this.inlineContent instanceof HTMLElement;
+  }
+
+  ngAfterViewChecked(): void {
+    this.attachInlineElementContent();
+  }
+
+  /**
+   * @description Appends live-element inline content into the rendered host.
+   * @summary Idempotent: runs after every view check but only moves the node
+   * while it is not mounted, so repeated change detection never duplicates it.
+   */
+  private attachInlineElementContent(): void {
+    if (!this.inlineContentIsElement) return;
+    const host = this.inlineContentHost?.first?.nativeElement;
+    const element = this.inlineContent as HTMLElement;
+    if (host && !host.contains(element)) host.appendChild(element);
+  }
+
   async ngOnInit(): Promise<void> {
     await super.initialize();
-    this.parseInlineContent();
   }
 
   /**
@@ -343,19 +375,17 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
   }
 
   /**
-   * @description Normalizes and sanitizes inline modal content.
-   * @summary Converts DOM elements to HTML strings when needed and safely trusts the result for rendering.
+   * @description Normalizes inline modal content.
+   * @summary Converts DOM elements to outerHTML strings while leaving strings and SafeHtml as-is.
+   * Strings are sanitized by default; trusted markup must be passed as SafeHtml.
    *
    * @returns {void} - Does not return a value.
+   * @deprecated
    */
   parseInlineContent(): void {
-    if (this.inlineContent) {
-      if (this.inlineContent instanceof HTMLElement) {
-        this.inlineContent = this.domSanitizer.bypassSecurityTrustHtml(this.inlineContent.outerHTML);
-      } else if (typeof this.inlineContent === 'string') {
-        this.inlineContent = this.domSanitizer.bypassSecurityTrustHtml(this.inlineContent);
-      }
-    }
+    // HTMLElement content is appended directly (attachInlineElementContent):
+    // round-tripping via outerHTML + [innerHTML] runs it through the sanitizer,
+    // which strips SVG (e.g. barcode previews) and yields an empty modal body.
   }
 
   /**
@@ -522,14 +552,15 @@ export async function getNgxModalCrudComponent<M extends Model>(
 /**
  * @description Presents a lightbox modal with inline content.
  * @summary Displays a modal in lightbox mode with the specified content and properties.
+ * Strings are sanitized by default; trusted markup must be passed as SafeHtml.
  *
- * @param {string | SafeHtml} inlineContent - The content to display in the lightbox modal.
+ * @param {string | HTMLElement | SafeHtml} inlineContent - The content to display in the lightbox modal.
  * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
  * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
  * @returns {Promise<void>} - A promise that resolves when the modal is presented.
  */
 export async function presentNgxLightBoxModal(
-  inlineContent: string | SafeHtml,
+  inlineContent: string | HTMLElement | SafeHtml,
   props: Partial<ModalComponent> = {},
   injector?: EnvironmentInjector
 ): Promise<void> {
@@ -541,14 +572,15 @@ export async function presentNgxLightBoxModal(
 /**
  * @description Presents modal with inline content.
  * @summary Displays a modal with the specified content and properties.
+ * Strings are sanitized by default; trusted markup must be passed as SafeHtml.
  *
- * @param {string | SafeHtml} inlineContent - The content to display in the modal.
+ * @param {string | HTMLElement | SafeHtml} inlineContent - The content to display in the modal.
  * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
  * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
  * @returns {Promise<void>} - A promise that resolves when the modal is presented.
  */
 export async function presentNgxInlineModal(
-  inlineContent: string | SafeHtml,
+  inlineContent: string | HTMLElement | SafeHtml,
   props: Partial<ModalComponent> = {},
   injector?: EnvironmentInjector
 ): Promise<void> {
@@ -557,15 +589,16 @@ export async function presentNgxInlineModal(
 
 /**
  * @description get modal with inline content instance.
- * @summary Get modal component instance for show inline content
+ * @summary Get modal component instance for show inline content.
+ * Strings are sanitized by default; trusted markup must be passed as SafeHtml.
  *
- * @param {string | SafeHtml} inlineContent - The content to display in the lightbox modal.
+ * @param {string | HTMLElement | SafeHtml} inlineContent - The content to display in the lightbox modal.
  * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
  * @param {EnvironmentInjector} [injector] - Optional environment injector for dependency injection.
- * @returns {Promise<void>} - A promise that resolves when the modal is presented.
+ * @returns {Promise<IonModal>} - A promise that resolves when the modal is presented.
  */
 export async function getNgxInlineModal(
-  inlineContent: string | SafeHtml,
+  inlineContent: string | HTMLElement | SafeHtml,
   props: Partial<ModalComponent> = {},
   injector?: EnvironmentInjector
 ): Promise<IonModal> {

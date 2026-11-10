@@ -19,6 +19,7 @@ enum Types {
 };
 
 const logger = Logging.for("for-angular-cli");
+const NAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9-_.]*$/;
 
 /**
  * Creates and returns a Command object for the Angular CLI module in decaf-ts.
@@ -47,6 +48,9 @@ export default function angular() {
     .action(async(type: Types, name: string, project: Projects = Projects.FOR_ANGULAR) => {
       if(!validateType(type))
         return logger.error(`${type} is not valid. Use service, component or directive.`)
+
+      if(!NAME_PATTERN.test(name))
+        return logger.error(`Invalid name "${name}". Name must begin with a leading letter and contain only letters, digits, '-', '_', or '.'.`);
 
       if(type === Types.SCHEMATICS)
         return await generateSchematics();

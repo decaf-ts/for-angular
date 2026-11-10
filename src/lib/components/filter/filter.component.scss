@@ -122,11 +122,9 @@ input:disabled::placeholder {
   }
 }
 
-@media (prefers-color-scheme: light) {
-}
 
-@media (prefers-color-scheme: dark) {
-}
+
+
 
 ion-select {
   min-height: 40px !important;
@@ -206,6 +204,10 @@ ion-select {
         border: 0px !important;
         outline: none !important;
       }
+      &:focus-visible {
+        outline: 2px solid var(--dcf-color-primary) !important;
+        outline-offset: -2px;
+      }
     }
   }
   .dcf-icon-clear {
@@ -274,4 +276,16 @@ ion-select {
       border-radius: 6px;
     }
   }
+}
+
+.dcf-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
