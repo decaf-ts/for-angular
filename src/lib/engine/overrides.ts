@@ -222,7 +222,7 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     try {
       const url = this.url(tableName);
       const cfg = this.toRequest(ctx);
-      log.debug(`POSTing to ${url} with ${JSON.stringify(model)} and cfg ${JSON.stringify(cfg)} and primary key ${id}`);
+      log.debug(`POSTing to ${url} with primary key ${id}`);
       const result = await this.request<Record<string, unknown>>(
         {
           url,

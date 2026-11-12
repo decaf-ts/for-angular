@@ -14,7 +14,14 @@ export const MockedEnTranslations = {
   FIELD_LABEL: 'Translated Label',
   FIELD_PLACEHOLDER: 'Translated Placeholder',
   HELLO: 'Hello',
-  GOODBYE: 'Goodbye'
+  GOODBYE: 'Goodbye',
+  component: {
+    pagination: {
+      previous: 'previous',
+      next: 'next',
+      page: 'Page {0}',
+    },
+  },
 } as const;
 
 export class I18nFakeLoader implements TranslateLoader {

@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -48,6 +50,17 @@ describe('CronSelectorComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('decorative aria-hidden icons are not buttons', () => {
+    const html = readFileSync(join(__dirname, 'cron-selector.component.html'), 'utf8');
+    const icons = html.match(/<ngx-decaf-icon[\s\S]*?\/>/g) ?? [];
+    const decorative = icons.filter((icon) => icon.includes('aria-hidden="true"'));
+    expect(decorative.length).toBeGreaterThan(0);
+    for (const icon of decorative) {
+      expect(icon).not.toContain('button="true"');
+      expect(icon).not.toMatch(/\[button\]="(?!false)/);
+    }
   });
 
   it('should serialize daily times with a shared minute into one cron expression', () => {

@@ -298,20 +298,201 @@ export class NgxMediaService {
   }
 
   /**
+   * Sanitizes SVG string content with an ALLOWLIST policy.
+   * Denylists age badly: anything not remembered gets through, and elements like <iframe>,
+   * <embed>, <object>, <meta> or <style> survive XML serialization only to break out of the
+   * SVG namespace when the string is later re-parsed by the HTML parser via innerHTML
+   * (namespace breakout). An allowlist removes by default: only elements and attributes that
+   * legitimate SVG sprites use are kept; everything else is dropped.
+   * Always dropped: on* handlers; href/xlink:href with javascript:, data: or vbscript: schemes
+   * (including obfuscated variants with whitespace, ASCII control chars or percent encoding);
+   * any href/xlink:href that is not an in-document reference (starting with '#').
+   * Returns empty string if parsing fails or root is not <svg>.
+   *
+   * @param {string} svgText - The SVG text content to sanitize.
+   * @return {string} - The sanitized SVG string.
+   */
+  private sanitizeSvg(svgText: string): string {
+    if (!svgText || typeof svgText !== 'string') {
+      return '';
+    }
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgText, 'image/svg+xml');
+      const parserError = doc.querySelector('parsererror');
+      if (parserError) {
+        return '';
+      }
+      const root = doc.documentElement;
+      if (!root || root.tagName.toLowerCase() !== 'svg') {
+        return '';
+      }
+
+      // Only structural and presentational SVG elements; anything else is removed.
+      const ALLOWED_TAGS = new Set([
+        'svg',
+        'g',
+        'defs',
+        'symbol',
+        'use',
+        'path',
+        'circle',
+        'ellipse',
+        'rect',
+        'line',
+        'polyline',
+        'polygon',
+        'text',
+        'tspan',
+        'title',
+        'desc',
+        'lineargradient',
+        'radialgradient',
+        'stop',
+        'clippath',
+        'mask',
+        'pattern',
+        'marker',
+        'a',
+      ]);
+      const ALLOWED_ATTRS = new Set([
+        'id',
+        'class',
+        'width',
+        'height',
+        'x',
+        'y',
+        'x1',
+        'x2',
+        'y1',
+        'y2',
+        'cx',
+        'cy',
+        'r',
+        'rx',
+        'ry',
+        'd',
+        'points',
+        'transform',
+        'fill',
+        'fill-opacity',
+        'fill-rule',
+        'stroke',
+        'stroke-width',
+        'stroke-opacity',
+        'stroke-linecap',
+        'stroke-linejoin',
+        'stroke-dasharray',
+        'stroke-dashoffset',
+        'opacity',
+        'offset',
+        'stop-color',
+        'stop-opacity',
+        'viewbox',
+        'preserveaspectratio',
+        'version',
+        'xmlns',
+        'xmlns:xlink',
+        'clip-path',
+        'clip-rule',
+        'clippathunits',
+        'maskunits',
+        'maskcontentunits',
+        'patternunits',
+        'patterncontentunits',
+        'patterntransform',
+        'markerwidth',
+        'markerheight',
+        'refx',
+        'refy',
+        'orient',
+        'markerunits',
+        'gradientunits',
+        'gradienttransform',
+        'spreadmethod',
+        'fx',
+        'fy',
+        'text-anchor',
+        'dominant-baseline',
+        'font-family',
+        'font-size',
+        'font-weight',
+        'font-style',
+        'xml:space',
+        'xml:lang',
+        'aria-hidden',
+        'focusable',
+        'href',
+        'xlink:href',
+      ]);
+
+      // Collect all elements starting from root
+      const elements = [root, ...Array.from(root.querySelectorAll('*'))];
+      for (const el of elements) {
+        const localTag = (el.localName || el.tagName || '').toLowerCase();
+        if (!ALLOWED_TAGS.has(localTag)) {
+          el.remove();
+          continue;
+        }
+
+        const attrNames = Array.from(el.attributes).map((attr) => attr.name);
+        for (const name of attrNames) {
+          const lowerName = name.toLowerCase();
+          const val = el.getAttribute(name) || '';
+
+          if (!ALLOWED_ATTRS.has(lowerName)) {
+            el.removeAttribute(name);
+            continue;
+          }
+
+          if (lowerName === 'href' || lowerName.endsWith(':href')) {
+            // eslint-disable-next-line no-control-regex
+            let cleanVal = val.replace(/[\u0000- ]/g, '');
+            try {
+              cleanVal = decodeURIComponent(cleanVal);
+            } catch {
+              // ignore malformed URI percent-encoding
+            }
+            // eslint-disable-next-line no-control-regex
+            cleanVal = cleanVal.replace(/[\u0000- ]/g, '').toLowerCase();
+
+            if (
+              cleanVal.startsWith('javascript:') ||
+              cleanVal.startsWith('data:') ||
+              cleanVal.startsWith('vbscript:')
+            ) {
+              el.removeAttribute(name);
+            } else if (!cleanVal.startsWith('#')) {
+              // only in-document references are allowed: external hrefs enable phishing links and tracking
+              el.removeAttribute(name);
+            }
+          }
+        }
+      }
+
+      return new XMLSerializer().serializeToString(root);
+    } catch {
+      return '';
+    }
+  }
+
+  /**
    * @description Loads an SVG file and injects it into a target element.
    * @summary
    * This method fetches an SVG file from the specified path and injects its content
    * into the provided target element. The operation is performed outside Angular's
    * zone to improve performance, and the DOM update is brought back into the Angular
    * zone to ensure change detection.
+   * Cross-origin SVG paths are currently allowed; the need for restricting them is under analysis.
    *
+   * @param {HttpClient} http - The HTTP client to perform requests.
    * @param {string} path - The path to the SVG file.
    * @param {HTMLElement} target - The target element to inject the SVG content into.
    * @return {void}
    * @function loadSvgObserver
    * @example
    * const targetElement = document.getElementById('svg-container');
-   * mediaService.loadSvgObserver('/assets/icons/icon.svg', targetElement);
+   * mediaService.loadSvgObserver(http, '/assets/icons/icon.svg', targetElement);
    */
   loadSvgObserver(http: HttpClient, path: string, target: HTMLElement): void {
     this.angularZone.runOutsideAngular(() => {
@@ -319,8 +500,9 @@ export class NgxMediaService {
         .get(path, { responseType: 'text' })
         .pipe(takeUntil(this.destroy$), shareReplay({ bufferSize: 1, refCount: true }));
       svg$.subscribe((svg: string) => {
+        const cleanSvg = this.sanitizeSvg(svg);
         this.angularZone.run(() => {
-          target.innerHTML = svg;
+          target.innerHTML = cleanSvg;
         });
       });
     });

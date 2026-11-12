@@ -1,7 +1,10 @@
 <ion-modal
   [id]="uid"
+  [attr.aria-label]="title?.length ? (title | translate) : null"
+  [attr.aria-labelledby]="title?.length ? uid + '-title' : null"
   [class]="'dcf-modal-component ' + className"
   [isOpen]="isOpen"
+  [attr.role]="'dialog'"
   (willDismiss)="handleWillDismiss($event)"
   [backdropDismiss]="options?.backdropDismiss"
   [showBackdrop]="options?.showBackdrop"
@@ -20,7 +23,10 @@
     <ion-header>
       <ion-toolbar [color]="headerBackground">
         @if (title?.length) {
-          <ion-title [innerHTML]="title | translate"></ion-title>
+          <ion-title
+            [id]="uid + '-title'"
+            [innerHTML]="title | translate"
+          ></ion-title>
         }
         <ion-buttons slot="end">
           @if (expandable && !fullscreen) {
@@ -29,7 +35,10 @@
               size="small"
               type="button"
               class="dcf-button-expand"
-              [attr.aria-label]="locale + '.buttons.expand' | translate"
+              [attr.aria-label]="
+                locale + (expanded ? '.buttons.collapse' : '.buttons.expand')
+                  | translate
+              "
               (click)="handleExpandToggle()"
             >
               <ngx-decaf-icon
@@ -64,7 +73,14 @@
         [class.dcf-has-title]="title?.length"
       >
         @if (!tag && !model && !inlineContent) {
-          <div class="dcf-loading-container">
+          <div
+            class="dcf-loading-container"
+            role="status"
+            aria-busy="true"
+          >
+            <span class="dcf-sr-only">
+              {{ 'component.loading' | translate }}
+            </span>
             <ion-spinner
               name="crescent"
               color="primary"
@@ -75,7 +91,8 @@
             <div
               class="dcf-modal-content"
               id="dcf-modal-content"
-              [innerHTML]="inlineContent"
+              #inlineContentHost
+              [innerHTML]="inlineContentIsElement ? null : inlineContent"
             ></div>
           }
           @if (!tag && model) {
@@ -96,7 +113,8 @@
             <div
               class="dcf-modal-content"
               id="dcf-modal-content"
-              [innerHTML]="inlineContent"
+              #inlineContentHost
+              [innerHTML]="inlineContentIsElement ? null : inlineContent"
             ></div>
           }
         }

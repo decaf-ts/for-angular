@@ -84,3 +84,13 @@ body,
     }
   }
 }
+
+/* Respect the OS "reduce motion" preference (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

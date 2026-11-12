@@ -8,10 +8,6 @@
   "prettier.proseWrap": "preserve",
   "prettier.bracketSameLine": false,
   "prettier.requireConfig": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
-    "source.fixAll.eslint": "explicit"
-  },
 
   "jest.jestCommandLine": "npm run test --",
   "jest.runMode": "on-demand",
@@ -30,7 +26,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
       "source.fixAll.eslint": "explicit"
     }
   },
@@ -40,7 +35,6 @@
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
       "source.organizeImports": "explicit", // remove unused imports for angular
-      "source.fixAll": "explicit",
       "source.fixAll.eslint": "explicit",
       "source.fixAll.stylelint": "never"
     }
@@ -50,7 +44,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
       "source.fixAll.eslint": "explicit",
       "source.fixAll.stylelint": "never"
     }
@@ -62,7 +55,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
       "source.fixAll.eslint": "explicit",
       "source.fixAll.stylelint": "always"
     }
@@ -74,7 +66,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
       "source.fixAll.eslint": "explicit",
       "source.fixAll.stylelint": "always"
     }
@@ -86,7 +77,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
       "source.fixAll.eslint": "explicit",
       "source.fixAll.stylelint": "always"
     }
@@ -98,7 +88,6 @@
     "editor.insertSpaces": true,
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
       "source.fixAll.eslint": "explicit"
     }
   },

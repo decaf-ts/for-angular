@@ -3,9 +3,9 @@
   #component
 >
   <input
-    id="dcf-file-input"
+    [id]="inputId"
     type="file"
-    placeholder="Select files"
+    [attr.aria-label]="locale + '.buttons.select' | translate"
     [attr.accept]="accept"
     [attr.multiple]="multiple ? true : null"
     (change)="handleSelection($event)"
@@ -32,6 +32,8 @@
           "
           [class.dcf-dragging]="dragging"
           [class.dcf-has-files]="files.length"
+          role="group"
+          [attr.aria-label]="label ? (label | translate) : (locale + '.drag_file' | translate)"
           (drop)="!files?.length ? handleDrop($event) : (dragging = false)"
           (dragover)="
             !files?.length ? handleDragOver($event) : (dragging = false)
@@ -72,6 +74,7 @@
               <div #container>
                 <span
                   class="dcf-file-error"
+                  role="alert"
                   [innerHTML]="getErrors(container)"
                 ></span>
               </div>
@@ -132,13 +135,17 @@
                       color="danger"
                       (click)="handleClear()"
                       [title]="locale + '.buttons.clear' | translate"
+                      [ariaLabel]="locale + '.buttons.clear' | translate"
                     />
                   }
                   {{ locale + ".selection" | translate: { "0": files.length > 10 ? files.length : `0${files.length}` } }}
                 </div>
 
                 @if (errors.length > 0) {
-                  <div class="dcf-error-message">
+                  <div
+                    class="dcf-error-message"
+                    role="alert"
+                  >
                     {{ locale + ".selection_error" | translate: { "0": errors.length > 10 ? errors.length : `0${errors.length}` } }}
                   </div>
                 }
@@ -186,6 +193,9 @@
                             [button]="true"
                             [slot]="'icon-only'"
                             (click)="preview(file?.source || file, file.type)"
+                            [ariaLabel]="
+                              locale + '.buttons.preview' | translate
+                            "
                             [name]="
                               file.type.includes('image')
                                 ? 'ti-photo'
@@ -197,6 +207,9 @@
                             [slot]="'icon-only'"
                             [name]="'ti-trash'"
                             (click)="handleRemove($index)"
+                            [ariaLabel]="
+                              locale + '.buttons.remove' | translate
+                            "
                             [color]="'danger'"
                             [size]="'small'"
                           />
@@ -263,6 +276,7 @@
               @for (file of files; track $index) {
                 <ion-item
                   [lines]="files?.length > 1 ? 'full' : 'none'"
+                  [button]="true"
                   (click)="preview(file.source, file.type)"
                 >
                   @if (file?.name) {
@@ -275,7 +289,7 @@
                     slot="end"
                   >
                     <ngx-decaf-icon
-                      [button]="true"
+                      [button]="false"
                       [slot]="'icon-only'"
                       [name]="
                         file.type.includes('image')
