@@ -11,6 +11,11 @@ on:
       - published
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: read
+  id-token: write
+
 jobs:
   build:
     uses: decaf-ts/reusable-actions/.github/workflows/publish-on-release.yaml@master

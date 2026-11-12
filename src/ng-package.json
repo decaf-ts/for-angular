@@ -1,6 +1,19 @@
 {
   "$schema": "../node_modules/ng-packagr/ng-package.schema.json",
   "dest": "../dist/lib",
+  "allowedNonPeerDependencies": [
+    "@decaf-ts/utils",
+    "@decaf-ts/core",
+    "@decaf-ts/db-decorators",
+    "@decaf-ts/decoration",
+    "@decaf-ts/decorator-validation",
+    "@decaf-ts/for-http",
+    "@decaf-ts/injectable-decorators",
+    "@decaf-ts/logging",
+    "@decaf-ts/styles",
+    "@decaf-ts/transactional-decorators",
+    "@decaf-ts/ui-decorators"
+  ],
   "lib": {
     "entryFile": "lib/public-apis.ts",
     "styleIncludePaths": [
