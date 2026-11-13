@@ -1,3 +1,14 @@
+.dcf-safe-parsed-content {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  padding: var(--dcf-padding-small);
+  .dcf-auto {
+    width: 100%;
+    height: auto;
+  }
+}
+
 .dcf-modal-component {
   --border-radius: var(--dcf-border-radius);
 

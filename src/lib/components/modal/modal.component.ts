@@ -390,18 +390,19 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
    * Nodes that cannot be converted (e.g. a tainted canvas) are skipped.
    *
    * @param {HTMLElement} element - The element content passed to the modal.
-   * @return {HTMLImageElement[]} Fresh image nodes, in document order; empty when
+   * @return {HTMLDivElement[]} Fresh image nodes, in document order; empty when
    * the element contains no renderable image.
    */
-  static extractRenderableImages(element: HTMLElement): HTMLImageElement[] {
+  static extractRenderableImages(element: HTMLElement): HTMLDivElement[] {
     const tag = (el: Element) => el.tagName.toLowerCase();
     const isImageTag = (el: Element) => ['img', 'svg', 'canvas'].includes(tag(el));
     const candidates: Element[] = isImageTag(element)
       ? [element]
       : Array.from(element.querySelectorAll('img, svg, canvas'));
 
-    const out: HTMLImageElement[] = [];
+    const out: HTMLDivElement[] = [];
     for (const el of candidates) {
+      const container = document.createElement("div");
       const img = document.createElement('img');
       try {
         if (tag(el) === 'img') {
@@ -420,9 +421,15 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
       }
       const width = Number(el.getAttribute('width'));
       const height = Number(el.getAttribute('height'));
-      if (width > 0) img.width = width;
-      if (height > 0) img.height = height;
-      out.push(img);
+      if (width > 0) {
+        img.width = width;
+        if (height > 0) img.height = height;
+      } else {
+        img.classList.add('dcf-auto');
+      }
+      container.classList.add('dcf-safe-parsed-image');
+      container.append(img);
+      out.push(container);
     }
     return out;
   }
