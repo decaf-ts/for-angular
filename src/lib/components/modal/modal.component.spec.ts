@@ -87,11 +87,9 @@ describe('ModalComponent', () => {
     expect(status?.querySelector('ion-spinner')).toBeTruthy();
   });
 
-  const cases: Array<{ type: 'string' | 'HTMLElement' | 'SafeHtml'; position: 'top' | 'bottom' }> = [
+  const cases: Array<{ type: 'string' | 'SafeHtml'; position: 'top' | 'bottom' }> = [
     { type: 'string', position: 'top' },
     { type: 'string', position: 'bottom' },
-    { type: 'HTMLElement', position: 'top' },
-    { type: 'HTMLElement', position: 'bottom' },
     { type: 'SafeHtml', position: 'top' },
     { type: 'SafeHtml', position: 'bottom' },
   ];
@@ -99,18 +97,12 @@ describe('ModalComponent', () => {
   it.each(cases)(
     'baseline inline content types and positions: $type in $position position',
     async ({ type, position }) => {
-      let content: string | HTMLElement | SafeHtml;
+      let content: string | SafeHtml;
       let expectedText: string;
 
       if (type === 'string') {
         expectedText = 'hello string';
         content = `<span class="test-inline">${expectedText}</span>`;
-      } else if (type === 'HTMLElement') {
-        expectedText = 'hello element';
-        const el = document.createElement('span');
-        el.className = 'test-inline';
-        el.textContent = expectedText;
-        content = el;
       } else {
         expectedText = 'hello safe';
         content = sanitizer.bypassSecurityTrustHtml(`<span class="test-inline">${expectedText}</span>`);
@@ -156,24 +148,91 @@ describe('ModalComponent', () => {
     expect(component.inlineContent).toBe(rawString);
   });
 
-  it('html element content is appended live, keeping svg intact', async () => {
+  it('html element content is rebuilt images-only: svg renders as inert img, live node is not attached', async () => {
     const div = document.createElement('div');
-    div.innerHTML = '<svg viewBox="0 0 1 1"><circle r="1"></circle></svg>';
+    div.innerHTML =
+      '<svg width="280" height="140" viewBox="0 0 280 140"><rect width="280" height="140" fill="#fff"></rect></svg>' +
+      '<p onclick="void(0)">not an image</p>';
 
     (component as any).inlineContent = div;
     component.isOpen = true;
     await component.ngOnInit();
     fixture.detectChanges();
+    fixture.detectChanges();
 
-    // live elements stay elements: stringifying + [innerHTML] would run them
-    // through the sanitizer, which strips SVG and empties the modal body
     expect(component.inlineContentIsElement).toBe(true);
 
     const modalEl = document.getElementById(String(component.uid));
     const contentEl = modalEl?.querySelector('.dcf-modal-content');
     expect(contentEl).toBeTruthy();
-    expect(contentEl?.querySelector('svg')).toBeTruthy();
-    expect(contentEl?.contains(div)).toBe(true);
+    // SVG survives (vector quality) but as a rebuilt inert img, not a live node
+    const img = contentEl?.querySelector('img');
+    expect(img).toBeTruthy();
+    expect(img?.getAttribute('src')).toMatch(/^data:image\/svg\+xml;base64,/);
+    expect(img?.width).toBe(280);
+    expect(img?.height).toBe(140);
+    // the live wrapper is never attached and non-image content fails closed
+    expect(contentEl?.contains(div)).toBe(false);
+    expect(contentEl?.querySelector('p')).toBeNull();
+    expect(contentEl?.querySelector('svg')).toBeNull();
+    // idempotent across change detection: exactly one rebuilt image
+    expect(contentEl?.querySelectorAll('img').length).toBe(1);
+  });
+
+  it('img element content is rebuilt without its handlers', async () => {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML =
+      '<img id="hostile" src="https://example.com/photo.png" alt="photo" onerror="void(0)" onclick="void(0)" style="position: fixed; inset: 0">';
+
+    (component as any).inlineContent = wrapper;
+    component.isOpen = true;
+    await component.ngOnInit();
+    fixture.detectChanges();
+
+    const modalEl = document.getElementById(String(component.uid));
+    const contentEl = modalEl?.querySelector('.dcf-modal-content');
+    const img = contentEl?.querySelector('img');
+    expect(img).toBeTruthy();
+    // src and alt carry over; handlers and styles from the source node never do
+    expect(img?.getAttribute('src')).toBe('https://example.com/photo.png');
+    expect(img?.getAttribute('alt')).toBe('photo');
+    expect(img?.hasAttribute('onerror')).toBe(false);
+    expect(img?.hasAttribute('onclick')).toBe(false);
+    expect(img?.getAttribute('style')).toBeNull();
+    expect(contentEl?.querySelector('#hostile')).toBeNull();
+  });
+
+  it('canvas element content that cannot rasterize fails closed (no live canvas attached)', async () => {
+    // jsdom has no canvas backend: toDataURL throws → the node is skipped, never attached live.
+    // In a real browser the same code path yields a data:image/png rebuilt img.
+    const canvas = document.createElement('canvas');
+    canvas.width = 16;
+    canvas.height = 16;
+
+    (component as any).inlineContent = canvas;
+    component.isOpen = true;
+    await component.ngOnInit();
+    fixture.detectChanges();
+
+    const modalEl = document.getElementById(String(component.uid));
+    const contentEl = modalEl?.querySelector('.dcf-modal-content');
+    expect(contentEl?.querySelector('canvas')).toBeNull();
+  });
+
+  it('non-image element content fails closed (nothing attached)', async () => {
+    const span = document.createElement('span');
+    span.className = 'text-content';
+    span.textContent = 'just text';
+
+    (component as any).inlineContent = span;
+    component.isOpen = true;
+    await component.ngOnInit();
+    fixture.detectChanges();
+
+    const modalEl = document.getElementById(String(component.uid));
+    const contentEl = modalEl?.querySelector('.dcf-modal-content');
+    expect(contentEl?.querySelector('.text-content')).toBeNull();
+    expect(contentEl?.querySelectorAll('img').length).toBe(0);
   });
 
   it('safe html passthrough', async () => {

@@ -7,6 +7,7 @@ import {
   EventEmitter,
   inject,
   Input,
+  isDevMode,
   OnInit,
   Output,
   QueryList,
@@ -115,7 +116,7 @@ import { ModelRendererComponent } from '../model-renderer/model-renderer.compone
  * @remarks
  * - The modal supports inline content that can be positioned at the top or bottom
  * - Fullscreen and lightbox modes are available for different display needs
- * - Only `string` inline content is sanitized (by Angular); `SafeHtml` and `HTMLElement` are NOT sanitized (developer-trusted)
+ * - Only `string` inline content is sanitized (by Angular); `HTMLElement` content is images-only and rebuilt inert (handlers dropped, non-image content dropped with a dev warning); `SafeHtml` is NOT sanitized (developer-trusted)
  * - Modal dismissal can be handled through cancel or confirm actions
  * - Global configuration can be passed through the globals input
  *
@@ -175,9 +176,12 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
   /**
    * @description Inline content to be displayed in the modal.
    * @summary Specifies the string, HTMLElement, or SafeHtml content to be rendered inside the modal.
-   * Only `string` is sanitized by Angular. `SafeHtml` is rendered as-is and `HTMLElement` is appended
-   * directly to the DOM with no sanitization (needed to keep SVG such as barcodes intact), so both are
-   * developer-trusted: never build them from untrusted data.
+   * `string` is sanitized by Angular (images, structure and safe links render; scripts and
+   * handlers are stripped). `HTMLElement` is an **images-only** channel: every `img`/`svg`/`canvas`
+   * found in the element is rebuilt as a fresh, inert `<img>` (handlers and styles from the source
+   * node are dropped) and non-image content fails closed with a dev warning — safe for untrusted
+   * data by construction. `SafeHtml` is rendered as-is and is NOT sanitized: developer-trusted,
+   * never build it from untrusted data.
    * @type {string | HTMLElement | SafeHtml | undefined}
    */
   @Input()
@@ -321,9 +325,9 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
 
   /**
    * @description Whether the inline content is a live DOM element.
-   * @summary Element content bypasses `[innerHTML]`: Angular's sanitizer strips
-   * SVG and similar markup when a node is stringified, so live elements are
-   * appended directly to the rendered host instead.
+   * @summary Element content no longer attaches live: the element path is
+   * images-only and every image is rebuilt as a fresh, inert `<img>` (see
+   * {@link ModalComponent.extractRenderableImages}).
    */
   get inlineContentIsElement(): boolean {
     return typeof HTMLElement !== 'undefined' && this.inlineContent instanceof HTMLElement;
@@ -333,20 +337,110 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
     this.attachInlineElementContent();
   }
 
-  /**
-   * @description Appends live-element inline content into the rendered host.
-   * @summary Idempotent: runs after every view check but only moves the node
-   * while it is not mounted, so repeated change detection never duplicates it.
-   */
-  private attachInlineElementContent(): void {
-    if (!this.inlineContentIsElement) return;
-    const host = this.inlineContentHost?.first?.nativeElement;
-    const element = this.inlineContent as HTMLElement;
-    if (host && !host.contains(element)) host.appendChild(element);
+  async ngOnInit(): Promise<void> {
+    // SafeHtml still bypasses Angular's sanitizer via [innerHTML]: developer-trusted only.
+    if (isDevMode() && this.inlineContent && typeof this.inlineContent !== 'string' && !this.inlineContentIsElement)
+      console.warn(
+        '[ngx-decaf-modal] inlineContent is SafeHtml and bypasses Angular sanitization (developer-trusted only). Never build it from untrusted data.'
+      );
+    await super.initialize();
   }
 
-  async ngOnInit(): Promise<void> {
-    await super.initialize();
+  /** Whether the images-only element content was already attached (or dropped) for this content. */
+  private inlineElementAttached = false;
+
+  /**
+   * @description Attaches element inline content into the rendered host.
+   * @summary **Images-only, execution-proof channel.** Every image found in the
+   * element (`img`, `svg`, `canvas`, including inside wrappers) is rebuilt as a
+   * fresh `<img>` carrying only `src`/`alt`/`width`/`height` — event handlers,
+   * styles and any other attributes from the source node are dropped, so
+   * nothing hostile can survive the handoff. SVG keeps vector quality via a
+   * `data:image/svg+xml` source (SVG rendered inside `<img>` is script-inert
+   * and cannot load external resources, per the browser image sandbox). Any
+   * non-image content fails closed: it is dropped with a dev-mode warning —
+   * text/HTML inline content belongs on the sanitized string path.
+   * Idempotent: runs after every view check but attaches (or warns) only once per content.
+   */
+  private attachInlineElementContent(): void {
+    if (!this.inlineContentIsElement || this.inlineElementAttached) return;
+    const host = this.inlineContentHost?.first?.nativeElement;
+    const element = this.inlineContent as HTMLElement;
+    if (!host) return;
+    const images = ModalComponent.extractRenderableImages(element);
+    this.inlineElementAttached = true;
+    if (!images.length) {
+      if (isDevMode())
+        console.warn(
+          '[ngx-decaf-modal] HTMLElement inlineContent contained no renderable image and was dropped (images-only element path; use the string inlineContent path for text/HTML).'
+        );
+      return;
+    }
+    for (const img of images) host.appendChild(img);
+  }
+
+  /**
+   * @description Rebuilds all image content of an element as fresh, inert `<img>` nodes.
+   * @summary Accepts an `img`/`svg`/`canvas` element directly or extracts such nodes
+   * from a wrapper. `img` sources are copied by DOM property (never re-parsed as
+   * markup); SVG is serialized to a `data:image/svg+xml` source and canvas is
+   * rasterized to a PNG data URL. Only `src`, `alt`, `width` and `height` carry
+   * over — inline handlers and styles from the source node never do, so the
+   * returned nodes are execution-proof regardless of where the element came from.
+   * Nodes that cannot be converted (e.g. a tainted canvas) are skipped.
+   *
+   * @param {HTMLElement} element - The element content passed to the modal.
+   * @return {HTMLImageElement[]} Fresh image nodes, in document order; empty when
+   * the element contains no renderable image.
+   */
+  static extractRenderableImages(element: HTMLElement): HTMLImageElement[] {
+    const tag = (el: Element) => el.tagName.toLowerCase();
+    const isImageTag = (el: Element) => ['img', 'svg', 'canvas'].includes(tag(el));
+    const candidates: Element[] = isImageTag(element)
+      ? [element]
+      : Array.from(element.querySelectorAll('img, svg, canvas'));
+
+    const out: HTMLImageElement[] = [];
+    for (const el of candidates) {
+      const img = document.createElement('img');
+      try {
+        if (tag(el) === 'img') {
+          img.src = (el as HTMLImageElement).src;
+          img.alt = el.getAttribute('alt') ?? '';
+        } else if (tag(el) === 'svg') {
+          const serialized = new XMLSerializer().serializeToString(el);
+          img.src = `data:image/svg+xml;base64,${ModalComponent.encodeBase64Utf8(serialized)}`;
+          img.alt = 'inline svg content';
+        } else {
+          img.src = (el as HTMLCanvasElement).toDataURL('image/png');
+          img.alt = 'inline canvas content';
+        }
+      } catch (e: unknown) {
+        continue;
+      }
+      const width = Number(el.getAttribute('width'));
+      const height = Number(el.getAttribute('height'));
+      if (width > 0) img.width = width;
+      if (height > 0) img.height = height;
+      out.push(img);
+    }
+    return out;
+  }
+
+  /**
+   * @description Base64-encodes a string as UTF-8.
+   * @summary `btoa` alone throws on non-Latin1 characters; this encodes through
+   * UTF-8 bytes first so serialized SVG (which may carry any Unicode text)
+   * survives intact.
+   *
+   * @param {string} value - The string to encode.
+   * @return {string} The base64 representation of the UTF-8 encoded string.
+   */
+  private static encodeBase64Utf8(value: string): string {
+    const bytes = new TextEncoder().encode(value);
+    let binary = '';
+    bytes.forEach((byte) => (binary += String.fromCharCode(byte)));
+    return btoa(binary);
   }
 
   /**
@@ -379,17 +473,18 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
 
   /**
    * @description Normalizes inline modal content.
-   * @summary Converts DOM elements to outerHTML strings while leaving strings and SafeHtml as-is.
-   * Only `string` content is sanitized by Angular. `SafeHtml` and `HTMLElement` are NOT
-   * sanitized: they are developer-trusted, so never build them from untrusted data.
+   * @summary Superseded: `string` content is sanitized by Angular's [innerHTML] binding;
+   * `HTMLElement` content is rebuilt images-only by `attachInlineElementContent` (fresh inert
+   * `<img>`, non-image content fails closed); `SafeHtml` remains developer-trusted and is never
+   * sanitized — never build it from untrusted data.
    *
    * @returns {void} - Does not return a value.
    * @deprecated
    */
   parseInlineContent(): void {
-    // HTMLElement content is appended directly (attachInlineElementContent):
-    // round-tripping via outerHTML + [innerHTML] runs it through the sanitizer,
-    // which strips SVG (e.g. barcode previews) and yields an empty modal body.
+    // HTMLElement content no longer attaches live: attachInlineElementContent rebuilds every
+    // img/svg/canvas as a fresh inert <img> (a sanitizer round-trip would strip SVG and empty
+    // the modal body — the barcode-preview regression this deprecated method once caused).
   }
 
   /**
@@ -556,8 +651,10 @@ export async function getNgxModalCrudComponent<M extends Model>(
 /**
  * @description Presents a lightbox modal with inline content.
  * @summary Displays a modal in lightbox mode with the specified content and properties.
- * Only `string` content is sanitized by Angular. `SafeHtml` and `HTMLElement` are NOT
- * sanitized: they are developer-trusted, so never build them from untrusted data.
+ * `string` content is sanitized by Angular. `HTMLElement` content is images-only: every
+ * img/svg/canvas is rebuilt as a fresh inert `<img>` (handlers dropped; non-image content fails
+ * closed with a dev warning), so it is safe for untrusted data. `SafeHtml` is NOT sanitized:
+ * developer-trusted — never build it from untrusted data.
  *
  * @param {string | HTMLElement | SafeHtml} inlineContent - The content to display in the lightbox modal.
  * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
@@ -577,8 +674,10 @@ export async function presentNgxLightBoxModal(
 /**
  * @description Presents modal with inline content.
  * @summary Displays a modal with the specified content and properties.
- * Only `string` content is sanitized by Angular. `SafeHtml` and `HTMLElement` are NOT
- * sanitized: they are developer-trusted, so never build them from untrusted data.
+ * `string` content is sanitized by Angular. `HTMLElement` content is images-only: every
+ * img/svg/canvas is rebuilt as a fresh inert `<img>` (handlers dropped; non-image content fails
+ * closed with a dev warning), so it is safe for untrusted data. `SafeHtml` is NOT sanitized:
+ * developer-trusted — never build it from untrusted data.
  *
  * @param {string | HTMLElement | SafeHtml} inlineContent - The content to display in the modal.
  * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
@@ -596,8 +695,10 @@ export async function presentNgxInlineModal(
 /**
  * @description get modal with inline content instance.
  * @summary Get modal component instance for show inline content.
- * Only `string` content is sanitized by Angular. `SafeHtml` and `HTMLElement` are NOT
- * sanitized: they are developer-trusted, so never build them from untrusted data.
+ * `string` content is sanitized by Angular. `HTMLElement` content is images-only: every
+ * img/svg/canvas is rebuilt as a fresh inert `<img>` (handlers dropped; non-image content fails
+ * closed with a dev warning), so it is safe for untrusted data. `SafeHtml` is NOT sanitized:
+ * developer-trusted — never build it from untrusted data.
  *
  * @param {string | HTMLElement | SafeHtml} inlineContent - The content to display in the lightbox modal.
  * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.

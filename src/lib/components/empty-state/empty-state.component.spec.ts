@@ -208,10 +208,10 @@ describe('EmptyStateComponent', () => {
   // carries the pointer so the jest output itself says where to fix. See security-responses.md (R2-1).
   const quoteFixNote =
     ' [INTENTIONAL FAILURE — fix in ui-decorators: escapeHtml in decaf-ts/ui-decorators src/ui/utils.ts must escape &quot; and &#39;]';
-  const chars: Array<{ char: string; raw: string; escaped: string; note?: string }> = [
-    { char: '&', raw: 'foo & bar', escaped: 'foo &amp; bar' },
-    { char: '<', raw: 'foo < bar', escaped: 'foo &lt; bar' },
-    { char: '>', raw: 'foo > bar', escaped: 'foo &gt; bar' },
+  const chars: Array<{ char: string; raw: string; escaped: string; note: string }> = [
+    { char: '&', raw: 'foo & bar', escaped: 'foo &amp; bar', note: '' },
+    { char: '<', raw: 'foo < bar', escaped: 'foo &lt; bar', note: '' },
+    { char: '>', raw: 'foo > bar', escaped: 'foo &gt; bar', note: '' },
     { char: '"', raw: 'foo " bar', escaped: 'foo &quot; bar', note: quoteFixNote },
     { char: "'", raw: "foo ' bar", escaped: 'foo &#39; bar', note: quoteFixNote },
   ];

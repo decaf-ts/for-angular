@@ -52,7 +52,7 @@ class RealTranslationLoader implements TranslateLoader {
   }
 }
 
-describe('[SECURITY-POC] CF-2 object searchValue breaks empty-state initialization (unhandled rejection)', () => {
+describe('[SECURITY-POC] CF-2 object searchValue init rejection — R2-2 REMEDIATED (was: unhandled rejection)', () => {
   let componentFixture: ComponentFixture<EmptyStateComponent>;
   let component: EmptyStateComponent;
   let translateService: TranslateService;
@@ -101,17 +101,18 @@ describe('[SECURITY-POC] CF-2 object searchValue breaks empty-state initializati
     await firstValueFrom(translateService.use('en'));
   });
 
-  it('object searchValue (URL-derived filter shape) makes ngOnInit reject with TypeError', async () => {
+  it('R2-2 FIXED: object searchValue (URL-derived filter shape) initializes without rejection', async () => {
     component.searchValue = URL_DERIVED_OBJECT_SEARCH_VALUE as unknown as string;
     component.subtitle = 'component.list.search.subtitle';
-    await expect(component.ngOnInit()).rejects.toThrow(TypeError);
-    // degraded init: the searching subtitle never gets built
-    expect(component.searchSubtitle).toBeUndefined();
+    // Pre-remediation this rejected with TypeError (non-coercing escapeHtml) and left the
+    // component uninitialized; the shared coercing escapeHtml degrades to "[object Object]".
+    await expect(component.ngOnInit()).resolves.toBeUndefined();
+    expect(component.searchSubtitle).toBeDefined();
   });
 
-  it('empty object searchValue also breaks initialization (truthy object)', async () => {
+  it('R2-2 FIXED: empty object searchValue no longer breaks initialization (truthy object)', async () => {
     component.searchValue = {} as unknown as string;
-    await expect(component.ngOnInit()).rejects.toThrow(TypeError);
+    await expect(component.ngOnInit()).resolves.toBeUndefined();
   });
 
   it('CONTROL: string searchValue initializes normally and builds the search subtitle', async () => {

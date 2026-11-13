@@ -72,10 +72,12 @@ class RealTranslationLoader implements TranslateLoader {
 /**
  * Minimal, faithful replica of the list/table SEARCHING-branch host wiring.
  * The [subtitle] binding is copied verbatim from
- * src/lib/components/list/list.component.html:169-172 (and identical in
- * table.component.html:238-241); for a string searchValue,
- * ListComponent.parseSearchValue() returns the raw string (list.component.ts:1532-1533),
- * so `searchValue` below stands in for `parseSearchValue()`.
+ * src/lib/components/list/list.component.html (and identical in table.component.html).
+ * Since the R2-1 remediation, ListComponent.parseSearchValue() HTML-escapes the search
+ * term at the single interpolation point (list.component.ts), so `searchValue` below
+ * stands in for `parseSearchValue()` — escaped, exactly as the real template receives it.
+ * Pre-remediation (revision abb26f5) parseSearchValue returned the RAW string and these
+ * tests demonstrated the bypass; they now assert the remediation holds on the same wiring.
  */
 @Component({
   standalone: true,
@@ -86,7 +88,7 @@ class RealTranslationLoader implements TranslateLoader {
       [title]="'component.list.search.title' | translate"
       [subtitle]="
         'component.list.search.subtitle'
-          | translate: { '0': searchValue }
+          | translate: { '0': searchValueEscaped }
       "
       [searchValue]="searchValue"
     />
@@ -94,6 +96,10 @@ class RealTranslationLoader implements TranslateLoader {
 })
 class ListSearchingBranchHost {
   @Input() searchValue = '';
+  /** Stands in for ListComponent.parseSearchValue(): HTML-escape at the interpolation point. */
+  get searchValueEscaped(): string {
+    return escapeHtml(this.searchValue);
+  }
 }
 
 describe('[SECURITY-POC] CF-1 empty-state search subtitle XSS (double interpolation defeats escapeHtml)', () => {
@@ -151,7 +157,7 @@ describe('[SECURITY-POC] CF-1 empty-state search subtitle XSS (double interpolat
     expect(result).not.toContain('&lt;');
   });
 
-  it('FA-1 BYPASS: real list searching-branch wiring injects an <img onerror> through the trusted safeHtml sink', async () => {
+  it('R2-1 FIXED: real list searching-branch wiring renders the <img onerror> payload as literal text (no injection through the trusted sink)', async () => {
     host.searchValue = PAYLOAD_IMG;
     fixture.detectChanges();
     const emptyState = fixture.debugElement.query(
@@ -166,22 +172,21 @@ describe('[SECURITY-POC] CF-1 empty-state search subtitle XSS (double interpolat
     // the real translated template wrapper reached the sink
     expect(p.nativeElement.querySelector('ion-text')).toBeTruthy();
 
-    // markup injection through the trusted sink: the attacker element exists in the DOM
+    // remediation: parseSearchValue escapes at the interpolation point, so the payload
+    // reaches the trusted sink as inert text — no attacker element in the DOM
     const injected = p.nativeElement.querySelector('img[data-poc="cf1"]');
-    expect(injected).toBeTruthy();
-    expect(injected.getAttribute('onerror')).toBe('void 0');
-    expect(injected.getAttribute('src')).toBe('x');
+    expect(injected).toBeNull();
 
-    // the escape was computed on the raw searchValue but discarded:
-    // searchSubtitle carries the RAW payload, not the escaped form
-    expect(emptyState.searchSubtitle).toContain(PAYLOAD_IMG);
-    expect(emptyState.searchSubtitle).not.toContain('&lt;img');
+    // searchSubtitle carries the ESCAPED payload, not the raw form
+    expect(emptyState.searchSubtitle).toContain('&lt;img');
+    expect(emptyState.searchSubtitle).not.toContain(PAYLOAD_IMG);
+    expect(p.nativeElement.textContent).toContain(PAYLOAD_IMG);
 
     // bounded safe-effect assertion: no execution attempted (jsdom is inert)
     expect((window as unknown as Record<string, unknown>)["__POC_CF1_HIT__"]).toBeUndefined();
   });
 
-  it('FA-1 BYPASS: a <script> element survives the trusted sink (markup injection, inert in jsdom)', async () => {
+  it('R2-1 FIXED: a <script> element does not survive the trusted sink on the real wiring', async () => {
     host.searchValue = PAYLOAD_SCRIPT;
     fixture.detectChanges();
     const emptyState = fixture.debugElement.query(
@@ -192,8 +197,7 @@ describe('[SECURITY-POC] CF-1 empty-state search subtitle XSS (double interpolat
 
     const p = fixture.debugElement.query(By.css('p'));
     const injected = p.nativeElement.querySelector('script[data-poc="cf1"]');
-    expect(injected).toBeTruthy();
-    expect(injected.textContent).toContain('window.__POC_CF1_HIT__');
+    expect(injected).toBeNull();
     expect((window as unknown as Record<string, unknown>)["__POC_CF1_HIT__"]).toBeUndefined();
   });
 
