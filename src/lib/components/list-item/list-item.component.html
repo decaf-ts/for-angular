@@ -2,6 +2,8 @@
   <ion-item-sliding>
     <ion-item
       [id]="option ? value : uid"
+      [attr.title]="title"
+      [attr.data-description]="description"
       [lines]="lines"
       [button]="!operations?.length ? false : button"
       [class]="className"
@@ -53,7 +55,7 @@
             }
             @if (description) {
               <div
-                [id]="description?.textContent ?? description"
+                [id]="uid + '-description'"
                 class="dcf-description"
                 [innerHTML]="description"
               ></div>
@@ -83,10 +85,7 @@
                 operations?.includes(OperationKeys.UPDATE)) &&
               uid
             ) {
-              <div
-                class="dcf-visible@s"
-                id="dcf-actions"
-              >
+              <div class="dcf-visible@s dcf-actions">
                 @if (actionsType === 'popover') {
                   <ion-button
                     shape="round"
@@ -133,13 +132,13 @@
                                 <div slot="start">
                                   @if (operation === OperationKeys.UPDATE) {
                                     <ngx-decaf-icon
-                                      [button]="true"
+                                      [button]="false"
                                       slot="icon-only"
                                       name="ti-edit"
                                     />
                                   } @else {
                                     <ngx-decaf-icon
-                                      [button]="true"
+                                      [button]="false"
                                       slot="icon-only"
                                       color="danger"
                                       name="ti-trash"
@@ -170,7 +169,7 @@
                             (click)="handleAction($event, operation, component)"
                             fill="clear"
                             shape="round"
-                            [attr.aria-label]="
+                            [ariaLabel]="
                               locale + '.operations.' + operation | translate
                             "
                             [button]="true"
@@ -194,7 +193,7 @@
               </div>
             }
             @if (windowWidth > 639) {
-              <div id="end">
+              <div class="dcf-end">
                 <ng-content select="[slot='end']"></ng-content>
               </div>
             }
@@ -216,6 +215,7 @@
             class="dcf-update"
             (click)="handleAction($event, OperationKeys.UPDATE, component)"
             [expandable]="operations.length === 1"
+            [attr.aria-label]="locale + '.operations.update' | translate"
           >
             <ngx-decaf-icon
               slot="icon-only"
@@ -228,6 +228,7 @@
             class="dcf-delete"
             (click)="handleAction($event, OperationKeys.DELETE, component)"
             [expandable]="operations.length === 1"
+            [attr.aria-label]="locale + '.operations.delete' | translate"
           >
             <ngx-decaf-icon
               slot="icon-only"

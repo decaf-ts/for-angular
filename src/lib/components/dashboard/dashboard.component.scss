@@ -85,6 +85,23 @@
   border-color: var(--dcf-primary, #5b8def);
 }
 
+.ngx-dashboard__tile:focus-visible {
+  outline: 2px solid var(--dcf-color-primary);
+  outline-offset: 2px;
+}
+
+.dcf-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .ngx-dashboard__tile-label {
   font-size: 0.85rem;
   opacity: 0.75;

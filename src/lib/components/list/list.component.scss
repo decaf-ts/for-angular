@@ -15,7 +15,7 @@ ion-infinite-scroll {
   }
 }
 
-#end,
+.dcf-end,
 [slot="end"] {
   @media (max-width: 768px) {
     display: none !important;

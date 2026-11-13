@@ -12,6 +12,7 @@ import {
 import { ComponentEventNames } from '@decaf-ts/ui-decorators';
 import { PredefinedColors } from '@ionic/core';
 import { shareReplay } from 'rxjs';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IconComponent } from 'src/lib/components';
 import { RouteDirections } from 'src/lib/engine/constants';
 import { FunctionLike, StringOrBoolean } from 'src/lib/engine/types';
@@ -97,7 +98,7 @@ import { stringToBoolean, windowEventEmitter } from 'src/lib/utils/helpers';
   templateUrl: './back-button.component.html',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   styleUrls: ['./back-button.component.scss'],
-  imports: [IconComponent],
+  imports: [IconComponent, TranslatePipe],
   standalone: true,
 })
 export class BackButtonComponent implements OnInit {

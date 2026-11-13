@@ -161,10 +161,19 @@ export class I18nLoader implements TranslateLoader {
      * @param {KeyValue} source - The source object to merge from.
      * @returns {KeyValue} - The merged object.
      */
+    // blocks prototype-pollution keys from untrusted translation JSON
+    const isUnsafeKey = (key: string): boolean =>
+      key === "__proto__" || key === "constructor" || key === "prototype";
+
     function recursiveMerge(target: KeyValue, source: KeyValue): KeyValue {
       for (const key of Object.keys(source)) {
+        if (isUnsafeKey(key)) continue;
         if (source[key] instanceof Object) {
-          if (!target[key]) Object.assign(target, { [key]: {} });
+          if (
+            !Object.prototype.hasOwnProperty.call(target, key) ||
+            !(target[key] instanceof Object)
+          )
+            Object.assign(target, { [key]: {} });
           recursiveMerge(target[key], source[key]);
         } else {
           Object.assign(target, { [key]: source[key] });
@@ -179,6 +188,11 @@ export class I18nLoader implements TranslateLoader {
           ...libKeys,
           ...res.reduce((acc: KeyValue, current: KeyValue) => {
             for (const key in current) {
+              if (
+                !Object.prototype.hasOwnProperty.call(current, key) ||
+                isUnsafeKey(key)
+              )
+                continue;
               let value = current[key] || {};
               if (libKeys[key]) {
                 value = {

@@ -19,12 +19,12 @@
         class="dcf-pagination dcf-flex-center"
         [class.dcf-bookmark-pagination]="bookMarkPagination"
       >
-        <div
-          aria-label="previous"
-          tabindex="0"
+        <button
+          type="button"
+          [attr.aria-label]="locale + '.previous' | translate"
           [class]="disablePages ? 'dcf-nav dcf-nav-prev' : ''"
           (click)="previous()"
-          (keydown.enter)="previous()"
+          [disabled]="current === 1"
           [class.dcf-disabled]="current === 1"
           [class.dcf-hidden]="bookMarkPagination && nextBookmark === 'nil'"
         >
@@ -33,7 +33,7 @@
           @if (disablePages) {
             {{ locale + '.previous' | translate }}
           }
-        </div>
+        </button>
 
         @if (!disablePages) {
           @for (
@@ -42,26 +42,40 @@
               ? 'page-' + page['index']
               : 'sep-' + $index
           ) {
-            <div
-              tabindex="0"
-              [class]="page['class']"
-              (click)="navigate(page['index'])"
-              (keydown.enter)="navigate(page['index'])"
-              [class.dcf-active]="current === page['index']"
-            >
-              <span class="page-item">{{ page['text'] }}</span>
-            </div>
+            @if (page['index'] !== null) {
+              <button
+                type="button"
+                [class]="page['class']"
+                [attr.aria-label]="
+                  locale + '.page' | translate: { '0': page['index'] }
+                "
+                [attr.aria-current]="current === page['index'] ? 'page' : null"
+                (click)="navigate(page['index'])"
+                [class.dcf-active]="current === page['index']"
+              >
+                <span class="page-item">{{ page['text'] }}</span>
+              </button>
+            } @else {
+              <span
+                class="dcf-pagination-separator"
+                aria-hidden="true"
+              >
+                <span class="page-item">{{ page['text'] }}</span>
+              </span>
+            }
           }
         }
         @if (
           pages?.length > 1 || (bookMarkPagination && nextBookmark !== 'nil')
         ) {
-          <div
-            aria-label="next"
-            tabindex="0"
+          <button
+            type="button"
+            [attr.aria-label]="locale + '.next' | translate"
             [class]="disablePages ? 'dcf-nav dcf-nav-next' : ''"
             (click)="next()"
-            (keydown.enter)="next()"
+            [disabled]="
+              current === last || (bookMarkPagination && !nextBookmark?.length)
+            "
             [class.dcf-disabled]="
               current === last || (bookMarkPagination && !nextBookmark?.length)
             "
@@ -70,7 +84,7 @@
               {{ locale + '.next' | translate }}
             }
             <ngx-decaf-icon name="ti-chevron-right" />
-          </div>
+          </button>
         }
       </div>
     </div>

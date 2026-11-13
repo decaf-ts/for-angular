@@ -328,6 +328,60 @@ export class DashboardComponent extends NgxFormDirective implements OnInit {
   }
 
   /**
+   * @description Moves or resizes a placement with the keyboard (non-drag alternative).
+   * @summary Arrow keys move the focused tile by one cell; Shift+Arrow keys
+   * resize it by one cell. Targets outside the grid or colliding with another
+   * placement are rejected, matching the pointer gesture semantics.
+   * @param placement the focused placement.
+   * @param event the keyboard event.
+   * @memberOf DashboardComponent
+   */
+  onTileKeydown(placement: DashPlacement, event: KeyboardEvent): void {
+    if (!this.isEditing) return;
+    if (event.target !== event.currentTarget) return;
+    const deltas: Record<string, [number, number]> = {
+      ArrowUp: [0, -1],
+      ArrowDown: [0, 1],
+      ArrowLeft: [-1, 0],
+      ArrowRight: [1, 0],
+    };
+    const delta = deltas[event.key];
+    if (!delta) return;
+    event.preventDefault();
+    if (event.shiftKey) this.resizePlacement(placement, delta[0], delta[1]);
+    else this.movePlacement(placement, delta[0], delta[1]);
+  }
+
+  /**
+   * @description Moves a placement one cell, rejecting out-of-grid or colliding targets.
+   * @memberOf DashboardComponent
+   */
+  private movePlacement(placement: DashPlacement, dCol: number, dRow: number): void {
+    const col = Math.min(Math.max(placement.col + dCol, 1), this.cols - placement.cols + 1);
+    const row = Math.min(Math.max(placement.row + dRow, 1), this.rows - placement.rows + 1);
+    if (col === placement.col && row === placement.row) return;
+    if (!canPlace(placement, col, row, this.items, this.cols, this.rows)) return;
+    this.items = this.items.map((item) =>
+      item.id === placement.id ? { ...item, col, row } : item
+    );
+  }
+
+  /**
+   * @description Resizes a placement by one cell, clamped to the grid, rejecting collisions.
+   * @memberOf DashboardComponent
+   */
+  private resizePlacement(placement: DashPlacement, dCol: number, dRow: number): void {
+    const cols = Math.min(Math.max(placement.cols + dCol, 1), this.cols - placement.col + 1);
+    const rows = Math.min(Math.max(placement.rows + dRow, 1), this.rows - placement.row + 1);
+    if (cols === placement.cols && rows === placement.rows) return;
+    if (!canPlace({ ...placement, cols, rows }, placement.col, placement.row, this.items, this.cols, this.rows))
+      return;
+    this.items = this.items.map((item) =>
+      item.id === placement.id ? { ...item, cols, rows } : item
+    );
+  }
+
+  /**
    * @description Commits a snapped range onto a placement.
    * @memberOf DashboardComponent
    */

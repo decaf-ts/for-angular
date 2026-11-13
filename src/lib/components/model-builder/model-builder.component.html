@@ -1,4 +1,5 @@
 <div
+  #mainContainer
   class="model-builder"
   [class.model-builder--with-preview]="preview"
 >
@@ -7,15 +8,8 @@
     <div class="model-builder__header">
       <h2 class="model-builder__title">Model Builder</h2>
       <div class="model-builder__actions">
-        <ion-button
-          size="small"
-          fill="clear"
-          (click)="loadExample()"
-        >
-          <ngx-decaf-icon
-            slot="icon-only"
-            name="ti-bulb"
-          />
+        <ion-button size="small" fill="clear" (click)="loadExample()">
+          <ngx-decaf-icon slot="icon-only" name="ti-bulb" />
           Example
         </ion-button>
         <ion-button
@@ -25,10 +19,7 @@
           (click)="reset()"
           [disabled]="!hasProperties() && !modelConfig().name"
         >
-          <ngx-decaf-icon
-            slot="icon-only"
-            name="ti-trash"
-          />
+          <ngx-decaf-icon slot="icon-only" name="ti-trash" />
           Reset
         </ion-button>
       </div>
@@ -40,10 +31,7 @@
         <ion-item slot="header">
           <ion-label>Model Settings</ion-label>
         </ion-item>
-        <div
-          slot="content"
-          class="model-builder__section-content"
-        >
+        <div slot="content" class="model-builder__section-content">
           <div class="model-builder__grid-2 dcf-flex-bottom">
             <ion-item>
               <ion-label position="stacked">Model Name *</ion-label>
@@ -103,9 +91,8 @@
                   modelConfig.set({ ...modelConfig(), hasUilayout: $event })
                 "
                 labelPlacement="end"
+                >Uilayout</ion-checkbox
               >
-                Uilayout
-              </ion-checkbox>
             </ion-item>
           </div>
           @if (
@@ -168,10 +155,7 @@
           (click)="addProperty()"
           [disabled]="properties().length >= 30"
         >
-          <ngx-decaf-icon
-            slot="icon-only"
-            name="ti-plus"
-          />
+          <ngx-decaf-icon slot="icon-only" name="ti-plus" />
           Add Property
         </ion-button>
       </div>
@@ -206,16 +190,16 @@
                   />
                 </button>
                 <span class="model-builder__property-name">
-                  {{ prop.name || '(unnamed)' }}
+                  {{ prop.name || "(unnamed)" }}
                 </span>
                 @if (prop.primaryKey) {
-                  <span class="model-builder__primary-key">pk</span>
+                  <span class="model-builder__primary-key"> pk </span>
                 }
                 <span class="model-builder__property-type">
                   {{ prop.type }}
                 </span>
                 <div class="model-builder__property-actions">
-                   <ion-button
+                  <ion-button
                     size="small"
                     fill="clear"
                     (click)="moveProperty(i, -1)"
@@ -254,36 +238,8 @@
                 </div>
               </div>
 
-              <!-- Basic fields (always visible) -->
-
               <!-- Advanced fields (collapsible) -->
               @if (prop.expanded) {
-                <!-- <div class="model-builder__property-header dcf-flex-middle">
-                  <ion-button
-                    size="small"
-                    fill="clear"
-                    (click)="moveProperty(i, -1)"
-                    [disabled]="i === 0"
-                  >
-                    <ngx-decaf-icon
-                      slot="icon-only"
-                      name="ti-arrow-up"
-                      color="medium"
-                    />
-                  </ion-button>
-                  <ion-button
-                    size="small"
-                    fill="clear"
-                    (click)="moveProperty(i, 1)"
-                    [disabled]="i === properties().length - 1"
-                  >
-                    <ngx-decaf-icon
-                      slot="icon-only"
-                      name="ti-arrow-down"
-                      color="medium"
-                    />
-                  </ion-button>
-                </div> -->
                 <div class="model-builder__property-basic dcf-flex-middle">
                   <ion-item lines="none">
                     <ion-label position="stacked">Name</ion-label>
@@ -298,619 +254,717 @@
                     <ion-label position="stacked">Data Type</ion-label>
                     <ion-select
                       [ngModel]="prop.type"
-                      (ngModelChange)="
-                        properties()[i].type = $event;
-                        properties.set([...properties()])
-                      "
+                      (ngModelChange)="onPropertyTypeChange(i, $event)"
                       interface="popover"
                     >
-                      <ion-select-option value="string">
-                        String
-                      </ion-select-option>
-                      <ion-select-option value="number">
-                        Number
-                      </ion-select-option>
+                      <ion-select-option value="string"
+                        >String</ion-select-option
+                      >
+                      <ion-select-option value="number"
+                        >Number</ion-select-option
+                      >
                       <ion-select-option value="date">Date</ion-select-option>
                       <ion-select-option value="boolean">
                         Boolean
                       </ion-select-option>
+                      <ion-select-option value="model">
+                        Model
+                      </ion-select-option>
                     </ion-select>
                   </ion-item>
-
-                  <ion-checkbox
-                    class="pk-checkbox"
-                    color="tertiary"
-                    justify="end"
-                    [ngModel]="prop.primaryKey"
-                    (ngModelChange)="
-                      properties()[i].primaryKey = $event;
-                      deselectPrimaryKeys(i);
-                      properties.set([...properties()])
-                    "
-                  >
-                    Primary Key
-                  </ion-checkbox>
-                </div>
-                <div
-                  class="model-builder__property-basic dcf-flex-middle uielement"
-                  [hidden]="blacklist.includes(blackListItems.UIELEMENT)"
-                >
-                  <ion-checkbox
-                    [ngModel]="prop.ui.uielement"
-                    (ngModelChange)="
-                      properties()[i].ui.uielement = $event;
-                      properties.set([...properties()]);
-                      properties()[i].layout.hideOn = []
-                    "
-                    labelPlacement="end"
-                  >
-                    Uielement
-                  </ion-checkbox>
-
-                  @if (prop.ui.uielement) {
+                  @if (prop.type !== "model") {
+                    <ion-checkbox
+                      class="pk-checkbox"
+                      color="tertiary"
+                      justify="end"
+                      [ngModel]="prop.primaryKey"
+                      (ngModelChange)="
+                        properties()[i].primaryKey = $event;
+                        deselectPrimaryKeys(i);
+                        properties.set([...properties()])
+                      "
+                      >Primary Key</ion-checkbox
+                    >
+                  } @else {
                     <ion-item lines="none">
-                      <ion-label position="stacked">
-                        Component (uielement tag)
-                      </ion-label>
-                      <ion-select
-                        [ngModel]="prop.ui.tag"
-                        (ngModelChange)="
-                          properties()[i].ui.tag = $event;
-                          properties.set([...properties()])
-                        "
-                        interface="popover"
-                      >
-                        @for (tag of componentTags; track tag.value) {
-                          <ion-select-option [value]="tag.value">
-                            {{ tag.label }}
-                          </ion-select-option>
-                        }
-                      </ion-select>
-                    </ion-item>
-                  }
-                </div>
-                <div
-                  class="model-builder__property-advanced"
-                  [hidden]="blacklist.includes(blackListItems.UIELEMENT)"
-                >
-                  <!-- UI Element Configuration -->
-                  @if (prop.ui.uielement) {
-                    <div class="model-builder__group">
-                      <h4 class="model-builder__group-title">UI Element</h4>
-                      <div class="model-builder__grid-3">
-                        @if (prop.ui.tag === 'custom') {
-                          <ion-item>
-                            <ion-label position="stacked">Custom Tag</ion-label>
-                            <ion-input
-                              [ngModel]="prop.ui.customTag"
-                              (ngModelChange)="
-                                properties()[i].ui.customTag = $event;
-                                properties.set([...properties()])
-                              "
-                              placeholder="my-custom-component"
-                            ></ion-input>
-                          </ion-item>
-                        }
-                        <ion-item>
-                          <ion-label position="stacked">Label</ion-label>
-                          <ion-input
-                            [ngModel]="prop.ui.label"
-                            (ngModelChange)="
-                              properties()[i].ui.label = $event;
-                              properties.set([...properties()])
-                            "
-                            placeholder="Display label"
-                          ></ion-input>
-                        </ion-item>
-
-                        <ion-item>
-                          <ion-label position="stacked">Placeholder</ion-label>
-                          <ion-input
-                            [ngModel]="prop.ui.placeholder"
-                            (ngModelChange)="
-                              properties()[i].ui.placeholder = $event;
-                              properties.set([...properties()])
-                            "
-                            placeholder="Enter value..."
-                          ></ion-input>
-                        </ion-item>
-
-                        <ion-item>
-                          <ion-label position="stacked">Input Type</ion-label>
-                          <ion-select
-                            [ngModel]="prop.ui.type"
-                            (ngModelChange)="
-                              properties()[i].ui.type = $event;
-                              properties.set([...properties()])
-                            "
-                            interface="popover"
-                          >
-                            @for (t of inputTypes; track t) {
-                              <ion-select-option [value]="t">
-                                {{ t }}
-                              </ion-select-option>
-                            }
-                          </ion-select>
-                        </ion-item>
-
-                        <ion-item
-                          lines="none"
-                          class="model-builder__checkbox-item"
-                        >
-                          <ion-checkbox
-                            [ngModel]="prop.ui.readonly"
-                            (ngModelChange)="
-                              properties()[i].ui.readonly = $event;
-                              properties.set([...properties()])
-                            "
-                          ></ion-checkbox>
-                          <ion-label class="model-builder__checkbox-label">
-                            Readonly
-                          </ion-label>
-                        </ion-item>
-
-                        <ion-item
-                          lines="none"
-                          class="model-builder__checkbox-item"
-                        >
-                          <ion-checkbox
-                            [ngModel]="prop.ui.translatable"
-                            (ngModelChange)="
-                              properties()[i].ui.translatable = $event;
-                              properties.set([...properties()])
-                            "
-                          ></ion-checkbox>
-                          <ion-label class="model-builder__checkbox-label">
-                            Translatable
-                          </ion-label>
-                        </ion-item>
-                      </div>
-
-                      @if (
-                        prop.ui.type === 'select' || prop.ui.type === 'radio'
-                      ) {
-                        <ion-item>
-                          <ion-label position="stacked">
-                            Options (value:label, value:label, ...)
-                          </ion-label>
-                          <ion-textarea
-                            [ngModel]="prop.ui.options"
-                            (ngModelChange)="
-                              properties()[i].ui.options = $event;
-                              properties.set([...properties()])
-                            "
-                            placeholder="admin:Administrator, user:Regular User"
-                            [rows]="2"
-                          ></ion-textarea>
-                        </ion-item>
-                      }
-                    </div>
-                  }
-                </div>
-
-                <div
-                  class="model-builder__property-basic dcf-flex-middle"
-                  [hidden]="blacklist.includes(blackListItems.UILISTPROP)"
-                >
-                  <ion-checkbox
-                    (ionChange)="toggleUilistprop(i, $event)"
-                    [checked]="prop.ui.uilistprop"
-                    labelPlacement="end"
-                  >
-                    Uilistprop
-                  </ion-checkbox>
-
-                  @if (prop.ui.uilistprop) {
-                    <ion-item lines="none">
-                      <ion-label
-                        position="stacked"
-                        placeholder="Enter list component name"
-                      >
-                        List component name
-                      </ion-label>
+                      <ion-label position="stacked">uiChild tag</ion-label>
                       <ion-input
-                        [ngModel]="prop.ui.uilistprop.name"
+                        [ngModel]="prop.uiChild?.tag"
                         (ngModelChange)="
-                          properties()[i].ui.uilistprop.name = $event;
+                          properties()[i].uiChild.tag = $event;
                           properties.set([...properties()])
                         "
+                        placeholder="Enter uiChild tag"
                       ></ion-input>
                     </ion-item>
+                  }
+                </div>
+                @if (prop.type === "model") {
+                  <div class="model-builder__property-basic dcf-flex-middle">
+                    <ion-checkbox
+                      [ngModel]="prop.uiChild.isArray"
+                      (ngModelChange)="
+                        properties()[i].uiChild.isArray = $event;
+                        properties.set([...properties()])
+                      "
+                      labelPlacement="end"
+                      >IsArray
+                    </ion-checkbox>
+
+                    <ion-checkbox
+                      [ngModel]="prop.uiChild.serialize"
+                      (ngModelChange)="
+                        properties()[i].uiChild.serialize = $event;
+                        properties.set([...properties()])
+                      "
+                      labelPlacement="end"
+                      >Serialize
+                    </ion-checkbox>
+
                     <ion-item lines="none">
                       <ion-button
                         fill="clear"
-                        (click)="toggleUilistpropExpanded(i)"
+                        (click)="
+                          properties()[i].uiChild.uilistpropExpanded =
+                            !prop.uiChild.uilistpropExpanded;
+                          properties.set([...properties()])
+                        "
                       >
-                        <span>Uilist Properties</span>
+                        <span>Uichild Properties</span>
                         <ion-icon
                           [name]="
-                            prop.ui.uilistpropExpanded
+                            prop.uiChild.uilistpropExpanded
                               ? 'chevron-down-outline'
                               : 'chevron-forward-outline'
                           "
                         ></ion-icon>
                       </ion-button>
                     </ion-item>
-                  }
-                </div>
-                @if (prop.ui.uilistpropExpanded) {
-                  <div
-                    class="model-builder__property-advanced uilistprop__property-advanced dcf-margin-bottom"
-                    [hidden]="blacklist.includes(blackListItems.UILISTPROP)"
-                  >
-                    <div class="model-builder__group">
-                      <h4 class="model-builder__group-title">Uilistprop</h4>
-
-                      <app-add-properties
-                        [inputObject]="properties()[i].ui.uilistprop?.props"
-                        classNames="model-builder__grid-3 dcf-margin-bottom"
-                        (objectBuild)="updateuilistProperties(i, $event)"
-                      ></app-add-properties>
-
-                      <!-- @for (
-                        key of objectKeys(properties()[i].ui.uilistprop?.props);
-                        track key + $index
-                      ) {
-                        <div
-                          class="model-builder__grid-3 dcf-margin-bottom dcf-flex"
-                        >
-                          <ion-item lines="none">
-                            <ion-label position="stacked">Prop name</ion-label>
-                            <ion-input
-                              #inputlistpropName
-                              placeholder="uilistprop property name"
-                              [value]="key"
-                            ></ion-input>
-                          </ion-item>
-                          <ion-item lines="none">
-                            <ion-label position="stacked">Prop value</ion-label>
-                            <ion-input
-                              #inputlistpropValue
-                              placeholder="uilistprop property value"
-                              [value]="
-                                properties()[i].ui.uilistprop?.props[key]
-                              "
-                            ></ion-input>
-                          </ion-item>
-                          <ion-item lines="none" class="action-buttons">
-                            <ion-button
-                              fill="clear"
-                              (click)="
-                                modifyProperty(
-                                  properties()[i].ui.uilistprop?.props,
-                                  inputlistpropName.value,
-                                  inputlistpropValue.value
-                                )
-                              "
-                            >
-                              <ion-icon
-                                color="success"
-                                name="checkmark-circle-outline"
-                              ></ion-icon>
-                            </ion-button>
-                            <ion-button
-                              fill="clear"
-                              (click)="deleteUilistProp(i, key)"
-                            >
-                              <ion-icon
-                                color="danger"
-                                name="remove-circle-outline"
-                              ></ion-icon>
-                            </ion-button>
-                          </ion-item>
-                        </div>
-                      }
-                      <div
-                        class="model-builder__grid-3 dcf-margin-bottom dcf-flex"
-                      >
-                        <ion-item lines="none">
-                          <ion-label position="stacked"
-                            >New Prop name</ion-label
-                          >
-                          <ion-input
-                            #newPropertyName
-                            placeholder="uilistprop property name"
-                          ></ion-input>
-                        </ion-item>
-                        <ion-item lines="none">
-                          <ion-label position="stacked"
-                            >New Prop value</ion-label
-                          >
-                          <ion-input
-                            #newPropertyValue
-                            placeholder="uilistprop property value"
-                          ></ion-input>
-                        </ion-item>
-                        @if (newPropertyName.value) {
-                          <ion-item lines="none" class="action-buttons">
-                            <ion-button
-                              fill="clear"
-                              (click)="
-                                constructProperty(
-                                  properties()[i].ui.uilistprop?.props,
-                                  newPropertyName.value,
-                                  newPropertyValue.value
-                                );
-                                newPropertyName.value = undefined;
-                                newPropertyValue.value = undefined
-                              "
-                            >
-                              <ion-icon
-                                color="success"
-                                name="checkmark-circle-outline"
-                              ></ion-icon>
-                            </ion-button>
-                            <ion-button fill="clear">
-                              <ion-icon
-                                color="danger"
-                                name="remove-circle-outline"
-                              ></ion-icon>
-                            </ion-button>
-                          </ion-item>
-                        }
-                      </div> -->
-                    </div>
-                  </div>
-                }
-                <div
-                  class="model-builder__property-basic dcf-flex-bottom dcf-margin-bottom uilayoutprop__property-basic"
-                  [hidden]="blacklist.includes(blackListItems.UILAYOUTPROP)"
-                >
-                  <div class="dcf-flex dcf-flex-middle ion-checkbox-container">
-                    <ion-checkbox
-                      (ionChange)="toggleUilayoutprop(i, $event)"
-                      [checked]="prop.ui.uilayoutprop"
-                      labelPlacement="end"
-                    >
-                      Uilayoutprop
-                    </ion-checkbox>
                   </div>
 
-                  @if (prop.ui.uilayoutprop) {
-                    <ion-item lines="none">
-                      <ion-label position="stacked">
-                        Column Span (uilayoutprop)
-                      </ion-label>
-                      <ion-select
-                        [ngModel]="prop.ui.uilayoutprop?.props.col"
-                        (ngModelChange)="
-                          properties()[i].ui.uilayoutprop?.props.col = $event;
-                          properties.set([...properties()])
-                        "
-                        interface="popover"
-                      >
-                        <ion-select-option [value]="1">1</ion-select-option>
-                        <ion-select-option [value]="2">2</ion-select-option>
-                        <ion-select-option value="half">half</ion-select-option>
-                        <ion-select-option value="full">full</ion-select-option>
-                      </ion-select>
-                    </ion-item>
-
-                    <ion-item lines="none">
-                      <ion-label position="stacked">Row</ion-label>
-                      <ion-input
-                        type="number"
-                        [ngModel]="prop.ui.uilayoutprop?.props.row"
-                        (ngModelChange)="
-                          properties()[i].ui.uilayoutprop?.props.row =
-                            +$event || 1;
-                          properties.set([...properties()])
-                        "
-                      ></ion-input>
-                    </ion-item>
-                  }
-                </div>
-
-                <div class="model-builder__property-advanced">
-                  <!-- Layout Configuration -->
-                  <div class="model-builder__group">
-                    <h4 class="model-builder__group-title">Layout</h4>
+                  @if (prop.uiChild.uilistpropExpanded) {
                     <div
-                      class="model-builder__grid-2"
-                      [hidden]="blacklist.includes(blackListItems.UIORDER)"
+                      class="model-builder__property-advanced uilistprop__property-advanced dcf-margin-bottom"
+                      [hidden]="blacklist.includes(blackListItems.UILISTPROP)"
                     >
+                      <div class="model-builder__group"></div>
+
+                      <ngx-add-properties
+                        [inputObject]="properties()[i].uiChild?.props"
+                        classNames="model-builder__grid-3 dcf-margin-bottom"
+                        (objectBuild)="updateuiChildProperties(i, $event)"
+                        [readonlyProperties]="['name', 'multiple']"
+                      ></ngx-add-properties>
+                    </div>
+                  }
+
+                  <div
+                    class="dcf-padding-small"
+                    [hidden]="blacklist.includes(blackListItems.UICHILD)"
+                  >
+                    <ngx-decaf-model-builder
+                      [inputModelConstructor]="prop.uiChild?.constructorFN"
+                      flavour="ram"
+                      (modelBuild)="updatedChild(i, $event)"
+                      [preview]="false"
+                      (childErrors)="setInnerBuildErrors($event)"
+                    ></ngx-decaf-model-builder>
+                  </div>
+                } @else {
+                  <div
+                    class="model-builder__property-basic dcf-flex-middle uielement"
+                    [hidden]="blacklist.includes(blackListItems.UIELEMENT)"
+                  >
+                    <ion-checkbox
+                      [ngModel]="prop.ui.uielement"
+                      (ngModelChange)="
+                        properties()[i].ui.uielement = $event;
+                        properties.set([...properties()]);
+                        properties()[i].layout.hideOn = []
+                      "
+                      labelPlacement="end"
+                      >Uielement
+                    </ion-checkbox>
+
+                    @if (prop.ui.uielement) {
                       <ion-item lines="none">
                         <ion-label position="stacked">
-                          Order (uiorder)
+                          Component (uielement tag)
                         </ion-label>
                         <ion-select
-                          [ngModel]="prop.layout.order"
+                          [ngModel]="prop.ui.tag"
                           (ngModelChange)="
-                            properties()[i].layout.order = $event;
+                            properties()[i].ui.tag = $event;
                             properties.set([...properties()])
                           "
                           interface="popover"
                         >
-                          <ion-select-option value="">
-                            None (default)
+                          @for (tag of componentTags; track tag.value) {
+                            <ion-select-option [value]="tag.value">
+                              {{ tag.label }}
+                            </ion-select-option>
+                          }
+                        </ion-select>
+                      </ion-item>
+                    }
+                  </div>
+                  <div
+                    class="model-builder__property-advanced"
+                    [hidden]="blacklist.includes(blackListItems.UIELEMENT)"
+                  >
+                    <!-- UI Element Configuration -->
+                    @if (prop.ui.uielement) {
+                      <div class="model-builder__group">
+                        <h4 class="model-builder__group-title">UI Element</h4>
+                        <div class="model-builder__grid-3">
+                          @if (prop.ui.tag === "custom") {
+                            <ion-item>
+                              <ion-label position="stacked"
+                                >Custom Tag</ion-label
+                              >
+                              <ion-input
+                                [ngModel]="prop.ui.customTag"
+                                (ngModelChange)="
+                                  properties()[i].ui.customTag = $event;
+                                  properties.set([...properties()])
+                                "
+                                placeholder="my-custom-component"
+                              ></ion-input>
+                            </ion-item>
+                          }
+                          <ion-item>
+                            <ion-label position="stacked">Label</ion-label>
+                            <ion-input
+                              [ngModel]="prop.ui.label"
+                              (ngModelChange)="
+                                properties()[i].ui.label = $event;
+                                properties.set([...properties()])
+                              "
+                              placeholder="Display label"
+                            ></ion-input>
+                          </ion-item>
+
+                          <ion-item>
+                            <ion-label position="stacked"
+                              >Placeholder</ion-label
+                            >
+                            <ion-input
+                              [ngModel]="prop.ui.placeholder"
+                              (ngModelChange)="
+                                properties()[i].ui.placeholder = $event;
+                                properties.set([...properties()])
+                              "
+                              placeholder="Enter value..."
+                            ></ion-input>
+                          </ion-item>
+
+                          <ion-item>
+                            <ion-label position="stacked">Input Type</ion-label>
+                            <ion-select
+                              [ngModel]="prop.ui.type"
+                              (ngModelChange)="
+                                properties()[i].ui.type = $event;
+                                properties.set([...properties()])
+                              "
+                              interface="popover"
+                            >
+                              @for (t of inputTypes; track t) {
+                                <ion-select-option [value]="t">
+                                  {{ t }}
+                                </ion-select-option>
+                              }
+                            </ion-select>
+                          </ion-item>
+
+                          <ion-item
+                            lines="none"
+                            class="model-builder__checkbox-item"
+                          >
+                            <ion-checkbox
+                              [ngModel]="prop.ui.readonly"
+                              (ngModelChange)="
+                                properties()[i].ui.readonly = $event;
+                                properties.set([...properties()])
+                              "
+                            ></ion-checkbox>
+                            <ion-label class="model-builder__checkbox-label">
+                              Readonly
+                            </ion-label>
+                          </ion-item>
+
+                          <ion-item
+                            lines="none"
+                            class="model-builder__checkbox-item"
+                          >
+                            <ion-checkbox
+                              [ngModel]="prop.ui.translatable"
+                              (ngModelChange)="
+                                properties()[i].ui.translatable = $event;
+                                properties.set([...properties()])
+                              "
+                            ></ion-checkbox>
+                            <ion-label class="model-builder__checkbox-label">
+                              Translatable
+                            </ion-label>
+                          </ion-item>
+                        </div>
+
+                        @if (
+                          prop.ui.type === "select" || prop.ui.type === "radio"
+                        ) {
+                          <ion-item>
+                            <ion-label position="stacked">
+                              Options (value:label, value:label, ...)
+                            </ion-label>
+                            <ion-textarea
+                              [ngModel]="prop.ui.options"
+                              (ngModelChange)="
+                                properties()[i].ui.options = $event;
+                                properties.set([...properties()])
+                              "
+                              placeholder="admin:Administrator, user:Regular User"
+                              [rows]="2"
+                            ></ion-textarea>
+                          </ion-item>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <div
+                    class="model-builder__property-basic dcf-flex-middle"
+                    [hidden]="blacklist.includes(blackListItems.UILISTPROP)"
+                  >
+                    <ion-checkbox
+                      (ionChange)="toggleUilistprop(i, $event)"
+                      [checked]="prop.ui.uilistprop"
+                      labelPlacement="end"
+                      >Uilistprop
+                    </ion-checkbox>
+
+                    @if (prop.ui.uilistprop) {
+                      <ion-item lines="none">
+                        <ion-label position="stacked"
+                          >List component name</ion-label
+                        >
+                        <ion-input
+                          [ngModel]="prop.ui.uilistprop.name"
+                          (ngModelChange)="
+                            properties()[i].ui.uilistprop.name = $event;
+                            properties.set([...properties()])
+                          "
+                          placeholder="Enter list component name"
+                        ></ion-input>
+                      </ion-item>
+                      <ion-item lines="none">
+                        <ion-button
+                          fill="clear"
+                          (click)="toggleUilistpropExpanded(i)"
+                        >
+                          <span>Uilist Properties</span>
+                          <ion-icon
+                            [name]="
+                              prop.ui.uilistpropExpanded
+                                ? 'chevron-down-outline'
+                                : 'chevron-forward-outline'
+                            "
+                          ></ion-icon>
+                        </ion-button>
+                      </ion-item>
+                    }
+                  </div>
+                  @if (prop.ui.uilistpropExpanded) {
+                    <div
+                      class="model-builder__property-advanced uilistprop__property-advanced dcf-margin-bottom"
+                      [hidden]="blacklist.includes(blackListItems.UILISTPROP)"
+                    >
+                      <div class="model-builder__group">
+                        <h4 class="model-builder__group-title">Uilistprop</h4>
+
+                        <ngx-add-properties
+                          [inputObject]="properties()[i].ui.uilistprop?.props"
+                          classNames="model-builder__grid-3 dcf-margin-bottom"
+                          (objectBuild)="updateuilistProperties(i, $event)"
+                        ></ngx-add-properties>
+
+                        <!--This part is the part that is replaced with ngx-add-properties-->
+                        <!-- @for (
+                          key of objectKeys(
+                            properties()[i].ui.uilistprop?.props
+                          );
+                          track key + $index
+                        ) {
+                          <div
+                            class="model-builder__grid-3 dcf-margin-bottom dcf-flex"
+                          >
+                            <ion-item lines="none">
+                              <ion-label position="stacked"
+                                >Prop name</ion-label
+                              >
+                              <ion-input
+                                #inputlistpropName
+                                placeholder="uilistprop property name"
+                                [value]="key"
+                              ></ion-input>
+                            </ion-item>
+                            <ion-item lines="none">
+                              <ion-label position="stacked"
+                                >Prop value</ion-label
+                              >
+                              <ion-input
+                                #inputlistpropValue
+                                placeholder="uilistprop property value"
+                                [value]="
+                                  properties()[i].ui.uilistprop?.props[key]
+                                "
+                              ></ion-input>
+                            </ion-item>
+                            <ion-item lines="none" class="action-buttons">
+                              <ion-button
+                                fill="clear"
+                                (click)="
+                                  modifyProperty(
+                                    properties()[i].ui.uilistprop?.props,
+                                    inputlistpropName.value,
+                                    inputlistpropValue.value
+                                  )
+                                "
+                              >
+                                <ion-icon
+                                  color="success"
+                                  name="checkmark-circle-outline"
+                                ></ion-icon>
+                              </ion-button>
+                              <ion-button
+                                fill="clear"
+                                (click)="deleteUilistProp(i, key)"
+                              >
+                                <ion-icon
+                                  color="danger"
+                                  name="remove-circle-outline"
+                                ></ion-icon>
+                              </ion-button>
+                            </ion-item>
+                          </div>
+                        }
+                        <div
+                          class="model-builder__grid-3 dcf-margin-bottom dcf-flex"
+                        >
+                          <ion-item lines="none">
+                            <ion-label position="stacked"
+                              >New Prop name</ion-label
+                            >
+                            <ion-input
+                              #newPropertyName
+                              placeholder="uilistprop property name"
+                            ></ion-input>
+                          </ion-item>
+                          <ion-item lines="none">
+                            <ion-label position="stacked"
+                              >New Prop value</ion-label
+                            >
+                            <ion-input
+                              #newPropertyValue
+                              placeholder="uilistprop property value"
+                            ></ion-input>
+                          </ion-item>
+                          @if (newPropertyName.value) {
+                            <ion-item lines="none" class="action-buttons">
+                              <ion-button
+                                fill="clear"
+                                (click)="
+                                  constructProperty(
+                                    properties()[i].ui.uilistprop?.props,
+                                    newPropertyName.value,
+                                    newPropertyValue.value
+                                  );
+                                  newPropertyName.value = undefined;
+                                  newPropertyValue.value = undefined
+                                "
+                              >
+                                <ion-icon
+                                  color="success"
+                                  name="checkmark-circle-outline"
+                                ></ion-icon>
+                              </ion-button>
+                              <ion-button fill="clear">
+                                <ion-icon
+                                  color="danger"
+                                  name="remove-circle-outline"
+                                ></ion-icon>
+                              </ion-button>
+                            </ion-item>
+                          }
+                        </div> -->
+                      </div>
+                    </div>
+                  }
+                  <div
+                    class="model-builder__property-basic dcf-flex-bottom dcf-margin-bottom uilayoutprop__property-basic"
+                    [hidden]="blacklist.includes(blackListItems.UILAYOUTPROP)"
+                  >
+                    <div
+                      class="dcf-flex dcf-flex-middle ion-checkbox-container"
+                    >
+                      <ion-checkbox
+                        (ionChange)="toggleUilayoutprop(i, $event)"
+                        [checked]="prop.ui.uilayoutprop"
+                        labelPlacement="end"
+                        >Uilayoutprop
+                      </ion-checkbox>
+                    </div>
+
+                    @if (prop.ui.uilayoutprop) {
+                      <ion-item lines="none">
+                        <ion-label position="stacked">
+                          Column Span (uilayoutprop)
+                        </ion-label>
+                        <ion-select
+                          [ngModel]="prop.ui.uilayoutprop?.props.col"
+                          (ngModelChange)="
+                            properties()[i].ui.uilayoutprop?.props.col = $event;
+                            properties.set([...properties()])
+                          "
+                          interface="popover"
+                        >
+                          <ion-select-option [value]="1"> 1 </ion-select-option>
+                          <ion-select-option [value]="2">2</ion-select-option>
+                          <ion-select-option value="half">
+                            half
                           </ion-select-option>
-                          <ion-select-option value="first">
-                            first
-                          </ion-select-option>
-                          <ion-select-option value="last">
-                            last
+                          <ion-select-option value="full">
+                            full
                           </ion-select-option>
                         </ion-select>
                       </ion-item>
 
-                      @if (prop.layout.order === '') {
-                        <ion-item lines="none">
-                          <ion-label position="stacked">
-                            Custom Order Number
-                          </ion-label>
-                          <ion-input
-                            type="number"
-                            [ngModel]="prop.layout.orderNum"
-                            (ngModelChange)="
-                              properties()[i].layout.orderNum = $event
-                                ? +$event
-                                : null;
-                              properties.set([...properties()])
-                            "
-                            placeholder="e.g. 10"
-                          ></ion-input>
-                        </ion-item>
-                      }
-                    </div>
-                    @if (prop.ui.uielement) {
-                      <div
-                        class="model-builder__group-sub"
-                        [hidden]="blacklist.includes(blackListItems.HIDEON)"
-                      >
-                        <span class="model-builder__group-label">
-                          Hide On (hideOn):
-                        </span>
-                        <div class="model-builder__checkbox-row">
-                          @for (op of hideOnOps; track op) {
-                            <ion-item
-                              lines="none"
-                              class="model-builder__checkbox-item"
-                            >
-                              <ion-checkbox
-                                [checked]="prop.layout.hideOn.includes(op)"
-                                (ionChange)="toggleHideOn(i, op)"
-                              ></ion-checkbox>
-                              <ion-label class="model-builder__checkbox-label">
-                                {{ op }}
-                              </ion-label>
-                            </ion-item>
-                          }
-                        </div>
-                      </div>
+                      <ion-item lines="none">
+                        <ion-label position="stacked">Row</ion-label>
+                        <ion-input
+                          type="number"
+                          [ngModel]="prop.ui.uilayoutprop?.props.row"
+                          (ngModelChange)="
+                            properties()[i].ui.uilayoutprop?.props.row =
+                              +$event || 1;
+                            properties.set([...properties()])
+                          "
+                        ></ion-input>
+                      </ion-item>
                     }
                   </div>
 
-                  <!-- Validators -->
-                  <div class="model-builder__group">
-                    <h4 class="model-builder__group-title">Validators</h4>
-                    <div
-                      class="model-builder__checkbox-row dcf-margin-small-bottom"
-                    >
-                      <ion-item
-                        lines="none"
-                        class="model-builder__checkbox-item"
+                  <div class="model-builder__property-advanced">
+                    <!-- Layout Configuration -->
+                    <div class="model-builder__group">
+                      <h4 class="model-builder__group-title">Layout</h4>
+                      <div
+                        class="model-builder__grid-2"
+                        [hidden]="blacklist.includes(blackListItems.UIORDER)"
                       >
-                        <ion-checkbox
-                          [ngModel]="prop.validators.required"
-                          (ngModelChange)="
-                            properties()[i].validators.required = $event;
-                            properties.set([...properties()])
-                          "
-                        ></ion-checkbox>
-                        <ion-label class="model-builder__checkbox-label">
-                          Required
-                        </ion-label>
-                      </ion-item>
-
-                      @if (prop.type === 'string') {
-                        <ion-item
-                          lines="none"
-                          class="model-builder__checkbox-item"
-                        >
-                          <ion-checkbox
-                            [ngModel]="prop.validators.email"
+                        <ion-item lines="none">
+                          <ion-label position="stacked">
+                            Order (uiorder)
+                          </ion-label>
+                          <ion-select
+                            [ngModel]="prop.layout.order"
                             (ngModelChange)="
-                              properties()[i].validators.email = $event;
+                              properties()[i].layout.order = $event;
                               properties.set([...properties()])
                             "
-                          ></ion-checkbox>
-                          <ion-label class="model-builder__checkbox-label">
-                            Email
-                          </ion-label>
+                            interface="popover"
+                          >
+                            <ion-select-option value="">
+                              None (default)
+                            </ion-select-option>
+                            <ion-select-option value="first">
+                              first
+                            </ion-select-option>
+                            <ion-select-option value="last">
+                              last
+                            </ion-select-option>
+                          </ion-select>
                         </ion-item>
 
-                        <ion-item
-                          lines="none"
-                          class="model-builder__checkbox-item"
+                        @if (prop.layout.order === "") {
+                          <ion-item lines="none">
+                            <ion-label position="stacked">
+                              Custom Order Number
+                            </ion-label>
+                            <ion-input
+                              type="number"
+                              [ngModel]="prop.layout.orderNum"
+                              (ngModelChange)="
+                                properties()[i].layout.orderNum = $event
+                                  ? +$event
+                                  : null;
+                                properties.set([...properties()])
+                              "
+                              placeholder="e.g. 10"
+                            ></ion-input>
+                          </ion-item>
+                        }
+                      </div>
+                      @if (prop.ui.uielement) {
+                        <div
+                          class="model-builder__group-sub"
+                          [hidden]="blacklist.includes(blackListItems.HIDEON)"
                         >
-                          <ion-checkbox
-                            [ngModel]="prop.validators.url"
-                            (ngModelChange)="
-                              properties()[i].validators.url = $event;
-                              properties.set([...properties()])
-                            "
-                          ></ion-checkbox>
-                          <ion-label class="model-builder__checkbox-label">
-                            URL
-                          </ion-label>
-                        </ion-item>
+                          <span class="model-builder__group-label">
+                            Hide On (hideOn):
+                          </span>
+                          <div class="model-builder__checkbox-row">
+                            @for (op of hideOnOps; track op) {
+                              <ion-item
+                                lines="none"
+                                class="model-builder__checkbox-item"
+                              >
+                                <ion-checkbox
+                                  [checked]="prop.layout.hideOn.includes(op)"
+                                  (ionChange)="toggleHideOn(i, op)"
+                                ></ion-checkbox>
+                                <ion-label
+                                  class="model-builder__checkbox-label"
+                                >
+                                  {{ op }}
+                                </ion-label>
+                              </ion-item>
+                            }
+                          </div>
+                        </div>
                       }
                     </div>
 
-                    <div class="model-builder__grid-4">
-                      @if (prop.type === 'number') {
-                        <ion-item>
-                          <ion-label position="stacked">Min</ion-label>
-                          <ion-input
-                            type="number"
-                            [ngModel]="prop.validators.min"
+                    <!-- Validators -->
+                    <div class="model-builder__group">
+                      <h4 class="model-builder__group-title">Validators</h4>
+                      <div
+                        class="model-builder__checkbox-row dcf-margin-small-bottom"
+                      >
+                        <ion-item
+                          lines="none"
+                          class="model-builder__checkbox-item"
+                        >
+                          <ion-checkbox
+                            [ngModel]="prop.validators.required"
                             (ngModelChange)="
-                              properties()[i].validators.min = $event
-                                ? +$event
-                                : null;
+                              properties()[i].validators.required = $event;
                               properties.set([...properties()])
                             "
-                          ></ion-input>
-                        </ion-item>
-                        <ion-item>
-                          <ion-label position="stacked">Max</ion-label>
-                          <ion-input
-                            type="number"
-                            [ngModel]="prop.validators.max"
-                            (ngModelChange)="
-                              properties()[i].validators.max = $event
-                                ? +$event
-                                : null;
-                              properties.set([...properties()])
-                            "
-                          ></ion-input>
-                        </ion-item>
-                      }
-
-                      @if (prop.type === 'string') {
-                        <ion-item>
-                          <ion-label position="stacked">Min Length</ion-label>
-                          <ion-input
-                            type="number"
-                            [ngModel]="prop.validators.minlength"
-                            (ngModelChange)="
-                              properties()[i].validators.minlength = $event
-                                ? +$event
-                                : null;
-                              properties.set([...properties()])
-                            "
-                          ></ion-input>
-                        </ion-item>
-                        <ion-item>
-                          <ion-label position="stacked">Max Length</ion-label>
-                          <ion-input
-                            type="number"
-                            [ngModel]="prop.validators.maxlength"
-                            (ngModelChange)="
-                              properties()[i].validators.maxlength = $event
-                                ? +$event
-                                : null;
-                              properties.set([...properties()])
-                            "
-                          ></ion-input>
-                        </ion-item>
-                        <ion-item class="model-builder__item-wide">
-                          <ion-label position="stacked">
-                            Pattern (regex)
+                          ></ion-checkbox>
+                          <ion-label class="model-builder__checkbox-label">
+                            Required
                           </ion-label>
-                          <ion-input
-                            [ngModel]="prop.validators.pattern"
-                            (ngModelChange)="
-                              properties()[i].validators.pattern = $event;
-                              properties.set([...properties()])
-                            "
-                            placeholder="^[A-Z].*"
-                          ></ion-input>
                         </ion-item>
-                      }
+
+                        @if (prop.type === "string") {
+                          <ion-item
+                            lines="none"
+                            class="model-builder__checkbox-item"
+                          >
+                            <ion-checkbox
+                              [ngModel]="prop.validators.email"
+                              (ngModelChange)="
+                                properties()[i].validators.email = $event;
+                                properties.set([...properties()])
+                              "
+                            ></ion-checkbox>
+                            <ion-label class="model-builder__checkbox-label">
+                              Email
+                            </ion-label>
+                          </ion-item>
+
+                          <ion-item
+                            lines="none"
+                            class="model-builder__checkbox-item"
+                          >
+                            <ion-checkbox
+                              [ngModel]="prop.validators.url"
+                              (ngModelChange)="
+                                properties()[i].validators.url = $event;
+                                properties.set([...properties()])
+                              "
+                            ></ion-checkbox>
+                            <ion-label class="model-builder__checkbox-label">
+                              URL
+                            </ion-label>
+                          </ion-item>
+                        }
+                      </div>
+
+                      <div class="model-builder__grid-4">
+                        @if (prop.type === "number") {
+                          <ion-item>
+                            <ion-label position="stacked">Min</ion-label>
+                            <ion-input
+                              type="number"
+                              [ngModel]="prop.validators.min"
+                              (ngModelChange)="
+                                properties()[i].validators.min = $event
+                                  ? +$event
+                                  : null;
+                                properties.set([...properties()])
+                              "
+                            ></ion-input>
+                          </ion-item>
+                          <ion-item>
+                            <ion-label position="stacked">Max</ion-label>
+                            <ion-input
+                              type="number"
+                              [ngModel]="prop.validators.max"
+                              (ngModelChange)="
+                                properties()[i].validators.max = $event
+                                  ? +$event
+                                  : null;
+                                properties.set([...properties()])
+                              "
+                            ></ion-input>
+                          </ion-item>
+                        }
+
+                        @if (prop.type === "string") {
+                          <ion-item>
+                            <ion-label position="stacked">Min Length</ion-label>
+                            <ion-input
+                              type="number"
+                              [ngModel]="prop.validators.minlength"
+                              (ngModelChange)="
+                                properties()[i].validators.minlength = $event
+                                  ? +$event
+                                  : null;
+                                properties.set([...properties()])
+                              "
+                            ></ion-input>
+                          </ion-item>
+                          <ion-item>
+                            <ion-label position="stacked">Max Length</ion-label>
+                            <ion-input
+                              type="number"
+                              [ngModel]="prop.validators.maxlength"
+                              (ngModelChange)="
+                                properties()[i].validators.maxlength = $event
+                                  ? +$event
+                                  : null;
+                                properties.set([...properties()])
+                              "
+                            ></ion-input>
+                          </ion-item>
+                          <ion-item class="model-builder__item-wide">
+                            <ion-label position="stacked">
+                              Pattern (regex)
+                            </ion-label>
+                            <ion-input
+                              [ngModel]="prop.validators.pattern"
+                              (ngModelChange)="
+                                properties()[i].validators.pattern = $event;
+                                properties.set([...properties()])
+                              "
+                              placeholder="^[A-Z].*"
+                            ></ion-input>
+                          </ion-item>
+                        }
+                      </div>
                     </div>
                   </div>
-                </div>
+                }
               }
             </div>
           }
@@ -920,33 +974,35 @@
 
     <!-- Build Button -->
     <div class="model-builder__footer">
-      <ion-button
-        expand="block"
-        (click)="buildModel()"
-        [disabled]="!canBuild()"
-      >
-        <ngx-decaf-icon
-          slot="start"
-          name="ti-tool"
-        />
-        {{ canBuild() || !hasProperties() ? 'Build Model' : getErrors() }}
-      </ion-button>
+      @if (!isChildBuilder) {
+        <ion-button
+          expand="block"
+          (click)="buildModel()"
+          [disabled]="!canBuild()"
+        >
+          <ngx-decaf-icon slot="start" name="ti-tool" />
+          {{ canBuild() || !hasProperties() ? "Build Model" : getErrors() }}
+        </ion-button>
+      } @else {
+        <ion-toolbar class="dcf-text-center">
+          {{
+            canBuild() || !hasProperties()
+              ? "Model will be built automatically"
+              : getErrors()
+          }}</ion-toolbar
+        >
+      }
+
       @if (buildError()) {
         <div class="model-builder__error">
-          <ngx-decaf-icon
-            name="ti-alert-circle"
-            color="white"
-          />
+          <ngx-decaf-icon name="ti-alert-circle" color="white" />
           <span class="dcf-text-capitalize">{{ buildError() }}</span>
         </div>
       }
 
       @if (buildInfo() && !buildError()) {
         <div class="model-builder__success">
-          <ngx-decaf-icon
-            name="ti-circle-check"
-            slot="icon-only"
-          />
+          <ngx-decaf-icon name="ti-circle-check" slot="icon-only" />
           <span>{{ buildInfo() }}</span>
         </div>
       }

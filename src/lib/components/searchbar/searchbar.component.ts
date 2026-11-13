@@ -12,6 +12,7 @@ import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@a
 import { Model } from '@decaf-ts/decorator-validation';
 import { IonSearchbar } from '@ionic/angular/standalone';
 import { AutocompleteTypes, PredefinedColors } from '@ionic/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { getModelAndRepository } from '../../engine';
 import { NgxComponentDirective } from '../../engine/NgxComponentDirective';
 import { windowEventEmitter } from '../../utils/helpers';
@@ -34,7 +35,7 @@ import { windowEventEmitter } from '../../utils/helpers';
   templateUrl: './searchbar.component.html',
   styleUrls: ['./searchbar.component.scss'],
   standalone: true,
-  imports: [IonSearchbar],
+  imports: [IonSearchbar, TranslatePipe],
 })
 export class SearchbarComponent extends NgxComponentDirective implements OnInit {
   /**
@@ -169,6 +170,17 @@ export class SearchbarComponent extends NgxComponentDirective implements OnInit 
    */
   @Input()
   placeholder: string = 'Search';
+
+  /**
+   * @description Accessible name for the search input.
+   * @summary Forwarded to the searchbar as `aria-label`. Placeholders are a weak
+   * accessible name (WCAG 3.3.2), so consumers should set this for screen-reader users.
+   * @type {string | undefined}
+   * @default undefined
+   * @memberOf SearchbarComponent
+   */
+  @Input()
+  ariaLabel: string | undefined;
 
   /**
    * @description The icon to use for the search button.

@@ -1,9 +1,22 @@
 name: "Publish on Release"
 
-# Triggered by the GitHub Release created in release-on-tag.yaml. Thin caller of
-# decaf-ts/reusable-actions/.github/workflows/publish-on-release.yaml
-# (build, test, publish to npm). Boots integration-test infra via
-# 'npm run prepare-it-tests' before testing.
+# Triggered by the GitHub Release created in release-on-tag.yaml (or a manual
+# dispatch). Thin caller of
+# decaf-ts/reusable-actions/.github/workflows/publish-on-release.yaml, which
+# builds, tests, generates docs, and runs the ACTUAL `npm publish`.
+#
+# !! DO NOT RENAME THIS FILE !!
+# npm trusted publishing (OIDC) validates the CALLING workflow's filename, not
+# the reusable workflow's. Every decaf-ts package is configured on npm as
+# repository=decaf-ts/<this repo>, workflow=publish-on-release.yaml. Keeping
+# this caller named publish-on-release.yaml is what keeps the trusted publisher
+# working without reconfiguring npm. Do not move `npm publish` into another
+# workflow (release-on-tag / release-on-merge-pr), or the calling workflow name
+# changes and every package's trusted publisher fails.
+#
+# `id-token: write` is required by npm trusted publishing and must be granted by
+# BOTH this caller and the reusable workflow. `pages: write`/`id-token: write`
+# also let the reusable workflow's `pages` job deploy the docs.
 
 on:
   release:
@@ -11,7 +24,13 @@ on:
       - published
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: read
+  id-token: write
+  pages: write
+
 jobs:
-  build:
+  publish:
     uses: decaf-ts/reusable-actions/.github/workflows/publish-on-release.yaml@master
     secrets: inherit

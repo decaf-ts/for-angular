@@ -13,12 +13,11 @@
 
     .model-builder__panel {
       flex: 1;
-      max-width: 55%;
+      min-width: 55%;
     }
 
     .model-builder__preview {
       flex: 1;
-      max-width: 45%;
     }
   }
 
@@ -175,7 +174,7 @@
     border-radius: 4px;
   }
 
-    &__primary-key {
+  &__primary-key {
     font-size: 0.6875rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -345,6 +344,12 @@
 
   &__footer {
     margin-top: 1rem;
+
+    ion-toolbar {
+      --background: var(--ion-color-light, #f4f5f8);
+      border-radius: 6px;
+      border: 1px solid grey;
+    }
   }
 
   &__error,

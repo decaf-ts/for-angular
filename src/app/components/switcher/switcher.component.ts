@@ -48,6 +48,22 @@ export class AppSwitcherComponent extends NgxParentComponentDirective implements
 
   override activeIndex: number = 0;
 
+  handleTabKeydown(event: KeyboardEvent, index: number): void {
+    let target = index;
+    if (event.key === 'ArrowRight') target = (index + 1) % this.items.length;
+    else if (event.key === 'ArrowLeft') target = (index - 1 + this.items.length) % this.items.length;
+    else if (event.key === 'Home') target = 0;
+    else if (event.key === 'End') target = this.items.length - 1;
+    else if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (this.type === 'switcher') void this.getActivePage(index, false);
+      else void this.navigate(index);
+      return;
+    } else return;
+    event.preventDefault();
+    (event.currentTarget as HTMLElement).closest('ul')?.querySelectorAll<HTMLElement>('[role="tab"]')[target]?.focus();
+  }
+
   constructor() {
     super('SwitcherComponent');
   }

@@ -10,15 +10,12 @@
             position === 'left' ? 'dcf-width-auto@xl uk-width-1-1 left' : 'dcf-width-1-1 top'
           "
         >
-          <ul [class]="'dcf-switcher dcf-switcher-' + mode + ' dcf-switcher-' + position">
+          <ul role="tablist" [class]="'dcf-switcher dcf-switcher-' + mode + ' dcf-switcher-' + position">
             <li
-              (keyup.enter)="type === 'switcher' ? getActivePage($index) : navigate($index)"
-              tabindex="0"
               *ngFor="let item of items; let $index = index"
               [class.dcf-active]="activeIndex === $index"
-              (click)="type === 'switcher' ? getActivePage($index, false) : navigate($index)"
             >
-              <a>
+              <button type="button" role="tab" [attr.aria-selected]="activeIndex === $index ? 'true' : null" [attr.tabindex]="activeIndex === $index ? 0 : -1" (keydown.arrowright)="handleTabKeydown($event, $index)" (keydown.arrowleft)="handleTabKeydown($event, $index)" (keydown.home)="handleTabKeydown($event, $index)" (keydown.end)="handleTabKeydown($event, $index)" (keydown.space)="handleTabKeydown($event, $index)" (keydown.enter)="handleTabKeydown($event, $index)" (click)="type === 'switcher' ? getActivePage($index, false) : navigate($index)">
                 @if (item.icon) {
                   <ngx-decaf-icon
                     [color]="activeIndex === $index ? 'light' : 'dark'"
@@ -26,7 +23,7 @@
                   ></ngx-decaf-icon>
                 }
                 {{ item.title | translate }}
-              </a>
+              </button>
             </li>
           </ul>
         </div>

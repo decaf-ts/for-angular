@@ -1,0 +1,84 @@
+@for (key of objectKeys(); track key + $index) {
+  <div [class]="classNames + ' dcf-flex dcf-flex-bottom'">
+    <ion-item lines="none">
+      <ion-label position="stacked">Prop name</ion-label>
+      <ion-input
+        #inputlistpropName
+        placeholder="property name"
+        [value]="key"
+        [readonly]="readonlyProperties.includes(key)"
+      ></ion-input>
+    </ion-item>
+    <ion-item lines="none">
+      <ion-label position="stacked">Prop value</ion-label>
+      <ion-input
+        #inputlistpropValue
+        placeholder="property value"
+        [value]="builtObject[key]"
+        [readonly]="readonlyProperties.includes(key)"
+      ></ion-input>
+    </ion-item>
+    <ion-item
+      lines="none"
+      class="action-buttons dcf-flex dcf-flex-middle"
+      style="height: 100%"
+    >
+      <ion-button
+        fill="clear"
+        (click)="
+          modifyProperty(
+            $index,
+            inputlistpropName.value,
+            inputlistpropValue.value
+          )
+        "
+        [disabled]="readonlyProperties.includes(key)"
+      >
+        <ion-icon
+          slot="end"
+          color="success"
+          name="checkmark-circle-outline"
+        ></ion-icon>
+      </ion-button>
+      <ion-button
+        fill="clear"
+        (click)="deleteProperty(key)"
+        [disabled]="readonlyProperties.includes(key)"
+      >
+        <ion-icon
+          slot="end"
+          color="danger"
+          name="remove-circle-outline"
+        ></ion-icon>
+      </ion-button>
+    </ion-item>
+  </div>
+}
+<div [class]="classNames + ' dcf-flex'">
+  <ion-item lines="none">
+    <ion-label position="stacked">New Prop name</ion-label>
+    <ion-input
+      #newPropertyName
+      placeholder="property name"
+      [(ngModel)]="newKey"
+    ></ion-input>
+  </ion-item>
+  <ion-item lines="none">
+    <ion-label position="stacked">New Prop value</ion-label>
+    <ion-input
+      #newPropertyValue
+      placeholder="property value"
+      [(ngModel)]="newValue"
+    ></ion-input>
+  </ion-item>
+  @if (newPropertyName.value) {
+    <ion-item lines="none" class="action-buttons">
+      <ion-button slot="end" fill="clear" (click)="buildObject()">
+        <ion-icon color="success" name="checkmark-circle-outline"></ion-icon>
+      </ion-button>
+      <ion-button slot="end" fill="clear">
+        <ion-icon color="danger" name="remove-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+  }
+</div>

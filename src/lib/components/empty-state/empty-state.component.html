@@ -1,7 +1,8 @@
 <div class="decaf-empty-state-component" #component>
   <ngx-decaf-card [className]="className" [borders]="borders" [body]="body">
     @if (refreshing) {
-      <div class="dcf-spinner-container">
+      <div class="dcf-spinner-container" role="status" aria-busy="true">
+        <span class="dcf-sr-only">{{ 'component.loading' | translate }}</span>
         <ion-spinner color="primary" name="circular" />
       </div>
     } @else {
@@ -19,10 +20,17 @@
         <h4 class="dcf-ititle" [class]="isDarkMode ? 'light' : titleColor" [innerHTML]="title"></h4>
       }
       @if (subtitle) {
-        <p
-          [class]="isDarkMode ? 'light' : subtitleColor"
-          [innerHTML]="searchValue ? searchSubtitle : subtitle"
-        ></p>
+        @if (searchValue) {
+          <p
+            [class]="isDarkMode ? 'light' : subtitleColor"
+            [innerHTML]="searchSubtitle | safeHtml"
+          ></p>
+        } @else {
+          <p
+            [class]="isDarkMode ? 'light' : subtitleColor"
+            [innerHTML]="subtitle"
+          ></p>
+        }
       }
       @if (!enableCreationByModelRoute) {
         @if (buttonLink) {
