@@ -9,7 +9,7 @@ import {
 } from "@ionic/angular/standalone";
 
 @Component({
-  selector: "ngx-add-properties",
+  selector: "ngx-decaf-add-properties",
   templateUrl: "./add-properties.component.html",
   styleUrls: ["./add-properties.component.scss"],
   standalone: true,

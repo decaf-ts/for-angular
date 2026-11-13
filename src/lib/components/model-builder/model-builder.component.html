@@ -349,12 +349,12 @@
                     >
                       <div class="model-builder__group"></div>
 
-                      <ngx-add-properties
+                      <ngx-decaf-add-properties
                         [inputObject]="properties()[i].uiChild?.props"
                         classNames="model-builder__grid-3 dcf-margin-bottom"
                         (objectBuild)="updateuiChildProperties(i, $event)"
                         [readonlyProperties]="['name', 'multiple']"
-                      ></ngx-add-properties>
+                      ></ngx-decaf-add-properties>
                     </div>
                   }
 
@@ -580,13 +580,13 @@
                       <div class="model-builder__group">
                         <h4 class="model-builder__group-title">Uilistprop</h4>
 
-                        <ngx-add-properties
+                        <ngx-decaf-add-properties
                           [inputObject]="properties()[i].ui.uilistprop?.props"
                           classNames="model-builder__grid-3 dcf-margin-bottom"
                           (objectBuild)="updateuilistProperties(i, $event)"
-                        ></ngx-add-properties>
+                        ></ngx-decaf-add-properties>
 
-                        <!--This part is the part that is replaced with ngx-add-properties-->
+                        <!--This part is the part that is replaced with ngx-decaf-add-properties-->
                         <!-- @for (
                           key of objectKeys(
                             properties()[i].ui.uilistprop?.props

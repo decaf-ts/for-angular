@@ -48,7 +48,6 @@ import {
   IonTextarea,
   IonToolbar,
 } from "@ionic/angular/standalone";
-import { IconComponent, ModelRendererComponent } from "@decaf-ts/for-angular";
 import { AddPropertiesComponent } from "../add-properties/add-properties.component";
 import { addIcons } from "ionicons";
 import {
@@ -58,6 +57,8 @@ import {
   chevronDownOutline,
   folderOpen,
 } from "ionicons/icons";
+import { IconComponent } from "../icon/icon.component";
+import { ModelRendererComponent } from "../model-renderer/model-renderer.component";
 
 type PropType = "string" | "number" | "date" | "boolean" | "model";
 
@@ -170,7 +171,7 @@ interface UiLayoutPropLayout {
   col?: LayoutCol;
   row?: number;
 }
-type InnerModelErrors = { errors: string[]; modelName: string };
+interface InnerModelErrors { errors: string[]; modelName: string };
 
 const DEFAULT_UICHILD: Partial<UiChildConfig> = {
   tag: "ngx-decaf-fieldset",
@@ -423,7 +424,7 @@ export class ModelBuilderComponent {
   @Output() childErrors = new EventEmitter<InnerModelErrors>();
   blackListItems = ModelBuilderBlacklist;
   isChildBuilder = false;
-  buildDebounce!: NodeJS.Timeout;
+  buildDebounce!: any;
 
   private elementRef = inject(ElementRef);
 
