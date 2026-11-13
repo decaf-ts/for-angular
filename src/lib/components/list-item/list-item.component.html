@@ -45,6 +45,9 @@
               </ion-avatar>
             </div>
           }
+          <!-- rich-content channel (R2-5): title/description/info/subinfo may carry host HTML
+               (e.g. ew-frontend styled option labels); rendered through Angular's default
+               sanitizer — never safeHtml, never {{ }}. Locked by rich-content-channel.contract.spec.ts -->
           <div class="dcf-width-expand@s dcf-width-1-1 dcf-label">
             @if (title) {
               <ion-label class="dcf-item-title">

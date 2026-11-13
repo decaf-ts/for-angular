@@ -691,7 +691,6 @@ export class CrudFieldComponent extends NgxFormFieldDirective implements OnInit,
 
     if ([OperationKeys.READ, OperationKeys.DELETE].includes(this.operation)) {
       this.formGroup = undefined;
-      this.value = `${this.value ?? ''}`;
     } else {
       this.options = await this.getOptions();
       if (!this.formControl && this.formGroup instanceof FormGroup) {

@@ -16,6 +16,9 @@
             } @else {
               {{ label | translate }}
               <br />
+              <!-- rich-content channel (R2-5): value may carry host HTML (e.g. ew-frontend QR icon span);
+                   rendered through Angular's default sanitizer — never safeHtml, never {{ }}.
+                   Locked by rich-content-channel.contract.spec.ts -->
               @if (type !== 'checkbox') {
                 <ion-text
                   [class.dcf-empty]="!value?.length"

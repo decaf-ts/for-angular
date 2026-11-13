@@ -198,16 +198,26 @@ describe('EmptyStateComponent', () => {
     expect(p.nativeElement.innerHTML).not.toContain('<script>');
   });
 
-  const chars = [
+  // EXPECTED FAILURES: the '"' and "'" cases fail on purpose. THE FIX IS NOT HERE — it belongs in
+  // @decaf-ts/ui-decorators, src/ui/utils.ts: escapeHtml (and revertHtml, for the inverse) must
+  // escape/revert quotes ("&quot;", "&#39;") alongside "& < >". The shared implementation
+  // centralized in the R2-1/R2-2 remediation currently escapes only "& < >", so these assertions
+  // see the raw quote where the 5-char contract expects the entity. Quote escaping is not
+  // security-required for this text-content sink (quotes cannot break out of a text node); the
+  // red tests pin the full contract the old local escapeHtml honoured. Each failing test's NAME
+  // carries the pointer so the jest output itself says where to fix. See security-responses.md (R2-1).
+  const quoteFixNote =
+    ' [INTENTIONAL FAILURE — fix in ui-decorators: escapeHtml in decaf-ts/ui-decorators src/ui/utils.ts must escape &quot; and &#39;]';
+  const chars: Array<{ char: string; raw: string; escaped: string; note?: string }> = [
     { char: '&', raw: 'foo & bar', escaped: 'foo &amp; bar' },
     { char: '<', raw: 'foo < bar', escaped: 'foo &lt; bar' },
     { char: '>', raw: 'foo > bar', escaped: 'foo &gt; bar' },
-    { char: '"', raw: 'foo " bar', escaped: 'foo &quot; bar' },
-    { char: "'", raw: "foo ' bar", escaped: 'foo &#39; bar' },
+    { char: '"', raw: 'foo " bar', escaped: 'foo &quot; bar', note: quoteFixNote },
+    { char: "'", raw: "foo ' bar", escaped: 'foo &#39; bar', note: quoteFixNote },
   ];
 
   it.each(chars)(
-    'escaped characters shown literally: $char',
+    'escaped characters shown literally: $char$note',
     async ({ char, raw, escaped }) => {
       await firstValueFrom(translateService.use('en'));
       translateService.setTranslation('en', { 'Search: {0}': 'Search: {0}' }, true);
@@ -244,5 +254,44 @@ describe('EmptyStateComponent', () => {
     const p = fixture.debugElement.query(By.css('p'));
     expect(p).toBeTruthy();
     expect(p.nativeElement.textContent).toContain('a&amp;b');
+  });
+
+  it('regression: real list/table searching-branch shape — subtitle arrives pre-interpolated with the ESCAPED term (R2-1)', async () => {
+    await firstValueFrom(translateService.use('en'));
+    // Real production template (en.json component.list.search.subtitle): the list/table searching
+    // branches translate it upstream with escapeHtml(parseSearchValue()), so empty-state receives
+    // an already-interpolated sentence whose term was escaped upstream, plus the RAW searchValue.
+    const rawTerm = '<img src=x onerror=alert(1)>';
+    const template = 'You searched for: <ion-text class="display-block">{0}</ion-text>';
+    translateService.setTranslation('en', { [template]: template }, true);
+
+    component.searchValue = rawTerm;
+    component.subtitle = template.replace('{0}', '&lt;img src=x onerror=alert(1)&gt;');
+    await component.ngOnInit();
+    fixture.detectChanges();
+
+    const p = fixture.debugElement.query(By.css('p'));
+    expect(p).toBeTruthy();
+    expect(p.query(By.css('img'))).toBeNull();
+    expect(p.nativeElement.querySelector('[onerror]')).toBeNull();
+    expect(p.nativeElement.textContent).toContain(rawTerm);
+  });
+
+  it('regression: object searchValue (IFilterQuery) must not break initialization (R2-2)', async () => {
+    await firstValueFrom(translateService.use('en'));
+    const template = 'You searched for: <ion-text class="display-block">{0}</ion-text>';
+    translateService.setTranslation('en', { [template]: template }, true);
+
+    // The table URL-params path binds an object searchValue; init must resolve (previously a
+    // non-coercing escapeHtml threw TypeError inside awaited ngOnInit, breaking super.initialize()).
+    component.searchValue = {
+      query: [{ index: 'name', condition: 'eq', value: '<b>x</b>' }],
+    } as unknown as string;
+    component.subtitle = template.replace('{0}', 'name eq &lt;b&gt;x&lt;/b&gt;');
+    await expect(component.ngOnInit()).resolves.toBeUndefined();
+    fixture.detectChanges();
+
+    const p = fixture.debugElement.query(By.css('p'));
+    expect(p).toBeTruthy();
   });
 });

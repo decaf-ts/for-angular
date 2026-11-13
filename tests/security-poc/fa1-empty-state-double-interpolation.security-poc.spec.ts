@@ -38,10 +38,10 @@
 
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
 import { By } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
+import { escapeHtml } from "@decaf-ts/ui-decorators";
 import { NavController } from '@ionic/angular/standalone';
-import { firstValueFrom, Observable, of } from 'rxjs';
 import {
   TranslateLoader,
   TranslateModule,
@@ -50,9 +50,10 @@ import {
   TranslateService,
   Translation,
 } from '@ngx-translate/core';
+import { firstValueFrom, Observable, of } from 'rxjs';
+import { EmptyStateComponent } from '../../src/lib/components/empty-state/empty-state.component';
 import { ForAngularCommonModule } from '../../src/lib/for-angular-common.module';
 import { I18nParser } from '../../src/lib/i18n';
-import { EmptyStateComponent, escapeHtml } from '../../src/lib/components/empty-state/empty-state.component';
 import realEnTranslations from '../../src/lib/i18n/data/en.json';
 
 const navControllerMock = {

@@ -24,7 +24,7 @@ import { Condition, Observer, Paginator } from '@decaf-ts/core';
 import { OperationKeys } from '@decaf-ts/db-decorators';
 import { Constructor, Metadata } from '@decaf-ts/decoration';
 import { Model, Primitives } from '@decaf-ts/decorator-validation';
-import { ComponentEventNames, UIFunctionLike } from '@decaf-ts/ui-decorators';
+import { ComponentEventNames, escapeHtml, UIFunctionLike } from '@decaf-ts/ui-decorators';
 import type { InfiniteScrollCustomEvent, RefresherCustomEvent, SpinnerTypes } from '@ionic/angular/standalone';
 import {
   IonButton,
@@ -1530,11 +1530,15 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
   }
 
   parseSearchValue() {
-    if (typeof this.searchValue === Primitives.STRING) return this.searchValue || '';
+    // Result is HTML-escaped: it is interpolated into a translation containing markup
+    // that is rendered through the trusted safeHtml sink (empty-state search subtitle).
+    if (typeof this.searchValue === Primitives.STRING) return escapeHtml(this.searchValue);
     const searchValue = this.searchValue as IFilterQuery;
     if (searchValue?.query === undefined) return (this.searchValue = '');
-    return (searchValue?.query as IFilterQueryItem[])
-      .map((item) => `${item.index} ${item.condition} ${item.value}`)
-      .join(', ');
+    return escapeHtml(
+      (searchValue?.query as IFilterQueryItem[])
+        .map((item) => `${item.index} ${item.condition} ${item.value}`)
+        .join(', ')
+    );
   }
 }
