@@ -25,7 +25,7 @@
     "reset": "rm -rf * && git checkout . && git pull && npm run do-install",
     "prebuild": "npm run build:icons && node bin/lib-package-root.js copy",
     "postbuild": "node bin/lib-package-root.js clean",
-    "build": "npx rimraf .angular && npm run lint && ng build for-angular --configuration development && ng build for-angular-app --configuration development && npm run build:cli",
+    "build": "npx rimraf .angular && ng build for-angular --configuration development && ng build for-angular-app --configuration development && npm run build:cli",
     "build:prod": "npm run prebuild && npm run lint && ng build for-angular && npm run postbuild && ng build for-angular-app",
     "build:icons": "node scripts/build-tabler-sprites.mjs",
     "build:cli": "tsc --project tsconfig.cli.json --outDir dist/for-angular/cli",
