@@ -233,7 +233,7 @@ export class CalendarComponent {
    * jump to the edges of the week. Moving into another month also requests it.
    */
   onDayKeydown(event: KeyboardEvent, day: CalendarDay): void {
-    let offset: number | null = null;
+    let offset: number;
     switch (event.key) {
       case 'ArrowLeft':
         offset = -1;

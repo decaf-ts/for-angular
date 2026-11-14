@@ -900,10 +900,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    *
    * @memberOf ListComponent
    */
-  handleDelete(modelId: string | number, pk?: string): void {
-    if (!pk) {
-      pk = this.pk;
-    }
+  handleDelete(modelId: string | number, _pk?: string): void {
     this.items = [...(this.data?.filter(({ uid }: KeyValue) => this.resolveUid(uid) !== modelId) || [])];
     this.data = [...this.items];
     if (!this.data.length) {
@@ -1129,7 +1126,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       return this.getFromRequest(force, start, limit);
     }
     let data = [...(this.data || [])];
-    let request: KeyValue[] = [];
+    let request: KeyValue[];
 
     if (!this.data?.length || force || this.hasSearch) {
       try {
