@@ -134,47 +134,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/user-request/user-request.page').then( m => m.UserRequestPage)
   },
 
-  // EW
-  {
-    path: 'products',
-    loadComponent: () => import('./pages/products/products.page').then( m => m.ProductsPage)
-  },
-  {
-    path: 'products/:operation',
-    loadComponent: () => import('./pages/products/products.page').then( m => m.ProductsPage)
-  },
-  {
-    path: 'products/:operation/:modelId',
-    loadComponent: () => import('./pages/products/products.page').then( m => m.ProductsPage)
-  },
-  {
-    path: 'batches',
-    loadComponent: () => import('./pages/batches/batches.page').then( m => m.BatchesPage)
-  },
-  {
-    path: 'batches/:operation',
-    loadComponent: () => import('./pages/batches/batches.page').then( m => m.BatchesPage)
-  },
-   {
-    path: 'batches/:operation/:modelId',
-    loadComponent: () => import('./pages/batches/batches.page').then( m => m.BatchesPage)
-  },
-  {
-    path: 'leaflets',
-    loadComponent: () => import('./pages/leaflet/leaflet.page').then( m => m.LeafletPage)
-  },
-  {
-    path: 'leaflets/:operation',
-    loadComponent: () => import('./pages/leaflet/leaflet.page').then( m => m.LeafletPage)
-  },
-  {
-    path: 'leaflets/:operation/:modelId',
-    loadComponent: () => import('./pages/leaflet/leaflet.page').then( m => m.LeafletPage)
-  },
-  {
-    path: 'audit',
-    loadComponent: () => import('./pages/audit/audit.page').then( m => m.AuditPage)
-  },
   {
     path: 'account',
     loadComponent: () => import('./pages/account/account.page').then( m => m.AccountPage)
