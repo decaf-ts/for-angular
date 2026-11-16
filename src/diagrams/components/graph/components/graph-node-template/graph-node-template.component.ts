@@ -616,8 +616,9 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
   /**
    * Zoned connection port groups (SAA-836 M1/U1): manifest-declared zones group
    * the mastra agent family's connection handles into per-edge clusters
-   * (memory bottom-left, scorers top-right, embedding bottom-right,
-   * hooks/sandbox top-middle, tools/skill bottom-middle). Ports without a zone
+   * (memory bottom-left, scorers top-right, sub-agents top-left,
+   * hooks/sandbox top-middle, tools/skill bottom-middle; the memory node's
+   * embedding zone bottom-centre). Ports without a zone
    * keep the legacy full-width bottom strip.
    */
   connectionZoneGroups() {
@@ -644,6 +645,7 @@ export class GraphNodeTemplateComponent implements NgDiagramNodeTemplate<GraphDe
       sandbox: '#14b8a6',
       scorers: '#ec4899',
       embedding: '#6366f1',
+      subagents: '#84cc16',
     };
     return colors[category] ?? '#64748b';
   }

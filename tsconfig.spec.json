@@ -3,6 +3,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
+    // Specs import app/lib code through `src/...` paths; without a baseUrl the
+    // ts-jest type check cannot resolve them and the suites fail to load.
+    "baseUrl": ".",
     "module": "CommonJs",
     "types": ["jest", "node"],
     "esModuleInterop": true,

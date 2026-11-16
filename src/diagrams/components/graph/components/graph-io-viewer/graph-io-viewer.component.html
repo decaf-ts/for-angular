@@ -18,14 +18,16 @@
       }
 
       <nav class="graph-io__modes">
-        @for (option of ['json', 'table', 'raw']; track option) {
+        @for (option of modes; track option) {
           <button
             type="button"
             class="graph-io__mode"
             [class.graph-io__mode--active]="mode() === option"
+            [class.graph-io__mode--binary]="option === 'binary'"
+            [attr.data-mode]="option"
             (click)="setMode(option)"
           >
-            {{ option }}
+            {{ modeLabel(option) }}
           </button>
         }
       </nav>
@@ -40,6 +42,41 @@
         <pre class="graph-io__stack">{{ error()?.stack }}</pre>
       }
     </div>
+  } @else if (mode() === 'binary') {
+    @if (!binaries().length) {
+      <p class="graph-io__empty">No binary data.</p>
+    } @else {
+      <ul class="graph-io__files" aria-label="Files">
+        @for (file of binaries(); track file.id) {
+          <li class="graph-io__file">
+            <div class="graph-io__file-header">
+              <span class="graph-io__file-name" [title]="file.path">{{ file.fileName }}</span>
+              <span class="graph-io__file-meta">{{ file.mimeType }} · {{ file.size }}</span>
+              @if (binaryUrl(file, 'view'); as viewUrl) {
+                <a class="graph-io__file-action" [href]="viewUrl" target="_blank" rel="noopener noreferrer">View</a>
+              }
+              @if (binaryUrl(file, 'download'); as downloadUrl) {
+                <a class="graph-io__file-action" [href]="downloadUrl" [attr.download]="file.fileName">Download</a>
+              }
+            </div>
+            <span class="graph-io__file-path">{{ file.path || '(value)' }}</span>
+            @if (binaryUrl(file, 'view'); as previewUrl) {
+              @switch (file.preview) {
+                @case ('image') {
+                  <img class="graph-io__file-preview" [src]="previewUrl" [alt]="file.fileName" loading="lazy" />
+                }
+                @case ('audio') {
+                  <audio class="graph-io__file-preview" controls preload="none" [src]="previewUrl"></audio>
+                }
+                @case ('video') {
+                  <video class="graph-io__file-preview" controls preload="none" [src]="previewUrl"></video>
+                }
+              }
+            }
+          </li>
+        }
+      </ul>
+    }
   } @else if (!hasContents()) {
     <p class="graph-io__empty">No data.</p>
   } @else {
@@ -72,6 +109,12 @@
           Download full payload
         </button>
       </div>
+    }
+
+    @if (binaries().length && mode() !== 'binary') {
+      <button type="button" class="graph-io__files-hint" (click)="setMode('binary')">
+        {{ binaries().length }} {{ binaries().length === 1 ? 'file' : 'files' }} — open the binary tab
+      </button>
     }
 
     <div class="graph-io__body">
@@ -120,7 +163,7 @@
           <pre class="graph-io__raw">{{ rawText() }}</pre>
         }
         @default {
-          <pre class="graph-io__json">{{ rawText() }}</pre>
+          <pre class="graph-io__json">{{ jsonText() }}</pre>
         }
       }
     </div>

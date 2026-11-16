@@ -455,7 +455,28 @@
               <strong>{{ port.label }}</strong>
               <small>{{ port.property }} · {{ port.type || 'unknown' }}</small>
             </div>
-            <span>{{ workflowOutputValue(port.property) }}</span>
+            @if (workflowOutputBinaries(port.property); as files) {
+              @if (files.length) {
+                <ul class="graph-renderer__output-files" aria-label="Files">
+                  @for (file of files; track file.id) {
+                    <li class="graph-renderer__output-file">
+                      <span class="graph-renderer__output-file-name" [title]="file.mimeType + ' · ' + file.size">{{ file.fileName }}</span>
+                      @if (workflowOutputBinaryUrl(file, 'view'); as viewUrl) {
+                        <a [href]="viewUrl" target="_blank" rel="noopener noreferrer">View</a>
+                      }
+                      @if (workflowOutputBinaryUrl(file, 'download'); as downloadUrl) {
+                        <a [href]="downloadUrl" [attr.download]="file.fileName">Download</a>
+                      }
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <span
+                  class="graph-renderer__output-value"
+                  [class.graph-renderer__output-value--data]="workflowOutputHasValue(port.property)"
+                >{{ workflowOutputValue(port.property) }}</span>
+              }
+            }
           </article>
         }
       </div>

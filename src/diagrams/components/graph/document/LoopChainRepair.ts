@@ -13,11 +13,40 @@ import type {
   GraphNodeInstance,
   GraphWorkflowDocument,
 } from '@decaf-ts/as-graph/shared';
+import {
+  GRAPH_LOOP_PARENT_METADATA_KEY,
+  graphFlattenLoopBodies,
+} from '@decaf-ts/as-graph/shared';
 import type { GraphDocumentCommand } from './GraphDocumentCommands';
 import { isGraphNodeGhost } from './GraphDocumentMutation';
 
 /** Canonical foreach kind whose body is represented by the canvas loop chain. */
 export const GRAPH_FOREACH_LOOP_KIND = 'core.loop.foreach';
+
+/**
+ * Body-entry port per loop kind (the port the first body node hangs off):
+ * `item` on a foreach, `body` on a while/until. Mirrors the
+ * `metadata.loopBody: "entry"` port the backend manifests publish.
+ */
+export const GRAPH_LOOP_ENTRY_PORTS: Readonly<Record<string, string>> = {
+  'core.loop.foreach': 'item',
+  'core.loop.while': 'body',
+  'core.loop.until': 'body',
+};
+
+/** Whether a node kind is a loop that owns a body chain on the canvas. */
+export function isGraphLoopKind(kind: string | undefined): boolean {
+  return !!kind && GRAPH_LOOP_ENTRY_PORTS[kind] !== undefined;
+}
+
+/** The body-entry port of a loop node in the document (`item` when unknown). */
+export function graphLoopEntryPortOf(
+  document: GraphWorkflowDocument,
+  loopId: string
+): string {
+  const kind = document.nodes.find((node) => node.id === loopId)?.kind;
+  return (kind && GRAPH_LOOP_ENTRY_PORTS[kind]) || GRAPH_LOOP_ITEM_PORT;
+}
 /** Output port routing each iteration into the loop body. */
 export const GRAPH_LOOP_ITEM_PORT = 'item';
 /** Connection input port the last body node routes back into. */
@@ -55,7 +84,7 @@ function endpointPairKey(edge: Pick<GraphEdgeInstance, 'source' | 'target'>): st
 /** Foreach loop ids present in the document. */
 export function graphForeachLoopIdsOf(document: GraphWorkflowDocument): string[] {
   return document.nodes
-    .filter((node) => node.kind === GRAPH_FOREACH_LOOP_KIND)
+    .filter((node) => isGraphLoopKind(node.kind))
     .map((node) => node.id);
 }
 
@@ -92,7 +121,7 @@ export function graphLoopBodyOrderOf(
     (edge) =>
       isChainEdge(edge) &&
       endpointNodeId(edge.source) === loopId &&
-      endpointPort(edge.source) === GRAPH_LOOP_ITEM_PORT &&
+      endpointPort(edge.source) === graphLoopEntryPortOf(document, loopId) &&
       isBodyNode(endpointNodeId(edge.target))
   );
   if (!first) return [];
@@ -153,12 +182,16 @@ function chainEdge(
   };
 }
 
-function desiredChainEdges(loopId: string, steps: GraphLoopBodyStep[]): GraphEdgeInstance[] {
+function desiredChainEdges(
+  loopId: string,
+  steps: GraphLoopBodyStep[],
+  entryPort: string = GRAPH_LOOP_ITEM_PORT
+): GraphEdgeInstance[] {
   if (!steps.length) return [];
   const edges: GraphEdgeInstance[] = [];
   const first = steps[0];
   edges.push(
-    chainEdge(loopId, GRAPH_LOOP_ITEM_PORT, first.nodeId, first.inputPort, GRAPH_LOOP_ITEM_PORT)
+    chainEdge(loopId, entryPort, first.nodeId, first.inputPort, entryPort)
   );
   for (let index = 1; index < steps.length; index += 1) {
     const previous = steps[index - 1];
@@ -203,13 +236,14 @@ export function graphLoopChainCommandsFor(
     if (!document.nodes.some((node) => node.id === loopId)) continue;
     const steps = orders.get(loopId) ?? graphLoopBodyOrderOf(document, loopId);
     const bodyIds = new Set(steps.map((step) => step.nodeId));
-    const desired = desiredChainEdges(loopId, steps);
+    const entryPort = graphLoopEntryPortOf(document, loopId);
+    const desired = desiredChainEdges(loopId, steps, entryPort);
     const desiredPairs = new Set(desired.map((edge) => endpointPairKey(edge)));
 
     const currentChain = document.edges.filter((edge) => {
       const sourceId = endpointNodeId(edge.source);
       const targetId = endpointNodeId(edge.target);
-      if (sourceId === loopId && endpointPort(edge.source) === GRAPH_LOOP_ITEM_PORT) {
+      if (sourceId === loopId && endpointPort(edge.source) === entryPort) {
         return edge.metadata?.['mandatory'] === true;
       }
       if (targetId === loopId && endpointPort(edge.target) === GRAPH_LOOP_CONNECTION_PORT) {
@@ -238,4 +272,63 @@ export function graphLoopChainCommandsFor(
   }
 
   return commands;
+}
+
+
+/**
+ * Draws every persisted nested loop body (`node.loop.body`) on the canvas.
+ *
+ * The canonical document nests a loop body; the canvas shows it as nodes
+ * chained from the loop's body-entry port back into its `loop` port. The
+ * conversion is the shared `graphFlattenLoopBodies` (the backend nests the
+ * chain again on validate, save and run). A body that is a simple linear chain
+ * gets the `mandatory` chain edges the loop tools maintain; a branching body
+ * keeps ordinary edges so the chain repair never rewrites it.
+ */
+export function graphDrawLoopBodies(document: GraphWorkflowDocument): GraphWorkflowDocument {
+  const flat = graphFlattenLoopBodies(document);
+  if (flat === document) return document;
+  const loopOf = new Map<string, string>();
+  for (const node of flat.nodes) {
+    const parent = node.metadata?.[GRAPH_LOOP_PARENT_METADATA_KEY];
+    if (typeof parent === 'string') loopOf.set(node.id, parent);
+  }
+  const linearLoops = new Set<string>();
+  for (const loopId of new Set(loopOf.values())) {
+    const members = new Set([...loopOf].filter(([, parent]) => parent === loopId).map(([id]) => id));
+    const entryPort = graphLoopEntryPortOf(flat, loopId);
+    let entries = 0;
+    let exits = 0;
+    const incoming = new Map<string, number>();
+    const outgoing = new Map<string, number>();
+    for (const edge of flat.edges) {
+      const sourceId = endpointNodeId(edge.source);
+      const targetId = endpointNodeId(edge.target);
+      const touchesSource = !!sourceId && members.has(sourceId);
+      const touchesTarget = !!targetId && members.has(targetId);
+      if (sourceId === loopId && endpointPort(edge.source) === entryPort && touchesTarget) entries += 1;
+      if (targetId === loopId && endpointPort(edge.target) === GRAPH_LOOP_CONNECTION_PORT && touchesSource) exits += 1;
+      if (touchesTarget) incoming.set(targetId as string, (incoming.get(targetId as string) ?? 0) + 1);
+      if (touchesSource) outgoing.set(sourceId as string, (outgoing.get(sourceId as string) ?? 0) + 1);
+    }
+    const linear =
+      entries === 1 &&
+      exits === 1 &&
+      [...members].every((id) => incoming.get(id) === 1 && outgoing.get(id) === 1);
+    if (linear) linearLoops.add(loopId);
+  }
+  if (!linearLoops.size) return flat;
+  return {
+    ...flat,
+    edges: flat.edges.map((edge) => {
+      const sourceId = endpointNodeId(edge.source);
+      const targetId = endpointNodeId(edge.target);
+      const loopId =
+        (sourceId && loopOf.get(sourceId)) ||
+        (targetId && loopOf.get(targetId)) ||
+        undefined;
+      if (!loopId || !linearLoops.has(loopId)) return edge;
+      return { ...edge, metadata: { ...(edge.metadata ?? {}), mandatory: true } };
+    }),
+  };
 }

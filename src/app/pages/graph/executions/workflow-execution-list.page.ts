@@ -45,6 +45,8 @@ export class WorkflowExecutionListPage implements OnInit, AfterViewInit {
   readonly listModel = new GraphRunListModel();
   /** Execution rows loaded from `GET /graph/workflows/:workflowId/runs`. */
   readonly runs = signal<GraphRunRow[]>([]);
+  /** Last delete error, surfaced to the page. */
+  readonly deleteError = signal<string | null>(null);
   /** Last replay error, surfaced to the page. */
   readonly replayError = signal<string | null>(null);
   /** Display mapper consumed by the list engine. */
@@ -89,6 +91,10 @@ export class WorkflowExecutionListPage implements OnInit, AfterViewInit {
    * the page's replay error signal.
    */
   async onListEvent(event: IListItemCustomEvent): Promise<void> {
+    if (event?.action === 'delete') {
+      await this.deleteRun(event.data as string);
+      return;
+    }
     if (event?.action !== 'replay') return;
     const runId = event.data as string;
     if (!runId || !this.workflowId) return;
@@ -99,6 +105,23 @@ export class WorkflowExecutionListPage implements OnInit, AfterViewInit {
       this.replayError.set(null);
     } catch (err) {
       this.replayError.set(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  /**
+   * Deletes a finished run (with its events and files) and reloads the list.
+   * Failures — e.g. `409` for a run still running — surface through
+   * {@link deleteError}.
+   */
+  private async deleteRun(runId: string): Promise<void> {
+    if (!runId || !this.workflowId) return;
+    try {
+      await this.service.deleteRun(runId);
+      this.deleteError.set(null);
+      this.runs.set(await this.service.listRuns(this.workflowId));
+      await this.list?.refresh(true);
+    } catch (err) {
+      this.deleteError.set(err instanceof Error ? err.message : String(err));
     }
   }
 }

@@ -2,9 +2,9 @@
  * @module for-angular/graph/port-zones
  * @summary Local mirror of the as-graph connection port-zone wire contract (SAA-836 M1).
  * @description The mastra agent family declares dedicated render zones for its
- * `@connection()` ports (memory bottom-left, scorers top-right, embedding
- * bottom-right, hooks/sandbox top-middle, tools/skill bottom-middle, input/output
- * processors centered). The zone travels on the served node manifest
+ * `@connection()` ports (memory bottom-left, scorers top-right, sub-agents
+ * top-left, hooks/sandbox top-middle, tools/skill bottom-middle, input/output
+ * processors centered; the memory node's embedding zone bottom-centre). The zone travels on the served node manifest
  * (`GraphPortManifest.zone`) and on the canvas port definition's `graph` block.
  * These mirror types keep the editor type-safe against the currently installed
  * `@decaf-ts/as-graph` release, which does not yet export the zone contract;

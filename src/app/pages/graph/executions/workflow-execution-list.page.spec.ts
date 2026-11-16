@@ -22,10 +22,11 @@ const rows: GraphRunRow[] = [
 function createPage(options: {
   workflowId?: string;
   listRuns?: jest.Mock;
+  deleteRun?: jest.Mock;
   navigate?: jest.Mock;
 } = {}): {
   page: WorkflowExecutionListPage;
-  service: { listRuns: jest.Mock };
+  service: { listRuns: jest.Mock; deleteRun: jest.Mock };
   router: { navigate: jest.Mock };
 } {
   const route = {
@@ -40,6 +41,7 @@ function createPage(options: {
   };
   const service = {
     listRuns: options.listRuns ?? jest.fn().mockResolvedValue(rows),
+    deleteRun: options.deleteRun ?? jest.fn().mockResolvedValue(undefined),
   };
   const page = new WorkflowExecutionListPage(
     route as unknown as ActivatedRoute,
@@ -135,5 +137,28 @@ describe('WorkflowExecutionListPage — execution list (SAA-68 D2)', () => {
     await page.onListEvent({ action: 'replay', data: 'run-1' } as never);
 
     expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('deletes a run on a delete event and reloads the list', async () => {
+    const listRuns = jest.fn().mockResolvedValueOnce(rows).mockResolvedValueOnce([rows[1]]);
+    const { page, service } = createPage({ listRuns });
+    await page.ngOnInit();
+
+    await page.onListEvent({ action: 'delete', data: 'run-1' } as never);
+
+    expect(service.deleteRun).toHaveBeenCalledWith('run-1');
+    expect(page.runs()).toEqual([rows[1]]);
+    expect(page.deleteError()).toBeNull();
+  });
+
+  it('surfaces a failed delete without dropping the list', async () => {
+    const deleteRun = jest.fn().mockRejectedValue(new Error('409 still running'));
+    const { page } = createPage({ deleteRun });
+    await page.ngOnInit();
+
+    await page.onListEvent({ action: 'delete', data: 'run-1' } as never);
+
+    expect(page.deleteError()).toBe('409 still running');
+    expect(page.runs()).toEqual(rows);
   });
 });

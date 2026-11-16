@@ -99,6 +99,14 @@ import { GraphGhostNodeTemplateComponent } from '../graph-ghost-node-template/gr
 import { GraphLogsWidgetComponent } from '../graph-logs-widget/graph-logs-widget.component';
 import { GraphNodeInspectionComponent, type GraphInspectionRunState, type GraphRunValidationIssue } from '../graph-node-inspection/graph-node-inspection.component';
 import { GraphNodeTemplateComponent } from '../graph-node-template/graph-node-template.component';
+import {
+  graphIoBinariesOf,
+  graphIoBinaryUrl,
+  graphIoWithoutBinaries,
+  type GraphIoBinaryEntry,
+} from '../graph-io-viewer/graph-io-viewer.component';
+import { GRAPH_BACKEND_URL } from '../../execution/GraphExecutionService';
+import { graphRunState } from '../../runs/GraphRunStateStore';
 
 const WORKFLOW_INPUT_DRAG_TYPE = 'application/x-graph-workflow-input';
 const SIDE_PANEL_COLLAPSED_WIDTH = 48;
@@ -134,6 +142,7 @@ export class GraphRendererComponent implements AfterViewInit {
   private readonly documentStore = inject(GraphWorkflowDocumentStore, { optional: true });
   private readonly catalogService = inject(GraphNodeCatalogService, { optional: true });
   private readonly validateClient = inject(GraphWorkflowValidateClient, { optional: true });
+  private readonly backendUrl = inject(GRAPH_BACKEND_URL, { optional: true }) ?? '';
   /** Developer-mode chrome gate (G3-36): the raw snapshot textarea renders only in dev mode. */
   readonly devMode = inject(GRAPH_DEV_MODE);
   private readonly canvasAdapter = new GraphDiagramAdapter();
@@ -1221,8 +1230,23 @@ export class GraphRendererComponent implements AfterViewInit {
     }
 
     const node = documentStore.addNodeFromManifest(entry.manifest, position, label);
-    const inputPort = (entry.manifest.inputs ?? [])[0]?.id ?? 'value';
-    const outputPort = (entry.manifest.outputs ?? [])[0]?.id ?? 'result';
+    // The manifest marks the default data ports; a configuration field that
+    // happens to be declared first is never the port an auto-created edge
+    // lands on.
+    const inputs = entry.manifest.inputs ?? [];
+    const outputs = entry.manifest.outputs ?? [];
+    const inputPort =
+      (
+        inputs.find((port) => port.metadata?.['defaultInput'] === true) ??
+        inputs.find((port) => port.configurable !== true) ??
+        inputs[0]
+      )?.id ?? 'value';
+    const outputPort =
+      (
+        outputs.find((port) => port.metadata?.['defaultOutput'] === true) ??
+        outputs.find((port) => port.metadata?.['loopBody'] === undefined) ??
+        outputs[0]
+      )?.id ?? 'result';
 
     if (ghostParentId) {
       // A loop ghost only exists for an empty loop: the added node becomes the
@@ -1257,6 +1281,9 @@ export class GraphRendererComponent implements AfterViewInit {
     }
     this.paletteQuery.set('');
     this.paletteOpen.set(false);
+    // A node added beside a loop or at the end of a chain can land outside
+    // the visible canvas (under a side panel): re-frame the workflow.
+    this.scheduleFitToViewport();
   }
 
   /**
@@ -1477,7 +1504,34 @@ export class GraphRendererComponent implements AfterViewInit {
     const outs = this.outputs();
     if (!outs) return 'pending run result';
     const value = outs[portProperty];
-    return this.displayValue(value);
+    return this.displayValue(graphIoWithoutBinaries(value));
+  }
+
+  /**
+   * Whether a workflow output holds a real value (not a status label such as
+   * "empty" or "pending run result"). Data renders as-is — status labels are
+   * uppercased pills, which would misrepresent data.
+   */
+  workflowOutputHasValue(portProperty: string): boolean {
+    const outs = this.outputs();
+    if (!outs) return false;
+    const value = outs[portProperty];
+    return value !== undefined && value !== null && value !== '';
+  }
+
+  /**
+   * Files a workflow output carries. A run never sends bytes to the editor;
+   * each binary is a store reference, listed with links to the run binary
+   * endpoint (same as the node I/O panels' binary tab).
+   */
+  workflowOutputBinaries(portProperty: string): GraphIoBinaryEntry[] {
+    const outs = this.outputs();
+    return outs ? graphIoBinariesOf(outs[portProperty]) : [];
+  }
+
+  /** Link to a workflow output binary on the last run, or `null`. */
+  workflowOutputBinaryUrl(entry: GraphIoBinaryEntry, action: 'view' | 'download') {
+    return graphIoBinaryUrl(this.backendUrl, graphRunState.runId(), entry, action);
   }
 
   saveSnapshot() {

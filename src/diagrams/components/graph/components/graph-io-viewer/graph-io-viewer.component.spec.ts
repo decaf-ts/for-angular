@@ -21,7 +21,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   GRAPH_IO_TRUNCATED_MARKER,
   GraphIoViewerComponent,
+  graphIoBinaryPreviewOf,
   graphIoCapText,
+  graphIoWithoutBinaries,
   isNetworkClassError,
   markDownloadFallback,
   sanitizeFilenameSegment,
@@ -892,5 +894,136 @@ describe('GraphIoViewerComponent — cap and download (SAA-722)', () => {
       expect(downloadedFilenames[0]).toBe('a_b-_.json');
       expect(downloadedFilenames[0]).toMatch(/^[A-Za-z0-9._-]+$/);
     });
+  });
+});
+
+describe('GraphIoViewerComponent — binary values', () => {
+  const reference = {
+    fileName: 'orders.csv',
+    mimeType: 'text/csv',
+    byteLength: 2048,
+    id: 'graph-binary:' + 'a'.repeat(64),
+  };
+  const image = {
+    fileName: 'chart.png',
+    mimeType: 'image/png',
+    byteLength: 512,
+    id: 'graph-binary:' + 'b'.repeat(64),
+  };
+
+  function render(
+    value: unknown,
+    runId: string,
+    mode?: 'json' | 'table' | 'raw' | 'binary',
+  ): ComponentFixture<GraphIoViewerComponent> {
+    TestBed.configureTestingModule({ imports: [GraphIoViewerComponent] });
+    const fixture = TestBed.createComponent(GraphIoViewerComponent);
+    fixture.componentRef.setInput('value', value);
+    fixture.componentRef.setInput('runId', runId);
+    if (mode) fixture.componentInstance.setMode(mode);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('offers a binary tab on every pane, labelled with the file count', () => {
+    const plain = render({ a: 1 }, 'run-1');
+    const tabs = Array.from(
+      (plain.nativeElement as HTMLElement).querySelectorAll('.graph-io__mode'),
+    ).map((button) => button.textContent?.trim());
+    expect(tabs).toEqual(['json', 'table', 'raw', 'binary']);
+    TestBed.resetTestingModule();
+    const withFile = render({ result: reference }, 'run-1');
+    expect(
+      (withFile.nativeElement as HTMLElement)
+        .querySelector('[data-mode="binary"]')
+        ?.textContent?.trim(),
+    ).toBe('binary (1)');
+  });
+
+  it('lists a binary reference as a file with view and download links on the binary tab', () => {
+    const fixture = render({ result: reference, bytes: 2048 }, 'run-1', 'binary');
+    const element: HTMLElement = fixture.nativeElement;
+
+    const files = element.querySelectorAll('.graph-io__file');
+    expect(files).toHaveLength(1);
+    expect(files[0].querySelector('.graph-io__file-name')?.textContent).toBe('orders.csv');
+    expect(files[0].querySelector('.graph-io__file-meta')?.textContent).toContain('text/csv');
+    expect(files[0].querySelector('.graph-io__file-meta')?.textContent).toContain('2.0 KB');
+    expect(files[0].querySelector('.graph-io__file-path')?.textContent).toBe('result');
+    const links = Array.from(files[0].querySelectorAll('a')).map((a) => a.getAttribute('href'));
+    const id = encodeURIComponent(reference.id);
+    expect(links).toEqual([
+      `http://localhost:3000/graph/runs/run-1/binary/${id}?action=view`,
+      `http://localhost:3000/graph/runs/run-1/binary/${id}?action=download`,
+    ]);
+  });
+
+  it('previews images inline from the run binary endpoint', () => {
+    const fixture = render({ chart: image }, 'run-1', 'binary');
+    const img = (fixture.nativeElement as HTMLElement).querySelector('img.graph-io__file-preview');
+    expect(img?.getAttribute('src')).toBe(
+      `http://localhost:3000/graph/runs/run-1/binary/${encodeURIComponent(image.id)}?action=view`,
+    );
+  });
+
+  it('keeps files out of the json and table views and points to the binary tab', () => {
+    const fixture = render({ result: reference, total: 3 }, 'run-1');
+    const element: HTMLElement = fixture.nativeElement;
+    const json = element.querySelector('.graph-io__json')?.textContent ?? '';
+    expect(json).toContain('[binary] orders.csv · text/csv · 2.0 KB');
+    expect(json).not.toContain('graph-binary:');
+    expect(element.querySelector('.graph-io__files')).toBeNull();
+    const hint = element.querySelector<HTMLButtonElement>('.graph-io__files-hint');
+    expect(hint?.textContent).toContain('1 file');
+    hint?.click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.mode()).toBe('binary');
+    expect(element.querySelectorAll('.graph-io__file')).toHaveLength(1);
+  });
+
+  it('shows the untouched reference in the raw view', () => {
+    const fixture = render({ result: reference }, 'run-1', 'raw');
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('.graph-io__raw')?.textContent,
+    ).toContain(reference.id);
+  });
+
+  it('finds binaries nested in lists and lists each stored file once', () => {
+    const fixture = render({ files: [reference, { ...reference }] }, 'run-1');
+    expect(fixture.componentInstance.binaries().map((entry) => entry.path)).toEqual(['files[0]']);
+  });
+
+  it('shows an empty binary tab for plain data, and no links without a run', () => {
+    const plain = render({ a: 1 }, 'run-1', 'binary');
+    expect((plain.nativeElement as HTMLElement).querySelector('.graph-io__empty')?.textContent).toBe(
+      'No binary data.',
+    );
+    TestBed.resetTestingModule();
+    const fixture = render({ result: reference }, '', 'binary');
+    expect(fixture.nativeElement.querySelectorAll('.graph-io__file a')).toHaveLength(0);
+  });
+});
+
+describe('graphIoWithoutBinaries / graphIoBinaryPreviewOf', () => {
+  it('collapses inline base64 payloads so the bytes never reach the DOM', () => {
+    const payload = { data: 'QUJD', fileName: 'a.txt', mimeType: 'text/plain', byteLength: 3 };
+    expect(graphIoWithoutBinaries({ nested: [payload] })).toEqual({
+      nested: ['[binary] a.txt · text/plain · 3 B'],
+    });
+  });
+
+  it('returns the same value when it holds no binaries', () => {
+    const value = { a: [1, { b: 2 }] };
+    expect(graphIoWithoutBinaries(value)).toBe(value);
+  });
+
+  it('maps media types to preview kinds', () => {
+    expect(graphIoBinaryPreviewOf('image/png')).toBe('image');
+    expect(graphIoBinaryPreviewOf('audio/mpeg')).toBe('audio');
+    expect(graphIoBinaryPreviewOf('video/mp4; codecs=avc1')).toBe('video');
+    expect(graphIoBinaryPreviewOf('application/pdf')).toBe('document');
+    expect(graphIoBinaryPreviewOf('application/zip')).toBe('none');
   });
 });

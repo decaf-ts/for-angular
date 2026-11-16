@@ -40,8 +40,12 @@ export class GraphNodeCatalogCompositeSource implements GraphNodeCatalogSource {
     try {
       const live = await this.live.fetchManifests();
       this.failureSignal.set(null);
-      const fixedKinds = new Set(fixed.map((manifest) => manifest.kind));
-      return [...fixed, ...live.filter((manifest) => !fixedKinds.has(manifest.kind))];
+      // The backend catalogue is authoritative: it lists exactly the kinds the
+      // selected engine runs, with their current ports. The bundled snapshot
+      // is an offline fallback only — preferring it showed stale port ids and
+      // offered kinds the engine cannot execute.
+      if (live.length > 0) return live;
+      return fixed;
     } catch (error) {
       // backend down (or out of contract) → fixtures only, but never silently
       this.failureSignal.set(graphNodeCatalogFailureOf(error));
@@ -62,28 +66,28 @@ export class GraphNodeCatalogCompositeSource implements GraphNodeCatalogSource {
    * authoritative), live backend extras merged in, fixture set alone when the
    * backend is unreachable.
    */ async fetchManifest(kind: string): Promise<GraphNodeManifest | undefined> {
-    const fixed = await this.fixed.fetchManifest(kind);
-    if (fixed) return fixed;
     if (this.live) {
       try {
-        return await this.live.fetchManifest(kind);
+        const served = await this.live.fetchManifest(kind);
+        if (served) return served;
       } catch (error) {
         // backend down (or out of contract) → fixtures only, but never silently
         this.failureSignal.set(graphNodeCatalogFailureOf(error));
       }
     }
-    return undefined;
+    return this.fixed.fetchManifest(kind);
   }
 
   async resolveManifest(
     kind: string,
     instance: Pick<GraphNodeInstance, 'parameters' | 'metadata'>
   ): Promise<GraphResolvedNodeManifest> {
-    if (await this.fixed.fetchManifest(kind)) {
-      return this.fixed.resolveManifest(kind, instance);
-    }
     if (this.live) {
-      return this.live.resolveManifest(kind, instance);
+      try {
+        return await this.live.resolveManifest(kind, instance);
+      } catch (error) {
+        this.failureSignal.set(graphNodeCatalogFailureOf(error));
+      }
     }
     return this.fixed.resolveManifest(kind, instance);
   }

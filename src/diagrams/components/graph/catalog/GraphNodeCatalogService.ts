@@ -6,6 +6,8 @@
  * node constructors.
  */
 import { Injectable, InjectionToken, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import { service } from '@decaf-ts/core';
 import { InternalError } from '@decaf-ts/db-decorators';
 import type { GraphJsonValue, GraphNodeInstance, GraphNodeManifest, GraphResolvedNodeManifest } from '@decaf-ts/as-graph/shared';
@@ -28,12 +30,16 @@ export const GRAPH_NODE_CATALOG_SOURCE = new InjectionToken<GraphNodeCatalogSour
  * The {@link graphAngularServiceShare} decorator is declared above `@service()` so the
  * final `@service()` registry wrapper carries Angular's `ɵprov` (spec §4.12 pairing).
  */
+/** A string that is a graph locale key (`graph.node.…`). */
+const GRAPH_LOCALE_KEY = /^graph\.[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)+$/;
+
 @graphAngularServiceShare
 @service()
 @Injectable({ providedIn: 'root' })
 export class GraphNodeCatalogService {
   private readonly store = inject(GraphNodeCatalogStore);
   private readonly api = inject(GRAPH_NODE_CATALOG_SOURCE, { optional: true });
+  private readonly translate = inject(TranslateService, { optional: true });
 
   /** Live manifest signal (P7 cutover): the editor palette reads this directly. */
   readonly manifests = this.store.signals.manifests;
@@ -67,7 +73,7 @@ export class GraphNodeCatalogService {
     this.store.setStatus('loading');
     try {
       const manifests = await source.fetchManifests();
-      this.store.setManifests(manifests);
+      this.store.setManifests(await this.localize(manifests));
       const failure = source.failure?.() ?? null;
       this.store.setStatus(failure ? 'degraded' : 'ready', failure);
     } catch (error) {
@@ -105,6 +111,39 @@ export class GraphNodeCatalogService {
    */
   async invokeMethod(kind: string, method: string, request: Record<string, GraphJsonValue>): Promise<GraphJsonValue> {
     return this.source().invokeMethod(kind, method, request);
+  }
+
+  /**
+   * Resolves the locale keys a served manifest carries. Every user-facing
+   * string of a node kind (name, description, port and field labels,
+   * placeholders) is published as a `graph.…` locale key; the editor shows
+   * the translation. A key with no translation is left as-is.
+   */
+  private async localize(manifests: GraphNodeManifest[]): Promise<GraphNodeManifest[]> {
+    const translate = this.translate;
+    if (!translate) return manifests;
+    try {
+      // Wait for the active language to be loaded before resolving keys.
+      await firstValueFrom(translate.get('graph'));
+    } catch {
+      return manifests;
+    }
+    const resolve = (value: unknown, depth: number): unknown => {
+      if (typeof value === 'string') {
+        if (!GRAPH_LOCALE_KEY.test(value)) return value;
+        const translated = translate.instant(value);
+        return typeof translated === 'string' && translated !== value ? translated : value;
+      }
+      if (depth > 12 || value === null || typeof value !== 'object') return value;
+      if (Array.isArray(value)) return value.map((entry) => resolve(entry, depth + 1));
+      const next: Record<string, unknown> = {};
+      for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+        // Identifiers are never translated, even when they look like keys.
+        next[key] = key === 'id' || key === 'kind' || key === 'handle' ? entry : resolve(entry, depth + 1);
+      }
+      return next;
+    };
+    return manifests.map((manifest) => resolve(manifest, 0) as GraphNodeManifest);
   }
 
   private source(): GraphNodeCatalogSource {

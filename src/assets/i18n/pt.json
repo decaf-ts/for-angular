@@ -600,7 +600,8 @@
       },
       "replay": "Repetir execução",
       "open": "Abrir execução",
-      "empty": "Ainda não existem execuções"
+      "empty": "Ainda não existem execuções",
+      "delete": "Eliminar execução"
     },
     "engines": {
       "picker": {

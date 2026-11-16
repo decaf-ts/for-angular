@@ -149,10 +149,19 @@ export function isGraphValueTemplateValue(value: unknown): value is GraphValueTe
 }
 
 /**
+ * Whether a `parameters[portId]` entry is a plain configured value — what a
+ * workflow authored in code or a backend demo stores for a user-controlled
+ * input (`{ operation: "write" }`) — rather than a `GraphValueTemplate`.
+ */
+export function isGraphPlainParameterValue(value: unknown): boolean {
+  return value !== undefined && value !== null && !isGraphValueTemplateValue(value);
+}
+
+/**
  * Resolves the value mode for one port from its current binding / parameter. The
  * persisted `GraphValueTemplate` in `parameters[portId]` wins over the binding; a
- * literal/expression binding resolves to its own mode; otherwise the port default
- * applies.
+ * literal/expression binding resolves to its own mode; a plain configured value
+ * in `parameters[portId]` is a literal; otherwise the port default applies.
  */
 export function graphPortValueModeOf(
   port: GraphPortDefinition | undefined,
@@ -167,12 +176,21 @@ export function graphPortValueModeOf(
   if (binding?.mode === 'edge') return 'port';
   if (binding?.mode === 'expression') return 'expression';
   if (binding?.mode === 'literal') return 'literal';
+  if (isGraphPlainParameterValue(parameterValue)) return 'literal';
   return graphPortDefaultValueMode(port);
+}
+
+/** Renders a configured value as editable text: strings as-is, the rest as JSON. */
+function graphPortValueText(value: unknown): string {
+  if (value === undefined || value === null) return '';
+  return typeof value === 'string' ? value : JSON.stringify(value);
 }
 
 /**
  * Reads the editable body for one port from its current binding / parameter.
- * Expression/template parameters win; literal bindings fall back to their value.
+ * Expression/template parameters win; literal bindings fall back to their value;
+ * without a binding, a plain configured `parameters[portId]` value is shown
+ * (strings as-is, numbers/booleans/objects as JSON).
  */
 export function graphPortValueBodyOf(
   binding: GraphInputBinding | undefined,
@@ -181,13 +199,37 @@ export function graphPortValueBodyOf(
   if (isGraphValueTemplateValue(parameterValue)) return parameterValue.expression;
   if (binding?.mode === 'literal') {
     const value = (binding as unknown as { value?: unknown }).value;
-    return value === undefined || value === null ? '' : String(value);
+    return graphPortValueText(value);
   }
   if (binding?.mode === 'expression') {
     const expression = (binding as unknown as { expression?: unknown }).expression;
     return expression === undefined ? '' : String(expression);
   }
+  if (!binding && isGraphPlainParameterValue(parameterValue)) {
+    return graphPortValueText(parameterValue);
+  }
   return '';
+}
+
+/**
+ * Converts an edited literal body back to the JSON type of the configured
+ * value it replaces: a string stays text; a number, boolean, array or object
+ * is parsed back from its JSON text (falling back to the text when it no
+ * longer parses).
+ *
+ * @param body - The edited text.
+ * @param previous - The plain `parameters[portId]` value being replaced.
+ * @return The value to persist.
+ */
+export function graphPortLiteralValueOf(body: string, previous: unknown): GraphJsonValue {
+  if (previous === undefined || previous === null || typeof previous === 'string') {
+    return body as GraphJsonValue;
+  }
+  try {
+    return JSON.parse(body) as GraphJsonValue;
+  } catch {
+    return body as GraphJsonValue;
+  }
 }
 
 /**

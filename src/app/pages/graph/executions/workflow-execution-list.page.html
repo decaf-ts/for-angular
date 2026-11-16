@@ -10,6 +10,9 @@
       @if (replayError()) {
         <p class="graph-executions__error">{{ replayError() }}</p>
       }
+      @if (deleteError()) {
+        <p class="graph-executions__error" role="alert">{{ deleteError() }}</p>
+      }
       <div class="dcf-list-container">
         <ngx-decaf-list
           [model]="listModel"

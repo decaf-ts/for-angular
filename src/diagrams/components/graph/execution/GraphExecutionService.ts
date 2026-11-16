@@ -180,13 +180,14 @@ export class GraphExecutionService {
   readonly lastRunId = signal<string | null>(null);
 
   /**
-   * Probes the backend by sending a lightweight HEAD request. Updates the
-   * `backendAvailable` signal. Returns `true` when the backend responds
-   * (any HTTP status), `false` when the request fails to connect.
+   * Probes the backend's liveness endpoint (`GET /graph/health/live`). Updates
+   * the `backendAvailable` signal. Returns `true` when the backend responds
+   * (any HTTP status — an older backend without the endpoint still counts as
+   * up), `false` when the request fails to connect.
    */
   async checkBackend(): Promise<boolean> {
     try {
-      await fetch(`${this.baseUrl}/graph/results/__health__`, {
+      await fetch(`${this.baseUrl}/graph/health/live`, {
         method: "GET",
         // Match the SSE path (`credentials: "include"`) so session-cookie auth
         // is transmitted consistently on every backend call (SAA-116 F1).

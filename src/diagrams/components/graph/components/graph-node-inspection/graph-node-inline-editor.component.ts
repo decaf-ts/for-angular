@@ -36,7 +36,9 @@ import {
 import { modelBuilderStructuredDefinitionOf } from '@decaf-ts/for-angular';
 import {
   graphPortDefaultValueMode,
+  graphPortLiteralValueOf,
   graphPortValueBodyOf,
+  isGraphPlainParameterValue,
   graphPortValueModeOf,
   graphPortValueModesOf,
   graphPortValuePatchOf,
@@ -317,6 +319,16 @@ export class GraphNodeInlineEditorComponent implements OnChanges {
             parameters[portId] = definition as GraphJsonValue;
             continue;
           }
+        }
+        // A plain configured value (a code-authored or demo workflow's
+        // `parameters[portId]`) is kept in step with the edit, in its own JSON
+        // type, so the document never carries a stale copy.
+        const previous = parameters[portId];
+        if (isGraphPlainParameterValue(previous)) {
+          const value = graphPortLiteralValueOf(body, previous);
+          inputBindings[portId] = { mode: 'literal', value };
+          parameters[portId] = value;
+          continue;
         }
         inputBindings[portId] = { mode: 'literal', value: body as GraphJsonValue };
         continue;

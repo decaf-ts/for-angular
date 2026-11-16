@@ -18,6 +18,11 @@ import {
   type GraphIoPanelLimit,
 } from '../../tokens/graph-configuration.tokens';
 import { GraphRunClient } from '../../runs/GraphRunClient';
+import {
+  isGraphBinaryPayload,
+  isGraphBinaryReference,
+} from '@decaf-ts/as-graph/shared';
+import { GRAPH_BACKEND_URL } from '../../execution/GraphExecutionService';
 
 /**
  * View representation selected in the I/O viewer, rendered as toggle buttons
@@ -25,7 +30,10 @@ import { GraphRunClient } from '../../runs/GraphRunClient';
  * (identical output for the current implementation); `table` renders a
  * key/value row grid for records and arrays.
  */
-export type GraphIoViewMode = 'json' | 'table' | 'raw';
+export type GraphIoViewMode = 'json' | 'table' | 'raw' | 'binary';
+
+/** Modes rendered as toggle buttons, in display order. */
+export const GRAPH_IO_VIEW_MODES: readonly GraphIoViewMode[] = ['json', 'table', 'raw', 'binary'];
 
 /** Node run payload field the viewer renders and downloads. */
 export type GraphIoViewerField = 'inputs' | 'outputs';
@@ -242,6 +250,133 @@ interface GraphIoTableRow {
   bytes: number;
 }
 
+/** One binary value found in a node's inputs or outputs. */
+export interface GraphIoBinaryEntry {
+  /** Binary store id (`graph-binary:<digest>`). */
+  id: string;
+  /** Where the binary sits inside the rendered value. */
+  path: string;
+  fileName: string;
+  mimeType: string;
+  /** Human-readable size. */
+  size: string;
+  /** How the Binary tab previews the file inline. */
+  preview: GraphIoBinaryPreview;
+}
+
+/** Inline preview kind of a binary in the Binary tab. */
+export type GraphIoBinaryPreview = 'image' | 'audio' | 'video' | 'document' | 'none';
+
+/**
+ * Picks the inline preview for a media type. Only types the run binary
+ * endpoint serves inline get a preview; everything else is download-only.
+ */
+export function graphIoBinaryPreviewOf(mimeType: string): GraphIoBinaryPreview {
+  const type = (mimeType || '').toLowerCase().split(';')[0].trim();
+  if (type.startsWith('image/')) return 'image';
+  if (type.startsWith('audio/')) return 'audio';
+  if (type.startsWith('video/')) return 'video';
+  if (type === 'application/pdf' || type === 'application/json' || type.startsWith('text/')) {
+    return 'document';
+  }
+  return 'none';
+}
+
+/**
+ * Collects the store-backed binary references inside a value, once per
+ * stored file, with the path each one sits at.
+ *
+ * @param value - Node inputs/outputs or a workflow output value.
+ * @returns One entry per distinct binary id.
+ */
+export function graphIoBinariesOf(value: unknown): GraphIoBinaryEntry[] {
+  const found: GraphIoBinaryEntry[] = [];
+  const seen = new Set<string>();
+  const visit = (entry: unknown, path: string, depth: number): void => {
+    if (isGraphBinaryReference(entry)) {
+      if (!seen.has(entry.id)) {
+        seen.add(entry.id);
+        found.push({
+          id: entry.id,
+          path,
+          fileName: entry.fileName || 'file',
+          mimeType: entry.mimeType,
+          size: formatGraphIoBytes(entry.byteLength),
+          preview: graphIoBinaryPreviewOf(entry.mimeType),
+        });
+      }
+      return;
+    }
+    if (depth > 8 || entry === null || typeof entry !== 'object') return;
+    if (Array.isArray(entry)) {
+      entry.forEach((item, index) => visit(item, `${path}[${index}]`, depth + 1));
+      return;
+    }
+    for (const [key, item] of Object.entries(entry as Record<string, unknown>)) {
+      visit(item, path ? `${path}.${key}` : key, depth + 1);
+    }
+  };
+  visit(value, '', 0);
+  return found;
+}
+
+/**
+ * URL of a binary on the run binary endpoint
+ * (`GET /graph/runs/:runId/binary/:binaryId`), or `null` without a run.
+ */
+export function graphIoBinaryUrl(
+  backendUrl: string,
+  runId: string | null | undefined,
+  entry: Pick<GraphIoBinaryEntry, 'id'>,
+  action: 'view' | 'download',
+): string | null {
+  if (!runId) return null;
+  return `${backendUrl}/graph/runs/${encodeURIComponent(runId)}/binary/${encodeURIComponent(entry.id)}?action=${action}`;
+}
+
+/**
+ * Replaces binary values with a one-line placeholder for the JSON and table
+ * views (n8n keeps files out of the JSON view and shows them on a Binary tab).
+ * A reference collapses to `[binary] name · type · size`; an inline base64
+ * payload never reaches the DOM. The raw view keeps the untouched value.
+ *
+ * @param value - The value to render.
+ * @param depth - Recursion guard.
+ * @returns The value with binaries replaced, or the same value when it has none.
+ */
+export function graphIoWithoutBinaries(value: unknown, depth = 0): unknown {
+  if (isGraphBinaryReference(value) || isGraphBinaryPayload(value)) {
+    const size = formatGraphIoBytes(value.byteLength);
+    return `[binary] ${value.fileName || 'file'} · ${value.mimeType}${size ? ` · ${size}` : ''}`;
+  }
+  if (depth > 8 || value === null || typeof value !== 'object') return value;
+  if (Array.isArray(value)) {
+    let changed = false;
+    const next = value.map((entry) => {
+      const mapped = graphIoWithoutBinaries(entry, depth + 1);
+      if (mapped !== entry) changed = true;
+      return mapped;
+    });
+    return changed ? next : value;
+  }
+  let changed = false;
+  const next: Record<string, unknown> = {};
+  for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+    const mapped = graphIoWithoutBinaries(entry, depth + 1);
+    if (mapped !== entry) changed = true;
+    next[key] = mapped;
+  }
+  return changed ? next : value;
+}
+
+/** Formats a byte count for the binary list. */
+export function formatGraphIoBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes < 0) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 /**
  * Reusable read-only viewer for the node I/O inspection split view (DECAF-48
  * §4.6 / Req-9). Renders one arbitrary value with JSON (default), table or raw
@@ -291,6 +426,34 @@ export class GraphIoViewerComponent {
   private readonly limit = inject(GRAPH_IO_PANEL_LIMIT, { optional: true }) ?? GRAPH_IO_PANEL_LIMIT_DEFAULT;
   private readonly runClient = inject(GraphRunClient, { optional: true });
 
+  private readonly backendUrl = inject(GRAPH_BACKEND_URL, { optional: true }) ?? '';
+
+  /**
+   * Binary values inside the rendered value. A run never carries bytes: each
+   * binary is a reference (`{ id, fileName, mimeType, byteLength }`), listed
+   * here as a file with view/download links to the run binary endpoint instead
+   * of being dumped into the JSON view.
+   */
+  readonly binaries = computed<GraphIoBinaryEntry[]>(() => graphIoBinariesOf(this.value()));
+
+  /** URL of a binary on the run binary endpoint, or `null` without a run. */
+  binaryUrl(entry: GraphIoBinaryEntry, action: 'view' | 'download'): string | null {
+    return graphIoBinaryUrl(this.backendUrl, this.runId(), entry, action);
+  }
+
+  /** Modes rendered as toggle buttons. */
+  readonly modes = GRAPH_IO_VIEW_MODES;
+
+  /** The value as the JSON and table views show it (binaries collapsed). */
+  readonly displayValue = computed(() => graphIoWithoutBinaries(this.value()));
+
+  /** Toggle label of a mode; the Binary tab carries its file count. */
+  modeLabel(mode: GraphIoViewMode): string {
+    if (mode !== 'binary') return mode;
+    const count = this.binaries().length;
+    return count ? `binary (${count})` : 'binary';
+  }
+
   /** Whether an error payload is present (renders the error UI instead). */
   readonly hasError = computed(() => !!this.error());
   /** Single-line error description (message, falling back to name / object). */
@@ -302,7 +465,7 @@ export class GraphIoViewerComponent {
 
   /** Number of rows the table mode would render for the current value. */
   readonly entryCount = computed(() => {
-    const value = this.value();
+    const value = this.displayValue();
     if (Array.isArray(value)) return value.length;
     if (isRecord(value)) return Object.keys(value).length;
     return 1;
@@ -310,7 +473,7 @@ export class GraphIoViewerComponent {
 
   /** Key/value rows for table mode (array entries keyed `[index]`). */
   readonly tableRows = computed<GraphIoTableRow[]>(() => {
-    const value = this.value();
+    const value = this.displayValue();
     if (Array.isArray(value)) {
       return value.map((entry, index) => this.toTableRow(index, `[${index}]`, entry));
     }
@@ -438,15 +601,20 @@ export class GraphIoViewerComponent {
   /** Full printable form of the value (never truncated). */
   readonly fullText = computed(() => printable(this.value()));
 
-  /** Byte/line-capped text safe to render (SAA-722). */
+  /** Byte/line-capped text safe to render in the raw view (SAA-722). */
   readonly cappedText = computed(() =>
     graphIoCapText(this.fullText(), this.limit),
+  );
+
+  /** Byte/line-capped JSON view text, binaries collapsed to placeholders. */
+  readonly cappedJsonText = computed(() =>
+    graphIoCapText(printable(this.displayValue()), this.limit),
   );
 
   /** Whether the rendered payload was truncated by the cap (SAA-722). */
   readonly isTruncated = computed(
     () =>
-      this.cappedText().truncated ||
+      (this.mode() === 'raw' ? this.cappedText() : this.cappedJsonText()).truncated ||
       this.tableTruncated() ||
       this.tableCellTruncated(),
   );
@@ -474,15 +642,20 @@ export class GraphIoViewerComponent {
 
   /**
    * Selects a representation for this pane.
-   * @param mode One of `json` / `table` / `raw`.
+   * @param mode One of `json` / `table` / `raw` / `binary`.
    */
   setMode(mode: GraphIoViewMode): void {
     this.mode.set(mode);
   }
 
-  /** Byte/line-capped string form of the current value (json/raw modes). */
+  /** Byte/line-capped string form of the untouched value (raw mode). */
   rawText(): string {
     return this.cappedText().text;
+  }
+
+  /** Byte/line-capped JSON view text with binaries collapsed (json mode). */
+  jsonText(): string {
+    return this.cappedJsonText().text;
   }
 
   /**
