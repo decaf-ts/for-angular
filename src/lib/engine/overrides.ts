@@ -51,15 +51,15 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     }
   }
 
-  static getEventHeaders(): KeyValue {
-    return !this.token || DecafAxiosHttpAdapter.disableEvents
+  // R2-3: for-http invokes this resolver as `resolver.call(config)` and keeps only
+  // string-valued headers, so the resolver must not read state off `this` (the old
+  // `this.token` read the config object and always yielded {}) and must return a flat
+  // string header map (the old nested `{withCredentials, headers:{...}}` shape was
+  // discarded wholesale by for-http's string-only projection).
+  static getEventHeaders(): Record<string, string> {
+    return DecafAxiosHttpAdapter.disableEvents || !DecafAxiosHttpAdapter.token
       ? {}
-      : {
-          withCredentials: true,
-          headers: {
-            authorization: `Bearer ${this.token}`,
-          },
-        };
+      : { authorization: `Bearer ${DecafAxiosHttpAdapter.token}` };
   }
 
   getAllRawQueryParams(url: string): Record<string, string> {
@@ -181,11 +181,16 @@ export class DecafAxiosHttpAdapter extends AxiosHttpAdapter {
     }
 
     if (DecafAxiosHttpAdapter.token) {
+      // R2-3: context-scoped auth wins — ctx-derived headers (already in `overrides`)
+      // spread last so a context-provided authorization is never discarded by the
+      // static class token, which only fills in when the context has none.
+      const existingHeaders = (overrides as AxiosRequestConfig)?.headers || {};
       overrides = {
+        ...(overrides as AxiosRequestConfig),
         withCredentials: true,
         headers: {
           authorization: `Bearer ${DecafAxiosHttpAdapter.token}`,
-          // 'access-control-allow-origin': '*',
+          ...existingHeaders,
         },
       };
     }

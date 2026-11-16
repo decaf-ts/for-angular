@@ -93,6 +93,25 @@ export interface GraphRunStatusResult {
 }
 
 /**
+ * Validates that a backend-supplied URL path is a same-origin relative path.
+ * @summary **R2-4 hardening.** Backend responses supply `eventsUrl`/`resultUrl`,
+ * which feed a credentialed `EventSource` (and future result fetches). Only
+ * root-relative paths are accepted: anything absolute (a `scheme:` URL like
+ * `http:`/`data:`/`javascript:`) or protocol-relative (`//host/...`) is rejected,
+ * so a compromised/malicious backend `202` cannot point the credentialed
+ * connection or fetches cross-origin.
+ * @param value The URL path to validate.
+ * @return `true` when the value starts with a single `/` and carries no scheme.
+ */
+export function isSameOriginRelativePath(value: string): boolean {
+  return (
+    value.startsWith("/") &&
+    !value.startsWith("//") &&
+    !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)
+  );
+}
+
+/**
  * Validates an SSE message payload as a {@link GraphRunEventEnvelope}:
  * returns the envelope when it carries the required `runId`/`sequence`/
  * `type`/`timestamp` fields, otherwise `null` (so malformed frames are
@@ -172,9 +191,9 @@ export class GraphRunClient {
       typeof created.runId !== "string" ||
       !created.runId ||
       typeof created.eventsUrl !== "string" ||
-      !created.eventsUrl ||
+      !isSameOriginRelativePath(created.eventsUrl) ||
       typeof created.resultUrl !== "string" ||
-      !created.resultUrl
+      !isSameOriginRelativePath(created.resultUrl)
     ) {
       throw new SerializationError(
         "Graph run create response is out of contract (runId/eventsUrl/resultUrl)",

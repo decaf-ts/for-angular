@@ -40,6 +40,7 @@ import {
 import {
   GraphRunClient,
   graphRunEventEnvelopeOf,
+  isSameOriginRelativePath,
   GraphRunStatusResult,
 } from './GraphRunClient';
 
@@ -221,6 +222,14 @@ export class GraphRunEventClient {
   }
 
   private open(descriptor: GraphRunEventClientDescriptor): void {
+    // R2-4: fail closed before handing a backend-supplied path to a credentialed
+    // EventSource — only same-origin relative paths are accepted, so a hostile
+    // `202` payload can never point the stream cross-origin.
+    if (!isSameOriginRelativePath(descriptor.eventsUrl)) {
+      throw new InternalError(
+        `Graph run eventsUrl must be a same-origin relative path (got "${descriptor.eventsUrl}")`,
+      );
+    }
     const offset = Math.max(this.lastSequences.get(descriptor.runId) ?? 0, 0);
     const url = `${this.backendUrl}${descriptor.eventsUrl}?afterSequence=${offset}`;
     const source = new this.sourceCtor(url, { withCredentials: true });

@@ -134,9 +134,7 @@
                 "input": "src/assets",
                 "output": "assets"
               },
-              "src/manifest.webmanifest",
-              "src/cli-module.ts",
-              "src/lib/**/*"
+              "src/manifest.webmanifest"
             ],
             "styles": [
               "node_modules/ng-diagram/styles.css",
@@ -211,9 +209,7 @@
                 "input": "node_modules/ionicons/dist/ionicons/svg",
                 "output": "./svg"
               },
-              "src/manifest.webmanifest",
-              "src/cli-module.ts",
-              "src/lib/**/*"
+              "src/manifest.webmanifest"
             ],
             "styles": [
               "node_modules/ng-diagram/styles.css",
