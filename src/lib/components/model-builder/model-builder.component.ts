@@ -722,7 +722,7 @@ export class ModelBuilderComponent {
     const props = [...this.properties()];
     const current = props[propIndex];
     current.uiChild = { ...(current.uiChild || DEFAULT_UICHILD) };
-    current.uiChild.constructor = childModel.constructor;
+    current.uiChild.constructorFN = childModel.constructor as Constructor;
     current.uiChild.modelName = childModel.constructor.name;
   }
 
@@ -962,12 +962,21 @@ export class ModelBuilderComponent {
           case "boolean":
             attr = builder.instance(Boolean as never, propName as never);
             break;
-          case "model":
+          case "model": {
+            const childConstructor =
+              typeof prop.uiChild?.constructorFN === "function"
+                ? prop.uiChild.constructorFN
+                : prop.modelType;
+            if (!childConstructor)
+              throw new Error(
+                `Property "${propName}" requires a child model constructor`
+              );
             attr = builder.instance(
-              prop.uiChild!.constructor! as Constructor,
+              childConstructor as Constructor,
               propName as never
             );
             break;
+          }
           default:
             attr = builder.string(propName as never);
             break;
