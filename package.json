@@ -128,7 +128,7 @@
     "@codemirror/view": "^6.43.14",
     "@cortex-js/compute-engine": "^0.147.0",
     "@date-fns/tz": "^1.2.0",
-    "@decaf-ts/as-graph": "^0.10.3",
+    "@decaf-ts/as-graph": "^0.11.5",
     "@decaf-ts/as-zod": "^1.17.1",
     "@decaf-ts/cli": "^0.14.1",
     "@decaf-ts/crypto": "^0.18.0",
