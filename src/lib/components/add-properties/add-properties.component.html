@@ -72,12 +72,29 @@
     ></ion-input>
   </ion-item>
   @if (newPropertyName.value) {
-    <ion-item lines="none" class="action-buttons">
-      <ion-button slot="end" fill="clear" (click)="buildObject()">
-        <ion-icon color="success" name="checkmark-circle-outline"></ion-icon>
+    <ion-item
+      lines="none"
+      class="action-buttons"
+    >
+      <ion-button
+        slot="end"
+        fill="clear"
+        (click)="buildObject()"
+      >
+        <ion-icon
+          color="success"
+          name="checkmark-circle-outline"
+        ></ion-icon>
       </ion-button>
-      <ion-button slot="end" fill="clear">
-        <ion-icon color="danger" name="remove-circle-outline"></ion-icon>
+      <ion-button
+        slot="end"
+        fill="clear"
+        (click)="newPropertyName.value = ''; newPropertyValue.value = ''"
+      >
+        <ion-icon
+          color="danger"
+          name="remove-circle-outline"
+        ></ion-icon>
       </ion-button>
     </ion-item>
   }
