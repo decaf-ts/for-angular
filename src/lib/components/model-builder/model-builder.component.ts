@@ -257,7 +257,7 @@ function clearUiMetadata(decoratorKey: string, metadataLocation?: string) {
     }
     const uiMetadata = Metadata.get(targetModel, metadataLocation);
     if (!uiMetadata || !uiMetadata[decoratorKey]) return;
-    console.log(`Removing decorator ${decoratorKey} for  ${prop ? 'prop:' : 'model'} :`, prop ? prop : model.name);
+    console.log(`Removing metadata key ${decoratorKey} for  ${prop ? 'prop:' : 'model'} :`, prop ? prop : model.name);
     delete uiMetadata[decoratorKey];
     if (prop) propMetadata(metadataLocation, uiMetadata)(targetModel, prop);
     else metadata(metadataLocation, uiMetadata)(targetModel);
