@@ -86,7 +86,7 @@ export class SessionRamAdapter extends RamAdapter {
    */
   protected override getClient(): RamStorage {
     const client: RamStorage = new Map();
-    let raw: string | null = null;
+    let raw: string | null;
     try {
       raw = localStorage.getItem(this.persistentDbName);
     } catch {

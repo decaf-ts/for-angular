@@ -32,6 +32,28 @@ export class GraphRunItemComponent extends ListItemComponent implements OnInit {
    * Emits the `replay` action with the row's `runId` so the executions page
    * replays the run through mastra time travel.
    */
+  /** Whether the row's run has finished, so it can be deleted. */
+  get deletable(): boolean {
+    return ['succeeded', 'failed', 'cancelled'].includes(String(this.item?.['status'] ?? ''));
+  }
+
+  /**
+   * Emits the `delete` action with the row's `runId`; the page deletes the
+   * run and reloads the list. Only offered for finished runs.
+   */
+  remove(event: Event): void {
+    event.stopImmediatePropagation();
+    const runId = this.item?.['runId'];
+    if (!runId || !this.deletable) return;
+    this.clickEvent.emit({
+      action: 'delete',
+      data: runId,
+      pk: this.pk,
+      name: 'click',
+      component: this.componentName,
+    } as IListItemCustomEvent);
+  }
+
   replay(event: Event): void {
     event.stopImmediatePropagation();
     const runId = this.item?.['runId'];

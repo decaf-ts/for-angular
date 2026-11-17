@@ -68,7 +68,7 @@ import {
   type NgDiagramMutation,
 } from './GraphDocumentMutation';
 import { graphDocumentCommandsFromDiagramMutation, graphEngineEdgeIdOf } from './GraphDiagramMutationTranslator';
-import { graphLoopBodyOrderOf } from './LoopChainRepair';
+import { graphLoopBodyOrderOf, graphLoopEntryPortOf, isGraphLoopKind } from './LoopChainRepair';
 import { graphManifestPortZoneOf } from '../port-zones';
 
 const GRAPH_CANVAS_DEFAULT_POSITION_STEP = 190;
@@ -468,7 +468,8 @@ function graphVirtualGhostNodeOf(
   loopNode: GraphNodeInstance,
   ghostId: string,
   index: number,
-  loopSize?: { width: number; height: number }
+  loopSize?: { width: number; height: number },
+  entryPort = 'item'
 ): { node: Node; edges: Edge[] } | undefined {
   const position = positionOf(loopNode, index);
   const size = loopSize ?? { width: 120, height: 140 };
@@ -501,16 +502,16 @@ function graphVirtualGhostNodeOf(
     id: `edge-ghost-in-${loopNode.id}`,
     type: 'graph-edge',
     source: loopNode.id,
-    sourcePort: 'item',
+    sourcePort: entryPort,
     target: ghostId,
     targetPort: 'in',
     data: graphCanvasEdgeDataOf({
       id: `edge-ghost-in-${loopNode.id}`,
       type: 'connection',
-      source: { scope: 'node', nodeId: loopNode.id, port: 'item' },
+      source: { scope: 'node', nodeId: loopNode.id, port: entryPort },
       target: { scope: 'node', nodeId: ghostId, port: 'in' },
       metadata: { mandatory: true },
-      label: 'item',
+      label: entryPort,
     }),
   } as Edge;
   const outEdge = {
@@ -771,14 +772,32 @@ export function graphWorkflowDocumentCanvasModelOf(
   // the ghost disappears and the canonical chain is the only thing left. Run
   // (execution) projection opts out entirely — the ghost is not really there.
   for (const node of (options?.includeLoopGhosts === false ? [] : document.nodes)) {
-    if (node.kind !== 'core.loop.foreach') continue;
+    if (!isGraphLoopKind(node.kind)) continue;
     if (graphLoopBodyOrderOf(document, node.id).length > 0) continue;
+    // A body drawn with ordinary edges (a branching body) is a body too: the
+    // ghost is the affordance of an empty loop only.
+    const entryPort = graphLoopEntryPortOf(document, node.id);
+    const hasBody = document.edges.some(
+      (edge) =>
+        edge.source.scope === 'node' &&
+        edge.source.nodeId === node.id &&
+        edge.source.port === entryPort &&
+        edge.target.scope === 'node' &&
+        !ghostNodeIds.has(edge.target.nodeId)
+    );
+    if (hasBody) continue;
     const loopSize = ((node.ui?.size?.width || node.ui?.size?.height) ? {
       width: node.ui?.size?.width ?? 120,
       height: node.ui?.size?.height ?? 140,
     } : undefined) as { width: number; height: number } | undefined;
     const ghostId = `ghost-${node.id}`;
-    const virtualGhost = graphVirtualGhostNodeOf(node, ghostId, index, loopSize ?? nodeUiSizeOf(node, catalogue.resolve(node)));
+    const virtualGhost = graphVirtualGhostNodeOf(
+      node,
+      ghostId,
+      index,
+      loopSize ?? nodeUiSizeOf(node, catalogue.resolve(node)),
+      graphLoopEntryPortOf(document, node.id)
+    );
     if (!virtualGhost) continue;
     nodes.push(virtualGhost.node);
     nodeIds.push(virtualGhost.node.id);

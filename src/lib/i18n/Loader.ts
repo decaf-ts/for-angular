@@ -19,8 +19,8 @@ import {
   TranslateParser,
   TranslationObject,
 } from '@ngx-translate/core';
-import { forkJoin, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { I18N_CONFIG_TOKEN } from '../engine/constants';
 import { I18nResourceConfig } from '../engine/interfaces';
 import { AngularProvider, FunctionLike, I18nResourceConfigType, KeyValue } from '../engine/types';
@@ -149,7 +149,11 @@ export class I18nLoader implements TranslateLoader {
     const libKeys: KeyValue = !I18nLoader.enabled ? {} : libLanguage[lang] || libLanguage['en'] || {};
     const httpRequests$ = forkJoin(
       this.resources.map((config) =>
-        this.http.get<TranslationObject>(`${config.prefix}${lang}${this.getSuffix(config.suffix || '.json')}`)
+        this.http
+          .get<TranslationObject>(`${config.prefix}${lang}${this.getSuffix(config.suffix || '.json')}`)
+          // A resource that does not exist for this language contributes
+          // nothing instead of failing every other resource with it.
+          .pipe(catchError(() => of({} as TranslationObject)))
       )
     );
 
@@ -200,7 +204,19 @@ export class I18nLoader implements TranslateLoader {
                   ...recursiveMerge(libKeys[key] as KeyValue, current[key] as KeyValue),
                 };
               }
-              acc[key] = value;
+              // Several resources may contribute to the same top-level key
+              // (the app's `graph` strings and a package's `graph.node`
+              // strings): merge them instead of letting the last one win.
+              if (
+                acc[key] instanceof Object &&
+                value instanceof Object &&
+                !Array.isArray(acc[key]) &&
+                !Array.isArray(value)
+              ) {
+                recursiveMerge(acc[key] as KeyValue, value as KeyValue);
+              } else {
+                acc[key] = value;
+              }
             }
             return acc;
           }, {}),

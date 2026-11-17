@@ -135,9 +135,22 @@ export class GraphListService {
     return envelope.data;
   }
 
-  private async request<T>(path: string): Promise<T> {
+  /**
+   * Deletes a finished run with its events and the files only it holds
+   * (`DELETE /graph/runs/:runId?purge=true`). The backend answers `409` for a
+   * run that is still queued or running.
+   * @param runId The run to delete.
+   */
+  async deleteRun(runId: string): Promise<void> {
+    await this.request<unknown>(
+      `/graph/runs/${encodeURIComponent(runId)}?purge=true`,
+      'DELETE'
+    );
+  }
+
+  private async request<T>(path: string, method: 'GET' | 'DELETE' = 'GET'): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path}`, {
-      method: 'GET',
+      method,
       credentials: 'include',
       signal: AbortSignal.timeout(10_000),
     });

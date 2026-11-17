@@ -102,4 +102,16 @@ describe('GraphRunItemComponent — execution row (SAA-68 D2)', () => {
 
     expect(stop).toHaveBeenCalled();
   });
+
+  it('offers delete only for finished runs and emits a delete event', async () => {
+    const running = await render({ runId: 'run-2', status: 'running' });
+    expect(running.nativeElement.querySelector('.graph-run-item__delete')).toBeNull();
+
+    const fixture = await render({ runId: 'run-1', status: 'succeeded' });
+    expect(fixture.nativeElement.querySelector('.graph-run-item__delete')).not.toBeNull();
+    const emitted: IListItemCustomEvent[] = [];
+    fixture.componentInstance.clickEvent.subscribe((event) => emitted.push(event));
+    fixture.componentInstance.remove(new Event('click'));
+    expect(emitted).toEqual([expect.objectContaining({ action: 'delete', data: 'run-1' })]);
+  });
 });

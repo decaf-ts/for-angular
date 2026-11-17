@@ -55,7 +55,7 @@ export function provideDecafDynamicComponents(...components: unknown[]): Constru
     if (!win?.[AngularEngineKeys.LOADED]) new NgxRenderingEngine();
     setOnWindow(AngularEngineKeys.LOADED, true);
   } catch (e: unknown) {
-    throw new Error(`Failed to load rendering engine: ${e}`);
+    throw new Error(`Failed to load rendering engine: ${e}`, { cause: e });
   }
   return components as Constructor<unknown>[];
 }

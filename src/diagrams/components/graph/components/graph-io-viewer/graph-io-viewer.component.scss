@@ -135,6 +135,7 @@
   font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -249,4 +250,95 @@
   padding: 0.6rem 0.7rem;
   color: var(--gx-text-faint);
   font-size: 0.72rem;
+}
+
+/* ---- Binary values (files) ---- */
+
+.graph-io__files {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  list-style: none;
+  overflow: auto;
+}
+
+.graph-io__file {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-bottom: 0.4rem;
+  font-size: 0.72rem;
+  border-bottom: 1px dashed var(--gx-border-subtle, rgba(127, 127, 127, 0.25));
+}
+
+.graph-io__file:last-child {
+  border-bottom: 0;
+}
+
+.graph-io__file-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+}
+
+.graph-io__file-path {
+  color: var(--gx-text-faint);
+  font-family: var(--gx-font-mono, monospace);
+  font-size: 0.68rem;
+}
+
+.graph-io__file-preview {
+  max-width: 100%;
+  max-height: 14rem;
+  object-fit: contain;
+  align-self: flex-start;
+  border-radius: 4px;
+}
+
+.graph-io__files-hint {
+  margin: 0;
+  padding: 0.35rem 0.7rem;
+  font: inherit;
+  font-size: 0.72rem;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--gx-border-subtle, rgba(127, 127, 127, 0.25));
+  cursor: pointer;
+}
+
+.graph-io__files-hint:hover,
+.graph-io__files-hint:focus-visible {
+  text-decoration: underline;
+}
+
+/* The name keeps a readable width; a long media type wraps below it instead
+   of squeezing the name into a column of single characters. */
+.graph-io__file-name {
+  flex: 0 1 auto;
+  min-width: min(100%, 8rem);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.graph-io__file-meta {
+  flex: 1 1 10rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--gx-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.graph-io__file-action {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.graph-io__file-action:hover,
+.graph-io__file-action:focus-visible {
+  text-decoration: underline;
 }

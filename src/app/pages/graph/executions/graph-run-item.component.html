@@ -30,6 +30,21 @@
           color="primary"
         />
       </ion-button>
+      @if (deletable) {
+        <ion-button
+          class="graph-run-item__delete"
+          (click)="remove($event)"
+          [attr.aria-label]="locale + '.delete' | translate"
+          fill="clear"
+          shape="round"
+          color="danger"
+        >
+          <ngx-decaf-icon
+            name="ti-trash"
+            color="danger"
+          />
+        </ion-button>
+      }
     </div>
   </div>
 }

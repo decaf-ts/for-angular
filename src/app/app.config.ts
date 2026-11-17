@@ -101,6 +101,13 @@ export const AppConfig: ApplicationConfig = {
           prefix: './assets/i18n/',
           suffix: '.json',
         },
+        // Graph node names, port labels and field labels ship with the
+        // backend package (`@decaf-ts/as-graph/assets/i18n`), copied by the
+        // build's `assets` configuration.
+        {
+          prefix: './assets/i18n/as-graph/',
+          suffix: '.json',
+        },
       ] as I18nResourceConfigType,
       false,
       i18nEnabled

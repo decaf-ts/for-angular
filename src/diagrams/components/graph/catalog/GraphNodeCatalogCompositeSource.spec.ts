@@ -57,7 +57,7 @@ describe('GraphNodeCatalogCompositeSource (G3-27 failure classes)', () => {
     expect(failure).toMatchObject({ kind: 'malformed-response' });
   });
 
-  it('serves the fixtures first and merges live extras when the backend answers', async () => {
+  it('serves the backend catalogue, not the bundled snapshot, when the backend answers', async () => {
     const calls: string[] = [];
     const fixed = {
       fetchManifests: jest.fn(async () => {
@@ -75,10 +75,10 @@ describe('GraphNodeCatalogCompositeSource (G3-27 failure classes)', () => {
 
     const manifests = await source.fetchManifests();
 
-    // Fixtures stay authoritative: the live duplicate of a fixture kind is dropped.
+    // The backend is authoritative: it lists exactly the kinds the selected
+    // engine runs, with their current ports. A snapshot-only kind is not offered.
     expect(calls).toEqual(['fixtures', 'live']);
     expect(manifests.map((item) => item.kind)).toEqual([
-      'core.utility.code',
       'core.loop.foreach',
       'backend.extra',
     ]);
@@ -140,7 +140,7 @@ describe('GraphNodeCatalogCompositeSource (G3-27 failure classes)', () => {
     expect(source.failure()).toBeNull();
   });
 
-  it('serves a fixture manifest without touching the live source', async () => {
+  it('serves the backend manifest of a kind, falling back to the snapshot only when the backend has none', async () => {
     const fixed = {
       fetchManifest: jest.fn(async (kind: string) =>
         kind === 'core.utility.code' ? manifest(kind) : undefined
@@ -154,7 +154,17 @@ describe('GraphNodeCatalogCompositeSource (G3-27 failure classes)', () => {
     const found = await source.fetchManifest('core.utility.code');
 
     expect(found?.kind).toBe('core.utility.code');
-    expect(live.fetchManifest).not.toHaveBeenCalled();
+    expect(live.fetchManifest).toHaveBeenCalledWith('core.utility.code');
+    expect(fixed.fetchManifest).not.toHaveBeenCalled();
+
+    TestBed.resetTestingModule();
+    const offline = buildSource(
+      { fetchManifest: jest.fn(async () => undefined) },
+      fixed
+    );
+    expect((await offline.fetchManifest('core.utility.code'))?.kind).toBe(
+      'core.utility.code'
+    );
   });
 
   it('reports the live failure class when an unknown kind cannot be fetched', async () => {

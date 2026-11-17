@@ -361,7 +361,10 @@
 
 .graph-renderer__validation-banner {
   position: absolute;
-  top: 1rem;
+  /* Below the toolbar and the add-node button, never on top of them. */
+  top: 9.25rem;
+  max-height: 40%;
+  overflow: auto;
   left: 50%;
   transform: translateX(-50%);
   z-index: 4;
@@ -502,7 +505,8 @@
   color: var(--gx-text-muted);
 }
 
-.graph-renderer__port-card--output span {
+/* Status pill ("empty", "pending run result"); a real value keeps its case. */
+.graph-renderer__port-card--output .graph-renderer__output-value {
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
   font-size: 0.72rem;
@@ -803,4 +807,53 @@
   .graph-renderer__canvas ng-diagram {
     min-height: 560px;
   }
+}
+
+.graph-renderer__port-card--output .graph-renderer__output-value--data {
+  min-width: 0;
+  max-width: 60%;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+  font-family: var(--gx-font-mono, monospace);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.graph-renderer__output-files {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.72rem;
+}
+
+.graph-renderer__output-file {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+}
+
+.graph-renderer__output-file-name {
+  flex: 1 1 6rem;
+  min-width: min(100%, 6rem);
+  text-align: right;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.graph-renderer__output-file a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.graph-renderer__output-file a:hover,
+.graph-renderer__output-file a:focus-visible {
+  text-decoration: underline;
 }

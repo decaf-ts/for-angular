@@ -615,7 +615,8 @@
       },
       "replay": "Replay execution",
       "open": "Open execution",
-      "empty": "No executions yet"
+      "empty": "No executions yet",
+      "delete": "Delete execution"
     },
     "engines": {
       "picker": {

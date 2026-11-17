@@ -25,8 +25,9 @@ import {
 import { isGraphNodeGhost, type GraphDiagramNodeMove } from './GraphDocumentMutation';
 import { graphNodeMovesCommandsOf } from './GraphDiagramMutationTranslator';
 import {
-  GRAPH_FOREACH_LOOP_KIND,
+  isGraphLoopKind,
   GRAPH_LOOP_CONNECTION_PORT,
+  graphDrawLoopBodies,
   graphLoopBodyOrdersOf,
   graphLoopChainCommandsFor,
 } from './LoopChainRepair';
@@ -121,7 +122,7 @@ function legacyLoopOutputPortHintsOf(document: GraphWorkflowDocument): Map<strin
     if (edge.target.scope !== 'node' || edge.target.port !== GRAPH_LOOP_CONNECTION_PORT) return false;
     const targetNodeId = edge.target.nodeId;
     return document.nodes.some(
-      (node) => node.id === targetNodeId && node.kind === GRAPH_FOREACH_LOOP_KIND
+      (node) => node.id === targetNodeId && isGraphLoopKind(node.kind)
     );
   });
   if (!ghostRoutesIntoLoop) return hints;
@@ -130,7 +131,7 @@ function legacyLoopOutputPortHintsOf(document: GraphWorkflowDocument): Map<strin
     if (edge.target.scope !== 'node' || !ghostIds.has(edge.target.nodeId)) continue;
     if (edge.source.scope !== 'node') continue;
     const source = nodesById.get(edge.source.nodeId);
-    if (!source || isGraphNodeGhost(source) || source.kind === GRAPH_FOREACH_LOOP_KIND) continue;
+    if (!source || isGraphNodeGhost(source) || isGraphLoopKind(source.kind)) continue;
     if (!edge.source.port) continue;
     hints.set(edge.source.nodeId, edge.source.port);
   }
@@ -216,7 +217,9 @@ export class GraphWorkflowDocumentStore {
     const outputPortHints = legacyLoopOutputPortHintsOf(document);
     const prepared = dropDuplicateEdges(
       repairLoopChainsOf(
-        dropLegacyGhostArtifacts(dropLegacyBoundaryArtifacts(document, 'initialize')),
+        dropLegacyGhostArtifacts(
+          dropLegacyBoundaryArtifacts(graphDrawLoopBodies(document), 'initialize')
+        ),
         outputPortHints
       ),
       'initialize'
@@ -234,7 +237,9 @@ export class GraphWorkflowDocumentStore {
     const outputPortHints = legacyLoopOutputPortHintsOf(document);
     const prepared = dropDuplicateEdges(
       repairLoopChainsOf(
-        dropLegacyGhostArtifacts(dropLegacyBoundaryArtifacts(document, 'replace')),
+        dropLegacyGhostArtifacts(
+          dropLegacyBoundaryArtifacts(graphDrawLoopBodies(document), 'replace')
+        ),
         outputPortHints
       ),
       'replace'

@@ -895,15 +895,12 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
    * refreshes the list display. This is typically used after a delete operation.
    *
    * @param {string} modelId - The ID of the item to delete
-   * @param {string} pk - The primary key field name
+   * @param {string} _pk - Unused primary key field name retained for compatibility
    * @returns {Promise<void>}
    *
    * @memberOf ListComponent
    */
-  handleDelete(modelId: string | number, pk?: string): void {
-    if (!pk) {
-      pk = this.pk;
-    }
+  handleDelete(modelId: string | number, _pk?: string): void {
     this.items = [...(this.data?.filter(({ uid }: KeyValue) => this.resolveUid(uid) !== modelId) || [])];
     this.data = [...this.items];
     if (!this.data.length) {
@@ -1129,7 +1126,7 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
       return this.getFromRequest(force, start, limit);
     }
     let data = [...(this.data || [])];
-    let request: KeyValue[] = [];
+    let request: KeyValue[];
 
     if (!this.data?.length || force || this.hasSearch) {
       try {

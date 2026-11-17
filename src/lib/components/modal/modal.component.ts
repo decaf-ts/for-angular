@@ -115,7 +115,7 @@ import { ModelRendererComponent } from '../model-renderer/model-renderer.compone
  * @remarks
  * - The modal supports inline content that can be positioned at the top or bottom
  * - Fullscreen and lightbox modes are available for different display needs
- * - The component automatically sanitizes HTML content for security
+ * - Only `string` inline content is sanitized (by Angular); `SafeHtml` and `HTMLElement` are NOT sanitized (developer-trusted)
  * - Modal dismissal can be handled through cancel or confirm actions
  * - Global configuration can be passed through the globals input
  *
@@ -175,6 +175,9 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
   /**
    * @description Inline content to be displayed in the modal.
    * @summary Specifies the string, HTMLElement, or SafeHtml content to be rendered inside the modal.
+   * Only `string` is sanitized by Angular. `SafeHtml` is rendered as-is and `HTMLElement` is appended
+   * directly to the DOM with no sanitization (needed to keep SVG such as barcodes intact), so both are
+   * developer-trusted: never build them from untrusted data.
    * @type {string | HTMLElement | SafeHtml | undefined}
    */
   @Input()
@@ -377,7 +380,8 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
   /**
    * @description Normalizes inline modal content.
    * @summary Converts DOM elements to outerHTML strings while leaving strings and SafeHtml as-is.
-   * Strings are sanitized by default; trusted markup must be passed as SafeHtml.
+   * Only `string` content is sanitized by Angular. `SafeHtml` and `HTMLElement` are NOT
+   * sanitized: they are developer-trusted, so never build them from untrusted data.
    *
    * @returns {void} - Does not return a value.
    * @deprecated
@@ -552,7 +556,8 @@ export async function getNgxModalCrudComponent<M extends Model>(
 /**
  * @description Presents a lightbox modal with inline content.
  * @summary Displays a modal in lightbox mode with the specified content and properties.
- * Strings are sanitized by default; trusted markup must be passed as SafeHtml.
+ * Only `string` content is sanitized by Angular. `SafeHtml` and `HTMLElement` are NOT
+ * sanitized: they are developer-trusted, so never build them from untrusted data.
  *
  * @param {string | HTMLElement | SafeHtml} inlineContent - The content to display in the lightbox modal.
  * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
@@ -572,7 +577,8 @@ export async function presentNgxLightBoxModal(
 /**
  * @description Presents modal with inline content.
  * @summary Displays a modal with the specified content and properties.
- * Strings are sanitized by default; trusted markup must be passed as SafeHtml.
+ * Only `string` content is sanitized by Angular. `SafeHtml` and `HTMLElement` are NOT
+ * sanitized: they are developer-trusted, so never build them from untrusted data.
  *
  * @param {string | HTMLElement | SafeHtml} inlineContent - The content to display in the modal.
  * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
@@ -590,7 +596,8 @@ export async function presentNgxInlineModal(
 /**
  * @description get modal with inline content instance.
  * @summary Get modal component instance for show inline content.
- * Strings are sanitized by default; trusted markup must be passed as SafeHtml.
+ * Only `string` content is sanitized by Angular. `SafeHtml` and `HTMLElement` are NOT
+ * sanitized: they are developer-trusted, so never build them from untrusted data.
  *
  * @param {string | HTMLElement | SafeHtml} inlineContent - The content to display in the lightbox modal.
  * @param {Partial<ModalComponent>} [props={}] - Properties to initialize the modal component.
