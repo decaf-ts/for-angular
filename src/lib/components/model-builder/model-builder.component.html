@@ -244,8 +244,8 @@
                   <ion-item lines="none">
                     <ion-label position="stacked">Name</ion-label>
                     <ion-input
-                      [ngModel]="prop.name"
-                      (ngModelChange)="onPropertyNameChange(i, $event)"
+                      [value]="prop.name"
+                      (input)="onPropertyNameChange(i, $event)"
                       placeholder="property name"
                     ></ion-input>
                   </ion-item>

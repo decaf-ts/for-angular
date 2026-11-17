@@ -10,20 +10,12 @@ import {
   Output,
   signal,
   untracked,
-} from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import {
-  apply,
-  DecorationKeys,
-  metadata,
-  Metadata,
-  propMetadata,
-  uses,
-  type Constructor,
-} from "@decaf-ts/decoration";
-import { pk } from "@decaf-ts/core";
-import { OperationKeys } from "@decaf-ts/db-decorators";
-import { Model, ModelBuilder } from "@decaf-ts/decorator-validation";
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { apply, DecorationKeys, metadata, Metadata, propMetadata, uses, type Constructor } from '@decaf-ts/decoration';
+import { pk } from '@decaf-ts/core';
+import { OperationKeys } from '@decaf-ts/db-decorators';
+import { Model, ModelBuilder } from '@decaf-ts/decorator-validation';
 import {
   hideOn,
   uielement,
@@ -35,7 +27,7 @@ import {
   uilistprop,
   uimodel,
   uiorder,
-} from "@decaf-ts/ui-decorators";
+} from '@decaf-ts/ui-decorators';
 import {
   IonAccordion,
   IonAccordionGroup,
@@ -47,20 +39,20 @@ import {
   IonSelect,
   IonTextarea,
   IonToolbar,
-} from "@ionic/angular/standalone";
-import { AddPropertiesComponent } from "../add-properties/add-properties.component";
-import { addIcons } from "ionicons";
+} from '@ionic/angular/standalone';
+import { AddPropertiesComponent } from '../add-properties/add-properties.component';
+import { addIcons } from 'ionicons';
 import {
   removeCircleOutline,
   checkmarkCircleOutline,
   chevronForwardOutline,
   chevronDownOutline,
   folderOpen,
-} from "ionicons/icons";
-import { IconComponent } from "../icon/icon.component";
-import { ModelRendererComponent } from "../model-renderer/model-renderer.component";
+} from 'ionicons/icons';
+import { IconComponent } from '../icon/icon.component';
+import { ModelRendererComponent } from '../model-renderer/model-renderer.component';
 
-type PropType = "string" | "number" | "date" | "boolean" | "model";
+type PropType = 'string' | 'number' | 'date' | 'boolean' | 'model';
 
 export enum ModelBuilderBlacklist {
   UILAYOUT = uilayout.name as unknown as number,
@@ -75,20 +67,20 @@ export enum ModelBuilderBlacklist {
 }
 
 type ComponentTag =
-  | "ngx-decaf-crud-field"
-  | "ngx-decaf-file-upload"
-  | "ngx-decaf-searchbar"
-  | "ngx-decaf-table"
-  | "ngx-decaf-list"
-  | "ngx-decaf-fieldset"
-  | "app-select-field"
-  | "input"
-  | "textarea"
-  | "custom";
+  | 'ngx-decaf-crud-field'
+  | 'ngx-decaf-file-upload'
+  | 'ngx-decaf-searchbar'
+  | 'ngx-decaf-table'
+  | 'ngx-decaf-list'
+  | 'ngx-decaf-fieldset'
+  | 'app-select-field'
+  | 'input'
+  | 'textarea'
+  | 'custom';
 
-type LayoutCol = 1 | 2 | "half" | "full";
-type OrderValue = "first" | "last" | "";
-type HideOnOp = "create" | "read" | "update" | "delete";
+type LayoutCol = 1 | 2 | 'half' | 'full';
+type OrderValue = 'first' | 'last' | '';
+type HideOnOp = 'create' | 'read' | 'update' | 'delete';
 
 interface ValidatorConfig {
   required: boolean;
@@ -171,10 +163,13 @@ interface UiLayoutPropLayout {
   col?: LayoutCol;
   row?: number;
 }
-interface InnerModelErrors { errors: string[]; modelName: string };
+interface InnerModelErrors {
+  errors: string[];
+  modelName: string;
+}
 
 const DEFAULT_UICHILD: Partial<UiChildConfig> = {
-  tag: "ngx-decaf-fieldset",
+  tag: 'ngx-decaf-fieldset',
   isArray: false,
   serialize: false,
   uilistpropExpanded: false,
@@ -186,101 +181,90 @@ const DEFAULT_VALIDATORS: ValidatorConfig = {
   max: null,
   minlength: null,
   maxlength: null,
-  pattern: "",
+  pattern: '',
   email: false,
   url: false,
 };
 
 const DEFAULT_UI: UIElementConfig = {
   uielement: true,
-  tag: "ngx-decaf-crud-field",
-  customTag: "",
-  label: "",
-  placeholder: "",
-  type: "text",
+  tag: 'ngx-decaf-crud-field',
+  customTag: '',
+  label: '',
+  placeholder: '',
+  type: 'text',
   readonly: false,
   translatable: true,
-  options: "",
+  options: '',
 };
 
 const DEFAULT_LAYOUT: UILayoutConfig = {
   col: 1,
   row: 1,
-  order: "",
+  order: '',
   orderNum: null,
   hideOn: [],
 };
 
 const COMPONENT_TAGS: { value: ComponentTag; label: string }[] = [
   {
-    value: "ngx-decaf-crud-field",
-    label: "CRUD Field (text/number/date/checkbox/select)",
+    value: 'ngx-decaf-crud-field',
+    label: 'CRUD Field (text/number/date/checkbox/select)',
   },
-  { value: "ngx-decaf-file-upload", label: "File Upload" },
-  { value: "ngx-decaf-searchbar", label: "Search Bar" },
-  { value: "ngx-decaf-table", label: "Table" },
-  { value: "ngx-decaf-list", label: "List" },
-  { value: "ngx-decaf-fieldset", label: "Fieldset (nested group)" },
-  { value: "app-select-field", label: "Select Field (custom)" },
-  { value: "input", label: "Raw HTML Input" },
-  { value: "textarea", label: "Raw HTML Textarea" },
-  { value: "custom", label: "Custom (specify tag)" },
+  { value: 'ngx-decaf-file-upload', label: 'File Upload' },
+  { value: 'ngx-decaf-searchbar', label: 'Search Bar' },
+  { value: 'ngx-decaf-table', label: 'Table' },
+  { value: 'ngx-decaf-list', label: 'List' },
+  { value: 'ngx-decaf-fieldset', label: 'Fieldset (nested group)' },
+  { value: 'app-select-field', label: 'Select Field (custom)' },
+  { value: 'input', label: 'Raw HTML Input' },
+  { value: 'textarea', label: 'Raw HTML Textarea' },
+  { value: 'custom', label: 'Custom (specify tag)' },
 ];
 
 const INPUT_TYPES = [
-  "text",
-  "number",
-  "date",
-  "checkbox",
-  "select",
-  "textarea",
-  "radio",
-  "email",
-  "password",
-  "url",
-  "tel",
-  "search",
-  "color",
-  "range",
-  "time",
-  "week",
-  "month",
-  "datetime-local",
-  "file",
+  'text',
+  'number',
+  'date',
+  'checkbox',
+  'select',
+  'textarea',
+  'radio',
+  'email',
+  'password',
+  'url',
+  'tel',
+  'search',
+  'color',
+  'range',
+  'time',
+  'week',
+  'month',
+  'datetime-local',
+  'file',
 ];
 
-const HIDE_ON_OPS: HideOnOp[] = ["create", "read", "update", "delete"];
+const HIDE_ON_OPS: HideOnOp[] = ['create', 'read', 'update', 'delete'];
 
 function clearUiMetadata(decoratorKey: string, metadataLocation?: string) {
   return function clearMetadata(model: any, prop?: any) {
     let targetModel = model;
-    targetModel =
-      typeof model === "function"
-        ? model
-        : (model as { constructor?: any }).constructor || model;
+    targetModel = typeof model === 'function' ? model : (model as { constructor?: any }).constructor || model;
 
     if (!metadataLocation) {
       metadataLocation = Metadata.key(UIKeys.REFLECT);
-      if (prop)
-        metadataLocation = Metadata.key(
-          metadataLocation,
-          DecorationKeys.PROPERTIES,
-          prop.toString()
-        );
+      if (prop) metadataLocation = Metadata.key(metadataLocation, DecorationKeys.PROPERTIES, prop.toString());
     }
     const uiMetadata = Metadata.get(targetModel, metadataLocation);
     if (!uiMetadata || !uiMetadata[decoratorKey]) return;
-    console.log(
-      `Removing decorator ${decoratorKey} for  ${prop ? "prop:" : "model"} :`,
-      prop ? prop : model.name
-    );
+    console.log(`Removing decorator ${decoratorKey} for  ${prop ? 'prop:' : 'model'} :`, prop ? prop : model.name);
     delete uiMetadata[decoratorKey];
     if (prop) propMetadata(metadataLocation, uiMetadata)(targetModel, prop);
     else metadata(metadataLocation, uiMetadata)(targetModel);
   };
 }
 
-function clearUiDecoratorMetadata(decoratorKey: string, metadataKey?: string) {
+function clearMetadata(decoratorKey: string, metadataKey?: string) {
   return apply(clearUiMetadata(decoratorKey, metadataKey));
 }
 
@@ -295,8 +279,8 @@ function mergeModelMetadata(source: Constructor, target: Constructor): void {
     if (
       !current ||
       !next ||
-      typeof current !== "object" ||
-      typeof next !== "object" ||
+      typeof current !== 'object' ||
+      typeof next !== 'object' ||
       Array.isArray(current) ||
       Array.isArray(next)
     ) {
@@ -306,7 +290,7 @@ function mergeModelMetadata(source: Constructor, target: Constructor): void {
     const result = { ...current };
     for (const [key, value] of Object.entries(next)) {
       result[key] =
-        value && typeof value === "object" && !Array.isArray(value)
+        value && typeof value === 'object' && !Array.isArray(value)
           ? merge(result[key], value)
           : Array.isArray(value)
             ? [...value]
@@ -317,14 +301,14 @@ function mergeModelMetadata(source: Constructor, target: Constructor): void {
 
   // Keep the registered model class (and its repository/database decorators),
   // while bringing across the builder's attributes, validation, and UI config.
-  for (const key of ["properties", "validation", "ui"]) {
+  for (const key of ['properties', 'validation', 'ui']) {
     const sourceValue = Metadata.get(source, key);
     if (sourceValue === undefined) continue;
     Metadata.set(target, key, merge(Metadata.get(target, key), sourceValue));
   }
 }
 
-function makeProperty(name = "", type: PropType = "string"): PropertyConfig {
+function makeProperty(name = '', type: PropType = 'string'): PropertyConfig {
   return {
     name,
     type,
@@ -336,10 +320,7 @@ function makeProperty(name = "", type: PropType = "string"): PropertyConfig {
   };
 }
 
-function generateUiListProp(
-  name?: string,
-  props?: any
-): UiListProp | undefined {
+function generateUiListProp(name?: string, props?: any): UiListProp | undefined {
   if (!name && props) return;
   const returnObject: UiListProp = { props: {} };
   if (name) returnObject.name = name;
@@ -348,28 +329,28 @@ function generateUiListProp(
 }
 
 function resolveTag(ui: UIElementConfig): string {
-  return ui.tag === "custom" ? ui.customTag || "input" : ui.tag;
+  return ui.tag === 'custom' ? ui.customTag || 'input' : ui.tag;
 }
 
 function resolveInputType(propType: PropType, uiType: string): string {
-  if (uiType && uiType !== "text") return uiType;
+  if (uiType && uiType !== 'text') return uiType;
   switch (propType) {
-    case "number":
-      return "number";
-    case "date":
-      return "date";
-    case "boolean":
-      return "checkbox";
+    case 'number':
+      return 'number';
+    case 'date':
+      return 'date';
+    case 'boolean':
+      return 'checkbox';
     default:
-      return "text";
+      return 'text';
   }
 }
 
 function parseOptions(optionsStr: string): { value: string; label: string }[] {
   if (!optionsStr.trim()) return [];
-  return optionsStr.split(",").map((s) => {
+  return optionsStr.split(',').map((s) => {
     const trimmed = s.trim();
-    const parts = trimmed.split(":");
+    const parts = trimmed.split(':');
     return { value: parts[0].trim(), label: (parts[1] || parts[0]).trim() };
   });
 }
@@ -394,7 +375,7 @@ function parseOptions(optionsStr: string): { value: string; label: string }[] {
  */
 @Component({
   standalone: true,
-  selector: "ngx-decaf-model-builder",
+  selector: 'ngx-decaf-model-builder',
   imports: [
     FormsModule,
     IonButton,
@@ -412,8 +393,8 @@ function parseOptions(optionsStr: string): { value: string; label: string }[] {
     AddPropertiesComponent,
     IonToolbar,
   ],
-  templateUrl: "./model-builder.component.html",
-  styleUrl: "./model-builder.component.scss",
+  templateUrl: './model-builder.component.html',
+  styleUrl: './model-builder.component.scss',
 })
 export class ModelBuilderComponent {
   @Input() preview = false;
@@ -425,17 +406,18 @@ export class ModelBuilderComponent {
   blackListItems = ModelBuilderBlacklist;
   isChildBuilder = false;
   buildDebounce!: any;
+  previousPropertyNames: string[] = [];
 
   private elementRef = inject(ElementRef);
 
   modelConfig = signal<ModelConfig>({
-    name: "",
-    description: "",
-    renderTag: "ngx-decaf-crud-form",
-    layoutTag: "ngx-decaf-crud-form",
+    name: '',
+    description: '',
+    renderTag: 'ngx-decaf-crud-form',
+    layoutTag: 'ngx-decaf-crud-form',
     layoutCols: 1,
     layoutRows: 1,
-    listModelTag: "",
+    listModelTag: '',
     hasUilayout: false,
   } as ModelConfig);
 
@@ -498,25 +480,18 @@ export class ModelBuilderComponent {
     const { errors, modelName } = errorsObject;
     this.innerModelErrors.set([]);
     if (!errors.length) return;
-    const errorsString = [
-      `Child ${modelName || ""}: [ ${errors.toString()} ] `,
-    ];
+    const errorsString = [`Child ${modelName || ''}: [ ${errors.toString()} ] `];
     this.innerModelErrors.set(errorsString);
   }
   innerModelErrors = signal<string[] | null>([]);
 
   getErrors = computed(() => {
     const errors: string[] = [];
-    if (this.modelConfig().name.trim().length <= 0)
-      errors.push("Model needs a name");
-    if (!this.properties().every((p) => p.name.trim().length > 0))
-      errors.push("Properties need a name");
-    if (!this.properties().some((p) => p.primaryKey))
-      errors.push("There must be a primary key");
-    if (this.isChildBuilder)
-      this.childErrors.emit({ errors, modelName: this.modelConfig().name });
-    if (this.innerModelErrors()?.length)
-      return [...errors, this.innerModelErrors()].toString();
+    if (this.modelConfig().name.trim().length <= 0) errors.push('Model needs a name');
+    if (!this.properties().every((p) => p.name.trim().length > 0)) errors.push('Properties need a name');
+    if (!this.properties().some((p) => p.primaryKey)) errors.push('There must be a primary key');
+    if (this.isChildBuilder) this.childErrors.emit({ errors, modelName: this.modelConfig().name });
+    if (this.innerModelErrors()?.length) return [...errors, this.innerModelErrors()].toString();
     else return errors.toString();
   });
 
@@ -539,11 +514,7 @@ export class ModelBuilderComponent {
     this.buildDebounce = setTimeout(() => this.buildModel(), 500);
   }
 
-  constructProperty(
-    object: object,
-    newKey: string | undefined,
-    newValue: any
-  ): void {
+  constructProperty(object: object, newKey: string | undefined, newValue: any): void {
     if (!newKey) return;
     const newproperty = {
       [newKey]: newValue,
@@ -590,7 +561,7 @@ export class ModelBuilderComponent {
     const props = this.properties()[i].ui.uilistprop?.props;
     if (!props) return;
     props[propName] = propValue;
-    delete props[""];
+    delete props[''];
     this.properties.set([...this.properties()]);
   }
 
@@ -647,15 +618,12 @@ export class ModelBuilderComponent {
     const props = [...this.properties()];
     props[index] = {
       ...props[index],
-      ui:
-        type === "model"
-          ? { ...props[index].ui, uielement: false }
-          : props[index].ui,
+      ui: type === 'model' ? { ...props[index].ui, uielement: false } : props[index].ui,
       type,
       modelType: undefined,
-      uiChild: type === "model" ? DEFAULT_UICHILD : undefined,
+      uiChild: type === 'model' ? DEFAULT_UICHILD : undefined,
     };
-    console.log("props:", props);
+    console.log('props:', props);
     this.properties.set(props);
   }
 
@@ -670,27 +638,29 @@ export class ModelBuilderComponent {
     const current = props[index];
     props[index] = { ...props[index], expanded: !props[index].expanded };
     // there can only be one expanded
-    props
-      .filter((t) => t.name !== current.name)
-      .forEach((t) => (t.expanded = false));
+    props.filter((t) => t.name !== current.name).forEach((t) => (t.expanded = false));
     this.properties.set(props);
     setTimeout(() => {
       element.scrollIntoView({
-        block: "start",
-        behavior: "smooth",
-        inline: "start",
+        block: 'start',
+        behavior: 'smooth',
+        inline: 'start',
       });
     }, 25);
   }
 
-  onPropertyNameChange(index: number, value: string): void {
+  onPropertyNameChange(index: number, event: any): void {
+    const value = event.target.value;
     const props = [...this.properties()];
+    // If exists previous name clear any existing metadata
+    const previousName = props[index].name;
+    if (previousName) this.previousPropertyNames.push(previousName);
+
     props[index] = { ...props[index], name: value };
     const autoLabel = value.charAt(0).toUpperCase() + value.slice(1);
     if (
       !props[index].ui.label ||
-      props[index].ui.label ===
-        makeProperty(props[index].name.replace(value, "")).ui.label
+      props[index].ui.label === makeProperty(props[index].name.replace(value, '')).ui.label
     ) {
       props[index].ui = { ...props[index].ui, label: autoLabel };
     }
@@ -712,10 +682,7 @@ export class ModelBuilderComponent {
     const props = [...this.properties()];
     const current = props[propIndex];
     // there can only be one primary key
-    if (current.primaryKey)
-      props
-        .filter((t) => t.name !== current.name)
-        .forEach((t) => (t.primaryKey = false));
+    if (current.primaryKey) props.filter((t) => t.name !== current.name).forEach((t) => (t.primaryKey = false));
   }
 
   updatedChild(propIndex: number, childModel: Model) {
@@ -724,39 +691,27 @@ export class ModelBuilderComponent {
     current.uiChild = { ...(current.uiChild || DEFAULT_UICHILD) };
     current.uiChild.constructorFN = childModel.constructor as Constructor;
     current.uiChild.modelName = childModel.constructor.name;
+    this.properties.set(props);
   }
 
   private loadInputModel(model: Model | Constructor): void {
-    const modelClass =
-      model instanceof Model ? (model.constructor as Constructor) : model;
+    const modelClass = model instanceof Model ? (model.constructor as Constructor) : model;
     const pk = Model.pk(modelClass);
-    const uiModel = Metadata.get(modelClass, Metadata.key("ui", "uimodel")) as
-      | { tag?: string }
-      | undefined;
-    const layout = Metadata.get(modelClass, Metadata.key("ui", "uilayout")) as
-      | { cols?: number; rows?: number | string[]; tag?: string }
-      | undefined;
-    const listModel = Metadata.get(
-      modelClass,
-      Metadata.key("ui", "uilistmodel")
-    ) as { item?: { tag?: string } } | undefined;
-    const propertyNames = Metadata.getAttributes(
-      this.inputModelConstructor || modelClass
-    );
+    const uiModel = Metadata.get(modelClass, Metadata.key('ui', 'uimodel')) as { tag?: string } | undefined;
+    const layout = Metadata.get(modelClass, Metadata.key('ui', 'uilayout')) as
+      { cols?: number; rows?: number | string[]; tag?: string } | undefined;
+    const listModel = Metadata.get(modelClass, Metadata.key('ui', 'uilistmodel')) as
+      { item?: { tag?: string } } | undefined;
+    const propertyNames = Metadata.getAttributes(this.inputModelConstructor || modelClass);
 
     this.modelConfig.set({
       name: Metadata.modelName(modelClass),
-      description: Metadata.description(modelClass) ?? "",
-      renderTag: uiModel?.tag ?? "ngx-decaf-crud-form",
-      layoutTag: layout?.tag ?? "ngx-decaf-crud-form",
-      layoutCols: typeof layout?.cols === "number" ? layout.cols : 1,
-      layoutRows:
-        typeof layout?.rows === "number"
-          ? layout.rows
-          : Array.isArray(layout?.rows)
-            ? layout.rows.length
-            : 1,
-      listModelTag: listModel?.item?.tag ?? "",
+      description: Metadata.description(modelClass) ?? '',
+      renderTag: uiModel?.tag ?? 'ngx-decaf-crud-form',
+      layoutTag: layout?.tag ?? 'ngx-decaf-crud-form',
+      layoutCols: typeof layout?.cols === 'number' ? layout.cols : 1,
+      layoutRows: typeof layout?.rows === 'number' ? layout.rows : Array.isArray(layout?.rows) ? layout.rows.length : 1,
+      listModelTag: listModel?.item?.tag ?? '',
       flavour: this.flavour,
       hasUilayout: layout ? true : false,
     });
@@ -764,25 +719,16 @@ export class ModelBuilderComponent {
     this.properties.set(
       propertyNames.map((name) => {
         const getUiPropertyMetadata = (key: string): unknown =>
-          Metadata.get(
-            modelClass,
-            Metadata.key("ui", DecorationKeys.PROPERTIES, name, key)
-          );
-        const uielement = getUiPropertyMetadata("uielement") as
-          | { tag?: string; props?: Record<string, unknown> }
-          | undefined;
+          Metadata.get(modelClass, Metadata.key('ui', DecorationKeys.PROPERTIES, name, key));
+        const uielement = getUiPropertyMetadata('uielement') as
+          { tag?: string; props?: Record<string, unknown> } | undefined;
         const elementProps = uielement?.props ?? {};
-        const layoutProp = getUiPropertyMetadata("uilayoutprop") as
-          | { props?: { col?: LayoutCol; row?: number } }
-          | undefined;
-        const uilistprop = getUiPropertyMetadata("uilistprop") as UiListProp;
+        const layoutProp = getUiPropertyMetadata('uilayoutprop') as
+          { props?: { col?: LayoutCol; row?: number } } | undefined;
+        const uilistprop = getUiPropertyMetadata('uilistprop') as UiListProp;
         const validation = Metadata.validationFor(modelClass, name as never) as
-          | Record<string, Record<string, unknown>>
-          | undefined;
-        const designType = Metadata.getPropDesignTypes(
-          modelClass,
-          name as never
-        ).designType;
+          Record<string, Record<string, unknown>> | undefined;
+        const designType = Metadata.getPropDesignTypes(modelClass, name as never).designType;
         const uiChildMetadata = getUiPropertyMetadata(uichild.name) as
           | {
               tag?: string;
@@ -790,128 +736,94 @@ export class ModelBuilderComponent {
               props?: Record<string, unknown>;
             }
           | undefined;
-        const uiChildConstructor = Metadata.get(
-          modelClass,
-          Metadata.key("properties", name)
-        );
-        const uiChildModelName = uiChildMetadata?.props?.["name"];
+        const uiChildConstructor = Metadata.get(modelClass, Metadata.key('properties', name));
+        const uiChildModelName = uiChildMetadata?.props?.['name'];
         const modelType =
-          typeof designType === "function" &&
-          designType.prototype instanceof Model
-            ? designType
-            : undefined;
-        const validationValue = (key: string): unknown =>
-          validation?.[key]?.[key];
+          typeof designType === 'function' && designType.prototype instanceof Model ? designType : undefined;
+        const validationValue = (key: string): unknown => validation?.[key]?.[key];
         const inputType = designType?.name?.toLowerCase();
         const type: PropType = uiChildMetadata
-          ? "model"
-          : inputType === "number"
-            ? "number"
-            : inputType === "date"
-              ? "date"
-              : inputType === "boolean"
-                ? "boolean"
-                : "string";
+          ? 'model'
+          : inputType === 'number'
+            ? 'number'
+            : inputType === 'date'
+              ? 'date'
+              : inputType === 'boolean'
+                ? 'boolean'
+                : 'string';
         const defaultProp = makeProperty(name, type);
-        const options = elementProps["options"];
-        const hideOn = getUiPropertyMetadata("hidden");
+        const options = elementProps['options'];
+        const hideOn = getUiPropertyMetadata('hidden');
         const hiddenOperations = Array.isArray(hideOn)
           ? hideOn.filter(
               (operation): operation is HideOnOp =>
-                typeof operation === "string" &&
-                HIDE_ON_OPS.includes(operation as HideOnOp)
+                typeof operation === 'string' && HIDE_ON_OPS.includes(operation as HideOnOp)
             )
           : [];
-        const order = getUiPropertyMetadata("order");
+        const order = getUiPropertyMetadata('order');
 
         return {
           ...defaultProp,
           modelType,
           uiChild:
-            typeof uiChildModelName === "string" && uiChildMetadata?.tag
+            typeof uiChildModelName === 'string' && uiChildMetadata?.tag
               ? {
                   modelName: uiChildModelName,
                   tag: uiChildMetadata.tag,
                   props: uiChildMetadata.props ?? {},
                   isArray:
-                    Array.isArray(uiChildMetadata.props?.["customTypes"]) &&
-                    uiChildMetadata.props["customTypes"].includes(Array.name),
+                    Array.isArray(uiChildMetadata.props?.['customTypes']) &&
+                    uiChildMetadata.props['customTypes'].includes(Array.name),
                   serialize: !!uiChildMetadata.serialize,
                   constructorFN: uiChildConstructor,
                 }
               : undefined,
           primaryKey: name === pk,
           validators: {
-            required: !!validation?.["required"],
-            min:
-              typeof validationValue("min") === "number"
-                ? (validationValue("min") as number)
-                : null,
-            max:
-              typeof validationValue("max") === "number"
-                ? (validationValue("max") as number)
-                : null,
+            required: !!validation?.['required'],
+            min: typeof validationValue('min') === 'number' ? (validationValue('min') as number) : null,
+            max: typeof validationValue('max') === 'number' ? (validationValue('max') as number) : null,
             minlength:
-              typeof validationValue("minlength") === "number"
-                ? (validationValue("minlength") as number)
-                : null,
+              typeof validationValue('minlength') === 'number' ? (validationValue('minlength') as number) : null,
             maxlength:
-              typeof validationValue("maxlength") === "number"
-                ? (validationValue("maxlength") as number)
-                : null,
+              typeof validationValue('maxlength') === 'number' ? (validationValue('maxlength') as number) : null,
             pattern:
-              validationValue("pattern") instanceof RegExp
-                ? (validationValue("pattern") as RegExp).source
-                : typeof validationValue("pattern") === "string"
-                  ? (validationValue("pattern") as string)
-                  : "",
-            email: !!validation?.["email"],
-            url: !!validation?.["url"],
+              validationValue('pattern') instanceof RegExp
+                ? (validationValue('pattern') as RegExp).source
+                : typeof validationValue('pattern') === 'string'
+                  ? (validationValue('pattern') as string)
+                  : '',
+            email: !!validation?.['email'],
+            url: !!validation?.['url'],
           },
           ui: {
             ...defaultProp.ui,
-            uilistpropExpanded: Object.keys(uilistprop?.props || {}).length
-              ? true
-              : false,
+            uilistpropExpanded: Object.keys(uilistprop?.props || {}).length ? true : false,
             uilistprop,
             uilayoutprop: layoutProp,
             uielement: !!uielement,
             tag: uielement?.tag || defaultProp.ui.tag,
-            customTag: "",
-            label:
-              typeof elementProps["label"] === "string"
-                ? elementProps["label"]
-                : defaultProp.ui.label,
-            placeholder:
-              typeof elementProps["placeholder"] === "string"
-                ? elementProps["placeholder"]
-                : "",
-            type:
-              typeof elementProps["type"] === "string"
-                ? elementProps["type"]
-                : defaultProp.ui.type,
-            readonly: !!elementProps["readonly"],
-            translatable:
-              typeof elementProps["translatable"] === "boolean"
-                ? elementProps["translatable"]
-                : true,
+            customTag: '',
+            label: typeof elementProps['label'] === 'string' ? elementProps['label'] : defaultProp.ui.label,
+            placeholder: typeof elementProps['placeholder'] === 'string' ? elementProps['placeholder'] : '',
+            type: typeof elementProps['type'] === 'string' ? elementProps['type'] : defaultProp.ui.type,
+            readonly: !!elementProps['readonly'],
+            translatable: typeof elementProps['translatable'] === 'boolean' ? elementProps['translatable'] : true,
             options: Array.isArray(options)
               ? options
                   .map((option: { value?: unknown; label?: unknown }) =>
-                    typeof option.value === "string"
-                      ? `${option.value}:${String(option.label ?? option.value)}`
-                      : ""
+                    typeof option.value === 'string' ? `${option.value}:${String(option.label ?? option.value)}` : ''
                   )
                   .filter(Boolean)
-                  .join(",")
-              : typeof options === "string"
+                  .join(',')
+              : typeof options === 'string'
                 ? options
-                : "",
+                : '',
           },
           layout: {
             ...defaultProp.layout,
-            order: order === "first" || order === "last" ? order : "",
-            orderNum: typeof order === "number" ? order : null,
+            order: order === 'first' || order === 'last' ? order : '',
+            orderNum: typeof order === 'number' ? order : null,
             hideOn: hiddenOperations,
           },
         };
@@ -927,19 +839,15 @@ export class ModelBuilderComponent {
     try {
       const cfg = this.modelConfig();
       const name = cfg.name.trim();
-      if (!name) throw new Error("Model name is required");
+      if (!name) throw new Error('Model name is required');
 
       const builder = ModelBuilder.builder<Model & Record<string, unknown>>();
       builder.setName(name);
 
       builder.decorateClass(uimodel(cfg.renderTag, {}));
-      if (cfg.hasUilayout)
-        builder.decorateClass(
-          uilayout(cfg.layoutTag, cfg.layoutCols, cfg.layoutRows, {})
-        );
+      if (cfg.hasUilayout) builder.decorateClass(uilayout(cfg.layoutTag, cfg.layoutCols, cfg.layoutRows, {}));
       else builder.decorateClass(apply(clearUiMetadata(uilayout.name)));
-      if (cfg.listModelTag)
-        builder.decorateClass(uilistmodel(cfg.listModelTag, {}));
+      if (cfg.listModelTag) builder.decorateClass(uilistmodel(cfg.listModelTag, {}));
       if (cfg.description) builder.description(cfg.description);
 
       if (cfg.flavour) builder.decorateClass(uses(cfg.flavour));
@@ -953,37 +861,29 @@ export class ModelBuilderComponent {
 
         let attr;
         switch (prop.type) {
-          case "number":
+          case 'number':
             attr = builder.number(propName as never);
             break;
-          case "date":
+          case 'date':
             attr = builder.date(propName as never);
             break;
-          case "boolean":
+          case 'boolean':
             attr = builder.instance(Boolean as never, propName as never);
             break;
-          case "model": {
+          case 'model': {
             const childConstructor =
-              typeof prop.uiChild?.constructorFN === "function"
-                ? prop.uiChild.constructorFN
-                : prop.modelType;
-            if (!childConstructor)
-              throw new Error(
-                `Property "${propName}" requires a child model constructor`
-              );
-            attr = builder.instance(
-              childConstructor as Constructor,
-              propName as never
-            );
+              typeof prop.uiChild?.constructorFN === 'function' ? prop.uiChild.constructorFN : prop.modelType;
+            if (!childConstructor) throw new Error(`Property "${propName}" requires a child model constructor`);
+            attr = builder.instance(childConstructor as Constructor, propName as never);
             break;
           }
           default:
             attr = builder.string(propName as never);
             break;
         }
-        if (prop.modelType) {
-          attr = builder.instance(prop.modelType, propName as never);
-        }
+        // if (prop.modelType) {
+        //   attr = builder.instance(prop.modelType, propName as never);
+        // }
 
         const v = prop.validators;
         if (v.required) attr.required();
@@ -1002,14 +902,12 @@ export class ModelBuilderComponent {
           label: prop.ui.label || propName,
           type: inputType,
         };
-        if (prop.ui.placeholder)
-          elementProps["placeholder"] = prop.ui.placeholder;
-        if (prop.ui.readonly) elementProps["readonly"] = true;
-        if (prop.ui.translatable !== undefined)
-          elementProps["translatable"] = prop.ui.translatable;
+        if (prop.ui.placeholder) elementProps['placeholder'] = prop.ui.placeholder;
+        if (prop.ui.readonly) elementProps['readonly'] = true;
+        if (prop.ui.translatable !== undefined) elementProps['translatable'] = prop.ui.translatable;
 
         const options = parseOptions(prop.ui.options);
-        if (options.length) elementProps["options"] = options;
+        if (options.length) elementProps['options'] = options;
 
         type DecoratorFn = (target: unknown, key?: string | symbol) => unknown;
         const decorators: DecoratorFn[] = [];
@@ -1023,19 +921,13 @@ export class ModelBuilderComponent {
               prop.uiChild.serialize
             ) as DecoratorFn
           );
-        else decorators.push(clearUiDecoratorMetadata(uichild.name));
+        else decorators.push(clearMetadata(uichild.name));
         if (prop.ui.uilistprop)
-          decorators.push(
-            uilistprop(
-              prop.ui.uilistprop.name,
-              prop.ui.uilistprop.props
-            ) as DecoratorFn
-          );
-        else decorators.push(clearUiDecoratorMetadata(uilistprop.name));
+          decorators.push(uilistprop(prop.ui.uilistprop.name, prop.ui.uilistprop.props) as DecoratorFn);
+        else decorators.push(clearMetadata(uilistprop.name));
 
-        if (prop.ui.uielement)
-          decorators.push(uielement(tag, elementProps) as DecoratorFn);
-        else decorators.push(clearUiDecoratorMetadata(uielement.name));
+        if (prop.ui.uielement) decorators.push(uielement(tag, elementProps) as DecoratorFn);
+        else decorators.push(clearMetadata(uielement.name));
         if (prop.ui.uilayoutprop)
           decorators.push(
             uilayoutprop(
@@ -1043,28 +935,23 @@ export class ModelBuilderComponent {
               prop.ui.uilayoutprop.props?.row as number
             ) as DecoratorFn
           );
-        else decorators.push(clearUiDecoratorMetadata(uilayoutprop.name));
+        else decorators.push(clearMetadata(uilayoutprop.name));
         if (prop.primaryKey) decorators.push(pk() as DecoratorFn);
 
-        if (prop.layout.order === "first")
-          decorators.push(uiorder("first" as never) as DecoratorFn);
-        else if (prop.layout.order === "last")
-          decorators.push(uiorder("last" as never) as DecoratorFn);
-        else if (prop.layout.orderNum !== null)
-          decorators.push(
-            uiorder(prop.layout.orderNum as never) as DecoratorFn
-          );
+        if (prop.layout.order === 'first') decorators.push(uiorder('first' as never) as DecoratorFn);
+        else if (prop.layout.order === 'last') decorators.push(uiorder('last' as never) as DecoratorFn);
+        else if (prop.layout.orderNum !== null) decorators.push(uiorder(prop.layout.orderNum as never) as DecoratorFn);
 
         if (prop.layout.hideOn.length) {
           const ops = prop.layout.hideOn.map((o) => {
             switch (o) {
-              case "create":
+              case 'create':
                 return OperationKeys.CREATE;
-              case "read":
+              case 'read':
                 return OperationKeys.READ;
-              case "update":
+              case 'update':
                 return OperationKeys.UPDATE;
-              case "delete":
+              case 'delete':
                 return OperationKeys.DELETE;
               default:
                 return o;
@@ -1075,36 +962,29 @@ export class ModelBuilderComponent {
         attr.decorate(...(decorators as never[]));
         appliedProps.push(propName);
       }
+      // Remove metadata for properties with changed names
+      for (const property of this.previousPropertyNames) {
+        builder.decorateClass(clearMetadata(property, DecorationKeys.PROPERTIES));
+        builder.decorateClass(clearMetadata(property, Metadata.key(UIKeys.REFLECT, DecorationKeys.PROPERTIES)));
+      }
+      this.previousPropertyNames = [];
+
       const ConstructedModelClass = builder.build();
       const meta = Metadata.get(ConstructedModelClass);
-      console.log(
-        "Created model constructor:",
-        ConstructedModelClass.name,
-        "metadata after build:",
-        meta
-      );
+      console.log('Created model constructor:', ConstructedModelClass.name, 'metadata after build:', meta);
 
       const inputModelInstance = untracked(() => this.inputModel()) as Model;
-      if (
-        this.inputModelConstructor &&
-        this.inputModelConstructor.name === ConstructedModelClass.name
-      ) {
+      if (this.inputModelConstructor && this.inputModelConstructor.name === ConstructedModelClass.name) {
         mergeModelMetadata(ConstructedModelClass, this.inputModelConstructor);
-      } else if (
-        inputModelInstance &&
-        inputModelInstance.constructor.name === ConstructedModelClass.name
-      ) {
-        mergeModelMetadata(
-          ConstructedModelClass,
-          inputModelInstance.constructor as Constructor
-        );
+      } else if (inputModelInstance && inputModelInstance.constructor.name === ConstructedModelClass.name) {
+        mergeModelMetadata(ConstructedModelClass, inputModelInstance.constructor as Constructor);
       }
 
       const instance = new ConstructedModelClass() as Model;
       this.builtModel.set(instance);
       this.modelBuild.emit(this.builtModel() as any);
       this.buildInfo.set(
-        `Built "${name}" with ${appliedProps.length} propert${appliedProps.length === 1 ? "y" : "ies"}: ${appliedProps.join(", ")}`
+        `Built "${name}" with ${appliedProps.length} propert${appliedProps.length === 1 ? 'y' : 'ies'}: ${appliedProps.join(', ')}`
       );
     } catch (e: unknown) {
       this.buildError.set(e instanceof Error ? e.message : String(e));
@@ -1114,13 +994,13 @@ export class ModelBuilderComponent {
 
   reset(): void {
     this.modelConfig.set({
-      name: "",
-      description: "",
-      renderTag: "ngx-decaf-crud-form",
-      layoutTag: "ngx-decaf-crud-form",
+      name: '',
+      description: '',
+      renderTag: 'ngx-decaf-crud-form',
+      layoutTag: 'ngx-decaf-crud-form',
       layoutCols: 1,
       layoutRows: 1,
-      listModelTag: "",
+      listModelTag: '',
     });
     this.properties.set([]);
     this.builtModel.set(null);
@@ -1132,19 +1012,19 @@ export class ModelBuilderComponent {
   loadExample(): void {
     this.reset();
     this.modelConfig.set({
-      name: "User",
-      description: "A user account model with profile fields",
-      renderTag: "ngx-decaf-crud-form",
-      layoutTag: "ngx-decaf-crud-form",
+      name: 'User',
+      description: 'A user account model with profile fields',
+      renderTag: 'ngx-decaf-crud-form',
+      layoutTag: 'ngx-decaf-crud-form',
       layoutCols: 2,
       layoutRows: 1,
-      listModelTag: "",
+      listModelTag: '',
       flavour: this.flavour,
     });
     this.properties.set([
       {
-        name: "id",
-        type: "number",
+        name: 'id',
+        type: 'number',
         primaryKey: true,
         validators: {
           ...DEFAULT_VALIDATORS,
@@ -1152,17 +1032,17 @@ export class ModelBuilderComponent {
         },
         ui: {
           ...DEFAULT_UI,
-          tag: "ngx-decaf-crud-field",
-          label: "Id",
-          placeholder: "Enter id",
-          type: "number",
+          tag: 'ngx-decaf-crud-field',
+          label: 'Id',
+          placeholder: 'Enter id',
+          type: 'number',
         },
         layout: { ...DEFAULT_LAYOUT, col: 1 },
         expanded: false,
       },
       {
-        name: "username",
-        type: "string",
+        name: 'username',
+        type: 'string',
         primaryKey: false,
         validators: {
           ...DEFAULT_VALIDATORS,
@@ -1172,101 +1052,101 @@ export class ModelBuilderComponent {
         },
         ui: {
           ...DEFAULT_UI,
-          tag: "ngx-decaf-crud-field",
-          label: "Username",
-          placeholder: "Enter username",
-          type: "text",
+          tag: 'ngx-decaf-crud-field',
+          label: 'Username',
+          placeholder: 'Enter username',
+          type: 'text',
         },
         layout: { ...DEFAULT_LAYOUT, col: 1 },
         expanded: false,
       },
       {
-        name: "email",
-        type: "string",
+        name: 'email',
+        type: 'string',
         primaryKey: false,
         validators: { ...DEFAULT_VALIDATORS, required: true, email: true },
         ui: {
           ...DEFAULT_UI,
-          tag: "ngx-decaf-crud-field",
-          label: "Email Address",
-          placeholder: "user@example.com",
-          type: "email",
+          tag: 'ngx-decaf-crud-field',
+          label: 'Email Address',
+          placeholder: 'user@example.com',
+          type: 'email',
         },
         layout: { ...DEFAULT_LAYOUT, col: 1 },
         expanded: false,
       },
       {
-        name: "age",
-        type: "number",
+        name: 'age',
+        type: 'number',
         primaryKey: false,
         validators: { ...DEFAULT_VALIDATORS, min: 0, max: 150 },
         ui: {
           ...DEFAULT_UI,
-          tag: "ngx-decaf-crud-field",
-          label: "Age",
-          type: "number",
+          tag: 'ngx-decaf-crud-field',
+          label: 'Age',
+          type: 'number',
         },
-        layout: { ...DEFAULT_LAYOUT, col: "half" },
+        layout: { ...DEFAULT_LAYOUT, col: 'half' },
         expanded: false,
       },
       {
-        name: "role",
-        type: "string",
+        name: 'role',
+        type: 'string',
         primaryKey: false,
         validators: { ...DEFAULT_VALIDATORS, required: true },
         ui: {
           ...DEFAULT_UI,
-          tag: "ngx-decaf-crud-field",
-          label: "Role",
-          type: "select",
-          options: "admin:Administrator, user:Regular User, guest:Guest",
+          tag: 'ngx-decaf-crud-field',
+          label: 'Role',
+          type: 'select',
+          options: 'admin:Administrator, user:Regular User, guest:Guest',
         },
-        layout: { ...DEFAULT_LAYOUT, col: "half" },
+        layout: { ...DEFAULT_LAYOUT, col: 'half' },
         expanded: false,
       },
       {
-        name: "bio",
-        type: "string",
+        name: 'bio',
+        type: 'string',
         primaryKey: false,
         validators: { ...DEFAULT_VALIDATORS, maxlength: 500 },
         ui: {
           ...DEFAULT_UI,
-          tag: "ngx-decaf-crud-field",
-          label: "Biography",
-          placeholder: "Tell us about yourself",
-          type: "textarea",
+          tag: 'ngx-decaf-crud-field',
+          label: 'Biography',
+          placeholder: 'Tell us about yourself',
+          type: 'textarea',
         },
-        layout: { ...DEFAULT_LAYOUT, col: "full" },
+        layout: { ...DEFAULT_LAYOUT, col: 'full' },
         expanded: false,
       },
       {
-        name: "avatar",
-        type: "string",
+        name: 'avatar',
+        type: 'string',
         primaryKey: false,
         validators: { ...DEFAULT_VALIDATORS },
         ui: {
           ...DEFAULT_UI,
-          tag: "ngx-decaf-file-upload",
-          label: "Avatar",
-          type: "file",
+          tag: 'ngx-decaf-file-upload',
+          label: 'Avatar',
+          type: 'file',
         },
-        layout: { ...DEFAULT_LAYOUT, col: "full" },
+        layout: { ...DEFAULT_LAYOUT, col: 'full' },
         expanded: false,
       },
       {
-        name: "createdAt",
-        type: "date",
+        name: 'createdAt',
+        type: 'date',
         primaryKey: false,
         validators: { ...DEFAULT_VALIDATORS },
         ui: {
           ...DEFAULT_UI,
-          tag: "ngx-decaf-crud-field",
-          label: "Created At",
-          type: "date",
+          tag: 'ngx-decaf-crud-field',
+          label: 'Created At',
+          type: 'date',
           readonly: true,
           translatable: false,
         },
-        layout: { ...DEFAULT_LAYOUT, col: "half", hideOn: ["create"] },
+        layout: { ...DEFAULT_LAYOUT, col: 'half', hideOn: ['create'] },
         expanded: false,
       },
     ]);

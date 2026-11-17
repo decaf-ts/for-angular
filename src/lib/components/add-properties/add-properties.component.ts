@@ -65,7 +65,6 @@ export class AddPropertiesComponent {
 
   buildObject() {
     this.constructObject(this.newKey, this.newValue);
-    console.log("buildObject:", this.builtObject);
     this.objectBuild.emit(this.builtObject);
   }
 }
