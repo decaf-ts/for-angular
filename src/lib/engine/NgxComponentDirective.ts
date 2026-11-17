@@ -52,7 +52,7 @@ try {
   if (!win?.[AngularEngineKeys.LOADED]) new NgxRenderingEngine();
   setOnWindow(AngularEngineKeys.LOADED, true);
 } catch (e: unknown) {
-  throw new Error(`Failed to load rendering engine: ${e}`);
+  throw new Error(`Failed to load rendering engine: ${e}`, { cause: e });
 }
 
 /**
@@ -854,7 +854,7 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
    */
   getModel<M extends Model>(model: string | Model | ModelConstructor<M>): void {
     if (!(model instanceof Model) && typeof model === Primitives.STRING)
-      model = Model.get(model as string) as ModelConstructor<M>;
+      Model.get(model as string);
     this.setModelDefinitions(this.model as Model);
   }
 
