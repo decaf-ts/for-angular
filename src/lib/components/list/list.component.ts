@@ -1313,13 +1313,11 @@ export class ListComponent extends NgxComponentDirective implements OnInit, OnDe
           case 'Not Equal':
             orCondition = Condition.attribute<Model>(idx).dif(val);
             break;
-          // regexp now compiles to a `findBy<Attr>Matches...` statement that backends don't expose,
-          // so 'Contains' falls back to equality (filter options carry the exact value)
           case 'Not Contains':
-            orCondition = Condition.attribute<Model>(idx).dif(val);
+            orCondition = !Condition.attribute<Model>(idx).regexp(new RegExp(`^(?!.*${val}).*$`));
             break;
           case 'Contains':
-            orCondition = Condition.attribute<Model>(idx).eq(val);
+            orCondition = Condition.attribute<Model>(idx).regexp(val as string);
             break;
           case 'Greater Than':
             orCondition = Condition.attribute<Model>(idx).gte(val);
