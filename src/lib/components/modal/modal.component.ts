@@ -423,8 +423,10 @@ export class ModalComponent extends NgxParentComponentDirective implements IDeca
       const height = Number(el.getAttribute('height'));
       if (width > 0) {
         img.style.width = `${width}px`;
+        img.width = width;
         if (height > 0) {
            img.style.height = `${height}px`;
+           img.height = height;
         }
       } else {
         img.classList.add('dcf-auto');
