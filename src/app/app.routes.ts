@@ -134,10 +134,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/user-request/user-request.page').then( m => m.UserRequestPage)
   },
 
-  {
-    path: 'account',
-    loadComponent: () => import('./pages/account/account.page').then( m => m.AccountPage)
-  },
+
   {
     path: 'barcode',
     loadComponent: () => import('./pages/barcode/barcode.page').then(m => m.BarcodePage)
