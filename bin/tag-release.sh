@@ -195,7 +195,14 @@ if [[ -s .token ]]; then
   if [[ "$PUSH_TARGET" == http://* || "$PUSH_TARGET" == https://* ]]; then
     PUSH_TARGET="${PUSH_TARGET#*://}"
     PUSH_TARGET="${PUSH_TARGET#*@}"
-    git push "https://x-access-token:$(tr -d '\r\n' < .token)@${PUSH_TARGET}" --follow-tags
+    # R2-12: talk with Tiago about this. The token used to be embedded in the push URL,
+    # which lands in process argv (world-readable via /proc/<pid>/cmdline on shared hosts
+    # during the push). Passed instead via an env-sourced http.extraheader (Basic auth,
+    # same semantics GitHub already accepts from the URL form) so it only lives in
+    # /proc/<pid>/environ, readable solely by the process owner.
+    AUTH_HEADER="Authorization: Basic $(printf 'x-access-token:%s' "$(tr -d '\r\n' < .token)" | base64 -w0)"
+    GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.extraheader GIT_CONFIG_VALUE_0="$AUTH_HEADER" \
+      git push "https://${PUSH_TARGET}" --follow-tags
   else
     git push --follow-tags
   fi

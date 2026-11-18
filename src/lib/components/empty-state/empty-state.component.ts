@@ -9,7 +9,7 @@
  */
 
 import { Component, Input, OnInit } from '@angular/core';
-import { ElementSizes } from '@decaf-ts/ui-decorators';
+import { ElementSizes, escapeHtml } from '@decaf-ts/ui-decorators';
 import { IonButton, IonSpinner } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IconComponent } from '../icon/icon.component';
@@ -53,22 +53,6 @@ import { CardComponent } from '../card/card.component';
  * @extends {NgxBaseComponentDirective}
  * @implements {OnInit}
  */
-/**
- * HTML-escapes &, <, >, ", and ' characters in text.
- *
- * @param {string} text - Raw input text to escape
- * @returns {string} Escaped text safe for interpolation into HTML templates
- */
-export function escapeHtml(text: string): string {
-  if (!text) return '';
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 @Dynamic()
 @Component({
   selector: 'ngx-decaf-empty-state',
@@ -386,6 +370,9 @@ export class EmptyStateComponent extends CardComponent implements OnInit {
    * @memberOf EmptyStateComponent
    */
   async getSearchSubtitle(content: string): Promise<string> {
+    // Escapes searchValue and interpolates it as {0}. Only effective when `content` is a translation
+    // KEY. If the caller passes an already-interpolated sentence, its input never goes through here
+    // and reaches the safeHtml sink unescaped: the caller must escape it first.
     const escaped = escapeHtml(this.searchValue);
     const result = await this.translate(content, { '0': escaped });
     return result as string;

@@ -14,6 +14,7 @@ import type { ContextualArgs } from '@decaf-ts/core/types/index.mjs';
 import type { PrimaryKeyType } from '@decaf-ts/db-decorators';
 import type { Constructor } from '@decaf-ts/decoration';
 import { Model } from '@decaf-ts/decorator-validation';
+import { isDevMode } from '@angular/core';
 
 /**
  * @description localStorage-backed record snapshot format.
@@ -50,6 +51,12 @@ export interface SessionRamConfig extends RamConfig {
  * consumer requires cross-session persistence; if one does, external-write
  * coordination must be designed first.
  *
+ * **At-rest expectations (R2-8):** snapshots persist as CLEARTEXT JSON in
+ * localStorage — readable by any script on the page origin and by anyone with
+ * device access. Never persist credentials, tokens, or sensitive PII through
+ * this adapter; encryption (or dropping the flavour) is deferred until a real
+ * consumer requires at-rest protection.
+ *
  * Querying comes straight from {@link RamAdapter} (the full RAM statement,
  * paginator, and query API) — nothing about CRUD, transactions, or queries is
  * re-implemented here.
@@ -74,6 +81,11 @@ export class SessionRamAdapter extends RamAdapter {
   constructor(conf: SessionRamConfig = { user: '', dbName: 'for-angular' }, alias: string = 'session') {
     super({ user: conf?.user }, alias);
     this.persistentDbName = conf?.dbName || 'for-angular';
+    // R2-8: cleartext at-rest persistence — warn developers wiring this opt-in flavour.
+    if (typeof isDevMode === 'function' && isDevMode())
+      console.warn(
+        `[SessionRamAdapter] localStorage persistence is CLEARTEXT (key "${this.persistentDbName}"): never store credentials, tokens, or sensitive PII through this adapter.`
+      );
   }
 
   /**

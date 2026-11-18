@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ComponentEventNames, ElementSizes, HTML5InputTypes } from '@decaf-ts/ui-decorators';
+import { ComponentEventNames, ElementSizes, escapeHtml, HTML5InputTypes } from '@decaf-ts/ui-decorators';
 import { IonButton, IonItem, IonLabel, IonList, IonText } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { InputComponentErrors } from '../../engine/constants';
@@ -12,7 +12,6 @@ import { ElementSize, FlexPosition, FunctionLike, KeyValue, PossibleInputTypes }
 import { CardComponent } from '../card/card.component';
 import { IconComponent } from '../icon/icon.component';
 import { presentNgxInlineModal, presentNgxLightBoxModal } from '../modal/modal.component';
-import { escapeHtml } from '../empty-state/empty-state.component';
 import { generateRandomValue } from '../../utils/helpers';
 
 /**

@@ -4,28 +4,24 @@
  * (independent validation, Exploit Validator, SAA-1632).
  *
  * Finding:  CF-4 (SAA-1629 white-box candidate, Low / hardening):
- *           GraphRunEventClient.open builds
+ *           GraphRunEventClient.open built
  *           `new this.sourceCtor(`${this.backendUrl}${descriptor.eventsUrl}?afterSequence=${offset}`, { withCredentials: true })`
- *           (src/diagrams/components/graph/runs/GraphRunEventClient.ts:221-226).
- *           `eventsUrl` comes from the backend's 202 create response and is only
- *           checked to be a non-empty string (GraphRunClient.ts:172-182) — never
- *           checked to be a same-origin RELATIVE path.
+ *           with `eventsUrl` (backend-supplied from the 202 create response) only
+ *           checked to be a non-empty string — never a same-origin RELATIVE path.
+ *           A protocol-relative (`//host/...`) or absolute cross-origin URL yielded
+ *           a CROSS-ORIGIN credentialed SSE connection.
  *
- * Affected files (pinned revision for-angular abb26f50, v0.12.5):
- *   - src/diagrams/components/graph/runs/GraphRunEventClient.ts:221-226 (sink)
- *   - src/diagrams/components/graph/runs/GraphRunClient.ts:172-182 (no shape validation)
+ * R2-4 REMEDIATION (this tree):
+ *   - `GraphRunClient.createRun` validates the 202 payload with
+ *     `isSameOriginRelativePath` (out-of-contract `SerializationError` otherwise);
+ *   - `GraphRunEventClient.open` fails closed at the point of use (`InternalError`)
+ *     before handing any non-relative path to the credentialed `EventSource`.
  *
- * Safe effects asserted (no network — GRAPH_RUN_EVENT_SOURCE is a stub ctor):
- *   - The URL handed to the EventSource constructor is the raw, unvalidated
- *     concatenation; no origin/path check is performed by the client.
- *   - A protocol-relative eventsUrl against a same-origin base ('/') yields a
- *     CROSS-ORIGIN credentialed EventSource URL (withCredentials: true).
- *   - An absolute cross-origin eventsUrl is concatenated verbatim into an
- *     invalid URL (the code performs no validation; fail-closed only by accident
- *     of URL parsing).
- * Note: exploitation requires a compromised/malicious backend response (the
- * backend is the trust anchor), hence classification Low/hardening — the POC
- * proves the missing validation, not an end-to-end exfiltration.
+ * The two bypass tests below were the demonstration at the pinned revision abb26f50;
+ * they now assert the remediation: hostile paths never reach the EventSource
+ * constructor, while well-formed relative paths still connect with credentials.
+ *
+ * Safe effects asserted (no network — GRAPH_RUN_EVENT_SOURCE is a stub ctor).
  */
 
 import { TestBed } from '@angular/core/testing';
@@ -47,7 +43,7 @@ const noopSubscriber = {
   onError: jest.fn(),
 };
 
-describe('[SECURITY-POC] CF-4 eventsUrl concatenated into credentialed EventSource without validation', () => {
+describe('[SECURITY-POC] CF-4 eventsUrl — R2-4 REMEDIATED (same-origin relative validation)', () => {
   let client: GraphRunEventClient;
 
   beforeEach(() => {
@@ -62,32 +58,55 @@ describe('[SECURITY-POC] CF-4 eventsUrl concatenated into credentialed EventSour
     client = TestBed.inject(GraphRunEventClient);
   });
 
-  it('protocol-relative eventsUrl from the backend response yields a CROSS-ORIGIN credentialed SSE URL', () => {
-    client.connect(
-      { runId: 'r1', eventsUrl: '//evil.example/steal-events' },
-      noopSubscriber
-    );
-    expect(FakeEventSource.captured).toHaveLength(1);
-    expect(FakeEventSource.captured[0].url).toBe('//evil.example/steal-events?afterSequence=0');
-    expect(FakeEventSource.captured[0].init?.withCredentials).toBe(true);
+  it('R2-4 FIXED: protocol-relative eventsUrl never reaches the credentialed EventSource', () => {
+    expect(() =>
+      client.connect({ runId: 'r1', eventsUrl: '//evil.example/steal-events' }, noopSubscriber)
+    ).toThrow(/same-origin relative/);
+    expect(FakeEventSource.captured).toHaveLength(0);
   });
 
-  it('absolute cross-origin eventsUrl is concatenated verbatim — no same-origin check is performed', () => {
-    client.connect(
-      { runId: 'r2', eventsUrl: 'https://evil.example/steal-events' },
-      noopSubscriber
-    );
-    expect(FakeEventSource.captured[0].url).toBe(
-      'https://evil.example/steal-events?afterSequence=0'
-    );
+  it('R2-4 FIXED: absolute cross-origin eventsUrl never reaches the credentialed EventSource', () => {
+    expect(() =>
+      client.connect({ runId: 'r2', eventsUrl: 'https://evil.example/steal-events' }, noopSubscriber)
+    ).toThrow(/same-origin relative/);
+    expect(FakeEventSource.captured).toHaveLength(0);
   });
 
-  it('CONTROL: a well-formed relative eventsUrl is passed through unchanged (expected benign behavior)', () => {
+  it('CONTROL: a well-formed relative eventsUrl still connects credentialed to the same origin', () => {
     client.connect(
       { runId: 'r3', eventsUrl: '/graph/runs/r3/events' },
       noopSubscriber
     );
     expect(FakeEventSource.captured[0].url).toBe('/graph/runs/r3/events?afterSequence=0');
     expect(FakeEventSource.captured[0].init?.withCredentials).toBe(true);
+  });
+
+  it('R2-4 FIXED: createRun contract check rejects a 202 payload carrying non-relative URLs', async () => {
+    const { GraphRunClient } = await import(
+      '../../src/diagrams/components/graph/runs/GraphRunClient'
+    );
+    const runClient = TestBed.inject(GraphRunClient);
+    const responsePayload = {
+      runId: 'r9',
+      workflowId: 'w',
+      status: 'queued',
+      eventsUrl: '//evil.example/steal-events',
+      resultUrl: '/graph/runs/r9/result',
+    };
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 202,
+      json: async () => responsePayload,
+      text: async () => JSON.stringify(responsePayload),
+    } as unknown as Response);
+    const originalFetch = globalThis.fetch;
+    (globalThis as { fetch: unknown }).fetch = fetchMock;
+    try {
+      await expect(runClient.createRun({ workflowId: 'w' })).rejects.toThrow(
+        /out of contract/
+      );
+    } finally {
+      (globalThis as { fetch: unknown }).fetch = originalFetch;
+    }
   });
 });

@@ -854,8 +854,8 @@ export abstract class NgxComponentDirective extends NgxRepositoryDirective<Model
    */
   getModel<M extends Model>(model: string | Model | ModelConstructor<M>): void {
     if (!(model instanceof Model) && typeof model === Primitives.STRING)
-      Model.get(model as string);
-    this.setModelDefinitions(this.model as Model);
+      model = Model.get(model as string) as ModelConstructor<M>;
+    this.setModelDefinitions(model as Model);
   }
 
   /**

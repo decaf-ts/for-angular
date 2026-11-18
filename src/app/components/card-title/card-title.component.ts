@@ -1,9 +1,17 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AppSwitcherComponent } from '../switcher/switcher.component';
-import { ITabItem } from 'src/app/ew/utils/interfaces';
 import { NgxComponentDirective } from 'src/lib/engine/NgxComponentDirective';
 import { OperationKeys } from '@decaf-ts/db-decorators';
+
+/** Tab descriptor for the built-in switcher (inlined after the ew demo folder removal). */
+export interface ITabItem {
+  title?: string;
+  description?: string;
+  url?: string;
+  value?: string;
+  icon?: string;
+}
 
 @Component({
   selector: 'app-card-title',

@@ -755,7 +755,10 @@ export class NgxFormService {
             value = typeof value === Primitives.STRING ? dateFromString(value) : value;
             break;
           default:
-            value = !isNaN(value) ? value : escapeHtml(value)?.trim();
+            // R2-10: save raw values — escaping belongs at render boundaries (sanitizers there
+            // already protect every sink). TODO: talk with Tiago about this.
+            // value = !isNaN(value) ? value : escapeHtml(value)?.trim();
+            value = typeof value === 'string' ? value.trim() : value;
         }
       } else {
         if (props['type'] === HTML5InputTypes.CHECKBOX) {

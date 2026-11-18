@@ -71,7 +71,8 @@
     "routePath": {
       "type": "string",
       "description": "The path to use for the route of the page (defaults to page name)",
-      "default": ""
+      "default": "",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9\\-_/]*$"
     },
     "skipRoute": {
       "type": "boolean",

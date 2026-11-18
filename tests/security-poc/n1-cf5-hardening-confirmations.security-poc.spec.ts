@@ -112,21 +112,18 @@ describe('[SECURITY-POC] N-1 data-driven [innerHTML] renders stored markup (cont
   });
 });
 
-describe('[SECURITY-POC] CF-5 build ships library/CLI TypeScript sources as static assets', () => {
+describe('[SECURITY-POC] CF-5 build ships library/CLI TypeScript sources as static assets — R2-6 REMEDIATED (assets removed)', () => {
   const repoRoot = path.resolve(__dirname, '../..');
 
-  it('angular.json build assets include src/cli-module.ts and src/lib/**/*', () => {
+  it('R2-6 FIXED: angular.json build/test assets no longer ship library/CLI TypeScript sources', () => {
     const angularJson = JSON.parse(fs.readFileSync(path.join(repoRoot, 'angular.json'), 'utf8'));
-    const appTarget = angularJson.projects['for-angular-app'].architect.build;
-    const assets: string[] = appTarget.options.assets;
-    expect(assets).toContain('src/cli-module.ts');
-    expect(assets).toContain('src/lib/**/*');
-  });
-
-  it('prior build output (www/) contains the shipped cli-module.ts source verbatim', () => {
-    const wwwCli = path.join(repoRoot, 'www', 'cli-module.ts');
-    expect(fs.existsSync(wwwCli)).toBe(true);
-    const content = fs.readFileSync(wwwCli, 'utf8');
-    expect(content).toContain('NAME_PATTERN'); // real library CLI source, not a minified bundle
+    for (const target of ['build', 'test']) {
+      const assets: string[] = angularJson.projects['for-angular-app'].architect[target].options.assets;
+      expect(assets).not.toContain('src/cli-module.ts');
+      expect(assets).not.toContain('src/lib/**/*');
+      const flat = JSON.stringify(assets);
+      expect(flat).not.toContain('cli-module.ts');
+      expect(flat).not.toContain('src/lib/**');
+    }
   });
 });

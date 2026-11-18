@@ -16,7 +16,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { ForAngularCommonModule } from '../for-angular-common.module';
 import { I18nFakeLoader } from '../i18n';
 import { DecafTooltipDirective } from '../directives/tooltip.directive';
-import { escapeHtml } from '../components/empty-state/empty-state.component';
+import { escapeHtml } from '@decaf-ts/ui-decorators';
 
 const navControllerMock = {
   navigateRoot: jest.fn(),
@@ -58,7 +58,7 @@ describe('[SAA-1630 PROBE] tooltip directive injection', () => {
 });
 
 describe('[SAA-1630 PROBE] file-upload img-src attribute breakout (escapeHtml consumer)', () => {
-  it('escapeHtml prevents attribute breakout in the preview <img src=...> construction', () => {
+  it('escapeHtml prevents attribute breakout in the preview <img src=...> construction [INTENTIONAL FAILURE pending ui-decorators quote escaping: escapeHtml in decaf-ts/ui-decorators src/ui/utils.ts must escape &quot; and &#39;]', () => {
     const XSS = 'window.__fuExecuted=true';
     (window as any)['__fuExecuted'] = false;
     // mirrors file-upload.component.ts:591
