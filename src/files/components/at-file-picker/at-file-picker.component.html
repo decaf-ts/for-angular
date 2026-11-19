@@ -1,0 +1,50 @@
+<div class="at-file-picker" role="group">
+  @if (loading()) {
+    <p class="at-file-picker__status" role="status">
+      {{ "at.file.picker.loading" | translateFallback: "Indexing workspace paths…" }}
+    </p>
+  }
+
+  <ul
+    class="at-file-picker__list"
+    [id]="listId"
+    role="listbox"
+    [attr.aria-label]="'at.file.picker.aria' | translateFallback: 'Workspace paths'"
+    [attr.aria-activedescendant]="candidates()[activeIndex()] ? activeId(candidates()[activeIndex()]) : null"
+  >
+    @for (candidate of candidates(); track candidate.entry.relative; let index = $index) {
+      <li
+        class="at-file-picker__row"
+        [id]="activeId(candidate)"
+        role="option"
+        [attr.aria-selected]="index === activeIndex()"
+        [class.at-file-picker__row--active]="index === activeIndex()"
+        tabindex="0"
+        (mouseenter)="activeIndex.set(index)"
+        (click)="choose(candidate)"
+        (keydown.enter)="choose(candidate)"
+        (keydown.space)="choose(candidate); $event.preventDefault()"
+      >
+        <span class="at-file-picker__kind" aria-hidden="true">
+          {{ candidate.kind === "dir" ? "▸" : "·" }}
+        </span>
+        <span class="at-file-picker__text">
+          <span class="at-file-picker__name">{{ candidate.name }}</span>
+          @if (candidate.description) {
+            <span class="at-file-picker__path">{{ candidate.description }}</span>
+          }
+        </span>
+      </li>
+    } @empty {
+      <li class="at-file-picker__empty">
+        {{ "at.file.picker.empty" | translateFallback: "No matching workspace paths" }}
+      </li>
+    }
+  </ul>
+
+  @if (truncated()) {
+    <p class="at-file-picker__status" role="note">
+      {{ "at.file.picker.truncated" | translateFallback: "The workspace index is truncated; refine the query." }}
+    </p>
+  }
+</div>

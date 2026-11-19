@@ -1,0 +1,48 @@
+:host {
+  display: block;
+}
+
+.at-file-dock {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.3rem 0.15rem;
+}
+
+.at-file-dock__row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.1rem 0.3rem;
+  border: 1px solid var(--gx-border-soft, #cbd5e1);
+  border-radius: 999px;
+  background: var(--gx-surface, #ffffff);
+}
+
+.at-file-dock__path {
+  max-width: 18rem;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: var(--gx-text-strong, #0f172a);
+  font: inherit;
+  font-size: 0.74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.at-file-dock__remove {
+  border: 0;
+  background: transparent;
+  color: var(--gx-danger-fg, #b91c1c);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.at-file-dock__path:focus-visible,
+.at-file-dock__remove:focus-visible {
+  outline: 2px solid var(--gx-teal-focus-strong, #0f766e);
+  outline-offset: 1px;
+}

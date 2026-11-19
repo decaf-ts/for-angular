@@ -1,0 +1,27 @@
+:host {
+  display: block;
+}
+
+.at-file-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.at-file-composer__surface {
+  position: relative;
+}
+
+.at-file-composer__picker {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.35rem);
+  left: 0;
+  z-index: 20;
+}
+
+.at-file-composer__error {
+  margin: 0.2rem 0 0;
+  color: var(--gx-danger-fg, #b91c1c);
+  font-size: 0.72rem;
+}

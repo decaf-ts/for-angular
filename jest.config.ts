@@ -47,6 +47,9 @@ const config: Config = {
   },
   // Module handling
   moduleNameMapper: {
+    // The `files` secondary entry point ships Node-style `.js` specifiers
+    // (TypeScript resolves them to `.ts`); Jest must mirror that resolution.
+    '^(\\.{1,2}/.*)\\.js$': '$1',
     '^src/app/(.*)$': '<rootDir>/src/app/$1',
     '^src/diagrams/components/graph/(.*)$': '<rootDir>/src/diagrams/components/graph/$1',
     '^src/diagrams/components/graph$': '<rootDir>/src/diagrams/components/graph/index.ts',

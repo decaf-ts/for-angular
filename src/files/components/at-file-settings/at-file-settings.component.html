@@ -1,0 +1,163 @@
+<section class="at-file-settings">
+  <header class="at-file-settings__header">
+    <h3 class="at-file-settings__title">
+      {{ "at.file.settings.title" | translateFallback: "Workspace file mentions" }}
+    </h3>
+    <p class="at-file-settings__subtitle">
+      {{ "at.file.settings.subtitle" | translateFallback: "Type @ to search and reference a workspace path; only the path is sent, never the file content." }}
+    </p>
+  </header>
+
+  <label class="at-file-settings__toggle">
+    <input
+      #enabledToggle
+      type="checkbox"
+      [checked]="settings()?.enabled !== false"
+      [disabled]="saving()"
+      (change)="toggleEnabled(enabledToggle.checked)"
+    />
+    <span>
+      {{ "at.file.settings.enabled" | translateFallback: "Enable @ file mentions" }}
+    </span>
+  </label>
+  <p class="at-file-settings__hint">
+    {{ "at.file.settings.enabledDesc" | translateFallback: "Turning this off hides the @ picker and reference dock and stops marking selected paths." }}
+  </p>
+
+  <label class="at-file-settings__toggle">
+    <input
+      #pastedToggle
+      type="checkbox"
+      [checked]="settings()?.ignorePastedMentions !== false"
+      [disabled]="saving()"
+      (change)="togglePastedMentions(pastedToggle.checked)"
+    />
+    <span>
+      {{ "at.file.settings.ignorePastedMentions" | translateFallback: "Ignore @ mentions in pasted text" }}
+    </span>
+  </label>
+  <p class="at-file-settings__hint">
+    {{ "at.file.settings.ignorePastedMentionsDesc" | translateFallback: "Pasted @ tokens stay plain text and are not treated as workspace references." }}
+  </p>
+
+  <div class="at-file-settings__scope" role="tablist" [attr.aria-label]="'at.file.settings.scope' | translateFallback: 'Filter scope'">
+    <button
+      type="button"
+      role="tab"
+      class="at-file-settings__tab"
+      [class.at-file-settings__tab--active]="scope() === 'global'"
+      [attr.aria-selected]="scope() === 'global'"
+      (click)="setScope('global')"
+    >
+      {{ "at.file.settings.global" | translateFallback: "Global" }}
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="at-file-settings__tab"
+      [class.at-file-settings__tab--active]="scope() === 'workspace'"
+      [attr.aria-selected]="scope() === 'workspace'"
+      [disabled]="!canUseWorkspace()"
+      (click)="setScope('workspace')"
+    >
+      {{ "at.file.settings.workspace" | translateFallback: "Workspace" }}
+    </button>
+  </div>
+
+  <p class="at-file-settings__hint">
+    @if (scope() === "workspace") {
+      {{ "at.file.settings.workspaceDesc" | translateFallback: "Applied only to the selected workspace, alongside the global rules." }}
+      <code>{{ workspace() }}</code>
+    } @else {
+      {{ "at.file.settings.globalDesc" | translateFallback: "Applied to every workspace." }}
+    }
+  </p>
+
+  <ul class="at-file-settings__rules">
+    @for (rule of rules(); track rule.kind + rule.pattern + rule.caseSensitive) {
+      <li class="at-file-settings__rule">
+        <span class="at-file-settings__kind">{{ rule.kind }}</span>
+        <code class="at-file-settings__pattern">{{ rule.pattern }}</code>
+        <span class="at-file-settings__case">
+          {{ rule.caseSensitive
+            ? ("at.file.settings.caseSensitive" | translateFallback: "Case-sensitive")
+            : ("at.file.settings.caseInsensitive" | translateFallback: "Case-insensitive") }}
+        </span>
+        <button
+          type="button"
+          class="at-file-settings__remove"
+          [attr.aria-label]="('at.file.settings.remove' | translateFallback: 'Remove {name}').replace('{name}', rule.pattern)"
+          [disabled]="saving()"
+          (click)="removeRule(rule)"
+        >
+          ×
+        </button>
+      </li>
+    } @empty {
+      <li class="at-file-settings__empty">
+        {{ "at.file.settings.empty" | translateFallback: "There are no file filters in this scope." }}
+      </li>
+    }
+  </ul>
+
+  <div class="at-file-settings__add">
+    <select
+      class="at-file-settings__select"
+      [attr.aria-label]="'at.file.settings.ruleType' | translateFallback: 'Rule type'"
+      [value]="mode()"
+      (change)="setMode($any($event.target).value)"
+    >
+      <option value="exact">{{ "at.file.settings.kind.exact" | translateFallback: "Exact" }}</option>
+      <option value="regex">{{ "at.file.settings.kind.regex" | translateFallback: "Regex" }}</option>
+    </select>
+    <input
+      class="at-file-settings__input"
+      type="text"
+      [value]="pattern()"
+      [attr.placeholder]="mode() === 'regex'
+        ? ('at.file.settings.regexPlaceholder' | translateFallback: 'For example, ^test-')
+        : ('at.file.settings.namePlaceholder' | translateFallback: 'For example, desktop.ini')"
+      [attr.aria-label]="'at.file.settings.ignoreFiles' | translateFallback: 'File filters'"
+      (input)="pattern.set($any($event.target).value)"
+      (keydown.enter)="addRule()"
+    />
+    <label class="at-file-settings__caseToggle">
+      <input
+        #caseToggle
+        type="checkbox"
+        [checked]="caseSensitive()"
+        (change)="caseSensitive.set(caseToggle.checked)"
+      />
+      {{ "at.file.settings.caseSensitiveOption" | translateFallback: "Case-sensitive" }}
+    </label>
+    <button
+      type="button"
+      class="at-file-settings__addButton"
+      [disabled]="saving()"
+      (click)="addRule()"
+    >
+      {{ "at.file.settings.add" | translateFallback: "Add" }}
+    </button>
+  </div>
+
+  <div class="at-file-settings__actions">
+    @if (scope() === "workspace") {
+      <button type="button" class="at-file-settings__link" [disabled]="saving()" (click)="clearWorkspace()">
+        {{ "at.file.settings.clearWorkspace" | translateFallback: "Clear this workspace" }}
+      </button>
+    } @else {
+      <button type="button" class="at-file-settings__link" [disabled]="saving()" (click)="restoreDefaults()">
+        {{ "at.file.settings.restoreDefaults" | translateFallback: "Restore defaults" }}
+      </button>
+    }
+    @if (saving()) {
+      <span class="at-file-settings__hint" role="status">
+        {{ "at.file.settings.saving" | translateFallback: "Saving…" }}
+      </span>
+    }
+  </div>
+
+  @if (error()) {
+    <p class="at-file-settings__error" role="alert">{{ error() }}</p>
+  }
+</section>

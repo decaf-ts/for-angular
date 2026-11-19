@@ -1,0 +1,78 @@
+:host {
+  display: block;
+}
+
+.at-file-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 16rem;
+  overflow: hidden;
+  border: 1px solid var(--gx-border-soft, #cbd5e1);
+  border-radius: 10px;
+  background: var(--gx-surface, #ffffff);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.at-file-picker__list {
+  margin: 0;
+  padding: 0.25rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.at-file-picker__row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  color: var(--gx-text-strong, #0f172a);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.at-file-picker__row--active,
+.at-file-picker__row:hover {
+  background: var(--gx-surface-wash, rgba(13, 148, 136, 0.14));
+}
+
+.at-file-picker__kind {
+  width: 0.8rem;
+  color: var(--gx-text-muted, #64748b);
+}
+
+.at-file-picker__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.at-file-picker__name {
+  font-weight: 600;
+}
+
+.at-file-picker__path,
+.at-file-picker__status,
+.at-file-picker__empty {
+  color: var(--gx-text-muted, #64748b);
+  font-size: 0.72rem;
+}
+
+.at-file-picker__path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.at-file-picker__status,
+.at-file-picker__empty {
+  margin: 0;
+  padding: 0.35rem 0.6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .at-file-picker__row {
+    transition: none;
+  }
+}

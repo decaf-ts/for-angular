@@ -1,0 +1,46 @@
+<div class="at-file-composer" (paste)="onPaste($event)">
+  <ngx-decaf-at-file-dock
+    [draft]="draft()"
+    [indexed]="indexed()"
+    [enabled]="enabled()"
+    (remove)="onRemove($event)"
+    (open)="openPath.emit($event)"
+  />
+
+  <div class="at-file-composer__surface">
+    @if (pickerOpen()) {
+      <div class="at-file-composer__picker">
+        <ngx-decaf-at-file-picker
+          [files]="entries()"
+          [query]="atQuery() ?? ''"
+          [loading]="loading()"
+          [truncated]="truncated()"
+          [disabled]="disabled()"
+          (pick)="onPicked($event)"
+        />
+      </div>
+    }
+
+    <ngx-decaf-chat-composer
+      [value]="value()"
+      [running]="running()"
+      [disabled]="disabled()"
+      [placeholder]="placeholder()"
+      [atFileEnabled]="enabled()"
+      (valueChange)="onValueChange($event)"
+      (send)="send.emit($event)"
+      (stop)="stop.emit()"
+      (atQuery)="onAtQuery($event)"
+      (atNavigate)="onNavigate($event)"
+      (atPick)="onPick()"
+      (atDismiss)="onDismiss()"
+    />
+  </div>
+
+  @if (error()) {
+    <p class="at-file-composer__error" role="alert">
+      {{ "at.file.composer.error" | translateFallback: "Workspace paths are unavailable." }}
+      <span>{{ error() }}</span>
+    </p>
+  }
+</div>

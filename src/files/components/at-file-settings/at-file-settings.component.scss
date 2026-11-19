@@ -1,0 +1,164 @@
+:host {
+  display: block;
+}
+
+.at-file-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  color: var(--gx-text-strong, #0f172a);
+}
+
+.at-file-settings__title {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.at-file-settings__subtitle,
+.at-file-settings__hint,
+.at-file-settings__empty {
+  margin: 0;
+  color: var(--gx-text-muted, #64748b);
+  font-size: 0.75rem;
+}
+
+.at-file-settings__toggle,
+.at-file-settings__caseToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.at-file-settings__scope {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.15rem;
+  border: 1px solid var(--gx-border-soft, #cbd5e1);
+  border-radius: 8px;
+  align-self: flex-start;
+}
+
+.at-file-settings__tab {
+  padding: 0.2rem 0.6rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.at-file-settings__tab--active {
+  background: var(--gx-surface-wash, rgba(13, 148, 136, 0.14));
+  font-weight: 600;
+}
+
+.at-file-settings__rules {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.at-file-settings__rule {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--gx-border-soft, #e2e8f0);
+  border-radius: 6px;
+  font-size: 0.76rem;
+}
+
+.at-file-settings__kind {
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  background: var(--gx-surface-wash, rgba(13, 148, 136, 0.14));
+  font-size: 0.66rem;
+  text-transform: uppercase;
+}
+
+.at-file-settings__pattern {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.at-file-settings__case {
+  color: var(--gx-text-muted, #64748b);
+  font-size: 0.68rem;
+}
+
+.at-file-settings__remove {
+  border: 0;
+  background: transparent;
+  color: var(--gx-danger-fg, #b91c1c);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.at-file-settings__add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.at-file-settings__select,
+.at-file-settings__input {
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--gx-border-soft, #cbd5e1);
+  border-radius: 6px;
+  background: var(--gx-surface, #ffffff);
+  color: inherit;
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.at-file-settings__input {
+  flex: 1;
+  min-width: 8rem;
+}
+
+.at-file-settings__addButton {
+  padding: 0.25rem 0.65rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--gx-teal-fg, #0f766e);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.at-file-settings__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.at-file-settings__link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gx-teal-fg, #0f766e);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.at-file-settings__error {
+  margin: 0;
+  color: var(--gx-danger-fg, #b91c1c);
+  font-size: 0.74rem;
+}
+
+.at-file-settings button:focus-visible,
+.at-file-settings input:focus-visible,
+.at-file-settings select:focus-visible {
+  outline: 2px solid var(--gx-teal-focus-strong, #0f766e);
+  outline-offset: 2px;
+}

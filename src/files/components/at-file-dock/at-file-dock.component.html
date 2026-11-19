@@ -1,0 +1,29 @@
+@if (mentions().length > 0) {
+  <div
+    class="at-file-dock"
+    role="group"
+    [attr.aria-label]="'at.file.dock.aria' | translateFallback: 'Referenced workspace paths'"
+    data-at-file-dock
+  >
+    @for (mention of mentions(); track mention.start + ':' + mention.relative) {
+      <span class="at-file-dock__row" data-at-file-row>
+        <button
+          type="button"
+          class="at-file-dock__path"
+          [attr.title]="mention.relative"
+          (click)="open.emit(mention.relative)"
+        >
+          {{ mention.relative }}
+        </button>
+        <button
+          type="button"
+          class="at-file-dock__remove"
+          [attr.aria-label]="('at.file.dock.remove' | translateFallback: 'Remove {name}').replace('{name}', mention.relative)"
+          (click)="removeMention(mention)"
+        >
+          ×
+        </button>
+      </span>
+    }
+  </div>
+}

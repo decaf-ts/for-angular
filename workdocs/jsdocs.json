@@ -25,7 +25,8 @@
       "./src/diagrams",
       "./src/agent",
       "./src/cron",
-      "./src/storyboard"
+      "./src/storyboard",
+      "./src/files"
     ],
     "exclude": [
       "cli.(ts|js)"

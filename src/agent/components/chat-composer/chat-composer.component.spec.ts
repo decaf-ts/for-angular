@@ -306,4 +306,106 @@ describe("ChatComposerComponent", () => {
     expect(event.defaultPrevented).toBe(true);
     expect(sent).toEqual(["form submit"]);
   });
+
+  describe("@path integration", () => {
+    it("does not emit @ queries unless the host enables the picker", () => {
+      const fixture = mount();
+      const queries: (string | null)[] = [];
+      fixture.componentInstance.atQuery.subscribe((value) => queries.push(value));
+
+      typeInto(fixture, "@src");
+
+      expect(queries).toEqual([]);
+    });
+
+    it("emits the active @ query and clears it when the token ends", () => {
+      const fixture = mount({ atFileEnabled: true });
+      const queries: (string | null)[] = [];
+      fixture.componentInstance.atQuery.subscribe((value) => queries.push(value));
+
+      typeInto(fixture, "@sr");
+      typeInto(fixture, "@sr ");
+      typeInto(fixture, "plain");
+
+      expect(queries).toEqual(["sr", null, null]);
+    });
+
+    it("routes navigation keys to the host while an @ token is active", () => {
+      const fixture = mount({ atFileEnabled: true });
+      const moves: number[] = [];
+      const picks: number[] = [];
+      const dismissals: number[] = [];
+      const sent: string[] = [];
+      fixture.componentInstance.atNavigate.subscribe((value) => moves.push(value));
+      fixture.componentInstance.atPick.subscribe(() => picks.push(1));
+      fixture.componentInstance.atDismiss.subscribe(() => dismissals.push(1));
+      fixture.componentInstance.send.subscribe((value) => sent.push(value));
+
+      typeInto(fixture, "look @sr");
+
+      const down = keydown(fixture, { key: "ArrowDown" });
+      const up = keydown(fixture, { key: "ArrowUp" });
+      const enter = keydown(fixture, { key: "Enter" });
+      const escape = keydown(fixture, { key: "Escape" });
+
+      expect(moves).toEqual([1, -1]);
+      expect(picks).toEqual([1]);
+      expect(dismissals).toEqual([1]);
+      expect(sent).toEqual([]);
+      expect(down.defaultPrevented).toBe(true);
+      expect(up.defaultPrevented).toBe(true);
+      expect(enter.defaultPrevented).toBe(true);
+      expect(escape.defaultPrevented).toBe(true);
+      expect(fixture.componentInstance.draft()).toBe("look @sr");
+    });
+
+    it("accepts file and directory references over the active token", async () => {
+      const fixture = mount({ atFileEnabled: true });
+      typeInto(fixture, "look @sr");
+
+      fixture.componentInstance.acceptAtFileReference("src/index.ts", "file");
+      await flush();
+      fixture.detectChanges();
+      expect(fixture.componentInstance.draft()).toBe("look @src/index.ts ");
+
+      typeInto(fixture, "look @sr");
+      fixture.componentInstance.acceptAtFileReference("src", "dir");
+      await flush();
+      fixture.detectChanges();
+      expect(fixture.componentInstance.draft()).toBe("look @src/ ");
+    });
+
+    it("removes a referenced token by its range", () => {
+      const fixture = mount({ value: "hello @a.txt" });
+      const changes: string[] = [];
+      fixture.componentInstance.valueChange.subscribe((value) => changes.push(value));
+
+      fixture.componentInstance.removeAtFileToken(6, 12);
+
+      expect(fixture.componentInstance.draft()).toBe("hello ");
+      expect(changes).toEqual(["hello "]);
+    });
+
+    it("inserts text at the current selection", () => {
+      const fixture = mount({ value: "ab" });
+      const textarea = textareaOf(fixture);
+      textarea.value = "ab";
+      textarea.setSelectionRange(1, 1);
+
+      fixture.componentInstance.insertAtCursor("X");
+
+      expect(fixture.componentInstance.draft()).toBe("aXb");
+    });
+
+    it("does not open a query for a protected pasted token", () => {
+      const fixture = mount({ atFileEnabled: true });
+      const queries: (string | null)[] = [];
+      fixture.componentInstance.atQuery.subscribe((value) => queries.push(value));
+
+      typeInto(fixture, "look @\u2060src");
+
+      expect(queries).toEqual([null]);
+      expect(fixture.componentInstance.draft()).toBe("look @\u2060src");
+    });
+  });
 });
