@@ -1,0 +1,119 @@
+<form
+  class="terminal-question"
+  [attr.aria-label]="'agent.terminal.question.form' | translateFallback: 'Agent question'"
+  novalidate
+  (submit)="onSubmit($event)"
+  (keydown.escape)="onCancel()"
+>
+  @for (question of questions(); track $index; let index = $index) {
+    <fieldset class="terminal-question__group">
+      <legend class="terminal-question__legend">
+        {{ question.header || question.question }}
+      </legend>
+
+      @if (question.header) {
+        <p class="terminal-question__prompt">{{ question.question }}</p>
+      }
+
+      @if (question.options?.length) {
+        <p class="terminal-question__hint">
+          {{
+            (isMulti(question)
+              ? "agent.terminal.question.multiHint"
+              : "agent.terminal.question.singleHint"
+            ) | translateFallback: (isMulti(question) ? "Select all that apply." : "Select one option.")
+          }}
+        </p>
+
+        <div class="terminal-question__options">
+          @for (option of question.options; track option.label) {
+            <label class="terminal-question__option">
+              <input
+                class="terminal-question__control"
+                [type]="isMulti(question) ? 'checkbox' : 'radio'"
+                [name]="'terminal-question-' + index"
+                [value]="option.label"
+                [checked]="isSelected(index, option.label)"
+                [disabled]="disabled()"
+                (change)="toggle(index, option.label, isMulti(question))"
+              />
+              <span class="terminal-question__option-body">
+                <span class="terminal-question__option-label">{{ option.label }}</span>
+                @if (option.description) {
+                  <span class="terminal-question__option-description">{{ option.description }}</span>
+                }
+              </span>
+            </label>
+          }
+        </div>
+
+        <label class="terminal-question__field" [attr.for]="'terminal-question-' + index + '-custom'">
+          <span class="terminal-question__field-label">
+            {{ "agent.terminal.question.custom" | translateFallback: "Other (type your answer)" }}
+          </span>
+          <input
+            class="terminal-question__input"
+            [id]="'terminal-question-' + index + '-custom'"
+            [type]="question.secret ? 'password' : 'text'"
+            [value]="customAt(index)"
+            [disabled]="disabled()"
+            [attr.autocomplete]="question.secret ? 'new-password' : 'off'"
+            [attr.placeholder]="
+              (question.secret
+                ? 'agent.terminal.question.secretPlaceholder'
+                : 'agent.terminal.question.answerPlaceholder'
+              ) | translateFallback: (question.secret ? 'Enter a secret value' : 'Type your answer')
+            "
+            (input)="setCustom(index, $any($event.target).value)"
+          />
+        </label>
+      } @else {
+        <label class="terminal-question__field" [attr.for]="'terminal-question-' + index + '-answer'">
+          <span class="terminal-question__field-label">
+            {{ "agent.terminal.question.answer" | translateFallback: "Your answer" }}
+          </span>
+          <input
+            class="terminal-question__input"
+            [id]="'terminal-question-' + index + '-answer'"
+            [type]="question.secret ? 'password' : 'text'"
+            [value]="customAt(index)"
+            [disabled]="disabled()"
+            [attr.autocomplete]="question.secret ? 'new-password' : 'off'"
+            [attr.placeholder]="
+              (question.secret
+                ? 'agent.terminal.question.secretPlaceholder'
+                : 'agent.terminal.question.answerPlaceholder'
+              ) | translateFallback: (question.secret ? 'Enter a secret value' : 'Type your answer')
+            "
+            (input)="setCustom(index, $any($event.target).value)"
+          />
+        </label>
+      }
+    </fieldset>
+  }
+
+  <div class="terminal-question__footer">
+    @if (invalid()) {
+      <p class="terminal-question__error" role="alert">
+        {{ "agent.terminal.question.required" | translateFallback: "Select an option or type an answer." }}
+      </p>
+    }
+    <div class="terminal-question__actions" role="group" [attr.aria-label]="'agent.terminal.question.actions' | translateFallback: 'Question actions'">
+      <button
+        type="submit"
+        class="terminal-question__button terminal-question__button--primary"
+        [disabled]="disabled() || !questions().length"
+      >
+        {{ "agent.terminal.question.submit" | translateFallback: "Submit answer" }}
+      </button>
+      <button
+        type="button"
+        class="terminal-question__button"
+        [disabled]="disabled()"
+        (click)="onCancel()"
+      >
+        {{ "agent.terminal.question.cancel" | translateFallback: "Cancel" }}
+      </button>
+    </div>
+  </div>
+</form>

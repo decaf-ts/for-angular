@@ -1,0 +1,113 @@
+<section
+  class="terminal-approval"
+  role="group"
+  [attr.aria-label]="'agent.terminal.approval.title' | translateFallback: 'Approval required'"
+  (keydown.escape)="onCancel()"
+>
+  <header class="terminal-approval__header">
+    <span class="terminal-approval__mark" aria-hidden="true">!</span>
+    <div class="terminal-approval__heading">
+      <h3 class="terminal-approval__title">
+        {{ "agent.terminal.approval.title" | translateFallback: "Approval required" }}
+      </h3>
+      <p class="terminal-approval__subtitle">
+        {{
+          "agent.terminal.approval.subtitle"
+            | translateFallback: "The agent is waiting for your decision before it continues."
+        }}
+      </p>
+    </div>
+    <span class="terminal-approval__chip">
+      {{ "agent.terminal.approval.pending" | translateFallback: "Awaiting decision" }}
+    </span>
+  </header>
+
+  <dl class="terminal-approval__details">
+    <div class="terminal-approval__row">
+      <dt class="terminal-approval__term">
+        {{ "agent.terminal.approval.tool" | translateFallback: "Tool" }}
+      </dt>
+      <dd class="terminal-approval__value terminal-approval__value--code">
+        {{ toolName() || ("agent.terminal.approval.unknownTool" | translateFallback: "Unknown tool") }}
+      </dd>
+    </div>
+
+    @if (toolDescription()) {
+      <div class="terminal-approval__row">
+        <dt class="terminal-approval__term">
+          {{ "agent.terminal.approval.description" | translateFallback: "Description" }}
+        </dt>
+        <dd class="terminal-approval__value">{{ toolDescription() }}</dd>
+      </div>
+    }
+
+    @if (requestReason()) {
+      <div class="terminal-approval__row">
+        <dt class="terminal-approval__term">
+          {{ "agent.terminal.approval.reason" | translateFallback: "Reason" }}
+        </dt>
+        <dd class="terminal-approval__value">{{ requestReason() }}</dd>
+      </div>
+    }
+
+    @if (command()) {
+      <div class="terminal-approval__row">
+        <dt class="terminal-approval__term">
+          {{ "agent.terminal.approval.command" | translateFallback: "Command" }}
+        </dt>
+        <dd class="terminal-approval__value">
+          <code class="terminal-approval__command">{{ command() }}</code>
+        </dd>
+      </div>
+    }
+
+    @if (hasArguments()) {
+      <div class="terminal-approval__row terminal-approval__row--stacked">
+        <dt class="terminal-approval__term">
+          {{ "agent.terminal.approval.arguments" | translateFallback: "Arguments" }}
+        </dt>
+        <dd class="terminal-approval__value">
+          <pre class="terminal-approval__arguments" tabindex="0">{{ argumentsText() }}</pre>
+        </dd>
+      </div>
+    }
+  </dl>
+
+  <p class="terminal-approval__hint">
+    {{
+      "agent.terminal.approval.denyHint"
+        | translateFallback: "Deny is the default. Allow only if you trust this action."
+    }}
+  </p>
+
+  <div
+    class="terminal-approval__actions"
+    role="group"
+    [attr.aria-label]="'agent.terminal.approval.actions' | translateFallback: 'Approval actions'"
+  >
+    <button
+      type="button"
+      class="terminal-approval__button terminal-approval__button--deny"
+      [disabled]="disabled()"
+      (click)="onReject()"
+    >
+      {{ "agent.terminal.approval.reject" | translateFallback: "Reject" }}
+    </button>
+    <button
+      type="button"
+      class="terminal-approval__button terminal-approval__button--allow"
+      [disabled]="disabled()"
+      (click)="onApprove()"
+    >
+      {{ "agent.terminal.approval.allowOnce" | translateFallback: "Allow once" }}
+    </button>
+    <button
+      type="button"
+      class="terminal-approval__button terminal-approval__button--cancel"
+      [disabled]="disabled()"
+      (click)="onCancel()"
+    >
+      {{ "agent.terminal.approval.cancel" | translateFallback: "Cancel" }}
+    </button>
+  </div>
+</section>

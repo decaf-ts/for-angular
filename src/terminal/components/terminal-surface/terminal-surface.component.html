@@ -1,0 +1,95 @@
+<section
+  class="terminal-surface"
+  [attr.aria-label]="title() || ('agent.terminal.surface.title' | translateFallback: 'Terminal')"
+>
+  <header class="terminal-surface__header">
+    <div class="terminal-surface__heading">
+      <h2 class="terminal-surface__title">
+        {{ title() || ("agent.terminal.surface.title" | translateFallback: "Terminal") }}
+      </h2>
+      <p class="terminal-surface__count" role="status" aria-live="polite">
+        <span class="terminal-surface__count-value">{{ pendingCount() }}</span>
+        {{
+          (pendingCount() === 1
+            ? "agent.terminal.surface.pendingOne"
+            : "agent.terminal.surface.pendingMany"
+          ) | translateFallback: (pendingCount() === 1 ? "pending interaction" : "pending interactions")
+        }}
+      </p>
+    </div>
+  </header>
+
+  <div class="terminal-surface__body">
+    <nav
+      class="terminal-surface__rail"
+      [attr.aria-label]="'agent.terminal.surface.listLabel' | translateFallback: 'Pending interactions'"
+    >
+      @if (pendingCount() === 0) {
+        <div class="terminal-surface__empty">
+          <p class="terminal-surface__empty-title">
+            {{ "agent.terminal.surface.empty" | translateFallback: "No pending questions or approvals." }}
+          </p>
+          <p class="terminal-surface__empty-hint">
+            {{
+              "agent.terminal.surface.emptyHint"
+                | translateFallback: "When the agent needs input, the prompt appears here."
+            }}
+          </p>
+        </div>
+      } @else {
+        <ul class="terminal-surface__list" role="list">
+          @for (interaction of pending(); track interaction.id) {
+            <li class="terminal-surface__list-item">
+              <button
+                type="button"
+                class="terminal-surface__item"
+                [class.terminal-surface__item--active]="active()?.id === interaction.id"
+                [attr.aria-current]="active()?.id === interaction.id ? 'true' : null"
+                (click)="onSelect(interaction.id)"
+              >
+                <span class="terminal-surface__item-kind">
+                  {{
+                    (interaction.kind === "approval"
+                      ? "agent.terminal.surface.approval"
+                      : "agent.terminal.surface.question"
+                    ) | translateFallback: (interaction.kind === "approval" ? "Approval" : "Question")
+                  }}
+                </span>
+                <span class="terminal-surface__item-label">{{ label(interaction) }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </nav>
+
+    <div
+      class="terminal-surface__detail"
+      role="region"
+      [attr.aria-label]="'agent.terminal.surface.detailLabel' | translateFallback: 'Active interaction'"
+    >
+      @if (active(); as current) {
+        @if (current.kind === "question") {
+          <ngx-decaf-terminal-question
+            [questions]="activeQuestions()"
+            [disabled]="disabled()"
+            (answered)="onQuestionSubmit($event)"
+            (cancel)="onCancel()"
+          />
+        } @else {
+          <ngx-decaf-terminal-approval
+            [payload]="activeApproval()"
+            [reason]="current.reason ?? null"
+            [disabled]="disabled()"
+            (decide)="onApprovalDecide($event)"
+            (cancel)="onCancel()"
+          />
+        }
+      } @else {
+        <p class="terminal-surface__select-prompt">
+          {{ "agent.terminal.surface.selectPrompt" | translateFallback: "Select an interaction to respond." }}
+        </p>
+      }
+    </div>
+  </div>
+</section>
