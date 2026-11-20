@@ -16,6 +16,7 @@ import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import * as ts from 'typescript';
 
 /** Repository package root (`for-angular/`). */
 const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
@@ -79,10 +80,10 @@ const FEATURE_SPECIFIERS: Record<string, string[]> = {
   './cron': ['cronstrue', 'cronstrue/i18n'],
   './diagrams': ['@decaf-ts/as-graph/shared', 'ng-diagram'],
   './gantt': ['@worktile/gantt', 'html2canvas'],
+  './gen-ui': [],
   './kanban': ['@angular/cdk/drag-drop'],
   './math': ['mathlive'],
-  // `/scrum` is the only entry allowed to compose another feature: it has no
-  // third-party feature peer of its own and reuses `/kanban`.
+  // `/scrum` has no third-party feature peer of its own and reuses `/kanban`.
   './scrum': [],
   './storyboard': [],
 };
@@ -91,13 +92,14 @@ const FEATURE_SPECIFIERS: Record<string, string[]> = {
  * The only cross-feature entry-point imports each secondary entry may make.
  * Deliberate composition is allowed instead of duplication:
  * `/scrum` composes the Kanban board, while `/agent` composes `/diagrams`
- * (shared graph primitives and translation) and `/code-editor` (the chat
- * artifact editor).
+ * (shared graph primitives and translation), `/code-editor` (the chat
+ * artifact editor), and `/gen-ui` (inline structured message rendering).
  */
 const CROSS_ENTRY_SPECIFIERS: Record<string, string[]> = {
   './agent': [
     '@decaf-ts/for-angular/code-editor',
     '@decaf-ts/for-angular/diagrams',
+    '@decaf-ts/for-angular/gen-ui',
   ],
   './scrum': ['@decaf-ts/for-angular/kanban'],
 };
@@ -106,6 +108,7 @@ const CROSS_ENTRY_SPECIFIERS: Record<string, string[]> = {
 const NON_SCRUM_FEATURE_DIRECTORIES = [
   'agent',
   'gantt',
+  'gen-ui',
   'diagrams',
   'charts',
   'code-editor',
@@ -128,21 +131,38 @@ const FEATURE_PACKAGES = new Set(
 /** Extracts every external module specifier from one FESM source. */
 function externalSpecifiersOf(source: string): string[] {
   const specifiers = new Set<string>();
-  const patterns = [
-    /(?:^|[^\w$])from\s+['"]([^'"]+)['"]/g,
-    /(?:^|[^\w$])import\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-    /(?:^|[^\w$])import\s+['"]([^'"]+)['"]/g,
-  ];
-  for (const pattern of patterns) {
-    for (const match of source.matchAll(pattern)) {
-      const specifier = match[1];
-      if (!specifier.startsWith('.') && !specifier.startsWith('/')) {
-        specifiers.add(specifier);
-      }
+  const file = ts.createSourceFile('bundle.mjs', source, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS);
+  function visit(node: ts.Node): void {
+    const moduleSpecifier = ts.isImportDeclaration(node) || ts.isExportDeclaration(node)
+      ? node.moduleSpecifier
+      : ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword
+        ? node.arguments[0]
+        : undefined;
+    if (moduleSpecifier && ts.isStringLiteralLike(moduleSpecifier)) {
+      const specifier = moduleSpecifier.text;
+      if (!specifier.startsWith('.') && !specifier.startsWith('/')) specifiers.add(specifier);
     }
+    ts.forEachChild(node, visit);
   }
+  visit(file);
   return [...specifiers].sort();
 }
+
+describe('FESM import scanner', () => {
+  it('finds imports and re-exports while ignoring comments, strings, and local modules', () => {
+    expect(externalSpecifiersOf(`
+      import { value } from 'static-peer';
+      import 'side-effect-peer';
+      export { other } from 'export-peer';
+      const load = () => import('dynamic-peer');
+      import './local.mjs';
+      import '/absolute.mjs';
+      // Read from 'set to empty' when no value exists.
+      /* import 'comment-peer'; */
+      const example = "import('example-peer')";
+    `)).toEqual(['dynamic-peer', 'export-peer', 'side-effect-peer', 'static-peer']);
+  });
+});
 
 /** Maps an import specifier to its package name (`@scope/name` or `name`). */
 function packageOf(specifier: string): string {
@@ -322,7 +342,7 @@ describe('packed bundle isolation (Phase 2)', () => {
     expect(peers['zod']).toBeUndefined();
   });
 
-  it.each(['./agent', './cron', './storyboard'])(
+  it.each(['./agent', './cron', './gen-ui', './storyboard'])(
     '%s ships its README, declarations, and FESM',
     (exportKey) => {
       const exportsMap = packedPackageJson['exports'] as Record<string, unknown>;

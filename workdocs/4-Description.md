@@ -49,11 +49,15 @@ surfaces through injection tokens, so it does not import those entry points.
 | Package | Supported / tested |
 | --- | --- |
 | `@angular/*` | `21.2.17` – `21.2.25` (Angular 21 line) |
-| TypeScript | `~5.9.0` (`>=5.9 <6.0`) |
+| TypeScript | Repository compiler: `^6.0.3` (tested with `6.0.3`) |
 | Node / npm | `>=22.0.0` / `>=10.0.0` |
 | `@ai-sdk/angular` | `^3.0.166` (optional peer — required by `/agent`) |
 | Server rendering | Supported: components avoid import-time `window`/`document` access and emit host placeholders. |
 | Zoneless | Not advertised or tested in this release. |
+
+Development builds skip external font inlining so `npm run build` does not
+require Google Fonts access during compilation. Production builds retain font
+inlining.
 
 Any Angular 21 host that pins `@angular/core`, `@angular/common` and (for
 `/kanban` or `/scrum`) `@angular/cdk` to 21.x installs cleanly. A plain

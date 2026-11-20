@@ -9,9 +9,12 @@ state machine (optional peer): `Chat` owns transcript and streaming state from
 the transport seam onward, and `AgentChatService` projects it into the
 component read model.
 
-The component composes the graph I/O viewer from the
-[`/diagrams`](../diagrams) entry point through its public specifier; it never
-reaches into another entry point's source tree.
+The component composes the graph I/O viewer from
+[`/diagrams`](../diagrams), the artifact editor from
+[`/code-editor`](../code-editor), and structured message rendering from
+[`/gen-ui`](../gen-ui), all through their public entry-point specifiers.
+The packed bundle isolation tests allow these three cross-feature imports
+and check `/gen-ui` independently against the shared core peers.
 
 ## Install
 

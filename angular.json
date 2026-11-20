@@ -184,7 +184,11 @@
                 "fonts": true
               }
             },
-            "development": {},
+            "development": {
+              "optimization": {
+                "fonts": false
+              }
+            },
             "ci": {
               "progress": false
             }

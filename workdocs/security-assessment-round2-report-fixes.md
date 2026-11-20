@@ -8,7 +8,19 @@ Status log for the findings in [workdocs/security-assessment-round2-report.md](w
 - **Date:** 2026-11-13.
 - **Branch:** `DECAF-895_secReport`.
 - **Baseline:** fixes found in the working tree on top of `abb26f5` (v0.12.5) were reviewed, kept, and committed together with this pass's additions.
-- **Still pending their own pass:** R2-3 (SSE event auth, `engine/overrides.ts`), R2-4 (`GraphRunEventClient` events URL), and the remaining Low hardening backlog (R2-6 … R2-15).
+- **Still pending their own pass:** R2-4 (`GraphRunEventClient` events URL), and the remaining Low hardening backlog (R2-6 … R2-15).
+
+## R2-3 — SSE event auth: affected adapter removed
+
+**Status: RETIRED from this package (2026-11-20).** Commit `9fc9f7ac`
+deleted `src/lib/engine/overrides.ts`, including `DecafAxiosHttpAdapter` and
+its static-token event-header resolver. There is no replacement for that
+adapter in `for-angular`. The orphaned
+`tests/security-poc/n5-sse-event-auth.security-poc.spec.ts` was removed because
+it imported the deleted implementation. The original finding and historical
+four-test remediation results remain in the assessment report; they do not
+describe current test coverage. Consumers configuring an HTTP adapter own
+their event-header resolver and its authorization tests.
 
 ---
 
